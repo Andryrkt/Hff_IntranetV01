@@ -3,11 +3,12 @@
 namespace App\Controller\magasin\bl;
 
 use App\Controller\Controller;
-use App\Controller\Traits\AutorisationTrait;
 use App\Entity\admin\Application;
 use App\Form\bl\BLSoumissionType;
 use App\Factory\bl\BLSoumissionFactory;
+use App\Controller\Traits\AutorisationTrait;
 use App\Service\fichier\TraitementDeFichier;
+use App\Service\genererPdf\GeneratePdfBlFut;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -23,11 +24,12 @@ class BLSoumissionController extends Controller
     private $historiqueOperation;
     private string $cheminDeBase;
     private TraitementDeFichier $traitementDeFichier;
+    private GeneratePdfBlFut $generatePdfBlFut;
 
     public function __construct()
     {
         parent::__construct();
-        $this->historiqueOperation = new HistoriqueOperationBLService();
+        $this->historiqueOperation = new HistoriqueOperationBLService($this->getEntityManager());
 
         // Sécuriser le chemin de base
         if (!isset($_ENV['BASE_PATH_FICHIER'])) {
@@ -42,6 +44,7 @@ class BLSoumissionController extends Controller
         }
 
         $this->traitementDeFichier = new TraitementDeFichier();
+        $this->generatePdfBlFut = new GeneratePdfBlFut();
     }
 
     /**
@@ -54,11 +57,11 @@ class BLSoumissionController extends Controller
 
         $this->autorisationAcces($this->getUser(), Application::ID_BDL);
 
-        $form = self::$validator->createBuilder(BLSoumissionType::class)->getForm();
+        $form = $this->getFormFactory()->createBuilder(BLSoumissionType::class)->getForm();
 
         $this->traitementFormulaire($form, $request);
 
-        self::$twig->display('bl/blsoumision.html.twig', [
+        return $this->render('bl/blsoumision.html.twig', [
             'form' => $form->createView(),
         ]);
     }
@@ -72,6 +75,9 @@ class BLSoumissionController extends Controller
         }
 
         try {
+
+            $typeBl = $form->getData()['typeBl'];
+
             // Enregistrement des fichiers
             $nomFichiers = $this->enregistrementFichier($form);
 
@@ -81,11 +87,18 @@ class BLSoumissionController extends Controller
 
             // Création de l'entité
             $cheminEtNomFichier = $this->cheminDeBase . $nomFichiers[0];
-            $blSoumission = BLSoumissionFactory::createBLSoumission($this->getUser(), $cheminEtNomFichier);
+            $blSoumission = BLSoumissionFactory::createBLSoumission($this->getUser(), $cheminEtNomFichier, $typeBl);
 
             // Sauvegarde
-            self::$em->persist($blSoumission);
-            self::$em->flush();
+            $this->getEntityManager()->persist($blSoumission);
+            $this->getEntityManager()->flush();
+
+            //envoie dans DW
+            if ($typeBl === 1) {
+                $this->generatePdfBlFut->copyToDWBlFutInterne($nomFichiers[0]);
+            } else {
+                $this->generatePdfBlFut->copyToDWBlFutFactureClient($nomFichiers[0]);
+            }
 
             // Historisation et notification
             $message = 'Le document est soumis pour validation';

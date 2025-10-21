@@ -2,6 +2,7 @@ import { formaterNombre } from "../../utils/formatNumberUtils.js";
 import { boutonRadio } from "./boutonRadio.js";
 import { generateCustomFilename } from "../../utils/dateUtils.js";
 import { replaceNameToNewIndex } from "../newAvecDit/dal.js";
+import { normalizeData } from "../../utils/dataUtils.js";
 
 // Dictionnaire pour stocker les fichiers sélectionnés par champ input
 const selectedFilesMap = {};
@@ -39,9 +40,8 @@ export function ajouterUneLigne(line, fields, iscatalogue) {
   );
   insertCellData(row, formaterNombre(total), "right", color);
   insertCellData(row, "1", "center", color); // conditionnement TO DO
-  let qteDispo = fields.qteDispo.value === "" ? "-" : fields.qteDispo.value;
-  insertCellData(row, qteDispo, "center", color);
-  insertCellData(row, fields.motif.value, "left", color);
+  insertCellData(row, normalizeData(fields.qteDispo.value), "center", color);
+  insertCellData(row, normalizeData(fields.motif.value), "left", color);
 
   let nbrColonnes = tableBody.previousElementSibling.rows[0].cells.length;
 
@@ -79,6 +79,12 @@ export function ajouterUneLigne(line, fields, iscatalogue) {
       console.log(field.id, field.id.includes("_codeFams"), field.value);
     });
   }
+
+  fields.famille.classList.remove("non-modifiable");
+  fields.sousFamille.classList.remove("non-modifiable");
+  fields.reference.classList.remove("non-modifiable");
+  fields.fournisseur.classList.remove("non-modifiable");
+  fields.designation.classList.remove("non-modifiable");
 }
 
 function insertCellData(row, $data, align = "center", color = "red") {

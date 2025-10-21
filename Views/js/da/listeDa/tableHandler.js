@@ -60,6 +60,7 @@ export function mergeCellsTable(cellPivotIndex) {
 
   // Fonction pour insérer une ligne séparatrice
   function insertSeparator(referenceRow = null) {
+    if (!rows || rows.length === 0) return;
     let separatorRow = document.createElement("tr");
     separatorRow.classList.add("separator-row");
 

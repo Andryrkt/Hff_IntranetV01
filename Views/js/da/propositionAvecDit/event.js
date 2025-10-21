@@ -21,7 +21,20 @@ export function handleAllInputEvents() {
 
   numericFields.forEach((selector) => {
     addInputListener(selector, (el) => {
-      el.value = el.value.replace(/[^\d]/g, "");
+      // Si l'élément est "Prix Unitaire", on accepte les décimales avec un point
+      if (selector.includes("proposition_PU_")) {
+        // Remplacer tout sauf les chiffres et le point
+        el.value = el.value.replace(/[^0-9.]/g, "");
+        // S'assurer qu'il n'y a qu'un seul point
+        el.value = el.value.replace(/\.{2,}/g, ".");
+        // Si plusieurs points, on laisse uniquement le premier
+        if (el.value.split(".").length > 2) {
+          el.value = el.value.substring(0, el.value.lastIndexOf("."));
+        }
+      } else {
+        // Pour les autres champs, on garde uniquement les chiffres
+        el.value = el.value.replace(/[^\d]/g, "");
+      }
     });
   });
 

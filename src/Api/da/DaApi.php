@@ -21,35 +21,141 @@ class DaApi extends Controller
      */
     public function fetchSousFamille($code)
     {
-        $daModel = new DaModel;
-        $data = $daModel->getTheSousFamille($code);
+        try {
+            $daModel = new DaModel;
+            $data = $daModel->getTheSousFamille($code);
 
-        $result = [];
-        foreach ($data as $sfm) {
-            $result[] = [
-                'value' => $sfm['code'],
-                'text' => $sfm['libelle'],
-            ];
+            $result = [];
+            foreach ($data as $sfm) {
+                $result[] = [
+                    'value' => $sfm['code'],
+                    'text' => $sfm['libelle'],
+                ];
+            }
+
+            // Nettoyer les données avant l'encodage JSON
+            $cleanedData = $this->cleanDataForJson($result);
+
+            header("Content-type:application/json; charset=utf-8");
+            echo json_encode($cleanedData, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_IGNORE);
+        } catch (\Exception $e) {
+            // En cas d'erreur, retourner un tableau vide avec un message d'erreur
+            header("Content-type:application/json; charset=utf-8");
+            http_response_code(500);
+            echo json_encode([
+                'error' => true,
+                'message' => 'Erreur lors du chargement des données: ' . $e->getMessage(),
+                'data' => []
+            ], JSON_UNESCAPED_UNICODE);
         }
-
-        header("Content-type:application/json");
-
-        echo json_encode($result);
     }
 
     /**
-     * @Route("/demande-appro/autocomplete/all-designation/{famille}/{sousfamille}", name="autocomplete_all_designation")
+     * @Route("/demande-appro/autocomplete/all-designation", name="autocomplete_all_designation_default")
      *
      * @return void
      */
-    public function autocompleteAllDesignation($famille, $sousfamille)
+    public function autocompleteAllDesignationDefault()
     {
-        $daModel = new DaModel;
-        $data = $daModel->getAllDesignation($famille, $sousfamille);
+        try {
+            $daModel = new DaModel;
+            // Utiliser des valeurs par défaut ou récupérer toutes les désignations
+            $data = $daModel->getAllDesignationZST('-', '-');
 
-        header("Content-type:application/json");
+            // Vérifier que les données sont valides
+            if (!is_array($data)) {
+                throw new \Exception("Les données retournées ne sont pas un tableau valide");
+            }
 
-        echo json_encode($data);
+            // Nettoyer les données avant l'encodage JSON
+            $cleanedData = $this->cleanDataForJson($data);
+
+            header("Content-type:application/json; charset=utf-8");
+            echo json_encode($cleanedData, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_IGNORE);
+        } catch (\Exception $e) {
+            // En cas d'erreur, retourner un tableau vide avec un message d'erreur
+            header("Content-type:application/json; charset=utf-8");
+            http_response_code(500);
+            echo json_encode([
+                'error' => true,
+                'message' => 'Erreur lors du chargement des données: ' . $e->getMessage(),
+                'data' => []
+            ], JSON_UNESCAPED_UNICODE);
+        }
+    }
+
+    /**
+     * @Route("/demande-appro/autocomplete/all-designation-zst/{famille}/{sousfamille}", name="autocomplete_all_designation_zst")
+     *
+     * @return void
+     */
+    public function autocompleteAllDesignationZST($famille, $sousfamille)
+    {
+        try {
+            $daModel = new DaModel;
+
+            // Gérer le cas spécial où les paramètres sont "-"
+            if ($famille === '-' && $sousfamille === '-') {
+                // Rediriger vers la route par défaut ou gérer différemment
+                $this->autocompleteAllDesignationDefault();
+                return;
+            }
+
+            $data = $daModel->getAllDesignationZST($famille, $sousfamille);
+
+            // Vérifier que les données sont valides
+            if (!is_array($data)) {
+                throw new \Exception("Les données retournées ne sont pas un tableau valide");
+            }
+
+            // Nettoyer les données avant l'encodage JSON
+            $cleanedData = $this->cleanDataForJson($data);
+
+            header("Content-type:application/json; charset=utf-8");
+            echo json_encode($cleanedData, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_IGNORE);
+        } catch (\Exception $e) {
+            // En cas d'erreur, retourner un tableau vide avec un message d'erreur
+            header("Content-type:application/json; charset=utf-8");
+            http_response_code(500);
+            echo json_encode([
+                'error' => true,
+                'message' => 'Erreur lors du chargement des données: ' . $e->getMessage(),
+                'data' => []
+            ], JSON_UNESCAPED_UNICODE);
+        }
+    }
+
+    /**
+     * @Route("/demande-appro/autocomplete/all-designation-zdi", name="autocomplete_all_designation_zdi")
+     *
+     * @return void
+     */
+    public function autocompleteAllDesignationZDI()
+    {
+        try {
+            $daModel = new DaModel;
+            $data = $daModel->getAllDesignationZDI();
+
+            // Vérifier que les données sont valides
+            if (!is_array($data)) {
+                throw new \Exception("Les données retournées ne sont pas un tableau valide");
+            }
+
+            // Nettoyer les données avant l'encodage JSON
+            $cleanedData = $this->cleanDataForJson($data);
+
+            header("Content-type:application/json; charset=utf-8");
+            echo json_encode($cleanedData, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_IGNORE);
+        } catch (\Exception $e) {
+            // En cas d'erreur, retourner un tableau vide avec un message d'erreur
+            header("Content-type:application/json; charset=utf-8");
+            http_response_code(500);
+            echo json_encode([
+                'error' => true,
+                'message' => 'Erreur lors du chargement des données: ' . $e->getMessage(),
+                'data' => []
+            ], JSON_UNESCAPED_UNICODE);
+        }
     }
 
     /**
@@ -59,12 +165,30 @@ class DaApi extends Controller
      */
     public function autocompleteAllFournisseur()
     {
-        $daModel = new DaModel;
-        $data = $daModel->getAllFournisseur();
+        try {
+            $daModel = new DaModel;
+            $data = $daModel->getAllFournisseur();
 
-        header("Content-type:application/json");
+            // Vérifier que les données sont valides
+            if (!is_array($data)) {
+                throw new \Exception("Les données retournées ne sont pas un tableau valide");
+            }
 
-        echo json_encode($data);
+            // Nettoyer les données avant l'encodage JSON
+            $cleanedData = $this->cleanDataForJson($data);
+
+            header("Content-type:application/json; charset=utf-8");
+            echo json_encode($cleanedData, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_IGNORE);
+        } catch (\Exception $e) {
+            // En cas d'erreur, retourner un tableau vide avec un message d'erreur
+            header("Content-type:application/json; charset=utf-8");
+            http_response_code(500);
+            echo json_encode([
+                'error' => true,
+                'message' => 'Erreur lors du chargement des données: ' . $e->getMessage(),
+                'data' => []
+            ], JSON_UNESCAPED_UNICODE);
+        }
     }
 
     /**
@@ -77,13 +201,14 @@ class DaApi extends Controller
         if ($request->isMethod('POST')) {
             $data = json_decode($request->getContent(), true);
 
-            $dit = self::$em->getRepository(DemandeIntervention::class)->find($data['id']);
+            $em = $this->getEntityManager();
+            $dit = $em->getRepository(DemandeIntervention::class)->find($data['id']);
             if (!$dit) {
                 echo json_encode(['error' => 'DemandeIntervention non trouvée']);
                 exit;
             }
 
-            $statut = self::$em->getRepository(DemandeAppro::class)
+            $statut = $em->getRepository(DemandeAppro::class)
                 ->getStatut($dit->getNumeroDemandeIntervention());
 
             if ($statut === null) {
@@ -94,5 +219,26 @@ class DaApi extends Controller
 
             exit;
         }
+    }
+
+    /**
+     * Nettoie les données pour l'encodage JSON
+     */
+    private function cleanDataForJson($data)
+    {
+        if (is_array($data)) {
+            $cleaned = [];
+            foreach ($data as $key => $value) {
+                $cleaned[$key] = $this->cleanDataForJson($value);
+            }
+            return $cleaned;
+        } elseif (is_string($data)) {
+            // Nettoyer la chaîne pour éviter les problèmes d'encodage
+            $cleaned = mb_convert_encoding($data, 'UTF-8', 'auto');
+            // Supprimer les caractères de contrôle non imprimables
+            $cleaned = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', '', $cleaned);
+            return $cleaned;
+        }
+        return $data;
     }
 }

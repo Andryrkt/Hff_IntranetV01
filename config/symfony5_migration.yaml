@@ -1,0 +1,221 @@
+# Configuration pour la migration vers Symfony 5
+# Ce fichier contient les configurations spécifiques à Symfony 5
+
+# Configuration du framework Symfony 5
+framework:
+    # Configuration de base
+    secret: '%env(APP_SECRET)%'
+    http_method_override: false
+    handle_all_throwables: true
+    
+    # Configuration des assets
+    assets:
+        enabled: true
+        packages:
+            public:
+                base_path: '%app.public_dir%'
+                version: '%app.version%'
+                version_format: '%%s?version=%%s'
+    
+    # Configuration des sessions
+    session:
+        enabled: true
+        handler_id: null
+        cookie_secure: auto
+        cookie_samesite: lax
+        storage_factory_id: session.storage.factory.native
+    
+    # Configuration des profilers
+    profiler:
+        enabled: '%app.debug%'
+        collect: true
+        only_exceptions: false
+        only_master_requests: false
+        dsn: 'file:%kernel.cache_dir%/profiler'
+    
+    # Configuration des web profilers
+    web_profiler:
+        enabled: '%app.debug%'
+        toolbar: '%app.debug%'
+        intercept_redirects: false
+        exclude_ajax: false
+        exclude_paths: []
+        exclude_sections: []
+    
+    # Configuration des formulaires
+    form:
+        enabled: true
+        csrf_protection:
+            enabled: '%security.csrf.enabled%'
+        default_theme: '%form.default_theme%'
+        csrf_field_name: '_token'
+        csrf_token_id: 'form'
+    
+    # Configuration de la validation
+    validation:
+        enabled: true
+        enable_annotations: true
+        mapping:
+            paths: []
+    
+    # Configuration des traductions
+    translator:
+        enabled: true
+        default_path: '%kernel.project_dir%/translations'
+        fallbacks:
+            - fr
+        logging: '%app.debug%'
+    
+    # Configuration du routage
+    router:
+        enabled: true
+        default_uri: null
+        utf8: true
+        strict_requirements:
+            enabled: '%app.debug%'
+            log_missing: '%app.debug%'
+
+# Configuration de la sécurité Symfony 5
+security:
+    # Configuration CSRF
+    csrf_protection:
+        enabled: '%security.csrf.enabled%'
+    
+    # Configuration des sessions
+    session_fixation_strategy: '%security.session_fixation_strategy%'
+    
+    # Configuration des firewalls
+    firewalls:
+        main:
+            pattern: ^/
+            anonymous: ~
+            form_login:
+                login_path: security_signin
+                check_path: security_signin
+            logout:
+                path: security_logout
+                target: security_signin
+    
+    # Configuration des access control
+    access_control:
+        - { path: ^/admin, roles: ROLE_ADMIN }
+        - { path: ^/api, roles: ROLE_USER }
+        - { path: ^/, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+
+# Configuration des bundles Symfony 5
+bundles:
+    # Bundles de base
+    - Symfony\Bundle\FrameworkBundle\FrameworkBundle
+    - Symfony\Bundle\SecurityBundle\SecurityBundle
+    - Symfony\Bundle\TwigBundle\TwigBundle
+    - Symfony\Bundle\MonologBundle\MonologBundle
+    - Symfony\Bundle\SwiftmailerBundle\SwiftmailerBundle
+    - Doctrine\Bundle\DoctrineBundle\DoctrineBundle
+    - Doctrine\Bundle\MigrationsBundle\DoctrineMigrationsBundle
+    - Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle
+    
+    # Bundles optionnels
+    - Symfony\Bundle\WebProfilerBundle\WebProfilerBundle
+    - Symfony\Bundle\DebugBundle\DebugBundle
+    - Symfony\Bundle\MakerBundle\MakerBundle
+
+# Configuration des paramètres Symfony 5
+parameters:
+    # Configuration de l'application
+    app.name: 'Hffintranet'
+    app.version: '1.0.0'
+    app.locale: 'fr_FR'
+    app.debug: true
+    app.environment: 'dev'
+    
+    # Chemins de base
+    app.base_path: '%env(BASE_PATH_COURT)%'
+    app.views_dir: '%kernel.project_dir%/Views/templates'
+    app.public_dir: '%kernel.project_dir%/public'
+    
+    # Configuration de la base de données
+    database_host: '%env(DB_HOST)%'
+    database_port: '%env(DB_PORT)%'
+    database_name: '%env(DB_NAME)%'
+    database_user: '%env(DB_USER)%'
+    database_password: '%env(DB_PASSWORD)%'
+    
+    # Configuration des sessions
+    session.name: 'HFFSESSION'
+    session.lifetime: 3600
+    
+    # Configuration de la sécurité
+    security.csrf.enabled: true
+    security.session_fixation_strategy: 'migrate'
+    
+    # Configuration Twig
+    twig.debug: true
+    twig.strict_variables: false
+    twig.form_themes:
+        - 'bootstrap_5_layout.html.twig'
+        - 'form_div_layout.html.twig'
+    
+    # Configuration des formulaires
+    form.default_theme: 'bootstrap_5_layout.html.twig'
+    
+    # Configuration de la pagination
+    pagination.items_per_page: 20
+    pagination.max_pages: 10
+
+# Configuration des services Symfony 5
+services:
+    # Configuration par défaut pour tous les services
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false
+    
+    # Services de base
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Entity/'
+            - '../src/Kernel.php'
+    
+    # Services spécifiques
+    App\Service\:
+        resource: '../src/Service/*'
+        tags: ['app.service']
+    
+    App\Model\:
+        resource: '../src/Model/*'
+        tags: ['app.model']
+    
+    App\Repository\:
+        resource: '../src/Repository/*'
+        tags: ['app.repository']
+    
+    # Services de navigation
+    App\Service\navigation\MenuService:
+        arguments:
+            $entityManager: '@doctrine.orm.default_entity_manager'
+    
+    App\Service\navigation\BreadcrumbMenuService:
+        arguments:
+            $menuService: '@App\Service\navigation\MenuService'
+    
+    # Services Twig
+    App\Twig\AppExtension:
+        arguments:
+            $session: '@session'
+            $requestStack: '@request_stack'
+            $tokenStorage: '@security.token_storage'
+            $authorizationChecker: '@security.authorization_checker'
+        tags: ['twig.extension']
+    
+    App\Twig\BreadcrumbExtension:
+        arguments:
+            $breadcrumbMenuService: '@App\Service\navigation\BreadcrumbMenuService'
+        tags: ['twig.extension']
+    
+    App\Twig\CarbonExtension:
+        tags: ['twig.extension']
+    
+    App\Twig\DeleteWordExtension:
+        tags: ['twig.extension']

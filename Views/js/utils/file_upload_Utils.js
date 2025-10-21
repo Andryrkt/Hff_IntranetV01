@@ -112,6 +112,59 @@ export function initializeFileHandlersMultiple(idSuffix, fileInpute) {
 
   fileInput.multiple = true;
 
+  function updateInputFiles() {
+    const dataTransfer = new DataTransfer();
+    fileStore.forEach((file) => dataTransfer.items.add(file));
+    fileInput.files = dataTransfer.files;
+  }
+
+  function renderFiles(files, container) {
+    container.innerHTML = "";
+
+    files.forEach((file, index) => {
+      const wrapper = document.createElement("div");
+      wrapper.className = "mb-3 p-2 border rounded position-relative";
+      wrapper.style.position = "relative";
+
+      // Bouton de suppression
+      const removeBtn = document.createElement("button");
+      removeBtn.innerHTML = "&times;";
+      removeBtn.setAttribute("type", "button");
+      removeBtn.className = "btn btn-danger btn-sm position-absolute";
+      removeBtn.style.top = "5px";
+      removeBtn.style.right = "5px";
+      removeBtn.title = "Supprimer ce fichier";
+      removeBtn.onclick = () => {
+        fileStore.splice(index, 1); // Supprimer du tableau
+        renderFiles(fileStore, container); // Re-rendre
+        updateInputFiles(); // Mettre à jour l'input file
+      };
+
+      const info = document.createElement("div");
+      info.innerHTML = `<strong>${file.name}</strong> - ${(
+        file.size / 1024
+      ).toFixed(2)} KB`;
+      wrapper.appendChild(removeBtn);
+      wrapper.appendChild(info);
+
+      if (file.type === "application/pdf") {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const embed = document.createElement("embed");
+          embed.src = e.target.result;
+          embed.type = "application/pdf";
+          embed.width = "100%";
+          embed.height = "200px";
+          embed.className = "mt-2 border";
+          wrapper.appendChild(embed);
+        };
+        reader.readAsDataURL(file);
+      }
+
+      container.appendChild(wrapper);
+    });
+  }
+
   // uploadBtn.addEventListener("click", () => fileInput.click());
   // dropzone.addEventListener("click", () => fileInput.click());
 
@@ -154,59 +207,8 @@ export function initializeFileHandlersMultiple(idSuffix, fileInpute) {
       }
     }
   }
-
-  function updateInputFiles() {
-    const dataTransfer = new DataTransfer();
-    fileStore.forEach((file) => dataTransfer.items.add(file));
-    fileInput.files = dataTransfer.files;
-  }
 }
 
-function renderFiles(files, container) {
-  container.innerHTML = "";
-
-  files.forEach((file, index) => {
-    const wrapper = document.createElement("div");
-    wrapper.className = "mb-3 p-2 border rounded position-relative";
-    wrapper.style.position = "relative";
-
-    // Bouton de suppression
-    const removeBtn = document.createElement("button");
-    removeBtn.innerHTML = "&times;";
-    removeBtn.setAttribute("type", "button");
-    removeBtn.className = "btn btn-danger btn-sm position-absolute";
-    removeBtn.style.top = "5px";
-    removeBtn.style.right = "5px";
-    removeBtn.title = "Supprimer ce fichier";
-    removeBtn.onclick = () => {
-      fileStore.splice(index, 1); // Supprimer du tableau
-      renderFiles(fileStore, container); // Re-rendre
-    };
-
-    const info = document.createElement("div");
-    info.innerHTML = `<strong>${file.name}</strong> - ${(
-      file.size / 1024
-    ).toFixed(2)} KB`;
-    wrapper.appendChild(removeBtn);
-    wrapper.appendChild(info);
-
-    if (file.type === "application/pdf") {
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        const embed = document.createElement("embed");
-        embed.src = e.target.result;
-        embed.type = "application/pdf";
-        embed.width = "100%";
-        embed.height = "200px";
-        embed.className = "mt-2 border";
-        wrapper.appendChild(embed);
-      };
-      reader.readAsDataURL(file);
-    }
-
-    container.appendChild(wrapper);
-  });
-}
 
 /**================================================================
  *TRAITEMENT DE FICHIER NOUVEAU
@@ -278,6 +280,11 @@ export function handleFile(files, fileListElement, maxSizeMB = 5) {
   removeBtn.title = "Supprimer le fichier";
   removeBtn.onclick = () => {
     fileListElement.innerHTML = "";
+    // Réinitialiser l'input file
+    const fileInput = document.querySelector("#devis_magasin_pieceJoint01");
+    if (fileInput) {
+      fileInput.value = "";
+    }
   };
 
   // Infos du fichier
@@ -296,8 +303,7 @@ export function handleFile(files, fileListElement, maxSizeMB = 5) {
     embed.src = e.target.result;
     embed.type = "application/pdf";
     embed.width = "100%";
-    embed.height = "300px";
-    embed.className = "mt-2 border";
+    embed.style.height = "80vh";
     container.appendChild(embed);
   };
   reader.readAsDataURL(file);

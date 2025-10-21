@@ -394,3 +394,6 @@ ADD dit_avoir bit DEFAULT 0
 
 ALTER TABLE demande_intervention
 ADD dit_refacturation bit DEFAULT 0
+
+UPDATE demande_intervention SET dit_avoir = 0
+UPDATE demande_intervention SET dit_refacturation = 0

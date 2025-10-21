@@ -1,10 +1,9 @@
 <?php
 
+
 namespace App\Controller\admin\personnel;
 
 use App\Controller\Controller;
-
-
 use App\Controller\Traits\Transformation;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -14,8 +13,6 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
-
-
 
 class PersonnelControl extends Controller
 {
@@ -30,7 +27,7 @@ class PersonnelControl extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $form = self::$validator->createBuilder()
+        $form = $this->getFormFactory()->createBuilder()
         ->add('firstName', TextType::class, array(
             'constraints' => array(
                 new NotBlank(),
@@ -63,7 +60,7 @@ class PersonnelControl extends Controller
           
         }
 
-        self::$twig->display('test.html.twig', [
+       return $this->render('test.html.twig', [
             'form' => $form->createView()
         ]);
 }
@@ -82,7 +79,7 @@ class PersonnelControl extends Controller
             $serviceIrium = $this->transformEnSeulTableau($this->Person->recupServiceIrium());
 
 
-            self::$twig->display(
+            return $this->render(
                 'admin/personnel/addPersonnel.html.twig',
                 [
                     'codeSage' => $codeSage,
@@ -105,7 +102,7 @@ class PersonnelControl extends Controller
 
 
 
-        self::$twig->display(
+        return $this->render(
             'admin/personnel/listPersonnel.html.twig',
             [
                 'infoPersonnel' => $infoPersonnel
@@ -123,7 +120,7 @@ class PersonnelControl extends Controller
 
 
         $infoPersonnelId = $this->Person->recupInfoPersonnelMatricule($_GET['matricule']);
-        self::$twig->display(
+        return $this->render(
             'admin/personnel/addPersonnel.html.twig',
             [
                 'codeSage' => $codeSage,

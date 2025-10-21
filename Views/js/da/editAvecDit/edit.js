@@ -22,9 +22,9 @@ document.addEventListener("DOMContentLoaded", function () {
       );
     });
 
-  document
+  /* document
     .getElementById("add-child")
-    .addEventListener("click", ajouterUneLigne);
+    .addEventListener("click", ajouterUneLigne); */
 
   document.getElementById("myForm").addEventListener("submit", function (e) {
     e.preventDefault();
@@ -84,7 +84,7 @@ document.addEventListener("DOMContentLoaded", function () {
       confirmButtonText: "Compris",
       confirmButtonColor: "#fbbb01", // couleur cohérente avec ton style
       customClass: {
-        popup: "text-start", // alignement gauche professionnel
+        htmlContainer: "swal-text-left",
       },
     });
   });
@@ -94,18 +94,43 @@ window.addEventListener("load", () => {
   displayOverlay(false);
 });
 
-function buildIndexFromLines() {
-  const maxIndex = Array.from(
-    document.querySelectorAll(
-      "[id^='demande_appro_form_DAL_'][id$='_numeroLigne']"
-    )
-  ).reduce((max, el) => {
-    const value = parseInt(el.value, 10);
-    return !isNaN(value) && value > max ? value : max;
+function getMaxIndexFromIds() {
+  const elements = document.querySelectorAll(
+    "div[id^='demande_appro_form_DAL_'].DAL-container"
+  );
+  return Array.from(elements).reduce((max, el) => {
+    const match = el.id.match(/^demande_appro_form_DAL_(\d+)$/);
+    if (match) {
+      const value = parseInt(match[1], 10);
+      return !isNaN(value) && value > max ? value : max;
+    }
+    return max;
   }, 0);
+}
+
+function getMaxLineFromValues() {
+  const elements = document.querySelectorAll(
+    "[id^='demande_appro_form_DAL_'][id$='_numeroLigne']"
+  );
+  return Array.from(elements).reduce((max, el) => {
+    const value = parseInt(el.value, 10);
+    if (isNaN(value)) {
+      console.warn("Valeur non numérique trouvée pour numeroLigne:", el.value);
+      return max; // ignore les valeurs invalides
+    }
+    return value > max ? value : max;
+  }, 0);
+}
+
+function buildIndexFromLines() {
+  const maxIndex = getMaxIndexFromIds();
+  const maxLine = getMaxLineFromValues();
+
+  // Log et stockage des résultats dans localStorage
+  console.log("Numéro de ligne Max:", maxLine);
+  localStorage.setItem("daWithDitNumLigneMax", maxLine);
 
   console.log("Max index:", maxIndex);
-
   localStorage.setItem("daWithDitLineCounter", maxIndex);
 }
 

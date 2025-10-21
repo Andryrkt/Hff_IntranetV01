@@ -15,22 +15,26 @@ class DaSoumissionBc
 {
     use DateTrait;
 
-    public const STATUT_A_GENERER = 'A générer';
-    public const STATUT_A_EDITER = 'A éditer';
+    public const STATUT_A_GENERER                = 'A générer';
+    public const STATUT_A_EDITER                 = 'A éditer';
     public const STATUT_A_SOUMETTRE_A_VALIDATION = 'A soumettre à validation';
     public const STATUT_A_ENVOYER_AU_FOURNISSEUR = 'A envoyer au fournisseur';
-    public const STATUT_SOUMISSION = 'Soumis à validation';
-    public const STATUT_A_VALIDER_DA = 'A Valider DA';
-    public const STATUT_VALIDE = 'Validé';
-    public const STATUT_CLOTURE = 'Clôturé';
-    public const STATUT_REFUSE = 'Refusé';
-
+    public const STATUT_SOUMISSION               = 'Soumis à validation';
+    public const STATUT_A_VALIDER_DA             = 'A valider DA';
+    public const STATUT_VALIDE                   = 'Validé';
+    public const STATUT_CLOTURE                  = 'Clôturé';
+    public const STATUT_REFUSE                   = 'Refusé';
     public const STATUT_BC_ENVOYE_AU_FOURNISSEUR = 'BC envoyé au fournisseur';
+    public const STATUT_PAS_DANS_OR              = 'PAS DANS OR';
 
+    public const STATUT_TOUS_LIVRES              = 'Tous livrés';
+    public const STATUT_PARTIELLEMENT_LIVRE      = 'Partiellement livré';
+    public const STATUT_PARTIELLEMENT_DISPO      = 'Partiellement dispo';
+    public const STATUT_COMPLET_NON_LIVRE        = 'Complet non livré';
 
     public const POSITION_TERMINER = 'TE';
-    public const POSITION_ENCOUR = 'EC';
-    public const POSITION_EDITER = 'ED';
+    public const POSITION_ENCOUR   = 'EC';
+    public const POSITION_EDITER   = 'ED';
 
     /**
      * @ORM\Id
@@ -80,6 +84,13 @@ class DaSoumissionBc
      * @ORM\Column(type="integer", name="numero_version")
      */
     private $numeroVersion;
+
+    /**
+     * @ORM\Column(type="decimal", precision=15, scale=2, name="montant_bc", nullable=true)
+     *
+     * @var float|null
+     */
+    private ?float $montantBc;
 
     /**===========================================================================
      * GETTER & SETTER
@@ -262,6 +273,30 @@ class DaSoumissionBc
     public function setPieceJoint2($pieceJoint2)
     {
         $this->pieceJoint2 = $pieceJoint2;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of montantBc
+     *
+     * @return  float|null
+     */ 
+    public function getMontantBc()
+    {
+        return $this->montantBc;
+    }
+
+    /**
+     * Set the value of montantBc
+     *
+     * @param  float|null  $montantBc
+     *
+     * @return  self
+     */ 
+    public function setMontantBc($montantBc)
+    {
+        $this->montantBc = $montantBc;
 
         return $this;
     }

@@ -13,6 +13,7 @@ use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\historiqueOperation\HistoriqueOperationBADMService;
+use App\Model\badm\BadmModel;
 
 /**
  * @Route("/materiel/mouvement-materiel")
@@ -22,11 +23,13 @@ class BadmsController extends Controller
     use AutorisationTrait;
 
     private $historiqueOperation;
+    private $badm;
 
     public function __construct()
     {
         parent::__construct();
-        $this->historiqueOperation = new HistoriqueOperationBADMService;
+        $this->historiqueOperation = new HistoriqueOperationBADMService($this->getEntityManager());
+        $this->badm = new BadmModel();
     }
 
     /**
@@ -44,7 +47,7 @@ class BadmsController extends Controller
         /** FIN AUtorisation acées */
 
         /** RECUPERATION ID USER CONNECTER */
-        $userId = $this->sessionService->get('user_id');
+        $user = $this->getUser();
         /** INITIALISATION*/
         $badm = new Badm();
         $agenceServiceIps = $this->agenceServiceIpsString();
@@ -55,7 +58,7 @@ class BadmsController extends Controller
             ->setServiceEmetteur($agenceServiceIps['serviceIps'])
         ;
 
-        $form = self::$validator->createBuilder(BadmForm1Type::class, $badm)->getForm();
+        $form = $this->getFormFactory()->createBuilder(BadmForm1Type::class, $badm)->getForm();
 
 
         $form->handleRequest($request);
@@ -86,21 +89,19 @@ class BadmsController extends Controller
                     $this->historiqueOperation->sendNotificationCreation($message, '-', 'badms_newForm1');
                 } else {
                     //recuperation du materiel dan sl abase de donner sqlserver
-                    $materiel = self::$em->getRepository(Badm::class)->findOneBy(['idMateriel' => $data[0]['num_matricule']], ['numBadm' => 'DESC']);
+                    $materiel = $this->getEntityManager()->getRepository(Badm::class)->findOneBy(['idMateriel' => $data[0]['num_matricule']], ['numBadm' => 'DESC']);
 
                     //si le materiel n'est pas encore dans la base de donner on donne la valeur 0 pour l'idType ld emouvmentMateriel
                     $idTypeMouvementMateriel = $materiel === null ? 0 : $materiel->getTypeMouvement()->getId();
 
-                    //recuperati
-                    $user = self::$em->getRepository(User::class)->find($userId);
 
-                    $agenceMaterielId = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => $data[0]["agence"]])->getId();
+                    $agenceMaterielId = $this->getEntityManager()->getRepository(Agence::class)->findOneBy(['codeAgence' => $data[0]["agence"]])->getId();
 
 
                     if ($data[0]["code_service"] === null || $data[0]["code_service"] === '' || $data[0]["code_service"] === null) {
-                        $serviceMaterilId =  self::$em->getRepository(Service::class)->findOneBy(['codeService' => 'COM'])->getId();
+                        $serviceMaterilId =  $this->getEntityManager()->getRepository(Service::class)->findOneBy(['codeService' => 'COM'])->getId();
                     } else {
-                        $serviceMaterilId =  self::$em->getRepository(Service::class)->findOneBy(['codeService' => $data[0]["code_service"]])->getId();
+                        $serviceMaterilId =  $this->getEntityManager()->getRepository(Service::class)->findOneBy(['codeService' => $data[0]["code_service"]])->getId();
                     }
                     // dd($agenceMaterielId, $serviceMaterilId);
                     //condition de blocage
@@ -154,7 +155,7 @@ class BadmsController extends Controller
                     'typeMouvemnt' => $badm->getTypeMouvement()
                 ];
                 //envoie des donner dan la session
-                $this->sessionService->set('badmform1Data', $formData);
+                $this->getSessionService()->set('badmform1Data', $formData);
                 if ($conditionRoleUtilisateur) {
                     $this->redirectToRoute("badms_newForm2");
                 } elseif (!$conditionAgenceServiceAutoriser) {
@@ -169,7 +170,7 @@ class BadmsController extends Controller
 
         $this->logUserVisit('badms_newForm1'); // historisation du page visité par l'utilisateur
 
-        self::$twig->display(
+        return $this->render(
             'badm/firstForm.html.twig',
             [
                 'form' => $form->createView()

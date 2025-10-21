@@ -64,4 +64,18 @@ class DaSoumissionBcRepository extends EntityRepository
             return false;
         }
     }
+
+    public function getMontantBc(?string $numCde): ?float
+    {
+        $result = $this->createQueryBuilder('dabc')
+            ->select('dabc.montantBc')
+            ->where('dabc.numeroCde = :numCde')
+            ->setParameter('numCde', $numCde)
+            ->orderBy('dabc.numeroVersion', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult(Query::HYDRATE_SINGLE_SCALAR);
+
+        return $result !== null ? (float) $result : null;
+    }
 }

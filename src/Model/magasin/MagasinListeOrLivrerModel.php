@@ -150,8 +150,7 @@ class MagasinListeOrLivrerModel extends Model
                     FROM sav_lor
                 INNER JOIN sav_eor on seor_numor = slor_numor and slor_soc = seor_soc and slor_succ = seor_succ and slor_soc = 'HF'
                 INNER JOIN sav_itv on sitv_numor = slor_numor and slor_soc = sitv_soc and slor_succ = sitv_succ and slor_soc = 'HF'
-                    WHERE slor_constp = 'ZST' 
-                        and slor_numor = '$numOr'
+                    WHERE  slor_numor = '$numOr'
                         and slor_typlig = 'P'
                         and slor_refp not like ('PREST%')
                     ";

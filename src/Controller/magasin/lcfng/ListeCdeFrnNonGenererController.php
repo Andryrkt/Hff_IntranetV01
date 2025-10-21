@@ -9,7 +9,6 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Model\magasin\lcfng\ListeCdeFrnNonGenererModel;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
 use App\Form\magasin\lcfng\ListeCdeFrnNonGenererSearchType;
-
 /**
  * @Route("/magasin")
  */
@@ -24,7 +23,7 @@ class ListeCdeFrnNonGenererController extends Controller
         parent::__construct();
 
         $this->listeCdeFrnNonGenererModel = new ListeCdeFrnNonGenererModel();
-        $this->ditOrsSoumisRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
+        $this->ditOrsSoumisRepository = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class);
     }
 
     /**
@@ -35,7 +34,7 @@ class ListeCdeFrnNonGenererController extends Controller
     public function index(Request $request)
     {
 
-        $form = self::$validator->createBuilder(ListeCdeFrnNonGenererSearchType::class, [], [
+        $form = $this->getFormFactory()->createBuilder(ListeCdeFrnNonGenererSearchType::class, [], [
             'method' => 'GET'
         ])->getForm();
 
@@ -48,13 +47,13 @@ class ListeCdeFrnNonGenererController extends Controller
             $criteria = $form->getData();
         }
 
-        $this->sessionService->set('lcfng_liste_cde_frs_non_generer', $criteria);
+        $this->getSessionService()->set('lcfng_liste_cde_frs_non_generer', $criteria);
 
         $numOrValides = $this->orEnString($this->ditOrsSoumisRepository->findNumOrValide());
 
         $data = $this->listeCdeFrnNonGenererModel->getListeCdeFrnNonGenerer($criteria, $numOrValides);
 
-        self::$twig->display('magasin/lcfng/listCdeFnrNonGenerer.html.twig', [
+        return $this->render('magasin/lcfng/listCdeFnrNonGenerer.html.twig', [
             'data' => $data,
             'form' => $form->createView(),
         ]);

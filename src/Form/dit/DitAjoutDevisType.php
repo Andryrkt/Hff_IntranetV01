@@ -12,34 +12,33 @@ use Symfony\Component\Form\Extension\Core\Type\FileType;
 
 
 
-class DitValidationType extends AbstractType
+class DitAjoutDevisType extends AbstractType
 {
-    
+
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-        ->add('numeroDevisRattache',
-        FileType::class, 
-        [
-            'label' => 'Devis (PDF)',
-            'required' => false,
-            'constraints' => [
-                new File([
-                    'maxSize' => '5M',
-                    'mimeTypes' => [
-                        'application/pdf'
+            ->add(
+                'numeroDevisRattache',
+                FileType::class,
+                [
+                    'label' => 'Devis (PDF)',
+                    'required' => false,
+                    'constraints' => [
+                        new File([
+                            'maxSize' => '5M',
+                            'mimeTypes' => [
+                                'application/pdf'
+                            ],
+                            'mimeTypesMessage' => 'Please upload a valid PDF file.',
+                        ])
                     ],
-                    'mimeTypesMessage' => 'Please upload a valid PDF file.',
-                ])
-            ],
-        ]
-        )
-        ;
-        
+                ]
+            );
     }
 
-   
+
 
     public function configureOptions(OptionsResolver $resolver)
     {

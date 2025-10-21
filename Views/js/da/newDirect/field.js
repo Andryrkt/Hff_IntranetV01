@@ -38,7 +38,7 @@ export function createFieldAndAppendTo(
   } else if (fieldName === "numeroLigne") {
     field.value = localStorage.getItem("daDirectLineCounter");
   } else if (fieldName === "fileNames") {
-    field.accept = ".pdf, image/*"; // Accepter les fichiers PDF et images
+    field.accept = ".pdf"; // Accepter les fichiers PDF seulement
     field.addEventListener("change", (event) => onFileNamesInputChange(event));
   }
 
@@ -121,7 +121,7 @@ export function createFieldAutocompleteAndAppendTo(
 
   // Sélection de l'élément cible
   let field = prototype.querySelector(`[id*="${fieldName}"]`);
-  field.required = true; // champ requis
+  field.required = fieldName !== "nomFournisseur"; // champ requis
   field.removeAttribute("readonly");
 
   // Génération des nouveaux IDs pour le spinner et le conteneur

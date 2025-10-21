@@ -26,7 +26,7 @@ trait BadmListTrait
 private function autorisationRole($em): bool
 {
     /** CREATION D'AUTORISATION */
-    $userId = $this->sessionService->get('user_id');
+    $userId = $this->getSessionService()->get('user_id');
     $userConnecter = $em->getRepository(User::class)->find($userId);
     $roleIds = $userConnecter->getRoleIds();
     return in_array(1, $roleIds);
@@ -36,7 +36,7 @@ private function autorisationRole($em): bool
 private function agenceIdAutoriser($em): array
 {
     /** CREATION D'AUTORISATION */
-    $userId = $this->sessionService->get('user_id');
+    $userId = $this->getSessionService()->get('user_id');
     $userConnecter = $em->getRepository(User::class)->find($userId); 
     return $userConnecter->getAgenceAutoriserIds();
     //FIN AUTORISATION
@@ -77,7 +77,7 @@ private function agenceServiceIpsEmetteur($autoriser, $agenceServiceIps)
 
 private function initialisation($badmSearch, $em, $agenceServiceIps, $autoriser)
 {
-    $criteria = $this->sessionService->get('badm_search_criteria', []);
+    $criteria = $this->getSessionService()->get('badm_search_criteria', []);
     $agenceServiceIpsEmetteur = $this->agenceServiceIpsEmetteur($autoriser, $agenceServiceIps);
     if($criteria !== null){
         $typeMouvement = $criteria['typeMouvement'] === null ? null : $em->getRepository(TypeMouvement::class)->find($criteria['typeMouvement']->getId());

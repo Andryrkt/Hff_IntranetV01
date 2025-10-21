@@ -11,8 +11,6 @@ use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\admin\Application;
 use App\Entity\da\DaSoumissionBc;
-use App\Model\da\DaListeCdeFrnModel;
-use App\Service\TableauEnStringService;
 use App\Form\da\daCdeFrn\CdeFrnListType;
 use Symfony\Component\Form\FormInterface;
 use App\Form\da\daCdeFrn\DaSoumissionType;
@@ -20,12 +18,12 @@ use App\Controller\Traits\da\StatutBcTrait;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Repository\da\DaAfficherRepository;
 use App\Controller\Traits\AutorisationTrait;
+use App\Factory\da\CdeFrnDto\CdeFrnSearchDto;
 use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DaSoumissionBcRepository;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
-
 
 /**
  * @Route("/demande-appro")
@@ -45,11 +43,12 @@ class DaListCdeFrnController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->daAfficherRepository = self::$em->getRepository(DaAfficher::class);
-        $this->ditOrsSoumisAValidationRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
+        $this->daAfficherRepository = $this->getEntityManager()->getRepository(DaAfficher::class);
+        $this->ditOrsSoumisAValidationRepository = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class);
         $this->daModel = new DaModel();
-        $this->demandeApproRepository = self::$em->getRepository(DemandeAppro::class);
-        $this->daSoumissionBcRepository = self::$em->getRepository(DaSoumissionBc::class);
+        $this->demandeApproRepository = $this->getEntityManager()->getRepository(DemandeAppro::class);
+        $this->daSoumissionBcRepository = $this->getEntityManager()->getRepository(DaSoumissionBc::class);
+        $this->initStatutBcTrait();
     }
 
     /**
@@ -64,29 +63,59 @@ class DaListCdeFrnController extends Controller
         /** FIN AUtorisation acées */
 
         /** ===  Formulaire pour la recherche === */
-        $form = self::$validator->createBuilder(CdeFrnListType::class, null, [
+        $form = $this->getFormFactory()->createBuilder(CdeFrnListType::class, $this->initialisationCdeFrnSearchDto(), [
             'method' => 'GET',
         ])->getForm();
-        $criteria = $this->traitementFormulaireRecherche($request, $form);
-        $this->sessionService->set('criteria_for_excel_Da_Cde_frn', $criteria);
+        $criteriaTab = $this->traitementFormulaireRecherche($request, $form);
+        $this->getSessionService()->set('criteria_for_excel_Da_Cde_frn', $criteriaTab);
+
+        // classe pour visuel de trie nombre de jour dispo
+        $sortJoursClass = false;
+
+        if ($criteriaTab &&  isset($criteriaTab['sortNbJours'])) {
+            $sortJoursClass = $criteriaTab['sortNbJours'] === 'asc' ? 'fas fa-arrow-up-1-9' : 'fas fa-arrow-down-9-1';
+        }
+
+        //recupère le numero de page
+        $page = $request->query->getInt('page', 1);
+        //nombre de ligne par page
+        $limit = 20;
 
         /** ==== récupération des données à afficher ==== */
-        $daAfficherValides = $this->donnerAfficher($criteria);
+        $paginationData = $this->getPaginationData($criteriaTab, $page, $limit);
 
         /** mise à jour des donners daAfficher */
-        $this->quelqueMiseAjourDaAfficher($daAfficherValides);
+        $this->quelqueMiseAjourDaAfficher($paginationData['data']);
 
         /** === Formulaire pour l'envoie de BC et FAC + Bl === */
-        $formSoumission = self::$validator->createBuilder(DaSoumissionType::class, null, [
+        $formSoumission = $this->getFormFactory()->createBuilder(DaSoumissionType::class, null, [
             'method' => 'GET',
         ])->getForm();
         $this->traitementFormulaireSoumission($request, $formSoumission);
 
-        self::$twig->display('da/daListCdeFrn.html.twig', [
-            'daAfficherValides' => $daAfficherValides,
-            'formSoumission' => $formSoumission->createView(),
-            'form' => $form->createView(),
+        return $this->render('da/daListCdeFrn.html.twig', [
+            'daAfficherValides' => $paginationData['data'],
+            'formSoumission'    => $formSoumission->createView(),
+            'form'              => $form->createView(),
+            'styleStatutBC'     => $this->styleStatutBC,
+            'styleStatutDA'     => $this->styleStatutDA,
+            'styleStatutOR'     => $this->styleStatutOR,
+            'criteria'          => $criteriaTab,
+            'currentPage'       => $page,
+            'totalPages'        => $paginationData['lastPage'],
+            'resultat'          => $paginationData['totalItems'],
+            'sortJoursClass'    => $sortJoursClass,
         ]);
+    }
+
+    private function initialisationCdeFrnSearchDto(): CdeFrnSearchDto
+    {
+        // recupération de la session pour le criteria
+        $criteriaTab = $this->getSessionService()->get('criteria_for_excel_Da_Cde_frn');
+
+        // transforme en objet
+        $cdeFrnSearchDto = new CdeFrnSearchDto();
+        return $cdeFrnSearchDto->toObject($criteriaTab);
     }
 
     private function quelqueMiseAjourDaAfficher(array $daAfficherValides)
@@ -94,7 +123,7 @@ class DaListCdeFrnController extends Controller
         foreach ($daAfficherValides as $davalide) {
             $this->modificationStatutBC($davalide);
         }
-        self::$em->flush();
+        $this->getEntityManager()->flush();
     }
 
     /**
@@ -106,15 +135,29 @@ class DaListCdeFrnController extends Controller
     {
         $statutBC = $this->statutBc($data->getArtRefp(), $data->getNumeroDemandeDit(), $data->getNumeroDemandeAppro(), $data->getArtDesi(), $data->getNumeroOr());
         $data->setStatutCde($statutBC);
-        self::$em->persist($data);
+        $this->getEntityManager()->persist($data);
     }
 
-    private function donnerAfficher(?array $criteria): array
-    {
-        /** @var array récupération des lignes de daValider avec version max et or valider */
-        $daAfficherValiders =  $this->daAfficherRepository->getDaOrValider($criteria);
+    // private function donnerAfficher(?array $criteria): array
+    // {
+    //     /** @var array récupération des lignes de daValider avec version max et or valider */
+    //     $daAfficherValiders =  $this->daAfficherRepository->getDaOrValider($criteria);
 
-        return $daAfficherValiders;
+    //     return $daAfficherValiders;
+    // }
+
+    /** 
+     * Fonction qui retourne les données avec pagination des lignes de DA validé et OR validés
+     * 
+     * @param null|array $criteria le criteria du formulaire de recherche
+     * @param int $page la page actuelle
+     * @param int $limit la limite par page
+     * 
+     * @return array{results:array,totalItems:int}
+     */
+    private function getPaginationData(?array $criteria, int $page, int $limit): array
+    {
+        return $this->daAfficherRepository->findValidatedPaginatedDas($criteria, $page, $limit);
     }
 
     private function traitementFormulaireSoumission(Request $request, $formSoumission): void
@@ -137,14 +180,14 @@ class DaListCdeFrnController extends Controller
         $form->handleRequest($request);
 
         if (!$form->isSubmitted() || !$form->isValid()) {
-            return null;
+            return [];
         }
 
-        $data = $form->getData();
+        $data = $form->getData()->toArray();
 
         // Filtrer les champs vides ou nuls
-        $dataFiltrée = array_filter($data, fn($val) => $val !== null && $val !== '');
+        $dataFiltered = array_filter($data, fn($val) => $val !== null && $val !== '');
 
-        return empty($dataFiltrée) ? null : $data;
+        return empty($dataFiltered) ? [] : $data;
     }
 }

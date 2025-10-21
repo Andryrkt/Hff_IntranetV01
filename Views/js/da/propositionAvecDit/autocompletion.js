@@ -1,4 +1,3 @@
-import { FetchManager } from "../../api/FetchManager";
 import { AutoComplete } from "../../utils/AutoComplete";
 import { updateDropdown } from "../../utils/selectionHandler";
 
@@ -35,16 +34,11 @@ export function autocompleteTheField(
     codeFams2 = safeValue(sousFamille.value);
   }
 
-  // const isCatalogueInput = document.querySelector(`#catalogue_${numPages}`);
-
-  // console.log(isCatalogueInput);
-
   new AutoComplete({
     inputElement: field,
     suggestionContainer: suggestionContainer,
     loaderElement: loaderElement,
     debounceDelay: 300,
-    // fetchDataCallback: () => fetchAllData(fieldName, codeFams1, codeFams2), // filtré par famille et sous-famille
     fetchDataCallback: () => {
       const cache = JSON.parse(
         localStorage.getItem("autocompleteCache") || "{}"
@@ -52,7 +46,7 @@ export function autocompleteTheField(
       const dataList =
         fieldName === "fournisseur"
           ? cache.fournisseurs || []
-          : cache.designations || [];
+          : cache.designationsZST || [];
 
       return Promise.resolve(dataList);
     }, // non filtré par famille et sous-famille
@@ -86,7 +80,7 @@ function getFieldByGeneratedId(baseId, suffix) {
 
 function onBlurEvents(found, designation, fieldName) {
   const numeroDa = document
-    .querySelector(".tab-pane.fade.show.active")
+    .querySelector(".tab-pane.fade.show.active.dalr")
     .id.split("_")
     .pop();
   const numPage = localStorage.getItem(`currentTab_${numeroDa}`);
@@ -139,20 +133,6 @@ function getValueCodeFams(fams, line) {
 
 function getField(id, fieldName, fieldNameReplace) {
   return document.getElementById(id.replace(fieldName, fieldNameReplace));
-}
-
-export async function fetchAllData(
-  fieldName,
-  codeFams1 = "-",
-  codeFams2 = "-"
-) {
-  const fetchManager = new FetchManager();
-  let url = `demande-appro/autocomplete/all-${
-    fieldName === "fournisseur"
-      ? fieldName
-      : `designation/${codeFams1}/${codeFams2}`
-  }`;
-  return await fetchManager.get(url);
 }
 
 function displayValues(item, fieldName) {
@@ -209,7 +189,7 @@ function handleValuesOfFields(
     famille.value = item.codefamille;
     sousFamille.value = item.codesousfamille;
     const numeroDa = document
-      .querySelector(".tab-pane.fade.show.active")
+      .querySelector(".tab-pane.fade.show.active.dalr")
       .id.split("_")
       .pop();
     const numPage = localStorage.getItem(`currentTab_${numeroDa}`);
@@ -230,5 +210,11 @@ function handleValuesOfFields(
         item.codesousfamille
       );
     }
+
+    famille.classList.add("non-modifiable");
+    sousFamille.classList.add("non-modifiable");
+    reference.classList.add("non-modifiable");
+    fournisseur.classList.add("non-modifiable");
+    designation.classList.add("non-modifiable");
   }
 }

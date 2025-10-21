@@ -16,7 +16,7 @@ trait DomListeTrait
     private function autorisationRole($em): bool
     {
         /** CREATION D'AUTORISATION */
-        $userId = $this->sessionService->get('user_id');
+        $userId = $this->getSessionService()->get('user_id');
         $userConnecter = $em->getRepository(User::class)->find($userId);
         $roleIds = $userConnecter->getRoleIds();
         return in_array(1, $roleIds);
@@ -26,7 +26,7 @@ trait DomListeTrait
     private function agenceIdAutoriser($em): array
     {
         /** CREATION D'AUTORISATION */
-        $userId = $this->sessionService->get('user_id');
+        $userId = $this->getSessionService()->get('user_id');
         $userConnecter = $em->getRepository(User::class)->find($userId);
         return $userConnecter->getAgenceAutoriserIds();
         //FIN AUTORISATION
@@ -35,7 +35,7 @@ trait DomListeTrait
 
     private function initialisation($badmSearch, $em)
     {
-        $criteria = $this->sessionService->get('dom_search_criteria', []);
+        $criteria = $this->getSessionService()->get('dom_search_criteria', []);
         if ($criteria !== null) {
             $sousTypeDocument = $criteria['sousTypeDocument'] === null ? null : $em->getRepository(SousTypeDocument::class)->find($criteria['sousTypeDocument']->getId());
             $statut = $criteria['statut'] === null ? null : $em->getRepository(StatutDemande::class)->find($criteria['statut']->getId());

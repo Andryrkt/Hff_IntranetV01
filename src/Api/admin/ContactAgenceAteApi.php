@@ -20,19 +20,17 @@ class ContactAgenceAteApi extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        
-        $user = self::$em->getRepository(User::class)->findOneBy(['id' => $id]);
+
+        $user = $this->getEntityManager()->getRepository(User::class)->findOneBy(['id' => $id]);
 
         $nomEmail = [
             'id' => $user->getId(),
             'prenom' => $user->getPersonnels()->getPrenoms(),
             'telephone' => $user->getNumTel()
         ];
-        
+
         header("Content-type:application/json");
 
         echo json_encode($nomEmail);
     }
-
-    
 }

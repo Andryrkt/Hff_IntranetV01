@@ -1,6 +1,6 @@
 {% set role_ids = App.user.roleIds %}
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark navbar-dark sticky-top border-bottom mb-3">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark navbar-dark sticky-top border-bottom" id="main-nav-bar">
 	<div
 		class="container-fluid mx-4">
 
@@ -9,14 +9,12 @@
 			<img src="{{ asset('build/images/logoHFF.jpg') }}" id="LogoHFF" alt="Logo HFF" style="height: 40px;">
 		</a>
 
-		{% block chrono %}
-			<div class="chrono-container ms-5">
-				<div class="chrono-bar">
-					<div class="chrono-progress"></div>
-				</div>
-				<div class="chrono-text text-white" id="chrono-text">15:00</div>
+		<div class="chrono-container ms-5">
+			<div class="chrono-bar">
+				<div class="chrono-progress"></div>
 			</div>
-		{% endblock %}
+			<div class="chrono-text text-white" id="chrono-text">15:00</div>
+		</div>
 
 		<!-- Bouton burger -->
 		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,8 +30,8 @@
 				<ul class="navbar-nav ms-lg-auto">
 					<li class="me-3">
 						<a class="app-version" href="{{ App.base_path_fichier }}/version/Versions Intranet.pdf" target="_blank" role="button">
-							<i class="fas fas fa-tag pe-2"></i>
-							Version: V20250822.1.2.0
+							<i class="fas fas fa-tag"></i>
+							Version: V20251008.3.0.0
 						</a>
 					</li>
 					<li class="me-3">
@@ -42,6 +40,14 @@
 							Guide utilisateur intranet
 						</a>
 					</li>
+					{% if 7 in role_ids %}
+						<li class="me-3">
+							<a class="tech-doc-link" href="{{ path('app_doc_tech_index') }}" role="button">
+								<i class="fas fa-code pe-2"></i>
+								Documentation Technique
+							</a>
+						</li>
+					{% endif %}
 					<li class="nav-item dropdown">
 						<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" id="userName" data-user-first-name="{{ App.user.Personnels.prenoms }}" data-user-last-name="{{ App.user.Personnels.nom }}" ria-expanded="false" style="color: #fbbb01;">
 							<i class="fas fa-user pe-1"></i>

@@ -1,0 +1,34 @@
+<div class="d-flex justify-content-between">
+	<div>
+		<a href="{{ path("export_conge_excel") }}" class="btn btn-sm bg-success text-white my-3 fw-bold">
+			<i class="fas fa-table"></i>
+			Excel
+		</a>
+
+		<a href="{{ path("conge_liste") }}" class="btn btn-sm bg-warning text-white my-3 fw-bold">Liste</a>
+	</div>
+	<div>
+		<p class="fw-bold my-3" id="nombreResultat">{{resultat}}
+			Résultats</p>
+	</div>
+	<div>
+		<p class="fw-bold my-3" id="nombreResultat">{{currentPage ~' / '~ (lastPage)}}
+			pages</p>
+	</div>
+	<div class="navigation">
+		{% set queryParams = criteria  %}
+
+		{% if currentPage > 1 %}
+			<a class="btn btn-dark my-3" href="{{ path('conge_liste', queryParams|merge({'page': currentPage - 1})) }}">
+				<i class="fas fa-angle-left text-warning"></i>
+			</a>
+		{% endif %}
+
+
+		{% if currentPage < lastPage %}
+			<a class="btn btn-dark" href="{{ path('conge_liste', queryParams|merge({'page': currentPage + 1})) }}">
+				<i class="fas fa-angle-right text-warning"></i>
+			</a>
+		{% endif %}
+	</div>
+</div>

@@ -162,29 +162,6 @@ tr.sub-separator > td {
   border-top: 2px solid #000; /* même couleur que la bande pleine */
 }
 
-/**==========================================
-* fixer l'en-tête du tableau et le titre
-==============================================*/
-/* Conteneur pour l'en-tête fixe */
-.sticky-header-titre {
-  position: sticky;
-  top: 0; /* Fixe au sommet de la page */
-  z-index: 50; /* Place l'en-tête au-dessus des autres éléments */
-  background-color: #f8f9fa; /* Assurez une couleur de fond pour éviter les chevauchements */
-  padding-bottom: 10px;
-  /* border-bottom: 1px solid #ddd; Optionnel : ajoute une séparation visuelle */
-}
-
-/* Style pour fixer l'en-tête du tableau */
-.table-plein-ecran thead tr {
-  position: sticky;
-  /* top: 210px; /* Valeur défini en JS */
-  z-index: 10; /* Assurez que l'en-tête du tableau reste visible */
-  background-color: #343a40; /* Couleur de fond sombre pour "table-dark" */
-  color: white; /* Texte blanc pour correspondre au style "table-dark" */
-  padding: 10px;
-}
-
 /**================================================
 * styles pour le menu contextuel de la numero de commande dans la liste cde frn
 *==================================================*/
@@ -212,23 +189,4 @@ tr.sub-separator > td {
 ================================================*/
 .modal-dialog.custom-width {
   max-width: 60%; /* Ajustez le pourcentage selon vos besoins */
-}
-
-/* Pour les statuts du BC */
-.bg-bc-a-generer {
-  background-color: #ff66cc !important;
-}
-.bg-bc-a-editer {
-  background-color: #7030a0 !important;
-  color: #fff !important;
-}
-.bg-bc-a-soumettre-a-validation {
-  background-color: #ddebf7 !important;
-}
-.bg-bc-valide {
-  background-color: #ccff66 !important;
-}
-.bg-bc-non-valide {
-  background-color: #c00000 !important;
-  color: #fff !important;
 }

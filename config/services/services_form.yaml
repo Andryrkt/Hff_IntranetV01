@@ -1,0 +1,103 @@
+services:
+    # Formulaires - injection manuelle
+    App\Form\:
+        resource: '../../src/Form/*'
+        autowire: false
+        autoconfigure: false
+        public: false
+
+    # Configuration spécifique pour les formulaires avec EntityManager
+    App\Form\dit\DitSearchType:
+        arguments:
+            - '@doctrine.orm.default_entity_manager'
+        public: true
+
+    App\Form\dit\demandeInterventionType:
+        arguments:
+            - '@doctrine.orm.default_entity_manager'
+        public: true
+
+    App\Form\da\DaSearchType:
+        arguments:
+            - '@doctrine.orm.default_entity_manager'
+        public: true
+
+    App\Form\da\DemandeApproDirectFormType:
+        arguments:
+            - '@doctrine.orm.default_entity_manager'
+        public: true
+
+    App\Form\badm\BadmSearchType:
+        arguments:
+            - '@doctrine.orm.default_entity_manager'
+        public: true
+
+    App\Form\badm\BadmForm1Type:
+        arguments:
+            - '@doctrine.orm.default_entity_manager'
+        public: true
+
+    App\Form\badm\BadmForm2Type:
+        arguments:
+            - '@doctrine.orm.default_entity_manager'
+        public: true
+
+    App\Form\admin\utilisateur\UserType:
+        arguments:
+            - '@doctrine.orm.default_entity_manager'
+        public: true
+
+    App\Form\dom\DomForm1Type:
+        arguments:
+            - '@doctrine.orm.default_entity_manager'
+        public: true
+
+    App\Form\dom\DomForm2Type:
+        arguments:
+            - '@doctrine.orm.default_entity_manager'
+        public: true
+
+    App\Form\dom\DomSearchType:
+        arguments:
+            - '@doctrine.orm.default_entity_manager'
+        public: true
+
+    App\Form\mutation\MutationFormType:
+        arguments:
+            - '@doctrine.orm.default_entity_manager'
+        public: true
+
+    App\Form\tik\TikSearchType:
+        arguments:
+            - '@doctrine.orm.default_entity_manager'
+        public: true
+
+    App\Form\tik\DetailTikType:
+        arguments:
+            - '@doctrine.orm.default_entity_manager'
+        public: true
+
+    App\Form\tik\DemandeSupportInformatiqueType:
+        arguments:
+            - '@doctrine.orm.default_entity_manager'
+        public: true
+
+    App\Form\ddp\DemandePaiementType:
+        arguments:
+            - '@doctrine.orm.default_entity_manager'
+        public: true
+
+    App\Form\ddp\DdpSearchType:
+        arguments:
+            - '@doctrine.orm.default_entity_manager'
+        public: true
+
+    App\Form\admin\AgenceServiceType:
+        arguments:
+            - '@doctrine.orm.default_entity_manager'
+        public: true
+
+    App\Form\magasin\devis\DevisMagasinSearchType:
+        arguments:
+            - '@doctrine.orm.default_entity_manager'
+        public: true

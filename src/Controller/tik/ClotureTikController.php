@@ -5,10 +5,10 @@ namespace App\Controller\tik;
 use App\Controller\Controller;
 use App\Entity\admin\StatutDemande;
 use App\Entity\admin\utilisateur\User;
-use App\Entity\tik\DemandeSupportInformatique;
-use App\Service\historiqueOperation\HistoriqueOperationTIKService;
-use Symfony\Component\Routing\Annotation\Route;
 use App\Service\tik\HandleRequestService;
+use App\Entity\tik\DemandeSupportInformatique;
+use Symfony\Component\Routing\Annotation\Route;
+use App\Service\historiqueOperation\HistoriqueOperationTIKService;
 
 /**
  * @Route("/it")
@@ -20,7 +20,7 @@ class ClotureTikController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->historiqueOperation = new HistoriqueOperationTIKService;
+        $this->historiqueOperation = new HistoriqueOperationTIKService($this->getEntityManager());
     }
 
     /**
@@ -33,22 +33,22 @@ class ClotureTikController extends Controller
         /** 
          * @var User $connectedUser l'utilisateur connecté
          */
-        $connectedUser = self::$em->getRepository(User::class)->find($this->sessionService->get('user_id'));
+        $connectedUser = $this->getEntityManager()->getRepository(User::class)->find($this->getSessionService()->get('user_id'));
 
         /** 
          * @var DemandeSupportInformatique $supportInfo entité correspondant à l'id 
          */
-        $supportInfo = self::$em->getRepository(DemandeSupportInformatique::class)->find($id);
+        $supportInfo = $this->getEntityManager()->getRepository(DemandeSupportInformatique::class)->find($id);
 
         // Vérifier si l'utilisateur peut modifier le ticket
         if (!$this->canCloturer($supportInfo)) {
             $this->redirectToRoute('profil_acceuil');
         }
 
-        $handleRequestService = new HandleRequestService($connectedUser, $supportInfo);
+        $handleRequestService = new HandleRequestService($this->getEntityManager(), $this->getTwig(), $connectedUser, $supportInfo);
 
         $handleRequestService
-            ->setStatut(self::$em->getRepository(StatutDemande::class)->find(64))  // statut cloturé
+            ->setStatut($this->getEntityManager()->getRepository(StatutDemande::class)->find(64))  // statut cloturé
             ->cloturerTicket()
         ;
 
@@ -62,12 +62,12 @@ class ClotureTikController extends Controller
     {
         $this->verifierSessionUtilisateur();
 
-        $idUtilisateur  = $this->sessionService->get('user_id');
+        $idUtilisateur  = $this->getSessionService()->get('user_id');
 
         /** 
          * @var User $utilisateur l'utilisateur connecté
          */
-        $utilisateur    = $idUtilisateur !== '-' ? self::$em->getRepository(User::class)->find($idUtilisateur) : null;
+        $utilisateur    = $idUtilisateur !== '-' ? $this->getEntityManager()->getRepository(User::class)->find($idUtilisateur) : null;
 
         if (is_null($utilisateur)) {
             $this->SessionDestroy();

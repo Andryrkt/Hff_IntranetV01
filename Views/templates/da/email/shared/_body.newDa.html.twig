@@ -31,9 +31,11 @@
 <table>
 	<thead style="background-color:#ffc107;">
 		<tr>
-			<th>Famille</th>
-			<th>Sous famille</th>
-			<th>Réference</th>
+			{% if not demandeAppro.achatDirect %}
+				<th>Famille</th>
+				<th>Sous famille</th>
+				<th>Réference</th>
+			{% endif %}
 			<th>Désignation</th>
 			<th>Fournisseur</th>
 			<th>Commentaire</th>
@@ -42,9 +44,11 @@
 	<tbody>
 		{% for dal in demandeAppro.DAL %}
 			<tr>
-				<td>{{ dal.artFams1 ?? '-'}}</td>
-				<td>{{ dal.artFams2 ?? '-'}}</td>
-				<td>{{ dal.artRefp ?? '-'}}</td>
+				{% if not demandeAppro.achatDirect %}
+					<td>{{ dal.artFams1 ?? '-'}}</td>
+					<td>{{ dal.artFams2 ?? '-'}}</td>
+					<td>{{ dal.artRefp ?? '-'}}</td>
+				{% endif %}
 				<td>{{ dal.artDesi }}</td>
 				<td>{{ dal.nomFournisseur }}</td>
 				<td>{{ dal.commentaire }}</td>

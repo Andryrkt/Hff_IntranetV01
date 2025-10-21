@@ -15,6 +15,9 @@ class BLSoumission
 {
     use DateTrait;
 
+    const TYPE_BL_INTERNE = "BL interne";
+    const TYPE_FACTURE_BL_CLIENT = "Facture - BL (clients)";
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -41,6 +44,11 @@ class BLSoumission
      * @ORM\Column(type="string", length=255, name="path_fichier_soumis")
      */
     private $pathFichierSoumis;
+
+    /**
+     * @ORM\Column(type="string", length=50, name="type_bl")
+     */
+    private $typeBl;
 
 
 
@@ -91,6 +99,24 @@ class BLSoumission
     public function setPathFichierSoumis($pathFichierSoumis)
     {
         $this->pathFichierSoumis = $pathFichierSoumis;
+        return $this;
+    }
+
+    /**
+     * Get the value of typeBl
+     */
+    public function getTypeBl()
+    {
+        return $this->typeBl;
+    }
+
+    /**
+     * Set the value of typeBl
+     */
+    public function setTypeBl($typeBl): self
+    {
+        $this->typeBl = $typeBl;
+
         return $this;
     }
 }

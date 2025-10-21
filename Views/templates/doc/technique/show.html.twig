@@ -1,0 +1,42 @@
+{% extends 'baseTemplate.html.twig' %}
+
+{% block title %}
+	{{ title }}
+{% endblock %}
+
+{% block content %}
+	<a href="{{ path('app_doc_tech_index') }}">&larr; Retour à la table des matières</a>
+	<hr>
+
+	<div class="doc-content" style="margin-top: 20px;">
+		<h1>{{ title }}</h1>
+
+		{% if metadata is not empty %}
+			<div class="doc-metadata">
+				{% if metadata.category is defined %}
+					<p>
+						<strong>Catégorie:</strong>
+						{{ metadata.category }}</p>
+				{% endif %}
+				{% if metadata.version is defined %}
+					<p>
+						<strong>Version:</strong>
+						{{ metadata.version }}</p>
+				{% endif %}
+				{% if metadata.description is defined %}
+					<p>
+						<strong>Description:</strong>
+						{{ metadata.description }}</p>
+				{% endif %}
+				{% if metadata.author is defined %}
+					<p>
+						<strong>Auteur:</strong>
+						{{ metadata.author }}</p>
+				{% endif %}
+			</div>
+			<hr>
+		{% endif %}
+
+		{{ content|raw }}
+	</div>
+{% endblock %}

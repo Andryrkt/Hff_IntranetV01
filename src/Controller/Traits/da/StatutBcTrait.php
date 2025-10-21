@@ -8,27 +8,94 @@ use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaSoumissionBc;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Model\magasin\MagasinListeOrLivrerModel;
+use App\Model\da\DaModel;
+use Symfony\Component\Validator\Constraints\Length;
 
 trait StatutBcTrait
 {
+    // Styles des DA, OR, BC dans le css
+    private $styleStatutDA = [];
+    private $styleStatutOR = [];
+    private $styleStatutBC = [];
+
+    // Repository / Model
+    private DaModel $daModel;
+
+    /**
+     * Initialise le trait StatutBcTrait
+     */
+    public function initStatutBcTrait()
+    {
+        $this->daModel = new DaModel();
+
+        //----------------------------------------------------------------------------------------------------
+        $this->styleStatutDA = [
+            DemandeAppro::STATUT_VALIDE               => 'bg-bon-achat-valide',
+            DemandeAppro::STATUT_TERMINER             => 'bg-primary text-white',
+            DemandeAppro::STATUT_SOUMIS_ATE           => 'bg-proposition-achat',
+            DemandeAppro::STATUT_DW_A_VALIDE          => 'bg-soumis-validation',
+            DemandeAppro::STATUT_SOUMIS_APPRO         => 'bg-demande-achat',
+            DemandeAppro::STATUT_DEMANDE_DEVIS        => 'bg-demande-devis',
+            DemandeAppro::STATUT_DEVIS_A_RELANCER     => 'bg-devis-a-relancer',
+            DemandeAppro::STATUT_EN_COURS_CREATION    => 'bg-en-cours-creation',
+            DemandeAppro::STATUT_AUTORISER_MODIF_ATE  => 'bg-creation-demande-initiale',
+            DemandeAppro::STATUT_EN_COURS_PROPOSITION => 'bg-en-cours-proposition',
+        ];
+        $this->styleStatutOR = [
+            DitOrsSoumisAValidation::STATUT_VALIDE                     => 'bg-or-valide',
+            DitOrsSoumisAValidation::STATUT_A_RESOUMETTRE_A_VALIDATION => 'bg-a-resoumettre-a-validation',
+            DitOrsSoumisAValidation::STATUT_A_VALIDER_CA               => 'bg-or-valider-ca',
+            DitOrsSoumisAValidation::STATUT_A_VALIDER_DT               => 'bg-or-valider-dt',
+            DitOrsSoumisAValidation::STATUT_A_VALIDER_CLIENT           => 'bg-or-valider-client',
+            DitOrsSoumisAValidation::STATUT_MODIF_DEMANDE_PAR_CA       => 'bg-modif-demande-ca',
+            DitOrsSoumisAValidation::STATUT_MODIF_DEMANDE_PAR_CLIENT   => 'bg-modif-demande-client',
+            DitOrsSoumisAValidation::STATUT_REFUSE_CA                  => 'bg-or-non-valide',
+            DitOrsSoumisAValidation::STATUT_REFUSE_CLIENT              => 'bg-or-non-valide',
+            DitOrsSoumisAValidation::STATUT_REFUSE_DT                  => 'bg-or-non-valide',
+            DitOrsSoumisAValidation::STATUT_SOUMIS_A_VALIDATION        => 'bg-or-soumis-validation',
+        ];
+        $this->styleStatutBC = [
+            DaSoumissionBc::STATUT_A_GENERER                => 'bg-bc-a-generer',
+            DaSoumissionBc::STATUT_A_EDITER                 => 'bg-bc-a-editer',
+            DaSoumissionBc::STATUT_A_SOUMETTRE_A_VALIDATION => 'bg-bc-a-soumettre-a-validation',
+            DaSoumissionBc::STATUT_A_ENVOYER_AU_FOURNISSEUR => 'bg-bc-a-envoyer-au-fournisseur',
+            DaSoumissionBc::STATUT_SOUMISSION               => 'bg-bc-soumission',
+            DaSoumissionBc::STATUT_A_VALIDER_DA             => 'bg-bc-a-valider-da',
+            DaSoumissionBc::STATUT_VALIDE                   => 'bg-bc-valide',
+            DaSoumissionBc::STATUT_CLOTURE                  => 'bg-bc-cloture',
+            DaSoumissionBc::STATUT_REFUSE                   => 'bg-bc-refuse',
+            DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR => 'bg-bc-envoye-au-fournisseur',
+            'Non validé'                                    => 'bg-bc-non-valide',
+            DaSoumissionBc::STATUT_TOUS_LIVRES              => 'tout-livre',
+            DaSoumissionBc::STATUT_PARTIELLEMENT_LIVRE      => 'partiellement-livre',
+            DaSoumissionBc::STATUT_PARTIELLEMENT_DISPO      => 'partiellement-dispo',
+            DaSoumissionBc::STATUT_COMPLET_NON_LIVRE        => 'complet-non-livre',
+        ];
+        //----------------------------------------------------------------------------------------------------
+    }
+
     private function statutBc(?string $ref, string $numDit, string $numDa, ?string $designation, ?string $numeroOr): ?string
     {
         $em = self::getEntity();
 
         $DaAfficher = $this->getDaAfficher($numDa, $numDit, $ref, $designation);
 
-        if ($DaAfficher == null) {
+        if ($DaAfficher == null || $DaAfficher->getStatutDal() !== DemandeAppro::STATUT_VALIDE) {
             return '';
         };
+
         $statutBc = $DaAfficher->getStatutCde();
         $achatDirect = $DaAfficher->getAchatDirect();
+
+        if (!$achatDirect) {
+            $this->updateInfoOR($numDit, $DaAfficher);
+        }
 
         if ($numeroOr == null && !$achatDirect) {
             return $statutBc;
         }
-
         $infoDaDirect = $this->daModel->getInfoDaDirect($numDa, $ref, $designation);
-        $situationCde = $this->daModel->getSituationCde($ref, $numDit, $numDa, $designation, $numeroOr);
+        $situationCde = $this->daModel->getSituationCde($ref, $numDit, $numDa, $designation, $numeroOr, $statutBc);
 
         $statutDaIntanert = [
             DemandeAppro::STATUT_SOUMIS_ATE,
@@ -44,14 +111,15 @@ trait StatutBcTrait
         $bcExiste = $this->daSoumissionBcRepository->bcExists($numcde);
         $statutSoumissionBc = $em->getRepository(DaSoumissionBc::class)->getStatut($numcde);
 
-        $qte = $this->daModel->getEvolutionQte($numDit, $numDa, $ref, $designation, $numeroOr);
-        [$partiellementDispo, $completNonLivrer, $tousLivres, $partiellementLivre] = $this->evaluerQuantites($qte,  $infoDaDirect, $achatDirect);
+        $qte = $achatDirect
+            ? $this->daModel->getEvolutionQteDaDirect($numcde, $ref, $designation)
+            : $this->daModel->getEvolutionQteDaAvecDit($numDit, $ref, $designation, $numeroOr, $statutBc, $numDa);
+        [$partiellementDispo, $completNonLivrer, $tousLivres, $partiellementLivre] = $this->evaluerQuantites($qte,  $infoDaDirect, $achatDirect, $DaAfficher);
 
-        if (! $achatDirect) {
-            $this->updateInfoOR($numDit, $DaAfficher);
-        }
+
         $this->updateSituationCdeDansDaAfficher($situationCde, $DaAfficher, $numcde, $infoDaDirect, $achatDirect);
         $this->updateQteCdeDansDaAfficher($qte, $DaAfficher, $infoDaDirect, $achatDirect);
+
 
         $statutBcDw = [
             DaSoumissionBc::STATUT_SOUMISSION,
@@ -60,6 +128,10 @@ trait StatutBcTrait
             DaSoumissionBc::STATUT_CLOTURE,
             DaSoumissionBc::STATUT_REFUSE
         ];
+
+        if (empty($situationCde) && !$achatDirect && $DaAfficher->getStatutOr() === DitOrsSoumisAValidation::STATUT_VALIDE) {
+            return 'PAS DANS OR';
+        }
 
         if ($this->doitGenererBc($situationCde, $statutDa, $DaAfficher->getStatutOr(), $infoDaDirect, $achatDirect)) {
             return 'A générer';
@@ -76,6 +148,7 @@ trait StatutBcTrait
         if ($this->doitSoumettreBc($situationCde, $bcExiste, $statutBc, $statutBcDw, $infoDaDirect, $achatDirect)) {
             return 'A soumettre à validation';
         }
+
 
         if ($this->doitEnvoyerBc($situationCde, $statutBc, $DaAfficher, $statutSoumissionBc, $infoDaDirect, $achatDirect)) {
             return 'A envoyer au fournisseur';
@@ -101,6 +174,7 @@ trait StatutBcTrait
             return 'BC envoyé au fournisseur';
         }
 
+
         return $statutSoumissionBc;
     }
 
@@ -122,14 +196,17 @@ trait StatutBcTrait
     private function doitGenererBc(array $situationCde, string $statutDa, ?string $statutOr, array $infoDaDirect, bool $achatDirect): bool
     {
         if ($achatDirect) {
-            if (empty($infoDaDirect)) {
-                return true;
+            if ($statutOr === DemandeAppro::STATUT_DW_VALIDEE) {
+                if (empty($infoDaDirect)) {
+                    return true;
+                }
+
+                // Si le numéro de commande est vide
+                $numCdeVide = empty($infoDaDirect[0]['num_cde'] ?? null);
+
+                return $numCdeVide;
             }
-
-            // Si le numéro de commande est vide
-            $numCdeVide = empty($situationCde[0]['num_cde'] ?? null);
-
-            return $numCdeVide;
+            return false;
         } else {
 
             $daValide = $statutDa === DemandeAppro::STATUT_VALIDE;
@@ -165,7 +242,7 @@ trait StatutBcTrait
     private function doitSoumettreBc(array $situationCde, bool $bcExiste, ?string $statutBc, array $statutBcDw, array $infoDaDirect, bool $achatDirect): bool
     {
         if ($achatDirect) {
-            return (int)$situationCde[0]['num_cde'] > 0
+            return (int)$infoDaDirect[0]['num_cde'] > 0
                 && $infoDaDirect[0]['position_bc'] === DaSoumissionBc::POSITION_EDITER
                 && !in_array($statutBc, $statutBcDw)
                 && !$bcExiste;
@@ -193,7 +270,7 @@ trait StatutBcTrait
         }
     }
 
-    private function evaluerQuantites(array $qte, array $infoDaDirect, bool $achatDirect): array
+    private function evaluerQuantites(array $qte, array $infoDaDirect, bool $achatDirect, DaAfficher $DaAfficher): array
     {
         if (empty($qte)) {
             return [false, false, false, false];
@@ -215,11 +292,10 @@ trait StatutBcTrait
         }
 
 
-        $partiellementDispo = $qteDem != $qteALivrer && $qteLivee == 0 && $qteALivrer > 0;
-        $completNonLivrer = ($qteDem == $qteALivrer && $qteLivee < $qteDem) ||
-            ($qteALivrer > 0 && $qteDem == ($qteALivrer + $qteLivee));
-        $tousLivres = $qteDem == $qteLivee && $qteDem != 0;
-        $partiellementLivre = $qteLivee > 0 && $qteLivee != $qteDem && $qteDem > ($qteLivee + $qteALivrer);
+        $partiellementDispo = ($qteDem != $qteALivrer && $qteLivee == 0 && $qteALivrer > 0) && $DaAfficher->getEstFactureBlSoumis();
+        $completNonLivrer = (($qteDem == $qteALivrer && $qteLivee < $qteDem) || ($qteALivrer > 0 && $qteDem == ($qteALivrer + $qteLivee))) && $DaAfficher->getEstFactureBlSoumis();
+        $tousLivres = ($qteDem == $qteLivee && $qteDem != 0) && $DaAfficher->getEstFactureBlSoumis();
+        $partiellementLivre = ($qteLivee > 0 && $qteLivee != $qteDem && $qteDem > ($qteLivee + $qteALivrer)) && $DaAfficher->getEstFactureBlSoumis();
 
         return [$partiellementDispo, $completNonLivrer, $tousLivres, $partiellementLivre];
     }
@@ -234,16 +310,20 @@ trait StatutBcTrait
                 $qteLivee = 0; //TODO: en attend du decision du client
                 $qteReliquat = (int)$q['qte_en_attente']; // quantiter en attente
                 $qteDispo = (int)$q['qte_dispo'];
+                $qteDem = (int)$q['qte_dem'];
             } else {
                 $q = $qte[0];
                 $qteLivee = (int)$q['qte_livree'];
                 $qteReliquat = (int)$q['qte_reliquat']; // quantiter en attente
                 $qteDispo = (int)$q['qte_dispo'];
+                $qteDem = (int)$q['qte_dem'];
             }
+
             $DaAfficher
                 ->setQteEnAttent($qteReliquat)
                 ->setQteLivrer($qteLivee)
                 ->setQteDispo($qteDispo)
+                ->setQteDemIps($qteDem)
             ;
         }
     }
@@ -264,17 +344,13 @@ trait StatutBcTrait
 
     private function updateInfoOR(string $numDit, DaAfficher $DaAfficher)
     {
-        [$numOr, $statutOr] = $this->ditOrsSoumisAValidationRepository->getNumeroEtStatutOr($numDit);
+        [$numOr,] = $this->ditOrsSoumisAValidationRepository->getNumeroEtStatutOr($numDit);
         $datePlanningOr = $this->getDatePlannigOr($numOr);
 
         $DaAfficher
             ->setNumeroOr($numOr)
             ->setDatePlannigOr($datePlanningOr)
         ;
-
-        if ($DaAfficher->getStatutOr() != DitOrsSoumisAValidation::STATUT_A_RESOUMETTRE_A_VALIDATION) {
-            $DaAfficher->setStatutOr($statutOr);
-        }
     }
 
     private function getDatePlannigOr(?string $numOr)
@@ -296,11 +372,37 @@ trait StatutBcTrait
         $numeroVersionMax = $this->daAfficherRepository->getNumeroVersionMax($numDa);
         $conditionDeRecuperation = [
             'numeroDemandeAppro' => $numDa,
-            'numeroDemandeDit' => $numDit,
+            //'numeroDemandeDit' => $numDit,
             'artRefp' => $ref,
             'artDesi' => $designation,
             'numeroVersion' => $numeroVersionMax
         ];
         return $this->daAfficherRepository->findOneBy($conditionDeRecuperation);
+    }
+
+
+    private function modificationNumLigneEtItv(string $ref, string $desi, string $numOr, DaAfficher $DaAfficher)
+    {
+        $numLigneEtItv = $this->daModel->getNumLigneAntItvIps($ref, $desi, $numOr);
+
+        if (!empty($numLigneEtItv)) {
+            if (count($numLigneEtItv) > 1) {
+                foreach ($numLigneEtItv as $value) {
+                    if ($DaAfficher->getNumeroLigneIps() == null && $DaAfficher->getNumeroInterventionIps() == null && $DaAfficher->getQteDemIps() == $value['qte_dem']) {
+
+                        $DaAfficher
+                            ->setNumeroLigneIps($value['num_ligne'])
+                            ->setNumeroInterventionIps($value['numero_intervention_ips']);
+                        break;
+                    }
+                }
+            } else {
+                $numLigne = $numLigneEtItv[0]['num_ligne'];
+                $numIntervention = $numLigneEtItv[0]['numero_intervention_ips'];
+                $DaAfficher
+                    ->setNumeroLigneIps($numLigne)
+                    ->setNumeroInterventionIps($numIntervention);
+            }
+        }
     }
 }

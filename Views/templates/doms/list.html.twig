@@ -1,7 +1,11 @@
 {% extends "baseTemplate.html.twig" %}
 
 {% block stylesheets %}
-<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.09.15.08.00">
+{% endblock %}
+
+{% block title %}
+	Liste des missions
 {% endblock %}
 
 {# {% import "macroForm.html.twig" as form %} #}
@@ -9,10 +13,7 @@
 {% block content %}
 	{# {% include "/partials/_loader.html.twig" %} #}
 
-	<div class="container">
-		<h3 class="perso-titre">
-			Liste de Demande d'ordre de mission
-		</h3>
+	<div class="container mt-6">
 		{% include "/doms/shared/_formulaireRecherche.html.twig" %}
 		{% include "/doms/shared/_pagination.html.twig" %}
 	</div>
@@ -48,7 +49,7 @@
 					{% set styleStatutDom = '' %}
 
 					{% if item.idStatutDemande.description | trim == 'OUVERT' %}
-						{% set classeStatutDom ='bg-warning bg-gradient text-cente' %}
+						{% set classeStatutDom ='bg-warning bg-gradient text-center' %}
 					{% elseif item.idStatutDemande.description | trim == 'PAYE'  %}
 						{% set classeStatutDom ='bg-success bg-gradient' %}
 					{% elseif  item.idStatutDemande.description | trim == 'ATTENTE PAIEMENT' %}
@@ -59,7 +60,7 @@
 					{% elseif item.idStatutDemande.description | trim == 'A VALIDER SERVICE EMETTEUR' %}
 						{% set classeStatutDom ='bg-primary' %}
 						{% set styleStatutDom = '--bs-bg-opacity: .5;' %}
-					{% elseif item.idStatutDemande.description | trim == 'VALIDE' or item.idStatutDemande.description | trim == 'VALIDE COMPTABILITE' or item.idStatutDemande.description | trim == 'VALIDATION RH' or item.idStatutDemande.description | trim == 'VALIDATION DG'%}
+					{% elseif item.idStatutDemande.description | trim == 'VALIDE' or item.idStatutDemande.description | trim == 'VALIDE COMPTABILITE' or item.idStatutDemande.description | trim == 'VALIDATION RH' or item.idStatutDemande.description | trim == 'VALIDATION DG' %}
 						{% set classeStatutDom ='bg-success' %}
 					{% elseif item.idStatutDemande.description | trim == 'ANNULE CHEF DE SERVICE' or item.idStatutDemande.description | trim == 'ANNULE COMPTABILITE' or item.idStatutDemande.description | trim == 'ANNULE SECRETARIAT RH' or item.idStatutDemande.description | trim == 'ANNULE' %}
 						{% set classeStatutDom ='bg-danger' %}
@@ -87,10 +88,9 @@
 						{# Fin Actions #}
 
 						{# DEBUT Statut #}
-						<td class="{{classeStatutDom}}" style="{{styleStatutDom}}">{{ item.idStatutDemande.description}}</td>
-
+						<td class="{{ classeStatutDom }}" style="{{ styleStatutDom }}">{{ item.idStatutDemande.description }}</td>
 						{# FIN Statut #}
-						<td>{{ item.sousTypeDocument.codeSousType}}</td>
+						<td>{{ item.sousTypeDocument.codeSousType }}</td>
 						<td>
 							<a href="{{ path("Dom_detail", {id:item.id})}}" target="_blank">
 								{{ item.numeroOrdreMission }}
@@ -117,7 +117,5 @@
 {% endblock %}
 
 {% block javascript %}
-	<script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
-	<script src="{{ App.base_path }}/Views/js/badm/listBadm.js" type="module"></script>
-
+	<script src="{{ App.base_path }}/Views/js/badm/listBadm.js?v=2025.09.15.08.00" type="module"></script>
 {% endblock %}

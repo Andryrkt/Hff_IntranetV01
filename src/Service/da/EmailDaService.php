@@ -2,17 +2,21 @@
 
 namespace App\Service\da;
 
+use App\Controller\Traits\da\DaTrait;
 use App\Controller\Traits\lienGenerique;
 use App\Entity\da\DemandeAppro;
 use App\Service\EmailService;
 
 class EmailDaService
 {
+    use DaTrait;
     use lienGenerique;
+    private $twig;
     private $emailTemplate;
 
-    public function __construct()
+    public function __construct($twig)
     {
+        $this->twig = $twig;
         $this->emailTemplate = "da/email/emailDa.html.twig";
     }
 
@@ -47,20 +51,43 @@ class EmailDaService
     }
 
     /** 
+     * Méthode pour envoyer une email pour la création d'une DA directe
+     * @param DemandeAppro $demandeAppro objet de la demande appro
+     * @param array $tab tableau de données à utiliser dans le corps du mail
+     */
+    public function envoyerMailcreationDaDirect(DemandeAppro $demandeAppro, array $tab)
+    {
+        $this->envoyerEmail([
+            'to'        => DemandeAppro::MAIL_APPRO,
+            'variables' => [
+                'tab'            => $tab,
+                'statut'         => "newDa",
+                'subject'        => "{$demandeAppro->getNumeroDemandeAppro()} - Nouvelle demande d'achat créé",
+                'demandeAppro'   => $demandeAppro,
+                'action_url'     => $this->getUrlDetail($demandeAppro->getId(), false),
+            ],
+        ]);
+    }
+
+    /** 
      * Méthode pour envoyer une email de propositions pour une DA avec DIT
      * @param DemandeAppro $demandeAppro objet de la demande appro
      * @param array $tab tableau de données à utiliser dans le corps du mail
      */
     public function envoyerMailPropositionDaAvecDit(DemandeAppro $demandeAppro, array $tab)
     {
+        $fournisseurs = $this->gererPrixFournisseurs($demandeAppro->getDAL());
         $this->envoyerEmail([
-            'to'        => $demandeAppro->getUser()->getMail(),
+            // 'to'        => $demandeAppro->getUser()->getMail(),
+            'to'        => 'nomenjanahary.randrianantenaina@hff.mg',
             'variables' => [
-                'tab'            => $tab,
-                'statut'         => "propositionDa",
-                'subject'        => "{$demandeAppro->getNumeroDemandeAppro()} - Proposition créee par l'Appro",
-                'demandeAppro'   => $demandeAppro,
-                'action_url'     => $this->getUrlDetail($demandeAppro->getId()),
+                'tab'               => $tab,
+                'statut'            => "propositionDa",
+                'subject'           => "{$demandeAppro->getNumeroDemandeAppro()} - Proposition créée par l'Appro",
+                'demandeAppro'      => $demandeAppro,
+                'fournisseurs'      => $fournisseurs,
+                'listeFournisseurs' => array_keys($fournisseurs),
+                'action_url'        => $this->getUrlDetail($demandeAppro->getId()),
             ],
         ]);
     }
@@ -72,14 +99,17 @@ class EmailDaService
      */
     public function envoyerMailPropositionDaDirect(DemandeAppro $demandeAppro, array $tab)
     {
+        $fournisseurs = $this->gererPrixFournisseurs($demandeAppro->getDAL());
         $this->envoyerEmail([
             'to'        => $demandeAppro->getUser()->getMail(),
             'variables' => [
-                'tab'            => $tab,
-                'statut'         => "propositionDa",
-                'subject'        => "{$demandeAppro->getNumeroDemandeAppro()} - Proposition créee par l'Appro",
-                'demandeAppro'   => $demandeAppro,
-                'action_url'     => $this->getUrlDetail($demandeAppro->getId(), false),
+                'tab'               => $tab,
+                'statut'            => "propositionDa",
+                'subject'           => "{$demandeAppro->getNumeroDemandeAppro()} - Proposition créée par l'Appro",
+                'demandeAppro'      => $demandeAppro,
+                'fournisseurs'      => $fournisseurs,
+                'listeFournisseurs' => array_keys($fournisseurs),
+                'action_url'        => $this->getUrlDetail($demandeAppro->getId(), false),
             ],
         ]);
     }
@@ -281,9 +311,12 @@ class EmailDaService
      */
     public function envoyerEmail(array $content): void
     {
-        $emailService = new EmailService();
+        $emailService = new EmailService($this->twig);
 
         $emailService->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.da');
+
+        $content['cc'] = $content['cc'] ?? [];
+        // $content['cc'][] = 'hoby.ralahy@hff.mg';
 
         $emailService->sendEmail($content['to'], $content['cc'] ?? [], $this->emailTemplate, $content['variables'] ?? [], $content['attachments'] ?? []);
     }

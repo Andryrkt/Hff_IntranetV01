@@ -2,6 +2,7 @@
 
 namespace App\Service\navigation;
 
+use App\Entity\da\DemandeAppro;
 use App\Entity\admin\Application;
 use App\Entity\admin\utilisateur\Role;
 use App\Entity\admin\utilisateur\User;
@@ -10,13 +11,18 @@ use App\Service\SessionManagerService;
 class MenuService
 {
     private $em;
-    private $estAdmin;
-    private $nomUtilisateur;
+    private $connectedUser;
+    private bool $estAdmin = false;
+    private bool $estAtelier = false;
+    private bool $estAppro = false;
+    private bool $estCreateurDeDADirecte = false;
+    private $basePath;
     private $applicationIds = [];
 
     public function __construct($entityManager)
     {
         $this->em = $entityManager;
+        $this->basePath = $_ENV['BASE_PATH_FICHIER_COURT']; // Chemin de base pour les liens de téléchargement --> /Upload
     }
 
     /**
@@ -35,6 +41,46 @@ class MenuService
     public function setEstAdmin($estAdmin)
     {
         $this->estAdmin = $estAdmin;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of estAtelier
+     */
+    public function getEstAtelier()
+    {
+        return $this->estAtelier;
+    }
+
+    /**
+     * Set the value of estAtelier
+     *
+     * @return  self
+     */
+    public function setEstAtelier($estAtelier)
+    {
+        $this->estAtelier = $estAtelier;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of estAppro
+     */
+    public function getEstAppro()
+    {
+        return $this->estAppro;
+    }
+
+    /**
+     * Set the value of estAppro
+     *
+     * @return  self
+     */
+    public function setEstAppro($estAppro)
+    {
+        $this->estAppro = $estAppro;
 
         return $this;
     }
@@ -60,19 +106,42 @@ class MenuService
     }
 
     /**
-     * Get the value of nomUtilisateur
+     * Get the value of connectedUser
      */
-    public function getNomUtilisateur()
+    public function getConnectedUser()
     {
-        return $this->nomUtilisateur;
+        return $this->connectedUser;
     }
 
     /**
-     * Set the value of nomUtilisateur
+     * Set the value of connectedUser
+     *
+     * @return  self
      */
-    public function setNomUtilisateur($nomUtilisateur): self
+    public function setConnectedUser($connectedUser)
     {
-        $this->nomUtilisateur = $nomUtilisateur;
+        $this->connectedUser = $connectedUser;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of estCreateurDeDADirecte
+     */
+    public function getEstCreateurDeDADirecte()
+    {
+        return $this->estCreateurDeDADirecte;
+    }
+
+    /**
+     * Set the value of estCreateurDeDADirecte
+     *
+     * @return  self
+     */
+    public function setEstCreateurDeDADirecte($estCreateurDeDADirecte)
+    {
+        $this->estCreateurDeDADirecte = $estCreateurDeDADirecte;
+
         return $this;
     }
 
@@ -91,9 +160,13 @@ class MenuService
 
             if ($connectedUser) {
                 $roleIds = $connectedUser->getRoleIds();
+                $serviceIds = $connectedUser->getServiceAutoriserIds();
 
-                $this->setNomUtilisateur($connectedUser->getNomUtilisateur());
+                $this->setConnectedUser($connectedUser);
                 $this->setEstAdmin(in_array(Role::ROLE_ADMINISTRATEUR, $roleIds, true)); // estAdmin
+                $this->setEstAppro(in_array(DemandeAppro::ID_APPRO, $serviceIds)); // est appro
+                $this->setEstAtelier(in_array(DemandeAppro::ID_ATELIER, $serviceIds)); // est atelier
+                $this->setEstCreateurDeDADirecte(in_array(Role::ROLE_DA_DIRECTE, $roleIds, true)); // est créateur de DA directe
                 $this->setApplicationIds($connectedUser->getApplicationsIds()); // Les applications autorisées de l'utilisateur connecté
             }
         }
@@ -147,7 +220,7 @@ class MenuService
     {
         $subitems = [
             $this->createSimpleItem('Annuaire', 'address-book', '#'),
-            $this->createSimpleItem('Plan analytique HFF', 'ruler-vertical', '/Upload/documentation/Structure%20analytique%20HFF.pdf', [], "_blank"),
+            $this->createSimpleItem('Plan analytique HFF', 'ruler-vertical', "{$this->basePath}/documentation/Structure%20analytique%20HFF.pdf", [], "_blank"),
             $this->createSimpleItem('Documentation interne', 'folder-tree', 'documentation_interne'),
         ];
         if ($this->getEstAdmin()) {
@@ -155,7 +228,7 @@ class MenuService
                 'Contrat',
                 'file-contract',
                 [
-                    $this->createSubItem('Nouveau contrat', 'plus-circle', 'https://hffc.docuware.cloud/docuware/formsweb/enregistrement-contrats?orgID=5adf2517-2f77-4e19-8b42-9c3da43af7be', [], "_blank"),
+                    $this->createSubItem('Nouveau contrat', 'plus-circle', 'new_contrat', [], "_blank"),
                     $this->createSubItem('Consultation', 'search', '#')
                 ]
             );
@@ -202,7 +275,7 @@ class MenuService
                     'receipt',
                     [
                         $this->createSubItem('Nouvelle demande', 'plus-circle', '#'),
-                        $this->createSubItem('Consultation', 'search', '#')
+                        $this->createSubItem('Consultation', 'search', 'bon_caisse_liste')
                     ]
                 )
             ]
@@ -212,14 +285,17 @@ class MenuService
     public function menuRH()
     {
         $subitems = [];
+        $nomUtilisateur = $this->getConnectedUser() ? $this->getConnectedUser()->getNomUtilisateur() : '';
         if ($this->getEstAdmin() || in_array(Application::ID_DOM, $this->getApplicationIds())) { // DOM
+            $subSubitems = [];
+            if ($nomUtilisateur != 'roddy') {
+                $subSubitems[] = $this->createSubItem('Nouvelle demande', 'plus-circle', 'dom_first_form');
+            }
+            $subSubitems[] = $this->createSubItem('Consultation', 'search', 'doms_liste');
             $subitems[] = $this->createSubMenuItem(
                 'Ordre de mission',
                 'file-signature',
-                [
-                    $this->createSubItem('Nouvelle demande', 'plus-circle', 'dom_first_form'),
-                    $this->createSubItem('Consultation', 'search', 'doms_liste')
-                ]
+                $subSubitems
             );
         }
         if ($this->getEstAdmin() || in_array(Application::ID_MUT, $this->getApplicationIds())) { // MUT
@@ -232,14 +308,17 @@ class MenuService
                 ]
             );
         }
-        if ($this->getEstAdmin() || in_array(Application::ID_DDC, $this->getApplicationIds())) { // MUT
+        if ($this->getEstAdmin() || in_array(Application::ID_DDC, $this->getApplicationIds())) { // DDC
+            $subSubitems = [];
+            $subSubitems[] = $this->createSubItem('Nouvelle demande', 'plus-circle', 'new_conge', [], '_blank');
+            if ($this->getEstAdmin()) {
+                $subSubitems[] = $this->createSubItem('Annulation Congé', 'calendar-xmark', 'annulation_conge', [], '_blank');
+            }
+            $subSubitems[] = $this->createSubItem('Consultation', 'search', 'conge_liste');
             $subitems[] = $this->createSubMenuItem(
                 'Congés',
                 'umbrella-beach',
-                [
-                    $this->createSubItem('Nouvelle demande', 'plus-circle', 'https://hffc.docuware.cloud/docuware/formsweb/demande-de-conges-new?orgID=5adf2517-2f77-4e19-8b42-9c3da43af7be', [], '_blank'),
-                    $this->createSubItem('Consultation', 'search', '#')
-                ]
+                $subSubitems
             );
         }
         if ($this->getEstAdmin()) {
@@ -297,21 +376,22 @@ class MenuService
     public function menuAtelier()
     {
         $subitems = [];
-        $nomUtilisateur = $this->getNomUtilisateur();
+        $nomUtilisateur = $this->getConnectedUser() ? $this->getConnectedUser()->getNomUtilisateur() : '';
         if ($this->getEstAdmin() || in_array(Application::ID_DIT, $this->getApplicationIds())) { // DIT
             $subSubitems = [];
-            if ($nomUtilisateur != 'stg.iaro') {
+            if ($nomUtilisateur != 'stg.iaro' && $nomUtilisateur != 'roddy') {
                 $subSubitems[] = $this->createSubItem('Nouvelle demande', 'plus-circle', 'dit_new');
                 $subSubitems[] = $this->createSubItem('Consultation', 'search', 'dit_index');
             }
             $subSubitems[] = $this->createSubItem('Dossier DIT', 'folder', 'dit_dossier_intervention_atelier');
+            $subSubitems[] = $this->createSubItem('Matrice des responsabilités', 'table', "{$this->basePath}/documentation/MATRICE DE RESPONSABILITES OR v9.xlsx");
             $subitems[] = $this->createSubMenuItem(
                 'Demande d\'intervention',
                 'toolbox',
                 $subSubitems
             );
             if ($nomUtilisateur != 'stg.iaro') {
-                $subitems[] = $this->createSimpleItem('Glossaire OR', 'book', '/Upload/dit/glossaire_or/Glossaire_OR.pdf', [], '_blank');
+                $subitems[] = $this->createSimpleItem('Glossaire OR', 'book', "{$this->basePath}/dit/glossaire_or/Glossaire_OR.pdf", [], '_blank');
             }
         }
         if ($this->getEstAdmin() || in_array(Application::ID_REP, $this->getApplicationIds())) { // REP
@@ -336,6 +416,7 @@ class MenuService
     public function menuMagasin()
     {
         $subitems = [];
+        /** =====================Magasin========================= */
         if ($this->getEstAdmin() || in_array(Application::ID_MAG, $this->getApplicationIds())) { // MAG
             $subitems[] = $this->createSubMenuItem(
                 'OR',
@@ -354,35 +435,48 @@ class MenuService
                 ]
             );
         }
+        /** =====================Inventaire========================= */
         if ($this->getEstAdmin() || in_array(Application::ID_INV, $this->getApplicationIds())) { // INV
             $subitems[] = $this->createSubMenuItem(
                 'INVENTAIRE',
                 'file-alt',
                 [
                     $this->createSubItem('Liste inventaire', 'file-alt', 'liste_inventaire', ['action' => 'oui']),
-                    $this->createSubItem('Inventaire détaillé', 'file-alt', 'liste_detail_inventaire', ['action' => 'oui']),
+                    $this->createSubItem('Inventaire détaillé', 'file-alt', 'liste_detail_inventaire'),
                 ]
             );
         }
+        /** =====================sortie de pieces / lubs========================= */
         if ($this->getEstAdmin() || in_array(Application::ID_BDL, $this->getApplicationIds())) { // BDL
             $subitems[] = $this->createSubMenuItem(
-                'SORTIE DE PIECES / LUBS',
+                'SORTIE DE PIECES',
                 'arrow-left',
                 [
                     $this->createSubItem('Nouvelle demande', 'plus-circle', 'bl_soumission'),
                 ]
             );
         }
-        if ($this->getEstAdmin() || in_array(Application::ID_CFR, $this->getApplicationIds())) { // CFR
-            $subitems[] = $this->createSimpleItem('Commandes fournisseur', 'list-alt', 'cde_fournisseur');
+        /** =====================dematerialisation========================= */
+        if ($this->getEstAdmin()) {
+            $subitems[] = $this->createSubMenuItem(
+                'DEMATERIALISATION',
+                'cloud-arrow-up',
+                [
+                    $this->createSubItem('Devis', 'file-invoice', 'devis_magasin_liste'),
+                    $this->createSubItem('Commandes clients', 'shopping-basket', '#'),
+                    $this->createSubItem('Planning magasin', 'calendar-alt', '#'),
+                ]
+            );
         }
+        /** =====================soumission commande fournisseur========================= */
+        if ($this->getEstAdmin() || in_array(Application::ID_CFR, $this->getApplicationIds())) { // CFR
+            $subitems[] = $this->createSimpleItem('Soumission commandes fournisseur', 'list-alt', 'cde_fournisseur');
+        }
+        /** =====================liste des commandes fournisseur non generer========================= */
         if ($this->getEstAdmin() || in_array(Application::ID_LCF, $this->getApplicationIds())) { // LCF
             $subitems[] = $this->createSimpleItem('Liste des cmds non placées', 'exclamation-circle', 'liste_Cde_Frn_Non_Placer');
         }
-        if ($this->getEstAdmin()) {
-            $subitems[] = $this->createSimpleItem('Commandes clients', 'shopping-basket');
-            $subitems[] = $this->createSimpleItem('Planning magasin', 'calendar-alt');
-        }
+
         return $this->createMenuItem(
             'magasinModal',
             'Magasin',
@@ -393,18 +487,21 @@ class MenuService
 
     public function menuAppro()
     {
+        $subitems = [];
+        if ($this->getEstAdmin() || $this->getEstAtelier() || $this->getEstCreateurDeDADirecte()) { // admin OU atelier OU créateur de DA directe
+            $subitems[] = $this->createSimpleItem('Nouvelle DA', 'file-alt', 'da_first_form');
+        }
+        $subitems[] = $this->createSimpleItem('Consultation des DA', 'search', 'list_da');
+        if ($this->getEstAdmin() || $this->getEstAppro()) {
+            $subitems[] = $this->createSimpleItem('Liste des commandes fournisseurs', 'list-ul', 'da_list_cde_frn');
+        }
         return $this->createMenuItem(
             'approModal',
             'Appro',
             'shopping-cart',
-            [
-                $this->createSimpleItem('Nouvelle DA', 'file-alt', 'da_first_form'),
-                $this->createSimpleItem('Consultation des DA', 'search', 'list_da'),
-                $this->createSimpleItem('Liste des commandes fournisseurs', 'list-ul', 'da_list_cde_frn'),
-            ]
+            $subitems
         );
     }
-
 
     public function menuIT()
     {

@@ -67,28 +67,6 @@ new AutoComplete({
   onSelectCallback: onSelectNomFournisseur,
 });
 
-function adjustStickyPositions() {
-  const stickyHead = document.querySelector(".sticky-header-titre");
-  const tableHeader = document.querySelector(".table-plein-ecran thead tr");
-
-  if (tableHeader) {
-    tableHeader.style.top = `${stickyHead.offsetHeight}px`;
-  }
-}
-
-// Ajoutez un écouteur d'événements pour surveiller l'ouverture/fermeture de l'accordéon
-document
-  .querySelectorAll("#formAccordion .accordion-button")
-  .forEach((button) => {
-    button.addEventListener("click", () => {
-      setTimeout(adjustStickyPositions, 300); // Délai pour permettre l'animation de l'accordéon
-    });
-  });
-
-// Exécutez le script une fois au chargement de la page
-window.addEventListener("DOMContentLoaded", adjustStickyPositions);
-window.addEventListener("resize", adjustStickyPositions);
-
 /**=============================================================
  * Click droite sur le numero commande (menu contextuel)
  *===============================================================*/
@@ -147,15 +125,15 @@ document.addEventListener("contextmenu", function (event) {
          class="text-decoration-none text-dark cursor-pointer bg-success text-white border-0 rounded px-2 py-1">
          BC envoyé au fournisseur
       </p> <hr/>`;
-    if (statutBc !== "Tous livrés") {
+    // if (statutBc !== "Tous livrés") { // selon le demande de hoby rahalahy le 25/09/2025
       //active le formulaire
       Array.from(form.elements).forEach((el) => (el.disabled = false)); // active tous les champs du formulaire
       form.querySelector("button[type='submit']").classList.remove("disabled"); //changer l'apparence du bouton
-    } else {
-      //desactive le formulaire
-      Array.from(form.elements).forEach((el) => (el.disabled = true)); // Désactive tous les champs du formulaire
-      form.querySelector("button[type='submit']").classList.add("disabled"); //changer l'apparence du bouton
-    }
+    // } else {
+    //   //desactive le formulaire
+    //   Array.from(form.elements).forEach((el) => (el.disabled = true)); // Désactive tous les champs du formulaire
+    //   form.querySelector("button[type='submit']").classList.add("disabled"); //changer l'apparence du bouton
+    // }
   } else if (statutBc == "A envoyer au fournisseur") {
     statutAffiche.style.display = "block";
 

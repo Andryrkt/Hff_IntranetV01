@@ -252,9 +252,8 @@ class MagasinListeOrATraiterModel extends Model
     public function recuperAutocompletionRefPiece($refPiece)
     {
         $statement = "SELECT 
-            
             trim(slor_refp) as referencePiece
-           
+        
             from sav_lor 
             
             where 

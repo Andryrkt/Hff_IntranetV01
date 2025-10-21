@@ -1,0 +1,42 @@
+# Paramètres de l'application
+parameters:
+    # Configuration de l'application
+    app.name: 'Hffintranet'
+    app.version: '1.0.0'
+    app.locale: 'fr_FR'
+    app.debug: true
+    app.environment: 'dev'
+    
+    # Chemins de base
+    app.base_path: '%env(BASE_PATH_COURT)%'
+    app.views_dir: 'Views/templates'
+    app.public_dir: 'public'
+    
+    # Configuration de la base de données
+    database_host: '%env(DB_HOST)%'
+    database_port: '%env(DB_PORT)%'
+    database_name: '%env(DB_NAME)%'
+    database_user: '%env(DB_USER)%'
+    database_password: '%env(DB_PASSWORD)%'
+    
+    # Configuration des sessions
+    session.name: 'HFFSESSION'
+    session.lifetime: 3600
+    
+    # Configuration de la sécurité
+    security.csrf.enabled: true
+    security.session_fixation_strategy: 'migrate'
+    
+    # Configuration Twig
+    twig.debug: true
+    twig.strict_variables: false
+    twig.form_themes:
+        - 'bootstrap_5_layout.html.twig'
+        - 'form_div_layout.html.twig'
+    
+    # Configuration des formulaires
+    form.default_theme: 'bootstrap_5_layout.html.twig'
+    
+    # Configuration de la pagination
+    pagination.items_per_page: 20
+    pagination.max_pages: 10

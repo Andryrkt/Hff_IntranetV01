@@ -4,7 +4,7 @@ namespace App\Form\tik;
 
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
-use App\Controller\Controller;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\FormEvent;
 use App\Entity\admin\tik\TkiCategorie;
 use Symfony\Component\Form\FormEvents;
@@ -30,9 +30,9 @@ class DemandeSupportInformatiqueType extends AbstractType
 {
     private $agenceRepository;
 
-    public function __construct()
+    public function __construct(EntityManagerInterface $em)
     {
-        $this->agenceRepository = Controller::getEntity()->getRepository(Agence::class);
+        $this->agenceRepository = $em->getRepository(Agence::class);
     }
     public function buildForm(FormBuilderInterface $builder, array $options)
     {

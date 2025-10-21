@@ -1,9 +1,13 @@
 {% extends "baseTemplate.html.twig" %}
 
-{% block stylesheets%}
-	<link href="{{ App.base_path }}/Views/css/new.css" rel="stylesheet"/>
-	<link href="{{ App.base_path }}/Views/css/da/list.css" rel="stylesheet"/>
-	<link href="{{ App.base_path }}/Views/css/da/style.css" rel="stylesheet"/>
+{% block title %}
+	Création d’une DA
+{% endblock %}
+
+{% block stylesheets %}
+	<link href="{{ App.base_path }}/Views/css/new.css?v=2025.09.15.08.00" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/da/list.css?v=2025.09.15.08.00" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/da/style.css?v=2025.09.15.08.00" rel="stylesheet"/>
 {% endblock %}
 
 {% import "macroForm.html.twig" as macroForm %}
@@ -13,7 +17,7 @@
 {% endblock %}
 
 {% block content %}
-	<div class=" container-fluid">
+	<div class="container-spaced">
 		<div class="card">
 			<div class="card-body">
 				{{ form_start(form, { 'attr': { 'id': 'myForm' } }) }}
@@ -24,19 +28,25 @@
 							Formulaire Demande d'achat
 						</h3>
 					</div>
-
 					<div class="row">
 						<div class="col-12 col-md-4">
-							{{ macroForm.sousTitre('Information sur la demande') }}
+							{{ macroForm.sousTitre3('Information sur la demande') }}
 							{{ form_row(form.objetDal)}}
 							<div class="mb-3 position-relative">
 								{{ form_row(form.detailDal) }}
 								<span id="charCount" class="position-absolute bottom-0 end-0 p-0 small text-muted"></span>
 							</div>
-							{{ form_row(form.dateFinSouhaite) }}
+							<div class="row">
+								<div class="col col-md">
+									{{ form_row(form.niveauUrgence) }}
+								</div>
+								<div class="col col-md">
+									{{ form_row(form.dateFinSouhaite) }}
+								</div>
+							</div>
 						</div>
 						<div class="col-12 col-md-4">
-							{{ macroForm.sousTitre('Agence et service') }}
+							{{ macroForm.sousTitre3('Agence et service') }}
 							<div class="row">
 								<div class="col-6 col-md-6">
 									{{ macroForm.sousTitre('Emetteur') }}
@@ -51,7 +61,7 @@
 							</div>
 						</div>
 						<div class="col-12 col-md-4">
-							{{ macroForm.sousTitre('Information Matériel / DIT') }}
+							{{ macroForm.sousTitre3('Information Matériel / DIT') }}
 							<div class="row">
 								<div class="col-md-6 col-6">
 									{{ form_row(form.idMateriel) }}
@@ -88,12 +98,12 @@
 						</thead>
 					</table>
 					<div id="children-container">
-						{% for DAL in form.DAL %}
-							{% set ligne = loop.index %}
-							<div id="demande_appro_form_DAL_{{ ligne }}">
+						{% for ligne, DAL in form.DAL %}
+							{% set dalData = DAL.vars.data %}
+							<div id="demande_appro_form_DAL_{{ ligne }}" class="DAL-container">
 								<div class="row g-3">
 									<div class="w-10">
-										{{ form_widget(DAL.codeFams1) }}
+										{{ form_widget(DAL.codeFams1, { 'attr': { class:"non-modifiable" } }) }}
 									</div>
 									<div class="w-10">
 										<div class="spinner-container">
@@ -113,14 +123,14 @@
 											</div>
 										</div>
 										<div id="container_{{ ligne }}_codeFams2">
-											{{ form_widget(DAL.codeFams2) }}
+											{{ form_widget(DAL.codeFams2, { 'attr': { class:"non-modifiable" } }) }}
 										</div>
 									</div>
 									<div class="w-7">
-										{{ form_widget(DAL.artRefp) }}
+										{{ form_widget(DAL.artRefp, { 'attr': { class:"non-modifiable" } }) }}
 									</div>
 									<div class="w-20">
-										{{ form_widget(DAL.artDesi) }}
+										{{ form_widget(DAL.artDesi, { 'attr': { class:"non-modifiable" } }) }}
 										<div id="suggestion_{{ ligne }}_artDesi" class="suggestions-container"></div>
 										<div id="spinner_container_{{ ligne }}_artDesi" class="text-center" style="display: none;">
 											<div class="text-overlay">
@@ -130,24 +140,37 @@
 										</div>
 									</div>
 									<div class="w-10">
-										{{ form_widget(DAL.nomFournisseur) }}
+										{{ form_widget(DAL.nomFournisseur, { 'attr': { class:"non-modifiable" } }) }}
 										<div id="suggestion_{{ ligne }}_nomFournisseur" class="suggestions-container"></div>
 										<div id="spinner_container_{{ ligne }}_nomFournisseur" class="text-center" style="display: none;"></div>
 									</div>
 									<div class="w-10">
-										{{ form_widget(DAL.dateFinSouhaite) }}
+										{{ form_widget(DAL.dateFinSouhaite, { 'attr': { class:"non-modifiable" } }) }}
 									</div>
 									<div class="w-5">
-										{{ form_widget(DAL.qteDem) }}
+										{{ form_widget(DAL.qteDem, { 'attr': { class:"non-modifiable" } }) }}
 									</div>
 									<div class="w-13">
-										{{ form_widget(DAL.commentaire) }}
+										{{ form_widget(DAL.commentaire, { 'attr': { class:"non-modifiable" } }) }}
 									</div>
-									<div class="w-10">
+									<div class="d-none">
 										{{ form_widget(DAL.fileNames) }}
 									</div>
+									<div class="w-10">
+										{% if dalData.fileNames is not empty %}
+											<ul class="mb-0 ps-3">
+												{% for file in dalData.fileNames %}
+													<li>
+														<a href="{{ App.base_path_fichier }}/da/{{ dalData.numeroDemandeAppro }}/{{ file }}" target="_blank">{{ file }}</a>
+													</li>
+												{% endfor %}
+											</ul>
+										{% else %}
+											Aucune pièce jointe
+										{% endif %}
+									</div>
 									<div class="w-2">
-										{{ form_widget(DAL.estFicheTechnique) }}
+										{{ form_widget(DAL.estFicheTechnique, { 'attr': { class:"non-modifiable" } }) }}
 									</div>
 									<div class="d-none">
 										{{ form_widget(DAL.artConstp) }}
@@ -171,7 +194,7 @@
 										{{ form_widget(DAL.numeroLigne) }}
 									</div>
 									<div class="w-2">
-										<span title="Supprimer la ligne de DA" style="cursor: pointer;">
+										<span class="delete-DA" data-num-ligne="{{ ligne }}" title="Supprimer la ligne de DA" style="cursor: pointer; ">
 											<i class="fas fa-times fs-4"></i>
 										</span>
 									</div>
@@ -197,10 +220,14 @@
 					</div>
 				</div>
 
-				<div class="d-flex justify-content-end container-fluid">
-					<button type="submit" class="bouton-principal mt-2">
-						<i class="fas fa-save"></i>
-						Enregistrer
+				<div class="d-flex justify-content-end container-fluid mt-2">
+					<button type="submit" class="bouton-brouillon mx-3" name="enregistrerBrouillon">
+						<i class="fas fa-floppy-disk"></i>
+						Enregistrer provisoirement
+					</button>
+					<button type="submit" class="bouton-principal" name="soumissionAppro">
+						<i class="fas fa-paper-plane"></i>
+						Soumettre la demande
 					</button>
 				</div>
 				{{ form_end(form) }}
@@ -210,5 +237,5 @@
 	</div>
 {% endblock %}
 {% block javascript %}
-	<script type="module" src="{{ App.base_path }}/Views/js/da/newAvecDit/new.js" type="module"></script>
+	<script type="module" src="{{ App.base_path }}/Views/js/da/newAvecDit/new.js?v=2025.09.15.08.00" type="module"></script>
 {% endblock %}

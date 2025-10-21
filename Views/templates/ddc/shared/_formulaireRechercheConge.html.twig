@@ -1,0 +1,241 @@
+<div class="accordion" id="accordionConge">
+	<div class="accordion-item">
+		<h2 class="accordion-header">
+			<button class="accordion-button enteteAccordion" type="button" data-bs-toggle="collapse" data-bs-target="#collapseConge" aria-expanded="true" aria-controls="collapseConge">
+				<i class="fas fa-search me-2"></i>
+				Recherche de congés
+			</button>
+		</h2>
+		<div id="collapseConge" class="accordion-collapse collapse" data-bs-parent="#accordionConge">
+			<div class="accordion-body">
+				{{ form_start(form, {'attr': {'class': 'form-horizontal'}}) }}
+				<div class="row g-3">
+					<div class="col-md-3">
+						{{ form_row(form.matricule, {'attr': {'class': 'form-control-sm'}}) }}
+						<div id="suggestion-matricule-nom-prenom" class="suggestions-container"></div>
+						<div id="loader-matricule-nom-prenom" class="spinner" style="display: none;">Chargement...</div>
+					</div>
+					<div class="col-md-3">
+						{{ form_row(form.agence, {'attr': {'class': 'form-select-sm', 'data-default-agence': App.user.agenceServiceIrium.agenceIps|default('') }}) }}
+					</div>
+					<div class="col-md-3">
+						{{ form_row(form.dateDemande, {'attr': {'class': 'form-control-sm datepicker', 'type': 'date'}})}}
+					</div>
+					<div class="col-md-3">
+						{{ form_row(form.dateDebut, {'attr': {'class': 'form-control-sm datepicker', 'type': 'date'}})}}
+					</div>
+					<div class="col-md-3">
+						{{ form_row(form.numeroDemande, {'attr': {'class': 'form-control-sm'}}) }}
+					</div>
+					<div class="col-md-3">
+						<div id="serviceSpinner" class="d-none">
+							<div class="spinner-border spinner-border-sm text-secondary" role="status">
+								<span class="visually-hidden">Chargement...</span>
+							</div>
+							<span class="ms-2 small text-muted">Chargement des services...</span>
+						</div>
+						<div id="serviceFieldContainer">
+							{{ form_row(form.service, {'attr': {'class': 'form-select-sm', 'data-default-service': App.user.agenceServiceIrium.serviceips|default('')}}) }}
+						</div>
+					</div>
+					<div class="col-md-3">
+						{{ form_row(form.dateDemandeFin, {'attr': {'class': 'form-control-sm datepicker',
+                        'type':'date'}}) }}
+					</div>
+					<div class="col-md-3">
+						{{ form_row(form.dateFin, {'attr': {'class': 'form-control-sm datepicker', 'type': 'date'}}) }}
+					</div>
+
+					<div class="col-md-3">
+						{{ form_row(form.statutDemande, {'attr': {'class': 'form-select-sm'}}) }}
+					</div>
+					<div class="col-12 text-end">
+						<button type="submit" class="btn btn-sm btn-warning fw-bold">
+							<i class="fas fa-search me-1"></i>
+							Rechercher
+						</button>
+					</div>
+				</div>
+				{{ form_end(form) }}
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<script>
+	document.addEventListener('DOMContentLoaded', function () { // Importer FetchManager (en utilisant un module inline)
+const baseUrl = '{{ App.base_path }}';
+
+// Classe FetchManager simplifiée (intégrée directement)
+class FetchManager {
+constructor() {
+this.baseUrl = baseUrl;
+}
+
+async get(endpoint, responseType = "json") {
+try {
+const response = await fetch(`${
+this.baseUrl
+}/${endpoint}`);
+console.log(response);
+if (! response.ok) {
+throw new Error(`Erreur HTTP: ${
+response.status
+}`);
+}
+
+if (responseType === "json") {
+const text = await response.text();
+if (! text) 
+throw new Error('Réponse vide');
+
+
+
+return JSON.parse(text);
+} else {
+return await response.text();
+}
+} catch (error) {
+console.error(`Échec de récupération des données depuis ${
+this.baseUrl
+}/${endpoint}:`, error);
+throw error;
+}
+}
+}
+
+// Instanciation de FetchManager
+const fetchManager = new FetchManager();
+
+// Gestion de la dépendance Agence -> Service
+const agenceSelect = document.querySelector('[name="demande_conge[agence]"]');
+const serviceSelect = document.querySelector('[name="demande_conge[service]"]');
+const serviceFieldContainer = document.getElementById('serviceFieldContainer');
+const serviceSpinner = document.getElementById('serviceSpinner');
+
+
+// permet d'afficher ou masquer le champs service et afficher une spinner
+function toggleServiceLoading(isLoading) {
+if (! serviceFieldContainer || ! serviceSpinner) 
+return;
+
+
+
+if (isLoading) {
+serviceFieldContainer.classList.add('d-none');
+serviceSpinner.classList.remove('d-none');
+if (serviceSelect) 
+serviceSelect.disabled = true;
+
+
+
+} else {
+serviceSpinner.classList.add('d-none');
+serviceFieldContainer.classList.remove('d-none');
+if (serviceSelect) 
+serviceSelect.disabled = false;
+
+
+
+}
+}
+
+// Ajouter un champ caché pour le service
+const form = document.querySelector('form');
+const hiddenServiceInput = document.createElement('input');
+hiddenServiceInput.type = 'hidden';
+hiddenServiceInput.name = 'service_hidden';
+hiddenServiceInput.id = 'service_hidden';
+form.appendChild(hiddenServiceInput);
+
+// Restaurer la valeur du service si elle existe dans les critères
+const criteria = JSON.parse(`{{ (criteria|default({}))|json_encode|e("js") }}`);
+let previouslySelectedService = null;
+if (criteria && criteria.selected_service) {
+previouslySelectedService = criteria.selected_service;
+hiddenServiceInput.value = criteria.selected_service;
+}
+
+if (agenceSelect && serviceSelect) { // Fonction pour charger les services en fonction de l'agence sélectionnée
+function loadServices(agenceCode, selectedService = null) {
+if (! agenceCode) { // Si aucune agence n'est sélectionnée, vider le select de service
+serviceSelect.innerHTML = '<option value="">Tous les services</option>';
+toggleServiceLoading(false);
+return;
+}
+
+// Utiliser FetchManager pour récupérer les services
+toggleServiceLoading(true);
+fetchManager.get(`rh/demande-de-conge/api/services-by-agence/${agenceCode}`).then(data => { // Vider le select de service
+serviceSelect.innerHTML = '<option value="">Tous les services</option>';
+
+// Ajouter les options de service
+data.forEach(service => {
+const option = document.createElement('option');
+option.value = service.code;
+option.textContent = service.code + ' ' + service.nom;
+serviceSelect.appendChild(option);
+});
+
+// Si un service était sélectionné, le rétablir
+if (selectedService) {
+serviceSelect.value = selectedService;
+// Mettre à jour le champ caché également
+hiddenServiceInput.value = selectedService;
+}
+}).catch(error => {
+console.error('Erreur lors de la récupération des services:', error);
+// Afficher un message d'erreur à l'utilisateur
+serviceSelect.innerHTML = '<option value="">Erreur de chargement des services</option>';
+}). finally(() => {
+toggleServiceLoading(false);
+});
+}
+
+// Charger les services au chargement de la page
+// const defaultAgence = agenceSelect.dataset.defaultAgence;
+// const defaultService = serviceSelect.dataset.defaultService;
+
+if (agenceSelect.value && previouslySelectedService) { // Cas 1: L'utilisateur a effectué une recherche, on restaure l'état
+loadServices(agenceSelect.value, previouslySelectedService);
+}
+// else if (defaultAgence) { // Cas 2: Pas de recherche, mais des valeurs par défaut sont présentes via dataset
+// agenceSelect.value = defaultAgence;
+// loadServices(defaultAgence, defaultService);
+} else { // Cas 3: Comportement par défaut, pas de chargement initial
+toggleServiceLoading(false);
+}
+
+// Ajouter un écouteur d'événement pour le changement d'agence
+agenceSelect.addEventListener('change', function () { // Réinitialiser le service sélectionné quand l'agence change
+previouslySelectedService = null;
+hiddenServiceInput.value = '';
+toggleServiceLoading(true);
+loadServices(this.value);
+});
+
+// Ajouter un écouteur d'événement pour le changement de service
+serviceSelect.addEventListener('change', function () { // Mettre à jour le champ caché quand le service change
+hiddenServiceInput.value = this.value;
+});
+}
+
+// Ajouter l'écouteur d'événement de soumission du formulaire
+form.addEventListener('submit', function (e) {
+// if (agenceSelect && agenceSelect.disabled) {
+// agenceSelect.disabled = false;
+// }
+
+// if (serviceSelect && serviceSelect.disabled) {
+// serviceSelect.disabled = false;
+// }
+// Récupérer la valeur du champ service
+const serviceValue = serviceSelect ? serviceSelect.value : '';
+console.log('Valeur du service avant soumission:', serviceValue);
+// Mettre à jour le champ caché
+document.getElementById('service_hidden').value = serviceValue;
+});
+}
+);
+</script>

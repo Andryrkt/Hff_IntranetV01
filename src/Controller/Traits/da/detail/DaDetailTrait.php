@@ -58,7 +58,8 @@ trait DaDetailTrait
      * Normaliser les chemins pour plusieurs fichiers
      * 
      * @param array $allDocs
-     * @param string $numKey
+     * @param string $numKey1
+     * @param string $numKey2
      * @return array
      */
     private function normalizePathsForManyFiles($allDocs, string $numKey): array
@@ -71,6 +72,28 @@ trait DaDetailTrait
             return [
                 'nom'  => $doc[$numKey],
                 'path' => $doc['path']
+            ];
+        }, $allDocs);
+    }
+
+    /** 
+     * Normaliser les chemins pour plusieurs fichiers de facture / Bon de Livraison
+     * 
+     * @param array $allDocs
+     * @return array
+     */
+    private function normalizePathsForFacBl($allDocs): array
+    {
+        if ($allDocs === '-' || empty($allDocs)) {
+            return [];
+        }
+
+        return array_map(function ($doc) {
+
+            return [
+                'nom'   => $doc['nomFichierScannee'] ?? $doc['idFacBl'],
+                'numBC' => $doc['numeroBc'],
+                'path'  => $doc['path']
             ];
         }, $allDocs);
     }
@@ -137,6 +160,40 @@ trait DaDetailTrait
                 $doc['path'] = $_ENV['BASE_PATH_FICHIER_COURT'] . '/' . $doc['path'];
                 return $doc;
             }, $allDocs);
+        }
+
+        return "-";
+    }
+
+    /** 
+     * Obtenir l'url des devis et pièces jointes
+     */
+    private function getDevisPjPath(DemandeAppro $demandeAppro)
+    {
+        $items = [];
+
+        $numDa = $demandeAppro->getNumeroDemandeAppro();
+
+        $pjDals = $this->demandeApproLRepository->findAttachmentsByNumeroDA($numDa);
+        $pjDalrs = $this->demandeApproLRRepository->findAttachmentsByNumeroDA($numDa);
+
+        /** 
+         * Fusionner les résultats des deux tables
+         * @var array<int, array{numeroDemandeAppro: string, fileNames: array}>
+         **/
+        $allRows = array_merge($pjDals, $pjDalrs);
+
+        if (!empty($allRows)) {
+            foreach ($allRows as $row) {
+                $files = $row['fileNames'];
+                foreach ($files as $fileName) {
+                    $items[] = [
+                        'nomPj' => $fileName,
+                        'path'  => "{$_ENV['BASE_PATH_FICHIER_COURT']}/da/$numDa/$fileName",
+                    ];
+                }
+            }
+            return $items;
         }
 
         return "-";

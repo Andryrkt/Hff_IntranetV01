@@ -55,22 +55,20 @@
 		</tr>
 	</thead>
 	<tbody>
-		{% for DAL in demandeAppro.DAL %}
+		{% for DAL in demandeApproLines %}
 			<tr class="parent-row align-middle fw-bold">
 				<td class="text-center p-1">
 					<button class="btn btn-outline-primary btn-sm rounded toggle-btn pb-0">
 						<i class="fas fa-chevron-up"></i>
 					</button>
 				</td>
-				<td>{{ DAL.artRefp ?? '-' }}</td>
-				<td>
-					{{ DAL.artDesi }}
-				</td>
+				<td>{{ DAL.artRefp }}</td>
+				<td>{{ DAL.artDesi }}</td>
 				<td>{{ DAL.nomFournisseur }}</td>
-				<td class="text-center">{{ DAL.dateFinSouhaite|date('d/m/Y') }}</td>
+				<td class="text-center">{{ DAL.dateFinSouhaite }}</td>
 				<td class="format-mtt text-end">{{ DAL.prixUnitaire }}</td>
 				<td class="text-center">{{ DAL.qteDem }}</td>
-				<td>{{ DAL.commentaire == '' ? '-' : DAL.commentaire }}</td>
+				<td>{{ DAL.commentaire }}</td>
 				<td>
 					{% if DAL.fileNames|length > 0 %}
 						<ul class="mb-0 px-0">
@@ -103,7 +101,7 @@
 					{% endif %}
 				</td>
 				<td class="text-center">
-					<i class="fas fa-xmark delete-line-DA" style="cursor:pointer;" title="Supprimer la ligne de DA" data-id="{{ DAL.id }}"></i>
+					<i class="fas fa-trash-can text-danger fs-6 delete-line-DA" style="cursor:pointer;" title="Supprimer la ligne de DA" data-bs-toggle="tooltip" data-delete-path="{{ DAL.urlDelete }}"></i>
 				</td>
 			</tr>
 			{% if DAL.demandeApproLR is empty %}
@@ -117,7 +115,7 @@
 						<td class="text-start">{{ item.artRefp ?? '-' }}</td>
 						<td class="text-start">{{ item.artDesi }}</td>
 						<td class="text-start">{{ item.nomFournisseur }}</td>
-						<td class="text-center">{{ DAL.dateFinSouhaite|date('d/m/Y') }}</td>
+						<td class="text-center">{{ DAL.dateFinSouhaite }}</td>
 						<td class="text-end format-mtt">{{ item.prixUnitaire }}</td>
 						<td class="text-center">{{ item.qteDispo ?? '-' }}</td>
 						<td class="text-start">{{ item.motif }}</td>

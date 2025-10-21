@@ -252,4 +252,16 @@ class DemandeApproRepository extends EntityRepository
         }
         return $numDa;
     }
+
+    public function findAllNumDaValide(string $numDit)
+    {
+        return $this->createQueryBuilder('da')
+            ->select('da.numeroDemandeAppro')
+            ->where('da.numeroDemandeDit = :numDit')
+            ->andWhere('da.statutDal = :statutValide')
+            ->setParameter('numDit', $numDit)
+            ->setParameter('statutValide', DemandeAppro::STATUT_VALIDE)
+            ->getQuery()
+            ->getSingleColumnResult();
+    }
 }

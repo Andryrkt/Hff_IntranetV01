@@ -39,11 +39,11 @@ class AcBcSoumisController extends Controller
 
         $this->acSoumis = new AcSoumis();
         $this->bcSoumis = new BcSoumis();
-        $this->bcRepository = self::$em->getRepository(BcSoumis::class);
+        $this->bcRepository = $this->getEntityManager()->getRepository(BcSoumis::class);
         $this->genererPdfAc = new GenererPdfAcSoumis();
-        $this->historiqueOperation = new HistoriqueOperationBCService;
-        $this->contactAgenceAteRepository = self::$em->getRepository(ContactAgenceAte::class);
-        $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
+        $this->historiqueOperation = new HistoriqueOperationBCService($this->getEntityManager());
+        $this->contactAgenceAteRepository = $this->getEntityManager()->getRepository(ContactAgenceAte::class);
+        $this->ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class);
         $this->ditDevisSoumisAValidationModel = new DitDevisSoumisAValidationModel();
     }
 
@@ -57,7 +57,7 @@ class AcBcSoumisController extends Controller
         $this->verifierSessionUtilisateur();
 
         // $devis = $this->filtredataDevis($numDit);
-        $devis = self::$em->getRepository(DitDevisSoumisAValidation::class)->findInfoDevis($numDit);
+        $devis = $this->getEntityManager()->getRepository(DitDevisSoumisAValidation::class)->findInfoDevis($numDit);
 
         $ditInterneouExterne = $this->ditRepository->findInterneExterne($numDit);
         if ($ditInterneouExterne === 'INTERNE') {
@@ -72,7 +72,7 @@ class AcBcSoumisController extends Controller
 
         $acSoumis = $this->initialisation($devis, $numDit);
 
-        $form = self::$validator->createBuilder(AcSoumisType::class, $acSoumis)->getForm();
+        $form = $this->getFormFactory()->createBuilder(AcSoumisType::class, $acSoumis)->getForm();
 
         $form->handleRequest($request);
 
@@ -127,7 +127,7 @@ class AcBcSoumisController extends Controller
             $this->historiqueOperation->sendNotificationCreation($message, $numBc, 'dit_index', true);
         }
 
-        self::$twig->display('dit/AcBcSoumis.html.twig', [
+        return $this->render('dit/AcBcSoumis.html.twig', [
             'form' => $form->createView()
         ]);
     }
@@ -207,7 +207,7 @@ class AcBcSoumisController extends Controller
 
     private function filtredataDevis($numDit)
     {
-        $devi = self::$em->getRepository(DitDevisSoumisAValidation::class)->findInfoDevis($numDit);
+        $devi = $this->getEntityManager()->getRepository(DitDevisSoumisAValidation::class)->findInfoDevis($numDit);
 
         return array_filter($devi, function ($item) {
             return $item->getNatureOperation() === 'VTE' && ($item->getMontantItv() - $item->getMontantForfait()) >= 0.00;
@@ -232,8 +232,8 @@ class AcBcSoumisController extends Controller
 
     private function envoieBcDansBd(BcSoumis $bcSoumis): void
     {
-        self::$em->persist($bcSoumis);
-        self::$em->flush();
+        $this->getEntityManager()->persist($bcSoumis);
+        $this->getEntityManager()->flush();
     }
 
     private function ajoutDonneeBc(AcSoumis $acSoumis, ?int $numeroVersionMax): BcSoumis

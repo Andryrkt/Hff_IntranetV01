@@ -9,7 +9,7 @@ use App\Entity\dom\Dom;
 use App\Entity\admin\Agence;
 
 use App\Entity\admin\dom\Rmq;
-use App\Controller\Controller;
+use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\admin\dom\Catg;
 use App\Entity\admin\Personnel;
 use Doctrine\ORM\EntityRepository;
@@ -39,9 +39,9 @@ class DomForm1Type extends AbstractType
         'TEMPORAIRE' => 'TEMPORAIRE',
     ];
 
-    public function __construct()
+    public function __construct(EntityManagerInterface $em)
     {
-        $this->em = Controller::getEntity();
+        $this->em = $em;
     }
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -93,6 +93,12 @@ class DomForm1Type extends AbstractType
                 $data = $event->getData();
                 $sousTypedocument = $data->getSousTypeDocument();
 
+                // Vérifier que sousTypedocument n'est pas null
+                if (!$sousTypedocument) {
+                    return;
+                }
+
+
                 if (substr($data->getAgenceEmetteur(), 0, 2) === '50') {
                     $rmq = $this->em->getRepository(Rmq::class)->findOneBy(['description' => '50']);
                 } else {
@@ -109,20 +115,33 @@ class DomForm1Type extends AbstractType
                 $categories = [];
 
                 foreach ($catg as $value) {
-                    $categories[] = $this->em->getRepository(Catg::class)->find($value['id']);
+                    $category = $this->em->getRepository(Catg::class)->find($value['id']);
+                    if ($category) {
+                        $categories[] = $category;
+                    }
+                }
+
+                // Si aucune catégorie n'est disponible, rendre le champ non requis
+                $isRequired = $sousTypedocument->getId() == 2 && !empty($categories);
+
+                // Si aucune catégorie n'est disponible, ne pas ajouter le champ
+                if (empty($categories)) {
+                    return;
                 }
 
                 $form->add(
-                    'categorie',
+                    'categoryId',
                     EntityType::class,
                     [
                         'label' => 'Catégorie',
                         'class' => Catg::class,
                         'choice_label' => 'description',
-                        'query_builder' => function (CatgRepository $catg) {
-                            return $catg->createQueryBuilder('c')->orderBy('c.description', 'ASC');
-                        },
                         'choices' => $categories,
+                        'placeholder' => false,
+                        'required' => $isRequired,
+                        'empty_data' => null,
+                        'mapped' => true,
+                        'invalid_message' => 'Veuillez sélectionner une catégorie valide.',
                     ]
                 );
             })
@@ -130,8 +149,19 @@ class DomForm1Type extends AbstractType
                 $form = $event->getForm();
                 $data = $event->getData();
 
+                // Vérifier que les données nécessaires existent
+                if (!isset($data['sousTypeDocument']) || !isset($data['agenceEmetteur'])) {
+                    return;
+                }
+
+
                 $sousTypedocumentId = $data['sousTypeDocument'];
                 $sousTypedocument = $this->em->getRepository(SousTypeDocument::class)->find($sousTypedocumentId);
+
+                // Vérifier que sousTypedocument a été trouvé
+                if (!$sousTypedocument) {
+                    return;
+                }
 
                 if (substr($data['agenceEmetteur'], 0, 2) === '50') {
                     $rmq = $this->em->getRepository(Rmq::class)->findOneBy(['description' => '50']);
@@ -149,21 +179,33 @@ class DomForm1Type extends AbstractType
                 $categories = [];
 
                 foreach ($catg as $value) {
-                    $categories[] = $this->em->getRepository(Catg::class)->find($value['id']);
+                    $category = $this->em->getRepository(Catg::class)->find($value['id']);
+                    if ($category) {
+                        $categories[] = $category;
+                    }
                 }
 
+                // Si aucune catégorie n'est disponible, rendre le champ non requis
+                $isRequired = $sousTypedocument->getId() == 2 && !empty($categories);
+
+                // Si aucune catégorie n'est disponible, ne pas ajouter le champ
+                if (empty($categories)) {
+                    return;
+                }
 
                 $form->add(
-                    'categorie',
+                    'categoryId',
                     EntityType::class,
                     [
                         'label' => 'Catégorie',
                         'class' => Catg::class,
                         'choice_label' => 'description',
-                        'query_builder' => function (CatgRepository $catg) {
-                            return $catg->createQueryBuilder('c')->orderBy('c.description', 'ASC');
-                        },
                         'choices' => $categories,
+                        'placeholder' => false,
+                        'required' => $isRequired,
+                        'empty_data' => null,
+                        'mapped' => true,
+                        'invalid_message' => 'Veuillez sélectionner une catégorie valide.',
                     ]
                 );
             })
@@ -242,6 +284,21 @@ class DomForm1Type extends AbstractType
                 [
                     'label' => 'CIN',
                     'required' => true,
+                ]
+            )
+            ->add(
+                'categoryId',
+                EntityType::class,
+                [
+                    'label' => 'Catégorie',
+                    'class' => Catg::class,
+                    'choice_label' => 'description',
+                    'choices' => [],
+                    'placeholder' => false,
+                    'required' => false,
+                    'empty_data' => null,
+                    'mapped' => true,
+                    'invalid_message' => 'Veuillez sélectionner une catégorie valide.',
                 ]
             )
         ;

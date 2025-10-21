@@ -4,7 +4,7 @@ namespace App\Form\badm;
 
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
-use App\Controller\Controller;
+use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\badm\BadmSearch;
 use App\Entity\admin\StatutDemande;
 use Symfony\Component\Form\FormEvent;
@@ -24,9 +24,9 @@ class BadmSearchType extends AbstractType
     private $agenceRepository;
   private $em;
 
-  public function __construct()
+  public function __construct(EntityManagerInterface $em)
   {
-    $this->em = Controller::getEntity();
+    $this->em = $em;
     $this->agenceRepository = $this->em->getRepository(Agence::class);
   }
     public function buildForm(FormBuilderInterface $builder, array $options)

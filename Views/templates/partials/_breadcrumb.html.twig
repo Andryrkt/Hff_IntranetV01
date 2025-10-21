@@ -2,7 +2,7 @@
 
 {% set items = breadcrumbs() %}
 
-<nav id="fil-d-ariane" aria-label="Fil d'Ariane" class="breadcrumb-nav container-fluid ms-3">
+<nav id="fil-d-ariane" aria-label="Fil d'Ariane" class="breadcrumb-nav container-fluid">
 	<ol class="breadcrumb flat align-items-center mb-3">
 		{% for item in items %}
 			<li class="breadcrumb-item {% if item.is_active %}active{% endif %} position-relative {% if item.dropdown is defined and item.dropdown|length > 0 %}dropdown-hover{% endif %}">
@@ -30,18 +30,10 @@
 						{% set columnsNeeded = 1 %}
 					{% endif %}
 
-					<div class="dropdown-menu shadow-sm border-0 p-3 rounded-3" style="min-width: {{ columnsNeeded * 220 }}px;">
+					<div class="dropdown-menu shadow-sm p-2 rounded-3" style="min-width: {{ columnsNeeded * 220 }}px;">
 						<div class="row">
-							{% for column in 1..columnsNeeded %}
+							{% for column in 1 .. columnsNeeded %}
 								<div class="col-md-{{ 12 // columnsNeeded }}">
-									{# <div class="dropdown-header fw-bold mb-2"> #}
-									{# {% if column == 1 %} #}
-									{# <i class="fas fa-list me-2"></i> #}
-									{# {{ item.title }} #}
-									{# {% else %} #}
-									{# &nbsp; #}
-									{# {% endif %} #}
-									{# </div> #}
 										{% for subitem in item.dropdown|slice((column - 1) * itemsPerColumn, itemsPerColumn) %}
 											{% if subitem.link %}
 												<a class="dropdown-item {% if subitem.is_active %}active{% endif %} d-flex align-items-center" href="{% if subitem.link == '#' or subitem.link starts with 'http' or subitem.link starts with '/' %}{{ subitem.link }}{% elseif subitem.link is not null and subitem.routeParams is defined %}{{ path(subitem.link, subitem.routeParams) }}{% elseif subitem.link is not null %}{{ path(subitem.link) }}{% else %}#{% endif %}" {% if subitem.id %} data-bs-toggle="modal" data-bs-target="#{{ subitem.id }}" {% endif %} {% if subitem.link starts with 'http' or subitem.link starts with '/' %} target="_blank" {% endif %}> {% if subitem.icon %}

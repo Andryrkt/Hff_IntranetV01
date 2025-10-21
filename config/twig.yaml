@@ -1,0 +1,47 @@
+# Configuration Twig
+twig:
+    # Configuration générale
+    debug: '%app.debug%'
+    strict_variables: false
+    exception_controller: null
+    
+    # Chemins des templates
+    paths:
+        '%app.views_dir%': ~
+        '%kernel.project_dir%/vendor/symfony/twig-bridge/Resources/views/Form': ~
+    
+    # Thèmes de formulaires
+    form_themes:
+        - 'bootstrap_5_layout.html.twig'
+        - 'form_div_layout.html.twig'
+    
+    # Configuration des extensions
+    extensions:
+        - 'App\Twig\AppExtension'
+        - 'App\Twig\BreadcrumbExtension'
+        - 'App\Twig\CarbonExtension'
+        - 'App\Twig\DeleteWordExtension'
+        - 'Symfony\Bridge\Twig\Extension\TranslationExtension'
+        - 'Symfony\Bridge\Twig\Extension\RoutingExtension'
+        - 'Symfony\Bridge\Twig\Extension\FormExtension'
+        - 'Symfony\Bridge\Twig\Extension\AssetExtension'
+    
+    # Configuration des globals
+    globals:
+        app_name: '%app.name%'
+        app_version: '%app.version%'
+        app_locale: '%app.locale%'
+        app_debug: '%app.debug%'
+        app_base_path: '%app.base_path%'
+    
+    # Configuration du cache
+    cache: '%kernel.cache_dir%/twig'
+    
+    # Configuration des options
+    options:
+        cache: '%kernel.cache_dir%/twig'
+        debug: '%app.debug%'
+        auto_reload: '%app.debug%'
+        strict_variables: false
+        autoescape: 'html'
+        optimizations: -1

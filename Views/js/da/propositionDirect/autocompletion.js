@@ -1,50 +1,21 @@
-import { FetchManager } from "../../api/FetchManager";
 import { AutoComplete } from "../../utils/AutoComplete";
-import { updateDropdown } from "../../utils/selectionHandler";
 
-export function autocompleteTheField(
-  field,
-  fieldName,
-  numPage = null,
-  iscatalogue = null
-) {
+export function autocompleteTheField(field, fieldName) {
   let baseId = field.id.replace("demande_appro_proposition", "");
 
   let reference = getField(field.id, fieldName, "reference");
   let fournisseur = getField(field.id, fieldName, "fournisseur");
   let numeroFournisseur = getField(field.id, fieldName, "numeroFournisseur");
   let designation = getField(field.id, fieldName, "designation");
-  let PU = getField(field.id, fieldName, "PU");
-  let line = baseId.replace(`_${fieldName}_`, "");
-
-  let codeFams1 = getValueCodeFams("codeFams1", line);
-  let codeFams2 = getValueCodeFams("codeFams2", line);
 
   let suggestionContainer = document.getElementById(`suggestion${baseId}`);
   let loaderElement = document.getElementById(`spinner_container${baseId}`);
-
-  if (numPage) {
-    const sousFamille = document.querySelector(
-      "#demande_appro_proposition_codeFams2_" + numPage
-    );
-    const famille = document.querySelector(
-      "#demande_appro_proposition_codeFams1_" + numPage
-    );
-
-    codeFams1 = safeValue(famille.value);
-    codeFams2 = safeValue(sousFamille.value);
-  }
-
-  // const isCatalogueInput = document.querySelector(`#catalogue_${numPages}`);
-
-  // console.log(isCatalogueInput);
 
   new AutoComplete({
     inputElement: field,
     suggestionContainer: suggestionContainer,
     loaderElement: loaderElement,
     debounceDelay: 300,
-    // fetchDataCallback: () => fetchAllData(fieldName, codeFams1, codeFams2), // filtré par famille et sous-famille
     fetchDataCallback: () => {
       const cache = JSON.parse(
         localStorage.getItem("autocompleteCache") || "{}"
@@ -52,7 +23,7 @@ export function autocompleteTheField(
       const dataList =
         fieldName === "fournisseur"
           ? cache.fournisseurs || []
-          : cache.designations || [];
+          : cache.designationsZDI || [];
 
       return Promise.resolve(dataList);
     }, // non filtré par famille et sous-famille
@@ -64,11 +35,8 @@ export function autocompleteTheField(
         fournisseur,
         numeroFournisseur,
         reference,
-        designation,
-        PU,
         getField(field.id, fieldName, "codeFams1"),
-        getField(field.id, fieldName, "codeFams2"),
-        iscatalogue
+        getField(field.id, fieldName, "codeFams2")
       ),
     itemToStringCallback: (item) => stringsToSearch(item, fieldName),
     itemToStringForBlur: (item) => stringsToSearchForBlur(item, fieldName),
@@ -76,44 +44,32 @@ export function autocompleteTheField(
   });
 }
 
-function safeValue(val) {
-  return val && val.trim() !== "" ? val : "-";
-}
-
-function getFieldByGeneratedId(baseId, suffix) {
-  return document.getElementById(baseId.replace("artDesi", suffix));
-}
-
 function onBlurEvents(found, designation, fieldName) {
   const numeroDa = document
-    .querySelector(".tab-pane.fade.show.active")
+    .querySelector(".tab-pane.fade.show.active.dalr")
     .id.split("_")
     .pop();
   const numPage = localStorage.getItem(`currentTab_${numeroDa}`);
-  if (designation.value.trim() !== "") {
-    const desi = `designation_${numPage}`;
+  const desi = `designation_${numPage}`;
+  let baseId = designation.id.replace(desi, "");
+  let allFields = document.querySelectorAll(`[id*="${baseId}"]`);
+  let referencePiece = document.querySelector(
+    `#demande_appro_proposition_reference_${numPage}`
+  );
 
-    let baseId = designation.id.replace(desi, "");
+  if (fieldName == "reference") {
+    console.log("baseID = " + baseId);
 
-    let allFields = document.querySelectorAll(`[id*="${baseId}"]`);
-    let fournisseur = getFieldByGeneratedId(
-      designation.id,
-      `fournisseur_${numPage}`
+    let foundInput = document.querySelector(
+      `[id*="${baseId}"][id*="found_${numPage}"]`
     );
-    let referencePiece = document.querySelector(
-      `#demande_appro_proposition_reference_${numPage}`
-    );
-
-    if (fieldName == "designation") {
+    foundInput.value = found ? "1" : "0";
+    console.log(foundInput.value);
+  } else if (fieldName == "designation") {
+    if (designation.value.trim() !== "") {
       // Texte rouge ou non, ajout de valeur dans catalogue
       allFields.forEach((field) => {
-        if (found) {
-          field.classList.remove("text-danger");
-        } else {
-          field.classList.add("text-danger");
-          if (field.id.includes(`PU_${numPage}`)) {
-            field.parentElement.classList.remove("d-none"); // afficher le div container du PU
-          }
+        if (!found) {
           if (field.id.includes(`numeroFournisseur_${numPage}`)) {
             field.value = 0;
           }
@@ -130,36 +86,25 @@ function onBlurEvents(found, designation, fieldName) {
       // Si non trouvé alors valeur de reférence pièce = ''
       referencePiece.value = found ? referencePiece.value : "ST";
     }
+  } else if (fieldName == "fournisseur") {
+    if (!found) {
+      let numFrnInput = document.querySelector(
+        `[id*="${baseId}"][id*="numeroFournisseur_${numPage}"]`
+      );
+      numFrnInput.value = "-";
+    }
   }
-}
-
-function getValueCodeFams(fams, line) {
-  return document.getElementById(`${fams}_${line}`).value;
 }
 
 function getField(id, fieldName, fieldNameReplace) {
   return document.getElementById(id.replace(fieldName, fieldNameReplace));
 }
 
-export async function fetchAllData(
-  fieldName,
-  codeFams1 = "-",
-  codeFams2 = "-"
-) {
-  const fetchManager = new FetchManager();
-  let url = `demande-appro/autocomplete/all-${
-    fieldName === "fournisseur"
-      ? fieldName
-      : `designation/${codeFams1}/${codeFams2}`
-  }`;
-  return await fetchManager.get(url);
-}
-
 function displayValues(item, fieldName) {
   if (fieldName === "fournisseur") {
     return `N° Fournisseur: ${item.numerofournisseur} - Nom Fournisseur: ${item.nomfournisseur}`;
   } else {
-    return `Référence: ${item.referencepiece} - Fournisseur: ${item.fournisseur} - Prix: ${item.prix} <br>Désignation: ${item.designation}`;
+    return `Référence: ${item.referencepiece} <br>Désignation: ${item.designation}`;
   }
 }
 
@@ -189,46 +134,18 @@ function handleValuesOfFields(
   fournisseur,
   numeroFournisseur,
   reference,
-  designation,
-  PU,
   famille,
-  sousFamille,
-  iscatalogue
+  sousFamille
 ) {
   if (fieldName === "fournisseur") {
     fournisseur.value = item.nomfournisseur;
     numeroFournisseur.value = item.numerofournisseur;
-    console.log(PU.value);
   } else {
     reference.value = item.referencepiece;
-    fournisseur.value = item.fournisseur;
+    /* fournisseur.value = item.fournisseur;
     numeroFournisseur.value = item.numerofournisseur;
-    designation.value = item.designation;
-    PU.parentElement.classList.add("d-none"); // cacher le div container du PU
-    PU.value = item.prix;
-    famille.value = item.codefamille;
-    sousFamille.value = item.codesousfamille;
-    const numeroDa = document
-      .querySelector(".tab-pane.fade.show.active")
-      .id.split("_")
-      .pop();
-    const numPage = localStorage.getItem(`currentTab_${numeroDa}`);
-    const spinnerElement = document.querySelector(
-      "#spinner_codeFams2_" + numPage
-    );
-    const containerElement = document.querySelector(
-      "#container_codeFams2_" + numPage
-    );
-
-    if (iscatalogue == "") {
-      updateDropdown(
-        sousFamille,
-        `api/demande-appro/sous-famille/${famille.value}`,
-        "-- Choisir une sous-famille --",
-        spinnerElement,
-        containerElement,
-        item.codesousfamille
-      );
-    }
+    designation.value = item.designation; */
+    famille.value = item.codefamille ?? "-";
+    sousFamille.value = item.codesousfamille ?? "-";
   }
 }

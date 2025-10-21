@@ -87,7 +87,7 @@ class DemandeApproL
     /**
      * @ORM\Column(type="string", length=50, name="nom_fournisseur")
      */
-    private string $nomFournisseur;
+    private ?string $nomFournisseur = "-";
 
     /**
      * @ORM\Column(type="datetime", name="date_fin_souhaitee_l", nullable=true)

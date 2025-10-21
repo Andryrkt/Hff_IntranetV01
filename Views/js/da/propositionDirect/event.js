@@ -41,7 +41,7 @@ export function handleAllInputEvents() {
         if (maxLen) el.value = el.value.slice(0, maxLen);
       });
 
-      if (type === "fournisseur") {
+      if (type !== "designation") {
         autocompleteTheField(el, type);
       }
     });

@@ -1,31 +1,25 @@
 {% extends "baseTemplate.html.twig" %}
 
-{% block stylesheets%}
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/ddp/liste.css">
+{% block stylesheets %}
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.09.15.08.00">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/ddp/liste.css?v=2025.09.15.08.00">
 {% endblock %}
 
 {% import "macroForm.html.twig" as macroForm %}
 
-{% block content %}
-	<div
-		class="sticky-header-titre">
-		{# {% include "/partials/_loader.html.twig" %} #}
-		{% set role_ids = App.user.roleIds %}
-		{% set user_connecter = App.user.nom_utilisateur %}
+{% set role_ids = App.user.roleIds %}
+{% set user_connecter = App.user.nom_utilisateur %}
 
+{% block content %}
+	<div class="sticky-header-titre">
 		<div class="container">
-			<h3 class="perso-titre">
-				Liste des demandes de paiement
-			</h3>
 			{% include "/partials/_notification.html.twig" %}
-			{% include "/ddp/shared/_formualireDdpSearch.html.twig"%}
+			{% include "/ddp/shared/_formulaireRecherche.html.twig"%}
 		</div>
 	</div>
 	<div class="container-fluid">
-		<div class="sticky-header-statut"></div>
-		<table class="table rounded table-plein-ecran">
-			<thead class="table-dark position-sticky">
+		<table class="table table-sticky">
+			<thead class="table-dark align-middle">
 				<tr>
 					<th>
 						<i class="fas fa-ellipsis-vertical"></i>
@@ -133,10 +127,9 @@
 
 	{% include "/ddp/shared/_modal_statut.html.twig"  %}
 {% endblock %}
+
 {% block javascript %}
-	<script src="{{ App.base_path }}/Views/js/ddp/ddpModalStatut.js" type="module"></script>
-
-	<script src="{{ App.base_path }}/Views/js/planning/planningPositionSticky.js" type="module"></script>
-
-	<script src="{{ App.base_path }}/Views/js/ddp/ddpListe.js" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v=2025.09.15.08.00"></script>
+	<script src="{{ App.base_path }}/Views/js/ddp/ddpModalStatut.js?v=2025.09.15.08.00" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/ddp/ddpListe.js?v=2025.09.15.08.00" type="module"></script>
 {% endblock %}

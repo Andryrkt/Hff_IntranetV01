@@ -8,7 +8,6 @@ use App\Entity\da\DaSoumissionBc;
 use App\Repository\da\DaAfficherRepository;
 use App\Repository\da\DaSoumissionBcRepository;
 use Symfony\Component\Routing\Annotation\Route;
-
 /**
  * @Route("/demande-appro")
  */
@@ -22,11 +21,11 @@ class ChangementStatutBCController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->daAfficherRepository = self::$em->getRepository(DaAfficher::class);
-        $this->daSoumissionBcRepository = self::$em->getRepository(DaSoumissionBc::class);
+        $this->daAfficherRepository = $this->getEntityManager()->getRepository(DaAfficher::class);
+        $this->daSoumissionBcRepository = $this->getEntityManager()->getRepository(DaSoumissionBc::class);
     }
     /**
-     * @Route(path="/demande-appro/changement-statuts-envoyer-fournisseur/{numCde}/{datePrevue}/{estEnvoyer}", name="changement_statut_envoyer_fournisseur")
+     * @Route(path="/changement-statuts-envoyer-fournisseur/{numCde}/{datePrevue}/{estEnvoyer}", name="changement_statut_envoyer_fournisseur")
      *
      * @return void
      */
@@ -36,28 +35,29 @@ class ChangementStatutBCController extends Controller
 
         if ($estEnvoyer) {
             // modification de statut dans la soumission bc
-            $numVersionMaxSoumissionBc = $this->daSoumissionBcRepository->getNumeroVersionMax($numCde);
-            $soumissionBc = $this->daSoumissionBcRepository->findOneBy(['numeroCde' => $numCde, 'numeroVersion' => $numVersionMaxSoumissionBc]);
-            if ($soumissionBc) {
-                $soumissionBc->setStatut(DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR);
-                self::$em->persist($soumissionBc);
-            }
+            // $numVersionMaxSoumissionBc = $this->daSoumissionBcRepository->getNumeroVersionMax($numCde);
+            // $soumissionBc = $this->daSoumissionBcRepository->findOneBy(['numeroCde' => $numCde, 'numeroVersion' => $numVersionMaxSoumissionBc]);
+            // if ($soumissionBc) {
+            //     $soumissionBc->setStatut(DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR);
+            //     $this->getEntityManager()->persist($soumissionBc);
+            // }
 
-            //modification dans la table da_valider
+            //modification dans la table da_afficher
             $numVersionMaxDaValider = $this->daAfficherRepository->getNumeroVersionMaxCde($numCde);
-            $daValider = $this->daAfficherRepository->findBy(['numeroCde' => $numCde, 'numeroVersion' => $numVersionMaxDaValider]);
-            foreach ($daValider as $valider) {
+            $daAffichers = $this->daAfficherRepository->findBy(['numeroCde' => $numCde, 'numeroVersion' => $numVersionMaxDaValider]);
+            foreach ($daAffichers as $valider) {
                 $valider->setStatutCde(DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR)
                     ->setDateLivraisonPrevue(new \DateTime($datePrevue))
+                    ->setBcEnvoyerFournisseur(true)
                 ;
-                self::$em->persist($valider);
+                $this->getEntityManager()->persist($valider);
             }
-            self::$em->flush();
+            $this->getEntityManager()->flush();
             // envoyer une notification de succès
-            $this->sessionService->set('notification', ['type' => 'success', 'message' => 'statut modifié avec succès.']);
+            $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'statut modifié avec succès.']);
             $this->redirectToRoute("da_list_cde_frn");
         } else {
-            $this->sessionService->set('notification', ['type' => 'error', 'message' => 'Erreur lors de la modification du statut... vous n\'avez pas cocher la cage à cocher.']);
+            $this->getSessionService()->set('notification', ['type' => 'error', 'message' => 'Erreur lors de la modification du statut... vous n\'avez pas cocher la cage à cocher.']);
             $this->redirectToRoute("da_list_cde_frn");
         }
     }

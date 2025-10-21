@@ -18,7 +18,7 @@ class operationDocumentApi extends Controller
         /** 
          * @var HistoriqueOperationDocument[] $operationDocuments tableau d'entité 
          */
-        $operationDocuments = self::$em->getRepository(HistoriqueOperationDocument::class)->findBy([], ['id' => 'DESC']);
+        $operationDocuments = $this->getEntityManager()->getRepository(HistoriqueOperationDocument::class)->findBy([], ['id' => 'DESC']);
 
         $results = [];
         foreach ($operationDocuments as $operationDocument) {

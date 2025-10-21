@@ -3,10 +3,9 @@
 namespace App\Controller\admin\generationPDF;
 
 use App\Controller\Controller;
-use App\Controller\Traits\da\validation\DaValidationAvecDitTrait;
-use App\Controller\Traits\da\validation\DaValidationDirectTrait;
 use Symfony\Component\Routing\Annotation\Route;
-
+use App\Controller\Traits\da\validation\DaValidationDirectTrait;
+use App\Controller\Traits\da\validation\DaValidationAvecDitTrait;
 /** @Route(path="/admin/generation-PDF") */
 class GenerationPDFController extends Controller
 {
@@ -16,7 +15,7 @@ class GenerationPDFController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->setEntityManager(self::$em);
+
         $this->initDaValidationAvecDitTrait();
         $this->initDaValidationDirectTrait();
     }

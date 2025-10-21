@@ -7,6 +7,7 @@ use App\Entity\da\DaSoumissionBc;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Component\Form\AbstractType;
 use App\Entity\admin\dit\WorNiveauUrgence;
+use App\Factory\da\CdeFrnDto\CdeFrnSearchDto;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -27,23 +28,27 @@ class CdeFrnListType extends  AbstractType
     ];
 
     private const TYPE_ACHAT = [
-        'Tous' => 'tous',
         'Avec DIT' => 'avec_dit',
-        'Direct' => 'direct',
+        'Direct'   => 'direct',
+    ];
+
+    private const TRI_NBR_JOURS =  [
+        'Ordre croissant'   => 'asc',
+        'Ordre décroissant' => 'desc',
     ];
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
             ->add('numDa', TextType::class, [
-                'label' => 'n° DA',
+                'label'    => 'n° DA',
                 'required' => false
             ])
             ->add('typeAchat', ChoiceType::class, [
-                'label' => 'Type de la demande d\'achat',
-                'placeholder' => '-- Choisir le choix --',
-                'choices' => self::TYPE_ACHAT,
-                'required' => false
+                'label'       => 'Type de la demande d\'achat',
+                'placeholder' => '-- Choisir le type de la DA --',
+                'choices'     => self::TYPE_ACHAT,
+                'required'    => false
             ])
             ->add('numDit', TextType::class, [
                 'label' => 'n° DIT',
@@ -78,7 +83,7 @@ class CdeFrnListType extends  AbstractType
                 'label_html' => true,
                 'class' => WorNiveauUrgence::class,
                 'choice_label' => 'description',
-                'placeholder' => '-- Choisir un niveau--',
+                'placeholder' => '-- Choisir le niveau d\'urgence--',
                 'required' => false,
                 'query_builder' => function (EntityRepository $er) {
                     return $er->createQueryBuilder('n')
@@ -94,7 +99,7 @@ class CdeFrnListType extends  AbstractType
                 [
                     'label' => "Statut BC",
                     'choices' => self::STATUT_BC,
-                    'placeholder' => '-- Choisir --',
+                    'placeholder' => '-- Choisir la statut --',
                     'required' => false,
                 ]
             )
@@ -118,11 +123,19 @@ class CdeFrnListType extends  AbstractType
                 'label' => 'Date fin fin souhaité',
                 'required' => false,
             ])
+            ->add('sortNbJours', ChoiceType::class, [
+                'placeholder'   => '-- Choisir un tri --',
+                'label'         => 'Tri par Nbr Jour(s)',
+                'choices'       => self::TRI_NBR_JOURS,
+                'required'      => false
+            ])
         ;
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setDefaults([]);
+        $resolver->setDefaults([
+            'data_class' => CdeFrnSearchDto::class
+        ]);
     }
 }

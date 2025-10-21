@@ -1,14 +1,15 @@
 <?php
 
+
 namespace App\Controller\admin;
 
-use App\Controller\Controller;
 use App\Entity\admin\Agence;
+use App\Controller\Controller;
 use App\Entity\admin\utilisateur\User;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\admin\utilisateur\ContactAgenceAte;
 use App\Form\admin\utilisateur\ContactAgenceAteType;
-use Symfony\Component\HttpFoundation\Request;
 
 class ContactAgenceAteController extends Controller
 {
@@ -23,9 +24,9 @@ class ContactAgenceAteController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $data = self::$em->getRepository(ContactAgenceAte::class)->findBy([]);
+        $data = $this->getEntityManager()->getRepository(ContactAgenceAte::class)->findBy([]);
 
-        self::$twig->display('admin/contactAgenceAte/index.html.twig', [
+        return $this->render('admin/contactAgenceAte/index.html.twig', [
             'data' => $data
         ]);
     }
@@ -41,7 +42,7 @@ class ContactAgenceAteController extends Controller
         $this->verifierSessionUtilisateur();
 
         $contactAgenceAte = new ContactAgenceAte();
-        $form = self::$validator->createBuilder(ContactAgenceAteType::class)->getForm();
+        $form = $this->getFormFactory()->createBuilder(ContactAgenceAteType::class)->getForm();
 
         $form->handleRequest($request);
     
@@ -59,12 +60,12 @@ class ContactAgenceAteController extends Controller
                     ->setPrenom($data->getPrenom())
                 ;
 
-                self::$em->persist($contactAgenceAte);
-                self::$em->flush();
+                $this->getEntityManager()->persist($contactAgenceAte);
+                $this->getEntityManager()->flush();
                 $this->redirectToRoute("contact_agence_ate_index");
             }
 
-        self::$twig->display('admin/contactAgenceAte/new.html.twig', [
+        return $this->render('admin/contactAgenceAte/new.html.twig', [
             'form' => $form->createView()
         ]);
     }
@@ -76,18 +77,18 @@ class ContactAgenceAteController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        $contactAgenceAte = self::$em->getRepository(ContactAgenceAte::class)->find($id);
+        $contactAgenceAte = $this->getEntityManager()->getRepository(ContactAgenceAte::class)->find($id);
 
 
-        $agence = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => $contactAgenceAte->getAgenceString()]);
-        $user = self::$em->getRepository(User::class)->findOneBy(['matricule' => $contactAgenceAte->getMatriculeString()]);
+        $agence = $this->getEntityManager()->getRepository(Agence::class)->findOneBy(['codeAgence' => $contactAgenceAte->getAgenceString()]);
+        $user = $this->getEntityManager()->getRepository(User::class)->findOneBy(['matricule' => $contactAgenceAte->getMatriculeString()]);
 
         $contactAgenceAte ->setAgence($agence)
         ->setMatricule($user)
         ->setEmail($user) 
         ->setNom($user)
         ;
-        $form = self::$validator->createBuilder(ContactAgenceAteType::class, $contactAgenceAte)->getForm();
+        $form = $this->getFormFactory()->createBuilder(ContactAgenceAteType::class, $contactAgenceAte)->getForm();
 
         $form->handleRequest($request);
     
@@ -104,11 +105,11 @@ class ContactAgenceAteController extends Controller
                     ->setPrenom($data->getPrenom())
                 ;
 
-                self::$em->flush();
+                $this->getEntityManager()->flush();
                 $this->redirectToRoute("contact_agence_ate_index");
             }
 
-        self::$twig->display('admin/contactAgenceAte/edit.html.twig', [
+        return $this->render('admin/contactAgenceAte/edit.html.twig', [
             'form' => $form->createView()
         ]);
     }
@@ -121,10 +122,10 @@ class ContactAgenceAteController extends Controller
          //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $contactAgenceAte = self::$em->getRepository(ContactAgenceAte::class)->find($id);
+        $contactAgenceAte = $this->getEntityManager()->getRepository(ContactAgenceAte::class)->find($id);
 
-        self::$em->remove($contactAgenceAte);
-            self::$em->flush();
+        $this->getEntityManager()->remove($contactAgenceAte);
+            $this->getEntityManager()->flush();
             $this->redirectToRoute("contact_agence_ate_index");
     }
 }

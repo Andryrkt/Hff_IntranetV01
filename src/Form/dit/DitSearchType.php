@@ -5,7 +5,7 @@ namespace App\Form\dit;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Entity\dit\DitSearch;
-use App\Controller\Controller;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use App\Entity\admin\StatutDemande;
 use Symfony\Component\Form\FormEvent;
@@ -46,9 +46,9 @@ class DitSearchType extends AbstractType
 
     private $em;
 
-    public function __construct()
+    public function __construct(EntityManagerInterface $em)
     {
-        $this->em = controller::getEntity();
+        $this->em = $em;
         $this->agenceRepository = $this->em->getRepository(Agence::class);
         $this->ditSearchRepository = $this->em->getRepository(DemandeIntervention::class);
     }

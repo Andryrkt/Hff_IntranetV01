@@ -1,147 +1,215 @@
 {% extends 'baseTemplate.html.twig' %}
-{% block stylesheets %}
-  <link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css" />
-  <link rel="stylesheet" href="{{ App.base_path }}/Views/css/inventaire/liste.css" />
+
+{% block title %}
+	Liste inventaire
 {% endblock %}
+
+{% block stylesheets %}
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.09.15.08.00"/>
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/inventaire/liste.css?v=2025.09.15.08.00"/>
+{% endblock %}
+
 {% block content %}
-<div class="sticky-header-titre">
-  <div class="container">
-    <h3 class="perso-titre">Liste inventaire</h3>
-    {% include '/inventaire/_formulaire.html.twig' %}
-    <div class="d-flex justify-content-between">
-          <a href="{{path("export_liste_inventaire")}}" id="excelInventaire" name="excelinvenatire" class="btn btn bg-success text-white my-3 fw-bold">
-            <i class="fas fa-table"></i>
-            Excel</a>
-    </div>
-  </div>
-</div> 
-<div class="container-fluid">
+	<div class="sticky-header-titre">
+		<div class="container">
+			{% include '/inventaire/_formulaire.html.twig' %}
+			<div class="d-flex justify-content-between">
+				<a href="{{path("export_liste_inventaire")}}" id="excelInventaire" name="excelinvenatire" class="btn btn bg-success text-white my-3 fw-bold">
+					<i class="fas fa-table"></i>
+					Excel</a>
+			</div>
+		</div>
+	</div>
+	<table class="table table-sticky">
+		<thead class="table-dark position-sticky">
+			<tr class="total">
+				<th>
+					TOTAL
+				</th>
+				<th style="text-align: center;">{{ data.data|length == 0 ? "" : data.data|length }}</th>
+				<th></th>
+				<th></th>
+				<th></th>
+				<th></th>
+				<th></th>
+				<th style="text-align: center;">{{ data.sum.nbr_casier }}</th>
+				<th style="text-align: center;">{{ data.sum.nbr_ref }}</th>
+				<th style="text-align: center;">{{ data.sum.qte_comptee }}</th>
+				<th></th>
+				<th style="text-align: right;">{{ data.sum.montant|number_format(0, '', ' ')  == 0 ? "" : data.sum.montant|number_format(0, '', ' ')}}</th>
+				<th style="text-align: center;">{{ data.sum.nbre_ref_ecarts_positif }}</th>
+				<th style="text-align: center;">{{ data.sum.nbre_ref_ecarts_negatifs }}</th>
+				<th style="text-align: center;">{{ data.sum.total_nbre_ref_ecarts }}</th>
+				<th style="text-align: center;">{{ data.sum.pourcentage_ref_avec_ecart is  null  ?"": data.sum.pourcentage_ref_avec_ecart|round() ~'%'}}
+				</th>
+				<th style="text-align: right;">{{ data.sum.montant_ecart |number_format(0, '', ' ')  == 0 ? "" :  data.sum.montant_ecart |number_format(0, '', ' ')}}</th>
+				<th style="text-align: center;">{{ data.sum.pourcentage_ecart is  null  ?"": data.sum.pourcentage_ecart|round(2)  ~'%'}}
+				</th>
+			</tr>
+			<tr>
 
-  <div class="sticky-header-statut"> 
-  </div>
-        <table class="table rounded table-plein-ecran">
-         <thead class="table-dark position-sticky">
-         
-             <tr class = "total">
-             <th>
-             TOTAL
-						</th>
-             <th style="text-align: center;">{{ data.data|length == 0 ? "" : data.data|length }}</th>
-             <th></th>
-             <th></th>
-             <th></th>
-             <th style="text-align: center;">{{ data.sum.nbr_casier }}</th>
-             <th style="text-align: center;">{{ data.sum.nbr_ref }}</th>
-             <th style="text-align: center;">{{ data.sum.qte_comptee }}</th>
-             <th></th>
-             <th style="text-align: right;">{{ data.sum.montant|number_format(0, '', ' ')  == 0 ? "" : data.sum.montant|number_format(0, '', ' ')}}</th>
-             <th style="text-align: center;">{{ data.sum.nbre_ref_ecarts_positif }}</th>
-             <th style="text-align: center;">{{ data.sum.nbre_ref_ecarts_negatifs }}</th>
-             <th style="text-align: center;">{{ data.sum.total_nbre_ref_ecarts }}</th>
-             <th style="text-align: center;">{{ data.sum.pourcentage_ref_avec_ecart is  null  ?"": data.sum.pourcentage_ref_avec_ecart|round() ~'%'}} </th>
-             <th style="text-align: right;">{{ data.sum.montant_ecart |number_format(0, '', ' ')  == 0 ? "" :  data.sum.montant_ecart |number_format(0, '', ' ')}}</th>
-             <th style="text-align: center;">{{ data.sum.pourcentage_ecart is  null  ?"": data.sum.pourcentage_ecart|round(2)  ~'%'}} </th>
-             </tr>
-             <tr>
+				<th>
+					<i class="fas fa-ellipsis-vertical"></i>
+				</th>
+				<th style="text-align: center;">
+					Saisie compte</th>
+				<th style="text-align: center;">
+					Comptage encours</th>
+				<th style="text-align: center;">
+					Numéro</th>
+				<th style="text-align: center;">
+					Description</th>
+				<th style="text-align: center;">
+					Ouvert le
+				</th>
+				<th style="text-align: center;">
+					Clôturer le
+				</th>
+				<th style="text-align: center;">
+					Nbr casier</th>
+				<th style="text-align: center;">
+					Nbr Ref</th>
+				<th style="text-align: center;">
+					Qté comptée</th>
+				<th style="text-align: center;">
+					Statut</th>
+				<th style="text-align: center;">
+					Montant</th>
+				<th style="text-align: center;">
+					Nbr Ref écart > 0</th>
+				<th style="text-align: center;">
+					Nbr Ref écart < 0</th>
+				<th style="text-align: center;">
+					Nbr Ref en écart</th>
+				<th style="text-align: center;">
+					% Ref avec écart</th>
+				<th style="text-align: center;">
+					Mont. écart</th>
+				<th style="text-align: center;">
+					% écart</th>
+			</tr>
+		</thead>
+		<tbody id="tableBody">
+			{% for item in data.data %}
+				<tr>
+					{# Début Action #}
+					<td class="align-middle" style="padding: 0px">
+						<div class="dropdown">
+							<button class="btn btn-sm me-1 dropdown-toggle trois-points-vertical" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+								<i class="fas fa-ellipsis-vertical"></i>
+							</button>
+							<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
+								<li>
+									<a class="dropdown-item fw-bold" href="{{path('detail_inventaire',{numinv : item.numero})}}" target="_blank">
+										Voir détails des écarts</a>
+								</li>
+								<li>
+									{% if item.statut | trim != "CLOTURE" %}
+										<a class="dropdown-item fw-bold" href="{{path('bordereu_comptage',{numInv : item.numero})}}" target="_blank">Impression feuille de comptage</a>
+									{% endif %}
+								</li>
+								{% if item.excel is same as(true) %}
+									<li>
+										<a class="dropdown-item fw-bold" href="{{path('download_file',{'filename':'INV'~item.numero~'.xlsx'}) }}" target="_blank">Voir fichier</a>
+									</li>
+								{% else %}
+									<li>
+										<input type="file" accept=".xlsx" id="file{{ item.numero }}" style="display: none;" onchange="uploadFile(this, {{ item.numero }})">
+										<a class="dropdown-item fw-bold" onclick="document.getElementById('file{{ item.numero }}').click()">Upload fichier d'analyse</a>
+									</li>
+								{% endif %}
 
-             <th>
-							<i class="fas fa-ellipsis-vertical"></i>
-						</th>
-             <th style="text-align: center;"> Numéro</th>
-             <th style="text-align: center;"> Description</th>
-             <th style="text-align: center;"> Ouvert le </th>
-             <th style="text-align: center;"> Clôturer le </th>
-             <th style="text-align: center;"> Nbr casier</th>
-             <th style="text-align: center;"> Nbr Ref</th>
-             <th style="text-align: center;"> Qté comptée</th>
-             <th style="text-align: center;"> Statut</th>
-             <th style="text-align: center;"> Montant</th>
-             <th style="text-align: center;"> Nbr Ref écart > 0</th>
-             <th style="text-align: center;"> Nbr Ref écart < 0</th>
-             <th style="text-align: center;"> Nbr Ref en écart</th>
-             <th style="text-align: center;"> % Ref avec écart</th>
-             <th style="text-align: center;"> Mont. écart</th>
-             <th style="text-align: center;"> % écart</th>
-             </tr>
-         </thead>
-         <tbody id="tableBody">
-            {% for item in data.data %} 
-                <tr>
-                {# Début Action #}
-							<td class="align-middle" style="padding: 0px">
-								<div class="dropdown">
-									<button class="btn btn-sm me-1 dropdown-toggle trois-points-vertical" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-										<i class="fas fa-ellipsis-vertical"></i>
-									</button>
-									<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
-										<li>
-											<a class="dropdown-item fw-bold" href="{{path('detail_inventaire',{numinv : item.numero})}}"  target="_blank"> Voir détails des écarts</a>
-										</li>
-										<li>
-                    {% if item.statut | trim != "CLOTURE" %}
-											<a class="dropdown-item fw-bold" href="{{path('bordereu_comptage',{numInv : item.numero})}}"  target="_blank">Impression feuille de comptage</a>
-                      {% endif %}
-										</li>
-										{% if item.excel is same as(true) %}
-                    <li>
-                      <a class="dropdown-item fw-bold" href="{{path('download_file',{'filename':'INV'~item.numero~'.xlsx'}) }}" target="_blank">Voir fichier</a>
-                    </li>
-                    {% else %}
-                    <li>
-                      <input type="file" accept=".xlsx" id="file{{ item.numero }}" style="display: none;" onchange="uploadFile(this, {{ item.numero }})">
-                      <a class="dropdown-item fw-bold" onclick="document.getElementById('file{{ item.numero }}').click()">Upload fichier d'analyse</a>
-										</li>
-                    {% endif %}
-                    
-									</ul>
-								</div>
-							</td>
-							{# Fin Actions #}
-                <td style="text-align: center;">   {{item.numero}}</td>
-                <td> {{item.description}}</td>
-                <td style="text-align: center;"> {{item.ouvert}}</td>
-                <td style="text-align: center;"> {{item.dateClo}}</td>
-                <td style="text-align: center;"> {{item.nbr_casier}}</td>
-                <td style="text-align: center;"> {{item.nbr_ref}}</td>
-                <td style="text-align: center;"> {{item.qte_comptee}}</td>
-                <td> {{item.statut}}</td>
-                <td style="text-align: right;"> {{item.montant |number_format(0, '', ' ')}}</td>
-                <td style="text-align: center;"> {{item.nbre_ref_ecarts_positif is same as("0") ?"" : item.nbre_ref_ecarts_positif }}</td>
-                <td style="text-align: center;"> {{item.nbre_ref_ecarts_negatifs is same as("0") ?"" : item.nbre_ref_ecarts_negatifs}}</td>
-                <td style="text-align: center;"> {{item.total_nbre_ref_ecarts is same as("0") ?"": item.total_nbre_ref_ecarts }}</td>
-                <td style="text-align: center;"> {{item.pourcentage_ref_avec_ecart is same as("0") ?"" : item.pourcentage_ref_avec_ecart ~ ' %'}}</td>
-                <td style="text-align: right;"> {{item.montant_ecart is same as("0")?"":item.montant_ecart |number_format(0, '', ' ') }}</td>
-                <td style="text-align: center;"> {{item.pourcentage_ecart  is same as("0") ?"" : item.pourcentage_ecart ~ ' %'}}</td>
-                </tr>
-            {% endfor %}
-         </tbody>
-      </table> 
-</div>
+							</ul>
+						</div>
+					</td>
+					{# Fin Actions #}
+					<td style="text-align: center;">
+						{{item.saisie_compte}}</td>
+					<td style="text-align: center;">
+						{{item.compte_cours}}</td>
+					<td style="text-align: center;">
+						{{item.numero}}</td>
+					<td>
+						{{item.description}}</td>
+					<td style="text-align: center;">
+						{{item.ouvert}}</td>
+					<td style="text-align: center;">
+						{{item.dateClo}}</td>
+					<td style="text-align: center;">
+						{{item.nbr_casier}}</td>
+					<td style="text-align: center;">
+						{{item.nbr_ref}}</td>
+					<td style="text-align: center;">
+						{{item.qte_comptee}}</td>
+					<td>
+						{{item.statut}}</td>
+					<td style="text-align: right;">
+						{{item.montant |number_format(0, '', ' ')}}</td>
+					<td style="text-align: center;">
+						{{item.nbre_ref_ecarts_positif is same as("0") ?"" : item.nbre_ref_ecarts_positif }}</td>
+					<td style="text-align: center;">
+						{{item.nbre_ref_ecarts_negatifs is same as("0") ?"" : item.nbre_ref_ecarts_negatifs}}</td>
+					<td style="text-align: center;">
+						{{item.total_nbre_ref_ecarts is same as("0") ?"": item.total_nbre_ref_ecarts }}</td>
+					<td style="text-align: center;">
+						{{item.pourcentage_ref_avec_ecart is same as("0") ?"" : item.pourcentage_ref_avec_ecart ~ ' %'}}</td>
+					<td style="text-align: right;">
+						{{item.montant_ecart is same as("0")?"":item.montant_ecart |number_format(0, '', ' ') }}</td>
+					<td style="text-align: center;">
+						{{item.pourcentage_ecart  is same as("0") ?"" : item.pourcentage_ecart ~ ' %'}}</td>
+				</tr>
+			{% endfor %}
+		</tbody>
+	</table>
 
 {% endblock %}
 {% block javascript %}
-<script>
-function uploadFile(input, id) {
-    let file = input.files[0];
+	<script>
+		function uploadFile( input, id ) {
 
-    if (!file) {
-        alert("Aucun fichier sélectionné.");
-        return;
-    }
 
-    let formData = new FormData();
-    formData.append("fichier", file);
 
-    fetch(`/Hffintranet/Upload/fichier/${id}`, {
-        method: "POST",
-        body: formData
-    })
-    .then(response => response.text())
-    .then(data => alert(data))
-    .catch(error => console.error("Erreur:", error));
+
+
+let file = input.files[ 0 ];
+if ( ! file ) {
+
+
+
+
+
+alert( "Aucun fichier sélectionné." );
+return;
+
+
+
+
+
 }
-</script>
-  <script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
-  <script src="{{ App.base_path }}/Views/js/inventaire/inventaireAg.js" type="module"></script>
-	<script src="{{ App.base_path }}/Views/js/planning/planningPositionSticky.js" type="module"></script>
+
+let formData = new FormData();
+formData.append( "fichier", file );
+fetch ( `/Hffintranet/Upload/fichier/${ id }`, {
+
+
+
+
+
+method: "POST",
+body: formData
+
+
+
+
+
+} ).then( response => response.text() ).then( data => alert( data ) ).catch( error => console.error( "Erreur:", error ) );
+
+
+
+
+
+}
+	</script>
+	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v=2025.09.15.08.00"></script>
+	<script src="{{ App.base_path }}/Views/js/inventaire/inventaireAg.js?v=2025.09.15.08.00" type="module"></script>
 {% endblock %}

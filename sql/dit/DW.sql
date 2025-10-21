@@ -141,3 +141,7 @@ ALTER TABLE DW_Demande_Intervention ADD numero_dit_avoir VARCHAR(11)
 ALTER TABLE DW_Demande_Intervention ADD numero_dit_refacturation VARCHAR(11)
 ALTER TABLE DW_Demande_Intervention ADD dit_avoir bit DEFAULT 0
 ALTER TABLE DW_Demande_Intervention ADD dit_refacturation bit DEFAULT 0
+
+
+UPDATE DW_Demande_Intervention SET dit_avoir = 0
+UPDATE DW_Demande_Intervention SET dit_refacturation = 0

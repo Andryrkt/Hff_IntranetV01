@@ -7,38 +7,34 @@
 
 {% import "macroForm.html.twig" as macroForm %}
 
-{% block content %}
-{# {% include "/partials/_loader.html.twig" %} #}
 {% set role_ids = App.user.roleIds %}
 {% set user_connecter = App.user.nom_utilisateur %}
 
-<div class="container">
-	<h3 class="perso-titre">
-		Liste des Demandes d'intervention
-	</h3>
-	{% include "/partials/_notification.html.twig" %}
+{% block content %}
 
-	{% include "/dit/shared/_formulaireRecherche.html.twig" %}
-	<div class="row">
+<div class="sticky-header-titre">
+	<div class="container">
+		{% include "/partials/_notification.html.twig" %}
+		{% include "/dit/shared/_formulaireRecherche.html.twig" %}
+		<div class="row">
+			<div class=" col-12 col-md-5 my-3">
+				<i class="fa-solid fa-circle text-info"></i>
+				<small class="text-info">Partiellement dispo |</small>
+				<i class="fa-solid fa-circle text-primary"></i>
+				<small class="text-primary">Complet non livré |</small>
+				<i class="fa-solid fa-circle text-warning"></i>
+				<small class="text-warning">Partiellement livré |</small>
+				<i class="fa-solid fa-circle text-success"></i>
+				<small class="text-success">Tout livré
+				</small>
+			</div>
 
-		<div class=" col-12 col-md-5 my-3">
-			<i class="fa-solid fa-circle text-info"></i>
-			<small class="text-info">Partiellement dispo |</small>
-			<i class="fa-solid fa-circle text-primary"></i>
-			<small class="text-primary">Complet non livré |</small>
-			<i class="fa-solid fa-circle text-warning"></i>
-			<small class="text-warning">Partiellement livré |</small>
-			<i class="fa-solid fa-circle text-success"></i>
-			<small class="text-success">Tout livré
-			</small>
+			<div class="col-12 col-md-7 my-3">
+				{% include "/dit/shared/_carteStatut.html.twig" %}
+			</div>
 		</div>
-
-		<div class="col-12 col-md-7 my-3">
-			{% include "/dit/shared/_carteStatut.html.twig" %}
-		</div>
-
+		{% include "/dit/shared/_pagination.html.twig" %}
 	</div>
-
 </div>
 
 <div
@@ -49,12 +45,8 @@
 			{% include "/partials/_noResultList.html.twig" %}
 		</div>
 	{% else %}
-		<div class="container">
-			{% include "/dit/shared/_pagination.html.twig" %}
-		</div>
-
-		<table class="table rounded table-plein-ecran">
-			<thead class="table-dark">
+		<table class="table table-sticky">
+			<thead class="table-dark align-middle">
 				<tr>
 					<th>
 						<i class="fas fa-ellipsis-vertical"></i>
@@ -222,7 +214,7 @@
 	{% include "/dit/shared/_modalNiveauUrgence.html.twig"  %}
 {% endblock %}
 {% block javascript %}
-	<script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
-	<script src="{{ App.base_path }}/Views/js/dit/listDit.js" type="module"></script>
-	<script src="{{ App.base_path }}/Views/js/dit/listDitModal.js" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v=2025.09.15.08.00"></script>
+	<script src="{{ App.base_path }}/Views/js/dit/listDit.js?v=2025.09.15.08.00" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/dit/listDitModal.js?v=2025.09.15.08.00" type="module"></script>
 {% endblock %} 

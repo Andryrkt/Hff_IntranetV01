@@ -1,77 +1,81 @@
 {% extends 'baseTemplate.html.twig' %}
+
 {% block stylesheets %}
-  <link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css" />
-  <link rel="stylesheet" href="{{ App.base_path }}/Views/css/inventaire/liste.css" />
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.09.15.08.00"/>
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/inventaire/liste.css?v=2025.09.15.08.00"/>
 {% endblock %}
+
 {% block content %}
-<div class="sticky-header-titre">
-  <div class="container">
-    <h3 class="perso-titre">Liste inventaire détaillé</h3>
-    {% include '/inventaire/_detailFormulaire.html.twig' %}
-    <div class="d-flex justify-content-between">
-          <a href="{{path("export_excel_detail_inventaire")}}" id="excelInventaire" name="excelinvenatire" class="btn btn bg-success text-white my-3 fw-bold">
-            <i class="fas fa-table"></i>
-            Excel</a>
-    </div>
-  </div>
-</div> 
-<div class="container-fluid">
-
-  <div class="sticky-header-statut"> 
-  </div>
-        <table class="table rounded table-plein-ecran">
-         <thead class="table-dark position-sticky">
-             
-             <th style="text-align: center;"> Numéro</th>
-             <th style="text-align: center;"> Date</th>
-             <th style="text-align: center;"> Nbr comptage </th>
-             <th style="text-align: center;"> Nbr bordereau </th>
-             <th style="text-align: center;"> Ligne</th>
-             <th style="text-align: center;"> Constructeur</th>
-             <th style="text-align: center;"> Reférence</th>
-             <th style="text-align: center;"> Désignation</th>
-             <th style="text-align: center;"> Casier</th>
-             <th style="text-align: center;"> Stock</th>
-             <th style="text-align: center;"> Prix</th>
-             <th style="text-align: center;"> Valeur stock</th>
-             <th style="text-align: center;"> Comptage1</th>
-             <th style="text-align: center;"> Comptage2</th>
-             <th style="text-align: center;"> Comptage3</th>
-             <th style="text-align: center;"> Ecart</th>
-             <th style="text-align: center;"> Mont.ecart</th>
-             </tr>
-         </thead>
-         <tbody id="tableBody">
-            {% for item in data %}
-              <tr>
-              <td style="text-align: center;">{{item.numinv}} </td>
-              <td style="text-align: center;">{{item.date}} </td>
-              <td style="text-align: center;">{{item.nbr_comptage}} </td>
-              <td style="text-align: center;">{{item.nb_bordereau}} </td>
-              <td style="text-align: center;">{{item.ligne}} </td>
-              <td style="text-align: center;">{{item.cst}} </td>
-              <td style="text-align: center;">{{item.ref}} </td>
-              <td style="text-align: center;">{{item.desi}} </td>
-              <td style="text-align: center;">{{item.casier}} </td>
-              <td style="text-align: center;">{{item.tsock}} </td>
-              <td style="text-align: right;">{{item.prix}} </td>
-              <td style="text-align: right;">{{item.valeur_stock}} </td>
-              <td style="text-align: center;">{{item.comptage1}} </td>
-              <td style="text-align: center;">{{item.comptage2}} </td>
-              <td style="text-align: center;">{{item.comptage3}} </td>
-              <td style="text-align: center;">{{item.ecart}} </td>
-              <td style="text-align: right;">{{item.montant_ecart}} </td>
-              </tr>
-            {% endfor %}
-         </tbody>
-      </table> 
-</div>
-
+	<div class="sticky-header-titre">
+		<div class="container">
+			{% include '/inventaire/_detailFormulaire.html.twig' %}
+			<div class="d-flex justify-content-between">
+				<a href="{{path("export_excel_detail_inventaire")}}" id="excelInventaire" name="excelinvenatire" class="btn btn bg-success text-white my-3 fw-bold">
+					<i class="fas fa-table"></i>
+					Excel
+				</a>
+			</div>
+		</div>
+	</div>
+	<div class="container-fluid">
+		<table class="table rounded table-sticky text-center">
+			<thead class="table-dark">
+				<tr>
+					<th>Saisie comptage</th>
+					<th>Numéro</th>
+					<th>Date</th>
+					<th>Nbr comptage</th>
+					<th>Nbr bordereau</th>
+					<th>Ligne</th>
+					<th>Constructeur</th>
+					<th>Reférence</th>
+					<th>Désignation</th>
+					<th>Casier</th>
+					{# <th>Stock</th> #}
+					<th class="text-end">Prix</th>
+					<th class="text-end">Valeur stock</th>
+					<th>Comptage1</th>
+					<th>Ecart 1</th>
+					<th>Comptage2</th>
+					<th>Ecart 2</th>
+					<th>Comptage3</th>
+					<th>Ecart 3</th>
+					<th>Ecart</th>
+					<th class="text-end">Mont.ecart</th>
+				</tr>
+			</thead>
+			<tbody id="tableBody">
+				{% for item in data %}
+					<tr>
+						<td>{{ item.saisie_compte }}</td>
+						<td>{{ item.numinv }}</td>
+						<td>{{ item.date }}</td>
+						<td>{{ item.nbr_comptage }}</td>
+						<td>{{ item.nb_bordereau }}</td>
+						<td>{{ item.ligne }}</td>
+						<td>{{ item.cst }}</td>
+						<td>{{ item.ref }}</td>
+						<td>{{ item.desi }}</td>
+						<td>{{ item.casier }}</td>
+						{# <td>{{ item.tsock }}</td> #}
+						<td class="text-end">{{ item.prix |number_format(0, '', ' ') }}</td>
+						<td class="text-end">{{ item.valeur_stock |number_format(0, '', ' ')}}</td>
+						<td>{{ item.comptage1 }}</td>
+						<td>{{ item.ecart1 }}</td>
+						<td>{{ item.comptage2 }}</td>
+						<td>{{ item.ecart2 }}</td>
+						<td>{{ item.comptage3 }}</td>
+						<td>{{ item.ecart3 }}</td>
+						<td>{{ item.ecart }}</td>
+						<td class="text-end">{{ item.montant_ecart }}</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
 {% endblock %}
-{% block javascript %}
 
-  <script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
-{# //   <script src="{{ App.base_path }}/Views/js/inventaire/inventaireAg.js" type="module"></script> #}
-  <script src="{{ App.base_path }}/Views/js/inventaire/inventaireDetailAgence.js" type="module"></script>
-	<script src="{{ App.base_path }}/Views/js/planning/planningPositionSticky.js" type="module"></script>
+{% block javascript %}
+	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v=2025.09.15.08.00"></script>
+	<script src="{{ App.base_path }}/Views/js/inventaire/inventaireDetailAgence.js?v=2025.09.15.08.00" type="module"></script>
 {% endblock %}

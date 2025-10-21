@@ -16,6 +16,8 @@ use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\historiqueOperation\HistoriqueOperationBADMService;
+use App\Service\FusionPdf;
+use App\Model\badm\BadmModel;
 
 /**
  * @Route("/materiel/mouvement-materiel")
@@ -27,11 +29,15 @@ class BadmsForm2Controller extends Controller
     use AutorisationTrait;
 
     private $historiqueOperation;
+    private $fusionPdf;
+    private $badm;
 
     public function __construct()
     {
         parent::__construct();
-        $this->historiqueOperation = new HistoriqueOperationBADMService;
+        $this->historiqueOperation = new HistoriqueOperationBADMService($this->getEntityManager());
+        $this->fusionPdf = new FusionPdf();
+        $this->badm = new BadmModel();
     }
 
     /**
@@ -51,21 +57,21 @@ class BadmsForm2Controller extends Controller
         $badm = new Badm();
 
         //recupération des donnée qui vient du formulaire 1
-        $form1Data = $this->sessionService->get('badmform1Data', []);
+        $form1Data = $this->getSessionService()->get('badmform1Data', []);
         // recuperation des information du matériel entrer par l'utilisateur dans le formulaire 1
         $data = $this->badm->findAll($form1Data['idMateriel'],  $form1Data['numParc'], $form1Data['numSerie']);
 
         /** INITIALISATION du formulaire 2*/
-        $badm = $this->initialisation($badm, $form1Data, $data, self::$em);
+        $badm = $this->initialisation($badm, $form1Data, $data, $this->getEntityManager());
 
         //création du formulaire
-        $form = self::$validator->createBuilder(BadmForm2Type::class, $badm)->getForm();
+        $form = $this->getFormFactory()->createBuilder(BadmForm2Type::class, $badm)->getForm();
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            $badm->setTypeMouvement(self::$em->getRepository(TypeMouvement::class)->find($badm->getTypeMouvement()));
+            $badm->setTypeMouvement($this->getEntityManager()->getRepository(TypeMouvement::class)->find($badm->getTypeMouvement()));
             //recuperatin de l'id du type de mouvemnet choisi par l'utilisateur dans le formulaire 1
             $idTypeMouvement = $badm->getTypeMouvement()->getId();
 
@@ -75,7 +81,7 @@ class BadmsForm2Controller extends Controller
             $conditionAgenceServices = $badm->getAgence() === null && $badm->getService() === null || $coditionAgenceService;
             $conditionVide = $badm->getAgence() === null && $badm->getService() === null && $badm->getCasierDestinataire() === null && $badm->getDateMiseLocation() === null;
             $idMateriel = (int)$data[0]['num_matricule'];
-            $idMateriels = self::$em->getRepository(Badm::class)->findIdMateriel();
+            $idMateriels = $this->getEntityManager()->getRepository(Badm::class)->findIdMateriel();
 
 
 
@@ -99,14 +105,14 @@ class BadmsForm2Controller extends Controller
                 $this->historiqueOperation->sendNotificationCreation($message, '-', 'badms_newForm1');
             } else {
 
-                $this->ajoutDesDonnnerFormulaire($data, self::$em, $badm, $form, $idTypeMouvement);
+                $this->ajoutDesDonnnerFormulaire($data, $this->getEntityManager(), $badm, $form, $idTypeMouvement);
 
                 //RECUPERATION de la dernière NumeroDemandeIntervention 
-                $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'BDM']);
+                $application = $this->getEntityManager()->getRepository(Application::class)->findOneBy(['codeApp' => 'BDM']);
                 $application->setDerniereId($badm->getNumBadm());
                 // Persister l'entité Application (modifie la colonne derniere_id dans le table applications)
-                self::$em->persist($application);
-                self::$em->flush();
+                $this->getEntityManager()->persist($application);
+                $this->getEntityManager()->flush();
 
                 //recuperation des ordres de réparation
                 $orDb = $this->badm->recupeOr((int)$data[0]['num_matricule']);
@@ -114,8 +120,8 @@ class BadmsForm2Controller extends Controller
                 $orDb = $this->miseEnformeOrDb($orDb);
 
 
-                $idAgenceEmetteur = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => substr($badm->getAgenceEmetteur(), 0, 2)]);
-                $idServiceEmetteur = self::$em->getRepository(Service::class)->findOneBy(['codeService' => substr($badm->getServiceEmetteur(), 0, 3)]);
+                $idAgenceEmetteur = $this->getEntityManager()->getRepository(Agence::class)->findOneBy(['codeAgence' => substr($badm->getAgenceEmetteur(), 0, 2)]);
+                $idServiceEmetteur = $this->getEntityManager()->getRepository(Service::class)->findOneBy(['codeService' => substr($badm->getServiceEmetteur(), 0, 3)]);
 
                 $badm
                     ->setAgenceEmetteurId($idAgenceEmetteur)
@@ -125,12 +131,12 @@ class BadmsForm2Controller extends Controller
                 ;
 
                 //ENVOIE DANS LE BASE DE DONNEE
-                self::$em->persist($badm);
-                self::$em->flush();
+                $this->getEntityManager()->persist($badm);
+                $this->getEntityManager()->flush();
 
                 /** CREATION PDF */
                 $createPdf = new GenererPdfBadm();
-                $generPdfBadm = $this->genereteTabPdf($OR, $data, $badm, $form, self::$em, $idTypeMouvement);
+                $generPdfBadm = $this->genereteTabPdf($OR, $data, $badm, $form, $this->getEntityManager(), $idTypeMouvement);
                 $createPdf->genererPdfBadm($generPdfBadm, $orDb);
                 //envoie des pièce jointe dans une dossier et le fusionner
                 $this->envoiePieceJoint($form, $badm, $this->fusionPdf);
@@ -143,7 +149,7 @@ class BadmsForm2Controller extends Controller
 
         $this->logUserVisit('badms_newForm2'); // historisation du page visité par l'utilisateur
 
-        self::$twig->display(
+        return $this->render(
             'badm/secondForm.html.twig',
             [
                 'items' => $data,

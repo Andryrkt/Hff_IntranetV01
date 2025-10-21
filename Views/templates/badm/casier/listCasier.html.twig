@@ -1,15 +1,18 @@
 {% extends "baseTemplate.html.twig" %}
 
-{% block stylesheets%}
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/ListDomRech.css">
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/badm/listeCasier.css">
+{% block title %}
+	Liste casier
+{% endblock %}
+
+{% block stylesheets %}
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/ListDomRech.css?v=2025.09.15.08.00">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/badm/listeCasier.css?v=2025.09.15.08.00">
 {% endblock %}
 
 {% import "macroForm.html.twig" as formMacro %}
 
-
 {% block content %}
-	<div class="container">
+	<div class="container mt-6 mb-4">
 
 
 		<div class="row ">
@@ -87,5 +90,5 @@
 {% endblock %}
 
 {% block javascript %}
-	<script type="module" src="{{ App.base_path }}/Views/js/badm/listCasier.js"></script>
+	<script type="module" src="{{ App.base_path }}/Views/js/badm/listCasier.js?v=2025.09.15.08.00"></script>
 {% endblock %}

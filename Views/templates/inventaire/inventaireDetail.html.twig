@@ -1,111 +1,112 @@
 {% extends 'baseTemplate.html.twig' %}
+
+{% block title %}
+	Détails des écarts sur inventaire
+{% endblock %}
+
 {% block stylesheets %}
-  <link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css" />
-  <link rel="stylesheet" href="{{ App.base_path }}/Views/css/inventaire/liste.css" />
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.09.15.08.00"/>
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/inventaire/liste.css?v=2025.09.15.08.00"/>
 {% endblock %}
+
 {% block content %}
-<div class="sticky-header-titre">
-    <div class="container">
-      <h3 class="perso-titre">Détails des écarts sur inventaire</h3>
-      {% include '/inventaire/_formulaireDetail.html.twig' %}
-      <div class="d-flex justify-content-between">
-        {% if data.data is not empty %}
-            <a href="{{path("export_liste_inventaire_detail", { 'numinv': data.data[0].numinv })}}" id="excelInventaireDetail" name="excelinvenatireDetail" class="btn btn bg-success text-white my-3 fw-bold">
-              <i class="fas fa-table"></i>
-              Excel</a>
-            <a target="_blank"  href="{{path("export_pdf_liste_inventaire_detail", { 'numinv': data.data[0].numinv })}}" id="pdfInventaireDetail" name="pdfinvenatireDetail" class="btn btn bg-info text-white my-3 fw-bold ms-3">
-              <i class="fas fa-print"></i>
-              PDF</a>
-        {% else %}
-            <a href="#" id="excelInventaireDetail" name="excelinvenatireDetail" class="btn btn bg-success text-white my-3 fw-bold">
-              <i class="fas fa-table"></i>
-              Excel</a>
-            <a href="#" id="pdfInventaireDetail" name="pdfinvenatireDetail" class="btn btn bg-info text-white my-3 fw-bold ms-3">
-              <i class="fas fa-print"></i>
-              PDF</a>
-        {% endif %}
-      </div>
-    </div>
-</div>
-<div class="container-fluid">
-     <div class="sticky-header-statut">
-        </div> 
-        <table class="table rounded table-plein-ecran">
-         <thead class="table-dark position-sticky">
-          {% for row in sumData %}
-                <tr class = "total">
-                      <th scope="row"> TOTAL</th>
-                      <th></th>
-                      <th></th>
-                      <th></th>
-                      <th></th>
-                      <th style="text-align: center;">{{row.stock_theo}}</th>
-                      <th  style="text-align: center;">{{data.sum.cpt1 is same as(0) ? "":data.sum.cpt1}}</th>
-                      <th  style="text-align: center;">{{data.sum.cpt2 is same as(0) ? "":data.sum.cpt2}}</th>
-                      <th  style="text-align: center;">{{data.sum.cpt3 is same as(0) ? "":data.sum.cpt3}}</th>
-                      <th  style="text-align: center;">{{row.ecart}}</th>
-                      <th style="text-align: center;">{{row.pourcentage_nbr_ecart}}</th>
-                      <th style="text-align: right;">{{data.sum.countPmp |number_format(0, '', ' ') }}</th>
-                      <th style="text-align: right;">{{ data.sum.countInvent |number_format(0, '', ' ') }}</th>
-                      <th style="text-align: right;">{{ data.sum.countMontEcart |number_format(0, '', ' ') }}</th>
-                      <th style="text-align: center;">{{row.pourcentage_ecart}}</th>
-                </tr>
-         {% endfor %}
+	<div class="sticky-header-titre">
+		<div class="container">
+			{% include '/inventaire/_formulaireDetail.html.twig' %}
+			<div class="d-flex justify-content-between">
+				{% if data.data is not empty %}
+					<a href="{{path("export_liste_inventaire_detail", { 'numinv': data.data[0].numinv })}}" id="excelInventaireDetail" name="excelinvenatireDetail" class="btn btn bg-success text-white my-3 fw-bold">
+						<i class="fas fa-table"></i>
+						Excel</a>
+					<a target="_blank" href="{{path("export_pdf_liste_inventaire_detail", { 'numinv': data.data[0].numinv })}}" id="pdfInventaireDetail" name="pdfinvenatireDetail" class="btn btn bg-info text-white my-3 fw-bold ms-3">
+						<i class="fas fa-print"></i>
+						PDF</a>
+				{% else %}
+					<a href="#" id="excelInventaireDetail" name="excelinvenatireDetail" class="btn btn bg-success text-white my-3 fw-bold">
+						<i class="fas fa-table"></i>
+						Excel</a>
+					<a href="#" id="pdfInventaireDetail" name="pdfinvenatireDetail" class="btn btn bg-info text-white my-3 fw-bold ms-3">
+						<i class="fas fa-print"></i>
+						PDF</a>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+	<table class="table table-sticky">
+		<thead class="table-dark position-sticky">
+			{% for row in sumData %}
+				<tr class="total">
+					<th scope="row">
+						TOTAL</th>
+					<th></th>
+					<th></th>
+					<th></th>
+					<th></th>
+					<th style="text-align: center;">{{row.stock_theo}}</th>
+					<th style="text-align: center;">{{data.sum.cpt1 is same as(0) ? "":data.sum.cpt1}}</th>
+					<th style="text-align: center;">{{data.sum.cpt2 is same as(0) ? "":data.sum.cpt2}}</th>
+					<th style="text-align: center;">{{data.sum.cpt3 is same as(0) ? "":data.sum.cpt3}}</th>
+					<th style="text-align: center;">{{row.ecart}}</th>
+					<th style="text-align: center;">{{row.pourcentage_nbr_ecart}}</th>
+					<th style="text-align: right;">{{data.sum.countPmp |number_format(0, '', ' ') }}</th>
+					<th style="text-align: right;">{{ data.sum.countInvent |number_format(0, '', ' ') }}</th>
+					<th style="text-align: right;">{{ data.sum.countMontEcart |number_format(0, '', ' ') }}</th>
+					<th style="text-align: center;">{{row.pourcentage_ecart}}</th>
+				</tr>
+			{% endfor %}
 
-             <tr>
-             <th style="text-align: center;" rowspan="2" class="align-middle">Numero en entête</th>
-              <th style="text-align: center;"  rowspan="2" class="align-middle">CST</th>
-              <th style="text-align: center;"  rowspan="2" class="align-middle">Reférence en entête</th>
-              <th style="text-align: center;"  rowspan="2" class="align-middle">Description</th>
-              <th style="text-align: center;"  rowspan="2" class="align-middle">Casier</th>
-              <th style="text-align: center;"  rowspan="2" class="align-middle">Qté théorique</th>
-              <th style="text-align: center;" colspan="3" style="text-align:center;">qté Comptée</th>
-              <th style="text-align: center;" rowspan="2" class="align-middle">Ecart</th>
-              <th style="text-align: center;" rowspan="2" class="align-middle">% nbr écart</th>
-              <th style="text-align: center;" rowspan="2" class="align-middle">P.M.P</th>
-              <th style="text-align: center;" rowspan="2" class="align-middle">Mont. Inventaire</th>
-              <th style="text-align: center;" rowspan="2" class="align-middle">Mont. Ecart</th>
-              <th style="text-align: center;" rowspan="2" class="align-middle">% Mont. Ecart</th>
-            </tr>
-             <tr>
-              <th style="text-align: center;">Cpt 1</th>
-              <th style="text-align: center;">Cpt 2</th>
-              <th style="text-align: center;">Cpt 3</th>
-            </tr>
-         </thead>
-         <tbody id="tableBody">
-          {% if data.data is empty %}
-            <tr>
-                <td colspan="14">Aucune donnée disponible</td>
-            </tr>
-          {% else %}
-            {% for item in data.data %}
-                  <tr>
-                      <td style="text-align: center;">{{item.numinv}}</td>
-                      <td>{{item.cst}}</td>
-                      <td>{{item.refp}}</td>
-                      <td>{{item.desi}}</td>
-                      <td>{{item.casier}}</td>
-                      <td style="text-align: center;">{{item.stock_theo}}</td>
-                      <td style="text-align: center;">{{ item.qte_comptee_1 is same as("0") ? "" : item.qte_comptee_1 }}</td>
-                      <td style="text-align: center;">{{ item.qte_comptee_2 is same as("0") ? "" : item.qte_comptee_2 }}</td>
-                      <td style="text-align: center;">{{ item.qte_comptee_3 is same as("0")  ? "" : item.qte_comptee_3 }}</td>
-                      <td style="text-align: center;">{{item.ecart}}</td>
-                      <td style="text-align: center;">{{item.pourcentage_nbr_ecart}}</td>
-                      <td style="text-align: right;">{{item.pmp |number_format(0, '', ' ') }}</td>
-                      <td style="text-align: right;">{{item.montant_inventaire |number_format(0, '', ' ') }}</td>
-                      <td style="text-align: right;">{{item.montant_ajuste |number_format(0, '', ' ') }}</td>
-                      <td style="text-align: center;">{{item.pourcentage_ecart}}</td>
-                  </tr>
-            {% endfor %}
-          {% endif %}
-         </tbody>
-      </table> 
-</div>
-
+			<tr>
+				<th style="text-align: center;" rowspan="2" class="align-middle">Numero en entête</th>
+				<th style="text-align: center;" rowspan="2" class="align-middle">CST</th>
+				<th style="text-align: center;" rowspan="2" class="align-middle">Reférence en entête</th>
+				<th style="text-align: center;" rowspan="2" class="align-middle">Description</th>
+				<th style="text-align: center;" rowspan="2" class="align-middle">Casier</th>
+				<th style="text-align: center;" rowspan="2" class="align-middle">Qté théorique</th>
+				<th style="text-align: center;" colspan="3" style="text-align:center;">qté Comptée</th>
+				<th style="text-align: center;" rowspan="2" class="align-middle">Ecart</th>
+				<th style="text-align: center;" rowspan="2" class="align-middle">% nbr écart</th>
+				<th style="text-align: center;" rowspan="2" class="align-middle">P.M.P</th>
+				<th style="text-align: center;" rowspan="2" class="align-middle">Mont. Inventaire</th>
+				<th style="text-align: center;" rowspan="2" class="align-middle">Mont. Ecart</th>
+				<th style="text-align: center;" rowspan="2" class="align-middle">% Mont. Ecart</th>
+			</tr>
+			<tr>
+				<th style="text-align: center;">Cpt 1</th>
+				<th style="text-align: center;">Cpt 2</th>
+				<th style="text-align: center;">Cpt 3</th>
+			</tr>
+		</thead>
+		<tbody id="tableBody">
+			{% if data.data is empty %}
+				<tr>
+					<td colspan="14">Aucune donnée disponible</td>
+				</tr>
+			{% else %}
+				{% for item in data.data %}
+					<tr>
+						<td style="text-align: center;">{{item.numinv}}</td>
+						<td>{{item.cst}}</td>
+						<td>{{item.refp}}</td>
+						<td>{{item.desi}}</td>
+						<td>{{item.casier}}</td>
+						<td style="text-align: center;">{{item.stock_theo}}</td>
+						<td style="text-align: center;">{{ item.qte_comptee_1 is same as("0") ? "" : item.qte_comptee_1 }}</td>
+						<td style="text-align: center;">{{ item.qte_comptee_2 is same as("0") ? "" : item.qte_comptee_2 }}</td>
+						<td style="text-align: center;">{{ item.qte_comptee_3 is same as("0")  ? "" : item.qte_comptee_3 }}</td>
+						<td style="text-align: center;">{{item.ecart}}</td>
+						<td style="text-align: center;">{{item.pourcentage_nbr_ecart}}</td>
+						<td style="text-align: right;">{{item.pmp |number_format(0, '', ' ') }}</td>
+						<td style="text-align: right;">{{item.montant_inventaire |number_format(0, '', ' ') }}</td>
+						<td style="text-align: right;">{{item.montant_ajuste |number_format(0, '', ' ') }}</td>
+						<td style="text-align: center;">{{item.pourcentage_ecart}}</td>
+					</tr>
+				{% endfor %}
+			{% endif %}
+		</tbody>
+	</table>
 {% endblock %}
+
 {% block javascript %}
-  <script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
-  <script src="{{ App.base_path }}/Views/js/inventaire/inventaireAg.js" type="module"></script>
-	<script src="{{ App.base_path }}/Views/js/planning/planningPositionSticky.js" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v=2025.09.15.08.00"></script>
+	<script src="{{ App.base_path }}/Views/js/inventaire/inventaireAg.js?v=2025.09.15.08.00" type="module"></script>
 {% endblock %}

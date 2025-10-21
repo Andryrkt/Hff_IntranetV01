@@ -1,11 +1,12 @@
 {% extends "baseTemplate.html.twig" %}
 
-{% block title %}Nouvelle mutation
+{% block title %}
+	Création mutation
 {% endblock %}
 
 {% block stylesheets %}
-	<link href="{{ App.base_path }}/Views/css/new.css" rel="stylesheet"/>
-	<link href="{{ App.base_path }}/Views/css/mutation/new.css" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/new.css?v=2025.09.15.08.00" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/mutation/new.css?v=2025.09.15.08.00" rel="stylesheet"/>
 {% endblock %}
 
 {% import "macroForm.html.twig" as macroForm %}
@@ -15,7 +16,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="container mt-6 mb-4">
 	<div class="card">
 		<div class="card-body">
 			<div class="container">
@@ -125,4 +126,9 @@
 			{{ form_end(form)}}
 		</div>
 	</div>
-</div></div>{% endblock %}{% block javascript %}<script src="{{ App.base_path }}/Views/js/mutation/new.js" type="module"></script>{% endblock %}
+</div></div>
+{% endblock %}
+
+{% block javascript %}
+	<script src="{{ App.base_path }}/Views/js/mutation/new.js?v=2025.09.15.08.00" type="module"></script>
+{% endblock %}

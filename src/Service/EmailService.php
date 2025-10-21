@@ -2,7 +2,6 @@
 
 namespace App\Service;
 
-use App\Controller\Controller;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\SMTP;
@@ -13,9 +12,9 @@ class EmailService
     private $twig;
     private $twigMailer;
 
-    public function __construct()
+    public function __construct($twig)
     {
-        $this->twig = Controller::getTwig();
+        $this->twig = $twig;
 
         $this->mailer = new PHPMailer(true);
 
@@ -23,11 +22,8 @@ class EmailService
         $this->mailer->isSMTP();
         $this->mailer->Host = 'smtp.gmail.com';
         $this->mailer->SMTPAuth = true;
-        $this->mailer->Username = 'hasina.andrianadison@hff.mg';
-        $this->mailer->Password = 'pjld idch wnif byfm ';
-        // $this->mailer->Username = 'noreply.email@hff.mg';
-        // $this->mailer->Password = 'aztq lelp kpzm qhff';
-        //$this->mailer->Password = '2b6615f71ff2a7';
+        $this->mailer->Username = 'noreply.email@hff.mg';
+        $this->mailer->Password = 'pihr cwdj rpog irob';
         $this->mailer->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $this->mailer->Port = 587;
         $this->mailer->CharSet = 'UTF-8';
@@ -72,7 +68,8 @@ class EmailService
             }
 
             // ajout du bcc
-            $mailer->addBCC('ranofimenjajam@gmail.com', 'fidison');
+            $mailer->addBCC('nomenjanahary.randrianantenaina@hff.mg', 'fidison');
+            $mailer->addBCC('hasina.andrianadison@hff.mg', 'hasina');
 
             // Ajouter les pièces jointes
             foreach ($attachments as $filePath => $fileName) {

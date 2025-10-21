@@ -18,6 +18,8 @@ class DwBcApproRepository extends EntityRepository
             ->select('d.path')
             ->where('d.numeroBc = :numeroBc')
             ->setParameter('numeroBc', $numeroCde)
+            ->orderBy('d.path', 'DESC')
+            ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult(Query::HYDRATE_SINGLE_SCALAR);
     }

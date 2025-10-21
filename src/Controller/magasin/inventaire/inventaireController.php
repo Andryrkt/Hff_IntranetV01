@@ -60,7 +60,7 @@ class InventaireController extends Controller
         $this->verifierSessionUtilisateur();
         $this->autorisationAcces($this->getUser(), Application::ID_INV);
 
-        $form = self::$validator->createBuilder(
+        $form = $this->getFormFactory()->createBuilder(
             InventaireSearchType::class,
             $this->inventaireSearch,
             [
@@ -79,15 +79,14 @@ class InventaireController extends Controller
         //transformer l'objet ditSearch en tableau
         $criteriaTAb = $criteria->toArray();
         //recupères les données du criteria dans une session nommé dit_serch_criteria
-        $this->sessionService->set('inventaire_search_criteria', $criteriaTAb);
+        $this->getSessionService()->set('inventaire_search_criteria', $criteriaTAb);
 
         $data  = [];
         if ($request->query->get('action') !== 'oui') {
             $listInvent = $this->inventaireModel->listeInventaire($criteria);
             $data = $this->recupDataList($listInvent, true);
-            // dump($data);
         }
-        self::$twig->display('inventaire/inventaire.html.twig', [
+        return $this->render('inventaire/inventaire.html.twig', [
             'form' => $form->createView(),
             'data' => $data
         ]);
@@ -99,7 +98,7 @@ class InventaireController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        $form = self::$validator->createBuilder(
+        $form = $this->getFormFactory()->createBuilder(
             InventaireDetailSearchType::class,
             $this->inventaireDetailSearch,
             [
@@ -116,12 +115,12 @@ class InventaireController extends Controller
         //transformer l'objet InventaireDetailSearch en tableau
         $criteriaTAb = $criteria->toArray();
         //recupères les données du criteria dans une session nommé inventaire_detail_search_criteria
-        $this->sessionService->set('inventaire_detail_search_criteria', $criteriaTAb);
+        $this->getSessionService()->set('inventaire_detail_search_criteria', $criteriaTAb);
 
         $countSequence = $this->inventaireModel->countSequenceInvent($numinv);
         $dataDetail = $this->dataDetail($countSequence, $numinv);
         $sumData = $this->dataSumInventaireDetail($numinv);
-        self::$twig->display('inventaire/inventaireDetail.html.twig', [
+        return $this->render('inventaire/inventaireDetail.html.twig', [
             'form' => $form->createView(),
             'data' => $dataDetail,
             'sumData' => $sumData
@@ -135,11 +134,13 @@ class InventaireController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        $criteriaTAb = $this->sessionService->get('inventaire_search_criteria');
+        $criteriaTAb = $this->getSessionService()->get('inventaire_search_criteria');
         $this->inventaireSearch->arrayToObjet($criteriaTAb);
         $listInvent = $this->inventaireModel->listeInventaire($this->inventaireSearch);
         $data = $this->recupDataList($listInvent);
         $header = [
+            'saisie_compte' => 'Saisie compte',
+            'compte_cours' => 'Comptage encours',
             'numero' => 'Numéro',
             'description' => 'Description',
             'ouvert' => 'Ouvert le',
@@ -253,9 +254,19 @@ class InventaireController extends Controller
             $sumNbrEcart = 0;
             $sumNbrPourcentEcart = 0;
             for ($i = 0; $i < count($listInvent); $i++) {
-                $numIntvMax = $this->inventaireModel->maxNumInv($listInvent[$i]['numero_inv']);
-                // dump($numIntvMax);
-                $invLigne = $this->inventaireModel->inventaireLigneEC($numIntvMax[0]['numinvmax']);
+                $numIntvAssocie = $this->inventaireModel->getInventairesAssocies($listInvent[$i]['numero_inv']);
+                $invLigne = $this->inventaireModel->inventaireLigneEC($numIntvAssocie[0]['numinv']);
+                // condition pour avoir le résultat de 1
+                if (
+                    $invLigne[0]['nbre_ref_ecarts_positif'] == 0 &&
+                    $invLigne[0]['nbre_ref_ecarts_negatifs'] == 0 &&
+                    $invLigne[0]['total_nbre_ref_ecarts'] == 0 &&
+                    $invLigne[0]['pourcentage_ref_avec_ecart'] == 0 &&
+                    $invLigne[0]['montant_ecart'] == 0 &&
+                    $invLigne[0]['pourcentage_ecart'] == 0
+                ) { // = 0 daholo le résultat (champ1 = 0 && champ2 = 0 && ....)
+                    $invLigne = isset($numIntvAssocie[1]) ? $this->inventaireModel->inventaireLigneEC($numIntvAssocie[1]['numinv']) : $invLigne;
+                }
                 // $sumMontEcart = $this->inventaireModel->sumInventaireDetail($numIntvMax[0]['numinvmax']);
                 // dump($sumMontEcart);
                 if ($listInvent[$i]['date_clo'] == null) {
@@ -264,6 +275,10 @@ class InventaireController extends Controller
                     $dateCLo = (new DateTime($listInvent[$i]['date_clo']))->format('d/m/Y');
                 }
                 $data[$i] = [
+                    // ajoute de ces 2 colonnes
+                    'saisie_compte' => $listInvent[$i]['saisie_comptage'],
+                    'compte_cours' => $listInvent[$i]['comptage_encours'],
+                    // ----
                     'numero' => $listInvent[$i]['numero_inv'],
                     'description' => $listInvent[$i]['description'],
                     'ouvert' => (new DateTime($listInvent[$i]['ouvert_le']))->format('d/m/Y'),
@@ -282,6 +297,10 @@ class InventaireController extends Controller
                     'pourcentage_ecart' => $invLigne[0]['pourcentage_ecart'] == "0%" ? "" : $invLigne[0]['pourcentage_ecart'],
                 ];
                 $dataExcel[$i] = [
+                    // ajoute de ces 2 colonnes
+                    'saisie_compte' => $listInvent[$i]['saisie_comptage'],
+                    'compte_cours' => $listInvent[$i]['comptage_encours'],
+                    // ------
                     'numero' => $listInvent[$i]['numero_inv'],
                     'description' => $listInvent[$i]['description'],
                     'ouvert' => (new DateTime($listInvent[$i]['ouvert_le']))->format('d/m/Y'),
@@ -328,7 +347,7 @@ class InventaireController extends Controller
                 'nbre_ref_ecarts_positif' => $sumNbrPositif,
                 'nbre_ref_ecarts_negatifs' => $sumNbrNegatif,
                 'total_nbre_ref_ecarts' => $sumNbrRefsansEcart,
-                'pourcentage_ref_avec_ecart' => $sumNbrRefavecEcart,
+                'pourcentage_ref_avec_ecart' =>$sumNbrecartavecEcart, //$sumNbrRefavecEcart,
                 'montant_ecart' => $sumNbrEcart,
                 'pourcentage_ecart' => $sumEcart, //$sumNbrPourcentEcart,
             ];
@@ -342,7 +361,7 @@ class InventaireController extends Controller
 
     public function dataDetail($countSequence, $numinv)
     {
-        $criteriaTab = $this->sessionService->get('inventaire_detail_search_criteria');
+        $criteriaTab = $this->getSessionService()->get('inventaire_detail_search_criteria');
         $numinvCriteria = ($criteriaTab['numinv'] === "" || $criteriaTab['numinv'] === null) ? $numinv : $criteriaTab['numinv'];
 
         if ($numinv !== $numinvCriteria) {
@@ -408,7 +427,7 @@ class InventaireController extends Controller
     }
     public function dataDetailExcel($countSequence, $numinv)
     {
-        $criteriaTab = $this->sessionService->get('inventaire_detail_search_criteria');
+        $criteriaTab = $this->getSessionService()->get('inventaire_detail_search_criteria');
         $numinvCriteria = ($criteriaTab['numinv'] === "" || $criteriaTab['numinv'] === null) ? $numinv : $criteriaTab['numinv'];
 
         if ($numinv !== $numinvCriteria) {
@@ -454,7 +473,7 @@ class InventaireController extends Controller
     }
     public function dataSumInventaireDetail($numinv)
     {
-        $criteriaTab = $this->sessionService->get('inventaire_detail_search_criteria');
+        $criteriaTab = $this->getSessionService()->get('inventaire_detail_search_criteria');
         $numinvCriteria = ($criteriaTab['numinv'] === "" || $criteriaTab['numinv'] === null) ? $numinv : $criteriaTab['numinv'];
 
         if ($numinv !== $numinvCriteria) {
@@ -521,7 +540,7 @@ class InventaireController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
         $this->bordereauSearch->setNumInv($numInv);
-        $form = self::$validator->createBuilder(
+        $form = $this->getFormFactory()->createBuilder(
             BordereauSearchType::class,
             $this->bordereauSearch,
             [
@@ -536,9 +555,9 @@ class InventaireController extends Controller
         }
         //transformer l'objet zn tableau
         $criteriaTab = $criteria->toArray();
-        $this->sessionService->set('bordereau_search_criteria', $criteriaTab);
+        $this->getSessionService()->set('bordereau_search_criteria', $criteriaTab);
         $data = $this->recupDataBordereau($numInv, $criteriaTab);
-        self::$twig->display('bordereau/bordereau.html.twig', [
+        return $this->render('bordereau/bordereau.html.twig', [
             'form' => $form->createView(),
             'data' => $data,
             'numinvpdf' => $numInv,
@@ -552,7 +571,7 @@ class InventaireController extends Controller
     {
         // Vérification si l'utilisateur est connecté
         $this->verifierSessionUtilisateur();
-        $criteriaTab =  $this->sessionService->get('bordereau_search_criteria');
+        $criteriaTab =  $this->getSessionService()->get('bordereau_search_criteria');
         $data = $this->recupDataBordereau($numInv, $criteriaTab);
         $this->generetePdfBordereau->genererPDF($data);
     }

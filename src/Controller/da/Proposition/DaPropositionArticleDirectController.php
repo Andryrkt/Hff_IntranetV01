@@ -6,9 +6,11 @@ use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
+use App\Entity\admin\Application;
 use App\Entity\da\DemandeApproLR;
 use App\Form\da\DaObservationType;
 use App\Entity\da\DemandeApproLRCollection;
+use App\Controller\Traits\AutorisationTrait;
 use App\Form\da\DaPropositionValidationType;
 use App\Controller\Traits\da\DaAfficherTrait;
 use App\Form\da\DemandeApproLRCollectionType;
@@ -26,14 +28,16 @@ class DaPropositionArticleDirectController extends Controller
     use DaAfficherTrait;
     use DaValidationDirectTrait;
     use DaPropositionDirectTrait;
+    use AutorisationTrait;
 
     private const EDIT = 0;
 
     public function __construct()
     {
         parent::__construct();
-        $this->setEntityManager(self::$em);
+
         $this->initDaPropositionDirectTrait();
+        $this->initDaValidationDirectTrait();
     }
 
     /**
@@ -44,25 +48,35 @@ class DaPropositionArticleDirectController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
+        /** Autorisation accès */
+        $this->autorisationAcces($this->getUser(), Application::ID_DAP);
+        /** FIN AUtorisation accès */
+
         $da = $this->demandeApproRepository->findAvecDernieresDALetLR($id);
         $numDa = $da->getNumeroDemandeAppro();
         $dals = $da->getDAL();
 
         $daObservation = new DaObservation();
         $DapLRCollection = new DemandeApproLRCollection();
-        $form = self::$validator->createBuilder(DemandeApproLRCollectionType::class, $DapLRCollection)->getForm();
-        $formObservation = self::$validator->createBuilder(DaObservationType::class, $daObservation, [
+        $form = $this->getFormFactory()->createBuilder(DemandeApproLRCollectionType::class, $DapLRCollection)->getForm();
+        $formObservation = $this->getFormFactory()->createBuilder(DaObservationType::class, $daObservation, [
             'achatDirect' => $da->getAchatDirect()
         ])->getForm();
-        $formValidation = self::$validator->createBuilder(DaPropositionValidationType::class, [], ['action' => self::$generator->generate('da_validate_direct', ['numDa' => $numDa])])->getForm();
+        $formValidation = $this->getFormFactory()->createBuilder(
+            DaPropositionValidationType::class,
+            [],
+            [
+                'action' => $this->getUrlGenerator()->generate('da_validate_direct', ['numDa' => $numDa])
+            ]
+        )->getForm();
 
-        // Traitement du formulaire en géneral ===========================//
+        // Traitement du formulaire en général ===========================//
         $this->traitementFormulaire($form, $formObservation, $dals, $request, $numDa, $da); //
         // ===============================================================//
 
         $observations = $this->daObservationRepository->findBy(['numDa' => $numDa]);
 
-        self::$twig->display("da/proposition.html.twig", [
+        return $this->render("da/proposition.html.twig", [
             'da'                      => $da,
             'id'                      => $id,
             'form'                    => $form->createView(),
@@ -72,7 +86,7 @@ class DaPropositionArticleDirectController extends Controller
             'numDa'                   => $numDa,
             'connectedUser'           => $this->getUser(),
             'statutAutoriserModifAte' => $da->getStatutDal() === DemandeAppro::STATUT_AUTORISER_MODIF_ATE,
-            'estAte'                  => $this->estUserDansServiceAtelier(),
+            'estCreateurDaDirecte'    => $this->estCreateurDeDADirecte(),
             'estAppro'                => $this->estUserDansServiceAppro(),
             'nePeutPasModifier'       => $this->nePeutPasModifier($da)
         ]);
@@ -93,7 +107,10 @@ class DaPropositionArticleDirectController extends Controller
             $observation = $form->getData()->getObservation();
             $statutChange = $form->get('statutChange')->getData();
 
-            if ($request->request->has('enregistrer')) {
+            if ($request->request->has('brouillon')) {
+                /** Enregistrer provisoirement */
+                $this->traitementPourBtnBrouillon($dalrList, $request, $dals, $observation, $numDa, $da);
+            } elseif ($request->request->has('enregistrer')) {
                 /** Envoyer proposition à l'atelier */
                 $this->traitementPourBtnEnregistrer($dalrList, $request, $dals, $observation, $numDa, $da);
             } elseif ($request->request->has('changement')) {
@@ -142,7 +159,7 @@ class DaPropositionArticleDirectController extends Controller
             'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
         ]);
 
-        $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
+        $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         return $this->redirectToRoute("list_da");
     }
 
@@ -178,7 +195,7 @@ class DaPropositionArticleDirectController extends Controller
             ];
         }
 
-        $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
+        $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         $this->redirectToRoute("list_da");
     }
 
@@ -204,16 +221,22 @@ class DaPropositionArticleDirectController extends Controller
         $this->modificationChoixEtligneDal($refs, $dals);
         $nomEtChemin = $this->validerProposition($numDa);
 
-        $this->ajouterDansTableAffichageParNumDa($numDa); // enregistrement dans la table DaAfficher
+        $this->ajouterDansTableAffichageParNumDa($numDa, true, DemandeAppro::STATUT_DW_A_VALIDE); // enregistrement dans la table DaAfficher
+
+        // ajout des données dans la table DaSoumisAValidation
+        $this->ajouterDansDaSoumisAValidation($da);
+
+        /** envoi dans docuware */
+        $this->fusionAndCopyToDW($da->getNumeroDemandeAppro());
 
         /** ENVOI DE MAIL POUR LA VALIDATION DES ARTICLES */
         $this->emailDaService->envoyerMailValidationDaDirect($da, $nomEtChemin, [
             'service'           => $this->estUserDansServiceAppro() ? 'appro' : $da->getServiceEmetteur()->getLibelleService(),
-            'phraseValidation'  => 'Vous trouverez en pièce jointe le fichier contenant les références ZST.',
+            'phraseValidation'  => 'Vous trouverez en pièce jointe le fichier contenant les références ZDI.',
             'userConnecter'     => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
         ]);
 
-        $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
+        $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         $this->redirectToRoute("list_da");
     }
 
@@ -234,16 +257,22 @@ class DaPropositionArticleDirectController extends Controller
         /** VALIDATION DU PROPOSITION PAR L'ATE */
         $nomEtChemin = $this->validerProposition($numDa);
 
-        $this->ajouterDansTableAffichageParNumDa($numDa);
+        $this->ajouterDansTableAffichageParNumDa($numDa, true, DemandeAppro::STATUT_DW_A_VALIDE);
+
+        // ajout des données dans la table DaSoumisAValidation
+        $this->ajouterDansDaSoumisAValidation($da);
+
+        /** envoi dans docuware */
+        $this->fusionAndCopyToDW($da->getNumeroDemandeAppro());
 
         /** ENVOI DE MAIL POUR LES ARTICLES VALIDES */
         $this->emailDaService->envoyerMailValidationDaDirect($da, $nomEtChemin, [
             'service'           => $this->estUserDansServiceAppro() ? 'appro' : $da->getServiceEmetteur()->getLibelleService(),
-            'phraseValidation'  => 'Vous trouverez en pièce jointe le fichier contenant les références ZST.',
+            'phraseValidation'  => 'Vous trouverez en pièce jointe le fichier contenant les références ZDI.',
             'userConnecter'     => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
         ]);
 
-        $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
+        $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         $this->redirectToRoute("list_da");
     }
 
@@ -282,7 +311,7 @@ class DaPropositionArticleDirectController extends Controller
 
         /** Ajout nom fichier du bon d'achat (excel) */
         $da->setNomFichierBav($nomEtChemin['fileName']);
-        self::$em->flush();
+        $this->getEntityManager()->flush();
 
         return $nomEtChemin;
     }
@@ -307,14 +336,37 @@ class DaPropositionArticleDirectController extends Controller
         $this->ajouterDansTableAffichageParNumDa($numDa);
 
         /** ENVOIE D'EMAIL à l'ATE pour les propositions*/
-        $this->emailDaService->envoyerMailPropositionDaDirect($da, [
+        $this->emailDaService->envoyerMailPropositionDaDirect($this->demandeApproRepository->findAvecDernieresDALetLR($da->getId()), [
             'service'       => 'appro',
             'observation'   => $observation,
-            'hydratedDa'    => $this->demandeApproRepository->findAvecDernieresDALetLR($da->getId()),
             'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
         ]);
 
-        $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
+        $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
+        $this->redirectToRoute("list_da");
+    }
+
+    private function traitementPourBtnBrouillon($dalrList, Request $request, $dals, ?string $observation, string $numDa, DemandeAppro $da): void
+    {
+        /** RECUPERATION DE NUMERO DE page et NUMERO de ligne de tableau */
+        $refs = $this->recuperationDesRef($request);
+
+        $notification = $this->traiterProposition(
+            $dals,
+            $dalrList,
+            $observation,
+            $da,
+            $refs,
+            "La proposition a été enregistré avec succès",
+            true,
+            DemandeAppro::STATUT_EN_COURS_PROPOSITION
+        );
+
+        $this->modificationChoixEtligneDal($refs, $dals);
+
+        $this->ajouterDansTableAffichageParNumDa($numDa);
+
+        $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         $this->redirectToRoute("list_da");
     }
 
@@ -402,25 +454,25 @@ class DaPropositionArticleDirectController extends Controller
             if (!empty($dalrs)) {
                 foreach ($dalrs as $dalr) {
                     $dalr->setDemandeApproL($dal);
-                    self::$em->persist($dalr);
+                    $this->getEntityManager()->persist($dalr);
                 }
             }
         }
-        self::$em->flush();
+        $this->getEntityManager()->flush();
     }
 
     private function modificationStatutDal(string $numDa, string $statut): void
     {
-        $numeroVersionMax = self::$em->getRepository(DemandeApproL::class)->getNumeroVersionMax($numDa);
+        $numeroVersionMax = $this->getEntityManager()->getRepository(DemandeApproL::class)->getNumeroVersionMax($numDa);
         $dals = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
 
         foreach ($dals as  $dal) {
             $dal->setStatutDal($statut);
             $dal->setEdit(self::EDIT);
-            self::$em->persist($dal);
+            $this->getEntityManager()->persist($dal);
         }
 
-        self::$em->flush();
+        $this->getEntityManager()->flush();
     }
 
     private function modificationStatutDa(string $numDa, string $statut): void
@@ -428,8 +480,8 @@ class DaPropositionArticleDirectController extends Controller
         $da = $this->demandeApproRepository->findOneBy(['numeroDemandeAppro' => $numDa]);
         $da->setStatutDal($statut);
 
-        self::$em->persist($da);
-        self::$em->flush();
+        $this->getEntityManager()->persist($da);
+        $this->getEntityManager()->flush();
     }
 
     private function modificationTableDaL(array $refs,  $data): void
@@ -442,10 +494,10 @@ class DaPropositionArticleDirectController extends Controller
                 ->setEstValidee($dalrs[$i][0]->getEstValidee())
                 ->setEstModifier($dalrs[$i][0]->getChoix())
             ;
-            self::$em->persist($dals[$i][0]);
+            $this->getEntityManager()->persist($dals[$i][0]);
         }
 
-        self::$em->flush();
+        $this->getEntityManager()->flush();
     }
 
 
@@ -523,9 +575,9 @@ class DaPropositionArticleDirectController extends Controller
     private function resetBd(array $dalrsAll): void
     {
         foreach ($dalrsAll as $dalr) {
-            self::$em->persist($dalr);
+            $this->getEntityManager()->persist($dalr);
         }
-        self::$em->flush();
+        $this->getEntityManager()->flush();
     }
 
     private function recupEntiteAModifier(array $refs, $data): array
@@ -551,9 +603,9 @@ class DaPropositionArticleDirectController extends Controller
     private function modificationBd(array $dalrs): void
     {
         foreach ($dalrs as $dalr) {
-            self::$em->persist($dalr);
+            $this->getEntityManager()->persist($dalr);
         }
-        self::$em->flush();
+        $this->getEntityManager()->flush();
     }
 
     private function notification(string $type, string $message): array
@@ -569,9 +621,9 @@ class DaPropositionArticleDirectController extends Controller
         foreach ($dalrList as $demandeApproLR) {
             $DAL = $this->filtreDal($dals, $demandeApproLR);
             $demandeApproLR = $this->ajoutDonnerDaLR($DAL, $demandeApproLR, $statut);
-            self::$em->persist($demandeApproLR);
+            $this->getEntityManager()->persist($demandeApproLR);
         }
-        self::$em->flush();
+        $this->getEntityManager()->flush();
     }
 
     private function filtreDal($dals, $demandeApproLR): ?object
