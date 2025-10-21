@@ -426,6 +426,12 @@ button.swal2-styled {
   box-sizing: border-box; /* évite les soucis avec padding */
 }
 
+#bandeau {
+  top: 133px;
+  height: 20px;
+  position: fixed !important;
+}
+
 .bg-orange-cat {
   background-color: rgb(255, 191, 0);
 }
