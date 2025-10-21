@@ -67,6 +67,24 @@ class DaAfficherRepository extends EntityRepository
             ->execute();
     }
 
+    public function markAsDeletedByListId(array $ids, string $userName): void
+    {
+        if (empty($ids)) return; // rien à faire
+
+        $this->createQueryBuilder('d')
+            ->update()
+            ->set('d.deleted', ':deleted')
+            ->set('d.deletedBy', ':deletedBy')
+            ->Where('d.id IN (:ids)')
+            ->setParameters([
+                'deleted'   => true,
+                'deletedBy' => $userName,
+                'ids'       => $ids,
+            ])
+            ->getQuery()
+            ->execute();
+    }
+
     /**
      *  Récupère le numéro de version maximum pour une demande d'approvisionnement (DA) donnée.
      *
