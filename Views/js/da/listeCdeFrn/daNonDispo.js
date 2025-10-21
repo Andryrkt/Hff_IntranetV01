@@ -31,14 +31,17 @@ document.addEventListener("DOMContentLoaded", function () {
     Swal.fire({
       title: "Êtes-vous sûr(e) ?",
       html: `Vous ne pouvez sélectionner que des lignes appartenant à la même DA.<br>
-      Si vous voulez quand même sélectionner ces lignes, cliquez sur "Continuer" : les lignes précédemment cochées seront décochées.<br>
-      Sinon, cliquez sur "Annuler".`,
+      Si vous voulez quand même sélectionner ces lignes, cliquez sur <b class="text-success">"Continuer"</b> (les lignes précédemment cochées seront décochées).
+      Sinon, cliquez sur <b class="text-secondary">"Annuler"</b>.`,
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#28a745",
       cancelButtonColor: "#6c757d",
-      confirmButtonText: "Oui, supprimer",
-      cancelButtonText: "Non, annuler",
+      confirmButtonText: "Oui, Continuer",
+      cancelButtonText: "Non, Annuler",
+      customClass: {
+        htmlContainer: "swal-text-left",
+      },
     }).then((result) => {
       if (result.isConfirmed) {
         checkedBoxes.forEach((c) => {
