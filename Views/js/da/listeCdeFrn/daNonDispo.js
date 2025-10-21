@@ -45,26 +45,38 @@ document.addEventListener("DOMContentLoaded", function () {
       if (actionType === "delete") endpoint = API_ENDPOINTS.DELETE_ARTICLES_DA;
       if (actionType === "create") endpoint = API_ENDPOINTS.CREATE_ARTICLES_DA;
 
-      // Message de confirmation selon l'action
-      let confirmTitle = "";
-      let confirmText = "";
+      // Configuration dynamique selon l'action
+      let confirmConfig = {};
 
       if (actionType === "delete") {
-        confirmTitle = "Confirmer la suppression";
-        confirmText = `Voulez-vous vraiment supprimer ${selectedIds.length} article(s) ?`;
+        confirmConfig = {
+          title: "Confirmer la suppression",
+          text: `Voulez-vous vraiment supprimer ${selectedIds.length} article(s) ?`,
+          icon: "warning",
+          confirmButtonText: "Oui, supprimer",
+          confirmButtonColor: "#d33", // rouge
+          cancelButtonText: "Annuler",
+        };
       } else if (actionType === "create") {
-        confirmTitle = "Confirmer la création";
-        confirmText = `Voulez-vous vraiment créer ${selectedLignes.length} article(s) ?`;
+        confirmConfig = {
+          title: "Confirmer la création",
+          text: `Voulez-vous vraiment créer ${selectedLignes.length} article(s) ?`,
+          icon: "question",
+          confirmButtonText: "Oui, créer",
+          confirmButtonColor: "#198754", // vert
+          cancelButtonText: "Annuler",
+        };
       }
 
       // Affichage de la confirmation avant l'action
       const confirmation = await Swal.fire({
-        icon: "warning",
-        title: confirmTitle,
-        html: confirmText,
+        title: confirmConfig.title,
+        html: confirmConfig.text,
+        icon: confirmConfig.icon,
         showCancelButton: true,
-        confirmButtonText: "Oui",
-        cancelButtonText: "Annuler",
+        confirmButtonText: confirmConfig.confirmButtonText,
+        confirmButtonColor: confirmConfig.confirmButtonColor,
+        cancelButtonText: confirmConfig.cancelButtonText,
         customClass: {
           htmlContainer: "swal-text-left",
         },
