@@ -52,7 +52,7 @@ class DaListCdeFrnController extends Controller
     }
 
     /**
-     * @Route("/da-list-cde-frn", name ="da_list_cde_frn" )
+     * @Route("/da-list-cde-frn", name="da_list_cde_frn" )
      */
     public function index(Request $request)
     {
