@@ -3,7 +3,7 @@ import { FetchManager } from "../../api/FetchManager";
 import { displayOverlay } from "../../utils/spinnerUtils";
 
 document.addEventListener("DOMContentLoaded", function () {
-  let lastCheckedDaId = "";
+  let lastCheckedNumDa = "";
   const fetchManager = new FetchManager(); // ton objet FetchManager
   const tableBody = document.querySelector("#tableBody"); // sélecteur pour le tBody
   const checkboxes = tableBody.querySelectorAll(".modern-checkbox"); // tous les checkbox
@@ -102,14 +102,14 @@ document.addEventListener("DOMContentLoaded", function () {
     const checkbox = event.target;
     if (!checkbox.classList.contains("modern-checkbox")) return;
 
-    const daId = checkbox.dataset.daDemandeApproId;
+    const numDa = checkbox.dataset.numeroDemandeAppro;
     const checkedBoxes = [...checkboxes].filter((cb) => cb.checked);
 
-    if (!lastCheckedDaId || daId === lastCheckedDaId) {
+    if (!lastCheckedNumDa || numDa === lastCheckedNumDa) {
       updateRowState(checkbox, checkbox.checked);
-      lastCheckedDaId = checkbox.checked ? daId : "";
+      lastCheckedNumDa = checkbox.checked ? numDa : "";
     } else {
-      confirmCheck(checkbox, daId, checkedBoxes);
+      confirmCheck(checkbox, numDa, checkedBoxes);
     }
   });
 
@@ -132,7 +132,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  function confirmCheck(checkbox, daId, checkedBoxes) {
+  function confirmCheck(checkbox, numDa, checkedBoxes) {
     Swal.fire({
       title: "Êtes-vous sûr(e) ?",
       html: `Vous ne pouvez sélectionner que des lignes appartenant à la même DA.<br>
@@ -152,7 +152,7 @@ document.addEventListener("DOMContentLoaded", function () {
         resetAllChecks(checkedBoxes);
         checkbox.checked = true;
         updateRowState(checkbox, true);
-        lastCheckedDaId = daId;
+        lastCheckedNumDa = numDa;
       } else {
         checkbox.checked = false;
         updateRowState(checkbox, false);
