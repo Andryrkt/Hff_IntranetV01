@@ -20,14 +20,29 @@ class ActionSurNonDispoController extends Controller
         $data = json_decode($request->getContent(), true);
         $articles = $data['articles'] ?? [];
 
-        $articlesString = implode(', ', $articles);
+        // Ici tu fais la suppression de tes articles
+        // Exemple : $this->getDoctrine()->getRepository(Article::class)->deleteSelected($articles);
+
+        return new JsonResponse([
+            'status'  => 'success',
+            'message' => count($articles) . ' article(s) supprimé(s) avec succès.'
+        ]);
+    }
+
+    /**
+     * @Route("/da-list-cde-frn/create-new-articles", name="api_list_cde_frn_create_new_articles", methods={"POST"})
+     */
+    public function createNewDa(Request $request)
+    {
+        $data = json_decode($request->getContent(), true);
+        $articles = $data['articles'] ?? [];
 
         // Ici tu fais la suppression de tes articles
         // Exemple : $this->getDoctrine()->getRepository(Article::class)->deleteSelected($articles);
 
         return new JsonResponse([
             'status'  => 'success',
-            'message' => count($articles) . ' article(s) supprimé(s) avec succès: Articles supprimées: ' . $articlesString
+            'message' => count($articles) . ' article(s) ajouté(s) avec succès.'
         ]);
     }
 }
