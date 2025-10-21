@@ -1,7 +1,61 @@
+import { FetchManager } from "../../api/FetchManager";
+
 document.addEventListener("DOMContentLoaded", function () {
   let lastCheckedDaId = "";
+  const fetchManager = new FetchManager(); // ton objet FetchManager
   const tableBody = document.querySelector("#tableBody"); // sélecteur pour le tBody
   const checkboxes = tableBody.querySelectorAll(".modern-checkbox"); // tous les checkbox
+  const select = document.getElementById("action_non_dispo"); // liste déroulante de choix de redirection
+
+  // On écoute le changement de valeur
+  select.addEventListener("change", async function () {
+    const checkedBoxes = [...checkboxes].filter((cb) => cb.checked);
+
+    if (checkedBoxes.length === 0) {
+      Swal.fire({
+        icon: "error",
+        title: "Aucun article sélectionné",
+        html: `Vous n'avez sélectionné aucun article. Veuillez choisir au moins un article avant de cliquer sur les choix d'action.`,
+        confirmButtonText: "OK",
+        customClass: {
+          htmlContainer: "swal-text-left",
+        },
+      });
+      this.value = ""; // réinitialisation
+      return;
+    }
+
+    // Récupérer les IDs sélectionnés
+    const selectedIds = checkedBoxes.map((cb) => cb.value);
+
+    try {
+      let endpoint = "";
+      if (this.value === "0")
+        endpoint = "api/demande-appro/da-list-cde-frn/delete-articles";
+      if (this.value === "1") endpoint = "nouvelle-da";
+
+      const result = await fetchManager.post(endpoint, {
+        articles: selectedIds,
+      });
+      console.log("Résultat du serveur :", result);
+
+      Swal.fire({
+        icon: "success",
+        title: "Action effectuée",
+        html: result.message,
+      });
+
+      // Réinitialiser le select après succès
+      select.value = "";
+    } catch (error) {
+      console.error(error);
+      Swal.fire({
+        icon: "error",
+        title: "Erreur",
+        html: "Une erreur est survenue lors de l'envoi des données.",
+      });
+    }
+  });
 
   // Event delegation
   tableBody.addEventListener("click", (event) => {
