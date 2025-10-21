@@ -1,30 +1,54 @@
 document.addEventListener("DOMContentLoaded", function () {
-  let lastCheckedDaId = 0;
-  const checkboxes = document.querySelectorAll(".modern-checkbox");
+  let lastCheckedDaId = "";
+  const tableBody = document.querySelector("#tableBody"); // sélecteur pour le tBody
+  const checkboxes = tableBody.querySelectorAll(".modern-checkbox"); // tous les checkbox
 
-  checkboxes.forEach((checkbox) => {
-    checkbox.addEventListener("change", () => {
-      // Tous les checkbox cochés
-      const checkedBoxes = [...checkboxes].filter((cb) => cb.checked);
-      const daId = checkbox.dataset.daDemandeApproId;
+  // Event delegation
+  tableBody.addEventListener("click", (event) => {
+    const target = event.target;
 
-      console.log(lastCheckedDaId);
+    // ✅ Si clic sur un td cliquable → on coche le checkbox de la ligne
+    if (target.matches("td.clickable-td")) {
+      const row = target.closest("tr");
+      const checkbox = row.querySelector(".modern-checkbox");
+      if (checkbox) checkbox.click(); // délégué au handler de "change"
+      return;
+    }
+  });
 
-      if (lastCheckedDaId === 0 || daId === lastCheckedDaId) {
-        updateRowState(checkbox, checkbox.checked);
-        lastCheckedDaId = checkbox.checked ? daId : 0;
-      } else {
-        confirmCheck(checkbox, daId, checkedBoxes);
-      }
-    });
+  // ✅ Gestion du changement d’état d’un checkbox
+  tableBody.addEventListener("change", (event) => {
+    const checkbox = event.target;
+    if (!checkbox.classList.contains("modern-checkbox")) return;
+
+    const daId = checkbox.dataset.daDemandeApproId;
+    const checkedBoxes = [...checkboxes].filter((cb) => cb.checked);
+
+    if (!lastCheckedDaId || daId === lastCheckedDaId) {
+      updateRowState(checkbox, checkbox.checked);
+      lastCheckedDaId = checkbox.checked ? daId : "";
+    } else {
+      confirmCheck(checkbox, daId, checkedBoxes);
+    }
   });
 
   function updateRowState(checkbox, isChecked) {
-    let cell = checkbox.closest("td");
-    while (cell) {
-      cell.classList.toggle("td-active", isChecked);
-      cell = cell.nextElementSibling;
+    const cell = checkbox.closest("td");
+    if (!cell) return;
+
+    // Appliquer td-active uniquement à la cellule du checkbox et aux suivantes
+    let currentCell = cell;
+    while (currentCell) {
+      currentCell.classList.toggle("td-active", isChecked);
+      currentCell = currentCell.nextElementSibling;
     }
+  }
+
+  function resetAllChecks(checkboxes) {
+    checkboxes.forEach((cb) => {
+      cb.checked = false;
+      updateRowState(cb, false);
+    });
   }
 
   function confirmCheck(checkbox, daId, checkedBoxes) {
@@ -44,10 +68,7 @@ document.addEventListener("DOMContentLoaded", function () {
       },
     }).then((result) => {
       if (result.isConfirmed) {
-        checkedBoxes.forEach((c) => {
-          c.checked = false;
-          updateRowState(c, false);
-        });
+        resetAllChecks(checkedBoxes);
         checkbox.checked = true;
         updateRowState(checkbox, true);
         lastCheckedDaId = daId;
