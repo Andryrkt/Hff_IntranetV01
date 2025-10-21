@@ -479,11 +479,40 @@ const reparationRealiseSelect = document.querySelector(
   "#demande_intervention_reparationRealise"
 );
 const atePolTanaContainer = document.querySelector("#ate_pol_tana_container");
+const atePolTanaInput = document.querySelector(
+  "#demande_intervention_estAtePolTana"
+);
 
+// permet d'afficher et cacher le champ intervention pneumatique (ate pol tana)
 reparationRealiseSelect.addEventListener("change", function () {
   if (reparationRealiseSelect.value === "ATE TANA") {
     atePolTanaContainer.style.display = "block";
   } else {
     atePolTanaContainer.style.display = "none";
   }
+});
+
+// affichage d'une confirmation si la cage ate pol tana est coché
+atePolTanaInput.addEventListener("change", function () {
+  Swal.fire({
+    title: "êtes vous sure?",
+    html: `Les travaux seront réalisés par l'ATE TANA en solicitant également l'ATE TANA POL, une deuxième DIT sera créée automatiquement. 
+    <b>Cliquer sur oui pour confirmer et non pour abandonner.</b>`,
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "OUI",
+    cancelButtonText: "NON",
+    allowOutsideClick: false, // Permet de ne pas fermer en cliquant à l'extérieur
+    allowEscapeKey: false, // Permet de ne pas fermer en tapant sur echape
+  }).then((result) => {
+    if (result.isConfirmed) {
+      //il faut que le cage est coher
+      atePolTanaInput.checked = true;
+    } else {
+      //il faut que le cage est decocher
+      atePolTanaInput.checked = false;
+    }
+  });
 });
