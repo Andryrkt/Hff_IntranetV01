@@ -11,6 +11,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // On écoute le changement de valeur
   select.addEventListener("change", async function () {
+    // Filtrer les checkbox qui sont cochées
     const checkedBoxes = [...checkboxes].filter((cb) => cb.checked);
 
     if (checkedBoxes.length === 0) {
@@ -30,6 +31,12 @@ document.addEventListener("DOMContentLoaded", function () {
     // Récupérer les IDs sélectionnés
     const selectedIds = checkedBoxes.map((cb) => cb.value);
 
+    // Récupérer les numeroLigne sélectionnés
+    const selectedLignes = checkedBoxes.map((cb) => cb.dataset.numeroLigne);
+
+    // Récupérer le numeroDemandeAppro du premier coché (ou undefined si aucune)
+    const numeroDemandeAppro = checkedBoxes[0].dataset.numeroDemandeAppro;
+
     try {
       let endpoint = "";
 
@@ -44,15 +51,17 @@ document.addEventListener("DOMContentLoaded", function () {
       displayOverlay(true);
 
       const result = await fetchManager.post(endpoint, {
-        articles: selectedIds,
+        ids: selectedIds,
+        lines: selectedLignes,
+        numDa: numeroDemandeAppro,
       });
       console.log("Résultat du serveur :", result);
 
       displayOverlay(false);
 
       Swal.fire({
-        icon: "success",
-        title: "Action effectuée",
+        icon: result.status,
+        title: result.title,
         html: result.message,
         customClass: {
           htmlContainer: "swal-text-left",
@@ -60,8 +69,11 @@ document.addEventListener("DOMContentLoaded", function () {
       }).then(() => {
         console.log("this.value = " + this.value);
 
-        // Seulement si c'est suppression de lignes
-        if (endpoint === API_ENDPOINTS.DELETE_ARTICLES_DA) {
+        // Seulement si c'est suppression de lignes et succès de suppression
+        if (
+          endpoint === API_ENDPOINTS.DELETE_ARTICLES_DA &&
+          result.status === "success"
+        ) {
           const scrollPosition = window.scrollY;
           // Redirection / reload après confirmation de l'alerte
           displayOverlay(true);
