@@ -4,14 +4,13 @@ namespace App\Controller\da\ListeCdeFrn;
 
 use App\Entity\da\DaAfficher;
 use App\Controller\Controller;
-use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
 use App\Repository\da\DaAfficherRepository;
-use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DemandeApproLRepository;
 use App\Repository\da\DemandeApproLRRepository;
+use Exception;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
@@ -21,7 +20,6 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 class ActionSurNonDispoController extends Controller
 {
     private DaAfficherRepository $daAfficherRepository;
-    private DemandeApproRepository $demandeApproRepository;
     private DemandeApproLRepository $demandeApproLRepository;
     private DemandeApproLRRepository $demandeApproLRRepository;
 
@@ -31,7 +29,6 @@ class ActionSurNonDispoController extends Controller
 
         $em                             = $this->getEntityManager();
         $this->daAfficherRepository     = $em->getRepository(DaAfficher::class);
-        $this->demandeApproRepository   = $em->getRepository(DemandeAppro::class);
         $this->demandeApproLRepository  = $em->getRepository(DemandeApproL::class);
         $this->demandeApproLRRepository = $em->getRepository(DemandeApproLR::class);
     }
@@ -42,15 +39,37 @@ class ActionSurNonDispoController extends Controller
     public function deleteArticles(Request $request)
     {
         $data = json_decode($request->getContent(), true);
-        $articles = $data['articles'] ?? [];
+        $daAfficherIds = $data['ids'] ?? [];
+        $lines = $data['lines'] ?? [];
+        $numDa = $data['numDa'] ?? "";
 
-        // Ici tu fais la suppression de tes articles
-        // Exemple : $this->getDoctrine()->getRepository(Article::class)->deleteSelected($articles);
+        if (!$daAfficherIds || !$lines || !$numDa) {
+            return new JsonResponse([
+                'status'  => 'error',
+                'title'   => 'Erreur lors de la suppression',
+                'message' => 'Impossible de supprimer. Merci de vérifier les informations et de réessayer.',
+            ], 400);
+        }
 
-        return new JsonResponse([
-            'status'  => 'success',
-            'message' => count($articles) . ' article(s) supprimé(s) avec succès.'
-        ]);
+        try {
+            $connectedUserName = $this->getUserName();
+
+            $this->daAfficherRepository->markAsDeletedByListId($daAfficherIds, $connectedUserName);
+            $this->demandeApproLRepository->deleteByNumDaAndLineNumbers($numDa, $lines);
+            $this->demandeApproLRRepository->deleteByNumDaAndLineNumbers($numDa, $lines);
+
+            return new JsonResponse([
+                'status'  => 'success',
+                'title'   => 'Action effectuée',
+                'message' => count($daAfficherIds) . ' élement(s) supprimé(s) avec succès.',
+            ]);
+        } catch (Exception $e) {
+            return new JsonResponse([
+                'status'  => 'error',
+                'title'   => 'Erreur lors de la suppression',
+                'message' => 'Impossible de supprimer certains éléments. Merci de réessayer plus tard.<br> Message d\'erreur : ' . $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**
@@ -59,14 +78,29 @@ class ActionSurNonDispoController extends Controller
     public function createNewDa(Request $request)
     {
         $data = json_decode($request->getContent(), true);
-        $articles = $data['articles'] ?? [];
+        $daAfficherIds = $data['ids'] ?? [];
+        $lines = $data['lines'] ?? [];
+        $numDa = $data['numDa'] ?? "";
 
-        // Ici tu fais la suppression de tes articles
-        // Exemple : $this->getDoctrine()->getRepository(Article::class)->deleteSelected($articles);
+        if (!$daAfficherIds || !$lines || !$numDa) {
+            return new JsonResponse([
+                'status'  => 'error',
+                'title'   => 'Erreur lors de la suppression',
+                'message' => 'Impossible de supprimer. Merci de vérifier les informations et de réessayer.',
+            ], 400);
+        }
 
-        return new JsonResponse([
-            'status'  => 'success',
-            'message' => count($articles) . ' article(s) ajouté(s) avec succès.'
-        ]);
+        try {
+            //code...
+            // Ici tu fais la suppression de tes articles
+            // Exemple : $this->getDoctrine()->getRepository(Article::class)->deleteSelected($articles);
+
+            return new JsonResponse([
+                'status'  => 'success',
+                'message' => count($daAfficherIds) . ' article(s) ajouté(s) avec succès.'
+            ]);
+        } catch (Exception $e) {
+            //throw $th;
+        }
     }
 }
