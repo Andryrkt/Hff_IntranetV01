@@ -34,14 +34,12 @@ class BcMagasinController extends Controller
     use AutorisationTrait;
     use PdfConversionTrait;
 
-    private string $cheminBaseUpload;
     private HistoriqueOperationBcMagasinService $historiqueOperationBcMagasinService;
 
     public function __construct()
     {
         parent::__construct();
         global $container;
-        $this->cheminBaseUpload = $_ENV['BASE_PATH_FICHIER'] . 'magasin/devis/';
         $this->historiqueOperationBcMagasinService = $container->get(HistoriqueOperationBcMagasinService::class);
     }
 
@@ -155,8 +153,9 @@ class BcMagasinController extends Controller
     private function enregistrementFichier(FormInterface $form, string $numDevis, int $numeroVersion): array
     {
         $nameGenerator = new DevisMagasinGenererNameFileService();
-        $uploader = new UploderFileService($this->cheminBaseUpload, $nameGenerator);
-        $devisPath = $this->cheminBaseUpload . $numDevis . '/';
+        $cheminBaseUpload = $_ENV['BASE_PATH_FICHIER'] . 'magasin/devis/';
+        $uploader = new UploderFileService($cheminBaseUpload, $nameGenerator);
+        $devisPath = $cheminBaseUpload . $numDevis . '/';
         if (!is_dir($devisPath)) {
             mkdir($devisPath, 0777, true);
         }

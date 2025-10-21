@@ -11,12 +11,23 @@ class GenererPdfDit extends GeneratePdf
 {
     use FormatageTrait;
 
+    public function copyToDOCUWARE(string $fileName, string $numDom)
+    {
+        $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/' . $fileName;
+        $cheminDestinationLocal = $this->baseCheminDuFichier . 'dit/' . $numDom . '/' . $fileName;
+        if (copy($cheminDestinationLocal, $cheminFichierDistant)) {
+            echo "okey";
+        } else {
+            echo "sorry";
+        }
+    }
+
     /**
      * GENERER PDF DEMANDE D'INTERVENTION
      *
      * @return void
      */
-    public function genererPdfDit(DemandeIntervention $dit, array $historiqueMateriel)
+    public function genererPdfDit(DemandeIntervention $dit, array $historiqueMateriel, string $filePath)
     {
         $pdf = new TCPDF();
 
@@ -322,17 +333,6 @@ class GenererPdfDit extends GeneratePdf
             $this->affichageHistoriqueMateriel($pdf, $historiqueMateriel);
         }
 
-        // Obtention du chemin absolu du répertoire de travail
-        $documentRoot = $_ENV['BASE_PATH_FICHIER'] . '/dit'; //faut pas déplacer ou utiliser une variable global sinon ça marche pas avec les comands
-
-        $fileName = $dit->getNumeroDemandeIntervention() . '_' . str_replace("-", "", $dit->getAgenceServiceEmetteur());
-        $filePath = $documentRoot . '/' . $fileName . '.pdf';
-
-        // Vérifiez si le répertoire existe et a les bonnes permissions
-        if (!is_dir($documentRoot) || !is_writable($documentRoot)) {
-            echo "Le répertoire $documentRoot n'existe pas ou n'est pas accessible en écriture.";
-            exit;
-        }
 
         $pdf->Output($filePath, 'F');
     }
