@@ -39,49 +39,66 @@ document.addEventListener("DOMContentLoaded", function () {
 
     try {
       let endpoint = "";
-
-      if (this.value === "delete") endpoint = API_ENDPOINTS.DELETE_ARTICLES_DA;
-      if (this.value === "create") endpoint = API_ENDPOINTS.CREATE_ARTICLES_DA;
-
-      // Réinitialiser le select après
+      let actionType = this.value; // garder l'action avant de réinitialiser
       this.value = "";
 
-      console.log(selectedIds);
+      if (actionType === "delete") endpoint = API_ENDPOINTS.DELETE_ARTICLES_DA;
+      if (actionType === "create") endpoint = API_ENDPOINTS.CREATE_ARTICLES_DA;
 
-      displayOverlay(true);
+      // Message de confirmation selon l'action
+      let confirmTitle = "";
+      let confirmText = "";
 
-      const result = await fetchManager.post(endpoint, {
-        ids: selectedIds,
-        lines: selectedLignes,
-        numDa: numeroDemandeAppro,
-      });
-      console.log("Résultat du serveur :", result);
+      if (actionType === "delete") {
+        confirmTitle = "Confirmer la suppression";
+        confirmText = `Voulez-vous vraiment supprimer ${selectedIds.length} article(s) ?`;
+      } else if (actionType === "create") {
+        confirmTitle = "Confirmer la création";
+        confirmText = `Voulez-vous vraiment créer ${selectedLignes.length} article(s) ?`;
+      }
 
-      displayOverlay(false);
-
-      Swal.fire({
-        icon: result.status,
-        title: result.title,
-        html: result.message,
+      // Affichage de la confirmation avant l'action
+      const confirmation = await Swal.fire({
+        icon: "warning",
+        title: confirmTitle,
+        html: confirmText,
+        showCancelButton: true,
+        confirmButtonText: "Oui",
+        cancelButtonText: "Annuler",
         customClass: {
           htmlContainer: "swal-text-left",
         },
-      }).then(() => {
-        console.log("this.value = " + this.value);
-
-        // Seulement si c'est suppression de lignes et succès de suppression
-        if (
-          endpoint === API_ENDPOINTS.DELETE_ARTICLES_DA &&
-          result.status === "success"
-        ) {
-          const scrollPosition = window.scrollY;
-          // Redirection / reload après confirmation de l'alerte
-          displayOverlay(true);
-          window.location.reload();
-          // puis après le reload
-          window.scrollTo(0, scrollPosition);
-        }
       });
+
+      if (confirmation.isConfirmed) {
+        displayOverlay(true);
+
+        const result = await fetchManager.post(endpoint, {
+          ids: selectedIds,
+          lines: selectedLignes,
+          numDa: numeroDemandeAppro,
+        });
+
+        displayOverlay(false);
+
+        Swal.fire({
+          icon: result.status,
+          title: result.title,
+          html: result.message,
+          customClass: {
+            htmlContainer: "swal-text-left",
+          },
+        }).then(() => {
+          if (actionType === "delete" && result.status === "success") {
+            const scrollPosition = window.scrollY;
+            displayOverlay(true);
+            window.location.reload();
+            window.scrollTo(0, scrollPosition);
+          }
+        });
+      } else {
+        console.log("Action annulée par l'utilisateur");
+      }
     } catch (error) {
       displayOverlay(false);
       console.error(error);
