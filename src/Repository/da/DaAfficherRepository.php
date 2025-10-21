@@ -71,18 +71,22 @@ class DaAfficherRepository extends EntityRepository
     {
         if (empty($ids)) return; // rien à faire
 
-        $this->createQueryBuilder('d')
-            ->update()
-            ->set('d.deleted', ':deleted')
-            ->set('d.deletedBy', ':deletedBy')
-            ->Where('d.id IN (:ids)')
-            ->setParameters([
-                'deleted'   => true,
-                'deletedBy' => $userName,
-                'ids'       => $ids,
-            ])
-            ->getQuery()
-            ->execute();
+        try {
+            $this->createQueryBuilder('d')
+                ->update()
+                ->set('d.deleted', ':deleted')
+                ->set('d.deletedBy', ':deletedBy')
+                ->Where('d.id IN (:ids)')
+                ->setParameters([
+                    'deleted'   => true,
+                    'deletedBy' => $userName,
+                    'ids'       => $ids,
+                ])
+                ->getQuery()
+                ->execute();
+        } catch (\Exception $e) {
+            throw new \RuntimeException($e->getMessage());
+        }
     }
 
     /**
