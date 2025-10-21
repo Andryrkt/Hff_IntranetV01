@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Service\genererPdf;
+namespace App\Service\genererPdf\dit;
 
 use TCPDF;
 use App\Entity\dit\DemandeIntervention;
-use App\Service\GlobalVariablesService;
+use App\Service\genererPdf\GeneratePdf;
 use App\Controller\Traits\FormatageTrait;
 
 class GenererPdfDit extends GeneratePdf

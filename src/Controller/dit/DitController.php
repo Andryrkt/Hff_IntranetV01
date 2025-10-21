@@ -10,7 +10,7 @@ use App\Dto\Dit\DemandeInterventionDto;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\FormatageTrait;
 use App\Form\dit\demandeInterventionType;
-use App\Service\genererPdf\GenererPdfDit;
+use App\Service\genererPdf\dit\GenererPdfDit;
 use Symfony\Component\Form\FormInterface;
 use App\Service\fichier\UploderFileService;
 use App\Controller\Traits\AutorisationTrait;
