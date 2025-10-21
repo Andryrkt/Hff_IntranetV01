@@ -1,4 +1,5 @@
 import { FetchManager } from "../../api/FetchManager";
+import { displayOverlay } from "../../utils/spinnerUtils";
 
 document.addEventListener("DOMContentLoaded", function () {
   let lastCheckedDaId = "";
@@ -30,31 +31,56 @@ document.addEventListener("DOMContentLoaded", function () {
 
     try {
       let endpoint = "";
-      if (this.value === "0")
+
+      if (this.value === "delete")
         endpoint = "api/demande-appro/da-list-cde-frn/delete-articles";
-      if (this.value === "1") endpoint = "nouvelle-da";
+      if (this.value === "create")
+        endpoint = "api/demande-appro/da-list-cde-frn/create-new-articles";
+
+      console.log(selectedIds);
+
+      displayOverlay(true);
 
       const result = await fetchManager.post(endpoint, {
         articles: selectedIds,
       });
       console.log("Résultat du serveur :", result);
 
+      displayOverlay(false);
+
       Swal.fire({
         icon: "success",
         title: "Action effectuée",
         html: result.message,
+        customClass: {
+          htmlContainer: "swal-text-left",
+        },
+      }).then(() => {
+        // Seulement si c'est suppression de lignes
+        if (this.value === "delete") {
+          const scrollPosition = window.scrollY;
+          // Redirection / reload après confirmation de l'alerte
+          displayOverlay(true);
+          window.location.reload();
+          // puis après le reload
+          window.scrollTo(0, scrollPosition);
+        }
       });
-
-      // Réinitialiser le select après succès
-      select.value = "";
     } catch (error) {
+      displayOverlay(false);
       console.error(error);
       Swal.fire({
         icon: "error",
         title: "Erreur",
         html: "Une erreur est survenue lors de l'envoi des données.",
+        customClass: {
+          htmlContainer: "swal-text-left",
+        },
       });
     }
+
+    // Réinitialiser le select après
+    this.value = "";
   });
 
   // Event delegation

@@ -1,16 +1,16 @@
 export function toggleSpinner(spinnerElement, containerElement, show) {
   if (spinnerElement && containerElement) {
-    spinnerElement.style.display = show ? 'block' : 'none';
-    containerElement.style.display = show ? 'none' : 'block';
+    spinnerElement.style.display = show ? "block" : "none";
+    containerElement.style.display = show ? "none" : "block";
   }
 }
 
-export function displayOverlay(bool) {
-  const overlay = document.getElementById('loading-overlay');
-  if (bool) {
-    overlay.style.display = 'flex';
+export function displayOverlay(afficher) {
+  const overlay = document.getElementById("loading-overlay");
+  if (afficher) {
+    overlay.style.display = "flex";
   } else {
-    overlay.style.display = 'none';
+    overlay.style.display = "none";
   }
 }
 
