@@ -470,3 +470,20 @@ textarea.addEventListener("input", function (event) {
   } caractères.`;
   charCount.style.color = remainingCharacters <= 0 ? "red" : "black";
 });
+
+/** =============================================================
+ * ATE POL TANA : affichage ou non du champ intervention pneumatique
+ * selon le type de réparation réalisé (si ATE TANA c'est afficher)
+ *============================================================*/
+const reparationRealiseSelect = document.querySelector(
+  "#demande_intervention_reparationRealise"
+);
+const atePolTanaContainer = document.querySelector("#ate_pol_tana_container");
+
+reparationRealiseSelect.addEventListener("change", function () {
+  if (reparationRealiseSelect.value === "ATE TANA") {
+    atePolTanaContainer.style.display = "block";
+  } else {
+    atePolTanaContainer.style.display = "none";
+  }
+});

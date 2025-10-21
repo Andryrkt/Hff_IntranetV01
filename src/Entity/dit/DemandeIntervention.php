@@ -550,6 +550,11 @@ class DemandeIntervention
      */
     private bool $estDitRefacturation = false;
 
+    /**
+     * @ORM\Column(type="boolean", name="ate_pol_tana")
+     */
+    private bool $estAtePolTana = false;
+
     /** ===================================================================================================================
      * 
      * GETTER and SETTER
@@ -1796,6 +1801,26 @@ class DemandeIntervention
     public function setEstDitRefacturation($estDitRefacturation)
     {
         $this->estDitRefacturation = $estDitRefacturation;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of estAtePolTana
+     */ 
+    public function getEstAtePolTana()
+    {
+        return $this->estAtePolTana;
+    }
+
+    /**
+     * Set the value of estAtePolTana
+     *
+     * @return  self
+     */ 
+    public function setEstAtePolTana($estAtePolTana)
+    {
+        $this->estAtePolTana = $estAtePolTana;
 
         return $this;
     }
