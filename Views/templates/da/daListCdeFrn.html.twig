@@ -95,7 +95,7 @@
 						<td class="text-center fw-bold {{ styleStatutBC[item.statutCde]}}">{{ item.statutCde}}</td>
 						<td class="text-center {{ envoye_frn ? 'clickable-td' : '' }}">
 							{% if envoye_frn %}
-								<input class="modern-checkbox" type="checkbox" value="{{ item.id }}" data-da-demande-appro-id="{{ item.demandeAppro.id }} {{ envoye_frn ? 'clickable-td' : '' }}">
+								<input class="modern-checkbox" type="checkbox" value="{{ item.id }}" data-numero-demande-appro="{{ item.numeroDemandeAppro }}" data-numero-ligne="{{ item.numeroLigne }}">
 							{% endif %}
 						</td>
 						<td class="text-center {{ envoye_frn ? 'clickable-td' : '' }}">{{ item.dateFinSouhaite == null ? '' : item.dateFinSouhaite| date('d/m/Y')}}</td>
