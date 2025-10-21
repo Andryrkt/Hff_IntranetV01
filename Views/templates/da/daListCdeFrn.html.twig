@@ -93,21 +93,21 @@
 
 						<td class="text-center fw-bold {{ styleStatutDA[item.statutDal]|default('')}}">{{ item.statutDal }}</td>
 						<td class="text-center fw-bold {{ styleStatutBC[item.statutCde]}}">{{ item.statutCde}}</td>
-						<td class="text-center">
+						<td class="text-center {{ envoye_frn ? 'clickable-td' : '' }}">
 							{% if envoye_frn %}
-								<input class="modern-checkbox" type="checkbox" data-da-afficher-id="{{ item.id }}" data-da-demande-appro-id="{{ item.demandeAppro.id }}">
+								<input class="modern-checkbox" type="checkbox" data-da-afficher-id="{{ item.id }}" data-da-demande-appro-id="{{ item.demandeAppro.id }} {{ envoye_frn ? 'clickable-td' : '' }}">
 							{% endif %}
 						</td>
-						<td class="text-center">{{ item.dateFinSouhaite == null ? '' : item.dateFinSouhaite| date('d/m/Y')}}</td>
-						<td class="text-center">{{ item.artRefp }}</td>
-						<td class="text-start">{{ item.artDesi }}</td>
-						<td class="text-center ">{{ item.qteDem == 0 ? '-': item.qteDem }}</td>
-						<td class="text-center">{{ item.qteEnAttent == 0 ? '-': item.qteEnAttent }}</td>
-						<td class="text-center">{{ item.qteDispo == 0 ? '-': item.qteDispo }}</td>
-						<td class="text-center">{{ item.qteLivrer == 0 ? '-': item.qteLivrer }}</td>
-						<td class="text-center">{{ item.dateLivraisonPrevue == null ? '' : item.dateLivraisonPrevue|date('d/m/Y')}}</td>
-						<td class="text-center {{ item.joursDispo < 0 ? 'text-danger' : '' }}">{{ item.joursDispo}}</td>
-						<td class="text-center">{{ item.demandeur}}</td>
+						<td class="text-center {{ envoye_frn ? 'clickable-td' : '' }}">{{ item.dateFinSouhaite == null ? '' : item.dateFinSouhaite| date('d/m/Y')}}</td>
+						<td class="text-center {{ envoye_frn ? 'clickable-td' : '' }}">{{ item.artRefp }}</td>
+						<td class="text-start {{ envoye_frn ? 'clickable-td' : '' }}">{{ item.artDesi }}</td>
+						<td class="text-center {{ envoye_frn ? 'clickable-td' : '' }}">{{ item.qteDem == 0 ? '-': item.qteDem }}</td>
+						<td class="text-center {{ envoye_frn ? 'clickable-td' : '' }}">{{ item.qteEnAttent == 0 ? '-': item.qteEnAttent }}</td>
+						<td class="text-center {{ envoye_frn ? 'clickable-td' : '' }}">{{ item.qteDispo == 0 ? '-': item.qteDispo }}</td>
+						<td class="text-center {{ envoye_frn ? 'clickable-td' : '' }}">{{ item.qteLivrer == 0 ? '-': item.qteLivrer }}</td>
+						<td class="text-center {{ envoye_frn ? 'clickable-td' : '' }}">{{ item.dateLivraisonPrevue == null ? '' : item.dateLivraisonPrevue|date('d/m/Y')}}</td>
+						<td class="text-center {{ item.joursDispo < 0 ? 'text-danger' : '' }} {{ envoye_frn ? 'clickable-td' : '' }}">{{ item.joursDispo}}</td>
+						<td class="text-center {{ envoye_frn ? 'clickable-td' : '' }}">{{ item.demandeur}}</td>
 					</tr>
 				{% endfor %}
 			</tbody>

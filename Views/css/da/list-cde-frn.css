@@ -26,6 +26,10 @@ input.modern-checkbox:checked {
   background-position: center;
 }
 
+.clickable-td {
+  cursor: pointer;
+}
+
 .td-active {
   background-color: rgba(0, 0, 0, 0.1) !important;
   border-bottom: 1px solid white;
