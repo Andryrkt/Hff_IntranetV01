@@ -28,15 +28,24 @@ trait DitTrait
 
 
 
-    private function createDemandeInterventionFromDto(DemandeInterventionDto $dto): DemandeIntervention
+    private function createDemandeInterventionFromDto(DemandeInterventionDto $dto): array
     {
-        return $this->demandeInterventionFactory->createFromDto($dto);
+        if ($dto->estAtePolTana) {
+            $ditAteTana =  $this->demandeInterventionFactory->createFromDto($dto);
+            $ditAteTanaPol =  $this->demandeInterventionFactory->createFromDtoPol($dto);
+            return [$ditAteTana, $ditAteTanaPol];
+        } elseif ($dto->reparationRealise === 'ATE POL TANA') {
+            return [$this->demandeInterventionFactory->createFromDtoPol($dto)];
+        } else {
+
+            return [$this->demandeInterventionFactory->createFromDto($dto)];
+        }
     }
 
 
-    private function historiqueInterventionMateriel($dits): array
+    private function historiqueInterventionMateriel(int $idMateriel): array
     {
-        $historiqueMateriel = $this->getDitModel()->historiqueMateriel($dits->getIdMateriel());
+        $historiqueMateriel = $this->getDitModel()->historiqueMateriel($idMateriel);
         foreach ($historiqueMateriel as $keys => $values) {
             foreach ($values as $key => $value) {
                 if ($key == "datedebut") {

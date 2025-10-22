@@ -48,8 +48,10 @@ class DemandeInterventionDto
     public ?string $heureDemande = null;
     public ?string $utilisateurDemandeur = null;
 
-    public ?bool $estDitAvoir = null;
-    public ?bool $estDitRefacturation = null;
+    public bool $estDitAvoir = false;
+    public bool $estDitRefacturation = false;
+
+    public bool $estAtePolTana = false;
 
 
     // Cette méthode peut être utilisée pour hydrater le DTO depuis l'entité/formulaire
@@ -91,6 +93,7 @@ class DemandeInterventionDto
         $dto->estDitAvoir = $dits->getEstDitAvoir();
         $dto->estDitRefacturation = $dits->getEstDitRefacturation();
         $dto->mailClient = $dits->getMailClient();
+        $dto->estAtePolTana = $dits->getEstAtePolTana();
 
         return $dto;
     }

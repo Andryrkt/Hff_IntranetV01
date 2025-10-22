@@ -74,7 +74,7 @@ class DitModel extends Model
   }
 
 
-  public function historiqueMateriel($idMateriel)
+  public function historiqueMateriel(int $idMateriel)
   {
 
     $statement = " SELECT

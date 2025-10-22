@@ -40,4 +40,19 @@ class DitNameFileService extends AbstractFileNameGeneratorService
     ): string {
         return $numDit . '_' . $agServEmetteur . '.pdf';
     }
+
+    /**
+     * Génère un nom pour le fichier principal
+     *
+     * @param string $numDit
+     * @param string $agServEmetteur
+     * @param integer $index
+     * @return string
+     */
+    public function generateDitNamePrincipalPol(
+        string $numDit,
+        string $agServEmetteur
+    ): string {
+        return $numDit . '_' . $agServEmetteur . '_POL.pdf';
+    }
 }

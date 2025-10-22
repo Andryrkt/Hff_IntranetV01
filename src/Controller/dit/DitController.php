@@ -14,6 +14,7 @@ use App\Service\genererPdf\dit\GenererPdfDit;
 use Symfony\Component\Form\FormInterface;
 use App\Service\fichier\UploderFileService;
 use App\Controller\Traits\AutorisationTrait;
+use App\Controller\Traits\MiseAjourAppTrait;
 use App\Service\fichier\TraitementDeFichier;
 use App\Controller\Traits\PdfConversionTrait;
 use Symfony\Component\HttpFoundation\Request;
@@ -33,6 +34,7 @@ class DitController extends Controller
     use FormatageTrait;
     use AutorisationTrait;
     use PdfConversionTrait;
+    use MiseAjourAppTrait;
 
 
     private $historiqueOperation;
@@ -114,64 +116,94 @@ class DitController extends Controller
             $dto->numeroDemandeIntervention = $this->autoDecrementDIT('DIT');
             $dto->mailDemandeur = $user->getMail();
 
-            /**   @var DemandeIntervention 3. Utiliser la factory pour créer l'entité complète*/
-            $demandeIntervention = $this->createDemandeInterventionFromDto($dto);
+            /**   @var array 3. Utiliser la factory pour créer l'entité complète*/
+            $demandeInterventions = $this->createDemandeInterventionFromDto($dto);
 
             /** 4. Modifie la colonne dernière_id dans la table applications */
-            $applicationService = new ApplicationService($this->getEntityManager());
-            $applicationService->mettreAJourDerniereIdApplication('DIT', $demandeIntervention->getNumeroDemandeIntervention());
+            $this->mettreAJourDerniereIdApplication('DIT', $demandeInterventions[0]->getNumeroDemandeIntervention());
 
             /** @var array 5. Traitement des fichiers (PDF, pièces jointes) */
-            $nomFichierEnregistrer  = $this->traitementDeFichier($form, $demandeIntervention);
+            $nomFichierEnregistrer  = $this->traitementDeFichier($form, $demandeInterventions);
 
             // 6. Enregistrement dans la base de données
-            $demandeIntervention->setPieceJoint01($nomFichierEnregistrer[0]);
-            $demandeIntervention->setPieceJoint02($nomFichierEnregistrer[1]);
-            $demandeIntervention->setPieceJoint03($nomFichierEnregistrer[2]);
-            $this->getEntityManager()->persist($demandeIntervention);
-            $this->getEntityManager()->flush();
+            $this->enregistrementBd($demandeInterventions, $nomFichierEnregistrer);
 
-            $this->historiqueOperation->sendNotificationCreation('Votre demande a été enregistrée', $demandeIntervention->getNumeroDemandeIntervention(), 'dit_index', true);
+            $this->historiqueOperation->sendNotificationCreation('Votre demande a été enregistrée', $demandeInterventions[0]->getNumeroDemandeIntervention(), 'dit_index', true);
         }
     }
 
-    private function traitementDeFichier(FormInterface $form, DemandeIntervention $demandeIntervention): array
+    private function enregistrementBd(array $demandeInterventions, array $nomFichierEnregistrer): void
+    {
+        foreach ($demandeInterventions as  $demandeIntervention) {
+            $demandeIntervention
+                ->setPieceJoint01($nomFichierEnregistrer[0] ?? null)
+                ->setPieceJoint02($nomFichierEnregistrer[1] ?? null)
+                ->setPieceJoint03($nomFichierEnregistrer[2] ?? null);
+            $this->getEntityManager()->persist($demandeIntervention);
+        }
+
+        $this->getEntityManager()->flush();
+    }
+
+    private function traitementDeFichier(FormInterface $form, array $demandeInterventions): array
     {
         /** 
          * gestion des pieces jointes et generer le nom du fichier PDF
          * Enregistrement de fichier uploder
          * @var array $nomEtCheminFichiersEnregistrer 
          * @var array $nomFichierEnregistrer 
-         * @var string $nomAvecCheminFichier
-         * @var string $nomFichier
+         * @var array $nomAvecCheminFichier
+         * @var array $nomFichier
          */
-        [$nomEtCheminFichiersEnregistrer, $nomFichierEnregistrer, $nomAvecCheminFichier, $nomFichier] = $this->enregistrementFichier($form, $demandeIntervention->getNumeroDemandeIntervention(), str_replace("-", "", $demandeIntervention->getAgenceServiceEmetteur()));
+        [$nomEtCheminFichiersEnregistrer, $nomFichierEnregistrer, $nomAvecCheminFichier, $nomFichier] = $this->enregistrementFichier($form, $demandeInterventions[0]->getNumeroDemandeIntervention(), str_replace("-", "", $demandeInterventions[0]->getAgenceServiceEmetteur()), $demandeInterventions[0]->getEstAtePolTana());
 
         /**CREATION DE LA PAGE DE GARDE*/
         $genererPdfDit = new GenererPdfDit();
-        if (!in_array((int)$demandeIntervention->getIdMateriel(), [14571, 7669, 7670, 7671, 7672, 7673, 7674, 7675, 7677, 9863])) {
+        $idMateriel = (int)$demandeInterventions[0]->getIdMateriel();
+        if (!in_array($idMateriel, [14571, 7669, 7670, 7671, 7672, 7673, 7674, 7675, 7677, 9863])) {
             //récupération des historique de materiel (informix)
-            $historiqueMateriel = $this->historiqueInterventionMateriel($demandeIntervention);
+            $historiqueMateriel = $this->historiqueInterventionMateriel($idMateriel);
         } else {
             $historiqueMateriel = [];
         }
-        $genererPdfDit->genererPdfDit($demandeIntervention, $historiqueMateriel, $nomAvecCheminFichier);
 
-        // ajout du page de garde à la premier position
-        $traitementDeFichier = new TraitementDeFichier();
-        $nomEtCheminFichiersEnregistrer = $traitementDeFichier->insertFileAtPosition($nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, 0);
-        // fusion du page de garde et des pieces jointes (conversion avant la fusion)
-        $nomEtCheminFichierConvertie = $this->ConvertirLesPdf($nomEtCheminFichiersEnregistrer);
-        $traitementDeFichier->fusionFichers($nomEtCheminFichierConvertie, $nomAvecCheminFichier);
+        if ($demandeInterventions[0]->getEstAtePolTana()) {
+
+            for ($i = 0; $i < 2; $i++) {
+
+                $genererPdfDit->genererPdfDit($demandeInterventions[$i], $historiqueMateriel, $nomAvecCheminFichier[$i]);
+
+                // ajout du page de garde à la premier position
+                $traitementDeFichier = new TraitementDeFichier();
+                $nomEtCheminFichiersEnregistrer = $traitementDeFichier->insertFileAtPosition($nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier[$i], 0);
+                // fusion du page de garde et des pieces jointes (conversion avant la fusion)
+                $nomEtCheminFichierConvertie = $this->ConvertirLesPdf($nomEtCheminFichiersEnregistrer);
+                $traitementDeFichier->fusionFichers($nomEtCheminFichierConvertie, $nomAvecCheminFichier[$i]);
+
+                //Copier le PDF DANS DOXCUWARE
+                $genererPdfDit->copyToDOCUWARE($nomFichier[$i], $demandeInterventions[0]->getNumeroDemandeIntervention());
+            }
+        } else {
+            $genererPdfDit->genererPdfDit($demandeInterventions[0], $historiqueMateriel, $nomAvecCheminFichier[0]);
+
+            // ajout du page de garde à la premier position
+            $traitementDeFichier = new TraitementDeFichier();
+            $nomEtCheminFichiersEnregistrer = $traitementDeFichier->insertFileAtPosition($nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier[0], 0);
+            // fusion du page de garde et des pieces jointes (conversion avant la fusion)
+            $nomEtCheminFichierConvertie = $this->ConvertirLesPdf($nomEtCheminFichiersEnregistrer);
+            $traitementDeFichier->fusionFichers($nomEtCheminFichierConvertie, $nomAvecCheminFichier[0]);
 
 
-        //Copier le PDF DANS DOXCUWARE
-        $genererPdfDit->copyToDOCUWARE($nomFichier, $demandeIntervention->getNumeroDemandeIntervention());
+            //Copier le PDF DANS DOXCUWARE
+            $genererPdfDit->copyToDOCUWARE($nomFichier[0], $demandeInterventions[0]->getNumeroDemandeIntervention());
+        }
+
+
 
         return $nomFichierEnregistrer;
     }
 
-    private function enregistrementFichier(FormInterface $form, string $numDit, string $agServEmetteur): array
+    private function enregistrementFichier(FormInterface $form, string $numDit, string $agServEmetteur, bool $estAteTanaPol = false): array
     {
         $nameGenerator = new DitNameFileService();
         $cheminBaseUpload = $_ENV['BASE_PATH_FICHIER'] . 'dit/';
@@ -196,10 +228,23 @@ class DitController extends Controller
             }
         ]);
 
-        $nomFichier = $nameGenerator->generateDitNamePrincipal($numDit, $agServEmetteur);
-        $nomAvecCheminFichier = $path . $nomFichier;
+
+        if ($estAteTanaPol) {
+            $nomFichier = $nameGenerator->generateDitNamePrincipal($numDit, $agServEmetteur);
+            $nomFichierPol = $nameGenerator->generateDitNamePrincipalPol($numDit, $agServEmetteur);
+            $nomAvecCheminFichier = $path . $nomFichier;
+            $nomAvecCheminFichierPol = $path . $nomFichierPol;
+            $nomFichiers = [$nomFichier, $nomFichierPol];
+            $nomAvecCheminFichiers = [$nomAvecCheminFichier, $nomAvecCheminFichierPol];
+        } else {
+            $nomFichier = $nameGenerator->generateDitNamePrincipal($numDit, $agServEmetteur);
+            $nomAvecCheminFichier = $path . $nomFichier;
+            $nomFichiers = [$nomFichier];
+            $nomAvecCheminFichiers = [$nomAvecCheminFichier];
+        }
 
 
-        return [$nomEtCheminFichiersEnregistrer, $nomFichierEnregistrer, $nomAvecCheminFichier, $nomFichier];
+
+        return [$nomEtCheminFichiersEnregistrer, $nomFichierEnregistrer, $nomAvecCheminFichiers, $nomFichiers];
     }
 }
