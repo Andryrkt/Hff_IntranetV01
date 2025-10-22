@@ -89,7 +89,7 @@ class CongeController extends Controller
 
         // Options pour le repository
         $options = [
-            //'boolean' => $autoriser,
+            'admin' => in_array(1, $this->getUser()->getRoleIds()),
             //'idAgence' => $this->agenceIdAutoriser(self::$em)
         ];
 
