@@ -36,6 +36,7 @@ class DemandeIntervention
     use BilanFinancierMaterielTrait;
     use QuantiteDitTrait;
 
+    public const CODE_APP = 'DIT';
     public const STATUT_A_AFFECTER = 50;
     public const STATUT_AFFECTEE_SECTION = 51;
     public const STATUT_CLOTUREE_ANNULEE = 52;

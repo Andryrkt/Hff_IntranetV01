@@ -5,11 +5,14 @@ namespace App\Factory\Dit;
 use App\Model\dit\DitModel;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
-use App\Entity\admin\dit\CategorieAteApp;
-use App\Entity\admin\dit\WorTypeDocument;
+use App\Entity\admin\Application;
 use App\Dto\Dit\DemandeInterventionDto;
 use App\Entity\dit\DemandeIntervention;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Entity\admin\dit\CategorieAteApp;
+use App\Entity\admin\dit\WorTypeDocument;
+use App\Service\autres\AutoIncDecService;
+use App\Repository\admin\ApplicationRepository;
 use App\Service\historiqueOperation\HistoriqueOperationDITService;
 
 class DemandeInterventionFactory
@@ -141,7 +144,7 @@ class DemandeInterventionFactory
         return $demandeIntervention;
     }
 
-    public function createFromDtoPol(DemandeInterventionDto $dto): DemandeIntervention
+    public function createFromDtoPol(DemandeInterventionDto $dto, Application $application): DemandeIntervention
     {
         $demandeIntervention = new DemandeIntervention();
 
@@ -151,7 +154,7 @@ class DemandeInterventionFactory
 
         // TYPE DE DOCUMENT (Changer)
         if ($dto->typeDocument) {
-            $typeDocumentEntity = $this->entityManager->getRepository(WorTypeDocument::class)->find(WorTypeDocument::MAINTENANCE_CURATIVE);
+            $typeDocumentEntity = $this->entityManager->getRepository(WorTypeDocument::class)->find(WorTypeDocument::MAINTENANCE_CURATIVE); // !changé
             $demandeIntervention->setTypeDocument($typeDocumentEntity);
         } else {
             $demandeIntervention->setTypeDocument(null);
@@ -159,7 +162,7 @@ class DemandeInterventionFactory
 
         // CATEGORIE (changer)
         if ($dto->categorieDemande) {
-            $categorieEntity = $this->entityManager->getRepository(CategorieAteApp::class)->find(CategorieAteApp::REPARATION);
+            $categorieEntity = $this->entityManager->getRepository(CategorieAteApp::class)->find(CategorieAteApp::REPARATION);  // !changé
             $demandeIntervention->setCategorieDemande($categorieEntity);
         } else {
             $demandeIntervention->setCategorieDemande(null);
@@ -184,7 +187,7 @@ class DemandeInterventionFactory
 
         // REPARATION
         $demandeIntervention->setTypeReparation($dto->typeReparation);
-        $demandeIntervention->setReparationRealise('ATE POL TANA');
+        $demandeIntervention->setReparationRealise('ATE POL TANA'); // ?INFO: corrigé
         $demandeIntervention->setInternetExterne($dto->internetExterne);
 
         // INFO CLIENT :  numero - nom - numero tel - mail - sous contrat
@@ -229,7 +232,7 @@ class DemandeInterventionFactory
 
         // statut demande - numero DIT - email - non d'utilisateur - date - heure
         $demandeIntervention->setIdStatutDemande($dto->idStatutDemande);
-        $demandeIntervention->setNumeroDemandeIntervention($dto->numeroDemandeIntervention);
+        $demandeIntervention->setNumeroDemandeIntervention(AutoIncDecService::autoGenerateNumero(DemandeIntervention::CODE_APP, $dto->numeroDemandeIntervention, false)); // !changé
         $demandeIntervention->setMailDemandeur($dto->mailDemandeur);
         $demandeIntervention->setUtilisateurDemandeur($dto->utilisateurDemandeur);
         $demandeIntervention->setDateDemande($dto->dateDemande);

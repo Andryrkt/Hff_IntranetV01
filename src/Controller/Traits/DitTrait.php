@@ -2,15 +2,9 @@
 
 namespace App\Controller\Traits;
 
-use Exception;
-use App\Entity\admin\Agence;
-use App\Entity\admin\Service;
-use App\Entity\admin\StatutDemande;
-use App\Entity\admin\utilisateur\User;
-use App\Dto\Dit\DemandeInterventionDto;
-use App\Entity\dit\DemandeIntervention;
-use App\Entity\admin\dit\WorNiveauUrgence;
 
+use App\Entity\admin\Application;
+use App\Dto\Dit\DemandeInterventionDto;
 
 
 trait DitTrait
@@ -28,14 +22,12 @@ trait DitTrait
 
 
 
-    private function createDemandeInterventionFromDto(DemandeInterventionDto $dto): array
+    private function createDemandeInterventionFromDto(DemandeInterventionDto $dto, Application $application): array
     {
         if ($dto->estAtePolTana) {
             $ditAteTana =  $this->demandeInterventionFactory->createFromDto($dto);
-            $ditAteTanaPol =  $this->demandeInterventionFactory->createFromDtoPol($dto);
+            $ditAteTanaPol =  $this->demandeInterventionFactory->createFromDtoPol($dto, $application);
             return [$ditAteTana, $ditAteTanaPol];
-        } elseif ($dto->reparationRealise === 'ATE POL TANA') {
-            return [$this->demandeInterventionFactory->createFromDtoPol($dto)];
         } else {
 
             return [$this->demandeInterventionFactory->createFromDto($dto)];
@@ -46,6 +38,7 @@ trait DitTrait
     private function historiqueInterventionMateriel(int $idMateriel): array
     {
         $historiqueMateriel = $this->getDitModel()->historiqueMateriel($idMateriel);
+        
         foreach ($historiqueMateriel as $keys => $values) {
             foreach ($values as $key => $value) {
                 if ($key == "datedebut") {
