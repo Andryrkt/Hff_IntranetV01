@@ -71,6 +71,7 @@ class PdfTableMatriceGenerator
             $ref = $dal->getArtRefp();
             $desi = $dal->getArtDesi();
             $qte  = $dal->getQteDem();
+            $keyId = implode('_', array_map('trim', [$cst, $ref, $desi, $qte]));
             $html .= '<tr>';
             $html .= '<td>' . $cst . '</td>';
             $html .= '<td>' . $ref . '</td>';
@@ -78,8 +79,8 @@ class PdfTableMatriceGenerator
             $html .= '<td align="right">' . $qte . '</td>';
 
             foreach ($listeFournisseurs as $frn) {
-                $prix = $fournisseurs[$frn][$desi]['prix'] ?? '';
-                $choix = $fournisseurs[$frn][$desi]['choix'] ?? false;
+                $prix = $fournisseurs[$frn][$keyId]['prix'] ?? '';
+                $choix = $fournisseurs[$frn][$keyId]['choix'] ?? false;
                 $style = $choix ? 'background-color: #fbbb01;' : '';
                 $html .= '<td align="right" style="' . $style . '">' . $prix . '</td>';
             }

@@ -10,6 +10,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Form\magasin\devis\DevisMagasinSearchType;
 use App\Model\magasin\devis\ListeDevisMagasinModel;
 use App\Factory\magasin\devis\ListeDevisMagasinFactory;
+use App\Factory\magasin\devis\ListeDevisSearchDto;
 use App\Repository\magasin\devis\DevisMagasinRepository;
 use App\Repository\admin\AgenceRepository;
 use Symfony\Component\HttpFoundation\Request;
@@ -60,17 +61,12 @@ class ListeDevisMagasinController extends Controller
         $this->autorisationAcces($this->getUser(), Application::ID_DVM);
 
         //formulaire de recherhce
-        $form = $this->getFormFactory()->createBuilder(DevisMagasinSearchType::class, null, [
+        $form = $this->getFormFactory()->createBuilder(DevisMagasinSearchType::class, $this->initialisationCriteria(), [
             'em' => $this->getEntityManager()
         ])->getForm();
 
-        $form->handleRequest($request);
-
-        $criteria = [];
-        if ($form->isSubmitted() && $form->isValid()) {
-            $criteria = $form->getData();
-            $criteria['dateCreation'] = $form->get('dateCreation')->getData();
-        }
+        /** @var array */
+        $criteria = $this->traitementFormulaireRecherche($request, $form);
 
         $this->getSessionService()->set('criteria_for_excel_liste_devis_magasin', $criteria);
 
@@ -82,6 +78,29 @@ class ListeDevisMagasinController extends Controller
             'form' => $form->createView(),
             'styleStatutDw' => $this->styleStatutDw
         ]);
+    }
+
+    private function traitementFormulaireRecherche(Request $request, $form): array
+    {
+        $criteria = [];
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $criteriaDto = $form->getData();
+            $criteria = $criteriaDto->toArrayFilter();
+        }
+        return $criteria;
+    }
+
+    private function initialisationCriteria()
+    {
+        // recupération de la session pour le criteria
+        $criteriaTab = $this->getSessionService()->get('criteria_for_excel_liste_devis_magasin');
+
+        // transforme en objet
+        $ListeDevisSearchDto = new ListeDevisSearchDto();
+        return $ListeDevisSearchDto->toObject($criteriaTab);
     }
 
     public function recuperationDonner(array $criteria = []): array

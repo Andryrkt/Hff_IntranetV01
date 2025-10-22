@@ -80,13 +80,13 @@ document.addEventListener("DOMContentLoaded", function () {
       let demandeDevisPath = this.dataset.demandeDevisPath;
       Swal.fire({
         title: "Êtes-vous sûr(e) ?",
-        html: `Voulez-vous vraiment changer le statut de la demande d'achat en <strong style="colr: blue;">"Demande de devis en cours"</strong>?`,
+        html: `Voulez-vous confirmer l'envoi des demandes de devis aux fournisseurs ?`,
         icon: "warning",
         showCancelButton: true,
         confirmButtonColor: "#28a745",
         cancelButtonColor: "#6c757d",
-        confirmButtonText: "Oui, changer le statut",
-        cancelButtonText: "Non, annuler",
+        confirmButtonText: "Oui, confirmer",
+        cancelButtonText: "Non, abandonner",
       }).then((result) => {
         if (result.isConfirmed) {
           displayOverlay(true);
@@ -95,8 +95,8 @@ document.addEventListener("DOMContentLoaded", function () {
           // ❌ Si l'utilisateur annule
           Swal.fire({
             icon: "info",
-            title: "Annulé",
-            text: "Le changement de statut de la demande d'achat a été annulée.",
+            title: "Annulation",
+            text: "Opération abandonnée.",
             timer: 2000,
             showConfirmButton: false,
           });
