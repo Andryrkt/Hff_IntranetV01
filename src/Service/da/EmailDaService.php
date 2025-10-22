@@ -6,11 +6,13 @@ use App\Controller\Traits\da\DaTrait;
 use App\Controller\Traits\lienGenerique;
 use App\Entity\da\DemandeAppro;
 use App\Service\EmailService;
+use App\Traits\PrepareData;
 
 class EmailDaService
 {
     use DaTrait;
     use lienGenerique;
+    use PrepareData;
     private $twig;
     private $emailTemplate;
 
@@ -84,6 +86,7 @@ class EmailDaService
                 'statut'            => "propositionDa",
                 'subject'           => "{$demandeAppro->getNumeroDemandeAppro()} - Proposition créée par l'Appro",
                 'demandeAppro'      => $demandeAppro,
+                'preparedDal'       => $this->prepareDataForMailPropositionDa($demandeAppro->getDAL()),
                 'fournisseurs'      => $fournisseurs,
                 'listeFournisseurs' => array_keys($fournisseurs),
                 'action_url'        => $this->getUrlDetail($demandeAppro->getId()),
@@ -106,6 +109,7 @@ class EmailDaService
                 'statut'            => "propositionDa",
                 'subject'           => "{$demandeAppro->getNumeroDemandeAppro()} - Proposition créée par l'Appro",
                 'demandeAppro'      => $demandeAppro,
+                'preparedDal'       => $this->prepareDataForMailPropositionDa($demandeAppro->getDAL()),
                 'fournisseurs'      => $fournisseurs,
                 'listeFournisseurs' => array_keys($fournisseurs),
                 'action_url'        => $this->getUrlDetail($demandeAppro->getId(), false),
