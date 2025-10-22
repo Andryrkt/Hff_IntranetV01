@@ -32,6 +32,25 @@ document.addEventListener("DOMContentLoaded", () => {
     const selectedLignes = checkedBoxes.map((cb) => cb.dataset.numeroLigne); // Récupérer les numeroLigne sélectionnés
     const numeroDemandeAppro = checkedBoxes[0].dataset.numeroDemandeAppro; // Récupérer le numeroDemandeAppro du premier coché (ou undefined si aucune)
     const actionType = select.value;
+    const payload = {
+      // 👇 "..." (spread operator) : déplie les propriétés d'un objet dans un autre objet.
+      // 👇 "&&" (ET logique) : retourne le 2e élément seulement si le 1er est vrai, sinon false.
+      ...(actionType === "delete" && {
+        // 👉 Si actionType vaut "delete", l'expression renvoie cet objet :
+        // { ids: selectedIds, lines: selectedLignes, numDa: numeroDemandeAppro }
+        // 👉 Sinon, elle renvoie false (et "..." n'ajoute rien).
+        ids: selectedIds,
+        lines: selectedLignes,
+        numDa: numeroDemandeAppro,
+      }),
+      ...(actionType === "create" && {
+        // 👉 Si actionType vaut "create", alors cet objet est injecté :
+        // { ids: selectedIds }
+        // 👉 Sinon, false est ignoré.
+        ids: selectedIds,
+      }),
+    };
+
     select.value = "";
 
     try {
@@ -41,11 +60,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (confirmation.isConfirmed) {
         displayOverlay(true);
-        const result = await fetchManager.post(ACTION_ENDPOINTS[actionType], {
-          ids: selectedIds,
-          lines: selectedLignes,
-          numDa: numeroDemandeAppro,
-        });
+        const result = await fetchManager.post(
+          ACTION_ENDPOINTS[actionType],
+          payload
+        );
         displayOverlay(false);
 
         await Swal.fire(swalOptions.genericResponse(result));
