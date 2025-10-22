@@ -114,20 +114,20 @@ class DitController extends Controller
             $dto->numeroDemandeIntervention = $this->autoDecrementDIT('DIT');
             $dto->mailDemandeur = $user->getMail();
 
-            /**  
-             * 3. Utiliser la factory pour créer l'entité complète
-             * @var DemandeIntervention
-             */
+            /**   @var DemandeIntervention 3. Utiliser la factory pour créer l'entité complète*/
             $demandeIntervention = $this->createDemandeInterventionFromDto($dto);
 
             /** 4. Modifie la colonne dernière_id dans la table applications */
             $applicationService = new ApplicationService($this->getEntityManager());
             $applicationService->mettreAJourDerniereIdApplication('DIT', $demandeIntervention->getNumeroDemandeIntervention());
 
-            // 5. Traitement des fichiers (PDF, pièces jointes)
-            $this->traitementDeFichier($form, $demandeIntervention);
+            /** @var array 5. Traitement des fichiers (PDF, pièces jointes) */
+            $nomFichierEnregistrer  = $this->traitementDeFichier($form, $demandeIntervention);
 
             // 6. Enregistrement dans la base de données
+            $demandeIntervention->setPieceJoint01($nomFichierEnregistrer[0]);
+            $demandeIntervention->setPieceJoint02($nomFichierEnregistrer[1]);
+            $demandeIntervention->setPieceJoint03($nomFichierEnregistrer[2]);
             $this->getEntityManager()->persist($demandeIntervention);
             $this->getEntityManager()->flush();
 
@@ -135,16 +135,17 @@ class DitController extends Controller
         }
     }
 
-    private function traitementDeFichier(FormInterface $form, DemandeIntervention $demandeIntervention)
+    private function traitementDeFichier(FormInterface $form, DemandeIntervention $demandeIntervention): array
     {
         /** 
          * gestion des pieces jointes et generer le nom du fichier PDF
          * Enregistrement de fichier uploder
          * @var array $nomEtCheminFichiersEnregistrer 
+         * @var array $nomFichierEnregistrer 
          * @var string $nomAvecCheminFichier
          * @var string $nomFichier
          */
-        [$nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, $nomFichier] = $this->enregistrementFichier($form, $demandeIntervention->getNumeroDemandeIntervention(), str_replace("-", "", $demandeIntervention->getAgenceServiceEmetteur()));
+        [$nomEtCheminFichiersEnregistrer, $nomFichierEnregistrer, $nomAvecCheminFichier, $nomFichier] = $this->enregistrementFichier($form, $demandeIntervention->getNumeroDemandeIntervention(), str_replace("-", "", $demandeIntervention->getAgenceServiceEmetteur()));
 
         /**CREATION DE LA PAGE DE GARDE*/
         $genererPdfDit = new GenererPdfDit();
@@ -166,6 +167,8 @@ class DitController extends Controller
 
         //Copier le PDF DANS DOXCUWARE
         $genererPdfDit->copyToDOCUWARE($nomFichier, $demandeIntervention->getNumeroDemandeIntervention());
+
+        return $nomFichierEnregistrer;
     }
 
     private function enregistrementFichier(FormInterface $form, string $numDit, string $agServEmetteur): array
@@ -173,29 +176,30 @@ class DitController extends Controller
         $nameGenerator = new DitNameFileService();
         $cheminBaseUpload = $_ENV['BASE_PATH_FICHIER'] . 'dit/';
         $uploader = new UploderFileService($cheminBaseUpload, $nameGenerator);
-        $devisPath = $cheminBaseUpload . $numDit . '/';
-        if (!is_dir($devisPath)) {
-            mkdir($devisPath, 0777, true);
+        $path = $cheminBaseUpload . $numDit . '/';
+        if (!is_dir($path)) {
+            mkdir($path, 0777, true);
         }
 
-        $nomEtCheminFichiersEnregistrer = $uploader->getNomsEtCheminFichiers($form, [
-            'repertoire' => $devisPath,
+        /**
+         * recupère les noms + chemins dans un tableau et les noms dans une autre
+         * @var array $nomEtCheminFichiersEnregistrer
+         * @var array $nomFichierEnregistrer
+         */
+        [$nomEtCheminFichiersEnregistrer, $nomFichierEnregistrer] = $uploader->getFichiers($form, [
+            'repertoire' => $path,
             'generer_nom_callback' => function (
                 UploadedFile $file,
                 int $index
             ) use ($numDit, $nameGenerator, $agServEmetteur) {
-                return $nameGenerator->generateDitName($file, $numDit, $agServEmetteur, $index);
+                return $nameGenerator->generateDitNameFile($file, $numDit, $agServEmetteur, $index);
             }
         ]);
 
-        if (empty($nomEtCheminFichiersEnregistrer)) {
-            $nomFichier = $numDit . '_' . $agServEmetteur . '.pdf';
-            $nomAvecCheminFichier = $devisPath . $nomFichier;
-        } else {
-            $nomAvecCheminFichier = $nameGenerator->getCheminEtNomDeFichierSansIndex($nomEtCheminFichiersEnregistrer[0]);
-            $nomFichier = $nameGenerator->getNomFichier($nomAvecCheminFichier);
-        }
+        $nomFichier = $nameGenerator->generateDitNamePrincipal($numDit, $agServEmetteur);
+        $nomAvecCheminFichier = $path . $nomFichier;
 
-        return [$nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, $nomFichier];
+
+        return [$nomEtCheminFichiersEnregistrer, $nomFichierEnregistrer, $nomAvecCheminFichier, $nomFichier];
     }
 }

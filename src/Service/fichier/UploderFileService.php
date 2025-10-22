@@ -119,4 +119,29 @@ class UploderFileService
         $resultatsComplets = $this->enregistrementFichier($form, $options);
         return empty($resultatsComplets) ? [] : array_column($resultatsComplets, 'chemin_complet');
     }
+
+    /**
+     * Enregistre les fichiers et retourne :
+     * [
+     *   [ tous les chemins complets ],
+     *   [ tous les noms de fichiers ]
+     * ]
+     *
+     * @param FormInterface $form
+     * @param array $options
+     * @return array
+     */
+    public function getFichiers(FormInterface $form, array $options = []): array
+    {
+        $resultatsComplets = $this->enregistrementFichier($form, $options);
+
+        if (empty($resultatsComplets)) {
+            return [[], []];
+        }
+
+        $chemins = array_column($resultatsComplets, 'chemin_complet');
+        $noms = array_column($resultatsComplets, 'nom_fichier');
+
+        return [$chemins, $noms];
+    }
 }

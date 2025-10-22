@@ -227,7 +227,7 @@ class DitDuplicationController extends Controller
                 UploadedFile $file,
                 int $index
             ) use ($numDit, $nameGenerator, $agServEmetteur) {
-                return $nameGenerator->generateDitName($file, $numDit, $agServEmetteur, $index);
+                return $nameGenerator->generateDitNameFile($file, $numDit, $agServEmetteur, $index);
             }
         ]);
 

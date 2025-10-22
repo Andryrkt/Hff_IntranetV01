@@ -8,9 +8,9 @@ use App\Service\fichier\AbstractFileNameGeneratorService;
 class DitNameFileService extends AbstractFileNameGeneratorService
 {
     /**
-     * Génère un nom pour votre cas spécifique de demande d'intervention
+     * Génère un nom pour les fichiers
      */
-    public function generateDitName(
+    public function generateDitNameFile(
         UploadedFile $file,
         string $numDit,
         string $agServEmetteur,
@@ -24,5 +24,20 @@ class DitNameFileService extends AbstractFileNameGeneratorService
             ],
             'sauter_premier_index' => false // Ne pas sauter le premier index
         ], $index);
+    }
+
+    /**
+     * Génère un nom pour le fichier principal
+     *
+     * @param string $numDit
+     * @param string $agServEmetteur
+     * @param integer $index
+     * @return string
+     */
+    public function generateDitNamePrincipal(
+        string $numDit,
+        string $agServEmetteur
+    ): string {
+        return $numDit . '_' . $agServEmetteur . '.pdf';
     }
 }
