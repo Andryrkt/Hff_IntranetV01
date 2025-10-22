@@ -1,7 +1,7 @@
 import { API_ENDPOINTS } from "../../api/apiEndpoints";
 import { FetchManager } from "../../api/FetchManager";
 import { displayOverlay } from "../../utils/ui/overlay";
-import { showSwal, getConfirmConfig } from "./ui/swalUtils";
+import { swalOptions } from "./ui/swalUtils";
 import {
   updateRowState,
   toggleCheckbox,
@@ -23,12 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
   async function handleSelectChange() {
     const checkedBoxes = [...checkboxes].filter((cb) => cb.checked); // Filtrer les checkbox qui sont cochées
     if (!checkedBoxes.length) {
-      await showSwal({
-        icon: "error",
-        title: "Aucun article sélectionné",
-        html: `Vous n'avez sélectionné aucun article. Veuillez choisir au moins un article avant de cliquer sur les choix d'action.`,
-        confirmButtonText: "OK",
-      });
+      Swal.fire(swalOptions.noArticleSelected);
       select.value = "";
       return;
     }
@@ -39,13 +34,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const actionType = select.value;
     select.value = "";
 
-    const confirmConfig = getConfirmConfig(actionType, selectedIds.length);
-
     try {
-      const confirmation = await showSwal({
-        ...confirmConfig,
-        showCancelButton: true,
-      });
+      const confirmation = await Swal.fire(
+        swalOptions.getConfirmConfig(actionType, selectedIds.length)
+      );
 
       if (confirmation.isConfirmed) {
         displayOverlay(true);
@@ -56,11 +48,9 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         displayOverlay(false);
 
-        await showSwal({
-          icon: result.status,
-          title: result.title,
-          html: result.message,
-        });
+        await Swal.fire(swalOptions.genericResponse(result));
+        lastCheckedNumDa = ""; // réinitialiser le dernier DA sélectionné
+        resetAllChecks(checkedBoxes); // réinitialiser tous les checkbox cochés
 
         if (actionType === "delete" && result.status === "success") {
           const scrollPosition = window.scrollY;
@@ -69,16 +59,16 @@ document.addEventListener("DOMContentLoaded", () => {
           window.scrollTo(0, scrollPosition);
         }
       } else {
-        console.log("Action annulée par l'utilisateur");
+        lastCheckedNumDa = ""; // réinitialiser le dernier DA sélectionné
+        resetAllChecks(checkedBoxes); // réinitialiser tous les checkbox cochés
+        Swal.fire(swalOptions.annulationOperation);
       }
     } catch (error) {
+      lastCheckedNumDa = ""; // réinitialiser le dernier DA sélectionné
+      resetAllChecks(checkedBoxes); // réinitialiser tous les checkbox cochés
       displayOverlay(false);
       console.error(error);
-      await showSwal({
-        icon: "error",
-        title: "Erreur",
-        html: "Une erreur est survenue lors de l'envoi des données.",
-      });
+      Swal.fire(swalOptions.errorGeneric(error));
     }
   }
 
@@ -86,34 +76,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const numDa = checkbox.dataset.numeroDemandeAppro;
     const checkedBoxes = [...checkboxes].filter((cb) => cb.checked);
 
-    console.log("1. numDa = " + numDa);
-    console.log("2. lastCheckedNumDa = " + lastCheckedNumDa);
-    console.log("3. !lastCheckedNumDa = " + !lastCheckedNumDa);
-    console.log(
-      "4. numDa === lastCheckedNumDa = " + (numDa === lastCheckedNumDa)
-    );
-    console.log(
-      "5. !lastCheckedNumDa || numDa === lastCheckedNumDa = " +
-        (!lastCheckedNumDa || numDa === lastCheckedNumDa)
-    );
-
     if (!lastCheckedNumDa || numDa === lastCheckedNumDa) {
       updateRowState(checkbox, checkbox.checked);
       lastCheckedNumDa = checkbox.checked ? numDa : "";
     } else {
-      Swal.fire({
-        title: "Êtes-vous sûr(e) ?",
-        html: `Vous ne pouvez sélectionner que des lignes appartenant à la même DA.<br>
-      Si vous voulez quand même sélectionner ces lignes, cliquez sur <b class="text-success">"Continuer"</b> (les lignes précédemment cochées seront décochées).
-      Sinon, cliquez sur <b class="text-secondary">"Annuler"</b>.`,
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#28a745",
-        cancelButtonColor: "#6c757d",
-        confirmButtonText: "Oui, Continuer",
-        cancelButtonText: "Annuler",
-        customClass: { htmlContainer: "swal-text-left" },
-      }).then((result) => {
+      Swal.fire(swalOptions.confirmSameDa).then((result) => {
         if (result.isConfirmed) {
           resetAllChecks(checkedBoxes);
           toggleCheckbox(checkbox, true);
