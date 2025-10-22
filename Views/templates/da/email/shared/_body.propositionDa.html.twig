@@ -52,15 +52,18 @@
 	</thead>
 	<tbody>
 		{% for dal in demandeAppro.DAL %}
-			{% set designation = dal.artDesi %}
+			{% set cst = dal.artConstp %}
+			{% set ref = dal.artRefp %}
+			{% set desi = dal.artDesi %}
 			{% set qte = dal.qteDem %}
+			{% set keyId = [cst|trim, ref|trim, desi|trim, qte|trim]|join('_') %}
 			<tr>
-				<td>{{ dal.artConstp }}</td>
-				<td>{{ dal.artRefp }}</td>
-				<td>{{ designation }}</td>
+				<td>{{ cst }}</td>
+				<td>{{ ref }}</td>
+				<td>{{ desi }}</td>
 				<td align="right">{{ qte }}</td>
 				{% for frn in listeFournisseurs %}
-					{% set cell = fournisseurs[frn][designation]|default({}) %}
+					{% set cell = fournisseurs[frn][keyId]|default({}) %}
 					<td align="right" class="{{ cell.choix|default(false) ? 'choisi' : '' }}">
 						{{ cell.prix|default('') }}
 					</td>
