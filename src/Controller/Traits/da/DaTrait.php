@@ -285,7 +285,7 @@ trait DaTrait
     }
 
     /**
-     * Gérer la liste des fournisseurs et prix correspondant à partir des DAL
+     * Gérer la liste des fournisseurs et prix correspondant à partir des DAL avec clé unique (cst_ref_designation_qteDem)
      * 
      * @param iterable<DemandeApproL> $dals la liste des DAL à afficher
      * 
@@ -295,13 +295,13 @@ trait DaTrait
     {
         $fournisseurs = [];
         foreach ($dals as $dal) {
-            $designation = $dal->getArtDesi();
+            $keyId = implode('_', array_map('trim', [$dal->getArtConstp(), $dal->getArtRefp(), $dal->getArtDesi(), $dal->getQteDem()]));
             /** @var iterable<DemandeApproLR> $dalrs la liste des DALR dans DAL */
             $dalrs       = $dal->getDemandeApproLR();
             if ($dalrs->isEmpty()) {
                 $fournisseur = $dal->getNomFournisseur();
                 $prix        = $this->formatPrix($dal->getPrixUnitaire());
-                $fournisseurs[$fournisseur][$designation] = [
+                $fournisseurs[$fournisseur][$keyId] = [
                     'prix'  => $prix,
                     'choix' => true,
                 ];
@@ -309,7 +309,7 @@ trait DaTrait
                 foreach ($dalrs as $dalr) {
                     $frnDalr = $dalr->getNomFournisseur();
                     $prix    = $this->formatPrix($dalr->getPrixUnitaire());
-                    $fournisseurs[$frnDalr][$designation] = [
+                    $fournisseurs[$frnDalr][$keyId] = [
                         'prix'  => $prix,
                         'choix' => $dalr->getChoix(),
                     ];
