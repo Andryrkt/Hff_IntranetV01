@@ -315,6 +315,7 @@ class DaAfficherRepository extends EntityRepository
                 'd.statutCde != :statutPasDansOr',
                 'd.statutCde IS NULL'
             )) // enlever les ligne qui a le statut PAS DANS OR
+            ->andWhere('d.deleted = 0')
             ->setParameter('statutPasDansOr', DaSoumissionBc::STATUT_PAS_DANS_OR)
         ;
 
