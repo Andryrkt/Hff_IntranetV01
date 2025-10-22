@@ -18,11 +18,15 @@ class DemandeCongeRepository extends EntityRepository
     ): array {
         $queryBuilder = $this->createQueryBuilder('d')
             ->leftJoin('d.agenceServiceirium', 'asi')
-            ->addSelect('asi')
-            ->andWhere('asi.agence_ips IN (:agencesAutorisees)')
+            ->addSelect('asi');
+
+            if(!$options['admin']) {
+                $queryBuilder->andWhere('asi.agence_ips IN (:agencesAutorisees)')
             ->setParameter('agencesAutorisees', $user->getAgenceAutoriserCode())
             ->andWhere('asi.service_ips IN (:servicesAutorises)')
             ->setParameter('servicesAutorises', $user->getServiceAutoriserCode());
+            }
+            
 
         if ($conge->getMatricule()) {
             $queryBuilder->andWhere('d.matricule = :matricule')

@@ -37,15 +37,17 @@ class PdfTableMatriceGenerator
 
         // Ligne titre principale
         $html .= '<tr>
-            <th rowspan="2" align="center" valign="middle">DESIGNATION</th>
+            <th rowspan="2" align="center" valign="middle">CST</th>
+			<th rowspan="2" align="center" valign="middle">REF</th>
+			<th rowspan="2" align="center" valign="middle">DESIGNATION</th>
 			<th rowspan="2" align="center" valign="middle">QTE</th>
-            <td colspan="' . count($listeFournisseurs) . '" align="center">FOURNISSEURS</td>
+            <td colspan="' . count($listeFournisseurs) . '" align="center" style="font-weight:bold;">** FOURNISSEURS **</td>
         </tr>';
 
         // Ligne des colonnes
         $html .= '<tr>';
         foreach ($listeFournisseurs as $frn) {
-            $html .= "<th align=\"right\"><b> $frn </b></th>";
+            $html .= "<th align=\"center\"><b> $frn </b></th>";
         }
         $html .= '</tr></thead>';
 
@@ -65,15 +67,20 @@ class PdfTableMatriceGenerator
     {
         $html = '<tbody>';
         foreach ($dals as $dal) {
+            $cst = $dal->getArtConstp();
+            $ref = $dal->getArtRefp();
             $desi = $dal->getArtDesi();
             $qte  = $dal->getQteDem();
+            $keyId = implode('_', array_map('trim', [$cst, $ref, $desi, $qte]));
             $html .= '<tr>';
+            $html .= '<td>' . $cst . '</td>';
+            $html .= '<td>' . $ref . '</td>';
             $html .= '<td>' . htmlspecialchars($desi) . '</td>';
             $html .= '<td align="right">' . $qte . '</td>';
 
             foreach ($listeFournisseurs as $frn) {
-                $prix = $fournisseurs[$frn][$desi]['prix'] ?? '';
-                $choix = $fournisseurs[$frn][$desi]['choix'] ?? false;
+                $prix = $fournisseurs[$frn][$keyId]['prix'] ?? '';
+                $choix = $fournisseurs[$frn][$keyId]['choix'] ?? false;
                 $style = $choix ? 'background-color: #fbbb01;' : '';
                 $html .= '<td align="right" style="' . $style . '">' . $prix . '</td>';
             }

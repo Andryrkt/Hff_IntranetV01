@@ -15,60 +15,59 @@
 	<span class="vignette-bande">
 		{% for i in 0..4 %}
 			<span>
-				08/10/2025 - V20251008.3.0.0 :
+				17/10/2025 - V20251017.3.1.0 :
 				<div class="news-ticker">
 					<ul>
 						<li>
-							<b>RH - Demande de congé :</b>
-							Dématérialisée pour le service : INF, APPRO, UMP, PER, TRA, ASS
-						</li>
-						<li>
-							<b>APPRO - Liste commande fournisseur :</b>
+							<b>APPRO – Formulaire création d’une DA :</b>
+							Un contrôle a été mis en place afin de définir une marge au service APP pour traiter les demandes d’achats. 
+							Ce planning dépendra automatiquement du niveau d’urgence de la DIT ou la date planning de l’OR.
 							<ul>
-								<li>Le statut BC reste sur « BC envoyé au fournisseur » si la facture / bon de livraison client n’est pas encore soumis.</li>
-								<li>Le statut BC « PAS DANS OR » ne s’affichera que pour les ORs validés.</li>
-								<li>On peut désormais filtrer la liste des commandes fournisseurs par statut de la DA.</li>
-								<li>Il est désormais possible d’exporter les commandes au format Excel.</li>
-								<li>Il est désormais possible de trier la liste des commandes par nombre de jour dispo.</li>
+								<li>
+									S’il n’y a pas encore d’OR rattaché à la DIT, alors le planning suit le niveau d’urgence de la DIT :
+									<ul>
+										<li>P0 : 5 jours ouvrables</li>
+										<li>P1 : 7 jours ouvrables</li>
+										<li>P2 : 10 jours ouvrables</li>
+										<li>P3 : 15 jours ouvrables</li>
+										<li>P4 : 15 jours ouvrables</li>
+									</ul>
+								</li>
+								<li>
+									Si DIT avec OR validé avec les devis :
+									<ul>
+										<li>7 jours ouvrables avant la date planning de l’OR</li>
+										<li>Sinon 5 jours</li>
+									</ul>
+								</li>
 							</ul>
 						</li>
 						<li>
-							<b>APPRO - Détail demande d'achat :</b>
+							<b>APPRO – Validation et proposition :</b>
 							<ul>
-								<li>Les noms de tous les fichiers téléchargeables porteront les numéros des documents au lieu de l’index / autres.</li>
-								<li>Les devis soumis par le service appro à l’atelier sont désormais consultables depuis la liste des documents rattachés.</li>
-								<li>Possibilité de filtrer les factures correspondant à une commande fournisseur.</li>
+								<li>Le service APP peut enregistrer des propositions et sauvegarder des devis sans les envoyer à l’atelier (draft).</li>
+								<li>
+									Intégration du statut « Demande de devis en cours » :
+									Après l’envoi des demandes de devis aux fournisseurs, un pointage peut être effectué sur une DA 
+									par le service APP afin d’identifier les DA ayant fait l’objet d’une demande de devis auprès des fournisseurs.
+								</li>
+								<li>
+									Intégration du statut « Devis à relancer » :
+									Si aucune proposition n’est envoyée à l’atelier deux jours après l’envoi du devis, 
+									un email de relance est automatiquement adressé au service APP.
+								</li>
+								<li>La désignation des articles catalogués ne peut plus être modifiée lors d’une proposition.</li>
+								<li>L’envoi des devis à l’atelier est désormais bloqué s’il existe un article dont le fournisseur n’est pas renseigné (FRN 99).</li>
+								<li>
+									Les articles proposés par le service APP sont présentés sous forme de matrice 
+									pour une meilleure lisibilité (en ligne : désignations initiales, en colonne : prix unitaires par fournisseur).
+								</li>
 							</ul>
 						</li>
 						<li>
-							<b>APPRO - Liste des demandes d'achat :</b>
-							<ul>
-								<li>Ajout de la possibilité de trier par nombre de jours dispo.</li>
-							</ul>
-						</li>
-						<li>
-							<b>MAGASIN - Soumission BL FTU :</b>
-							<ul>
-								<li>Interface pour soumettre les sorties des pièces / lubs pour le magasin à Fort-Dauphin.</li>
-							</ul>
-						</li>
-						<li>
-							<b>ATELIER - Soumission OR :</b>
-							<ul>
-								<li>Ajout d’une possibilité de saisir une observation lors de la soumission d’un OR, l’observation est remontée dans la page de garde.</li>
-							</ul>
-						</li>
-						<li>
-							<b>ATELIER - Soumission RI :</b>
-							<ul>
-								<li>La soumission d’un RI est bloquée si le numéro de la DIT de la ligne de soumission ne correspond pas à la référence de la demande de l’OR.</li>
-							</ul>
-						</li>
-						<li>
-							<b>DOCUWARE - Validation facture OR :</b>
-							<ul>
-								<li>La validation manuelle des factures par un validateur est by-passée et remplacée par une auto-validation dans Docuware, lorsque l’intervention de l’OR validé et la facture de l’intervention à soumettre à validation présentent le même montant.</li>
-							</ul>
+							<b>APPRO – Détail demande d’achat :</b>
+							Les articles dans le bon d’achat sont aussi représentés sous forme de matrice 
+							(en ligne : désignations initiales, en colonne : prix unitaires par fournisseur).
 						</li>
 					</ul>
 				</div>

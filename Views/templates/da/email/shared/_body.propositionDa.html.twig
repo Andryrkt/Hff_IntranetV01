@@ -30,33 +30,40 @@
 	</ul>
 </p>
 <hr>
-<p>Demande(s)
+<p>Récap de la demande
 	{{ service_demandeur }}
-	avec proposition(s) de l'Appro.
+	avec les propositions du service APPRO (en orange).
 </p>
 
 <table>
 	<thead style="background-color:#D9E1F2;">
 		<tr>
+			<th rowspan="2" align="center" valign="middle">CST</th>
+			<th rowspan="2" align="center" valign="middle">REF</th>
 			<th rowspan="2" align="center" valign="middle">DESIGNATION</th>
 			<th rowspan="2" align="center" valign="middle">QTE</th>
-			<td colspan="{{ listeFournisseurs|length }}" align="center">FOURNISSEURS</td>
+			<td colspan="{{ listeFournisseurs|length }}" align="center" style="font-weight:bold;">** FOURNISSEURS **</td>
 		</tr>
 		<tr>
 			{% for frn in listeFournisseurs %}
-				<th align="right">{{ frn }}</th>
+				<th align="center">{{ frn }}</th>
 			{% endfor %}
 		</tr>
 	</thead>
 	<tbody>
 		{% for dal in demandeAppro.DAL %}
-			{% set designation = dal.artDesi %}
+			{% set cst = dal.artConstp %}
+			{% set ref = dal.artRefp %}
+			{% set desi = dal.artDesi %}
 			{% set qte = dal.qteDem %}
+			{% set keyId = [cst|trim, ref|trim, desi|trim, qte|trim]|join('_') %}
 			<tr>
-				<td>{{ designation }}</td>
-				<td align="center">{{ qte }}</td>
+				<td>{{ cst }}</td>
+				<td>{{ ref }}</td>
+				<td>{{ desi }}</td>
+				<td align="right">{{ qte }}</td>
 				{% for frn in listeFournisseurs %}
-					{% set cell = fournisseurs[frn][designation]|default({}) %}
+					{% set cell = fournisseurs[frn][keyId]|default({}) %}
 					<td align="right" class="{{ cell.choix|default(false) ? 'choisi' : '' }}">
 						{{ cell.prix|default('') }}
 					</td>

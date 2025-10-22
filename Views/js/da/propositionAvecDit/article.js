@@ -80,6 +80,9 @@ export function ajouterReference(addLineId) {
       if (validerSelections) {
         validerSelections.classList.remove("d-none"); // On l'affiche
       }
+      if (enregistrerDraft) {
+        enregistrerDraft.classList.remove("d-none"); // On l'affiche
+      }
       ajouterUneLigne(line, fields, iscatalogue);
     }
   }
