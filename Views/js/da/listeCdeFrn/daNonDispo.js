@@ -86,6 +86,17 @@ document.addEventListener("DOMContentLoaded", () => {
     const numDa = checkbox.dataset.numeroDemandeAppro;
     const checkedBoxes = [...checkboxes].filter((cb) => cb.checked);
 
+    console.log("1. numDa = " + numDa);
+    console.log("2. lastCheckedNumDa = " + lastCheckedNumDa);
+    console.log("3. !lastCheckedNumDa = " + !lastCheckedNumDa);
+    console.log(
+      "4. numDa === lastCheckedNumDa = " + (numDa === lastCheckedNumDa)
+    );
+    console.log(
+      "5. !lastCheckedNumDa || numDa === lastCheckedNumDa = " +
+        (!lastCheckedNumDa || numDa === lastCheckedNumDa)
+    );
+
     if (!lastCheckedNumDa || numDa === lastCheckedNumDa) {
       updateRowState(checkbox, checkbox.checked);
       lastCheckedNumDa = checkbox.checked ? numDa : "";
@@ -120,7 +131,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!e.target.matches("td.clickable-td")) return;
     const row = e.target.closest("tr");
     const checkbox = row.querySelector(".modern-checkbox");
-    if (checkbox) toggleCheckbox(checkbox, !checkbox.checked);
+    if (checkbox) checkbox.click(); // délégué au handler de "change"
   });
 
   tableBody.addEventListener("change", (e) => {
