@@ -114,19 +114,22 @@ class DitController extends Controller
             $dto->numeroDemandeIntervention = $this->autoDecrementDIT('DIT');
             $dto->mailDemandeur = $user->getMail();
 
-            // 3. Utiliser la factory pour créer l'entité complète
+            /**  
+             * 3. Utiliser la factory pour créer l'entité complète
+             * @var DemandeIntervention
+             */
             $demandeIntervention = $this->createDemandeInterventionFromDto($dto);
 
             /** 4. Modifie la colonne dernière_id dans la table applications */
             $applicationService = new ApplicationService($this->getEntityManager());
             $applicationService->mettreAJourDerniereIdApplication('DIT', $demandeIntervention->getNumeroDemandeIntervention());
 
-            // 5. Enregistrement dans la base de données
+            // 5. Traitement des fichiers (PDF, pièces jointes)
+            $this->traitementDeFichier($form, $demandeIntervention);
+
+            // 6. Enregistrement dans la base de données
             $this->getEntityManager()->persist($demandeIntervention);
             $this->getEntityManager()->flush();
-
-            // 6. Traitement des fichiers (PDF, pièces jointes)
-            $this->traitementDeFichier($form, $demandeIntervention);
 
             $this->historiqueOperation->sendNotificationCreation('Votre demande a été enregistrée', $demandeIntervention->getNumeroDemandeIntervention(), 'dit_index', true);
         }
@@ -185,8 +188,13 @@ class DitController extends Controller
             }
         ]);
 
-        $nomAvecCheminFichier = $nameGenerator->getCheminEtNomDeFichierSansIndex($nomEtCheminFichiersEnregistrer[0]);
-        $nomFichier = $nameGenerator->getNomFichier($nomAvecCheminFichier);
+        if (empty($nomEtCheminFichiersEnregistrer)) {
+            $nomFichier = $numDit . '_' . $agServEmetteur . '.pdf';
+            $nomAvecCheminFichier = $devisPath . $nomFichier;
+        } else {
+            $nomAvecCheminFichier = $nameGenerator->getCheminEtNomDeFichierSansIndex($nomEtCheminFichiersEnregistrer[0]);
+            $nomFichier = $nameGenerator->getNomFichier($nomAvecCheminFichier);
+        }
 
         return [$nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, $nomFichier];
     }

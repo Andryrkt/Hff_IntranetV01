@@ -32,20 +32,27 @@ class DemandeInterventionFactory
     {
         $demandeIntervention = new DemandeIntervention();
 
+        //Objet - Detail
         $demandeIntervention->setObjetDemande($dto->objetDemande);
         $demandeIntervention->setDetailDemande($dto->detailDemande);
+
+        // TYPE DE DOCUMENT 
         if ($dto->typeDocument) {
             $typeDocumentEntity = $this->entityManager->getRepository(WorTypeDocument::class)->findOneBy(['description' => $dto->typeDocument]);
             $demandeIntervention->setTypeDocument($typeDocumentEntity);
         } else {
             $demandeIntervention->setTypeDocument(null);
         }
+
+        // CATEGORIE
         if ($dto->categorieDemande) {
             $categorieEntity = $this->entityManager->getRepository(CategorieAteApp::class)->findOneBy(['libelleCategorieAteApp' => $dto->categorieDemande]);
             $demandeIntervention->setCategorieDemande($categorieEntity);
         } else {
             $demandeIntervention->setCategorieDemande(null);
         }
+
+        // Livraison partiel - demande de devis - avis de recouvrement
         $demandeIntervention->setLivraisonPartiel($dto->livraisonPartiel);
         $demandeIntervention->setDemandeDevis($dto->demandeDevis === null ? 'NON' : $dto->demandeDevis);
         $demandeIntervention->setAvisRecouvrement($dto->avisRecouvrement);
@@ -67,9 +74,11 @@ class DemandeInterventionFactory
         $demandeIntervention->setReparationRealise($dto->reparationRealise);
         $demandeIntervention->setInternetExterne($dto->internetExterne);
 
-        // INFO CLIENT
+        // INFO CLIENT :  numero - nom - numero tel - mail - sous contrat
+        $demandeIntervention->setNumeroClient($dto->numeroClient);
         $demandeIntervention->setNomClient($dto->nomClient);
         $demandeIntervention->setNumeroTel($dto->numeroTel);
+        $demandeIntervention->setMailClient($dto->mailClient);
         $demandeIntervention->setClientSousContrat($dto->clientSousContrat);
 
         // INFORMATION MATERIEL
@@ -105,15 +114,15 @@ class DemandeInterventionFactory
         $demandeIntervention->setPieceJoint02($dto->pieceJoint02);
         $demandeIntervention->setPieceJoint03($dto->pieceJoint03);
 
-        // INFORMATION ENTRER MANUELEMENT
+        // statut demande - numero DIT - email - non d'utilisateur - date - heure
         $demandeIntervention->setIdStatutDemande($dto->idStatutDemande);
         $demandeIntervention->setNumeroDemandeIntervention($dto->numeroDemandeIntervention);
         $demandeIntervention->setMailDemandeur($dto->mailDemandeur);
+        $demandeIntervention->setUtilisateurDemandeur($dto->utilisateurDemandeur);
         $demandeIntervention->setDateDemande($dto->dateDemande);
         $demandeIntervention->setHeureDemande($dto->heureDemande);
-        $demandeIntervention->setUtilisateurDemandeur($dto->utilisateurDemandeur);
 
-        // Agence et service emetteur debiteur ID
+        // Agence et service emetteur et debiteur ID
         $em = $this->entityManager;
         $demandeIntervention->setAgenceEmetteurId($em->getRepository(Agence::class)->findOneBy(['codeAgence' => substr($dto->agenceEmetteur, 0, 2)]));
         $demandeIntervention->setServiceEmetteurId($em->getRepository(Service::class)->findOneBy(['codeService' => substr($dto->serviceEmetteur, 0, 3)]));
@@ -125,7 +134,7 @@ class DemandeInterventionFactory
             $demandeIntervention->setServiceDebiteurId($dto->service);
         }
 
-        // avoir ou refacturation
+        // avoir - refacturation
         $demandeIntervention->setEstDitAvoir($dto->estDitAvoir);
         $demandeIntervention->setEstDitRefacturation($dto->estDitRefacturation);
 

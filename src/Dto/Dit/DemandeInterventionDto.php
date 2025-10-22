@@ -26,24 +26,31 @@ class DemandeInterventionDto
     public ?string $typeReparation = null;
     public ?string $reparationRealise = null;
     public ?string $internetExterne = null;
+    // INFO CLIENT
+    public ?string $numeroClient = null;
     public ?string $nomClient = null;
     public ?string $numeroTel = null;
+    public ?string $mailClient = null;
     public ?string $clientSousContrat = null;
+    // INFO MATERIEL
     public ?string $idMateriel = null;
     public ?string $numParc = null;
     public ?string $numSerie = null;
+    // PIECE JOINTE
     public $pieceJoint01 = null;
     public $pieceJoint02 = null;
     public $pieceJoint03 = null;
+
     public ?StatutDemande $idStatutDemande = null;
     public ?string $numeroDemandeIntervention = null;
     public ?string $mailDemandeur = null;
     public ?DateTime $dateDemande = null;
     public ?string $heureDemande = null;
     public ?string $utilisateurDemandeur = null;
+
     public ?bool $estDitAvoir = null;
     public ?bool $estDitRefacturation = null;
-    public ?string $mailClient = null;
+
 
     // Cette méthode peut être utilisée pour hydrater le DTO depuis l'entité/formulaire
     public static function createFromEntity($dits): self
@@ -65,6 +72,7 @@ class DemandeInterventionDto
         $dto->typeReparation = $dits->getTypeReparation();
         $dto->reparationRealise = $dits->getReparationRealise();
         $dto->internetExterne = $dits->getInternetExterne();
+        $dto->numeroClient = $dits->getNumeroClient();
         $dto->nomClient = $dits->getNomClient();
         $dto->numeroTel = $dits->getNumeroTel();
         $dto->clientSousContrat = $dits->getClientSousContrat();
@@ -83,7 +91,7 @@ class DemandeInterventionDto
         $dto->estDitAvoir = $dits->getEstDitAvoir();
         $dto->estDitRefacturation = $dits->getEstDitRefacturation();
         $dto->mailClient = $dits->getMailClient();
-        
+
         return $dto;
     }
 }
