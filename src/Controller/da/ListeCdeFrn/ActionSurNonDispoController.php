@@ -58,10 +58,13 @@ class ActionSurNonDispoController extends Controller
             $this->demandeApproLRepository->deleteByNumDaAndLineNumbers($numDa, $lines);
             $this->demandeApproLRRepository->deleteByNumDaAndLineNumbers($numDa, $lines);
 
+            $count = count($daAfficherIds);
+            $label = $count > 1 ? 'éléments supprimés' : 'élément supprimé';
+
             return new JsonResponse([
                 'status'  => 'success',
                 'title'   => 'Action effectuée',
-                'message' => count($daAfficherIds) . ' élement(s) supprimé(s) avec succès.',
+                'message' => "$count $label avec succès.",
             ]);
         } catch (Exception $e) {
             return new JsonResponse([

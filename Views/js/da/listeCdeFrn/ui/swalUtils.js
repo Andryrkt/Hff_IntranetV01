@@ -41,7 +41,9 @@ export const swalOptions = {
     const configs = {
       delete: {
         title: "Confirmer la suppression",
-        text: `Voulez-vous vraiment supprimer ${count} article(s) ?`,
+        text: `Voulez-vous vraiment supprimer ${count} article${
+          count > 1 ? "s" : ""
+        } ?`,
         icon: "warning",
         confirmButtonText: "Oui, supprimer",
         confirmButtonColor: "#d33",
@@ -50,7 +52,9 @@ export const swalOptions = {
       },
       create: {
         title: "Confirmer la création",
-        text: `Voulez-vous vraiment créer ${count} article(s) ?`,
+        text: `Voulez-vous vraiment créer ${count} article${
+          count > 1 ? "s" : ""
+        } ?`,
         icon: "question",
         confirmButtonText: "Oui, créer",
         confirmButtonColor: "#198754",
