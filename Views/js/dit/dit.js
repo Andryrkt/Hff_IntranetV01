@@ -384,9 +384,9 @@ limitInputCharacters(numTelInput, 10);
 allowOnlyNumbers(numTelInput);
 
 /** FORM */
-const myForm = document.querySelector("#myForm");
+const ditForm = document.querySelector("#dit-form");
 
-myForm.addEventListener("submit", intExtEnvoier);
+ditForm.addEventListener("submit", intExtEnvoier);
 function intExtEnvoier() {
   agenceDebiteurInput.removeAttribute("disabled");
   serviceDebiteurInput.removeAttribute("disabled");
@@ -471,10 +471,9 @@ textarea.addEventListener("input", function (event) {
   charCount.style.color = remainingCharacters <= 0 ? "red" : "black";
 });
 
-/** =============================================================
- * ATE POL TANA : affichage ou non du champ intervention pneumatique
- * selon le type de réparation réalisé (si ATE TANA c'est afficher)
- *============================================================*/
+/** ===============================================================================
+ * réparation réalisé par ATE TANA et ATE POL TANA
+ *===============================================================================*/
 const reparationRealiseSelect = document.querySelector(
   "#demande_intervention_reparationRealise"
 );
@@ -500,7 +499,7 @@ atePolTanaInput.addEventListener("change", function () {
     <b>Cliquer sur oui pour confirmer et non pour abandonner.</b>`,
     icon: "warning",
     showCancelButton: true,
-    confirmButtonColor: "#3085d6",
+    confirmButtonColor: "#fbbb01",
     cancelButtonColor: "#d33",
     confirmButtonText: "OUI",
     cancelButtonText: "NON",
@@ -516,3 +515,23 @@ atePolTanaInput.addEventListener("change", function () {
     }
   });
 });
+
+//Blockage de la soumission si ATE POL TANA
+// mais type de document autre que maintenace curative
+// et catégorie autre que REPARATION
+reparationRealiseSelect.addEventListener("change", function () {
+  Swal.fire({
+    title: "Attention !",
+    html: `Le type de document doit être "<b>Maintenance curative</b>" et le catégorie de demande est "<b>REPARATION</b>"`,
+    icon: "warning",
+    showCancelButton: false,
+    confirmButtonColor: "#fbbb01",
+    confirmButtonText: "OUI",
+  });
+});
+
+const btnEnregistrer = document.querySelector("#bouton-cde-fnr");
+
+if (btnEnregistrer) {
+  btnEnregistrer.addEventListener("click", function () {});
+}

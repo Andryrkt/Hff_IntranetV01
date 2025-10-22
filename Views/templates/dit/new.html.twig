@@ -28,7 +28,12 @@
 						<a href="{{ path("profil_acceuil")}}" class="tablinks p-2 btn btn-outline-warning" style="text-decoration: none;color:black">Retour</a>
 					</div>
 				</div>
-				{{ form_start(form, { 'attr': { 'id': 'myForm' } }) }}
+				{{ form_start(form, { 
+					'attr': { 
+						'id': 'dit-form',
+						'data-form-type': 'formulaire-new-dit'
+					} 
+				}) }}
 				{{ form_errors(form)}}
 
 				<div class="row">
@@ -167,8 +172,8 @@
 							class="btn bouton mt-2"
 							id="bouton-cde-fnr" 
 							data-confirmation 
-							data-form="#myForm"
-							data-confirmation-text ="Vous êtes en train d'enregistrer une demande d'intervention">
+							data-form="#dit-form"
+							data-confirmation-message ="Vous êtes en train d'enregistrer une demande d'intervention">
 									<i class="fas fa-save"></i>
 									Enregistrer
 						</button>
