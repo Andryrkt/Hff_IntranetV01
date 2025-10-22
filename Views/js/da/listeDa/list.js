@@ -1,4 +1,4 @@
-import { displayOverlay } from "../../utils/spinnerUtils";
+import { displayOverlay } from "../../utils/ui/overlay";
 import { mergeCellsTable } from "./tableHandler";
 import { configAgenceService } from "../../dit/config/listDitConfig.js";
 import { handleAgenceChange } from "../../dit/fonctionUtils/fonctionListDit.js";

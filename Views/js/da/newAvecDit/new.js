@@ -1,5 +1,5 @@
 import { formatDatePartielDate } from "../../tik/calendarModule/formatDateModule";
-import { displayOverlay } from "../../utils/spinnerUtils";
+import { displayOverlay } from "../../utils/ui/overlay";
 import { ajouterUneLigne } from "./dal";
 
 document.addEventListener("DOMContentLoaded", function () {

@@ -1,4 +1,4 @@
-import { displayOverlay } from "../../utils/spinnerUtils";
+import { displayOverlay } from "../../utils/ui/overlay";
 import { mergeCellsRecursiveTable } from "./tableHandler";
 import { AutoComplete } from "../../utils/AutoComplete.js";
 import { FetchManager } from "../../api/FetchManager.js";
@@ -126,9 +126,9 @@ document.addEventListener("contextmenu", function (event) {
          BC envoyé au fournisseur
       </p> <hr/>`;
     // if (statutBc !== "Tous livrés") { // selon le demande de hoby rahalahy le 25/09/2025
-      //active le formulaire
-      Array.from(form.elements).forEach((el) => (el.disabled = false)); // active tous les champs du formulaire
-      form.querySelector("button[type='submit']").classList.remove("disabled"); //changer l'apparence du bouton
+    //active le formulaire
+    Array.from(form.elements).forEach((el) => (el.disabled = false)); // active tous les champs du formulaire
+    form.querySelector("button[type='submit']").classList.remove("disabled"); //changer l'apparence du bouton
     // } else {
     //   //desactive le formulaire
     //   Array.from(form.elements).forEach((el) => (el.disabled = true)); // Désactive tous les champs du formulaire

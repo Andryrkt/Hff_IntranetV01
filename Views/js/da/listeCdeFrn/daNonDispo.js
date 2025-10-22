@@ -1,6 +1,6 @@
 import { API_ENDPOINTS } from "../../api/apiEndpoints";
 import { FetchManager } from "../../api/FetchManager";
-import { displayOverlay } from "../../utils/spinnerUtils";
+import { displayOverlay } from "../../utils/ui/overlay";
 
 document.addEventListener("DOMContentLoaded", function () {
   let lastCheckedNumDa = "";
