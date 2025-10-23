@@ -53,7 +53,7 @@ class DaDetailDirectController extends Controller
 
 		$daObservation = new DaObservation;
 		$formObservation = $this->getFormFactory()->createBuilder(DaObservationType::class, $daObservation, [
-			'achatDirect' => $demandeAppro->getAchatDirect()
+			'daTypeId' => $demandeAppro->getDaTypeId()
 		])->getForm();
 
 		$this->traitementFormulaire($formObservation, $request, $demandeAppro);

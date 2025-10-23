@@ -165,7 +165,7 @@ trait DaListeTrait
                 $estAdmin,
                 $estAppro,
                 $estAtelier,
-                $daAfficher->getAchatDirect() && $daAfficher->getServiceEmetteur() == $this->userDataService->getServiceId($this->getUser())
+                $daAfficher->getDaTypeId() == DemandeAppro::TYPE_DA_DIRECT && $daAfficher->getServiceEmetteur() == $this->userDataService->getServiceId($this->getUser())
             );
             $daAfficher->setVerouille($verrouille);
         }
@@ -196,7 +196,8 @@ trait DaListeTrait
 
         foreach ($data as $item) {
             // Variables à employer
-            $achatDirect = $item->getAchatDirect();
+            $achatDirect = $item->getDaTypeId() == DemandeAppro::TYPE_DA_DIRECT;
+            $daViaOR = $item->getDaTypeId() == DemandeAppro::TYPE_DA_AVEC_DIT;
 
             // Pré-calculer les styles
             $styleStatutDA = $this->styleStatutDA[$item->getStatutDal()] ?? '';
@@ -204,7 +205,7 @@ trait DaListeTrait
             $styleStatutBC = $this->styleStatutBC[$item->getStatutCde()] ?? '';
 
             // Pré-calculer les booléens
-            $ajouterDA = !$achatDirect && ($estAtelier || $estAdmin); // pas achat direct && (atelier ou admin)  
+            $ajouterDA = $daViaOR && ($estAtelier || $estAdmin); // da via OR && (atelier ou admin)  
             $supprimable = ($estAppro || $estAtelier || $estAdmin) && in_array($item->getStatutDal(), $statutDASupprimable);
             $demandeDevis = ($estAppro || $estAdmin) && $item->getStatutDal() === DemandeAppro::STATUT_SOUMIS_APPRO;
             $statutOrValide = $item->getStatutOr() === DitOrsSoumisAValidation::STATUT_VALIDE;
@@ -212,13 +213,11 @@ trait DaListeTrait
             $telechargerOR = $statutOrValide && !empty($pathOrMax);
 
             // Construction d'urls
-            $urls = $this->buildItemUrls($item, $ajouterDA);
+            $urls = $this->buildItemUrls($item, $ajouterDA, $item->getDaTypeId());
 
             // Statut OR | Statut DocuWare
             $statutOR = $item->getStatutOr();
-            if (!$achatDirect && !empty($statutOR)) {
-                $statutOR = "OR - $statutOR";
-            }
+            if ($daViaOR && !empty($statutOR)) $statutOR = "OR - $statutOR";
 
             // Tout regrouper
             $datasPrepared[] = [
@@ -227,14 +226,14 @@ trait DaListeTrait
                 'demandeAppro'        => $item->getDemandeAppro(),
                 'achatDirect'         => $achatDirect ? $safeIconSuccess : '',
                 'numeroDemandeDit'    => $item->getNumeroDemandeDit() ?? $safeIconBan,
-                'numeroOr'            => $achatDirect ? $safeIconBan : $item->getNumeroOr(),
+                'numeroOr'            => $daViaOR ? $item->getNumeroOr() : $safeIconBan,
                 'niveauUrgence'       => $item->getNiveauUrgence(),
                 'demandeur'           => $item->getDemandeur(),
                 'dateDemande'         => $item->getDateDemande() ? $item->getDateDemande()->format('d/m/Y') : '',
                 'statutDal'           => $item->getStatutDal(),
                 'statutOr'            => $statutOR,
                 'statutCde'           => $item->getStatutCde(),
-                'datePlannigOr'       => $achatDirect ? $safeIconBan : ($item->getDatePlannigOr() ? $item->getDatePlannigOr()->format('d/m/Y') : ''),
+                'datePlannigOr'       => $daViaOR ? ($item->getDatePlannigOr() ? $item->getDatePlannigOr()->format('d/m/Y') : '') : $safeIconBan,
                 'nomFournisseur'      => $item->getNomFournisseur(),
                 'artRefp'             => $item->getArtRefp(),
                 'artDesi'             => $item->getArtDesi(),
@@ -274,22 +273,34 @@ trait DaListeTrait
      *
      * @param DaAfficher $item Objet métier utilisé pour déterminer les routes.
      * @param bool       $ajouterDA savoir si il faut ajouter le bouton de l'ajout de DA.
+     * @param int        $daTypeId Id du type de la DA.
      *
      * @return array{detail:string,designation:string,delete:string,demandeDevis:string,creation:string}
      */
-    private function buildItemUrls(DaAfficher $item, bool $ajouterDA): array
+    private function buildItemUrls(DaAfficher $item, bool $ajouterDA, int $daTypeId): array
     {
         $urls = [];
+        $routeNames = [
+            'detail' => [
+                0 => 'da_detail_avec_dit',
+                1 => 'da_detail_direct',
+            ],
+            'proposition' => [
+                0 => 'da_proposition_ref_avec_dit',
+                1 => 'da_proposition_direct',
+            ],
+            'delete' => [
+                0 => 'da_delete_line_avec_dit',
+                1 => 'da_delete_line_direct',
+            ],
+        ];
 
         // URL création de DA avec DIT
-        $urls['creation'] = $ajouterDA ? $this->getUrlGenerator()->generate('da_new_avec_dit', [
-            'daId'  => 0,
-            'ditId' => $item->getDit()->getId(),
-        ]) : '';
+        $urls['creation'] = $ajouterDA ? $this->getUrlGenerator()->generate('da_new_avec_dit', ['daId'  => 0, 'ditId' => $item->getDit()->getId(),]) : '';
 
         // URL détail
         $urls['detail'] = $this->getUrlGenerator()->generate(
-            $item->getAchatDirect() ? 'da_detail_direct' : 'da_detail_avec_dit',
+            $routeNames['detail'][$daTypeId],
             ['id' => $item->getDemandeAppro()->getId()]
         );
 
@@ -300,13 +311,13 @@ trait DaListeTrait
                 'ditId' => $item->getDit()->getId(),
             ])
             : $this->getUrlGenerator()->generate(
-                $item->getAchatDirect() ? 'da_proposition_direct' : 'da_proposition_ref_avec_dit',
+                $routeNames['proposition'][$daTypeId],
                 ['id' => $item->getDemandeAppro()->getId()]
             );
 
         // URL suppression de ligne
         $urls['delete'] = $this->getUrlGenerator()->generate(
-            $item->getAchatDirect() ? 'da_delete_line_direct' : 'da_delete_line_avec_dit',
+            $routeNames['delete'][$daTypeId],
             ['numDa' => $item->getNumeroDemandeAppro(), 'ligne' => $item->getNumeroLigne()]
         );
 

@@ -60,7 +60,7 @@ class DaPropositionArticleDirectController extends Controller
         $DapLRCollection = new DemandeApproLRCollection();
         $form = $this->getFormFactory()->createBuilder(DemandeApproLRCollectionType::class, $DapLRCollection)->getForm();
         $formObservation = $this->getFormFactory()->createBuilder(DaObservationType::class, $daObservation, [
-            'achatDirect' => $da->getAchatDirect()
+            'daTypeId' => $da->getDaTypeId()
         ])->getForm();
         $formValidation = $this->getFormFactory()->createBuilder(
             DaPropositionValidationType::class,
