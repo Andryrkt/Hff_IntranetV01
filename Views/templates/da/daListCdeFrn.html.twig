@@ -106,9 +106,13 @@
 						<td class="text-center">{{ item.qteDispo == 0 ? '-': item.qteDispo }}</td>
 						<td class="text-center">{{ item.qteLivrer == 0 ? '-': item.qteLivrer }}</td>
 						<td class="text-center">
-							<a href="#" data-bs-toggle="modal" data-bs-target="#dateLivraison" data-numero-cde="{{ item.numeroCde }}" data-date-actuelle="{{ item.dateLivraisonPrevue ? item.dateLivraisonPrevue|date('Y-m-d')}}">
+							{% if item.statutCde == constant('App\\Entity\\da\\DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR') %}
+								<a href="#" data-bs-toggle="modal" data-bs-target="#dateLivraison" data-numero-cde="{{ item.numeroCde }}" data-date-actuelle="{{ item.dateLivraisonPrevue ? item.dateLivraisonPrevue|date('Y-m-d')}}">
+									{{ item.dateLivraisonPrevue == null ? '' : item.dateLivraisonPrevue|date('d/m/Y')}}
+								</a>
+							{% else %}
 								{{ item.dateLivraisonPrevue == null ? '' : item.dateLivraisonPrevue|date('d/m/Y')}}
-							</a>
+							{% endif %}
 						</td>
 						<td class="text-center {{ item.joursDispo < 0 ? 'text-danger' : '' }}">{{ item.joursDispo}}</td>
 						<td class="text-center">{{ item.demandeur}}</td>
