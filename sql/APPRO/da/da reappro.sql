@@ -14,7 +14,9 @@ CREATE TABLE da_article_reappro
 );
 
 ALTER TABLE Demande_Appro ADD da_type_id INT;
+ALTER TABLE da_afficher ADD da_type_id INT;
 
 update Demande_Appro set da_type_id = achat_direct;
+update da_afficher set da_type_id = achat_direct;
 
 alter table Demande_Appro DROP COLUMN achat_direct;

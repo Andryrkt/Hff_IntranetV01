@@ -28,6 +28,11 @@ class DaAfficher
     private string $numeroDemandeAppro;
 
     /**
+     * @ORM\Column(type="integer", name="da_type_id")
+     */
+    private ?int $daTypeId = 0;
+
+    /**
      * @ORM\Column(type="string", length=11, name="numero_demande_dit")
      */
     private string $numeroDemandeDit;
@@ -1687,6 +1692,26 @@ class DaAfficher
     }
 
     /**
+     * Get the value of daTypeId
+     */
+    public function getDaTypeId()
+    {
+        return $this->daTypeId;
+    }
+
+    /**
+     * Set the value of daTypeId
+     *
+     * @return  self
+     */
+    public function setDaTypeId($daTypeId)
+    {
+        $this->daTypeId = $daTypeId;
+
+        return $this;
+    }
+
+    /**
      * Copie les propriétés pertinentes d'un ancien DaAfficher vers l'objet courant.
      *
      * Cela permet de "mettre à jour" l'objet courant avec les valeurs de référence
@@ -1720,6 +1745,7 @@ class DaAfficher
             ->setDetailDal($da->getDetailDal())
             ->setDemandeur($da->getDemandeur())
             ->setAchatDirect($da->getAchatDirect())
+            ->setDaTypeId($da->getDaTypeId())
             ->setDateDemande($da->getDateCreation())
             ->setNiveauUrgence($da->getNiveauUrgence())
             ->setAgenceEmetteur($da->getAgenceEmetteur()->getId())
