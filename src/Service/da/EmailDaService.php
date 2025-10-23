@@ -78,8 +78,7 @@ class EmailDaService
     {
         $fournisseurs = $this->gererPrixFournisseurs($demandeAppro->getDAL());
         $this->envoyerEmail([
-            // 'to'        => $demandeAppro->getUser()->getMail(),
-            'to'        => 'nomenjanahary.randrianantenaina@hff.mg',
+            'to'        => $demandeAppro->getUser()->getMail(),
             'variables' => [
                 'tab'               => $tab,
                 'statut'            => "propositionDa",
@@ -316,7 +315,7 @@ class EmailDaService
         $emailService->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.da');
 
         $content['cc'] = $content['cc'] ?? [];
-        // $content['cc'][] = 'hoby.ralahy@hff.mg';
+        $content['cc'][] = 'hoby.ralahy@hff.mg';
 
         $emailService->sendEmail($content['to'], $content['cc'] ?? [], $this->emailTemplate, $content['variables'] ?? [], $content['attachments'] ?? []);
     }
