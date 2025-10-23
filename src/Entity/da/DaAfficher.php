@@ -35,7 +35,7 @@ class DaAfficher
     /**
      * @ORM\Column(type="string", length=11, name="numero_or")
      */
-    private ?string $numeroOr;
+    private ?string $numeroOr = null;
 
     /**
      * @ORM\Column(type="string", length=11, name="numero_cde")
@@ -55,7 +55,7 @@ class DaAfficher
     /**
      * @ORM\Column(type="string", length=50, name="statut_cde")
      */
-    private ?string $statutCde;
+    private ?string $statutCde = null;
 
     /**
      * @ORM\Column(type="string", length=100, name="objet_dal")
@@ -251,7 +251,7 @@ class DaAfficher
     /**
      * @ORM\Column(type="string", length=100, name="position_bc")
      */
-    private ?string $positionBc;
+    private ?string $positionBc = null;
 
     /**
      * @ORM\Column(type="datetime", name="date_planning_or", nullable=true)
@@ -261,7 +261,7 @@ class DaAfficher
     /**
      * @ORM\Column(type="integer", name="numero_ligne_ips")
      */
-    private ?int $numeroLigneIps;
+    private ?int $numeroLigneIps = null;
 
     /**
      * @ORM\Column(type="datetime", name="date_demande", nullable=true)
