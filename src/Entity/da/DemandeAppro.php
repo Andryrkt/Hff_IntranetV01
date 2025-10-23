@@ -23,6 +23,10 @@ class DemandeAppro
     use DateTrait;
     use DaTrait;
 
+    public const TYPE_DA_AVEC_DIT            = 0; // id du type de DA avec DIT 
+    public const TYPE_DA_DIRECT              = 1; // id du type de DA direct
+    public const TYPE_DA_REAPPRO             = 2; // id du type de DA réappro
+
     public const ID_APPRO                    = 16;
     public const ID_ATELIER                  = 3;
     private const MAIL_APPRO_PROD            = 'appro@hff.mg';
@@ -54,6 +58,11 @@ class DemandeAppro
      * @ORM\Column(type="string", length=11, name="numero_demande_appro")
      */
     private string $numeroDemandeAppro;
+
+    /**
+     * @ORM\Column(type="integer", name="da_type_id")
+     */
+    private ?int $daTypeId = 0;
 
     private string $numeroOr;
     private string $statutOr;
@@ -922,6 +931,26 @@ class DemandeAppro
     public function setDevisDemandePar($devisDemandePar)
     {
         $this->devisDemandePar = $devisDemandePar;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of daTypeId
+     */
+    public function getDaTypeId()
+    {
+        return $this->daTypeId;
+    }
+
+    /**
+     * Set the value of daTypeId
+     *
+     * @return  self
+     */
+    public function setDaTypeId($daTypeId)
+    {
+        $this->daTypeId = $daTypeId;
 
         return $this;
     }

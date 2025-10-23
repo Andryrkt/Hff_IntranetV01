@@ -12,3 +12,9 @@ CREATE TABLE da_article_reappro
     date_modification DATETIME2(0) NULL,
     CONSTRAINT PK_da_article_reappro PRIMARY KEY (id)
 );
+
+ALTER TABLE Demande_Appro ADD da_type_id INT;
+
+update Demande_Appro set da_type_id = achat_direct;
+
+alter table Demande_Appro DROP COLUMN achat_direct;
