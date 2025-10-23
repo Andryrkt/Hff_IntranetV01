@@ -114,19 +114,7 @@
 		</table>
 	</div>
 
-	<div class="pagination justify-content-center mt-3">
-		{% if currentPage > 1 %}
-			<a href="?page={{ currentPage - 1 }}" class="page-link">Précédent</a>
-		{% endif %}
-
-		{% for i in 1..totalPages %}
-			<a href="?page={{ i }}" class="page-link {% if i == currentPage %}active{% endif %}">{{ i }}</a>
-		{% endfor %}
-
-		{% if currentPage < totalPages %}
-			<a href="?page={{ currentPage + 1 }}" class="page-link">Suivant</a>
-		{% endif %}
-	</div>
+	{% include "/partials/_pagination.html.twig" %}
 
 	<!-- FIN tableau -->
 	{% include "/da/shared/cdeFrn/_menuContextuel.html.twig" %}
