@@ -213,6 +213,7 @@ class ActionSurNonDispoController extends Controller
             ->setDetailDal($daAfficher->getDetailDal())
             ->setNumeroLigne($daAfficher->getNumeroLigne())
             ->setQteDem($daAfficher->getQteDem())
+            ->setArtRefp($daAfficher->getArtRefp())
             ->setArtConstp($daAfficher->getArtConstp())
             ->setArtDesi($daAfficher->getArtDesi())
             ->setArtFams1($daAfficher->getArtFams1())

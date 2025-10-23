@@ -36,16 +36,14 @@ document.addEventListener("DOMContentLoaded", () => {
       // 👇 "..." (spread operator) : déplie les propriétés d'un objet dans un autre objet.
       // 👇 "&&" (ET logique) : retourne le 2e élément seulement si le 1er est vrai, sinon false.
       ...(actionType === "delete" && {
-        // 👉 Si actionType vaut "delete", l'expression renvoie cet objet :
-        // { ids: selectedIds, lines: selectedLignes, numDa: numeroDemandeAppro }
+        // 👉 Si actionType vaut "delete", l'expression renvoie cet objet : { ids: selectedIds, lines: selectedLignes, numDa: numeroDemandeAppro }
         // 👉 Sinon, elle renvoie false (et "..." n'ajoute rien).
         ids: selectedIds,
         lines: selectedLignes,
         numDa: numeroDemandeAppro,
       }),
       ...(actionType === "create" && {
-        // 👉 Si actionType vaut "create", alors cet objet est injecté :
-        // { ids: selectedIds }
+        // 👉 Si actionType vaut "create", alors cet objet est injecté : { ids: selectedIds }
         // 👉 Sinon, false est ignoré.
         ids: selectedIds,
       }),
@@ -70,7 +68,7 @@ document.addEventListener("DOMContentLoaded", () => {
         lastCheckedNumDa = ""; // réinitialiser le dernier DA sélectionné
         resetAllChecks(checkedBoxes); // réinitialiser tous les checkbox cochés
 
-        if (actionType === "delete" && result.status === "success") {
+        if (result.status === "success") {
           const scrollPosition = window.scrollY;
           displayOverlay(true);
           window.location.reload();
