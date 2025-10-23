@@ -43,6 +43,7 @@ class demandeInterventionType extends AbstractType
 
     const REPARATION_REALISE = [
         'ATE TANA' => 'ATE TANA',
+        'ATE POL TANA' => 'ATE POL TANA',
         'ATE STAR' => 'ATE STAR',
         'ATE MAS' => 'ATE MAS',
         'ATE TMV' => 'ATE TMV',
@@ -71,6 +72,10 @@ class demandeInterventionType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
+            ->add('estAtePolTana', CheckboxType::class, [
+                'required' => false, // obligatoire false
+                'label'    => "Intervention pneumatique",
+            ])
             ->add('estDitAvoir', CheckboxType::class, [
                 'required' => false, // obligatoire false
                 'label'    => "Cette demande est un avoir (annulation de la" . $options['data']->getNumeroDemandeIntervention() . ")",

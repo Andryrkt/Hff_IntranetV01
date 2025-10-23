@@ -2,21 +2,30 @@
 
 namespace App\Controller\dit;
 
+use App\Service\FusionPdf;
 use App\Model\dit\DitModel;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Controller\Controller;
 use App\Entity\admin\Application;
 use App\Controller\Traits\DitTrait;
-use App\Entity\admin\utilisateur\User;
+use App\Dto\Dit\DemandeInterventionDto;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\FormatageTrait;
 use App\Form\dit\demandeInterventionType;
-use App\Service\genererPdf\GenererPdfDit;
+use App\Service\genererPdf\dit\GenererPdfDit;
+use Symfony\Component\Form\FormInterface;
+use App\Service\fichier\UploderFileService;
+use App\Controller\Traits\AutorisationTrait;
+use App\Service\fichier\TraitementDeFichier;
+use App\Controller\Traits\PdfConversionTrait;
 use Symfony\Component\HttpFoundation\Request;
+use App\Factory\Dit\DemandeInterventionFactory;
+use App\Service\application\ApplicationService;
+use App\Service\dit\fichier\DitNameFileService;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Service\historiqueOperation\HistoriqueOperationDITService;
-use App\Service\FusionPdf;
 
 /**
  * @Route("/atelier/demande-intervention")
@@ -25,49 +34,71 @@ class DitDuplicationController extends Controller
 {
     use DitTrait;
     use FormatageTrait;
+    use AutorisationTrait;
+    use PdfConversionTrait;
 
     private $historiqueOperation;
-    private $fusionPdf;
+    private $demandeInterventionFactory;
 
     public function __construct()
     {
         parent::__construct();
         $this->historiqueOperation = new HistoriqueOperationDITService($this->getEntityManager());
-        $this->fusionPdf = new FusionPdf();
+        $this->demandeInterventionFactory = new DemandeInterventionFactory($this->getEntityManager(), $this->getDitModel(), $this->historiqueOperation);
     }
 
     /**
      * @Route("/dit-duplication/{id<\d+>}/{numDit<\w+>}", name="dit_duplication")
-     *
-     * @return void
      */
     public function Duplication($numDit, $id, Request $request)
     {
-        //verification si user connecter
         $this->verifierSessionUtilisateur();
+        $this->autorisationAcces($this->getUser(), Application::ID_DIT);
 
-        //recuperation de l'utilisateur connecter
         $user = $this->getUser();
-
-        //INITIALISATION DU FORMULAIRE
         $dit = $this->getEntityManager()->getRepository(DemandeIntervention::class)->find($id);
-        $demandeInterventions = $this->initialisationForm($dit);
 
-        //AFFICHE LE FORMULAIRE
+        // Simplification de la logique de duplication
+        $demandeInterventions = new DemandeIntervention();
+        $demandeInterventions
+            ->setAgence($dit->getAgence())
+            ->setService($dit->getService())
+            ->setTypeDocument($dit->getTypeDocument())
+            ->setTypeReparation($dit->getTypeReparation())
+            ->setReparationRealise($dit->getReparationRealise())
+            ->setCategorieDemande($dit->getCategorieDemande())
+            ->setInternetExterne($dit->getInternetExterne())
+            ->setNomClient($dit->getNomClient())
+            ->setNumeroTel($dit->getNumeroTel())
+            ->setDatePrevueTravaux($dit->getDatePrevueTravaux())
+            ->setDemandeDevis($dit->getDemandeDevis())
+            ->setIdNiveauUrgence($dit->getIdNiveauUrgence())
+            ->setAvisRecouvrement($dit->getAvisRecouvrement())
+            ->setClientSousContrat($dit->getClientSousContrat())
+            ->setObjetDemande($dit->getObjetDemande())
+            ->setDetailDemande($dit->getDetailDemande())
+            ->setLivraisonPartiel($dit->getLivraisonPartiel())
+            ->setNumParc($dit->getNumParc())
+            ->setNumSerie($dit->getNumSerie())
+            ->setIdMateriel($dit->getIdMateriel())
+            ->setConstructeur($dit->getConstructeur())
+            ->setModele($dit->getModele())
+            ->setDesignation($dit->getDesignation())
+            ->setCasier($dit->getCasier())
+            ->setKm($dit->getKm())
+            ->setHeure($dit->getHeure())
+        ;
+
         $form = $this->getFormFactory()->createBuilder(demandeInterventionType::class, $demandeInterventions)->getForm();
-        $this->traitementFormulaire($form, $request, $demandeInterventions, $user);
+        $this->traitementFormulaire($form, $request, $user);
 
-        $this->logUserVisit('dit_duplication', [
-            'id'     => $id,
-            'numDit' => $numDit,
-        ]); // historisation du page visité par l'utilisateur
-        $estAvoir = $this->estAvoir($dit);
-        $estRefactorisation = $this->estRefacturation($dit);
+        $this->logUserVisit('dit_duplication', ['id' => $id, 'numDit' => $numDit]);
+
         return $this->render('dit/duplication.html.twig', [
             'form' => $form->createView(),
             'dit' => $dit,
-            'estAvoir' => $estAvoir,
-            'estRefactorisation' => $estRefactorisation
+            'estAvoir' => $this->estAvoir($dit),
+            'estRefactorisation' => $this->estRefacturation($dit)
         ]);
     }
 
@@ -97,128 +128,112 @@ class DitDuplicationController extends Controller
         return false;
     }
 
-    private function traitementFormulaire($form, Request $request, $demandeIntervention, $user)
+    private function traitementFormulaire($form, Request $request, $user)
     {
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $dit = $form->getData();
-            // dd($dit);
-            if (empty($dit->getIdMateriel())) {
+            /** @var DemandeIntervention $ditFromForm */
+            $ditFromForm = $form->getData();
+
+            if (empty($ditFromForm->getIdMateriel())) {
                 $message = 'Échec lors de la création de la DIT... Impossible de récupérer les informations du matériel.';
                 $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_index');
+                return;
             }
 
-            if ($dit->getInternetExterne() === "EXTERNE" && empty($dit->getNomClient()) && empty($dit->getNumeroClient())) {
+            if ($ditFromForm->getInternetExterne() === "EXTERNE" && empty($ditFromForm->getNomClient()) && empty($ditFromForm->getNumeroClient())) {
                 $message = 'Échec lors de la création de la DIT... Impossible de récupérer les informations du client.';
                 $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_index');
+                return;
             }
 
-            if ($dit->getInternetExterne() === "EXTERNE" && empty($dit->getNomClient()) && empty($dit->getNumeroClient())) {
-                $message = 'Échec lors de la création de la DIT... Impossible de récupérer les informations du client.';
-                $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_index');
-            }
+            // 1. Créer le DTO
+            $dto = DemandeInterventionDto::createFromEntity($ditFromForm);
 
-            $dits = $this->infoEntrerManuel($dit, $this->getEntityManager(), $user);
+            // 2. Enrichir le DTO (logique de infoEntrerManuel)
+            $em = $this->getEntityManager();
+            $dto->utilisateurDemandeur = $user->getNomUtilisateur();
+            $dto->heureDemande = $this->getTime();
+            $dto->dateDemande = new \DateTime($this->getDatesystem());
+            $dto->idStatutDemande = $em->getRepository(\App\Entity\admin\StatutDemande::class)->find(50);
+            $dto->numeroDemandeIntervention = $this->autoDecrementDIT('DIT');
+            $dto->mailDemandeur = $user->getMail();
 
-            //RECUPERATION de la dernière NumeroDemandeIntervention 
-            $this->modificationDernierIdApp($dits);
+            // 3. Créer l'entité via la factory
+            $demandeIntervention = $this->createDemandeInterventionFromDto($dto);
 
-            /**CREATION DU PDF*/
-            //recupération des donners dans le formulaire
-            $pdfDemandeInterventions = $this->pdfDemandeIntervention($dits, $demandeIntervention);
+            /** 4. Modifie la colonne dernière_id dans la table applications */
+            $applicationService = new ApplicationService($this->getEntityManager());
+            $applicationService->mettreAJourDerniereIdApplication('DIT', $demandeIntervention->getNumeroDemandeIntervention());
 
-            if (!in_array((int)$pdfDemandeInterventions->getIdMateriel(), [14571, 7669, 7670, 7671, 7672, 7673, 7674, 7675, 7677, 9863])) {
-                //récupération des historique de materiel (informix)
-                $historiqueMateriel = $this->historiqueInterventionMateriel($dits);
-            } else {
-                $historiqueMateriel = [];
-            }
-
-            //genere le PDF
-            $genererPdfDit = new GenererPdfDit();
-            $genererPdfDit->genererPdfDit($pdfDemandeInterventions, $historiqueMateriel);
-
-            //envoie des pièce jointe dans une dossier et la fusionner
-            $this->envoiePieceJoint($form, $dits, $this->fusionPdf);
-
-            //ENVOIE DES DONNEES DE FORMULAIRE DANS LA BASE DE DONNEE
-            $insertDemandeInterventions = $this->insertDemandeIntervention($dits, $demandeIntervention, $this->getEntityManager());
-            $this->getEntityManager()->persist($insertDemandeInterventions);
+            // 5. Enregistrement dans la base de données
+            $this->getEntityManager()->persist($demandeIntervention);
             $this->getEntityManager()->flush();
 
-            //ENVOYER le PDF DANS DOXCUWARE
-            $genererPdfDit->copyInterneToDOCUWARE($pdfDemandeInterventions->getNumeroDemandeIntervention(), str_replace("-", "", $pdfDemandeInterventions->getAgenceServiceEmetteur()));
+            // 6. Traitement des fichiers (PDF, pièces jointes)
+            $this->traitementDeFichier($form, $demandeIntervention);
 
-            $this->historiqueOperation->sendNotificationCreation('Votre demande a été enregistrée', $pdfDemandeInterventions->getNumeroDemandeIntervention(), 'dit_index', true);
+            $this->historiqueOperation->sendNotificationCreation('Votre demande a été enregistrée', $demandeIntervention->getNumeroDemandeIntervention(), 'dit_index', true);
         }
     }
 
-    public function  initialisationForm(DemandeIntervention $dit): DemandeIntervention
+    private function traitementDeFichier(FormInterface $form, DemandeIntervention $demandeIntervention)
     {
-        $codeEmetteur = explode('-', $dit->getAgenceServiceEmetteur());
-        $agenceEmetteur = $this->getEntityManager()->getRepository(Agence::class)->findOneBy(['codeAgence' => $codeEmetteur[0]]);
-        $serviceEmetteur = $this->getEntityManager()->getRepository(Service::class)->findOneBy(['codeService' => $codeEmetteur[1]]);
-        $codeDebiteur = explode('-', $dit->getAgenceServiceDebiteur());
-        $ditModel = new DitModel();
-        $data = $ditModel->findAll($dit->getIdMateriel(), $dit->getNumParc(), $dit->getNumSerie());
-        $dit
-            ->setNumParc($data[0]['num_parc'])
-            ->setNumSerie($data[0]['num_serie'])
-            ->setIdMateriel($data[0]['num_matricule'])
-            ->setConstructeur($data[0]['constructeur'])
-            ->setModele($data[0]['modele'])
-            ->setDesignation($data[0]['designation'])
-            ->setCasier($data[0]['casier_emetteur'])
-            ->setKm($data[0]['km'])
-            ->setHeure($data[0]['heure'])
-        ;
+        /** 
+         * gestion des pieces jointes et generer le nom du fichier PDF
+         * Enregistrement de fichier uploder
+         * @var array $nomEtCheminFichiersEnregistrer 
+         * @var string $nomAvecCheminFichier
+         * @var string $nomFichier
+         */
+        [$nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, $nomFichier] = $this->enregistrementFichier($form, $demandeIntervention->getNumeroDemandeIntervention(), str_replace("-", "", $demandeIntervention->getAgenceServiceEmetteur()));
 
-        $demandeInterventions = new DemandeIntervention();
-        $demandeInterventions
-            ->setNumeroDemandeIntervention($dit->getNumeroDemandeIntervention())
-            ->setAgenceServiceEmetteur($dit->getAgenceServiceEmetteur())
-            ->setAgenceEmetteur($agenceEmetteur->getCodeAgence() . ' ' . $agenceEmetteur->getLibelleAgence())
-            ->setServiceEmetteur($serviceEmetteur->getCodeService() . ' ' . $serviceEmetteur->getLibelleService())
-            ->setAgence($this->getEntityManager()->getRepository(Agence::class)->findOneBy(['codeAgence' => $codeDebiteur[0]]))
-            ->setService($this->getEntityManager()->getRepository(Service::class)->findOneBy(['codeService' => $codeDebiteur[1]]))
-            ->setTypeDocument($dit->getTypeDocument())
-            ->setCodeSociete($dit->getCodeSociete())
-            ->setTypeReparation($dit->getTypeReparation())
-            ->setReparationRealise($dit->getReparationRealise())
-            ->setCategorieDemande($dit->getCategorieDemande())
-            ->setInternetExterne($dit->getInternetExterne())
-            ->setNomClient($dit->getNomClient())
-            ->setNumeroTel($dit->getNumeroTel())
-            ->setDatePrevueTravaux($dit->getDatePrevueTravaux())
-            ->setDemandeDevis($dit->getDemandeDevis())
-            ->setIdNiveauUrgence($dit->getIdNiveauUrgence())
-            ->setAvisRecouvrement($dit->getAvisRecouvrement())
-            ->setClientSousContrat($dit->getClientSousContrat())
-            ->setObjetDemande($dit->getObjetDemande())
-            ->setDetailDemande($dit->getDetailDemande())
-            ->setLivraisonPartiel($dit->getLivraisonPartiel())
-            ->setNumParc($dit->getNumParc())
-            ->setNumSerie($dit->getNumSerie())
-            ->setIdMateriel($dit->getIdMateriel())
-            ->setConstructeur($dit->getConstructeur())
-            ->setModele($dit->getModele())
-            ->setDesignation($dit->getDesignation())
-            ->setCasier($dit->getCasier())
-            ->setKm($dit->getKm())
-            ->setHeure($dit->getHeure())
-        ;
+        /**CREATION DE LA PAGE DE GARDE*/
+        $genererPdfDit = new GenererPdfDit();
+        if (!in_array((int)$demandeIntervention->getIdMateriel(), [14571, 7669, 7670, 7671, 7672, 7673, 7674, 7675, 7677, 9863])) {
+            //récupération des historique de materiel (informix)
+            $historiqueMateriel = $this->historiqueInterventionMateriel($demandeIntervention);
+        } else {
+            $historiqueMateriel = [];
+        }
+        $genererPdfDit->genererPdfDit($demandeIntervention, $historiqueMateriel, $nomAvecCheminFichier);
 
-        return $demandeInterventions;
+        // ajout du page de garde à la premier position
+        $traitementDeFichier = new TraitementDeFichier();
+        $nomEtCheminFichiersEnregistrer = $traitementDeFichier->insertFileAtPosition($nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, 0);
+        // fusion du page de garde et des pieces jointes (conversion avant la fusion)
+        $nomEtCheminFichierConvertie = $this->ConvertirLesPdf($nomEtCheminFichiersEnregistrer);
+        $traitementDeFichier->fusionFichers($nomEtCheminFichierConvertie, $nomAvecCheminFichier);
+
+
+        //Copier le PDF DANS DOXCUWARE
+        $genererPdfDit->copyToDOCUWARE($nomFichier, $demandeIntervention->getNumeroDemandeIntervention());
     }
 
-
-    private function modificationDernierIdApp($dits)
+    private function enregistrementFichier(FormInterface $form, string $numDit, string $agServEmetteur): array
     {
-        $application = $this->getEntityManager()->getRepository(Application::class)->findOneBy(['codeApp' => 'DIT']);
-        $application->setDerniereId($dits->getNumeroDemandeIntervention());
-        // Persister l'entité Application (modifie la colonne derniere_id dans le table applications)
-        $this->getEntityManager()->persist($application);
-        $this->getEntityManager()->flush();
+        $nameGenerator = new DitNameFileService();
+        $cheminBaseUpload = $_ENV['BASE_PATH_FICHIER'] . 'dit/';
+        $uploader = new UploderFileService($cheminBaseUpload, $nameGenerator);
+        $devisPath = $cheminBaseUpload . $numDit . '/';
+        if (!is_dir($devisPath)) {
+            mkdir($devisPath, 0777, true);
+        }
+
+        $nomEtCheminFichiersEnregistrer = $uploader->getNomsEtCheminFichiers($form, [
+            'repertoire' => $devisPath,
+            'generer_nom_callback' => function (
+                UploadedFile $file,
+                int $index
+            ) use ($numDit, $nameGenerator, $agServEmetteur) {
+                return $nameGenerator->generateDitNameFile($file, $numDit, $agServEmetteur, $index);
+            }
+        ]);
+
+        $nomAvecCheminFichier = $nameGenerator->getCheminEtNomDeFichierSansIndex($nomEtCheminFichiersEnregistrer[0]);
+        $nomFichier = $nameGenerator->getNomFichier($nomAvecCheminFichier);
+
+        return [$nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, $nomFichier];
     }
 }

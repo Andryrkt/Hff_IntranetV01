@@ -19,6 +19,8 @@ class WorTypeDocument
 {
     use DateTrait;
 
+    public const MAINTENANCE_CURATIVE = 6;
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
