@@ -90,6 +90,7 @@ trait DaListeTrait
             DaSoumissionBc::STATUT_A_ENVOYER_AU_FOURNISSEUR => 'bg-bc-a-envoyer-au-fournisseur',
             DaSoumissionBc::STATUT_SOUMISSION               => 'bg-bc-soumission',
             DaSoumissionBc::STATUT_A_VALIDER_DA             => 'bg-bc-a-valider-da',
+            DaSoumissionBc::STATUT_NON_DISPO                => 'bg-bc-non-dispo',
             DaSoumissionBc::STATUT_VALIDE                   => 'bg-bc-valide',
             DaSoumissionBc::STATUT_CLOTURE                  => 'bg-bc-cloture',
             DaSoumissionBc::STATUT_REFUSE                   => 'bg-bc-refuse',

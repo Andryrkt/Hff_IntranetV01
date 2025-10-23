@@ -42,6 +42,7 @@ class DaSearchType extends  AbstractType
         DaSoumissionBc::STATUT_A_VALIDER_DA             => DaSoumissionBc::STATUT_A_VALIDER_DA,
         DaSoumissionBc::STATUT_A_ENVOYER_AU_FOURNISSEUR => DaSoumissionBc::STATUT_A_ENVOYER_AU_FOURNISSEUR,
         DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR => DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR,
+        DaSoumissionBc::STATUT_NON_DISPO                => DaSoumissionBc::STATUT_NON_DISPO,
         DaSoumissionBc::STATUT_SOUMISSION               => DaSoumissionBc::STATUT_SOUMISSION,
         DaSoumissionBc::STATUT_VALIDE                   => DaSoumissionBc::STATUT_VALIDE,
         DaSoumissionBc::STATUT_CLOTURE                  => DaSoumissionBc::STATUT_CLOTURE,

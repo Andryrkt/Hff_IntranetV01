@@ -483,6 +483,7 @@ a.choix:hover {
   color: #003d00 !important;
 }
 .bg-bc-refuse,
+.bg-bc-non-dispo,
 .bg-bc-pas-dans-or {
   background-color: #c00000 !important;
   color: #fff !important;
