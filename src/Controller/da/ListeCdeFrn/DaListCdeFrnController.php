@@ -120,8 +120,11 @@ class DaListCdeFrnController extends Controller
 
     private function quelqueMiseAjourDaAfficher(array $daAfficherValides)
     {
+
         foreach ($daAfficherValides as $davalide) {
-            $this->modificationStatutBC($davalide);
+            if ($davalide->getArtDesi() !== 'ECROU HEX. AC.GALVA A CHAUD CL.8 DI') {
+                $this->modificationStatutBC($davalide);
+            }
         }
         $this->getEntityManager()->flush();
     }

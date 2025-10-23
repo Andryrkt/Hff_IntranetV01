@@ -126,7 +126,9 @@ trait DaListeTrait
     {
         $em = $this->getEntityManager();
         foreach ($datas as $data) {
-            $this->modificationStatutBC($data, $em);
+            if ($data->getArtDesi() !== 'ECROU HEX. AC.GALVA A CHAUD CL.8 DI') {
+                $this->modificationStatutBC($data, $em);
+            }
         }
         $em->flush();
     }
