@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 /**
  * @Route("/demande-appro")
  */
-class DaNewDirectController extends Controller
+class DaNewReApproController extends Controller
 {
     use DaNewDirectTrait;
     use AutorisationTrait;
@@ -28,9 +28,9 @@ class DaNewDirectController extends Controller
     }
 
     /**
-     * @Route("/new-da-direct", name="da_new_direct")
+     * @Route("/new-da-reappro", name="da_new_reappro")
      */
-    public function newDADirect(Request $request)
+    public function newDAReappro(Request $request)
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();

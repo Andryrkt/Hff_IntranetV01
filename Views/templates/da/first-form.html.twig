@@ -28,6 +28,11 @@
 								Demande d’achat direct
 							</a>
 						{% endif %}
+						{% if estAdmin %}
+							<a class="choix" href="{{ path('da_new_reappro') }}">
+								Demande de réappro mensuel
+							</a>
+						{% endif %}
 					</div>
 				</div>
 			</div>
