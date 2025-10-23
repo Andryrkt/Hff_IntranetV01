@@ -44,24 +44,26 @@ function validationDitForm(form) {
   const reparationRealiseSelect = form.querySelector(
     '[name="demande_intervention[reparationRealise]"]'
   );
-  reparationRealiseSelect.addEventListener("change", function () {
-    const typeDocumentSelect = form.querySelector(
-      '[name="demande_intervention[typeDocument]"]'
+  const typeDocumentSelect = form.querySelector(
+    '[name="demande_intervention[typeDocument]"]'
+  );
+  const categorieSelect = form.querySelector(
+    '[name="demande_intervention[categorieDemande]"]'
+  );
+  const MAINTENANCE_CURATIVE = 6;
+  const REPARATION = 7;
+  if (
+    reparationRealiseSelect &&
+    reparationRealiseSelect.value === "ATE POL TANA" &&
+    typeDocumentSelect &&
+    parseInt(typeDocumentSelect.value, 10) !== MAINTENANCE_CURATIVE &&
+    categorieSelect &&
+    parseInt(categorieSelect.value, 10) !== REPARATION
+  ) {
+    errors.push(
+      "Rectifiez le type de document en Maintenance curative et le catégorie de demande en REPARATION"
     );
-    const categorieSelect = form.querySelector(
-      '[name="demande_intervention[categorieDemande]"]'
-    );
-
-    if (
-      reparationRealiseSelect.value === "ATE POL TANA" &&
-      typeDocumentSelect.value != "Maintenance curative" &&
-      categorieSelect.value != "REPARATION"
-    ) {
-      errors.push(
-        "Rectifiez le type de document en Maintenance curative et le catégorie de demande en REPARATION"
-      );
-    }
-  });
+  }
 
   return {
     isValid: errors.length === 0,
