@@ -334,6 +334,11 @@ class DaAfficher
     private $estFactureBlSoumis = false;
 
     /**
+     * @ORM\Column(type="boolean", name="non_dispo")
+     */
+    private $nonDispo = false;
+
+    /**
      * @ORM\Column(type="integer", name="qte_dem_ips")
      */
     private int $qteDemIps = 0;
@@ -1657,6 +1662,26 @@ class DaAfficher
     public function setNumeroInterventionIps($numeroInterventionIps)
     {
         $this->numeroInterventionIps = $numeroInterventionIps;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of nonDispo
+     */
+    public function getNonDispo()
+    {
+        return $this->nonDispo;
+    }
+
+    /**
+     * Set the value of nonDispo
+     *
+     * @return  self
+     */
+    public function setNonDispo($nonDispo)
+    {
+        $this->nonDispo = $nonDispo;
 
         return $this;
     }
