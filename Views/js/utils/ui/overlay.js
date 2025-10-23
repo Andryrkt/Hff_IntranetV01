@@ -1,8 +1,6 @@
-export function displayOverlay(afficher) {
+export function displayOverlay(afficher, message = "") {
   const overlay = document.getElementById("loading-overlay");
-  if (afficher) {
-    overlay.style.display = "flex";
-  } else {
-    overlay.style.display = "none";
-  }
+  const textOverlay = overlay.querySelector(".text-overlay");
+  overlay.style.display = afficher ? "flex" : "none";
+  textOverlay.textContent = message || "Veuillez patienter s'il vous plaît!";
 }

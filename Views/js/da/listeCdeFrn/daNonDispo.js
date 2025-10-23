@@ -29,6 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const selectedIds = checkedBoxes.map((cb) => cb.value); // Récupérer les IDs sélectionnés
+    const countSelectedIds = selectedIds.length;
     const selectedLignes = checkedBoxes.map((cb) => cb.dataset.numeroLigne); // Récupérer les numeroLigne sélectionnés
     const numeroDemandeAppro = checkedBoxes[0].dataset.numeroDemandeAppro; // Récupérer le numeroDemandeAppro du premier coché (ou undefined si aucune)
     const actionType = select.value;
@@ -48,16 +49,23 @@ document.addEventListener("DOMContentLoaded", () => {
         ids: selectedIds,
       }),
     };
+    const labelMessage = countSelectedIds > 1 ? "des articles" : "de l’article";
+    const message = {
+      pendingAction: {
+        delete: `Suppression ${labelMessage} en cours, merci de patienter ...`,
+        create: `Création ${labelMessage} en cours, merci de patienter ...`,
+      },
+    };
 
     select.value = "";
 
     try {
       const confirmation = await Swal.fire(
-        swalOptions.getConfirmConfig(actionType, selectedIds.length)
+        swalOptions.getConfirmConfig(actionType, countSelectedIds)
       );
 
       if (confirmation.isConfirmed) {
-        displayOverlay(true);
+        displayOverlay(true, message.pendingAction[actionType]);
         const result = await fetchManager.post(
           ACTION_ENDPOINTS[actionType],
           payload
@@ -70,7 +78,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (result.status === "success") {
           const scrollPosition = window.scrollY;
-          displayOverlay(true);
+          displayOverlay(true, "Action réussie ! La page se met à jour ... ");
           window.location.reload();
           window.scrollTo(0, scrollPosition);
         }
