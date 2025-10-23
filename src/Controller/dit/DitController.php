@@ -3,6 +3,7 @@
 namespace App\Controller\dit;
 
 
+use App\Model\dit\DitModel;
 use App\Controller\Controller;
 use App\Entity\admin\Application;
 use App\Controller\Traits\DitTrait;
@@ -10,17 +11,17 @@ use App\Dto\Dit\DemandeInterventionDto;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\FormatageTrait;
 use App\Form\dit\demandeInterventionType;
-use App\Service\genererPdf\dit\GenererPdfDit;
+use App\Service\autres\AutoIncDecService;
 use Symfony\Component\Form\FormInterface;
 use App\Service\fichier\UploderFileService;
 use App\Controller\Traits\AutorisationTrait;
 use App\Controller\Traits\MiseAjourAppTrait;
 use App\Service\fichier\TraitementDeFichier;
 use App\Controller\Traits\PdfConversionTrait;
+use App\Service\genererPdf\dit\GenererPdfDit;
 use Symfony\Component\HttpFoundation\Request;
 use App\Factory\Dit\DemandeInterventionFactory;
 use App\Service\application\ApplicationService;
-use App\Service\autres\AutoIncDecService;
 use App\Service\dit\fichier\DitNameFileService;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -39,12 +40,14 @@ class DitController extends Controller
 
     private $historiqueOperation;
     private $demandeInterventionFactory;
+    private DitModel $ditModel;
 
     public function __construct()
     {
         parent::__construct();
         $this->historiqueOperation = new HistoriqueOperationDITService($this->getEntityManager());
-        $this->demandeInterventionFactory = new DemandeInterventionFactory($this->getEntityManager(), $this->getDitModel(), $this->historiqueOperation);
+        $this->ditModel = new DitModel();
+        $this->demandeInterventionFactory = new DemandeInterventionFactory($this->getEntityManager(), $this->ditModel, $this->historiqueOperation);
     }
 
     /**
@@ -161,7 +164,7 @@ class DitController extends Controller
         /**CREATION DE LA PAGE DE GARDE*/
         $genererPdfDit = new GenererPdfDit();
         $idMateriel = (int)$demandeIntervention->getIdMateriel();
-        if (!in_array($idMateriel, [14571, 7669, 7670, 7671, 7672, 7673, 7674, 7675, 7677, 9863])) {
+        if (!in_array($idMateriel, $this->ditModel->getNumeroMatriculePasMateriel())) {
             //récupération des historique de materiel (informix)
             $historiqueMateriel = $this->historiqueInterventionMateriel($idMateriel);
         } else {

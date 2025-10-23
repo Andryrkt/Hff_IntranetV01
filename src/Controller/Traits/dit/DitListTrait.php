@@ -186,7 +186,7 @@ trait DitListTrait
                 if (!empty($data[$i]->getIdMateriel())) {
 
                     // Associez chaque entité à ses valeurs de num_serie et num_parc
-                    $numSerieParc = $this->getDitModel()->recupNumSerieParc($data[$i]->getIdMateriel());
+                    $numSerieParc = $this->ditModel->recupNumSerieParc($data[$i]->getIdMateriel());
                     if (!empty($numSerieParc)) {
                         $numSerie = $numSerieParc[0]['num_serie'];
                         $numParc = $numSerieParc[0]['num_parc'];
@@ -207,7 +207,7 @@ trait DitListTrait
             for ($i = 0; $i < count($data); $i++) {
                 if (!empty($data[$i]->getIdMateriel())) {
                     // Associez chaque entité à ses valeurs de num_serie et num_parc
-                    $marqueCasier = $this->getDitModel()->recupMarqueCasierMateriel($data[$i]->getIdMateriel());
+                    $marqueCasier = $this->ditModel->recupMarqueCasierMateriel($data[$i]->getIdMateriel());
                     if (!empty($marqueCasier)) {
                         $marque = $marqueCasier[0]['marque'];
                         $casier = $marqueCasier[0]['casier'];
@@ -228,9 +228,9 @@ trait DitListTrait
 
             if ($data[$i]->getNumeroOR() !== null && $data[$i]->getNumeroOR() !== 'NULL') {
 
-                if (!empty($this->getDitModel()->recupQuantite($data[$i]->getNumeroOR()))) {
+                if (!empty($this->ditModel->recupQuantite($data[$i]->getNumeroOR()))) {
 
-                    foreach ($this->getDitModel()->recupQuantite($data[$i]->getNumeroOR()) as $value) {
+                    foreach ($this->ditModel->recupQuantite($data[$i]->getNumeroOR()) as $value) {
                         $data[$i]->setQuantiteDemander($value['quantitedemander']);
                         $data[$i]->setQuantiteReserver($value['quantitereserver']);
                         $data[$i]->setQuantiteLivree($value['quantitelivree']);
@@ -251,8 +251,8 @@ trait DitListTrait
     {
         for ($i = 0; $i < count($data); $i++) {
             if ($data[$i]->getNumeroOR() !== null) {
-                if (!empty($this->getDitModel()->recupQuantiteStatutAchatLocaux($data[$i]->getNumeroOR()))) {
-                    foreach ($this->getDitModel()->recupQuantiteStatutAchatLocaux($data[$i]->getNumeroOR()) as $value) {
+                if (!empty($this->ditModel->recupQuantiteStatutAchatLocaux($data[$i]->getNumeroOR()))) {
+                    foreach ($this->ditModel->recupQuantiteStatutAchatLocaux($data[$i]->getNumeroOR()) as $value) {
                         $data[$i]->setQuantiteDemander($value['quantitedemander']);
                         $data[$i]->setQuantiteReserver($value['quantitereserver']);
                         $data[$i]->setQuantiteLivree($value['quantitelivree']);
@@ -306,7 +306,7 @@ trait DitListTrait
                 $data[$i]->setQuantiteReserver(0);
                 $data[$i]->setQuantiteLivree(0);
 
-                $quantites = $this->getDitModel()->recupQuantiteQuatreStatutOr($data[$i]->getNumeroOR());
+                $quantites = $this->ditModel->recupQuantiteQuatreStatutOr($data[$i]->getNumeroOR());
                 if (!empty($quantites)) {
                     foreach ($quantites as $value) {
                         $data[$i]->setQuantiteDemander((int)$value['quantitedemander']);
@@ -343,7 +343,7 @@ trait DitListTrait
 
     private function estNumorEqNumDit($numDit)
     {
-        $nbNumor = $this->getDitModel()->recupNbNumor($numDit);
+        $nbNumor = $this->ditModel->recupNbNumor($numDit);
         $estRelier = false;
         if (!empty($nbNumor) && $nbNumor[0]['nbor'] !== "0") {
             $estRelier = true;
