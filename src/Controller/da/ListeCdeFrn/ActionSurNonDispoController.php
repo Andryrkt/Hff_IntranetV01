@@ -126,15 +126,15 @@ class ActionSurNonDispoController extends Controller
             $applicationService = new ApplicationService($this->em);
             $applicationService->mettreAJourDerniereIdApplication('DAP', $numDa);
 
-            // $this->em->flush();
+            $this->em->flush();
 
             $count = count($daAfficherIds);
-            $label = $count > 1 ? 'articles ajoutés' : 'article ajouté';
+            $label = $count > 1 ? 'articles ont été ajoutés' : 'article a été ajouté';
 
             return new JsonResponse([
                 'status'  => 'success',
-                'title'   => 'Action effectuée',
-                'message' => "$count $label avec succès.",
+                'title'   => 'Action réussie',
+                'message' => "Succès : $count $label avec succès.<br>Le numéro correspondant : <b>$numDa</b>",
             ]);
         } catch (Exception $e) {
             return new JsonResponse([
