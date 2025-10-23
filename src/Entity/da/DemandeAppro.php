@@ -149,7 +149,7 @@ class DemandeAppro
     /**
      * @ORM\Column(type="boolean", name="Devis_demander", nullable=true)
      */
-    private $devisDemande;
+    private $devisDemande = false;
 
     /**
      * @ORM\Column(type="datetime", name="Date_demande_devis", nullable=true)
@@ -182,13 +182,13 @@ class DemandeAppro
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="demandeApproUser")
      * @ORM\JoinColumn(nullable=true, name="user_id", referencedColumnName="id")
      */
-    private ?User $user;
+    private ?User $user = null;
 
     /**
      * @ORM\OneToOne(targetEntity=User::class, inversedBy="demandeApproValidateur")
      * @ORM\JoinColumn(nullable=true, name="validateur_id", referencedColumnName="id")
      */
-    private ?User $validateur;
+    private ?User $validateur = null;
 
     private $observation;
 

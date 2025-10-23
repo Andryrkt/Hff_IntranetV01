@@ -379,7 +379,8 @@ a.choix:hover {
 }
 
 /* Pour les statuts de la DA */
-.bg-demande-achat {
+.bg-demande-achat,
+.bg-creation-demande-initiale {
   background-color: #ffff00 !important;
   color: #7d7d00 !important;
 }
