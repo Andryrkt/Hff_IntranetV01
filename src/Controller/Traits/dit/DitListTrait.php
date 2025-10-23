@@ -511,12 +511,13 @@ trait DitListTrait
     private function transformationEnTableauAvecEntet($entities): array
     {
         $data = [];
-        $data[] = ['Statut', 'N° DIT', 'Type Document', 'Niveau', 'Catégorie de Demande', 'N°Serie', 'N°Parc', 'date demande', 'Int/Ext', 'Emetteur', 'Débiteur',  'Objet', 'sectionAffectee', 'N° devis', 'Statut Devis', 'N°Or', 'Statut Or', 'Statut facture', 'RI', 'Nbre Pj', 'utilisateur', 'Marque', 'Casier']; // En-têtes des colonnes
+        $data[] = ['Statut', 'N° DIT', 'Réalisé par', 'Type Document', 'Niveau', 'Catégorie de Demande', 'N°Serie', 'N°Parc', 'date demande', 'Int/Ext', 'Emetteur', 'Débiteur',  'Objet', 'sectionAffectee', 'N° devis', 'Statut Devis', 'N°Or', 'Statut Or', 'Statut facture', 'RI', 'Nbre Pj', 'utilisateur', 'Marque', 'Casier']; // En-têtes des colonnes
 
         foreach ($entities as $entity) {
             $data[] = [
                 $entity->getIdStatutDemande()->getDescription(),
                 $entity->getNumeroDemandeIntervention(),
+                $entity->getReparationRealise(),
                 $entity->getTypeDocument()->getDescription(),
                 $entity->getIdNiveauUrgence()->getDescription(),
                 $entity->getCategorieDemande()->getLibelleCategorieAteApp(),

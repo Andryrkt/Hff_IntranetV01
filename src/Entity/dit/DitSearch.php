@@ -636,7 +636,8 @@ class DitSearch
             'sectionSupport2' => $this->sectionSupport2,
             'sectionSupport3' => $this->sectionSupport3,
             'etatFacture' => $this->etatFacture,
-            'numDevis' => $this->numDevis
+            'numDevis' => $this->numDevis,
+            'reparationRealise' => $this->reparationRealise
         ];
     }
 }

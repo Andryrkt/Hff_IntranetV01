@@ -383,6 +383,11 @@ class DitRepository extends EntityRepository
         if ($ditSearch->getDitSansOr()) {
             $queryBuilder->andWhere("d.numeroOR = ''");
         }
+
+        if (!empty($ditSearch->getReparationRealise())) {
+            $queryBuilder->andWhere('d.reparationRealise = :reparationRealise')
+                ->setParameter('reparationRealise', $ditSearch->getReparationRealise());
+        }
     }
 
 
