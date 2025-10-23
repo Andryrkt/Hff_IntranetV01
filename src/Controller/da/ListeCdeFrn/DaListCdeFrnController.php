@@ -136,7 +136,7 @@ class DaListCdeFrnController extends Controller
      */
     private function modificationStatutBC(DaAfficher $data)
     {
-        $statutBC = $this->statutBc($data->getArtRefp(), $data->getNumeroDemandeDit(), $data->getNumeroDemandeAppro(), $data->getArtDesi(), $data->getNumeroOr());
+        $statutBC = $this->statutBc($data);
         $data->setStatutCde($statutBC);
         $this->getEntityManager()->persist($data);
     }

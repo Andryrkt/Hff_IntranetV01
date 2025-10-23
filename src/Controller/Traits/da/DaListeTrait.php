@@ -141,7 +141,7 @@ trait DaListeTrait
      */
     private function modificationStatutBC(DaAfficher $data, $em)
     {
-        $statutBC = $this->statutBc($data->getArtRefp(), $data->getNumeroDemandeDit(), $data->getNumeroDemandeAppro(), $data->getArtDesi(), $data->getNumeroOr());
+        $statutBC = $this->statutBc($data);
         $data->setStatutCde($statutBC);
         $em->persist($data);
     }

@@ -75,11 +75,15 @@ trait StatutBcTrait
         //----------------------------------------------------------------------------------------------------
     }
 
-    private function statutBc(?string $ref, string $numDit, string $numDa, ?string $designation, ?string $numeroOr): ?string
+    private function statutBc(DaAfficher $DaAfficher): ?string
     {
         $em = self::getEntity();
 
-        $DaAfficher = $this->getDaAfficher($numDa, $numDit, $ref, $designation);
+        $ref         = $DaAfficher->getArtRefp();
+        $numDit      = $DaAfficher->getNumeroDemandeDit();
+        $numDa       = $DaAfficher->getNumeroDemandeAppro();
+        $designation = $DaAfficher->getArtDesi();
+        $numeroOr    = $DaAfficher->getNumeroOr();
 
         if ($DaAfficher == null || $DaAfficher->getStatutDal() !== DemandeAppro::STATUT_VALIDE) {
             return '';
