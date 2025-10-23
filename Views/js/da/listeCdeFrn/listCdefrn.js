@@ -14,9 +14,9 @@ document.addEventListener("DOMContentLoaded", function () {
    *  2ᵉ appel : colonnes 4-5 selon la colonne 4.
    */
   mergeCellsRecursiveTable([
-    { pivotIndex: 0, columns: [0, 1, 2, 3, 4, 5], insertSeparator: true },
+    { pivotIndex: 0, columns: [0, 1, 2, 3, 4, 5, 21], insertSeparator: true },
     { pivotIndex: 6, columns: [6, 7], insertSeparator: true },
-    { pivotIndex: 8, columns: [8], insertSeparator: true },
+    { pivotIndex: 8, columns: [8, 19], insertSeparator: true },
   ]);
 });
 
@@ -126,9 +126,9 @@ document.addEventListener("contextmenu", function (event) {
          BC envoyé au fournisseur
       </p> <hr/>`;
     // if (statutBc !== "Tous livrés") { // selon le demande de hoby rahalahy le 25/09/2025
-      //active le formulaire
-      Array.from(form.elements).forEach((el) => (el.disabled = false)); // active tous les champs du formulaire
-      form.querySelector("button[type='submit']").classList.remove("disabled"); //changer l'apparence du bouton
+    //active le formulaire
+    Array.from(form.elements).forEach((el) => (el.disabled = false)); // active tous les champs du formulaire
+    form.querySelector("button[type='submit']").classList.remove("disabled"); //changer l'apparence du bouton
     // } else {
     //   //desactive le formulaire
     //   Array.from(form.elements).forEach((el) => (el.disabled = true)); // Désactive tous les champs du formulaire
@@ -214,3 +214,49 @@ function telechargerBcValide(commandeId) {
       window.open(`${baseUrl}/api/generer-bc-valider/${commandeId}`);
     });
 }
+
+/** ===================================================
+ * Modal du Date livraison prevu
+ *==================================================*/
+// Attendre que le DOM soit entièrement chargé
+document.addEventListener("DOMContentLoaded", function () {
+  // Sélectionner le modal par son ID
+  const modalDateLivraison = document.getElementById("dateLivraison");
+
+  // Verifier si le modal existe sur la page
+  if (modalDateLivraison) {
+    //Ecouter l'événement 'show.bs.modal' qui est déclenché par Bootstrap
+    // juste avant que le modal se soit affiché.
+    modalDateLivraison.addEventListener("show.bs.modal", function (event) {
+      // event.relatedTarget est l'élément qui a déclenché le modal (notre lien <a>)
+      const button = event.relatedTarget;
+
+      // Récupérer les données depuis les attributs data-* du lien
+      const numeroCde = button.getAttribute("data-numero-cde");
+      const dateActuelle = button.getAttribute("data-date-actuelle");
+
+      // Mise à jour du contenu du modal
+      const modalTitle = modalDateLivraison.querySelector(".modal-title");
+      if (modalTitle) {
+        modalTitle.textContent =
+          "Modifier la date de livraison pour la commande n° : " + numeroCde;
+      }
+
+      // Pré-rempli le champ de date dans le formulaire du modal
+      const dateInput = modalDateLivraison.querySelector(
+        "#da_modal_date_livraison_dateLivraisonPrevue"
+      );
+      if (dateInput) {
+        dateInput.value = dateActuelle;
+      }
+
+      // remplir le champ cacher avec le numero commande
+      const numeroCdeInput = modalDateLivraison.querySelector(
+        "#da_modal_date_livraison_numeroCde"
+      );
+      if (numeroCdeInput) {
+        numeroCdeInput.value = numeroCde;
+      }
+    });
+  }
+});

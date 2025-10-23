@@ -105,7 +105,15 @@
 						<td class="text-center">{{ item.qteEnAttent == 0 ? '-': item.qteEnAttent }}</td>
 						<td class="text-center">{{ item.qteDispo == 0 ? '-': item.qteDispo }}</td>
 						<td class="text-center">{{ item.qteLivrer == 0 ? '-': item.qteLivrer }}</td>
-						<td class="text-center">{{ item.dateLivraisonPrevue == null ? '' : item.dateLivraisonPrevue|date('d/m/Y')}}</td>
+						<td class="text-center">
+							{% if item.statutCde == constant('App\\Entity\\da\\DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR') %}
+								<a href="#" data-bs-toggle="modal" data-bs-target="#dateLivraison" data-numero-cde="{{ item.numeroCde }}" data-date-actuelle="{{ item.dateLivraisonPrevue ? item.dateLivraisonPrevue|date('Y-m-d')}}">
+									{{ item.dateLivraisonPrevue == null ? '' : item.dateLivraisonPrevue|date('d/m/Y')}}
+								</a>
+							{% else %}
+								{{ item.dateLivraisonPrevue == null ? '' : item.dateLivraisonPrevue|date('d/m/Y')}}
+							{% endif %}
+						</td>
 						<td class="text-center {{ item.joursDispo < 0 ? 'text-danger' : '' }}">{{ item.joursDispo}}</td>
 						<td class="text-center">{{ item.demandeur}}</td>
 					</tr>
@@ -114,23 +122,12 @@
 		</table>
 	</div>
 
-	<div class="pagination justify-content-center mt-3">
-		{% if currentPage > 1 %}
-			<a href="?page={{ currentPage - 1 }}" class="page-link">Précédent</a>
-		{% endif %}
-
-		{% for i in 1..totalPages %}
-			<a href="?page={{ i }}" class="page-link {% if i == currentPage %}active{% endif %}">{{ i }}</a>
-		{% endfor %}
-
-		{% if currentPage < totalPages %}
-			<a href="?page={{ currentPage + 1 }}" class="page-link">Suivant</a>
-		{% endif %}
-	</div>
+	{% include "/partials/_pagination.html.twig" %}
 
 	<!-- FIN tableau -->
 	{% include "/da/shared/cdeFrn/_menuContextuel.html.twig" %}
 	{% include "/dit/shared/_modalNiveauUrgence.html.twig" %}
+	{% include "/da/shared/cdeFrn/_modalDateLivraison.html.twig" %}
 
 {% endblock %}
 
