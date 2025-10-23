@@ -138,15 +138,17 @@
 							<div class="row">
 								<div class="col-12 col-md-6">
 									{{ form_row(form.typeReparation) }}
-
 								</div>
 								<div class="col-12 col-md-6">
 									{{ form_row(form.reparationRealise) }}
 								</div>
-
 							</div>
-
-
+							<div class="row" >
+							<div class="col-12 col-md-6"></div>
+								<div class="col-12 col-md-6" id="ate_pol_tana_container" style="display: none;">
+									{{ form_row(form.estAtePolTana) }}
+								</div>
+							</div>
 							{{ macroForm.sousTitre('Pièces Jointes', {class: 'sousTitre'})}}
 
 							{{ form_row(form.pieceJoint01)}}
