@@ -5,6 +5,7 @@ namespace App\Controller\Traits\da\modification;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
+use App\Entity\da\DemandeApproLR;
 use App\Repository\da\DaObservationRepository;
 
 trait DaEditDirectTrait
@@ -48,6 +49,9 @@ trait DaEditDirectTrait
     {
         $em = $this->getEntityManager();
         $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
+
+        // Indexation des DAL par numéro de ligne
+        $dalParLigne = [];
         foreach ($formDAL as $subFormDAL) {
             /** 
              * @var DemandeApproL $demandeApproL
@@ -69,12 +73,19 @@ trait DaEditDirectTrait
                 $em->remove($demandeApproL);
                 $this->deleteDALR($demandeApproL);
             } else {
+                $dalParLigne[$demandeApproL->getNumeroLigne()] = $demandeApproL;
                 $em->persist($demandeApproL); // on persiste la DAL
             }
         }
+        /** @var DemandeApproLR[] $dalrs */
         $dalrs = $this->demandeApproLRRepository->findBy(['numeroDemandeAppro' => $demandeAppro->getNumeroDemandeAppro()]);
         foreach ($dalrs as $dalr) {
-            $dalr->setStatutDal($statut);
+            $ligneDAL = $dalParLigne[$dalr->getNumeroLigne()];
+            $dalr
+                ->setStatutDal($statut)
+                ->setDateFinSouhaite($ligneDAL->getDateFinSouhaite())
+                ->setQteDem($ligneDAL->getQteDem())
+            ;
             $em->persist($dalr);
         }
     }

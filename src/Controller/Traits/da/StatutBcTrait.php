@@ -91,7 +91,7 @@ trait StatutBcTrait
             $this->updateInfoOR($numDit, $DaAfficher);
         }
 
-        if ($numeroOr == null && !$achatDirect) {
+        if (($numeroOr == null && !$achatDirect) || ($numeroOr != null && empty($DaAfficher->getStatutOr()))) {
             return $statutBc;
         }
         $infoDaDirect = $this->daModel->getInfoDaDirect($numDa, $ref, $designation);
@@ -113,7 +113,7 @@ trait StatutBcTrait
 
         $qte = $achatDirect
             ? $this->daModel->getEvolutionQteDaDirect($numcde, $ref, $designation)
-            : $this->daModel->getEvolutionQteDaAvecDit($numDit, $ref, $designation, $numeroOr, $statutBc, $numDa);
+            : $this->daModel->getEvolutionQteDaAvecDit($numDit, $ref, $designation, $numeroOr, $statutBc, $numDa, $DaAfficher->getQteDem());
         [$partiellementDispo, $completNonLivrer, $tousLivres, $partiellementLivre] = $this->evaluerQuantites($qte,  $infoDaDirect, $achatDirect, $DaAfficher);
 
 
@@ -284,13 +284,13 @@ trait StatutBcTrait
             $qteDem = (int)$q['qte_dem'];
             $qteALivrer = (int)$q['qte_dispo'];
             $qteLivee = 0; //TODO: en attend du decision du client
-        } else {
+        } 
+        else {
             $q = $qte[0];
             $qteDem = (int)$q['qte_dem'];
             $qteALivrer = (int)$q['qte_dispo'];
             $qteLivee = (int)$q['qte_livree'];
         }
-
 
         $partiellementDispo = ($qteDem != $qteALivrer && $qteLivee == 0 && $qteALivrer > 0) && $DaAfficher->getEstFactureBlSoumis();
         $completNonLivrer = (($qteDem == $qteALivrer && $qteLivee < $qteDem) || ($qteALivrer > 0 && $qteDem == ($qteALivrer + $qteLivee))) && $DaAfficher->getEstFactureBlSoumis();
@@ -319,12 +319,14 @@ trait StatutBcTrait
                 $qteDem = (int)$q['qte_dem'];
             }
 
-            $DaAfficher
-                ->setQteEnAttent($qteReliquat)
-                ->setQteLivrer($qteLivee)
-                ->setQteDispo($qteDispo)
-                ->setQteDemIps($qteDem)
-            ;
+            if ($DaAfficher->getNumeroCde() != '26246458' && $DaAfficher->getArtDesi() != 'ECROU HEX. AC.GALVA A CHAUD CL.8 DI') {
+                $DaAfficher
+                    ->setQteEnAttent($qteReliquat)
+                    ->setQteLivrer($qteLivee)
+                    ->setQteDispo($qteDispo)
+                    ->setQteDemIps($qteDem)
+                ;
+            }
         }
     }
 
