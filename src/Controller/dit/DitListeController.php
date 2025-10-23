@@ -141,7 +141,6 @@ class DitListeController extends Controller
         // Appeler la méthode logUserVisit avec les arguments définis
         $this->logUserVisit(...$logType);
 
-
         return $this->render('dit/list.html.twig', [
             'data'          => $paginationData['data'],
             'currentPage'   => $paginationData['currentPage'],
