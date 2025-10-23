@@ -170,7 +170,7 @@ trait StatutBcTrait
             return 'Partiellement livré';
         }
 
-        if ($DaAfficher->getBcEnvoyerFournisseur() && $DaAfficher->getNumeroCde() != '26246458' && $DaAfficher->getArtDesi() != 'ECROU HEX. AC.GALVA A CHAUD CL.8 DI') {
+        if ($DaAfficher->getBcEnvoyerFournisseur()) {
             return 'BC envoyé au fournisseur';
         }
 
