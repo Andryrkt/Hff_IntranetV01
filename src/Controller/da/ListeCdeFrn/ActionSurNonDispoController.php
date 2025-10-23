@@ -5,6 +5,7 @@ namespace App\Controller\da\ListeCdeFrn;
 use Exception;
 use App\Entity\da\DaAfficher;
 use App\Controller\Controller;
+use App\Entity\da\DaSoumissionBc;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
@@ -112,13 +113,13 @@ class ActionSurNonDispoController extends Controller
 
             foreach ($daAffichers as $daAfficher) {
                 /** 2. Créer DAL à partir de $daAfficher */
-                $this->nouveauDemandeApproLine($daAfficher, $numDa, $statutDa);
+                $this->nouveauDemandeApproLine($daAfficher, $demandeAppro, $numDa, $statutDa);
 
                 /** 3. Gérer l'historisation dans DaAfficher */
-                $this->ajouterDansDaAfficher($daAfficher, $numDa, $statutDa);
+                $this->ajouterDansDaAfficher($daAfficher, $demandeAppro, $numDa, $statutDa);
 
                 /** 4. Mettre à jour $daAfficher */
-                $this->updateDaAfficher($daAfficher, $numDa, $statutDa);
+                $this->updateDaAfficher($daAfficher);
             }
 
             /** 5. Modifier la colonne dernière_id dans la table applications */
@@ -144,10 +145,9 @@ class ActionSurNonDispoController extends Controller
         }
     }
 
-    private function nouveauDemandeAppro(DemandeAppro $demandeAppro, string $numDa, string $statutDa)
+    private function nouveauDemandeAppro(DemandeAppro $demandeAppro, string $numDa, string $statutDa): DemandeAppro
     {
         $da = new DemandeAppro;
-
         $da
             ->setNumeroDemandeAppro($numDa)
             ->setAchatDirect($demandeAppro->getAchatDirect())
@@ -169,43 +169,86 @@ class ActionSurNonDispoController extends Controller
         ;
         $this->em->persist($da);
         $this->em->flush();
-        if ($da->getId()) return $da->getId();
+
+        if ($da->getId()) return $da;
         else throw new Exception("Erreur lors de la création de la Demande Appro.");
     }
 
-    private function nouveauDemandeApproLine(DaAfficher $daAfficher, string $numDa, string $statutDa): void
+    private function nouveauDemandeApproLine(DaAfficher $daAfficher, DemandeAppro $demandeAppro, string $numDa, string $statutDa): void
     {
         $dal = new DemandeApproL;
-        // $dal
-        //     ->setNumeroDemandeAppro($numDa)
-        //     ->setStatutDal($statutDa)
-        //     ->setDemandeur($daAfficher->getDemandeur())
-        //     ->setAchatDirect($daAfficher->getAchatDirect())
-        //     ->setNumeroDemandeDit($daAfficher->getNumeroDemandeDit())
-        //     ->setObjetDal($daAfficher->getObjetDal())
-        //     ->setDetailDal($daAfficher->getDetailDal())
-        //     ->setAgenceDebiteur($daAfficher->getAgenceDebiteur())
-        //     ->setServiceDebiteur($daAfficher->getServiceDebiteur())
-        //     ->setAgenceEmetteur($daAfficher->getAgenceEmetteur())
-        //     ->setServiceEmetteur($daAfficher->getServiceEmetteur())
-        //     ->setAgenceServiceDebiteur($daAfficher->getAgenceServiceDebiteur())
-        //     ->setAgenceServiceEmetteur($daAfficher->getAgenceServiceEmetteur())
-        //     ->setIdMateriel($daAfficher->getIdMateriel())
-        //     ->setUser($daAfficher->getUser())
-        //     ->setNiveauUrgence($daAfficher->getNiveauUrgence())
-        // ;
+        $dal
+            ->setNumeroDemandeAppro($numDa)
+            ->setNumeroLigne($daAfficher->getNumeroLigne())
+            ->setQteDem($daAfficher->getQteDem())
+            ->setArtConstp($daAfficher->getArtConstp())
+            ->setArtRefp($daAfficher->getArtRefp())
+            ->setArtDesi($daAfficher->getArtDesi())
+            ->setArtFams1($daAfficher->getArtFams1())
+            ->setArtFams2($daAfficher->getArtFams2())
+            ->setCodeFams1($daAfficher->getCodeFams1())
+            ->setCodeFams2($daAfficher->getCodeFams2())
+            ->setNumeroFournisseur($daAfficher->getNumeroFournisseur())
+            ->setNomFournisseur($daAfficher->getNomFournisseur())
+            ->setDateFinSouhaite($daAfficher->getDateFinSouhaite())
+            ->setCommentaire($daAfficher->getCommentaire())
+            ->setStatutDal($statutDa)
+            ->setCatalogue($daAfficher->getCatalogue())
+            ->setDemandeAppro($demandeAppro)
+            ->setPrixUnitaire($daAfficher->getPrixUnitaire())
+            ->setNumeroDit($daAfficher->getNumeroDemandeDit())
+            ->setJoursDispo($daAfficher->getJoursDispo())
+        ;
         $this->em->persist($dal);
     }
 
-    private function ajouterDansDaAfficher(DaAfficher $daAfficher, string $numDa, string $statutDa): void
+    private function ajouterDansDaAfficher(DaAfficher $daAfficher, DemandeAppro $demandeAppro, string $numDa, string $statutDa): void
     {
         $newDaAfficher = new DaAfficher;
+        $newDaAfficher
+            ->setNumeroDemandeAppro($numDa)
+            ->setNumeroDemandeDit($daAfficher->getNumeroDemandeDit())
+            ->setStatutDal($statutDa)
+            ->setObjetDal($daAfficher->getObjetDal())
+            ->setDetailDal($daAfficher->getDetailDal())
+            ->setNumeroLigne($daAfficher->getNumeroLigne())
+            ->setQteDem($daAfficher->getQteDem())
+            ->setArtConstp($daAfficher->getArtConstp())
+            ->setArtDesi($daAfficher->getArtDesi())
+            ->setArtFams1($daAfficher->getArtFams1())
+            ->setArtFams2($daAfficher->getArtFams2())
+            ->setCodeFams1($daAfficher->getCodeFams1())
+            ->setCodeFams2($daAfficher->getCodeFams2())
+            ->setNumeroFournisseur($daAfficher->getNumeroFournisseur())
+            ->setNomFournisseur($daAfficher->getNomFournisseur())
+            ->setDateFinSouhaite($daAfficher->getDateFinSouhaite())
+            ->setCommentaire($daAfficher->getCommentaire())
+            ->setPrixUnitaire($daAfficher->getPrixUnitaire())
+            ->setTotal($daAfficher->getTotal())
+            ->setCatalogue($daAfficher->getCatalogue())
+            ->setNumeroVersion(1)
+            ->setNiveauUrgence($daAfficher->getNiveauUrgence())
+            ->setJoursDispo($daAfficher->getJoursDispo())
+            ->setDemandeur($daAfficher->getDemandeur())
+            ->setAchatDirect($daAfficher->getAchatDirect())
+            ->setDateDemande($demandeAppro->getDateCreation())
+            ->setAgenceEmetteur($daAfficher->getAgenceEmetteur())
+            ->setAgenceDebiteur($daAfficher->getAgenceDebiteur())
+            ->setServiceDebiteur($daAfficher->getServiceDebiteur())
+            ->setServiceEmetteur($daAfficher->getServiceEmetteur())
+            ->setDemandeAppro($demandeAppro)
+            ->setDit($daAfficher->getDit())
+        ;
 
         $this->em->persist($newDaAfficher);
     }
 
-    private function updateDaAfficher(DaAfficher $daAfficher, string $numDa, string $statutDa): void
+    private function updateDaAfficher(DaAfficher $daAfficher): void
     {
+        $daAfficher
+            ->setStatutCde(DaSoumissionBc::STATUT_NON_DISPO)
+            ->setNonDispo(true)
+        ;
         $this->em->persist($daAfficher);
     }
 }
