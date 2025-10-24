@@ -150,7 +150,7 @@ class ActionSurNonDispoController extends Controller
         $da = new DemandeAppro;
         $da
             ->setNumeroDemandeAppro($numDa)
-            ->setAchatDirect($demandeAppro->getAchatDirect())
+            ->setDaTypeId($demandeAppro->getDaTypeId())
             ->setNumeroDemandeDit($demandeAppro->getNumeroDemandeDit())
             ->setObjetDal($demandeAppro->getObjetDal())
             ->setDetailDal($demandeAppro->getDetailDal())
@@ -231,7 +231,7 @@ class ActionSurNonDispoController extends Controller
             ->setNiveauUrgence($daAfficher->getNiveauUrgence())
             ->setJoursDispo($daAfficher->getJoursDispo())
             ->setDemandeur($daAfficher->getDemandeur())
-            ->setAchatDirect($daAfficher->getAchatDirect())
+            ->setDaTypeId($daAfficher->getDaTypeId())
             ->setDateDemande($demandeAppro->getDateCreation())
             ->setAgenceEmetteur($daAfficher->getAgenceEmetteur())
             ->setAgenceDebiteur($daAfficher->getAgenceDebiteur())
