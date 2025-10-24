@@ -604,9 +604,8 @@ class DaAfficherRepository extends EntityRepository
         }
 
         if (!empty($criteria['typeAchat'])) {
-            $typeAchat = $criteria['typeAchat'] === 'direct' ? 1 : 0;
-            $qb->andWhere("$qbLabel.achatDirect = :typeAchat")
-                ->setParameter('typeAchat', $typeAchat);
+            $qb->andWhere("$qbLabel.daTypeId = :typeAchat")
+                ->setParameter('typeAchat', $criteria['typeAchat']);
         }
     }
 
@@ -807,7 +806,6 @@ class DaAfficherRepository extends EntityRepository
                     WHERE d2.numeroDemandeAppro = d.numeroDemandeAppro
                 )'
         );
-
 
         $this->applyDynamicFilters($qb, 'd', $criteria);
         $this->applyAgencyServiceFilters($qb, 'd', $criteria, $user, $idAgenceUser, $estAppro, $estAtelier, $estAdmin);

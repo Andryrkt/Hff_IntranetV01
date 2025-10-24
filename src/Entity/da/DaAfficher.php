@@ -1853,7 +1853,7 @@ class DaAfficher
             ->setQteEnAttent($data['qteEnAttent'] ?? 0)
             ->setDemandeur($data['demandeur'] ?? null)
             ->setBcEnvoyerFournisseur($data['bcEnvoyerFournisseur'] ?? false)
-            ->setAchatDirect($data['achatDirect'] ?? false)
+            ->setDaTypeId($data['daTypeId'] ?? 0)
             ->setPositionBc($data['positionBc'] ?? null)
             ->setOrResoumettre($data['orResoumettre'] ?? false)
             ->setdatePlannigOr($data['datePlannigOr'] ?? null)

@@ -3,6 +3,7 @@
 namespace App\Form\da\daCdeFrn;
 
 
+use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaSoumissionBc;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Component\Form\AbstractType;
@@ -28,8 +29,9 @@ class CdeFrnListType extends  AbstractType
     ];
 
     private const TYPE_ACHAT = [
-        'Avec DIT' => 'avec_dit',
-        'Direct'   => 'direct',
+        'DA Avec DIT' => DemandeAppro::TYPE_DA_AVEC_DIT,
+        'DA Direct'   => DemandeAppro::TYPE_DA_DIRECT,
+        'DA reappro'  => DemandeAppro::TYPE_DA_REAPPRO,
     ];
 
     private const TRI_NBR_JOURS =  [
