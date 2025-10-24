@@ -1,0 +1,46 @@
+import { displayOverlay } from "../../utils/ui/overlay";
+
+document.addEventListener("DOMContentLoaded", function () {
+  document.getElementById("myForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    if (document.getElementById("children-container").childElementCount > 0) {
+      Swal.fire({
+        title: "Êtes-vous sûr(e) ?",
+        html: `Voulez-vous vraiment envoyer la demande?`,
+        icon: "warning",
+        showCancelButton: true,
+        reverseButtons: true,
+        confirmButtonColor: "#198754",
+        cancelButtonColor: "#6c757d",
+        confirmButtonText: "Oui, Envoyer",
+        cancelButtonText: "Non, annuler",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          displayOverlay(true);
+          document.getElementById("child-prototype").remove();
+          document.getElementById("myForm").submit();
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+          // ❌ Si l'utilisateur annule
+          Swal.fire({
+            icon: "info",
+            title: "Annulé",
+            text: "Votre demande n'a pas été envoyée.",
+            timer: 2000,
+            showConfirmButton: false,
+          });
+        }
+      });
+    } else {
+      Swal.fire({
+        icon: "warning",
+        title: "Attention !",
+        text: "Veuillez ajouter au moins un article avant d'enregistrer.",
+      });
+    }
+  });
+});
+
+window.addEventListener("load", () => {
+  displayOverlay(false);
+});
