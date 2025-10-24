@@ -248,6 +248,7 @@ trait DaListeTrait
                 'dateFinSouhaite'     => $item->getDateFinSouhaite() ? $item->getDateFinSouhaite()->format('d/m/Y') : '',
                 'dateLivraisonPrevue' => $item->getDateLivraisonPrevue() ? $item->getDateLivraisonPrevue()->format('d/m/Y') : '',
                 'joursDispo'          => $item->getJoursDispo(),
+                'styleJoursDispo'     => $item->getJoursDispo() < 0 ? 'text-danger' : '',
                 'styleStatutDA'       => $styleStatutDA,
                 'styleStatutOR'       => $styleStatutOR,
                 'styleStatutBC'       => $styleStatutBC,
@@ -282,16 +283,16 @@ trait DaListeTrait
         $urls = [];
         $routeNames = [
             'detail' => [
-                0 => 'da_detail_avec_dit',
-                1 => 'da_detail_direct',
+                DemandeAppro::TYPE_DA_AVEC_DIT  => 'da_detail_avec_dit',
+                DemandeAppro::TYPE_DA_DIRECT    => 'da_detail_direct',
             ],
             'proposition' => [
-                0 => 'da_proposition_ref_avec_dit',
-                1 => 'da_proposition_direct',
+                DemandeAppro::TYPE_DA_AVEC_DIT  => 'da_proposition_ref_avec_dit',
+                DemandeAppro::TYPE_DA_DIRECT    => 'da_proposition_direct',
             ],
             'delete' => [
-                0 => 'da_delete_line_avec_dit',
-                1 => 'da_delete_line_direct',
+                DemandeAppro::TYPE_DA_AVEC_DIT  => 'da_delete_line_avec_dit',
+                DemandeAppro::TYPE_DA_DIRECT    => 'da_delete_line_direct',
             ],
         ];
 
