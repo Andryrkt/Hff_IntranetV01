@@ -85,7 +85,6 @@ class DemandeApproReapproFormType extends AbstractType
             ->add('DAL', CollectionType::class, [
                 'label'        => false,
                 'entry_type'   => DemandeApproLReapproFormType::class,
-                'allow_add'    => true,
                 'allow_delete' => true,
                 'by_reference' => false,
                 'prototype'    => true,
