@@ -1,4 +1,4 @@
-{% set da_name = demandeAppro.achatDirect ? "achat": "approvisionnement" %}
+{% set da_name = demandeAppro.daTypeId == 1 ? "achat": "approvisionnement" %}
 
 <!DOCTYPE html>
 <html>

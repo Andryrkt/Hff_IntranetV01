@@ -1,4 +1,4 @@
-{% set service_demandeur = demandeAppro.achatDirect ? 'du service emetteur' : 'de l’Atelier' %}
+{% set service_demandeur = demandeAppro.daTypeId == 0 ? 'de l’Atelier' : 'du service emetteur' %}
 
 <p>
 	Une nouvelle proposition a été créée par
