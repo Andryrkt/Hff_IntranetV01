@@ -14,7 +14,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use App\Model\dit\DitModel;
 
-class DemandeApproFormType extends AbstractType
+class DemandeApproAvecDITFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {

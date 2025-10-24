@@ -7,12 +7,13 @@ use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
 use App\Entity\admin\Application;
 use App\Entity\da\DemandeApproLR;
-use App\Form\da\DemandeApproFormType;
+use App\Form\da\DemandeApproAvecDITFormType;
 use App\Controller\Traits\AutorisationTrait;
 use App\Controller\Traits\da\DaAfficherTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\da\modification\DaEditAvecDitTrait;
+
 /**
  * @Route("/demande-appro")
  */
@@ -50,7 +51,7 @@ class DaEditAvecDitController extends Controller
 
         $ancienDals = $this->getAncienDAL($demandeAppro);
 
-        $form = $this->getFormFactory()->createBuilder(DemandeApproFormType::class, $demandeAppro)->getForm();
+        $form = $this->getFormFactory()->createBuilder(DemandeApproAvecDITFormType::class, $demandeAppro)->getForm();
 
         $this->traitementForm($form, $request, $ancienDals);
 

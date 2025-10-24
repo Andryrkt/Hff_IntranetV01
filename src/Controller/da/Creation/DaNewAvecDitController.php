@@ -7,7 +7,7 @@ use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
 use App\Entity\admin\Application;
-use App\Form\da\DemandeApproFormType;
+use App\Form\da\DemandeApproAvecDITFormType;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
@@ -72,7 +72,7 @@ class DaNewAvecDitController extends Controller
             ->setDateFinSouhaite($this->dateLivraisonPrevueDA($dit->getNumeroDemandeIntervention(), $dit->getIdNiveauUrgence()->getDescription()))
         ;
 
-        $form = $this->getFormFactory()->createBuilder(DemandeApproFormType::class, $demandeAppro)->getForm();
+        $form = $this->getFormFactory()->createBuilder(DemandeApproAvecDITFormType::class, $demandeAppro)->getForm();
         $this->traitementForm($form, $request, $demandeAppro, $dit);
 
         return $this->render('da/new-avec-dit.html.twig', [
