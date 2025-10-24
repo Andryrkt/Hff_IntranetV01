@@ -5,26 +5,25 @@ namespace App\Controller\da\Creation;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
-use App\Form\da\DemandeApproDirectFormType;
 use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use App\Service\application\ApplicationService;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\Traits\da\creation\DaNewDirectTrait;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
+use App\Controller\Traits\da\creation\DaNewReapproTrait;
+use App\Form\da\DemandeApproReapproFormType;
 
 /**
  * @Route("/demande-appro")
  */
 class DaNewReApproController extends Controller
 {
-    use DaNewDirectTrait;
+    use DaNewReapproTrait;
     use AutorisationTrait;
 
     public function __construct()
     {
         parent::__construct();
-        $this->initDaNewDirectTrait();
+        $this->initDaNewReapproTrait();
     }
 
     /**
@@ -39,17 +38,17 @@ class DaNewReApproController extends Controller
         $this->checkPageAccess($this->estAdmin() || $this->estCreateurDeDADirecte());
         /** FIN AUtorisation accès */
 
-        $demandeAppro = $this->initialisationDemandeApproDirect();
+        $demandeAppro = $this->initialisationDemandeApproReappro();
 
-        $form = $this->getFormFactory()->createBuilder(DemandeApproDirectFormType::class, $demandeAppro)->getForm();
-        $this->traitementFormDirect($form, $request, $demandeAppro);
+        $form = $this->getFormFactory()->createBuilder(DemandeApproReapproFormType::class, $demandeAppro)->getForm();
+        $this->traitementFormReappro($form, $request, $demandeAppro);
 
         return $this->render('da/new-da-direct.html.twig', [
             'form' => $form->createView(),
         ]);
     }
 
-    private function traitementFormDirect($form, Request $request, DemandeAppro $demandeAppro): void
+    private function traitementFormReappro($form, Request $request, DemandeAppro $demandeAppro): void
     {
         $form->handleRequest($request);
 
@@ -77,7 +76,6 @@ class DaNewReApproController extends Controller
                     ->setStatutDal(DemandeAppro::STATUT_SOUMIS_APPRO)
                     ->setJoursDispo($this->getJoursRestants($demandeApproL));
 
-                $this->traitementFichiers($demandeApproL, $files); // traitement des fichiers uploadés pour chaque ligne DAL
                 $this->getEntityManager()->persist($demandeApproL);
             }
 
@@ -107,26 +105,5 @@ class DaNewReApproController extends Controller
             $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'Votre demande a été enregistrée']);
             $this->redirectToRoute("list_da");
         }
-    }
-
-    /** 
-     * TRAITEMENT DES FICHIER UPLOAD pour chaque ligne de la demande appro (DAL)
-     */
-    private function traitementFichiers(DemandeApproL $dal, $files): void
-    {
-        $fileNames = [];
-        if ($files !== null) {
-            $i = 1; // Compteur pour le nom du fichier
-            foreach ($files as $file) {
-                if ($file instanceof UploadedFile) {
-                    $fileName = $this->daFileUploader->uploadPJForDal($file, $dal, $i); // Appel de la méthode pour uploader le fichier
-                } else {
-                    throw new \InvalidArgumentException('Le fichier doit être une instance de UploadedFile.');
-                }
-                $i++; // Incrémenter le compteur pour le prochain fichier
-                $fileNames[] = $fileName; // Ajouter le nom du fichier dans le tableau
-            }
-        }
-        $dal->setFileNames($fileNames); // Enregistrer les noms de fichiers dans l'entité
     }
 }
