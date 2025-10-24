@@ -33,7 +33,7 @@ class DaArticleReappro
     private ?string $artRefp = '';
 
     /**
-     * @ORM\Column(type="string", length=3, name="art_constp")
+     * @ORM\Column(type="string", length=3, name="art_desi")
      */
     private ?string $artDesi = '';
 
