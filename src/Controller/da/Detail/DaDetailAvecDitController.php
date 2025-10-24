@@ -74,6 +74,7 @@ class DaDetailAvecDitController extends Controller
 		$demandeApproLPrepared = $this->prepareDataForDisplayDetail($demandeAppro->getDAL());
 
 		return $this->render('da/detail.html.twig', [
+			'detailTemplate'      		=> 'detail-avec-dit',
 			'formObservation'			=> $formObservation->createView(),
 			'demandeAppro'      		=> $demandeAppro,
 			'demandeApproLines'   		=> $demandeApproLPrepared,

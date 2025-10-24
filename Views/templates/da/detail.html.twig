@@ -17,8 +17,6 @@
 	{% include "/shared/_overlay.html.twig"  %}
 {% endblock %}
 
-{% set detail_template = demandeAppro.achatDirect ? 'detail-direct' : 'detail-avec-dit' %}
-
 {% block content %}
 	<div class="container-spaced">
 		<nav>
@@ -33,7 +31,7 @@
 				<div class="container-fluid">
 					<div class="tab-content" id="nav-tabContent">
 						<div class="tab-pane fade active show" id="nav-detail" role="tabpanel" aria-labelledby="nav-detail-tab">
-							{{ include('da/shared/detail/' ~ detail_template ~ '.html.twig') }}
+							{{ include('da/shared/detail/' ~ detailTemplate ~ '.html.twig') }}
 						</div>
 						<div class="tab-pane fade" id="nav-observation" role="tabpanel" aria-labelledby="nav-observation-tab">
 							{{ include('da/shared/observation/observation.html.twig') }}

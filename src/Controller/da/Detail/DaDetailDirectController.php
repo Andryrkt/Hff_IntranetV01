@@ -70,6 +70,7 @@ class DaDetailDirectController extends Controller
 		]);
 
 		return $this->render('da/detail.html.twig', [
+			'detailTemplate'      		=> 'detail-direct',
 			'formObservation'			=> $formObservation->createView(),
 			'demandeAppro'      		=> $demandeAppro,
 			'demandeApproLines'   		=> $demandeApproLPrepared,
