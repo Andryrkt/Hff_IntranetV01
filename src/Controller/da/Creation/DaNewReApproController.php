@@ -19,6 +19,10 @@ class DaNewReApproController extends Controller
 {
     use DaNewReapproTrait;
     use AutorisationTrait;
+    const STATUT_DAL = [
+        'enregistrerBrouillon' => DemandeAppro::STATUT_EN_COURS_CREATION,
+        'soumissionAppro'      => DemandeAppro::STATUT_SOUMIS_APPRO,
+    ];
 
     public function __construct()
     {
@@ -35,7 +39,7 @@ class DaNewReApproController extends Controller
         $this->verifierSessionUtilisateur();
 
         /** Autorisation accès */
-        $this->checkPageAccess($this->estAdmin() || $this->estCreateurDeDADirecte());
+        $this->checkPageAccess($this->estAdmin());
         /** FIN AUtorisation accès */
 
         $demandeAppro = $this->initialisationDemandeApproReappro();
@@ -43,7 +47,7 @@ class DaNewReApproController extends Controller
         $form = $this->getFormFactory()->createBuilder(DemandeApproReapproFormType::class, $demandeAppro)->getForm();
         $this->traitementFormReappro($form, $request, $demandeAppro);
 
-        return $this->render('da/new-da-direct.html.twig', [
+        return $this->render('da/new-da-reappro.html.twig', [
             'form' => $form->createView(),
         ]);
     }

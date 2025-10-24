@@ -39,6 +39,8 @@ class DemandeApproL
      */
     private $qteDem;
 
+    private $qteValAppro; // seulement pour les DA réappro
+
     /**
      * @ORM\Column(type="integer", name="qte_dispo")
      */
@@ -998,6 +1000,26 @@ class DemandeApproL
     public function setDateLivraisonPrevue($dateLivraisonPrevue)
     {
         $this->dateLivraisonPrevue = $dateLivraisonPrevue;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of qteValAppro
+     */
+    public function getQteValAppro()
+    {
+        return $this->qteValAppro;
+    }
+
+    /**
+     * Set the value of qteValAppro
+     *
+     * @return  self
+     */
+    public function setQteValAppro($qteValAppro)
+    {
+        $this->qteValAppro = $qteValAppro;
 
         return $this;
     }
