@@ -49,6 +49,7 @@ trait DaNewAvecDitTrait
         $demandeAppro = new DemandeAppro;
 
         $demandeAppro
+            ->setDaTypeId(DemandeAppro::TYPE_DA_AVEC_DIT)
             ->setNiveauUrgence($dit->getIdNiveauUrgence()->getDescription())
             ->setObjetDal($dit->getObjetDemande())
             ->setDetailDal($dit->getDetailDemande())

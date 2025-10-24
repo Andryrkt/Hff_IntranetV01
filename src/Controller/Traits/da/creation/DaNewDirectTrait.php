@@ -33,7 +33,7 @@ trait DaNewDirectTrait
         $service = $agenceServiceIps['serviceIps'];
 
         $demandeAppro
-            ->setAchatDirect(true)
+            ->setDaTypeId(DemandeAppro::TYPE_DA_DIRECT)
             ->setAgenceDebiteur($agence)
             ->setServiceDebiteur($service)
             ->setAgenceEmetteur($agence)
