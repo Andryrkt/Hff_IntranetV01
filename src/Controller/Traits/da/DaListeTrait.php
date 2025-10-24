@@ -224,7 +224,7 @@ trait DaListeTrait
                 'dit'                 => $item->getDit(),
                 'numeroDemandeAppro'  => $item->getNumeroDemandeAppro(),
                 'demandeAppro'        => $item->getDemandeAppro(),
-                'achatDirect'         => $daDirect ? $safeIconSuccess : '',
+                'daDirect'            => $daDirect ? $safeIconSuccess : '',
                 'numeroDemandeDit'    => $item->getNumeroDemandeDit() ?? $safeIconBan,
                 'numeroOr'            => $daViaOR ? $item->getNumeroOr() : $safeIconBan,
                 'niveauUrgence'       => $item->getNiveauUrgence(),
