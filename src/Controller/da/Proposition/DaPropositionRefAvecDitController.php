@@ -91,7 +91,9 @@ class DaPropositionRefAvecDitController extends Controller
             'statutAutoriserModifAte' => $da->getStatutDal() === DemandeAppro::STATUT_AUTORISER_MODIF_ATE,
             'estAte'                  => $this->estUserDansServiceAtelier(),
             'estAppro'                => $this->estUserDansServiceAppro(),
-            'nePeutPasModifier'       => $this->nePeutPasModifier($da)
+            'nePeutPasModifier'       => $this->nePeutPasModifier($da),
+            'propValTemplate'         => 'proposition-validation-avec-dit',
+            'dossierJS'               => 'propositionAvecDit',
         ]);
     }
 

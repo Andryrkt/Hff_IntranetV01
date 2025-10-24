@@ -88,7 +88,9 @@ class DaPropositionArticleDirectController extends Controller
             'statutAutoriserModifAte' => $da->getStatutDal() === DemandeAppro::STATUT_AUTORISER_MODIF_ATE,
             'estCreateurDaDirecte'    => $this->estCreateurDeDADirecte(),
             'estAppro'                => $this->estUserDansServiceAppro(),
-            'nePeutPasModifier'       => $this->nePeutPasModifier($da)
+            'nePeutPasModifier'       => $this->nePeutPasModifier($da),
+            'propValTemplate'         => 'proposition-validation-direct',
+            'dossierJS'               => 'propositionDirect',
         ]);
     }
 
