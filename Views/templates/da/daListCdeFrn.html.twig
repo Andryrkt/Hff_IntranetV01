@@ -60,54 +60,40 @@
 				</tr>
 			</thead>
 			<tbody id="tableBody" class="align-middle">
-				{% for item in daAfficherValides %}
-					{% set envoye_frn = item.statutCde is same as 'BC envoyé au fournisseur' %}
-					{% set url_detail = item.achatDirect ? 'da_detail_direct' : 'da_detail_avec_dit' %}
+				{% for row in data %}
 					<tr>
 						<td class="text-center">
-							<a href="{{ path(url_detail, { id: item.demandeAppro.id }) }}" target="_blank">
-								{{ item.numeroDemandeAppro }}
+							<a href="{{ row.urlDetail }}" target="_blank">
+								{{ row.numeroDemandeAppro }}
 							</a>
 						</td>
-						<td class="text-center">
-							{% if item.achatDirect %}
-								<i class="fas fa-check text-success"></i>
+						<td class="text-center">{{ row.daDirect }}</td>
+						<td class="text-center">{{ row.numeroDemandeDit }}</td>
+						<td class="text-center">{{ row.niveauUrgence }}</td>
+						<td class="text-center">{{ row.numeroOr }}</td>
+						<td class="text-center">{{ row.datePlannigOr }}</td>
+						<td class="text-center">{{ row.numeroFournisseur }}</td>
+						<td class="text-center">{{ row.nomFournisseur }}</td>
+						<td {% for attr, val in row.tdNumCdeAttributes %} {{ attr }}="{{ val }}" {% endfor %}>
+							{{ row.numeroCde }}
+						</td>
+						<td class="text-center fw-bold {{ row.styleStatutDA }}">{{ row.statutDal }}</td>
+						<td class="text-center fw-bold {{ row.styleStatutBC }}">{{ row.statutCde }}</td>
+						<td class="text-center {{ row.styleClickableCell }}">
+							{% if row.envoyeFrn %}
+								<input {% for attr, val in row.tdCheckboxAttributes %} {{ attr }}="{{ val }}" {% endfor %}>
 							{% endif %}
 						</td>
-						<td class="text-center">{{ item.numeroDemandeDit|default('<i class="fas fa-ban text-muted"></i>')|raw}}
-						</td>
-						<td class="text-center">{{ item.niveauUrgence }}</td>
-						<td class="text-center">{{ item.numeroOr|default('<i class="fas fa-ban text-muted"></i>')|raw }}</td>
-						<td class="text-center">{{ item.achatDirect ? '<i class="fas fa-ban text-muted"></i>' : item.datePlannigOr == null ? '': item.datePlannigOr| date('d/m/Y')}}</td>
-						<td class="text-center">{{ item.numeroFournisseur }}</td>
-						<td class="text-center">{{ item.nomFournisseur }}</td>
-						{% if item.numeroCde %}
-							<td class="text-center commande-cellule commande" data-commande-id="{{item.numeroCde}}" data-num-da="{{item.numeroDemandeAppro}}" data-num-or="{{item.numeroOr}}" data-statut-bc="{{item.statutCde}}" data-position-cde="{{item.positionBc}}">
-								{{ item.numeroCde }}
-							</td>
-						{% else %}
-							<td class="text-center">
-								{{ item.numeroCde }}
-							</td>
-						{% endif %}
-
-						<td class="text-center fw-bold {{ styleStatutDA[item.statutDal]|default('')}}">{{ item.statutDal }}</td>
-						<td class="text-center fw-bold {{ styleStatutBC[item.statutCde]}}">{{ item.statutCde}}</td>
-						<td class="text-center {{ envoye_frn ? 'clickable-td' : '' }}">
-							{% if envoye_frn %}
-								<input class="modern-checkbox" type="checkbox" value="{{ item.id }}" data-numero-demande-appro="{{ item.numeroDemandeAppro }}" data-numero-ligne="{{ item.numeroLigne }}">
-							{% endif %}
-						</td>
-						<td class="text-center {{ envoye_frn ? 'clickable-td' : '' }}">{{ item.dateFinSouhaite == null ? '' : item.dateFinSouhaite| date('d/m/Y')}}</td>
-						<td class="text-center {{ envoye_frn ? 'clickable-td' : '' }}">{{ item.artRefp }}</td>
-						<td class="text-start {{ envoye_frn ? 'clickable-td' : '' }}">{{ item.artDesi }}</td>
-						<td class="text-center {{ envoye_frn ? 'clickable-td' : '' }}">{{ item.qteDem == 0 ? '-': item.qteDem }}</td>
-						<td class="text-center {{ envoye_frn ? 'clickable-td' : '' }}">{{ item.qteEnAttent == 0 ? '-': item.qteEnAttent }}</td>
-						<td class="text-center {{ envoye_frn ? 'clickable-td' : '' }}">{{ item.qteDispo == 0 ? '-': item.qteDispo }}</td>
-						<td class="text-center {{ envoye_frn ? 'clickable-td' : '' }}">{{ item.qteLivrer == 0 ? '-': item.qteLivrer }}</td>
-						<td class="text-center {{ envoye_frn ? 'clickable-td' : '' }}">{{ item.dateLivraisonPrevue == null ? '' : item.dateLivraisonPrevue|date('d/m/Y')}}</td>
-						<td class="text-center {{ item.joursDispo < 0 ? 'text-danger' : '' }} {{ envoye_frn ? 'clickable-td' : '' }}">{{ item.joursDispo}}</td>
-						<td class="text-center {{ envoye_frn ? 'clickable-td' : '' }}">{{ item.demandeur}}</td>
+						<td class="text-center {{ row.styleClickableCell }}">{{ row.dateFinSouhaite }}</td>
+						<td class="text-center {{ row.styleClickableCell }}">{{ row.artRefp }}</td>
+						<td class="text-start {{ row.styleClickableCell }}">{{ row.artDesi }}</td>
+						<td class="text-center {{ row.styleClickableCell }}">{{ row.qteDem }}</td>
+						<td class="text-center {{ row.styleClickableCell }}">{{ row.qteEnAttent }}</td>
+						<td class="text-center {{ row.styleClickableCell }}">{{ row.qteDispo }}</td>
+						<td class="text-center {{ row.styleClickableCell }}">{{ row.qteLivrer }}</td>
+						<td class="text-center {{ row.styleClickableCell }}">{{ row.dateLivraisonPrevue }}</td>
+						<td class="text-center {{ row.styleClickableCell }} {{ row.styleJoursDispo }}">{{ row.joursDispo }}</td>
+						<td class="text-center {{ row.styleClickableCell }}">{{ row.demandeur}}</td>
 					</tr>
 				{% endfor %}
 			</tbody>

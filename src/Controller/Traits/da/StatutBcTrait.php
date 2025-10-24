@@ -9,7 +9,6 @@ use App\Entity\da\DaSoumissionBc;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Model\magasin\MagasinListeOrLivrerModel;
 use App\Model\da\DaModel;
-use Symfony\Component\Validator\Constraints\Length;
 
 trait StatutBcTrait
 {
