@@ -228,10 +228,6 @@ class DaAfficherRepository extends EntityRepository
     {
         $criteria = $criteria ?? [];
 
-        // Vérifier si achatDirect existe dans l'entité
-        $classMetadata   = $this->_em->getClassMetadata(DaAfficher::class);
-        $hasAchatDirecte = $classMetadata->hasField('achatDirect');
-
         // ----------------------
         // 1. Sous-requête : versions maximales
         // ----------------------
@@ -255,12 +251,8 @@ class DaAfficherRepository extends EntityRepository
             $subQb->expr()->in('d.statutOr', ':statutOrs'),
             $subQb->expr()->in('d.numeroDemandeAppro', ':exceptions')
         );
-        // Appliquer la condition selon la présence de achatDirect
-        if ($hasAchatDirecte) {
-            $subQb->andWhere('d.achatDirect = true OR (d.achatDirect = false AND (' . $orCondition . '))');
-        } else {
-            $subQb->andWhere($orCondition);
-        }
+        // Appliquer la condition selon le type de la DA
+        $subQb->andWhere('d.daTypeId = ' . DemandeAppro::TYPE_DA_DIRECT . ' OR (d.daTypeId = ' . DemandeAppro::TYPE_DA_AVEC_DIT . ' AND (' . $orCondition . '))');
 
         // Paramètres communs
         $subQb->setParameter('statutOrs', $statutOrs)
@@ -319,12 +311,10 @@ class DaAfficherRepository extends EntityRepository
             ->setParameter('statutPasDansOr', DaSoumissionBc::STATUT_PAS_DANS_OR)
         ;
 
-        if ($hasAchatDirecte) {
-            $qb->andWhere('d.statutDal = :statutDal')
-                ->andWhere($qb->expr()->in('d.statutOr', ':statutOrsValide'))
-                ->setParameter('statutOrsValide', $statutOrs)
-                ->setParameter('statutDal', DemandeAppro::STATUT_VALIDE);
-        }
+        $qb->andWhere('d.statutDal = :statutDal')
+            ->andWhere($qb->expr()->in('d.statutOr', ':statutOrsValide'))
+            ->setParameter('statutOrsValide', $statutOrs)
+            ->setParameter('statutDal', DemandeAppro::STATUT_VALIDE);
 
         // Condition sur les versions maximales (à partir de la sous-requête)
         $orX = $qb->expr()->orX();
