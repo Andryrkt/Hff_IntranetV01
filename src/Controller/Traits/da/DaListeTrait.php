@@ -196,7 +196,7 @@ trait DaListeTrait
 
         foreach ($data as $item) {
             // Variables à employer
-            $achatDirect = $item->getDaTypeId() == DemandeAppro::TYPE_DA_DIRECT;
+            $daDirect = $item->getDaTypeId() == DemandeAppro::TYPE_DA_DIRECT;
             $daViaOR = $item->getDaTypeId() == DemandeAppro::TYPE_DA_AVEC_DIT;
 
             // Pré-calculer les styles
@@ -224,7 +224,7 @@ trait DaListeTrait
                 'dit'                 => $item->getDit(),
                 'numeroDemandeAppro'  => $item->getNumeroDemandeAppro(),
                 'demandeAppro'        => $item->getDemandeAppro(),
-                'achatDirect'         => $achatDirect ? $safeIconSuccess : '',
+                'achatDirect'         => $daDirect ? $safeIconSuccess : '',
                 'numeroDemandeDit'    => $item->getNumeroDemandeDit() ?? $safeIconBan,
                 'numeroOr'            => $daViaOR ? $item->getNumeroOr() : $safeIconBan,
                 'niveauUrgence'       => $item->getNiveauUrgence(),
