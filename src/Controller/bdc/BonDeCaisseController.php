@@ -3,14 +3,16 @@
 namespace App\Controller\bdc;
 
 use App\Controller\Controller;
-use App\Entity\admin\AgenceServiceIrium;
-use App\Controller\Traits\ConversionTrait;
-use App\Controller\Traits\bdc\BonDeCaisseListeTrait; // Ajouter cette ligne à la place
-use App\Controller\Traits\FormatageTrait;
 use App\Entity\bdc\BonDeCaisse;
+use App\Entity\admin\Application;
 use App\Form\bdc\BonDeCaisseType;
+use App\Entity\admin\AgenceServiceIrium;
+use App\Controller\Traits\FormatageTrait;
+use App\Controller\Traits\ConversionTrait;
+use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Controller\Traits\bdc\BonDeCaisseListeTrait; // Ajouter cette ligne à la place
 
 /**
  * @Route("/compta/demande-de-paiement")
@@ -20,6 +22,7 @@ class BonDeCaisseController extends Controller
     use ConversionTrait;
     use BonDeCaisseListeTrait;
     use FormatageTrait;
+    use AutorisationTrait;
 
     /**
      * Affiche la liste des bons de caisse
@@ -30,7 +33,10 @@ class BonDeCaisseController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $autoriser = $this->autorisationRole($this->getEntityManager());
+        /** Autorisation accées */
+        $this->autorisationAcces($this->getUser(), Application::ID_BCS);
+        /** FIN AUtorisation acées */
+
         $bonCaisseSearch = new BonDeCaisse();
 
         $agenceServiceIps = $this->agenceServiceIpsObjet();

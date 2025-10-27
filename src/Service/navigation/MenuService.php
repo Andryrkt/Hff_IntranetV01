@@ -194,7 +194,7 @@ class MenuService
         // Définition des règles d’accès pour chaque menu
         $menus = [
             [$this->menuReportingBI(), $estAdmin],
-            [$this->menuCompta(), $estAdmin || $this->hasAccess([Application::ID_DDP, Application::ID_DDR], $applicationIds)], // DDP + DDR
+            [$this->menuCompta(), $estAdmin || $this->hasAccess([Application::ID_DDP, Application::ID_DDR, Application::ID_BCS], $applicationIds)], // DDP + DDR
             [$this->menuRH(), $estAdmin || $this->hasAccess([Application::ID_DOM, Application::ID_MUT, Application::ID_DDC], $applicationIds)],     // DOM + MUT + DDC
             [$this->menuMateriel(), $estAdmin || $this->hasAccess([Application::ID_BADM, Application::ID_CAS], $applicationIds)], // BDM + CAS
             [$this->menuAtelier(), $estAdmin || $this->hasAccess([Application::ID_DIT, Application::ID_REP], $applicationIds)], // DIT + REP
@@ -256,29 +256,34 @@ class MenuService
 
     public function menuCompta()
     {
+        $subitems = [];
+
+        $subitems[] = $this->createSimpleItem('Cours de change', 'money-bill-wave');
+        $subitems[] = $this->createSubMenuItem(
+            'Demande de paiement',
+            'file-invoice-dollar',
+            [
+                $this->createSubItem('Nouvelle demande', 'plus-circle', '#', [], 'modalTypeDemande', true),
+                $this->createSubItem('Consultation', 'search', 'ddp_liste')
+            ]
+        );
+
+        if ($this->getEstAdmin() || in_array(Application::ID_BCS, $this->getApplicationIds())) {
+            $subitems[] = $this->createSubMenuItem(
+                'Bon de caisse',
+                'receipt',
+                [
+                    $this->createSubItem('Nouvelle demande', 'plus-circle', '#'),
+                    $this->createSubItem('Consultation', 'search', 'bon_caisse_liste')
+                ]
+            );
+        }
+
         return $this->createMenuItem(
             'comptaModal',
             'Compta',
             'calculator',
-            [
-                $this->createSimpleItem('Cours de change', 'money-bill-wave'),
-                $this->createSubMenuItem(
-                    'Demande de paiement',
-                    'file-invoice-dollar',
-                    [
-                        $this->createSubItem('Nouvelle demande', 'plus-circle', '#', [], 'modalTypeDemande', true),
-                        $this->createSubItem('Consultation', 'search', 'ddp_liste')
-                    ]
-                ),
-                $this->createSubMenuItem(
-                    'Bon de caisse',
-                    'receipt',
-                    [
-                        $this->createSubItem('Nouvelle demande', 'plus-circle', '#'),
-                        $this->createSubItem('Consultation', 'search', 'bon_caisse_liste')
-                    ]
-                )
-            ]
+            $subitems
         );
     }
 
