@@ -23,29 +23,24 @@ class BonDeCaisseRepository extends EntityRepository
 
         // Filtrer par plage de date de demande
         if ($bonDeCaisse->getDateDemande()) {
-            $dateDemandeFin = $options['dateDemandeFin'] ?? null;
-
-            if ($dateDemandeFin) {
-                // Si on a une date de fin, on filtre sur la plage
-                $queryBuilder->andWhere('b.dateDemande BETWEEN :dateDemande AND :dateDemandeFin')
-                    ->setParameter('dateDemande', $bonDeCaisse->getDateDemande())
-                    ->setParameter('dateDemandeFin', $dateDemandeFin);
-            } else {
-                // Sinon on filtre sur la date exacte
-                $queryBuilder->andWhere('b.dateDemande = :dateDemande')
-                    ->setParameter('dateDemande', $bonDeCaisse->getDateDemande());
-            }
+            $dateDemandeFin = $options['dateDemandeFin'] ?? '3000-01-01';
+            // Si on a une date de fin, on filtre sur la plage
+            $queryBuilder->andWhere('b.dateDemande BETWEEN :dateDemande AND :dateDemandeFin')
+                ->setParameter('dateDemande', $bonDeCaisse->getDateDemande())
+                ->setParameter('dateDemandeFin', $dateDemandeFin);
         }
 
-        // Filtrer par agence et service
-        if ($bonDeCaisse->getAgenceDebiteur() && isset($options['service']) && $options['service']) {
+        // Filtrer par agence 
+        if (isset($options['agenceDebiteur']) && $options['agenceDebiteur']) {
             $queryBuilder->andWhere('b.agenceDebiteur = :agenceDebiteur')
-                ->andWhere('b.serviceDebiteur = :serviceDebiteur')
-                ->setParameter('agenceDebiteur', $bonDeCaisse->getAgenceDebiteur())
-                ->setParameter('serviceDebiteur', $options['service']);
+                ->setParameter('agenceDebiteur', $options['agenceDebiteur']);
         }
 
-
+        // Filtrer par service
+        if (isset($options['service']) && $options['service']) {
+            $queryBuilder->andWhere('b.serviceDebiteur = :service')
+                ->setParameter('service', $options['service']);
+        }
 
         // Filtrer par caisse de retrait
         if ($bonDeCaisse->getCaisseRetrait()) {

@@ -94,14 +94,22 @@ class BonDeCaisseController extends Controller
                 }
             }
 
-            // Récupérer de l'agence  et le service directement depuis la requête au lieu du formulaire
-            $agenceFromRequest = $request->query->get('bon_de_caisse')['agenceDebiteur'] ?? null;
-            $serviceFromRequest = $request->query->get('bon_de_caisse')['service'] ?? null;
-            if ($serviceFromRequest && $agenceFromRequest) {
-                $options['agenceDebiteur'] = $agenceFromRequest;
-                $options['service'] = $serviceFromRequest;
+            // Récupérer la date de demande fin (non mappée)
+            if ($form->has('agenceDebiteur')) {
+                $agenceDebiteur = $form->get('agenceDebiteur')->getData();
+                $bonCaisseSearch->setAgenceDebiteur($agenceDebiteur);
+                if ($agenceDebiteur) {
+                    $options['agenceDebiteur'] = $agenceDebiteur;
+                }
             }
 
+            // Récupérer la date de demande fin (non mappée)
+            if ($form->has('service')) {
+                $serviceDebiteur = $form->get('service')->getData();
+                if ($serviceDebiteur) {
+                    $options['service'] = $serviceDebiteur;
+                }
+            }
         }
 
 
