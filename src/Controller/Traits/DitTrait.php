@@ -3,6 +3,7 @@
 namespace App\Controller\Traits;
 
 
+use App\Model\dit\DitModel;
 use App\Entity\admin\Application;
 use App\Dto\Dit\DemandeInterventionDto;
 
@@ -36,8 +37,8 @@ trait DitTrait
 
 
     private function historiqueInterventionMateriel(int $idMateriel): array
-    {
-        $historiqueMateriel = $this->getDitModel()->historiqueMateriel($idMateriel);
+    {$ditModel = new DitModel();
+        $historiqueMateriel = $ditModel->historiqueMateriel($idMateriel);
         
         foreach ($historiqueMateriel as $keys => $values) {
             foreach ($values as $key => $value) {

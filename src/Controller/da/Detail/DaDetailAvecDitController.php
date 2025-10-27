@@ -16,6 +16,7 @@ use App\Controller\Traits\da\DaAfficherTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\da\detail\DaDetailAvecDitTrait;
+use App\Model\dit\DitModel;
 
 /**
  * @Route("/demande-appro")
@@ -49,7 +50,8 @@ class DaDetailAvecDitController extends Controller
 		/** @var DemandeAppro $demandeAppro la demande appro correspondant à l'id $id */
 		$demandeAppro = $this->getEntityManager()->getRepository(DemandeAppro::class)->find($id); // recupération de la DA
 		$dit = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $demandeAppro->getNumeroDemandeDit()]); // recupération du DIT associée à la DA
-		$dataModel = $this->getDitModel()->recupNumSerieParcPourDa($dit->getIdMateriel());
+		$ditModel = new DitModel();
+		$dataModel = $ditModel->recupNumSerieParcPourDa($dit->getIdMateriel());
 
 		$numeroVersionMax = $this->getEntityManager()->getRepository(DemandeApproL::class)->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
 		$demandeAppro = $this->filtreDal($demandeAppro, $dit, (int)$numeroVersionMax); // on filtre les lignes de la DA selon le numero de version max
