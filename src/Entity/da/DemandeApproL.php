@@ -1023,4 +1023,20 @@ class DemandeApproL
 
         return $this;
     }
+
+    /** 
+     * ===================
+     * Méthodes pour Twig
+     * ===================
+     */
+    public function getMontantTwig(): float
+    {
+        return $this->getPrixUnitaire() * $this->getQteDem();
+    }
+
+    public function getMontantFormatted(): string
+    {
+        $montant = $this->getMontantTwig();
+        return $montant == 0 ? '-' : number_format($montant, 2, ',', '.');
+    }
 }

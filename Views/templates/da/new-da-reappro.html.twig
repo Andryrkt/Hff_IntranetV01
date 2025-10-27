@@ -70,19 +70,17 @@
 						</thead>
 						<tbody>
 							{% for dalForm in form.DAL %}
-								{% set line = loop.index %}
 								{% set dal = dalForm.vars.data %}
-								{% set PU = dal.prixUnitaire|number_format('2', ',', '.') %}
 								<tr>
 									<td>{{ macroForm.affichageSimple(dal.artConstp, 'text-center') }}</td>
 									<td>{{ macroForm.affichageSimple(dal.artRefp, 'text-center') }}</td>
 									<td>{{ macroForm.affichageSimple(dal.artDesi, 'text-start') }}</td>
-									<td>{{ macroForm.affichageSimple(PU, 'text-end') }}</td>
+									<td>{{ macroForm.affichageSimple(dal.montantTwig, 'text-end') }}</td>
 									<td class="text-center" data-dal-pu="{{ dal.prixUnitaire }}" data-dal-qte-valide-app="{{ dal.qteValAppro }}">
 										{{ form_widget(dalForm.qteDem) }}
 									</td>
 									<td>{{ macroForm.affichageSimple(dal.qteValAppro, 'text-center') }}</td>
-									<td>{{ macroForm.affichageSimple('-', 'text-end') }}</td>
+									<td>{{ macroForm.affichageSimple(dal.montantFormatted, 'text-end') }}</td>
 								</tr>
 							{% endfor %}
 						</tbody>
