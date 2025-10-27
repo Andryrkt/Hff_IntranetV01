@@ -45,7 +45,12 @@ class DaNewAvecDitController extends Controller
         return $this->render('da/first-form.html.twig', [
             'estAte'                 => $this->estUserDansServiceAtelier(),
             'estCreateurDeDADirecte' => $this->estCreateurDeDADirecte(),
-            'estAdmin'               => $this->estAdmin()
+            'urls'                   => [
+                'avecDit' => $this->getUrlGenerator()->generate('da_list_dit'),
+                'direct'  => $this->getUrlGenerator()->generate('da_new_direct'),
+                'reappro' => $this->getUrlGenerator()->generate('da_new_reappro', ['id' => 0]),
+            ],
+            'estAdmin'               => $this->estAdmin(),
         ]);
     }
 

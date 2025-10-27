@@ -19,17 +19,17 @@
 					<div class="text-center">
 						<p class="fs-6">Veuillez cliquer sur le type de demande que vous souhaitez créer:</p>
 						{% if estAdmin or estAte %}
-							<a class="choix" href="{{ path('da_list_dit') }}">
+							<a class="choix" href="{{ urls.avecDit }}">
 								Demande d’achat avec DIT
 							</a>
 						{% endif %}
 						{% if estAdmin or estCreateurDeDADirecte %}
-							<a class="choix" href="{{ path('da_new_direct') }}">
+							<a class="choix" href="{{ urls.direct }}">
 								Demande d’achat direct
 							</a>
 						{% endif %}
 						{% if estAdmin %}
-							<a class="choix" href="{{ path('da_new_reappro') }}">
+							<a class="choix" href="{{ urls.reappro }}">
 								Demande de réappro mensuel
 							</a>
 						{% endif %}
