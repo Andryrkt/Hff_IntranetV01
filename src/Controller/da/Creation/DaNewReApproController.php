@@ -42,7 +42,9 @@ class DaNewReApproController extends Controller
         $this->checkPageAccess($this->estAdmin());
         /** FIN AUtorisation accès */
 
-        $demandeAppro = $id === 0 ? $this->initialisationDemandeApproReappro() : $this->demandeApproRepository->find($id);
+        $agenceServiceIps = $this->agenceServiceIpsObjet();
+        $demandeAppro = $id === 0 ? $this->initialisationDemandeApproReappro($agenceServiceIps) : $this->demandeApproRepository->find($id);
+        $this->generateDemandApproLinesFromReappros($demandeAppro, $agenceServiceIps);
 
         $form = $this->getFormFactory()->createBuilder(DemandeApproReapproFormType::class, $demandeAppro)->getForm();
         $this->traitementFormReappro($form, $request);

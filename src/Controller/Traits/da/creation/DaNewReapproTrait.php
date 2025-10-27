@@ -32,13 +32,14 @@ trait DaNewReapproTrait
     /** 
      * Fonction pour initialiser une demande appro réappro
      * 
+     * @param array $agenceServiceIps
+     * 
      * @return DemandeAppro la demande appro initialisée
      */
-    private function initialisationDemandeApproReappro(): DemandeAppro
+    private function initialisationDemandeApproReappro(array $agenceServiceIps): DemandeAppro
     {
         $demandeAppro = new DemandeAppro;
 
-        $agenceServiceIps = $this->agenceServiceIpsObjet();
         $agence = $agenceServiceIps['agenceIps'];
         $service = $agenceServiceIps['serviceIps'];
         $codeAgence = $agence->getCodeAgence();
@@ -57,32 +58,55 @@ trait DaNewReapproTrait
             ->setNumeroDemandeAppro($numDa)
             ->setDemandeur($this->getUser()->getNomUtilisateur())
             ->setDateFinSouhaite($this->ajouterJoursOuvrables(5)) // Définit la date de fin souhaitée automatiquement à 3 jours après la date actuelle
-            ->setDAL($this->buildDalFromReappros($numDa, $codeAgence, $codeService))
         ;
 
         return $demandeAppro;
     }
 
-    private function buildDalFromReappros(string $numDa, string $codeAgence, string $codeService): ArrayCollection
+    private function generateDemandApproLinesFromReappros(DemandeAppro $demandeAppro, array $agenceServiceIps)
     {
-        $dals = [];
-        $line = 0;
-        /** @var DaArticleReappro[] $articleReappros */
-        $articleReappros = $this->daArticleReapproRepository->findBy(['codeAgence' => $codeAgence, 'codeService' => $codeService,]);
-        foreach ($articleReappros as $articleReappro) {
-            $dals[] = (new DemandeApproL)
+        $existingDals = [];
+        $newDals = [];
+        $lineNumber = 0;
+
+        $numDa = $demandeAppro->getNumeroDemandeAppro();
+        $agence = $agenceServiceIps['agenceIps'];
+        $service = $agenceServiceIps['serviceIps'];
+
+        $articlesReappro = $this->daArticleReapproRepository->findBy([
+            'codeAgence' => $agence->getCodeAgence(),
+            'codeService' => $service->getCodeService(),
+        ]);
+
+        // Indexation des DAL existantes
+        foreach ($demandeAppro->getDAL() as $dal) {
+            $key = md5("{$dal->getArtConstp()}|{$dal->getArtRefp()}|{$dal->getArtDesi()}");
+            $existingDals[$key] = $dal;
+        }
+
+        // Construction ou réutilisation des DAL
+        foreach ($articlesReappro as $article) {
+            $key = md5("{$article->getArtConstp()}|{$article->getArtRefp()}|{$article->getArtDesi()}");
+
+            if (isset($existingDals[$key])) {
+                $newDals[] = $existingDals[$key]->setQteValAppro($article->getQteValide());
+                continue;
+            }
+
+            $newDals[] = (new DemandeApproL())
                 ->setNumeroDemandeAppro($numDa)
                 ->setNumeroFournisseur('-')
                 ->setNomFournisseur('-')
                 ->setCommentaire('-')
-                ->setNumeroLigne(++$line)
-                ->setArtConstp($articleReappro->getArtConstp())
-                ->setArtRefp($articleReappro->getArtRefp())
-                ->setArtDesi($articleReappro->getArtDesi())
-                ->setPrixUnitaire($articleReappro->getArtPU())
-                ->setQteValAppro($articleReappro->getQteValide());
+                ->setNumeroLigne(++$lineNumber)
+                ->setArtConstp($article->getArtConstp())
+                ->setArtRefp($article->getArtRefp())
+                ->setArtDesi($article->getArtDesi())
+                ->setPrixUnitaire($article->getArtPU())
+                ->setQteValAppro($article->getQteValide());
         }
-        return new ArrayCollection($dals);
+
+        $demandeAppro->setDAL(new ArrayCollection($newDals));
     }
 
     /** 
