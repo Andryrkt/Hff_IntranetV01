@@ -366,7 +366,7 @@ class MagasinListeOrLivrerModel extends Model
             group by l.slor_numor
             having sum(l.slor_qteres) > 0
             )
-            --and slor_constp in ('AGR','ATC','AUS','CAT','CGM','CMX','DNL','DYN','GRO','HYS','JDR','KIT','MAN','MNT','OLY','OOM','PAR','PDV','PER','PUB','REM','SHM','TBI','THO') AND (slor_refp not like '%-L' and slor_refp not like '%-CTRL')
+            and slor_constp in ('AGR','ATC','AUS','CAT','CGM','CMX','DNL','DYN','GRO','HYS','JDR','KIT','MAN','MNT','OLY','OOM','PAR','PDV','PER','PUB','REM','SHM','TBI','THO') AND (slor_refp not like '%-L' and slor_refp not like '%-CTRL')
             --and T.situation = 'INCOMPLET'
             and seor_typeor not in('950', '501')
             $agenceUser
