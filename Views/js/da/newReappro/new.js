@@ -1,5 +1,5 @@
 import { displayOverlay } from "../../utils/ui/overlay";
-import { handlePrixInputEvents } from "./event";
+import { handleQteInputEvents } from "./event";
 
 document.addEventListener("DOMContentLoaded", function () {
   const actionsConfig = {
@@ -18,12 +18,12 @@ document.addEventListener("DOMContentLoaded", function () {
       canceledText: "La soumission de la demande a été annulée.",
     },
   };
-  const allPUInputs = document.querySelectorAll("[id*=_qteDem]");
-  handlePrixInputEvents(allPUInputs);
+  const allQteInputs = document.querySelectorAll(`[id*="_qteDem"]`);
+  handleQteInputEvents(allQteInputs);
 
   document.getElementById("myForm").addEventListener("submit", function (e) {
     e.preventDefault();
-    const tousVides = Array.from(allPUInputs).every(
+    const tousVides = Array.from(allQteInputs).every(
       (input) => input.value === ""
     );
 
