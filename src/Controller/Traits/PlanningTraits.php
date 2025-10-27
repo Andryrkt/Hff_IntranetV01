@@ -193,14 +193,18 @@ trait PlanningTraits
         }
         return $objetPlanning;
     }
-    private function creationTableauObjetPlanningMagasin(array $data): array
+    private function creationTableauObjetPlanningMagasin(array $data,array $back): array
     {
         $objetPlanning = [];
         //Recuperation de idmat et les truc
         foreach ($data as $item) {
             $planningMateriel = new PlanningMateriel();
 
-
+            if (in_array($item['orintv'], $back)) {
+                $backOrder = 'Okey';
+            } else {
+                $backOrder = '';
+            }
             //initialisation
             $planningMateriel
                 ->setCodeSuc($item['codesuc'])
@@ -220,7 +224,7 @@ trait PlanningTraits
                 ->setQteLiv($item['qtliv'])
                 ->setQteAll($item['qteall'])
                 // ->setNumeroOr($item['numeroor'])
-                ->addMoisDetailMagasin($item['mois'], $item['annee'], $item['orintv'], $item['qtecdm'], $item['qtliv'], $item['qteall'], $item['commentaire'])
+                ->addMoisDetailMagasin($item['mois'], $item['annee'], $item['orintv'], $item['qtecdm'], $item['qtliv'], $item['qteall'], $item['commentaire'],$backOrder)
             ;
             $objetPlanning[] = $planningMateriel;
         }
@@ -274,7 +278,8 @@ private function ajoutMoiDetailMagasin(array $objetPlanning): array
                         $moisDetail['qteCdm'],
                         $moisDetail['qteLiv'],
                         $moisDetail['qteAll'],
-                        $moisDetail['commentaire']
+                        $moisDetail['commentaire'],
+                         $moisDetail['back']
                     );
                 }
             }

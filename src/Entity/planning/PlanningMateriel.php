@@ -370,7 +370,7 @@ class PlanningMateriel
         ];
     }
 
-    public function addMoisDetailMagasin($mois, $annee, $orIntv, $qteCdm, $qteLiv, $qteAll, $commentaire)
+    public function addMoisDetailMagasin($mois, $annee, $orIntv, $qteCdm, $qteLiv, $qteAll, $commentaire,$back)
     {
         $this->moisDetails[] = [
             'mois' => $mois,
@@ -379,7 +379,8 @@ class PlanningMateriel
             'qteCdm' => $qteCdm,
             'qteLiv' => $qteLiv,
             'qteAll' => $qteAll,
-            'commentaire' => $commentaire
+            'commentaire' => $commentaire,
+            'back' => $back
         ];
     }
     /**

@@ -82,12 +82,16 @@ class PlanningMagasinModel extends Model
         }, $dataUtf8);
     }
 
-    public function recuperationCommadeplanifier($crieria)
+    public function recuperationCommadeplanifier($criteria,string $back)
     {
-        $numCmd = $this->numcommande($crieria);
-        $agDebit = $this->agenceDebite($crieria);
-        $servDebit = $this->serviceDebite($crieria);
-        $codeClient  = $this->codeClient($crieria);
+        if ($criteria->getOrBackOrder() == true) {
+            $numCmd = "AND nent_numcde in (" . $back . ")";
+        }else{
+            $numCmd = $this->numcommande($criteria);
+        }
+        $agDebit = $this->agenceDebite($criteria);
+        $servDebit = $this->serviceDebite($criteria);
+        $codeClient  = $this->codeClient($criteria);
 
         $statement = "SELECT 
                         trim(nent_succ) as codeSuc,
@@ -125,7 +129,32 @@ class PlanningMagasinModel extends Model
                         $codeClient
                         group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14
                         order by 12 desc, 13 desc";
-                    // dump($statement);    
+        // dump($statement);    
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->connect->fetchResults($result);
+        $resultat = $this->convertirEnUtf8($data);
+        return $resultat;
+    }
+
+    public function backOrderplanningMagasin()
+    {
+        $statement = "SELECT distinct 
+                    nlig_numcde AS intervention
+                  FROM neg_lig AS lig
+                  INNER JOIN gcot_acknow_cat AS cat
+                  ON CAST(lig.nlig_numcf  as varchar(50))= CAST(cat.numero_po as varchar(50))
+                  AND (lig.nlig_nolign = cat.line_number OR  lig.nlig_noligncm = cat.line_number)
+                  AND lig.nlig_refp = cat.parts_number
+                  WHERE (  CAST(cat.libelle_type as varchar(10))= 'Error'  or CAST(cat.libelle_type as varchar(10))= 'Back Order'  ) 
+                  AND cat.id_gcot_acknow_cat = (
+                                              SELECT MAX(sub.id_gcot_acknow_cat )
+                                              FROM gcot_acknow_cat AS sub
+                                              WHERE sub.parts_number = cat.parts_number
+                                                AND sub.numero_po = cat.numero_po
+                                                AND sub.line_number = cat.line_number
+                                          )
+                  
+      ";
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
         $resultat = $this->convertirEnUtf8($data);

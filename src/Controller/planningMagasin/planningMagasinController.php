@@ -11,6 +11,7 @@ use App\Controller\Traits\AutorisationTrait;
 use App\Form\planningMagasin\PlanningMagasinSearchType;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\PlanningTraits;
+use App\Service\TableauEnStringService;
 
 /**
  * @Route("/magasin")
@@ -62,16 +63,23 @@ class planningMagasinController extends Controller
         //initialisation criteria
         $criteria = $this->planningMagasinSearch;
         if ($form->isSubmitted() && $form->isValid()) {
-            // dd($form->getdata());
+            // dump($form->getdata());
             $criteria =  $form->getdata();
         }
         if ($request->query->get('action') !== 'oui') {
-            $data = $this->planningMagasinModel->recuperationCommadeplanifier($criteria);
+            $back = $this->planningMagasinModel->backOrderplanningMagasin();
+            if (is_array($back)) {
+                $backString = TableauEnStringService::orEnString($back);
+            } else {
+                $backString = '';
+            }
+            $data = $this->planningMagasinModel->recuperationCommadeplanifier($criteria,$backString);
             // dd($data);
         } else {
             $data = [];
+            $back = [];
         }
-        $tabObjetPlanning = $this->creationTableauObjetPlanningMagasin($data);
+        $tabObjetPlanning = $this->creationTableauObjetPlanningMagasin($data,$back);
         // Fusionner les objets en fonction de l'idMat
         $fusionResult = $this->ajoutMoiDetailMagasin($tabObjetPlanning);
         // dd($fusionResult);
