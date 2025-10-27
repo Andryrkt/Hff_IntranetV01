@@ -140,6 +140,7 @@ class MagasinListeOrTraiterController extends Controller
             "agenceUser" => $agenceUser
         ];
     }
+    
     private function recupData($criteria, $magasinModel)
     {
         $lesOrSelonCondition = $this->recupNumOrTraiterSelonCondition($criteria, $magasinModel, $this->getEntityManager());
@@ -151,21 +152,9 @@ class MagasinListeOrTraiterController extends Controller
 
         //ajouter le numero dit dans data
         for ($i = 0; $i < count($data); $i++) {
-            $numeroOr = $data[$i]['numeroor'];
-            $data[$i]['nomPrenom'] = $magasinModel->recupUserCreateNumOr($numeroOr)[0]['nomprenom'];
-            $datePlanning = $this->magasinListOrLivrerModel->getDatePlanning($numeroOr);
-            $data[$i]['datePlanning'] = $datePlanning[0];
-
-
-            $ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => $numeroOr]);
+            $ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $data[$i]['referencedit']]);
             if (!empty($ditRepository)) {
-                $data[$i]['numDit'] = $ditRepository->getNumeroDemandeIntervention();
                 $data[$i]['niveauUrgence'] = $ditRepository->getIdNiveauUrgence()->getDescription();
-                $idMateriel = $ditRepository->getIdMateriel();
-                $marqueCasier = $this->ditModel->recupMarqueCasierMateriel($idMateriel);
-                $data[$i]['idMateriel'] = $idMateriel;
-                $data[$i]['marque'] =  array_key_exists(0, $marqueCasier) ? $marqueCasier[0]['marque'] : '';
-                $data[$i]['casier'] = array_key_exists(0, $marqueCasier) ? $marqueCasier[0]['casier'] : '';
             } else {
                 break;
             }

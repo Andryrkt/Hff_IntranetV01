@@ -101,7 +101,7 @@ class MagasinListeOrATraiterModel extends Model
         $agenceUser = $this->conditionAgenceUser('agenceUser', $criteria);
 
         $statement = "SELECT 
-            trim(seor_refdem) as referenceDIT,
+            trim(seor_refdem) as referencedit,
             seor_numor as numeroOr,
             trim(slor_constp) as constructeur, 
             trim(slor_refp) as referencePiece, 
@@ -117,10 +117,27 @@ class MagasinListeOrATraiterModel extends Model
             slor_succdeb as agence,
             slor_servdeb as service,
             slor_succ as agenceCrediteur,
-            slor_servcrt as serviceCrediteur
+            slor_servcrt as serviceCrediteur,
+            CASE 
+                    WHEN 
+                        (SELECT DATE(Min(ska_d_start)) FROM informix.ska, informix.skw WHERE ofh_id = sitv_numor AND ofs_id=sitv_interv AND skw.skw_id = ska.skw_id )  is Null THEN DATE(sitv_datepla)  
+                    ELSE
+                        (SELECT DATE(Min(ska_d_start)) FROM informix.ska, informix.skw WHERE ofh_id = sitv_numor AND ofs_id=sitv_interv AND skw.skw_id = ska.skw_id ) 
+                    END as datePlanning
+            , seor_usr as idUser
+            , trim(ausr_nom) as nomUtilisateur
+            , trim(atab_lib) as nomPrenom
+            , mmat_nummat as idMateriel
+            , trim(mmat_numserie) as num_serie
+            , trim(mmat_recalph) as num_parc 
+            , trim(mmat_marqmat) as marque
+            , trim(mmat_numparc) as casie
 
             from sav_lor 
             inner join sav_eor on seor_soc = slor_soc and seor_succ = slor_succ and seor_numor = slor_numor and seor_soc = 'HF'
+            inner join mat_mat on mmat_nummat =  seor_nummat
+            inner join agr_usr on ausr_num = seor_usr
+            inner join agr_tab on atab_nom = 'OPE' and atab_code = ausr_ope
             inner join sav_itv 
                 on sitv_soc = slor_soc 
                 and sitv_succ = slor_succ 
@@ -342,6 +359,10 @@ class MagasinListeOrATraiterModel extends Model
 
 
 
+            // Reverted to string concatenation as executeQuery might not support parameters
+
+
+
             $statement = " SELECT DISTINCT
 
 
@@ -370,7 +391,7 @@ class MagasinListeOrATraiterModel extends Model
 
 
 
-                                      AND substr(b.atab_nom, 10, 2) = ? 
+                                      AND substr(b.atab_nom, 10, 2) = '" . $agence . "'
 
 
 
@@ -394,11 +415,7 @@ class MagasinListeOrATraiterModel extends Model
 
 
 
-            // Exécutez la requête avec un paramètre lié pour la sécurité et la performance
-
-
-
-            $result = $this->connect->executeQuery($statement, [$agence]);
+            $result = $this->connect->executeQuery($statement);
 
 
 

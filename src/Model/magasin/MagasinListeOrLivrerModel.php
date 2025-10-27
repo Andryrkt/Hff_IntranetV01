@@ -272,7 +272,12 @@ class MagasinListeOrLivrerModel extends Model
             TRIM(seor_refdem) as referencedit
             , seor_numor as numeroOr
             , seor_dateor as dateCreation
-            , sitv_datepla as datePlanning
+            , CASE 
+                    WHEN 
+                        (SELECT DATE(Min(ska_d_start)) FROM informix.ska, informix.skw WHERE ofh_id = sitv_numor AND ofs_id=sitv_interv AND skw.skw_id = ska.skw_id )  is Null THEN DATE(sitv_datepla)  
+                    ELSE
+                        (SELECT DATE(Min(ska_d_start)) FROM informix.ska, informix.skw WHERE ofh_id = sitv_numor AND ofs_id=sitv_interv AND skw.skw_id = ska.skw_id ) 
+                    END as datePlanning
             , seor_succ as agenceCrediteur
             , seor_servcrt as serviceCrediteur
             , sitv_succdeb as agenceDebiteur
