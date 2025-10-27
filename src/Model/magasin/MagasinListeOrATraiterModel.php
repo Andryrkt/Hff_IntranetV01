@@ -211,12 +211,14 @@ class MagasinListeOrATraiterModel extends Model
             }
 
             // REQUÊTE CORRIGÉE avec le bon statut
-            $statement = "SELECT distinct CONCAT(numeroOR,'-',numeroItv) as numero_complet 
+            $statement = "SELECT distinct CONCAT(numeroOR,'-',numeroItv) as numero_complet , numeroOR as numero_or
                         from ors_soumis_a_validation o
                         inner join demande_intervention d on d.numero_or = o.numeroOR
                         where numeroversion = (select max(numeroversion) from ors_soumis_a_validation oo 
                         where oo.numeroOR = o.numeroOR) 
-                        and o.statut LIKE 'Valid%'  -- ← CORRECTION ICI
+                        and o.statut like 'Valid%'
+                       -- and (d.date_validation_or <> '1900-01-01' or d.date_validation_or is not null or d.date_validation_or <> '')
+                        and d.etat_facturation not like 'Compl%'
                         {$niveauUrgence}
                         {$numDit}
                         {$numOr}";
@@ -229,14 +231,16 @@ class MagasinListeOrATraiterModel extends Model
                 throw new Exception("Erreur ODBC: " . $error);
             }
 
+
             $numOr = [];
+            $numORTouCourt = [];
             while ($row_num_or = odbc_fetch_array($execQueryNumOr)) {
-                $numOr[] = $row_num_or;
+                $numOr[] = $row_num_or['numero_complet'];
+                $numORTouCourt[] = $row_num_or['numero_or'];
             }
-            dump($numOr);
 
 
-            return array_column($numOr, 'numero_complet');
+            return [$numOr, $numORTouCourt];
         } catch (Exception $e) {
             error_log("Erreur dans recupNumOr: " . $e->getMessage());
             return [];

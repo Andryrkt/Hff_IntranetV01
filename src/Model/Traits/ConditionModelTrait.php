@@ -148,18 +148,16 @@ trait ConditionModelTrait
         return $orCompletNom;
     }
 
-    private function conditionOrCompletOuNonOrALivrer(string $indexCriteria, array $lesOrSelonCondition, array $criteria): string
+    private function conditionOrCompletOuNonOrALivrer(string $indexCriteria, array $criteria): string
     {
         if (!empty($criteria[$indexCriteria])) {
             if ($criteria[$indexCriteria] === 'ORs COMPLET') {
-                $orCompletNom = " AND sitv_numor || '-' || sitv_interv IN ('" . $lesOrSelonCondition['numOrLivrerComplet'] . "')";
-            } else if ($criteria[$indexCriteria] === 'ORs INCOMPLETS') {
-                $orCompletNom = " AND sitv_numor || '-' || sitv_interv IN ('" . $lesOrSelonCondition['numOrLivrerIncomplet'] . "')";
-            } else if ($criteria[$indexCriteria] === 'TOUTS LES OR') {
-                $orCompletNom = " AND sitv_numor || '-' || sitv_interv IN ('" . $lesOrSelonCondition['numOrLivrerTout'] . "')";
-            }
+                $orCompletNom = " AND T.situation = 'COMPLET' ";
+            } elseif ($criteria[$indexCriteria] === 'ORs INCOMPLETS') {
+                $orCompletNom = " AND T.situation = 'INCOMPLET' ";
+            } 
         } else {
-            $orCompletNom =  " AND sitv_numor || '-' || sitv_interv IN ('" . $lesOrSelonCondition['numOrLivrerComplet'] . "')";
+            $orCompletNom =  " AND T.situation = 'COMPLET'";
         }
 
         return $orCompletNom;

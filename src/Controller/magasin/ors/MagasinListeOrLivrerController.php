@@ -149,34 +149,20 @@ class MagasinListeOrLivrerController extends Controller
 
     private function recupData($criteria)
     {
-        $lesOrSelonCondition = $this->recupNumOrSelonCondition($criteria);
+        /** @var string $numeroOrsItv @var string $numeroOr */
+        [$numeroOrsItv, $numeroOr] = $this->recupNumOrSelonCondition($criteria);
 
-        $data = $this->magasinListOrLivrerModel->recupereListeMaterielValider($criteria, $lesOrSelonCondition);
+        $data = $this->magasinListOrLivrerModel->recupereListeMaterielValider($criteria, $numeroOrsItv, $numeroOr);
 
         //ajouter le numero dit dans data
         for ($i = 0; $i < count($data); $i++) {
-            $numeroOr = $data[$i]['numeroor'];
-            $numItv = $data[$i]['numinterv'];
-            $data[$i]['nomPrenom'] = $this->magasinListOrLivrerModel->recupUserCreateNumOr($numeroOr)[0]['nomprenom'];
-            $datePlanning = $this->magasinListOrLivrerModel->getDatePlanning($numeroOr);
-            $data[$i]['datePlanning'] = isset($datePlanning[0]) ? $datePlanning[0] : '';
-
-
-            $ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => $numeroOr]);
-
+            $ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $data[$i]['referencedit']]);
             if (!empty($ditRepository)) {
-                $data[$i]['numDit'] = $ditRepository->getNumeroDemandeIntervention();
                 $data[$i]['niveauUrgence'] = $ditRepository->getIdNiveauUrgence()->getDescription();
-                $idMateriel = $ditRepository->getIdMateriel();
-                $marqueCasier = $this->ditModel->recupMarqueCasierMateriel($idMateriel);
-                $data[$i]['idMateriel'] = $idMateriel;
-                $data[$i]['marque'] =  array_key_exists(0, $marqueCasier) ? $marqueCasier[0]['marque'] : '';
-                $data[$i]['casier'] = array_key_exists(0, $marqueCasier) ? $marqueCasier[0]['casier'] : '';
             } else {
                 break;
             }
         }
-
         return $data;
     }
 }

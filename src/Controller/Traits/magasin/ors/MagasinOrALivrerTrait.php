@@ -11,19 +11,23 @@ trait MagasinOrALIvrerTrait
     private function recupNumOrSelonCondition(array $criteria): array
     {
         $magasinModel = new MagasinListeOrATraiterModel();
-        $numeroOrsItv = $magasinModel->recupNumOr($criteria);
+        /** @var array $numeroOrsItv @var array $numeroOr */
+        [$numeroOrsItv, $numeroOr] = $magasinModel->recupNumOr($criteria);
 
-        $numOrValideItvString = $this->orEnString($numeroOrsItv);
+        // $numOrLivrerComplet = $this->orEnString($this->magasinListOrLivrerModel->recupOrLivrerComplet($numOrValideItvString, $criteria));
+        // $numOrLivrerIncomplet = $this->orEnString($this->magasinListOrLivrerModel->recupOrLivrerIncomplet($numOrValideItvString, $criteria));
+        // $numOrLivrerTout = $this->orEnString($this->magasinListOrLivrerModel->recupOrLivrerTout($numOrValideItvString, $criteria));
 
-        $numOrLivrerComplet = $this->orEnString($this->magasinListOrLivrerModel->recupOrLivrerComplet($numOrValideItvString, $criteria));
-        $numOrLivrerIncomplet = $this->orEnString($this->magasinListOrLivrerModel->recupOrLivrerIncomplet($numOrValideItvString, $criteria));
-        $numOrLivrerTout = $this->orEnString($this->magasinListOrLivrerModel->recupOrLivrerTout($numOrValideItvString, $criteria));
+        // return  [
+        //     "numOrLivrerComplet" => $numOrLivrerComplet,
+        //     "numOrLivrerIncomplet" => $numOrLivrerIncomplet,
+        //     "numOrLivrerTout" => $numOrLivrerTout,
+        //     "numOrValideString" => $numOrValideItvString
+        // ];
 
-        return  [
-            "numOrLivrerComplet" => $numOrLivrerComplet,
-            "numOrLivrerIncomplet" => $numOrLivrerIncomplet,
-            "numOrLivrerTout" => $numOrLivrerTout,
-            "numOrValideString" => $numOrValideItvString
+        return [
+            $this->orEnString($numeroOrsItv),
+            $this->orEnString($numeroOr)
         ];
     }
 

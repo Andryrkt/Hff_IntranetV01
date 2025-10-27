@@ -156,12 +156,12 @@ class MagasinListeOrLivrerModel extends Model
                             and seor_succ = slor_succ 
                             and seor_numor = slor_numor
                             inner join sav_itv 
-                on sitv_soc = slor_soc 
-                and sitv_succ = slor_succ 
-                and sitv_numor = slor_numor 
-                and sitv_interv = slor_nogrp / 100 
-                and sitv_numor || '-' || sitv_interv in (' $numOrValideItv') 
-                and sitv_soc = 'HF'
+                                on sitv_soc = slor_soc 
+                                and sitv_succ = slor_succ 
+                                and sitv_numor = slor_numor 
+                                and sitv_interv = slor_nogrp / 100 
+                                and sitv_numor || '-' || sitv_interv in (' $numOrValideItv') 
+                                and sitv_soc = 'HF'
                         WHERE slor_typlig = 'P'
                             $piece
                             GROUP BY 1
@@ -251,7 +251,7 @@ class MagasinListeOrLivrerModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function recupereListeMaterielValider(array $criteria = [], array $lesOrSelonCondition)
+    public function recupereListeMaterielValider(array $criteria = [], string $numeroOrItv, string $numeroOr)
     {
         //les conditions de filtre
         $designation = $this->conditionLike('slor_desi', 'designation', $criteria);
@@ -265,56 +265,113 @@ class MagasinListeOrLivrerModel extends Model
         $agence = $this->conditionAgenceService("slor_succdeb", 'agence', $criteria);
         $service = $this->conditionAgenceService("slor_servdeb", 'service', $criteria);
         $agenceUser = $this->conditionAgenceUser('agenceUser', $criteria);
-        $orCompletNom = $this->conditionOrCompletOuNonOrALivrer('orCompletNon', $lesOrSelonCondition, $criteria);
+        $orCompletNom = $this->conditionOrCompletOuNonOrALivrer('orCompletNon', $criteria);
 
         //requête
-        $statement = " SELECT 
-                        trim(seor_refdem) as referenceDIT,
-                        seor_numor as numeroOr,
-                        trim(slor_constp) as constructeur, 
-                        trim(slor_refp) as referencePiece, 
-                        trim(slor_desi) as designationi, 
-                        CASE 
-                            WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) 
-                            WHEN slor_typlig IN ('F','M','U','C') THEN slor_qterea 
-                        END  AS quantiteDemander,
-                        slor_qteres  as qteALivrer,
-                        slor_qterea as quantiteLivree,
-                        slor_qterel as quantiteReliquat,
-                        slor_datec as dateCreation,
-                        slor_nogrp/100 as numInterv,
-                        slor_nolign as numeroLigne,
-                        slor_succdeb as agenceDebiteur,
-                        slor_servdeb as serviceDebiteur,
-                        slor_succ as agenceCrediteur,
-                        slor_servcrt as serviceCrediteur,
-                        (SELECT SUM(CASE 
-                                        WHEN B.slor_typlig = 'P' THEN (B.slor_qterel + B.slor_qterea + B.slor_qteres + B.slor_qtewait - B.slor_qrec) 
-                                        WHEN B.slor_typlig IN ('F','M','U','C') THEN B.slor_qterea 
-                                    END) 
-                        FROM sav_lor B 
-                        WHERE B.slor_numor = A.slor_numor) AS sommeQuantiteDemander,
-                        (SELECT SUM(B.slor_qteres) 
-                        FROM sav_lor B 
-                        WHERE B.slor_numor = A.slor_numor) AS sommeQuantiteALivrer
-
-
-                        from sav_lor A
-                        inner join sav_eor on seor_soc = slor_soc 
-                                            and seor_succ = slor_succ 
-                                            and seor_numor = slor_numor
-                        inner join sav_itv 
-                            on sitv_soc = slor_soc 
-                            and sitv_succ = slor_succ 
-                            and sitv_numor = slor_numor 
-                            and sitv_interv = slor_nogrp / 100 
-                            $orCompletNom
-                            and sitv_soc = 'HF'
-                        where slor_typlig = 'P'
-                        and seor_serv ='SAV'
-                        and seor_typeor not in('950', '501')
-                        $agenceUser
+        $statement = " SELECT
+            TRIM(seor_refdem) as referencedit
+            , seor_numor as numeroOr
+            , seor_dateor as dateCreation
+            , sitv_datepla as datePlanning
+            , seor_succ as agenceCrediteur
+            , seor_servcrt as serviceCrediteur
+            , sitv_succdeb as agenceDebiteur
+            , sitv_servdeb as serviceDebiteur
+            , sitv_interv as numInterv
+            , slor_nolign as numeroLigne
+            , slor_constp as constructeur
+            , TRIM(slor_refp) as referencePiece
+            , TRIM(slor_desi) as designationi
+            , (
+            SELECT F.situation FROM (select
+            CASE
+            WHEN
+            sum(slor_qteres) > 0 AND
+            sum(CASE
+                WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)
+                    WHEN slor_typlig IN ('F','M','U','C') THEN slor_qterea
+                    END) = sum(slor_qteres + slor_qterea)
+                THEN 'COMPLET'
+                WHEN sum(slor_qteres) > 0 AND
+                    sum(CASE
+                        WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)
+                        WHEN slor_typlig IN ('F','M','U','C') THEN slor_qterea
+                            END) > sum(slor_qteres + slor_qterea)
+                THEN 'INCOMPLET'
+            END as situation
+            , situ.slor_numor as numero_or
+            FROM sav_lor situ
+            WHERE
+            situ.slor_numor = OR.slor_numor
+            and situ.slor_constp in ('AGR','ATC','AUS','CAT','CGM','CMX','DNL','DYN','GRO','HYS','JDR','KIT','MAN','MNT','OLY','OOM','PAR','PDV','PER','PUB','REM','SHM','TBI','THO') AND (slor_refp not like '%-L' and slor_refp not like '%-CTRL')
+            group by 2 ) as F
+            ) as situationtest
+            , seor_usr as idUser
+            , trim(ausr_nom) as nomUtilisateur
+            , trim(atab_lib) as nomPrenom
+            , mmat_nummat as idMateriel
+            , trim(mmat_numserie) as num_serie
+            , trim(mmat_recalph) as num_parc 
+            , trim(mmat_marqmat) as marque
+            , trim(mmat_numparc) as casie
+            ,sum(CASE
+                    WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)
+                    WHEN slor_typlig IN ('F','M','U','C') THEN slor_qterea
+                END)  AS quantiteDemander
+            , sum(slor_qteres) as qteALivrer
+            , sum(slor_qterea) as quantiteLivree
+            FROM sav_lor as OR
+            inner join sav_eor as U on U.seor_numor = slor_numor and U.seor_soc = slor_soc and U.seor_succ = slor_succ
+            inner join mat_mat on mmat_nummat =  seor_nummat
+            inner join agr_usr on ausr_num = seor_usr
+            inner join agr_tab on atab_nom = 'OPE' and atab_code = ausr_ope
+            inner join
+            sav_itv as I
+            on I.sitv_soc = slor_soc
+            and I.sitv_succ = slor_succ
+            and I.sitv_numor = slor_numor
+            and I.sitv_interv = slor_nogrp /100
+            and sitv_numor || '-' || sitv_interv in ('$numeroOrItv')
+            inner join
+            (
+            SELECT F.* FROM (select
+            CASE
+            WHEN
+            sum(slor_qteres) > 0 AND
+            sum(CASE
+                WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)
+                    WHEN slor_typlig IN ('F','M','U','C') THEN slor_qterea
+                    END) = sum(slor_qteres + slor_qterea)
+            THEN 'COMPLET'
+            WHEN
+            sum(slor_qteres) > 0 AND
+            sum(CASE
+                WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)
+                    WHEN slor_typlig IN ('F','M','U','C') THEN slor_qterea
+                    END) > sum(slor_qteres + slor_qterea)
+            THEN 'INCOMPLET'
+            END as situation
+            , situ.slor_numor as numero_or
+            FROM sav_lor situ
+            WHERE
+            situ.slor_numor in ('$numeroOr')
+            and situ.slor_constp in ('AGR','ATC','AUS','CAT','CGM','CMX','DNL','DYN','GRO','HYS','JDR','KIT','MAN','MNT','OLY','OOM','PAR','PDV','PER','PUB','REM','SHM','TBI','THO') AND (slor_refp not like '%-L' and slor_refp not like '%-CTRL')
+            group by 2 ) as F
+            ) as T ON T.numero_or = OR.slor_numor
+            where seor_numor in
+            (
+            select slor_numor from sav_lor l
+            where l.slor_numor  in ('$numeroOr')
+            AND l.slor_constp in ('AGR','ATC','AUS','CAT','CGM','CMX','DNL','DYN','GRO','HYS','JDR','KIT','MAN','MNT','OLY','OOM','PAR','PDV','PER','PUB','REM','SHM','TBI','THO') AND (slor_refp not like '%-L' and slor_refp not like '%-CTRL')
+            group by l.slor_numor
+            having sum(l.slor_qteres) > 0
+            )
+            --and slor_constp in ('AGR','ATC','AUS','CAT','CGM','CMX','DNL','DYN','GRO','HYS','JDR','KIT','MAN','MNT','OLY','OOM','PAR','PDV','PER','PUB','REM','SHM','TBI','THO') AND (slor_refp not like '%-L' and slor_refp not like '%-CTRL')
+            --and T.situation = 'INCOMPLET'
+            and seor_typeor not in('950', '501')
+            $agenceUser
                         $piece
+                        $orCompletNom
                         $designation
                         $referencePiece 
                         $constructeur 
@@ -325,11 +382,8 @@ class MagasinListeOrLivrerModel extends Model
                         $agence
                         $service
 
-                        order by 
-                            seor_refdem desc,
-                            slor_nogrp/100 desc, 
-                            seor_numor asc, 
-                            slor_nolign asc
+            group by 1,2,3,4, 5, 6, 7, 8, 9, 10, 11, 12, 13,14,15,16,17, 18, 19, 20, 21,22
+            order by seor_numor asc, sitv_interv asc, slor_nolign asc
         ";
 
         // dd($statement);

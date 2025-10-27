@@ -104,7 +104,7 @@
 								<td class="text-center {{textColor}}">{{item.quantitedemander == 0 ? '-': item.quantitedemander | number_format(0)}}</td>
 								<td class="text-center {{textColor}}">{{item.qtealivrer == 0 ? '-' : item.qtealivrer | number_format(0)}}</td>
 								<td class="text-center">{{item.quantitelivree == 0 ? '-' : item.quantitelivree | number_format(0)}}</td>
-								<td>{{ item.nomPrenom }}</td>
+								<td>{{ item.nomprenom }}</td>
 								{# <td class="text-center">{{item.quantitereserver == 0 ? '-' : item.quantitereserver | number_format(0)}}</td>#}
 								{# <td class="text-center">{{item.quantitereliquat == 0 ? '-' : item.quantitereliquat | number_format(0)}}</td> #}
 
@@ -120,5 +120,5 @@
 	</div>
 {% endblock %}
 {% block javascript %}
-	<script src="{{ App.base_path }}/Views/js/magasin/main.js?v=2025.09.15.08.00" type="module"></script>
+	{# <script src="{{ App.base_path }}/Views/js/magasin/main.js?v=2025.09.15.08.00" type="module"></script>#}
 {% endblock %}
