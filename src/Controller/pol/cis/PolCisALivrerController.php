@@ -15,7 +15,7 @@ use App\Controller\Traits\magasin\cis\ALivrerTrait;
 use App\Model\dit\DitModel;
 
 /**
- * @Route("/pol/cis")
+ * @Route("/pol/cis-pol")
  */
 class PolCisALivrerController extends Controller
 {

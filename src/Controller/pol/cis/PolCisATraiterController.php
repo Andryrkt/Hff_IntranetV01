@@ -15,7 +15,7 @@ use App\Controller\Traits\magasin\cis\AtraiterTrait;
 use App\Model\dit\DitModel;
 
 /**
- * @Route("/pol/cis")
+ * @Route("/pol/cis-pol")
  */
 class PolCisATraiterController extends Controller
 {

@@ -22,7 +22,7 @@ use App\Controller\Traits\magasin\ors\MagasinTrait as OrsMagasinTrait;
 use App\Model\dit\DitModel;
 
 /**
- * @Route("/pol/ors")
+ * @Route("/pol/ors-pol")
  */
 class PolListeOrLivrerController extends Controller
 {
