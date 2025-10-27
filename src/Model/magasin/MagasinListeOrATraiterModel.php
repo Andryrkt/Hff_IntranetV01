@@ -2,10 +2,11 @@
 
 namespace App\Model\magasin;
 
-use App\Controller\Traits\FormatageTrait;
+use Exception;
 use App\Model\Model;
-use App\Model\Traits\ConditionModelTrait;
 use App\Model\Traits\ConversionModel;
+use App\Controller\Traits\FormatageTrait;
+use App\Model\Traits\ConditionModelTrait;
 
 class MagasinListeOrATraiterModel extends Model
 {
@@ -113,22 +114,25 @@ class MagasinListeOrATraiterModel extends Model
             slor_nogrp/100 as numInterv,
             slor_nolign as numeroLigne,
             slor_datec, 
-            --slor_succdeb||'-'||(select trim(asuc_lib) from agr_succ where asuc_numsoc = slor_soc and asuc_num = slor_succdeb) as agence,
-            --slor_servdeb||'-'||(select trim(atab_lib) from agr_tab where atab_nom = 'SER' and atab_code = slor_servdeb) as service,
             slor_succdeb as agence,
             slor_servdeb as service,
             slor_succ as agenceCrediteur,
             slor_servcrt as serviceCrediteur
 
             from sav_lor 
-            inner join sav_eor on seor_soc = slor_soc 
+            inner join sav_eor on seor_soc = slor_soc and seor_succ = slor_succ and seor_numor = slor_numor and seor_soc = 'HF'
+            inner join sav_itv 
+                on sitv_soc = slor_soc 
+                and sitv_succ = slor_succ 
+                and sitv_numor = slor_numor 
+                and sitv_interv = slor_nogrp / 100 
+                and sitv_numor || '-' || sitv_interv in ('" . $lesOrSelonCondition['numOrValideString'] . "') 
+                and sitv_soc = 'HF'
             and seor_succ = slor_succ 
             and seor_numor = slor_numor
             where 
             slor_soc = 'HF'
             and seor_typeor not in('950', '501')
-            -- and slor_succ in ('01', '50')
-            and seor_numor||'-'||TRUNC(slor_nogrp/100) in ('" . $lesOrSelonCondition['numOrValideString'] . "')
             $agenceUser
             $designation
             $referencePiece 
@@ -146,7 +150,7 @@ class MagasinListeOrATraiterModel extends Model
             and slor_qteres = 0 and slor_qterel = 0 and slor_qterea = 0
             order by numInterv ASC, seor_dateor DESC, slor_numor DESC, numeroLigne ASC
         ";
-        // dd($statement);
+
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);
@@ -182,43 +186,65 @@ class MagasinListeOrATraiterModel extends Model
 
     public function recupNumOr($criteria = [])
     {
-        if (!empty($criteria['niveauUrgence'])) {
-            $niveauUrgence = " AND id_niveau_urgence = '" . $criteria['niveauUrgence']->getId() . "'";
-        } else {
-            $niveauUrgence = null;
+        try {
+            if (!$this->connexion) {
+                throw new Exception("Connexion ODBC non initialisée");
+            }
+
+            // Construction des critères (votre code existant)
+            if (!empty($criteria['niveauUrgence'])) {
+                $niveauUrgence = " AND id_niveau_urgence = '" . $criteria['niveauUrgence']->getId() . "'";
+            } else {
+                $niveauUrgence = null;
+            }
+
+            if (!empty($criteria['numDit'])) {
+                $numDit = " and numero_demande_dit = '" . $criteria['numDit'] . "'";
+            } else {
+                $numDit = null;
+            }
+
+            if (!empty($criteria['numOr'])) {
+                $numOr = " and numero_or = '" . $criteria['numOr'] . "'";
+            } else {
+                $numOr = null;
+            }
+
+            // REQUÊTE CORRIGÉE avec le bon statut
+            $statement = "SELECT distinct CONCAT(numeroOR,'-',numeroItv) as numero_complet 
+                      from ors_soumis_a_validation o
+                      inner join demande_intervention d on d.numero_or = o.numeroOR
+                      where numeroversion = (select max(numeroversion) from ors_soumis_a_validation oo 
+                      where oo.numeroOR = o.numeroOR) 
+                      and o.statut LIKE 'Valid%'  -- ← CORRECTION ICI
+                      {$niveauUrgence}
+                      {$numDit}
+                      {$numOr}";
+
+            error_log("Requête corrigée: " . $statement);
+
+            $execQueryNumOr = $this->connexion->query($statement);
+
+            if (!$execQueryNumOr) {
+                $error = odbc_errormsg($this->connexion);
+                throw new Exception("Erreur ODBC: " . $error);
+            }
+
+            $numOr = array();
+            $rowCount = 0;
+
+            while ($row_num_or = odbc_fetch_array($execQueryNumOr)) {
+                $numOr[] = $row_num_or;
+                $rowCount++;
+            }
+
+            error_log("Lignes récupérées après correction: " . $rowCount);
+
+            return array_column($numOr, 'numero_complet');
+        } catch (Exception $e) {
+            error_log("Erreur dans recupNumOr: " . $e->getMessage());
+            return [];
         }
-
-        if (!empty($criteria['numDit'])) {
-            $numDit = " and numero_demande_dit = '" . $criteria['numDit'] . "'";
-        } else {
-            $numDit = null;
-        }
-
-        if (!empty($criteria['numOr'])) {
-            $numOr = " and numero_or = '" . $criteria['numOr'] . "'";
-        } else {
-            $numOr = null;
-        }
-
-        $statement = "SELECT 
-        numero_or 
-        FROM demande_intervention
-        WHERE (date_validation_or is not null  or date_validation_or = '1900-01-01') 
-        {$niveauUrgence}
-        {$numDit}
-        {$numOr}
-        ";
-
-
-        $execQueryNumOr = $this->connexion->query($statement);
-
-        $numOr = array();
-
-        while ($row_num_or = odbc_fetch_array($execQueryNumOr)) {
-            $numOr[] = $row_num_or;
-        }
-
-        return $numOr;
     }
 
 

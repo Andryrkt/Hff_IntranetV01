@@ -162,7 +162,7 @@ class MagasinListeOrLivrerModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function recupOrLivrerComplet($numOrValideItv, $numOrValide, $criteria)
+    public function recupOrLivrerComplet($numOrValideItv, $criteria)
     {
         $piece = $this->conditionPiece('pieces', $criteria);
 
@@ -174,9 +174,6 @@ class MagasinListeOrLivrerModel extends Model
                         WHERE slor_soc = 'HF'
                             and slor_typlig = 'P'
                             $piece
-                            --and slor_succ in ('01', '50')
-                            --AND seor_serv ='SAV'
-                            and slor_numor in ('" . $numOrValide . "')
                             and seor_numor||'-'||TRUNC(slor_nogrp/100) in ('" . $numOrValideItv . "')
                             GROUP BY 1
                             HAVING 
@@ -195,7 +192,7 @@ class MagasinListeOrLivrerModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function recupOrLivrerIncomplet($numOrValideItv, $numOrValide, $criteria)
+    public function recupOrLivrerIncomplet($numOrValideItv, $criteria)
     {
         $piece = $this->conditionPiece('pieces', $criteria);
 
@@ -207,9 +204,6 @@ class MagasinListeOrLivrerModel extends Model
                         WHERE slor_soc = 'HF'
                             and slor_typlig = 'P'
                             $piece
-                            --and slor_succ in ('01', '50')
-                            --AND seor_serv ='SAV'
-                        and slor_numor in ('" . $numOrValide . "')
                         and seor_numor||'-'||TRUNC(slor_nogrp/100) in ('" . $numOrValideItv . "')
                         GROUP BY 1
                         HAVING 
@@ -228,7 +222,7 @@ class MagasinListeOrLivrerModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function recupOrLivrerTout($numOrValideItv, $numOrValide, $criteria)
+    public function recupOrLivrerTout($numOrValideItv, $criteria)
     {
         $piece = $this->conditionPiece('pieces', $criteria);
 
@@ -240,11 +234,6 @@ class MagasinListeOrLivrerModel extends Model
                         WHERE slor_soc = 'HF'
                             AND slor_typlig = 'P'
                             $piece
-                            --AND slor_constp NOT LIKE 'Z%'
-                            --AND slor_constp NOT IN ('LUB')
-                            --and slor_succ in ('01', '50')
-                            --AND seor_serv ='SAV'
-                        and slor_numor in ('" . $numOrValide . "')
                         and seor_numor||'-'||TRUNC(slor_nogrp/100) in ('" . $numOrValideItv . "')
                         GROUP BY 1
                         HAVING 

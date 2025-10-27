@@ -12,16 +12,14 @@ trait MagasinOrATraiterTrait
     private function recupNumOrTraiterSelonCondition(array $criteria, $magasinModel, $em): array
     {
         $numeroOrs = $magasinModel->recupNumOr($criteria);
-        
-        $numOrValideItv = $this->recupNumORItvValide($numeroOrs, $em)['numeroOr_itv'];
-        
-        $numOrValideString = $this->orEnString($numOrValideItv);
-        
+
+        $numOrValideString = $this->orEnString($numeroOrs);
+
         return  [
             "numOrValideString" => $numOrValideString
         ];
     }
-/*
+    /*
     private function numeroOrValide($numeroOrs, $magasinModel, $em)
     {
         $numOrValide = [];
@@ -45,9 +43,9 @@ trait MagasinOrATraiterTrait
         $numOrValide = [];
         foreach ($numeroOrs as $numeroOr) {
             $numItv = $em->getRepository(DitOrsSoumisAValidation::class)->findNumItvValide($numeroOr['numero_or']);
-            if(!empty($numItv)){
+            if (!empty($numItv)) {
                 foreach ($numItv as  $value) {
-                    $numOrValideItv[] = $numeroOr['numero_or'].'-'.$value;
+                    $numOrValideItv[] = $numeroOr['numero_or'] . '-' . $value;
                     $numOrValide[] = $numeroOr['numero_or'];
                 }
             }

@@ -149,7 +149,7 @@ class MagasinListeOrLivrerController extends Controller
 
     private function recupData($criteria)
     {
-        $lesOrSelonCondition = $this->recupNumOrSelonCondition($criteria, $this->getEntityManager());
+        $lesOrSelonCondition = $this->recupNumOrSelonCondition($criteria);
 
         $data = $this->magasinListOrLivrerModel->recupereListeMaterielValider($criteria, $lesOrSelonCondition);
 
@@ -169,7 +169,6 @@ class MagasinListeOrLivrerController extends Controller
                 $data[$i]['datePlanning'] = '';
             }
 
-            //$dit = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findNumDit($numeroOr);
             $ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => $numeroOr]);
 
             if (!empty($ditRepository)) {
