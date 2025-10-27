@@ -1039,4 +1039,10 @@ class DemandeApproL
         $montant = $this->getMontantTwig();
         return $montant == 0 ? '-' : number_format($montant, 2, ',', '.');
     }
+
+    public function getPUFormatted(): string
+    {
+        $montant = $this->getPrixUnitaire();
+        return $montant == 0 ? '-' : number_format($montant, 2, ',', '.');
+    }
 }
