@@ -9,9 +9,9 @@ use App\Model\magasin\MagasinListeOrATraiterModel;
 
 trait MagasinOrATraiterTrait
 {
-    private function recupNumOrTraiterSelonCondition(array $criteria, $magasinModel, $em): array
+    private function recupNumOrTraiterSelonCondition(array $criteria, $magasinListeOrATraiterModel, $em): array
     {
-        $numeroOrs = $magasinModel->recupNumOr($criteria);
+        $numeroOrs = $magasinListeOrATraiterModel->recupNumOr($criteria);
 
         $numOrValideString = $this->orEnString($numeroOrs);
 

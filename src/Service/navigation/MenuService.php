@@ -524,7 +524,7 @@ class MenuService
         $subitems[] = $this->createSimpleItem('Consultation des DLUB', 'search');
         $subitems[] = $this->createSimpleItem('Liste des commandes fournisseurs', 'list-ul');
         /** =====================POL OR et CIS========================= */
-        if ($this->getEstAdmin() || in_array(Application::ID_MAG, $this->getApplicationIds())) { // MAG
+        if ($this->getEstAdmin()) { // admin uniquement
             $subitems[] = $this->createSubMenuItem(
                 'OR',
                 'warehouse',
@@ -537,8 +537,8 @@ class MenuService
                 'CIS',
                 'pallet',
                 [
-                    $this->createSubItem('Liste à traiter', 'tasks', 'cis_liste_a_traiter'),
-                    $this->createSubItem('Liste à livrer', 'truck-loading', 'cis_liste_a_livrer')
+                    $this->createSubItem('Liste à traiter', 'tasks', 'pol_cis_liste_a_traiter'),
+                    $this->createSubItem('Liste à livrer', 'truck-loading', 'pol_cis_liste_a_livrer')
                 ]
             );
         }
