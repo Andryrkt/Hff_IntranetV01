@@ -309,7 +309,7 @@ class DitOrsSoumisAValidationController extends Controller
 
         return [
             'nomFichier'            => strpos($originalName, 'Ordre de réparation') !== 0,
-            'numeroOrDifferent'     => $numOr !== $demandeIntervention->getNumeroOR(),
+            'numeroOrDifferent'     => $numOr !== $ditInsertionOrSoumis->getNumeroOR(),
             'datePlanningExiste'    => $datePlanning,
             'agenceDebiteur'        => !in_array($agServDebiteurBDSql, $agServInformix),
             'invalidePosition'      => in_array($pos[0]['position'], $invalidPositions),
