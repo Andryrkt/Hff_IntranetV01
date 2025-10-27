@@ -72,6 +72,9 @@ trait DaNewReapproTrait
         foreach ($articleReappros as $articleReappro) {
             $dals[] = (new DemandeApproL)
                 ->setNumeroDemandeAppro($numDa)
+                ->setNumeroFournisseur('-')
+                ->setNomFournisseur('-')
+                ->setCommentaire('-')
                 ->setNumeroLigne(++$line)
                 ->setArtConstp($articleReappro->getArtConstp())
                 ->setArtRefp($articleReappro->getArtRefp())

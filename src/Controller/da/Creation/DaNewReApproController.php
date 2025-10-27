@@ -60,25 +60,26 @@ class DaNewReApproController extends Controller
             /** @var DemandeAppro $demandeAppro */
             $demandeAppro = $form->getData();
 
-            $dalsToSave = $demandeAppro->getDAL()->filter(function ($dal) {
-                return $dal->getQteDem() !== null;
-            });
-
-            if ($dalsToSave->isEmpty()) {
-                $this->getSessionService()->set('notification', ['type' => 'danger', 'message' => 'La demande a échouée, aucun article sélectionné']);
-                $this->redirectToRoute("list_da");
-            }
-
             // Récupérer le nom du bouton cliqué
             $clickedButtonName = $this->getButtonName($request);
             $statutDa = self::STATUT_DAL[$clickedButtonName];
 
-            $demandeAppro->setStatutDal($statutDa);
+            $demandeAppro
+                ->setDetailDal($demandeAppro->getDetailDal() ?? '-')
+                ->setStatutDal($statutDa);
 
             /** @var DemandeApproL $dal */
-            foreach ($dalsToSave as $dal) {
-                $dal->setStatutDal($statutDa);
-                $this->getEntityManager()->persist($dal);
+            foreach ($demandeAppro->getDAL() as $dal) {
+                if ($dal->getQteDem()) {
+                    $dal
+                        ->setDemandeAppro($demandeAppro)
+                        ->setDateFinSouhaite($demandeAppro->getDateFinSouhaite())
+                        ->setJoursDispo($this->getJoursRestants($dal))
+                        ->setStatutDal($statutDa);
+                    $this->getEntityManager()->persist($dal);
+                } else {
+                    $demandeAppro->removeDAL($dal); // ne pas persister les DAL avec qteDem vide
+                }
             }
 
             /** Ajout de demande appro dans la base de donnée (table: Demande_Appro) */
@@ -98,11 +99,11 @@ class DaNewReApproController extends Controller
             // ajout des données dans la table DaAfficher
             $this->ajouterDaDansTableAffichage($demandeAppro);
 
-            $this->emailDaService->envoyerMailcreationDaDirect($demandeAppro, [
-                'service'       => $demandeAppro->getServiceEmetteur()->getLibelleService(),
-                'observation'   => $demandeAppro->getObservation() ?? '-',
-                'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
-            ]);
+            // $this->emailDaService->envoyerMailcreationDaDirect($demandeAppro, [
+            //     'service'       => $demandeAppro->getServiceEmetteur()->getLibelleService(),
+            //     'observation'   => $demandeAppro->getObservation() ?? '-',
+            //     'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
+            // ]);
 
             $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'Votre demande a été enregistrée']);
             $this->redirectToRoute("list_da");
