@@ -212,16 +212,15 @@ class MagasinListeOrATraiterModel extends Model
 
             // REQUÊTE CORRIGÉE avec le bon statut
             $statement = "SELECT distinct CONCAT(numeroOR,'-',numeroItv) as numero_complet 
-                      from ors_soumis_a_validation o
-                      inner join demande_intervention d on d.numero_or = o.numeroOR
-                      where numeroversion = (select max(numeroversion) from ors_soumis_a_validation oo 
-                      where oo.numeroOR = o.numeroOR) 
-                      and o.statut LIKE 'Valid%'  -- ← CORRECTION ICI
-                      {$niveauUrgence}
-                      {$numDit}
-                      {$numOr}";
+                        from ors_soumis_a_validation o
+                        inner join demande_intervention d on d.numero_or = o.numeroOR
+                        where numeroversion = (select max(numeroversion) from ors_soumis_a_validation oo 
+                        where oo.numeroOR = o.numeroOR) 
+                        and o.statut LIKE 'Valid%'  -- ← CORRECTION ICI
+                        {$niveauUrgence}
+                        {$numDit}
+                        {$numOr}";
 
-            error_log("Requête corrigée: " . $statement);
 
             $execQueryNumOr = $this->connexion->query($statement);
 
@@ -230,15 +229,12 @@ class MagasinListeOrATraiterModel extends Model
                 throw new Exception("Erreur ODBC: " . $error);
             }
 
-            $numOr = array();
-            $rowCount = 0;
-
+            $numOr = [];
             while ($row_num_or = odbc_fetch_array($execQueryNumOr)) {
                 $numOr[] = $row_num_or;
-                $rowCount++;
             }
+            dump($numOr);
 
-            error_log("Lignes récupérées après correction: " . $rowCount);
 
             return array_column($numOr, 'numero_complet');
         } catch (Exception $e) {

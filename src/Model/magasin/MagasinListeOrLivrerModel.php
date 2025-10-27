@@ -130,10 +130,9 @@ class MagasinListeOrLivrerModel extends Model
                     WHEN 
                         (SELECT DATE(Min(ska_d_start)) FROM ska, skw WHERE ofh_id = sitv_numor AND ofs_id=sitv_interv AND skw.skw_id = ska.skw_id )  is Null THEN DATE(sitv_datepla)  
                     ELSE
-                        (SELECT DATE(Min(ska_d_start)) FROM ska, skw WHERE ofh_id = seor_numor AND ofs_id=sitv_interv AND skw.skw_id = ska.skw_id ) 
+                        (SELECT DATE(Min(ska_d_start)) FROM ska, skw WHERE ofh_id = sitv_numor AND ofs_id=sitv_interv AND skw.skw_id = ska.skw_id ) 
                 END as datePlanning
                     FROM sav_lor
-                INNER JOIN sav_eor on seor_numor = slor_numor and slor_soc = seor_soc and slor_succ = seor_succ and slor_soc = 'HF'
                 INNER JOIN sav_itv on sitv_numor = slor_numor and slor_soc = sitv_soc and slor_succ = sitv_succ and slor_soc = 'HF'
                     WHERE  slor_numor = '$numOr'
                         and slor_typlig = 'P'
@@ -156,10 +155,15 @@ class MagasinListeOrLivrerModel extends Model
                         inner join sav_eor on seor_soc = slor_soc 
                             and seor_succ = slor_succ 
                             and seor_numor = slor_numor
-                        WHERE slor_soc = 'HF'
-                            and slor_typlig = 'P'
+                            inner join sav_itv 
+                on sitv_soc = slor_soc 
+                and sitv_succ = slor_succ 
+                and sitv_numor = slor_numor 
+                and sitv_interv = slor_nogrp / 100 
+                and sitv_numor || '-' || sitv_interv in (' $numOrValideItv') 
+                and sitv_soc = 'HF'
+                        WHERE slor_typlig = 'P'
                             $piece
-                            and seor_numor||'-'||TRUNC(slor_nogrp/100) in ('" . $numOrValideItv . "')
                             GROUP BY 1
                             HAVING 
                                 sum(CASE 
@@ -186,10 +190,15 @@ class MagasinListeOrLivrerModel extends Model
                         inner join sav_eor on seor_soc = slor_soc 
                             and seor_succ = slor_succ 
                             and seor_numor = slor_numor
-                        WHERE slor_soc = 'HF'
-                            and slor_typlig = 'P'
+                        inner join sav_itv 
+                on sitv_soc = slor_soc 
+                and sitv_succ = slor_succ 
+                and sitv_numor = slor_numor 
+                and sitv_interv = slor_nogrp / 100 
+                and sitv_numor || '-' || sitv_interv in ('$numOrValideItv') 
+                and sitv_soc = 'HF'
+                        WHERE  slor_typlig = 'P'
                             $piece
-                        and seor_numor||'-'||TRUNC(slor_nogrp/100) in ('" . $numOrValideItv . "')
                         GROUP BY 1
                         HAVING 
                             sum(CASE 
@@ -216,10 +225,15 @@ class MagasinListeOrLivrerModel extends Model
                         inner join sav_eor on seor_soc = slor_soc 
                             and seor_succ = slor_succ 
                             and seor_numor = slor_numor
-                        WHERE slor_soc = 'HF'
-                            AND slor_typlig = 'P'
+                            inner join sav_itv 
+                on sitv_soc = slor_soc 
+                and sitv_succ = slor_succ 
+                and sitv_numor = slor_numor 
+                and sitv_interv = slor_nogrp / 100 
+                and sitv_numor || '-' || sitv_interv in ('$numOrValideItv') 
+                and sitv_soc = 'HF'
+                        WHERE slor_typlig = 'P'
                             $piece
-                        and seor_numor||'-'||TRUNC(slor_nogrp/100) in ('" . $numOrValideItv . "')
                         GROUP BY 1
                         HAVING 
                             sum(CASE 
@@ -270,8 +284,6 @@ class MagasinListeOrLivrerModel extends Model
                         slor_datec as dateCreation,
                         slor_nogrp/100 as numInterv,
                         slor_nolign as numeroLigne,
-                        --slor_succdeb||'-'||(select trim(asuc_lib) from agr_succ where asuc_numsoc = slor_soc and asuc_num = slor_succdeb) as agence,
-                        --slor_servdeb||'-'||(select trim(atab_lib) from agr_tab where atab_nom = 'SER' and atab_code = slor_servdeb) as service,
                         slor_succdeb as agenceDebiteur,
                         slor_servdeb as serviceDebiteur,
                         slor_succ as agenceCrediteur,
@@ -291,16 +303,18 @@ class MagasinListeOrLivrerModel extends Model
                         inner join sav_eor on seor_soc = slor_soc 
                                             and seor_succ = slor_succ 
                                             and seor_numor = slor_numor
-
-                        where slor_soc = 'HF'
-                        and slor_typlig = 'P'
-                        --and slor_succ in ('01', '50')
+                        inner join sav_itv 
+                            on sitv_soc = slor_soc 
+                            and sitv_succ = slor_succ 
+                            and sitv_numor = slor_numor 
+                            and sitv_interv = slor_nogrp / 100 
+                            $orCompletNom
+                            and sitv_soc = 'HF'
+                        where slor_typlig = 'P'
                         and seor_serv ='SAV'
                         and seor_typeor not in('950', '501')
-                        and seor_numor||'-'||TRUNC(slor_nogrp/100) in ('" . $lesOrSelonCondition['numOrValideString'] . "')
                         $agenceUser
                         $piece
-                        $orCompletNom
                         $designation
                         $referencePiece 
                         $constructeur 
@@ -318,7 +332,7 @@ class MagasinListeOrLivrerModel extends Model
                             slor_nolign asc
         ";
 
-        //dd($statement);
+        // dd($statement);
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);
@@ -426,7 +440,7 @@ class MagasinListeOrLivrerModel extends Model
         $statement = "SELECT 
             
             trim(slor_refp) as referencePiece
-           
+        
             from sav_lor 
             
             where 
@@ -492,7 +506,7 @@ class MagasinListeOrLivrerModel extends Model
     {
         $statement = "  SELECT DISTINCT
                             slor_succdeb||'-'||(select trim(asuc_lib) from agr_succ where asuc_numsoc = slor_soc and asuc_num = slor_succdeb) as agence
-                        FROM sav_lor
+                        FROM informix.sav_lor
                         WHERE slor_succdeb||'-'||(select trim(asuc_lib) from agr_succ where asuc_numsoc = slor_soc and asuc_num = slor_succdeb) <> ''
                         AND slor_soc = 'HF'
                         AND slor_succdeb IN ($codeAgence)

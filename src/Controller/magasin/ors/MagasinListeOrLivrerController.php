@@ -159,8 +159,8 @@ class MagasinListeOrLivrerController extends Controller
             $numItv = $data[$i]['numinterv'];
             $data[$i]['nomPrenom'] = $this->magasinListOrLivrerModel->recupUserCreateNumOr($numeroOr)[0]['nomprenom'];
             $datePlanning = $this->magasinListOrLivrerModel->getDatePlanning($numeroOr);
-            $data[$i]['datePlanning'] = $datePlanning[0];
-        
+            $data[$i]['datePlanning'] = isset($datePlanning[0]) ? $datePlanning[0] : '';
+
 
             $ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => $numeroOr]);
 
