@@ -85,7 +85,7 @@ class DemandeAppro
     /**
      * @ORM\Column(type="string", length=1000, name="detail_dal", nullable=true)
      */
-    private string $detailDal;
+    private ?string $detailDal = null;
 
     /**
      * @ORM\Column(type="string", length=6, name="agence_service_emmeteur")
@@ -333,7 +333,7 @@ class DemandeAppro
      *
      * @return string
      */
-    public function getDetailDal(): string
+    public function getDetailDal(): ?string
     {
         return $this->detailDal;
     }
