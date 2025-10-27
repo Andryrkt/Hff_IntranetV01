@@ -9,7 +9,7 @@ vendor
 .env
 configuration_lanto_hasina.txt
 configuration_prod.txt
-/var/log/app_errors.log
+/var
 src/Controller/pdf/
 src/Controller/authentification.csv
 Dossiers ORs
