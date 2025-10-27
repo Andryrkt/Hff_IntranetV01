@@ -193,14 +193,13 @@ trait PlanningTraits
         }
         return $objetPlanning;
     }
-    private function creationTableauObjetPlanningMagasin(array $data,array $back): array
+    private function creationTableauObjetPlanningMagasin(array $data, array $back): array
     {
         $objetPlanning = [];
         //Recuperation de idmat et les truc
         foreach ($data as $item) {
             $planningMateriel = new PlanningMateriel();
-
-            if (in_array($item['orintv'], $back)) {
+            if (in_array($item['orintv'], array_column($back, 'intervention'))) {
                 $backOrder = 'Okey';
             } else {
                 $backOrder = '';
@@ -223,8 +222,9 @@ trait PlanningTraits
                 ->setQteCdm($item['qtecdm'])
                 ->setQteLiv($item['qtliv'])
                 ->setQteAll($item['qteall'])
+                ->setBack($backOrder)
                 // ->setNumeroOr($item['numeroor'])
-                ->addMoisDetailMagasin($item['mois'], $item['annee'], $item['orintv'], $item['qtecdm'], $item['qtliv'], $item['qteall'], $item['commentaire'],$backOrder)
+                ->addMoisDetailMagasin($item['mois'], $item['annee'], $item['orintv'], $item['qtecdm'], $item['qtliv'], $item['qteall'], $item['commentaire'], $backOrder)
             ;
             $objetPlanning[] = $planningMateriel;
         }
@@ -259,7 +259,7 @@ trait PlanningTraits
         }
         return $fusionResult;
     }
-private function ajoutMoiDetailMagasin(array $objetPlanning): array
+    private function ajoutMoiDetailMagasin(array $objetPlanning): array
     {
         // Fusionner les objets en fonction de l'idMat
         $fusionResult = [];
@@ -279,7 +279,7 @@ private function ajoutMoiDetailMagasin(array $objetPlanning): array
                         $moisDetail['qteLiv'],
                         $moisDetail['qteAll'],
                         $moisDetail['commentaire'],
-                         $moisDetail['back']
+                        $moisDetail['back']
                     );
                 }
             }

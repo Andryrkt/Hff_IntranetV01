@@ -63,23 +63,29 @@ class planningMagasinController extends Controller
         //initialisation criteria
         $criteria = $this->planningMagasinSearch;
         if ($form->isSubmitted() && $form->isValid()) {
-            // dump($form->getdata());
+            // dd($form->getdata());
             $criteria =  $form->getdata();
         }
         if ($request->query->get('action') !== 'oui') {
-            $back = $this->planningMagasinModel->backOrderplanningMagasin();
+            if ($criteria->getOrBackOrder() == true) {
+                $back = $this->planningMagasinModel->backOrderplanningMagasin();
+            }else{
+                $back = [];
+            }
             if (is_array($back)) {
                 $backString = TableauEnStringService::orEnString($back);
             } else {
                 $backString = '';
             }
-            $data = $this->planningMagasinModel->recuperationCommadeplanifier($criteria,$backString);
-            // dd($data);
+            $data = $this->planningMagasinModel->recuperationCommadeplanifier($criteria, $backString);
+            // dump($data);
         } else {
             $data = [];
             $back = [];
         }
-        $tabObjetPlanning = $this->creationTableauObjetPlanningMagasin($data,$back);
+        $tabObjetPlanning = $this->creationTableauObjetPlanningMagasin($data, $back);
+        // dd($tabObjetPlanning);
+        // die();
         // Fusionner les objets en fonction de l'idMat
         $fusionResult = $this->ajoutMoiDetailMagasin($tabObjetPlanning);
         // dd($fusionResult);
