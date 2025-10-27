@@ -17,12 +17,13 @@
 					</div>
 					<div class="col-12 col-md-2">
 						{{ macroForm.agence_service_change(form.agence, form.service, 'spinner-service', 'service-container')}}
-						{# {{form_row(form.agence)}} #}
-						{# {{form_row(form.service)}} #}
-					{{ form_row(form.orValide)}}
+						{{ form_row(form.orValide)}}
 					</div>
-						<div class="col-12 col-md-2"> {{form_row(form.numCis)}}
-						{{form_row(form.constructeur)}}
+					<div class="col-12 col-md-2">
+						{{form_row(form.numCis)}}
+						<div class="{{ est_pneumatique ? 'd-none' : '' }}">
+							{{form_row(form.constructeur)}}
+						</div>
 					</div>
 					<div class="col-12 col-md-2">
 						{{form_row(form.numDit)}}

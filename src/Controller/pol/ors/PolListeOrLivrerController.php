@@ -1,9 +1,11 @@
 <?php
 
 
-namespace App\Controller\magasin\ors;
+namespace App\Controller\pol\ors;
 
-// ini_set('max_execution_time', 10000);
+ini_set('max_execution_time', 10000);
+ini_set('memory_limit', '1000M');
+
 
 use App\Controller\Controller;
 use App\Entity\admin\Application;
@@ -13,45 +15,50 @@ use App\Controller\Traits\Transformation;
 use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Model\magasin\MagasinListeOrATraiterModel;
-use App\Form\magasin\MagasinListeOrATraiterSearchType;
-use App\Controller\Traits\magasin\ors\MagasinOrATraiterTrait;
+use App\Model\magasin\MagasinListeOrLivrerModel;
+use App\Form\magasin\MagasinListeOrALivrerSearchType;
+use App\Controller\Traits\magasin\ors\MagasinOrALIvrerTrait;
 use App\Controller\Traits\magasin\ors\MagasinTrait as OrsMagasinTrait;
 use App\Model\dit\DitModel;
 
 /**
- * @Route("/magasin/or")
+ * @Route("/pol/ors-pol")
  */
-class MagasinListeOrTraiterController extends Controller
+class PolListeOrLivrerController extends Controller
 {
     use Transformation;
     use OrsMagasinTrait;
-    use MagasinOrATraiterTrait;
-    use AutorisationTrait;
+    use MagasinOrALIvrerTrait;
 
     private $ditModel;
+
+    use AutorisationTrait;
+
+    private $magasinListOrLivrerModel;
 
     public function __construct()
     {
         parent::__construct();
         $this->ditModel = new DitModel();
+        $this->magasinListOrLivrerModel = new MagasinListeOrLivrerModel();
     }
 
     /**
-     * @Route("/liste-magasin", name="magasinListe_index")
+     * @Route("/liste-or-livrer", name="pol_or_liste_a_livrer")
      *
      * @return void
      */
-    public function index(Request $request)
+    public function listOrLivrer(Request $request)
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
+
         /** Autorisation accées */
         $this->autorisationAcces($this->getUser(), Application::ID_MAG);
         /** FIN AUtorisation acées */
 
-        $magasinModel = new MagasinListeOrATraiterModel();
         $codeAgence = $this->getUser()->getAgenceAutoriserCode();
+        $serviceAgence = $this->getUser()->getServiceAutoriserCode();
 
         /** CREATION D'AUTORISATION */
         $autoriser = $this->autorisationRole($this->getEntityManager());
@@ -63,34 +70,38 @@ class MagasinListeOrTraiterController extends Controller
             $agenceUser = TableauEnStringService::TableauEnString(',', $codeAgence);
         }
 
-        $form = $this->getFormFactory()->createBuilder(MagasinListeOrATraiterSearchType::class, ['agenceUser' => $agenceUser, 'autoriser' => $autoriser], [
+        $form = $this->getFormFactory()->createBuilder(MagasinListeOrALivrerSearchType::class, ['agenceUser' => $agenceUser, 'autoriser' => $autoriser], [
             'method' => 'GET'
         ])->getForm();
 
         $form->handleRequest($request);
-        $criteria = $this->innitialisationCriteria($agenceUser);
+        $criteria = [
+            "agenceUser" => $agenceUser,
+            "orCompletNon" => "ORs COMPLET",
+            "pieces" => "PIECES MAGASIN"
+        ];
         if ($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
         }
 
         //enregistrer les critère de recherche dans la session
-        $this->getSessionService()->set('magasin_liste_or_traiter_search_criteria', $criteria);
+        $this->getSessionService()->set('pol_liste_or_livrer_search_criteria', $criteria);
 
-        $data = $this->recupData($criteria, $magasinModel);
+        $data = $this->recupData($criteria);
 
-        $this->logUserVisit('magasinListe_index'); // historisation du page visité par l'utilisateur
+        $this->logUserVisit('magasinListe_or_Livrer'); // historisation du page visité par l'utilisateur
 
-        return $this->render('magasin/ors/listOrATraiter.html.twig', [
+        return $this->render('pol/ors/listOrLivrer.html.twig', [
             'data' => $data,
-            'form' => $form->createView()
+            'form' => $form->createView(),
+            'est_pneumatique' => true
         ]);
     }
 
 
 
-
     /**
-     * @Route("/magasin-list-or-traiter-export-excel", name="magasin_list_or_traiter")
+     * @Route("/list-or-livrer-export-excel", name="pol_list_or_livrer")
      *
      * @return void
      */
@@ -99,16 +110,17 @@ class MagasinListeOrTraiterController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $magasinModel = new MagasinListeOrATraiterModel();
         //recupères les critère dans la session 
-        $criteria = $this->getSessionService()->get('magasin_liste_or_traiter_search_criteria', []);
+        $criteria = $this->getSessionService()->get('pol_liste_or_livrer_search_criteria', []);
 
-        $entities = $this->recupData($criteria, $magasinModel);
+        $entities = $this->recupData($criteria);
+
 
         // Convertir les entités en tableau de données
         $data = [];
-        $data[] = ['N° DIT', 'N° Or', 'Date planning', "Date Or", "Agence Emetteur", "Service Emetteur", 'Agence Débiteur', 'Service Débiteur', 'N° Intv', 'N° lig', 'Cst', 'Réf.', 'Désignations', 'Qté demandée', 'Utilisateur', 'ID Materiel', 'Marque', 'Casier'];
+        $data[] = ['N° DIT', 'N° Or', "Date planning", "Date Or", "Agence Emetteur", "Service Emetteur", 'Agence débiteur', 'Service débiteur', 'N° Intv', 'N° lig', 'Cst', 'Réf.', 'Désignations', 'Qté demandée', 'Qté à livrer', 'Qté déjà livrée', 'Utilisateur', 'ID Materiel', 'Marque', 'Casier'];
         foreach ($entities as $entity) {
+
             $data[] = [
                 $entity['referencedit'],
                 $entity['numeroor'],
@@ -116,14 +128,16 @@ class MagasinListeOrTraiterController extends Controller
                 $entity['datecreation'],
                 $entity['agencecrediteur'],
                 $entity['servicecrediteur'],
-                $entity['agence'],
-                $entity['service'],
+                $entity['agencedebiteur'],
+                $entity['servicedebiteur'],
                 $entity['numinterv'],
                 $entity['numeroligne'],
                 $entity['constructeur'],
                 $entity['referencepiece'],
                 $entity['designationi'],
                 $entity['quantitedemander'],
+                $entity['qtealivrer'],
+                $entity['quantitelivree'],
                 $entity['nomPrenom'],
                 $entity['idMateriel'],
                 $entity['marque'],
@@ -134,21 +148,12 @@ class MagasinListeOrTraiterController extends Controller
         $this->getExcelService()->createSpreadsheet($data);
     }
 
-    private function innitialisationCriteria($agenceUser)
+    private function recupData($criteria)
     {
-        return [
-            "agenceUser" => $agenceUser
-        ];
-    }
-    
-    private function recupData($criteria, $magasinModel)
-    {
-        $lesOrSelonCondition = $this->recupNumOrTraiterSelonCondition($criteria, $magasinModel, $this->getEntityManager());
+        /** @var string $numeroOrsItv @var string $numeroOr */
+        [$numeroOrsItv, $numeroOr] = $this->recupNumOrSelonCondition($criteria);
 
-        $data = $magasinModel->recupereListeMaterielValider($criteria, $lesOrSelonCondition);
-
-        //enregistrer les critère de recherche dans la session
-        $this->getSessionService()->set('magasin_liste_or_traiter_search_criteria', $criteria);
+        $data = $this->magasinListOrLivrerModel->getListeOrLivrerPol($criteria, $numeroOrsItv, $numeroOr);
 
         //ajouter le numero dit dans data
         for ($i = 0; $i < count($data); $i++) {
@@ -159,7 +164,6 @@ class MagasinListeOrTraiterController extends Controller
                 break;
             }
         }
-
         return $data;
     }
 }

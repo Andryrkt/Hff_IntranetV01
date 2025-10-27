@@ -14,12 +14,13 @@ try {
 
     /**===================
      * CONSTRUCTEUR PIECES
-     *=====================*/  
+     *=====================*/
     $pieceMagasin = $jsonService->getSection("PIECES MAGASIN") === null ? [] : $jsonService->getSection("PIECES MAGASIN");
     $achatsLocaux = $jsonService->getSection('ACHATS LOCAUX') === null ? [] : $jsonService->getSection('ACHATS LOCAUX');
     $lub = $jsonService->getSection('LUB') === null ? [] : $jsonService->getSection('LUB');
     $tous = $jsonService->getSection('TOUS') === null ? [] : $jsonService->getSection('TOUS');
     $pieceMagasinSansCat = $jsonService->getSection('PIECES MAGASIN SANS CAT') === null ? [] : $jsonService->getSection('PIECES MAGASIN SANS CAT');
+    $pneumatique = $jsonService->getSection('PNEUMATIQUE') === null ? [] : $jsonService->getSection('PNEUMATIQUE');
 
     // Récupérer une section spécifique
     GlobalVariablesService::set('pieces_magasin', TableauEnStringService::orEnString($pieceMagasin));
@@ -27,7 +28,7 @@ try {
     GlobalVariablesService::set('lub', TableauEnStringService::orEnString($lub));
     GlobalVariablesService::set('tous', TableauEnStringService::orEnString($tous));
     GlobalVariablesService::set('pieceMagasinSansCat', TableauEnStringService::orEnString($pieceMagasinSansCat));
-
+    GlobalVariablesService::set('pneumatique', TableauEnStringService::orEnString($pneumatique));
 } catch (Exception $e) {
     echo "Erreur : " . $e->getMessage();
 }

@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\Controller\magasin\ors;
+namespace App\Controller\pol\ors;
 
 // ini_set('max_execution_time', 10000);
 
@@ -20,9 +20,9 @@ use App\Controller\Traits\magasin\ors\MagasinTrait as OrsMagasinTrait;
 use App\Model\dit\DitModel;
 
 /**
- * @Route("/magasin/or")
+ * @Route("/pol/or-pol")
  */
-class MagasinListeOrTraiterController extends Controller
+class PolListeOrTraiterController extends Controller
 {
     use Transformation;
     use OrsMagasinTrait;
@@ -38,7 +38,7 @@ class MagasinListeOrTraiterController extends Controller
     }
 
     /**
-     * @Route("/liste-magasin", name="magasinListe_index")
+     * @Route("/listes-or-a-traiter", name="pol_or_liste_a_traiter")
      *
      * @return void
      */
@@ -74,15 +74,16 @@ class MagasinListeOrTraiterController extends Controller
         }
 
         //enregistrer les critère de recherche dans la session
-        $this->getSessionService()->set('magasin_liste_or_traiter_search_criteria', $criteria);
+        $this->getSessionService()->set('pol_liste_or_traiter_search_criteria', $criteria);
 
         $data = $this->recupData($criteria, $magasinModel);
 
         $this->logUserVisit('magasinListe_index'); // historisation du page visité par l'utilisateur
 
-        return $this->render('magasin/ors/listOrATraiter.html.twig', [
+        return $this->render('pol/ors/listOrATraiter.html.twig', [
             'data' => $data,
-            'form' => $form->createView()
+            'form' => $form->createView(),
+            'est_pneumatique' => true
         ]);
     }
 
@@ -90,7 +91,7 @@ class MagasinListeOrTraiterController extends Controller
 
 
     /**
-     * @Route("/magasin-list-or-traiter-export-excel", name="magasin_list_or_traiter")
+     * @Route("/pol-list-or-traiter-export-excel", name="pol_list_or_traiter_export_excel")
      *
      * @return void
      */
@@ -101,7 +102,7 @@ class MagasinListeOrTraiterController extends Controller
 
         $magasinModel = new MagasinListeOrATraiterModel();
         //recupères les critère dans la session 
-        $criteria = $this->getSessionService()->get('magasin_liste_or_traiter_search_criteria', []);
+        $criteria = $this->getSessionService()->get('pol_liste_or_traiter_search_criteria', []);
 
         $entities = $this->recupData($criteria, $magasinModel);
 
@@ -140,15 +141,15 @@ class MagasinListeOrTraiterController extends Controller
             "agenceUser" => $agenceUser
         ];
     }
-    
-    private function recupData($criteria, $magasinModel)
-    {
-        $lesOrSelonCondition = $this->recupNumOrTraiterSelonCondition($criteria, $magasinModel, $this->getEntityManager());
 
-        $data = $magasinModel->recupereListeMaterielValider($criteria, $lesOrSelonCondition);
+    private function recupData($criteria, $magasinListeOrATraiterModel)
+    {
+        $lesOrSelonCondition = $this->recupNumOrTraiterSelonCondition($criteria, $magasinListeOrATraiterModel, $this->getEntityManager());
+
+        $data = $magasinListeOrATraiterModel->getListeOrTraiterPol($criteria, $lesOrSelonCondition);
 
         //enregistrer les critère de recherche dans la session
-        $this->getSessionService()->set('magasin_liste_or_traiter_search_criteria', $criteria);
+        $this->getSessionService()->set('pol_liste_or_traiter_search_criteria', $criteria);
 
         //ajouter le numero dit dans data
         for ($i = 0; $i < count($data); $i++) {

@@ -72,24 +72,24 @@ trait ConditionModelTrait
         return $condition;
     }
 
-    private function conditionPiece(string $indexCriteria, array $criteria): ?string
+    private function conditionPiece(string $indexCriteria, array $criteria, string $props): ?string
     {
         $piece = null;
         if (!empty($criteria[$indexCriteria])) {
             if ($criteria[$indexCriteria] === "PIECES MAGASIN") {
                 $value = GlobalVariablesService::get('pieces_magasin');
                 if (!empty($value)) {
-                    $piece = " AND slor_constp in ($value) AND (slor_refp not like '%-L' and slor_refp not like '%-CTRL')";
+                    $piece = " AND $props in ($value) AND (slor_refp not like '%-L' and slor_refp not like '%-CTRL')";
                 }
             } elseif ($criteria[$indexCriteria] === "LUB") {
                 $value = GlobalVariablesService::get('lub');
                 if (!empty($value)) {
-                    $piece = " AND slor_constp in ($value)";
+                    $piece = " AND $props in ($value)";
                 }
             } elseif ($criteria[$indexCriteria] === "ACHATS LOCAUX") {
                 $value = GlobalVariablesService::get('achat_locaux');
                 if (!empty($value)) {
-                    $piece = " AND slor_constp in ($value) ";
+                    $piece = " AND $props in ($value) ";
                 }
             } elseif ($criteria[$indexCriteria] === "TOUTS PIECES") {
                 $piece = null;
@@ -97,7 +97,7 @@ trait ConditionModelTrait
         } else {
             $value = GlobalVariablesService::get('pieces_magasin');
             if (!empty($value)) {
-                $piece = " AND slor_constp in ($value) AND (slor_refp not like '%-L' and slor_refp not like '%-CTRL')";
+                $piece = " AND $props in ($value) AND (slor_refp not like '%-L' and slor_refp not like '%-CTRL')";
             }
         }
 

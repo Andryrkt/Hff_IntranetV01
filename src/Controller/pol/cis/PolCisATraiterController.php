@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\magasin\cis;
+namespace App\Controller\Pol\cis;
 
 use App\Controller\Controller;
 use App\Entity\admin\Application;
@@ -15,9 +15,9 @@ use App\Controller\Traits\magasin\cis\AtraiterTrait;
 use App\Model\dit\DitModel;
 
 /**
- * @Route("/magasin/cis")
+ * @Route("/pol/cis-pol")
  */
-class CisATraiterController extends Controller
+class PolCisATraiterController extends Controller
 {
     use AtraiterTrait;
     use AutorisationTrait;
@@ -31,7 +31,7 @@ class CisATraiterController extends Controller
     }
 
     /**
-     * @Route("/cis-liste-a-traiter", name="cis_liste_a_traiter")
+     * @Route("/cis-liste-a-traiter", name="pol_cis_liste_a_traiter")
      */
     public function listCisATraiter(Request $request)
     {
@@ -65,18 +65,19 @@ class CisATraiterController extends Controller
         $data = $this->recupData($cisATraiterModel, $criteria);
 
         //enregistrer les critère de recherche dans la session
-        $this->getSessionService()->set('cis_a_traiter_search_criteria', $criteria);
+        $this->getSessionService()->set('pol_cis_a_traiter_search_criteria', $criteria);
 
         $this->logUserVisit('cis_liste_a_traiter'); // historisation du page visité par l'utilisateur
 
-        return $this->render('magasin/cis/listATraiter.html.twig', [
+        return $this->render('pol/cis/listATraiter.html.twig', [
             'data' => $data,
-            'form' => $form->createView()
+            'form' => $form->createView(),
+            'est_pneumatique' => true
         ]);
     }
 
     /**
-     * @Route("/export-excel-a-traiter-cis", name="export_excel_a_traiter_cis")
+     * @Route("/export-excel-a-traiter-cis", name="pol_export_excel_a_traiter_cis")
      */
     public function exportExcel()
     {
@@ -86,7 +87,7 @@ class CisATraiterController extends Controller
         $cisATraiterModel = new CisATraiterModel();
 
         //recupères les critère dans la session 
-        $criteria = $this->getSessionService()->get('cis_a_traiter_search_criteria', []);
+        $criteria = $this->getSessionService()->get('pol_cis_a_traiter_search_criteria', []);
 
         $entities = $this->recupData($cisATraiterModel, $criteria);
 
@@ -123,7 +124,7 @@ class CisATraiterController extends Controller
         $ditOrsSoumisRepository = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class);
         $numORItvValides = $this->orEnString($ditOrsSoumisRepository->findNumOrItvValide());
 
-        $data = $cisATraiterModel->listOrATraiter($criteria, $numORItvValides);
+        $data = $cisATraiterModel->getListeCisATraiter($criteria, $numORItvValides);
 
         return $data;
     }
