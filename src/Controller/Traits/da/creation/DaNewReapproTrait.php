@@ -8,6 +8,7 @@ use App\Entity\da\DemandeApproL;
 use App\Repository\da\DaArticleReapproRepository;
 use App\Traits\JoursOuvrablesTrait;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\HttpFoundation\Request;
 
 trait DaNewReapproTrait
 {
@@ -79,5 +80,21 @@ trait DaNewReapproTrait
                 ->setQteValAppro($articleReappro->getQteValide());
         }
         return new ArrayCollection($dals);
+    }
+
+    /** 
+     * Fonction pour retourner le nom du bouton cliqué
+     *  - enregistrerBrouillon
+     *  - soumissionAppro
+     */
+    private function getButtonName(Request $request): string
+    {
+        if ($request->request->has('enregistrerBrouillon')) {
+            return 'enregistrerBrouillon';
+        } elseif ($request->request->has('soumissionAppro')) {
+            return 'soumissionAppro';
+        } else {
+            return '';
+        }
     }
 }

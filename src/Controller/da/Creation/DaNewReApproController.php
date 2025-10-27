@@ -45,42 +45,40 @@ class DaNewReApproController extends Controller
         $demandeAppro = $this->initialisationDemandeApproReappro();
 
         $form = $this->getFormFactory()->createBuilder(DemandeApproReapproFormType::class, $demandeAppro)->getForm();
-        $this->traitementFormReappro($form, $request, $demandeAppro);
+        $this->traitementFormReappro($form, $request);
 
         return $this->render('da/new-da-reappro.html.twig', [
             'form' => $form->createView(),
         ]);
     }
 
-    private function traitementFormReappro($form, Request $request, DemandeAppro $demandeAppro): void
+    private function traitementFormReappro($form, Request $request): void
     {
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** 
-             * @var DemandeAppro $demandeAppro
-             */
+            /** @var DemandeAppro $demandeAppro */
             $demandeAppro = $form->getData();
 
-            $numDa = $demandeAppro->getNumeroDemandeAppro();
-            $formDAL = $form->get('DAL');
+            $dalsToSave = $demandeAppro->getDAL()->filter(function ($dal) {
+                return $dal->getQteDem() !== null;
+            });
 
-            foreach ($formDAL as $subFormDAL) {
-                /** 
-                 * @var DemandeApproL $demandeApproL
-                 * On récupère les données du formulaire DAL
-                 */
-                $demandeApproL = $subFormDAL->getData();
-                $files = $subFormDAL->get('fileNames')->getData(); // Récupération des fichiers
+            if ($dalsToSave->isEmpty()) {
+                $this->getSessionService()->set('notification', ['type' => 'danger', 'message' => 'La demande a échouée, aucun article sélectionné']);
+                $this->redirectToRoute("list_da");
+            }
 
-                $demandeApproL
-                    ->setNumeroFournisseur($demandeApproL->getNumeroFournisseur() ?? '-')
-                    ->setNomFournisseur($demandeApproL->getNomFournisseur() ?? '-')
-                    ->setNumeroDemandeAppro($numDa)
-                    ->setStatutDal(DemandeAppro::STATUT_SOUMIS_APPRO)
-                    ->setJoursDispo($this->getJoursRestants($demandeApproL));
+            // Récupérer le nom du bouton cliqué
+            $clickedButtonName = $this->getButtonName($request);
+            $statutDa = self::STATUT_DAL[$clickedButtonName];
 
-                $this->getEntityManager()->persist($demandeApproL);
+            $demandeAppro->setStatutDal($statutDa);
+
+            /** @var DemandeApproL $dal */
+            foreach ($dalsToSave as $dal) {
+                $dal->setStatutDal($statutDa);
+                $this->getEntityManager()->persist($dal);
             }
 
             /** Ajout de demande appro dans la base de donnée (table: Demande_Appro) */
@@ -88,7 +86,7 @@ class DaNewReApproController extends Controller
 
             /** Modifie la colonne dernière_id dans la table applications */
             $applicationService = new ApplicationService($this->getEntityManager());
-            $applicationService->mettreAJourDerniereIdApplication('DAP', $numDa);
+            $applicationService->mettreAJourDerniereIdApplication('DAP', $demandeAppro->getNumeroDemandeAppro());
 
             /** ajout de l'observation dans la table da_observation si ceci n'est pas null */
             if ($demandeAppro->getObservation() !== null) {
