@@ -318,49 +318,127 @@ class MagasinListeOrATraiterModel extends Model
 
 
 
-    public function service($agence)
-    {
-        // $statement = "  SELECT DISTINCT
-        //                     slor_servdeb||'-'||(select trim(atab_lib) from agr_tab where atab_nom = 'SER' and atab_code = slor_servdeb) as service
-        //                 FROM sav_lor
-        //                 WHERE slor_servdeb||'-'||(select trim(atab_lib) from agr_tab where atab_nom = 'SER' and atab_code = slor_servdeb) <> ''
-        //                 AND slor_soc = 'HF'
-        //                 AND slor_succdeb||'-'||(select trim(asuc_lib) from agr_succ where asuc_numsoc = slor_soc and asuc_num = slor_succdeb) = '".$agence."'
-        //             ";
+        public function service($agence)
 
 
-        if ($agence === null) {
-            $codeAgence = "";
-        } else {
-            $codeAgence = " AND asuc_num = '" . $agence . "'";
+
+        {
+
+
+
+            if ($agence === null) {
+
+
+
+                return []; // Si aucune agence, retourner un tableau vide
+
+
+
+            }
+
+
+
+    
+
+
+
+            $statement = " SELECT DISTINCT
+
+
+
+                            trim(a.atab_code) || ' ' || trim(a.atab_lib) as service
+
+
+
+                        FROM
+
+
+
+                            agr_tab a
+
+
+
+                        LEFT JOIN
+
+
+
+                            agr_tab b ON a.atab_code = b.atab_code
+
+
+
+                                      AND b.atab_nom LIKE 'SERBLOSUC%'
+
+
+
+                                      AND substr(b.atab_nom, 10, 2) = ? 
+
+
+
+                        WHERE
+
+
+
+                            a.atab_nom = 'SER'
+
+
+
+                            AND b.atab_code IS NULL
+
+
+
+            ";
+
+
+
+    
+
+
+
+            // Exécutez la requête avec un paramètre lié pour la sécurité et la performance
+
+
+
+            $result = $this->connect->executeQuery($statement, [$agence]);
+
+
+
+            $data = $this->connect->fetchResults($result);
+
+
+
+            $dataUtf8 = $this->convertirEnUtf8($data);
+
+
+
+    
+
+
+
+            return array_map(function ($item) {
+
+
+
+                return [
+
+
+
+                    "value" => $item['service'],
+
+
+
+                    "text"  => $item['service']
+
+
+
+                ];
+
+
+
+            }, $dataUtf8);
+
+
+
         }
-
-        $statement = " SELECT DISTINCT
-                        trim(atab_code) || ' '||trim(atab_lib) as service  
-                        FROM agr_succ , agr_tab a 
-                        WHERE a.atab_nom = 'SER' 
-                        and a.atab_code not in (select b.atab_code from agr_tab b where substr(b.atab_nom,10,2) = asuc_num and b.atab_nom like 'SERBLOSUC%') 
-                        $codeAgence
-        ";
-
-        $result = $this->connect->executeQuery($statement);
-        $data = $this->connect->fetchResults($result);
-        $dataUtf8 = $this->convertirEnUtf8($data);
-
-        $result = $this->connect->executeQuery($statement);
-
-        $data = $this->connect->fetchResults($result);
-
-        $dataUtf8 = $this->convertirEnUtf8($data);
-
-        return array_map(function ($item) {
-
-            return [
-                "value" => $item['service'],
-                "text"  => $item['service']
-            ];
-        }, $dataUtf8);
-    }
 
     public function agenceUser(string $codeAgence)
     {
