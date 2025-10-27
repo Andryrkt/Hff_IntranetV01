@@ -416,7 +416,7 @@ class MenuService
     public function menuMagasin()
     {
         $subitems = [];
-        /** =====================Magasin========================= */
+        /** =====================Magasin OR et CIS========================= */
         if ($this->getEstAdmin() || in_array(Application::ID_MAG, $this->getApplicationIds())) { // MAG
             $subitems[] = $this->createSubMenuItem(
                 'OR',
@@ -519,16 +519,37 @@ class MenuService
 
     public function menuPOL()
     {
+        $subitems = [];
+        $subitems[] = $this->createSimpleItem('Nouvelle DLUB', 'file-alt');
+        $subitems[] = $this->createSimpleItem('Consultation des DLUB', 'search');
+        $subitems[] = $this->createSimpleItem('Liste des commandes fournisseurs', 'list-ul');
+        /** =====================POL OR et CIS========================= */
+        if ($this->getEstAdmin() || in_array(Application::ID_MAG, $this->getApplicationIds())) { // MAG
+            $subitems[] = $this->createSubMenuItem(
+                'OR',
+                'warehouse',
+                [
+                    $this->createSubItem('Liste à traiter', 'tasks', 'pol_or_liste_a_traiter'),
+                    $this->createSubItem('Liste à livrer', 'truck-loading', 'pol_or_liste_a_livrer')
+                ]
+            );
+            $subitems[] = $this->createSubMenuItem(
+                'CIS',
+                'pallet',
+                [
+                    $this->createSubItem('Liste à traiter', 'tasks', 'cis_liste_a_traiter'),
+                    $this->createSubItem('Liste à livrer', 'truck-loading', 'cis_liste_a_livrer')
+                ]
+            );
+        }
+
+
+        $subitems[] = $this->createSimpleItem('Pneumatiques', 'ring');
         return $this->createMenuItem(
             'polModal',
             'POL',
             'ring rotate-90',
-            [
-                $this->createSimpleItem('Nouvelle DLUB', 'file-alt'),
-                $this->createSimpleItem('Consultation des DLUB', 'search'),
-                $this->createSimpleItem('Liste des commandes fournisseurs', 'list-ul'),
-                $this->createSimpleItem('Pneumatiques', 'ring'),
-            ]
+            $subitems
         );
     }
 

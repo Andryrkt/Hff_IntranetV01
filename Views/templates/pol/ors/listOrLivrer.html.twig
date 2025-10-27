@@ -1,6 +1,6 @@
 {% extends "baseTemplate.html.twig" %}
 
-{% block title %}OR à traiter
+{% block title %}OR à livrer
 {% endblock %}
 
 {% block stylesheets %}
@@ -10,22 +10,18 @@
 
 
 {% block content %}
-	<div id="conteneur" data-page-type="or_a_traiter">
-
+	<div id="conteneur" data-page-type="or_a_livrer">
 		<div class="container">
 			<h3 class="perso-titre">
-				Liste des OR à traiter
+				Liste des OR à livrer
 			</h3>
-
-
-			{% include "/magasin/partials/_formulaireRechercheListeOrATraiter.html.twig" %}
+			{% include "/magasin/partials/_formulaireRechercheListeOrALivrer.html.twig" %}
 		</div>
-
 		<div class="container">
 			<div class="d-flex justify-content-between">
 				<div>
 					{# Bouton EXCEL#}
-					<a href="{{path("magasin_list_or_traiter")}}" class="btn btn bg-success text-white my-3 fw-bold">
+					<a href="{{path("pol_list_or_livrer")}}" class="btn btn bg-success text-white my-3 fw-bold">
 						<i class="fas fa-table"></i>
 						Excel</a>
 				</div>
@@ -44,23 +40,31 @@
 							<th class="text-center">N° OR</th>
 							<th>Date planning</th>
 							<th>Niv. d'urg</th>
-							<th>Date OR</th>
+							<th>Date  OR</th>
 							<th class="text-center">Agence Emetteur</th>
 							<th class="text-center">Service Emetteur</th>
-							<th class="text-center">Agence Débiteur</th>
-							<th class="text-center">Service Débiteur</th>
+							<th class="text-center">Agence débiteur</th>
+							<th class="text-center">Service débiteur</th>
 							<th class="text-center">N° ITV</th>
 							<th class="text-center">N° lig</th>
 							<th>CST</th>
 							<th>Réf</th>
 							<th>Désignation</th>
-							<th class="text-center">Qté demandée</th>
-							<th>Utilisateur</th>
 
+							<th class="text-center">Qté demandée</th>
+							<th class="text-center">Qté à livrer</th>
+							<th class="text-center">Qté déjà livrée</th>
+							<th>Utilisateur</th>
 						</tr>
 					</thead>
 					<tbody id="tableBody">
 						{% for item in data %}
+							{% set textColor = "" %}
+							{% if item.quantitedemander > (item.qtealivrer + item.quantitelivree) %}
+								{% set textColor = "textColor" %}
+							{% endif %}
+
+
 							<tr>
 								<td class="" style="vertical-align: middle">
 									<div class="dropdown">
@@ -83,17 +87,18 @@
 								<td>{{ item.datePlanning == null ? '--' : item.datePlanning| date("d/m/Y")}}</td>
 								<td class="">{{item.niveauUrgence}}</td>
 								<td class="">{{ item.datecreation | date("d/m/Y")}}</td>
-								<td class="text-center">{{item.agencecrediteur}}</td>
-								<td class="text-center">{{item.servicecrediteur}}</td>
-								<td class="text-center">{{ item.agence}}</td>
-								<td class="text-center">{{ item.service}}</td>
+								<td class="text-center">{{ item.agencecrediteur}}</td>
+								<td class="text-center">{{ item.servicecrediteur}}</td>
+								<td class="text-center">{{ item.agencedebiteur}}</td>
+								<td class="text-center">{{ item.servicedebiteur}}</td>
 								<td class="text-center">{{item.numinterv | number_format(0)}}</td>
-								<td class="text-center">{{ item.numeroligne}}</td>
-								<td class="">{{item.constructeur}}</td>
-								<td class="">{{item.referencepiece}}</td>
-								<td class="">{{item.designationi}}</td>
-								<td class="text-center">{{item.quantitedemander == 0 ? '-': item.quantitedemander |
-							number_format(0)}}</td>
+								<td class="text-center {{textColor}}">{{ item.numeroligne}}</td>
+								<td class="{{textColor}}">{{item.constructeur}}</td>
+								<td class="{{textColor}}">{{item.referencepiece}}</td>
+								<td class="{{textColor}}">{{item.designationi}}</td>
+								<td class="text-center {{textColor}}">{{item.quantitedemander == 0 ? '-': item.quantitedemander | number_format(0)}}</td>
+								<td class="text-center {{textColor}}">{{item.qtealivrer == 0 ? '-' : item.qtealivrer | number_format(0)}}</td>
+								<td class="text-center">{{item.quantitelivree == 0 ? '-' : item.quantitelivree | number_format(0)}}</td>
 								<td>{{ item.nomprenom }}</td>
 
 							</tr>
@@ -104,7 +109,7 @@
 		</div>
 
 		<!-- FIN tableau -->
-		{% include "/dit/shared/_modalNiveauUrgence.html.twig" %}
+		{% include "/dit/shared/_modalNiveauUrgence.html.twig"  %}
 	</div>
 {% endblock %}
 {% block javascript %}
