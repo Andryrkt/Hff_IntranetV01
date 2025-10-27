@@ -510,3 +510,8 @@ a.choix:hover {
   background-color: #007bff !important;
   color: #ffffff !important;
 }
+.div-disabled.jaunatre,
+.jaunatre {
+  background-color: #ffd580 !important;
+  border: 1px solid #e6b85c !important;
+}
