@@ -7,7 +7,7 @@ export function handleQteInputEvents(allQteInputs) {
       qteInput.value = qteInput.value.replace(/\D+/g, "");
 
       const cellQte = qteInput.closest("td");
-      const row = cellQte?.parentElement;
+      const row = cellQte.parentElement;
       if (!cellQte || !row) return;
 
       const PU = parseFloat(cellQte.dataset.dalPu) || 0;
@@ -23,9 +23,9 @@ export function handleQteInputEvents(allQteInputs) {
       });
 
       // Mise à jour du montant total
-      const divMontantTotal = row.lastElementChild?.firstElementChild;
-      if (divMontantTotal) {
-        divMontantTotal.textContent = qteDem
+      var lastCell = row.lastElementChild;
+      if (lastCell && lastCell.firstElementChild) {
+        lastCell.firstElementChild.textContent = qteDem
           ? formaterNombre(qteDem * PU)
           : "-";
       }

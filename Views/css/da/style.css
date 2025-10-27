@@ -515,3 +515,11 @@ a.choix:hover {
   background-color: #ffd580 !important;
   border: 1px solid #e6b85c !important;
 }
+.jaunatre.text-danger {
+  border: 1px solid red !important;
+  box-shadow: 0 0 0 0.15rem rgba(255, 0, 0, 0.45);
+}
+.jaunatre.text-danger:focus {
+  border: 1px solid red !important;
+  box-shadow: 0 0 0 0.25rem rgba(255, 0, 0, 0.35);
+}
