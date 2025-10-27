@@ -31,9 +31,9 @@ class DaNewReApproController extends Controller
     }
 
     /**
-     * @Route("/new-da-reappro", name="da_new_reappro")
+     * @Route("/new-da-reappro/{id<\d+>}", name="da_new_reappro")
      */
-    public function newDAReappro(Request $request)
+    public function newDAReappro(int $id, Request $request)
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
@@ -42,7 +42,7 @@ class DaNewReApproController extends Controller
         $this->checkPageAccess($this->estAdmin());
         /** FIN AUtorisation accès */
 
-        $demandeAppro = $this->initialisationDemandeApproReappro();
+        $demandeAppro = $id === 0 ? $this->initialisationDemandeApproReappro() : $this->demandeApproRepository->find($id);
 
         $form = $this->getFormFactory()->createBuilder(DemandeApproReapproFormType::class, $demandeAppro)->getForm();
         $this->traitementFormReappro($form, $request);

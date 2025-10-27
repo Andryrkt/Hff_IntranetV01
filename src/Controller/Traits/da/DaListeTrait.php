@@ -282,51 +282,54 @@ trait DaListeTrait
     {
         $urls = [];
         $routeNames = [
+            'creation' => [
+                DemandeAppro::TYPE_DA_AVEC_DIT  => 'da_new_avec_dit',
+                DemandeAppro::TYPE_DA_DIRECT    => 'da_new_direct',
+                DemandeAppro::TYPE_DA_REAPPRO   => 'da_new_reappro',
+            ],
             'detail' => [
                 DemandeAppro::TYPE_DA_AVEC_DIT  => 'da_detail_avec_dit',
                 DemandeAppro::TYPE_DA_DIRECT    => 'da_detail_direct',
+                DemandeAppro::TYPE_DA_REAPPRO   => 'da_detail_direct', // TODO: à changer plus tard
             ],
             'proposition' => [
                 DemandeAppro::TYPE_DA_AVEC_DIT  => 'da_proposition_ref_avec_dit',
                 DemandeAppro::TYPE_DA_DIRECT    => 'da_proposition_direct',
+                DemandeAppro::TYPE_DA_REAPPRO   => 'da_proposition_direct', // TODO: à changer plus tard
             ],
             'delete' => [
                 DemandeAppro::TYPE_DA_AVEC_DIT  => 'da_delete_line_avec_dit',
                 DemandeAppro::TYPE_DA_DIRECT    => 'da_delete_line_direct',
+                DemandeAppro::TYPE_DA_REAPPRO   => 'da_delete_line_direct', // TODO: à changer plus tard
             ],
         ];
 
+        $parametres = [
+            'daId'           => ['id'    => $item->getDemandeAppro()->getId()],
+            'numDa-numLigne' => ['numDa' => $item->getNumeroDemandeAppro(), 'ligne' => $item->getNumeroLigne()],
+        ];
+
+        if ($daTypeId === DemandeAppro::TYPE_DA_AVEC_DIT) {
+            $parametres['daId-0-ditId'] = ['daId'  => 0,                                 'ditId' => $item->getDit()->getId(),];
+            $parametres['daId-ditId']   = ['daId'  => $item->getDemandeAppro()->getId(), 'ditId' => $item->getDit()->getId(),];
+        }
+
         // URL création de DA avec DIT
-        $urls['creation'] = $ajouterDA ? $this->getUrlGenerator()->generate('da_new_avec_dit', ['daId'  => 0, 'ditId' => $item->getDit()->getId(),]) : '';
+        $urls['creation'] = $ajouterDA ? $this->getUrlGenerator()->generate($routeNames['creation'][0], $parametres['daId-0-ditId']) : '';
 
         // URL détail
-        $urls['detail'] = $this->getUrlGenerator()->generate(
-            $routeNames['detail'][$daTypeId],
-            ['id' => $item->getDemandeAppro()->getId()]
-        );
+        $urls['detail'] = $this->getUrlGenerator()->generate($routeNames['detail'][$daTypeId], $parametres['daId']);
 
         // URL désignation (peut basculer sur "new" si statut en cours de création)
         $urls['designation'] = $item->getStatutDal() === DemandeAppro::STATUT_EN_COURS_CREATION
-            ? $this->getUrlGenerator()->generate('da_new_avec_dit', [
-                'daId'  => $item->getDemandeAppro()->getId(),
-                'ditId' => $item->getDit()->getId(),
-            ])
-            : $this->getUrlGenerator()->generate(
-                $routeNames['proposition'][$daTypeId],
-                ['id' => $item->getDemandeAppro()->getId()]
-            );
+            ? $this->getUrlGenerator()->generate($routeNames['creation'][$daTypeId], $daTypeId === DemandeAppro::TYPE_DA_AVEC_DIT ? $parametres['daId-ditId'] : $parametres['daId'])
+            : $this->getUrlGenerator()->generate($routeNames['proposition'][$daTypeId], $parametres['daId']);
 
         // URL suppression de ligne
-        $urls['delete'] = $this->getUrlGenerator()->generate(
-            $routeNames['delete'][$daTypeId],
-            ['numDa' => $item->getNumeroDemandeAppro(), 'ligne' => $item->getNumeroLigne()]
-        );
+        $urls['delete'] = $this->getUrlGenerator()->generate($routeNames['delete'][$daTypeId], $parametres['numDa-numLigne']);
 
         // URL demande de devis
-        $urls['demandeDevis'] = $this->getUrlGenerator()->generate(
-            'da_demande_devis_en_cours',
-            ['id' => $item->getDemandeAppro()->getId()]
-        );
+        $urls['demandeDevis'] = $this->getUrlGenerator()->generate('da_demande_devis_en_cours', $parametres['daId']);
 
         return $urls;
     }
