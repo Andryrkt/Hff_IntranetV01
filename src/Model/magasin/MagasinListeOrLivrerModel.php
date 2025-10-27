@@ -104,38 +104,23 @@ class MagasinListeOrLivrerModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function recupDatePlanning12($numOr)
+    public function getDatePlanning(string $numOr)
     {
-        $statement = " SELECT  
-                            min(ska_d_start) as datePlanning1
-                        from skw 
-                        inner join ska on ska.skw_id = skw.skw_id 
-                        where ofh_id ='" . $numOr . "'
-                        group by ofh_id 
-                    ";
+        $statement = " SELECT CASE 
+                    WHEN 
+                        (SELECT DATE(Min(ska_d_start)) FROM informix.ska, informix.skw WHERE ofh_id = sitv_numor AND ofs_id=sitv_interv AND skw.skw_id = ska.skw_id )  is Null THEN DATE(sitv_datepla)  
+                    ELSE
+                        (SELECT DATE(Min(ska_d_start)) FROM informix.ska, informix.skw WHERE ofh_id = sitv_numor AND ofs_id=sitv_interv AND skw.skw_id = ska.skw_id ) 
+                    END as datePlanning
+                    FROM informix.sav_itv 
+                    WHERE  sitv_numor  = '$numOr'
+                ";
 
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);
 
-        return $this->convertirEnUtf8($data);
-    }
-
-    public function recupDatePlanning22($numOr)
-    {
-        $statement = " SELECT
-                            min(sitv_datepla) as datePlanning2 
-                        from sav_itv 
-                        where sitv_numor = '" . $numOr . "'
-                        and sitv_pos = 'EC'
-                        group by sitv_numor
-                    ";
-
-        $result = $this->connect->executeQuery($statement);
-
-        $data = $this->connect->fetchResults($result);
-
-        return $this->convertirEnUtf8($data);
+        return array_column($this->convertirEnUtf8($data), 'datePlanning');
     }
 
     public function getDatePlanningPourDa(string $numOr)
@@ -143,7 +128,7 @@ class MagasinListeOrLivrerModel extends Model
         $statement = "SELECT distinct(slor_numor) as num_or,
                 CASE 
                     WHEN 
-                        (SELECT DATE(Min(ska_d_start)) FROM ska, skw WHERE ofh_id = seor_numor AND ofs_id=sitv_interv AND skw.skw_id = ska.skw_id )  is Null THEN DATE(sitv_datepla)  
+                        (SELECT DATE(Min(ska_d_start)) FROM ska, skw WHERE ofh_id = sitv_numor AND ofs_id=sitv_interv AND skw.skw_id = ska.skw_id )  is Null THEN DATE(sitv_datepla)  
                     ELSE
                         (SELECT DATE(Min(ska_d_start)) FROM ska, skw WHERE ofh_id = seor_numor AND ofs_id=sitv_interv AND skw.skw_id = ska.skw_id ) 
                 END as datePlanning
@@ -152,7 +137,7 @@ class MagasinListeOrLivrerModel extends Model
                 INNER JOIN sav_itv on sitv_numor = slor_numor and slor_soc = sitv_soc and slor_succ = sitv_succ and slor_soc = 'HF'
                     WHERE  slor_numor = '$numOr'
                         and slor_typlig = 'P'
-                        and slor_refp not like ('PREST%')
+                        -- and slor_refp not like ('PREST%')
                     ";
 
         $result = $this->connect->executeQuery($statement);

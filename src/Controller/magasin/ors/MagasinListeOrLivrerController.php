@@ -157,17 +157,10 @@ class MagasinListeOrLivrerController extends Controller
         for ($i = 0; $i < count($data); $i++) {
             $numeroOr = $data[$i]['numeroor'];
             $numItv = $data[$i]['numinterv'];
-            $datePlannig1 = $this->magasinListOrLivrerModel->recupDatePlanning1($numeroOr);
-            $datePlannig2 = $this->magasinListOrLivrerModel->recupDatePlanningOR2($numeroOr, $numItv);
             $data[$i]['nomPrenom'] = $this->magasinListOrLivrerModel->recupUserCreateNumOr($numeroOr)[0]['nomprenom'];
-
-            if (!empty($datePlannig1)) {
-                $data[$i]['datePlanning'] = $datePlannig1[0]['dateplanning1'];
-            } else if (!empty($datePlannig2)) {
-                $data[$i]['datePlanning'] = $datePlannig2[0]['dateplanning2'];
-            } else {
-                $data[$i]['datePlanning'] = '';
-            }
+            $datePlanning = $this->magasinListOrLivrerModel->getDatePlanning($numeroOr);
+            $data[$i]['datePlanning'] = $datePlanning[0];
+        
 
             $ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => $numeroOr]);
 
