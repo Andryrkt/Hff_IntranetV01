@@ -2,6 +2,7 @@ import { displayOverlay } from "../../utils/ui/overlay";
 import { handleQteInputEvents } from "./event";
 
 document.addEventListener("DOMContentLoaded", function () {
+  const myForm = document.getElementById("myForm");
   const actionsConfig = {
     enregistrerBrouillon: {
       title: "Confirmer l’enregistrement",
@@ -21,7 +22,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const allQteInputs = document.querySelectorAll(`[id*="_qteDem"]`);
   handleQteInputEvents(allQteInputs);
 
-  document.getElementById("myForm").addEventListener("submit", function (e) {
+  myForm.addEventListener("submit", function (e) {
     e.preventDefault();
     const tousVides = Array.from(allQteInputs).every(
       (input) => input.value === ""
@@ -51,7 +52,15 @@ document.addEventListener("DOMContentLoaded", function () {
       }).then((result) => {
         if (result.isConfirmed) {
           displayOverlay(true);
-          document.getElementById("myForm").submit();
+
+          // ajouter un champ caché avec l’action choisie
+          const hidden = document.createElement("input");
+          hidden.type = "hidden";
+          hidden.name = action;
+          hidden.value = "1";
+          myForm.appendChild(hidden);
+
+          myForm.submit(); // n’émule pas le clic sur le bouton d’envoi → donc le name et value du bouton cliqué ne sont pas envoyés.
         } else if (result.dismiss === Swal.DismissReason.cancel) {
           // ❌ Si l'utilisateur annule
           Swal.fire({
