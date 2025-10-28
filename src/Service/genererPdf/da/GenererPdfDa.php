@@ -2,11 +2,62 @@
 
 namespace App\Service\genererPdf\da;
 
-use App\Service\genererPdf\GeneratePdf;
 use TCPDF;
+use DateTime;
+use App\Entity\da\DemandeAppro;
+use App\Entity\dit\DemandeIntervention;
+use App\Service\genererPdf\GeneratePdf;
 
 abstract class GenererPdfDa extends GeneratePdf
 {
+    /** 
+     * Fonction pour générer l'entête du PDF de la DA
+     */
+    protected function renderHeaderPdfDA(TCPDF $pdf, string $numDa, string $userMail, int $daTypeId, DateTime $dateCreation, ?DemandeIntervention $dit = null): void
+    {
+        $titre = [
+            DemandeAppro::TYPE_DA_AVEC_DIT  => "DEMANDE D’APPROVISIONNEMENT",
+            DemandeAppro::TYPE_DA_DIRECT    => "DEMANDE D’ACHAT",
+            DemandeAppro::TYPE_DA_REAPPRO   => "DEMANDE DE REAPPRO MENSUEL",
+        ];
+
+        $pdf->setFont('helvetica', 'B', 14);
+        $pdf->setAbsY(11);
+        $logoPath =  $_ENV['BASE_PATH_LONG'] . '/Views/assets/logoHff.jpg';
+        $pdf->Image($logoPath, '', '', 45, 12);
+        $pdf->setAbsX(55);
+        $pdf->Cell(110, 6, $titre[$daTypeId], 0, 0, 'C', false, '', 0, false, 'T', 'M');
+
+        // entête email
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->SetFont('helvetica', 'BI', 10);
+        $pdf->SetY(2);
+        $pdf->Cell(0, 6, "email : $userMail", 0, 0, 'R');
+
+        $pdf->setAbsXY(170, 11);
+        $pdf->setFont('helvetica', 'B', 10);
+        $pdf->Cell(35, 6, $numDa, 0, 0, 'L', false, '', 0, false, 'T', 'M');
+
+        $pdf->Ln(6, true);
+
+        if ($dit) {
+            $pdf->setFont('helvetica', 'B', 12);
+            $pdf->setAbsX(55);
+            if ($dit->getTypeDocument() !== null) {
+                $descriptionTypeDocument = $dit->getTypeDocument()->getDescription();
+            } else {
+                $descriptionTypeDocument = ''; // Ou toute autre valeur par défaut appropriée
+            }
+            $pdf->cell(110, 6, $descriptionTypeDocument, 0, 0, 'C', false, '', 0, false, 'T', 'M');
+        }
+
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->setFont('helvetica', 'B', 10);
+        $pdf->setAbsX(170);
+        $pdf->cell(35, 6, 'Le : ' . $dateCreation->format('d/m/Y'), 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->Ln(7, true);
+    }
+
     /**
      * Affiche une conversation type chat dans un PDF TCPDF.
      *

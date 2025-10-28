@@ -27,33 +27,8 @@ class GenererPdfDaDirect extends GenererPdfDa
 
         $pdf->AddPage();
 
-        //=========================================================================================
-        // entête email
-        $pdf->SetTextColor(0, 0, 0);
-        $pdf->SetFont('helvetica', 'BI', 10);
-        $pdf->SetY(2);
-        $pdf->writeHTMLCell(0, 6, '', '', "email : $userMail", 0, 1, false, true, 'R');
+        $this->renderHeaderPdfDA($pdf, $numDa, $userMail, $da->getDaTypeId(), $da->getDateCreation());
 
-        $pdf->setFont('helvetica', 'B', 14);
-        $pdf->setAbsY(11);
-        $logoPath =  $_ENV['BASE_PATH_LONG'] . '/Views/assets/logoHff.jpg';
-        $pdf->Image($logoPath, '', '', 45, 12);
-        $pdf->setAbsX(55);
-        $pdf->Cell(110, 6, 'DEMANDE D\'ACHAT', 0, 0, 'C', false, '', 0, false, 'T', 'M');
-
-        $pdf->setAbsX(170);
-        $pdf->setFont('helvetica', 'B', 10);
-        $pdf->Cell(35, 6, $numDa, 0, 0, 'L', false, '', 0, false, 'T', 'M');
-
-        $pdf->Ln(6, true);
-
-        $pdf->SetTextColor(0, 0, 0);
-        $pdf->setFont('helvetica', 'B', 10);
-        $pdf->setAbsX(170);
-        $pdf->cell(35, 6, 'Le : ' . $da->getDateCreation()->format('d/m/Y'), 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->Ln(7, true);
-
-        //========================================================================================
         $pdf->SetTextColor(0, 0, 0);
         $pdf->setFont('helvetica', 'B', 10);
         $pdf->cell(25, 6, 'Objet :', 0, 0, '', false, '', 0, false, 'T', 'M');

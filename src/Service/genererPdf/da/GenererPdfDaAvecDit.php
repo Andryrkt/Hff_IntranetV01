@@ -27,42 +27,8 @@ class GenererPdfDaAvecDit extends GenererPdfDa
 
         $pdf->AddPage();
 
-        //=========================================================================================
-        $pdf->setFont('helvetica', 'B', 14);
-        $pdf->setAbsY(11);
-        $logoPath =  $_ENV['BASE_PATH_LONG'] . '/Views/assets/logoHff.jpg';
-        $pdf->Image($logoPath, '', '', 45, 12);
-        $pdf->setAbsX(55);
-        $pdf->Cell(110, 6, 'DEMANDE D\'APPROVISIONNEMENT', 0, 0, 'C', false, '', 0, false, 'T', 'M');
+        $this->renderHeaderPdfDA($pdf, $numDa, $userMail, $da->getDaTypeId(), $da->getDateCreation(), $dit);
 
-        // entête email
-        $pdf->SetTextColor(0, 0, 0);
-        $pdf->SetFont('helvetica', 'BI', 10);
-        $pdf->SetY(2);
-        $pdf->Cell(0, 6, "email : $userMail", 0, 0, 'R');
-
-        $pdf->setAbsXY(170, 11);
-        $pdf->setFont('helvetica', 'B', 10);
-        $pdf->Cell(35, 6, $numDa, 0, 0, 'L', false, '', 0, false, 'T', 'M');
-
-        $pdf->Ln(6, true);
-
-        $pdf->setFont('helvetica', 'B', 12);
-        $pdf->setAbsX(55);
-        if ($dit->getTypeDocument() !== null) {
-            $descriptionTypeDocument = $dit->getTypeDocument()->getDescription();
-        } else {
-            $descriptionTypeDocument = ''; // Ou toute autre valeur par défaut appropriée
-        }
-        $pdf->cell(110, 6, $descriptionTypeDocument, 0, 0, 'C', false, '', 0, false, 'T', 'M');
-
-        $pdf->SetTextColor(0, 0, 0);
-        $pdf->setFont('helvetica', 'B', 10);
-        $pdf->setAbsX(170);
-        $pdf->cell(35, 6, 'Le : ' . $da->getDateCreation()->format('d/m/Y'), 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->Ln(7, true);
-
-        //========================================================================================
         $pdf->SetTextColor(0, 0, 0);
         $pdf->setFont('helvetica', 'B', 10);
         $pdf->cell(25, 6, 'Objet :', 0, 0, '', false, '', 0, false, 'T', 'M');
