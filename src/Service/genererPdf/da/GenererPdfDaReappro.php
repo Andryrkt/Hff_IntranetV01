@@ -5,7 +5,6 @@ namespace App\Service\genererPdf\da;
 use TCPDF;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
-use App\Service\genererPdf\PdfTableMatriceGenerator;
 
 class GenererPdfDaReappro extends GenererPdfDa
 {
@@ -23,7 +22,6 @@ class GenererPdfDaReappro extends GenererPdfDa
         $pdf = new TCPDF();
         $dals = $da->getDAL();
         $numDa = $da->getNumeroDemandeAppro();
-        $generator = new PdfTableMatriceGenerator();
 
         $pdf->AddPage();
 

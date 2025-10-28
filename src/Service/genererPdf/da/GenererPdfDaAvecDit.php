@@ -4,7 +4,6 @@ namespace App\Service\genererPdf\da;
 
 use App\Entity\da\DemandeAppro;
 use App\Entity\dit\DemandeIntervention;
-use App\Service\genererPdf\PdfTableMatriceGenerator;
 use TCPDF;
 
 class GenererPdfDaAvecDit extends GenererPdfDa
