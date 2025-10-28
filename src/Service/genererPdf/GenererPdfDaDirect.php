@@ -117,7 +117,7 @@ class GenererPdfDaDirect extends GeneratePdf
             }
         }
 
-        $pdf->Output("$Dossier/$numDa.pdf", 'F');
+        $pdf->Output("$Dossier/$numDa.pdf");
     }
 
     /**
@@ -133,11 +133,11 @@ class GenererPdfDaDirect extends GeneratePdf
         $w_total = $pdf->GetPageWidth();  // Largeur totale du PDF
         $margins = $pdf->GetMargins();    // Tableau des marges (left, top, right)
 
-        $leftColor  = [220, 220, 220];    // messages autres
-        $rightColor = [255, 209, 69];     // messages APPRO
+        $leftColor  = [220, 220, 220];    // messages autres (gris)
+        $rightColor = [255, 209, 69];     // messages APPRO  (orange doux)
         $borderRadius = 3;
         $maxWidth = 120;                  // largeur max autorisée
-        $minWidth = 40;                   // largeur mini d'une bulle
+        $minWidth = 40;                   // largeur min d'une bulle
 
         $previousUser = null;
 
@@ -150,15 +150,17 @@ class GenererPdfDaDirect extends GeneratePdf
             $fillColor = $isAppro ? $rightColor : $leftColor;
             $align = $isAppro ? 'R' : 'L';
 
-            // largeur dynamique du message
+            // Calcul dynamique de la largeur : prendre en compte chaque ligne
             $pdf->SetFont('helvetica', '', 10);
-            $textWidth = $pdf->GetStringWidth($message) + 10;
+            $lines       = explode("\n", $message);
+            $lineWidths  = array_map(fn($line) => $pdf->GetStringWidth($line), $lines);
+            $textWidth   = max($lineWidths) + 11;  // +11 pour padding
             $bubbleWidth = max($minWidth, min($textWidth, $maxWidth));
 
             // position X selon côté
             $x = $isAppro ? $w_total - $margins['right'] - $bubbleWidth : $margins['left'];
 
-            // Si premier message d'un groupe, afficher Nom 
+            // Si premier message d'un groupe, afficher Nom
             if ($previousUser !== $user) {
                 $pdf->SetFont('helvetica', 'B', 9);
                 $pdf->SetTextColor(0, 0, 0);
