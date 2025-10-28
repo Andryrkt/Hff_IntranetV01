@@ -403,6 +403,7 @@ class MagasinListeOrLivrerModel extends Model
 
     public function getListeOrLivrerPol(array $criteria = [], string $numeroOrItv, string $numeroOr)
     {
+        // dd($criteria);
         //les conditions de filtre
         $designation = $this->conditionLike('slor_desi', 'designation', $criteria);
         $referencePiece = $this->conditionLike('slor_refp', 'referencePiece', $criteria);
@@ -694,14 +695,14 @@ class MagasinListeOrLivrerModel extends Model
         return array_column($this->convertirEnUtf8($data), 'agence');
     }
 
-    public function service($agence)
+    public function service(string $agence): array
     {
         $statement = "  SELECT DISTINCT
                             slor_servdeb||'-'||(select trim(atab_lib) from agr_tab where atab_nom = 'SER' and atab_code = slor_servdeb) as service
                         FROM sav_lor
                         WHERE slor_servdeb||'-'||(select trim(atab_lib) from agr_tab where atab_nom = 'SER' and atab_code = slor_servdeb) <> ''
                         AND slor_soc = 'HF'
-                        AND slor_succdeb||'-'||(select trim(asuc_lib) from agr_succ where asuc_numsoc = slor_soc and asuc_num = slor_succdeb) = '" . $agence . "'
+                        AND slor_succdeb||'-'||(select trim(asuc_lib) from agr_succ where asuc_numsoc = slor_soc and asuc_num = slor_succdeb) = '$agence'
                     ";
 
         $result = $this->connect->executeQuery($statement);
@@ -727,8 +728,11 @@ class MagasinListeOrLivrerModel extends Model
                         FROM informix.sav_lor
                         WHERE slor_succdeb||'-'||(select trim(asuc_lib) from agr_succ where asuc_numsoc = slor_soc and asuc_num = slor_succdeb) <> ''
                         AND slor_soc = 'HF'
-                        AND slor_succdeb IN ($codeAgence)
                     ";
+
+        if ($codeAgence <> "''") {
+            $statement .= " AND slor_succdeb IN ($codeAgence)";
+        }
 
         $result = $this->connect->executeQuery($statement);
 

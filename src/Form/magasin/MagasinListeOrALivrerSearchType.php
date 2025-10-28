@@ -162,8 +162,6 @@ class MagasinListeOrALivrerSearchType extends AbstractType
                     foreach ($services as $value) {
                         $service[$value['text']] = $value['text'];
                     }
-                } else {
-                    $service = [];
                 }
 
 
