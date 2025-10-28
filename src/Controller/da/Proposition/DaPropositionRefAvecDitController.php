@@ -61,9 +61,7 @@ class DaPropositionRefAvecDitController extends Controller
         $DapLRCollection = new DemandeApproLRCollection();
         $daObservation = new DaObservation();
         $form = $this->getFormFactory()->createBuilder(DemandeApproLRCollectionType::class, $DapLRCollection)->getForm();
-        $formObservation = $this->getFormFactory()->createBuilder(DaObservationType::class, $daObservation, [
-            'daTypeId' => $da->getDaTypeId()
-        ])->getForm();
+        $formObservation = $this->getFormFactory()->createBuilder(DaObservationType::class, $daObservation, ['daTypeId' => $da->getDaTypeId()])->getForm();
         $formValidation = $this->getFormFactory()->createBuilder(
             DaPropositionValidationType::class,
             [],

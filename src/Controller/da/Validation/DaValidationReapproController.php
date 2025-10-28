@@ -48,9 +48,7 @@ class DaValidationReapproController extends Controller
         $daObservation = new DaObservation();
 
         $formReappro = $this->getFormFactory()->createBuilder(DaObservationValidationType::class, $daObservation)->getForm();
-        $formObservation = $this->getFormFactory()->createBuilder(DaObservationType::class, $daObservation, [
-            'daTypeId' => $da->getDaTypeId()
-        ])->getForm();
+        $formObservation = $this->getFormFactory()->createBuilder(DaObservationType::class, $daObservation, ['daTypeId' => $da->getDaTypeId()])->getForm();
 
         //================== Traitement du formulaire en général ===========================//
         $this->traitementFormulaire($formReappro, $formObservation, $request, $da);
@@ -75,6 +73,7 @@ class DaValidationReapproController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            dd($form->getData());
             // ✅ Récupérer les valeurs des champs caché
             $dalrList = $form->getData()->getDALR();
             $observation = $form->getData()->getObservation();

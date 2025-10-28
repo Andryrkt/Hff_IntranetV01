@@ -52,9 +52,7 @@ class DaDetailDirectController extends Controller
 		$demandeAppro = $this->filtreDal($demandeAppro, (int)$numeroVersionMax); // on filtre les lignes de la DA selon le numero de version max
 
 		$daObservation = new DaObservation;
-		$formObservation = $this->getFormFactory()->createBuilder(DaObservationType::class, $daObservation, [
-			'daTypeId' => $demandeAppro->getDaTypeId()
-		])->getForm();
+		$formObservation = $this->getFormFactory()->createBuilder(DaObservationType::class, $daObservation, ['daTypeId' => $demandeAppro->getDaTypeId()])->getForm();
 
 		$this->traitementFormulaire($formObservation, $request, $demandeAppro);
 
