@@ -3,11 +3,16 @@
 namespace App\Controller\da\Validation;
 
 use App\Controller\Controller;
+use App\Entity\da\DemandeAppro;
+use App\Entity\da\DaObservation;
+use App\Entity\admin\Application;
+use App\Form\da\DaObservationType;
+use App\Controller\Traits\AutorisationTrait;
 use App\Controller\Traits\da\DaAfficherTrait;
-use App\Controller\Traits\da\validation\DaValidationReapproTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Entity\da\DemandeAppro;
+use App\Controller\Traits\da\validation\DaValidationReapproTrait;
+use App\Form\da\DemandeApproReapproFormType;
 
 /**
  * @Route("/demande-appro")
@@ -15,6 +20,7 @@ use App\Entity\da\DemandeAppro;
 class DaValidationReapproController extends Controller
 {
     use DaAfficherTrait;
+    use AutorisationTrait;
     use DaValidationReapproTrait;
 
     public function __construct()
@@ -25,26 +31,81 @@ class DaValidationReapproController extends Controller
     }
 
     /**
-     * @Route("/validation/{numDa}", name="da_validate_reappro")
+     * @Route("/validation/{id}", name="da_validate_reappro")
      */
-    public function validationDaReappro(string $numDa, Request $request)
+    public function validationDaReappro($id, Request $request)
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
+        /** Autorisation accès */
+        $this->autorisationAcces($this->getUser(), Application::ID_DAP);
+        /** FIN AUtorisation accès */
+
+        $da = $this->demandeApproRepository->findAvecDernieresDALetLR($id);
+
+        $daObservation = new DaObservation();
+
+        $formReappro = $this->getFormFactory()->createBuilder(DaObservationType::class, $daObservation, [
+            'daTypeId' => $da->getDaTypeId()
+        ])->getForm();
+        $formObservation = $this->getFormFactory()->createBuilder(DaObservationType::class, $daObservation, [
+            'daTypeId' => $da->getDaTypeId()
+        ])->getForm();
+
+        //================== Traitement du formulaire en général ===========================//
+        $this->traitementFormulaire($formReappro, $formObservation, $request, $da);
+        // =================================================================================//
+
+        $observations = $this->daObservationRepository->findBy(['numDa' => $da->getNumeroDemandeAppro()]);
 
         return $this->render("da/validation-reappro.html.twig", [
             'da'                      => $da,
-            'id'                      => $id,
-            'form'                    => $form->createView(),
-            'formValidation'          => $formValidation->createView(),
+            'numDa'                   => $da->getNumeroDemandeAppro(),
+            'formReappro'             => $formReappro->createView(),
             'formObservation'         => $formObservation->createView(),
             'observations'            => $observations,
-            'numDa'                   => $numDa,
             'connectedUser'           => $this->getUser(),
-            'statutAutoriserModifAte' => $da->getStatutDal() === DemandeAppro::STATUT_AUTORISER_MODIF_ATE,
-            'estCreateurDaDirecte'    => $this->estCreateurDeDADirecte(),
-            'estAppro'                => $this->estUserDansServiceAppro(),
-            'nePeutPasModifier'       => $this->nePeutPasModifier($da),
             'propValTemplate'         => 'proposition-validation-direct',
             'dossierJS'               => 'propositionDirect',
         ]);
+    }
+
+    private function traitementFormulaire($form, $formObservation, Request $request, DemandeAppro $da)
+    {
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            // ✅ Récupérer les valeurs des champs caché
+            $dalrList = $form->getData()->getDALR();
+            $observation = $form->getData()->getObservation();
+            $statutChange = $form->get('statutChange')->getData();
+
+            if ($request->request->has('brouillon')) {
+                /** Enregistrer provisoirement */
+                // $this->traitementPourBtnBrouillon($dalrList, $request, $dals, $observation, $numDa, $da);
+            } elseif ($request->request->has('enregistrer')) {
+                /** Envoyer proposition à l'atelier */
+                // $this->traitementPourBtnEnregistrer($dalrList, $request, $dals, $observation, $numDa, $da);
+            } elseif ($request->request->has('changement')) {
+                /** Valider les articles par l'atelier */
+                // $this->traitementPourBtnValiderAtelier($request, $dals, $numDa, $dalrList, $observation, $da);
+            } elseif ($request->request->has('observation')) {
+                /** Envoyer observation */
+                // $this->traitementPourBtnEnvoyerObservation($observation, $da, $statutChange);
+            } elseif ($request->request->has('valider')) {
+                /** Valider les articles par l'appro */
+                // $this->traitementPourBtnValiderAppro($request, $dals, $numDa, $dalrList, $observation, $da);
+            }
+        }
+
+        $formObservation->handleRequest($request);
+
+        if ($formObservation->isSubmitted() && $formObservation->isValid()) {
+            /** @var DaObservation $daObservation daObservation correspondant au donnée du formObservation */
+            $daObservation = $formObservation->getData();
+
+            // $this->traitementEnvoiObservation($daObservation, $da);
+        }
     }
 }
