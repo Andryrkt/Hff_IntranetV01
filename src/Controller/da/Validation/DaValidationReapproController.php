@@ -25,9 +25,9 @@ class DaValidationReapproController extends Controller
     }
 
     /**
-     * @Route("/validate-direct/{numDa}", name="da_validate_direct")
+     * @Route("/validation/{numDa}", name="da_validate_reappro")
      */
-    public function validate(string $numDa, Request $request)
+    public function validationDaReappro(string $numDa, Request $request)
     {
         $daValidationData = $request->request->get('da_proposition_validation');
         $refsValide = json_decode($daValidationData['refsValide'], true) ?? [];
