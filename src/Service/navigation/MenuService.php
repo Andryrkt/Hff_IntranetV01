@@ -201,7 +201,7 @@ class MenuService
             [$this->menuMagasin(), $estAdmin || $this->hasAccess([Application::ID_MAG, Application::ID_INV, Application::ID_BDL, Application::ID_CFR, Application::ID_LCF], $applicationIds)], // MAG + INV + BDL + CFR + LCF
             [$this->menuAppro(), $estAdmin || in_array(Application::ID_DAP, $applicationIds, true)],         // DAP
             [$this->menuIT(), $estAdmin || in_array(Application::ID_TIK, $applicationIds, true)],             // TIK
-            [$this->menuPOL(), $estAdmin],
+            [$this->menuPOL(), $estAdmin || in_array(Application::ID_BCS, $applicationIds, true)],  // BCS
             [$this->menuEnergie(), $estAdmin],
             [$this->menuHSE(), $estAdmin],
         ];
