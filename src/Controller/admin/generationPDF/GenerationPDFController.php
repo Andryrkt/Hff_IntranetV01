@@ -6,6 +6,7 @@ use App\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\da\validation\DaValidationDirectTrait;
 use App\Controller\Traits\da\validation\DaValidationAvecDitTrait;
+
 /** @Route(path="/admin/generation-PDF") */
 class GenerationPDFController extends Controller
 {
@@ -21,7 +22,7 @@ class GenerationPDFController extends Controller
     }
 
     /**
-     * @Route(path="/da/{numeroDemandeAppro}", name="generation_pdf_da")
+     * @Route(path="/da-avec-dit/{numeroDemandeAppro}", name="generation_pdf_da_avec_dit")
      */
     public function genererPdfDa(string $numeroDemandeAppro)
     {
