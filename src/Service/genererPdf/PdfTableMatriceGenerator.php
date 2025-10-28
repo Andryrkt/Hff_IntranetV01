@@ -36,7 +36,7 @@ class PdfTableMatriceGenerator
         $html = '<thead>';
 
         // Ligne titre principale
-        $html .= '<tr>
+        $html .= '<tr style="background-color: #dcdcdc;">
             <th rowspan="2" align="center" valign="middle">CST</th>
 			<th rowspan="2" align="center" valign="middle">REF</th>
 			<th rowspan="2" align="center" valign="middle">DESIGNATION</th>
@@ -45,7 +45,7 @@ class PdfTableMatriceGenerator
         </tr>';
 
         // Ligne des colonnes
-        $html .= '<tr>';
+        $html .= '<tr style="background-color: #dcdcdc;">';
         foreach ($listeFournisseurs as $frn) {
             $html .= "<th align=\"center\"><b> $frn </b></th>";
         }
