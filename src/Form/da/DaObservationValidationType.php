@@ -14,11 +14,11 @@ class DaObservationValidationType extends AbstractType
     {
         $builder
             ->add('observation', TextareaType::class, [
-                'label' => 'Observation à la validation / refus',
+                'label' => 'Observation à la validation / refus (* obligatoire en cas de refus)',
                 'attr'  => [
                     'rows' => 5,
                 ],
-                'required' => true
+                'required' => false
             ]);
     }
 

@@ -26,6 +26,11 @@ export const swalOptions = {
     timer: 2000,
     showConfirmButton: false,
   },
+  observationRequise: {
+    icon: "warning",
+    title: "Observation requise",
+    text: "Veuillez saisir une observation avant de refuser la demande.",
+  },
   errorGeneric: (error) => ({
     icon: "error",
     title: "Une erreur est survenue",
@@ -37,8 +42,8 @@ export const swalOptions = {
     title: result.title,
     html: result.message,
   }),
-  getConfirmConfig: (actionType, count) => {
-    const configs = {
+  getConfirmConfig: (actionType, count = 0) => {
+    let configs = {
       delete: {
         title: "Confirmer la suppression",
         text: `Voulez-vous vraiment supprimer ${count} article${
@@ -60,6 +65,45 @@ export const swalOptions = {
         confirmButtonColor: "#198754",
         cancelButtonText: "Annuler",
         showCancelButton: true,
+      },
+      refuser: {
+        title: "Confirmer le refus de la demande",
+        html: `Souhaitez-vous réellement <strong class="text-danger">refuser</strong> cette demande de réapprovisionnement mensuel ?<br><small class="text-danger"><strong><u>NB</u> :</strong> Cette action est définitive et la demande sera classée comme refusée.</small>`,
+        icon: "warning",
+        confirmButtonText: "Oui, Refuser",
+        confirmButtonColor: "#d33",
+        cancelButtonText: "Annuler",
+        showCancelButton: true,
+        customClass: { htmlContainer: "swal-text-left" },
+      },
+      valider: {
+        title: "Confirmer la validation de la demande",
+        html: `Êtes-vous sûr de vouloir <strong class="text-success">valider</strong> cette demande de réapprovisionnement mensuel ?<br><small class="text-success"><strong><u>NB</u> :</strong> Une fois validée, la demande sera soumise à validation dans Docuware.</small>`,
+        icon: "question",
+        confirmButtonText: "Oui, Valider",
+        confirmButtonColor: "#198754",
+        cancelButtonText: "Annuler",
+        showCancelButton: true,
+        customClass: { htmlContainer: "swal-text-left" },
+      },
+    };
+    return configs[actionType];
+  },
+  getAnnulationOperation: (actionType) => {
+    let configs = {
+      valider: {
+        icon: "info",
+        title: "Annulation",
+        text: "La validation de la demande a été annulée.",
+        timer: 2000,
+        showConfirmButton: false,
+      },
+      refuser: {
+        icon: "info",
+        title: "Annulation",
+        text: "Le refus de la demande a été annulé.",
+        timer: 2000,
+        showConfirmButton: false,
       },
     };
     return configs[actionType];
