@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Service\genererPdf;
+namespace App\Service\genererPdf\da;
 
 use App\Entity\da\DemandeAppro;
 use App\Entity\dit\DemandeIntervention;
+use App\Service\genererPdf\PdfTableMatriceGenerator;
 use TCPDF;
 
-class GenererPdfDaAvecDit extends GeneratePdf
+class GenererPdfDaAvecDit extends GenererPdfDa
 {
     /** 
      * Fonction pour générer le PDF d'un bon d'achat validé d'une DA avec DIT

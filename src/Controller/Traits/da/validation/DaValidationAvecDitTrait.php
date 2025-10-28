@@ -2,9 +2,9 @@
 
 namespace App\Controller\Traits\da\validation;
 
-use App\Entity\dit\DemandeIntervention;
 use App\Repository\dit\DitRepository;
-use App\Service\genererPdf\GenererPdfDaAvecDit;
+use App\Entity\dit\DemandeIntervention;
+use App\Service\genererPdf\da\GenererPdfDaAvecDit;
 
 trait DaValidationAvecDitTrait
 {
