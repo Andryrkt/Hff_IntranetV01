@@ -68,15 +68,21 @@ class PolListeOrTraiterController extends Controller
         ])->getForm();
 
         $form->handleRequest($request);
-        $criteria = $this->innitialisationCriteria($agenceUser);
+        $data = [];
         if ($form->isSubmitted() && $form->isValid()) {
+
+            //initialisation des critère de recherche
+            $criteria = $this->innitialisationCriteria($agenceUser);
+
+            //recupération des critère de recherche dans le formulaire
             $criteria = $form->getData();
+
+            //enregistrer les critère de recherche dans la session
+            $this->getSessionService()->set('pol_liste_or_traiter_search_criteria', $criteria);
+
+            //récupération des data selon les critère
+            $data = $this->recupData($criteria, $magasinModel);
         }
-
-        //enregistrer les critère de recherche dans la session
-        $this->getSessionService()->set('pol_liste_or_traiter_search_criteria', $criteria);
-
-        $data = $this->recupData($criteria, $magasinModel);
 
         $this->logUserVisit('magasinListe_index'); // historisation du page visité par l'utilisateur
 

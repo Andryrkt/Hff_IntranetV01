@@ -75,19 +75,24 @@ class PolListeOrLivrerController extends Controller
         ])->getForm();
 
         $form->handleRequest($request);
-        $criteria = [
-            "agenceUser" => $agenceUser,
-            "orCompletNon" => "ORs COMPLET",
-            "pieces" => "PIECES MAGASIN"
-        ];
+
+        $data = [];
         if ($form->isSubmitted() && $form->isValid()) {
+            $criteria = [
+                "agenceUser" => $agenceUser,
+                "orCompletNon" => "ORs COMPLET",
+                "pieces" => "PIECES MAGASIN"
+            ];
+
+            // recupération des données du formulaire
             $criteria = $form->getData();
+
+            //enregistrer les critère de recherche dans la session
+            $this->getSessionService()->set('pol_liste_or_livrer_search_criteria', $criteria);
+
+            //recupération des données
+            $data = $this->recupData($criteria);
         }
-
-        //enregistrer les critère de recherche dans la session
-        $this->getSessionService()->set('pol_liste_or_livrer_search_criteria', $criteria);
-
-        $data = $this->recupData($criteria);
 
         $this->logUserVisit('magasinListe_or_Livrer'); // historisation du page visité par l'utilisateur
 
