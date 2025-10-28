@@ -43,16 +43,7 @@ class GenererPdfDaDirect extends GenererPdfDa
 
         $this->renderAgenceServicePdfDA($pdf, $da->getAgenceServiceEmetteur(), $da->getAgenceServiceDebiteur());
 
-        //===================================================================================================
-        /** ARTICLE VALIDES */
-        $this->renderTextWithLine($pdf, 'Articles validés');
-
-        $pdf->Ln(3);
-
-        $pdf->SetTextColor(0, 0, 0);
-        $pdf->setFont('helvetica', '', 10);
-        $html1 = $generator->generer($dals);
-        $pdf->writeHTML($html1, true, false, true, false, '');
+        $this->renderTableArticlesValidesPdfDA($pdf, $dals);
 
         //=========================================================================================
         /** OBSERVATIONS */

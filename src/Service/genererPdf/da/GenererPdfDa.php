@@ -7,6 +7,7 @@ use DateTime;
 use App\Entity\da\DemandeAppro;
 use App\Entity\dit\DemandeIntervention;
 use App\Service\genererPdf\GeneratePdf;
+use App\Service\genererPdf\PdfTableMatriceGenerator;
 
 abstract class GenererPdfDa extends GeneratePdf
 {
@@ -94,6 +95,22 @@ abstract class GenererPdfDa extends GeneratePdf
         $pdf->cell(20, 6, 'Débiteur :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->cell(0, 6, $debiteur, 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(6, true);
+    }
+
+    /** 
+     * Fonction pour générer la table matrice du PDF de la DA
+     */
+    protected function renderTableArticlesValidesPdfDA(TCPDF $pdf, iterable $dals): void
+    {
+        $generator = new PdfTableMatriceGenerator();
+        $this->renderTextWithLine($pdf, 'Articles validés');
+
+        $pdf->Ln(3);
+
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->setFont('helvetica', '', 10);
+        $html1 = $generator->generer($dals);
+        $pdf->writeHTML($html1, true, false, true, false, '');
     }
 
     /**
@@ -281,6 +298,6 @@ abstract class GenererPdfDa extends GeneratePdf
             }
         }
 
-        $pdf->Output("$Dossier/$numDa.pdf", "I");
+        $pdf->Output("$Dossier/$numDa.pdf", "F");
     }
 }

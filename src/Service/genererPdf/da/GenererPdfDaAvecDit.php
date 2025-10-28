@@ -23,7 +23,6 @@ class GenererPdfDaAvecDit extends GenererPdfDa
         $pdf = new TCPDF();
         $dals = $da->getDAL();
         $numDa = $da->getNumeroDemandeAppro();
-        $generator = new PdfTableMatriceGenerator();
 
         $pdf->AddPage();
 
@@ -119,16 +118,7 @@ class GenererPdfDaAvecDit extends GenererPdfDa
         $pdf->cell(0, 6, $dit->getKm(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(6, true);
 
-        //===================================================================================================
-        /** ARTICLE VALIDES */
-        $this->renderTextWithLine($pdf, 'Articles validés');
-
-        $pdf->Ln(3);
-
-        $pdf->SetTextColor(0, 0, 0);
-        $pdf->setFont('helvetica', '', 10);
-        $html1 = $generator->generer($dals);
-        $pdf->writeHTML($html1, true, false, true, false, '');
+        $this->renderTableArticlesValidesPdfDA($pdf, $dals);
 
         // Sauvegarder le PDF
         $this->saveBonAchatValide($pdf, $numDa);
