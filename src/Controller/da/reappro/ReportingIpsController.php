@@ -6,6 +6,7 @@ use App\Controller\Controller;
 use App\Entity\admin\Application;
 use App\Model\da\reappro\ReportingIpsModel;
 use App\Controller\Traits\AutorisationTrait;
+use App\Form\da\reappro\ReportingIpsSearchType;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -27,15 +28,19 @@ class ReportingIpsController extends Controller
         $this->autorisationAcces($this->getUser(), Application::ID_DAP);
         /** FIN AUtorisation acées */
 
-        $reportingIpsModel = new ReportingIpsModel();
-        $reportingIps = $reportingIpsModel->getReportingData();
+        /** ===  Formulaire pour la recherche === */
+        $form = $this->getFormFactory()->createBuilder(ReportingIpsSearchType::class, null ,[
+            'method' => 'GET',
+        ])->getForm();
 
-        ['qte_totale' => $qteTotale, 'montant_total' => $montantTotal] = $this->calculQteEtMontantTotals($reportingIps);
+        /** recuperation des données @var array $reportingIps @var int $qteTotale @var float $montantTotal  */
+        ['reportingIps' => $reportingIps, 'qteTotale' => $qteTotale, 'montantTotal' => $montantTotal] = $this->getData();
 
         return $this->render('da/reappro/reporting_ips/index.html.twig', [
             'reporting_ips' => $reportingIps,
             'qte_totale' => $qteTotale,
-            'montant_total' => $montantTotal
+            'montant_total' => $montantTotal,
+            'form' => $form->createView(),
         ]);
     }
 
@@ -50,5 +55,19 @@ class ReportingIpsController extends Controller
             $result['montant_total'] += $item['montant'];
         }
         return $result;
+    }
+
+    private function getData(): array
+    {
+        $reportingIpsModel = new ReportingIpsModel();
+        $reportingIps = $reportingIpsModel->getReportingData();
+
+        ['qte_totale' => $qteTotale, 'montant_total' => $montantTotal] = $this->calculQteEtMontantTotals($reportingIps);
+    
+        return [
+            'reportingIps' => $reportingIps,
+            'qteTotale' => $qteTotale,
+            'montantTotal' => $montantTotal
+        ];
     }
 }

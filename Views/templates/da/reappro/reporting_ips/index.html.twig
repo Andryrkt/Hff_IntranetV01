@@ -13,10 +13,10 @@
 	<div class="container-fluid mt-6">
 		<div class="sticky-header-titre">
 			<div class="container">
+				{% include "da/reappro/reporting_ips/_formulaireReportingIpsSearch.html.twig" with {'form': form} %}
 				{% include "/partials/_notification.html.twig" %}
 			</div>
 		</div>
-
 		<div style="max-height: 70vh; overflow-y: auto;">
 			<table class="table table-sticky">
 				<thead class="table-dark align-middle table-fixed">
@@ -68,5 +68,10 @@
 
 	</div>
 
+
+{% endblock %}
+
+{% block javascript %}
+	<script src="{{ App.base_path }}/Views/js/da/reappro/ReportingIps.js?v=2025.09.15.08.00" type="module"></script>
 
 {% endblock %}
