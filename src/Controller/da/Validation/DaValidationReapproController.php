@@ -4,9 +4,9 @@ namespace App\Controller\da\Validation;
 
 use App\Controller\Controller;
 use App\Controller\Traits\da\DaAfficherTrait;
+use App\Controller\Traits\da\validation\DaValidationReapproTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\Traits\da\validation\DaValidationDirectTrait;
 use App\Entity\da\DemandeAppro;
 
 /**
@@ -15,13 +15,13 @@ use App\Entity\da\DemandeAppro;
 class DaValidationReapproController extends Controller
 {
     use DaAfficherTrait;
-    use DaValidationDirectTrait;
+    use DaValidationReapproTrait;
 
     public function __construct()
     {
         parent::__construct();
 
-        $this->initDaValidationDirectTrait();
+        $this->initDaValidationReapproTrait();
     }
 
     /**
@@ -29,37 +29,22 @@ class DaValidationReapproController extends Controller
      */
     public function validationDaReappro(string $numDa, Request $request)
     {
-        $daValidationData = $request->request->get('da_proposition_validation');
-        $refsValide = json_decode($daValidationData['refsValide'], true) ?? [];
-        $prixUnitaire = $request->get('PU', []); // obtenir les PU envoyé par requête
 
-        $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
-
-        $da = $this->validerDemandeApproAvecLignes($numDa, $numeroVersionMax, $prixUnitaire, $refsValide);
-
-        /** CREATION EXCEL ET PDF */
-        $resultatExport = $this->exporterDaDirectEnExcelEtPdf($numDa, $numeroVersionMax);
-
-        /** Ajout nom fichier du bon d'achat (excel) */
-        $da->setNomFichierBav($resultatExport['fileName']);
-
-        $this->ajouterDansTableAffichageParNumDa($da->getNumeroDemandeAppro(), true, DemandeAppro::STATUT_DW_A_VALIDE); // enregistrer dans la table Da Afficher
-
-        // ajout des données dans la table DaSoumisAValidation
-        $this->ajouterDansDaSoumisAValidation($da);
-
-        /** envoi dans docuware */
-        $this->fusionAndCopyToDW($da->getNumeroDemandeAppro());
-
-        /** ENVOIE D'EMAIL */
-        $this->emailDaService->envoyerMailValidationDaDirect($da, $resultatExport, [
-            'service'           => 'appro',
-            'phraseValidation'  => 'Vous trouverez en pièce jointe le fichier contenant les références ZDI.',
-            'userConnecter'     => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
+        return $this->render("da/validation-reappro.html.twig", [
+            'da'                      => $da,
+            'id'                      => $id,
+            'form'                    => $form->createView(),
+            'formValidation'          => $formValidation->createView(),
+            'formObservation'         => $formObservation->createView(),
+            'observations'            => $observations,
+            'numDa'                   => $numDa,
+            'connectedUser'           => $this->getUser(),
+            'statutAutoriserModifAte' => $da->getStatutDal() === DemandeAppro::STATUT_AUTORISER_MODIF_ATE,
+            'estCreateurDaDirecte'    => $this->estCreateurDeDADirecte(),
+            'estAppro'                => $this->estUserDansServiceAppro(),
+            'nePeutPasModifier'       => $this->nePeutPasModifier($da),
+            'propValTemplate'         => 'proposition-validation-direct',
+            'dossierJS'               => 'propositionDirect',
         ]);
-
-        /** NOTIFICATION */
-        $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'La demande a été validée avec succès.']);
-        $this->redirectToRoute("list_da");
     }
 }
