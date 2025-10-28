@@ -57,18 +57,25 @@ class PolCisALivrerController extends Controller
 
 
         $form->handleRequest($request);
-        $criteria = [
-            "agenceUser" => $agenceUser,
-            "orValide" => true,
-        ];
+        $data = [];
         if ($form->isSubmitted() && $form->isValid()) {
+            // initialisation des critères par défaut
+            $criteria = [
+                "agenceUser" => $agenceUser,
+                "orValide" => true,
+            ];
+
+            //recupération des critère de recherche dans le formulaire
             $criteria = $form->getData();
+
+            //enregistrer les critère de recherche dans la session
+            $this->getSessionService()->set('pol_cis_a_Livrer_search_criteria', $criteria);
+
+            // Récupération des données
+            $data = $this->recupData($cisATraiterModel, $criteria);
         }
 
-        $data = $this->recupData($cisATraiterModel, $criteria);
 
-        //enregistrer les critère de recherche dans la session
-        $this->getSessionService()->set('pol_cis_a_Livrer_search_criteria', $criteria);
 
         $this->logUserVisit('cis_liste_a_livrer'); // historisation du page visité par l'utilisateur
 

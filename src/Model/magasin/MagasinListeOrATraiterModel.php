@@ -432,117 +432,32 @@ class MagasinListeOrATraiterModel extends Model
 
 
     public function service($agence)
-
-
-
     {
-
-
-
         if ($agence === null) {
-
-
-
             return []; // Si aucune agence, retourner un tableau vide
-
-
-
         }
 
-
-
-
-
-
-
         // Reverted to string concatenation as executeQuery might not support parameters
-
-
-
         $statement = " SELECT DISTINCT
-
-
-
-                            trim(a.atab_code) || ' ' || trim(a.atab_lib) as service
-
-
-
-                        FROM
-
-
-
-                            agr_tab a
-
-
-
-                        LEFT JOIN
-
-
-
-                            agr_tab b ON a.atab_code = b.atab_code
-
-
-
-                                      AND b.atab_nom LIKE 'SERBLOSUC%'
-
-
-
-                                      AND substr(b.atab_nom, 10, 2) = '" . $agence . "'
-
-
-
-                        WHERE
-
-
-
-                            a.atab_nom = 'SER'
-
-
-
-                            AND b.atab_code IS NULL
-
-
-
+                            slor_servdeb||'-'||(select trim(atab_lib) from agr_tab where atab_nom = 'SER' and atab_code = slor_servdeb) as service
+                        FROM sav_lor
+                        WHERE slor_servdeb||'-'||(select trim(atab_lib) from agr_tab where atab_nom = 'SER' and atab_code = slor_servdeb) <> ''
+                        AND slor_soc = 'HF'
+                        AND slor_succdeb||'-'||(select trim(asuc_lib) from agr_succ where asuc_numsoc = slor_soc and asuc_num = slor_succdeb) = '$agence'
             ";
-
-
-
-
-
 
 
         $result = $this->connect->executeQuery($statement);
 
-
-
         $data = $this->connect->fetchResults($result);
-
-
 
         $dataUtf8 = $this->convertirEnUtf8($data);
 
 
-
-
-
-
-
         return array_map(function ($item) {
-
-
-
             return [
-
-
-
                 "value" => $item['service'],
-
-
-
                 "text"  => $item['service']
-
-
-
             ];
         }, $dataUtf8);
     }
@@ -550,12 +465,15 @@ class MagasinListeOrATraiterModel extends Model
     public function agenceUser(string $codeAgence)
     {
         $statement = "  SELECT DISTINCT
-                            slor_succdeb||'-'||(select trim(asuc_lib) from agr_succ where asuc_numsoc = slor_soc and asuc_num = slor_succdeb) as agence
-                        FROM sav_lor
-                        WHERE slor_succdeb||'-'||(select trim(asuc_lib) from agr_succ where asuc_numsoc = slor_soc and asuc_num = slor_succdeb) <> ''
+                            slor_succdeb||'-'||(select trim(asuc_lib) from informix.agr_succ where asuc_numsoc = slor_soc and asuc_num = slor_succdeb) as agence
+                        FROM informix.sav_lor
+                        WHERE slor_succdeb||'-'||(select trim(asuc_lib) from informix.agr_succ where asuc_numsoc = slor_soc and asuc_num = slor_succdeb) <> ''
                         AND slor_soc = 'HF'
-                        AND slor_succdeb IN ($codeAgence)
                     ";
+
+        if ($codeAgence <> "''") {
+            $statement .= " AND slor_succdeb IN ($codeAgence) ";
+        }
 
         $result = $this->connect->executeQuery($statement);
 
