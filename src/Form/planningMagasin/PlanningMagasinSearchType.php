@@ -185,7 +185,7 @@ class PlanningMagasinSearchType extends AbstractType
                 'orBackOrder',
                 CheckboxType::class,
                 [
-                    'label' => 'OR avec Back Order',
+                    'label' => 'Commande avec Back Order',
                     'required' => false
                 ]
             )

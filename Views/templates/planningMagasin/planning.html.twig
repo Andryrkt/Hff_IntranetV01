@@ -58,7 +58,7 @@
 
 										{% if qteCdm == qteLiv and qteCdm != '' and qteLiv != '' %}
 											{# Tout livré #}
-											{% set classe = 'tout-livre bg-success text-white' %}
+											{# {% set classe = 'tout-livre bg-success text-white' %} #}
 										{% elseif qteLiv > 0 and qteLiv != qteCdm and qteCdm > (qteLiv + qteAll) %}
 											{# Partiellement livré #}
 											{% set classe = 'partiellement-livre bg-warning text-white' %}
@@ -75,7 +75,7 @@
 											{% set classe = classe ~ ' back-order border-end border-start border-danger border-3' %}
 										{% endif %}
 
-										<a href="#" data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{ detail.details.orIntv }}" data-numdit="{{ detail.details.numDit }}" data-migration="{{ detail.details.migration }}" class="link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover text-wrap {{ classe }}" title="{{ detail.details.commentaire }}">
+										<a href="#" data-bs-toggle="modal" data-bs-target="#listeCommandeMagasin" data-id="{{ detail.details.orIntv }}" data-numdit="{{ detail.details.numDit }}" data-migration="{{ detail.details.migration }}" class="link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover text-wrap {{ classe }}" title="{{ detail.details.commentaire }}">
 											{{ detail.details.orIntv }}
 										</a><br>
 									{% endfor %}
@@ -93,11 +93,12 @@
 
 	<!-- FIN tableau -->
 	{# body modal #}
-	{% include "/planning/_modal.html.twig"  %}
-	{% include "/dit/shared/_modalNiveauUrgence.html.twig"  %}
+	{% include "/planningMagasin/_modal.html.twig"  %}
+	{# {% include "/dit/shared/_modalNiveauUrgence.html.twig"  %} #}
 {% endblock %}
 {% block javascript %}
 	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v=2025.09.15.08.00"></script>
 	 <script src="{{ App.base_path }}/Views/js/planningMagasin/planning.js?v=2025.09.15.08.00" type="module"></script>
+	 <script src="{{ App.base_path }}/Views/js/planningMagasin/listPlanning.js?v=2025.09.15.08.00" type="module"></script>
 	<script src="{{ App.base_path }}/Views/js/planningMagasin/agServPlanning.js?v=2025.09.15.08.00" type="module"></script>
 {% endblock %}
