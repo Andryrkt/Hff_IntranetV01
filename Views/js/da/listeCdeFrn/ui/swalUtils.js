@@ -80,6 +80,7 @@ export const swalOptions = {
         title: "Confirmer la validation de la demande",
         html: `Êtes-vous sûr de vouloir <strong class="text-success">valider</strong> cette demande de réapprovisionnement mensuel ?<br><small class="text-success"><strong><u>NB</u> :</strong> Une fois validée, la demande sera soumise à validation dans Docuware.</small>`,
         icon: "question",
+        reverseButtons: true,
         confirmButtonText: "Oui, Valider",
         confirmButtonColor: "#198754",
         cancelButtonText: "Annuler",
