@@ -12,6 +12,7 @@ use App\Controller\Traits\da\DaAfficherTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\da\validation\DaValidationReapproTrait;
+use App\Form\da\DaObservationValidationType;
 use App\Form\da\DemandeApproReapproFormType;
 
 /**
@@ -46,9 +47,7 @@ class DaValidationReapproController extends Controller
 
         $daObservation = new DaObservation();
 
-        $formReappro = $this->getFormFactory()->createBuilder(DaObservationType::class, $daObservation, [
-            'daTypeId' => $da->getDaTypeId()
-        ])->getForm();
+        $formReappro = $this->getFormFactory()->createBuilder(DaObservationValidationType::class, $daObservation)->getForm();
         $formObservation = $this->getFormFactory()->createBuilder(DaObservationType::class, $daObservation, [
             'daTypeId' => $da->getDaTypeId()
         ])->getForm();

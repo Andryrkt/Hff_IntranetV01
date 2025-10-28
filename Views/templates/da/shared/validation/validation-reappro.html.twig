@@ -23,12 +23,12 @@
                         <div class="col-6 col-md-6">
                             {{ macroForm.sousTitre('Emetteur') }}
                             {{ macroForm.affichage2('Agence', da.agenceEmetteur.codeAgence ~ ' ' ~ da.agenceEmetteur.libelleAgence, 'mb-2') }}
-				            {{ macroForm.affichage2('Service', da.serviceEmetteur.codeService ~ ' ' ~  da.serviceEmetteur.libelleService, 'mb-2') }}
+							{{ macroForm.affichage2('Service', da.serviceEmetteur.codeService ~ ' ' ~  da.serviceEmetteur.libelleService, 'mb-2') }}
                         </div>
                         <div class="col-6 col-md-6">
                             {{ macroForm.sousTitre('Débiteur') }}
                             {{ macroForm.affichage2('Agence Débiteur', da.agenceDebiteur.codeAgence ~ ' ' ~ da.agenceDebiteur.libelleAgence, 'mb-2') }}
-				            {{ macroForm.affichage2('Service Débiteur', da.serviceDebiteur.codeService ~ ' ' ~  da.serviceDebiteur.libelleService, 'mb-2') }}
+							{{ macroForm.affichage2('Service Débiteur', da.serviceDebiteur.codeService ~ ' ' ~  da.serviceDebiteur.libelleService, 'mb-2') }}
                         </div>
                     </div>
                 </div>
@@ -59,18 +59,15 @@
 					{% endfor %}
 				</tbody>
 			</table>
-			<hr class="m-0">
 			<div>
 				{{ form_row(formReappro.observation)}}
 			</div>
 			<div class="d-flex justify-content-between mt-2">
-				<button type="submit" class="btn bouton mb-2" id="envoyerSelections" name="enregistrer">
-					Refuser la proposition
-					<i class="fa-solid fa-square-arrow-up-right"></i>
+				<button type="submit" class="btn bouton mb-2 bg-danger text-white" name="refuser">
+					Refuser la demande
 				</button>
-				<button type="submit" class="btn bouton mb-2" id="validerSelections" name="valider">
-					Valider la proposition
-					<i class="fa-solid fa-square-arrow-up-right"></i>
+				<button type="submit" class="btn bouton mb-2 bg-success text-white" name="valider">
+					Valider la demande
 				</button>
 			</div>
 		</div>
