@@ -150,7 +150,7 @@ class InventaireModel extends Model
     {
         $statement = "SELECT  ainvi_numinv as numInv
                       FROM art_invi WHERE ainvi_numinv_mait = '" . $numInv . "' 
-                      ORDER BY ainvi_numinv DESC
+                     -- ORDER BY ainvi_numinv DESC
                       ";
         $result = $this->connect->executeQuery($statement);
         //  dump($statement);
@@ -348,6 +348,7 @@ class InventaireModel extends Model
                         $dateDebut
                         $dateFin
                         AND  ainvi_comment not matches 'KPI*'
+                        AND ainvi_sequence = 1
                        order by 1
         ";
         // dd($statement);
