@@ -546,6 +546,7 @@ class DaAfficherRepository extends EntityRepository
                     DemandeAppro::STATUT_EN_COURS_PROPOSITION,
                     DemandeAppro::STATUT_AUTORISER_MODIF_ATE,
                     DemandeAppro::STATUT_VALIDE,
+                    DemandeAppro::STATUT_REFUSE_APPRO,
                     DemandeAppro::STATUT_TERMINER
                 ], ArrayParameterType::STRING);
         }

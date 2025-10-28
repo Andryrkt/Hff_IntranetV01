@@ -416,6 +416,10 @@ a.choix:hover {
   background-color: #e2e3e5 !important; /* gris clair */
   color: #41464b !important;
 }
+.bg-refuse-appro {
+  background-color: #c00000 !important;
+  color: #fff !important;
+}
 
 /* Pour les statuts de l'OR */
 .bg-or-valide {
