@@ -1,6 +1,8 @@
 <div class="row mb-3">
 	<h3 class="perso-titre">
+	{% if da.daTypeId != 2 %}
 		<span class="urgency-level">{{ da.niveauUrgence }}</span>
+	{% endif %}
 		Observations sur la Demande d'achat
 	</h3>
 </div>
