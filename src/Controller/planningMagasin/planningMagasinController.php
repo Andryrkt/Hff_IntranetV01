@@ -67,11 +67,8 @@ class planningMagasinController extends Controller
             $criteria =  $form->getdata();
         }
         if ($request->query->get('action') !== 'oui') {
-            if ($criteria->getOrBackOrder() == true) {
                 $back = $this->planningMagasinModel->backOrderplanningMagasin();
-            }else{
-                $back = [];
-            }
+           
             if (is_array($back)) {
                 $backString = TableauEnStringService::orEnString($back);
             } else {
