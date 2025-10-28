@@ -4,7 +4,9 @@ namespace App\Form\da\reappro;
 
 use App\Form\common\DateRangeType;
 use App\Form\common\AgenceServiceType;
+use App\Service\GlobalVariablesService;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -21,13 +23,33 @@ class ReportingIpsSearchType extends AbstractType
                 'agence_placeholder' => '-- Agence Debiteur --',
                 'service_placeholder' => '-- Service Debiteur --',
             ])
-            ->add('dateCreation', DateRangeType::class, [
+            ->add('date', DateRangeType::class, [
                 'label' => false,
-                'debut_label' => 'Date création (début)',
-                'fin_label' => 'Date création (fin)',
-            ]);
+                'debut_label' => 'Date (début)',
+                'fin_label' => 'Date (fin)',
+            ])
+            ->add('constructeur', ChoiceType::class, [
+                'label' => 'Constructeur',
+                'required' => false,
+                'placeholder' => '-- Sélectionner un constructeur --',
+                'choices' => $this->createAssociativeArray(GlobalVariablesService::get('reappro')),
+                'multiple' => true,
+                'expanded' => true,
+            ])
+        ;
     }
 
+    private function createAssociativeArray($inputString)
+    {
+        // Nettoyer la chaîne et créer un tableau
+        $array = explode(',', str_replace("'", "", $inputString));
+
+        // Créer le tableau associatif
+        $result = array_combine($array, $array);
+
+        return $result;
+    }
+    
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([]);
