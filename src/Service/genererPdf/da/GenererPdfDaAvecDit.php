@@ -18,7 +18,7 @@ class GenererPdfDaAvecDit extends GenererPdfDa
      * 
      * @return void
      */
-    public function genererPdf(DemandeIntervention $dit, DemandeAppro $da, string $userMail = ''): void
+    public function genererPdfBonAchatValide(DemandeIntervention $dit, DemandeAppro $da, string $userMail = ''): void
     {
         $pdf = new TCPDF();
         $dals = $da->getDAL();
