@@ -166,4 +166,32 @@ abstract class GenererPdfDa extends GeneratePdf
         // cas limite : si aucune part (texte vide), renvoyer tableau avec chaîne vide
         return count($parts) ? $parts : [''];
     }
+
+    /**
+     * Sauvegarde un PDF dans le répertoire spécifique à un DA.
+     * 
+     * Cette fonction :
+     * 1. Construit le chemin absolu du répertoire pour le DA donné.
+     * 2. Vérifie si ce répertoire existe, et le crée si nécessaire.
+     * 3. Enregistre le PDF dans ce répertoire avec le nom <numDa>.pdf.
+     *
+     * @param TCPDF  $pdf   L’objet PDF à sauvegarder.
+     * @param string $numDa Numéro de DA utilisé pour le nom du dossier et du fichier.
+     *
+     * @throws \RuntimeException Si le répertoire ne peut pas être créé.
+     */
+    protected function saveBonAchatValide(TCPDF $pdf, string $numDa): void
+    {
+        // Obtention du chemin absolu du répertoire de travail
+        $Dossier = $_ENV['BASE_PATH_FICHIER'] . "/da/$numDa";
+
+        // Vérification si le répertoire existe, sinon le créer
+        if (!is_dir($Dossier)) {
+            if (!mkdir($Dossier, 0777, true)) {
+                throw new \RuntimeException("Impossible de créer le répertoire : $Dossier");
+            }
+        }
+
+        $pdf->Output("$Dossier/$numDa.pdf", "F");
+    }
 }

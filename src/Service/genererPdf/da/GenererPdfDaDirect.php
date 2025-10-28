@@ -108,16 +108,7 @@ class GenererPdfDaDirect extends GenererPdfDa
         $this->renderTextWithLine($pdf, 'Echange entre le service Emetteur et le service Appro');
         $this->renderChatMessages($pdf, $observations);
 
-        // Obtention du chemin absolu du répertoire de travail
-        $Dossier = $_ENV['BASE_PATH_FICHIER'] . "/da/$numDa";
-
-        // Vérification si le répertoire existe, sinon le créer
-        if (!is_dir($Dossier)) {
-            if (!mkdir($Dossier, 0777, true)) {
-                throw new \RuntimeException("Impossible de créer le répertoire : $Dossier");
-            }
-        }
-
-        $pdf->Output("$Dossier/$numDa.pdf");
+        // Sauvegarder le PDF
+        $this->saveBonAchatValide($pdf, $numDa);
     }
 }
