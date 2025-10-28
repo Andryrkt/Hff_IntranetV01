@@ -1,0 +1,54 @@
+<?php
+
+namespace App\Controller\da\reappro;
+
+use App\Controller\Controller;
+use App\Entity\admin\Application;
+use App\Model\da\reappro\ReportingIpsModel;
+use App\Controller\Traits\AutorisationTrait;
+use Symfony\Component\Routing\Annotation\Route;
+
+/**
+ * @Route("/demande-appro")
+ */
+class ReportingIpsController extends Controller
+{
+    use AutorisationTrait;
+
+    /**
+     * @Route("/reporting-ips", name = "da_reporting_ips")
+     */
+    public function index()
+    {
+        // verification de la session utilisateur
+        $this->verifierSessionUtilisateur();
+
+        /** Autorisation accées */
+        $this->autorisationAcces($this->getUser(), Application::ID_DAP);
+        /** FIN AUtorisation acées */
+
+        $reportingIpsModel = new ReportingIpsModel();
+        $reportingIps = $reportingIpsModel->getReportingData();
+
+        ['qte_totale' => $qteTotale, 'montant_total' => $montantTotal] = $this->calculQteEtMontantTotals($reportingIps);
+
+        return $this->render('da/reappro/reporting_ips/index.html.twig', [
+            'reporting_ips' => $reportingIps,
+            'qte_totale' => $qteTotale,
+            'montant_total' => $montantTotal
+        ]);
+    }
+
+    private function calculQteEtMontantTotals(array $reportingIps): array
+    {
+        $result = [
+            'qte_totale' => 0,
+            'montant_total' => 0
+        ];
+        foreach ($reportingIps as $item) {
+            $result['qte_totale'] += $item['qte_demande'];
+            $result['montant_total'] += $item['montant'];
+        }
+        return $result;
+    }
+}
