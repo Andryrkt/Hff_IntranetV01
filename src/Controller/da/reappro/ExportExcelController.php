@@ -29,7 +29,7 @@ class ExportExcelController extends Controller
             "Service débiteur",
             "Date commande",
             "Numéro facture",
-            "Client",
+            "Référence Client",
             "Constructeur",
             "Référence produit",
             "Désignation produit",
