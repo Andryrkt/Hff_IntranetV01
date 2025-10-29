@@ -53,7 +53,7 @@ class DaValidationReapproController extends Controller
         $dateRange = $this->getLast12MonthsRange();
         $monthsList = $this->getMonthsList($dateRange['start'], $dateRange['end']);
         $dataHistoriqueConsommation = $this->getHistoriqueConsommation($da, $dateRange, $monthsList);
-        dd($dataHistoriqueConsommation);
+
         //================== Traitement du formulaire en général ===========================//
         $this->traitementFormulaire($formReappro, $formObservation, $request, $da);
         // =================================================================================//
@@ -61,14 +61,16 @@ class DaValidationReapproController extends Controller
         $observations = $this->daObservationRepository->findBy(['numDa' => $da->getNumeroDemandeAppro()]);
 
         return $this->render("da/validation-reappro.html.twig", [
-            'da'                      => $da,
-            'numDa'                   => $da->getNumeroDemandeAppro(),
-            'formReappro'             => $formReappro->createView(),
-            'formObservation'         => $formObservation->createView(),
-            'observations'            => $observations,
-            'connectedUser'           => $this->getUser(),
-            'propValTemplate'         => 'proposition-validation-direct',
-            'dossierJS'               => 'propositionDirect',
+            'da'              => $da,
+            'numDa'           => $da->getNumeroDemandeAppro(),
+            'formReappro'     => $formReappro->createView(),
+            'formObservation' => $formObservation->createView(),
+            'observations'    => $observations,
+            'dataHistorique'  => $dataHistoriqueConsommation,
+            'monthsList'      => $monthsList,
+            'connectedUser'   => $this->getUser(),
+            'propValTemplate' => 'proposition-validation-direct',
+            'dossierJS'       => 'propositionDirect',
         ]);
     }
 

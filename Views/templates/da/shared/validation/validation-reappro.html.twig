@@ -35,7 +35,7 @@
             </div>
 
 			{{ macroForm.sousTitre('Liste des articles demandés') }}
-			<table class="table rounded table-plein-ecran text-center mt-3 align-middle">
+			<table class="table text-center mt-3 align-middle">
 				<thead class="table-dark align-middle">
 					<tr>
 						<th width="7%">Constructeur</th>
@@ -59,6 +59,38 @@
 					{% endfor %}
 				</tbody>
 			</table>
+
+			{{ macroForm.sousTitre('Historique des consommations') }}
+			<table class="table text-center mt-3 align-middle">
+				<thead class="table-dark align-middle">
+					<tr>
+						<th rowspan="2">Constructeur</th>
+						<th rowspan="2">Référence</th>
+						<th rowspan="2">Désignation</th>
+						<th colspan="13">Quantités facturées sur les 12 derniers mois</th>
+					</tr>
+					<tr>
+						{% for month in monthsList %}
+							<th class="text-end">{{ month }}</th>
+						{% endfor %}
+						<th class="text-end">Total qte</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for data in dataHistorique %}
+						<tr>
+							<td>{{ data.cst }}</td>
+							<td>{{ data.refp }}</td>
+							<td class="text-start">{{ data.desi }}</td>
+							{% for month in monthsList %}
+								<th class="text-end">{{ data.qte[month] }}</th>
+							{% endfor %}
+							<td class="text-end">{{ data.qteTotal }}</td>
+						</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+
 			<div>
 				{{ form_row(formReappro.observation)}}
 			</div>
