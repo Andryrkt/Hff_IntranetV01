@@ -113,6 +113,38 @@ abstract class GenererPdfDa extends GeneratePdf
         $pdf->writeHTML($html1, true, false, true, false, '');
     }
 
+    /** 
+     * Fonction pour générer la table sur la liste des articles demandés du service émetteur
+     */
+    protected function renderTableArticleDemandeReappro(TCPDF $pdf, iterable $dals): void
+    {
+        $generator = new PdfTableReappro;
+        $this->renderTextWithLine($pdf, 'Liste des articles demandés');
+
+        $pdf->Ln(3);
+
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->setFont('helvetica', '', 10);
+        $html = $generator->generateTableArticleDemandeReappro($dals);
+        $pdf->writeHTML($html, true, false, true, false, '');
+    }
+
+    /** 
+     * Fonction pour générer la table sur l'historique de consommation du service émetteur
+     */
+    protected function renderTableHistoriqueConsomReappro(TCPDF $pdf, array $monthsList, array $dataHistoriqueConsommation): void
+    {
+        $generator = new PdfTableReappro;
+        $this->renderTextWithLine($pdf, 'Historique des consommations');
+
+        $pdf->Ln(3);
+
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->setFont('helvetica', '', 10);
+        // $html1 = $generator->generer($dals);
+        // $pdf->writeHTML($html1, true, false, true, false, '');
+    }
+
     /**
      * Affiche une conversation type chat dans un PDF TCPDF.
      *

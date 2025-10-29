@@ -2,61 +2,54 @@
 
 namespace App\Service\genererPdf\da;
 
+use App\Entity\da\DemandeApproL;
+
 class PdfTableReappro
 {
-    public function generateTable(array $rows)
+    public function generateTableArticleDemandeReappro(iterable $dals)
     {
-        $html = '<table class="table text-center mt-3 align-middle">';
-        $html .= $this->generateHeader();
-        $html .= $this->generateBody($rows);
+        $html = '<table border="1" cellpadding="4" cellspacing="0" style="border-collapse: collapse; font-size: 8px;">';
+        $html .= $this->generateHeaderArticleDemandeReappro();
+        $html .= $this->generateBodyArticleDemandeReappro($dals);
         $html .= '</table>';
         return $html;
     }
 
-    private function generateHeader()
+    private function generateHeaderArticleDemandeReappro()
     {
         return '
-        <thead class="table-dark align-middle">
-            <tr>
-                <th width="7%">Constructeur</th>
-                <th width="13%">Référence</th>
-                <th>Désignation</th>
-                <th width="10%" class="text-end pe-3">PU</th>
-                <th width="10%">Qté demandé</th>
-                <th width="10%" class="text-end pe-3">Montant</th>
-            </tr>
-        </thead>
-    ';
+            <thead>
+                <tr style="background-color: #dcdcdc;">
+                    <th align="center">Constructeur</th>
+                    <th align="center">Référence</th>
+                    <th align="center">Désignation</th>
+                    <th align="right">PU</th>
+                    <th align="center">Qté demandé</th>
+                    <th align="right">Montant</th>
+                </tr>
+            </thead>
+        ';
     }
 
-    private function generateBody(array $rows)
+    private function generateBodyArticleDemandeReappro(iterable $dals)
     {
         $html = '<tbody>';
 
         // Si aucune ligne n’existe
-        if (empty($rows)) {
-            $html .= '<tr><td colspan="6" class="text-center fw-bold">N/A</td></tr>';
-            $html .= '</tbody>';
-            return $html;
-        }
-
-        foreach ($rows as $dal) {
-            // Vérifie si tous les montants sont nuls
-            $montantsZero = isset($dal['montantFormatted']) && (float)$dal['montantFormatted'] == 0;
-
-            if ($montantsZero) {
-                $html .= '<tr><td colspan="6" class="text-center fw-bold">N/A</td></tr>';
-                continue;
+        if (empty($dals)) {
+            $html .= '<tr><td colspan="6" align="center">Aucun article demandé</td></tr>';
+        } else {
+            /** @var DemandeApproL $dal */
+            foreach ($dals as $dal) {
+                $html .= '<tr>';
+                $html .= '<td align="center">' . $dal->getArtConstp() . '</td>';
+                $html .= '<td align="center">' . $dal->getArtRefp() . '</td>';
+                $html .= '<td align="left">' . $dal->getArtDesi() . '</td>';
+                $html .= '<td align="right">' . $dal->getPUFormatted() . '</td>';
+                $html .= '<td align="center">' . $dal->getQteDem() . '</td>';
+                $html .= '<td align="right">' . $dal->getMontantFormatted() . '</td>';
+                $html .= '</tr>';
             }
-
-            $html .= '<tr>';
-            $html .= '<td>' . htmlspecialchars($dal['artConstp'] ?? '') . '</td>';
-            $html .= '<td>' . htmlspecialchars($dal['artRefp'] ?? '') . '</td>';
-            $html .= '<td>' . htmlspecialchars($dal['artDesi'] ?? '') . '</td>';
-            $html .= '<td class="text-end pe-3">' . htmlspecialchars($dal['PUFormatted'] ?? '') . '</td>';
-            $html .= '<td>' . htmlspecialchars($dal['qteDem'] ?? '') . '</td>';
-            $html .= '<td class="text-end pe-3">' . htmlspecialchars($dal['montantFormatted'] ?? '') . '</td>';
-            $html .= '</tr>';
         }
 
         $html .= '</tbody>';
