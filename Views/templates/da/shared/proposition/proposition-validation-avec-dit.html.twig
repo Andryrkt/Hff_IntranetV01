@@ -9,8 +9,8 @@
 				</h3>
 			</div>
 			<div class="tab-content">
-				{% for DAL in da.DAL %}
-					{{ include('da/shared/proposition/_article-avec-dit.html.twig', { article: DAL, totalPage: da.DAL|length }) }}
+				{% for DAL in demandeAppro.DAL %}
+					{{ include('da/shared/proposition/_article-avec-dit.html.twig', { article: DAL, totalPage: demandeAppro.DAL|length }) }}
 				{% endfor %}
 			</div>
 		</div>
@@ -44,7 +44,7 @@
 						</button>
 					</div>
 					<div>
-						<a href="{{ path("da_edit_avec_dit", {id: da.id})}}" class="btn bouton mb-2 {{ estAte and not nePeutPasModifier ? '' : 'd-none'}}" target="_blank">
+						<a href="{{ path("da_edit_avec_dit", {id: demandeAppro.id})}}" class="btn bouton mb-2 {{ estAte and not nePeutPasModifier ? '' : 'd-none'}}" target="_blank">
 							Modifier la demande
 						</a>
 						<button type="submit" class="btn bouton mb-2 d-none" name="observation">
