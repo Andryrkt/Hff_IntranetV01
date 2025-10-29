@@ -87,32 +87,40 @@ trait DaValidationReapproTrait
         $result = [];
         $codeAgence = $demandeAppro->getAgenceEmetteur()->getCodeAgence();
         $codeService = $demandeAppro->getServiceEmetteur()->getCodeService();
+
         $datas = $this->daReapproModel->getHistoriqueConsommation($dateRange, $codeAgence, $codeService);
 
         foreach ($datas as $row) {
             // Clé unique par produit
-            $key = md5($row['cst'] . '|' . $row['refp'] . '|' . $row['desi']);
+            $key = md5("{$row['cst']}|{$row['refp']}|{$row['desi']}");
 
             // Initialiser si pas déjà existant
             if (!isset($result[$key])) {
                 $result[$key] = [
-                    'cst'      => $row['cst'],
-                    'refp'     => $row['refp'],
-                    'desi'     => $row['desi'],
-                    'qteTotal' => 0,
-                    'qte'      => [] // sous-tableau par mois
+                    'cst'          => $row['cst'],
+                    'refp'         => $row['refp'],
+                    'desi'         => $row['desi'],
+                    'qteTotalTemp' => 0.0,
+                    'qteTemp'      => array_fill_keys($monthsList, 0.0),
                 ];
-                // Initialiser tous les mois à 0
-                foreach ($monthsList as $mois) {
-                    $result[$key]['qte'][$mois] = 0;
-                }
             }
 
             // Ajouter la quantité pour le mois correspondant
             $mois = $row['mois_annee'];
-            $qte = floatval($row['qte_fac']);
-            $result[$key]['qteTotal'] += $qte;
-            $result[$key]['qte'][$mois] += $qte;
+            $qte  = (float)($row['qte_fac'] ?? 0);
+            $result[$key]['qteTotalTemp'] += $qte;
+            $result[$key]['qteTemp'][$mois] += $qte;
+        }
+
+        // Formattage final
+        foreach ($result as $key => $row) {
+            $row['qteTotal'] = number_format($row['qteTotalTemp'], 2, ',', '');
+            $row['qte'] = [];
+            foreach ($monthsList as $mois) {
+                $row['qte'][$mois] = $row['qteTemp'][$mois] > 0 ? number_format($row['qteTemp'][$mois], 2, ',', '') : '-';
+            }
+            unset($row['qteTemp'], $row['qteTotalTemp']);
+            $result[$key] = $row;
         }
 
         return $result;
