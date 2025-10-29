@@ -102,11 +102,11 @@
 								<td>{{ item.nomPrenom }}</td>
 
 								{# <td class="text-center">{{item.quantitereserver == 0 ? '-' : item.quantitereserver |
-															number_format(0)}}</td>#}
+																															number_format(0)}}</td>#}
 							{# <td class="text-center">{{item.quantitereliquat == 0 ? '-' : item.quantitereliquat |
-														number_format(0)}}</td> #}
+																												number_format(0)}}</td> #}
 								{# <td class="text-center">{{item.quantitelivree == 0 ? '-' : item.quantitelivree |
-															number_format(0)}}</td> #}
+																															number_format(0)}}</td> #}
 							</tr>
 						{% endfor %}
 					</tbody>
@@ -119,5 +119,5 @@
 	</div>
 {% endblock %}
 {% block javascript %}
-	<script src="{{ App.base_path }}/Views/js/magasin/main-optimized.js?v=2025.10.22.08.00" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/magasin/main.js?v=2025.10.22.08.00" type="module"></script>
 {% endblock %}
