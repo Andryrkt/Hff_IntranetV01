@@ -5,12 +5,12 @@
 {% endblock %}
 
 {% block stylesheets %}
-	<link href="{{ App.base_path }}/Views/css/new.css?v=2025.09.15.08.00" rel="stylesheet"/>
-	<link href="{{ App.base_path }}/Views/css/da/style.css?v=2025.09.15.08.00" rel="stylesheet"/>
-	<link href="{{ App.base_path }}/Views/css/da/list.css?v=2025.09.15.08.00" rel="stylesheet"/>
-	<link href="{{ App.base_path }}/Views/css/da/detail.css?v=2025.09.15.08.00" rel="stylesheet"/>
-	<link href="{{ App.base_path }}/Views/css/dit/news.css?v=2025.09.15.08.00" rel="stylesheet"/>
-	<link href="{{ App.base_path }}/Views/css/da/proposition.css?v=2025.09.15.08.00" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/new.css?v=2025.10.22.08.00" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/da/style.css?v=2025.10.22.08.00" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/da/list.css?v=2025.10.22.08.00" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/da/detail.css?v=2025.10.22.08.00" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/dit/news.css?v=2025.10.22.08.00" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/da/proposition.css?v=2025.10.22.08.00" rel="stylesheet"/>
 {% endblock %}
 
 {% import "macroForm.html.twig" as macroForm %}
@@ -18,9 +18,6 @@
 {% block overlay %}
 	{% include "/shared/_overlay.html.twig"  %}
 {% endblock %}
-
-{% set container_class = da.achatDirect ? '': 'custom-width' %}
-{% set prop_val_template = da.achatDirect ? 'proposition-validation-direct' : 'proposition-validation-avec-dit' %}
 
 {% block content %}
 	<div class="container-spaced">
@@ -32,7 +29,7 @@
 		</nav>
 		<div class="tab-content">
 			<div class="tab-pane fade active show" id="nav-proposition" role="tabpanel" aria-labelledby="nav-proposition-tab">
-				{{ include('da/shared/proposition/' ~ prop_val_template ~ '.html.twig') }}
+				{{ include('da/shared/proposition/' ~ propValTemplate ~ '.html.twig') }}
 			</div>
 			<div class="tab-pane fade" id="nav-observation" role="tabpanel" aria-labelledby="nav-observation-tab">
 				<div class="card border-top-left-radius-0">
@@ -45,9 +42,7 @@
 	</div>
 {% endblock %}
 
-{% set dossier_JS = da.achatDirect ? 'propositionDirect' : 'propositionAvecDit' %}
-
 {% block javascript %}
-	<script src="{{ App.base_path }}/Views/js/da/{{ dossier_JS }}/proposition.js?v=2025.09.15.08.00" type="module"></script>
-	<script src="{{ App.base_path }}/Views/js/da/observation/observation.js?v=2025.09.15.08.00" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/da/{{ dossierJS }}/proposition.js?v=2025.10.22.08.00" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/da/observation/observation.js?v=2025.10.22.08.00" type="module"></script>
 {% endblock %}

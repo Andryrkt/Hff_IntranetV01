@@ -57,9 +57,7 @@ class DaDetailAvecDitController extends Controller
 		$demandeAppro = $this->filtreDal($demandeAppro, $dit, (int)$numeroVersionMax); // on filtre les lignes de la DA selon le numero de version max
 
 		$daObservation = new DaObservation;
-		$formObservation = $this->getFormFactory()->createBuilder(DaObservationType::class, $daObservation, [
-			'achatDirect' => $demandeAppro->getAchatDirect()
-		])->getForm();
+		$formObservation = $this->getFormFactory()->createBuilder(DaObservationType::class, $daObservation, ['daTypeId' => $demandeAppro->getDaTypeId()])->getForm();
 
 		$this->traitementFormulaire($formObservation, $request, $demandeAppro);
 
@@ -76,6 +74,7 @@ class DaDetailAvecDitController extends Controller
 		$demandeApproLPrepared = $this->prepareDataForDisplayDetail($demandeAppro->getDAL());
 
 		return $this->render('da/detail.html.twig', [
+			'detailTemplate'      		=> 'detail-avec-dit',
 			'formObservation'			=> $formObservation->createView(),
 			'demandeAppro'      		=> $demandeAppro,
 			'demandeApproLines'   		=> $demandeApproLPrepared,

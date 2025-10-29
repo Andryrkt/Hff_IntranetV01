@@ -274,7 +274,7 @@ class MenuService
                     'Bon de caisse',
                     'receipt',
                     [
-                        $this->createSubItem('Nouvelle demande', 'plus-circle', '#'),
+                        $this->createSubItem('Nouvelle demande', 'plus-circle', 'new_bon_caisse'),
                         $this->createSubItem('Consultation', 'search', 'bon_caisse_liste')
                     ]
                 )

@@ -3,6 +3,7 @@
 namespace App\Form\da;
 
 use App\Entity\da\DaObservation;
+use App\Entity\da\DemandeAppro;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -13,13 +14,19 @@ class DaObservationType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $observationLabel = $options['achatDirect'] ? 'Autoriser le service à modifier' : 'Autoriser l’ATELIER à modifier';
+        $datypeId = $options['daTypeId'];
+
+        if ($datypeId != DemandeAppro::TYPE_DA_REAPPRO) {
+            if ($datypeId == DemandeAppro::TYPE_DA_DIRECT) $observationLabel = 'Autoriser le service à modifier';
+            if ($datypeId == DemandeAppro::TYPE_DA_AVEC_DIT) $observationLabel = 'Autoriser l’ATELIER à modifier';
+            $builder
+                ->add('statutChange', CheckboxType::class, [
+                    'label'    => $observationLabel,
+                    'required' => false
+                ]);
+        }
 
         $builder
-            ->add('statutChange', CheckboxType::class, [
-                'label'    => $observationLabel,
-                'required' => false
-            ])
             ->add('observation', TextareaType::class, [
                 'label' => 'Observation',
                 'attr'  => [
@@ -33,7 +40,7 @@ class DaObservationType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => DaObservation::class,
-            'achatDirect' => null, // valeur par défaut
+            'daTypeId' => null, // valeur par défaut
         ]);
     }
 }

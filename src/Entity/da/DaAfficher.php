@@ -28,6 +28,11 @@ class DaAfficher
     private string $numeroDemandeAppro;
 
     /**
+     * @ORM\Column(type="integer", name="da_type_id")
+     */
+    private ?int $daTypeId = 0;
+
+    /**
      * @ORM\Column(type="string", length=11, name="numero_demande_dit")
      */
     private string $numeroDemandeDit;
@@ -35,7 +40,7 @@ class DaAfficher
     /**
      * @ORM\Column(type="string", length=11, name="numero_or")
      */
-    private ?string $numeroOr;
+    private ?string $numeroOr = null;
 
     /**
      * @ORM\Column(type="string", length=11, name="numero_cde")
@@ -55,7 +60,7 @@ class DaAfficher
     /**
      * @ORM\Column(type="string", length=50, name="statut_cde")
      */
-    private ?string $statutCde;
+    private ?string $statutCde = null;
 
     /**
      * @ORM\Column(type="string", length=100, name="objet_dal")
@@ -251,7 +256,7 @@ class DaAfficher
     /**
      * @ORM\Column(type="string", length=100, name="position_bc")
      */
-    private ?string $positionBc;
+    private ?string $positionBc = null;
 
     /**
      * @ORM\Column(type="datetime", name="date_planning_or", nullable=true)
@@ -261,7 +266,7 @@ class DaAfficher
     /**
      * @ORM\Column(type="integer", name="numero_ligne_ips")
      */
-    private ?int $numeroLigneIps;
+    private ?int $numeroLigneIps = null;
 
     /**
      * @ORM\Column(type="datetime", name="date_demande", nullable=true)
@@ -332,6 +337,11 @@ class DaAfficher
      * @ORM\Column(type="boolean", name="est_facture_bl_soumis")
      */
     private $estFactureBlSoumis = false;
+
+    /**
+     * @ORM\Column(type="boolean", name="non_dispo")
+     */
+    private $nonDispo = false;
 
     /**
      * @ORM\Column(type="integer", name="qte_dem_ips")
@@ -1662,6 +1672,46 @@ class DaAfficher
     }
 
     /**
+     * Get the value of nonDispo
+     */
+    public function getNonDispo()
+    {
+        return $this->nonDispo;
+    }
+
+    /**
+     * Set the value of nonDispo
+     *
+     * @return  self
+     */
+    public function setNonDispo($nonDispo)
+    {
+        $this->nonDispo = $nonDispo;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of daTypeId
+     */
+    public function getDaTypeId()
+    {
+        return $this->daTypeId;
+    }
+
+    /**
+     * Set the value of daTypeId
+     *
+     * @return  self
+     */
+    public function setDaTypeId($daTypeId)
+    {
+        $this->daTypeId = $daTypeId;
+
+        return $this;
+    }
+
+    /**
      * Copie les propriétés pertinentes d'un ancien DaAfficher vers l'objet courant.
      *
      * Cela permet de "mettre à jour" l'objet courant avec les valeurs de référence
@@ -1695,6 +1745,7 @@ class DaAfficher
             ->setDetailDal($da->getDetailDal())
             ->setDemandeur($da->getDemandeur())
             ->setAchatDirect($da->getAchatDirect())
+            ->setDaTypeId($da->getDaTypeId())
             ->setDateDemande($da->getDateCreation())
             ->setNiveauUrgence($da->getNiveauUrgence())
             ->setAgenceEmetteur($da->getAgenceEmetteur()->getId())
@@ -1802,7 +1853,7 @@ class DaAfficher
             ->setQteEnAttent($data['qteEnAttent'] ?? 0)
             ->setDemandeur($data['demandeur'] ?? null)
             ->setBcEnvoyerFournisseur($data['bcEnvoyerFournisseur'] ?? false)
-            ->setAchatDirect($data['achatDirect'] ?? false)
+            ->setDaTypeId($data['daTypeId'] ?? 0)
             ->setPositionBc($data['positionBc'] ?? null)
             ->setOrResoumettre($data['orResoumettre'] ?? false)
             ->setdatePlannigOr($data['datePlannigOr'] ?? null)

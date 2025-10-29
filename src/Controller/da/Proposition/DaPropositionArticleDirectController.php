@@ -59,9 +59,7 @@ class DaPropositionArticleDirectController extends Controller
         $daObservation = new DaObservation();
         $DapLRCollection = new DemandeApproLRCollection();
         $form = $this->getFormFactory()->createBuilder(DemandeApproLRCollectionType::class, $DapLRCollection)->getForm();
-        $formObservation = $this->getFormFactory()->createBuilder(DaObservationType::class, $daObservation, [
-            'achatDirect' => $da->getAchatDirect()
-        ])->getForm();
+        $formObservation = $this->getFormFactory()->createBuilder(DaObservationType::class, $daObservation, ['daTypeId' => $da->getDaTypeId()])->getForm();
         $formValidation = $this->getFormFactory()->createBuilder(
             DaPropositionValidationType::class,
             [],
@@ -88,7 +86,9 @@ class DaPropositionArticleDirectController extends Controller
             'statutAutoriserModifAte' => $da->getStatutDal() === DemandeAppro::STATUT_AUTORISER_MODIF_ATE,
             'estCreateurDaDirecte'    => $this->estCreateurDeDADirecte(),
             'estAppro'                => $this->estUserDansServiceAppro(),
-            'nePeutPasModifier'       => $this->nePeutPasModifier($da)
+            'nePeutPasModifier'       => $this->nePeutPasModifier($da),
+            'propValTemplate'         => 'proposition-validation-direct',
+            'dossierJS'               => 'propositionDirect',
         ]);
     }
 

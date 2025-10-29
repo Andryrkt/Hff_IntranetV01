@@ -1,9 +1,8 @@
-import { displayOverlay } from "../utils/spinnerUtils";
+import { displayOverlay } from "../utils/ui/overlay";
 import { mergeCellsTable } from "./tableHandler";
 
 document.addEventListener("DOMContentLoaded", function () {
-  
-    mergeCellsTable(1);
+  mergeCellsTable(1);
   const semaineInput = document.getElementById(
     "planning_atelier_search_numeroSemaine"
   );

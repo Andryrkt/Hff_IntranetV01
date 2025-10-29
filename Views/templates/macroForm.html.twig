@@ -147,7 +147,7 @@
 {% endmacro %}
 
 {% macro affichageSimple(value = "", class = "", id = "") %}
-	<div class="d-flex align-items-center {{ class }} div-disabled" id="{{id}}">
+	<div class="{{ class }} div-disabled" id="{{id}}">
 		{{value}}
 	</div>
 {% endmacro %}

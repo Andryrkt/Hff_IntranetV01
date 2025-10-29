@@ -31,7 +31,7 @@
 <table>
 	<thead style="background-color:#ffc107;">
 		<tr>
-			{% if not demandeAppro.achatDirect %}
+			{% if demandeAppro.daTypeId == 0 %}
 				<th>Famille</th>
 				<th>Sous famille</th>
 				<th>Réference</th>
@@ -44,7 +44,7 @@
 	<tbody>
 		{% for dal in demandeAppro.DAL %}
 			<tr>
-				{% if not demandeAppro.achatDirect %}
+				{% if demandeAppro.daTypeId == 0 %}
 					<td>{{ dal.artFams1 ?? '-'}}</td>
 					<td>{{ dal.artFams2 ?? '-'}}</td>
 					<td>{{ dal.artRefp ?? '-'}}</td>

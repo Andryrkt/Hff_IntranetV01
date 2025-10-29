@@ -5,6 +5,7 @@ namespace App\Controller\da\ListeDa;
 use App\Entity\admin\Agence;
 use App\Entity\da\DaAfficher;
 use App\Controller\Controller;
+use App\Entity\da\DemandeAppro;
 use App\Repository\admin\AgenceRepository;
 use App\Repository\da\DaAfficherRepository;
 use Symfony\Component\Routing\Annotation\Route;
@@ -86,7 +87,7 @@ class ExportExcelController extends Controller
         foreach ($dasFiltered as $da) {
             $data[] = [
                 $da->getNumeroDemandeAppro(),
-                $da->getAchatDirect() ? 'OUI' : 'NON',
+                $da->getDaTypeId() == DemandeAppro::TYPE_DA_DIRECT ? 'OUI' : 'NON',
                 $da->getNumeroDemandeDit(),
                 $da->getNiveauUrgence(),
                 $da->getNumeroOR() ?? '-',
