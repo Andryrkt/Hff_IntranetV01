@@ -158,6 +158,16 @@ trait DaValidationReapproTrait
         $this->genererPdfDaReappro->genererPdfBonAchatValide($demandeAppro, $this->getUserMail(), $observations, $monthsList, $dataHistoriqueConsommation);
     }
 
+    /** 
+     * Fonction pour mettre la DA à valider dans DW
+     * 
+     * @param string $numDa le numero de la demande appro pour laquelle on génère le PDF
+     */
+    private function copyPDFToDW(string $numDa)
+    {
+        $this->genererPdfDaReappro->copyToDWDaAValider($numDa, "");
+    }
+
     /**
      * Ajoute les données d'une Demande de Réappro dans la table `DaSoumisAValidation`
      *

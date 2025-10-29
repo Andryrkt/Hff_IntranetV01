@@ -55,6 +55,9 @@ class DaValidationReapproController extends Controller
         $dataHistoriqueConsommation = $this->getHistoriqueConsommation($da, $dateRange, $monthsList);
         $observations = $this->daObservationRepository->findBy(['numDa' => $da->getNumeroDemandeAppro()]);
 
+        $this->creationPDFReappro($da, $observations, $monthsList, $dataHistoriqueConsommation);
+        die;
+
         //========================================== Traitement du formulaire en général ===================================================//
         $this->traitementFormulaire($formReappro, $formObservation, $request, $da, $observations, $monthsList, $dataHistoriqueConsommation);
         // =================================================================================================================================//
@@ -88,6 +91,7 @@ class DaValidationReapproController extends Controller
             } elseif ($request->request->has('valider')) {
                 $this->validerDemande($da);
                 $this->creationPDFReappro($da, $observations, $monthsList, $dataHistoriqueConsommation);
+                $this->copyPDFToDW($da->getNumeroDemandeAppro());
                 $this->ajouterDansDaSoumisAValidation($da);
             }
         }
