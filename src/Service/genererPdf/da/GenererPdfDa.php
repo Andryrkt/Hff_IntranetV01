@@ -283,10 +283,11 @@ abstract class GenererPdfDa extends GeneratePdf
      *
      * @param TCPDF  $pdf   L’objet PDF à sauvegarder.
      * @param string $numDa Numéro de DA utilisé pour le nom du dossier et du fichier.
+     * @param string $dest  Destination à envoyer le document 
      *
      * @throws \RuntimeException Si le répertoire ne peut pas être créé.
      */
-    protected function saveBonAchatValide(TCPDF $pdf, string $numDa): void
+    protected function saveBonAchatValide(TCPDF $pdf, string $numDa, string $dest = "F"): void
     {
         // Obtention du chemin absolu du répertoire de travail
         $Dossier = $_ENV['BASE_PATH_FICHIER'] . "/da/$numDa";
@@ -298,6 +299,6 @@ abstract class GenererPdfDa extends GeneratePdf
             }
         }
 
-        $pdf->Output("$Dossier/$numDa.pdf", "F");
+        $pdf->Output("$Dossier/$numDa.pdf", $dest);
     }
 }
