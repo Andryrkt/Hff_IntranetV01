@@ -5,8 +5,8 @@
 {% endblock %}
 
 {% block stylesheets %}
-	<link href="{{ App.base_path }}/Views/css/new.css?v=2025.09.15.08.00" rel="stylesheet"/>
-	<link href="{{ App.base_path }}/Views/css/dit/ditInsertionOr.css?v=2025.09.15.08.00" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/new.css?v=2025.10.22.08.00" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/dit/ditInsertionOr.css?v=2025.10.22.08.00" rel="stylesheet"/>
 {% endblock %}
 
 
@@ -82,11 +82,13 @@
 	</div>
 {% endblock %}
 {% block javascript %}
-	<script type="module" src="{{ App.base_path }}/Views/js/dit/ditDevisSoumisAValidation.js?v=2025.09.15.08.00"></script>
+	<script type="module" src="{{ App.base_path }}/Views/js/dit/ditDevisSoumisAValidation.js?v=2025.10.22.08.00"></script>
 
 	<script>
 		{% if App.session.get('devis_version_valide') == 'OK' %}
 Swal.fire( {
+
+
 
 
 
@@ -99,7 +101,11 @@ cancelButtonText: "Quitter"
 
 
 
+
+
 } ).then( ( result ) => {
+
+
 
 
 
@@ -109,8 +115,12 @@ window.location.href = window.location.href + "?continueDevis=1";
 
 
 
+
+
 } else { // L'utilisateur annule, redirection vers l'accueil
 window.location.href = "{{ path('dit_index') }}";
+
+
 
 
 

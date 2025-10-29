@@ -7,12 +7,12 @@
 {% block stylesheets %}{% endblock %}
 
 {% block content %}
-	<div class="position-fixed container-fluid" style="height:20px;top:133px;" id="bandeau-new-conge"></div>
+	<div id="bandeau" class="container-fluid" data-bg-color="bg-orange-cat"></div>
 	<div class="container text-center mb-4" style="margin-top:-4.5rem;">
 		<iframe src="{{ url }}" frameborder="0" style="height:1460px;" width="100%"></iframe>
 	</div>
 {% endblock %}
 
 {% block javascript %}
-	<script src="{{ App.base_path }}/Views/js/ddc/new.js?v=2025.09.15.08.00"></script>
+	<script src="{{ App.base_path }}/Views/js/formsDw/bg-color.js?v=2025.10.22.08.00"></script>
 {% endblock %}

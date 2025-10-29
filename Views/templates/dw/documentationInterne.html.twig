@@ -1,7 +1,7 @@
 {% extends "baseTemplate.html.twig" %}
 
 {% block stylesheets %}
-    <link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.09.15.08.00">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.10.22.08.00">
 {% endblock %}
 
 {% block content %}
@@ -35,7 +35,9 @@
 				{% for item in data %}
 					<tr>
 						<td class="text-center">{{ item.dateDocument | date('d/m/Y') }}</td>
-						<td><a target="_blank" href="{{ App.base_path_fichier }}/documentation/{{ item.idDocument }}.pdf">{{ item.nomDocument}}</a></td>
+						<td>
+							<a target="_blank" href="{{ App.base_path_fichier }}/documentation/{{ item.idDocument }}.pdf">{{ item.nomDocument}}</a>
+						</td>
 						<td class="text-center">{{ item.typeDocument}}</td>
 						<td class="text-center">{{ item.perimetre}}</td>
 						<td class="text-center">{{ item.processusLie}}</td>
@@ -52,5 +54,4 @@
 
 {% endblock %}
 
-{% block javascript %}
-{% endblock %}
+{% block javascript %}{% endblock %}

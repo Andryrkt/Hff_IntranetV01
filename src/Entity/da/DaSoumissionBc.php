@@ -26,6 +26,7 @@ class DaSoumissionBc
     public const STATUT_REFUSE                   = 'Refusé';
     public const STATUT_BC_ENVOYE_AU_FOURNISSEUR = 'BC envoyé au fournisseur';
     public const STATUT_PAS_DANS_OR              = 'PAS DANS OR';
+    public const STATUT_NON_DISPO                = 'Non Dispo Fournisseur';
 
     public const STATUT_TOUS_LIVRES              = 'Tous livrés';
     public const STATUT_PARTIELLEMENT_LIVRE      = 'Partiellement livré';
@@ -281,7 +282,7 @@ class DaSoumissionBc
      * Get the value of montantBc
      *
      * @return  float|null
-     */ 
+     */
     public function getMontantBc()
     {
         return $this->montantBc;
@@ -293,7 +294,7 @@ class DaSoumissionBc
      * @param  float|null  $montantBc
      *
      * @return  self
-     */ 
+     */
     public function setMontantBc($montantBc)
     {
         $this->montantBc = $montantBc;

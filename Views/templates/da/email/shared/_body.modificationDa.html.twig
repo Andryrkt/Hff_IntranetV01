@@ -35,7 +35,7 @@
 <table>
 	<thead style="background-color:#D9E1F2;">
 		<tr>
-			{% if not demandeAppro.achatDirect %}
+			{% if demandeAppro.daTypeId == 0 %}
 				<th>Famille</th>
 				<th>Sous famille</th>
 			{% endif %}
@@ -48,7 +48,7 @@
 	<tbody>
 		{% for dala in tab.ancienDals %}
 			<tr>
-				{% if not demandeAppro.achatDirect %}
+				{% if demandeAppro.daTypeId == 0 %}
 					<td>{{ dala.artFams1 ?? '-'}}</td>
 					<td>{{ dala.artFams2 ?? '-'}}</td>
 				{% endif %}
@@ -66,7 +66,7 @@
 <table>
 	<thead style="background-color:#000; color:#f2f2f2;">
 		<tr>
-			{% if not demandeAppro.achatDirect %}
+			{% if demandeAppro.daTypeId == 0 %}
 				<th>Famille</th>
 				<th>Sous famille</th>
 			{% endif %}
@@ -79,7 +79,7 @@
 	<tbody>
 		{% for daln in tab.nouveauDals %}
 			<tr>
-				{% if not demandeAppro.achatDirect %}
+				{% if demandeAppro.daTypeId == 0 %}
 					<td>{{ daln.artFams1 ?? '-'}}</td>
 					<td>{{ daln.artFams2 ?? '-'}}</td>
 				{% endif %}

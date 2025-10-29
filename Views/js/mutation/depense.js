@@ -1,5 +1,5 @@
 import { fetchData } from "../utils/fetchUtils";
-import { toggleSpinner } from "../utils/spinnerUtils";
+import { toggleSpinner } from "../utils/ui/overlay";
 import { formatMontant, parseMontant } from "../utils/formatUtils";
 import { addRequiredToField, removeRequiredToField } from "./handleField";
 import { toggleField } from "./handleAvanceIndemnite";

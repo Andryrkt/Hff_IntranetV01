@@ -1,5 +1,5 @@
 import { FetchManager } from "../api/FetchManager";
-import { displayOverlay } from "../utils/spinnerUtils";
+import { displayOverlay } from "../utils/ui/overlay";
 
 // Instanciation de FetchManager avec la base URL
 const fetchManager = new FetchManager();

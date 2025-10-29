@@ -5,8 +5,8 @@
 {% endblock %}
 
 {% block stylesheets %}
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.09.15.08.00">
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/planning/planning.css?v=2025.09.15.08.00">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.10.22.08.00">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/planning/planning.css?v=2025.10.22.08.00">
 {% endblock %}
 
 {% block overlay %}
@@ -17,23 +17,23 @@
 	<div class="sticky-header-titre">
 		<div class="container">
 			{% include "/planning/_formulaire.html.twig" %}
-			
+
 			<div class="d-flex justify-content-between">
 				{% include "/partials/_statutSituationPiece.html.twig" with { 'avecBackOrder' : true } %}
-				<div class ="my-2 d-flex flex-row">
-					<div  tabindex="0" id="dispo stock">
+				<div class="my-2 d-flex flex-row">
+					<div tabindex="0" id="dispo stock">
 						<i class="fa-solid fa-circle " style="color: #c8ad7f"></i>
 						<small style="color: #c8ad7f">Dispo stock |</small>
 					</div>
-					<div  tabindex="0" id="back error">
+					<div tabindex="0" id="back error">
 						<i class="fa-solid fa-circle text-danger"></i>
 						<small class="text-danger">Back Order / Error |</small>
 					</div>
-					<div  tabindex="0" id="cmd frs">
+					<div tabindex="0" id="cmd frs">
 						<i class="fa-solid fa-circle " style="color: #9ACD32"></i>
 						<small style="color: #9ACD32">Commande envoyée fournisseur |</small>
 					</div>
-					<div  tabindex="0" id="reception partiel">
+					<div tabindex="0" id="reception partiel">
 						<i class="fa-solid fa-circle " style="color: #EE82EE"></i>
 						<small style="color: #EE82EE">Réception Partielle</small>
 					</div>
@@ -123,7 +123,9 @@
 					<td>{{ item.parc }}</td>
 					<td>{{ item.casier }}</td>
 					<td>{{ item.commentaire }}</td>
-					<td class="{{statut}}"><span class="numOr-itv">{{ item.numor_itv }}</span></td>
+					<td class="{{statut}}">
+						<span class="numOr-itv">{{ item.numor_itv }}</span>
+					</td>
 					<td>{{ item.dateplanning |date('d/m/Y')  }}</td>
 					<td>{{ item.cst }}</td>
 					<td>{{ item.ref }}</td>
@@ -155,7 +157,7 @@
 	{% include "/dit/shared/_modalNiveauUrgence.html.twig"  %}
 {% endblock %}
 {% block javascript %}
-	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v=2025.09.15.08.00"></script>
-	<script src="{{ App.base_path }}/Views/js/planning/agServPlanning.js?v=2025.09.15.08.00" type="module"></script>
-	<script src="{{ App.base_path }}/Views/js/planning/planningListe.js?v=2025.09.15.08.00" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v=2025.10.22.08.00"></script>
+	<script src="{{ App.base_path }}/Views/js/planning/agServPlanning.js?v=2025.10.22.08.00" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/planning/planningListe.js?v=2025.10.22.08.00" type="module"></script>
 {% endblock %}

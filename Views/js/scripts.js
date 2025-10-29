@@ -2,7 +2,7 @@ import { baseUrl } from "./utils/config";
 
 import { FetchManager } from "./api/FetchManager";
 import { afficherToast } from "./utils/toastUtils";
-import { displayOverlay } from "./utils/spinnerUtils";
+import { displayOverlay } from "./utils/ui/overlay";
 import { preloadAllData } from "./da/data/preloadData";
 
 // Instanciation de FetchManager avec la base URL

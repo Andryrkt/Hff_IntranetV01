@@ -1,5 +1,5 @@
 import { formatDatePartielDate } from "../../tik/calendarModule/formatDateModule";
-import { displayOverlay } from "../../utils/spinnerUtils";
+import { displayOverlay } from "../../utils/ui/overlay";
 import { ajouterUneLigne } from "./dal";
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -10,6 +10,22 @@ document.addEventListener("DOMContentLoaded", function () {
   );
   const dateFinSouhaiteevalue = dateFinSouhaiteeInput.value;
   const dateFinSouhaitee = new Date(dateFinSouhaiteevalue);
+  const actionsConfig = {
+    enregistrerBrouillon: {
+      title: "Confirmer l’enregistrement",
+      html: `Souhaitez-vous enregistrer <strong class="text-primary">provisoirement</strong> cette demande ?<br><small class="text-primary"><strong><u>NB</u>: </strong>Elle ne sera pas transmise au service APPRO.</small>`,
+      icon: "question",
+      confirmButtonText: "Oui, Enregistrer",
+      canceledText: "L’enregistrement provisoire a été annulé.",
+    },
+    soumissionAppro: {
+      title: "Confirmer la soumission",
+      html: `Êtes-vous sûr de vouloir <strong style="color: #f8bb86;">soumettre</strong> cette demande ?<br><small style="color: #f8bb86;"><strong><u>NB</u>: </strong>Elle sera transmise au service APPRO pour traitement.</small>`,
+      icon: "warning",
+      confirmButtonText: "Oui, Soumettre",
+      canceledText: "La soumission de la demande a été annulée.",
+    },
+  };
 
   // Ajouter un écouteur d'événement pour la validation de la date
   dateFinSouhaiteeInput.addEventListener("change", function (e) {
@@ -34,22 +50,6 @@ document.addEventListener("DOMContentLoaded", function () {
     e.preventDefault(); // empêcher l'envoi immédiat
     const action = e.submitter.name; // 👉 nom (attribut "name") du bouton qui a déclenché le submit
     // Définition des paramètres selon l'action
-    const actionsConfig = {
-      enregistrerBrouillon: {
-        title: "Confirmer l’enregistrement",
-        html: `Souhaitez-vous enregistrer <strong class="text-primary">provisoirement</strong> cette demande ?<br><small class="text-primary"><strong><u>NB</u>: </strong>Elle ne sera pas transmise au service APPRO.</small>`,
-        icon: "question",
-        confirmButtonText: "Oui, Enregistrer",
-        canceledText: "L’enregistrement provisoire a été annulé.",
-      },
-      soumissionAppro: {
-        title: "Confirmer la soumission",
-        html: `Êtes-vous sûr de vouloir <strong style="color: #f8bb86;">soumettre</strong> cette demande ?<br><small style="color: #f8bb86;"><strong><u>NB</u>: </strong>Elle sera transmise au service APPRO pour traitement.</small>`,
-        icon: "warning",
-        confirmButtonText: "Oui, Soumettre",
-        canceledText: "La soumission de la demande a été annulée.",
-      },
-    };
 
     const config = actionsConfig[action];
     if (!config) return;
