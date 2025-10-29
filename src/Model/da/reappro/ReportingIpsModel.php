@@ -36,7 +36,7 @@ class ReportingIpsModel extends Model
             $codeAgence = $criterias['agenceDebiteur'];
             $agenceDebiteur = " AND slor_succdeb in ({$codeAgence})";
         } else {
-            $agenceDebiteur = "";
+            $agenceDebiteur = "AND slor_succdeb in ('')";
         }
 
         if ($criterias['serviceDebiteur'] != null && $criterias['serviceDebiteur'] != "''") {
