@@ -2,14 +2,18 @@
 
 namespace App\Model\da\reappro;
 
-use DateTime;
 use App\Model\Model;
-use App\Service\GlobalVariablesService;
 
 class ReportingIpsModel extends Model
 {
     public function getReportingData(array $criterias): array
     {
+        if($criterias['numFacture']){
+            $numFacture = " AND slor_numfac = '{$criterias['numFacture']}'";
+        } else {
+            $numFacture = "";
+        }
+
         if ($criterias['date_debut']) {
             $dateDebut = " AND EXTEND(dfcc_datefac, YEAR TO DAY) >= '{$criterias['date_debut']}'";
         } else {
@@ -57,6 +61,7 @@ class ReportingIpsModel extends Model
             $dateFin
             $agenceDebiteur
             $serviceDebiteur
+            $numFacture
             AND slor_constp in ({$criterias['constructeur']})
         ";
         $result = $this->connect->executeQuery($statement);

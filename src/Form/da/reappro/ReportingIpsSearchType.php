@@ -7,6 +7,7 @@ use App\Form\common\AgenceServiceType;
 use App\Service\GlobalVariablesService;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -36,6 +37,10 @@ class ReportingIpsSearchType extends AbstractType
                 'multiple' => true,
                 'expanded' => true,
                 'data' => array_keys($choices), // Cocher toutes les cases par défaut
+            ])
+            ->add('numFacture', TextType::class, [
+                'label' => 'Numéro de facture',
+                'required' => false,
             ])
         ;
     }

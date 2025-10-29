@@ -63,13 +63,14 @@ class ReportingIpsController extends Controller
     private function traitementFormulaire(FormInterface $form, Request $request): array
     {
         $form->handleRequest($request);
-        $aujourdhui = new DateTime();
+
         $criterias = [
             'constructeur' => GlobalVariablesService::get('reappro'),
             'debiteur' => [
                 'agence' => null,
                 'service' => null
             ],
+            'numFacture' => null,
             'date_debut' => null, // date du premier mois précédent
             'date_fin' => null, // date du jour
         ];
@@ -87,6 +88,7 @@ class ReportingIpsController extends Controller
 
             // Récupération des données du champ composite 'date' non mappé
             $dateData = $form->get('date')->getData();
+            $aujourdhui = new DateTime();
             $criterias['date_debut'] = $dateData['debut'] != null ? $dateData['debut']->format('Y-m-d') : null;
             $criterias['date_fin'] = $dateData['fin'] != null ? $dateData['fin']->format('Y-m-d') : $aujourdhui->format('Y-m-d');
         }
