@@ -13,6 +13,8 @@ CREATE TABLE da_article_reappro
     CONSTRAINT PK_da_article_reappro PRIMARY KEY (id)
 );
 
+ALTER TABLE Demande_Appro_L ADD qte_valide_appro int null;
+
 ALTER TABLE Demande_Appro ADD da_type_id INT;
 ALTER TABLE da_afficher ADD da_type_id INT;
 

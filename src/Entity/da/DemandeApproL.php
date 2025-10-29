@@ -39,6 +39,9 @@ class DemandeApproL
      */
     private $qteDem;
 
+    /**
+     * @ORM\Column(type="integer", name="qte_valide_appro")
+     */
     private $qteValAppro; // seulement pour les DA réappro
 
     /**

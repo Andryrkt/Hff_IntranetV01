@@ -125,7 +125,7 @@ trait DaValidationReapproTrait
             $row['qteTotal'] = number_format($row['qteTotalTemp'], 2, ',', '');
             $row['qte'] = [];
             foreach ($monthsList as $mois) {
-                $row['qte'][$mois] = $row['qteTemp'][$mois] > 0 ? number_format($row['qteTemp'][$mois], 2, ',', '') : '-';
+                $row['qte'][$mois] = $row['qteTemp'][$mois] != 0 ? number_format($row['qteTemp'][$mois], 2, ',', '') : '-';
             }
             unset($row['qteTemp'], $row['qteTotalTemp']);
             $result[$key] = $row;

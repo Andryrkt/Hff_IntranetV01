@@ -60,7 +60,7 @@ class DaValidationReapproController extends Controller
         // =================================================================================================================================//
 
         return $this->render("da/validation-reappro.html.twig", [
-            'da'              => $da,
+            'demandeAppro'    => $da,
             'numDa'           => $da->getNumeroDemandeAppro(),
             'formReappro'     => $formReappro->createView(),
             'formObservation' => $formObservation->createView(),
