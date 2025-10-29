@@ -71,6 +71,7 @@ class ReportingIpsController extends Controller
                 'service' => null
             ],
             'numFacture' => null,
+            'description' => null,
             'date_debut' => null, // date du premier mois précédent
             'date_fin' => null, // date du jour
         ];

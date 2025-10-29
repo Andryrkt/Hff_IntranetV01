@@ -8,7 +8,13 @@ class ReportingIpsModel extends Model
 {
     public function getReportingData(array $criterias): array
     {
-        if($criterias['numFacture']){
+        if ($criterias['description']) {
+            $description = " AND slor_desi LIKE '%{$criterias['description']}%'";
+        } else {
+            $description = "";
+        }
+
+        if ($criterias['numFacture']) {
             $numFacture = " AND slor_numfac = '{$criterias['numFacture']}'";
         } else {
             $numFacture = "";
@@ -62,6 +68,7 @@ class ReportingIpsModel extends Model
             $agenceDebiteur
             $serviceDebiteur
             $numFacture
+            $descritpion
             AND slor_constp in ({$criterias['constructeur']})
         ";
         $result = $this->connect->executeQuery($statement);

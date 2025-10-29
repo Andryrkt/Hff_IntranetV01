@@ -42,6 +42,10 @@ class ReportingIpsSearchType extends AbstractType
                 'label' => 'Numéro de facture',
                 'required' => false,
             ])
+            ->add('description', TextType::class, [
+                'label' => 'Description',
+                'required' => false,
+            ])
         ;
     }
 
