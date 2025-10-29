@@ -33,27 +33,17 @@
 <table>
 	<thead style="background-color:#ffc107;">
 		<tr>
-			{% if avecDIT %}
-				<th>Famille</th>
-				<th>Sous famille</th>
-				<th>Réference</th>
-			{% endif %}
-			<th>Désignation</th>
-			<th>Fournisseur</th>
-			<th>Commentaire</th>
+			{% for headLabel, headValue in preparedDatas.head %}
+				<th>{{ headValue }}</th>
+			{% endfor %}
 		</tr>
 	</thead>
 	<tbody>
-		{% for dal in demandeAppro.DAL %}
+		{% for row in preparedDatas.body  %}
 			<tr>
-				{% if avecDIT %}
-					<td>{{ dal.artFams1 ?? '-'}}</td>
-					<td>{{ dal.artFams2 ?? '-'}}</td>
-					<td>{{ dal.artRefp ?? '-'}}</td>
-				{% endif %}
-				<td>{{ dal.artDesi }}</td>
-				<td>{{ dal.nomFournisseur }}</td>
-				<td>{{ dal.commentaire }}</td>
+				{% for headLabel, headValue in preparedDatas.head %}
+					<td>{{ row.[headLabel] }}</td>
+				{% endfor %}
 			</tr>
 		{% endfor %}
 	</tbody>

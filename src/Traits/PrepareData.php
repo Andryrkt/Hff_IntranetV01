@@ -47,42 +47,69 @@ trait PrepareData
     {
         $datasPrepared = [];
 
-        if ($datypeId === DemandeAppro::TYPE_DA_AVEC_DIT || $datypeId === DemandeAppro::TYPE_DA_DIRECT) {
+        if (in_array($datypeId, [DemandeAppro::TYPE_DA_AVEC_DIT, DemandeAppro::TYPE_DA_DIRECT])) {
             $avecDIT = $datypeId === DemandeAppro::TYPE_DA_AVEC_DIT;
-            $datasPrepared['head'] = $avecDIT
-                ? ['Famille', 'Sous famille', 'Réference', 'Désignation', 'Fournisseur', 'Commentaire']
-                : ['Désignation', 'Fournisseur', 'Commentaire'];
 
+            // Définition des en-têtes
+            $datasPrepared['head'] = $avecDIT
+                ? [
+                    'fams1' => 'Famille',
+                    'fams2' => 'Sous famille',
+                    'refp'  => 'Réference',
+                    'desi'  => 'Désignation',
+                    'frn'   => 'Fournisseur',
+                    'com'   => 'Commentaire',
+                ]
+                : [
+                    'desi'  => 'Désignation',
+                    'frn'   => 'Fournisseur',
+                    'com'   => 'Commentaire',
+                ];
+
+            // Préparation du corps
             $datasPrepared['body'] = [];
             foreach ($dals as $dal) {
+                $row = [];
+
                 if ($avecDIT) {
-                    $datasPrepared['body'] = [
-                        'famille'     => $dal->getArtFams1() ?? '-',
-                        'sousFamille' => $dal->getArtFams2() ?? '-',
-                        'reference'   => $dal->getArtRefp() ?? '-',
-                    ];
+                    $row['fams1'] = $dal->getArtFams1() ?? '-';
+                    $row['fams2'] = $dal->getArtFams2() ?? '-';
+                    $row['refp']  = $dal->getArtRefp() ?? '-';
                 }
-                $datasPrepared['body']['designation'] = $dal->getArtDesi();
-                $datasPrepared['body']['fournisseur'] = $dal->getNomFournisseur();
-                $datasPrepared['body']['commentaire'] = $dal->getCommentaire();
+
+                $row['desi'] = $dal->getArtDesi() ?? '-';
+                $row['frn']  = $dal->getNomFournisseur() ?? '-';
+                $row['com']  = $dal->getCommentaire() ?? '-';
+
+                $datasPrepared['body'][] = $row;
             }
         } elseif ($datypeId === DemandeAppro::TYPE_DA_REAPPRO) {
+            // Définition des en-têtes
+            $datasPrepared['head'] = [
+                'constp' => 'Constructeur',
+                'refp'   => 'Référence',
+                'desi'   => 'Désignation',
+                'pu'     => 'PU',
+                'qteDem' => 'Qté demandé',
+                'qteVal' => 'Qté validée',
+                'mtt'    => 'Montant',
+            ];
+
+            // Préparation du corps
+            $datasPrepared['body'] = [];
+            foreach ($dals as $dal) {
+                $datasPrepared['body'][] = [
+                    'constp' => $dal->getArtConstp(),
+                    'refp'   => $dal->getArtRefp(),
+                    'desi'   => $dal->getArtDesi(),
+                    'pu'     => $dal->getPUFormatted(),
+                    'qteDem' => $dal->getQteDem(),
+                    'qteVal' => $dal->getQteValAppro(),
+                    'mtt'    => $dal->getMontantFormatted(),
+                ];
+            }
         } else {
             die("Le type de la DA est indéfini");
-        }
-
-        foreach ($dals as $dal) {
-            $cst  = $dal->getArtConstp();
-            $ref  = $dal->getArtRefp();
-            $desi = $dal->getArtDesi();
-            $qte  = $dal->getQteDem();
-            $datasPrepared[] = [
-                'keyId'  => implode('_', array_map('trim', [$cst, $ref, $desi, $qte])),
-                'cst'    => $cst,
-                'ref'    => $ref,
-                'desi'   => $desi,
-                'qte'    => $qte,
-            ];
         }
 
         return $datasPrepared;
