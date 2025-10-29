@@ -2,9 +2,12 @@
 
 namespace App\Form\da\reappro;
 
+use Doctrine\ORM\EntityRepository;
+use App\Entity\admin\Agence;
+use App\Entity\admin\Service;
 use App\Form\common\DateRangeType;
-use App\Form\common\AgenceServiceType;
 use App\Service\GlobalVariablesService;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -16,14 +19,35 @@ class ReportingIpsSearchType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('debiteur', AgenceServiceType::class, [
-                'label' => false,
+            ->add('agences', EntityType::class, [
+                'label' => 'Agences Débitrices',
+                'class' => Agence::class,
+                'query_builder' => function (EntityRepository $er) {
+                    return $er->createQueryBuilder('a')
+                        ->orderBy('a.codeAgence', 'ASC');
+                },
+                'choice_label' => function (Agence $agence): string {
+                    return $agence->getCodeAgence() . ' ' . $agence->getLibelleAgence();
+                },
+                'multiple' => true,
+                'expanded' => true,
                 'required' => false,
-                'agence_label' => 'Agence Debiteur',
-                'service_label' => 'Service Debiteur',
-                'agence_placeholder' => '-- Agence Debiteur --',
-                'service_placeholder' => '-- Service Debiteur --',
-                'em' => $options['em'] ?? null
+            ])
+            ->add('services', EntityType::class, [
+                'label' => 'Services Débiteurs',
+                'class' => Service::class,
+                'query_builder' => function (EntityRepository $er) {
+                    return $er->createQueryBuilder('s')
+                        ->orderBy('s.codeService', 'ASC');
+                },
+                'choice_label' => function (Service $service): string {
+                    return $service->getCodeService() . ' ' . $service->getLibelleService();
+                },
+                'by_reference' => false,
+                'multiple' => true,
+                'expanded' => false, // Rendu en tant que <select>
+                'required' => false,
+                'attr' => ['class' => 'select2-enable'] // Classe pour le ciblage JS
             ])
             ->add('date', DateRangeType::class, [
                 'label' => false,

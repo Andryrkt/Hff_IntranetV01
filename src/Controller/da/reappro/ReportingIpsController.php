@@ -8,11 +8,11 @@ use App\Entity\admin\Application;
 use App\Service\GlobalVariablesService;
 use App\Service\TableauEnStringService;
 use Symfony\Component\Form\FormInterface;
-use App\Model\da\reappro\ReportingIpsModel;
 use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use App\Form\da\reappro\ReportingIpsSearchType;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Controller\Traits\da\reappro\ReportingIpsTrait;
 
 /**
  * @Route("/demande-appro")
@@ -20,6 +20,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class ReportingIpsController extends Controller
 {
     use AutorisationTrait;
+    use ReportingIpsTrait;
 
     /**
      * @Route("/reporting-ips", name = "da_reporting_ips")
@@ -66,10 +67,10 @@ class ReportingIpsController extends Controller
 
         $criterias = [
             'constructeur' => GlobalVariablesService::get('reappro'),
-            'debiteur' => [
-                'agence' => null,
-                'service' => null
-            ],
+            'agences' => null,
+            'services' => null,
+            'agenceDebiteur' => null,
+            'serviceDebiteur' => null,
             'numFacture' => null,
             'description' => null,
             'date_debut' => null, // date du premier mois précédent
@@ -79,6 +80,25 @@ class ReportingIpsController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             // Données des champs mappés
             $criterias = $form->getData();
+
+            if ($criterias['agences']) {
+                $agences = [];
+                foreach ($criterias['agences'] as $agence) {
+                    $agences[] = $agence->getCodeAgence();
+                }
+                $agencesString = TableauEnStringService::orEnString($agences);
+                $criterias['agenceDebiteur'] = $agencesString;
+            }
+
+            if ($criterias['services']) {
+                $services = [];
+                foreach ($criterias['services'] as $service) {
+                    $services[] = $service->getCodeService();
+                }
+                $serviceString = TableauEnStringService::orEnString($services);
+                $criterias['serviceDebiteur'] = $serviceString;
+            }
+
 
             // Transformation du tableau des constructeurs en chaîne formatée
             if (isset($criterias['constructeur']) && is_array($criterias['constructeur'])) {
@@ -95,32 +115,5 @@ class ReportingIpsController extends Controller
         }
         $this->getSessionService()->set('criterias_reporting_ips', $criterias);
         return $criterias;
-    }
-
-    private function calculQteEtMontantTotals(array $reportingIps): array
-    {
-        $result = [
-            'qte_totale' => 0,
-            'montant_total' => 0
-        ];
-        foreach ($reportingIps as $item) {
-            $result['qte_totale'] += $item['qte_demande'];
-            $result['montant_total'] += $item['montant'];
-        }
-        return $result;
-    }
-
-    private function getData(array $criterias): array
-    {
-        $reportingIpsModel = new ReportingIpsModel();
-        $reportingIps = $reportingIpsModel->getReportingData($criterias);
-
-        ['qte_totale' => $qteTotale, 'montant_total' => $montantTotal] = $this->calculQteEtMontantTotals($reportingIps);
-
-        return [
-            'reportingIps' => $reportingIps,
-            'qteTotale' => $qteTotale,
-            'montantTotal' => $montantTotal
-        ];
     }
 }

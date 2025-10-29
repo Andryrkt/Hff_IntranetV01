@@ -3,14 +3,16 @@
 namespace App\Controller\da\reappro;
 
 use App\Controller\Controller;
-use App\Model\da\reappro\ReportingIpsModel;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Controller\Traits\da\reappro\ReportingIpsTrait;
 
 /**
  * @Route("/demande-appro")
  */
 class ExportExcelController extends Controller
 {
+    use ReportingIpsTrait;
+
     /**
      * @Route("/reappro-export-excel", name = "reappro_export_excel")
      */
@@ -82,32 +84,5 @@ class ExportExcelController extends Controller
             ];
         }
         return $data;
-    }
-
-    private function calculQteEtMontantTotals(array $reportingIps): array
-    {
-        $result = [
-            'qte_totale' => 0,
-            'montant_total' => 0
-        ];
-        foreach ($reportingIps as $item) {
-            $result['qte_totale'] += $item['qte_demande'];
-            $result['montant_total'] += $item['montant'];
-        }
-        return $result;
-    }
-
-    private function getData(array $criterias): array
-    {
-        $reportingIpsModel = new ReportingIpsModel();
-        $reportingIps = $reportingIpsModel->getReportingData($criterias);
-
-        ['qte_totale' => $qteTotale, 'montant_total' => $montantTotal] = $this->calculQteEtMontantTotals($reportingIps);
-
-        return [
-            'reportingIps' => $reportingIps,
-            'qteTotale' => $qteTotale,
-            'montantTotal' => $montantTotal
-        ];
     }
 }

@@ -16,28 +16,24 @@
 						{{ form_macros.checkbox_group(form.constructeur) }}
 					</div>
 					<div class="col-12 col-md-2">
-						<div class="spinner-container">
-							{{ form_row(form.debiteur.agence, {'attr': {'class': 'agenceDebiteur'}}) }}
-							{% include 'components/spinner.html.twig' with {
-								'id': 'spinner-service-debiteur',
-								'size': 'small',
-								'class': 'spinner-absolute'
-							} %}
+						{{ form_macros.checkbox_group(form.agences) }}
+					</div>
+					<div class="col-12 col-md-3">
+						{{ form_label(form.services) }}
+						<div class="mt-2">
+							<button type="button" class="btn btn-sm btn-outline-primary" id="select-all-services">Tout sélectionner</button>
+							<button type="button" class="btn btn-sm btn-outline-secondary" id="clear-all-services">Tout effacer</button>
 						</div>
-						<div id="service-container-debiteur" class="mb-3">
-							{{ form_label(form.debiteur.service) }}
-							{{ form_widget(form.debiteur.service, {'attr': {'class': 'serviceDebiteur'}}) }}
-						</div>
+						{{ form_widget(form.services) }}
+						{{ form_errors(form.services) }}
 					</div>
 					<div class="col-12 col-md-2">
 						{{ form_row(form.date) }}
 					</div>
-					<div class="col-12 col-md-2">
+					<div class="col-12 col-md-3">
 						{{ form_row(form.numFacture) }}
 						{{ form_row(form.description) }}
 					</div>
-					<div class="col-12 col-md-2"></div>
-					<div class="col-12 col-md-2"></div>
 				</div>
 				<div class="d-flex justify-content-end mb-2">
 					<button class="btn btn-warning fw-bold" type="submit">
@@ -50,6 +46,7 @@
 		</div>
 	</div>
 </div>
+
 {# ============= Boutton Excel ================= #}
 <div class="row mt-2">
 	<div class="align-self-center">
@@ -59,3 +56,24 @@
 		</a>
 	</div>
 </div>
+
+<script>
+	document.addEventListener('DOMContentLoaded', function () { // S'assurer que jQuery et Select2 sont chargés
+if (typeof jQuery !== 'undefined' && jQuery.fn.select2) { // Initialiser Select2
+const $selectServices = $('.select2-enable').select2({
+placeholder: 'Sélectionner des services', allowClear: true, width: '100%' // S'assurer que le select prend toute la largeur de la colonne
+});
+
+// Bouton "Tout sélectionner"
+document.getElementById('select-all-services').addEventListener('click', function () {
+const allOptionValues = Array.from($selectServices[0].options).map(opt => opt.value);
+$selectServices.val(allOptionValues).trigger('change');
+});
+
+// Bouton "Tout effacer"
+document.getElementById('clear-all-services').addEventListener('click', function () {
+$selectServices.val(null).trigger('change');
+});
+}
+});
+</script>
