@@ -2,37 +2,38 @@
 
 <div class="card border-top-left-radius-0">
 	<div class="card-body">
-        {{ form_start(formReappro, { 'attr': { 'id': 'myForm' } }) }}
+		{{ form_start(formReappro, { 'attr': { 'id': 'myForm' } }) }}
 		<div class="container-fluid">
 			<div class="row">
 				<h3 class="perso-titre">
-					Validation {{ numDa }}
+					Validation
+					{{ numDa }}
 				</h3>
 			</div>
 
-            <div class="row">
-                <div class="col-12 col-md-6">
-                    {{ macroForm.sousTitre('Information sur la demande') }}
-                    {{ macroForm.affichage2('Objet de la demande', da.objetDal, 'mb-2') }}
-                    {{ macroForm.affichage2('Détail de la demande', da.detailDal, 'h-90 mb-2') }}
-                    {{ macroForm.affichage2('Date fin souhaitée', da.dateFinSouhaite|date('d/m/Y'), 'mb-2') }}
-                </div>
-                <div class="col-12 col-md-6">
-                    {{ macroForm.sousTitre('Agence et service') }}
-                    <div class="row">
-                        <div class="col-6 col-md-6">
-                            {{ macroForm.sousTitre('Emetteur') }}
-                            {{ macroForm.affichage2('Agence', da.agenceEmetteur.codeAgence ~ ' ' ~ da.agenceEmetteur.libelleAgence, 'mb-2') }}
-							{{ macroForm.affichage2('Service', da.serviceEmetteur.codeService ~ ' ' ~  da.serviceEmetteur.libelleService, 'mb-2') }}
-                        </div>
-                        <div class="col-6 col-md-6">
-                            {{ macroForm.sousTitre('Débiteur') }}
-                            {{ macroForm.affichage2('Agence Débiteur', da.agenceDebiteur.codeAgence ~ ' ' ~ da.agenceDebiteur.libelleAgence, 'mb-2') }}
-							{{ macroForm.affichage2('Service Débiteur', da.serviceDebiteur.codeService ~ ' ' ~  da.serviceDebiteur.libelleService, 'mb-2') }}
-                        </div>
-                    </div>
-                </div>
-            </div>
+			<div class="row">
+				<div class="col-12 col-md-6">
+					{{ macroForm.sousTitre('Information sur la demande') }}
+					{{ macroForm.affichage2('Objet de la demande', demandeAppro.objetDal, 'mb-2') }}
+					{{ macroForm.affichage2('Détail de la demande', demandeAppro.detailDal, 'h-90 mb-2') }}
+					{{ macroForm.affichage2('Date fin souhaitée', demandeAppro.dateFinSouhaite|date('d/m/Y'), 'mb-2') }}
+				</div>
+				<div class="col-12 col-md-6">
+					{{ macroForm.sousTitre('Agence et service') }}
+					<div class="row">
+						<div class="col-6 col-md-6">
+							{{ macroForm.sousTitre('Emetteur') }}
+							{{ macroForm.affichage2('Agence', demandeAppro.agenceEmetteur.codeAgence ~ ' ' ~ demandeAppro.agenceEmetteur.libelleAgence, 'mb-2') }}
+							{{ macroForm.affichage2('Service', demandeAppro.serviceEmetteur.codeService ~ ' ' ~  demandeAppro.serviceEmetteur.libelleService, 'mb-2') }}
+						</div>
+						<div class="col-6 col-md-6">
+							{{ macroForm.sousTitre('Débiteur') }}
+							{{ macroForm.affichage2('Agence Débiteur', demandeAppro.agenceDebiteur.codeAgence ~ ' ' ~ demandeAppro.agenceDebiteur.libelleAgence, 'mb-2') }}
+							{{ macroForm.affichage2('Service Débiteur', demandeAppro.serviceDebiteur.codeService ~ ' ' ~  demandeAppro.serviceDebiteur.libelleService, 'mb-2') }}
+						</div>
+					</div>
+				</div>
+			</div>
 
 			{{ macroForm.sousTitre('Liste des articles demandés') }}
 			<table class="table text-center mt-3 align-middle">
@@ -47,7 +48,7 @@
 					</tr>
 				</thead>
 				<tbody>
-					{% for dal in da.DAL %}
+					{% for dal in demandeAppro.DAL %}
 						<tr>
 							<td>{{ macroForm.affichageSimple(dal.artConstp, 'text-center') }}</td>
 							<td>{{ macroForm.affichageSimple(dal.artRefp, 'text-center') }}</td>

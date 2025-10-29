@@ -75,7 +75,7 @@ class DaPropositionArticleDirectController extends Controller
         $observations = $this->daObservationRepository->findBy(['numDa' => $numDa]);
 
         return $this->render("da/proposition.html.twig", [
-            'da'                      => $da,
+            'demandeAppro'            => $da,
             'id'                      => $id,
             'form'                    => $form->createView(),
             'formValidation'          => $formValidation->createView(),

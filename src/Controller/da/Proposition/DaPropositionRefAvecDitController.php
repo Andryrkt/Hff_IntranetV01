@@ -77,7 +77,7 @@ class DaPropositionRefAvecDitController extends Controller
         $observations = $this->daObservationRepository->findBy(['numDa' => $numDa]);
 
         return $this->render("da/proposition.html.twig", [
-            'da'                      => $da,
+            'demandeAppro'            => $da,
             'id'                      => $id,
             'dit'                     => $dit,
             'form'                    => $form->createView(),
