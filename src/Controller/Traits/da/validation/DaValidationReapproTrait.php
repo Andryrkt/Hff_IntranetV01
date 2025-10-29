@@ -10,10 +10,12 @@ use App\Entity\da\DaSoumisAValidation;
 use App\Service\autres\VersionService;
 use App\Repository\da\DaObservationRepository;
 use App\Repository\da\DaSoumisAValidationRepository;
+use App\Service\genererPdf\da\GenererPdfDaReappro;
 
 trait DaValidationReapproTrait
 {
     use DaValidationTrait;
+    private GenererPdfDaReappro $genererPdfDaReappro;
     private DaObservationRepository $daObservationRepository;
     private DaSoumisAValidationRepository $daSoumisAValidationRepository;
     private DaReapproModel $daReapproModel;
@@ -27,6 +29,7 @@ trait DaValidationReapproTrait
     {
         $this->initDaTrait();
         $em = $this->getEntityManager();
+        $this->genererPdfDaReappro = new GenererPdfDaReappro();
         $this->daObservationRepository = $em->getRepository(DaObservation::class);
         $this->daSoumisAValidationRepository = $em->getRepository(DaSoumisAValidation::class);
         $this->daReapproModel = new DaReapproModel;
@@ -142,6 +145,17 @@ trait DaValidationReapproTrait
         $demandeAppro->setStatutDal($statut);
         $this->getEntityManager()->persist($demandeAppro);
         $this->getEntityManager()->flush();
+    }
+
+    /** 
+     * Création du PDF pour une DA Reapproe
+     * 
+     * @param DemandeAppro $demandeAppro
+     * @return void
+     */
+    private function creationPDFReappro(DemandeAppro $demandeAppro, iterable $observations, array $monthsList, array $dataHistoriqueConsommation): void
+    {
+        $this->genererPdfDaReappro->genererPdfBonAchatValide($demandeAppro, $this->getUserMail(), $observations, $monthsList, $dataHistoriqueConsommation);
     }
 
     /**

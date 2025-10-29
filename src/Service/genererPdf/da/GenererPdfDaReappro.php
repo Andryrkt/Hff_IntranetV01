@@ -9,15 +9,17 @@ use App\Entity\da\DaObservation;
 class GenererPdfDaReappro extends GenererPdfDa
 {
     /** 
-     * Fonction pour générer le PDF d'un bon d'achat validé d'une DA sans DIT
+     * Fonction pour générer le PDF d'un bon d'achat validé d'une DA réappro
      * 
-     * @param DemandeAppro $da la DA correspondante
-     * @param iterable<DaObservation> $observations les observations liées à la DA
-     * @param string $userMail l'email de l'utilisateur (optionnel)
+     * @param DemandeAppro            $da                         la DA correspondante
+     * @param string                  $userMail                   l'email de l'utilisateur ()
+     * @param iterable<DaObservation> $observations               les observations liées à la DA
+     * @param array                   $monthsList                 liste de mois dans le tableau d'historique de consommation
+     * @param array                   $dataHistoriqueConsommation données de la liste d'historique de consommation
      * 
      * @return void
      */
-    public function genererPdfBonAchatValide(DemandeAppro $da, iterable $observations, string $userMail = ''): void
+    public function genererPdfBonAchatValide(DemandeAppro $da, string $userMail, iterable $observations, array $monthsList, array $dataHistoriqueConsommation): void
     {
         $pdf = new TCPDF();
         $dals = $da->getDAL();

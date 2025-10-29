@@ -53,12 +53,11 @@ class DaValidationReapproController extends Controller
         $dateRange = $this->getLast12MonthsRange();
         $monthsList = $this->getMonthsList($dateRange['start'], $dateRange['end']);
         $dataHistoriqueConsommation = $this->getHistoriqueConsommation($da, $dateRange, $monthsList);
-
-        //================== Traitement du formulaire en général ===========================//
-        $this->traitementFormulaire($formReappro, $formObservation, $request, $da);
-        // =================================================================================//
-
         $observations = $this->daObservationRepository->findBy(['numDa' => $da->getNumeroDemandeAppro()]);
+
+        //========================================== Traitement du formulaire en général ===================================================//
+        $this->traitementFormulaire($formReappro, $formObservation, $request, $da, $observations, $monthsList, $dataHistoriqueConsommation);
+        // =================================================================================================================================//
 
         return $this->render("da/validation-reappro.html.twig", [
             'da'              => $da,
@@ -74,7 +73,7 @@ class DaValidationReapproController extends Controller
         ]);
     }
 
-    private function traitementFormulaire($formReappro, $formObservation, Request $request, DemandeAppro $da)
+    private function traitementFormulaire($formReappro, $formObservation, Request $request, DemandeAppro $da, iterable $observations, array $monthsList, array $dataHistoriqueConsommation)
     {
         $formReappro->handleRequest($request);
 
@@ -88,6 +87,7 @@ class DaValidationReapproController extends Controller
                 $this->refuserDemande($da);
             } elseif ($request->request->has('valider')) {
                 $this->validerDemande($da);
+                $this->creationPDFReappro($da, $observations, $monthsList, $dataHistoriqueConsommation);
                 $this->ajouterDansDaSoumisAValidation($da);
             }
         }
