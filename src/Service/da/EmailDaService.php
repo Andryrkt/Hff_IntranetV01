@@ -21,6 +21,8 @@ class EmailDaService
     {
         $this->twig = $twig;
         $this->emailTemplate = "da/email/emailDa.html.twig";
+
+        $this->initDaTrait();
     }
 
     /** 
@@ -67,6 +69,7 @@ class EmailDaService
                 'subject'        => "{$demandeAppro->getNumeroDemandeAppro()} - Nouvelle demande $daLabel créé",
                 'demandeAppro'   => $demandeAppro,
                 'observation'    => $demandeAppro->getObservation() ?? '-',
+                'preparedDatas'  => $this->prepareDataForMailCreationDa($demandeAppro->getDAL(), $demandeAppro->getDaTypeId()),
                 'service'        => strtoupper($service),
                 'action_url'     => $this->getUrlDetail($demandeAppro->getId(), $demandeAppro->getDaTypeId()),
             ],

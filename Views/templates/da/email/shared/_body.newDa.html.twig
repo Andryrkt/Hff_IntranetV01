@@ -2,7 +2,7 @@
 	Une nouvelle demande
 	{{ daLabel }}
 	a été créée par
-	<b>{{ tab.userConnecter }}</b>.
+	<b>{{ fullNameUser }}</b>.
 </p>
 <p>
 	<b>Détails du demande :</b>
@@ -24,7 +24,7 @@
 		<li>
 			<b>Observation:</b>
 			<div class="espace">
-				{{ tab.observation|raw }}
+				{{ observation|raw }}
 			</div>
 		</li>
 	</ul>
@@ -33,7 +33,7 @@
 <table>
 	<thead style="background-color:#ffc107;">
 		<tr>
-			{% if demandeAppro.daTypeId == 0 %}
+			{% if avecDIT %}
 				<th>Famille</th>
 				<th>Sous famille</th>
 				<th>Réference</th>
@@ -46,7 +46,7 @@
 	<tbody>
 		{% for dal in demandeAppro.DAL %}
 			<tr>
-				{% if demandeAppro.daTypeId == 0 %}
+				{% if avecDIT %}
 					<td>{{ dal.artFams1 ?? '-'}}</td>
 					<td>{{ dal.artFams2 ?? '-'}}</td>
 					<td>{{ dal.artRefp ?? '-'}}</td>
