@@ -495,6 +495,9 @@ class MenuService
         if ($this->getEstAdmin() || $this->getEstAppro()) {
             $subitems[] = $this->createSimpleItem('Liste des commandes fournisseurs', 'list-ul', 'da_list_cde_frn');
         }
+        if ($this->getEstAdmin()) {
+            $subitems[] = $this->createSimpleItem('Reporting IPS DA reappro', 'chart-bar', 'da_reporting_ips');
+        }
         return $this->createMenuItem(
             'approModal',
             'Appro',
