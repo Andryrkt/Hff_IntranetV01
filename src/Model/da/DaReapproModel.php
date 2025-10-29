@@ -28,7 +28,7 @@ class DaReapproModel extends Model
                         AND seor_typeor IN ('601','602','603','604','605','606','607','608','609')
                         AND slor_constp IN ('ALI','BOI','CEN','FAT','FBU','HAB','INF','MIN','OUT')
                     GROUP BY 1,2,3,4,5
-                    ORDER BY dfcc_datefac asc
+                    ORDER BY slor_constp asc
                     ";
 
         $result = $this->connect->executeQuery($statement);
