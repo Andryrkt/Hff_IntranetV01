@@ -181,6 +181,12 @@ trait DaListeTrait
     {
         $datasPrepared = [];
 
+        $daType = [
+            DemandeAppro::TYPE_DA_AVEC_DIT => "avec DIT",
+            DemandeAppro::TYPE_DA_DIRECT   => "direct",
+            DemandeAppro::TYPE_DA_REAPPRO  => "Reappro",
+        ];
+
         $safeIconSuccess = new Markup('<i class="fas fa-check text-success"></i>', 'UTF-8');
         $safeIconXmark   = new Markup('<i class="fas fa-xmark text-danger"></i>', 'UTF-8');
         $safeIconBan     = new Markup('<i class="fas fa-ban text-muted"></i>', 'UTF-8');
@@ -198,7 +204,6 @@ trait DaListeTrait
         foreach ($data as $item) {
             // Variables à employer
             $daReappro = $item->getDaTypeId() == DemandeAppro::TYPE_DA_REAPPRO;
-            $daDirect = $item->getDaTypeId() == DemandeAppro::TYPE_DA_DIRECT;
             $daViaOR = $item->getDaTypeId() == DemandeAppro::TYPE_DA_AVEC_DIT;
 
             // Pré-calculer les styles
@@ -209,7 +214,7 @@ trait DaListeTrait
             // Pré-calculer les booléens
             $ajouterDA = $daViaOR && ($estAtelier || $estAdmin); // da via OR && (atelier ou admin)  
             $supprimable = ($estAppro || $estAtelier || $estAdmin) && in_array($item->getStatutDal(), $statutDASupprimable) && !$daReappro;
-            $demandeDevis = ($estAppro || $estAdmin) && $item->getStatutDal() === DemandeAppro::STATUT_SOUMIS_APPRO;
+            $demandeDevis = ($estAppro || $estAdmin) && $item->getStatutDal() === DemandeAppro::STATUT_SOUMIS_APPRO && !$daReappro;
             $statutOrValide = $item->getStatutOr() === DitOrsSoumisAValidation::STATUT_VALIDE;
             $pathOrMax = $this->dwModel->findCheminOrVersionMax($item->getNumeroOr());
             $telechargerOR = $statutOrValide && !empty($pathOrMax);
@@ -226,7 +231,7 @@ trait DaListeTrait
                 'dit'                 => $item->getDit(),
                 'numeroDemandeAppro'  => $item->getNumeroDemandeAppro(),
                 'demandeAppro'        => $item->getDemandeAppro(),
-                'daDirect'            => $daDirect ? $safeIconSuccess : '',
+                'datype'              => $daType[$item->getDaTypeId()],
                 'numeroDemandeDit'    => $item->getNumeroDemandeDit() ?? $safeIconBan,
                 'numeroOr'            => $daViaOR ? $item->getNumeroOr() : $safeIconBan,
                 'niveauUrgence'       => $item->getNiveauUrgence(),
