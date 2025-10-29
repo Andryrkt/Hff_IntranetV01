@@ -68,7 +68,7 @@ class ReportingIpsModel extends Model
             $agenceDebiteur
             $serviceDebiteur
             $numFacture
-            $descritpion
+            $description
             AND slor_constp in ({$criterias['constructeur']})
         ";
         $result = $this->connect->executeQuery($statement);

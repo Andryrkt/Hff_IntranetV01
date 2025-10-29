@@ -93,7 +93,7 @@ class ReportingIpsController extends Controller
             $criterias['date_debut'] = $dateData['debut'] != null ? $dateData['debut']->format('Y-m-d') : null;
             $criterias['date_fin'] = $dateData['fin'] != null ? $dateData['fin']->format('Y-m-d') : $aujourdhui->format('Y-m-d');
         }
-
+        $this->getSessionService()->set('criterias_reporting_ips', $criterias);
         return $criterias;
     }
 
