@@ -65,6 +65,8 @@ class ReportingIpsController extends Controller
     {
         $form->handleRequest($request);
 
+        $aujourdhui = new DateTime();
+
         $criterias = [
             'constructeur' => GlobalVariablesService::get('reappro'),
             'agences' => null,
@@ -73,7 +75,7 @@ class ReportingIpsController extends Controller
             'serviceDebiteur' => null,
             'numFacture' => null,
             'description' => null,
-            'date_debut' => null, // date du premier mois précédent
+            'date_debut' => $aujourdhui->modify('first day of january this year')->format('Y-m-d'), // date du premier janvier de l'année en cours
             'date_fin' => null, // date du jour
         ];
 
@@ -109,8 +111,8 @@ class ReportingIpsController extends Controller
 
             // Récupération des données du champ composite 'date' non mappé
             $dateData = $form->get('date')->getData();
-            $aujourdhui = new DateTime();
-            $criterias['date_debut'] = $dateData['debut'] != null ? $dateData['debut']->format('Y-m-d') : null;
+
+            $criterias['date_debut'] = $dateData['debut'] != null ? $dateData['debut']->format('Y-m-d') : $aujourdhui->modify('first day of january this year')->format('Y-m-d');
             $criterias['date_fin'] = $dateData['fin'] != null ? $dateData['fin']->format('Y-m-d') : $aujourdhui->format('Y-m-d');
         }
         $this->getSessionService()->set('criterias_reporting_ips', $criterias);

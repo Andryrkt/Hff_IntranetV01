@@ -32,14 +32,14 @@ class ReportingIpsModel extends Model
             $dateFin = "";
         }
 
-        if ($criterias['agenceDebiteur'] != "''") {
+        if ($criterias['agenceDebiteur'] != null && $criterias['agenceDebiteur'] != "''") {
             $codeAgence = $criterias['agenceDebiteur'];
             $agenceDebiteur = " AND slor_succdeb in ({$codeAgence})";
         } else {
             $agenceDebiteur = "";
         }
 
-        if ($criterias['serviceDebiteur'] != "''") {
+        if ($criterias['serviceDebiteur'] != null && $criterias['serviceDebiteur'] != "''") {
             $codeService = $criterias['serviceDebiteur'];
             $serviceDebiteur = " AND slor_servdeb in({$codeService})";
         } else {
