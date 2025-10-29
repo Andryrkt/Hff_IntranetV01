@@ -32,14 +32,14 @@ class ReportingIpsModel extends Model
             $dateFin = "";
         }
 
-        if ($criterias['agenceDebiteur']) {
+        if ($criterias['agenceDebiteur'] != "''") {
             $codeAgence = $criterias['agenceDebiteur'];
             $agenceDebiteur = " AND slor_succdeb in ({$codeAgence})";
         } else {
             $agenceDebiteur = "";
         }
 
-        if ($criterias['serviceDebiteur']) {
+        if ($criterias['serviceDebiteur'] != "''") {
             $codeService = $criterias['serviceDebiteur'];
             $serviceDebiteur = " AND slor_servdeb in({$codeService})";
         } else {
@@ -71,6 +71,7 @@ class ReportingIpsModel extends Model
             $description
             AND slor_constp in ({$criterias['constructeur']})
         ";
+
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
         return $data;
