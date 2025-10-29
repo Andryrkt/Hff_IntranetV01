@@ -12,8 +12,8 @@ use App\Controller\Traits\da\DaAfficherTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\da\validation\DaValidationReapproTrait;
+use App\Entity\da\DemandeApproL;
 use App\Form\da\DaObservationValidationType;
-use App\Form\da\DemandeApproReapproFormType;
 
 /**
  * @Route("/demande-appro")
@@ -74,32 +74,21 @@ class DaValidationReapproController extends Controller
         ]);
     }
 
-    private function traitementFormulaire($form, $formObservation, Request $request, DemandeAppro $da)
+    private function traitementFormulaire($formReappro, $formObservation, Request $request, DemandeAppro $da)
     {
-        $form->handleRequest($request);
+        $formReappro->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            dd($form->getData());
+        if ($formReappro->isSubmitted() && $formReappro->isValid()) {
             // ✅ Récupérer les valeurs des champs caché
-            $dalrList = $form->getData()->getDALR();
-            $observation = $form->getData()->getObservation();
-            $statutChange = $form->get('statutChange')->getData();
+            $observation = $formReappro->getData()->getObservation();
 
-            if ($request->request->has('brouillon')) {
-                /** Enregistrer provisoirement */
-                // $this->traitementPourBtnBrouillon($dalrList, $request, $dals, $observation, $numDa, $da);
-            } elseif ($request->request->has('enregistrer')) {
-                /** Envoyer proposition à l'atelier */
-                // $this->traitementPourBtnEnregistrer($dalrList, $request, $dals, $observation, $numDa, $da);
-            } elseif ($request->request->has('changement')) {
-                /** Valider les articles par l'atelier */
-                // $this->traitementPourBtnValiderAtelier($request, $dals, $numDa, $dalrList, $observation, $da);
-            } elseif ($request->request->has('observation')) {
-                /** Envoyer observation */
-                // $this->traitementPourBtnEnvoyerObservation($observation, $da, $statutChange);
+            if ($observation) $this->insertionObservation($observation, $da);
+
+            if ($request->request->has('refuser')) {
+                $this->refuserDemande($da);
             } elseif ($request->request->has('valider')) {
-                /** Valider les articles par l'appro */
-                // $this->traitementPourBtnValiderAppro($request, $dals, $numDa, $dalrList, $observation, $da);
+                $this->validerDemande($da);
+                $this->ajouterDansDaSoumisAValidation($da);
             }
         }
 
@@ -109,7 +98,28 @@ class DaValidationReapproController extends Controller
             /** @var DaObservation $daObservation daObservation correspondant au donnée du formObservation */
             $daObservation = $formObservation->getData();
 
-            // $this->traitementEnvoiObservation($daObservation, $da);
+            $this->traitementEnvoiObservation($daObservation, $da);
         }
+    }
+
+    private function traitementEnvoiObservation(DaObservation $daObservation, DemandeAppro $demandeAppro)
+    {
+        $this->insertionObservation($daObservation->getObservation(), $demandeAppro);
+
+        $notification = [
+            'type'    => 'success',
+            'message' => 'Votre observation a été enregistré avec succès.',
+        ];
+
+        /** ENVOIE D'EMAIL à l'APPRO pour l'observation */
+        // $service = $this->estUserDansServiceAtelier() ? 'atelier' : ($this->estUserDansServiceAppro() ? 'appro' : '');
+        // $this->emailDaService->envoyerMailObservationDaAvecDit($demandeAppro, [
+        //     'service'       => $service,
+        //     'observation'   => $daObservation->getObservation(),
+        //     'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
+        // ]);
+
+        $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
+        return $this->redirectToRoute("list_da");
     }
 }
