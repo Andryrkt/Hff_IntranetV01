@@ -71,7 +71,7 @@ class ReportingIpsController extends Controller
             'constructeur' => GlobalVariablesService::get('reappro'),
             'agences' => null,
             'services' => null,
-            'agenceDebiteur' => null,
+            'agenceDebiteur' => "'01','02','20','30','40','50','60','80','90','91','92'",
             'serviceDebiteur' => null,
             'numFacture' => null,
             'description' => null,
