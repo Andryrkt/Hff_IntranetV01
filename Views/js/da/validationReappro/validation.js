@@ -6,6 +6,12 @@ document.addEventListener("DOMContentLoaded", function () {
   const observation = document.getElementById(
     "da_observation_validation_observation"
   );
+  const message = {
+    pendingAction: {
+      refuser: `Refus de la demande en cours, merci de patienter ...`,
+      valider: `Validation de la demande en cours, merci de patienter ...`,
+    },
+  };
 
   myForm.addEventListener("submit", async function (e) {
     e.preventDefault();
@@ -20,6 +26,7 @@ document.addEventListener("DOMContentLoaded", function () {
         swalOptions.getConfirmConfig(action)
       );
       if (confirmation.isConfirmed) {
+        displayOverlay(true, message.pendingAction[action]);
         // ajouter un champ caché avec l’action choisie
         const hidden = document.createElement("input");
         hidden.type = "hidden";

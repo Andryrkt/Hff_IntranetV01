@@ -85,12 +85,25 @@ class DaValidationReapproController extends Controller
 
             if ($request->request->has('refuser')) {
                 $this->refuserDemande($da);
+
+                $notification = [
+                    'type'    => 'success',
+                    'message' => 'La demande de réappro a été refusé avec succès.',
+                ];
             } elseif ($request->request->has('valider')) {
                 $this->validerDemande($da);
                 $this->creationPDFReappro($da, $observations, $monthsList, $dataHistoriqueConsommation);
                 $this->copyPDFToDW($da->getNumeroDemandeAppro());
                 $this->ajouterDansDaSoumisAValidation($da);
+
+                $notification = [
+                    'type'    => 'success',
+                    'message' => 'La demande de réappro a été validé avec succès.',
+                ];
             }
+
+            $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
+            $this->redirectToRoute("list_da");
         }
 
         $formObservation->handleRequest($request);
