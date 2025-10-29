@@ -45,47 +45,27 @@ trait PrepareData
      */
     private function prepareDataForMailCreationDa(iterable $dals, int $datypeId): array
     {
-        $datasPrepared = [];
+        $datasPrepared = [
+            'head' => [],
+            'body' => [],
+        ];
 
-        if (in_array($datypeId, [DemandeAppro::TYPE_DA_AVEC_DIT, DemandeAppro::TYPE_DA_DIRECT])) {
-            $avecDIT = $datypeId === DemandeAppro::TYPE_DA_AVEC_DIT;
-
-            // Définition des en-têtes
-            $datasPrepared['head'] = $avecDIT
-                ? [
-                    'fams1' => 'Famille',
-                    'fams2' => 'Sous famille',
-                    'refp'  => 'Réference',
-                    'desi'  => 'Désignation',
-                    'frn'   => 'Fournisseur',
-                    'com'   => 'Commentaire',
-                ]
-                : [
-                    'desi'  => 'Désignation',
-                    'frn'   => 'Fournisseur',
-                    'com'   => 'Commentaire',
-                ];
-
-            // Préparation du corps
-            $datasPrepared['body'] = [];
-            foreach ($dals as $dal) {
-                $row = [];
-
-                if ($avecDIT) {
-                    $row['fams1'] = $dal->getArtFams1() ?? '-';
-                    $row['fams2'] = $dal->getArtFams2() ?? '-';
-                    $row['refp']  = $dal->getArtRefp() ?? '-';
-                }
-
-                $row['desi'] = $dal->getArtDesi() ?? '-';
-                $row['frn']  = $dal->getNomFournisseur() ?? '-';
-                $row['com']  = $dal->getCommentaire() ?? '-';
-
-                $datasPrepared['body'][] = $row;
-            }
-        } elseif ($datypeId === DemandeAppro::TYPE_DA_REAPPRO) {
-            // Définition des en-têtes
-            $datasPrepared['head'] = [
+        // Définition des colonnes selon le type de DA
+        $columnsByType = [
+            DemandeAppro::TYPE_DA_AVEC_DIT => [
+                'fams1' => 'Famille',
+                'fams2' => 'Sous famille',
+                'refp'  => 'Référence',
+                'desi'  => 'Désignation',
+                'frn'   => 'Fournisseur',
+                'com'   => 'Commentaire',
+            ],
+            DemandeAppro::TYPE_DA_DIRECT => [
+                'desi' => 'Désignation',
+                'frn'  => 'Fournisseur',
+                'com'  => 'Commentaire',
+            ],
+            DemandeAppro::TYPE_DA_REAPPRO => [
                 'constp' => 'Constructeur',
                 'refp'   => 'Référence',
                 'desi'   => 'Désignation',
@@ -93,23 +73,38 @@ trait PrepareData
                 'qteDem' => 'Qté demandé',
                 'qteVal' => 'Qté validée',
                 'mtt'    => 'Montant',
-            ];
+            ],
+        ];
 
-            // Préparation du corps
-            $datasPrepared['body'] = [];
-            foreach ($dals as $dal) {
-                $datasPrepared['body'][] = [
-                    'constp' => $dal->getArtConstp(),
-                    'refp'   => $dal->getArtRefp(),
-                    'desi'   => $dal->getArtDesi(),
-                    'pu'     => $dal->getPUFormatted(),
-                    'qteDem' => $dal->getQteDem(),
-                    'qteVal' => $dal->getQteValAppro(),
-                    'mtt'    => $dal->getMontantFormatted(),
-                ];
+        if (!isset($columnsByType[$datypeId])) throw new \InvalidArgumentException("Le type de DA est indéfini : $datypeId");
+
+        $columns = $columnsByType[$datypeId];
+        $datasPrepared['head'] = $columns;
+
+        // Mapping clé => méthode
+        $methodMapping = [
+            'fams1'  => 'getArtFams1',
+            'fams2'  => 'getArtFams2',
+            'refp'   => 'getArtRefp',
+            'desi'   => 'getArtDesi',
+            'frn'    => 'getNomFournisseur',
+            'com'    => 'getCommentaire',
+            'constp' => 'getArtConstp',
+            'pu'     => 'getPUFormatted',
+            'qteDem' => 'getQteDem',
+            'qteVal' => 'getQteValAppro',
+            'mtt'    => 'getMontantFormatted',
+        ];
+
+        // Préparation du corps
+        foreach ($dals as $dal) {
+            $row = [];
+            foreach ($columns as $key => $label) {
+                $row[$key] = method_exists($dal, $methodMapping[$key])
+                    ? ($dal->{$methodMapping[$key]}() ?? '-')
+                    : '-';
             }
-        } else {
-            die("Le type de la DA est indéfini");
+            $datasPrepared['body'][] = $row;
         }
 
         return $datasPrepared;
