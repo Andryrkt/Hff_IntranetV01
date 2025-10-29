@@ -50,6 +50,10 @@ class DaValidationReapproController extends Controller
         $formReappro = $this->getFormFactory()->createBuilder(DaObservationValidationType::class, $daObservation)->getForm();
         $formObservation = $this->getFormFactory()->createBuilder(DaObservationType::class, $daObservation, ['daTypeId' => $da->getDaTypeId()])->getForm();
 
+        $dateRange = $this->getLast12MonthsRange();
+        $monthsList = $this->getMonthsList($dateRange['start'], $dateRange['end']);
+        $dataHistoriqueConsommation = $this->getHistoriqueConsommation($da, $dateRange, $monthsList);
+        dd($dataHistoriqueConsommation);
         //================== Traitement du formulaire en général ===========================//
         $this->traitementFormulaire($formReappro, $formObservation, $request, $da);
         // =================================================================================//

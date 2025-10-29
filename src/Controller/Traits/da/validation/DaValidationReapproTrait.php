@@ -3,21 +3,16 @@
 namespace App\Controller\Traits\da\validation;
 
 use DateTime;
-use Exception;
-use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
-use App\Entity\da\DaSoumisAValidation;
-use App\Service\autres\VersionService;
-use App\Service\fichier\TraitementDeFichier;
+use App\Entity\da\DemandeAppro;
+use App\Model\da\DaReapproModel;
 use App\Repository\da\DaObservationRepository;
-use App\Service\genererPdf\da\GenererPdfDaDirect;
 
 trait DaValidationReapproTrait
 {
     use DaValidationTrait;
-    private GenererPdfDaDirect $genererPdfDaDirect;
-    private TraitementDeFichier $traitementDeFichier;
     private DaObservationRepository $daObservationRepository;
+    private DaReapproModel $daReapproModel;
     private string $cheminDeBase;
 
     //==================================================================================================
@@ -28,148 +23,98 @@ trait DaValidationReapproTrait
     {
         $this->initDaTrait();
         $em = $this->getEntityManager();
-        $this->genererPdfDaDirect = new GenererPdfDaDirect();
-        $this->traitementDeFichier = new TraitementDeFichier();
         $this->daObservationRepository = $em->getRepository(DaObservation::class);
+        $this->daReapproModel = new DaReapproModel;
         $this->cheminDeBase = $_ENV['BASE_PATH_FICHIER'] . '/da/';
     }
     //==================================================================================================
 
-    /** 
-     * Création du fichier Excel et PDF pour une DA directe
-     * 
-     * @param string $numDa
-     * @param int $numeroVersion
-     * @return array
+    /**
+     * Cette fonction calcule dynamiquement la période de 12 mois glissants pour un SQL BETWEEN.
+     * Elle retourne :
+     *   - le premier jour du mois il y a 12 mois
+     *   - le dernier jour du mois précédent
+     *
+     * Exemple : si aujourd'hui = 28/10/2025
+     *   start = 2024-10-01
+     *   end   = 2025-09-30
+     *
+     * @return array ['start' => 'YYYY-MM-DD', 'end' => 'YYYY-MM-DD']
      */
-    private function exporterDaDirectEnExcelEtPdf(string $numDa, int $numeroVersion): array
+    private function getLast12MonthsRange(): array
     {
-        return $this->exporterDaEnExcelEtPdf(
-            $numDa,
-            $numeroVersion,
-            function ($numDa) {
-                $this->creationPDFDirect($numDa); // Création du PDF
-            }
-        );
-    }
-
-    /** 
-     * Création du PDF pour une DA directe
-     * 
-     * @param string $numDa
-     * @return void
-     */
-    private function creationPDFDirect(string $numDa): void
-    {
-        $da = $this->demandeApproRepository->findAvecDernieresDALetLRParNumero($numDa);
-        $observations = $this->daObservationRepository->findBy(['numDa' => $numDa]);
-        $this->genererPdfDaDirect->genererPdfBonAchatValide($da, $observations, $this->getUserMail());
+        $startDate = new DateTime('first day of -12 months');
+        $endDate = new DateTime('last day of last month');
+        return [
+            'start' => $startDate->format('Y-m-d'),
+            'end'   => $endDate->format('Y-m-d')
+        ];
     }
 
     /**
-     * Ajoute les données d'une Demande d'Achat direct dans la table `DaSoumisAValidation`
+     * Génère une liste de tous les mois entre deux dates.
+     * Chaque mois est formaté en 'MM-YYYY'.
      *
-     * @param DemandeAppro $demandeAppro  Objet de la demande d'achat direct à traiter
+     * @param string $startDate Date de début au format 'Y-m-d' (ex: 2024-10-01)
+     * @param string $endDate   Date de fin au format 'Y-m-d' (ex: 2025-09-30)
+     * @return array            Tableau de mois ['10-2024','11-2024', ...]
      */
-    private function ajouterDansDaSoumisAValidation(DemandeAppro $demandeAppro): void
+    private function getMonthsList(string $startDate, string $endDate): array
     {
-        $daSoumisAValidation = new DaSoumisAValidation();
+        $months = [];
+        $monthsLabel = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
 
-        // Récupère le dernier numéro de version existant pour cette demande d'achat
-        $numeroVersionMax = $this->getEntityManager()->getRepository(DaSoumisAValidation::class)->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
-        $numeroVersion = VersionService::autoIncrement($numeroVersionMax);
+        // Convertir les chaînes en objets DateTime
+        $start = new DateTime($startDate);
+        $end = new DateTime($endDate);
 
-        $daSoumisAValidation
-            ->setNumeroDemandeAppro($demandeAppro->getNumeroDemandeAppro())
-            ->setNumeroVersion($numeroVersion)
-            ->setStatut(DemandeAppro::STATUT_DW_A_VALIDE)
-            ->setDateSoumission(new DateTime())
-            ->setUtilisateur($demandeAppro->getDemandeur())
-        ;
+        // S'assurer que l'on prend le premier jour du mois de fin
+        $end->modify('first day of this month');
 
-        $this->getEntityManager()->persist($daSoumisAValidation);
-        $this->getEntityManager()->flush();
+        // Boucle sur chaque mois
+        while ($start <= $end) {
+            $month = $start->format('m-Y'); // ex: 10-2024
+            [$mois, $annee] = explode('-', $month);
+            $months[] = $monthsLabel[$mois - 1]  . '-' . $annee;
+            $start->modify('+1 month');
+        }
+
+        return $months;
     }
 
-    /** 
-     * Fonction pour mettre la DA à valider dans DW
-     * 
-     * @param string $numDa le numero de la demande appro pour laquelle on génère le PDF
-     */
-    private function fusionAndCopyToDW(string $numDa)
+    public function getHistoriqueConsommation(DemandeAppro $demandeAppro, array $dateRange, array $monthsList)
     {
-        $allDevisPj = $this->getDevisPjPath($numDa);
-        $bav = $this->cheminDeBase . "$numDa/$numDa.pdf";
-        $fichiersConvertis = $this->ConvertirLesPdf($allDevisPj);
-        array_unshift($fichiersConvertis, $bav);
-        $nomAvecCheminPdfFusionner = $this->cheminDeBase . "$numDa/$numDa#_a_valider.pdf";
-        $this->traitementDeFichier->fusionFichers($fichiersConvertis, $nomAvecCheminPdfFusionner);
-        $this->genererPdfDaDirect->copyToDWDaAValider($numDa);
-    }
+        $result = [];
+        $codeAgence = $demandeAppro->getAgenceEmetteur()->getCodeAgence();
+        $codeService = $demandeAppro->getServiceEmetteur()->getCodeService();
+        $datas = $this->daReapproModel->getHistoriqueConsommation($dateRange, $codeAgence, $codeService);
 
-    /** 
-     * Obtenir l'url des devis et pièces jointes
-     */
-    private function getDevisPjPath(string $numDa)
-    {
-        $pjDals = $this->demandeApproLRepository->findAttachmentsByNumeroDA($numDa);
-        $pjDalrs = $this->demandeApproLRRepository->findAttachmentsByNumeroDA($numDa);
+        foreach ($datas as $row) {
+            // Clé unique par produit
+            $key = md5($row['cst'] . '|' . $row['refp'] . '|' . $row['desi']);
 
-        /** 
-         * Fusionner les résultats des deux tables
-         * @var array<int, array{numeroDemandeAppro: string, fileNames: array}>
-         **/
-        $allRows = array_merge($pjDals, $pjDalrs);
-        $filePaths = [];
-
-        foreach ($allRows as $row) {
-            foreach ($row['fileNames'] ?? [] as $fileName) {
-                $filePaths[] = "{$_ENV['BASE_PATH_FICHIER']}/da/$numDa/$fileName";
+            // Initialiser si pas déjà existant
+            if (!isset($result[$key])) {
+                $result[$key] = [
+                    'cst'      => $row['cst'],
+                    'refp'     => $row['refp'],
+                    'desi'     => $row['desi'],
+                    'qteTotal' => 0,
+                    'qte'      => [] // sous-tableau par mois
+                ];
+                // Initialiser tous les mois à 0
+                foreach ($monthsList as $mois) {
+                    $result[$key]['qte'][$mois] = 0;
+                }
             }
-        }
-        return $filePaths;
-    }
 
-    private function ConvertirLesPdf(array $tousLesFichersAvecChemin)
-    {
-        $tousLesFichiers = [];
-        foreach ($tousLesFichersAvecChemin as $filePath) {
-            $tousLesFichiers[] = $this->convertPdfWithGhostscript($filePath);
+            // Ajouter la quantité pour le mois correspondant
+            $mois = $row['mois_annee'];
+            $qte = floatval($row['qte_fac']);
+            $result[$key]['qteTotal'] += $qte;
+            $result[$key]['qte'][$mois] += $qte;
         }
 
-        return $tousLesFichiers;
-    }
-
-    private function convertPdfWithGhostscript($filePath)
-    {
-        $gsPath = 'C:\Program Files\gs\gs10.05.0\bin\gswin64c.exe'; // Modifier selon l'OS
-        $tempFile = $filePath . "_temp.pdf";
-
-        // Vérifier si le fichier existe et est accessible
-        if (!file_exists($filePath)) {
-            throw new Exception("Fichier introuvable : $filePath");
-        }
-
-        if (!is_readable($filePath)) {
-            throw new Exception("Le fichier PDF ne peut pas être lu : $filePath");
-        }
-
-        // Commande Ghostscript
-        $command = "\"$gsPath\" -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -o \"$tempFile\" \"$filePath\"";
-        // echo "Commande exécutée : $command<br>";
-
-        exec($command, $output, $returnVar);
-
-        if ($returnVar !== 0) {
-            echo "Sortie Ghostscript : " . implode("\n", $output);
-            throw new Exception("Erreur lors de la conversion du PDF avec Ghostscript");
-        }
-
-        // Remplacement du fichier
-        if (!rename($tempFile, $filePath)) {
-            throw new Exception("Impossible de remplacer l'ancien fichier PDF.");
-        }
-
-        return $filePath;
+        return $result;
     }
 }
