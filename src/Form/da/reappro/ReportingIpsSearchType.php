@@ -22,6 +22,7 @@ class ReportingIpsSearchType extends AbstractType
                 'service_label' => 'Service Debiteur',
                 'agence_placeholder' => '-- Agence Debiteur --',
                 'service_placeholder' => '-- Service Debiteur --',
+                'em' => $options['em'] ?? null
             ])
             ->add('date', DateRangeType::class, [
                 'label' => false,
@@ -49,9 +50,10 @@ class ReportingIpsSearchType extends AbstractType
 
         return $result;
     }
-    
+
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([]);
+        $resolver->setDefined('em');
     }
 }
