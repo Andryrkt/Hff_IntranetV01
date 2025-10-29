@@ -79,8 +79,8 @@ class ExportExcelController extends Controller
                 $item['reference_produit'],
                 $item['designation_produit'],
                 (int)$item['qte_demande'],
-                (float)number_format($item['prix_unitaire_reel'], 2, ',', ' '),
-                (float)number_format($item['montant'], 2, ',', ' ')
+                (float)$item['prix_unitaire_reel'],
+                (float)$item['montant']
             ];
         }
         return $data;
