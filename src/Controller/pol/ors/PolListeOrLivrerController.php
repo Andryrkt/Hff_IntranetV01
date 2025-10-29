@@ -20,6 +20,7 @@ use App\Form\magasin\MagasinListeOrALivrerSearchType;
 use App\Controller\Traits\magasin\ors\MagasinOrALIvrerTrait;
 use App\Controller\Traits\magasin\ors\MagasinTrait as OrsMagasinTrait;
 use App\Model\dit\DitModel;
+use Symfony\Component\Form\FormInterface;
 
 /**
  * @Route("/pol/ors-pol")
@@ -58,7 +59,6 @@ class PolListeOrLivrerController extends Controller
         /** FIN AUtorisation acées */
 
         $codeAgence = $this->getUser()->getAgenceAutoriserCode();
-        $serviceAgence = $this->getUser()->getServiceAutoriserCode();
 
         /** CREATION D'AUTORISATION */
         $autoriser = $this->autorisationRole($this->getEntityManager());
@@ -71,28 +71,12 @@ class PolListeOrLivrerController extends Controller
         }
 
         $form = $this->getFormFactory()->createBuilder(MagasinListeOrALivrerSearchType::class, ['agenceUser' => $agenceUser, 'autoriser' => $autoriser], [
-            'method' => 'GET'
+            'method' => 'GET',
+            'est_pneumatique' => true
         ])->getForm();
 
-        $form->handleRequest($request);
-
-        $data = [];
-        if ($form->isSubmitted() && $form->isValid()) {
-            $criteria = [
-                "agenceUser" => $agenceUser,
-                "orCompletNon" => "ORs COMPLET",
-                "pieces" => "PIECES MAGASIN"
-            ];
-
-            // recupération des données du formulaire
-            $criteria = $form->getData();
-
-            //enregistrer les critère de recherche dans la session
-            $this->getSessionService()->set('pol_liste_or_livrer_search_criteria', $criteria);
-
-            //recupération des données
-            $data = $this->recupData($criteria);
-        }
+        //traitement du formulaire et recupération des data
+        $data = $this->traitementFormualire($form, $request, $agenceUser);
 
         $this->logUserVisit('magasinListe_or_Livrer'); // historisation du page visité par l'utilisateur
 
@@ -103,7 +87,26 @@ class PolListeOrLivrerController extends Controller
         ]);
     }
 
+    private function traitementFormualire(FormInterface $form, Request $request, string $agenceUser): array
+    {
+        $form->handleRequest($request);
 
+        $criteria = [
+            "agenceUser" => $agenceUser,
+            "orCompletNon" => "ORs COMPLET",
+            "pieces" => "PIECES MAGASIN"
+        ];
+        if ($form->isSubmitted() && $form->isValid()) {
+
+            // recupération des données du formulaire
+            $criteria = $form->getData();
+        }
+        //enregistrer les critère de recherche dans la session
+        $this->getSessionService()->set('pol_liste_or_livrer_search_criteria', $criteria);
+
+        //recupération des données
+        return $this->recupData($criteria);
+    }
 
     /**
      * @Route("/list-or-livrer-export-excel", name="pol_list_or_livrer")

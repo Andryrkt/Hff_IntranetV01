@@ -21,9 +21,9 @@
 					<div class="col-12 col-md-2">
 						{{form_row(form.numDit)}}
 						{{form_row(form.referencePiece)}}
-						<div class="{{ est_pneumatique ? 'd-none' : '' }}">
+						
 						{{form_row(form.constructeur)}}
-						</div>
+						
 					</div>
 					<div class="col-12 col-md-2">
 						{{form_row(form.numOr)}}
@@ -32,7 +32,9 @@
 					</div>
 					<div class="col-12 col-md-2">
 						{{form_row(form.orCompletNon)}}
+						<div class="{{ est_pneumatique ? 'd-none' : '' }}">
 						{{form_row(form.pieces)}}
+						</div>
 					</div>
 					<div class="col-12 col-md-2">
 						{{form_row(form.dateDebut)}}

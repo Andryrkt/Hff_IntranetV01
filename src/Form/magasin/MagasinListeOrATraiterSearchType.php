@@ -12,6 +12,7 @@ use App\Entity\admin\dit\WorNiveauUrgence;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use App\Model\magasin\MagasinListeOrATraiterModel;
+use App\Service\GlobalVariablesService;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -25,7 +26,8 @@ class MagasinListeOrATraiterSearchType extends AbstractType
         'TOUTES LIGNES' => 'TOUTS PIECES',
         'PIÈCES MAGASIN' => 'PIECES MAGASIN',
         'LUB' => 'LUB',
-        'ACHATS LOCAUX' => 'ACHATS LOCAUX'
+        'ACHATS LOCAUX' => 'ACHATS LOCAUX',
+        'PNEUMATIQUES' => 'PNEUMATIQUES'
     ];
 
     private $magasinModel;
@@ -35,9 +37,9 @@ class MagasinListeOrATraiterSearchType extends AbstractType
         $this->magasinModel = new MagasinListeOrATraiterModel();
     }
 
-    private function recupConstructeur()
+    private function recupConstructeur(bool $estPneumatique = false)
     {
-        return  $this->magasinModel->recuperationConstructeur();
+        return $estPneumatique ? $this->createAssociativeArray(GlobalVariablesService::get('pneumatique')) : $this->magasinModel->recuperationConstructeur();
     }
 
     private function agence()
@@ -86,7 +88,7 @@ class MagasinListeOrATraiterSearchType extends AbstractType
             ->add('constructeur', ChoiceType::class, [
                 'label' =>  'Constructeur',
                 'required' => false,
-                'choices' => $this->recupConstructeur(),
+                'choices' => $this->recupConstructeur($options['est_pneumatique'] ?? false),
                 'placeholder' => ' -- Choisir un constructeur --'
             ])
             ->add('dateDebut', DateType::class, [
@@ -181,8 +183,20 @@ class MagasinListeOrATraiterSearchType extends AbstractType
             });
     }
 
+    private function createAssociativeArray($inputString)
+    {
+        // Nettoyer la chaîne et créer un tableau
+        $array = explode(',', str_replace("'", "", $inputString));
+
+        // Créer le tableau associatif
+        $result = array_combine($array, $array);
+
+        return $result;
+    }
+
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([]);
+        $resolver->setDefined('est_pneumatique');
     }
 }

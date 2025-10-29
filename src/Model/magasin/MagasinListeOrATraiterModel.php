@@ -188,7 +188,7 @@ class MagasinListeOrATraiterModel extends Model
         $numOr = $this->conditionSigne('slor_numor', 'numOr', '=', $criteria);
         $value = GlobalVariablesService::get('pneumatique');
         if (!empty($value)) {
-            $piece = " AND slor_constp in ($value) AND (slor_refp not like '%-L' and slor_refp not like '%-CTRL')";
+            $piece = " AND slor_constp in ($value)";
         } else {
             $piece = "";
         };
@@ -283,7 +283,6 @@ class MagasinListeOrATraiterModel extends Model
             and seor_numor = slor_numor
             where 
             slor_soc = 'HF'
-            -- and slor_succ in ('01', '50')
             and slor_typlig = 'P'
     	    and slor_constp <> '---'
             and slor_constp not like 'Z%'
@@ -306,19 +305,19 @@ class MagasinListeOrATraiterModel extends Model
 
             // Construction des critères (votre code existant)
             if (!empty($criteria['niveauUrgence'])) {
-                $niveauUrgence = " AND id_niveau_urgence = '" . $criteria['niveauUrgence']->getId() . "'";
+                $niveauUrgence = " AND d.id_niveau_urgence = '" . $criteria['niveauUrgence']->getId() . "'";
             } else {
                 $niveauUrgence = null;
             }
 
             if (!empty($criteria['numDit'])) {
-                $numDit = " and numero_demande_dit = '" . $criteria['numDit'] . "'";
+                $numDit = " and d.numero_demande_dit = '" . $criteria['numDit'] . "'";
             } else {
                 $numDit = null;
             }
 
             if (!empty($criteria['numOr'])) {
-                $numOr = " and numero_or = '" . $criteria['numOr'] . "'";
+                $numOr = " d.and numero_or = '" . $criteria['numOr'] . "'";
             } else {
                 $numOr = null;
             }
@@ -330,12 +329,11 @@ class MagasinListeOrATraiterModel extends Model
                         where numeroversion = (select max(numeroversion) from ors_soumis_a_validation oo 
                         where oo.numeroOR = o.numeroOR) 
                         and o.statut like 'Valid%'
-                       -- and (d.date_validation_or <> '1900-01-01' or d.date_validation_or is not null or d.date_validation_or <> '')
-                        and d.etat_facturation not like 'Compl%'
+                        -- and (d.date_validation_or <> '1900-01-01' or d.date_validation_or is not null or d.date_validation_or <> '')
+                        --AND (d.etat_facturation NOT LIKE 'Compl%' OR d.etat_facturation IS NULL)
                         {$niveauUrgence}
                         {$numDit}
                         {$numOr}";
-
 
             $execQueryNumOr = $this->connexion->query($statement);
 
