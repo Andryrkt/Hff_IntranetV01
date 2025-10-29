@@ -4,6 +4,7 @@ namespace App\Service\da;
 
 use App\Controller\Traits\da\DaTrait;
 use App\Controller\Traits\lienGenerique;
+use App\Entity\admin\utilisateur\User;
 use App\Entity\da\DemandeAppro;
 use App\Service\EmailService;
 use App\Traits\PrepareData;
@@ -24,13 +25,52 @@ class EmailDaService
 
     /** 
      * Fonction pour obtenir l'url du détail de la DA
-     * @param string $id id de la DA
-     * @param bool $avecDit paramètre booléen pour indiquer si c'est avec DIT ou non
+     * @param string $id       id de la DA
+     * @param int    $daTypeId le type de la DA
      */
-    private function getUrlDetail(string $id, bool $avecDit = true)
+    private function getUrlDetail(string $id, int $daTypeId)
     {
-        $template = $avecDit ? "demande-appro/detail-avec-dit" : "demande-appro/detail-direct";
-        return $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/$template/$id");
+        $template = [
+            DemandeAppro::TYPE_DA_AVEC_DIT  => 'demande-appro/detail-avec-dit',
+            DemandeAppro::TYPE_DA_DIRECT    => 'demande-appro/detail-direct',
+            DemandeAppro::TYPE_DA_REAPPRO   => 'demande-appro/detail-reappro',
+        ];
+        return $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/{$template[$daTypeId]}/$id");
+    }
+
+    private function getDaLabelForMail(int $daTypeId): string
+    {
+        $daLabels = [
+            DemandeAppro::TYPE_DA_AVEC_DIT  => 'd’approvisionnement',
+            DemandeAppro::TYPE_DA_DIRECT    => 'd’achat',
+            DemandeAppro::TYPE_DA_REAPPRO   => 'de réappro mensuel',
+        ];
+        return $daLabels[$daTypeId];
+    }
+
+    /** 
+     * Méthode pour envoyer une email pour la création d'une DA (avec DIT, Direct, Réappro)
+     * @param DemandeAppro $demandeAppro objet de la demande appro
+     * @param User $connectedUser l'utilisateur connecté
+     */
+    public function envoyerMailcreationDa(DemandeAppro $demandeAppro, User $connectedUser)
+    {
+        $daLabel = $this->getDaLabelForMail($demandeAppro->getDaTypeId());
+        $service = $demandeAppro->getDaTypeId() === DemandeAppro::TYPE_DA_AVEC_DIT ? 'atelier' : $demandeAppro->getServiceEmetteur()->getLibelleService();
+        $this->envoyerEmail([
+            'to'        => DemandeAppro::MAIL_APPRO,
+            'variables' => [
+                'header'         => "{$demandeAppro->getNumeroDemandeAppro()} - DEMANDE " . strtoupper($daLabel) . " : <span class=\"newDa\">CRÉATION</span>",
+                'templateName'   => "newDa",
+                'daLabel'        => $daLabel,
+                'fullNameUser'   => $connectedUser->getFullName(),
+                'subject'        => "{$demandeAppro->getNumeroDemandeAppro()} - Nouvelle demande $daLabel créé",
+                'demandeAppro'   => $demandeAppro,
+                'observation'    => $demandeAppro->getObservation() ?? '-',
+                'service'        => strtoupper($service),
+                'action_url'     => $this->getUrlDetail($demandeAppro->getId(), $demandeAppro->getDaTypeId()),
+            ],
+        ]);
     }
 
     /** 
