@@ -1,3 +1,5 @@
+{% import "macros/form_macros.html.twig" as form_macros %}
+
 <!-- DEBUT recherche -->
 <div class="accordion" id="formAccordion">
 	<div class="accordion-item">
@@ -11,7 +13,7 @@
 				{{ form_start(form, {'method': 'GET'}) }}
 				<div class="row">
 					<div class="col-12 col-md-2">
-						{{ form_row(form.constructeur) }}
+						{{ form_macros.checkbox_group(form.constructeur) }}
 					</div>
 					<div class="col-12 col-md-2">
 						<div class="spinner-container">

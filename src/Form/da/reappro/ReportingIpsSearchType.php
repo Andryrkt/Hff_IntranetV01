@@ -32,10 +32,10 @@ class ReportingIpsSearchType extends AbstractType
             ->add('constructeur', ChoiceType::class, [
                 'label' => 'Constructeur',
                 'required' => false,
-                'placeholder' => '-- Sélectionner un constructeur --',
-                'choices' => $this->createAssociativeArray(GlobalVariablesService::get('reappro')),
+                'choices' => $choices = $this->createAssociativeArray(GlobalVariablesService::get('reappro')),
                 'multiple' => true,
                 'expanded' => true,
+                'data' => array_keys($choices), // Cocher toutes les cases par défaut
             ])
         ;
     }
