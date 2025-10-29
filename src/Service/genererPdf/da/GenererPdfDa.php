@@ -141,8 +141,8 @@ abstract class GenererPdfDa extends GeneratePdf
 
         $pdf->SetTextColor(0, 0, 0);
         $pdf->setFont('helvetica', '', 10);
-        // $html1 = $generator->generer($dals);
-        // $pdf->writeHTML($html1, true, false, true, false, '');
+        $html = $generator->generateHistoriqueTable($monthsList, $dataHistoriqueConsommation);
+        $pdf->writeHTML($html, true, false, true, false, '');
     }
 
     /**
