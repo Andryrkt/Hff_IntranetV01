@@ -438,7 +438,7 @@ class MagasinListeOrLivrerModel extends Model
                         (SELECT DATE(Min(ska_d_start)) FROM informix.ska, informix.skw WHERE ofh_id = sitv_numor AND ofs_id=sitv_interv AND skw.skw_id = ska.skw_id )  is Null THEN DATE(sitv_datepla)  
                     ELSE
                         (SELECT DATE(Min(ska_d_start)) FROM informix.ska, informix.skw WHERE ofh_id = sitv_numor AND ofs_id=sitv_interv AND skw.skw_id = ska.skw_id ) 
-                    END as datePlanning
+            END as datePlanning
             , seor_succ as agenceCrediteur
             , seor_servcrt as serviceCrediteur
             , sitv_succdeb as agenceDebiteur
@@ -448,29 +448,28 @@ class MagasinListeOrLivrerModel extends Model
             , slor_constp as constructeur
             , TRIM(slor_refp) as referencePiece
             , TRIM(slor_desi) as designationi
-            , (
-            SELECT F.situation FROM (select
-            CASE
-            WHEN
-            sum(slor_qteres) > 0 AND
-            sum(CASE
-                WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)
-                    WHEN slor_typlig IN ('F','M','U','C') THEN slor_qterea
-                    END) = sum(slor_qteres + slor_qterea)
-                THEN 'COMPLET'
-                WHEN sum(slor_qteres) > 0 AND
-                    sum(CASE
-                        WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)
-                        WHEN slor_typlig IN ('F','M','U','C') THEN slor_qterea
-                            END) > sum(slor_qteres + slor_qterea)
-                THEN 'INCOMPLET'
-            END as situation
-            , situ.slor_numor as numero_or
-            FROM sav_lor situ
-            WHERE
-            situ.slor_numor = OR.slor_numor
-            and situ.slor_constp in ('AGR','ATC','AUS','CAT','CGM','CMX','DNL','DYN','GRO','HYS','JDR','KIT','MAN','MNT','OLY','OOM','PAR','PDV','PER','PUB','REM','SHM','TBI','THO') AND (slor_refp not like '%-L' and slor_refp not like '%-CTRL')
-            group by 2 ) as F
+            , 
+            (SELECT F.situation FROM (select
+                    CASE
+                        WHEN
+                            sum(slor_qteres) > 0 AND
+                            sum(CASE
+                                    WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)
+                                    WHEN slor_typlig IN ('F','M','U','C') THEN slor_qterea
+                                END) = sum(slor_qteres + slor_qterea)
+                        THEN 'COMPLET'
+                        WHEN sum(slor_qteres) > 0 AND
+                            sum(CASE
+                                    WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)
+                                    WHEN slor_typlig IN ('F','M','U','C') THEN slor_qterea
+                                END) > sum(slor_qteres + slor_qterea)
+                        THEN 'INCOMPLET'
+                    END as situation
+                    , situ.slor_numor as numero_or
+                FROM sav_lor situ
+                WHERE situ.slor_numor = OR.slor_numor
+                    and situ.slor_constp in ('AGR','ATC','AUS','CAT','CGM','CMX','DNL','DYN','GRO','HYS','JDR','KIT','MAN','MNT','OLY','OOM','PAR','PDV','PER','PUB','REM','SHM','TBI','THO') AND (slor_refp not like '%-L' and slor_refp not like '%-CTRL')
+                group by 2 ) as F
             ) as situationtest
             , seor_usr as idUser
             , trim(ausr_nom) as nomUtilisateur
@@ -486,44 +485,47 @@ class MagasinListeOrLivrerModel extends Model
                 END)  AS quantiteDemander
             , sum(slor_qteres) as qteALivrer
             , sum(slor_qterea) as quantiteLivree
+
+
+
+
             FROM sav_lor as OR
             inner join sav_eor as U on U.seor_numor = slor_numor and U.seor_soc = slor_soc and U.seor_succ = slor_succ
             inner join mat_mat on mmat_nummat =  seor_nummat
             inner join agr_usr on ausr_num = seor_usr
             inner join agr_tab on atab_nom = 'OPE' and atab_code = ausr_ope
             inner join
-            sav_itv as I
-            on I.sitv_soc = slor_soc
-            and I.sitv_succ = slor_succ
-            and I.sitv_numor = slor_numor
-            and I.sitv_interv = slor_nogrp /100
-            and sitv_numor || '-' || sitv_interv in ('$numeroOrItv')
+                sav_itv as I
+                on I.sitv_soc = slor_soc
+                and I.sitv_succ = slor_succ
+                and I.sitv_numor = slor_numor
+                and I.sitv_interv = slor_nogrp /100
+                and sitv_numor || '-' || sitv_interv in ('$numeroOrItv')
             inner join
-            (
-            SELECT F.* FROM (select
-            CASE
-            WHEN
-            sum(slor_qteres) > 0 AND
-            sum(CASE
-                WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)
-                    WHEN slor_typlig IN ('F','M','U','C') THEN slor_qterea
-                    END) = sum(slor_qteres + slor_qterea)
-            THEN 'COMPLET'
-            WHEN
-            sum(slor_qteres) > 0 AND
-            sum(CASE
-                WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)
-                    WHEN slor_typlig IN ('F','M','U','C') THEN slor_qterea
-                    END) > sum(slor_qteres + slor_qterea)
-            THEN 'INCOMPLET'
-            END as situation
-            , situ.slor_numor as numero_or
-            FROM sav_lor situ
-            WHERE
-            situ.slor_numor in ('$numeroOr')
-            $piece1
-            group by 2 ) as F
-            ) as T ON T.numero_or = OR.slor_numor
+                (SELECT F.* FROM (select
+                    CASE
+                        WHEN
+                            sum(slor_qteres) > 0 AND
+                            sum(CASE
+                                WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)
+                                    WHEN slor_typlig IN ('F','M','U','C') THEN slor_qterea
+                                    END) = sum(slor_qteres + slor_qterea)
+                        THEN 'COMPLET'
+                        WHEN
+                            sum(slor_qteres) > 0 AND
+                            sum(CASE
+                                WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)
+                                    WHEN slor_typlig IN ('F','M','U','C') THEN slor_qterea
+                                    END) > sum(slor_qteres + slor_qterea)
+                        THEN 'INCOMPLET'
+                    END as situation
+                    , situ.slor_numor as numero_or
+                    FROM sav_lor situ
+                    WHERE situ.slor_numor in ('$numeroOr')
+                        $piece1
+                    group by 2 ) as F
+                ) as T 
+                ON T.numero_or = OR.slor_numor
             where seor_numor in
             (
             select slor_numor from sav_lor l

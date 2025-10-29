@@ -155,7 +155,9 @@ trait ConditionModelTrait
                 $orCompletNom = " AND T.situation = 'COMPLET' ";
             } elseif ($criteria[$indexCriteria] === 'ORs INCOMPLETS') {
                 $orCompletNom = " AND T.situation = 'INCOMPLET' ";
-            } 
+            } else {
+                $orCompletNom = "";
+            }
         } else {
             $orCompletNom =  " AND T.situation = 'COMPLET'";
         }
