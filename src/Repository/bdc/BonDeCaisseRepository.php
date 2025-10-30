@@ -84,6 +84,11 @@ class BonDeCaisseRepository extends EntityRepository
                 ->setParameter('statutDemande', $bonDeCaisse->getStatutDemande());
         }
 
+        // filtrer par nomValidateurFinal
+        if ($bonDeCaisse->getNomValidateurFinal()) {
+            $queryBuilder->andWhere('b.nomValidateurFinal LIKE :nomValidateurFinal')
+                ->setParameter('nomValidateurFinal', '%' . $bonDeCaisse->getNomValidateurFinal() . '%git a');
+        }
 
         $query = $queryBuilder
             ->orderBy('b.id', 'DESC')
@@ -103,7 +108,7 @@ class BonDeCaisseRepository extends EntityRepository
         ];
     }
 
-    public function findAndFilteredExcel(BonDeCaisse $bonDeCaisse, array $options): array
+    public function findAndFilteredExcel(BonDeCaisse $bonDeCaisse): array
     {
         $queryBuilder = $this->createQueryBuilder('b');
 

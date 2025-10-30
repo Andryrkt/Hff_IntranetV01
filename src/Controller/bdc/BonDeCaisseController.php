@@ -35,7 +35,7 @@ class BonDeCaisseController extends Controller
         $this->verifierSessionUtilisateur();
         $this->autorisationAcces($this->getUser(), Application::ID_BCS);
 
-        $bonCaisseSearch = new \App\Dto\bdc\BonDeCaisseDto();
+        $bonCaisseSearch = new BonDeCaisseDto();
 
         $hasGetParams = !empty($request->query->all());
         if (!$hasGetParams) {
@@ -57,8 +57,6 @@ class BonDeCaisseController extends Controller
         ])->getForm();
 
         $form->handleRequest($request);
-
-        $options = [];
 
         if ($form->isSubmitted() && $form->isValid()) {
             $bonCaisseSearch = $form->getData();
@@ -83,7 +81,6 @@ class BonDeCaisseController extends Controller
 
         }
 
-        $bonCaisseSearch->dateDemandeFin = $form->has('dateDemandeFin') ? $form->get('dateDemandeFin')->getData() : null;
 
         $criteria = $bonCaisseSearch->toArray();
         $this->sessionService->set('bon_caisse_search_criteria', $criteria);
@@ -100,6 +97,7 @@ class BonDeCaisseController extends Controller
         $bonCaisseEntitySearch->setCaisseRetrait($bonCaisseSearch->caisseRetrait);
         $bonCaisseEntitySearch->setTypePaiement($bonCaisseSearch->typePaiement);
         $bonCaisseEntitySearch->setRetraitLie($bonCaisseSearch->retraitLie);
+        $bonCaisseEntitySearch->setNomValidateurFinal($bonCaisseSearch->nomValidateurFinal);
 
 
 
@@ -133,7 +131,6 @@ class BonDeCaisseController extends Controller
 
         // Récupère les critères dans la session
         $criteria = $this->sessionService->get('bon_caisse_search_criteria', []);
-        $option = $this->sessionService->get('bon_caisse_search_option', []);
 
         $bonCaisseSearch = new BonDeCaisse();
         $bonCaisseSearch->setTypeDemande($criteria['typeDemande'] ?? null)
@@ -153,7 +150,7 @@ class BonDeCaisseController extends Controller
             ->setDateStatut($criteria['dateStatut'] ?? null);
 
         // Récupère les entités filtrées
-        $entities = $this->getEntityManager()->getRepository(BonDeCaisse::class)->findAndFilteredExcel($bonCaisseSearch, $option);
+        $entities = $this->getEntityManager()->getRepository(BonDeCaisse::class)->findAndFilteredExcel($bonCaisseSearch);
 
         // Convertir les entités en tableau de données
         $data = [];

@@ -120,7 +120,12 @@ class BonDeCaisseType extends AbstractType
                     'Autre' => 'AUTRE'
                 ],
                 'placeholder' => 'Tous les retraits'
-            ]);
+            ])
+            ->add('nomValidateurFinal', TextType::class, [
+                'label' => 'Nom Validateur Final',
+                'required' => false,
+            ])
+            ;
     }
 
 

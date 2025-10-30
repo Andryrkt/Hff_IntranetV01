@@ -66,13 +66,13 @@
 						<td>{{ demande.typePaiement }}</td>
 						<td>{{ demande.caisseRetrait }}</td>
 						<td>{{ demande.retraitLie }}</td>
-						<td class="text-center">ag/serv emetteur</td>
+						<td class="text-center">{{ demande.agenceEmetteur ~ '-' ~ demande.serviceEmetteur}}</td>
 						<td class="text-center">{{ demande.agenceDebiteur ~ '-' ~ demande.serviceDebiteur}}</td>
 						<td>{{ demande.adresseMailDemandeur }}</td>
 						<td class="text-end">{{ demande.montantPayer|number_format('2', ',', '.') }}</td>
 						<td>{{ demande.devise }}</td>
 						<td>{{ demande.motifDemande }}</td>
-						<td>Nom validateur final</td>
+						<td>{{ demande.nomValidateurFinal}}</td>
 					</tr>
 				{% else %}
 					<tr>
