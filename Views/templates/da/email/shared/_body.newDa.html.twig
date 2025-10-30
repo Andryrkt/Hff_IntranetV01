@@ -42,7 +42,7 @@
 		{% for row in preparedDatas.body  %}
 			<tr>
 				{% for headLabel, headValue in preparedDatas.head %}
-					<td>{{ row.[headLabel] }}</td>
+					<td>{{ row[headLabel] }}</td>
 				{% endfor %}
 			</tr>
 		{% endfor %}
