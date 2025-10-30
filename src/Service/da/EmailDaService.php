@@ -65,12 +65,13 @@ class EmailDaService
     private function getImportantVariables(DemandeAppro $demandeAppro, User $connectedUser, string $daLabel, string $service): array
     {
         return [
-            'demandeAppro'   => $demandeAppro,
-            'fullNameUser'   => $connectedUser->getFullName(),
-            'daLabel'        => $daLabel,
-            'service'        => strtoupper($service),
-            'urlIntranet'    => $this->getUrlIntranet(),
-            'urlDetail'      => $this->getUrlDetail($demandeAppro->getId(), $demandeAppro->getDaTypeId()),
+            'demandeAppro' => $demandeAppro,
+            'fullNameUser' => $connectedUser->getFullName(),
+            'daLabel'      => $daLabel,
+            'observation'  => $demandeAppro->getObservation() ?? '-',
+            'service'      => strtoupper($service),
+            'urlIntranet'  => $this->getUrlIntranet(),
+            'urlDetail'    => $this->getUrlDetail($demandeAppro->getId(), $demandeAppro->getDaTypeId()),
         ];
     }
 
@@ -79,66 +80,43 @@ class EmailDaService
      * @param DemandeAppro $demandeAppro objet de la demande appro
      * @param User $connectedUser l'utilisateur connecté
      */
-    public function envoyerMailcreationDa(DemandeAppro $demandeAppro, User $connectedUser)
+    public function envoyerMailCreationDa(DemandeAppro $demandeAppro, User $connectedUser)
     {
         $daLabel = $this->getDaLabelForMail($demandeAppro->getDaTypeId());
         $service = $demandeAppro->getDaTypeId() === DemandeAppro::TYPE_DA_AVEC_DIT ? 'atelier' : $demandeAppro->getServiceEmetteur()->getLibelleService();
         $this->envoyerEmail([
             'to'        => DemandeAppro::MAIL_APPRO,
             'variables' => [
-                'header'         => "{$demandeAppro->getNumeroDemandeAppro()} - DEMANDE " . strtoupper($daLabel) . " : <span class=\"newDa\">CRÉATION</span>",
-                'templateName'   => "newDa",
-                'subject'        => "{$demandeAppro->getNumeroDemandeAppro()} - Nouvelle demande $daLabel créé",
-                'observation'    => $demandeAppro->getObservation() ?? '-',
-                'preparedDatas'  => $this->prepareDataForMailCreationDa($demandeAppro->getDAL(), $demandeAppro->getDaTypeId()),
-                ...$this->getImportantVariables($demandeAppro, $connectedUser, $daLabel, $service),
-            ],
+                'header'        => "{$demandeAppro->getNumeroDemandeAppro()} - DEMANDE " . strtoupper($daLabel) . " : <span class=\"newDa\">CRÉATION</span>",
+                'templateName'  => "newDa",
+                'subject'       => "{$demandeAppro->getNumeroDemandeAppro()} - Nouvelle demande $daLabel créé",
+                'preparedDatas' => $this->prepareDataForMailCreationDa($demandeAppro->getDAL(), $demandeAppro->getDaTypeId()),
+            ] + $this->getImportantVariables($demandeAppro, $connectedUser, $daLabel, $service), // opérateur `+` pour ne pas écraser les clés existantes
         ]);
     }
 
     /** 
-     * Méthode pour envoyer une email de propositions pour une DA avec DIT
+     * Méthode pour envoyer une email pour la proposition d'une DA (avec DIT, Direct)
      * @param DemandeAppro $demandeAppro objet de la demande appro
-     * @param array $tab tableau de données à utiliser dans le corps du mail
+     * @param User $connectedUser l'utilisateur connecté
      */
-    public function envoyerMailPropositionDaAvecDit(DemandeAppro $demandeAppro, array $tab)
+    public function envoyerMailPropositionDa(DemandeAppro $demandeAppro, User $connectedUser)
     {
-        $fournisseurs = $this->gererPrixFournisseurs($demandeAppro->getDAL());
+        $daLabel          = $this->getDaLabelForMail($demandeAppro->getDaTypeId());
+        $fournisseurs     = $this->gererPrixFournisseurs($demandeAppro->getDAL());
+        $service          = "appro";
+        $serviceDemandeur = $demandeAppro->getDaTypeId() === DemandeAppro::TYPE_DA_AVEC_DIT ? 'atelier' : $demandeAppro->getServiceEmetteur()->getLibelleService();
         $this->envoyerEmail([
-            'to'        => $demandeAppro->getUser()->getMail(),
+            'to'        => DemandeAppro::MAIL_APPRO,
             'variables' => [
-                'tab'               => $tab,
-                'statut'            => "propositionDa",
+                'header'            => "{$demandeAppro->getNumeroDemandeAppro()} - DEMANDE " . strtoupper($daLabel) . " : <span class=\"propositionDa\">PROPOSITION</span>",
+                'templateName'      => "propositionDa",
                 'subject'           => "{$demandeAppro->getNumeroDemandeAppro()} - Proposition créée par l'Appro",
-                'demandeAppro'      => $demandeAppro,
+                'serviceDemandeur'  => strtoupper($serviceDemandeur),
                 'preparedDal'       => $this->prepareDataForMailPropositionDa($demandeAppro->getDAL()),
                 'fournisseurs'      => $fournisseurs,
                 'listeFournisseurs' => array_keys($fournisseurs),
-                'action_url'        => $this->getUrlDetail($demandeAppro->getId()),
-            ],
-        ]);
-    }
-
-    /** 
-     * Méthode pour envoyer une email de propositions pour une DA directe
-     * @param DemandeAppro $demandeAppro objet de la demande appro
-     * @param array $tab tableau de données à utiliser dans le corps du mail
-     */
-    public function envoyerMailPropositionDaDirect(DemandeAppro $demandeAppro, array $tab)
-    {
-        $fournisseurs = $this->gererPrixFournisseurs($demandeAppro->getDAL());
-        $this->envoyerEmail([
-            'to'        => $demandeAppro->getUser()->getMail(),
-            'variables' => [
-                'tab'               => $tab,
-                'statut'            => "propositionDa",
-                'subject'           => "{$demandeAppro->getNumeroDemandeAppro()} - Proposition créée par l'Appro",
-                'demandeAppro'      => $demandeAppro,
-                'preparedDal'       => $this->prepareDataForMailPropositionDa($demandeAppro->getDAL()),
-                'fournisseurs'      => $fournisseurs,
-                'listeFournisseurs' => array_keys($fournisseurs),
-                'action_url'        => $this->getUrlDetail($demandeAppro->getId(), false),
-            ],
+            ] + $this->getImportantVariables($demandeAppro, $connectedUser, $daLabel, $service),
         ]);
     }
 
