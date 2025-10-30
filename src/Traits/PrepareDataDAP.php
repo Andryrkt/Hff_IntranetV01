@@ -5,7 +5,7 @@ namespace App\Traits;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
 
-trait PrepareData
+trait PrepareDataDAP
 {
     /** 
      * Préparer les données des Dals à afficher dans le mail

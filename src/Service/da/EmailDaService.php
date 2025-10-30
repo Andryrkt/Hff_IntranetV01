@@ -7,12 +7,12 @@ use App\Controller\Traits\lienGenerique;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\da\DemandeAppro;
 use App\Service\EmailService;
-use App\Traits\PrepareData;
+use App\Traits\PrepareDataDAP;
 
 class EmailDaService
 {
     use lienGenerique;
-    use PrepareData;
+    use PrepareDataDAP;
     use PrixFournisseurTrait;
     private $twig;
     private $emailTemplate;
@@ -136,7 +136,7 @@ class EmailDaService
                 'templateName'      => "propositionDa",
                 'subject'           => "{$demandeAppro->getNumeroDemandeAppro()} - Proposition créée par l'Appro",
                 'serviceDemandeur'  => strtoupper($serviceDemandeur),
-                'preparedDal'       => $this->prepareDataForMailPropositionDa($demandeAppro->getDAL()),
+                'preparedDatas'     => $this->prepareDataForMailPropositionDa($demandeAppro->getDAL()),
                 'fournisseurs'      => $fournisseurs,
                 'listeFournisseurs' => array_keys($fournisseurs),
             ] + $this->getImportantVariables($demandeAppro, $connectedUser, $daLabel, $service),
