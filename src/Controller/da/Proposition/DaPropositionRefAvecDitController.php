@@ -326,12 +326,7 @@ class DaPropositionRefAvecDitController extends Controller
 
         $this->ajouterDansTableAffichageParNumDa($numDa);
 
-        /** ENVOIE D'EMAIL à l'ATE pour les propositions*/
-        $this->emailDaService->envoyerMailPropositionDaAvecDit($this->demandeApproRepository->findAvecDernieresDALetLR($da->getId()), [
-            'service'       => 'appro',
-            'observation'   => $observation,
-            'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
-        ]);
+        $this->emailDaService->envoyerMailPropositionDa($this->demandeApproRepository->findAvecDernieresDALetLR($da->getId()), $this->getUser());
 
         $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         $this->redirectToRoute("list_da");
