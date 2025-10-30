@@ -2,11 +2,12 @@
 
 namespace App\Traits;
 
-use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
 
 trait PrepareDataDAP
 {
+    use DaMailColumnsTrait;
+
     /** 
      * Préparer les données des Dals à afficher dans le mail
      * 
@@ -35,161 +36,68 @@ trait PrepareDataDAP
         return $datasPrepared;
     }
 
-    /** 
-     * Préparer les données des Dals à afficher dans le mail pour le mail de création
-     * 
-     * @param iterable<DemandeApproL> $dals données des Dals à préparer
-     * @param int                     $datypeId id du type de la DA
-     * 
-     * @return array données préparées
+    /**
+     * Construit les lignes de données à partir d'une liste de Dals.
      */
-    private function prepareDataForMailCreationDa(iterable $dals, int $datypeId): array
+    private function buildRows(iterable $dals, array $columns): array
     {
-        $datasPrepared = [
-            'head' => [],
-            'body' => [],
-        ];
-
-        // Définition des colonnes selon le type de DA
-        $columnsByType = [
-            DemandeAppro::TYPE_DA_AVEC_DIT => [
-                'fams1' => 'Famille',
-                'fams2' => 'Sous famille',
-                'refp'  => 'Référence',
-                'desi'  => 'Désignation',
-                'frn'   => 'Fournisseur',
-                'com'   => 'Commentaire',
-            ],
-            DemandeAppro::TYPE_DA_DIRECT => [
-                'desi' => 'Désignation',
-                'frn'  => 'Fournisseur',
-                'com'  => 'Commentaire',
-            ],
-            DemandeAppro::TYPE_DA_REAPPRO => [
-                'constp' => 'Constructeur',
-                'refp'   => 'Référence',
-                'desi'   => 'Désignation',
-                'pu'     => 'PU',
-                'qteDem' => 'Qté demandé',
-                'qteVal' => 'Qté validée',
-                'mtt'    => 'Montant',
-            ],
-        ];
-
-        if (!isset($columnsByType[$datypeId])) throw new \InvalidArgumentException("Le type de DA est indéfini : $datypeId");
-
-        $columns = $columnsByType[$datypeId];
-        $datasPrepared['head'] = $columns;
-
-        // Mapping clé => méthode
-        $methodMapping = [
-            'fams1'  => 'getArtFams1',
-            'fams2'  => 'getArtFams2',
-            'refp'   => 'getArtRefp',
-            'desi'   => 'getArtDesi',
-            'frn'    => 'getNomFournisseur',
-            'com'    => 'getCommentaire',
-            'constp' => 'getArtConstp',
-            'pu'     => 'getPUFormatted',
-            'qteDem' => 'getQteDem',
-            'qteVal' => 'getQteValAppro',
-            'mtt'    => 'getMontantFormatted',
-        ];
-
-        // Préparation du corps
+        $rows = [];
+        $methodMapping = $this->getMethodMapping();
         foreach ($dals as $dal) {
             $row = [];
             foreach ($columns as $key => $label) {
-                $row[$key] = method_exists($dal, $methodMapping[$key])
-                    ? ($dal->{$methodMapping[$key]}() ?? '-')
+                $method = $methodMapping[$key] ?? null;
+                $row[$key] = ($method && method_exists($dal, $method))
+                    ? ($dal->{$method}() ?? '-')
                     : '-';
             }
-            $datasPrepared['body'][] = $row;
+            $rows[] = $row;
         }
-
-        return $datasPrepared;
+        return $rows;
     }
 
-    /** 
-     * Préparer les données des Dals à afficher dans le mail pour le mail de création
-     * 
-     * @param int                     $datypeId id du type de la DA
-     * @param iterable<DemandeApproL> $newDals  données des nouveaux Dals à préparer
-     * @param iterable<DemandeApproL> $oldDals  données des anciens Dals à préparer
-     * 
-     * @return array données préparées
+    /**
+     * Préparer les données pour le mail de création de DA.
+     */
+    private function prepareDataForMailCreationDa(int $datypeId, iterable $dals): array
+    {
+        $columns = $this->getColumnsByType($datypeId, 'creation');
+
+        return [
+            'head' => $columns,
+            'body' => $this->buildRows($dals, $columns),
+        ];
+    }
+
+    /**
+     * Préparer les données pour le mail de modification de DA.
      */
     private function prepareDataForMailModificationDa(int $datypeId, iterable $newDals, iterable $oldDals): array
     {
-        $datasPrepared = [
-            'old' => [
-                'head' => [],
-                'body' => [],
-            ],
+        $columns = $this->getColumnsByType($datypeId, 'modification');
+
+        return [
             'new' => [
-                'head' => [],
-                'body' => [],
+                'head' => $columns,
+                'body' => $this->buildRows($newDals, $columns),
+            ],
+            'old' => [
+                'head' => $columns,
+                'body' => $this->buildRows($oldDals, $columns),
             ],
         ];
+    }
 
-        // Définition des colonnes selon le type de DA
-        $columnsByType = [
-            DemandeAppro::TYPE_DA_AVEC_DIT => [
-                'fams1' => 'Famille',
-                'fams2' => 'Sous famille',
-                'refp'  => 'Référence',
-                'desi'  => 'Désignation',
-                'qte'   => 'Qté Demandée',
-                'frn'   => 'Fournisseur',
-                'com'   => 'Commentaire',
-            ],
-            DemandeAppro::TYPE_DA_DIRECT => [
-                'refp'  => 'Référence',
-                'desi'  => 'Désignation',
-                'qte'   => 'Qté Demandée',
-                'frn'   => 'Fournisseur',
-                'com'   => 'Commentaire',
-            ],
+    /**
+     * Préparer les données pour le mail de validation de DA.
+     */
+    private function prepareDataForMailValidationDa(int $datypeId, iterable $dals): array
+    {
+        $columns = $this->getColumnsByType($datypeId, 'validation');
+
+        return [
+            'head' => $columns,
+            'body' => $this->buildRows($dals, $columns),
         ];
-
-        if (!isset($columnsByType[$datypeId])) throw new \InvalidArgumentException("Le type de DA est indéfini : $datypeId");
-
-        $columns = $columnsByType[$datypeId];
-        $datasPrepared['old']['head'] = $datasPrepared['new']['head'] = $columns;
-
-        // Mapping clé => méthode
-        $methodMapping = [
-            'fams1'  => 'getArtFams1',
-            'fams2'  => 'getArtFams2',
-            'refp'   => 'getArtRefp',
-            'desi'   => 'getArtDesi',
-            'qte'    => 'getQteDem',
-            'frn'    => 'getNomFournisseur',
-            'com'    => 'getCommentaire',
-        ];
-
-        // Préparation du corps
-        foreach ($newDals as $dal) {
-            $row = [];
-            foreach ($columns as $key => $label) {
-                $row[$key] = method_exists($dal, $methodMapping[$key])
-                    ? ($dal->{$methodMapping[$key]}() ?? '-')
-                    : '-';
-            }
-            $datasPrepared['new']['body'][] = $row;
-        }
-
-        // Préparation du corps
-        foreach ($oldDals as $dal) {
-            $row = [];
-            foreach ($columns as $key => $label) {
-                $row[$key] = method_exists($dal, $methodMapping[$key])
-                    ? ($dal->{$methodMapping[$key]}() ?? '-')
-                    : '-';
-            }
-            $datasPrepared['old']['body'][] = $row;
-        }
-
-        return $datasPrepared;
     }
 }
