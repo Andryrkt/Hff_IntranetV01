@@ -78,10 +78,11 @@ class EmailDaService
     /** 
      * Méthode pour envoyer une email pour les observations d'une DA (avec DIT, Direct, Réappro)
      * @param DemandeAppro $demandeAppro  objet de la demande appro
+     * @param string       $observation   observation émis
      * @param User         $connectedUser l'utilisateur connecté
-     * @param bool         $estAppro
+     * @param bool         $estAppro      si l'utilisateur est appro ou non
      */
-    public function envoyerMailObservationDa(DemandeAppro $demandeAppro, User $connectedUser, bool $estAppro)
+    public function envoyerMailObservationDa(DemandeAppro $demandeAppro, string $observation, User $connectedUser, bool $estAppro)
     {
         $daLabel = $this->getDaLabelForMail($demandeAppro->getDaTypeId());
         $service = $estAppro ? 'appro' : ($demandeAppro->getDaTypeId() === DemandeAppro::TYPE_DA_AVEC_DIT ? 'atelier' : $demandeAppro->getServiceEmetteur()->getLibelleService());
@@ -89,9 +90,10 @@ class EmailDaService
         $this->envoyerEmail([
             'to'        => $to,
             'variables' => [
-                'header'       => "{$demandeAppro->getNumeroDemandeAppro()} - DEMANDE " . strtoupper($daLabel) . " : <span class=\"commente\">OBSERVATION AJOUTÉE PAR LE SERVICE " . strtoupper($service) . "</span>",
-                'templateName' => "observationDa",
-                'subject'      => "{$demandeAppro->getNumeroDemandeAppro()} - Observation ajoutée par le service " . strtoupper($service),
+                'header'        => "{$demandeAppro->getNumeroDemandeAppro()} - DEMANDE " . strtoupper($daLabel) . " : <span class=\"commente\">OBSERVATION AJOUTÉE PAR LE SERVICE " . strtoupper($service) . "</span>",
+                'templateName'  => "observationDa",
+                'subject'       => "{$demandeAppro->getNumeroDemandeAppro()} - Observation ajoutée par le service " . strtoupper($service),
+                'observationDa' => $observation,
             ] + $this->getImportantVariables($demandeAppro, $connectedUser, $daLabel, $service), // opérateur `+` pour ne pas écraser les clés existantes
         ]);
     }
@@ -173,44 +175,6 @@ class EmailDaService
                 'tab'            => $tab,
                 'statut'         => "modificationDa",
                 'subject'        => "{$demandeAppro->getNumeroDemandeAppro()} - Modification demande d'achat",
-                'demandeAppro'   => $demandeAppro,
-                'action_url'     => $this->getUrlDetail($demandeAppro->getId(), false),
-            ],
-        ]);
-    }
-
-    /** 
-     * Méthode pour envoyer une email sur l'observation émis pour une DA avec DIT
-     * @param DemandeAppro $demandeAppro objet de la demande appro
-     * @param array $tab tableau de données à utiliser dans le corps du mail
-     */
-    public function envoyerMailObservationDaAvecDit(DemandeAppro $demandeAppro, array $tab)
-    {
-        $this->envoyerEmail([
-            'to'        => $tab['service'] == 'atelier' ? DemandeAppro::MAIL_APPRO : $demandeAppro->getUser()->getMail(),
-            'variables' => [
-                'tab'            => $tab,
-                'statut'         => "commente",
-                'subject'        => "{$demandeAppro->getNumeroDemandeAppro()} - Observation ajoutée par le service " . strtoupper($tab['service']),
-                'demandeAppro'   => $demandeAppro,
-                'action_url'     => $this->getUrlDetail($demandeAppro->getId()),
-            ],
-        ]);
-    }
-
-    /** 
-     * Méthode pour envoyer une email sur l'observation émis pour une DA directe
-     * @param DemandeAppro $demandeAppro objet de la demande appro
-     * @param array $tab tableau de données à utiliser dans le corps du mail
-     */
-    public function envoyerMailObservationDaDirect(DemandeAppro $demandeAppro, array $tab)
-    {
-        $this->envoyerEmail([
-            'to'        => $tab['service'] == 'appro' ? $demandeAppro->getUser()->getMail() : DemandeAppro::MAIL_APPRO,
-            'variables' => [
-                'tab'            => $tab,
-                'statut'         => "commente",
-                'subject'        => "{$demandeAppro->getNumeroDemandeAppro()} - Observation ajoutée par le service " . strtoupper($tab['service']),
                 'demandeAppro'   => $demandeAppro,
                 'action_url'     => $this->getUrlDetail($demandeAppro->getId(), false),
             ],
