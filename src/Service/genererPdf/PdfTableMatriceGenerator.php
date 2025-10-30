@@ -2,12 +2,12 @@
 
 namespace App\Service\genererPdf;
 
-use App\Controller\Traits\da\DaTrait;
+use App\Controller\Traits\da\PrixFournisseurTrait;
 use App\Entity\da\DemandeApproL;
 
 class PdfTableMatriceGenerator
 {
-    use DaTrait;
+    use PrixFournisseurTrait;
 
     /**
      * Générer le PDF complet avec le tableau

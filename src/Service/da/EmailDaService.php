@@ -2,7 +2,7 @@
 
 namespace App\Service\da;
 
-use App\Controller\Traits\da\DaTrait;
+use App\Controller\Traits\da\PrixFournisseurTrait;
 use App\Controller\Traits\lienGenerique;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\da\DemandeAppro;
@@ -11,9 +11,9 @@ use App\Traits\PrepareData;
 
 class EmailDaService
 {
-    use DaTrait;
     use lienGenerique;
     use PrepareData;
+    use PrixFournisseurTrait;
     private $twig;
     private $emailTemplate;
 
@@ -21,8 +21,6 @@ class EmailDaService
     {
         $this->twig = $twig;
         $this->emailTemplate = "da/email/emailDa.html.twig";
-
-        $this->initDaTrait();
     }
 
     /** 
