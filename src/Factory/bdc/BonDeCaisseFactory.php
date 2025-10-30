@@ -19,7 +19,8 @@ class BonDeCaisseFactory
         $dto->typePaiement = $bonDeCaisse->getTypePaiement();
         $dto->agenceDebiteur = $bonDeCaisse->getAgenceDebiteur();
         $dto->serviceDebiteur = $bonDeCaisse->getServiceDebiteur();
-        $dto->emetteur = $bonDeCaisse->getAgenceEmetteur() . ' / ' . $bonDeCaisse->getServiceEmetteur();
+        $dto->agenceEmetteur = $bonDeCaisse->getAgenceEmetteur();
+        $dto->serviceEmetteur = $bonDeCaisse->getServiceEmetteur();
         $dto->retraitLie = $bonDeCaisse->getRetraitLie();
         $dto->matricule = $bonDeCaisse->getMatricule();
         $dto->adresseMailDemandeur = $bonDeCaisse->getAdresseMailDemandeur();

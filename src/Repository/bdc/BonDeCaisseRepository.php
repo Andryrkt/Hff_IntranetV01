@@ -11,8 +11,7 @@ class BonDeCaisseRepository extends EntityRepository
     public function findPaginatedAndFiltered(
         int $page,
         int $limit,
-        BonDeCaisse $bonDeCaisse,
-        array $options
+        BonDeCaisse $bonDeCaisse
     ): array {
         $queryBuilder = $this->createQueryBuilder('b');
 
@@ -22,24 +21,43 @@ class BonDeCaisseRepository extends EntityRepository
         }
 
         // Filtrer par plage de date de demande
-        if ($bonDeCaisse->getDateDemande()) {
-            $dateDemandeFin = $options['dateDemandeFin'] ?? '3000-01-01';
-            // Si on a une date de fin, on filtre sur la plage
+        $dateDemande = $bonDeCaisse->getDateDemande();
+        $dateDemandeFin = $bonDeCaisse->getDateDemandeFin();
+
+        if ($dateDemande && $dateDemandeFin) {
             $queryBuilder->andWhere('b.dateDemande BETWEEN :dateDemande AND :dateDemandeFin')
-                ->setParameter('dateDemande', $bonDeCaisse->getDateDemande())
+                ->setParameter('dateDemande', $dateDemande)
+                ->setParameter('dateDemandeFin', $dateDemandeFin);
+        } elseif ($dateDemande) {
+            $queryBuilder->andWhere('b.dateDemande >= :dateDemande')
+                ->setParameter('dateDemande', $dateDemande);
+        } elseif ($dateDemandeFin) {
+            $queryBuilder->andWhere('b.dateDemande <= :dateDemandeFin')
                 ->setParameter('dateDemandeFin', $dateDemandeFin);
         }
 
-        // Filtrer par agence 
-        if (isset($options['agenceDebiteur']) && $options['agenceDebiteur']) {
+        // Filtrer par agence debiteur
+        if ($bonDeCaisse->getAgenceDebiteur()) {
             $queryBuilder->andWhere('b.agenceDebiteur = :agenceDebiteur')
-                ->setParameter('agenceDebiteur', $options['agenceDebiteur']);
+                ->setParameter('agenceDebiteur', $bonDeCaisse->getAgenceDebiteur());
         }
 
-        // Filtrer par service
-        if (isset($options['service']) && $options['service']) {
-            $queryBuilder->andWhere('b.serviceDebiteur = :service')
-                ->setParameter('service', $options['service']);
+        // Filtrer par service debiteur
+        if ($bonDeCaisse->getServiceDebiteur()) {
+            $queryBuilder->andWhere('b.serviceDebiteur = :serviceDebiteur')
+                ->setParameter('serviceDebiteur', $bonDeCaisse->getServiceDebiteur());
+        }
+
+        // Filtrer par agence emetteur
+        if ($bonDeCaisse->getAgenceEmetteur()) {
+            $queryBuilder->andWhere('b.agenceEmetteur = :agenceEmetteur')
+                ->setParameter('agenceEmetteur', $bonDeCaisse->getAgenceEmetteur());
+        }
+
+        // Filtrer par service emetteur
+        if ($bonDeCaisse->getServiceEmetteur()) {
+            $queryBuilder->andWhere('b.serviceEmetteur = :serviceEmetteur')
+                ->setParameter('serviceEmetteur', $bonDeCaisse->getServiceEmetteur());
         }
 
         // Filtrer par caisse de retrait

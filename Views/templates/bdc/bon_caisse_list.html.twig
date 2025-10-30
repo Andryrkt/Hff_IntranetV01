@@ -2,6 +2,7 @@
 
 {% block stylesheets %}
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/bdc/bon_de_caisse.css">
 {% endblock %}
 
 {% block content %}
@@ -61,14 +62,12 @@
 						</td>
 						<td class="{{ classeStatut }}" style="{{ styleStatut }}">{{ demande.statutDemande }}</td>
 						<td>{{ demande.numeroDemande }}</td>
-						<td>{{ demande.dateDemande|date('d/m/Y') }}</td>
+						<td class="text-center">{{ demande.dateDemande|date('d/m/Y') }}</td>
 						<td>{{ demande.typePaiement }}</td>
 						<td>{{ demande.caisseRetrait }}</td>
 						<td>{{ demande.retraitLie }}</td>
-						<td>ag/serv emetteur</td>
-						<td>{{ demande.agenceDebiteur }}
-							-
-							{{ demande.serviceDebiteur }}</td>
+						<td class="text-center">ag/serv emetteur</td>
+						<td class="text-center">{{ demande.agenceDebiteur ~ '-' ~ demande.serviceDebiteur}}</td>
 						<td>{{ demande.adresseMailDemandeur }}</td>
 						<td class="text-end">{{ demande.montantPayer|number_format('2', ',', '.') }}</td>
 						<td>{{ demande.devise }}</td>
@@ -88,5 +87,5 @@
 {% endblock %}
 
 {% block javascript %}
-	<script src="{{ App.base_path }}/Views/js/bdc/bon_de_caisse.js"></script>
+	<script type="module" src="{{ App.base_path }}/Views/js/bdc/bon_de_caisse.js"></script>
 {% endblock %}

@@ -32,37 +32,25 @@ class BonDeCaisseController extends Controller
      */
     public function listeBonCaisse(Request $request)
     {
-        //verification si user connecter
         $this->verifierSessionUtilisateur();
-
-        /** Autorisation accées */
         $this->autorisationAcces($this->getUser(), Application::ID_BCS);
-        /** FIN AUtorisation acées */
 
-        $bonCaisseSearch = new BonDeCaisseDto();
+        $bonCaisseSearch = new \App\Dto\bdc\BonDeCaisseDto();
 
-        // Vérifier s'il y a des paramètres GET dans l'URL
         $hasGetParams = !empty($request->query->all());
-
-        // Si aucun paramètre GET n'est présent, supprimer les sessions
         if (!$hasGetParams) {
             $this->sessionService->remove('bon_caisse_search_criteria');
-            $this->sessionService->remove('bon_caisse_search_option');
         } else {
-            // Si des paramètres GET sont présents, utiliser les valeurs de session
             $sessionCriteria = $this->sessionService->get('bon_caisse_search_criteria', []);
             if (!empty($sessionCriteria)) {
-                $bonCaisseSearch->numeroDemande = $sessionCriteria['numeroDemande'] ?? null;
-                $bonCaisseSearch->dateDemande = $sessionCriteria['dateDemande'] ?? null;
-                $bonCaisseSearch->agenceDebiteur = $sessionCriteria['agenceDebiteur'] ?? null;
-                $bonCaisseSearch->statutDemande = $sessionCriteria['statutDemande'] ?? null;
-                $bonCaisseSearch->caisseRetrait = $sessionCriteria['caisseRetrait'] ?? null;
-                $bonCaisseSearch->typePaiement = $sessionCriteria['typePaiement'] ?? null;
-                $bonCaisseSearch->retraitLie = $sessionCriteria['retraitLie'] ?? null;
+                foreach ($sessionCriteria as $key => $value) {
+                    if (property_exists($bonCaisseSearch, $key)) {
+                        $bonCaisseSearch->$key = $value;
+                    }
+                }
             }
         }
 
-        // Création du formulaire de recherche
         $form = $this->getFormFactory()->createBuilder(BonDeCaisseType::class, $bonCaisseSearch, [
             'method' => 'GET',
             'em' => $this->getEntityManager()
@@ -75,70 +63,53 @@ class BonDeCaisseController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             $bonCaisseSearch = $form->getData();
 
-            if ($bonCaisseSearch->dateDemande) {
-                $options['dateDemande'] = $bonCaisseSearch->dateDemande;
+            $emetteurData = $form->get('emetteur')->getData();
+            if ($emetteurData) {
+                $bonCaisseSearch->agenceEmetteur = isset($emetteurData['agence']) ? $emetteurData['agence']->getCodeAgence() : null;
+                $bonCaisseSearch->serviceEmetteur = isset($emetteurData['service']) ? $emetteurData['service']->getCodeService() : null;
             }
 
-            if ($form->has('dateDemandeFin')) {
-                $dateDemandeFin = $form->get('dateDemandeFin')->getData();
-                if ($dateDemandeFin) {
-                    $options['dateDemandeFin'] = $dateDemandeFin;
-                }
+            $debiteurData = $form->get('debiteur')->getData();
+            if ($debiteurData) {
+                $bonCaisseSearch->agenceDebiteur = isset($debiteurData['agence']) ? $debiteurData['agence']->getCodeAgence() : null;
+                $bonCaisseSearch->serviceDebiteur = isset($debiteurData['service']) ? $debiteurData['service']->getCodeService() : null;
             }
 
-            if ($form->has('agenceDebiteur')) {
-                $agenceDebiteur = $form->get('agenceDebiteur')->getData();
-                $bonCaisseSearch->agenceDebiteur = $agenceDebiteur;
-                if ($agenceDebiteur) {
-                    $options['agenceDebiteur'] = $agenceDebiteur;
-                }
+            $dateDemande = $form->get('dateDemande')->getData();
+            if($dateDemande) {
+                $bonCaisseSearch->dateDemande = $dateDemande['debut'];
+                $bonCaisseSearch->dateDemandeFin = $dateDemande['fin'];
             }
 
-            if ($form->has('service')) {
-                $serviceDebiteur = $form->get('service')->getData();
-                if ($serviceDebiteur) {
-                    $options['service'] = $serviceDebiteur;
-                }
-            }
         }
+
+        $bonCaisseSearch->dateDemandeFin = $form->has('dateDemandeFin') ? $form->get('dateDemandeFin')->getData() : null;
 
         $criteria = $bonCaisseSearch->toArray();
-
-        if (isset($options['dateDemandeFin'])) {
-            $criteria['dateDemandeFin'] = $options['dateDemandeFin'];
-        }
-        if (isset($options['service']) && isset($options['agenceDebiteur'])) {
-            $criteria['agenceDebiteur'] = $options['agenceDebiteur'];
-            $criteria['service'] = $options['service'];
-        }
-
-        $page = max(1, $request->query->getInt('page', 1));
-        $limit = 10;
+        $this->sessionService->set('bon_caisse_search_criteria', $criteria);
 
         $bonCaisseEntitySearch = new BonDeCaisse();
         $bonCaisseEntitySearch->setNumeroDemande($bonCaisseSearch->numeroDemande);
         $bonCaisseEntitySearch->setDateDemande($bonCaisseSearch->dateDemande);
+        $bonCaisseEntitySearch->setDateDemandeFin($bonCaisseSearch->dateDemandeFin);
         $bonCaisseEntitySearch->setAgenceDebiteur($bonCaisseSearch->agenceDebiteur);
+        $bonCaisseEntitySearch->setServiceDebiteur($bonCaisseSearch->serviceDebiteur);
+        $bonCaisseEntitySearch->setAgenceEmetteur($bonCaisseSearch->agenceEmetteur);
+        $bonCaisseEntitySearch->setServiceEmetteur($bonCaisseSearch->serviceEmetteur);
         $bonCaisseEntitySearch->setStatutDemande($bonCaisseSearch->statutDemande);
         $bonCaisseEntitySearch->setCaisseRetrait($bonCaisseSearch->caisseRetrait);
         $bonCaisseEntitySearch->setTypePaiement($bonCaisseSearch->typePaiement);
         $bonCaisseEntitySearch->setRetraitLie($bonCaisseSearch->retraitLie);
 
+
+
+        $page = max(1, $request->query->getInt('page', 1));
+        $limit = 10;
+
         $repository = $this->getEntityManager()->getRepository(BonDeCaisse::class);
-        $paginationData = $repository->findPaginatedAndFiltered($page, $limit, $bonCaisseEntitySearch, $options);
+        $paginationData = $repository->findPaginatedAndFiltered($page, $limit, $bonCaisseEntitySearch);
 
-        $this->sessionService->set('bon_caisse_search_criteria', $criteria);
-        $this->sessionService->set('bon_caisse_search_option', $options);
-
-        $criteriaTab = $criteria;
-        $criteriaTab['statutDemande'] = $criteria['statutDemande'] ?? null;
-        $criteriaTab['dateDemande'] = $criteria['dateDemande'] ? $criteria['dateDemande']->format('d-m-Y') : null;
-        $criteriaTab['dateDemandeFin'] = isset($criteria['dateDemandeFin']) && $criteria['dateDemandeFin'] ? $criteria['dateDemandeFin']->format('d-m-Y') : null;
-        $criteriaTab['service'] = $criteria['service'] ?? null;
-
-        $filteredCriteria = array_filter($criteriaTab);
         $bonDeCaisseFactory = new BonDeCaisseFactory();
-
         return $this->render(
             'bdc/bon_caisse_list.html.twig',
             [

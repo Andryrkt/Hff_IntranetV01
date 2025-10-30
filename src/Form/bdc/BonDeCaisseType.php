@@ -63,6 +63,7 @@ class BonDeCaisseType extends AbstractType
             ->add('emetteur', AgenceServiceType::class, [
                 'label' => false,
                 'required' => false,
+                'mapped' => false,
                 'agence_label' => 'Agence Emetteur',
                 'service_label' => 'Service Emetteur',
                 'agence_placeholder' => '-- Agence Emetteur --',
@@ -72,6 +73,7 @@ class BonDeCaisseType extends AbstractType
             ->add('debiteur', AgenceServiceType::class, [
                 'label' => false,
                 'required' => false,
+                'mapped' => false,
                 'agence_label' => 'Agence Debiteur',
                 'service_label' => 'Service Debiteur',
                 'agence_placeholder' => '-- Agence Debiteur --',

@@ -112,9 +112,22 @@ class BonDeCaisse
      */
     private ?string $nomValidateurFinal;
 
+    private ?\DateTimeInterface $dateDemandeFin = null;
+
     /** ===================================================================================
      * Getter and setter
      *==============================================================================*/
+
+    public function getDateDemandeFin(): ?\DateTimeInterface
+    {
+        return $this->dateDemandeFin;
+    }
+
+    public function setDateDemandeFin(?\DateTimeInterface $dateDemandeFin): self
+    {
+        $this->dateDemandeFin = $dateDemandeFin;
+        return $this;
+    }
 
     // Getters et Setters
     public function getId(): ?int
