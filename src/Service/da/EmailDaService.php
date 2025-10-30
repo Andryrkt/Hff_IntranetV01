@@ -72,6 +72,7 @@ class EmailDaService
             'service'      => strtoupper($service),
             'urlIntranet'  => $this->getUrlIntranet(),
             'urlDetail'    => $this->getUrlDetail($demandeAppro->getId(), $demandeAppro->getDaTypeId()),
+            'dateYear'     => date('Y'),
         ];
     }
 
@@ -90,8 +91,8 @@ class EmailDaService
         $this->envoyerEmail([
             'to'        => $to,
             'variables' => [
-                'header'        => "{$demandeAppro->getNumeroDemandeAppro()} - DEMANDE " . strtoupper($daLabel) . " : <span class=\"commente\">OBSERVATION AJOUTÉE PAR LE SERVICE " . strtoupper($service) . "</span>",
                 'templateName'  => "observationDa",
+                'header'        => "{$demandeAppro->getNumeroDemandeAppro()} - DEMANDE " . strtoupper($daLabel) . " : <span class=\"commente\"> OBSERVATION AJOUTÉE PAR LE SERVICE " . strtoupper($service) . " </span>",
                 'subject'       => "{$demandeAppro->getNumeroDemandeAppro()} - Observation ajoutée par le service " . strtoupper($service),
                 'observationDa' => $observation,
             ] + $this->getImportantVariables($demandeAppro, $connectedUser, $daLabel, $service), // opérateur `+` pour ne pas écraser les clés existantes
@@ -110,10 +111,10 @@ class EmailDaService
         $this->envoyerEmail([
             'to'        => DemandeAppro::MAIL_APPRO,
             'variables' => [
-                'header'        => "{$demandeAppro->getNumeroDemandeAppro()} - DEMANDE " . strtoupper($daLabel) . " : <span class=\"newDa\">CRÉATION</span>",
                 'templateName'  => "newDa",
+                'header'        => "{$demandeAppro->getNumeroDemandeAppro()} - DEMANDE " . strtoupper($daLabel) . " : <span class=\"newDa\"> CRÉATION </span>",
                 'subject'       => "{$demandeAppro->getNumeroDemandeAppro()} - Nouvelle demande $daLabel créé",
-                'preparedDatas' => $this->prepareDataForMailCreationDa($demandeAppro->getDAL(), $demandeAppro->getDaTypeId()),
+                'preparedDatas' => $this->prepareDataForMailCreationDa($demandeAppro->getDaTypeId(), $demandeAppro->getDAL()),
             ] + $this->getImportantVariables($demandeAppro, $connectedUser, $daLabel, $service), // opérateur `+` pour ne pas écraser les clés existantes
         ]);
     }
@@ -132,8 +133,8 @@ class EmailDaService
         $this->envoyerEmail([
             'to'        => $demandeAppro->getUser()->getMail(),
             'variables' => [
-                'header'            => "{$demandeAppro->getNumeroDemandeAppro()} - DEMANDE " . strtoupper($daLabel) . " : <span class=\"propositionDa\">PROPOSITION</span>",
                 'templateName'      => "propositionDa",
+                'header'            => "{$demandeAppro->getNumeroDemandeAppro()} - DEMANDE " . strtoupper($daLabel) . " : <span class=\"propositionDa\"> PROPOSITION </span>",
                 'subject'           => "{$demandeAppro->getNumeroDemandeAppro()} - Proposition créée par l'Appro",
                 'serviceDemandeur'  => strtoupper($serviceDemandeur),
                 'preparedDatas'     => $this->prepareDataForMailPropositionDa($demandeAppro->getDAL()),
@@ -155,11 +156,43 @@ class EmailDaService
         $this->envoyerEmail([
             'to'        => DemandeAppro::MAIL_APPRO,
             'variables' => [
-                'header'        => "{$demandeAppro->getNumeroDemandeAppro()} - DEMANDE " . strtoupper($daLabel) . " : <span class=\"modificationDa\">MODIFICATION</span>",
                 'templateName'  => "modificationDa",
+                'header'        => "{$demandeAppro->getNumeroDemandeAppro()} - DEMANDE " . strtoupper($daLabel) . " : <span class=\"modificationDa\"> MODIFICATION </span>",
                 'subject'       => "{$demandeAppro->getNumeroDemandeAppro()} - Modification demande $daLabel",
                 'preparedDatas' => $this->prepareDataForMailModificationDa($demandeAppro->getDaTypeId(), $demandeAppro->getDAL(), $oldDals),
             ] + $this->getImportantVariables($demandeAppro, $connectedUser, $daLabel, $service),
+        ]);
+    }
+
+    /** 
+     * Méthode pour envoyer une email pour la validation d'une DA (avec DIT, Direct)
+     * @param DemandeAppro $demandeAppro objet de la demande appro
+     * @param User $connectedUser l'utilisateur connecté
+     */
+    public function envoyerMailValidationDa(DemandeAppro $demandeAppro, User $connectedUser, array $resultatExport)
+    {
+        $avecDIT   = $demandeAppro->getDaTypeId() === DemandeAppro::TYPE_DA_AVEC_DIT;
+        $daLabel   = $this->getDaLabelForMail($demandeAppro->getDaTypeId());
+        $service   = $avecDIT ? 'atelier' : $demandeAppro->getServiceEmetteur()->getLibelleService();
+        $constp    = $avecDIT ? 'ZST' : 'ZDI';
+        $variables = [
+            'templateName'  => "validationDa",
+            'header'        => "{$demandeAppro->getNumeroDemandeAppro()} - PROPOSITION(S) <span class=\"validationDa\"> VALIDÉE(S) PAR LE SERVICE " . strtoupper($service) . " </span>",
+            'subject'       => "{$demandeAppro->getNumeroDemandeAppro()} - Proposition(s) validée(s) par le service " . strtoupper($service),
+            'preparedDatas' => $this->prepareDataForMailValidationDa($demandeAppro->getDaTypeId(), $resultatExport['donnees']),
+        ];
+        $this->envoyerEmail([
+            'to'          => $demandeAppro->getUser()->getMail(),
+            'variables'   => [
+                "phraseValidation" => "Vous trouverez en pièce jointe le fichier contenant les références $constp.",
+            ] + $variables + $this->getImportantVariables($demandeAppro, $connectedUser, $daLabel, $service),
+            'attachments' => [
+                $resultatExport['filePath'] => $resultatExport['fileName'],
+            ],
+        ]);
+        $this->envoyerEmail([
+            'to'        => DemandeAppro::MAIL_APPRO,
+            'variables' => $variables + $this->getImportantVariables($demandeAppro, $connectedUser, $daLabel, $service),
         ]);
     }
 
