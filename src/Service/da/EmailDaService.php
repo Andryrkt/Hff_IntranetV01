@@ -26,6 +26,14 @@ class EmailDaService
     }
 
     /** 
+     * Fonction pour obtenir l'url de l'INTRANET
+     */
+    private function getUrlIntranet()
+    {
+        return $this->urlGenerique($_ENV['BASE_PATH_COURT']);
+    }
+
+    /** 
      * Fonction pour obtenir l'url du détail de la DA
      * @param string $id       id de la DA
      * @param int    $daTypeId le type de la DA
@@ -37,7 +45,7 @@ class EmailDaService
             DemandeAppro::TYPE_DA_DIRECT    => 'demande-appro/detail-direct',
             DemandeAppro::TYPE_DA_REAPPRO   => 'demande-appro/detail-reappro',
         ];
-        return $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/{$template[$daTypeId]}/$id");
+        return $this->urlGenerique("{$_ENV['BASE_PATH_COURT']}/{$template[$daTypeId]}/$id");
     }
 
     private function getDaLabelForMail(int $daTypeId): string
@@ -71,7 +79,8 @@ class EmailDaService
                 'observation'    => $demandeAppro->getObservation() ?? '-',
                 'preparedDatas'  => $this->prepareDataForMailCreationDa($demandeAppro->getDAL(), $demandeAppro->getDaTypeId()),
                 'service'        => strtoupper($service),
-                'action_url'     => $this->getUrlDetail($demandeAppro->getId(), $demandeAppro->getDaTypeId()),
+                'urlIntranet'    => $this->getUrlIntranet(),
+                'urlDetail'      => $this->getUrlDetail($demandeAppro->getId(), $demandeAppro->getDaTypeId()),
             ],
         ]);
     }
