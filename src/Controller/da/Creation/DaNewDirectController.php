@@ -81,17 +81,16 @@ class DaNewDirectController extends Controller
                 $this->getEntityManager()->persist($demandeApproL);
             }
 
-            /** Ajout de demande appro dans la base de donnée (table: Demande_Appro) */
-            $this->getEntityManager()->persist($demandeAppro);
-
             /** Modifie la colonne dernière_id dans la table applications */
             $applicationService = new ApplicationService($this->getEntityManager());
             $applicationService->mettreAJourDerniereIdApplication('DAP', $numDa);
 
+            /** Ajout de demande appro dans la base de donnée (table: Demande_Appro) */
+            $this->getEntityManager()->persist($demandeAppro);
+            $this->getEntityManager()->flush();
+
             /** ajout de l'observation dans la table da_observation si ceci n'est pas null */
             if ($demandeAppro->getObservation()) $this->insertionObservation($demandeAppro->getObservation(), $demandeAppro);
-
-            $this->getEntityManager()->flush();
 
             // ajout des données dans la table DaAfficher
             $this->ajouterDaDansTableAffichage($demandeAppro);
