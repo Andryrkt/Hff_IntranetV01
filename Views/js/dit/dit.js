@@ -514,32 +514,28 @@ if (reparationRealiseSelect) {
 if (atePolTanaInput) {
   // affichage d'une confirmation si la cage ate pol tana est coché
   atePolTanaInput.addEventListener("change", function () {
-    Swal.fire({
-      title: "êtes vous sure?",
-      html: `Les travaux seront réalisés par l'ATE TANA en solicitant également l'ATE TANA POL, une deuxième DIT sera créée automatiquement. 
+    if (atePolTanaInput.checked === true) {
+      Swal.fire({
+        title: "êtes vous sure?",
+        html: `Les travaux seront réalisés par l'ATE TANA en solicitant également l'ATE TANA POL, une deuxième DIT sera créée automatiquement. 
     <b>Cliquer sur oui pour confirmer et non pour abandonner.</b>`,
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#fbbb01",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "OUI",
-      cancelButtonText: "NON",
-      allowOutsideClick: false, // Permet de ne pas fermer en cliquant à l'extérieur
-      allowEscapeKey: false, // Permet de ne pas fermer en tapant sur echape
-    }).then((result) => {
-      if (result.isConfirmed) {
-        //il faut que le cage est coher
-        atePolTanaInput.checked = true;
-      } else {
-        //il faut que le cage est decocher
-        atePolTanaInput.checked = false;
-      }
-    });
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#fbbb01",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "OUI",
+        cancelButtonText: "NON",
+        allowOutsideClick: false, // Permet de ne pas fermer en cliquant à l'extérieur
+        allowEscapeKey: false, // Permet de ne pas fermer en tapant sur echape
+      }).then((result) => {
+        if (result.isConfirmed) {
+          //il faut que le cage est coher
+          atePolTanaInput.checked = true;
+        } else {
+          //il faut que le cage est decocher
+          atePolTanaInput.checked = false;
+        }
+      });
+    }
   });
-}
-
-const btnEnregistrer = document.querySelector("#bouton-cde-fnr");
-
-if (btnEnregistrer) {
-  btnEnregistrer.addEventListener("click", function () {});
 }
