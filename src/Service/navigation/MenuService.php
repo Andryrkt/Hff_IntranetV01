@@ -461,7 +461,7 @@ class MenuService
                 [
                     $this->createSubItem('Devis', 'file-invoice', 'devis_magasin_liste'),
                     $this->createSubItem('Commandes clients', 'shopping-basket', '#'),
-                    $this->createSubItem('Planning magasin', 'calendar-alt', 'interface_planningMag'),
+                    $this->createSubItem('Planning de commande Magasin', 'calendar-alt', 'interface_planningMag'),
                 ]
             );
         }
