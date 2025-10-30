@@ -69,6 +69,7 @@ class PlanningMagasinModel extends Model
                         FROM agr_succ , agr_tab a 
                         WHERE a.atab_nom = 'SER' 
                         and a.atab_code not in (select b.atab_code from agr_tab b where substr(b.atab_nom,10,2) = asuc_num and b.atab_nom like 'SERBLOSUC%') 
+                        AND a.atab_code in ('NEG','FLE','MAP')
                         $codeAgence
         ";
         $result = $this->connect->executeQuery($statement);
@@ -81,7 +82,7 @@ class PlanningMagasinModel extends Model
             ];
         }, $dataUtf8);
     }
-    
+
 
     public function recuperationCommadeplanifier($criteria, string $back)
     {

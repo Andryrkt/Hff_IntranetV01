@@ -16,7 +16,7 @@ const config = {
   },
   urls: {
     serviceFetch: (agenceDebiteur) =>
-      `serviceDebiteurPlanning-fetch/${agenceDebiteur}`,
+      `serviceDebiteurPlanningMagasin-fetch/${agenceDebiteur}`,
   },
 };
 
