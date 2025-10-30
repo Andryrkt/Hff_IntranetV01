@@ -44,12 +44,7 @@ class DaValidationAvecDitController extends Controller
 
         $this->ajouterDansTableAffichageParNumDa($da->getNumeroDemandeAppro(), true); // enregistrer dans la table Da Afficher
 
-        /** ENVOIE D'EMAIL */
-        $this->emailDaService->envoyerMailValidationDaAvecDit($da, $resultatExport, [
-            'service'           => 'appro',
-            'phraseValidation'  => 'Vous trouverez en pièce jointe le fichier contenant les références ZST.',
-            'userConnecter'     => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
-        ]);
+        $this->emailDaService->envoyerMailValidationDa($da, $this->getUser(), $resultatExport);
 
         /** NOTIFICATION */
         $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'La demande a été validée avec succès.']);

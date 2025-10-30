@@ -217,12 +217,7 @@ class DaPropositionArticleDirectController extends Controller
         /** envoi dans docuware */
         $this->fusionAndCopyToDW($da->getNumeroDemandeAppro());
 
-        /** ENVOI DE MAIL POUR LA VALIDATION DES ARTICLES */
-        $this->emailDaService->envoyerMailValidationDaDirect($da, $nomEtChemin, [
-            'service'           => $this->estUserDansServiceAppro() ? 'appro' : $da->getServiceEmetteur()->getLibelleService(),
-            'phraseValidation'  => 'Vous trouverez en pièce jointe le fichier contenant les références ZDI.',
-            'userConnecter'     => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
-        ]);
+        $this->emailDaService->envoyerMailValidationDa($da, $this->getUser(), $nomEtChemin);
 
         $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         $this->redirectToRoute("list_da");
@@ -253,12 +248,7 @@ class DaPropositionArticleDirectController extends Controller
         /** envoi dans docuware */
         $this->fusionAndCopyToDW($da->getNumeroDemandeAppro());
 
-        /** ENVOI DE MAIL POUR LES ARTICLES VALIDES */
-        $this->emailDaService->envoyerMailValidationDaDirect($da, $nomEtChemin, [
-            'service'           => $this->estUserDansServiceAppro() ? 'appro' : $da->getServiceEmetteur()->getLibelleService(),
-            'phraseValidation'  => 'Vous trouverez en pièce jointe le fichier contenant les références ZDI.',
-            'userConnecter'     => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
-        ]);
+        $this->emailDaService->envoyerMailValidationDa($da, $this->getUser(), $nomEtChemin);
 
         $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         $this->redirectToRoute("list_da");

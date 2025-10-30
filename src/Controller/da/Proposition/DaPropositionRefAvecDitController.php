@@ -214,12 +214,7 @@ class DaPropositionRefAvecDitController extends Controller
 
         $this->ajouterDansTableAffichageParNumDa($numDa, true); // enregistrement dans la table DaAfficher
 
-        /** ENVOI DE MAIL POUR LA VALIDATION DES ARTICLES */
-        $this->emailDaService->envoyerMailValidationDaAvecDit($da, $nomEtChemin, [
-            'service'           => $this->estUserDansServiceAtelier() ? 'atelier' : ($this->estUserDansServiceAppro() ? 'appro' : ''),
-            'phraseValidation'  => 'Vous trouverez en pièce jointe le fichier contenant les références ZST.',
-            'userConnecter'     => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
-        ]);
+        $this->emailDaService->envoyerMailValidationDa($da, $this->getUser(), $nomEtChemin);
 
         $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         $this->redirectToRoute("list_da");
@@ -244,12 +239,7 @@ class DaPropositionRefAvecDitController extends Controller
 
         $this->ajouterDansTableAffichageParNumDa($numDa, true);
 
-        /** ENVOI DE MAIL POUR LES ARTICLES VALIDES */
-        $this->emailDaService->envoyerMailValidationDaAvecDit($da, $nomEtChemin, [
-            'service'           => $this->estUserDansServiceAtelier() ? 'atelier' : ($this->estUserDansServiceAppro() ? 'appro' : ''),
-            'phraseValidation'  => 'Vous trouverez en pièce jointe le fichier contenant les références ZST.',
-            'userConnecter'     => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
-        ]);
+        $this->emailDaService->envoyerMailValidationDa($da, $this->getUser(), $nomEtChemin);
 
         $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         $this->redirectToRoute("list_da");

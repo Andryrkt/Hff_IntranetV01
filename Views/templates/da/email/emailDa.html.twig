@@ -24,7 +24,15 @@
 				</p>
 				<p class="fw-bold">Cordialement,</p>
 			</div>
-			{{ include('da/email/shared/_footer.html.twig') }}
+			<div class="email-footer">
+				Service
+				{{ service }}
+				- Henri Fraise Fis & Cie
+				<br>
+				&copy;
+				{{ dateYear }}
+				Henri Fraise Fis & cie.
+			</div>
 		</div>
 	</body>
 </html>
