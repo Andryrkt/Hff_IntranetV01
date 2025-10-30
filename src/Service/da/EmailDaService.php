@@ -144,40 +144,22 @@ class EmailDaService
     }
 
     /** 
-     * Méthode pour envoyer une email de modifications pour une DA avec DIT
+     * Méthode pour envoyer une email pour la modification d'une DA (avec DIT, Direct)
      * @param DemandeAppro $demandeAppro objet de la demande appro
-     * @param array $tab tableau de données à utiliser dans le corps du mail
+     * @param User $connectedUser l'utilisateur connecté
      */
-    public function envoyerMailModificationDaAvecDit(DemandeAppro $demandeAppro, array $tab)
+    public function envoyerMailModificationDa(DemandeAppro $demandeAppro, User $connectedUser, iterable $oldDals)
     {
+        $daLabel = $this->getDaLabelForMail($demandeAppro->getDaTypeId());
+        $service = $demandeAppro->getDaTypeId() === DemandeAppro::TYPE_DA_AVEC_DIT ? 'atelier' : $demandeAppro->getServiceEmetteur()->getLibelleService();
         $this->envoyerEmail([
             'to'        => DemandeAppro::MAIL_APPRO,
             'variables' => [
-                'tab'            => $tab,
-                'statut'         => "modificationDa",
-                'subject'        => "{$demandeAppro->getNumeroDemandeAppro()} - Modification demande d'approvisionnement",
-                'demandeAppro'   => $demandeAppro,
-                'action_url'     => $this->getUrlDetail($demandeAppro->getId()),
-            ],
-        ]);
-    }
-
-    /** 
-     * Méthode pour envoyer une email de modifications pour une DA directe
-     * @param DemandeAppro $demandeAppro objet de la demande appro
-     * @param array $tab tableau de données à utiliser dans le corps du mail
-     */
-    public function envoyerMailModificationDaDirect(DemandeAppro $demandeAppro, array $tab)
-    {
-        $this->envoyerEmail([
-            'to'        => DemandeAppro::MAIL_APPRO,
-            'variables' => [
-                'tab'            => $tab,
-                'statut'         => "modificationDa",
-                'subject'        => "{$demandeAppro->getNumeroDemandeAppro()} - Modification demande d'achat",
-                'demandeAppro'   => $demandeAppro,
-                'action_url'     => $this->getUrlDetail($demandeAppro->getId(), false),
-            ],
+                'header'        => "{$demandeAppro->getNumeroDemandeAppro()} - DEMANDE " . strtoupper($daLabel) . " : <span class=\"modificationDa\">MODIFICATION</span>",
+                'templateName'  => "modificationDa",
+                'subject'       => "{$demandeAppro->getNumeroDemandeAppro()} - Modification demande $daLabel",
+                'preparedDatas' => $this->prepareDataForMailModificationDa($demandeAppro->getDaTypeId(), $demandeAppro->getDAL(), $oldDals),
+            ] + $this->getImportantVariables($demandeAppro, $connectedUser, $daLabel, $service),
         ]);
     }
 
