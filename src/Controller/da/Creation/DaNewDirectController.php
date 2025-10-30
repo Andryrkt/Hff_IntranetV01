@@ -89,20 +89,14 @@ class DaNewDirectController extends Controller
             $applicationService->mettreAJourDerniereIdApplication('DAP', $numDa);
 
             /** ajout de l'observation dans la table da_observation si ceci n'est pas null */
-            if ($demandeAppro->getObservation() !== null) {
-                $this->insertionObservation($demandeAppro->getObservation(), $demandeAppro);
-            }
+            if ($demandeAppro->getObservation()) $this->insertionObservation($demandeAppro->getObservation(), $demandeAppro);
 
             $this->getEntityManager()->flush();
 
             // ajout des données dans la table DaAfficher
             $this->ajouterDaDansTableAffichage($demandeAppro);
 
-            $this->emailDaService->envoyerMailcreationDaDirect($demandeAppro, [
-                'service'       => $demandeAppro->getServiceEmetteur()->getLibelleService(),
-                'observation'   => $demandeAppro->getObservation() ?? '-',
-                'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
-            ]);
+            $this->emailDaService->envoyerMailcreationDa($demandeAppro, $this->getUser());
 
             $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'Votre demande a été enregistrée']);
             $this->redirectToRoute("list_da");

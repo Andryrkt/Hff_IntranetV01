@@ -86,44 +86,6 @@ class EmailDaService
     }
 
     /** 
-     * Méthode pour envoyer une email pour la création d'une DA avec DIT
-     * @param DemandeAppro $demandeAppro objet de la demande appro
-     * @param array $tab tableau de données à utiliser dans le corps du mail
-     */
-    public function envoyerMailcreationDaAvecDit(DemandeAppro $demandeAppro, array $tab)
-    {
-        $this->envoyerEmail([
-            'to'        => DemandeAppro::MAIL_APPRO,
-            'variables' => [
-                'tab'            => $tab,
-                'statut'         => "newDa",
-                'subject'        => "{$demandeAppro->getNumeroDemandeAppro()} - Nouvelle demande d'approvisionnement créé",
-                'demandeAppro'   => $demandeAppro,
-                'action_url'     => $this->getUrlDetail($demandeAppro->getId()),
-            ],
-        ]);
-    }
-
-    /** 
-     * Méthode pour envoyer une email pour la création d'une DA directe
-     * @param DemandeAppro $demandeAppro objet de la demande appro
-     * @param array $tab tableau de données à utiliser dans le corps du mail
-     */
-    public function envoyerMailcreationDaDirect(DemandeAppro $demandeAppro, array $tab)
-    {
-        $this->envoyerEmail([
-            'to'        => DemandeAppro::MAIL_APPRO,
-            'variables' => [
-                'tab'            => $tab,
-                'statut'         => "newDa",
-                'subject'        => "{$demandeAppro->getNumeroDemandeAppro()} - Nouvelle demande d'achat créé",
-                'demandeAppro'   => $demandeAppro,
-                'action_url'     => $this->getUrlDetail($demandeAppro->getId(), false),
-            ],
-        ]);
-    }
-
-    /** 
      * Méthode pour envoyer une email de propositions pour une DA avec DIT
      * @param DemandeAppro $demandeAppro objet de la demande appro
      * @param array $tab tableau de données à utiliser dans le corps du mail
