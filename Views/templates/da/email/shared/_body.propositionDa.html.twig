@@ -1,8 +1,6 @@
-{% set service_demandeur = demandeAppro.daTypeId == 0 ? 'de l’Atelier' : 'du service emetteur' %}
-
 <p>
 	Une nouvelle proposition a été créée par
-	<b>{{ tab.userConnecter }}</b>.
+	<b>{{ fullNameUser }}</b>.
 </p>
 <p>
 	<b>Détails du demande :</b>
@@ -23,15 +21,13 @@
 		</li>
 		<li>
 			<b>Observation:</b>
-			<div class="espace">
-				{{ tab.observation|raw }}
-			</div>
+			<div class="espace">{{ observation|raw }}</div>
 		</li>
 	</ul>
 </p>
 <hr>
-<p>Récap de la demande
-	{{ service_demandeur }}
+<p>Récap de la demande du service
+	{{ serviceDemandeur }}
 	avec les propositions du service APPRO (en orange).
 </p>
 
