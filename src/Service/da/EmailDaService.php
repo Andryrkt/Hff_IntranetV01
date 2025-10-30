@@ -46,14 +46,32 @@ class EmailDaService
         return $this->urlGenerique("{$_ENV['BASE_PATH_COURT']}/{$template[$daTypeId]}/$id");
     }
 
+    /** 
+     * Fonction pour obtenir le label de la DA pour mail
+     */
     private function getDaLabelForMail(int $daTypeId): string
     {
         $daLabels = [
-            DemandeAppro::TYPE_DA_AVEC_DIT  => 'd’approvisionnement',
-            DemandeAppro::TYPE_DA_DIRECT    => 'd’achat',
-            DemandeAppro::TYPE_DA_REAPPRO   => 'de réappro mensuel',
+            DemandeAppro::TYPE_DA_AVEC_DIT  => "d'approvisionnement",
+            DemandeAppro::TYPE_DA_DIRECT    => "d'achat",
+            DemandeAppro::TYPE_DA_REAPPRO   => "de réappro mensuel",
         ];
         return $daLabels[$daTypeId];
+    }
+
+    /** 
+     * Fonction pour obtenir les variables indispensables du template de mail
+     */
+    private function getImportantVariables(DemandeAppro $demandeAppro, User $connectedUser, string $daLabel, string $service): array
+    {
+        return [
+            'demandeAppro'   => $demandeAppro,
+            'fullNameUser'   => $connectedUser->getFullName(),
+            'daLabel'        => $daLabel,
+            'service'        => strtoupper($service),
+            'urlIntranet'    => $this->getUrlIntranet(),
+            'urlDetail'      => $this->getUrlDetail($demandeAppro->getId(), $demandeAppro->getDaTypeId()),
+        ];
     }
 
     /** 
@@ -70,15 +88,10 @@ class EmailDaService
             'variables' => [
                 'header'         => "{$demandeAppro->getNumeroDemandeAppro()} - DEMANDE " . strtoupper($daLabel) . " : <span class=\"newDa\">CRÉATION</span>",
                 'templateName'   => "newDa",
-                'daLabel'        => $daLabel,
-                'fullNameUser'   => $connectedUser->getFullName(),
                 'subject'        => "{$demandeAppro->getNumeroDemandeAppro()} - Nouvelle demande $daLabel créé",
-                'demandeAppro'   => $demandeAppro,
                 'observation'    => $demandeAppro->getObservation() ?? '-',
                 'preparedDatas'  => $this->prepareDataForMailCreationDa($demandeAppro->getDAL(), $demandeAppro->getDaTypeId()),
-                'service'        => strtoupper($service),
-                'urlIntranet'    => $this->getUrlIntranet(),
-                'urlDetail'      => $this->getUrlDetail($demandeAppro->getId(), $demandeAppro->getDaTypeId()),
+                ...$this->getImportantVariables($demandeAppro, $connectedUser, $daLabel, $service),
             ],
         ]);
     }
@@ -331,8 +344,8 @@ class EmailDaService
         $emailService->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.da');
 
         $content['cc'] = $content['cc'] ?? [];
-        $content['cc'][] = 'hoby.ralahy@hff.mg';
+        // $content['cc'][] = 'hoby.ralahy@hff.mg';
 
-        $emailService->sendEmail($content['to'], $content['cc'] ?? [], $this->emailTemplate, $content['variables'] ?? [], $content['attachments'] ?? []);
+        $emailService->sendEmail($content['to'], $content['cc'], $this->emailTemplate, $content['variables'] ?? [], $content['attachments'] ?? []);
     }
 }
