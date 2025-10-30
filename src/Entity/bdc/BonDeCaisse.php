@@ -52,6 +52,15 @@ class BonDeCaisse
      * @ORM\Column(name="Service_Debiteur", type="string", length=10)
      */
     private ?string $serviceDebiteur = null;
+    /**
+     * @ORM\Column(name="agence_emetteur", type="string", length=10)
+     */
+    private ?string $agenceEmetteur = null;
+
+    /**
+     * @ORM\Column(name="service_emetteur", type="string", length=10)
+     */
+    private ?string $serviceEmetteur = null;
 
     /**
      * @ORM\Column(name="Retrait_Lie", type="string", length=50)
@@ -97,6 +106,15 @@ class BonDeCaisse
      * @ORM\Column(name="pdf_demande", type="string", length=255, nullable=true)
      */
     private ?string $pdfDemande = null;
+
+    /**
+     * @ORM\Column(name="nom_validateur_final", type="string", length=255, nullable=true)
+     */
+    private ?string $nomValidateurFinal;
+
+    /** ===================================================================================
+     * Getter and setter
+     *==============================================================================*/
 
     // Getters et Setters
     public function getId(): ?int
@@ -166,6 +184,48 @@ class BonDeCaisse
         $this->serviceDebiteur = $serviceDebiteur;
         return $this;
     }
+
+    /**
+     * Get the value of agenceEmetteur
+     */
+    public function getAgenceEmetteur()
+    {
+        return $this->agenceEmetteur;
+    }
+
+    /**
+     * Set the value of agenceEmetteur
+     *
+     * @return  self
+     */
+    public function setAgenceEmetteur($agenceEmetteur)
+    {
+        $this->agenceEmetteur = $agenceEmetteur;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of serviceEmetteur
+     */
+    public function getServiceEmetteur()
+    {
+        return $this->serviceEmetteur;
+    }
+
+
+    /**
+     * Set the value of serviceEmetteur
+     *
+     * @return  self
+     */
+    public function setServiceEmetteur($serviceEmetteur)
+    {
+        $this->serviceEmetteur = $serviceEmetteur;
+
+        return $this;
+    }
+
     public function getRetraitLie(): ?string
     {
         return $this->retraitLie;
@@ -248,6 +308,19 @@ class BonDeCaisse
         return $this;
     }
 
+
+    public function getNomValidateurFinal()
+    {
+        return $this->nomValidateurFinal;
+    }
+
+    public function setNomValidateurFinal($nomValidateurFinal)
+    {
+        $this->nomValidateurFinal = $nomValidateurFinal;
+
+        return $this;
+    }
+
     // Méthode pour convertir l'objet en tableau
     public function toArray(): array
     {
@@ -259,6 +332,8 @@ class BonDeCaisse
             'typePaiement' => $this->typePaiement,
             'agenceDebiteur' => $this->agenceDebiteur,
             'serviceDebiteur' => $this->serviceDebiteur,
+            'agenceEmetteur' => $this->agenceEmetteur,
+            'serviceEmetteur' => $this->serviceEmetteur,
             'retraitLie' => $this->retraitLie,
             'matricule' => $this->matricule,
             'adresseMailDemandeur' => $this->adresseMailDemandeur,
@@ -268,6 +343,7 @@ class BonDeCaisse
             'statutDemande' => $this->statutDemande,
             'dateStatut' => $this->dateStatut,
             'pdfDemande' => $this->pdfDemande,
+            'nomValidateurFinal' => $this->nomValidateurFinal
         ];
     }
 }

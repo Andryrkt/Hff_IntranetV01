@@ -59,9 +59,9 @@ label {
   display: flex;
   flex-direction: column;
 }
-.content {
+/* .content {
   flex: 1;
-}
+} */
 
 .color {
   background-color: #fbbb01;

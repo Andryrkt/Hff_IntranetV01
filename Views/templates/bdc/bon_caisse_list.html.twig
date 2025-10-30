@@ -24,11 +24,13 @@
 					<th>Type de paiement</th>
 					<th>Caisse de retrait</th>
 					<th>Retrait lié à</th>
-					<th>Agence/Service</th>
+					<th>Agence/Service\n émetteur</th>
+					<th>Agence/Service\n débiteur</th>
 					<th>Adresse mail demandeur</th>
 					<th class="text-end">Montant</th>
 					<th>Devise</th>
 					<th>Motif</th>
+					<th>Nom validateur\n final</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -63,6 +65,7 @@
 						<td>{{ demande.typePaiement }}</td>
 						<td>{{ demande.caisseRetrait }}</td>
 						<td>{{ demande.retraitLie }}</td>
+						<td>ag/serv emetteur</td>
 						<td>{{ demande.agenceDebiteur }}
 							-
 							{{ demande.serviceDebiteur }}</td>
@@ -70,6 +73,7 @@
 						<td class="text-end">{{ demande.montantPayer|number_format('2', ',', '.') }}</td>
 						<td>{{ demande.devise }}</td>
 						<td>{{ demande.motifDemande }}</td>
+						<td>Nom validateur final</td>
 					</tr>
 				{% else %}
 					<tr>
@@ -80,19 +84,9 @@
 		</table>
 	</div>
 
-	<div class="pagination justify-content-center mt-3">
-		{% if currentPage > 1 %}
-			<a href="?page={{ currentPage - 1 }}" class="page-link">Précédent</a>
-		{% endif %}
-
-		{% for i in 1..lastPage %}
-			<a href="?page={{ i }}" class="page-link {% if i == currentPage %}active{% endif %}">{{ i }}</a>
-		{% endfor %}
-
-		{% if currentPage < lastPage %}
-			<a href="?page={{ currentPage + 1 }}" class="page-link">Suivant</a>
-		{% endif %}
-	</div>
+	{% include "/partials/_pagination.html.twig" %}
 {% endblock %}
 
-{% block javascript %}{% endblock %}
+{% block javascript %}
+	<script src="{{ App.base_path }}/Views/js/bdc/bon_de_caisse.js"></script>
+{% endblock %}
