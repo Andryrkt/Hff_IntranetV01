@@ -17,6 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
 use App\Service\historiqueOperation\HistoriqueOperationDITService;
+use Symfony\Component\Form\FormInterface;
 
 /**
  * @Route("/atelier")
@@ -73,14 +74,8 @@ class PlanningController extends Controller
             ]
         )->getForm();
 
-        $form->handleRequest($request);
-        //initialisation criteria
-        $criteria = $this->planningSearch;
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            // dd($form->getdata());
-            $criteria =  $form->getdata();
-        }
+        //traitement du formulaire
+        $criteria = $this->traitementFormulaire($form, $request);
 
         /**
          * Transformation du critère en tableau
@@ -93,18 +88,15 @@ class PlanningController extends Controller
 
 
         if ($request->query->get('action') !== 'oui') {
-            $lesOrvalides = $this->recupNumOrValider($criteria, $this->getEntityManager());
+            /** @var string $orAvecItv @var string $orSansItv */
+            ['orAvecItv' => $orAvecItv,'orSansItv' => $orSansItv] = $this->recupNumOrValider($criteria);
             $tousLesOrSoumis = $this->allOrs();
             $touslesOrItvSoumis = $this->allOrsItv();
 
-            $back = $this->planningModel->backOrderPlanning($lesOrvalides['orSansItv'], $criteria, $tousLesOrSoumis);
-
-            if (is_array($back)) {
-                $backString = TableauEnStringService::orEnString($back);
-            } else {
-                $backString = '';
-            }
-            $data = $this->planningModel->recuperationMaterielplanifier($criteria, $lesOrvalides['orAvecItv'], $backString, $touslesOrItvSoumis);
+            $back = $this->planningModel->backOrderPlanning($orSansItv, $criteria, $tousLesOrSoumis);
+            $backString = is_array($back) ? TableauEnStringService::orEnString($back) : '';
+            
+            $data = $this->planningModel->recuperationMaterielplanifier($criteria, $orAvecItv, $backString, $touslesOrItvSoumis);
         } else {
             $data = [];
             $back = [];
@@ -125,6 +117,21 @@ class PlanningController extends Controller
             'uniqueMonths' => $forDisplay['uniqueMonths'],
         ]);
     }
+
+    private function traitementFormulaire(FormInterface $form, Request $request): PlanningSearch
+    {
+        $form->handleRequest($request);
+        //initialisation criteria
+        $criteria = $this->planningSearch;
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            // dd($form->getdata());
+            $criteria =  $form->getdata();
+        }
+
+        return $criteria;
+    }
+
 
     private function allOrsItv()
     {
@@ -152,7 +159,7 @@ class PlanningController extends Controller
 
         $planningSearch = $this->creationObjetCriteria($criteria);
 
-        $lesOrvalides = $this->recupNumOrValider($planningSearch, $this->getEntityManager());
+        $lesOrvalides = $this->recupNumOrValider($planningSearch);
 
         $back = $this->planningModel->backOrderPlanning($lesOrvalides['orSansItv'], $criteria, $this->allOrs());
         $data = $this->planningModel->exportExcelPlanning($planningSearch, $lesOrvalides['orAvecItv']);
@@ -215,7 +222,7 @@ class PlanningController extends Controller
 
         $planningSearch = $this->creationObjetCriteria($criteria);
 
-        $lesOrvalides = $this->recupNumOrValider($planningSearch, $this->getEntityManager());
+        $lesOrvalides = $this->recupNumOrValider($planningSearch);
 
         $data = $this->planningModel->exportExcelPlanning($planningSearch, $lesOrvalides['orAvecItv']);
         //  dd($data);
