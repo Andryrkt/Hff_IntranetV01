@@ -81,12 +81,13 @@ class PlanningMagasinModel extends Model
             ];
         }, $dataUtf8);
     }
+    
 
-    public function recuperationCommadeplanifier($criteria,string $back)
+    public function recuperationCommadeplanifier($criteria, string $back)
     {
         if ($criteria->getOrBackOrder() == true) {
             $numCmd = "AND nent_numcde in (" . $back . ")";
-        }else{
+        } else {
             $numCmd = $this->numcommande($criteria);
         }
         $agDebit = $this->agenceDebite($criteria);

@@ -216,7 +216,7 @@ ORDER BY 6,2, A.NLIG_NOLIGN
     return $resultat;
   }
   //
-    public function recupInfodGcot($numcde)
+  public function recupInfodGcot($numcde)
   {
     $statement = "SELECT Code_Statut  as Ord
 					FROM  GCOT_Statut_Dossier 
@@ -332,6 +332,30 @@ ORDER BY 6,2, A.NLIG_NOLIGN
         and ssal_numsal <> 9999
       ";
 
+    $result = $this->connect->executeQuery($statement);
+
+    $data = $this->connect->fetchResults($result);
+
+    return $this->convertirEnUtf8($data);
+  }
+  
+  public function recupClientPlanningMagasin()
+  {
+    $statement = "SELECT 
+                        nent_numcli as numclient,
+                        trim(cbse_nomcli) as nom_client
+                        from neg_ent, neg_lig, agr_succ, agr_tab ser, agr_usr ope, cli_bse, cli_soc
+                        where nent_soc = 'HF'
+                        and nlig_soc = nent_soc and nlig_numcde = nent_numcde
+                        and asuc_numsoc = nent_soc and asuc_num = nent_succ
+                        and csoc_soc = nent_soc and csoc_numcli = cbse_numcli and cbse_numcli = nent_numcli
+                        AND (nent_servcrt = ser.atab_code AND ser.atab_nom = 'SER')
+                        AND (nent_usr = ausr_num)
+                        AND nent_natop not in ('DEV')
+                        AND nent_posf not in ('CP')
+                        AND to_char(nent_numcli) not like '150%'
+                        group by 1,2
+         ";
     $result = $this->connect->executeQuery($statement);
 
     $data = $this->connect->fetchResults($result);

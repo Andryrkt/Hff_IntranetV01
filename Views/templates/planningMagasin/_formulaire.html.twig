@@ -22,20 +22,15 @@
 					</div>
 					
 					<div class="col-12 col-md-2">
-						{# {{form_row(form.facture)}} #}
 						{{form_row(form.numOr)}}
-						{# {{form_row(form.typeDocument)}} #}
 						{{form_row(form.orBackOrder)}}
-						{# {% if 1 in role_ids %}
-						{{form_row(form.orNonValiderDw)}}
-						{% else %}
-						{{form_row(form.orNonValiderDw, {'row_attr': {'class': 'd-none'}})}}
-						{% endif %}					 #}
 					</div>
 					<div class="col-12 col-md-2">
 						{# {{form_row(form.plan)}}
 						{{form_row(form.numSerie)}} #}
 						{{form_row(form.numParc)}}
+						<div id="suggestion-num-client" class="suggestions-container"></div>
+						<div id="loader-num-client" class="spinner" style="display: none;">Chargement...</div>
 						{# {{form_row(form.reparationRealise)}} #}
 					</div>
 					<div class="col-12 col-md-2">

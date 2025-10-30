@@ -85,4 +85,12 @@ class ModalPlanningApi extends Controller
         }
         return $groupedDetails;
     }
+/**
+     * @Route("/api/numero-libelle-client", name="api_numero_libelle_client")
+     */
+    public function client(){
+        $client = $this->planningMagasinModel->recupClientPlanningMagasin();
+        header("Content-type:application/json");
+        echo json_encode($client);
+    }
 }
