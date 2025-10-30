@@ -2,18 +2,22 @@
 
 namespace App\Repository\bdc;
 
-use Doctrine\ORM\EntityRepository;
-use Doctrine\ORM\Tools\Pagination\Paginator;
+use Doctrine\ORM\QueryBuilder;
 use App\Entity\bdc\BonDeCaisse;
+use Doctrine\ORM\EntityRepository;
+use App\Entity\admin\utilisateur\User;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 
 class BonDeCaisseRepository extends EntityRepository
 {
-    public function findPaginatedAndFiltered(
-        int $page,
-        int $limit,
-        BonDeCaisse $bonDeCaisse
-    ): array {
-        $queryBuilder = $this->createQueryBuilder('b');
+    public function filtres(QueryBuilder $queryBuilder, BonDeCaisse $bonDeCaisse, User $user): void
+    {
+        if (!in_array(1, $user->getRoleIds())) {
+            $queryBuilder->andWhere('asi.agence_ips IN (:agencesAutorisees)')
+                ->setParameter('agencesAutorisees', $user->getAgenceAutoriserCode())
+                ->andWhere('asi.service_ips IN (:servicesAutorises)')
+                ->setParameter('servicesAutorises', $user->getServiceAutoriserCode());
+        }
 
         if ($bonDeCaisse->getNumeroDemande()) {
             $queryBuilder->andWhere('b.numeroDemande = :numeroDemande')
@@ -89,6 +93,26 @@ class BonDeCaisseRepository extends EntityRepository
             $queryBuilder->andWhere('b.nomValidateurFinal LIKE :nomValidateurFinal')
                 ->setParameter('nomValidateurFinal', '%' . $bonDeCaisse->getNomValidateurFinal() . '%git a');
         }
+    }
+    
+    /**
+     * Recupération des données paginée
+     *
+     * @param integer $page
+     * @param integer $limit
+     * @param BonDeCaisse $bonDeCaisse
+     * @param User|null $user
+     * @return array
+     */
+    public function findPaginatedAndFiltered(
+        int $page,
+        int $limit,
+        BonDeCaisse $bonDeCaisse,
+        ?User $user = null
+    ): array {
+        $queryBuilder = $this->createQueryBuilder('b');
+
+        $this->filtres($queryBuilder, $bonDeCaisse, $user);
 
         $query = $queryBuilder
             ->orderBy('b.id', 'DESC')
@@ -108,32 +132,17 @@ class BonDeCaisseRepository extends EntityRepository
         ];
     }
 
-    public function findAndFilteredExcel(BonDeCaisse $bonDeCaisse): array
+    /**
+     * recupération des données à ajouter dans excel
+     *
+     * @param BonDeCaisse $bonDeCaisse
+     * @return array
+     */
+    public function findAndFilteredExcel(BonDeCaisse $bonDeCaisse, ?User $user = null): array
     {
         $queryBuilder = $this->createQueryBuilder('b');
 
-        // Appliquer les mêmes filtres que pour la pagination
-        if ($bonDeCaisse->getNumeroDemande()) {
-            $queryBuilder->andWhere('b.numeroDemande = :numeroDemande')
-                ->setParameter('numeroDemande', $bonDeCaisse->getNumeroDemande());
-        }
-
-        // Filtrer par plage de date de demande
-        if ($bonDeCaisse->getDateDemande()) {
-            $dateDemandeFin = $options['dateDemandeFin'] ?? null;
-
-            if ($dateDemandeFin) {
-                $queryBuilder->andWhere('b.dateDemande BETWEEN :dateDemande AND :dateDemandeFin')
-                    ->setParameter('dateDemande', $bonDeCaisse->getDateDemande())
-                    ->setParameter('dateDemandeFin', $dateDemandeFin);
-            } else {
-                $queryBuilder->andWhere('b.dateDemande = :dateDemande')
-                    ->setParameter('dateDemande', $bonDeCaisse->getDateDemande());
-            }
-        }
-
-        // Autres filtres identiques à findPaginatedAndFiltered
-        // ...
+        $this->filtres($queryBuilder, $bonDeCaisse, $user);
 
         return $queryBuilder
             ->orderBy('b.id', 'DESC')

@@ -74,11 +74,10 @@ class BonDeCaisseController extends Controller
             }
 
             $dateDemande = $form->get('dateDemande')->getData();
-            if($dateDemande) {
+            if ($dateDemande) {
                 $bonCaisseSearch->dateDemande = $dateDemande['debut'];
                 $bonCaisseSearch->dateDemandeFin = $dateDemande['fin'];
             }
-
         }
 
 
@@ -105,7 +104,7 @@ class BonDeCaisseController extends Controller
         $limit = 10;
 
         $repository = $this->getEntityManager()->getRepository(BonDeCaisse::class);
-        $paginationData = $repository->findPaginatedAndFiltered($page, $limit, $bonCaisseEntitySearch);
+        $paginationData = $repository->findPaginatedAndFiltered($page, $limit, $bonCaisseEntitySearch, $this->getUser());
 
         $bonDeCaisseFactory = new BonDeCaisseFactory();
         return $this->render(
@@ -129,28 +128,28 @@ class BonDeCaisseController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        // Récupère les critères dans la session
+        /** Récupère les critères dans la session @var array $criteira*/
         $criteria = $this->sessionService->get('bon_caisse_search_criteria', []);
 
-        $bonCaisseSearch = new BonDeCaisse();
-        $bonCaisseSearch->setTypeDemande($criteria['typeDemande'] ?? null)
-            ->setNumeroDemande($criteria['numeroDemande'] ?? null)
-            ->setDateDemande($criteria['dateDemande'] ?? null)
-            ->setCaisseRetrait($criteria['caisseRetrait'] ?? null)
-            ->setTypePaiement($criteria['typePaiement'] ?? null)
-            ->setAgenceDebiteur($criteria['agenceDebiteur'] ?? null)
-            ->setServiceDebiteur($criteria['serviceDebiteur'] ?? null)
-            ->setRetraitLie($criteria['retraitLie'] ?? null)
-            ->setMatricule($criteria['matricule'] ?? null)
-            ->setAdresseMailDemandeur($criteria['adresseMailDemandeur'] ?? null)
-            ->setMotifDemande($criteria['motifDemande'] ?? null)
-            ->setMontantPayer($criteria['montantPayer'] ?? null)
-            ->setDevise($criteria['devise'] ?? null)
-            ->setStatutDemande($criteria['statutDemande'] ?? null)
-            ->setDateStatut($criteria['dateStatut'] ?? null);
+        $bonCaisseSearch = new BonDeCaisseDto();
+        $bonCaisseSearch->toObject($criteria);
+
+        $bonCaisseEntitySearch = new BonDeCaisse();
+        $bonCaisseEntitySearch->setNumeroDemande($bonCaisseSearch->numeroDemande);
+        $bonCaisseEntitySearch->setDateDemande($bonCaisseSearch->dateDemande);
+        $bonCaisseEntitySearch->setDateDemandeFin($bonCaisseSearch->dateDemandeFin);
+        $bonCaisseEntitySearch->setAgenceDebiteur($bonCaisseSearch->agenceDebiteur);
+        $bonCaisseEntitySearch->setServiceDebiteur($bonCaisseSearch->serviceDebiteur);
+        $bonCaisseEntitySearch->setAgenceEmetteur($bonCaisseSearch->agenceEmetteur);
+        $bonCaisseEntitySearch->setServiceEmetteur($bonCaisseSearch->serviceEmetteur);
+        $bonCaisseEntitySearch->setStatutDemande($bonCaisseSearch->statutDemande);
+        $bonCaisseEntitySearch->setCaisseRetrait($bonCaisseSearch->caisseRetrait);
+        $bonCaisseEntitySearch->setTypePaiement($bonCaisseSearch->typePaiement);
+        $bonCaisseEntitySearch->setRetraitLie($bonCaisseSearch->retraitLie);
+        $bonCaisseEntitySearch->setNomValidateurFinal($bonCaisseSearch->nomValidateurFinal);
 
         // Récupère les entités filtrées
-        $entities = $this->getEntityManager()->getRepository(BonDeCaisse::class)->findAndFilteredExcel($bonCaisseSearch);
+        $entities = $this->getEntityManager()->getRepository(BonDeCaisse::class)->findAndFilteredExcel($bonCaisseEntitySearch, $this->getUser());
 
         // Convertir les entités en tableau de données
         $data = [];
@@ -161,24 +160,16 @@ class BonDeCaisseController extends Controller
             "Type de paiement",
             "Caisse de retrait",
             "Retrait lié à",
-            "Agence/Service",
+            "Agence/Service émetteur",
+            "Agence/Service débiteur",
             "Adresse mail demandeur",
             "Montant",
             "Devise",
-            "Motif"
+            "Motif",
+            "Nom validateur final"
         ];
 
         foreach ($entities as $entity) {
-            // Récupérer les informations d'agence et service pour l'affichage
-            $agenceService = $this->getEntityManager()->getRepository(AgenceServiceIrium::class)->findOneBy([
-                'agence_ips' => $entity->getAgenceDebiteur(),
-                'service_ips' => $entity->getServiceDebiteur()
-            ]);
-
-            $agenceServiceLibelle = '';
-            if ($agenceService) {
-                $agenceServiceLibelle = $agenceService->getNomagencei100() . ' - ' . $agenceService->getLibelleserviceips();
-            }
 
             $data[] = [
                 $entity->getStatutDemande(),
@@ -187,15 +178,17 @@ class BonDeCaisseController extends Controller
                 $entity->getTypePaiement(),
                 $entity->getCaisseRetrait(),
                 $entity->getRetraitLie(),
-                $agenceServiceLibelle,
+                $entity->getAgenceEmetteur() . ' - ' . $entity->getServiceEmetteur(),
+                $entity->getAgenceDebiteur() . ' - ' . $entity->getServiceDebiteur(),
                 $entity->getAdresseMailDemandeur(),
                 $entity->getMontantPayer(),
                 $entity->getDevise(),
-                $entity->getMotifDemande()
+                $entity->getMotifDemande(),
+                $entity->getNomValidateurFinal()
             ];
         }
 
         // Crée le fichier Excel
-        $this->excelService->createSpreadsheet($data);
+        $this->getExcelService()->createSpreadsheet($data);
     }
 }

@@ -2,8 +2,12 @@
 
 namespace App\Dto\bdc;
 
+use App\Factory\Traits\ArrayableTrait;
+
 class BonDeCaisseDto
 {
+    use ArrayableTrait;
+
     public ?int $id = null;
     public ?string $typeDemande = null;
     public ?string $numeroDemande = null;
@@ -26,8 +30,8 @@ class BonDeCaisseDto
     public ?string $pdfDemande = null;
     public ?string $nomValidateurFinal = null;
 
-    public function toArray(): array
-    {
-        return get_object_vars($this);
-    }
+    // public function toArray(): array
+    // {
+    //     return get_object_vars($this);
+    // }
 }

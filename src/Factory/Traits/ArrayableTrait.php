@@ -4,9 +4,9 @@ namespace App\Factory\Traits;
 
 trait ArrayableTrait
 {
-    /**
+    /**=======================================================================
      * Hydrate l'objet à partir d'un tableau (transforme un array en objet)
-     */
+     *======================================================================*/
     public function toObject(?array $data): self
     {
         // Si les données sont null, on retourne l'objet tel quel
@@ -25,9 +25,9 @@ trait ArrayableTrait
         return $this;
     }
 
-    /**
+    /**==============================================================
      * Transforme l'objet en tableau en filtrant les valeurs vides
-     */
+     *==============================================================*/
     public function toArray(array $onlyProperties = [], array $exceptProperties = []): array
     {
         $reflection = new \ReflectionClass($this);

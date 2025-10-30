@@ -11,6 +11,7 @@ use App\Repository\bdc\BonDeCaisseRepository;
  */
 class BonDeCaisse
 {
+    
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -332,31 +333,5 @@ class BonDeCaisse
         $this->nomValidateurFinal = $nomValidateurFinal;
 
         return $this;
-    }
-
-    // Méthode pour convertir l'objet en tableau
-    public function toArray(): array
-    {
-        return [
-            'typeDemande' => $this->typeDemande,
-            'numeroDemande' => $this->numeroDemande,
-            'dateDemande' => $this->dateDemande,
-            'caisseRetrait' => $this->caisseRetrait,
-            'typePaiement' => $this->typePaiement,
-            'agenceDebiteur' => $this->agenceDebiteur,
-            'serviceDebiteur' => $this->serviceDebiteur,
-            'agenceEmetteur' => $this->agenceEmetteur,
-            'serviceEmetteur' => $this->serviceEmetteur,
-            'retraitLie' => $this->retraitLie,
-            'matricule' => $this->matricule,
-            'adresseMailDemandeur' => $this->adresseMailDemandeur,
-            'motifDemande' => $this->motifDemande,
-            'montantPayer' => $this->montantPayer,
-            'devise' => $this->devise,
-            'statutDemande' => $this->statutDemande,
-            'dateStatut' => $this->dateStatut,
-            'pdfDemande' => $this->pdfDemande,
-            'nomValidateurFinal' => $this->nomValidateurFinal
-        ];
     }
 }
