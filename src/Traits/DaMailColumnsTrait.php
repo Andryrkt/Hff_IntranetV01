@@ -76,20 +76,40 @@ trait DaMailColumnsTrait
     {
         $context = strtolower($context);
 
-        switch ($context) {
-            case 'creation':
-                $columnsByType = $this->getCreationColumns();
-                break;
-            case 'modification':
-            case 'validation':
-                $columnsByType = $this->getWithQteColumns();
-                break;
-            default:
-                throw new \InvalidArgumentException("Contexte inconnu : $context");
-        }
+        // Mapping contexte → méthode
+        $contextMap = [
+            'creation'     => 'getCreationColumns',
+            'modification' => 'getWithQteColumns',
+            'validation'   => 'getWithQteColumns',
+        ];
+
+        if (!isset($contextMap[$context])) throw new \InvalidArgumentException("Contexte inconnu : $context");
+
+        // Appel dynamique de la méthode correspondante
+        $columnsByType = $this->{$contextMap[$context]}();
 
         if (!isset($columnsByType[$datypeId])) throw new \InvalidArgumentException("Type de DA inconnu ($datypeId) pour le contexte $context");
 
         return $columnsByType[$datypeId];
+    }
+
+    /**
+     * Retourne le mapping clé → méthode d’accès.
+     */
+    private function getMethodMapping(): array
+    {
+        return [
+            'fams1'  => 'getArtFams1',
+            'fams2'  => 'getArtFams2',
+            'refp'   => 'getArtRefp',
+            'desi'   => 'getArtDesi',
+            'qteDem' => 'getQteDem',
+            'qteVal' => 'getQteValAppro',
+            'constp' => 'getArtConstp',
+            'pu'     => 'getPUFormatted',
+            'mtt'    => 'getMontantFormatted',
+            'frn'    => 'getNomFournisseur',
+            'com'    => 'getCommentaire',
+        ];
     }
 }
