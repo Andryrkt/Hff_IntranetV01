@@ -132,13 +132,7 @@ class DaDetailAvecDitController extends Controller
 				'message' => 'Votre observation a été enregistré avec succès.',
 			];
 
-			/** ENVOIE D'EMAIL pour l'observation */
-			$service = $this->estUserDansServiceAtelier() ? 'atelier' : ($this->estUserDansServiceAppro() ? 'appro' : '');
-			$this->emailDaService->envoyerMailObservationDaAvecDit($demandeAppro, [
-				'service' 		=> $service,
-				'observation'   => $daObservation->getObservation(),
-				'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
-			]);
+			$this->emailDaService->envoyerMailObservationDa($demandeAppro, $this->getUser(), $this->estUserDansServiceAppro());
 
 			$this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
 			return $this->redirectToRoute("list_da");

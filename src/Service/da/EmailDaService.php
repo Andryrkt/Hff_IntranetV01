@@ -76,6 +76,27 @@ class EmailDaService
     }
 
     /** 
+     * Méthode pour envoyer une email pour les observations d'une DA (avec DIT, Direct, Réappro)
+     * @param DemandeAppro $demandeAppro  objet de la demande appro
+     * @param User         $connectedUser l'utilisateur connecté
+     * @param bool         $estAppro
+     */
+    public function envoyerMailObservationDa(DemandeAppro $demandeAppro, User $connectedUser, bool $estAppro)
+    {
+        $daLabel = $this->getDaLabelForMail($demandeAppro->getDaTypeId());
+        $service = $estAppro ? 'appro' : ($demandeAppro->getDaTypeId() === DemandeAppro::TYPE_DA_AVEC_DIT ? 'atelier' : $demandeAppro->getServiceEmetteur()->getLibelleService());
+        $to      = $estAppro ? $demandeAppro->getUser()->getMail() : DemandeAppro::MAIL_APPRO;
+        $this->envoyerEmail([
+            'to'        => $to,
+            'variables' => [
+                'header'       => "{$demandeAppro->getNumeroDemandeAppro()} - DEMANDE " . strtoupper($daLabel) . " : <span class=\"commente\">OBSERVATION AJOUTÉE PAR LE SERVICE " . strtoupper($service) . "</span>",
+                'templateName' => "observationDa",
+                'subject'      => "{$demandeAppro->getNumeroDemandeAppro()} - Observation ajoutée par le service " . strtoupper($service),
+            ] + $this->getImportantVariables($demandeAppro, $connectedUser, $daLabel, $service), // opérateur `+` pour ne pas écraser les clés existantes
+        ]);
+    }
+
+    /** 
      * Méthode pour envoyer une email pour la création d'une DA (avec DIT, Direct, Réappro)
      * @param DemandeAppro $demandeAppro objet de la demande appro
      * @param User $connectedUser l'utilisateur connecté
@@ -107,7 +128,7 @@ class EmailDaService
         $service          = "appro";
         $serviceDemandeur = $demandeAppro->getDaTypeId() === DemandeAppro::TYPE_DA_AVEC_DIT ? 'atelier' : $demandeAppro->getServiceEmetteur()->getLibelleService();
         $this->envoyerEmail([
-            'to'        => DemandeAppro::MAIL_APPRO,
+            'to'        => $demandeAppro->getUser()->getMail(),
             'variables' => [
                 'header'            => "{$demandeAppro->getNumeroDemandeAppro()} - DEMANDE " . strtoupper($daLabel) . " : <span class=\"propositionDa\">PROPOSITION</span>",
                 'templateName'      => "propositionDa",
