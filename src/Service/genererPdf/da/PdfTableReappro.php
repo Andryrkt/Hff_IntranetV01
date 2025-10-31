@@ -20,13 +20,13 @@ class PdfTableReappro
         return '
             <thead>
                 <tr style="background-color: #dcdcdc;">
-                    <th align="center">Constructeur</th>
-                    <th align="center">Référence</th>
-                    <th align="center">Désignation</th>
-                    <th align="right">PU</th>
-                    <th align="center">Qté demandée</th>
-                    <th align="center">Qté Validée</th>
-                    <th align="right">Montant</th>
+                    <th align="center" style="width:10%;">Constructeur</th>
+                    <th align="center" style="width:15%;">Référence</th>
+                    <th align="center" style="width:30%;">Désignation</th>
+                    <th align="right" style="width:12%;">PU</th>
+                    <th align="center" style="width:10%;">Qté demandée</th>
+                    <th align="center" style="width:10%;">Qté Validée</th>
+                    <th align="right" style="width:13%;">Montant</th>
                 </tr>
             </thead>
         ';
@@ -46,13 +46,13 @@ class PdfTableReappro
         /** @var DemandeApproL $dal */
         foreach ($dals as $dal) {
             $html .= '<tr>';
-            $html .= '<td align="center">' . $dal->getArtConstp() . '</td>';
-            $html .= '<td align="center">' . $dal->getArtRefp() . '</td>';
-            $html .= '<td align="left">' . $dal->getArtDesi() . '</td>';
-            $html .= '<td align="right">' . $dal->getPUFormatted() . '</td>';
-            $html .= '<td align="center">' . $dal->getQteDem() . '</td>';
-            $html .= '<td align="center">' . $dal->getQteValAppro() . '</td>';
-            $html .= '<td align="right">' . $dal->getMontantFormatted() . '</td>';
+            $html .= '<td align="center" style="width:10%;">' . $dal->getArtConstp() . '</td>';
+            $html .= '<td align="center" style="width:15%;">' . $dal->getArtRefp() . '</td>';
+            $html .= '<td align="left" style="width:30%;">' . $dal->getArtDesi() . '</td>';
+            $html .= '<td align="right" style="width:12%;">' . $dal->getPUFormatted() . '</td>';
+            $html .= '<td align="center" style="width:10%;">' . $dal->getQteDem() . '</td>';
+            $html .= '<td align="center" style="width:10%;">' . $dal->getQteValAppro() . '</td>';
+            $html .= '<td align="right" style="width:13%;">' . $dal->getMontantFormatted() . '</td>';
             $html .= '</tr>';
         }
 

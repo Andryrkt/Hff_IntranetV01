@@ -22,7 +22,6 @@ class GenererPdfDaReappro extends GenererPdfDa
     public function genererPdfBonAchatValide(DemandeAppro $da, string $userMail, iterable $observations, array $monthsList, array $dataHistoriqueConsommation): void
     {
         $pdf = new TCPDF();
-        $dals = $da->getDAL();
         $numDa = $da->getNumeroDemandeAppro();
 
         $pdf->AddPage();
@@ -43,6 +42,6 @@ class GenererPdfDaReappro extends GenererPdfDa
         $this->renderChatMessages($pdf, $observations);
 
         // Sauvegarder le PDF
-        $this->saveBonAchatValide($pdf, $numDa);
+        $this->saveBonAchatValide($pdf, $numDa, "I");
     }
 }

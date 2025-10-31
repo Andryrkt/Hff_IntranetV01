@@ -45,7 +45,7 @@ class GenererPdfDaAvecDit extends GenererPdfDa
         $pdf->setAbsX(130);
         $pdf->cell(20, 6, 'Urgence :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->cell(0, 6, $dit->getIdNiveauUrgence()->getDescription(), 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->Ln(6, true);
+        $pdf->Ln(6);
 
         $this->renderAgenceServicePdfDA($pdf, $dit->getAgenceServiceEmetteur(), $dit->getAgenceServiceDebiteur());
 
@@ -61,7 +61,7 @@ class GenererPdfDaAvecDit extends GenererPdfDa
         $pdf->setAbsX(130);
         $pdf->cell(25, 6, 'Réalisé par :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->cell(0, 6, $dit->getReparationRealise(), 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->Ln(6, true);
+        $pdf->Ln(6);
 
         //========================================================================================================
         /** CARACTERISTIQUE MATERIEL */
@@ -76,7 +76,7 @@ class GenererPdfDaAvecDit extends GenererPdfDa
         $pdf->setAbsX(140);
         $pdf->cell(20, 6, 'N° Série :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->cell(0, 6, $dit->getNumSerie(), 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->Ln(7, true);
+        $pdf->Ln(7);
 
 
         $pdf->cell(25, 6, 'N° Parc :', 0, 0, '', false, '', 0, false, 'T', 'M');
@@ -87,7 +87,7 @@ class GenererPdfDaAvecDit extends GenererPdfDa
         $pdf->setAbsX(130);
         $pdf->cell(30, 6, 'Constructeur :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->cell(0, 6, $dit->getConstructeur(), 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->Ln(7, true);
+        $pdf->Ln(7);
 
         $pdf->cell(25, 6, 'Casier :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $casier = $dit->getCasier();
@@ -101,7 +101,7 @@ class GenererPdfDaAvecDit extends GenererPdfDa
         $pdf->setAbsX(130);
         $pdf->cell(33, 6, 'livraison partielle :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->cell(0, 6, $dit->getLivraisonPartiel(), 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->Ln(6, true);
+        $pdf->Ln(6);
 
         //===================================================================================================
         /** ETAT MACHINE */
@@ -115,11 +115,11 @@ class GenererPdfDaAvecDit extends GenererPdfDa
         $pdf->setAbsX(135);
         $pdf->cell(25, 6, 'Kilométrage :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->cell(0, 6, $dit->getKm(), 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->Ln(6, true);
+        $pdf->Ln(6);
 
         $this->renderTableArticlesValidesPdfDA($pdf, $dals);
 
         // Sauvegarder le PDF
-        $this->saveBonAchatValide($pdf, $numDa);
+        $this->saveBonAchatValide($pdf, $numDa, "I");
     }
 }

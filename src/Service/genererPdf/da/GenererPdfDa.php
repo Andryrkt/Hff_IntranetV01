@@ -39,7 +39,7 @@ abstract class GenererPdfDa extends GeneratePdf
         $pdf->setFont('helvetica', 'B', 10);
         $pdf->Cell(35, 6, $numDa, 0, 0, 'L', false, '', 0, false, 'T', 'M');
 
-        $pdf->Ln(6, true);
+        $pdf->Ln(6);
 
         if ($dit) {
             $pdf->setFont('helvetica', 'B', 12);
@@ -56,7 +56,7 @@ abstract class GenererPdfDa extends GeneratePdf
         $pdf->setFont('helvetica', 'B', 10);
         $pdf->setAbsX(170);
         $pdf->cell(35, 6, 'Le : ' . $dateCreation->format('d/m/Y'), 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->Ln(7, true);
+        $pdf->Ln(7);
     }
 
     /** 
@@ -69,14 +69,14 @@ abstract class GenererPdfDa extends GeneratePdf
         $pdf->cell(25, 6, 'Objet :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->setFont('helvetica', '', 9);
         $pdf->cell(0, 6, $objetDal, 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->Ln(7, true);
+        $pdf->Ln(7);
 
         $pdf->setFont('helvetica', 'B', 10);
         $pdf->cell(25, 6, 'Détails :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->setFont('helvetica', '', 9);
-        $pdf->MultiCell(164, 50, $detailDal, 1, '', 0, 0, '', '', true);
-        $pdf->Ln(3, true);
-        $pdf->setAbsY(83);
+        $pdf->MultiCell(165, 50, $detailDal, 1, '', 0, 0, '', '', true);
+        $pdf->Ln(3);
+        $pdf->setAbsY(85);
     }
 
     /** 
@@ -94,7 +94,7 @@ abstract class GenererPdfDa extends GeneratePdf
         $pdf->setAbsX(130);
         $pdf->cell(20, 6, 'Débiteur :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->cell(0, 6, $debiteur, 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->Ln(6, true);
+        $pdf->Ln(8);
     }
 
     /** 
@@ -110,7 +110,8 @@ abstract class GenererPdfDa extends GeneratePdf
         $pdf->SetTextColor(0, 0, 0);
         $pdf->setFont('helvetica', '', 10);
         $html1 = $generator->generer($dals);
-        $pdf->writeHTML($html1, true, false, true, false, '');
+        $pdf->writeHTML($html1, false, false, true, false, '');
+        $pdf->Ln(3);
     }
 
     /** 
@@ -126,7 +127,8 @@ abstract class GenererPdfDa extends GeneratePdf
         $pdf->SetTextColor(0, 0, 0);
         $pdf->setFont('helvetica', '', 10);
         $html = $generator->generateTableArticleDemandeReappro($dals);
-        $pdf->writeHTML($html, true, false, true, false, '');
+        $pdf->writeHTML($html, false, false, true, false, '');
+        $pdf->Ln(3);
     }
 
     /** 
@@ -142,7 +144,8 @@ abstract class GenererPdfDa extends GeneratePdf
         $pdf->SetTextColor(0, 0, 0);
         $pdf->setFont('helvetica', '', 10);
         $html = $generator->generateHistoriqueTable($monthsList, $dataHistoriqueConsommation);
-        $pdf->writeHTML($html, true, false, true, false, '');
+        $pdf->writeHTML($html, false, false, true, false, '');
+        $pdf->Ln(3);
     }
 
     /**
