@@ -85,7 +85,7 @@ class DaValidationReapproController extends Controller
             if ($request->request->has('refuser')) {
                 $this->refuserDemande($da);
 
-                $this->emailDaService->envoyerMailValidationReappro($da, $observation, $this->getUser(), false);
+                $this->emailDaService->envoyerMailValidationReappro($da, $observation ?? '-', $this->getUser(), false);
 
                 $notification = [
                     'type'    => 'success',
@@ -97,7 +97,7 @@ class DaValidationReapproController extends Controller
                 $this->copyPDFToDW($da->getNumeroDemandeAppro());
                 $this->ajouterDansDaSoumisAValidation($da);
 
-                $this->emailDaService->envoyerMailValidationReappro($da, $observation, $this->getUser());
+                $this->emailDaService->envoyerMailValidationReappro($da, $observation ?? '-', $this->getUser());
 
                 $notification = [
                     'type'    => 'success',
