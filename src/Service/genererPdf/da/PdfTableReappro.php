@@ -8,7 +8,7 @@ class PdfTableReappro
 {
     public function generateTableArticleDemandeReappro(iterable $dals)
     {
-        $html = '<table border="1" cellpadding="4" cellspacing="0" style="border-collapse: collapse; font-size: 8px;">';
+        $html = '<table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse; font-size: 9px;">';
         $html .= $this->generateHeaderArticleDemandeReappro();
         $html .= $this->generateBodyArticleDemandeReappro($dals);
         $html .= '</table>';
@@ -19,12 +19,12 @@ class PdfTableReappro
     {
         return '
             <thead>
-                <tr style="background-color: #dcdcdc;">
+                <tr style="background-color: #dcdcdc; font-weight: bold;">
                     <th align="center" style="width:10%;">Constructeur</th>
                     <th align="center" style="width:15%;">Référence</th>
                     <th align="center" style="width:30%;">Désignation</th>
                     <th align="right" style="width:12%;">PU</th>
-                    <th align="center" style="width:10%;">Qté demandée</th>
+                    <th align="center" style="width:10%;">Qté demandé</th>
                     <th align="center" style="width:10%;">Qté Validée</th>
                     <th align="right" style="width:13%;">Montant</th>
                 </tr>
@@ -74,19 +74,19 @@ class PdfTableReappro
     {
         $html = '<thead>';
         // Première ligne de l'en-tête
-        $html .= '<tr style="background-color: #dcdcdc;">';
-        $html .= '<th rowspan="2" align="center">Constructeur</th>';
-        $html .= '<th rowspan="2" align="center">Référence</th>';
-        $html .= '<th rowspan="2" align="center">Désignation</th>';
-        $html .= '<th colspan="13" align="center">Quantités facturées sur les 12 derniers mois</th>';
+        $html .= '<tr style="background-color: #dcdcdc; font-weight: bold;">';
+        $html .= '<th rowspan="2" align="center" style="width:5%;">Constructeur</th>';
+        $html .= '<th rowspan="2" align="center" style="width:7%;">Référence</th>';
+        $html .= '<th rowspan="2" align="center" style="width:18%;">Désignation</th>';
+        $html .= '<th colspan="13" align="center" style="width:72%;">Quantités facturées sur les 12 derniers mois</th>';
         $html .= '</tr>';
 
         // Deuxième ligne avec les mois et le total
-        $html .= '<tr style="background-color: #dcdcdc;">';
+        $html .= '<tr style="background-color: #dcdcdc; font-weight: bold; font-size: 7.5px;">';
         foreach ($monthsList as $month) {
-            $html .= '<th align="right">' . $month . '</th>';
+            $html .= '<th align="center">' . $month . '</th>';
         }
-        $html .= '<th align="right">Total qte</th>';
+        $html .= '<th align="center">Total qte</th>';
         $html .= '</tr>';
 
         $html .= '</thead>';
@@ -106,15 +106,15 @@ class PdfTableReappro
 
         foreach ($dataHistorique as $data) {
             $html .= '<tr>';
-            $html .= '<td align="center">' . $data['cst'] . '</td>';
-            $html .= '<td align="center">' . $data['refp'] . '</td>';
-            $html .= '<td align="left">' . $data['desi'] . '</td>';
+            $html .= '<td align="center" style="width:5%;">' . $data['cst'] . '</td>';
+            $html .= '<td align="center" style="width:7%;">' . $data['refp'] . '</td>';
+            $html .= '<td align="left" style="width:18%;">' . $data['desi'] . '</td>';
 
             foreach ($monthsList as $month) {
-                $html .= '<td align="right">' . $data['qte'][$month] . '</td>';
+                $html .= '<td align="right" style="width:' . 72 / 13 . '%;">' . $data['qte'][$month] . '</td>';
             }
 
-            $html .= '<td align="right">' . $data['qteTotal'] . '</td>';
+            $html .= '<td align="right" style="width:' . 72 / 13 . '%;">' . $data['qteTotal'] . '</td>';
             $html .= '</tr>';
         }
 

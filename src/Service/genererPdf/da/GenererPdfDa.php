@@ -125,7 +125,7 @@ abstract class GenererPdfDa extends GeneratePdf
         $pdf->Ln(3);
 
         $pdf->SetTextColor(0, 0, 0);
-        $pdf->setFont('helvetica', '', 10);
+        $pdf->setFont('helvetica', '');
         $html = $generator->generateTableArticleDemandeReappro($dals);
         $pdf->writeHTML($html, false, false, true, false, '');
         $pdf->Ln(3);
@@ -139,13 +139,14 @@ abstract class GenererPdfDa extends GeneratePdf
         $generator = new PdfTableReappro;
         $this->renderTextWithLine($pdf, 'Historique des consommations');
 
-        $pdf->Ln(3);
+        $pdf->AddPage('L');
 
         $pdf->SetTextColor(0, 0, 0);
         $pdf->setFont('helvetica', '', 10);
         $html = $generator->generateHistoriqueTable($monthsList, $dataHistoriqueConsommation);
         $pdf->writeHTML($html, false, false, true, false, '');
-        $pdf->Ln(3);
+
+        $pdf->AddPage('P');
     }
 
     /**
