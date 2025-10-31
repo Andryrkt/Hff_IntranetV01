@@ -31,7 +31,7 @@ class DaValidationReapproController extends Controller
     }
 
     /**
-     * @Route("/validation/{id}", name="da_validate_reappro")
+     * @Route("/validation-reappro/{id}", name="da_validate_reappro")
      */
     public function validationDaReappro($id, Request $request)
     {
@@ -53,6 +53,9 @@ class DaValidationReapproController extends Controller
         $monthsList = $this->getMonthsList($dateRange['start'], $dateRange['end']);
         $dataHistoriqueConsommation = $this->getHistoriqueConsommation($da, $dateRange, $monthsList);
         $observations = $this->daObservationRepository->findBy(['numDa' => $da->getNumeroDemandeAppro()]);
+
+        $this->creationPDFReappro($da, $observations, $monthsList, $dataHistoriqueConsommation);
+        die;
 
         //========================================== Traitement du formulaire en général ===================================================//
         $this->traitementFormulaire($formReappro, $formObservation, $request, $da, $observations, $monthsList, $dataHistoriqueConsommation);
