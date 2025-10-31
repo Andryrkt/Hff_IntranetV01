@@ -67,6 +67,28 @@ class DaAfficherRepository extends EntityRepository
             ->execute();
     }
 
+    public function markAsDeletedByListId(array $ids, string $userName): void
+    {
+        if (empty($ids)) return; // rien à faire
+
+        try {
+            $this->createQueryBuilder('d')
+                ->update()
+                ->set('d.deleted', ':deleted')
+                ->set('d.deletedBy', ':deletedBy')
+                ->Where('d.id IN (:ids)')
+                ->setParameters([
+                    'deleted'   => true,
+                    'deletedBy' => $userName,
+                    'ids'       => $ids,
+                ])
+                ->getQuery()
+                ->execute();
+        } catch (\Exception $e) {
+            throw new \RuntimeException($e->getMessage());
+        }
+    }
+
     /**
      *  Récupère le numéro de version maximum pour une demande d'approvisionnement (DA) donnée.
      *
@@ -206,10 +228,6 @@ class DaAfficherRepository extends EntityRepository
     {
         $criteria = $criteria ?? [];
 
-        // Vérifier si achatDirect existe dans l'entité
-        $classMetadata   = $this->_em->getClassMetadata(DaAfficher::class);
-        $hasAchatDirecte = $classMetadata->hasField('achatDirect');
-
         // ----------------------
         // 1. Sous-requête : versions maximales
         // ----------------------
@@ -233,12 +251,8 @@ class DaAfficherRepository extends EntityRepository
             $subQb->expr()->in('d.statutOr', ':statutOrs'),
             $subQb->expr()->in('d.numeroDemandeAppro', ':exceptions')
         );
-        // Appliquer la condition selon la présence de achatDirect
-        if ($hasAchatDirecte) {
-            $subQb->andWhere('d.achatDirect = true OR (d.achatDirect = false AND (' . $orCondition . '))');
-        } else {
-            $subQb->andWhere($orCondition);
-        }
+        // Appliquer la condition selon le type de la DA
+        $subQb->andWhere('d.daTypeId = ' . DemandeAppro::TYPE_DA_DIRECT . ' OR (d.daTypeId = ' . DemandeAppro::TYPE_DA_AVEC_DIT . ' AND (' . $orCondition . '))');
 
         // Paramètres communs
         $subQb->setParameter('statutOrs', $statutOrs)
@@ -293,15 +307,14 @@ class DaAfficherRepository extends EntityRepository
                 'd.statutCde != :statutPasDansOr',
                 'd.statutCde IS NULL'
             )) // enlever les ligne qui a le statut PAS DANS OR
+            ->andWhere('d.deleted = 0')
             ->setParameter('statutPasDansOr', DaSoumissionBc::STATUT_PAS_DANS_OR)
         ;
 
-        if ($hasAchatDirecte) {
-            $qb->andWhere('d.statutDal = :statutDal')
-                ->andWhere($qb->expr()->in('d.statutOr', ':statutOrsValide'))
-                ->setParameter('statutOrsValide', $statutOrs)
-                ->setParameter('statutDal', DemandeAppro::STATUT_VALIDE);
-        }
+        $qb->andWhere('d.statutDal = :statutDal')
+            ->andWhere($qb->expr()->in('d.statutOr', ':statutOrsValide'))
+            ->setParameter('statutOrsValide', $statutOrs)
+            ->setParameter('statutDal', DemandeAppro::STATUT_VALIDE);
 
         // Condition sur les versions maximales (à partir de la sous-requête)
         $orX = $qb->expr()->orX();
@@ -533,6 +546,7 @@ class DaAfficherRepository extends EntityRepository
                     DemandeAppro::STATUT_EN_COURS_PROPOSITION,
                     DemandeAppro::STATUT_AUTORISER_MODIF_ATE,
                     DemandeAppro::STATUT_VALIDE,
+                    DemandeAppro::STATUT_REFUSE_APPRO,
                     DemandeAppro::STATUT_TERMINER
                 ], ArrayParameterType::STRING);
         }
@@ -590,10 +604,9 @@ class DaAfficherRepository extends EntityRepository
                 ->setParameter('designation', '%' . $criteria['designation'] . '%');
         }
 
-        if (!empty($criteria['typeAchat'])) {
-            $typeAchat = $criteria['typeAchat'] === 'direct' ? 1 : 0;
-            $qb->andWhere("$qbLabel.achatDirect = :typeAchat")
-                ->setParameter('typeAchat', $typeAchat);
+        if (isset($criteria['typeAchat'])) {
+            $qb->andWhere("$qbLabel.daTypeId = :typeAchat")
+                ->setParameter('typeAchat', $criteria['typeAchat']);
         }
     }
 
@@ -794,7 +807,6 @@ class DaAfficherRepository extends EntityRepository
                     WHERE d2.numeroDemandeAppro = d.numeroDemandeAppro
                 )'
         );
-
 
         $this->applyDynamicFilters($qb, 'd', $criteria);
         $this->applyAgencyServiceFilters($qb, 'd', $criteria, $user, $idAgenceUser, $estAppro, $estAtelier, $estAdmin);

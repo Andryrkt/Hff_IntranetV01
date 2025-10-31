@@ -273,7 +273,7 @@ class MenuService
                 'Bon de caisse',
                 'receipt',
                 [
-                    $this->createSubItem('Nouvelle demande', 'plus-circle', '#'),
+                    $this->createSubItem('Nouvelle demande', 'plus-circle', 'new_bon_caisse'),
                     $this->createSubItem('Consultation', 'search', 'bon_caisse_liste')
                 ]
             );
@@ -421,7 +421,7 @@ class MenuService
     public function menuMagasin()
     {
         $subitems = [];
-        /** =====================Magasin========================= */
+        /** =====================Magasin OR et CIS========================= */
         if ($this->getEstAdmin() || in_array(Application::ID_MAG, $this->getApplicationIds())) { // MAG
             $subitems[] = $this->createSubMenuItem(
                 'OR',
@@ -500,6 +500,9 @@ class MenuService
         if ($this->getEstAdmin() || $this->getEstAppro()) {
             $subitems[] = $this->createSimpleItem('Liste des commandes fournisseurs', 'list-ul', 'da_list_cde_frn');
         }
+        if ($this->getEstAdmin()) {
+            $subitems[] = $this->createSimpleItem('Reporting IPS DA reappro', 'chart-bar', 'da_reporting_ips');
+        }
         return $this->createMenuItem(
             'approModal',
             'Appro',
@@ -524,16 +527,37 @@ class MenuService
 
     public function menuPOL()
     {
+        $subitems = [];
+        $subitems[] = $this->createSimpleItem('Nouvelle DLUB', 'file-alt');
+        $subitems[] = $this->createSimpleItem('Consultation des DLUB', 'search');
+        $subitems[] = $this->createSimpleItem('Liste des commandes fournisseurs', 'list-ul');
+        /** =====================POL OR et CIS========================= */
+        if ($this->getEstAdmin()) { // admin uniquement
+            $subitems[] = $this->createSubMenuItem(
+                'OR',
+                'warehouse',
+                [
+                    $this->createSubItem('Liste à traiter', 'tasks', 'pol_or_liste_a_traiter'),
+                    $this->createSubItem('Liste à livrer', 'truck-loading', 'pol_or_liste_a_livrer')
+                ]
+            );
+            $subitems[] = $this->createSubMenuItem(
+                'CIS',
+                'pallet',
+                [
+                    $this->createSubItem('Liste à traiter', 'tasks', 'pol_cis_liste_a_traiter'),
+                    $this->createSubItem('Liste à livrer', 'truck-loading', 'pol_cis_liste_a_livrer')
+                ]
+            );
+        }
+
+
+        $subitems[] = $this->createSimpleItem('Pneumatiques', 'ring');
         return $this->createMenuItem(
             'polModal',
             'POL',
             'ring rotate-90',
-            [
-                $this->createSimpleItem('Nouvelle DLUB', 'file-alt'),
-                $this->createSimpleItem('Consultation des DLUB', 'search'),
-                $this->createSimpleItem('Liste des commandes fournisseurs', 'list-ul'),
-                $this->createSimpleItem('Pneumatiques', 'ring'),
-            ]
+            $subitems
         );
     }
 

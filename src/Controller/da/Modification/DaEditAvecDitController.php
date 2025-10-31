@@ -13,6 +13,7 @@ use App\Controller\Traits\da\DaAfficherTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\da\modification\DaEditAvecDitTrait;
+
 /**
  * @Route("/demande-appro")
  */
@@ -118,13 +119,7 @@ class DaEditAvecDitController extends Controller
 
             $this->ajouterDansTableAffichageParNumDa($numDa); // ajout dans la table DaAfficher si le statut a changé
 
-            /** ENVOIE MAIL */
-            $this->emailDaService->envoyerMailModificationDaAvecDit($demandeAppro, [
-                'ancienDals'    => $ancienDals,
-                'nouveauDals'   => $demandeAppro->getDAL(),
-                'service'       => 'atelier',
-                'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms()
-            ]);
+            $this->emailDaService->envoyerMailModificationDa($demandeAppro, $this->getUser(), $ancienDals);
 
             //notification
             $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'Votre modification a été enregistrée']);

@@ -1,0 +1,85 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block title %}POL - Liste des CIS à livrer
+{% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.09.15.08.00">
+<link rel="stylesheet" href="{{ App.base_path }}/Views/css/magasin/magasin.css?v=2025.09.15.08.00">
+{% endblock %}
+
+
+{% block content %}
+	<div id="conteneur" data-page-type="cis_a_livrer">
+		<div class="container">
+			<h3 class="perso-titre">
+				Liste des CIS à livrer
+			</h3>
+
+			{% include "/magasin/partials/cis/_formRechALivrer.html.twig" %}
+			{% include "/magasin/partials/_boutonExcel.html.twig" with { "routeName" : "pol_export_excel_cis_a_livrer"} %}
+		</div>
+
+		<div class="container-fluid">
+			<div class="table-responsive" style="max-height: 70vh; overflow-y: auto;">
+				<table class="table rounded table-plein-ecran">
+					<thead class="table-dark sticky-top">
+						<tr>
+							<th>
+								<i class="fas fa-ellipsis-vertical"></i>
+							</th>
+							<th class="text-center">N° DIT</th>
+							<th class="text-center">N° CIS</th>
+							<th class="text-center">Date CIS</th>
+							<th class="text-center">Ag/Serv Travaux</th>
+							<th class="text-center">N° OR</th>
+							<th class="text-center">Date OR</th>
+							<th class="text-center">Ag/Serv Débiteur / Client</th>
+							<th class="text-center">N° ITV</th>
+							<th class="text-center">N° lig</th>
+							<th class="text-center">Cst</th>
+							<th class="text-center">Réf</th>
+							<th>Désignation</th>
+							<th class="text-center">Qté demandée</th>
+							<th class="text-center">Qté à livrer</th>
+							<th class="text-center">Qté déjà livrée</th>
+						</tr>
+					</thead>
+					<tbody id="tableBody">
+						{% for item in data %}
+
+							{% set textColor = "" %}
+							{% if item.quantitercommander > (item.quantiteralivrer + item.quantiterlivrer) %}
+								{% set textColor = "textColor" %}
+							{% endif %}
+
+							<tr>
+								<td>
+									<i class="fas fa-ellipsis-vertical"></i>
+								</td>
+								<td class="text-center">{{item.num_dit}}</td>
+								<td class="text-center">{{item.num_cis}}</td>
+								<td class="text-center">{{item.date_cis | date('d/m/Y')}}</td>
+								<td class="text-center">{{item.agence_service_travaux}}</td>
+								<td class="text-center">{{item.num_or}}</td>
+								<td class="text-center">{{item.date_or | date('d/m/Y')}}</td>
+								<td class="text-center">{{item.agence_service_debiteur_ou_client}}</td>
+								<td class="text-center">{{item.nitv}}</td>
+								<td class="text-center {{textColor}}">{{item.numligne}}</td>
+								<td class="text-center {{textColor}}">{{item.cst}}</td>
+								<td class="text-center {{textColor}}">{{item.ref}}</td>
+								<td class="{{textColor}}">{{item.designations}}</td>
+								<td class="text-center {{textColor}}">{{item.quantitercommander == 0 ? '-' : item.quantitercommander}}</td>
+								<td class="text-center {{textColor}}">{{item.quantiteralivrer == 0 ? '-' : item.quantiteralivrer}}</td>
+								<td class="text-center {{textColor}}">{{item.quantiterlivrer == 0 ? '-' : item.quantiterlivrer}}</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+{% block javascript %}
+	<script src="{{ App.base_path }}/Views/js/magasin/main.js?v=2025.09.15.08.00" type="module"></script>
+{% endblock %}

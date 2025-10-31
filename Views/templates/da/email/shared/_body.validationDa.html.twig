@@ -1,10 +1,11 @@
 <p>
-	La demande d’{{ da_name }}
+	La demande
+	{{ daLabel }}
 	n°
 	<b>{{ demandeAppro.numeroDemandeAppro }}</b>
 	a été validée par
-	<b>{{ tab.userConnecter }}</b>.
-	{{tab.phraseValidation}}
+	<b>{{ fullNameUser }}</b>.
+	{{ phraseValidation }}
 </p>
 <p>
 	<b>Détails de la demande:</b>
@@ -19,41 +20,34 @@
 		</li>
 		<li>
 			<b>Détail de la demande :</b>
-			<div class="espace">
-				{{ demandeAppro.detailDal|raw }}
-			</div>
+			<div class="espace">{{ demandeAppro.detailDal|raw }}</div>
+		</li>
+		<li>
+			<b>Observation:</b>
+			<div class="espace">{{ observation|raw }}</div>
 		</li>
 	</ul>
 </p>
 <hr>
-<p>Demande d’{{ da_name }}
+<p>Demande
+	{{ daLabel }}
 	validée par le service
-	<b>{{ tab.service|upper }}</b>
+	<b>{{ service }}</b>
 </p>
 <table>
 	<thead style="background-color:#000; color:#f2f2f2;">
 		<tr>
-			{% if not demandeAppro.achatDirect %}
-				<th>Famille</th>
-				<th>Sous famille</th>
-			{% endif %}
-			<th>Réference</th>
-			<th>Désignation</th>
-			<th>Fournisseur</th>
-			<th>Commentaire</th>
+			{% for headLabel, headValue in preparedDatas.head %}
+				<th>{{ headValue }}</th>
+			{% endfor %}
 		</tr>
 	</thead>
 	<tbody>
-		{% for daValide in resultatExport.donnees %}
+		{% for row in preparedDatas.body  %}
 			<tr>
-				{% if not demandeAppro.achatDirect %}
-					<td>{{ daValide.artFams1 ?? '-'}}</td>
-					<td>{{ daValide.artFams2 ?? '-'}}</td>
-				{% endif %}
-				<td>{{ daValide.artRefp ?? '-'}}</td>
-				<td>{{ daValide.artDesi }}</td>
-				<td>{{ daValide.nomFournisseur }}</td>
-				<td>{{ daValide.commentaire }}</td>
+				{% for headLabel, headValue in preparedDatas.head %}
+					<td>{{ row[headLabel] }}</td>
+				{% endfor %}
 			</tr>
 		{% endfor %}
 	</tbody>

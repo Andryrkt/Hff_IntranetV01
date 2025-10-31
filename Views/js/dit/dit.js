@@ -384,9 +384,9 @@ limitInputCharacters(numTelInput, 10);
 allowOnlyNumbers(numTelInput);
 
 /** FORM */
-const myForm = document.querySelector("#myForm");
+const ditForm = document.querySelector("#dit-form");
 
-myForm.addEventListener("submit", intExtEnvoier);
+ditForm.addEventListener("submit", intExtEnvoier);
 function intExtEnvoier() {
   agenceDebiteurInput.removeAttribute("disabled");
   serviceDebiteurInput.removeAttribute("disabled");
@@ -470,3 +470,72 @@ textarea.addEventListener("input", function (event) {
   } caractères.`;
   charCount.style.color = remainingCharacters <= 0 ? "red" : "black";
 });
+
+/** ===============================================================================
+ * réparation réalisé par ATE TANA et ATE POL TANA
+ *===============================================================================*/
+const reparationRealiseSelect = document.querySelector(
+  "#demande_intervention_reparationRealise"
+);
+const atePolTanaContainer = document.querySelector("#ate_pol_tana_container");
+const atePolTanaInput = document.querySelector(
+  "#demande_intervention_estAtePolTana"
+);
+
+if (reparationRealiseSelect) {
+  // permet d'afficher et cacher le champ intervention pneumatique (ate pol tana)
+  reparationRealiseSelect.addEventListener("change", function () {
+    if (atePolTanaContainer) {
+      if (reparationRealiseSelect.value === "ATE TANA") {
+        atePolTanaContainer.style.display = "block";
+      } else {
+        atePolTanaContainer.style.display = "none";
+      }
+    }
+  });
+
+  //Blockage de la soumission si ATE POL TANA
+  // mais type de document autre que maintenace curative
+  // et catégorie autre que REPARATION
+  reparationRealiseSelect.addEventListener("change", function () {
+    if (reparationRealiseSelect.value === "ATE POL TANA") {
+      Swal.fire({
+        title: "Attention !",
+        html: `Le type de document doit être "<b>Maintenance curative</b>" et le catégorie de demande est "<b>REPARATION</b>"`,
+        icon: "warning",
+        showCancelButton: false,
+        confirmButtonColor: "#fbbb01",
+        confirmButtonText: "OUI",
+      });
+    }
+  });
+}
+
+if (atePolTanaInput) {
+  // affichage d'une confirmation si la cage ate pol tana est coché
+  atePolTanaInput.addEventListener("change", function () {
+    if (atePolTanaInput.checked === true) {
+      Swal.fire({
+        title: "êtes vous sure?",
+        html: `Les travaux seront réalisés par l'ATE TANA en solicitant également l'ATE TANA POL, une deuxième DIT sera créée automatiquement. 
+    <b>Cliquer sur oui pour confirmer et non pour abandonner.</b>`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#fbbb01",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "OUI",
+        cancelButtonText: "NON",
+        allowOutsideClick: false, // Permet de ne pas fermer en cliquant à l'extérieur
+        allowEscapeKey: false, // Permet de ne pas fermer en tapant sur echape
+      }).then((result) => {
+        if (result.isConfirmed) {
+          //il faut que le cage est coher
+          atePolTanaInput.checked = true;
+        } else {
+          //il faut que le cage est decocher
+          atePolTanaInput.checked = false;
+        }
+      });
+    }
+  });
+}

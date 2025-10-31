@@ -1,6 +1,8 @@
 <div class="row mb-3">
 	<h3 class="perso-titre">
-		<span class="urgency-level">{{ demandeAppro.niveauUrgence }}</span>
+		{% if demandeAppro.daTypeId != 2 %}
+			<span class="urgency-level">{{ demandeAppro.niveauUrgence }}</span>
+		{% endif %}
 		Observations sur la Demande d'achat
 	</h3>
 </div>
@@ -53,9 +55,11 @@
 				{{ form_start(formObservation) }}
 				{{ form_row(formObservation.observation) }}
 				<div class="d-flex justify-content-end align-items-end gap-3">
-					<div class="{{ estAppro and not statutAutoriserModifAte ? 'd-block' : 'd-none' }}">
-						{{ form_widget(formObservation.statutChange) }}
-					</div>
+					{% if demandeAppro.daTypeId != 2 %}
+						<div class="{{ estAppro and not statutAutoriserModifAte ? 'd-block' : 'd-none' }}">
+							{{ form_widget(formObservation.statutChange) }}
+						</div>
+					{% endif %}
 					<button type="submit" class="btn bouton mt-2" name="observation">
 						Envoyer l'observation
 						<i class="fa-solid fa-paper-plane"></i>

@@ -1,5 +1,4 @@
-import { displayOverlay } from "../../utils/spinnerUtils";
-import { ajouterUneLigne } from "../newAvecDit/dal";
+import { displayOverlay } from "../../utils/ui/overlay";
 import { onFileNamesInputChange } from "../newAvecDit/field";
 
 document.addEventListener("DOMContentLoaded", function () {

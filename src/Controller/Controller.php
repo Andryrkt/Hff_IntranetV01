@@ -155,14 +155,6 @@ class Controller
     }
 
     /**
-     * Récupérer le DitModel
-     */
-    protected function getDitModel(): \App\Model\dit\DitModel
-    {
-        return new \App\Model\dit\DitModel();
-    }
-
-    /**
      * Récupérer le conteneur de services
      */
     protected function getContainer()

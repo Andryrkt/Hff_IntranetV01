@@ -10,7 +10,7 @@ use App\Entity\da\DaSoumisAValidation;
 use App\Service\autres\VersionService;
 use App\Service\fichier\TraitementDeFichier;
 use App\Repository\da\DaObservationRepository;
-use App\Service\genererPdf\GenererPdfDaDirect;
+use App\Service\genererPdf\da\GenererPdfDaDirect;
 
 trait DaValidationDirectTrait
 {

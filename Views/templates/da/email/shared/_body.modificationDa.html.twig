@@ -1,9 +1,10 @@
 <p>
-	La demande d’{{ da_name }}
+	La demande
+	{{ daLabel }}
 	n°
 	<b>{{ demandeAppro.numeroDemandeAppro }}</b>
 	a été modifiée par
-	<b>{{ tab.userConnecter }}</b>.
+	<b>{{ fullNameUser }}</b>.
 </p>
 <p>
 	<b>Détails de la demande :</b>
@@ -25,7 +26,7 @@
 		<li>
 			<b>Observation:</b>
 			<div class="espace">
-				{{ demandeAppro.observation|raw }}
+				{{ observation|raw }}
 			</div>
 		</li>
 	</ul>
@@ -35,58 +36,39 @@
 <table>
 	<thead style="background-color:#D9E1F2;">
 		<tr>
-			{% if not demandeAppro.achatDirect %}
-				<th>Famille</th>
-				<th>Sous famille</th>
-			{% endif %}
-			<th>Réference</th>
-			<th>Désignation</th>
-			<th>Fournisseur</th>
-			<th>Commentaire</th>
+			{% for headLabel, headValue in preparedDatas.old.head %}
+				<th>{{ headValue }}</th>
+			{% endfor %}
 		</tr>
 	</thead>
 	<tbody>
-		{% for dala in tab.ancienDals %}
+		{% for row in preparedDatas.old.body  %}
 			<tr>
-				{% if not demandeAppro.achatDirect %}
-					<td>{{ dala.artFams1 ?? '-'}}</td>
-					<td>{{ dala.artFams2 ?? '-'}}</td>
-				{% endif %}
-				<td>{{ dala.artRefp ?? '-'}}</td>
-				<td>{{ dala.artDesi }}</td>
-				<td>{{ dala.nomFournisseur }}</td>
-				<td>{{ dala.commentaire }}</td>
+				{% for headLabel, headValue in preparedDatas.old.head %}
+					<td>{{ row[headLabel] }}</td>
+				{% endfor %}
 			</tr>
 		{% endfor %}
 	</tbody>
 </table>
 <br>
 <hr>
-<p>Demande modifiée par le service.</p>
+<p>Demande modifiée par le service
+	{{ service }}.</p>
 <table>
 	<thead style="background-color:#000; color:#f2f2f2;">
 		<tr>
-			{% if not demandeAppro.achatDirect %}
-				<th>Famille</th>
-				<th>Sous famille</th>
-			{% endif %}
-			<th>Réference</th>
-			<th>Désignation</th>
-			<th>Fournisseur</th>
-			<th>Commentaire</th>
+			{% for headLabel, headValue in preparedDatas.new.head %}
+				<th>{{ headValue }}</th>
+			{% endfor %}
 		</tr>
 	</thead>
 	<tbody>
-		{% for daln in tab.nouveauDals %}
+		{% for row in preparedDatas.new.body  %}
 			<tr>
-				{% if not demandeAppro.achatDirect %}
-					<td>{{ daln.artFams1 ?? '-'}}</td>
-					<td>{{ daln.artFams2 ?? '-'}}</td>
-				{% endif %}
-				<td>{{ daln.artRefp ?? '-'}}</td>
-				<td>{{ daln.artDesi }}</td>
-				<td>{{ daln.nomFournisseur }}</td>
-				<td>{{ daln.commentaire }}</td>
+				{% for headLabel, headValue in preparedDatas.new.head %}
+					<td>{{ row[headLabel] }}</td>
+				{% endfor %}
 			</tr>
 		{% endfor %}
 	</tbody>

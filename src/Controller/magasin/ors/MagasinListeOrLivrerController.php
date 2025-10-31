@@ -149,42 +149,20 @@ class MagasinListeOrLivrerController extends Controller
 
     private function recupData($criteria)
     {
-        $lesOrSelonCondition = $this->recupNumOrSelonCondition($criteria, $this->getEntityManager());
+        /** @var string $numeroOrsItv @var string $numeroOr */
+        [$numeroOrsItv, $numeroOr] = $this->recupNumOrSelonCondition($criteria);
 
-        $data = $this->magasinListOrLivrerModel->recupereListeMaterielValider($criteria, $lesOrSelonCondition);
+        $data = $this->magasinListOrLivrerModel->recupereListeMaterielValider($criteria, $numeroOrsItv, $numeroOr);
 
         //ajouter le numero dit dans data
         for ($i = 0; $i < count($data); $i++) {
-            $numeroOr = $data[$i]['numeroor'];
-            $numItv = $data[$i]['numinterv'];
-            $datePlannig1 = $this->magasinListOrLivrerModel->recupDatePlanning1($numeroOr);
-            $datePlannig2 = $this->magasinListOrLivrerModel->recupDatePlanningOR2($numeroOr, $numItv);
-            $data[$i]['nomPrenom'] = $this->magasinListOrLivrerModel->recupUserCreateNumOr($numeroOr)[0]['nomprenom'];
-
-            if (!empty($datePlannig1)) {
-                $data[$i]['datePlanning'] = $datePlannig1[0]['dateplanning1'];
-            } else if (!empty($datePlannig2)) {
-                $data[$i]['datePlanning'] = $datePlannig2[0]['dateplanning2'];
-            } else {
-                $data[$i]['datePlanning'] = '';
-            }
-
-            //$dit = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findNumDit($numeroOr);
-            $ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => $numeroOr]);
-
+            $ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $data[$i]['referencedit']]);
             if (!empty($ditRepository)) {
-                $data[$i]['numDit'] = $ditRepository->getNumeroDemandeIntervention();
                 $data[$i]['niveauUrgence'] = $ditRepository->getIdNiveauUrgence()->getDescription();
-                $idMateriel = $ditRepository->getIdMateriel();
-                $marqueCasier = $this->ditModel->recupMarqueCasierMateriel($idMateriel);
-                $data[$i]['idMateriel'] = $idMateriel;
-                $data[$i]['marque'] =  array_key_exists(0, $marqueCasier) ? $marqueCasier[0]['marque'] : '';
-                $data[$i]['casier'] = array_key_exists(0, $marqueCasier) ? $marqueCasier[0]['casier'] : '';
             } else {
                 break;
             }
         }
-
         return $data;
     }
 }

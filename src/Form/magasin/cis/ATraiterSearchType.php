@@ -6,6 +6,7 @@ namespace App\Form\magasin\cis;
 
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
+use App\Service\GlobalVariablesService;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use App\Model\magasin\MagasinListeOrATraiterModel;
@@ -33,9 +34,9 @@ class ATraiterSearchType extends AbstractType
         $this->magasinModel = new MagasinListeOrATraiterModel();
     }
 
-    private function recupConstructeur()
+    private function recupConstructeur(bool $estPneumatique = false): array
     {
-        return  $this->magasinModel->recuperationConstructeur();
+        return $estPneumatique ? $this->createAssociativeArray(GlobalVariablesService::get('pneumatique')) : $this->magasinModel->recuperationConstructeur();
     }
 
     private function agence()
@@ -76,7 +77,7 @@ class ATraiterSearchType extends AbstractType
             ->add('constructeur', ChoiceType::class, [
                 'label' =>  'Constructeur',
                 'required' => false,
-                'choices' => $this->recupConstructeur(),
+                'choices' => $this->recupConstructeur($options['est_pneumatique'] ?? false),
                 'placeholder' => ' -- choisir un constructeur --'
             ])
             ->add('dateDebutCis', DateType::class, [
@@ -192,8 +193,20 @@ class ATraiterSearchType extends AbstractType
         ;
     }
 
+    private function createAssociativeArray($inputString)
+    {
+        // Nettoyer la chaîne et créer un tableau
+        $array = explode(',', str_replace("'", "", $inputString));
+
+        // Créer le tableau associatif
+        $result = array_combine($array, $array);
+
+        return $result;
+    }
+
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([]);
+        $resolver->setDefined('est_pneumatique');
     }
 }

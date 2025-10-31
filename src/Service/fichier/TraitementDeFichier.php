@@ -71,7 +71,7 @@ class TraitementDeFichier
         return $uploadedFiles;
     }
 
-    public function fusionFichers(array $uploadedFiles, $nomFichierFusioner)
+    public function fusionFichers(array $uploadedFiles, string $nomFichierFusioner)
     {
         $this->fusionPdf->mergePdfs($uploadedFiles, $nomFichierFusioner);
     }

@@ -2,6 +2,7 @@
 
 namespace App\Controller\Traits\da;
 
+use App\Model\dit\DitModel;
 use App\Entity\dit\DitSearch;
 use App\Entity\admin\utilisateur\Role;
 use Symfony\Component\HttpFoundation\Request;
@@ -225,12 +226,13 @@ trait DaListeDitTrait
      */
     private function ajoutNumSerieNumParc(array $data)
     {
+        $ditModel = new DitModel();
         if (!empty($data)) {
             for ($i = 0; $i < count($data); $i++) {
                 if (!empty($data[$i]->getIdMateriel())) {
 
                     // Associez chaque entité à ses valeurs de num_serie et num_parc
-                    $numSerieParc = $this->getDitModel()->recupNumSerieParc($data[$i]->getIdMateriel());
+                    $numSerieParc = $ditModel->recupNumSerieParc($data[$i]->getIdMateriel());
                     if (!empty($numSerieParc)) {
                         $numSerie = $numSerieParc[0]['num_serie'];
                         $numParc = $numSerieParc[0]['num_parc'];

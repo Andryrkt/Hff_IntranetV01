@@ -125,23 +125,6 @@ class CisATraiterController extends Controller
 
         $data = $cisATraiterModel->listOrATraiter($criteria, $numORItvValides);
 
-        for ($i = 0; $i < count($data); $i++) {
-
-            $numeroOr = $data[$i]['numor'];
-            $ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => $numeroOr]);
-            if ($ditRepository != null) {
-                $idMateriel = $ditRepository->getIdMateriel();
-                $marqueCasier = $this->ditModel->recupMarqueCasierMateriel($idMateriel);
-                $data[$i]['idMateriel'] = $idMateriel;
-                $data[$i]['marque'] = $marqueCasier[0]['marque'];
-                $data[$i]['casier'] = $marqueCasier[0]['casier'];
-            } else {
-                $data[$i]['idMateriel'] = 0;
-                $data[$i]['marque'] = '';
-                $data[$i]['casier'] = '';
-            }
-        }
-
         return $data;
     }
 }

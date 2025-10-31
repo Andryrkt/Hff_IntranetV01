@@ -14,8 +14,8 @@ class GeneratePdf
         ?string $baseCheminDocuware = null
     ) {
         // Injection de dépendances avec fallback sur les variables d'environnement
-        $this->baseCheminDuFichier = $baseCheminDuFichier ?? ($_ENV['BASE_PATH_FICHIER'] ?? '') . '/';
-        $this->baseCheminDocuware = $baseCheminDocuware ?? ($_ENV['BASE_PATH_DOCUWARE'] ?? '') . '/';
+        $this->baseCheminDuFichier = $baseCheminDuFichier ?? rtrim($_ENV['BASE_PATH_FICHIER'] ?? '', '/\\') . '/';
+        $this->baseCheminDocuware = $baseCheminDocuware ?? rtrim($_ENV['BASE_PATH_DOCUWARE'] ?? '', '/\\') . '/';
     }
 
     protected function copyFile(string $sourcePath, string $destinationPath): void
@@ -156,10 +156,10 @@ class GeneratePdf
     }
 
     // demande appro à valider
-    public function copyToDWDaAValider($numDa)
+    public function copyToDWDaAValider($numDa, string $suffix = "#_a_valider")
     {
         $cheminFichierDistant = $this->baseCheminDocuware . "ORDRE_DE_MISSION/$numDa#_a_valider.pdf";
-        $cheminDestinationLocal = $this->baseCheminDuFichier . "da/$numDa/$numDa#_a_valider.pdf";
+        $cheminDestinationLocal = $this->baseCheminDuFichier . "da/$numDa/$numDa$suffix.pdf";
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 

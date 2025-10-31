@@ -1,8 +1,6 @@
-{% set service_demandeur = demandeAppro.achatDirect ? 'du service emetteur' : 'de l’Atelier' %}
-
 <p>
 	Une nouvelle proposition a été créée par
-	<b>{{ tab.userConnecter }}</b>.
+	<b>{{ fullNameUser }}</b>.
 </p>
 <p>
 	<b>Détails du demande :</b>
@@ -23,15 +21,13 @@
 		</li>
 		<li>
 			<b>Observation:</b>
-			<div class="espace">
-				{{ tab.observation|raw }}
-			</div>
+			<div class="espace">{{ observation|raw }}</div>
 		</li>
 	</ul>
 </p>
 <hr>
-<p>Récap de la demande
-	{{ service_demandeur }}
+<p>Récap de la demande du service
+	{{ serviceDemandeur }}
 	avec les propositions du service APPRO (en orange).
 </p>
 
@@ -51,19 +47,14 @@
 		</tr>
 	</thead>
 	<tbody>
-		{% for dal in demandeAppro.DAL %}
-			{% set cst = dal.artConstp %}
-			{% set ref = dal.artRefp %}
-			{% set desi = dal.artDesi %}
-			{% set qte = dal.qteDem %}
-			{% set keyId = [cst|trim, ref|trim, desi|trim, qte|trim]|join('_') %}
+		{% for dal in preparedDatas %}
 			<tr>
-				<td>{{ cst }}</td>
-				<td>{{ ref }}</td>
-				<td>{{ desi }}</td>
-				<td align="right">{{ qte }}</td>
+				<td>{{ dal.cst }}</td>
+				<td>{{ dal.ref }}</td>
+				<td>{{ dal.desi }}</td>
+				<td align="right">{{ dal.qte }}</td>
 				{% for frn in listeFournisseurs %}
-					{% set cell = fournisseurs[frn][keyId]|default({}) %}
+					{% set cell = fournisseurs[frn][dal.keyId]|default({}) %}
 					<td align="right" class="{{ cell.choix|default(false) ? 'choisi' : '' }}">
 						{{ cell.prix|default('') }}
 					</td>

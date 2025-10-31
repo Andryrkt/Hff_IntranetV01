@@ -26,7 +26,15 @@ input.modern-checkbox:checked {
   background-position: center;
 }
 
+.clickable-td {
+  cursor: pointer;
+}
+
+/* Style de base pour les cellules actives */
 .td-active {
-  background-color: rgba(0, 0, 0, 0.1) !important;
+  background-color: rgba(0, 0, 0, 0.1) !important; /* conservé */
   border-bottom: 1px solid white;
+  transition: all 0.3s ease-in-out;
+  position: relative; /* nécessaire pour l'animation */
+  overflow: hidden; /* pour éviter débordement du gradient */
 }

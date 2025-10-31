@@ -16,6 +16,7 @@ use App\Controller\Traits\da\DaAfficherTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\da\detail\DaDetailAvecDitTrait;
+use App\Model\dit\DitModel;
 
 /**
  * @Route("/demande-appro")
@@ -49,15 +50,14 @@ class DaDetailAvecDitController extends Controller
 		/** @var DemandeAppro $demandeAppro la demande appro correspondant à l'id $id */
 		$demandeAppro = $this->getEntityManager()->getRepository(DemandeAppro::class)->find($id); // recupération de la DA
 		$dit = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $demandeAppro->getNumeroDemandeDit()]); // recupération du DIT associée à la DA
-		$dataModel = $this->getDitModel()->recupNumSerieParcPourDa($dit->getIdMateriel());
+		$ditModel = new DitModel();
+		$dataModel = $ditModel->recupNumSerieParcPourDa($dit->getIdMateriel());
 
 		$numeroVersionMax = $this->getEntityManager()->getRepository(DemandeApproL::class)->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
 		$demandeAppro = $this->filtreDal($demandeAppro, $dit, (int)$numeroVersionMax); // on filtre les lignes de la DA selon le numero de version max
 
 		$daObservation = new DaObservation;
-		$formObservation = $this->getFormFactory()->createBuilder(DaObservationType::class, $daObservation, [
-			'achatDirect' => $demandeAppro->getAchatDirect()
-		])->getForm();
+		$formObservation = $this->getFormFactory()->createBuilder(DaObservationType::class, $daObservation, ['daTypeId' => $demandeAppro->getDaTypeId()])->getForm();
 
 		$this->traitementFormulaire($formObservation, $request, $demandeAppro);
 
@@ -74,6 +74,7 @@ class DaDetailAvecDitController extends Controller
 		$demandeApproLPrepared = $this->prepareDataForDisplayDetail($demandeAppro->getDAL());
 
 		return $this->render('da/detail.html.twig', [
+			'detailTemplate'      		=> 'detail-avec-dit',
 			'formObservation'			=> $formObservation->createView(),
 			'demandeAppro'      		=> $demandeAppro,
 			'demandeApproLines'   		=> $demandeApproLPrepared,
@@ -131,13 +132,7 @@ class DaDetailAvecDitController extends Controller
 				'message' => 'Votre observation a été enregistré avec succès.',
 			];
 
-			/** ENVOIE D'EMAIL pour l'observation */
-			$service = $this->estUserDansServiceAtelier() ? 'atelier' : ($this->estUserDansServiceAppro() ? 'appro' : '');
-			$this->emailDaService->envoyerMailObservationDaAvecDit($demandeAppro, [
-				'service' 		=> $service,
-				'observation'   => $daObservation->getObservation(),
-				'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
-			]);
+			$this->emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->getUser(), $this->estUserDansServiceAppro());
 
 			$this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
 			return $this->redirectToRoute("list_da");

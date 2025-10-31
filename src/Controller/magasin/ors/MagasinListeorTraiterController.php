@@ -50,7 +50,7 @@ class MagasinListeOrTraiterController extends Controller
         $this->autorisationAcces($this->getUser(), Application::ID_MAG);
         /** FIN AUtorisation acées */
 
-        $magasinModel = new MagasinListeOrATraiterModel;
+        $magasinModel = new MagasinListeOrATraiterModel();
         $codeAgence = $this->getUser()->getAgenceAutoriserCode();
 
         /** CREATION D'AUTORISATION */
@@ -99,7 +99,7 @@ class MagasinListeOrTraiterController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $magasinModel = new MagasinListeOrATraiterModel;
+        $magasinModel = new MagasinListeOrATraiterModel();
         //recupères les critère dans la session 
         $criteria = $this->getSessionService()->get('magasin_liste_or_traiter_search_criteria', []);
 
@@ -140,6 +140,7 @@ class MagasinListeOrTraiterController extends Controller
             "agenceUser" => $agenceUser
         ];
     }
+    
     private function recupData($criteria, $magasinModel)
     {
         $lesOrSelonCondition = $this->recupNumOrTraiterSelonCondition($criteria, $magasinModel, $this->getEntityManager());
@@ -151,28 +152,9 @@ class MagasinListeOrTraiterController extends Controller
 
         //ajouter le numero dit dans data
         for ($i = 0; $i < count($data); $i++) {
-            $numeroOr = $data[$i]['numeroor'];
-            $data[$i]['nomPrenom'] = $magasinModel->recupUserCreateNumOr($numeroOr)[0]['nomprenom'];
-            $datePlannig1 = $magasinModel->recupDatePlanning1($numeroOr);
-            $datePlannig2 = $magasinModel->recupDatePlanning2($numeroOr);
-            if (!empty($datePlannig1)) {
-                $data[$i]['datePlanning'] = $datePlannig1[0]['dateplanning1'];
-            } else if (!empty($datePlannig2)) {
-                $data[$i]['datePlanning'] = $datePlannig2[0]['dateplanning2'];
-            } else {
-                $data[$i]['datePlanning'] = '';
-            }
-
-
-            $ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => $numeroOr]);
+            $ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $data[$i]['referencedit']]);
             if (!empty($ditRepository)) {
-                $data[$i]['numDit'] = $ditRepository->getNumeroDemandeIntervention();
                 $data[$i]['niveauUrgence'] = $ditRepository->getIdNiveauUrgence()->getDescription();
-                $idMateriel = $ditRepository->getIdMateriel();
-                $marqueCasier = $this->ditModel->recupMarqueCasierMateriel($idMateriel);
-                $data[$i]['idMateriel'] = $idMateriel;
-                $data[$i]['marque'] =  array_key_exists(0, $marqueCasier) ? $marqueCasier[0]['marque'] : '';
-                $data[$i]['casier'] = array_key_exists(0, $marqueCasier) ? $marqueCasier[0]['casier'] : '';
             } else {
                 break;
             }

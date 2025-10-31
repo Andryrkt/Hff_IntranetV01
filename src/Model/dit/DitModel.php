@@ -74,7 +74,7 @@ class DitModel extends Model
   }
 
 
-  public function historiqueMateriel($idMateriel)
+  public function historiqueMateriel(int $idMateriel)
   {
 
     $statement = " SELECT
@@ -125,6 +125,18 @@ class DitModel extends Model
     return $this->convertirEnUtf8($data);
   }
 
+  public function getNumeroMatriculePasMateriel()
+  {
+    $statement = "SELECT mmat_nummat as numero_matricule 
+              from informix.mat_mat 
+              where mmat_reffou in ('IMMODIV','PRESTDIV') OR (mmat_recalph = 'EQPABS')";
+
+    $result = $this->connect->executeQuery($statement);
+
+    $data = $this->connect->fetchResults($result);
+
+    return array_column($this->convertirEnUtf8($data), 'numero_matricule');
+  }
 
 
   public function recuperationNumSerieNumParc($matricule)

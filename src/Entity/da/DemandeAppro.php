@@ -23,12 +23,17 @@ class DemandeAppro
     use DateTrait;
     use DaTrait;
 
+    public const TYPE_DA_AVEC_DIT            = 0; // id du type de DA avec DIT 
+    public const TYPE_DA_DIRECT              = 1; // id du type de DA direct
+    public const TYPE_DA_REAPPRO             = 2; // id du type de DA réappro
+
     public const ID_APPRO                    = 16;
     public const ID_ATELIER                  = 3;
     private const MAIL_APPRO_PROD            = 'appro@hff.mg';
     private const MAIL_APPRO_TEST            = 'hoby.ralahy@hff.mg';
-    public const MAIL_APPRO                  = self::MAIL_APPRO_PROD;       // TODO: à changer selon environnement (PROD | TEST)
+    public const MAIL_APPRO                  = self::MAIL_APPRO_TEST;       // TODO: à changer selon environnement (PROD | TEST)
     public const STATUT_VALIDE               = 'Bon d’achats validé';       /*__ DA direct et DA via OR __*/ /*_ statut_dal _*/ // cliquable par Admin et Appro
+    public const STATUT_REFUSE_APPRO         = 'Refusé appro';              /*__ DA direct et DA via OR __*/ /*_ statut_dal _*/ // ! non cliquable par quiconque
     public const STATUT_TERMINER             = 'TERMINER';                  /*__ DA direct et DA via OR __*/ /*_ statut_dal _*/ // ! non cliquable par quiconque
     public const STATUT_EN_COURS_CREATION    = 'En cours de création';      /*_________ DA via OR ________*/ /*_ statut_dal _*/ // cliquable par Admin et Atelier
     public const STATUT_SOUMIS_APPRO         = 'Demande d’achats';          /*__ DA direct et DA via OR __*/ /*_ statut_dal _*/ // cliquable par Admin et Appro
@@ -55,6 +60,11 @@ class DemandeAppro
      */
     private string $numeroDemandeAppro;
 
+    /**
+     * @ORM\Column(type="integer", name="da_type_id")
+     */
+    private ?int $daTypeId = 0;
+
     private string $numeroOr;
     private string $statutOr;
 
@@ -76,7 +86,7 @@ class DemandeAppro
     /**
      * @ORM\Column(type="string", length=1000, name="detail_dal", nullable=true)
      */
-    private string $detailDal;
+    private ?string $detailDal = null;
 
     /**
      * @ORM\Column(type="string", length=6, name="agence_service_emmeteur")
@@ -149,7 +159,7 @@ class DemandeAppro
     /**
      * @ORM\Column(type="boolean", name="Devis_demander", nullable=true)
      */
-    private $devisDemande;
+    private $devisDemande = false;
 
     /**
      * @ORM\Column(type="datetime", name="Date_demande_devis", nullable=true)
@@ -182,13 +192,13 @@ class DemandeAppro
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="demandeApproUser")
      * @ORM\JoinColumn(nullable=true, name="user_id", referencedColumnName="id")
      */
-    private ?User $user;
+    private ?User $user = null;
 
     /**
      * @ORM\OneToOne(targetEntity=User::class, inversedBy="demandeApproValidateur")
      * @ORM\JoinColumn(nullable=true, name="validateur_id", referencedColumnName="id")
      */
-    private ?User $validateur;
+    private ?User $validateur = null;
 
     private $observation;
 
@@ -324,7 +334,7 @@ class DemandeAppro
      *
      * @return string
      */
-    public function getDetailDal(): string
+    public function getDetailDal(): ?string
     {
         return $this->detailDal;
     }
@@ -922,6 +932,26 @@ class DemandeAppro
     public function setDevisDemandePar($devisDemandePar)
     {
         $this->devisDemandePar = $devisDemandePar;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of daTypeId
+     */
+    public function getDaTypeId()
+    {
+        return $this->daTypeId;
+    }
+
+    /**
+     * Set the value of daTypeId
+     *
+     * @return  self
+     */
+    public function setDaTypeId($daTypeId)
+    {
+        $this->daTypeId = $daTypeId;
 
         return $this;
     }

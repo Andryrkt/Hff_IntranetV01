@@ -128,16 +128,6 @@ class CisALivrerController extends Controller
         $numORItvValides = $this->orEnString($ditOrsSoumisRepository->findNumOrItvValide());
         $data = $cisATraiterModel->listOrALivrer($criteria, $numORItvValides);
 
-        for ($i = 0; $i < count($data); $i++) {
-
-            $numeroOr = $data[$i]['num_or'];
-            $ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => $numeroOr]);
-            $idMateriel = $ditRepository->getIdMateriel();
-            $marqueCasier = $this->ditModel->recupMarqueCasierMateriel($idMateriel);
-            $data[$i]['idMateriel'] = $idMateriel;
-            $data[$i]['marque'] = $marqueCasier[0]['marque'];
-            $data[$i]['casier'] = $marqueCasier[0]['casier'];
-        }
         return $data;
     }
 }

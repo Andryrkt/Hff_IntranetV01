@@ -48,7 +48,7 @@ class EmailService
         }
     }
 
-    public function sendEmail($to, $cc = [], $template, $variables = [], $attachments = [])
+    public function sendEmail($to, $cc, $template, $variables = [], $attachments = [])
     {
         try {
             // Créer le contenu de l'email via le template

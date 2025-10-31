@@ -37,7 +37,7 @@ class DaObservation
      *
      * @var string|NULL
      */
-    private ?string $observation;
+    private ?string $observation = '';
 
     private bool $statutChange = false;
 
