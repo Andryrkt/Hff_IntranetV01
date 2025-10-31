@@ -120,20 +120,9 @@ class DaValidationReapproController extends Controller
     {
         $this->insertionObservation($daObservation->getObservation(), $demandeAppro);
 
-        $notification = [
-            'type'    => 'success',
-            'message' => 'Votre observation a été enregistré avec succès.',
-        ];
+        $this->emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->getUser(), $this->estUserDansServiceAppro());
 
-        /** ENVOIE D'EMAIL à l'APPRO pour l'observation */
-        // $service = $this->estUserDansServiceAtelier() ? 'atelier' : ($this->estUserDansServiceAppro() ? 'appro' : '');
-        // $this->emailDaService->envoyerMailObservationDaAvecDit($demandeAppro, [
-        //     'service'       => $service,
-        //     'observation'   => $daObservation->getObservation(),
-        //     'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
-        // ]);
-
-        $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
+        $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'Votre observation a été enregistré avec succès.']);
         return $this->redirectToRoute("list_da");
     }
 }

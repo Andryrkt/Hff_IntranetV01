@@ -154,13 +154,7 @@ class DaPropositionRefAvecDitController extends Controller
             'message' => 'Votre observation a été enregistré avec succès.',
         ];
 
-        /** ENVOIE D'EMAIL à l'APPRO pour l'observation */
-        $service = $this->estUserDansServiceAtelier() ? 'atelier' : ($this->estUserDansServiceAppro() ? 'appro' : '');
-        $this->emailDaService->envoyerMailObservationDaAvecDit($demandeAppro, [
-            'service'       => $service,
-            'observation'   => $daObservation->getObservation(),
-            'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
-        ]);
+        $this->emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->getUser(), $this->estUserDansServiceAppro());
 
         $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         return $this->redirectToRoute("list_da");
@@ -184,13 +178,7 @@ class DaPropositionRefAvecDitController extends Controller
                 'message' => 'Votre observation a été enregistré avec succès.',
             ];
 
-            /** ENVOIE D'EMAIL à l'APPRO pour l'observation */
-            $service = $this->estUserDansServiceAtelier() ? 'atelier' : ($this->estUserDansServiceAppro() ? 'appro' : '');
-            $this->emailDaService->envoyerMailObservationDaAvecDit($demandeAppro, [
-                'service'       => $service,
-                'observation'   => $observation,
-                'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
-            ]);
+            $this->emailDaService->envoyerMailObservationDa($demandeAppro, $observation, $this->getUser(), $this->estUserDansServiceAppro());
         } else {
             $notification = [
                 'type' => 'danger',
@@ -226,12 +214,7 @@ class DaPropositionRefAvecDitController extends Controller
 
         $this->ajouterDansTableAffichageParNumDa($numDa, true); // enregistrement dans la table DaAfficher
 
-        /** ENVOI DE MAIL POUR LA VALIDATION DES ARTICLES */
-        $this->emailDaService->envoyerMailValidationDaAvecDit($da, $nomEtChemin, [
-            'service'           => $this->estUserDansServiceAtelier() ? 'atelier' : ($this->estUserDansServiceAppro() ? 'appro' : ''),
-            'phraseValidation'  => 'Vous trouverez en pièce jointe le fichier contenant les références ZST.',
-            'userConnecter'     => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
-        ]);
+        $this->emailDaService->envoyerMailValidationDa($da, $this->getUser(), $nomEtChemin);
 
         $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         $this->redirectToRoute("list_da");
@@ -256,12 +239,7 @@ class DaPropositionRefAvecDitController extends Controller
 
         $this->ajouterDansTableAffichageParNumDa($numDa, true);
 
-        /** ENVOI DE MAIL POUR LES ARTICLES VALIDES */
-        $this->emailDaService->envoyerMailValidationDaAvecDit($da, $nomEtChemin, [
-            'service'           => $this->estUserDansServiceAtelier() ? 'atelier' : ($this->estUserDansServiceAppro() ? 'appro' : ''),
-            'phraseValidation'  => 'Vous trouverez en pièce jointe le fichier contenant les références ZST.',
-            'userConnecter'     => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
-        ]);
+        $this->emailDaService->envoyerMailValidationDa($da, $this->getUser(), $nomEtChemin);
 
         $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         $this->redirectToRoute("list_da");
@@ -326,12 +304,7 @@ class DaPropositionRefAvecDitController extends Controller
 
         $this->ajouterDansTableAffichageParNumDa($numDa);
 
-        /** ENVOIE D'EMAIL à l'ATE pour les propositions*/
-        $this->emailDaService->envoyerMailPropositionDaAvecDit($this->demandeApproRepository->findAvecDernieresDALetLR($da->getId()), [
-            'service'       => 'appro',
-            'observation'   => $observation,
-            'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
-        ]);
+        $this->emailDaService->envoyerMailPropositionDa($this->demandeApproRepository->findAvecDernieresDALetLR($da->getId()), $this->getUser());
 
         $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         $this->redirectToRoute("list_da");

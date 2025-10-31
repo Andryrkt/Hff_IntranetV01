@@ -81,28 +81,21 @@ class DaNewDirectController extends Controller
                 $this->getEntityManager()->persist($demandeApproL);
             }
 
-            /** Ajout de demande appro dans la base de donnée (table: Demande_Appro) */
-            $this->getEntityManager()->persist($demandeAppro);
-
             /** Modifie la colonne dernière_id dans la table applications */
             $applicationService = new ApplicationService($this->getEntityManager());
             $applicationService->mettreAJourDerniereIdApplication('DAP', $numDa);
 
-            /** ajout de l'observation dans la table da_observation si ceci n'est pas null */
-            if ($demandeAppro->getObservation() !== null) {
-                $this->insertionObservation($demandeAppro->getObservation(), $demandeAppro);
-            }
-
+            /** Ajout de demande appro dans la base de donnée (table: Demande_Appro) */
+            $this->getEntityManager()->persist($demandeAppro);
             $this->getEntityManager()->flush();
+
+            /** ajout de l'observation dans la table da_observation si ceci n'est pas null */
+            if ($demandeAppro->getObservation()) $this->insertionObservation($demandeAppro->getObservation(), $demandeAppro);
 
             // ajout des données dans la table DaAfficher
             $this->ajouterDaDansTableAffichage($demandeAppro);
 
-            $this->emailDaService->envoyerMailcreationDaDirect($demandeAppro, [
-                'service'       => $demandeAppro->getServiceEmetteur()->getLibelleService(),
-                'observation'   => $demandeAppro->getObservation() ?? '-',
-                'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
-            ]);
+            $this->emailDaService->envoyerMailCreationDa($demandeAppro, $this->getUser());
 
             $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'Votre demande a été enregistrée']);
             $this->redirectToRoute("list_da");
