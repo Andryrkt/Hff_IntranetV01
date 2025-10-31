@@ -100,4 +100,17 @@ trait PrepareDataDAP
             'body' => $this->buildRows($dals, $columns),
         ];
     }
+
+    /**
+     * Préparer les données pour le mail de validation de DA.
+     */
+    private function prepareDataForMailValidationDaReappro(int $datypeId, iterable $dals): array
+    {
+        $columns = $this->getColumnsByType($datypeId, 'validationReappro');
+
+        return [
+            'head' => $columns,
+            'body' => $this->buildRows($dals, $columns),
+        ];
+    }
 }

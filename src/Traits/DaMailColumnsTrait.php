@@ -8,6 +8,26 @@ use App\Entity\da\DemandeAppro;
 trait DaMailColumnsTrait
 {
     /**
+     * Retourne le mapping clé → méthode d’accès. (méthode dans l'objet DemandeApproL)
+     */
+    private function getMethodMapping(): array
+    {
+        return [
+            'fams1'  => 'getArtFams1',
+            'fams2'  => 'getArtFams2',
+            'refp'   => 'getArtRefp',
+            'desi'   => 'getArtDesi',
+            'qteDem' => 'getQteDem',
+            'qteVal' => 'getQteValAppro',
+            'constp' => 'getArtConstp',
+            'pu'     => 'getPUFormatted',
+            'mtt'    => 'getMontantFormatted',
+            'frn'    => 'getNomFournisseur',
+            'com'    => 'getCommentaire',
+        ];
+    }
+
+    /**
      * Retourne les colonnes communes par type de DA
      */
     private function getCommonColumns(): array
@@ -27,6 +47,15 @@ trait DaMailColumnsTrait
                 'frn'   => 'Fournisseur',
                 'com'   => 'Commentaire',
             ],
+            DemandeAppro::TYPE_DA_REAPPRO => [
+                'constp' => 'Constructeur',
+                'refp'   => 'Référence',
+                'desi'   => 'Désignation',
+                'pu'     => 'PU',
+                'qteDem' => 'Qté demandée',
+                'qteVal' => 'Qté validée',
+                'mtt'    => 'Montant',
+            ],
         ];
     }
 
@@ -39,20 +68,8 @@ trait DaMailColumnsTrait
 
         return [
             DemandeAppro::TYPE_DA_AVEC_DIT => $common[DemandeAppro::TYPE_DA_AVEC_DIT],
-            DemandeAppro::TYPE_DA_DIRECT => [
-                'desi'   => 'Désignation',
-                'frn'    => 'Fournisseur',
-                'com'    => 'Commentaire',
-            ],
-            DemandeAppro::TYPE_DA_REAPPRO => [
-                'constp' => 'Constructeur',
-                'refp'   => 'Référence',
-                'desi'   => 'Désignation',
-                'pu'     => 'PU',
-                'qteDem' => 'Qté demandée',
-                'qteVal' => 'Qté validée',
-                'mtt'    => 'Montant',
-            ],
+            DemandeAppro::TYPE_DA_DIRECT   => ['desi' => 'Désignation', 'frn' => 'Fournisseur', 'com' => 'Commentaire',],
+            DemandeAppro::TYPE_DA_REAPPRO  => $common[DemandeAppro::TYPE_DA_REAPPRO],
         ];
     }
 
@@ -76,7 +93,7 @@ trait DaMailColumnsTrait
     {
         $context = strtolower($context);
 
-        // Mapping contexte → méthode
+        // Mapping contexte → méthode dans ce trait
         $contextMap = [
             'creation'     => 'getCreationColumns',
             'modification' => 'getWithQteColumns',
@@ -91,25 +108,5 @@ trait DaMailColumnsTrait
         if (!isset($columnsByType[$datypeId])) throw new \InvalidArgumentException("Type de DA inconnu ($datypeId) pour le contexte $context");
 
         return $columnsByType[$datypeId];
-    }
-
-    /**
-     * Retourne le mapping clé → méthode d’accès.
-     */
-    private function getMethodMapping(): array
-    {
-        return [
-            'fams1'  => 'getArtFams1',
-            'fams2'  => 'getArtFams2',
-            'refp'   => 'getArtRefp',
-            'desi'   => 'getArtDesi',
-            'qteDem' => 'getQteDem',
-            'qteVal' => 'getQteValAppro',
-            'constp' => 'getArtConstp',
-            'pu'     => 'getPUFormatted',
-            'mtt'    => 'getMontantFormatted',
-            'frn'    => 'getNomFournisseur',
-            'com'    => 'getCommentaire',
-        ];
     }
 }
