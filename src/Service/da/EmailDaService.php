@@ -197,6 +197,34 @@ class EmailDaService
     }
 
     /** 
+     * Méthode pour envoyer une email pour les validations d'une DA Réappro
+     * @param DemandeAppro $demandeAppro  objet de la demande appro
+     * @param string       $observation   observation émis
+     * @param User         $connectedUser l'utilisateur connecté
+     * @param bool         $estValide     si l'utilisateur a validé la demande ou non
+     */
+    public function envoyerMailValidationReappro(DemandeAppro $demandeAppro, string $observation, User $connectedUser, bool $estValide = true)
+    {
+        $service    = 'appro';
+        $daLabel    = 'de réappro mensuel';
+        $class      = $estValide ? 'valide'  : 'refuse';
+        $valide     = $estValide ? 'validée' : 'refusée';
+        $validation = $estValide ? 'la validation' : 'le refus';
+        $this->envoyerEmail([
+            'to'        => $demandeAppro->getUser()->getMail(),
+            'variables' => [
+                'templateName'  => "validationReapproDa",
+                'header'        => "{$demandeAppro->getNumeroDemandeAppro()} - DEMANDE DE REAPPRO : <span class=\"$class\"> " . strtoupper($valide) . " </span>",
+                'subject'       => "{$demandeAppro->getNumeroDemandeAppro()} - Demande de réappro $valide par le service " . strtoupper($service),
+                'valide'        => $valide,
+                'validation'    => $validation,
+                'preparedDatas' => $this->prepareDataForMailValidationDaReappro(DemandeAppro::TYPE_DA_REAPPRO, $demandeAppro->getDAL()),
+                'observationDa' => $observation,
+            ] + $this->getImportantVariables($demandeAppro, $connectedUser, $daLabel, $service), // opérateur `+` pour ne pas écraser les clés existantes
+        ]);
+    }
+
+    /** 
      * Méthode pour envoyer un email
      */
     public function envoyerEmail(array $content): void

@@ -91,13 +91,12 @@ trait DaMailColumnsTrait
      */
     private function getColumnsByType(int $datypeId, string $context): array
     {
-        $context = strtolower($context);
-
         // Mapping contexte → méthode dans ce trait
         $contextMap = [
-            'creation'     => 'getCreationColumns',
-            'modification' => 'getWithQteColumns',
-            'validation'   => 'getWithQteColumns',
+            'creation'          => 'getCreationColumns',
+            'modification'      => 'getWithQteColumns',
+            'validation'        => 'getWithQteColumns',
+            'validationReappro' => 'getCommonColumns',
         ];
 
         if (!isset($contextMap[$context])) throw new \InvalidArgumentException("Contexte inconnu : $context");
