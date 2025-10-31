@@ -74,6 +74,7 @@ class listeDaController extends Controller
             'data'           => $dataPrepared,
             'form'           => $form->createView(),
             'criteria'       => $criteria,
+            'daTypeIcons'    => $this->getAllIcons(),
             'sortJoursClass' => $sortJoursClass,
             'currentPage'    => $paginationData['currentPage'],
             'totalPages'     => $paginationData['lastPage'],
