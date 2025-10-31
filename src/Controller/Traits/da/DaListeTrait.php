@@ -20,6 +20,7 @@ trait DaListeTrait
 {
     use DaTrait;
     use StatutBcTrait;
+    use MarkupIconTrait;
 
     //=====================================================================================
     // Styles des DA, OR, BC dans le css
@@ -166,7 +167,7 @@ trait DaListeTrait
                 $estAdmin,
                 $estAppro,
                 $estAtelier,
-                $daAfficher->getDaTypeId() == DemandeAppro::TYPE_DA_DIRECT && $daAfficher->getServiceEmetteur() == $this->userDataService->getServiceId($this->getUser())
+                $daAfficher->getDaTypeId() == DemandeAppro::TYPE_DA_DIRECT && $daAfficher->getServiceEmetteur() == $this->userDataService->getServiceId($this->getUser()) // TODO: role DA directe
             );
             $daAfficher->setVerouille($verrouille);
         }
@@ -182,9 +183,9 @@ trait DaListeTrait
         $datasPrepared = [];
 
         $daType = [
-            DemandeAppro::TYPE_DA_AVEC_DIT => "avec DIT",
-            DemandeAppro::TYPE_DA_DIRECT   => "direct",
-            DemandeAppro::TYPE_DA_REAPPRO  => "Reappro",
+            DemandeAppro::TYPE_DA_AVEC_DIT => $this->getIconDaAvecDIT(),
+            DemandeAppro::TYPE_DA_DIRECT   => $this->getIconDaDirect(),
+            DemandeAppro::TYPE_DA_REAPPRO  => $this->getIconDaReappro(),
         ];
 
         $safeIconSuccess = new Markup('<i class="fas fa-check text-success"></i>', 'UTF-8');

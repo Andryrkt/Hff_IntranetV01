@@ -604,7 +604,7 @@ class DaAfficherRepository extends EntityRepository
                 ->setParameter('designation', '%' . $criteria['designation'] . '%');
         }
 
-        if (!empty($criteria['typeAchat'])) {
+        if (isset($criteria['typeAchat'])) {
             $qb->andWhere("$qbLabel.daTypeId = :typeAchat")
                 ->setParameter('typeAchat', $criteria['typeAchat']);
         }
