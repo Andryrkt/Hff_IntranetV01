@@ -43,14 +43,28 @@ trait PrepareDataDAP
     {
         $rows = [];
         $methodMapping = $this->getMethodMapping();
+
+        // Préparer à l'avance les méthodes à appeler pour chaque colonne
+        $methodsToCall = [];
+        foreach ($columns as $key => $label) {
+            if (isset($methodMapping[$key])) $methodsToCall[$key] = $methodMapping[$key];
+        }
+
         foreach ($dals as $dal) {
             $row = [];
+
+            // Appel direct de méthodes existantes, sans vérifier à chaque itération
             foreach ($columns as $key => $label) {
-                $method = $methodMapping[$key] ?? null;
-                $row[$key] = ($method && method_exists($dal, $method))
-                    ? ($dal->{$method}() ?? '-')
-                    : '-';
+                if (isset($methodsToCall[$key])) {
+                    // On sait que la méthode existe ou est gérée par getMethodMapping
+                    $method = $methodsToCall[$key];
+                    // Optional : vérifier une fois si method existe pour éviter erreur fatale
+                    $row[$key] = method_exists($dal, $method) ? ($dal->{$method}() ?? '-') : '-';
+                } else {
+                    $row[$key] = '-';
+                }
             }
+
             $rows[] = $row;
         }
         return $rows;
