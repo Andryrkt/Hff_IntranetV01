@@ -55,7 +55,7 @@
 							<td>{{ macroForm.affichageSimple(dal.artRefp, 'text-center') }}</td>
 							<td>{{ macroForm.affichageSimple(dal.artDesi, 'text-start') }}</td>
 							<td>{{ macroForm.affichageSimple(dal.PUFormatted, 'text-end') }}</td>
-							<td>{{ macroForm.affichageSimple(dal.qteDem, 'text-center') }}</td>
+							<td>{{ macroForm.affichageSimple(dal.qteDem, 'text-center qte-dem-da-reappro', {"data-qte-dem": dal.qteDem, "data-qte-valide": dal.qteValAppro}) }}</td>
 							<td>{{ macroForm.affichageSimple(dal.qteValAppro, 'text-center') }}</td>
 							<td>{{ macroForm.affichageSimple(dal.montantFormatted, 'text-end') }}</td>
 						</tr>
