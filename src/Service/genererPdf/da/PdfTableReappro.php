@@ -24,7 +24,8 @@ class PdfTableReappro
                     <th align="center">Référence</th>
                     <th align="center">Désignation</th>
                     <th align="right">PU</th>
-                    <th align="center">Qté demandé</th>
+                    <th align="center">Qté demandée</th>
+                    <th align="center">Qté Validée</th>
                     <th align="right">Montant</th>
                 </tr>
             </thead>
@@ -50,6 +51,7 @@ class PdfTableReappro
             $html .= '<td align="left">' . $dal->getArtDesi() . '</td>';
             $html .= '<td align="right">' . $dal->getPUFormatted() . '</td>';
             $html .= '<td align="center">' . $dal->getQteDem() . '</td>';
+            $html .= '<td align="center">' . $dal->getQteValAppro() . '</td>';
             $html .= '<td align="right">' . $dal->getMontantFormatted() . '</td>';
             $html .= '</tr>';
         }
