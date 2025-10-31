@@ -166,7 +166,7 @@ trait DaListeTrait
                 $estAdmin,
                 $estAppro,
                 $estAtelier,
-                $daAfficher->getDaTypeId() == DemandeAppro::TYPE_DA_DIRECT && $daAfficher->getServiceEmetteur() == $this->userDataService->getServiceId($this->getUser())
+                $daAfficher->getDaTypeId() == DemandeAppro::TYPE_DA_DIRECT && $daAfficher->getServiceEmetteur() == $this->userDataService->getServiceId($this->getUser()) // TODO: role DA directe
             );
             $daAfficher->setVerouille($verrouille);
         }

@@ -59,9 +59,7 @@ class listeDaController extends Controller
 
         $sortJoursClass = false;
 
-        if ($criteria && $criteria['sortNbJours']) {
-            $sortJoursClass = $criteria['sortNbJours'] === 'asc' ? 'fas fa-arrow-up-1-9' : 'fas fa-arrow-down-9-1';
-        }
+        if ($criteria && $criteria['sortNbJours']) $sortJoursClass = $criteria['sortNbJours'] === 'asc' ? 'fas fa-arrow-up-1-9' : 'fas fa-arrow-down-9-1';
 
         //recupère le numero de page
         $page = $request->query->getInt('page', 1);
