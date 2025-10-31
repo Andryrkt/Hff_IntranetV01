@@ -234,6 +234,12 @@ class DaListCdeFrnController extends Controller
     {
         $datasPrepared = [];
 
+        $daType = [
+            DemandeAppro::TYPE_DA_AVEC_DIT => "avec DIT",
+            DemandeAppro::TYPE_DA_DIRECT   => "direct",
+            DemandeAppro::TYPE_DA_REAPPRO  => "Reappro",
+        ];
+
         $routeDetailName = [
             DemandeAppro::TYPE_DA_DIRECT   => 'da_detail_direct',
             DemandeAppro::TYPE_DA_AVEC_DIT => 'da_detail_avec_dit',
@@ -319,6 +325,7 @@ class DaListCdeFrnController extends Controller
                 'joursDispo'          => $item->getJoursDispo(),
                 'styleJoursDispo'     => $item->getJoursDispo() < 0 ? 'text-danger' : '',
                 'demandeur'           => $item->getDemandeur(),
+                'datype'              => $daType[$item->getDaTypeId()]
             ];
         }
 
