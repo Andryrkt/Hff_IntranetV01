@@ -12,7 +12,6 @@ use App\Controller\Traits\da\DaAfficherTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\da\validation\DaValidationReapproTrait;
-use App\Entity\da\DemandeApproL;
 use App\Form\da\DaObservationValidationType;
 
 /**
@@ -32,7 +31,7 @@ class DaValidationReapproController extends Controller
     }
 
     /**
-     * @Route("/validation/{id}", name="da_validate_reappro")
+     * @Route("/validation-reappro/{id}", name="da_validate_reappro")
      */
     public function validationDaReappro($id, Request $request)
     {
@@ -86,6 +85,8 @@ class DaValidationReapproController extends Controller
             if ($request->request->has('refuser')) {
                 $this->refuserDemande($da);
 
+                $this->emailDaService->envoyerMailValidationReappro($da, $observation ?? '-', $this->getUser(), false);
+
                 $notification = [
                     'type'    => 'success',
                     'message' => 'La demande de réappro a été refusé avec succès.',
@@ -95,6 +96,8 @@ class DaValidationReapproController extends Controller
                 $this->creationPDFReappro($da, $observations, $monthsList, $dataHistoriqueConsommation);
                 $this->copyPDFToDW($da->getNumeroDemandeAppro());
                 $this->ajouterDansDaSoumisAValidation($da);
+
+                $this->emailDaService->envoyerMailValidationReappro($da, $observation ?? '-', $this->getUser());
 
                 $notification = [
                     'type'    => 'success',

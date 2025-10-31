@@ -43,61 +43,78 @@ trait PrepareDataDAP
     {
         $rows = [];
         $methodMapping = $this->getMethodMapping();
+
+        // Préparer à l'avance les méthodes à appeler pour chaque colonne
+        $methodsToCall = [];
+        foreach ($columns as $key => $label) {
+            if (isset($methodMapping[$key])) $methodsToCall[$key] = $methodMapping[$key];
+        }
+
         foreach ($dals as $dal) {
             $row = [];
             foreach ($columns as $key => $label) {
-                $method = $methodMapping[$key] ?? null;
-                $row[$key] = ($method && method_exists($dal, $method))
-                    ? ($dal->{$method}() ?? '-')
-                    : '-';
+                $row[$key] = isset($methodsToCall[$key]) ? ($dal->{$methodsToCall[$key]}() ?? '-') : '-';
             }
+
             $rows[] = $row;
         }
         return $rows;
     }
 
     /**
-     * Préparer les données pour le mail de création de DA.
+     * Préparer les données pour un mail de DA.
+     *
+     * @param int $datypeId
+     * @param iterable $dals
+     * @param string $context Contexte : 'creation', 'modification', 'validation', etc.
+     * @param iterable|null $oldDals Optionnel, pour comparaison dans modification
      */
+    private function prepareDataForMailDa(int $datypeId, iterable $dals, string $context, ?iterable $oldDals = null): array
+    {
+        $columns = $this->getColumnsByType($datypeId, $context);
+
+        // Cas modification avec comparaison ancien / nouveau
+        if ($context === 'modification' && $oldDals !== null) {
+            return [
+                'new' => [
+                    'head' => $columns,
+                    'body' => $this->buildRows($dals, $columns),
+                ],
+                'old' => [
+                    'head' => $columns,
+                    'body' => $this->buildRows($oldDals, $columns),
+                ],
+            ];
+        }
+
+        // Cas création, validation, validationReappro, etc.
+        return [
+            'head' => $columns,
+            'body' => $this->buildRows($dals, $columns),
+        ];
+    }
+
+    /** Préparer les données pour le mail de création de DA. */
     private function prepareDataForMailCreationDa(int $datypeId, iterable $dals): array
     {
-        $columns = $this->getColumnsByType($datypeId, 'creation');
-
-        return [
-            'head' => $columns,
-            'body' => $this->buildRows($dals, $columns),
-        ];
+        return $this->prepareDataForMailDa($datypeId, $dals, 'creation');
     }
 
-    /**
-     * Préparer les données pour le mail de modification de DA.
-     */
+    /** Préparer les données pour le mail de modification de DA. */
     private function prepareDataForMailModificationDa(int $datypeId, iterable $newDals, iterable $oldDals): array
     {
-        $columns = $this->getColumnsByType($datypeId, 'modification');
-
-        return [
-            'new' => [
-                'head' => $columns,
-                'body' => $this->buildRows($newDals, $columns),
-            ],
-            'old' => [
-                'head' => $columns,
-                'body' => $this->buildRows($oldDals, $columns),
-            ],
-        ];
+        return $this->prepareDataForMailDa($datypeId, $newDals, 'modification', $oldDals);
     }
 
-    /**
-     * Préparer les données pour le mail de validation de DA.
-     */
+    /** Préparer les données pour le mail de validation de DA. */
     private function prepareDataForMailValidationDa(int $datypeId, iterable $dals): array
     {
-        $columns = $this->getColumnsByType($datypeId, 'validation');
+        return $this->prepareDataForMailDa($datypeId, $dals, 'validation');
+    }
 
-        return [
-            'head' => $columns,
-            'body' => $this->buildRows($dals, $columns),
-        ];
+    /** Préparer les données pour le mail de validation/refus de DA Réappro. */
+    private function prepareDataForMailValidationDaReappro(int $datypeId, iterable $dals): array
+    {
+        return $this->prepareDataForMailDa($datypeId, $dals, 'validationReappro');
     }
 }

@@ -1,6 +1,5 @@
 {% import "macroForm.html.twig" as macroForm %}
 
-
 <div class="row">
 	<h3 class="perso-titre">
 		Détails Demande d'achat, n°
@@ -32,6 +31,7 @@
 	</div>
 </div>
 
+{{ macroForm.sousTitre('Liste des articles demandés') }}
 <table class="table rounded table-plein-ecran text-center mt-3 align-middle">
 	<thead class="table-dark align-middle">
 		<tr>
@@ -39,7 +39,7 @@
 			<th width="13%">Référence</th>
 			<th>Désignation</th>
 			<th width="10%" class="text-end pe-3">PU</th>
-			<th width="10%">Qté demandé</th>
+			<th width="10%">Qté demandée</th>
 			<th width="10%">Qté validée</th>
 			<th width="10%" class="text-end pe-3">Montant</th>
 		</tr>
@@ -51,7 +51,7 @@
 				<td>{{ macroForm.affichageSimple(dal.artRefp, 'text-center') }}</td>
 				<td>{{ macroForm.affichageSimple(dal.artDesi, 'text-start') }}</td>
 				<td>{{ macroForm.affichageSimple(dal.PUFormatted, 'text-end') }}</td>
-				<td>{{ macroForm.affichageSimple(dal.qteDem, 'text-center') }}</td>
+				<td>{{ macroForm.affichageSimple(dal.qteDem, 'text-center qte-dem-da-reappro', {"data-qte-dem": dal.qteDem, "data-qte-valide": dal.qteValAppro}) }}</td>
 				<td>{{ macroForm.affichageSimple(dal.qteValAppro, 'text-center') }}</td>
 				<td>{{ macroForm.affichageSimple(dal.montantFormatted, 'text-end') }}</td>
 			</tr>

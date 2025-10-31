@@ -72,9 +72,7 @@ class DemandeApproService
     public function isDemandeVerrouillee(string $statutDa, ?string $statut, array $roles): bool
     {
         foreach ($roles as $role) {
-            if ($this->canRoleEditDa($role, $statutDa, $statut)) {
-                return false; // déverrouillage si au moins un rôle est autorisé
-            }
+            if ($this->canRoleEditDa($role, $statutDa, $statut)) return false; // déverrouillage si au moins un rôle est autorisé
         }
 
         return true; // verrouillé par défaut
@@ -92,23 +90,17 @@ class DemandeApproService
     private function canRoleEditDa(string $role, string $statutDa, ?string $statut): bool
     {
         // rôle non défini
-        if (!isset(self::PERMISSIONS[$role])) {
-            return false;
-        }
+        if (!isset(self::PERMISSIONS[$role])) return false;
 
         $roleRules = self::PERMISSIONS[$role];
 
         // statut DA non autorisé
-        if (!isset($roleRules[$statutDa])) {
-            return false;
-        }
+        if (!isset($roleRules[$statutDa])) return false;
 
         $allowed = $roleRules[$statutDa];
 
         // Cas où la valeur est booléenne (true ou false)
-        if (is_bool($allowed)) {
-            return $allowed;
-        }
+        if (is_bool($allowed)) return $allowed;
 
         // Cas où la valeur est un tableau de statuts complémentaires
         return isset($allowed[$statut]) ? $allowed[$statut] : true;
