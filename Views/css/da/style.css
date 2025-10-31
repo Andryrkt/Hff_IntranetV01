@@ -534,3 +534,45 @@ a.choix:hover {
   font-weight: 500;
   box-shadow: 0 0px 3px rgba(176, 42, 55, 0.5);
 }
+
+/* Icone des layers */
+/* Conteneur layer Font Awesome personnalisé */
+.fa-layers.custom {
+  width: 1.5rem;
+  height: 1.5rem;
+  display: inline-block;
+  vertical-align: middle;
+  position: relative;
+  font-size: 1.25rem !important;
+}
+
+/* Fond de l'icône (cercle, carré, etc.) */
+.fa-layers.custom .fa-layer-base {
+  font-size: 1.9em;
+}
+
+/* Toutes les icônes internes centrées */
+.fa-layers.custom i {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Badge texte en bas à droite */
+.fa-layers.custom .fa-layers-text {
+  position: absolute;
+  bottom: -1em;
+  right: -1em;
+  font-weight: 800;
+  font-size: 0.45em !important;
+  padding: 0.05em 0.35em;
+  border-radius: 0.2em;
+  color: white;
+}
+
+/* Décalage pour icônes secondaires (petits symboles) */
+.fa-layers.custom .layer-offset {
+  font-size: 0.55em; /* ajustable selon besoin */
+  opacity: 0.95;
+}
