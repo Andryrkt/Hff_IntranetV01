@@ -31,7 +31,7 @@ class DemandeAppro
     public const ID_ATELIER                  = 3;
     private const MAIL_APPRO_PROD            = 'appro@hff.mg';
     private const MAIL_APPRO_TEST            = 'hoby.ralahy@hff.mg';
-    public const MAIL_APPRO                  = self::MAIL_APPRO_TEST;       // TODO: à changer selon environnement (PROD | TEST)
+    public const MAIL_APPRO                  = self::MAIL_APPRO_PROD;       // TODO: à changer selon environnement (PROD | TEST)
     public const STATUT_VALIDE               = 'Bon d’achats validé';       /*__ DA direct et DA via OR __*/ /*_ statut_dal _*/ // cliquable par Admin et Appro
     public const STATUT_REFUSE_APPRO         = 'Refusé appro';              /*__ DA direct et DA via OR __*/ /*_ statut_dal _*/ // ! non cliquable par quiconque
     public const STATUT_TERMINER             = 'TERMINER';                  /*__ DA direct et DA via OR __*/ /*_ statut_dal _*/ // ! non cliquable par quiconque
