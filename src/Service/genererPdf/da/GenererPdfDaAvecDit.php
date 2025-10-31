@@ -120,6 +120,6 @@ class GenererPdfDaAvecDit extends GenererPdfDa
         $this->renderTableArticlesValidesPdfDA($pdf, $dals);
 
         // Sauvegarder le PDF
-        $this->saveBonAchatValide($pdf, $numDa, "I");
+        $this->saveBonAchatValide($pdf, $numDa);
     }
 }
