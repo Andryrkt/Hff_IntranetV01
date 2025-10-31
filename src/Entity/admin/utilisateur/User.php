@@ -882,4 +882,14 @@ class User implements UserInterface
 
         return $this;
     }
+
+    /** 
+     * ========================================
+     * Fonction utilitaire sur l'entité User
+     * ========================================
+     */
+    public function getFullName(): string
+    {
+        return $this->getPersonnels()->getNom() . ' ' . $this->getPersonnels()->getPrenoms();
+    }
 }

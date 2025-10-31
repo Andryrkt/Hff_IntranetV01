@@ -120,13 +120,7 @@ class DaDetailDirectController extends Controller
 				'message' => 'Votre observation a été enregistré avec succès.',
 			];
 
-			/** ENVOIE D'EMAIL pour l'observation */
-			$service = $this->estUserDansServiceAppro() ? 'appro' : $demandeAppro->getServiceEmetteur()->getLibelleService();
-			$this->emailDaService->envoyerMailObservationDaDirect($demandeAppro, [
-				'service' 		=> $service,
-				'observation'   => $daObservation->getObservation(),
-				'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
-			]);
+			$this->emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->getUser(), $this->estUserDansServiceAppro());
 
 			$this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
 			return $this->redirectToRoute("list_da");

@@ -1,5 +1,3 @@
-{% set da_name = demandeAppro.daTypeId == 1 ? "achat": "approvisionnement" %}
-
 <!DOCTYPE html>
 <html>
 	<head>
@@ -9,24 +7,32 @@
 	</head>
 	<body>
 		<div class="email-container">
-			{{ include('da/email/shared/_header.html.twig') }}
+			<div class="email-header">{{ header|raw }}</div>
 			<div class="email-body">
 				<p>Bonjour,</p>
-				{{ include('da/email/shared/_body.' ~ statut ~ '.html.twig') }}
+				{{ include('da/email/shared/_body.' ~ templateName ~ '.html.twig') }}
 				<p>
 					Pour consulter les détails de la demande, veuillez cliquer sur le bouton ci-dessous:
 					<br>
-					<a href="{{ action_url }}" class="button">Détail de la demande</a>
+					<a href="{{ urlDetail }}" class="button">Détail de la demande</a>
 				</p>
 				<p>
 					<span class="fw-bold">NB:</span>
 					Assurez-vous d’être connecté à
-					<a href="http://192.168.0.28/{{ App.base_path }}/">Hffintranet</a>
+					<a href="{{ urlIntranet }}">Hffintranet</a>
 					avant de cliquer sur le bouton.
 				</p>
 				<p class="fw-bold">Cordialement,</p>
 			</div>
-			{{ include('da/email/shared/_footer.html.twig') }}
+			<div class="email-footer">
+				Service
+				{{ service }}
+				- Henri Fraise Fis & Cie
+				<br>
+				&copy;
+				{{ dateYear }}
+				Henri Fraise Fis & cie.
+			</div>
 		</div>
 	</body>
 </html>
