@@ -266,6 +266,40 @@ public function recupeQteCISlig($numOr, $itv, $refp)
     $resultat = $this->convertirEnUtf8($data);
     return $resultat;
   }
+  /**
+   * Date LIve ALL
+   */
+ public function dateLivraisonCIS($numCIS, $refp, $cst)
+  {
+    $statement = "SELECT  max(nliv_datexp) as datelivlig
+                  from neg_liv, neg_llf 
+                  where nliv_soc = nllf_soc
+                  and nliv_numcde = '" . $numCIS . "'
+                  and nliv_numliv = nllf_numliv
+                  and nllf_constp = '" . $cst . "'
+                  and nllf_refp = '" . $refp . "'
+                 ";
+    $result = $this->connect->executeQuery($statement);
+    $data = $this->connect->fetchResults($result);
+    $resultat = $this->convertirEnUtf8($data);
+    return $resultat;
+  }
+
+  public function dateAllocationCIS($numCIS, $refp, $cst)
+  {
+    $statement = " SELECT  max(npic_date) as datealllig
+                  from neg_pic, neg_pil
+                  where npic_soc = npil_soc
+                  and npic_numcde = npil_numcde
+                  and  npic_numcde = '" . $numCIS . "'
+                  and npil_constp = '" . $cst . "'
+                  and npil_refp = '" . $refp . "'
+                ";
+    $result = $this->connect->executeQuery($statement);
+    $data = $this->connect->fetchResults($result);
+    $resultat = $this->convertirEnUtf8($data);
+    return $resultat;
+  }
 
   /**
    * eta mag

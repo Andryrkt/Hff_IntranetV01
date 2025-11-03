@@ -39,6 +39,8 @@ class ModalPlanningApi extends Controller
                     $recupPariel[] = $this->planningMagasinModel->recupPartiel($details[$i]['numerocdecis'], $details[$i]['ref']);
                     $recupGot['ord'] = $this->planningMagasinModel->recupInfodGcot($details[$i]['numerocdecis']);
                     $qteCIS[] = $this->planningMagasinModel->recupeQteCISlig($details[$i]['numcis'], $details[$i]['intv'], $details[$i]['ref']);
+                    $dateLivLig[] = $this->planningMagasinModel->dateLivraisonCIS($details[$i]['numcis'], $details[$i]['ref'], $details[$i]['cst']);
+                    $dateAllLig[] = $this->planningMagasinModel->dateAllocationCIS($details[$i]['numcis'], $details[$i]['ref'], $details[$i]['cst']);
                 } else {
                     if (empty($details[$i]['numerocmd']) || $details[$i]['numerocmd'] == "0") {
                         $recupGot = [];
@@ -61,8 +63,20 @@ class ModalPlanningApi extends Controller
                     $details[$i]['qteSlode'] = "";
                     $details[$i]['qte'] = "";
                 }
+                if (!empty($dateLivLig[0])) {
+                    $details[$i]['datelivlig'] = $dateLivLig[$i]['0']['datelivlig'];
+                } else {
+                    $details[$i]['datelivlig'] = "";
+                }
+
+                if (!empty($dateAllLig[0])) {
+                    $details[$i]['dateAllLIg'] = $dateAllLig[$i]['0']['datealllig'];
+                } else {
+                    $details[$i]['dateAllLIg'] = "";
+                }
             }
         }
+
         for ($i = 0; $i < count($details); $i++) {
 
             if (!empty($qteCIS)) {

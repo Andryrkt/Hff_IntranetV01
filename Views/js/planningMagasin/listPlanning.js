@@ -1,7 +1,6 @@
 /** *======================
  * LIST DETAIL MODAL
  *  =======================*/
-
 import { baseUrl } from "../utils/config";
 
 document.addEventListener("DOMContentLoaded", (event) => {
@@ -119,9 +118,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
         return response.json();
       })
       .then((data) => {
-        console.log(data.avecOnglet);
-        console.log(data.data);
-        console.log(data);
 
         displayOnglet(data.avecOnglet);
         const Ornum = document.getElementById("orIntv");
@@ -187,7 +183,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
           data.data.forEach((detail) => {
             console.log(detail);
 
-            Ornum.innerHTML = `${detail.numor} - ${detail.intv} | intitulé : ${detail.commentaire} | `;
+            Ornum.innerHTML = `${detail.numor} | intitulé : ${detail.commentaire} | `;
             if (detail.plan == "PLANIFIE") {
               Ornum.innerHTML += `planifié le : ${formaterDate(
                 detail.dateplanning
@@ -303,10 +299,10 @@ document.addEventListener("DOMContentLoaded", (event) => {
               parseInt(detail.qterlqlig) === 0
             ) {
               statutCIS = "LIVRE";
-              dateStatutCIS = formaterDate(detail.dateLivLIg);
+              dateStatutCIS = detail.dateLivLIg === null ? "" :formaterDate(detail.dateLivLIg);
             } else if (parseInt(detail.qtealllig) > 0) {
               statutCIS = "A LIVRER";
-              dateStatutCIS = formaterDate(detail.dateAllLIg);
+              dateStatutCIS = detail.dateAllLIg === null ? "" :formaterDate(detail.dateAllLIg);
             } else {
               statutCIS = detail.statut;
               dateStatutCIS = "";
@@ -371,7 +367,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
                             : parseInt(detail.qtelivlig)
                         }</td> 
                         <td >${statutCIS === null ? "" : statutCIS}</td> 
-                        <td>${dateStatutCIS === null ? "" : dateStatutCIS}</td> 
+                        <td>${dateStatutCIS}</td> 
                         
                     </tr>`;
                 tableBodyLign.innerHTML += row1;
@@ -432,6 +428,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
   }
 
   function formaterDate(daty) {
+    console.log(daty);
     const date = new Date(daty);
     return `${date.getDate().toString().padStart(2, "0")}/${(
       date.getMonth() + 1
