@@ -119,7 +119,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
         return response.json();
       })
       .then((data) => {
-
         console.log(data.avecOnglet);
         console.log(data.data);
         console.log(data);
@@ -132,11 +131,15 @@ document.addEventListener("DOMContentLoaded", (event) => {
         const planningTableHeadOR = document.getElementById(
           "planningTableHeadOR"
         );
-
+        const tableBodyLign = document.getElementById("commandesTableBodyLign");
+        const planningTableHeadLign = document.getElementById(
+          "planningTableHeadLign"
+        );
         tableBody.innerHTML = ""; // Clear previous data
         Ornum.innerHTML = "";
         planningTableHead.innerHTML = "";
         planningTableHeadOR.innerHTML = "";
+        planningTableHeadLign.innerHTML = "";
 
         if (data.data.length > 0) {
           if (
@@ -163,6 +166,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
                             <th>Message</th>`;
             planningTableHead.innerHTML += rowHeader;
             planningTableHeadOR.innerHTML += rowHeader;
+            planningTableHeadLign.innerHTML += rowHeader;
           } else {
             let rowHeader = `<th>N° OR</th>
                             <th>Intv</th>
@@ -319,8 +323,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
                         <td>${detail.numor}</td> 
                         <td>${detail.intv}</td> 
                         <td >${numCis}</td> 
-                         <td ${cmdColor}>${numeroCdeCis}</td> 
-                        <td ${cmdColorRmq}>${StatutCtrmqCis}</td> 
+                          <td ></td> 
+                        <td></td> 
                         <td>${detail.cst}</td> 
                         <td>${numRef}</td> 
                         <td>${detail.desi}</td> 
@@ -331,9 +335,47 @@ document.addEventListener("DOMContentLoaded", (event) => {
                         <td  >${statut} </td> 
                         <td>${dateStatut}</td> 
                         <td></td> 
+                        <td></td> 
+                        <td></td> 
                     </tr>`;
               // tableBody.innerHTML += row;
               tableBodyOR.innerHTML += row;
+              if (numCis) {
+                let row1 = `<tr>
+                        <td>${detail.numor}</td> 
+                        <td>${detail.intv}</td> 
+                        <td>${numCis}</td> 
+                        <td ${cmdColor}>${numeroCdeCis}</td> 
+                        <td ${cmdColorRmq}>${StatutCtrmqCis}</td> 
+                        <td>${detail.cst}</td> 
+                        <td>${numRef}</td> 
+                        <td>${detail.desi}</td> 
+                        <td>${
+                          isNaN(detail.qteORlig) || detail.qteORlig === ""
+                            ? ""
+                            : parseInt(detail.qteORlig)
+                        }</td> 
+                        <td>${
+                          isNaN(detail.qtealllig) || detail.qtealllig === ""
+                            ? ""
+                            : parseInt(detail.qtealllig)
+                        }</td> 
+                        <td>${
+                          isNaN(detail.qterlqlig) || detail.qterlqlig === ""
+                            ? ""
+                            : parseInt(detail.qterlqlig)
+                        }</td> 
+                        <td>${
+                          isNaN(detail.qtelivlig) || detail.qtelivlig === ""
+                            ? ""
+                            : parseInt(detail.qtelivlig)
+                        }</td> 
+                        <td >${statutCIS === null ? "" : statutCIS}</td> 
+                        <td>${dateStatutCIS === null ? "" : dateStatutCIS}</td> 
+                        
+                    </tr>`;
+                tableBodyLign.innerHTML += row1;
+              }
             } else {
               // Affichage
               let row = `<tr>

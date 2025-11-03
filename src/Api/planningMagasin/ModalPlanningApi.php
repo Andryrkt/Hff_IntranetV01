@@ -33,10 +33,12 @@ class ModalPlanningApi extends Controller
             $cdeCIS = $this->planningMagasinModel->recupOrcis($numOr);
             $recupPariel = [];
             $recupGot = [];
+            $qteCIS = [];
             for ($i = 0; $i < count($details); $i++) {
                 if ($numOr[0] == '5' || $numOr[0] == '3' || $numOr[0] == '4' || $numOr[0] == '2') {
                     $recupPariel[] = $this->planningMagasinModel->recupPartiel($details[$i]['numerocdecis'], $details[$i]['ref']);
                     $recupGot['ord'] = $this->planningMagasinModel->recupInfodGcot($details[$i]['numerocdecis']);
+                    $qteCIS[] = $this->planningMagasinModel->recupeQteCISlig($details[$i]['numcis'], $details[$i]['intv'], $details[$i]['ref']);
                 } else {
                     if (empty($details[$i]['numerocmd']) || $details[$i]['numerocmd'] == "0") {
                         $recupGot = [];
@@ -60,8 +62,31 @@ class ModalPlanningApi extends Controller
                     $details[$i]['qte'] = "";
                 }
             }
-            $avecOnglet = empty($cdeCIS) || empty($cdeCIS[0]['succ']) ? false : true;
         }
+        for ($i = 0; $i < count($details); $i++) {
+
+            if (!empty($qteCIS)) {
+                if (!empty($qteCIS[$i])) {
+
+                    $details[$i]['qteORlig'] = $qteCIS[$i]['0']['qteorlig'];
+                    $details[$i]['qtealllig'] = $qteCIS[$i]['0']['qtealllig'];
+                    $details[$i]['qterlqlig'] = $qteCIS[$i]['0']['qtereliquatlig'];
+                    $details[$i]['qtelivlig'] = $qteCIS[$i]['0']['qtelivlig'];
+                } elseif (!empty($qteCIS[$i - 1])) {
+                    $details[$i]['qteORlig'] = $qteCIS[$i - 1]['0']['qteorlig'];
+                    $details[$i]['qtealllig'] = $qteCIS[$i - 1]['0']['qtealllig'];
+                    $details[$i]['qterlqlig'] = $qteCIS[$i - 1]['0']['qtereliquatlig'];
+                    $details[$i]['qtelivlig'] = $qteCIS[$i - 1]['0']['qtelivlig'];
+                } else {
+                    $details[$i]['qteORlig'] = "";
+                    $details[$i]['qtealllig'] = "";
+                    $details[$i]['qterlqlig'] = "";
+                    $details[$i]['qtelivlig'] = "";
+                }
+            }
+        }
+
+        $avecOnglet = empty($cdeCIS) || empty($cdeCIS[0]['succ']) ? false : true;
         header("Content-type:application/json");
         echo json_encode([
             'avecOnglet' => $avecOnglet,
@@ -85,10 +110,11 @@ class ModalPlanningApi extends Controller
         }
         return $groupedDetails;
     }
-/**
+    /**
      * @Route("/api/numero-libelle-client", name="api_numero_libelle_client")
      */
-    public function client(){
+    public function client()
+    {
         $client = $this->planningMagasinModel->recupClientPlanningMagasin();
         header("Content-type:application/json");
         echo json_encode($client);

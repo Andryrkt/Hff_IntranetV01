@@ -242,6 +242,31 @@ ORDER BY 6,2, A.NLIG_NOLIGN
     $resultat = $this->convertirEnUtf8($data);
     return $resultat;
   }
+
+/**
+ * qteCIS
+ */
+public function recupeQteCISlig($numOr, $itv, $refp)
+  {
+    $statement = "SELECT 
+                  trunc(nvl(nlig_qtecde,0)) as qteorlig,
+                  trunc(nvl(nlig_qtealiv,0) )as qtealllig,
+                  trunc(nvl((nlig_qtecde - nlig_qtealiv - nlig_qteliv) ,0))as qtereliquatlig,
+                  trunc(nvl(nlig_qteliv,0)) as qtelivlig
+                  
+                  from neg_lig
+                  where nlig_natop = 'CIS'
+                  and nlig_numcde ='".$numOr."'
+                  AND  NLIG_NOLIGN  = '".$itv."'
+                  and nlig_refp ='" . $refp . "'
+        ";
+    // dump($statement);
+    $result = $this->connect->executeQuery($statement);
+    $data = $this->connect->fetchResults($result);
+    $resultat = $this->convertirEnUtf8($data);
+    return $resultat;
+  }
+
   /**
    * eta mag
    */
