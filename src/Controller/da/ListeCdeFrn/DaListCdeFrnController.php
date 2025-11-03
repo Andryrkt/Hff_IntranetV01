@@ -19,6 +19,7 @@ use App\Controller\Traits\da\StatutBcTrait;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Repository\da\DaAfficherRepository;
 use App\Controller\Traits\AutorisationTrait;
+use App\Controller\Traits\da\MarkupIconTrait;
 use App\Factory\da\CdeFrnDto\CdeFrnSearchDto;
 use App\Form\da\daCdeFrn\DaModalDateLivraisonType;
 use App\Repository\da\DemandeApproRepository;
@@ -34,6 +35,7 @@ class DaListCdeFrnController extends Controller
 {
     use StatutBcTrait;
     use AutorisationTrait;
+    use MarkupIconTrait;
 
     private DaAfficherRepository $daAfficherRepository;
     private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
@@ -107,6 +109,7 @@ class DaListCdeFrnController extends Controller
             'formSoumission'    => $formSoumission->createView(),
             'form'              => $form->createView(),
             'criteria'          => $criteriaTab,
+            'daTypeIcons'       => $this->getAllIcons(),
             'currentPage'       => $page,
             'totalPages'        => $paginationData['lastPage'],
             'resultat'          => $paginationData['totalItems'],
@@ -235,9 +238,9 @@ class DaListCdeFrnController extends Controller
         $datasPrepared = [];
 
         $daType = [
-            DemandeAppro::TYPE_DA_AVEC_DIT => "avec DIT",
-            DemandeAppro::TYPE_DA_DIRECT   => "direct",
-            DemandeAppro::TYPE_DA_REAPPRO  => "Reappro",
+            DemandeAppro::TYPE_DA_AVEC_DIT => $this->getIconDaAvecDIT(),
+            DemandeAppro::TYPE_DA_DIRECT   => $this->getIconDaDirect(),
+            DemandeAppro::TYPE_DA_REAPPRO  => $this->getIconDaReappro(),
         ];
 
         $routeDetailName = [
@@ -298,7 +301,7 @@ class DaListCdeFrnController extends Controller
             $datasPrepared[] = [
                 'urlDetail'          => $urlDetail,
                 'numeroDemandeAppro' => $item->getNumeroDemandeAppro(),
-                'daDirect'           => $daDirect ? $safeIconSuccess : '',
+                'datype'              => $daType[$item->getDaTypeId()],
                 'numeroDemandeDit'   => $item->getNumeroDemandeDit() ?? $safeIconBan,
                 'niveauUrgence'      => $item->getNiveauUrgence(),
                 'numeroOr'           => $daViaOR ? $item->getNumeroOr() : $safeIconBan,
@@ -325,7 +328,6 @@ class DaListCdeFrnController extends Controller
                 'joursDispo'          => $item->getJoursDispo(),
                 'styleJoursDispo'     => $item->getJoursDispo() < 0 ? 'text-danger' : '',
                 'demandeur'           => $item->getDemandeur(),
-                'datype'              => $daType[$item->getDaTypeId()]
             ];
         }
 
