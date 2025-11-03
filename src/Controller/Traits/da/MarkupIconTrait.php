@@ -62,12 +62,12 @@ trait MarkupIconTrait
 
     private function getIconDaDirect(): Markup
     {
-        return $this->faIconLayer('fa-cart-shopping', null, '#b97309',  null, '#ffe8cc',  'fa-bolt',  '#ffb703', 'translate(-40%, -85%) scale(0.85)');
+        return $this->faIconLayer('fa-cart-shopping', null, '#b97309',  null, '#ffe8cc',  'fa-bolt',  '#ffb703', 'translate(-30%, -85%) scale(0.7)');
     }
 
     private function getIconDaReappro(): Markup
     {
-        return $this->faIconLayer('fa-calendar-days', null, '#0f5132', null, '#d9f0e5', 'fa-arrows-rotate', '#20c997', 'translate(10%, -120%)');
+        return $this->faIconLayer('fa-calendar-days', null, '#0f5132', null, '#d9f0e5', 'fa-arrows-rotate', '#20c997', 'translate(20%, -130%)');
     }
 
     private function getAllIcons(): array

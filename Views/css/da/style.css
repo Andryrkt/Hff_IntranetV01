@@ -543,12 +543,12 @@ a.choix:hover {
   display: inline-block;
   vertical-align: middle;
   position: relative;
-  font-size: 1.25rem !important;
+  font-size: 0.875rem !important;
 }
 
 /* Fond de l'icône (cercle, carré, etc.) */
 .fa-layers.custom .fa-layer-base {
-  font-size: 1.9em;
+  font-size: 2em;
 }
 
 /* Toutes les icônes internes centrées */
