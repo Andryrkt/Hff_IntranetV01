@@ -144,15 +144,15 @@ document.addEventListener("DOMContentLoaded", (event) => {
             data.data[0].numor.startsWith("3") ||
             data.data[0].numor.startsWith("2")
           ) {
-            let rowHeader = `<th>N° OR</th>
-                            <th>Intv</th>
+            let rowHeader = `<th>N°BC Irium </th>
+                            <th>Ligne</th>
                             <th>N° CIS</th>
                             <th>N° Commande</th>
                             <th>Statut ctrmrq</th>
                             <th>CST</th>
                             <th>Ref</th>
                             <th>Désignation</th>
-                            <th>Qté OR</th>
+                            <th>Qté DEM</th>
                             <th>Qté ALL</th>
                             <th>QTé RLQ</th>
                             <th>QTé LIV</th>
@@ -164,14 +164,14 @@ document.addEventListener("DOMContentLoaded", (event) => {
             planningTableHeadOR.innerHTML += rowHeader;
             planningTableHeadLign.innerHTML += rowHeader;
           } else {
-            let rowHeader = `<th>N° OR</th>
-                            <th>Intv</th>
+            let rowHeader = `<th>N°BC Irium </th>
+                            <th>Ligne</th>
                             <th>N° Commande</th>
                             <th>Statut ctrmrq</th>
                             <th>CST</th>
                             <th>Ref</th>
                             <th>Désignation</th>
-                            <th>Qté OR</th>
+                            <th>Qté DEM</th>
                             <th>Qté ALL</th>
                             <th>QTé RLQ</th>
                             <th>QTé LIV</th>
@@ -181,7 +181,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
             planningTableHead.innerHTML += rowHeader;
           }
           data.data.forEach((detail) => {
-            console.log(detail);
+            
 
             Ornum.innerHTML = `${detail.numor} | intitulé : ${detail.commentaire} | `;
             if (detail.plan == "PLANIFIE") {
@@ -208,7 +208,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
             let numRef;
             if (
               formaterDate(detail.datestatut) == "01/01/1970" ||
-              formaterDate(detail.datestatut) == "01/01/1900"
+              formaterDate(detail.datestatut) == "01/01/1900" ||
+              detail.cst.startsWith("z")
             ) {
               dateStatut = "";
             } else {
@@ -245,7 +246,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
             } else {
               statrmq = detail.statut_ctrmq;
             }
-            if (detail.statut == null) {
+            if (detail.statut == null || detail.cst.startsWith("z")) {
               statut = "";
             } else {
               statut = detail.statut;
@@ -267,12 +268,12 @@ document.addEventListener("DOMContentLoaded", (event) => {
             } else {
               numeroCdeCis = detail.numerocdecis;
             }
-            if (detail.statut_ctrmq_cis == null) {
+            if (detail.statut_ctrmq_cis == null || detail.cst.startsWith("z")) {
               StatutCtrmqCis = "";
             } else {
               StatutCtrmqCis = detail.statut_ctrmq_cis;
             }
-
+            
             //reception partiel
             let qteSolde = parseInt(detail.qteSlode);
             let qteQte = parseInt(detail.qte);
@@ -299,7 +300,9 @@ document.addEventListener("DOMContentLoaded", (event) => {
               parseInt(detail.qterlqlig) === 0
             ) {
               statutCIS = "LIVRE";
-              dateStatutCIS = detail.dateLivLIg === null ? "" :formaterDate(detail.dateLivLIg);
+              console.log(detail.datelivlig);
+              
+              dateStatutCIS = detail.datelivlig === null ? "" :formaterDate(detail.datelivlig);
             } else if (parseInt(detail.qtealllig) > 0) {
               statutCIS = "A LIVRER";
               dateStatutCIS = detail.dateAllLIg === null ? "" :formaterDate(detail.dateAllLIg);
@@ -324,10 +327,10 @@ document.addEventListener("DOMContentLoaded", (event) => {
                         <td>${detail.cst}</td> 
                         <td>${numRef}</td> 
                         <td>${detail.desi}</td> 
-                        <td>${parseInt(detail.qteres_or)}</td> 
-                        <td>${parseInt(detail.qteall)}</td> 
-                        <td>${parseInt(detail.qtereliquat)}</td> 
-                        <td>${parseInt(detail.qteliv)}</td> 
+                        <td>${parseInt(detail.qteres_or) === 0 ? "" : parseInt(detail.qteres_or) }</td> 
+                        <td>${parseInt(detail.qteall) === 0 ? "" :parseInt(detail.qteall) }</td> 
+                        <td>${parseInt(detail.qtereliquat) === 0 ? "" : parseInt(detail.qtereliquat)}</td> 
+                        <td>${parseInt(detail.qteliv) === 0 ? "" : parseInt(detail.qteliv)}</td> 
                         <td  >${statut} </td> 
                         <td>${dateStatut}</td> 
                         <td></td> 
@@ -347,22 +350,22 @@ document.addEventListener("DOMContentLoaded", (event) => {
                         <td>${numRef}</td> 
                         <td>${detail.desi}</td> 
                         <td>${
-                          isNaN(detail.qteORlig) || detail.qteORlig === ""
+                          isNaN(detail.qteORlig) || detail.qteORlig === "" || parseInt(detail.qteORlig) === 0
                             ? ""
                             : parseInt(detail.qteORlig)
                         }</td> 
                         <td>${
-                          isNaN(detail.qtealllig) || detail.qtealllig === ""
+                          isNaN(detail.qtealllig) || detail.qtealllig === "" || parseInt(detail.qtealllig) === 0
                             ? ""
                             : parseInt(detail.qtealllig)
                         }</td> 
                         <td>${
-                          isNaN(detail.qterlqlig) || detail.qterlqlig === ""
+                          isNaN(detail.qterlqlig) || detail.qterlqlig === "" || parseInt(detail.qterlqlig) === 0
                             ? ""
                             : parseInt(detail.qterlqlig)
                         }</td> 
                         <td>${
-                          isNaN(detail.qtelivlig) || detail.qtelivlig === ""
+                          isNaN(detail.qtelivlig) || detail.qtelivlig === "" || parseInt(detail.qtelivlig) === 0
                             ? ""
                             : parseInt(detail.qtelivlig)
                         }</td> 
@@ -382,10 +385,10 @@ document.addEventListener("DOMContentLoaded", (event) => {
                       <td>${detail.cst}</td> 
                       <td>${numRef}</td> 
                       <td>${detail.desi}</td> 
-                      <td>${parseInt(detail.qteres_or)}</td> 
-                      <td>${parseInt(detail.qteall)}</td> 
-                      <td>${parseInt(detail.qtereliquat)}</td> 
-                      <td>${parseInt(detail.qteliv)}</td> 
+                      <td>${parseInt(detail.qteres_or) === 0 ? "" : parseInt(detail.qteres_or)}</td> 
+                      <td>${parseInt(detail.qteall)  === 0 ? "" : parseInt(detail.qteall)}</td> 
+                      <td>${parseInt(detail.qtereliquat)  === 0 ? "" : parseInt(detail.qtereliquat)}</td> 
+                      <td>${parseInt(detail.qteliv)  === 0 ? "" : parseInt(detail.qteliv)}</td> 
                       <td >${statut}</td> 
                       <td>${dateStatut}</td> 
                       <td>${message}</td> 
@@ -428,7 +431,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
   }
 
   function formaterDate(daty) {
-    console.log(daty);
     const date = new Date(daty);
     return `${date.getDate().toString().padStart(2, "0")}/${(
       date.getMonth() + 1
