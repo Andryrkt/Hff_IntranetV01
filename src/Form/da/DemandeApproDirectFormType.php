@@ -123,6 +123,7 @@ class DemandeApproDirectFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => DemandeAppro::class,
+            'em' => null
         ]);
     }
 }
