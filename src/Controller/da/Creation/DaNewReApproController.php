@@ -46,7 +46,9 @@ class DaNewReApproController extends Controller
         $demandeAppro = $id === 0 ? $this->initialisationDemandeApproReappro($agenceServiceIps) : $this->demandeApproRepository->find($id);
         $this->generateDemandApproLinesFromReappros($demandeAppro, $agenceServiceIps);
 
-        $form = $this->getFormFactory()->createBuilder(DemandeApproReapproFormType::class, $demandeAppro)->getForm();
+        $form = $this->getFormFactory()->createBuilder(DemandeApproReapproFormType::class, $demandeAppro, [
+            'em' => $this->getEntityManager()
+        ])->getForm();
         $this->traitementFormReappro($form, $request);
 
         return $this->render('da/new-da-reappro.html.twig', [
