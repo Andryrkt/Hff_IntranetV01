@@ -129,7 +129,8 @@ class DitController extends Controller
                 AutoIncDecService::mettreAJourDerniereIdApplication($application, $this->getEntityManager(), $demandeIntervention->getNumeroDemandeIntervention());
 
                 /** 5. Traitement des fichiers (PDF, pièces jointes) @var array $nomFichierEnregistrer @var string $nomFichier  */
-                [$nomFichierEnregistrer, $nomFichier]  = $this->traitementDeFichier($form, $demandeIntervention);
+                $genererPdfDit = new GenererPdfDit();
+                [$nomFichierEnregistrer, $nomFichier]  = $this->traitementDeFichier($form, $demandeIntervention, $genererPdfDit);
 
                 // 6. Enregistrement dans la base de données
                 $this->enregistrementBd($demandeIntervention, $nomFichierEnregistrer);
@@ -152,7 +153,7 @@ class DitController extends Controller
         $this->getEntityManager()->persist($demandeIntervention);
     }
 
-    private function traitementDeFichier(FormInterface $form, DemandeIntervention $demandeIntervention): array
+    private function traitementDeFichier(FormInterface $form, DemandeIntervention $demandeIntervention, GenererPdfDit $genererPdfDit): array
     {
         /** 
          * gestion des pieces jointes et generer le nom du fichier PDF
@@ -165,7 +166,6 @@ class DitController extends Controller
         [$nomEtCheminFichiersEnregistrer, $nomFichierEnregistrer, $nomAvecCheminFichier, $nomFichier] = $this->enregistrementFichier($form, $demandeIntervention->getNumeroDemandeIntervention(), str_replace("-", "", $demandeIntervention->getAgenceServiceEmetteur()));
 
         /** 1. CREATION DE LA PAGE DE GARDE*/
-        $genererPdfDit = new GenererPdfDit();
         $idMateriel = (int)$demandeIntervention->getIdMateriel();
         if (!in_array($idMateriel, $this->ditModel->getNumeroMatriculePasMateriel())) {
             //récupération des historique de materiel (informix)
