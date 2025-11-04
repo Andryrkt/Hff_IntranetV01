@@ -50,6 +50,8 @@ use Symfony\Component\Form\FormRenderer;
 use Symfony\Bridge\Twig\Form\TwigRendererEngine;
 use Twig\RuntimeLoader\FactoryRuntimeLoader;
 use Illuminate\Pagination\Paginator;
+use Symfony\Component\Config\ConfigCache;
+use Symfony\Component\Config\Resource\FileResource;
 
 log_perf('Use - Importation des classes', $start);
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'vendor/autoload.php';
@@ -303,43 +305,86 @@ if (stripos($pathInfo, '/hffintranet') === 0 && strpos($pathInfo, '/Hffintranet'
 }
 log_perf('if (stripos($pathInfo, ...', $start);
 
-// Charger les routes
-$routeLoader = new AnnotationDirectoryLoader(
-    new FileLocator(dirname(__DIR__) . '/src/Controller/'),
-    new CustomAnnotationClassLoader(new AnnotationReader())
-);
-log_perf('$routeLoader = new AnnotationDirectoryLoader(...', $start);
-$controllerCollection = $routeLoader->load(dirname(__DIR__) . '/src/Controller/');
-log_perf('$controllerCollection = $routeLoader->load(dirname(__DIR__) . \'/src/Controller/\');', $start);
+$cacheFile = dirname(__DIR__) . '/var/cache/all_routes.php'; // Fichier cache commun pour routes controllers + API
+log_perf('$cacheFile = ' . $cacheFile, $start);
+$cache = new ConfigCache($cacheFile, true); // Mode debug : true => vérifie si les fichiers ont changé
+log_perf('$cache = new ConfigCache($cacheFile, true);', $start);
 
-// Charger les routes API
-$apiLoader = new AnnotationDirectoryLoader(
-    new FileLocator(dirname(__DIR__) . '/src/Api/'),
-    new CustomAnnotationClassLoader(new AnnotationReader())
-);
-log_perf('$routeLoader = new AnnotationDirectoryLoader(...', $start);
-$apiCollection = $apiLoader->load(dirname(__DIR__) . '/src/Api/');
-log_perf('$apiCollection = $apiLoader->load(dirname(__DIR__) . \'/src/Api/\');', $start);
+// Dossiers à charger
+$dirs = [
+    dirname(__DIR__) . '/src/Controller/',
+    dirname(__DIR__) . '/src/Api/',
+];
+log_perf('$dirs = [' . $dirs[0] . ',' . $dirs[1] . ']', $start);
 
-// Configurer le contexte de requête
-$context = new RequestContext();
-log_perf('$context = new RequestContext();', $start);
-$context->fromRequest($request);
-log_perf('$context->fromRequest($request);', $start);
-
-// Fusionner les collections de routes
+// Collection finale
 $collection = new RouteCollection();
 log_perf('$collection = new RouteCollection();', $start);
+
+if (!$cache->isFresh()) {
+    log_perf('if (!$cache->isFresh()) ', $start);
+    $controllerCollection = new RouteCollection();
+    log_perf('$controllerCollection = new RouteCollection();', $start);
+    $annotationReader = new AnnotationReader();
+    log_perf('$annotationReader = new AnnotationReader();', $start);
+
+    // 🔁 Charger les routes depuis tous les dossiers
+    foreach ($dirs as $dir) {
+        log_perf('foreach ($dirs as $dir)', $start);
+        if (!is_dir($dir)) continue;
+        log_perf('if (!is_dir($dir))', $start);
+
+        $routeLoader = new AnnotationDirectoryLoader(
+            new FileLocator($dir),
+            new CustomAnnotationClassLoader($annotationReader)
+        );
+        log_perf('$routeLoader = new AnnotationDirectoryLoader(...', $start);
+
+        $subCollection = $routeLoader->load($dir);
+        log_perf('$subCollection = $routeLoader->load($dir);', $start);
+        $controllerCollection->addCollection($subCollection);
+        log_perf('$controllerCollection->addCollection($subCollection);', $start);
+
+        // Ajouter toutes les ressources à surveiller
+        $rii = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir));
+        log_perf('$rii = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir));', $start);
+        foreach ($rii as $file) {
+            log_perf('foreach ($rii as $file)', $start);
+            if ($file->isFile() && $file->getExtension() === 'php') {
+                log_perf('if ($file->isFile() && $file->getExtension() === \'php\')', $start);
+                $controllerCollection->addResource(new FileResource($file->getPathname()));
+                log_perf('$controllerCollection->addResource(new FileResource($file->getPathname()));', $start);
+            }
+        }
+        log_perf('Fin foreach ($rii as $file)', $start);
+    }
+    log_perf('Fin foreach ($dirs as $dir)', $start);
+
+    // Écriture du cache avec toutes les ressources
+    $cache->write(serialize($controllerCollection), $controllerCollection->getResources());
+    log_perf('$cache->write(serialize($controllerCollection), $controllerCollection->getResources());', $start);
+} else {
+    log_perf('if ($cache->isFresh()) ', $start);
+    // Charger la collection depuis le cache
+    $controllerCollection = unserialize(file_get_contents($cacheFile));
+    log_perf('$controllerCollection = unserialize(file_get_contents($cacheFile));', $start);
+}
+
+// ➡️ Fusion finale
 $collection->addCollection($controllerCollection);
 log_perf('$collection->addCollection($controllerCollection);', $start);
-$collection->addCollection($apiCollection);
-log_perf('$collection->addCollection($apiCollection);', $start);
 
 // ➡️ Ajoute ce bloc juste ici
 foreach ($collection as $route) {
     $route->setOption('case_sensitive', false);
 }
 log_perf('foreach ($collection as $route) {...', $start);
+
+// Configurer le contexte de requête
+$context = new RequestContext();
+log_perf('$context = new RequestContext();', $start);
+$context->fromRequest($request);
+log_perf('$context->fromRequest($request);', $start);
 
 // Créer le UrlGenerator avec la vraie collection de routes
 $urlGenerator = new \Symfony\Component\Routing\Generator\UrlGenerator($collection, $context);
