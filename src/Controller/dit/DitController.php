@@ -186,8 +186,6 @@ class DitController extends Controller
         $genererPdfDit->copyToDOCUWARE($nomFichier, $demandeIntervention->getNumeroDemandeIntervention());
 
 
-
-
         return $nomFichierEnregistrer;
     }
 

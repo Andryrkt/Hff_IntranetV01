@@ -47,6 +47,7 @@ class DitRepository extends EntityRepository
         $this->applyniveauUrgenceFilters($queryBuilder, $ditSearch);
         $this->applySection($queryBuilder, $ditSearch); // section affect et support section
         $this->applyAgencyServiceFilters($queryBuilder, $ditSearch, $options);
+        $this->applyAgencyUserFilter($queryBuilder, $options);
 
 
         $queryBuilder->orderBy('d.dateDemande', 'DESC')

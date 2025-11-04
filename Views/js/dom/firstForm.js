@@ -1,8 +1,3 @@
-import { FetchManager } from '../api/FetchManager';
-
-// Instanciation de FetchManager avec la base URL
-const fetchManager = new FetchManager();
-
 document.addEventListener('DOMContentLoaded', (event) => {
   /**
    * CACHE ET AFFICHE (nom, prenom, cin) SELON LE SALARIE (Temporaire ou permanant)
