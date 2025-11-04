@@ -2,14 +2,15 @@
 
 namespace App\Form\da;
 
-use Doctrine\ORM\EntityManagerInterface;
-use App\Entity\admin\dit\WorNiveauUrgence;
 use App\Entity\da\DemandeAppro;
+use App\Form\common\AgenceServiceType;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\AbstractType;
-use App\Repository\admin\dit\WorNiveauUrgenceRepository;
+use App\Entity\admin\dit\WorNiveauUrgence;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use App\Repository\admin\dit\WorNiveauUrgenceRepository;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -68,16 +69,6 @@ class DemandeApproDirectFormType extends AbstractType
                 ]
             )
             ->add(
-                'agenceDebiteur',
-                TextType::class,
-                [
-                    'mapped' => false,
-                    'label' => 'Agence Débiteur *',
-                    'disabled' => true,
-                    'data' => $options["data"]->getAgenceDebiteur()->getCodeAgence() . ' ' . $options["data"]->getAgenceDebiteur()->getLibelleAgence()
-                ]
-            )
-            ->add(
                 'serviceEmetteur',
                 TextType::class,
                 [
@@ -87,16 +78,16 @@ class DemandeApproDirectFormType extends AbstractType
                     'data' => $options["data"]->getServiceEmetteur()->getCodeService() . ' ' . $options["data"]->getServiceEmetteur()->getLibelleService()
                 ]
             )
-            ->add(
-                'serviceDebiteur',
-                TextType::class,
-                [
-                    'mapped' => false,
-                    'label' => 'Service Débiteur *',
-                    'disabled' => true,
-                    'data' => $options["data"]->getServiceDebiteur()->getCodeService() . ' ' . $options["data"]->getServiceDebiteur()->getLibelleService()
-                ]
-            )
+            ->add('debiteur', AgenceServiceType::class, [
+                'label' => false,
+                'required' => false,
+                'agence_label' => 'Agence Debiteur',
+                'service_label' => 'Service Debiteur',
+                'agence_placeholder' => '-- Agence Debiteur --',
+                'service_placeholder' => '-- Service Debiteur --',
+                'em' => $options['em'] ?? null,
+                // 'agence_codes' => $this->agenceCodes()
+            ])
             ->add('niveauUrgence', ChoiceType::class, [
                 'label'        => 'Niveau d\'urgence *',
                 'choices'      => $this->niveauUrgenceRepository->createQueryBuilder('n')
@@ -132,6 +123,7 @@ class DemandeApproDirectFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => DemandeAppro::class,
+            'em' => null
         ]);
     }
 }
