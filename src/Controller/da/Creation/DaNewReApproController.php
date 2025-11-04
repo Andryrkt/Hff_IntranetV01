@@ -39,7 +39,7 @@ class DaNewReApproController extends Controller
         $this->verifierSessionUtilisateur();
 
         /** Autorisation accès */
-        $this->checkPageAccess($this->estAdmin());
+        $this->checkPageAccess($this->estCreateurDeDADirecte());
         /** FIN AUtorisation accès */
 
         $agenceServiceIps = $this->agenceServiceIpsObjet();
@@ -56,6 +56,12 @@ class DaNewReApproController extends Controller
         ]);
     }
 
+    private function gererAgenceServiceDebiteur(DemandeAppro $demandeAppro)
+    {
+        $demandeAppro->setAgenceDebiteur($demandeAppro->getDebiteur()['agence'])
+            ->setServiceDebiteur($demandeAppro->getDebiteur()['service'])
+            ->setAgenceServiceDebiteur($demandeAppro->getAgenceDebiteur()->getCodeAgence() . '-' . $demandeAppro->getServiceDebiteur()->getCodeService());
+    }
     private function traitementFormReappro($form, Request $request): void
     {
         $form->handleRequest($request);
@@ -63,6 +69,7 @@ class DaNewReApproController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var DemandeAppro $demandeAppro */
             $demandeAppro = $form->getData();
+            $this->gererAgenceServiceDebiteur($demandeAppro);
 
             // Récupérer le nom du bouton cliqué
             $clickedButtonName = $this->getButtonName($request);
