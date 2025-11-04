@@ -39,7 +39,7 @@ class DaNewReApproController extends Controller
         $this->verifierSessionUtilisateur();
 
         /** Autorisation accès */
-        $this->checkPageAccess($this->estCreateurDeDADirecte());
+        $this->checkPageAccess($this->estAdmin() || $this->estCreateurDeDADirecte());
         /** FIN AUtorisation accès */
 
         $agenceServiceIps = $this->agenceServiceIpsObjet();
