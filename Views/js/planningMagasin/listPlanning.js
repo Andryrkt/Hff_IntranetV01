@@ -132,6 +132,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
           "planningTableHeadLign"
         );
         tableBody.innerHTML = ""; // Clear previous data
+        tableBodyOR.innerHTML="";
+        tableBodyLign.innerHTML="";
         Ornum.innerHTML = "";
         planningTableHead.innerHTML = "";
         planningTableHeadOR.innerHTML = "";
@@ -321,7 +323,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
               let row = `<tr>
                         <td>${detail.numor}</td> 
                         <td>${detail.intv}</td> 
-                        <td >${numCis}</td> 
+                        <td ${cmdColor}>${numCis}</td> 
                           <td ></td> 
                         <td></td> 
                         <td>${detail.cst}</td> 
