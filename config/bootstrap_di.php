@@ -108,11 +108,37 @@ log_perf('$registry = new \core\SimpleManagerRegistry($entityManager)', $start);
 $container->set('doctrine.orm.default_entity_manager', $entityManager);
 log_perf('$container->set(\'doctrine.orm.default_entity_manager\', $entityManager)', $start);
 
-// Charger la configuration des services
-$loader = new YamlFileLoader($container, new FileLocator(__DIR__));
-log_perf('$loader = new YamlFileLoader($container, new FileLocator(__DIR__))', $start);
-$loader->load('services.yaml');
-log_perf('$loader->load(\'services.yaml\')', $start);
+// Charger la configuration des services + système de cache
+$cacheServiceFile = __DIR__ . '/cache/container.php';
+log_perf('$cacheServiceFile = __DIR__ . \'/cache/container.php\';', $start);
+$yamlFile  = 'services.yaml';
+log_perf('$yamlFile  = \'services.yaml\';', $start);
+$cacheServices = new ConfigCache($cacheServiceFile, true); // TODO Mode debug : true => vérifie si le fichier a changé
+log_perf('$cacheServices = new ConfigCache($cacheServiceFile, true);', $start);
+
+if (!$cacheServices->isFresh()) {
+    log_perf('if (!$cacheServices->isFresh()) ', $start);
+    // Initialiser le loader YAML
+    $loader = new YamlFileLoader($container, new FileLocator(__DIR__));
+    log_perf('$loader = new YamlFileLoader($container, new FileLocator(__DIR__))', $start);
+    $loader->load('services.yaml');
+    log_perf('$loader->load(\'services.yaml\')', $start);
+
+    // Mettre en cache le PHP généré
+    // Ici on utilise ob_start pour capturer le PHP "dump" du container
+    $dumper = new \Symfony\Component\DependencyInjection\Dumper\PhpDumper($container);
+    log_perf('$dumper = new \Symfony\Component\DependencyInjection\Dumper\PhpDumper($container);', $start);
+    $phpContent = $dumper->dump();
+    log_perf('$phpContent = $dumper->dump();', $start);
+
+    $cacheServices->write($phpContent, [$yamlFile]);
+    log_perf('$cacheServices->write($phpContent, [$yamlFile]);', $start);
+} else {
+    log_perf('if ($cacheServices->isFresh()) ', $start);
+    // Charger directement le container depuis le cache
+    require $cacheServiceFile;
+    log_perf('require $cacheServiceFile;', $start);
+}
 
 // Créer les services de base manuellement
 $container->register('twig', 'Twig\Environment')
@@ -305,10 +331,10 @@ if (stripos($pathInfo, '/hffintranet') === 0 && strpos($pathInfo, '/Hffintranet'
 }
 log_perf('if (stripos($pathInfo, ...', $start);
 
-$cacheFile = dirname(__DIR__) . '/var/cache/all_routes.php'; // Fichier cache commun pour routes controllers + API
-log_perf('$cacheFile = ' . $cacheFile, $start);
-$cache = new ConfigCache($cacheFile, true); // Mode debug : true => vérifie si les fichiers ont changé
-log_perf('$cache = new ConfigCache($cacheFile, true);', $start);
+$cacheAllRoutesFile = dirname(__DIR__) . '/var/cache/all_routes.php'; // Fichier cache commun pour routes controllers + API
+log_perf('$cacheAllRoutesFile = ' . $cacheAllRoutesFile, $start);
+$cacheRoutes = new ConfigCache($cacheAllRoutesFile, true); // TODO Mode debug : true => vérifie si les fichiers ont changé
+log_perf('$cacheRoutes = new ConfigCache($cacheAllRoutesFile, true);', $start);
 
 // Dossiers à charger
 $dirs = [
@@ -321,8 +347,8 @@ log_perf('$dirs = [' . $dirs[0] . ',' . $dirs[1] . ']', $start);
 $collection = new RouteCollection();
 log_perf('$collection = new RouteCollection();', $start);
 
-if (!$cache->isFresh()) {
-    log_perf('if (!$cache->isFresh()) ', $start);
+if (!$cacheRoutes->isFresh()) {
+    log_perf('if (!$cacheRoutes->isFresh()) ', $start);
     $controllerCollection = new RouteCollection();
     log_perf('$controllerCollection = new RouteCollection();', $start);
     $annotationReader = new AnnotationReader();
@@ -361,13 +387,13 @@ if (!$cache->isFresh()) {
     log_perf('Fin foreach ($dirs as $dir)', $start);
 
     // Écriture du cache avec toutes les ressources
-    $cache->write(serialize($controllerCollection), $controllerCollection->getResources());
-    log_perf('$cache->write(serialize($controllerCollection), $controllerCollection->getResources());', $start);
+    $cacheRoutes->write(serialize($controllerCollection), $controllerCollection->getResources());
+    log_perf('$cacheRoutes->write(serialize($controllerCollection), $controllerCollection->getResources());', $start);
 } else {
-    log_perf('if ($cache->isFresh()) ', $start);
+    log_perf('if ($cacheRoutes->isFresh()) ', $start);
     // Charger la collection depuis le cache
-    $controllerCollection = unserialize(file_get_contents($cacheFile));
-    log_perf('$controllerCollection = unserialize(file_get_contents($cacheFile));', $start);
+    $controllerCollection = unserialize(file_get_contents($cacheAllRoutesFile));
+    log_perf('$controllerCollection = unserialize(file_get_contents($cacheAllRoutesFile));', $start);
 }
 
 // ➡️ Fusion finale
@@ -455,17 +481,17 @@ log_perf('global $container;', $start);
 save_perf_logs(__DIR__ . '/perf_logs.json');
 
 return [
-    'container' => $container,
-    'entityManager' => $entityManager,
-    'twig' => $twig,
-    'formFactory' => $formFactory,
-    'urlGenerator' => $urlGenerator,
-    'session' => $session,
-    'requestStack' => $requestStack,
-    'tokenStorage' => $tokenStorage,
+    'container'            => $container,
+    'entityManager'        => $entityManager,
+    'twig'                 => $twig,
+    'formFactory'          => $formFactory,
+    'urlGenerator'         => $urlGenerator,
+    'session'              => $session,
+    'requestStack'         => $requestStack,
+    'tokenStorage'         => $tokenStorage,
     'authorizationChecker' => $authorizationChecker,
-    'matcher' => $matcher,
-    'controllerResolver' => $controllerResolver,
-    'argumentResolver' => $argumentResolver,
-    'routeCollection' => $collection,
+    'matcher'              => $matcher,
+    'controllerResolver'   => $controllerResolver,
+    'argumentResolver'     => $argumentResolver,
+    'routeCollection'      => $collection,
 ];
