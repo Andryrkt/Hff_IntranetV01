@@ -211,7 +211,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
             if (
               formaterDate(detail.datestatut) == "01/01/1970" ||
               formaterDate(detail.datestatut) == "01/01/1900" ||
-              detail.cst.startsWith("z")
+              detail.cst.startsWith("Z")
             ) {
               dateStatut = "";
             } else {
@@ -248,7 +248,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
             } else {
               statrmq = detail.statut_ctrmq;
             }
-            if (detail.statut == null || detail.cst.startsWith("z")) {
+            if (detail.statut == null || detail.cst.startsWith("Z")) {
               statut = "";
             } else {
               statut = detail.statut;
@@ -270,7 +270,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
             } else {
               numeroCdeCis = detail.numerocdecis;
             }
-            if (detail.statut_ctrmq_cis == null || detail.cst.startsWith("z")) {
+            if (detail.statut_ctrmq_cis == null || detail.cst.startsWith("Z")) {
               StatutCtrmqCis = "";
             } else {
               StatutCtrmqCis = detail.statut_ctrmq_cis;
