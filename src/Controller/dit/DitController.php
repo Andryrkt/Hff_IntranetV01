@@ -128,11 +128,14 @@ class DitController extends Controller
                 /** 4. Modifie la colonne dernière_id dans la table applications */
                 AutoIncDecService::mettreAJourDerniereIdApplication($application, $this->getEntityManager(), $demandeIntervention->getNumeroDemandeIntervention());
 
-                /** @var array 5. Traitement des fichiers (PDF, pièces jointes) */
-                $nomFichierEnregistrer  = $this->traitementDeFichier($form, $demandeIntervention);
+                /** 5. Traitement des fichiers (PDF, pièces jointes) @var array $nomFichierEnregistrer @var string $nomFichier  */
+                [$nomFichierEnregistrer, $nomFichier]  = $this->traitementDeFichier($form, $demandeIntervention);
 
                 // 6. Enregistrement dans la base de données
                 $this->enregistrementBd($demandeIntervention, $nomFichierEnregistrer);
+
+                //7.Copier le PDF DANS DOXCUWARE
+                $genererPdfDit->copyToDOCUWARE($nomFichier, $demandeIntervention->getNumeroDemandeIntervention());
             }
 
             $this->getEntityManager()->flush();
@@ -161,7 +164,7 @@ class DitController extends Controller
          */
         [$nomEtCheminFichiersEnregistrer, $nomFichierEnregistrer, $nomAvecCheminFichier, $nomFichier] = $this->enregistrementFichier($form, $demandeIntervention->getNumeroDemandeIntervention(), str_replace("-", "", $demandeIntervention->getAgenceServiceEmetteur()));
 
-        /**CREATION DE LA PAGE DE GARDE*/
+        /** 1. CREATION DE LA PAGE DE GARDE*/
         $genererPdfDit = new GenererPdfDit();
         $idMateriel = (int)$demandeIntervention->getIdMateriel();
         if (!in_array($idMateriel, $this->ditModel->getNumeroMatriculePasMateriel())) {
@@ -170,23 +173,17 @@ class DitController extends Controller
         } else {
             $historiqueMateriel = [];
         }
-
-
         $genererPdfDit->genererPdfDit($demandeIntervention, $historiqueMateriel, $nomAvecCheminFichier);
 
-        // ajout du page de garde à la premier position
+        // 2. ajout du page de garde à la premier position
         $traitementDeFichier = new TraitementDeFichier();
         $nomEtCheminFichiersEnregistrer = $traitementDeFichier->insertFileAtPosition($nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, 0);
-        // fusion du page de garde et des pieces jointes (conversion avant la fusion)
+        // 3. fusion du page de garde et des pieces jointes (conversion avant la fusion)
         $nomEtCheminFichierConvertie = $this->ConvertirLesPdf($nomEtCheminFichiersEnregistrer);
         $traitementDeFichier->fusionFichers($nomEtCheminFichierConvertie, $nomAvecCheminFichier);
 
 
-        //Copier le PDF DANS DOXCUWARE
-        $genererPdfDit->copyToDOCUWARE($nomFichier, $demandeIntervention->getNumeroDemandeIntervention());
-
-
-        return $nomFichierEnregistrer;
+        return [$nomFichierEnregistrer, $nomFichier];
     }
 
     private function enregistrementFichier(FormInterface $form, string $numDit, string $agServEmetteur): array
