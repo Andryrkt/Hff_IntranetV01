@@ -213,6 +213,8 @@ class DemandeAppro
      */
     private string $niveauUrgence = '';
 
+    private $debiteur;
+
     /**===========================================================================
      * GETTER & SETTER
      *
@@ -952,6 +954,26 @@ class DemandeAppro
     public function setDaTypeId($daTypeId)
     {
         $this->daTypeId = $daTypeId;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of debiteur
+     */ 
+    public function getDebiteur()
+    {
+        return $this->debiteur;
+    }
+
+    /**
+     * Set the value of debiteur
+     *
+     * @return  self
+     */ 
+    public function setDebiteur($debiteur)
+    {
+        $this->debiteur = $debiteur;
 
         return $this;
     }

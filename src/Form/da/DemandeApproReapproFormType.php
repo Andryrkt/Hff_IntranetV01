@@ -3,6 +3,7 @@
 namespace App\Form\da;
 
 use App\Entity\da\DemandeAppro;
+use App\Form\common\AgenceServiceType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -11,11 +12,18 @@ use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
+use Symfony\Component\Security\Core\Security;
 
 class DemandeApproReapproFormType extends AbstractType
 {
+    private function agenceCodes(): array
+    {
+        return ['90', '91', '92'];
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+
         $builder
             ->add('objetDal', TextType::class, [
                 'label' => 'Objet de la demande *',
@@ -53,16 +61,6 @@ class DemandeApproReapproFormType extends AbstractType
                 ]
             )
             ->add(
-                'agenceDebiteur',
-                TextType::class,
-                [
-                    'mapped'   => false,
-                    'label'    => 'Agence Débiteur *',
-                    'disabled' => true,
-                    'data'     => $options["data"]->getAgenceDebiteur()->getCodeAgence() . ' ' . $options["data"]->getAgenceDebiteur()->getLibelleAgence()
-                ]
-            )
-            ->add(
                 'serviceEmetteur',
                 TextType::class,
                 [
@@ -72,16 +70,16 @@ class DemandeApproReapproFormType extends AbstractType
                     'data'     => $options["data"]->getServiceEmetteur()->getCodeService() . ' ' . $options["data"]->getServiceEmetteur()->getLibelleService()
                 ]
             )
-            ->add(
-                'serviceDebiteur',
-                TextType::class,
-                [
-                    'mapped'   => false,
-                    'label'    => 'Service Débiteur *',
-                    'disabled' => true,
-                    'data'     => $options["data"]->getServiceDebiteur()->getCodeService() . ' ' . $options["data"]->getServiceDebiteur()->getLibelleService()
-                ]
-            )
+            ->add('debiteur', AgenceServiceType::class, [
+                'label' => false,
+                'required' => false,
+                'agence_label' => 'Agence Debiteur',
+                'service_label' => 'Service Debiteur',
+                'agence_placeholder' => '-- Agence Debiteur --',
+                'service_placeholder' => '-- Service Debiteur --',
+                'em' => $options['em'] ?? null,
+                'agence_codes' => $this->agenceCodes()
+            ])
             ->add('DAL', CollectionType::class, [
                 'label'        => false,
                 'entry_type'   => DemandeApproLReapproFormType::class,
@@ -103,6 +101,7 @@ class DemandeApproReapproFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => DemandeAppro::class,
+            'em' => null,
         ]);
     }
 }
