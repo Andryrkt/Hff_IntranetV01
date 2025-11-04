@@ -83,7 +83,7 @@ class DitRepository extends EntityRepository
     private function applyAgencyUserFilter(QueryBuilder $queryBuilder, array $options): void
     {
         // Vérifier si l'agence de l'utilisateur est fournie dans les options
-        if (isset($options['user_agency']) && !empty($options['user_agency']) && !$options['boolean'] ) {
+        if (isset($options['user_agency']) && !empty($options['user_agency']) && !$options['boolean'] && in_array($options['user_agency'], ['01', '20', '30', '40', '60'])) {
             $queryBuilder
                 ->andWhere('ar.codeAgence = :userAgency')
                 ->setParameter('userAgency', $options['user_agency']);
