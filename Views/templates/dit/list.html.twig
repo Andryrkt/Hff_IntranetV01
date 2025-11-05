@@ -1,5 +1,8 @@
 {% extends "baseTemplate.html.twig" %}
 
+{% block title %}Liste demande d'intervention
+{% endblock %}
+
 {% block stylesheets%}
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/dit/liste.css">
@@ -53,6 +56,7 @@
 					</th>
 					<th>Statut</th>
 					<th>N° DIT</th>
+					<th>Réalisé par</th>
 					<th>Type document</th>
 					<th>Niveau urgence</th>
 					<th>Catégorie</th>
@@ -155,6 +159,7 @@
 						<td>
 							<a href="{{ path("dit_validationDit", {id: item.id, numDit: item.numeroDemandeIntervention})}}" target="_blank" data-bs-toggle="tooltip" title="Afficher le détail">{{ item.numeroDemandeIntervention }}</a>
 						</td>
+						<td>{{ item.reparationRealise}}</td>
 						<td>{{ item.typeDocument.description}}</td>
 						<td class="text-center">
 							{{ item.idNiveauUrgence.description}}
@@ -203,7 +208,7 @@
 			</table>
 		{% endif %}
 	</div>
-
+{% include "/partials/_pagination.html.twig" %}
 	<!-- FIN tableau -->
 	{# body modal #}
 	{% include "/dit/shared/_modal.html.twig"  %}
@@ -217,4 +222,4 @@
 	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v=2025.09.15.08.00"></script>
 	<script src="{{ App.base_path }}/Views/js/dit/listDit.js?v=2025.09.15.08.00" type="module"></script>
 	<script src="{{ App.base_path }}/Views/js/dit/listDitModal.js?v=2025.09.15.08.00" type="module"></script>
-{% endblock %} 
+{% endblock %}

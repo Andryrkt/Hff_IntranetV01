@@ -2,18 +2,21 @@
 
 namespace App\Form\bdc;
 
+use App\Dto\bdc\BonDeCaisseDto;
 use App\Entity\bdc\BonDeCaisse;
+use App\Form\common\DateRangeType;
 use App\Entity\admin\StatutDemande;
+use Symfony\Component\Form\FormEvent;
+use App\Form\common\AgenceServiceType;
+use Symfony\Component\Form\FormEvents;
 use App\Entity\admin\AgenceServiceIrium;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\FormEvent;
-use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Doctrine\ORM\EntityManagerInterface;
 
 class BonDeCaisseType extends AbstractType
 {
@@ -52,41 +55,30 @@ class BonDeCaisseType extends AbstractType
                 'required' => false,
                 'label' => 'Numéro demande'
             ])
-            ->add('dateDemande', DateType::class, [
-                'required' => false,
-                'label' => 'Date demande (début)',
-                'widget' => 'single_text'
+            ->add('dateDemande', DateRangeType::class, [
+                'label' => false,
+                'debut_label' => 'Date demande (début)',
+                'fin_label' => 'Date demande (fin)',
             ])
-            ->add('dateDemandeFin', DateType::class, [
-                'required' => false,
-                'label' => 'Date demande (fin)',
-                'widget' => 'single_text',
-                'mapped' => false
-            ])
-            ->add('agenceDebiteur', ChoiceType::class, [
+            ->add('emetteur', AgenceServiceType::class, [
+                'label' => false,
                 'required' => false,
                 'mapped' => false,
-                'label' => 'Agence',
-                'choices' => array_unique($agences),
-                'placeholder' => 'Toutes les agences',
-                'attr' => ['id' => 'agence-select']
+                'agence_label' => 'Agence Emetteur',
+                'service_label' => 'Service Emetteur',
+                'agence_placeholder' => '-- Agence Emetteur --',
+                'service_placeholder' => '-- Service Emetteur --',
+                'em' => $options['em'] ?? null,
             ])
-            ->add('service', ChoiceType::class, [
+            ->add('debiteur', AgenceServiceType::class, [
+                'label' => false,
                 'required' => false,
                 'mapped' => false,
-                'label' => 'Service',
-                'choices' => [],  // Sera rempli dynamiquement par JavaScript
-                'placeholder' => 'Tous les services',
-                'attr' => ['id' => 'service-select'],
-                // Désactiver la validation des choix
-                'invalid_message' => 'Service invalide',
-                // Permettre les valeurs personnalisées
-                'choice_loader' => null,
-                'choice_value' => function ($value) {
-                    return $value;
-                },
-                // Ajouter cette option pour contourner la validation des choix
-                'constraints' => []
+                'agence_label' => 'Agence Debiteur',
+                'service_label' => 'Service Debiteur',
+                'agence_placeholder' => '-- Agence Debiteur --',
+                'service_placeholder' => '-- Service Debiteur --',
+                'em' => $options['em'] ?? null,
             ])
             ->add('statutDemande', ChoiceType::class, [
                 'required' => false,
@@ -128,67 +120,22 @@ class BonDeCaisseType extends AbstractType
                     'Autre' => 'AUTRE'
                 ],
                 'placeholder' => 'Tous les retraits'
-            ]);
-
-        // PRE_SUBMIT : reconstruire les choices "service" selon l'agence postée
-        $builder->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) use ($em) {
-            $data = $event->getData() ?? [];
-            $form = $event->getForm();
-
-            // la valeur postée pour l'agence (ici on attend agence_ips)
-            $agenceCode = $data['agence'] ?? null;
-            $serviceValue = $data['service'] ?? null;
-
-            $choices = [];
-
-            if ($agenceCode) {
-                // NOTE : bien utiliser les noms de propriétés de l'entité (snake_case)
-                $services = $em->getRepository(AgenceServiceIrium::class)
-                    ->createQueryBuilder('asi')
-                    ->select('asi.service_ips AS code, asi.libelle_service_ips AS nom')
-                    ->where('asi.agence_ips = :ag')->setParameter('ag', $agenceCode)
-                    ->orderBy('asi.libelle_service_ips', 'ASC')
-                    ->getQuery()
-                    ->getArrayResult();
-
-                foreach ($services as $row) {
-                    // Format: "Code - Nom" (ex: "A102 - Service RH")
-                    $choices[$row['code'] . ' ' . $row['nom']] = $row['code'];
-                }
-            }
-
-            // si l'utilisateur a posté une valeur de service qui n'est pas dans la liste,
-            // on l'ajoute pour éviter l'erreur "This value is not valid."
-            if ($serviceValue && !in_array($serviceValue, $choices, true)) {
-                $choices[$serviceValue] = $serviceValue;
-            }
-
-            $form->add('service', ChoiceType::class, [
+            ])
+            ->add('nomValidateurFinal', TextType::class, [
+                'label' => 'Nom Validateur Final',
                 'required' => false,
-                'mapped' => false,
-                'placeholder' => 'Tous les services',
-                'choices' => $choices,
-                'attr' => ['id' => 'service-select'],
-                // Désactiver la validation des choix
-                'invalid_message' => 'Service invalide',
-                // Permettre les valeurs personnalisées
-                'choice_loader' => null,
-                'choice_value' => function ($value) {
-                    return $value;
-                },
-                // Ajouter cette option pour contourner la validation des choix
-                'constraints' => []
-            ]);
-        });
+            ])
+            ;
     }
 
 
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => BonDeCaisse::class,
+            'data_class' => BonDeCaisseDto::class,
             'method' => 'GET',
-            'csrf_protection' => false
+            'csrf_protection' => false,
+            'em' => null,
         ]);
 
         // Définir l'option 'em' pour permettre de passer l'EntityManager

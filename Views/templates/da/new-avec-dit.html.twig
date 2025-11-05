@@ -1,13 +1,13 @@
 {% extends "baseTemplate.html.twig" %}
 
 {% block title %}
-	Création d’une DA
+	Création d’une DA avec DIT
 {% endblock %}
 
 {% block stylesheets %}
-	<link href="{{ App.base_path }}/Views/css/new.css?v=2025.09.15.08.00" rel="stylesheet"/>
-	<link href="{{ App.base_path }}/Views/css/da/list.css?v=2025.09.15.08.00" rel="stylesheet"/>
-	<link href="{{ App.base_path }}/Views/css/da/style.css?v=2025.09.15.08.00" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/new.css?v=2025.10.22.08.00" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/da/list.css?v=2025.10.22.08.00" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/da/style.css?v=2025.10.22.08.00" rel="stylesheet"/>
 {% endblock %}
 
 {% import "macroForm.html.twig" as macroForm %}
@@ -36,7 +36,14 @@
 								{{ form_row(form.detailDal) }}
 								<span id="charCount" class="position-absolute bottom-0 end-0 p-0 small text-muted"></span>
 							</div>
-							{{ form_row(form.dateFinSouhaite) }}
+							<div class="row">
+								<div class="col col-md">
+									{{ form_row(form.niveauUrgence) }}
+								</div>
+								<div class="col col-md">
+									{{ form_row(form.dateFinSouhaite) }}
+								</div>
+							</div>
 						</div>
 						<div class="col-12 col-md-4">
 							{{ macroForm.sousTitre3('Agence et service') }}
@@ -230,5 +237,5 @@
 	</div>
 {% endblock %}
 {% block javascript %}
-	<script type="module" src="{{ App.base_path }}/Views/js/da/newAvecDit/new.js?v=2025.09.15.08.00" type="module"></script>
+	<script type="module" src="{{ App.base_path }}/Views/js/da/newAvecDit/new.js?v=2025.10.22.08.00" type="module"></script>
 {% endblock %}

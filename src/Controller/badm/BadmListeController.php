@@ -3,6 +3,7 @@
 namespace App\Controller\badm;
 
 use App\Entity\badm\Badm;
+use App\Model\dit\DitModel;
 use App\Controller\Controller;
 use App\Entity\badm\BadmSearch;
 use App\Entity\admin\Application;
@@ -238,8 +239,8 @@ class BadmListeController extends Controller
         $numSerie = $form->get('numSerie')->getData() === null ? '' : $form->get('numSerie')->getData();
 
         if (!empty($numParc) || !empty($numSerie)) {
-
-            $idMateriel = $this->getDitModel()->recuperationIdMateriel($numParc, $numSerie);
+            $ditModel = new DitModel();
+            $idMateriel = $ditModel->recuperationIdMateriel($numParc, $numSerie);
 
             if (!empty($idMateriel)) {
                 $this->recuperationCriterie($badmSearch, $form);

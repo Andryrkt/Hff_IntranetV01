@@ -30,9 +30,11 @@ use App\Repository\dit\DitOrsSoumisAValidationRepository;
 use App\Service\genererPdf\GenererPdfOrSoumisAValidation;
 use App\Model\dit\DitModel;
 use App\Controller\Traits\dit\DitOrSoumisAValidationTrait;
+use App\Entity\admin\StatutDemande;
 use App\Service\historiqueOperation\HistoriqueOperationService;
 use App\Service\historiqueOperation\HistoriqueOperationORService;
 use App\Service\FusionPdf;
+use Symfony\Component\Form\FormInterface;
 
 /**
  * @Route("/atelier/demande-intervention")
@@ -124,9 +126,24 @@ class DitOrsSoumisAValidationController extends Controller
             ->setNumeroOR($numOr)
         ;
 
-
         $form = $this->getFormFactory()->createBuilder(DitOrsSoumisAValidationType::class, $ditInsertionOrSoumis)->getForm();
 
+        $this->traitementFormulaire($form,  $request,  $numOr,   $numDit,  $ditInsertionOrSoumis);
+
+        $this->logUserVisit('dit_insertion_or', [
+            'numDit' => $numDit,
+        ]); // historisation du page visité par l'utilisateur
+
+        $cdtArticleDa = $this->conditionBlocageArticleDa($numOr);
+        return $this->render('dit/DitInsertionOr.html.twig', [
+            'form' => $form->createView(),
+            'cdtArticleDa' => $cdtArticleDa,
+            'lierAUnDa' => $lierAUnDa,
+        ]);
+    }
+
+    private function traitementFormulaire(FormInterface $form, Request $request, string $numOr, string  $numDit, DitOrsSoumisAValidation $ditInsertionOrSoumis)
+    {
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -194,17 +211,6 @@ class DitOrsSoumisAValidationController extends Controller
                 exit;
             }
         }
-
-        $this->logUserVisit('dit_insertion_or', [
-            'numDit' => $numDit,
-        ]); // historisation du page visité par l'utilisateur
-
-        $cdtArticleDa = $this->conditionBlocageArticleDa($numOr);
-        return $this->render('dit/DitInsertionOr.html.twig', [
-            'form' => $form->createView(),
-            'cdtArticleDa' => $cdtArticleDa,
-            'lierAUnDa' => $lierAUnDa,
-        ]);
     }
 
     private function conditionBlocageArticleDa(string $numOr): bool
@@ -223,7 +229,7 @@ class DitOrsSoumisAValidationController extends Controller
         $daAfficherValiders = $this->daAfficherRepository->findBy(['numeroVersion' => $numeroVersionMax, 'numeroDemandeDit' => $numDit, 'statutDal' => DemandeAppro::STATUT_VALIDE]);
         if (!empty($daAfficherValiders)) {
 
-            /** @var DaValider $daValider */
+            /** @var DaAfficher $daValider */
             foreach ($daAfficherValiders as $daValider) {
                 // recuperation du numéro de ligne
                 $numeroLigne = $this->ditOrsoumisAValidationModel->getNumeroLigne($daValider->getArtRefp(), $daValider->getArtDesi(), $numOr);
@@ -442,7 +448,10 @@ class DitOrsSoumisAValidationController extends Controller
     {
         $dit = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
         $dit->setNumeroOR($ditInsertionOrSoumis->getNumeroOR());
-        // $dit->setStatutOr('Soumis à validation');
+        // recuperation du statut DIT CLOTUREE VALIDER
+        $statutCloturerValider = $this->getEntityManager()->getRepository(StatutDemande::class)->find(DemandeIntervention::STATUT_CLOTUREE_VALIDER);
+        $dit->setIdStatutDemande($statutCloturerValider);
+
         $this->getEntityManager()->flush();
     }
 

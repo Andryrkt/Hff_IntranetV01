@@ -1,6 +1,8 @@
 <p>
-	Une nouvelle demande d'approvisionnement a été créée par
-	<b>{{ tab.userConnecter }}</b>.
+	Une nouvelle demande
+	{{ daLabel }}
+	a été créée par
+	<b>{{ fullNameUser }}</b>.
 </p>
 <p>
 	<b>Détails du demande :</b>
@@ -15,15 +17,11 @@
 		</li>
 		<li>
 			<b>Détail de la demande :</b>
-			<div class="espace">
-				{{ demandeAppro.detailDal|raw }}
-			</div>
+			<div class="espace">{{ demandeAppro.detailDal|raw }}</div>
 		</li>
 		<li>
 			<b>Observation:</b>
-			<div class="espace">
-				{{ tab.observation|raw }}
-			</div>
+			<div class="espace">{{ observation|raw }}</div>
 		</li>
 	</ul>
 </p>
@@ -31,27 +29,17 @@
 <table>
 	<thead style="background-color:#ffc107;">
 		<tr>
-			{% if not demandeAppro.achatDirect %}
-				<th>Famille</th>
-				<th>Sous famille</th>
-				<th>Réference</th>
-			{% endif %}
-			<th>Désignation</th>
-			<th>Fournisseur</th>
-			<th>Commentaire</th>
+			{% for headLabel, headValue in preparedDatas.head %}
+				<th>{{ headValue }}</th>
+			{% endfor %}
 		</tr>
 	</thead>
 	<tbody>
-		{% for dal in demandeAppro.DAL %}
+		{% for row in preparedDatas.body  %}
 			<tr>
-				{% if not demandeAppro.achatDirect %}
-					<td>{{ dal.artFams1 ?? '-'}}</td>
-					<td>{{ dal.artFams2 ?? '-'}}</td>
-					<td>{{ dal.artRefp ?? '-'}}</td>
-				{% endif %}
-				<td>{{ dal.artDesi }}</td>
-				<td>{{ dal.nomFournisseur }}</td>
-				<td>{{ dal.commentaire }}</td>
+				{% for headLabel, headValue in preparedDatas.head %}
+					<td>{{ row[headLabel] }}</td>
+				{% endfor %}
 			</tr>
 		{% endfor %}
 	</tbody>

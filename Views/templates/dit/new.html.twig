@@ -5,8 +5,8 @@
 {% endblock %}
 
 {% block stylesheets %}
-	<link href="{{ App.base_path }}/Views/css/new.css?v=2025.09.15.08.00" rel="stylesheet"/>
-	<link href="{{ App.base_path }}/Views/css/dit/news.css?v=2025.09.15.08.00" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/new.css?v=2025.10.22.08.00" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/dit/news.css?v=2025.10.22.08.00" rel="stylesheet"/>
 {% endblock %}
 
 {% import "macroForm.html.twig" as macroForm %}
@@ -28,7 +28,12 @@
 						<a href="{{ path("profil_acceuil")}}" class="tablinks p-2 btn btn-outline-warning" style="text-decoration: none;color:black">Retour</a>
 					</div>
 				</div>
-				{{ form_start(form, { 'attr': { 'id': 'myForm' } }) }}
+				{{ form_start(form, { 
+					'attr': { 
+						'id': 'dit-form',
+						'data-form-type': 'formulaire-new-dit'
+					} 
+				}) }}
 				{{ form_errors(form)}}
 
 				<div class="row">
@@ -139,7 +144,12 @@
 								<div class="col-12 col-md-6">
 									{{ form_row(form.reparationRealise) }}
 								</div>
-
+							</div>
+							<div class="row" >
+							<div class="col-12 col-md-6"></div>
+								<div class="col-12 col-md-6" id="ate_pol_tana_container" style="display: none;">
+									{{ form_row(form.estAtePolTana) }}
+								</div>
 							</div>
 
 
@@ -162,8 +172,8 @@
 							class="btn bouton mt-2"
 							id="bouton-cde-fnr" 
 							data-confirmation 
-							data-form="#myForm"
-							data-confirmation-text ="Vous êtes en train d'enregistrer une demande d'intervention">
+							data-form="#dit-form"
+							data-confirmation-message ="Vous êtes en train d'enregistrer une demande d'intervention">
 									<i class="fas fa-save"></i>
 									Enregistrer
 						</button>
@@ -181,5 +191,5 @@
 {% endblock %}
 
 {% block javascript %}
-	<script type="module" src="{{ App.base_path }}/Views/js/dit/dit.js?v=2025.09.15.08.00" type="module"></script>
+	<script type="module" src="{{ App.base_path }}/Views/js/dit/dit.js?v=2025.10.22.08.00" type="module"></script>
 {% endblock %}

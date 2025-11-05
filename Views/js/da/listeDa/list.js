@@ -1,4 +1,4 @@
-import { displayOverlay } from "../../utils/spinnerUtils";
+import { displayOverlay } from "../../utils/ui/overlay";
 import { mergeCellsTable } from "./tableHandler";
 import { configAgenceService } from "../../dit/config/listDitConfig.js";
 import { handleAgenceChange } from "../../dit/fonctionUtils/fonctionListDit.js";
@@ -63,6 +63,40 @@ document.addEventListener("DOMContentLoaded", function () {
             icon: "info",
             title: "Annulé",
             text: "La suppression de la ligne de demande a été annulée.",
+            timer: 2000,
+            showConfirmButton: false,
+          });
+        }
+      });
+    });
+  });
+
+  /**
+   * Demande de devis de ligne de DA
+   */
+  const demandeDevisBtns = document.querySelectorAll(".devis-demande");
+  demandeDevisBtns.forEach((demandeDevisBtn) => {
+    demandeDevisBtn.addEventListener("click", function () {
+      let demandeDevisPath = this.dataset.demandeDevisPath;
+      Swal.fire({
+        title: "Êtes-vous sûr(e) ?",
+        html: `Voulez-vous confirmer l'envoi des demandes de devis aux fournisseurs ?`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#28a745",
+        cancelButtonColor: "#6c757d",
+        confirmButtonText: "Oui, confirmer",
+        cancelButtonText: "Non, abandonner",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          displayOverlay(true);
+          window.location = demandeDevisPath;
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+          // ❌ Si l'utilisateur annule
+          Swal.fire({
+            icon: "info",
+            title: "Annulation",
+            text: "Opération abandonnée.",
             timer: 2000,
             showConfirmButton: false,
           });

@@ -2,12 +2,11 @@
 
 namespace App\Controller\Traits\da\modification;
 
-use DateTime;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
+use App\Entity\da\DemandeApproLR;
 use App\Repository\da\DaObservationRepository;
-use App\Service\genererPdf\GenererPdfDaDirect;
 
 trait DaEditDirectTrait
 {
@@ -50,6 +49,9 @@ trait DaEditDirectTrait
     {
         $em = $this->getEntityManager();
         $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
+
+        // Indexation des DAL par numéro de ligne
+        $dalParLigne = [];
         foreach ($formDAL as $subFormDAL) {
             /** 
              * @var DemandeApproL $demandeApproL
@@ -71,27 +73,20 @@ trait DaEditDirectTrait
                 $em->remove($demandeApproL);
                 $this->deleteDALR($demandeApproL);
             } else {
+                $dalParLigne[$demandeApproL->getNumeroLigne()] = $demandeApproL;
                 $em->persist($demandeApproL); // on persiste la DAL
             }
         }
+        /** @var DemandeApproLR[] $dalrs */
         $dalrs = $this->demandeApproLRRepository->findBy(['numeroDemandeAppro' => $demandeAppro->getNumeroDemandeAppro()]);
         foreach ($dalrs as $dalr) {
-            $dalr->setStatutDal($statut);
+            $ligneDAL = $dalParLigne[$dalr->getNumeroLigne()];
+            $dalr
+                ->setStatutDal($statut)
+                ->setDateFinSouhaite($ligneDAL->getDateFinSouhaite())
+                ->setQteDem($ligneDAL->getQteDem())
+            ;
             $em->persist($dalr);
         }
-    }
-
-    /** 
-     * Fonction pour créer le PDF sans Dit à valider DW
-     * 
-     * @param DemandeAppro $demandeAppro la demande appro pour laquelle on génère le PDF
-     */
-    private function creationPdfSansDitAvaliderDW(DemandeAppro $demandeAppro)
-    {
-        $genererPdfDaDirect = new GenererPdfDaDirect;
-        $dals = $demandeAppro->getDAL();
-
-        $genererPdfDaDirect->genererPdfAValiderDW($demandeAppro, $dals, $this->getUserMail());
-        $genererPdfDaDirect->copyToDWDaAValider($demandeAppro->getNumeroDemandeAppro());
     }
 }

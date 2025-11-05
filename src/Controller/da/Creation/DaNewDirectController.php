@@ -5,7 +5,6 @@ namespace App\Controller\da\Creation;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
-use App\Entity\admin\Application;
 use App\Form\da\DemandeApproDirectFormType;
 use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
@@ -42,12 +41,21 @@ class DaNewDirectController extends Controller
 
         $demandeAppro = $this->initialisationDemandeApproDirect();
 
-        $form = $this->getFormFactory()->createBuilder(DemandeApproDirectFormType::class, $demandeAppro)->getForm();
+        $form = $this->getFormFactory()->createBuilder(DemandeApproDirectFormType::class, $demandeAppro, [
+            'em' => $this->getEntityManager()
+        ])->getForm();
         $this->traitementFormDirect($form, $request, $demandeAppro);
 
         return $this->render('da/new-da-direct.html.twig', [
             'form' => $form->createView(),
         ]);
+    }
+
+    private function gererAgenceServiceDebiteur(DemandeAppro $demandeAppro)
+    {
+        $demandeAppro->setAgenceDebiteur($demandeAppro->getDebiteur()['agence'])
+            ->setServiceDebiteur($demandeAppro->getDebiteur()['service'])
+            ->setAgenceServiceDebiteur($demandeAppro->getAgenceDebiteur()->getCodeAgence() . '-' . $demandeAppro->getServiceDebiteur()->getCodeService());
     }
 
     private function traitementFormDirect($form, Request $request, DemandeAppro $demandeAppro): void
@@ -59,6 +67,7 @@ class DaNewDirectController extends Controller
              * @var DemandeAppro $demandeAppro
              */
             $demandeAppro = $form->getData();
+            $this->gererAgenceServiceDebiteur($demandeAppro);
 
             $numDa = $demandeAppro->getNumeroDemandeAppro();
             $formDAL = $form->get('DAL');
@@ -82,28 +91,21 @@ class DaNewDirectController extends Controller
                 $this->getEntityManager()->persist($demandeApproL);
             }
 
-            /** Ajout de demande appro dans la base de donnée (table: Demande_Appro) */
-            $this->getEntityManager()->persist($demandeAppro);
-
             /** Modifie la colonne dernière_id dans la table applications */
             $applicationService = new ApplicationService($this->getEntityManager());
             $applicationService->mettreAJourDerniereIdApplication('DAP', $numDa);
 
-            /** ajout de l'observation dans la table da_observation si ceci n'est pas null */
-            if ($demandeAppro->getObservation() !== null) {
-                $this->insertionObservation($demandeAppro->getObservation(), $demandeAppro);
-            }
-
+            /** Ajout de demande appro dans la base de donnée (table: Demande_Appro) */
+            $this->getEntityManager()->persist($demandeAppro);
             $this->getEntityManager()->flush();
+
+            /** ajout de l'observation dans la table da_observation si ceci n'est pas null */
+            if ($demandeAppro->getObservation()) $this->insertionObservation($demandeAppro->getObservation(), $demandeAppro);
 
             // ajout des données dans la table DaAfficher
             $this->ajouterDaDansTableAffichage($demandeAppro);
 
-            $this->emailDaService->envoyerMailcreationDaDirect($demandeAppro, [
-                'service'       => $demandeAppro->getServiceEmetteur()->getLibelleService(),
-                'observation'   => $demandeAppro->getObservation() ?? '-',
-                'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
-            ]);
+            $this->emailDaService->envoyerMailCreationDa($demandeAppro, $this->getUser());
 
             $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'Votre demande a été enregistrée']);
             $this->redirectToRoute("list_da");

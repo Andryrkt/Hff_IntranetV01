@@ -5,9 +5,9 @@
 {% endblock %}
 
 {% block stylesheets %}
-	<link href="{{ App.base_path }}/Views/css/new.css?v=2025.09.15.08.00" rel="stylesheet"/>
-	<link href="{{ App.base_path }}/Views/css/da/style.css?v=2025.09.15.08.00" rel="stylesheet"/>
-	<link href="{{ App.base_path }}/Views/css/dit/news.css?v=2025.09.15.08.00" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/new.css?v=2025.10.22.08.00" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/da/style.css?v=2025.10.22.08.00" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/dit/news.css?v=2025.10.22.08.00" rel="stylesheet"/>
 {% endblock %}
 
 {% import "macroForm.html.twig" as macroForm %}
@@ -38,7 +38,14 @@
 								{{ form_row(form.detailDal, { 'attr': { 'disabled': peutModifier} }) }}
 								<span id="charCount" class="position-absolute bottom-0 end-0 p-0 small text-muted"></span>
 							</div>
-							{{ form_row(form.dateFinSouhaite, { 'attr': { 'disabled': peutModifier} }) }}
+							<div class="row">
+								<div class="col col-md">
+									{{ form_row(form.niveauUrgence, { 'attr': { 'disabled': peutModifier} }) }}
+								</div>
+								<div class="col col-md">
+									{{ form_row(form.dateFinSouhaite, { 'attr': { 'disabled': peutModifier} }) }}
+								</div>
+							</div>
 						</div>
 						<div class="col-12 col-md-4">
 							{{ macroForm.sousTitre('Agence et service') }}
@@ -244,5 +251,5 @@
 	</div>
 {% endblock %}
 {% block javascript %}
-	<script type="module" src="{{ App.base_path }}/Views/js/da/editAvecDit/edit.js?v=2025.09.15.08.00" type="module"></script>
+	<script type="module" src="{{ App.base_path }}/Views/js/da/editAvecDit/edit.js?v=2025.10.22.08.00" type="module"></script>
 {% endblock %}

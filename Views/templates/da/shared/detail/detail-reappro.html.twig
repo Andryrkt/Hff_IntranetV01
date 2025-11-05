@@ -1,0 +1,60 @@
+{% import "macroForm.html.twig" as macroForm %}
+
+<div class="row">
+	<h3 class="perso-titre">
+		Détails Demande d'achat, n°
+		{{ demandeAppro.numeroDemandeAppro }}
+	</h3>
+</div>
+
+<div class="row">
+	<div class="col-12 col-md-6">
+		{{ macroForm.sousTitre('Information sur la demande') }}
+		{{ macroForm.affichage2('Objet de la demande', demandeAppro.objetDal, 'mb-2') }}
+		{{ macroForm.affichage2('Détail de la demande', demandeAppro.detailDal, 'h-90 mb-2') }}
+		{{ macroForm.affichage2('Date fin souhaitée', demandeAppro.dateFinSouhaite|date('d/m/Y'), 'mb-2') }}
+	</div>
+	<div class="col-12 col-md-6">
+		{{ macroForm.sousTitre('Agence et service') }}
+		<div class="row">
+			<div class="col-6 col-md-6">
+				{{ macroForm.sousTitre('Emetteur') }}
+				{{ macroForm.affichage2('Agence', demandeAppro.agenceEmetteur.codeAgence ~ ' ' ~ demandeAppro.agenceEmetteur.libelleAgence, 'mb-2') }}
+				{{ macroForm.affichage2('Service', demandeAppro.serviceEmetteur.codeService ~ ' ' ~  demandeAppro.serviceEmetteur.libelleService, 'mb-2') }}
+			</div>
+			<div class="col-6 col-md-6">
+				{{ macroForm.sousTitre('Débiteur') }}
+				{{ macroForm.affichage2('Agence Débiteur', demandeAppro.agenceDebiteur.codeAgence ~ ' ' ~ demandeAppro.agenceDebiteur.libelleAgence, 'mb-2') }}
+				{{ macroForm.affichage2('Service Débiteur', demandeAppro.serviceDebiteur.codeService ~ ' ' ~  demandeAppro.serviceDebiteur.libelleService, 'mb-2') }}
+			</div>
+		</div>
+	</div>
+</div>
+
+{{ macroForm.sousTitre('Liste des articles demandés') }}
+<table class="table rounded table-plein-ecran text-center mt-3 align-middle">
+	<thead class="table-dark align-middle">
+		<tr>
+			<th width="7%">Constructeur</th>
+			<th width="13%">Référence</th>
+			<th>Désignation</th>
+			<th width="10%" class="text-end pe-3">PU</th>
+			<th width="10%">Qté demandée</th>
+			<th width="10%">Qté validée</th>
+			<th width="10%" class="text-end pe-3">Montant</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for dal in demandeAppro.DAL %}
+			<tr>
+				<td>{{ macroForm.affichageSimple(dal.artConstp, 'text-center') }}</td>
+				<td>{{ macroForm.affichageSimple(dal.artRefp, 'text-center') }}</td>
+				<td>{{ macroForm.affichageSimple(dal.artDesi, 'text-start') }}</td>
+				<td>{{ macroForm.affichageSimple(dal.PUFormatted, 'text-end') }}</td>
+				<td>{{ macroForm.affichageSimple(dal.qteDem, 'text-center qte-dem-da-reappro', {"data-qte-dem": dal.qteDem, "data-qte-valide": dal.qteValAppro}) }}</td>
+				<td>{{ macroForm.affichageSimple(dal.qteValAppro, 'text-center') }}</td>
+				<td>{{ macroForm.affichageSimple(dal.montantFormatted, 'text-end') }}</td>
+			</tr>
+		{% endfor %}
+	</tbody>
+</table>

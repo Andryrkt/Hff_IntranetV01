@@ -1,16 +1,17 @@
 {% extends "baseTemplate.html.twig" %}
 
 {% block title %}
-	Modification d’une DA
+	Création d’une DA directe
 {% endblock %}
 
 {% block stylesheets %}
-	<link href="{{ App.base_path }}/Views/css/new.css?v=2025.09.15.08.00" rel="stylesheet"/>
-	<link href="{{ App.base_path }}/Views/css/da/list.css?v=2025.09.15.08.00" rel="stylesheet"/>
-	<link href="{{ App.base_path }}/Views/css/da/style.css?v=2025.09.15.08.00" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/new.css?v=2025.10.22.08.00" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/da/list.css?v=2025.10.22.08.00" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/da/style.css?v=2025.10.22.08.00" rel="stylesheet"/>
 {% endblock %}
 
 {% import "macroForm.html.twig" as macroForm %}
+{% import "macros/form_macros.html.twig" as formMacros %}
 
 {% block overlay %}
 	{% include "/shared/_overlay.html.twig"  %}
@@ -39,10 +40,10 @@
 							</div>
 							<div class="row">
 								<div class="col col-md">
-									{{ form_row(form.dateFinSouhaite) }}
+									{{ form_row(form.niveauUrgence) }}
 								</div>
 								<div class="col col-md">
-									{{ form_row(form.niveauUrgence) }}
+									{{ form_row(form.dateFinSouhaite) }}
 								</div>
 							</div>
 						</div>
@@ -56,8 +57,7 @@
 								</div>
 								<div class="col-6 col-md-6">
 									{{ macroForm.sousTitre('Débiteur') }}
-									{{ form_row(form.agenceDebiteur) }}
-									{{ form_row(form.serviceDebiteur) }}
+									{{ formMacros.debiteurOuEmetteurFields(form, 'debiteur') }}
 								</div>
 							</div>
 						</div>
@@ -175,5 +175,5 @@
 	</div>
 {% endblock %}
 {% block javascript %}
-	<script type="module" src="{{ App.base_path }}/Views/js/da/newDirect/new.js?v=2025.09.15.08.00" type="module"></script>
+	<script type="module" src="{{ App.base_path }}/Views/js/da/newDirect/new.js?v=2025.10.22.08.00" type="module"></script>
 {% endblock %}

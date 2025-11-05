@@ -8,112 +8,61 @@ use App\Entity\admin\Application;
 class AutoIncDecService
 {
 
-    private $em;
-
-    public function __construct(EntityManagerInterface $em)
-    {
-        $this->em = $em;
-    }
-
     /**
-     * Incrimentation de Numero_Applications (DOMAnnéeMoisNuméro)
-     */
-    protected function autoINcriment(string $nomDemande)
-    {
-        //NumDOM auto
-        $YearsOfcours = date('y'); //24
-        $MonthOfcours = date('m'); //01
-        $AnneMoisOfcours = $YearsOfcours . $MonthOfcours; //2401
-        //var_dump($AnneMoisOfcours);
-        // dernier NumDOM dans la base
-
-        $Max_Num = $this->em->getRepository(Application::class)->findOneBy(['codeApp' => $nomDemande])->getDerniereId();
-
-        //var_dump($Max_Num);
-        //$Max_Num = 'CAS24040000';
-        //num_sequentielless
-        $vNumSequential =  substr($Max_Num, -4); // lay 4chiffre msincrimente
-        //var_dump($vNumSequential);
-        $DateAnneemoisnum = substr($Max_Num, -8);
-        //var_dump($DateAnneemoisnum);
-        $DateYearsMonthOfMax = substr($DateAnneemoisnum, 0, 4);
-        //var_dump($DateYearsMonthOfMax);
-        if ($DateYearsMonthOfMax == $AnneMoisOfcours) {
-            $vNumSequential =  $vNumSequential + 1;
-        } else {
-            if ($AnneMoisOfcours > $DateYearsMonthOfMax) {
-                $vNumSequential = 1;
-            }
-        }
-        //var_dump($vNumSequential);
-        $Result_Num = $nomDemande . $AnneMoisOfcours . $this->CompleteChaineCaractere($vNumSequential, 4, "0", "G");
-        //var_dump($Result_Num);
-
-        return $Result_Num;
-    }
-
-    /**
-     * Decrementation de Numero_Applications (DOMAnnéeMoisNuméro)
+     * Génère un numéro automatique (incrément ou décrément) pour une application.
      *
-     * @param string $nomDemande
+     * Format : {CodeApp}{AnnéeMois}{NuméroSéquentiel}
+     *
+     * @param string $nomDemande Le code de l'application (ex: "CAS")
+     * @param string|null $dernierNumApp le dernière numero dans la table Application
+     * @param bool $increment Si vrai => incrémente, sinon => décrémente
      * @return string
      */
-    protected function autoDecrementDIT(string $nomDemande): string
+    public static function autoGenerateNumero(string $nomDemande, ?string $dernierNumApp = null, bool $increment = true): string
     {
-        //NumDOM auto
-        $YearsOfcours = date('y'); //24
-        $MonthOfcours = date('m'); //01
-        //$MonthOfcours = "08"; //01
-        $AnneMoisOfcours = $YearsOfcours . $MonthOfcours; //2401
-        //var_dump($AnneMoisOfcours);
-        // dernier NumDOM dans la base
+        $anneeCourante = date('y');   // Ex: 25
+        $moisCourant = date('m');     // Ex: 10
+        $anneeMoisCourant = $anneeCourante . $moisCourant; // Ex: 2510
 
-        //$Max_Num = $this->casier->RecupereNumCAS()['numCas'];
-
-        if ($nomDemande === 'DIT') {
-            $Max_Num = $this->em->getRepository(Application::class)->findOneBy(['codeApp' => 'DIT'])->getDerniereId();
-        } else {
-            $Max_Num = $nomDemande . $AnneMoisOfcours . '9999';
+        $maxNum = $dernierNumApp;
+        if (!$dernierNumApp) {
+            // Si aucun enregistrement précédent
+            return $nomDemande . $anneeMoisCourant . '0001';
         }
 
-        //var_dump($Max_Num);
-        //$Max_Num = 'CAS24040000';
-        //num_sequentielless
-        $vNumSequential =  substr($Max_Num, -4); // lay 4chiffre msincrimente
-        //dump($vNumSequential);
-        $DateAnneemoisnum = substr($Max_Num, -8);
-        //dump($DateAnneemoisnum);
-        $DateYearsMonthOfMax = substr($DateAnneemoisnum, 0, 4);
-        //dump($DateYearsMonthOfMax);
-        if ($DateYearsMonthOfMax == $AnneMoisOfcours) {
-            $vNumSequential =  $vNumSequential - 1;
+        // Extraction des parties du numéro
+        $numSequential = (int) substr($maxNum, -4);     // ex: 0005
+        $dateAnneeMoisNum = substr($maxNum, -8);        // ex: 25100005
+        $dateYearsMonthOfMax = substr($dateAnneeMoisNum, 0, 4); // ex: 2510
+
+        if ($dateYearsMonthOfMax == $anneeMoisCourant) {
+            $numSequential = $increment ? $numSequential + 1 : $numSequential - 1;
         } else {
-            if ($AnneMoisOfcours > $DateYearsMonthOfMax) {
-                $vNumSequential = 9999;
+            if ($anneeMoisCourant > $dateYearsMonthOfMax) {
+                $numSequential = $increment ? 1 : 9999;
             }
         }
 
-        //dump($vNumSequential);
-        //var_dump($vNumSequential);
-        $Result_Num = $nomDemande . $AnneMoisOfcours . $vNumSequential;
-        //var_dump($Result_Num);
-        //dd($Result_Num);
-        return $Result_Num;
+        // Formate le numéro avec 4 chiffres (ex: 0005)
+        $numSequentialFormate = str_pad($numSequential, 4, '0', STR_PAD_LEFT);
+
+        return $nomDemande . $anneeMoisCourant . $numSequentialFormate;
     }
 
-    private function CompleteChaineCaractere($ChaineComplet, $LongerVoulu, $Caracterecomplet, $PositionComplet)
+
+    /**
+     * Met à jour la dernière ID utilisée pour une application donnée.
+     *
+     * @param string $codeApp Le code de l'application à mettre à jour.
+     * @param string $numero  La nouvelle valeur du champ `derniereId`.
+     */
+    public static function mettreAJourDerniereIdApplication(Application $application, EntityManagerInterface $em, string $numero): void
     {
-        for ($i = 1; $i < $LongerVoulu; $i++) {
-            if (strlen($ChaineComplet) < $LongerVoulu) {
-                if ($PositionComplet = "G") {
-                    $ChaineComplet = $Caracterecomplet . $ChaineComplet;
-                } else {
-                    $ChaineComplet = $Caracterecomplet . $Caracterecomplet;
-                }
-            }
-        }
-        return $ChaineComplet;
+        $application->setDerniereId($numero);
+        $em->persist($application);
     }
+
+
 
     /**
      * Methode qui permet d'incrémenter un nombre de pas 1 lorqu'il est appeler
@@ -121,7 +70,7 @@ class AutoIncDecService
      * @param integer|null $num
      * @return integer
      */
-    public function autoIncrement(?int $num): int
+    public static function autoIncrement(?int $num): int
     {
         if ($num === null) {
             $num = 0;

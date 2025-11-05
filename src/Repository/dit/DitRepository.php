@@ -47,6 +47,7 @@ class DitRepository extends EntityRepository
         $this->applyniveauUrgenceFilters($queryBuilder, $ditSearch);
         $this->applySection($queryBuilder, $ditSearch); // section affect et support section
         $this->applyAgencyServiceFilters($queryBuilder, $ditSearch, $options);
+        $this->applyAgencyUserFilter($queryBuilder, $options);
 
 
         $queryBuilder->orderBy('d.dateDemande', 'DESC')
@@ -82,7 +83,7 @@ class DitRepository extends EntityRepository
     private function applyAgencyUserFilter(QueryBuilder $queryBuilder, array $options): void
     {
         // Vérifier si l'agence de l'utilisateur est fournie dans les options
-        if (isset($options['user_agency']) && !empty($options['user_agency'])) {
+        if (isset($options['user_agency']) && !empty($options['user_agency']) && !$options['boolean'] && in_array($options['user_agency'], ['01', '20', '30', '40', '60'])) {
             $queryBuilder
                 ->andWhere('ar.codeAgence = :userAgency')
                 ->setParameter('userAgency', $options['user_agency']);
@@ -382,6 +383,11 @@ class DitRepository extends EntityRepository
 
         if ($ditSearch->getDitSansOr()) {
             $queryBuilder->andWhere("d.numeroOR = ''");
+        }
+
+        if (!empty($ditSearch->getReparationRealise())) {
+            $queryBuilder->andWhere('d.reparationRealise = :reparationRealise')
+                ->setParameter('reparationRealise', $ditSearch->getReparationRealise());
         }
     }
 

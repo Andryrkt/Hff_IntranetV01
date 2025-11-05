@@ -94,18 +94,18 @@ class DitFactureSoumisAValidationController extends Controller
                 $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
             }
 
-            // if (!array_key_exists(0, $this->ditFactureSoumiAValidationModel->recupTypeFacture($numFac)) || !array_key_exists(0, $this->ditFactureSoumiAValidationModel->recupQterea($numFac))) {
-            //     $message = "Le numero facture '{$numFac}' ne correspond pas à la facture de l'OR";
-            //     $this->historiqueOperation->sendNotificationSoumission($message, $numFac, 'dit_index');
-            // } else {
-            //     $typeFacture = (int)$this->ditFactureSoumiAValidationModel->recupTypeFacture($numFac)[0];
-            //     $qterea = (int)$this->ditFactureSoumiAValidationModel->recupQterea($numFac)[0];
-            // }
+            if (!array_key_exists(0, $this->ditFactureSoumiAValidationModel->recupTypeFacture($numFac)) || !array_key_exists(0, $this->ditFactureSoumiAValidationModel->recupQterea($numFac))) {
+                $message = "Le numero facture '{$numFac}' ne correspond pas à la facture de l'OR";
+                $this->historiqueOperation->sendNotificationSoumission($message, $numFac, 'dit_index');
+            } else {
+                $typeFacture = (int)$this->ditFactureSoumiAValidationModel->recupTypeFacture($numFac)[0];
+                $qterea = (int)$this->ditFactureSoumiAValidationModel->recupQterea($numFac)[0];
+            }
 
-            // if (strpos($originalName, 'FACTURE CESSION') !== 0 && strpos($originalName, 'FACTURE-BON DE LIVRAISON') !== 0 && !(in_array($typeFacture, $typeFacVente) && strpos($originalName, 'AVOIR') !== 0 && $qterea < 0)) {
-            //     $message = "Le fichier '{$originalName}' soumis a été renommé ou ne correspond pas à la facture de l'OR";
-            //     $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
-            // }
+            if (strpos($originalName, 'FACTURE CESSION') !== 0 && strpos($originalName, 'FACTURE-BON DE LIVRAISON') !== 0 && !(in_array($typeFacture, $typeFacVente) && strpos($originalName, 'AVOIR') !== 0 && $qterea < 0)) {
+                $message = "Le fichier '{$originalName}' soumis a été renommé ou ne correspond pas à la facture de l'OR";
+                $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
+            }
 
             $this->ditFactureSoumiAValidation->setNumeroFact($numFac);
 
@@ -135,19 +135,19 @@ class DitFactureSoumisAValidationController extends Controller
 
 
 
-            // if ($numOrBaseDonner[0]['numor'] !== $this->ditFactureSoumiAValidation->getNumeroOR()) {
-            //     $message = "Le numéro Or que vous avez saisie ne correspond pas à la DIT";
+            if ($numOrBaseDonner[0]['numor'] !== $this->ditFactureSoumiAValidation->getNumeroOR()) {
+                $message = "Le numéro Or que vous avez saisie ne correspond pas à la DIT";
+                $this->historiqueOperation->sendNotificationSoumission($message, $numFac, 'dit_index');
+            } elseif (!(int)$nbFact > 0) {
+                $message = "La facture ne correspond pas à l’OR";
+                $this->historiqueOperation->sendNotificationSoumission($message, $numFac, 'dit_index');
+            }
+            //suite à la demande de diamondra facture 18644681 cas de facture refusé à soumettre validation pour être validé
+            // elseif ($nbFactSqlServer > 0) {
+            //     $message = "La facture n° :{$numFac} a été déjà soumise à validation ";
             //     $this->historiqueOperation->sendNotificationSoumission($message, $numFac, 'dit_index');
-            // } elseif (!(int)$nbFact > 0) {
-            //     $message = "La facture ne correspond pas à l’OR";
-            //     $this->historiqueOperation->sendNotificationSoumission($message, $numFac, 'dit_index');
-            // }
-            // //suite à la demande de diamondra facture 18644681 cas de facture refusé à soumettre validation pour être validé
-            // // elseif ($nbFactSqlServer > 0) {
-            // //     $message = "La facture n° :{$numFac} a été déjà soumise à validation ";
-            // //     $this->historiqueOperation->sendNotificationSoumission($message, $numFac, 'dit_index');
-            // // } 
-            // else {
+            // } 
+            else {
             $dataForm = $form->getData();
             $numeroSoumission = $this->ditFactureSoumiAValidationModel->recupNumeroSoumission($dataForm->getNumeroOR());
 
@@ -157,10 +157,10 @@ class DitFactureSoumisAValidationController extends Controller
 
             $estRi = $this->conditionSurInfoFacture($this->ditFactureSoumiAValidationModel, $dataForm, $this->ditFactureSoumiAValidation, $numDit);
 
-            // if ($estRi) {
-            //     $message = "La facture ne correspond pas ou correspond partiellement à un rapport d'intervention.";
-            //     $this->historiqueOperation->sendNotificationSoumission($message, $numFac, 'dit_index');
-            // } else {
+            if ($estRi) {
+                $message = "La facture ne correspond pas ou correspond partiellement à un rapport d'intervention.";
+                $this->historiqueOperation->sendNotificationSoumission($message, $numFac, 'dit_index');
+            } else {
 
             $interneExterne = $this->ditRepository->findInterneExterne($numDit);
             /** CREATION PDF */
@@ -182,8 +182,8 @@ class DitFactureSoumisAValidationController extends Controller
             $this->ajoutDataFactureAValidation($factureSoumisAValidation);
 
             $this->historiqueOperation->sendNotificationSoumission('Le document de controle a été généré et soumis pour validation', $dataForm->getNumeroFact(), 'dit_index', true);
-            // }
-            // }
+            }
+            }
         }
 
         $this->logUserVisit('dit_insertion_facture', [

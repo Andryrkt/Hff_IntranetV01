@@ -17,11 +17,10 @@
 					</div>
 					<div class="col-12 col-md-2">
 						{{ macroForm.agence_service_change(form.agence, form.service, 'spinner-service', 'service-container')}}
-						{# {{form_row(form.agence)}} #}
-						{# {{form_row(form.service)}} #}
-					{{ form_row(form.orValide)}}
+						{{ form_row(form.orValide)}}
 					</div>
-						<div class="col-12 col-md-2"> {{form_row(form.numCis)}}
+					<div class="col-12 col-md-2">
+						{{form_row(form.numCis)}}
 						{{form_row(form.constructeur)}}
 					</div>
 					<div class="col-12 col-md-2">
@@ -34,7 +33,9 @@
 						<ul id="suggestions" class="list-group position-absolute"></ul>
 					</div>
 					<div class="col-12 col-md-2">
-						{{form_row(form.pieces)}}
+						<div class="{{ est_pneumatique ? 'd-none' : '' }}">
+							{{form_row(form.pieces)}}
+						</div>
 						{{form_row(form.dateDebutCis)}}
 						{{form_row(form.dateFinCis)}}
 					</div>

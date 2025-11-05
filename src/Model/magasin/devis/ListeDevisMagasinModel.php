@@ -10,7 +10,7 @@ class ListeDevisMagasinModel extends Model
 {
     public function getDevis(array $criteria = [])
     {
-        $statement = "SELECT
+        $statement = "SELECT FIRST 100
             -- '' as statut_dw
             nent_numcde as numero_devis
             ,nent_datecde as date_creation

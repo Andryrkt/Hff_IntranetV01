@@ -146,10 +146,13 @@
 	</div>
 {% endmacro %}
 
-{% macro affichageSimple(value = "", class = "", id = "") %}
-	<div class="d-flex align-items-center {{ class }} div-disabled" id="{{id}}">
-		{{value}}
-	</div>
+{% macro affichageSimple(value = "", class = "", attributes = {}) %}
+    <div class="{{ class }} div-disabled"
+        {% for name, val in attributes %}
+            {{ name }}="{{ val }}"
+        {% endfor %}>
+        {{ value }}
+    </div>
 {% endmacro %}
 
 {% macro affichageHTMLSimple(value = "", class = "", id = "") %}

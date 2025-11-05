@@ -1,8 +1,11 @@
 {% extends "baseTemplate.html.twig" %}
 
+{% block title %}Magasin - Liste des OR à livrer
+{% endblock %}
+
 {% block stylesheets %}
-<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.09.15.08.00">
-<link rel="stylesheet" href="{{ App.base_path }}/Views/css/magasin/magasin.css?v=2025.09.15.08.00">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.10.22.08.00">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/magasin/magasin.css?v=2025.10.22.08.00">
 {% endblock %}
 
 
@@ -12,7 +15,6 @@
 			<h3 class="perso-titre">
 				Liste des OR à livrer
 			</h3>
-			{# <input type="text" id="searchInput" class="form-control my-3" placeholder="Rechercher..."> #}
 			{% include "/magasin/partials/_formulaireRechercheListeOrALivrer.html.twig" %}
 		</div>
 		<div class="container">
@@ -53,10 +55,6 @@
 							<th class="text-center">Qté à livrer</th>
 							<th class="text-center">Qté déjà livrée</th>
 							<th>Utilisateur</th>
-							{# <th class="text-center">Qté rés</th>#}
-							{# <th class="text-center">Qté rel</th> #}
-
-
 						</tr>
 					</thead>
 					<tbody id="tableBody">
@@ -101,9 +99,7 @@
 								<td class="text-center {{textColor}}">{{item.quantitedemander == 0 ? '-': item.quantitedemander | number_format(0)}}</td>
 								<td class="text-center {{textColor}}">{{item.qtealivrer == 0 ? '-' : item.qtealivrer | number_format(0)}}</td>
 								<td class="text-center">{{item.quantitelivree == 0 ? '-' : item.quantitelivree | number_format(0)}}</td>
-								<td>{{ item.nomPrenom }}</td>
-								{# <td class="text-center">{{item.quantitereserver == 0 ? '-' : item.quantitereserver | number_format(0)}}</td>#}
-								{# <td class="text-center">{{item.quantitereliquat == 0 ? '-' : item.quantitereliquat | number_format(0)}}</td> #}
+								<td>{{ item.nomprenom }}</td>
 
 							</tr>
 						{% endfor %}
@@ -117,5 +113,5 @@
 	</div>
 {% endblock %}
 {% block javascript %}
-	<script src="{{ App.base_path }}/Views/js/magasin/main-optimized.js?v=2025.09.15.08.00" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/magasin/main.js?v=2025.10.22.08.00" type="module"></script>
 {% endblock %}

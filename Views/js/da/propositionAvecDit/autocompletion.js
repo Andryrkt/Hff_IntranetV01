@@ -84,23 +84,26 @@ function onBlurEvents(found, designation, fieldName) {
     .id.split("_")
     .pop();
   const numPage = localStorage.getItem(`currentTab_${numeroDa}`);
+  console.log("numeroDa = " + numeroDa);
+  console.log("numPage = " + numPage);
   if (designation.value.trim() !== "") {
     const desi = `designation_${numPage}`;
 
     let baseId = designation.id.replace(desi, "");
 
     let allFields = document.querySelectorAll(`[id*="${baseId}"]`);
-    let fournisseur = getFieldByGeneratedId(
-      designation.id,
-      `fournisseur_${numPage}`
-    );
-    let referencePiece = document.querySelector(
-      `#demande_appro_proposition_reference_${numPage}`
-    );
+    console.log("baseId = " + baseId);
+    console.log("allFields =");
+    console.log(allFields);
 
     if (fieldName == "designation") {
       // Texte rouge ou non, ajout de valeur dans catalogue
       allFields.forEach((field) => {
+        console.log("field.id = ");
+        console.log(field.id);
+        console.log("found = ");
+        console.log(found);
+
         if (found) {
           field.classList.remove("text-danger");
         } else {
@@ -119,10 +122,14 @@ function onBlurEvents(found, designation, fieldName) {
 
             field.value = "-";
           }
+          if (
+            field.id.includes("reference") &&
+            field.id.includes(`_${numPage}`)
+          ) {
+            field.value = "ST";
+          }
         }
       });
-      // Si non trouvé alors valeur de reférence pièce = ''
-      referencePiece.value = found ? referencePiece.value : "ST";
     }
   }
 }
@@ -210,5 +217,11 @@ function handleValuesOfFields(
         item.codesousfamille
       );
     }
+
+    famille.classList.add("non-modifiable");
+    sousFamille.classList.add("non-modifiable");
+    reference.classList.add("non-modifiable");
+    fournisseur.classList.add("non-modifiable");
+    designation.classList.add("non-modifiable");
   }
 }

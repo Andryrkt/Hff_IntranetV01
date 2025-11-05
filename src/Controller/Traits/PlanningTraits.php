@@ -17,14 +17,14 @@ trait PlanningTraits
         return implode("','", $numOrValide);
     }
 
-    private function recupNumOrValider($criteria, $em)
+    private function recupNumOrValider($criteria)
     {
         $PlanningModel  = new PlanningModel();
-        $numeroOrs = $PlanningModel->recuperationNumOrValider($criteria);
-        $numOrItvValide = $this->recupNumORItvValide($numeroOrs, $em);
-        //$numOrItvValide = $this->recupNumOrValidersansVmax($em);
-        $resNumor = $this->orEnString($numOrItvValide);
-        $orSansItv = $this->orEnString($numeroOrs);
+        /** @var array $numeroOrsItv @var array $numeroOr */
+        [$numeroOrsItv, $numeroOr] = $PlanningModel->recuperationNumOrValider($criteria);
+
+        $resNumor = $this->orEnString($numeroOrsItv);
+        $orSansItv = $this->orEnString($numeroOr);
 
         return [
             'orAvecItv' => $resNumor,
@@ -39,12 +39,6 @@ trait PlanningTraits
         return $numeroOrs;
     }
 
-    /*
-    private function recupNumOrValidersansVmax($em)
-    {
-        return $em->getRepository(DitOrsSoumisAValidation::class)->findNumOrItvValide();
-    }
-*/
 
     private function recupNumORItvValide($numeroOrs, $em)
     {

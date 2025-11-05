@@ -3,11 +3,11 @@
 namespace App\Controller\Traits\da\creation;
 
 use App\Entity\da\DemandeAppro;
-use App\Service\genererPdf\GenererPdfDaDirect;
+use App\Traits\JoursOuvrablesTrait;
 
 trait DaNewDirectTrait
 {
-    use DaNewTrait;
+    use DaNewTrait, JoursOuvrablesTrait;
 
     //=====================================================================================
     /**
@@ -33,7 +33,7 @@ trait DaNewDirectTrait
         $service = $agenceServiceIps['serviceIps'];
 
         $demandeAppro
-            ->setAchatDirect(true)
+            ->setDaTypeId(DemandeAppro::TYPE_DA_DIRECT)
             ->setAgenceDebiteur($agence)
             ->setServiceDebiteur($service)
             ->setAgenceEmetteur($agence)
@@ -44,7 +44,7 @@ trait DaNewDirectTrait
             ->setUser($this->getUser())
             ->setNumeroDemandeAppro($this->autoDecrement('DAP'))
             ->setDemandeur($this->getUser()->getNomUtilisateur())
-            ->setDateFinSouhaiteAutomatique() // Définit la date de fin souhaitée automatiquement à 3 jours après la date actuelle
+            ->setDateFinSouhaite($this->ajouterJoursOuvrables(5)) // Définit la date de fin souhaitée automatiquement à 3 jours après la date actuelle
         ;
 
         return $demandeAppro;

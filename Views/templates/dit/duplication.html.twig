@@ -5,8 +5,8 @@
 {% endblock %}
 
 {% block stylesheets %}
-	<link href="{{ App.base_path }}/Views/css/new.css?v=2025.09.15.08.00" rel="stylesheet"/>
-	<link href="{{ App.base_path }}/Views/css/dit/news.css?v=2025.09.15.08.00" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/new.css?v=2025.10.22.08.00" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/dit/news.css?v=2025.10.22.08.00" rel="stylesheet"/>
 {% endblock %}
 
 {% import "macroForm.html.twig" as macroForm %}
@@ -138,15 +138,17 @@
 							<div class="row">
 								<div class="col-12 col-md-6">
 									{{ form_row(form.typeReparation) }}
-
 								</div>
 								<div class="col-12 col-md-6">
 									{{ form_row(form.reparationRealise) }}
 								</div>
-
 							</div>
-
-
+							<div class="row" >
+							<div class="col-12 col-md-6"></div>
+								<div class="col-12 col-md-6" id="ate_pol_tana_container" style="display: none;">
+									{{ form_row(form.estAtePolTana) }}
+								</div>
+							</div>
 							{{ macroForm.sousTitre('Pièces Jointes', {class: 'sousTitre'})}}
 
 							{{ form_row(form.pieceJoint01)}}
@@ -185,5 +187,5 @@
 {% endblock %}
 
 {% block javascript %}
-	<script type="module" src="{{ App.base_path }}/Views/js/dit/dit.js?v=2025.09.15.08.00" type="module"></script>
+	<script type="module" src="{{ App.base_path }}/Views/js/dit/dit.js?v=2025.10.22.08.00" type="module"></script>
 {% endblock %}

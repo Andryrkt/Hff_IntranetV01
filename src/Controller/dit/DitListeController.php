@@ -16,6 +16,7 @@ use App\Service\Users\UserDataService;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\dit\DitListTrait;
 use App\Controller\Traits\AutorisationTrait;
+use App\Model\dit\DitModel;
 use App\Service\docuware\CopyDocuwareService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -33,6 +34,7 @@ class DitListeController extends Controller
     private $historiqueOperation;
     private UserDataService $userDataService;
     private $excelService;
+    private DitModel $ditModel;
 
     public function __construct()
     {
@@ -40,6 +42,7 @@ class DitListeController extends Controller
         $this->historiqueOperation = new HistoriqueOperationDITService($this->getEntityManager());
         $this->userDataService = new UserDataService($this->getEntityManager());
         $this->excelService = new \App\Service\ExcelService();
+        $this->ditModel = new DitModel();
     }
 
     /**
@@ -81,7 +84,7 @@ class DitListeController extends Controller
             $numParc = $form->get('numParc')->getData() === null ? '' : $form->get('numParc')->getData();
             $numSerie = $form->get('numSerie')->getData() === null ? '' : $form->get('numSerie')->getData();
             if (!empty($numParc) || !empty($numSerie)) {
-                $idMateriel = $this->getDitModel()->recuperationIdMateriel($numParc, strtoupper($numSerie));
+                $idMateriel = $this->ditModel->recuperationIdMateriel($numParc, strtoupper($numSerie));
                 if (!empty($idMateriel)) {
                     $this->ajoutDonnerRecherche($form, $ditSearch);
                     $ditSearch->setIdMateriel($idMateriel[0]['num_matricule']);
@@ -140,7 +143,6 @@ class DitListeController extends Controller
 
         // Appeler la méthode logUserVisit avec les arguments définis
         $this->logUserVisit(...$logType);
-
 
         return $this->render('dit/list.html.twig', [
             'data'          => $paginationData['data'],

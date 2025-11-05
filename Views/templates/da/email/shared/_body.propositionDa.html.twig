@@ -1,6 +1,6 @@
 <p>
 	Une nouvelle proposition a été créée par
-	<b>{{ tab.userConnecter }}</b>.
+	<b>{{ fullNameUser }}</b>.
 </p>
 <p>
 	<b>Détails du demande :</b>
@@ -21,83 +21,45 @@
 		</li>
 		<li>
 			<b>Observation:</b>
-			<div class="espace">
-				{{ tab.observation|raw }}
-			</div>
+			<div class="espace">{{ observation|raw }}</div>
 		</li>
 	</ul>
 </p>
 <hr>
-<p>Demande(s) de l'Atelier avec proposition(s) de l'Appro.</p>
-<p>
-	Présentation :
-	<ul>
-		<li>Les lignes
-			<b>sans fond coloré</b>
-			et en
-			<b>gras</b>
-			correspondent aux demandes initiales de l’Atelier.</li>
-		<li>Les lignes
-			<b>avec un fond clair</b>
-			et un
-			<b>trait bleu à gauche</b>
-			correspondent aux propositions de l’Appro.</li>
-		<li>Les lignes
-			<b>avec un fond orange</b>
-			et un
-			<b>trait bleu à gauche</b>
-			indiquent la proposition retenue par l’Appro.</li>
-	</ul>
+<p>Récap de la demande du service
+	{{ serviceDemandeur }}
+	avec les propositions du service APPRO (en orange).
 </p>
+
 <table>
 	<thead style="background-color:#D9E1F2;">
 		<tr>
-			{% if not demandeAppro.achatDirect %}
-				<th>Famille</th>
-				<th>Sous famille</th>
-			{% endif %}
-			<th>Réference</th>
-			<th>Désignation</th>
-			<th>Prix Unitaire</th>
-			<th>Fournisseur</th>
-			<th>Commentaire</th>
+			<th rowspan="2" align="center" valign="middle">CST</th>
+			<th rowspan="2" align="center" valign="middle">REF</th>
+			<th rowspan="2" align="center" valign="middle">DESIGNATION</th>
+			<th rowspan="2" align="center" valign="middle">QTE</th>
+			<td colspan="{{ listeFournisseurs|length }}" align="center" style="font-weight:bold;">** FOURNISSEURS **</td>
+		</tr>
+		<tr>
+			{% for frn in listeFournisseurs %}
+				<th align="center">{{ frn }}</th>
+			{% endfor %}
 		</tr>
 	</thead>
 	<tbody>
-		{% set dals = tab.hydratedDa.DAL %}
-		{% for dal in dals %}
-			<tr class="parent-row {{ dal.demandeApproLR is empty ? 'choisi' : ''}}">
-				{% if not demandeAppro.achatDirect %}
-					<td>{{ dal.artFams1 ?? '-'}}</td>
-					<td>{{ dal.artFams2 ?? '-'}}</td>
-				{% endif %}
-				<td>{{ dal.artRefp ?? '-'}}</td>
-				<td>{{ dal.artDesi }}</td>
-				<td>{{ dal.prixUnitaire }}</td>
-				<td>{{ dal.nomFournisseur }}</td>
-				<td>{{ dal.commentaire }}</td>
-			</tr>
-			{% if dal.demandeApproLR|length > 0 %}
-				{% for dalr in dal.demandeApproLR %}
-					<tr class="child-row {{ dalr.choix ? 'choisi' : ''}}">
-						{% if not demandeAppro.achatDirect %}
-							<td>{{ dalr.artFams1 ?? '-'}}</td>
-							<td>{{ dalr.artFams2 ?? '-'}}</td>
-						{% endif %}
-						<td>{{ dalr.artRefp ?? '-'}}</td>
-						<td>{{ dalr.artDesi }}</td>
-						<td>{{ dalr.prixUnitaire }}</td>
-						<td>{{ dalr.nomFournisseur }}</td>
-						<td>{{ dalr.motif }}</td>
-					</tr>
+		{% for dal in preparedDatas %}
+			<tr>
+				<td>{{ dal.cst }}</td>
+				<td>{{ dal.ref }}</td>
+				<td>{{ dal.desi }}</td>
+				<td align="right">{{ dal.qte }}</td>
+				{% for frn in listeFournisseurs %}
+					{% set cell = fournisseurs[frn][dal.keyId]|default({}) %}
+					<td align="right" class="{{ cell.choix|default(false) ? 'choisi' : '' }}">
+						{{ cell.prix|default('') }}
+					</td>
 				{% endfor %}
-			{% else %}
-				<tr class="child-row">
-					<td colspan="5" style="text-align:center;">Aucune proposition n’a été faite pour cet article.</td>
-				</tr>
-			{% endif %}
+			</tr>
 		{% endfor %}
 	</tbody>
-</table>
-<br>
-<hr>
+</table><br><hr>

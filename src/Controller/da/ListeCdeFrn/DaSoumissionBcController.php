@@ -3,6 +3,7 @@
 namespace App\Controller\da\ListeCdeFrn;
 
 use Exception;
+use App\Model\da\DaModel;
 use App\Entity\da\DaValider;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
@@ -144,6 +145,9 @@ class DaSoumissionBcController extends Controller
     {
         $numDit = $this->demandeApproRepository->getNumDitDa($numDa);
         // $numOr = $this->ditRepository->getNumOr($numDit);
+
+        $montantBc = $this->getMontantBc($numCde);
+
         $soumissionBc->setNumeroCde($numCde)
             ->setUtilisateur($this->getUserName())
             ->setPieceJoint1($nomPdfFusionner)
@@ -152,8 +156,15 @@ class DaSoumissionBcController extends Controller
             ->setNumeroDemandeAppro($numDa)
             ->setNumeroDemandeDit($numDit)
             ->setNumeroOR($numOr)
+            ->setMontantBc($montantBc)
         ;
         return $soumissionBc;
+    }
+
+    private function getMontantBc(string $numCde): float
+    {
+        $daModel = new DaModel();
+        return $daModel->getMontantBcDaDirect($numCde);
     }
 
     private function conditionDeBlocage(DaSoumissionBc $soumissionBc, string $numCde, string $numDa): array
@@ -161,6 +172,7 @@ class DaSoumissionBcController extends Controller
         $nomdeFichier = $soumissionBc->getPieceJoint1()->getClientOriginalName();
         $nomdeFichier = str_replace('BON_DE_COMMANDE', 'BON DE COMMANDE', $nomdeFichier);
         $statut = $this->daSoumissionBcRepository->getStatut($numCde);
+        $montantBc = $this->daSoumissionBcRepository->getMontantBc($numCde);
 
         //recuperation du numDa dans Informix
         $numDaInformix = $this->daSoumissionBcModel->getNumDa($numCde);
@@ -169,6 +181,7 @@ class DaSoumissionBcController extends Controller
             'nomDeFichier' => explode('_', $nomdeFichier)[0] <> 'BON DE COMMANDE' || explode('_', $nomdeFichier)[1] <> $numCde,
             'statut' => $statut === DaSoumissionBc::STATUT_SOUMISSION || $statut === DaSoumissionBc::STATUT_A_VALIDER_DA,
             'numDaEgale' => $numDaInformix[0] !== $numDa,
+            'montantBcEgale' => $montantBc == $this->getMontantBc($numCde)
         ];
     }
 
@@ -188,6 +201,10 @@ class DaSoumissionBcController extends Controller
             $okey = false;
         } elseif ($conditions['numDaEgale']) {
             $message = "Le numéro de DA '$numDa' ne correspond pas pour le BC '$numCde'";
+            $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn');
+            $okey = false;
+        } elseif ($conditions['montantBcEgale']) {
+            $message = "Soumission d'un même BC";
             $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn');
             $okey = false;
         } else {

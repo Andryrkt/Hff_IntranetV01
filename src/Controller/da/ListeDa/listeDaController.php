@@ -7,7 +7,6 @@ use App\Form\da\DaSearchType;
 use App\Controller\Controller;
 use App\Entity\admin\Application;
 use App\Controller\Traits\da\DaListeTrait;
-use App\Controller\Traits\da\StatutBcTrait;
 use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -60,9 +59,7 @@ class listeDaController extends Controller
 
         $sortJoursClass = false;
 
-        if ($criteria && $criteria['sortNbJours']) {
-            $sortJoursClass = $criteria['sortNbJours'] === 'asc' ? 'fas fa-arrow-up-1-9' : 'fas fa-arrow-down-9-1';
-        }
+        if ($criteria && $criteria['sortNbJours']) $sortJoursClass = $criteria['sortNbJours'] === 'asc' ? 'fas fa-arrow-up-1-9' : 'fas fa-arrow-down-9-1';
 
         //recupère le numero de page
         $page = $request->query->getInt('page', 1);
@@ -77,6 +74,7 @@ class listeDaController extends Controller
             'data'           => $dataPrepared,
             'form'           => $form->createView(),
             'criteria'       => $criteria,
+            'daTypeIcons'    => $this->getAllIcons(),
             'sortJoursClass' => $sortJoursClass,
             'currentPage'    => $paginationData['currentPage'],
             'totalPages'     => $paginationData['lastPage'],

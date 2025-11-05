@@ -40,6 +40,11 @@ class DemandeApproL
     private $qteDem;
 
     /**
+     * @ORM\Column(type="integer", name="qte_valide_appro")
+     */
+    private $qteValAppro; // seulement pour les DA réappro
+
+    /**
      * @ORM\Column(type="integer", name="qte_dispo")
      */
     private $qteDispo;
@@ -113,7 +118,7 @@ class DemandeApproL
      * @ORM\ManyToOne(targetEntity=DemandeAppro::class, inversedBy="DAL")
      * @ORM\JoinColumn(name="demande_appro_id", referencedColumnName="id", nullable=false)
      */
-    private ?DemandeAppro $demandeAppro;
+    private ?DemandeAppro $demandeAppro = null;
 
     /**
      * @ORM\OneToMany(targetEntity=DemandeApproLR::class, mappedBy="demandeApproL")
@@ -1000,5 +1005,47 @@ class DemandeApproL
         $this->dateLivraisonPrevue = $dateLivraisonPrevue;
 
         return $this;
+    }
+
+    /**
+     * Get the value of qteValAppro
+     */
+    public function getQteValAppro()
+    {
+        return $this->qteValAppro;
+    }
+
+    /**
+     * Set the value of qteValAppro
+     *
+     * @return  self
+     */
+    public function setQteValAppro($qteValAppro)
+    {
+        $this->qteValAppro = $qteValAppro;
+
+        return $this;
+    }
+
+    /** 
+     * ===================
+     * Méthodes pour Twig
+     * ===================
+     */
+    public function getMontantTwig(): float
+    {
+        return $this->getPrixUnitaire() * $this->getQteDem();
+    }
+
+    public function getMontantFormatted(): string
+    {
+        $montant = $this->getMontantTwig();
+        return $montant == 0 ? '-' : number_format($montant, 2, ',', '.');
+    }
+
+    public function getPUFormatted(): string
+    {
+        $montant = $this->getPrixUnitaire();
+        return $montant == 0 ? '-' : number_format($montant, 2, ',', '.');
     }
 }

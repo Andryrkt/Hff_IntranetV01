@@ -2,7 +2,7 @@
 
 {% block stylesheets %}
 	{{ parent() }}
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/accueil.css?v=2025.09.15.08.00">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/accueil.css?v=2025.10.22.08.00">
 {% endblock %}
 
 {% block title %}
@@ -15,40 +15,59 @@
 	<span class="vignette-bande">
 		{% for i in 0..4 %}
 			<span>
-				17/09/2025 - V20250917.2.0.1 :
+				17/10/2025 - V20251017.3.1.0 :
 				<div class="news-ticker">
 					<ul>
 						<li>
-							<b>API - Délai de mise à jour des statuts des documents depuis docuware vers intranet :</b>
-							ce délai a été réduit de 15 minutes à 2 minutes.
-						</li>
-						<li>
-							<b>APPRO - Demande d’achat via OR :</b>
+							<b>APPRO – Formulaire création d’une DA :</b>
+							Un contrôle a été mis en place afin de définir une marge au service APP pour traiter les demandes d’achats. 
+														Ce planning dépendra automatiquement du niveau d’urgence de la DIT ou la date planning de l’OR.
 							<ul>
-								<li>Possibilité d’enregistrer une demande d’achat sans la soumettre directement au service APPRO.</li>
-								<li>Les suppressions de DA sont désormais historisées.</li>
-								<li>Lors de la modification d’une DA, seules les suppressions et les modifications des quantités sont autorisées.</li>
-								<li>Une pagination est désormais intégrée aux liste des demandes d’achat et commande fournisseur.</li>
+								<li>
+									S’il n’y a pas encore d’OR rattaché à la DIT, alors le planning suit le niveau d’urgence de la DIT :
+									<ul>
+										<li>P0 : 5 jours ouvrables</li>
+										<li>P1 : 7 jours ouvrables</li>
+										<li>P2 : 10 jours ouvrables</li>
+										<li>P3 : 15 jours ouvrables</li>
+										<li>P4 : 15 jours ouvrables</li>
+									</ul>
+								</li>
+								<li>
+									Si DIT avec OR validé avec les devis :
+									<ul>
+										<li>7 jours ouvrables avant la date planning de l’OR</li>
+										<li>Sinon 5 jours</li>
+									</ul>
+								</li>
 							</ul>
 						</li>
 						<li>
-							<b>APPRO - Détail demande d’achat :</b>
+							<b>APPRO – Validation et proposition :</b>
 							<ul>
-								<li>Les pièces jointes envoyées par le service APPRO à l’atelier tels que les devis sont désormais consultables et téléchargeablesdepuis l’onglet document rattaché.</li>
+								<li>Le service APP peut enregistrer des propositions et sauvegarder des devis sans les envoyer à l’atelier (draft).</li>
+								<li>
+									Intégration du statut « Demande de devis en cours » :
+																		Après l’envoi des demandes de devis aux fournisseurs, un pointage peut être effectué sur une DA 
+																		par le service APP afin d’identifier les DA ayant fait l’objet d’une demande de devis auprès des fournisseurs.
+								</li>
+								<li>
+									Intégration du statut « Devis à relancer » :
+																		Si aucune proposition n’est envoyée à l’atelier deux jours après l’envoi du devis, 
+																		un email de relance est automatiquement adressé au service APP.
+								</li>
+								<li>La désignation des articles catalogués ne peut plus être modifiée lors d’une proposition.</li>
+								<li>L’envoi des devis à l’atelier est désormais bloqué s’il existe un article dont le fournisseur n’est pas renseigné (FRN 99).</li>
+								<li>
+									Les articles proposés par le service APP sont présentés sous forme de matrice 
+																		pour une meilleure lisibilité (en ligne : désignations initiales, en colonne : prix unitaires par fournisseur).
+								</li>
 							</ul>
 						</li>
 						<li>
-							<b>DIT - Soumission OR :</b>
-							<ul>
-								<li>L’utilisateur est alerté lors de la soumission d’un OR s’il y a une demande d’achat en cours rattachée à cet OR.</li>
-								<li>La première soumission d’un OR est bloquée si : la date planning de l’OR est antérieur à la date de soumission. Ceci n’est valable que pour les OR qui contiennent des pièces gérées par le magasin.</li>
-							</ul>
-						</li>
-						<li>
-							<b>DIT - Dossier DIT :</b>
-							<ul>
-								<li>Les documents rattachés aux demandes d’appro sont consultables directement depuis l’interface.</li>
-							</ul>
+							<b>APPRO – Détail demande d’achat :</b>
+							Les articles dans le bon d’achat sont aussi représentés sous forme de matrice 
+														(en ligne : désignations initiales, en colonne : prix unitaires par fournisseur).
 						</li>
 					</ul>
 				</div>
@@ -65,5 +84,5 @@
 {% endblock %}
 
 {% block javascript %}
-	<script src="{{ App.base_path }}/Views/js/accueil/script.js?v=2025.09.15.08.00" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/accueil/script.js?v=2025.10.22.08.00" type="module"></script>
 {% endblock %}

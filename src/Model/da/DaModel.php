@@ -120,7 +120,8 @@ class DaModel extends Model
             ) AS prix
                 FROM art_bse a
                     WHERE abse_constp = 'ZST'                    
-                    AND abse_refp <> 'ST' 
+                    AND abse_refp <> 'ST'
+                    AND abse_numf <> '99' 
                     ";
         if ($codeFamille !== '-') {
             $statement .= " AND abse_fams1 = '$codeFamille'";
@@ -148,7 +149,9 @@ class DaModel extends Model
                     WHERE fbse_numfou = a.abse_numf
             ) AS fournisseur
                 FROM Informix.art_bse a
-                    WHERE abse_constp = 'ZDI'";
+                    WHERE abse_constp = 'ZDI'
+                    AND abse_numf <> '99'
+                    ";
         $result = $this->connect->executeQuery($statement);
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
 
@@ -164,6 +167,7 @@ class DaModel extends Model
             INNER JOIN art_bse ON abse_refp = afrn_refp AND afrn_constp = abse_constp
             INNER JOIN frn_bse ON fbse_numfou = afrn_numf
             WHERE abse_constp = 'ZST'
+            AND fbse_numfou <> '99'
             ORDER BY nomfournisseur
             ";
         $result = $this->connect->executeQuery($statement);
@@ -266,7 +270,7 @@ class DaModel extends Model
                         and slor_numor = '$numOr'
                         and TRIM(REPLACE(REPLACE(slor_refp, '\t', ''), CHR(9), '')) LIKE '%$ref%'
                                     and TRIM(REPLACE(REPLACE(slor_desi, '\t', ''), CHR(9), '')) like '%$designation%'
-                                    and seor.seor_refdem = '$numDit'
+                                    --and seor.seor_refdem = '$numDit'
             ";
 
         if ($statutBc && in_array($statutBc, $statutCde)) {
@@ -316,19 +320,19 @@ class DaModel extends Model
         return $data;
     }
 
-    public function getAllConstructeur(string $numDit)
-    {
-        $statement = "SELECT DISTINCT slor_constp as constructeur
-            FROM sav_lor
-            INNER JOIN sav_eor on seor_numor = slor_numor and slor_soc = seor_soc and slor_succ = seor_succ and slor_soc = 'HF'
-            where seor_refdem = '$numDit'
-        ";
+    // public function getAllConstructeur(string $numDit)
+    // {
+    //     $statement = "SELECT DISTINCT slor_constp as constructeur
+    //         FROM sav_lor
+    //         INNER JOIN sav_eor on seor_numor = slor_numor and slor_soc = seor_soc and slor_succ = seor_succ and slor_soc = 'HF'
+    //         where seor_refdem = '$numDit'
+    //     ";
 
-        $result = $this->connect->executeQuery($statement);
-        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+    //     $result = $this->connect->executeQuery($statement);
+    //     $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
 
-        return array_column($data, 'constructeur');
-    }
+    //     return array_column($data, 'constructeur');
+    // }
 
     public function getEvolutionQteDaAvecDit(?string $numDit, string $ref = '', string $designation = '', ?string $numOr, $statutBc, string $numDa)
     {
@@ -404,7 +408,7 @@ class DaModel extends Model
                                 AND slor.slor_typlig = 'P'
                                 --AND slor.slor_refp NOT LIKE 'PREST%'
                                 and slor_numor = '$numOr'
-                                and seor.seor_refdem = '$numDit'
+                                --and seor.seor_refdem = '$numDit'
                                 AND TRIM(REPLACE(REPLACE(slor_refp, '\t', ''), CHR(9), '')) = '$ref'
                         and TRIM(REPLACE(REPLACE(slor_desi, '\t', ''), CHR(9), '')) = '$designation'
                 ";
@@ -517,5 +521,18 @@ class DaModel extends Model
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
 
         return $data;
+    }
+
+    public function getMontantBcDaDirect(string $numCde)
+    {
+        $statement = " SELECT fcde_mtn as montant_total 
+                        from informix.frn_cde 
+                        where fcde_numcde ='$numCde'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return $data[0]['montant_total'] ?? 0;
     }
 }

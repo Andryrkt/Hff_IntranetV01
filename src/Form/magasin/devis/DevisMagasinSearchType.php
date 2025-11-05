@@ -7,6 +7,7 @@ use App\Form\common\AgenceServiceType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\AbstractType;
 use App\Entity\magasin\devis\DevisMagasin;
+use App\Factory\magasin\devis\ListeDevisSearchDto;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -92,6 +93,7 @@ class DevisMagasinSearchType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
+            'data_class' => ListeDevisSearchDto::class,
             'em' => null,
         ]);
     }

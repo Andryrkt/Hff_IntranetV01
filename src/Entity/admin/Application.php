@@ -54,6 +54,8 @@ class Application
     public const ID_BDL = 17;
     /** Identifiant de l'application DVM (Devis magasin) */
     public const ID_DVM = 18;
+    /** Identifiant de l'application BCS (Bon de caisse) */
+    public const ID_BCS = 19;
 
     use DateTrait;
 

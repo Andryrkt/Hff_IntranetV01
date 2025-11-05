@@ -1,141 +1,38 @@
-{% set da_name = demandeAppro.achatDirect ? "achat": "approvisionnement" %}
-
 <!DOCTYPE html>
 <html>
 	<head>
 		<meta charset="UTF-8">
 		<title>{{ subject }}</title>
-		<style>
-			body {
-				font-family: Arial, sans-serif;
-				background-color: #f4f4f4;
-				margin: 0;
-				padding: 20px;
-			}
-			.email-container {
-				background-color: #ffffff;
-				padding: 20px;
-				border-radius: 5px;
-				box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-			}
-			.email-header {
-				font-size: 24px;
-				margin-bottom: 20px;
-			}
-			.email-body {
-				font-size: 16px;
-				line-height: 1.5;
-			}
-			.email-footer {
-				margin-top: 20px;
-				text-align: center;
-				font-size: 12px;
-				color: #888888;
-			}
-			.email-footer img {
-				width: 150px;
-			}
-			.button {
-				display: inline-block;
-				padding: 10px 20px;
-				color: #ffffff;
-				background-color: #fbbb01;
-				text-decoration: none;
-				border-radius: 5px;
-			}
-			.validationAteDa {
-				background-color: #198754;
-			}
-			.refuse {
-				background-color: #dc3545;
-			}
-			.validationDa {
-				background-color: #d4edda;
-				color: #155724;
-			}
-			.modificationDa {
-				background-color: #0dcaf0;
-			} /* pas encore de template pour le body */
-			.newDa {
-				background-color: #ffc107;
-			}
-			.propositionDa {
-				background-color: #ffe8b3;
-				color: #663c00;
-			}
-			.suspendu {
-				background-color: #6c757d;
-			}
-			.demandeDeverouillage {
-				background-color: #b3d7ff;
-				color: #004085;
-			}
-			.confirmationDeverrouillage {
-				background-color: #d1ecf1; /* Bleu clair neutre */
-				color: #0c5460;
-			}
-			.validationAteDa,
-			.refuse,
-			.modificationDa,
-			.newDa,
-			.suspendu {
-				color: #fff
-			}
-			.fw-bold {
-				font-weight: bold;
-			}
-			.espace {
-				margin-left: 5rem;
-			}
-			table {
-				border-collapse: collapse;
-				width: 100%;
-				border: 1px solid #ccc;
-				font-size: 11px;
-				font-family: Arial, sans-serif;
-			}
-			.choisi td {
-				background-color: #fbbb01 !important;
-			}
-			.parent-row {
-				font-weight: bold;
-			}
-			.child-row {
-				font-size: 8.96px;
-			}
-			.child-row td {
-				background-color: #f9f9f9;
-			}
-			.child-row td:first-child {
-				border-left: 3px solid #0d6efd;
-			}
-			th,
-			td {
-				border: 1px solid #ccc;
-				padding: 3px;
-			}
-		</style>
+		<style>{{include('da/email/shared/css/style.css')}}</style>
 	</head>
 	<body>
 		<div class="email-container">
-			{{ include('da/email/shared/_header.html.twig') }}
+			<div class="email-header">{{ header|raw }}</div>
 			<div class="email-body">
 				<p>Bonjour,</p>
-				{{ include('da/email/shared/_body.' ~ statut ~ '.html.twig') }}
+				{{ include('da/email/shared/_body.' ~ templateName ~ '.html.twig') }}
 				<p>
 					Pour consulter les détails de la demande, veuillez cliquer sur le bouton ci-dessous:
 					<br>
-					<a href="{{ action_url }}" class="button">Détail de la demande</a>
+					<a href="{{ urlDetail }}" class="button">Détail de la demande</a>
 				</p>
 				<p>
 					<span class="fw-bold">NB:</span>
 					Assurez-vous d’être connecté à
-					<a href="http://192.168.0.28/{{ App.base_path }}/">Hffintranet</a>
+					<a href="{{ urlIntranet }}">Hffintranet</a>
 					avant de cliquer sur le bouton.
 				</p>
 				<p class="fw-bold">Cordialement,</p>
 			</div>
-			{{ include('da/email/shared/_footer.html.twig') }}
+			<div class="email-footer">
+				Service
+				{{ service }}
+				- Henri Fraise Fis & Cie
+				<br>
+				&copy;
+				{{ dateYear }}
+				Henri Fraise Fis & cie.
+			</div>
 		</div>
 	</body>
 </html>

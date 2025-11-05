@@ -7,7 +7,7 @@ namespace App\Form\magasin;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
-use App\Service\TableauEnStringService;
+use App\Service\GlobalVariablesService;
 use Symfony\Component\Form\AbstractType;
 use App\Entity\admin\dit\WorNiveauUrgence;
 use App\Model\magasin\MagasinListeOrLivrerModel;
@@ -42,9 +42,9 @@ class MagasinListeOrALivrerSearchType extends AbstractType
         $this->magasinModel = new MagasinListeOrLivrerModel();
     }
 
-    private function recupConstructeur()
+    private function recupConstructeur(bool $estPneumatique = false): array
     {
-        return  $this->magasinModel->recuperationConstructeur();
+        return $estPneumatique ? $this->createAssociativeArray(GlobalVariablesService::get('pneumatique')) : $this->magasinModel->recuperationConstructeur();
     }
 
     private function agence()
@@ -92,7 +92,7 @@ class MagasinListeOrALivrerSearchType extends AbstractType
             ->add('constructeur', ChoiceType::class, [
                 'label' =>  'Constructeur',
                 'required' => false,
-                'choices' => $this->recupConstructeur(),
+                'choices' => $this->recupConstructeur($options['est_pneumatique'] ?? false),
                 'placeholder' => ' -- Choisir un constructeur --'
             ])
             ->add('dateDebut', DateType::class, [
@@ -162,8 +162,6 @@ class MagasinListeOrALivrerSearchType extends AbstractType
                     foreach ($services as $value) {
                         $service[$value['text']] = $value['text'];
                     }
-                } else {
-                    $service = [];
                 }
 
 
@@ -198,8 +196,20 @@ class MagasinListeOrALivrerSearchType extends AbstractType
             });
     }
 
+    private function createAssociativeArray($inputString)
+    {
+        // Nettoyer la chaîne et créer un tableau
+        $array = explode(',', str_replace("'", "", $inputString));
+
+        // Créer le tableau associatif
+        $result = array_combine($array, $array);
+
+        return $result;
+    }
+
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([]);
+        $resolver->setDefined('est_pneumatique');
     }
 }

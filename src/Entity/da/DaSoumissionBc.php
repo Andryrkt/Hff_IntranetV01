@@ -26,6 +26,7 @@ class DaSoumissionBc
     public const STATUT_REFUSE                   = 'Refusé';
     public const STATUT_BC_ENVOYE_AU_FOURNISSEUR = 'BC envoyé au fournisseur';
     public const STATUT_PAS_DANS_OR              = 'PAS DANS OR';
+    public const STATUT_NON_DISPO                = 'Non Dispo Fournisseur';
 
     public const STATUT_TOUS_LIVRES              = 'Tous livrés';
     public const STATUT_PARTIELLEMENT_LIVRE      = 'Partiellement livré';
@@ -84,6 +85,13 @@ class DaSoumissionBc
      * @ORM\Column(type="integer", name="numero_version")
      */
     private $numeroVersion;
+
+    /**
+     * @ORM\Column(type="decimal", precision=15, scale=2, name="montant_bc", nullable=true)
+     *
+     * @var float|null
+     */
+    private ?float $montantBc;
 
     /**===========================================================================
      * GETTER & SETTER
@@ -266,6 +274,30 @@ class DaSoumissionBc
     public function setPieceJoint2($pieceJoint2)
     {
         $this->pieceJoint2 = $pieceJoint2;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of montantBc
+     *
+     * @return  float|null
+     */
+    public function getMontantBc()
+    {
+        return $this->montantBc;
+    }
+
+    /**
+     * Set the value of montantBc
+     *
+     * @param  float|null  $montantBc
+     *
+     * @return  self
+     */
+    public function setMontantBc($montantBc)
+    {
+        $this->montantBc = $montantBc;
 
         return $this;
     }

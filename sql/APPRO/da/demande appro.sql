@@ -50,5 +50,13 @@ ALTER TABLE Demande_Appro
 ADD CONSTRAINT FK_Validateur_id
 FOREIGN KEY (validateur_id) REFERENCES users (id);
 
-
 alter TABLE Demande_Appro ADD niveau_urgence VARCHAR(50);
+
+ALTER TABLE Demande_Appro
+ADD Devis_demander bit null;
+
+ALTER TABLE Demande_Appro
+ADD Date_demande_devis DATETIME2(0) null;
+
+ALTER TABLE Demande_Appro
+ADD Devis_demander_par varchar(100) null;

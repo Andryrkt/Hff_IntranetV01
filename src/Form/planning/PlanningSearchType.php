@@ -12,7 +12,6 @@ use App\Entity\planning\PlanningSearch;
 use Symfony\Component\Form\AbstractType;
 use App\Controller\Traits\Transformation;
 use App\Entity\admin\dit\WorTypeDocument;
-use setasign\Fpdi\PdfParser\Filter\Flate;
 use App\Entity\admin\dit\WorNiveauUrgence;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -31,34 +30,36 @@ class PlanningSearchType extends AbstractType
 
 
     const INTERNE_EXTERNE = [
-        'TOUS' => 'TOUS',
-        'INTERNE' => 'INTERNE',
-        'EXTERNE' => 'EXTERNE'
+        'TOUS'          => 'TOUS',
+        'INTERNE'       => 'INTERNE',
+        'EXTERNE'       => 'EXTERNE'
     ];
     const FACTURE = [
-        'TOUS' => 'TOUS',
+        'TOUS'          => 'TOUS',
         ' DEJA FACTURE' => 'FACTURE',
-        'ENCOURS' => 'ENCOURS'
+        'ENCOURS'       => 'ENCOURS'
     ];
     const PLANIFIER = [
         // 'TOUS' => 'TOUS',
-        'PLANIFIE' => 'PLANIFIE',
+        'PLANIFIE'     => 'PLANIFIE',
         'NON PLANIFIE' => 'NON_PLANIFIE',
     ];
     const TYPELIGNE = [
-        'TOUTES' => 'TOUTES',
+        'TOUTES'         => 'TOUTES',
         'PIECES MAGASIN' => 'PIECES_MAGASIN',
-        'ACHATS LOCAUX' => 'ACHAT_LOCAUX',
-        'LUBRIFIANTS' => 'LUBRIFIANTS'
+        'ACHATS LOCAUX'  => 'ACHAT_LOCAUX',
+        'LUBRIFIANTS'    => 'LUBRIFIANTS',
+        'PNEUMATIQUES'   => 'PNEUMATIQUES',
     ];
     const REPARATION_REALISE = [
-        'ATE TANA' => 'ATE TANA',
-        'ATE STAR' => 'ATE STAR',
-        'ATE MAS' => 'ATE MAS',
-        'ATE TMV' => 'ATE TMV',
-        'ATE FTU' => 'ATE FTU',
-        'ATE ABV' => 'ATE ABV',
-        'ATE LEV' => 'ATE LEV',
+        'ATE TANA'     => 'ATE TANA',
+        'ATE POL TANA' => 'ATE POL TANA',
+        'ATE STAR'     => 'ATE STAR',
+        'ATE MAS'      => 'ATE MAS',
+        'ATE TMV'      => 'ATE TMV',
+        'ATE FTU'      => 'ATE FTU',
+        'ATE ABV'      => 'ATE ABV',
+        'ATE LEV'      => 'ATE LEV',
     ];
 
     public function __construct()
@@ -124,58 +125,61 @@ class PlanningSearchType extends AbstractType
                 'placeholder' => False
             ])
 
-                ->add('facture', ChoiceType::class,[
-                    'label' => 'Facturation',
-                    'required' => true,
-                    'choices' => self::FACTURE,
-                    'attr' => ['class'=> 'facture'],
-                    'data' => 'ENCOURS'
-                ])
-                ->add('plan',ChoiceType::class,[
-                    'label' => 'Planification',
-                    'required' => true,
-                    'choices' => self::PLANIFIER,
-                    'attr' => ['class'=> 'plan'],
-                    'data' => 'PLANIFIE'
-                                ])
-                ->add('dateDebut', DateType::class, [
-                    'widget' => 'single_text',
-                    'label' => $options['planningDetaille'] ? 'Date Début Planning' : 'Date Début',
-                    'required' => false,
-                ])
-                ->add('dateFin', DateType::class, [
-                    'widget' => 'single_text',
-                    'label' => $options['planningDetaille'] ? 'Date Fin Planning' : 'Date Fin',
-                    'required' => false,
-                ])
-                ->add('numOr', TextType::class, [
-                    'label' => "N° OR",
-                    'required' => false
-                ])
-                ->add('numSerie', TextType::class, [
-                    'label' => "N° Série",
-                    'required' => false
-                ])
-                ->add('idMat', TextType::class, [
-                    'label' => "Id Matériel",
-                    'required' => false
-                ])
-                ->add('numParc', TextType::class, [
-                    'label' => "N° Parc",
-                    'required' => false
-                ])
-                ->add('casier', TextType::class, [
-                    'label' => "Casier",
-                    'required' => false
-                ])
-                ->add('agenceDebite', ChoiceType::class,[
-                    'label' =>'Agence Débiteur',
-                    'required' =>false,
-                    'choices' => $agenceDebite ,
-                    'placeholder' => " -- Choisir une agence --",
-                    
-                ])
-                ->add('section',ChoiceType::class,[
+            ->add('facture', ChoiceType::class, [
+                'label' => 'Facturation',
+                'required' => true,
+                'choices' => self::FACTURE,
+                'attr' => ['class' => 'facture'],
+                'data' => 'ENCOURS'
+            ])
+            ->add('plan', ChoiceType::class, [
+                'label' => 'Planification',
+                'required' => true,
+                'choices' => self::PLANIFIER,
+                'attr' => ['class' => 'plan'],
+                'data' => 'PLANIFIE'
+            ])
+            ->add('dateDebut', DateType::class, [
+                'widget' => 'single_text',
+                'label' => $options['planningDetaille'] ? 'Date Début Planning' : 'Date Début',
+                'required' => false,
+            ])
+            ->add('dateFin', DateType::class, [
+                'widget' => 'single_text',
+                'label' => $options['planningDetaille'] ? 'Date Fin Planning' : 'Date Fin',
+                'required' => false,
+            ])
+            ->add('numOr', TextType::class, [
+                'label' => "N° OR",
+                'required' => false
+            ])
+            ->add('numSerie', TextType::class, [
+                'label' => "N° Série",
+                'required' => false
+            ])
+            ->add('idMat', TextType::class, [
+                'label' => "Id Matériel",
+                'required' => false
+            ])
+            ->add('numParc', TextType::class, [
+                'label' => "N° Parc",
+                'required' => false
+            ])
+            ->add('casier', TextType::class, [
+                'label' => "Casier",
+                'required' => false
+            ])
+            ->add('agenceDebite', ChoiceType::class, [
+                'label' => 'Agence Débiteur',
+                'required' => false,
+                'choices' => $agenceDebite,
+                'placeholder' => " -- Choisir une agence --",
+
+            ])
+            ->add(
+                'section',
+                ChoiceType::class,
+                [
                     'label' => 'Section',
                     'required' => false,
                     'choices' => $section,

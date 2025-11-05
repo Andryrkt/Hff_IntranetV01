@@ -78,6 +78,11 @@ async function handleValueOfTheFields(item, designation, fields) {
   referencePiece.value = item.referencepiece;
   numeroFournisseur.value = item.numerofournisseur;
   nomFournisseur.value = item.fournisseur;
+  famille.classList.add("non-modifiable");
+  sousFamille.classList.add("non-modifiable");
+  designation.classList.remove("champ-surligne-jaune");
+  designation.classList.add("non-modifiable");
+  nomFournisseur.classList.add("non-modifiable");
 }
 
 async function changeSousFamille(famille, sousFamille) {
