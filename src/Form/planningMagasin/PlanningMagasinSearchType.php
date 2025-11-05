@@ -159,7 +159,7 @@ class PlanningMagasinSearchType extends AbstractType
                 //     'required' => false
                 // ])
                 ->add('numParc', TextType::class, [
-                    'label' => "Code Client ",
+                    'label' => "Client ",
                     'required' => false
                 ])
                 // ->add('casier', TextType::class, [
@@ -231,7 +231,7 @@ class PlanningMagasinSearchType extends AbstractType
                 $serviceDebite = $this->transformEnSeulTableauAvecKeyService($this->planningMagasinModel->recuperationServiceDebite($data['agenceDebite']));
 
                 $form->add('serviceDebite', ChoiceType::class, [
-                    'label' => 'Service Débiteur : ',
+                    'label' => 'Service: ',
                     'multiple' => true,
                     'choices' => $serviceDebite,
                     'placeholder' => " -- choisir service--",

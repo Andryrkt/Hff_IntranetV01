@@ -187,7 +187,9 @@ class PlanningMagasinModel extends Model
     public function backOrderplanningMagasin(PlanningMagasinSearch $criteria,$tousLesBCSoumis)
     {
         if ($criteria->getOrNonValiderDw() == true) {
-           $bcValide = "AND nlig_numcde in (" . $tousLesBCSoumis . ")";
+           $numCmd = "AND nlig_numcde in (" . $tousLesBCSoumis . ")";
+        }else{
+            $numCmd = $this->numcommande($criteria);
         }
         $statement = "SELECT distinct 
                     nlig_numcde AS intervention
@@ -204,7 +206,7 @@ class PlanningMagasinModel extends Model
                                                 AND sub.numero_po = cat.numero_po
                                                 AND sub.line_number = cat.line_number
                                           )
-                 $bcValide 
+                 $numCmd 
       ";
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);

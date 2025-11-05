@@ -187,7 +187,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
             Ornum.innerHTML = `${detail.numor} | intitulé : ${detail.commentaire} | `;
             if (detail.plan == "PLANIFIE") {
-              Ornum.innerHTML += `planifié le : ${formaterDate(
+              Ornum.innerHTML += `délai client  : ${formaterDate(
                 detail.dateplanning
               )}`;
             } else {
