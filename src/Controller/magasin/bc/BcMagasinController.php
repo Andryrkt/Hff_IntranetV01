@@ -116,26 +116,28 @@ class BcMagasinController extends Controller
     private function traitementDesFichiers(FormInterface $form, string $numeroDevis, BcMagasinDto $dto, float $montantDevis, int $numeroVersion): void
     {
         /** 
-         * gestion des pieces jointes et generer le nom du fichier PDF
+         * 1. gestion des pieces jointes et generer le nom du fichier PDF
          * Enregistrement de fichier uploder
-         * @var array $nomEtCheminFichiersEnregistrer 
+         * @var array $nomEtCheminFichiersEnregistrer
+         * @var array $nomFichierEnregistrer 
          * @var string $nomAvecCheminFichier
          * @var string $nomFichier
          */
-        [$nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, $nomFichier] = $this->enregistrementFichier($form, $numeroDevis, $numeroVersion);
+        [$nomEtCheminFichiersEnregistrer, $nomFichierEnregistrer, $nomAvecCheminFichier, $nomFichier] = $this->enregistrementFichier($form, $numeroDevis, $numeroVersion);
 
-        // creation de page de garde
+        // 2. creation de page de garde
         $generatePdf = new GeneratePdfBcMagasin();
         $generatePdf->generer($this->getUser(), $dto, $nomAvecCheminFichier, (float) $montantDevis);
 
-        // ajout du page de garde à la dernière position
+        // 3. ajout du page de garde à la dernière position
         $traitementDeFichier = new TraitementDeFichier();
         $nomEtCheminFichiersEnregistrer = $traitementDeFichier->insertFileAtPosition($nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, count($nomEtCheminFichiersEnregistrer));
-        // fusion du page de garde et des pieces jointes (conversion avant la fusion)
+
+        // 4. fusion du page de garde et des pieces jointes (conversion avant la fusion)
         $nomEtCheminFichierConvertie = $this->ConvertirLesPdf($nomEtCheminFichiersEnregistrer);
         $traitementDeFichier->fusionFichers($nomEtCheminFichierConvertie, $nomAvecCheminFichier);
 
-        // copie du pdf fusioné dans DW
+        // 5. copie du pdf fusioné dans DW
         $generatePdf->copyToDWBcMagasin($nomFichier, $numeroDevis);
     }
 
@@ -160,7 +162,12 @@ class BcMagasinController extends Controller
             mkdir($devisPath, 0777, true);
         }
 
-        $nomEtCheminFichiersEnregistrer = $uploader->getNomsEtCheminFichiers($form, [
+        /**
+         * recupère les noms + chemins dans un tableau et les noms dans une autre
+         * @var array $nomEtCheminFichiersEnregistrer
+         * @var array $nomFichierEnregistrer
+         */
+        [$nomEtCheminFichiersEnregistrer, $nomFichierEnregistrer] = $uploader->getFichiers($form, [
             'repertoire' => $devisPath,
             'generer_nom_callback' => function (
                 UploadedFile $file,
@@ -170,9 +177,10 @@ class BcMagasinController extends Controller
             }
         ]);
 
-        $nomAvecCheminFichier = $nameGenerator->getCheminEtNomDeFichierSansIndex($nomEtCheminFichiersEnregistrer[0]);
-        $nomFichier = $nameGenerator->getNomFichier($nomAvecCheminFichier);
 
-        return [$nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, $nomFichier];
+        $nomFichier = $nameGenerator->generatePageGardeBonCommandeName($numDevis, $numeroVersion);
+        $nomAvecCheminFichier = $devisPath . $nomFichier;
+
+        return [$nomEtCheminFichiersEnregistrer, $nomFichierEnregistrer, $nomAvecCheminFichier, $nomFichier];
     }
 }
