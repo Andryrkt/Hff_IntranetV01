@@ -71,7 +71,7 @@ class BcMagasinType extends AbstractType
                 FileType::class,
                 [
                     'label' => 'Pièces Jointes',
-                    'required' => false,
+                    'required' => true,
                     'multiple' => true,
                     'data_class' => null,
                     'mapped' => true, // Indique que ce champ ne doit pas être lié à l'entité
