@@ -94,7 +94,7 @@ class BcMagasinValidationService extends ValidationServiceBase
         string $numeroDevis
     ) {
         $statut = $devisMagasinRepository->getStatutDwEtStatutBc($numeroDevis);
-        if ($statut && $statut['statut_dw'] != DevisMagasin::STATUT_ENVOYER_CLIENT && $statut['statut_bc'] != BcMagasin::STATUT_EN_ATTENTE_BC) {
+        if ($statut && $statut['statutDw'] != DevisMagasin::STATUT_ENVOYER_CLIENT && $statut['statutBc'] != BcMagasin::STATUT_EN_ATTENTE_BC) {
             $this->sendNotification(
                 self::ERROR_MESSAGES['statut_devix_et_bc_coherents'],
                 $numeroDevis,
