@@ -3,7 +3,8 @@
 namespace App\Traits;
 
 use App\Entity\da\DemandeAppro;
-
+use App\Entity\da\DemandeApproL;
+use App\Entity\da\DemandeApproLR;
 
 trait DaMailColumnsTrait
 {
@@ -23,7 +24,10 @@ trait DaMailColumnsTrait
             'pu'     => 'getPUFormatted',
             'mtt'    => 'getMontantFormatted',
             'frn'    => 'getNomFournisseur',
-            'com'    => 'getCommentaire',
+            'com'    => [
+                DemandeApproL::class  => 'getCommentaire',
+                DemandeApproLR::class => 'getMotif'
+            ],
         ];
     }
 
