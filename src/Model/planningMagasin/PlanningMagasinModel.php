@@ -2,6 +2,7 @@
 
 namespace App\Model\planningMagasin;
 
+use App\Entity\planningMagasin\PlanningMagasinSearch;
 use App\Model\Model;
 use App\Service\TableauEnStringService;
 
@@ -85,11 +86,16 @@ class PlanningMagasinModel extends Model
     }
 
 
-    public function recuperationCommadeplanifier($criteria, string $back, string $condition)
+    public function recuperationCommadeplanifier($criteria, string $back, string $condition,$tousLesBCSoumis)
     {
         if ($criteria->getOrBackOrder() == true) {
             $numCmd = "AND nent_numcde in (" . $back . ")";
         } else {
+            $numCmd = $this->numcommande($criteria);
+        }
+        if ($criteria->getOrNonValiderDw() == true) {
+           $numCmd = "AND nent_numcde in (" . $tousLesBCSoumis . ")";
+        }else {
             $numCmd = $this->numcommande($criteria);
         }
         // dump($condition);
@@ -178,8 +184,11 @@ class PlanningMagasinModel extends Model
         return $resultat;
     }
 
-    public function backOrderplanningMagasin()
+    public function backOrderplanningMagasin(PlanningMagasinSearch $criteria,$tousLesBCSoumis)
     {
+        if ($criteria->getOrNonValiderDw() == true) {
+           $bcValide = "AND nlig_numcde in (" . $tousLesBCSoumis . ")";
+        }
         $statement = "SELECT distinct 
                     nlig_numcde AS intervention
                   FROM neg_lig AS lig
@@ -195,7 +204,7 @@ class PlanningMagasinModel extends Model
                                                 AND sub.numero_po = cat.numero_po
                                                 AND sub.line_number = cat.line_number
                                           )
-                  
+                 $bcValide 
       ";
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);

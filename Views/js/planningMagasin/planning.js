@@ -1,6 +1,6 @@
 import { FetchManager } from "../api/FetchManager.js";
 import { AutoComplete } from "../utils/AutoComplete.js";
-import { displayOverlay } from "../utils/spinnerUtils.js";
+import { displayOverlay } from "../utils/ui/overlay";
 
 document.addEventListener("DOMContentLoaded", function () {
   const fetchManager = new FetchManager();

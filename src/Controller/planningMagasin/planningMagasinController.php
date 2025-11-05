@@ -4,14 +4,16 @@ namespace App\Controller\planningMagasin;
 
 use App\Controller\Controller;
 use App\Entity\admin\Application;
-use App\Entity\planningMagasin\PlanningMagasinSearch;
-use App\Model\planningMagasin\PlanningMagasinModel;
-use Symfony\Component\HttpFoundation\Request;
-use App\Controller\Traits\AutorisationTrait;
-use App\Form\planningMagasin\PlanningMagasinSearchType;
-use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\Traits\PlanningTraits;
+use App\Entity\magasin\bc\BcMagasin;
 use App\Service\TableauEnStringService;
+use App\Controller\Traits\PlanningTraits;
+use App\Controller\Traits\AutorisationTrait;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
+use App\Repository\magasin\bc\BcMagasinRepository;
+use App\Model\planningMagasin\PlanningMagasinModel;
+use App\Entity\planningMagasin\PlanningMagasinSearch;
+use App\Form\planningMagasin\PlanningMagasinSearchType;
 
 /**
  * @Route("/magasin")
@@ -25,12 +27,14 @@ class planningMagasinController extends Controller
 
     private PlanningMagasinModel $planningMagasinModel;
     private PlanningMagasinSearch $planningMagasinSearch;
+    private BcMagasinRepository $BcMagasinRepository;
 
     public function __construct()
     {
         parent::__construct();
         $this->planningMagasinModel = new PlanningMagasinModel();
         $this->planningMagasinSearch = new PlanningMagasinSearch();
+        $this->BcMagasinRepository = $this->getEntityManager()->getRepository(BcMagasin::class);
     }
     /**
      * @Route("/Planning", name = "interface_planningMag")
@@ -63,23 +67,25 @@ class planningMagasinController extends Controller
         //initialisation criteria
         $criteria = $this->planningMagasinSearch;
         if ($form->isSubmitted() && $form->isValid()) {
-            // dd($form->getdata());
+            dd($form->getdata());
             $criteria =  $form->getdata();
         }
+        //ce qui est valider DW
+        $tousLesBCSoumis = $this->allBCs();
         //recupère le condition clicsur la légende
         $condition = $request->query->get('condition', "1");
         // dd($condition);
-                $back = $this->planningMagasinModel->backOrderplanningMagasin();
-                
-            if (is_array($back)) {
-                $backString = TableauEnStringService::orEnString($back);
-            } else {
-                $backString = '';
-            }
-            
+        $back = $this->planningMagasinModel->backOrderplanningMagasin($criteria,$tousLesBCSoumis);
 
-            $data = $this->planningMagasinModel->recuperationCommadeplanifier($criteria, $backString,$condition);
-            // dump($data);
+        if (is_array($back)) {
+            $backString = TableauEnStringService::orEnString($back);
+        } else {
+            $backString = '';
+        }
+
+
+        $data = $this->planningMagasinModel->recuperationCommadeplanifier($criteria, $backString, $condition,$tousLesBCSoumis);
+        // dump($data);
 
         $tabObjetPlanning = $this->creationTableauObjetPlanningMagasin($data, $back);
         // dd($tabObjetPlanning);
@@ -94,5 +100,11 @@ class planningMagasinController extends Controller
             'uniqueMonths' => $forDisplay['uniqueMonths'],
             'preparedData' => $forDisplay['preparedData'],
         ]);
+    }
+    private function allBCs()
+    {
+        /** @var array */
+        $numBc = $this->BcMagasinRepository->findnumBCAll();
+        return TableauEnStringService::TableauEnString(',', $numBc);
     }
 }

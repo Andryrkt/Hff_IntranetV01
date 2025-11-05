@@ -32,4 +32,16 @@ class BcMagasinRepository extends EntityRepository implements StatusRepositoryIn
 
         return $result['status'] ?? null;
     }
+    /**
+     * recupère tous les numéros BC Distincts
+     */
+    public function findnumBCAll()
+    {
+        $query = $this->createQueryBuilder('b')
+            ->select("DISTINCT b.numeroBc")
+            ->getQuery()
+            ->getSingleColumnResult();
+
+        return $query;
+    }
 }
