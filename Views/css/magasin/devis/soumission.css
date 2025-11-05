@@ -186,7 +186,7 @@
 /* Style pour les checkbox containers */
 .checkbox-container {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   gap: 8px;
   padding: 0px 0;

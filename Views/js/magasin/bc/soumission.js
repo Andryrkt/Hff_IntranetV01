@@ -106,7 +106,7 @@ function getLignesSelectionnees() {
           if (event.target.value) {
             qtyStatus.textContent = `Qté: ${event.target.value}`;
           } else {
-            qtyStatus.textContent = "Modifiée";
+            qtyStatus.textContent = "Qté:";
           }
         });
       });
@@ -182,7 +182,7 @@ function updateRowUI(numeroLigne) {
     if (nouvelleQteInput.value) {
       qtyStatus.textContent = `Qté: ${nouvelleQteInput.value}`;
     } else {
-      qtyStatus.textContent = "Modifiée";
+      qtyStatus.textContent = "Qté:";
     }
   } else if (deleteCheckbox.checked) {
     row.classList.add("delete-checked");
