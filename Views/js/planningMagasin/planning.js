@@ -1,18 +1,24 @@
 import { FetchManager } from "../api/FetchManager.js";
 import { AutoComplete } from "../utils/AutoComplete.js";
-import { filterRowsByColumn } from "../utils/filtre.js";
+import { displayOverlay } from "../utils/spinnerUtils.js";
 
 document.addEventListener("DOMContentLoaded", function () {
   const fetchManager = new FetchManager();
-  // const buttons = {
-  //   "tout-livre": "tout-livre",
-  //   "partiellement-livre": "partiellement-livre",
-  //   "partiellement-dispo": "partiellement-dispo",
-  //   "complet-non-livre": "complet-non-livre",
-  //   "back-order": "back-order",
-  //   "tout-afficher": null, // Tout afficher n'a pas de classe spécifique
-  // };
+  const buttons = [
+    "partiellement-livre",
+    "partiellement-dispo",
+    "complet-non-livre",
+    "back-order",
+    "tout-afficher"
+  ]
+  ;
 
+  buttons.forEach((buttonId) => {
+    const button = document.getElementById(buttonId);
+    button.addEventListener("click", function () {
+      displayOverlay(true);
+    })
+  });
   // // Ajoute un gestionnaire d'événement pour chaque bouton
   // for (const [buttonId, filterClass] of Object.entries(buttons)) {
   //   const button = document.getElementById(buttonId);
@@ -44,4 +50,8 @@ document.addEventListener("DOMContentLoaded", function () {
     itemToStringCallback: (item) =>`${item.numclient}- ${item.nom_client}`,
     onSelectCallback: (item) => onSelectNumClient(item),
   });
+});
+
+window.addEventListener("load", () => {
+  displayOverlay(false);
 });
