@@ -15,7 +15,7 @@ class BcMagasinModel extends Model
             , TRIM(nlig_desi) as designation
             , round(nlig_qtecde) as qte
             , ROUND(nlig_pxnreel, 2) as prix_ht
-            , ROUND(nlig_pxnreel * (1-nlig_rem1/100), 2) as montant_net
+            , ROUND((nlig_pxvteht*nlig_qtecde) * (1-(nlig_rem1/100)), 2) as montant_net
             , ROUND(nlig_rem1, 2) as remise1
             , ROUND(nlig_rem2, 2) as remise2
             , nlig_numcde as numero_devis
