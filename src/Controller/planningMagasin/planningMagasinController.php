@@ -67,7 +67,7 @@ class planningMagasinController extends Controller
         //initialisation criteria
         $criteria = $this->planningMagasinSearch;
         if ($form->isSubmitted() && $form->isValid()) {
-            dd($form->getdata());
+            // dd($form->getdata());
             $criteria =  $form->getdata();
         }
         //ce qui est valider DW
