@@ -66,20 +66,21 @@ class planningMagasinController extends Controller
             // dd($form->getdata());
             $criteria =  $form->getdata();
         }
-        if ($request->query->get('action') !== 'oui') {
+        //recupère le condition clicsur la légende
+        $condition = $request->query->get('condition', "1");
+        // dd($condition);
                 $back = $this->planningMagasinModel->backOrderplanningMagasin();
-           
+                
             if (is_array($back)) {
                 $backString = TableauEnStringService::orEnString($back);
             } else {
                 $backString = '';
             }
-            $data = $this->planningMagasinModel->recuperationCommadeplanifier($criteria, $backString);
+            
+
+            $data = $this->planningMagasinModel->recuperationCommadeplanifier($criteria, $backString,$condition);
             // dump($data);
-        } else {
-            $data = [];
-            $back = [];
-        }
+
         $tabObjetPlanning = $this->creationTableauObjetPlanningMagasin($data, $back);
         // dd($tabObjetPlanning);
         // die();
@@ -89,6 +90,7 @@ class planningMagasinController extends Controller
         $forDisplay = $this->prepareDataForDisplay($fusionResult, $criteria->getMonths() == null ? 3 : $criteria->getMonths());
         return $this->render('planningMagasin/planning.html.twig', [
             'form' => $form->createView(),
+            'criteria'       => $criteria->toArray(),
             'uniqueMonths' => $forDisplay['uniqueMonths'],
             'preparedData' => $forDisplay['preparedData'],
         ]);

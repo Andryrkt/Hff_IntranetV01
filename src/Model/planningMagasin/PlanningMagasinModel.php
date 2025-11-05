@@ -3,6 +3,7 @@
 namespace App\Model\planningMagasin;
 
 use App\Model\Model;
+use App\Service\TableauEnStringService;
 
 class PlanningMagasinModel extends Model
 {
@@ -84,13 +85,52 @@ class PlanningMagasinModel extends Model
     }
 
 
-    public function recuperationCommadeplanifier($criteria, string $back)
+    public function recuperationCommadeplanifier($criteria, string $back, string $condition)
     {
         if ($criteria->getOrBackOrder() == true) {
             $numCmd = "AND nent_numcde in (" . $back . ")";
         } else {
             $numCmd = $this->numcommande($criteria);
         }
+        // dump($condition);
+        switch ($condition) {
+            case 'partiel_facture':
+                $partFact = $this->bcPartielFacture();
+                if (is_array($partFact)) {
+                    $factString = TableauEnStringService::orEnString($partFact);
+                } else {
+                    $factString = '';
+                }
+                $numCmd = "AND nent_numcde in (" . $factString . ")";
+                break;
+            case 'partiel_dispo':
+                $partDispo = $this->bcPartielDispo();
+                if (is_array($partDispo)) {
+                    $dispoString = TableauEnStringService::orEnString($partDispo);
+                } else {
+                    $dispoString = '';
+                }
+                $numCmd = "AND nent_numcde in (" . $dispoString . ")";
+                break;
+            case 'complet_non_facture':
+                $partcompletnonfac = $this->bcCompletNonFacturer();
+                if (is_array($partcompletnonfac)) {
+                    $partcompleString = TableauEnStringService::orEnString($partcompletnonfac);
+                } else {
+                    $partcompleString = '';
+                }
+                $numCmd = "AND nent_numcde in (" . $partcompleString . ")";
+                break;
+            case 'back_order':
+                $numCmd = "AND nent_numcde in (" . $back . ")";
+                break;
+            default:
+                $numCmd = $this->numcommande($criteria);
+                break;
+        }
+        // condition de click legende
+
+        //
         $agDebit = $this->agenceDebite($criteria);
         $servDebit = $this->serviceDebite($criteria);
         $codeClient  = $this->codeClient($criteria);
@@ -131,7 +171,7 @@ class PlanningMagasinModel extends Model
                         $codeClient
                         group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14
                         order by 12 desc, 13 desc";
-        // dump($statement);    
+        // dump($statement);
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
         $resultat = $this->convertirEnUtf8($data);
@@ -157,6 +197,122 @@ class PlanningMagasinModel extends Model
                                           )
                   
       ";
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->connect->fetchResults($result);
+        $resultat = $this->convertirEnUtf8($data);
+        return $resultat;
+    }
+    public function bcCompletNonFacturer()
+    {
+        $statement = "  SELECT    DISTINCT
+                        nent_numcde as orIntv
+                        from neg_ent, neg_lig, agr_succ, agr_tab ser, agr_usr ope, cli_bse, cli_soc
+                        where nent_soc = 'HF'
+                        and nlig_soc = nent_soc and nlig_numcde = nent_numcde
+                        and asuc_numsoc = nent_soc and asuc_num = nent_succ
+                        and csoc_soc = nent_soc and csoc_numcli = cbse_numcli and cbse_numcli = nent_numcli
+                        AND (nent_servcrt = ser.atab_code AND ser.atab_nom = 'SER')
+                        AND (nent_usr = ausr_num)
+                        AND nent_natop not in ('DEV')
+                        AND nent_posf not in ('CP')
+                        AND to_char(nent_numcli) not like '150%'
+                        group by 1
+                        HAVING
+                            CASE
+                                WHEN SUM(nlig_qteliv) > 0
+                                    AND SUM(nlig_qteliv) != SUM(nlig_qtecde)
+                                    AND SUM(nlig_qtecde) > (SUM(nlig_qteliv) + SUM(nlig_qtealiv))
+                                THEN 'PARTIELLEMENT FACTURE'
+
+                                WHEN SUM(nlig_qtecde) != SUM(nlig_qtealiv)
+                                    AND SUM(nlig_qteliv) = 0
+                                    AND SUM(nlig_qtealiv) > 0
+                                THEN 'PARTIELLEMENT DISPO'
+
+                                WHEN (SUM(nlig_qtecde) = SUM(nlig_qtealiv)
+                                    AND SUM(nlig_qteliv) < SUM(nlig_qtecde))
+                                    OR (SUM(nlig_qtealiv) > 0
+                                        AND SUM(nlig_qtecde) = (SUM(nlig_qtealiv) + SUM(nlig_qteliv)))
+                                THEN 'COMPLET NON FACTURE'
+                            END = 'COMPLET NON FACTURE' ";
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->connect->fetchResults($result);
+        $resultat = $this->convertirEnUtf8($data);
+        return $resultat;
+    }
+    public function bcPartielDispo()
+    {
+        $statement = " SELECT    DISTINCT
+                        nent_numcde as orIntv
+                        from neg_ent, neg_lig, agr_succ, agr_tab ser, agr_usr ope, cli_bse, cli_soc
+                        where nent_soc = 'HF'
+                        and nlig_soc = nent_soc and nlig_numcde = nent_numcde
+                        and asuc_numsoc = nent_soc and asuc_num = nent_succ
+                        and csoc_soc = nent_soc and csoc_numcli = cbse_numcli and cbse_numcli = nent_numcli
+                        AND (nent_servcrt = ser.atab_code AND ser.atab_nom = 'SER')
+                        AND (nent_usr = ausr_num)
+                        AND nent_natop not in ('DEV')
+                        AND nent_posf not in ('CP')
+                        AND to_char(nent_numcli) not like '150%'
+                        group by 1
+                        HAVING
+                            CASE
+                                WHEN SUM(nlig_qteliv) > 0
+                                    AND SUM(nlig_qteliv) != SUM(nlig_qtecde)
+                                    AND SUM(nlig_qtecde) > (SUM(nlig_qteliv) + SUM(nlig_qtealiv))
+                                THEN 'PARTIELLEMENT FACTURE'
+
+                                WHEN SUM(nlig_qtecde) != SUM(nlig_qtealiv)
+                                    AND SUM(nlig_qteliv) = 0
+                                    AND SUM(nlig_qtealiv) > 0
+                                THEN 'PARTIELLEMENT DISPO'
+
+                                WHEN (SUM(nlig_qtecde) = SUM(nlig_qtealiv)
+                                    AND SUM(nlig_qteliv) < SUM(nlig_qtecde))
+                                    OR (SUM(nlig_qtealiv) > 0
+                                        AND SUM(nlig_qtecde) = (SUM(nlig_qtealiv) + SUM(nlig_qteliv)))
+                                THEN 'COMPLET NON FACTURE'
+                            END = 'PARTIELLEMENT DISPO' 
+        ";
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->connect->fetchResults($result);
+        $resultat = $this->convertirEnUtf8($data);
+        return $resultat;
+    }
+    public function bcPartielFacture()
+    {
+        $statement = " SELECT    DISTINCT
+                        nent_numcde as orIntv
+                        from neg_ent, neg_lig, agr_succ, agr_tab ser, agr_usr ope, cli_bse, cli_soc
+                        where nent_soc = 'HF'
+                        and nlig_soc = nent_soc and nlig_numcde = nent_numcde
+                        and asuc_numsoc = nent_soc and asuc_num = nent_succ
+                        and csoc_soc = nent_soc and csoc_numcli = cbse_numcli and cbse_numcli = nent_numcli
+                        AND (nent_servcrt = ser.atab_code AND ser.atab_nom = 'SER')
+                        AND (nent_usr = ausr_num)
+                        AND nent_natop not in ('DEV')
+                        AND nent_posf not in ('CP')
+                        AND to_char(nent_numcli) not like '150%'
+                        group by 1
+                        HAVING
+                            CASE
+                                WHEN SUM(nlig_qteliv) > 0
+                                    AND SUM(nlig_qteliv) != SUM(nlig_qtecde)
+                                    AND SUM(nlig_qtecde) > (SUM(nlig_qteliv) + SUM(nlig_qtealiv))
+                                THEN 'PARTIELLEMENT FACTURE'
+
+                                WHEN SUM(nlig_qtecde) != SUM(nlig_qtealiv)
+                                    AND SUM(nlig_qteliv) = 0
+                                    AND SUM(nlig_qtealiv) > 0
+                                THEN 'PARTIELLEMENT DISPO'
+
+                                WHEN (SUM(nlig_qtecde) = SUM(nlig_qtealiv)
+                                    AND SUM(nlig_qteliv) < SUM(nlig_qtecde))
+                                    OR (SUM(nlig_qtealiv) > 0
+                                        AND SUM(nlig_qtecde) = (SUM(nlig_qtealiv) + SUM(nlig_qteliv)))
+                                THEN 'COMPLET NON FACTURE'
+                            END = 'PARTIELLEMENT FACTURE' 
+        ";
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
         $resultat = $this->convertirEnUtf8($data);
