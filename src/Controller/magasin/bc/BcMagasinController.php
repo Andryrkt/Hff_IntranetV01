@@ -10,12 +10,12 @@ use App\Model\magasin\bc\BcMagasinDto;
 use App\Service\autres\VersionService;
 use App\Model\magasin\bc\BcMagasinModel;
 use Symfony\Component\Form\FormInterface;
-use App\Entity\magasin\devis\DevisMagasin;
 use App\Service\fichier\UploderFileService;
 use App\Controller\Traits\AutorisationTrait;
 use App\Factory\magasin\bc\BcMagasinFactory;
 use App\Service\fichier\TraitementDeFichier;
 use App\Controller\Traits\PdfConversionTrait;
+use App\Entity\magasin\devis\DevisMagasin;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Factory\magasin\bc\BcMagasinDtoFactory;
@@ -189,7 +189,7 @@ class BcMagasinController extends Controller
 
     private function modificationStatutBCDansDevisMagasin(string $numeroDevis): void
     {
-        $devisRepository = $this->getEntityManager()->getRepository(DeivsMagasin::class);
+        $devisRepository = $this->getEntityManager()->getRepository(DevisMagasin::class);
         $numeroVersionMax = $devisRepository->getNumeroVersionMax($numeroDevis);
         $devisMagasin = $devisRepository->findOneBy(['numeroDevis' => $numeroDevis, 'numeroVersion' => $numeroVersionMax]);
 
