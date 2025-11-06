@@ -1,13 +1,16 @@
 <?php
 
 
-namespace App\Controller\magasin\ors\Traiter;
+namespace App\Controller\pol\ors\Traiter;
 
+// ini_set('max_execution_time', 10000);
+
+use App\Model\dit\DitModel;
 use App\Controller\Controller;
 use App\Entity\admin\Application;
-use App\Entity\dit\DemandeIntervention;
 use App\Service\TableauEnStringService;
 use App\Controller\Traits\Transformation;
+use Symfony\Component\Form\FormInterface;
 use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -15,10 +18,9 @@ use App\Model\magasin\MagasinListeOrATraiterModel;
 use App\Form\magasin\MagasinListeOrATraiterSearchType;
 use App\Controller\Traits\magasin\ors\MagasinOrATraiterTrait;
 use App\Controller\Traits\magasin\ors\MagasinTrait as OrsMagasinTrait;
-use App\Model\dit\DitModel;
 
 /**
- * @Route("/magasin/or")
+ * @Route("/pol/or-pol")
  */
 class OrTraiterController extends Controller
 {
@@ -28,7 +30,7 @@ class OrTraiterController extends Controller
     use AutorisationTrait;
 
     /**
-     * @Route("/liste-magasin", name="magasinListe_index")
+     * @Route("/listes-or-a-traiter", name="pol_or_liste_a_traiter")
      *
      * @return void
      */
@@ -40,7 +42,6 @@ class OrTraiterController extends Controller
         $this->autorisationAcces($this->getUser(), Application::ID_MAG);
         /** FIN AUtorisation acées */
 
-        
         $codeAgence = $this->getUser()->getAgenceAutoriserCode();
 
         /** CREATION D'AUTORISATION */
@@ -54,27 +55,38 @@ class OrTraiterController extends Controller
         }
 
         $form = $this->getFormFactory()->createBuilder(MagasinListeOrATraiterSearchType::class, ['agenceUser' => $agenceUser, 'autoriser' => $autoriser], [
-            'method' => 'GET'
+            'method' => 'GET',
+            'est_pneumatique' => true
         ])->getForm();
 
+        //traitement du formulaire et recupération des data
+        $data = $this->traitementFormualire($form, $request, $agenceUser);
+
+        $this->logUserVisit('magasinListe_index'); // historisation du page visité par l'utilisateur
+
+        return $this->render('pol/ors/listOrATraiter.html.twig', [
+            'data' => $data,
+            'form' => $form->createView(),
+            'est_pneumatique' => true
+        ]);
+    }
+
+    private function traitementFormualire(FormInterface $form, Request $request, string $agenceUser): array
+    {
         $form->handleRequest($request);
+
         $criteria = [
             "agenceUser" => $agenceUser
         ];
         if ($form->isSubmitted() && $form->isValid()) {
+
+            // recupération des données du formulaire
             $criteria = $form->getData();
         }
-
         //enregistrer les critère de recherche dans la session
-        $this->getSessionService()->set('magasin_liste_or_traiter_search_criteria', $criteria);
+        $this->getSessionService()->set('pol_liste_or_traiter_search_criteria', $criteria);
 
-        $data = $this->recupData($criteria);
-
-        $this->logUserVisit('magasinListe_index'); // historisation du page visité par l'utilisateur
-
-        return $this->render('magasin/ors/listOrATraiter.html.twig', [
-            'data' => $data,
-            'form' => $form->createView()
-        ]);
+        //recupération des données
+        return $this->recupData($criteria, new MagasinListeOrATraiterModel());
     }
 }

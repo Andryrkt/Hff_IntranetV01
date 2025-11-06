@@ -1,47 +1,50 @@
 <?php
 
 
-namespace App\Controller\magasin\ors\Traiter;
+namespace App\Controller\magasin\ors\Livrer;
 
+ini_set('max_execution_time', 10000);
+ini_set('memory_limit', '1000M');
+
+
+use App\Model\dit\DitModel;
 use App\Controller\Controller;
 use App\Entity\admin\Application;
-use App\Entity\dit\DemandeIntervention;
 use App\Service\TableauEnStringService;
 use App\Controller\Traits\Transformation;
 use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Model\magasin\MagasinListeOrATraiterModel;
-use App\Form\magasin\MagasinListeOrATraiterSearchType;
-use App\Controller\Traits\magasin\ors\MagasinOrATraiterTrait;
+use App\Form\magasin\MagasinListeOrALivrerSearchType;
+use App\Controller\Traits\magasin\ors\MagasinOrALivrerTrait;
 use App\Controller\Traits\magasin\ors\MagasinTrait as OrsMagasinTrait;
-use App\Model\dit\DitModel;
 
 /**
  * @Route("/magasin/or")
  */
-class OrTraiterController extends Controller
+class OrLivrerController extends Controller
 {
     use Transformation;
     use OrsMagasinTrait;
-    use MagasinOrATraiterTrait;
+    use MagasinOrALivrerTrait;
     use AutorisationTrait;
 
     /**
-     * @Route("/liste-magasin", name="magasinListe_index")
+     * @Route("/liste-or-livrer", name="magasinListe_or_Livrer")
      *
      * @return void
      */
-    public function index(Request $request)
+    public function listOrLivrer(Request $request)
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
+
         /** Autorisation accées */
         $this->autorisationAcces($this->getUser(), Application::ID_MAG);
         /** FIN AUtorisation acées */
 
-        
         $codeAgence = $this->getUser()->getAgenceAutoriserCode();
+        $serviceAgence = $this->getUser()->getServiceAutoriserCode();
 
         /** CREATION D'AUTORISATION */
         $autoriser = $this->autorisationRole($this->getEntityManager());
@@ -53,28 +56,31 @@ class OrTraiterController extends Controller
             $agenceUser = TableauEnStringService::TableauEnString(',', $codeAgence);
         }
 
-        $form = $this->getFormFactory()->createBuilder(MagasinListeOrATraiterSearchType::class, ['agenceUser' => $agenceUser, 'autoriser' => $autoriser], [
+        $form = $this->getFormFactory()->createBuilder(MagasinListeOrALivrerSearchType::class, ['agenceUser' => $agenceUser, 'autoriser' => $autoriser], [
             'method' => 'GET'
         ])->getForm();
 
         $form->handleRequest($request);
         $criteria = [
-            "agenceUser" => $agenceUser
+            "agenceUser" => $agenceUser,
+            "orCompletNon" => "ORs COMPLET",
+            "pieces" => "PIECES MAGASIN"
         ];
         if ($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
         }
 
         //enregistrer les critère de recherche dans la session
-        $this->getSessionService()->set('magasin_liste_or_traiter_search_criteria', $criteria);
+        $this->getSessionService()->set('magasin_liste_or_livrer_search_criteria', $criteria);
 
         $data = $this->recupData($criteria);
 
-        $this->logUserVisit('magasinListe_index'); // historisation du page visité par l'utilisateur
+        $this->logUserVisit('magasinListe_or_Livrer'); // historisation du page visité par l'utilisateur
 
-        return $this->render('magasin/ors/listOrATraiter.html.twig', [
+        return $this->render('magasin/ors/listOrLivrer.html.twig', [
             'data' => $data,
             'form' => $form->createView()
         ]);
     }
+
 }
