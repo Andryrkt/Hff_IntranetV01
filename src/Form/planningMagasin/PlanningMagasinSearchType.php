@@ -257,7 +257,7 @@ class PlanningMagasinSearchType extends AbstractType
                 'orNonValiderDw',
                 CheckboxType::class,
                 [
-                    'label' => 'OR non valider DW',
+                    'label' => 'BC non valider DW',
                     'required' => false
                 ]
             )
