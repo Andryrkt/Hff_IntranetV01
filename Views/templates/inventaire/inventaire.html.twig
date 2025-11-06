@@ -37,9 +37,9 @@
 				<th style="text-align: center;">{{ data.sum.qte_comptee }}</th>
 				<th></th>
 				<th style="text-align: right;">{{ data.sum.montant|number_format(0, '', ' ')  == 0 ? "" : data.sum.montant|number_format(0, '', ' ')}}</th>
-				<th style="text-align: center;">{{ data.sum.nbre_ref_ecarts_positif }}</th>
-				<th style="text-align: center;">{{ data.sum.nbre_ref_ecarts_negatifs }}</th>
-				<th style="text-align: center;">{{ data.sum.total_nbre_ref_ecarts }}</th>
+				<th style="text-align: center;">{{ data.sum.nbre_ref_ecarts_positif |number_format(0, '', ' ') }}</th>
+				<th style="text-align: center;">{{ data.sum.nbre_ref_ecarts_negatifs |number_format(0, '', ' ') }}</th>
+				<th style="text-align: center;">{{ data.sum.total_nbre_ref_ecarts |number_format(0, '', ' ') }}</th>
 				<th style="text-align: center;">{{ data.sum.pourcentage_ref_avec_ecart is  null  ?"": data.sum.pourcentage_ref_avec_ecart|round() ~'%'}}
 				</th>
 				<th style="text-align: right;">{{ data.sum.montant_ecart |number_format(0, '', ' ')  == 0 ? "" :  data.sum.montant_ecart |number_format(0, '', ' ')}}</th>
