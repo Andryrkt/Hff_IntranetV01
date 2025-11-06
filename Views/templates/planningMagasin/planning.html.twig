@@ -1,0 +1,109 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block title %}
+	Planning des OR
+{% endblock %}
+
+{% block stylesheets %}
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/utils/autocomplete.css?v=2025.09.15.08.00">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.09.15.08.00">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/planning/planning.css?v=2025.09.15.08.00">
+{% endblock %}
+
+{% block overlay %}
+{% include "/shared/_overlay.html.twig" %}
+{% endblock %}
+
+{% block content %}
+	<div class="sticky-header-titre">
+		<div class="container">
+			{% include "/planningMagasin/_formulaire.html.twig" %}
+			<div class="d-flex justify-content-between">
+				{% include "/partials/_statutSituationPieceMagasin.html.twig" %}
+			</div>
+		</div>
+	</div>
+	<div class="container-fluid">
+		<table class="table table-sticky">
+			<thead class="table-dark">
+				<tr>
+					<th>Agence / Service</th>
+					<th>Code Client</th>
+					<th>Nom client</th>
+					{# <th>Modèle</th>
+					<th>N° Série</th>
+					<th>N° Parc</th>
+					<th>Casier</th> #}
+					{% for month in uniqueMonths %}
+						<th>{{ month.month }}
+							{{ month.year }}</th>
+					{% endfor %}
+				</tr>
+			</thead>
+			<tbody>
+				{% for item in preparedData %}
+					<tr>
+						<td>{{ item.libsuc ~ ' - ' ~ item.libserv }}</td>
+						<td>{{ item.idmat }}</td>
+						<td>{{ item.marqueMat }}</td>
+						{# <td>{{ item.typemat }}</td>
+						<td>{{ item.numserie }}</td>
+						<td>{{ item.numparc }}</td>
+						<td>{{ item.casier }}</td> #}
+						{% for month in uniqueMonths %}
+							<td>
+								{% set matchedDetails = item.filteredMonths | filter(m => m.month == month.month and m.year == month.year) %}
+								{% if matchedDetails|length > 0 %}
+									{% for detail in matchedDetails %}
+										{% set classe = '' %}
+										{% set qteCdm = detail.details.qteCdm | default(0) * 1 %}
+										{% set qteLiv = detail.details.qteLiv | default(0) * 1 %}
+										{% set qteAll = detail.details.qteAll | default(0) * 1 %}
+										{% set back = detail.details.back | default('') %}
+
+										{% if qteCdm == qteLiv and qteCdm != '' and qteLiv != '' %}
+											{# Tout livré #}
+											{# {% set classe = 'tout-livre bg-success text-white' %} #}
+										{% elseif qteLiv > 0 and qteLiv != qteCdm and qteCdm > (qteLiv + qteAll) %}
+											{# Partiellement livré #}
+											{% set classe = 'partiellement-livre bg-warning text-white' %}
+										{% elseif qteCdm != qteAll and qteLiv == 0 and qteAll > 0 %}
+											{# Partiellement dispo #}
+											{% set classe = 'partiellement-dispo bg-info text-white' %}
+										{% elseif (qteCdm == qteAll and qteLiv < qteCdm) or (qteAll > 0 and qteCdm == (qteAll + qteLiv)) %}
+											{# complet non livré #}
+											{% set classe = 'complet-non-livre bg-primary text-white' %}
+										{% endif %}
+
+										{% if back != '' %}
+											{# Back Order #}
+											{% set classe = classe ~ ' back-order border-end border-start border-danger border-3' %}
+										{% endif %}
+
+										<a href="#" data-bs-toggle="modal" data-bs-target="#listeCommandeMagasin" data-id="{{ detail.details.orIntv }}" data-numdit="{{ detail.details.numDit }}" data-migration="{{ detail.details.migration }}" class="link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover text-wrap {{ classe }}" title="{{ detail.details.commentaire }}">
+											{{ detail.details.orIntv }}
+										</a><br>
+									{% endfor %}
+								{% else %}
+									-
+								{% endif %}
+
+							</td>
+						{% endfor %}
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+
+	<!-- FIN tableau -->
+	{# body modal #}
+	{% include "/planningMagasin/_modal.html.twig"  %}
+	{# {% include "/dit/shared/_modalNiveauUrgence.html.twig"  %} #}
+{% endblock %}
+{% block javascript %}
+	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v=2025.09.15.08.00"></script>
+	 <script src="{{ App.base_path }}/Views/js/planningMagasin/planning.js?v=2025.09.15.08.00" type="module"></script>
+	 <script src="{{ App.base_path }}/Views/js/planningMagasin/listPlanning.js?v=2025.09.15.08.00" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/planningMagasin/agServPlanning.js?v=2025.09.15.08.00" type="module"></script>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% set queryParams = criteria %}
+
+<div class="my-2 d-flex flex-row">
+	<div role="button" tabindex="0" class="fw-bold" id="tout-afficher">
+		<small>
+			<a class="text-dark text-decoration-none" href="{{ path('interface_planningMag', queryParams|merge({'condition': '1'})) }}">
+				TOUT AFFICHER |
+			</a>
+		</small>
+	</div>
+	<div role="button" tabindex="0" id="partiellement-livre">
+		<i class="fa-solid fa-circle text-warning"></i>
+		<small>
+			<a class="text-warning text-decoration-none" href="{{ path('interface_planningMag', queryParams|merge({'condition': 'partiel_facture'})) }}">
+				Partiellement facturé|
+			</a>
+		</small>
+	</div>
+	<div role="button" tabindex="0" id="partiellement-dispo">
+		<i class="fa-solid fa-circle text-info"></i>
+		<small>
+			<a class="text-info text-decoration-none" href="{{ path('interface_planningMag', queryParams|merge({'condition': 'partiel_dispo'})) }}">
+				Partiellement dispo |
+			</a>
+		</small>
+	</div>
+	<div role="button" tabindex="0" id="complet-non-livre">
+		<i class="fa-solid fa-circle text-primary"></i>
+		<small>
+			<a class="text-primary text-decoration-none" href="{{ path('interface_planningMag', queryParams|merge({'condition': 'complet_non_facture'})) }}">
+				Complet non facturé |
+			</a>
+		</small>
+	</div>
+	<div role="button" tabindex="0" id="back-order">
+		<small >
+		 <a class=" text-dark border-end border-start border-danger border-3 text-decoration-none" href="{{ path('interface_planningMag', queryParams|merge({'condition': 'back_order'})) }}">Back Order/Error</a>	
+		</small>
+	</div>
+</div>
