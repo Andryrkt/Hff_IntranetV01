@@ -27,6 +27,7 @@
 						<i class="fas fa-ellipsis-vertical"></i>
 					</th>
 					<th class="text-center">Statut devis</th>
+					<th class="text-center">Statut BC</th>
 					<th class="text-center">Numéro devis</th>
 					<th class="text-center">Date de création</th>
 					<th class="text-center">Emetteur</th>
@@ -62,6 +63,7 @@
 							</div>
 						</td>
 						<td class="text-center fw-bold {{styleStatutDw[item.statutDw] ?? 'bg-a-traiter'}}">{{item.statutDw|default('A traiter')}}</td>
+						<td class="text-center fw-bold {{ styleStatutBc[irem.statutBc] ?? ''}}">{{ item.statutBc }}</td>
 						<td class="text-center">{{item.numeroDevis}}</td>
 						<td class="text-center">{{item.dateCreation}}</td>
 						<td class="text-center">{{item.succursaleServiceEmetteur}}</td>

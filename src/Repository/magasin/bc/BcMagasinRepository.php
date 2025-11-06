@@ -30,8 +30,9 @@ class BcMagasinRepository extends EntityRepository implements StatusRepositoryIn
             ->getQuery()
             ->getOneOrNullResult();
 
-        return $result['statusBc'] ?? null;
+        return $result['statutBc'] ?? null;
     }
+
     /**
      * recupère tous les numéros BC Distincts
      */

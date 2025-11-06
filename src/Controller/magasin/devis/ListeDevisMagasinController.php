@@ -14,6 +14,7 @@ use App\Factory\magasin\devis\ListeDevisSearchDto;
 use App\Repository\magasin\devis\DevisMagasinRepository;
 use App\Repository\admin\AgenceRepository;
 use Symfony\Component\HttpFoundation\Request;
+use App\Entity\magasin\bc\BcMagasin;
 
 /**
  * @Route("/magasin/dematerialisation")
@@ -47,6 +48,12 @@ class ListeDevisMagasinController extends Controller
             DevisMagasin::STATUT_ENVOYER_CLIENT        => 'bg-envoyer-client',
             DevisMagasin::STATUT_CLOTURER_A_MODIFIER   => 'bg-cloturer-a-modifier',
         ];
+
+        $this->styleStatutBc = [
+            BcMagasin::STATUT_SOUMIS_VALIDATION => 'bg-bc-soumis-validation',
+            BcMagasin::STATUT_EN_ATTENTE_BC => 'bg-bc-en-attente',
+            BcMagasin::STATUT_VALIDER => 'bg-bc-valide'
+        ];
     }
 
     /**
@@ -76,7 +83,8 @@ class ListeDevisMagasinController extends Controller
         return $this->render('magasin/devis/listeDevisMagasin.html.twig', [
             'listeDevis' => $listeDevisFactory,
             'form' => $form->createView(),
-            'styleStatutDw' => $this->styleStatutDw
+            'styleStatutDw' => $this->styleStatutDw,
+            'styleStatutBc' => $this->styleStatutBc
         ]);
     }
 
@@ -118,7 +126,7 @@ class ListeDevisMagasinController extends Controller
             $devisIp['operateur'] = $devisSoumi ? $devisSoumi->getUtilisateur() : '';
             $devisIp['date_envoi_devis_au_client'] = $devisSoumi ? ($devisSoumi->getDateEnvoiDevisAuClient() ? $devisSoumi->getDateEnvoiDevisAuClient() : '') : '';
             $devisIp['utilisateur_createur_devis'] = $this->listeDevisMagasinModel->getUtilisateurCreateurDevis($devisIp['numero_devis']) ?? '';
-
+            $devisIp['statut_bc'] = $this->getEntityManager()->getRepository(BcMagasin::class)->findLatestStatusByIdentifier($devisIp['numero_devis']);
             // Appliquer les filtres si des critères sont fournis
             if (!empty($criteria) && !$this->matchesCriteria($devisIp, $criteria)) {
                 continue; // Ignorer cet élément s'il ne correspond pas aux critères

@@ -124,3 +124,16 @@
 .bg-a-traiter {
   background-color: #fb335b !important;
 }
+
+
+/* statut BC */
+.bg-bc-soumis-validation {
+  background-color: #ffc107 !important;
+}
+.bg-bc-en-attente {
+  background-color: #007bff !important;
+}
+.bg-bc-valide {
+  background-color: #28a745 !important;
+}
+

@@ -43,7 +43,6 @@ class BcMagasinLigneType extends AbstractType
                 'attr' => [
                     'class' => 'nouvelle-qte-input',
                     'style' => 'display: none; width: 37px;',
-                    'placeholder' => 'Qté',
                 ],
             ]);
     }
