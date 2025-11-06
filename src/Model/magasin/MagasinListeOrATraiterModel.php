@@ -144,7 +144,7 @@ class MagasinListeOrATraiterModel extends Model
                 and sitv_succ = slor_succ 
                 and sitv_numor = slor_numor 
                 and sitv_interv = slor_nogrp / 100 
-                and sitv_numor || '-' || sitv_interv in ('" . $lesOrSelonCondition['numOrValideString'] . "') 
+                and sitv_numor || '-' || sitv_interv in ({$lesOrSelonCondition['numOrValideString']}) 
                 and sitv_soc = 'HF'
             and seor_succ = slor_succ 
             and seor_numor = slor_numor
