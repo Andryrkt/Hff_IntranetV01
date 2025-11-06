@@ -39,7 +39,7 @@ class BcMagasinRepository extends EntityRepository implements StatusRepositoryIn
     public function findnumBCAll()
     {
         $query = $this->createQueryBuilder('b')
-            ->select("DISTINCT b.numeroBc")
+            ->select("DISTINCT b.numeroDevis")
             ->getQuery()
             ->getSingleColumnResult();
 

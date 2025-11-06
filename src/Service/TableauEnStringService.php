@@ -68,4 +68,13 @@ class TableauEnStringService
         // Joindre les éléments avec le séparateur
         return implode($separateur, $escapedArray);
     }
+
+    public static function like(array $numeroBc, string $nomColone): string 
+    {
+        $tab = array_map(function ($value) use($nomColone) {
+            return " $nomColone LIKE '%$value%'";
+        }, $numeroBc);
+
+        return implode(' OR ', $tab);
+    }
 }

@@ -86,7 +86,7 @@ class PlanningMagasinModel extends Model
     }
 
 
-    public function recuperationCommadeplanifier($criteria, string $back, string $condition,$tousLesBCSoumis)
+    public function recuperationCommadeplanifier($criteria, string $back, string $condition, array $tousLesBCSoumis)
     {
         if ($criteria->getOrBackOrder() == true) {
             $numCmd = "AND nent_numcde in (" . $back . ")";
@@ -94,11 +94,12 @@ class PlanningMagasinModel extends Model
             $numCmd = $this->numcommande($criteria);
         }
         if ($criteria->getOrNonValiderDw() == true) {
-           $numCmd = "AND nent_numcde in (" . $tousLesBCSoumis . ")";
+            $value = TableauEnStringService::like($tousLesBCSoumis, 'nent_libcde');
+           $numDevis = " AND  ($value) ";
         }else {
-            $numCmd = $this->numcommande($criteria);
+            $numDevis = "";
         }
-        // dump($condition);
+
         switch ($condition) {
             case 'partiel_facture':
                 $partFact = $this->bcPartielFacture();
@@ -134,9 +135,6 @@ class PlanningMagasinModel extends Model
                 $numCmd = $this->numcommande($criteria);
                 break;
         }
-        // condition de click legende
-
-        //
         $agDebit = $this->agenceDebite($criteria);
         $servDebit = $this->serviceDebite($criteria);
         $codeClient  = $this->codeClient($criteria);
@@ -171,6 +169,7 @@ class PlanningMagasinModel extends Model
                         AND nent_posf not in ('CP')
                         AND to_char(nent_numcli) not like '150%'
 
+                        $numDevis
                         $numCmd
                         $agDebit
                         $servDebit
@@ -184,13 +183,14 @@ class PlanningMagasinModel extends Model
         return $resultat;
     }
 
-    public function backOrderplanningMagasin(PlanningMagasinSearch $criteria,$tousLesBCSoumis)
+    public function backOrderplanningMagasin(PlanningMagasinSearch $criteria)
     {
-        if ($criteria->getOrNonValiderDw() == true) {
-           $numCmd = "AND nlig_numcde in (" . $tousLesBCSoumis . ")";
-        }else{
-            $numCmd = $this->numcommande($criteria);
-        }
+    //    if ($criteria->getOrNonValiderDw() == true) {
+    //         $value = TableauEnStringService::like($tousLesBCSoumis, 'nent_libcde');
+    //        $numCmd = " AND  ($value) ";
+    //     }else {
+    //         $numCmd = $this->numcommande($criteria);
+    //     }
         $statement = "SELECT distinct 
                     nlig_numcde AS intervention
                   FROM neg_lig AS lig
@@ -206,7 +206,6 @@ class PlanningMagasinModel extends Model
                                                 AND sub.numero_po = cat.numero_po
                                                 AND sub.line_number = cat.line_number
                                           )
-                 $numCmd 
       ";
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
