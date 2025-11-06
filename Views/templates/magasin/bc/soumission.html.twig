@@ -43,7 +43,7 @@
 
 						<div class="col-12 col-md-3">
 							<p>Insérer
-								<strong>les autres fichiers ici *</strong>
+								<strong>les autres fichiers ici</strong>
 							</p>
 							{% include '/partials/_dropZoneFileMultiple.html.twig' with {'id': '2', 'form': form, 'fieldName': 'pieceJoint2'} %}
 						</div>
@@ -91,10 +91,9 @@
 										</td>
 										<td>
 											<div class="checkbox-container ">
-											{{ form_widget(ligneForm.qteModifier, {'attr': {'data-numero-ligne': ligneData.numeroLigne}}) }}
-											{{ form_widget(ligneForm.nouvelleQte) }}											
-												<span id="qty-status-{{ ligneData.numeroLigne }}" class="status-badge" style="display: none;">
-												</span>
+												{{ form_widget(ligneForm.qteModifier, {'attr': {'data-numero-ligne': ligneData.numeroLigne}}) }}
+												{{ form_widget(ligneForm.nouvelleQte) }}
+												<span id="qty-status-{{ ligneData.numeroLigne }}" class="status-badge" style="display: none;"></span>
 											</div>
 										</td>
 										<td>
