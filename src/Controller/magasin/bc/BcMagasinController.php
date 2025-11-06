@@ -107,6 +107,9 @@ class BcMagasinController extends Controller
             // Enregistrement des données dans la base de données
             $this->enregistrementDonnees($dto, (float) $montantDevis, $numeroVersion);
 
+            //modification du statu bc dans la table devis_soumis_a_validation_neg
+            $this->modificationStatutBCDansDevisMagasin($numeroDevis);
+
             // historique du document
             $message = 'Le bon de commande a été soumis avec succès.';
             $this->historiqueOperationBcMagasinService->sendNotificationSoumission($message, $numeroDevis, 'devis_magasin_liste', true);
@@ -182,5 +185,16 @@ class BcMagasinController extends Controller
         $nomAvecCheminFichier = $devisPath . $nomFichier;
 
         return [$nomEtCheminFichiersEnregistrer, $nomFichierEnregistrer, $nomAvecCheminFichier, $nomFichier];
+    }
+
+    private function modificationStatutBCDansDevisMagasin(string $numeroDevis): void
+    {
+        $devisRepository = $this->getEntityManager()->getRepository(DeivsMagasin::class);
+        $numeroVersionMax = $devisRepository->getNumeroVersionMax($numeroDevis);
+        $devisMagasin = $devisRepository->findOneBy(['numeroDevis' => $numeroDevis, 'numeroVersion' => $numeroVersionMax]);
+
+        $devisMagasin->setStatutBc(BcMagasin::STATUT_SOUMIS_VALIDATION);
+
+        $this->getEntityManager()->flush();
     }
 }
