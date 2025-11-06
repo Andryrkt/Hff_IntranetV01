@@ -61,7 +61,7 @@
 								</ul>
 							</div>
 						</td>
-						<td class="text-center {{styleStatutDw[item.statutDw] ?? ''}}">{{item.statutDw}}</td>
+						<td class="text-center fw-bold {{styleStatutDw[item.statutDw] ?? 'bg-a-traiter'}}">{{item.statutDw|default('A traiter')}}</td>
 						<td class="text-center">{{item.numeroDevis}}</td>
 						<td class="text-center">{{item.dateCreation}}</td>
 						<td class="text-center">{{item.succursaleServiceEmetteur}}</td>

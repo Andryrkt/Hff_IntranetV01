@@ -36,16 +36,16 @@ class ListeDevisMagasinController extends Controller
         $this->agenceRepository = $this->getEntityManager()->getRepository(\App\Entity\admin\Agence::class);
 
         $this->styleStatutDw = [
-            DevisMagasin::STATUT_PRIX_A_CONFIRMER => 'bg-prix-a-confirmer',
-            DevisMagasin::STATUT_PRIX_VALIDER_TANA => 'bg-prix-valider-tana',
-            DevisMagasin::STATUT_PRIX_VALIDER_AGENCE => 'bg-prix-valider-agence',
-            DevisMagasin::STATUT_PRIX_MODIFIER_TANA => 'bg-prix-modifier-magasin',
-            DevisMagasin::STATUT_PRIX_MODIFIER_AGENCE => 'bg-prix-modifier-agence',
+            DevisMagasin::STATUT_PRIX_A_CONFIRMER      => 'bg-prix-a-confirmer',
+            DevisMagasin::STATUT_PRIX_VALIDER_TANA     => 'bg-prix-valider-tana',
+            DevisMagasin::STATUT_PRIX_VALIDER_AGENCE   => 'bg-prix-valider-agence',
+            DevisMagasin::STATUT_PRIX_MODIFIER_TANA    => 'bg-prix-modifier-magasin',
+            DevisMagasin::STATUT_PRIX_MODIFIER_AGENCE  => 'bg-prix-modifier-agence',
             DevisMagasin::STATUT_DEMANDE_REFUSE_PAR_PM => 'bg-demande-refuse-par-pm',
             DevisMagasin::STATUT_A_VALIDER_CHEF_AGENCE => 'bg-a-valider-chef-agence',
-            DevisMagasin::STATUT_VALIDE_AGENCE => 'bg-valide-agence',
-            DevisMagasin::STATUT_ENVOYER_CLIENT => 'bg-envoyer-client',
-            DevisMagasin::STATUT_CLOTURER_A_MODIFIER => 'bg-cloturer-a-modifier',
+            DevisMagasin::STATUT_VALIDE_AGENCE         => 'bg-valide-agence',
+            DevisMagasin::STATUT_ENVOYER_CLIENT        => 'bg-envoyer-client',
+            DevisMagasin::STATUT_CLOTURER_A_MODIFIER   => 'bg-cloturer-a-modifier',
         ];
     }
 
