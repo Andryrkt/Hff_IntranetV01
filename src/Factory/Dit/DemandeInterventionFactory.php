@@ -119,7 +119,7 @@ class DemandeInterventionFactory
 
         // statut demande - numero DIT - email - non d'utilisateur - date - heure
         $demandeIntervention->setIdStatutDemande($dto->idStatutDemande);
-        $demandeIntervention->setNumeroDemandeIntervention($dto->numeroDemandeIntervention);
+        //$demandeIntervention->setNumeroDemandeIntervention($dto->numeroDemandeIntervention);
         $demandeIntervention->setMailDemandeur($dto->mailDemandeur);
         $demandeIntervention->setUtilisateurDemandeur($dto->utilisateurDemandeur);
         $demandeIntervention->setDateDemande($dto->dateDemande);
@@ -144,7 +144,7 @@ class DemandeInterventionFactory
         return $demandeIntervention;
     }
 
-    public function createFromDtoPol(DemandeInterventionDto $dto, Application $application): DemandeIntervention
+    public function createFromDtoPol(DemandeInterventionDto $dto): DemandeIntervention
     {
         $demandeIntervention = new DemandeIntervention();
 
@@ -232,7 +232,7 @@ class DemandeInterventionFactory
 
         // statut demande - numero DIT - email - non d'utilisateur - date - heure
         $demandeIntervention->setIdStatutDemande($dto->idStatutDemande);
-        $demandeIntervention->setNumeroDemandeIntervention(AutoIncDecService::autoGenerateNumero(DemandeIntervention::CODE_APP, $dto->numeroDemandeIntervention, false)); // !changé
+        //$demandeIntervention->setNumeroDemandeIntervention(AutoIncDecService::autoGenerateNumero(DemandeIntervention::CODE_APP, $dto->numeroDemandeIntervention, false)); // !changé
         $demandeIntervention->setMailDemandeur($dto->mailDemandeur);
         $demandeIntervention->setUtilisateurDemandeur($dto->utilisateurDemandeur);
         $demandeIntervention->setDateDemande($dto->dateDemande);
