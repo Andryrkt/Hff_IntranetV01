@@ -17,59 +17,29 @@
 			<span>
 				17/10/2025 - V20251017.3.1.0 :
 				<div class="news-ticker">
-					<ul>
-						<li>
-							<b>APPRO – Formulaire création d’une DA :</b>
-							Un contrôle a été mis en place afin de définir une marge au service APP pour traiter les demandes d’achats. 
-														Ce planning dépendra automatiquement du niveau d’urgence de la DIT ou la date planning de l’OR.
-							<ul>
-								<li>
-									S’il n’y a pas encore d’OR rattaché à la DIT, alors le planning suit le niveau d’urgence de la DIT :
-									<ul>
-										<li>P0 : 5 jours ouvrables</li>
-										<li>P1 : 7 jours ouvrables</li>
-										<li>P2 : 10 jours ouvrables</li>
-										<li>P3 : 15 jours ouvrables</li>
-										<li>P4 : 15 jours ouvrables</li>
-									</ul>
-								</li>
-								<li>
-									Si DIT avec OR validé avec les devis :
-									<ul>
-										<li>7 jours ouvrables avant la date planning de l’OR</li>
-										<li>Sinon 5 jours</li>
-									</ul>
-								</li>
-							</ul>
-						</li>
-						<li>
-							<b>APPRO – Validation et proposition :</b>
-							<ul>
-								<li>Le service APP peut enregistrer des propositions et sauvegarder des devis sans les envoyer à l’atelier (draft).</li>
-								<li>
-									Intégration du statut « Demande de devis en cours » :
-																		Après l’envoi des demandes de devis aux fournisseurs, un pointage peut être effectué sur une DA 
-																		par le service APP afin d’identifier les DA ayant fait l’objet d’une demande de devis auprès des fournisseurs.
-								</li>
-								<li>
-									Intégration du statut « Devis à relancer » :
-																		Si aucune proposition n’est envoyée à l’atelier deux jours après l’envoi du devis, 
-																		un email de relance est automatiquement adressé au service APP.
-								</li>
-								<li>La désignation des articles catalogués ne peut plus être modifiée lors d’une proposition.</li>
-								<li>L’envoi des devis à l’atelier est désormais bloqué s’il existe un article dont le fournisseur n’est pas renseigné (FRN 99).</li>
-								<li>
-									Les articles proposés par le service APP sont présentés sous forme de matrice 
-																		pour une meilleure lisibilité (en ligne : désignations initiales, en colonne : prix unitaires par fournisseur).
-								</li>
-							</ul>
-						</li>
-						<li>
-							<b>APPRO – Détail demande d’achat :</b>
-							Les articles dans le bon d’achat sont aussi représentés sous forme de matrice 
-														(en ligne : désignations initiales, en colonne : prix unitaires par fournisseur).
-						</li>
-					</ul>
+					 APPRO – ACHAT DIRECTE : Déployé pour les 
+					agences 90, 91 et 92.
+					 APPRO – ACHAT REAPPRO MENSUEL :
+					Dématérialisé et déployé pour les agences 90, 91 et 92.
+					 APPRO – liste des commandes fournisseurs : Le 
+					service Appro peut désormais pointer les articles non 
+					disponibles chez les fournisseurs.
+					Il a également la possibilité de générer d’autres 
+					demandes d’approvisionnement avec ces articles non 
+					disponibles ou de les supprimer.
+					 ATELIER – Formulaire de création d’une DIT :
+					o « ATE POL TANA » rajouté dans la liste des 
+					ateliers effectuant les travaux
+					o Rajout de l’option « intervention 
+					pneumatique » dans la fiche de création.
+					Cette option permet de générer 
+					automatiquement une deuxième DIT dédiée à 
+					l’atelier pneumatique de Tana.
+					 POL – MAGASIN : Déploiement des interfaces
+					o Liste des Ors à traiter
+					o Liste des Ors à livrer
+					o Liste des CIS à traiter
+					o Liste des CIS à livrer
 				</div>
 			</span>
 		{% endfor %}
