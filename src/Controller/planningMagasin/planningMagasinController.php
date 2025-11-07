@@ -70,7 +70,7 @@ class planningMagasinController extends Controller
             // dd($form->getdata());
             $criteria =  $form->getdata();
         }
-        //ce qui est valider DW
+        /** @var array $touLesBCSoumis ce qui est valider DW*/
         $tousLesBCSoumis = $this->allBCs();
         //recupère le condition clicsur la légende
         $condition = $request->query->get('condition', "1");
@@ -101,10 +101,10 @@ class planningMagasinController extends Controller
             'preparedData' => $forDisplay['preparedData'],
         ]);
     }
-    private function allBCs()
+    private function allBCs(): array
     {
         /** @var array */
         $numBc = $this->BcMagasinRepository->findnumBCAll();
-        return TableauEnStringService::TableauEnString(',', $numBc);
+        return $numBc;
     }
 }
