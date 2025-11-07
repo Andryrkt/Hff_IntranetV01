@@ -198,4 +198,21 @@ class ListeDevisMagasinModel extends Model
 
         return array_column($this->convertirEnUtf8($data), 'utilisateur_createur_devis');
     }
+
+    public function getClientAndModePaiement(string $numeroDevis): array
+    {
+        $statement = " SELECT nent_numcli as code_client
+                    ,nent_nomcli as nom_client
+                    ,TRIM(cpai_libelle) as mode_paiement
+                    from informix.neg_ent 
+                    left join informix.cpt_pai on cpai_codpai = nent_modp 
+                    where nent_numcde ='$numeroDevis'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
 }

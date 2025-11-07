@@ -49,6 +49,17 @@ class GeneratePdfBcMagasin extends GeneratePdf
         $pdf->Cell(0, 10, ': ' . $dto->numeroDevis, 0, 0, 'L');
         $pdf->Ln(7, true);
 
+        // client : code client - nom client
+        $pdf->SetFont($font2, 'B', 10);
+        $pdf->Cell(30, 10, 'Client', 0, 0, 'L');
+        $pdf->SetFont($font2, '', 10);
+        $pdf->Cell(90, 10, ': ' . $dto->codeClient . ' - ' . $dto->nomClient, 0, 0, 'L');
+        $pdf->SetFont($font2, 'B', 10);
+        $pdf->Cell(30, 10, 'Mode de paiement', 0, 0, 'L');
+        $pdf->SetFont($font2, '', 10);
+        $pdf->Cell(0, 10, ': ' . $dto->modePayement, 0, 0, 'L');
+        $pdf->Ln(7, true);
+
         //numero BC
         $pdf->SetFont($font2, 'B', 10);
         $pdf->Cell(30, 10, 'BC', 0, 0, 'L');
