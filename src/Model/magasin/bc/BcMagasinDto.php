@@ -12,6 +12,9 @@ class BcMagasinDto
     public ?string $observation = null;
     public ?File $pieceJoint01 = null;
     public array $pieceJoint2 = [];
+    public string $codeClient;
+    public string $nomClient;
+    public string $modePayement;
 
     /** @var BcMagasinLigneDto[] */
     public array $lignes = [];

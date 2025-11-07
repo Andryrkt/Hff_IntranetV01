@@ -19,6 +19,7 @@ use App\Entity\magasin\devis\DevisMagasin;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Factory\magasin\bc\BcMagasinDtoFactory;
+use App\Model\magasin\devis\ListeDevisMagasinModel;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\magasin\bc\BcMagasinValidationService;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -130,7 +131,15 @@ class BcMagasinController extends Controller
 
         // 2. creation de page de garde
         $generatePdf = new GeneratePdfBcMagasin();
+        // 2.1 recupération des information utile pour le page de garde et ajout dans le devis magasin
+        $listeDevisMagasinModel = new ListeDevisMagasinModel();
+        $clientAndModePaiement = $listeDevisMagasinModel->getClientAndModePaiement($numeroDevis);
+        $dto->codeClient = $clientAndModePaiement[0]['code_client'];
+        $dto->nomClient = $clientAndModePaiement[0]['nom_client'];
+        $dto->modePayement = $clientAndModePaiement[0]['mode_paiement'];;
         $generatePdf->generer($this->getUser(), $dto, $nomAvecCheminFichier, (float) $montantDevis);
+
+
 
         // 3. ajout du page de garde à la dernière position
         $traitementDeFichier = new TraitementDeFichier();

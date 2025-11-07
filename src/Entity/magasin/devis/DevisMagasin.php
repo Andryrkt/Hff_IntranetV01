@@ -132,9 +132,6 @@ class DevisMagasin
      */
     private $datePointage = null;
 
-    private $pieceJoint01;
-
-    private $pieceJoint2;
 
     /**
      * @ORM\Column(type="string", length=50, name="tache_validateur", nullable=true)
@@ -156,6 +153,12 @@ class DevisMagasin
      * @var string|null
      */
     private ?string $relance = '';
+
+    private $pieceJoint01;
+
+    private $pieceJoint2;
+
+
 
     /** =========================================
      * GETTERS & SETTERS
@@ -614,4 +617,5 @@ class DevisMagasin
 
         return $this;
     }
+
 }
