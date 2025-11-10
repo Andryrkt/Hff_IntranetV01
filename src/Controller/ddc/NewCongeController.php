@@ -27,7 +27,8 @@ class NewCongeController extends Controller
         /** FIN AUtorisation accès */
 
         return $this->render('ddc/conge_new.html.twig', [
-            'url' => "https://hffc.docuware.cloud/docuware/formsweb/demande-de-conges-new?orgID=5adf2517-2f77-4e19-8b42-9c3da43af7be",
+            'url'    => "https://hffc.docuware.cloud/docuware/formsweb/demande-de-conges-new?orgID=5adf2517-2f77-4e19-8b42-9c3da43af7be",
+            'height' => 1600,
         ]);
     }
 }
