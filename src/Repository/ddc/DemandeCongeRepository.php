@@ -20,19 +20,23 @@ class DemandeCongeRepository extends EntityRepository
             ->leftJoin('d.agenceServiceirium', 'asi')
             ->addSelect('asi');
 
-            if(!$options['admin']) {
-                $queryBuilder->andWhere('asi.agence_ips IN (:agencesAutorisees)')
-            ->setParameter('agencesAutorisees', $user->getAgenceAutoriserCode())
+        // Filtrer par agence et service autoriser si l'utilisateur n'a pas le role admin
+        if(!$options['admin']) {
+            $queryBuilder->andWhere('asi.agence_ips IN (:agencesAutorisees)')
             ->andWhere('asi.service_ips IN (:servicesAutorises)')
-            ->setParameter('servicesAutorises', $user->getServiceAutoriserCode());
-            }
+            ->setParameters([
+                'agencesAutorisees' => $user->getAgenceAutoriserCode(),
+                'servicesAutorises' => $user->getServiceAutoriserCode()
+            ]);
+        }
             
-
+        // Filtrer par Matricule
         if ($conge->getMatricule()) {
             $queryBuilder->andWhere('d.matricule = :matricule')
                 ->setParameter('matricule', $conge->getMatricule());
         }
 
+        // Filtrer par NumeroDemande
         if ($conge->getNumeroDemande()) {
             $queryBuilder->andWhere('d.numeroDemande = :numeroDemande')
                 ->setParameter('numeroDemande', $conge->getNumeroDemande());
