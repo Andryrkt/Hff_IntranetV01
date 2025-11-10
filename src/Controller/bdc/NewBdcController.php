@@ -28,7 +28,8 @@ class NewBdcController extends Controller
         /** FIN AUtorisation accès */
 
         return $this->render('bdc/bon_caisse_new.html.twig', [
-            'url' => "https://hffc.docuware.cloud/docuware/forms/bon-de-caisse?orgID=5adf2517-2f77-4e19-8b42-9c3da43af7be",
+            'url'    => "https://hffc.docuware.cloud/docuware/forms/bon-de-caisse?orgID=5adf2517-2f77-4e19-8b42-9c3da43af7be",
+            'height' => 1300,
         ]);
     }
 }
