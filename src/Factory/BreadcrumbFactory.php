@@ -95,7 +95,7 @@ class BreadcrumbFactory
             'cas-form2'                             => 'Création Casier - Étape 2',
             'dom-first-form'                        => 'Création DOM - Étape 1',
             'dom-second-form'                       => 'Création DOM - Étape 2',
-            'annulation-conges'                     => 'Annulation de congé',
+            'annulation-conges'                     => 'Annulation de congés validés',
             'annulation-conges-rh'                  => 'Annulation de congé dédiée RH',
             'list-dit'                              => 'Sélection de DIT',
             'da-first-form'                         => 'Sélection de choix',

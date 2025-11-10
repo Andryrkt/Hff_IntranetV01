@@ -339,7 +339,7 @@ class MenuService
         if ($this->getEstAdmin() || in_array(Application::ID_DDC, $this->getApplicationIds())) { // DDC
             $subSubitems = [];
             $subSubitems[] = $this->createSubItem('Nouvelle demande', 'plus-circle', 'new_conge', [], '_blank');
-            $subSubitems[] = $this->createSubItem('Annulation de congé', 'calendar-xmark', 'annulation_conge', [], '_blank');
+            $subSubitems[] = $this->createSubItem('Annulation de congés validés', 'calendar-xmark', 'annulation_conge', [], '_blank');
             if ($this->getEstAdmin() || $this->getEstRH()) {
                 $subSubitems[] = $this->createSubItem('Annulation de congé dédiée RH', 'calendar-xmark', 'annulation_conge_rh', [], '_blank');
             }
