@@ -31,4 +31,22 @@ class AnnulationCongeController extends Controller
             'height' => 980,
         ]);
     }
+
+    /**
+     * @Route("/annulation-conges-rh", name="annulation_conge_rh")
+     */
+    public function annulationCongeDedieRH()
+    {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
+        /** Autorisation accès */
+        $this->autorisationAcces($this->getUser(), Application::ID_DDC);
+        /** FIN AUtorisation accès */
+
+        return $this->render('ddc/conge_annulation_rh.html.twig', [
+            'url'    => "https://hffc.docuware.cloud/DocuWare/Forms/annulation-conges-rh?orgID=5adf2517-2f77-4e19-8b42-9c3da43af7be",
+            'height' => 980,
+        ]);
+    }
 }

@@ -28,7 +28,7 @@ class Service
 
     public const ID_ATELIER = 3;
     public const ID_APPRO = 16;
-    public const ID_PER = 12;
+    public const ID_RH = 12;
 
     /**
      * @ORM\Id
