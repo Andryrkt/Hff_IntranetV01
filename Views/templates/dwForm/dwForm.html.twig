@@ -1,13 +1,13 @@
 {% extends "baseTemplate.html.twig"%}
 
 {% block title %}
-	Nouveau contrat
+	{{ pageTitle }}
 {% endblock %}
 
 {% block stylesheets %}{% endblock %}
 
 {% block content %}
-	<div id="bandeau" class="container-fluid" data-bg-color="bg-bleu-hff"></div>
+	<div id="bandeau" class="container-fluid" data-bg-color="{{ bgColor }}"></div>
 	<div class="container text-center mb-4" style="margin-top:-4.5rem;">
 		<iframe src="{{ url }}" frameborder="0" style="height:{{ height }}px;" width="100%"></iframe>
 	</div>
