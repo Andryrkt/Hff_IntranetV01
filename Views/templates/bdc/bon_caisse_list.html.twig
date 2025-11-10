@@ -18,7 +18,7 @@
 		<table class="table rounded table-plein-ecran">
 			<thead class="table-dark">
 				<tr>
-					<th class="d-none">PDF demande</th>
+					<th>PDF demande</th>
 					<th>Statut</th>
 					<th>N° demande</th>
 					<th>Date demande</th>
@@ -50,11 +50,11 @@
 					{% endif %}
 
 					<tr>
-						<td class="d-none">
+						<td>
 							{% if demande.pdfDemande %}
 								<a href="{{ demande.pdfDemande }}" target="_blank" class="btn btn-sm btn-info">
 									<i class="fas fa-file-pdf"></i>
-									PDF
+									{{ demande.numeroDemande }}
 								</a>
 							{% else %}
 								<span class="text-muted">Aucun PDF</span>

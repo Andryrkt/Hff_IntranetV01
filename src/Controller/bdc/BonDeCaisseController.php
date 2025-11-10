@@ -7,13 +7,13 @@ use App\Dto\bdc\BonDeCaisseDto;
 use App\Entity\bdc\BonDeCaisse;
 use App\Entity\admin\Application;
 use App\Form\bdc\BonDeCaisseType;
-use App\Entity\admin\AgenceServiceIrium;
 use App\Controller\Traits\FormatageTrait;
 use App\Controller\Traits\ConversionTrait;
 use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\Traits\bdc\BonDeCaisseListeTrait; // Ajouter cette ligne à la place
+use App\Controller\Traits\bdc\BonDeCaisseListeTrait;
+use App\Entity\dw\DwBonDeCaisse;
 use App\Factory\bdc\BonDeCaisseFactory;
 
 /**
@@ -80,7 +80,6 @@ class BonDeCaisseController extends Controller
             }
         }
 
-
         $criteria = $bonCaisseSearch->toArray();
         $this->sessionService->set('bon_caisse_search_criteria', $criteria);
 
@@ -98,24 +97,26 @@ class BonDeCaisseController extends Controller
         $bonCaisseEntitySearch->setRetraitLie($bonCaisseSearch->retraitLie);
         $bonCaisseEntitySearch->setNomValidateurFinal($bonCaisseSearch->nomValidateurFinal);
 
-
-
         $page = max(1, $request->query->getInt('page', 1));
         $limit = 10;
 
         $repository = $this->getEntityManager()->getRepository(BonDeCaisse::class);
         $paginationData = $repository->findPaginatedAndFiltered($page, $limit, $bonCaisseEntitySearch, $this->getUser());
+        $data = $paginationData['data'];
+
+        // Récupère tous les chemins PDF en une seule requête
+        $cheminsPdf = $this->getCheminsPdfAllBcs($data);
 
         $bonDeCaisseFactory = new BonDeCaisseFactory();
         return $this->render(
             'bdc/bon_caisse_list.html.twig',
             [
-                'form' => $form->createView(),
-                'data' => $bonDeCaisseFactory->createFromEntities($paginationData['data']),
+                'form'        => $form->createView(),
+                'data'        => $bonDeCaisseFactory->createFromEntities($data, $cheminsPdf),
                 'currentPage' => $paginationData['currentPage'],
-                'lastPage' => $paginationData['lastPage'],
-                'resultat' => $paginationData['totalItems'],
-                'criteria' => $criteria,
+                'lastPage'    => $paginationData['lastPage'],
+                'resultat'    => $paginationData['totalItems'],
+                'criteria'    => $criteria,
             ]
         );
     }

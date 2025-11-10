@@ -5,6 +5,9 @@ namespace App\Controller\Traits\bdc;
 use App\Entity\admin\Agence;
 use App\Entity\admin\StatutDemande;
 use App\Entity\admin\utilisateur\User;
+use App\Entity\bdc\BonDeCaisse;
+use App\Entity\dw\DwBonDeCaisse;
+use App\Repository\dw\DwBonDeCaisseRepository;
 
 trait BonDeCaisseListeTrait
 {
@@ -24,7 +27,7 @@ trait BonDeCaisseListeTrait
         $userId = $this->getSessionService()->get('user_id');
         $userConnecter = $em->getRepository(User::class)->find($userId);
         $agenceIds = $userConnecter->getAgenceAutoriserIds();
-        
+
         // Get the agency codes instead of IDs
         $agenceCodes = [];
         foreach ($agenceIds as $agenceId) {
@@ -33,7 +36,7 @@ trait BonDeCaisseListeTrait
                 $agenceCodes[] = $agence->getCodeAgence();
             }
         }
-        
+
         return $agenceCodes;
         //FIN AUTORISATION
     }
@@ -51,18 +54,35 @@ trait BonDeCaisseListeTrait
         } else {
             $statut = null;
         }
-    
+
         // Définir le statut s'il n'est pas null
         $bonCaisseSearch->setStatutDemande($statut !== null ? (is_object($statut) ? $statut->getDescription() : $statut) : '');
-        
+
         // Définir le matricule s'il existe
         if (isset($criteria['matricule'])) {
             $bonCaisseSearch->setMatricule($criteria['matricule']);
         }
-        
+
         // Définir la date de demande si elle n'est pas nulle
         if (isset($criteria['dateDemande']) && $criteria['dateDemande'] !== null) {
             $bonCaisseSearch->setDateDemande($criteria['dateDemande']);
         }
+    }
+
+    /** 
+     * Méthode pour obtenir les chemins de tous les bons de caisse
+     * 
+     * @param iterable<BonDeCaisse> $entities
+     * @return array<string, string> Associatif [numeroDemande => cheminPdf]
+     */
+    private function getCheminsPdfAllBcs(iterable $entities): array
+    {
+        $numeros = [];
+        foreach ($entities as $entity) {
+            $numeros[] = $entity->getNumeroDemande();
+        }
+        /** @var DwBonDeCaisseRepository $dwBonDeCaisseRepository repository correspondat à DwBonDeCaisse */
+        $dwBonDeCaisseRepository = $this->getEntityManager()->getRepository(DwBonDeCaisse::class);
+        return $dwBonDeCaisseRepository->getCheminsPourNumeros($numeros);
     }
 }
