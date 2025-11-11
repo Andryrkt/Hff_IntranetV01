@@ -23,11 +23,11 @@ trait DitTrait
 
 
 
-    private function createDemandeInterventionFromDto(DemandeInterventionDto $dto, Application $application): array
+    private function createDemandeInterventionFromDto(DemandeInterventionDto $dto): array
     {
         if ($dto->estAtePolTana) {
             $ditAteTana =  $this->demandeInterventionFactory->createFromDto($dto);
-            $ditAteTanaPol =  $this->demandeInterventionFactory->createFromDtoPol($dto, $application);
+            $ditAteTanaPol =  $this->demandeInterventionFactory->createFromDtoPol($dto);
             return [$ditAteTana, $ditAteTanaPol];
         } else {
 
