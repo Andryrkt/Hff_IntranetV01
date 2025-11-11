@@ -21,36 +21,68 @@
 			<table class="table table-sticky">
 				<thead class="table-dark align-middle table-fixed">
 					<tr>
-						<th class="text-center">Agence débiteur</th>
-						<th class="text-center">Serivce débiteur</th>
-						<th class="text-center">Date</th>
+						<th class="text-center">Agence - Serivce</th>
 						<th class="text-center">Facture</th>
 						<th class="text-center">Référence Client</th>
 						<th class="text-center">CST</th>
 						<th class="text-center">Référence</th>
-						<th class="text-center">Description</th>
-						<th class="text-center">Qte</th>
-						<th class="text-center">P.U</th>
-						<th class="text-center">Montant</th>
+						<th class="text-center">Désignation</th>
+						<th class="text-center">Janvier</th>
+						<th class="text-center">Février</th>
+						<th class="text-center">Mars</th>
+						<th class="text-center">Avril</th>
+						<th class="text-center">Mai</th>
+						<th class="text-center">Juin</th>
+						<th class="text-center">Juillet</th>
+						<th class="text-center">Août</th>
+						<th class="text-center">Septembre</th>
+						<th class="text-center">Octobre</th>
+						<th class="text-center">Novembre</th>
+						<th class="text-center">Descembre</th>
 					</tr>
 				</thead>
 				<tbody id="tableBody">
 					{% for item in reporting_ips %}
 						<tr>
-							<td class="text-center">{{item.agence_debiteur}}</td>
-							<td class="text-center">{{item.service_debiteur}}</td>
-							<td class="text-center">{{item.date_commande|date('d/m/Y')}}</td>
+							<td class="text-center">{{item.agence_debiteur ~ ' - ' ~ item.service_debiteur}}</td>
 							<td class="text-center">{{item.numero_facture}}</td>
 							<td class="text-center">{{item.client}}</td>
 							<td class="text-center">{{item.constructeur}}</td>
 							<td class="text-center">{{item.reference_produit}}</td>
 							<td class="text-start">{{item.designation_produit}}</td>
-							<td class="text-center">{{item.qte_demande == 0 ? '-': item.qte_demande}}</td>
-							<td class="text-end">{{item.prix_unitaire_reel|number_format(2, ',' ,'.')}}</td>
-							<td class="text-end">{{item.montant|number_format(2, ',' ,'.')}}</td>
+							{# <td class="text-center">{{item.qte_demande == 0 ? '-': item.qte_demande}}</td> #}
+							<td class="text-center">-</td>
+							<td class="text-center">-</td>
+							<td class="text-center">-</td>
+							<td class="text-center">-</td>
+							<td class="text-center">-</td>
+							<td class="text-center">-</td>
+							<td class="text-center">-</td>
+							<td class="text-center">-</td>
+							<td class="text-center">-</td>
+							<td class="text-center">-</td>
+							<td class="text-center">-</td>
+							<td class="text-center">-</td>
 						</tr>
 					{% endfor %}
 				</tbody>
+				<tfoot>
+					<tr>
+						<td clospan="6" class="text-center">foot</td>
+						<td class="text-center">-</td>
+						<td class="text-center">-</td>
+						<td class="text-center">-</td>
+						<td class="text-center">-</td>
+						<td class="text-center">-</td>
+						<td class="text-center">-</td>
+						<td class="text-center">-</td>
+						<td class="text-center">-</td>
+						<td class="text-center">-</td>
+						<td class="text-center">-</td>
+						<td class="text-center">-</td>
+						<td class="text-center">-</td>
+					</tr>
+				</tfoot>
 			</table>
 
 		</div>
