@@ -89,9 +89,8 @@
 										</li>
 									{% endif %}
 									{% if row.telechargerOR %}
-										{% set chemin = row.pathOrMax.chemin %}
 										<li>
-											<a class="dropdown-item fw-bold" href="{{ App.base_path_fichier }}/{{ chemin }}" download>Télécharger l’OR</a>
+											<a class="dropdown-item fw-bold" href="{{ App.base_path_fichier }}/{{ row.pathOr }}" download>Télécharger l’OR</a>
 										</li>
 									{% endif %}
 								</ul>
