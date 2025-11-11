@@ -93,6 +93,8 @@ trait DaValidationReapproTrait
     public function getHistoriqueConsommation(DemandeAppro $demandeAppro, array $dateRange, array $monthsList)
     {
         $result = [];
+        $montantTotal = array_fill_keys($monthsList, 0.0); // initialiser à 0.0 tous les montants totals
+
         $codeAgence = $demandeAppro->getAgenceEmetteur()->getCodeAgence();
         $codeService = $demandeAppro->getServiceEmetteur()->getCodeService();
 
@@ -113,14 +115,19 @@ trait DaValidationReapproTrait
                 ];
             }
 
-            // Ajouter la quantité pour le mois correspondant
             $mois = $row['mois_annee'];
+
+            // Ajouter la quantité pour le mois correspondant
             $qte  = (float)($row['qte_fac'] ?? 0);
             $result[$key]['qteTotalTemp'] += $qte;
             $result[$key]['qteTemp'][$mois] += $qte;
+
+            // Ajouter le montant pour le mois correspondant
+            $mttTotal  = (float)($row['mtt_total'] ?? 0);
+            $montantTotal[$mois] += $mttTotal;
         }
 
-        // Formattage final
+        // ✅ Formattage final
         foreach ($result as $key => $row) {
             $row['qteTotal'] = number_format($row['qteTotalTemp'], 2, ',', '');
             $row['qte'] = [];
@@ -131,7 +138,15 @@ trait DaValidationReapproTrait
             $result[$key] = $row;
         }
 
-        return $result;
+        // ✅ Formatage des montants
+        foreach ($montantTotal as $mois => $value) {
+            $montantTotal[$mois] = $value != 0 ? number_format($value, 2, ',', ' ') : '-';
+        }
+
+        return [
+            'data'     => $result,
+            'montants' => $montantTotal
+        ];
     }
 
     private function modifierStatut(DemandeAppro $demandeAppro, string $statut)

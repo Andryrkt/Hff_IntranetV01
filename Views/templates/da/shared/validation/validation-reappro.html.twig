@@ -80,7 +80,7 @@
 					</tr>
 				</thead>
 				<tbody>
-					{% for data in dataHistorique %}
+					{% for data in dataHistorique.data %}
 						<tr>
 							<td>{{ data.cst }}</td>
 							<td>{{ data.refp }}</td>
@@ -92,6 +92,18 @@
 						</tr>
 					{% endfor %}
 				</tbody>
+				<tfoot>
+					<tr>
+						<td colspan="16"></td>
+					</tr>
+					<tr>
+						<td colspan="3" class="fw-bold">MONTANT en AR</td>
+						{% for month in monthsList %}
+							<td class="text-end fw-bold">{{ dataHistorique.montants[month] }}</td>
+						{% endfor %}
+						<td></td>
+					</tr>
+				</tfoot>
 			</table>
 
 			<div>
