@@ -205,6 +205,8 @@ class ListeDevisMagasinModel extends Model
                     ,nent_nomcli as nom_client
                     ,TRIM(cpai_libelle) as mode_paiement
                     from informix.neg_ent 
+                    inner join neg_cli on ncli_numcli = nent_numcli and ncli_soc = nent_soc
+                    inner join agr_tab on atab_nom = 'PAI' and ncli_modp = atab_code
                     left join informix.cpt_pai on cpai_codpai = nent_modp 
                     where nent_numcde ='$numeroDevis'
         ";
