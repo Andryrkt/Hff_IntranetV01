@@ -36,6 +36,7 @@ class ModalPlanningApi extends Controller
             $qteCIS = [];
             for ($i = 0; $i < count($details); $i++) {
                 if ($numOr[0] == '5' || $numOr[0] == '3' || $numOr[0] == '4' || $numOr[0] == '2') {
+                    $detailes[] = $this->planningMagasinModel->recuperationEtaMag($details[$i]['numerocdecis'], $details[$i]['ref'], $details[$i]['cst']);
                     $recupPariel[] = $this->planningMagasinModel->recupPartiel($details[$i]['numerocdecis'], $details[$i]['ref']);
                     $recupGot['ord'] = $this->planningMagasinModel->recupInfodGcot($details[$i]['numerocdecis']);
                     $qteCIS[] = $this->planningMagasinModel->recupeQteCISlig($details[$i]['numcis'], $details[$i]['intv'], $details[$i]['ref']);
@@ -45,11 +46,20 @@ class ModalPlanningApi extends Controller
                     if (empty($details[$i]['numerocmd']) || $details[$i]['numerocmd'] == "0") {
                         $recupGot = [];
                     } else {
+                        $detailes[] = $this->planningMagasinModel->recuperationEtaMag($details[$i]['numerocmd'], $details[$i]['ref'], $details[$i]['cst']);
                         $recupPariel[] = $this->planningMagasinModel->recupPartiel($details[$i]['numerocmd'], $details[$i]['ref']);
                         $recupGot['ord'] = $this->planningMagasinModel->recupInfodGcot($details[$i]['numerocmd']);
                     }
                 }
-
+                if (!empty($detailes[0])) {
+                    $details[$i]['Eta_ivato'] = $detailes[0][0]['Eta_ivato'];
+                    $details[$i]['Eta_magasin'] =  $detailes[0][0]['Eta_magasin'];
+                    $detailes = [];
+                } else {
+                    $details[$i]['Eta_ivato'] = "";
+                    $details[$i]['Eta_magasin'] = "";
+                    $detailes = [];
+                }
                 if (!empty($recupGot)) {
                     $details[$i]['Ord'] = $recupGot['ord'] === false ? '' : $recupGot['ord']['Ord'];
                 } else {

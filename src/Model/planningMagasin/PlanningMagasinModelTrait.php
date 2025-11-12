@@ -11,7 +11,7 @@ trait planningMagasinModelTrait
         } else {
             $numCommande = "";
         }
-       return $numCommande; 
+        return $numCommande;
     }
     private function agenceDebite($criteria)
     {
@@ -32,12 +32,29 @@ trait planningMagasinModelTrait
         return  $serviceDebite;
     }
     private function codeClient($criteria)
-  {
-    if (!empty($criteria->getNumParc())) {
-      $vconditionNumParc = " AND nent_numcli  = '" . $criteria->getNumParc() . "'";
-    } else {
-      $vconditionNumParc = "";
+    {
+        if (!empty($criteria->getNumParc())) {
+            $vconditionNumParc = " AND nent_numcli  = '" . $criteria->getNumParc() . "'";
+        } else {
+            $vconditionNumParc = "";
+        }
+        return $vconditionNumParc;
     }
-    return $vconditionNumParc;
-  }
+    private function commercial($criteria)
+    {
+        if (!empty($criteria->getCommercial())) {
+            $condCommercial = "AND (select ausr_nom from agr_usr where ausr_num = nent_usr and ausr_soc = nent_soc) ='" . $criteria->getCommercial() . "'  ";
+        } else {
+            $condCommercial = "";
+        }
+        return $condCommercial;
+    }
+    private function refClient ($criteria){
+         if (!empty($criteria->getRefcde())) {
+            $condRefclient = "AND NENT_REFCDE like '%" . $criteria->getRefcde() . "%'  ";
+         }else {
+        $condRefclient = "";
+         }
+         return $condRefclient;
+    }
 }
