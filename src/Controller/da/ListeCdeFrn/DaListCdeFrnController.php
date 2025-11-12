@@ -304,7 +304,7 @@ class DaListCdeFrnController extends Controller
                 'datype'              => $daType[$item->getDaTypeId()],
                 'numeroDemandeDit'   => $item->getNumeroDemandeDit() ?? $safeIconBan,
                 'niveauUrgence'      => $item->getNiveauUrgence(),
-                'numeroOr'           => $daViaOR ? $item->getNumeroOr() : $safeIconBan,
+                'numeroOr'           => $daDirect ? $safeIconBan : $item->getNumeroOr(),
                 'datePlannigOr'      => $daViaOR ? ($item->getDatePlannigOr() ? $item->getDatePlannigOr()->format('d/m/Y') : '') : $safeIconBan,
                 'numeroFournisseur'  => $item->getNumeroFournisseur(),
                 'nomFournisseur'     => $item->getNomFournisseur(),

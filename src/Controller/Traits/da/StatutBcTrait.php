@@ -238,7 +238,7 @@ trait StatutBcTrait
 
     private function getTypeDemande() {}
 
-    private function numeroCde(array $infoDaDirect, array $situationCde, bool $daDirect, bool $daViaOR, bool $daReappro, string $numOr): ?string
+    private function numeroCde(array $infoDaDirect, array $situationCde, bool $daDirect, bool $daViaOR, bool $daReappro, ?string $numOr): ?string
     {
         $numCde = '';
         if ($daDirect) $numCde = array_key_exists(0, $infoDaDirect) ? $infoDaDirect[0]['num_cde'] : '';
