@@ -47,6 +47,7 @@ class DitRepository extends EntityRepository
         $this->applyniveauUrgenceFilters($queryBuilder, $ditSearch);
         $this->applySection($queryBuilder, $ditSearch); // section affect et support section
         $this->applyAgencyServiceFilters($queryBuilder, $ditSearch, $options);
+        $this->applyAgencyUserFilter($queryBuilder, $options);
 
 
         $queryBuilder->orderBy('d.dateDemande', 'DESC')
@@ -82,7 +83,7 @@ class DitRepository extends EntityRepository
     private function applyAgencyUserFilter(QueryBuilder $queryBuilder, array $options): void
     {
         // Vérifier si l'agence de l'utilisateur est fournie dans les options
-        if (isset($options['user_agency']) && !empty($options['user_agency'])) {
+        if (isset($options['user_agency']) && !empty($options['user_agency']) && !$options['boolean'] && in_array($options['user_agency'], ['01', '20', '30', '40', '60'])) {
             $queryBuilder
                 ->andWhere('ar.codeAgence = :userAgency')
                 ->setParameter('userAgency', $options['user_agency']);
@@ -151,7 +152,7 @@ class DitRepository extends EntityRepository
     }
 
     /**
-     * Undocumented function
+     * recupère les donnnées à ajouter dans excel
      *
      * @param DitSearch $ditSearch
      * @param array $options
@@ -167,39 +168,42 @@ class DitRepository extends EntityRepository
         $this->applyStatusFilter($queryBuilder, $ditSearch);
         $this->applyniveauUrgenceFilters($queryBuilder, $ditSearch);
         $this->applyCommonFilters($queryBuilder, $ditSearch, $options);
+        $this->applySection($queryBuilder, $ditSearch); // section affect et support section
+        $this->applyAgencyServiceFilters($queryBuilder, $ditSearch, $options);
+        $this->applyAgencyUserFilter($queryBuilder, $options);
 
         //filtre selon le section affectée
-        $sectionAffectee = $ditSearch->getSectionAffectee();
-        if (!empty($sectionAffectee)) {
-            $groupes = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe']; // Les groupes de mots disponibles
-            $resultatsSectionAffectee = [];
+        // $sectionAffectee = $ditSearch->getSectionAffectee();
+        // if (!empty($sectionAffectee)) {
+        //     $groupes = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe']; // Les groupes de mots disponibles
+        //     $resultatsSectionAffectee = [];
 
-            foreach ($groupes as $groupe) {
-                // Construire la phrase avec le groupe de mots
-                $phraseConstruite = $groupe . $sectionAffectee;
+        //     foreach ($groupes as $groupe) {
+        //         // Construire la phrase avec le groupe de mots
+        //         $phraseConstruite = $groupe . $sectionAffectee;
 
-                // Cloner le QueryBuilder initial pour cette requête
-                $tempQueryBuilder = clone $queryBuilder;
+        //         // Cloner le QueryBuilder initial pour cette requête
+        //         $tempQueryBuilder = clone $queryBuilder;
 
-                // Ajouter la condition pour cette itération
-                $tempQueryBuilder->andWhere('d.sectionAffectee = :sectionAffectee')
-                    ->setParameter('sectionAffectee', $phraseConstruite);
+        //         // Ajouter la condition pour cette itération
+        //         $tempQueryBuilder->andWhere('d.sectionAffectee = :sectionAffectee')
+        //             ->setParameter('sectionAffectee', $phraseConstruite);
 
-                // Exécuter la requête pour cette itération et accumuler les résultats
-                $resultatsSectionAffectee = array_merge(
-                    $resultatsSectionAffectee,
-                    $tempQueryBuilder->getQuery()->getResult()
-                );
-            }
+        //         // Exécuter la requête pour cette itération et accumuler les résultats
+        //         $resultatsSectionAffectee = array_merge(
+        //             $resultatsSectionAffectee,
+        //             $tempQueryBuilder->getQuery()->getResult()
+        //         );
+        //     }
 
-            // Si des résultats sont trouvés pour la section affectée, filtrer la liste
-            if (!empty($resultatsSectionAffectee)) {
-                // Optionnel : enlever les doublons si nécessaire
-                $resultatsSectionAffectee = array_unique($resultatsSectionAffectee, SORT_REGULAR);
-                // Retourner les résultats trouvés
-                return $resultatsSectionAffectee;
-            }
-        }
+        //     // Si des résultats sont trouvés pour la section affectée, filtrer la liste
+        //     if (!empty($resultatsSectionAffectee)) {
+        //         // Optionnel : enlever les doublons si nécessaire
+        //         $resultatsSectionAffectee = array_unique($resultatsSectionAffectee, SORT_REGULAR);
+        //         // Retourner les résultats trouvés
+        //         return $resultatsSectionAffectee;
+        //     }
+        // }
 
 
         $queryBuilder->orderBy('d.dateDemande', 'DESC')

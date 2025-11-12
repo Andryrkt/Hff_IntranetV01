@@ -17,6 +17,7 @@ class BcMagasin
 
     public const STATUT_SOUMIS_VALIDATION = 'Soumis à validation';
     public const STATUT_EN_ATTENTE_BC = 'En attente BC';
+    public const STATUT_VALIDER = 'Validé';
 
     /**
      * @ORM\Id
@@ -83,6 +84,8 @@ class BcMagasin
     private $pieceJoint01;
 
     private $pieceJoint2;
+
+    
 
     /** =========================================
      * GETTERS & SETTERS

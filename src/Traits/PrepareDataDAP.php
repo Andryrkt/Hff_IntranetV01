@@ -3,6 +3,7 @@
 namespace App\Traits;
 
 use App\Entity\da\DemandeApproL;
+use App\Entity\da\DemandeApproLR;
 
 trait PrepareDataDAP
 {
@@ -50,10 +51,31 @@ trait PrepareDataDAP
             if (isset($methodMapping[$key])) $methodsToCall[$key] = $methodMapping[$key];
         }
 
+        /** @var DemandeApproL|DemandeApproLR $dal */
         foreach ($dals as $dal) {
             $row = [];
             foreach ($columns as $key => $label) {
-                $row[$key] = isset($methodsToCall[$key]) ? ($dal->{$methodsToCall[$key]}() ?? '-') : '-';
+                if (!isset($methodsToCall[$key])) {
+                    $row[$key] = '-';
+                    continue;
+                }
+
+                $method = $methodsToCall[$key];
+
+                if (is_array($method)) {
+                    // On cherche la bonne méthode selon le type de l'objet
+                    $found = false;
+                    foreach ($method as $className => $methodName) {
+                        if ($dal instanceof $className) {
+                            $row[$key] = $dal->$methodName() ?? '-';
+                            $found = true;
+                            break;
+                        }
+                    }
+                    if (!$found) $row[$key] = '-';
+                } else {
+                    $row[$key] = $dal->$method() ?? '-';
+                }
             }
 
             $rows[] = $row;

@@ -41,12 +41,21 @@ class DaNewDirectController extends Controller
 
         $demandeAppro = $this->initialisationDemandeApproDirect();
 
-        $form = $this->getFormFactory()->createBuilder(DemandeApproDirectFormType::class, $demandeAppro)->getForm();
+        $form = $this->getFormFactory()->createBuilder(DemandeApproDirectFormType::class, $demandeAppro, [
+            'em' => $this->getEntityManager()
+        ])->getForm();
         $this->traitementFormDirect($form, $request, $demandeAppro);
 
         return $this->render('da/new-da-direct.html.twig', [
             'form' => $form->createView(),
         ]);
+    }
+
+    private function gererAgenceServiceDebiteur(DemandeAppro $demandeAppro)
+    {
+        $demandeAppro->setAgenceDebiteur($demandeAppro->getDebiteur()['agence'])
+            ->setServiceDebiteur($demandeAppro->getDebiteur()['service'])
+            ->setAgenceServiceDebiteur($demandeAppro->getAgenceDebiteur()->getCodeAgence() . '-' . $demandeAppro->getServiceDebiteur()->getCodeService());
     }
 
     private function traitementFormDirect($form, Request $request, DemandeAppro $demandeAppro): void
@@ -58,6 +67,7 @@ class DaNewDirectController extends Controller
              * @var DemandeAppro $demandeAppro
              */
             $demandeAppro = $form->getData();
+            $this->gererAgenceServiceDebiteur($demandeAppro);
 
             $numDa = $demandeAppro->getNumeroDemandeAppro();
             $formDAL = $form->get('DAL');

@@ -254,19 +254,20 @@ class InventaireController extends Controller
             $sumNbrEcart = 0;
             $sumNbrPourcentEcart = 0;
             for ($i = 0; $i < count($listInvent); $i++) {
-                $numIntvAssocie = $this->inventaireModel->getInventairesAssocies($listInvent[$i]['numero_inv']);
-                $invLigne = $this->inventaireModel->inventaireLigneEC($numIntvAssocie[0]['numinv']);
-                // condition pour avoir le résultat de 1
-                if (
-                    $invLigne[0]['nbre_ref_ecarts_positif'] == 0 &&
-                    $invLigne[0]['nbre_ref_ecarts_negatifs'] == 0 &&
-                    $invLigne[0]['total_nbre_ref_ecarts'] == 0 &&
-                    $invLigne[0]['pourcentage_ref_avec_ecart'] == 0 &&
-                    $invLigne[0]['montant_ecart'] == 0 &&
-                    $invLigne[0]['pourcentage_ecart'] == 0
-                ) { // = 0 daholo le résultat (champ1 = 0 && champ2 = 0 && ....)
-                    $invLigne = isset($numIntvAssocie[1]) ? $this->inventaireModel->inventaireLigneEC($numIntvAssocie[1]['numinv']) : $invLigne;
-                }
+                $numIntvAssocie = $this->inventaireModel->maxNumInv($listInvent[$i]['numero_inv']);
+                // dd($numIntvAssocie);
+                $invLigne = $this->inventaireModel->inventaireLigneEC($numIntvAssocie[0]['numinvmax']);
+                // // condition pour avoir le résultat de 1
+                // if (
+                //     $invLigne[0]['nbre_ref_ecarts_positif'] == 0 &&
+                //     $invLigne[0]['nbre_ref_ecarts_negatifs'] == 0 &&
+                //     $invLigne[0]['total_nbre_ref_ecarts'] == 0 &&
+                //     $invLigne[0]['pourcentage_ref_avec_ecart'] == 0 &&
+                //     $invLigne[0]['montant_ecart'] == 0 &&
+                //     $invLigne[0]['pourcentage_ecart'] == 0
+                // ) { // = 0 daholo le résultat (champ1 = 0 && champ2 = 0 && ....)
+                //     $invLigne = isset($numIntvAssocie[1]) ? $this->inventaireModel->inventaireLigneEC($numIntvAssocie[1]['numinv']) : $invLigne;
+                // }
                 // $sumMontEcart = $this->inventaireModel->sumInventaireDetail($numIntvMax[0]['numinvmax']);
                 // dump($sumMontEcart);
                 if ($listInvent[$i]['date_clo'] == null) {

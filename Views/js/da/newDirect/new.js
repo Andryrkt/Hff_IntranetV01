@@ -1,5 +1,6 @@
 import { displayOverlay } from "../../utils/ui/overlay";
 import { ajouterUneLigne } from "./dal";
+import { handleAgenceChange } from "../../dit/fonctionUtils/fonctionListDit.js";
 
 document.addEventListener("DOMContentLoaded", function () {
   localStorage.setItem("daDirectLineCounter", 0); // initialiser le nombre de ligne à 0
@@ -51,3 +52,12 @@ document.addEventListener("DOMContentLoaded", function () {
 window.addEventListener("load", () => {
   displayOverlay(false);
 });
+
+/**===========================================================================
+ * Configuration des agences et services
+ *============================================================================*/
+
+// Attachement des événements pour les agences
+document
+  .getElementById("demande_appro_direct_form_debiteur_agence")
+  .addEventListener("change", () => handleAgenceChange("debiteur"));

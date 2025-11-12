@@ -11,6 +11,7 @@
 {% endblock %}
 
 {% import "macroForm.html.twig" as macroForm %}
+{% import "macros/form_macros.html.twig" as formMacros %}
 
 {% block overlay %}
 	{% include "/shared/_overlay.html.twig"  %}
@@ -56,8 +57,7 @@
 								</div>
 								<div class="col-6 col-md-6">
 									{{ macroForm.sousTitre('Débiteur') }}
-									{{ form_row(form.agenceDebiteur) }}
-									{{ form_row(form.serviceDebiteur) }}
+									{{ formMacros.debiteurOuEmetteurFields(form, 'debiteur') }}
 								</div>
 							</div>
 						</div>

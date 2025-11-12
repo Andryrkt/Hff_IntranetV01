@@ -39,14 +39,16 @@ class DaNewReApproController extends Controller
         $this->verifierSessionUtilisateur();
 
         /** Autorisation accès */
-        $this->checkPageAccess($this->estAdmin());
+        $this->checkPageAccess($this->estAdmin() || $this->estCreateurDeDADirecte());
         /** FIN AUtorisation accès */
 
         $agenceServiceIps = $this->agenceServiceIpsObjet();
         $demandeAppro = $id === 0 ? $this->initialisationDemandeApproReappro($agenceServiceIps) : $this->demandeApproRepository->find($id);
         $this->generateDemandApproLinesFromReappros($demandeAppro, $agenceServiceIps);
 
-        $form = $this->getFormFactory()->createBuilder(DemandeApproReapproFormType::class, $demandeAppro)->getForm();
+        $form = $this->getFormFactory()->createBuilder(DemandeApproReapproFormType::class, $demandeAppro, [
+            'em' => $this->getEntityManager()
+        ])->getForm();
         $this->traitementFormReappro($form, $request);
 
         return $this->render('da/new-da-reappro.html.twig', [
@@ -54,6 +56,12 @@ class DaNewReApproController extends Controller
         ]);
     }
 
+    private function gererAgenceServiceDebiteur(DemandeAppro $demandeAppro)
+    {
+        $demandeAppro->setAgenceDebiteur($demandeAppro->getDebiteur()['agence'])
+            ->setServiceDebiteur($demandeAppro->getDebiteur()['service'])
+            ->setAgenceServiceDebiteur($demandeAppro->getAgenceDebiteur()->getCodeAgence() . '-' . $demandeAppro->getServiceDebiteur()->getCodeService());
+    }
     private function traitementFormReappro($form, Request $request): void
     {
         $form->handleRequest($request);
@@ -61,6 +69,7 @@ class DaNewReApproController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var DemandeAppro $demandeAppro */
             $demandeAppro = $form->getData();
+            $this->gererAgenceServiceDebiteur($demandeAppro);
 
             // Récupérer le nom du bouton cliqué
             $clickedButtonName = $this->getButtonName($request);

@@ -1,5 +1,6 @@
 import { displayOverlay } from "../../utils/ui/overlay";
 import { handleQteInputEvents } from "./event";
+import { handleAgenceChange } from "../../dit/fonctionUtils/fonctionListDit.js";
 
 document.addEventListener("DOMContentLoaded", function () {
   const myForm = document.getElementById("myForm");
@@ -79,3 +80,12 @@ document.addEventListener("DOMContentLoaded", function () {
 window.addEventListener("load", () => {
   displayOverlay(false);
 });
+
+/**===========================================================================
+ * Configuration des agences et services
+ *============================================================================*/
+
+// Attachement des événements pour les agences
+document
+  .getElementById("demande_appro_reappro_form_debiteur_agence")
+  .addEventListener("change", () => handleAgenceChange("debiteur"));

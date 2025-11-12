@@ -185,6 +185,8 @@ trait DaTrait
      */
     public function getDeletedLineNumbers(iterable $oldDAs, iterable $newDAs): array
     {
+        if (empty($oldDAs)) return [];
+
         $oldLineNumbers = [];
         $newLineNumbers = [];
 
@@ -201,9 +203,7 @@ trait DaTrait
         // Détecter les numéros présents dans l'ancien mais absents dans le nouveau
         $deletedLineNumbers = [];
         foreach ($oldLineNumbers as $numeroLigne => $_) {
-            if (!isset($newLineNumbers[$numeroLigne])) {
-                $deletedLineNumbers[] = $numeroLigne;
-            }
+            if (!isset($newLineNumbers[$numeroLigne])) $deletedLineNumbers[] = $numeroLigne;
         }
 
         return $deletedLineNumbers;

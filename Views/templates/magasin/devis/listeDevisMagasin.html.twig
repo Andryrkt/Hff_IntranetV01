@@ -27,6 +27,7 @@
 						<i class="fas fa-ellipsis-vertical"></i>
 					</th>
 					<th class="text-center">Statut devis</th>
+					<th class="text-center">Statut BC</th>
 					<th class="text-center">Numéro devis</th>
 					<th class="text-center">Date de création</th>
 					<th class="text-center">Emetteur</th>
@@ -56,12 +57,14 @@
 								constant('App\\Entity\\magasin\\devis\\DevisMagasin::STATUT_VALIDE_AGENCE')] %}
 											<a class="dropdown-item fw-bold" href="{{ path("devis_magasin_envoyer_au_client", {numeroDevis: item.numeroDevis})}}">Pointage envoye devis au client</a>
 										{% endif %}
-										<a class="dropdown-item fw-bold" href="{{ path("bc_magasin_soumission", {numeroDevis:item.numeroDevis})}}">SSoumission BC client pour validation</a>
+										<a class="dropdown-item fw-bold" href="{{ path("bc_magasin_soumission", {numeroDevis:item.numeroDevis})}}">Soumission BC client pour validation</a>
 									</li>
 								</ul>
 							</div>
 						</td>
-						<td class="text-center {{styleStatutDw[item.statutDw] ?? ''}}">{{item.statutDw}}</td>
+
+						<td class="text-center fw-bold {{styleStatutDw[item.statutDw] ?? 'bg-a-traiter'}}">{{item.statutDw|default('A traiter')}}</td>
+						<td class="text-center fw-bold {{ styleStatutBc[item.statutBc] ?? ''}}">{{ item.statutBc }}</td>
 						<td class="text-center">{{item.numeroDevis}}</td>
 						<td class="text-center">{{item.dateCreation}}</td>
 						<td class="text-center">{{item.succursaleServiceEmetteur}}</td>

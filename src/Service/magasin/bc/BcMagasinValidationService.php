@@ -17,7 +17,7 @@ class BcMagasinValidationService extends ValidationServiceBase
     private const ERROR_MESSAGES = [
         'missing_identifier' => 'Le numéro de Devis est manquant.',
         'blocage_statut_En_cours_validation' => 'Le BC est en cours de validation',
-        'statut_devix_et_bc_coherents' => 'on ne peut pas soumettre un BC à validation que si le devis est envoyé au client et la reception du bc est en attente.'
+        'statut_devis_et_bc_coherents' => 'on ne peut pas soumettre un BC à validation que si le devis est envoyé au client et la reception du bc est en attente.'
     ];
 
     // Routes de redirection
@@ -39,6 +39,7 @@ class BcMagasinValidationService extends ValidationServiceBase
         }
 
         if (!$this->checkBlockingStatusOnSubmissionIfStatusVp($data['bcRepository'], $data['numeroDevis'])) {
+            
             return false;
         }
 
@@ -94,14 +95,17 @@ class BcMagasinValidationService extends ValidationServiceBase
         string $numeroDevis
     ) {
         $statut = $devisMagasinRepository->getStatutDwEtStatutBc($numeroDevis);
-        if ($statut && $statut['statut_dw'] != DevisMagasin::STATUT_ENVOYER_CLIENT && $statut['statut_bc'] != BcMagasin::STATUT_EN_ATTENTE_BC) {
+
+        if ($statut && $statut['statutDw'] != DevisMagasin::STATUT_ENVOYER_CLIENT && $statut['statutBc'] != BcMagasin::STATUT_EN_ATTENTE_BC) {
             $this->sendNotification(
-                self::ERROR_MESSAGES['statut_devix_et_bc_coherents'],
+                self::ERROR_MESSAGES['statut_devis_et_bc_coherents'],
                 $numeroDevis,
                 false
             );
             return false;
         }
+
+        return true;
     }
 
     // ===============================================================================

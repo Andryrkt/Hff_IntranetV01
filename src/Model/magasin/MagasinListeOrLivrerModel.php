@@ -339,7 +339,7 @@ class MagasinListeOrLivrerModel extends Model
             and I.sitv_succ = slor_succ
             and I.sitv_numor = slor_numor
             and I.sitv_interv = slor_nogrp /100
-            and sitv_numor || '-' || sitv_interv in ('$numeroOrItv')
+            and sitv_numor || '-' || sitv_interv in ($numeroOrItv)
             inner join
             (
             SELECT F.* FROM (select
@@ -362,14 +362,14 @@ class MagasinListeOrLivrerModel extends Model
             , situ.slor_numor as numero_or
             FROM sav_lor situ
             WHERE
-            situ.slor_numor in ('$numeroOr')
+            situ.slor_numor in ($numeroOr)
             $piece1
             group by 2 ) as F
             ) as T ON T.numero_or = OR.slor_numor
             where seor_numor in
             (
             select slor_numor from sav_lor l
-            where l.slor_numor  in ('$numeroOr')
+            where l.slor_numor  in ($numeroOr)
             $piece2
             group by l.slor_numor
             having sum(l.slor_qteres) > 0

@@ -28,7 +28,7 @@
 								Demande d’achat direct
 							</a>
 						{% endif %}
-						{% if estAdmin %}
+						{% if estAdmin or estCreateurDeDADirecte %}
 							<a class="choix" href="{{ urls.reappro }}">
 								Demande de réappro mensuel
 							</a>

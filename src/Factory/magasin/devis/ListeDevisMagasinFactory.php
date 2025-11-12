@@ -14,6 +14,7 @@ class listeDevisMagasinFactory
     private $operateur;
     private $dateDenvoiDevisAuClient;
     private $statutIps;
+    private $statutBc;
 
     /**
      * Get the value of statutDw
@@ -215,6 +216,24 @@ class listeDevisMagasinFactory
         return $this;
     }
 
+        /**
+     * Get the value of statutBc
+     */
+    public function getStatutBc()
+    {
+        return $this->statutBc;
+    }
+
+    /**
+     * Set the value of statutBc
+     */
+    public function setStatutBc($statutBc): self
+    {
+        $this->statutBc = $statutBc;
+
+        return $this;
+    }
+    
     public function transformationEnObjet(array $data): listeDevisMagasinFactory
     {
         $this->setStatutDw($data['statut_dw'] ?? '');
@@ -227,6 +246,7 @@ class listeDevisMagasinFactory
         $this->setOperateur($data['operateur'] ?? ''); //utilisateur qui a soumis le devis
         $this->setDateDenvoiDevisAuClient($this->convertToDateTime($data['date_envoi_devis_au_client']) ? $this->convertToDateTime($data['date_envoi_devis_au_client'])->format('d/m/Y') : null);
         $this->setStatutIps($data['statut_ips'] ?? '');
+        $this->setStatutBc($data['statut_bc'] ?? '');
 
         return $this;
     }
@@ -247,4 +267,6 @@ class listeDevisMagasinFactory
             return null;
         }
     }
+
+
 }

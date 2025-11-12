@@ -236,7 +236,7 @@ trait ConditionModelTrait
     private function conditionOrValide($orValides, $numORItvValides)
     {
         if ($orValides) {
-            $orValide = " AND slor_numor||'-'||TRUNC(slor_nogrp/100) IN ('" . $numORItvValides . "')";
+            $orValide = " AND slor_numor||'-'||TRUNC(slor_nogrp/100) IN ($numORItvValides)";
         } else {
             $orValide = '';
         }
