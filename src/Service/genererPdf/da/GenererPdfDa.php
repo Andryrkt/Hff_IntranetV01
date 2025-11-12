@@ -138,7 +138,14 @@ abstract class GenererPdfDa extends GeneratePdf
     {
         $generator = new PdfTableReappro;
         $this->renderTextWithLine($pdf, 'Historique des consommations');
+        $margins = $pdf->getMargins();
+        $originalTop = $margins['top'];
+        $originalLeft = $margins['left'];
+        $originalRight = $margins['right'];
+        [$autoPageBreak, $originalBottom] = $pdf->getAutoPageBreak();
 
+        $pdf->setMargins(0.5, 3, 0.5, true);
+        $pdf->SetAutoPageBreak(true, 7);
         $pdf->AddPage('L');
 
         $pdf->SetTextColor(0, 0, 0);
@@ -146,6 +153,8 @@ abstract class GenererPdfDa extends GeneratePdf
         $html = $generator->generateHistoriqueTable($monthsList, $dataHistoriqueConsommation);
         $pdf->writeHTML($html, false, false, true, false, '');
 
+        $pdf->SetMargins($originalTop, $originalLeft, $originalRight, true);
+        $pdf->SetAutoPageBreak($autoPageBreak, $originalBottom);
         $pdf->AddPage('P');
     }
 
@@ -157,6 +166,8 @@ abstract class GenererPdfDa extends GeneratePdf
      */
     protected function renderChatMessages(TCPDF $pdf, iterable $observations): void
     {
+        if (empty($observations)) return;
+
         $appro = ['marie', 'Vania', 'stg.tahina', 'narindra.veloniaina', 'hobimalala'];
 
         $w_total = $pdf->GetPageWidth();  // Largeur totale du PDF
