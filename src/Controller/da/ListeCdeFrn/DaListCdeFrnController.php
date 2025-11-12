@@ -255,6 +255,7 @@ class DaListCdeFrnController extends Controller
 
         foreach ($data as $item) {
             // Variables à employer
+            $daDirect = $item->getDaTypeId() == DemandeAppro::TYPE_DA_DIRECT;
             $daViaOR = $item->getDaTypeId() == DemandeAppro::TYPE_DA_AVEC_DIT;
             $envoyeFrn = $item->getStatutCde() === DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR;
 

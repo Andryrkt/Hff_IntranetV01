@@ -109,7 +109,7 @@ document.addEventListener("contextmenu", function (event) {
     "Partiellement livré",
   ];
 
-  if (statutsTelechargeBC.includes(statutBc)) {
+  if (statutsTelechargeBC.includes(statutBc) && typeDa != 2) {
     telechargerBcValide(commandeId);
   }
 

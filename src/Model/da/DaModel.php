@@ -3,6 +3,7 @@
 namespace App\Model\da;
 
 use App\Model\Model;
+use App\Service\GlobalVariablesService;
 
 class DaModel extends Model
 {
@@ -347,7 +348,7 @@ class DaModel extends Model
     //     return array_column($data, 'constructeur');
     // }
 
-    public function getEvolutionQteDaAvecDit(?string $numDit, string $ref = '', string $designation = '', ?string $numOr, $statutBc, string $numDa)
+    public function getEvolutionQteDaAvecDit(?string $numDit, string $ref = '', string $designation = '', ?string $numOr, $statutBc, string $numDa, bool $daReappro)
     {
         if (!$numOr) return [];
 
@@ -417,20 +418,22 @@ class DaModel extends Model
                     AND llf.fllf_succ = cde.fcde_succ
 
                             WHERE
-                                slor.slor_constp ='ZST'
-                                AND slor.slor_typlig = 'P'
+                                 slor.slor_typlig = 'P'
                                 --AND slor.slor_refp NOT LIKE 'PREST%'
                                 and slor_numor = '$numOr'
                                 --and seor.seor_refdem = '$numDit'
                                 AND TRIM(REPLACE(REPLACE(slor_refp, '\t', ''), CHR(9), '')) = '$ref'
                         and TRIM(REPLACE(REPLACE(slor_desi, '\t', ''), CHR(9), '')) = '$designation'
+                        AND slor.slor_constp  in (".GlobalVariablesService::get('reappro').")
                 ";
 
-        if ($statutBc && in_array($statutBc, $statutCde)) {
+        if ($statutBc && in_array($statutBc, $statutCde) && !$daReappro) {
             $statement .= " AND (
                     (slor.slor_natcm = 'C' AND TRIM(REPLACE(REPLACE(c.fcde_cdeext, '\t', ''), CHR(9), '')) = '$numDa') 
                     OR (slor.slor_natcm = 'L' AND TRIM(REPLACE(REPLACE(cde.fcde_cdeext, '\t', ''), CHR(9), '')) = '$numDa')
                     )";
+        } else {
+            $statement .= " AND seor.seor_lib = '$numDa'";
         }
 
         $result = $this->connect->executeQuery($statement);

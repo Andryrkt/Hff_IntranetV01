@@ -109,14 +109,14 @@ trait StatutBcTrait
         [$numCde, $statutSoumissionBc] = $this->getInfoCde($infoDaDirect, $situationCde, $daDirect, $daViaOR, $daReappro, $numeroOr, $em);
 
         /** 9. recupération des qte necessaire dans IPS @var array $qte */
-        $qte = $this->getQte($ref, $numDit, $numDa, $designation, $numeroOr, $statutBc, $qteDemande, $daDirect, $daViaOR, $numCde);
+        $qte = $this->getQte($ref, $numDit, $numDa, $designation, $numeroOr, $statutBc, $qteDemande, $daDirect, $daViaOR, $daReappro, $numCde);
 
         /** 10.  @var bool $partiellementDispo @var bool $completNonLivrer @var bool $toutLivres @var bool $partiellementLivrer */
         [$partiellementDispo, $completNonLivrer, $tousLivres, $partiellementLivre] = $this->evaluerQuantites($qte,  $infoDaDirect, $daDirect, $DaAfficher);
 
 
         // 11. modification de situation commande dans DaAfficher
-        $this->updateSituationCdeDansDaAfficher($situationCde, $DaAfficher, $numCde, $infoDaDirect, $daDirect, $daViaOR, $daReappro);
+        $this->updateSituationCdeDansDaAfficher($situationCde, $DaAfficher, $numCde, $infoDaDirect, $daDirect, $daViaOR, $daReappro, $qte);
 
         // 12. modification du Qte de commande dans DaAfficher
         $this->updateQteCdeDansDaAfficher($qte, $DaAfficher, $infoDaDirect, $daDirect, $daViaOR);
@@ -158,7 +158,7 @@ trait StatutBcTrait
             return 'Partiellement livré';
         }
 
-        return '';
+        return 'ERREUR';
     }
 
     private function getInfoCde($infoDaDirect, $situationCde, $daDirect, $daViaOR, $daReappro, $numeroOr, $em): array
@@ -205,11 +205,11 @@ trait StatutBcTrait
 
 
 
-    private function getQte($ref, $numDit, $numDa, $designation, $numeroOr, $statutBc, $qteDemande, $daDirect, $daViaOR, $numCde): array
+    private function getQte($ref, $numDit, $numDa, $designation, $numeroOr, $statutBc, $qteDemande, $daDirect, $daViaOR, $daReappro, $numCde): array
     {
         if ($daDirect) $qte = $this->daModel->getEvolutionQteDaDirect($numCde, $ref, $designation);
         // pour da via OR et DA reappro
-        $qte = $this->daModel->getEvolutionQteDaAvecDit($numDit, $ref, $designation, $numeroOr, $statutBc, $numDa, $qteDemande);
+        if($daViaOR || $daReappro) $qte = $this->daModel->getEvolutionQteDaAvecDit($numDit, $ref, $designation, $numeroOr, $statutBc, $numDa, $qteDemande, $daReappro);
 
         return $qte;
     }
@@ -415,7 +415,7 @@ trait StatutBcTrait
     }
 
 
-    private function updateSituationCdeDansDaAfficher(array $situationCde, DaAfficher $DaAfficher, ?string $numcde, array $infoDaDirect, bool $daDirect, bool $daViaOR, bool $daReappro): void
+    private function updateSituationCdeDansDaAfficher(array $situationCde, DaAfficher $DaAfficher, ?string $numcde, array $infoDaDirect, bool $daDirect, bool $daViaOR, bool $daReappro, array $qte): void
     {
         if (!empty($situationCde) || !empty($infoDaDirect)) {
             if ($daDirect) {
@@ -427,7 +427,18 @@ trait StatutBcTrait
                 ->setNumeroCde($numcde);
         }
 
-        if ($daReappro) $DaAfficher->setNumeroCde($numcde);
+        if ($daReappro) {
+            if(empty($qte)) return ;
+            $q = $qte[0];
+                $qteLivee = (int)$q['qte_livree'];
+                $qteReliquat = (int)$q['qte_reliquat']; // quantiter en attente
+                $qteDispo = (int)$q['qte_dispo'];
+                $qteDem = (int)$q['qte_dem'];
+
+                if($qteDem >= $qteLivee) {
+                    $DaAfficher->setNumeroCde($numcde);
+                }
+        };
     }
 
     /**
