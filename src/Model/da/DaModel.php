@@ -220,7 +220,7 @@ class DaModel extends Model
             'BC envoyé au fournisseur'
         ];
 
-        $statement = "SELECT DISTINCT
+        $statement = " SELECT DISTINCT
                         slor_natcm,
                         TRIM(slor_refp) as ref,
                         TRIM(slor_desi) as desi,
@@ -318,6 +318,19 @@ class DaModel extends Model
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
 
         return $data;
+    }
+
+    public function getNumeroOrReappro(string $numDa): ?string
+    {
+        $statement = " SELECT seor_numor as num_or
+                    from informix.sav_eor 
+                    where seor_lib = '$numDa'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return $data[0]['num_or'] ?? null;
     }
 
     // public function getAllConstructeur(string $numDit)

@@ -127,3 +127,4 @@ ALTER TABLE da_afficher ADD est_facture_bl_soumis bit DEFAULT 0;
 ALTER TABLE da_afficher ADD numero_intervention_ips INT;
 ALTER TABLE da_afficher ADD mail_envoye bit DEFAULT 0;
 ALTER TABLE da_afficher ADD non_dispo bit DEFAULT 0;
+ALTER TABLE da_afficher ADD est_bl_reappro_soumis bit DEFAULT 0;
