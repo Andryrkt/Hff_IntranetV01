@@ -470,11 +470,14 @@ a.choix:hover {
   background-color: #f1c232 !important;
   color: #8e5a00 !important;
 }
-.bg-bc-soumission {
+.bg-bc-soumission,
+.bg-bc-en-cours-de-preparation {
   background-color: #c9daf8 !important;
   color: #004080 !important;
 }
-.bg-bc-a-valider-da {
+
+.bg-bc-a-valider-da,
+.bg-bc-cession-a-generer {
   background-color: #ffcc00 !important;
   color: #4d4d00 !important;
 }

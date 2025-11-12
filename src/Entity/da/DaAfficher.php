@@ -261,7 +261,7 @@ class DaAfficher
     /**
      * @ORM\Column(type="datetime", name="date_planning_or", nullable=true)
      */
-    private $datePlannigOr;
+    private $datePlannigOr = null;
 
     /**
      * @ORM\Column(type="integer", name="numero_ligne_ips")
@@ -352,6 +352,11 @@ class DaAfficher
      * @ORM\Column(type="integer", name="numero_intervention_ips")
      */
     private ?int $numeroInterventionIps = 0;
+
+    /**
+     * @ORM\Column(type="boolean", name="est_bl_reappro_soumis")
+     */
+    private $estBlReapproSoumis = false;
 
     /**==============================================================================
      * GETTERS & SETTERS
@@ -1711,6 +1716,18 @@ class DaAfficher
         return $this;
     }
 
+
+    public function getEstBlReapproSoumis()
+    {
+        return $this->estBlReapproSoumis;
+    }
+
+    public function setEstBlReapproSoumis($estBlReapproSoumis)
+    {
+        $this->estBlReapproSoumis = $estBlReapproSoumis;
+
+        return $this;
+    }
     /**
      * Copie les propriétés pertinentes d'un ancien DaAfficher vers l'objet courant.
      *
