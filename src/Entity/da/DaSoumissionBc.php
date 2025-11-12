@@ -28,6 +28,12 @@ class DaSoumissionBc
     public const STATUT_PAS_DANS_OR              = 'PAS DANS OR';
     public const STATUT_NON_DISPO                = 'Non Dispo Fournisseur';
 
+    // statut pour Da Reappro
+    public const STATUT_CESSION_A_GENERER = 'Cession à générer';
+    public const STATUT_EN_COURS_DE_PREPARATION = 'En cours de préparation';
+
+
+    // statut pour Da Reappro , Da Direct, Da Via OR
     public const STATUT_TOUS_LIVRES              = 'Tous livrés';
     public const STATUT_PARTIELLEMENT_LIVRE      = 'Partiellement livré';
     public const STATUT_PARTIELLEMENT_DISPO      = 'Partiellement dispo';

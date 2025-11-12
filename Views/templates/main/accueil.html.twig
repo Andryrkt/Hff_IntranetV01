@@ -12,74 +12,13 @@
 {% block breadCrumb %}{% endblock %}
 
 {% block bandeau %}
-	<span class="vignette-bande">
-		{% for i in 0..4 %}
-			<span>
-				17/10/2025 - V20251017.3.1.0 :
-				<div class="news-ticker">
-					<ul>
-						<li>
-							<b>APPRO – Formulaire création d’une DA :</b>
-							Un contrôle a été mis en place afin de définir une marge au service APP pour traiter les demandes d’achats. 
-														Ce planning dépendra automatiquement du niveau d’urgence de la DIT ou la date planning de l’OR.
-							<ul>
-								<li>
-									S’il n’y a pas encore d’OR rattaché à la DIT, alors le planning suit le niveau d’urgence de la DIT :
-									<ul>
-										<li>P0 : 5 jours ouvrables</li>
-										<li>P1 : 7 jours ouvrables</li>
-										<li>P2 : 10 jours ouvrables</li>
-										<li>P3 : 15 jours ouvrables</li>
-										<li>P4 : 15 jours ouvrables</li>
-									</ul>
-								</li>
-								<li>
-									Si DIT avec OR validé avec les devis :
-									<ul>
-										<li>7 jours ouvrables avant la date planning de l’OR</li>
-										<li>Sinon 5 jours</li>
-									</ul>
-								</li>
-							</ul>
-						</li>
-						<li>
-							<b>APPRO – Validation et proposition :</b>
-							<ul>
-								<li>Le service APP peut enregistrer des propositions et sauvegarder des devis sans les envoyer à l’atelier (draft).</li>
-								<li>
-									Intégration du statut « Demande de devis en cours » :
-																		Après l’envoi des demandes de devis aux fournisseurs, un pointage peut être effectué sur une DA 
-																		par le service APP afin d’identifier les DA ayant fait l’objet d’une demande de devis auprès des fournisseurs.
-								</li>
-								<li>
-									Intégration du statut « Devis à relancer » :
-																		Si aucune proposition n’est envoyée à l’atelier deux jours après l’envoi du devis, 
-																		un email de relance est automatiquement adressé au service APP.
-								</li>
-								<li>La désignation des articles catalogués ne peut plus être modifiée lors d’une proposition.</li>
-								<li>L’envoi des devis à l’atelier est désormais bloqué s’il existe un article dont le fournisseur n’est pas renseigné (FRN 99).</li>
-								<li>
-									Les articles proposés par le service APP sont présentés sous forme de matrice 
-																		pour une meilleure lisibilité (en ligne : désignations initiales, en colonne : prix unitaires par fournisseur).
-								</li>
-							</ul>
-						</li>
-						<li>
-							<b>APPRO – Détail demande d’achat :</b>
-							Les articles dans le bon d’achat sont aussi représentés sous forme de matrice 
-														(en ligne : désignations initiales, en colonne : prix unitaires par fournisseur).
-						</li>
-					</ul>
-				</div>
-			</span>
-		{% endfor %}
-	</span>
+	{% include "/partials/_bandeau.html.twig" %}
 {% endblock %}
 
 {% block content %}
 	<div class="container" id="hasDAP" data-has-dap="{{ appsByCode.DAP }}">
 		{% include "/partials/_notification.html.twig" %}
-		{% include 'partials/_vignettes.html.twig' with {'menuItems': menuItems} %}
+		{% include "/partials/_vignettes.html.twig" with {"menuItems": menuItems} %}
 	</div>
 {% endblock %}
 

@@ -251,8 +251,24 @@ class DaAfficherRepository extends EntityRepository
             $subQb->expr()->in('d.statutOr', ':statutOrs'),
             $subQb->expr()->in('d.numeroDemandeAppro', ':exceptions')
         );
+
+        $typeDa = [
+            DemandeAppro::TYPE_DA_AVEC_DIT,
+            DemandeAppro::TYPE_DA_REAPPRO
+        ];
+        $typeDaDirect = DemandeAppro::TYPE_DA_DIRECT;
         // Appliquer la condition selon le type de la DA
-        $subQb->andWhere('d.daTypeId = ' . DemandeAppro::TYPE_DA_DIRECT . ' OR (d.daTypeId = ' . DemandeAppro::TYPE_DA_AVEC_DIT . ' AND (' . $orCondition . '))');
+        $subQb->andWhere(
+            $subQb->expr()->orX(
+                $subQb->expr()->eq('d.daTypeId', ':typeDaDirect'),
+                $subQb->expr()->andX(
+                    $subQb->expr()->in('d.daTypeId', ':typeDa'),
+                    $orCondition
+                )
+            )
+        )
+            ->setParameter('typeDaDirect', $typeDaDirect)
+            ->setParameter('typeDa', $typeDa);
 
         // Paramètres communs
         $subQb->setParameter('statutOrs', $statutOrs)
@@ -439,6 +455,7 @@ class DaAfficherRepository extends EntityRepository
             ->groupBy('daf.numeroDemandeAppro');
         $this->handleOrderBy($distinctQb, 'daf', $criteria, true);
         $distinctQb
+            ->addOrderBy('MAX(daf.numeroDemandeAppro)', 'DESC')
             ->addOrderBy('MAX(daf.numeroFournisseur)', 'DESC')
             ->addOrderBy('MAX(daf.numeroCde)', 'DESC')
             ->setFirstResult(($page - 1) * $limit)
@@ -460,6 +477,7 @@ class DaAfficherRepository extends EntityRepository
             ->setParameter('numeroDAsPage', $numeroDAsPage);
         $this->handleOrderBy($finalQb, 'daf', $criteria);
         $finalQb
+            ->addOrderBy('daf.numeroDemandeAppro', 'DESC')
             ->addOrderBy('daf.numeroFournisseur', 'DESC')
             ->addOrderBy('daf.numeroCde', 'DESC');
 
@@ -517,9 +535,7 @@ class DaAfficherRepository extends EntityRepository
 
         if ($criteria && !empty($criteria['sortNbJours'])) {
             $orderDir = strtoupper($criteria['sortNbJours']);
-            if (!in_array($orderDir, $allowedDirs, true)) {
-                $orderDir = 'DESC';
-            }
+            if (!in_array($orderDir, $allowedDirs, true)) $orderDir = 'DESC';
 
             if ($aggregation) {
                 $orderFunc = $orderDir === 'DESC' ? 'MAX' : 'MIN';
