@@ -121,14 +121,25 @@ document.addEventListener("contextmenu", function (event) {
     "Partiellement livré",
   ];
 
-  if(typeDa == 2) {
+  if (typeDa == 2) {
     statutAffiche.style.display = "none"; // n'affiche pas le statut BC envoyé au fournisseur
 
-    //desactive le formulaire
-    Array.from(form.elements).forEach((el) => (el.disabled = true)); // Désactive tous les champs du formulaire
-    form.querySelector("button[type='submit']").classList.add("disabled"); //changer l'apparence du bouton
-  }
-  else if (statutsBcEnvoyer.includes(statutBc)) {
+    //desactive une partie du formulaire
+    Array.from(form.elements).forEach((el) => {
+      const value = el.value;
+      console.log(value);
+
+      if (value === "BC" || value === "Facture + BL") {
+        el.disabled = true;
+      } else if (value === "BL Reappro") {
+        // Choose one based on your needs:
+        el.focus(); // Focus the element
+        el.checked = true;
+        el.style.borderColor = "blue";
+      }
+    });
+    form.querySelector("button[type='submit']").classList.remove("disabled"); //changer l'apparence du bouton
+  } else if (statutsBcEnvoyer.includes(statutBc)) {
     statutAffiche.style.display = "block";
     statutAffiche.innerHTML = `
       <p title="cliquer pour confirmer l'envoi"

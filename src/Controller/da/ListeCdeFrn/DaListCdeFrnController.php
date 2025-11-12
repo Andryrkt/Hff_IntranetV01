@@ -205,10 +205,12 @@ class DaListCdeFrnController extends Controller
         if ($formSoumission->isSubmitted() && $formSoumission->isValid()) {
             $soumission = $formSoumission->getData();
 
-            if ($soumission['soumission'] === true) {
+            if ($soumission['soumission'] === 'BC') {
                 $this->redirectToRoute("da_soumission_bc", ['numCde' => $soumission['commande_id'], 'numDa' => $soumission['da_id'], 'numOr' => $soumission['num_or']]);
-            } else {
+            } elseif ($soumission['soumission'] === 'Facture + BL') {
                 $this->redirectToRoute("da_soumission_facbl", ['numCde' => $soumission['commande_id'], 'numDa' => $soumission['da_id'], 'numOr' => $soumission['num_or']]);
+            } elseif ($soumission['soumission'] === 'BL Reappro') {
+                $this->redirectToRoute("da_soumission_bl_reappro", ['numCde' => $soumission['commande_id'], 'numDa' => $soumission['da_id'], 'numOr' => $soumission['num_or']]);
             }
         }
     }

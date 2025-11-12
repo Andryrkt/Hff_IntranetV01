@@ -116,7 +116,7 @@ trait StatutBcTrait
 
 
         // 11. modification de situation commande dans DaAfficher
-        $this->updateSituationCdeDansDaAfficher($situationCde, $DaAfficher, $numCde, $infoDaDirect, $daDirect, $daViaOR);
+        $this->updateSituationCdeDansDaAfficher($situationCde, $DaAfficher, $numCde, $infoDaDirect, $daDirect, $daViaOR, $daReappro);
 
         // 12. modification du Qte de commande dans DaAfficher
         $this->updateQteCdeDansDaAfficher($qte, $DaAfficher, $infoDaDirect, $daDirect, $daViaOR);
@@ -143,9 +143,9 @@ trait StatutBcTrait
         }
         // DA Reappro
         elseif ($daReappro && $numeroOr == null && $statutOr == DemandeAppro::STATUT_DW_VALIDEE) {
-            return 'Cession à générer';
+            return DaSoumissionBc::STATUT_CESSION_A_GENERER;
         } elseif ($daReappro && $numeroOr != null && $statutOr == DemandeAppro::STATUT_DW_VALIDEE && $DaAfficher->getEstBlReapproSoumis() == false) {
-            return 'Encours de préparation';
+            return DaSoumissionBc::STATUT_EN_COURS_DE_PREPARATION;
         }
         // DA Reappro, DA Direct , DA Via OR
         elseif ($partiellementDispo) {
@@ -415,7 +415,7 @@ trait StatutBcTrait
     }
 
 
-    private function updateSituationCdeDansDaAfficher(array $situationCde, DaAfficher $DaAfficher, ?string $numcde, array $infoDaDirect, bool $daDirect, bool $daViaOR): void
+    private function updateSituationCdeDansDaAfficher(array $situationCde, DaAfficher $DaAfficher, ?string $numcde, array $infoDaDirect, bool $daDirect, bool $daViaOR, bool $daReappro): void
     {
         if (!empty($situationCde) || !empty($infoDaDirect)) {
             if ($daDirect) {
@@ -426,6 +426,8 @@ trait StatutBcTrait
             $DaAfficher->setPositionBc($positionBc ?? '')
                 ->setNumeroCde($numcde);
         }
+
+        if ($daReappro) $DaAfficher->setNumeroCde($numcde);
     }
 
     /**

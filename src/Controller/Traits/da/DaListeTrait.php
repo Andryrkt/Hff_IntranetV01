@@ -99,6 +99,10 @@ trait DaListeTrait
             DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR => 'bg-bc-envoye-au-fournisseur',
             DaSoumissionBc::STATUT_PAS_DANS_OR              => 'bg-bc-pas-dans-or',
             'Non validé'                                    => 'bg-bc-non-valide',
+            //statut pour DA Reappro
+            DaSoumissionBc::STATUT_CESSION_A_GENERER        => 'bg-bc-cession-a-generer',
+            DaSoumissionBc::STATUT_EN_COURS_DE_PREPARATION  => 'bg-bc-en-cours-de-preparation',
+            //statut pour DA Reappro, DA direct, DA via OR
             DaSoumissionBc::STATUT_TOUS_LIVRES              => 'tout-livre',
             DaSoumissionBc::STATUT_PARTIELLEMENT_LIVRE      => 'partiellement-livre',
             DaSoumissionBc::STATUT_PARTIELLEMENT_DISPO      => 'partiellement-dispo',
