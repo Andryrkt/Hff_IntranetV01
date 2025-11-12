@@ -18,6 +18,7 @@ class DaSoumissionType extends  AbstractType
                 'choices'  => [
                     'BC' => true,
                     'Facture + BL' => false,
+                    'BL Reappro' => false
                 ],
                 'expanded' => true, // pour afficher des boutons radio
                 'multiple' => false, // un seul choix possible

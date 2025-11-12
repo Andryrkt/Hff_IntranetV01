@@ -251,8 +251,24 @@ class DaAfficherRepository extends EntityRepository
             $subQb->expr()->in('d.statutOr', ':statutOrs'),
             $subQb->expr()->in('d.numeroDemandeAppro', ':exceptions')
         );
+
+        $typeDa = [
+            DemandeAppro::TYPE_DA_AVEC_DIT,
+            DemandeAppro::TYPE_DA_REAPPRO
+        ];
+        $typeDaDirect = DemandeAppro::TYPE_DA_DIRECT;
         // Appliquer la condition selon le type de la DA
-        $subQb->andWhere('d.daTypeId = ' . DemandeAppro::TYPE_DA_DIRECT . ' OR (d.daTypeId = ' . DemandeAppro::TYPE_DA_AVEC_DIT . ' AND (' . $orCondition . '))');
+        $subQb->andWhere(
+            $subQb->expr()->orX(
+                $subQb->expr()->eq('d.daTypeId', ':typeDaDirect'),
+                $subQb->expr()->andX(
+                    $subQb->expr()->in('d.daTypeId', ':typeDa'),
+                    $orCondition
+                )
+            )
+        )
+            ->setParameter('typeDaDirect', $typeDaDirect)
+            ->setParameter('typeDa', $typeDa);
 
         // Paramètres communs
         $subQb->setParameter('statutOrs', $statutOrs)

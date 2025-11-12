@@ -97,6 +97,8 @@ document.addEventListener("contextmenu", function (event) {
   const positionCde = targetCell.dataset.positionCde;
   const positionCdeFacturer = ["FC", "FA", "CP"].includes(positionCde);
 
+  const typeDa = targetCell.dataset.typeDa;
+
   const statutsTelechargeBC = [
     "Validé",
     "A envoyer au fournisseur",
@@ -118,12 +120,20 @@ document.addEventListener("contextmenu", function (event) {
     "Tous livrés",
     "Partiellement livré",
   ];
-  if (statutsBcEnvoyer.includes(statutBc)) {
+
+  if(typeDa == 2) {
+    statutAffiche.style.display = "none"; // n'affiche pas le statut BC envoyé au fournisseur
+
+    //desactive le formulaire
+    Array.from(form.elements).forEach((el) => (el.disabled = true)); // Désactive tous les champs du formulaire
+    form.querySelector("button[type='submit']").classList.add("disabled"); //changer l'apparence du bouton
+  }
+  else if (statutsBcEnvoyer.includes(statutBc)) {
     statutAffiche.style.display = "block";
     statutAffiche.innerHTML = `
       <p title="cliquer pour confirmer l'envoi"
-         class="text-decoration-none text-dark cursor-pointer bg-success text-white border-0 rounded px-2 py-1">
-         BC envoyé au fournisseur
+          class="text-decoration-none text-dark cursor-pointer bg-success text-white border-0 rounded px-2 py-1">
+          BC envoyé au fournisseur
       </p> <hr/>`;
     // if (statutBc !== "Tous livrés") { // selon le demande de hoby rahalahy le 25/09/2025
     //active le formulaire

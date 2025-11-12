@@ -270,6 +270,7 @@ class DaListCdeFrnController extends Controller
                     'data-num-or'       => $item->getNumeroOr(),
                     'data-statut-bc'    => $item->getStatutCde(),
                     'data-position-cde' => $item->getPositionBc(),
+                    'data-type-da'      => $item->getDaTypeId()
                 ];
             } else {
                 $tdNumCdeAttributes = [
@@ -292,10 +293,13 @@ class DaListCdeFrnController extends Controller
             $styleClickableCell = $envoyeFrn ? 'clickable-td' : '';
 
             // Construction d'urls
-            $urlDetail = $this->getUrlGenerator()->generate(
-                $routeDetailName[$item->getDaTypeId()],
-                ['id' => $item->getDemandeAppro()->getId()]
-            );
+            $urlDetail = '';
+            if (!empty($routeDetailName[$item->getDaTypeId()])) {
+                $urlDetail = $this->getUrlGenerator()->generate(
+                    $routeDetailName[$item->getDaTypeId()],
+                    ['id' => $item->getDemandeAppro()->getId()]
+                );
+            }
 
             // Tout regrouper
             $datasPrepared[] = [

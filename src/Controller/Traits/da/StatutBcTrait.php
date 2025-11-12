@@ -67,10 +67,15 @@ trait StatutBcTrait
             DaSoumissionBc::STATUT_REFUSE                   => 'bg-bc-refuse',
             DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR => 'bg-bc-envoye-au-fournisseur',
             'Non validé'                                    => 'bg-bc-non-valide',
+            //statut pour DA Reappro
+            DaSoumissionBc::STATUT_CESSION_A_GENERER        => 'bg-bc-cession-a-generer',
+            DaSoumissionBc::STATUT_EN_COURS_DE_PREPARATION  => 'bg-bc-en-cours-de-preparation',
+            //statut pour DA Reappro, DA direct, DA via OR
             DaSoumissionBc::STATUT_TOUS_LIVRES              => 'tout-livre',
             DaSoumissionBc::STATUT_PARTIELLEMENT_LIVRE      => 'partiellement-livre',
             DaSoumissionBc::STATUT_PARTIELLEMENT_DISPO      => 'partiellement-dispo',
             DaSoumissionBc::STATUT_COMPLET_NON_LIVRE        => 'complet-non-livre',
+
         ];
         //----------------------------------------------------------------------------------------------------
     }
@@ -96,7 +101,7 @@ trait StatutBcTrait
         [$infoDaDirect, $situationCde] = $this->getInfoNecessaireIps($ref, $numDit, $numDa, $designation, $numeroOr, $statutBc);
 
         /** 7. Non dispo || DA avec DIT et numéro OR null || numéro OR non vide et statut OR non vide || infoDaDirect ou situationCde est vide */
-        if ($DaAfficher->getNonDispo() || ($numeroOr == null && $daViaOR) || ($numeroOr != null && empty($statutOr)) || !$this->aSituationCde($situationCde, $infoDaDirect)) {
+        if ($DaAfficher->getNonDispo() || ($numeroOr == null && $daViaOR) || ($numeroOr != null && empty($statutOr)) || !$this->aSituationCde($situationCde, $infoDaDirect, $daReappro)) {
             return $statutBc;
         }
 
@@ -153,7 +158,7 @@ trait StatutBcTrait
             return 'Partiellement livré';
         }
 
-        return 'ERREUR';
+        return '';
     }
 
     private function getInfoCde($infoDaDirect, $situationCde, $daDirect, $daViaOR, $daReappro, $numeroOr, $em): array
@@ -247,8 +252,9 @@ trait StatutBcTrait
         return $numCde;
     }
 
-    private function aSituationCde(array $situationCde, array $infoDaDirect): bool
+    private function aSituationCde(array $situationCde, array $infoDaDirect, bool $daReappro): bool
     {
+        if ($daReappro) return true;
         return array_key_exists(0, $situationCde) || array_key_exists(0, $infoDaDirect);
     }
 
@@ -301,8 +307,9 @@ trait StatutBcTrait
         }
     }
 
-    private function doitSoumettreBc(array $situationCde, string $numCde, ?string $statutBc, array $infoDaDirect, bool $daDirect, $daViaOR): bool
+    private function doitSoumettreBc(array $situationCde, ?string $numCde, ?string $statutBc, array $infoDaDirect, bool $daDirect, $daViaOR): bool
     {
+        if ($numCde == null) $numCde = '';
         $statutBcDw = [
             DaSoumissionBc::STATUT_SOUMISSION,
             DaSoumissionBc::STATUT_A_VALIDER_DA,
