@@ -27,7 +27,7 @@ class planningMagasinController extends Controller
 
     private PlanningMagasinModel $planningMagasinModel;
     private PlanningMagasinSearch $planningMagasinSearch;
-    private BcMagasinRepository $BcMagasinRepository;
+    private $BcMagasinRepository;
 
     public function __construct()
     {

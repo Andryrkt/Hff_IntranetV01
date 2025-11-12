@@ -68,10 +68,18 @@ class PlanningMagasinSearchType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         //$serviceDebite = $planningModel->recuperationServiceDebite();
-        $agence = $this->transformEnSeulTableauAvecKey($this->planningMagasinModel->recuperationAgenceIrium());
+        // $agence = $this->transformEnSeulTableauAvecKey($this->planningMagasinModel->recuperationAgenceIrium());
+        $commercial = $this->planningMagasinModel->recupCommercial();
         $agenceDebite = $this->planningMagasinModel->recuperationAgenceDebite();
         // $section = $this->planningMagasinModel->recuperationSection();
         $builder
+           
+            ->add('commercial', ChoiceType::class, [
+                'label' =>  'Commercial',
+                'required' => false,
+                'choices' => array_combine($commercial,$commercial),
+                'placeholder' => ' -- Choisir un commercial --',
+              ])       
             // ->add('agence', ChoiceType::class, [
             //     'label' =>  'Agence Travaux',
             //     'required' => false,
@@ -154,10 +162,10 @@ class PlanningMagasinSearchType extends AbstractType
                 //     'label' => "N° Série",
                 //     'required' => false
                 // ])
-                // ->add('idMat', TextType::class, [
-                //     'label' => "Id Matériel",
-                //     'required' => false
-                // ])
+                ->add('refcde', TextType::class, [
+                    'label' => "reférence Client",
+                    'required' => false
+                ])
                 ->add('numParc', TextType::class, [
                     'label' => "Client ",
                     'required' => false

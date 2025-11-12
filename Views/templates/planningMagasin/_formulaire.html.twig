@@ -33,8 +33,8 @@
 					</div>
 					<div
 						class="col-12 col-md-2">
-						{# {{form_row(form.plan)}}
-												{{form_row(form.numSerie)}} #}
+						{{form_row(form.commercial)}}
+						
 						{{form_row(form.numParc)}}
 						<div id="suggestion-num-client" class="suggestions-container"></div>
 						<div id="loader-num-client" class="spinner" style="display: none;">Chargement...</div>
@@ -42,7 +42,7 @@
 					</div>
 					<div
 						class="col-12 col-md-2">
-						{# {{form_row(form.annee)}} #}
+						{{form_row(form.refcde)}}
 						{{ form_row(form.months, {'label': 'Période', 'attr': {'class': 'form-select'}}) }}
 						{# {{form_row(form.dateDebut)}}
 												{{form_row(form.dateFin)}} #}

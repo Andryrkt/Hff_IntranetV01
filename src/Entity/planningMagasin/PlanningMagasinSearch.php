@@ -28,6 +28,8 @@ class PlanningMagasinSearch
     private $typeDocument;
     private $reparationRealise;
     private $orNonValiderDw;
+    private $commercial;
+    private $refCde;
 
     public function getNiveauUrgence()
     {
@@ -483,7 +485,48 @@ class PlanningMagasinSearch
             'serviceDebite' => $this->serviceDebite,
             'typeligne' => $this->typeligne,
             'orBackOrder' => $this->orBackOrder,
-            'orNonValiderDw' => $this->orNonValiderDw
+            'orNonValiderDw' => $this->orNonValiderDw,
+            'commercial'=> $this->commercial,
+            'refClient'=>$this->refCde
         ];
+    }
+
+    /**
+     * Get the value of commercial
+     */ 
+    public function getCommercial()
+    {
+        return $this->commercial;
+    }
+
+    /**
+     * Set the value of commercial
+     *
+     * @return  self
+     */ 
+    public function setCommercial($commercial)
+    {
+        $this->commercial = $commercial;
+
+        return $this;
+    }
+    /**
+     * Get the value of refcde
+     */ 
+    public function getRefcde()
+    {
+        return $this->refCde;
+    }
+
+    /**
+     * Set the value of commercial
+     *
+     * @return  self
+     */ 
+    public function setRefCde($refCde)
+    {
+        $this->refCde = $refCde;
+
+        return $this;
     }
 }
