@@ -248,7 +248,7 @@ class DaListCdeFrnController extends Controller
         $routeDetailName = [
             DemandeAppro::TYPE_DA_DIRECT   => 'da_detail_direct',
             DemandeAppro::TYPE_DA_AVEC_DIT => 'da_detail_avec_dit',
-            DemandeAppro::TYPE_DA_REAPPRO  => '',
+            DemandeAppro::TYPE_DA_REAPPRO  => 'da_detail_reappro',
         ];
 
         $safeIconBan     = new Markup('<i class="fas fa-ban text-muted"></i>', 'UTF-8');
@@ -333,6 +333,7 @@ class DaListCdeFrnController extends Controller
                 'tdCheckboxAttributes' => $tdCheckboxAttributes,
                 'aDtLivPrevAttributes' => $aDtLivPrevAttributes,
                 'dateFinSouhaite'      => $item->getDateFinSouhaite() ? $item->getDateFinSouhaite()->format('d/m/Y') : '',
+                'artConstp'            => $item->getArtConstp(),
                 'artRefp'              => $item->getArtRefp(),
                 'artDesi'              => $item->getArtDesi(),
                 'qteDem'               => $item->getQteDem() == 0 ? '-' : $item->getQteDem(),

@@ -158,7 +158,7 @@ trait StatutBcTrait
             return 'Partiellement livré';
         }
 
-        return 'ERREUR';
+        return '';
     }
 
     private function getInfoCde($infoDaDirect, $situationCde, $daDirect, $daViaOR, $daReappro, $numeroOr, $em): array
@@ -391,16 +391,16 @@ trait StatutBcTrait
 
             if ($daDirect) {
                 $q = $infoDaDirect[0];
+                $qteDem = (int)$q['qte_dem'];
                 $qteLivee = 0; //TODO: en attend du decision du client
                 $qteReliquat = (int)$q['qte_en_attente']; // quantiter en attente
                 $qteDispo = (int)$q['qte_dispo'];
-                $qteDem = (int)$q['qte_dem'];
             } else { // pour via or et reappro
                 $q = $qte[0];
-                $qteLivee = (int)$q['qte_livree'];
-                $qteReliquat = (int)$q['qte_reliquat']; // quantiter en attente
-                $qteDispo = (int)$q['qte_dispo'];
                 $qteDem = (int)$q['qte_dem'];
+                $qteLivee = (int)$q['qte_livree'];
+                $qteReliquat = $qteDem - $qteLivee; // quantiter en attente
+                $qteDispo = (int)$q['qte_dispo'];
             }
 
             if ($DaAfficher->getNumeroCde() != '26246458' && $DaAfficher->getArtDesi() != 'ECROU HEX. AC.GALVA A CHAUD CL.8 DI') {
@@ -430,14 +430,14 @@ trait StatutBcTrait
         if ($daReappro) {
             if(empty($qte)) return ;
             $q = $qte[0];
-                $qteLivee = (int)$q['qte_livree'];
-                $qteReliquat = (int)$q['qte_reliquat']; // quantiter en attente
-                $qteDispo = (int)$q['qte_dispo'];
-                $qteDem = (int)$q['qte_dem'];
+            $qteDem = (int)$q['qte_dem'];
+            $qteLivee = (int)$q['qte_livree'];
+            $qteReliquat = $qteDem - $qteLivee; // quantiter en attente
+            $qteDispo = (int)$q['qte_dispo'];
 
-                if($qteDem >= $qteLivee) {
-                    $DaAfficher->setNumeroCde($numcde);
-                }
+            if($qteDem >= $qteLivee) {
+                $DaAfficher->setNumeroCde($numcde);
+            }
         };
     }
 

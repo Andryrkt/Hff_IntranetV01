@@ -14,9 +14,9 @@ document.addEventListener("DOMContentLoaded", function () {
    *  2ᵉ appel : colonnes 4-5 selon la colonne 4.
    */
   mergeCellsRecursiveTable([
-    { pivotIndex: 0, columns: [0, 1, 2, 3, 4, 5, 21], insertSeparator: true },
+    { pivotIndex: 0, columns: [0, 1, 2, 3, 4, 5, 22], insertSeparator: true },
     { pivotIndex: 6, columns: [6, 7], insertSeparator: true },
-    { pivotIndex: 8, columns: [8, 19], insertSeparator: true },
+    { pivotIndex: 8, columns: [8, 20], insertSeparator: true },
   ]);
 });
 
