@@ -544,7 +544,7 @@ class DossierInterventionAtelierModel extends Model
 
         $execOrdre = $this->connexion->query($sqlOrdre);
         while ($result = odbc_fetch_array($execOrdre)) {
-            $data = $this->ConvertirEnUtf_8($result);
+            $data = $this->convertirEnUtf8($result);
             // si statut = Validé
             if ($data['statut'] === 'Validé') {
                 $dateTimeOrdre = $data['date_modif'] . ' ' . $data['heure_modif'];
