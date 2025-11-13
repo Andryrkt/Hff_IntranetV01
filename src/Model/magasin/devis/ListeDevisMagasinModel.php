@@ -27,7 +27,7 @@ class ListeDevisMagasinModel extends Model
             WHERE nent_natop = 'DEV'
             AND nent_soc = 'HF'
             AND CAST(nent_numcli AS VARCHAR(20)) NOT LIKE '199%'
-            AND year(Nent_datecde) = '2025'
+            AND year(Nent_datecde) = year(TODAY)
         ";
 
         if (array_key_exists('statutIps', $criteria) && $criteria['statutIps'] == 'RE') {
@@ -216,5 +216,26 @@ class ListeDevisMagasinModel extends Model
         $data = $this->connect->fetchResults($result);
 
         return $this->convertirEnUtf8($data);
+    }
+
+    public function getConstructeur(string $numeroDevis)
+    {
+        $statement = " SELECT 
+                CASE 
+                    WHEN COUNT(*) = 0 THEN 'AUCUNE CONSTRUCTEUR'
+                    WHEN COUNT(CASE WHEN nlig_constp = 'CAT' THEN 1 END) = COUNT(*) THEN 'TOUT CAT'
+                    ELSE 'TOUS NEST PAS CAT'
+                END as resultat
+            FROM informix.neg_lig 
+            WHERE nlig_numcde = '$numeroDevis' 
+            AND nlig_constp NOT LIKE 'Nmc%'
+            AND nlig_constp IN (" . GlobalVariablesService::get('pieces_magasin') . ")
+    ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return array_column($data, 'resultat')[0];
     }
 }

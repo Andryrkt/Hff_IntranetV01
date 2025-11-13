@@ -47,6 +47,25 @@ trait DevisMagasinTrait
     {
         $suffixConstructeur = $this->listeDevisMagasinModel->constructeurPieceMagasin($devisMagasin->getNumeroDevis());
 
+        // est validation pm
+        $cosntructeur = false;
+        if ($devisMagasin->constructeur === 'TOUS NEST PAS CAT') {
+            $cosntructeur = true;
+        } elseif ($devisMagasin->constructeur === 'TOUT CAT' && $devisMagasin->getEstValidationPm() == true) {
+            $cosntructeur = true;
+        }
+
+        // tache validateur
+        $tacheValidateur = null;
+        if ($typeSoumission == 'VP') {
+
+            if ($devisMagasin->getEstValidationPm() == false) {
+                $tacheValidateur = 'AUTOVALIDATION';
+            } else {
+                $tacheValidateur = $devisMagasin->getTacheValidateur();
+            }
+        }
+
         $devisMagasin
             ->setNumeroDevis($devisMagasin->getNumeroDevis())
             ->setMontantDevis($firstDevisIps['montant_total'])
@@ -59,7 +78,8 @@ trait DevisMagasinTrait
             ->setCat($suffixConstructeur === 'C' || $suffixConstructeur === 'CP' ? true : false)
             ->setNonCat($suffixConstructeur === 'P' || $suffixConstructeur === 'CP' ? true : false)
             ->setNomFichier((string)$nomFichier)
-            ->setTacheValidateur($typeSoumission == 'VP' ? $devisMagasin->getTacheValidateur() : null)
+            ->setTacheValidateur($tacheValidateur)
+            ->setEstValidationPm($cosntructeur)
         ;
     }
 
