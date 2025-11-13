@@ -83,6 +83,15 @@ class DemandeApproReapproFormType extends AbstractType
                 'codeCentrale',
                 TextType::class,
                 [
+                    'label'    => false,
+                    'required' => false
+                ]
+            )
+            ->add(
+                'desiCentrale',
+                TextType::class,
+                [
+                    'mapped'   => false,
                     'label'    => 'Centrale rattachée à la DA',
                     'required' => false
                 ]
