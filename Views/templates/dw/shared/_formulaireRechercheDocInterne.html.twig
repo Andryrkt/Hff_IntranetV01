@@ -1,13 +1,13 @@
-<!-- DEBUT recherche -->
 {% set role_ids = App.user.roleIds %}
-<div class="accordion mb-2" id="accordionExample">
+
+<div class="accordion mb-2" id="formAccordion">
 	<div class="accordion-item">
 		<h2 class="accordion-header">
 			<button class="accordion-button enteteAccordion" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
 				Formulaire de recherche
 			</button>
 		</h2>
-		<div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+		<div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#formAccordion">
 			<div class="accordion-body">
 				{{ form_start(form, {'method': 'GET'}) }}
 				<div class="row">
