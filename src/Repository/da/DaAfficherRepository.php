@@ -455,6 +455,7 @@ class DaAfficherRepository extends EntityRepository
             ->groupBy('daf.numeroDemandeAppro');
         $this->handleOrderBy($distinctQb, 'daf', $criteria, true);
         $distinctQb
+            ->addOrderBy('MAX(daf.numeroDemandeAppro)', 'DESC')
             ->addOrderBy('MAX(daf.numeroFournisseur)', 'DESC')
             ->addOrderBy('MAX(daf.numeroCde)', 'DESC')
             ->setFirstResult(($page - 1) * $limit)
@@ -476,6 +477,7 @@ class DaAfficherRepository extends EntityRepository
             ->setParameter('numeroDAsPage', $numeroDAsPage);
         $this->handleOrderBy($finalQb, 'daf', $criteria);
         $finalQb
+            ->addOrderBy('daf.numeroDemandeAppro', 'DESC')
             ->addOrderBy('daf.numeroFournisseur', 'DESC')
             ->addOrderBy('daf.numeroCde', 'DESC');
 
@@ -533,9 +535,7 @@ class DaAfficherRepository extends EntityRepository
 
         if ($criteria && !empty($criteria['sortNbJours'])) {
             $orderDir = strtoupper($criteria['sortNbJours']);
-            if (!in_array($orderDir, $allowedDirs, true)) {
-                $orderDir = 'DESC';
-            }
+            if (!in_array($orderDir, $allowedDirs, true)) $orderDir = 'DESC';
 
             if ($aggregation) {
                 $orderFunc = $orderDir === 'DESC' ? 'MAX' : 'MIN';
