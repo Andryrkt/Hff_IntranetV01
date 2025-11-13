@@ -70,6 +70,8 @@ class ReportingIpsModel extends Model
             $numFacture
             $description
             AND slor_constp in ({$criterias['constructeur']})
+            ORDER BY seor_dateor DESC, slor_succdeb, slor_servdeb, slor_numfac, seor_lib, slor_constp, slor_refp
+
         ";
 
         $result = $this->connect->executeQuery($statement);

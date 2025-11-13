@@ -208,7 +208,7 @@ trait StatutBcTrait
     private function getQte($ref, $numDit, $numDa, $designation, $numeroOr, $statutBc, $qteDemande, $daDirect, $daViaOR, $numCde): array
     {
         if ($daDirect) $qte = $this->daModel->getEvolutionQteDaDirect($numCde, $ref, $designation);
-        // pour da via OR et DA reappro
+        // TODO: pour da via OR et DA reappro mer une condition pour ne pas toujour executer cette requette
         $qte = $this->daModel->getEvolutionQteDaAvecDit($numDit, $ref, $designation, $numeroOr, $statutBc, $numDa, $qteDemande);
 
         return $qte;
