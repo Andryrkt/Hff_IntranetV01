@@ -222,6 +222,11 @@ class DaAfficher
     private ?string $niveauUrgence = null;
 
     /**
+     * @ORM\Column(type="string", length=50, name="code_centrale")
+     */
+    private ?string $codeCentrale = null;
+
+    /**
      * @ORM\Column(type="integer", name="jours_dispo")
      *
      * @var integer | null
@@ -1716,6 +1721,25 @@ class DaAfficher
         return $this;
     }
 
+    /**
+     * Get the value of codeCentrale
+     */
+    public function getCodeCentrale()
+    {
+        return $this->codeCentrale;
+    }
+
+    /**
+     * Set the value of codeCentrale
+     *
+     * @return  self
+     */
+    public function setCodeCentrale($codeCentrale)
+    {
+        $this->codeCentrale = $codeCentrale;
+
+        return $this;
+    }
 
     public function getEstBlReapproSoumis()
     {

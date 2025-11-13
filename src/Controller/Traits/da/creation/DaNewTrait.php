@@ -8,6 +8,7 @@ use App\Entity\da\DemandeAppro;
 use App\Entity\dit\DemandeIntervention;
 use App\Service\autres\VersionService;
 use App\Controller\Traits\da\DaTrait;
+use App\Entity\da\DemandeApproL;
 
 trait DaNewTrait
 {
@@ -31,11 +32,10 @@ trait DaNewTrait
         $numeroVersion = VersionService::autoIncrement($numeroVersionMax);
 
         // Parcours chaque ligne DAL de la demande d'achat
+        /** @var DemandeApproL $dal */
         foreach ($demandeAppro->getDAL() as $dal) {
             $daAfficher = new DaAfficher();
-            if ($dit) {
-                $daAfficher->setDit($dit);
-            }
+            if ($dit) $daAfficher->setDit($dit);
             $daAfficher->enregistrerDa($demandeAppro);
             $daAfficher->enregistrerDal($dal);
             $daAfficher->setNumeroVersion($numeroVersion);

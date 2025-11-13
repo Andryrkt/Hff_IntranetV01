@@ -6,6 +6,8 @@ CREATE TABLE centrale_nrj
     CONSTRAINT PK_centrale_nrj PRIMARY KEY (id)
 );
 
+ALTER TABLE Demande_Appro ADD code_centrale varchar(4) NULL;
+
 ALTER TABLE da_afficher ADD code_centrale varchar(4) NULL;
 
 insert into centrale_nrj
