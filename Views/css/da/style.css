@@ -454,7 +454,8 @@ a.choix:hover {
 }
 
 /* Pour les statuts du BC */
-.bg-bc-a-generer {
+.bg-bc-a-generer, 
+.bg-bc-cession-a-generer {
   background-color: #ff66cc !important;
   color: #660033 !important;
 }
@@ -470,10 +471,12 @@ a.choix:hover {
   background-color: #f1c232 !important;
   color: #8e5a00 !important;
 }
-.bg-bc-soumission {
+.bg-bc-soumission,
+.bg-bc-en-cours-de-preparation {
   background-color: #c9daf8 !important;
   color: #004080 !important;
 }
+
 .bg-bc-a-valider-da {
   background-color: #ffcc00 !important;
   color: #4d4d00 !important;
@@ -500,7 +503,8 @@ a.choix:hover {
 /* Statuts supplémentaires */
 .tout-livre {
   background-color: #28a745 !important;
-  color: #1c4d20 !important;
+  /* color: #1c4d20 !important; */
+  color: #f1f8f2 !important;
 }
 .partiellement-livre {
   background-color: #ffc107 !important;

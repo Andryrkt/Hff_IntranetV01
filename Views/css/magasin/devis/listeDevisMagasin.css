@@ -123,6 +123,7 @@
 }
 .bg-a-traiter {
   background-color: #fb335b !important;
+  color: aliceblue !important;
 }
 
 
@@ -131,9 +132,9 @@
   background-color: #ffc107 !important;
 }
 .bg-bc-en-attente {
-  background-color: #007bff !important;
+  background-color: #00ff9d !important;
 }
 .bg-bc-valide {
-  background-color: #28a745 !important;
+  background-color: #034112 !important;
 }
 

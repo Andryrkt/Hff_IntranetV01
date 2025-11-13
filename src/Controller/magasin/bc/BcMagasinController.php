@@ -124,8 +124,8 @@ class BcMagasinController extends Controller
          * Enregistrement de fichier uploder
          * @var array $nomEtCheminFichiersEnregistrer
          * @var array $nomFichierEnregistrer 
-         * @var string $nomAvecCheminFichier
-         * @var string $nomFichier
+         * @var string $nomAvecCheminFichier (page de garde)
+         * @var string $nomFichier (page de garde)
          */
         [$nomEtCheminFichiersEnregistrer, $nomFichierEnregistrer, $nomAvecCheminFichier, $nomFichier] = $this->enregistrementFichier($form, $numeroDevis, $numeroVersion);
 

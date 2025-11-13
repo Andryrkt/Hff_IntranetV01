@@ -126,7 +126,8 @@ class ListeDevisMagasinController extends Controller
             $devisIp['operateur'] = $devisSoumi ? $devisSoumi->getUtilisateur() : '';
             $devisIp['date_envoi_devis_au_client'] = $devisSoumi ? ($devisSoumi->getDateEnvoiDevisAuClient() ? $devisSoumi->getDateEnvoiDevisAuClient() : '') : '';
             $devisIp['utilisateur_createur_devis'] = $this->listeDevisMagasinModel->getUtilisateurCreateurDevis($devisIp['numero_devis']) ?? '';
-            $devisIp['statut_bc'] = $this->getEntityManager()->getRepository(BcMagasin::class)->findLatestStatusByIdentifier($devisIp['numero_devis']);
+            $devisIp['statut_bc'] = $devisSoumi ? $devisSoumi->getStatutBc() : '';
+            
             // Appliquer les filtres si des critères sont fournis
             if (!empty($criteria) && !$this->matchesCriteria($devisIp, $criteria)) {
                 continue; // Ignorer cet élément s'il ne correspond pas aux critères
