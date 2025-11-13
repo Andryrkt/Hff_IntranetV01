@@ -95,10 +95,12 @@ class PlanningApi extends Controller
                 if (!empty($detailes[0])) {
                     $details[$i]['Eta_ivato'] = $detailes[0][0]['Eta_ivato'];
                     $details[$i]['Eta_magasin'] =  $detailes[0][0]['Eta_magasin'];
+                    $details[$i]['Est_ship_date'] =  $detailes[0][0]['Est_ship_date'];
                     $detailes = [];
                 } else {
                     $details[$i]['Eta_ivato'] = "";
                     $details[$i]['Eta_magasin'] = "";
+                    $details[$i]['Est_ship_date'] = "";
                     $detailes = [];
                 }
 

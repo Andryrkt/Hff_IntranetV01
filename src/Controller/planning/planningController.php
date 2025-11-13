@@ -30,7 +30,7 @@ class PlanningController extends Controller
 
     private PlanningModel $planningModel;
     private PlanningSearch $planningSearch;
-    private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
+    private  $ditOrsSoumisAValidationRepository;
     private $historiqueOperation;
 
     public function __construct()

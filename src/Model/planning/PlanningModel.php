@@ -643,7 +643,8 @@ class PlanningModel extends Model
       $cst = $cst;
     }
     $squery = " SELECT Eta_ivato,
-                    Eta_magasin
+                    Eta_magasin,
+                    Est_ship_date
                     FROM Ces_magasin
                     WHERE Cust_ref = '" . $numcde . "'
                     AND Part_no = '" . $refp . "'
@@ -656,6 +657,7 @@ class PlanningModel extends Model
     }
     return $data;
   }
+  
   /**
    * Etat partiel piece
    */
