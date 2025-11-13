@@ -548,4 +548,15 @@ class DaModel extends Model
 
         return $data[0]['montant_total'] ?? 0;
     }
+
+    public function getAllCodeCentrale()
+    {
+        $statement = "SELECT c.code_centrale AS code, c.designation_central AS desi FROM centrale_nrj c ";
+        $resultStmt = $this->connexion->query($statement);
+        $data = [];
+        while ($result = odbc_fetch_array($resultStmt)) {
+            $data[] = $this->convertirEnUtf8($result);
+        }
+        return $data;
+    }
 }

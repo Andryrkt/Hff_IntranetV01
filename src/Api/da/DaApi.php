@@ -222,6 +222,39 @@ class DaApi extends Controller
     }
 
     /**
+     * @Route("/api/recup-all-code-centrale", name="api_recup_all_code_centrale")
+     *
+     * @return void
+     */
+    public function recupAllCodeCentrale()
+    {
+        try {
+            $daModel = new DaModel;
+            $data = $daModel->getAllCodeCentrale();
+
+            // Vérifier que les données sont valides
+            if (!is_array($data)) {
+                throw new \Exception("Les données retournées ne sont pas un tableau valide");
+            }
+
+            // Nettoyer les données avant l'encodage JSON
+            $cleanedData = $this->cleanDataForJson($data);
+
+            header("Content-type:application/json; charset=utf-8");
+            echo json_encode($cleanedData, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_IGNORE);
+        } catch (\Exception $e) {
+            // En cas d'erreur, retourner un tableau vide avec un message d'erreur
+            header("Content-type:application/json; charset=utf-8");
+            http_response_code(500);
+            echo json_encode([
+                'error' => true,
+                'message' => 'Erreur lors du chargement des données: ' . $e->getMessage(),
+                'data' => []
+            ], JSON_UNESCAPED_UNICODE);
+        }
+    }
+
+    /**
      * Nettoie les données pour l'encodage JSON
      */
     private function cleanDataForJson($data)
