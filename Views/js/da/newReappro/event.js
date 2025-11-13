@@ -18,8 +18,16 @@ export function handleInputAutoComplete() {
   const codeCentraleInput = document.getElementById(
     "demande_appro_reappro_form_codeCentrale"
   );
+  const editIcon = document.getElementById("editIcon");
+  const inputCodeCentraleGroup = editIcon.parentElement;
   codeCentraleInput.addEventListener("input", () => {
     codeCentraleInput.value = codeCentraleInput.value.toUpperCase();
+  });
+
+  editIcon.addEventListener("click", function () {
+    codeCentraleInput.disabled = false;
+    inputCodeCentraleGroup.classList.remove("input-group");
+    editIcon.classList.add("d-none");
   });
 
   new AutoComplete({
@@ -29,10 +37,17 @@ export function handleInputAutoComplete() {
     debounceDelay: 100, // Délai en ms
     fetchDataCallback: () => fetchManager.get("api/recup-all-code-centrale"),
     displayItemCallback: (item) =>
-      `Code : ${item.code} - Désignation : ${item.desi}`,
-    itemToStringCallback: (item) => `${item.code} - ${item.desi}`,
+      `Code: ${item.code} - Désignation: ${item.desi}`,
+    itemToStringCallback: (item) => `- ${item.desi}`,
+    itemToStringForBlur: (item) => `${item.desi}`,
     onSelectCallback: (item) => {
       codeCentraleInput.value = item.code;
+      codeCentraleInput.disabled = true;
+      inputCodeCentraleGroup.classList.add("input-group");
+      editIcon.classList.remove("d-none");
+    },
+    onBlurCallback: (found) => {
+      if (!found) codeCentraleInput.value = "";
     },
   });
 }
