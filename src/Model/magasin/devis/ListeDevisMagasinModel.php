@@ -185,9 +185,9 @@ class ListeDevisMagasinModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function getUtilisateurCreateurDevis(string $numeroDevis)
+    public function getUtilisateurCreateurDevis(string $numeroDevis): string
     {
-        $statement = "SELECT ausr_nom as utilisateur_createur_devis
+        $statement = "SELECT TRIM(ausr_nom) as utilisateur_createur_devis
             FROM informix.neg_ent
             inner join informix.agr_usr on ausr_num = nent_usr and ausr_soc = nent_soc
             WHERE nent_numcde = '$numeroDevis'";
@@ -196,7 +196,7 @@ class ListeDevisMagasinModel extends Model
 
         $data = $this->connect->fetchResults($result);
 
-        return array_column($this->convertirEnUtf8($data), 'utilisateur_createur_devis');
+        return array_column($this->convertirEnUtf8($data), 'utilisateur_createur_devis')[0];
     }
 
     public function getClientAndModePaiement(string $numeroDevis): array

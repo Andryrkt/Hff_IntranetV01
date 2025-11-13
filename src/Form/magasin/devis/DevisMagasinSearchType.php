@@ -16,18 +16,27 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 class DevisMagasinSearchType extends AbstractType
 {
     private $statutsDw;
+    private $statutsBc;
     private $em;
 
     public function __construct(EntityManagerInterface $em)
     {
         $this->em = $em;
         $statutsDwRaw = $this->em->getRepository(DevisMagasin::class)->getStatutsDw();
+        $statutsBcRaw = $this->em->getRepository(DevisMagasin::class)->getStatutsBc();
 
-        // Transformer le tableau en format de choix pour le formulaire
+        // Transformer le tableau en format de choix pour le formulaire (statut DW)
         $this->statutsDw = [];
         foreach ($statutsDwRaw as $statut) {
             if (!empty($statut)) {
                 $this->statutsDw[$statut] = $statut;
+            }
+        }
+
+        $this->statutsBc = [];
+        foreach ($statutsBcRaw as $statut) {
+            if (!empty($statut)) {
+                $this->statutsBc[$statut] = $statut;
             }
         }
     }
@@ -54,10 +63,20 @@ class DevisMagasinSearchType extends AbstractType
                 'label' => 'Soumis par',
                 'required' => false
             ])
+            ->add('CreePar', TextType::class, [
+                'label' => 'Crée par',
+                'required' => false
+            ])
             ->add('statutDw', ChoiceType::class, [
                 'label' => 'Statut devis',
                 'placeholder' => '-- Choisir le choix --',
                 'choices' => $this->statutsDw,
+                'required' => false
+            ])
+            ->add('statutBc', ChoiceType::class, [
+                'label' => 'Statut BC',
+                'placeholder' => '-- Choisir le choix --',
+                'choices' => $this->statutsBc,
                 'required' => false
             ])
             ->add('statutIps', ChoiceType::class, [

@@ -2,20 +2,21 @@
 
 namespace App\Controller\magasin\devis;
 
+use App\Entity\admin\Agence;
+use App\Entity\admin\Service;
 use App\Controller\Controller;
 use App\Entity\admin\Application;
+use App\Entity\magasin\bc\BcMagasin;
 use App\Entity\magasin\devis\DevisMagasin;
+use App\Repository\admin\AgenceRepository;
 use App\Controller\Traits\AutorisationTrait;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Factory\magasin\devis\ListeDevisSearchDto;
 use App\Form\magasin\devis\DevisMagasinSearchType;
 use App\Model\magasin\devis\ListeDevisMagasinModel;
 use App\Factory\magasin\devis\ListeDevisMagasinFactory;
-use App\Factory\magasin\devis\ListeDevisSearchDto;
 use App\Repository\magasin\devis\DevisMagasinRepository;
-use App\Repository\admin\AgenceRepository;
-use App\Entity\admin\Service;
-use Symfony\Component\HttpFoundation\Request;
-use App\Entity\magasin\bc\BcMagasin;
 
 /**
  * @Route("/magasin/dematerialisation")
@@ -28,15 +29,11 @@ class ListeDevisMagasinController extends Controller
     private $styleStatutBc = [];
 
     private ListeDevisMagasinModel $listeDevisMagasinModel;
-    private DevisMagasinRepository $devisMagasinRepository;
-    private AgenceRepository $agenceRepository;
 
     public function __construct()
     {
         parent::__construct();
         $this->listeDevisMagasinModel = new ListeDevisMagasinModel();
-        $this->devisMagasinRepository = $this->getEntityManager()->getRepository(DevisMagasin::class);
-        $this->agenceRepository = $this->getEntityManager()->getRepository(\App\Entity\admin\Agence::class);
 
         $this->styleStatutDw = [
             DevisMagasin::STATUT_PRIX_A_CONFIRMER      => 'bg-prix-a-confirmer',
@@ -118,9 +115,11 @@ class ListeDevisMagasinController extends Controller
 
         // Dénormalisation : recharger les entités à partir des IDs
         if (!empty($criteriaTab['emetteur']['agence'])) {
-            $agence = $this->agenceRepository->find($criteriaTab['emetteur']['agence']);
+            $agenceRepository = $this->getEntityManager()->getRepository(Agence::class);
+            $agence = $agenceRepository->find($criteriaTab['emetteur']['agence']);
             $criteriaTab['emetteur']['agence'] = $agence;
         }
+
         if (!empty($criteriaTab['emetteur']['service'])) {
             $service = $this->getEntityManager()->getRepository(Service::class)->find($criteriaTab['emetteur']['service']);
             $criteriaTab['emetteur']['service'] = $service;
@@ -138,9 +137,11 @@ class ListeDevisMagasinController extends Controller
 
         $listeDevisFactory = [];
         foreach ($devisIps as  $devisIp) {
+
+            $devisMagasinRepository = $this->getEntityManager()->getRepository(DevisMagasin::class);
             //recupération des information de devis soumission à validation neg
-            $numeroVersionMax = $this->devisMagasinRepository->getNumeroVersionMax($devisIp['numero_devis']);
-            $devisSoumi = $this->devisMagasinRepository->findOneBy(['numeroDevis' => $devisIp['numero_devis'], 'numeroVersion' => $numeroVersionMax]);
+            $numeroVersionMax = $devisMagasinRepository->getNumeroVersionMax($devisIp['numero_devis']);
+            $devisSoumi = $devisMagasinRepository->findOneBy(['numeroDevis' => $devisIp['numero_devis'], 'numeroVersion' => $numeroVersionMax]);
             //ajout des informations manquantes
             $devisIp['statut_dw'] = $devisSoumi ? $devisSoumi->getStatutDw() : '';
             $devisIp['operateur'] = $devisSoumi ? $devisSoumi->getUtilisateur() : '';
@@ -178,10 +179,18 @@ class ListeDevisMagasinController extends Controller
             return false;
         }
 
-        // Filtre par opérateur
+        // Filtre par opérateur (utilisateur qui a soumis le devis)
         if (
             !empty($criteria['Operateur']) &&
             stripos($devisIp['operateur'] ?? '', $criteria['Operateur']) === false
+        ) {
+            return false;
+        }
+
+        // Filtre par utilisateur createur
+        if (
+            !empty($criteria['creePar']) &&
+            stripos($devisIp['utilisateur_createur_devis'] ?? '', $criteria['creePar']) === false
         ) {
             return false;
         }
@@ -198,6 +207,14 @@ class ListeDevisMagasinController extends Controller
         if (
             !empty($criteria['statutIps']) &&
             $devisIp['statut_ips'] !== $criteria['statutIps']
+        ) {
+            return false;
+        }
+
+        //Filtre par statut BC
+        if (
+            !empty($criteria['statutBc']) &&
+            $devisIp['statut_bc'] !== $criteria['statutBc']
         ) {
             return false;
         }
