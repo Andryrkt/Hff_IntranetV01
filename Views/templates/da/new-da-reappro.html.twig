@@ -51,7 +51,10 @@
 								<div class="col-6 col-md-6">
 									{{ macroForm.sousTitre('Debiteur') }}
 									{{ formMacros.debiteurOuEmetteurFields(form, 'debiteur') }}
-									{{ form_row(form.codeCentrale) }}
+									{{ form_label(form.codeCentrale) }}
+									{{ form_widget(form.codeCentrale) }}
+									<div id="suggestion-code-centrale" class="suggestions-container"></div>
+									<div id="loader-code-centrale" class="spinner invisible" style="display: none;"></div>
 								</div>
 							</div>
 						</div>

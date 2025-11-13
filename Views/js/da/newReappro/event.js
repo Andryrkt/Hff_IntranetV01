@@ -1,3 +1,5 @@
+import { FetchManager } from "../../api/FetchManager";
+import { AutoComplete } from "../../utils/AutoComplete";
 import { formaterNombre } from "../../utils/formatNumberUtils";
 
 // Fonction principale
@@ -8,6 +10,30 @@ export function handleQteInputEvents(allQteInputs) {
 
     // Réagir aux modifications
     qteInput.addEventListener("input", () => updateRowState(qteInput));
+  });
+}
+
+export function handleInputAutoComplete() {
+  const fetchManager = new FetchManager();
+  const codeCentraleInput = document.getElementById(
+    "demande_appro_reappro_form_codeCentrale"
+  );
+  codeCentraleInput.addEventListener("input", () => {
+    codeCentraleInput.value = codeCentraleInput.value.toUpperCase();
+  });
+
+  new AutoComplete({
+    inputElement: codeCentraleInput,
+    suggestionContainer: document.querySelector("#suggestion-code-centrale"),
+    loaderElement: document.querySelector("#loader-code-centrale"),
+    debounceDelay: 100, // Délai en ms
+    fetchDataCallback: () => fetchManager.get("api/recup-all-code-centrale"),
+    displayItemCallback: (item) =>
+      `Code : ${item.code} - Désignation : ${item.desi}`,
+    itemToStringCallback: (item) => `${item.code} - ${item.desi}`,
+    onSelectCallback: (item) => {
+      codeCentraleInput.value = item.code;
+    },
   });
 }
 

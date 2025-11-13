@@ -1,8 +1,9 @@
 import { displayOverlay } from "../../utils/ui/overlay";
-import { handleQteInputEvents } from "./event";
+import { handleInputAutoComplete, handleQteInputEvents } from "./event";
 import { handleAgenceChange } from "../../dit/fonctionUtils/fonctionListDit.js";
 
 document.addEventListener("DOMContentLoaded", function () {
+  handleInputAutoComplete();
   const myForm = document.getElementById("myForm");
   const actionsConfig = {
     enregistrerBrouillon: {
