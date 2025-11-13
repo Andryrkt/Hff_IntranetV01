@@ -29,7 +29,6 @@ class DateRangeType extends AbstractType
         $resolver->setDefaults([
             'debut_label' => 'Date (début)',
             'fin_label' => 'Date (fin)',
-            'mapped' => false, // Important pour les champs composites non liés à une seule propriété
         ]);
     }
 }

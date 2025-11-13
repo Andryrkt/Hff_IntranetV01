@@ -13,6 +13,7 @@ use App\Factory\magasin\devis\ListeDevisMagasinFactory;
 use App\Factory\magasin\devis\ListeDevisSearchDto;
 use App\Repository\magasin\devis\DevisMagasinRepository;
 use App\Repository\admin\AgenceRepository;
+use App\Entity\admin\Service;
 use Symfony\Component\HttpFoundation\Request;
 use App\Entity\magasin\bc\BcMagasin;
 
@@ -24,6 +25,7 @@ class ListeDevisMagasinController extends Controller
     use AutorisationTrait;
 
     private $styleStatutDw = [];
+    private $styleStatutBc = [];
 
     private ListeDevisMagasinModel $listeDevisMagasinModel;
     private DevisMagasinRepository $devisMagasinRepository;
@@ -75,7 +77,15 @@ class ListeDevisMagasinController extends Controller
         /** @var array */
         $criteria = $this->traitementFormulaireRecherche($request, $form);
 
-        $this->getSessionService()->set('criteria_for_excel_liste_devis_magasin', $criteria);
+        // Normalisation des critères avant de les stocker en session
+        $criteriaForSession = $criteria;
+        if (isset($criteriaForSession['emetteur']['agence']) && is_object($criteriaForSession['emetteur']['agence'])) {
+            $criteriaForSession['emetteur']['agence'] = $criteriaForSession['emetteur']['agence']->getId();
+        }
+        if (isset($criteriaForSession['emetteur']['service']) && is_object($criteriaForSession['emetteur']['service'])) {
+            $criteriaForSession['emetteur']['service'] = $criteriaForSession['emetteur']['service']->getId();
+        }
+        $this->getSessionService()->set('criteria_for_excel_liste_devis_magasin', $criteriaForSession);
 
         $listeDevisFactory = $this->recuperationDonner($criteria);
 
@@ -106,6 +116,16 @@ class ListeDevisMagasinController extends Controller
         // recupération de la session pour le criteria
         $criteriaTab = $this->getSessionService()->get('criteria_for_excel_liste_devis_magasin');
 
+        // Dénormalisation : recharger les entités à partir des IDs
+        if (!empty($criteriaTab['emetteur']['agence'])) {
+            $agence = $this->agenceRepository->find($criteriaTab['emetteur']['agence']);
+            $criteriaTab['emetteur']['agence'] = $agence;
+        }
+        if (!empty($criteriaTab['emetteur']['service'])) {
+            $service = $this->getEntityManager()->getRepository(Service::class)->find($criteriaTab['emetteur']['service']);
+            $criteriaTab['emetteur']['service'] = $service;
+        }
+
         // transforme en objet
         $ListeDevisSearchDto = new ListeDevisSearchDto();
         return $ListeDevisSearchDto->toObject($criteriaTab);
@@ -127,7 +147,7 @@ class ListeDevisMagasinController extends Controller
             $devisIp['date_envoi_devis_au_client'] = $devisSoumi ? ($devisSoumi->getDateEnvoiDevisAuClient() ? $devisSoumi->getDateEnvoiDevisAuClient() : '') : '';
             $devisIp['utilisateur_createur_devis'] = $this->listeDevisMagasinModel->getUtilisateurCreateurDevis($devisIp['numero_devis']) ?? '';
             $devisIp['statut_bc'] = $devisSoumi ? $devisSoumi->getStatutBc() : '';
-            
+
             // Appliquer les filtres si des critères sont fournis
             if (!empty($criteria) && !$this->matchesCriteria($devisIp, $criteria)) {
                 continue; // Ignorer cet élément s'il ne correspond pas aux critères
@@ -153,7 +173,7 @@ class ListeDevisMagasinController extends Controller
         // Filtre par code client
         if (
             !empty($criteria['codeClient']) &&
-            stripos($devisIp['code_client'] ?? '', $criteria['codeClient']) === false
+            stripos($devisIp['client'] ?? '', $criteria['codeClient']) === false
         ) {
             return false;
         }

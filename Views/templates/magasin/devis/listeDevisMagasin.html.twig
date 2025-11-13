@@ -36,6 +36,7 @@
 					<th class="text-end">Montant</th>
 					<th class="text-center">Date envoi au client</th>
 					<th class="text-center">Position IPS</th>
+					<th class="text-center">Crée par</th>
 					<th class="text-center">Soumis par</th>
 				</tr>
 			</thead>
@@ -73,6 +74,7 @@
 						<td class="text-end">{{item.montant|number_format(2, ',', '.')}}</td>
 						<td class="text-center">{{item.dateDenvoiDevisAuClient}}</td>
 						<td class="text-center">{{item.statutIps}}</td>
+						<td class="text-center">{{item.utilisateur_createur_devis}}</td>
 						<td class="text-center">{{item.operateur}}</td>
 					</tr>
 				{% endfor %}

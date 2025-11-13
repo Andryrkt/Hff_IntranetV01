@@ -11,8 +11,8 @@ class ListeDevisSearchDto
     private ?string $numeroDevis = null;
     private ?string $codeClient = null;
     private ?string $Operateur = null;
-    private ?string $statutDw = null;
-    private ?string $statutIps = null;
+    private ?string $statutDw = null; // statut devis
+    private ?string $statutIps = null; // position IPS
     private ?array $emetteur = [];
     private ?array $dateCreation = [];
 
