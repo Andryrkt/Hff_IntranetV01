@@ -79,6 +79,7 @@ trait DaNewReapproTrait
         ]);
 
         // Indexation des DAL existantes
+        /** @var DemandeApproL $dal */
         foreach ($demandeAppro->getDAL() as $dal) {
             $key = md5("{$dal->getArtConstp()}|{$dal->getArtRefp()}|{$dal->getArtDesi()}");
             $existingDals[$key] = $dal;

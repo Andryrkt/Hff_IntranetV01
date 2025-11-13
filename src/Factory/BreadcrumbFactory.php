@@ -101,6 +101,7 @@ class BreadcrumbFactory
             'da-first-form'                         => 'Sélection de choix',
             'new-avec-dit'                          => 'Création DA avec DIT',
             'new-da-direct'                         => 'Création DA directe',
+            'new-da-reappro'                        => 'Création DA réappro',
             'edit-avec-dit'                         => 'Modification DA avec DIT',
             'edit-direct'                           => 'Modification DA directe',
             'proposition-avec-dit'                  => 'Proposition / Validation DA avec DIT',

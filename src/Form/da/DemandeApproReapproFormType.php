@@ -12,7 +12,6 @@ use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
-use Symfony\Component\Security\Core\Security;
 
 class DemandeApproReapproFormType extends AbstractType
 {
@@ -71,15 +70,23 @@ class DemandeApproReapproFormType extends AbstractType
                 ]
             )
             ->add('debiteur', AgenceServiceType::class, [
-                'label' => false,
-                'required' => false,
-                'agence_label' => 'Agence Debiteur',
-                'service_label' => 'Service Debiteur',
-                'agence_placeholder' => '-- Agence Debiteur --',
+                'label'               => false,
+                'required'            => false,
+                'agence_label'        => 'Agence Debiteur',
+                'service_label'       => 'Service Debiteur',
+                'agence_placeholder'  => '-- Agence Debiteur --',
                 'service_placeholder' => '-- Service Debiteur --',
-                'em' => $options['em'] ?? null,
-                'agence_codes' => $this->agenceCodes()
+                'em'                  => $options['em'] ?? null,
+                'agence_codes'        => $this->agenceCodes()
             ])
+            ->add(
+                'codeCentrale',
+                TextType::class,
+                [
+                    'label'    => 'Centrale rattachée à la DA',
+                    'required' => false
+                ]
+            )
             ->add('DAL', CollectionType::class, [
                 'label'        => false,
                 'entry_type'   => DemandeApproLReapproFormType::class,
@@ -101,7 +108,7 @@ class DemandeApproReapproFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => DemandeAppro::class,
-            'em' => null,
+            'em'         => null,
         ]);
     }
 }
