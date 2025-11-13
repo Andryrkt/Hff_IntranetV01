@@ -89,3 +89,27 @@
     opacity: 1; /* La barre devient complètement opaque */
   }
 }
+
+/* Styles pour le tableau avec en-tête et pied de page fixes */
+.table-sticky thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
+.table-sticky tfoot tr {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+}
+
+/* Assurer que le fond est opaque pour ne pas voir le texte qui défile en dessous */
+.table-sticky thead.table-dark th,
+.table-sticky tfoot .table-dark th {
+    background-color: #212529; /* Couleur de .table-dark de Bootstrap */
+}
+
+/* Bordure verticale pour les colonnes de mois */
+.table-sticky .month-col {
+    border-left: 1px solid #dee2e6; /* Couleur de bordure Bootstrap */
+}

@@ -10,6 +10,9 @@ use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
 require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/config/dotenv.php';
 
+// Correction pour l'erreur d'annotation @required de Symfony
+\Doctrine\Common\Annotations\AnnotationReader::addGlobalIgnoredName('required');
+
 // Configuration
 $paths = [__DIR__ . "/src/Entity"];
 $isDevMode = false;

@@ -291,7 +291,7 @@ trait PlanningTraits
     {
         $months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
         $currentMonth = (int)date('n') - 1; // Index du mois actuel (0-11)
-        $currentYear = (int)date('Y');
+        $currentYear = (int)date('Y'); // c'est l'année actuel
 
         $selectedMonths = $this->getSelectedMonths($months, $currentMonth, $currentYear, $selectedOption);
 

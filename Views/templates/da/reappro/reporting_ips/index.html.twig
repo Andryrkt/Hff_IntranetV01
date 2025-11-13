@@ -21,84 +21,75 @@
 			<table class="table table-sticky">
 				<thead class="table-dark align-middle table-fixed">
 					<tr>
-						<th class="text-center">Agence - Serivce</th>
+						<th class="text-center">Agence - Service</th>
 						<th class="text-center">Facture</th>
-						<th class="text-center">Référence Client</th>
+						<th class="text-center">Réf Client</th>
 						<th class="text-center">CST</th>
-						<th class="text-center">Référence</th>
+						<th class="text-center">Réf</th>
 						<th class="text-center">Désignation</th>
-						<th class="text-center">Janvier</th>
-						<th class="text-center">Février</th>
-						<th class="text-center">Mars</th>
-						<th class="text-center">Avril</th>
-						<th class="text-center">Mai</th>
-						<th class="text-center">Juin</th>
-						<th class="text-center">Juillet</th>
-						<th class="text-center">Août</th>
-						<th class="text-center">Septembre</th>
-						<th class="text-center">Octobre</th>
-						<th class="text-center">Novembre</th>
-						<th class="text-center">Descembre</th>
+						{# Colonnes de mois dynamiques #}
+						{% for month in results.months %}
+							<th class="text-center month-col">{{ month.label }}</th>
+						{% endfor %}
 					</tr>
 				</thead>
 				<tbody id="tableBody">
-					{% for item in reporting_ips %}
+
+					{% if results.data is empty %}
 						<tr>
-							<td class="text-center">{{item.agence_debiteur ~ ' - ' ~ item.service_debiteur}}</td>
-							<td class="text-center">{{item.numero_facture}}</td>
-							<td class="text-center">{{item.client}}</td>
-							<td class="text-center">{{item.constructeur}}</td>
-							<td class="text-center">{{item.reference_produit}}</td>
-							<td class="text-start">{{item.designation_produit}}</td>
-							{# <td class="text-center">{{item.qte_demande == 0 ? '-': item.qte_demande}}</td> #}
-							<td class="text-center">-</td>
-							<td class="text-center">-</td>
-							<td class="text-center">-</td>
-							<td class="text-center">-</td>
-							<td class="text-center">-</td>
-							<td class="text-center">-</td>
-							<td class="text-center">-</td>
-							<td class="text-center">-</td>
-							<td class="text-center">-</td>
-							<td class="text-center">-</td>
-							<td class="text-center">-</td>
-							<td class="text-center">-</td>
+							<td colspan="{{ 6 + results.months|length }}" class="text-center">Aucun résultat trouvé.</td>
 						</tr>
-					{% endfor %}
+					{% else %}
+						{% for product in results.data %}
+							{# Créer une map pour un accès facile aux données par mois #}
+							{% set data_by_month = {} %}
+							{% for month_data in product.filteredMonths %}
+								{% set data_by_month = data_by_month|merge({(month_data.monthKey): month_data.details}) %}
+							{% endfor %}
+
+							<tr>
+								<td class="text-center">{{ product.agence_service_debiteur }}</td>
+								<td class="text-center">{{ product.numero_facture }}</td>
+								<td class="text-center">{{ product.client }}</td>
+								<td class="text-center">{{ product.constructeur }}</td>
+								<td class="text-center">{{ product.reference_produit }}</td>
+								<td>{{ product.designation_produit }}</td>
+
+								{# Itérer sur les mois de l'en-tête pour garantir le bon ordre #}
+								{% for month in results.months %}
+									<td class="text-end month-col">
+										{% if data_by_month[month.key] is defined %}
+											<span class="badge bg-secondary">Qté:
+												{{ data_by_month[month.key].total_qte|number_format(0, ',', ' ') }}</span><br>
+											<span class="badge bg-success mt-1">Mnt:
+												{{ data_by_month[month.key].total_montant|number_format(2, ',', ' ') }}</span>
+										{% else %}
+											-
+										{% endif %}
+									</td>
+								{% endfor %}
+							</tr>
+						{% endfor %}
+					{% endif %}
+
 				</tbody>
 				<tfoot>
-					<tr>
-						<td clospan="6" class="text-center">foot</td>
-						<td class="text-center">-</td>
-						<td class="text-center">-</td>
-						<td class="text-center">-</td>
-						<td class="text-center">-</td>
-						<td class="text-center">-</td>
-						<td class="text-center">-</td>
-						<td class="text-center">-</td>
-						<td class="text-center">-</td>
-						<td class="text-center">-</td>
-						<td class="text-center">-</td>
-						<td class="text-center">-</td>
-						<td class="text-center">-</td>
+					<tr class="table-dark">
+						<th colspan="6" class="text-center">TOTAUX</th>
+						{% for month in results.months %}
+							<th class="text-end month-col">
+								{% if totals[month.key] is defined %}
+									<span class="badge bg-secondary">Qté:
+										{{ totals[month.key].qte|number_format(0, ',', ' ') }}</span><br>
+									<span class="badge bg-primary mt-1">Mnt:
+										{{ totals[month.key].montant|number_format(2, ',', ' ') }}</span>
+								{% endif %}
+							</th>
+						{% endfor %}
 					</tr>
 				</tfoot>
 			</table>
-
 		</div>
-		<div class="mt-3 mx-4 d-flex justify-content-end gap-4">
-
-			<span class="fw-bold">Qte Totale :
-			</span>
-			<span class="fw-bold text-danger">{{ qte_totale }}
-			</span>
-
-			<span class="fw-bold">Montant Total :
-			</span>
-			<span class="fw-bold text-danger">{{ montant_total|number_format(2, ',' ,'.') }}
-			</span>
-		</div>
-
 	</div>
 
 
