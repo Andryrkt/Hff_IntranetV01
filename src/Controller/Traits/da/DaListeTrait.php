@@ -237,8 +237,8 @@ trait DaListeTrait
                 'demandeAppro'        => $item->getDemandeAppro(),
                 'datype'              => $daType[$item->getDaTypeId()],
                 'numeroDemandeDit'    => $daViaOR ? $item->getNumeroDemandeDit() : $safeIconBan,
-                'numeroOr'            => $daDirect ? $safeIconBan  : $item->getNumeroOr(),
-                'niveauUrgence'       => $item->getNiveauUrgence(),
+                'numeroOr'            => $daDirect ? $safeIconBan : $item->getNumeroOr(),
+                'niveauUrgence'       => $daReappro ? $safeIconBan : $item->getNiveauUrgence(),
                 'demandeur'           => $item->getDemandeur(),
                 'dateDemande'         => $item->getDateDemande() ? $item->getDateDemande()->format('d/m/Y') : '',
                 'statutDal'           => $item->getStatutDal(),
@@ -274,6 +274,7 @@ trait DaListeTrait
                 'telechargerOR'       => !empty($dataOR),
                 'pathOr'              => empty($dataOR) ? '' : $dataOR['chemin'],
                 'statutValide'        => $item->getStatutDal() === DemandeAppro::STATUT_VALIDE,
+                'centrale'            => $daReappro ? $item->getDesiCentrale() : $safeIconBan,
             ];
         }
 

@@ -45,6 +45,7 @@ class listeDaController extends Controller
 
         $agenceServiceIps = $this->agenceServiceIpsObjet();
         $agence           = $agenceServiceIps['agenceIps'];
+        $codeCentrale     = $this->estAdmin() || in_array($agence->getCodeAgence(), ['90', '91', '92']);
 
         //formulaire de recherche
         $form = $this->getFormFactory()->createBuilder(DaSearchType::class, $daSearch, ['method' => 'GET'])->getForm();
@@ -78,7 +79,7 @@ class listeDaController extends Controller
             'data'           => $dataPrepared,
             'form'           => $form->createView(),
             'criteria'       => $criteria,
-            'codeCentrale'   => $this->estAdmin() || in_array($agence->getCodeAgence(), ['90', '91', '92']),
+            'codeCentrale'   => $codeCentrale,
             'daTypeIcons'    => $this->getAllIcons(),
             'sortJoursClass' => $sortJoursClass,
             'currentPage'    => $paginationData['currentPage'],
