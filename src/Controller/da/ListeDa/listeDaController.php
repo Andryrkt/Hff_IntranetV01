@@ -51,6 +51,7 @@ class listeDaController extends Controller
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
+            /** @var DaSearch $daSearch */
             $daSearch = $form->getData();
         }
 
