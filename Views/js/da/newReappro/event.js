@@ -27,7 +27,7 @@ export function initCentraleCodeDesiInputs(
   });
 
   editIcon.addEventListener("click", function () {
-    desiCentraleInput.disabled = false;
+    desiCentraleInput.classList.remove("non-modifiable");
     inputDesiCentraleGroup.classList.remove("input-group");
     editIcon.classList.add("d-none");
   });
@@ -69,7 +69,7 @@ function disableDesiCentraleInput(
   inputDesiCentraleGroup,
   editIcon
 ) {
-  desiCentraleInput.disabled = true;
+  desiCentraleInput.classList.add("non-modifiable");
   inputDesiCentraleGroup.classList.add("input-group");
   editIcon.classList.remove("d-none");
 }
