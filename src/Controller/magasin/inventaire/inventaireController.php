@@ -22,6 +22,7 @@ use App\Service\genererPdf\GeneretePdfBordereau;
 use App\Entity\inventaire\InventaireDetailSearch;
 use App\Service\genererPdf\GeneretePdfInventaire;
 use App\Form\inventaire\InventaireDetailSearchType;
+
 /**
  * @Route("/magasin/inventaire")
  */
@@ -84,7 +85,6 @@ class InventaireController extends Controller
         if ($request->query->get('action') !== 'oui') {
             $listInvent = $this->inventaireModel->listeInventaire($criteria);
             $data = $this->recupDataList($listInvent, true);
-            // dump($data);
         }
         return $this->render('inventaire/inventaire.html.twig', [
             'form' => $form->createView(),
@@ -139,6 +139,8 @@ class InventaireController extends Controller
         $listInvent = $this->inventaireModel->listeInventaire($this->inventaireSearch);
         $data = $this->recupDataList($listInvent);
         $header = [
+            'saisie_compte' => 'Saisie compte',
+            'compte_cours' => 'Comptage encours',
             'numero' => 'Numéro',
             'description' => 'Description',
             'ouvert' => 'Ouvert le',
@@ -252,9 +254,20 @@ class InventaireController extends Controller
             $sumNbrEcart = 0;
             $sumNbrPourcentEcart = 0;
             for ($i = 0; $i < count($listInvent); $i++) {
-                $numIntvMax = $this->inventaireModel->maxNumInv($listInvent[$i]['numero_inv']);
-                // dump($numIntvMax);
-                $invLigne = $this->inventaireModel->inventaireLigneEC($numIntvMax[0]['numinvmax']);
+                $numIntvAssocie = $this->inventaireModel->maxNumInv($listInvent[$i]['numero_inv']);
+                // dd($numIntvAssocie);
+                $invLigne = $this->inventaireModel->inventaireLigneEC($numIntvAssocie[0]['numinvmax']);
+                // // condition pour avoir le résultat de 1
+                // if (
+                //     $invLigne[0]['nbre_ref_ecarts_positif'] == 0 &&
+                //     $invLigne[0]['nbre_ref_ecarts_negatifs'] == 0 &&
+                //     $invLigne[0]['total_nbre_ref_ecarts'] == 0 &&
+                //     $invLigne[0]['pourcentage_ref_avec_ecart'] == 0 &&
+                //     $invLigne[0]['montant_ecart'] == 0 &&
+                //     $invLigne[0]['pourcentage_ecart'] == 0
+                // ) { // = 0 daholo le résultat (champ1 = 0 && champ2 = 0 && ....)
+                //     $invLigne = isset($numIntvAssocie[1]) ? $this->inventaireModel->inventaireLigneEC($numIntvAssocie[1]['numinv']) : $invLigne;
+                // }
                 // $sumMontEcart = $this->inventaireModel->sumInventaireDetail($numIntvMax[0]['numinvmax']);
                 // dump($sumMontEcart);
                 if ($listInvent[$i]['date_clo'] == null) {
@@ -263,6 +276,10 @@ class InventaireController extends Controller
                     $dateCLo = (new DateTime($listInvent[$i]['date_clo']))->format('d/m/Y');
                 }
                 $data[$i] = [
+                    // ajoute de ces 2 colonnes
+                    'saisie_compte' => $listInvent[$i]['saisie_comptage'],
+                    'compte_cours' => $listInvent[$i]['comptage_encours'],
+                    // ----
                     'numero' => $listInvent[$i]['numero_inv'],
                     'description' => $listInvent[$i]['description'],
                     'ouvert' => (new DateTime($listInvent[$i]['ouvert_le']))->format('d/m/Y'),
@@ -281,6 +298,10 @@ class InventaireController extends Controller
                     'pourcentage_ecart' => $invLigne[0]['pourcentage_ecart'] == "0%" ? "" : $invLigne[0]['pourcentage_ecart'],
                 ];
                 $dataExcel[$i] = [
+                    // ajoute de ces 2 colonnes
+                    'saisie_compte' => $listInvent[$i]['saisie_comptage'],
+                    'compte_cours' => $listInvent[$i]['comptage_encours'],
+                    // ------
                     'numero' => $listInvent[$i]['numero_inv'],
                     'description' => $listInvent[$i]['description'],
                     'ouvert' => (new DateTime($listInvent[$i]['ouvert_le']))->format('d/m/Y'),
@@ -327,7 +348,7 @@ class InventaireController extends Controller
                 'nbre_ref_ecarts_positif' => $sumNbrPositif,
                 'nbre_ref_ecarts_negatifs' => $sumNbrNegatif,
                 'total_nbre_ref_ecarts' => $sumNbrRefsansEcart,
-                'pourcentage_ref_avec_ecart' => $sumNbrRefavecEcart,
+                'pourcentage_ref_avec_ecart' =>$sumNbrecartavecEcart, //$sumNbrRefavecEcart,
                 'montant_ecart' => $sumNbrEcart,
                 'pourcentage_ecart' => $sumEcart, //$sumNbrPourcentEcart,
             ];

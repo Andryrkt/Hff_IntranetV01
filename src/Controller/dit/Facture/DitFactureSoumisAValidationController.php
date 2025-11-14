@@ -5,6 +5,9 @@ namespace App\Controller\dit\Facture;
 ini_set('upload_max_filesize', '5M');
 ini_set('post_max_size', '5M');
 
+use Exception;
+use App\Service\FusionPdf;
+use App\Model\dit\DitModel;
 use App\Controller\Controller;
 use App\Entity\dit\DemandeIntervention;
 use Symfony\Component\Form\FormInterface;
@@ -19,8 +22,6 @@ use App\Model\dit\DitFactureSoumisAValidationModel;
 use App\Service\genererPdf\GenererPdfFactureAValidation;
 use App\Controller\Traits\dit\DitFactureSoumisAValidationtrait;
 use App\Service\historiqueOperation\HistoriqueOperationFACService;
-use App\Model\dit\DitModel;
-use App\Service\FusionPdf;
 
 /**
  * @Route("/atelier/demande-intervention")
@@ -147,41 +148,41 @@ class DitFactureSoumisAValidationController extends Controller
             //     $this->historiqueOperation->sendNotificationSoumission($message, $numFac, 'dit_index');
             // } 
             else {
-                $dataForm = $form->getData();
-                $numeroSoumission = $this->ditFactureSoumiAValidationModel->recupNumeroSoumission($dataForm->getNumeroOR());
+            $dataForm = $form->getData();
+            $numeroSoumission = $this->ditFactureSoumiAValidationModel->recupNumeroSoumission($dataForm->getNumeroOR());
 
-                $this->ajoutInfoEntityDitFactur($this->ditFactureSoumiAValidation, $numDit, $dataForm, $numeroSoumission);
+            $this->ajoutInfoEntityDitFactur($this->ditFactureSoumiAValidation, $numDit, $dataForm, $numeroSoumission);
 
-                $factureSoumisAValidation = $this->ditFactureSoumisAValidation($numDit, $dataForm, $this->ditFactureSoumiAValidationModel, $numeroSoumission, $this->getEntityManager(), $this->ditFactureSoumiAValidation);
+            $factureSoumisAValidation = $this->ditFactureSoumisAValidation($numDit, $dataForm, $this->ditFactureSoumiAValidationModel, $numeroSoumission, $this->getEntityManager(), $this->ditFactureSoumiAValidation);
 
-                $estRi = $this->conditionSurInfoFacture($this->ditFactureSoumiAValidationModel, $dataForm, $this->ditFactureSoumiAValidation, $numDit);
+            $estRi = $this->conditionSurInfoFacture($this->ditFactureSoumiAValidationModel, $dataForm, $this->ditFactureSoumiAValidation, $numDit);
 
-                if ($estRi) {
-                    $message = "La facture ne correspond pas ou correspond partiellement à un rapport d'intervention.";
-                    $this->historiqueOperation->sendNotificationSoumission($message, $numFac, 'dit_index');
-                } else {
+            if ($estRi) {
+                $message = "La facture ne correspond pas ou correspond partiellement à un rapport d'intervention.";
+                $this->historiqueOperation->sendNotificationSoumission($message, $numFac, 'dit_index');
+            } else {
 
-                    $interneExterne = $this->ditRepository->findInterneExterne($numDit);
-                    /** CREATION PDF */
-                    $pathPageDeGarde = $this->enregistrerPdf($dataForm, $numDit, $factureSoumisAValidation, $interneExterne);
-                    $pathFichiers = $this->enregistrerFichiers($form, $numFac, $this->ditFactureSoumiAValidation->getNumeroSoumission(), $interneExterne);
+            $interneExterne = $this->ditRepository->findInterneExterne($numDit);
+            /** CREATION PDF */
+            $pathPageDeGarde = $this->enregistrerPdf($dataForm, $numDit, $factureSoumisAValidation, $interneExterne);
+            $pathFichiers = $this->enregistrerFichiers($form, $numFac, $this->ditFactureSoumiAValidation->getNumeroSoumission(), $interneExterne);
 
-                    if ($interneExterne === 'INTERNE') {
-                        $ficherAfusioner = $this->fileUploaderService->insertFileAtPosition($pathFichiers, $pathPageDeGarde, 0);
-                        $fichierConvertie = $this->ConvertirLesPdf($ficherAfusioner);
-                        $this->fusionPdf->mergePdfs($fichierConvertie, $pathPageDeGarde);
-                        $this->genererPdfFacture->copyToDwFactureSoumis($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac);
-                    } else {
-                        $this->genererPdfFacture->copyToDwFacture($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac);
-                        $this->genererPdfFacture->copyToDwFactureFichier($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac, $pathFichiers); //d'après le demande de Antsa le 22/08/2025
-                    }
+            if ($interneExterne === 'INTERNE') {
+                $ficherAfusioner = $this->fileUploaderService->insertFileAtPosition($pathFichiers, $pathPageDeGarde, 0);
+                $fichierConvertie = $this->ConvertirLesPdf($ficherAfusioner);
+                $this->fusionPdf->mergePdfs($fichierConvertie, $pathPageDeGarde);
+                $this->genererPdfFacture->copyToDwFactureSoumis($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac);
+            } else {
+                $this->genererPdfFacture->copyToDwFacture($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac);
+                $this->genererPdfFacture->copyToDwFactureFichier($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac, $pathFichiers); //d'après le demande de Antsa le 22/08/2025
+            }
 
-                    /** ENVOIE des DONNEE dans BASE DE DONNEE */
-                    // Persist les entités liées
-                    $this->ajoutDataFactureAValidation($factureSoumisAValidation);
+            /** ENVOIE des DONNEE dans BASE DE DONNEE */
+            // Persist les entités liées
+            $this->ajoutDataFactureAValidation($factureSoumisAValidation);
 
-                    $this->historiqueOperation->sendNotificationSoumission('Le document de controle a été généré et soumis pour validation', $dataForm->getNumeroFact(), 'dit_index', true);
-                }
+            $this->historiqueOperation->sendNotificationSoumission('Le document de controle a été généré et soumis pour validation', $dataForm->getNumeroFact(), 'dit_index', true);
+            }
             }
         }
 
@@ -241,18 +242,64 @@ class DitFactureSoumisAValidationController extends Controller
 
     public function enregistrerPdf($dataForm, string $numDit, $factureSoumisAValidation, string $interneExterne)
     {
-        $orSoumisValidationModel = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class)->findOrSoumisValid($this->ditFactureSoumiAValidation->getNumeroOR());
-
         $orSoumisFact = $this->ditFactureSoumiAValidationModel->recupOrSoumisValidation($this->ditFactureSoumiAValidation->getNumeroOR(), $dataForm->getNumeroFact());
-        $orSoumisValidataion = $this->orSoumisValidataion($orSoumisValidationModel, $this->ditFactureSoumiAValidation);
         $numDevis = $this->ditModel->recupererNumdevis($this->ditFactureSoumiAValidation->getNumeroOR());
         $statut = $this->affectationStatutFac($this->getEntityManager(), $numDit, $dataForm, $this->ditFactureSoumiAValidationModel, $this->ditFactureSoumiAValidation, $interneExterne);
         $montantPdf = $this->montantpdf($factureSoumisAValidation, $statut, $orSoumisFact);
-
+        $estFactureConformAOr = $this->estFactureConformAOr($factureSoumisAValidation);
         $etatOr = $this->etatOr($dataForm, $this->ditFactureSoumiAValidationModel);
         $this->modificationEtatFacturDit($etatOr, $numDit);
 
-        return $this->genererPdfFacture->GenererPdfFactureSoumisAValidation($this->ditFactureSoumiAValidation, $numDevis, $montantPdf, $etatOr, $this->nomUtilisateur($this->getEntityManager())['emailUtilisateur'], $interneExterne);
+        return $this->genererPdfFacture->GenererPdfFactureSoumisAValidation($this->ditFactureSoumiAValidation, $numDevis, $montantPdf, $etatOr, $this->nomUtilisateur($this->getEntityManager())['emailUtilisateur'], $interneExterne, $estFactureConformAOr);
+    }
+
+    private function estFactureConformAOr(array $factureSoumisAValidation): string
+    {
+        $orSoumisValidationRepository = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class)->findOrSoumisValid($this->ditFactureSoumiAValidation->getNumeroOR());
+        $montantItvOr = $this->calculerMontantItvOr($orSoumisValidationRepository, $factureSoumisAValidation);
+        $montantFacture = $this->calculerMontantFacture($factureSoumisAValidation);
+        
+        $estFactureDifférentDeOr = $montantFacture != $montantItvOr;
+
+        if($estFactureDifférentDeOr || ($montantFacture == 0.0 && $montantItvOr == 0.0)) {
+            $montantFactureOr = 'NON';
+        } else {
+            $montantFactureOr = 'OUI';
+        }
+
+        return $montantFactureOr;
+    }
+    private function filtrerOrSelonLesIntervetnionFac(array $orSoumisValidationRepository, array $factureSoumisAValidation): array
+    {
+        $orSoumisValidationRepositoryFiltre = [];
+        foreach ($orSoumisValidationRepository as $value) {
+            foreach ($factureSoumisAValidation as $valueFacture) {
+                if ($value->getNumeroItv() == $valueFacture->getNumeroItv()) {
+                    $orSoumisValidationRepositoryFiltre[] = $value;
+                }
+            }
+        }
+
+        return $orSoumisValidationRepositoryFiltre;
+    }
+    private function calculerMontantFacture(array $factureSoumisAValidation): float
+    {
+        $montantFacture = 0;
+        foreach ($factureSoumisAValidation as $value) {
+            $montantFacture += $value->getMontantFactureitv();
+        }
+
+        return $montantFacture;
+    }
+
+    private function calculerMontantItvOr(array $orSoumisValidationRepository, array $factureSoumisAValidation): float
+    {
+        $montantItvOr = 0;
+        foreach ($this->filtrerOrSelonLesIntervetnionFac($orSoumisValidationRepository, $factureSoumisAValidation) as $value) {
+            $montantItvOr += $value->getMontantItv();
+        }
+
+        return $montantItvOr;
     }
 
     public function enregistrerFichiers(FormInterface $form, string $numeroFac, int $numeroSoumission, $interneExterne): array

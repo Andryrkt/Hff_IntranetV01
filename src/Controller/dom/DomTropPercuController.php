@@ -63,6 +63,7 @@ class DomTropPercuController extends Controller
         }
 
         $this->initialisationFormTropPercu($this->getEntityManager(), $dom, $oldDom);
+        $categoryId = $dom->getCategoryId();
         $criteria = [
             'oldDateDebut' => $oldDom->getDateDebut()->format('m/d/Y'),  // formater en mois/jour/année pour faciliter le traitement en JS
             'oldDateFin' => $oldDom->getDateFin()->format('m/d/Y'),  // formater en mois/jour/année pour faciliter le traitement en JS
@@ -82,6 +83,7 @@ class DomTropPercuController extends Controller
                 ->setHeureDebut($dom->getHeureDebut()->format('H:i'))
                 ->setHeureFin($dom->getHeureFin()->format('H:i'))
                 ->setModePayement(':' . $mode)
+                ->setCategoryId($categoryId)
             ;
 
             $domTp = new Domtp;

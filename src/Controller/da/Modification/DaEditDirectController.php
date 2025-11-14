@@ -119,13 +119,7 @@ class DaEditDirectController extends Controller
             // ajout des données dans la table DaAfficher
             $this->ajouterDansTableAffichageParNumDa($numDa);
 
-            /** ENVOIE MAIL */
-            $this->emailDaService->envoyerMailModificationDaDirect($demandeAppro, [
-                'ancienDals'    => $ancienDals,
-                'nouveauDals'   => $demandeAppro->getDAL(),
-                'service'       => $demandeAppro->getServiceEmetteur()->getLibelleService(),
-                'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms()
-            ]);
+            $this->emailDaService->envoyerMailModificationDa($demandeAppro, $this->getUser(), $ancienDals);
 
             //notification
             $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'Votre modification a été enregistrée']);

@@ -3,10 +3,10 @@
 namespace App\Entity\ddc;
 
 use Doctrine\ORM\Mapping as ORM;
-use App\Repository\ddc\DemandeCongeRepository;
+use App\Entity\admin\AgenceServiceIrium;
 
 /**
- * @ORM\Entity(repositoryClass=DemandeCongeRepository::class)
+ * @ORM\Entity(repositoryClass="App\Repository\ddc\DemandeCongeRepository")
  * @ORM\Table(name="demande_de_conge")
  */
 class DemandeConge
@@ -14,7 +14,7 @@ class DemandeConge
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
-     * @ORM\Column(name="ID", type="integer")
+     * @ORM\Column(name="id", type="integer")
      */
     private ?int $id = null;
 
@@ -44,9 +44,11 @@ class DemandeConge
     private ?\DateTimeInterface $dateDemande = null;
 
     /**
-     * @ORM\Column(name="Agence_Service", type="string", length=100)
+     * @ORM\Column(name="Agence_Debiteur", type="string", length=10)
      */
-    private ?string $agenceService = null;
+    private ?string $agenceDebiteur = null;
+
+
 
     /**
      * @ORM\Column(name="Adresse_Mail_Demandeur", type="string", length=100)
@@ -98,7 +100,18 @@ class DemandeConge
      */
     private ?string $pdfDemande = null;
 
-    // Getters et Setters (inchangés)
+    private ?string $codeAgenceService;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=AgenceServiceIrium::class, inversedBy="demandeDeConge")
+     * @ORM\JoinColumn(name="Agence_Service", referencedColumnName="service_sage_paie")
+     */
+    private $agenceServiceirium;
+
+    /** ==================================================================================
+     * Getters et Setters (inchangés)
+     *=============================================================================*/
+
     public function getId(): ?int
     {
         return $this->id;
@@ -107,7 +120,7 @@ class DemandeConge
     {
         return $this->typeDemande;
     }
-    public function setTypeDemande(string $typeDemande): self
+    public function setTypeDemande(?string $typeDemande): self
     {
         $this->typeDemande = $typeDemande;
         return $this;
@@ -116,7 +129,7 @@ class DemandeConge
     {
         return $this->numeroDemande;
     }
-    public function setNumeroDemande(string $numeroDemande): self
+    public function setNumeroDemande(?string $numeroDemande): self
     {
         $this->numeroDemande = $numeroDemande;
         return $this;
@@ -125,7 +138,7 @@ class DemandeConge
     {
         return $this->matricule;
     }
-    public function setMatricule(string $matricule): self
+    public function setMatricule(?string $matricule): self
     {
         $this->matricule = $matricule;
         return $this;
@@ -134,7 +147,7 @@ class DemandeConge
     {
         return $this->nomPrenoms;
     }
-    public function setNomPrenoms(string $nomPrenoms): self
+    public function setNomPrenoms(?string $nomPrenoms): self
     {
         $this->nomPrenoms = $nomPrenoms;
         return $this;
@@ -148,20 +161,21 @@ class DemandeConge
         $this->dateDemande = $dateDemande;
         return $this;
     }
-    public function getAgenceService(): ?string
+    public function getAgenceDebiteur(): ?string
     {
-        return $this->agenceService;
+        return $this->agenceDebiteur;
     }
-    public function setAgenceService(string $agenceService): self
+    public function setAgenceDebiteur(?string $agenceDebiteur): self
     {
-        $this->agenceService = $agenceService;
+        $this->agenceDebiteur = $agenceDebiteur;
         return $this;
     }
+
     public function getAdresseMailDemandeur(): ?string
     {
         return $this->adresseMailDemandeur;
     }
-    public function setAdresseMailDemandeur(string $adresseMailDemandeur): self
+    public function setAdresseMailDemandeur(?string $adresseMailDemandeur): self
     {
         $this->adresseMailDemandeur = $adresseMailDemandeur;
         return $this;
@@ -170,7 +184,7 @@ class DemandeConge
     {
         return $this->sousTypeDocument;
     }
-    public function setSousTypeDocument(string $sousTypeDocument): self
+    public function setSousTypeDocument(?string $sousTypeDocument): self
     {
         $this->sousTypeDocument = $sousTypeDocument;
         return $this;
@@ -179,7 +193,7 @@ class DemandeConge
     {
         return $this->dureeConge;
     }
-    public function setDureeConge(string $dureeConge): self
+    public function setDureeConge(?string $dureeConge): self
     {
         $this->dureeConge = $dureeConge;
         return $this;
@@ -206,7 +220,7 @@ class DemandeConge
     {
         return $this->soldeConge;
     }
-    public function setSoldeConge(string $soldeConge): self
+    public function setSoldeConge(?string $soldeConge): self
     {
         $this->soldeConge = $soldeConge;
         return $this;
@@ -215,7 +229,7 @@ class DemandeConge
     {
         return $this->motifConge;
     }
-    public function setMotifConge(string $motifConge): self
+    public function setMotifConge(?string $motifConge): self
     {
         $this->motifConge = $motifConge;
         return $this;
@@ -248,6 +262,24 @@ class DemandeConge
         return $this;
     }
 
+    /**
+     * Get the value of codeAgenceService
+     */
+    public function getCodeAgenceService(): ?string
+    {
+        return $this->codeAgenceService;
+    }
+
+    /**
+     * Set the value of codeAgenceService
+     */
+    public function setCodeAgenceService(?string $codeAgenceService): self
+    {
+        $this->codeAgenceService = $codeAgenceService;
+
+        return $this;
+    }
+
     public function toArray(): array
     {
         return [
@@ -256,7 +288,9 @@ class DemandeConge
             'matricule' => $this->matricule,
             'nomPrenoms' => $this->nomPrenoms,
             'dateDemande' => $this->dateDemande,
-            'agenceService' => $this->agenceService,
+            'agenceDebiteur' => $this->agenceDebiteur,
+            'agence' => $this->agenceDebiteur,
+            'agenceService' => $this->agenceServiceirium ? $this->agenceServiceirium->getServicesagepaie() : null,
             'adresseMailDemandeur' => $this->adresseMailDemandeur,
             'sousTypeDocument' => $this->sousTypeDocument,
             'dureeConge' => $this->dureeConge,
@@ -268,5 +302,23 @@ class DemandeConge
             'dateStatut' => $this->dateStatut,
             'pdfDemande' => $this->pdfDemande,
         ];
+    }
+
+    /**
+     * Get the value of agenceServiceirium
+     */
+    public function getAgenceServiceirium()
+    {
+        return $this->agenceServiceirium;
+    }
+
+    /**
+     * Set the value of agenceServiceirium
+     */
+    public function setAgenceServiceirium($agenceServiceirium): self
+    {
+        $this->agenceServiceirium = $agenceServiceirium;
+
+        return $this;
     }
 }

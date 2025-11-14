@@ -1,8 +1,46 @@
-import { displayOverlay } from "../../utils/spinnerUtils";
+import { formatDatePartielDate } from "../../tik/calendarModule/formatDateModule";
+import { displayOverlay } from "../../utils/ui/overlay";
 import { ajouterUneLigne } from "./dal";
 
 document.addEventListener("DOMContentLoaded", function () {
   buildIndexFromLines(); // initialiser le compteur de ligne pour la création d'une DA avec DIT
+
+  const dateFinSouhaiteeInput = document.getElementById(
+    "demande_appro_form_dateFinSouhaite"
+  );
+  const dateFinSouhaiteevalue = dateFinSouhaiteeInput.value;
+  const dateFinSouhaitee = new Date(dateFinSouhaiteevalue);
+  const actionsConfig = {
+    enregistrerBrouillon: {
+      title: "Confirmer l’enregistrement",
+      html: `Souhaitez-vous enregistrer <strong class="text-primary">provisoirement</strong> cette demande ?<br><small class="text-primary"><strong><u>NB</u>: </strong>Elle ne sera pas transmise au service APPRO.</small>`,
+      icon: "question",
+      confirmButtonText: "Oui, Enregistrer",
+      canceledText: "L’enregistrement provisoire a été annulé.",
+    },
+    soumissionAppro: {
+      title: "Confirmer la soumission",
+      html: `Êtes-vous sûr de vouloir <strong style="color: #f8bb86;">soumettre</strong> cette demande ?<br><small style="color: #f8bb86;"><strong><u>NB</u>: </strong>Elle sera transmise au service APPRO pour traitement.</small>`,
+      icon: "warning",
+      confirmButtonText: "Oui, Soumettre",
+      canceledText: "La soumission de la demande a été annulée.",
+    },
+  };
+
+  // Ajouter un écouteur d'événement pour la validation de la date
+  dateFinSouhaiteeInput.addEventListener("change", function (e) {
+    const selectedDate = new Date(e.target.value);
+    if (selectedDate < dateFinSouhaitee) {
+      Swal.fire({
+        icon: "warning",
+        title: "Attention !",
+        text: `La date fin souhaitée ne peut pas être antérieure à la date initiale prévue (${formatDatePartielDate(
+          dateFinSouhaitee
+        )}).`,
+      });
+      e.target.value = dateFinSouhaiteevalue; // réinitialiser à la valeur précédente
+    }
+  });
 
   document
     .getElementById("add-child")
@@ -12,22 +50,6 @@ document.addEventListener("DOMContentLoaded", function () {
     e.preventDefault(); // empêcher l'envoi immédiat
     const action = e.submitter.name; // 👉 nom (attribut "name") du bouton qui a déclenché le submit
     // Définition des paramètres selon l'action
-    const actionsConfig = {
-      enregistrerBrouillon: {
-        title: "Confirmer l’enregistrement",
-        html: `Souhaitez-vous enregistrer <strong class="text-primary">provisoirement</strong> cette demande ?<br><small class="text-primary"><strong><u>NB</u>: </strong>Elle ne sera pas transmise au service APPRO.</small>`,
-        icon: "question",
-        confirmButtonText: "Oui, Enregistrer",
-        canceledText: "L’enregistrement provisoire a été annulé.",
-      },
-      soumissionAppro: {
-        title: "Confirmer la soumission",
-        html: `Êtes-vous sûr de vouloir <strong style="color: #f8bb86;">soumettre</strong> cette demande ?<br><small style="color: #f8bb86;"><strong><u>NB</u>: </strong>Elle sera transmise au service APPRO pour traitement.</small>`,
-        icon: "warning",
-        confirmButtonText: "Oui, Soumettre",
-        canceledText: "La soumission de la demande a été annulée.",
-      },
-    };
 
     const config = actionsConfig[action];
     if (!config) return;
@@ -97,7 +119,7 @@ document.addEventListener("DOMContentLoaded", function () {
       confirmButtonText: "Compris",
       confirmButtonColor: "#fbbb01", // couleur cohérente avec ton style
       customClass: {
-        popup: "text-start", // alignement gauche professionnel
+        htmlContainer: "swal-text-left",
       },
     });
   });

@@ -41,29 +41,33 @@ trait DaDetailDirectTrait
     private function getAllDAFile($tab): array
     {
         return [
-            'BA'    => [
+            [
+                'labeltype'  => 'BA',
                 'type'       => "Bon d'achat",
                 'icon'       => 'fa-solid fa-file-signature',
                 'colorClass' => 'border-left-ba',
                 'fichiers'   => $this->normalizePaths($tab['baPath']),
             ],
-            'DEVPJ' => [
+            [
+                'labeltype'  => 'DEVPJ',
                 'type'       => 'Devis / Pièce(s) jointe(s)',
                 'icon'       => 'fa-solid fa-money-bill-wave',
                 'colorClass' => 'border-left-devpj',
                 'fichiers'   => $this->normalizePathsForManyFiles($tab['devPjPath'], 'nomPj'),
             ],
-            'BC'    => [
+            [
+                'labeltype'  => 'BC',
                 'type'       => 'Bon de commande',
                 'icon'       => 'fa-solid fa-file-circle-check',
                 'colorClass' => 'border-left-bc',
                 'fichiers'   => $this->normalizePathsForManyFiles($tab['bcPath'], 'numeroBc'),
             ],
-            'FACBL' => [
+            [
+                'labeltype'  => 'FACBL',
                 'type'       => 'Facture / Bon de livraison',
                 'icon'       => 'fa-solid fa-file-invoice',
                 'colorClass' => 'border-left-facbl',
-                'fichiers'   => $this->normalizePathsForManyFiles($tab['facblPath'], 'idFacBl'),
+                'fichiers'   => $this->normalizePathsForFacBl($tab['facblPath']),
             ],
         ];
     }

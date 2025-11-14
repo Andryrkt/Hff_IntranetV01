@@ -1,0 +1,79 @@
+{% import "macros/form_macros.html.twig" as form_macros %}
+
+<!-- DEBUT recherche -->
+<div class="accordion" id="formAccordion">
+	<div class="accordion-item">
+		<h2 class="accordion-header">
+			<button class="accordion-button enteteAccordion" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+				Formulaire de recherche
+			</button>
+		</h2>
+		<div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#formAccordion">
+			<div class="accordion-body">
+				{{ form_start(form, {'method': 'GET'}) }}
+				<div class="row">
+					<div class="col-12 col-md-2">
+						{{ form_macros.checkbox_group(form.constructeur) }}
+					</div>
+					<div class="col-12 col-md-2">
+						{{ form_macros.checkbox_group(form.agences) }}
+					</div>
+					<div class="col-12 col-md-3">
+						{{ form_label(form.services) }}
+						<div class="mb-2">
+							<button type="button" class="btn btn-sm btn-outline-primary" id="select-all-services">Tout sélectionner</button>
+							<button type="button" class="btn btn-sm btn-outline-secondary" id="clear-all-services">Tout effacer</button>
+						</div>
+						{{ form_widget(form.services) }}
+						{{ form_errors(form.services) }}
+					</div>
+					<div class="col-12 col-md-2">
+						{{ form_row(form.date) }}
+					</div>
+					<div class="col-12 col-md-3">
+						{{ form_row(form.numFacture) }}
+						{{ form_row(form.description) }}
+					</div>
+				</div>
+				<div class="d-flex justify-content-end mb-2">
+					<button class="btn btn-warning fw-bold" type="submit">
+						<i class="fab fa-searchengin"></i>
+						Recherche</button>
+				</div>
+
+				{{ form_end(form) }}
+			</div>
+		</div>
+	</div>
+</div>
+
+{# ============= Boutton Excel ================= #}
+<div class="row mt-2">
+	<div class="align-self-center">
+		<a href="{{ path("reappro_export_excel")}}" class="btn btn-sm bg-success text-white fw-bold me-3 afficher-overlay">
+			<i class="fas fa-table"></i>
+			Excel
+		</a>
+	</div>
+</div>
+
+<script>
+	document.addEventListener('DOMContentLoaded', function () { // S'assurer que jQuery et Select2 sont chargés
+if (typeof jQuery !== 'undefined' && jQuery.fn.select2) { // Initialiser Select2
+const $selectServices = $('.select2-enable').select2({
+placeholder: 'Sélectionner des services', allowClear: true, width: '100%' // S'assurer que le select prend toute la largeur de la colonne
+});
+
+// Bouton "Tout sélectionner"
+document.getElementById('select-all-services').addEventListener('click', function () {
+const allOptionValues = Array.from($selectServices[0].options).map(opt => opt.value);
+$selectServices.val(allOptionValues).trigger('change');
+});
+
+// Bouton "Tout effacer"
+document.getElementById('clear-all-services').addEventListener('click', function () {
+$selectServices.val(null).trigger('change');
+});
+}
+});
+</script>

@@ -194,7 +194,7 @@ class MenuService
         // Définition des règles d’accès pour chaque menu
         $menus = [
             [$this->menuReportingBI(), $estAdmin],
-            [$this->menuCompta(), $estAdmin || $this->hasAccess([Application::ID_DDP, Application::ID_DDR], $applicationIds)], // DDP + DDR
+            [$this->menuCompta(), $estAdmin || $this->hasAccess([Application::ID_DDP, Application::ID_DDR, Application::ID_BCS], $applicationIds)], // DDP + DDR
             [$this->menuRH(), $estAdmin || $this->hasAccess([Application::ID_DOM, Application::ID_MUT, Application::ID_DDC], $applicationIds)],     // DOM + MUT + DDC
             [$this->menuMateriel(), $estAdmin || $this->hasAccess([Application::ID_BADM, Application::ID_CAS], $applicationIds)], // BDM + CAS
             [$this->menuAtelier(), $estAdmin || $this->hasAccess([Application::ID_DIT, Application::ID_REP], $applicationIds)], // DIT + REP
@@ -256,29 +256,34 @@ class MenuService
 
     public function menuCompta()
     {
+        $subitems = [];
+
+        $subitems[] = $this->createSimpleItem('Cours de change', 'money-bill-wave');
+        $subitems[] = $this->createSubMenuItem(
+            'Demande de paiement',
+            'file-invoice-dollar',
+            [
+                $this->createSubItem('Nouvelle demande', 'plus-circle', '#', [], 'modalTypeDemande', true),
+                $this->createSubItem('Consultation', 'search', 'ddp_liste')
+            ]
+        );
+
+        if ($this->getEstAdmin() || in_array(Application::ID_BCS, $this->getApplicationIds())) {
+            $subitems[] = $this->createSubMenuItem(
+                'Bon de caisse',
+                'receipt',
+                [
+                    $this->createSubItem('Nouvelle demande', 'plus-circle', 'new_bon_caisse'),
+                    $this->createSubItem('Consultation', 'search', 'bon_caisse_liste')
+                ]
+            );
+        }
+
         return $this->createMenuItem(
             'comptaModal',
             'Compta',
             'calculator',
-            [
-                $this->createSimpleItem('Cours de change', 'money-bill-wave'),
-                $this->createSubMenuItem(
-                    'Demande de paiement',
-                    'file-invoice-dollar',
-                    [
-                        $this->createSubItem('Nouvelle demande', 'plus-circle', '#', [], 'modalTypeDemande', true),
-                        $this->createSubItem('Consultation', 'search', 'ddp_liste')
-                    ]
-                ),
-                $this->createSubMenuItem(
-                    'Bon de caisse',
-                    'receipt',
-                    [
-                        $this->createSubItem('Nouvelle demande', 'plus-circle', '#'),
-                        $this->createSubItem('Consultation', 'search', 'bon_caisse_liste')
-                    ]
-                )
-            ]
+            $subitems
         );
     }
 
@@ -308,14 +313,17 @@ class MenuService
                 ]
             );
         }
-        if ($this->getEstAdmin() || in_array(Application::ID_DDC, $this->getApplicationIds())) { // MUT
+        if ($this->getEstAdmin() || in_array(Application::ID_DDC, $this->getApplicationIds())) { // DDC
+            $subSubitems = [];
+            $subSubitems[] = $this->createSubItem('Nouvelle demande', 'plus-circle', 'new_conge', [], '_blank');
+            if ($this->getEstAdmin()) {
+                $subSubitems[] = $this->createSubItem('Annulation Congé', 'calendar-xmark', 'annulation_conge', [], '_blank');
+            }
+            $subSubitems[] = $this->createSubItem('Consultation', 'search', 'conge_liste');
             $subitems[] = $this->createSubMenuItem(
                 'Congés',
                 'umbrella-beach',
-                [
-                    $this->createSubItem('Nouvelle demande', 'plus-circle', 'new_conge', [], '_blank'),
-                    $this->createSubItem('Consultation', 'search', 'conge_liste')
-                ]
+                $subSubitems
             );
         }
         if ($this->getEstAdmin()) {
@@ -413,7 +421,7 @@ class MenuService
     public function menuMagasin()
     {
         $subitems = [];
-        /** =====================Magasin========================= */
+        /** =====================Magasin OR et CIS========================= */
         if ($this->getEstAdmin() || in_array(Application::ID_MAG, $this->getApplicationIds())) { // MAG
             $subitems[] = $this->createSubMenuItem(
                 'OR',
@@ -439,14 +447,14 @@ class MenuService
                 'file-alt',
                 [
                     $this->createSubItem('Liste inventaire', 'file-alt', 'liste_inventaire', ['action' => 'oui']),
-                    $this->createSubItem('Inventaire détaillé', 'file-alt', 'liste_detail_inventaire', ['action' => 'oui']),
+                    $this->createSubItem('Inventaire détaillé', 'file-alt', 'liste_detail_inventaire'),
                 ]
             );
         }
         /** =====================sortie de pieces / lubs========================= */
         if ($this->getEstAdmin() || in_array(Application::ID_BDL, $this->getApplicationIds())) { // BDL
             $subitems[] = $this->createSubMenuItem(
-                'SORTIE DE PIECES / LUBS',
+                'SORTIE DE PIECES',
                 'arrow-left',
                 [
                     $this->createSubItem('Nouvelle demande', 'plus-circle', 'bl_soumission'),
@@ -461,7 +469,7 @@ class MenuService
                 [
                     $this->createSubItem('Devis', 'file-invoice', 'devis_magasin_liste'),
                     $this->createSubItem('Commandes clients', 'shopping-basket', '#'),
-                    $this->createSubItem('Planning magasin', 'calendar-alt', '#'),
+                    $this->createSubItem('Planning de commande Magasin', 'calendar-alt', 'interface_planningMag'),
                 ]
             );
         }
@@ -492,6 +500,9 @@ class MenuService
         if ($this->getEstAdmin() || $this->getEstAppro()) {
             $subitems[] = $this->createSimpleItem('Liste des commandes fournisseurs', 'list-ul', 'da_list_cde_frn');
         }
+        if ($this->getEstAdmin()) {
+            $subitems[] = $this->createSimpleItem('Reporting IPS DA reappro', 'chart-bar', 'da_reporting_ips');
+        }
         return $this->createMenuItem(
             'approModal',
             'Appro',
@@ -516,16 +527,37 @@ class MenuService
 
     public function menuPOL()
     {
+        $subitems = [];
+        $subitems[] = $this->createSimpleItem('Nouvelle DLUB', 'file-alt');
+        $subitems[] = $this->createSimpleItem('Consultation des DLUB', 'search');
+        $subitems[] = $this->createSimpleItem('Liste des commandes fournisseurs', 'list-ul');
+        /** =====================POL OR et CIS========================= */
+        if ($this->getEstAdmin()) { // admin uniquement
+            $subitems[] = $this->createSubMenuItem(
+                'OR',
+                'warehouse',
+                [
+                    $this->createSubItem('Liste à traiter', 'tasks', 'pol_or_liste_a_traiter'),
+                    $this->createSubItem('Liste à livrer', 'truck-loading', 'pol_or_liste_a_livrer')
+                ]
+            );
+            $subitems[] = $this->createSubMenuItem(
+                'CIS',
+                'pallet',
+                [
+                    $this->createSubItem('Liste à traiter', 'tasks', 'pol_cis_liste_a_traiter'),
+                    $this->createSubItem('Liste à livrer', 'truck-loading', 'pol_cis_liste_a_livrer')
+                ]
+            );
+        }
+
+
+        $subitems[] = $this->createSimpleItem('Pneumatiques', 'ring');
         return $this->createMenuItem(
             'polModal',
             'POL',
             'ring rotate-90',
-            [
-                $this->createSimpleItem('Nouvelle DLUB', 'file-alt'),
-                $this->createSimpleItem('Consultation des DLUB', 'search'),
-                $this->createSimpleItem('Liste des commandes fournisseurs', 'list-ul'),
-                $this->createSimpleItem('Pneumatiques', 'ring'),
-            ]
+            $subitems
         );
     }
 

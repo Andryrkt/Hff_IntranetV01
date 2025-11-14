@@ -241,3 +241,6 @@ ADD statutOperation VARCHAR(255) NULL;
 
 ALTER TABLE historique_operation_document
 ADD libelleOperation VARCHAR(255) NULL;
+
+ALTER TABLE ors_soumis_a_validation
+ADD observation VARCHAR(3000) NULL;

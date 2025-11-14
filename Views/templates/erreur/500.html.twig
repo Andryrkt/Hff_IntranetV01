@@ -7,7 +7,7 @@
 {% block nav %}{% endblock %}
 
 {% block stylesheets %}
-	<link href="{{ App.base_path }}/Views/css/erreur/404.css?v=2025.09.15.08.00" rel="stylesheet">
+	<link href="{{ App.base_path }}/Views/css/erreur/404.css?v=2025.10.22.08.00" rel="stylesheet">
 {% endblock %}
 
 {% block breadCrumb %}{% endblock %}
@@ -30,6 +30,68 @@
 				<div class="error-message">
 					<strong>Détails techniques :</strong>
 					<div>{{ message }}</div>
+
+					<div
+						class="row">
+						<!-- Colonne de gauche - Informations de base -->
+						<div class="col-lg-6 col-md-12">
+							{% if error_id is defined %}
+								<div class="p-2 bg-light rounded">
+									<strong>ID d'erreur :</strong>
+									{{ error_id }}<br>
+									<strong>Heure :</strong>
+									{{ timestamp }}
+								</div>
+							{% endif %}
+
+							{% if file is defined and line is defined %}
+								<div class="p-2 bg-light rounded">
+									<strong>Fichier :</strong><br>
+									<small class="text-muted">{{ file }}</small><br>
+									<strong>Ligne :</strong>
+									{{ line }}
+								</div>
+							{% endif %}
+
+							{% if code is defined and code != 0 %}
+								<div class="p-2 bg-light rounded">
+									<strong>Code d'erreur :</strong>
+									{{ code }}
+								</div>
+							{% endif %}
+						</div>
+
+						<!-- Colonne de droite - Informations de requête et erreurs -->
+						<div class="col-lg-6 col-md-12">
+							{% if request_uri is defined %}
+								<div class="p-2 bg-light rounded">
+									<strong>URL :</strong><br>
+									<small class="text-muted">{{ request_uri }}</small><br>
+									<strong>Méthode :</strong>
+									{{ request_method }}
+								</div>
+							{% endif %}
+
+							{% if previous is defined and previous %}
+								<div class="p-2 bg-light rounded">
+									<strong>Erreur précédente :</strong><br>
+									<small class="text-muted">{{ previous }}</small>
+								</div>
+							{% endif %}
+						</div>
+					</div>
+
+					<!-- Stack Trace en pleine largeur -->
+					{% if trace is defined %}
+						<div>
+							<details>
+								<summary>
+									<strong>Stack Trace (cliquer pour voir)</strong>
+								</summary>
+								<pre class="mt-2 p-3 bg-dark text-light rounded" style="font-size: 11px; max-height: 400px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word;">{{ trace }}</pre>
+							</details>
+						</div>
+					{% endif %}
 				</div>
 			</p>
 

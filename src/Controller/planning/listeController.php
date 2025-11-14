@@ -90,7 +90,7 @@ class ListeController extends Controller
         $count = [];
         if ($request->query->get('action') !== 'oui') {
 
-            $lesOrvalides = $this->recupNumOrValider($criteria, $this->getEntityManager());
+            $lesOrvalides = $this->recupNumOrValider($criteria);
             // dump($lesOrvalides['orSansItv']);
             $tousLesOrSoumis = $this->allOrs();
             $touslesOrItvSoumis = $this->allOrsItv();

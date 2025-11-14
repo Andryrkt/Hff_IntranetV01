@@ -8,6 +8,7 @@ use App\Form\dw\DocInterneSearchType;
 use App\Entity\dw\DwProcessusProcedure;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+
 /**
  * @Route("/documentation")
  */
@@ -36,7 +37,7 @@ class DocumentationProcessusController extends Controller
         $criteria = [];
         $criteria = $docInterneSearch->toArray();
         $page = $request->query->getInt('page', 1);
-        $limit = 10;
+        $limit = 20;
 
         $paginationData = $this->getEntityManager()->getRepository(DwProcessusProcedure::class)->findPaginatedAndFiltered($page, $limit, $docInterneSearch);
 

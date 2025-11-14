@@ -5,17 +5,15 @@
 {% endblock %}
 
 {% block stylesheets %}
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/new.css?v=2025.09.15.08.00">
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.09.15.08.00">
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/list.css?v=2025.09.15.08.00">
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/style.css?v=2025.09.15.08.00">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/new.css?v=2025.10.22.08.00">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.10.22.08.00">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/list.css?v=2025.10.22.08.00">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/style.css?v=2025.10.22.08.00">
 {% endblock %}
 
 {% block overlay %}
-	{% include "/shared/_overlay.html.twig"  %}
+	{% include "/shared/_overlay.html.twig" %}
 {% endblock %}
-
-{% set currentParams = criteria %}
 
 {% block content %}
 	<div class="sticky-header-titre">
@@ -34,7 +32,7 @@
 						<i class="fas fa-ellipsis-vertical"></i>
 					</th>
 					<th class="text-center">N° Demande</th>
-					<th class="text-center">Achat direct</th>
+					<th class="text-center">Type de demande</th>
 					<th class="text-center">N° DIT</th>
 					<th class="text-center">Niveau urgence</th>
 					<th class="text-center">N° OR</th>
@@ -57,13 +55,8 @@
 					<th class="text-center">
 						<div class="d-flex flex-row align-items-center">
 							<span>Nbr Jour(s) dispo</span>
-							<div class="d-none flex-column sort-icons ms-1">
-								<a href="{{ path('list_da', currentParams|merge({ page: 1, sort: 'joursDispo', direction: 'asc' })) }}" class="sort-icon">
-									<i class="fas fa-sort-up {{ currentSortClass.asc }}" data-bs-toggle="tooltip" title="Trier par Nbr Jour(s) dispo (croissant)"></i>
-								</a>
-								<a href="{{ path('list_da', currentParams|merge({ page: 1, sort: 'joursDispo', direction: 'desc' })) }}" class="sort-icon">
-									<i class="fas fa-sort-down {{ currentSortClass.desc }}" data-bs-toggle="tooltip" title="Trier par Nbr Jour(s) dispo (décroissant)"></i>
-								</a>
+							<div class="{{ sortJoursClass ? '' : 'd-none' }}">
+								<i class="{{ sortJoursClass }} fs-4 text-warning"></i>
 							</div>
 						</div>
 					</th>
@@ -82,7 +75,12 @@
 								<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton">
 									{% if row.ajouterDA %}
 										<li>
-											<a class="dropdown-item fw-bold ajout-overlay" href="{{ path('da_new_avec_dit', { id : row.dit.id }) }}">Créer une DA à partir du DIT</a>
+											<a class="dropdown-item fw-bold ajout-overlay" href="{{ row.urlCreation }}">Créer une DA à partir du DIT</a>
+										</li>
+									{% endif %}
+									{% if row.demandeDevis %}
+										<li>
+											<a class="dropdown-item fw-bold devis-demande" style="cursor:pointer;" data-demande-devis-path="{{ row.urlDemandeDevis }}">Pointer la demande de devis</a>
 										</li>
 									{% endif %}
 									{% if row.statutValide %}
@@ -105,8 +103,7 @@
 								{{ row.numeroDemandeAppro }}
 							</a>
 						</td>
-						<td class="text-center">
-							{{ row.achatDirect }}</td>
+						<td class="text-center">{{ row.datype }}</td>
 						<td>{{ row.numeroDemandeDit }}</td>
 						<td>{{ row.niveauUrgence }}</td>
 						<td>{{ row.numeroOr }}</td>
@@ -134,7 +131,7 @@
 						<td class="text-center">{{ row.qteLivrer }}</td>
 						<td class="text-center">{{ row.dateFinSouhaite }}</td>
 						<td class="text-center">{{ row.dateLivraisonPrevue }}</td>
-						<td class="text-center {{ row.joursDispo < 0 ? 'text-danger' : '' }}">{{ row.joursDispo }}</td>
+						<td class="text-center {{ row.styleJoursDispo }}">{{ row.joursDispo }}</td>
 						<td class="text-center">
 							{% if row.supprimable %}
 								<i class="fas fa-trash-can text-danger fs-6 delete-line-DA" style="cursor:pointer;" data-bs-toggle="tooltip" title="Supprimer la ligne de DA" data-delete-path="{{ row.urlDelete }}"></i>
@@ -146,10 +143,12 @@
 		</table>
 	</div>
 
-	{% include "/dit/shared/_modalNiveauUrgence.html.twig"  %}
+	{% include "/partials/_pagination.html.twig" %}
+
+	{% include "/dit/shared/_modalNiveauUrgence.html.twig" %}
 {% endblock %}
 
 {% block javascript %}
-	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v=2025.09.15.08.00"></script>
-	<script type="module" src="{{ App.base_path }}/Views/js/da/listeDa/list.js?v=2025.09.15.08.00" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v=2025.10.22.08.00"></script>
+	<script src="{{ App.base_path }}/Views/js/da/listeDa/list.js?v=2025.10.22.08.00" type="module"></script>
 {% endblock %}

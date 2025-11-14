@@ -36,6 +36,7 @@ class DemandeIntervention
     use BilanFinancierMaterielTrait;
     use QuantiteDitTrait;
 
+    public const CODE_APP = 'DIT';
     public const STATUT_A_AFFECTER = 50;
     public const STATUT_AFFECTEE_SECTION = 51;
     public const STATUT_CLOTUREE_ANNULEE = 52;
@@ -549,6 +550,11 @@ class DemandeIntervention
      * @ORM\Column(type="boolean", name="dit_refacturation")
      */
     private bool $estDitRefacturation = false;
+
+    /**
+     * @ORM\Column(type="boolean", name="ate_pol_tana")
+     */
+    private bool $estAtePolTana = false;
 
     /** ===================================================================================================================
      * 
@@ -1796,6 +1802,26 @@ class DemandeIntervention
     public function setEstDitRefacturation($estDitRefacturation)
     {
         $this->estDitRefacturation = $estDitRefacturation;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of estAtePolTana
+     */ 
+    public function getEstAtePolTana()
+    {
+        return $this->estAtePolTana;
+    }
+
+    /**
+     * Set the value of estAtePolTana
+     *
+     * @return  self
+     */ 
+    public function setEstAtePolTana($estAtePolTana)
+    {
+        $this->estAtePolTana = $estAtePolTana;
 
         return $this;
     }

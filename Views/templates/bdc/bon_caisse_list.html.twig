@@ -1,95 +1,91 @@
 {% extends "baseTemplate.html.twig" %}
 
 {% block stylesheets %}
-<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/bdc/bon_de_caisse.css">
 {% endblock %}
 
 {% block content %}
-<div class="container">
-    <h3 class="perso-titre">
-        Liste des Bons de Caisse
-    </h3>
-    {% include "/bdc/shared/_formulaireRechercheBonCaisse.html.twig" with {'form': form} %}
-    {% include "/bdc/shared/_pagination_bon_caisse.html.twig" %}
-</div>
+	<div class="container">
+		<h3 class="perso-titre">
+			Liste des Bons de Caisse
+		</h3>
+		{% include "/bdc/shared/_formulaireRechercheBonCaisse.html.twig" with {'form': form} %}
+		{% include "/bdc/shared/_pagination_bon_caisse.html.twig" %}
+	</div>
 
-<div class="container-fluid">
-    <table class="table rounded table-plein-ecran">
-        <thead class="table-dark">
-            <tr>
-                <th>PDF demande</th>
-                <th>Statut</th>
-                <th>N° demande</th>
-                <th>Date demande</th>
-                <th>Type de paiement</th>
-                <th>Caisse de retrait</th>
-                <th>Retrait lié à</th>
-                <th>Agence/Service</th>
-                <th>Adresse mail demandeur</th>
-                <th>Montant</th>
-                <th>Devise</th>
-                <th>Motif</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for demande in data %}
-            {% set classeStatut = '' %}
-            {% set styleStatut = '' %}
+	<div class="container-fluid">
+		<table class="table rounded table-plein-ecran">
+			<thead class="table-dark">
+				<tr>
+					<th class="d-none">PDF demande</th>
+					<th>Statut</th>
+					<th>N° demande</th>
+					<th>Date demande</th>
+					<th>Type de paiement</th>
+					<th>Caisse de retrait</th>
+					<th>Retrait lié à</th>
+					<th>Agence/Service\n émetteur</th>
+					<th>Agence/Service\n débiteur</th>
+					<th>Adresse mail demandeur</th>
+					<th class="text-end">Montant</th>
+					<th>Devise</th>
+					<th>Motif</th>
+					<th>Nom validateur\n final</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for demande in data %}
+					{% set classeStatut = '' %}
+					{% set styleStatut = '' %}
 
-            {% if demande.statutDemande | trim == 'VALIDEE' %}
-            {% set classeStatut = 'bg-success' %}
-            {% elseif demande.statutDemande | trim == 'EN ATTENTE' %}
-            {% set classeStatut = 'bg-warning' %}
-            {% elseif demande.statutDemande | trim == 'REJETEE' %}
-            {% set classeStatut = 'bg-danger' %}
-            {% elseif demande.statutDemande | trim == 'EN COURS' %}
-            {% set classeStatut = 'bg-info' %}
-            {% endif %}
+					{% if demande.statutDemande | trim == 'VALIDEE' %}
+						{% set classeStatut = 'bg-success' %}
+					{% elseif demande.statutDemande | trim == 'A valider chef de service' %}
+						{% set classeStatut = 'bg-warning' %}
+					{% elseif demande.statutDemande | trim == 'Refusé chef de service' %}
+						{% set classeStatut = 'bg-danger' %}
+					{% elseif demande.statutDemande | trim == 'EN COURS' %}
+						{% set classeStatut = 'bg-info' %}
+					{% endif %}
 
-            <tr>
-                <td>
-                    {% if demande.pdfDemande %}
-                    <a href="{{ demande.pdfDemande }}" target="_blank" class="btn btn-sm btn-info">
-                        <i class="fas fa-file-pdf"></i> PDF
-                    </a>
-                    {% else %}
-                    <span class="text-muted">Aucun PDF</span>
-                    {% endif %}
-                </td>
-                <td class="{{ classeStatut }}" style="{{ styleStatut }}">{{ demande.statutDemande }}</td>
-                <td>{{ demande.numeroDemande }}</td>
-                <td>{{ demande.dateDemande|date('d/m/Y') }}</td>
-                <td>{{ demande.typePaiement }}</td>
-                <td>{{ demande.caisseRetrait }}</td>
-                <td>{{ demande.retraitLie }}</td>
-                <td>{{ demande.agenceDebiteur }} - {{ demande.serviceDebiteur }}</td>
-                <td>{{ demande.adresseMailDemandeur }}</td>
-                <td>{{ demande.montantPayer }}</td>
-                <td>{{ demande.devise }}</td>
-                <td>{{ demande.motifDemande }}</td>
-            </tr>
-            {% else %}
-            <tr>
-                <td colspan="13" class="text-center">Aucune demande trouvée</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+					<tr>
+						<td class="d-none">
+							{% if demande.pdfDemande %}
+								<a href="{{ demande.pdfDemande }}" target="_blank" class="btn btn-sm btn-info">
+									<i class="fas fa-file-pdf"></i>
+									PDF
+								</a>
+							{% else %}
+								<span class="text-muted">Aucun PDF</span>
+							{% endif %}
+						</td>
+						<td class="{{ classeStatut }}" style="{{ styleStatut }}">{{ demande.statutDemande }}</td>
+						<td>{{ demande.numeroDemande }}</td>
+						<td class="text-center">{{ demande.dateDemande|date('d/m/Y') }}</td>
+						<td>{{ demande.typePaiement }}</td>
+						<td>{{ demande.caisseRetrait }}</td>
+						<td>{{ demande.retraitLie }}</td>
+						<td class="text-center">{{ demande.agenceEmetteur ~ '-' ~ demande.serviceEmetteur}}</td>
+						<td class="text-center">{{ demande.agenceDebiteur ~ '-' ~ demande.serviceDebiteur}}</td>
+						<td>{{ demande.adresseMailDemandeur }}</td>
+						<td class="text-end">{{ demande.montantPayer|number_format('2', ',', '.') }}</td>
+						<td>{{ demande.devise }}</td>
+						<td>{{ demande.motifDemande }}</td>
+						<td>{{ demande.nomValidateurFinal}}</td>
+					</tr>
+				{% else %}
+					<tr>
+						<td colspan="13" class="text-center">Aucune demande trouvée</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
 
-<div class="pagination justify-content-center mt-3">
-    {% if currentPage > 1 %}
-    <a href="?page={{ currentPage - 1 }}" class="page-link">Précédent</a>
-    {% endif %}
-
-    {% for i in 1..lastPage %}
-    <a href="?page={{ i }}" class="page-link {% if i == currentPage %}active{% endif %}">{{ i }}</a>
-    {% endfor %}
-
-    {% if currentPage < lastPage %} <a href="?page={{ currentPage + 1 }}" class="page-link">Suivant</a>
-        {% endif %}
-</div>
+	{% include "/partials/_pagination.html.twig" %}
 {% endblock %}
 
 {% block javascript %}
+	<script type="module" src="{{ App.base_path }}/Views/js/bdc/bon_de_caisse.js"></script>
 {% endblock %}

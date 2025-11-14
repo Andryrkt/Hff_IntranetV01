@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.5/phpunit.xsd"
+         bootstrap="../../../../../vendor/autoload.php"
+         colors="true"
+         processIsolation="false"
+         stopOnFailure="false"
+         cacheResultFile=".phpunit.result.cache"
+         executionOrder="depends,defects"
+         requireCoverageMetadata="true"
+         beStrictAboutCoverageMetadata="true"
+         beStrictAboutOutputDuringTests="true"
+         beStrictAboutTodoAnnotatedTests="true"
+         convertDeprecationsToExceptions="true"
+         failOnRisky="true"
+         failOnWarning="true"
+         verbose="true">
+    
+    <testsuites>
+        <testsuite name="DevisMagasinValidationVpOrchestrator">
+            <file>DevisMagasinValidationVpOrchestratorTest.php</file>
+            <file>DevisMagasinValidationVpOrchestratorIntegrationTest.php</file>
+            <file>DevisMagasinValidationVpOrchestratorEdgeCasesTest.php</file>
+            <file>DevisMagasinValidationVpOrchestratorSimpleTest.php</file>
+        </testsuite>
+    </testsuites>
+
+    <coverage processUncoveredFiles="true">
+        <include>
+            <directory suffix=".php">../../../../src/Service/magasin/devis/Validator</directory>
+        </include>
+        <exclude>
+            <directory>../../../../src/Service/magasin/devis/Validator/*Test.php</directory>
+        </exclude>
+        <report>
+            <html outputDirectory="coverage"/>
+            <text outputFile="coverage.txt"/>
+            <clover outputFile="coverage.xml"/>
+        </report>
+    </coverage>
+
+    <logging>
+        <junit outputFile="junit.xml"/>
+        <testdoxHtml outputFile="testdox.html"/>
+        <testdoxText outputFile="testdox.txt"/>
+    </logging>
+
+    <php>
+        <ini name="memory_limit" value="512M"/>
+        <ini name="max_execution_time" value="300"/>
+        <ini name="error_reporting" value="-1"/>
+        <ini name="display_errors" value="1"/>
+        <ini name="display_startup_errors" value="1"/>
+        <ini name="log_errors" value="1"/>
+        <ini name="error_log" value="php_errors.log"/>
+        
+        <!-- Configuration pour les tests -->
+        <env name="APP_ENV" value="test"/>
+        <env name="APP_DEBUG" value="true"/>
+        <env name="BASE_PATH_FICHIER" value="/tmp/test_uploads"/>
+        
+        <!-- Configuration de la base de données de test -->
+        <env name="DATABASE_URL" value="sqlite:///:memory:"/>
+        
+        <!-- Configuration des logs -->
+        <env name="LOG_LEVEL" value="debug"/>
+    </php>
+</phpunit>

@@ -5,16 +5,19 @@ namespace App\Controller\Traits\da\validation;
 use DateTime;
 use Exception;
 use App\Entity\da\DemandeAppro;
+use App\Entity\da\DaObservation;
 use App\Entity\da\DaSoumisAValidation;
 use App\Service\autres\VersionService;
 use App\Service\fichier\TraitementDeFichier;
-use App\Service\genererPdf\GenererPdfDaDirect;
+use App\Repository\da\DaObservationRepository;
+use App\Service\genererPdf\da\GenererPdfDaDirect;
 
 trait DaValidationDirectTrait
 {
     use DaValidationTrait;
     private GenererPdfDaDirect $genererPdfDaDirect;
     private TraitementDeFichier $traitementDeFichier;
+    private DaObservationRepository $daObservationRepository;
     private string $cheminDeBase;
 
     //==================================================================================================
@@ -24,8 +27,10 @@ trait DaValidationDirectTrait
     public function initDaValidationDirectTrait(): void
     {
         $this->initDaTrait();
+        $em = $this->getEntityManager();
         $this->genererPdfDaDirect = new GenererPdfDaDirect();
         $this->traitementDeFichier = new TraitementDeFichier();
+        $this->daObservationRepository = $em->getRepository(DaObservation::class);
         $this->cheminDeBase = $_ENV['BASE_PATH_FICHIER'] . '/da/';
     }
     //==================================================================================================
@@ -57,7 +62,8 @@ trait DaValidationDirectTrait
     private function creationPDFDirect(string $numDa): void
     {
         $da = $this->demandeApproRepository->findAvecDernieresDALetLRParNumero($numDa);
-        $this->genererPdfDaDirect->genererPdfBonAchatValide($da, $this->getUserMail());
+        $observations = $this->daObservationRepository->findBy(['numDa' => $numDa]);
+        $this->genererPdfDaDirect->genererPdfBonAchatValide($da, $observations, $this->getUserMail());
     }
 
     /**

@@ -155,14 +155,6 @@ class Controller
     }
 
     /**
-     * Récupérer le DitModel
-     */
-    protected function getDitModel(): \App\Model\dit\DitModel
-    {
-        return new \App\Model\dit\DitModel();
-    }
-
-    /**
      * Récupérer le conteneur de services
      */
     protected function getContainer()
@@ -533,7 +525,7 @@ class Controller
     protected function logUserVisit(string $nomRoute, ?array $params = null)
     {
         $idUtilisateur = $this->getSessionService()->get('user_id');
-        $utilisateur = $idUtilisateur !== '-' ? $this->getEntityManager()->getRepository(User::class)->find($idUtilisateur) : null;
+        $utilisateur = ($idUtilisateur && $idUtilisateur !== '-') ? $this->getEntityManager()->getRepository(User::class)->find($idUtilisateur) : null;
         $utilisateurNom = $utilisateur ? $utilisateur->getNomUtilisateur() : null;
         $page = $this->getEntityManager()->getRepository(PageHff::class)->findPageByRouteName($nomRoute);
         $machine = gethostbyaddr($_SERVER['REMOTE_ADDR']) ?? $_SERVER['REMOTE_ADDR'];
@@ -555,7 +547,7 @@ class Controller
      */
     protected function verifierSessionUtilisateur()
     {
-        if (!$this->getSessionService()->has('user_id')) {
+        if (!$this->isUserConnected()) {
             $this->redirectToRoute("security_signin");
         }
     }

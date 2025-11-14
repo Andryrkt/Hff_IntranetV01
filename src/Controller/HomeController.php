@@ -53,11 +53,6 @@ class HomeController extends Controller
         return $this->render('main/accueil.html.twig', [
             'menuItems'  => $menu,
             'appsByCode' => $appsByCode,
-            'App' => [
-                'base_path' => '/Hffintranet',
-                'base_path_fichier' => '/Hffintranet',
-                'user' => $user
-            ]
         ]);
     }
 }

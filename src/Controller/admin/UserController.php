@@ -134,25 +134,11 @@ class UserController extends Controller
 
 
         // Supprimer les relations manuellement avant suppression
-        foreach ($user->getRoles() as $role) {
-            $user->removeRole($role);
-        }
-
-        foreach ($user->getApplications() as $application) {
-            $user->removeApplication($application);
-        }
-
-        foreach ($user->getAgencesAutorisees() as $agence) {
-            $user->removeAgenceAutorise($agence);
-        }
-
-        foreach ($user->getServiceAutoriser() as $service) {
-            $user->removeServiceAutoriser($service);
-        }
-
-        foreach ($user->getPermissions() as $permission) {
-            $user->removePermission($permission);
-        }
+        $user->getRoles()->clear();
+        $user->getApplications()->clear();
+        $user->getAgencesAutorisees()->clear();
+        $user->getServiceAutoriser()->clear();
+        $user->getPermissions()->clear();
 
         foreach ($user->getUserLoggers() as $logger) {
             $this->getEntityManager()->remove($logger);

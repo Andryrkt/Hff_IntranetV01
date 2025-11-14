@@ -13,3 +13,5 @@ CREATE TABLE da_soumission_facture_bl
     date_modification DATETIME2(0),
     CONSTRAINT PK_da_soumission_facture_bl PRIMARY KEY (id)
 );
+
+alter table da_soumission_facture_bl add nom_fichier_scannee varchar(255) NULL;

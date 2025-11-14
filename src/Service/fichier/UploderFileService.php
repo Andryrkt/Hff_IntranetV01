@@ -8,14 +8,16 @@ use Symfony\Component\Form\FormInterface;
 class UploderFileService
 {
     private string $cheminDeBase;
+    private AbstractFileNameGeneratorService $nameGenerator;
 
-    public function __construct(string $cheminDeBase)
+    public function __construct(string $cheminDeBase, AbstractFileNameGeneratorService $nameGenerator)
     {
         $this->cheminDeBase = $cheminDeBase;
+        $this->nameGenerator = $nameGenerator;
     }
 
     /**
-     * Enregistre les fichiers avec des options flexibles de nommage
+     * Enregistre les fichiers avec des options flexibles
      */
     public function enregistrementFichier(
         FormInterface $form,
@@ -25,14 +27,13 @@ class UploderFileService
             'pattern' => '/^pieceJoint(\d+)$/',
             'repertoire' => null,
             'prefixe' => '',
-            'format_nom' => null, // Priorité à la fonction de génération de nom
+            'format_nom' => null,
             'index_depart' => 1,
-            'generer_nom_callback' => null, // Callback pour générer le nom personnalisé
-            'variables' => [], // Variables supplémentaires pour le nommage
+            'generer_nom_callback' => null,
+            'variables' => [],
         ];
 
         $options = array_merge($defaultOptions, $options);
-
         $nomDesFichiers = [];
         $compteur = $options['index_depart'];
 
@@ -45,23 +46,25 @@ class UploderFileService
 
                     foreach ($fichiers as $singleFile) {
                         if ($singleFile instanceof UploadedFile) {
-                            $nomFichier = $this->genererNomFichier(
+                            $nomFichier = $this->nameGenerator->generateFileName(
                                 $singleFile,
-                                $options,
+                                [
+                                    'format' => $options['format_nom'],
+                                    'prefixe' => $options['prefixe'],
+                                    'generer_nom_callback' => $options['generer_nom_callback'],
+                                    'variables' => $options['variables'],
+                                    'index_depart' => $options['index_depart'],
+                                ],
                                 $compteur
                             );
 
                             $repertoireFinal = $this->getRepertoireFinal($options);
 
-                            $this->upload(
-                                $singleFile,
-                                $repertoireFinal,
-                                $nomFichier
-                            );
+                            $this->upload($singleFile, $repertoireFinal, $nomFichier);
 
                             $nomDesFichiers[] = [
                                 'nom_fichier' => $nomFichier,
-                                'chemin_complet' => $repertoireFinal . '/' . $nomFichier,
+                                'chemin_complet' => $repertoireFinal . $nomFichier,
                                 'index' => $compteur
                             ];
 
@@ -75,84 +78,20 @@ class UploderFileService
         return $nomDesFichiers;
     }
 
+    /**
+     * Upload un fichier
+     */
     public function upload(UploadedFile $file, string $cheminDeBase, string $fileName): void
     {
-        if (!$file instanceof UploadedFile) {
-            throw new \InvalidArgumentException("Le fichier fourni n'est pas une instance de UploadedFile.");
-        }
-
         if (!file_exists($file->getPathname())) {
             throw new \RuntimeException("Le fichier temporaire n'existe plus : " . $file->getPathname());
         }
 
         try {
-            // Debug : chemin réel du fichier temporaire
-            // dd($file->getRealPath());
-
             $file->move($cheminDeBase, $fileName);
         } catch (\Exception $e) {
             throw new \Exception("Erreur lors du téléchargement du fichier : " . $e->getMessage());
         }
-    }
-
-    /**
-     * Génère le nom du fichier selon les options
-     */
-    private function genererNomFichier(
-        UploadedFile $file,
-        array $options,
-        int $index
-    ): string {
-        $extension = $file->guessExtension() ?? $file->getClientOriginalExtension();
-
-        // Priorité au callback personnalisé
-        if (is_callable($options['generer_nom_callback'])) {
-            return call_user_func(
-                $options['generer_nom_callback'],
-                $file,
-                $index,
-                $extension,
-                $options['variables']
-            );
-        }
-
-        // Fallback au format défini
-        if ($options['format_nom']) {
-            return $this->remplacerVariablesFormat(
-                $options['format_nom'],
-                array_merge([
-                    'prefixe' => $options['prefixe'],
-                    'index' => $index,
-                    'extension' => $extension,
-                    'timestamp' => time(),
-                    'date' => date('Ymd-His')
-                ], $options['variables'])
-            );
-        }
-
-        // Fallback par défaut
-        return uniqid($options['prefixe'] . '_', true) . '.' . $extension;
-    }
-
-    /**
-     * Remplace les variables dans le format de nom
-     */
-    private function remplacerVariablesFormat(string $format, array $variables): string
-    {
-        foreach ($variables as $key => $value) {
-            if (strpos($format, '{' . $key . ':') !== false) {
-                // Gère les formats comme {index:04d}
-                preg_match('/\{' . $key . ':([^}]+)\}/', $format, $matches);
-                if (isset($matches[1])) {
-                    $formattedValue = sprintf('%' . $matches[1], $value);
-                    $format = str_replace($matches[0], $formattedValue, $format);
-                }
-            } else {
-                $format = str_replace('{' . $key . '}', (string)$value, $format);
-            }
-        }
-
-        return $format;
     }
 
     /**
@@ -169,25 +108,40 @@ class UploderFileService
     public function getNomsFichiers(FormInterface $form, array $options = []): array
     {
         $resultatsComplets = $this->enregistrementFichier($form, $options);
-
-        if (empty($resultatsComplets)) {
-            return [];
-        }
-
-        return array_column($resultatsComplets, 'nom_fichier');
+        return empty($resultatsComplets) ? [] : array_column($resultatsComplets, 'nom_fichier');
     }
 
     /**
-     * Enregistre les fichiers et retourne uniquement les chemins et noms des fichiers (nom complet)
+     * Enregistre les fichiers et retourne les chemins complets
      */
     public function getNomsEtCheminFichiers(FormInterface $form, array $options = []): array
     {
         $resultatsComplets = $this->enregistrementFichier($form, $options);
+        return empty($resultatsComplets) ? [] : array_column($resultatsComplets, 'chemin_complet');
+    }
+
+    /**
+     * Enregistre les fichiers et retourne :
+     * [
+     *   [ tous les chemins complets ],
+     *   [ tous les noms de fichiers ]
+     * ]
+     *
+     * @param FormInterface $form
+     * @param array $options
+     * @return array
+     */
+    public function getFichiers(FormInterface $form, array $options = []): array
+    {
+        $resultatsComplets = $this->enregistrementFichier($form, $options);
 
         if (empty($resultatsComplets)) {
-            return [];
+            return [[], []];
         }
 
-        return array_column($resultatsComplets, 'chemin_complet');
+        $chemins = array_column($resultatsComplets, 'chemin_complet');
+        $noms = array_column($resultatsComplets, 'nom_fichier');
+
+        return [$chemins, $noms];
     }
 }

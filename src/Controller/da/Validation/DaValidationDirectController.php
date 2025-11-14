@@ -51,12 +51,7 @@ class DaValidationDirectController extends Controller
         /** envoi dans docuware */
         $this->fusionAndCopyToDW($da->getNumeroDemandeAppro());
 
-        /** ENVOIE D'EMAIL */
-        $this->emailDaService->envoyerMailValidationDaDirect($da, $resultatExport, [
-            'service'           => 'appro',
-            'phraseValidation'  => 'Vous trouverez en pièce jointe le fichier contenant les références ZDI.',
-            'userConnecter'     => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
-        ]);
+        $this->emailDaService->envoyerMailValidationDa($da, $this->getUser(), $resultatExport);
 
         /** NOTIFICATION */
         $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'La demande a été validée avec succès.']);

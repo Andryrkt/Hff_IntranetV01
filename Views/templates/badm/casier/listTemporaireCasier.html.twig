@@ -5,8 +5,8 @@
 {% endblock %}
 
 {% block stylesheets %}
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/ListDomRech.css?v=2025.09.15.08.00">
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.09.15.08.00">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/ListDomRech.css?v=2025.10.22.08.00">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.10.22.08.00">
 {% endblock %}
 
 {% import "macroForm.html.twig" as formMacro %}
@@ -73,7 +73,7 @@
 							<td>{{ item.idStatutDemande}}</td>
 							<td>{{item.agenceRattacher.codeAgence()}}</td>
 							<td style="text-align:left">{{item.Casier}}</td>
-							<td>{{item.Date_Creation|date("d/m/Y")}}</td>
+							<td>{{item.dateCreation|date("d/m/Y")}}</td>
 							<td>{{item.NumeroCAS}}</td>
 							{% if 1 in role_ids  %}
 								<td>

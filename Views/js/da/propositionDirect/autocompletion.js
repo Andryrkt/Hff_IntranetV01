@@ -58,6 +58,8 @@ function onBlurEvents(found, designation, fieldName) {
   );
 
   if (fieldName == "reference") {
+    console.log("baseID = " + baseId);
+
     let foundInput = document.querySelector(
       `[id*="${baseId}"][id*="found_${numPage}"]`
     );

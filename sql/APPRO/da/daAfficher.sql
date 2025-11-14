@@ -123,3 +123,8 @@ JOIN Demande_Appro d ON da.numero_demande_appro = d.numero_demande_appro ;
 ALTER TABLE da_afficher ADD numero_version_or_maj_statut INT NULL;
 ALTER TABLE da_afficher ADD date_derniere_bav DATETIME2(0) null;
 ALTER TABLE da_afficher ADD date_maj_statut_or DATETIME2(0) null;
+ALTER TABLE da_afficher ADD est_facture_bl_soumis bit DEFAULT 0;
+ALTER TABLE da_afficher ADD numero_intervention_ips INT;
+ALTER TABLE da_afficher ADD mail_envoye bit DEFAULT 0;
+ALTER TABLE da_afficher ADD non_dispo bit DEFAULT 0;
+ALTER TABLE da_afficher ADD est_bl_reappro_soumis bit DEFAULT 0;

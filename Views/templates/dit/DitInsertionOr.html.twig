@@ -1,185 +1,186 @@
 {% extends "baseTemplate.html.twig" %}
 
 {% block title %}
-DIT - Soumission OR
+	DIT - Soumission OR
 {% endblock %}
 
 {% block stylesheets %}
-<link href="{{ App.base_path }}/Views/css/new.css?v=2025.09.15.08.00" rel="stylesheet" />
-<link href="{{ App.base_path }}/Views/css/dit/ditInsertionOr.css?v=2025.09.15.08.00" rel="stylesheet" />
+	<link href="{{ App.base_path }}/Views/css/new.css?v=2025.10.22.08.00" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/dit/ditInsertionOr.css?v=2025.10.22.08.00" rel="stylesheet"/>
 {% endblock %}
 
 {% import "macroForm.html.twig" as macroForm %}
 
 {% block content %}
-<div class=" container mt-6 mb-4">
-	<div class="card">
-		<div class="card-body">
+	<div class=" container mt-6 mb-4">
+		<div class="card">
+			<div class="card-body">
 
-			<div class="container">
-				<div class="row">
-					<div class="col-12 col-md-11">
-						<h3 class="perso-titre">
-							SOUMISSION OR
-						</h3>
-						{% if lierAUnDa %}
-						<h3 class="badge bg-danger">Il existe une demande d'achat en cours pour cette OR</h3>
-						{% endif %}
+				<div class="container">
+					<div class="row">
+						<div class="col-12 col-md-11">
+							<h3 class="perso-titre">
+								SOUMISSION OR
+							</h3>
+							{% if lierAUnDa %}
+								<h3 class="badge bg-danger">Il existe une demande d'achat en cours pour cette OR</h3>
+							{% endif %}
+						</div>
+						<div class=" col-12 col-md-1">
+							<a href="{{ path("dit_index")}}" class="tablinks p-2 btn btn-outline-warning " style="text-decoration: none;color:black">Retour</a>
+						</div>
 					</div>
-					<div class=" col-12 col-md-1">
-						<a href="{{ path("dit_index")}}" class="tablinks p-2 btn btn-outline-warning "
-							style="text-decoration: none;color:black">Retour</a>
-					</div>
-				</div>
-				{{ form_start(form, {'attr': {'enctype': 'multipart/form-data', 'id': 'upload-form'}}) }}
-				{{ form_errors(form)}}
-				<div class="row">
-					<div class="col-12 col-md-6">
+					{{ form_start(form, {'attr': {'enctype': 'multipart/form-data', 'id': 'upload-form'}}) }}
+					{{ form_errors(form)}}
+					<div class="row">
+						<div class="col-12 col-md-6">
+							<div class="row">
+								<div class="col-12 col-md-6">{{ form_row(form.numeroDit)}}
+									{{ form_errors(form.numeroDit)}}
+								</div>
+								<div class="col-12 col-md-6">
+									{{ form_row(form.numeroOR)}}
+									{{ form_errors(form.numeroOR)}}
+
+								</div>
+							</div>
+						</div>
 						<div class="row">
-							<div class="col-12 col-md-6">{{ form_row(form.numeroDit)}}
-								{{ form_errors(form.numeroDit)}}
+							<div class="col-12 col-md-3">
+								<p>Veuillez insérer
+									<strong>l'OR à valider *</strong>
+								</p>
 							</div>
-							<div class="col-12 col-md-6">
-								{{ form_row(form.numeroOR)}}
-								{{ form_errors(form.numeroOR)}}
-
+							<div class="col-12 col-md-3">
+								<p>Veuillez insérer
+									<strong>le devis à fusionner
+									</strong>avec l'OR
+								</p>
+							</div>
+							<div class="col-12 col-md-3">
+								<p>Veuillez insérer
+									<strong>le BC ou autre document à fusionner</strong>
+									avec l'OR (si existant)
+								</p>
+							</div>
+							<div class="col-12 col-md-3">
+								<p>Veuillez insérer
+									<strong>le document à fusionner</strong>
+									avec l'OR (si existant)
+								</p>
 							</div>
 						</div>
-					</div>
-					<div class="row">
-						<div class="col-12 col-md-3">
-							<p>Veuillez insérer
-								<strong>l'OR à valider *</strong>
-							</p>
-						</div>
-						<div class="col-12 col-md-3">
-							<p>Veuillez insérer
-								<strong>le devis à fusionner
-								</strong>avec l'OR
-							</p>
-						</div>
-						<div class="col-12 col-md-3">
-							<p>Veuillez insérer
-								<strong>le BC ou autre document à fusionner</strong>
-								avec l'OR (si existant)
-							</p>
-						</div>
-						<div class="col-12 col-md-3">
-							<p>Veuillez insérer
-								<strong>le document à fusionner</strong>
-								avec l'OR (si existant)
-							</p>
-						</div>
-					</div>
-					<div class="row">
-						<div class="col-12 col-md-3">
 
-							<div id="dropzone-1" style="border: 2px dashed #ccc; padding: 50px; text-align: center;">
-								<i class="fa fa-cloud-upload upload-icon"></i>
-								<br>
+						<div class="row">
+							<div class="col-12 col-md-3">
 
-								Glissez et déposez votre fichier PDF ici, ou cliquez pour sélectionner un fichier PDF.
-								<br>
-								<button type="button" id="upload-btn-1" class="btn btn-primary">Sélectionner un
-									fichier</button>
+								<div id="dropzone-1" style="border: 2px dashed #ccc; padding: 50px; text-align: center;">
+									<i class="fa fa-cloud-upload upload-icon"></i>
+									<br>
+
+									Glissez et déposez votre fichier PDF ici, ou cliquez pour sélectionner un fichier PDF.
+									<br>
+									<button type="button" id="upload-btn-1" class="btn btn-primary">Sélectionner un
+																			fichier</button>
+								</div>
+								{{ form_widget(form.pieceJoint01, {'attr': {'style': 'display:none;'}}) }}
+								{{ form_errors(form.pieceJoint01)}}
+								<!-- Conteneur pour afficher le nom du fichier -->
+								<div class="file-name-1" style="margin-top: 10px;"></div>
+								<div class="file-size" id="file-size-1"></div>
 							</div>
-							{{ form_widget(form.pieceJoint01, {'attr': {'style': 'display:none;'}}) }}
-							{{ form_errors(form.pieceJoint01)}}
-							<!-- Conteneur pour afficher le nom du fichier -->
-							<div class="file-name-1" style="margin-top: 10px;"></div>
-							<div class="file-size" id="file-size-1"></div>
-						</div>
-						<div class="col-12 col-md-3">
+							<div class="col-12 col-md-3">
 
-							<div id="dropzone-2" style="border: 2px dashed #ccc; padding: 50px; text-align: center;">
-								<i class="fa fa-cloud-upload upload-icon"></i>
-								<br>
+								<div id="dropzone-2" style="border: 2px dashed #ccc; padding: 50px; text-align: center;">
+									<i class="fa fa-cloud-upload upload-icon"></i>
+									<br>
 
-								Glissez et déposez votre fichier PDF ici, ou cliquez pour sélectionner un fichier PDF.
-								<br>
-								<button type="button" id="upload-btn-2" class="btn btn-primary">Sélectionner un
-									fichier</button>
+									Glissez et déposez votre fichier PDF ici, ou cliquez pour sélectionner un fichier PDF.
+									<br>
+									<button type="button" id="upload-btn-2" class="btn btn-primary">Sélectionner un
+																			fichier</button>
+								</div>
+								{{ form_widget(form.pieceJoint02, {'attr': {'style': 'display:none;'}}) }}
+								{{ form_errors(form.pieceJoint02)}}
+								<!-- Conteneur pour afficher le nom du fichier -->
+								<div class="file-name-2" style="margin-top: 10px;"></div>
+								<div class="file-size" id="file-size-2"></div>
 							</div>
-							{{ form_widget(form.pieceJoint02, {'attr': {'style': 'display:none;'}}) }}
-							{{ form_errors(form.pieceJoint02)}}
-							<!-- Conteneur pour afficher le nom du fichier -->
-							<div class="file-name-2" style="margin-top: 10px;"></div>
-							<div class="file-size" id="file-size-2"></div>
-						</div>
-						<div class="col-12 col-md-3">
+							<div class="col-12 col-md-3">
 
-							<div id="dropzone-3" style="border: 2px dashed #ccc; padding: 50px; text-align: center;">
-								<i class="fa fa-cloud-upload upload-icon"></i>
-								<br>
+								<div id="dropzone-3" style="border: 2px dashed #ccc; padding: 50px; text-align: center;">
+									<i class="fa fa-cloud-upload upload-icon"></i>
+									<br>
 
-								Glissez et déposez votre fichier PDF ici, ou cliquez pour sélectionner un fichier PDF.
-								<br>
-								<button type="button" id="upload-btn-3" class="btn btn-primary">Sélectionner un
-									fichier</button>
+									Glissez et déposez votre fichier PDF ici, ou cliquez pour sélectionner un fichier PDF.
+									<br>
+									<button type="button" id="upload-btn-3" class="btn btn-primary">Sélectionner un
+																			fichier</button>
+								</div>
+								{{ form_widget(form.pieceJoint03, {'attr': {'style': 'display:none;'}}) }}
+								{{ form_errors(form.pieceJoint03)}}
+								<!-- Conteneur pour afficher le nom du fichier -->
+								<div class="file-name-3" style="margin-top: 10px;"></div>
+								<div class="file-size" id="file-size-3"></div>
 							</div>
-							{{ form_widget(form.pieceJoint03, {'attr': {'style': 'display:none;'}}) }}
-							{{ form_errors(form.pieceJoint03)}}
-							<!-- Conteneur pour afficher le nom du fichier -->
-							<div class="file-name-3" style="margin-top: 10px;"></div>
-							<div class="file-size" id="file-size-3"></div>
-						</div>
 
-						<div class="col-12 col-md-3">
+							<div class="col-12 col-md-3">
 
-							<div id="dropzone-4" style="border: 2px dashed #ccc; padding: 50px; text-align: center;">
-								<i class="fa fa-cloud-upload upload-icon"></i>
-								<br>
+								<div id="dropzone-4" style="border: 2px dashed #ccc; padding: 50px; text-align: center;">
+									<i class="fa fa-cloud-upload upload-icon"></i>
+									<br>
 
-								Glissez et déposez votre fichier PDF ici, ou cliquez pour sélectionner un fichier PDF.
-								<br>
-								<button type="button" id="upload-btn-4" class="btn btn-primary">Sélectionner un
-									fichier</button>
+									Glissez et déposez votre fichier PDF ici, ou cliquez pour sélectionner un fichier PDF.
+									<br>
+									<button type="button" id="upload-btn-4" class="btn btn-primary">Sélectionner un
+																			fichier</button>
+								</div>
+								{{ form_widget(form.pieceJoint04, {'attr': {'style': 'display:none;'}}) }}
+								{{ form_errors(form.pieceJoint04)}}
+								<!-- Conteneur pour afficher le nom du fichier -->
+								<div class="file-name-4" style="margin-top: 10px;"></div>
+								<div class="file-size" id="file-size-4"></div>
 							</div>
-							{{ form_widget(form.pieceJoint04, {'attr': {'style': 'display:none;'}}) }}
-							{{ form_errors(form.pieceJoint04)}}
-							<!-- Conteneur pour afficher le nom du fichier -->
-							<div class="file-name-4" style="margin-top: 10px;"></div>
-							<div class="file-size" id="file-size-4"></div>
+						</div>
+						<div class="row">
+							{{ form_row(form.observation)}}
+						</div>
+
+						{# <button type="submit" id="submit-btn" class="btn btn-success"
+												style="display:none;">Upload</button> #}
+
+
+						<div id="pdf-preview-1" class="pdf-preview" style="display: none;">
+							<embed id="pdf-embed-1" type="application/pdf" width="100%" height="500px">
+						</div>
+
+						<div id="pdf-preview-2" class="pdf-preview" style="display: none;">
+							<embed id="pdf-embed-2" type="application/pdf" width="100%" height="500px">
+						</div>
+						<div id="pdf-preview-3" class="pdf-preview" style="display: none;">
+							<embed id="pdf-embed-3" type="application/pdf" width="100%" height="500px">
+						</div>
+						<div id="pdf-preview-4" class="pdf-preview" style="display: none;">
+							<embed id="pdf-embed-4" type="application/pdf" width="100%" height="500px">
+						</div>
+					</div>
+					<div class="d-flex justify-content-end">
+						{# {{ form_row(form.articleDa) }} #}
+						{# {{ form_errors(form.articleDa) }} #}
+							<div class="{{ cdtArticleDa ? 'd-none' : '' }}" id="blocage-article-da"> <button type="submit" class="btn bouton mt-2">
+								<i class="fas fa-save"></i>
+								Enregistrer
+							</button>
 						</div>
 					</div>
 
-
-					{# <button type="submit" id="submit-btn" class="btn btn-success"
-						style="display:none;">Upload</button> #}
-
-
-					<div id="pdf-preview-1" class="pdf-preview" style="display: none;">
-						<embed id="pdf-embed-1" type="application/pdf" width="100%" height="500px">
-					</div>
-
-					<div id="pdf-preview-2" class="pdf-preview" style="display: none;">
-						<embed id="pdf-embed-2" type="application/pdf" width="100%" height="500px">
-					</div>
-					<div id="pdf-preview-3" class="pdf-preview" style="display: none;">
-						<embed id="pdf-embed-3" type="application/pdf" width="100%" height="500px">
-					</div>
-					<div id="pdf-preview-4" class="pdf-preview" style="display: none;">
-						<embed id="pdf-embed-4" type="application/pdf" width="100%" height="500px">
-					</div>
-				</div>
-				<div class="d-flex justify-content-end">
-					{# {{ form_row(form.articleDa) }} #}
-					{# {{ form_errors(form.articleDa) }} #}
-					<div class="{{ cdtArticleDa ? 'd-none' : '' }}" id="blocage-article-da"> <button type="submit"
-							class="btn bouton mt-2">
-							<i class="fas fa-save"></i>
-							Enregistrer
-						</button>
-					</div>
+					{{ form_end(form) }}
 				</div>
 
-				{{ form_end(form) }}
 			</div>
-
 		</div>
 	</div>
-</div>
 {% endblock %}
 {% block javascript %}
-<script src="{{ App.base_path }}/Views/js/dit/ditInsertionOr.js?v=2025.09.15.08.00"></script>
+	<script src="{{ App.base_path }}/Views/js/dit/ditInsertionOr.js?v=2025.10.22.08.00"></script>
 {% endblock %}

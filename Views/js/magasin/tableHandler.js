@@ -55,13 +55,13 @@ export function groupRows(rows, tableBody, cellIndices, addInfo = true) {
     // Mettre à jour previousValues
     previousValues = currentValues;
 
-    console.log(
-      "Fusion de lignes pour :",
-      previousValues,
-      "avec",
-      rowSpanCount,
-      "lignes"
-    );
+    // console.log(
+    //   "Fusion de lignes pour :",
+    //   previousValues,
+    //   "avec",
+    //   rowSpanCount,
+    //   "lignes"
+    // );
   });
 
   // Appliquer rowspan au dernier groupe

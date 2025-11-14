@@ -5,10 +5,10 @@
 {% endblock %}
 
 {% block stylesheets %}
-	<link href="{{ App.base_path }}/Views/css/new.css?v=2025.09.15.08.00" rel="stylesheet"/>
-	<link href="{{ App.base_path }}/Views/css/da/style.css?v=2025.09.15.08.00" rel="stylesheet"/>
-	<link href="{{ App.base_path }}/Views/css/da/detail.css?v=2025.09.15.08.00" rel="stylesheet"/>
-	<link href="{{ App.base_path }}/Views/css/dit/news.css?v=2025.09.15.08.00" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/new.css?v=2025.10.22.08.00" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/da/style.css?v=2025.10.22.08.00" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/da/detail.css?v=2025.10.22.08.00" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/dit/news.css?v=2025.10.22.08.00" rel="stylesheet"/>
 {% endblock %}
 
 {% import "macroForm.html.twig" as macroForm %}
@@ -16,8 +16,6 @@
 {% block overlay %}
 	{% include "/shared/_overlay.html.twig"  %}
 {% endblock %}
-
-{% set detail_template = demandeAppro.achatDirect ? 'detail-direct' : 'detail-avec-dit' %}
 
 {% block content %}
 	<div class="container-spaced">
@@ -33,7 +31,7 @@
 				<div class="container-fluid">
 					<div class="tab-content" id="nav-tabContent">
 						<div class="tab-pane fade active show" id="nav-detail" role="tabpanel" aria-labelledby="nav-detail-tab">
-							{{ include('da/shared/detail/' ~ detail_template ~ '.html.twig') }}
+							{{ include('da/shared/detail/' ~ detailTemplate ~ '.html.twig') }}
 						</div>
 						<div class="tab-pane fade" id="nav-observation" role="tabpanel" aria-labelledby="nav-observation-tab">
 							{{ include('da/shared/observation/observation.html.twig') }}
@@ -49,7 +47,8 @@
 {% endblock %}
 
 {% block javascript %}
-	<script src="{{ App.base_path }}/Views/js/da/detail/detail.js?v=2025.09.15.08.00" type="module"></script>
-	<script src="{{ App.base_path }}/Views/js/da/observation/observation.js?v=2025.09.15.08.00" type="module"></script>
-	<script src="{{ App.base_path }}/Views/js/da/detail/document-rattache.js?v=2025.09.15.08.00" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/da/reappro/daReappro.js?v=2025.10.22.08.00" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/da/detail/detail.js?v=2025.10.22.08.00" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/da/observation/observation.js?v=2025.10.22.08.00" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/da/detail/document-rattache.js?v=2025.10.22.08.00" type="module"></script>
 {% endblock %}

@@ -13,30 +13,26 @@ services:
     App\Service\navigation\MenuService:
         autowire: false
         arguments:
-            - '@doctrine.orm.default_entity_manager'
+          - '@doctrine.orm.default_entity_manager'
         public: true
 
     App\Service\navigation\BreadcrumbMenuService:
         autowire: false
         arguments:
-            - '@App\Service\navigation\MenuService'
+          - '@App\Service\navigation\MenuService'
         public: true
 
     App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService:
         arguments:
-            - '@doctrine.orm.default_entity_manager'
+          - '@doctrine.orm.default_entity_manager'
         public: true
 
-    # ✅ NOUVELLES CONFIGURATIONS - Ajouter à la fin du fichier
-    # Services problématiques qui nécessitent une configuration
-    App\Service\genererPdf\GeneratePdfDevisMagasin:
+    App\Service\historiqueOperation\magasin\bc\HistoriqueOperationBcMagasinService:
         arguments:
-            $baseCheminDuFichier: '%env(BASE_PATH_FICHIER)%/'
-            $baseCheminDocuware: '%env(BASE_PATH_DOCUWARE)%/'
+          - '@doctrine.orm.default_entity_manager'
         public: true
 
     App\Service\fichier\UploderFileService:
         arguments:
             $cheminDeBase: '%env(BASE_PATH_FICHIER)%/magasin/devis/'
         public: true
-

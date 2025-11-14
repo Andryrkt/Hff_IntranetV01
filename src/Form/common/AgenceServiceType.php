@@ -5,12 +5,13 @@ namespace App\Form\common;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Utils\EntityManagerHelper;
+use Doctrine\ORM\EntityRepository;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormInterface;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class AgenceServiceType extends AbstractType
@@ -21,6 +22,13 @@ class AgenceServiceType extends AbstractType
             ->add('agence', EntityType::class, [
                 'label' => $options['agence_label'],
                 'class' => Agence::class,
+                'query_builder' => function (EntityRepository $er) use ($options) {
+                    $qb = $er->createQueryBuilder('a');
+                    if (!empty($options['agence_codes'])) {
+                        $qb->where($qb->expr()->in('a.codeAgence', $options['agence_codes']));
+                    }
+                    return $qb;
+                },
                 'choice_label' => function (Agence $agence): string {
                     return $agence->getCodeAgence() . ' ' . $agence->getLibelleAgence();
                 },
@@ -56,8 +64,7 @@ class AgenceServiceType extends AbstractType
             },
             'placeholder' => $options['service_placeholder'],
             'choices' => $services,
-            'required' => $options['service_required'],
-
+            'required' => $options['service_required']
         ]);
     }
 
@@ -100,6 +107,7 @@ class AgenceServiceType extends AbstractType
             'service_placeholder' => '-- Choisir un service--',
             'service_required' => false,
             'em' => null,
+            'agence_codes' => []
         ]);
     }
 }

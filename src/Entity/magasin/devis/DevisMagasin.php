@@ -15,12 +15,16 @@ class DevisMagasin
 {
     use DateTrait;
 
-    public const STATUT_ENVOYER_CLIENT = 'Envoyé au client';
     public const STATUT_PRIX_A_CONFIRMER = 'Prix à confirmer';
-    public const STATUT_PRIX_VALIDER_MAGASIN = 'Prix validé magasin';
-    public const STATUT_PRIX_REFUSE_MAGASIN = 'Prix refusé magasin';
-    public const STATUT_VALIDER_CHEF_AGENCE = 'A valider chef d’agence';
+    public const STATUT_PRIX_VALIDER_TANA = 'Prix validé - devis à envoyer au client';
+    public const STATUT_PRIX_VALIDER_AGENCE = 'Prix validé - devis à soumettre';
+    public const STATUT_PRIX_MODIFIER_TANA = 'Prix modifié - devis à envoyer au client';
+    public const STATUT_PRIX_MODIFIER_AGENCE = 'Prix modifié - devis à soumettre';
     public const STATUT_DEMANDE_REFUSE_PAR_PM = 'Demande refusée par le PM';
+    public const STATUT_A_VALIDER_CHEF_AGENCE = 'A valider chef d’agence';
+    public const STATUT_VALIDE_AGENCE = 'Validé - à envoyer au client';
+    public const STATUT_ENVOYER_CLIENT = 'Envoyé au client';
+    public const STATUT_CLOTURER_A_MODIFIER = 'Cloturé - A modifier';
 
     /**
      * @ORM\Id
@@ -121,14 +125,47 @@ class DevisMagasin
      */
     private int $sommeNumeroLignes;
 
-    private $pieceJoint01;
-
     /**
      * @ORM\Column(type="datetime", name="date_pointage", nullable=true)
      *
      * @var [type]
      */
     private $datePointage = null;
+
+
+    /**
+     * @ORM\Column(type="string", length=50, name="tache_validateur", nullable=true)
+     *
+     * @var string|null
+     */
+    private ?string $tacheValidateur;
+
+    /**
+     * @ORM\Column(type="boolean", name="est_validation_pm")
+     */
+    private $estValidationPm = false;
+
+    /**
+     * @ORM\Column(type="string", length=100, name="statut_bc", nullable=true)
+     *
+     * @var string|null
+     */
+    private ?string $statutBc = '';
+
+    /**
+     * @ORM\Column(type="string", length=100, name="relance", nullable=true)
+     *
+     * @var string|null
+     */
+    private ?string $relance = '';
+
+    private $pieceJoint01;
+
+    private $pieceJoint2;
+
+    public  $constructeur;
+
+
 
     /** =========================================
      * GETTERS & SETTERS
@@ -436,25 +473,7 @@ class DevisMagasin
         return $this;
     }
 
-    /**
-     * Get the value of pieceJoint01
-     */
-    public function getPieceJoint01()
-    {
-        return $this->pieceJoint01;
-    }
 
-    /**
-     * Set the value of pieceJoint01
-     *
-     * @return  self
-     */
-    public function setPieceJoint01($pieceJoint01)
-    {
-        $this->pieceJoint01 = $pieceJoint01;
-
-        return $this;
-    }
 
     /**
      * Get the value of sommeNumeroLignes
@@ -496,6 +515,130 @@ class DevisMagasin
     public function setDatePointage($datePointage)
     {
         $this->datePointage = $datePointage;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of pieceJoint01
+     */
+    public function getPieceJoint01()
+    {
+        return $this->pieceJoint01;
+    }
+
+    /**
+     * Set the value of pieceJoint01
+     *
+     * @return  self
+     */
+    public function setPieceJoint01($pieceJoint01)
+    {
+        $this->pieceJoint01 = $pieceJoint01;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of pieceJoint2
+     */
+    public function getPieceJoint2()
+    {
+        return $this->pieceJoint2;
+    }
+
+    /**
+     * Set the value of pieceJoint2
+     */
+    public function setPieceJoint2($pieceJoint2): self
+    {
+        $this->pieceJoint2 = $pieceJoint2;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of tacheValidateur
+     */
+    public function getTacheValidateur()
+    {
+        return $this->tacheValidateur;
+    }
+
+    /**
+     * Set the value of tacheValidateur
+     *
+     * @return  self
+     */
+    public function setTacheValidateur($tacheValidateur)
+    {
+        $this->tacheValidateur = $tacheValidateur;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of statutBc
+     *
+     * @return  string|null
+     */
+    public function getStatutBc()
+    {
+        return $this->statutBc;
+    }
+
+    /**
+     * Set the value of statutBc
+     *
+     * @param  string|null  $statutBc
+     *
+     * @return  self
+     */
+    public function setStatutBc($statutBc)
+    {
+        $this->statutBc = $statutBc;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of relance
+     *
+     * @return  string|null
+     */
+    public function getRelance()
+    {
+        return $this->relance;
+    }
+
+    /**
+     * Set the value of relance
+     *
+     * @param  string|null  $relance
+     *
+     * @return  self
+     */
+    public function setRelance($relance)
+    {
+        $this->relance = $relance;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of estValidationPm
+     */
+    public function getEstValidationPm()
+    {
+        return $this->estValidationPm;
+    }
+
+    /**
+     * Set the value of estValidationPm
+     */
+    public function setEstValidationPm($estValidationPm): self
+    {
+        $this->estValidationPm = $estValidationPm;
 
         return $this;
     }

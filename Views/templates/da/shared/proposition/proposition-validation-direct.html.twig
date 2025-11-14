@@ -3,14 +3,14 @@
 		<div class="container-fluid">
 			<div class="row">
 				<h3 class="perso-titre">
-					<div class="urgency-level">{{ da.niveauUrgence }}</div>
+					<div class="urgency-level">{{ demandeAppro.niveauUrgence }}</div>
 					Validation et proposition
 					{{ numDa }}
 				</h3>
 			</div>
 			<div class="tab-content">
-				{% for DAL in da.DAL %}
-					{{ include('da/shared/proposition/_article-direct.html.twig', { article: DAL, totalPage: da.DAL|length }) }}
+				{% for DAL in demandeAppro.DAL %}
+					{{ include('da/shared/proposition/_article-direct.html.twig', { article: DAL, totalPage: demandeAppro.DAL|length }) }}
 				{% endfor %}
 			</div>
 		</div>
@@ -31,14 +31,20 @@
 			</div>
 			<div class="d-flex justify-content-between mt-2">
 				<div class="d-flex">
-					<div>
-						<button type="submit" class="btn bouton mb-2 d-none" id="envoyerSelections" name="enregistrer">
+					<div class="me-3">
+						<button type="submit" class="btn bouton mb-2 d-none" id="envoyerSelections" name="enregistrer" data-da-directe-appro={{ estCreateurDaDirecte and estAppro }}>
 							Envoyer proposition au service émetteur
 							<i class="fa-solid fa-square-arrow-up-right"></i>
 						</button>
 					</div>
 					<div>
-						<a href="{{ path("da_edit_direct", {id: da.id})}}" class="btn bouton mb-2 {{ estCreateurDaDirecte and not nePeutPasModifier ? '' : 'd-none'}}" target="_blank">
+						<button type="submit" class="btn bouton-brouillon mb-2 d-none" id="enregistrerDraft" name="brouillon">
+							Enregistrer provisoirement les propositions
+							<i class="fas fa-floppy-disk"></i>
+						</button>
+					</div>
+					<div>
+						<a href="{{ path("da_edit_direct", {id: demandeAppro.id})}}" class="btn bouton mb-2 {{ estCreateurDaDirecte and not nePeutPasModifier ? '' : 'd-none'}}" target="_blank">
 							Modifier la demande
 						</a>
 						<button type="submit" class="btn bouton mb-2 d-none" name="observation">
@@ -47,16 +53,16 @@
 						</button>
 					</div>
 				</div>
-				<div
-					class="d-flex">{# <button type="submit" class="btn bouton mb-2 d-none" id="validerSelections" name="valider">
-												Valider la proposition
-												<i class="fa-solid fa-square-arrow-up-right"></i>
-											</button> #}
+				<div class="d-flex">
+					<button type="submit" class="btn bouton mb-2 d-none" id="validerSelections" name="valider">
+						Soumettre à validation
+						<i class="fa-solid fa-square-arrow-up-right"></i>
+					</button>
 				</div>
 				<div id="validationButtons">
 					<div>
 						<button type="submit" class="btn bouton mb-2 {{ estCreateurDaDirecte and not nePeutPasModifier ? '' : 'd-none'}}" id="envoyerSelections" name="changement">
-							Valider la proposition
+							Soumettre à validation
 							<i class="fa-solid fa-square-arrow-up-right"></i>
 						</button>
 					</div>

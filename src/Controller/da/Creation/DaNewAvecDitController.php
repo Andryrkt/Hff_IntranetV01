@@ -45,7 +45,12 @@ class DaNewAvecDitController extends Controller
         return $this->render('da/first-form.html.twig', [
             'estAte'                 => $this->estUserDansServiceAtelier(),
             'estCreateurDeDADirecte' => $this->estCreateurDeDADirecte(),
-            'estAdmin'               => $this->estAdmin()
+            'urls'                   => [
+                'avecDit' => $this->getUrlGenerator()->generate('da_list_dit'),
+                'direct'  => $this->getUrlGenerator()->generate('da_new_direct'),
+                'reappro' => $this->getUrlGenerator()->generate('da_new_reappro', ['id' => 0]),
+            ],
+            'estAdmin'               => $this->estAdmin(),
         ]);
     }
 
@@ -67,7 +72,10 @@ class DaNewAvecDitController extends Controller
         $dit = $this->ditRepository->find($ditId);
 
         $demandeAppro = $daId === 0 ? $this->initialisationDemandeApproAvecDit($dit) : $this->demandeApproRepository->findAvecDernieresDALetLR($daId);
-        $demandeAppro->setDit($dit);
+        $demandeAppro
+            ->setDit($dit)
+            ->setDateFinSouhaite($this->dateLivraisonPrevueDA($dit->getNumeroDemandeIntervention(), $dit->getIdNiveauUrgence()->getDescription()))
+        ;
 
         $form = $this->getFormFactory()->createBuilder(DemandeApproFormType::class, $demandeAppro)->getForm();
         $this->traitementForm($form, $request, $demandeAppro, $dit);
@@ -131,20 +139,12 @@ class DaNewAvecDitController extends Controller
             $this->getEntityManager()->flush();
 
             /** ajout de l'observation dans la table da_observation si ceci n'est pas null */
-            if ($demandeAppro->getObservation() !== null) {
-                $this->insertionObservation($demandeAppro->getObservation(), $demandeAppro);
-            }
+            if ($demandeAppro->getObservation()) $this->insertionObservation($demandeAppro->getObservation(), $demandeAppro);
 
             // ajout des données dans la table DaAfficher
             $this->ajouterDaDansTableAffichage($demandeAppro, $dit);
 
-            if ($clickedButtonName === "soumissionAppro") {
-                $this->emailDaService->envoyerMailcreationDaAvecDit($demandeAppro, [
-                    'service'       => 'atelier',
-                    'observation'   => $demandeAppro->getObservation() ?? '-',
-                    'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
-                ]);
-            }
+            if ($clickedButtonName === "soumissionAppro") $this->emailDaService->envoyerMailCreationDa($demandeAppro, $this->getUser());
 
             $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'Votre demande a été enregistrée']);
             $this->redirectToRoute("list_da");

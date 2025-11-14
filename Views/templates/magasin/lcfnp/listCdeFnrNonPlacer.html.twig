@@ -1,8 +1,8 @@
 {% extends "baseTemplate.html.twig" %}
 {% block stylesheets %}
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.09.15.08.00">
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/magasin/magasin.css?v=2025.09.15.08.00">
-	<link href="{{ App.base_path }}/Views/css/dit/news.css?v=2025.09.15.08.00" rel="stylesheet"/>
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.10.22.08.00">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/magasin/magasin.css?v=2025.10.22.08.00">
+	<link href="{{ App.base_path }}/Views/css/dit/news.css?v=2025.10.22.08.00" rel="stylesheet"/>
 {% endblock %}
 {% import "macroForm.html.twig" as macroForm %}
 {% block content %}
@@ -20,7 +20,8 @@
 				<table class="table rounded table-plein-ecran">
 					<thead class="table-dark sticky-top">
 						<tr>
-							<th class="text-center">N° Commande Fournisseur </th>
+							<th class="text-center">N° Commande Fournisseur
+							</th>
 							<th class="text-center">Date Commande Fournisseur</th>
 							<th class="text-center">N° Fournisseur</th>
 							<th class="text-center">Nom Fournisseur</th>
@@ -28,23 +29,30 @@
 							<th class="text-center">Devis</th>
 							<th class="text-center">N° OR</th>
 							{# <th class="text-center">Commentaire</th>
-							<th class="text-center">client</th>
-							<th class="text-center">Obs</th> #}
+														<th class="text-center">client</th>
+														<th class="text-center">Obs</th> #}
 						</tr>
 					</thead>
 					<tbody id="tableBody">
 						{% for item in data %}
 							<tr>
-							<td class="text-center"> {{ item.n_commande}}</td>
-							<td class="text-center"> {{ item.date_cmd | date('d/m/Y')}}</td>
-							<td class="text-center"> {{ item.n_frs}}</td>
-							<td class="text-center"> {{ item.nom_frs}}</td>
-							<td style="text-align: right;"> {{ item.mont_ttc |number_format(2, ',', ' ') }}</td>
-							<td class="text-center"> {{ item.devis}}</td>
-							<td class="text-center"> {{ item.n_or}}</td>
-							{# <td class="text-center"> {{ item.commentaire}}</td>
-							<td class="text-center"> {{ item.client}}</td>
-							<td class="text-center"> {{ item.obs}}</td> #}
+								<td class="text-center">
+									{{ item.n_commande}}</td>
+								<td class="text-center">
+									{{ item.date_cmd | date('d/m/Y')}}</td>
+								<td class="text-center">
+									{{ item.n_frs}}</td>
+								<td class="text-center">
+									{{ item.nom_frs}}</td>
+								<td style="text-align: right;">
+									{{ item.mont_ttc |number_format(2, ',', ' ') }}</td>
+								<td class="text-center">
+									{{ item.devis}}</td>
+								<td class="text-center">
+									{{ item.n_or}}</td>
+								{# <td class="text-center"> {{ item.commentaire}}</td>
+															<td class="text-center"> {{ item.client}}</td>
+															<td class="text-center"> {{ item.obs}}</td> #}
 							</tr>
 						{% endfor %}
 					</tbody>
@@ -54,6 +62,6 @@
 	</div>
 {% endblock %}
 {% block javascript %}
-	<script src="{{ App.base_path }}/Views/js/magasin/main.js?v=2025.09.15.08.00" type="module"></script>
-	<script src="{{ App.base_path }}/Views/js/magasin/autoFrsnp.js?v=2025.09.15.08.00"  type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/magasin/main.js?v=2025.10.22.08.00" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/magasin/autoFrsnp.js?v=2025.10.22.08.00" type="module"></script>
 {% endblock %}

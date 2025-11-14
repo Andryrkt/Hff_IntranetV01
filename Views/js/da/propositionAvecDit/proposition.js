@@ -1,4 +1,4 @@
-import { displayOverlay } from "../../utils/spinnerUtils";
+import { displayOverlay } from "../../utils/ui/overlay";
 import { initialiserIdTabs, showTab } from "../utils/pageNavigation";
 import { boutonRadio } from "./boutonRadio";
 import { handleRowClick } from "./dalr";

@@ -45,7 +45,7 @@ class DaAfficherRepository extends EntityRepository
         }
     }
 
-    public function markAsDeletedByNumeroLigne(string $numeroDemandeAppro, array $numeroLignes, string $userName): void
+    public function markAsDeletedByNumeroLigne(string $numeroDemandeAppro, array $numeroLignes, string $userName, $numeroVersion): void
     {
         if (empty($numeroLignes)) return; // rien à faire
 
@@ -58,13 +58,35 @@ class DaAfficherRepository extends EntityRepository
             ->andWhere('d.numeroLigne IN (:lines)')
             ->setParameters([
                 'num'       => $numeroDemandeAppro,
-                'version'   => $this->getNumeroVersionMax($numeroDemandeAppro),
+                'version'   => $numeroVersion,
                 'deleted'   => true,
                 'deletedBy' => $userName,
                 'lines'     => $numeroLignes,
             ])
             ->getQuery()
             ->execute();
+    }
+
+    public function markAsDeletedByListId(array $ids, string $userName): void
+    {
+        if (empty($ids)) return; // rien à faire
+
+        try {
+            $this->createQueryBuilder('d')
+                ->update()
+                ->set('d.deleted', ':deleted')
+                ->set('d.deletedBy', ':deletedBy')
+                ->Where('d.id IN (:ids)')
+                ->setParameters([
+                    'deleted'   => true,
+                    'deletedBy' => $userName,
+                    'ids'       => $ids,
+                ])
+                ->getQuery()
+                ->execute();
+        } catch (\Exception $e) {
+            throw new \RuntimeException($e->getMessage());
+        }
     }
 
     /**
@@ -206,10 +228,6 @@ class DaAfficherRepository extends EntityRepository
     {
         $criteria = $criteria ?? [];
 
-        // Vérifier si achatDirect existe dans l'entité
-        $classMetadata   = $this->_em->getClassMetadata(DaAfficher::class);
-        $hasAchatDirecte = $classMetadata->hasField('achatDirect');
-
         // ----------------------
         // 1. Sous-requête : versions maximales
         // ----------------------
@@ -233,20 +251,32 @@ class DaAfficherRepository extends EntityRepository
             $subQb->expr()->in('d.statutOr', ':statutOrs'),
             $subQb->expr()->in('d.numeroDemandeAppro', ':exceptions')
         );
-        // Appliquer la condition selon la présence de achatDirect
-        if ($hasAchatDirecte) {
-            $subQb->andWhere('d.achatDirect = true OR (d.achatDirect = false AND (' . $orCondition . '))');
-        } else {
-            $subQb->andWhere($orCondition);
-        }
+
+        $typeDa = [
+            DemandeAppro::TYPE_DA_AVEC_DIT,
+            DemandeAppro::TYPE_DA_REAPPRO
+        ];
+        $typeDaDirect = DemandeAppro::TYPE_DA_DIRECT;
+        // Appliquer la condition selon le type de la DA
+        $subQb->andWhere(
+            $subQb->expr()->orX(
+                $subQb->expr()->eq('d.daTypeId', ':typeDaDirect'),
+                $subQb->expr()->andX(
+                    $subQb->expr()->in('d.daTypeId', ':typeDa'),
+                    $orCondition
+                )
+            )
+        )
+            ->setParameter('typeDaDirect', $typeDaDirect)
+            ->setParameter('typeDa', $typeDa);
 
         // Paramètres communs
         $subQb->setParameter('statutOrs', $statutOrs)
             ->setParameter('exceptions', $exceptions);
 
-        $this->applyDynamicFilters($subQb, $criteria, true);
-        $this->applyStatutsFilters($subQb, $criteria, true);
-        $this->applyDateFilters($subQb, $criteria, true);
+        $this->applyDynamicFilters($subQb, "d", $criteria, true);
+        $this->applyStatutsFilters($subQb, "d", $criteria, true);
+        $this->applyDateFilters($subQb, "d", $criteria, true);
 
         // ----------------------
         // 2. Compter distinctement les DA
@@ -289,15 +319,18 @@ class DaAfficherRepository extends EntityRepository
         $qb = $this->_em->createQueryBuilder();
         $qb->select('d')
             ->from(DaAfficher::class, 'd')
-            ->Where('d.statutCde != :statutPasDansOr') // enlever les ligne qui a le statut PAS DANS OR
+            ->Where($qb->expr()->orX(
+                'd.statutCde != :statutPasDansOr',
+                'd.statutCde IS NULL'
+            )) // enlever les ligne qui a le statut PAS DANS OR
+            ->andWhere('d.deleted = 0')
             ->setParameter('statutPasDansOr', DaSoumissionBc::STATUT_PAS_DANS_OR)
         ;
 
-        if ($hasAchatDirecte) {
-            $qb->andWhere('d.statutDal = :statutDal')
-                ->setParameter('statutDal', DemandeAppro::STATUT_VALIDE);
-        }
-
+        $qb->andWhere('d.statutDal = :statutDal')
+            ->andWhere($qb->expr()->in('d.statutOr', ':statutOrsValide'))
+            ->setParameter('statutOrsValide', $statutOrs)
+            ->setParameter('statutDal', DemandeAppro::STATUT_VALIDE);
 
         // Condition sur les versions maximales (à partir de la sous-requête)
         $orX = $qb->expr()->orX();
@@ -313,10 +346,19 @@ class DaAfficherRepository extends EntityRepository
         }
         $qb->andWhere($orX);
 
-        // Ordre final
-        $qb->orderBy('d.dateDemande', 'DESC')
-            ->addOrderBy('d.numeroFournisseur', 'DESC')
-            ->addOrderBy('d.numeroCde', 'DESC');
+
+        $this->applyDynamicFilters($qb, "d", $criteria, true);
+        $this->applyStatutsFilters($qb, "d", $criteria, true);
+        $this->applyDateFilters($qb, "d", $criteria, true);
+        // triage selon le filtre choisi par l'utilisateur
+        if (!empty($criteria['sortNbJours'])) {
+            $qb->orderBy('d.joursDispo', $criteria['sortNbJours']);
+        } else {
+            // Ordre final
+            $qb->orderBy('d.dateDemande', 'DESC')
+                ->addOrderBy('d.numeroFournisseur', 'DESC')
+                ->addOrderBy('d.numeroCde', 'DESC');
+        }
         // DEBUT debug
         // $query = $qb->getQuery();
         // $sql = $query->getSQL();
@@ -339,143 +381,50 @@ class DaAfficherRepository extends EntityRepository
         ];
     }
 
-    public function getDaOrValider(?array $criteria = []): array
+    /**
+     * Étape 1 : Récupérer les dernières versions de chaque DA
+     */
+    private function getLastVersions(): array
     {
-        // Toujours forcer en tableau
-        $criteria = $criteria ?? [];
-
-        // 1. Vérifier si le champ achatDirect existe dans l'entité
-        $classMetadata = $this->_em->getClassMetadata(DaAfficher::class);
-        $hasAchatDirecte = $classMetadata->hasField('achatDirect');
-
-        // 2. Récupérer les versions maximales validées
-        $subQb = $this->_em->createQueryBuilder();
-        $subQb->select('d.numeroDemandeAppro', 'MAX(d.numeroVersion) as maxVersion')
-            ->from(DaAfficher::class, 'd')
-            ->where('d.statutDal = :statutValide')
-            ->groupBy('d.numeroDemandeAppro');
-
-        $latestVersions = $subQb->getQuery()
-            ->setParameter('statutValide', DemandeAppro::STATUT_VALIDE)
-            ->getArrayResult();
-
-        if (empty($latestVersions)) {
-            return [];
-        }
-
-        // 3. Construire la requête principale
-        $qb = $this->_em->createQueryBuilder();
-        $qb->select('d')
-            ->from(DaAfficher::class, 'd')
-            ->where('d.statutDal = :statutDa')
-            ->setParameter('statutDa', DemandeAppro::STATUT_VALIDE);
-
-        // Liste des exceptions pour lesquelles statutOr n'est pas requis
-        $exceptions = [
-            'DAP25079981'
-        ];
-
-        // Condition générique sur statutOr avec exceptions
-        $orCondition = $qb->expr()->orX(
-            $qb->expr()->eq('d.statutOr', ':statutOR'),
-            $qb->expr()->in('d.numeroDemandeAppro', ':exceptions')
-        );
-
-        // Appliquer la condition selon la présence de achatDirect
-        if ($hasAchatDirecte) {
-            $qb->andWhere('d.achatDirect = true OR (d.achatDirect = false AND (' . $orCondition . '))');
-        } else {
-            $qb->andWhere($orCondition);
-        }
-
-        // Paramètres communs
-        $qb->setParameter('statutOR', DitOrsSoumisAValidation::STATUT_VALIDE)
-            ->setParameter('exceptions', $exceptions);
-
-        // 4. Condition pour les versions maximales
-        $orX = $qb->expr()->orX();
-        foreach ($latestVersions as $i => $version) {
-            $orX->add(
-                $qb->expr()->andX(
-                    $qb->expr()->eq('d.numeroDemandeAppro', ':numDa' . $i),
-                    $qb->expr()->eq('d.numeroVersion', ':maxVer' . $i)
-                )
-            );
-            $qb->setParameter('numDa' . $i, $version['numeroDemandeAppro']);
-            $qb->setParameter('maxVer' . $i, $version['maxVersion']);
-        }
-        $qb->andWhere($orX);
-
-        // 5. Appliquer les filtres dynamiques
-        $this->applyDynamicFilters($qb, $criteria, true);
-        $this->applyStatutsFilters($qb, $criteria, true);
-        $this->applyDateFilters($qb, $criteria, true);
-
-        // 6. Tri
-        $qb->orderBy('d.dateDemande', 'DESC')
-            ->addOrderBy('d.numeroFournisseur', 'DESC')
-            ->addOrderBy('d.numeroCde', 'DESC');
-
-        return $qb->getQuery()->getResult();
-    }
-
-    private function getPaginatedDas(User $user, array $criteria,  int $idAgenceUser, bool $estAppro, bool $estAtelier, bool $estAdmin, int $page, int $limit): array
-    {
-        $subQb = $this->createQueryBuilder('d')
+        $qb = $this->createQueryBuilder('d')
             ->select('d.numeroDemandeAppro, MAX(d.numeroVersion) AS maxVersion')
-            ->where('d.deleted = 0')
             ->groupBy('d.numeroDemandeAppro');
 
-        $this->applyDynamicFilters($subQb, $criteria);
-        $this->applyAgencyServiceFilters($subQb, $criteria, $user, $idAgenceUser, $estAppro, $estAtelier, $estAdmin);
-        $this->applyDateFilters($subQb, $criteria);
-        $this->applyFilterAppro($subQb, $estAppro, $estAdmin);
-        $this->applyStatutsFilters($subQb, $criteria);
-
-        // ⚡ Cloner avant de limiter les résultats
-        $countQb = clone $subQb;
-        $countQb->resetDQLPart('orderBy'); // pas besoin d'ORDER BY dans un COUNT
-
-        // Nombre total de DA distincts
-        $totalItems = count($countQb->getQuery()->getResult());
-
-        // Pagination + order by
-        $subQb->orderBy('MAX(d.dateDemande)', 'DESC')
-            ->addOrderBy('MAX(d.numeroFournisseur)', 'DESC')
-            ->addOrderBy('MAX(d.numeroCde)', 'DESC')
-            ->setFirstResult(($page - 1) * $limit)
-            ->setMaxResults($limit);
-
-        return [
-            'results'    => $subQb->getQuery()->getArrayResult(),
-            'totalItems' => $totalItems
-        ];
+        return $qb->getQuery()->getArrayResult(); // retourne [ ['numeroDemandeAppro'=>.., 'maxVersion'=>..], ... ]
     }
 
     /**
-     * fonction Pour récupérer les données filtrées
+     * Étape 2 : Filtrer les dernières versions et paginer
      */
-    public function findPaginatedAndFilteredDA(User $user, array $criteria,  int $idAgenceUser, bool $estAppro, bool $estAtelier, bool $estAdmin, int $page, int $limit)
-    {
-        $paginatedDAs = $this->getPaginatedDas($user, $criteria, $idAgenceUser, $estAppro, $estAtelier, $estAdmin, $page, $limit);
-        $numeroDAsPage = array_column($paginatedDAs['results'], 'numeroDemandeAppro');
-        $versionsMax = array_column($paginatedDAs['results'], 'maxVersion', 'numeroDemandeAppro');
-
-        if (empty($numeroDAsPage)) {
+    private function getFilteredLastVersions(
+        User $user,
+        array $criteria,
+        int $idAgenceUser,
+        bool $estAppro,
+        bool $estAtelier,
+        bool $estAdmin,
+        int $page,
+        int $limit
+    ): array {
+        // 1️⃣ Récupérer toutes les dernières versions
+        $lastVersions = $this->getLastVersions();
+        if (empty($lastVersions)) {
             return [
-                'data'        => [],
-                'totalItems'  => 0,
-                'currentPage' => $page,
-                'lastPage'    => 0,
+                'results'    => [],
+                'totalItems' => 0
             ];
         }
 
+        $numeroDAs = array_column($lastVersions, 'numeroDemandeAppro');
+        $versionsMax = array_column($lastVersions, 'maxVersion', 'numeroDemandeAppro');
+
+        // 2️⃣ Créer la requête sur les dernières versions uniquement
         $qb = $this->createQueryBuilder('daf')
             ->where('daf.numeroDemandeAppro IN (:numeroDAs)')
             ->andWhere('daf.deleted = 0')
-            ->setParameter('numeroDAs', $numeroDAsPage);
+            ->setParameter('numeroDAs', $numeroDAs);
 
-        // Ajouter condition version max (évite duplications)
+        // Limiter aux numéros de version max
         $orX = $qb->expr()->orX();
         foreach ($versionsMax as $numeroDA => $versionMax) {
             $orX->add($qb->expr()->andX(
@@ -487,77 +436,154 @@ class DaAfficherRepository extends EntityRepository
         }
         $qb->andWhere($orX);
 
-        $qb->orderBy('daf.dateDemande', 'DESC')
+        // 3️⃣ Appliquer les filtres sur ces dernières versions uniquement
+        $this->applyDynamicFilters($qb, "daf", $criteria);
+        $this->applyAgencyServiceFilters($qb, "daf", $criteria, $user, $idAgenceUser, $estAppro, $estAtelier, $estAdmin);
+        $this->applyDateFilters($qb, "daf", $criteria);
+        $this->applyFilterAppro($qb, "daf", $estAppro, $estAdmin);
+        $this->applyStatutsFilters($qb, "daf", $criteria);
+
+        // 4️⃣ Compter le total distinct des DA après filtrage
+        $countQb = clone $qb;
+        $countQb->select('COUNT(DISTINCT daf.numeroDemandeAppro) as total');
+        $totalItems = (int)$countQb->getQuery()->getSingleScalarResult();
+
+        // 5️⃣ Pagination sur les DA distincts
+        $distinctQb = clone $qb;
+        $distinctQb
+            ->select('daf.numeroDemandeAppro')
+            ->groupBy('daf.numeroDemandeAppro');
+        $this->handleOrderBy($distinctQb, 'daf', $criteria, true);
+        $distinctQb
+            ->addOrderBy('MAX(daf.numeroDemandeAppro)', 'DESC')
+            ->addOrderBy('MAX(daf.numeroFournisseur)', 'DESC')
+            ->addOrderBy('MAX(daf.numeroCde)', 'DESC')
+            ->setFirstResult(($page - 1) * $limit)
+            ->setMaxResults($limit);
+
+        $numeroDAsPage = array_column($distinctQb->getQuery()->getResult(), 'numeroDemandeAppro');
+
+        if (empty($numeroDAsPage)) {
+            return [
+                'results' => [],
+                'totalItems' => $totalItems
+            ];
+        }
+
+        // 6️⃣ Charger les dernières versions uniquement pour les DA de la page
+        $finalQb = $this->createQueryBuilder('daf')
+            ->where('daf.numeroDemandeAppro IN (:numeroDAsPage)')
+            ->andWhere('daf.deleted = 0')
+            ->setParameter('numeroDAsPage', $numeroDAsPage);
+        $this->handleOrderBy($finalQb, 'daf', $criteria);
+        $finalQb
+            ->addOrderBy('daf.numeroDemandeAppro', 'DESC')
             ->addOrderBy('daf.numeroFournisseur', 'DESC')
             ->addOrderBy('daf.numeroCde', 'DESC');
 
-        $totalItems = $paginatedDAs['totalItems'];
-        $lastPage = ceil($totalItems / $limit);
+        // Limiter aux numéros de version max
+        $orX = $finalQb->expr()->orX();
+        foreach ($versionsMax as $numeroDA => $versionMax) {
+            if (in_array($numeroDA, $numeroDAsPage)) {
+                $orX->add($finalQb->expr()->andX(
+                    $finalQb->expr()->eq('daf.numeroDemandeAppro', ':da_' . $numeroDA),
+                    $finalQb->expr()->eq('daf.numeroVersion', ':ver_' . $numeroDA)
+                ));
+                $finalQb->setParameter('da_' . $numeroDA, $numeroDA);
+                $finalQb->setParameter('ver_' . $numeroDA, $versionMax);
+            }
+        }
+        $finalQb->andWhere($orX);
+
+        $results = $finalQb->getQuery()->getResult();
 
         return [
-            'data'        => $qb->getQuery()->getResult(),
-            'totalItems'  => $totalItems,
-            'currentPage' => $page,
-            'lastPage'    => $lastPage,
+            'results'    => $results,
+            'totalItems' => $totalItems
         ];
     }
 
-    public function findDerniereVersionDesDA(User $user, array $criteria,  int $idAgenceUser, bool $estAppro, bool $estAtelier, bool $estAdmin): array //liste_da
-    {
-        $qb = $this->createQueryBuilder('d');
+    /**
+     * Fonction publique : renvoie les DA paginés avec filtres appliqués uniquement sur les dernières versions
+     */
+    public function findPaginatedAndFilteredDA(
+        User $user,
+        array $criteria,
+        int $idAgenceUser,
+        bool $estAppro,
+        bool $estAtelier,
+        bool $estAdmin,
+        int $page,
+        int $limit
+    ): array {
+        $paginated = $this->getFilteredLastVersions($user, $criteria, $idAgenceUser, $estAppro, $estAtelier, $estAdmin, $page, $limit);
 
-        $qb->where(
-            'd.numeroVersion = (
-                    SELECT MAX(d2.numeroVersion)
-                    FROM ' . DaAfficher::class . ' d2
-                    WHERE d2.numeroDemandeAppro = d.numeroDemandeAppro
-                )'
-        );
+        $totalItems = $paginated['totalItems'];
+        $lastPage = $totalItems > 0 ? ceil($totalItems / $limit) : 0;
 
-
-        $this->applyDynamicFilters($qb, $criteria);
-        $this->applyAgencyServiceFilters($qb, $criteria, $user, $idAgenceUser, $estAppro, $estAtelier, $estAdmin);
-        $this->applyDateFilters($qb, $criteria);
-
-        $this->applyFilterAppro($qb, $estAppro, $estAdmin);
-        $this->applyStatutsFilters($qb, $criteria);
-
-        $qb->orderBy('d.dateDemande', 'DESC')
-            ->addOrderBy('d.numeroFournisseur', 'DESC')
-            ->addOrderBy('d.numeroCde', 'DESC');
-        return $qb->getQuery()->getResult();
+        return [
+            'data'        => $paginated['results'],
+            'totalItems'  => $totalItems,
+            'currentPage' => $page,
+            'lastPage'    => $lastPage
+        ];
     }
 
-    private function applyFilterAppro(QueryBuilder $qb, bool $estAppro, bool $estAdmin): void
+    private function handleOrderBy(QueryBuilder $qb, string $qbLabel, $criteria, $aggregation = false)
+    {
+        $allowedDirs = ['ASC', 'DESC'];
+
+        if ($criteria && !empty($criteria['sortNbJours'])) {
+            $orderDir = strtoupper($criteria['sortNbJours']);
+            if (!in_array($orderDir, $allowedDirs, true)) $orderDir = 'DESC';
+
+            if ($aggregation) {
+                $orderFunc = $orderDir === 'DESC' ? 'MAX' : 'MIN';
+                $qb->orderBy("$orderFunc($qbLabel.joursDispo)", $orderDir);
+            } else {
+                $qb->orderBy("$qbLabel.joursDispo", $orderDir);
+            }
+        }
+
+        // Fallback par défaut ou ordre secondaire
+        $dateDemandeExpr = $aggregation ? "MAX($qbLabel.dateDemande)" : "$qbLabel.dateDemande";
+        $qb->addOrderBy($dateDemandeExpr, 'DESC');
+    }
+
+    private function applyFilterAppro(QueryBuilder $qb, string $qbLabel, bool $estAppro, bool $estAdmin): void
     {
         if (!$estAdmin && $estAppro) {
-            $qb->andWhere('d.statutDal IN (:authorizedStatuts)')
+            $qb->andWhere($qbLabel . '.statutDal IN (:authorizedStatuts)')
                 ->setParameter('authorizedStatuts', [
                     DemandeAppro::STATUT_SOUMIS_APPRO,
                     DemandeAppro::STATUT_SOUMIS_ATE,
+                    DemandeAppro::STATUT_DEMANDE_DEVIS,
+                    DemandeAppro::STATUT_DEVIS_A_RELANCER,
+                    DemandeAppro::STATUT_EN_COURS_PROPOSITION,
                     DemandeAppro::STATUT_AUTORISER_MODIF_ATE,
                     DemandeAppro::STATUT_VALIDE,
+                    DemandeAppro::STATUT_REFUSE_APPRO,
                     DemandeAppro::STATUT_TERMINER
                 ], ArrayParameterType::STRING);
         }
     }
 
-    private function applyDynamicFilters(QueryBuilder $qb, array $criteria, bool $estCdeFrn = false): void
+    private function applyDynamicFilters(QueryBuilder $qb, string $qbLabel, array $criteria, bool $estCdeFrn = false): void
     {
         if ($estCdeFrn) {
             $map = [
-                'numDa' => 'd.numeroDemandeAppro',
-                'numDit' => 'd.numeroDemandeDit',
-                'numCde' => 'd.numeroCde',
-                'numOr' => 'd.numeroOr',
-                'numFrn' => 'd.numeroFournisseur',
-                'frn' => 'd.nomFournisseur',
+                'numDa'     => "$qbLabel.numeroDemandeAppro",
+                'numDit'    => "$qbLabel.numeroDemandeDit",
+                'numCde'    => "$qbLabel.numeroCde",
+                'numOr'     => "$qbLabel.numeroOr",
+                'numFrn'    => "$qbLabel.numeroFournisseur",
+                'frn'       => "$qbLabel.nomFournisseur",
             ];
         } else {
             $map = [
-                'numDa' => 'd.numeroDemandeAppro',
-                'numDit' => 'd.numeroDemandeDit',
-                'demandeur' => 'd.demandeur'
+                'numDa'     => "$qbLabel.numeroDemandeAppro",
+                'numDit'    => "$qbLabel.numeroDemandeDit",
+                'demandeur' => "$qbLabel.demandeur",
             ];
         }
 
@@ -570,9 +596,9 @@ class DaAfficherRepository extends EntityRepository
         }
 
         if (empty($criteria['numDit']) && empty($criteria['numDa'])) {
-            $qb->leftJoin('d.dit', 'dit')
+            $qb->leftJoin("$qbLabel.dit", 'dit')
                 ->leftJoin('dit.idStatutDemande', 'statut')
-                ->andWhere('d.dit IS NULL OR statut.id NOT IN (:clotureStatut)')
+                ->andWhere("$qbLabel.dit IS NULL OR statut.id NOT IN (:clotureStatut)")
                 ->setParameter('clotureStatut', [
                     DemandeIntervention::STATUT_CLOTUREE_ANNULEE,
                     DemandeIntervention::STATUT_CLOTUREE_HORS_DELAI
@@ -580,155 +606,155 @@ class DaAfficherRepository extends EntityRepository
         }
 
         if (!empty($criteria['niveauUrgence'])) {
-            $qb->andWhere("d.niveauUrgence = :niveau")
+            $qb->andWhere("$qbLabel.niveauUrgence = :niveau")
                 ->setParameter("niveau", $criteria['niveauUrgence']->getDescription());
         }
 
         if (!empty($criteria['ref'])) {
-            $qb->andWhere('d.artRefp LIKE :ref')
+            $qb->andWhere("$qbLabel.artRefp LIKE :ref")
                 ->setParameter('ref', '%' . $criteria['ref'] . '%');
         }
 
         if (!empty($criteria['designation'])) {
-            $qb->andWhere('d.artDesi LIKE :designation')
+            $qb->andWhere("$qbLabel.artDesi LIKE :designation")
                 ->setParameter('designation', '%' . $criteria['designation'] . '%');
         }
 
-        if (!empty($criteria['typeAchat']) && $criteria['typeAchat'] !== 'tous') {
-            $typeAchat = $criteria['typeAchat'] === 'direct' ? 1 : 0;
-            $qb->andWhere('d.achatDirect = :typeAchat')
-                ->setParameter('typeAchat', $typeAchat);
+        if (isset($criteria['typeAchat'])) {
+            $qb->andWhere("$qbLabel.daTypeId = :typeAchat")
+                ->setParameter('typeAchat', $criteria['typeAchat']);
         }
     }
 
-    private function applyStatutsFilters(QueryBuilder $queryBuilder, array $criteria, bool $estCdeFrn = false)
+    private function applyStatutsFilters(QueryBuilder $queryBuilder, string $qbLabel, array $criteria, bool $estCdeFrn = false)
     {
         if ($estCdeFrn) {
-            if (!empty($criteria['statutBc'])) {
-                $queryBuilder->andWhere('d.statutCde = :statutBc')
-                    ->setParameter('statutBc', $criteria['statutBc']);
+
+            if (!empty($criteria['statutBC'])) {
+                $queryBuilder->andWhere($qbLabel . '.statutCde = :statutBc')
+                    ->setParameter('statutBc', $criteria['statutBC']);
             }
         } else {
             if (!empty($criteria['statutDA'])) {
-                $queryBuilder->andWhere('d.statutDal = :statutDa')
+                $queryBuilder->andWhere($qbLabel . '.statutDal = :statutDa')
                     ->setParameter('statutDa', $criteria['statutDA']);
             } else {
-                $queryBuilder->andWhere('d.statutDal != :statutDa')
+                $queryBuilder->andWhere($qbLabel . '.statutDal != :statutDa')
                     ->setParameter('statutDa', DemandeAppro::STATUT_TERMINER);
             }
 
             if (!empty($criteria['statutOR'])) {
-                $queryBuilder->andWhere('d.statutOr = :statutOr')
+                $queryBuilder->andWhere($qbLabel . '.statutOr = :statutOr')
                     ->setParameter('statutOr', $criteria['statutOR']);
             }
 
             if (!empty($criteria['statutBC'])) {
-                $queryBuilder->andWhere('d.statutCde = :statutBc')
+                $queryBuilder->andWhere($qbLabel . '.statutCde = :statutBc')
                     ->setParameter('statutBc', $criteria['statutBC']);
             }
         }
     }
 
 
-    private function applyDateFilters($qb, array $criteria, bool $estCdeFrn = false)
+    private function applyDateFilters($qb, string $qbLabel, array $criteria, bool $estCdeFrn = false)
     {
         if ($estCdeFrn) {
             /** Date fin souhaite */
             if (!empty($criteria['dateDebutfinSouhaite']) && $criteria['dateDebutfinSouhaite'] instanceof \DateTimeInterface) {
-                $qb->andWhere('d.dateFinSouhaite >= :dateDebutfinSouhaite')
+                $qb->andWhere($qbLabel . '.dateFinSouhaite >= :dateDebutfinSouhaite')
                     ->setParameter('dateDebutfinSouhaite', $criteria['dateDebutfinSouhaite']);
             }
 
             if (!empty($criteria['dateFinFinSouhaite']) && $criteria['dateFinFinSouhaite'] instanceof \DateTimeInterface) {
-                $qb->andWhere('d.dateFinSouhaite <= :dateFinFinSouhaite')
+                $qb->andWhere($qbLabel . '.dateFinSouhaite <= :dateFinFinSouhaite')
                     ->setParameter('dateFinFinSouhaite', $criteria['dateFinFinSouhaite']);
             }
 
             /** DATE PLANNING OR */
             if (!empty($criteria['dateDebutOR']) && $criteria['dateDebutOR'] instanceof \DateTimeInterface) {
-                $qb->andWhere('d.datePlannigOr >= :dateDebutOR')
+                $qb->andWhere($qbLabel . '.datePlannigOr >= :dateDebutOR')
                     ->setParameter('dateDebutOR', $criteria['dateDebutOR']);
             }
 
             if (!empty($criteria['dateFinOR']) && $criteria['dateFinOR'] instanceof \DateTimeInterface) {
-                $qb->andWhere('d.datePlannigOr <= :dateFinOR')
+                $qb->andWhere($qbLabel . '.datePlannigOr <= :dateFinOR')
                     ->setParameter('dateFinOR', $criteria['dateFinOR']);
             }
         } else {
             /** Date fin souhaite */
             if (!empty($criteria['dateDebutfinSouhaite']) && $criteria['dateDebutfinSouhaite'] instanceof \DateTimeInterface) {
-                $qb->andWhere('d.dateFinSouhaite >= :dateDebutfinSouhaite')
+                $qb->andWhere($qbLabel . '.dateFinSouhaite >= :dateDebutfinSouhaite')
                     ->setParameter('dateDebutfinSouhaite', $criteria['dateDebutfinSouhaite']);
             }
 
             if (!empty($criteria['dateFinFinSouhaite']) && $criteria['dateFinFinSouhaite'] instanceof \DateTimeInterface) {
-                $qb->andWhere('d.dateFinSouhaite <= :dateFinFinSouhaite')
+                $qb->andWhere($qbLabel . '.dateFinSouhaite <= :dateFinFinSouhaite')
                     ->setParameter('dateFinFinSouhaite', $criteria['dateFinFinSouhaite']);
             }
 
             /** Date DA (date de demande) */
             if (!empty($criteria['dateDebutCreation']) && $criteria['dateDebutCreation'] instanceof \DateTimeInterface) {
-                $qb->andWhere('d.dateDemande >= :dateDemandeDebut')
+                $qb->andWhere($qbLabel . '.dateDemande >= :dateDemandeDebut')
                     ->setParameter('dateDemandeDebut', $criteria['dateDebutCreation']);
             }
 
             if (!empty($criteria['dateFinCreation']) && $criteria['dateFinCreation'] instanceof \DateTimeInterface) {
-                $qb->andWhere('d.dateDemande <= :dateDemandeFin')
+                $qb->andWhere($qbLabel . '.dateDemande <= :dateDemandeFin')
                     ->setParameter('dateDemandeFin', $criteria['dateFinCreation']);
             }
 
             /** DATE PLANNING OR */
             if (!empty($criteria['dateDebutOR']) && $criteria['dateDebutOR'] instanceof \DateTimeInterface) {
-                $qb->andWhere('d.datePlannigOr >= :dateDebutOR')
+                $qb->andWhere($qbLabel . '.datePlannigOr >= :dateDebutOR')
                     ->setParameter('dateDebutOR', $criteria['dateDebutOR']);
             }
 
             if (!empty($criteria['dateFinOR']) && $criteria['dateFinOR'] instanceof \DateTimeInterface) {
-                $qb->andWhere('d.datePlannigOr <= :dateFinOR')
+                $qb->andWhere($qbLabel . '.datePlannigOr <= :dateFinOR')
                     ->setParameter('dateFinOR', $criteria['dateFinOR']);
             }
         }
     }
 
-    private function applyAgencyServiceFilters($qb, array $criteria, User $user, int $idAgenceUser, bool $estAppro, bool $estAtelier, bool $estAdmin)
+    private function applyAgencyServiceFilters($qb, string $qbLabel, array $criteria, User $user, int $idAgenceUser, bool $estAppro, bool $estAtelier, bool $estAdmin)
     {
         if (!$estAtelier && !$estAppro && !$estAdmin) {
             $qb
                 ->andWhere(
                     $qb->expr()->orX(
-                        'd.agenceDebiteur IN (:agenceAutoriserIds)',
-                        'd.agenceEmetteur = :codeAgence'
+                        "$qbLabel.agenceDebiteur IN (:agenceAutoriserIds)",
+                        "$qbLabel.agenceEmetteur = :codeAgence"
                     )
                 )
                 ->setParameter('agenceAutoriserIds', $user->getAgenceAutoriserIds(), ArrayParameterType::INTEGER)
                 ->setParameter('codeAgence', $idAgenceUser)
                 ->andWhere(
                     $qb->expr()->orX(
-                        'd.serviceDebiteur IN (:serviceAutoriserIds)',
-                        'd.serviceEmetteur IN (:serviceAutoriserIds)'
+                        "$qbLabel.serviceDebiteur IN (:serviceAutoriserIds)",
+                        "$qbLabel.serviceEmetteur IN (:serviceAutoriserIds)"
                     )
                 )
                 ->setParameter('serviceAutoriserIds', $user->getServiceAutoriserIds(), ArrayParameterType::INTEGER);
         }
 
         if (!empty($criteria['agenceEmetteur'])) {
-            $qb->andWhere('d.agenceEmetteurId = :agEmet')
+            $qb->andWhere("$qbLabel.agenceEmetteur = :agEmet")
                 ->setParameter('agEmet', $criteria['agenceEmetteur']->getId());
         }
         if (!empty($criteria['serviceEmetteur'])) {
-            $qb->andWhere('d.serviceEmetteurId = :agServEmet')
+            $qb->andWhere("$qbLabel.serviceEmetteur = :agServEmet")
                 ->setParameter('agServEmet', $criteria['serviceEmetteur']->getId());
         }
 
 
         if (!empty($criteria['agenceDebiteur'])) {
-            $qb->andWhere('d.agenceDebiteurId = :agDebit')
+            $qb->andWhere("$qbLabel.agenceDebiteur = :agDebit")
                 ->setParameter('agDebit', $criteria['agenceDebiteur']->getId())
             ;
         }
 
         if (!empty($criteria['serviceDebiteur'])) {
-            $qb->andWhere('d.serviceDebiteurId = :serviceDebiteur')
+            $qb->andWhere("$qbLabel.serviceDebiteur = :serviceDebiteur")
                 ->setParameter('serviceDebiteur', $criteria['serviceDebiteur']->getId());
         }
     }
@@ -783,5 +809,31 @@ class DaAfficherRepository extends EntityRepository
             ])
             ->getQuery()
             ->getSingleColumnResult();
+    }
+
+
+    public function findDerniereVersionDesDA(User $user, array $criteria,  int $idAgenceUser, bool $estAppro, bool $estAtelier, bool $estAdmin): array //liste_da
+    {
+        $qb = $this->createQueryBuilder('d');
+
+        $qb->where(
+            'd.numeroVersion = (
+                    SELECT MAX(d2.numeroVersion)
+                    FROM ' . DaAfficher::class . ' d2
+                    WHERE d2.numeroDemandeAppro = d.numeroDemandeAppro
+                )'
+        );
+
+        $this->applyDynamicFilters($qb, 'd', $criteria);
+        $this->applyAgencyServiceFilters($qb, 'd', $criteria, $user, $idAgenceUser, $estAppro, $estAtelier, $estAdmin);
+        $this->applyDateFilters($qb, 'd', $criteria);
+
+        $this->applyFilterAppro($qb, 'd', $estAppro, $estAdmin);
+        $this->applyStatutsFilters($qb, 'd', $criteria);
+
+        $qb->orderBy('d.dateDemande', 'DESC')
+            ->addOrderBy('d.numeroFournisseur', 'DESC')
+            ->addOrderBy('d.numeroCde', 'DESC');
+        return $qb->getQuery()->getResult();
     }
 }

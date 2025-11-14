@@ -1,0 +1,51 @@
+{# templates/macros/form_macros.html.twig #}
+
+{% macro checkbox_group(form_field, select_all_label = 'Tout cocher') %}
+    <div data-checkbox-group>
+        {{ form_label(form_field) }}
+        <div class="form-check">
+            {# On utilise l'ID du champ pour garantir un ID unique pour la case "select-all" #}
+            <input type="checkbox" id="{{ form_field.vars.id }}_select_all" class="form-check-input" data-checkbox-group-all>
+            <label for="{{ form_field.vars.id }}_select_all" class="form-check-label fw-bold">{{ select_all_label }}</label>
+        </div>
+        <hr>
+        <div data-checkbox-group-items>
+            {{ form_widget(form_field) }}
+        </div>
+        {{ form_errors(form_field) }}
+    </div>
+{% endmacro %}
+
+
+
+{# ===================agence et service emetteur ou debiteur =================================#}
+
+{% macro debiteurOuEmetteurFields(form, type = 'debiteur', options = {}) %}
+    {% if type not in ['debiteur', 'emetteur'] %}
+        {% set type = 'debiteur' %}
+    {% endif %}
+    
+    {% set defaultOptions = {
+        'agenceClass': 'agence' ~ (type|capitalize),
+        'serviceClass': 'service' ~ (type|capitalize),
+        'spinnerId': 'spinner-service-' ~ type,
+        'spinnerSize': 'small',
+        'spinnerClass': 'spinner-absolute',
+        'serviceContainerId': 'service-container-' ~ type
+    } %}
+    
+    {% set options = defaultOptions|merge(options) %}
+
+    <div class="spinner-container">
+        {{ form_row(attribute(form, type).agence, {'attr': {'class': options.agenceClass}}) }}
+        {% include 'components/spinner.html.twig' with {
+            'id': options.spinnerId,
+            'size': options.spinnerSize,
+            'class': options.spinnerClass
+        } %}
+    </div>
+    <div id="{{ options.serviceContainerId }}" class="mb-3">
+        {{ form_label(attribute(form, type).service) }}
+        {{ form_widget(attribute(form, type).service, {'attr': {'class': options.serviceClass}}) }}
+    </div>
+{% endmacro %}

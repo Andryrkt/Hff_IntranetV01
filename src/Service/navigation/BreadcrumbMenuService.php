@@ -48,7 +48,10 @@ class BreadcrumbMenuService
             'demande-de-paiement'  => $this->getDemandePaiementSubMenu(),
             'bon-de-caisse'        => $this->getBonCaisseSubMenu(),
             // Appro - Sous-menus spécifiques
-            'demande-appro'        => $this->getDemandeApproSubMenu()
+            'demande-appro'        => $this->getDemandeApproSubMenu(),
+            // pol - sous menus spécifiques
+            'or-pol'            => $this->getOrPolSubMenu(),
+            'cis-pol'            => $this->getCisPolSubMenu(),
         ];
     }
 
@@ -314,8 +317,8 @@ class BreadcrumbMenuService
             ],
             [
                 'id'          => null,
-                'title'       => 'Planning magasin',
-                'link'        => '#',
+                'title'       => 'Planning de commande Magasin',
+                'link'        => 'interface_planningMag',
                 'icon'        => 'fas fa-calendar-alt',
                 'routeParams' => []
             ]
@@ -458,6 +461,46 @@ class BreadcrumbMenuService
                 'title'       => 'Liste des Commandes fournisseur',
                 'link'        => 'da_list_cde_frn',
                 'icon'        => 'fas fa-search',
+                'routeParams' => []
+            ]
+        ];
+    }
+
+    // ========== Pol - Sous-menus spécifiques ==========
+    private function getOrPolSubMenu(): array
+    {
+        return [
+            [
+                'id'          => null,
+                'title'       => 'Liste à traiter',
+                'link'        => 'pol_or_liste_a_traiter',
+                'icon'        => 'fas fa-tasks',
+                'routeParams' => []
+            ],
+            [
+                'id'          => null,
+                'title'       => 'Liste à livrer',
+                'link'        => 'pol_or_liste_a_livrer',
+                'icon'        => 'fas fa-truck-loading',
+                'routeParams' => []
+            ]
+        ];
+    }
+    private function getCisPolSubMenu(): array
+    {
+        return [
+            [
+                'id'          => null,
+                'title'       => 'Liste à traiter',
+                'link'        => 'pol_cis_liste_a_traiter',
+                'icon'        => 'fas fa-tasks',
+                'routeParams' => []
+            ],
+            [
+                'id'          => null,
+                'title'       => 'Liste à livrer',
+                'link'        => 'pol_cis_liste_a_livrer',
+                'icon'        => 'fas fa-truck-loading',
                 'routeParams' => []
             ]
         ];

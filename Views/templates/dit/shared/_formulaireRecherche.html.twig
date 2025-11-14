@@ -16,7 +16,7 @@
 						{{ form_row(form.statut) }}
 						{{ form_row(form.typeDocument) }}
 						{{ form_row(form.numDit) }}
-						{{ form_row(form.sectionAffectee) }}
+						{{ form_row(form.reparationRealise)}}
 						{{ form_row(form.numDevis) }}
 					</div>
 					<div class="col-12 col-md-2">
@@ -24,40 +24,31 @@
 						{{ form_widget(form.niveauUrgence, {'attr': {'class': 'mb-3'}}) }}
 						{{ form_row(form.internetExterne)}}
 						{{ form_row(form.numOr)}}
-						{{ form_row(form.sectionSupport1)}}
+						{{ form_row(form.sectionAffectee) }}
+						{{form_row(form.ditSansOr)}}
 					</div>
 					<div class="col-12 col-md-2">
 						{{ form_row(form.dateDebut) }}
 						{{ form_row(form.dateFin) }}
 						{{ form_row(form.statutOr) }}
-						{{form_row(form.sectionSupport2)}}
-
+						{{ form_row(form.sectionSupport1)}}
 					</div>
 					<div class="col-12 col-md-2">
-						{# {% if 1 in role_ids or 4 in role_ids or 5 in role_ids or 6 in role_ids %} #}
-							{{ macroForm.agence_service_change(form.agenceEmetteur, form.serviceEmetteur, 'spinner-service-emetteur', 'service-container-emetteur')}}
-							{# {{form_row(form.agenceEmetteur)}}
-							{{form_row(form.serviceEmetteur)}} #}
-						{# {% else %} #}
-							{# {{ form_row(form.agenceEmetteur, {'attr': {'disabled': 'disabled'}}) }} #}
-							{# {{ form_row(form.serviceEmetteur, {'attr': {'disabled': 'disabled'}}) }} #}
-						{# {% endif %} #}
+						{{ macroForm.agence_service_change(form.agenceEmetteur, form.serviceEmetteur, 'spinner-service-emetteur', 'service-container-emetteur')}}
 						{{form_row(form.categorie)}}
-						{{form_row(form.sectionSupport3)}}
-
+						{{form_row(form.sectionSupport2)}}
 					</div>
 					<div class="col-12 col-md-2">
 					{{ macroForm.agence_service_change(form.agenceDebiteur, form.serviceDebiteur, 'spinner-service-debiteur', 'service-container-debiteur')}}
-						{# {{form_row(form.agenceDebiteur)}}
-						{{form_row(form.serviceDebiteur)}} #}
 						{{form_row(form.utilisateur)}}
-						{{ form_row(form.etatFacture)}}
+						{{form_row(form.sectionSupport3)}}
 					</div>
 					<div class="col-12 col-md-2">
 						{{form_row(form.idMateriel)}}
 						{{form_row(form.numParc)}}
 						{{form_row(form.numSerie)}}
-						{{form_row(form.ditSansOr)}}
+						{{ form_row(form.etatFacture)}}
+						
 					</div>
 				</div>
 

@@ -2,19 +2,25 @@
 
 namespace App\Controller\Traits\da\creation;
 
+use DateTime;
 use App\Model\da\DaModel;
 use App\Entity\da\DemandeAppro;
 use App\Repository\dit\DitRepository;
 use App\Entity\dit\DemandeIntervention;
+use App\Entity\dit\DitOrsSoumisAValidation;
 use Symfony\Component\HttpFoundation\Request;
+use App\Model\magasin\MagasinListeOrLivrerModel;
+use App\Repository\dit\DitOrsSoumisAValidationRepository;
+use App\Traits\JoursOuvrablesTrait;
 
 trait DaNewAvecDitTrait
 {
-    use DaNewTrait;
+    use DaNewTrait, JoursOuvrablesTrait;
 
     //=====================================================================================
     private DaModel $daModel;
     private DitRepository $ditRepository;
+    private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
     private $fournisseurs;
 
     /**
@@ -25,6 +31,7 @@ trait DaNewAvecDitTrait
         $em = $this->getEntityManager();
         $this->initDaTrait();
         $this->ditRepository = $em->getRepository(DemandeIntervention::class);
+        $this->ditOrsSoumisAValidationRepository = $em->getRepository(DitOrsSoumisAValidation::class);
         $this->daModel = new DaModel();
         $this->setAllFournisseurs();
     }
@@ -42,6 +49,7 @@ trait DaNewAvecDitTrait
         $demandeAppro = new DemandeAppro;
 
         $demandeAppro
+            ->setDaTypeId(DemandeAppro::TYPE_DA_AVEC_DIT)
             ->setNiveauUrgence($dit->getIdNiveauUrgence()->getDescription())
             ->setObjetDal($dit->getObjetDemande())
             ->setDetailDal($dit->getDetailDemande())
@@ -55,7 +63,6 @@ trait DaNewAvecDitTrait
             ->setUser($this->getUser())
             ->setNumeroDemandeAppro($this->autoDecrement('DAP'))
             ->setDemandeur($this->getUser()->getNomUtilisateur())
-            ->setDateFinSouhaiteAutomatique() // Définit la date de fin souhaitée automatiquement à 3 jours après la date actuelle
         ;
 
         return $demandeAppro;
@@ -84,5 +91,41 @@ trait DaNewAvecDitTrait
     {
         $fournisseurs = $this->daModel->getAllFournisseur();
         $this->fournisseurs = array_column($fournisseurs, 'numerofournisseur', 'nomfournisseur');
+    }
+
+    /**
+     * Définit la date de fin souhaitée automatiquement à 3 jours ouvrables à partir d'aujourd'hui.
+     *
+     * @return DateTime la date de livraison prévue.
+     */
+    public function dateLivraisonPrevueDA(string $numDit, string $niveauUrgence): DateTime
+    {
+        $jours = ['P0' => 5, 'P1' => 7, 'P2' => 10, 'P3' => 15, 'P4' => 15];
+        [$numOr,] = $this->ditOrsSoumisAValidationRepository->getNumeroEtStatutOr($numDit);
+        $datePlanningOR = $this->getDatePlannigOr($numOr);
+        if ($datePlanningOR) { // DIT avec OR plannifiée
+            $dateDans12JoursOuvrables = $this->ajouterJoursOuvrables(12);
+            if ($datePlanningOR < $dateDans12JoursOuvrables) { // si date planning or - date du jour < 12 (ouvrable)
+                return $this->ajouterJoursOuvrables(5);
+            } else { // si date planning or - date du jour >= 12 (ouvrable)
+                return $this->retirerJoursOuvrables(7, $datePlanningOR); // on retire 7 jours ouvrables à la date planning or
+            }
+        } else { // DIT sans OR ou avec OR non plannifiée
+            return $this->ajouterJoursOuvrables($jours[$niveauUrgence] ?? $jours['P4']);
+        }
+    }
+
+    private function getDatePlannigOr(?string $numOr)
+    {
+        if (!is_null($numOr)) {
+            $magasinListeOrLivrerModel = new MagasinListeOrLivrerModel();
+            $data = $magasinListeOrLivrerModel->getDatePlanningPourDa($numOr);
+
+            if (!empty($data) && !empty($data[0]['dateplanning'])) {
+                $dateObj = DateTime::createFromFormat('Y-m-d', $data[0]['dateplanning']);
+            }
+        }
+
+        return $dateObj ?? null;
     }
 }

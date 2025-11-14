@@ -22,11 +22,8 @@ class EmailService
         $this->mailer->isSMTP();
         $this->mailer->Host = 'smtp.gmail.com';
         $this->mailer->SMTPAuth = true;
-        $this->mailer->Username = 'hasina.andrianadison@hff.mg';
-        $this->mailer->Password = 'pjld idch wnif byfm ';
-        // $this->mailer->Username = 'noreply.email@hff.mg';
-        // $this->mailer->Password = 'aztq lelp kpzm qhff';
-        //$this->mailer->Password = '2b6615f71ff2a7';
+        $this->mailer->Username = 'noreply.email@hff.mg';
+        $this->mailer->Password = 'pihr cwdj rpog irob';
         $this->mailer->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $this->mailer->Port = 587;
         $this->mailer->CharSet = 'UTF-8';
@@ -51,7 +48,7 @@ class EmailService
         }
     }
 
-    public function sendEmail($to, $cc = [], $template, $variables = [], $attachments = [])
+    public function sendEmail($to, $cc, $template, $variables = [], $attachments = [])
     {
         try {
             // Créer le contenu de l'email via le template

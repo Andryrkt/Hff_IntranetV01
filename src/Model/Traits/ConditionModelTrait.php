@@ -72,32 +72,32 @@ trait ConditionModelTrait
         return $condition;
     }
 
-    private function conditionPiece(string $indexCriteria, array $criteria): ?string
+    private function conditionPiece(string $indexCriteria, array $criteria, string $props): ?string
     {
         $piece = null;
         if (!empty($criteria[$indexCriteria])) {
             if ($criteria[$indexCriteria] === "PIECES MAGASIN") {
                 $value = GlobalVariablesService::get('pieces_magasin');
-                if(!empty($value)) {
-                    $piece = " AND slor_constp in (" . $value . ") AND (slor_refp not like '%-L' and slor_refp not like '%-CTRL')";
+                if (!empty($value)) {
+                    $piece = " AND $props in ($value) AND (slor_refp not like '%-L' and slor_refp not like '%-CTRL')";
                 }
-            } else if ($criteria[$indexCriteria] === "LUB") {
+            } elseif ($criteria[$indexCriteria] === "LUB") {
                 $value = GlobalVariablesService::get('lub');
-                if(!empty($value)) {
-                    $piece = " AND slor_constp in (" . $value . ")";
+                if (!empty($value)) {
+                    $piece = " AND $props in ($value)";
                 }
-            } else if ($criteria[$indexCriteria] === "ACHATS LOCAUX") {
+            } elseif ($criteria[$indexCriteria] === "ACHATS LOCAUX") {
                 $value = GlobalVariablesService::get('achat_locaux');
-                if(!empty($value)) {
-                    $piece = " AND slor_constp in (" . $value . ") ";
+                if (!empty($value)) {
+                    $piece = " AND $props in ($value) ";
                 }
-            } else if ($criteria[$indexCriteria] === "TOUTS PIECES") {
+            } elseif ($criteria[$indexCriteria] === "TOUTS PIECES") {
                 $piece = null;
             }
         } else {
             $value = GlobalVariablesService::get('pieces_magasin');
-            if(!empty($value)) {
-                $piece = " AND slor_constp in (" . $value . ") AND (slor_refp not like '%-L' and slor_refp not like '%-CTRL')";
+            if (!empty($value)) {
+                $piece = " AND $props in ($value) AND (slor_refp not like '%-L' and slor_refp not like '%-CTRL')";
             }
         }
 
@@ -109,11 +109,11 @@ trait ConditionModelTrait
         if (!empty($criteria[$indexCriteria])) {
             if ($criteria[$indexCriteria] === "PIECES MAGASIN") {
                 $piece = " AND {$colonneBase} in (" . GlobalVariablesService::get('pieces_magasin') . ") AND (slor_refp not like '%-L' and slor_refp not like '%-CTRL')";
-            } else if ($criteria[$indexCriteria] === "LUB") {
+            } elseif ($criteria[$indexCriteria] === "LUB") {
                 $piece = " AND {$colonneBase} in (" . GlobalVariablesService::get('lub') . ")";
-            } else if ($criteria[$indexCriteria] === "ACHATS LOCAUX") {
+            } elseif ($criteria[$indexCriteria] === "ACHATS LOCAUX") {
                 $piece = " AND {$colonneBase} in (" . GlobalVariablesService::get('achat_locaux') . ") ";
-            } else if ($criteria[$indexCriteria] === "TOUTS PIECES") {
+            } elseif ($criteria[$indexCriteria] === "TOUTS PIECES") {
                 $piece = null;
             }
         } else {
@@ -130,11 +130,11 @@ trait ConditionModelTrait
                 $orCompletNom = " HAVING 
                             SUM(nlig_qtecde) = (SUM(nlig_qtealiv) + SUM(nlig_qteliv))
                             AND SUM(nlig_qtealiv) > 0 ";
-            } else if ($criteria[$indexCriteria] === 'ORs INCOMPLETS') {
+            } elseif ($criteria[$indexCriteria] === 'ORs INCOMPLETS') {
                 $orCompletNom = " HAVING 
                             SUM(nlig_qtecde) > (SUM(nlig_qtealiv) + SUM(nlig_qteliv))
                             AND SUM(nlig_qtealiv) > 0";
-            } else if ($criteria[$indexCriteria] === 'TOUTS LES OR') {
+            } elseif ($criteria[$indexCriteria] === 'TOUTS LES OR') {
                 $orCompletNom = " HAVING 
                             SUM(nlig_qtecde) >= (SUM(nlig_qtealiv) + SUM(nlig_qteliv))
                             AND SUM(nlig_qtealiv) > 0";
@@ -148,18 +148,18 @@ trait ConditionModelTrait
         return $orCompletNom;
     }
 
-    private function conditionOrCompletOuNonOrALivrer(string $indexCriteria, array $lesOrSelonCondition, array $criteria): string
+    private function conditionOrCompletOuNonOrALivrer(string $indexCriteria, array $criteria): string
     {
         if (!empty($criteria[$indexCriteria])) {
             if ($criteria[$indexCriteria] === 'ORs COMPLET') {
-                $orCompletNom = " AND slor_numor||'-'||TRUNC(slor_nogrp/100) IN ('" . $lesOrSelonCondition['numOrLivrerComplet'] . "')";
-            } else if ($criteria[$indexCriteria] === 'ORs INCOMPLETS') {
-                $orCompletNom = " AND slor_numor||'-'||TRUNC(slor_nogrp/100) IN ('" . $lesOrSelonCondition['numOrLivrerIncomplet'] . "')";
-            } else if ($criteria[$indexCriteria] === 'TOUTS LES OR') {
-                $orCompletNom = " AND slor_numor||'-'||TRUNC(slor_nogrp/100) IN ('" . $lesOrSelonCondition['numOrLivrerTout'] . "')";
+                $orCompletNom = " AND T.situation = 'COMPLET' ";
+            } elseif ($criteria[$indexCriteria] === 'ORs INCOMPLETS') {
+                $orCompletNom = " AND T.situation = 'INCOMPLET' ";
+            } else {
+                $orCompletNom = "";
             }
         } else {
-            $orCompletNom =  " AND slor_numor||'-'||TRUNC(slor_nogrp/100) IN ('" . $lesOrSelonCondition['numOrLivrerComplet'] . "')";
+            $orCompletNom =  " AND T.situation = 'COMPLET'";
         }
 
         return $orCompletNom;
@@ -169,7 +169,7 @@ trait ConditionModelTrait
     {
         if (!empty($criteria[$indexCriteria])) {
             $value = strpos($criteria[$indexCriteria], '-') !== false ? explode('-', $criteria[$indexCriteria])[0] : $criteria[$indexCriteria];
-            $agenceUser = " AND slor_succ in ($value)";
+            $agenceUser = $value != "''" ? " AND slor_succ in ($value)" : "";
         } else {
             $agenceUser = "";
         }
@@ -236,7 +236,7 @@ trait ConditionModelTrait
     private function conditionOrValide($orValides, $numORItvValides)
     {
         if ($orValides) {
-            $orValide = " AND slor_numor||'-'||TRUNC(slor_nogrp/100) IN ('" . $numORItvValides . "')";
+            $orValide = " AND slor_numor||'-'||TRUNC(slor_nogrp/100) IN ($numORItvValides)";
         } else {
             $orValide = '';
         }

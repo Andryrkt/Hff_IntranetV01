@@ -1,6 +1,5 @@
-import { baseUrl } from "../../utils/config";
 import { formaterNombre } from "../../utils/formatNumberUtils";
-import { displayOverlay } from "../../utils/spinnerUtils";
+import { displayOverlay } from "../../utils/ui/overlay";
 
 document.addEventListener("DOMContentLoaded", function () {
   const allMontantTd = document.querySelectorAll("td.format-mtt");

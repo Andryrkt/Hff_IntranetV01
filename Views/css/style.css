@@ -59,9 +59,9 @@ label {
   display: flex;
   flex-direction: column;
 }
-.content {
+/* .content {
   flex: 1;
-}
+} */
 
 .color {
   background-color: #fbbb01;
@@ -424,6 +424,12 @@ button.swal2-styled {
   margin: 4rem 2rem;
   padding: 0 1.25rem; /* léger padding interne */
   box-sizing: border-box; /* évite les soucis avec padding */
+}
+
+#bandeau {
+  top: 133px;
+  height: 20px;
+  position: fixed !important;
 }
 
 .bg-orange-cat {

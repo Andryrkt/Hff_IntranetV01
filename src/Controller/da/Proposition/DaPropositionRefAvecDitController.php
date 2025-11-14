@@ -6,6 +6,7 @@ use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
+use App\Entity\admin\Application;
 use App\Entity\da\DemandeApproLR;
 use App\Form\da\DaObservationType;
 use App\Entity\da\DemandeApproLRCollection;
@@ -36,6 +37,7 @@ class DaPropositionRefAvecDitController extends Controller
         parent::__construct();
 
         $this->initDaPropositionAvecDitTrait();
+        $this->initDaValidationAvecDitTrait();
     }
 
     /**
@@ -46,10 +48,11 @@ class DaPropositionRefAvecDitController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $da = $this->demandeApproRepository->findAvecDernieresDALetLR($id);
-        $statutDa = $da->getStatutDal();
-        $this->checkPageAccess(!$this->estDaVerrouillee($statutDa, $this->estAdmin(), $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier(), false));
+        /** Autorisation accès */
+        $this->autorisationAcces($this->getUser(), Application::ID_DAP);
+        /** FIN AUtorisation accès */
 
+        $da = $this->demandeApproRepository->findAvecDernieresDALetLR($id);
         $numDa = $da->getNumeroDemandeAppro();
         $dals = $da->getDAL();
 
@@ -58,9 +61,7 @@ class DaPropositionRefAvecDitController extends Controller
         $DapLRCollection = new DemandeApproLRCollection();
         $daObservation = new DaObservation();
         $form = $this->getFormFactory()->createBuilder(DemandeApproLRCollectionType::class, $DapLRCollection)->getForm();
-        $formObservation = $this->getFormFactory()->createBuilder(DaObservationType::class, $daObservation, [
-            'achatDirect' => $da->getAchatDirect()
-        ])->getForm();
+        $formObservation = $this->getFormFactory()->createBuilder(DaObservationType::class, $daObservation, ['daTypeId' => $da->getDaTypeId()])->getForm();
         $formValidation = $this->getFormFactory()->createBuilder(
             DaPropositionValidationType::class,
             [],
@@ -76,7 +77,7 @@ class DaPropositionRefAvecDitController extends Controller
         $observations = $this->daObservationRepository->findBy(['numDa' => $numDa]);
 
         return $this->render("da/proposition.html.twig", [
-            'da'                      => $da,
+            'demandeAppro'            => $da,
             'id'                      => $id,
             'dit'                     => $dit,
             'form'                    => $form->createView(),
@@ -88,7 +89,9 @@ class DaPropositionRefAvecDitController extends Controller
             'statutAutoriserModifAte' => $da->getStatutDal() === DemandeAppro::STATUT_AUTORISER_MODIF_ATE,
             'estAte'                  => $this->estUserDansServiceAtelier(),
             'estAppro'                => $this->estUserDansServiceAppro(),
-            'nePeutPasModifier'       => $this->nePeutPasModifier($da)
+            'nePeutPasModifier'       => $this->nePeutPasModifier($da),
+            'propValTemplate'         => 'proposition-validation-avec-dit',
+            'dossierJS'               => 'propositionAvecDit',
         ]);
     }
 
@@ -107,7 +110,10 @@ class DaPropositionRefAvecDitController extends Controller
             $observation = $form->getData()->getObservation();
             $statutChange = $form->get('statutChange')->getData();
 
-            if ($request->request->has('enregistrer')) {
+            if ($request->request->has('brouillon')) {
+                /** Enregistrer provisoirement */
+                $this->traitementPourBtnBrouillon($dalrList, $request, $dals, $observation, $numDa, $da);
+            } elseif ($request->request->has('enregistrer')) {
                 /** Envoyer proposition à l'atelier */
                 $this->traitementPourBtnEnregistrer($dalrList, $request, $dals, $observation, $numDa, $da);
             } elseif ($request->request->has('changement')) {
@@ -148,13 +154,7 @@ class DaPropositionRefAvecDitController extends Controller
             'message' => 'Votre observation a été enregistré avec succès.',
         ];
 
-        /** ENVOIE D'EMAIL à l'APPRO pour l'observation */
-        $service = $this->estUserDansServiceAtelier() ? 'atelier' : ($this->estUserDansServiceAppro() ? 'appro' : '');
-        $this->emailDaService->envoyerMailObservationDaAvecDit($demandeAppro, [
-            'service'       => $service,
-            'observation'   => $daObservation->getObservation(),
-            'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
-        ]);
+        $this->emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->getUser(), $this->estUserDansServiceAppro());
 
         $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         return $this->redirectToRoute("list_da");
@@ -178,13 +178,7 @@ class DaPropositionRefAvecDitController extends Controller
                 'message' => 'Votre observation a été enregistré avec succès.',
             ];
 
-            /** ENVOIE D'EMAIL à l'APPRO pour l'observation */
-            $service = $this->estUserDansServiceAtelier() ? 'atelier' : ($this->estUserDansServiceAppro() ? 'appro' : '');
-            $this->emailDaService->envoyerMailObservationDaAvecDit($demandeAppro, [
-                'service'       => $service,
-                'observation'   => $observation,
-                'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
-            ]);
+            $this->emailDaService->envoyerMailObservationDa($demandeAppro, $observation, $this->getUser(), $this->estUserDansServiceAppro());
         } else {
             $notification = [
                 'type' => 'danger',
@@ -220,12 +214,7 @@ class DaPropositionRefAvecDitController extends Controller
 
         $this->ajouterDansTableAffichageParNumDa($numDa, true); // enregistrement dans la table DaAfficher
 
-        /** ENVOI DE MAIL POUR LA VALIDATION DES ARTICLES */
-        $this->emailDaService->envoyerMailValidationDaAvecDit($da, $nomEtChemin, [
-            'service'           => $this->estUserDansServiceAtelier() ? 'atelier' : ($this->estUserDansServiceAppro() ? 'appro' : ''),
-            'phraseValidation'  => 'Vous trouverez en pièce jointe le fichier contenant les références ZST.',
-            'userConnecter'     => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
-        ]);
+        $this->emailDaService->envoyerMailValidationDa($da, $this->getUser(), $nomEtChemin);
 
         $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         $this->redirectToRoute("list_da");
@@ -250,12 +239,7 @@ class DaPropositionRefAvecDitController extends Controller
 
         $this->ajouterDansTableAffichageParNumDa($numDa, true);
 
-        /** ENVOI DE MAIL POUR LES ARTICLES VALIDES */
-        $this->emailDaService->envoyerMailValidationDaAvecDit($da, $nomEtChemin, [
-            'service'           => $this->estUserDansServiceAtelier() ? 'atelier' : ($this->estUserDansServiceAppro() ? 'appro' : ''),
-            'phraseValidation'  => 'Vous trouverez en pièce jointe le fichier contenant les références ZST.',
-            'userConnecter'     => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
-        ]);
+        $this->emailDaService->envoyerMailValidationDa($da, $this->getUser(), $nomEtChemin);
 
         $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         $this->redirectToRoute("list_da");
@@ -320,13 +304,31 @@ class DaPropositionRefAvecDitController extends Controller
 
         $this->ajouterDansTableAffichageParNumDa($numDa);
 
-        /** ENVOIE D'EMAIL à l'ATE pour les propositions*/
-        $this->emailDaService->envoyerMailPropositionDaAvecDit($da, [
-            'service'       => 'appro',
-            'observation'   => $observation,
-            'hydratedDa'    => $this->demandeApproRepository->findAvecDernieresDALetLR($da->getId()),
-            'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
-        ]);
+        $this->emailDaService->envoyerMailPropositionDa($this->demandeApproRepository->findAvecDernieresDALetLR($da->getId()), $this->getUser());
+
+        $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
+        $this->redirectToRoute("list_da");
+    }
+
+    private function traitementPourBtnBrouillon($dalrList, Request $request, $dals, ?string $observation, string $numDa, DemandeAppro $da): void
+    {
+        /** RECUPERATION DE NUMERO DE page et NUMERO de ligne de tableau */
+        $refs = $this->recuperationDesRef($request);
+
+        $notification = $this->traiterProposition(
+            $dals,
+            $dalrList,
+            $observation,
+            $da,
+            $refs,
+            "La proposition a été enregistré avec succès",
+            true,
+            DemandeAppro::STATUT_EN_COURS_PROPOSITION
+        );
+
+        $this->modificationChoixEtligneDal($refs, $dals);
+
+        $this->ajouterDansTableAffichageParNumDa($numDa);
 
         $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         $this->redirectToRoute("list_da");

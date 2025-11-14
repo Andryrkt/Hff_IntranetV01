@@ -1,8 +1,8 @@
 {% extends 'baseTemplate.html.twig' %}
 
 {% block stylesheets %}
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.09.15.08.00"/>
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/inventaire/liste.css?v=2025.09.15.08.00"/>
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.10.22.08.00"/>
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/inventaire/liste.css?v=2025.10.22.08.00"/>
 {% endblock %}
 
 {% block content %}
@@ -21,6 +21,7 @@
 		<table class="table rounded table-sticky text-center">
 			<thead class="table-dark">
 				<tr>
+					<th>Saisie comptage</th>
 					<th>Numéro</th>
 					<th>Date</th>
 					<th>Nbr comptage</th>
@@ -34,8 +35,11 @@
 					<th class="text-end">Prix</th>
 					<th class="text-end">Valeur stock</th>
 					<th>Comptage1</th>
+					<th>Ecart 1</th>
 					<th>Comptage2</th>
+					<th>Ecart 2</th>
 					<th>Comptage3</th>
+					<th>Ecart 3</th>
 					<th>Ecart</th>
 					<th class="text-end">Mont.ecart</th>
 				</tr>
@@ -43,6 +47,7 @@
 			<tbody id="tableBody">
 				{% for item in data %}
 					<tr>
+						<td>{{ item.saisie_compte }}</td>
 						<td>{{ item.numinv }}</td>
 						<td>{{ item.date }}</td>
 						<td>{{ item.nbr_comptage }}</td>
@@ -53,11 +58,14 @@
 						<td>{{ item.desi }}</td>
 						<td>{{ item.casier }}</td>
 						{# <td>{{ item.tsock }}</td> #}
-						<td class="text-end">{{ item.prix }}</td>
-						<td class="text-end">{{ item.valeur_stock }}</td>
+						<td class="text-end">{{ item.prix |number_format(0, '', ' ') }}</td>
+						<td class="text-end">{{ item.valeur_stock |number_format(0, '', ' ')}}</td>
 						<td>{{ item.comptage1 }}</td>
+						<td>{{ item.ecart1 }}</td>
 						<td>{{ item.comptage2 }}</td>
+						<td>{{ item.ecart2 }}</td>
 						<td>{{ item.comptage3 }}</td>
+						<td>{{ item.ecart3 }}</td>
 						<td>{{ item.ecart }}</td>
 						<td class="text-end">{{ item.montant_ecart }}</td>
 					</tr>
@@ -68,6 +76,6 @@
 {% endblock %}
 
 {% block javascript %}
-	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v=2025.09.15.08.00"></script>
-	<script src="{{ App.base_path }}/Views/js/inventaire/inventaireDetailAgence.js?v=2025.09.15.08.00" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v=2025.10.22.08.00"></script>
+	<script src="{{ App.base_path }}/Views/js/inventaire/inventaireDetailAgence.js?v=2025.10.22.08.00" type="module"></script>
 {% endblock %}

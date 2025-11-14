@@ -62,13 +62,20 @@ trait PlanningModelTrait
         $vtypeligne = " ";
         break;
       case "PIECES_MAGASIN":
-        $vtypeligne = " AND slor_constp in (" . GlobalVariablesService::get('pieces_magasin') . ") AND slor_typlig = 'P' AND (slor_refp not like '%-L' and slor_refp not like '%-CTRL') ";
+        $constructeurPiecesMagasin = GlobalVariablesService::get('pieces_magasin');
+        $vtypeligne = " AND slor_constp in ( $constructeurPiecesMagasin ) AND slor_typlig = 'P' AND (slor_refp not like '%-L' and slor_refp not like '%-CTRL') ";
         break;
       case "ACHAT_LOCAUX":
-        $vtypeligne = " AND slor_constp in (" . GlobalVariablesService::get('achat_locaux') . ")";
+        $constructeurAchatLocaux = GlobalVariablesService::get('achat_locaux');
+        $vtypeligne = " AND slor_constp in ( $constructeurAchatLocaux )";
         break;
       case "LUBRIFIANTS":
-        $vtypeligne = " AND slor_constp in (" . GlobalVariablesService::get('lub') . ")  AND slor_typlig = 'P'";
+        $constructeurLub = GlobalVariablesService::get('lub');
+        $vtypeligne = " AND slor_constp in ( $constructeurLub )  AND slor_typlig = 'P'";
+        break;
+      case "PNEUMATIQUES":
+        $constructeurPneumatique = GlobalVariablesService::get('pneumatique');
+        $vtypeligne = " AND slor_constp in ( $constructeurPneumatique ) ";
         break;
       default:
         $vtypeligne = " ";

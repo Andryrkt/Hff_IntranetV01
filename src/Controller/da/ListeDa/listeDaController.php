@@ -2,11 +2,11 @@
 
 namespace App\Controller\da\ListeDa;
 
+use App\Entity\da\DaSearch;
 use App\Form\da\DaSearchType;
 use App\Controller\Controller;
 use App\Entity\admin\Application;
 use App\Controller\Traits\da\DaListeTrait;
-use App\Controller\Traits\da\StatutBcTrait;
 use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -39,53 +39,46 @@ class listeDaController extends Controller
         $this->autorisationAcces($this->getUser(), Application::ID_DAP);
         /** FIN AUtorisation accès */
 
+        /** Initialisation DaSearch */
+        $daSearch = new DaSearch;
+        $this->initialisationRechercheDa($daSearch);
+
         //formulaire de recherche
-        $form = $this->getFormFactory()->createBuilder(DaSearchType::class, null, ['method' => 'GET'])->getForm();
+        $form = $this->getFormFactory()->createBuilder(DaSearchType::class, $daSearch, ['method' => 'GET'])->getForm();
 
         $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $daSearch = $form->getData();
+        }
 
         $criteria = [];
-        if ($form->isSubmitted() && $form->isValid()) {
-            $criteria = $form->getData();
-        }
-        $this->getSessionService()->set('criteria_for_excel', $criteria);
+        //transformer l'objet daSearch en tableau
+        $criteria = $daSearch->toArray();
+        //recupères les données du criteria dans une session nommé criteria_search_list_da
+        $this->getSessionService()->set('criteria_search_list_da', $criteria);
+
+        $sortJoursClass = false;
+
+        if ($criteria && $criteria['sortNbJours']) $sortJoursClass = $criteria['sortNbJours'] === 'asc' ? 'fas fa-arrow-up-1-9' : 'fas fa-arrow-down-9-1';
 
         //recupère le numero de page
         $page = $request->query->getInt('page', 1);
         //nombre de ligne par page
         $limit = 20;
 
-        $allowedSortFields = ['joursDispo']; // Champs autorisés pour le tri
-        // Récupération des paramètres actuels pour le tri
-        $sortField = $request->query->get('sort');
-        $sortDirection = $request->query->get('direction');
-
-        // Valide uniquement si les deux paramètres existent et sont valides
-        if (!in_array($sortField, $allowedSortFields) || !in_array(strtolower($sortDirection), ['asc', 'desc'])) {
-            $sortField = null;
-            $sortDirection = null;
-        }
-
-        $currentSortClass = [
-            'asc'  => $sortDirection === 'asc' ? 'text-warning' : 'text-white',
-            'desc' => $sortDirection === 'desc' ? 'text-warning' : 'text-white',
-        ];
-
-        $criteria['sort'] = $sortField; // Champ de tri
-        $criteria['direction'] = $sortDirection; // Direction de tri
-
         // Donnée à envoyer à la vue
-        $paginationData = $this->getPaginationData($criteria, $page, $limit, $sortField, $sortDirection);
+        $paginationData = $this->getPaginationData($criteria, $page, $limit);
         $dataPrepared = $this->prepareDataForDisplay($paginationData['data']);
 
         return $this->render('da/list-da.html.twig', [
-            'data'             => $dataPrepared,
-            'form'             => $form->createView(),
-            'criteria'         => $criteria,
-            'currentSortClass' => $currentSortClass,
-            'currentPage'      => $paginationData['currentPage'],
-            'totalPages'       => $paginationData['lastPage'],
-            'resultat'         => $paginationData['totalItems'],
+            'data'           => $dataPrepared,
+            'form'           => $form->createView(),
+            'criteria'       => $criteria,
+            'daTypeIcons'    => $this->getAllIcons(),
+            'sortJoursClass' => $sortJoursClass,
+            'currentPage'    => $paginationData['currentPage'],
+            'totalPages'     => $paginationData['lastPage'],
+            'resultat'       => $paginationData['totalItems'],
         ]);
     }
 }

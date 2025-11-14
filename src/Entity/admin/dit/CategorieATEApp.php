@@ -19,6 +19,9 @@ use App\Repository\admin\dit\CategorieAteAppRepository;
 class CategorieAteApp
 {
     use DateTrait;
+
+    public const REPARATION = 7;
+    
     /**
      * @ORM\Id
      * @ORM\GeneratedValue

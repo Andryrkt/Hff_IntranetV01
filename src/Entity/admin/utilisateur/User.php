@@ -67,27 +67,27 @@ class User implements UserInterface
     private $mail;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Role::class, inversedBy="users", cascade={"remove"})
+     * @ORM\ManyToMany(targetEntity=Role::class, inversedBy="users")
      * @ORM\JoinTable(name="user_roles")
      */
     private $roles;
 
 
     /**
-     * @ORM\ManyToMany(targetEntity=Application::class, inversedBy="users", cascade={"remove"})
+     * @ORM\ManyToMany(targetEntity=Application::class, inversedBy="users")
      * @ORM\JoinTable(name="users_applications")
      */
     private $applications;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Societte::class, inversedBy="users",  cascade={"remove"})
+     * @ORM\ManyToOne(targetEntity=Societte::class, inversedBy="users")
      * @ORM\JoinColumn(name="societe_id", referencedColumnName="id")
      */
     private ?Societte $societtes;
 
 
     /**
-     * @ORM\ManyToOne(targetEntity=Personnel::class, inversedBy="users",  cascade={"remove"})
+     * @ORM\ManyToOne(targetEntity=Personnel::class, inversedBy="users")
      * @ORM\JoinColumn(name="personnel_id", referencedColumnName="id")
      */
     private $personnels;
@@ -105,19 +105,19 @@ class User implements UserInterface
     private $casiers;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Fonction::class, inversedBy="users",  cascade={"remove"})
+     * @ORM\ManyToOne(targetEntity=Fonction::class, inversedBy="users")
      * @ORM\JoinColumn(name="fonctions_id", referencedColumnName="id")
      */
     private  $fonction;
 
     /**
-     * @ORM\ManyToOne(targetEntity=AgenceServiceIrium::class, inversedBy="userAgenceService",  cascade={"remove"})
+     * @ORM\ManyToOne(targetEntity=AgenceServiceIrium::class, inversedBy="userAgenceService")
      * @ORM\JoinColumn(name="agence_utilisateur", referencedColumnName="id")
      */
     private $agenceServiceIrium;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Agence::class, inversedBy="usersAutorises",  cascade={"remove"})
+     * @ORM\ManyToMany(targetEntity=Agence::class, inversedBy="usersAutorises")
      * @ORM\JoinTable(name="agence_user", 
      *      joinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")},
      *      inverseJoinColumns={@ORM\JoinColumn(name="agence_id", referencedColumnName="id")}
@@ -127,7 +127,7 @@ class User implements UserInterface
 
 
     /**
-     * @ORM\ManyToMany(targetEntity=Service::class, inversedBy="userServiceAutoriser",  cascade={"remove"})
+     * @ORM\ManyToMany(targetEntity=Service::class, inversedBy="userServiceAutoriser")
      * @ORM\JoinTable(name="users_service")
      */
     private $serviceAutoriser;
@@ -135,7 +135,7 @@ class User implements UserInterface
 
 
     /**
-     * @ORM\ManyToMany(targetEntity=Permission::class, inversedBy="users",  cascade={"remove"})
+     * @ORM\ManyToMany(targetEntity=Permission::class, inversedBy="users")
      * @ORM\JoinTable(name="users_permission")
      */
     private $permissions;
@@ -240,8 +240,8 @@ class User implements UserInterface
 
     public function removeRole(Role $role): self
     {
-        if ($this->roles->contains($role)) {
-            $this->roles->removeElement($role);
+        if ($this->roles->removeElement($role)) {
+            $role->removeUser($this);
         }
 
         return $this;
@@ -881,5 +881,15 @@ class User implements UserInterface
         $this->demandeApproValidateur = $demandeApproValidateur;
 
         return $this;
+    }
+
+    /** 
+     * ========================================
+     * Fonction utilitaire sur l'entité User
+     * ========================================
+     */
+    public function getFullName(): string
+    {
+        return $this->getPersonnels()->getNom() . ' ' . $this->getPersonnels()->getPrenoms();
     }
 }

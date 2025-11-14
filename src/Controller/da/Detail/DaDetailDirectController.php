@@ -52,9 +52,7 @@ class DaDetailDirectController extends Controller
 		$demandeAppro = $this->filtreDal($demandeAppro, (int)$numeroVersionMax); // on filtre les lignes de la DA selon le numero de version max
 
 		$daObservation = new DaObservation;
-		$formObservation = $this->getFormFactory()->createBuilder(DaObservationType::class, $daObservation, [
-			'achatDirect' => $demandeAppro->getAchatDirect()
-		])->getForm();
+		$formObservation = $this->getFormFactory()->createBuilder(DaObservationType::class, $daObservation, ['daTypeId' => $demandeAppro->getDaTypeId()])->getForm();
 
 		$this->traitementFormulaire($formObservation, $request, $demandeAppro);
 
@@ -70,6 +68,7 @@ class DaDetailDirectController extends Controller
 		]);
 
 		return $this->render('da/detail.html.twig', [
+			'detailTemplate'      		=> 'detail-direct',
 			'formObservation'			=> $formObservation->createView(),
 			'demandeAppro'      		=> $demandeAppro,
 			'demandeApproLines'   		=> $demandeApproLPrepared,
@@ -121,13 +120,7 @@ class DaDetailDirectController extends Controller
 				'message' => 'Votre observation a été enregistré avec succès.',
 			];
 
-			/** ENVOIE D'EMAIL pour l'observation */
-			$service = $this->estUserDansServiceAppro() ? 'appro' : $demandeAppro->getServiceEmetteur()->getLibelleService();
-			$this->emailDaService->envoyerMailObservationDaDirect($demandeAppro, [
-				'service' 		=> $service,
-				'observation'   => $daObservation->getObservation(),
-				'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
-			]);
+			$this->emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->getUser(), $this->estUserDansServiceAppro());
 
 			$this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
 			return $this->redirectToRoute("list_da");

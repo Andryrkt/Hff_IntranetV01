@@ -3,64 +3,43 @@
 namespace App\Controller\Traits\magasin\ors;
 
 
-use App\Entity\dit\DitOrsSoumisAValidation;
+use App\Entity\dit\DemandeIntervention;
+use App\Service\TableauEnStringService;
+use App\Model\magasin\MagasinListeOrLivrerModel;
 use App\Model\magasin\MagasinListeOrATraiterModel;
 
 trait MagasinOrALIvrerTrait
 {
-    private function recupNumOrSelonCondition(array $criteria, $em): array
+    private function recupData($criteria)
     {
-        $magasinModel = new MagasinListeOrATraiterModel();
-        $numeroOrs = $magasinModel->recupNumOr($criteria);
-    
-        $numOrValideItvString = $this->orEnString($this->recupNumORItvValide($numeroOrs, $em)['numeroOr_itv']);
-        $numOrValideString = $this->orEnString($this->recupNumORItvValide($numeroOrs, $em)['numeroOr']);
-    
-        $numOrLivrerComplet = $this->orEnString($this->magasinListOrLivrerModel->recupOrLivrerComplet($numOrValideItvString, $numOrValideString, $criteria));
-        $numOrLivrerIncomplet = $this->orEnString($this->magasinListOrLivrerModel->recupOrLivrerIncomplet($numOrValideItvString, $numOrValideString, $criteria));
-        $numOrLivrerTout = $this->orEnString($this->magasinListOrLivrerModel->recupOrLivrerTout($numOrValideItvString, $numOrValideString, $criteria));
+        $magasinListOrLivrerModel = new MagasinListeOrLivrerModel();
 
-        return  [
-            "numOrLivrerComplet" => $numOrLivrerComplet,
-            "numOrLivrerIncomplet" => $numOrLivrerIncomplet,
-            "numOrLivrerTout" => $numOrLivrerTout,
-            "numOrValideString" => $numOrValideItvString
-        ];
-    }
+        /** @var string $numeroOrsItv @var string $numeroOr */
+        [$numeroOrsItv, $numeroOr] = $this->recupNumOrSelonCondition($criteria);
 
-    // private function numeroOrValide($numeroOrs, $magasinModel, $em)
-    // {
-    //     $numOrValide = [];
-    //     foreach ($numeroOrs as $numeroOr) {
-    //         $numItv = $em->getRepository(DitOrsSoumisAValidation::class)->findNumItvValide($numeroOr['numero_or']);
-    //         if(!empty($numItv)){
-    //             $numItvs = $magasinModel->recupNumeroItv($numeroOr['numero_or'],$this->orEnString($numItv));
-    //             if($numItvs[0]['nbitv'] === "0"){
-    //                 $numOrValide[] = $numeroOr;
-    //             }
-    //         }
-    //     }
+        $data = $magasinListOrLivrerModel->recupereListeMaterielValider($criteria, $numeroOrsItv, $numeroOr);
 
-    //     return $numOrValide;
-    // }
-
-    private function recupNumORItvValide($numeroOrs, $em)
-    {
-        $numOrValideItv = [];
-        $numOrValide = [];
-        foreach ($numeroOrs as $numeroOr) {
-            $numItv = $em->getRepository(DitOrsSoumisAValidation::class)->findNumItvValide($numeroOr['numero_or']);
-            
-            if(!empty($numItv)){
-                foreach ($numItv as  $value) {
-                    $numOrValideItv[] = $numeroOr['numero_or'].'-'.$value;
-                    $numOrValide[] = $numeroOr['numero_or'];
-                }
+        //ajouter le numero dit dans data
+        for ($i = 0; $i < count($data); $i++) {
+            $ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $data[$i]['referencedit']]);
+            if (!empty($ditRepository)) {
+                $data[$i]['niveauUrgence'] = $ditRepository->getIdNiveauUrgence()->getDescription();
+            } else {
+                break;
             }
         }
+        return $data;
+    }
+
+    private function recupNumOrSelonCondition(array $criteria): array
+    {
+        $magasinModel = new MagasinListeOrATraiterModel();
+        /** @var array $numeroOrsItv @var array $numeroOr */
+        [$numeroOrsItv, $numeroOr] = $magasinModel->recupNumOr($criteria);
+
         return [
-            'numeroOr_itv' => $numOrValideItv,
-            'numeroOr' => $numOrValide
+            TableauEnStringService::orEnString($numeroOrsItv),
+            TableauEnStringService::orEnString($numeroOr)
         ];
     }
 }

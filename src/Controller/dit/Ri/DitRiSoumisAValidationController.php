@@ -6,6 +6,7 @@ ini_set('upload_max_filesize', '5M');
 ini_set('post_max_size', '5M');
 
 use App\Controller\Controller;
+use Symfony\Component\Form\FormInterface;
 use App\Entity\dit\DitRiSoumisAValidation;
 use App\Form\dit\DitRiSoumisAValidationType;
 use App\Service\fichier\TraitementDeFichier;
@@ -88,7 +89,7 @@ class DitRiSoumisAValidationController extends Controller
             // Récupérer les valeurs des cases cochées
             $itvCoches = $this->itvCocher($itvAfficher, $form);
 
-            $conditionDeBlocage = $this->conditionDeBlocageSoumission($ditRiSoumisAValidationModel, $ditRiSoumiAValidation, $numOr, $itvCoches, $itvDejaSoumis);
+            $conditionDeBlocage = $this->conditionDeBlocageSoumission($ditRiSoumisAValidationModel, $ditRiSoumiAValidation, $numOr, $itvCoches, $itvDejaSoumis, $numDit);
 
             if ($this->blocage($conditionDeBlocage)) {
 
@@ -100,50 +101,10 @@ class DitRiSoumisAValidationController extends Controller
 
 
                 // ENREGISTRE LE FICHIER
-                /** @var UploadedFile $file */
-                $file = $form->get("pieceJoint01")->getData();
-
-                $nomDesFichiers = []; // Pour stocker les noms de fichiers générés
-
-                if ($file) {
-                    try {
-                        // Créer un fichier temporaire
-                        $tempFile = tempnam(sys_get_temp_dir(), 'upload_');
-                        copy($file->getPathname(), $tempFile);
-
-                        foreach ($itvCoches as $value) {
-                            try {
-                                // Génération du nom de fichier unique
-                                $fileName = 'RI_' . $dataForm->getNumeroOR() . '-' . $value . '.' . $file->getClientOriginalExtension();
-                                $targetPath = $this->cheminDeBase . $fileName;
-
-                                // Copier vers la destination
-                                if (!copy($tempFile, $targetPath)) {
-                                    throw new \Exception('Erreur lors de la copie du fichier vers ' . $targetPath);
-                                }
-
-                                // Ajouter le nom du fichier au tableau
-                                $nomDesFichiers[] = $fileName;
-                            } catch (\Exception $e) {
-                                $message = 'Le fichier n\'a pas pu être copié pour la valeur : ' . $value;
-                                $this->historiqueOperation->sendNotificationSoumission($message, $fileName ?? '-', 'dit_index');
-                            }
-                        }
-
-                        // Supprimer le fichier temporaire après usage
-                        unlink($tempFile);
-                    } catch (\Exception $e) {
-                        $message = 'Le fichier n\'a pas pu être traité.';
-                        $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
-                    }
-                } else {
-                    // Aucun fichier sélectionné
-                    $message = 'Aucun fichier n\'a été sélectionné.';
-                    $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
-                }
+                $this->traiterFichierJoint($form, $dataForm, $itvCoches);
 
 
-                foreach ($itvCoches as $value) {
+                foreach ($itvCoches as $itv) {
                     $riSoumisAValidation = new DitRiSoumisAValidation();
                     $riSoumisAValidation
                         ->setNumeroDit($numDit)
@@ -151,13 +112,13 @@ class DitRiSoumisAValidationController extends Controller
                         ->setHeureSoumission($this->getTime())
                         ->setDateSoumission(new \DateTime($this->getDatesystem()))
                         ->setNumeroSoumission($numeroSoumission)
-                        ->setNumeroItv((int)$value)
+                        ->setNumeroItv((int)$itv)
                     ;
                     // Persist les entités liées
                     $this->getEntityManager()->persist($riSoumisAValidation);
 
                     // Génération du PDF
-                    $genererPdfRi->copyToDwRiSoumis($value, $riSoumisAValidation->getNumeroOR());
+                    $genererPdfRi->copyToDwRiSoumis($itv, $riSoumisAValidation->getNumeroOR());
                 }
 
                 /** ENVOIE des DONNEE dans BASE DE DONNEE */
@@ -169,6 +130,97 @@ class DitRiSoumisAValidationController extends Controller
         }
     }
 
+    // Remplacer les lignes 102-143 par :
+    private function traiterFichierJoint(FormInterface $form, $dataForm, $itvCoches): array
+    {
+        $file = $form->get("pieceJoint01")->getData();
+        $nomDesFichiers = [];
+
+        if (!$file) {
+            $this->historiqueOperation->sendNotificationSoumission(
+                'Aucun fichier n\'a été sélectionné.',
+                '-',
+                'dit_index'
+            );
+            return $nomDesFichiers;
+        }
+
+        // Validation du fichier
+        if (!$this->validerFichier($file)) {
+            return $nomDesFichiers;
+        }
+
+        if (empty($itvCoches)) {
+            return $nomDesFichiers;
+        }
+
+        // On prend le premier ITV pour faire l'upload initial
+        $firstItv = $itvCoches[0];
+        $originalFileName = '';
+
+        try {
+            $originalFileName = $this->genererNomFichier($dataForm->getNumeroOR(), $firstItv, $file);
+            $this->traitementDeFichier->upload($file, $this->cheminDeBase, $originalFileName);
+            $nomDesFichiers[] = $originalFileName;
+            $sourcePath = $this->cheminDeBase . $originalFileName;
+
+            // On copie le fichier pour les autres ITVs
+            for ($i = 1; $i < count($itvCoches); $i++) {
+                $itv = $itvCoches[$i];
+                $newFileName = $this->genererNomFichier($dataForm->getNumeroOR(), $itv, $file);
+                $destinationPath = $this->cheminDeBase . $newFileName;
+                if (copy($sourcePath, $destinationPath)) {
+                    $nomDesFichiers[] = $newFileName;
+                } else {
+                    $this->historiqueOperation->sendNotificationSoumission(
+                        'Le fichier n\'a pas pu être copié pour l\'intervention : ' . $itv,
+                        $newFileName,
+                        'dit_index'
+                    );
+                }
+            }
+        } catch (\Exception $e) {
+            $this->historiqueOperation->sendNotificationSoumission(
+                'Erreur lors du traitement du fichier pour l\'intervention : ' . $firstItv,
+                $originalFileName ?: '-',
+                'dit_index'
+            );
+        }
+
+        return $nomDesFichiers;
+    }
+
+    private function validerFichier(UploadedFile $file): bool
+    {
+        // Validation de la taille (5MB max)
+        if ($file->getSize() > 5 * 1024 * 1024) {
+            $this->historiqueOperation->sendNotificationSoumission(
+                'Le fichier est trop volumineux (max 5MB)',
+                $file->getClientOriginalName(),
+                'dit_index'
+            );
+            return false;
+        }
+
+        // Validation du type MIME
+        $typesAutorises = ['application/pdf', 'image/jpeg', 'image/png'];
+        if (!in_array($file->getMimeType(), $typesAutorises)) {
+            $this->historiqueOperation->sendNotificationSoumission(
+                'Type de fichier non autorisé',
+                $file->getClientOriginalName(),
+                'dit_index'
+            );
+            return false;
+        }
+
+        return true;
+    }
+
+    private function genererNomFichier(string $numeroOR, int $itv, UploadedFile $file): string
+    {
+        $extension = $file->getClientOriginalExtension();
+        return sprintf('RI_%s-%d.%s', $numeroOR, $itv, $extension);
+    }
     private function insertionInfoUtile($dataForm, $ditRiSoumiAValidation, $numeroSoumission, $numDit)
     {
         $ditRiSoumiAValidation
@@ -194,7 +246,7 @@ class DitRiSoumisAValidationController extends Controller
         return $itvCoches;
     }
 
-    private function conditionDeBlocageSoumission($ditRiSoumisAValidationModel, $ditRiSoumiAValidation, $numOr, $itvCoches, $itvDejaSoumis): array
+    private function conditionDeBlocageSoumission($ditRiSoumisAValidationModel, $ditRiSoumiAValidation, $numOr, $itvCoches, $itvDejaSoumis, $numDit): array
     {
         //tous les numéros d'intervention pour cette OR
         $toutNumeroItv = $ditRiSoumisAValidationModel->recupNumeroItv($numOr);

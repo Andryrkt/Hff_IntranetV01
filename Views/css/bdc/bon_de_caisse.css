@@ -1,0 +1,91 @@
+/*
+* pour le spiner
+*/
+.spinner {
+  position: relative;
+  width: 10px; /* Taille totale du spinner */
+  height: 10px;
+  margin-left: 15px;
+}
+
+.spinner div {
+  position: absolute;
+  width: 2px; /* Largeur des barres */
+  height: 5px; /* Hauteur des barres */
+  background: #000; /* Couleur par défaut */
+  border-radius: 3px; /* Coins arrondis pour les barres */
+  transform-origin: center 10px; /* Point autour duquel les barres tournent */
+  animation: fade 1.2s linear infinite; /* Animation de disparition et réapparition */
+}
+
+/* Positionnement des barres autour du cercle */
+.spinner div:nth-child(1) {
+  transform: rotate(0deg);
+  animation-delay: -1.1s;
+}
+
+.spinner div:nth-child(2) {
+  transform: rotate(30deg);
+  animation-delay: -1s;
+}
+
+.spinner div:nth-child(3) {
+  transform: rotate(60deg);
+  animation-delay: -0.9s;
+}
+
+.spinner div:nth-child(4) {
+  transform: rotate(90deg);
+  animation-delay: -0.8s;
+}
+
+.spinner div:nth-child(5) {
+  transform: rotate(120deg);
+  animation-delay: -0.7s;
+}
+
+.spinner div:nth-child(6) {
+  transform: rotate(150deg);
+  animation-delay: -0.6s;
+}
+
+.spinner div:nth-child(7) {
+  transform: rotate(180deg);
+  animation-delay: -0.5s;
+}
+
+.spinner div:nth-child(8) {
+  transform: rotate(210deg);
+  animation-delay: -0.4s;
+}
+
+.spinner div:nth-child(9) {
+  transform: rotate(240deg);
+  animation-delay: -0.3s;
+}
+
+.spinner div:nth-child(10) {
+  transform: rotate(270deg);
+  animation-delay: -0.2s;
+}
+
+.spinner div:nth-child(11) {
+  transform: rotate(300deg);
+  animation-delay: -0.1s;
+}
+
+.spinner div:nth-child(12) {
+  transform: rotate(330deg);
+  animation-delay: 0s;
+}
+
+/* Animation de disparition progressive */
+@keyframes fade {
+  0%,
+  100% {
+    opacity: 0.2; /* Les barres commencent et terminent pâles */
+  }
+  50% {
+    opacity: 1; /* La barre devient complètement opaque */
+  }
+}

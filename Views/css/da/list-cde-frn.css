@@ -1,0 +1,40 @@
+/* Checkbox moderne sans image */
+input.modern-checkbox {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  background-color: #f5f5f5;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* Hover */
+input.modern-checkbox:hover {
+  border-color: #b5a45c; /* une nuance élégante du doré vers gris */
+}
+
+/* Checked */
+input.modern-checkbox:checked {
+  background-color: #fbbb01; /* variante douce de #fbbb01 */
+  border-color: #d8b951;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 8l3 3 5-5' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.clickable-td {
+  cursor: pointer;
+}
+
+/* Style de base pour les cellules actives */
+.td-active {
+  background-color: rgba(0, 0, 0, 0.1) !important; /* conservé */
+  border-bottom: 1px solid white;
+  transition: all 0.3s ease-in-out;
+  position: relative; /* nécessaire pour l'animation */
+  overflow: hidden; /* pour éviter débordement du gradient */
+}

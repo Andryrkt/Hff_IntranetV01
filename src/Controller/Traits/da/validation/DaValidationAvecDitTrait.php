@@ -2,9 +2,9 @@
 
 namespace App\Controller\Traits\da\validation;
 
-use App\Entity\dit\DemandeIntervention;
 use App\Repository\dit\DitRepository;
-use App\Service\genererPdf\GenererPdfDaAvecDit;
+use App\Entity\dit\DemandeIntervention;
+use App\Service\genererPdf\da\GenererPdfDaAvecDit;
 
 trait DaValidationAvecDitTrait
 {
@@ -12,6 +12,7 @@ trait DaValidationAvecDitTrait
 
     //====================================================================================================
     private DitRepository $ditRepository;
+    private GenererPdfDaAvecDit $genererPdfDaAvecDit;
 
     /**
      * Initialise les valeurs par défaut du trait
@@ -20,6 +21,7 @@ trait DaValidationAvecDitTrait
     {
         $em = $this->getEntityManager();
         $this->initDaTrait();
+        $this->genererPdfDaAvecDit = new GenererPdfDaAvecDit;
         $this->ditRepository = $em->getRepository(DemandeIntervention::class);
     }
     //====================================================================================================
@@ -50,9 +52,8 @@ trait DaValidationAvecDitTrait
      */
     private function creationPDFAvecDit(string $numDa): void
     {
-        $genererPdfDaAvecDit = new GenererPdfDaAvecDit;
         $da = $this->demandeApproRepository->findAvecDernieresDALetLRParNumero($numDa);
         $dit = $this->ditRepository->findOneBy(['numeroDemandeIntervention' => $da->getNumeroDemandeDit()]);
-        $genererPdfDaAvecDit->genererPdf($dit, $da, $this->getUserMail());
+        $this->genererPdfDaAvecDit->genererPdfBonAchatValide($dit, $da, $this->getUserMail());
     }
 }

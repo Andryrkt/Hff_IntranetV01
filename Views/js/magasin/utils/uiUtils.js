@@ -20,7 +20,7 @@ export function applyRowspanAndClass(
       // Appliquer le rowspan et ajouter une classe
       cell.rowSpan = rowSpanCount;
       cell.classList.add("rowspan-cell");
-      console.log("Appliquer rowspan à", row, "avec", rowSpanCount);
+      // console.log("Appliquer rowspan à", row, "avec", rowSpanCount);
 
       // Si la clé est `ditNumber`, ajouter un rectangle
       if (key === "ditNumber" && fetchFunction && addInfo) {

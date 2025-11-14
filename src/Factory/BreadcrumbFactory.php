@@ -120,7 +120,7 @@ class BreadcrumbFactory
             'soumission-or'                         => 'Soumission - Ordre de Réparation',
             'soumission-ri'                         => 'Soumission - Rapport d\'intervention',
             'trop-percu'                            => 'DOM Trop perçu',
-            'sortie-de-pieces-lubs'                 => 'Sortie de pièces LUB',
+            'sortie-de-pieces-lubs'                 => 'Sortie de pièces',
             'bl-soumission'                         => 'Soumission Bon de Livraison',
             'cis-liste-a-livrer'                    => 'Liste des CIS à livrer',
             'cis-liste-a-traiter'                   => 'Liste des CIS à traiter',

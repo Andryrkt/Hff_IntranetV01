@@ -19,3 +19,7 @@ CREATE TABLE DW_FAC_BL (
 
 CREATE NONCLUSTERED INDEX idx_dw_fac_bl_id_fac_bl ON DW_FAC_BL (id_fac_bl);
 CREATE NONCLUSTERED INDEX idx_dw_fac_bl_num_da ON DW_FAC_BL (numero_da);
+
+alter table DW_FAC_BL add nom_fichier_scannee varchar(255) NULL;
+alter table DW_FAC_BL add nom_fichier_dw varchar(255) NULL;
+alter table DW_FAC_BL add numero_bc varchar(50) NULL;

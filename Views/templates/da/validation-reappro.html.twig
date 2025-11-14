@@ -1,0 +1,47 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block title %}
+	Validation d’une DA Réappro
+{% endblock %}
+
+{% block stylesheets %}
+	<link href="{{ App.base_path }}/Views/css/new.css?v=2025.10.22.08.00" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/da/style.css?v=2025.10.22.08.00" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/da/list.css?v=2025.10.22.08.00" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/da/detail.css?v=2025.10.22.08.00" rel="stylesheet"/>
+{% endblock %}
+
+{% import "macroForm.html.twig" as macroForm %}
+
+{% block overlay %}
+	{% include "/shared/_overlay.html.twig"  %}
+{% endblock %}
+
+{% block content %}
+	<div class="container-spaced">
+		<nav>
+			<div class="onglet-head nav nav-tabs" role="tablist">
+				<button class="nav-link active" id="nav-proposition-tab" data-bs-toggle="tab" data-bs-target="#nav-proposition" type="button" role="tab" aria-controls="nav-proposition" aria-selected="true">Validation</button>
+				<button class="nav-link" id="nav-observation-tab" data-bs-toggle="tab" data-bs-target="#nav-observation" type="button" role="tab" aria-controls="nav-observation" aria-selected="false">Observation</button>
+			</div>
+		</nav>
+		<div class="tab-content">
+			<div class="tab-pane fade active show" id="nav-proposition" role="tabpanel" aria-labelledby="nav-proposition-tab">
+				{{ include('da/shared/validation/validation-reappro.html.twig') }}
+			</div>
+			<div class="tab-pane fade" id="nav-observation" role="tabpanel" aria-labelledby="nav-observation-tab">
+				<div class="card border-top-left-radius-0">
+					<div class="card-body">
+						{{ include('da/shared/observation/observation.html.twig') }}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block javascript %}
+	<script src="{{ App.base_path }}/Views/js/da/reappro/daReappro.js?v=2025.10.22.08.00" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/da/validationReappro/validation.js?v=2025.10.22.08.00" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/da/observation/observation.js?v=2025.10.22.08.00" type="module"></script>
+{% endblock %}

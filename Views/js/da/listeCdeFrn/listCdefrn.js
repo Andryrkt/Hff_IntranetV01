@@ -1,4 +1,4 @@
-import { displayOverlay } from "../../utils/spinnerUtils";
+import { displayOverlay } from "../../utils/ui/overlay";
 import { mergeCellsRecursiveTable } from "./tableHandler";
 import { AutoComplete } from "../../utils/AutoComplete.js";
 import { FetchManager } from "../../api/FetchManager.js";
@@ -14,9 +14,9 @@ document.addEventListener("DOMContentLoaded", function () {
    *  2ᵉ appel : colonnes 4-5 selon la colonne 4.
    */
   mergeCellsRecursiveTable([
-    { pivotIndex: 0, columns: [0, 1, 2, 3, 4, 5], insertSeparator: true },
+    { pivotIndex: 0, columns: [0, 1, 2, 3, 4, 5, 22], insertSeparator: true },
     { pivotIndex: 6, columns: [6, 7], insertSeparator: true },
-    { pivotIndex: 8, columns: [8], insertSeparator: true },
+    { pivotIndex: 8, columns: [8, 20], insertSeparator: true },
   ]);
 });
 
@@ -97,6 +97,8 @@ document.addEventListener("contextmenu", function (event) {
   const positionCde = targetCell.dataset.positionCde;
   const positionCdeFacturer = ["FC", "FA", "CP"].includes(positionCde);
 
+  const typeDa = targetCell.dataset.typeDa;
+
   const statutsTelechargeBC = [
     "Validé",
     "A envoyer au fournisseur",
@@ -107,7 +109,7 @@ document.addEventListener("contextmenu", function (event) {
     "Partiellement livré",
   ];
 
-  if (statutsTelechargeBC.includes(statutBc)) {
+  if (statutsTelechargeBC.includes(statutBc) && typeDa != 2) {
     telechargerBcValide(commandeId);
   }
 
@@ -118,22 +120,41 @@ document.addEventListener("contextmenu", function (event) {
     "Tous livrés",
     "Partiellement livré",
   ];
-  if (statutsBcEnvoyer.includes(statutBc)) {
+
+  if (typeDa == 2) {
+    statutAffiche.style.display = "none"; // n'affiche pas le statut BC envoyé au fournisseur
+
+    //desactive une partie du formulaire
+    Array.from(form.elements).forEach((el) => {
+      const value = el.value;
+      console.log(value);
+
+      if (value === "BC" || value === "Facture + BL") {
+        el.disabled = true;
+      } else if (value === "BL Reappro") {
+        // Choose one based on your needs:
+        el.focus(); // Focus the element
+        el.checked = true;
+        el.style.borderColor = "blue";
+      }
+    });
+    form.querySelector("button[type='submit']").classList.remove("disabled"); //changer l'apparence du bouton
+  } else if (statutsBcEnvoyer.includes(statutBc)) {
     statutAffiche.style.display = "block";
     statutAffiche.innerHTML = `
       <p title="cliquer pour confirmer l'envoi"
-         class="text-decoration-none text-dark cursor-pointer bg-success text-white border-0 rounded px-2 py-1">
-         BC envoyé au fournisseur
+          class="text-decoration-none text-dark cursor-pointer bg-success text-white border-0 rounded px-2 py-1">
+          BC envoyé au fournisseur
       </p> <hr/>`;
-    if (statutBc !== "Tous livrés") {
-      //active le formulaire
-      Array.from(form.elements).forEach((el) => (el.disabled = false)); // active tous les champs du formulaire
-      form.querySelector("button[type='submit']").classList.remove("disabled"); //changer l'apparence du bouton
-    } else {
-      //desactive le formulaire
-      Array.from(form.elements).forEach((el) => (el.disabled = true)); // Désactive tous les champs du formulaire
-      form.querySelector("button[type='submit']").classList.add("disabled"); //changer l'apparence du bouton
-    }
+    // if (statutBc !== "Tous livrés") { // selon le demande de hoby rahalahy le 25/09/2025
+    //active le formulaire
+    Array.from(form.elements).forEach((el) => (el.disabled = false)); // active tous les champs du formulaire
+    form.querySelector("button[type='submit']").classList.remove("disabled"); //changer l'apparence du bouton
+    // } else {
+    //   //desactive le formulaire
+    //   Array.from(form.elements).forEach((el) => (el.disabled = true)); // Désactive tous les champs du formulaire
+    //   form.querySelector("button[type='submit']").classList.add("disabled"); //changer l'apparence du bouton
+    // }
   } else if (statutBc == "A envoyer au fournisseur") {
     statutAffiche.style.display = "block";
 
@@ -214,3 +235,49 @@ function telechargerBcValide(commandeId) {
       window.open(`${baseUrl}/api/generer-bc-valider/${commandeId}`);
     });
 }
+
+/** ===================================================
+ * Modal du Date livraison prevu
+ *==================================================*/
+// Attendre que le DOM soit entièrement chargé
+document.addEventListener("DOMContentLoaded", function () {
+  // Sélectionner le modal par son ID
+  const modalDateLivraison = document.getElementById("dateLivraison");
+
+  // Verifier si le modal existe sur la page
+  if (modalDateLivraison) {
+    //Ecouter l'événement 'show.bs.modal' qui est déclenché par Bootstrap
+    // juste avant que le modal se soit affiché.
+    modalDateLivraison.addEventListener("show.bs.modal", function (event) {
+      // event.relatedTarget est l'élément qui a déclenché le modal (notre lien <a>)
+      const button = event.relatedTarget;
+
+      // Récupérer les données depuis les attributs data-* du lien
+      const numeroCde = button.getAttribute("data-numero-cde");
+      const dateActuelle = button.getAttribute("data-date-actuelle");
+
+      // Mise à jour du contenu du modal
+      const modalTitle = modalDateLivraison.querySelector(".modal-title");
+      if (modalTitle) {
+        modalTitle.textContent =
+          "Modifier la date de livraison pour la commande n° : " + numeroCde;
+      }
+
+      // Pré-rempli le champ de date dans le formulaire du modal
+      const dateInput = modalDateLivraison.querySelector(
+        "#da_modal_date_livraison_dateLivraisonPrevue"
+      );
+      if (dateInput) {
+        dateInput.value = dateActuelle;
+      }
+
+      // remplir le champ cacher avec le numero commande
+      const numeroCdeInput = modalDateLivraison.querySelector(
+        "#da_modal_date_livraison_numeroCde"
+      );
+      if (numeroCdeInput) {
+        numeroCdeInput.value = numeroCde;
+      }
+    });
+  }
+});

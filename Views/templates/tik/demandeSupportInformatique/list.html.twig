@@ -1,8 +1,8 @@
 {% extends "baseTemplate.html.twig" %}
 
 {% block stylesheets %}
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.09.15.08.00">
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/tik/liste.css?v=2025.09.15.08.00">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.10.22.08.00">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/tik/liste.css?v=2025.10.22.08.00">
 {% endblock %}
 
 {% import "macroForm.html.twig" as macroForm %}
@@ -21,19 +21,26 @@
 				<i class="fa-solid fa-circle statut-ouvert"></i>
 				<small class="">OUVERT |</small>
 				<i class="fa-solid fa-circle statut-en-attente"></i>
-				<small class="statut-en-attente">EN ATTENTE</small> |
+				<small class="statut-en-attente">EN ATTENTE</small>
+				|
 				<i class="fa-solid fa-circle statut-refuse"></i>
-				<small class="statut-refuse">REFUSE</small> |
+				<small class="statut-refuse">REFUSE</small>
+				|
 				<i class="fa-solid fa-circle statut-en-cours"></i>
-				<small class="statut-en-cours">EN COURS</small> |
+				<small class="statut-en-cours">EN COURS</small>
+				|
 				<i class="fa-solid fa-circle statut-planifie"></i>
-				<small class="statut-planifie">PLANIFIE</small> |
+				<small class="statut-planifie">PLANIFIE</small>
+				|
 				<i class="fa-solid fa-circle text-danger"></i>
-				<small class="text-danger">Hors Date</small> |
+				<small class="text-danger">Hors Date</small>
+				|
 				<i class="fa-solid fa-circle statut-resolu"></i>
-				<small class="statut-resolu">RESOLU</small> |
+				<small class="statut-resolu">RESOLU</small>
+				|
 				<i class="fa-solid fa-circle statut-cloture"></i>
-				<small class="statut-cloture">CLÔTURE</small> |
+				<small class="statut-cloture">CLÔTURE</small>
+				|
 				<i class="fa-solid fa-circle statut-reouvert"></i>
 				<small class="statut-reouvert">REOUVERT</small>
 			</div>
@@ -150,6 +157,6 @@
 	{% include "/tik/demandeSupportInformatique/shared/_modalReouverture.html.twig" %}
 {% endblock %}
 {% block javascript %}
-	<script src="{{ App.base_path }}/Views/js/tik/tikListe.js?v=2025.09.15.08.00" type="module"></script>
-	<script src="{{ App.base_path }}/Views/js/tik/tikListeModal.js?v=2025.09.15.08.00" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/tik/tikListe.js?v=2025.10.22.08.00" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/tik/tikListeModal.js?v=2025.10.22.08.00" type="module"></script>
 {% endblock %}

@@ -15,15 +15,15 @@
 					</div>
 					<div class="col-12 col-md-2">
 						{{ macroForm.agence_service_change(form.agence, form.service, 'spinner-service', 'service-container')}}
-						{# {{form_row(form.agence)}} #}
-						{# {{form_row(form.service)}} #}
 						{{ form_label(form.niveauUrgence, '<a href="#" data-bs-toggle="modal" data-bs-target="#niveauUrgence" >Niveau d\'urgence</a>', { 'label_html': true }) }}
 						{{ form_widget(form.niveauUrgence) }}
 					</div>
 					<div class="col-12 col-md-2">
 						{{form_row(form.numDit)}}
 						{{form_row(form.referencePiece)}}
+						
 						{{form_row(form.constructeur)}}
+						
 					</div>
 					<div class="col-12 col-md-2">
 						{{form_row(form.numOr)}}
@@ -32,7 +32,9 @@
 					</div>
 					<div class="col-12 col-md-2">
 						{{form_row(form.orCompletNon)}}
+						<div class="{{ est_pneumatique ? 'd-none' : '' }}">
 						{{form_row(form.pieces)}}
+						</div>
 					</div>
 					<div class="col-12 col-md-2">
 						{{form_row(form.dateDebut)}}

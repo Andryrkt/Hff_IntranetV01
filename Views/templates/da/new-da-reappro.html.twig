@@ -1,0 +1,111 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block title %}
+	Création d’une DA réappro
+{% endblock %}
+
+{% block stylesheets %}
+	<link href="{{ App.base_path }}/Views/css/new.css?v=2025.10.22.08.00" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/da/list.css?v=2025.10.22.08.00" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/da/style.css?v=2025.10.22.08.00" rel="stylesheet"/>
+{% endblock %}
+
+{% import "macroForm.html.twig" as macroForm %}
+{% import "macros/form_macros.html.twig" as formMacros %}
+
+{% block overlay %}
+	{% include "/shared/_overlay.html.twig"  %}
+{% endblock %}
+
+{% block content %}
+	<div class="container mt-6 mb-5">
+		<div class="card">
+			<div class="card-body">
+				{{ form_start(form, { 'attr': { 'id': 'myForm' } }) }}
+				{{ form_errors(form)}}
+				<div class="container-fluid">
+					<div class="row">
+						<h3 class="perso-titre">
+							Formulaire Demande d'achat
+						</h3>
+					</div>
+
+					<div class="row">
+						<div class="col-12 col-md-6">
+							{{ macroForm.sousTitre('Information sur la demande') }}
+							{{ form_row(form.objetDal)}}
+							<div class="mb-3 position-relative">
+								{{ form_row(form.detailDal) }}
+								<span id="charCount" class="position-absolute bottom-0 end-0 p-0 small text-muted"></span>
+							</div>
+							{{ form_row(form.dateFinSouhaite) }}
+						</div>
+						<div class="col-12 col-md-6">
+							{{ macroForm.sousTitre('Agence et service') }}
+							<div class="row">
+								<div class="col-6 col-md-6">
+									{{ macroForm.sousTitre('Emetteur') }}
+									{{ form_row(form.agenceEmetteur) }}
+									{{ form_row(form.serviceEmetteur) }}
+								</div>
+								<div class="col-6 col-md-6">
+									{{ macroForm.sousTitre('Debiteur') }}
+									{{ formMacros.debiteurOuEmetteurFields(form, 'debiteur') }}
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<table class="table rounded table-plein-ecran text-center mt-3 align-middle">
+						<thead class="table-dark align-middle">
+							<tr>
+								<th width="7%">Constructeur</th>
+								<th width="13%">Référence</th>
+								<th>Désignation</th>
+								<th width="10%" class="text-end pe-3">PU</th>
+								<th width="10%">Qté demandé</th>
+								<th width="10%">Qté validé par APPRO</th>
+								<th width="10%" class="text-end pe-3">Montant</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for dalForm in form.DAL %}
+								{% set dal = dalForm.vars.data %}
+								<tr>
+									<td>{{ macroForm.affichageSimple(dal.artConstp, 'text-center') }}</td>
+									<td>{{ macroForm.affichageSimple(dal.artRefp, 'text-center') }}</td>
+									<td>{{ macroForm.affichageSimple(dal.artDesi, 'text-start') }}</td>
+									<td>{{ macroForm.affichageSimple(dal.PUFormatted, 'text-end') }}</td>
+									<td class="text-center" data-dal-pu="{{ dal.prixUnitaire }}" data-dal-qte-valide-app="{{ dal.qteValAppro }}">
+										{{ form_widget(dalForm.qteDem) }}
+									</td>
+									<td>{{ macroForm.affichageSimple(dal.qteValAppro, 'text-center') }}</td>
+									<td>{{ macroForm.affichageSimple(dal.montantFormatted, 'text-end') }}</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+					<div class="row">
+						{{ form_row(form.observation)}}
+					</div>
+				</div>
+
+				<div class="d-flex justify-content-end container-fluid mt-2">
+					<button type="submit" class="bouton-brouillon mx-3" name="enregistrerBrouillon">
+						<i class="fas fa-floppy-disk"></i>
+						Enregistrer provisoirement
+					</button>
+					<button type="submit" class="bouton-principal" name="soumissionAppro">
+						<i class="fas fa-paper-plane"></i>
+						Soumettre la demande
+					</button>
+				</div>
+				{{ form_end(form) }}
+			</div>
+		</div>
+
+	</div>
+{% endblock %}
+{% block javascript %}
+	<script type="module" src="{{ App.base_path }}/Views/js/da/newReappro/new.js?v=2025.10.22.08.00" type="module"></script>
+{% endblock %}

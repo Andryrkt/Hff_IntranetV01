@@ -3,6 +3,7 @@
 namespace App\Model\planning;
 
 
+use Exception;
 use App\Model\Model;
 use App\Model\Traits\ConversionModel;
 use App\Entity\planning\PlanningSearch;
@@ -728,17 +729,6 @@ class PlanningModel extends Model
    */
   public function recuperationNumOrValider($criteria)
   {
-
-    if (!empty($criteria->getNumParc())) {
-      $vconditionNumParc = " AND mmat_recalph = '" . $criteria->getNumParc() . "'";
-    } else {
-      $vconditionNumParc = "";
-    }
-    if (!empty($criteria->getNumSerie())) {
-      $vconditionNumSerie = " AND TRIM(mmat_numserie) = '" . $criteria->getNumSerie() . "' ";
-    } else {
-      $vconditionNumSerie = "";
-    }
     if (!empty($criteria->getNumOr())) {
       $vconditionNumOr = " AND numero_or ='" . $criteria->getNumOr() . "'";
     } else {
@@ -767,25 +757,36 @@ class PlanningModel extends Model
     }
 
 
-    $sql = "SELECT di.numero_or
-            FROM demande_intervention di
-            WHERE (di.date_validation_or IS NOT NULL OR di.date_validation_or = '1900-01-01')
-                AND di.numero_or <> ''
+    $sql = "SELECT distinct CONCAT(numeroOR,'-',numeroItv) as numero_complet , numeroOR as numero_or
+                        from ors_soumis_a_validation o
+                        inner join demande_intervention d on d.numero_or = o.numeroOR
+                        where numeroversion = (select max(numeroversion) from ors_soumis_a_validation oo 
+                        where oo.numeroOR = o.numeroOR) 
+                        and o.statut like 'Valid%'
                   $vconditionTypeDoc
                   $vconditionReparationPar
                   $vconditionNumOr
                   $nivUrg
-            ORDER  BY  numero_or
+            ORDER  BY  numeroOR ASC
                   ";
     // dd($sql);
     $execQueryNumOr = $this->connexion->query($sql);
-    $numOr = array();
 
-    while ($row_num_or = odbc_fetch_array($execQueryNumOr)) {
-      $numOr[] = $row_num_or;
+    if (!$execQueryNumOr) {
+      $error = odbc_errormsg($this->connexion);
+      throw new Exception("Erreur ODBC: " . $error);
     }
 
-    return $numOr;
+
+    $numOr = [];
+    $numORTouCourt = [];
+    while ($row_num_or = odbc_fetch_array($execQueryNumOr)) {
+      $numOr[] = $row_num_or['numero_complet'];
+      $numORTouCourt[] = $row_num_or['numero_or'];
+    }
+
+
+    return [$numOr, $numORTouCourt];
   }
 
 

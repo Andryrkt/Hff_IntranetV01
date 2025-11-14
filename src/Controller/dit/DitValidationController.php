@@ -2,6 +2,7 @@
 
 namespace App\Controller\dit;
 
+use App\Model\dit\DitModel;
 use App\Controller\Controller;
 use App\Form\dit\DitValidationType;
 use App\Entity\admin\utilisateur\User;
@@ -35,8 +36,8 @@ class DitValidationController extends Controller
 
 
         $dit = $this->getEntityManager()->getRepository(DemandeIntervention::class)->find($id);
-
-        $data = $this->getDitModel()->findAll($dit->getIdMateriel(), $dit->getNumParc(), $dit->getNumSerie());
+$ditModel = new DitModel();
+        $data = $ditModel->findAll($dit->getIdMateriel(), $dit->getNumParc(), $dit->getNumSerie());
 
         $dit->setNumParc($data[0]['num_parc']);
         $dit->setNumSerie($data[0]['num_serie']);
@@ -123,7 +124,7 @@ class DitValidationController extends Controller
 
         // dd($dit);
         //RECUPERATION DE LISTE COMMANDE 
-        $commandes = $this->getDitModel()->RecupereCommandeOr($dit->getNumeroOR());
+        $commandes = $ditModel->RecupereCommandeOr($dit->getNumeroOR());
 
         $this->logUserVisit('dit_validationDit', [
             'id'     => $id,

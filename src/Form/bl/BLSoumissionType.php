@@ -4,6 +4,7 @@ namespace App\Form\bl;
 
 use App\Dto\bl\BLSoumissionDto;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Validator\Constraints\Callback;
@@ -13,6 +14,11 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class BLSoumissionType extends AbstractType
 {
+    const TYPE_BL = [
+        "BL interne" => 1,
+        "Facture - BL (clients)" => 2
+    ];
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
@@ -27,7 +33,18 @@ class BLSoumissionType extends AbstractType
                         new Callback([$this, 'validateFiles']),
                     ],
                 ]
-            );
+            )
+            ->add(
+                'typeBl',
+                ChoiceType::class,
+                [
+                    'label' => 'Type de BL',
+                    'required' => true,
+                    'choices' => self::TYPE_BL,
+                    'placeholder' => " -- choisir le type de BL -- "
+                ]
+            )
+        ;
     }
 
     public function validateFiles($files, ExecutionContextInterface $context)

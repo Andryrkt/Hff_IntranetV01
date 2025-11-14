@@ -13,7 +13,7 @@ class DwFactureBonLivraisonRepository extends EntityRepository
     public function getPathByNumDa(string $numeroDa)
     {
         return  $this->createQueryBuilder('d')
-            ->select('d.path', 'd.idFacBl')
+            ->select('d.path', 'd.idFacBl', 'd.nomFichierScannee', 'd.numeroBc')
             ->where('d.numeroDa = :numeroDa')
             ->setParameter('numeroDa', $numeroDa)
             ->orderBy('d.idFacBl', 'ASC')

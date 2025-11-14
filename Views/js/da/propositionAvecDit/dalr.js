@@ -79,6 +79,12 @@ export function ajouterUneLigne(line, fields, iscatalogue) {
       console.log(field.id, field.id.includes("_codeFams"), field.value);
     });
   }
+
+  fields.famille.classList.remove("non-modifiable");
+  fields.sousFamille.classList.remove("non-modifiable");
+  fields.reference.classList.remove("non-modifiable");
+  fields.fournisseur.classList.remove("non-modifiable");
+  fields.designation.classList.remove("non-modifiable");
 }
 
 function insertCellData(row, $data, align = "center", color = "red") {

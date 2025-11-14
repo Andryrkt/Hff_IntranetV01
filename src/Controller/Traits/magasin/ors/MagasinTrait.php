@@ -4,8 +4,6 @@ namespace App\Controller\Traits\magasin\ors;
 
 
 use App\Entity\admin\utilisateur\User;
-use App\Entity\dit\DitOrsSoumisAValidation;
-use App\Model\magasin\MagasinListeOrATraiterModel;
 
 trait MagasinTrait
 {

@@ -5,7 +5,7 @@ import {
   limitInputLength,
   allowOnlyNumbers,
 } from "../../utils/inputUtils";
-import { displayOverlay } from "../../utils/spinnerUtils";
+import { displayOverlay } from "../../utils/ui/overlay";
 import { handleRowClick } from "../propositionAvecDit/dalr";
 
 document.addEventListener("DOMContentLoaded", function () {

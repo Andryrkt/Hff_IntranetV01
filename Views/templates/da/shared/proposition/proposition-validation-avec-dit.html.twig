@@ -9,8 +9,8 @@
 				</h3>
 			</div>
 			<div class="tab-content">
-				{% for DAL in da.DAL %}
-					{{ include('da/shared/proposition/_article-avec-dit.html.twig', { article: DAL, totalPage: da.DAL|length }) }}
+				{% for DAL in demandeAppro.DAL %}
+					{{ include('da/shared/proposition/_article-avec-dit.html.twig', { article: DAL, totalPage: demandeAppro.DAL|length }) }}
 				{% endfor %}
 			</div>
 		</div>
@@ -31,14 +31,20 @@
 			</div>
 			<div class="d-flex justify-content-between mt-2">
 				<div class="d-flex">
-					<div>
+					<div class="me-3">
 						<button type="submit" class="btn bouton mb-2 d-none" id="envoyerSelections" name="enregistrer">
 							Envoyer proposition à l'ATE
 							<i class="fa-solid fa-square-arrow-up-right"></i>
 						</button>
 					</div>
 					<div>
-						<a href="{{ path("da_edit_avec_dit", {id: da.id})}}" class="btn bouton mb-2 {{ estAte and not nePeutPasModifier ? '' : 'd-none'}}" target="_blank">
+						<button type="submit" class="btn bouton-brouillon mb-2 d-none" id="enregistrerDraft" name="brouillon">
+							Enregistrer provisoirement les propositions
+							<i class="fas fa-floppy-disk"></i>
+						</button>
+					</div>
+					<div>
+						<a href="{{ path("da_edit_avec_dit", {id: demandeAppro.id})}}" class="btn bouton mb-2 {{ estAte and not nePeutPasModifier ? '' : 'd-none'}}" target="_blank">
 							Modifier la demande
 						</a>
 						<button type="submit" class="btn bouton mb-2 d-none" name="observation">

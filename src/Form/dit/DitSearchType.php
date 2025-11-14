@@ -40,6 +40,18 @@ class DitSearchType extends AbstractType
         'A valider client interne' => 'A valider client interne'
     ];
 
+    const REPARATION_REALISE = [
+        'ATE TANA' => 'ATE TANA',
+        'ATE POL TANA' => 'ATE POL TANA',
+        'ATE STAR' => 'ATE STAR',
+        'ATE MAS' => 'ATE MAS',
+        'ATE TMV' => 'ATE TMV',
+        'ATE FTU' => 'ATE FTU',
+        'ATE ABV' => 'ATE ABV',
+        'ATE LEV' => 'ATE LEV',
+        'ENERGIE MAN' => 'ENERGIE MAN'
+    ];
+
     private $agenceRepository;
 
     private $ditSearchRepository;
@@ -284,6 +296,16 @@ class DitSearchType extends AbstractType
                 [
                     'label' => 'N° devis',
                     'required' => false
+                ]
+            )
+            ->add(
+                'reparationRealise',
+                ChoiceType::class,
+                [
+                    'label' => "Réalisé par",
+                    'choices' => self::REPARATION_REALISE,
+                    'placeholder' => '-- Choisir le répartion réalisé --',
+                    'required' => false,
                 ]
             )
         ;

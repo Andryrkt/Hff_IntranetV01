@@ -1,0 +1,71 @@
+<style>
+	.pagination.custom-pagination .page-link {
+		background-color: #000; /* Fond noir */
+		color: #fbbb01; /* Texte jaune personnalisé */
+		border: 1px solid #333; /* Bordure gris foncé */
+		transition: all 0.2s ease;
+	}
+
+	.pagination.custom-pagination .page-link:hover {
+		background-color: #111; /* Un peu plus clair au survol */
+		color: #ffcc33; /* Jaune plus clair au hover */
+	}
+
+	.pagination.custom-pagination .page-item.active .page-link {
+		background-color: #fbbb01; /* Fond jaune actif */
+		color: #000; /* Texte noir */
+		border-color: #fbbb01;
+		font-weight: bold;
+	}
+
+	.pagination.custom-pagination .page-item.disabled .page-link {
+		background-color: #222; /* Fond gris sombre pour "..." */
+		color: #666; /* Texte gris */
+		border-color: #333;
+	}
+</style>
+
+<ul class="pagination custom-pagination justify-content-center mt-3">
+	{% if currentPage > 1 %}
+		<li class="page-item">
+			<a href="?page={{ currentPage - 1 }}" class="page-link">Précédent</a>
+		</li>
+	{% endif %}
+
+	{% set start = max(currentPage - 2, 1) %}
+	{% set end = min(currentPage + 2, totalPages) %}
+
+	{% if start > 1 %}
+		<li class="page-item">
+			<a href="?page=1" class="page-link">1</a>
+		</li>
+		{% if start > 2 %}
+			<li class="page-item disabled">
+				<span class="page-link">...</span>
+			</li>
+		{% endif %}
+	{% endif %}
+
+	{% for i in start..end %}
+		<li class="page-item {% if i == currentPage %}active{% endif %}">
+			<a href="?page={{ i }}" class="page-link">{{ i }}</a>
+		</li>
+	{% endfor %}
+
+	{% if end < totalPages %}
+		{% if end < totalPages - 1 %}
+			<li class="page-item disabled">
+				<span class="page-link">...</span>
+			</li>
+		{% endif %}
+		<li class="page-item">
+			<a href="?page={{ totalPages }}" class="page-link">{{ totalPages }}</a>
+		</li>
+	{% endif %}
+
+	{% if currentPage < totalPages %}
+		<li class="page-item">
+			<a href="?page={{ currentPage + 1 }}" class="page-link">Suivant</a>
+		</li>
+	{% endif %}
+</ul>

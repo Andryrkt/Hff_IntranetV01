@@ -3,10 +3,12 @@
 namespace App\Form\da\daCdeFrn;
 
 
+use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaSoumissionBc;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Component\Form\AbstractType;
 use App\Entity\admin\dit\WorNiveauUrgence;
+use App\Factory\da\CdeFrnDto\CdeFrnSearchDto;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -27,9 +29,14 @@ class CdeFrnListType extends  AbstractType
     ];
 
     private const TYPE_ACHAT = [
-        'Tous'     => 'tous',
-        'Avec DIT' => 'avec_dit',
-        'Direct'   => 'direct',
+        'DA Avec DIT' => DemandeAppro::TYPE_DA_AVEC_DIT,
+        'DA Direct'   => DemandeAppro::TYPE_DA_DIRECT,
+        'DA reappro'  => DemandeAppro::TYPE_DA_REAPPRO,
+    ];
+
+    private const TRI_NBR_JOURS =  [
+        'Ordre croissant'   => 'asc',
+        'Ordre décroissant' => 'desc',
     ];
 
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -41,7 +48,7 @@ class CdeFrnListType extends  AbstractType
             ])
             ->add('typeAchat', ChoiceType::class, [
                 'label'       => 'Type de la demande d\'achat',
-                'placeholder' => '-- Choisir le type --',
+                'placeholder' => '-- Choisir le type de la DA --',
                 'choices'     => self::TYPE_ACHAT,
                 'required'    => false
             ])
@@ -118,11 +125,19 @@ class CdeFrnListType extends  AbstractType
                 'label' => 'Date fin fin souhaité',
                 'required' => false,
             ])
+            ->add('sortNbJours', ChoiceType::class, [
+                'placeholder'   => '-- Choisir un tri --',
+                'label'         => 'Tri par Nbr Jour(s)',
+                'choices'       => self::TRI_NBR_JOURS,
+                'required'      => false
+            ])
         ;
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setDefaults([]);
+        $resolver->setDefaults([
+            'data_class' => CdeFrnSearchDto::class
+        ]);
     }
 }

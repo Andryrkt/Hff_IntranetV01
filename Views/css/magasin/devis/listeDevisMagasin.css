@@ -2,104 +2,139 @@
 * pour le spiner
 */
 .spinner {
-    position: relative;
-    width: 10px; /* Taille totale du spinner */
-    height: 10px;
-    margin-left: 15px;
-  }
-  
-  .spinner div {
-    position: absolute;
-    width: 2px; /* Largeur des barres */
-    height: 5px; /* Hauteur des barres */
-    background: #000; /* Couleur par défaut */
-    border-radius: 3px; /* Coins arrondis pour les barres */
-    transform-origin: center 10px; /* Point autour duquel les barres tournent */
-    animation: fade 1.2s linear infinite; /* Animation de disparition et réapparition */
-  }
-  
-  /* Positionnement des barres autour du cercle */
-  .spinner div:nth-child(1) {
-    transform: rotate(0deg);
-    animation-delay: -1.1s;
-  }
-  
-  .spinner div:nth-child(2) {
-    transform: rotate(30deg);
-    animation-delay: -1s;
-  }
-  
-  .spinner div:nth-child(3) {
-    transform: rotate(60deg);
-    animation-delay: -0.9s;
-  }
-  
-  .spinner div:nth-child(4) {
-    transform: rotate(90deg);
-    animation-delay: -0.8s;
-  }
-  
-  .spinner div:nth-child(5) {
-    transform: rotate(120deg);
-    animation-delay: -0.7s;
-  }
-  
-  .spinner div:nth-child(6) {
-    transform: rotate(150deg);
-    animation-delay: -0.6s;
-  }
-  
-  .spinner div:nth-child(7) {
-    transform: rotate(180deg);
-    animation-delay: -0.5s;
-  }
-  
-  .spinner div:nth-child(8) {
-    transform: rotate(210deg);
-    animation-delay: -0.4s;
-  }
-  
-  .spinner div:nth-child(9) {
-    transform: rotate(240deg);
-    animation-delay: -0.3s;
-  }
-  
-  .spinner div:nth-child(10) {
-    transform: rotate(270deg);
-    animation-delay: -0.2s;
-  }
-  
-  .spinner div:nth-child(11) {
-    transform: rotate(300deg);
-    animation-delay: -0.1s;
-  }
-  
-  .spinner div:nth-child(12) {
-    transform: rotate(330deg);
-    animation-delay: 0s;
-  }
-  
-  /* Animation de disparition progressive */
-  @keyframes fade {
-    0%,
-    100% {
-      opacity: 0.2; /* Les barres commencent et terminent pâles */
-    }
-    50% {
-      opacity: 1; /* La barre devient complètement opaque */
-    }
-  }
+  position: relative;
+  width: 10px; /* Taille totale du spinner */
+  height: 10px;
+  margin-left: 15px;
+}
 
-  /**  COLORATION STATUT DEVIS MAGASIN */
-  .bg-prix-a-confirmer {
-    background-color: #ffc107!important;
+.spinner div {
+  position: absolute;
+  width: 2px; /* Largeur des barres */
+  height: 5px; /* Hauteur des barres */
+  background: #000; /* Couleur par défaut */
+  border-radius: 3px; /* Coins arrondis pour les barres */
+  transform-origin: center 10px; /* Point autour duquel les barres tournent */
+  animation: fade 1.2s linear infinite; /* Animation de disparition et réapparition */
+}
+
+/* Positionnement des barres autour du cercle */
+.spinner div:nth-child(1) {
+  transform: rotate(0deg);
+  animation-delay: -1.1s;
+}
+
+.spinner div:nth-child(2) {
+  transform: rotate(30deg);
+  animation-delay: -1s;
+}
+
+.spinner div:nth-child(3) {
+  transform: rotate(60deg);
+  animation-delay: -0.9s;
+}
+
+.spinner div:nth-child(4) {
+  transform: rotate(90deg);
+  animation-delay: -0.8s;
+}
+
+.spinner div:nth-child(5) {
+  transform: rotate(120deg);
+  animation-delay: -0.7s;
+}
+
+.spinner div:nth-child(6) {
+  transform: rotate(150deg);
+  animation-delay: -0.6s;
+}
+
+.spinner div:nth-child(7) {
+  transform: rotate(180deg);
+  animation-delay: -0.5s;
+}
+
+.spinner div:nth-child(8) {
+  transform: rotate(210deg);
+  animation-delay: -0.4s;
+}
+
+.spinner div:nth-child(9) {
+  transform: rotate(240deg);
+  animation-delay: -0.3s;
+}
+
+.spinner div:nth-child(10) {
+  transform: rotate(270deg);
+  animation-delay: -0.2s;
+}
+
+.spinner div:nth-child(11) {
+  transform: rotate(300deg);
+  animation-delay: -0.1s;
+}
+
+.spinner div:nth-child(12) {
+  transform: rotate(330deg);
+  animation-delay: 0s;
+}
+
+/* Animation de disparition progressive */
+@keyframes fade {
+  0%,
+  100% {
+    opacity: 0.2; /* Les barres commencent et terminent pâles */
   }
-  .bg-prix-valider-magasin {
-    background-color: #28a745!important;
+  50% {
+    opacity: 1; /* La barre devient complètement opaque */
   }
-  .bg-prix-refuse-magasin {
-    background-color: #dc3545!important;
-  }
-  .bg-demande-refuse-par-pm {
-    background-color: #6c757d!important;
-  }
+}
+
+/**  COLORATION STATUT DEVIS MAGASIN */
+.bg-prix-a-confirmer {
+  background-color: #ffc107 !important;
+}
+.bg-prix-valider-tana {
+  background-color: #28a745 !important;
+}
+.bg-prix-modifier-tana {
+  background-color: #dc3545 !important;
+}
+.bg-prix-valider-agence {
+  background-color: #28a745 !important;
+}
+.bg-prix-modifier-agence {
+  background-color: #dc3545 !important;
+}
+.bg-demande-refuse-par-pm {
+  background-color: #6c757d !important;
+}
+.bg-a-valider-chef-agence {
+  background-color: #ffc107 !important;
+}
+.bg-valide-agence {
+  background-color: #28a745 !important;
+}
+.bg-envoyer-client {
+  background-color: #007bff !important;
+}
+.bg-cloturer-a-modifier {
+  background-color: #6c757d !important;
+}
+.bg-a-traiter {
+  background-color: #fb335b !important;
+  color: aliceblue !important;
+}
+
+
+/* statut BC */
+.bg-bc-soumis-validation {
+  background-color: #ffc107 !important;
+}
+.bg-bc-en-attente {
+  background-color: #00ff9d !important;
+}
+.bg-bc-valide {
+  background-color: #034112 !important;
+}
+

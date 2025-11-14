@@ -82,7 +82,7 @@
 	<input type="hidden" name="numeroFournisseur_{{ currentPage }}" id="numeroFournisseur_{{ currentPage }}" value="{{ article.numeroFournisseur }}">
 
 	{{ macroForm.sousTitre3(estCreateurDaDirecte ? 'Article(s) proposée(s) par l’APPRO' : 'Proposition d’une article', { "class": "mt-3" }) }}
-	<div class="{{ estCreateurDaDirecte ? 'd-none' : ''}}">
+	<div class="{{ estAppro ? '' : 'd-none'}}">
 		<div class="row">
 			<input id="demande_appro_proposition_codeFams1_{{ currentPage }}" class="d-none">
 			<input id="demande_appro_proposition_codeFams2_{{ currentPage }}" class="d-none">
@@ -90,7 +90,7 @@
 			<div class="col-3 col-md-3">
 				<div class="mb-2">
 					<label for="demande_appro_proposition_reference_{{ currentPage }}" class="form-label mb-0">Référence ZDI (*)</label>
-					<input type="text" id="demande_appro_proposition_reference_{{ currentPage }}" class="form-control">
+					<input type="text" id="demande_appro_proposition_reference_{{ currentPage }}" class="form-control" autocomplete="off">
 					<div id="suggestion_reference_{{ currentPage }}" class="suggestions-container"></div>
 					<div id="spinner_container_reference_{{ currentPage }}" class="spinner invisible" style="display: none;"></div>
 				</div>
@@ -100,7 +100,7 @@
 					<div class="col-8 col-md-8">
 						<div class="mb-2">
 							<label for="demande_appro_proposition_designation_{{ currentPage }}" class="form-label mb-0">Désignation (*)</label>
-							<input type="text" id="demande_appro_proposition_designation_{{ currentPage }}" class="form-control" value="{{ article.artDesi }}">
+							<input type="text" id="demande_appro_proposition_designation_{{ currentPage }}" class="form-control" value="{{ article.artDesi }}" autocomplete="off">
 							<div id="suggestion_designation_{{ currentPage }}" class="suggestions-container"></div>
 							<div id="spinner_container_designation_{{ currentPage }}" class="text-center" style="display: none;">
 								<div class="text-overlay">
@@ -113,7 +113,7 @@
 					<div class="col-4 col-md-4">
 						<div class="mb-2">
 							<label for="demande_appro_proposition_fournisseur_{{ currentPage }}" class="form-label mb-0">Nom du fournisseur (*)</label>
-							<input type="text" id="demande_appro_proposition_fournisseur_{{ currentPage }}" class="form-control">
+							<input type="text" id="demande_appro_proposition_fournisseur_{{ currentPage }}" class="form-control" autocomplete="off">
 							<div id="suggestion_fournisseur_{{ currentPage }}" class="suggestions-container"></div>
 							<div id="spinner_container__fournisseur_{{ currentPage }}" class="spinner invisible" style="display: none;"></div>
 						</div>
@@ -149,7 +149,7 @@
 		<input type="text" id="demande_appro_proposition_found_{{ currentPage }}" class="form-control d-none">
 
 		<div class="d-flex justify-content-end">
-			<button type="button" id="add_line_{{ currentPage }}" class="btn bouton mt-2 {{ estCreateurDaDirecte ? 'd-none':''}}">
+			<button type="button" id="add_line_{{ currentPage }}" class="btn bouton mt-2 {{ estAppro ? '' : 'd-none' }}">
 				<i class="fas fa-plus"></i>
 				Ajouter l'article
 			</button>

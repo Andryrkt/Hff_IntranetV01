@@ -10,7 +10,7 @@ class ListeDevisMagasinModel extends Model
 {
     public function getDevis(array $criteria = [])
     {
-        $statement = "SELECT
+        $statement = "SELECT FIRST 100
             -- '' as statut_dw
             nent_numcde as numero_devis
             ,nent_datecde as date_creation
@@ -25,7 +25,9 @@ class ListeDevisMagasinModel extends Model
 
             FROM neg_ent
             WHERE nent_natop = 'DEV'
-            AND year(Nent_datecde) = '2025'
+            AND nent_soc = 'HF'
+            AND CAST(nent_numcli AS VARCHAR(20)) NOT LIKE '199%'
+            AND year(Nent_datecde) = year(TODAY)
         ";
 
         if (array_key_exists('statutIps', $criteria) && $criteria['statutIps'] == 'RE') {
@@ -44,6 +46,14 @@ class ListeDevisMagasinModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
+    /**
+     * Récupère les informations du devis IPS
+     * 
+     * cette méthode utilise la table neg_lig pour récupérer les informations du devis IPS
+     * 
+     * @param string $numeroDevis Le numéro de devis à vérifier
+     * @return array Les informations du devis IPS
+     */
     public function getInfoDev(string $numeroDevis)
     {
         $statement = "SELECT nent_devise as devise
@@ -65,6 +75,64 @@ class ListeDevisMagasinModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
+    /**
+     * Récupère le montant total du devis IPS
+     * 
+     * cette méthode utilise la table neg_lig pour récupérer le montant total du devis IPS
+     * 
+     * @param string $numeroDevis Le numéro de devis à vérifier
+     * @return float Le montant total du devis IPS
+     */
+    public function getMontantTotalDevisIps(string $numeroDevis): float
+    {
+        $statement = "SELECT SUM(nlig_qtecde *nlig_pxnreel) as montant_total
+                    from informix.neg_lig 
+                    where nlig_soc='HF' 
+                    and nlig_natop='DEV' 
+                    and nlig_constp <> 'Nmc'
+                    and nlig_numcde = '$numeroDevis'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return array_column($this->convertirEnUtf8($data), 'montant_total')[0];
+    }
+
+    /**
+     * Récupère le nombre de lignes du devis IPS
+     * 
+     * cette méthode utilise la table neg_lig pour récupérer le nombre de lignes du devis IPS
+     * 
+     * @param string $numeroDevis Le numéro de devis à vérifier
+     * @return int Le nombre de lignes du devis IPS
+     */
+    public function getLignesTotalDevisIps(string $numeroDevis): int
+    {
+        $statement = "SELECT SUM(nlig_nolign) as somme_numero_lignes 
+                    from informix.neg_lig 
+                    where nlig_soc='HF' 
+                    and nlig_natop='DEV' 
+                    and nlig_constp <> 'Nmc'
+                    and nlig_numcde = '$numeroDevis'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return array_column($this->convertirEnUtf8($data), 'somme_numero_lignes')[0];
+    }
+
+    /**
+     * Récupère le situation de pièce
+     * 
+     * cette méthode utilise la table neg_lig pour récupérer le constructeur de la pièce magasin
+     * 
+     * @param string $numeroDevis Le numéro de devis à vérifier
+     * @return string Le constructeur de la pièce magasin
+     */
     public function constructeurPieceMagasin(string $numeroDevis)
     {
         $statement = "SELECT CASE
@@ -97,9 +165,16 @@ class ListeDevisMagasinModel extends Model
         return array_column($this->convertirEnUtf8($data), 'retour')[0];
     }
 
+    /**
+     * Récupère le code et le libellé du client
+     * 
+     * cette méthode utilise la table neg_ent pour récupérer le code et le libellé du client
+     * 
+     * @return array Les informations du client
+     */
     public function getCodeLibelleClient()
     {
-        $statement = "SELECT nent_numcli as code_client, nent_nomcli as nom_client
+        $statement = "SELECT DISTINCT nent_numcli as code_client, nent_nomcli as nom_client
                         from neg_ent
         ";
 
@@ -108,5 +183,59 @@ class ListeDevisMagasinModel extends Model
         $data = $this->connect->fetchResults($result);
 
         return $this->convertirEnUtf8($data);
+    }
+
+    public function getUtilisateurCreateurDevis(string $numeroDevis): string
+    {
+        $statement = "SELECT TRIM(ausr_nom) as utilisateur_createur_devis
+            FROM informix.neg_ent
+            inner join informix.agr_usr on ausr_num = nent_usr and ausr_soc = nent_soc
+            WHERE nent_numcde = '$numeroDevis'";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return array_column($this->convertirEnUtf8($data), 'utilisateur_createur_devis')[0];
+    }
+
+    public function getClientAndModePaiement(string $numeroDevis): array
+    {
+        $statement = " SELECT nent_numcli as code_client
+                    ,nent_nomcli as nom_client
+                    ,TRIM(cpai_libelle) as mode_paiement
+                    from informix.neg_ent 
+                    inner join neg_cli on ncli_numcli = nent_numcli and ncli_soc = nent_soc
+                    inner join agr_tab on atab_nom = 'PAI' and ncli_modp = atab_code
+                    left join informix.cpt_pai on cpai_codpai = nent_modp 
+                    where nent_numcde ='$numeroDevis'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
+    public function getConstructeur(string $numeroDevis)
+    {
+        $statement = " SELECT 
+                CASE 
+                    WHEN COUNT(*) = 0 THEN 'AUCUNE CONSTRUCTEUR'
+                    WHEN COUNT(CASE WHEN nlig_constp = 'CAT' THEN 1 END) = COUNT(*) THEN 'TOUT CAT'
+                    ELSE 'TOUS NEST PAS CAT'
+                END as resultat
+            FROM informix.neg_lig 
+            WHERE nlig_numcde = '$numeroDevis' 
+            AND nlig_constp NOT LIKE 'Nmc%'
+            AND nlig_constp IN (" . GlobalVariablesService::get('pieces_magasin') . ")
+    ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return array_column($data, 'resultat')[0];
     }
 }

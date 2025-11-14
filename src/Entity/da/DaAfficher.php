@@ -28,6 +28,11 @@ class DaAfficher
     private string $numeroDemandeAppro;
 
     /**
+     * @ORM\Column(type="integer", name="da_type_id")
+     */
+    private ?int $daTypeId = 0;
+
+    /**
      * @ORM\Column(type="string", length=11, name="numero_demande_dit")
      */
     private string $numeroDemandeDit;
@@ -35,7 +40,7 @@ class DaAfficher
     /**
      * @ORM\Column(type="string", length=11, name="numero_or")
      */
-    private ?string $numeroOr;
+    private ?string $numeroOr = null;
 
     /**
      * @ORM\Column(type="string", length=11, name="numero_cde")
@@ -55,7 +60,7 @@ class DaAfficher
     /**
      * @ORM\Column(type="string", length=50, name="statut_cde")
      */
-    private ?string $statutCde;
+    private ?string $statutCde = null;
 
     /**
      * @ORM\Column(type="string", length=100, name="objet_dal")
@@ -205,6 +210,13 @@ class DaAfficher
     private ?int $numeroVersion = 0;
 
     /**
+     * @ORM\Column(type="integer", name="numero_version_or_maj_statut")
+     *
+     * @var integer | null
+     */
+    private ?int $numeroVersionOrMajStatut = 0;
+
+    /**
      * @ORM\Column(type="string", length=50, name="niveau_urgence")
      */
     private ?string $niveauUrgence = null;
@@ -244,17 +256,17 @@ class DaAfficher
     /**
      * @ORM\Column(type="string", length=100, name="position_bc")
      */
-    private ?string $positionBc;
+    private ?string $positionBc = null;
 
     /**
      * @ORM\Column(type="datetime", name="date_planning_or", nullable=true)
      */
-    private $datePlannigOr;
+    private $datePlannigOr = null;
 
     /**
      * @ORM\Column(type="integer", name="numero_ligne_ips")
      */
-    private ?int $numeroLigneIps;
+    private ?int $numeroLigneIps = null;
 
     /**
      * @ORM\Column(type="datetime", name="date_demande", nullable=true)
@@ -265,6 +277,11 @@ class DaAfficher
      * @ORM\Column(type="datetime", name="date_derniere_bav", nullable=true)
      */
     private $dateValidation;
+
+    /**
+     * @ORM\Column(type="datetime", name="date_maj_statut_or", nullable=true)
+     */
+    private $dateMajStatutOr;
 
     /**
      * @ORM\Column(type="boolean", name="est_dalr")
@@ -315,6 +332,31 @@ class DaAfficher
      * @ORM\Column(type="string", name="deleted_by", nullable=true)
      */
     private ?string $deletedBy = null;
+
+    /**
+     * @ORM\Column(type="boolean", name="est_facture_bl_soumis")
+     */
+    private $estFactureBlSoumis = false;
+
+    /**
+     * @ORM\Column(type="boolean", name="non_dispo")
+     */
+    private $nonDispo = false;
+
+    /**
+     * @ORM\Column(type="integer", name="qte_dem_ips")
+     */
+    private int $qteDemIps = 0;
+
+    /**
+     * @ORM\Column(type="integer", name="numero_intervention_ips")
+     */
+    private ?int $numeroInterventionIps = 0;
+
+    /**
+     * @ORM\Column(type="boolean", name="est_bl_reappro_soumis")
+     */
+    private $estBlReapproSoumis = false;
 
     /**==============================================================================
      * GETTERS & SETTERS
@@ -1534,6 +1576,181 @@ class DaAfficher
         return $this;
     }
 
+    /**
+     * Get the value of estFactureBlSoumis
+     */
+    public function getEstFactureBlSoumis()
+    {
+        return $this->estFactureBlSoumis;
+    }
+
+    /**
+     * Set the value of estFactureBlSoumis
+     */
+    public function setEstFactureBlSoumis($estFactureBlSoumis): self
+    {
+        $this->estFactureBlSoumis = $estFactureBlSoumis;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateMajStatutOr
+     */
+    public function getDateMajStatutOr()
+    {
+        return $this->dateMajStatutOr;
+    }
+
+    /**
+     * Set the value of dateMajStatutOr
+     *
+     * @return  self
+     */
+    public function setDateMajStatutOr($dateMajStatutOr)
+    {
+        $this->dateMajStatutOr = $dateMajStatutOr;
+
+        return $this;
+    }
+
+    /**
+     * Get | null
+     *
+     * @return  integer
+     */
+    public function getNumeroVersionOrMajStatut()
+    {
+        return $this->numeroVersionOrMajStatut;
+    }
+
+    /**
+     * Set | null
+     *
+     * @param  integer  $numeroVersionOrMajStatut  | null
+     *
+     * @return  self
+     */
+    public function setNumeroVersionOrMajStatut($numeroVersionOrMajStatut)
+    {
+        $this->numeroVersionOrMajStatut = $numeroVersionOrMajStatut;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of qteDemIps
+     */
+    public function getQteDemIps(): int
+    {
+        return $this->qteDemIps;
+    }
+
+    /**
+     * Set the value of qteDemIps
+     */
+    public function setQteDemIps(int $qteDemIps): self
+    {
+        $this->qteDemIps = $qteDemIps;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroInterventionIps
+     */
+    public function getNumeroInterventionIps()
+    {
+        return $this->numeroInterventionIps;
+    }
+
+    /**
+     * Set the value of numeroInterventionIps
+     *
+     * @return  self
+     */
+    public function setNumeroInterventionIps($numeroInterventionIps)
+    {
+        $this->numeroInterventionIps = $numeroInterventionIps;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of nonDispo
+     */
+    public function getNonDispo()
+    {
+        return $this->nonDispo;
+    }
+
+    /**
+     * Set the value of nonDispo
+     *
+     * @return  self
+     */
+    public function setNonDispo($nonDispo)
+    {
+        $this->nonDispo = $nonDispo;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of daTypeId
+     */
+    public function getDaTypeId()
+    {
+        return $this->daTypeId;
+    }
+
+    /**
+     * Set the value of daTypeId
+     *
+     * @return  self
+     */
+    public function setDaTypeId($daTypeId)
+    {
+        $this->daTypeId = $daTypeId;
+
+        return $this;
+    }
+
+
+    public function getEstBlReapproSoumis()
+    {
+        return $this->estBlReapproSoumis;
+    }
+
+    public function setEstBlReapproSoumis($estBlReapproSoumis)
+    {
+        $this->estBlReapproSoumis = $estBlReapproSoumis;
+
+        return $this;
+    }
+    /**
+     * Copie les propriétés pertinentes d'un ancien DaAfficher vers l'objet courant.
+     *
+     * Cela permet de "mettre à jour" l'objet courant avec les valeurs de référence
+     * de l'ancien DaAfficher, par exemple lors d'une rectification ou d'une version précédente.
+     *
+     * @param DaAfficher $oldDaAfficher L'objet source dont les propriétés doivent être copiées.
+     * @return void
+     */
+    public function copyFromOld(DaAfficher $oldDaAfficher): void
+    {
+        $this
+            ->setNumeroOr($oldDaAfficher->getNumeroOr())
+            ->setStatutOr($oldDaAfficher->getStatutOr())
+            ->setDatePlannigOr($oldDaAfficher->getDatePlannigOr())
+            ->setNumeroVersionOrMajStatut($oldDaAfficher->getNumeroVersionOrMajStatut())
+            ->setDateValidation($oldDaAfficher->getDateValidation())
+            ->setDateMajStatutOr($oldDaAfficher->getDateMajStatutOr())
+            ->setStatutCde($oldDaAfficher->getStatutCde())
+            ->setDit($oldDaAfficher->getDit())
+        ;
+    }
+
     public function enregistrerDa(DemandeAppro $da)
     {
         $this
@@ -1545,6 +1762,7 @@ class DaAfficher
             ->setDetailDal($da->getDetailDal())
             ->setDemandeur($da->getDemandeur())
             ->setAchatDirect($da->getAchatDirect())
+            ->setDaTypeId($da->getDaTypeId())
             ->setDateDemande($da->getDateCreation())
             ->setNiveauUrgence($da->getNiveauUrgence())
             ->setAgenceEmetteur($da->getAgenceEmetteur()->getId())
@@ -1652,7 +1870,7 @@ class DaAfficher
             ->setQteEnAttent($data['qteEnAttent'] ?? 0)
             ->setDemandeur($data['demandeur'] ?? null)
             ->setBcEnvoyerFournisseur($data['bcEnvoyerFournisseur'] ?? false)
-            ->setAchatDirect($data['achatDirect'] ?? false)
+            ->setDaTypeId($data['daTypeId'] ?? 0)
             ->setPositionBc($data['positionBc'] ?? null)
             ->setOrResoumettre($data['orResoumettre'] ?? false)
             ->setdatePlannigOr($data['datePlannigOr'] ?? null)

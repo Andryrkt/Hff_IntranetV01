@@ -22,8 +22,19 @@ class TraitementDeFichier
             throw new \InvalidArgumentException("Le fichier fourni n'est pas une instance de UploadedFile.");
         }
 
-        if (!file_exists($file->getPathname())) {
-            throw new \RuntimeException("Le fichier temporaire n'existe plus : " . $file->getPathname());
+        $tempPath = $file->getPathname();
+
+        if (!file_exists($tempPath)) {
+            throw new \RuntimeException(
+                "Le fichier temporaire a été supprimé. " .
+                    "Temp path: " . $tempPath .
+                    ", Size: " . $file->getSize() .
+                    ", Error: " . $file->getError()
+            );
+        }
+
+        if (!is_uploaded_file($tempPath)) {
+            throw new \RuntimeException("Ce n'est pas un fichier uploadé valide");
         }
 
         try {
@@ -44,9 +55,9 @@ class TraitementDeFichier
      * position 1 si le fichier principal doit etre en deuxieme page
      *  ex : ['fichier1.pdf', 'fichier2.pdf', 'fichier3.pdf', 'fichier4.pdf']
      *
-     * @param array $uploadedFiles
-     * @param string $mainFilePathName
-     * @param integer $position
+     * @param array $uploadedFiles // tableau des chemin de fichier à fusionner
+     * @param string $mainFilePathName // chemin du fichier principal (ilay atsofoka)
+     * @param integer $position // position du fichier principal
      * @return array
      */
     public function insertFileAtPosition(array $uploadedFiles, string $mainFilePathName, int $position = 0): array
@@ -60,7 +71,7 @@ class TraitementDeFichier
         return $uploadedFiles;
     }
 
-    public function fusionFichers(array $uploadedFiles, $nomFichierFusioner)
+    public function fusionFichers(array $uploadedFiles, string $nomFichierFusioner)
     {
         $this->fusionPdf->mergePdfs($uploadedFiles, $nomFichierFusioner);
     }

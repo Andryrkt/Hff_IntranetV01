@@ -35,7 +35,7 @@ class BordereauModel extends Model{
 	                    WHERE ainvp_soc = 'HF'  
 	                    AND ainvp_numinv = ( select  max(ainvi_numinv) from art_invi  where ainvi_numinv_mait = '".$numInv."')
 	                    AND ainvp_nbordereau > 0
-                    	order by 3,4
+                    	order by 4,2,3
                     ";
         $result = $this->connect->executeQuery($statement);
         //  dd($statement);

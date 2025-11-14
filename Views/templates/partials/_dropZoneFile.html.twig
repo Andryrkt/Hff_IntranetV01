@@ -6,7 +6,7 @@
 	<button type="button" id="upload-btn-{{ id }}" class="btn btn-primary">Sélectionner un fichier</button>
 </div>
 
-{{ form_widget(form[fieldName], {'attr': {'style': 'display:none;', 'id': 'hidden-input-' ~ id}}) }}
+{{ form_widget(form[fieldName], {'attr': {'style': 'position: absolute; left: -9999px; opacity: 0;'}}) }}
 {{ form_errors(form[fieldName]) }}
 
 <!-- Conteneur pour afficher le nom du fichier -->

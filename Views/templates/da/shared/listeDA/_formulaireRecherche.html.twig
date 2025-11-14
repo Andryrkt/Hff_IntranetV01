@@ -1,7 +1,7 @@
 {% import "macroForm.html.twig" as macroForm %}
 <!-- DEBUT recherche -->
 {% set role_ids = App.user.roleIds %}
-<div class="accordion" id="formAccordion">
+<div class="accordion mb-2" id="formAccordion">
 	<div class="accordion-item">
 		<h2 class="accordion-header">
 			<button class="accordion-button enteteAccordion" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
@@ -19,32 +19,29 @@
 					<div class="col-12 col-md-2">
 						{{ macroForm.agence_service_change(form.agenceDebiteur, form.serviceDebiteur, 'spinner-service-debiteur', 'service-container-debiteur')}}
 						{{ form_row(form.statutOR)}}
-
 					</div>
 					<div class="col-12 col-md-2">
 						{{ form_row(form.numDit) }}
 						{{ form_row(form.numDa) }}
 						{{ form_row(form.statutBC)}}
-
 					</div>
 					<div class="col-12 col-md-2">
 						{{ form_row(form.dateDebutCreation) }}
 						{{ form_row(form.dateFinCreation) }}
-						{{ form_row(form.demandeur) }}
-
-
+						{{ form_row(form.typeAchat)}}
 					</div>
 					<div class="col-12 col-md-2">
 						{{ form_row(form.dateDebutfinSouhaite) }}
 						{{ form_row(form.dateFinFinSouhaite) }}
-						<div class="d-none">
-							{{form_row(form.idMateriel)}}
-						</div>
+						{{ form_row(form.sortNbJours) }}
 					</div>
 					<div class="col-12 col-md-2">
-						{{ form_row(form.typeAchat)}}
+						{{ form_row(form.demandeur) }}
 						{{ form_label(form.niveauUrgence, '<a href="#" data-bs-toggle="modal" data-bs-target="#niveauUrgence" >Niveau d\'urgence</a>', { 'label_html': true }) }}
 						{{ form_widget(form.niveauUrgence, {'attr': {'class': 'mb-3'}}) }}
+						<div class="d-none">
+							{{ form_row(form.idMateriel) }}
+						</div>
 					</div>
 				</div>
 
@@ -59,19 +56,13 @@
 			</div>
 		</div>
 	</div>
-	<div class="container">
-		<div class=" d-flex  justify-content-between">
-			<div class="d-flex flex-row align-items-center">
-				{% include "/partials/_statutSituationPiece.html.twig" with { 'avecBackOrder' : false } %}
-			</div>
-			{% if serviceAppro %}
-				<div class="my-2 d-flex flex-row">
-					<div role="button" tabindex="0">
-						<i class="fa-solid fa-circle text-danger"></i>
-						<small class="text-danger">DA à déverrouiller</small>
-					</div>
-				</div>
-			{% endif %}
+</div>
+<div class="my-3 px-4 d-flex">
+	<div class="me-4"><small><b>Type de demande : </b></small></div>
+	{% for da in daTypeIcons %}
+		<div>
+			{{ da.icon }}
+			<small style="color: {{ da.color }};" class="px-2 me-5"> : {{ da.label }}</small>
 		</div>
-	</div>
+	{% endfor %}
 </div>

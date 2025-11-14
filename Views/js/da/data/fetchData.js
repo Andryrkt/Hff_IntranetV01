@@ -27,9 +27,16 @@ export async function getAllDesignations(
   codeFams2 = "-"
 ) {
   try {
-    const endpoint = direct
-      ? "all-designation-zdi"
-      : `all-designation-zst/${codeFams1}/${codeFams2}`;
+    let endpoint;
+    
+    if (direct) {
+      endpoint = "all-designation-zdi";
+    } else if (codeFams1 === "-" && codeFams2 === "-") {
+      // Utiliser la route par défaut pour les paramètres par défaut
+      endpoint = "all-designation";
+    } else {
+      endpoint = `all-designation-zst/${codeFams1}/${codeFams2}`;
+    }
 
     return await fetchManager.get(`${BASE_URL_DA}/${endpoint}`);
   } catch (error) {

@@ -1,8 +1,8 @@
-import { displayOverlay } from "../utils/spinnerUtils";
+import { displayOverlay } from "../utils/ui/overlay";
 
 document.addEventListener("DOMContentLoaded", function () {
   console.log("DOM");
-fusion();
+  fusion();
   /** ====================================================
    * FILTRE STATUT
    ** ========================================================*/
@@ -28,7 +28,7 @@ fusion();
 
 function fusion() {
   const tableBody = document.querySelector("#tableBody");
-  const rows = document.querySelectorAll("#tableBody tr"); 
+  const rows = document.querySelectorAll("#tableBody tr");
   let previousOrNumber = null;
   let rowSpanCount = 0;
   let firstRowInGroup = null;

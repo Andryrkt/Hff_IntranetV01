@@ -2,7 +2,7 @@
 
 {% block stylesheets %}
 	{{ parent() }}
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/accueil.css?v=2025.09.15.08.00">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/accueil.css?v=2025.10.22.08.00">
 {% endblock %}
 
 {% block title %}
@@ -12,58 +12,16 @@
 {% block breadCrumb %}{% endblock %}
 
 {% block bandeau %}
-	<span class="vignette-bande">
-		{% for i in 0..4 %}
-			<span>
-				17/09/2025 - V20250917.2.0.1 :
-				<div class="news-ticker">
-					<ul>
-						<li>
-							<b>API - Délai de mise à jour des statuts des documents depuis docuware vers intranet :</b>
-							ce délai a été réduit de 15 minutes à 2 minutes.
-						</li>
-						<li>
-							<b>APPRO - Demande d’achat via OR :</b>
-							<ul>
-								<li>Possibilité d’enregistrer une demande d’achat sans la soumettre directement au service APPRO.</li>
-								<li>Les suppressions de DA sont désormais historisées.</li>
-								<li>Lors de la modification d’une DA, seules les suppressions et les modifications des quantités sont autorisées.</li>
-								<li>Une pagination est désormais intégrée aux liste des demandes d’achat et commande fournisseur.</li>
-							</ul>
-						</li>
-						<li>
-							<b>APPRO - Détail demande d’achat :</b>
-							<ul>
-								<li>Les pièces jointes envoyées par le service APPRO à l’atelier tels que les devis sont désormais consultables et téléchargeablesdepuis l’onglet document rattaché.</li>
-							</ul>
-						</li>
-						<li>
-							<b>DIT - Soumission OR :</b>
-							<ul>
-								<li>L’utilisateur est alerté lors de la soumission d’un OR s’il y a une demande d’achat en cours rattachée à cet OR.</li>
-								<li>La première soumission d’un OR est bloquée si : la date planning de l’OR est antérieur à la date de soumission. Ceci n’est valable que pour les OR qui contiennent des pièces gérées par le magasin.</li>
-							</ul>
-						</li>
-						<li>
-							<b>DIT - Dossier DIT :</b>
-							<ul>
-								<li>Les documents rattachés aux demandes d’appro sont consultables directement depuis l’interface.</li>
-							</ul>
-						</li>
-					</ul>
-				</div>
-			</span>
-		{% endfor %}
-	</span>
+	{% include "/partials/_bandeau.html.twig" %}
 {% endblock %}
 
 {% block content %}
 	<div class="container" id="hasDAP" data-has-dap="{{ appsByCode.DAP }}">
 		{% include "/partials/_notification.html.twig" %}
-		{% include 'partials/_vignettes.html.twig' with {'menuItems': menuItems} %}
+		{% include "/partials/_vignettes.html.twig" with {"menuItems": menuItems} %}
 	</div>
 {% endblock %}
 
 {% block javascript %}
-	<script src="{{ App.base_path }}/Views/js/accueil/script.js?v=2025.09.15.08.00" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/accueil/script.js?v=2025.10.22.08.00" type="module"></script>
 {% endblock %}

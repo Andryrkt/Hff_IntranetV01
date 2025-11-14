@@ -3,10 +3,11 @@
 namespace App\Repository\magasin\devis;
 
 use App\Repository\Interfaces\LatestSumOfLinesRepositoryInterface;
+use App\Repository\Interfaces\LatestSumOfMontantRepositoryInterface;
 use App\Repository\Interfaces\StatusRepositoryInterface;
 use Doctrine\ORM\EntityRepository;
 
-class DevisMagasinRepository extends EntityRepository implements StatusRepositoryInterface, LatestSumOfLinesRepositoryInterface
+class DevisMagasinRepository extends EntityRepository implements StatusRepositoryInterface, LatestSumOfLinesRepositoryInterface, LatestSumOfMontantRepositoryInterface
 {
     public function getNumeroVersionMax(string $numDevis)
     {
@@ -75,5 +76,33 @@ class DevisMagasinRepository extends EntityRepository implements StatusRepositor
             ->getScalarResult();
 
         return array_column($result, 'statutDw');
+    }
+
+    // récupération des statuts BC
+    public function getStatutsBc(): array
+    {
+        $result = $this->createQueryBuilder('d')
+            ->select('DISTINCT d.statutBc')
+            ->where('d.statutBc IS NOT NULL')
+            ->andWhere('d.statutBc != :emptyString')
+            ->setParameter('emptyString', '')
+            ->getQuery()
+            ->getScalarResult();
+
+        return array_column($result, 'statutBc');
+    }
+
+    public function getStatutDwEtStatutBc(string $numeroDevis): ?array
+    {
+        $result = $this->createQueryBuilder('d')
+            ->select('d.statutDw, d.statutBc')
+            ->where('d.numeroDevis = :numeroDevis')
+            ->setParameter('numeroDevis', $numeroDevis)
+            ->orderBy('d.numeroVersion', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getScalarResult();
+
+        return $result[0] ?? null;
     }
 }

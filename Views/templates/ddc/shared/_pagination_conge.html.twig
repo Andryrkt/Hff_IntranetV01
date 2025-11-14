@@ -16,19 +16,19 @@
 			pages</p>
 	</div>
 	<div class="navigation">
-		{% set queryParams = criteria %}
+		{% set queryParams = criteria  %}
 
 		{% if currentPage > 1 %}
-		<a class="btn btn-dark my-3" href="{{ path('conge_liste', queryParams|merge({'page': currentPage - 1})) }}">
-			<i class="fas fa-angle-left text-warning"></i>
-		</a>
+			<a class="btn btn-dark my-3" href="{{ path('conge_liste', queryParams|merge({'page': currentPage - 1})) }}">
+				<i class="fas fa-angle-left text-warning"></i>
+			</a>
 		{% endif %}
 
 
-		{% if currentPage < lastPage %} <a class="btn btn-dark"
-			href="{{ path('conge_liste', queryParams|merge({'page': currentPage + 1})) }}">
-			<i class="fas fa-angle-right text-warning"></i>
+		{% if currentPage < lastPage %}
+			<a class="btn btn-dark" href="{{ path('conge_liste', queryParams|merge({'page': currentPage + 1})) }}">
+				<i class="fas fa-angle-right text-warning"></i>
 			</a>
-			{% endif %}
+		{% endif %}
 	</div>
 </div>

@@ -1,0 +1,112 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block title %}POL - Liste des OR à traiter
+{% endblock %}
+
+{% block stylesheets %}
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.09.15.08.00">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/magasin/magasin.css?v=2025.09.15.08.00">
+{% endblock %}
+
+
+{% block content %}
+	<div id="conteneur" data-page-type="or_a_traiter">
+
+		<div class="container">
+			<h3 class="perso-titre">
+				Liste des OR à traiter
+			</h3>
+
+
+			{% include "/magasin/partials/_formulaireRechercheListeOrATraiter.html.twig" %}
+		</div>
+
+		<div class="container">
+			<div class="d-flex justify-content-between">
+				<div>
+					{# Bouton EXCEL#}
+					<a href="{{path("pol_list_or_traiter_export_excel")}}" class="btn btn bg-success text-white my-3 fw-bold">
+						<i class="fas fa-table"></i>
+						Excel</a>
+				</div>
+			</div>
+		</div>
+
+		<div class="container-fluid">
+			<div class="table-responsive" style="max-height: 70vh; overflow-y: auto;">
+				<table class="table rounded table-plein-ecran">
+					<thead class="table-dark sticky-top">
+						<tr>
+							<th>
+								<i class="fas fa-ellipsis-vertical"></i>
+							</th>
+							<th class="text-center">N° DIT</th>
+							<th class="text-center">N° OR</th>
+							<th>Date planning</th>
+							<th>Niv. d'urg</th>
+							<th>Date OR</th>
+							<th class="text-center">Agence Emetteur</th>
+							<th class="text-center">Service Emetteur</th>
+							<th class="text-center">Agence Débiteur</th>
+							<th class="text-center">Service Débiteur</th>
+							<th class="text-center">N° ITV</th>
+							<th class="text-center">N° lig</th>
+							<th>CST</th>
+							<th>Réf</th>
+							<th>Désignation</th>
+							<th class="text-center">Qté demandée</th>
+							<th>Utilisateur</th>
+
+						</tr>
+					</thead>
+					<tbody id="tableBody">
+						{% for item in data %}
+							<tr>
+								<td class="" style="vertical-align: middle">
+									<div class="dropdown">
+										<div type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+											<i class="fas fa-ellipsis-vertical"></i>
+										</div>
+										<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
+											<li>
+												{% if item.referencedit is not empty %}
+													<a class="dropdown-item fw-bold" target="_blank" href="{{ path('dw_interv_ate_avec_dit', {'numDit': item.referencedit}) }}">
+														Dossier DIT
+													</a>
+												{% endif %}
+											</li>
+										</ul>
+									</div>
+								</td>
+								<td class="fw-bold ">{{item.referencedit}}</td>
+								<td class="fw-bold ">{{item.numeroor}}</td>
+								<td>{{ item.datePlanning == null ? '--' : item.datePlanning| date("d/m/Y")}}</td>
+								<td class="">{{item.niveauUrgence}}</td>
+								<td class="">{{ item.datecreation | date("d/m/Y")}}</td>
+								<td class="text-center">{{item.agencecrediteur}}</td>
+								<td class="text-center">{{item.servicecrediteur}}</td>
+								<td class="text-center">{{ item.agence}}</td>
+								<td class="text-center">{{ item.service}}</td>
+								<td class="text-center">{{item.numinterv | number_format(0)}}</td>
+								<td class="text-center">{{ item.numeroligne}}</td>
+								<td class="">{{item.constructeur}}</td>
+								<td class="">{{item.referencepiece}}</td>
+								<td class="">{{item.designationi}}</td>
+								<td class="text-center">{{item.quantitedemander == 0 ? '-': item.quantitedemander |
+							number_format(0)}}</td>
+								<td>{{ item.nomprenom }}</td>
+
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+		<!-- FIN tableau -->
+		{% include "/dit/shared/_modalNiveauUrgence.html.twig" %}
+	</div>
+{% endblock %}
+{% block javascript %}
+	<script src="{{ App.base_path }}/Views/js/magasin/main.js?v=2025.09.15.08.00" type="module"></script>
+{% endblock %}

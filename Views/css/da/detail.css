@@ -246,6 +246,12 @@
   box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
 }
 
+.list-file-item.related {
+  background-color: #fff7e6;
+  box-shadow: 0 0 0 3px rgba(255, 153, 0, 0.2); /* effet léger */
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
 /* Style de la carte de chaque type de document */
 .document-type {
   transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
@@ -275,6 +281,17 @@
   background-color: #dbeafe; /* bleu clair */
   border: 1px solid #5b9cff;
   box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.2);
+}
+
+.file-item.related {
+  border: 3px dashed #ff9900; /* orange vif pour marquer la relation */
+  background-color: #fff3e0; /* fond clair, subtil mais perceptible */
+  box-shadow: none; /* pas de shadow pour rester secondaire */
+  transition: background-color 0.2s ease; /* pour un hover fluide */
+}
+
+.file-item.related:hover {
+  background-color: #ffe0b2; /* légèrement plus visible au survol */
 }
 
 .checkmark-selected {

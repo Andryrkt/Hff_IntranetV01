@@ -25,9 +25,9 @@
 				{% if fichierData.fichiers is not empty %}
 					<ul class="list-unstyled mb-0">
 						{% for f in fichierData.fichiers %}
-							<li class="file-item d-flex justify-content-between align-items-center p-2 rounded mb-1">
+							<li class="file-item d-flex justify-content-between align-items-center p-2 rounded mb-1" data-doc-label-type="{{ fichierData.labelType }}" {% if f.numBC is defined %} data-related-num-bc="{{ f.numBC }}" {% endif %}>
 								<small class="text-muted">{{ f.nom }}</small>
-								<a href="{{ f.path }}" download class="download-link" data-doc-type="{{ fichierData.type }}">
+								<a href="{{ f.path }}" download class="download-link" data-doc-type="{{ fichierData.type }}" data-doc-name="{{ f.nom }}">
 									<span class="badge bg-light text-primary">
 										<i class="fas fa-download"></i>
 									</span>
@@ -36,7 +36,8 @@
 						{% endfor %}
 					</ul>
 				{% else %}
-					<small class="text-muted">Aucun
+					<small class="text-muted">
+						Aucun
 						{{ fichierData.type }}
 						rattaché à la demande d'achat.
 					</small>

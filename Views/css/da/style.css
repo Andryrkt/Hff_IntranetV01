@@ -379,9 +379,22 @@ a.choix:hover {
 }
 
 /* Pour les statuts de la DA */
-.bg-demande-achat {
+.bg-demande-achat,
+.bg-creation-demande-initiale {
   background-color: #ffff00 !important;
   color: #7d7d00 !important;
+}
+.bg-demande-devis {
+  background-color: #e0d4f7 !important;
+  color: #4b3280 !important;
+}
+.bg-devis-a-relancer {
+  background-color: #ffd6d0 !important;
+  color: #8c2f1f !important;
+}
+.bg-en-cours-proposition {
+  background-color: #fbbb01 !important; /* jaune clair tirant vers le beige */
+  color: #7d6600 !important; /* couleur texte sombre pour contraste */
 }
 .bg-proposition-achat {
   background-color: #9fc5e8 !important;
@@ -403,6 +416,10 @@ a.choix:hover {
   background-color: #e2e3e5 !important; /* gris clair */
   color: #41464b !important;
 }
+.bg-refuse-appro {
+  background-color: #c00000 !important;
+  color: #fff !important;
+}
 
 /* Pour les statuts de l'OR */
 .bg-or-valide {
@@ -417,10 +434,8 @@ a.choix:hover {
   background-color: #ffc107 !important;
   color: #6b3e00 !important;
 }
-.bg-or-valider-ca {
-  background-color: #f1c232 !important;
-  color: #8e5a00 !important;
-}
+.bg-or-valider-ca,
+.bg-or-valider-dt,
 .bg-or-valider-client {
   background-color: #f1c232 !important;
   color: #8e5a00 !important;
@@ -439,7 +454,8 @@ a.choix:hover {
 }
 
 /* Pour les statuts du BC */
-.bg-bc-a-generer {
+.bg-bc-a-generer, 
+.bg-bc-cession-a-generer {
   background-color: #ff66cc !important;
   color: #660033 !important;
 }
@@ -455,10 +471,12 @@ a.choix:hover {
   background-color: #f1c232 !important;
   color: #8e5a00 !important;
 }
-.bg-bc-soumission {
+.bg-bc-soumission,
+.bg-bc-en-cours-de-preparation {
   background-color: #c9daf8 !important;
   color: #004080 !important;
 }
+
 .bg-bc-a-valider-da {
   background-color: #ffcc00 !important;
   color: #4d4d00 !important;
@@ -472,6 +490,7 @@ a.choix:hover {
   color: #003d00 !important;
 }
 .bg-bc-refuse,
+.bg-bc-non-dispo,
 .bg-bc-pas-dans-or {
   background-color: #c00000 !important;
   color: #fff !important;
@@ -484,7 +503,8 @@ a.choix:hover {
 /* Statuts supplémentaires */
 .tout-livre {
   background-color: #28a745 !important;
-  color: #1c4d20 !important;
+  /* color: #1c4d20 !important; */
+  color: #f1f8f2 !important;
 }
 .partiellement-livre {
   background-color: #ffc107 !important;
@@ -497,4 +517,66 @@ a.choix:hover {
 .complet-non-livre {
   background-color: #007bff !important;
   color: #ffffff !important;
+}
+.div-disabled.jaunatre,
+.jaunatre {
+  background-color: #ffd580 !important;
+  border: 1px solid #e6b85c !important;
+}
+.jaunatre.text-danger {
+  border: 1px solid red !important;
+  box-shadow: 0 0 0 0.15rem rgba(255, 0, 0, 0.45);
+}
+.jaunatre.text-danger:focus {
+  border: 1px solid red !important;
+  box-shadow: 0 0 0 0.25rem rgba(255, 0, 0, 0.35);
+}
+.qte-depasse {
+  color: #b02a37;
+  background-color: #f8d7da;
+  border: 1px solid #f5c2c7;
+  font-weight: 500;
+  box-shadow: 0 0px 3px rgba(176, 42, 55, 0.5);
+}
+
+/* Icone des layers */
+/* Conteneur layer Font Awesome personnalisé */
+.fa-layers.custom {
+  width: 1.5rem;
+  height: 1.5rem;
+  display: inline-block;
+  vertical-align: middle;
+  position: relative;
+  font-size: 0.875rem !important;
+}
+
+/* Fond de l'icône (cercle, carré, etc.) */
+.fa-layers.custom .fa-layer-base {
+  font-size: 2em;
+}
+
+/* Toutes les icônes internes centrées */
+.fa-layers.custom i {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Badge texte en bas à droite */
+.fa-layers.custom .fa-layers-text {
+  position: absolute;
+  bottom: -1em;
+  right: -1em;
+  font-weight: 800;
+  font-size: 0.45em !important;
+  padding: 0.05em 0.35em;
+  border-radius: 0.2em;
+  color: white;
+}
+
+/* Décalage pour icônes secondaires (petits symboles) */
+.fa-layers.custom .layer-offset {
+  font-size: 0.55em; /* ajustable selon besoin */
+  opacity: 0.95;
 }

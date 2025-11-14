@@ -18,7 +18,7 @@ CREATE TABLE devis_soumis_a_validation_neg
     CONSTRAINT PK_devis_soumis_a_validation_neg PRIMARY KEY (id)
 );
 
-ALTER TABLE devis_soumis_a_validation_neg
+    ALTER TABLE devis_soumis_a_validation_neg
     ADD date_envoye_devis_client DATETIME2(0) NULL
 
     ALTER TABLE devis_soumis_a_validation_neg
@@ -26,3 +26,15 @@ ALTER TABLE devis_soumis_a_validation_neg
 
     ALTER TABLE devis_soumis_a_validation_neg
     ADD date_pointage DATETIME2(0) NULL
+
+    ALTER TABLE devis_soumis_a_validation_neg
+    ADD  tache_validateur VARCHAR(50) NULL;
+
+    ALTER TABLE devis_soumis_a_validation_neg
+    ADD statut_bc VARCHAR(100) NULL;
+
+    ALTER TABLE devis_soumis_a_validation_neg
+    ADD relance VARCHAR(50) NULL;
+
+    ALTER TABLE devis_soumis_a_validation_neg
+    ADD est_validation_pm BIT DEFAULT 0;

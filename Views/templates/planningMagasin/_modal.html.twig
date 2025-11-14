@@ -1,0 +1,74 @@
+<div class="modal fade" tabindex="-1" id="listeCommandeMagasin" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-scrollable modal-xl">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">
+					Listes lignes de commande
+					<small class="text-success d-block mt-auto" id="orIntv" style="font-size: 0.7em; font-weight: bold;"></small>
+				</h5>
+
+				<div class="ms-auto d-flex align-items-center">
+					<a id="dossierDitLink" class="btn btn-warning fw-bold" target="_blank" href="#">Dossier BC</a>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+			</div>
+			{# body du modal#}
+			<div
+				class="modal-body">
+				<!-- Champ avec légende -->
+
+				<div class="mb-3">
+					<small style="color: #c8ad7f">DISPO STOCK |</small>
+					<small class="text-danger">Back Order / Error |</small>
+					<small style="color: #9ACD32">Commande envoyée fournisseur |</small>
+					<small class="text-warning">Réception Partielle</small>
+				</div>
+				<!-- Spinner de chargement -->
+				<div id="loading" class="text-center">
+					<div class="spinner-border" role="status">
+						<span class="visually-hidden">Chargement...</span>
+					</div>
+				</div>
+
+				<!-- Contenu des données -->
+				<div id="dataContent" style="display: none;">
+					<div id="avec_onglet" class="d-none">
+						<nav>
+							<div class="onglet-head nav nav-tabs mx-2" id="nav-tab" role="tablist">
+								<button class="nav-link active" id="nav-onglet1-tab" data-bs-toggle="tab" data-bs-target="#nav-onglet1" type="button" role="tab" aria-controls="nav-onglet1" aria-selected="true">BC</button>
+								<button class="nav-link" id="nav-onglet2-tab" data-bs-toggle="tab" data-bs-target="#nav-onglet2" type="button" role="tab" aria-controls="nav-onglet2" aria-selected="false">CIS</button>
+							</div>
+						</nav>
+						<div class="tab-content p-3 border bg-light" id="nav-tabContent">
+							<div class="tab-pane fade active show" id="nav-onglet1" role="tabpanel" aria-labelledby="nav-onglet1-tab">
+								<table class="table rounded mt-1">
+									<thead class="table">
+										<tr id="planningTableHeadOR"></tr>
+									</thead>
+									<tbody id="commandesTableBodyOR"></tbody>
+								</table>
+							</div>
+							<div class="tab-pane fade" id="nav-onglet2" role="tabpanel" aria-labelledby="nav-onglet2-tab">
+								<table class="table rounded mt-1">
+									<thead class="table">
+										<tr id="planningTableHeadLign"></tr>
+									</thead>
+									<tbody id="commandesTableBodyLign"></tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+					<div id="sans_onglet" class="d-none">
+						<table class="table rounded mt-1">
+							<thead class="table">
+								<tr id="planningTableHead"></tr>
+							</thead>
+							<tbody id="commandesTableBody"></tbody>
+						</table>
+					</div>
+
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

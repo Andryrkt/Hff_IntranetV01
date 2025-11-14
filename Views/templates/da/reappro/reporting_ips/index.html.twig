@@ -1,0 +1,101 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block title %}
+	Reporting IPS DA Réappro
+{% endblock %}
+
+{% block stylesheets %}
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.09.15.08.00">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/reappro/reporting_ips.css?v=2025.10.28.08.00">
+{% endblock %}
+
+{% block content %}
+	<div class="container-fluid mt-6">
+		<div class="sticky-header-titre">
+			<div class="container">
+				{% include "da/reappro/reporting_ips/_formulaireReportingIpsSearch.html.twig" with {'form': form} %}
+				{% include "/partials/_notification.html.twig" %}
+			</div>
+		</div>
+		<div style="max-height: 70vh; overflow-y: auto;">
+			<table class="table table-sticky">
+				<thead class="table-dark align-middle table-fixed">
+					<tr>
+						<th class="text-center">Agence - Service</th>
+						<th class="text-center">Facture</th>
+						<th class="text-center">Réf Client</th>
+						<th class="text-center">CST</th>
+						<th class="text-center">Réf</th>
+						<th class="text-center">Désignation</th>
+						{# Colonnes de mois dynamiques #}
+						{% for month in results.months %}
+							<th class="text-center month-col">{{ month.label }}</th>
+						{% endfor %}
+					</tr>
+				</thead>
+				<tbody id="tableBody">
+
+					{% if results.data is empty %}
+						<tr>
+							<td colspan="{{ 6 + results.months|length }}" class="text-center">Aucun résultat trouvé.</td>
+						</tr>
+					{% else %}
+						{% for product in results.data %}
+							{# Créer une map pour un accès facile aux données par mois #}
+							{% set data_by_month = {} %}
+							{% for month_data in product.filteredMonths %}
+								{% set data_by_month = data_by_month|merge({(month_data.monthKey): month_data.details}) %}
+							{% endfor %}
+
+							<tr>
+								<td class="text-center">{{ product.agence_service_debiteur }}</td>
+								<td class="text-center">{{ product.numero_facture }}</td>
+								<td class="text-center">{{ product.client }}</td>
+								<td class="text-center">{{ product.constructeur }}</td>
+								<td class="text-center">{{ product.reference_produit }}</td>
+								<td>{{ product.designation_produit }}</td>
+
+								{# Itérer sur les mois de l'en-tête pour garantir le bon ordre #}
+								{% for month in results.months %}
+									<td class="text-end month-col">
+										{% if data_by_month[month.key] is defined %}
+											<span class="badge bg-secondary">Qté:
+												{{ data_by_month[month.key].total_qte|number_format(0, ',', ' ') }}</span><br>
+											<span class="badge bg-success mt-1">Mnt:
+												{{ data_by_month[month.key].total_montant|number_format(2, ',', ' ') }}</span>
+										{% else %}
+											-
+										{% endif %}
+									</td>
+								{% endfor %}
+							</tr>
+						{% endfor %}
+					{% endif %}
+
+				</tbody>
+				<tfoot>
+					<tr class="table-dark">
+						<th colspan="6" class="text-center">TOTAUX</th>
+						{% for month in results.months %}
+							<th class="text-end month-col">
+								{% if totals[month.key] is defined %}
+									<span class="badge bg-secondary">Qté:
+										{{ totals[month.key].qte|number_format(0, ',', ' ') }}</span><br>
+									<span class="badge bg-primary mt-1">Mnt:
+										{{ totals[month.key].montant|number_format(2, ',', ' ') }}</span>
+								{% endif %}
+							</th>
+						{% endfor %}
+					</tr>
+				</tfoot>
+			</table>
+		</div>
+	</div>
+
+
+{% endblock %}
+
+{% block javascript %}
+	<script src="{{ App.base_path }}/Views/js/checkbox_group.js"></script>
+	<script type="module" src="{{ App.base_path }}/Views/js/da/reappro/ReportingIps.js"></script>
+{% endblock %}
