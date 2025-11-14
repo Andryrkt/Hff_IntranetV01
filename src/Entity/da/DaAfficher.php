@@ -1786,6 +1786,7 @@ class DaAfficher
             ->setDetailDal($da->getDetailDal())
             ->setDemandeur($da->getDemandeur())
             ->setAchatDirect($da->getAchatDirect())
+            ->setCodeCentrale($da->getCodeCentrale())
             ->setDaTypeId($da->getDaTypeId())
             ->setDateDemande($da->getDateCreation())
             ->setNiveauUrgence($da->getNiveauUrgence())

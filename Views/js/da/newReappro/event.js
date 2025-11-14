@@ -46,14 +46,33 @@ export function handleInputAutoComplete() {
     onSelectCallback: (item) => {
       codeCentraleInput.value = item.code;
       desiCentraleInput.value = item.desi;
-      desiCentraleInput.disabled = true;
-      inputDesiCentraleGroup.classList.add("input-group");
-      editIcon.classList.remove("d-none");
+      disableDesiCentraleInput(
+        desiCentraleInput,
+        inputDesiCentraleGroup,
+        editIcon
+      );
     },
     onBlurCallback: (found) => {
-      if (!found) desiCentraleInput.value = codeCentraleInput.value = "";
+      if (!found) {
+        desiCentraleInput.value = codeCentraleInput.value = "";
+        disableDesiCentraleInput(
+          desiCentraleInput,
+          inputDesiCentraleGroup,
+          editIcon
+        );
+      }
     },
   });
+}
+
+function disableDesiCentraleInput(
+  desiCentraleInput,
+  inputDesiCentraleGroup,
+  editIcon
+) {
+  desiCentraleInput.disabled = true;
+  inputDesiCentraleGroup.classList.add("input-group");
+  editIcon.classList.remove("d-none");
 }
 
 function updateRowState(qteInput) {
