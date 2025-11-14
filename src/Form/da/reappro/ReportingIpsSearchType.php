@@ -21,6 +21,7 @@ class ReportingIpsSearchType extends AbstractType
     {
         $aujourdhui = new \DateTime();
         $debutAnnee = (new \DateTime())->modify('first day of january this year');
+        $choices = $this->createAssociativeArray(GlobalVariablesService::get('reappro'));
 
         $builder
             ->add('agences', EntityType::class, [
@@ -66,7 +67,7 @@ class ReportingIpsSearchType extends AbstractType
             ->add('constructeur', ChoiceType::class, [
                 'label' => 'Constructeur',
                 'required' => false,
-                'choices' => $choices = $this->createAssociativeArray(GlobalVariablesService::get('reappro')),
+                'choices' => $choices,
                 'multiple' => true,
                 'expanded' => true,
                 'data' => array_keys($choices), // Cocher toutes les cases par défaut

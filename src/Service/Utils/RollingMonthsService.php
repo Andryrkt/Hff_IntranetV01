@@ -11,14 +11,16 @@ class RollingMonthsService
 {
     private const MONTHS_FR = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
 
-    private const PERIOD_TYPES = [
-        'NEXT_3_MONTHS' => 3,
-        'NEXT_6_MONTHS' => 6,
-        'CURRENT_YEAR' => 9,
-        'NEXT_YEAR' => 11,
-        'NEXT_12_MONTHS' => 12,
-        'PREVIOUS_12_MONTHS' => 13,
-        'PREVIOUS_YEAR' => 14,
+    private const PERIOD_TYPES = [ // exemple si l'année en cours est 2024 et le mois en cours est novembre
+        'NEXT_3_MONTHS' => 3,// Les 3 prochains mois (exemple: Fev. 2024 - Jan. 2025)
+        'NEXT_6_MONTHS' => 6,// Les 6 prochains mois (exemple: Mai. 2024 - Avrl. 2025)
+        //----------------------------------------
+        'CURRENT_YEAR' => 9, // l'année en cours (exemple : 2024 => Janv. 2024 - Déc. 2024)
+        'NEXT_YEAR' => 11, // l'année prochaine  (exemple : 2025 => Janv. 2025 - Déc. 2025)
+        'PREVIOUS_YEAR' => 14, // L'année précédente (exemple: 2023 => Janv. 2024 - Déc. 2024)
+        //----------------------------------
+        'NEXT_12_MONTHS' => 12, // Les 12 prochains mois (exemple : Dec. 2024 - Nov. 2025)
+        'PREVIOUS_12_MONTHS' => 13, // Les 12 derniers mois (exemple: DEC. 2023 - Nov. 2024)
     ];
 
     /**
