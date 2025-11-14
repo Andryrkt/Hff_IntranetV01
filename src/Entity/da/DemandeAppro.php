@@ -187,6 +187,11 @@ class DemandeAppro
     private ?string $codeCentrale = null;
 
     /**
+     * @ORM\Column(type="string", length=50, name="designation_central")
+     */
+    private ?string $desiCentrale = null;
+
+    /**
      * @ORM\OneToMany(targetEntity=DaHistoriqueDemandeModifDA::class, mappedBy="demandeAppro")
      */
     private $historiqueDemandeModifDA;
@@ -999,6 +1004,26 @@ class DemandeAppro
     public function setCodeCentrale($codeCentrale)
     {
         $this->codeCentrale = $codeCentrale;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of desiCentrale
+     */ 
+    public function getDesiCentrale()
+    {
+        return $this->desiCentrale;
+    }
+
+    /**
+     * Set the value of desiCentrale
+     *
+     * @return  self
+     */ 
+    public function setDesiCentrale($desiCentrale)
+    {
+        $this->desiCentrale = $desiCentrale;
 
         return $this;
     }
