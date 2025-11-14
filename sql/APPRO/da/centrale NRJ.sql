@@ -7,8 +7,10 @@ CREATE TABLE centrale_nrj
 );
 
 ALTER TABLE Demande_Appro ADD code_centrale varchar(4) NULL;
-
 ALTER TABLE da_afficher ADD code_centrale varchar(4) NULL;
+
+ALTER TABLE Demande_Appro ADD designation_central varchar(50) NULL;
+ALTER TABLE da_afficher ADD designation_central varchar(50) NULL;
 
 insert into centrale_nrj
 values 
