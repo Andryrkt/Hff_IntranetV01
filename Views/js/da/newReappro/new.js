@@ -3,7 +3,10 @@ import { handleInputAutoComplete, handleQteInputEvents } from "./event";
 import { handleAgenceChange } from "../../dit/fonctionUtils/fonctionListDit.js";
 
 document.addEventListener("DOMContentLoaded", function () {
-  handleInputAutoComplete();
+  handleInputAutoComplete(
+    "demande_appro_reappro_form_codeCentrale",
+    "demande_appro_reappro_form_desiCentrale"
+  );
   const myForm = document.getElementById("myForm");
   const actionsConfig = {
     enregistrerBrouillon: {

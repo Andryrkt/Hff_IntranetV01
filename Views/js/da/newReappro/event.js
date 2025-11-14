@@ -13,14 +13,13 @@ export function handleQteInputEvents(allQteInputs) {
   });
 }
 
-export function handleInputAutoComplete() {
+export function handleInputAutoComplete(
+  codeCentraleInputId,
+  desiCentraleInputId
+) {
   const fetchManager = new FetchManager();
-  const desiCentraleInput = document.getElementById(
-    "demande_appro_reappro_form_desiCentrale"
-  );
-  const codeCentraleInput = document.getElementById(
-    "demande_appro_reappro_form_codeCentrale"
-  );
+  const codeCentraleInput = document.getElementById(codeCentraleInputId);
+  const desiCentraleInput = document.getElementById(desiCentraleInputId);
   const editIcon = document.getElementById("editIcon");
   const inputDesiCentraleGroup = editIcon.parentElement;
   desiCentraleInput.addEventListener("input", () => {
