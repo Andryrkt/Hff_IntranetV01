@@ -117,7 +117,7 @@ class ExportExcelController extends Controller
                 $da->getDateFinSouhaite()->format('d/m/Y'),
                 $da->getDateLivraisonPrevue() == null ? '' : $da->getDateLivraisonPrevue()->format('d/m/Y'),
                 $da->getJoursDispo(),
-                $codeCentrale ? $da->getCodeCentrale() : "",
+                $codeCentrale ? $da->getDesiCentrale() : "",
             ];
         }
 
