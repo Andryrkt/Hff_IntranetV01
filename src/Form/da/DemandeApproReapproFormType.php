@@ -71,7 +71,8 @@ class DemandeApproReapproFormType extends AbstractType
             )
             ->add('debiteur', AgenceServiceType::class, [
                 'label'               => false,
-                'required'            => false,
+                'agence_required'     => true,
+                'service_required'    => true,
                 'agence_label'        => 'Agence Debiteur',
                 'service_label'       => 'Service Debiteur',
                 'agence_placeholder'  => '-- Agence Debiteur --',
