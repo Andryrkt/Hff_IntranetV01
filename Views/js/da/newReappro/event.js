@@ -13,7 +13,7 @@ export function handleQteInputEvents(allQteInputs) {
   });
 }
 
-export function handleInputAutoComplete(
+export function initCentraleCodeDesiInputs(
   codeCentraleInputId,
   desiCentraleInputId
 ) {

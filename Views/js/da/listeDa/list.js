@@ -3,8 +3,13 @@ import { mergeCellsTable } from "./tableHandler";
 import { configAgenceService } from "../../dit/config/listDitConfig.js";
 import { handleAgenceChange } from "../../dit/fonctionUtils/fonctionListDit.js";
 import { allowOnlyNumbers } from "../../magasin/utils/inputUtils.js";
+import { initCentraleCodeDesiInputs } from "../newReappro/event.js";
 
 document.addEventListener("DOMContentLoaded", function () {
+  initCentraleCodeDesiInputs(
+    "da_search_codeCentrale",
+    "da_search_desiCentrale"
+  );
   const designations = document.querySelectorAll(".designation-btn");
   designations.forEach((designation) => {
     designation.addEventListener("click", function () {

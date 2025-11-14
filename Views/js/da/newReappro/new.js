@@ -1,9 +1,9 @@
 import { displayOverlay } from "../../utils/ui/overlay";
-import { handleInputAutoComplete, handleQteInputEvents } from "./event";
+import { handleQteInputEvents, initCentraleCodeDesiInputs } from "./event";
 import { handleAgenceChange } from "../../dit/fonctionUtils/fonctionListDit.js";
 
 document.addEventListener("DOMContentLoaded", function () {
-  handleInputAutoComplete(
+  initCentraleCodeDesiInputs(
     "demande_appro_reappro_form_codeCentrale",
     "demande_appro_reappro_form_desiCentrale"
   );
