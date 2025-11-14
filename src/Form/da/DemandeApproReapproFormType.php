@@ -91,7 +91,6 @@ class DemandeApproReapproFormType extends AbstractType
                 'desiCentrale',
                 TextType::class,
                 [
-                    'mapped'   => false,
                     'label'    => 'Centrale rattachée à la DA',
                     'required' => false
                 ]
