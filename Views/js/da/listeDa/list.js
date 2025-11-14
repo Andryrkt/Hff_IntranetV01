@@ -144,6 +144,30 @@ document.addEventListener("DOMContentLoaded", function () {
       window.location.href = urlObjet.toString(); // Redirige vers l'URL avec les nouveaux paramètres
     });
   });
+
+  /**
+   * Evenement sur type de DA dans le formulaire de recherche
+   **/
+  const typeDaSelect = document.getElementById("da_search_typeAchat");
+  const desiCentraleInput = document.getElementById("da_search_desiCentrale");
+  const inputDesiCentraleGroup = desiCentraleInput.parentElement;
+  typeDaSelect.addEventListener("change", function () {
+    if (inputDesiCentraleGroup.dataset.afficherInput != 1) return;
+
+    let daReappro = this.value == 2;
+    let divContainer = inputDesiCentraleGroup.parentElement;
+    let editIcon = document.getElementById("editIcon");
+
+    if (daReappro) {
+      divContainer.classList.remove("d-none");
+      desiCentraleInput.disabled = false;
+      inputDesiCentraleGroup.classList.remove("input-group");
+      editIcon.classList.add("d-none");
+      desiCentraleInput.focus();
+    } else {
+      divContainer.classList.add("d-none");
+    }
+  });
 });
 
 window.addEventListener("load", () => {
