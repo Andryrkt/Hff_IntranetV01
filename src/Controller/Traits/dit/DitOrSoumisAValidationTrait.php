@@ -331,6 +331,9 @@ trait DitOrSoumisAValidationTrait
 
     private function orSoumisValidataion($orSoumisValidationModel, $numeroVersionMax, $ditInsertionOrSoumis, $numDit)
     {
+        /** @var array */
+        $pieceFaibleAchat = $this->preparationDesPiecesFaibleAchat($ditInsertionOrSoumis->getNumeroOR());
+
 
         $orSoumisValidataion = []; // Tableau pour stocker les objets
 
@@ -354,6 +357,7 @@ trait DitOrSoumisAValidationTrait
                 ->setLibellelItv($orSoumis['libelle_itv'])
                 ->setStatut('Soumis à validation')
                 ->setNumeroDit($numDit)
+                ->setPieceFaibleActiviteAchat(empty($pieceFaibleAchat) ? false : true)
             ;
 
             $orSoumisValidataion[] = $ditInsertionOr; // Ajouter l'objet dans le tableau
@@ -412,7 +416,8 @@ trait DitOrSoumisAValidationTrait
 
     private function datePlanningInferieurDateDuJour($numOr): bool
     {
-        $nbrOrSoumis = $this->orRepository->getNbrOrSoumis($numOr); //première soumission
+        $orRepository = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class);
+        $nbrOrSoumis = $orRepository->getNbrOrSoumis($numOr); //première soumission
         $estBloquer = $this->ditOrsoumisAValidationModel->getTypeLigne($numOr); //return bloquer si type piece ou pas bloquer  si non
 
         if ((int)$nbrOrSoumis <= 0 && in_array('bloquer', $estBloquer)) { // si pas encore soumis et c'est une type piece
@@ -433,7 +438,8 @@ trait DitOrSoumisAValidationTrait
     }
     private function premierSoumissionDatePlanningInferieurDateDuJour($numOr): bool
     {
-        $nbrOrSoumis = $this->orRepository->getNbrOrSoumis($numOr); //première soumission
+        $orRepository = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class);
+        $nbrOrSoumis = $orRepository->getNbrOrSoumis($numOr); //première soumission
         $nbrPieceMagasin = $this->ditOrsoumisAValidationModel->recupNbPieceMagasin($numOr); //nombre de piece magasin
 
         if ((int)$nbrOrSoumis <= 0 && (int)$nbrPieceMagasin <= 0) { // si pas encore soumis et pas de piece magasin

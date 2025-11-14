@@ -136,7 +136,7 @@ trait StatutBcTrait
             return 'A soumettre à validation';
         } elseif ($this->doitEnvoyerBc($situationCde, $statutBc, $DaAfficher, $statutSoumissionBc, $infoDaDirect, $daDirect, $daViaOR)) {
             return 'A envoyer au fournisseur';
-        } elseif ($DaAfficher->getBcEnvoyerFournisseur()) {
+        } elseif ($DaAfficher->getBcEnvoyerFournisseur() && !$DaAfficher->getEstFactureBlSoumis()) {
             return 'BC envoyé au fournisseur';
         } elseif ($daDirect || $daViaOR) {
             return $statutSoumissionBc;

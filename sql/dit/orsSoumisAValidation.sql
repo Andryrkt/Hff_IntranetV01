@@ -244,3 +244,6 @@ ADD libelleOperation VARCHAR(255) NULL;
 
 ALTER TABLE ors_soumis_a_validation
 ADD observation VARCHAR(3000) NULL;
+
+ALTER TABLE ors_soumis_a_validation
+ADD piece_faible_activite_achat BIT DEFAULT 0
