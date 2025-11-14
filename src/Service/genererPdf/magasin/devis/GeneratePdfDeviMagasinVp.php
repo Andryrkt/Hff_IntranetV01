@@ -9,6 +9,20 @@ use App\Entity\magasin\devis\DevisMagasin;
 
 class GeneratePdfDeviMagasinVp extends GeneratePdf
 {
+    /**
+     * copie la page de garde fusionner du devis magasin dans docuware
+     *
+     * @param string $fileName
+     * @param string $numeroDevis
+     * @return void
+     */
+    public function copyToDWDevisVpMagasin(string $fileName, string $numeroDevis): void
+    {
+        $cheminFichierDistant = $this->baseCheminDocuware . 'VERIFICATION_PRIX_MAGASIN/' . $fileName;
+        $cheminDestinationLocal = $this->baseCheminDuFichier . 'magasin/devis/' . $numeroDevis . '/' . $fileName;
+        $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
+    }
+
     public function genererPdf(User $user, DevisMagasin $devisMagasin, string $filePath)
     {
         if ($devisMagasin->getEstValidationPm() == false) {

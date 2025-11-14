@@ -11,7 +11,7 @@ use App\Service\genererPdf\PdfTableGeneratorFlexible;
 class GeneratePdfBcMagasin extends GeneratePdf
 {
     /**
-     * copie la page de garde du devis magasin dans docuware
+     * copie la page de garde du BC magasin dans docuware
      *
      * @param string $fileName
      * @param string $numeroDevis
