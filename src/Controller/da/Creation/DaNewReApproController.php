@@ -43,8 +43,10 @@ class DaNewReApproController extends Controller
         /** FIN AUtorisation accès */
 
         $agenceServiceIps = $this->agenceServiceIpsObjet();
-        $demandeAppro = $id === 0 ? $this->initialisationDemandeApproReappro($agenceServiceIps) : $this->demandeApproRepository->find($id);
-        $this->generateDemandApproLinesFromReappros($demandeAppro, $agenceServiceIps);
+        $agence           = $agenceServiceIps['agenceIps'];
+        $service          = $agenceServiceIps['serviceIps'];
+        $demandeAppro     = $id === 0 ? $this->initialisationDemandeApproReappro($agence, $service) : $this->demandeApproRepository->find($id);
+        $this->generateDemandApproLinesFromReappros($demandeAppro, $agence, $service);
 
         $form = $this->getFormFactory()->createBuilder(DemandeApproReapproFormType::class, $demandeAppro, [
             'em' => $this->getEntityManager()

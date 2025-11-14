@@ -2,6 +2,8 @@
 
 namespace App\Controller\Traits\da\creation;
 
+use App\Entity\admin\Agence;
+use App\Entity\admin\Service;
 use App\Entity\da\DaArticleReappro;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
@@ -32,19 +34,18 @@ trait DaNewReapproTrait
     /** 
      * Fonction pour initialiser une demande appro réappro
      * 
-     * @param array $agenceServiceIps
+     * @param Agence  $agence objet Agence de l'utilisateur
+     * @param Service $service objet Service de l'utilisateur
      * 
      * @return DemandeAppro la demande appro initialisée
      */
-    private function initialisationDemandeApproReappro(array $agenceServiceIps): DemandeAppro
+    private function initialisationDemandeApproReappro(Agence $agence, Service $service): DemandeAppro
     {
         $demandeAppro = new DemandeAppro;
 
-        $agence = $agenceServiceIps['agenceIps'];
-        $service = $agenceServiceIps['serviceIps'];
-        $codeAgence = $agence->getCodeAgence();
-        $codeService = $service->getCodeService();
-        $numDa = $this->autoDecrement('DAP');
+        $codeAgence   = $agence->getCodeAgence();
+        $codeService  = $service->getCodeService();
+        $numDa        = $this->autoDecrement('DAP');
 
         $demandeAppro
             ->setDaTypeId(DemandeAppro::TYPE_DA_REAPPRO)
@@ -63,18 +64,16 @@ trait DaNewReapproTrait
         return $demandeAppro;
     }
 
-    private function generateDemandApproLinesFromReappros(DemandeAppro $demandeAppro, array $agenceServiceIps)
+    private function generateDemandApproLinesFromReappros(DemandeAppro $demandeAppro, Agence $agence, Service $service)
     {
         $existingDals = [];
-        $newDals = [];
-        $lineNumber = 0;
+        $newDals      = [];
+        $lineNumber   = 0;
 
-        $numDa = $demandeAppro->getNumeroDemandeAppro();
-        $agence = $agenceServiceIps['agenceIps'];
-        $service = $agenceServiceIps['serviceIps'];
+        $numDa        = $demandeAppro->getNumeroDemandeAppro();
 
         $articlesReappro = $this->daArticleReapproRepository->findBy([
-            'codeAgence' => $agence->getCodeAgence(),
+            'codeAgence'  => $agence->getCodeAgence(),
             'codeService' => $service->getCodeService(),
         ]);
 
