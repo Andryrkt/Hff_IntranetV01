@@ -54,7 +54,8 @@ class DaNewReApproController extends Controller
         $this->traitementFormReappro($form, $request);
 
         return $this->render('da/new-da-reappro.html.twig', [
-            'form' => $form->createView(),
+            'form'         => $form->createView(),
+            'codeCentrale' => in_array($agence->getCodeAgence(), ['90', '91', '92']),
         ]);
     }
 
