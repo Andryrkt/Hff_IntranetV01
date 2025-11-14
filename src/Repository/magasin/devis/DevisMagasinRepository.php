@@ -78,6 +78,20 @@ class DevisMagasinRepository extends EntityRepository implements StatusRepositor
         return array_column($result, 'statutDw');
     }
 
+    // récupération des statuts BC
+    public function getStatutsBc(): array
+    {
+        $result = $this->createQueryBuilder('d')
+            ->select('DISTINCT d.statutBc')
+            ->where('d.statutBc IS NOT NULL')
+            ->andWhere('d.statutBc != :emptyString')
+            ->setParameter('emptyString', '')
+            ->getQuery()
+            ->getScalarResult();
+
+        return array_column($result, 'statutBc');
+    }
+
     public function getStatutDwEtStatutBc(string $numeroDevis): ?array
     {
         $result = $this->createQueryBuilder('d')

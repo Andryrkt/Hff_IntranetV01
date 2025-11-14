@@ -15,6 +15,7 @@ class listeDevisMagasinFactory
     private $dateDenvoiDevisAuClient;
     private $statutIps;
     private $statutBc;
+    private $creePar;
 
     /**
      * Get the value of statutDw
@@ -216,7 +217,7 @@ class listeDevisMagasinFactory
         return $this;
     }
 
-        /**
+    /**
      * Get the value of statutBc
      */
     public function getStatutBc()
@@ -233,7 +234,26 @@ class listeDevisMagasinFactory
 
         return $this;
     }
-    
+
+    /**
+     * Get the value of creePar
+     */
+    public function getCreePar()
+    {
+        return $this->creePar;
+    }
+
+    /**
+     * Set the value of creePar
+     */
+    public function setCreePar($creePar): self
+    {
+        $this->creePar = $creePar;
+
+        return $this;
+    }
+
+
     public function transformationEnObjet(array $data): listeDevisMagasinFactory
     {
         $this->setStatutDw($data['statut_dw'] ?? '');
@@ -247,6 +267,7 @@ class listeDevisMagasinFactory
         $this->setDateDenvoiDevisAuClient($this->convertToDateTime($data['date_envoi_devis_au_client']) ? $this->convertToDateTime($data['date_envoi_devis_au_client'])->format('d/m/Y') : null);
         $this->setStatutIps($data['statut_ips'] ?? '');
         $this->setStatutBc($data['statut_bc'] ?? '');
+        $this->setCreePar($data['utilisateur_createur_devis'] ?? '');
 
         return $this;
     }
@@ -267,6 +288,4 @@ class listeDevisMagasinFactory
             return null;
         }
     }
-
-
 }

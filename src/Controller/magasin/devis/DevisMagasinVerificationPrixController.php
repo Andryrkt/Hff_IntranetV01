@@ -37,7 +37,6 @@ class DevisMagasinVerificationPrixController extends Controller
     private ListeDevisMagasinModel $listeDevisMagasinModel;
     private HistoriqueOperationDevisMagasinService $historiqueOperationDeviMagasinService;
     private string $cheminBaseUpload;
-    private DevisMagasinRepository $devisMagasinRepository;
     private DevisMagasinGenererNameFileService $nameGenerator;
     private UploderFileService $uploader;
     private TraitementDeFichier $traitementDeFichier;
@@ -51,7 +50,6 @@ class DevisMagasinVerificationPrixController extends Controller
         $this->historiqueOperationDeviMagasinService = $container->get(HistoriqueOperationDevisMagasinService::class);
         $this->cheminBaseUpload = $_ENV['BASE_PATH_FICHIER'] . '/magasin/devis/';
         $this->generatePdfDevisMagasin = new GeneratePdfDeviMagasinVp();
-        $this->devisMagasinRepository = $this->getEntityManager()->getRepository(DevisMagasin::class);
         $this->nameGenerator = new DevisMagasinGenererNameFileService();
         $this->uploader = new UploderFileService($this->cheminBaseUpload, $this->nameGenerator);
         $this->traitementDeFichier = new TraitementDeFichier();
@@ -75,19 +73,23 @@ class DevisMagasinVerificationPrixController extends Controller
         $firstDevisIps = $this->getInfoDevisIps($numeroDevis);
         [$newSumOfLines, $newSumOfMontant] = $this->newSumOfLinesAndAmount($firstDevisIps);
 
+        /** @var DevisMagasinRepository */
+        $devisMagasinRepository = $this->getEntityManager()->getRepository(DevisMagasin::class);
+
         // Validation avant soumission - utilise la nouvelle méthode qui retourne un booléen
-        $orchestrator->validateBeforeVpSubmission($this->devisMagasinRepository, $numeroDevis, $newSumOfLines, $newSumOfMontant);
+        $orchestrator->validateBeforeVpSubmission($devisMagasinRepository, $numeroDevis, $newSumOfLines, $newSumOfMontant);
 
 
         //instancier le devis magasin
         $devisMagasin = new DevisMagasin();
         $devisMagasin->setNumeroDevis($numeroDevis);
+        $devisMagasin->constructeur = trim($this->listeDevisMagasinModel->getConstructeur($numeroDevis));
 
         //création du formulaire
         $form = $this->getFormFactory()->createBuilder(DevisMagasinType::class, $devisMagasin)->getForm();
 
         //traitement du formualire
-        $this->traitementFormualire($form, $request,  $devisMagasin, $firstDevisIps, $orchestrator);
+        $this->traitementFormualire($form, $request,  $devisMagasin, $firstDevisIps, $orchestrator, $devisMagasinRepository);
 
         //affichage du formulaire
         return $this->render('magasin/devis/soumission.html.twig', [
@@ -97,7 +99,7 @@ class DevisMagasinVerificationPrixController extends Controller
         ]);
     }
 
-    private function traitementFormualire($form, Request $request,  DevisMagasin $devisMagasin, array $firstDevisIps, DevisMagasinValidationVpOrchestrator $orchestrator)
+    private function traitementFormualire($form, Request $request,  DevisMagasin $devisMagasin, array $firstDevisIps, DevisMagasinValidationVpOrchestrator $orchestrator, DevisMagasinRepository $devisMagasinRepository)
     {
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
@@ -111,8 +113,9 @@ class DevisMagasinVerificationPrixController extends Controller
             $suffixConstructeur = $this->listeDevisMagasinModel->constructeurPieceMagasin($devisMagasin->getNumeroDevis());
 
             /** @var int recupération de numero version max */
-            $numeroVersion = $this->devisMagasinRepository->getNumeroVersionMax($devisMagasin->getNumeroDevis());
+            $numeroVersion = $devisMagasinRepository->getNumeroVersionMax($devisMagasin->getNumeroDevis());
 
+            if ($devisMagasin->constructeur === 'TOUS NEST PAS CAT')  $devisMagasin->setEstValidationPm(true);
 
             /** 
              * Enregistrement de fichier uploder

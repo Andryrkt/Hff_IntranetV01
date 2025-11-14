@@ -140,14 +140,19 @@ class DevisMagasin
      */
     private ?string $tacheValidateur;
 
-        /**
+    /**
+     * @ORM\Column(type="boolean", name="est_validation_pm")
+     */
+    private $estValidationPm = false;
+
+    /**
      * @ORM\Column(type="string", length=100, name="statut_bc", nullable=true)
      *
      * @var string|null
      */
     private ?string $statutBc = '';
 
-        /**
+    /**
      * @ORM\Column(type="string", length=100, name="relance", nullable=true)
      *
      * @var string|null
@@ -157,6 +162,8 @@ class DevisMagasin
     private $pieceJoint01;
 
     private $pieceJoint2;
+
+    public  $constructeur;
 
 
 
@@ -574,7 +581,7 @@ class DevisMagasin
      * Get the value of statutBc
      *
      * @return  string|null
-     */ 
+     */
     public function getStatutBc()
     {
         return $this->statutBc;
@@ -586,7 +593,7 @@ class DevisMagasin
      * @param  string|null  $statutBc
      *
      * @return  self
-     */ 
+     */
     public function setStatutBc($statutBc)
     {
         $this->statutBc = $statutBc;
@@ -598,7 +605,7 @@ class DevisMagasin
      * Get the value of relance
      *
      * @return  string|null
-     */ 
+     */
     public function getRelance()
     {
         return $this->relance;
@@ -610,7 +617,7 @@ class DevisMagasin
      * @param  string|null  $relance
      *
      * @return  self
-     */ 
+     */
     public function setRelance($relance)
     {
         $this->relance = $relance;
@@ -618,4 +625,21 @@ class DevisMagasin
         return $this;
     }
 
+    /**
+     * Get the value of estValidationPm
+     */
+    public function getEstValidationPm()
+    {
+        return $this->estValidationPm;
+    }
+
+    /**
+     * Set the value of estValidationPm
+     */
+    public function setEstValidationPm($estValidationPm): self
+    {
+        $this->estValidationPm = $estValidationPm;
+
+        return $this;
+    }
 }

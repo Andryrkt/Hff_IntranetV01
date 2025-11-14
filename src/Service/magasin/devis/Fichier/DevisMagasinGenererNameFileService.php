@@ -19,7 +19,7 @@ class DevisMagasinGenererNameFileService extends AbstractFileNameGeneratorServic
         int $index = 1
     ): string {
         return $this->generateFileName($file, [
-            'format' => 'verificationprix_{numDevis}-{numeroVersion}#{suffix}!{mail}.{extension}',
+            'format' => 'verificationprixneg_{numDevis}-{numeroVersion}#{suffix}!{mail}.{extension}',
             'variables' => [
                 'numDevis' => $numDevis,
                 'numeroVersion' => $numeroVersion,

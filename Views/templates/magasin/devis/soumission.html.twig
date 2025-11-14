@@ -9,7 +9,7 @@
 	<link href="{{ App.base_path }}/Views/css/magasin/devis/soumission.css?v=2025.10.22.08.00" rel="stylesheet"/>
 {% endblock %}
 {% block content %}
-	<div class=" container">
+	<div class=" container mt-6">
 		<div class="card">
 			<div class="card-body">
 
@@ -29,6 +29,11 @@
 
 					<div class="row {{message == 'verification prix' ? '' : 'd-none'}}">
 						<div class="col-12 col-md-4">
+							{{ form_row(form.estValidationPm) }}
+						</div>
+					</div>
+					<div class="row {{message == 'verification prix' ? '' : 'd-none'}}">
+						<div class="col-12 col-md-4">
 							{{ form_row(form.tacheValidateur) }}
 						</div>
 					</div>
@@ -42,7 +47,7 @@
 
 						<div class="col-12 col-md-3 {{message == 'verification prix' ? '' : 'd-none'}}">
 							<p>Insérer
-								<strong>les autres fichiers ici *</strong>
+								<strong>les autres fichiers ici </strong>
 							</p>
 							{% include '/partials/_dropZoneFileMultiple.html.twig' with {'id': '2', 'form': form, 'fieldName': 'pieceJoint2'} %}
 						</div>

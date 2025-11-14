@@ -160,7 +160,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
                             <th>QTé LIV</th>
                             <th>Statut</th>
                             <th>Date Statut</th>
-                      
+                             <th>ETA Ivato</th>
+                            <th>ETA Magasin</th>
                             <th>Message</th>`;
             planningTableHead.innerHTML += rowHeader;
             planningTableHeadOR.innerHTML += rowHeader;
@@ -179,6 +180,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
                             <th>QTé LIV</th>
                             <th>Statut</th>
                             <th>Date Statut</th>
+                            <th>ETA Ivato</th>
+                            <th>ETA Magasin</th>
                             <th>Message</th>`;
             planningTableHead.innerHTML += rowHeader;
           }
@@ -373,6 +376,9 @@ document.addEventListener("DOMContentLoaded", (event) => {
                         }</td> 
                         <td >${statutCIS === null ? "" : statutCIS}</td> 
                         <td>${dateStatutCIS}</td> 
+                        <td>${dateEtaIvato}</td> 
+                        <td>${dateMagasin}</td> 
+                        <td>${message}</td> 
                         
                     </tr>`;
                 tableBodyLign.innerHTML += row1;
@@ -393,6 +399,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
                       <td>${parseInt(detail.qteliv)  === 0 ? "" : parseInt(detail.qteliv)}</td> 
                       <td >${statut}</td> 
                       <td>${dateStatut}</td> 
+                       <td>${dateEtaIvato}</td> 
+                      <td>${dateMagasin}</td> 
                       <td>${message}</td> 
                   </tr>`;
               tableBody.innerHTML += row;

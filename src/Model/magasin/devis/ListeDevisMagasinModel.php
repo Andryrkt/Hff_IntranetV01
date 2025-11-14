@@ -27,7 +27,7 @@ class ListeDevisMagasinModel extends Model
             WHERE nent_natop = 'DEV'
             AND nent_soc = 'HF'
             AND CAST(nent_numcli AS VARCHAR(20)) NOT LIKE '199%'
-            AND year(Nent_datecde) = '2025'
+            AND year(Nent_datecde) = year(TODAY)
         ";
 
         if (array_key_exists('statutIps', $criteria) && $criteria['statutIps'] == 'RE') {
@@ -185,18 +185,18 @@ class ListeDevisMagasinModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function getUtilisateurCreateurDevis(string $numeroDevis)
+    public function getUtilisateurCreateurDevis(string $numeroDevis): string
     {
-        $statement = "SELECT ausr_nom as utilisateur_createur_devis
-            FROM informix.sav_eor se
-            JOIN informix.agr_usr au ON au.ausr_num = se.seor_usr
-            WHERE se.seor_numor = '$numeroDevis'";
+        $statement = "SELECT TRIM(ausr_nom) as utilisateur_createur_devis
+            FROM informix.neg_ent
+            inner join informix.agr_usr on ausr_num = nent_usr and ausr_soc = nent_soc
+            WHERE nent_numcde = '$numeroDevis'";
 
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);
 
-        return array_column($this->convertirEnUtf8($data), 'utilisateur_createur_devis');
+        return array_column($this->convertirEnUtf8($data), 'utilisateur_createur_devis')[0];
     }
 
     public function getClientAndModePaiement(string $numeroDevis): array
@@ -205,6 +205,8 @@ class ListeDevisMagasinModel extends Model
                     ,nent_nomcli as nom_client
                     ,TRIM(cpai_libelle) as mode_paiement
                     from informix.neg_ent 
+                    inner join neg_cli on ncli_numcli = nent_numcli and ncli_soc = nent_soc
+                    inner join agr_tab on atab_nom = 'PAI' and ncli_modp = atab_code
                     left join informix.cpt_pai on cpai_codpai = nent_modp 
                     where nent_numcde ='$numeroDevis'
         ";
@@ -214,5 +216,26 @@ class ListeDevisMagasinModel extends Model
         $data = $this->connect->fetchResults($result);
 
         return $this->convertirEnUtf8($data);
+    }
+
+    public function getConstructeur(string $numeroDevis)
+    {
+        $statement = " SELECT 
+                CASE 
+                    WHEN COUNT(*) = 0 THEN 'AUCUNE CONSTRUCTEUR'
+                    WHEN COUNT(CASE WHEN nlig_constp = 'CAT' THEN 1 END) = COUNT(*) THEN 'TOUT CAT'
+                    ELSE 'TOUS NEST PAS CAT'
+                END as resultat
+            FROM informix.neg_lig 
+            WHERE nlig_numcde = '$numeroDevis' 
+            AND nlig_constp NOT LIKE 'Nmc%'
+            AND nlig_constp IN (" . GlobalVariablesService::get('pieces_magasin') . ")
+    ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return array_column($data, 'resultat')[0];
     }
 }
