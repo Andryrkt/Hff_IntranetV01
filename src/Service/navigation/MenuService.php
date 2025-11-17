@@ -7,11 +7,12 @@ use App\Entity\admin\Application;
 use App\Entity\admin\Service;
 use App\Entity\admin\utilisateur\Role;
 use App\Entity\admin\utilisateur\User;
-use App\Service\SessionManagerService;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class MenuService
 {
     private $em;
+    private $session;
     private $connectedUser;
     private bool $estAdmin = false;
     private bool $estAtelier = false;
@@ -21,9 +22,10 @@ class MenuService
     private $basePath;
     private $applicationIds = [];
 
-    public function __construct($entityManager)
+    public function __construct($entityManager, SessionInterface $session)
     {
         $this->em = $entityManager;
+        $this->session = $session;
         $this->basePath = $_ENV['BASE_PATH_FICHIER_COURT']; // Chemin de base pour les liens de téléchargement --> /Upload
     }
 
@@ -174,11 +176,9 @@ class MenuService
      */
     private function setConnectedUserContext()
     {
-        $sessionManager = new SessionManagerService();
-
-        if ($sessionManager->has('user_id')) {
+        if ($this->session->has('user_id')) {
             /** @var User|null $connectedUser */
-            $connectedUser = $this->em->getRepository(User::class)->find($sessionManager->get('user_id'));
+            $connectedUser = $this->em->getRepository(User::class)->find($this->session->get('user_id'));
 
             if ($connectedUser) {
                 $roleIds = $connectedUser->getRoleIds();

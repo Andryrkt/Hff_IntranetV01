@@ -10,12 +10,9 @@ use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\Matcher\UrlMatcher;
 use Symfony\Component\HttpKernel\Controller\ControllerResolver;
 use Symfony\Component\HttpKernel\Controller\ArgumentResolver;
-use Symfony\Component\Routing\Generator\UrlGenerator;
 use Symfony\Component\Routing\Loader\AnnotationDirectoryLoader;
 use App\Loader\CustomAnnotationClassLoader;
 use Doctrine\Common\Annotations\AnnotationReader;
-use Twig\Environment;
-use Twig\Loader\FilesystemLoader;
 use Twig\Extension\DebugExtension;
 use Symfony\Bridge\Twig\Extension\TranslationExtension;
 use Symfony\Bridge\Twig\Extension\RoutingExtension;
@@ -28,6 +25,8 @@ use Symfony\Component\Form\FormRenderer;
 use Symfony\Bridge\Twig\Form\TwigRendererEngine;
 use Twig\RuntimeLoader\FactoryRuntimeLoader;
 use Illuminate\Pagination\Paginator;
+use Symfony\Component\Config\ConfigCache;
+use Symfony\Component\Config\Resource\FileResource;
 
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'vendor/autoload.php';
 
@@ -37,21 +36,15 @@ if (file_exists(dirname(__DIR__) . '/.env')) {
     $dotenv->load();
 }
 
+
 // Charger les variables globales
 require_once __DIR__ . '/listeConstructeur.php';
 
-// Définir les variables d'environnement manquantes pour les tests CLI
-if (!isset($_ENV['BASE_PATH_COURT'])) {
-    $_ENV['BASE_PATH_COURT'] = '/Hffintranet';
-}
-if (!isset($_SERVER['HTTP_HOST'])) {
-    $_SERVER['HTTP_HOST'] = 'localhost';
-}
-if (!isset($_SERVER['REQUEST_URI'])) {
-    $_SERVER['REQUEST_URI'] = '/';
-}
 
-// Configuration pour les tests CLI (session gérée dans test_di.php)
+// Définir les variables d'environnement manquantes pour les tests CLI
+if (!isset($_ENV['BASE_PATH_COURT'])) $_ENV['BASE_PATH_COURT'] = '/Hffintranet';
+if (!isset($_SERVER['HTTP_HOST']))    $_SERVER['HTTP_HOST'] = 'localhost';
+if (!isset($_SERVER['REQUEST_URI']))  $_SERVER['REQUEST_URI'] = '/';
 
 // Créer le conteneur de services
 $container = new ContainerBuilder();
@@ -69,8 +62,6 @@ $registry = new \core\SimpleManagerRegistry($entityManager);
 
 // Enregistrer l'EntityManager comme service AVANT de charger la configuration
 $container->set('doctrine.orm.default_entity_manager', $entityManager);
-
-// Charger la configuration des services
 $loader = new YamlFileLoader($container, new FileLocator(__DIR__));
 $loader->load('services.yaml');
 
@@ -131,8 +122,6 @@ $container->register('App\Twig\DeleteWordExtension', \App\Twig\DeleteWordExtensi
 // Charger les paramètres
 $loader->load('parameters.yaml');
 
-// L'EntityManager est déjà assigné plus haut
-
 // Compiler le conteneur
 $container->compile();
 
@@ -144,8 +133,6 @@ $twig = new \Twig\Environment(new \Twig\Loader\FilesystemLoader([
 
 $container->set('twig', $twig);
 
-
-
 // Create the form factory with container integration
 $formFactory = \Symfony\Component\Form\Forms::createFormFactoryBuilder()
     ->addExtension(new \Symfony\Component\Form\Extension\Core\CoreExtension())
@@ -155,8 +142,8 @@ $formFactory = \Symfony\Component\Form\Forms::createFormFactoryBuilder()
     ->addExtension(new \Symfony\Component\Form\Extension\DependencyInjection\DependencyInjectionExtension($container, [], []))
     ->getFormFactory();
 
-$container->set('form.factory', $formFactory);
 
+$container->set('form.factory', $formFactory);
 
 // Créer et assigner les autres services
 $session = new \Symfony\Component\HttpFoundation\Session\Session(new \Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage());
@@ -185,13 +172,11 @@ $requestStack = $container->get('request_stack');
 $tokenStorage = $container->get('security.token_storage');
 $authorizationChecker = $container->get('security.authorization_checker');
 
-
-
 // Créer et assigner les services Twig APRÈS la compilation
 $appExtension = new \App\Twig\AppExtension($session, $requestStack, $tokenStorage, $authorizationChecker, $entityManager);
 $container->set('App\Twig\AppExtension', $appExtension);
 
-$menuService = new \App\Service\navigation\MenuService($entityManager);
+$menuService = new \App\Service\navigation\MenuService($entityManager, $session);
 $container->set('App\Service\navigation\MenuService', $menuService);
 
 $breadcrumbMenuService = new \App\Service\navigation\BreadcrumbMenuService($menuService);
@@ -219,33 +204,61 @@ if (stripos($pathInfo, '/hffintranet') === 0 && strpos($pathInfo, '/Hffintranet'
     exit; // on arrête le script après la redirection
 }
 
-// Charger les routes
-$routeLoader = new AnnotationDirectoryLoader(
-    new FileLocator(dirname(__DIR__) . '/src/Controller/'),
-    new CustomAnnotationClassLoader(new AnnotationReader())
-);
-$controllerCollection = $routeLoader->load(dirname(__DIR__) . '/src/Controller/');
+$cacheAllRoutesFile = dirname(__DIR__) . '/var/cache/all_routes.php'; // Fichier cache commun pour routes controllers + API
+$cacheRoutes = new ConfigCache($cacheAllRoutesFile, true); // TODO Mode debug : true => vérifie si les fichiers ont changé
 
-// Charger les routes API
-$apiLoader = new AnnotationDirectoryLoader(
-    new FileLocator(dirname(__DIR__) . '/src/Api/'),
-    new CustomAnnotationClassLoader(new AnnotationReader())
-);
-$apiCollection = $apiLoader->load(dirname(__DIR__) . '/src/Api/');
+// Dossiers à charger
+$dirs = [
+    dirname(__DIR__) . '/src/Controller/',
+    dirname(__DIR__) . '/src/Api/',
+];
 
-// Configurer le contexte de requête
-$context = new RequestContext();
-$context->fromRequest($request);
-
-// Fusionner les collections de routes
+// Collection finale
 $collection = new RouteCollection();
+
+if (!$cacheRoutes->isFresh()) {
+    $controllerCollection = new RouteCollection();
+    $annotationReader = new AnnotationReader();
+
+    // 🔁 Charger les routes depuis tous les dossiers
+    foreach ($dirs as $dir) {
+        if (!is_dir($dir)) continue;
+
+        $routeLoader = new AnnotationDirectoryLoader(
+            new FileLocator($dir),
+            new CustomAnnotationClassLoader($annotationReader)
+        );
+
+        $subCollection = $routeLoader->load($dir);
+        $controllerCollection->addCollection($subCollection);
+
+        // Ajouter toutes les ressources à surveiller
+        $rii = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir));
+        foreach ($rii as $file) {
+            if ($file->isFile() && $file->getExtension() === 'php') {
+                $controllerCollection->addResource(new FileResource($file->getPathname()));
+            }
+        }
+    }
+
+    // Écriture du cache avec toutes les ressources
+    $cacheRoutes->write(serialize($controllerCollection), $controllerCollection->getResources());
+} else {
+    // Charger la collection depuis le cache
+    $controllerCollection = unserialize(file_get_contents($cacheAllRoutesFile));
+}
+
+// ➡️ Fusion finale
 $collection->addCollection($controllerCollection);
-$collection->addCollection($apiCollection);
 
 // ➡️ Ajoute ce bloc juste ici
 foreach ($collection as $route) {
     $route->setOption('case_sensitive', false);
 }
+
+// Configurer le contexte de requête
+$context = new RequestContext();
+$context->fromRequest($request);
 
 // Créer le UrlGenerator avec la vraie collection de routes
 $urlGenerator = new \Symfony\Component\Routing\Generator\UrlGenerator($collection, $context);
@@ -291,19 +304,18 @@ Paginator::useBootstrap();
 // Stocker le conteneur dans une variable globale pour y accéder
 global $container;
 
-// Retourner les services principaux
 return [
-    'container' => $container,
-    'entityManager' => $entityManager,
-    'twig' => $twig,
-    'formFactory' => $formFactory,
-    'urlGenerator' => $urlGenerator,
-    'session' => $session,
-    'requestStack' => $requestStack,
-    'tokenStorage' => $tokenStorage,
+    'container'            => $container,
+    'entityManager'        => $entityManager,
+    'twig'                 => $twig,
+    'formFactory'          => $formFactory,
+    'urlGenerator'         => $urlGenerator,
+    'session'              => $session,
+    'requestStack'         => $requestStack,
+    'tokenStorage'         => $tokenStorage,
     'authorizationChecker' => $authorizationChecker,
-    'matcher' => $matcher,
-    'controllerResolver' => $controllerResolver,
-    'argumentResolver' => $argumentResolver,
-    'routeCollection' => $collection,
+    'matcher'              => $matcher,
+    'controllerResolver'   => $controllerResolver,
+    'argumentResolver'     => $argumentResolver,
+    'routeCollection'      => $collection,
 ];

@@ -1,11 +1,7 @@
 <?php
 
-
 use Doctrine\ORM\Tools\Setup;
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\Common\Annotations\AnnotationReader;
-use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
 
 require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/config/dotenv.php';
