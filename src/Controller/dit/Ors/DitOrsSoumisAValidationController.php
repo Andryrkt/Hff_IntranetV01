@@ -157,8 +157,8 @@ class DitOrsSoumisAValidationController extends Controller
             $observation = $form->get("observation")->getData();
             $conditionBloquage = $this->conditionsDeBloquegeSoumissionOr($originalName, $numOr, $ditInsertionOrSoumis, $numDit);
 
-            /** FIN CONDITION DE BLOCAGE */ // TODO: à activer le blocage
-            // if ($this->bloquageOrSoumsi($conditionBloquage, $originalName, $ditInsertionOrSoumis)) {
+            /** FIN CONDITION DE BLOCAGE */
+            if ($this->bloquageOrSoumsi($conditionBloquage, $originalName, $ditInsertionOrSoumis)) {
 
             $numeroVersionMax = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class)->findNumeroVersionMax($ditInsertionOrSoumis->getNumeroOR());
 
@@ -189,11 +189,11 @@ class DitOrsSoumisAValidationController extends Controller
             $this->modificationDaAfficher($numDit, $ditInsertionOrSoumis->getNumeroOR(), $daAfficherRepository);
 
             $this->historiqueOperation->sendNotificationSoumission('Le document de controle a été généré et soumis pour validation', $ditInsertionOrSoumis->getNumeroOR(), 'dit_index', true);
-            // } else {
-            //     $message = "Echec lors de la soumission, . . .";
-            //     $this->historiqueOperation->sendNotificationSoumission($message, $numOr, 'dit_index');
-            //     exit;
-            // }
+            } else {
+                $message = "Echec lors de la soumission, . . .";
+                $this->historiqueOperation->sendNotificationSoumission($message, $numOr, 'dit_index');
+                exit;
+            }
         }
     }
 
