@@ -95,10 +95,7 @@ trait DaValidationReapproTrait
         $result = [];
         $montantTotal = array_fill_keys($monthsList, 0.0); // initialiser à 0.0 tous les montants totals
 
-        $codeAgence = $demandeAppro->getAgenceEmetteur()->getCodeAgence();
-        $codeService = $demandeAppro->getServiceEmetteur()->getCodeService();
-
-        $datas = $this->daReapproModel->getHistoriqueConsommation($dateRange, $codeAgence, $codeService);
+        $datas = $this->daReapproModel->getHistoriqueConsommation($dateRange, $demandeAppro);
 
         foreach ($datas as $row) {
             // Clé unique par produit

@@ -56,7 +56,7 @@ class DaValidationReapproController extends Controller
 
         //========================================== Traitement du formulaire en général ===================================================//
         $this->traitementFormulaire($formReappro, $formObservation, $request, $da, $observations, $monthsList, $dataHistoriqueConsommation);
-        // =================================================================================================================================//
+        //==================================================================================================================================//
 
         return $this->render("da/validation-reappro.html.twig", [
             'demandeAppro'    => $da,

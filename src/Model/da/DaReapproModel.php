@@ -2,12 +2,40 @@
 
 namespace App\Model\da;
 
+use App\Entity\da\DemandeAppro;
 use App\Model\Model;
 
 class DaReapproModel extends Model
 {
-    public function getHistoriqueConsommation(array $date, string $codeAgence, string $codeService)
+    public function getHistoriqueConsommation(array $date, DemandeAppro $demandeAppro)
     {
+        $conditionNumDa = "";
+        $codeAgence     = $demandeAppro->getAgenceEmetteur()->getCodeAgence();
+        $codeService    = $demandeAppro->getServiceEmetteur()->getCodeService();
+        $codeCentrale   = $demandeAppro->getCodeCentrale();
+
+        if (in_array($codeAgence, ['90', '91', '92'])) {
+            if (!$codeCentrale) return [];
+
+            $numDa = [];
+            // Étape 1 : Obtenir les numéros DA pour le code centrale
+            $sql = "SELECT 
+                        d.numero_demande_appro 
+                    FROM Demande_Appro d WHERE d.code_centrale='$codeCentrale'
+                    ORDER by d.numero_demande_appro DESC";
+
+            $exec = $this->connexion->query($sql);
+            while ($result = odbc_fetch_array($exec)) {
+                $data = $this->convertirEnUtf8($result);
+                $numDa[] = $data['numero_demande_appro'];
+            }
+
+            // Étape 2 : Transformer en SQL list
+            if (empty($numDa)) return [];
+
+            $conditionNumDa = "AND seor_lib IN ('" . implode("', '", $numDa) . "')";
+        }
+
         $statement = "SELECT 
                         dfcc_datefac AS date_fac,
                         slor_constp AS cst, 
@@ -16,7 +44,7 @@ class DaReapproModel extends Model
 	                    sum(slor_pxnreel * slor_qterea) as mtt_total, 
                         sum(slor_qterea) AS qte_fac 
                     FROM sav_lor
-                        INNER JOIN sav_eor ON seor_soc = slor_soc AND seor_succ = slor_succ AND slor_numor = seor_numor
+                        INNER JOIN sav_eor ON seor_soc = slor_soc AND seor_succ = slor_succ AND slor_numor = seor_numor $conditionNumDa
                         INNER JOIN dpc_fcc ON dfcc_soc = slor_soc AND dfcc_succ = slor_succ AND dfcc_numfcc = slor_numfac
                     WHERE slor_succdeb = '$codeAgence' AND slor_servdeb = '$codeService' 
                         AND EXTEND(dfcc_datefac, YEAR TO DAY) BETWEEN '{$date['start']}' AND '{$date['end']}'
