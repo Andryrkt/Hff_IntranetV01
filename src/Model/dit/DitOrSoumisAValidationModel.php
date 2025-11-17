@@ -511,7 +511,7 @@ class DitOrSoumisAValidationModel extends Model
         return (int) ($data[0]['count'] ?? 0);
     }
 
-    public function getPieceFaibleActiviteAchat(string $constructeur, string $reference, string $codeAgence, string $codeService): array
+    public function getPieceFaibleActiviteAchat(string $constructeur, string $reference, string $numOr): array
     {
         $statement = "SELECT
                 TRIM(case when 
@@ -519,6 +519,7 @@ class DitOrSoumisAValidationModel extends Model
                     else 'ne pas afficher'
                 end) as retour
                 , A.ffac_datef as date_derniere_cde
+                , (select distinct slor_pmp from sav_lor where slor_numor = '$numOr' and slor_constp = '$constructeur' and slor_refp = '$reference') as pmp
                 FROM
                 (select first 1  
                 ffac_datef

@@ -9,7 +9,6 @@ use App\Service\genererPdf\PdfTableGeneratorFlexible;
 
 class GenererPdfOrSoumisAValidation extends GeneratePdf
 {
-
     use FormatageTrait;
 
     // ORDRE DE REPARATION (OR)
@@ -155,8 +154,10 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
 
         //==========================================================================================================
         //Titre: Pièce(s) à faible activité d'achat
-        $this->addTitle($pdf, empty($pieceFaibleAchat) ? "Pièce(s) à faible activité d'achat : N/A" : "Pièce(s) à faible activité d'achat", 'helvetica',  'B', 10, 'L',  5);
+        $pdf->SetTextColor(255, 0, 0);
+        $this->addTitle($pdf, empty($pieceFaibleAchat) ? '' : "Attention !!! prix susceptible d'augmenter, veuillez confirmer avec le service Magasin", 'helvetica', 'B', 10, 'L', 5);
 
+        $pdf->SetTextColor(0, 0, 0);
         if (!empty($pieceFaibleAchat)) {
             $pdf->setFont('helvetica', '', 12);
             $html = $tableGenerator->generateTable(
@@ -178,7 +179,7 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
 
 
 
-        $pdf->Output($nomAvecCheminFichier, 'F');
+        $pdf->Output($nomAvecCheminFichier, 'I');
     }
 
     /**===============================================================
@@ -189,80 +190,80 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
     {
         return  [
             [
-                'key' => 'itv',
-                'label' => 'ITV',
-                'width' => 40,
-                'style' => 'font-weight: 900;',
+                'key'          => 'itv',
+                'label'        => 'ITV',
+                'width'        => 40,
+                'style'        => 'font-weight: 900;',
                 'header_style' => 'font-weight: 900;',
-                'cell_style' => '',
+                'cell_style'   => '',
                 'footer_style' => 'font-weight: 900;'
             ],
             [
-                'key' => 'libelleItv',
-                'label' => 'Libellé ITV',
-                'width' => 150,
-                'style' => 'font-weight: bold;',
+                'key'          => 'libelleItv',
+                'label'        => 'Libellé ITV',
+                'width'        => 150,
+                'style'        => 'font-weight: bold;',
                 'header_style' => 'font-weight: bold;',
-                'cell_style' => 'text-align: left;',
+                'cell_style'   => 'text-align: left;',
                 'footer_style' => 'font-weight: 900;'
             ],
             [
-                'key' => 'datePlanning',
-                'label' => 'Date pla',
-                'width' => 50,
-                'style' => 'font-weight: bold;',
+                'key'          => 'datePlanning',
+                'label'        => 'Date pla',
+                'width'        => 50,
+                'style'        => 'font-weight: bold;',
                 'header_style' => 'font-weight: bold;',
-                'cell_style' => 'text-align: left;',
+                'cell_style'   => 'text-align: left;',
                 'footer_style' => 'font-weight: bold;',
-                'type' => 'date'
+                'type'         => 'date'
             ],
             [
-                'key' => 'nbLigAv',
-                'label' => 'Nb Lig av',
-                'width' => 50,
-                'style' => 'font-weight: bold;',
+                'key'          => 'nbLigAv',
+                'label'        => 'Nb Lig av',
+                'width'        => 50,
+                'style'        => 'font-weight: bold;',
                 'header_style' => 'font-weight: bold;',
-                'cell_style' => '',
+                'cell_style'   => '',
                 'footer_style' => 'font-weight: bold;'
             ],
             [
-                'key' => 'nbLigAp',
-                'label' => 'Nb Lig ap',
-                'width' => 50,
-                'style' => 'font-weight: bold;',
+                'key'          => 'nbLigAp',
+                'label'        => 'Nb Lig ap',
+                'width'        => 50,
+                'style'        => 'font-weight: bold;',
                 'header_style' => 'font-weight: bold;',
-                'cell_style' => '',
+                'cell_style'   => '',
                 'footer_style' => 'font-weight: bold;'
             ],
             [
-                'key' => 'mttTotalAv',
-                'label' => 'Mtt Total av',
-                'width' => 80,
-                'style' => 'font-weight: bold; text-align: center;',
+                'key'          => 'mttTotalAv',
+                'label'        => 'Mtt Total av',
+                'width'        => 80,
+                'style'        => 'font-weight: bold; text-align: center;',
                 'header_style' => 'font-weight: bold; text-align: center;',
-                'cell_style' => 'text-align: right;',
+                'cell_style'   => 'text-align: right;',
                 'footer_style' => 'font-weight: bold; text-align: right;',
-                'type' => 'number'
+                'type'         => 'number'
             ],
             [
-                'key' => 'mttTotalAp',
-                'label' => 'Mtt total ap',
-                'width' => 80,
-                'style' => 'font-weight: bold; text-align: center;',
+                'key'          => 'mttTotalAp',
+                'label'        => 'Mtt total ap',
+                'width'        => 80,
+                'style'        => 'font-weight: bold; text-align: center;',
                 'header_style' => 'font-weight: bold; text-align: center;',
-                'cell_style' => 'text-align: right;',
+                'cell_style'   => 'text-align: right;',
                 'footer_style' => 'font-weight: bold; text-align: right;',
-                'type' => 'number'
+                'type'         => 'number'
             ],
             [
-                'key' => 'statut',
-                'label' => 'Statut',
-                'width' => 40,
-                'style' => 'font-weight: bold; text-align: center;',
+                'key'          => 'statut',
+                'label'        => 'Statut',
+                'width'        => 40,
+                'style'        => 'font-weight: bold; text-align: center;',
                 'header_style' => 'font-weight: bold; text-align: center;',
-                'cell_style' => 'text-align: left;',
+                'cell_style'   => 'text-align: left;',
                 'footer_style' => 'font-weight: bold; text-align: center;',
-                'styler' => function ($value, $row) {
+                'styler'       => function ($value, $row) {
                     switch ($value) {
                         case 'Supp':
                             return 'background-color: #FF0000;';
@@ -281,14 +282,14 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
     private function footerSituationOr(array $montantPdf): array
     {
         return [
-            'itv' => '',
-            'libelleItv' => '',
-            'datePlanning' => 'TOTAL',
-            'nbLigAv' => $montantPdf['totalAvantApres']['totalNbLigAv'] ?? '',
-            'nbLigAp' => $montantPdf['totalAvantApres']['totalNbLigAp'] ?? '',
-            'mttTotalAv' => $montantPdf['totalAvantApres']['totalMttTotalAv'] ?? '',
-            'mttTotalAp' => $montantPdf['totalAvantApres']['totalMttTotalAp'] ?? '',
-            'statut' => ''
+            'itv'              => '',
+            'libelleItv'       => '',
+            'datePlanning'     => 'TOTAL',
+            'nbLigAv'          => $montantPdf['totalAvantApres']['totalNbLigAv'] ?? '',
+            'nbLigAp'          => $montantPdf['totalAvantApres']['totalNbLigAp'] ?? '',
+            'mttTotalAv'       => $montantPdf['totalAvantApres']['totalMttTotalAv'] ?? '',
+            'mttTotalAp'       => $montantPdf['totalAvantApres']['totalMttTotalAp'] ?? '',
+            'statut'           => ''
         ];
     }
 
@@ -319,73 +320,73 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
     {
         return [
             [
-                'key' => 'itv',
-                'label' => 'ITV',
-                'width' => 40,
-                'style' => 'font-weight: 900;',
+                'key'          => 'itv',
+                'label'        => 'ITV',
+                'width'        => 40,
+                'style'        => 'font-weight: 900;',
                 'header_style' => 'font-weight: 900;',
-                'cell_style' => '',
+                'cell_style'   => '',
                 'footer_style' => 'font-weight: 900;'
             ],
             [
-                'key' => 'mttTotal',
-                'label' => 'Mtt Total',
-                'width' => 70,
-                'style' => 'font-weight: bold; text-align: center;',
+                'key'          => 'mttTotal',
+                'label'        => 'Mtt Total',
+                'width'        => 70,
+                'style'        => 'font-weight: bold; text-align: center;',
                 'header_style' => 'font-weight: bold; text-align: center;',
-                'cell_style' => 'text-align: right;',
+                'cell_style'   => 'text-align: right;',
                 'footer_style' => 'font-weight: bold; text-align: right;',
-                'type' => 'number'
+                'type'         => 'number'
             ],
             [
-                'key' => 'mttPieces',
-                'label' => 'Mtt Pièces',
-                'width' => 60,
-                'style' => 'font-weight: bold; text-align: center;',
+                'key'          => 'mttPieces',
+                'label'        => 'Mtt Pièces',
+                'width'        => 60,
+                'style'        => 'font-weight: bold; text-align: center;',
                 'header_style' => 'font-weight: bold; text-align: center;',
-                'cell_style' => 'text-align: right;',
+                'cell_style'   => 'text-align: right;',
                 'footer_style' => 'font-weight: bold; text-align: right;',
-                'type' => 'number'
+                'type'         => 'number'
             ],
             [
-                'key' => 'mttMo',
-                'label' => 'Mtt MO',
-                'width' => 60,
-                'style' => 'font-weight: bold; text-align: center;',
+                'key'          => 'mttMo',
+                'label'        => 'Mtt MO',
+                'width'        => 60,
+                'style'        => 'font-weight: bold; text-align: center;',
                 'header_style' => 'font-weight: bold; text-align: center;',
-                'cell_style' => 'text-align: right;',
+                'cell_style'   => 'text-align: right;',
                 'footer_style' => 'font-weight: bold; text-align: right;',
-                'type' => 'number'
+                'type'         => 'number'
             ],
             [
-                'key' => 'mttSt',
-                'label' => 'Mtt ST',
-                'width' => 80,
-                'style' => 'font-weight: bold; text-align: center;',
+                'key'          => 'mttSt',
+                'label'        => 'Mtt ST',
+                'width'        => 80,
+                'style'        => 'font-weight: bold; text-align: center;',
                 'header_style' => 'font-weight: bold; text-align: center;',
-                'cell_style' => 'text-align: right;',
+                'cell_style'   => 'text-align: right;',
                 'footer_style' => 'font-weight: bold; text-align: right;',
-                'type' => 'number'
+                'type'         => 'number'
             ],
             [
-                'key' => 'mttLub',
-                'label' => 'Mtt LUB',
-                'width' => 80,
-                'style' => 'font-weight: bold; text-align: center;',
+                'key'          => 'mttLub',
+                'label'        => 'Mtt LUB',
+                'width'        => 80,
+                'style'        => 'font-weight: bold; text-align: center;',
                 'header_style' => 'font-weight: bold; text-align: center;',
-                'cell_style' => 'text-align: right;',
+                'cell_style'   => 'text-align: right;',
                 'footer_style' => 'font-weight: bold; text-align: right;',
-                'type' => 'number'
+                'type'         => 'number'
             ],
             [
-                'key' => 'mttAutres',
-                'label' => 'Mtt Autres',
-                'width' => 80,
-                'style' => 'font-weight: bold; text-align: center;',
+                'key'          => 'mttAutres',
+                'label'        => 'Mtt Autres',
+                'width'        => 80,
+                'style'        => 'font-weight: bold; text-align: center;',
                 'header_style' => 'font-weight: bold; text-align: center;',
-                'cell_style' => 'text-align: right;',
+                'cell_style'   => 'text-align: right;',
                 'footer_style' => 'font-weight: bold; text-align: right;',
-                'type' => 'number'
+                'type'         => 'number'
             ]
         ];
     }
@@ -393,13 +394,13 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
     private function footerRecapitulationOR(array $montantPdf): array
     {
         return [
-            'itv' => 'TOTAL',
-            'mttTotal' => $montantPdf['totalRecapOr']['montant_itv'] ?? '',
-            'mttPieces' => $montantPdf['totalRecapOr']['montant_piece'] ?? '',
-            'mttMo' => $montantPdf['totalRecapOr']['montant_mo'] ?? '',
-            'mttSt' => $montantPdf['totalRecapOr']['montant_achats_locaux'] ?? '',
-            'mttLub' => $montantPdf['totalRecapOr']['montant_lubrifiants'] ?? '',
-            'mttAutres' => $montantPdf['totalRecapOr']['montant_frais_divers'] ?? ''
+            'itv'              => 'TOTAL',
+            'mttTotal'         => $montantPdf['totalRecapOr']['montant_itv'] ?? '',
+            'mttPieces'        => $montantPdf['totalRecapOr']['montant_piece'] ?? '',
+            'mttMo'            => $montantPdf['totalRecapOr']['montant_mo'] ?? '',
+            'mttSt'            => $montantPdf['totalRecapOr']['montant_achats_locaux'] ?? '',
+            'mttLub'           => $montantPdf['totalRecapOr']['montant_lubrifiants'] ?? '',
+            'mttAutres'        => $montantPdf['totalRecapOr']['montant_frais_divers'] ?? ''
         ];
     }
 
@@ -410,50 +411,61 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
     {
         return [
             [
-                'key' => 'numero_itv',
-                'label' => 'ITV',
-                'width' => 40,
-                'style' => 'font-weight: 900;',
-                'header_style' => 'font-weight: 900;',
-                'cell_style' => '',
-                'footer_style' => 'font-weight: 900;'
-            ],
-            [
-                'key' => 'libelle_itv',
-                'label' => 'Libellé ITV',
-                'width' => 150,
-                'style' => 'font-weight: bold;',
+                'key'          => 'numero_itv',
+                'label'        => 'ITV',
+                'width'        => 40,
+                'style'        => 'font-weight: bold;',
                 'header_style' => 'font-weight: bold;',
-                'cell_style' => 'text-align: left;',
+                'cell_style'   => '',
                 'footer_style' => 'font-weight: 900;'
             ],
             [
-                'key' => 'constructeur',
-                'label' => 'Const',
-                'width' => 40,
-                'style' => 'font-weight: 900;',
-                'header_style' => 'font-weight: 900;',
-                'cell_style' => '',
-                'footer_style' => 'font-weight: 900;'
-            ],
-            [
-                'key' => 'reference',
-                'label' => 'Réfp.',
-                'width' => 40,
-                'style' => 'font-weight: 900;',
-                'header_style' => 'font-weight: 900;',
-                'cell_style' => '',
-                'footer_style' => 'font-weight: 900;'
-            ],
-            [
-                'key' => 'date_derniere_cde',
-                'label' => 'Date dern cmd',
-                'width' => 50,
-                'style' => 'font-weight: bold; text-align: center;',
+                'key'          => 'libelle_itv',
+                'label'        => 'Libellé ITV',
+                'width'        => 150,
+                'style'        => 'font-weight: bold;',
                 'header_style' => 'font-weight: bold;',
-                'cell_style' => 'text-align: left;',
+                'cell_style'   => 'text-align: left;',
+                'footer_style' => 'font-weight: 900;'
+            ],
+            [
+                'key'          => 'constructeur',
+                'label'        => 'Const',
+                'width'        => 40,
+                'style'        => 'font-weight: bold;',
+                'header_style' => 'font-weight: bold;',
+                'cell_style'   => '',
+                'footer_style' => 'font-weight: 900;'
+            ],
+            [
+                'key'          => 'reference',
+                'label'        => 'Réfp.',
+                'width'        => 40,
+                'style'        => 'font-weight: bold;',
+                'header_style' => 'font-weight: bold;',
+                'cell_style'   => '',
+                'footer_style' => 'font-weight: 900;'
+            ],
+            [
+                'key'          => 'pmp',
+                'label'        => 'pmp',
+                'width'        => 80,
+                'style'        => 'font-weight: bold;',
+                'header_style' => 'font-weight: bold;',
+                'cell_style'   => 'text-align: right;',
+                'footer_style' => 'font-weight: 900;',
+                'type'         => 'number'
+            ],
+            [
+                'key'          => 'date_derniere_cde',
+                'label'        => 'Date dern cmd',
+                'width'        => 50,
+                'style'        => 'font-weight: bold; text-align: center;',
+                'header_style' => 'font-weight: bold;',
+                'cell_style'   => 'text-align: center;',
                 'footer_style' => 'font-weight: bold;',
-                'type' => 'date'
+                'default_value' => 'jamais commandé',
+                'type'         => 'date'
             ],
         ];
     }
