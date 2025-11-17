@@ -21,7 +21,7 @@ class EmailDaService
     public function __construct($twig)
     {
         $this->twig = $twig;
-        $this->mailAppro = $_ENV['MAIL_APPRO'];
+        $this->mailAppro = $_ENV['MAIL_TO_APPRO'];
         $this->emailTemplate = "da/email/emailDa.html.twig";
     }
 
@@ -233,11 +233,8 @@ class EmailDaService
     {
         $emailService = new EmailService($this->twig);
 
-        $emailService->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.da');
+        $emailService->getMailer()->setFrom($_ENV['MAIL_FROM_ADDRESS'], 'noreply.da');
 
-        $content['cc'] = $content['cc'] ?? [];
-        $content['cc'][] = 'hoby.ralahy@hff.mg';
-
-        $emailService->sendEmail($content['to'], $content['cc'], $this->emailTemplate, $content['variables'] ?? [], $content['attachments'] ?? []);
+        $emailService->sendEmail($content['to'], $content['cc'] ?? [], $this->emailTemplate, $content['variables'] ?? [], $content['attachments'] ?? []);
     }
 }
