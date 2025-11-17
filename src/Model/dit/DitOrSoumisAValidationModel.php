@@ -514,10 +514,10 @@ class DitOrSoumisAValidationModel extends Model
     public function getPieceFaibleActiviteAchat(string $constructeur, string $reference, string $codeAgence, string $codeService): array
     {
         $statement = "SELECT
-                case when 
+                TRIM(case when 
                     A.nombre_jour >= 365 then 'a afficher'
                     else 'ne pas afficher'
-                end as retour
+                end) as retour
                 , A.ffac_datef as date_derniere_cde
                 FROM
                 (select first 1  
@@ -530,8 +530,8 @@ class DitOrSoumisAValidationModel extends Model
                 --inner join art_hpm on ahpm_soc = fllf_soc and ahpm_succfac = fllf_succ and ahpm_numfac = fllf_numfac and ahpm_constp = fllf_constp and ahpm_refp = fllf_refp
                 where fllf_constp = '$constructeur'
                 and fllf_refp = '$reference'
-                and fllf_succ = '$codeAgence'
-                and ffac_serv = '$codeService'
+                and fllf_succ = '01'
+                and ffac_serv = 'NEG'
                 and fllf_soc = 'HF'
                 and fcde_numfou not in (select asuc_num from informix.agr_succ where asuc_numsoc = 'HF')
                 and fllf_qtefac > 0

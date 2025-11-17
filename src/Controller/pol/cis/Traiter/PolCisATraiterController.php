@@ -27,9 +27,6 @@ class PolCisATraiterController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_MAG);
-        /** FIN AUtorisation acées */
 
         /** CREATION D'AUTORISATION */
         $autoriser = $this->autorisationRole($this->getEntityManager());
