@@ -179,7 +179,7 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
 
 
 
-        $pdf->Output($nomAvecCheminFichier, 'I');
+        $pdf->Output($nomAvecCheminFichier, 'F');
     }
 
     /**===============================================================
