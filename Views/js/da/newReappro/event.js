@@ -26,6 +26,13 @@ export function initCentraleCodeDesiInputs(
     desiCentraleInput.value = desiCentraleInput.value.toUpperCase();
   });
 
+  if (desiCentraleInput.value && codeCentraleInput.value)
+    disableDesiCentraleInput(
+      desiCentraleInput,
+      inputDesiCentraleGroup,
+      editIcon
+    );
+
   editIcon.addEventListener("click", function () {
     desiCentraleInput.classList.remove("non-modifiable");
     inputDesiCentraleGroup.classList.remove("input-group");
