@@ -221,9 +221,7 @@ trait DaListeTrait
             $ajouterDA = $daViaOR && ($estAtelier || $estAdmin); // da via OR && (atelier ou admin)  
             $supprimable = ($estAppro || $estAtelier || $estAdmin) && in_array($item->getStatutDal(), $statutDASupprimable) && !$daReappro;
             $demandeDevis = ($estAppro || $estAdmin) && $item->getStatutDal() === DemandeAppro::STATUT_SOUMIS_APPRO && !$daReappro;
-            $statutOrValide = $item->getStatutOr() === DitOrsSoumisAValidation::STATUT_VALIDE;
-            $pathOrMax = $this->dwModel->findCheminOrVersionMax($item->getNumeroOr());
-            $telechargerOR = $statutOrValide && !empty($pathOrMax);
+            $dataOR = $this->dwModel->findCheminOrDernierValide($item->getNumeroDemandeDit(), $item->getNumeroDemandeAppro());
 
             // Construction d'urls
             $urls = $this->buildItemUrls($item, $ajouterDA, $item->getDaTypeId());
@@ -239,8 +237,8 @@ trait DaListeTrait
                 'demandeAppro'        => $item->getDemandeAppro(),
                 'datype'              => $daType[$item->getDaTypeId()],
                 'numeroDemandeDit'    => $daViaOR ? $item->getNumeroDemandeDit() : $safeIconBan,
-                'numeroOr'            => $daDirect ? $safeIconBan  : $item->getNumeroOr(),
-                'niveauUrgence'       => $item->getNiveauUrgence(),
+                'numeroOr'            => $daDirect ? $safeIconBan : $item->getNumeroOr(),
+                'niveauUrgence'       => $daReappro ? $safeIconBan : $item->getNiveauUrgence(),
                 'demandeur'           => $item->getDemandeur(),
                 'dateDemande'         => $item->getDateDemande() ? $item->getDateDemande()->format('d/m/Y') : '',
                 'statutDal'           => $item->getStatutDal(),
@@ -273,9 +271,10 @@ trait DaListeTrait
                 'ajouterDA'           => $ajouterDA,
                 'supprimable'         => $supprimable,
                 'demandeDevis'        => $demandeDevis,
-                'telechargerOR'       => $telechargerOR,
-                'pathOrMax'           => $pathOrMax,
+                'telechargerOR'       => !empty($dataOR),
+                'pathOr'              => empty($dataOR) ? '' : $dataOR['chemin'],
                 'statutValide'        => $item->getStatutDal() === DemandeAppro::STATUT_VALIDE,
+                'centrale'            => $daReappro ? $item->getDesiCentrale() : $safeIconBan,
             ];
         }
 

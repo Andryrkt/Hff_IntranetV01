@@ -18,6 +18,7 @@ class DaSearch
     private ?string $sortNbJours = null;
     private ?string $idMateriel = null;
     private ?string $typeAchat = null;
+    private ?string $codeCentrale = null;
 
     private ?WorNiveauUrgence $niveauUrgence = null;
 
@@ -393,6 +394,26 @@ class DaSearch
     }
 
     /**
+     * Get the value of codeCentrale
+     */
+    public function getCodeCentrale()
+    {
+        return $this->codeCentrale;
+    }
+
+    /**
+     * Set the value of codeCentrale
+     *
+     * @return  self
+     */
+    public function setCodeCentrale($codeCentrale)
+    {
+        $this->codeCentrale = $codeCentrale;
+
+        return $this;
+    }
+
+    /**
      * Convertit l'objet en tableau associatif
      */
     public function toArray(): array
@@ -406,6 +427,7 @@ class DaSearch
             'statutBC'             => $this->statutBC,
             'sortNbJours'          => $this->sortNbJours,
             'idMateriel'           => $this->idMateriel,
+            'codeCentrale'         => $this->codeCentrale,
             'typeAchat'            => $this->typeAchat,
             'niveauUrgence'        => $this->niveauUrgence        ? $this->niveauUrgence->getId()                : null,
             'dateDebutCreation'    => $this->dateDebutCreation    ? $this->dateDebutCreation->format('Y-m-d')    : null,

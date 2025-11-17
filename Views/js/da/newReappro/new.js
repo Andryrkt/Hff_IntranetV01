@@ -1,8 +1,12 @@
 import { displayOverlay } from "../../utils/ui/overlay";
-import { handleQteInputEvents } from "./event";
+import { handleQteInputEvents, initCentraleCodeDesiInputs } from "./event";
 import { handleAgenceChange } from "../../dit/fonctionUtils/fonctionListDit.js";
 
 document.addEventListener("DOMContentLoaded", function () {
+  initCentraleCodeDesiInputs(
+    "demande_appro_reappro_form_codeCentrale",
+    "demande_appro_reappro_form_desiCentrale"
+  );
   const myForm = document.getElementById("myForm");
   const actionsConfig = {
     enregistrerBrouillon: {

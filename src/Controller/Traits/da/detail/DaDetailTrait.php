@@ -115,15 +115,11 @@ trait DaDetailTrait
      */
     private function getOrPath(DemandeAppro $demandeAppro)
     {
-        $numeroDit = $demandeAppro->getNumeroDemandeDit();
-        $ditOrsSoumis = $this->ditOrsSoumisAValidationRepository->findDerniereVersionByNumeroDit($numeroDit);
-        $numeroOr = !empty($ditOrsSoumis) ? $ditOrsSoumis[0]->getNumeroOR() : '';
-        $statutOr = !empty($ditOrsSoumis) ? $ditOrsSoumis[0]->getStatut() : '';
-        if ($statutOr == 'Validé') {
-            $result = $this->dossierInterventionAtelierModel->findCheminOrVersionMax($numeroOr);
+        $dataOR       = $this->dossierInterventionAtelierModel->findCheminOrDernierValide($demandeAppro->getNumeroDemandeDit(), $demandeAppro->getNumeroDemandeAppro());
+        if ($dataOR) {
             return [
-                'numeroOr' => $numeroOr,
-                'path'     => $_ENV['BASE_PATH_FICHIER_COURT'] . '/' . $result['chemin']
+                'numeroOr' => $dataOR['numero'],
+                'path'     => $_ENV['BASE_PATH_FICHIER_COURT'] . '/' . $dataOR['chemin']
             ];
         }
         return "-";

@@ -222,6 +222,16 @@ class DaAfficher
     private ?string $niveauUrgence = null;
 
     /**
+     * @ORM\Column(type="string", length=50, name="code_centrale")
+     */
+    private ?string $codeCentrale = null;
+
+    /**
+     * @ORM\Column(type="string", length=50, name="designation_central")
+     */
+    private ?string $desiCentrale = null;
+
+    /**
      * @ORM\Column(type="integer", name="jours_dispo")
      *
      * @var integer | null
@@ -1716,6 +1726,25 @@ class DaAfficher
         return $this;
     }
 
+    /**
+     * Get the value of codeCentrale
+     */
+    public function getCodeCentrale()
+    {
+        return $this->codeCentrale;
+    }
+
+    /**
+     * Set the value of codeCentrale
+     *
+     * @return  self
+     */
+    public function setCodeCentrale($codeCentrale)
+    {
+        $this->codeCentrale = $codeCentrale;
+
+        return $this;
+    }
 
     public function getEstBlReapproSoumis()
     {
@@ -1728,6 +1757,27 @@ class DaAfficher
 
         return $this;
     }
+
+    /**
+     * Get the value of desiCentrale
+     */
+    public function getDesiCentrale()
+    {
+        return $this->desiCentrale;
+    }
+
+    /**
+     * Set the value of desiCentrale
+     *
+     * @return  self
+     */
+    public function setDesiCentrale($desiCentrale)
+    {
+        $this->desiCentrale = $desiCentrale;
+
+        return $this;
+    }
+
     /**
      * Copie les propriétés pertinentes d'un ancien DaAfficher vers l'objet courant.
      *
@@ -1762,6 +1812,8 @@ class DaAfficher
             ->setDetailDal($da->getDetailDal())
             ->setDemandeur($da->getDemandeur())
             ->setAchatDirect($da->getAchatDirect())
+            ->setCodeCentrale($da->getCodeCentrale())
+            ->setDesiCentrale($da->getDesiCentrale())
             ->setDaTypeId($da->getDaTypeId())
             ->setDateDemande($da->getDateCreation())
             ->setNiveauUrgence($da->getNiveauUrgence())

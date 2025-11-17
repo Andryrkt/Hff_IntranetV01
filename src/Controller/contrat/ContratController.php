@@ -24,8 +24,11 @@ class ContratController extends Controller
         /** Autorisation accès */
         $this->checkPageAccess($this->estAdmin());
 
-        return $this->render('contrat/contrat.html.twig', [
-            'url' => "https://hffc.docuware.cloud/docuware/formsweb/enregistrement-contrats?orgID=5adf2517-2f77-4e19-8b42-9c3da43af7be",
+        return $this->render("dwForm/dwForm.html.twig", [
+            'url'       => "https://hffc.docuware.cloud/docuware/formsweb/enregistrement-contrats?orgID=5adf2517-2f77-4e19-8b42-9c3da43af7be",
+            'pageTitle' => "Nouveau contrat",
+            'bgColor'   => "bg-bleu-hff",
+            'height'    => 980,
         ]);
     }
 }

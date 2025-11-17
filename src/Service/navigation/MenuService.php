@@ -4,25 +4,29 @@ namespace App\Service\navigation;
 
 use App\Entity\da\DemandeAppro;
 use App\Entity\admin\Application;
+use App\Entity\admin\Service;
 use App\Entity\admin\utilisateur\Role;
 use App\Entity\admin\utilisateur\User;
-use App\Service\SessionManagerService;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class MenuService
 {
     private $em;
+    private $session;
     private $connectedUser;
     private bool $estAdmin = false;
     private bool $estAtelier = false;
     private bool $estAppro = false;
+    private bool $estRH = false;
     private bool $estCreateurDeDADirecte = false;
     private $basePath;
     private $applicationIds = [];
     private $codeAgenceAutorisers = [];
 
-    public function __construct($entityManager)
+    public function __construct($entityManager, SessionInterface $session)
     {
         $this->em = $entityManager;
+        $this->session = $session;
         $this->basePath = $_ENV['BASE_PATH_FICHIER_COURT']; // Chemin de base pour les liens de téléchargement --> /Upload
     }
 
@@ -165,17 +169,35 @@ class MenuService
     }
 
     /**
+     * Get the value of estRH
+     */
+    public function getEstRH()
+    {
+        return $this->estRH;
+    }
+
+    /**
+     * Set the value of estRH
+     *
+     * @return  self
+     */
+    public function setEstRH($estRH)
+    {
+        $this->estRH = $estRH;
+
+        return $this;
+    }
+
+    /**
      * Définit les informations de l'utilisateur connecté :
      * - son statut admin
      * - la liste de ses applications
      */
     private function setConnectedUserContext()
     {
-        $sessionManager = new SessionManagerService();
-
-        if ($sessionManager->has('user_id')) {
+        if ($this->session->has('user_id')) {
             /** @var User|null $connectedUser */
-            $connectedUser = $this->em->getRepository(User::class)->find($sessionManager->get('user_id'));
+            $connectedUser = $this->em->getRepository(User::class)->find($this->session->get('user_id'));
 
             if ($connectedUser) {
                 $roleIds = $connectedUser->getRoleIds();
@@ -185,6 +207,7 @@ class MenuService
                 $this->setEstAdmin(in_array(Role::ROLE_ADMINISTRATEUR, $roleIds, true)); // estAdmin
                 $this->setEstAppro(in_array(DemandeAppro::ID_APPRO, $serviceIds)); // est appro
                 $this->setEstAtelier(in_array(DemandeAppro::ID_ATELIER, $serviceIds)); // est atelier
+                $this->setEstRH(in_array(Service::ID_RH, $serviceIds)); // est RH
                 $this->setEstCreateurDeDADirecte(in_array(Role::ROLE_DA_DIRECTE, $roleIds, true)); // est créateur de DA directe
                 $this->setApplicationIds($connectedUser->getApplicationsIds()); // Les applications autorisées de l'utilisateur connecté
                 $this->setCodeAgenceAutorisers($connectedUser->getAgenceAutoriserCode()); // codes des agences autoriser del'utilisateur connecté
@@ -337,8 +360,9 @@ class MenuService
         if ($this->getEstAdmin() || in_array(Application::ID_DDC, $this->getApplicationIds())) { // DDC
             $subSubitems = [];
             $subSubitems[] = $this->createSubItem('Nouvelle demande', 'plus-circle', 'new_conge', [], '_blank');
-            if ($this->getEstAdmin()) {
-                $subSubitems[] = $this->createSubItem('Annulation Congé', 'calendar-xmark', 'annulation_conge', [], '_blank');
+            $subSubitems[] = $this->createSubItem('Annulation de congés validés', 'calendar-xmark', 'annulation_conge', [], '_blank');
+            if ($this->getEstAdmin() || $this->getEstRH()) {
+                $subSubitems[] = $this->createSubItem('Annulation de congé dédiée RH', 'calendar-xmark', 'annulation_conge_rh', [], '_blank');
             }
             $subSubitems[] = $this->createSubItem('Consultation', 'search', 'conge_liste');
             $subitems[] = $this->createSubMenuItem(

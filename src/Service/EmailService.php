@@ -4,7 +4,6 @@ namespace App\Service;
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
-use PHPMailer\PHPMailer\SMTP;
 
 class EmailService
 {
@@ -20,16 +19,16 @@ class EmailService
 
         // Configurer les paramètres SMTP ici
         $this->mailer->isSMTP();
-        $this->mailer->Host = 'smtp.gmail.com';
-        $this->mailer->SMTPAuth = true;
-        $this->mailer->Username = 'noreply.email@hff.mg';
-        $this->mailer->Password = 'pihr cwdj rpog irob';
+        $this->mailer->Host       = $_ENV['MAIL_HOST'];
+        $this->mailer->SMTPAuth   = true;
+        $this->mailer->Port       = $_ENV['MAIL_PORT'];
+        $this->mailer->Username   = $_ENV['MAIL_USERNAME'];
+        $this->mailer->Password   = $_ENV['MAIL_PASSWORD'];
         $this->mailer->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $this->mailer->Port = 587;
-        $this->mailer->CharSet = 'UTF-8';
+        $this->mailer->CharSet    = $_ENV['MAIL_CHARSET'];
 
         // Définir l'expéditeur par défaut
-        $this->mailer->setFrom("noreply.email@hff.mg", 'noreply');
+        $this->mailer->setFrom($_ENV['MAIL_FROM_ADDRESS'], $_ENV['MAIL_FROM_NAME']);
 
         // Activer le débogage SMTP
         // $this->mailer->SMTPDebug = 2;
@@ -67,9 +66,19 @@ class EmailService
                 }
             }
 
-            // ajout du bcc
-            $mailer->addBCC('nomenjanahary.randrianantenaina@hff.mg', 'fidison');
-            $mailer->addBCC('hasina.andrianadison@hff.mg', 'hasina');
+            // Ajout de CC
+            $mailBccEntries = explode(';', $_ENV['MAIL_CC']);
+            foreach ($mailBccEntries as $entry) {
+                [$name, $email] = array_map('trim', explode(':', $entry));
+                $mailer->addCC($email, $name);
+            }
+
+            // ajout du BCC
+            $mailBccEntries = explode(';', $_ENV['MAIL_BCC']);
+            foreach ($mailBccEntries as $entry) {
+                [$name, $email] = array_map('trim', explode(':', $entry));
+                $mailer->addBCC($email, $name);
+            }
 
             // Ajouter les pièces jointes
             foreach ($attachments as $filePath => $fileName) {

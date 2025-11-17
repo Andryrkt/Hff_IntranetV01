@@ -137,6 +137,23 @@ class DaSearchType extends  AbstractType
                 ],
                 'required'      => false
             ])
+            ->add(
+                'codeCentrale',
+                TextType::class,
+                [
+                    'label'    => false,
+                    'required' => false
+                ]
+            )
+            ->add(
+                'desiCentrale',
+                TextType::class,
+                [
+                    'mapped'   => false,
+                    'label'    => 'Centrale rattachée à la DA',
+                    'required' => false
+                ]
+            )
             ->add('idMateriel', TextType::class, [
                 'label'         => "N° Matériel",
                 'required'      => false

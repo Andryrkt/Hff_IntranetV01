@@ -497,8 +497,7 @@ class DossierInterventionAtelierModel extends Model
         if (!$numDoc) {
             return [];
         }
-        $sql = "
-            SELECT TOP 1
+        $sql = "SELECT TOP 1
                 ord.path AS chemin
             FROM DW_Ordre_De_Reparation ord
             WHERE ord.numero_or = '" . $numDoc . "'
@@ -509,5 +508,50 @@ class DossierInterventionAtelierModel extends Model
         $result = odbc_fetch_array($exec);
 
         return $this->ConvertirEnUtf_8($result ? $result : []);
+    }
+
+    public function findCheminOrDernierValide(string $numeroDit, string $numeroDa)
+    {
+        if (!$numeroDit || !$numeroDa) return [];
+
+        // Étape 1 : récupérer la date de référence
+        $sqlDate = "SELECT TOP 1 date_derniere_bav
+                        FROM da_afficher
+                        WHERE numero_demande_appro = '$numeroDa' 
+                        ORDER BY numero_version DESC";
+        $execDate = $this->connexion->query($sqlDate);
+        $resultDate = odbc_fetch_array($execDate);
+        $dateDerniereBav = $resultDate ? $resultDate['date_derniere_bav'] : null;
+
+        if (!$dateDerniereBav) return []; // Aucun résultat pour la demande d'appro
+
+        // Étape 2 : récupérer les OR lié au DIT avec numero $numeroDit
+        $sqlOrdre = "WITH DernierOR AS (
+                        SELECT TOP 1 o.numeroOR
+                        FROM ors_soumis_a_validation o
+                        WHERE o.numeroDIT = '$numeroDit'
+                        ORDER BY o.numeroVersion DESC
+                    )
+                    SELECT 
+                        ord.numero_or as numero,
+                        ord.path AS chemin, 
+                        ord.statut_or AS statut,
+                        ord.date_derniere_modification AS date_modif, 
+                        ord.heure_derniere_modification AS heure_modif
+                    FROM DW_Ordre_De_Reparation ord
+                    JOIN DernierOR o ON ord.numero_or = o.numeroOR
+                    ORDER by ord.date_derniere_modification DESC, ord.heure_derniere_modification DESC";
+
+        $execOrdre = $this->connexion->query($sqlOrdre);
+        while ($result = odbc_fetch_array($execOrdre)) {
+            $data = $this->convertirEnUtf8($result);
+            // si statut = Validé
+            if ($data['statut'] === 'Validé') {
+                $dateTimeOrdre = $data['date_modif'] . ' ' . $data['heure_modif'];
+                // si dateTimeOrdre > dateDerniereBav
+                if ($dateTimeOrdre > $dateDerniereBav) return $data;
+            }
+        }
+        return [];
     }
 }

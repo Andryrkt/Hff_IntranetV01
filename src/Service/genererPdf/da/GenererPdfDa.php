@@ -139,14 +139,29 @@ abstract class GenererPdfDa extends GeneratePdf
         $generator = new PdfTableReappro;
         $this->renderTextWithLine($pdf, 'Historique des consommations');
 
-        $pdf->AddPage('L');
-
         $pdf->SetTextColor(0, 0, 0);
         $pdf->setFont('helvetica', '', 10);
-        $html = $generator->generateHistoriqueTable($monthsList, $dataHistoriqueConsommation);
-        $pdf->writeHTML($html, false, false, true, false, '');
+        if (empty($dataHistoriqueConsommation["data"])) {
+            $pdf->cell(0, 6, 'Aucun historique de consommation disponible', 0, 1);
+            $pdf->Ln(3);
+        } else {
+            $margins = $pdf->getMargins();
+            $originalTop = $margins['top'];
+            $originalLeft = $margins['left'];
+            $originalRight = $margins['right'];
+            [$autoPageBreak, $originalBottom] = $pdf->getAutoPageBreak();
 
-        $pdf->AddPage('P');
+            $pdf->setMargins(0.5, 3, 0.5, true);
+            $pdf->SetAutoPageBreak(true, 7);
+            $pdf->AddPage('L');
+
+            $html = $generator->generateHistoriqueTable($monthsList, $dataHistoriqueConsommation);
+            $pdf->writeHTML($html, false, false, true, false, '');
+
+            $pdf->SetMargins($originalTop, $originalLeft, $originalRight, true);
+            $pdf->SetAutoPageBreak($autoPageBreak, $originalBottom);
+            $pdf->AddPage('P');
+        }
     }
 
     /**
@@ -157,6 +172,8 @@ abstract class GenererPdfDa extends GeneratePdf
      */
     protected function renderChatMessages(TCPDF $pdf, iterable $observations): void
     {
+        if (empty($observations)) return;
+
         $appro = ['marie', 'Vania', 'stg.tahina', 'narindra.veloniaina', 'hobimalala'];
 
         $w_total = $pdf->GetPageWidth();  // Largeur totale du PDF

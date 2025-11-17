@@ -572,18 +572,21 @@ class DaAfficherRepository extends EntityRepository
     {
         if ($estCdeFrn) {
             $map = [
-                'numDa'     => "$qbLabel.numeroDemandeAppro",
-                'numDit'    => "$qbLabel.numeroDemandeDit",
-                'numCde'    => "$qbLabel.numeroCde",
-                'numOr'     => "$qbLabel.numeroOr",
-                'numFrn'    => "$qbLabel.numeroFournisseur",
-                'frn'       => "$qbLabel.nomFournisseur",
+                'numDa'        => "$qbLabel.numeroDemandeAppro",
+                'numDit'       => "$qbLabel.numeroDemandeDit",
+                'numCde'       => "$qbLabel.numeroCde",
+                'numOr'        => "$qbLabel.numeroOr",
+                'numFrn'       => "$qbLabel.numeroFournisseur",
+                'frn'          => "$qbLabel.nomFournisseur",
+                'typeAchat'    => "$qbLabel.daTypeId",
             ];
         } else {
             $map = [
-                'numDa'     => "$qbLabel.numeroDemandeAppro",
-                'numDit'    => "$qbLabel.numeroDemandeDit",
-                'demandeur' => "$qbLabel.demandeur",
+                'numDa'        => "$qbLabel.numeroDemandeAppro",
+                'numDit'       => "$qbLabel.numeroDemandeDit",
+                'demandeur'    => "$qbLabel.demandeur",
+                'codeCentrale' => "$qbLabel.codeCentrale",
+                'typeAchat'    => "$qbLabel.daTypeId",
             ];
         }
 
@@ -618,11 +621,6 @@ class DaAfficherRepository extends EntityRepository
         if (!empty($criteria['designation'])) {
             $qb->andWhere("$qbLabel.artDesi LIKE :designation")
                 ->setParameter('designation', '%' . $criteria['designation'] . '%');
-        }
-
-        if (isset($criteria['typeAchat'])) {
-            $qb->andWhere("$qbLabel.daTypeId = :typeAchat")
-                ->setParameter('typeAchat', $criteria['typeAchat']);
         }
     }
 

@@ -8,12 +8,12 @@ use Symfony\Component\Yaml\Yaml;
 $services = require __DIR__ . '/config/bootstrap_di.php';
 
 // Récupérer les services nécessaires
-$container = $services['container'];
-$matcher = $services['matcher'];
+$container          = $services['container'];
+$matcher            = $services['matcher'];
 $controllerResolver = $services['controllerResolver'];
-$argumentResolver = $services['argumentResolver'];
-$twig = $services['twig'];
-$response = new \Symfony\Component\HttpFoundation\Response();
+$argumentResolver   = $services['argumentResolver'];
+$twig               = $services['twig'];
+$response           = new \Symfony\Component\HttpFoundation\Response();
 
 // Créer la requête depuis les variables globales
 $request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
@@ -52,16 +52,16 @@ try {
 } catch (Exception $e) {
     // Erreur générale - Ajouter plus de détails
     $errorDetails = [
-        'message' => $e->getMessage(),
-        'file' => $e->getFile(),
-        'line' => $e->getLine(),
-        'trace' => $e->getTraceAsString(),
-        'code' => $e->getCode(),
-        'previous' => $e->getPrevious() ? $e->getPrevious()->getMessage() : null,
-        'timestamp' => date('Y-m-d H:i:s'),
-        'request_uri' => $request->getRequestUri(),
+        'message'        => $e->getMessage(),
+        'file'           => $e->getFile(),
+        'line'           => $e->getLine(),
+        'trace'          => $e->getTraceAsString(),
+        'code'           => $e->getCode(),
+        'previous'       => $e->getPrevious() ? $e->getPrevious()->getMessage() : null,
+        'timestamp'      => date('Y-m-d H:i:s'),
+        'request_uri'    => $request->getRequestUri(),
         'request_method' => $request->getMethod(),
-        'user_agent' => $request->headers->get('User-Agent'),
+        'user_agent'     => $request->headers->get('User-Agent'),
     ];
 
     // Charger la configuration d'environnement
@@ -74,8 +74,8 @@ try {
     } else {
         // En production, masquer les détails sensibles
         $htmlContent = $twig->render('erreur/500.html.twig', [
-            'message' => 'Une erreur interne est survenue. Veuillez contacter l\'administrateur.',
-            'error_id' => uniqid('ERR_', true),
+            'message'   => 'Une erreur interne est survenue. Veuillez contacter l\'administrateur.',
+            'error_id'  => uniqid('ERR_', true),
             'timestamp' => $errorDetails['timestamp']
         ]);
     }
