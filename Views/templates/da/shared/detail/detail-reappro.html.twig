@@ -26,6 +26,9 @@
 				{{ macroForm.sousTitre('Débiteur') }}
 				{{ macroForm.affichage2('Agence Débiteur', demandeAppro.agenceDebiteur.codeAgence ~ ' ' ~ demandeAppro.agenceDebiteur.libelleAgence, 'mb-2') }}
 				{{ macroForm.affichage2('Service Débiteur', demandeAppro.serviceDebiteur.codeService ~ ' ' ~  demandeAppro.serviceDebiteur.libelleService, 'mb-2') }}
+				<div class="{{ codeCentrale ? '' : 'd-none'}}">
+					{{ macroForm.affichage2('Centrale rattachée à la DA', demandeAppro.desiCentrale ?? '-', 'mb-2') }}
+				</div>
 			</div>
 		</div>
 	</div>

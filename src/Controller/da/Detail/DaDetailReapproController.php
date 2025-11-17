@@ -60,6 +60,7 @@ class DaDetailReapproController extends Controller
 			'detailTemplate'    => 'detail-reappro',
 			'formObservation'	=> $formObservation->createView(),
 			'demandeAppro'      => $demandeAppro,
+			'codeCentrale'      => $this->estAdmin() || in_array($demandeAppro->getAgenceEmetteur()->getCodeAgence(), ['90', '91', '92']),
 			'observations'      => $observations,
 			'fichiers'          => $fichiers,
 			'connectedUser'     => $this->getUser(),
