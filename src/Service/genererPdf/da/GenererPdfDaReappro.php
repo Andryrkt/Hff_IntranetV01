@@ -26,7 +26,7 @@ class GenererPdfDaReappro extends GenererPdfDa
 
         $pdf->AddPage();
 
-        $this->renderHeaderPdfDA($pdf, $numDa, $userMail, $da->getDaTypeId(), $da->getDateCreation());
+        $this->renderHeaderPdfDA($pdf, $userMail, $da);
 
         $this->renderObjetDetailPdfDA($pdf, $da->getObjetDal(), $da->getDetailDal());
 
@@ -42,6 +42,6 @@ class GenererPdfDaReappro extends GenererPdfDa
         $this->renderChatMessages($pdf, $observations);
 
         // Sauvegarder le PDF
-        $this->saveBonAchatValide($pdf, $numDa);
+        $this->saveBonAchatValide($pdf, $numDa, "I");
     }
 }
