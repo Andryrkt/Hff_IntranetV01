@@ -1,24 +1,28 @@
 {% extends "baseTemplate.html.twig" %}
 
+{% block title %}
+	Documentation interne
+{% endblock %}
+
 {% block stylesheets %}
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.10.22.08.00">
 {% endblock %}
 
-{% block content %}
-	{# {% include "/partials/_loader.html.twig" %} #}
+{% block overlay %}
+	{% include "/shared/_overlay.html.twig" %}
+{% endblock %}
 
-	<div class="container mt-6 mb-4">
-		<h3 class="perso-titre">
-			Liste des documents
-		</h3>
-		{% include "/partials/_notification.html.twig" %}
-		{% include "/dw/shared/_formulaireRechercheDocInterne.html.twig" %}
-		{% include "/dw/shared/_paginationDocInterne.html.twig" %}
+{% block content %}
+	<div class="sticky-header-titre">
+		<div class="container">
+			{% include "/partials/_notification.html.twig" %}
+			{% include "/dw/shared/_formulaireRechercheDocInterne.html.twig" %}
+			{% include "/dw/shared/_paginationDocInterne.html.twig" %}
+		</div>
 	</div>
 
-
 	<div class="container-fluid">
-		<table class="table rounded table-plein-ecran">
+		<table class="table table-sticky">
 			<thead class="table-dark">
 				<tr>
 					<th class="text-center">Date de document</th>
@@ -54,4 +58,7 @@
 
 {% endblock %}
 
-{% block javascript %}{% endblock %}
+{% block javascript %}
+	<script src="{{ App.base_path }}/Views/js/dw/docInterne.js?v=2025.10.22.08.00" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v=2025.10.22.08.00"></script>
+{% endblock %}
