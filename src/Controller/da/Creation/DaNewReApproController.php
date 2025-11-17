@@ -42,11 +42,8 @@ class DaNewReApproController extends Controller
         $this->checkPageAccess($this->estAdmin() || $this->estCreateurDeDADirecte());
         /** FIN AUtorisation accès */
 
-        $agenceServiceIps = $this->agenceServiceIpsObjet();
-        $agence           = $agenceServiceIps['agenceIps'];
-        $service          = $agenceServiceIps['serviceIps'];
-        $demandeAppro     = $id === 0 ? $this->initialisationDemandeApproReappro($agence, $service) : $this->demandeApproRepository->find($id);
-        $this->generateDemandApproLinesFromReappros($demandeAppro, $agence, $service);
+        $demandeAppro     = $id === 0 ? $this->initialisationDemandeApproReappro() : $this->demandeApproRepository->find($id);
+        $this->generateDemandApproLinesFromReappros($demandeAppro);
 
         $form = $this->getFormFactory()->createBuilder(DemandeApproReapproFormType::class, $demandeAppro, [
             'em' => $this->getEntityManager()
@@ -55,7 +52,7 @@ class DaNewReApproController extends Controller
 
         return $this->render('da/new-da-reappro.html.twig', [
             'form'         => $form->createView(),
-            'codeCentrale' => $this->estAdmin() || in_array($agence->getCodeAgence(), ['90', '91', '92']),
+            'codeCentrale' => $this->estAdmin() || in_array($demandeAppro->getAgenceEmetteur()->getCodeAgence(), ['90', '91', '92']),
         ]);
     }
 

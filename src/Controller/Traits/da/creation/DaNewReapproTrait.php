@@ -34,18 +34,19 @@ trait DaNewReapproTrait
     /** 
      * Fonction pour initialiser une demande appro réappro
      * 
-     * @param Agence  $agence objet Agence de l'utilisateur
-     * @param Service $service objet Service de l'utilisateur
-     * 
      * @return DemandeAppro la demande appro initialisée
      */
-    private function initialisationDemandeApproReappro(Agence $agence, Service $service): DemandeAppro
+    private function initialisationDemandeApproReappro(): DemandeAppro
     {
-        $demandeAppro = new DemandeAppro;
+        $demandeAppro     = new DemandeAppro;
 
-        $codeAgence   = $agence->getCodeAgence();
-        $codeService  = $service->getCodeService();
-        $numDa        = $this->autoDecrement('DAP');
+        $agenceServiceIps = $this->agenceServiceIpsObjet();
+        $agence           = $agenceServiceIps['agenceIps'];
+        $service          = $agenceServiceIps['serviceIps'];
+
+        $codeAgence       = $agence->getCodeAgence();
+        $codeService      = $service->getCodeService();
+        $numDa            = $this->autoDecrement('DAP');
 
         $demandeAppro
             ->setDaTypeId(DemandeAppro::TYPE_DA_REAPPRO)
@@ -64,13 +65,15 @@ trait DaNewReapproTrait
         return $demandeAppro;
     }
 
-    private function generateDemandApproLinesFromReappros(DemandeAppro $demandeAppro, Agence $agence, Service $service)
+    private function generateDemandApproLinesFromReappros(DemandeAppro $demandeAppro)
     {
         $existingDals = [];
         $newDals      = [];
         $lineNumber   = 0;
 
         $numDa        = $demandeAppro->getNumeroDemandeAppro();
+        $agence       = $demandeAppro->getAgenceEmetteur();
+        $service      = $demandeAppro->getServiceEmetteur();
 
         $articlesReappro = $this->daArticleReapproRepository->findBy([
             'codeAgence'  => $agence->getCodeAgence(),
