@@ -43,15 +43,19 @@ class PdfTableReappro
             return $html;
         }
 
+        $bgRed = "background-color: #dc3545; color: #fff; font-weight: bold;";
         /** @var DemandeApproL $dal */
         foreach ($dals as $dal) {
+            $qteDem = $dal->getQteDem();
+            $qteVal = $dal->getQteValAppro();
+            $exces  = $qteDem > $qteVal;
             $html .= '<tr>';
             $html .= '<td align="center" style="width:10%;">' . $dal->getArtConstp() . '</td>';
             $html .= '<td align="center" style="width:15%;">' . $dal->getArtRefp() . '</td>';
             $html .= '<td align="left" style="width:30%;">' . $dal->getArtDesi() . '</td>';
             $html .= '<td align="right" style="width:12%;">' . $dal->getPUFormatted() . '</td>';
-            $html .= '<td align="center" style="width:10%;">' . $dal->getQteDem() . '</td>';
-            $html .= '<td align="center" style="width:10%;">' . $dal->getQteValAppro() . '</td>';
+            $html .= '<td align="center" style="width:10%;' . ($exces ? $bgRed : "") . ' ">' . $qteDem . '</td>';
+            $html .= '<td align="center" style="width:10%;">' . $qteVal . '</td>';
             $html .= '<td align="right" style="width:13%;">' . $dal->getMontantFormatted() . '</td>';
             $html .= '</tr>';
         }
