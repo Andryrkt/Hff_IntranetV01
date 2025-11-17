@@ -213,6 +213,7 @@ class DitOrsSoumisAValidationController extends Controller
                     'libelle_itv'       => $infoOr['libelle_itv'],
                     'constructeur'      => $infoOr['constructeur'],
                     'reference'         => $infoOr['reference'],
+                    'designation'         => $infoOr['designation'],
                     'pmp'               => $afficher[0]['pmp'],
                     'date_derniere_cde' => $afficher[0]['date_derniere_cde'],
                 ];

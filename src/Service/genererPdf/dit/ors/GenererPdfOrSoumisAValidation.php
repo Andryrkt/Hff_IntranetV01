@@ -447,8 +447,17 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
                 'footer_style' => 'font-weight: 900;'
             ],
             [
+                'key'          => 'designation',
+                'label'        => 'Designation',
+                'width'        => 150,
+                'style'        => 'font-weight: bold;',
+                'header_style' => 'font-weight: bold;',
+                'cell_style'   => 'text-align: left;',
+                'footer_style' => 'font-weight: 900;'
+            ],
+            [
                 'key'          => 'pmp',
-                'label'        => 'pmp',
+                'label'        => 'Pmp',
                 'width'        => 80,
                 'style'        => 'font-weight: bold;',
                 'header_style' => 'font-weight: bold;',
