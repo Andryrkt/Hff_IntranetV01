@@ -46,6 +46,7 @@
 					{% endif %}
 					<th class="text-center">Date Planning OR</th>
 					<th>Fournisseur</th>
+					<th>CST</th>
 					<th>Réference</th>
 					<th>Désignation</th>
 					<th class="text-center">Fiche technique</th>
@@ -119,6 +120,7 @@
 						{% endif %}
 						<td class="text-center">{{ row.datePlannigOr }}</td>
 						<td class="text-start">{{ row.nomFournisseur }}</td>
+						<td class="text-start">{{ row.artConstp }}</td>
 						<td class="text-start">{{ row.artRefp }}</td>
 						<td class="text-start {{ row.estDalr ? 'mise-en-evidence' : '' }}">
 							{% if row.verouille %}

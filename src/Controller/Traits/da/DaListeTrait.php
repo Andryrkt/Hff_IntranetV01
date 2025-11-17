@@ -246,6 +246,7 @@ trait DaListeTrait
                 'statutCde'           => $item->getStatutCde(),
                 'datePlannigOr'       => $daViaOR ? ($item->getDatePlannigOr() ? $item->getDatePlannigOr()->format('d/m/Y') : '') : $safeIconBan,
                 'nomFournisseur'      => $item->getNomFournisseur(),
+                'artConstp'           => $item->getArtConstp(),
                 'artRefp'             => $item->getArtRefp(),
                 'artDesi'             => $item->getArtDesi(),
                 'estDalr'             => $item->getEstDalr(),
