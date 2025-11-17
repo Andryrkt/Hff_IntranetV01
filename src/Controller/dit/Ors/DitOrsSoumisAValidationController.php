@@ -157,6 +157,7 @@ class DitOrsSoumisAValidationController extends Controller
             $observation = $form->get("observation")->getData();
             $conditionBloquage = $this->conditionsDeBloquegeSoumissionOr($originalName, $numOr, $ditInsertionOrSoumis, $numDit);
 
+
             /** FIN CONDITION DE BLOCAGE */
             if ($this->bloquageOrSoumsi($conditionBloquage, $originalName, $ditInsertionOrSoumis)) {
 
@@ -203,19 +204,21 @@ class DitOrsSoumisAValidationController extends Controller
 
         $infoPieceFaibleAchat = [];
         foreach ($infoOrs as $infoOr) {
-            $afficher = $this->ditOrsoumisAValidationModel->getPieceFaibleActiviteAchat($infoOr['constructeur'], $infoOr['reference'], $infoOr['code_agence'], $infoOr['code_service']);
+            $afficher = $this->ditOrsoumisAValidationModel->getPieceFaibleActiviteAchat($infoOr['constructeur'], $infoOr['reference'], $numOr);
 
             if (isset($afficher[0]) && $afficher[0]['retour'] === 'a afficher') {
 
-                $infoPieceFaibleAchat['numero_itv'] = $infoOr['numero_itv'];
-                $infoPieceFaibleAchat['libelle_itv'] = $infoOr['libelle_itv'];
-                $infoPieceFaibleAchat['constructeur'] = $infoOr['constructeur'];
-                $infoPieceFaibleAchat['reference'] = $infoOr['reference'];
-                $infoPieceFaibleAchat['date_derniere_cde'] = $afficher[0]['date_derniere_cde'];
+                $infoPieceFaibleAchat[] = [
+                    'numero_itv'        => $infoOr['numero_itv'],
+                    'libelle_itv'       => $infoOr['libelle_itv'],
+                    'constructeur'      => $infoOr['constructeur'],
+                    'reference'         => $infoOr['reference'],
+                    'designation'         => $infoOr['designation'],
+                    'pmp'               => $afficher[0]['pmp'],
+                    'date_derniere_cde' => $afficher[0]['date_derniere_cde'],
+                ];
             }
         }
-
-
         return $infoPieceFaibleAchat;
     }
 

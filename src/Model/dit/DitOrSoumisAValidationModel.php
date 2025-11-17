@@ -511,14 +511,15 @@ class DitOrSoumisAValidationModel extends Model
         return (int) ($data[0]['count'] ?? 0);
     }
 
-    public function getPieceFaibleActiviteAchat(string $constructeur, string $reference, string $codeAgence, string $codeService): array
+    public function getPieceFaibleActiviteAchat(string $constructeur, string $reference, string $numOr): array
     {
         $statement = "SELECT
-                case when 
+                TRIM(case when 
                     A.nombre_jour >= 365 then 'a afficher'
                     else 'ne pas afficher'
-                end as retour
+                end) as retour
                 , A.ffac_datef as date_derniere_cde
+                , (select distinct slor_pmp from sav_lor where slor_numor = '$numOr' and slor_constp = '$constructeur' and slor_refp = '$reference') as pmp
                 FROM
                 (select first 1  
                 ffac_datef
@@ -530,8 +531,8 @@ class DitOrSoumisAValidationModel extends Model
                 --inner join art_hpm on ahpm_soc = fllf_soc and ahpm_succfac = fllf_succ and ahpm_numfac = fllf_numfac and ahpm_constp = fllf_constp and ahpm_refp = fllf_refp
                 where fllf_constp = '$constructeur'
                 and fllf_refp = '$reference'
-                and fllf_succ = '$codeAgence'
-                and ffac_serv = '$codeService'
+                and fllf_succ = '01'
+                and ffac_serv = 'NEG'
                 and fllf_soc = 'HF'
                 and fcde_numfou not in (select asuc_num from informix.agr_succ where asuc_numsoc = 'HF')
                 and fllf_qtefac > 0
@@ -554,6 +555,7 @@ class DitOrSoumisAValidationModel extends Model
         trim(sitv_comment) as libelle_itv,
         slor_constp as constructeur,
         trim(slor_refp) as reference,
+        trim(slor_desi) as designation,
         slor_succ as code_agence, 
         slor_servcrt as code_service
         

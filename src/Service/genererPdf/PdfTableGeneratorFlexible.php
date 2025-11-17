@@ -12,6 +12,9 @@ namespace App\Service\genererPdf;
  * - `header_row_style`: CSS pour la ligne d'en-tête (ex: 'background-color: #F0F0F0;')
  * - `footer_row_style`: CSS pour la ligne de pied de page.
  * - `empty_message`: Message personnalisé pour les tableaux vides.
+ * - `default_number_value`: Valeur à afficher pour les nombres non valides (défaut: '0,00').
+ * - `default_date_value`: Valeur à afficher pour les dates non valides (défaut: '-').
+ * - `default_empty_value`: Valeur à afficher pour les autres champs vides (défaut: '').
  *
  * Le tableau `$headerConfig` pour `generateTable()` a également été amélioré. Le tableau de
  * configuration de chaque colonne peut maintenant inclure :
@@ -21,6 +24,7 @@ namespace App\Service\genererPdf;
  * - `cell_style`: CSS spécifique pour les cellules du corps.
  * - `styler`: Une fonction callable `function($value, $row)` pour appliquer des styles dynamiques à une cellule (ex: basé sur la valeur).
  * - `footer_style`: CSS spécifique pour la cellule de pied de page.
+ * - `default_value`: Valeur par défaut pour la colonne si la donnée est vide ou invalide. Surcharge les options globales.
  */
 class PdfTableGeneratorFlexible
 {
@@ -200,7 +204,7 @@ class PdfTableGeneratorFlexible
             if (is_numeric($value)) {
                 return number_format((float) $value, 2, ',', '.');
             }
-            return '0,00';
+            return $config['default_value'] ?? $this->options['default_number_value'] ?? '0,00';
         }
 
         // Formatage des dates
@@ -210,17 +214,23 @@ class PdfTableGeneratorFlexible
         }
 
         if ($isDate) {
-            // Vérifier si la valeur est une chaîne et non égale à '-'
-            if (is_string($value) && !empty($value) && $value !== '-') {
+            $defaultDateValue = $config['default_value'] ?? $this->options['default_date_value'] ?? '-';
+            // Vérifier si la valeur est une chaîne et non égale à la valeur par défaut pour éviter une mauvaise interprétation
+            if (is_string($value) && !empty($value) && $value !== $defaultDateValue) {
                 try {
                     $date = new \DateTime($value);
                     return $date->format('d/m/Y');
                 } catch (\Exception $e) {
                     // Si la date est invalide, retourne une valeur par défaut
-                    return '-';
+                    return $defaultDateValue;
                 }
             }
-            return '-'; // Si la valeur n'est pas valide, retourne un séparateur par défaut
+            return $defaultDateValue; // Si la valeur n'est pas valide, retourne un séparateur par défaut
+        }
+
+        // Pour les autres types, si la valeur est vide, utiliser une valeur par défaut si elle est définie
+        if ($value === '' || $value === null) {
+            return $config['default_value'] ?? $this->options['default_empty_value'] ?? (string) $value;
         }
 
         // Retourne la valeur non modifiée si aucune condition ne s'applique
