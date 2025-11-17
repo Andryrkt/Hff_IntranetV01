@@ -25,7 +25,7 @@ class GenererPdfDaAvecDit extends GenererPdfDa
 
         $pdf->AddPage();
 
-        $this->renderHeaderPdfDA($pdf, $numDa, $userMail, $da->getDaTypeId(), $da->getDateCreation(), $dit);
+        $this->renderHeaderPdfDA($pdf, $userMail, $da, $dit);
 
         $this->renderObjetDetailPdfDA($pdf, $da->getObjetDal(), $da->getDetailDal());
 
