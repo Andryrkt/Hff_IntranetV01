@@ -213,6 +213,7 @@ class PdfTableGeneratorFlexible
             // Vérifier si la valeur est une chaîne et non égale à '-'
             if (is_string($value) && !empty($value) && $value !== '-') {
                 try {
+
                     $date = new \DateTime($value);
                     return $date->format('d/m/Y');
                 } catch (\Exception $e) {

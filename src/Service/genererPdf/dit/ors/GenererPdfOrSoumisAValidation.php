@@ -178,7 +178,7 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
 
 
 
-        $pdf->Output($nomAvecCheminFichier, 'F');
+        $pdf->Output($nomAvecCheminFichier, 'I');
     }
 
     /**===============================================================
@@ -446,10 +446,10 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
                 'footer_style' => 'font-weight: 900;'
             ],
             [
-                'key' => 'datePlanning',
+                'key' => 'date_derniere_cde',
                 'label' => 'Date dern cmd',
                 'width' => 50,
-                'style' => 'font-weight: bold;',
+                'style' => 'font-weight: bold; text-align: center;',
                 'header_style' => 'font-weight: bold;',
                 'cell_style' => 'text-align: left;',
                 'footer_style' => 'font-weight: bold;',
