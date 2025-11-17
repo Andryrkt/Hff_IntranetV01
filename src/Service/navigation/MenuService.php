@@ -211,7 +211,6 @@ class MenuService
         $vignettes = [$this->menuDocumentation()]; // tout le monde
         $estAdmin = $this->getEstAdmin(); // estAdmin
         $applicationIds = $this->getApplicationIds(); // les ids des applications autorisées de l'utilisateur connecté
-        $codeAgenceAutorisers = $this->getCodeAgenceAutorisers();
 
         // Définition des règles d’accès pour chaque menu
         $menus = [
@@ -223,7 +222,7 @@ class MenuService
             [$this->menuMagasin(), $estAdmin || $this->hasAccess([Application::ID_MAG, Application::ID_INV, Application::ID_BDL, Application::ID_CFR, Application::ID_LCF], $applicationIds)], // MAG + INV + BDL + CFR + LCF
             [$this->menuAppro(), $estAdmin || in_array(Application::ID_DAP, $applicationIds, true)],         // DAP
             [$this->menuIT(), $estAdmin || in_array(Application::ID_TIK, $applicationIds, true)],             // TIK
-            [$this->menuPOL(), $estAdmin || in_array('60', $codeAgenceAutorisers)],
+            [$this->menuPOL(), $estAdmin || in_array('60', $this->getCodeAgenceAutorisers())],
             [$this->menuEnergie(), $estAdmin],
             [$this->menuHSE(), $estAdmin],
         ];
@@ -554,7 +553,7 @@ class MenuService
         $subitems[] = $this->createSimpleItem('Consultation des DLUB', 'search');
         $subitems[] = $this->createSimpleItem('Liste des commandes fournisseurs', 'list-ul');
         /** =====================POL OR et CIS========================= */
-        if ($this->getEstAdmin()) { // admin uniquement
+        if ($this->getEstAdmin() || in_array('60', $this->getCodeAgenceAutorisers())) { // admin uniquement
             $subitems[] = $this->createSubMenuItem(
                 'OR',
                 'warehouse',
