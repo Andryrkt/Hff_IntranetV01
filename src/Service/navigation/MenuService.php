@@ -21,6 +21,7 @@ class MenuService
     private bool $estCreateurDeDADirecte = false;
     private $basePath;
     private $applicationIds = [];
+    private $codeAgenceAutorisers = [];
 
     public function __construct($entityManager, SessionInterface $session)
     {
@@ -109,6 +110,24 @@ class MenuService
         return $this;
     }
 
+        /**
+     * Get the value of codeAgenceAutorisers
+     */
+    public function getCodeAgenceAutorisers()
+    {
+        return $this->codeAgenceAutorisers;
+    }
+
+    /**
+     * Set the value of codeAgenceAutorisers
+     */
+    public function setCodeAgenceAutorisers($codeAgenceAutorisers): self
+    {
+        $this->codeAgenceAutorisers = $codeAgenceAutorisers;
+
+        return $this;
+    }
+
     /**
      * Get the value of connectedUser
      */
@@ -191,6 +210,8 @@ class MenuService
                 $this->setEstRH(in_array(Service::ID_RH, $serviceIds)); // est RH
                 $this->setEstCreateurDeDADirecte(in_array(Role::ROLE_DA_DIRECTE, $roleIds, true)); // est créateur de DA directe
                 $this->setApplicationIds($connectedUser->getApplicationsIds()); // Les applications autorisées de l'utilisateur connecté
+                $this->setCodeAgenceAutorisers($connectedUser->getAgenceAutoriserCode()); // codes des agences autoriser del'utilisateur connecté
+            
             }
         }
     }
@@ -224,7 +245,7 @@ class MenuService
             [$this->menuMagasin(), $estAdmin || $this->hasAccess([Application::ID_MAG, Application::ID_INV, Application::ID_BDL, Application::ID_CFR, Application::ID_LCF], $applicationIds)], // MAG + INV + BDL + CFR + LCF
             [$this->menuAppro(), $estAdmin || in_array(Application::ID_DAP, $applicationIds, true)],         // DAP
             [$this->menuIT(), $estAdmin || in_array(Application::ID_TIK, $applicationIds, true)],             // TIK
-            [$this->menuPOL(), $estAdmin],
+            [$this->menuPOL(), $estAdmin || in_array('60', $this->getCodeAgenceAutorisers())],
             [$this->menuEnergie(), $estAdmin],
             [$this->menuHSE(), $estAdmin],
         ];
@@ -493,7 +514,7 @@ class MenuService
                 [
                     $this->createSubItem('Devis', 'file-invoice', 'devis_magasin_liste'),
                     $this->createSubItem('Commandes clients', 'shopping-basket', '#'),
-                    $this->createSubItem('Planning de commande Magasin', 'calendar-alt', 'interface_planningMag'),
+                    $this->createSubItem('Planning de commande Magasin', 'calendar-alt', '#'),
                 ]
             );
         }
@@ -556,7 +577,7 @@ class MenuService
         $subitems[] = $this->createSimpleItem('Consultation des DLUB', 'search');
         $subitems[] = $this->createSimpleItem('Liste des commandes fournisseurs', 'list-ul');
         /** =====================POL OR et CIS========================= */
-        if ($this->getEstAdmin()) { // admin uniquement
+        if ($this->getEstAdmin() || in_array('60', $this->getCodeAgenceAutorisers())) { // admin uniquement
             $subitems[] = $this->createSubMenuItem(
                 'OR',
                 'warehouse',
@@ -671,4 +692,6 @@ class MenuService
             'is_modal' => $isModalTrigger
         ];
     }
+
+
 }

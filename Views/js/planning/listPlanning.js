@@ -165,6 +165,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
                             <th>Date Statut</th>
                             <th>ETA Ivato</th>
                             <th>ETA Magasin</th>
+                            <th>ESD </th>
                             <th>Message</th>`;
             planningTableHead.innerHTML += rowHeader;
             planningTableHeadOR.innerHTML += rowHeader;
@@ -185,6 +186,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
                             <th>Date Statut</th>
                             <th>ETA Ivato</th>
                             <th>ETA Magasin</th>
+                            <th>ESD </th>
                             <th>Message</th>`;
             planningTableHead.innerHTML += rowHeader;
           }
@@ -203,6 +205,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
             }
             // Formater la date
             let dateEtaIvato;
+            let Est_ship_date;
             let dateMagasin;
             let dateStatut;
             let numCis;
@@ -229,6 +232,14 @@ document.addEventListener("DOMContentLoaded", (event) => {
               dateEtaIvato = "";
             } else {
               dateEtaIvato = formaterDate(detail.Eta_ivato);
+            }
+            if (
+              detail.Est_ship_date == "" ||
+              formaterDate(detail.Est_ship_date) === "01/01/1900"
+            ) {
+              Est_ship_date = "";
+            } else {
+              Est_ship_date = formaterDate(detail.Est_ship_date);
             }
             if (
               detail.Eta_magasin == "" ||
@@ -378,6 +389,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
                         <td>${dateStatutCIS === null ? "" : dateStatutCIS}</td> 
                         <td>${dateEtaIvato}</td> 
                         <td>${dateMagasin}</td> 
+                        <td>${Est_ship_date}</td> 
                         <td>${message}</td> 
                     </tr>`;
                 tableBodyLign.innerHTML += row1;
@@ -400,6 +412,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
                       <td>${dateStatut}</td> 
                       <td>${dateEtaIvato}</td> 
                       <td>${dateMagasin}</td> 
+                        <td>${Est_ship_date}</td> 
                       <td>${message}</td> 
                   </tr>`;
               tableBody.innerHTML += row;

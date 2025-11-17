@@ -38,9 +38,6 @@ class OrTraiterController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_MAG);
-        /** FIN AUtorisation acées */
 
         $codeAgence = $this->getUser()->getAgenceAutoriserCode();
 
