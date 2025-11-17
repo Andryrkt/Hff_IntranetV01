@@ -555,6 +555,7 @@ class DitOrSoumisAValidationModel extends Model
         trim(sitv_comment) as libelle_itv,
         slor_constp as constructeur,
         trim(slor_refp) as reference,
+        trim(slor_desi) as designation,
         slor_succ as code_agence, 
         slor_servcrt as code_service
         
