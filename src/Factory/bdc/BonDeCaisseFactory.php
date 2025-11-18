@@ -14,7 +14,7 @@ class BonDeCaisseFactory
         $dto->id                   = $bonDeCaisse->getId();
         $dto->typeDemande          = $bonDeCaisse->getTypeDemande();
         $dto->numeroDemande        = $bonDeCaisse->getNumeroDemande();
-        $dto->dateDemande          = $bonDeCaisse->getDateDemande();
+        $dto->dateDemandeAfficher  = $bonDeCaisse->getDateDemande();
         $dto->caisseRetrait        = $bonDeCaisse->getCaisseRetrait();
         $dto->typePaiement         = $bonDeCaisse->getTypePaiement();
         $dto->agenceDebiteur       = $bonDeCaisse->getAgenceDebiteur();

@@ -75,7 +75,7 @@ class BonDeCaisseController extends Controller
 
             $dateDemande = $form->get('dateDemande')->getData();
             if ($dateDemande) {
-                $bonCaisseSearch->dateDemande = $dateDemande['debut'];
+                $bonCaisseSearch->dateDemandeDebut = $dateDemande['debut'];
                 $bonCaisseSearch->dateDemandeFin = $dateDemande['fin'];
             }
         }
@@ -85,7 +85,7 @@ class BonDeCaisseController extends Controller
 
         $bonCaisseEntitySearch = new BonDeCaisse();
         $bonCaisseEntitySearch->setNumeroDemande($bonCaisseSearch->numeroDemande);
-        $bonCaisseEntitySearch->setDateDemande($bonCaisseSearch->dateDemande);
+        $bonCaisseEntitySearch->setDateDemande($bonCaisseSearch->dateDemandeDebut);
         $bonCaisseEntitySearch->setDateDemandeFin($bonCaisseSearch->dateDemandeFin);
         $bonCaisseEntitySearch->setAgenceDebiteur($bonCaisseSearch->agenceDebiteur);
         $bonCaisseEntitySearch->setServiceDebiteur($bonCaisseSearch->serviceDebiteur);
@@ -137,7 +137,7 @@ class BonDeCaisseController extends Controller
 
         $bonCaisseEntitySearch = new BonDeCaisse();
         $bonCaisseEntitySearch->setNumeroDemande($bonCaisseSearch->numeroDemande);
-        $bonCaisseEntitySearch->setDateDemande($bonCaisseSearch->dateDemande);
+        $bonCaisseEntitySearch->setDateDemande($bonCaisseSearch->dateDemandeDebut);
         $bonCaisseEntitySearch->setDateDemandeFin($bonCaisseSearch->dateDemandeFin);
         $bonCaisseEntitySearch->setAgenceDebiteur($bonCaisseSearch->agenceDebiteur);
         $bonCaisseEntitySearch->setServiceDebiteur($bonCaisseSearch->serviceDebiteur);
