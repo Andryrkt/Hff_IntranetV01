@@ -203,20 +203,22 @@ class DitOrsSoumisAValidationController extends Controller
         $infoOrs = $this->ditOrsoumisAValidationModel->getInformationOr($numOr);
 
         $infoPieceFaibleAchat = [];
-        foreach ($infoOrs as $infoOr) {
-            $afficher = $this->ditOrsoumisAValidationModel->getPieceFaibleActiviteAchat($infoOr['constructeur'], $infoOr['reference'], $numOr);
+        if (!empty($infoOrs)) {
+            foreach ($infoOrs as $infoOr) {
+                $afficher = $this->ditOrsoumisAValidationModel->getPieceFaibleActiviteAchat($infoOr['constructeur'], $infoOr['reference'], $numOr);
 
-            if (isset($afficher[0]) && $afficher[0]['retour'] === 'a afficher') {
+                if (isset($afficher[0]) && $afficher[0]['retour'] === 'a afficher') {
 
-                $infoPieceFaibleAchat[] = [
-                    'numero_itv'        => $infoOr['numero_itv'],
-                    'libelle_itv'       => $infoOr['libelle_itv'],
-                    'constructeur'      => $infoOr['constructeur'],
-                    'reference'         => $infoOr['reference'],
-                    'designation'         => $infoOr['designation'],
-                    'pmp'               => $afficher[0]['pmp'],
-                    'date_derniere_cde' => $afficher[0]['date_derniere_cde'],
-                ];
+                    $infoPieceFaibleAchat[] = [
+                        'numero_itv'        => $infoOr['numero_itv'],
+                        'libelle_itv'       => $infoOr['libelle_itv'],
+                        'constructeur'      => $infoOr['constructeur'],
+                        'reference'         => $infoOr['reference'],
+                        'designation'       => $infoOr['designation'],
+                        'pmp'               => $afficher[0]['pmp'],
+                        'date_derniere_cde' => $afficher[0]['date_derniere_cde'],
+                    ];
+                }
             }
         }
         return $infoPieceFaibleAchat;
