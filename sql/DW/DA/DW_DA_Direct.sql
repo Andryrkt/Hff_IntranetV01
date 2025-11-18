@@ -4,6 +4,7 @@ CREATE TABLE DW_DA_Direct (
 	numero_da_dir varchar(50) NULL,
     statut_da_dir VARCHAR(50) NULL,
 	id_tiroir varchar(255) NULL,
+    numero_version INT,
 	date_creation date NULL,
 	heure_creation time(0) NULL,
 	date_derniere_modification date NULL,

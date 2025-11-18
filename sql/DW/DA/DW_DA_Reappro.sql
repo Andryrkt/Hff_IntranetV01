@@ -4,6 +4,7 @@ CREATE TABLE DW_DA_Reappro (
 	numero_da_reap varchar(50) NULL,
     statut_da_reap VARCHAR(50) NULL,
 	id_tiroir varchar(255) NULL,
+    numero_version INT NULL,
 	date_creation date NULL,
 	heure_creation time(0) NULL,
 	date_derniere_modification date NULL,

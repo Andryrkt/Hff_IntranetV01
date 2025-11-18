@@ -39,6 +39,11 @@ class DwDaDirect
     private $idTiroir;
 
     /**
+     * @ORM\Column(type="integer", name="numero_version")
+     */
+    private $numeroVersion;
+
+    /**
      * @ORM\Column(type="date", name="date_creation", nullable=true)
      */
     private $dateCreation;
@@ -81,7 +86,7 @@ class DwDaDirect
 
     /**
      * Get the value of id
-     */ 
+     */
     public function getId()
     {
         return $this->id;
@@ -91,7 +96,7 @@ class DwDaDirect
      * Set the value of id
      *
      * @return  self
-     */ 
+     */
     public function setId($id)
     {
         $this->id = $id;
@@ -101,7 +106,7 @@ class DwDaDirect
 
     /**
      * Get the value of idDaDirect
-     */ 
+     */
     public function getIdDaDirect()
     {
         return $this->idDaDirect;
@@ -111,7 +116,7 @@ class DwDaDirect
      * Set the value of idDaDirect
      *
      * @return  self
-     */ 
+     */
     public function setIdDaDirect($idDaDirect)
     {
         $this->idDaDirect = $idDaDirect;
@@ -121,7 +126,7 @@ class DwDaDirect
 
     /**
      * Get the value of numeroDaDirect
-     */ 
+     */
     public function getNumeroDaDirect()
     {
         return $this->numeroDaDirect;
@@ -131,7 +136,7 @@ class DwDaDirect
      * Set the value of numeroDaDirect
      *
      * @return  self
-     */ 
+     */
     public function setNumeroDaDirect($numeroDaDirect)
     {
         $this->numeroDaDirect = $numeroDaDirect;
@@ -141,7 +146,7 @@ class DwDaDirect
 
     /**
      * Get the value of statutDaDirect
-     */ 
+     */
     public function getStatutDaDirect()
     {
         return $this->statutDaDirect;
@@ -151,7 +156,7 @@ class DwDaDirect
      * Set the value of statutDaDirect
      *
      * @return  self
-     */ 
+     */
     public function setStatutDaDirect($statutDaDirect)
     {
         $this->statutDaDirect = $statutDaDirect;
@@ -161,7 +166,7 @@ class DwDaDirect
 
     /**
      * Get the value of idTiroir
-     */ 
+     */
     public function getIdTiroir()
     {
         return $this->idTiroir;
@@ -171,7 +176,7 @@ class DwDaDirect
      * Set the value of idTiroir
      *
      * @return  self
-     */ 
+     */
     public function setIdTiroir($idTiroir)
     {
         $this->idTiroir = $idTiroir;
@@ -181,7 +186,7 @@ class DwDaDirect
 
     /**
      * Get the value of dateCreation
-     */ 
+     */
     public function getDateCreation()
     {
         return $this->dateCreation;
@@ -191,7 +196,7 @@ class DwDaDirect
      * Set the value of dateCreation
      *
      * @return  self
-     */ 
+     */
     public function setDateCreation($dateCreation)
     {
         $this->dateCreation = $dateCreation;
@@ -201,7 +206,7 @@ class DwDaDirect
 
     /**
      * Get the value of heureCreation
-     */ 
+     */
     public function getHeureCreation()
     {
         return $this->heureCreation;
@@ -211,7 +216,7 @@ class DwDaDirect
      * Set the value of heureCreation
      *
      * @return  self
-     */ 
+     */
     public function setHeureCreation($heureCreation)
     {
         $this->heureCreation = $heureCreation;
@@ -221,7 +226,7 @@ class DwDaDirect
 
     /**
      * Get the value of dateDerniereModification
-     */ 
+     */
     public function getDateDerniereModification()
     {
         return $this->dateDerniereModification;
@@ -231,7 +236,7 @@ class DwDaDirect
      * Set the value of dateDerniereModification
      *
      * @return  self
-     */ 
+     */
     public function setDateDerniereModification($dateDerniereModification)
     {
         $this->dateDerniereModification = $dateDerniereModification;
@@ -241,7 +246,7 @@ class DwDaDirect
 
     /**
      * Get the value of heureDerniereModification
-     */ 
+     */
     public function getHeureDerniereModification()
     {
         return $this->heureDerniereModification;
@@ -251,7 +256,7 @@ class DwDaDirect
      * Set the value of heureDerniereModification
      *
      * @return  self
-     */ 
+     */
     public function setHeureDerniereModification($heureDerniereModification)
     {
         $this->heureDerniereModification = $heureDerniereModification;
@@ -261,7 +266,7 @@ class DwDaDirect
 
     /**
      * Get the value of extensionFichier
-     */ 
+     */
     public function getExtensionFichier()
     {
         return $this->extensionFichier;
@@ -271,7 +276,7 @@ class DwDaDirect
      * Set the value of extensionFichier
      *
      * @return  self
-     */ 
+     */
     public function setExtensionFichier($extensionFichier)
     {
         $this->extensionFichier = $extensionFichier;
@@ -281,7 +286,7 @@ class DwDaDirect
 
     /**
      * Get the value of totalPage
-     */ 
+     */
     public function getTotalPage()
     {
         return $this->totalPage;
@@ -291,7 +296,7 @@ class DwDaDirect
      * Set the value of totalPage
      *
      * @return  self
-     */ 
+     */
     public function setTotalPage($totalPage)
     {
         $this->totalPage = $totalPage;
@@ -301,7 +306,7 @@ class DwDaDirect
 
     /**
      * Get the value of tailleFichier
-     */ 
+     */
     public function getTailleFichier()
     {
         return $this->tailleFichier;
@@ -311,7 +316,7 @@ class DwDaDirect
      * Set the value of tailleFichier
      *
      * @return  self
-     */ 
+     */
     public function setTailleFichier($tailleFichier)
     {
         $this->tailleFichier = $tailleFichier;
@@ -321,7 +326,7 @@ class DwDaDirect
 
     /**
      * Get the value of path
-     */ 
+     */
     public function getPath()
     {
         return $this->path;
@@ -331,10 +336,30 @@ class DwDaDirect
      * Set the value of path
      *
      * @return  self
-     */ 
+     */
     public function setPath($path)
     {
         $this->path = $path;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroVersion
+     */ 
+    public function getNumeroVersion()
+    {
+        return $this->numeroVersion;
+    }
+
+    /**
+     * Set the value of numeroVersion
+     *
+     * @return  self
+     */ 
+    public function setNumeroVersion($numeroVersion)
+    {
+        $this->numeroVersion = $numeroVersion;
 
         return $this;
     }

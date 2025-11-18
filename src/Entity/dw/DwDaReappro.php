@@ -39,6 +39,11 @@ class DwDaReappro
     private $idTiroir;
 
     /**
+     * @ORM\Column(type="integer", name="numero_version")
+     */
+    private $numeroVersion;
+
+    /**
      * @ORM\Column(type="date", name="date_creation", nullable=true)
      */
     private $dateCreation;
@@ -335,6 +340,26 @@ class DwDaReappro
     public function setPath($path)
     {
         $this->path = $path;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroVersion
+     */
+    public function getNumeroVersion()
+    {
+        return $this->numeroVersion;
+    }
+
+    /**
+     * Set the value of numeroVersion
+     *
+     * @return  self
+     */
+    public function setNumeroVersion($numeroVersion)
+    {
+        $this->numeroVersion = $numeroVersion;
 
         return $this;
     }
