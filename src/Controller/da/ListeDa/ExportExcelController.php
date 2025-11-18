@@ -41,87 +41,11 @@ class ExportExcelController extends Controller
         // recupération des données de la DA
         $dasFiltered = $this->getDataExcel($criteria);
 
-        $data = [];
-        // En-tête du tableau d'excel
-        $data[] = [
-            "N° Demande",
-            "Type de demande",
-            "N° DIT",
-            "Niveau urgence DIT",
-            "N° OR",
-            "Demandeur",
-            "Date de demande",
-            "Statut DA",
-            "Statut OR",
-            "Statut BC",
-            "Date Planning OR",
-            "Fournisseur",
-            "Réference",
-            "Désignation",
-            "Fiche technique",
-            "Qté dem",
-            "Qté en attente",
-            "Qté Dispo (Qté à livrer)",
-            "Qté livrée",
-            "Date fin souhaitée",
-            "Date livraison prévue",
-            "Nbr Jour(s) dispo",
-            $codeCentrale ? "Centrale" : "",
-        ];
-
-        // Convertir les entités en tableau de données
-        $data = $this->convertirObjetEnTableau($dasFiltered, $data, $codeCentrale);
+        // Données généré des $dasFiltered
+        $data = $this->generateTableData($dasFiltered, $codeCentrale);
 
         // Crée le fichier Excel
-        $this->getExcelService()->createSpreadsheet($data, "donnees_" . date('YmdHis'));
-    }
-
-    /** 
-     * Convertis les données d'objet en tableau
-     * 
-     * @param array $dasFiltered  tableau d'objets à convertir
-     * @param array $data         tableau de retour
-     * @param bool  $codeCentrale afficher le centrale ou non
-     * 
-     * @return array
-     */
-    private function convertirObjetEnTableau(array $dasFiltered, array $data, bool $codeCentrale): array
-    {
-        $typeDemande = [
-            DemandeAppro::TYPE_DA_AVEC_DIT => 'DA AVEC DIT',
-            DemandeAppro::TYPE_DA_DIRECT   => 'DA DIRECT',
-            DemandeAppro::TYPE_DA_REAPPRO  => 'DA REAPPRO',
-        ];
-        /** @var DaAfficher */
-        foreach ($dasFiltered as $da) {
-            $data[] = [
-                $da->getNumeroDemandeAppro(),
-                $typeDemande[$da->getDaTypeId()],
-                $da->getNumeroDemandeDit() ?? '-',
-                $da->getNiveauUrgence() ?? '-',
-                $da->getNumeroOR() ?? '-',
-                $da->getDemandeur(),
-                $da->getDateCreation()->format('d/m/Y'),
-                $da->getStatutDal(),
-                $da->getStatutOr() ?? '-',
-                $da->getStatutCde() ?? '-',
-                $da->getDatePlannigOr() ?? '-',
-                $da->getNomFournisseur() ?? '-',
-                $da->getArtRefp(),
-                $da->getArtDesi(),
-                $da->getEstFicheTechnique() ? 'OUI' : 'NON',
-                $da->getQteDem(),
-                $da->getQteEnAttent() == 0 ? '-' : $da->getQteEnAttent(),
-                $da->getQteDispo() == 0 ? '-' : $da->getQteDispo(),
-                $da->getQteLivrer() == 0 ? '-' : $da->getQteLivrer(),
-                $da->getDateFinSouhaite()->format('d/m/Y'),
-                $da->getDateLivraisonPrevue() == null ? '' : $da->getDateLivraisonPrevue()->format('d/m/Y'),
-                $da->getJoursDispo(),
-                $codeCentrale ? $da->getDesiCentrale() : "",
-            ];
-        }
-
-        return $data;
+        $this->getExcelService()->createSpreadsheet($data, "donnees_" . date('Y-m-d_H-i-s'));
     }
 
     public function getDataExcel(array $criteria): array
@@ -136,5 +60,118 @@ class ExportExcelController extends Controller
 
         // Retourne les DA filtrées
         return $daAffichers;
+    }
+
+    /** 
+     * Construis l'entête du tableau excel
+     * 
+     * @param bool $codeCentrale afficher le centrale ou non
+     * 
+     * @return array
+     */
+    private function headerExcel(bool $codeCentrale): array
+    {
+        $columnsWithCondition = [
+            "N° Demande"               => true,
+            "Type de demande"          => true,
+            "N° DIT"                   => true,
+            "Niveau urgence DIT"       => true,
+            "N° OR"                    => true,
+            "Demandeur"                => true,
+            "Date de demande"          => true,
+            "Statut DA"                => true,
+            "Statut OR"                => true,
+            "Statut BC"                => true,
+            "Centrale"                 => $codeCentrale,
+            "Date Planning OR"         => true,
+            "Fournisseur"              => true,
+            "CST"                      => true,
+            "Réference"                => true,
+            "Désignation"              => true,
+            "Fiche technique"          => true,
+            "Qté dem"                  => true,
+            "Qté en attente"           => true,
+            "Qté Dispo (Qté à livrer)" => true,
+            "Qté livrée"               => true,
+            "Date fin souhaitée"       => true,
+            "Date livraison prévue"    => true,
+            "Nbr Jour(s) dispo"        => true,
+        ];
+
+        return array_keys(array_filter($columnsWithCondition));
+    }
+
+    /** 
+     * Construis le corps du tableau excel
+     * 
+     * @param DaAfficher[] $dasFiltered  tableau d'objets DaAfficher à convertir
+     * @param array        $headers      entête du tableau
+     * 
+     * @return array
+     */
+    private function bodyExcel(array $dasFiltered, array $headers): array
+    {
+        $data = [];
+
+        $typeDemande = [
+            DemandeAppro::TYPE_DA_AVEC_DIT => 'DA AVEC DIT',
+            DemandeAppro::TYPE_DA_DIRECT   => 'DA DIRECT',
+            DemandeAppro::TYPE_DA_REAPPRO  => 'DA REAPPRO',
+        ];
+
+        // Map de chaque entête vers la valeur correspondante
+        $columnCallbacks = [
+            "N° Demande"               => fn(DaAfficher $da) => $da->getNumeroDemandeAppro(),
+            "Type de demande"          => fn(DaAfficher $da) => $typeDemande[$da->getDaTypeId()],
+            "N° DIT"                   => fn(DaAfficher $da) => $da->getNumeroDemandeDit() ?? '-',
+            "Niveau urgence DIT"       => fn(DaAfficher $da) => $da->getNiveauUrgence() ?? '-',
+            "N° OR"                    => fn(DaAfficher $da) => $da->getNumeroOR() ?? '-',
+            "Demandeur"                => fn(DaAfficher $da) => $da->getDemandeur(),
+            "Date de demande"          => fn(DaAfficher $da) => $da->getDateCreation()->format('d/m/Y'),
+            "Statut DA"                => fn(DaAfficher $da) => $da->getStatutDal(),
+            "Statut OR"                => fn(DaAfficher $da) => $da->getStatutOr() ?? '-',
+            "Statut BC"                => fn(DaAfficher $da) => $da->getStatutCde() ?? '-',
+            "Centrale"                 => fn(DaAfficher $da) => $da->getDesiCentrale() ?? '-',
+            "Date Planning OR"         => fn(DaAfficher $da) => $da->getDatePlannigOr() ?? '-',
+            "Fournisseur"              => fn(DaAfficher $da) => $da->getNomFournisseur() ?? '-',
+            "CST"                      => fn(DaAfficher $da) => $da->getArtConstp() ?? '-',
+            "Réference"                => fn(DaAfficher $da) => $da->getArtRefp(),
+            "Désignation"              => fn(DaAfficher $da) => $da->getArtDesi(),
+            "Fiche technique"          => fn(DaAfficher $da) => $da->getEstFicheTechnique() ? 'OUI' : 'NON',
+            "Qté dem"                  => fn(DaAfficher $da) => $da->getQteDem(),
+            "Qté en attente"           => fn(DaAfficher $da) => $da->getQteEnAttent() == 0 ? '-' : $da->getQteEnAttent(),
+            "Qté Dispo (Qté à livrer)" => fn(DaAfficher $da) => $da->getQteDispo() == 0 ? '-' : $da->getQteDispo(),
+            "Qté livrée"               => fn(DaAfficher $da) => $da->getQteLivrer() == 0 ? '-' : $da->getQteLivrer(),
+            "Date fin souhaitée"       => fn(DaAfficher $da) => $da->getDateFinSouhaite()->format('d/m/Y'),
+            "Date livraison prévue"    => fn(DaAfficher $da) => $da->getDateLivraisonPrevue() ? $da->getDateLivraisonPrevue()->format('d/m/Y') : '',
+            "Nbr Jour(s) dispo"        => fn(DaAfficher $da) => $da->getJoursDispo(),
+        ];
+
+        /** @var DaAfficher[] $dasFiltered */
+        foreach ($dasFiltered as $da) {
+            $row = [];
+            foreach ($headers as $col) {
+                $row[] = $columnCallbacks[$col]($da);
+            }
+            $data[] = $row;
+        }
+        return $data;
+    }
+
+    /** 
+     * Générer la table complète (entête + corps) pour l'Excel
+     * 
+     * @param DaAfficher[] $dasFiltered  tableau d'objets DaAfficher à convertir
+     * @param bool         $codeCentrale afficher le centrale ou non
+     * 
+     * @return array
+     */
+    private function generateTableData(array $dasFiltered, bool $codeCentrale): array
+    {
+        $headers = $this->headerExcel($codeCentrale);
+
+        $body = $this->bodyExcel($dasFiltered, $headers);
+
+        return array_merge([$headers], $body);
     }
 }
