@@ -53,6 +53,7 @@
 						{% set classeStatut = 'bg-warning' %}
 					{% elseif demande.statutDemande | trim == 'Refusé chef de service' %}
 						{% set classeStatut = 'bg-danger' %}
+						{% set styleStatut = 'color: #fff' %}
 					{% elseif demande.statutDemande | trim == 'EN COURS' %}
 						{% set classeStatut = 'bg-info' %}
 					{% endif %}
@@ -68,9 +69,9 @@
 								<span class="text-muted">Aucun PDF</span>
 							{% endif %}
 						</td>
-						<td class="{{ classeStatut }}" style="{{ styleStatut }}">{{ demande.statutDemande }}</td>
+						<td class="text-center fw-bold {{ classeStatut }}" style="{{ styleStatut }}">{{ demande.statutDemande }}</td>
 						<td>{{ demande.numeroDemande }}</td>
-						<td class="text-center">{{ demande.dateDemande|date('d/m/Y') }}</td>
+						<td class="text-center">{{ demande.dateDemandeAfficher|date('d/m/Y') }}</td>
 						<td>{{ demande.typePaiement }}</td>
 						<td>{{ demande.caisseRetrait }}</td>
 						<td>{{ demande.retraitLie }}</td>
