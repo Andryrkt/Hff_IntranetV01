@@ -511,8 +511,9 @@ class DitOrSoumisAValidationModel extends Model
         return (int) ($data[0]['count'] ?? 0);
     }
 
-    public function getPieceFaibleActiviteAchat(string $constructeur, string $reference, string $numOr): array
+    public function getPieceFaibleActiviteAchat(string $constructeur, ?string $reference, string $numOr): array
     {
+
         $statement = "SELECT
                 TRIM(case when 
                     A.nombre_jour >= 365 then 'a afficher'
@@ -536,6 +537,7 @@ class DitOrSoumisAValidationModel extends Model
                 and fllf_soc = 'HF'
                 and fcde_numfou not in (select asuc_num from informix.agr_succ where asuc_numsoc = 'HF')
                 and fllf_qtefac > 0
+                and fllf_constp in (".GlobalVariablesService::get('pieces_magasin').")
                 order by ffac_numfac desc) as A
         ";
 
@@ -568,6 +570,7 @@ class DitOrSoumisAValidationModel extends Model
             AND sitv_interv = slor_nogrp / 100
 
         AND seor_numor = '$numOr'
+        AND slor_constp in (".GlobalVariablesService::get('pieces_magasin').")
         order by slor_numor, sitv_interv
         ";
         $result = $this->connect->executeQuery($statement);
