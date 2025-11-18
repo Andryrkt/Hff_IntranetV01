@@ -155,7 +155,7 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
         //==========================================================================================================
         //Titre: Pièce(s) à faible activité d'achat
         $pdf->SetTextColor(255, 0, 0);
-        $this->addTitle($pdf, empty($pieceFaibleAchat) ? '' : "Attention !!! prix susceptible d'augmenter, veuillez confirmer avec le service Magasin", 'helvetica', 'B', 10, 'L', 5);
+        $this->addTitle($pdf, empty($pieceFaibleAchat) ? '' : "Attention !!! prix susceptible d'augmenter, veuillez confirmer avec le service Magasin les prix ci-dessous", 'helvetica', 'B', 10, 'L', 1);
 
         $pdf->SetTextColor(0, 0, 0);
         if (!empty($pieceFaibleAchat)) {
