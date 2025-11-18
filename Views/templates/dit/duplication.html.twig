@@ -1,7 +1,7 @@
 {% extends "baseTemplate.html.twig" %}
 
 {% block title %}
-	Duplication DIT
+	Création DIT
 {% endblock %}
 
 {% block stylesheets %}
@@ -28,7 +28,12 @@
 						<a href="{{ path("profil_acceuil")}}" class="tablinks p-2 btn btn-outline-warning" style="text-decoration: none;color:black">Retour</a>
 					</div>
 				</div>
-				{{ form_start(form, { 'attr': { 'id': 'myForm' } }) }}
+				{{ form_start(form, { 
+					'attr': { 
+						'id': 'dit-form',
+						'data-form-type': 'formulaire-new-dit'
+					} 
+				}) }}
 				{{ form_errors(form)}}
 
 				<div class="row">
@@ -138,6 +143,7 @@
 							<div class="row">
 								<div class="col-12 col-md-6">
 									{{ form_row(form.typeReparation) }}
+
 								</div>
 								<div class="col-12 col-md-6">
 									{{ form_row(form.reparationRealise) }}
@@ -149,6 +155,8 @@
 									{{ form_row(form.estAtePolTana) }}
 								</div>
 							</div>
+
+
 							{{ macroForm.sousTitre('Pièces Jointes', {class: 'sousTitre'})}}
 
 							{{ form_row(form.pieceJoint01)}}
@@ -168,8 +176,8 @@
 							class="btn bouton mt-2"
 							id="bouton-cde-fnr" 
 							data-confirmation 
-							data-form="#myForm"
-							data-confirmation-text ="Vous êtes en train d'enregistrer une demande d'intervention">
+							data-form="#dit-form"
+							data-confirmation-message ="Vous êtes en train d'enregistrer une demande d'intervention">
 									<i class="fas fa-save"></i>
 									Enregistrer
 						</button>
