@@ -19,6 +19,7 @@ class DwBonDeCaisseRepository extends EntityRepository
         $qb = $this->createQueryBuilder('b')
             ->select('b.numeroBcs, b.path')
             ->where('b.numeroBcs IN (:numeros)')
+            ->andWhere("b.path IS NOT NULL AND b.path != ''")
             ->setParameter('numeros', $numeros);
 
         $result = $qb->getQuery()->getArrayResult();
