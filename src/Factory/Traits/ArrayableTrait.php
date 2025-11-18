@@ -19,6 +19,8 @@ trait ArrayableTrait
 
             if (method_exists($this, $method)) {
                 $this->$method($value);
+            } elseif (property_exists($this, $key)) {
+                $this->$key = $value;
             }
         }
 
