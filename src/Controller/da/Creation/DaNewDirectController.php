@@ -76,6 +76,10 @@ class DaNewDirectController extends Controller
             $numDa = $demandeAppro->getNumeroDemandeAppro();
             $formDAL = $form->get('DAL');
 
+            // Récupérer le nom du bouton cliqué
+            $clickedButtonName = $this->getButtonName($request);
+            $demandeAppro->setStatutDal(self::STATUT_DAL[$clickedButtonName]);
+
             foreach ($formDAL as $subFormDAL) {
                 /** 
                  * @var DemandeApproL $demandeApproL
@@ -85,10 +89,10 @@ class DaNewDirectController extends Controller
                 $files = $subFormDAL->get('fileNames')->getData(); // Récupération des fichiers
 
                 $demandeApproL
+                    ->setNumeroDemandeAppro($numDa)
+                    ->setStatutDal(self::STATUT_DAL[$clickedButtonName])
                     ->setNumeroFournisseur($demandeApproL->getNumeroFournisseur() ?? '-')
                     ->setNomFournisseur($demandeApproL->getNomFournisseur() ?? '-')
-                    ->setNumeroDemandeAppro($numDa)
-                    ->setStatutDal(DemandeAppro::STATUT_SOUMIS_APPRO)
                     ->setJoursDispo($this->getJoursRestants($demandeApproL));
 
                 $this->traitementFichiers($demandeApproL, $files); // traitement des fichiers uploadés pour chaque ligne DAL
