@@ -168,7 +168,7 @@ trait DaValidationReapproTrait
      */
     private function creationPDFReappro(DemandeAppro $demandeAppro, iterable $observations, array $monthsList, array $dataHistoriqueConsommation): void
     {
-        $this->genererPdfDaReappro->genererPdfBonAchatValide($demandeAppro, $this->getUserMail(), $observations, $monthsList, $dataHistoriqueConsommation);
+        $this->genererPdfDaReappro->genererPdfBonAchatValide($demandeAppro, $observations, $monthsList, $dataHistoriqueConsommation);
     }
 
     /** 
