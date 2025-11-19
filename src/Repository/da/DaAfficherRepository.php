@@ -578,15 +578,13 @@ class DaAfficherRepository extends EntityRepository
                 'numOr'        => "$qbLabel.numeroOr",
                 'numFrn'       => "$qbLabel.numeroFournisseur",
                 'frn'          => "$qbLabel.nomFournisseur",
-                'typeAchat'    => "$qbLabel.daTypeId",
             ];
         } else {
             $map = [
                 'numDa'        => "$qbLabel.numeroDemandeAppro",
                 'numDit'       => "$qbLabel.numeroDemandeDit",
                 'demandeur'    => "$qbLabel.demandeur",
-                'codeCentrale' => "$qbLabel.codeCentrale",
-                'typeAchat'    => "$qbLabel.daTypeId",
+                'codeCentrale' => "$qbLabel.codeCentrale"
             ];
         }
 
@@ -597,6 +595,12 @@ class DaAfficherRepository extends EntityRepository
                     ->setParameter($key, $criteria[$key]);
             }
         }
+
+        if (isset($criteria['typeAchat'])) {
+            $qb->andWhere("$qbLabel.daTypeId = :typeAchat")
+                ->setParameter('typeAchat', $criteria['typeAchat']);
+        }
+
 
         if (empty($criteria['numDit']) && empty($criteria['numDa'])) {
             $qb->leftJoin("$qbLabel.dit", 'dit')
@@ -680,23 +684,23 @@ class DaAfficherRepository extends EntityRepository
             }
         } else {
             /** Date fin souhaite */
-            if (!empty($criteria['dateDebutfinSouhaite']) && $criteria['dateDebutfinSouhaite'] instanceof \DateTimeInterface) {
+            if (!empty($criteria['dateDebutfinSouhaite']) && $criteria['dateDebutfinSouhaite']) {
                 $qb->andWhere($qbLabel . '.dateFinSouhaite >= :dateDebutfinSouhaite')
                     ->setParameter('dateDebutfinSouhaite', $criteria['dateDebutfinSouhaite']);
             }
 
-            if (!empty($criteria['dateFinFinSouhaite']) && $criteria['dateFinFinSouhaite'] instanceof \DateTimeInterface) {
+            if (!empty($criteria['dateFinFinSouhaite']) && $criteria['dateFinFinSouhaite']) {
                 $qb->andWhere($qbLabel . '.dateFinSouhaite <= :dateFinFinSouhaite')
                     ->setParameter('dateFinFinSouhaite', $criteria['dateFinFinSouhaite']);
             }
 
             /** Date DA (date de demande) */
-            if (!empty($criteria['dateDebutCreation']) && $criteria['dateDebutCreation'] instanceof \DateTimeInterface) {
+            if (!empty($criteria['dateDebutCreation']) && $criteria['dateDebutCreation']) {
                 $qb->andWhere($qbLabel . '.dateDemande >= :dateDemandeDebut')
                     ->setParameter('dateDemandeDebut', $criteria['dateDebutCreation']);
             }
 
-            if (!empty($criteria['dateFinCreation']) && $criteria['dateFinCreation'] instanceof \DateTimeInterface) {
+            if (!empty($criteria['dateFinCreation']) && $criteria['dateFinCreation']) {
                 $qb->andWhere($qbLabel . '.dateDemande <= :dateDemandeFin')
                     ->setParameter('dateDemandeFin', $criteria['dateFinCreation']);
             }

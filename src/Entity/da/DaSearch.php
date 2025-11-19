@@ -446,10 +446,12 @@ class DaSearch
      */
     public function toObject(array $data): self
     {
+        $allDateKeys = ['dateDebutCreation', 'dateFinCreation', 'dateDebutfinSouhaite', 'dateFinFinSouhaite',];
         foreach ($data as $key => $value) {
             $method = 'set' . ucfirst($key);
 
             if (method_exists($this, $method)) {
+                if ($value !== null && in_array($key, $allDateKeys)) $value = DateTime::createFromFormat('Y-m-d', $value);
                 $this->$method($value);
             }
         }
