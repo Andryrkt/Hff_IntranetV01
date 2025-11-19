@@ -109,11 +109,10 @@ trait StatutBcTrait
         [$numCde, $statutSoumissionBc] = $this->getInfoCde($infoDaDirect, $situationCde, $daDirect, $daViaOR, $daReappro, $numeroOr, $em);
 
         /** 9. recupération des qte necessaire dans IPS @var array $qte */
-        $qte = $this->getQte($ref, $numDit, $numDa, $designation, $numeroOr, $statutBc, $qteDemande, $daDirect, $daViaOR, $daReappro, $numCde);
+        $qte = $this->getQte($ref, $numDit, $numDa, $designation, $numeroOr, $statutBc, $daDirect, $daViaOR, $daReappro, $numCde);
 
         /** 10.  @var bool $partiellementDispo @var bool $completNonLivrer @var bool $toutLivres @var bool $partiellementLivrer */
         [$partiellementDispo, $completNonLivrer, $tousLivres, $partiellementLivre] = $this->evaluerQuantites($qte,  $infoDaDirect, $daDirect, $DaAfficher);
-
 
         // 11. modification de situation commande dans DaAfficher
         $this->updateSituationCdeDansDaAfficher($situationCde, $DaAfficher, $numCde, $infoDaDirect, $daDirect, $daViaOR, $daReappro, $qte);
@@ -138,8 +137,6 @@ trait StatutBcTrait
             return 'A envoyer au fournisseur';
         } elseif ($DaAfficher->getBcEnvoyerFournisseur() && !$DaAfficher->getEstFactureBlSoumis()) {
             return 'BC envoyé au fournisseur';
-        } elseif ($daDirect || $daViaOR) {
-            return $statutSoumissionBc;
         }
         // DA Reappro
         elseif ($daReappro && $numeroOr == null && $statutOr == DemandeAppro::STATUT_DW_VALIDEE) {
@@ -156,6 +153,12 @@ trait StatutBcTrait
             return 'Tous livrés';
         } elseif ($partiellementLivre) {
             return 'Partiellement livré';
+        } elseif ($DaAfficher->getEstFactureBlSoumis()) {
+            return 'BC envoyé au fournisseur';
+        }
+        // DA Direct , DA Via OR
+        elseif ($daDirect || $daViaOR) {
+            return $statutSoumissionBc;
         }
 
         return '';
@@ -205,11 +208,11 @@ trait StatutBcTrait
 
 
 
-    private function getQte($ref, $numDit, $numDa, $designation, $numeroOr, $statutBc, $qteDemande, $daDirect, $daViaOR, $daReappro, $numCde): array
+    private function getQte($ref, $numDit, $numDa, $designation, $numeroOr, $statutBc, $daDirect, $daViaOR, $daReappro, $numCde): array
     {
         if ($daDirect) $qte = $this->daModel->getEvolutionQteDaDirect($numCde, $ref, $designation);
         // pour da via OR et DA reappro
-        if($daViaOR || $daReappro) $qte = $this->daModel->getEvolutionQteDaAvecDit($numDit, $ref, $designation, $numeroOr, $statutBc, $numDa, $qteDemande, $daReappro);
+        if ($daViaOR || $daReappro) $qte = $this->daModel->getEvolutionQteDaAvecDit($numDit, $ref, $designation, $numeroOr, $statutBc, $numDa, $daReappro);
 
         return $qte;
     }
@@ -428,14 +431,14 @@ trait StatutBcTrait
         }
 
         if ($daReappro) {
-            if(empty($qte)) return ;
+            if (empty($qte)) return;
             $q = $qte[0];
             $qteDem = (int)$q['qte_dem'];
             $qteLivee = (int)$q['qte_livree'];
             $qteReliquat = $qteDem - $qteLivee; // quantiter en attente
             $qteDispo = (int)$q['qte_dispo'];
 
-            if($qteDem >= $qteLivee) {
+            if ($qteDem >= $qteLivee) {
                 $DaAfficher->setNumeroCde($numcde);
             }
         };
