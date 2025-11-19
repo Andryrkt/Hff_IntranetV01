@@ -13,9 +13,9 @@ class BonDeCaisseRepository extends EntityRepository
     public function filtres(QueryBuilder $queryBuilder, BonDeCaisse $bonDeCaisse, User $user): void
     {
         if (!in_array(1, $user->getRoleIds())) {
-            $queryBuilder->andWhere('asi.agence_ips IN (:agencesAutorisees)')
+            $queryBuilder->andWhere('b.agenceEmetteur IN (:agencesAutorisees)')
                 ->setParameter('agencesAutorisees', $user->getAgenceAutoriserCode())
-                ->andWhere('asi.service_ips IN (:servicesAutorises)')
+                ->andWhere('b.serviceEmetteur IN (:servicesAutorises)')
                 ->setParameter('servicesAutorises', $user->getServiceAutoriserCode());
         }
 
