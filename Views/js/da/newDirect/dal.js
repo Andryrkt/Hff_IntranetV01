@@ -34,7 +34,7 @@ export function ajouterUneLigne() {
   row.classList.add("d-flex", "gap-3");
 
   let fields = [
-    ["w-20", "artDesi"],
+    ["w-25", "artDesi"],
     ["w-15", "nomFournisseur"],
     ["w-15", "dateFinSouhaite"],
     ["w-5", "qteDem"],

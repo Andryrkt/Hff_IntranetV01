@@ -4,6 +4,7 @@ namespace App\Controller\Traits\da\creation;
 
 use App\Entity\da\DemandeAppro;
 use App\Traits\JoursOuvrablesTrait;
+use Symfony\Component\HttpFoundation\Request;
 
 trait DaNewDirectTrait
 {
@@ -48,5 +49,21 @@ trait DaNewDirectTrait
         ;
 
         return $demandeAppro;
+    }
+
+    /** 
+     * Fonction pour retourner le nom du bouton cliqué
+     *  - enregistrerBrouillon
+     *  - soumissionAppro
+     */
+    private function getButtonName(Request $request): string
+    {
+        if ($request->request->has('enregistrerBrouillon')) {
+            return 'enregistrerBrouillon';
+        } elseif ($request->request->has('soumissionAppro')) {
+            return 'soumissionAppro';
+        } else {
+            return '';
+        }
     }
 }

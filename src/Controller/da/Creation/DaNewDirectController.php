@@ -20,6 +20,10 @@ class DaNewDirectController extends Controller
 {
     use DaNewDirectTrait;
     use AutorisationTrait;
+    const STATUT_DAL = [
+        'enregistrerBrouillon' => DemandeAppro::STATUT_EN_COURS_CREATION,
+        'soumissionAppro'      => DemandeAppro::STATUT_SOUMIS_APPRO,
+    ];
 
     public function __construct()
     {
@@ -28,9 +32,9 @@ class DaNewDirectController extends Controller
     }
 
     /**
-     * @Route("/new-da-direct", name="da_new_direct")
+     * @Route("/new-da-direct/{id<\d+>}", name="da_new_direct")
      */
-    public function newDADirect(Request $request)
+    public function newDADirect(int $id, Request $request)
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
@@ -39,7 +43,7 @@ class DaNewDirectController extends Controller
         $this->checkPageAccess($this->estAdmin() || $this->estCreateurDeDADirecte());
         /** FIN AUtorisation accès */
 
-        $demandeAppro = $this->initialisationDemandeApproDirect();
+        $demandeAppro = $id === 0 ? $this->initialisationDemandeApproDirect() : $this->demandeApproRepository->findAvecDernieresDALetLR($id);
 
         $form = $this->getFormFactory()->createBuilder(DemandeApproDirectFormType::class, $demandeAppro, [
             'em' => $this->getEntityManager()
@@ -72,6 +76,10 @@ class DaNewDirectController extends Controller
             $numDa = $demandeAppro->getNumeroDemandeAppro();
             $formDAL = $form->get('DAL');
 
+            // Récupérer le nom du bouton cliqué
+            $clickedButtonName = $this->getButtonName($request);
+            $demandeAppro->setStatutDal(self::STATUT_DAL[$clickedButtonName]);
+
             foreach ($formDAL as $subFormDAL) {
                 /** 
                  * @var DemandeApproL $demandeApproL
@@ -81,10 +89,10 @@ class DaNewDirectController extends Controller
                 $files = $subFormDAL->get('fileNames')->getData(); // Récupération des fichiers
 
                 $demandeApproL
+                    ->setNumeroDemandeAppro($numDa)
+                    ->setStatutDal(self::STATUT_DAL[$clickedButtonName])
                     ->setNumeroFournisseur($demandeApproL->getNumeroFournisseur() ?? '-')
                     ->setNomFournisseur($demandeApproL->getNomFournisseur() ?? '-')
-                    ->setNumeroDemandeAppro($numDa)
-                    ->setStatutDal(DemandeAppro::STATUT_SOUMIS_APPRO)
                     ->setJoursDispo($this->getJoursRestants($demandeApproL));
 
                 $this->traitementFichiers($demandeApproL, $files); // traitement des fichiers uploadés pour chaque ligne DAL

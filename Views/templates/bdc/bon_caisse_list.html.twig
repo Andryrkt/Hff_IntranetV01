@@ -22,7 +22,7 @@
 					<th>Statut</th>
 					<th>N° demande</th>
 					<th>Date demande</th>
-					<th>Type de paiement</th>
+					{# <th>Type de paiement</th> #}
 					<th>Caisse de retrait</th>
 					<th>Retrait lié à</th>
 					<th class="text-center">Agence / Service
@@ -72,7 +72,7 @@
 						<td class="text-center fw-bold {{ classeStatut }}" style="{{ styleStatut }}">{{ demande.statutDemande }}</td>
 						<td>{{ demande.numeroDemande }}</td>
 						<td class="text-center">{{ demande.dateDemandeAfficher|date('d/m/Y') }}</td>
-						<td>{{ demande.typePaiement }}</td>
+						{# <td>{{ demande.typePaiement }}</td> #}
 						<td>{{ demande.caisseRetrait }}</td>
 						<td>{{ demande.retraitLie }}</td>
 						<td class="text-center">{{ demande.agenceEmetteur ~ '-' ~ demande.serviceEmetteur}}</td>
