@@ -42,6 +42,6 @@ class GenererPdfDaReappro extends GenererPdfDa
         $this->renderChatMessages($pdf, $observations);
 
         // Sauvegarder le PDF
-        $this->saveBonAchatValide($pdf, $numDa, "I");
+        $this->saveBonAchatValide($pdf, $numDa);
     }
 }
