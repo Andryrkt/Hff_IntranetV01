@@ -32,9 +32,9 @@ class DaNewDirectController extends Controller
     }
 
     /**
-     * @Route("/new-da-direct/{daId<\d+>}", name="da_new_direct")
+     * @Route("/new-da-direct/{id<\d+>}", name="da_new_direct")
      */
-    public function newDADirect(int $daId, Request $request)
+    public function newDADirect(int $id, Request $request)
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
@@ -43,7 +43,7 @@ class DaNewDirectController extends Controller
         $this->checkPageAccess($this->estAdmin() || $this->estCreateurDeDADirecte());
         /** FIN AUtorisation accès */
 
-        $demandeAppro = $daId === 0 ? $this->initialisationDemandeApproDirect() : $this->demandeApproRepository->findAvecDernieresDALetLR($daId);
+        $demandeAppro = $id === 0 ? $this->initialisationDemandeApproDirect() : $this->demandeApproRepository->findAvecDernieresDALetLR($id);
 
         $form = $this->getFormFactory()->createBuilder(DemandeApproDirectFormType::class, $demandeAppro, [
             'em' => $this->getEntityManager()
