@@ -124,7 +124,7 @@ trait DaListeTrait
         $this->quelqueModifictionDansDatabase($daAffichers);
 
         // Vérification du verrouillage des DA et Retourne les DA filtrées
-        $paginationData['data'] = $this->appliquerVerrouillageSelonProfil($daAffichers, $this->estAdmin(), $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier());
+        $paginationData['data'] = $this->appliquerVerrouillageSelonProfil($daAffichers, $this->estAdmin(), $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier(), $this->estCreateurDeDADirecte());
 
         return $paginationData;
     }
@@ -159,10 +159,11 @@ trait DaListeTrait
      * @param bool $estAdmin
      * @param bool $estAppro
      * @param bool $estAtelier
+     * @param bool $estCreateurDaDirecte
      * 
      * @return iterable<DaAfficher>
      */
-    private function appliquerVerrouillageSelonProfil(iterable $daAffichers, bool $estAdmin, bool $estAppro, bool $estAtelier): iterable
+    private function appliquerVerrouillageSelonProfil(iterable $daAffichers, bool $estAdmin, bool $estAppro, bool $estAtelier, bool $estCreateurDaDirecte): iterable
     {
         foreach ($daAffichers as $daAfficher) {
             $verrouille = $this->estDaVerrouillee(
@@ -171,7 +172,7 @@ trait DaListeTrait
                 $estAdmin,
                 $estAppro,
                 $estAtelier,
-                $daAfficher->getDaTypeId() == DemandeAppro::TYPE_DA_DIRECT && $daAfficher->getServiceEmetteur() == $this->userDataService->getServiceId($this->getUser()) // TODO: role DA directe
+                $estCreateurDaDirecte
             );
             $daAfficher->setVerouille($verrouille);
         }
