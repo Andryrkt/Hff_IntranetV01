@@ -26,6 +26,12 @@ document.addEventListener("DOMContentLoaded", function () {
     .getElementById("add-child")
     .addEventListener("click", ajouterUneLigne);
 
+  document.querySelectorAll(".delete-DA").forEach((deleteButton) => {
+    deleteButton.addEventListener("click", function () {
+      deleteLigneDa(this);
+    });
+  });
+
   document.getElementById("myForm").addEventListener("submit", function (e) {
     e.preventDefault(); // empêcher l'envoi immédiat
     const action = e.submitter.name; // 👉 nom (attribut "name") du bouton qui a déclenché le submit
@@ -121,6 +127,57 @@ function buildIndexFromLines() {
 
   console.log("Max index:", maxIndex);
   localStorage.setItem("daDirectLineCounter", maxIndex);
+}
+
+function deleteLigneDa(button) {
+  Swal.fire({
+    title: "Êtes-vous sûr(e) ?",
+    html: `Voulez-vous vraiment supprimer cette ligne de demande d’achat?`,
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    cancelButtonColor: "#6c757d",
+    confirmButtonText: "Oui, supprimer",
+    cancelButtonText: "Non, annuler",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      let ligne = button.dataset.numLigne;
+      let container = document.getElementById(
+        `demande_appro_direct_form_DAL_${ligne}`
+      );
+      let deletedCheck = document.getElementById(
+        `demande_appro_direct_form_DAL_${ligne}_deleted`
+      );
+      container.classList.add("d-none"); // cacher la ligne de DA
+      deletedCheck.checked = true; // cocher le champ deleted
+
+      console.log("ligne = ");
+      console.log(ligne);
+      console.log("container = ");
+      console.log(container);
+      console.log("deletedCheck = ");
+      console.log(deletedCheck);
+      console.log("deletedCheck.checked = ");
+      console.log(deletedCheck.checked);
+
+      Swal.fire({
+        icon: "success",
+        title: "Supprimé",
+        text: "La ligne de demande d'achat a bien été supprimée avec succès.",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+    } else if (result.dismiss === Swal.DismissReason.cancel) {
+      // ❌ Si l'utilisateur annule
+      Swal.fire({
+        icon: "info",
+        title: "Annulé",
+        text: "La suppression de la ligne de demande a été annulée.",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+    }
+  });
 }
 
 /**===========================================================================
