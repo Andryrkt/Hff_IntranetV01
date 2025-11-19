@@ -418,13 +418,13 @@ class DaModel extends Model
                     AND llf.fllf_succ = cde.fcde_succ
 
                             WHERE
-                                 slor.slor_typlig = 'P'
+                                slor.slor_typlig = 'P'
                                 --AND slor.slor_refp NOT LIKE 'PREST%'
                                 and slor_numor = '$numOr'
                                 --and seor.seor_refdem = '$numDit'
                                 AND TRIM(REPLACE(REPLACE(slor_refp, '\t', ''), CHR(9), '')) = '$ref'
                         and TRIM(REPLACE(REPLACE(slor_desi, '\t', ''), CHR(9), '')) = '$designation'
-                        AND slor.slor_constp  in (".GlobalVariablesService::get('reappro').")
+                        
                 ";
 
         if ($statutBc && in_array($statutBc, $statutCde) && !$daReappro) {
@@ -432,8 +432,10 @@ class DaModel extends Model
                     (slor.slor_natcm = 'C' AND TRIM(REPLACE(REPLACE(c.fcde_cdeext, '\t', ''), CHR(9), '')) = '$numDa') 
                     OR (slor.slor_natcm = 'L' AND TRIM(REPLACE(REPLACE(cde.fcde_cdeext, '\t', ''), CHR(9), '')) = '$numDa')
                     )";
-        } else {
-            $statement .= " AND seor.seor_lib = '$numDa'";
+        } elseif ($daReappro) {
+            $statement .= " AND seor.seor_lib = '$numDa'
+                AND slor.slor_constp  in (" . GlobalVariablesService::get('reappro') . ")
+            ";
         }
 
         $result = $this->connect->executeQuery($statement);
