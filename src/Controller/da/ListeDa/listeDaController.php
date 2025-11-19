@@ -55,7 +55,6 @@ class listeDaController extends Controller
             /** @var DaSearch $daSearch */
             $daSearch = $form->getData();
         }
-
         $criteria = [];
         //transformer l'objet daSearch en tableau
         $criteria = $daSearch->toArray();

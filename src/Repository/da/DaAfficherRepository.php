@@ -578,15 +578,13 @@ class DaAfficherRepository extends EntityRepository
                 'numOr'        => "$qbLabel.numeroOr",
                 'numFrn'       => "$qbLabel.numeroFournisseur",
                 'frn'          => "$qbLabel.nomFournisseur",
-                'typeAchat'    => "$qbLabel.daTypeId",
             ];
         } else {
             $map = [
                 'numDa'        => "$qbLabel.numeroDemandeAppro",
                 'numDit'       => "$qbLabel.numeroDemandeDit",
                 'demandeur'    => "$qbLabel.demandeur",
-                'codeCentrale' => "$qbLabel.codeCentrale",
-                'typeAchat'    => "$qbLabel.daTypeId",
+                'codeCentrale' => "$qbLabel.codeCentrale"
             ];
         }
 
@@ -597,6 +595,12 @@ class DaAfficherRepository extends EntityRepository
                     ->setParameter($key, $criteria[$key]);
             }
         }
+
+        if (isset($criteria['typeAchat'])) {
+            $qb->andWhere("$qbLabel.daTypeId = :typeAchat")
+                ->setParameter('typeAchat', $criteria['typeAchat']);
+        }
+
 
         if (empty($criteria['numDit']) && empty($criteria['numDa'])) {
             $qb->leftJoin("$qbLabel.dit", 'dit')
