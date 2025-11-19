@@ -91,7 +91,10 @@ trait StatutBcTrait
         /** 3. recuperation type DA @var bool $daDirect @var bool $daViaOR @var bool $daReappro  */
         [$daDirect, $daViaOR, $daReappro] = $this->getTypeDa($DaAfficher);
 
-        // 4. modification de l'information de l'or
+        // 4-1. modification du statut de la DA
+        if ($DaAfficher->getStatutOr() === DemandeAppro::STATUT_DW_A_MODIFIER) $DaAfficher->setStatutDal(DemandeAppro::STATUT_EN_COURS_CREATION);
+
+        // 4-2. modification de l'information de l'or
         if (!$daDirect) $this->updateInfoOR($DaAfficher, $daViaOR, $daReappro);
 
         // 5. recupération des données necessaire dans DaAfficher
@@ -120,9 +123,6 @@ trait StatutBcTrait
 
         // 12. modification du Qte de commande dans DaAfficher
         $this->updateQteCdeDansDaAfficher($qte, $DaAfficher, $infoDaDirect, $daDirect, $daViaOR);
-
-
-
 
         if (empty($situationCde) && $daViaOR && $statutOr === DitOrsSoumisAValidation::STATUT_VALIDE) {
             return 'PAS DANS OR';
@@ -209,7 +209,7 @@ trait StatutBcTrait
     {
         if ($daDirect) $qte = $this->daModel->getEvolutionQteDaDirect($numCde, $ref, $designation);
         // pour da via OR et DA reappro
-        if($daViaOR || $daReappro) $qte = $this->daModel->getEvolutionQteDaAvecDit($numDit, $ref, $designation, $numeroOr, $statutBc, $numDa, $qteDemande, $daReappro);
+        if ($daViaOR || $daReappro) $qte = $this->daModel->getEvolutionQteDaAvecDit($numDit, $ref, $designation, $numeroOr, $statutBc, $numDa, $qteDemande, $daReappro);
 
         return $qte;
     }
@@ -428,14 +428,14 @@ trait StatutBcTrait
         }
 
         if ($daReappro) {
-            if(empty($qte)) return ;
+            if (empty($qte)) return;
             $q = $qte[0];
             $qteDem = (int)$q['qte_dem'];
             $qteLivee = (int)$q['qte_livree'];
             $qteReliquat = $qteDem - $qteLivee; // quantiter en attente
             $qteDispo = (int)$q['qte_dispo'];
 
-            if($qteDem >= $qteLivee) {
+            if ($qteDem >= $qteLivee) {
                 $DaAfficher->setNumeroCde($numcde);
             }
         };
