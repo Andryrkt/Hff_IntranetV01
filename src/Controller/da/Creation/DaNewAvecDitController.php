@@ -47,7 +47,7 @@ class DaNewAvecDitController extends Controller
             'estCreateurDeDADirecte' => $this->estCreateurDeDADirecte(),
             'urls'                   => [
                 'avecDit' => $this->getUrlGenerator()->generate('da_list_dit'),
-                'direct'  => $this->getUrlGenerator()->generate('da_new_direct', ['id' => 0]),
+                'direct'  => $this->getUrlGenerator()->generate('da_new_direct', ['daId' => 0]),
                 'reappro' => $this->getUrlGenerator()->generate('da_new_reappro', ['id' => 0]),
             ],
             'estAdmin'               => $this->estAdmin(),
