@@ -20,6 +20,10 @@ class DaNewDirectController extends Controller
 {
     use DaNewDirectTrait;
     use AutorisationTrait;
+    const STATUT_DAL = [
+        'enregistrerBrouillon' => DemandeAppro::STATUT_EN_COURS_CREATION,
+        'soumissionAppro'      => DemandeAppro::STATUT_SOUMIS_APPRO,
+    ];
 
     public function __construct()
     {
@@ -28,9 +32,9 @@ class DaNewDirectController extends Controller
     }
 
     /**
-     * @Route("/new-da-direct", name="da_new_direct")
+     * @Route("/new-da-direct/{daId<\d+>}", name="da_new_direct")
      */
-    public function newDADirect(Request $request)
+    public function newDADirect(int $daId, Request $request)
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
@@ -39,7 +43,7 @@ class DaNewDirectController extends Controller
         $this->checkPageAccess($this->estAdmin() || $this->estCreateurDeDADirecte());
         /** FIN AUtorisation accès */
 
-        $demandeAppro = $this->initialisationDemandeApproDirect();
+        $demandeAppro = $daId === 0 ? $this->initialisationDemandeApproDirect() : $this->demandeApproRepository->findAvecDernieresDALetLR($daId);
 
         $form = $this->getFormFactory()->createBuilder(DemandeApproDirectFormType::class, $demandeAppro, [
             'em' => $this->getEntityManager()
