@@ -9,6 +9,7 @@ use App\Entity\admin\Service;
 use App\Controller\Controller;
 use App\Entity\admin\Application;
 use App\Controller\Traits\DitTrait;
+use App\Entity\admin\StatutDemande;
 use App\Dto\Dit\DemandeInterventionDto;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\FormatageTrait;
@@ -181,39 +182,74 @@ class DitDuplicationController extends Controller
                 return;
             }
 
-            // 1. Créer le DTO
+            // 1. Créer le DTO à partir des données du formulaire
             $dto = DemandeInterventionDto::createFromEntity($ditFromForm);
 
-            // 2. Enrichir le DTO (logique de infoEntrerManuel)
+            // 2. Enrichir le DTO avec les informations système (initialisation ou ajout des info par defaut)
+            $user = $this->getUser();
             $em = $this->getEntityManager();
-            $application = $em->getRepository(Application::class)->findOneBy(['codeApp' => DemandeIntervention::CODE_APP]);
             $dto->utilisateurDemandeur = $user->getNomUtilisateur();
             $dto->heureDemande = $this->getTime();
             $dto->dateDemande = new \DateTime($this->getDatesystem());
-            $dto->idStatutDemande = $em->getRepository(\App\Entity\admin\StatutDemande::class)->find(50);
-            $dto->numeroDemandeIntervention = $this->autoDecrementDIT('DIT');
+            $dto->idStatutDemande = $em->getRepository(StatutDemande::class)->find(50);
             $dto->mailDemandeur = $user->getMail();
 
-            /**   @var array 3. Utiliser la factory pour créer l'entité complète*/
-            $demandeInterventions = $this->createDemandeInterventionFromDto($dto, $application);
+            /**   @var array $demandeInterventions 3. Utiliser la factory pour créer l'entité complète*/
+            $demandeInterventions = $this->createDemandeInterventionFromDto($dto);
 
 
             foreach ($demandeInterventions as $demandeIntervention) {
-                /** 4. Modifie la colonne dernière_id dans la table applications */
-                AutoIncDecService::mettreAJourDerniereIdApplication($application, $this->getEntityManager(), $demandeIntervention->getNumeroDemandeIntervention());
+                // 4. recuperation du dernière numero demande d'intervention et generation du numero de demande 
+                $application = $em->getRepository(Application::class)->findOneBy(['codeApp' => DemandeIntervention::CODE_APP]);
+                $numeroDemandeIntervention = $this->genererNumeroDemandeIntervention($application);
 
-                /** @var array 5. Traitement des fichiers (PDF, pièces jointes) */
-                $nomFichierEnregistrer  = $this->traitementDeFichier($form, $demandeIntervention);
+                // 5.enregistrement du numero demande d'intervention et Modifie la colonne dernière_id dans la table applications
+                $demandeIntervention->setNumeroDemandeIntervention($numeroDemandeIntervention);
+                AutoIncDecService::mettreAJourDerniereIdApplication($application, $em, $numeroDemandeIntervention);
 
-                // 6. Enregistrement dans la base de données
+                /** 6. Traitement des fichiers (PDF, pièces jointes) @var array $nomFichierEnregistrer @var string $nomFichier  */
+                $genererPdfDit = new GenererPdfDit();
+                [$nomFichierEnregistrer, $nomFichier]  = $this->traitementDeFichier($form, $demandeIntervention, $genererPdfDit);
+
+                // 7. Enregistrement dans le persiste
                 $this->enregistrementBd($demandeIntervention, $nomFichierEnregistrer);
+
+                // 8.Copier le PDF DANS DOXCUWARE
+                $genererPdfDit->copyToDOCUWARE($nomFichier, $demandeIntervention->getNumeroDemandeIntervention());
             }
 
-            $this->getEntityManager()->flush();
+            // 9. envoie dans la base de donner (enregistrement des données dans la base de donnée)
+            $em->flush();
 
-            $this->historiqueOperation->sendNotificationCreation('Votre demande a été enregistrée', $demandeIntervention->getNumeroDemandeIntervention(), 'dit_index', true);
+            // 10. enregistrement dans l'historisation de la sucès de la demande
+            $this->historiqueOperation->sendNotificationCreation('Votre demande a été enregistrée', $demandeInterventions[0]->getNumeroDemandeIntervention(), 'dit_index', true);
         }
     }
+
+    public function genererNumeroDemandeIntervention(Application $application)
+    {
+        // 1. decrementation du dernière numero d'intervention recupérer dans la table applications
+        $numeroDemandeIntervention = AutoIncDecService::autoGenerateNumero(DemandeIntervention::CODE_APP, $application->getDerniereId(), false);
+
+        // 2. Vérification de l'unicité du numéro de demande
+        $demandeRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class);
+        $existingDemande = $demandeRepository->findOneBy(['numeroDemandeIntervention' => $numeroDemandeIntervention]);
+        if ($existingDemande) {
+            // Log de l'erreur et notification à l'utilisateur
+            $message = sprintf(
+                'Échec lors de la création de la DIT. Le numéro de demande "%s" existe déjà. Veuillez réessayer.',
+                $numeroDemandeIntervention
+            );
+            error_log($message); // Log pour les développeurs
+            $this->historiqueOperation->sendNotificationCreation($message, $numeroDemandeIntervention, 'dit_index');
+            return; // Bloquer la suite du traitement
+            exit();
+        }
+
+        //3. retourne le numero decrementer si le numero n'existe pas
+        return $numeroDemandeIntervention;
+    }
+
     private function enregistrementBd(DemandeIntervention $demandeIntervention, array $nomFichierEnregistrer): void
     {
         $demandeIntervention
@@ -223,7 +259,7 @@ class DitDuplicationController extends Controller
         $this->getEntityManager()->persist($demandeIntervention);
     }
 
-    private function traitementDeFichier(FormInterface $form, DemandeIntervention $demandeIntervention): array
+    private function traitementDeFichier(FormInterface $form, DemandeIntervention $demandeIntervention, GenererPdfDit $genererPdfDit): array
     {
         /** 
          * gestion des pieces jointes et generer le nom du fichier PDF
@@ -235,8 +271,7 @@ class DitDuplicationController extends Controller
          */
         [$nomEtCheminFichiersEnregistrer, $nomFichierEnregistrer, $nomAvecCheminFichier, $nomFichier] = $this->enregistrementFichier($form, $demandeIntervention->getNumeroDemandeIntervention(), str_replace("-", "", $demandeIntervention->getAgenceServiceEmetteur()));
 
-        /**CREATION DE LA PAGE DE GARDE*/
-        $genererPdfDit = new GenererPdfDit();
+        /** 1. CREATION DE LA PAGE DE GARDE*/
         $idMateriel = (int)$demandeIntervention->getIdMateriel();
         if (!in_array($idMateriel, $this->ditModel->getNumeroMatriculePasMateriel())) {
             //récupération des historique de materiel (informix)
@@ -244,25 +279,17 @@ class DitDuplicationController extends Controller
         } else {
             $historiqueMateriel = [];
         }
-
-
         $genererPdfDit->genererPdfDit($demandeIntervention, $historiqueMateriel, $nomAvecCheminFichier);
 
-        // ajout du page de garde à la premier position
+        // 2. ajout du page de garde à la premier position
         $traitementDeFichier = new TraitementDeFichier();
         $nomEtCheminFichiersEnregistrer = $traitementDeFichier->insertFileAtPosition($nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, 0);
-        // fusion du page de garde et des pieces jointes (conversion avant la fusion)
+        // 3. fusion du page de garde et des pieces jointes (conversion avant la fusion)
         $nomEtCheminFichierConvertie = $this->ConvertirLesPdf($nomEtCheminFichiersEnregistrer);
         $traitementDeFichier->fusionFichers($nomEtCheminFichierConvertie, $nomAvecCheminFichier);
 
 
-        //Copier le PDF DANS DOXCUWARE
-        $genererPdfDit->copyToDOCUWARE($nomFichier, $demandeIntervention->getNumeroDemandeIntervention());
-
-
-
-
-        return $nomFichierEnregistrer;
+        return [$nomFichierEnregistrer, $nomFichier];
     }
 
     private function enregistrementFichier(FormInterface $form, string $numDit, string $agServEmetteur): array

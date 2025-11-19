@@ -151,11 +151,11 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
         );
 
         $pdf->writeHTML($html, true, false, true, false, '');
-
+        $pdf->Ln(10, true);
         //==========================================================================================================
         //Titre: Pièce(s) à faible activité d'achat
         $pdf->SetTextColor(255, 0, 0);
-        $this->addTitle($pdf, empty($pieceFaibleAchat) ? '' : "Attention !!! prix susceptible d'augmenter, veuillez confirmer avec le service Magasin", 'helvetica', 'B', 10, 'L', 5);
+        $this->addTitle($pdf, empty($pieceFaibleAchat) ? '' : "Attention : les prix des pièces ci-dessous sont susceptibles d’augmenter. Merci de les confirmer auprès du service Magasin.", 'helvetica', 'B', 10, 'L', 1);
 
         $pdf->SetTextColor(0, 0, 0);
         if (!empty($pieceFaibleAchat)) {
@@ -173,10 +173,9 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
         $pdf->setFont('helvetica', 'B', 12);
         $pdf->Cell(30, 6, 'Observation : ', 0, 0, 'L', false, '', 0, false, 'T', 'M');
         $pdf->setFont('helvetica', '', 9);
-        $pdf->MultiCell(164, 100, $ditInsertionOr->getObservation(), 0, '', 0, 0, '', '', true);
+        $pdf->MultiCell(164, 60, $ditInsertionOr->getObservation(), 0, '', 0, 0, '', '', true);
 
         //==========================================================================================================
-
 
 
         $pdf->Output($nomAvecCheminFichier, 'F');
