@@ -101,7 +101,7 @@ trait DaDetailTrait
     /** 
      * Obtenir l'url du bon d'achat
      */
-    private function getBaPath(DemandeAppro $demandeAppro): string
+    private function getBaIntranetPath(DemandeAppro $demandeAppro): string
     {
         $numDa = $demandeAppro->getNumeroDemandeAppro();
         if (in_array($demandeAppro->getStatutDal(), [DemandeAppro::STATUT_VALIDE, DemandeAppro::STATUT_TERMINER])) {
