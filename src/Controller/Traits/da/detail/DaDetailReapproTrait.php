@@ -33,8 +33,8 @@ trait DaDetailReapproTrait
     {
         return [
             [
-                'labeltype'  => 'BA',
-                'type'       => "Bon d'achat",
+                'labeltype'  => 'BAI',
+                'type'       => "Bon d'achat (Intranet)",
                 'icon'       => 'fa-solid fa-file-signature',
                 'colorClass' => 'border-left-ba',
                 'fichiers'   => $this->normalizePaths($tab['baPath']),
