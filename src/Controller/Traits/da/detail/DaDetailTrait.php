@@ -111,6 +111,32 @@ trait DaDetailTrait
     }
 
     /** 
+     * Obtenir l'url du bon d'achat validé DW
+     */
+    private function getBaDocuWarePath(DemandeAppro $demandeAppro)
+    {
+        $numDa    = $demandeAppro->getNumeroDemandeAppro();
+        $daTypeId = $demandeAppro->getDaTypeId();
+        $allDocs  = [];
+
+        if ($daTypeId === DemandeAppro::TYPE_DA_DIRECT) {
+            $allDocs = $this->dwDaDirectRepository->getPathByNumDa($numDa);
+        } elseif ($daTypeId === DemandeAppro::TYPE_DA_REAPPRO) {
+            $allDocs = $this->dwFacBlRepository->getPathByNumDa($numDa);
+        }
+
+        if (!empty($allDocs)) {
+            return array_map(function ($doc) use ($numDa) {
+                $doc['num']  = "$numDa-" . ($doc['numeroVersion'] ?? '1');
+                $doc['path'] = $_ENV['BASE_PATH_FICHIER_COURT'] . '/' . $doc['path'];
+                return $doc;
+            }, $allDocs);
+        }
+
+        return "-";
+    }
+
+    /** 
      * Obtenir l'url de l'ordre de réparation
      */
     private function getOrPath(DemandeAppro $demandeAppro)
