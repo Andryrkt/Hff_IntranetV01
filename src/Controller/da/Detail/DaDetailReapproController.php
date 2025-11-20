@@ -53,7 +53,7 @@ class DaDetailReapproController extends Controller
 		$this->traitementFormulaire($formObservation, $request, $demandeAppro);
 
 		$fichiers = $this->getAllDAFile([
-			'baPath'    => $this->getBaIntranetPath($demandeAppro),
+			'baiPath'   => $this->getBaIntranetPath($demandeAppro),
 		]);
 
 		return $this->render('da/detail.html.twig', [

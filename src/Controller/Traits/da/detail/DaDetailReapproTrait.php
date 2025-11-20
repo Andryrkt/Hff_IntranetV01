@@ -37,7 +37,7 @@ trait DaDetailReapproTrait
                 'type'       => "Bon d'achat (Intranet)",
                 'icon'       => 'fa-solid fa-file-signature',
                 'colorClass' => 'border-left-ba',
-                'fichiers'   => $this->normalizePaths($tab['baPath']),
+                'fichiers'   => $this->normalizePaths($tab['baiPath']),
             ],
         ];
     }
