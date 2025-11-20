@@ -13,7 +13,7 @@ class DwDaDirectRepository extends EntityRepository
     public function getPathByNumDa(string $numeroDa)
     {
         return  $this->createQueryBuilder('d')
-            ->select('d.path', 'd.numeroDaDirect', 'd.numeroVersion')
+            ->select('d.path', 'd.numeroVersion')
             ->where('d.numeroDaDirect = :numeroDa')
             ->setParameter('numeroDa', $numeroDa)
             ->orderBy('d.numeroVersion', 'ASC')
