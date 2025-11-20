@@ -122,7 +122,7 @@ trait DaDetailTrait
         if ($daTypeId === DemandeAppro::TYPE_DA_DIRECT) {
             $allDocs = $this->dwDaDirectRepository->getPathByNumDa($numDa);
         } elseif ($daTypeId === DemandeAppro::TYPE_DA_REAPPRO) {
-            $allDocs = $this->dwFacBlRepository->getPathByNumDa($numDa);
+            $allDocs = $this->dwDaReapproRepository->getPathByNumDa($numDa);
         }
 
         if (!empty($allDocs)) {

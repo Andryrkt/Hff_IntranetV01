@@ -3,13 +3,16 @@
 namespace App\Controller\Traits\da\detail;
 
 use App\Entity\da\DaObservation;
+use App\Entity\dw\DwDaReappro;
 use App\Repository\da\DaObservationRepository;
+use App\Repository\dw\DwDaReapproRepository;
 
 trait DaDetailReapproTrait
 {
     use DaDetailTrait;
 
     //==================================================================================================
+    private DwDaReapproRepository $dwDaReapproRepository;
     private DaObservationRepository $daObservationRepository;
 
     /**
@@ -19,6 +22,7 @@ trait DaDetailReapproTrait
     {
         $em = $this->getEntityManager();
         $this->initDaTrait();
+        $this->dwDaReapproRepository   = $em->getRepository(DwDaReappro::class);
         $this->daObservationRepository = $em->getRepository(DaObservation::class);
     }
     //==================================================================================================
@@ -38,6 +42,13 @@ trait DaDetailReapproTrait
                 'icon'       => 'fa-solid fa-file-signature',
                 'colorClass' => 'border-left-bai',
                 'fichiers'   => $this->normalizePaths($tab['baiPath']),
+            ],
+            [
+                'labeltype'  => 'BAD',
+                'type'       => "Bon d'achat (DocuWare)",
+                'icon'       => 'fa-solid fa-file-signature',
+                'colorClass' => 'border-left-bad',
+                'fichiers'   => $this->normalizePathsForManyFiles($tab['badPath'], 'num'),
             ],
         ];
     }
