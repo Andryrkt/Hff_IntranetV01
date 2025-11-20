@@ -36,7 +36,7 @@ trait DaDetailReapproTrait
                 'labeltype'  => 'BAI',
                 'type'       => "Bon d'achat (Intranet)",
                 'icon'       => 'fa-solid fa-file-signature',
-                'colorClass' => 'border-left-ba',
+                'colorClass' => 'border-left-bai',
                 'fichiers'   => $this->normalizePaths($tab['baiPath']),
             ],
         ];
