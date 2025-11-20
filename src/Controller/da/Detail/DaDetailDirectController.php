@@ -62,6 +62,7 @@ class DaDetailDirectController extends Controller
 
 		$fichiers = $this->getAllDAFile([
 			'baiPath'   => $this->getBaIntranetPath($demandeAppro),
+			'badPath'   => $this->getBaDocuWarePath($demandeAppro),
 			'bcPath'    => $this->getBcPath($demandeAppro),
 			'facblPath' => $this->getFacBlPath($demandeAppro),
 			'devPjPath' => $this->getDevisPjPath($demandeAppro),
