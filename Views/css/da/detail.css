@@ -213,6 +213,10 @@
 }
 
 .border-left-bai {
+  border-left: 3px solid #fbbb01;
+}
+
+.border-left-bad {
   border-left: 3px solid #0d6efd;
 }
 
