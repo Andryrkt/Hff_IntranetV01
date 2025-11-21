@@ -83,7 +83,7 @@ class PlanningMagasinModel extends Model
             ];
         }, $dataUtf8);
     }
-    
+
 
     public function recuperationCommadeplanifier($criteria, string $back, string $condition, array $tousLesBCSoumis)
     {
@@ -141,34 +141,38 @@ class PlanningMagasinModel extends Model
         $refClient = $this->refClient($criteria);
         $statement = "SELECT 
                         trim(nent_succ) as codeSuc,
-                                            trim(asuc_lib) as libSuc,
-                                            trim(nent_servcrt) as codeServ,
-                                            trim(ser.atab_lib) as libServ,
-                                            trim(nent_refcde) as commentaire,
+                        trim(asuc_lib) as libSuc,
+                        trim(nent_servcrt) as codeServ,
+                        trim(ser.atab_lib) as libServ,
+                        trim(nent_refcde) as commentaire,
                         nent_numcli as idMat,
-                                            trim(cbse_nomcli) as markMat,
-                                            '' as typeMat ,
-                                            '' as numSerie,
-                                            '' as numParc,
-                                            '' as casier,
+                        trim(cbse_nomcli) as markMat,
+                        '' as typeMat ,
+                        '' as numSerie,
+                        '' as numParc,
+                        '' as casier,
                         year(nent_datexp) as annee,
                         month(nent_datexp) as mois,
                         nent_numcde as orIntv,
-                         CASE 
+                        TRIM((select ausr_nom from agr_usr where ausr_num = nent_usr and ausr_soc = nent_soc)) as commercial,
+                        CASE 
                             WHEN  ( SUM(nlig_qteliv) > 0 AND SUM(nlig_qteliv) != SUM(nlig_qtecde) AND SUM(nlig_qtecde) > (SUM(nlig_qteliv) + SUM(nlig_qtealiv)) )
                             OR ( SUM(nlig_qtecde) != SUM(nlig_qtealiv) AND SUM(nlig_qteliv) = 0 AND SUM(nlig_qtealiv) > 0 )  THEN 
                             SUM(CASE WHEN nlig_constp NOT IN ('ZDI') THEN nlig_qtecde ELSE 0 END)
-                            ELSE sum(nlig_qtecde) END QteCdm, 
+                            ELSE sum(nlig_qtecde) 
+                            END QteCdm, 
                         CASE 
                             WHEN  ( SUM(nlig_qteliv) > 0 AND SUM(nlig_qteliv) != SUM(nlig_qtecde) AND SUM(nlig_qtecde) > (SUM(nlig_qteliv) + SUM(nlig_qtealiv)) )
                             OR ( SUM(nlig_qtecde) != SUM(nlig_qtealiv) AND SUM(nlig_qteliv) = 0 AND SUM(nlig_qtealiv) > 0 )  THEN 
                             SUM(CASE WHEN nlig_constp NOT IN ('ZDI') THEN nlig_qteliv ELSE 0 END)
-                            ELSE sum(nlig_qteliv) END qtliv,
-                          CASE 
+                            ELSE sum(nlig_qteliv) 
+                        END qtliv,
+                        CASE 
                             WHEN  ( SUM(nlig_qteliv) > 0 AND SUM(nlig_qteliv) != SUM(nlig_qtecde) AND SUM(nlig_qtecde) > (SUM(nlig_qteliv) + SUM(nlig_qtealiv)) )
                             OR ( SUM(nlig_qtecde) != SUM(nlig_qtealiv) AND SUM(nlig_qteliv) = 0 AND SUM(nlig_qtealiv) > 0 )  THEN 
                             SUM(CASE WHEN nlig_constp NOT IN ('ZDI') THEN nlig_qtealiv ELSE 0 END)
-                            ELSE sum(nlig_qtealiv) END QteALL 
+                            ELSE sum(nlig_qtealiv) 
+                        END QteALL 
 
                         from neg_ent, neg_lig, agr_succ, agr_tab ser, agr_usr ope, cli_bse, cli_soc
                         where nent_soc = 'HF'
@@ -189,7 +193,7 @@ class PlanningMagasinModel extends Model
                         $codeClient
                         $commercial
                         $refClient
-                        group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14
+                        group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
                         order by 12 desc, 13 desc";
         // dump($statement);
         $result = $this->connect->executeQuery($statement);
@@ -363,7 +367,7 @@ class PlanningMagasinModel extends Model
         ";
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
-        $resultat = array_column($this->convertirEnUtf8($data),"commercial");
+        $resultat = array_column($this->convertirEnUtf8($data), "commercial");
         return $resultat;
     }
 }

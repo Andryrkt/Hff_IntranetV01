@@ -200,6 +200,7 @@ trait PlanningTraits
             }
             //initialisation
             $planningMateriel
+                ->setCommercial($item['commercial'])
                 ->setCodeSuc($item['codesuc'])
                 ->setLibSuc($item['libsuc'])
                 ->setCodeServ($item['codeserv'])
@@ -311,8 +312,8 @@ trait PlanningTraits
 
                 if (array_search($monthKey, array_column($selectedMonths, 'key')) !== false) {
                     return [
-                        'month' => $months[$monthIndex] ?? '',
-                        'year' => $year,
+                        'month'   => $months[$monthIndex] ?? '',
+                        'year'    => $year,
                         'details' => $detail,
                     ];
                 }
@@ -321,14 +322,15 @@ trait PlanningTraits
             }, $moisDetails));
 
             return [
-                'libsuc' => $item->getLibsuc() ?? '',
-                'libserv' => $item->getLibServ() ?? '',
-                'idmat' => $item->getIdMat() ?? '',
-                'marqueMat' => $item->getMarqueMat() ?? '',
-                'typemat' => $item->getTypeMat() ?? '',
-                'numserie' => $item->getNumSerie() ?? '',
-                'numparc' => $item->getNumParc() ?? '',
-                'casier' => $item->getCasier() ?? '',
+                'commercial'     => $item->getCommercial() ?? '',
+                'libsuc'         => $item->getLibsuc() ?? '',
+                'libserv'        => $item->getLibServ() ?? '',
+                'idmat'          => $item->getIdMat() ?? '',
+                'marqueMat'      => $item->getMarqueMat() ?? '',
+                'typemat'        => $item->getTypeMat() ?? '',
+                'numserie'       => $item->getNumSerie() ?? '',
+                'numparc'        => $item->getNumParc() ?? '',
+                'casier'         => $item->getCasier() ?? '',
                 'filteredMonths' => array_values($filteredMonths),
             ];
         }, $data);
