@@ -350,7 +350,7 @@ class PlanningMagasinModel extends Model
         return $resultat;
     }
 
-    public function recupCommercial()
+    public function recupCommercial(string $codeAgence)
     {
         $statement = " SELECT   TRIM((select ausr_nom from agr_usr where ausr_num = nent_usr and ausr_soc = nent_soc))  as commercial 
 
@@ -365,8 +365,14 @@ class PlanningMagasinModel extends Model
                         AND nent_posf not in ('CP')
                         AND to_char(nent_numcli) not like '150%'
                         AND not nent_numcli between 1800000 and 1999999
-                        group by 1
+                        
         ";
+        if ($codeAgence != "-0") {
+            $statement .= " AND trim(nent_succ) = $codeAgence";
+        }
+
+        $statement .= " group by 1";
+
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
         $resultat = array_column($this->convertirEnUtf8($data), "commercial");

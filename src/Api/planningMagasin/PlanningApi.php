@@ -35,11 +35,11 @@ class PlanningApi extends Controller
     }
 
     /**
-     * @Route("/api/magasin-commercial", name="api_magasin_commercial")
+     * @Route("/api/magasin-commercial/{codeAgence}", name="api_magasin_commercial")
      */
-    public function nomCommercial()
+    public function nomCommercial(string $codeAgence)
     {
-        $commercial = $this->planningMagasinModel->recupCommercial();
+        $commercial = $this->planningMagasinModel->recupCommercial($codeAgence);
 
         header("Content-type:application/json");
 

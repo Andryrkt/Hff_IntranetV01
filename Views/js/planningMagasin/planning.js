@@ -54,14 +54,26 @@ document.addEventListener("DOMContentLoaded", function () {
    *====================================================*/
 
   async function fetchClient() {
-    return await fetchManager.get("api/magasin-commercial");
+    const agenceInput = document.querySelector(
+      "#planning_magasin_search_agenceDebite"
+    );
+    let codeAgence = "-0";
+
+    if (agenceInput.value) {
+      codeAgence = agenceInput.value;
+    }
+
+    return await fetchManager.get(`api/magasin-commercial/${codeAgence}`);
   }
+
   function displayClient(item) {
     return `${item}`;
   }
+
   const commercialInput = document.querySelector(
     "#planning_magasin_search_commercial"
   );
+
   function onSelectNumClient(item) {
     commercialInput.value = `${item}`;
   }
