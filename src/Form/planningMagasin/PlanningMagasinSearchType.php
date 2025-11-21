@@ -4,20 +4,14 @@
 namespace App\Form\planningMagasin;
 
 
-use Doctrine\ORM\EntityRepository;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\AbstractType;
 use App\Controller\Traits\Transformation;
-use App\Entity\admin\dit\WorTypeDocument;
-use App\Entity\admin\dit\WorNiveauUrgence;
 use App\Entity\planningMagasin\PlanningMagasinSearch;
 use App\Model\planningMagasin\PlanningMagasinModel;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use App\Repository\admin\dit\WorTypeDocumentRepository;
-use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;

@@ -39,19 +39,21 @@ class PlanningMagasinModel extends Model
                     FROM  agr_succ , sav_itv 
                     WHERE asuc_num = sitv_succdeb 
                     AND asuc_codsoc = 'HF'
-                    AND asuc_lib <> 'ANTALAHA'
-                    AND asuc_num <> '10'
-                    group by 1,2
-                    order by 1";
+                    --AND asuc_lib <> 'ANTALAHA'
+                    AND asuc_num in ('01', '20', '30', '40')
+                    --group by 1,2
+                    order by asuc_num";
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
         $dataUtf8 = $this->convertirEnUtf8($data);
-        return array_combine(
-            array_column($dataUtf8, 'asuc_lib'),
-            array_map(function ($item) {
-                return $item['asuc_num'];
-            }, $dataUtf8)
-        );
+
+        $result = []; // ex: "01 ANTANANARIVO" => "01"
+        foreach ($dataUtf8 as $item) {
+            $key = $item['asuc_num'] . ' ' . $item['asuc_lib'];
+            $result[$key] = $item['asuc_num'];
+        }
+
+        return $result;
     }
 
 
