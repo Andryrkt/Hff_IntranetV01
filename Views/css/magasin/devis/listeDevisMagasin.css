@@ -117,6 +117,7 @@
 }
 .bg-envoyer-client {
   background-color: #007bff !important;
+  color: white;
 }
 .bg-cloturer-a-modifier {
   background-color: #6c757d !important;
@@ -136,5 +137,6 @@
 }
 .bg-bc-valide {
   background-color: #034112 !important;
+  color: white;
 }
 
