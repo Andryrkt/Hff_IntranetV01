@@ -59,12 +59,28 @@ class PlanningMagasinSearchType extends AbstractType
         $this->planningMagasinModel = new PlanningMagasinModel();
     }
 
+    private function serviceDebiteur(string $codeAgence = "-0")
+    {
+        $serviceDebiteur = $this->planningMagasinModel->recuperationServiceDebite($codeAgence);
+
+        $result = [];
+        if ($serviceDebiteur && !empty($serviceDebiteur)) {
+            foreach ($serviceDebiteur as $item) {
+                $result[$item['text']] = $item['value'];
+            }
+        }
+
+        return $result;
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         //$serviceDebite = $planningModel->recuperationServiceDebite();
         // $agence = $this->transformEnSeulTableauAvecKey($this->planningMagasinModel->recuperationAgenceIrium());
         //$commercial = $this->planningMagasinModel->recupCommercial();
         $agenceDebite = $this->planningMagasinModel->recuperationAgenceDebite();
+        $codeAgence = $options['data']->getAgence();
+
         // $section = $this->planningMagasinModel->recuperationSection();
         $builder
 
@@ -171,7 +187,8 @@ class PlanningMagasinSearchType extends AbstractType
                 'required' => false,
                 'choices' => $agenceDebite,
                 'placeholder' => " -- Choisir une agence --",
-
+                'data' => $codeAgence,
+                'disabled' => $codeAgence === "-0" ? false : true
             ])
             //     ->add('section',ChoiceType::class,[
             //         'label' => 'Section',
@@ -192,9 +209,10 @@ class PlanningMagasinSearchType extends AbstractType
             ->add('serviceDebite', ChoiceType::class, [
                 'label' => 'Service ',
                 'multiple' => true,
-                'choices' => [],
+                'choices' => $this->serviceDebiteur($codeAgence),
                 'placeholder' => " -- Choisir un service--",
                 'expanded' => true,
+                'data' => array_values($this->serviceDebiteur($codeAgence))
             ])
             // ->add(
             //     'typeDocument',
@@ -224,11 +242,11 @@ class PlanningMagasinSearchType extends AbstractType
 
             //     ]
             // )
-            ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
+            ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) use ($codeAgence) {
                 $form = $event->getForm();
                 $data = $event->getData();
-
-                $serviceDebite = $this->transformEnSeulTableauAvecKeyService($this->planningMagasinModel->recuperationServiceDebite($data['agenceDebite']));
+                $codeAgenceDebite = $codeAgence === "-0" ? $data['agenceDebite'] : $codeAgence;
+                $serviceDebite = $this->transformEnSeulTableauAvecKeyService($this->planningMagasinModel->recuperationServiceDebite($codeAgenceDebite));
 
                 $form->add('serviceDebite', ChoiceType::class, [
                     'label' => 'Service: ',

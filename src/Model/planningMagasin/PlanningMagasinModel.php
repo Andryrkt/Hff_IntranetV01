@@ -87,7 +87,7 @@ class PlanningMagasinModel extends Model
     }
 
 
-    public function recuperationCommadeplanifier($criteria, string $back, string $condition, array $tousLesBCSoumis)
+    public function recuperationCommadeplanifier(PlanningMagasinSearch $criteria, string $back, string $condition, array $tousLesBCSoumis, string $codeAgence)
     {
         if ($criteria->getOrBackOrder() == true) {
             $numCmd = "AND nent_numcde in (" . $back . ")";
@@ -136,7 +136,7 @@ class PlanningMagasinModel extends Model
                 $numCmd = $this->numcommande($criteria);
                 break;
         }
-        $agDebit = $this->agenceDebite($criteria);
+        $agDebit = $this->agenceDebite($criteria, $codeAgence);
         $servDebit = $this->serviceDebite($criteria);
         $codeClient  = $this->codeClient($criteria);
         $commercial = $this->commercial($criteria);
@@ -187,6 +187,7 @@ class PlanningMagasinModel extends Model
                         AND nent_posf not in ('CP')
                         AND to_char(nent_numcli) not like '150%'
                         AND not nent_numcli between 1800000 and 1999999
+                        AND trim(nent_succ) in ('01', '20', '30', '40')
 
                         $numDevis
                         $numCmd
