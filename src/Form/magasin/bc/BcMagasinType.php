@@ -8,12 +8,13 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Validator\Constraints\Callback;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
-use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
-use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class BcMagasinType extends AbstractType
 {
@@ -34,6 +35,16 @@ class BcMagasinType extends AbstractType
                 'label' => 'Montant BC * ',
                 'required' => true,
             ])
+            ->add(
+                'dateBc',
+                DateType::class,
+                [
+                    'label' => 'Date mise en location',
+                    'widget' => 'single_text',
+                    'html5' => true,
+                    //'format' => 'dd/MM/yyyy', 
+                ]
+            )
             ->add(
                 'observation',
                 TextareaType::class,

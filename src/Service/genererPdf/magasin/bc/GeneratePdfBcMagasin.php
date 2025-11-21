@@ -64,7 +64,10 @@ class GeneratePdfBcMagasin extends GeneratePdf
         $pdf->SetFont($font2, 'B', 10);
         $pdf->Cell(30, 10, 'BC', 0, 0, 'L');
         $pdf->SetFont($font2, '', 10);
-        $pdf->Cell(0, 10, ': ' . $dto->numeroBc, 0, 0, 'L');
+        $pdf->Cell(90, 10, ': ' . $dto->numeroBc, 0, 0, 'L');
+        $pdf->Cell(35, 10, 'Date BC', 0, 0, 'L');
+        $pdf->SetFont($font2, '', 10);
+        $pdf->Cell(0, 10, ': ' . $dto->dateBc->format('d/m/Y'), 0, 0, 'L');
         $pdf->Ln(7, true);
 
         // montant Devis

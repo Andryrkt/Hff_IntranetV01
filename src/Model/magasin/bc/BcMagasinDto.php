@@ -2,6 +2,7 @@
 
 namespace App\Model\magasin\bc;
 
+use DateTime;
 use Symfony\Component\HttpFoundation\File\File;
 
 class BcMagasinDto
@@ -9,6 +10,7 @@ class BcMagasinDto
     public ?string $numeroDevis = null;
     public ?string $numeroBc = null;
     public ?string $montantBc = null;
+    public ?DateTime $dateBc = null;
     public ?string $observation = null;
     public ?File $pieceJoint01 = null;
     public array $pieceJoint2 = [];

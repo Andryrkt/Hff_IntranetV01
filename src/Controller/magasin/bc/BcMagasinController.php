@@ -26,6 +26,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Service\genererPdf\magasin\bc\GeneratePdfBcMagasin;
 use App\Service\magasin\devis\Fichier\DevisMagasinGenererNameFileService;
 use App\Service\historiqueOperation\magasin\bc\HistoriqueOperationBcMagasinService;
+use DateTime;
 
 /**
  * @Route("/magasin/dematerialisation")
@@ -109,7 +110,7 @@ class BcMagasinController extends Controller
             $this->enregistrementDonnees($dto, (float) $montantDevis, $numeroVersion);
 
             //modification du statu bc dans la table devis_soumis_a_validation_neg
-            $this->modificationStatutBCDansDevisMagasin($numeroDevis);
+            $this->modificationStatutBCDansDevisMagasin($numeroDevis, $dto->dateBc);
 
             // historique du document
             $message = 'Le bon de commande a été soumis avec succès.';
@@ -136,7 +137,7 @@ class BcMagasinController extends Controller
         $clientAndModePaiement = $listeDevisMagasinModel->getClientAndModePaiement($numeroDevis);
         $dto->codeClient = $clientAndModePaiement[0]['code_client'];
         $dto->nomClient = $clientAndModePaiement[0]['nom_client'];
-        $dto->modePayement = $clientAndModePaiement[0]['mode_paiement'];;
+        $dto->modePayement = $clientAndModePaiement[0]['mode_paiement'];
         $generatePdf->generer($this->getUser(), $dto, $nomAvecCheminFichier, (float) $montantDevis);
 
 
@@ -196,13 +197,16 @@ class BcMagasinController extends Controller
         return [$nomEtCheminFichiersEnregistrer, $nomFichierEnregistrer, $nomAvecCheminFichier, $nomFichier];
     }
 
-    private function modificationStatutBCDansDevisMagasin(string $numeroDevis): void
+    private function modificationStatutBCDansDevisMagasin(string $numeroDevis, DateTime $dateBc): void
     {
         $devisRepository = $this->getEntityManager()->getRepository(DevisMagasin::class);
         $numeroVersionMax = $devisRepository->getNumeroVersionMax($numeroDevis);
         $devisMagasin = $devisRepository->findOneBy(['numeroDevis' => $numeroDevis, 'numeroVersion' => $numeroVersionMax]);
 
-        $devisMagasin->setStatutBc(BcMagasin::STATUT_SOUMIS_VALIDATION);
+        if ($devisMagasin) {
+            $devisMagasin->setStatutBc(BcMagasin::STATUT_SOUMIS_VALIDATION);
+            $devisMagasin->setDateBc($dateBc);
+        }
 
         $this->getEntityManager()->flush();
     }

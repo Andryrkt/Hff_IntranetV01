@@ -28,6 +28,7 @@ class BcMagasinFactory
 
         return $bcMagasin->setNumeroDevis($dto->numeroDevis)
             ->setNumeroBc($dto->numeroBc)
+            ->setDateBc($dto->dateBc)
             ->setMontantDevis($montantDevis)
             ->setMontantBc($montantBcFloat)
             ->setNumeroVersion(VersionService::autoIncrement($numeroVersionMax))
