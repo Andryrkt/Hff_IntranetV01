@@ -318,7 +318,7 @@ class BreadcrumbMenuService
             [
                 'id'          => null,
                 'title'       => 'Planning de commande Magasin',
-                'link'        => '#',
+                'link'        => 'interface_planningMag',
                 'icon'        => 'fas fa-calendar-alt',
                 'routeParams' => []
             ]
