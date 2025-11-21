@@ -13,3 +13,6 @@ CREATE TABLE bc_client_soumis_neg
     date_modification DATETIME2(0) not null,
     CONSTRAINT PK_bc_client_soumis_neg PRIMARY KEY (id)
 );
+
+ALTER TABLE bc_client_soumis_neg
+    ADD date_bc DATETIME2(0) NULL

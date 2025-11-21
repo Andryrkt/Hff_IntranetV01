@@ -159,6 +159,11 @@ class DevisMagasin
      */
     private ?string $relance = '';
 
+    /**
+     * @ORM\Column(type="datetime", name="date_bc", nullable=true)
+     */
+    private $dateBc = null;
+
     private $pieceJoint01;
 
     private $pieceJoint2;
@@ -639,6 +644,24 @@ class DevisMagasin
     public function setEstValidationPm($estValidationPm): self
     {
         $this->estValidationPm = $estValidationPm;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateBc
+     */
+    public function getDateBc()
+    {
+        return $this->dateBc;
+    }
+
+    /**
+     * Set the value of dateBc
+     */
+    public function setDateBc($dateBc): self
+    {
+        $this->dateBc = $dateBc;
 
         return $this;
     }
