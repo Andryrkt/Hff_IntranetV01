@@ -9,15 +9,13 @@ document.addEventListener("DOMContentLoaded", function () {
     "partiellement-dispo",
     "complet-non-livre",
     "back-order",
-    "tout-afficher"
-  ]
-  ;
-
+    "tout-afficher",
+  ];
   buttons.forEach((buttonId) => {
     const button = document.getElementById(buttonId);
     button.addEventListener("click", function () {
       displayOverlay(true);
-    })
+    });
   });
   // // Ajoute un gestionnaire d'événement pour chaque bouton
   // for (const [buttonId, filterClass] of Object.entries(buttons)) {
@@ -45,9 +43,37 @@ document.addEventListener("DOMContentLoaded", function () {
     suggestionContainer: document.querySelector("#suggestion-num-client"),
     loaderElement: document.querySelector("#loader-num-client"),
     debounceDelay: 300,
-    fetchDataCallback:fetchClient,
-    displayItemCallback: (item) =>displayClient(item),
-    itemToStringCallback: (item) =>`${item.numclient}- ${item.nom_client}`,
+    fetchDataCallback: fetchClient,
+    displayItemCallback: (item) => displayClient(item),
+    itemToStringCallback: (item) => `${item.numclient}- ${item.nom_client}`,
+    onSelectCallback: (item) => onSelectNumClient(item),
+  });
+
+  /**===================================================
+   * Autocomplete champ commercial
+   *====================================================*/
+
+  async function fetchClient() {
+    return await fetchManager.get("api/magasin-commercial");
+  }
+  function displayClient(item) {
+    return `${item}`;
+  }
+  const commercialInput = document.querySelector(
+    "#planning_magasin_search_commercial"
+  );
+  function onSelectNumClient(item) {
+    commercialInput.value = `${item}`;
+  }
+  //AUtoComplet nomLCients
+  new AutoComplete({
+    inputElement: commercialInput,
+    suggestionContainer: document.querySelector("#suggestion-commercial"),
+    loaderElement: document.querySelector("#loader-commercial"),
+    debounceDelay: 300,
+    fetchDataCallback: fetchClient,
+    displayItemCallback: (item) => displayClient(item),
+    itemToStringCallback: (item) => `${item}`,
     onSelectCallback: (item) => onSelectNumClient(item),
   });
 });

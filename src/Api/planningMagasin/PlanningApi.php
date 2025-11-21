@@ -33,4 +33,16 @@ class PlanningApi extends Controller
 
         echo json_encode($serviceDebiteur);
     }
+
+    /**
+     * @Route("/api/magasin-commercial", name="api_magasin_commercial")
+     */
+    public function nomCommercial()
+    {
+        $commercial = $this->planningMagasinModel->recupCommercial();
+
+        header("Content-type:application/json");
+
+        echo json_encode($commercial);
+    }
 }
