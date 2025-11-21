@@ -7,6 +7,7 @@ use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Model\da\DaReapproModel;
 use App\Entity\da\DaSoumisAValidation;
+use App\Entity\da\DemandeApproL;
 use App\Service\autres\VersionService;
 use App\Repository\da\DaObservationRepository;
 use App\Repository\da\DaSoumisAValidationRepository;
@@ -167,7 +168,7 @@ trait DaValidationReapproTrait
      */
     private function creationPDFReappro(DemandeAppro $demandeAppro, iterable $observations, array $monthsList, array $dataHistoriqueConsommation): void
     {
-        $this->genererPdfDaReappro->genererPdfBonAchatValide($demandeAppro, $this->getUserMail(), $observations, $monthsList, $dataHistoriqueConsommation);
+        $this->genererPdfDaReappro->genererPdfBonAchatValide($demandeAppro, $observations, $monthsList, $dataHistoriqueConsommation);
     }
 
     /** 

@@ -63,7 +63,7 @@ trait DaValidationDirectTrait
     {
         $da = $this->demandeApproRepository->findAvecDernieresDALetLRParNumero($numDa);
         $observations = $this->daObservationRepository->findBy(['numDa' => $numDa]);
-        $this->genererPdfDaDirect->genererPdfBonAchatValide($da, $observations, $this->getUserMail());
+        $this->genererPdfDaDirect->genererPdfBonAchatValide($da, $observations);
     }
 
     /**

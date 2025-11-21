@@ -80,12 +80,12 @@
 						</thead>
 					</table>
 					<div id="children-container">
-						{% for DAL in form.DAL %}
-							{% set ligne = loop.index %}
-							<div id="demande_appro_direct_form_DAL_{{ ligne }}">
+						{% for ligne, DAL in form.DAL %}
+							{% set dalData = DAL.vars.data %}
+							<div id="demande_appro_direct_form_DAL_{{ ligne }}" class="DAL-container">
 								<div class="row g-3">
-									<div class="w-20">
-										{{ form_widget(DAL.artDesi) }}
+									<div class="w-25">
+										{{ form_widget(DAL.artDesi, { 'attr': { class:"non-modifiable" } }) }}
 										<div id="suggestion_{{ ligne }}_artDesi" class="suggestions-container"></div>
 										<div id="spinner_container_{{ ligne }}_artDesi" class="text-center" style="display: none;">
 											<div class="text-overlay">
@@ -94,25 +94,47 @@
 											<div class="loader-points"></div>
 										</div>
 									</div>
-									<div class="w-10">
-										{{ form_widget(DAL.nomFournisseur) }}
+									<div class="w-15">
+										{{ form_widget(DAL.nomFournisseur, { 'attr': { class:"non-modifiable" } }) }}
 										<div id="suggestion_{{ ligne }}_nomFournisseur" class="suggestions-container"></div>
 										<div id="spinner_container_{{ ligne }}_nomFournisseur" class="text-center" style="display: none;"></div>
 									</div>
-									<div class="w-10">
-										{{ form_widget(DAL.dateFinSouhaite) }}
+									<div class="w-15">
+										{{ form_widget(DAL.dateFinSouhaite, { 'attr': { class:"non-modifiable" } }) }}
 									</div>
 									<div class="w-5">
 										{{ form_widget(DAL.qteDem) }}
 									</div>
-									<div class="w-13">
+									<div class="w-20">
 										{{ form_widget(DAL.commentaire) }}
 									</div>
-									<div class="w-10">
+									<div class="d-none">
 										{{ form_widget(DAL.fileNames) }}
+									</div>
+									<div class="w-15">
+										{% if dalData.fileNames is not empty %}
+											<ul class="mb-0 ps-3">
+												{% for file in dalData.fileNames %}
+													<li>
+														<a href="{{ App.base_path_fichier }}/da/{{ dalData.numeroDemandeAppro }}/{{ file }}" target="_blank">{{ file }}</a>
+													</li>
+												{% endfor %}
+											</ul>
+										{% else %}
+											Aucune pièce jointe
+										{% endif %}
 									</div>
 									<div class="w-2">
 										{{ form_widget(DAL.estFicheTechnique) }}
+									</div>
+									<div class="d-none">
+										{{ form_widget(DAL.artRefp) }}
+									</div>
+									<div class="d-none">
+										{{ form_widget(DAL.codeFams1) }}
+									</div>
+									<div class="d-none">
+										{{ form_widget(DAL.codeFams2) }}
 									</div>
 									<div class="d-none">
 										{{ form_widget(DAL.artConstp) }}
@@ -136,7 +158,7 @@
 										{{ form_widget(DAL.numeroLigne) }}
 									</div>
 									<div class="w-2">
-										<span title="Supprimer la ligne de DA" style="cursor: pointer;">
+										<span class="delete-DA" data-num-ligne="{{ ligne }}" title="Supprimer la ligne de DA" style="cursor: pointer;">
 											<i class="fas fa-times fs-4"></i>
 										</span>
 									</div>
@@ -162,10 +184,14 @@
 					</div>
 				</div>
 
-				<div class="d-flex justify-content-end container-fluid">
-					<button type="submit" class="bouton-principal mt-2">
-						<i class="fas fa-save"></i>
-						Enregistrer
+				<div class="d-flex justify-content-end container-fluid mt-2">
+					<button type="submit" class="bouton-brouillon mx-3" name="enregistrerBrouillon">
+						<i class="fas fa-floppy-disk"></i>
+						Enregistrer provisoirement
+					</button>
+					<button type="submit" class="bouton-principal" name="soumissionAppro">
+						<i class="fas fa-paper-plane"></i>
+						Soumettre la demande
 					</button>
 				</div>
 				{{ form_end(form) }}

@@ -36,6 +36,7 @@ trait DaNewTrait
         foreach ($demandeAppro->getDAL() as $dal) {
             $daAfficher = new DaAfficher();
             if ($dit) $daAfficher->setDit($dit);
+            $daAfficher->setStatutOr(''); // définir à vide
             $daAfficher->enregistrerDa($demandeAppro);
             $daAfficher->enregistrerDal($dal);
             $daAfficher->setNumeroVersion($numeroVersion);

@@ -3,7 +3,6 @@
 namespace App\Service\genererPdf\da;
 
 use TCPDF;
-use DateTime;
 use App\Entity\da\DemandeAppro;
 use App\Entity\dit\DemandeIntervention;
 use App\Service\genererPdf\GeneratePdf;

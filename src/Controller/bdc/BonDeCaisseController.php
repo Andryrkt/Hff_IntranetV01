@@ -75,7 +75,7 @@ class BonDeCaisseController extends Controller
 
             $dateDemande = $form->get('dateDemande')->getData();
             if ($dateDemande) {
-                $bonCaisseSearch->dateDemande = $dateDemande['debut'];
+                $bonCaisseSearch->dateDemandeDebut = $dateDemande['debut'];
                 $bonCaisseSearch->dateDemandeFin = $dateDemande['fin'];
             }
         }
@@ -85,7 +85,7 @@ class BonDeCaisseController extends Controller
 
         $bonCaisseEntitySearch = new BonDeCaisse();
         $bonCaisseEntitySearch->setNumeroDemande($bonCaisseSearch->numeroDemande);
-        $bonCaisseEntitySearch->setDateDemande($bonCaisseSearch->dateDemande);
+        $bonCaisseEntitySearch->setDateDemande($bonCaisseSearch->dateDemandeDebut);
         $bonCaisseEntitySearch->setDateDemandeFin($bonCaisseSearch->dateDemandeFin);
         $bonCaisseEntitySearch->setAgenceDebiteur($bonCaisseSearch->agenceDebiteur);
         $bonCaisseEntitySearch->setServiceDebiteur($bonCaisseSearch->serviceDebiteur);
@@ -137,7 +137,7 @@ class BonDeCaisseController extends Controller
 
         $bonCaisseEntitySearch = new BonDeCaisse();
         $bonCaisseEntitySearch->setNumeroDemande($bonCaisseSearch->numeroDemande);
-        $bonCaisseEntitySearch->setDateDemande($bonCaisseSearch->dateDemande);
+        $bonCaisseEntitySearch->setDateDemande($bonCaisseSearch->dateDemandeDebut);
         $bonCaisseEntitySearch->setDateDemandeFin($bonCaisseSearch->dateDemandeFin);
         $bonCaisseEntitySearch->setAgenceDebiteur($bonCaisseSearch->agenceDebiteur);
         $bonCaisseEntitySearch->setServiceDebiteur($bonCaisseSearch->serviceDebiteur);
@@ -158,7 +158,6 @@ class BonDeCaisseController extends Controller
             "Statut",
             "Numéro demande",
             "Date demande",
-            "Type de paiement",
             "Caisse de retrait",
             "Retrait lié à",
             "Agence/Service émetteur",
@@ -176,7 +175,6 @@ class BonDeCaisseController extends Controller
                 $entity->getStatutDemande(),
                 $entity->getNumeroDemande(),
                 $entity->getDateDemande() ? $entity->getDateDemande()->format('d/m/Y') : '',
-                $entity->getTypePaiement(),
                 $entity->getCaisseRetrait(),
                 $entity->getRetraitLie(),
                 $entity->getAgenceEmetteur() . ' - ' . $entity->getServiceEmetteur(),
