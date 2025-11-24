@@ -234,7 +234,7 @@ class DemandeApproRepository extends EntityRepository
             ->where('da.numeroDemandeAppro = :numDa')
             ->setParameter('numDa', $numDa)
             ->getQuery()
-            ->getSingleScalarResult()
+            ->getOneOrNullResult()
         ;
     }
 
