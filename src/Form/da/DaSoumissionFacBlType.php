@@ -23,17 +23,20 @@ class DaSoumissionFacBlType extends AbstractType
                 'attr' => ['disabled' => true]
             ])
             ->add('numLiv', TextType::class, [
-                'label' => 'Numéro livraison IPS (*)',
+                'label' => 'Numéro de livraison IPS (*)',
+                'attr' => ['data-field-name' => 'Numéro de livraison IPS']
             ])
             ->add('dateBlFac', DateType::class, [
                 'widget'        => 'single_text',
                 'label'         => 'Date BL facture fournisseur (*)',
+                'attr' => ['data-field-name' => 'Date BL facture fournisseur']
             ])
             ->add(
                 'pieceJoint1',
                 FileType::class,
                 [
                     'label' => 'FacBl à soumettre',
+                    'attr' => ['data-field-name' => 'Pièce Jointe Facture / BL'],
                     'required' => true,
                     'constraints' => [
                         new File([
