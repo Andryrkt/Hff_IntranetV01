@@ -53,7 +53,7 @@ document.addEventListener("DOMContentLoaded", function () {
    * Autocomplete champ commercial
    *====================================================*/
 
-  async function fetchClient() {
+  async function fetchCommercial() {
     const agenceInput = document.querySelector(
       "#planning_magasin_search_agenceDebite"
     );
@@ -66,7 +66,7 @@ document.addEventListener("DOMContentLoaded", function () {
     return await fetchManager.get(`api/magasin-commercial/${codeAgence}`);
   }
 
-  function displayClient(item) {
+  function displayCommercial(item) {
     return `${item}`;
   }
 
@@ -74,7 +74,7 @@ document.addEventListener("DOMContentLoaded", function () {
     "#planning_magasin_search_commercial"
   );
 
-  function onSelectNumClient(item) {
+  function onSelectCommercial(item) {
     commercialInput.value = `${item}`;
   }
   //AUtoComplet nomLCients
@@ -83,10 +83,10 @@ document.addEventListener("DOMContentLoaded", function () {
     suggestionContainer: document.querySelector("#suggestion-commercial"),
     loaderElement: document.querySelector("#loader-commercial"),
     debounceDelay: 300,
-    fetchDataCallback: fetchClient,
-    displayItemCallback: (item) => displayClient(item),
+    fetchDataCallback: fetchCommercial,
+    displayItemCallback: (item) => displayCommercial(item),
     itemToStringCallback: (item) => `${item}`,
-    onSelectCallback: (item) => onSelectNumClient(item),
+    onSelectCallback: (item) => onSelectCommercial(item),
   });
 });
 
