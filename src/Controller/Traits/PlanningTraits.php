@@ -259,8 +259,13 @@ trait PlanningTraits
         // Fusionner les objets en fonction de l'idMat
         $fusionResult = [];
         foreach ($objetPlanning as $materiel) {
-            $key = $materiel->getIdMat(); // Utiliser idMat comme clé unique
-            if (!isset($fusionResult[$key])) {
+
+            $codeAgence = $materiel->getCodeSuc();
+            $codeService = $materiel->getCodeServ();
+            $key = $codeAgence . '-' . $codeService; // Utiliser idMat comme clé unique
+
+            $condition = isset($fusionResult[$key]) && $codeAgence === $fusionResult[$key]->getCodeSuc() && $codeService === $fusionResult[$key]->getCodeServ();
+            if (!$condition) {
                 $fusionResult[$key] = $materiel; // Si la clé n'existe pas, on l'ajoute
             } else {
                 // Si l'élément existe déjà, on fusionne les détails des mois
@@ -279,6 +284,7 @@ trait PlanningTraits
                 }
             }
         }
+
         return $fusionResult;
     }
     /**
@@ -296,7 +302,7 @@ trait PlanningTraits
 
         $selectedMonths = $this->getSelectedMonths($months, $currentMonth, $currentYear, $selectedOption);
 
-        $preparedData = array_map(function ($item) use ($months, $selectedMonths) {
+        $preparedData = array_filter(array_map(function ($item) use ($months, $selectedMonths) {
             $moisDetails = property_exists($item, 'moisDetails') && is_array($item->getMoisDetails())
                 ? $item->getMoisDetails()
                 : [];
@@ -321,6 +327,10 @@ trait PlanningTraits
                 return null;
             }, $moisDetails));
 
+            if (empty($filteredMonths)) {
+                return null;
+            }
+
             return [
                 'commercial'     => $item->getCommercial() ?? '',
                 'libsuc'         => $item->getLibsuc() ?? '',
@@ -333,7 +343,7 @@ trait PlanningTraits
                 'casier'         => $item->getCasier() ?? '',
                 'filteredMonths' => array_values($filteredMonths),
             ];
-        }, $data);
+        }, $data));
 
         return [
             'preparedData' => $preparedData,
