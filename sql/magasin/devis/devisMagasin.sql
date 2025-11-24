@@ -38,3 +38,6 @@ CREATE TABLE devis_soumis_a_validation_neg
 
     ALTER TABLE devis_soumis_a_validation_neg
     ADD est_validation_pm BIT DEFAULT 0;
+
+    ALTER TABLE devis_soumis_a_validation_neg
+    ADD date_bc DATETIME2(0) NULL

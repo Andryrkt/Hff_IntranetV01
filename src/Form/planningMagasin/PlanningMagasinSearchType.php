@@ -4,20 +4,14 @@
 namespace App\Form\planningMagasin;
 
 
-use Doctrine\ORM\EntityRepository;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\AbstractType;
 use App\Controller\Traits\Transformation;
-use App\Entity\admin\dit\WorTypeDocument;
-use App\Entity\admin\dit\WorNiveauUrgence;
 use App\Entity\planningMagasin\PlanningMagasinSearch;
 use App\Model\planningMagasin\PlanningMagasinModel;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use App\Repository\admin\dit\WorTypeDocumentRepository;
-use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
@@ -62,24 +56,38 @@ class PlanningMagasinSearchType extends AbstractType
 
     public function __construct()
     {
-        $this->planningMagasinModel = new PlanningMagasinModel()  ;
+        $this->planningMagasinModel = new PlanningMagasinModel();
+    }
+
+    private function serviceDebiteur(string $codeAgence = "-0")
+    {
+        $serviceDebiteur = $this->planningMagasinModel->recuperationServiceDebite($codeAgence);
+
+        $result = [];
+        if ($serviceDebiteur && !empty($serviceDebiteur)) {
+            foreach ($serviceDebiteur as $item) {
+                $result[$item['text']] = $item['value'];
+            }
+        }
+
+        return $result;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         //$serviceDebite = $planningModel->recuperationServiceDebite();
         // $agence = $this->transformEnSeulTableauAvecKey($this->planningMagasinModel->recuperationAgenceIrium());
-        $commercial = $this->planningMagasinModel->recupCommercial();
+        //$commercial = $this->planningMagasinModel->recupCommercial();
         $agenceDebite = $this->planningMagasinModel->recuperationAgenceDebite();
+        $codeAgence = $options['data']->getAgence();
+
         // $section = $this->planningMagasinModel->recuperationSection();
         $builder
-           
-            ->add('commercial', ChoiceType::class, [
+
+            ->add('commercial', TextType::class, [
                 'label' =>  'Commercial',
                 'required' => false,
-                'choices' => array_combine($commercial,$commercial),
-                'placeholder' => ' -- Choisir un commercial --',
-              ])       
+            ])
             // ->add('agence', ChoiceType::class, [
             //     'label' =>  'Agence Travaux',
             //     'required' => false,
@@ -130,57 +138,58 @@ class PlanningMagasinSearchType extends AbstractType
             //     'placeholder' => False
             // ])
 
-                // ->add('facture', ChoiceType::class,[
-                //     'label' => 'Facturation',
-                //     'required' => true,
-                //     'choices' => self::FACTURE,
-                //     'attr' => ['class'=> 'facture'],
-                //     'data' => 'ENCOURS'
-                // ])
-                // ->add('plan',ChoiceType::class,[
-                //     'label' => 'Planification',
-                //     'required' => true,
-                //     'choices' => self::PLANIFIER,
-                //     'attr' => ['class'=> 'plan'],
-                //     'data' => 'PLANIFIE'
-                //                 ])
-                // ->add('dateDebut', DateType::class, [
-                //     'widget' => 'single_text',
-                //     'label' => $options['planningDetaille'] ? 'Date Début Planning' : 'Date Début',
-                //     'required' => false,
-                // ])
-                // ->add('dateFin', DateType::class, [
-                //     'widget' => 'single_text',
-                //     'label' => $options['planningDetaille'] ? 'Date Fin Planning' : 'Date Fin',
-                //     'required' => false,
-                // ])
-                ->add('numOr', TextType::class, [
-                    'label' => "N° Commande",
-                    'required' => false
-                ])
-                // ->add('numSerie', TextType::class, [
-                //     'label' => "N° Série",
-                //     'required' => false
-                // ])
-                ->add('refcde', TextType::class, [
-                    'label' => "reférence Client",
-                    'required' => false
-                ])
-                ->add('numParc', TextType::class, [
-                    'label' => "Client ",
-                    'required' => false
-                ])
-                // ->add('casier', TextType::class, [
-                //     'label' => "Casier",
-                //     'required' => false
-                // ])
-                ->add('agenceDebite', ChoiceType::class,[
-                    'label' =>'Agence',
-                    'required' =>false,
-                    'choices' => $agenceDebite ,
-                    'placeholder' => " -- Choisir une agence --",
-                    
-                ])
+            // ->add('facture', ChoiceType::class,[
+            //     'label' => 'Facturation',
+            //     'required' => true,
+            //     'choices' => self::FACTURE,
+            //     'attr' => ['class'=> 'facture'],
+            //     'data' => 'ENCOURS'
+            // ])
+            // ->add('plan',ChoiceType::class,[
+            //     'label' => 'Planification',
+            //     'required' => true,
+            //     'choices' => self::PLANIFIER,
+            //     'attr' => ['class'=> 'plan'],
+            //     'data' => 'PLANIFIE'
+            //                 ])
+            // ->add('dateDebut', DateType::class, [
+            //     'widget' => 'single_text',
+            //     'label' => $options['planningDetaille'] ? 'Date Début Planning' : 'Date Début',
+            //     'required' => false,
+            // ])
+            // ->add('dateFin', DateType::class, [
+            //     'widget' => 'single_text',
+            //     'label' => $options['planningDetaille'] ? 'Date Fin Planning' : 'Date Fin',
+            //     'required' => false,
+            // ])
+            ->add('numOr', TextType::class, [
+                'label' => "N° Commande",
+                'required' => false
+            ])
+            // ->add('numSerie', TextType::class, [
+            //     'label' => "N° Série",
+            //     'required' => false
+            // ])
+            ->add('refcde', TextType::class, [
+                'label' => "reférence Client",
+                'required' => false
+            ])
+            ->add('numParc', TextType::class, [
+                'label' => "Client ",
+                'required' => false
+            ])
+            // ->add('casier', TextType::class, [
+            //     'label' => "Casier",
+            //     'required' => false
+            // ])
+            ->add('agenceDebite', ChoiceType::class, [
+                'label' => 'Agence',
+                'required' => false,
+                'choices' => $agenceDebite,
+                'placeholder' => " -- Choisir une agence --",
+                'data' => $codeAgence,
+                'disabled' => $codeAgence === "-0" ? false : true
+            ])
             //     ->add('section',ChoiceType::class,[
             //         'label' => 'Section',
             //         'required' => false,
@@ -200,9 +209,10 @@ class PlanningMagasinSearchType extends AbstractType
             ->add('serviceDebite', ChoiceType::class, [
                 'label' => 'Service ',
                 'multiple' => true,
-                'choices' => [],
+                'choices' => $this->serviceDebiteur($codeAgence),
                 'placeholder' => " -- Choisir un service--",
                 'expanded' => true,
+                'data' => array_values($this->serviceDebiteur($codeAgence))
             ])
             // ->add(
             //     'typeDocument',
@@ -232,11 +242,11 @@ class PlanningMagasinSearchType extends AbstractType
 
             //     ]
             // )
-            ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
+            ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) use ($codeAgence) {
                 $form = $event->getForm();
                 $data = $event->getData();
-
-                $serviceDebite = $this->transformEnSeulTableauAvecKeyService($this->planningMagasinModel->recuperationServiceDebite($data['agenceDebite']));
+                $codeAgenceDebite = $codeAgence === "-0" ? $data['agenceDebite'] : $codeAgence;
+                $serviceDebite = $this->transformEnSeulTableauAvecKeyService($this->planningMagasinModel->recuperationServiceDebite($codeAgenceDebite));
 
                 $form->add('serviceDebite', ChoiceType::class, [
                     'label' => 'Service: ',

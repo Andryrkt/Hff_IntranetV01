@@ -30,10 +30,10 @@ class ListeDevisMagasinModel extends Model
             AND year(Nent_datecde) = year(TODAY)
         ";
 
-        if (array_key_exists('statutIps', $criteria) && $criteria['statutIps'] == 'RE') {
-            $statement .= " AND nent_posl in ('--','AC','DE', 'RE')";
+        if (array_key_exists('statutIps', $criteria) && ($criteria['statutIps'] == 'RE' || $criteria['statutIps'] == 'TR')) {
+            $statement .= " AND nent_posl in ('--','AC','DE', 'RE', 'TR')";
         } else {
-            $statement .= " AND nent_posl in ('--','AC','DE')";
+            $statement .= " AND nent_posl in ('--','AC','DE', 'TR')";
         }
 
         $statement .= " ORDER BY nent_datecde DESC";

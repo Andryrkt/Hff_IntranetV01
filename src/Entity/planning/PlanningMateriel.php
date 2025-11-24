@@ -6,6 +6,7 @@ use App\Entity\admin\dit\WorNiveauUrgence;
 
 class PlanningMateriel
 {
+    private $commercial;
     private $codeSuc;
     private $libsuc;
     private $codeServ;
@@ -539,6 +540,24 @@ class PlanningMateriel
     public function setBack($back)
     {
         $this->back = $back;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of commercial
+     */
+    public function getCommercial()
+    {
+        return $this->commercial;
+    }
+
+    /**
+     * Set the value of commercial
+     */
+    public function setCommercial($commercial): self
+    {
+        $this->commercial = $commercial;
 
         return $this;
     }

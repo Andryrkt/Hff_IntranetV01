@@ -25,6 +25,7 @@ class DevisMagasin
     public const STATUT_VALIDE_AGENCE = 'Validé - à envoyer au client';
     public const STATUT_ENVOYER_CLIENT = 'Envoyé au client';
     public const STATUT_CLOTURER_A_MODIFIER = 'Cloturé - A modifier';
+    public const STATUT_A_TRAITER = 'A traiter';
 
     /**
      * @ORM\Id
@@ -158,6 +159,11 @@ class DevisMagasin
      * @var string|null
      */
     private ?string $relance = '';
+
+    /**
+     * @ORM\Column(type="datetime", name="date_bc", nullable=true)
+     */
+    private $dateBc = null;
 
     private $pieceJoint01;
 
@@ -639,6 +645,24 @@ class DevisMagasin
     public function setEstValidationPm($estValidationPm): self
     {
         $this->estValidationPm = $estValidationPm;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateBc
+     */
+    public function getDateBc()
+    {
+        return $this->dateBc;
+    }
+
+    /**
+     * Set the value of dateBc
+     */
+    public function setDateBc($dateBc): self
+    {
+        $this->dateBc = $dateBc;
 
         return $this;
     }

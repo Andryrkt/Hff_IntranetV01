@@ -11,7 +11,7 @@
 {% endblock %}
 
 {% block overlay %}
-{% include "/shared/_overlay.html.twig" %}
+	{% include "/shared/_overlay.html.twig" %}
 {% endblock %}
 
 {% block content %}
@@ -27,41 +27,44 @@
 		<table class="table table-sticky">
 			<thead class="table-dark">
 				<tr>
+					<th>Commerciaux</th>
 					<th>Agence / Service</th>
 					<th>Code Client</th>
 					<th>Nom client</th>
-					{# <th>Modèle</th>
-					<th>N° Série</th>
-					<th>N° Parc</th>
-					<th>Casier</th> #}
-					{% for month in uniqueMonths %}
-						<th>{{ month.month }}
-							{{ month.year }}</th>
-					{% endfor %}
-				</tr>
+					{# <th>Modèle</th> #}
+					{# <th>N° Série</th> #}
+					{# <th>N° Parc</th> #}
+					{# <th>Casier</th>  #}
+						{% for month in uniqueMonths %}
+							<th>{{ month.month }}
+						{{ month.year }}
+					</th>
+				{% endfor %}
+			</tr>
 			</thead>
-			<tbody>
-				{% for item in preparedData %}
-					<tr>
+				<tbody>
+					{% for item in preparedData %}
+						<tr>
+							<td class="text-center"> {{ item.commercial }}</td>
 						<td>{{ item.libsuc ~ ' - ' ~ item.libserv }}</td>
 						<td>{{ item.idmat }}</td>
 						<td>{{ item.marqueMat }}</td>
-						{# <td>{{ item.typemat }}</td>
-						<td>{{ item.numserie }}</td>
-						<td>{{ item.numparc }}</td>
-						<td>{{ item.casier }}</td> #}
-						{% for month in uniqueMonths %}
-							<td>
+						{# <td>{{ item.typemat }}</td> #}
+						{# <td>{{ item.numserie }}</td> #}
+						{# <td>{{ item.numparc }}</td> #}
+						{# <td>{{ item.casier }}</td>  #}
+							{% for month in uniqueMonths %}
+								<td>
 								{% set matchedDetails = item.filteredMonths | filter(m => m.month == month.month and m.year == month.year) %}
-								{% if matchedDetails|length > 0 %}
-									{% for detail in matchedDetails %}
+									{% if matchedDetails|length > 0 %}
+										{% for detail in matchedDetails %}
 										{% set classe = '' %}
 										{% set qteCdm = detail.details.qteCdm | default(0) * 1 %}
 										{% set qteLiv = detail.details.qteLiv | default(0) * 1 %}
 										{% set qteAll = detail.details.qteAll | default(0) * 1 %}
 										{% set back = detail.details.back | default('') %}
 
-										{% if qteCdm == qteLiv and qteCdm != '' and qteLiv != '' %}
+											{% if qteCdm == qteLiv and qteCdm != '' and qteLiv != '' %}
 											{# Tout livré #}
 											{# {% set classe = 'tout-livre bg-success text-white' %} #}
 										{% elseif qteLiv > 0 and qteLiv != qteCdm and qteCdm > (qteLiv + qteAll) %}
@@ -103,7 +106,7 @@
 {% endblock %}
 {% block javascript %}
 	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v=2025.09.15.08.00"></script>
-	 <script src="{{ App.base_path }}/Views/js/planningMagasin/planning.js?v=2025.09.15.08.00" type="module"></script>
-	 <script src="{{ App.base_path }}/Views/js/planningMagasin/listPlanning.js?v=2025.09.15.08.00" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/planningMagasin/planning.js?v=2025.09.15.08.00" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/planningMagasin/listPlanning.js?v=2025.09.15.08.00" type="module"></script>
 	<script src="{{ App.base_path }}/Views/js/planningMagasin/agServPlanning.js?v=2025.09.15.08.00" type="module"></script>
 {% endblock %}

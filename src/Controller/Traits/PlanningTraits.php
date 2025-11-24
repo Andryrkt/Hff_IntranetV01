@@ -200,6 +200,7 @@ trait PlanningTraits
             }
             //initialisation
             $planningMateriel
+                ->setCommercial($item['commercial'])
                 ->setCodeSuc($item['codesuc'])
                 ->setLibSuc($item['libsuc'])
                 ->setCodeServ($item['codeserv'])
@@ -258,8 +259,13 @@ trait PlanningTraits
         // Fusionner les objets en fonction de l'idMat
         $fusionResult = [];
         foreach ($objetPlanning as $materiel) {
-            $key = $materiel->getIdMat(); // Utiliser idMat comme clé unique
-            if (!isset($fusionResult[$key])) {
+
+            $codeAgence = $materiel->getCodeSuc();
+            $codeService = $materiel->getCodeServ();
+            $key = $codeAgence . '-' . $codeService; // Utiliser idMat comme clé unique
+
+            $condition = isset($fusionResult[$key]) && $codeAgence === $fusionResult[$key]->getCodeSuc() && $codeService === $fusionResult[$key]->getCodeServ();
+            if (!$condition) {
                 $fusionResult[$key] = $materiel; // Si la clé n'existe pas, on l'ajoute
             } else {
                 // Si l'élément existe déjà, on fusionne les détails des mois
@@ -278,6 +284,7 @@ trait PlanningTraits
                 }
             }
         }
+
         return $fusionResult;
     }
     /**
@@ -295,7 +302,7 @@ trait PlanningTraits
 
         $selectedMonths = $this->getSelectedMonths($months, $currentMonth, $currentYear, $selectedOption);
 
-        $preparedData = array_map(function ($item) use ($months, $selectedMonths) {
+        $preparedData = array_filter(array_map(function ($item) use ($months, $selectedMonths) {
             $moisDetails = property_exists($item, 'moisDetails') && is_array($item->getMoisDetails())
                 ? $item->getMoisDetails()
                 : [];
@@ -311,8 +318,8 @@ trait PlanningTraits
 
                 if (array_search($monthKey, array_column($selectedMonths, 'key')) !== false) {
                     return [
-                        'month' => $months[$monthIndex] ?? '',
-                        'year' => $year,
+                        'month'   => $months[$monthIndex] ?? '',
+                        'year'    => $year,
                         'details' => $detail,
                     ];
                 }
@@ -320,18 +327,23 @@ trait PlanningTraits
                 return null;
             }, $moisDetails));
 
+            if (empty($filteredMonths)) {
+                return null;
+            }
+
             return [
-                'libsuc' => $item->getLibsuc() ?? '',
-                'libserv' => $item->getLibServ() ?? '',
-                'idmat' => $item->getIdMat() ?? '',
-                'marqueMat' => $item->getMarqueMat() ?? '',
-                'typemat' => $item->getTypeMat() ?? '',
-                'numserie' => $item->getNumSerie() ?? '',
-                'numparc' => $item->getNumParc() ?? '',
-                'casier' => $item->getCasier() ?? '',
+                'commercial'     => $item->getCommercial() ?? '',
+                'libsuc'         => $item->getLibsuc() ?? '',
+                'libserv'        => $item->getLibServ() ?? '',
+                'idmat'          => $item->getIdMat() ?? '',
+                'marqueMat'      => $item->getMarqueMat() ?? '',
+                'typemat'        => $item->getTypeMat() ?? '',
+                'numserie'       => $item->getNumSerie() ?? '',
+                'numparc'        => $item->getNumParc() ?? '',
+                'casier'         => $item->getCasier() ?? '',
                 'filteredMonths' => array_values($filteredMonths),
             ];
-        }, $data);
+        }, $data));
 
         return [
             'preparedData' => $preparedData,

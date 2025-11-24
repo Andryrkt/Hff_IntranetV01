@@ -46,6 +46,7 @@ class DevisMagasinSearchType extends AbstractType
         'AC' => 'AC',
         'DE' => 'DE',
         'RE' => 'RE',
+        'TR' => 'TR',
     ];
 
     public function buildForm(FormBuilderInterface $builder, array $options)

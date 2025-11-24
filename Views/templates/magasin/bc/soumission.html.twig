@@ -21,13 +21,16 @@
 					{{ form_start(form, {'attr': {'enctype': 'multipart/form-data', 'id': 'upload-form'}}) }}
 					{{ form_errors(form)}}
 					<div class="row">
-						<div class="col-12 col-md-4">
+						<div class="col-12 col-md-3">
 							{{ form_row(form.numeroDevis) }}
 						</div>
-						<div class="col-12 col-md-4">
+						<div class="col-12 col-md-3">
 							{{ form_row(form.numeroBc) }}
 						</div>
-						<div class="col-12 col-md-4">
+						<div class="col-12 col-md-3">
+							{{ form_row(form.dateBc) }}
+						</div>
+						<div class="col-12 col-md-3">
 							{{ form_row(form.montantBc) }}
 						</div>
 					</div>
@@ -52,7 +55,7 @@
 					<div class="row">
 						{{ form_row(form.observation) }}
 					</div>
-					<div class="row table-container">
+					<div class="row table-container d-none">
 						<table class="styled-table">
 							<thead>
 								<tr>

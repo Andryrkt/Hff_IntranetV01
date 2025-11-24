@@ -13,15 +13,20 @@ trait planningMagasinModelTrait
         }
         return $numCommande;
     }
-    private function agenceDebite($criteria)
+
+    private function agenceDebite($criteria, string $codeAgence)
     {
-        if (!empty($criteria->getAgenceDebite())) {
+        if ($codeAgence !== "-0") {
+            $agenceDebite = " AND nent_succ = '$codeAgence' ";
+        } elseif (!empty($criteria->getAgenceDebite())) {
             $agenceDebite = " AND nent_succ = '" . $criteria->getAgenceDebite() . "' ";
         } else {
-            $agenceDebite = ""; // AND sitv_succdeb in ('01','02','90','92','40','60','50','40','30','20')
+            $agenceDebite = "";
         }
+
         return $agenceDebite;
     }
+
     private function serviceDebite($criteria)
     {
         if (!empty($criteria->getServiceDebite())) {
@@ -49,12 +54,13 @@ trait planningMagasinModelTrait
         }
         return $condCommercial;
     }
-    private function refClient ($criteria){
-         if (!empty($criteria->getRefcde())) {
+    private function refClient($criteria)
+    {
+        if (!empty($criteria->getRefcde())) {
             $condRefclient = "AND NENT_REFCDE like '%" . $criteria->getRefcde() . "%'  ";
-         }else {
-        $condRefclient = "";
-         }
-         return $condRefclient;
+        } else {
+            $condRefclient = "";
+        }
+        return $condRefclient;
     }
 }

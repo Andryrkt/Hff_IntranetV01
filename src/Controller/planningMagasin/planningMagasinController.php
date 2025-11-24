@@ -5,12 +5,13 @@ namespace App\Controller\planningMagasin;
 use App\Controller\Controller;
 use App\Entity\admin\Application;
 use App\Entity\magasin\bc\BcMagasin;
+use App\Entity\admin\utilisateur\Role;
+use App\Entity\admin\utilisateur\User;
 use App\Service\TableauEnStringService;
 use App\Controller\Traits\PlanningTraits;
 use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Repository\magasin\bc\BcMagasinRepository;
 use App\Model\planningMagasin\PlanningMagasinModel;
 use App\Entity\planningMagasin\PlanningMagasinSearch;
 use App\Form\planningMagasin\PlanningMagasinSearchType;
@@ -45,6 +46,9 @@ class planningMagasinController extends Controller
         $this->verifierSessionUtilisateur();
         /** Autorisation accées */
         $this->autorisationAcces($this->getUser(), Application::ID_REP);
+        // autorisation pour affichage
+        $autoriser = $this->estAutoriser($this->getUser());
+        $codeAgence = $autoriser ? "-0" : $this->getUser()->getCodeAgenceUser();
         /** FIN AUtorisation acées */
         //initialisation
         $this->planningMagasinSearch
@@ -54,7 +58,9 @@ class planningMagasinController extends Controller
             ->setInterneExterne('TOUS')
             ->setTypeLigne('TOUETS')
             ->setMonths(3)
+            ->setAgence($codeAgence)
         ;
+
         $form = $this->getFormFactory()->createBuilder(
             PlanningMagasinSearchType::class,
             $this->planningMagasinSearch,
@@ -75,7 +81,7 @@ class planningMagasinController extends Controller
         //recupère le condition clicsur la légende
         $condition = $request->query->get('condition', "1");
         // dd($condition);
-        $back = $this->planningMagasinModel->backOrderplanningMagasin($criteria,$tousLesBCSoumis);
+        $back = $this->planningMagasinModel->backOrderplanningMagasin($criteria, $tousLesBCSoumis);
 
         if (is_array($back)) {
             $backString = TableauEnStringService::orEnString($back);
@@ -84,7 +90,7 @@ class planningMagasinController extends Controller
         }
 
 
-        $data = $this->planningMagasinModel->recuperationCommadeplanifier($criteria, $backString, $condition,$tousLesBCSoumis);
+        $data = $this->planningMagasinModel->recuperationCommadeplanifier($criteria, $backString, $condition, $tousLesBCSoumis, $codeAgence);
         // dump($data);
 
         $tabObjetPlanning = $this->creationTableauObjetPlanningMagasin($data, $back);
@@ -101,10 +107,17 @@ class planningMagasinController extends Controller
             'preparedData' => $forDisplay['preparedData'],
         ]);
     }
+
     private function allBCs(): array
     {
         /** @var array */
         $numBc = $this->BcMagasinRepository->findnumBCAll();
         return $numBc;
+    }
+
+    private function estAutoriser(User $user)
+    {
+        $roleIds = $user->getRoleIds();
+        return $this->estAdmin()  || in_array(Role::ROLE_MULTI_SUCURSALES, $roleIds);
     }
 }

@@ -39,19 +39,21 @@ class PlanningMagasinModel extends Model
                     FROM  agr_succ , sav_itv 
                     WHERE asuc_num = sitv_succdeb 
                     AND asuc_codsoc = 'HF'
-                    AND asuc_lib <> 'ANTALAHA'
-                    AND asuc_num <> '10'
-                    group by 1,2
-                    order by 1";
+                    --AND asuc_lib <> 'ANTALAHA'
+                    AND asuc_num in ('01', '20', '30', '40')
+                    --group by 1,2
+                    order by asuc_num";
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
         $dataUtf8 = $this->convertirEnUtf8($data);
-        return array_combine(
-            array_column($dataUtf8, 'asuc_lib'),
-            array_map(function ($item) {
-                return $item['asuc_num'];
-            }, $dataUtf8)
-        );
+
+        $result = []; // ex: "01 ANTANANARIVO" => "01"
+        foreach ($dataUtf8 as $item) {
+            $key = $item['asuc_num'] . ' ' . $item['asuc_lib'];
+            $result[$key] = $item['asuc_num'];
+        }
+
+        return $result;
     }
 
 
@@ -83,9 +85,9 @@ class PlanningMagasinModel extends Model
             ];
         }, $dataUtf8);
     }
-    
 
-    public function recuperationCommadeplanifier($criteria, string $back, string $condition, array $tousLesBCSoumis)
+
+    public function recuperationCommadeplanifier(PlanningMagasinSearch $criteria, string $back, string $condition, array $tousLesBCSoumis, string $codeAgence)
     {
         if ($criteria->getOrBackOrder() == true) {
             $numCmd = "AND nent_numcde in (" . $back . ")";
@@ -134,41 +136,45 @@ class PlanningMagasinModel extends Model
                 $numCmd = $this->numcommande($criteria);
                 break;
         }
-        $agDebit = $this->agenceDebite($criteria);
+        $agDebit = $this->agenceDebite($criteria, $codeAgence);
         $servDebit = $this->serviceDebite($criteria);
         $codeClient  = $this->codeClient($criteria);
         $commercial = $this->commercial($criteria);
         $refClient = $this->refClient($criteria);
         $statement = "SELECT 
                         trim(nent_succ) as codeSuc,
-                                            trim(asuc_lib) as libSuc,
-                                            trim(nent_servcrt) as codeServ,
-                                            trim(ser.atab_lib) as libServ,
-                                            trim(nent_refcde) as commentaire,
+                        trim(asuc_lib) as libSuc,
+                        trim(nent_servcrt) as codeServ,
+                        trim(ser.atab_lib) as libServ,
+                        trim(nent_refcde) as commentaire,
                         nent_numcli as idMat,
-                                            trim(cbse_nomcli) as markMat,
-                                            '' as typeMat ,
-                                            '' as numSerie,
-                                            '' as numParc,
-                                            '' as casier,
+                        trim(cbse_nomcli) as markMat,
+                        '' as typeMat ,
+                        '' as numSerie,
+                        '' as numParc,
+                        '' as casier,
                         year(nent_datexp) as annee,
                         month(nent_datexp) as mois,
                         nent_numcde as orIntv,
-                         CASE 
+                        TRIM((select ausr_nom from agr_usr where ausr_num = nent_usr and ausr_soc = nent_soc)) as commercial,
+                        CASE 
                             WHEN  ( SUM(nlig_qteliv) > 0 AND SUM(nlig_qteliv) != SUM(nlig_qtecde) AND SUM(nlig_qtecde) > (SUM(nlig_qteliv) + SUM(nlig_qtealiv)) )
                             OR ( SUM(nlig_qtecde) != SUM(nlig_qtealiv) AND SUM(nlig_qteliv) = 0 AND SUM(nlig_qtealiv) > 0 )  THEN 
                             SUM(CASE WHEN nlig_constp NOT IN ('ZDI') THEN nlig_qtecde ELSE 0 END)
-                            ELSE sum(nlig_qtecde) END QteCdm, 
+                            ELSE sum(nlig_qtecde) 
+                            END QteCdm, 
                         CASE 
                             WHEN  ( SUM(nlig_qteliv) > 0 AND SUM(nlig_qteliv) != SUM(nlig_qtecde) AND SUM(nlig_qtecde) > (SUM(nlig_qteliv) + SUM(nlig_qtealiv)) )
                             OR ( SUM(nlig_qtecde) != SUM(nlig_qtealiv) AND SUM(nlig_qteliv) = 0 AND SUM(nlig_qtealiv) > 0 )  THEN 
                             SUM(CASE WHEN nlig_constp NOT IN ('ZDI') THEN nlig_qteliv ELSE 0 END)
-                            ELSE sum(nlig_qteliv) END qtliv,
-                          CASE 
+                            ELSE sum(nlig_qteliv) 
+                        END qtliv,
+                        CASE 
                             WHEN  ( SUM(nlig_qteliv) > 0 AND SUM(nlig_qteliv) != SUM(nlig_qtecde) AND SUM(nlig_qtecde) > (SUM(nlig_qteliv) + SUM(nlig_qtealiv)) )
                             OR ( SUM(nlig_qtecde) != SUM(nlig_qtealiv) AND SUM(nlig_qteliv) = 0 AND SUM(nlig_qtealiv) > 0 )  THEN 
                             SUM(CASE WHEN nlig_constp NOT IN ('ZDI') THEN nlig_qtealiv ELSE 0 END)
-                            ELSE sum(nlig_qtealiv) END QteALL 
+                            ELSE sum(nlig_qtealiv) 
+                        END QteALL 
 
                         from neg_ent, neg_lig, agr_succ, agr_tab ser, agr_usr ope, cli_bse, cli_soc
                         where nent_soc = 'HF'
@@ -181,6 +187,7 @@ class PlanningMagasinModel extends Model
                         AND nent_posf not in ('CP')
                         AND to_char(nent_numcli) not like '150%'
                         AND not nent_numcli between 1800000 and 1999999
+                        AND trim(nent_succ) in ('01', '20', '30', '40')
 
                         $numDevis
                         $numCmd
@@ -189,7 +196,7 @@ class PlanningMagasinModel extends Model
                         $codeClient
                         $commercial
                         $refClient
-                        group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14
+                        group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
                         order by 12 desc, 13 desc";
         // dump($statement);
         $result = $this->connect->executeQuery($statement);
@@ -344,7 +351,7 @@ class PlanningMagasinModel extends Model
         return $resultat;
     }
 
-    public function recupCommercial()
+    public function recupCommercial(string $codeAgence)
     {
         $statement = " SELECT   TRIM((select ausr_nom from agr_usr where ausr_num = nent_usr and ausr_soc = nent_soc))  as commercial 
 
@@ -359,11 +366,17 @@ class PlanningMagasinModel extends Model
                         AND nent_posf not in ('CP')
                         AND to_char(nent_numcli) not like '150%'
                         AND not nent_numcli between 1800000 and 1999999
-                        group by 1
+                        
         ";
+        if ($codeAgence != "-0") {
+            $statement .= " AND trim(nent_succ) = $codeAgence";
+        }
+
+        $statement .= " group by 1";
+
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
-        $resultat = array_column($this->convertirEnUtf8($data),"commercial");
+        $resultat = array_column($this->convertirEnUtf8($data), "commercial");
         return $resultat;
     }
 }
