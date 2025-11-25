@@ -8,6 +8,7 @@ use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaSoumissionFacBl;
 use App\Form\da\DaSoumissionFacBlType;
+use App\Model\da\DaModel;
 use App\Service\genererPdf\GeneratePdf;
 use App\Service\fichier\TraitementDeFichier;
 use App\Repository\da\DemandeApproRepository;
@@ -93,8 +94,10 @@ class DaSoumissionFacBlController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             $soumissionFacBl = $form->getData();
+            $numLiv = $soumissionFacBl->getNumLiv();
+            $infoLivraison = $this->getInfoLivraison($numCde, $numLiv);
             $nomOriginalFichier = $soumissionFacBl->getPieceJoint1()->getClientOriginalName();
-            if ($this->verifierConditionDeBlocage($soumissionFacBl, $numCde, $nomOriginalFichier)) {
+            if ($this->verifierConditionDeBlocage($soumissionFacBl, $numCde, $infoLivraison, $nomOriginalFichier)) {
                 /** ENREGISTREMENT DE FICHIER */
                 $nomDeFichiers = $this->enregistrementFichier($form, $numCde, $numDa);
 
@@ -262,28 +265,56 @@ class DaSoumissionFacBlController extends Controller
         return $filePath;
     }
 
-    private function conditionDeBlocage(DaSoumissionFacBl $soumissionFacBl): array
+    private function getInfoLivraison(string $numCde, string $numLiv)
+    {
+        $infosLivraison = (new DaModel)->getInfoLivraison($numLiv);
+
+        if (empty($infosLivraison)) return [];
+
+        foreach ($infosLivraison as $data) {
+            if ($data['num_cde'] === $numCde) return $data;
+        }
+        return ['num_cde' => false, 'num_liv' => $numLiv];
+    }
+
+    private function conditionDeBlocage(DaSoumissionFacBl $soumissionFacBl, array $infoLivraison): array
     {
         $nomDeFichier = $soumissionFacBl->getPieceJoint1()->getClientOriginalName();
 
         return [
-            'nomDeFichier' => preg_match('/[#\-_~]/', $nomDeFichier), // contient au moins un des caractères
+            'nomDeFichier'        => preg_match('/[#\-_~]/', $nomDeFichier), // contient au moins un des caractères
+            'livraisonVide'       => empty($infoLivraison),
+            'pasDeCorrespondance' => $infoLivraison['num_cde'] === false,
+            'nonCloture'          => isset($infoLivraison['date_clot']) && $infoLivraison['date_clot'] === null,
         ];
     }
 
-    private function verifierConditionDeBlocage(DaSoumissionFacBl $soumissionFacBl, $numCde, $nomOriginalFichier): bool
+    private function verifierConditionDeBlocage(DaSoumissionFacBl $soumissionFacBl, $numCde, $infoLivraison, $nomOriginalFichier): bool
     {
-        $conditions = $this->conditionDeBlocage($soumissionFacBl);
+        $conditions = $this->conditionDeBlocage($soumissionFacBl, $infoLivraison);
 
-        $okey = false;
+        $okey = true;
 
-        if ($conditions['nomDeFichier']) {
+        if ($conditions['livraisonVide']) {
+            $message = "Le numéro de la livraison n'existe pas dans IPS. Merci de bien vérifier le numéro de la livraison.";
+
+            $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn');
+            $okey = false;
+        } elseif ($conditions['pasDeCorrespondance']) {
+            $message = "Le numéro de livraison '" . $infoLivraison['num_liv'] . "' ne correspond pas au numéro de commande '$numCde'. Merci de bien vérifier le numéro de la livarison de la commande.";
+
+            $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn');
+            $okey = false;
+        } elseif ($conditions['nonCloture']) {
+            $message = "La livraison n'est pas encore clôturée. Merci de clôturer d'abord la livraison.";
+
+            $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn');
+            $okey = false;
+        } elseif ($conditions['nomDeFichier']) {
             $message = "Le nom de fichier ('{$nomOriginalFichier}') n'est pas valide. Il ne doit pas contenir les caractères suivants : #, -, _ ou ~. Merci de renommer votre fichier avant de le soumettre dans DocuWare.";
 
             $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn');
             $okey = false;
-        } else {
-            $okey = true; // Aucune condition de blocage n'est remplie
         }
 
         return $okey;
