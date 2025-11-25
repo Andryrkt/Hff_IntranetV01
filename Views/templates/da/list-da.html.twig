@@ -102,7 +102,7 @@
 						</td>
 						{# === Fin Actions ==== #}
 						<td class="{{ row.aDeverouiller ? 'bg-danger' : '' }}">
-							<a href="{{ row.urlDetail }}" target="_blank" class="{{ row.aDeverouiller ? 'text-white' : '' }}" data-bs-toggle="tooltip" title="Afficher le détail">
+							<a href="{{ row.urlDetail }}" target="_blank" class="{{ row.aDeverouiller ? 'text-white' : '' }}" data-bs-toggle="tooltip" title="{{ row.objet }}">
 								{{ row.numeroDemandeAppro }}
 							</a>
 						</td>

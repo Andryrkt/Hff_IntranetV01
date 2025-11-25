@@ -234,6 +234,7 @@ trait DaListeTrait
             // Tout regrouper
             $datasPrepared[] = [
                 'dit'                 => $item->getDit(),
+                'objet'               => $item->getObjetDal(),
                 'numeroDemandeAppro'  => $item->getNumeroDemandeAppro(),
                 'demandeAppro'        => $item->getDemandeAppro(),
                 'datype'              => $daType[$item->getDaTypeId()],
