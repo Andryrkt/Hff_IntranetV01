@@ -39,9 +39,19 @@ class DwBcAppro
     private $numeroOr;
 
     /**
+     * @ORM\Column(type="string", name="validateur", length=255, nullable=true)
+     */
+    private $validateur;
+
+    /**
      * @ORM\Column(type="string", name="id_tiroir", length=255, nullable=true)
      */
     private $idTiroir;
+
+    /**
+     * @ORM\Column(type="datetime", name="date_validation")
+     */
+    private $dateValidation;
 
     /**
      * @ORM\Column(type="date", name="date_creation", nullable=true)
@@ -360,6 +370,42 @@ class DwBcAppro
     public function setNumeroDa($numeroDa)
     {
         $this->numeroDa = $numeroDa;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of validateur
+     */
+    public function getValidateur()
+    {
+        return $this->validateur;
+    }
+
+    /**
+     * Set the value of validateur
+     */
+    public function setValidateur($validateur): self
+    {
+        $this->validateur = $validateur;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateValidation
+     */
+    public function getDateValidation()
+    {
+        return $this->dateValidation;
+    }
+
+    /**
+     * Set the value of dateValidation
+     */
+    public function setDateValidation($dateValidation): self
+    {
+        $this->dateValidation = $dateValidation;
 
         return $this;
     }
