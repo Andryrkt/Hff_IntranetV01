@@ -129,7 +129,10 @@ class DitModel extends Model
   {
     $statement = "SELECT mmat_nummat as numero_matricule 
               from informix.mat_mat 
-              where mmat_reffou in ('IMMODIV','PRESTDIV') OR (mmat_recalph = 'EQPABS')";
+              where mmat_reffou in ('IMMODIV','PRESTDIV') OR (mmat_recalph = 'EQPABS')
+              or mmat_nummat = '7711'
+              order by mmat_nummat
+              ";
 
     $result = $this->connect->executeQuery($statement);
 
