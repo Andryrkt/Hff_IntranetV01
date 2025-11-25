@@ -543,6 +543,22 @@ class DitModel extends Model
 
     $result = $this->connect->executeQuery($statement);
 
+    $data = $this->connect->fetchResults($result);
+
+    return $this->convertirEnUtf8($data);
+  }
+
+  public function recupInfoMateriel(string $numOr)
+  {
+    $statement = "SELECT 
+        TRIM(mmat_desi) AS designation, 
+        TRIM(mmat_numserie) AS numserie,
+        TRIM(mmat_recalph) AS identite
+      FROM sav_eor
+      INNER JOIN mat_mat on mmat_nummat = seor_nummat and seor_soc = 'HF'
+      WHERE seor_numor = '$numOr'";
+
+    $result = $this->connect->executeQuery($statement);
 
     $data = $this->connect->fetchResults($result);
 
