@@ -111,7 +111,7 @@ class DaSoumissionFacBlController extends Controller
                 $this->traitementDeFichier->fusionFichers($fichierConvertir, $nomAvecCheminPdfFusionner);
 
                 /** AJOUT DES INFO NECESSAIRE */
-                $this->ajoutInfoNecesaireSoumissionFacBl($soumissionFacBl, $numCde, $nomPdfFusionner, $numeroVersionMax);
+                $this->ajoutInfoNecesaireSoumissionFacBl($soumissionFacBl, $numCde, $nomPdfFusionner, $numeroVersionMax, $infoLivraison);
 
                 /** ENREGISTREMENT DANS LA BASE DE DONNEE */
                 $this->getEntityManager()->persist($soumissionFacBl);
@@ -151,12 +151,14 @@ class DaSoumissionFacBlController extends Controller
         $this->getEntityManager()->flush();
     }
 
-    private function ajoutInfoNecesaireSoumissionFacBl(DaSoumissionFacBl $soumissionFacBl, string $numCde, string $nomPdfFusionner, int $numeroVersionMax)
+    private function ajoutInfoNecesaireSoumissionFacBl(DaSoumissionFacBl $soumissionFacBl, string $numCde, string $nomPdfFusionner, int $numeroVersionMax, array $infoLivraison)
     {
         $soumissionFacBl
             ->setNumeroCde($numCde)
             ->setPieceJoint1($nomPdfFusionner)
             ->setNumeroVersion($numeroVersionMax)
+            ->setDateClotLiv($infoLivraison["date_clot"])
+            ->setRefBlFac($infoLivraison["ref_fac_bl"])
         ;
     }
 
