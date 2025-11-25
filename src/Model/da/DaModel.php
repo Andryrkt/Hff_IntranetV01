@@ -578,4 +578,31 @@ class DaModel extends Model
         $result = $this->connect->executeQuery($statement);
         return $this->convertirEnUtf8($this->connect->fetchResults($result));
     }
+
+    public function getInfoBC(string $numCde)
+    {
+        $statement = "SELECT 
+                TRIM(fbse_nomfou) as nom_fournisseur, 
+                fbse_numfou as num_fournisseur,
+                TRIM(fbse_tel) as tel_fournisseur, 
+                TRIM(fbse_adr1) as adr1_fournisseur, 
+                TRIM(fbse_adr2) as adr2_fournisseur, 
+                TRIM(fbse_ptt) as ptt_fournisseur, 
+                TRIM(fbse_adr4) as adr4_fournisseur, 
+                fcde_numcde as num_cde,
+                fcde_date as date_cde,
+                TRIM(fcde_succ) as succ_cde, 
+                TRIM(fcde_serv) as serv_cde, 
+                TRIM(fcde_ope) as nom_ope, 
+                TRIM(fcde_cdeext) as num_cde_ext, 
+                TRIM(fcde_lib) as libelle_cde, 
+                fcde_mtn as mtn_cde,
+                fcde_ttc as ttc_cde,
+                TRIM(fcde_typcde) as type_cde 
+            from frn_cde 
+            inner join frn_bse on fbse_numfou = fcde_numfou
+            where fcde_numcde = '$numCde'";
+        $result = $this->connect->executeQuery($statement);
+        return $this->convertirEnUtf8($this->connect->fetchResults($result));
+    }
 }
