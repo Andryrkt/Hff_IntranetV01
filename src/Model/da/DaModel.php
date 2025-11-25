@@ -571,15 +571,11 @@ class DaModel extends Model
                         f.fllf_numliv AS num_liv, 
                         f.fllf_numcde AS num_cde,
                         f2.fliv_dateclot AS date_clot, 
-                        f2.fliv_livext AS ref_fac_bl
+                        TRIM(f2.fliv_livext) AS ref_fac_bl
                     from Informix.frn_llf f 
                     inner join Informix.frn_liv f2 on f.fllf_numliv = f2.fliv_numliv 
                 where f.fllf_numliv = '$numLiv'";
-        $resultStmt = $this->connexion->query($statement);
-        $data = [];
-        while ($result = odbc_fetch_array($resultStmt)) {
-            $data[] = $this->convertirEnUtf8($result);
-        }
-        return $data;
+        $result = $this->connect->executeQuery($statement);
+        return $this->convertirEnUtf8($this->connect->fetchResults($result));
     }
 }
