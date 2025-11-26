@@ -581,10 +581,11 @@ class DaAfficherRepository extends EntityRepository
             ];
         } else {
             $map = [
-                'numDa'        => "$qbLabel.numeroDemandeAppro",
-                'numDit'       => "$qbLabel.numeroDemandeDit",
-                'demandeur'    => "$qbLabel.demandeur",
-                'codeCentrale' => "$qbLabel.codeCentrale"
+                'numDa'         => "$qbLabel.numeroDemandeAppro",
+                'numDit'        => "$qbLabel.numeroDemandeDit",
+                'demandeur'     => "$qbLabel.demandeur",
+                'codeCentrale'  => "$qbLabel.codeCentrale",
+                'niveauUrgence' => "$qbLabel.niveauUrgence"
             ];
         }
 
@@ -610,11 +611,6 @@ class DaAfficherRepository extends EntityRepository
                     DemandeIntervention::STATUT_CLOTUREE_ANNULEE,
                     DemandeIntervention::STATUT_CLOTUREE_HORS_DELAI
                 ]);
-        }
-
-        if (!empty($criteria['niveauUrgence'])) {
-            $qb->andWhere("$qbLabel.niveauUrgence = :niveau")
-                ->setParameter("niveau", $criteria['niveauUrgence']->getDescription());
         }
 
         if (!empty($criteria['ref'])) {
