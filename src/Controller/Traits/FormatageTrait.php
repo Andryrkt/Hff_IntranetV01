@@ -17,6 +17,11 @@ trait FormatageTrait
         return $formattedDate;
     }
 
+    private function formaterPrix($prix)
+    {
+        return number_format((float) $prix, 2, ',', ' ');
+    }
+
     private function formatNumber($number)
     {
         // Convertit le nombre en chaîne de caractères pour manipulation
