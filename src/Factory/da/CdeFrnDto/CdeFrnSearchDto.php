@@ -16,7 +16,7 @@ class CdeFrnSearchDto
     private ?string $numCde = null;
     private ?string $ref = null;
     private ?string $designation = null;
-    private ?WorNiveauUrgence $niveauUrgence = null;
+    private ?string $niveauUrgence = null;
     private ?string $statutBC = null;
     private ?DateTime $dateDebutOR = null;
     private ?DateTime $dateFinOR = null;
@@ -317,7 +317,7 @@ class CdeFrnSearchDto
     }
 
 
-        /**
+    /**
      * Hydrate l'objet à partir d'un tableau
      */
     public function toObject(?array $data): self
