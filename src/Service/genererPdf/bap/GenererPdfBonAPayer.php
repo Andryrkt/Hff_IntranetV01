@@ -35,11 +35,12 @@ class GenererPdfBonAPayer extends GeneratePdf
 
         $pdf->setMargins($originalLeft + 10, $originalTop, $originalRight, true);
         $pdf->setPrintHeader(false);
+        $pdf->setPrintFooter(false);
         $pdf->AddPage();
 
-        $pdf->setFont('helvetica', 'B', 25);
+        $pdf->setFont('helvetica', 'B', 20);
         $pdf->Cell(0, 6, 'BAP APPRO', 0, 0, 'C', false, '', 0, false, 'T', 'M');
-        $pdf->Ln(20, true);
+        $pdf->Ln(17, true);
     }
 
     private function renderInfoBCAndInfoValidationBC(TCPDF $pdf, array $infoBC, array $infoValidationBC)
@@ -47,27 +48,27 @@ class GenererPdfBonAPayer extends GeneratePdf
         $w100 = $this->getUsableWidth($pdf);
         $w50  = $w100 / 2;
         $pdf->setFont('helvetica', 'B', 9);
-        $pdf->Cell($w50, 6, 'INFORMATION DU BC', 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->Cell($w50, 6, 'INFORMATION VALIDATION BC', 1, 1, '', false, '', 0, false, 'T', 'M');
+        $pdf->Cell($w50, 5, 'INFORMATION DU BC', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->Cell($w50, 5, 'INFORMATION VALIDATION BC', 0, 1, '', false, '', 0, false, 'T', 'M');
 
         $pdf->Ln(3);
 
         $pdf->setFont('helvetica', '', 9);
-        $pdf->cell(6, 6, ' -', 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->cell(25, 6, 'Fournisseur', 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->cell($w50 - 31, 6, ": " . $infoBC["nom_fournisseur"], 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(6, 5, ' -', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(25, 5, 'Fournisseur', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell($w50 - 31, 5, ": " . $infoBC["nom_fournisseur"], 0, 0, '', false, '', 0, false, 'T', 'M');
 
-        $pdf->cell(6, 6, ' -', 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->cell(30, 6, 'Nom Validateur', 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->cell($w50 - 36, 6, ": " . $infoValidationBC["validateur"], 1, 1, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(6, 5, ' -', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(30, 5, 'Nom Validateur', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell($w50 - 36, 5, ": " . $infoValidationBC["validateur"], 0, 1, '', false, '', 0, false, 'T', 'M');
 
-        $pdf->cell(6, 6, ' -', 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->cell(25, 6, 'N° FRN', 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->cell($w50 - 31, 6, ": " . $infoBC["num_fournisseur"], 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(6, 5, ' -', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(25, 5, 'N° FRN', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell($w50 - 31, 5, ": " . $infoBC["num_fournisseur"], 0, 0, '', false, '', 0, false, 'T', 'M');
 
-        $pdf->cell(6, 6, ' -', 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->cell(30, 6, 'Date Validation', 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->cell($w50 - 36, 6, ": " . $infoValidationBC["dateValidation"]->format("d/m/Y"), 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(6, 5, ' -', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(30, 5, 'Date Validation', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell($w50 - 36, 5, ": " . $infoValidationBC["dateValidation"]->format("d/m/Y"), 0, 0, '', false, '', 0, false, 'T', 'M');
     }
 
     private function savePDF(TCPDF $pdf, string $numDa, string $dest = "F"): string
