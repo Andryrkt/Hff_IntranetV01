@@ -1,0 +1,26 @@
+{% extends 'baseTemplate.html.twig' %}
+
+{% block stylesheets %}
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.10.22.08.00"/>
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/inventaire/liste.css?v=2025.10.22.08.00"/>
+{% endblock %}
+{% block content %}
+<div class="container spaced mt-6">
+<table class="table rounded table-sticky text-center">
+<thead class="table-dark">
+<tr>
+<th>Devise</th>
+<th> {{libDate}}</th>
+</tr>
+</thead>
+<tbody id="tableBody">
+{% for item in deviscours %}
+	<tr>
+	<td style="text-align: left;"> {{ item.devis}}</td>
+	<td> {{ item.cours}}</td>
+	</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+{% endblock %}
