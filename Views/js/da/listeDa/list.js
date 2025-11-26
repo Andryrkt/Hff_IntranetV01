@@ -173,3 +173,50 @@ document.addEventListener("DOMContentLoaded", function () {
 window.addEventListener("load", () => {
   displayOverlay(false);
 });
+
+/** ===================================================
+ * Modal du Date livraison prevu
+ *==================================================*/
+// Attendre que le DOM soit entièrement chargé
+document.addEventListener("DOMContentLoaded", function () {
+  // Sélectionner le modal par son ID
+  const modalDateLivraison = document.getElementById("dateLivraison");
+
+  // Verifier si le modal existe sur la page
+  if (modalDateLivraison) {
+    //Ecouter l'événement 'show.bs.modal' qui est déclenché par Bootstrap
+    // juste avant que le modal se soit affiché.
+    modalDateLivraison.addEventListener("show.bs.modal", function (event) {
+      // event.relatedTarget est l'élément qui a déclenché le modal (notre lien <a>)
+      const button = event.relatedTarget;
+
+      // Récupérer les données depuis les attributs data-* du lien
+      const numeroCde = button.getAttribute("data-numero-cde");
+      const dateActuelle = button.getAttribute("data-date-actuelle");
+
+      // Mise à jour du contenu du modal
+      const modalTitle = modalDateLivraison.querySelector(".modal-title");
+      if (modalTitle) {
+        modalTitle.textContent =
+          "Modifier la date de livraison pour la commande n° : " + numeroCde;
+      }
+
+      // Pré-rempli le champ de date dans le formulaire du modal
+      const dateInput = modalDateLivraison.querySelector(
+        "#da_modal_date_livraison_dateLivraisonPrevue"
+      );
+
+      if (dateInput) {
+        dateInput.value = dateActuelle;
+      }
+
+      // remplir le champ cacher avec le numero commande
+      const numeroCdeInput = modalDateLivraison.querySelector(
+        "#da_modal_date_livraison_numeroCde"
+      );
+      if (numeroCdeInput) {
+        numeroCdeInput.value = numeroCde;
+      }
+    });
+  }
+});
