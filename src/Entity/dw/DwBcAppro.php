@@ -39,6 +39,11 @@ class DwBcAppro
     private $numeroOr;
 
     /**
+     * @ORM\Column(type="integer", name="numero_version")
+     */
+    private $numeroVersion;
+
+    /**
      * @ORM\Column(type="string", name="validateur", length=255, nullable=true)
      */
     private $validateur;
@@ -350,6 +355,26 @@ class DwBcAppro
     public function setPath($path)
     {
         $this->path = $path;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroVersion
+     */
+    public function getNumeroVersion()
+    {
+        return $this->numeroVersion;
+    }
+
+    /**
+     * Set the value of numeroVersion
+     *
+     * @return  self
+     */
+    public function setNumeroVersion($numeroVersion)
+    {
+        $this->numeroVersion = $numeroVersion;
 
         return $this;
     }
