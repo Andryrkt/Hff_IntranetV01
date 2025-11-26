@@ -91,11 +91,15 @@ class GenererPdfBonAPayer extends GeneratePdf
 
     private function renderInfoMateriel(TCPDF $pdf, $w100, array $infoMateriel)
     {
+        $pdf->Ln(3);
         $pdf->setFont('helvetica', 'B', 9);
         $this->cell($pdf, $w100, 5, 'LA COMMANDE CONCERNE LE MATERIEL SUIVANT :', 1);
         $pdf->Ln(3);
 
         $pdf->setFont('helvetica', '', 9);
+        $this->addInfoLine($pdf, '', $infoMateriel["designation"] ?? "-", $w100, '', 6);
+        $this->addInfoLine($pdf, 'N° série', $infoMateriel["numserie"] ?? "-", $w100, 13, 6);
+        $this->addInfoLine($pdf, 'Identité', $infoMateriel["identite"] ?? "-", $w100, 13, 6);
     }
 
     private function savePDF(TCPDF $pdf, string $numDa, string $dest = "F"): string
@@ -139,7 +143,7 @@ class GenererPdfBonAPayer extends GeneratePdf
             $this->cell($pdf, $labelWidth, 5, $label, 0);
             $this->cell($pdf, $w - $labelWidth, 5, ": " . $value, $endLine);
         } else {
-            $this->cell($pdf, $w, 5, ": " . $value, $endLine);
+            $this->cell($pdf, $w, 5, $value, $endLine);
         }
     }
 
