@@ -164,22 +164,16 @@ class DemandeApproRepository extends EntityRepository
 
     public function findAvecDernieresDALetLRParNumero(string $numeroDemandeAppro): ?DemandeAppro
     {
-        // Sous-requête pour trouver le numéro de version max des DAL pour ce numéro de DA
-        $subQuery = $this->createQueryBuilder('dax')
-            ->select('MAX(dax2.numeroVersion)')
-            ->from(DemandeApproL::class, 'dax2')
-            ->where('dax2.numeroDemandeAppro = da.numeroDemandeAppro')
-            ->getDQL();
-
         return $this->createQueryBuilder('da')
             ->leftJoin('da.DAL', 'dal')
             ->addSelect('dal')
             ->leftJoin('dal.demandeApproLR', 'dalr')
             ->addSelect('dalr')
             ->where('da.numeroDemandeAppro = :numero')
-            ->andWhere("dal.numeroVersion = ($subQuery)")
-            ->andWhere("dal.deleted = 0")
+            ->andWhere('dal.deleted = 0')
+            ->orderBy('dal.numeroVersion', 'DESC') // Dernière version en premier
             ->setParameter('numero', $numeroDemandeAppro)
+            ->setMaxResults(1) // On en garde qu’une seule
             ->getQuery()
             ->getOneOrNullResult();
     }
