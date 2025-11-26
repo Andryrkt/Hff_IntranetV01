@@ -342,7 +342,7 @@ class DitFactureSoumisAValidationController extends Controller
 
 
         $estRi = false;
-        $riSoumis = $this->getEntityManager()->getRepository(DitRiSoumisAValidation::class)->findRiSoumis($ditFactureSoumiAValidation->getNumeroOR(), $numDit);
+        $riSoumis = $this->getEntityManager()->getRepository(DitRiSoumisAValidation::class)->findRiSoumis($ditFactureSoumiAValidation->getNumeroOR());
 
         if (empty($riSoumis)) {
             $estRi = true;
