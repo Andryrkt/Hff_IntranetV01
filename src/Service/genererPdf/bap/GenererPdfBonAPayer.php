@@ -20,7 +20,13 @@ class GenererPdfBonAPayer extends GeneratePdf
 
         $this->renderHeader($pdf);
 
-        $this->renderInfoBCAndInfoValidationBC($pdf, $infoBC, $infoValidationBC);
+        $w100 = $this->getUsableWidth($pdf);
+
+        $this->renderInfoBCAndInfoValidationBC($pdf, $w100, $infoBC, $infoValidationBC);
+        $this->renderInfoMateriel($pdf, $w100, $infoMateriel);
+        // $this->renderDataRecapOR($pdf, $dataRecapOR);
+        // $this->renderRecapDA($pdf, $demandeAppro);
+        // $this->renderInfoFacBl($pdf, $infoFacBl);
 
         $numDa = $demandeAppro->getNumeroDemandeAppro();
 
@@ -46,9 +52,8 @@ class GenererPdfBonAPayer extends GeneratePdf
         $pdf->Ln(17, true);
     }
 
-    private function renderInfoBCAndInfoValidationBC(TCPDF $pdf, array $infoBC, array $infoValidationBC)
+    private function renderInfoBCAndInfoValidationBC(TCPDF $pdf, $w100, array $infoBC, array $infoValidationBC)
     {
-        $w100 = $this->getUsableWidth($pdf);
         $w50  = $w100 / 2;
         $pdf->setFont('helvetica', 'B', 9);
         $this->cell($pdf, $w50, 5, 'INFORMATION DU BC', 0);
@@ -83,6 +88,8 @@ class GenererPdfBonAPayer extends GeneratePdf
         $this->printInfo($pdf, 'Montant TTC', $this->formaterPrix($infoBC["ttc_cde"]), $w50);
         $this->printInfo($pdf, 'Nature de l’achat', $infoBC["type_cde"] ?? "-", $w50);
     }
+
+    private function renderInfoMateriel(TCPDF $pdf, $w100, array $infoMateriel) {}
 
     private function savePDF(TCPDF $pdf, string $numDa, string $dest = "F"): string
     {
