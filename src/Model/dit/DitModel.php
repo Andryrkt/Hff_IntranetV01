@@ -562,7 +562,7 @@ class DitModel extends Model
 
     $data = $this->connect->fetchResults($result);
 
-    return $this->convertirEnUtf8($data);
+    return $this->convertirEnUtf8($data ? $data[0] : []);
   }
 
   public function getPosition(string $numDit)

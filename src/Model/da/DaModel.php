@@ -603,6 +603,7 @@ class DaModel extends Model
             inner join frn_bse on fbse_numfou = fcde_numfou
             where fcde_numcde = '$numCde'";
         $result = $this->connect->executeQuery($statement);
-        return $this->convertirEnUtf8($this->connect->fetchResults($result));
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+        return $data ? $data[0] : [];
     }
 }
