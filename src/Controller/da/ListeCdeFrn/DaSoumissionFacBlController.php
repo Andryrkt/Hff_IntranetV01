@@ -105,17 +105,16 @@ class DaSoumissionFacBlController extends Controller
             $infoLivraison = $this->getInfoLivraison($numCde, $numLiv);
             $nomOriginalFichier = $soumissionFacBl->getPieceJoint1()->getClientOriginalName();
             if ($this->verifierConditionDeBlocage($soumissionFacBl, $numCde, $infoLivraison, $nomOriginalFichier)) {
-                //numeroversion max
-                $numeroVersionMax = VersionService::autoIncrement($this->daSoumissionFacBlRepository->getNumeroVersionMax($numCde));
+                /** CREATION DE LA PAGE DE GARDE */
+                $pageDeGarde = $this->genererPageDeGarde($numOr, $numCde, $infoLivraison, $soumissionFacBl);
+
+                die;
 
                 /** ENREGISTREMENT DE FICHIER */
                 $nomDeFichiers = $this->enregistrementFichier($form, $numCde, $numDa);
 
                 /** AJOUT DES CHEMINS DANS LE TABLEAU */
                 $nomFichierAvecChemins = $this->addPrefixToElementArray($nomDeFichiers, $this->cheminDeBase . $numDa . '/');
-
-                /** CREATION DE LA PAGE DE GARDE */
-                $pageDeGarde = $this->genererPageDeGarde($numOr, $numCde, $infoLivraison, $soumissionFacBl);
 
                 /** AJOUT DE LA PAGE DE GARDE A LA PREMIERE POSITION */
                 $nomFichierAvecChemins = $this->traitementDeFichier->insertFileAtPosition($nomFichierAvecChemins, $pageDeGarde, 0);
@@ -124,7 +123,8 @@ class DaSoumissionFacBlController extends Controller
                 $fichierConvertir = $this->ConvertirLesPdf($nomFichierAvecChemins);
 
                 /** GENERATION DU NOM DU FICHIER */
-                $nomPdfFusionner =  'FACBL' . $numCde . '#' . $numDa . '-' . $numOr . '_' . $numeroVersionMax . '~' . $nomOriginalFichier;
+                $numeroVersionMax          = VersionService::autoIncrement($this->daSoumissionFacBlRepository->getNumeroVersionMax($numCde));
+                $nomPdfFusionner           =  'FACBL' . $numCde . '#' . $numDa . '-' . $numOr . '_' . $numeroVersionMax . '~' . $nomOriginalFichier;
                 $nomAvecCheminPdfFusionner = $this->cheminDeBase . $numDa . '/' . $nomPdfFusionner;
 
                 /** FUSION DES PDF */
@@ -353,7 +353,7 @@ class DaSoumissionFacBlController extends Controller
         $infoValidationBC = $this->dwBcApproRepository->getInfoValidationBC($numCde);
         $infoMateriel     = $ditModel->recupInfoMateriel($numOr);
         $dataRecapOR      = $recapitulationOR->getData($numOr);
-        $demandeAppro     = $this->demandeApproRepository->findOneBy(['numeroDa' => $soumissionFacBl->getNumeroDemandeAppro()]);
+        $demandeAppro     = $this->demandeApproRepository->findOneBy(['numeroDemandeAppro' => $soumissionFacBl->getNumeroDemandeAppro()]);
         $infoFacBl        = [
             "refBlFac"   => $infoLivraison["ref_fac_bl"],
             "dateBlFac"  => $soumissionFacBl->getDateBlFac(),
