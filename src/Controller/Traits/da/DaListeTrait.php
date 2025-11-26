@@ -231,6 +231,7 @@ trait DaListeTrait
             $statutOR = $item->getStatutOr();
             if ($daViaOR && !empty($statutOR)) $statutOR = "OR - $statutOR";
 
+
             // Tout regrouper
             $datasPrepared[] = [
                 'dit'                 => $item->getDit(),
@@ -259,8 +260,8 @@ trait DaListeTrait
                 'qteEnAttent'         => $item->getQteEnAttent() == 0 ? '-' : $item->getQteEnAttent(),
                 'qteDispo'            => $item->getQteDispo() == 0 ? '-' : $item->getQteDispo(),
                 'qteLivrer'           => $item->getQteLivrer() == 0 ? '-' : $item->getQteLivrer(),
-                'dateFinSouhaite'     => $item->getDateFinSouhaite() ? $item->getDateFinSouhaite()->format('d/m/Y') : '',
-                'dateLivraisonPrevue' => $item->getDateLivraisonPrevue() ? $item->getDateLivraisonPrevue()->format('d/m/Y') : '',
+                'dateFinSouhaite'     => $item->getDateFinSouhaite() && $item->getDateFinSouhaite() != new \DateTime('1900-01-01') ? $item->getDateFinSouhaite()->format('d/m/Y') : 'N/A',
+                'dateLivraisonPrevue' => $item->getDateLivraisonPrevue() && $item->getDateLivraisonPrevue() != new \DateTime('1900-01-01') ? $item->getDateLivraisonPrevue()->format('d/m/Y') : 'N/A',
                 'joursDispo'          => $item->getJoursDispo(),
                 'styleJoursDispo'     => $item->getJoursDispo() < 0 ? 'text-danger' : '',
                 'styleStatutDA'       => $styleStatutDA,
