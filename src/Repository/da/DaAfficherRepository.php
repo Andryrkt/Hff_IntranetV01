@@ -572,12 +572,13 @@ class DaAfficherRepository extends EntityRepository
     {
         if ($estCdeFrn) {
             $map = [
-                'numDa'        => "$qbLabel.numeroDemandeAppro",
-                'numDit'       => "$qbLabel.numeroDemandeDit",
-                'numCde'       => "$qbLabel.numeroCde",
-                'numOr'        => "$qbLabel.numeroOr",
-                'numFrn'       => "$qbLabel.numeroFournisseur",
-                'frn'          => "$qbLabel.nomFournisseur",
+                'numDa'         => "$qbLabel.numeroDemandeAppro",
+                'numDit'        => "$qbLabel.numeroDemandeDit",
+                'numCde'        => "$qbLabel.numeroCde",
+                'numOr'         => "$qbLabel.numeroOr",
+                'numFrn'        => "$qbLabel.numeroFournisseur",
+                'frn'           => "$qbLabel.nomFournisseur",
+                'niveauUrgence' => "$qbLabel.niveauUrgence",
             ];
         } else {
             $map = [
@@ -585,7 +586,7 @@ class DaAfficherRepository extends EntityRepository
                 'numDit'        => "$qbLabel.numeroDemandeDit",
                 'demandeur'     => "$qbLabel.demandeur",
                 'codeCentrale'  => "$qbLabel.codeCentrale",
-                'niveauUrgence' => "$qbLabel.niveauUrgence"
+                'niveauUrgence' => "$qbLabel.niveauUrgence",
             ];
         }
 
