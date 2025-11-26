@@ -17,9 +17,9 @@ trait FormatageTrait
         return $formattedDate;
     }
 
-    private function formaterPrix($prix)
+    private function formaterPrix($prix, $separateurMillier = " ")
     {
-        return number_format((float) $prix, 2, ',', ' ');
+        return number_format((float) $prix, 2, ',', $separateurMillier);
     }
 
     private function formatNumber($number)
