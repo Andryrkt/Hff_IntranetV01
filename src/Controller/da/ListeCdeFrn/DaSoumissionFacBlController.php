@@ -7,15 +7,20 @@ use App\Entity\da\DaAfficher;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaSoumissionFacBl;
+use App\Entity\dw\DwBcAppro;
 use App\Form\da\DaSoumissionFacBlType;
 use App\Model\da\DaModel;
+use App\Model\dit\DitModel;
 use App\Service\genererPdf\GeneratePdf;
 use App\Service\fichier\TraitementDeFichier;
 use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\da\DaSoumissionFacBlRepository;
+use App\Repository\dw\DwBcApproRepository;
 use App\Service\autres\VersionService;
+use App\Service\dataPdf\ordreReparation\Recapitulation;
+use App\Service\genererPdf\bap\GenererPdfBonAPayer;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Service\historiqueOperation\HistoriqueOperationService;
 use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
@@ -33,17 +38,19 @@ class DaSoumissionFacBlController extends Controller
     private DaSoumissionFacBlRepository $daSoumissionFacBlRepository;
     private GeneratePdf $generatePdf;
     private DemandeApproRepository $demandeApproRepository;
+    private DwBcApproRepository $dwBcApproRepository;
 
     public function __construct()
     {
         parent::__construct();
 
-        $this->generatePdf = new GeneratePdf();
-        $this->traitementDeFichier = new TraitementDeFichier();
-        $this->cheminDeBase = $_ENV['BASE_PATH_FICHIER'] . '/da/';
-        $this->historiqueOperation      = new HistoriqueOperationDaBcService($this->getEntityManager());
+        $this->generatePdf                 = new GeneratePdf();
+        $this->traitementDeFichier         = new TraitementDeFichier();
+        $this->cheminDeBase                = $_ENV['BASE_PATH_FICHIER'] . '/da/';
+        $this->historiqueOperation         = new HistoriqueOperationDaBcService($this->getEntityManager());
         $this->daSoumissionFacBlRepository = $this->getEntityManager()->getRepository(DaSoumissionFacBl::class);
-        $this->demandeApproRepository = $this->getEntityManager()->getRepository(DemandeAppro::class);
+        $this->demandeApproRepository      = $this->getEntityManager()->getRepository(DemandeAppro::class);
+        $this->dwBcApproRepository         = $this->getEntityManager()->getRepository(DwBcAppro::class);
     }
 
     /**
@@ -98,16 +105,29 @@ class DaSoumissionFacBlController extends Controller
             $infoLivraison = $this->getInfoLivraison($numCde, $numLiv);
             $nomOriginalFichier = $soumissionFacBl->getPieceJoint1()->getClientOriginalName();
             if ($this->verifierConditionDeBlocage($soumissionFacBl, $numCde, $infoLivraison, $nomOriginalFichier)) {
+                //numeroversion max
+                $numeroVersionMax = VersionService::autoIncrement($this->daSoumissionFacBlRepository->getNumeroVersionMax($numCde));
+
                 /** ENREGISTREMENT DE FICHIER */
                 $nomDeFichiers = $this->enregistrementFichier($form, $numCde, $numDa);
 
-                //numeroversion max
-                $numeroVersionMax = VersionService::autoIncrement($this->daSoumissionFacBlRepository->getNumeroVersionMax($numCde));
-                /** FUSION DES PDF */
+                /** AJOUT DES CHEMINS DANS LE TABLEAU */
                 $nomFichierAvecChemins = $this->addPrefixToElementArray($nomDeFichiers, $this->cheminDeBase . $numDa . '/');
+
+                /** CREATION DE LA PAGE DE GARDE */
+                $pageDeGarde = $this->genererPageDeGarde($numOr, $numCde, $infoLivraison, $soumissionFacBl);
+
+                /** AJOUT DE LA PAGE DE GARDE A LA PREMIERE POSITION */
+                $nomFichierAvecChemins = $this->traitementDeFichier->insertFileAtPosition($nomFichierAvecChemins, $pageDeGarde, 0);
+
+                /** CONVERTIR LES PDF */
                 $fichierConvertir = $this->ConvertirLesPdf($nomFichierAvecChemins);
+
+                /** GENERATION DU NOM DU FICHIER */
                 $nomPdfFusionner =  'FACBL' . $numCde . '#' . $numDa . '-' . $numOr . '_' . $numeroVersionMax . '~' . $nomOriginalFichier;
                 $nomAvecCheminPdfFusionner = $this->cheminDeBase . $numDa . '/' . $nomPdfFusionner;
+
+                /** FUSION DES PDF */
                 $this->traitementDeFichier->fusionFichers($fichierConvertir, $nomAvecCheminPdfFusionner);
 
                 /** AJOUT DES INFO NECESSAIRE */
@@ -320,5 +340,27 @@ class DaSoumissionFacBlController extends Controller
         }
 
         return $okey;
+    }
+
+    private function genererPageDeGarde(string $numOr, string $numCde, array $infoLivraison, DaSoumissionFacBl $soumissionFacBl): string
+    {
+        $daModel          = new DaModel();
+        $ditModel         = new DitModel();
+        $generatePdfBap   = new GenererPdfBonAPayer();
+        $recapitulationOR = new Recapitulation();
+
+        $infoBC           = $daModel->getInfoBC($numCde);
+        $infoValidationBC = $this->dwBcApproRepository->getInfoValidationBC($numCde);
+        $infoMateriel     = $ditModel->recupInfoMateriel($numOr);
+        $dataRecapOR      = $recapitulationOR->getData($numOr);
+        $demandeAppro     = $this->demandeApproRepository->findOneBy(['numeroDa' => $soumissionFacBl->getNumeroDemandeAppro()]);
+        $infoFacBl        = [
+            "refBlFac"   => $infoLivraison["ref_fac_bl"],
+            "dateBlFac"  => $soumissionFacBl->getDateBlFac(),
+            "numLivIPS"  => $infoLivraison["num_liv"],
+            "dateLivIPS" => $infoLivraison["date_clot"],
+        ];
+
+        return $generatePdfBap->genererPageDeGarde($infoBC, $infoValidationBC, $infoMateriel, $dataRecapOR, $demandeAppro, $infoFacBl);
     }
 }
