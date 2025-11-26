@@ -63,33 +63,40 @@ class GenererPdfBonAPayer extends GeneratePdf
         $pdf->setFont('helvetica', '', 9);
 
         // Infos principales
-        $this->printInfo($pdf, 'Fournisseur', $infoBC["nom_fournisseur"], $w50, 0);
-        $this->printInfo($pdf, 'Nom Validateur', $infoValidationBC["validateur"] ?? "-", $w50);
+        $this->addInfoLine($pdf, 'Fournisseur', $infoBC["nom_fournisseur"], $w100, 30, 0, 0);
+        $this->addInfoLine($pdf, 'Nom Validateur', $infoValidationBC["validateur"] ?? "-", $w100, 30, 0);
 
-        $this->printInfo($pdf, 'N° FRN', $infoBC["num_fournisseur"], $w50, 0);
-        $this->printInfo($pdf, 'Date Validation', $infoValidationBC["dateValidation"] ? $infoValidationBC["dateValidation"]->format("d/m/Y") : "-", $w50);
+        $this->addInfoLine($pdf, 'N° FRN', $infoBC["num_fournisseur"], $w100, 30, 0, 0);
+        $this->addInfoLine($pdf, 'Date Validation', $infoValidationBC["dateValidation"] ? $infoValidationBC["dateValidation"]->format("d/m/Y") : "-", $w100, 30, 0);
         $pdf->Ln(3);
 
-        $this->printInfo($pdf, 'Téléphone', $infoBC["tel_fournisseur"], $w50);
+        $this->addInfoLine($pdf, 'Téléphone', $infoBC["tel_fournisseur"], $w100, 30, 0);
 
         // Adresse
         $this->printAdresse($pdf, $infoBC, $w100);
 
-        $this->printInfo($pdf, 'N°', $infoBC["num_cde"] ?? "-", $w50);
-        $this->printInfo($pdf, 'Date', $infoBC["date_cde"] ? date("d/m/Y", strtotime($infoBC["date_cde"])) : "-", $w50);
+        $this->addInfoLine($pdf, 'N°', $infoBC["num_cde"] ?? "-", $w100, 30, 0);
+        $this->addInfoLine($pdf, 'Date', $infoBC["date_cde"] ? date("d/m/Y", strtotime($infoBC["date_cde"])) : "-", $w100, 30, 0);
         $pdf->Ln(3);
 
-        $this->printInfo($pdf, 'Succursale', $infoBC["succ_cde"] ?? "-", $w50);
-        $this->printInfo($pdf, 'Service', $infoBC["serv_cde"] ?? "-", $w50);
-        $this->printInfo($pdf, 'Opérateur', $infoBC["nom_ope"] ?? "-", $w50);
-        $this->printInfo($pdf, 'N° cmd externe', $infoBC["num_cde_ext"] ?? "-", $w50);
-        $this->printInfo($pdf, 'Référence', $infoBC["libelle_cde"] ?? "-", $w50);
-        $this->printInfo($pdf, 'Montant HT', $this->formaterPrix($infoBC["mtn_cde"]), $w50);
-        $this->printInfo($pdf, 'Montant TTC', $this->formaterPrix($infoBC["ttc_cde"]), $w50);
-        $this->printInfo($pdf, 'Nature de l’achat', $infoBC["type_cde"] ?? "-", $w50);
+        $this->addInfoLine($pdf, 'Succursale', $infoBC["succ_cde"] ?? "-", $w100, 30, 0);
+        $this->addInfoLine($pdf, 'Service', $infoBC["serv_cde"] ?? "-", $w100, 30, 0);
+        $this->addInfoLine($pdf, 'Opérateur', $infoBC["nom_ope"] ?? "-", $w100, 30, 0);
+        $this->addInfoLine($pdf, 'N° cmd externe', $infoBC["num_cde_ext"] ?? "-", $w100, 30, 0);
+        $this->addInfoLine($pdf, 'Référence', $infoBC["libelle_cde"] ?? "-", $w100, 30, 0);
+        $this->addInfoLine($pdf, 'Montant HT', $this->formaterPrix($infoBC["mtn_cde"]), $w100, 30, 0);
+        $this->addInfoLine($pdf, 'Montant TTC', $this->formaterPrix($infoBC["ttc_cde"]), $w100, 30, 0);
+        $this->addInfoLine($pdf, 'Nature de l’achat', $infoBC["type_cde"] ?? "-", $w100, 30, 0);
     }
 
-    private function renderInfoMateriel(TCPDF $pdf, $w100, array $infoMateriel) {}
+    private function renderInfoMateriel(TCPDF $pdf, $w100, array $infoMateriel)
+    {
+        $pdf->setFont('helvetica', 'B', 9);
+        $this->cell($pdf, $w100, 5, 'LA COMMANDE CONCERNE LE MATERIEL SUIVANT :', 1);
+        $pdf->Ln(3);
+
+        $pdf->setFont('helvetica', '', 9);
+    }
 
     private function savePDF(TCPDF $pdf, string $numDa, string $dest = "F"): string
     {
@@ -120,12 +127,22 @@ class GenererPdfBonAPayer extends GeneratePdf
         $pdf->Cell($w, $h, $txt, 0, $ln, 'L', false, '', 0, false, 'T', 'M');
     }
 
-    private function printInfo(TCPDF $pdf, $label, $value, $w50, $endLine = 1)
+    private function addInfoLine(TCPDF $pdf, $label, $value, $w100, $labelWidth, $decalage = 6, $endLine = 1)
     {
+        // Décalage + tiret
+        if ($decalage > 0) $this->cell($pdf, $decalage, 5, '', 0);
         $this->cell($pdf, 6, 5, ' -', 0);
-        $this->cell($pdf, 30, 5, $label, 0);
-        $this->cell($pdf, $w50 - 36, 5, ": " . $value, $endLine);
+
+        $w = $decalage > 0 ? $w100 - $decalage - 6 : $w100 / 2 - 6;
+
+        if (!empty($label)) {
+            $this->cell($pdf, $labelWidth, 5, $label, 0);
+            $this->cell($pdf, $w - $labelWidth, 5, ": " . $value, $endLine);
+        } else {
+            $this->cell($pdf, $w, 5, ": " . $value, $endLine);
+        }
     }
+
 
     private function printAdresse(TCPDF $pdf, $infoBC, $w100)
     {
