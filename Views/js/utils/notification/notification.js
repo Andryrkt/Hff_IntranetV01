@@ -1,13 +1,45 @@
+const swalStyles = {
+  success: {
+    background: "#d1e7dd",
+    color: "#0f5132",
+    iconColor: "#198754",
+    toast: true,
+    position: "top-end",
+    timer: 3000,
+    timerProgressBar: true,
+    showConfirmButton: false,
+  },
+  error: {
+    background: "#f8d7da",
+    color: "#842029",
+    iconColor: "#dc3545",
+    toast: false, // Important : erreur = plus visible
+    showConfirmButton: true,
+    confirmButtonColor: "#dc3545",
+  },
+};
+
 export function showNotification() {
   const notification = document.getElementById("alert-notification");
 
   if (notification) {
-    const type = notification.dataset.notificationType;
+    let type = notification.dataset.notificationType;
     const message = notification.dataset.notificationMessage;
 
-    Swal.fire({
-      icon: type,
-      title: message,
-    });
+    type = type === "success" ? "success" : "error";
+    bootstrapNotify(
+      type,
+      type === "success" ? "Opération réussie" : "Echec de l'opération",
+      message
+    );
   }
+}
+
+export function bootstrapNotify(type, title, text = "") {
+  Swal.fire({
+    icon: type,
+    title: `<strong>${title}</strong>`,
+    text: text,
+    ...swalStyles[type],
+  });
 }
