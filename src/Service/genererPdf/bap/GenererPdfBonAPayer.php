@@ -27,7 +27,7 @@ class GenererPdfBonAPayer extends GeneratePdf
         $this->renderInfoMateriel($pdf, $w100, $infoMateriel);
         $this->renderDataRecapOR($pdf, $dataRecapOR);
         $this->renderRecapDA($pdf, $w100, $demandeAppro);
-        // $this->renderInfoFacBl($pdf, $infoFacBl);
+        $this->renderInfoFacBl($pdf, $w100, $infoFacBl);
 
         $numDa = $demandeAppro->getNumeroDemandeAppro();
 
@@ -124,7 +124,6 @@ class GenererPdfBonAPayer extends GeneratePdf
 
     private function renderRecapDA(TCPDF $pdf, $w100, DemandeAppro $demandeAppro)
     {
-        $pdf->ln(3);
         $pdf->setFont('helvetica', 'B', 9);
         $this->cell($pdf, 0, 5, 'RECAPITULATION DE LA DA', 1);
         $pdf->ln(3);
@@ -136,6 +135,21 @@ class GenererPdfBonAPayer extends GeneratePdf
         $this->addInfoLine($pdf, 'Objet', $demandeAppro->getObjetDal(), $w100, 25, 6);
         $this->addInfoLine($pdf, 'Agence – service émetteur', $demandeAppro->getAgenceServiceEmetteur(), $w100, 39, 6);
         $this->addInfoLine($pdf, 'Agence et service débiteur', $demandeAppro->getAgenceServiceDebiteur(), $w100, 39, 6);
+    }
+
+    private function renderInfoFacBl(TCPDF $pdf, $w100, array $infoFacBl)
+    {
+        $pdf->ln(3);
+        $pdf->setFont('helvetica', 'B', 9);
+        $this->cell($pdf, 0, 5, 'INFO BL / FAC FOURNISSEUR', 1);
+        $pdf->ln(3);
+
+        $pdf->setFont('helvetica', '', 9);
+
+        $this->addInfoLine($pdf, 'Réf', $infoFacBl["refBlFac"] ?? "-", $w100 / 2, 8, 6, 0);
+        $this->addInfoLine($pdf, 'N° livraison IPS', $infoFacBl["numLivIPS"] ?? "-", $w100 / 2, 27, 6);
+        $this->addInfoLine($pdf, 'Date', $infoFacBl["dateBlFac"] ? $infoFacBl["dateBlFac"]->format('d/m/Y') : "-", $w100 / 2, 8, 6, 0);
+        $this->addInfoLine($pdf, 'Date livraison IPS', $infoFacBl["dateLivIPS"] ? date("d/m/Y", strtotime($infoFacBl["dateLivIPS"])) : "-", $w100 / 2, 27, 6);
     }
 
     private function savePDF(TCPDF $pdf, string $numDa, string $dest = "F"): string
