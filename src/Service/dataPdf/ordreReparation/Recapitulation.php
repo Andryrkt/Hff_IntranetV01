@@ -36,6 +36,15 @@ class Recapitulation
                 'footer_style' => 'font-weight: 900;'
             ],
             [
+                'key'          => 'libelleItv',
+                'label'        => 'Libellé ITV',
+                'width'        => 150,
+                'style'        => 'font-weight: bold;',
+                'header_style' => 'font-weight: bold;',
+                'cell_style'   => 'text-align: left;',
+                'footer_style' => 'font-weight: 900;'
+            ],
+            [
                 'key'          => 'mttTotal',
                 'label'        => 'Mtt Total',
                 'width'        => 70,
@@ -105,13 +114,14 @@ class Recapitulation
 
         foreach ($orSoumisAValidation as $orSoumis) {
             $data["body"][] = [
-                'itv'       => $orSoumis["numero_itv"],
-                'mttTotal'  => $orSoumis["montant_itv"],
-                'mttPieces' => $orSoumis["montant_piece"],
-                'mttMo'     => $orSoumis["montant_mo"],
-                'mttSt'     => $orSoumis["montant_achats_locaux"],
-                'mttLub'    => $orSoumis["montant_lubrifiants"],
-                'mttAutres' => $orSoumis["montant_divers"]
+                'itv'        => $orSoumis["numero_itv"],
+                'libelleItv' => $orSoumis["libelle_itv"],
+                'mttTotal'   => $orSoumis["montant_itv"],
+                'mttPieces'  => $orSoumis["montant_piece"],
+                'mttMo'      => $orSoumis["montant_mo"],
+                'mttSt'      => $orSoumis["montant_achats_locaux"],
+                'mttLub'     => $orSoumis["montant_lubrifiants"],
+                'mttAutres'  => $orSoumis["montant_divers"]
             ];
             $data["footer"]["mttTotal"]  += $orSoumis["montant_itv"];
             $data["footer"]["mttPieces"] += $orSoumis["montant_piece"];

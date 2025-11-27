@@ -6,6 +6,7 @@ use App\Controller\Traits\FormatageTrait;
 use TCPDF;
 use App\Entity\da\DemandeAppro;
 use App\Service\genererPdf\GeneratePdf;
+use App\Service\genererPdf\PdfTableGeneratorFlexible;
 
 class GenererPdfBonAPayer extends GeneratePdf
 {
@@ -24,7 +25,7 @@ class GenererPdfBonAPayer extends GeneratePdf
 
         $this->renderInfoBCAndInfoValidationBC($pdf, $w100, $infoBC, $infoValidationBC);
         $this->renderInfoMateriel($pdf, $w100, $infoMateriel);
-        // $this->renderDataRecapOR($pdf, $dataRecapOR);
+        $this->renderDataRecapOR($pdf, $dataRecapOR);
         // $this->renderRecapDA($pdf, $demandeAppro);
         // $this->renderInfoFacBl($pdf, $infoFacBl);
 
@@ -84,8 +85,8 @@ class GenererPdfBonAPayer extends GeneratePdf
         $this->addInfoLine($pdf, 'Opérateur', $infoBC["nom_ope"] ?? "-", $w100, 30, 0);
         $this->addInfoLine($pdf, 'N° cmd externe', $infoBC["num_cde_ext"] ?? "-", $w100, 30, 0);
         $this->addInfoLine($pdf, 'Référence', $infoBC["libelle_cde"] ?? "-", $w100, 30, 0);
-        $this->addInfoLine($pdf, 'Montant HT', $this->formaterPrix($infoBC["mtn_cde"]), $w100, 30, 0);
-        $this->addInfoLine($pdf, 'Montant TTC', $this->formaterPrix($infoBC["ttc_cde"]), $w100, 30, 0);
+        $this->addInfoLine($pdf, 'Montant HT', $this->formaterPrix($infoBC["mtn_cde"], '.'), $w100, 30, 0);
+        $this->addInfoLine($pdf, 'Montant TTC', $this->formaterPrix($infoBC["ttc_cde"], '.'), $w100, 30, 0);
         $this->addInfoLine($pdf, 'Nature de l’achat', $infoBC["type_cde"] ?? "-", $w100, 30, 0);
     }
 
@@ -100,6 +101,26 @@ class GenererPdfBonAPayer extends GeneratePdf
         $this->addInfoLine($pdf, '', $infoMateriel["designation"] ?? "-", $w100, '', 6);
         $this->addInfoLine($pdf, 'N° série', $infoMateriel["numserie"] ?? "-", $w100, 13, 6);
         $this->addInfoLine($pdf, 'Identité', $infoMateriel["identite"] ?? "-", $w100, 13, 6);
+    }
+
+    private function renderDataRecapOR(TCPDF $pdf, array $dataRecapOR)
+    {
+        $pdf->Ln(3);
+        $pdf->setFont('helvetica', 'B', 9);
+        $this->cell($pdf, 0, 5, 'RECAPITULATION DE L’OR', 1);
+        $pdf->Ln(3);
+
+        $tableGenerator = new PdfTableGeneratorFlexible();
+        $tableGenerator->setOptions([
+            'table_attributes' => 'border="0" cellpadding="0" cellspacing="0" align="center" style="font-size: 8px;"',
+            'header_row_style' => 'background-color: #D3D3D3;',
+            'footer_row_style' => 'background-color: #D3D3D3;'
+        ]);
+
+        $pdf->setFont('helvetica', '', 9);
+        $html = $tableGenerator->generateTable($dataRecapOR["header"], $dataRecapOR["body"], $dataRecapOR["footer"]);
+        $pdf->writeHTML($html, true, false, true, false, '');
+        $pdf->Ln(10, true);
     }
 
     private function savePDF(TCPDF $pdf, string $numDa, string $dest = "F"): string
