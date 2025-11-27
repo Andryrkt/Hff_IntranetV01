@@ -87,6 +87,23 @@ class GenererPdfBonAPayer extends GeneratePdf
         $this->addInfoLine($pdf, 'Nature de l’achat', $infoBC["type_cde"] ?? "-", $w100, 30, 0);
     }
 
+    private function printAdresse(TCPDF $pdf, $infoBC, $w100)
+    {
+        $this->cell($pdf, 6, 5, ' -', 0);
+        $this->cell($pdf, 30, 5, 'Adresse FRN', 0);
+        $this->cell($pdf, $w100 - 36, 5, ": ", 1);
+
+        // Adresses multi-lignes
+        $this->cell($pdf, 15, 5, '', 0);
+        $this->cell($pdf, $w100 - 15, 5, $infoBC["adr1_fournisseur"], 1);
+
+        $this->cell($pdf, 15, 5, '', 0);
+        $this->cell($pdf, $w100 - 15, 5, $infoBC["adr2_fournisseur"], 1);
+
+        $this->cell($pdf, 15, 5, '', 0);
+        $this->cell($pdf, $w100 - 15, 5, $infoBC["ptt_fournisseur"] . " " . $infoBC["adr4_fournisseur"], 1);
+    }
+
     private function renderInfoMateriel(TCPDF $pdf, $w100, array $infoMateriel)
     {
         $pdf->Ln(3);
@@ -192,23 +209,5 @@ class GenererPdfBonAPayer extends GeneratePdf
         } else {
             $this->cell($pdf, $w, 5, $value, $endLine);
         }
-    }
-
-
-    private function printAdresse(TCPDF $pdf, $infoBC, $w100)
-    {
-        $this->cell($pdf, 6, 5, ' -', 0);
-        $this->cell($pdf, 30, 5, 'Adresse FRN', 0);
-        $this->cell($pdf, $w100 - 36, 5, ": ", 1);
-
-        // Adresses multi-lignes
-        $this->cell($pdf, 15, 5, '', 0);
-        $this->cell($pdf, $w100 - 15, 5, $infoBC["adr1_fournisseur"], 1);
-
-        $this->cell($pdf, 15, 5, '', 0);
-        $this->cell($pdf, $w100 - 15, 5, $infoBC["adr2_fournisseur"], 1);
-
-        $this->cell($pdf, 15, 5, '', 0);
-        $this->cell($pdf, $w100 - 15, 5, $infoBC["ptt_fournisseur"] . " " . $infoBC["adr4_fournisseur"], 1);
     }
 }
