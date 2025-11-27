@@ -236,22 +236,6 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 
-/** OVERLAY */
-// Afficher l'overlay dès que la page commence à charger
-/* document.addEventListener('DOMContentLoaded', () => {
-  const overlay = document.getElementById('loading-overlay');
-  if (overlay) {
-    overlay.classList.remove('hidden'); // S'assurer que l'overlay est visible au début
-  }
-});
-
-window.addEventListener('beforeunload', function () {
-  const overlay = document.getElementById('loading-overlay');
-  if (overlay) {
-    overlay.classList.remove('hidden'); // Affiche l'overlay juste avant la redirection
-  }
-}); */
-
 // Afficher l'overlay
 const allButtonAfficher = document.querySelectorAll(".ajout-overlay");
 
@@ -259,12 +243,4 @@ allButtonAfficher.forEach((button) => {
   button.addEventListener("click", () => {
     displayOverlay(true);
   });
-});
-
-// Masquer l'overlay après le chargement de la page
-window.addEventListener("load", () => {
-  const overlay = document.getElementById("loading-overlay");
-  if (overlay) {
-    overlay.classList.add("hidden"); // Masquer l'overlay après le chargement
-  }
 });
