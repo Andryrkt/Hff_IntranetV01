@@ -105,16 +105,14 @@ class DaSoumissionFacBlController extends Controller
             $infoLivraison = $this->getInfoLivraison($numCde, $numLiv);
             $nomOriginalFichier = $soumissionFacBl->getPieceJoint1()->getClientOriginalName();
             if ($this->verifierConditionDeBlocage($soumissionFacBl, $numCde, $infoLivraison, $nomOriginalFichier)) {
-                /** CREATION DE LA PAGE DE GARDE */
-                $pageDeGarde = $this->genererPageDeGarde($numOr, $numCde, $infoLivraison, $soumissionFacBl);
-
-                die;
-
                 /** ENREGISTREMENT DE FICHIER */
                 $nomDeFichiers = $this->enregistrementFichier($form, $numCde, $numDa);
 
                 /** AJOUT DES CHEMINS DANS LE TABLEAU */
                 $nomFichierAvecChemins = $this->addPrefixToElementArray($nomDeFichiers, $this->cheminDeBase . $numDa . '/');
+
+                /** CREATION DE LA PAGE DE GARDE */
+                $pageDeGarde = $this->genererPageDeGarde($numOr, $numCde, $infoLivraison, $soumissionFacBl);
 
                 /** AJOUT DE LA PAGE DE GARDE A LA PREMIERE POSITION */
                 $nomFichierAvecChemins = $this->traitementDeFichier->insertFileAtPosition($nomFichierAvecChemins, $pageDeGarde, 0);
@@ -306,8 +304,8 @@ class DaSoumissionFacBlController extends Controller
         return [
             'nomDeFichier'        => preg_match('/[#\-_~]/', $nomDeFichier), // contient au moins un des caractères
             'livraisonVide'       => empty($infoLivraison),
-            'pasDeCorrespondance' => $infoLivraison['num_cde'] === false,
-            'nonCloture'          => isset($infoLivraison['date_clot']) && $infoLivraison['date_clot'] === null,
+            'pasDeCorrespondance' => !empty($infoLivraison) && $infoLivraison['num_cde'] === false,
+            'nonCloture'          => !empty($infoLivraison) && isset($infoLivraison['date_clot']) && $infoLivraison['date_clot'] === null,
         ];
     }
 

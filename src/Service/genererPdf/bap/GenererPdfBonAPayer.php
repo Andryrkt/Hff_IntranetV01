@@ -27,7 +27,7 @@ class GenererPdfBonAPayer extends GeneratePdf
         $this->renderInfoFACBL($pdf, $w100, $infoFacBl);
 
         // Sauvegarder le PDF
-        return $this->savePDF($pdf, $demandeAppro->getNumeroDemandeAppro(), $infoBC["num_cde"], "I");
+        return $this->savePDF($pdf, $demandeAppro->getNumeroDemandeAppro(), $infoBC["num_cde"]);
     }
 
     private function initPDF(): TCPDF
