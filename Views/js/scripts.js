@@ -4,6 +4,7 @@ import { FetchManager } from "./api/FetchManager";
 import { initSessionTimer } from "./utils/session/sessionTimer";
 import { displayOverlay } from "./utils/ui/overlay";
 import { preloadAllData } from "./da/data/preloadData";
+import { showNotification } from "./utils/notification/notification";
 
 document.addEventListener("DOMContentLoaded", () => {
   const logoutLink = document.getElementById("logoutLink");
@@ -13,6 +14,11 @@ document.addEventListener("DOMContentLoaded", () => {
    * TIMER DE SESSION            *
    *=============================*/
   initSessionTimer({ duration: 900, logoutUrl: logoutUrl });
+
+  /*=============================*
+   * NOTIFICATION                *
+   *=============================*/
+  showNotification();
 
   /*=============================*
    * MODAL POUR LA DECONNEXION   *
