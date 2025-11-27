@@ -133,7 +133,10 @@ class ListeDevisMagasinController extends Controller
     public function recuperationDonner(array $criteria = []): array
     {
         // recupération de la liste des devis magasin dans IPS
-        $devisIps = $this->listeDevisMagasinModel->getDevis($criteria);
+        $codeAgenceUser = $this->getUser()->getCodeAgenceUser(); // utilisateur connecter
+        $vignette = $codeAgenceUser === '01' ? 'magasin' : 'magasin_pol';
+        $admin = in_array(1, $this->getUser()->getRoleIds()); // verification si admin
+        $devisIps = $this->listeDevisMagasinModel->getDevis($criteria,  $vignette,  $codeAgenceUser, $admin);
 
         $listeDevisFactory = [];
         foreach ($devisIps as  $devisIp) {
