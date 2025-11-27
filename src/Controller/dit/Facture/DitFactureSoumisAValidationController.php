@@ -148,41 +148,41 @@ class DitFactureSoumisAValidationController extends Controller
             //     $this->historiqueOperation->sendNotificationSoumission($message, $numFac, 'dit_index');
             // } 
             else {
-            $dataForm = $form->getData();
-            $numeroSoumission = $this->ditFactureSoumiAValidationModel->recupNumeroSoumission($dataForm->getNumeroOR());
+                $dataForm = $form->getData();
+                $numeroSoumission = $this->ditFactureSoumiAValidationModel->recupNumeroSoumission($dataForm->getNumeroOR());
 
-            $this->ajoutInfoEntityDitFactur($this->ditFactureSoumiAValidation, $numDit, $dataForm, $numeroSoumission);
+                $this->ajoutInfoEntityDitFactur($this->ditFactureSoumiAValidation, $numDit, $dataForm, $numeroSoumission);
 
-            $factureSoumisAValidation = $this->ditFactureSoumisAValidation($numDit, $dataForm, $this->ditFactureSoumiAValidationModel, $numeroSoumission, $this->getEntityManager(), $this->ditFactureSoumiAValidation);
+                $factureSoumisAValidation = $this->ditFactureSoumisAValidation($numDit, $dataForm, $this->ditFactureSoumiAValidationModel, $numeroSoumission, $this->getEntityManager(), $this->ditFactureSoumiAValidation);
 
-            $estRi = $this->conditionSurInfoFacture($this->ditFactureSoumiAValidationModel, $dataForm, $this->ditFactureSoumiAValidation, $numDit);
+                $estRi = $this->conditionSurInfoFacture($this->ditFactureSoumiAValidationModel, $dataForm, $this->ditFactureSoumiAValidation, $numDit);
 
-            if ($estRi) {
-                $message = "La facture ne correspond pas ou correspond partiellement à un rapport d'intervention.";
-                $this->historiqueOperation->sendNotificationSoumission($message, $numFac, 'dit_index');
-            } else {
+                if ($estRi) {
+                    $message = "La facture ne correspond pas ou correspond partiellement à un rapport d'intervention.";
+                    $this->historiqueOperation->sendNotificationSoumission($message, $numFac, 'dit_index');
+                } else {
 
-            $interneExterne = $this->ditRepository->findInterneExterne($numDit);
-            /** CREATION PDF */
-            $pathPageDeGarde = $this->enregistrerPdf($dataForm, $numDit, $factureSoumisAValidation, $interneExterne);
-            $pathFichiers = $this->enregistrerFichiers($form, $numFac, $this->ditFactureSoumiAValidation->getNumeroSoumission(), $interneExterne);
+                    $interneExterne = $this->ditRepository->findInterneExterne($numDit);
+                    /** CREATION PDF */
+                    $pathPageDeGarde = $this->enregistrerPdf($dataForm, $numDit, $factureSoumisAValidation, $interneExterne);
+                    $pathFichiers = $this->enregistrerFichiers($form, $numFac, $this->ditFactureSoumiAValidation->getNumeroSoumission(), $interneExterne);
 
-            if ($interneExterne === 'INTERNE') {
-                $ficherAfusioner = $this->fileUploaderService->insertFileAtPosition($pathFichiers, $pathPageDeGarde, 0);
-                $fichierConvertie = $this->ConvertirLesPdf($ficherAfusioner);
-                $this->fusionPdf->mergePdfs($fichierConvertie, $pathPageDeGarde);
-                $this->genererPdfFacture->copyToDwFactureSoumis($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac);
-            } else {
-                $this->genererPdfFacture->copyToDwFacture($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac);
-                $this->genererPdfFacture->copyToDwFactureFichier($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac, $pathFichiers); //d'après le demande de Antsa le 22/08/2025
-            }
+                    if ($interneExterne === 'INTERNE') {
+                        $ficherAfusioner = $this->fileUploaderService->insertFileAtPosition($pathFichiers, $pathPageDeGarde, 0);
+                        $fichierConvertie = $this->ConvertirLesPdf($ficherAfusioner);
+                        $this->fusionPdf->mergePdfs($fichierConvertie, $pathPageDeGarde);
+                        $this->genererPdfFacture->copyToDwFactureSoumis($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac);
+                    } else {
+                        $this->genererPdfFacture->copyToDwFacture($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac);
+                        $this->genererPdfFacture->copyToDwFactureFichier($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac, $pathFichiers); //d'après le demande de Antsa le 22/08/2025
+                    }
 
-            /** ENVOIE des DONNEE dans BASE DE DONNEE */
-            // Persist les entités liées
-            $this->ajoutDataFactureAValidation($factureSoumisAValidation);
+                    /** ENVOIE des DONNEE dans BASE DE DONNEE */
+                    // Persist les entités liées
+                    $this->ajoutDataFactureAValidation($factureSoumisAValidation);
 
-            $this->historiqueOperation->sendNotificationSoumission('Le document de controle a été généré et soumis pour validation', $dataForm->getNumeroFact(), 'dit_index', true);
-            }
+                    $this->historiqueOperation->sendNotificationSoumission('Le document de controle a été généré et soumis pour validation', $dataForm->getNumeroFact(), 'dit_index', true);
+                }
             }
         }
 
@@ -258,10 +258,10 @@ class DitFactureSoumisAValidationController extends Controller
         $orSoumisValidationRepository = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class)->findOrSoumisValid($this->ditFactureSoumiAValidation->getNumeroOR());
         $montantItvOr = $this->calculerMontantItvOr($orSoumisValidationRepository, $factureSoumisAValidation);
         $montantFacture = $this->calculerMontantFacture($factureSoumisAValidation);
-        
+
         $estFactureDifférentDeOr = $montantFacture != $montantItvOr;
 
-        if($estFactureDifférentDeOr || ($montantFacture == 0.0 && $montantItvOr == 0.0)) {
+        if ($estFactureDifférentDeOr || ($montantFacture == 0.0 && $montantItvOr == 0.0)) {
             $montantFactureOr = 'NON';
         } else {
             $montantFactureOr = 'OUI';
@@ -342,7 +342,7 @@ class DitFactureSoumisAValidationController extends Controller
 
 
         $estRi = false;
-        $riSoumis = $this->getEntityManager()->getRepository(DitRiSoumisAValidation::class)->findRiSoumis($ditFactureSoumiAValidation->getNumeroOR(), $numDit);
+        $riSoumis = $this->getEntityManager()->getRepository(DitRiSoumisAValidation::class)->findRiSoumis($ditFactureSoumiAValidation->getNumeroOR());
 
         if (empty($riSoumis)) {
             $estRi = true;
