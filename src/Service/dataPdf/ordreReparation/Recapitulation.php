@@ -29,16 +29,16 @@ class Recapitulation
             [
                 'key'          => 'itv',
                 'label'        => 'ITV',
-                'width'        => 40,
-                'style'        => 'font-weight: 900;',
-                'header_style' => 'font-weight: 900;',
+                'width'        => 30,
+                'style'        => 'font-weight: bold;',
+                'header_style' => 'font-weight: bold;',
                 'cell_style'   => '',
-                'footer_style' => 'font-weight: 900;'
+                'footer_style' => 'font-weight: bold;'
             ],
             [
                 'key'          => 'libelleItv',
                 'label'        => 'Libellé ITV',
-                'width'        => 150,
+                'width'        => 110,
                 'style'        => 'font-weight: bold;',
                 'header_style' => 'font-weight: bold;',
                 'cell_style'   => 'text-align: left;',
@@ -47,9 +47,9 @@ class Recapitulation
             [
                 'key'          => 'mttTotal',
                 'label'        => 'Mtt Total',
-                'width'        => 70,
-                'style'        => 'font-weight: bold; text-align: center;',
-                'header_style' => 'font-weight: bold; text-align: center;',
+                'width'        => 60,
+                'style'        => 'font-weight: bold; text-align: right;',
+                'header_style' => 'font-weight: bold; text-align: right;',
                 'cell_style'   => 'text-align: right;',
                 'footer_style' => 'font-weight: bold; text-align: right;',
                 'type'         => 'number'
@@ -58,8 +58,8 @@ class Recapitulation
                 'key'          => 'mttPieces',
                 'label'        => 'Mtt Pièces',
                 'width'        => 60,
-                'style'        => 'font-weight: bold; text-align: center;',
-                'header_style' => 'font-weight: bold; text-align: center;',
+                'style'        => 'font-weight: bold; text-align: right;',
+                'header_style' => 'font-weight: bold; text-align: right;',
                 'cell_style'   => 'text-align: right;',
                 'footer_style' => 'font-weight: bold; text-align: right;',
                 'type'         => 'number'
@@ -68,8 +68,8 @@ class Recapitulation
                 'key'          => 'mttMo',
                 'label'        => 'Mtt MO',
                 'width'        => 60,
-                'style'        => 'font-weight: bold; text-align: center;',
-                'header_style' => 'font-weight: bold; text-align: center;',
+                'style'        => 'font-weight: bold; text-align: right;',
+                'header_style' => 'font-weight: bold; text-align: right;',
                 'cell_style'   => 'text-align: right;',
                 'footer_style' => 'font-weight: bold; text-align: right;',
                 'type'         => 'number'
@@ -77,9 +77,9 @@ class Recapitulation
             [
                 'key'          => 'mttSt',
                 'label'        => 'Mtt ST',
-                'width'        => 80,
-                'style'        => 'font-weight: bold; text-align: center;',
-                'header_style' => 'font-weight: bold; text-align: center;',
+                'width'        => 60,
+                'style'        => 'font-weight: bold; text-align: right;',
+                'header_style' => 'font-weight: bold; text-align: right;',
                 'cell_style'   => 'text-align: right;',
                 'footer_style' => 'font-weight: bold; text-align: right;',
                 'type'         => 'number'
@@ -87,9 +87,9 @@ class Recapitulation
             [
                 'key'          => 'mttLub',
                 'label'        => 'Mtt LUB',
-                'width'        => 80,
-                'style'        => 'font-weight: bold; text-align: center;',
-                'header_style' => 'font-weight: bold; text-align: center;',
+                'width'        => 60,
+                'style'        => 'font-weight: bold; text-align: right;',
+                'header_style' => 'font-weight: bold; text-align: right;',
                 'cell_style'   => 'text-align: right;',
                 'footer_style' => 'font-weight: bold; text-align: right;',
                 'type'         => 'number'
@@ -97,9 +97,9 @@ class Recapitulation
             [
                 'key'          => 'mttAutres',
                 'label'        => 'Mtt Autres',
-                'width'        => 80,
-                'style'        => 'font-weight: bold; text-align: center;',
-                'header_style' => 'font-weight: bold; text-align: center;',
+                'width'        => 60,
+                'style'        => 'font-weight: bold; text-align: right;',
+                'header_style' => 'font-weight: bold; text-align: right;',
                 'cell_style'   => 'text-align: right;',
                 'footer_style' => 'font-weight: bold; text-align: right;',
                 'type'         => 'number'
