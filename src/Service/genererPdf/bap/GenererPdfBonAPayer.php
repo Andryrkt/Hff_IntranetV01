@@ -26,7 +26,7 @@ class GenererPdfBonAPayer extends GeneratePdf
         $this->renderInfoBCAndInfoValidationBC($pdf, $w100, $infoBC, $infoValidationBC);
         $this->renderInfoMateriel($pdf, $w100, $infoMateriel);
         $this->renderDataRecapOR($pdf, $dataRecapOR);
-        // $this->renderRecapDA($pdf, $demandeAppro);
+        $this->renderRecapDA($pdf, $w100, $demandeAppro);
         // $this->renderInfoFacBl($pdf, $infoFacBl);
 
         $numDa = $demandeAppro->getNumeroDemandeAppro();
@@ -120,7 +120,22 @@ class GenererPdfBonAPayer extends GeneratePdf
         $pdf->setFont('helvetica', '', 9);
         $html = $tableGenerator->generateTable($dataRecapOR["header"], $dataRecapOR["body"], $dataRecapOR["footer"]);
         $pdf->writeHTML($html, true, false, true, false, '');
-        $pdf->Ln(10, true);
+    }
+
+    private function renderRecapDA(TCPDF $pdf, $w100, DemandeAppro $demandeAppro)
+    {
+        $pdf->ln(3);
+        $pdf->setFont('helvetica', 'B', 9);
+        $this->cell($pdf, 0, 5, 'RECAPITULATION DE LA DA', 1);
+        $pdf->ln(3);
+
+        $pdf->setFont('helvetica', '', 9);
+
+        $this->addInfoLine($pdf, 'N° DA', $demandeAppro->getNumeroDemandeAppro(), $w100, 25, 6);
+        $this->addInfoLine($pdf, 'Date de création', $demandeAppro->getDateCreation()->format('d/m/Y'), $w100, 25, 6);
+        $this->addInfoLine($pdf, 'Objet', $demandeAppro->getObjetDal(), $w100, 25, 6);
+        $this->addInfoLine($pdf, 'Agence – service émetteur', $demandeAppro->getAgenceServiceEmetteur(), $w100, 39, 6);
+        $this->addInfoLine($pdf, 'Agence et service débiteur', $demandeAppro->getAgenceServiceDebiteur(), $w100, 39, 6);
     }
 
     private function savePDF(TCPDF $pdf, string $numDa, string $dest = "F"): string
