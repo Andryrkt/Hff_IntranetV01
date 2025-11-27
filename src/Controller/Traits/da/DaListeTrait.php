@@ -14,6 +14,7 @@ use App\Model\dw\DossierInterventionAtelierModel;
 use App\Repository\da\DaSoumissionBcRepository;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
 use App\Service\Users\UserDataService;
+use DateTime;
 use Twig\Markup;
 
 trait DaListeTrait
@@ -270,10 +271,10 @@ trait DaListeTrait
                 'qteEnAttent'         => $item->getQteEnAttent() == 0 ? '-' : $item->getQteEnAttent(),
                 'qteDispo'            => $item->getQteDispo() == 0 ? '-' : $item->getQteDispo(),
                 'qteLivrer'           => $item->getQteLivrer() == 0 ? '-' : $item->getQteLivrer(),
-                'dateFinSouhaite'     => $item->getDateFinSouhaite() && $item->getDateFinSouhaite() != new \DateTime('1900-01-01') ? $item->getDateFinSouhaite()->format('d/m/Y') : 'N/A',
-                'dateLivraisonPrevue' => $item->getDateLivraisonPrevue() && $item->getDateLivraisonPrevue() != new \DateTime('1900-01-01') ? $item->getDateLivraisonPrevue()->format('d/m/Y') : 'N/A',
-                'joursDispo'          => $item->getJoursDispo(),
-                'styleJoursDispo'     => $item->getJoursDispo() < 0 ? 'text-danger' : '',
+                'dateFinSouhaite'     => $item->getDateFinSouhaite() && $item->getDateFinSouhaite() != new DateTime('1900-01-01') ? $item->getDateFinSouhaite()->format('d/m/Y') : 'N/A',
+                'dateLivraisonPrevue' => $item->getDateLivraisonPrevue() && $item->getDateLivraisonPrevue() != new DateTime('1900-01-01') ? $item->getDateLivraisonPrevue()->format('d/m/Y') : 'N/A',
+                'joursDispo'          => $item->getJoursDispo() ?? '',
+                'styleJoursDispo'     => $item->getJoursDispo() && $item->getJoursDispo() < 0 ? 'text-danger' : '',
                 'styleStatutDA'       => $styleStatutDA,
                 'styleStatutOR'       => $styleStatutOR,
                 'styleStatutBC'       => $styleStatutBC,
