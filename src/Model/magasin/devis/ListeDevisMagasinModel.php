@@ -135,23 +135,51 @@ class ListeDevisMagasinModel extends Model
      */
     public function constructeurPieceMagasin(string $numeroDevis)
     {
-        $statement = "SELECT CASE
+        $constructeurMagasinSansCat = GlobalVariablesService::get('pieceMagasinSansCat');
+        $constructeurPneumatique = GlobalVariablesService::get('pneumatique');
+        $statement = "SELECT 
+                    CASE
+                    -- si CAT et autre constructeur magasin
                         WHEN COUNT(CASE WHEN nlig_constp = 'CAT' THEN 1 END) > 0
-                        AND COUNT(CASE WHEN nlig_constp  IN (" . GlobalVariablesService::get('pieceMagasinSansCat') . ") THEN 1 END) > 0
+                        AND COUNT(CASE WHEN nlig_constp  IN ($constructeurMagasinSansCat) THEN 1 END) > 0
                         THEN TRIM('CP')
-                    
+                    -- si  CAT
                         WHEN COUNT(CASE WHEN nlig_constp  = 'CAT' THEN 1 END) > 0
-                        AND COUNT(CASE WHEN nlig_constp  IN (" . GlobalVariablesService::get('pieceMagasinSansCat') . ") THEN 1 END) = 0
+                        AND COUNT(CASE WHEN nlig_constp  IN ($constructeurMagasinSansCat) THEN 1 END) = 0
                         THEN TRIM('C')
-
+                    -- si ni CAT ni autre constructeur magasin
                         WHEN COUNT(CASE WHEN nlig_constp  = 'CAT' THEN 1 END) = 0
-                        AND COUNT(CASE WHEN nlig_constp  IN (" . GlobalVariablesService::get('pieceMagasinSansCat') . ") THEN 1 END) = 0
+                        AND COUNT(CASE WHEN nlig_constp  IN ($constructeurMagasinSansCat) THEN 1 END) = 0
                         THEN TRIM('N')
-
+                    -- si autre constructeur magasin
                         WHEN COUNT(CASE WHEN nlig_constp  = 'CAT' THEN 1 END) = 0
-                        AND COUNT(CASE WHEN nlig_constp IN (" . GlobalVariablesService::get('pieceMagasinSansCat') . ") THEN 1 END) > 0
+                        AND COUNT(CASE WHEN nlig_constp IN ($constructeurMagasinSansCat) THEN 1 END) > 0
                         THEN TRIM('P')
+                    -- si constructeur pneumatique
+                        WHEN COUNT(CASE WHEN nlig_constp IN($constructeurPneumatique) THEN 1 END) > 0
+                        THEN TRIM('O')
+                    -- si CAT , autre constructeur magasin et constructeur pneumatique
+                        WHEN COUNT(CASE WHEN nlig_constp = 'CAT' THEN 1 END) > 0
+                        AND COUNT(CASE WHEN nlig_constp  IN ($constructeurMagasinSansCat) THEN 1 END) > 0
+                        AND COUNT(CASE WHEN nlig_constp IN($constructeurPneumatique) THEN 1 END) > 0
+                        THEN TRIM('CPO')
+                    -- si CAT et constructeur pneumatique
+                        WHEN COUNT(CASE WHEN nlig_constp  = 'CAT' THEN 1 END) > 0
+                        AND COUNT(CASE WHEN nlig_constp  IN ($constructeurMagasinSansCat) THEN 1 END) = 0
+                        AND COUNT(CASE WHEN nlig_constp IN($constructeurPneumatique) THEN 1 END) > 0
+                        THEN TRIM('CO')
+                    -- si autre constructeur magasin et constructeur pneumatique
+                        WHEN COUNT(CASE WHEN nlig_constp  = 'CAT' THEN 1 END) = 0
+                        AND COUNT(CASE WHEN nlig_constp IN ($constructeurMagasinSansCat) THEN 1 END) > 0
+                        AND COUNT(CASE WHEN nlig_constp IN($constructeurPneumatique) THEN 1 END) > 0
+                        THEN TRIM('PO')
+                    -- si ni CAT ni autre constructeur magasin ni constructeur pneumatique
+                        WHEN COUNT(CASE WHEN nlig_constp  = 'CAT' THEN 1 END) = 0
+                        AND COUNT(CASE WHEN nlig_constp  IN ($constructeurMagasinSansCat) THEN 1 END) = 0
+                        AND COUNT(CASE WHEN nlig_constp IN($constructeurPneumatique) THEN 1 END) = 0
+                        THEN TRIM('NO')
                     END AS retour
+
                     from informix.neg_lig 
                     where nlig_soc='HF' 
                     and nlig_natop='DEV'
