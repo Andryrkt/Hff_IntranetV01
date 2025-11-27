@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\magasin\devis;
+namespace App\Controller\pol\devis;
 
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
@@ -19,9 +19,9 @@ use App\Factory\magasin\devis\ListeDevisMagasinFactory;
 use App\Repository\magasin\devis\DevisMagasinRepository;
 
 /**
- * @Route("/magasin/dematerialisation")
+ * @Route("/pol")
  */
-class ListeDevisMagasinController extends Controller
+class ListeDevisMagasinPolController extends Controller
 {
     use AutorisationTrait;
 
@@ -56,7 +56,7 @@ class ListeDevisMagasinController extends Controller
     }
 
     /**
-     * @Route("/liste-devis-magasin", name="devis_magasin_liste")
+     * @Route("/liste-devis-magasin-pol", name="devis_magasin_pol_liste")
      */
     public function listeDevisMagasin(Request $request)
     {
@@ -82,12 +82,12 @@ class ListeDevisMagasinController extends Controller
         if (isset($criteriaForSession['emetteur']['service']) && is_object($criteriaForSession['emetteur']['service'])) {
             $criteriaForSession['emetteur']['service'] = $criteriaForSession['emetteur']['service']->getId();
         }
-        $this->getSessionService()->set('criteria_for_excel_liste_devis_magasin', $criteriaForSession);
+        $this->getSessionService()->set('criteria_for_excel_liste_devis_magasin_pol', $criteriaForSession);
 
         $listeDevisFactory = $this->recuperationDonner($criteria);
 
         // affichage de la liste des devis magasin
-        return $this->render('magasin/devis/listeDevisMagasin.html.twig', [
+        return $this->render('pol/devis/listeDevisMagasin.html.twig', [
             'listeDevis' => $listeDevisFactory,
             'form' => $form->createView(),
             'styleStatutDw' => $this->styleStatutDw,
@@ -111,7 +111,7 @@ class ListeDevisMagasinController extends Controller
     private function initialisationCriteria()
     {
         // recupération de la session pour le criteria
-        $criteriaTab = $this->getSessionService()->get('criteria_for_excel_liste_devis_magasin');
+        $criteriaTab = $this->getSessionService()->get('criteria_for_excel_liste_devis_magasin_pol');
 
         // Dénormalisation : recharger les entités à partir des IDs
         if (!empty($criteriaTab['emetteur']['agence'])) {
@@ -133,10 +133,8 @@ class ListeDevisMagasinController extends Controller
     public function recuperationDonner(array $criteria = []): array
     {
         // recupération de la liste des devis magasin dans IPS
-        $codeAgenceUser = $this->getUser()->getCodeAgenceUser(); // utilisateur connecter
-        $vignette = $codeAgenceUser === '01' ? 'magasin' : 'magasin_pol';
         $admin = in_array(1, $this->getUser()->getRoleIds()); // verification si admin
-        $devisIps = $this->listeDevisMagasinModel->getDevis($criteria,  $vignette,  $codeAgenceUser, $admin);
+        $devisIps = $this->listeDevisMagasinModel->getDevis($criteria, 'pneumatique', '60', $admin);
 
         $listeDevisFactory = [];
         foreach ($devisIps as  $devisIp) {

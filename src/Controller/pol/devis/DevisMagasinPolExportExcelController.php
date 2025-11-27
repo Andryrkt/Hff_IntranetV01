@@ -1,146 +1,104 @@
 <?php
 
-namespace App\Controller\magasin\devis;
+namespace App\Controller\pol\devis;
 
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Controller\Controller;
-use App\Entity\admin\Application;
-use App\Entity\magasin\bc\BcMagasin;
 use App\Entity\magasin\devis\DevisMagasin;
-use App\Repository\admin\AgenceRepository;
-use App\Controller\Traits\AutorisationTrait;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Factory\magasin\devis\ListeDevisSearchDto;
-use App\Form\magasin\devis\DevisMagasinSearchType;
 use App\Model\magasin\devis\ListeDevisMagasinModel;
 use App\Factory\magasin\devis\ListeDevisMagasinFactory;
 use App\Repository\magasin\devis\DevisMagasinRepository;
 
 /**
- * @Route("/magasin/dematerialisation")
+ * @Route("/pol")
  */
-class ListeDevisMagasinController extends Controller
+class DevisMagasinPolExportExcelController extends Controller
 {
-    use AutorisationTrait;
-
-    private $styleStatutDw = [];
-    private $styleStatutBc = [];
-
     private ListeDevisMagasinModel $listeDevisMagasinModel;
-
     public function __construct()
     {
         parent::__construct();
         $this->listeDevisMagasinModel = new ListeDevisMagasinModel();
-
-        $this->styleStatutDw = [
-            DevisMagasin::STATUT_PRIX_A_CONFIRMER      => 'bg-prix-a-confirmer',
-            DevisMagasin::STATUT_PRIX_VALIDER_TANA     => 'bg-prix-valider-tana',
-            DevisMagasin::STATUT_PRIX_VALIDER_AGENCE   => 'bg-prix-valider-agence',
-            DevisMagasin::STATUT_PRIX_MODIFIER_TANA    => 'bg-prix-modifier-magasin',
-            DevisMagasin::STATUT_PRIX_MODIFIER_AGENCE  => 'bg-prix-modifier-agence',
-            DevisMagasin::STATUT_DEMANDE_REFUSE_PAR_PM => 'bg-demande-refuse-par-pm',
-            DevisMagasin::STATUT_A_VALIDER_CHEF_AGENCE => 'bg-a-valider-chef-agence',
-            DevisMagasin::STATUT_VALIDE_AGENCE         => 'bg-valide-agence',
-            DevisMagasin::STATUT_ENVOYER_CLIENT        => 'bg-envoyer-client',
-            DevisMagasin::STATUT_CLOTURER_A_MODIFIER   => 'bg-cloturer-a-modifier',
-        ];
-
-        $this->styleStatutBc = [
-            BcMagasin::STATUT_SOUMIS_VALIDATION => 'bg-bc-soumis-validation',
-            BcMagasin::STATUT_EN_ATTENTE_BC => 'bg-bc-en-attente',
-            BcMagasin::STATUT_VALIDER => 'bg-bc-valide'
-        ];
     }
 
     /**
-     * @Route("/liste-devis-magasin", name="devis_magasin_liste")
+     * @Route("/devis-magasin-pol-export-excel", name="devis_magasin_pol_export_excel")
+     *
+     * @return void
      */
-    public function listeDevisMagasin(Request $request)
+    public function exportExcel()
     {
-        //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_DVM);
-
-        //formulaire de recherhce
-        $form = $this->getFormFactory()->createBuilder(DevisMagasinSearchType::class, $this->initialisationCriteria(), [
-            'em' => $this->getEntityManager()
-        ])->getForm();
-
-        /** @var array */
-        $criteria = $this->traitementFormulaireRecherche($request, $form);
-
-        // Normalisation des critères avant de les stocker en session
-        $criteriaForSession = $criteria;
-        if (isset($criteriaForSession['emetteur']['agence']) && is_object($criteriaForSession['emetteur']['agence'])) {
-            $criteriaForSession['emetteur']['agence'] = $criteriaForSession['emetteur']['agence']->getId();
-        }
-        if (isset($criteriaForSession['emetteur']['service']) && is_object($criteriaForSession['emetteur']['service'])) {
-            $criteriaForSession['emetteur']['service'] = $criteriaForSession['emetteur']['service']->getId();
-        }
-        $this->getSessionService()->set('criteria_for_excel_liste_devis_magasin', $criteriaForSession);
+        $criteria = $this->getSessionService()->get('criteria_for_excel_liste_devis_magasin_pol');
+        $criteria["emetteur"]["agence"] = $this->getEntityManager()->getRepository(Agence::class)->find($criteria["emetteur"]["agence"]);
+        $criteria["emetteur"]["service"] = $this->getEntityManager()->getRepository(Service::class)->find($criteria["emetteur"]["service"]);
 
         $listeDevisFactory = $this->recuperationDonner($criteria);
 
-        // affichage de la liste des devis magasin
-        return $this->render('magasin/devis/listeDevisMagasin.html.twig', [
-            'listeDevis' => $listeDevisFactory,
-            'form' => $form->createView(),
-            'styleStatutDw' => $this->styleStatutDw,
-            'styleStatutBc' => $this->styleStatutBc
-        ]);
+        $data = [];
+        // En-tête du tableau d'excel
+        $data[] = [
+            "Statut devis",
+            "Statut BC",
+            "Numéro devis",
+            "Date de création",
+            "Emetteur",
+            "Client",
+            "Libellé",
+            "Montant",
+            "Date d'envoi devis au client",
+            "Position IPS",
+            "Crée par",
+            "Soumis par",
+        ];
+
+        $data = $this->convertirObjetEnTableau($listeDevisFactory, $data);
+
+        $this->getExcelService()->createSpreadsheet($data);
     }
 
-    private function traitementFormulaireRecherche(Request $request, $form): array
+    /** 
+     * Convertis les données d'objet en tableau
+     * 
+     * @param array $listeDevisFactory tableau d'objets à convertir
+     * @param array $data tableau de retour
+     * 
+     * @return array
+     */
+    private function convertirObjetEnTableau(array $listeDevisFactory, array $data): array
     {
-        $criteria = [];
+        /** @var ListeDevisMagasinFactory $devisFactory */
+        foreach ($listeDevisFactory as $devisFactory) {
 
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $criteriaDto = $form->getData();
-            $criteria = $criteriaDto->toArrayFilter();
-        }
-        return $criteria;
-    }
-
-    private function initialisationCriteria()
-    {
-        // recupération de la session pour le criteria
-        $criteriaTab = $this->getSessionService()->get('criteria_for_excel_liste_devis_magasin');
-
-        // Dénormalisation : recharger les entités à partir des IDs
-        if (!empty($criteriaTab['emetteur']['agence'])) {
-            $agenceRepository = $this->getEntityManager()->getRepository(Agence::class);
-            $agence = $agenceRepository->find($criteriaTab['emetteur']['agence']);
-            $criteriaTab['emetteur']['agence'] = $agence;
+            $data[] = [
+                $devisFactory->getStatutDw(),
+                $devisFactory->getStatutBc(),
+                $devisFactory->getNumeroDevis(),
+                $devisFactory->getDateCreation(),
+                $devisFactory->getSuccursaleServiceEmetteur(),
+                $devisFactory->getCodeClientLibelleClient(),
+                $devisFactory->getReferenceCLient(),
+                $devisFactory->getMontant(),
+                $devisFactory->getDateDenvoiDevisAuClient(),
+                $devisFactory->getStatutIps(),
+                $devisFactory->getCreePar(),
+                $devisFactory->getOperateur(),
+            ];
         }
 
-        if (!empty($criteriaTab['emetteur']['service'])) {
-            $service = $this->getEntityManager()->getRepository(Service::class)->find($criteriaTab['emetteur']['service']);
-            $criteriaTab['emetteur']['service'] = $service;
-        }
-
-        // transforme en objet
-        $ListeDevisSearchDto = new ListeDevisSearchDto();
-        return $ListeDevisSearchDto->toObject($criteriaTab);
+        return $data;
     }
 
     public function recuperationDonner(array $criteria = []): array
     {
         // recupération de la liste des devis magasin dans IPS
-        $codeAgenceUser = $this->getUser()->getCodeAgenceUser(); // utilisateur connecter
-        $vignette = $codeAgenceUser === '01' ? 'magasin' : 'magasin_pol';
-        $admin = in_array(1, $this->getUser()->getRoleIds()); // verification si admin
-        $devisIps = $this->listeDevisMagasinModel->getDevis($criteria,  $vignette,  $codeAgenceUser, $admin);
+        $devisIps = $this->listeDevisMagasinModel->getDevis();
 
         $listeDevisFactory = [];
         foreach ($devisIps as  $devisIp) {
-
             $devisMagasinRepository = $this->getEntityManager()->getRepository(DevisMagasin::class);
             //recupération des information de devis soumission à validation neg
             $numeroVersionMax = $devisMagasinRepository->getNumeroVersionMax($devisIp['numero_devis']);
