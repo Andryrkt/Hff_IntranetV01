@@ -3,13 +3,16 @@
 namespace App\Controller\da\ListeDa;
 
 use App\Entity\da\DaSearch;
+use App\Entity\da\DaAfficher;
 use App\Form\da\DaSearchType;
 use App\Controller\Controller;
 use App\Entity\admin\Application;
+use Symfony\Component\Form\FormInterface;
 use App\Controller\Traits\da\DaListeTrait;
 use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Form\da\daCdeFrn\DaModalDateLivraisonType;
 
 /**
  * @Route("/demande-appro")
@@ -74,6 +77,10 @@ class listeDaController extends Controller
         $paginationData = $this->getPaginationData($criteria, $page, $limit);
         $dataPrepared = $this->prepareDataForDisplay($paginationData['data']);
 
+         /** === Formulaire pour la date de livraison prevu === */
+        $formDateLivraison = $this->getFormFactory()->createBuilder(DaModalDateLivraisonType::class)->getForm();
+        $this->TraitementFormulaireDateLivraison($request, $formDateLivraison);
+
         return $this->render('da/list-da.html.twig', [
             'data'           => $dataPrepared,
             'form'           => $form->createView(),
@@ -84,6 +91,31 @@ class listeDaController extends Controller
             'currentPage'    => $paginationData['currentPage'],
             'totalPages'     => $paginationData['lastPage'],
             'resultat'       => $paginationData['totalItems'],
+            'formDateLivraison' => $formDateLivraison->createView()
         ]);
+    }
+
+    private function TraitementFormulaireDateLivraison(Request $request, FormInterface $formDateLivraison)
+    {
+        $formDateLivraison->handleRequest($request);
+
+        if ($formDateLivraison->isSubmitted() && $formDateLivraison->isValid()) {
+            //recupération des valeurs dans le formulaire
+            $data = $formDateLivraison->getData();
+
+            // recupération des lignes de commande dans le da_afficher
+            $daAffichers = $this->getEntityManager()->getRepository(DaAfficher::class)->findBy(['numeroCde' => $data['numeroCde']]);
+
+            //modification de la date livraison prevue sur chaque ligne
+            foreach ($daAffichers as $daAfficher) {
+                $daAfficher->setDateLivraisonPrevue($data['dateLivraisonPrevue']);
+                $this->getEntityManager()->persist($daAfficher);
+            }
+
+            $this->getEntityManager()->flush();
+
+            $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'Date de livraison prévue modifier avec succèss']);
+            $this->redirectToRoute("da_list_cde_frn");
+        }
     }
 }

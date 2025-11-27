@@ -14,6 +14,7 @@ use App\Model\dw\DossierInterventionAtelierModel;
 use App\Repository\da\DaSoumissionBcRepository;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
 use App\Service\Users\UserDataService;
+use DateTime;
 use Twig\Markup;
 
 trait DaListeTrait
@@ -212,6 +213,7 @@ trait DaListeTrait
             $daReappro = $item->getDaTypeId() == DemandeAppro::TYPE_DA_REAPPRO;
             $daDirect = $item->getDaTypeId() == DemandeAppro::TYPE_DA_DIRECT;
             $daViaOR = $item->getDaTypeId() == DemandeAppro::TYPE_DA_AVEC_DIT;
+            $envoyeFrn = $item->getStatutCde() === DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR;
 
             // Pré-calculer les styles
             $styleStatutDA = $this->styleStatutDA[$item->getStatutDal()] ?? '';
@@ -230,6 +232,16 @@ trait DaListeTrait
             // Statut OR | Statut DocuWare
             $statutOR = $item->getStatutOr();
             if ($daViaOR && !empty($statutOR)) $statutOR = "OR - $statutOR";
+
+            // Préparer attributs pour la balise <a> de la date de livraison prévue
+            $aDtLivPrevAttributes = [
+                'href'               => '#',
+                "data-bs-toggle"     => "modal",
+                "data-bs-target"     => "#dateLivraison",
+                "data-numero-cde"    => $item->getNumeroCde(),
+                "data-date-actuelle" => $item->getDateLivraisonPrevue() ? $item->getDateLivraisonPrevue()->format('Y-m-d') : '',
+            ];
+
 
             // Tout regrouper
             $datasPrepared[] = [
@@ -259,8 +271,8 @@ trait DaListeTrait
                 'qteEnAttent'         => $item->getQteEnAttent() == 0 ? '-' : $item->getQteEnAttent(),
                 'qteDispo'            => $item->getQteDispo() == 0 ? '-' : $item->getQteDispo(),
                 'qteLivrer'           => $item->getQteLivrer() == 0 ? '-' : $item->getQteLivrer(),
-                'dateFinSouhaite'     => $item->getDateFinSouhaite() ? $item->getDateFinSouhaite()->format('d/m/Y') : '',
-                'dateLivraisonPrevue' => $item->getDateLivraisonPrevue() ? $item->getDateLivraisonPrevue()->format('d/m/Y') : '',
+                'dateFinSouhaite'     => $item->getDateFinSouhaite() ? $item->getDateFinSouhaite()->format('d/m/Y') : 'N/A',
+                'dateLivraisonPrevue' => $item->getDateLivraisonPrevue() ? $item->getDateLivraisonPrevue()->format('d/m/Y') : 'N/A',
                 'joursDispo'          => $item->getJoursDispo() ?? '',
                 'styleJoursDispo'     => $item->getJoursDispo() && $item->getJoursDispo() < 0 ? 'text-danger' : '',
                 'styleStatutDA'       => $styleStatutDA,
@@ -278,6 +290,8 @@ trait DaListeTrait
                 'pathOr'              => empty($dataOR) ? '' : $dataOR['chemin'],
                 'statutValide'        => $item->getStatutDal() === DemandeAppro::STATUT_VALIDE,
                 'centrale'            => $daReappro ? $item->getDesiCentrale() : $safeIconBan,
+                'envoyeFrn'            => $envoyeFrn,
+                'aDtLivPrevAttributes' => $aDtLivPrevAttributes,
             ];
         }
 
