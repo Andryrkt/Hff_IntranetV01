@@ -89,7 +89,3 @@ document.addEventListener("DOMContentLoaded", function () {
     onSelectCallback: (item) => onSelectCommercial(item),
   });
 });
-
-window.addEventListener("load", () => {
-  displayOverlay(false);
-});

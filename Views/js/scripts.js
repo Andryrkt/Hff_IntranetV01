@@ -5,7 +5,7 @@ import { initSessionTimer } from "./utils/session/sessionTimer";
 import { displayOverlay } from "./utils/ui/overlay";
 import { preloadAllData } from "./da/data/preloadData";
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", () => {
   const logoutLink = document.getElementById("logoutLink");
   const logoutUrl = logoutLink?.getAttribute("href");
 
@@ -22,8 +22,7 @@ document.addEventListener("DOMContentLoaded", function () {
   );
   const confirmLogout = document.getElementById("confirmLogout");
 
-  // Lorsque l'utilisateur clique sur le lien de déconnexion
-  logoutLink?.addEventListener("click", function (event) {
+  logoutLink?.addEventListener("click", (event) => {
     event.preventDefault();
     logoutModal.show();
   });
@@ -35,7 +34,7 @@ document.addEventListener("DOMContentLoaded", function () {
   /*=============================*
    * PRELOAD DATA POUR LA DA     *
    *=============================*/
-  const hasDAPinput = document.getElementById("hasDAP"); // savoir si l'utilisateur a l'autorisation de l'application DAP
+  const hasDAPinput = document.getElementById("hasDAP");
 
   if (hasDAPinput) {
     console.log("hasDAPinput existe");
@@ -47,7 +46,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   if (localStorage.getItem("hasDAP") === "1") {
     (async () => {
-      await preloadAllData(); // préchargement des données dans fournisseur et désignation
+      await preloadAllData();
     })();
   } else {
     console.log("Pas besoin de preloadData");
@@ -58,8 +57,8 @@ document.addEventListener("DOMContentLoaded", function () {
    *=============================*/
   document
     .querySelectorAll(".dropdown-menu .dropdown-toggle")
-    .forEach(function (element) {
-      element.addEventListener("click", function (e) {
+    .forEach((element) => {
+      element.addEventListener("click", (e) => {
         e.stopPropagation();
         e.nextElementSibling.classList.toggle("show");
       });
@@ -80,28 +79,26 @@ document.addEventListener("DOMContentLoaded", function () {
   const fetchManager = new FetchManager();
   const modalTypeDemande = document.getElementById("modalTypeDemande");
   if (modalTypeDemande) {
-    modalTypeDemande.addEventListener("click", function (event) {
+    modalTypeDemande.addEventListener("click", (event) => {
       event.preventDefault();
       const overlay = document.getElementById("loading-overlays");
       overlay.classList.remove("hidden");
-      const url = "api/form-type-demande"; // L'URL de votre route Symfony
+      const url = "api/form-type-demande";
       fetchManager
         .get(url, "text")
         .then((html) => {
           document.getElementById("modalContent").innerHTML = html;
           new bootstrap.Modal(document.getElementById("formModal")).show();
 
-          // Ajouter un écouteur sur la soumission du formulaire
           document
             .getElementById("typeDemandeForm")
-            .addEventListener("submit", function (event) {
+            .addEventListener("submit", (event) => {
               event.preventDefault();
 
               const formData = new FormData(this);
 
               let jsonData = {};
               formData.forEach((value, key) => {
-                // Supprimer le préfixe `form_type_demande[...]`
                 let cleanKey = key.replace(
                   /^form_type_demande\[(.*?)\]$/,
                   "$1"
@@ -136,4 +133,8 @@ document.addEventListener("DOMContentLoaded", function () {
       displayOverlay(true);
     });
   });
+});
+
+window.addEventListener("load", () => {
+  displayOverlay(false);
 });

@@ -13,7 +13,6 @@ import {
 import { calculateDaysAvance } from "./handleDate";
 import { formatMontant, parseMontant } from "../utils/formatUtils";
 import { handleAllField } from "./handleField";
-import { displayOverlay } from "../utils/ui/overlay";
 
 document.addEventListener("DOMContentLoaded", function () {
   localStorage.setItem("site", 0); // initialiser le site à 0
@@ -210,8 +209,4 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     }
   });
-});
-
-window.addEventListener("load", () => {
-  displayOverlay(false);
 });
