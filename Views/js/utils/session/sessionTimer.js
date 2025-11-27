@@ -1,3 +1,5 @@
+import { afficherToast } from "../toastUtils";
+
 export function initSessionTimer({
   duration = 900,
   logoutUrl,
