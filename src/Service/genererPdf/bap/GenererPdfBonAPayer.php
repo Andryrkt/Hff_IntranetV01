@@ -29,11 +29,8 @@ class GenererPdfBonAPayer extends GeneratePdf
         $this->renderRecapDA($pdf, $w100, $demandeAppro);
         $this->renderInfoFacBl($pdf, $w100, $infoFacBl);
 
-        $numDa = $demandeAppro->getNumeroDemandeAppro();
-
-
         // Sauvegarder le PDF
-        return $this->savePDF($pdf, $numDa, "I");
+        return $this->savePDF($pdf, $demandeAppro->getNumeroDemandeAppro(), "I");
     }
 
     private function renderHeader(TCPDF $pdf)
