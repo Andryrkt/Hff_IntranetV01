@@ -210,16 +210,3 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 });
-
-window.addEventListener("load", () => {
-  displayOverlay(false);
-});
-
-function displayOverlay(bool) {
-  const overlay = document.getElementById("loading-overlay");
-  if (bool) {
-    overlay.style.display = "flex";
-  } else {
-    overlay.style.display = "none";
-  }
-}

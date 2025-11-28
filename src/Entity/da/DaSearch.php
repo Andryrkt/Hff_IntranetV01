@@ -20,7 +20,7 @@ class DaSearch
     private ?string $typeAchat = null;
     private ?string $codeCentrale = null;
 
-    private ?WorNiveauUrgence $niveauUrgence = null;
+    private ?string $niveauUrgence = null;
 
     private ?DateTime $dateDebutCreation = null;
     private ?DateTime $dateFinCreation = null;
@@ -429,7 +429,7 @@ class DaSearch
             'idMateriel'           => $this->idMateriel,
             'codeCentrale'         => $this->codeCentrale,
             'typeAchat'            => $this->typeAchat,
-            'niveauUrgence'        => $this->niveauUrgence        ? $this->niveauUrgence->getId()                : null,
+            'niveauUrgence'        => $this->niveauUrgence        ? $this->niveauUrgence                         : null,
             'dateDebutCreation'    => $this->dateDebutCreation    ? $this->dateDebutCreation->format('Y-m-d')    : null,
             'dateFinCreation'      => $this->dateFinCreation      ? $this->dateFinCreation->format('Y-m-d')      : null,
             'dateDebutfinSouhaite' => $this->dateDebutfinSouhaite ? $this->dateDebutfinSouhaite->format('Y-m-d') : null,

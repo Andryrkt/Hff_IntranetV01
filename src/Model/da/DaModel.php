@@ -564,4 +564,46 @@ class DaModel extends Model
         }
         return $data;
     }
+
+    public function getInfoLivraison(string $numLiv)
+    {
+        $statement = "SELECT distinct 
+                        f.fllf_numliv AS num_liv, 
+                        f.fllf_numcde AS num_cde,
+                        f2.fliv_dateclot AS date_clot, 
+                        TRIM(f2.fliv_livext) AS ref_fac_bl
+                    from Informix.frn_llf f 
+                    inner join Informix.frn_liv f2 on f.fllf_numliv = f2.fliv_numliv 
+                where f.fllf_numliv = '$numLiv'";
+        $result = $this->connect->executeQuery($statement);
+        return $this->convertirEnUtf8($this->connect->fetchResults($result));
+    }
+
+    public function getInfoBC(string $numCde)
+    {
+        $statement = "SELECT 
+                TRIM(fbse_nomfou) as nom_fournisseur, 
+                fbse_numfou as num_fournisseur,
+                TRIM(fbse_tel) as tel_fournisseur, 
+                TRIM(fbse_adr1) as adr1_fournisseur, 
+                TRIM(fbse_adr2) as adr2_fournisseur, 
+                TRIM(fbse_ptt) as ptt_fournisseur, 
+                TRIM(fbse_adr4) as adr4_fournisseur, 
+                fcde_numcde as num_cde,
+                fcde_date as date_cde,
+                TRIM(fcde_succ) as succ_cde, 
+                TRIM(fcde_serv) as serv_cde, 
+                TRIM(fcde_ope) as nom_ope, 
+                TRIM(fcde_cdeext) as num_cde_ext, 
+                TRIM(fcde_lib) as libelle_cde, 
+                fcde_mtn as mtn_cde,
+                fcde_ttc as ttc_cde,
+                TRIM(fcde_typcde) as type_cde 
+            from frn_cde 
+            inner join frn_bse on fbse_numfou = fcde_numfou
+            where fcde_numcde = '$numCde'";
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+        return $data ? $data[0] : [];
+    }
 }
