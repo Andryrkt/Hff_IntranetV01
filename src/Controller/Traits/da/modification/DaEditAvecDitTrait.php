@@ -9,6 +9,7 @@ use App\Entity\da\DemandeApproLR;
 use App\Repository\dit\DitRepository;
 use App\Entity\dit\DemandeIntervention;
 use App\Repository\da\DaObservationRepository;
+use App\Service\da\FileUploaderForDAService;
 
 trait DaEditAvecDitTrait
 {
@@ -53,13 +54,15 @@ trait DaEditAvecDitTrait
         $em->flush(); // on enregistre les modifications
     }
 
-    private function modificationDAL($demandeAppro, $formDAL, string $statut): void
+    private function modificationDAL(DemandeAppro $demandeAppro, $formDAL, string $statut): void
     {
         $em = $this->getEntityManager();
-        $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
+        $numeroDemandeAppro = $demandeAppro->getNumeroDemandeAppro();
+        $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numeroDemandeAppro);
 
         // Indexation des DAL par numéro de ligne
         $dalParLigne = [];
+
         foreach ($formDAL as $subFormDAL) {
             /** 
              * @var DemandeApproL $demandeApproL
@@ -68,14 +71,15 @@ trait DaEditAvecDitTrait
              */
             $demandeApproL = $subFormDAL->getData();
             $files = $subFormDAL->get('fileNames')->getData(); // Récupération des fichiers
+            $fileNames = $this->daFileUploader->uploadMultipleDaFiles($files, $numeroDemandeAppro, FileUploaderForDAService::FILE_TYPE["DEVIS"]);
 
             $demandeApproL
-                ->setNumeroDemandeAppro($demandeAppro->getNumeroDemandeAppro())
+                ->setNumeroDemandeAppro($numeroDemandeAppro)
                 ->setStatutDal($statut)
                 ->setNumeroVersion($numeroVersionMax)
                 ->setJoursDispo($this->getJoursRestants($demandeApproL))
-            ; // Incrémenter le numéro de version
-            $this->traitementFichiers($demandeApproL, $files); // Traitement des fichiers uploadés
+                ->setFileNames($fileNames)
+            ;
 
             if ($demandeApproL->getDeleted() == 1) {
                 $em->remove($demandeApproL);
@@ -85,8 +89,9 @@ trait DaEditAvecDitTrait
                 $em->persist($demandeApproL); // on persiste la DAL
             }
         }
+
         /** @var DemandeApproLR[] $dalrs */
-        $dalrs = $this->demandeApproLRRepository->findBy(['numeroDemandeAppro' => $demandeAppro->getNumeroDemandeAppro()]);
+        $dalrs = $this->demandeApproLRRepository->findBy(['numeroDemandeAppro' => $numeroDemandeAppro]);
         foreach ($dalrs as $dalr) {
             $ligneDAL = $dalParLigne[$dalr->getNumeroLigne()];
             $dalr

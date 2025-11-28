@@ -9,6 +9,11 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 class FileUploaderForDAService
 {
     private string $basePath;
+    public const FILE_TYPE = [
+        "DEVIS"           => "devis_pj",
+        "FICHE_TECHNIQUE" => "fiche_technique",
+        "OBSERVATION"     => "observation_pj",
+    ];
 
     public function __construct(string $basePath)
     {
@@ -32,19 +37,25 @@ class FileUploaderForDAService
     }
 
     /**
-     * Upload pièce jointe pour DAL
+     * Upload un fichier pour DA
+     * 
+     * @param UploadedFile $file               fichier à uploader
+     * @param string       $numeroDemandeAppro numéro de la Demande Appro
+     * @param string       $fileType           type du fichier joint (devis, fiche technique, PJ observation)
+     * @param int          $i                  incrémentation pour les fichiers multiples
+     * 
+     * @return string le nom du fichier final
      */
-    public function uploadPJForDal(UploadedFile $file, DemandeApproL $dal, int $i): string
+    public function uploadDaFile(UploadedFile $file, string $numeroDemandeAppro, string $fileType, int $i = 0): string
     {
         $fileName = sprintf(
-            'PJ_%s_%s_%s.%s',
-            date("YmdHis"),
-            $dal->getNumeroLigne(),
-            $i,
+            '%s_%s.%s',
+            $fileType,
+            md5(date("Y|m|d|H|i|s") . $i),
             strtolower($file->guessExtension() ?? $file->getClientOriginalExtension())
-        ); // Exemple: PJ_20250623121403_3_1.pdf
+        );
 
-        $destination = "{$this->basePath}/da/{$dal->getNumeroDemandeAppro()}/";
+        $destination = "{$this->basePath}/da/$numeroDemandeAppro/";
 
         $this->moveFile($file, $fileName, $destination);
 
@@ -52,43 +63,29 @@ class FileUploaderForDAService
     }
 
     /**
-     * Upload pièce jointe pour DALR
+     * Upload multiple Da Files
+     * 
+     * @param UploadedFile[] $files              les fichiers à uploader
+     * @param string         $numeroDemandeAppro numéro de la Demande Appro
+     * @param string         $fileType           type du fichier joint (devis, fiche technique, PJ observation)
+     * 
+     * @return array tableau des noms de fichiers finals
      */
-    public function uploadPJForDalr(UploadedFile $file, DemandeApproLR $dalr, int $i): string
+    public function uploadMultipleDaFiles(?array $files, string $numeroDemandeAppro, string $fileType): array
     {
-        $fileName = sprintf(
-            'PJ_%s_%s%s_%s.%s',
-            date("YmdHis"),
-            $dalr->getNumeroLigne(),
-            $dalr->getNumLigneTableau(),
-            $i,
-            strtolower($file->guessExtension() ?? $file->getClientOriginalExtension())
-        ); // Exemple: PJ_20250623121403_34_1.pdf
-
-        $destination = "{$this->basePath}/da/{$dalr->getNumeroDemandeAppro()}/";
-
-        $this->moveFile($file, $fileName, $destination);
-
-        return $fileName;
-    }
-
-    /**
-     * Upload fiche technique pour DALR
-     */
-    public function uploadFTForDalr(UploadedFile $file, DemandeApproLR $dalr): void
-    {
-        $fileName = sprintf(
-            'FT_%s_%s_%s.%s',
-            date("YmdHis"),
-            $dalr->getNumeroLigne(),
-            $dalr->getNumLigneTableau(),
-            strtolower($file->guessExtension() ?? $file->getClientOriginalExtension())
-        ); // Exemple: FT_20250623121403_2_4.pdf
-
-        $destination = "{$this->basePath}/da/{$dalr->getNumeroDemandeAppro()}/";
-
-        $this->moveFile($file, $fileName, $destination);
-
-        $dalr->setNomFicheTechnique($fileName);
+        $fileNames = [];
+        if ($files !== null) {
+            $i = 1; // Compteur pour le nom du fichier
+            foreach ($files as $file) {
+                if ($file instanceof UploadedFile) {
+                    $fileName = $this->uploadDaFile($file, $numeroDemandeAppro, $fileType, $i); // Appel de la méthode pour uploader le fichier
+                } else {
+                    throw new \InvalidArgumentException('Le fichier doit être une instance de UploadedFile.');
+                }
+                $i++; // Incrémenter le compteur pour le prochain fichier
+                $fileNames[] = $fileName; // Ajouter le nom du fichier dans le tableau
+            }
+        }
+        return $fileNames;
     }
 }

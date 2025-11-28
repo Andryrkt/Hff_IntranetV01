@@ -16,7 +16,7 @@ use App\Controller\Traits\da\DaAfficherTrait;
 use App\Form\da\DemandeApproLRCollectionType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
+use App\Service\da\FileUploaderForDAService;
 use App\Controller\Traits\da\validation\DaValidationDirectTrait;
 use App\Controller\Traits\da\proposition\DaPropositionDirectTrait;
 
@@ -608,14 +608,19 @@ class DaPropositionArticleDirectController extends Controller
 
     private function ajoutDonnerDaLR(DemandeApproL $DAL, DemandeApproLR $demandeApproLR, $statut): DemandeApproLR
     {
-        $demandeApproLR_Ancien = $this->demandeApproLRRepository->getDalrByPageAndRow($DAL->getNumeroDemandeAppro(), $demandeApproLR->getNumeroLigne(), $demandeApproLR->getNumLigneTableau());
+        $numeroDemandeAppro = $DAL->getNumeroDemandeAppro();
+        /** @var ?DemandeApproLR $demandeApproLR_Ancien */
+        $demandeApproLR_Ancien = $this->demandeApproLRRepository->getDalrByPageAndRow($numeroDemandeAppro, $demandeApproLR->getNumeroLigne(), $demandeApproLR->getNumLigneTableau());
 
         $file = $demandeApproLR->getNomFicheTechnique(); // fiche technique de la DALR
         $fileNames = $demandeApproLR->getFileNames(); // pièces jointes de la DALR
 
         if ($demandeApproLR_Ancien) {
-            $this->daFileUploader->uploadFTForDalr($file, $demandeApproLR_Ancien);
-            $this->traitementFichiers($demandeApproLR_Ancien, $fileNames);
+            $ficheTechnique = $this->daFileUploader->uploadDaFile($file, $numeroDemandeAppro, FileUploaderForDAService::FILE_TYPE["FICHE_TECHNIQUE"]);
+            $fileNames = $this->daFileUploader->uploadMultipleDaFiles($fileNames, $numeroDemandeAppro, FileUploaderForDAService::FILE_TYPE["DEVIS"]);
+            $demandeApproLR_Ancien
+                ->setNomFicheTechnique($ficheTechnique)
+                ->setFileNames($fileNames);
 
             $DAL->getDemandeApproLR()->add($demandeApproLR_Ancien);
 
@@ -623,7 +628,7 @@ class DaPropositionArticleDirectController extends Controller
         } else {
             $demandeApproLR
                 ->setDemandeApproL($DAL)
-                ->setNumeroDemandeAppro($DAL->getNumeroDemandeAppro())
+                ->setNumeroDemandeAppro($numeroDemandeAppro)
                 ->setQteDem($DAL->getQteDem())
                 ->setArtConstp('ZDI') // TODO: changer cette ligne plus tard
                 ->setDateFinSouhaite($DAL->getDateFinSouhaite())
@@ -633,37 +638,18 @@ class DaPropositionArticleDirectController extends Controller
             ;
 
             if ($file) {
-                $this->daFileUploader->uploadFTForDalr($file, $demandeApproLR);
+                $ficheTechnique = $this->daFileUploader->uploadDaFile($file, $numeroDemandeAppro, FileUploaderForDAService::FILE_TYPE["FICHE_TECHNIQUE"]);
+                $demandeApproLR->setNomFicheTechnique($ficheTechnique);
             }
 
             if ($fileNames) {
-                $this->traitementFichiers($demandeApproLR, $fileNames);
+                $fileNames = $this->daFileUploader->uploadMultipleDaFiles($fileNames, $numeroDemandeAppro, FileUploaderForDAService::FILE_TYPE["DEVIS"]);
+                $demandeApproLR->setFileNames($fileNames);
             }
 
             $DAL->getDemandeApproLR()->add($demandeApproLR);
 
             return $demandeApproLR;
         }
-    }
-
-    /** 
-     * TRAITEMENT DES FICHIER UPLOAD pour chaque ligne de remplacement la demande appro (DALR)
-     */
-    private function traitementFichiers(DemandeApproLR $dalr, $files): void
-    {
-        $fileNames = [];
-        if ($files !== null) {
-            $i = 1; // Compteur pour le nom du fichier
-            foreach ($files as $file) {
-                if ($file instanceof UploadedFile) {
-                    $fileName = $this->daFileUploader->uploadPJForDalr($file, $dalr, $i); // Appel de la méthode pour uploader le fichier
-                } else {
-                    throw new \InvalidArgumentException('Le fichier doit être une instance de UploadedFile.');
-                }
-                $i++; // Incrémenter le compteur pour le prochain fichier
-                $fileNames[] = $fileName; // Ajouter le nom du fichier dans le tableau
-            }
-        }
-        $dalr->setFileNames($fileNames); // Enregistrer les noms de fichiers dans l'entité
     }
 }
