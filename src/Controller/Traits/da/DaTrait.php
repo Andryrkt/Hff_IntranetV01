@@ -41,12 +41,12 @@ trait DaTrait
         if ($this->daTraitInitialise) return;
 
         $em = $this->getEntityManager();
-        $this->emailDaService = new EmailDaService($this->getTwig()); // Injection du service Twig depuis Controller
-        $this->demandeApproService = new DemandeApproService;
-        $this->daFileUploader = new FileUploaderForDAService($_ENV['BASE_PATH_FICHIER']);
-        $this->daAfficherRepository = $em->getRepository(DaAfficher::class);
-        $this->demandeApproRepository = $em->getRepository(DemandeAppro::class);
-        $this->demandeApproLRepository = $em->getRepository(DemandeApproL::class);
+        $this->emailDaService           = new EmailDaService($this->getTwig()); // Injection du service Twig depuis Controller
+        $this->demandeApproService      = new DemandeApproService;
+        $this->daFileUploader           = new FileUploaderForDAService($_ENV['BASE_PATH_FICHIER']);
+        $this->daAfficherRepository     = $em->getRepository(DaAfficher::class);
+        $this->demandeApproRepository   = $em->getRepository(DemandeAppro::class);
+        $this->demandeApproLRepository  = $em->getRepository(DemandeApproL::class);
         $this->demandeApproLRRepository = $em->getRepository(DemandeApproLR::class);
 
         // On note que l'init a été faite

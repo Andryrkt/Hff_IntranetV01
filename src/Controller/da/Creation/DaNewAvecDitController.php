@@ -13,8 +13,8 @@ use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use App\Service\application\ApplicationService;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Controller\Traits\da\creation\DaNewAvecDitTrait;
+use App\Service\da\FileUploaderForDAService;
 
 /**
  * @Route("/demande-appro")
@@ -106,11 +106,12 @@ class DaNewAvecDitController extends Controller
                  * On récupère les données du formulaire DAL
                  */
                 $demandeApproL = $subFormDAL->getData();
-                $files = $subFormDAL->get('fileNames')->getData(); // Récupération des fichiers
 
                 if ($demandeApproL->getDeleted() == 1) {
                     $this->getEntityManager()->remove($demandeApproL);
                 } else {
+                    $files = $subFormDAL->get('fileNames')->getData(); // Récupération des fichiers
+                    $fileNames = $this->daFileUploader->uploadMultipleDaFiles($files, $numDa, FileUploaderForDAService::FILE_TYPE["DEVIS"]);
                     /** 
                      * @var DemandeApproL $demandeApproL
                      */
@@ -120,12 +121,13 @@ class DaNewAvecDitController extends Controller
                         ->setPrixUnitaire($this->daModel->getPrixUnitaire($demandeApproL->getArtRefp())[0])
                         ->setNumeroDit($demandeAppro->getNumeroDemandeDit())
                         ->setJoursDispo($this->getJoursRestants($demandeApproL))
+                        ->setFileNames($fileNames)
                     ;
 
                     if ($demandeApproL->getNumeroFournisseur() == 0) {
                         $demandeApproL->setNumeroFournisseur($this->fournisseurs[$demandeApproL->getNomFournisseur()] ?? 0); // définir le numéro du fournisseur
                     }
-                    $this->traitementFichiers($demandeApproL, $files); // traitement des fichiers uploadés pour chaque ligne DAL
+
                     $this->getEntityManager()->persist($demandeApproL);
                 }
             }
@@ -149,26 +151,5 @@ class DaNewAvecDitController extends Controller
             $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'Votre demande a été enregistrée']);
             $this->redirectToRoute("list_da");
         }
-    }
-
-    /** 
-     * TRAITEMENT DES FICHIER UPLOAD pour chaque ligne de la demande appro (DAL)
-     */
-    private function traitementFichiers(DemandeApproL $dal, $files): void
-    {
-        $fileNames = [];
-        if ($files !== null) {
-            $i = 1; // Compteur pour le nom du fichier
-            foreach ($files as $file) {
-                if ($file instanceof UploadedFile) {
-                    $fileName = $this->daFileUploader->uploadPJForDal($file, $dal, $i); // Appel de la méthode pour uploader le fichier
-                } else {
-                    throw new \InvalidArgumentException('Le fichier doit être une instance de UploadedFile.');
-                }
-                $i++; // Incrémenter le compteur pour le prochain fichier
-                $fileNames[] = $fileName; // Ajouter le nom du fichier dans le tableau
-            }
-        }
-        $dal->setFileNames($fileNames); // Enregistrer les noms de fichiers dans l'entité
     }
 }

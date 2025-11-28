@@ -71,9 +71,9 @@ class DemandeAppro
     private $achatDirect = false;
 
     /**
-     * @ORM\Column(type="string", length=11, name="numero_demande_dit")
+     * @ORM\Column(type="string", length=11, name="numero_demande_dit", nullable=true)
      */
-    private string $numeroDemandeDit = '';
+    private ?string $numeroDemandeDit = '';
 
     /**
      * @ORM\Column(type="string", length=100, name="objet_dal")
@@ -297,7 +297,7 @@ class DemandeAppro
      *
      * @return string
      */
-    public function getNumeroDemandeDit(): string
+    public function getNumeroDemandeDit(): ?string
     {
         return $this->numeroDemandeDit;
     }
@@ -305,11 +305,11 @@ class DemandeAppro
     /**
      * Set the value of numeroDemandeDit
      *
-     * @param string $numeroDemandeDit
+     * @param ?string $numeroDemandeDit
      *
      * @return self
      */
-    public function setNumeroDemandeDit(string $numeroDemandeDit): self
+    public function setNumeroDemandeDit(?string $numeroDemandeDit): self
     {
         $this->numeroDemandeDit = $numeroDemandeDit;
         return $this;

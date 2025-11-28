@@ -6,6 +6,7 @@ use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
+use App\Service\da\FileUploaderForDAService;
 use App\Repository\da\DaObservationRepository;
 
 trait DaEditDirectTrait
@@ -45,13 +46,15 @@ trait DaEditDirectTrait
         $em->flush(); // on enregistre les modifications
     }
 
-    private function modificationDAL($demandeAppro, $formDAL, string $statut): void
+    private function modificationDAL(DemandeAppro $demandeAppro, $formDAL, string $statut): void
     {
         $em = $this->getEntityManager();
+        $numeroDemandeAppro = $demandeAppro->getNumeroDemandeAppro();
         $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
 
         // Indexation des DAL par numéro de ligne
         $dalParLigne = [];
+
         foreach ($formDAL as $subFormDAL) {
             /** 
              * @var DemandeApproL $demandeApproL
@@ -60,14 +63,15 @@ trait DaEditDirectTrait
              */
             $demandeApproL = $subFormDAL->getData();
             $files = $subFormDAL->get('fileNames')->getData(); // Récupération des fichiers
+            $fileNames = $this->daFileUploader->uploadMultipleDaFiles($files, $numeroDemandeAppro, FileUploaderForDAService::FILE_TYPE["DEVIS"]);
 
             $demandeApproL
-                ->setNumeroDemandeAppro($demandeAppro->getNumeroDemandeAppro())
+                ->setNumeroDemandeAppro($numeroDemandeAppro)
                 ->setStatutDal($statut)
                 ->setNumeroVersion($numeroVersionMax)
                 ->setJoursDispo($this->getJoursRestants($demandeApproL))
-            ; // Incrémenter le numéro de version
-            $this->traitementFichiers($demandeApproL, $files); // Traitement des fichiers uploadés
+                ->setFileNames($fileNames)
+            ;
 
             if ($demandeApproL->getDeleted() == 1) {
                 $em->remove($demandeApproL);
@@ -78,7 +82,7 @@ trait DaEditDirectTrait
             }
         }
         /** @var DemandeApproLR[] $dalrs */
-        $dalrs = $this->demandeApproLRRepository->findBy(['numeroDemandeAppro' => $demandeAppro->getNumeroDemandeAppro()]);
+        $dalrs = $this->demandeApproLRRepository->findBy(['numeroDemandeAppro' => $numeroDemandeAppro]);
         foreach ($dalrs as $dalr) {
             $ligneDAL = $dalParLigne[$dalr->getNumeroLigne()];
             $dalr
