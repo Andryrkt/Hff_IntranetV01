@@ -206,7 +206,7 @@ class DaModel extends Model
         return array_column($data, 'prix');
     }
 
-    public function getSituationCde(?string $ref = '', string $numDit, string $numDa, ?string $designation = '', ?string $numOr, ?string $statutBc)
+    public function getSituationCde(?string $ref = '', ?string $numDit, string $numDa, ?string $designation = '', ?string $numOr, ?string $statutBc)
     {
         if (!$numOr) return [];
         $designation = str_replace("'", "''", mb_convert_encoding($designation, 'ISO-8859-1', 'UTF-8'));

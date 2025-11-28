@@ -510,7 +510,7 @@ class DossierInterventionAtelierModel extends Model
         return $this->ConvertirEnUtf_8($result ? $result : []);
     }
 
-    public function findCheminOrDernierValide(string $numeroDit, string $numeroDa)
+    public function findCheminOrDernierValide(?string $numeroDit, string $numeroDa)
     {
         if (!$numeroDit || !$numeroDa) return [];
 
