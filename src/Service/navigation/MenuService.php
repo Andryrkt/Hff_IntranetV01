@@ -365,6 +365,7 @@ class MenuService
                 $subSubitems[] = $this->createSubItem('Annulation de congé dédiée RH', 'calendar-xmark', 'annulation_conge_rh', [], '_blank');
             }
             $subSubitems[] = $this->createSubItem('Consultation', 'search', 'conge_liste');
+            $subSubitems[] = $this->createSubItem('Consultation vue calendrier', 'search', 'conge_calendrier');
             $subitems[] = $this->createSubMenuItem(
                 'Congés',
                 'umbrella-beach',
@@ -601,7 +602,7 @@ class MenuService
 
         $subitems[] = $this->createSimpleItem('Pneumatiques', 'ring');
 
-        
+
         return $this->createMenuItem(
             'polModal',
             'POL',

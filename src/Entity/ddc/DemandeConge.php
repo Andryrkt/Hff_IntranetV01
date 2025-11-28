@@ -108,6 +108,9 @@ class DemandeConge
      */
     private $agenceServiceirium;
 
+
+    private $groupeDirection;
+
     /** ==================================================================================
      * Getters et Setters (inchangés)
      *=============================================================================*/
@@ -301,6 +304,7 @@ class DemandeConge
             'statutDemande' => $this->statutDemande,
             'dateStatut' => $this->dateStatut,
             'pdfDemande' => $this->pdfDemande,
+            'groupeDirection' => $this->groupeDirection,
         ];
     }
 
@@ -318,6 +322,24 @@ class DemandeConge
     public function setAgenceServiceirium($agenceServiceirium): self
     {
         $this->agenceServiceirium = $agenceServiceirium;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of groupeDirection
+     */
+    public function getGroupeDirection()
+    {
+        return $this->groupeDirection;
+    }
+
+    /**
+     * Set the value of groupeDirection
+     */
+    public function setGroupeDirection($groupeDirection): self
+    {
+        $this->groupeDirection = $groupeDirection;
 
         return $this;
     }

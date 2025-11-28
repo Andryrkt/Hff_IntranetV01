@@ -49,6 +49,9 @@
 					<div class="col-md-3">
 						{{ form_row(form.statutDemande, {'attr': {'class': 'form-select-sm'}}) }}
 					</div>
+					<div class="col-md-3">
+						{{ form_row(form.groupeDirection, {'attr': {'class': 'form-select-sm'}}) }}
+					</div>
 					<div class="col-12 text-end">
 						<button type="submit" class="btn btn-sm btn-warning fw-bold">
 							<i class="fas fa-search me-1"></i>
@@ -219,7 +222,7 @@ loadServices(this.value);
 serviceSelect.addEventListener('change', function () { // Mettre à jour le champ caché quand le service change
 hiddenServiceInput.value = this.value;
 });
-}
+
 
 // Ajouter l'écouteur d'événement de soumission du formulaire
 form.addEventListener('submit', function (e) {
@@ -236,6 +239,5 @@ console.log('Valeur du service avant soumission:', serviceValue);
 // Mettre à jour le champ caché
 document.getElementById('service_hidden').value = serviceValue;
 });
-}
-);
+});
 </script>

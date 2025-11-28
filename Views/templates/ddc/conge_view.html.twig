@@ -1,0 +1,138 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block stylesheets %}
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/ddc/listeConge.css">
+
+	{% if viewMode == 'calendar' %}
+		<style>
+			/* Styles spécifiques au calendrier */
+			.calendar-container {
+				max-height: 70vh;
+				overflow: auto;
+			}
+
+			.calendar-cell {
+				min-width: 40px;
+				max-width: 40px;
+				height: 32px;
+				border: 1px solid #dee2e6;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				font-size: 11px;
+				box-sizing: border-box;
+			}
+
+			.employee-name {
+				background: #f8f9fa;
+				font-weight: bold;
+				position: sticky;
+				left: 0;
+				z-index: 3;
+				box-shadow: 2px 0 2px -2px rgba(0, 0, 0, 0.1);
+			}
+
+			/* Week-end */
+			.weekend {
+				background: #f3f3f3 !important;
+			}
+
+			/* Congé fusionné */
+			.conge-bar {
+				background: #b9d7ff !important;
+				border: 1px solid #0067c9 !important;
+				position: relative;
+			}
+
+			/* Indicator */
+			.day-indicator {
+				cursor: pointer;
+				font-size: 10px;
+				font-weight: bold;
+			}
+
+			/* Entête fixe */
+			.calendar-header {
+				position: sticky;
+				top: 0;
+				z-index: 5;
+				background: white;
+				border-bottom: 2px solid #ccc;
+				display: flex;
+			}
+		</style>
+	{% endif %}
+{% endblock %}
+
+{% block content %}
+	<div class="container-spaced">
+		<div class="d-flex justify-content-between mb-3">
+			<h3 class="perso-titre">
+				{% if viewMode == 'calendar' %}
+					Calendrier des Demandes de Congé
+				{% else %}
+					Liste des Demandes de Congé
+				{% endif %}
+			</h3>
+			{% if viewMode == 'calendar' %}
+				<a href="#" class="btn btn-sm btn-warning switch-view" data-mode="list">
+					<i class="fas fa-list"></i>
+					Liste
+				</a>
+			{% else %}
+				<a href="#" class="btn btn-sm btn-info text-white switch-view" data-mode="calendar">
+					<i class="fas fa-calendar"></i>
+					Calendrier
+				</a>
+			{% endif %}
+		</div>
+
+		{% include "/ddc/shared/_formulaireRechercheConge.html.twig" with {'form': form} %}
+		{% include "/ddc/shared/_pagination_conge.html.twig" with {'viewMode': viewMode} %}
+
+		<div id="view-container">
+			{% if viewMode == 'calendar' %}
+				{% include "/ddc/_calendar_content.html.twig" %}
+			{% else %}
+				{% include "/ddc/_list_content.html.twig" %}
+			{% endif %}
+		</div>
+	</div>
+
+	<!-- MODAL DETAILS -->
+	<div class="modal fade" id="congeDetailsModal" tabindex="-1" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Détails de la demande de congé</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
+				<div class="modal-body" id="congeDetailsContent"></div>
+				<div class="modal-footer">
+					<button class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block javascript %}
+	<script>
+		// Données pour les vues
+window.pageData = {{ data|json_encode|raw }};
+window.congesData = {{ conges|json_encode|raw }};
+window.employeesData = {{ employees|json_encode|raw }};
+document.body.dataset.viewMode = "{{ viewMode }}";
+	</script>
+
+	<!-- Templates pour le rendu côté client -->
+	<script type="text/template" id="list-template">
+		{% include "/ddc/_list_content.html.twig" %}
+	</script>
+	<script type="text/template" id="calendar-template">
+		{% include "/ddc/_calendar_content.html.twig" %}
+	</script>
+
+	<script src="{{ App.base_path }}/Views/js/ddc/listConge.js" type="module"></script>
+{% endblock %}

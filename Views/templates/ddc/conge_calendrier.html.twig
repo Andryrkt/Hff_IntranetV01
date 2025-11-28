@@ -1,0 +1,77 @@
+{% extends "ddc/conge_view.html.twig" %}
+
+{% set viewMode = 'calendar' %}
+                    cell.classList.add("conge-bar");
+
+                    const span = document.createElement("span");
+                    span.className = "day-indicator";
+                    span.textContent = conge.sousTypeDocument ? conge.sousTypeDocument.charAt(0) : 'C';
+
+                    // attacher data pour la modal
+                    span.setAttribute('data-bs-toggle', 'modal');
+                    span.setAttribute('data-bs-target', '#congeDetailsModal');
+                    span.setAttribute('data-conge', JSON.stringify(conge));
+
+                    cell.appendChild(span);
+                }
+
+                rowEl.appendChild(cell);
+            }
+        });
+
+    } // renderCalendar
+
+    // Navigation
+    const prevBtn = document.getElementById('prev-month');
+    const nextBtn = document.getElementById('next-month');
+    const currentBtn = document.getElementById('current-month');
+
+    if (prevBtn) prevBtn.addEventListener('click', () => {
+        currentMonth.setMonth(currentMonth.getMonth() - 1);
+        renderCalendar();
+    });
+    if (nextBtn) nextBtn.addEventListener('click', () => {
+        currentMonth.setMonth(currentMonth.getMonth() + 1);
+        renderCalendar();
+    });
+    if (currentBtn) currentBtn.addEventListener('click', () => {
+        currentMonth = new Date();
+        renderCalendar();
+    });
+
+    // Initial render
+    renderCalendar();
+
+    // Modal detail handling (Bootstrap)
+    const modalEl = document.getElementById('congeDetailsModal');
+    if (modalEl) {
+        modalEl.addEventListener('show.bs.modal', function(event) {
+            const trigger = event.relatedTarget;
+            if (!trigger) return;
+            const raw = trigger.getAttribute('data-conge');
+            if (!raw) return;
+            let data;
+            try {
+                data = JSON.parse(raw);
+            } catch(e) {
+                console.error("Impossible de parser data-conge", e);
+                return;
+            }
+
+            const body = document.getElementById('congeDetailsContent');
+            if (!body) return;
+            body.innerHTML = `
+                <p><strong>Numéro :</strong> ${data.numeroDemande || 'N/A'}</p>
+                <p><strong>Employé :</strong> ${data.nomPrenoms || 'N/A'}</p>
+                <p><strong>Type :</strong> ${data.sousTypeDocument || 'N/A'}</p>
+                <p><strong>Début :</strong> ${data.dateDebut ? new Date(data.dateDebut.date).toLocaleDateString('fr-FR') : 'N/A'}</p>
+                <p><strong>Fin :</strong> ${data.dateFin ? new Date(data.dateFin.date).toLocaleDateString('fr-FR') : 'N/A'}</p>
+                <p><strong>Durée :</strong> ${data.dureeConge || 'N/A'} jours</p>
+                <p><strong>Statut :</strong> ${data.statutDemande || 'N/A'}</p>
+            `;
+        });
+    }
+
+}); // DOMContentLoaded
+</script>
+{% endblock %}
