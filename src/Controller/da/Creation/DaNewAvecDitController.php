@@ -106,11 +106,11 @@ class DaNewAvecDitController extends Controller
                  * On récupère les données du formulaire DAL
                  */
                 $demandeApproL = $subFormDAL->getData();
-                $files = $subFormDAL->get('fileNames')->getData(); // Récupération des fichiers
 
                 if ($demandeApproL->getDeleted() == 1) {
                     $this->getEntityManager()->remove($demandeApproL);
                 } else {
+                    $files = $subFormDAL->get('fileNames')->getData(); // Récupération des fichiers
                     $fileNames = $this->daFileUploader->uploadMultipleDaFiles($files, $numDa, FileUploaderForDAService::FILE_TYPE["DEVIS"]);
                     /** 
                      * @var DemandeApproL $demandeApproL
