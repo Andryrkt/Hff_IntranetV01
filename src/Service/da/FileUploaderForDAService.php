@@ -38,6 +38,13 @@ class FileUploaderForDAService
 
     /**
      * Upload un fichier pour DA
+     * 
+     * @param UploadedFile $file               fichier à uploader
+     * @param string       $numeroDemandeAppro numéro de la Demande Appro
+     * @param string       $fileType           type du fichier joint (devis, fiche technique, PJ observation)
+     * @param int          $i                  incrémentation pour les fichiers multiples
+     * 
+     * @return string le nom du fichier final
      */
     public function uploadDaFile(UploadedFile $file, string $numeroDemandeAppro, string $fileType, int $i = 0): string
     {
@@ -57,8 +64,14 @@ class FileUploaderForDAService
 
     /**
      * Upload multiple Da Files
+     * 
+     * @param UploadedFile[] $files              les fichiers à uploader
+     * @param string         $numeroDemandeAppro numéro de la Demande Appro
+     * @param string         $fileType           type du fichier joint (devis, fiche technique, PJ observation)
+     * 
+     * @return array tableau des noms de fichiers finals
      */
-    private function uploadMultipleDaFiles(?array $files, string $numeroDemandeAppro, string $fileType): array
+    public function uploadMultipleDaFiles(?array $files, string $numeroDemandeAppro, string $fileType): array
     {
         $fileNames = [];
         if ($files !== null) {
