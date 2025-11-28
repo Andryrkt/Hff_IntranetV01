@@ -252,11 +252,16 @@ class CongeController extends Controller
         $employees = [];
         foreach ($rawCongesForCalendar as $conge) {
             $nomPrenoms = $conge->getNomPrenoms();
-            if (!isset($employees[$nomPrenoms])) {
-                $employees[$nomPrenoms] = [];
+
+
+            $codeAgenceService = $conge->getAgenceServiceirium() ? $conge->getAgenceServiceirium()->getAgenceips() . '-' . $conge->getAgenceServiceirium()->getServiceips() : $conge->getCodeAgenceService();
+
+            $key =  $codeAgenceService . '_' . $conge->getMatricule() . '_' . $nomPrenoms;
+            if (!isset($employees[$key])) {
+                $employees[$key] = [];
             }
 
-            $employees[$nomPrenoms][] = [
+            $employees[$key][] = [
                 'id' => $conge->getId(),
                 'typeDemande' => $conge->getTypeDemande(),
                 'numeroDemande' => $conge->getNumeroDemande(),

@@ -221,8 +221,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const emptyCol = document.createElement("div");
     emptyCol.className = "calendar-cell";
-    emptyCol.style.minWidth = "120px";
-    emptyCol.style.maxWidth = "120px";
+    emptyCol.style.minWidth = "340px"; //240
+    emptyCol.style.maxWidth = "340px"; // 240
     header.appendChild(emptyCol);
 
     for (let d = 1; d <= days; d++) {
@@ -308,8 +308,16 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         if (conge) {
-          cell.classList.add("conge-bar");
-
+          if (conge.statutDemande === "Validé") {
+            cell.classList.add("conge-bar-valide");
+          } else if (
+            conge.statutDemande === "Refusé" ||
+            conge.statutDemande === "Annulé"
+          ) {
+            cell.classList.add("conge-bar-annuler");
+          } else {
+            cell.classList.add("conge-bar-encours");
+          }
           // Vérifier si c'est le premier jour du congé pour ajouter l'indicateur
           const isStartDate =
             new Date(
@@ -354,6 +362,7 @@ document.addEventListener("DOMContentLoaded", function () {
               const congeData = JSON.parse(
                 this.getAttribute("data-conge-full")
               );
+              console.log(congeData);
 
               // Gérer les dates potentiellement imbriquées
               const dateDebut =
@@ -395,7 +404,8 @@ document.addEventListener("DOMContentLoaded", function () {
                                 <p><strong>Statut :</strong> ${
                                   congeData.statutDemande || "N/A"
                                 }</p>
-                            `;
+                                `;
+              let conger = congeData.dureeConge;
 
               // Ouvrir la modal
               modal.show();
@@ -405,6 +415,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
         rowEl.appendChild(cell);
       }
+    });
+  }
+
+  function formatDuree(value) {
+    return value.toLocaleString("fr-FR", {
+      minimumFractionDigits: 1,
+      maximumFractionDigits: 2,
     });
   }
 
