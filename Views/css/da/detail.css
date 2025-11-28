@@ -212,7 +212,11 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-.border-left-ba {
+.border-left-bai {
+  border-left: 3px solid #fbbb01;
+}
+
+.border-left-bad {
   border-left: 3px solid #0d6efd;
 }
 

@@ -125,10 +125,6 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
-window.addEventListener("load", () => {
-  displayOverlay(false);
-});
-
 function getMaxIndexFromIds() {
   const elements = document.querySelectorAll(
     "div[id^='demande_appro_form_DAL_'].DAL-container"

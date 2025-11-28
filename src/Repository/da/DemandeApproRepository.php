@@ -2,12 +2,11 @@
 
 namespace App\Repository\da;
 
-use App\Controller\Controller;
-use App\Entity\admin\utilisateur\Role;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\NoResultException;
 
 class DemandeApproRepository extends EntityRepository
 {
@@ -223,13 +222,17 @@ class DemandeApproRepository extends EntityRepository
 
     public function getNumDitDa(string $numDa)
     {
-        return $this->createQueryBuilder('da')
-            ->select('da.numeroDemandeDit')
-            ->where('da.numeroDemandeAppro = :numDa')
-            ->setParameter('numDa', $numDa)
-            ->getQuery()
-            ->getSingleScalarResult()
-        ;
+        try {
+            $numDit = $this->createQueryBuilder('da')
+                ->select('da.numeroDemandeDit')
+                ->where('da.numeroDemandeAppro = :numDa')
+                ->setParameter('numDa', $numDa)
+                ->getQuery()
+                ->getSingleScalarResult();
+        } catch (NoResultException $e) {
+            $numDit = null; // ou une valeur par défaut
+        }
+        return $numDit;
     }
 
     public function getNumDa($numDit)
@@ -241,7 +244,7 @@ class DemandeApproRepository extends EntityRepository
                 ->setParameter('numDit', $numDit)
                 ->getQuery()
                 ->getSingleColumnResult();
-        } catch (\Doctrine\ORM\NoResultException $e) {
+        } catch (NoResultException $e) {
             $numDa = null; // ou une valeur par défaut
         }
         return $numDa;

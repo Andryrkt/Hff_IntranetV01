@@ -169,6 +169,7 @@ class DaSearchType extends  AbstractType
                 'label_html'    => true,
                 'class'         => WorNiveauUrgence::class,
                 'choice_label'  => 'description',
+                'choice_value'  => 'description',
                 'placeholder'   => '-- Choisir un niveau --',
                 'required'      => false,
                 'query_builder' => function (EntityRepository $er) {

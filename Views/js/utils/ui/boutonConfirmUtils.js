@@ -25,9 +25,14 @@ export function setupConfirmationButtons() {
 
       // Validation spécifique au formulaire (importée depuis l'autre fichier)
       try {
-        const { validateSpecificForm } = await import('./form-specific-validation.js');
-        const specificValidation = await validateSpecificForm(form, formSelector);
-        
+        const { validateSpecificForm } = await import(
+          "./form-specific-validation.js"
+        );
+        const specificValidation = await validateSpecificForm(
+          form,
+          formSelector
+        );
+
         if (!specificValidation.isValid) {
           Swal.fire({
             title: specificValidation.title || "Erreur de validation",
@@ -37,7 +42,10 @@ export function setupConfirmationButtons() {
           return;
         }
       } catch (error) {
-        console.error("Erreur lors du chargement des validations spécifiques:", error);
+        console.error(
+          "Erreur lors du chargement des validations spécifiques:",
+          error
+        );
         // Continuer sans validation spécifique si le fichier n'est pas trouvé
       }
 
@@ -51,12 +59,12 @@ export function setupConfirmationButtons() {
           button.getAttribute("data-confirmation-text") ||
           "Vous êtes en train de faire une soumission à validation dans DocuWare",
       };
-      
+
       const isConfirmed = await showConfirmationDialog(messages);
       if (!isConfirmed) return;
 
       await showWarningDialog(messages.warning);
-      
+
       setTimeout(() => {
         overlay.style.display = "flex";
         button.disabled = true;
@@ -81,13 +89,13 @@ function validateFormFields(form) {
 
   requiredFields.forEach((field) => {
     const errorElement = document.querySelector(`#error-${field.id}`);
-    const fieldName = field.getAttribute("data-field-name") || field.name || field.id;
-    
+    const fieldName = field.dataset.fieldName || field.name || field.id;
+
     if (!field.value.trim()) {
       field.classList.add("border", "border-danger");
-      const errorMessage = `Le champ "${fieldName}" est obligatoire`;
+      const errorMessage = `Le champ "<span class="text-danger text-decoration-underline">${fieldName}</span>" est obligatoire`;
       errors.push(errorMessage);
-      
+
       if (errorElement) {
         errorElement.textContent = errorMessage;
         errorElement.classList.add("text-danger");

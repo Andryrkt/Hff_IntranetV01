@@ -3,13 +3,13 @@
 namespace App\Entity\dw;
 
 use Doctrine\ORM\Mapping as ORM;
-use App\Repository\dw\DwBcApproRepository;
+use App\Repository\dw\DwDaReapproRepository;
 
 /**
- * @ORM\Entity(repositoryClass=DwBcApproRepository::class)
- * @ORM\Table(name="DW_BC_Appro")
+ * @ORM\Entity(repositoryClass=DwDaReapproRepository::class)
+ * @ORM\Table(name="DW_DA_Reappro")
  */
-class DwBcAppro
+class DwDaReappro
 {
     /**
      * @ORM\Id
@@ -19,34 +19,19 @@ class DwBcAppro
     private int $id;
 
     /**
-     * @ORM\Column(type="integer", name="id_bca", nullable=true)
+     * @ORM\Column(type="integer", name="id_da_reap", nullable=true)
      */
-    private $idBca;
+    private $idDaReappro;
 
     /**
-     * @ORM\Column(type="string", length=50, name="numero_bca", nullable=true)
+     * @ORM\Column(type="string", length=50, name="numero_da_reap", nullable=true)
      */
-    private $numeroBc;
+    private $numeroDaReappro;
 
     /**
-     * @ORM\Column(type="string", length=50, name="numero_da", nullable=true)
+     * @ORM\Column(type="string", length=50, name="statut_da_reap", nullable=true)
      */
-    private $numeroDa;
-
-    /**
-     * @ORM\Column(type="string", length=8, name="numero_or", nullable=true)
-     */
-    private $numeroOr;
-
-    /**
-     * @ORM\Column(type="integer", name="numero_version")
-     */
-    private $numeroVersion;
-
-    /**
-     * @ORM\Column(type="string", name="validateur", length=255, nullable=true)
-     */
-    private $validateur;
+    private $statutDaReappro;
 
     /**
      * @ORM\Column(type="string", name="id_tiroir", length=255, nullable=true)
@@ -54,9 +39,9 @@ class DwBcAppro
     private $idTiroir;
 
     /**
-     * @ORM\Column(type="datetime", name="date_validation")
+     * @ORM\Column(type="integer", name="numero_version")
      */
-    private $dateValidation;
+    private $numeroVersion;
 
     /**
      * @ORM\Column(type="date", name="date_creation", nullable=true)
@@ -120,61 +105,61 @@ class DwBcAppro
     }
 
     /**
-     * Get the value of idBca
+     * Get the value of idDaReappro
      */
-    public function getIdBca()
+    public function getIdDaReappro()
     {
-        return $this->idBca;
+        return $this->idDaReappro;
     }
 
     /**
-     * Set the value of idBca
+     * Set the value of idDaReappro
      *
      * @return  self
      */
-    public function setIdBca($idBca)
+    public function setIdDaReappro($idDaReappro)
     {
-        $this->idBca = $idBca;
+        $this->idDaReappro = $idDaReappro;
 
         return $this;
     }
 
     /**
-     * Get the value of numeroBc
+     * Get the value of numeroDaReappro
      */
-    public function getNumeroBc()
+    public function getNumeroDaReappro()
     {
-        return $this->numeroBc;
+        return $this->numeroDaReappro;
     }
 
     /**
-     * Set the value of numeroBc
+     * Set the value of numeroDaReappro
      *
      * @return  self
      */
-    public function setNumeroBc($numeroBc)
+    public function setNumeroDaReappro($numeroDaReappro)
     {
-        $this->numeroBc = $numeroBc;
+        $this->numeroDaReappro = $numeroDaReappro;
 
         return $this;
     }
 
     /**
-     * Get the value of numeroOr
+     * Get the value of statutDaReappro
      */
-    public function getNumeroOr()
+    public function getStatutDaReappro()
     {
-        return $this->numeroOr;
+        return $this->statutDaReappro;
     }
 
     /**
-     * Set the value of numeroOr
+     * Set the value of statutDaReappro
      *
      * @return  self
      */
-    public function setNumeroOr($numeroOr)
+    public function setStatutDaReappro($statutDaReappro)
     {
-        $this->numeroOr = $numeroOr;
+        $this->statutDaReappro = $statutDaReappro;
 
         return $this;
     }
@@ -375,62 +360,6 @@ class DwBcAppro
     public function setNumeroVersion($numeroVersion)
     {
         $this->numeroVersion = $numeroVersion;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of numeroDa
-     */
-    public function getNumeroDa()
-    {
-        return $this->numeroDa;
-    }
-
-    /**
-     * Set the value of numeroDa
-     *
-     * @return  self
-     */
-    public function setNumeroDa($numeroDa)
-    {
-        $this->numeroDa = $numeroDa;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of validateur
-     */
-    public function getValidateur()
-    {
-        return $this->validateur;
-    }
-
-    /**
-     * Set the value of validateur
-     */
-    public function setValidateur($validateur): self
-    {
-        $this->validateur = $validateur;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of dateValidation
-     */
-    public function getDateValidation()
-    {
-        return $this->dateValidation;
-    }
-
-    /**
-     * Set the value of dateValidation
-     */
-    public function setDateValidation($dateValidation): self
-    {
-        $this->dateValidation = $dateValidation;
 
         return $this;
     }
