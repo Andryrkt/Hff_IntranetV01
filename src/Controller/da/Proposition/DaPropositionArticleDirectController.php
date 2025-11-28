@@ -608,15 +608,19 @@ class DaPropositionArticleDirectController extends Controller
 
     private function ajoutDonnerDaLR(DemandeApproL $DAL, DemandeApproLR $demandeApproLR, $statut): DemandeApproLR
     {
-        $demandeApproLR_Ancien = $this->demandeApproLRRepository->getDalrByPageAndRow($DAL->getNumeroDemandeAppro(), $demandeApproLR->getNumeroLigne(), $demandeApproLR->getNumLigneTableau());
+        $numeroDemandeAppro = $DAL->getNumeroDemandeAppro();
+        /** @var ?DemandeApproLR $demandeApproLR_Ancien */
+        $demandeApproLR_Ancien = $this->demandeApproLRRepository->getDalrByPageAndRow($numeroDemandeAppro, $demandeApproLR->getNumeroLigne(), $demandeApproLR->getNumLigneTableau());
 
         $file = $demandeApproLR->getNomFicheTechnique(); // fiche technique de la DALR
         $fileNames = $demandeApproLR->getFileNames(); // pièces jointes de la DALR
 
         if ($demandeApproLR_Ancien) {
-            $this->daFileUploader->uploadFTForDalr($file, $demandeApproLR_Ancien);
-            $fileNames = $this->daFileUploader->uploadMultipleDaFiles($fileNames, $DAL->getNumeroDemandeAppro(), FileUploaderForDAService::FILE_TYPE["DEVIS"]);
-            $demandeApproLR_Ancien->setFileNames($fileNames);
+            $ficheTechnique = $this->daFileUploader->uploadDaFile($file, $numeroDemandeAppro, FileUploaderForDAService::FILE_TYPE["FICHE_TECHNIQUE"]);
+            $fileNames = $this->daFileUploader->uploadMultipleDaFiles($fileNames, $numeroDemandeAppro, FileUploaderForDAService::FILE_TYPE["DEVIS"]);
+            $demandeApproLR_Ancien
+                ->setNomFicheTechnique($ficheTechnique)
+                ->setFileNames($fileNames);
 
             $DAL->getDemandeApproLR()->add($demandeApproLR_Ancien);
 
@@ -624,7 +628,7 @@ class DaPropositionArticleDirectController extends Controller
         } else {
             $demandeApproLR
                 ->setDemandeApproL($DAL)
-                ->setNumeroDemandeAppro($DAL->getNumeroDemandeAppro())
+                ->setNumeroDemandeAppro($numeroDemandeAppro)
                 ->setQteDem($DAL->getQteDem())
                 ->setArtConstp('ZDI') // TODO: changer cette ligne plus tard
                 ->setDateFinSouhaite($DAL->getDateFinSouhaite())
@@ -634,11 +638,12 @@ class DaPropositionArticleDirectController extends Controller
             ;
 
             if ($file) {
-                $this->daFileUploader->uploadFTForDalr($file, $demandeApproLR);
+                $ficheTechnique = $this->daFileUploader->uploadDaFile($file, $numeroDemandeAppro, FileUploaderForDAService::FILE_TYPE["FICHE_TECHNIQUE"]);
+                $demandeApproLR->setNomFicheTechnique($ficheTechnique);
             }
 
             if ($fileNames) {
-                $fileNames = $this->daFileUploader->uploadMultipleDaFiles($fileNames, $DAL->getNumeroDemandeAppro(), FileUploaderForDAService::FILE_TYPE["DEVIS"]);
+                $fileNames = $this->daFileUploader->uploadMultipleDaFiles($fileNames, $numeroDemandeAppro, FileUploaderForDAService::FILE_TYPE["DEVIS"]);
                 $demandeApproLR->setFileNames($fileNames);
             }
 
