@@ -100,7 +100,7 @@ class DemandeConge
      */
     private ?string $pdfDemande = null;
 
-    private ?string $codeAgenceService;
+    private ?string $codeAgenceService = '-';
 
     /**
      * @ORM\ManyToOne(targetEntity=AgenceServiceIrium::class, inversedBy="demandeDeConge")
