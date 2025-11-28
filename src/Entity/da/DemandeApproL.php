@@ -2,7 +2,6 @@
 
 namespace App\Entity\da;
 
-use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\Traits\DateTrait;
 use App\Repository\da\DemandeApproLRepository;

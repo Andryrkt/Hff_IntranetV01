@@ -5,7 +5,6 @@ namespace App\Controller\Traits\da\modification;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
 use App\Controller\Traits\da\DaTrait;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 trait DaEditTrait
 {
@@ -41,26 +40,5 @@ trait DaEditTrait
     private function PeutModifier($demandeAppro)
     {
         return ($this->estUserDansServiceAtelier() && ($demandeAppro->getStatutDal() == DemandeAppro::STATUT_SOUMIS_APPRO || $demandeAppro->getStatutDal() == DemandeAppro::STATUT_VALIDE));
-    }
-
-    /** 
-     * Traitement des fichiers
-     */
-    private function traitementFichiers(DemandeApproL $dal, $files)
-    {
-        if ($files !== []) {
-            $fileNames = [];
-            $i = 1; // Compteur pour le nom du fichier
-            foreach ($files as $file) {
-                if ($file instanceof UploadedFile) {
-                    $fileName = $this->daFileUploader->uploadPJForDal($file, $dal, $i); // Appel de la méthode pour uploader le fichier
-                } else {
-                    throw new \InvalidArgumentException('Le fichier doit être une instance de UploadedFile.');
-                }
-                $i++; // Incrémenter le compteur pour le prochain fichier
-                $fileNames[] = $fileName; // Ajouter le nom du fichier dans le tableau
-            }
-            $dal->setFileNames($fileNames); // Enregistrer les noms de fichiers dans l'entité
-        }
     }
 }

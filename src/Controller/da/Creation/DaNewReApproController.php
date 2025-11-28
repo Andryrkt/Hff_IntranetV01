@@ -90,6 +90,7 @@ class DaNewReApproController extends Controller
                     $this->getEntityManager()->persist($dal);
                 } else {
                     $demandeAppro->removeDAL($dal); // ne pas persister les DAL avec qteDem vide
+                    $this->getEntityManager()->remove($dal);
                 }
             }
 
