@@ -60,6 +60,7 @@ class AutoIncDecService
     {
         $application->setDerniereId($numero);
         $em->persist($application);
+        $em->flush();
     }
 
 
