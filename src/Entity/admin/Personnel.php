@@ -107,6 +107,14 @@ class Personnel
      */
     private $agServIriumChefService;
 
+
+    /**
+     * @ORM\Column(type="boolean", name="group_direction")
+     *
+     * @var boolean
+     */
+    private bool $groupeDirection;
+
     public function __construct()
     {
         $this->Date_creation = new \DateTime();
@@ -364,5 +372,23 @@ class Personnel
 
             'Matricule' => $this->Matricule
         ];
+    }
+
+    /**
+     * Get the value of groupeDirection
+     */
+    public function isGroupeDirection(): bool
+    {
+        return $this->groupeDirection;
+    }
+
+    /**
+     * Set the value of groupeDirection
+     */
+    public function setGroupeDirection(bool $groupeDirection): self
+    {
+        $this->groupeDirection = $groupeDirection;
+
+        return $this;
     }
 }
