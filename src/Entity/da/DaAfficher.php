@@ -35,7 +35,7 @@ class DaAfficher
     /**
      * @ORM\Column(type="string", length=11, name="numero_demande_dit")
      */
-    private string $numeroDemandeDit;
+    private ?string $numeroDemandeDit = null;
 
     /**
      * @ORM\Column(type="string", length=11, name="numero_or")
