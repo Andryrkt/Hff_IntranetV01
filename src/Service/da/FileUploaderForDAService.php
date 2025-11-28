@@ -56,6 +56,27 @@ class FileUploaderForDAService
     }
 
     /**
+     * Upload multiple Da Files
+     */
+    private function uploadMultipleDaFiles(?array $files, string $numeroDemandeAppro, string $fileType): array
+    {
+        $fileNames = [];
+        if ($files !== null) {
+            $i = 1; // Compteur pour le nom du fichier
+            foreach ($files as $file) {
+                if ($file instanceof UploadedFile) {
+                    $fileName = $this->uploadDaFile($file, $numeroDemandeAppro, $fileType, $i); // Appel de la méthode pour uploader le fichier
+                } else {
+                    throw new \InvalidArgumentException('Le fichier doit être une instance de UploadedFile.');
+                }
+                $i++; // Incrémenter le compteur pour le prochain fichier
+                $fileNames[] = $fileName; // Ajouter le nom du fichier dans le tableau
+            }
+        }
+        return $fileNames;
+    }
+
+    /**
      * Upload pièce jointe pour DAL
      */
     public function uploadPJForDal(UploadedFile $file, DemandeApproL $dal, int $i): string
