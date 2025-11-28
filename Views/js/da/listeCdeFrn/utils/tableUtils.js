@@ -3,7 +3,7 @@ export function updateRowState(checkbox, isChecked) {
   if (!cell) return;
 
   let currentCell = cell;
-  while (currentCell) {
+  while (currentCell && currentCell.classList.contains('clickable-td')) {
     currentCell.classList.toggle("td-active", isChecked);
     currentCell = currentCell.nextElementSibling;
   }

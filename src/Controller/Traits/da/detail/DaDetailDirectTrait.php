@@ -6,8 +6,10 @@ use App\Entity\dw\DwFacBl;
 use App\Entity\dw\DwBcAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
+use App\Entity\dw\DwDaDirect;
 use App\Repository\dw\DwBcApproRepository;
 use App\Repository\da\DaObservationRepository;
+use App\Repository\dw\DwDaDirectRepository;
 use App\Repository\dw\DwFactureBonLivraisonRepository;
 
 trait DaDetailDirectTrait
@@ -16,6 +18,7 @@ trait DaDetailDirectTrait
 
     //==================================================================================================
     private DwBcApproRepository $dwBcApproRepository;
+    private DwDaDirectRepository $dwDaDirectRepository;
     private DaObservationRepository $daObservationRepository;
     private DwFactureBonLivraisonRepository $dwFacBlRepository;
 
@@ -26,8 +29,9 @@ trait DaDetailDirectTrait
     {
         $em = $this->getEntityManager();
         $this->initDaTrait();
-        $this->dwFacBlRepository = $em->getRepository(DwFacBl::class);
-        $this->dwBcApproRepository = $em->getRepository(DwBcAppro::class);
+        $this->dwFacBlRepository       = $em->getRepository(DwFacBl::class);
+        $this->dwBcApproRepository     = $em->getRepository(DwBcAppro::class);
+        $this->dwDaDirectRepository    = $em->getRepository(DwDaDirect::class);
         $this->daObservationRepository = $em->getRepository(DaObservation::class);
     }
     //==================================================================================================
@@ -42,11 +46,18 @@ trait DaDetailDirectTrait
     {
         return [
             [
-                'labeltype'  => 'BA',
-                'type'       => "Bon d'achat",
+                'labeltype'  => 'BAI',
+                'type'       => "Bon d'achat (Intranet)",
                 'icon'       => 'fa-solid fa-file-signature',
-                'colorClass' => 'border-left-ba',
-                'fichiers'   => $this->normalizePaths($tab['baPath']),
+                'colorClass' => 'border-left-bai',
+                'fichiers'   => $this->normalizePaths($tab['baiPath']),
+            ],
+            [
+                'labeltype'  => 'BAD',
+                'type'       => "Bon d'achat (DocuWare)",
+                'icon'       => 'fa-solid fa-file-signature',
+                'colorClass' => 'border-left-bad',
+                'fichiers'   => $this->normalizePathsForManyFiles($tab['badPath'], 'num'),
             ],
             [
                 'labeltype'  => 'DEVPJ',

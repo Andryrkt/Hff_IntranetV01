@@ -55,8 +55,8 @@ trait DaDetailAvecDitTrait
                 'labelType'  => 'BA',
                 'type'       => "Bon d'achat",
                 'icon'       => 'fa-solid fa-file-signature',
-                'colorClass' => 'border-left-ba',
-                'fichiers'   => $this->normalizePaths($tab['baPath']),
+                'colorClass' => 'border-left-bai',
+                'fichiers'   => $this->normalizePaths($tab['baiPath']),
             ],
             [
                 'labelType'  => 'OR',

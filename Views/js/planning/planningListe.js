@@ -192,7 +192,3 @@ function filterRowsByColumn(filterClass) {
 document.getElementById("btn_search").addEventListener("click", function () {
   displayOverlay(true);
 });
-
-window.addEventListener("load", function () {
-  displayOverlay(false);
-});

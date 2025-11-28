@@ -1,13 +1,8 @@
-import { displayOverlay } from "../../utils/ui/overlay";
 import { mergeCellsRecursiveTable } from "./tableHandler";
 import { AutoComplete } from "../../utils/AutoComplete.js";
 import { FetchManager } from "../../api/FetchManager.js";
 import { baseUrl } from "../../utils/config";
 const fetchManager = new FetchManager();
-
-window.addEventListener("load", () => {
-  displayOverlay(false);
-});
 
 document.addEventListener("DOMContentLoaded", function () {
   /*  1ᵉʳ appel : colonnes 0-3 selon le pivot que vous aviez déjà.

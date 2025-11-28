@@ -112,8 +112,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
     }
   }
 
-  
-
   /** AFFICHAGE DE l'INDEMNITE FORFAITAIRE JOURNALIERE selon le site */
   const indemniteForfaitaireJournaliereInput = document.querySelector(
     "#dom_form2_indemniteForfaitaire"
@@ -205,7 +203,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
   function formatNumberInt(value) {
     return numeral(value).format(0, 0);
   }
-  
+
   /** CALCULE DU TOTAL INDEMNITE FORFAITAIRE */
   const supplementJournalierInput = document.querySelector(
     "#dom_form2_supplementJournaliere"
@@ -501,8 +499,4 @@ document.addEventListener("DOMContentLoaded", (event) => {
         }
       });
     });
-});
-
-window.addEventListener("load", () => {
-  displayOverlay(false);
 });

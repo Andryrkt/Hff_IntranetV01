@@ -1,4 +1,3 @@
-import { displayOverlay } from "../../utils/ui/overlay";
 import { initialiserIdTabs, showTab } from "../utils/pageNavigation";
 import { boutonRadio } from "./boutonRadio";
 import { handleRowClick } from "./dalr";
@@ -49,8 +48,4 @@ document.addEventListener("DOMContentLoaded", function () {
   document.querySelectorAll('tr[role="button"]').forEach((row) => {
     row.addEventListener("click", handleRowClick);
   });
-});
-
-window.addEventListener("load", () => {
-  displayOverlay(false);
 });

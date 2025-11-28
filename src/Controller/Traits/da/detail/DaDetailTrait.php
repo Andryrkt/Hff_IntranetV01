@@ -101,12 +101,38 @@ trait DaDetailTrait
     /** 
      * Obtenir l'url du bon d'achat
      */
-    private function getBaPath(DemandeAppro $demandeAppro): string
+    private function getBaIntranetPath(DemandeAppro $demandeAppro): string
     {
         $numDa = $demandeAppro->getNumeroDemandeAppro();
         if (in_array($demandeAppro->getStatutDal(), [DemandeAppro::STATUT_VALIDE, DemandeAppro::STATUT_TERMINER])) {
             return $_ENV['BASE_PATH_FICHIER_COURT'] . "/da/$numDa/$numDa.pdf";
         }
+        return "-";
+    }
+
+    /** 
+     * Obtenir l'url du bon d'achat validé DW
+     */
+    private function getBaDocuWarePath(DemandeAppro $demandeAppro)
+    {
+        $numDa    = $demandeAppro->getNumeroDemandeAppro();
+        $daTypeId = $demandeAppro->getDaTypeId();
+        $allDocs  = [];
+
+        if ($daTypeId === DemandeAppro::TYPE_DA_DIRECT) {
+            $allDocs = $this->dwDaDirectRepository->getPathByNumDa($numDa);
+        } elseif ($daTypeId === DemandeAppro::TYPE_DA_REAPPRO) {
+            $allDocs = $this->dwDaReapproRepository->getPathByNumDa($numDa);
+        }
+
+        if (!empty($allDocs)) {
+            return array_map(function ($doc) use ($numDa) {
+                $doc['num']  = "$numDa-" . ($doc['numeroVersion'] ?? '1');
+                $doc['path'] = $_ENV['BASE_PATH_FICHIER_COURT'] . '/' . $doc['path'];
+                return $doc;
+            }, $allDocs);
+        }
+
         return "-";
     }
 
