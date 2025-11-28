@@ -1,5 +1,4 @@
 import { baseUrl } from "./utils/config";
-
 import { FetchManager } from "./api/FetchManager";
 import { initSessionTimer } from "./utils/session/sessionTimer";
 import { displayOverlay } from "./utils/ui/overlay";
@@ -13,7 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
   /*=============================*
    * TIMER DE SESSION            *
    *=============================*/
-  initSessionTimer({ duration: 900, logoutUrl: logoutUrl });
+  initSessionTimer({ duration: 900, logoutUrl: `${baseUrl}/logout` });
 
   /*=============================*
    * NOTIFICATION                *
