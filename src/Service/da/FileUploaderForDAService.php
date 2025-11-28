@@ -9,6 +9,11 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 class FileUploaderForDAService
 {
     private string $basePath;
+    public const FILE_TYPE = [
+        "DEVIS"           => "devis_pj",
+        "FICHE_TECHNIQUE" => "fiche_technique",
+        "OBSERVATION"     => "observation_pj",
+    ];
 
     public function __construct(string $basePath)
     {
@@ -29,6 +34,25 @@ class FileUploaderForDAService
         } catch (\Exception $e) {
             throw new \RuntimeException('Erreur lors de l\'upload du fichier : ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Upload un fichier pour DA
+     */
+    public function uploadDaFile(UploadedFile $file, string $numeroDemandeAppro, string $fileType, int $i = 0): string
+    {
+        $fileName = sprintf(
+            '%s_%s.%s',
+            $fileType,
+            md5(date("Y|m|d|H|i|s") . $i),
+            strtolower($file->guessExtension() ?? $file->getClientOriginalExtension())
+        );
+
+        $destination = "{$this->basePath}/da/$numeroDemandeAppro/";
+
+        $this->moveFile($file, $fileName, $destination);
+
+        return $fileName;
     }
 
     /**
