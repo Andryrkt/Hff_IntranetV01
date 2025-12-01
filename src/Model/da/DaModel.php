@@ -382,7 +382,7 @@ class DaModel extends Model
                 (select sum(fllf_qteliv) from frn_llf l where  l.fllf_numcde = cde.fcde_numcde and slor.slor_refp = l.fllf_refp and l.fllf_ligne = slor.slor_noligncm and cde.fcde_cdeext like 'DAP%') as qte_receptionnee,
                     --slor_qterea as qte_livree,
                 CASE 
-                            WHEN slor_natcm = 'L' then slor_qterea
+                            WHEN  (slor_natcm is null or slor_natcm='') or slor_natcm = 'L' then slor_qterea
                             else 0
                         END as qte_livree,
 
