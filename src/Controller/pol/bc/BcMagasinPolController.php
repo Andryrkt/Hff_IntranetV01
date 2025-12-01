@@ -168,7 +168,7 @@ class BcMagasinPolController extends Controller
     private function enregistrementFichier(FormInterface $form, string $numDevis, int $numeroVersion): array
     {
         $nameGenerator = new DevisMagasinGenererNameFileService();
-        $cheminBaseUpload = $_ENV['BASE_PATH_FICHIER'] . 'magasin/devis/';
+        $cheminBaseUpload = $_ENV['BASE_PATH_FICHIER'] . '/magasin/devis/';
         $uploader = new UploderFileService($cheminBaseUpload, $nameGenerator);
         $devisPath = $cheminBaseUpload . $numDevis . '/';
         if (!is_dir($devisPath)) {
