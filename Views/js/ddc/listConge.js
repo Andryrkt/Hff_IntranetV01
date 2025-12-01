@@ -308,14 +308,20 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         if (conge) {
-          if (conge.statutDemande === "Validé") {
+          if (conge.statutDemande.trim().startsWith("Validé")) {
+            cell.classList.remove("conge-bar-annuler");
+            cell.classList.remove("conge-bar-encours");
             cell.classList.add("conge-bar-valide");
           } else if (
-            conge.statutDemande === "Refusé" ||
-            conge.statutDemande === "Annulé"
+            conge.statutDemande.trim().startsWith("Refusé") ||
+            conge.statutDemande.trim().startsWith("Annulé")
           ) {
+            cell.classList.remove("conge-bar-valide");
+            cell.classList.remove("conge-bar-encours");
             cell.classList.add("conge-bar-annuler");
           } else {
+            cell.classList.remove("conge-bar-valide");
+            cell.classList.remove("conge-bar-annuler");
             cell.classList.add("conge-bar-encours");
           }
           // Vérifier si c'est le premier jour du congé pour ajouter l'indicateur
