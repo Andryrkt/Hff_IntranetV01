@@ -33,11 +33,11 @@ export function initializeAutoCompletionFrn(fournisseur) {
         Swal.fire({
           icon: "warning",
           title: "Attention ! Fournisseur non trouvé !",
-          text: `Le fournisseur saisi n'existe pas, veuillez en sélectionner un dans la liste.`,
+          text: `Le fournisseur saisi n'existe pas, veuillez en sélectionner un dans la liste. Ou laisser vide car ce champ n'est pas obligatoire`,
         }).then(() => {
           fournisseur.focus();
           fournisseur.value = "";
-          numeroFournisseur.value = "";
+          numeroFournisseur.value = "-";
         });
       }
     },
