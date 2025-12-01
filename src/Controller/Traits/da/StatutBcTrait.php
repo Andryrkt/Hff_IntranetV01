@@ -104,7 +104,7 @@ trait StatutBcTrait
         [$infoDaDirect, $situationCde] = $this->getInfoNecessaireIps($ref, $numDit, $numDa, $designation, $numeroOr, $statutBc);
 
         /** 7. Non dispo || DA avec DIT et numéro OR null || numéro OR non vide et statut OR non vide || infoDaDirect ou situationCde est vide */
-        if ($DaAfficher->getNonDispo() || ($numeroOr == null && $daViaOR) || ($numeroOr != null && empty($statutOr)) || !$this->aSituationCde($situationCde, $infoDaDirect, $daReappro)) {
+        if ($DaAfficher->getNonDispo() || ($numeroOr == null && $daViaOR) || ($numeroOr != null && empty($statutOr)) || !$this->aSituationCde($situationCde, $infoDaDirect, $daViaOR, $daDirect)) {
             return $statutBc;
         }
 
@@ -123,7 +123,7 @@ trait StatutBcTrait
         // 12. modification du Qte de commande dans DaAfficher
         $this->updateQteCdeDansDaAfficher($qte, $DaAfficher, $infoDaDirect, $daDirect, $daViaOR);
 
-        if (empty($situationCde) && $daViaOR && $statutOr === DitOrsSoumisAValidation::STATUT_VALIDE) {
+        if (empty($situationCde) && ($daViaOR || $daReappro) && $statutOr === DitOrsSoumisAValidation::STATUT_VALIDE) {
             return 'PAS DANS OR';
         }
         // DA Direct , DA Via OR
@@ -177,6 +177,7 @@ trait StatutBcTrait
     {
         /**  pour le DaDirect @var array $infoDaDirect */
         $infoDaDirect = $this->daModel->getInfoDaDirect($numDa, $ref, $designation);
+
         /** IPS pour le DaViaOR @var array $situationCde */
         $situationCde = $this->daModel->getSituationCde($ref, $numDit, $numDa, $designation, $numeroOr, $statutBc);
 
@@ -251,10 +252,11 @@ trait StatutBcTrait
         return $numCde;
     }
 
-    private function aSituationCde(array $situationCde, array $infoDaDirect, bool $daReappro): bool
+    private function aSituationCde(array $situationCde, array $infoDaDirect, bool $daViaOR, bool $daDirect): bool
     {
-        if ($daReappro) return true;
-        return array_key_exists(0, $situationCde) || array_key_exists(0, $infoDaDirect);
+        if ($daViaOR) return !array_key_exists(0, $situationCde);
+        elseif ($daDirect) return !array_key_exists(0, $infoDaDirect);
+        else return true;
     }
 
     private function doitGenererBc(array $situationCde, string $statutDa, ?string $statutOr, array $infoDaDirect, bool $daDirect, bool $daViaOR): bool

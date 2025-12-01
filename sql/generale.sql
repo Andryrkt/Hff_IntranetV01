@@ -39,3 +39,33 @@ WHERE
     AND CONSTRAINT_TYPE = 'FOREIGN KEY';
 
 ALTER TABLE < nom_du_table > DROP CONSTRAINT < nom_constraint >;
+
+
+
+-- Supprimer la table si elle existe
+IF OBJECT_ID('[HFF_INTRANET_MAQUETTE].[dbo].[Personnel]', 'U') IS NOT NULL
+    DROP TABLE [HFF_INTRANET_MAQUETTE].[dbo].[Personnel];
+
+-- Créer la table manuellement (exemple de structure)
+CREATE TABLE [HFF_INTRANET_MAQUETTE].[dbo].[Personnel] (
+    id int IDENTITY(1,1) NOT NULL,
+    Matricule varchar(4) COLLATE French_CI_AS NOT NULL,
+    Nom varchar(200) COLLATE French_CI_AS NULL,
+    Code_AgenceService_Sage varchar(4) COLLATE French_CI_AS NOT NULL,
+    Numero_Compte_Bancaire varchar(26) COLLATE French_CI_AS NULL,
+    Prenoms varchar(100) COLLATE French_CI_AS NULL,
+    Qualification varchar(10) COLLATE French_CI_AS NULL,
+    agence_service_irium_id int NULL,
+    societe varchar(10) COLLATE French_CI_AS NULL,
+    group_direction bit DEFAULT 0
+);
+
+-- Copier les données avec IDENTITY_INSERT
+SET IDENTITY_INSERT [HFF_INTRANET_MAQUETTE].[dbo].[Personnel] ON;
+
+INSERT INTO [HFF_INTRANET_MAQUETTE].[dbo].[Personnel] (id, Matricule, Nom, Code_AgenceService_Sage, Numero_Compte_Bancaire , Prenoms , Qualification , agence_service_irium_id , societe, group_direction )
+SELECT id, Matricule, Nom, Code_AgenceService_Sage, Numero_Compte_Bancaire , Prenoms , Qualification , agence_service_irium_id , societe, group_direction 
+FROM [HFF_INTRANET].[dbo].[Personnel];
+
+SET IDENTITY_INSERT [HFF_INTRANET_MAQUETTE].[dbo].[Personnel] OFF;
+--- transfert des donner d'une base à autre
