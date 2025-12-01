@@ -177,6 +177,7 @@ trait StatutBcTrait
     {
         /**  pour le DaDirect @var array $infoDaDirect */
         $infoDaDirect = $this->daModel->getInfoDaDirect($numDa, $ref, $designation);
+
         /** IPS pour le DaViaOR @var array $situationCde */
         $situationCde = $this->daModel->getSituationCde($ref, $numDit, $numDa, $designation, $numeroOr, $statutBc);
 
