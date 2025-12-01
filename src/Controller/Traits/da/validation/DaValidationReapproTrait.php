@@ -152,6 +152,11 @@ trait DaValidationReapproTrait
         /** @var DemandeApproL $demandeApproL */
         foreach ($demandeAppro->getDAL() as $demandeApproL) {
             $demandeApproL->setStatutDal($statut);
+            if ($statut === demandeAppro::STATUT_VALIDE) {
+                $demandeApproL->setEstValidee(true);
+                $demandeApproL->setValidePar($this->getUser()->getNomUtilisateur());
+            }
+
             $this->getEntityManager()->persist($demandeApproL);
         }
 
