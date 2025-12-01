@@ -11,7 +11,19 @@
 				{{ form_start(form, {'attr': {'class': 'form-horizontal'}}) }}
 				<div class="row g-3">
 					<div class="col-md-3">
-						{{ form_row(form.matricule, {'attr': {'class': 'form-control-sm'}}) }}
+						{{ form_label(form.matricule) }}
+
+						{# Le textarea original est remplacé par un input caché pour stocker les valeurs pour Symfony #}
+						{# <input type="hidden" id="{{ form.matricule.vars.id }}" name="{{ form.matricule.vars.full_name }}" value="{{ form.matricule.vars.value }}"> #}
+
+						{# Le conteneur qui va ressembler à un input et contenir les tags + le champ de saisie #}
+						<div
+							id="matricule-multi-select-container" class="form-control d-flex flex-wrap align-items-center p-1" style="min-height: 38px; height: auto;">
+							{# L'input de recherche visible par l'utilisateur #}
+							<input type="text" id="matricule-search-input" class="flex-grow-1 border-0" style="outline: none; min-width: 150px;" autocomplete="off">
+						</div>
+
+						{{ form_errors(form.matricule) }}
 						<div id="suggestion-matricule-nom-prenom" class="suggestions-container"></div>
 						<div id="loader-matricule-nom-prenom" class="spinner" style="display: none;">Chargement...</div>
 					</div>

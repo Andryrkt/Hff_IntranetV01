@@ -97,7 +97,6 @@ class CongeController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             // Formulaire soumis avec des critères de recherche
             $congeSearch = $form->getData();
-
             // Gestion spéciale pour les matricules multiples
             // On divise la chaîne de matricules multiples pour éviter les problèmes de longueur de champ
             $originalMatricule = $congeSearch->getMatricule();
@@ -596,7 +595,7 @@ class CongeController extends Controller
 
 
     /**
-     * @Route("/api/matricule-nom-prenom")
+     * @Route("/api/personnel-matricule-nom-prenoms")
      */
     public function getMatriculeNomPrenom(Request $request)
     {
