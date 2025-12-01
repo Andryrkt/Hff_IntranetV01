@@ -123,7 +123,7 @@ trait StatutBcTrait
         // 12. modification du Qte de commande dans DaAfficher
         $this->updateQteCdeDansDaAfficher($qte, $DaAfficher, $infoDaDirect, $daDirect, $daViaOR);
 
-        if (empty($situationCde) && $daViaOR && $statutOr === DitOrsSoumisAValidation::STATUT_VALIDE) {
+        if (empty($situationCde) && ($daViaOR || $daReappro) && $statutOr === DitOrsSoumisAValidation::STATUT_VALIDE) {
             return 'PAS DANS OR';
         }
         // DA Direct , DA Via OR
