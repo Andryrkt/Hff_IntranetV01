@@ -309,7 +309,7 @@ class DaModel extends Model
                 inner join informix.frn_cdl on fcdl_numcde = fcde_numcde
                 LEFT join informix.frn_llf on fllf_numcde = fcdl_numcde and fllf_ligne = fcdl_ligne
                 where fcdl_constp = 'ZDI'
-                and TRIM(fcde_cdeext) = '$numDa'
+                and TRIM(REPLACE(REPLACE(fcde_cdeext, '\t', ''), CHR(9), '')) = '$numDa'
                 and TRIM(fcdl_refp) LIKE '%$ref%'
                 and TRIM(fcdl_desi) like '%$designation%'
                 GROUP BY fcde_cdeext,fcde_numfou,num_fou,fcde_numcde,fcdl_constp,fcdl_refp,fcdl_desi,fcde_posc,qte_dem,qte_en_attente
