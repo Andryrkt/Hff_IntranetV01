@@ -64,7 +64,7 @@ class DaDetailAvecDitController extends Controller
 		$observations = $this->getEntityManager()->getRepository(DaObservation::class)->findBy(['numDa' => $demandeAppro->getNumeroDemandeAppro()]);
 
 		$fichiers = $this->getAllDAFile([
-			'baPath'    => $this->getBaPath($demandeAppro),
+			'baiPath'   => $this->getBaIntranetPath($demandeAppro),
 			'orPath'    => $this->getOrPath($demandeAppro),
 			'bcPath'    => $this->getBcPath($demandeAppro),
 			'facblPath' => $this->getFacBlPath($demandeAppro),

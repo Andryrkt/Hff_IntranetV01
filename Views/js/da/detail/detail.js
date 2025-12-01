@@ -38,10 +38,6 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
-window.addEventListener("load", () => {
-  displayOverlay(false);
-});
-
 function deleteLigneDa(button) {
   let deletePath = button.dataset.deletePath;
   Swal.fire({

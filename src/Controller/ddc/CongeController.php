@@ -98,6 +98,27 @@ class CongeController extends Controller
             // Formulaire soumis avec des critères de recherche
             $congeSearch = $form->getData();
 
+            // Gestion spéciale pour les matricules multiples
+            // On divise la chaîne de matricules multiples pour éviter les problèmes de longueur de champ
+            $originalMatricule = $congeSearch->getMatricule();
+            if ($originalMatricule && strpos($originalMatricule, ',') !== false) {
+                // Si plusieurs matricules sont fournis, on ne les stocke pas dans l'entité
+                // pour éviter les problèmes avec la longueur du champ (length=4)
+                // mais on les conserve dans les options pour le filtre spécifique
+                $matricules = explode(',', $originalMatricule);
+                $matricules = array_map('trim', $matricules);
+                $matricules = array_filter($matricules, function ($value) {
+                    return $value !== '';
+                });
+
+                // On ne sauvegarde que le premier matricule dans l'entité pour éviter les troncatures
+                // et on utilise les autres dans les options de recherche
+                if (!empty($matricules)) {
+                    $options['matricules'] = $matricules;
+                    // Ne pas modifier le matricule de l'entité pour conserver la structure existante
+                }
+            }
+
             // Récupérer les dates de demande (mappées et non mappées)
             $dateDemande = $form->get('dateDemande')->getData();
             $dateDemandeFin = $form->has('dateDemandeFin') ? $form->get('dateDemandeFin')->getData() : null;
@@ -195,9 +216,79 @@ class CongeController extends Controller
             $value->setCodeAgenceService($codeAgenceService);
         }
 
+        // Récupérer les congés filtrés pour le calendrier
+        $repository = $this->getEntityManager()->getRepository(DemandeConge::class);
+        $rawCongesForCalendar = $repository->findAndFilteredExcel($congeSearch, $options, $this->getUser());
+
+        // Transformer les objets DemandeConge en tableaux simples pour la vue
+        $conges = [];
+        foreach ($rawCongesForCalendar as $conge) {
+            $conges[] = [
+                'id' => $conge->getId(),
+                'typeDemande' => $conge->getTypeDemande(),
+                'numeroDemande' => $conge->getNumeroDemande(),
+                'matricule' => $conge->getMatricule(),
+                'nomPrenoms' => $conge->getNomPrenoms(),
+                'dateDemande' => $conge->getDateDemande() ? $conge->getDateDemande()->format('Y-m-d H:i:s') : null,
+                'agenceDebiteur' => $conge->getAgenceDebiteur(),
+                'adresseMailDemandeur' => $conge->getAdresseMailDemandeur(),
+                'sousTypeDocument' => $conge->getSousTypeDocument(),
+                'dureeConge' => $conge->getDureeConge(),
+                'dateDebut' => $conge->getDateDebut() ? [
+                    'date' => $conge->getDateDebut()->format('Y-m-d H:i:s')
+                ] : null,
+                'dateFin' => $conge->getDateFin() ? [
+                    'date' => $conge->getDateFin()->format('Y-m-d H:i:s')
+                ] : null,
+                'soldeConge' => $conge->getSoldeConge(),
+                'motifConge' => $conge->getMotifConge(),
+                'statutDemande' => $conge->getStatutDemande(),
+                'dateStatut' => $conge->getDateStatut() ? $conge->getDateStatut()->format('Y-m-d H:i:s') : null,
+                'pdfDemande' => $conge->getPdfDemande(),
+            ];
+        }
+
+        // Grouper les congés par nom et prénoms pour le calendrier
+        $employees = [];
+        foreach ($rawCongesForCalendar as $conge) {
+            $nomPrenoms = $conge->getNomPrenoms();
+
+
+            $codeAgenceService = $conge->getAgenceServiceirium() ? $conge->getAgenceServiceirium()->getAgenceips() . '-' . $conge->getAgenceServiceirium()->getServiceips() : $conge->getCodeAgenceService();
+
+            $key =  $codeAgenceService . '_' . $conge->getMatricule() . '_' . $nomPrenoms;
+            if (!isset($employees[$key])) {
+                $employees[$key] = [];
+            }
+
+            $employees[$key][] = [
+                'id' => $conge->getId(),
+                'typeDemande' => $conge->getTypeDemande(),
+                'numeroDemande' => $conge->getNumeroDemande(),
+                'matricule' => $conge->getMatricule(),
+                'nomPrenoms' => $conge->getNomPrenoms(),
+                'dateDemande' => $conge->getDateDemande() ? $conge->getDateDemande()->format('Y-m-d H:i:s') : null,
+                'agenceDebiteur' => $conge->getAgenceDebiteur(),
+                'adresseMailDemandeur' => $conge->getAdresseMailDemandeur(),
+                'sousTypeDocument' => $conge->getSousTypeDocument(),
+                'dureeConge' => $conge->getDureeConge(),
+                'dateDebut' => $conge->getDateDebut() ? [
+                    'date' => $conge->getDateDebut()->format('Y-m-d H:i:s')
+                ] : null,
+                'dateFin' => $conge->getDateFin() ? [
+                    'date' => $conge->getDateFin()->format('Y-m-d H:i:s')
+                ] : null,
+                'soldeConge' => $conge->getSoldeConge(),
+                'motifConge' => $conge->getMotifConge(),
+                'statutDemande' => $conge->getStatutDemande(),
+                'dateStatut' => $conge->getDateStatut() ? $conge->getDateStatut()->format('Y-m-d H:i:s') : null,
+                'pdfDemande' => $conge->getPdfDemande(),
+            ];
+        }
+
         // Affichage du template
         return $this->render(
-            'ddc/conge_list.html.twig',
+            'ddc/conge_view.html.twig',
             [
                 'form' => $form->createView(),
                 'data' => $paginationData['data'],
@@ -205,6 +296,9 @@ class CongeController extends Controller
                 'lastPage' => $paginationData['lastPage'],
                 'resultat' => $paginationData['totalItems'],
                 'criteria' => $filteredCriteria,
+                'conges' => $conges,
+                'employees' => $employees,
+                'viewMode' => 'list', // Ajout du mode d'affichage
             ]
         );
     }
@@ -228,10 +322,24 @@ class CongeController extends Controller
     /**
      * @Route("/export-conge-excel", name="export_conge_excel")
      */
-    public function exportExcel()
+    public function exportExcel(Request $request)
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
+
+        // Récupère le paramètre format de la requête
+        $format = $request->query->get('format', 'list'); // Valeur par défaut : 'list'
+
+        // Récupère le mois et l'année sélectionnés dans la requête
+        $year = $request->query->get('year');
+        $month = $request->query->get('month');
+
+        // Si pas de mois/année spécifiés, utiliser le mois en cours
+        if (!$year || !$month) {
+            $selectedDate = new \DateTime();
+        } else {
+            $selectedDate = new \DateTime($year . '-' . $month . '-01');
+        }
 
         // Récupère les critères dans la session
         $criteria = $this->sessionService->get('conge_search_criteria', []);
@@ -240,6 +348,11 @@ class CongeController extends Controller
         // S'assurer que $option est toujours un tableau
         if (!is_array($option)) {
             $option = [];
+        }
+
+        // Ajouter l'option admin si elle n'existe pas
+        if (!isset($option['admin'])) {
+            $option['admin'] = in_array(1, $this->getUser()->getRoleIds());
         }
 
         // Convertir les dates du format string au format DateTime si nécessaire
@@ -274,9 +387,121 @@ class CongeController extends Controller
             ->setPdfDemande(isset($criteria['pdfDemande']) ? $criteria['pdfDemande'] : null);
 
         // Récupère les entités filtrées
-        $entities = $this->getEntityManager()->getRepository(DemandeConge::class)->findAndFilteredExcel($congeSearch, $option);
+        $entities = $this->getEntityManager()->getRepository(DemandeConge::class)->findAndFilteredExcel($congeSearch, $option, $this->getUser());
 
-        // Convertir les entités en tableau de données
+        if ($format === 'table') {
+            // Export au format tableau (calendrier)
+            $data = $this->formatCalendarExport($entities, $selectedDate);
+        } else {
+            // Export au format liste (par défaut)
+            $data = $this->formatListExport($entities);
+        }
+
+        // Crée le fichier Excel
+        $this->getExcelService()->createSpreadsheet($data);
+        exit();
+    }
+
+    /**
+     * Formatte les données pour l'export en mode tableau (calendrier)
+     */
+    private function formatCalendarExport($entities, $selectedDate = null)
+    {
+        // Grouper les congés par employé (nom et prénoms) comme dans le template Twig
+        $employees = [];
+        foreach ($entities as $entity) {
+            $nomPrenoms = $entity->getNomPrenoms();
+            if (!isset($employees[$nomPrenoms])) {
+                $employees[$nomPrenoms] = [];
+            }
+            $employees[$nomPrenoms][] = [
+                'id' => $entity->getId(),
+                'typeDemande' => $entity->getTypeDemande(),
+                'numeroDemande' => $entity->getNumeroDemande(),
+                'matricule' => $entity->getMatricule(),
+                'nomPrenoms' => $entity->getNomPrenoms(),
+                'dateDemande' => $entity->getDateDemande() ? $entity->getDateDemande()->format('Y-m-d H:i:s') : null,
+                'agenceDebiteur' => $entity->getAgenceDebiteur(),
+                'adresseMailDemandeur' => $entity->getAdresseMailDemandeur(),
+                'sousTypeDocument' => $entity->getSousTypeDocument(),
+                'dureeConge' => $entity->getDureeConge(),
+                'dateDebut' => $entity->getDateDebut() ? [
+                    'date' => $entity->getDateDebut()->format('Y-m-d H:i:s')
+                ] : null,
+                'dateFin' => $entity->getDateFin() ? [
+                    'date' => $entity->getDateFin()->format('Y-m-d H:i:s')
+                ] : null,
+                'soldeConge' => $entity->getSoldeConge(),
+                'motifConge' => $entity->getMotifConge(),
+                'statutDemande' => $entity->getStatutDemande(),
+                'dateStatut' => $entity->getDateStatut() ? $entity->getDateStatut()->format('Y-m-d H:i:s') : null,
+                'pdfDemande' => $entity->getPdfDemande(),
+            ];
+        }
+
+        // Utiliser le mois sélectionné ou par défaut le mois en cours
+        $currentMonth = $selectedDate ? clone $selectedDate : new \DateTime();
+        $currentMonth->modify('first day of this month');
+        $daysInMonth = (int) $currentMonth->format('t'); // Nombre de jours dans le mois
+
+        // Créer la première ligne d'en-tête avec le mois et l'année
+        $monthYearHeader = [$currentMonth->format('F Y')]; // Nom du mois et année (ex: "Août 2025")
+        for ($day = 1; $day <= $daysInMonth; $day++) {
+            $monthYearHeader[] = ""; // Cellules vides pour aligner avec les jours
+        }
+        $data[] = $monthYearHeader;
+
+        // Créer la deuxième ligne d'en-tête avec les jours
+        $dayHeader = [""];
+        for ($day = 1; $day <= $daysInMonth; $day++) {
+            $dayHeader[] = $day;
+        }
+        $data[] = $dayHeader;
+
+        // Remplir les lignes pour chaque employé
+        foreach ($employees as $employeeName => $employeeConges) {
+            $row = [$employeeName]; // Nom de l'employé dans la première colonne
+
+            // Pour chaque jour du mois
+            for ($day = 1; $day <= $daysInMonth; $day++) {
+                $dateStr = $currentMonth->format('Y-m') . '-' . str_pad($day, 2, '0', STR_PAD_LEFT);
+                $dateObj = new \DateTime($dateStr);
+
+                // Chercher un congé qui couvre ce jour
+                $congeFound = null;
+                foreach ($employeeConges as $conge) {
+                    $dateDebut = $conge['dateDebut'] ? new \DateTime($conge['dateDebut']['date']) : null;
+                    $dateFin = $conge['dateFin'] ? new \DateTime($conge['dateFin']['date']) : null;
+
+                    if (
+                        $dateDebut && $dateFin &&
+                        $dateObj >= $dateDebut && $dateObj <= $dateFin
+                    ) {
+
+                        $congeFound = $conge;
+                        break; // Un congé trouvé pour cette date
+                    }
+                }
+
+                if ($congeFound) {
+                    // Utiliser "x" comme indicateur de congé
+                    $row[] = "x";
+                } else {
+                    $row[] = ""; // Pas de congé ce jour-là
+                }
+            }
+
+            $data[] = $row;
+        }
+
+        return $data;
+    }
+
+    /**
+     * Formatte les données pour l'export en mode liste (classique)
+     */
+    private function formatListExport($entities)
+    {
         $data = [];
         $data[] = [
             "Statut",
@@ -306,9 +531,7 @@ class CongeController extends Controller
             ];
         }
 
-        // Crée le fichier Excel
-        $this->getExcelService()->createSpreadsheet($data);
-        exit();
+        return $data;
     }
 
     /**
@@ -375,9 +598,146 @@ class CongeController extends Controller
     /**
      * @Route("/api/matricule-nom-prenom")
      */
-    public function getMatriculeNomPrenom()
+    public function getMatriculeNomPrenom(Request $request)
     {
-        $matriculeNomPrenom = $this->getEntityManager()->getRepository(DemandeConge::class)->getMatriculeNomPrenom();
+        $query = $request->query->get('query', '');
+        $matriculeNomPrenom = $this->getEntityManager()->getRepository(DemandeConge::class)->getMatriculeNomPrenom($query);
         return new JsonResponse($matriculeNomPrenom);
+    }
+
+    /**
+     * @Route("/api/tags-by-matricule/{matricule}")
+     */
+    public function getTagsByMatricule(string $matricule)
+    {
+        // Retrieve tags associated with the specified matricule
+        $tags = $this->getEntityManager()->getRepository(DemandeConge::class)->getTagsByMatricule($matricule);
+
+        return new JsonResponse(['tags' => $tags]);
+    }
+
+    /**
+     * @Route("/conge-calendrier", name="conge_calendrier")
+     */
+    public function calendrierConge()
+    {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
+        // DEBUT D'AUTORISATION
+        $this->autorisationAcces($this->getUser(), Application::ID_DDC);
+        //FIN AUTORISATION
+
+        // Récupérer toutes les demandes de congé pour les afficher dans le calendrier
+        // On peut filtrer selon les critères enregistrés dans la session
+        $criteria = $this->sessionService->get('conge_search_criteria', []);
+        $options = $this->sessionService->get('conge_search_option', []);
+
+        $congeSearch = new DemandeConge();
+        $congeSearch->setTypeDemande($criteria['typeDemande'] ?? null)
+            ->setNumeroDemande($criteria['numeroDemande'] ?? null)
+            ->setMatricule($criteria['matricule'] ?? null)
+            ->setNomPrenoms($criteria['nomPrenoms'] ?? null)
+            ->setDateDemande($criteria['dateDemande'] ?? null)
+            ->setAdresseMailDemandeur($criteria['adresseMailDemandeur'] ?? null)
+            ->setSousTypeDocument($criteria['sousTypeDocument'] ?? null)
+            ->setDureeConge($criteria['dureeConge'] ?? null)
+            ->setDateDebut($criteria['dateDebut'] ?? null)
+            ->setDateFin($criteria['dateFin'] ?? null)
+            ->setSoldeConge($criteria['soldeConge'] ?? null)
+            ->setMotifConge($criteria['motifConge'] ?? null)
+            ->setStatutDemande($criteria['statutDemande'] ?? null)
+            ->setDateStatut($criteria['dateStatut'] ?? null)
+            ->setPdfDemande($criteria['pdfDemande'] ?? null);
+
+        // Création du formulaire avec l'EntityManager
+        $form = $this->getFormFactory()->createBuilder(DemandeCongeType::class, $congeSearch, [
+            'method' => 'GET',
+            'em' => $this->getEntityManager()
+        ])->getForm();
+
+        // S'assurer que $options est un tableau
+        if (!is_array($options)) {
+            $options = [];
+        }
+
+        // Ajouter l'option admin si elle n'existe pas
+        if (!isset($options['admin'])) {
+            $options['admin'] = in_array(1, $this->getUser()->getRoleIds());
+        }
+
+        // Récupérer les congés filtrés pour le calendrier
+        $repository = $this->getEntityManager()->getRepository(DemandeConge::class);
+        $rawConges = $repository->findAndFilteredExcel($congeSearch, $options, $this->getUser());
+
+        // Transformer les objets DemandeConge en tableaux simples pour la vue
+        $conges = [];
+        foreach ($rawConges as $conge) {
+            $conges[] = [
+                'id' => $conge->getId(),
+                'typeDemande' => $conge->getTypeDemande(),
+                'numeroDemande' => $conge->getNumeroDemande(),
+                'matricule' => $conge->getMatricule(),
+                'nomPrenoms' => $conge->getNomPrenoms(),
+                'dateDemande' => $conge->getDateDemande() ? $conge->getDateDemande()->format('Y-m-d H:i:s') : null,
+                'agenceDebiteur' => $conge->getAgenceDebiteur(),
+                'adresseMailDemandeur' => $conge->getAdresseMailDemandeur(),
+                'sousTypeDocument' => $conge->getSousTypeDocument(),
+                'dureeConge' => $conge->getDureeConge(),
+                'dateDebut' => $conge->getDateDebut() ? [
+                    'date' => $conge->getDateDebut()->format('Y-m-d H:i:s')
+                ] : null,
+                'dateFin' => $conge->getDateFin() ? [
+                    'date' => $conge->getDateFin()->format('Y-m-d H:i:s')
+                ] : null,
+                'soldeConge' => $conge->getSoldeConge(),
+                'motifConge' => $conge->getMotifConge(),
+                'statutDemande' => $conge->getStatutDemande(),
+                'dateStatut' => $conge->getDateStatut() ? $conge->getDateStatut()->format('Y-m-d H:i:s') : null,
+                'pdfDemande' => $conge->getPdfDemande(),
+            ];
+        }
+
+        // Grouper les congés par nom et prénoms pour le calendrier
+        $employees = [];
+        foreach ($rawConges as $conge) {
+            $nomPrenoms = $conge->getNomPrenoms();
+            if (!isset($employees[$nomPrenoms])) {
+                $employees[$nomPrenoms] = [];
+            }
+
+            $employees[$nomPrenoms][] = [
+                'id' => $conge->getId(),
+                'typeDemande' => $conge->getTypeDemande(),
+                'numeroDemande' => $conge->getNumeroDemande(),
+                'matricule' => $conge->getMatricule(),
+                'nomPrenoms' => $conge->getNomPrenoms(),
+                'dateDemande' => $conge->getDateDemande() ? $conge->getDateDemande()->format('Y-m-d H:i:s') : null,
+                'agenceDebiteur' => $conge->getAgenceDebiteur(),
+                'adresseMailDemandeur' => $conge->getAdresseMailDemandeur(),
+                'sousTypeDocument' => $conge->getSousTypeDocument(),
+                'dureeConge' => $conge->getDureeConge(),
+                'dateDebut' => $conge->getDateDebut() ? [
+                    'date' => $conge->getDateDebut()->format('Y-m-d H:i:s')
+                ] : null,
+                'dateFin' => $conge->getDateFin() ? [
+                    'date' => $conge->getDateFin()->format('Y-m-d H:i:s')
+                ] : null,
+                'soldeConge' => $conge->getSoldeConge(),
+                'motifConge' => $conge->getMotifConge(),
+                'statutDemande' => $conge->getStatutDemande(),
+                'dateStatut' => $conge->getDateStatut() ? $conge->getDateStatut()->format('Y-m-d H:i:s') : null,
+                'pdfDemande' => $conge->getPdfDemande(),
+            ];
+        }
+
+        // Affichage du template
+        return $this->render('ddc/conge_view.html.twig', [
+            'conges' => $conges,
+            'employees' => $employees,
+            'criteria' => $criteria,
+            'form' => $form->createView(),
+            'viewMode' => 'calendar', // Ajout du mode d'affichage
+        ]);
     }
 }

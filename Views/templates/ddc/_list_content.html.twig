@@ -1,0 +1,52 @@
+<div class="container-fluid">
+    <table class="table rounded table-plein-ecran">
+        <thead class="table-dark">
+            <tr>
+                <th class="text-center">Statut</th>
+                <th>Sous-type</th>
+                <th>N° Demande</th>
+                <th>Date demande</th>
+                <th>Matricule</th>
+                <th>Nom et Prénoms</th>
+                <th class="text-center">Agence/Service</th>
+                <th>Email</th>
+                <th>Durée</th>
+                <th>Date début</th>
+                <th>Date fin</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for demande in data %}
+            {% set classeStatut = '' %}
+
+            {% if demande.statutDemande | trim == 'Validé' %}
+            {% set classeStatut = 'bg-success text-white' %}
+            {% elseif demande.statutDemande | trim == 'A valider chef de service' %}
+            {% set classeStatut = 'bg-warning text-dark' %}
+            {% elseif demande.statutDemande | trim == 'Refusé chef de service' %}
+            {% set classeStatut = 'bg-danger text-white' %}
+            {% elseif demande.statutDemande | trim == 'EN COURS' %}
+            {% set classeStatut = 'bg-info text-dark' %}
+            {% endif %}
+
+            <tr>
+                <td class="text-center fw-bold {{ classeStatut }}">{{ demande.statutDemande }}</td>
+                <td>{{ demande.sousTypeDocument }}</td>
+                <td>{{ demande.numeroDemande }}</td>
+                <td>{{ demande.dateDemande ? demande.dateDemande|date('d/m/Y') : '' }}</td>
+                <td class="text-center">{{ demande.matricule }}</td>
+                <td>{{ demande.nomPrenoms }}</td>
+                <td class="text-center">{{ demande.codeAgenceService }}</td>
+                <td>{{ demande.adresseMailDemandeur }}</td>
+                <td>{{ demande.dureeConge | number_format(1, ',', '.') }} jours</td>
+                <td>{{ demande.dateDebut ? demande.dateDebut|date('d/m/Y') : '' }}</td>
+                <td>{{ demande.dateFin ? demande.dateFin|date('d/m/Y') : '' }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="11" class="text-center">Aucune demande trouvée</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

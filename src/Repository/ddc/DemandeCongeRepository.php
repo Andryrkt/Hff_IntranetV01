@@ -2,6 +2,7 @@
 
 namespace App\Repository\ddc;
 
+use App\Entity\admin\Personnel;
 use Doctrine\ORM\QueryBuilder;
 use App\Entity\ddc\DemandeConge;
 use Doctrine\ORM\EntityRepository;
@@ -19,11 +20,12 @@ class DemandeCongeRepository extends EntityRepository
     ): array {
         $queryBuilder = $this->createQueryBuilder('d')
             ->leftJoin('d.agenceServiceirium', 'asi')
-            ->addSelect('asi');
+            ->addSelect('asi')
+            ->leftJoin(Personnel::class, 'p', 'WITH', 'd.matricule = p.Matricule');
 
-        $this->filtredParDate($queryBuilder, $conge);
+        $this->filtredParDate($queryBuilder, $conge, $options);
         $this->filtredParAgenceService($queryBuilder, $options, $user);
-        $this->filtredParInformationPrincipal($queryBuilder, $conge);
+        $this->filtredParInformationPrincipal($queryBuilder, $conge, $options);
 
 
         // ---------------------------------
@@ -62,11 +64,12 @@ class DemandeCongeRepository extends EntityRepository
     {
         $queryBuilder = $this->createQueryBuilder('d')
             ->leftJoin('d.agenceServiceirium', 'asi')
-            ->addSelect('asi');
+            ->addSelect('asi')
+            ->leftJoin(Personnel::class, 'p', 'WITH', 'd.matricule = p.Matricule');
 
-        $this->filtredParDate($queryBuilder, $conge);
+        $this->filtredParDate($queryBuilder, $conge, $options);
         $this->filtredParAgenceService($queryBuilder, $options, $user);
-        $this->filtredParInformationPrincipal($queryBuilder, $conge);
+        $this->filtredParInformationPrincipal($queryBuilder, $conge, $options);
 
 
         return $queryBuilder
@@ -75,12 +78,35 @@ class DemandeCongeRepository extends EntityRepository
             ->getResult();
     }
 
-    private function filtredParInformationPrincipal(QueryBuilder $queryBuilder, DemandeConge $conge): void
+    private function filtredParInformationPrincipal(QueryBuilder $queryBuilder, DemandeConge $conge, array $options = []): void
     {
-        // Filtrer par Matricule
-        if ($conge->getMatricule()) {
-            $queryBuilder->andWhere('d.matricule = :matricule')
-                ->setParameter('matricule', $conge->getMatricule());
+        // Filtrer par Matricule - d'abord regarder si des matricules multiples sont fournis dans les options
+        $matriculesToFilter = [];
+
+        // Vérifier si des matricules multiples sont fournis dans les options
+        if (isset($options['matricules']) && is_array($options['matricules']) && !empty($options['matricules'])) {
+            $matriculesToFilter = $options['matricules'];
+        }
+        // Sinon, utiliser le matricule de l'entité si c'est une chaîne avec plusieurs valeurs
+        elseif ($conge->getMatricule()) {
+            $originalMatricule = $conge->getMatricule();
+            if (strpos($originalMatricule, ',') !== false) {
+                $matricules = explode(',', $originalMatricule);
+                $matricules = array_map('trim', $matricules);
+                $matricules = array_filter($matricules, function ($value) {
+                    return $value !== '';
+                });
+                $matriculesToFilter = array_values($matricules); // Réindexer le tableau
+            } else {
+                // Cas unique, on l'ajoute directement
+                $matriculesToFilter = [$originalMatricule];
+            }
+        }
+
+        // Appliquer le filtre si on a des matricules à filtrer
+        if (!empty($matriculesToFilter)) {
+            $queryBuilder->andWhere('d.matricule IN (:matricules)')
+                ->setParameter('matricules', $matriculesToFilter);
         }
 
         // Filtrer par NumeroDemande
@@ -94,6 +120,12 @@ class DemandeCongeRepository extends EntityRepository
         if ($conge->getStatutDemande()) {
             $queryBuilder->andWhere('d.statutDemande = :statutDemande')
                 ->setParameter('statutDemande', $conge->getStatutDemande());
+        }
+
+        // Filtrer par groupe de direction
+        if ($conge->getGroupeDirection()) {
+            $queryBuilder->andWhere('p.groupeDirection = :groupeDirection')
+                ->setParameter('groupeDirection', $conge->getGroupeDirection());
         }
     }
 
@@ -122,7 +154,7 @@ class DemandeCongeRepository extends EntityRepository
         }
     }
 
-    private function filtredParDate(QueryBuilder $queryBuilder, DemandeConge $conge): void
+    private function filtredParDate(QueryBuilder $queryBuilder, DemandeConge $conge, array $options = []): void
     {
         // Filtrer par plage de date de demande selon les règles spécifiées
         if (isset($options['dateDemande']) && isset($options['dateDemandeFin'])) {
@@ -174,18 +206,57 @@ class DemandeCongeRepository extends EntityRepository
 
     /**
      * recupérer tous les matricules, noms, et prénoms
-     * 
+     *
      * cette methode recupère tous les matricules, noms et prénoms DISTINCT dans la table demande_decongé
      * et le mettre en ordre ascendante par rapprt au numéro matricule
-     * 
+     *
+     * @param string $query Paramètre de recherche optionnel
      * @return array
      */
-    public function getMatriculeNomPrenom(): array
+    public function getMatriculeNomPrenom(string $query = ''): array
     {
-        return $this->createQueryBuilder('d')
+        $qb = $this->createQueryBuilder('d')
             ->select('DISTINCT d.matricule, d.nomPrenoms')
-            ->orderBy('d.matricule', 'ASC')
+            ->orderBy('d.matricule', 'ASC');
+
+        if (!empty($query)) {
+            $qb->andWhere('d.matricule LIKE :query OR d.nomPrenoms LIKE :query')
+                ->setParameter('query', '%' . $query . '%');
+        }
+
+        return $qb->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Get tags associated with a specific matricule
+     * NOTE: This is a placeholder implementation. In a real system, you would need to
+     * define how tags are stored and associated with employees/matricules.
+     * This could be from a separate tags table or employee profile data.
+     *
+     * @param string $matricule
+     * @return array
+     */
+    public function getTagsByMatricule(string $matricule): array
+    {
+        // This is a placeholder implementation
+        // In a real system, you would query a tags table or employee profile table
+
+        // Example: Query a hypothetical employee tags table
+        /*
+        $qb = $this->getEntityManager()->createQueryBuilder();
+        $result = $qb
+            ->select('t.tag')
+            ->from('App\Entity\Tags', 't') // Replace with actual entity
+            ->where('t.matricule = :matricule')
+            ->setParameter('matricule', $matricule)
             ->getQuery()
             ->getResult();
+
+        return array_column($result, 'tag');
+        */
+
+        // For now, return an empty array - you would implement the actual logic
+        return [];
     }
 }

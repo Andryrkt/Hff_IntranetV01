@@ -110,7 +110,7 @@ class MenuService
         return $this;
     }
 
-        /**
+    /**
      * Get the value of codeAgenceAutorisers
      */
     public function getCodeAgenceAutorisers()
@@ -211,7 +211,7 @@ class MenuService
                 $this->setEstCreateurDeDADirecte(in_array(Role::ROLE_DA_DIRECTE, $roleIds, true)); // est créateur de DA directe
                 $this->setApplicationIds($connectedUser->getApplicationsIds()); // Les applications autorisées de l'utilisateur connecté
                 $this->setCodeAgenceAutorisers($connectedUser->getAgenceAutoriserCode()); // codes des agences autoriser del'utilisateur connecté
-            
+
             }
         }
     }
@@ -576,6 +576,7 @@ class MenuService
         $subitems[] = $this->createSimpleItem('Nouvelle DLUB', 'file-alt');
         $subitems[] = $this->createSimpleItem('Consultation des DLUB', 'search');
         $subitems[] = $this->createSimpleItem('Liste des commandes fournisseurs', 'list-ul');
+
         /** =====================POL OR et CIS========================= */
         if ($this->getEstAdmin() || in_array('60', $this->getCodeAgenceAutorisers())) { // admin uniquement
             $subitems[] = $this->createSubMenuItem(
@@ -595,9 +596,12 @@ class MenuService
                 ]
             );
         }
-
+        /** =====================POL Devis magasin========================= */
+        $subitems[] = $this->createSimpleItem('Devis negoce pol', 'list-ul', 'devis_magasin_pol_liste');
 
         $subitems[] = $this->createSimpleItem('Pneumatiques', 'ring');
+
+
         return $this->createMenuItem(
             'polModal',
             'POL',
@@ -692,6 +696,4 @@ class MenuService
             'is_modal' => $isModalTrigger
         ];
     }
-
-
 }

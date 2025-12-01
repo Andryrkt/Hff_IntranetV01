@@ -102,7 +102,7 @@
 						</td>
 						{# === Fin Actions ==== #}
 						<td class="{{ row.aDeverouiller ? 'bg-danger' : '' }}">
-							<a href="{{ row.urlDetail }}" target="_blank" class="{{ row.aDeverouiller ? 'text-white' : '' }}" data-bs-toggle="tooltip" title="Afficher le détail">
+							<a href="{{ row.urlDetail }}" target="_blank" class="{{ row.aDeverouiller ? 'text-white' : '' }}" data-bs-toggle="tooltip" title="{{ row.objet }}">
 								{{ row.numeroDemandeAppro }}
 							</a>
 						</td>
@@ -137,7 +137,15 @@
 						<td class="text-center">{{ row.qteDispo }}</td>
 						<td class="text-center">{{ row.qteLivrer }}</td>
 						<td class="text-center">{{ row.dateFinSouhaite }}</td>
-						<td class="text-center">{{ row.dateLivraisonPrevue }}</td>
+						<td class="text-center">
+							{% if row.envoyeFrn %}
+								<a {% for attr, val in row.aDtLivPrevAttributes %} {{ attr }}="{{ val }}" {% endfor %}>
+									{{ row.dateLivraisonPrevue }}
+								</a>
+							{% else %}
+								{{ row.dateLivraisonPrevue }}
+							{% endif %}
+						</td>
 						<td class="text-center {{ row.styleJoursDispo }}">{{ row.joursDispo }}</td>
 						<td class="text-center">
 							{% if row.supprimable %}
@@ -153,6 +161,7 @@
 	{% include "/partials/_pagination.html.twig" %}
 
 	{% include "/dit/shared/_modalNiveauUrgence.html.twig" %}
+	{% include "/da/shared/cdeFrn/_modalDateLivraison.html.twig" %}
 {% endblock %}
 
 {% block javascript %}

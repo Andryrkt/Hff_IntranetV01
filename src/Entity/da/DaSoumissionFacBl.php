@@ -43,6 +43,26 @@ class DaSoumissionFacBl
     private ?string $numeroCde;
 
     /**
+     * @ORM\Column(type="string", length=10, name="numero_livraison", nullable=true)
+     */
+    private ?string $numLiv;
+
+    /**
+     * @ORM\Column(type="string", length=255, name="reference_bl_facture", nullable=true)
+     */
+    private ?string $refBlFac;
+
+    /**
+     * @ORM\Column(type="datetime", name="date_bl_facture", nullable=true)
+     */
+    private $dateBlFac;
+
+    /**
+     * @ORM\Column(type="datetime", name="date_cloture_liv", nullable=true)
+     */
+    private $dateClotLiv;
+
+    /**
      * @ORM\Column(type="string", length=100, name="statut")
      */
     private ?string $statut;
@@ -178,7 +198,87 @@ class DaSoumissionFacBl
     }
 
     /**
-     * Get the value of nomFicheBc
+     * Get the value of numLiv
+     */
+    public function getNumLiv()
+    {
+        return $this->numLiv;
+    }
+
+    /**
+     * Set the value of numLiv
+     *
+     * @return  self
+     */
+    public function setNumLiv($numLiv)
+    {
+        $this->numLiv = $numLiv;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of refBlFac
+     */
+    public function getRefBlFac()
+    {
+        return $this->refBlFac;
+    }
+
+    /**
+     * Set the value of refBlFac
+     *
+     * @return  self
+     */
+    public function setRefBlFac($refBlFac)
+    {
+        $this->refBlFac = $refBlFac;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateBlFac
+     */
+    public function getDateBlFac()
+    {
+        return $this->dateBlFac;
+    }
+
+    /**
+     * Set the value of dateBlFac
+     *
+     * @return  self
+     */
+    public function setDateBlFac($dateBlFac)
+    {
+        $this->dateBlFac = $dateBlFac;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateClotLiv
+     */
+    public function getDateClotLiv()
+    {
+        return $this->dateClotLiv;
+    }
+
+    /**
+     * Set the value of dateClotLiv
+     *
+     * @return  self
+     */
+    public function setDateClotLiv($dateClotLiv)
+    {
+        $this->dateClotLiv = $dateClotLiv;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of pieceJoint1
      */
     public function getPieceJoint1()
     {
@@ -186,7 +286,7 @@ class DaSoumissionFacBl
     }
 
     /**
-     * Set the value of nomFicheBc
+     * Set the value of pieceJoint1
      *
      * @return  self
      */

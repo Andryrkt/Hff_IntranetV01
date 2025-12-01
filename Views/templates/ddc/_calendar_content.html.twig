@@ -1,0 +1,52 @@
+<div class="card mt-4">
+	<div class="card-header d-flex justify-content-between align-items-center">
+		<h4 id="calendar-month-year">{{ "now"|date("F Y")|title }}</h4>
+		<div>
+			<button id="prev-month" class="btn btn-sm btn-outline-primary me-2">
+				<i class="fas fa-chevron-left"></i>
+				Précédent
+			</button>
+			<button id="current-month" class="btn btn-sm btn-outline-secondary me-2">
+				Mois actuel
+			</button>
+			<button id="next-month" class="btn btn-sm btn-outline-primary">
+				Suivant
+				<i class="fas fa-chevron-right"></i>
+			</button>
+		</div>
+	</div>
+
+	<div class="card-body p-0">
+		<div class="calendar-container">
+			<div
+				id="calendar-header" class="calendar-header"><!-- rempli dynamiquement -->
+			</div>
+
+			<div id="calendar-body">
+				{% for employeeName, employeeConges in employees %}
+
+					{% set parties = employeeName | split('_') %}
+					{# divise en tableau : ['80-INF', '1456', 'nom'] #}
+
+					{% set agenceService = parties[0] %}
+					{# → 80-INF #}
+					{% set matricule   = parties[1] %}
+					{# → 1456 #}
+					{% set nom     = parties[2] %}
+					{# → nom #}
+
+					<div class="d-flex" data-employee-index="{{ loop.index0 }}">
+						<div class="calendar-cell employee-name" style="min-width:120px;max-width:120px;font-size:9px;text-align:center;">
+							{{ agenceService}}
+						</div>
+						<div class="calendar-cell employee-name" style="min-width:220px;max-width:220px;font-size:9px;text-align:left;justify-content: start;padding-left: 5px;">
+							{{ matricule ~ ' - '~ nom}}
+						</div>
+
+						<div class="d-flex flex-grow-1" id="calendar-days-{{ loop.index0 }}" data-employee-name="{{ employeeName|e('html_attr') }}"></div>
+					</div>
+				{% endfor %}
+			</div>
+		</div>
+	</div>
+</div>

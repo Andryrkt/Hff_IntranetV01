@@ -35,7 +35,7 @@ class DaAfficher
     /**
      * @ORM\Column(type="string", length=11, name="numero_demande_dit")
      */
-    private string $numeroDemandeDit;
+    private ?string $numeroDemandeDit = null;
 
     /**
      * @ORM\Column(type="string", length=11, name="numero_or")
@@ -236,7 +236,7 @@ class DaAfficher
      *
      * @var integer | null
      */
-    private int $joursDispo = 0;
+    private ?int $joursDispo = null;
 
     /**
      * @ORM\Column(type="integer", name="qte_en_attent")
@@ -1078,9 +1078,7 @@ class DaAfficher
     }
 
     /**
-     * Get | null
-     *
-     * @return  integer
+     * Get the value of $joursDispo
      */
     public function getJoursDispo()
     {
@@ -1088,11 +1086,7 @@ class DaAfficher
     }
 
     /**
-     * Set | null
-     *
-     * @param  integer  $joursDispo  | null
-     *
-     * @return  self
+     * Set the value of $joursDispo
      */
     public function setJoursDispo($joursDispo)
     {

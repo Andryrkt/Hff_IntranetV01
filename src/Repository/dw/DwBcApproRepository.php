@@ -38,4 +38,16 @@ class DwBcApproRepository extends EntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function getInfoValidationBC(string $numeroBc)
+    {
+        return $this->createQueryBuilder('d')
+            ->select('d.validateur', 'd.dateValidation')
+            ->where('d.numeroBc = :numeroBc')
+            ->setParameter('numeroBc', $numeroBc)
+            ->orderBy('d.numeroVersion', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }

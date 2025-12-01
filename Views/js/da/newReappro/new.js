@@ -81,10 +81,6 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
-window.addEventListener("load", () => {
-  displayOverlay(false);
-});
-
 /**===========================================================================
  * Configuration des agences et services
  *============================================================================*/

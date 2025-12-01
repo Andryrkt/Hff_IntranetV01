@@ -5,25 +5,25 @@ namespace App\Model\magasin\devis;
 
 use App\Model\Model;
 use App\Service\GlobalVariablesService;
+use Symfony\Component\Finder\Glob;
 
 class ListeDevisMagasinModel extends Model
 {
-    public function getDevis(array $criteria = [])
+    public function getDevis(array $criteria = [],  string $vignette = 'magasin', string $codeAgenceUser = '-0', bool $admin = false): array
     {
         $statement = "SELECT FIRST 100
-            -- '' as statut_dw
             nent_numcde as numero_devis
             ,nent_datecde as date_creation
             ,nent_succ || ' - ' || nent_servcrt as emmeteur
             ,nent_numcli || ' - ' || nent_nomcli as client
             ,TRIM(nent_refcde) as reference_client
             ,nent_cdeht as montant
-            -- ,'' as Operateur
-            -- ,'' as DateEnvoiDevisAuClient
             ,nent_posl as statut_ips
             ,nent_devise as devise
+            ,nlig_constp as constructeur
 
-            FROM neg_ent
+            FROM informix.neg_ent
+            left JOIN informix.neg_lig on nlig_numcde = nent_numcde
             WHERE nent_natop = 'DEV'
             AND nent_soc = 'HF'
             AND CAST(nent_numcli AS VARCHAR(20)) NOT LIKE '199%'
@@ -34,6 +34,20 @@ class ListeDevisMagasinModel extends Model
             $statement .= " AND nent_posl in ('--','AC','DE', 'RE', 'TR')";
         } else {
             $statement .= " AND nent_posl in ('--','AC','DE', 'TR')";
+        }
+
+        if ($vignette === 'magasin' && $codeAgenceUser === '01' && !$admin) {
+            // entrer par le vignette MAGASIN - agence tana
+            $piecesMagasin = GlobalVariablesService::get('pieces_magasin');
+            $statement .= " AND nlig_constp IN ($piecesMagasin) AND nent_succ <> '60' ";
+        } elseif ($vignette === 'magasin_pol' && $codeAgenceUser !== '01' && !$admin) {
+            //entrer par le vignette MAGASIN - autres agence 
+            $piecesMagasinPol = GlobalVariablesService::get('pieces_magasin') . GlobalVariablesService::get('pieces_pneumatique');
+            $statement .= " AND nlig_constp IN ($piecesMagasinPol) AND nent_succ = '$codeAgenceUser' ";
+        } elseif ($vignette === 'pneumatique' && $codeAgenceUser === '60' && !$admin) {
+            // entrer par le vignette POL - agence pneumatique
+            $piecesPneumatique = GlobalVariablesService::get('pneumatique');
+            $statement .= " AND nlig_constp IN ($piecesPneumatique) AND nent_succ = '60' ";
         }
 
         $statement .= " ORDER BY nent_datecde DESC";
@@ -135,23 +149,51 @@ class ListeDevisMagasinModel extends Model
      */
     public function constructeurPieceMagasin(string $numeroDevis)
     {
-        $statement = "SELECT CASE
+        $constructeurMagasinSansCat = GlobalVariablesService::get('pieceMagasinSansCat');
+        $constructeurPneumatique = GlobalVariablesService::get('pneumatique');
+        $statement = "SELECT 
+                    CASE
+                    -- si CAT et autre constructeur magasin
                         WHEN COUNT(CASE WHEN nlig_constp = 'CAT' THEN 1 END) > 0
-                        AND COUNT(CASE WHEN nlig_constp  IN (" . GlobalVariablesService::get('pieceMagasinSansCat') . ") THEN 1 END) > 0
+                        AND COUNT(CASE WHEN nlig_constp  IN ($constructeurMagasinSansCat) THEN 1 END) > 0
                         THEN TRIM('CP')
-                    
+                    -- si  CAT
                         WHEN COUNT(CASE WHEN nlig_constp  = 'CAT' THEN 1 END) > 0
-                        AND COUNT(CASE WHEN nlig_constp  IN (" . GlobalVariablesService::get('pieceMagasinSansCat') . ") THEN 1 END) = 0
+                        AND COUNT(CASE WHEN nlig_constp  IN ($constructeurMagasinSansCat) THEN 1 END) = 0
                         THEN TRIM('C')
-
+                    -- si ni CAT ni autre constructeur magasin
                         WHEN COUNT(CASE WHEN nlig_constp  = 'CAT' THEN 1 END) = 0
-                        AND COUNT(CASE WHEN nlig_constp  IN (" . GlobalVariablesService::get('pieceMagasinSansCat') . ") THEN 1 END) = 0
+                        AND COUNT(CASE WHEN nlig_constp  IN ($constructeurMagasinSansCat) THEN 1 END) = 0
                         THEN TRIM('N')
-
+                    -- si autre constructeur magasin
                         WHEN COUNT(CASE WHEN nlig_constp  = 'CAT' THEN 1 END) = 0
-                        AND COUNT(CASE WHEN nlig_constp IN (" . GlobalVariablesService::get('pieceMagasinSansCat') . ") THEN 1 END) > 0
+                        AND COUNT(CASE WHEN nlig_constp IN ($constructeurMagasinSansCat) THEN 1 END) > 0
                         THEN TRIM('P')
+                    -- si constructeur pneumatique
+                        WHEN COUNT(CASE WHEN nlig_constp IN($constructeurPneumatique) THEN 1 END) > 0
+                        THEN TRIM('O')
+                    -- si CAT , autre constructeur magasin et constructeur pneumatique
+                        WHEN COUNT(CASE WHEN nlig_constp = 'CAT' THEN 1 END) > 0
+                        AND COUNT(CASE WHEN nlig_constp  IN ($constructeurMagasinSansCat) THEN 1 END) > 0
+                        AND COUNT(CASE WHEN nlig_constp IN($constructeurPneumatique) THEN 1 END) > 0
+                        THEN TRIM('CPO')
+                    -- si CAT et constructeur pneumatique
+                        WHEN COUNT(CASE WHEN nlig_constp  = 'CAT' THEN 1 END) > 0
+                        AND COUNT(CASE WHEN nlig_constp  IN ($constructeurMagasinSansCat) THEN 1 END) = 0
+                        AND COUNT(CASE WHEN nlig_constp IN($constructeurPneumatique) THEN 1 END) > 0
+                        THEN TRIM('CO')
+                    -- si autre constructeur magasin et constructeur pneumatique
+                        WHEN COUNT(CASE WHEN nlig_constp  = 'CAT' THEN 1 END) = 0
+                        AND COUNT(CASE WHEN nlig_constp IN ($constructeurMagasinSansCat) THEN 1 END) > 0
+                        AND COUNT(CASE WHEN nlig_constp IN($constructeurPneumatique) THEN 1 END) > 0
+                        THEN TRIM('PO')
+                    -- si ni CAT ni autre constructeur magasin ni constructeur pneumatique
+                        WHEN COUNT(CASE WHEN nlig_constp  = 'CAT' THEN 1 END) = 0
+                        AND COUNT(CASE WHEN nlig_constp  IN ($constructeurMagasinSansCat) THEN 1 END) = 0
+                        AND COUNT(CASE WHEN nlig_constp IN($constructeurPneumatique) THEN 1 END) = 0
+                        THEN TRIM('NO')
                     END AS retour
+
                     from informix.neg_lig 
                     where nlig_soc='HF' 
                     and nlig_natop='DEV'

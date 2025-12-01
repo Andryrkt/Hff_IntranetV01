@@ -218,9 +218,6 @@ class DitDuplicationController extends Controller
                 $genererPdfDit->copyToDOCUWARE($nomFichier, $demandeIntervention->getNumeroDemandeIntervention());
             }
 
-            // 9. envoie dans la base de donner (enregistrement des données dans la base de donnée)
-            $em->flush();
-
             // 10. enregistrement dans l'historisation de la sucès de la demande
             $this->historiqueOperation->sendNotificationCreation('Votre demande a été enregistrée', $demandeInterventions[0]->getNumeroDemandeIntervention(), 'dit_index', true);
         }
@@ -257,6 +254,7 @@ class DitDuplicationController extends Controller
             ->setPieceJoint02($nomFichierEnregistrer[1] ?? null)
             ->setPieceJoint03($nomFichierEnregistrer[2] ?? null);
         $this->getEntityManager()->persist($demandeIntervention);
+        $this->getEntityManager()->flush();
     }
 
     private function traitementDeFichier(FormInterface $form, DemandeIntervention $demandeIntervention, GenererPdfDit $genererPdfDit): array
