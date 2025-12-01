@@ -168,7 +168,6 @@ class DaModel extends Model
             INNER JOIN art_bse ON abse_refp = afrn_refp AND afrn_constp = abse_constp
             INNER JOIN frn_bse ON fbse_numfou = afrn_numf
             WHERE abse_constp = 'ZST'
-            AND fbse_numfou <> '99'
             ORDER BY nomfournisseur
             ";
         $result = $this->connect->executeQuery($statement);
