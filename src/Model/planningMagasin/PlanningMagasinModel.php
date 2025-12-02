@@ -156,7 +156,7 @@ class PlanningMagasinModel extends Model
                         year(nent_datexp) as annee,
                         month(nent_datexp) as mois,
                         nent_numcde as orIntv,
-                        TRIM((select ausr_nom from agr_usr where ausr_num = nent_usr and ausr_soc = nent_soc)) as commercial,
+                        TRIM((select atab_lib from agr_tab where atab_code = nent_codope and atab_nom = 'OPE' )) as commercial,
                         CASE 
                             WHEN  ( SUM(nlig_qteliv) > 0 AND SUM(nlig_qteliv) != SUM(nlig_qtecde) AND SUM(nlig_qtecde) > (SUM(nlig_qteliv) + SUM(nlig_qtealiv)) )
                             OR ( SUM(nlig_qtecde) != SUM(nlig_qtealiv) AND SUM(nlig_qteliv) = 0 AND SUM(nlig_qtealiv) > 0 )  THEN 
@@ -353,30 +353,23 @@ class PlanningMagasinModel extends Model
 
     public function recupCommercial(string $codeAgence)
     {
-        $statement = " SELECT   TRIM((select ausr_nom from agr_usr where ausr_num = nent_usr and ausr_soc = nent_soc))  as commercial 
-
-                        from neg_ent, neg_lig, agr_succ, agr_tab ser, agr_usr ope, cli_bse, cli_soc
-                        where nent_soc = 'HF'
-                        and nlig_soc = nent_soc and nlig_numcde = nent_numcde
-                        and asuc_numsoc = nent_soc and asuc_num = nent_succ
-                        and csoc_soc = nent_soc and csoc_numcli = cbse_numcli and cbse_numcli = nent_numcli
-                        AND (nent_servcrt = ser.atab_code AND ser.atab_nom = 'SER')
-                        AND (nent_usr = ausr_num)
-                        AND nent_natop not in ('DEV')
-                        AND nent_posf not in ('CP')
-                        AND to_char(nent_numcli) not like '150%'
-                        AND not nent_numcli between 1800000 and 1999999
+        $statement = " SELECT  TRIM(atab_lib) as nom, 
+        TRIM(nent_codope) as value
+        from agr_tab, neg_ent
+            where nent_soc = 'HF'
+            and nent_servcrt in ('NEG','FLE','MAP')
+            and atab_nom = 'OPE' and atab_code = nent_codope
                         
         ";
         if ($codeAgence != "-0") {
             $statement .= " AND trim(nent_succ) = $codeAgence";
         }
 
-        $statement .= " group by 1";
+        $statement .= " group by 1, 2 order by 1";
 
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
-        $resultat = array_column($this->convertirEnUtf8($data), "commercial");
+        $resultat = $this->convertirEnUtf8($data);
         return $resultat;
     }
 }
