@@ -27,6 +27,7 @@ class ListeDevisMagasinController extends Controller
 
     private $styleStatutDw = [];
     private $styleStatutBc = [];
+    private $statutIPS = [];
 
     private ListeDevisMagasinModel $listeDevisMagasinModel;
 
@@ -52,6 +53,14 @@ class ListeDevisMagasinController extends Controller
             BcMagasin::STATUT_SOUMIS_VALIDATION => 'bg-bc-soumis-validation',
             BcMagasin::STATUT_EN_ATTENTE_BC => 'bg-bc-en-attente',
             BcMagasin::STATUT_VALIDER => 'bg-bc-valide'
+        ];
+
+        $this->statutIPS = [
+            "--"  => "En cours",
+            "AC"  => "Accepté",
+            "DE"  => "Edité",
+            "RE"  => "Refusé",
+            "TR"  => "Transferé",
         ];
     }
 
@@ -91,7 +100,8 @@ class ListeDevisMagasinController extends Controller
             'listeDevis' => $listeDevisFactory,
             'form' => $form->createView(),
             'styleStatutDw' => $this->styleStatutDw,
-            'styleStatutBc' => $this->styleStatutBc
+            'styleStatutBc' => $this->styleStatutBc,
+            'statutIPS' => $this->statutIPS,
         ]);
     }
 

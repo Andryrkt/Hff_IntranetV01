@@ -73,7 +73,7 @@
 						<td>{{item.referenceCLient}}</td>
 						<td class="text-end">{{item.montant|number_format(2, ',', '.')}}</td>
 						<td class="text-center">{{item.dateDenvoiDevisAuClient}}</td>
-						<td class="text-center">{{item.statutIps}}</td>
+						<td class="text-center" data-bs-toggle="tooltip" title="{{statutIPS[item.statutIps] ?? ''}}">{{item.statutIps}}</td>
 						<td class="text-center">{{item.creePar}}</td>
 						<td class="text-center">{{item.operateur}}</td>
 					</tr>
