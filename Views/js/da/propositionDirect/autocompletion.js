@@ -2,6 +2,14 @@ import { AutoComplete } from "../../utils/AutoComplete";
 
 export function autocompleteTheField(field, fieldName) {
   let baseId = field.id.replace("demande_appro_proposition", "");
+  let fields = {
+    reference: getField(field.id, fieldName, "reference"),
+    fournisseur: getField(field.id, fieldName, "fournisseur"),
+    numeroFournisseur: getField(field.id, fieldName, "numeroFournisseur"),
+    designation: getField(field.id, fieldName, "designation"),
+    famille: getField(field.id, fieldName, "codeFams1"),
+    sousFamille: getField(field.id, fieldName, "codeFams2"),
+  };
 
   let reference = getField(field.id, fieldName, "reference");
   let fournisseur = getField(field.id, fieldName, "fournisseur");
@@ -28,20 +36,44 @@ export function autocompleteTheField(field, fieldName) {
       return Promise.resolve(dataList);
     }, // non filtré par famille et sous-famille
     displayItemCallback: (item) => displayValues(item, fieldName),
-    onSelectCallback: (item) =>
-      handleValuesOfFields(
-        item,
-        fieldName,
-        fournisseur,
-        numeroFournisseur,
-        reference,
-        getField(field.id, fieldName, "codeFams1"),
-        getField(field.id, fieldName, "codeFams2")
-      ),
     itemToStringCallback: (item) => stringsToSearch(item, fieldName),
+    onSelectCallback: (item) => handleValuesOfFields(item, fieldName, fields),
     itemToStringForBlur: (item) => stringsToSearchForBlur(item, fieldName),
     onBlurCallback: (found) => onBlurEvents(found, designation, fieldName),
   });
+}
+
+function getField(id, fieldName, fieldNameReplace) {
+  return document.getElementById(id.replace(fieldName, fieldNameReplace));
+}
+
+function displayValues(item, fieldName) {
+  if (fieldName === "fournisseur") {
+    return `N° Fournisseur: ${item.numerofournisseur} - Nom Fournisseur: ${item.nomfournisseur}`;
+  } else {
+    return `Référence: ${item.referencepiece} <br>Désignation: ${item.designation}`;
+  }
+}
+
+function handleValuesOfFields(item, fieldName, fields) {
+  if (fieldName === "fournisseur") {
+    fields.fournisseur.value = item.nomfournisseur;
+    fields.numeroFournisseur.value = item.numerofournisseur;
+  } else {
+    fields.reference.value = item.referencepiece;
+    fields.famille.value = item.codefamille ?? "-";
+    fields.sousFamille.value = item.codesousfamille ?? "-";
+  }
+}
+
+function stringsToSearch(item, fieldName) {
+  if (fieldName === "reference") {
+    return `${item.referencepiece} - `;
+  } else if (fieldName === "fournisseur") {
+    return `${item.numerofournisseur} - ${item.nomfournisseur}`;
+  } else {
+    return `${item.designation} - `;
+  }
 }
 
 function onBlurEvents(found, designation, fieldName) {
@@ -96,28 +128,6 @@ function onBlurEvents(found, designation, fieldName) {
   }
 }
 
-function getField(id, fieldName, fieldNameReplace) {
-  return document.getElementById(id.replace(fieldName, fieldNameReplace));
-}
-
-function displayValues(item, fieldName) {
-  if (fieldName === "fournisseur") {
-    return `N° Fournisseur: ${item.numerofournisseur} - Nom Fournisseur: ${item.nomfournisseur}`;
-  } else {
-    return `Référence: ${item.referencepiece} <br>Désignation: ${item.designation}`;
-  }
-}
-
-function stringsToSearch(item, fieldName) {
-  if (fieldName === "reference") {
-    return `${item.referencepiece} - `;
-  } else if (fieldName === "fournisseur") {
-    return `${item.numerofournisseur} - ${item.nomfournisseur}`;
-  } else {
-    return `${item.designation} - `;
-  }
-}
-
 function stringsToSearchForBlur(item, fieldName) {
   if (fieldName === "reference") {
     return `${item.referencepiece}`;
@@ -125,27 +135,5 @@ function stringsToSearchForBlur(item, fieldName) {
     return `${item.nomfournisseur}`;
   } else {
     return `${item.designation}`;
-  }
-}
-
-function handleValuesOfFields(
-  item,
-  fieldName,
-  fournisseur,
-  numeroFournisseur,
-  reference,
-  famille,
-  sousFamille
-) {
-  if (fieldName === "fournisseur") {
-    fournisseur.value = item.nomfournisseur;
-    numeroFournisseur.value = item.numerofournisseur;
-  } else {
-    reference.value = item.referencepiece;
-    /* fournisseur.value = item.fournisseur;
-    numeroFournisseur.value = item.numerofournisseur;
-    designation.value = item.designation; */
-    famille.value = item.codefamille ?? "-";
-    sousFamille.value = item.codesousfamille ?? "-";
   }
 }
