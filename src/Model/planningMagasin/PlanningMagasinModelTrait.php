@@ -48,7 +48,8 @@ trait planningMagasinModelTrait
     private function commercial($criteria)
     {
         if (!empty($criteria->getCommercial())) {
-            $condCommercial = "AND (select ausr_nom from agr_usr where ausr_num = nent_usr and ausr_soc = nent_soc) ='" . $criteria->getCommercial() . "'  ";
+            $codeCommercial = explode('-', $criteria->getCommercial())[0];
+            $condCommercial = " AND TRIM(nent_codope) ='$codeCommercial'  ";
         } else {
             $condCommercial = "";
         }
