@@ -309,7 +309,7 @@ class DaModel extends Model
                 inner join informix.frn_cdl on fcdl_numcde = fcde_numcde
                 LEFT join informix.frn_llf on fllf_numcde = fcdl_numcde and fllf_ligne = fcdl_ligne
                 where fcdl_constp = 'ZDI'
-                and TRIM(fcde_cdeext) = '$numDa'
+                and TRIM(REPLACE(REPLACE(fcde_cdeext, '\t', ''), CHR(9), '')) = '$numDa'
                 and TRIM(fcdl_refp) LIKE '%$ref%'
                 and TRIM(fcdl_desi) like '%$designation%'
                 GROUP BY fcde_cdeext,fcde_numfou,num_fou,fcde_numcde,fcdl_constp,fcdl_refp,fcdl_desi,fcde_posc,qte_dem,qte_en_attente
@@ -382,7 +382,7 @@ class DaModel extends Model
                 (select sum(fllf_qteliv) from frn_llf l where  l.fllf_numcde = cde.fcde_numcde and slor.slor_refp = l.fllf_refp and l.fllf_ligne = slor.slor_noligncm and cde.fcde_cdeext like 'DAP%') as qte_receptionnee,
                     --slor_qterea as qte_livree,
                 CASE 
-                            WHEN slor_natcm = 'L' then slor_qterea
+                            WHEN  (slor_natcm is null or slor_natcm='') or slor_natcm = 'L' then slor_qterea
                             else 0
                         END as qte_livree,
 

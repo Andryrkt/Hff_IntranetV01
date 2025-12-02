@@ -18,7 +18,7 @@ class BcMagasinValidationService extends ValidationServiceBase
         'missing_identifier' => 'Le numéro de Devis est manquant.',
         'blocage_statut_En_cours_validation' => 'Le BC est en cours de validation',
         'statut_devis_et_bc_coherents' => 'on ne peut pas soumettre un BC à validation que si le devis est envoyé au client et la reception du bc est en attente.',
-        'statut_devis_a_traiter' => 'on ne peut pas soumettre un BC à validation que si le devis est à traiter.'
+        'statut_devis_a_traiter' => 'on ne peut pas soumettre un BC à validation que si la statut de la devis est encore "A traiter".'
 
     ];
 
@@ -126,7 +126,7 @@ class BcMagasinValidationService extends ValidationServiceBase
         //recupération du statut devis
         $statut = $devisMagasinRepository->getStatutDwEtStatutBc($numeroDevis);
 
-        if ($statut && $statut['statutDw'] != DevisMagasin::STATUT_A_TRAITER) {
+        if (!$statut) {
             $this->sendNotification(
                 self::ERROR_MESSAGES['statut_devis_a_traiter'],
                 $numeroDevis,

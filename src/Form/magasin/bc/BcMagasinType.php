@@ -39,7 +39,7 @@ class BcMagasinType extends AbstractType
                 'dateBc',
                 DateType::class,
                 [
-                    'label' => 'Date mise en location',
+                    'label' => 'Date BC *',
                     'widget' => 'single_text',
                     'html5' => true,
                     //'format' => 'dd/MM/yyyy', 
