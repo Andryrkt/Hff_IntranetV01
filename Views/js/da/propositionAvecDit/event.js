@@ -174,8 +174,46 @@ export function handleFormSubmit() {
   };
 
   document.getElementById("myForm").addEventListener("submit", function (e) {
-    const prototype = document.getElementById("child-prototype");
-    if (prototype) prototype.remove();
+    e.preventDefault(); // empêcher l'envoi immédiat
+    const action = e.submitter.name; // 👉 nom (attribut "name") du bouton qui a déclenché le submit
+
+    const config = actionsConfig[action];
+    if (!config) return;
+
+    Swal.fire({
+      title: config.title,
+      html: config.html,
+      icon: config.icon,
+      showCancelButton: true,
+      reverseButtons: true,
+      confirmButtonColor: "#198754",
+      cancelButtonColor: "#6c757d",
+      confirmButtonText: config.confirmButtonText,
+      cancelButtonText: "Non, Annuler",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        displayOverlay(true);
+        document.getElementById("child-prototype").remove();
+
+        // ajouter un champ caché avec l’action choisie
+        const hidden = document.createElement("input");
+        hidden.type = "hidden";
+        hidden.name = action;
+        hidden.value = "1";
+        document.getElementById("myForm").appendChild(hidden);
+
+        document.getElementById("myForm").submit(); // n’émule pas le clic sur le bouton d’envoi → donc le name et value du bouton cliqué ne sont pas envoyés.
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        // ❌ Si l'utilisateur annule
+        Swal.fire({
+          icon: "info",
+          title: "Annulé",
+          text: config.canceledText,
+          timer: 2000,
+          showConfirmButton: false,
+        });
+      }
+    });
   });
 }
 
