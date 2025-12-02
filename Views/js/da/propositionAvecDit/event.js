@@ -148,6 +148,37 @@ export function handleAllButtonEvents() {
   });
 }
 
+export function handleFormSubmit() {
+  const actionsConfig = {
+    brouillon: {
+      title: "Confirmer l’enregistrement",
+      html: `Souhaitez-vous enregistrer <strong class="text-primary">provisoirement</strong> cette demande ?<br><small class="text-primary"><strong><u>NB</u>: </strong>Elle ne sera pas transmise au service ATELIER.</small>`,
+      icon: "question",
+      confirmButtonText: "Oui, Enregistrer",
+      canceledText: "L’enregistrement provisoire a été annulé.",
+    },
+    enregistrer: {
+      title: "Confirmer proposition(s)",
+      html: `Êtes-vous sûr de vouloir <strong style="color: #f8bb86;">envoyer la/les proposition(s)</strong> ?<br><small style="color: #f8bb86;"><strong><u>NB</u>: </strong>Elle sera transmise au service ATELIER pour validation.</small>`,
+      icon: "warning",
+      confirmButtonText: "Oui, Envoyer proposition(s)",
+      canceledText: "L’envoi de la/les proposition(s) a été annulée.",
+    },
+    valider: {
+      title: "Confirmer la validation",
+      html: `Êtes-vous sûr de vouloir <strong class="text-success"">valider</strong> cette demande ?<br><small class="text-success""><strong><u>NB</u>: </strong>Après validation de la demande, le statut de la Da sera <strong class="text-success">'Bon d’achats validé'</strong>.</small>`,
+      icon: "warning",
+      confirmButtonText: "Oui, Valider",
+      canceledText: "La validation de la demande a été annulée.",
+    },
+  };
+
+  document.getElementById("myForm").addEventListener("submit", function (e) {
+    const prototype = document.getElementById("child-prototype");
+    if (prototype) prototype.remove();
+  });
+}
+
 /**
  * permet d'autocompleter la designation et la référence
  * @param {int} numPage
