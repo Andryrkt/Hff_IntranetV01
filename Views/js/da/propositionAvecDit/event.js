@@ -228,8 +228,8 @@ function autocompleteTheFieldsPage(numPage) {
   reset(fournisseur, reference, designation);
   console.log(iscatalogue == "");
 
-  autocompleteTheField(designation, "designation", numPage, iscatalogue);
-  autocompleteTheField(reference, "reference", numPage, iscatalogue);
+  autocompleteTheField(designation, "designation", iscatalogue);
+  autocompleteTheField(reference, "reference", iscatalogue);
 }
 
 /**

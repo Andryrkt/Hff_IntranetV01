@@ -1,12 +1,7 @@
 import { AutoComplete } from "../../utils/AutoComplete";
 import { updateDropdown } from "../../utils/selectionHandler";
 
-export function autocompleteTheField(
-  field,
-  fieldName,
-  numPage = null,
-  iscatalogue = null
-) {
+export function autocompleteTheField(field, fieldName, iscatalogue = null) {
   let baseId = field.id.replace("demande_appro_proposition", "");
 
   let reference = getField(field.id, fieldName, "reference");
@@ -14,25 +9,9 @@ export function autocompleteTheField(
   let numeroFournisseur = getField(field.id, fieldName, "numeroFournisseur");
   let designation = getField(field.id, fieldName, "designation");
   let PU = getField(field.id, fieldName, "PU");
-  let line = baseId.replace(`_${fieldName}_`, "");
-
-  let codeFams1 = getValueCodeFams("codeFams1", line);
-  let codeFams2 = getValueCodeFams("codeFams2", line);
 
   let suggestionContainer = document.getElementById(`suggestion${baseId}`);
   let loaderElement = document.getElementById(`spinner_container${baseId}`);
-
-  if (numPage) {
-    const sousFamille = document.querySelector(
-      "#demande_appro_proposition_codeFams2_" + numPage
-    );
-    const famille = document.querySelector(
-      "#demande_appro_proposition_codeFams1_" + numPage
-    );
-
-    codeFams1 = safeValue(famille.value);
-    codeFams2 = safeValue(sousFamille.value);
-  }
 
   new AutoComplete({
     inputElement: field,
