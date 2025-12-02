@@ -263,7 +263,7 @@ class DitOrsSoumisAValidationController extends Controller
 
         $nameGenerator = new OrGeneratorNameService();
         $numDit = $ditInsertionOrSoumis->getNumeroDit();
-        $cheminBaseUpload = $_ENV['BASE_PATH_FICHIER'] . 'dit/';
+        $cheminBaseUpload = $_ENV['BASE_PATH_FICHIER'] . '/dit/';
         $uploader = new UploderFileService($cheminBaseUpload, $nameGenerator);
         $path = $cheminBaseUpload . $numDit . '/';
         if (!is_dir($path)) {
