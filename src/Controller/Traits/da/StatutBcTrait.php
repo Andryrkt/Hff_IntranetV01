@@ -123,7 +123,8 @@ trait StatutBcTrait
         // 12. modification du Qte de commande dans DaAfficher
         $this->updateQteCdeDansDaAfficher($qte, $DaAfficher, $infoDaDirect, $daDirect, $daViaOR);
 
-        if (empty($situationCde) && ($daViaOR || $daReappro) && $statutOr === DitOrsSoumisAValidation::STATUT_VALIDE) {
+        // DA DIRECT et DA REAPPRO
+        if ((empty($situationCde) && $daViaOR && $statutOr === DitOrsSoumisAValidation::STATUT_VALIDE) || ($daReappro && $statutOr ===  DemandeAppro::STATUT_DW_VALIDEE && $DaAfficher->getNumeroCde() === null)) {
             return 'PAS DANS OR';
         }
         // DA Direct , DA Via OR
@@ -254,8 +255,8 @@ trait StatutBcTrait
 
     private function aSituationCde(array $situationCde, array $infoDaDirect, bool $daViaOR, bool $daDirect): bool
     {
-        if ($daViaOR) return !array_key_exists(0, $situationCde);
-        elseif ($daDirect) return !array_key_exists(0, $infoDaDirect);
+        if ($daViaOR) return array_key_exists(0, $situationCde);
+        elseif ($daDirect) return array_key_exists(0, $infoDaDirect);
         else return true;
     }
 
