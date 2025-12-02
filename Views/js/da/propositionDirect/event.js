@@ -115,3 +115,72 @@ export function handleAllButtonEvents() {
     });
   });
 }
+
+export function handleFormSubmit() {
+  const actionsConfig = {
+    brouillon: {
+      title: "Confirmer l’enregistrement",
+      html: `Souhaitez-vous enregistrer <strong class="text-primary">provisoirement</strong> cette demande ?<br><small class="text-primary"><strong><u>NB</u>: </strong>Elle ne sera pas transmise au service émetteur.</small>`,
+      icon: "question",
+      confirmButtonText: "Oui, Enregistrer",
+      canceledText: "L’enregistrement provisoire a été annulé.",
+    },
+    enregistrer: {
+      title: "Confirmer proposition(s)",
+      html: `Êtes-vous sûr de vouloir <strong style="color: #f8bb86;">envoyer la/les proposition(s)</strong> ?<br><small style="color: #f8bb86;"><strong><u>NB</u>: </strong>Elle sera transmise au service émetteur pour validation.</small>`,
+      icon: "warning",
+      confirmButtonText: "Oui, Envoyer proposition(s)",
+      canceledText: "L’envoi de la/les proposition(s) a été annulée.",
+    },
+    valider: {
+      title: "Confirmer la validation",
+      html: `Êtes-vous sûr de vouloir <strong class="text-success"">valider</strong> cette demande ?<br><small class="text-success""><strong><u>NB</u>: </strong>Après validation de la demande, le statut de la Da sera <strong class="text-success">'Bon d’achats validé'</strong>.</small>`,
+      icon: "warning",
+      confirmButtonText: "Oui, Valider",
+      canceledText: "La validation de la demande a été annulée.",
+    },
+  };
+
+  document.getElementById("myForm").addEventListener("submit", function (e) {
+    e.preventDefault(); // empêcher l'envoi immédiat
+    const action = e.submitter.name; // 👉 nom (attribut "name") du bouton qui a déclenché le submit
+
+    const config = actionsConfig[action];
+    if (!config) return;
+
+    Swal.fire({
+      title: config.title,
+      html: config.html,
+      icon: config.icon,
+      showCancelButton: true,
+      reverseButtons: true,
+      confirmButtonColor: "#198754",
+      cancelButtonColor: "#6c757d",
+      confirmButtonText: config.confirmButtonText,
+      cancelButtonText: "Non, Annuler",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        displayOverlay(true);
+        document.getElementById("child-prototype").remove();
+
+        // ajouter un champ caché avec l’action choisie
+        const hidden = document.createElement("input");
+        hidden.type = "hidden";
+        hidden.name = action;
+        hidden.value = "1";
+        document.getElementById("myForm").appendChild(hidden);
+
+        document.getElementById("myForm").submit(); // n’émule pas le clic sur le bouton d’envoi → donc le name et value du bouton cliqué ne sont pas envoyés.
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        // ❌ Si l'utilisateur annule
+        Swal.fire({
+          icon: "info",
+          title: "Annulé",
+          text: config.canceledText,
+          timer: 2000,
+          showConfirmButton: false,
+        });
+      }
+    });
+  });
+}
