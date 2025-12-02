@@ -11,11 +11,6 @@ export function autocompleteTheField(field, fieldName) {
     sousFamille: getField(field.id, fieldName, "codeFams2"),
   };
 
-  let reference = getField(field.id, fieldName, "reference");
-  let fournisseur = getField(field.id, fieldName, "fournisseur");
-  let numeroFournisseur = getField(field.id, fieldName, "numeroFournisseur");
-  let designation = getField(field.id, fieldName, "designation");
-
   let suggestionContainer = document.getElementById(`suggestion${baseId}`);
   let loaderElement = document.getElementById(`spinner_container${baseId}`);
 
@@ -39,7 +34,7 @@ export function autocompleteTheField(field, fieldName) {
     itemToStringCallback: (item) => stringsToSearch(item, fieldName),
     onSelectCallback: (item) => handleValuesOfFields(item, fieldName, fields),
     itemToStringForBlur: (item) => stringsToSearchForBlur(item, fieldName),
-    onBlurCallback: (found) => onBlurEvents(found, designation, fieldName),
+    onBlurCallback: (found) => onBlurEvents(found, fieldName, fields),
   });
 }
 
@@ -76,54 +71,51 @@ function stringsToSearch(item, fieldName) {
   }
 }
 
-function onBlurEvents(found, designation, fieldName) {
-  const numeroDa = document
-    .querySelector(".tab-pane.fade.show.active.dalr")
-    .id.split("_")
-    .pop();
-  const numPage = localStorage.getItem(`currentTab_${numeroDa}`);
-  const desi = `designation_${numPage}`;
-  let baseId = designation.id.replace(desi, "");
-  let allFields = document.querySelectorAll(`[id*="${baseId}"]`);
-  let referencePiece = document.querySelector(
-    `#demande_appro_proposition_reference_${numPage}`
-  );
+function onBlurEvents(found, fieldName, fields) {
+  if (fieldName === "reference") {
+    let reference = fields.reference;
 
-  if (fieldName == "reference") {
-    console.log("baseID = " + baseId);
-
-    let foundInput = document.querySelector(
-      `[id*="${baseId}"][id*="found_${numPage}"]`
-    );
-    foundInput.value = found ? "1" : "0";
-    console.log(foundInput.value);
-  } else if (fieldName == "designation") {
-    if (designation.value.trim() !== "") {
-      // Texte rouge ou non, ajout de valeur dans catalogue
-      allFields.forEach((field) => {
-        if (!found) {
-          if (field.id.includes(`numeroFournisseur_${numPage}`)) {
-            field.value = 0;
-          }
-          if (
-            field.id.includes("codeFams") &&
-            field.id.includes(`_${numPage}`)
-          ) {
-            console.log("codeFams");
-
-            field.value = "-";
-          }
-        }
+    if (!found && reference.value.trim() !== "") {
+      Swal.fire({
+        icon: "error",
+        title: "Référence inexistant",
+        html: `La référence <b class="text-danger">"${reference.value}"</b> n'existe pas dans le catalogue des référence ZDI. <br> Veuillez sélectionner une réference ZDI valide svp.`,
+        confirmButtonText: "OK",
+        customClass: {
+          htmlContainer: "swal-text-left",
+        },
+      }).then(() => {
+        reference.focus();
+        reference.value = "";
       });
-      // Si non trouvé alors valeur de reférence pièce = ''
-      referencePiece.value = found ? referencePiece.value : "ST";
+    }
+  } else if (fieldName === "designation") {
+    let designation = fields.designation;
+
+    if (!found && designation.value.trim() !== "") {
+      fields.numeroFournisseur.value = 0;
+      fields.reference.value = "ST";
+      fields.famille.value = "-";
+      fields.sousFamille.value = "-";
     }
   } else if (fieldName == "fournisseur") {
-    if (!found) {
-      let numFrnInput = document.querySelector(
-        `[id*="${baseId}"][id*="numeroFournisseur_${numPage}"]`
-      );
-      numFrnInput.value = "-";
+    let fournisseur = fields.fournisseur;
+    let numeroFournisseur = fields.numeroFournisseur;
+
+    if (!found && fournisseur.value.trim() !== "") {
+      Swal.fire({
+        icon: "error",
+        title: "Fournisseur inexistant !",
+        html: `Le fournisseur <b class="text-danger">"${fournisseur.value}"</b> n'existe pas, veuillez en sélectionner un dans la liste s'il vous plaît!`,
+        confirmButtonText: "OK",
+        customClass: {
+          htmlContainer: "swal-text-left",
+        },
+      }).then(() => {
+        fournisseur.focus();
+        fournisseur.value = "";
+        numeroFournisseur.value = "-";
+      });
     }
   }
 }
