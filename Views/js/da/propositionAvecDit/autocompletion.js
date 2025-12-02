@@ -3,12 +3,15 @@ import { updateDropdown } from "../../utils/selectionHandler";
 
 export function autocompleteTheField(field, fieldName, iscatalogue = null) {
   let baseId = field.id.replace("demande_appro_proposition", "");
-
-  let reference = getField(field.id, fieldName, "reference");
-  let fournisseur = getField(field.id, fieldName, "fournisseur");
-  let numeroFournisseur = getField(field.id, fieldName, "numeroFournisseur");
-  let designation = getField(field.id, fieldName, "designation");
-  let PU = getField(field.id, fieldName, "PU");
+  let fields = {
+    reference: getField(field.id, fieldName, "reference"),
+    fournisseur: getField(field.id, fieldName, "fournisseur"),
+    numeroFournisseur: getField(field.id, fieldName, "numeroFournisseur"),
+    designation: getField(field.id, fieldName, "designation"),
+    PU: getField(field.id, fieldName, "PU"),
+    famille: getField(field.id, fieldName, "codeFams1"),
+    sousFamille: getField(field.id, fieldName, "codeFams2"),
+  };
 
   let suggestionContainer = document.getElementById(`suggestion${baseId}`);
   let loaderElement = document.getElementById(`spinner_container${baseId}`);
@@ -31,94 +34,11 @@ export function autocompleteTheField(field, fieldName, iscatalogue = null) {
     }, // non filtré par famille et sous-famille
     displayItemCallback: (item) => displayValues(item, fieldName),
     onSelectCallback: (item) =>
-      handleValuesOfFields(
-        item,
-        fieldName,
-        fournisseur,
-        numeroFournisseur,
-        reference,
-        designation,
-        PU,
-        getField(field.id, fieldName, "codeFams1"),
-        getField(field.id, fieldName, "codeFams2"),
-        iscatalogue
-      ),
+      handleValuesOfFields(item, fieldName, fields, iscatalogue),
     itemToStringCallback: (item) => stringsToSearch(item, fieldName),
     itemToStringForBlur: (item) => stringsToSearchForBlur(item, fieldName),
-    onBlurCallback: (found) => onBlurEvents(found, designation, fieldName),
+    onBlurCallback: (found) => onBlurEvents(found, fieldName, fields),
   });
-}
-
-function safeValue(val) {
-  return val && val.trim() !== "" ? val : "-";
-}
-
-function getFieldByGeneratedId(baseId, suffix) {
-  return document.getElementById(baseId.replace("artDesi", suffix));
-}
-
-function onBlurEvents(found, designation, fieldName) {
-  const numeroDa = document
-    .querySelector(".tab-pane.fade.show.active.dalr")
-    .id.split("_")
-    .pop();
-  const numPage = localStorage.getItem(`currentTab_${numeroDa}`);
-  console.log("numeroDa = " + numeroDa);
-  console.log("numPage = " + numPage);
-  if (designation.value.trim() !== "") {
-    const desi = `designation_${numPage}`;
-
-    let baseId = designation.id.replace(desi, "");
-
-    let allFields = document.querySelectorAll(`[id*="${baseId}"]`);
-    console.log("baseId = " + baseId);
-    console.log("allFields =");
-    console.log(allFields);
-
-    if (fieldName == "designation") {
-      // Texte rouge ou non, ajout de valeur dans catalogue
-      allFields.forEach((field) => {
-        console.log("field.id = ");
-        console.log(field.id);
-        console.log("found = ");
-        console.log(found);
-
-        if (found) {
-          field.classList.remove("text-danger");
-        } else {
-          field.classList.add("text-danger");
-          if (field.id.includes(`PU_${numPage}`)) {
-            field.parentElement.classList.remove("d-none"); // afficher le div container du PU
-          }
-          if (field.id.includes(`numeroFournisseur_${numPage}`)) {
-            field.value = 0;
-          }
-          if (
-            field.id.includes("codeFams") &&
-            field.id.includes(`_${numPage}`)
-          ) {
-            console.log("codeFams");
-
-            field.value = "-";
-          }
-          if (
-            field.id.includes("reference") &&
-            field.id.includes(`_${numPage}`)
-          ) {
-            field.value = "ST";
-          }
-        }
-      });
-    }
-  }
-}
-
-function getValueCodeFams(fams, line) {
-  return document.getElementById(`${fams}_${line}`).value;
-}
-
-function getField(id, fieldName, fieldNameReplace) {
-  return document.getElementById(id.replace(fieldName, fieldNameReplace));
 }
 
 function displayValues(item, fieldName) {
@@ -129,43 +49,22 @@ function displayValues(item, fieldName) {
   }
 }
 
-function stringsToSearch(item, fieldName) {
-  if (fieldName === "reference") {
-    return `${item.referencepiece} - `;
-  } else if (fieldName === "fournisseur") {
-    return `${item.numerofournisseur} - ${item.nomfournisseur}`;
-  } else {
-    return `${item.designation} - `;
-  }
-}
-
-function stringsToSearchForBlur(item, fieldName) {
-  if (fieldName === "reference") {
-    return `${item.referencepiece}`;
-  } else if (fieldName === "fournisseur") {
-    return `${item.nomfournisseur}`;
-  } else {
-    return `${item.designation}`;
-  }
-}
-
-function handleValuesOfFields(
-  item,
-  fieldName,
-  fournisseur,
-  numeroFournisseur,
-  reference,
-  designation,
-  PU,
-  famille,
-  sousFamille,
-  iscatalogue
-) {
+function handleValuesOfFields(item, fieldName, fields, iscatalogue) {
   if (fieldName === "fournisseur") {
+    let fournisseur = fields.fournisseur;
+    let numeroFournisseur = fields.numeroFournisseur;
+
     fournisseur.value = item.nomfournisseur;
     numeroFournisseur.value = item.numerofournisseur;
-    console.log(PU.value);
   } else {
+    let reference = fields.reference;
+    let fournisseur = fields.fournisseur;
+    let numeroFournisseur = fields.numeroFournisseur;
+    let designation = fields.designation;
+    let PU = fields.PU;
+    let famille = fields.famille;
+    let sousFamille = fields.sousFamille;
+
     reference.value = item.referencepiece;
     fournisseur.value = item.fournisseur;
     numeroFournisseur.value = item.numerofournisseur;
@@ -203,4 +102,100 @@ function handleValuesOfFields(
     fournisseur.classList.add("non-modifiable");
     designation.classList.add("non-modifiable");
   }
+}
+
+function stringsToSearch(item, fieldName) {
+  if (fieldName === "reference") {
+    return `${item.referencepiece} - `;
+  } else if (fieldName === "fournisseur") {
+    return `${item.numerofournisseur} - ${item.nomfournisseur}`;
+  } else {
+    return `${item.designation} - `;
+  }
+}
+
+function stringsToSearchForBlur(item, fieldName) {
+  if (fieldName === "reference") {
+    return `${item.referencepiece}`;
+  } else if (fieldName === "fournisseur") {
+    return `${item.nomfournisseur}`;
+  } else {
+    return `${item.designation}`;
+  }
+}
+
+function onBlurEvents(found, fieldName, fields) {
+  if (fieldName === "designation") {
+    let designation = fields.designation;
+
+    if (found) {
+      Object.values(fields).forEach((field) => {
+        field.classList.remove("text-danger");
+      });
+    } else if (designation.value.trim() !== "") {
+      let PU = fields.PU;
+      let numeroFournisseur = fields.numeroFournisseur;
+      let sousFamille = fields.sousFamille;
+      let famille = fields.famille;
+      let reference = fields.reference;
+      Object.values(fields).forEach((field) => {
+        field.classList.add("text-danger");
+      });
+      PU.parentElement.classList.remove("d-none"); // afficher le div container du PU
+      numeroFournisseur.value = 0;
+      famille.value = "-";
+      sousFamille.value = "-";
+      reference.value = "ST";
+    }
+  } else if (fieldName === "fournisseur") {
+    let fournisseur = fields.fournisseur;
+    let numeroFournisseur = fields.numeroFournisseur;
+
+    if (!found && fournisseur.value.trim() !== "") {
+      Swal.fire({
+        icon: "error",
+        title: "Fournisseur inexistant !",
+        html: `Le fournisseur <b class="text-danger">"${fournisseur.value}"</b> n'existe pas, veuillez en sélectionner un dans la liste s'il vous plaît!`,
+        confirmButtonText: "OK",
+        customClass: {
+          htmlContainer: "swal-text-left",
+        },
+      }).then(() => {
+        fournisseur.focus();
+        fournisseur.value = "";
+        numeroFournisseur.value = "-";
+      });
+    }
+  } else if (fieldName === "reference") {
+    let reference = fields.reference;
+    let famille = fields.famille;
+    let sousFamille = fields.sousFamille;
+    let designation = fields.designation;
+    let PU = fields.PU;
+    let numeroFournisseur = fields.numeroFournisseur;
+
+    if (!found && reference.value.trim() !== "") {
+      Swal.fire({
+        icon: "error",
+        title: "Référence inexistant !",
+        html: `La référence <b class="text-danger">"${reference.value}"</b> n'existe pas, veuillez en sélectionner une dans la liste s'il vous plaît!`,
+        confirmButtonText: "OK",
+        customClass: {
+          htmlContainer: "swal-text-left",
+        },
+      }).then(() => {
+        reference.focus();
+        reference.value = "";
+        famille.value = "-";
+        sousFamille.value = "-";
+        designation.value = "";
+        PU.parentElement.classList.add("d-none"); // afficher le div container du PU
+        numeroFournisseur.value = 0;
+      });
+    }
+  }
+}
+
+function getField(id, fieldName, fieldNameReplace) {
+  return document.getElementById(id.replace(fieldName, fieldNameReplace));
 }
