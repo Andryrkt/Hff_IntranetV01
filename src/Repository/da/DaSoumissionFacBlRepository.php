@@ -48,4 +48,16 @@ class DaSoumissionFacBlRepository extends EntityRepository
 
         return $statut;
     }
+
+    public function getAllLivraisonSoumis(string $numDa, string $numCde)
+    {
+        return array_filter($this->createQueryBuilder('dabc')
+            ->select('dabc.numLiv')
+            ->where('dabc.numeroDemandeAppro = :numDa')
+            ->andWhere('dabc.numeroCde = :numCde')
+            ->setParameter('numDa', $numDa)
+            ->setParameter('numCde', $numCde)
+            ->getQuery()
+            ->getSingleColumnResult());
+    }
 }
