@@ -217,14 +217,21 @@ export function initializeFileHandlersNouveau(idSuffix, fileInputElement) {
   const fileInput = fileInputElement;
   const uploadBtn = document.getElementById(`upload-btn-${idSuffix}`);
   const dropzone = document.getElementById(`dropzone-${idSuffix}`);
-  const fileList = document.getElementById(`file-list-${idSuffix}`);
+  const fileList = document.getElementById(`file-list-${idSuffix}`); // Preview container
+  const fileName = document.getElementById(`file-name-${idSuffix}`); // Info container
+  const fileSize = document.getElementById(`file-size-${idSuffix}`); // Info container
+
+  if (!uploadBtn || !dropzone || !fileList || !fileName || !fileSize) {
+    console.error(`One or more elements for dropzone ${idSuffix} are missing.`);
+    return;
+  }
 
   uploadBtn.addEventListener("click", function () {
     fileInput.click();
   });
 
   fileInput.addEventListener("change", function () {
-    handleFile(this.files, fileList);
+    handleFile(this.files, fileList, fileName, fileSize, fileInput);
   });
 
   dropzone.addEventListener("dragover", function (e) {
@@ -244,14 +251,18 @@ export function initializeFileHandlersNouveau(idSuffix, fileInputElement) {
     e.stopPropagation();
     const files = e.dataTransfer.files;
     fileInput.files = files;
-    handleFile(files, fileList);
+    handleFile(files, fileList, fileName, fileSize, fileInput);
     this.style.backgroundColor = "#f8f9fa";
   });
 }
 
-export function handleFile(files, fileListElement, maxSizeMB = 5) {
+export function handleFile(files, fileListElement, fileNameElement, fileSizeElement, fileInputElement, maxSizeMB = 5) {
   const file = files[0];
+  
+  // Clear previous state
   fileListElement.innerHTML = "";
+  if(fileNameElement) fileNameElement.innerHTML = "";
+  if(fileSizeElement) fileSizeElement.innerHTML = "";
 
   if (!file) return;
 
@@ -259,14 +270,21 @@ export function handleFile(files, fileListElement, maxSizeMB = 5) {
 
   if (file.type !== "application/pdf") {
     alert("Veuillez sélectionner un fichier PDF.");
+    if(fileInputElement) fileInputElement.value = ""; // Clear input
     return;
   }
 
   if (file.size > maxSizeBytes) {
     alert(`Le fichier est trop volumineux (max ${maxSizeMB} Mo).`);
+    if(fileInputElement) fileInputElement.value = ""; // Clear input
     return;
   }
 
+  // --- Display file info under the dropzone ---
+  if(fileNameElement) fileNameElement.innerHTML = `<strong>Fichier :</strong> ${file.name}`;
+  if(fileSizeElement) fileSizeElement.innerHTML = `<strong>Taille :</strong> ${(file.size / (1024 * 1024)).toFixed(2)} MB`;
+
+  // --- Display preview in the tab viewer ---
   const container = document.createElement("div");
   container.className = "position-relative border rounded p-2";
 
@@ -280,21 +298,15 @@ export function handleFile(files, fileListElement, maxSizeMB = 5) {
   removeBtn.title = "Supprimer le fichier";
   removeBtn.onclick = () => {
     fileListElement.innerHTML = "";
-    // Réinitialiser l'input file
-    const fileInput = document.querySelector("#devis_magasin_pieceJoint01");
-    if (fileInput) {
-      fileInput.value = "";
+    if(fileNameElement) fileNameElement.innerHTML = "";
+    if(fileSizeElement) fileSizeElement.innerHTML = "";
+    // Reset file input
+    if (fileInputElement) {
+      fileInputElement.value = "";
     }
   };
 
-  // Infos du fichier
-  const info = document.createElement("div");
-  info.innerHTML = `<strong>${file.name}</strong> – ${(
-    file.size / 1024
-  ).toFixed(2)} KB`;
-
   container.appendChild(removeBtn);
-  container.appendChild(info);
 
   // Aperçu PDF
   const reader = new FileReader();
