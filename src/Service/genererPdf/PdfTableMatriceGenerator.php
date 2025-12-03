@@ -69,12 +69,15 @@ class PdfTableMatriceGenerator
         foreach ($dals as $dal) {
             $cst = $dal->getArtConstp();
             $ref = $dal->getArtRefp();
+            if ($cst === "ZDI" && !empty($dal->getDemandeApproLR())) {
+                $ref = $dal->getDemandeApproLR()->first()->getArtRefp();
+            }
             $desi = $dal->getArtDesi();
             $qte  = $dal->getQteDem();
             $keyId = implode('_', array_map('trim', [$cst, $ref, $desi, $qte]));
             $html .= '<tr>';
-            $html .= '<td>' . $cst . '</td>';
-            $html .= '<td>' . $ref . '</td>';
+            $html .= "<td>$cst</td>";
+            $html .= "<td>$ref</td>";
             $html .= '<td>' . htmlspecialchars($desi) . '</td>';
             $html .= '<td align="right">' . $qte . '</td>';
 
