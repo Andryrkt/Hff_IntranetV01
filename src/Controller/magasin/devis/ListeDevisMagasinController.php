@@ -27,6 +27,7 @@ class ListeDevisMagasinController extends Controller
 
     private $styleStatutDw = [];
     private $styleStatutBc = [];
+    private $statutIPS = [];
 
     private ListeDevisMagasinModel $listeDevisMagasinModel;
 
@@ -52,6 +53,14 @@ class ListeDevisMagasinController extends Controller
             BcMagasin::STATUT_SOUMIS_VALIDATION => 'bg-bc-soumis-validation',
             BcMagasin::STATUT_EN_ATTENTE_BC => 'bg-bc-en-attente',
             BcMagasin::STATUT_VALIDER => 'bg-bc-valide'
+        ];
+
+        $this->statutIPS = [
+            "--"  => "En cours",
+            "AC"  => "Accepté",
+            "DE"  => "Edité",
+            "RE"  => "Refusé",
+            "TR"  => "Transferé",
         ];
     }
 
@@ -91,7 +100,8 @@ class ListeDevisMagasinController extends Controller
             'listeDevis' => $listeDevisFactory,
             'form' => $form->createView(),
             'styleStatutDw' => $this->styleStatutDw,
-            'styleStatutBc' => $this->styleStatutBc
+            'styleStatutBc' => $this->styleStatutBc,
+            'statutIPS' => $this->statutIPS,
         ]);
     }
 
@@ -132,32 +142,48 @@ class ListeDevisMagasinController extends Controller
 
     public function recuperationDonner(array $criteria = []): array
     {
-        // recupération de la liste des devis magasin dans IPS
-        $codeAgenceUser = $this->getUser()->getCodeAgenceUser(); // utilisateur connecter
-        $vignette = $codeAgenceUser === '01' ? 'magasin' : 'magasin_pol';
-        $admin = in_array(1, $this->getUser()->getRoleIds()); // verification si admin
-        $devisIps = $this->listeDevisMagasinModel->getDevis($criteria,  $vignette,  $codeAgenceUser, $admin);
+        $codeAgenceUser = $this->getUser()->getCodeAgenceUser();
+        $vignette       = $codeAgenceUser === '01' ? 'magasin' : 'magasin_pol';
+        $admin          = in_array(1, $this->getUser()->getRoleIds());
+
+        $devisIps = $this->listeDevisMagasinModel->getDevis($criteria, $vignette, $codeAgenceUser, $admin);
 
         $listeDevisFactory = [];
-        foreach ($devisIps as  $devisIp) {
+        $dejaVu = []; // Tableau pour mémoriser les numéros de devis déjà traités
 
-            $devisMagasinRepository = $this->getEntityManager()->getRepository(DevisMagasin::class);
-            //recupération des information de devis soumission à validation neg
-            $numeroVersionMax = $devisMagasinRepository->getNumeroVersionMax($devisIp['numero_devis']);
-            $devisSoumi = $devisMagasinRepository->findOneBy(['numeroDevis' => $devisIp['numero_devis'], 'numeroVersion' => $numeroVersionMax]);
-            //ajout des informations manquantes
-            $devisIp['statut_dw'] = $devisSoumi ? $devisSoumi->getStatutDw() : '';
-            $devisIp['operateur'] = $devisSoumi ? $devisSoumi->getUtilisateur() : '';
-            $devisIp['date_envoi_devis_au_client'] = $devisSoumi ? ($devisSoumi->getDateEnvoiDevisAuClient() ? $devisSoumi->getDateEnvoiDevisAuClient() : '') : '';
-            $devisIp['utilisateur_createur_devis'] = $this->listeDevisMagasinModel->getUtilisateurCreateurDevis($devisIp['numero_devis']) ?? '';
-            $devisIp['statut_bc'] = $devisSoumi ? $devisSoumi->getStatutBc() : '';
+        foreach ($devisIps as $devisIp) {
+            $numeroDevis = $devisIp['numero_devis'] ?? null;
 
-            // Appliquer les filtres si des critères sont fournis
-            if (!empty($criteria) && !$this->matchesCriteria($devisIp, $criteria)) {
-                continue; // Ignorer cet élément s'il ne correspond pas aux critères
+            // Si on a déjà traité ce numéro de devis → on ignore
+            if ($numeroDevis === null || in_array($numeroDevis, $dejaVu, true)) {
+                continue;
             }
 
-            //transformation par le factory
+            $dejaVu[] = $numeroDevis; // On le marque comme vu
+
+            $devisMagasinRepository = $this->getEntityManager()->getRepository(DevisMagasin::class);
+
+            // Récupération de la version maximale
+            $numeroVersionMax = $devisMagasinRepository->getNumeroVersionMax($numeroDevis);
+            $devisSoumi       = $devisMagasinRepository->findOneBy([
+                'numeroDevis'    => $numeroDevis,
+                'numeroVersion'  => $numeroVersionMax
+            ]);
+
+            // Ajout des informations complémentaires
+            $devisIp['statut_dw']                  = $devisSoumi ? $devisSoumi->getStatutDw()                  : '';
+            $devisIp['operateur']                  = $devisSoumi ? $devisSoumi->getUtilisateur()               : '';
+            $devisIp['date_envoi_devis_au_client'] = $devisSoumi ? ($devisSoumi->getDateEnvoiDevisAuClient() ? $devisSoumi->getDateEnvoiDevisAuClient() : '') : '';
+            $devisIp['utilisateur_createur_devis'] = $this->listeDevisMagasinModel
+                ->getUtilisateurCreateurDevis($numeroDevis) ?? '';
+            $devisIp['statut_bc']                  = $devisSoumi ? $devisSoumi->getStatutBc()                  : '';
+
+            // Application des filtres critères
+            if (!empty($criteria) && !$this->matchesCriteria($devisIp, $criteria)) {
+                continue;
+            }
+
+            // Transformation via le factory
             $listeDevisFactory[] = (new ListeDevisMagasinFactory())->transformationEnObjet($devisIp);
         }
 

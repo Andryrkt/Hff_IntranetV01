@@ -67,7 +67,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function displayCommercial(item) {
-    return `${item}`;
+    return `${item.value}-${item.nom}`;
   }
 
   const commercialInput = document.querySelector(
@@ -75,7 +75,7 @@ document.addEventListener("DOMContentLoaded", function () {
   );
 
   function onSelectCommercial(item) {
-    commercialInput.value = `${item}`;
+    commercialInput.value = `${item.value}-${item.nom}`;
   }
   //AUtoComplet nomLCients
   new AutoComplete({
@@ -85,7 +85,7 @@ document.addEventListener("DOMContentLoaded", function () {
     debounceDelay: 300,
     fetchDataCallback: fetchCommercial,
     displayItemCallback: (item) => displayCommercial(item),
-    itemToStringCallback: (item) => `${item}`,
+    itemToStringCallback: (item) => `${item.value}-${item.nom}`,
     onSelectCallback: (item) => onSelectCommercial(item),
   });
 });

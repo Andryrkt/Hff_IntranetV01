@@ -254,13 +254,14 @@ trait StatutBcTrait
 
     private function aSituationCde(array $situationCde, array $infoDaDirect, bool $daViaOR, bool $daDirect): bool
     {
-        if ($daViaOR) return !array_key_exists(0, $situationCde);
-        elseif ($daDirect) return !array_key_exists(0, $infoDaDirect);
+        if ($daViaOR) return array_key_exists(0, $situationCde);
+        elseif ($daDirect) return array_key_exists(0, $infoDaDirect);
         else return true;
     }
 
     private function doitGenererBc(array $situationCde, string $statutDa, ?string $statutOr, array $infoDaDirect, bool $daDirect, bool $daViaOR): bool
     {
+
         if ($daDirect) {
             if ($statutOr === DemandeAppro::STATUT_DW_VALIDEE) {
                 if (empty($infoDaDirect)) {

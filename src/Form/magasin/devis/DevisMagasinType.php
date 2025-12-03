@@ -15,9 +15,13 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 class DevisMagasinType extends AbstractType
 {
     private const TACHE_VALIDATEUR = [
-        'Vérification prix' => 'Vérification prix',
-        'Remise' => 'Remise',
-        'Vérification prix et remise' => 'Vérification prix et remise',
+        'Vérification prix'                        => 'Vérification prix',
+        'Insertion remise'                         => 'Insertion remise',
+        'Verification de prix et insertion remise' => 'Verification de prix et insertion remise',
+        'Modification entête'                      => 'Modification entête',
+        'Modification statut'                      => 'Modification statut',
+        'Modification tarif (type AMSA/COLAS)'     => 'Modification tarif (type AMSA/COLAS)',
+        'Insertition ligne transport'              => 'Insertition ligne transport'
     ];
 
     public function buildForm(FormBuilderInterface $builder, array $options)

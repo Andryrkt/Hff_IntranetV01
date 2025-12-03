@@ -139,7 +139,7 @@ class DevisMagasin
      *
      * @var string|null
      */
-    private ?string $tacheValidateur;
+    private ?string $tacheValidateur = null;
 
     /**
      * @ORM\Column(type="boolean", name="est_validation_pm")

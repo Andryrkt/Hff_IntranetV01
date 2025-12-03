@@ -11,7 +11,7 @@ class ListeDevisMagasinModel extends Model
 {
     public function getDevis(array $criteria = [],  string $vignette = 'magasin', string $codeAgenceUser = '-0', bool $admin = false): array
     {
-        $statement = "SELECT FIRST 100
+        $statement = "SELECT FIRST 100 DISTINCT
             nent_numcde as numero_devis
             ,nent_datecde as date_creation
             ,nent_succ || ' - ' || nent_servcrt as emmeteur
