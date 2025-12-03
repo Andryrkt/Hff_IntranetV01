@@ -11,6 +11,7 @@ use App\Entity\dw\DwBcAppro;
 use App\Form\da\DaSoumissionFacBlType;
 use App\Model\da\DaModel;
 use App\Model\dit\DitModel;
+use App\Repository\da\DaAfficherRepository;
 use App\Service\genererPdf\GeneratePdf;
 use App\Service\fichier\TraitementDeFichier;
 use App\Repository\da\DemandeApproRepository;
@@ -24,6 +25,7 @@ use App\Service\genererPdf\bap\GenererPdfBonAPayer;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Service\historiqueOperation\HistoriqueOperationService;
 use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
+use DateTime;
 
 /**
  * @Route("/demande-appro")
@@ -39,6 +41,7 @@ class DaSoumissionFacBlController extends Controller
     private GeneratePdf $generatePdf;
     private DemandeApproRepository $demandeApproRepository;
     private DwBcApproRepository $dwBcApproRepository;
+    private DaAfficherRepository $daAfficherRepository;
 
     public function __construct()
     {
@@ -51,6 +54,7 @@ class DaSoumissionFacBlController extends Controller
         $this->daSoumissionFacBlRepository = $this->getEntityManager()->getRepository(DaSoumissionFacBl::class);
         $this->demandeApproRepository      = $this->getEntityManager()->getRepository(DemandeAppro::class);
         $this->dwBcApproRepository         = $this->getEntityManager()->getRepository(DwBcAppro::class);
+        $this->daAfficherRepository        = $this->getEntityManager()->getRepository(DaAfficher::class);
     }
 
     /**
@@ -66,6 +70,7 @@ class DaSoumissionFacBlController extends Controller
         $daSoumissionFacBl = $this->initialisationFacBl($numCde, $numDa, $numOr);
         $form = $this->getFormFactory()->createBuilder(DaSoumissionFacBlType::class, $daSoumissionFacBl, [
             'method' => 'POST',
+            'numLivs' => array_keys($infosLivraison),
         ])->getForm();
 
         $this->traitementFormulaire($request, $numCde, $form, $numDa, $numOr);
@@ -78,6 +83,7 @@ class DaSoumissionFacBlController extends Controller
     private function initialisationFacBl(string $numCde, string $numDa, string $numOr): DaSoumissionFacBl
     {
         $numDit = $this->demandeApproRepository->getNumDitDa($numDa);
+        $dateLivraisonPrevue = $this->daAfficherRepository->getDateLivraisonPrevue($numDa, $numCde);
         return (new DaSoumissionFacBl)
             ->setNumeroCde($numCde)
             ->setUtilisateur($this->getUserName())
@@ -85,6 +91,7 @@ class DaSoumissionFacBlController extends Controller
             ->setNumeroDemandeAppro($numDa)
             ->setNumeroDemandeDit($numDit)
             ->setNumeroOR($numOr)
+            ->setDateBlFac($dateLivraisonPrevue ? new DateTime($dateLivraisonPrevue) : null)
         ;
     }
 

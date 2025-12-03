@@ -62,7 +62,7 @@ class DaAfficherRepository extends EntityRepository
             return [];
         } else {
             return $this->createQueryBuilder('d')
-                ->select('d.dateLivraisonPrevue')
+                ->select('DISTINCT(d.dateLivraisonPrevue)')
                 ->where('d.numeroDemandeAppro = :num')
                 ->andWhere('d.numeroCde = :numCde')
                 ->andWhere('d.numeroVersion = :version')
