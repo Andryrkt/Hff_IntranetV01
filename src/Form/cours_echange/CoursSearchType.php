@@ -2,6 +2,7 @@
 namespace App\Form\cours_echange;
 
 use App\Entity\cours_echange\CoursEchangeSearch;
+use DateTime;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -14,6 +15,7 @@ class CoursSearchType extends AbstractType
           $builder
           ->add('dateHisto', DateType::class, [
                 'label' => 'Date historique',
+                'data'=> new DateTime(),
                 'widget' => 'single_text',
                 'required' => false,
           ]);
