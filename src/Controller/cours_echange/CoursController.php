@@ -3,6 +3,8 @@
 namespace App\Controller\cours_echange;
 
 use App\Controller\Controller;
+use App\Entity\cours_echange\CoursEchangeSearch;
+use App\Form\cours_echange\CoursSearchType;
 use App\Model\cours_echange\coursModel;
 use DateTime;
 use Symfony\Component\Routing\Annotation\Route;
@@ -10,14 +12,16 @@ use Symfony\Component\Routing\Annotation\Route;
 class CoursController extends Controller
 {
     private coursModel $coursModel;
+    private CoursEchangeSearch $coursEchangeSearch;
     public function __construct()
     {
         parent::__construct();
         $this->coursModel = new coursModel();
+        $this->coursEchangeSearch = new CoursEchangeSearch();
     }
 
     /**
-     * @Route("cours_echange", name="cours")
+     * @Route("cours_echange", name="cours_echange")
      */
     public function viewCours()
     {
@@ -60,5 +64,24 @@ class CoursController extends Controller
             ];
         }
         return ['data' => $data, 'EU_USD' => $montEU_USD, 'USD_EU' => $montUSD_EU];
+    }
+    /**
+     * @Route("historique_echange", name="historique_echange")
+     */
+    public function histoEchange(){
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+        $form = $this->getFormFactory()->createBuilder(
+            CoursSearchType::class,
+            $this->coursEchangeSearch,
+            [
+                'method' => 'GET'
+            ]
+        )->getForm();
+$criteria = $this->coursEchangeSearch;
+
+          return $this->render('cours_echange/historique_cours.html.twig',[
+            'form'=> $form->createView()
+          ]);
     }
 }

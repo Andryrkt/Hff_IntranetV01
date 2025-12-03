@@ -302,7 +302,7 @@ class MenuService
     {
         $subitems = [];
 
-        $subitems[] = $this->createSimpleItem('Cours de change', 'money-bill-wave', 'cours');
+        $subitems[] = $this->createSimpleItem('Cours de change', 'money-bill-wave', 'cours_echange');
         $subitems[] = $this->createSubMenuItem(
             'Demande de paiement',
             'file-invoice-dollar',

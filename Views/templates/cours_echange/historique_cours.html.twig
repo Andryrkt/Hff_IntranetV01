@@ -7,31 +7,20 @@
 {% block content %}
 <div class="sticky-header-titre">
 		<div class="container">
-			<div class="d-flex justify-content-between">
 				{% include "/cours_echange/menu_cours.html.twig" %}
-			</div>
+				{% include "/cours_echange/_formulaireHisto.html.twig" %}
 		</div>
 </div>
 <div class="container spaced mt-6">
 	<table class="table rounded table-sticky text-center">
 	<thead class="table-dark">
 	<tr>
-	<th>Devise</th>
-	<th> {{libDate}}</th>
 	</tr>
 	</thead>
 	<tbody id="tableBody">
-	{% for item in deviscours %}
-		<tr>
-		<td style="text-align: left;"> {{ item.devis}}</td>
-		<td> {{ item.cours}}</td>
-		</tr>
-	{% endfor %}
 	</tbody>
 	</table>
 	<div class="text-center">
-		<p> conv.Euro / USD :   {{EU_USD}}</p>
-		<p> conv.USD / Euro :   {{USD_EU}}</p>
 	</div>
 </div>
 {% endblock %}
