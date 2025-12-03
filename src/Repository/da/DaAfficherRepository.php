@@ -45,6 +45,37 @@ class DaAfficherRepository extends EntityRepository
         }
     }
 
+    /**
+     * @param string $numeroDemandeAppro
+     * @param string $numeroCde
+     */
+    public function getDateLivraisonPrevue(string $numeroDemandeAppro, string $numeroCde)
+    {
+        $maxVersion = $this->createQueryBuilder('d')
+            ->select('MAX(d.numeroVersion)')
+            ->where('d.numeroDemandeAppro = :num')
+            ->setParameter('num', $numeroDemandeAppro)
+            ->getQuery()
+            ->getSingleScalarResult(); // Renvoie null si aucune ligne
+
+        if ($maxVersion === null) {
+            return [];
+        } else {
+            return $this->createQueryBuilder('d')
+                ->select('d.dateLivraisonPrevue')
+                ->where('d.numeroDemandeAppro = :num')
+                ->andWhere('d.numeroCde = :numCde')
+                ->andWhere('d.numeroVersion = :version')
+                ->setParameters([
+                    'num'     => $numeroDemandeAppro,
+                    'numCde'  => $numeroCde,
+                    'version' => $maxVersion,
+                ])
+                ->getQuery()
+                ->getSingleScalarResult();
+        }
+    }
+
     public function markAsDeletedByNumeroLigne(string $numeroDemandeAppro, array $numeroLignes, string $userName, $numeroVersion): void
     {
         if (empty($numeroLignes)) return; // rien à faire
