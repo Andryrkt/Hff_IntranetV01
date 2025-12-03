@@ -564,7 +564,7 @@ class DaModel extends Model
         return $data;
     }
 
-    public function getInfoLivraison(string $numLiv)
+    public function getInfoLivraison(string $numCde)
     {
         $statement = "SELECT distinct 
                         f.fllf_numliv AS num_liv, 
@@ -573,9 +573,12 @@ class DaModel extends Model
                         TRIM(f2.fliv_livext) AS ref_fac_bl
                     from Informix.frn_llf f 
                     inner join Informix.frn_liv f2 on f.fllf_numliv = f2.fliv_numliv 
-                where f.fllf_numliv = '$numLiv'";
+                where f.fllf_numcde = '$numCde'";
         $result = $this->connect->executeQuery($statement);
-        return $this->convertirEnUtf8($this->connect->fetchResults($result));
+        $rows = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        // On réindexe directement par num_liv en une seule étape
+        return array_column($rows, null, 'num_liv');
     }
 
     public function getInfoBC(string $numCde)
