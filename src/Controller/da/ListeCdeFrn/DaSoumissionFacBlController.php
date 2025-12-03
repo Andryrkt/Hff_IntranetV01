@@ -61,8 +61,9 @@ class DaSoumissionFacBlController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $daSoumissionFacBl = $this->initialisationFacBl($numCde, $numDa, $numOr);
+        $infosLivraison = $this->getInfoLivraison($numCde, $numDa);
 
+        $daSoumissionFacBl = $this->initialisationFacBl($numCde, $numDa, $numOr);
         $form = $this->getFormFactory()->createBuilder(DaSoumissionFacBlType::class, $daSoumissionFacBl, [
             'method' => 'POST',
         ])->getForm();
@@ -285,16 +286,27 @@ class DaSoumissionFacBlController extends Controller
         return $filePath;
     }
 
-    private function getInfoLivraison(string $numCde, string $numLiv)
+    private function getInfoLivraison(string $numCde, string $numDa)
     {
-        $infosLivraison = (new DaModel)->getInfoLivraison($numLiv);
+        $infosLivraisons = (new DaModel)->getInfoLivraison($numCde);
 
-        if (empty($infosLivraison)) return [];
-
-        foreach ($infosLivraison as $data) {
-            if ($data['num_cde'] === $numCde) return $data;
+        if (empty($infosLivraisons)) {
+            $message = "La commande n° '$numCde' n'a pas de livraison associé dans IPS. Merci de bien vérifier le numéro de la commande.";
+            $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn');
         }
-        return ['num_cde' => false, 'num_liv' => $numLiv];
+
+        $livraisonSoumis = $this->daSoumissionFacBlRepository->getAllLivraisonSoumis($numDa, $numCde);
+
+        foreach ($livraisonSoumis as $numLiv) {
+            unset($infosLivraisons[$numLiv]); // exclure les livraisons déjà soumises
+        }
+
+        if (empty($infosLivraisons)) {
+            $message = "La commande n° '$numCde' n'a plus de livraison à soumettre. Toutes les livraisons associées ont déjà été soumises.";
+            $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn');
+        }
+
+        return $infosLivraisons;
     }
 
     private function conditionDeBlocage(DaSoumissionFacBl $soumissionFacBl, array $infoLivraison): array
