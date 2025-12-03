@@ -304,7 +304,7 @@ class DaSoumissionFacBlController extends Controller
         $infosLivraisons = (new DaModel)->getInfoLivraison($numCde);
 
         if (empty($infosLivraisons)) {
-            $message = "La commande n° '$numCde' n'a pas de livraison associé dans IPS. Merci de bien vérifier le numéro de la commande.";
+            $message = "La commande n° <b>$numCde</b> n'a pas de livraison associé dans IPS. Merci de bien vérifier le numéro de la commande.";
             $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn');
         }
 
@@ -315,7 +315,7 @@ class DaSoumissionFacBlController extends Controller
         }
 
         if (empty($infosLivraisons)) {
-            $message = "La commande n° '$numCde' n'a plus de livraison à soumettre. Toutes les livraisons associées ont déjà été soumises.";
+            $message = "La commande n° <b>$numCde</b> n'a plus de livraison à soumettre. Toutes les livraisons associées ont déjà été soumises.";
             $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn');
         }
 
