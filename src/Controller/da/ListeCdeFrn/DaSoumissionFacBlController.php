@@ -127,7 +127,7 @@ class DaSoumissionFacBlController extends Controller
                 $nomFichierAvecChemins = $this->addPrefixToElementArray($nomDeFichiers, $this->cheminDeBase . $numDa . '/');
 
                 /** CREATION DE LA PAGE DE GARDE */
-                $pageDeGarde = $this->genererPageDeGarde($numOr, $numCde, $infoLiv, $soumissionFacBl);
+                $pageDeGarde = $this->genererPageDeGarde($infoLiv, $soumissionFacBl);
 
                 /** AJOUT DE LA PAGE DE GARDE A LA PREMIERE POSITION */
                 $nomFichierAvecChemins = $this->traitementDeFichier->insertFileAtPosition($nomFichierAvecChemins, $pageDeGarde, 0);
@@ -353,12 +353,15 @@ class DaSoumissionFacBlController extends Controller
         return $okey;
     }
 
-    private function genererPageDeGarde(string $numOr, string $numCde, array $infoLivraison, DaSoumissionFacBl $soumissionFacBl): string
+    private function genererPageDeGarde(array $infoLivraison, DaSoumissionFacBl $soumissionFacBl): string
     {
         $daModel          = new DaModel();
         $ditModel         = new DitModel();
         $generatePdfBap   = new GenererPdfBonAPayer();
         $recapitulationOR = new Recapitulation();
+
+        $numCde           = $soumissionFacBl->getNumeroCde();
+        $numOr            = $soumissionFacBl->getNumeroOR();
 
         $infoBC           = $daModel->getInfoBC($numCde);
         $infoValidationBC = $this->dwBcApproRepository->getInfoValidationBC($numCde);
@@ -372,6 +375,6 @@ class DaSoumissionFacBlController extends Controller
             "dateLivIPS" => $infoLivraison["date_clot"],
         ];
 
-        return $generatePdfBap->genererPageDeGarde($infoBC, $infoValidationBC, $infoMateriel, $dataRecapOR, $demandeAppro, $infoFacBl);
+        return $generatePdfBap->genererPageDeGarde($infoBC, $infoValidationBC, $infoMateriel, $dataRecapOR, $demandeAppro, $soumissionFacBl, $infoFacBl);
     }
 }
