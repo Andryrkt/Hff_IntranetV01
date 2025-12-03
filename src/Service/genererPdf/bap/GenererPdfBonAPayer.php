@@ -180,7 +180,9 @@ class GenererPdfBonAPayer extends GeneratePdf
             }
         }
 
-        $fileName = "$Dossier/BAP_{$numDa}_" . $numCde ?? date("Y-m-d_H-i-s") . ".pdf";
+        $numCde = $numCde ?? date("Y-m-d_H-i-s");
+
+        $fileName = "$Dossier/BAP_{$numDa}_{$numCde}.pdf";
         $pdf->Output($fileName, $dest);
         return $fileName;
     }
