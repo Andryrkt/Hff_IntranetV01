@@ -600,6 +600,7 @@ class DaModel extends Model
                 TRIM(fcde_lib) as libelle_cde, 
                 fcde_mtn as mtn_cde,
                 fcde_ttc as ttc_cde,
+                TRIM(fcde_devise) as devise,
                 TRIM(fcde_typcde) as type_cde 
             from frn_cde 
             inner join frn_bse on fbse_numfou = fcde_numfou
