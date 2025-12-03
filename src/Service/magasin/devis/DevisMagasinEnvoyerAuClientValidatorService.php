@@ -10,7 +10,6 @@ use App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService;
 
 class DevisMagasinEnvoyerAuClientValidatorService extends ValidationServiceBase
 {
-
     private HistoriqueOperationDevisMagasinService $historiqueService;
 
     /**
@@ -18,20 +17,53 @@ class DevisMagasinEnvoyerAuClientValidatorService extends ValidationServiceBase
      * 
      * @param HistoriqueOperationDevisMagasinService $historiqueService Service pour l'historique des opérations
      */
-    public function __construct(HistoriqueOperationDevisMagasinService $historiqueService)
+    public function __construct()
     {
-        $this->historiqueService = $historiqueService;
+        global $container;
+        $this->historiqueService = $container->get(HistoriqueOperationDevisMagasinService::class);
     }
 
-    public function validateBeforeEnvoyerAuClient(DevisMagasinRepository $devisRepository, string $numeroDevis): bool
+    public function validateData(array $data): bool
     {
-        // 1. Vérifier si le statut est Prix à confirmer
-        if (!$this->verifierStatutPrixAConfirmer($devisRepository, $numeroDevis)) {
+        //Bloquer si :
+
+        // s'il n'y a pas de numéro de devis
+        if (!$this->checkMissingIdentifier($data['numeroDevis'])) {
+            return false;
+        }
+
+        // si le statut est Prix à confirmer
+        if (!$this->verifierStatutPrixAConfirmer($data['devisMagasinRepository'], $data['numeroDevis'])) {
+            return false;
+        }
+
+        // si le statut est Prix modifié et il n'y a pas de modification de prix sur le devis dans IPS
+        if (!$this->verifierStatutPrixModifieOuPasDeModificationPrix($data['devisMagasinRepository'], $data['numeroDevis'], $data['newSumOfMontant'])) {
             return false;
         }
 
         return true;
     }
+
+    /**
+     * Vérifie si le numéro de devis est manquant lors de la soumission
+     * 
+     * @param string|null $numeroDevis Le numéro de devis à vérifier
+     * @return bool true si le numéro de devis est présent, false sinon
+     */
+    public function checkMissingIdentifier(?string $numeroDevis): bool
+    {
+        if ($this->isIdentifierMissing($numeroDevis)) {
+            $this->sendNotification(
+                DevisMagasinValidationConfig::ERROR_MESSAGES['missing_identifier'],
+                '-',
+                false
+            );
+            return false;
+        }
+        return true;
+    }
+
     /**
      * Vérifier si le statut est Prix à confirmer
      * 
@@ -49,8 +81,28 @@ class DevisMagasinEnvoyerAuClientValidatorService extends ValidationServiceBase
         );
     }
 
+    /**
+     * Vérifier si le statut est Prix modifié et il n'y a pas de modification de prix sur le devis dans IPS
+     * 
+     * @param DevisMagasinRepository $devisRepository Le repository pour accéder aux données du devis
+     * @param string $numeroDevis Le numéro de devis à vérifier
+     * @param float $newSumOfMontant Le nouveau montant total
+     * @return bool true si la validation passe, false sinon
+     */
+    public function verifierStatutPrixModifieOuPasDeModificationPrix(DevisMagasinRepository $repository, string $numeroDevis, float $newSumOfMontant): bool
+    {
+        return $this->validateStatusWithContent(
+            $repository,
+            $numeroDevis,
+            DevisMagasinValidationConfig::POINTAGE_PRIX_MODIFIER_BLOCKING_STATUSES,
+            function () use ($repository, $numeroDevis, $newSumOfMontant) {
+                return $this->isSumOfMontantUnchanged($repository, $numeroDevis, $newSumOfMontant);
+            },
+            DevisMagasinValidationConfig::ERROR_MESSAGES['pointage_prix_modifier_montant_inchanger']
+        );
+    }
 
- 
+
     // ---------------------------------------------------------------------------------------------------
 
     /**
@@ -88,5 +140,27 @@ class DevisMagasinEnvoyerAuClientValidatorService extends ValidationServiceBase
             return false;
         }
         return true;
+    }
+
+    public function getRedirectRoute(): string
+    {
+        return DevisMagasinValidationConfig::REDIRECT_ROUTE;
+    }
+
+    /**
+     * Envoie une notification via le service d'historique
+     * 
+     * @param string $message Le message à envoyer
+     * @param string $numeroDevis Le numéro de devis concerné
+     * @param bool $success Indique si l'opération a réussi
+     */
+    private function sendNotification(string $message, string $numeroDevis, bool $success): void
+    {
+        $this->historiqueService->sendNotificationSoumission(
+            $message,
+            $numeroDevis,
+            DevisMagasinValidationConfig::REDIRECT_ROUTE,
+            $success
+        );
     }
 }
