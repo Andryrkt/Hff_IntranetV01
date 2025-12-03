@@ -24,6 +24,7 @@ use App\Service\genererPdf\bap\GenererPdfBonAPayer;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Service\historiqueOperation\HistoriqueOperationService;
 use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
+use DateTime;
 
 /**
  * @Route("/demande-appro")
@@ -175,7 +176,7 @@ class DaSoumissionFacBlController extends Controller
             ->setNumeroCde($numCde)
             ->setPieceJoint1($nomPdfFusionner)
             ->setNumeroVersion($numeroVersionMax)
-            ->setDateClotLiv($infoLivraison["date_clot"])
+            ->setDateClotLiv(new DateTime($infoLivraison["date_clot"]))
             ->setRefBlFac($infoLivraison["ref_fac_bl"])
         ;
     }
