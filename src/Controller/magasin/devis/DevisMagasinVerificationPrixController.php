@@ -132,7 +132,7 @@ class DevisMagasinVerificationPrixController extends Controller
             /** @var array fusions des fichiers */
             $nomEtCheminFichierConvertie = $this->ConvertirLesPdf($nomEtCheminFichiersEnregistrer);
             $this->traitementDeFichier->fusionFichers($nomEtCheminFichierConvertie, $nomAvecCheminFichier);
-            
+
 
             //ajout des informations de IPS et des informations manuelles comme nombre de lignes, cat, nonCat dans le devis magasin
             $this->ajoutInfoIpsDansDevisMagasin($devisMagasin, $firstDevisIps, $numeroVersion, $nomFichier, self::TYPE_SOUMISSION_VERIFICATION_PRIX);
@@ -147,7 +147,10 @@ class DevisMagasinVerificationPrixController extends Controller
 
             //HISTORISATION DE L'OPERATION
             $message = "la vérification de prix du devis numero : " . $devisMagasin->getNumeroDevis() . " a été envoyée avec succès .";
-            $this->historiqueOperationDeviMagasinService->sendNotificationSoumission($message, $devisMagasin->getNumeroDevis(), 'devis_magasin_liste', true);
+            $criteria = $this->getSessionService()->get('criteria_for_excel_liste_devis_magasin');
+            $nomDeRoute = 'devis_magasin_liste'; // route de redirection après soumission
+            $nomInputSearch = 'devis_magasin_search'; // initialistion de nom de chaque champ ou input
+            $this->historiqueOperationBcMagasinService->sendNotificationSoumission($message, $devisMagasin->getNumeroDevis(), $nomDeRoute, true, $criteria, $nomInputSearch);
         }
     }
 }

@@ -145,8 +145,10 @@ class DevisMagasinValidationDevisController extends Controller
 
             //HISTORISATION DE L'OPERATION
             $message = "la validation du devis numero : " . $devisMagasin->getNumeroDevis() . " a été envoyée avec succès .";
-            $this->historiqueOperationDeviMagasinService->sendNotificationSoumission($message, $devisMagasin->getNumeroDevis(), 'devis_magasin_liste', true);
+            $criteria = $this->getSessionService()->get('criteria_for_excel_liste_devis_magasin');
+            $nomDeRoute = 'devis_magasin_liste'; // route de redirection après soumission
+            $nomInputSearch = 'devis_magasin_search'; // initialistion de nom de chaque champ ou input
+            $this->historiqueOperationBcMagasinService->sendNotificationSoumission($message, $devisMagasin->getNumeroDevis(), $nomDeRoute, true, $criteria, $nomInputSearch);
         }
     }
-
 }

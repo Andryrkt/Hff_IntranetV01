@@ -77,7 +77,8 @@ class ListeDevisMagasinController extends Controller
 
         //formulaire de recherhce
         $form = $this->getFormFactory()->createBuilder(DevisMagasinSearchType::class, $this->initialisationCriteria(), [
-            'em' => $this->getEntityManager()
+            'em' => $this->getEntityManager(),
+            'method' => 'GET'
         ])->getForm();
 
         /** @var array */
