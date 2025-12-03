@@ -26,6 +26,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Service\historiqueOperation\HistoriqueOperationService;
 use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
 use DateTime;
+use Symfony\Component\Form\FormInterface;
 
 /**
  * @Route("/demande-appro")
@@ -69,11 +70,11 @@ class DaSoumissionFacBlController extends Controller
 
         $daSoumissionFacBl = $this->initialisationFacBl($numCde, $numDa, $numOr);
         $form = $this->getFormFactory()->createBuilder(DaSoumissionFacBlType::class, $daSoumissionFacBl, [
-            'method' => 'POST',
+            'method'  => 'POST',
             'numLivs' => array_keys($infosLivraison),
         ])->getForm();
 
-        $this->traitementFormulaire($request, $numCde, $form, $numDa, $numOr);
+        $this->traitementFormulaire($request, $form, $infosLivraison);
 
         return $this->render('da/soumissionFacBl.html.twig', [
             'form' => $form->createView(),
@@ -99,20 +100,26 @@ class DaSoumissionFacBlController extends Controller
      * permet de faire le rtraitement du formulaire
      *
      * @param Request $request
-     * @param string $numCde
-     * @param [type] $form
+     * @param FormInterface $form
+     * @param array $infosLivraison
+     * 
      * @return void
      */
-    private function traitementFormulaire(Request $request, string $numCde, $form, string $numDa, string $numOr): void
+    private function traitementFormulaire(Request $request, FormInterface $form, array $infosLivraison): void
     {
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            /** @var DaSoumissionFacBl $soumissionFacBl */
             $soumissionFacBl = $form->getData();
-            $numLiv = $soumissionFacBl->getNumLiv();
-            $infoLivraison = $this->getInfoLivraison($numCde, $numLiv);
+            $numCde  = $soumissionFacBl->getNumeroCde();
+            $numDa   = $soumissionFacBl->getNumeroDemandeAppro();
+            $numOr   = $soumissionFacBl->getNumeroOR();
+            $numLiv  = $soumissionFacBl->getNumLiv();
+            $infoLiv = $infosLivraison[$numLiv];
             $nomOriginalFichier = $soumissionFacBl->getPieceJoint1()->getClientOriginalName();
-            if ($this->verifierConditionDeBlocage($soumissionFacBl, $numCde, $infoLivraison, $nomOriginalFichier)) {
+
+            if ($this->verifierConditionDeBlocage($soumissionFacBl, $infoLiv, $nomOriginalFichier)) {
                 /** ENREGISTREMENT DE FICHIER */
                 $nomDeFichiers = $this->enregistrementFichier($form, $numCde, $numDa);
 
@@ -120,7 +127,7 @@ class DaSoumissionFacBlController extends Controller
                 $nomFichierAvecChemins = $this->addPrefixToElementArray($nomDeFichiers, $this->cheminDeBase . $numDa . '/');
 
                 /** CREATION DE LA PAGE DE GARDE */
-                $pageDeGarde = $this->genererPageDeGarde($numOr, $numCde, $infoLivraison, $soumissionFacBl);
+                $pageDeGarde = $this->genererPageDeGarde($numOr, $numCde, $infoLiv, $soumissionFacBl);
 
                 /** AJOUT DE LA PAGE DE GARDE A LA PREMIERE POSITION */
                 $nomFichierAvecChemins = $this->traitementDeFichier->insertFileAtPosition($nomFichierAvecChemins, $pageDeGarde, 0);
@@ -130,14 +137,14 @@ class DaSoumissionFacBlController extends Controller
 
                 /** GENERATION DU NOM DU FICHIER */
                 $numeroVersionMax          = VersionService::autoIncrement($this->daSoumissionFacBlRepository->getNumeroVersionMax($numCde));
-                $nomPdfFusionner           =  'FACBL' . $numCde . '#' . $numDa . '-' . $numOr . '_' . $numeroVersionMax . '~' . $nomOriginalFichier;
+                $nomPdfFusionner           =  "FACBL$numCde#$numDa-{$numOr}_{$numeroVersionMax}~{$nomOriginalFichier}";
                 $nomAvecCheminPdfFusionner = $this->cheminDeBase . $numDa . '/' . $nomPdfFusionner;
 
                 /** FUSION DES PDF */
                 $this->traitementDeFichier->fusionFichers($fichierConvertir, $nomAvecCheminPdfFusionner);
 
                 /** AJOUT DES INFO NECESSAIRE */
-                $this->ajoutInfoNecesaireSoumissionFacBl($soumissionFacBl, $numCde, $nomPdfFusionner, $numeroVersionMax, $infoLivraison);
+                $this->ajoutInfoNecesaireSoumissionFacBl($soumissionFacBl, $nomPdfFusionner, $numeroVersionMax, $infoLiv);
 
                 /** ENREGISTREMENT DANS LA BASE DE DONNEE */
                 $this->getEntityManager()->persist($soumissionFacBl);
@@ -177,13 +184,12 @@ class DaSoumissionFacBlController extends Controller
         $this->getEntityManager()->flush();
     }
 
-    private function ajoutInfoNecesaireSoumissionFacBl(DaSoumissionFacBl $soumissionFacBl, string $numCde, string $nomPdfFusionner, int $numeroVersionMax, array $infoLivraison)
+    private function ajoutInfoNecesaireSoumissionFacBl(DaSoumissionFacBl $soumissionFacBl, string $nomPdfFusionner, int $numeroVersionMax, array $infoLivraison)
     {
         $soumissionFacBl
-            ->setNumeroCde($numCde)
             ->setPieceJoint1($nomPdfFusionner)
             ->setNumeroVersion($numeroVersionMax)
-            ->setDateClotLiv($infoLivraison["date_clot"])
+            ->setDateClotLiv(new DateTime($infoLivraison["date_clot"]))
             ->setRefBlFac($infoLivraison["ref_fac_bl"])
         ;
     }
@@ -293,7 +299,7 @@ class DaSoumissionFacBlController extends Controller
         return $filePath;
     }
 
-    private function getInfoLivraison(string $numCde, string $numDa)
+    private function getInfoLivraison(string $numCde, string $numDa): array
     {
         $infosLivraisons = (new DaModel)->getInfoLivraison($numCde);
 
@@ -316,36 +322,24 @@ class DaSoumissionFacBlController extends Controller
         return $infosLivraisons;
     }
 
-    private function conditionDeBlocage(DaSoumissionFacBl $soumissionFacBl, array $infoLivraison): array
+    private function conditionDeBlocage(array $infoLivraison, string $nomOriginalFichier): array
     {
-        $nomDeFichier = $soumissionFacBl->getPieceJoint1()->getClientOriginalName();
-
         return [
-            'nomDeFichier'        => preg_match('/[#\-_~]/', $nomDeFichier), // contient au moins un des caractères
-            'livraisonVide'       => empty($infoLivraison),
-            'pasDeCorrespondance' => !empty($infoLivraison) && $infoLivraison['num_cde'] === false,
-            'nonCloture'          => !empty($infoLivraison) && isset($infoLivraison['date_clot']) && $infoLivraison['date_clot'] === null,
+            'nomDeFichier' => preg_match('/[#\-_~]/', $nomOriginalFichier), // contient au moins un des caractères
+            'nonCloture'   => !empty($infoLivraison) && isset($infoLivraison['date_clot']) && $infoLivraison['date_clot'] === null,
         ];
     }
 
-    private function verifierConditionDeBlocage(DaSoumissionFacBl $soumissionFacBl, $numCde, $infoLivraison, $nomOriginalFichier): bool
+    private function verifierConditionDeBlocage(DaSoumissionFacBl $soumissionFacBl, array $infoLivraison, string $nomOriginalFichier): bool
     {
-        $conditions = $this->conditionDeBlocage($soumissionFacBl, $infoLivraison);
+        $numCde = $soumissionFacBl->getNumeroCde();
+        $numLiv = $soumissionFacBl->getNumLiv();
+        $conditions = $this->conditionDeBlocage($infoLivraison, $nomOriginalFichier);
 
         $okey = true;
 
-        if ($conditions['livraisonVide']) {
-            $message = "Le numéro de la livraison n'existe pas dans IPS. Merci de bien vérifier le numéro de la livraison.";
-
-            $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn');
-            $okey = false;
-        } elseif ($conditions['pasDeCorrespondance']) {
-            $message = "Le numéro de livraison '" . $infoLivraison['num_liv'] . "' ne correspond pas au numéro de commande '$numCde'. Merci de bien vérifier le numéro de la livarison de la commande.";
-
-            $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn');
-            $okey = false;
-        } elseif ($conditions['nonCloture']) {
-            $message = "La livraison n'est pas encore clôturée. Merci de clôturer d'abord la livraison.";
+        if ($conditions['nonCloture']) {
+            $message = "La livraison n° '$numLiv' associée à la commande n° '$numCde' n'est pas encore clôturée. Merci de clôturer la livraison avant de soumettre le document dans DocuWare.";
 
             $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn');
             $okey = false;
