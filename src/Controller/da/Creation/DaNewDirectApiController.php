@@ -19,7 +19,7 @@ class DaNewDirectApiController extends Controller
     ];
 
     /**
-     * @Route("/da-article-reappro/{codeAgence}/{codeService}", name="api_da_article_reappro", methods={"GET"})
+     * @Route("/agences/{codeAgence}/services/{codeService}/articles-reappro", name="api_da_article_reappro", methods={"GET"})
      */
     public function listeArticle(string $codeAgence, string $codeService)
     {
@@ -33,10 +33,8 @@ class DaNewDirectApiController extends Controller
 
             return new JsonResponse([
                 'status'  => 'success',
-                'title'   => 'Succès de l\'opération',
-                'message' => "La récupération des articles est un succès.",
                 'data'    => array_combine($articlesReappro, $articlesReappro),
-            ]);
+            ], JsonResponse::HTTP_OK);
         } catch (\Exception $e) {
             return $this->errorMessage($e->getMessage());
         }
@@ -48,6 +46,6 @@ class DaNewDirectApiController extends Controller
             'status'  => 'error',
             'title'   => 'Erreur lors de la récupération des articles',
             'message' => "Impossible de récupérer les articles: $errorMessage. Merci de vérifier les informations et de réessayer.",
-        ], 400);
+        ], JsonResponse::HTTP_BAD_REQUEST);
     }
 }
