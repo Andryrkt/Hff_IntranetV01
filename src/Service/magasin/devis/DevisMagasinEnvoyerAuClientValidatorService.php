@@ -7,9 +7,12 @@ use App\Repository\Interfaces\StatusRepositoryInterface;
 use App\Service\validation\ValidationServiceBase;
 use App\Service\magasin\devis\Config\DevisMagasinValidationConfig;
 use App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService;
+use App\Traits\Validator\ValidatorNotificationTrait;
 
 class DevisMagasinEnvoyerAuClientValidatorService extends ValidationServiceBase
 {
+    use ValidatorNotificationTrait;
+
     private HistoriqueOperationDevisMagasinService $historiqueService;
 
     /**
@@ -54,7 +57,7 @@ class DevisMagasinEnvoyerAuClientValidatorService extends ValidationServiceBase
     public function checkMissingIdentifier(?string $numeroDevis): bool
     {
         if ($this->isIdentifierMissing($numeroDevis)) {
-            $this->sendNotification(
+            $this->sendNotificationDevisMagasin(
                 DevisMagasinValidationConfig::ERROR_MESSAGES['missing_identifier'],
                 '-',
                 false
@@ -121,7 +124,7 @@ class DevisMagasinEnvoyerAuClientValidatorService extends ValidationServiceBase
         string $errorMessage
     ): bool {
         if ($this->isStatusBlocking($repository, $numeroDevis, $blockingStatuses)) {
-            $this->historiqueService->sendNotificationSoumission($errorMessage, $numeroDevis, 'devis_magasin_liste', false);
+            $this->sendNotificationDevisMagasin($errorMessage, $numeroDevis, false);
             return false; // Validation failed
         }
 
@@ -136,7 +139,7 @@ class DevisMagasinEnvoyerAuClientValidatorService extends ValidationServiceBase
         string $errorMessage
     ): bool {
         if ($this->isStatusBlocking($repository, $numeroDevis, $blockingStatuses) && $conditionCallback()) {
-            $this->historiqueService->sendNotificationSoumission($errorMessage, $numeroDevis, 'devis_magasin_liste', false);
+            $this->sendNotificationDevisMagasin($errorMessage, $numeroDevis, false);
             return false;
         }
         return true;
@@ -145,22 +148,5 @@ class DevisMagasinEnvoyerAuClientValidatorService extends ValidationServiceBase
     public function getRedirectRoute(): string
     {
         return DevisMagasinValidationConfig::REDIRECT_ROUTE;
-    }
-
-    /**
-     * Envoie une notification via le service d'historique
-     * 
-     * @param string $message Le message à envoyer
-     * @param string $numeroDevis Le numéro de devis concerné
-     * @param bool $success Indique si l'opération a réussi
-     */
-    private function sendNotification(string $message, string $numeroDevis, bool $success): void
-    {
-        $this->historiqueService->sendNotificationSoumission(
-            $message,
-            $numeroDevis,
-            DevisMagasinValidationConfig::REDIRECT_ROUTE,
-            $success
-        );
     }
 }

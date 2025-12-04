@@ -76,7 +76,7 @@ class DevisMagasinValidationDevisController extends Controller
         [$newSumOfLines, $newSumOfMontant] = $this->newSumOfLinesAndAmount($firstDevisIps);
 
         //instanciation de l'orchestrateur de validation
-        $orchestrator = new DevisMagasinValidationOrchestrator($this->historiqueOperationDeviMagasinService, $numeroDevis);
+        $orchestrator = new DevisMagasinValidationOrchestrator($numeroDevis);
         // Validation avant soumission - utilise la nouvelle méthode qui retourne un booléen
         $orchestrator->validateBeforeSubmission($this->devisMagasinRepository, $this->listeDevisMagasinModel, $numeroDevis, $newSumOfLines, $newSumOfMontant);
 

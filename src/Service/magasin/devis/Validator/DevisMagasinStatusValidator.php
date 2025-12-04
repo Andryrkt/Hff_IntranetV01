@@ -17,17 +17,7 @@ use App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService;
  */
 class DevisMagasinStatusValidator extends ValidationServiceBase
 {
-    private HistoriqueOperationDevisMagasinService $historiqueService;
-
-    /**
-     * Constructeur du validateur de statuts
-     * 
-     * @param HistoriqueOperationDevisMagasinService $historiqueService Service pour l'historique des opérations
-     */
-    public function __construct(HistoriqueOperationDevisMagasinService $historiqueService)
-    {
-        $this->historiqueService = $historiqueService;
-    }
+    use \App\Traits\Validator\ValidatorNotificationTrait;
 
 
 
@@ -287,7 +277,7 @@ class DevisMagasinStatusValidator extends ValidationServiceBase
         string $errorMessage
     ): bool {
         if ($this->isStatusBlocking($repository, $numeroDevis, $blockingStatuses)) {
-            $this->sendNotification($errorMessage, $numeroDevis, false);
+            $this->sendNotificationDevisMagasin($errorMessage, $numeroDevis, false);
             return false;
         }
 
@@ -312,7 +302,7 @@ class DevisMagasinStatusValidator extends ValidationServiceBase
         string $errorMessage
     ): bool {
         if ($conditionCallback()) {
-            $this->sendNotification($errorMessage, $numeroDevis, false);
+            $this->sendNotificationDevisMagasin($errorMessage, $numeroDevis, false);
             return false;
         }
 
@@ -339,27 +329,10 @@ class DevisMagasinStatusValidator extends ValidationServiceBase
         string $errorMessage
     ): bool {
         if ($conditionCallback()) {
-            $this->sendNotification($errorMessage, $numeroDevis, false);
+            $this->sendNotificationDevisMagasin($errorMessage, $numeroDevis, false);
             return false;
         }
 
         return true;
-    }
-
-    /**
-     * Envoie une notification via le service d'historique
-     * 
-     * @param string $message Le message à envoyer
-     * @param string $numeroDevis Le numéro de devis concerné
-     * @param bool $success Indique si l'opération a réussi
-     */
-    private function sendNotification(string $message, string $numeroDevis, bool $success): void
-    {
-        $this->historiqueService->sendNotificationSoumission(
-            $message,
-            $numeroDevis,
-            DevisMagasinValidationConfig::REDIRECT_ROUTE,
-            $success
-        );
     }
 }

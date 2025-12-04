@@ -50,7 +50,6 @@ class DevisMagasinEnvoyerAuClientController extends Controller
         /** Autorisation accées */
         $this->autorisationAcces($this->getUser(), Application::ID_DVM);
 
-
         /** Gestion de blocage */
         $this->gestionDeBlocage($numeroDevis);
 
