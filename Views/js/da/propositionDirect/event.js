@@ -148,6 +148,8 @@ export function handleFormSubmit() {
     const config = actionsConfig[action];
     if (!config) return;
 
+    if (action !== "brouillon" && blockFournisseur99(action)) return;
+
     Swal.fire({
       title: config.title,
       html: config.html,
@@ -183,4 +185,66 @@ export function handleFormSubmit() {
       }
     });
   });
+}
+
+function blockFournisseur99(action) {
+  let pageAvecFRN99 = [];
+  const messageErreur = {
+    enregistrer: "L'envoi de la proposition au sevice émetteur est bloquée.",
+    valider: "La validation de la demande d'approvissionement est bloquée.",
+  };
+  const numeroDa = document
+    .querySelector(".tab-pane.fade.show.active.dalr")
+    .id.split("_")
+    .pop();
+  const numLignes = JSON.parse(localStorage.getItem(`idTabs_${numeroDa}`));
+
+  numLignes.forEach((numLigne) => {
+    let tBody = document.querySelector(`#tableBody_${numLigne}`);
+    let selectedRow = tBody.querySelector("tr.table-active");
+    // un DALR a été choisi sur la table
+    if (selectedRow) {
+      let numeroFournisseur = selectedRow.querySelector(
+        "td.numero-fournisseur"
+      ).textContent;
+
+      if (numeroFournisseur === "99")
+        pageAvecFRN99.push(numLignes.indexOf(numLigne) + 1); // numéro de la page
+    } else {
+      let numeroFournisseur = document.querySelector(
+        `#numeroFournisseur_${numLigne}`
+      ).value;
+
+      if (numeroFournisseur === "99")
+        pageAvecFRN99.push(numLignes.indexOf(numLigne) + 1); // numéro de la page
+    }
+  });
+
+  console.log(pageAvecFRN99);
+
+  if (pageAvecFRN99.length > 0) {
+    let raison =
+      'Parmi les articles proposés et choisis, le fournisseur est "99" sur quelque(s) page(s).';
+    let solution =
+      'Veuillez ajouter ou choisir une article avec un fournisseur autre que "99" sur les pages concernées.';
+    let pageConcernee = "<ul>";
+    pageAvecFRN99.forEach((page) => {
+      pageConcernee += `<li>Page n° <b>${page}</b></li>`;
+    });
+    pageConcernee += "</ul>";
+    Swal.fire({
+      icon: "error",
+      title: "Echec de l'opération",
+      html: `${messageErreur[action]} <br> <b> <u>Raison</u> : </b> ${raison} <br> <b> <u>Solution</u> : </b> ${solution} <br><b> <u>Page(s) concernée(s)</u> : </b> ${pageConcernee}`,
+      background: "#f8d7da",
+      color: "#842029",
+      iconColor: "#dc3545",
+      confirmButtonColor: "#dc3545",
+      customClass: {
+        htmlContainer: "swal-text-left",
+      },
+    });
+  }
+
+  return pageAvecFRN99.length > 0;
 }
