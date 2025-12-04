@@ -104,7 +104,7 @@ trait StatutBcTrait
         [$infoDaDirect, $situationCde] = $this->getInfoNecessaireIps($ref, $numDit, $numDa, $designation, $numeroOr, $statutBc);
 
         /** 7. Non dispo || DA avec DIT et numéro OR null || numéro OR non vide et statut OR non vide || infoDaDirect ou situationCde est vide */
-        if ($DaAfficher->getNonDispo() || ($numeroOr == null && $daViaOR) || ($numeroOr != null && empty($statutOr)) || !$this->aSituationCde($situationCde, $infoDaDirect, $daViaOR, $daDirect)) {
+        if ($DaAfficher->getNonDispo() || ($numeroOr == null && $daViaOR) || ($numeroOr != null && empty($statutOr)) || $this->aSituationCde($situationCde, $infoDaDirect, $daViaOR, $daDirect)) {
             return $statutBc;
         }
 
@@ -143,7 +143,7 @@ trait StatutBcTrait
             return DaSoumissionBc::STATUT_CESSION_A_GENERER;
         } elseif ($daReappro && $numeroOr != null && $statutOr == DemandeAppro::STATUT_DW_VALIDEE && $DaAfficher->getEstBlReapproSoumis() == false) {
             return DaSoumissionBc::STATUT_EN_COURS_DE_PREPARATION;
-        }
+        } 
         // DA Reappro, DA Direct , DA Via OR
         elseif ($partiellementDispo) {
             return 'Partiellement dispo';
@@ -160,7 +160,12 @@ trait StatutBcTrait
         elseif ($daDirect || $daViaOR) {
             return $statutSoumissionBc;
         }
+        // DA REAPPRO
+        elseif($daReappro && $numeroOr != null && $statutOr == DemandeAppro::STATUT_DW_VALIDEE && $DaAfficher->getEstBlReapproSoumis() == true) {
+            return DaSoumissionBc::STATUT_EN_COURS_DE_PREPARATION;
+        }
 
+        
         return '';
     }
 
@@ -254,14 +259,13 @@ trait StatutBcTrait
 
     private function aSituationCde(array $situationCde, array $infoDaDirect, bool $daViaOR, bool $daDirect): bool
     {
-        if ($daViaOR) return array_key_exists(0, $situationCde);
-        elseif ($daDirect) return array_key_exists(0, $infoDaDirect);
-        else return true;
+        if ($daViaOR) return !array_key_exists(0, $situationCde);
+        // elseif ($daDirect) return array_key_exists(0, $infoDaDirect);
+        else return false;
     }
 
     private function doitGenererBc(array $situationCde, string $statutDa, ?string $statutOr, array $infoDaDirect, bool $daDirect, bool $daViaOR): bool
     {
-
         if ($daDirect) {
             if ($statutOr === DemandeAppro::STATUT_DW_VALIDEE) {
                 if (empty($infoDaDirect)) {
