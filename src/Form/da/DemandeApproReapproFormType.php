@@ -15,11 +15,6 @@ use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 
 class DemandeApproReapproFormType extends AbstractType
 {
-    private function agenceCodes(): array
-    {
-        return ['90', '91', '92'];
-    }
-
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
 
@@ -78,7 +73,6 @@ class DemandeApproReapproFormType extends AbstractType
                 'agence_placeholder'  => '-- Agence Debiteur --',
                 'service_placeholder' => '-- Service Debiteur --',
                 'em'                  => $options['em'] ?? null,
-                'agence_codes'        => $this->agenceCodes()
             ])
             ->add(
                 'codeCentrale',
