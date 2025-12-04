@@ -22,10 +22,18 @@ VALUES
 ('FBU','1F0046',TRIM('TROMBONE PM'),'1','950', '80', 'TRA', '2025-12-01 00:00:00.000','2025-12-01 00:00:00.000');
 
 
+INSERT INTO HFF_INTRANET_TEST_TEST.dbo.da_article_reappro
+(art_constp, art_refp, art_desi, qte_validee_appro, art_pu, code_agence, code_service, date_creation, date_modification)
+VALUES
+('FBU','1F0016',TRIM('COLLE BATON'),'1','1900', '80', 'TRA', '2025-12-01 00:00:00.000','2025-12-01 00:00:00.000'),
+('CEN','4A0027',TRIM('GEL HYDROALCOOLIQUE'),'1','11875', '80', 'TRA', '2025-12-01 00:00:00.000','2025-12-01 00:00:00.000'),
+('CEN','4C0001',TRIM('CHAMOISINE'),'1','2470', '80', 'TRA', '2025-12-01 00:00:00.000','2025-12-01 00:00:00.000')
+;
+
 INSERT INTO HFF_INTRANET.dbo.da_article_reappro
 (art_constp, art_refp, art_desi, qte_validee_appro, art_pu, code_agence, code_service, date_creation, date_modification)
 VALUES
 ('FBU','1F0016',TRIM('COLLE BATON'),'1','1900', '80', 'TRA', '2025-12-01 00:00:00.000','2025-12-01 00:00:00.000'),
-('CEN','4A0027',TRIM('GEL HYDROALCOOLIQUE'),'1','11883', '80', 'TRA', '2025-12-01 00:00:00.000','2025-12-01 00:00:00.000'),
+('CEN','4A0027',TRIM('GEL HYDROALCOOLIQUE'),'1','11875', '80', 'TRA', '2025-12-01 00:00:00.000','2025-12-01 00:00:00.000'),
 ('CEN','4C0001',TRIM('CHAMOISINE'),'1','2470', '80', 'TRA', '2025-12-01 00:00:00.000','2025-12-01 00:00:00.000')
 ;
