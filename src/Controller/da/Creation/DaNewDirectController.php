@@ -51,7 +51,9 @@ class DaNewDirectController extends Controller
         $this->traitementFormDirect($form, $request, $demandeAppro);
 
         return $this->render('da/new-da-direct.html.twig', [
-            'form' => $form->createView(),
+            'form'        => $form->createView(),
+            'codeAgence'  => $demandeAppro->getAgenceDebiteur()->getCodeAgence(),
+            'codeService' => $demandeAppro->getServiceDebiteur()->getCodeService(),
         ]);
     }
 
