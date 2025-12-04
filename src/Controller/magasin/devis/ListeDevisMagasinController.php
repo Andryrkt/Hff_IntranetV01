@@ -17,6 +17,7 @@ use App\Form\magasin\devis\DevisMagasinSearchType;
 use App\Model\magasin\devis\ListeDevisMagasinModel;
 use App\Factory\magasin\devis\ListeDevisMagasinFactory;
 use App\Repository\magasin\devis\DevisMagasinRepository;
+use App\Service\TableauEnStringService;
 
 /**
  * @Route("/magasin/dematerialisation")
@@ -143,11 +144,13 @@ class ListeDevisMagasinController extends Controller
 
     public function recuperationDonner(array $criteria = []): array
     {
-        $codeAgenceUser = $this->getUser()->getCodeAgenceUser();
-        $vignette       = $codeAgenceUser === '01' ? 'magasin' : 'magasin_pol';
-        $admin          = in_array(1, $this->getUser()->getRoleIds());
+        // $codeAgenceUser = $this->getUser()->getCodeAgenceUser();
+        $codeAgenceAutoriserString = TableauEnStringService::orEnString($this->getUser()->getAgenceAutoriserCode());
+        // $vignette       = $codeAgenceUser === '01' ? 'magasin' : 'magasin_pol';
+        $vignette = 'magasin';
+        $adminMutli          = in_array(1, $this->getUser()->getRoleIds()) || in_array(6, $this->getUser()->getRoleIds());
 
-        $devisIps = $this->listeDevisMagasinModel->getDevis($criteria, $vignette, $codeAgenceUser, $admin);
+        $devisIps = $this->listeDevisMagasinModel->getDevis($criteria, $vignette, $codeAgenceAutoriserString, $adminMutli);
 
         $listeDevisFactory = [];
         $dejaVu = []; // Tableau pour mémoriser les numéros de devis déjà traités
