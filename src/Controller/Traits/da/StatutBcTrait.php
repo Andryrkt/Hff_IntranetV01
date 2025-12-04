@@ -89,7 +89,7 @@ trait StatutBcTrait
         [$ref, $numDit, $numDa, $designation, $numeroOr, $statutOr, $statutBc, $statutDa] = $this->getVariableNecessaire($DaAfficher);
 
         // 2. on met vide la statut bc selon le condition en survolon la fonction
-        if ($this->doitRetournerVide($statutDa)) return '';
+        if ($this->doitRetournerVide($statutDa, $statutOr)) return '';
 
         /** 3. recuperation type DA @var bool $daDirect @var bool $daViaOR @var bool $daReappro  */
         [$daDirect, $daViaOR, $daReappro] = $this->getTypeDa($DaAfficher);
@@ -103,8 +103,8 @@ trait StatutBcTrait
         /** 6.recuperation des informations necessaire dans IPS  @var array $infoDaDirect @var array $situationCde*/
         [$infoDaDirect, $situationCde] = $this->getInfoNecessaireIps($ref, $numDit, $numDa, $designation, $numeroOr, $statutBc);
 
-        /** 7. Non dispo || DA avec DIT et numéro OR null || numéro OR non vide et statut OR non vide || infoDaDirect ou situationCde est vide */
-        if ($DaAfficher->getNonDispo() || ($numeroOr == null && $daViaOR) || ($numeroOr != null && empty($statutOr)) || !$this->aSituationCde($situationCde, $infoDaDirect, $daViaOR, $daDirect)) {
+        /** 7. Non dispo || DA avec DIT et numéro OR null || numéro OR non vide et statut OR non vide || situationCde est vide */
+        if ($DaAfficher->getNonDispo() || ($numeroOr == null && $daViaOR) || ($numeroOr != null && empty($statutOr)) || $this->aSituationCde($situationCde, $daViaOR)) {
             return $statutBc;
         }
 
@@ -161,6 +161,11 @@ trait StatutBcTrait
         elseif ($daDirect || $daViaOR) {
             return $statutSoumissionBc;
         }
+        // DA REAPPRO
+        elseif ($daReappro && $numeroOr != null && $statutOr == DemandeAppro::STATUT_DW_VALIDEE && $DaAfficher->getEstBlReapproSoumis() == true) {
+            return DaSoumissionBc::STATUT_EN_COURS_DE_PREPARATION;
+        }
+
 
         return '';
     }
@@ -190,10 +195,14 @@ trait StatutBcTrait
      * statut_dal n'est validé || statut_dal est parmis (soumis à l'ate, soumis à l'appro, autoriser à modifier l'ate)
      *
      * @param string|null $statutDa
+     * @param string|null $statutOr
+     * 
      * @return boolean
      */
-    private function doitRetournerVide(?string $statutDa): bool
+    private function doitRetournerVide(?string $statutDa, ?string $statutOr): bool
     {
+        if ($statutOr === DemandeAppro::STATUT_DW_REFUSEE) return true;
+
         // si statut Da n'est pas validé
         if ($statutDa !== DemandeAppro::STATUT_VALIDE) return true;
 
@@ -253,11 +262,10 @@ trait StatutBcTrait
         return $numCde;
     }
 
-    private function aSituationCde(array $situationCde, array $infoDaDirect, bool $daViaOR, bool $daDirect): bool
+    private function aSituationCde(array $situationCde, bool $daViaOR): bool
     {
-        if ($daViaOR) return array_key_exists(0, $situationCde);
-        elseif ($daDirect) return array_key_exists(0, $infoDaDirect);
-        else return true;
+        if ($daViaOR) return !array_key_exists(0, $situationCde);
+        else return false;
     }
 
     private function doitGenererBc(array $situationCde, string $statutDa, ?string $statutOr, array $infoDaDirect, bool $daDirect, bool $daViaOR): bool
