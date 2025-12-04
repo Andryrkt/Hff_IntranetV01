@@ -19,7 +19,7 @@ class DaNewDirectApiController extends Controller
     ];
 
     /**
-     * @Route("/da-new-direct/{codeAgence}/{codeService}", name="api_da_new_direct", methods={"GET"})
+     * @Route("/da-article-reappro/{codeAgence}/{codeService}", name="api_da_article_reappro", methods={"GET"})
      */
     public function listeArticle(string $codeAgence, string $codeService)
     {
