@@ -24,16 +24,14 @@ class DevisMagasinValidationVpOrchestrator
     /**
      * Constructeur de l'orchestrateur de validation VP
      * 
-     * @param HistoriqueOperationDevisMagasinService $historiqueService Service pour l'historique des opérations
      * @param string $expectedNumeroDevis Le numéro de devis attendu pour la validation
      */
     public function __construct(
-        HistoriqueOperationDevisMagasinService $historiqueService,
         string $expectedNumeroDevis
     ) {
-        $this->fileValidator = new DevisMagasinVpFileValidator($historiqueService, $expectedNumeroDevis);
-        $this->statusValidator = new DevisMagasinVpStatusValidator($historiqueService);
-        $this->contentValidator = new DevisMagasinVpContentValidator($historiqueService);
+        $this->fileValidator = new DevisMagasinVpFileValidator($expectedNumeroDevis);
+        $this->statusValidator = new DevisMagasinVpStatusValidator();
+        $this->contentValidator = new DevisMagasinVpContentValidator();
     }
 
     /**
@@ -86,23 +84,28 @@ class DevisMagasinValidationVpOrchestrator
         return $this->statusValidator->verifierStatutPrixValideAgenceEtSommeDeLignesAndAmountInchangée($repository, $numeroDevis, $newSumOfLines, $newSumOfMontant);
     }
 
-    public function verificationStatutPrixModifierAgenceEtSommeDeLignesInchangéeEtMontantchange(DevisMagasinRepository $repository, string $numeroDevis, int $newSumOfLines, float $newSumOfMontant): bool {
+    public function verificationStatutPrixModifierAgenceEtSommeDeLignesInchangéeEtMontantchange(DevisMagasinRepository $repository, string $numeroDevis, int $newSumOfLines, float $newSumOfMontant): bool
+    {
         return $this->statusValidator->verificationStatutPrixModifierAgenceEtSommeDeLignesInchangéeEtMontantchange($repository, $numeroDevis, $newSumOfLines, $newSumOfMontant);
     }
 
-    public function verificationStatutValideAEnvoyerAuclientEtSommeDeLignesChangeEtMontantChange(DevisMagasinRepository $repository, string $numeroDevis, int $newSumOfLines, float $newSumOfMontant): bool {
+    public function verificationStatutValideAEnvoyerAuclientEtSommeDeLignesChangeEtMontantChange(DevisMagasinRepository $repository, string $numeroDevis, int $newSumOfLines, float $newSumOfMontant): bool
+    {
         return $this->statusValidator->verificationStatutValideAEnvoyerAuclientEtSommeDeLignesChangeEtMontantChange($repository, $numeroDevis, $newSumOfLines, $newSumOfMontant);
     }
 
-    public function verifieStatutAvalideChefAgence(DevisMagasinRepository $repository, string $numeroDevis): bool {
+    public function verifieStatutAvalideChefAgence(DevisMagasinRepository $repository, string $numeroDevis): bool
+    {
         return $this->statusValidator->verifieStatutAvalideChefAgence($repository, $numeroDevis);
     }
 
-    public function verifieStatutValideAEnvoyerAuclientEtSommeLignesInchange(DevisMagasinRepository $repository, string $numeroDevis, int $newSumOfLines, float $newSumOfMontant): bool {
+    public function verifieStatutValideAEnvoyerAuclientEtSommeLignesInchange(DevisMagasinRepository $repository, string $numeroDevis, int $newSumOfLines, float $newSumOfMontant): bool
+    {
         return $this->statusValidator->verifieStatutValideAEnvoyerAuclientEtSommeLignesInchange($repository, $numeroDevis, $newSumOfLines, $newSumOfMontant);
     }
 
-    public function verifieStatutClotureAModifierEtSommeLignesIpsInferieurSommeLignesDevis(DevisMagasinRepository $repository, string $numeroDevis, int $newSumOfLines): bool {
+    public function verifieStatutClotureAModifierEtSommeLignesIpsInferieurSommeLignesDevis(DevisMagasinRepository $repository, string $numeroDevis, int $newSumOfLines): bool
+    {
         return $this->statusValidator->verifieStatutClotureAModifierEtSommeLignesIpsInferieurSommeLignesDevis($repository, $numeroDevis, $newSumOfLines);
     }
 

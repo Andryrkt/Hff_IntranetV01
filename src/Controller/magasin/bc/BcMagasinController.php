@@ -114,7 +114,10 @@ class BcMagasinController extends Controller
 
             // historique du document
             $message = 'Le bon de commande a été soumis avec succès.';
-            $this->historiqueOperationBcMagasinService->sendNotificationSoumission($message, $numeroDevis, 'devis_magasin_liste', true);
+            $criteria = $this->getSessionService()->get('criteria_for_excel_liste_devis_magasin');
+            $nomDeRoute = 'devis_magasin_liste'; // route de redirection après soumission
+            $nomInputSearch = 'devis_magasin_search'; // initialistion de nom de chaque champ ou input
+            $this->historiqueOperationBcMagasinService->sendNotificationSoumission($message, $numeroDevis, $nomDeRoute, true, $criteria, $nomInputSearch);
         }
     }
 

@@ -16,11 +16,13 @@ class DateRangeType extends AbstractType
                 'widget' => 'single_text',
                 'label' => $options['debut_label'],
                 'required' => false,
+                'data' => $options['data_date_debut'],
             ])
             ->add('fin', DateType::class, [
                 'widget' => 'single_text',
                 'label' => $options['fin_label'],
                 'required' => false,
+                'data' => $options['data_date_fin'],
             ]);
     }
 
@@ -29,6 +31,8 @@ class DateRangeType extends AbstractType
         $resolver->setDefaults([
             'debut_label' => 'Date (début)',
             'fin_label' => 'Date (fin)',
+            'data_date_debut' => null,
+            'data_date_fin' => null,
         ]);
     }
 }
