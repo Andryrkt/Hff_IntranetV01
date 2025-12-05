@@ -1,0 +1,596 @@
+[
+    {
+        "index": "001",
+        "label": "Commencement dans `bootstrap_di.php`",
+        "temps": "0.00001s",
+        "total": "0.00001s"
+    },
+    {
+        "index": "002",
+        "label": "Use - Importation des classes",
+        "temps": "0.00002s",
+        "total": "0.00003s"
+    },
+    {
+        "index": "003",
+        "label": "Vendor autoload charg\u00e9",
+        "temps": "0.00587s",
+        "total": "0.00591s"
+    },
+    {
+        "index": "004",
+        "label": "Chargement du fichier .env",
+        "temps": "0.01560s",
+        "total": "0.02151s"
+    },
+    {
+        "index": "005",
+        "label": "Chargement du fichier .env",
+        "temps": "0.00068s",
+        "total": "0.02219s"
+    },
+    {
+        "index": "006",
+        "label": "if (!isset($_ENV['BASE_PATH_COURT'])) { ...",
+        "temps": "0.00001s",
+        "total": "0.02220s"
+    },
+    {
+        "index": "007",
+        "label": "if (!isset($_SERVER['HTTP_HOST'])) { ...",
+        "temps": "0.00001s",
+        "total": "0.02220s"
+    },
+    {
+        "index": "008",
+        "label": "if (!isset($_SERVER['REQUEST_URI'])) { ...",
+        "temps": "0.00001s",
+        "total": "0.02221s"
+    },
+    {
+        "index": "009",
+        "label": "Cr\u00e9ation du conteneur de services -> new ContainerBuilder()",
+        "temps": "0.00316s",
+        "total": "0.02537s"
+    },
+    {
+        "index": "010",
+        "label": "kernel.project_dir dans $container",
+        "temps": "0.00003s",
+        "total": "0.02540s"
+    },
+    {
+        "index": "011",
+        "label": "kernel.cache_dir dans $container",
+        "temps": "0.00001s",
+        "total": "0.02541s"
+    },
+    {
+        "index": "012",
+        "label": "kernel.debug dans $container",
+        "temps": "0.00002s",
+        "total": "0.02543s"
+    },
+    {
+        "index": "013",
+        "label": "$entityManager = require_once dirname(__DIR__) . \"\/doctrineBootstrap.php\"",
+        "temps": "0.02439s",
+        "total": "0.04982s"
+    },
+    {
+        "index": "014",
+        "label": "$registry = new \\core\\SimpleManagerRegistry($entityManager)",
+        "temps": "0.00059s",
+        "total": "0.05042s"
+    },
+    {
+        "index": "015",
+        "label": "$container->set('doctrine.orm.default_entity_manager', $entityManager)",
+        "temps": "0.00002s",
+        "total": "0.05043s"
+    },
+    {
+        "index": "016",
+        "label": "$loader = new YamlFileLoader($container, new FileLocator(__DIR__))",
+        "temps": "0.00099s",
+        "total": "0.05142s"
+    },
+    {
+        "index": "017",
+        "label": "$loader->load('services.yaml')",
+        "temps": "0.37194s",
+        "total": "0.42337s"
+    },
+    {
+        "index": "018",
+        "label": "$container->register('twig', 'Twig\\Environment')",
+        "temps": "0.00003s",
+        "total": "0.42339s"
+    },
+    {
+        "index": "019",
+        "label": "$container->register('form.factory', 'Symfony\\Component\\Form\\FormFactory')",
+        "temps": "0.00001s",
+        "total": "0.42341s"
+    },
+    {
+        "index": "020",
+        "label": "$container->register('router', 'Symfony\\Component\\Routing\\Router')",
+        "temps": "0.00001s",
+        "total": "0.42342s"
+    },
+    {
+        "index": "021",
+        "label": "$container->register('session', 'Symfony\\Component\\HttpFoundation\\Session\\Session')",
+        "temps": "0.00001s",
+        "total": "0.42343s"
+    },
+    {
+        "index": "022",
+        "label": "$container->register('request_stack', 'Symfony\\Component\\HttpFoundation\\RequestStack')",
+        "temps": "0.00001s",
+        "total": "0.42345s"
+    },
+    {
+        "index": "023",
+        "label": "$container->register('security.token_storage', 'Symfony\\Component\\Security\\Core\\Authentication\\Token\\Storage\\TokenStorage')",
+        "temps": "0.00001s",
+        "total": "0.42346s"
+    },
+    {
+        "index": "024",
+        "label": "$container->register('security.authorization_checker', 'Symfony\\Component\\Security\\Core\\Authorization\\AuthorizationChecker')",
+        "temps": "0.00001s",
+        "total": "0.42347s"
+    },
+    {
+        "index": "025",
+        "label": "$container->register('App\\Twig\\AppExtension', \\App\\Twig\\AppExtension::class)",
+        "temps": "0.00001s",
+        "total": "0.42348s"
+    },
+    {
+        "index": "026",
+        "label": "$container->register('App\\Service\\navigation\\MenuService', \\App\\Service\\navigation\\MenuService::class)",
+        "temps": "0.00001s",
+        "total": "0.42349s"
+    },
+    {
+        "index": "027",
+        "label": "$container->register('App\\Service\\navigation\\BreadcrumbMenuService', \\App\\Service\\navigation\\BreadcrumbMenuService::class)",
+        "temps": "0.00001s",
+        "total": "0.42350s"
+    },
+    {
+        "index": "028",
+        "label": "$container->register('App\\Twig\\BreadcrumbExtension', \\App\\Twig\\BreadcrumbExtension::class)",
+        "temps": "0.00002s",
+        "total": "0.42352s"
+    },
+    {
+        "index": "029",
+        "label": "$container->register('App\\Twig\\CarbonExtension', \\App\\Twig\\CarbonExtension::class)",
+        "temps": "0.00001s",
+        "total": "0.42353s"
+    },
+    {
+        "index": "030",
+        "label": "$container->register('App\\Twig\\DeleteWordExtension', \\App\\Twig\\DeleteWordExtension::class)",
+        "temps": "0.00001s",
+        "total": "0.42354s"
+    },
+    {
+        "index": "031",
+        "label": "$loader->load('parameters.yaml');",
+        "temps": "0.00374s",
+        "total": "0.42729s"
+    },
+    {
+        "index": "032",
+        "label": "$container->compile();",
+        "temps": "0.16115s",
+        "total": "0.58843s"
+    },
+    {
+        "index": "033",
+        "label": "$twig = new \\Twig\\Environment(new \\Twig\\Loader\\FilesystemLoader([dirname(__DIR__) . '\/Views\/templates',dirname(__DIR__) . '\/vendor\/symfony\/twig-bridge\/Resources\/views\/Form']), ['debug' => true]);",
+        "temps": "0.00291s",
+        "total": "0.59134s"
+    },
+    {
+        "index": "034",
+        "label": "$container->set('twig', $twig);",
+        "temps": "0.00003s",
+        "total": "0.59138s"
+    },
+    {
+        "index": "035",
+        "label": "$formFactory = ... ",
+        "temps": "0.01030s",
+        "total": "0.60167s"
+    },
+    {
+        "index": "036",
+        "label": "$container->set('form.factory', $formFactory);",
+        "temps": "0.00003s",
+        "total": "0.60171s"
+    },
+    {
+        "index": "037",
+        "label": "$session = new \\Symfony\\Component\\HttpFoundation\\Session\\Session(new \\Symfony\\Component\\HttpFoundation\\Session\\Storage\\NativeSessionStorage());",
+        "temps": "0.00235s",
+        "total": "0.60406s"
+    },
+    {
+        "index": "038",
+        "label": "$container->set('session', $session);",
+        "temps": "0.00002s",
+        "total": "0.60407s"
+    },
+    {
+        "index": "039",
+        "label": "$requestStack = new \\Symfony\\Component\\HttpFoundation\\RequestStack();",
+        "temps": "0.00014s",
+        "total": "0.60421s"
+    },
+    {
+        "index": "040",
+        "label": "$container->set('request_stack', $requestStack);",
+        "temps": "0.00002s",
+        "total": "0.60423s"
+    },
+    {
+        "index": "041",
+        "label": "$tokenStorage = new \\Symfony\\Component\\Security\\Core\\Authentication\\Token\\Storage\\TokenStorage();",
+        "temps": "0.00048s",
+        "total": "0.60470s"
+    },
+    {
+        "index": "042",
+        "label": "$container->set('security.token_storage', $tokenStorage);",
+        "temps": "0.00001s",
+        "total": "0.60472s"
+    },
+    {
+        "index": "043",
+        "label": "$accessDecisionManager = new \\Symfony\\Component\\Security\\Core\\Authorization\\AccessDecisionManager(...",
+        "temps": "0.00104s",
+        "total": "0.60576s"
+    },
+    {
+        "index": "044",
+        "label": "$authorizationChecker = new \\Symfony\\Component\\Security\\Core\\Authorization\\AuthorizationChecker($tokenStorage, $accessDecisionManager);",
+        "temps": "0.00027s",
+        "total": "0.60603s"
+    },
+    {
+        "index": "045",
+        "label": "$container->set('security.authorization_checker', $authorizationChecker);",
+        "temps": "0.00002s",
+        "total": "0.60605s"
+    },
+    {
+        "index": "046",
+        "label": "$translator = new \\Symfony\\Component\\Translation\\Translator('fr_FR');",
+        "temps": "0.00131s",
+        "total": "0.60735s"
+    },
+    {
+        "index": "047",
+        "label": "$translator->addLoader('xlf', new \\Symfony\\Component\\Translation\\Loader\\XliffFileLoader());",
+        "temps": "0.00031s",
+        "total": "0.60766s"
+    },
+    {
+        "index": "048",
+        "label": "$container->set('translator', $translator);",
+        "temps": "0.00001s",
+        "total": "0.60768s"
+    },
+    {
+        "index": "049",
+        "label": "$session = $container->get('session');",
+        "temps": "0.00002s",
+        "total": "0.60770s"
+    },
+    {
+        "index": "050",
+        "label": "$requestStack = $container->get('request_stack');",
+        "temps": "0.00001s",
+        "total": "0.60771s"
+    },
+    {
+        "index": "051",
+        "label": "$tokenStorage = $container->get('security.token_storage');",
+        "temps": "0.00001s",
+        "total": "0.60771s"
+    },
+    {
+        "index": "052",
+        "label": "$authorizationChecker = $container->get('security.authorization_checker');",
+        "temps": "0.00001s",
+        "total": "0.60772s"
+    },
+    {
+        "index": "053",
+        "label": "$appExtension = new \\App\\Twig\\AppExtension($session, $requestStack, $tokenStorage, $authorizationChecker, $entityManager);",
+        "temps": "0.04835s",
+        "total": "0.65608s"
+    },
+    {
+        "index": "054",
+        "label": "$container->set('App\\Twig\\AppExtension', $appExtension);",
+        "temps": "0.00003s",
+        "total": "0.65610s"
+    },
+    {
+        "index": "055",
+        "label": "$menuService = new \\App\\Service\\navigation\\MenuService($entityManager);",
+        "temps": "0.00001s",
+        "total": "0.65612s"
+    },
+    {
+        "index": "056",
+        "label": "$container->set('App\\Service\\navigation\\MenuService', $menuService);",
+        "temps": "0.00001s",
+        "total": "0.65613s"
+    },
+    {
+        "index": "057",
+        "label": "$breadcrumbMenuService = new \\App\\Service\\navigation\\BreadcrumbMenuService($menuService);",
+        "temps": "0.00001s",
+        "total": "0.65614s"
+    },
+    {
+        "index": "058",
+        "label": "$container->set('App\\Service\\navigation\\BreadcrumbMenuService', $breadcrumbMenuService);",
+        "temps": "0.00001s",
+        "total": "0.65615s"
+    },
+    {
+        "index": "059",
+        "label": "$breadcrumbExtension = new \\App\\Twig\\BreadcrumbExtension($breadcrumbMenuService);",
+        "temps": "0.00260s",
+        "total": "0.65875s"
+    },
+    {
+        "index": "060",
+        "label": "$container->set('App\\Twig\\BreadcrumbExtension', $breadcrumbExtension);",
+        "temps": "0.00003s",
+        "total": "0.65878s"
+    },
+    {
+        "index": "061",
+        "label": "$carbonExtension = new \\App\\Twig\\CarbonExtension();",
+        "temps": "0.00017s",
+        "total": "0.65895s"
+    },
+    {
+        "index": "062",
+        "label": "$container->set('App\\Twig\\CarbonExtension', $carbonExtension);",
+        "temps": "0.00001s",
+        "total": "0.65896s"
+    },
+    {
+        "index": "063",
+        "label": "$deleteWordExtension = new \\App\\Twig\\DeleteWordExtension();",
+        "temps": "0.00014s",
+        "total": "0.65911s"
+    },
+    {
+        "index": "064",
+        "label": "$container->set('App\\Twig\\DeleteWordExtension', $deleteWordExtension);",
+        "temps": "0.00001s",
+        "total": "0.65912s"
+    },
+    {
+        "index": "065",
+        "label": "$request = Request::createFromGlobals();",
+        "temps": "0.00164s",
+        "total": "0.66076s"
+    },
+    {
+        "index": "066",
+        "label": "$response = new Response();",
+        "temps": "0.00066s",
+        "total": "0.66141s"
+    },
+    {
+        "index": "067",
+        "label": "$pathInfo = $request->getPathInfo();",
+        "temps": "0.00022s",
+        "total": "0.66163s"
+    },
+    {
+        "index": "068",
+        "label": "if (stripos($pathInfo, ...",
+        "temps": "0.00001s",
+        "total": "0.66164s"
+    },
+    {
+        "index": "069",
+        "label": "$cacheAllRoutesFile = C:\\wamp64\\www\\Hffintranet\/var\/cache\/all_routes.php",
+        "temps": "0.00001s",
+        "total": "0.66165s"
+    },
+    {
+        "index": "070",
+        "label": "$cacheRoutes = new ConfigCache($cacheAllRoutesFile, true);",
+        "temps": "0.00075s",
+        "total": "0.66241s"
+    },
+    {
+        "index": "071",
+        "label": "$dirs = [C:\\wamp64\\www\\Hffintranet\/src\/Controller\/,C:\\wamp64\\www\\Hffintranet\/src\/Api\/]",
+        "temps": "0.00001s",
+        "total": "0.66242s"
+    },
+    {
+        "index": "072",
+        "label": "$collection = new RouteCollection();",
+        "temps": "0.00015s",
+        "total": "0.66257s"
+    },
+    {
+        "index": "073",
+        "label": "if ($cacheRoutes->isFresh()) ",
+        "temps": "0.07650s",
+        "total": "0.73908s"
+    },
+    {
+        "index": "074",
+        "label": "$controllerCollection = unserialize(file_get_contents($cacheAllRoutesFile));",
+        "temps": "0.00354s",
+        "total": "0.74262s"
+    },
+    {
+        "index": "075",
+        "label": "$collection->addCollection($controllerCollection);",
+        "temps": "0.00047s",
+        "total": "0.74309s"
+    },
+    {
+        "index": "076",
+        "label": "foreach ($collection as $route) {...",
+        "temps": "0.00032s",
+        "total": "0.74341s"
+    },
+    {
+        "index": "077",
+        "label": "$context = new RequestContext();",
+        "temps": "0.00021s",
+        "total": "0.74362s"
+    },
+    {
+        "index": "078",
+        "label": "$context->fromRequest($request);",
+        "temps": "0.00011s",
+        "total": "0.74373s"
+    },
+    {
+        "index": "079",
+        "label": "$urlGenerator = new \\Symfony\\Component\\Routing\\Generator\\UrlGenerator($collection, $context);",
+        "temps": "0.00059s",
+        "total": "0.74431s"
+    },
+    {
+        "index": "080",
+        "label": "$container->set('router', $urlGenerator);",
+        "temps": "0.00005s",
+        "total": "0.74437s"
+    },
+    {
+        "index": "081",
+        "label": "$matcher = new UrlMatcher($collection, $context);",
+        "temps": "0.00035s",
+        "total": "0.74472s"
+    },
+    {
+        "index": "082",
+        "label": "$controllerResolver = new ControllerResolver();",
+        "temps": "0.00022s",
+        "total": "0.74494s"
+    },
+    {
+        "index": "083",
+        "label": "$argumentResolver = new ArgumentResolver();",
+        "temps": "0.00094s",
+        "total": "0.74588s"
+    },
+    {
+        "index": "084",
+        "label": "$twig->addExtension(new DebugExtension());",
+        "temps": "0.00011s",
+        "total": "0.74598s"
+    },
+    {
+        "index": "085",
+        "label": "$twig->addExtension(new TranslationExtension($container->get('translator')));",
+        "temps": "0.00011s",
+        "total": "0.74609s"
+    },
+    {
+        "index": "086",
+        "label": "$twig->addExtension(new RoutingExtension($urlGenerator));",
+        "temps": "0.00011s",
+        "total": "0.74620s"
+    },
+    {
+        "index": "087",
+        "label": "$twig->addExtension(new FormExtension());",
+        "temps": "0.00021s",
+        "total": "0.74641s"
+    },
+    {
+        "index": "088",
+        "label": "$twig->addExtension($container->get('App\\Twig\\AppExtension'));",
+        "temps": "0.00002s",
+        "total": "0.74643s"
+    },
+    {
+        "index": "089",
+        "label": "$twig->addExtension($container->get('App\\Twig\\BreadcrumbExtension'));",
+        "temps": "0.00002s",
+        "total": "0.74645s"
+    },
+    {
+        "index": "090",
+        "label": "$twig->addExtension($container->get('App\\Twig\\CarbonExtension'));",
+        "temps": "0.00002s",
+        "total": "0.74646s"
+    },
+    {
+        "index": "091",
+        "label": "$twig->addExtension($container->get('App\\Twig\\DeleteWordExtension'));",
+        "temps": "0.00002s",
+        "total": "0.74648s"
+    },
+    {
+        "index": "092",
+        "label": "$publicPath = $_ENV['BASE_PATH_COURT'] . '\/public';",
+        "temps": "0.00001s",
+        "total": "0.74649s"
+    },
+    {
+        "index": "093",
+        "label": "$packages = new Packages(new PathPackage($publicPath, new EmptyVersionStrategy()));",
+        "temps": "0.00064s",
+        "total": "0.74712s"
+    },
+    {
+        "index": "094",
+        "label": "$twig->addExtension(new AssetExtension($packages));",
+        "temps": "0.00010s",
+        "total": "0.74722s"
+    },
+    {
+        "index": "095",
+        "label": "$defaultFormTheme = 'bootstrap_5_layout.html.twig';",
+        "temps": "0.00001s",
+        "total": "0.74723s"
+    },
+    {
+        "index": "096",
+        "label": "$formEngine = new TwigRendererEngine([$defaultFormTheme], $twig);",
+        "temps": "0.00023s",
+        "total": "0.74746s"
+    },
+    {
+        "index": "097",
+        "label": "$twig->addRuntimeLoader(new FactoryRuntimeLoader([...",
+        "temps": "0.00001s",
+        "total": "0.74747s"
+    },
+    {
+        "index": "098",
+        "label": "Paginator::useBootstrap();",
+        "temps": "0.00060s",
+        "total": "0.74807s"
+    },
+    {
+        "index": "099",
+        "label": "global $container;",
+        "temps": "0.00001s",
+        "total": "0.74808s"
+    }
+]
