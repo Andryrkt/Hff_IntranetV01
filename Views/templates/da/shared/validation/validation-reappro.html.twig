@@ -30,6 +30,9 @@
 							{{ macroForm.sousTitre('Débiteur') }}
 							{{ macroForm.affichage2('Agence Débiteur', demandeAppro.agenceDebiteur.codeAgence ~ ' ' ~ demandeAppro.agenceDebiteur.libelleAgence, 'mb-2') }}
 							{{ macroForm.affichage2('Service Débiteur', demandeAppro.serviceDebiteur.codeService ~ ' ' ~  demandeAppro.serviceDebiteur.libelleService, 'mb-2') }}
+							<div class="{{ codeCentrale ? '' : 'd-none'}}">
+								{{ macroForm.affichage2('Centrale rattachée à la DA', demandeAppro.desiCentrale ?? '-', 'mb-2') }}
+							</div>
 						</div>
 					</div>
 				</div>
@@ -80,7 +83,12 @@
 					</tr>
 				</thead>
 				<tbody>
-					{% for data in dataHistorique %}
+					{% if dataHistorique.data is empty %}
+						<tr>
+							<td colspan="16">Aucun historique de consommation disponible</td>
+						</tr>
+					{% endif %}
+					{% for data in dataHistorique.data %}
 						<tr>
 							<td>{{ data.cst }}</td>
 							<td>{{ data.refp }}</td>
@@ -92,6 +100,20 @@
 						</tr>
 					{% endfor %}
 				</tbody>
+				{% if dataHistorique.data is not empty %}
+					<tfoot>
+						<tr>
+							<td colspan="16"></td>
+						</tr>
+						<tr>
+							<td colspan="3" class="fw-bold">MONTANT en AR</td>
+							{% for month in monthsList %}
+								<td class="text-end fw-bold">{{ dataHistorique.montants[month] }}</td>
+							{% endfor %}
+							<td></td>
+						</tr>
+					</tfoot>
+				{% endif %}
 			</table>
 
 			<div>

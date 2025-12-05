@@ -87,3 +87,11 @@ INSERT INTO HFF_INTRANET_TEST_TEST.dbo.DW_Rapport_Intervention
 select id_ri, numero_ri, id_tiroir, numero_or, date_creation, heure_creation, date_derniere_modification, heure_derniere_modification, extension_fichier, taille_fichier, [path], total_page
 from HFF_INTRANET.dbo.DW_Rapport_Intervention;
 
+INSERT INTO HFF_INTRANET_TEST_TEST.dbo.DW_DA_Direct
+(id_da_dir, numero_da_dir, statut_da_dir, id_tiroir, date_creation, heure_creation, date_derniere_modification, heure_derniere_modification, total_page, taille_fichier, extension_fichier, [path], numero_version)
+select id_da_dir, numero_da_dir, statut_da_dir, id_tiroir, date_creation, heure_creation, date_derniere_modification, heure_derniere_modification, total_page, taille_fichier, extension_fichier, [path], numero_version from HFF_INTRANET.dbo.DW_DA_Direct;
+
+INSERT INTO HFF_INTRANET_TEST_TEST.dbo.DW_DA_Reappro
+(id_da_reap, numero_da_reap, statut_da_reap, id_tiroir, date_creation, heure_creation, date_derniere_modification, heure_derniere_modification, total_page, taille_fichier, extension_fichier, [path], numero_version)
+SELECT id_da_reap, numero_da_reap, statut_da_reap, id_tiroir, date_creation, heure_creation, date_derniere_modification, heure_derniere_modification, total_page, taille_fichier, extension_fichier, [path], numero_version from HFF_INTRANET.dbo.DW_DA_Reappro;
+

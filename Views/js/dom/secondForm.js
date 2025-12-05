@@ -112,6 +112,37 @@ document.addEventListener("DOMContentLoaded", (event) => {
     }
   }
 
+  /** AFFICHAGE DE l'INDEMNITE FORFAITAIRE JOURNALIERE selon le site */
+  const indemniteForfaitaireJournaliereInput = document.querySelector(
+    "#dom_form2_indemniteForfaitaire"
+  );
+  const siteInput = document.querySelector("#dom_form2_site");
+  const sousTypeDocInput = document.querySelector("#sousTypeDoc");
+  const categorieInput = document.querySelector("#categorie");
+  const rmqInput = document.querySelector("#rmq");
+
+  if (siteInput) {
+    siteInput.addEventListener("change", indemnitySite);
+  }
+  console.log(sousTypeDocInput.value);
+
+  function indemnitySite() {
+    const siteValue = siteInput.value;
+    const sousTypeDocValue = sousTypeDocInput.value;
+
+    const catgValue = categorieInput.value;
+    const rmqValue = rmqInput.value;
+    let url = `site-idemnite-fetch/${siteValue}/${sousTypeDocValue}/${catgValue}/${rmqValue}`;
+    fetchManager
+      .get(url)
+      .then((indemnite) => {
+        console.log(indemnite);
+        indemniteForfaitaireJournaliereInput.value = indemnite.montant;
+        calculTotalForfaitaire();
+      })
+      .catch((error) => console.error("Error:", error));
+  }
+
   /**
    * CALCULE et AFFICHAGE total indemnité de déplacement
    */
@@ -171,37 +202,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
   function formatNumberInt(value) {
     return numeral(value).format(0, 0);
-  }
-
-  /** AFFICHAGE DE l'INDEMNITE FORFAITAIRE JOURNALIERE selon le site */
-  const indemniteForfaitaireJournaliereInput = document.querySelector(
-    "#dom_form2_indemniteForfaitaire"
-  );
-  const siteInput = document.querySelector("#dom_form2_site");
-  const sousTypeDocInput = document.querySelector("#sousTypeDoc");
-  const categorieInput = document.querySelector("#categorie");
-  const rmqInput = document.querySelector("#rmq");
-
-  if (siteInput) {
-    siteInput.addEventListener("change", indemnitySite);
-  }
-  console.log(sousTypeDocInput.value);
-
-  function indemnitySite() {
-    const siteValue = siteInput.value;
-    const sousTypeDocValue = sousTypeDocInput.value;
-
-    const catgValue = categorieInput.value;
-    const rmqValue = rmqInput.value;
-    let url = `site-idemnite-fetch/${siteValue}/${sousTypeDocValue}/${catgValue}/${rmqValue}`;
-    fetchManager
-      .get(url)
-      .then((indemnite) => {
-        console.log(indemnite);
-        indemniteForfaitaireJournaliereInput.value = indemnite.montant;
-        calculTotalForfaitaire();
-      })
-      .catch((error) => console.error("Error:", error));
   }
 
   /** CALCULE DU TOTAL INDEMNITE FORFAITAIRE */
@@ -499,8 +499,4 @@ document.addEventListener("DOMContentLoaded", (event) => {
         }
       });
     });
-});
-
-window.addEventListener("load", () => {
-  displayOverlay(false);
 });

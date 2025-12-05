@@ -4,6 +4,7 @@ namespace App\Service\navigation;
 
 use App\Entity\da\DemandeAppro;
 use App\Entity\admin\Application;
+use App\Entity\admin\Service;
 use App\Entity\admin\utilisateur\Role;
 use App\Entity\admin\utilisateur\User;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -16,9 +17,11 @@ class MenuService
     private bool $estAdmin = false;
     private bool $estAtelier = false;
     private bool $estAppro = false;
+    private bool $estRH = false;
     private bool $estCreateurDeDADirecte = false;
     private $basePath;
     private $applicationIds = [];
+    private $codeAgenceAutorisers = [];
 
     public function __construct($entityManager, SessionInterface $session)
     {
@@ -108,6 +111,24 @@ class MenuService
     }
 
     /**
+     * Get the value of codeAgenceAutorisers
+     */
+    public function getCodeAgenceAutorisers()
+    {
+        return $this->codeAgenceAutorisers;
+    }
+
+    /**
+     * Set the value of codeAgenceAutorisers
+     */
+    public function setCodeAgenceAutorisers($codeAgenceAutorisers): self
+    {
+        $this->codeAgenceAutorisers = $codeAgenceAutorisers;
+
+        return $this;
+    }
+
+    /**
      * Get the value of connectedUser
      */
     public function getConnectedUser()
@@ -148,6 +169,26 @@ class MenuService
     }
 
     /**
+     * Get the value of estRH
+     */
+    public function getEstRH()
+    {
+        return $this->estRH;
+    }
+
+    /**
+     * Set the value of estRH
+     *
+     * @return  self
+     */
+    public function setEstRH($estRH)
+    {
+        $this->estRH = $estRH;
+
+        return $this;
+    }
+
+    /**
      * Définit les informations de l'utilisateur connecté :
      * - son statut admin
      * - la liste de ses applications
@@ -166,8 +207,11 @@ class MenuService
                 $this->setEstAdmin(in_array(Role::ROLE_ADMINISTRATEUR, $roleIds, true)); // estAdmin
                 $this->setEstAppro(in_array(DemandeAppro::ID_APPRO, $serviceIds)); // est appro
                 $this->setEstAtelier(in_array(DemandeAppro::ID_ATELIER, $serviceIds)); // est atelier
+                $this->setEstRH(in_array(Service::ID_RH, $serviceIds)); // est RH
                 $this->setEstCreateurDeDADirecte(in_array(Role::ROLE_DA_DIRECTE, $roleIds, true)); // est créateur de DA directe
                 $this->setApplicationIds($connectedUser->getApplicationsIds()); // Les applications autorisées de l'utilisateur connecté
+                $this->setCodeAgenceAutorisers($connectedUser->getAgenceAutoriserCode()); // codes des agences autoriser del'utilisateur connecté
+
             }
         }
     }
@@ -201,7 +245,7 @@ class MenuService
             [$this->menuMagasin(), $estAdmin || $this->hasAccess([Application::ID_MAG, Application::ID_INV, Application::ID_BDL, Application::ID_CFR, Application::ID_LCF], $applicationIds)], // MAG + INV + BDL + CFR + LCF
             [$this->menuAppro(), $estAdmin || in_array(Application::ID_DAP, $applicationIds, true)],         // DAP
             [$this->menuIT(), $estAdmin || in_array(Application::ID_TIK, $applicationIds, true)],             // TIK
-            [$this->menuPOL(), $estAdmin],
+            [$this->menuPOL(), $estAdmin || in_array('60', $this->getCodeAgenceAutorisers())],
             [$this->menuEnergie(), $estAdmin],
             [$this->menuHSE(), $estAdmin],
         ];
@@ -316,8 +360,9 @@ class MenuService
         if ($this->getEstAdmin() || in_array(Application::ID_DDC, $this->getApplicationIds())) { // DDC
             $subSubitems = [];
             $subSubitems[] = $this->createSubItem('Nouvelle demande', 'plus-circle', 'new_conge', [], '_blank');
-            if ($this->getEstAdmin()) {
-                $subSubitems[] = $this->createSubItem('Annulation Congé', 'calendar-xmark', 'annulation_conge', [], '_blank');
+            $subSubitems[] = $this->createSubItem('Annulation de congés validés', 'calendar-xmark', 'annulation_conge', [], '_blank');
+            if ($this->getEstAdmin() || $this->getEstRH()) {
+                $subSubitems[] = $this->createSubItem('Annulation de congé dédiée RH', 'calendar-xmark', 'annulation_conge_rh', [], '_blank');
             }
             $subSubitems[] = $this->createSubItem('Consultation', 'search', 'conge_liste');
             $subitems[] = $this->createSubMenuItem(
@@ -469,7 +514,7 @@ class MenuService
                 [
                     $this->createSubItem('Devis', 'file-invoice', 'devis_magasin_liste'),
                     $this->createSubItem('Commandes clients', 'shopping-basket', '#'),
-                    $this->createSubItem('Planning magasin', 'calendar-alt', '#'),
+                    $this->createSubItem('Planning de commande Magasin', 'calendar-alt', 'interface_planningMag'),
                 ]
             );
         }
@@ -531,8 +576,9 @@ class MenuService
         $subitems[] = $this->createSimpleItem('Nouvelle DLUB', 'file-alt');
         $subitems[] = $this->createSimpleItem('Consultation des DLUB', 'search');
         $subitems[] = $this->createSimpleItem('Liste des commandes fournisseurs', 'list-ul');
+
         /** =====================POL OR et CIS========================= */
-        if ($this->getEstAdmin()) { // admin uniquement
+        if ($this->getEstAdmin() || in_array('60', $this->getCodeAgenceAutorisers())) { // admin uniquement
             $subitems[] = $this->createSubMenuItem(
                 'OR',
                 'warehouse',
@@ -550,9 +596,12 @@ class MenuService
                 ]
             );
         }
-
+        /** =====================POL Devis magasin========================= */
+        $subitems[] = $this->createSimpleItem('Devis negoce pol', 'list-ul', 'devis_magasin_pol_liste');
 
         $subitems[] = $this->createSimpleItem('Pneumatiques', 'ring');
+
+
         return $this->createMenuItem(
             'polModal',
             'POL',

@@ -8,6 +8,7 @@ use App\Entity\admin\Application;
 use App\Service\GlobalVariablesService;
 use App\Service\TableauEnStringService;
 use Symfony\Component\Form\FormInterface;
+use App\Service\Utils\RollingMonthsService;
 use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use App\Form\da\reappro\ReportingIpsSearchType;
@@ -22,6 +23,14 @@ class ReportingIpsController extends Controller
     use AutorisationTrait;
     use ReportingIpsTrait;
 
+    private RollingMonthsService $rollingMonthsService;
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->rollingMonthsService = new RollingMonthsService();
+    }
     /**
      * @Route("/reporting-ips", name = "da_reporting_ips")
      */
@@ -50,13 +59,12 @@ class ReportingIpsController extends Controller
         // traitement du formulaire
         $criterias = $this->traitementFormulaire($form, $request);
 
-        /** recuperation des données @var array $reportingIps @var int $qteTotale @var float $montantTotal  */
-        ['reportingIps' => $reportingIps, 'qteTotale' => $qteTotale, 'montantTotal' => $montantTotal] = $this->getData($criterias);
+        /** recuperation des données @var array $results @var array $totals  */
+        ['results' => $results, 'totals' => $totals] = $this->getData($criterias);
 
         return $this->render('da/reappro/reporting_ips/index.html.twig', [
-            'reporting_ips' => $reportingIps,
-            'qte_totale' => $qteTotale,
-            'montant_total' => $montantTotal,
+            'results' => $results,
+            'totals' => $totals,
             'form' => $form->createView(),
         ]);
     }
@@ -68,6 +76,7 @@ class ReportingIpsController extends Controller
         $aujourdhui = new DateTime();
 
         $criterias = [
+            'periodType' => 'PREVIOUS_12_MONTHS',
             'constructeur' => GlobalVariablesService::get('reappro'),
             'agences' => null,
             'services' => null,
@@ -114,6 +123,8 @@ class ReportingIpsController extends Controller
 
             $criterias['date_debut'] = $dateData['debut'] != null ? $dateData['debut']->format('Y-m-d') : $aujourdhui->modify('first day of january this year')->format('Y-m-d');
             $criterias['date_fin'] = $dateData['fin'] != null ? $dateData['fin']->format('Y-m-d') : $aujourdhui->format('Y-m-d');
+
+            $criterias['periodType'] = 'PREVIOUS_12_MONTHS';
         }
         $this->getSessionService()->set('criterias_reporting_ips', $criterias);
         return $criterias;

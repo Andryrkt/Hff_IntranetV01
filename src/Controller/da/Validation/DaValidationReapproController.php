@@ -56,19 +56,18 @@ class DaValidationReapproController extends Controller
 
         //========================================== Traitement du formulaire en général ===================================================//
         $this->traitementFormulaire($formReappro, $formObservation, $request, $da, $observations, $monthsList, $dataHistoriqueConsommation);
-        // =================================================================================================================================//
+        //==================================================================================================================================//
 
         return $this->render("da/validation-reappro.html.twig", [
             'demandeAppro'    => $da,
             'numDa'           => $da->getNumeroDemandeAppro(),
+            'codeCentrale'    => $this->estAdmin() || in_array($da->getAgenceEmetteur()->getCodeAgence(), ['90', '91', '92']),
             'formReappro'     => $formReappro->createView(),
             'formObservation' => $formObservation->createView(),
             'observations'    => $observations,
             'dataHistorique'  => $dataHistoriqueConsommation,
             'monthsList'      => $monthsList,
             'connectedUser'   => $this->getUser(),
-            'propValTemplate' => 'proposition-validation-direct',
-            'dossierJS'       => 'propositionDirect',
         ]);
     }
 

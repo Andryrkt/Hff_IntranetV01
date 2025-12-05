@@ -7,6 +7,7 @@ use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Model\da\DaReapproModel;
 use App\Entity\da\DaSoumisAValidation;
+use App\Entity\da\DemandeApproL;
 use App\Service\autres\VersionService;
 use App\Repository\da\DaObservationRepository;
 use App\Repository\da\DaSoumisAValidationRepository;
@@ -93,10 +94,9 @@ trait DaValidationReapproTrait
     public function getHistoriqueConsommation(DemandeAppro $demandeAppro, array $dateRange, array $monthsList)
     {
         $result = [];
-        $codeAgence = $demandeAppro->getAgenceEmetteur()->getCodeAgence();
-        $codeService = $demandeAppro->getServiceEmetteur()->getCodeService();
+        $montantTotal = array_fill_keys($monthsList, 0.0); // initialiser à 0.0 tous les montants totals
 
-        $datas = $this->daReapproModel->getHistoriqueConsommation($dateRange, $codeAgence, $codeService);
+        $datas = $this->daReapproModel->getHistoriqueConsommation($dateRange, $demandeAppro);
 
         foreach ($datas as $row) {
             // Clé unique par produit
@@ -113,14 +113,19 @@ trait DaValidationReapproTrait
                 ];
             }
 
-            // Ajouter la quantité pour le mois correspondant
             $mois = $row['mois_annee'];
+
+            // Ajouter la quantité pour le mois correspondant
             $qte  = (float)($row['qte_fac'] ?? 0);
             $result[$key]['qteTotalTemp'] += $qte;
             $result[$key]['qteTemp'][$mois] += $qte;
+
+            // Ajouter le montant pour le mois correspondant
+            $mttTotal  = (float)($row['mtt_total'] ?? 0);
+            $montantTotal[$mois] += $mttTotal;
         }
 
-        // Formattage final
+        // ✅ Formattage final
         foreach ($result as $key => $row) {
             $row['qteTotal'] = number_format($row['qteTotalTemp'], 2, ',', '');
             $row['qte'] = [];
@@ -131,7 +136,15 @@ trait DaValidationReapproTrait
             $result[$key] = $row;
         }
 
-        return $result;
+        // ✅ Formatage des montants
+        foreach ($montantTotal as $mois => $value) {
+            $montantTotal[$mois] = $value != 0 ? number_format($value, 2, ',', ' ') : '-';
+        }
+
+        return [
+            'data'     => $result,
+            'montants' => $montantTotal
+        ];
     }
 
     private function modifierStatut(DemandeAppro $demandeAppro, string $statut)
@@ -139,6 +152,11 @@ trait DaValidationReapproTrait
         /** @var DemandeApproL $demandeApproL */
         foreach ($demandeAppro->getDAL() as $demandeApproL) {
             $demandeApproL->setStatutDal($statut);
+            if ($statut === demandeAppro::STATUT_VALIDE) {
+                $demandeApproL->setEstValidee(true);
+                $demandeApproL->setValidePar($this->getUser()->getNomUtilisateur());
+            }
+
             $this->getEntityManager()->persist($demandeApproL);
         }
 
@@ -155,7 +173,7 @@ trait DaValidationReapproTrait
      */
     private function creationPDFReappro(DemandeAppro $demandeAppro, iterable $observations, array $monthsList, array $dataHistoriqueConsommation): void
     {
-        $this->genererPdfDaReappro->genererPdfBonAchatValide($demandeAppro, $this->getUserMail(), $observations, $monthsList, $dataHistoriqueConsommation);
+        $this->genererPdfDaReappro->genererPdfBonAchatValide($demandeAppro, $observations, $monthsList, $dataHistoriqueConsommation);
     }
 
     /** 

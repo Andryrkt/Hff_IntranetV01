@@ -5,36 +5,38 @@ namespace App\Controller\dit\Ors;
 ini_set('upload_max_filesize', '5M');
 ini_set('post_max_size', '5M');
 
-use App\Entity\da\DaValider;
+use App\Service\FusionPdf;
+use App\Model\dit\DitModel;
 use App\Entity\da\DaAfficher;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
+use App\Entity\admin\StatutDemande;
 use App\Controller\Traits\da\DaTrait;
 use App\Repository\dit\DitRepository;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\FormatageTrait;
-use App\Repository\da\DaValiderRepository;
+use Symfony\Component\Form\FormInterface;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Repository\da\DaAfficherRepository;
+use App\Service\fichier\UploderFileService;
+use App\Service\fichier\TraitementDeFichier;
 use App\Form\dit\DitOrsSoumisAValidationType;
 use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use App\Model\dit\DitOrSoumisAValidationModel;
 use App\Repository\da\DemandeApproLRepository;
 use App\Repository\da\DemandeApproLRRepository;
+use App\Service\dit\ors\OrGeneratorNameService;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\magasin\MagasinListeOrLivrerModel;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
-use App\Service\genererPdf\GenererPdfOrSoumisAValidation;
-use App\Model\dit\DitModel;
 use App\Controller\Traits\dit\DitOrSoumisAValidationTrait;
-use App\Entity\admin\StatutDemande;
 use App\Service\historiqueOperation\HistoriqueOperationService;
+use App\Service\genererPdf\dit\ors\GenererPdfOrSoumisAValidation;
 use App\Service\historiqueOperation\HistoriqueOperationORService;
-use App\Service\FusionPdf;
-use Symfony\Component\Form\FormInterface;
 
 /**
  * @Route("/atelier/demande-intervention")
@@ -48,7 +50,6 @@ class DitOrsSoumisAValidationController extends Controller
     private MagasinListeOrLivrerModel $magasinListOrLivrerModel;
     private HistoriqueOperationService $historiqueOperation;
     private DitOrSoumisAValidationModel $ditOrsoumisAValidationModel;
-    private GenererPdfOrSoumisAValidation $genererPdfDit;
     private DitRepository $ditRepository;
     private DitOrsSoumisAValidationRepository $orRepository;
     private DemandeApproLRepository $demandeApproLRepository;
@@ -65,13 +66,12 @@ class DitOrsSoumisAValidationController extends Controller
         $this->magasinListOrLivrerModel = new MagasinListeOrLivrerModel();
         $this->historiqueOperation      = new HistoriqueOperationORService($this->getEntityManager());
         $this->ditOrsoumisAValidationModel = new DitOrSoumisAValidationModel();
-        $this->genererPdfDit = new GenererPdfOrSoumisAValidation();
-        $this->ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class);
-        $this->orRepository = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class);
-        $this->demandeApproLRepository = $this->getEntityManager()->getRepository(DemandeApproL::class);
-        $this->demandeApproLRRepository = $this->getEntityManager()->getRepository(DemandeApproLR::class);
-        $this->demandeApproRepository = $this->getEntityManager()->getRepository(DemandeAppro::class);
-        $this->daAfficherRepository = $this->getEntityManager()->getRepository(DaAfficher::class);
+        // $this->ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class);
+        // $this->orRepository = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class);
+        // $this->demandeApproLRepository = $this->getEntityManager()->getRepository(DemandeApproL::class);
+        // $this->demandeApproLRRepository = $this->getEntityManager()->getRepository(DemandeApproLR::class);
+        // $this->demandeApproRepository = $this->getEntityManager()->getRepository(DemandeAppro::class);
+        // $this->daAfficherRepository = $this->getEntityManager()->getRepository(DaAfficher::class);
         $this->ditModel = new DitModel();
         $this->fusionPdf = new FusionPdf();
     }
@@ -88,10 +88,13 @@ class DitOrsSoumisAValidationController extends Controller
 
         // verification si l'OR est lié à un DA
         $lierAUnDa = false;
-        $numDas = $this->demandeApproRepository->getNumDa($numDit);
+        $demandeApproRepository = $this->getEntityManager()->getRepository(DemandeAppro::class);
+        /** @var DaAfficherRepository */
+        $daAfficherRepository = $this->getEntityManager()->getRepository(DaAfficher::class);
+        $numDas = $demandeApproRepository->getNumDa($numDit);
         if ($numDas) {
             foreach ($numDas as $numDa) {
-                $statutDaAfficher = $this->daAfficherRepository->getLastStatutDaAfficher($numDa);
+                $statutDaAfficher = $daAfficherRepository->getLastStatutDaAfficher($numDa);
 
                 if (
                     !empty($statutDaAfficher) &&
@@ -128,13 +131,13 @@ class DitOrsSoumisAValidationController extends Controller
 
         $form = $this->getFormFactory()->createBuilder(DitOrsSoumisAValidationType::class, $ditInsertionOrSoumis)->getForm();
 
-        $this->traitementFormulaire($form,  $request,  $numOr,   $numDit,  $ditInsertionOrSoumis);
+        $this->traitementFormulaire($form,  $request,  $numOr,   $numDit,  $ditInsertionOrSoumis, $daAfficherRepository);
 
         $this->logUserVisit('dit_insertion_or', [
             'numDit' => $numDit,
         ]); // historisation du page visité par l'utilisateur
 
-        $cdtArticleDa = $this->conditionBlocageArticleDa($numOr);
+        $cdtArticleDa = $this->conditionBlocageArticleDa($numOr, $daAfficherRepository);
         return $this->render('dit/DitInsertionOr.html.twig', [
             'form' => $form->createView(),
             'cdtArticleDa' => $cdtArticleDa,
@@ -142,8 +145,9 @@ class DitOrsSoumisAValidationController extends Controller
         ]);
     }
 
-    private function traitementFormulaire(FormInterface $form, Request $request, string $numOr, string  $numDit, DitOrsSoumisAValidation $ditInsertionOrSoumis)
+    private function traitementFormulaire(FormInterface $form, Request $request, string $numOr, string  $numDit, DitOrsSoumisAValidation $ditInsertionOrSoumis, DaAfficherRepository $daAfficherRepository)
     {
+
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -152,6 +156,7 @@ class DitOrsSoumisAValidationController extends Controller
             $originalName = $form->get("pieceJoint01")->getData()->getClientOriginalName();
             $observation = $form->get("observation")->getData();
             $conditionBloquage = $this->conditionsDeBloquegeSoumissionOr($originalName, $numOr, $ditInsertionOrSoumis, $numDit);
+
 
             /** FIN CONDITION DE BLOCAGE */
             if ($this->bloquageOrSoumsi($conditionBloquage, $originalName, $ditInsertionOrSoumis)) {
@@ -163,12 +168,11 @@ class DitOrsSoumisAValidationController extends Controller
                     ->setHeureSoumission($this->getTime())
                     ->setDateSoumission(new \DateTime($this->getDatesystem()))
                     ->setObservation($observation)
-                ;
+                    ->setNumeroDit($numDit);
 
                 $orSoumisValidationModel = $this->ditModel->recupOrSoumisValidation($ditInsertionOrSoumis->getNumeroOR());
 
                 $orSoumisValidataion = $this->orSoumisValidataion($orSoumisValidationModel, $numeroVersionMax, $ditInsertionOrSoumis, $numDit);
-
 
                 /** Modification de la colonne statut_or dans la table demande_intervention */
                 $this->modificationStatutOr($numDit);
@@ -177,32 +181,13 @@ class DitOrsSoumisAValidationController extends Controller
                 $this->envoieDonnerDansBd($orSoumisValidataion);
 
                 /** CREATION , FUSION, ENVOIE DW du PDF */
-                $suffix = $this->ditOrsoumisAValidationModel->constructeurPieceMagasin($numOr)[0]['retour'];
-                $this->creationPdf($ditInsertionOrSoumis, $orSoumisValidataion, $suffix);
-
-                // creation du nom du pdf pricipal avec chemin
-                $mainPdf = sprintf(
-                    '%s/vor/oRValidation_%s-%s#%s.pdf',
-                    $_ENV['BASE_PATH_FICHIER'],
-                    $ditInsertionOrSoumis->getNumeroOR(),
-                    $ditInsertionOrSoumis->getNumeroVersion(),
-                    $suffix
-                );
-
-                //envoie des pièce jointe dans une dossier et la fusionner
-                $this->envoiePieceJoint($form, $ditInsertionOrSoumis, $this->fusionPdf, $suffix, $mainPdf);
-
-                //fusion de pdf Demande appro avec le pdf OR fusionner
-                // $this->fusionPdfDaAvecORfusionner($numDit, $mainPdf);
-
-                // envoyer le pdf fusionner dans DW
-                $this->genererPdfDit->copyToDw($ditInsertionOrSoumis->getNumeroVersion(), $ditInsertionOrSoumis->getNumeroOR(), $suffix);
+                $this->traitementDeFichier($form, $ditInsertionOrSoumis, $orSoumisValidataion, $numOr);
 
                 /** modifier la colonne numero_or dans la table demande_intervention */
                 $this->modificationDuNumeroOrDansDit($numDit, $ditInsertionOrSoumis);
 
                 /** modification da_valider */
-                $this->modificationDaAfficher($numDit, $ditInsertionOrSoumis->getNumeroOR());
+                $this->modificationDaAfficher($numDit, $ditInsertionOrSoumis->getNumeroOR(), $daAfficherRepository);
 
                 $this->historiqueOperation->sendNotificationSoumission('Le document de controle a été généré et soumis pour validation', $ditInsertionOrSoumis->getNumeroOR(), 'dit_index', true);
             } else {
@@ -213,20 +198,114 @@ class DitOrsSoumisAValidationController extends Controller
         }
     }
 
-    private function conditionBlocageArticleDa(string $numOr): bool
+    private function preparationDesPiecesFaibleAchat(string $numOr): array
+    {
+        $infoOrs = $this->ditOrsoumisAValidationModel->getInformationOr($numOr);
+
+        $infoPieceFaibleAchat = [];
+        if (!empty($infoOrs)) {
+            foreach ($infoOrs as $infoOr) {
+                $afficher = $this->ditOrsoumisAValidationModel->getPieceFaibleActiviteAchat($infoOr['constructeur'], $infoOr['reference'], $numOr);
+
+                if (isset($afficher[0]) && $afficher[0]['retour'] === 'a afficher') {
+
+                    $infoPieceFaibleAchat[] = [
+                        'numero_itv'        => $infoOr['numero_itv'],
+                        'libelle_itv'       => $infoOr['libelle_itv'],
+                        'constructeur'      => $infoOr['constructeur'],
+                        'reference'         => $infoOr['reference'],
+                        'designation'       => $infoOr['designation'],
+                        'pmp'               => $afficher[0]['pmp'],
+                        'date_derniere_cde' => $afficher[0]['date_derniere_cde'],
+                    ];
+                }
+            }
+        }
+        return $infoPieceFaibleAchat;
+    }
+
+    private function traitementDeFichier(FormInterface $form, DitOrsSoumisAValidation $ditInsertionOrSoumis, $orSoumisValidataion, string $numOr): void
+    {
+        $suffix = $this->ditOrsoumisAValidationModel->constructeurPieceMagasin($numOr)[0]['retour'];
+
+        /** 
+         * 1. gestion des pieces jointes et generer le nom du fichier PDF
+         * Enregistrement de fichier uploder
+         * @var array $nomEtCheminFichiersEnregistrer 
+         * @var array $nomFichierEnregistrer 
+         * @var string $nomAvecCheminFichier
+         * @var string $nomFichier
+         */
+        [$nomEtCheminFichiersEnregistrer, $nomFichierEnregistrer, $nomAvecCheminFichier, $nomFichier] = $this->enregistrementFichier($form, $ditInsertionOrSoumis, $suffix);
+
+        // 2. creation de la page de garde
+        $genererPdfOrSoumisAValidation = new GenererPdfOrSoumisAValidation();
+        $this->creationPdf($ditInsertionOrSoumis, $orSoumisValidataion, $suffix, $numOr, $nomAvecCheminFichier, $genererPdfOrSoumisAValidation);
+
+        // 3. ajout du page de garde à la premier position
+        $traitementDeFichier = new TraitementDeFichier();
+        $nomEtCheminFichiersEnregistrer = $traitementDeFichier->insertFileAtPosition($nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, 0);
+
+        // 4. fusion du page de garde et des pieces jointes (conversion avant la fusion)
+        $nomEtCheminFichierConvertie = $this->ConvertirLesPdf($nomEtCheminFichiersEnregistrer);
+        $traitementDeFichier->fusionFichers($nomEtCheminFichierConvertie, $nomAvecCheminFichier);
+
+
+        // 5. fusion de pdf Demande appro avec le pdf OR fusionner
+        // $this->fusionPdfDaAvecORfusionner($numDit, $mainPdf, $daAfficherRepository);
+
+        // 6.  envoyer le pdf fusionner dans DW
+        $genererPdfOrSoumisAValidation->copyToDw($nomFichier, $ditInsertionOrSoumis->getNumeroDit());
+    }
+
+    private function enregistrementFichier(FormInterface $form, DitOrsSoumisAValidation $ditInsertionOrSoumis, string $suffix): array
+    {
+
+        $nameGenerator = new OrGeneratorNameService();
+        $numDit = $ditInsertionOrSoumis->getNumeroDit();
+        $cheminBaseUpload = $_ENV['BASE_PATH_FICHIER'] . '/dit/';
+        $uploader = new UploderFileService($cheminBaseUpload, $nameGenerator);
+        $path = $cheminBaseUpload . $numDit . '/';
+        if (!is_dir($path)) {
+            mkdir($path, 0777, true);
+        }
+
+        /**
+         * recupère les noms + chemins dans un tableau et les noms dans une autre
+         * @var array $nomEtCheminFichiersEnregistrer
+         * @var array $nomFichierEnregistrer
+         */
+        [$nomEtCheminFichiersEnregistrer, $nomFichierEnregistrer] = $uploader->getFichiers($form, [
+            'repertoire' => $path,
+            'generer_nom_callback' => function (
+                UploadedFile $file,
+                int $index
+            ) use ($nameGenerator, $ditInsertionOrSoumis, $suffix) {
+                return $nameGenerator->generateNameFile($file, $ditInsertionOrSoumis->getNumeroOR(), $ditInsertionOrSoumis->getNumeroVersion(), $suffix, $index);
+            }
+        ]);
+
+
+        $nomFichier = $nameGenerator->generateNamePrincipal($ditInsertionOrSoumis->getNumeroOR(), $ditInsertionOrSoumis->getNumeroVersion(), $suffix);
+        $nomAvecCheminFichier = $path . $nomFichier;
+
+        return [$nomEtCheminFichiersEnregistrer, $nomFichierEnregistrer, $nomAvecCheminFichier, $nomFichier];
+    }
+
+    private function conditionBlocageArticleDa(string $numOr, DaAfficherRepository $daAfficherRepository): bool
     {
         $listeArticlesSavLorString = $this->ditOrsoumisAValidationModel->getListeArticlesSavLorString($numOr);
         $nbrArticlesComparet = $this->ditOrsoumisAValidationModel->getNbrComparaisonArticleDaValiderEtSavLor($listeArticlesSavLorString, $numOr);
-        $nombreArticleDansDaAfficheValider = $this->daAfficherRepository->getNbrDaAfficherValider($numOr);
+        $nombreArticleDansDaAfficheValider = $daAfficherRepository->getNbrDaAfficherValider($numOr);
 
         return $nbrArticlesComparet !== $nombreArticleDansDaAfficheValider && $nbrArticlesComparet > 0 && $nombreArticleDansDaAfficheValider > 0;
     }
 
 
-    private function modificationDaAfficher(string $numDit, string $numOr): void
+    private function modificationDaAfficher(string $numDit, string $numOr, DaAfficherRepository $daAfficherRepository): void
     {
-        $numeroVersionMax = $this->daAfficherRepository->getNumeroVersionMaxDit($numDit);
-        $daAfficherValiders = $this->daAfficherRepository->findBy(['numeroVersion' => $numeroVersionMax, 'numeroDemandeDit' => $numDit, 'statutDal' => DemandeAppro::STATUT_VALIDE]);
+        $numeroVersionMax = $daAfficherRepository->getNumeroVersionMaxDit($numDit);
+        $daAfficherValiders = $daAfficherRepository->findBy(['numeroVersion' => $numeroVersionMax, 'numeroDemandeDit' => $numDit, 'statutDal' => DemandeAppro::STATUT_VALIDE]);
         if (!empty($daAfficherValiders)) {
 
             /** @var DaAfficher $daValider */
@@ -245,10 +324,10 @@ class DitOrsSoumisAValidationController extends Controller
         }
     }
 
-    private function fusionPdfDaAvecORfusionner(string $numDit, string $mainPdf): void
+    private function fusionPdfDaAvecORfusionner(string $numDit, string $mainPdf, DaAfficherRepository $daAfficherRepository): void
     {
-        $numeroVersionMax = $this->daAfficherRepository->getNumeroVersionMaxDit($numDit);
-        $daAfficherValiders = $this->daAfficherRepository->findBy(['numeroVersion' => $numeroVersionMax, 'numeroDemandeDit' => $numDit, 'statutDal' => DemandeAppro::STATUT_VALIDE]);
+        $numeroVersionMax = $daAfficherRepository->getNumeroVersionMaxDit($numDit);
+        $daAfficherValiders = $daAfficherRepository->findBy(['numeroVersion' => $numeroVersionMax, 'numeroDemandeDit' => $numDit, 'statutDal' => DemandeAppro::STATUT_VALIDE]);
         if (!empty($daAfficherValiders)) {
             //recupération du nom et chemin du PDF DA
             $cheminNomFichierDa = sprintf(
@@ -291,7 +370,8 @@ class DitOrsSoumisAValidationController extends Controller
         $refClient = $this->ditOrsoumisAValidationModel->recupRefClient($ditInsertionOrSoumis->getNumeroOR());
 
         // $situationOrSoumis = $this->ditOrsoumisAValidationModel->recupBlockageStatut($numOr);
-        $situationOrSoumis = $this->orRepository->getblocageStatut($numOr, $numDit);
+        $orRepository = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class);
+        $situationOrSoumis = $orRepository->getblocageStatut($numOr, $numDit);
 
         $countAgServDeb = $this->ditOrsoumisAValidationModel->countAgServDebit($numOr);
 
@@ -406,7 +486,7 @@ class DitOrsSoumisAValidationController extends Controller
         return $okey;
     }
 
-    private function creationPdf($ditInsertionOrSoumis, $orSoumisValidataion, string $suffix)
+    private function creationPdf($ditInsertionOrSoumis, $orSoumisValidataion, string $suffix, string $numOr, string $nomAvecCheminFichier, GenererPdfOrSoumisAValidation $genererPdfOrSoumisAValidation)
     {
         $OrSoumisAvant = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class)->findOrSoumiAvant($ditInsertionOrSoumis->getNumeroOR());
         // dump($OrSoumisAvant);
@@ -416,7 +496,10 @@ class DitOrsSoumisAValidationController extends Controller
         // dd($montantPdf);
         $quelqueaffichage = $this->quelqueAffichage($ditInsertionOrSoumis->getNumeroOR());
 
-        $this->genererPdfDit->GenererPdfOrSoumisAValidation($ditInsertionOrSoumis, $montantPdf, $quelqueaffichage, $this->nomUtilisateur($this->getEntityManager())['mailUtilisateur'], $suffix);
+        // information sur les pièces à faible achat
+        $pieceFaibleAchat = $this->preparationDesPiecesFaibleAchat($numOr);
+
+        $genererPdfOrSoumisAValidation->GenererPdf($ditInsertionOrSoumis, $montantPdf, $quelqueaffichage, $this->nomUtilisateur($this->getEntityManager())['mailUtilisateur'], $suffix, $pieceFaibleAchat, $nomAvecCheminFichier);
     }
 
     private function modificationStatutOr($numDit)

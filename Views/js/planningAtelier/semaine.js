@@ -1,4 +1,3 @@
-import { displayOverlay } from "../utils/ui/overlay";
 import { mergeCellsTable } from "./tableHandler";
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -143,8 +142,4 @@ document.addEventListener("DOMContentLoaded", function () {
       eventSurSemaineInput(semaineInput);
     });
   }
-});
-
-window.addEventListener("load", () => {
-  displayOverlay(false);
 });

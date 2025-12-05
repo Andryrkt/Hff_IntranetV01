@@ -13,11 +13,10 @@ class GenererPdfDaDirect extends GenererPdfDa
      * 
      * @param DemandeAppro $da la DA correspondante
      * @param iterable<DaObservation> $observations les observations liées à la DA
-     * @param string $userMail l'email de l'utilisateur (optionnel)
      * 
      * @return void
      */
-    public function genererPdfBonAchatValide(DemandeAppro $da, iterable $observations, string $userMail = ''): void
+    public function genererPdfBonAchatValide(DemandeAppro $da, iterable $observations): void
     {
         $pdf = new TCPDF();
         $dals = $da->getDAL();
@@ -25,7 +24,7 @@ class GenererPdfDaDirect extends GenererPdfDa
 
         $pdf->AddPage();
 
-        $this->renderHeaderPdfDA($pdf, $numDa, $userMail, $da->getDaTypeId(), $da->getDateCreation());
+        $this->renderHeaderPdfDA($pdf, $da->getUser()->getMail(), $da);
 
         $this->renderObjetDetailPdfDA($pdf, $da->getObjetDal(), $da->getDetailDal());
 

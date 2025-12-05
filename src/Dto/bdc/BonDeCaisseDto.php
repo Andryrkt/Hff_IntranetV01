@@ -11,7 +11,9 @@ class BonDeCaisseDto
     public ?int $id = null;
     public ?string $typeDemande = null;
     public ?string $numeroDemande = null;
-    public ?\DateTimeInterface $dateDemande = null;
+    public array $dateDemande = [];
+    public ?\DateTimeInterface $dateDemandeAfficher = null;
+    public ?\DateTimeInterface $dateDemandeDebut = null;
     public ?\DateTimeInterface $dateDemandeFin = null;
     public ?string $caisseRetrait = null;
     public ?string $typePaiement = null;

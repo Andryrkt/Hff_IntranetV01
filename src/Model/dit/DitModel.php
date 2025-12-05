@@ -129,7 +129,10 @@ class DitModel extends Model
   {
     $statement = "SELECT mmat_nummat as numero_matricule 
               from informix.mat_mat 
-              where mmat_reffou in ('IMMODIV','PRESTDIV') OR (mmat_recalph = 'EQPABS')";
+              where mmat_reffou in ('IMMODIV','PRESTDIV') OR (mmat_recalph = 'EQPABS')
+              or mmat_nummat = '7711'
+              order by mmat_nummat
+              ";
 
     $result = $this->connect->executeQuery($statement);
 
@@ -543,10 +546,26 @@ class DitModel extends Model
 
     $result = $this->connect->executeQuery($statement);
 
-
     $data = $this->connect->fetchResults($result);
 
     return $this->convertirEnUtf8($data);
+  }
+
+  public function recupInfoMateriel(string $numOr)
+  {
+    $statement = "SELECT 
+        TRIM(mmat_desi) AS designation, 
+        TRIM(mmat_numserie) AS numserie,
+        TRIM(mmat_recalph) AS identite
+      FROM sav_eor
+      INNER JOIN mat_mat on mmat_nummat = seor_nummat and seor_soc = 'HF'
+      WHERE seor_numor = '$numOr'";
+
+    $result = $this->connect->executeQuery($statement);
+
+    $data = $this->connect->fetchResults($result);
+
+    return $this->convertirEnUtf8($data ? $data[0] : []);
   }
 
   public function getPosition(string $numDit)

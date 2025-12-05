@@ -11,10 +11,12 @@ class ListeDevisSearchDto
     private ?string $numeroDevis = null;
     private ?string $codeClient = null;
     private ?string $Operateur = null;
-    private ?string $statutDw = null;
-    private ?string $statutIps = null;
+    private ?string $statutDw = null; // statut devis
+    private ?string $statutIps = null; // position IPS
     private ?array $emetteur = [];
     private ?array $dateCreation = [];
+    private ?string $statutBc = null;
+    private ?string $creePar = null;
 
     /** ============================================================
      * getter and setter
@@ -167,6 +169,38 @@ class ListeDevisSearchDto
     public function setDateCreation($dateCreation)
     {
         $this->dateCreation = $dateCreation;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of statutBc
+     */
+    public function getStatutBc()
+    {
+        return $this->statutBc;
+    }
+
+    /**
+     * Set the value of statutBc
+     *
+     * @return  self
+     */
+    public function setStatutBc($statutBc)
+    {
+        $this->statutBc = $statutBc;
+
+        return $this;
+    }
+
+    public function getCreePar()
+    {
+        return $this->creePar;
+    }
+
+    public function setCreePar($creePar)
+    {
+        $this->creePar = $creePar;
 
         return $this;
     }

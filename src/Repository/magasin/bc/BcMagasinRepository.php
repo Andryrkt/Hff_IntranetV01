@@ -22,7 +22,7 @@ class BcMagasinRepository extends EntityRepository implements StatusRepositoryIn
     public function findLatestStatusByIdentifier(string $identifier): ?string
     {
         $result = $this->createQueryBuilder('b')
-            ->select('b.status')
+            ->select('b.statutBc')
             ->where('b.numeroDevis = :identifier')
             ->orderBy('b.id', 'DESC')
             ->setParameter('identifier', $identifier)
@@ -30,6 +30,20 @@ class BcMagasinRepository extends EntityRepository implements StatusRepositoryIn
             ->getQuery()
             ->getOneOrNullResult();
 
-        return $result['status'] ?? null;
+        return $result['statutBc'] ?? null;
+    }
+
+    /**
+     * recupère tous les numéros BC Distincts
+     */
+    public function findnumBCAll()
+    {
+        $query = $this->createQueryBuilder('b')
+            ->select("DISTINCT b.numeroDevis")
+            ->getQuery()
+            ->getSingleColumnResult();
+
+        return $query;
     }
 }
+

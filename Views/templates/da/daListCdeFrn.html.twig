@@ -41,6 +41,7 @@
 					<th class="text-center">Statut BC</th>
 					<th class="text-center">Non dispo</th>
 					<th class="text-center">Date fin souhaité</th>
+					<th class="text-center">CST</th>
 					<th class="text-center">Réference</th>
 					<th class="text-center">Désignation</th>
 					<th class="text-center">Qté demandée</th>
@@ -63,7 +64,7 @@
 				{% for row in data %}
 					<tr>
 						<td class="text-center">
-							<a href="{{ row.urlDetail }}" target="_blank">
+							<a href="{{ row.urlDetail }}" target="_blank" data-bs-toggle="tooltip" title="{{ row.objet }}">
 								{{ row.numeroDemandeAppro }}
 							</a>
 						</td>
@@ -85,15 +86,24 @@
 							{% endif %}
 						</td>
 						<td class="text-center {{ row.styleClickableCell }}">{{ row.dateFinSouhaite }}</td>
+						<td class="text-center {{ row.styleClickableCell }}">{{ row.artConstp }}</td>
 						<td class="text-center {{ row.styleClickableCell }}">{{ row.artRefp }}</td>
 						<td class="text-start {{ row.styleClickableCell }}">{{ row.artDesi }}</td>
 						<td class="text-center {{ row.styleClickableCell }}">{{ row.qteDem }}</td>
 						<td class="text-center {{ row.styleClickableCell }}">{{ row.qteEnAttent }}</td>
 						<td class="text-center {{ row.styleClickableCell }}">{{ row.qteDispo }}</td>
 						<td class="text-center {{ row.styleClickableCell }}">{{ row.qteLivrer }}</td>
-						<td class="text-center {{ row.styleClickableCell }}">{{ row.dateLivraisonPrevue }}</td>
-						<td class="text-center {{ row.styleClickableCell }} {{ row.styleJoursDispo }}">{{ row.joursDispo }}</td>
-						<td class="text-center {{ row.styleClickableCell }}">{{ row.demandeur}}</td>
+						<td class="text-center">
+							{% if row.envoyeFrn %}
+								<a {% for attr, val in row.aDtLivPrevAttributes %} {{ attr }}="{{ val }}" {% endfor %}>
+									{{ row.dateLivraisonPrevue }}
+								</a>
+							{% else %}
+								{{ row.dateLivraisonPrevue }}
+							{% endif %}
+						</td>
+						<td class="text-center {{ row.styleJoursDispo }}">{{ row.joursDispo }}</td>
+						<td class="text-center">{{ row.demandeur}}</td>
 					</tr>
 				{% endfor %}
 			</tbody>

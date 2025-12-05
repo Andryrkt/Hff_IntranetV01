@@ -42,9 +42,8 @@ class DaNewReApproController extends Controller
         $this->checkPageAccess($this->estAdmin() || $this->estCreateurDeDADirecte());
         /** FIN AUtorisation accès */
 
-        $agenceServiceIps = $this->agenceServiceIpsObjet();
-        $demandeAppro = $id === 0 ? $this->initialisationDemandeApproReappro($agenceServiceIps) : $this->demandeApproRepository->find($id);
-        $this->generateDemandApproLinesFromReappros($demandeAppro, $agenceServiceIps);
+        $demandeAppro     = $id === 0 ? $this->initialisationDemandeApproReappro() : $this->demandeApproRepository->find($id);
+        $this->generateDemandApproLinesFromReappros($demandeAppro);
 
         $form = $this->getFormFactory()->createBuilder(DemandeApproReapproFormType::class, $demandeAppro, [
             'em' => $this->getEntityManager()
@@ -52,7 +51,8 @@ class DaNewReApproController extends Controller
         $this->traitementFormReappro($form, $request);
 
         return $this->render('da/new-da-reappro.html.twig', [
-            'form' => $form->createView(),
+            'form'         => $form->createView(),
+            'codeCentrale' => $this->estAdmin() || in_array($demandeAppro->getAgenceEmetteur()->getCodeAgence(), ['90', '91', '92']),
         ]);
     }
 
@@ -90,6 +90,7 @@ class DaNewReApproController extends Controller
                     $this->getEntityManager()->persist($dal);
                 } else {
                     $demandeAppro->removeDAL($dal); // ne pas persister les DAL avec qteDem vide
+                    $this->getEntityManager()->remove($dal);
                 }
             }
 

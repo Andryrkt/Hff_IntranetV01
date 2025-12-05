@@ -11,13 +11,15 @@ use App\Service\historiqueOperation\magasin\bc\HistoriqueOperationBcMagasinServi
 
 class BcMagasinValidationService extends ValidationServiceBase
 {
-    private const STATUT_EN_COURS_VALIDATION = [
+    private const STATUT_BC_EN_COURS_VALIDATION = [
         BcMagasin::STATUT_SOUMIS_VALIDATION
     ];
     private const ERROR_MESSAGES = [
         'missing_identifier' => 'Le numéro de Devis est manquant.',
         'blocage_statut_En_cours_validation' => 'Le BC est en cours de validation',
-        'statut_devix_et_bc_coherents' => 'on ne peut pas soumettre un BC à validation que si le devis est envoyé au client et la reception du bc est en attente.'
+        'statut_devis_et_bc_coherents' => 'on ne peut pas soumettre un BC à validation que si le devis est envoyé au client et la reception du bc est en attente.',
+        'statut_devis_a_traiter' => 'on ne peut pas soumettre un BC à validation que si le devis est à traiter.'
+
     ];
 
     // Routes de redirection
@@ -33,16 +35,25 @@ class BcMagasinValidationService extends ValidationServiceBase
     }
 
     public function validateData(array $data): bool
-    {
+    {   //Bloquer si :
+
+        // s'il n'y a pas de numéro de devis
         if (!$this->checkMissingIdentifier($data['numeroDevis'])) {
             return false;
         }
 
+        // le statut BC est en cours de validation
         if (!$this->checkBlockingStatusOnSubmissionIfStatusVp($data['bcRepository'], $data['numeroDevis'])) {
             return false;
         }
 
+        // le statut de devis "à envoyer client" et le statut BC "en attent BC"
         if (!$this->BloquerSiStatutDevisEtBcCorrespond($data['devisMagasinRepository'], $data['numeroDevis'])) {
+            return false;
+        }
+
+        // le statut de devis "A traiter"
+        if (!$this->BloquerSiStatutDevisEstATraiter($data['devisMagasinRepository'], $data['numeroDevis'])) {
             return false;
         }
 
@@ -84,7 +95,7 @@ class BcMagasinValidationService extends ValidationServiceBase
         return $this->validateSimpleBlockingStatus(
             $repository,
             $numeroDevis,
-            self::STATUT_EN_COURS_VALIDATION,
+            self::STATUT_BC_EN_COURS_VALIDATION,
             self::ERROR_MESSAGES['blocage_statut_En_cours_validation']
         );
     }
@@ -93,15 +104,38 @@ class BcMagasinValidationService extends ValidationServiceBase
         DevisMagasinRepository $devisMagasinRepository,
         string $numeroDevis
     ) {
+        //recupération du statut devis
         $statut = $devisMagasinRepository->getStatutDwEtStatutBc($numeroDevis);
-        if ($statut && $statut['statut_dw'] != DevisMagasin::STATUT_ENVOYER_CLIENT && $statut['statut_bc'] != BcMagasin::STATUT_EN_ATTENTE_BC) {
+
+        if ($statut && $statut['statutDw'] != DevisMagasin::STATUT_ENVOYER_CLIENT && $statut['statutBc'] != BcMagasin::STATUT_EN_ATTENTE_BC) {
             $this->sendNotification(
-                self::ERROR_MESSAGES['statut_devix_et_bc_coherents'],
+                self::ERROR_MESSAGES['statut_devis_et_bc_coherents'],
                 $numeroDevis,
                 false
             );
             return false;
         }
+
+        return true;
+    }
+
+    public function BloquerSiStatutDevisEstATraiter(
+        DevisMagasinRepository $devisMagasinRepository,
+        string $numeroDevis
+    ) {
+        //recupération du statut devis
+        $statut = $devisMagasinRepository->getStatutDwEtStatutBc($numeroDevis);
+
+        if ($statut && $statut['statutDw'] != DevisMagasin::STATUT_A_TRAITER) {
+            $this->sendNotification(
+                self::ERROR_MESSAGES['statut_devis_a_traiter'],
+                $numeroDevis,
+                false
+            );
+            return false;
+        }
+
+        return true;
     }
 
     // ===============================================================================

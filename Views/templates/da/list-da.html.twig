@@ -41,8 +41,12 @@
 					<th class="text-center">Statut DA</th>
 					<th class="text-center">Statut</th>
 					<th class="text-center">Statut BC</th>
+					{% if codeCentrale %}
+						<th class="text-center">Centrale</th>
+					{% endif %}
 					<th class="text-center">Date Planning OR</th>
 					<th>Fournisseur</th>
+					<th>CST</th>
 					<th>Réference</th>
 					<th>Désignation</th>
 					<th class="text-center">Fiche technique</th>
@@ -89,9 +93,8 @@
 										</li>
 									{% endif %}
 									{% if row.telechargerOR %}
-										{% set chemin = row.pathOrMax.chemin %}
 										<li>
-											<a class="dropdown-item fw-bold" href="{{ App.base_path_fichier }}/{{ chemin }}" download>Télécharger l’OR</a>
+											<a class="dropdown-item fw-bold" href="{{ App.base_path_fichier }}/{{ row.pathOr }}" download>Télécharger l’OR</a>
 										</li>
 									{% endif %}
 								</ul>
@@ -99,7 +102,7 @@
 						</td>
 						{# === Fin Actions ==== #}
 						<td class="{{ row.aDeverouiller ? 'bg-danger' : '' }}">
-							<a href="{{ row.urlDetail }}" target="_blank" class="{{ row.aDeverouiller ? 'text-white' : '' }}" data-bs-toggle="tooltip" title="Afficher le détail">
+							<a href="{{ row.urlDetail }}" target="_blank" class="{{ row.aDeverouiller ? 'text-white' : '' }}" data-bs-toggle="tooltip" title="{{ row.objet }}">
 								{{ row.numeroDemandeAppro }}
 							</a>
 						</td>
@@ -112,8 +115,12 @@
 						<td class="text-center fw-bold {{ row.styleStatutDA }}">{{ row.statutDal }}</td>
 						<td class="text-center fw-bold {{ row.styleStatutOR }}">{{ row.statutOr }}</td>
 						<td class="text-center fw-bold {{ row.styleStatutBC }}">{{ row.statutCde }}</td>
+						{% if codeCentrale %}
+							<td class="text-center fw-bold">{{ row.centrale }}</td>
+						{% endif %}
 						<td class="text-center">{{ row.datePlannigOr }}</td>
 						<td class="text-start">{{ row.nomFournisseur }}</td>
+						<td class="text-start">{{ row.artConstp }}</td>
 						<td class="text-start">{{ row.artRefp }}</td>
 						<td class="text-start {{ row.estDalr ? 'mise-en-evidence' : '' }}">
 							{% if row.verouille %}
@@ -130,7 +137,15 @@
 						<td class="text-center">{{ row.qteDispo }}</td>
 						<td class="text-center">{{ row.qteLivrer }}</td>
 						<td class="text-center">{{ row.dateFinSouhaite }}</td>
-						<td class="text-center">{{ row.dateLivraisonPrevue }}</td>
+						<td class="text-center">
+							{% if row.envoyeFrn %}
+								<a {% for attr, val in row.aDtLivPrevAttributes %} {{ attr }}="{{ val }}" {% endfor %}>
+									{{ row.dateLivraisonPrevue }}
+								</a>
+							{% else %}
+								{{ row.dateLivraisonPrevue }}
+							{% endif %}
+						</td>
 						<td class="text-center {{ row.styleJoursDispo }}">{{ row.joursDispo }}</td>
 						<td class="text-center">
 							{% if row.supprimable %}
@@ -146,6 +161,7 @@
 	{% include "/partials/_pagination.html.twig" %}
 
 	{% include "/dit/shared/_modalNiveauUrgence.html.twig" %}
+	{% include "/da/shared/cdeFrn/_modalDateLivraison.html.twig" %}
 {% endblock %}
 
 {% block javascript %}

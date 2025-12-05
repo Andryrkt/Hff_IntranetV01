@@ -15,11 +15,13 @@ class EmailDaService
     use PrepareDataDAP;
     use PrixFournisseurTrait;
     private $twig;
+    private $mailAppro;
     private $emailTemplate;
 
     public function __construct($twig)
     {
         $this->twig = $twig;
+        $this->mailAppro = $_ENV['MAIL_TO_APPRO'];
         $this->emailTemplate = "da/email/emailDa.html.twig";
     }
 
@@ -87,7 +89,7 @@ class EmailDaService
     {
         $daLabel = $this->getDaLabelForMail($demandeAppro->getDaTypeId());
         $service = $estAppro ? 'appro' : ($demandeAppro->getDaTypeId() === DemandeAppro::TYPE_DA_AVEC_DIT ? 'atelier' : $demandeAppro->getServiceEmetteur()->getLibelleService());
-        $to      = $estAppro ? $demandeAppro->getUser()->getMail() : DemandeAppro::MAIL_APPRO;
+        $to      = $estAppro ? $demandeAppro->getUser()->getMail() : $this->mailAppro;
         $this->envoyerEmail([
             'to'        => $to,
             'variables' => [
@@ -109,7 +111,7 @@ class EmailDaService
         $daLabel = $this->getDaLabelForMail($demandeAppro->getDaTypeId());
         $service = $demandeAppro->getDaTypeId() === DemandeAppro::TYPE_DA_AVEC_DIT ? 'atelier' : $demandeAppro->getServiceEmetteur()->getLibelleService();
         $this->envoyerEmail([
-            'to'        => DemandeAppro::MAIL_APPRO,
+            'to'        => $this->mailAppro,
             'variables' => [
                 'templateName'  => "newDa",
                 'header'        => "{$demandeAppro->getNumeroDemandeAppro()} - DEMANDE " . strtoupper($daLabel) . " : <span class=\"newDa\"> CRÉATION </span>",
@@ -154,7 +156,7 @@ class EmailDaService
         $daLabel = $this->getDaLabelForMail($demandeAppro->getDaTypeId());
         $service = $demandeAppro->getDaTypeId() === DemandeAppro::TYPE_DA_AVEC_DIT ? 'atelier' : $demandeAppro->getServiceEmetteur()->getLibelleService();
         $this->envoyerEmail([
-            'to'        => DemandeAppro::MAIL_APPRO,
+            'to'        => $this->mailAppro,
             'variables' => [
                 'templateName'  => "modificationDa",
                 'header'        => "{$demandeAppro->getNumeroDemandeAppro()} - DEMANDE " . strtoupper($daLabel) . " : <span class=\"modificationDa\"> MODIFICATION </span>",
@@ -191,7 +193,7 @@ class EmailDaService
             ],
         ]);
         $this->envoyerEmail([
-            'to'        => DemandeAppro::MAIL_APPRO,
+            'to'        => $this->mailAppro,
             'variables' => $variables + $this->getImportantVariables($demandeAppro, $connectedUser, $daLabel, $service),
         ]);
     }
@@ -231,11 +233,8 @@ class EmailDaService
     {
         $emailService = new EmailService($this->twig);
 
-        $emailService->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.da');
+        $emailService->getMailer()->setFrom($_ENV['MAIL_FROM_ADDRESS'], 'noreply.da');
 
-        $content['cc'] = $content['cc'] ?? [];
-        $content['cc'][] = 'hoby.ralahy@hff.mg';
-
-        $emailService->sendEmail($content['to'], $content['cc'], $this->emailTemplate, $content['variables'] ?? [], $content['attachments'] ?? []);
+        $emailService->sendEmail($content['to'], $content['cc'] ?? [], $this->emailTemplate, $content['variables'] ?? [], $content['attachments'] ?? []);
     }
 }

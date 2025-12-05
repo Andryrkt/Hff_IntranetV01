@@ -137,6 +137,23 @@ class DaSearchType extends  AbstractType
                 ],
                 'required'      => false
             ])
+            ->add(
+                'codeCentrale',
+                TextType::class,
+                [
+                    'label'    => false,
+                    'required' => false
+                ]
+            )
+            ->add(
+                'desiCentrale',
+                TextType::class,
+                [
+                    'mapped'   => false,
+                    'label'    => 'Centrale rattachée à la DA',
+                    'required' => false
+                ]
+            )
             ->add('idMateriel', TextType::class, [
                 'label'         => "N° Matériel",
                 'required'      => false
@@ -152,6 +169,7 @@ class DaSearchType extends  AbstractType
                 'label_html'    => true,
                 'class'         => WorNiveauUrgence::class,
                 'choice_label'  => 'description',
+                'choice_value'  => 'description',
                 'placeholder'   => '-- Choisir un niveau --',
                 'required'      => false,
                 'query_builder' => function (EntityRepository $er) {

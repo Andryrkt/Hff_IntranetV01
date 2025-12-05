@@ -25,6 +25,7 @@ class DevisMagasin
     public const STATUT_VALIDE_AGENCE = 'Validé - à envoyer au client';
     public const STATUT_ENVOYER_CLIENT = 'Envoyé au client';
     public const STATUT_CLOTURER_A_MODIFIER = 'Cloturé - A modifier';
+    public const STATUT_A_TRAITER = 'A traiter';
 
     /**
      * @ORM\Id
@@ -132,9 +133,6 @@ class DevisMagasin
      */
     private $datePointage = null;
 
-    private $pieceJoint01;
-
-    private $pieceJoint2;
 
     /**
      * @ORM\Column(type="string", length=50, name="tache_validateur", nullable=true)
@@ -143,19 +141,37 @@ class DevisMagasin
      */
     private ?string $tacheValidateur;
 
-        /**
+    /**
+     * @ORM\Column(type="boolean", name="est_validation_pm")
+     */
+    private $estValidationPm = false;
+
+    /**
      * @ORM\Column(type="string", length=100, name="statut_bc", nullable=true)
      *
      * @var string|null
      */
     private ?string $statutBc = '';
 
-        /**
+    /**
      * @ORM\Column(type="string", length=100, name="relance", nullable=true)
      *
      * @var string|null
      */
     private ?string $relance = '';
+
+    /**
+     * @ORM\Column(type="datetime", name="date_bc", nullable=true)
+     */
+    private $dateBc = null;
+
+    private $pieceJoint01;
+
+    private $pieceJoint2;
+
+    public  $constructeur;
+
+
 
     /** =========================================
      * GETTERS & SETTERS
@@ -571,7 +587,7 @@ class DevisMagasin
      * Get the value of statutBc
      *
      * @return  string|null
-     */ 
+     */
     public function getStatutBc()
     {
         return $this->statutBc;
@@ -583,7 +599,7 @@ class DevisMagasin
      * @param  string|null  $statutBc
      *
      * @return  self
-     */ 
+     */
     public function setStatutBc($statutBc)
     {
         $this->statutBc = $statutBc;
@@ -595,7 +611,7 @@ class DevisMagasin
      * Get the value of relance
      *
      * @return  string|null
-     */ 
+     */
     public function getRelance()
     {
         return $this->relance;
@@ -607,10 +623,46 @@ class DevisMagasin
      * @param  string|null  $relance
      *
      * @return  self
-     */ 
+     */
     public function setRelance($relance)
     {
         $this->relance = $relance;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of estValidationPm
+     */
+    public function getEstValidationPm()
+    {
+        return $this->estValidationPm;
+    }
+
+    /**
+     * Set the value of estValidationPm
+     */
+    public function setEstValidationPm($estValidationPm): self
+    {
+        $this->estValidationPm = $estValidationPm;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateBc
+     */
+    public function getDateBc()
+    {
+        return $this->dateBc;
+    }
+
+    /**
+     * Set the value of dateBc
+     */
+    public function setDateBc($dateBc): self
+    {
+        $this->dateBc = $dateBc;
 
         return $this;
     }

@@ -35,7 +35,7 @@ class DaAfficher
     /**
      * @ORM\Column(type="string", length=11, name="numero_demande_dit")
      */
-    private string $numeroDemandeDit;
+    private ?string $numeroDemandeDit = null;
 
     /**
      * @ORM\Column(type="string", length=11, name="numero_or")
@@ -222,11 +222,21 @@ class DaAfficher
     private ?string $niveauUrgence = null;
 
     /**
+     * @ORM\Column(type="string", length=50, name="code_centrale")
+     */
+    private ?string $codeCentrale = null;
+
+    /**
+     * @ORM\Column(type="string", length=50, name="designation_central")
+     */
+    private ?string $desiCentrale = null;
+
+    /**
      * @ORM\Column(type="integer", name="jours_dispo")
      *
      * @var integer | null
      */
-    private int $joursDispo = 0;
+    private ?int $joursDispo = null;
 
     /**
      * @ORM\Column(type="integer", name="qte_en_attent")
@@ -261,7 +271,7 @@ class DaAfficher
     /**
      * @ORM\Column(type="datetime", name="date_planning_or", nullable=true)
      */
-    private $datePlannigOr;
+    private $datePlannigOr = null;
 
     /**
      * @ORM\Column(type="integer", name="numero_ligne_ips")
@@ -352,6 +362,11 @@ class DaAfficher
      * @ORM\Column(type="integer", name="numero_intervention_ips")
      */
     private ?int $numeroInterventionIps = 0;
+
+    /**
+     * @ORM\Column(type="boolean", name="est_bl_reappro_soumis")
+     */
+    private $estBlReapproSoumis = false;
 
     /**==============================================================================
      * GETTERS & SETTERS
@@ -1063,9 +1078,7 @@ class DaAfficher
     }
 
     /**
-     * Get | null
-     *
-     * @return  integer
+     * Get the value of $joursDispo
      */
     public function getJoursDispo()
     {
@@ -1073,11 +1086,7 @@ class DaAfficher
     }
 
     /**
-     * Set | null
-     *
-     * @param  integer  $joursDispo  | null
-     *
-     * @return  self
+     * Set the value of $joursDispo
      */
     public function setJoursDispo($joursDispo)
     {
@@ -1712,6 +1721,58 @@ class DaAfficher
     }
 
     /**
+     * Get the value of codeCentrale
+     */
+    public function getCodeCentrale()
+    {
+        return $this->codeCentrale;
+    }
+
+    /**
+     * Set the value of codeCentrale
+     *
+     * @return  self
+     */
+    public function setCodeCentrale($codeCentrale)
+    {
+        $this->codeCentrale = $codeCentrale;
+
+        return $this;
+    }
+
+    public function getEstBlReapproSoumis()
+    {
+        return $this->estBlReapproSoumis;
+    }
+
+    public function setEstBlReapproSoumis($estBlReapproSoumis)
+    {
+        $this->estBlReapproSoumis = $estBlReapproSoumis;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of desiCentrale
+     */
+    public function getDesiCentrale()
+    {
+        return $this->desiCentrale;
+    }
+
+    /**
+     * Set the value of desiCentrale
+     *
+     * @return  self
+     */
+    public function setDesiCentrale($desiCentrale)
+    {
+        $this->desiCentrale = $desiCentrale;
+
+        return $this;
+    }
+
+    /**
      * Copie les propriétés pertinentes d'un ancien DaAfficher vers l'objet courant.
      *
      * Cela permet de "mettre à jour" l'objet courant avec les valeurs de référence
@@ -1745,6 +1806,8 @@ class DaAfficher
             ->setDetailDal($da->getDetailDal())
             ->setDemandeur($da->getDemandeur())
             ->setAchatDirect($da->getAchatDirect())
+            ->setCodeCentrale($da->getCodeCentrale())
+            ->setDesiCentrale($da->getDesiCentrale())
             ->setDaTypeId($da->getDaTypeId())
             ->setDateDemande($da->getDateCreation())
             ->setNiveauUrgence($da->getNiveauUrgence())

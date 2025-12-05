@@ -19,7 +19,7 @@ class DevisMagasinGenererNameFileService extends AbstractFileNameGeneratorServic
         int $index = 1
     ): string {
         return $this->generateFileName($file, [
-            'format' => 'verificationprix_{numDevis}-{numeroVersion}#{suffix}!{mail}.{extension}',
+            'format' => 'negverificationprix_{numDevis}-{numeroVersion}#{suffix}!{mail}.{extension}',
             'variables' => [
                 'numDevis' => $numDevis,
                 'numeroVersion' => $numeroVersion,
@@ -66,8 +66,19 @@ class DevisMagasinGenererNameFileService extends AbstractFileNameGeneratorServic
             'variables' => [
                 'numDevis' => $numDevis,
                 'numeroVersion' => $numeroVersion,
-            ]
+            ],
+            'sauter_premier_index' => false
         ], $index);
+    }
+
+    /**
+     * Génère un nom pour le page de garde du bon de commande
+     */
+    public function generatePageGardeBonCommandeName(
+        string $numDevis,
+        int $numeroVersion
+    ): string {
+        return "bon_commande_{$numDevis}-{$numeroVersion}.pdf";
     }
 
     /**

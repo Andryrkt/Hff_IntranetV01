@@ -79,14 +79,14 @@ class DemandeApproDirectFormType extends AbstractType
                 ]
             )
             ->add('debiteur', AgenceServiceType::class, [
-                'label' => false,
-                'required' => false,
-                'agence_label' => 'Agence Debiteur',
-                'service_label' => 'Service Debiteur',
-                'agence_placeholder' => '-- Agence Debiteur --',
+                'label'               => false,
+                'agence_required'     => true,
+                'service_required'    => true,
+                'agence_label'        => 'Agence Debiteur (*)',
+                'service_label'       => 'Service Debiteur (*)',
+                'agence_placeholder'  => '-- Agence Debiteur --',
                 'service_placeholder' => '-- Service Debiteur --',
-                'em' => $options['em'] ?? null,
-                // 'agence_codes' => $this->agenceCodes()
+                'em'                  => $options['em'] ?? null,
             ])
             ->add('niveauUrgence', ChoiceType::class, [
                 'label'        => 'Niveau d\'urgence *',

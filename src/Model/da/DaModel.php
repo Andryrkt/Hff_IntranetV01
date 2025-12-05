@@ -3,6 +3,7 @@
 namespace App\Model\da;
 
 use App\Model\Model;
+use App\Service\GlobalVariablesService;
 
 class DaModel extends Model
 {
@@ -167,7 +168,6 @@ class DaModel extends Model
             INNER JOIN art_bse ON abse_refp = afrn_refp AND afrn_constp = abse_constp
             INNER JOIN frn_bse ON fbse_numfou = afrn_numf
             WHERE abse_constp = 'ZST'
-            AND fbse_numfou <> '99'
             ORDER BY nomfournisseur
             ";
         $result = $this->connect->executeQuery($statement);
@@ -205,7 +205,7 @@ class DaModel extends Model
         return array_column($data, 'prix');
     }
 
-    public function getSituationCde(?string $ref = '', string $numDit, string $numDa, ?string $designation = '', ?string $numOr, ?string $statutBc)
+    public function getSituationCde(?string $ref = '', ?string $numDit, string $numDa, ?string $designation = '', ?string $numOr, ?string $statutBc)
     {
         if (!$numOr) return [];
         $designation = str_replace("'", "''", mb_convert_encoding($designation, 'ISO-8859-1', 'UTF-8'));
@@ -220,7 +220,7 @@ class DaModel extends Model
             'BC envoyé au fournisseur'
         ];
 
-        $statement = "SELECT DISTINCT
+        $statement = " SELECT DISTINCT
                         slor_natcm,
                         TRIM(slor_refp) as ref,
                         TRIM(slor_desi) as desi,
@@ -320,6 +320,19 @@ class DaModel extends Model
         return $data;
     }
 
+    public function getNumeroOrReappro(string $numDa): ?string
+    {
+        $statement = " SELECT seor_numor as num_or
+                    from informix.sav_eor 
+                    where seor_lib = '$numDa'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return $data[0]['num_or'] ?? null;
+    }
+
     // public function getAllConstructeur(string $numDit)
     // {
     //     $statement = "SELECT DISTINCT slor_constp as constructeur
@@ -334,7 +347,7 @@ class DaModel extends Model
     //     return array_column($data, 'constructeur');
     // }
 
-    public function getEvolutionQteDaAvecDit(?string $numDit, string $ref = '', string $designation = '', ?string $numOr, $statutBc, string $numDa)
+    public function getEvolutionQteDaAvecDit(?string $numDit, string $ref = '', string $designation = '', ?string $numOr, $statutBc, string $numDa, bool $daReappro)
     {
         if (!$numOr) return [];
 
@@ -404,20 +417,24 @@ class DaModel extends Model
                     AND llf.fllf_succ = cde.fcde_succ
 
                             WHERE
-                                slor.slor_constp ='ZST'
-                                AND slor.slor_typlig = 'P'
+                                slor.slor_typlig = 'P'
                                 --AND slor.slor_refp NOT LIKE 'PREST%'
                                 and slor_numor = '$numOr'
                                 --and seor.seor_refdem = '$numDit'
                                 AND TRIM(REPLACE(REPLACE(slor_refp, '\t', ''), CHR(9), '')) = '$ref'
                         and TRIM(REPLACE(REPLACE(slor_desi, '\t', ''), CHR(9), '')) = '$designation'
+                        
                 ";
 
-        if ($statutBc && in_array($statutBc, $statutCde)) {
+        if ($statutBc && in_array($statutBc, $statutCde) && !$daReappro) {
             $statement .= " AND (
                     (slor.slor_natcm = 'C' AND TRIM(REPLACE(REPLACE(c.fcde_cdeext, '\t', ''), CHR(9), '')) = '$numDa') 
                     OR (slor.slor_natcm = 'L' AND TRIM(REPLACE(REPLACE(cde.fcde_cdeext, '\t', ''), CHR(9), '')) = '$numDa')
                     )";
+        } elseif ($daReappro) {
+            $statement .= " AND seor.seor_lib = '$numDa'
+                AND slor.slor_constp  in (" . GlobalVariablesService::get('reappro') . ")
+            ";
         }
 
         $result = $this->connect->executeQuery($statement);
@@ -534,5 +551,62 @@ class DaModel extends Model
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
 
         return $data[0]['montant_total'] ?? 0;
+    }
+
+    public function getAllCodeCentrale()
+    {
+        $statement = "SELECT c.code_centrale AS code, c.designation_central AS desi FROM centrale_nrj c ";
+        $resultStmt = $this->connexion->query($statement);
+        $data = [];
+        while ($result = odbc_fetch_array($resultStmt)) {
+            $data[] = $this->convertirEnUtf8($result);
+        }
+        return $data;
+    }
+
+    public function getInfoLivraison(string $numCde)
+    {
+        $statement = "SELECT distinct 
+                        f.fllf_numliv AS num_liv, 
+                        f.fllf_numcde AS num_cde,
+                        f2.fliv_dateclot AS date_clot, 
+                        TRIM(f2.fliv_livext) AS ref_fac_bl
+                    from Informix.frn_llf f 
+                    inner join Informix.frn_liv f2 on f.fllf_numliv = f2.fliv_numliv 
+                where f.fllf_numcde = '$numCde'";
+        $result = $this->connect->executeQuery($statement);
+        $rows = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        // On réindexe directement par num_liv en une seule étape
+        return array_column($rows, null, 'num_liv');
+    }
+
+    public function getInfoBC(string $numCde)
+    {
+        $statement = "SELECT 
+                TRIM(fbse_nomfou) as nom_fournisseur, 
+                fbse_numfou as num_fournisseur,
+                TRIM(fbse_tel) as tel_fournisseur, 
+                TRIM(fbse_adr1) as adr1_fournisseur, 
+                TRIM(fbse_adr2) as adr2_fournisseur, 
+                TRIM(fbse_ptt) as ptt_fournisseur, 
+                TRIM(fbse_adr4) as adr4_fournisseur, 
+                fcde_numcde as num_cde,
+                fcde_date as date_cde,
+                TRIM(fcde_succ) as succ_cde, 
+                TRIM(fcde_serv) as serv_cde, 
+                TRIM(fcde_ope) as nom_ope, 
+                TRIM(fcde_cdeext) as num_cde_ext, 
+                TRIM(fcde_lib) as libelle_cde, 
+                fcde_mtn as mtn_cde,
+                fcde_ttc as ttc_cde,
+                TRIM(fcde_devise) as devise,
+                TRIM(fcde_typcde) as type_cde 
+            from frn_cde 
+            inner join frn_bse on fbse_numfou = fcde_numfou
+            where fcde_numcde = '$numCde'";
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+        return $data ? $data[0] : [];
     }
 }

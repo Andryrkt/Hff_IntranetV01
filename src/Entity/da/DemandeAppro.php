@@ -29,9 +29,6 @@ class DemandeAppro
 
     public const ID_APPRO                    = 16;
     public const ID_ATELIER                  = 3;
-    private const MAIL_APPRO_PROD            = 'appro@hff.mg';
-    private const MAIL_APPRO_TEST            = 'hoby.ralahy@hff.mg';
-    public const MAIL_APPRO                  = self::MAIL_APPRO_PROD;       // TODO: à changer selon environnement (PROD | TEST)
     public const STATUT_VALIDE               = 'Bon d’achats validé';       /*__ DA direct et DA via OR __*/ /*_ statut_dal _*/ // cliquable par Admin et Appro
     public const STATUT_REFUSE_APPRO         = 'Refusé appro';              /*__ DA direct et DA via OR __*/ /*_ statut_dal _*/ // ! non cliquable par quiconque
     public const STATUT_TERMINER             = 'TERMINER';                  /*__ DA direct et DA via OR __*/ /*_ statut_dal _*/ // ! non cliquable par quiconque
@@ -74,9 +71,9 @@ class DemandeAppro
     private $achatDirect = false;
 
     /**
-     * @ORM\Column(type="string", length=11, name="numero_demande_dit")
+     * @ORM\Column(type="string", length=11, name="numero_demande_dit", nullable=true)
      */
-    private string $numeroDemandeDit = '';
+    private ?string $numeroDemandeDit = '';
 
     /**
      * @ORM\Column(type="string", length=100, name="objet_dal")
@@ -180,6 +177,16 @@ class DemandeAppro
      * @ORM\Column(type="string", length=255, name="nom_fichier_bav")
      */
     private ?string $nomFichierBav = null;
+
+    /**
+     * @ORM\Column(type="string", length=50, name="code_centrale")
+     */
+    private ?string $codeCentrale = null;
+
+    /**
+     * @ORM\Column(type="string", length=50, name="designation_central")
+     */
+    private ?string $desiCentrale = null;
 
     /**
      * @ORM\OneToMany(targetEntity=DaHistoriqueDemandeModifDA::class, mappedBy="demandeAppro")
@@ -290,7 +297,7 @@ class DemandeAppro
      *
      * @return string
      */
-    public function getNumeroDemandeDit(): string
+    public function getNumeroDemandeDit(): ?string
     {
         return $this->numeroDemandeDit;
     }
@@ -298,11 +305,11 @@ class DemandeAppro
     /**
      * Set the value of numeroDemandeDit
      *
-     * @param string $numeroDemandeDit
+     * @param ?string $numeroDemandeDit
      *
      * @return self
      */
-    public function setNumeroDemandeDit(string $numeroDemandeDit): self
+    public function setNumeroDemandeDit(?string $numeroDemandeDit): self
     {
         $this->numeroDemandeDit = $numeroDemandeDit;
         return $this;
@@ -960,7 +967,7 @@ class DemandeAppro
 
     /**
      * Get the value of debiteur
-     */ 
+     */
     public function getDebiteur()
     {
         return $this->debiteur;
@@ -970,10 +977,50 @@ class DemandeAppro
      * Set the value of debiteur
      *
      * @return  self
-     */ 
+     */
     public function setDebiteur($debiteur)
     {
         $this->debiteur = $debiteur;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of codeCentrale
+     */
+    public function getCodeCentrale()
+    {
+        return $this->codeCentrale;
+    }
+
+    /**
+     * Set the value of codeCentrale
+     *
+     * @return  self
+     */
+    public function setCodeCentrale($codeCentrale)
+    {
+        $this->codeCentrale = $codeCentrale;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of desiCentrale
+     */
+    public function getDesiCentrale()
+    {
+        return $this->desiCentrale;
+    }
+
+    /**
+     * Set the value of desiCentrale
+     *
+     * @return  self
+     */
+    public function setDesiCentrale($desiCentrale)
+    {
+        $this->desiCentrale = $desiCentrale;
 
         return $this;
     }

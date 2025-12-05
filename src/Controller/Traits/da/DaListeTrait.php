@@ -14,6 +14,7 @@ use App\Model\dw\DossierInterventionAtelierModel;
 use App\Repository\da\DaSoumissionBcRepository;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
 use App\Service\Users\UserDataService;
+use DateTime;
 use Twig\Markup;
 
 trait DaListeTrait
@@ -99,6 +100,10 @@ trait DaListeTrait
             DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR => 'bg-bc-envoye-au-fournisseur',
             DaSoumissionBc::STATUT_PAS_DANS_OR              => 'bg-bc-pas-dans-or',
             'Non validé'                                    => 'bg-bc-non-valide',
+            //statut pour DA Reappro
+            DaSoumissionBc::STATUT_CESSION_A_GENERER        => 'bg-bc-cession-a-generer',
+            DaSoumissionBc::STATUT_EN_COURS_DE_PREPARATION  => 'bg-bc-en-cours-de-preparation',
+            //statut pour DA Reappro, DA direct, DA via OR
             DaSoumissionBc::STATUT_TOUS_LIVRES              => 'tout-livre',
             DaSoumissionBc::STATUT_PARTIELLEMENT_LIVRE      => 'partiellement-livre',
             DaSoumissionBc::STATUT_PARTIELLEMENT_DISPO      => 'partiellement-dispo',
@@ -120,7 +125,7 @@ trait DaListeTrait
         $this->quelqueModifictionDansDatabase($daAffichers);
 
         // Vérification du verrouillage des DA et Retourne les DA filtrées
-        $paginationData['data'] = $this->appliquerVerrouillageSelonProfil($daAffichers, $this->estAdmin(), $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier());
+        $paginationData['data'] = $this->appliquerVerrouillageSelonProfil($daAffichers, $this->estAdmin(), $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier(), $this->estCreateurDeDADirecte());
 
         return $paginationData;
     }
@@ -155,10 +160,11 @@ trait DaListeTrait
      * @param bool $estAdmin
      * @param bool $estAppro
      * @param bool $estAtelier
+     * @param bool $estCreateurDaDirecte
      * 
      * @return iterable<DaAfficher>
      */
-    private function appliquerVerrouillageSelonProfil(iterable $daAffichers, bool $estAdmin, bool $estAppro, bool $estAtelier): iterable
+    private function appliquerVerrouillageSelonProfil(iterable $daAffichers, bool $estAdmin, bool $estAppro, bool $estAtelier, bool $estCreateurDaDirecte): iterable
     {
         foreach ($daAffichers as $daAfficher) {
             $verrouille = $this->estDaVerrouillee(
@@ -167,7 +173,7 @@ trait DaListeTrait
                 $estAdmin,
                 $estAppro,
                 $estAtelier,
-                $daAfficher->getDaTypeId() == DemandeAppro::TYPE_DA_DIRECT && $daAfficher->getServiceEmetteur() == $this->userDataService->getServiceId($this->getUser()) // TODO: role DA directe
+                $estCreateurDaDirecte
             );
             $daAfficher->setVerouille($verrouille);
         }
@@ -205,7 +211,9 @@ trait DaListeTrait
         foreach ($data as $item) {
             // Variables à employer
             $daReappro = $item->getDaTypeId() == DemandeAppro::TYPE_DA_REAPPRO;
+            $daDirect = $item->getDaTypeId() == DemandeAppro::TYPE_DA_DIRECT;
             $daViaOR = $item->getDaTypeId() == DemandeAppro::TYPE_DA_AVEC_DIT;
+            $envoyeFrn = $item->getStatutCde() === DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR;
 
             // Pré-calculer les styles
             $styleStatutDA = $this->styleStatutDA[$item->getStatutDal()] ?? '';
@@ -216,9 +224,7 @@ trait DaListeTrait
             $ajouterDA = $daViaOR && ($estAtelier || $estAdmin); // da via OR && (atelier ou admin)  
             $supprimable = ($estAppro || $estAtelier || $estAdmin) && in_array($item->getStatutDal(), $statutDASupprimable) && !$daReappro;
             $demandeDevis = ($estAppro || $estAdmin) && $item->getStatutDal() === DemandeAppro::STATUT_SOUMIS_APPRO && !$daReappro;
-            $statutOrValide = $item->getStatutOr() === DitOrsSoumisAValidation::STATUT_VALIDE;
-            $pathOrMax = $this->dwModel->findCheminOrVersionMax($item->getNumeroOr());
-            $telechargerOR = $statutOrValide && !empty($pathOrMax);
+            $dataOR = $this->dwModel->findCheminOrDernierValide($item->getNumeroDemandeDit(), $item->getNumeroDemandeAppro());
 
             // Construction d'urls
             $urls = $this->buildItemUrls($item, $ajouterDA, $item->getDaTypeId());
@@ -227,15 +233,26 @@ trait DaListeTrait
             $statutOR = $item->getStatutOr();
             if ($daViaOR && !empty($statutOR)) $statutOR = "OR - $statutOR";
 
+            // Préparer attributs pour la balise <a> de la date de livraison prévue
+            $aDtLivPrevAttributes = [
+                'href'               => '#',
+                "data-bs-toggle"     => "modal",
+                "data-bs-target"     => "#dateLivraison",
+                "data-numero-cde"    => $item->getNumeroCde(),
+                "data-date-actuelle" => $item->getDateLivraisonPrevue() ? $item->getDateLivraisonPrevue()->format('Y-m-d') : '',
+            ];
+
+
             // Tout regrouper
             $datasPrepared[] = [
                 'dit'                 => $item->getDit(),
+                'objet'               => $item->getObjetDal(),
                 'numeroDemandeAppro'  => $item->getNumeroDemandeAppro(),
                 'demandeAppro'        => $item->getDemandeAppro(),
                 'datype'              => $daType[$item->getDaTypeId()],
-                'numeroDemandeDit'    => $item->getNumeroDemandeDit() ?? $safeIconBan,
-                'numeroOr'            => $daViaOR ? $item->getNumeroOr() : $safeIconBan,
-                'niveauUrgence'       => $item->getNiveauUrgence(),
+                'numeroDemandeDit'    => $daViaOR ? $item->getNumeroDemandeDit() : $safeIconBan,
+                'numeroOr'            => $daDirect ? $safeIconBan : $item->getNumeroOr(),
+                'niveauUrgence'       => $daReappro ? $safeIconBan : $item->getNiveauUrgence(),
                 'demandeur'           => $item->getDemandeur(),
                 'dateDemande'         => $item->getDateDemande() ? $item->getDateDemande()->format('d/m/Y') : '',
                 'statutDal'           => $item->getStatutDal(),
@@ -243,6 +260,7 @@ trait DaListeTrait
                 'statutCde'           => $item->getStatutCde(),
                 'datePlannigOr'       => $daViaOR ? ($item->getDatePlannigOr() ? $item->getDatePlannigOr()->format('d/m/Y') : '') : $safeIconBan,
                 'nomFournisseur'      => $item->getNomFournisseur(),
+                'artConstp'           => $item->getArtConstp(),
                 'artRefp'             => $item->getArtRefp(),
                 'artDesi'             => $item->getArtDesi(),
                 'estDalr'             => $item->getEstDalr(),
@@ -253,10 +271,10 @@ trait DaListeTrait
                 'qteEnAttent'         => $item->getQteEnAttent() == 0 ? '-' : $item->getQteEnAttent(),
                 'qteDispo'            => $item->getQteDispo() == 0 ? '-' : $item->getQteDispo(),
                 'qteLivrer'           => $item->getQteLivrer() == 0 ? '-' : $item->getQteLivrer(),
-                'dateFinSouhaite'     => $item->getDateFinSouhaite() ? $item->getDateFinSouhaite()->format('d/m/Y') : '',
-                'dateLivraisonPrevue' => $item->getDateLivraisonPrevue() ? $item->getDateLivraisonPrevue()->format('d/m/Y') : '',
-                'joursDispo'          => $item->getJoursDispo(),
-                'styleJoursDispo'     => $item->getJoursDispo() < 0 ? 'text-danger' : '',
+                'dateFinSouhaite'     => $item->getDateFinSouhaite() ? $item->getDateFinSouhaite()->format('d/m/Y') : 'N/A',
+                'dateLivraisonPrevue' => $item->getDateLivraisonPrevue() ? $item->getDateLivraisonPrevue()->format('d/m/Y') : 'N/A',
+                'joursDispo'          => $item->getJoursDispo() ?? '',
+                'styleJoursDispo'     => $item->getJoursDispo() && $item->getJoursDispo() < 0 ? 'text-danger' : '',
                 'styleStatutDA'       => $styleStatutDA,
                 'styleStatutOR'       => $styleStatutOR,
                 'styleStatutBC'       => $styleStatutBC,
@@ -268,9 +286,12 @@ trait DaListeTrait
                 'ajouterDA'           => $ajouterDA,
                 'supprimable'         => $supprimable,
                 'demandeDevis'        => $demandeDevis,
-                'telechargerOR'       => $telechargerOR,
-                'pathOrMax'           => $pathOrMax,
+                'telechargerOR'       => !empty($dataOR),
+                'pathOr'              => empty($dataOR) ? '' : $dataOR['chemin'],
                 'statutValide'        => $item->getStatutDal() === DemandeAppro::STATUT_VALIDE,
+                'centrale'            => $daReappro ? $item->getDesiCentrale() : $safeIconBan,
+                'envoyeFrn'            => $envoyeFrn,
+                'aDtLivPrevAttributes' => $aDtLivPrevAttributes,
             ];
         }
 

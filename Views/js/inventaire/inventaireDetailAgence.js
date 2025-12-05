@@ -21,36 +21,54 @@ const inventaireDispo = document.querySelector(config.elements.inventaireDispo);
 const dateD = document.querySelector(config.elements.dateD);
 const dateF = document.querySelector(config.elements.dateF);
 const checkAll = document.getElementById("detailInventaire_search_service_all");
-const allInputCheckbox = document.querySelectorAll(".form-check-input");
 const buttonSend = document.getElementById('btn_search');
 
-buttonSend.addEventListener("click",()=>{
-  verifierCheckboxes()
+buttonSend.addEventListener("click",function(event) {
+  let allInputCheckbox = document.querySelectorAll(".form-check-input");
+  console.log('allInputCheckbox',  allInputCheckbox);
+  const auMoinsUneCochee = [...allInputCheckbox].some(checkbox => checkbox.checked);
+  
+  console.log('auMoinsUneCochee',  auMoinsUneCochee);
+  if (!auMoinsUneCochee) {
+    event.preventDefault(); // empêcher l'envoi du formulaire
+    Swal.fire("Merci de cocher un inventaire au moins!");
+  } 
 });
 
 checkAll.addEventListener("click", (afficherTous));
 dateD.addEventListener("change", () => {
-  dateDebut();
+  dataInventaireDispo();
 });
 dateF.addEventListener("change", () => {
-  dateFin();
+  dataInventaireDispo();
 });
 agenceInput.addEventListener("change",()=>{
-  agence();
+  dataInventaireDispo();
 })
-function dateDebut() {
-  const agence = agenceInput.value === "" ? null : agenceInput.value;
-  const dateDebut = dateD.value === "" ? null : dateD.value;
-  const dateFin = dateF.value === "" ? null : dateF.value;
-  const url = config.urls.inventaireFetch(agence, dateDebut, dateFin);
+
+function dataInventaireDispo() {
+  const agence = agenceInput.value;
+  const dateDebut = dateD.value;
+  const dateFin = dateF.value;
+
+  console.log(agence);
+  console.log(dateDebut);
+  console.log(dateFin);
+  
+  inventaireDispo.innerHTML = "";
+  if (agence === "" || dateDebut === "" || dateFin === "" ) return;
+  
   const spinner = createSpinner();
   inventaireDispo.parentElement.appendChild(spinner);
+  console.log(agence);
+  console.log(dateDebut);
+  console.log(dateFin);
+  const url = config.urls.inventaireFetch(agence, dateDebut, dateFin);
   fetchManager
     .get(url)
     .then((inventDispo) => {
       console.log(inventDispo);
       console.log(inventDispo.length !== 0);
-      inventaireDispo.innerHTML = "";
 
       if (inventDispo.length !== 0) {
         let Html = "";
@@ -64,85 +82,7 @@ function dateDebut() {
 
         inventaireDispo.innerHTML = Html;
 
-        const allInputCheckbox = document.querySelectorAll(".form-check-input");
-        checkAll.addEventListener("click", () =>
-          checkAllCheckbox(allInputCheckbox)
-        );
-      }
-    })
-    .catch((error) => console.error("Error:", error))
-    .finally(() => {
-      // Suppression du spinner
-      spinner.remove();
-    });
-    checkAll.checked = false
-}
-function dateFin() {
-  const agence = agenceInput.value === "" ? null : agenceInput.value;
-  const dateDebut = dateD.value === "" ? null : dateD.value;
-  const dateFin = dateF.value === "" ? null : dateF.value;
-  const url = config.urls.inventaireFetch(agence, dateDebut, dateFin);
-  const spinner = createSpinner();
-  inventaireDispo.parentElement.appendChild(spinner);
-  fetchManager
-    .get(url)
-    .then((inventDispo) => {
-      console.log(inventDispo);
-      console.log(inventDispo.length !== 0);
-      inventaireDispo.innerHTML = "";
-
-      if (inventDispo.length !== 0) {
-        let Html = "";
-        inventDispo.forEach((el) => {
-          Html += `<div class = 'form-check'> 
-        <input type="checkbox" id="detail_inventaire_search_InventaireDispo_${el.id}" name="detail_inventaire_search[InventaireDispo][]" class="form-check-input" value="${el.value}">
-            <label class="form-check-label" for="detail_inventaire_search_InventaireDispo_${el.id}">${el.label} </label>
-            </div>`;
-        });
-        console.log(Html);
-
-        inventaireDispo.innerHTML = Html;
-
-        const allInputCheckbox = document.querySelectorAll(".form-check-input");
-        checkAll.addEventListener("click", () =>
-          checkAllCheckbox(allInputCheckbox)
-        );
-      }
-    })
-    .catch((error) => console.error("Error:", error))
-    .finally(() => {
-      // Suppression du spinner
-      spinner.remove();
-    });
-    checkAll.checked = false
-}
-function agence() {
-  const agence = agenceInput.value === "" ? null : agenceInput.value;
-  const dateDebut = dateD.value === "" ? null : dateD.value;
-  const dateFin = dateF.value === "" ? null : dateF.value;
-  const url = config.urls.inventaireFetch(agence, dateDebut, dateFin);
-  const spinner = createSpinner();
-  inventaireDispo.parentElement.appendChild(spinner);
-  fetchManager
-    .get(url)
-    .then((inventDispo) => {
-      console.log(inventDispo);
-      console.log(inventDispo.length !== 0);
-      inventaireDispo.innerHTML = "";
-
-      if (inventDispo.length !== 0) {
-        let Html = "";
-        inventDispo.forEach((el) => {
-          Html += `<div class = 'form-check'> 
-        <input type="checkbox" id="detail_inventaire_search_InventaireDispo_${el.id}" name="detail_inventaire_search[InventaireDispo][]" class="form-check-input" value="${el.value}">
-            <label class="form-check-label" for="detail_inventaire_search_InventaireDispo_${el.id}">${el.label} </label>
-            </div>`;
-        });
-        console.log(Html);
-
-        inventaireDispo.innerHTML = Html;
-
-        const allInputCheckbox = document.querySelectorAll(".form-check-input");
+        let allInputCheckbox = document.querySelectorAll(".form-check-input");
         checkAll.addEventListener("click", () =>
           checkAllCheckbox(allInputCheckbox)
         );
@@ -200,7 +140,7 @@ function createSpinner() {
 
 function afficherTous() {
   // console.log(allInputCheckbox);
-
+  let allInputCheckbox = document.querySelectorAll(".form-check-input");
   let afficherTous = true;
   for (const inputCheckbox of allInputCheckbox) {
     if (inputCheckbox.checked) {
@@ -223,17 +163,4 @@ function checkAllCheckbox(allCheckboxes, checked = false) {
     checkAll.checked = checked ? true : checkAll.checked;
     inputCheckbox.checked = checkAll.checked;
   });
-}
-function verifierCheckboxes() {
-  let auMoinsUneCochee = false;
-
-  allInputCheckbox.forEach((checkbox) => {
-    if (checkbox.checked) {
-      auMoinsUneCochee = true;
-    }
-  });
-
-  if (!auMoinsUneCochee) {
-    Swal.fire("Merci de cocher une inventaire au moins!");
-  } 
 }

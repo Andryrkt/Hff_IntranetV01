@@ -3,8 +3,13 @@ import { mergeCellsTable } from "./tableHandler";
 import { configAgenceService } from "../../dit/config/listDitConfig.js";
 import { handleAgenceChange } from "../../dit/fonctionUtils/fonctionListDit.js";
 import { allowOnlyNumbers } from "../../magasin/utils/inputUtils.js";
+import { initCentraleCodeDesiInputs } from "../newReappro/event.js";
 
 document.addEventListener("DOMContentLoaded", function () {
+  initCentraleCodeDesiInputs(
+    "da_search_codeCentrale",
+    "da_search_desiCentrale"
+  );
   const designations = document.querySelectorAll(".designation-btn");
   designations.forEach((designation) => {
     designation.addEventListener("click", function () {
@@ -139,8 +144,79 @@ document.addEventListener("DOMContentLoaded", function () {
       window.location.href = urlObjet.toString(); // Redirige vers l'URL avec les nouveaux paramètres
     });
   });
+
+  /**
+   * Evenement sur type de DA dans le formulaire de recherche
+   **/
+  const typeDaSelect = document.getElementById("da_search_typeAchat");
+  const desiCentraleInput = document.getElementById("da_search_desiCentrale");
+  const inputDesiCentraleGroup = desiCentraleInput.parentElement;
+  typeDaSelect.addEventListener("change", function () {
+    if (inputDesiCentraleGroup.dataset.afficherInput != 1) return;
+
+    let daReappro = this.value == 2;
+    let divContainer = inputDesiCentraleGroup.parentElement;
+    let editIcon = document.getElementById("editIcon");
+
+    if (daReappro) {
+      divContainer.classList.remove("d-none");
+      desiCentraleInput.disabled = false;
+      inputDesiCentraleGroup.classList.remove("input-group");
+      editIcon.classList.add("d-none");
+      desiCentraleInput.focus();
+    } else {
+      divContainer.classList.add("d-none");
+    }
+  });
 });
 
 window.addEventListener("load", () => {
   displayOverlay(false);
+});
+
+/** ===================================================
+ * Modal du Date livraison prevu
+ *==================================================*/
+// Attendre que le DOM soit entièrement chargé
+document.addEventListener("DOMContentLoaded", function () {
+  // Sélectionner le modal par son ID
+  const modalDateLivraison = document.getElementById("dateLivraison");
+
+  // Verifier si le modal existe sur la page
+  if (modalDateLivraison) {
+    //Ecouter l'événement 'show.bs.modal' qui est déclenché par Bootstrap
+    // juste avant que le modal se soit affiché.
+    modalDateLivraison.addEventListener("show.bs.modal", function (event) {
+      // event.relatedTarget est l'élément qui a déclenché le modal (notre lien <a>)
+      const button = event.relatedTarget;
+
+      // Récupérer les données depuis les attributs data-* du lien
+      const numeroCde = button.getAttribute("data-numero-cde");
+      const dateActuelle = button.getAttribute("data-date-actuelle");
+
+      // Mise à jour du contenu du modal
+      const modalTitle = modalDateLivraison.querySelector(".modal-title");
+      if (modalTitle) {
+        modalTitle.textContent =
+          "Modifier la date de livraison pour la commande n° : " + numeroCde;
+      }
+
+      // Pré-rempli le champ de date dans le formulaire du modal
+      const dateInput = modalDateLivraison.querySelector(
+        "#da_modal_date_livraison_dateLivraisonPrevue"
+      );
+
+      if (dateInput) {
+        dateInput.value = dateActuelle;
+      }
+
+      // remplir le champ cacher avec le numero commande
+      const numeroCdeInput = modalDateLivraison.querySelector(
+        "#da_modal_date_livraison_numeroCde"
+      );
+      if (numeroCdeInput) {
+        numeroCdeInput.value = numeroCde;
+      }
+    });
+  }
 });

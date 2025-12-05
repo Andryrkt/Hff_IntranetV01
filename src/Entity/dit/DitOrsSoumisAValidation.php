@@ -131,6 +131,11 @@ class DitOrsSoumisAValidation
      * @ORM\Column(type="integer")
      */
     private $migration;
+
+    /**
+     * @ORM\Column(type="boolean", name="piece_faible_activite_achat")
+     */
+    private $pieceFaibleActiviteAchat;
     //==========================================================================================
 
 
@@ -580,6 +585,24 @@ class DitOrsSoumisAValidation
     public function setObservation($observation)
     {
         $this->observation = $observation;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of pieceFaibleActiviteAchat
+     */
+    public function getPieceFaibleActiviteAchat()
+    {
+        return $this->pieceFaibleActiviteAchat;
+    }
+
+    /**
+     * Set the value of pieceFaibleActiviteAchat
+     */
+    public function setPieceFaibleActiviteAchat($pieceFaibleActiviteAchat): self
+    {
+        $this->pieceFaibleActiviteAchat = $pieceFaibleActiviteAchat;
 
         return $this;
     }

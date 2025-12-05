@@ -101,7 +101,7 @@ trait DaDetailTrait
     /** 
      * Obtenir l'url du bon d'achat
      */
-    private function getBaPath(DemandeAppro $demandeAppro): string
+    private function getBaIntranetPath(DemandeAppro $demandeAppro): string
     {
         $numDa = $demandeAppro->getNumeroDemandeAppro();
         if (in_array($demandeAppro->getStatutDal(), [DemandeAppro::STATUT_VALIDE, DemandeAppro::STATUT_TERMINER])) {
@@ -111,19 +111,41 @@ trait DaDetailTrait
     }
 
     /** 
+     * Obtenir l'url du bon d'achat validé DW
+     */
+    private function getBaDocuWarePath(DemandeAppro $demandeAppro)
+    {
+        $numDa    = $demandeAppro->getNumeroDemandeAppro();
+        $daTypeId = $demandeAppro->getDaTypeId();
+        $allDocs  = [];
+
+        if ($daTypeId === DemandeAppro::TYPE_DA_DIRECT) {
+            $allDocs = $this->dwDaDirectRepository->getPathByNumDa($numDa);
+        } elseif ($daTypeId === DemandeAppro::TYPE_DA_REAPPRO) {
+            $allDocs = $this->dwDaReapproRepository->getPathByNumDa($numDa);
+        }
+
+        if (!empty($allDocs)) {
+            return array_map(function ($doc) use ($numDa) {
+                $doc['num']  = "$numDa-" . ($doc['numeroVersion'] ?? '1');
+                $doc['path'] = $_ENV['BASE_PATH_FICHIER_COURT'] . '/' . $doc['path'];
+                return $doc;
+            }, $allDocs);
+        }
+
+        return "-";
+    }
+
+    /** 
      * Obtenir l'url de l'ordre de réparation
      */
     private function getOrPath(DemandeAppro $demandeAppro)
     {
-        $numeroDit = $demandeAppro->getNumeroDemandeDit();
-        $ditOrsSoumis = $this->ditOrsSoumisAValidationRepository->findDerniereVersionByNumeroDit($numeroDit);
-        $numeroOr = !empty($ditOrsSoumis) ? $ditOrsSoumis[0]->getNumeroOR() : '';
-        $statutOr = !empty($ditOrsSoumis) ? $ditOrsSoumis[0]->getStatut() : '';
-        if ($statutOr == 'Validé') {
-            $result = $this->dossierInterventionAtelierModel->findCheminOrVersionMax($numeroOr);
+        $dataOR       = $this->dossierInterventionAtelierModel->findCheminOrDernierValide($demandeAppro->getNumeroDemandeDit(), $demandeAppro->getNumeroDemandeAppro());
+        if ($dataOR) {
             return [
-                'numeroOr' => $numeroOr,
-                'path'     => $_ENV['BASE_PATH_FICHIER_COURT'] . '/' . $result['chemin']
+                'numeroOr' => $dataOR['numero'],
+                'path'     => $_ENV['BASE_PATH_FICHIER_COURT'] . '/' . $dataOR['chemin']
             ];
         }
         return "-";

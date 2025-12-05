@@ -12,15 +12,9 @@ use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
-use Symfony\Component\Security\Core\Security;
 
 class DemandeApproReapproFormType extends AbstractType
 {
-    private function agenceCodes(): array
-    {
-        return ['90', '91', '92'];
-    }
-
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
 
@@ -71,15 +65,31 @@ class DemandeApproReapproFormType extends AbstractType
                 ]
             )
             ->add('debiteur', AgenceServiceType::class, [
-                'label' => false,
-                'required' => false,
-                'agence_label' => 'Agence Debiteur',
-                'service_label' => 'Service Debiteur',
-                'agence_placeholder' => '-- Agence Debiteur --',
+                'label'               => false,
+                'agence_required'     => true,
+                'service_required'    => true,
+                'agence_label'        => 'Agence Debiteur (*)',
+                'service_label'       => 'Service Debiteur (*)',
+                'agence_placeholder'  => '-- Agence Debiteur --',
                 'service_placeholder' => '-- Service Debiteur --',
-                'em' => $options['em'] ?? null,
-                'agence_codes' => $this->agenceCodes()
+                'em'                  => $options['em'] ?? null,
             ])
+            ->add(
+                'codeCentrale',
+                TextType::class,
+                [
+                    'label'    => false,
+                    'required' => false
+                ]
+            )
+            ->add(
+                'desiCentrale',
+                TextType::class,
+                [
+                    'label'    => 'Centrale rattachée à la DA',
+                    'required' => false
+                ]
+            )
             ->add('DAL', CollectionType::class, [
                 'label'        => false,
                 'entry_type'   => DemandeApproLReapproFormType::class,
@@ -101,7 +111,7 @@ class DemandeApproReapproFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => DemandeAppro::class,
-            'em' => null,
+            'em'         => null,
         ]);
     }
 }

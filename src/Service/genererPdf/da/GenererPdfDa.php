@@ -3,7 +3,6 @@
 namespace App\Service\genererPdf\da;
 
 use TCPDF;
-use DateTime;
 use App\Entity\da\DemandeAppro;
 use App\Entity\dit\DemandeIntervention;
 use App\Service\genererPdf\GeneratePdf;
@@ -14,7 +13,7 @@ abstract class GenererPdfDa extends GeneratePdf
     /** 
      * Fonction pour générer l'entête du PDF de la DA
      */
-    protected function renderHeaderPdfDA(TCPDF $pdf, string $numDa, string $userMail, int $daTypeId, DateTime $dateCreation, ?DemandeIntervention $dit = null): void
+    protected function renderHeaderPdfDA(TCPDF $pdf, string $userMail, DemandeAppro $demandeAppro, ?DemandeIntervention $dit = null): void
     {
         $titre = [
             DemandeAppro::TYPE_DA_AVEC_DIT  => "DEMANDE D’APPROVISIONNEMENT",
@@ -27,7 +26,7 @@ abstract class GenererPdfDa extends GeneratePdf
         $logoPath =  $_ENV['BASE_PATH_LONG'] . '/Views/assets/logoHff.jpg';
         $pdf->Image($logoPath, '', '', 45, 12);
         $pdf->setAbsX(55);
-        $pdf->Cell(110, 6, $titre[$daTypeId], 0, 0, 'C', false, '', 0, false, 'T', 'M');
+        $pdf->Cell(110, 6, $titre[$demandeAppro->getDaTypeId()], 0, 0, 'C', false, '', 0, false, 'T', 'M');
 
         // entête email
         $pdf->SetTextColor(0, 0, 0);
@@ -37,25 +36,26 @@ abstract class GenererPdfDa extends GeneratePdf
 
         $pdf->setAbsXY(170, 11);
         $pdf->setFont('helvetica', 'B', 10);
-        $pdf->Cell(35, 6, $numDa, 0, 0, 'L', false, '', 0, false, 'T', 'M');
+        $pdf->Cell(35, 6, $demandeAppro->getNumeroDemandeAppro(), 0, 0, 'L', false, '', 0, false, 'T', 'M');
 
         $pdf->Ln(6);
 
         if ($dit) {
             $pdf->setFont('helvetica', 'B', 12);
             $pdf->setAbsX(55);
-            if ($dit->getTypeDocument() !== null) {
-                $descriptionTypeDocument = $dit->getTypeDocument()->getDescription();
-            } else {
-                $descriptionTypeDocument = ''; // Ou toute autre valeur par défaut appropriée
-            }
-            $pdf->cell(110, 6, $descriptionTypeDocument, 0, 0, 'C', false, '', 0, false, 'T', 'M');
+            $pdf->cell(110, 6, $dit->getTypeDocument() ? $dit->getTypeDocument()->getDescription() : '', 0, 0, 'C', false, '', 0, false, 'T', 'M');
+        }
+
+        if ($demandeAppro->getDaTypeId() === DemandeAppro::TYPE_DA_REAPPRO && in_array($demandeAppro->getAgenceEmetteur()->getCodeAgence(), ['90', '91', '92'])) {
+            $pdf->setFont('helvetica', 'B', 12);
+            $pdf->setAbsX(90);
+            $pdf->cell(110, 6, "Centrale : " . ($demandeAppro->getCodeCentrale() ?? '-'), 0, 0, 'L', false, '', 0, false, 'T', 'M');
         }
 
         $pdf->SetTextColor(0, 0, 0);
         $pdf->setFont('helvetica', 'B', 10);
         $pdf->setAbsX(170);
-        $pdf->cell(35, 6, 'Le : ' . $dateCreation->format('d/m/Y'), 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(35, 6, 'Le : ' . $demandeAppro->getDateCreation()->format('d/m/Y'), 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(7);
     }
 
@@ -139,14 +139,29 @@ abstract class GenererPdfDa extends GeneratePdf
         $generator = new PdfTableReappro;
         $this->renderTextWithLine($pdf, 'Historique des consommations');
 
-        $pdf->AddPage('L');
-
         $pdf->SetTextColor(0, 0, 0);
         $pdf->setFont('helvetica', '', 10);
-        $html = $generator->generateHistoriqueTable($monthsList, $dataHistoriqueConsommation);
-        $pdf->writeHTML($html, false, false, true, false, '');
+        if (empty($dataHistoriqueConsommation["data"])) {
+            $pdf->cell(0, 6, 'Aucun historique de consommation disponible', 0, 1);
+            $pdf->Ln(3);
+        } else {
+            $margins = $pdf->getMargins();
+            $originalTop = $margins['top'];
+            $originalLeft = $margins['left'];
+            $originalRight = $margins['right'];
+            [$autoPageBreak, $originalBottom] = $pdf->getAutoPageBreak();
 
-        $pdf->AddPage('P');
+            $pdf->setMargins(0.5, 3, 0.5, true);
+            $pdf->SetAutoPageBreak(true, 7);
+            $pdf->AddPage('L');
+
+            $html = $generator->generateHistoriqueTable($monthsList, $dataHistoriqueConsommation);
+            $pdf->writeHTML($html, false, false, true, false, '');
+
+            $pdf->SetMargins($originalTop, $originalLeft, $originalRight, true);
+            $pdf->SetAutoPageBreak($autoPageBreak, $originalBottom);
+            $pdf->AddPage('P');
+        }
     }
 
     /**
@@ -157,6 +172,8 @@ abstract class GenererPdfDa extends GeneratePdf
      */
     protected function renderChatMessages(TCPDF $pdf, iterable $observations): void
     {
+        if (empty($observations)) return;
+
         $appro = ['marie', 'Vania', 'stg.tahina', 'narindra.veloniaina', 'hobimalala'];
 
         $w_total = $pdf->GetPageWidth();  // Largeur totale du PDF

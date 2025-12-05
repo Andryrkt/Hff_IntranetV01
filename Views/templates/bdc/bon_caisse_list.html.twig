@@ -18,20 +18,28 @@
 		<table class="table rounded table-plein-ecran">
 			<thead class="table-dark">
 				<tr>
-					<th class="d-none">PDF demande</th>
+					<th>PDF demande</th>
 					<th>Statut</th>
 					<th>N° demande</th>
 					<th>Date demande</th>
-					<th>Type de paiement</th>
+					{# <th>Type de paiement</th> #}
 					<th>Caisse de retrait</th>
 					<th>Retrait lié à</th>
-					<th>Agence/Service\n émetteur</th>
-					<th>Agence/Service\n débiteur</th>
-					<th>Adresse mail demandeur</th>
+					<th class="text-center">Agence / Service
+						<br>
+						émetteur</th>
+					<th class="text-center">Agence / Service
+						<br>
+						débiteur</th>
+					<th>Adresse mail
+						<br>
+						demandeur</th>
 					<th class="text-end">Montant</th>
 					<th>Devise</th>
 					<th>Motif</th>
-					<th>Nom validateur\n final</th>
+					<th class="text-center">Nom validateur
+						<br>
+						final</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -45,25 +53,26 @@
 						{% set classeStatut = 'bg-warning' %}
 					{% elseif demande.statutDemande | trim == 'Refusé chef de service' %}
 						{% set classeStatut = 'bg-danger' %}
+						{% set styleStatut = 'color: #fff' %}
 					{% elseif demande.statutDemande | trim == 'EN COURS' %}
 						{% set classeStatut = 'bg-info' %}
 					{% endif %}
 
 					<tr>
-						<td class="d-none">
+						<td>
 							{% if demande.pdfDemande %}
 								<a href="{{ demande.pdfDemande }}" target="_blank" class="btn btn-sm btn-info">
 									<i class="fas fa-file-pdf"></i>
-									PDF
+									{{ demande.numeroDemande }}
 								</a>
 							{% else %}
 								<span class="text-muted">Aucun PDF</span>
 							{% endif %}
 						</td>
-						<td class="{{ classeStatut }}" style="{{ styleStatut }}">{{ demande.statutDemande }}</td>
+						<td class="text-center fw-bold {{ classeStatut }}" style="{{ styleStatut }}">{{ demande.statutDemande }}</td>
 						<td>{{ demande.numeroDemande }}</td>
-						<td class="text-center">{{ demande.dateDemande|date('d/m/Y') }}</td>
-						<td>{{ demande.typePaiement }}</td>
+						<td class="text-center">{{ demande.dateDemandeAfficher|date('d/m/Y') }}</td>
+						{# <td>{{ demande.typePaiement }}</td> #}
 						<td>{{ demande.caisseRetrait }}</td>
 						<td>{{ demande.retraitLie }}</td>
 						<td class="text-center">{{ demande.agenceEmetteur ~ '-' ~ demande.serviceEmetteur}}</td>

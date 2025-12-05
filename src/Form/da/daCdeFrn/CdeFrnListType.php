@@ -81,17 +81,18 @@ class CdeFrnListType extends  AbstractType
                 'required' => false
             ])
             ->add('niveauUrgence', EntityType::class, [
-                'label' => 'Niveau d\'urgence',
-                'label_html' => true,
-                'class' => WorNiveauUrgence::class,
-                'choice_label' => 'description',
-                'placeholder' => '-- Choisir le niveau d\'urgence--',
-                'required' => false,
+                'label'         => 'Niveau d\'urgence',
+                'label_html'    => true,
+                'class'         => WorNiveauUrgence::class,
+                'choice_label'  => 'description',
+                'choice_value'  => 'description',
+                'placeholder'   => '-- Choisir le niveau d\'urgence--',
+                'required'      => false,
                 'query_builder' => function (EntityRepository $er) {
                     return $er->createQueryBuilder('n')
                         ->orderBy('n.description', 'DESC');
                 },
-                'attr' => [
+                'attr'          => [
                     'class' => 'niveauUrgence'
                 ]
             ])

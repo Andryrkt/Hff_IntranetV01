@@ -187,7 +187,44 @@ trait PlanningTraits
         }
         return $objetPlanning;
     }
-
+    private function creationTableauObjetPlanningMagasin(array $data, array $back): array
+    {
+        $objetPlanning = [];
+        //Recuperation de idmat et les truc
+        foreach ($data as $item) {
+            $planningMateriel = new PlanningMateriel();
+            if (in_array($item['orintv'], array_column($back, 'intervention'))) {
+                $backOrder = 'Okey';
+            } else {
+                $backOrder = '';
+            }
+            //initialisation
+            $planningMateriel
+                ->setCommercial($item['commercial'])
+                ->setCodeSuc($item['codesuc'])
+                ->setLibSuc($item['libsuc'])
+                ->setCodeServ($item['codeserv'])
+                ->setLibServ($item['libserv'])
+                ->setIdMat($item['idmat'])
+                ->setMarqueMat($item['markmat'])
+                ->setTypeMat($item['typemat'])
+                ->setNumSerie($item['numserie'])
+                ->setNumParc($item['numparc'])
+                ->setCasier($item['casier'])
+                ->setAnnee($item['annee'])
+                ->setMois($item['mois'])
+                ->setOrIntv($item['orintv'])
+                ->setQteCdm($item['qtecdm'])
+                ->setQteLiv($item['qtliv'])
+                ->setQteAll($item['qteall'])
+                ->setBack($backOrder)
+                // ->setNumeroOr($item['numeroor'])
+                ->addMoisDetailMagasin($item['mois'], $item['annee'], $item['orintv'], $item['qtecdm'], $item['qtliv'], $item['qteall'], $item['commentaire'], $backOrder)
+            ;
+            $objetPlanning[] = $planningMateriel;
+        }
+        return $objetPlanning;
+    }
     private function ajoutMoiDetail(array $objetPlanning): array
     {
         // Fusionner les objets en fonction de l'idMat
@@ -217,7 +254,39 @@ trait PlanningTraits
         }
         return $fusionResult;
     }
+    private function ajoutMoiDetailMagasin(array $objetPlanning): array
+    {
+        // Fusionner les objets en fonction de l'idMat
+        $fusionResult = [];
+        foreach ($objetPlanning as $materiel) {
 
+            $codeAgence = $materiel->getCodeSuc();
+            $codeService = $materiel->getCodeServ();
+            $key = $codeAgence . '-' . $codeService; // Utiliser idMat comme clé unique
+
+            $condition = isset($fusionResult[$key]) && $codeAgence === $fusionResult[$key]->getCodeSuc() && $codeService === $fusionResult[$key]->getCodeServ();
+            if (!$condition) {
+                $fusionResult[$key] = $materiel; // Si la clé n'existe pas, on l'ajoute
+            } else {
+                // Si l'élément existe déjà, on fusionne les détails des mois
+                foreach ($materiel->moisDetails as $moisDetail) {
+
+                    $fusionResult[$key]->addMoisDetailMagasin(
+                        $moisDetail['mois'],
+                        $moisDetail['annee'],
+                        $moisDetail['orIntv'],
+                        $moisDetail['qteCdm'],
+                        $moisDetail['qteLiv'],
+                        $moisDetail['qteAll'],
+                        $moisDetail['commentaire'],
+                        $moisDetail['back']
+                    );
+                }
+            }
+        }
+
+        return $fusionResult;
+    }
     /**
      * fonction pour affichage des 12 mois glissantes (3 mois suivant, 6 mois suivant, Année encours, Année suivant)
      *
@@ -229,11 +298,11 @@ trait PlanningTraits
     {
         $months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
         $currentMonth = (int)date('n') - 1; // Index du mois actuel (0-11)
-        $currentYear = (int)date('Y');
+        $currentYear = (int)date('Y'); // c'est l'année actuel
 
         $selectedMonths = $this->getSelectedMonths($months, $currentMonth, $currentYear, $selectedOption);
 
-        $preparedData = array_map(function ($item) use ($months, $selectedMonths) {
+        $preparedData = array_filter(array_map(function ($item) use ($months, $selectedMonths) {
             $moisDetails = property_exists($item, 'moisDetails') && is_array($item->getMoisDetails())
                 ? $item->getMoisDetails()
                 : [];
@@ -249,8 +318,8 @@ trait PlanningTraits
 
                 if (array_search($monthKey, array_column($selectedMonths, 'key')) !== false) {
                     return [
-                        'month' => $months[$monthIndex] ?? '',
-                        'year' => $year,
+                        'month'   => $months[$monthIndex] ?? '',
+                        'year'    => $year,
                         'details' => $detail,
                     ];
                 }
@@ -258,18 +327,23 @@ trait PlanningTraits
                 return null;
             }, $moisDetails));
 
+            if (empty($filteredMonths)) {
+                return null;
+            }
+
             return [
-                'libsuc' => $item->getLibsuc() ?? '',
-                'libserv' => $item->getLibServ() ?? '',
-                'idmat' => $item->getIdMat() ?? '',
-                'marqueMat' => $item->getMarqueMat() ?? '',
-                'typemat' => $item->getTypeMat() ?? '',
-                'numserie' => $item->getNumSerie() ?? '',
-                'numparc' => $item->getNumParc() ?? '',
-                'casier' => $item->getCasier() ?? '',
+                'commercial'     => $item->getCommercial() ?? '',
+                'libsuc'         => $item->getLibsuc() ?? '',
+                'libserv'        => $item->getLibServ() ?? '',
+                'idmat'          => $item->getIdMat() ?? '',
+                'marqueMat'      => $item->getMarqueMat() ?? '',
+                'typemat'        => $item->getTypeMat() ?? '',
+                'numserie'       => $item->getNumSerie() ?? '',
+                'numparc'        => $item->getNumParc() ?? '',
+                'casier'         => $item->getCasier() ?? '',
                 'filteredMonths' => array_values($filteredMonths),
             ];
-        }, $data);
+        }, $data));
 
         return [
             'preparedData' => $preparedData,

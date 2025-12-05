@@ -69,6 +69,18 @@ class DevisMagasinType extends AbstractType
                 'choices' => self::TACHE_VALIDATEUR,
                 'data' => 'Vérification prix',
                 'expanded' => false,
+                'disabled' => $options['data']->constructeur == 'TOUS NEST PAS CAT' ? false : true
+            ])
+            ->add('estValidationPm', ChoiceType::class, [
+                'choices' => [
+                    'OUI' => true,
+                    'NON' => false
+                ],
+                'expanded' => true,
+                'multiple' => false,
+                'label' => 'Envoyer à validation au PM',
+                'data' => $options['data']->constructeur == 'TOUS NEST PAS CAT' ? true : false,
+                'disabled' => $options['data']->constructeur == 'TOUS NEST PAS CAT' ? true : false
             ])
         ;
     }

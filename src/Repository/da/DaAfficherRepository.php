@@ -45,6 +45,37 @@ class DaAfficherRepository extends EntityRepository
         }
     }
 
+    /**
+     * @param string $numeroDemandeAppro
+     * @param string $numeroCde
+     */
+    public function getDateLivraisonPrevue(string $numeroDemandeAppro, string $numeroCde)
+    {
+        $maxVersion = $this->createQueryBuilder('d')
+            ->select('MAX(d.numeroVersion)')
+            ->where('d.numeroDemandeAppro = :num')
+            ->setParameter('num', $numeroDemandeAppro)
+            ->getQuery()
+            ->getSingleScalarResult(); // Renvoie null si aucune ligne
+
+        if ($maxVersion === null) {
+            return [];
+        } else {
+            return $this->createQueryBuilder('d')
+                ->select('DISTINCT(d.dateLivraisonPrevue)')
+                ->where('d.numeroDemandeAppro = :num')
+                ->andWhere('d.numeroCde = :numCde')
+                ->andWhere('d.numeroVersion = :version')
+                ->setParameters([
+                    'num'     => $numeroDemandeAppro,
+                    'numCde'  => $numeroCde,
+                    'version' => $maxVersion,
+                ])
+                ->getQuery()
+                ->getSingleScalarResult();
+        }
+    }
+
     public function markAsDeletedByNumeroLigne(string $numeroDemandeAppro, array $numeroLignes, string $userName, $numeroVersion): void
     {
         if (empty($numeroLignes)) return; // rien à faire
@@ -251,8 +282,24 @@ class DaAfficherRepository extends EntityRepository
             $subQb->expr()->in('d.statutOr', ':statutOrs'),
             $subQb->expr()->in('d.numeroDemandeAppro', ':exceptions')
         );
+
+        $typeDa = [
+            DemandeAppro::TYPE_DA_AVEC_DIT,
+            DemandeAppro::TYPE_DA_REAPPRO
+        ];
+        $typeDaDirect = DemandeAppro::TYPE_DA_DIRECT;
         // Appliquer la condition selon le type de la DA
-        $subQb->andWhere('d.daTypeId = ' . DemandeAppro::TYPE_DA_DIRECT . ' OR (d.daTypeId = ' . DemandeAppro::TYPE_DA_AVEC_DIT . ' AND (' . $orCondition . '))');
+        $subQb->andWhere(
+            $subQb->expr()->orX(
+                $subQb->expr()->eq('d.daTypeId', ':typeDaDirect'),
+                $subQb->expr()->andX(
+                    $subQb->expr()->in('d.daTypeId', ':typeDa'),
+                    $orCondition
+                )
+            )
+        )
+            ->setParameter('typeDaDirect', $typeDaDirect)
+            ->setParameter('typeDa', $typeDa);
 
         // Paramètres communs
         $subQb->setParameter('statutOrs', $statutOrs)
@@ -439,6 +486,7 @@ class DaAfficherRepository extends EntityRepository
             ->groupBy('daf.numeroDemandeAppro');
         $this->handleOrderBy($distinctQb, 'daf', $criteria, true);
         $distinctQb
+            ->addOrderBy('MAX(daf.numeroDemandeAppro)', 'DESC')
             ->addOrderBy('MAX(daf.numeroFournisseur)', 'DESC')
             ->addOrderBy('MAX(daf.numeroCde)', 'DESC')
             ->setFirstResult(($page - 1) * $limit)
@@ -460,6 +508,7 @@ class DaAfficherRepository extends EntityRepository
             ->setParameter('numeroDAsPage', $numeroDAsPage);
         $this->handleOrderBy($finalQb, 'daf', $criteria);
         $finalQb
+            ->addOrderBy('daf.numeroDemandeAppro', 'DESC')
             ->addOrderBy('daf.numeroFournisseur', 'DESC')
             ->addOrderBy('daf.numeroCde', 'DESC');
 
@@ -517,9 +566,7 @@ class DaAfficherRepository extends EntityRepository
 
         if ($criteria && !empty($criteria['sortNbJours'])) {
             $orderDir = strtoupper($criteria['sortNbJours']);
-            if (!in_array($orderDir, $allowedDirs, true)) {
-                $orderDir = 'DESC';
-            }
+            if (!in_array($orderDir, $allowedDirs, true)) $orderDir = 'DESC';
 
             if ($aggregation) {
                 $orderFunc = $orderDir === 'DESC' ? 'MAX' : 'MIN';
@@ -556,18 +603,21 @@ class DaAfficherRepository extends EntityRepository
     {
         if ($estCdeFrn) {
             $map = [
-                'numDa'     => "$qbLabel.numeroDemandeAppro",
-                'numDit'    => "$qbLabel.numeroDemandeDit",
-                'numCde'    => "$qbLabel.numeroCde",
-                'numOr'     => "$qbLabel.numeroOr",
-                'numFrn'    => "$qbLabel.numeroFournisseur",
-                'frn'       => "$qbLabel.nomFournisseur",
+                'numDa'         => "$qbLabel.numeroDemandeAppro",
+                'numDit'        => "$qbLabel.numeroDemandeDit",
+                'numCde'        => "$qbLabel.numeroCde",
+                'numOr'         => "$qbLabel.numeroOr",
+                'numFrn'        => "$qbLabel.numeroFournisseur",
+                'frn'           => "$qbLabel.nomFournisseur",
+                'niveauUrgence' => "$qbLabel.niveauUrgence",
             ];
         } else {
             $map = [
-                'numDa'     => "$qbLabel.numeroDemandeAppro",
-                'numDit'    => "$qbLabel.numeroDemandeDit",
-                'demandeur' => "$qbLabel.demandeur",
+                'numDa'         => "$qbLabel.numeroDemandeAppro",
+                'numDit'        => "$qbLabel.numeroDemandeDit",
+                'demandeur'     => "$qbLabel.demandeur",
+                'codeCentrale'  => "$qbLabel.codeCentrale",
+                'niveauUrgence' => "$qbLabel.niveauUrgence",
             ];
         }
 
@@ -579,6 +629,12 @@ class DaAfficherRepository extends EntityRepository
             }
         }
 
+        if (isset($criteria['typeAchat'])) {
+            $qb->andWhere("$qbLabel.daTypeId = :typeAchat")
+                ->setParameter('typeAchat', $criteria['typeAchat']);
+        }
+
+
         if (empty($criteria['numDit']) && empty($criteria['numDa'])) {
             $qb->leftJoin("$qbLabel.dit", 'dit')
                 ->leftJoin('dit.idStatutDemande', 'statut')
@@ -589,11 +645,6 @@ class DaAfficherRepository extends EntityRepository
                 ]);
         }
 
-        if (!empty($criteria['niveauUrgence'])) {
-            $qb->andWhere("$qbLabel.niveauUrgence = :niveau")
-                ->setParameter("niveau", $criteria['niveauUrgence']->getDescription());
-        }
-
         if (!empty($criteria['ref'])) {
             $qb->andWhere("$qbLabel.artRefp LIKE :ref")
                 ->setParameter('ref', '%' . $criteria['ref'] . '%');
@@ -602,11 +653,6 @@ class DaAfficherRepository extends EntityRepository
         if (!empty($criteria['designation'])) {
             $qb->andWhere("$qbLabel.artDesi LIKE :designation")
                 ->setParameter('designation', '%' . $criteria['designation'] . '%');
-        }
-
-        if (isset($criteria['typeAchat'])) {
-            $qb->andWhere("$qbLabel.daTypeId = :typeAchat")
-                ->setParameter('typeAchat', $criteria['typeAchat']);
         }
     }
 
@@ -666,23 +712,23 @@ class DaAfficherRepository extends EntityRepository
             }
         } else {
             /** Date fin souhaite */
-            if (!empty($criteria['dateDebutfinSouhaite']) && $criteria['dateDebutfinSouhaite'] instanceof \DateTimeInterface) {
+            if (!empty($criteria['dateDebutfinSouhaite']) && $criteria['dateDebutfinSouhaite']) {
                 $qb->andWhere($qbLabel . '.dateFinSouhaite >= :dateDebutfinSouhaite')
                     ->setParameter('dateDebutfinSouhaite', $criteria['dateDebutfinSouhaite']);
             }
 
-            if (!empty($criteria['dateFinFinSouhaite']) && $criteria['dateFinFinSouhaite'] instanceof \DateTimeInterface) {
+            if (!empty($criteria['dateFinFinSouhaite']) && $criteria['dateFinFinSouhaite']) {
                 $qb->andWhere($qbLabel . '.dateFinSouhaite <= :dateFinFinSouhaite')
                     ->setParameter('dateFinFinSouhaite', $criteria['dateFinFinSouhaite']);
             }
 
             /** Date DA (date de demande) */
-            if (!empty($criteria['dateDebutCreation']) && $criteria['dateDebutCreation'] instanceof \DateTimeInterface) {
+            if (!empty($criteria['dateDebutCreation']) && $criteria['dateDebutCreation']) {
                 $qb->andWhere($qbLabel . '.dateDemande >= :dateDemandeDebut')
                     ->setParameter('dateDemandeDebut', $criteria['dateDebutCreation']);
             }
 
-            if (!empty($criteria['dateFinCreation']) && $criteria['dateFinCreation'] instanceof \DateTimeInterface) {
+            if (!empty($criteria['dateFinCreation']) && $criteria['dateFinCreation']) {
                 $qb->andWhere($qbLabel . '.dateDemande <= :dateDemandeFin')
                     ->setParameter('dateDemandeFin', $criteria['dateFinCreation']);
             }

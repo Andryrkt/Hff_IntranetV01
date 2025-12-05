@@ -55,12 +55,12 @@ class GeneratePdf
     }
 
     // ORDRE DE REPARATION (OR)
-    public function copyToDw($numeroVersion, $numeroOR, $suffix)
-    {
-        $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/oRValidation_' . $numeroOR . '-' . $numeroVersion . '#' . $suffix . '.pdf';
-        $cheminDestinationLocal = $this->baseCheminDuFichier . 'vor/oRValidation_' . $numeroOR . '-' . $numeroVersion . '#' . $suffix . '.pdf';
-        copy($cheminDestinationLocal, $cheminFichierDistant);
-    }
+    // public function copyToDw($numeroVersion, $numeroOR, $suffix)
+    // {
+    //     $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/oRValidation_' . $numeroOR . '-' . $numeroVersion . '#' . $suffix . '.pdf';
+    //     $cheminDestinationLocal = $this->baseCheminDuFichier . 'vor/oRValidation_' . $numeroOR . '-' . $numeroVersion . '#' . $suffix . '.pdf';
+    //     copy($cheminDestinationLocal, $cheminFichierDistant);
+    // }
 
 
     // Facture
@@ -170,8 +170,9 @@ class GeneratePdf
         $cheminDestinationLocal = $this->baseCheminDuFichier . 'da/' . $numDa . '/' . $fileName;
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
+    
 
-    //bon de commande de demande appro
+    //facture et bl de demande appro
     public function copyToDWFacBlDa($fileName, $numDa)
     {
         $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/' . $fileName;
@@ -179,6 +180,13 @@ class GeneratePdf
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 
+    //bl reappro de demande appro
+    public function copyToDWBLReappro($fileName, $numDa)
+    {
+        $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/' . $fileName;
+        $cheminDestinationLocal = $this->baseCheminDuFichier . 'da/' . $numDa . '/' . $fileName;
+        $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
+    }
 
     // devis Magasin
     public function copyToDWDevisMagasin($fileName, $numeroDevis)

@@ -21,13 +21,16 @@
 					{{ form_start(form, {'attr': {'enctype': 'multipart/form-data', 'id': 'upload-form'}}) }}
 					{{ form_errors(form)}}
 					<div class="row">
-						<div class="col-12 col-md-4">
+						<div class="col-12 col-md-3">
 							{{ form_row(form.numeroDevis) }}
 						</div>
-						<div class="col-12 col-md-4">
+						<div class="col-12 col-md-3">
 							{{ form_row(form.numeroBc) }}
 						</div>
-						<div class="col-12 col-md-4">
+						<div class="col-12 col-md-3">
+							{{ form_row(form.dateBc) }}
+						</div>
+						<div class="col-12 col-md-3">
 							{{ form_row(form.montantBc) }}
 						</div>
 					</div>
@@ -52,7 +55,7 @@
 					<div class="row">
 						{{ form_row(form.observation) }}
 					</div>
-					<div class="row table-container">
+					<div class="row table-container d-none">
 						<table class="styled-table">
 							<thead>
 								<tr>
@@ -87,25 +90,18 @@
 										<td>
 											<div class="checkbox-container">
 												{{ form_widget(ligneForm.ras, {'attr': {'data-numero-ligne': ligneData.numeroLigne}}) }}
-												<span class="checkbox-label">{{ form_label(ligneForm.ras) }}</span>
-
 											</div>
 										</td>
 										<td>
-											<div class="checkbox-container">
+											<div class="checkbox-container ">
 												{{ form_widget(ligneForm.qteModifier, {'attr': {'data-numero-ligne': ligneData.numeroLigne}}) }}
-												<span class="checkbox-label">{{ form_label(ligneForm.qteModifier) }}</span>
 												{{ form_widget(ligneForm.nouvelleQte) }}
-												<div id="qty-status-{{ ligneData.numeroLigne }}" class="status-badge" style="display: none;">
-													Modifiée
-												</div>
+												<span id="qty-status-{{ ligneData.numeroLigne }}" class="status-badge" style="display: none;"></span>
 											</div>
 										</td>
 										<td>
 											<div class="checkbox-container">
 												{{ form_widget(ligneForm.supprimer, {'attr': {'data-numero-ligne': ligneData.numeroLigne}}) }}
-												<span class="checkbox-label">{{ form_label(ligneForm.supprimer) }}</span>
-
 											</div>
 										</td>
 										{{ form_widget(ligneForm.numeroLigne) }}
@@ -130,7 +126,7 @@
 			<ul class="nav nav-tabs" id="pdfTabs" role="tablist">
 				<li class="nav-item" role="presentation">
 					<button class="nav-link active" id="tab1-tab" data-bs-toggle="tab" data-bs-target="#tab1" type="button" role="tab">
-						Devis
+						BC client
 					</button>
 				</li>
 				<li class="nav-item" role="presentation">

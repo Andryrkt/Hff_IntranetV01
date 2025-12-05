@@ -205,10 +205,12 @@ class DaListCdeFrnController extends Controller
         if ($formSoumission->isSubmitted() && $formSoumission->isValid()) {
             $soumission = $formSoumission->getData();
 
-            if ($soumission['soumission'] === true) {
+            if ($soumission['soumission'] === 'BC') {
                 $this->redirectToRoute("da_soumission_bc", ['numCde' => $soumission['commande_id'], 'numDa' => $soumission['da_id'], 'numOr' => $soumission['num_or']]);
-            } else {
+            } elseif ($soumission['soumission'] === 'Facture + BL') {
                 $this->redirectToRoute("da_soumission_facbl", ['numCde' => $soumission['commande_id'], 'numDa' => $soumission['da_id'], 'numOr' => $soumission['num_or']]);
+            } elseif ($soumission['soumission'] === 'BL Reappro') {
+                $this->redirectToRoute("da_soumission_bl_reappro", ['numCde' => $soumission['commande_id'], 'numDa' => $soumission['da_id'], 'numOr' => $soumission['num_or']]);
             }
         }
     }
@@ -246,10 +248,9 @@ class DaListCdeFrnController extends Controller
         $routeDetailName = [
             DemandeAppro::TYPE_DA_DIRECT   => 'da_detail_direct',
             DemandeAppro::TYPE_DA_AVEC_DIT => 'da_detail_avec_dit',
-            DemandeAppro::TYPE_DA_REAPPRO  => '',
+            DemandeAppro::TYPE_DA_REAPPRO  => 'da_detail_reappro',
         ];
 
-        $safeIconSuccess = new Markup('<i class="fas fa-check text-success"></i>', 'UTF-8');
         $safeIconBan     = new Markup('<i class="fas fa-ban text-muted"></i>', 'UTF-8');
 
         foreach ($data as $item) {
@@ -270,6 +271,7 @@ class DaListCdeFrnController extends Controller
                     'data-num-or'       => $item->getNumeroOr(),
                     'data-statut-bc'    => $item->getStatutCde(),
                     'data-position-cde' => $item->getPositionBc(),
+                    'data-type-da'      => $item->getDaTypeId()
                 ];
             } else {
                 $tdNumCdeAttributes = [
@@ -286,48 +288,63 @@ class DaListCdeFrnController extends Controller
                 'data-numero-ligne'         => $item->getNumeroLigne(),
             ];
 
+            // Préparer attributs pour la balise <a> de la date de livraison prévue
+            $aDtLivPrevAttributes = [
+                'href'               => '#',
+                "data-bs-toggle"     => "modal",
+                "data-bs-target"     => "#dateLivraison",
+                "data-numero-cde"    => $item->getNumeroCde(),
+                "data-date-actuelle" => $item->getDateLivraisonPrevue() ? $item->getDateLivraisonPrevue()->format('Y-m-d') : '',
+            ];
+
             // Pré-calculer les styles
             $styleStatutDA = $this->styleStatutDA[$item->getStatutDal()] ?? '';
             $styleStatutBC = $this->styleStatutBC[$item->getStatutCde()] ?? '';
             $styleClickableCell = $envoyeFrn ? 'clickable-td' : '';
 
             // Construction d'urls
-            $urlDetail = $this->getUrlGenerator()->generate(
-                $routeDetailName[$item->getDaTypeId()],
-                ['id' => $item->getDemandeAppro()->getId()]
-            );
+            $urlDetail = '';
+            if (!empty($routeDetailName[$item->getDaTypeId()])) {
+                $urlDetail = $this->getUrlGenerator()->generate(
+                    $routeDetailName[$item->getDaTypeId()],
+                    ['id' => $item->getDemandeAppro()->getId()]
+                );
+            }
 
             // Tout regrouper
             $datasPrepared[] = [
-                'urlDetail'          => $urlDetail,
-                'numeroDemandeAppro' => $item->getNumeroDemandeAppro(),
-                'datype'              => $daType[$item->getDaTypeId()],
-                'numeroDemandeDit'   => $item->getNumeroDemandeDit() ?? $safeIconBan,
-                'niveauUrgence'      => $item->getNiveauUrgence(),
-                'numeroOr'           => $daViaOR ? $item->getNumeroOr() : $safeIconBan,
-                'datePlannigOr'      => $daViaOR ? ($item->getDatePlannigOr() ? $item->getDatePlannigOr()->format('d/m/Y') : '') : $safeIconBan,
-                'numeroFournisseur'  => $item->getNumeroFournisseur(),
-                'nomFournisseur'     => $item->getNomFournisseur(),
-                'numeroCde'          => $numeroCde,
-                'tdNumCdeAttributes' => $tdNumCdeAttributes,
-                'styleStatutDA'      => $styleStatutDA,
-                'styleStatutBC'      => $styleStatutBC,
-                'statutDal'          => $item->getStatutDal(),
-                'statutCde'          => $item->getStatutCde(),
-                'envoyeFrn'          => $envoyeFrn,
-                'styleClickableCell' => $styleClickableCell,
+                'objet'                => $item->getObjetDal(),
+                'urlDetail'            => $urlDetail,
+                'numeroDemandeAppro'   => $item->getNumeroDemandeAppro(),
+                'datype'               => $daType[$item->getDaTypeId()],
+                'numeroDemandeDit'     => $item->getNumeroDemandeDit() ?? $safeIconBan,
+                'niveauUrgence'        => $item->getNiveauUrgence(),
+                'numeroOr'             => $daDirect ? $safeIconBan : $item->getNumeroOr(),
+                'datePlannigOr'        => $daViaOR ? ($item->getDatePlannigOr() ? $item->getDatePlannigOr()->format('d/m/Y') : '') : $safeIconBan,
+                'numeroFournisseur'    => $item->getNumeroFournisseur(),
+                'nomFournisseur'       => $item->getNomFournisseur(),
+                'numeroCde'            => $numeroCde,
+                'tdNumCdeAttributes'   => $tdNumCdeAttributes,
+                'styleStatutDA'        => $styleStatutDA,
+                'styleStatutBC'        => $styleStatutBC,
+                'statutDal'            => $item->getStatutDal(),
+                'statutCde'            => $item->getStatutCde(),
+                'envoyeFrn'            => $envoyeFrn,
+                'styleClickableCell'   => $styleClickableCell,
                 'tdCheckboxAttributes' => $tdCheckboxAttributes,
-                'dateFinSouhaite'     => $item->getDateFinSouhaite() ? $item->getDateFinSouhaite()->format('d/m/Y') : '',
-                'artRefp'             => $item->getArtRefp(),
-                'artDesi'             => $item->getArtDesi(),
-                'qteDem'              => $item->getQteDem() == 0 ? '-' : $item->getQteDem(),
-                'qteEnAttent'         => $item->getQteEnAttent() == 0 ? '-' : $item->getQteEnAttent(),
-                'qteDispo'            => $item->getQteDispo() == 0 ? '-' : $item->getQteDispo(),
-                'qteLivrer'           => $item->getQteLivrer() == 0 ? '-' : $item->getQteLivrer(),
-                'dateLivraisonPrevue' => $item->getDateLivraisonPrevue() ? $item->getDateLivraisonPrevue()->format('d/m/Y') : '',
-                'joursDispo'          => $item->getJoursDispo(),
-                'styleJoursDispo'     => $item->getJoursDispo() < 0 ? 'text-danger' : '',
-                'demandeur'           => $item->getDemandeur(),
+                'aDtLivPrevAttributes' => $aDtLivPrevAttributes,
+                'dateFinSouhaite'      => $item->getDateFinSouhaite() && $item->getDateFinSouhaite() != new \DateTime('1900-01-01') ? $item->getDateFinSouhaite()->format('d/m/Y') : 'N/A',
+                'artConstp'            => $item->getArtConstp(),
+                'artRefp'              => $item->getArtRefp(),
+                'artDesi'              => $item->getArtDesi(),
+                'qteDem'               => $item->getQteDem() == 0 ? '-' : $item->getQteDem(),
+                'qteEnAttent'          => $item->getQteEnAttent() == 0 ? '-' : $item->getQteEnAttent(),
+                'qteDispo'             => $item->getQteDispo() == 0 ? '-' : $item->getQteDispo(),
+                'qteLivrer'            => $item->getQteLivrer() == 0 ? '-' : $item->getQteLivrer(),
+                'dateLivraisonPrevue'  => $item->getDateLivraisonPrevue() && $item->getDateLivraisonPrevue() != new \DateTime('1900-01-01') ? $item->getDateLivraisonPrevue()->format('d/m/Y') : 'N/A',
+                'joursDispo'           => $item->getJoursDispo(),
+                'styleJoursDispo'      => $item->getJoursDispo() < 0 ? 'text-danger' : '',
+                'demandeur'            => $item->getDemandeur(),
             ];
         }
 

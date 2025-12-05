@@ -17,6 +17,7 @@ class BcMagasin
 
     public const STATUT_SOUMIS_VALIDATION = 'Soumis à validation';
     public const STATUT_EN_ATTENTE_BC = 'En attente BC';
+    public const STATUT_VALIDER = 'Validé';
 
     /**
      * @ORM\Id
@@ -80,9 +81,16 @@ class BcMagasin
      */
     private string $utilisateur = '';
 
+    /**
+     * @ORM\Column(type="datetime", name="date_bc", nullable=true)
+     */
+    private $dateBc = null;
+
     private $pieceJoint01;
 
     private $pieceJoint2;
+
+
 
     /** =========================================
      * GETTERS & SETTERS
@@ -280,6 +288,25 @@ class BcMagasin
     public function setUtilisateur(string $utilisateur)
     {
         $this->utilisateur = $utilisateur;
+
+        return $this;
+    }
+
+
+    /**
+     * Get the value of dateBc
+     */
+    public function getDateBc()
+    {
+        return $this->dateBc;
+    }
+
+    /**
+     * Set the value of dateBc
+     */
+    public function setDateBc($dateBc): self
+    {
+        $this->dateBc = $dateBc;
 
         return $this;
     }
