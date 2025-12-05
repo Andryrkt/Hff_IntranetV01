@@ -1,9 +1,15 @@
 import { displayOverlay } from "../../utils/ui/overlay";
 import { ajouterUneLigne } from "./dal";
 import { handleAgenceChange } from "../../dit/fonctionUtils/fonctionListDit.js";
+import { API_ENDPOINTS } from "../../api/apiEndpoints.js";
+import { swalOptions } from "../listeCdeFrn/ui/swalUtils.js";
+import { baseUrl } from "../../utils/config.js";
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", async function () {
+  let listDaReappro = [];
+
   buildIndexFromLines(); // initialiser le compteur de ligne pour la création d'une DA directe
+  await getListDaReappro();
 
   const actionsConfig = {
     enregistrerBrouillon: {
@@ -174,6 +180,38 @@ function deleteLigneDa(button) {
       });
     }
   });
+}
+
+async function getListDaReappro() {
+  const agenceServiceDA = document.getElementById("agenceServiceDA");
+  const agence = agenceServiceDA.dataset.agence;
+  const service = agenceServiceDA.dataset.service;
+  const url = `${baseUrl}/${API_ENDPOINTS.getArticlesDaReappro(
+    agence,
+    service
+  )}`;
+
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      // Erreur HTTP (400, 404, 500...)
+      Swal.fire(swalOptions.genericResponse(await response.json()));
+      return [];
+    }
+    console.log("dans le try");
+
+    console.log(response.json);
+  } catch (error) {
+    console.error(error);
+    Swal.fire(swalOptions.errorGeneric(error));
+    return [];
+  }
 }
 
 /**===========================================================================

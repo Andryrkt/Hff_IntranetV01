@@ -13,9 +13,9 @@ use Symfony\Component\Routing\Annotation\Route;
 class DaNewDirectApiController extends Controller
 {
     private const ERROR_MESSAGES = [
-        'codeAgenceServiceManquant' => 'codeAgence ou codeService manquant',
-        'codeAgenceIncorrect'       => 'codeAgence doit contenir exactement 2 caractères',
-        'codeServiceIncorrect'      => 'codeService doit contenir exactement 3 caractères',
+        'codeAgenceServiceManquant' => 'le code agence ou le code service est manquant',
+        'codeAgenceIncorrect'       => 'le code agence doit contenir exactement 2 caractères',
+        'codeServiceIncorrect'      => 'le code service doit contenir exactement 3 caractères',
     ];
 
     /**
@@ -45,7 +45,7 @@ class DaNewDirectApiController extends Controller
         return new JsonResponse([
             'status'  => 'error',
             'title'   => 'Erreur lors de la récupération des articles',
-            'message' => "Impossible de récupérer les articles: $errorMessage. Merci de vérifier les informations et de réessayer.",
+            'message' => "Impossible de récupérer les articles: <b>$errorMessage</b>.<br> Merci de vérifier les informations et de réessayer.",
         ], JsonResponse::HTTP_BAD_REQUEST);
     }
 }
