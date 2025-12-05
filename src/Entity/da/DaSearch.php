@@ -5,7 +5,6 @@ namespace App\Entity\da;
 use DateTime;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
-use App\Entity\admin\dit\WorNiveauUrgence;
 
 class DaSearch
 {
@@ -444,14 +443,17 @@ class DaSearch
     /**
      * Hydrate l'objet à partir d'un tableau
      */
-    public function toObject(array $data): self
+    public function toObject(array $data, array $agServ): self
     {
         $allDateKeys = ['dateDebutCreation', 'dateFinCreation', 'dateDebutfinSouhaite', 'dateFinFinSouhaite',];
+        $allAgServKeys = ['agenceEmetteur', 'agenceDebiteur', 'serviceEmetteur', 'serviceDebiteur'];
         foreach ($data as $key => $value) {
             $method = 'set' . ucfirst($key);
 
             if (method_exists($this, $method)) {
                 if ($value !== null && in_array($key, $allDateKeys)) $value = DateTime::createFromFormat('Y-m-d', $value);
+                elseif ($value !== null && in_array($key, $allAgServKeys)) $value = $agServ[$key];
+
                 $this->$method($value);
             }
         }

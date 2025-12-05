@@ -769,23 +769,23 @@ class DaAfficherRepository extends EntityRepository
 
         if (!empty($criteria['agenceEmetteur'])) {
             $qb->andWhere("$qbLabel.agenceEmetteur = :agEmet")
-                ->setParameter('agEmet', $criteria['agenceEmetteur']->getId());
+                ->setParameter('agEmet', $criteria['agenceEmetteur']);
         }
         if (!empty($criteria['serviceEmetteur'])) {
             $qb->andWhere("$qbLabel.serviceEmetteur = :agServEmet")
-                ->setParameter('agServEmet', $criteria['serviceEmetteur']->getId());
+                ->setParameter('agServEmet', $criteria['serviceEmetteur']);
         }
 
 
         if (!empty($criteria['agenceDebiteur'])) {
             $qb->andWhere("$qbLabel.agenceDebiteur = :agDebit")
-                ->setParameter('agDebit', $criteria['agenceDebiteur']->getId())
+                ->setParameter('agDebit', $criteria['agenceDebiteur'])
             ;
         }
 
         if (!empty($criteria['serviceDebiteur'])) {
             $qb->andWhere("$qbLabel.serviceDebiteur = :serviceDebiteur")
-                ->setParameter('serviceDebiteur', $criteria['serviceDebiteur']->getId());
+                ->setParameter('serviceDebiteur', $criteria['serviceDebiteur']);
         }
     }
 
