@@ -15,6 +15,10 @@
 	<table class="table rounded table-sticky text-center">
 	<thead class="table-dark">
 	<tr>
+	<th>Devise</th>
+	{% for item in libDate %}
+		<th> {{item}}</th>
+	{% endfor %}
 	</tr>
 	</thead>
 	<tbody id="tableBody">

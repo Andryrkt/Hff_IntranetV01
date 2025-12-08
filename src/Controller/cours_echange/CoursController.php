@@ -9,6 +9,7 @@ use App\Form\cours_echange\CoursSearchType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\cours_echange\CoursEchangeSearch;
+use Symfony\Component\Validator\Constraints\Length;
 
 class CoursController extends Controller
 {
@@ -86,10 +87,45 @@ class CoursController extends Controller
             // dd($form->getdata());
             /** @var CoursEchangeSearch */
             $criteria =  $form->getdata();
+            $datesys =  $criteria->getDateHisto()->format("m/d/Y");
         }
-    
+        $datesys =  date("m/d/Y");
+        $libtab = $this->dateSemaineNow($datesys)['libelleDate'];
+        $dateInformix = $this->dateSemaineNow($datesys)['dateInformix'];
+        $data = $this->recupDataHisto($dateInformix)['data'];
         return $this->render('cours_echange/historique_cours.html.twig', [
-            'form' => $form->createView()
+            'form' => $form->createView(),
+            'libDate' => $libtab
         ]);
+    }
+
+    public function dateSemaineNow($coursdateNow)
+    {
+        $datelib = [];
+        $dateConvert = [];
+        $libtab = $this->coursModel->recupDateSemaineNow($coursdateNow);
+        for ($i = 0; $i < count($libtab); $i++) {
+            // $datelib[] = date('d/m/Y', strtotime($libtab[$i]));
+            $dateObj = DateTime::createFromFormat('Y-m-d', $libtab[$i]);
+            if ($dateObj) {
+                $datelib[] = $dateObj->format('d/m/Y');
+                $dateConvert[] = $dateObj->format('m/d/Y');
+            }
+        }
+        $datelib = array_reverse($datelib);
+        return ['libelleDate' => $datelib, 'dateInformix' => $dateConvert];
+    }
+    public function recupDataHisto($libtab)
+    {
+        $data = [];
+        $devis = $this->coursModel->recupDevis();
+        dump($devis);
+        dump($libtab);
+        for ($i = 0; $i < count($libtab); $i++) {
+            $dateEncours = $libtab[$i];
+           
+        }
+        
+       return ['data'=> $data]; 
     }
 }

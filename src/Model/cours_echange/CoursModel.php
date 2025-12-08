@@ -42,7 +42,16 @@ class coursModel extends Model
         $resultat = $this->convertirEnUtf8($data);
         return $resultat[0]['cours'];
     }
-    public function recupDateSemaineNow(){
-        
+    public function recupDateSemaineNow($coursdateNow){
+      
+      $condition = " WHERE atxc_datedebut  <= '" . $coursdateNow . "'";
+        $statement = " SELECT  first 7 atxc_datedebut  as date_deb from agr_txc
+        $condition
+        group by atxc_datedebut order by 1 desc
+        ";
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->connect->fetchResults($result);
+        $resultat = $this->convertirEnUtf8($data);
+        return array_column($resultat,"date_deb");
     }
 }
