@@ -2,12 +2,13 @@
 
 namespace App\Controller\cours_echange;
 
-use App\Controller\Controller;
-use App\Entity\cours_echange\CoursEchangeSearch;
-use App\Form\cours_echange\CoursSearchType;
-use App\Model\cours_echange\coursModel;
 use DateTime;
+use App\Controller\Controller;
+use App\Model\cours_echange\coursModel;
+use App\Form\cours_echange\CoursSearchType;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Entity\cours_echange\CoursEchangeSearch;
 
 class CoursController extends Controller
 {
@@ -68,7 +69,8 @@ class CoursController extends Controller
     /**
      * @Route("historique_echange", name="historique_echange")
      */
-    public function histoEchange(){
+    public function histoEchange(Request $request)
+    {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
         $form = $this->getFormFactory()->createBuilder(
@@ -78,10 +80,16 @@ class CoursController extends Controller
                 'method' => 'GET'
             ]
         )->getForm();
-$criteria = $this->coursEchangeSearch;
-
-          return $this->render('cours_echange/historique_cours.html.twig',[
-            'form'=> $form->createView()
-          ]);
+        $criteria = $this->coursEchangeSearch;
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            // dd($form->getdata());
+            /** @var CoursEchangeSearch */
+            $criteria =  $form->getdata();
+        }
+    
+        return $this->render('cours_echange/historique_cours.html.twig', [
+            'form' => $form->createView()
+        ]);
     }
 }

@@ -42,4 +42,7 @@ class coursModel extends Model
         $resultat = $this->convertirEnUtf8($data);
         return $resultat[0]['cours'];
     }
+    public function recupDateSemaineNow(){
+        
+    }
 }
