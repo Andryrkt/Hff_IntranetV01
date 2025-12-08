@@ -1,15 +1,13 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\accueil;
 
+use App\Controller\Controller;
 use App\Service\navigation\MenuService;
 use App\Utils\PerfLogger;
 use Symfony\Component\Routing\Annotation\Route;
 use Exception;
 
-/**
- * Contrôleur de la page d'accueil refactorisé pour utiliser l'injection de dépendances
- */
 class HomeController extends Controller
 {
     public function __construct()

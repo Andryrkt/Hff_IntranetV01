@@ -1,16 +1,15 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\authentification;
 
+use App\Controller\Controller;
 use Exception;
 use App\Entity\admin\utilisateur\User;
 use App\Model\LdapModel;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-/**
- * Contrôleur d'authentification refactorisé pour utiliser l'injection de dépendances
- */
-class Authentification extends Controller
+
+class LoginController extends Controller
 {
     private ?LdapModel $ldapModel = null;
 
