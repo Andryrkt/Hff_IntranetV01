@@ -6,24 +6,20 @@ use App\Controller\Controller;
 use Exception;
 use App\Entity\admin\utilisateur\User;
 use App\Model\LdapModel;
+use App\Repository\admin\utilisateur\UserRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 class LoginController extends Controller
 {
     private ?LdapModel $ldapModel = null;
+    private UserRepository $userRepository;
 
     public function __construct()
     {
         parent::__construct();
-    }
-
-    private function getLdapModel(): LdapModel
-    {
-        if ($this->ldapModel === null) {
-            $this->ldapModel = new LdapModel();
-        }
-        return $this->ldapModel;
+        $this->ldapModel = new LdapModel();
+        $this->userRepository = $this->getEntityManager()->getRepository(User::class);
     }
 
     /**
@@ -34,41 +30,33 @@ class LoginController extends Controller
         $error_msg = null;
 
         if ($request->isMethod('POST')) {
-            $Username = $request->request->get('Username', '');
-            $Password = $request->request->get('Pswd', '');
+            $username = $request->request->get('username', '');
+            $password = $request->request->get('password', '');
 
             try {
-                $user = $this->getEntityManager()->getRepository(User::class)->findOneBy(['nom_utilisateur' => $Username]);
-                $userId = ($user) ? $user->getId() : '-';
+                $user = $this->userRepository->findOneBy(['nom_utilisateur' => $username]);
+                $userId = $user ? $user->getId() : '-';
 
                 // Utiliser le service de session injecté
                 $this->getSessionService()->set('user_id', $userId);
 
                 if (!$user) {
-                    throw new \Exception('Utilisateur non trouvé avec le nom d\'utilisateur : ' . $Username);
+                    throw new \Exception('Utilisateur non trouvé avec le nom d\'utilisateur : ' . $username);
                 }
 
-                if (!$this->getLdapModel()->userConnect($Username, $Password)) {
+                if (!$this->ldapModel->userConnect($username, $password)) {
                     $this->logUserVisit('security_signin');
                     $error_msg = "Vérifier les informations de connexion, veuillez saisir le nom d'utilisateur et le mot de passe de votre session Windows";
                 } else {
-                    $this->getSessionService()->set('user', $Username);
-                    $this->getSessionService()->set('password', $Password);
+                    $this->getSessionService()->set('user', $username);
+                    $this->getSessionService()->set('password', $password);
 
                     $filename = $_ENV['BASE_PATH_LONG'] . "\src\Controller\authentification.csv";
-                    $newData = [$userId, $Username, $Password];
-                    $this->updateOrInsertCSV($filename, $newData);
+                    $newData = [$userId, $username, $password];
+                    $this->synchronizeCSV($filename, $newData);
 
-                    if (preg_match('/Hffintranet_pre_prod/i', $_SERVER['REQUEST_URI'])) {
-                        // Donner accès qu'à certains utilisateurs
-                        if (in_array(1, $user->getRoleIds())) {
-                            $this->redirectToRoute('profil_acceuil');
-                        } else {
-                            $this->redirectTo('/Hffintranet/login');
-                        }
-                    }
-
-                    $this->redirectToRoute('profil_acceuil');
+                    if (preg_match('/Hffintranet_pre_prod/i', $_SERVER['REQUEST_URI']) && !in_array(1, $user->getRoleIds())) $this->redirectTo('/Hffintranet/login');
+                    else $this->redirectToRoute('profil_acceuil');
                 }
             } catch (Exception $e) {
                 $this->logUserVisit('security_signin');
@@ -76,12 +64,12 @@ class LoginController extends Controller
             }
         }
 
-        return $this->render('signin.html.twig', [
+        return $this->render('signIn.html.twig', [
             'error_msg' => $error_msg,
         ]);
     }
 
-    private function updateOrInsertCSV(string $filename, array $newData)
+    private function synchronizeCSV(string $filename, array $newData)
     {
         $rows = [];
         $found = false;
