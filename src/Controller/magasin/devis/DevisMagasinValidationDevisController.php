@@ -148,7 +148,7 @@ class DevisMagasinValidationDevisController extends Controller
             $criteria = $this->getSessionService()->get('criteria_for_excel_liste_devis_magasin');
             $nomDeRoute = 'devis_magasin_liste'; // route de redirection après soumission
             $nomInputSearch = 'devis_magasin_search'; // initialistion de nom de chaque champ ou input
-            $this->historiqueOperationBcMagasinService->sendNotificationSoumission($message, $devisMagasin->getNumeroDevis(), $nomDeRoute, true, $criteria, $nomInputSearch);
+            $this->historiqueOperationDeviMagasinService->sendNotificationSoumission($message, $devisMagasin->getNumeroDevis(), $nomDeRoute, true, $criteria, $nomInputSearch);
         }
     }
 }
