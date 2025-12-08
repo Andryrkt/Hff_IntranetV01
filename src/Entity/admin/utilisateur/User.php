@@ -611,6 +611,17 @@ class User implements UserInterface
         return $this;
     }
 
+    /**
+     * RECUPERE LES id de role de l'User sous forme de tableau associatif
+     */
+    public function getRoleIdsAssoc(): array
+    {
+        $assoc = [];
+        foreach ($this->roles as $role) {
+            $assoc[$role->getId()] = true;
+        }
+        return $assoc;
+    }
 
     /**
      * RECUPERE LES id de role de l'User sous forme de tableau

@@ -34,11 +34,9 @@ class LoginController extends Controller
             $password = $request->request->get('password', '');
 
             try {
+                /** @var User $user */
                 $user = $this->userRepository->findOneBy(['nom_utilisateur' => $username]);
                 $userId = $user ? $user->getId() : '-';
-
-                // Utiliser le service de session injecté
-                $this->getSessionService()->set('user_id', $userId);
 
                 if (!$user) {
                     throw new \Exception('Utilisateur non trouvé avec le nom d\'utilisateur : ' . $username);
@@ -48,6 +46,17 @@ class LoginController extends Controller
                     $this->logUserVisit('security_signin');
                     $error_msg = "Vérifier les informations de connexion, veuillez saisir le nom d'utilisateur et le mot de passe de votre session Windows";
                 } else {
+                    $userInfo = [
+                        "id"       => $userId,
+                        "name"     => $username,
+                        "mail"     => $user->getMail(),
+                        "role"     => $user->getRoleIdsAssoc(),
+                        "password" => $password,
+                    ];
+
+                    $this->getSessionService()->set('user_info', $userInfo);
+
+                    $this->getSessionService()->set('user_id', $userId);
                     $this->getSessionService()->set('user', $username);
                     $this->getSessionService()->set('password', $password);
 
