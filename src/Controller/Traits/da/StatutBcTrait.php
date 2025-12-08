@@ -82,20 +82,20 @@ trait StatutBcTrait
 
     private function statutBc(DaAfficher $DaAfficher): ?string
     {
-        // 0. recupération de l'entity manager
+        // 1. recupération de l'entity manager
         $em = self::getEntity();
 
-        // 1. recupération des données necessaire dans DaAfficher
-        [$ref, $numDit, $numDa, $designation, $numeroOr, $statutOr, $statutBc, $statutDa] = $this->getVariableNecessaire($DaAfficher);
-
         // 2. on met vide la statut bc selon le condition en survolon la fonction
-        if ($this->doitRetournerVide($statutDa)) return '';
+        if ($this->doitRetournerVide($DaAfficher->getStatutDal())) return '';
 
         /** 3. recuperation type DA @var bool $daDirect @var bool $daViaOR @var bool $daReappro  */
         [$daDirect, $daViaOR, $daReappro] = $this->getTypeDa($DaAfficher);
 
         // 4. modification de l'information de l'or
         if (!$daDirect) $this->updateInfoOR($DaAfficher, $daViaOR, $daReappro);
+
+        // 1. recupération des données necessaire dans DaAfficher
+        [$ref, $numDit, $numDa, $designation, $numeroOr, $statutOr, $statutBc, $statutDa] = $this->getVariableNecessaire($DaAfficher);
 
         // 5. modification du statut de la DA
         if ($statutOr === DemandeAppro::STATUT_DW_A_MODIFIER && $statutDa !== DemandeAppro::STATUT_EN_COURS_CREATION) $DaAfficher->setStatutDal(DemandeAppro::STATUT_EN_COURS_CREATION);

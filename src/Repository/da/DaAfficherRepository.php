@@ -11,6 +11,7 @@ use Doctrine\DBAL\ArrayParameterType;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DemandeIntervention;
 use App\Entity\dit\DitOrsSoumisAValidation;
+use Doctrine\ORM\Query\ResultSetMappingBuilder;
 
 class DaAfficherRepository extends EntityRepository
 {
@@ -215,6 +216,105 @@ class DaAfficherRepository extends EntityRepository
             ->getScalarResult();
 
         return array_column($result, 'refDesi');
+    }
+    // ======================================== TEST INFORMIX ========================================
+    public function findDaAvecLignesOr(
+        ?string $numOr = null,
+        ?string $ref = null,
+        ?string $designation = null,
+        int $page = 1,
+        int $limit = 25
+    ): array {
+        $offset = ($page - 1) * $limit;
+
+        $sql = "
+        WITH DernieresDA AS (
+            SELECT 
+                d.numero_demande_appro,
+                MAX(d.numero_version) AS maxVersion
+            FROM HFF_INTRANET_TEST_TEST.dbo.da_afficher d
+            WHERE d.deleted = 0
+              AND d.statut_dal = 'VALIDE'
+              AND (d.statut_cde != 'PAS_DANS_OR' OR d.statut_cde IS NULL)
+              AND (
+                    d.da_type_id = :typeDaDirect
+                 OR (
+                        d.da_type_id IN (:typeDa)
+                    AND (d.statut_or IN (:statutOrs) OR d.numero_demande_appro IN (:exceptions))
+                    )
+              )
+            GROUP BY d.numero_demande_appro
+        ),
+        DA_Valides AS (
+            SELECT d.*
+            FROM HFF_INTRANET_TEST_TEST.dbo.da_afficher d
+            INNER JOIN DernieresDA lv 
+                ON lv.numero_demande_appro = d.numero_demande_appro 
+               AND lv.maxVersion = d.numero_version
+        )
+        SELECT
+            da.*,
+            slor.slor_natcm                                          AS nature_cmd,
+            TRIM(slor.slor_refp)                                      AS ref_article,
+            TRIM(slor.slor_desi)                                      AS designation_article,
+            TRIM(seor.seor_refdem)                                    AS num_dit,
+            CASE 
+                WHEN slor.slor_natcm = 'C' THEN c.fcde_numcde
+                WHEN slor.slor_natcm = 'L' THEN cde.fcde_numcde
+            END                                                       AS num_cde,
+            CASE 
+                WHEN slor.slor_natcm = 'C' THEN c.fcde_posc
+                WHEN slor.slor_natcm = 'L' THEN cde.fcde_posc
+            END                                                       AS position_bc
+        FROM INFORMIX.ips_test.informix.sav_lor slor
+        INNER JOIN INFORMIX.ips_test.informix.sav_eor seor
+            ON seor.seor_numor = slor.slor_numor
+           AND seor.seor_soc   = slor.slor_soc
+           AND seor.seor_succ  = slor.slor_succ
+        LEFT JOIN INFORMIX.ips_test.informix.frn_cde c
+            ON slor.slor_natcm = 'C' AND c.fcde_numcde = slor.slor_numcf
+        LEFT JOIN INFORMIX.ips_test.informix.frn_llf llf
+            ON slor.slor_natcm = 'L' AND llf.fllf_numliv = slor.slor_numcf
+        LEFT JOIN INFORMIX.ips_test.informix.frn_cde cde
+            ON llf.fllf_numcde = cde.fcde_numcde
+           AND llf.fllf_soc = cde.fcde_soc
+           AND llf.fllf_succ = cde.fcde_succ
+        INNER JOIN DA_Valides da ON da.numero_or = slor.slor_numor
+        WHERE slor.slor_constp = 'ZST'
+          AND slor.slor_typlig = 'P'
+          AND slor.slor_soc = 'HF'
+          AND (:numOr IS NULL OR slor.slor_numor = :numOr)
+          AND (:ref IS NULL OR TRIM(REPLACE(REPLACE(slor.slor_refp, CHAR(9), ''), CHAR(10), '')) LIKE '%' + :ref + '%')
+          AND (:designation IS NULL OR TRIM(REPLACE(REPLACE(slor.slor_desi, CHAR(9), ''), CHAR(10), '')) LIKE '%' + :designation + '%')
+        ORDER BY da.date_demande DESC
+        OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY
+    ";
+
+        $rsm = new ResultSetMappingBuilder($this->getEntityManager());
+        $rsm->addRootEntityFromClassMetadata(DaAfficher::class, 'da');
+        // Colonnes supplémentaires venant d'Informix
+        $rsm->addScalarResult('nature_cmd', 'natureCmd');
+        $rsm->addScalarResult('ref_article', 'refArticle');
+        $rsm->addScalarResult('designation_article', 'designationArticle');
+        $rsm->addScalarResult('num_dit', 'numDit');
+        $rsm->addScalarResult('num_cde', 'numCde');
+        $rsm->addScalarResult('position_bc', 'positionBc');
+
+        $query = $this->getEntityManager()->createNativeQuery($sql, $rsm);
+
+        $query->setParameters([
+            'typeDaDirect' => DemandeAppro::TYPE_DA_DIRECT,
+            'typeDa'       => [DemandeAppro::TYPE_DA_AVEC_DIT, DemandeAppro::TYPE_DA_REAPPRO],
+            'statutOrs'    => [DitOrsSoumisAValidation::STATUT_VALIDE, DemandeAppro::STATUT_DW_VALIDEE],
+            'exceptions'   => ['DAP25079981'],
+            'numOr'        => $numOr,
+            'ref'          => $ref,
+            'designation'  => $designation,
+            'offset'       => $offset,
+            'limit'        => $limit,
+        ]);
+
+        return $query->getResult(); // Retourne des objets DaAfficher hydratés + attributs bonus
     }
 
     /**
