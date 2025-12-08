@@ -104,7 +104,7 @@ trait StatutBcTrait
         [$infoDaDirect, $situationCde] = $this->getInfoNecessaireIps($ref, $numDit, $numDa, $designation, $numeroOr, $statutBc);
 
         /** 7. Non dispo || DA avec DIT et numéro OR null || numéro OR non vide et statut OR non vide || infoDaDirect ou situationCde est vide */
-        if ($DaAfficher->getNonDispo() || ($numeroOr == null && $daViaOR) || ($numeroOr != null && empty($statutOr)) || $this->aSituationCde($situationCde, $infoDaDirect, $daViaOR, $daDirect)) {
+        if ($DaAfficher->getNonDispo() || ($numeroOr == null && $daViaOR) || ($numeroOr != null && empty($statutOr)) || $this->aSituationCde($situationCde, $daViaOR)) {
             return $statutBc;
         }
 
@@ -144,7 +144,7 @@ trait StatutBcTrait
             return DaSoumissionBc::STATUT_CESSION_A_GENERER;
         } elseif ($daReappro && $numeroOr != null && $statutOr == DemandeAppro::STATUT_DW_VALIDEE && $DaAfficher->getEstBlReapproSoumis() == false) {
             return DaSoumissionBc::STATUT_EN_COURS_DE_PREPARATION;
-        } 
+        }
         // DA Reappro, DA Direct , DA Via OR
         elseif ($partiellementDispo) {
             return 'Partiellement dispo';
@@ -162,11 +162,11 @@ trait StatutBcTrait
             return $statutSoumissionBc;
         }
         // DA REAPPRO
-        elseif($daReappro && $numeroOr != null && $statutOr == DemandeAppro::STATUT_DW_VALIDEE && $DaAfficher->getEstBlReapproSoumis() == true) {
+        elseif ($daReappro && $numeroOr != null && $statutOr == DemandeAppro::STATUT_DW_VALIDEE && $DaAfficher->getEstBlReapproSoumis() == true) {
             return DaSoumissionBc::STATUT_EN_COURS_DE_PREPARATION;
         }
 
-        
+
         return '';
     }
 
