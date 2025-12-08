@@ -9,9 +9,9 @@ use Symfony\Component\Finder\Glob;
 
 class ListeDevisMagasinModel extends Model
 {
-    public function getDevis(array $criteria = [],  string $vignette = 'magasin', string $codeAgenceUser = '-0', bool $admin = false): array
+    public function getDevis(array $criteria = [],  string $vignette = 'magasin', string $codeAgenceAutoriser, bool $adminMulti = false): array
     {
-        $statement = "SELECT FIRST 100
+        $statement = "SELECT FIRST 100 DISTINCT
             nent_numcde as numero_devis
             ,nent_datecde as date_creation
             ,nent_succ || ' - ' || nent_servcrt as emmeteur
@@ -36,18 +36,28 @@ class ListeDevisMagasinModel extends Model
             $statement .= " AND nent_posl in ('--','AC','DE', 'TR')";
         }
 
-        if ($vignette === 'magasin' && $codeAgenceUser === '01' && !$admin) {
-            // entrer par le vignette MAGASIN - agence tana
-            $piecesMagasin = GlobalVariablesService::get('pieces_magasin');
-            $statement .= " AND nlig_constp IN ($piecesMagasin) AND nent_succ <> '60' ";
-        } elseif ($vignette === 'magasin_pol' && $codeAgenceUser !== '01' && !$admin) {
-            //entrer par le vignette MAGASIN - autres agence 
-            $piecesMagasinPol = GlobalVariablesService::get('pieces_magasin') . GlobalVariablesService::get('pieces_pneumatique');
-            $statement .= " AND nlig_constp IN ($piecesMagasinPol) AND nent_succ = '$codeAgenceUser' ";
-        } elseif ($vignette === 'pneumatique' && $codeAgenceUser === '60' && !$admin) {
+        // if ($vignette === 'magasin' && $codeAgenceUser === '01' && !$admin) {
+        //     // entrer par le vignette MAGASIN - agence tana
+        //     $piecesMagasin = GlobalVariablesService::get('pieces_magasin');
+        //     $statement .= " AND nlig_constp IN ($piecesMagasin) AND nent_succ <> '60' ";
+        // } elseif ($vignette === 'magasin_pol' && $codeAgenceUser !== '01' && !$admin) {
+        //     //entrer par le vignette MAGASIN - autres agence 
+        //     $piecesMagasinPol = GlobalVariablesService::get('pieces_magasin') . GlobalVariablesService::get('pieces_pneumatique');
+        //     $statement .= " AND nlig_constp IN ($piecesMagasinPol) AND nent_succ = '$codeAgenceUser' ";
+        // } elseif ($vignette === 'pneumatique' && $codeAgenceUser === '60' && !$admin) {
+        //     // entrer par le vignette POL - agence pneumatique
+        //     $piecesPneumatique = GlobalVariablesService::get('pneumatique');
+        //     $statement .= " AND nlig_constp IN ($piecesPneumatique) AND nent_succ = '60' ";
+        // }
+
+        if ($vignette === 'pneumatique' && !$adminMulti) {
             // entrer par le vignette POL - agence pneumatique
             $piecesPneumatique = GlobalVariablesService::get('pneumatique');
-            $statement .= " AND nlig_constp IN ($piecesPneumatique) AND nent_succ = '60' ";
+            $statement .= " AND nlig_constp IN ($piecesPneumatique) AND nent_succ in ($codeAgenceAutoriser) ";
+        } elseif (!$adminMulti) {
+            // entrer par le vignette MAGASIN - agence tana et autres agence
+            $piecesMagasinPol = GlobalVariablesService::get('pieces_magasin') . ',' . GlobalVariablesService::get('pneumatique');
+            $statement .= " AND nlig_constp IN ($piecesMagasinPol) AND nent_succ in ($codeAgenceAutoriser) ";
         }
 
         $statement .= " ORDER BY nent_datecde DESC";

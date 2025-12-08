@@ -55,36 +55,43 @@ class DevisMagasinSearchType extends AbstractType
             ->add('numeroDevis', TextType::class, [
                 'label' => 'Numéro de devis',
                 'required' => false,
+                'data' => $options['data']->getNumeroDevis(),
             ])
             ->add('codeClient', TextType::class, [
                 'label' => 'code Client',
-                'required' => false
+                'required' => false,
+                'data' => $options['data']->getCodeClient(),
             ])
             ->add('Operateur', TextType::class, [
                 'label' => 'Soumis par',
-                'required' => false
+                'required' => false,
+                'data' => $options['data']->getOperateur(),
             ])
             ->add('CreePar', TextType::class, [
                 'label' => 'Crée par',
-                'required' => false
+                'required' => false,
+                'data' => $options['data']->getCreePar(),
             ])
             ->add('statutDw', ChoiceType::class, [
                 'label' => 'Statut devis',
                 'placeholder' => '-- Choisir le choix --',
                 'choices' => $this->statutsDw,
-                'required' => false
+                'required' => false,
+                'data' => $options['data']->getStatutDw(),
             ])
             ->add('statutBc', ChoiceType::class, [
                 'label' => 'Statut BC',
                 'placeholder' => '-- Choisir le choix --',
                 'choices' => $this->statutsBc,
-                'required' => false
+                'required' => false,
+                'data' => $options['data']->getStatutBc(),
             ])
             ->add('statutIps', ChoiceType::class, [
                 'label' => 'Position IPS',
                 'placeholder' => '-- Choisir le choix --',
                 'choices' => self::STATUT_IPS,
-                'required' => false
+                'required' => false,
+                'data' => $options['data']->getStatutIps(),
             ])
             ->add('emetteur', AgenceServiceType::class, [
                 'label' => false,
@@ -94,6 +101,8 @@ class DevisMagasinSearchType extends AbstractType
                 'agence_placeholder' => '-- Agence Emetteur --',
                 'service_placeholder' => '-- Service Emetteur --',
                 'em' => $options['em'] ?? null,
+                'data_agence' => $options['data']->getEmetteur()['agence'] ?? null,
+                'data_service' => $options['data']->getEmetteur()['service'] ?? null,
             ])
             // ->add('debitteur', AgenceServiceType::class, [
             //     'label' => false,
@@ -107,6 +116,8 @@ class DevisMagasinSearchType extends AbstractType
                 'label' => false,
                 'debut_label' => 'Date création (début)',
                 'fin_label' => 'Date création (fin)',
+                'data_date_debut' => $options['data']->getDateCreation()['debut'] ?? null,
+                'data_date_fin' => $options['data']->getDateCreation()['fin'] ?? null,
             ]);
     }
 

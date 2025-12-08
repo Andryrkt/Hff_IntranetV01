@@ -127,7 +127,6 @@
   color: aliceblue !important;
 }
 
-
 /* statut BC */
 .bg-bc-soumis-validation {
   background-color: #ffc107 !important;
@@ -136,7 +135,6 @@
   background-color: #00ff9d !important;
 }
 .bg-bc-valide {
-  background-color: #034112 !important;
-  color: white;
+  background-color: #198754 !important;
+  color: white !important;
 }
-

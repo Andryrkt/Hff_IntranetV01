@@ -19,6 +19,7 @@ use App\Repository\da\DaSoumissionFacBlRepository;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Service\historiqueOperation\HistoriqueOperationService;
 use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
+use DateTime;
 
 /**
  * @Route("/demande-appro")
@@ -150,9 +151,8 @@ class DaSoumissionFacBlController extends Controller
             ->setPieceJoint1($nomPdfFusionner)
             ->setStatut(self::STATUT_SOUMISSION)
             ->setNumeroVersion($numeroVersionMax)
-            ->setNumeroDemandeAppro($numDa)
-            ->setNumeroDemandeDit($numDit)
-            ->setNumeroOR($numOr)
+            ->setDateClotLiv(new DateTime($infoLivraison["date_clot"]))
+            ->setRefBlFac($infoLivraison["ref_fac_bl"])
         ;
         return $soumissionFacBl;
     }

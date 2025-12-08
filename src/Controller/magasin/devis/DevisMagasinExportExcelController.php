@@ -9,7 +9,7 @@ use App\Entity\magasin\devis\DevisMagasin;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\magasin\devis\ListeDevisMagasinModel;
 use App\Factory\magasin\devis\ListeDevisMagasinFactory;
-use App\Repository\magasin\devis\DevisMagasinRepository;
+use App\Service\TableauEnStringService;
 
 class DevisMagasinExportExcelController extends Controller
 {
@@ -30,8 +30,11 @@ class DevisMagasinExportExcelController extends Controller
         $this->verifierSessionUtilisateur();
 
         $criteria = $this->getSessionService()->get('criteria_for_excel_liste_devis_magasin');
-        $criteria["emetteur"]["agence"] = $this->getEntityManager()->getRepository(Agence::class)->find($criteria["emetteur"]["agence"]);
-        $criteria["emetteur"]["service"] = $this->getEntityManager()->getRepository(Service::class)->find($criteria["emetteur"]["service"]);
+
+        if ($criteria && $criteria["emetteur"]) {
+            $criteria["emetteur"]["agence"] = $criteria["emetteur"]["agence"] ? $this->getEntityManager()->getRepository(Agence::class)->find($criteria["emetteur"]["agence"]) : null;
+            $criteria["emetteur"]["service"] = $criteria["emetteur"]["service"] ? $this->getEntityManager()->getRepository(Service::class)->find($criteria["emetteur"]["service"]) : null;
+        }
 
         $listeDevisFactory = $this->recuperationDonner($criteria);
 
@@ -69,9 +72,8 @@ class DevisMagasinExportExcelController extends Controller
     {
         /** @var ListeDevisMagasinFactory $devisFactory */
         foreach ($listeDevisFactory as $devisFactory) {
-
             $data[] = [
-                $devisFactory->getStatutDw(),
+                $devisFactory->getStatutDw() ? $devisFactory->getStatutDw() : "A traiter",
                 $devisFactory->getStatutBc(),
                 $devisFactory->getNumeroDevis(),
                 $devisFactory->getDateCreation(),
@@ -91,8 +93,11 @@ class DevisMagasinExportExcelController extends Controller
 
     public function recuperationDonner(array $criteria = []): array
     {
+        $codeAgenceAutoriserString = TableauEnStringService::orEnString($this->getUser()->getAgenceAutoriserCode());
+        $vignette = 'magasin';
+        $adminMutli          = in_array(1, $this->getUser()->getRoleIds()) || in_array(6, $this->getUser()->getRoleIds());
         // recupération de la liste des devis magasin dans IPS
-        $devisIps = $this->listeDevisMagasinModel->getDevis();
+        $devisIps = $this->listeDevisMagasinModel->getDevis($criteria, $vignette, $codeAgenceAutoriserString, $adminMutli);
 
         $listeDevisFactory = [];
         foreach ($devisIps as  $devisIp) {

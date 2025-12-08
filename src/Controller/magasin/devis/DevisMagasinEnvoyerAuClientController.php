@@ -9,12 +9,14 @@ use Symfony\Component\Form\FormInterface;
 use App\Entity\magasin\devis\DevisMagasin;
 use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Model\magasin\devis\ListeDevisMagasinModel;
 use App\Repository\magasin\devis\DevisMagasinRepository;
 use App\Controller\Traits\magasin\devis\DevisMagasinTrait;
 use App\Form\magasin\devis\DevisMagasinEnvoyerAuClientType;
+use App\Service\magasin\devis\DevisMagasinEnvoyerAuClientValidatorService;
 use App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService;
-use App\Model\magasin\devis\ListeDevisMagasinModel;
 
 /**
  * @Route("/magasin/dematerialisation")
@@ -48,11 +50,8 @@ class DevisMagasinEnvoyerAuClientController extends Controller
         /** Autorisation accées */
         $this->autorisationAcces($this->getUser(), Application::ID_DVM);
 
-        //recupération des informations utile dans IPS
-        $firstDevisIps = $this->getInfoDevisIps($numeroDevis);
-        [$newSumOfLines, $newSumOfMontant] = $this->newSumOfLinesAndAmount($firstDevisIps);
-
-
+        /** Gestion de blocage */
+        $this->gestionDeBlocage($numeroDevis);
 
         //formulaire de création
         $form = $this->getFormFactory()->createBuilder(DevisMagasinEnvoyerAuClientType::class, null, [
@@ -68,6 +67,26 @@ class DevisMagasinEnvoyerAuClientController extends Controller
         return $this->render('magasin/devis/envoyerAuClient.html.twig', [
             'form' => $form->createView()
         ]);
+    }
+
+    private function gestionDeBlocage(string $numeroDevis): Response
+    {
+        $validateur = new DevisMagasinEnvoyerAuClientValidatorService();
+
+        //recupération des informations utile dans IPS
+        $firstDevisIps = $this->getInfoDevisIps($numeroDevis);
+        [$newSumOfLines, $newSumOfMontant] = $this->newSumOfLinesAndAmount($firstDevisIps);
+
+        $data = [
+            'numeroDevis' => $numeroDevis,
+            'devisMagasinRepository' => $this->getEntityManager()->getRepository(DevisMagasin::class),
+            'newSumOfLines' => $newSumOfLines,
+            'newSumOfMontant' => $newSumOfMontant
+        ];
+        if (!$validateur->validateData($data)) {
+            return $this->redirectToRoute($validateur->getRedirectRoute());
+        }
+        return new Response();
     }
 
     private function traitementFormulaire(FormInterface $form, Request $request, string $numeroDevis)
@@ -87,7 +106,10 @@ class DevisMagasinEnvoyerAuClientController extends Controller
 
             //HISTORISATION DE L'OPERATION
             $message = "Pointage enregistré avec succès .";
-            $this->historiqueOperationDeviMagasinService->sendNotificationSoumission($message, $numeroDevis, 'devis_magasin_liste', true);
+            $criteria = $this->getSessionService()->get('criteria_for_excel_liste_devis_magasin');
+            $nomDeRoute = 'devis_magasin_liste'; // route de redirection après soumission
+            $nomInputSearch = 'devis_magasin_search'; // initialistion de nom de chaque champ ou input
+            $this->historiqueOperationDeviMagasinService->sendNotificationSoumission($message, $numeroDevis, $nomDeRoute, true, $criteria, $nomInputSearch);
         }
     }
 }
