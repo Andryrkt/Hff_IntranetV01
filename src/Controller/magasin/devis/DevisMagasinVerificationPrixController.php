@@ -227,8 +227,7 @@ class DevisMagasinVerificationPrixController extends Controller
             'numDevis'   => $numDevis,
         ];
         $this->envoyerEmail([
-            // 'to'          => "prisca.michea@hff.mg",
-            'to'          => "hasina.andrianadison@hff.mg",
+            'to'        => "prisca.michea@hff.mg",
             'variables' => $variables,
             'attachments' => [
                 $resultatExport['filePath'] => $resultatExport['fileName'],
@@ -245,7 +244,7 @@ class DevisMagasinVerificationPrixController extends Controller
 
         $emailService = new EmailService($this->getTwig());
 
-        $emailService->getMailer()->setFrom($_ENV['MAIL_FROM_ADDRESS'], 'noreply.da');
+        $emailService->getMailer()->setFrom($_ENV['MAIL_FROM_ADDRESS'], 'noreply.neg');
 
         $emailService->sendEmail($content['to'], $content['cc'] ?? [], $emailTemplate, $content['variables'] ?? [], $content['attachments'] ?? []);
     }
