@@ -85,30 +85,21 @@ trait DevisMagasinTrait
 
     private function enregistrementFichier(FormInterface $form, string $numDevis, int $numeroVersion, string $suffix, string $mail, string $typeDevis, string $remoteUrl): array
     {
-        $fileName = "";
         $devisPath = $this->cheminBaseUpload . $numDevis . '/';
-        if (!is_dir($devisPath)) {
-            mkdir($devisPath, 0777, true);
-        }
+        if (!is_dir($devisPath)) mkdir($devisPath, 0777, true);
 
-        $nomEtCheminFichiersEnregistrer = $this->uploader->getNomsEtCheminFichiers($form, [
+        $nomEtCheminFichiersEnregistrer = $remoteUrl ? [$remoteUrl] : $this->uploader->getNomsEtCheminFichiers($form, [
             'repertoire' => $devisPath,
             'generer_nom_callback' => function (
                 UploadedFile $file,
                 int $index
             ) use ($numDevis, $numeroVersion, $suffix, $mail, $typeDevis) {
-                if ($typeDevis === 'VP') {
-                    return $this->nameGenerator->generateVerificationPrixName($file, $numDevis, $numeroVersion, $suffix, $mail, $index);
-                } else {
-
-                    return $this->nameGenerator->generateValidationDevisName($file, $numDevis, $numeroVersion, $suffix, $mail, $index);
-                }
+                if ($typeDevis === 'VP') return $this->nameGenerator->generateVerificationPrixName($file, $numDevis, $numeroVersion, $suffix, $mail, $index);
+                else return $this->nameGenerator->generateValidationDevisName($file, $numDevis, $numeroVersion, $suffix, $mail, $index);
             }
         ]);
 
-        $fileName = !empty($nomEtCheminFichiersEnregistrer) ? $nomEtCheminFichiersEnregistrer[0] : $remoteUrl;
-
-        $nomAvecCheminFichier = $this->nameGenerator->getCheminEtNomDeFichierSansIndex($fileName);
+        $nomAvecCheminFichier = $this->nameGenerator->getCheminEtNomDeFichierSansIndex($nomEtCheminFichiersEnregistrer[0]);
         $nomFichier = $this->nameGenerator->getNomFichier($nomAvecCheminFichier);
 
         return [$nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, $nomFichier];
