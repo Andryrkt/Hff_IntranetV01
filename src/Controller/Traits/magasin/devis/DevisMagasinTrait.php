@@ -3,7 +3,6 @@
 namespace App\Controller\Traits\magasin\devis;
 
 use App\Service\autres\VersionService;
-use App\Service\TableauEnStringService;
 use Symfony\Component\Form\FormInterface;
 use App\Entity\magasin\devis\DevisMagasin;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -83,7 +82,7 @@ trait DevisMagasinTrait
         ;
     }
 
-    private function enregistrementFichier(FormInterface $form, string $numDevis, int $numeroVersion, string $suffix, string $mail, string $typeDevis, string $remoteUrl): array
+    private function enregistrementFichier(FormInterface $form, string $numDevis, int $numeroVersion, string $suffix, string $mail, string $typeDevis, string $remoteUrl = ""): array
     {
         $devisPath = $this->cheminBaseUpload . $numDevis . '/';
         if (!is_dir($devisPath)) mkdir($devisPath, 0777, true);

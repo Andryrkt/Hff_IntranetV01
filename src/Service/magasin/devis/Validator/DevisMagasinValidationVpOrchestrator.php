@@ -26,7 +26,7 @@ class DevisMagasinValidationVpOrchestrator
      */
     public function __construct(
         string $expectedNumeroDevis,
-        string $remoteUrl
+        string $remoteUrl = ""
     ) {
         $this->fileValidator = new DevisMagasinVpFileValidator($expectedNumeroDevis, $remoteUrl);
         $this->statusValidator = new DevisMagasinVpStatusValidator();
