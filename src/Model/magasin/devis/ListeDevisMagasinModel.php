@@ -50,15 +50,15 @@ class ListeDevisMagasinModel extends Model
         //     $statement .= " AND nlig_constp IN ($piecesPneumatique) AND nent_succ = '60' ";
         // }
 
-        // if ($vignette === 'pneumatique' && !$adminMulti) {
-        //     // entrer par le vignette POL - agence pneumatique
-        //     $piecesPneumatique = GlobalVariablesService::get('pneumatique');
-        //     $statement .= " AND nlig_constp IN ($piecesPneumatique) AND nent_succ in ($codeAgenceAutoriser) ";
-        // } elseif (!$adminMulti) {
-        //     // entrer par le vignette MAGASIN - agence tana et autres agence
-        //     $piecesMagasinPol = GlobalVariablesService::get('pieces_magasin') . ',' . GlobalVariablesService::get('pneumatique');
-        //     $statement .= " AND nlig_constp IN ($piecesMagasinPol) AND nent_succ in ($codeAgenceAutoriser) ";
-        // }
+        if ($vignette === 'pneumatique' && !$adminMulti) {
+            // entrer par le vignette POL - agence pneumatique
+            $piecesPneumatique = GlobalVariablesService::get('pneumatique');
+            $statement .= " AND nlig_constp IN ($piecesPneumatique) AND nent_succ in ($codeAgenceAutoriser) ";
+        } else {
+            // entrer par le vignette MAGASIN - agence tana et autres agence
+            $piecesMagasin = GlobalVariablesService::get('pieces_magasin');
+            $statement .= " AND nlig_constp IN ($piecesMagasin) AND nent_succ <> '60' ";
+        }
 
         $statement .= " ORDER BY nent_datecde DESC";
 

@@ -188,6 +188,7 @@ class PlanningMagasinModel extends Model
                         AND to_char(nent_numcli) not like '150%'
                         AND not nent_numcli between 1800000 and 1999999
                         AND trim(nent_succ) in ('01', '20', '30', '40')
+                        AND trim(nent_servcrt) <> 'ASS'
 
                         $numDevis
                         $numCmd
