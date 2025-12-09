@@ -11,14 +11,11 @@ import { setupConfirmationButtons } from "../../utils/ui/boutonConfirmUtils.js";
 // Attendre que le DOM soit chargé
 document.addEventListener("DOMContentLoaded", function () {
   const fileInput1 = document.querySelector("#devis_magasin_pieceJoint01");
-  if (fileInput1) {
-    initializeFileHandlersNouveau("1", fileInput1);
-  }
+  const remoteUrl = document.querySelector("#tab1-tab").dataset.remoteUrl;
+  if (fileInput1) initializeFileHandlersNouveau("1", fileInput1, remoteUrl);
 
   const fileInput2 = document.querySelector("#devis_magasin_pieceJoint2");
-  if (fileInput2) {
-    initializeFileHandlersMultiple("2", fileInput2);
-  }
+  if (fileInput2) initializeFileHandlersMultiple("2", fileInput2);
 
   // Gestion de la validation du formulaire
   const form = document.querySelector("#upload-form");
