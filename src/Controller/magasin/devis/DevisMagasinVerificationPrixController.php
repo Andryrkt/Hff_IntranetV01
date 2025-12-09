@@ -20,6 +20,7 @@ use App\Service\genererPdf\magasin\devis\GeneratePdfDeviMagasinVp;
 use App\Service\magasin\devis\Fichier\DevisMagasinGenererNameFileService;
 use App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService;
 use App\Service\magasin\devis\Validator\DevisMagasinValidationVpOrchestrator;
+use DirectoryIterator;
 
 /**
  * @Route("/magasin/dematerialisation")
@@ -37,6 +38,7 @@ class DevisMagasinVerificationPrixController extends Controller
     private ListeDevisMagasinModel $listeDevisMagasinModel;
     private HistoriqueOperationDevisMagasinService $historiqueOperationDeviMagasinService;
     private string $cheminBaseUpload;
+    private string $cheminCourtUpload;
     private DevisMagasinGenererNameFileService $nameGenerator;
     private UploderFileService $uploader;
     private TraitementDeFichier $traitementDeFichier;
@@ -49,6 +51,7 @@ class DevisMagasinVerificationPrixController extends Controller
         $this->listeDevisMagasinModel = new ListeDevisMagasinModel();
         $this->historiqueOperationDeviMagasinService = $container->get(HistoriqueOperationDevisMagasinService::class);
         $this->cheminBaseUpload = $_ENV['BASE_PATH_FICHIER'] . '/magasin/devis/';
+        $this->cheminCourtUpload = $_ENV['BASE_PATH_FICHIER_COURT'] . '/magasin/devis/';
         $this->generatePdfDevisMagasin = new GeneratePdfDeviMagasinVp();
         $this->nameGenerator = new DevisMagasinGenererNameFileService();
         $this->uploader = new UploderFileService($this->cheminBaseUpload, $this->nameGenerator);
@@ -66,7 +69,7 @@ class DevisMagasinVerificationPrixController extends Controller
         /** Autorisation accées */
         $this->autorisationAcces($this->getUser(), Application::ID_DVM);
 
-        $remoteUrl = $_ENV['BASE_PATH_FICHIER'] . "/magasin/devis/{$numeroDevis}/";
+        $remoteUrl = $this->getLastEditedDevis($numeroDevis);
 
         // Instantiation et validation de la présence du numéro de devis
         $orchestrator = new DevisMagasinValidationVpOrchestrator($numeroDevis ?? '', $remoteUrl);
@@ -155,5 +158,42 @@ class DevisMagasinVerificationPrixController extends Controller
             $nomInputSearch = 'devis_magasin_search'; // initialistion de nom de chaque champ ou input
             $this->historiqueOperationDeviMagasinService->sendNotificationSoumission($message, $devisMagasin->getNumeroDevis(), $nomDeRoute, true, $criteria, $nomInputSearch);
         }
+    }
+
+    private function getLastEditedDevis(string $numeroDevis): string
+    {
+        $filePath = '';
+        $dossier = "\\\\192.168.0.15\\hff_pdf\\VALIDATION VENTE NEGOCE\\";   // dossier contenant les fichiers
+        $dernierFichier = null;
+        $derniereDate = 0;
+
+        $it = new DirectoryIterator($dossier);
+
+        foreach ($it as $fichier) {
+            if ($fichier->isFile()) {
+                $nom = $fichier->getFilename();
+
+                if (preg_match('/DEVIS MAGASIN_' . $numeroDevis . '_(\d{14})_\d+\.pdf$/', $nom, $matches)) {
+                    $timestamp = $matches[1];
+
+                    if ($timestamp > $derniereDate) {
+                        $derniereDate = $timestamp;
+                        $dernierFichier = $nom;
+                    }
+                }
+            }
+        }
+
+        // Copier le fichier en local si existant
+        if ($dernierFichier) {
+            $remoteUrl = $dossier . $dernierFichier; // chemin du fichier dans le dossier partagé 192.168.0.15
+            $devisPath = $this->cheminBaseUpload . $numeroDevis . '/'; // chemin complet du dossier local
+            $destination = $devisPath . $dernierFichier; // chemin complet du fichier local
+            if (!is_dir($devisPath)) mkdir($devisPath, 0777, true); // creation du dossier local si n'existe pas
+            if (!file_exists($destination)) copy($remoteUrl, $destination); // copie du fichier local si n'existe pas
+            $filePath = $this->cheminCourtUpload . "$numeroDevis/$dernierFichier"; // chemin court du fichier local
+        }
+
+        return $filePath;
     }
 }
