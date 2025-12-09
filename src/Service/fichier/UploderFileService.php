@@ -24,13 +24,13 @@ class UploderFileService
         array $options = []
     ): array {
         $defaultOptions = [
-            'pattern' => '/^pieceJoint(\d+)$/',
-            'repertoire' => null,
-            'prefixe' => '',
-            'format_nom' => null,
-            'index_depart' => 1,
+            'pattern'              => '/^pieceJoint(\d+)$/',
+            'repertoire'           => null,
+            'prefixe'              => '',
+            'format_nom'           => null,
+            'index_depart'         => 1,
             'generer_nom_callback' => null,
-            'variables' => [],
+            'variables'            => [],
         ];
 
         $options = array_merge($defaultOptions, $options);
@@ -49,11 +49,11 @@ class UploderFileService
                             $nomFichier = $this->nameGenerator->generateFileName(
                                 $singleFile,
                                 [
-                                    'format' => $options['format_nom'],
-                                    'prefixe' => $options['prefixe'],
+                                    'format'               => $options['format_nom'],
+                                    'prefixe'              => $options['prefixe'],
                                     'generer_nom_callback' => $options['generer_nom_callback'],
-                                    'variables' => $options['variables'],
-                                    'index_depart' => $options['index_depart'],
+                                    'variables'            => $options['variables'],
+                                    'index_depart'         => $options['index_depart'],
                                 ],
                                 $compteur
                             );

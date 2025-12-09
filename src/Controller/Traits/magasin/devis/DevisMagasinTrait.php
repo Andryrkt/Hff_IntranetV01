@@ -43,7 +43,7 @@ trait DevisMagasinTrait
     }
 
 
-    private function ajoutInfoIpsDansDevisMagasin(DevisMagasin $devisMagasin, array $firstDevisIps, string $numeroVersion, string $nomFichier, string $typeSoumission): void
+    private function ajoutInfoIpsDansDevisMagasin(DevisMagasin $devisMagasin, array $firstDevisIps, string $numeroVersion, string $nomFichier, string $typeSoumission, ?string $nomFichierExcel = null): void
     {
         $suffixConstructeur = $this->listeDevisMagasinModel->constructeurPieceMagasin($devisMagasin->getNumeroDevis());
 
@@ -79,6 +79,7 @@ trait DevisMagasinTrait
             ->setNomFichier((string)$nomFichier)
             ->setTacheValidateur($tacheValidateur)
             ->setEstValidationPm($cosntructeur)
+            ->setPieceJointExcel($typeSoumission == 'VP' ? $nomFichierExcel : null)
         ;
     }
 
@@ -100,6 +101,25 @@ trait DevisMagasinTrait
 
         $nomAvecCheminFichier = $this->nameGenerator->getCheminEtNomDeFichierSansIndex($nomEtCheminFichiersEnregistrer[0]);
         $nomFichier = $this->nameGenerator->getNomFichier($nomAvecCheminFichier);
+
+        return [$nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, $nomFichier];
+    }
+
+    private function enregistrementFichierExcel(FormInterface $form, string $numDevis): array
+    {
+        $devisPath = $this->cheminBaseUpload . $numDevis . '/';
+        if (!is_dir($devisPath)) mkdir($devisPath, 0777, true);
+
+        $nomEtCheminFichiersEnregistrer = $this->uploader->getNomsEtCheminFichiers($form, [
+            'pattern' => '/^pieceJointExcel$/i',
+            'repertoire' => $devisPath,
+            'generer_nom_callback' => function () use ($numDevis) {
+                return $this->nameGenerator->generateFichierExcelName($numDevis);
+            }
+        ]);
+
+        $nomAvecCheminFichier = $nomEtCheminFichiersEnregistrer[0];
+        $nomFichier = $this->nameGenerator->generateFichierExcelName($numDevis);
 
         return [$nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, $nomFichier];
     }

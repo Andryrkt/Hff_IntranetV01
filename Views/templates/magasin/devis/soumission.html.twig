@@ -50,7 +50,7 @@
 							</p>
 							{% include '/partials/_dropZoneFile.html.twig' with {'id': '1', 'form': form, 'fieldName': 'pieceJoint01'} %}
 						</div>
-						<div class="col-12 col-md-3">
+						<div class="col-12 col-md-3 {{message == 'verification prix' ? '' : 'd-none'}}">
 							<p>Veuillez insérer le
 								<strong>fichier Excel *</strong>
 							</p>
