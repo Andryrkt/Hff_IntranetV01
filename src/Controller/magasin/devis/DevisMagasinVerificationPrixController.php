@@ -91,7 +91,7 @@ class DevisMagasinVerificationPrixController extends Controller
 
         //création du formulaire
         $form = $this->getFormFactory()->createBuilder(DevisMagasinType::class, $devisMagasin, [
-            "fichier_initialise" => true
+            "fichier_initialise" => (bool)$remoteUrl
         ])->getForm();
 
         //traitement du formualire
