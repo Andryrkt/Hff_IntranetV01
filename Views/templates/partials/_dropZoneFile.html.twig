@@ -1,7 +1,11 @@
+{% set fileType = fileType ?? 'PDF' %}
 <div id="dropzone-{{ id }}" style="border: 2px dashed #ccc; padding: 50px; text-align: center;">
-	<i class="fa fa-cloud-upload upload-icon" ></i>
+	<i class="fa fa-cloud-upload upload-icon"></i>
 	<br>
-	Glissez et déposez votre fichier PDF ici, ou cliquez pour sélectionner un fichier PDF.
+	Glissez et déposez votre fichier
+	<b>{{ fileType }}</b>
+	ici, ou cliquez pour sélectionner un fichier
+	<b>{{ fileType }}</b>.
 	<br>
 	<button type="button" id="upload-btn-{{ id }}" class="btn btn-primary">Sélectionner un fichier</button>
 </div>

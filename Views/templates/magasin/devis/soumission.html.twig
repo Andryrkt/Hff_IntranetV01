@@ -45,16 +45,20 @@
 					</div>
 					<div class="row">
 						<div class="col-12 col-md-3">
-							<p>Veuillez insérer
-								<strong>le devis *</strong>
+							<p>Veuillez insérer le
+								<strong>devis *</strong>
 							</p>
 							{% include '/partials/_dropZoneFile.html.twig' with {'id': '1', 'form': form, 'fieldName': 'pieceJoint01'} %}
 						</div>
-
+						<div class="col-12 col-md-3">
+							<p>Veuillez insérer le
+								<strong>fichier Excel *</strong>
+							</p>
+							{% include '/partials/_dropZoneFile.html.twig' with {'id': '3', 'form': form, 'fieldName': 'pieceJointExcel', 'fileType': 'XLSX'} %}
+						</div>
 						<div class="col-12 col-md-3 {{message == 'verification prix' ? '' : 'd-none'}}">
-							<p>Insérer
-								<strong>les autres fichiers ici
-								</strong>
+							<p>Insérer les
+								<strong>autres fichiers ici</strong>
 							</p>
 							{% include '/partials/_dropZoneFileMultiple.html.twig' with {'id': '2', 'form': form, 'fieldName': 'pieceJoint2'} %}
 						</div>
