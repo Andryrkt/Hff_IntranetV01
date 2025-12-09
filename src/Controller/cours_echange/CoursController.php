@@ -120,8 +120,6 @@ class CoursController extends Controller
     {
         $data = [];
         $devisTab = $this->coursModel->recupDevis();
-        dump($devisTab);
-        dump($libtab);
         foreach ($devisTab as $devis) {
             $row = [];
             $row[] = $devis;
