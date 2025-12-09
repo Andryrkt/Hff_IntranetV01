@@ -224,7 +224,7 @@ class DevisMagasinVerificationPrixController extends Controller
     public function envoyerMailDevisMagasin(string $numDevis,  array $resultatExport)
     {
         $variables = [
-            'numeroDevis'   => $numDevis,
+            'numDevis'   => $numDevis,
         ];
         $this->envoyerEmail([
             // 'to'          => "prisca.michea@hff.mg",
@@ -241,9 +241,9 @@ class DevisMagasinVerificationPrixController extends Controller
      */
     public function envoyerEmail(array $content): void
     {
-        $emailTemplate = "devis/email/emailDevis.html.twig";
+        $emailTemplate = "magasin/devis/email/emailDevis.html.twig";
 
-        $emailService = new EmailService($this->twig);
+        $emailService = new EmailService($this->getTwig());
 
         $emailService->getMailer()->setFrom($_ENV['MAIL_FROM_ADDRESS'], 'noreply.da');
 
