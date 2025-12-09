@@ -37,6 +37,11 @@
 							{{ form_row(form.tacheValidateur) }}
 						</div>
 					</div>
+					<div class="row {{message == 'verification prix' ? '' : 'd-none'}}">
+						<div class="col-12 col-md-12">
+							{{ form_row(form.observation) }}
+						</div>
+					</div>
 					<div class="row">
 						<div class="col-12 col-md-3">
 							<p>Veuillez insérer
@@ -47,7 +52,8 @@
 
 						<div class="col-12 col-md-3 {{message == 'verification prix' ? '' : 'd-none'}}">
 							<p>Insérer
-								<strong>les autres fichiers ici </strong>
+								<strong>les autres fichiers ici
+								</strong>
 							</p>
 							{% include '/partials/_dropZoneFileMultiple.html.twig' with {'id': '2', 'form': form, 'fieldName': 'pieceJoint2'} %}
 						</div>

@@ -3,13 +3,14 @@
 namespace App\Form\magasin\devis;
 
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Validator\Constraints\Callback;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class DevisMagasinType extends AbstractType
@@ -71,8 +72,9 @@ class DevisMagasinType extends AbstractType
             ->add('tacheValidateur', ChoiceType::class, [
                 'label' => 'Tâche du validateur',
                 'choices' => self::TACHE_VALIDATEUR,
-                'data' => 'Vérification prix',
-                'expanded' => false,
+                'data' => ['Vérification prix'],
+                'expanded' => true,
+                'multiple' => true,
                 'disabled' => $options['data']->constructeur == 'TOUS NEST PAS CAT' ? false : true
             ])
             ->add('estValidationPm', ChoiceType::class, [
@@ -86,6 +88,17 @@ class DevisMagasinType extends AbstractType
                 'data' => $options['data']->constructeur == 'TOUS NEST PAS CAT' ? true : false,
                 'disabled' => $options['data']->constructeur == 'TOUS NEST PAS CAT' ? true : false
             ])
+            ->add(
+                'observation',
+                TextareaType::class,
+                [
+                    'label' => 'Observation',
+                    'required' => false,
+                    'attr' => [
+                        'rows' => 5,
+                    ],
+                ]
+            )
         ;
     }
 

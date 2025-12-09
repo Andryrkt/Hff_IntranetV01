@@ -165,6 +165,14 @@ class DevisMagasin
      */
     private $dateBc = null;
 
+    /**
+     * @ORM\Column(type="string", length=5000, name="observation", nullable=true)
+     *
+     * @var string|null
+     */
+    private ?string $observation = null;
+
+
     private $pieceJoint01;
 
     private $pieceJoint2;
@@ -663,6 +671,24 @@ class DevisMagasin
     public function setDateBc($dateBc): self
     {
         $this->dateBc = $dateBc;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of observation
+     */
+    public function getObservation(): ?string
+    {
+        return $this->observation;
+    }
+
+    /**
+     * Set the value of observation
+     */
+    public function setObservation(?string $observation): self
+    {
+        $this->observation = $observation;
 
         return $this;
     }

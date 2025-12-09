@@ -26,6 +26,7 @@ class ListeDevisMagasinModel extends Model
             left JOIN informix.neg_lig on nlig_numcde = nent_numcde
             WHERE nent_natop = 'DEV'
             AND nent_soc = 'HF'
+            AND nent_servcrt <> 'ASS'
             AND CAST(nent_numcli AS VARCHAR(20)) NOT LIKE '199%'
             AND year(Nent_datecde) = year(TODAY)
         ";
