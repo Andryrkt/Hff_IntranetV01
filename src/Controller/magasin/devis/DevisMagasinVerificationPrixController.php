@@ -79,23 +79,25 @@ class DevisMagasinVerificationPrixController extends Controller
         // Validation avant soumission - utilise la nouvelle méthode qui retourne un booléen
         $orchestrator->validateBeforeVpSubmission($devisMagasinRepository, $numeroDevis, $newSumOfLines, $newSumOfMontant);
 
-
         //instancier le devis magasin
         $devisMagasin = new DevisMagasin();
         $devisMagasin->setNumeroDevis($numeroDevis);
         $devisMagasin->constructeur = trim($this->listeDevisMagasinModel->getConstructeur($numeroDevis));
 
         //création du formulaire
-        $form = $this->getFormFactory()->createBuilder(DevisMagasinType::class, $devisMagasin)->getForm();
+        $form = $this->getFormFactory()->createBuilder(DevisMagasinType::class, $devisMagasin, [
+            "fichier_initialise" => true
+        ])->getForm();
 
         //traitement du formualire
         $this->traitementFormualire($form, $request,  $devisMagasin, $firstDevisIps, $orchestrator, $devisMagasinRepository);
 
         //affichage du formulaire
         return $this->render('magasin/devis/soumission.html.twig', [
-            'form' => $form->createView(),
-            'message' => self::MESSAGE_DE_CONFIRMATION,
-            'numeroDevis' => $devisMagasin->getNumeroDevis()
+            'form'        => $form->createView(),
+            'message'     => self::MESSAGE_DE_CONFIRMATION,
+            'numeroDevis' => $numeroDevis,
+            'remoteUrl'   => '',
         ]);
     }
 
