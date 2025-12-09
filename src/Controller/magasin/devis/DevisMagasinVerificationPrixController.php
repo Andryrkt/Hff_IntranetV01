@@ -2,6 +2,8 @@
 
 namespace App\Controller\magasin\devis;
 
+use DirectoryIterator;
+use App\Service\EmailService;
 use App\Controller\Controller;
 use App\Entity\admin\Application;
 use App\Service\autres\VersionService;
@@ -20,7 +22,6 @@ use App\Service\genererPdf\magasin\devis\GeneratePdfDeviMagasinVp;
 use App\Service\magasin\devis\Fichier\DevisMagasinGenererNameFileService;
 use App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService;
 use App\Service\magasin\devis\Validator\DevisMagasinValidationVpOrchestrator;
-use DirectoryIterator;
 
 /**
  * @Route("/magasin/dematerialisation")
@@ -151,6 +152,12 @@ class DevisMagasinVerificationPrixController extends Controller
             //envoie du fichier dans DW
             $this->generatePdfDevisMagasin->copyToDWDevisVpMagasin($nomFichier, $devisMagasin->getNumeroDevis());
 
+            //envoie de mail au PM
+            $this->envoyerMailDevisMagasin($devisMagasin->getNumeroDevis(), [
+                'filePath' => 'nom avec chemin du fichier excel ',
+                'fileName' => 'nom dufichier excel',
+            ]);
+
             //HISTORISATION DE L'OPERATION
             $message = "la vérification de prix du devis numero : " . $devisMagasin->getNumeroDevis() . " a été envoyée avec succès .";
             $criteria = $this->getSessionService()->get('criteria_for_excel_liste_devis_magasin');
@@ -199,5 +206,38 @@ class DevisMagasinVerificationPrixController extends Controller
             "court" => $filePath,
             "long"  => $destination
         ];
+    }
+
+    /** 
+     * Méthode pour envoyer une email pour le PM
+     * @param string $numDevis
+     * @param array $resultatExport - nom et chemin du fichier excel
+     */
+    public function envoyerMailDevisMagasin(string $numDevis,  array $resultatExport)
+    {
+        $variables = [
+            'numeroDevis'   => $numDevis,
+        ];
+        $this->envoyerEmail([
+            'to'          => "prisca.michea@hff.mg",
+            'variables' => $variables,
+            'attachments' => [
+                $resultatExport['filePath'] => $resultatExport['fileName'],
+            ],
+        ]);
+    }
+
+    /** 
+     * Méthode pour envoyer un email
+     */
+    public function envoyerEmail(array $content): void
+    {
+        $emailTemplate = "devis/email/emailDevis.html.twig";
+
+        $emailService = new EmailService($this->twig);
+
+        $emailService->getMailer()->setFrom($_ENV['MAIL_FROM_ADDRESS'], 'noreply.da');
+
+        $emailService->sendEmail($content['to'], $content['cc'] ?? [], $emailTemplate, $content['variables'] ?? [], $content['attachments'] ?? []);
     }
 }
