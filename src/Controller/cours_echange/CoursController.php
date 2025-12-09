@@ -95,7 +95,8 @@ class CoursController extends Controller
         $data = $this->recupDataHisto($dateInformix)['data'];
         return $this->render('cours_echange/historique_cours.html.twig', [
             'form' => $form->createView(),
-            'libDate' => $libtab
+            'libDate' => $libtab,
+            'data'=> $data
         ]);
     }
 
@@ -118,12 +119,18 @@ class CoursController extends Controller
     public function recupDataHisto($libtab)
     {
         $data = [];
-        $devis = $this->coursModel->recupDevis();
-        dump($devis);
+        $devisTab = $this->coursModel->recupDevis();
+        dump($devisTab);
         dump($libtab);
-        for ($i = 0; $i < count($libtab); $i++) {
-            $dateEncours = $libtab[$i];
-           
+        foreach ($devisTab as $devis) {
+            $row = [];
+            $row[] = $devis;
+            $dev = substr($devis, 0, 2);
+            $datelib = array_reverse($libtab);
+            foreach ($datelib as $date) {
+                $row[] = $this->coursModel->recupCours($date, $dev);
+            }
+            $data[] = $row;
         }
         
        return ['data'=> $data]; 

@@ -34,9 +34,7 @@ class coursModel extends Model
     public function recupCours($date, $devis)
     {
         
-        $statement = "SELECT  ROUND(atxc_cours, 2) as cours from agr_txc where atxc_datedebut =  '" . $date . "' 
-        AND  atxc_deviseidbase = 'AR' and atxc_deviseid = '" . $devis . "'
-        ";
+        $statement = "SELECT ROUND(atxc_cours, 2) as cours from agr_txc where atxc_datedebut =  '$date' AND  atxc_deviseidbase = 'AR' and atxc_deviseid = '$devis'";
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
         $resultat = $this->convertirEnUtf8($data);
