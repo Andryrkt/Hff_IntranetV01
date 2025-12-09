@@ -83,25 +83,19 @@ trait DevisMagasinTrait
         ;
     }
 
-    private function enregistrementFichier(FormInterface $form, string $numDevis, int $numeroVersion, string $suffix, string $mail, string $typeDevis): array
+    private function enregistrementFichier(FormInterface $form, string $numDevis, int $numeroVersion, string $suffix, string $mail, string $typeDevis, string $remoteUrl): array
     {
         $devisPath = $this->cheminBaseUpload . $numDevis . '/';
-        if (!is_dir($devisPath)) {
-            mkdir($devisPath, 0777, true);
-        }
+        if (!is_dir($devisPath)) mkdir($devisPath, 0777, true);
 
-        $nomEtCheminFichiersEnregistrer = $this->uploader->getNomsEtCheminFichiers($form, [
+        $nomEtCheminFichiersEnregistrer = $remoteUrl ? [$remoteUrl] : $this->uploader->getNomsEtCheminFichiers($form, [
             'repertoire' => $devisPath,
             'generer_nom_callback' => function (
                 UploadedFile $file,
                 int $index
             ) use ($numDevis, $numeroVersion, $suffix, $mail, $typeDevis) {
-                if ($typeDevis === 'VP') {
-                    return $this->nameGenerator->generateVerificationPrixName($file, $numDevis, $numeroVersion, $suffix, $mail, $index);
-                } else {
-
-                    return $this->nameGenerator->generateValidationDevisName($file, $numDevis, $numeroVersion, $suffix, $mail, $index);
-                }
+                if ($typeDevis === 'VP') return $this->nameGenerator->generateVerificationPrixName($file, $numDevis, $numeroVersion, $suffix, $mail, $index);
+                else return $this->nameGenerator->generateValidationDevisName($file, $numDevis, $numeroVersion, $suffix, $mail, $index);
             }
         ]);
 
