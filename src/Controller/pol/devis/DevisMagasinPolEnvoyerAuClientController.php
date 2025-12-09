@@ -10,11 +10,11 @@ use App\Entity\magasin\devis\DevisMagasin;
 use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Model\magasin\devis\ListeDevisMagasinModel;
 use App\Repository\magasin\devis\DevisMagasinRepository;
 use App\Controller\Traits\magasin\devis\DevisMagasinTrait;
 use App\Form\magasin\devis\DevisMagasinEnvoyerAuClientType;
 use App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService;
-use App\Model\magasin\devis\ListeDevisMagasinModel;
 
 /**
  * @Route("/pol")
