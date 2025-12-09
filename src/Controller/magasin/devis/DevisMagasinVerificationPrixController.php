@@ -66,8 +66,10 @@ class DevisMagasinVerificationPrixController extends Controller
         /** Autorisation accées */
         $this->autorisationAcces($this->getUser(), Application::ID_DVM);
 
+        $remoteUrl = $_ENV['BASE_PATH_FICHIER'] . "/magasin/devis/{$numeroDevis}/";
+
         // Instantiation et validation de la présence du numéro de devis
-        $orchestrator = new DevisMagasinValidationVpOrchestrator($numeroDevis ?? '');
+        $orchestrator = new DevisMagasinValidationVpOrchestrator($numeroDevis ?? '', $remoteUrl);
 
         //recupération des informations utile dans IPS
         $firstDevisIps = $this->getInfoDevisIps($numeroDevis);
@@ -97,7 +99,7 @@ class DevisMagasinVerificationPrixController extends Controller
             'form'        => $form->createView(),
             'message'     => self::MESSAGE_DE_CONFIRMATION,
             'numeroDevis' => $numeroDevis,
-            'remoteUrl'   => '',
+            'remoteUrl'   => $remoteUrl,
         ]);
     }
 
@@ -145,7 +147,6 @@ class DevisMagasinVerificationPrixController extends Controller
 
             //envoie du fichier dans DW
             $this->generatePdfDevisMagasin->copyToDWDevisVpMagasin($nomFichier, $devisMagasin->getNumeroDevis());
-
 
             //HISTORISATION DE L'OPERATION
             $message = "la vérification de prix du devis numero : " . $devisMagasin->getNumeroDevis() . " a été envoyée avec succès .";

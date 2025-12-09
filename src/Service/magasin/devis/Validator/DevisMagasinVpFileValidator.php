@@ -4,7 +4,6 @@ namespace App\Service\magasin\devis\Validator;
 
 use Symfony\Component\Form\FormInterface;
 use App\Service\validation\ValidationServiceBase;
-use App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService;
 use App\Service\magasin\devis\Config\DevisMagasinValidationConfig;
 use App\Traits\Validator\ValidatorNotificationTrait;
 
@@ -19,6 +18,7 @@ class DevisMagasinVpFileValidator extends ValidationServiceBase
     use ValidatorNotificationTrait;
 
     private string $expectedNumeroDevis;
+    private string $remoteUrl;
 
     /**
      * Constructeur du validateur de fichiers VP
@@ -26,9 +26,10 @@ class DevisMagasinVpFileValidator extends ValidationServiceBase
      * 
      * @param string $expectedNumeroDevis Le numéro de devis attendu pour la validation
      */
-    public function __construct( string $expectedNumeroDevis)
+    public function __construct(string $expectedNumeroDevis, string $remoteUrl)
     {
         $this->expectedNumeroDevis = $expectedNumeroDevis;
+        $this->remoteUrl = $remoteUrl;
     }
 
     /**
@@ -45,14 +46,14 @@ class DevisMagasinVpFileValidator extends ValidationServiceBase
     public function validateSubmittedFile(FormInterface $form): bool
     {
         // Vérifie si un fichier a été soumis
-        if (!$this->isFileSubmitted($form, DevisMagasinValidationConfig::FILE_FIELD_NAME)) {
+        if (!$this->remoteUrl && !$this->isFileSubmitted($form, DevisMagasinValidationConfig::FILE_FIELD_NAME)) {
             $message = "Aucun fichier n'a été soumis.";
             $this->sendNotificationDevisMagasin($message, '', false);
             return false;
         }
 
         $file = $form->get(DevisMagasinValidationConfig::FILE_FIELD_NAME)->getData();
-        $fileName = $file->getClientOriginalName();
+        $fileName = $this->remoteUrl ?: $file->getClientOriginalName();
 
         // Vérifie si le nom du fichier correspond au pattern attendu (S'assurer que c'est bien un devis qui soit soumis)
         if (!$this->matchPattern($fileName, DevisMagasinValidationConfig::FILENAME_PATTERN)) {
