@@ -44,3 +44,6 @@ CREATE TABLE devis_soumis_a_validation_neg
 
     ALTER TABLE devis_soumis_a_validation_neg
     ADD observation VARCHAR(5000) NULL;
+
+    ALTER TABLE devis_soumis_a_validation_neg
+    ADD piece_joint_excel varchar(255) null;

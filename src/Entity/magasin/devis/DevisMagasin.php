@@ -179,7 +179,12 @@ class DevisMagasin
 
     public  $constructeur;
 
-
+    /**
+     * @ORM\Column(type="string", length=255, name="piece_joint_excel", nullable=true)
+     *
+     * @var string
+     */
+    private $pieceJointExcel;
 
     /** =========================================
      * GETTERS & SETTERS
@@ -689,6 +694,24 @@ class DevisMagasin
     public function setObservation(?string $observation): self
     {
         $this->observation = $observation;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of pieceJointExcel
+     */
+    public function getPieceJointExcel(): string
+    {
+        return $this->pieceJointExcel;
+    }
+
+    /**
+     * Set the value of pieceJointExcel
+     */
+    public function setPieceJointExcel(string $pieceJointExcel): self
+    {
+        $this->pieceJointExcel = $pieceJointExcel;
 
         return $this;
     }
