@@ -53,7 +53,13 @@ class DevisMagasinVpFileValidator extends ValidationServiceBase
         }
 
         $file = $form->get(DevisMagasinValidationConfig::FILE_FIELD_NAME)->getData();
-        $fileName = $this->remoteUrl ? end(explode("/", $this->remoteUrl)) : $file->getClientOriginalName();
+
+        if ($this->remoteUrl) {
+            $parts = explode("/", $this->remoteUrl);
+            $fileName = end($parts); // récupère le dernier élément du tableau
+        } else {
+            $fileName = $file->getClientOriginalName();
+        }
 
         // Vérifie si le nom du fichier correspond au pattern attendu (S'assurer que c'est bien un devis qui soit soumis)
         if (!$this->matchPattern($fileName, DevisMagasinValidationConfig::FILENAME_PATTERN)) {
