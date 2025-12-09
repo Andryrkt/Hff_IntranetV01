@@ -135,7 +135,7 @@ class DevisMagasin
 
 
     /**
-     * @ORM\Column(type="string", length=50, name="tache_validateur", nullable=true)
+     * @ORM\Column(type="text", name="tache_validateur", nullable=true)
      *
      * @var string|null
      */
@@ -574,9 +574,9 @@ class DevisMagasin
     /**
      * Get the value of tacheValidateur
      */
-    public function getTacheValidateur()
+    public function getTacheValidateur(): array
     {
-        return $this->tacheValidateur;
+        return $this->tacheValidateur ? json_decode($this->tacheValidateur, true) : [];
     }
 
     /**
@@ -584,9 +584,9 @@ class DevisMagasin
      *
      * @return  self
      */
-    public function setTacheValidateur($tacheValidateur)
+    public function setTacheValidateur(array $tacheValidateur): self
     {
-        $this->tacheValidateur = $tacheValidateur;
+        $this->tacheValidateur = json_encode($tacheValidateur);
 
         return $this;
     }

@@ -2,6 +2,8 @@
 
 namespace App\Form\magasin\devis;
 
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\File;
@@ -75,7 +77,7 @@ class DevisMagasinType extends AbstractType
                 'data' => ['Vérification prix'],
                 'expanded' => true,
                 'multiple' => true,
-                'disabled' => $options['data']->constructeur == 'TOUS NEST PAS CAT' ? false : true
+                'disabled' => $options['data']->constructeur == 'TOUS NEST PAS CAT' ? false : true,
             ])
             ->add('estValidationPm', ChoiceType::class, [
                 'choices' => [
@@ -99,6 +101,18 @@ class DevisMagasinType extends AbstractType
                     ],
                 ]
             )
+            ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
+                $devisMagasin = $event->getData();
+                $form = $event->getForm();
+                $form->add('tacheValidateur', ChoiceType::class, [
+                    'label' => 'Tâche du validateur',
+                    'choices' => self::TACHE_VALIDATEUR,
+                    'data' => isset($devisMagasin['tacheValidateur']) ? $devisMagasin['tacheValidateur'] : ['Vérification prix'],
+                    'expanded' => true,
+                    'multiple' => true,
+                    'disabled' => false
+                ]);
+            })
         ;
     }
 

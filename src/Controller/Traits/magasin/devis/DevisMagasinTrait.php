@@ -3,6 +3,7 @@
 namespace App\Controller\Traits\magasin\devis;
 
 use App\Service\autres\VersionService;
+use App\Service\TableauEnStringService;
 use Symfony\Component\Form\FormInterface;
 use App\Entity\magasin\devis\DevisMagasin;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -56,11 +57,10 @@ trait DevisMagasinTrait
         }
 
         // tache validateur
-        $tacheValidateur = null;
-        if ($typeSoumission == 'VP') {
-
+        $tacheValidateur = [];
+        if ($typeSoumission === 'VP') {
             if ($devisMagasin->getEstValidationPm() == false) {
-                $tacheValidateur = 'AUTOVALIDATION';
+                $tacheValidateur = ['AUTOVALIDATION'];
             } else {
                 $tacheValidateur = $devisMagasin->getTacheValidateur();
             }

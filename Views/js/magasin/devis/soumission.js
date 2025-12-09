@@ -50,22 +50,32 @@ const devisPMCheckboxOui = document.getElementById(
 const devisPMCheckboxNon = document.getElementById(
   "devis_magasin_estValidationPm_1"
 );
-const tacheValidateurInput = document.getElementById(
-  "devis_magasin_tacheValidateur"
+const tacheValidateurInput = document.querySelectorAll(
+  "#devis_magasin_tacheValidateur input"
 );
+
+function disableTacheValidateurInput() {
+  tacheValidateurInput.forEach((input) => {
+    if (input.disabled) {
+      return (input.disabled = false);
+    } else {
+      return (input.disabled = true);
+    }
+  });
+}
 
 devisPMCheckboxOui.addEventListener("change", function () {
   if (this.checked) {
-    tacheValidateurInput.disabled = false;
+    disableTacheValidateurInput();
   } else {
-    tacheValidateurInput.disabled = true;
+    disableTacheValidateurInput();
   }
 });
 
 devisPMCheckboxNon.addEventListener("change", function () {
   if (this.checked) {
-    tacheValidateurInput.disabled = true;
+    disableTacheValidateurInput();
   } else {
-    tacheValidateurInput.disabled = false;
+    disableTacheValidateurInput();
   }
 });

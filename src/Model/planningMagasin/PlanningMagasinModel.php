@@ -2,9 +2,10 @@
 
 namespace App\Model\planningMagasin;
 
-use App\Entity\planningMagasin\PlanningMagasinSearch;
 use App\Model\Model;
+use App\Service\GlobalVariablesService;
 use App\Service\TableauEnStringService;
+use App\Entity\planningMagasin\PlanningMagasinSearch;
 
 class PlanningMagasinModel extends Model
 {
@@ -141,6 +142,7 @@ class PlanningMagasinModel extends Model
         $codeClient  = $this->codeClient($criteria);
         $commercial = $this->commercial($criteria);
         $refClient = $this->refClient($criteria);
+        $piecesMagasin = GlobalVariablesService::get('pieces_magasin');
         $statement = "SELECT 
                         trim(nent_succ) as codeSuc,
                         trim(asuc_lib) as libSuc,
@@ -189,6 +191,7 @@ class PlanningMagasinModel extends Model
                         AND not nent_numcli between 1800000 and 1999999
                         AND trim(nent_succ) in ('01', '20', '30', '40')
                         AND trim(nent_servcrt) <> 'ASS'
+                        AND nlig_constp IN ($piecesMagasin)
 
                         $numDevis
                         $numCmd
