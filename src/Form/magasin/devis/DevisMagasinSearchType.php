@@ -26,7 +26,7 @@ class DevisMagasinSearchType extends AbstractType
         $statutsBcRaw = $this->em->getRepository(DevisMagasin::class)->getStatutsBc();
 
         // Transformer le tableau en format de choix pour le formulaire (statut DW)
-        $this->statutsDw = ['A traiter' => 'A traiter'];
+        $this->statutsDw = [DevisMagasin::STATUT_A_TRAITER => DevisMagasin::STATUT_A_TRAITER];
         foreach ($statutsDwRaw as $statut) {
             if (!empty($statut)) {
                 $this->statutsDw[$statut] = $statut;
