@@ -162,8 +162,8 @@ class DevisMagasinVerificationPrixController extends Controller
 
             //envoie de mail au PM
             $this->envoyerMailDevisMagasin($devisMagasin->getNumeroDevis(), [
-                'filePath' => 'nom avec chemin du fichier excel ',
-                'fileName' => 'nom dufichier excel',
+                'filePath' => $nomAvecCheminFichierExcel,
+                'fileName' => $nomFichierExcel,
             ]);
 
             //HISTORISATION DE L'OPERATION
@@ -227,7 +227,8 @@ class DevisMagasinVerificationPrixController extends Controller
             'numeroDevis'   => $numDevis,
         ];
         $this->envoyerEmail([
-            'to'          => "prisca.michea@hff.mg",
+            // 'to'          => "prisca.michea@hff.mg",
+            'to'          => "hasina.andrianadison@hff.mg",
             'variables' => $variables,
             'attachments' => [
                 $resultatExport['filePath'] => $resultatExport['fileName'],
