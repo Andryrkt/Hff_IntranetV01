@@ -140,7 +140,7 @@ class BcMagasinController extends Controller
         $clientAndModePaiement = $listeDevisMagasinModel->getClientAndModePaiement($numeroDevis);
         $dto->codeClient = $clientAndModePaiement[0]['code_client'];
         $dto->nomClient = $clientAndModePaiement[0]['nom_client'];
-        $dto->modePayement = $clientAndModePaiement[0]['mode_paiement'];
+        $dto->modePayement = $clientAndModePaiement[0]['mode_paiement'] ?? '';
         $generatePdf->generer($this->getUser(), $dto, $nomAvecCheminFichier, (float) $montantDevis);
 
 
