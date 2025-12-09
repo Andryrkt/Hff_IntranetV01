@@ -38,6 +38,7 @@ class ListeDevisMagasinController extends Controller
         $this->listeDevisMagasinModel = new ListeDevisMagasinModel();
 
         $this->styleStatutDw = [
+            DevisMagasin::STATUT_A_TRAITER             => 'bg-a-traiter',
             DevisMagasin::STATUT_PRIX_A_CONFIRMER      => 'bg-prix-a-confirmer',
             DevisMagasin::STATUT_PRIX_VALIDER_TANA     => 'bg-prix-valider-tana',
             DevisMagasin::STATUT_PRIX_VALIDER_AGENCE   => 'bg-prix-valider-agence',
@@ -175,12 +176,17 @@ class ListeDevisMagasinController extends Controller
             ]);
 
             // Ajout des informations complémentaires
-            $devisIp['statut_dw']                  = $devisSoumi ? $devisSoumi->getStatutDw()                  : '';
+            $devisIp['statut_dw']                  = $devisSoumi ? $devisSoumi->getStatutDw()                  : DevisMagasin::STATUT_A_TRAITER;
             $devisIp['operateur']                  = $devisSoumi ? $devisSoumi->getUtilisateur()               : '';
             $devisIp['date_envoi_devis_au_client'] = $devisSoumi ? ($devisSoumi->getDateEnvoiDevisAuClient() ? $devisSoumi->getDateEnvoiDevisAuClient() : '') : '';
             $devisIp['utilisateur_createur_devis'] = $this->listeDevisMagasinModel
                 ->getUtilisateurCreateurDevis($numeroDevis) ?? '';
             $devisIp['statut_bc']                  = $devisSoumi ? $devisSoumi->getStatutBc()                  : '';
+
+            // statut DW = A traiter et statut BC = TR
+            if ($devisIp['statut_dw'] === DevisMagasin::STATUT_A_TRAITER && $devisIp['statut_ips'] === 'TR') {
+                continue;
+            }
 
             // Application des filtres critères
             if (!empty($criteria) && !$this->matchesCriteria($devisIp, $criteria)) {
