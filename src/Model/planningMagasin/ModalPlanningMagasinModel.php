@@ -257,7 +257,7 @@ public function recupeQteCISlig($numOr, $itv, $refp)
                   from neg_lig
                   where nlig_natop = 'CIS'
                   and nlig_numcde ='".$numOr."'
-                  AND  NLIG_NOLIGN  = '".$itv."'
+                  --AND  NLIG_NOLIGN  = '".$itv."'
                   and nlig_refp ='" . $refp . "'
         ";
     // dump($statement);
