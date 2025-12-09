@@ -9,7 +9,6 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 trait DevisMagasinTrait
 {
-
     /**
      * Récupère les informations du devis dans IPS
      * 
@@ -90,6 +89,7 @@ trait DevisMagasinTrait
             mkdir($devisPath, 0777, true);
         }
 
+        // generer le nom des fichiers
         $nomEtCheminFichiersEnregistrer = $this->uploader->getNomsEtCheminFichiers($form, [
             'repertoire' => $devisPath,
             'generer_nom_callback' => function (
@@ -104,6 +104,20 @@ trait DevisMagasinTrait
                 }
             }
         ]);
+
+        dd($nomEtCheminFichiersEnregistrer);
+
+        if (empty($nomEtCheminFichiersEnregistrer)) {
+
+            // copier le fichier par defaut dans le bon dossier
+            $remoteUrl = $_ENV['BASE_PATH_FICHIER'] . "/verif prix/RECAP BAP.pdf";
+            $localPath = $devisPath . "DEVIS MAGASIN_{$numDevis}_000_000.pdf";
+            copy($remoteUrl, $localPath);
+
+            // ajouter le nom de fichier par defaut
+            $nomEtCheminFichiersEnregistrer[] = $localPath;
+        }
+
 
         $nomAvecCheminFichier = $this->nameGenerator->getCheminEtNomDeFichierSansIndex($nomEtCheminFichiersEnregistrer[0]);
         $nomFichier = $this->nameGenerator->getNomFichier($nomAvecCheminFichier);
