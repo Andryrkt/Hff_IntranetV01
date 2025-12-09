@@ -145,18 +145,17 @@ class DaSoumissionFacBlController extends Controller
     private function ajoutInfoNecesaireSoumissionFacBl(string $numCde, string $numDa, DaSoumissionFacBl $soumissionFacBl, string $nomPdfFusionner, int $numeroVersionMax, string $numOr): DaSoumissionFacBl
     {
         $numDit = $this->demandeApproRepository->getNumDitDa($numDa);
-        // $numOr = $this->ditRepository->getNumOr($numDit);
         $soumissionFacBl->setNumeroCde($numCde)
             ->setUtilisateur($this->getUserName())
             ->setPieceJoint1($nomPdfFusionner)
             ->setStatut(self::STATUT_SOUMISSION)
             ->setNumeroVersion($numeroVersionMax)
-            ->setDateClotLiv(new DateTime($infoLivraison["date_clot"]))
-            ->setRefBlFac($infoLivraison["ref_fac_bl"])
+            ->setNumeroDemandeAppro($numDa)
+            ->setNumeroDemandeDit($numDit)
+            ->setNumeroOR($numOr)
         ;
         return $soumissionFacBl;
     }
-
 
     /**
      * Enregistrement des fichiers téléchagrer dans le dossier de destination
