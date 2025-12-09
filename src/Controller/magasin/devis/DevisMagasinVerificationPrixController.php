@@ -126,6 +126,14 @@ class DevisMagasinVerificationPrixController extends Controller
             if ($devisMagasin->constructeur === 'TOUS NEST PAS CAT')  $devisMagasin->setEstValidationPm(true);
 
             /** 
+             * Enregistrement de fichier excel
+             * @var array $nomEtCheminFichiersEnregistrerExcel 
+             * @var string $nomAvecCheminFichierExcel
+             * @var string $nomFichierExcel
+             */
+            [$nomEtCheminFichiersEnregistrerExcel, $nomAvecCheminFichierExcel, $nomFichierExcel] = $this->enregistrementFichierExcel($form, $devisMagasin->getNumeroDevis());
+
+            /** 
              * Enregistrement de fichier uploder
              * @var array $nomEtCheminFichiersEnregistrer 
              * @var string $nomAvecCheminFichier
@@ -143,7 +151,7 @@ class DevisMagasinVerificationPrixController extends Controller
 
 
             //ajout des informations de IPS et des informations manuelles comme nombre de lignes, cat, nonCat dans le devis magasin
-            $this->ajoutInfoIpsDansDevisMagasin($devisMagasin, $firstDevisIps, $numeroVersion, $nomFichier, self::TYPE_SOUMISSION_VERIFICATION_PRIX);
+            $this->ajoutInfoIpsDansDevisMagasin($devisMagasin, $firstDevisIps, $numeroVersion, $nomFichier, self::TYPE_SOUMISSION_VERIFICATION_PRIX, $nomFichierExcel);
 
             //enregistrement du devis magasin
             $this->getEntityManager()->persist($devisMagasin);

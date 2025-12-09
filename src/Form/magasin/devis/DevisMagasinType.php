@@ -78,6 +78,27 @@ class DevisMagasinType extends AbstractType
                     ],
                 ]
             )
+            ->add(
+                'pieceJointExcel',
+                FileType::class,
+                [
+                    'label'         => 'Fichier Excel',
+                    'required'      => true,
+                    'constraints'   => [
+                        new NotBlank([
+                            'message' => 'Veuiller sélectionner le fichier Excel à rattacher au mail.', // Message d'erreur si le champ est vide
+                        ]),
+                        new File([
+                            'maxSize' => '5M',
+                            'maxSizeMessage' => 'Le fichier ne doit pas dépasser 5 Mo.', // Message personnalisé pour la taille
+                            'mimeTypes' => [
+                                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                            ],
+                            'mimeTypesMessage' => 'Veuillez télécharger un fichier Excel valide.',
+                        ])
+                    ],
+                ]
+            )
             ->add('tacheValidateur', ChoiceType::class, [
                 'label' => 'Tâche du validateur',
                 'choices' => self::TACHE_VALIDATEUR,

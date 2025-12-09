@@ -53,6 +53,14 @@ class DevisMagasinGenererNameFileService extends AbstractFileNameGeneratorServic
     }
 
     /**
+     * Génère un nom pour le cas de fichier excel
+     */
+    public function generateFichierExcelName(string $numDevis): string
+    {
+        return "feuille_calcul_$numDevis.xlsx";
+    }
+
+    /**
      * Génère un nom pour le bon de commande
      */
     public function generateBonCommandeName(

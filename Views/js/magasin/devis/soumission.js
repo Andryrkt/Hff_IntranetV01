@@ -1,6 +1,7 @@
 import {
   initializeFileHandlersNouveau,
   initializeFileHandlersMultiple,
+  initializeFileHandlersExcel,
 } from "../../utils/file_upload_Utils.js";
 import { setupConfirmationButtons } from "../../utils/ui/boutonConfirmUtils.js";
 
@@ -16,6 +17,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const fileInput2 = document.querySelector("#devis_magasin_pieceJoint2");
   if (fileInput2) initializeFileHandlersMultiple("2", fileInput2);
+
+  const fileInput3 = document.querySelector("#devis_magasin_pieceJointExcel");
+  if (fileInput3) initializeFileHandlersExcel("3", fileInput3);
 
   // Gestion de la validation du formulaire
   const form = document.querySelector("#upload-form");
