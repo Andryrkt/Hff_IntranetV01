@@ -83,11 +83,8 @@ class DevisMagasinType extends AbstractType
                 FileType::class,
                 [
                     'label'         => 'Fichier Excel',
-                    'required'      => true,
+                    'required'      => false,
                     'constraints'   => [
-                        new NotBlank([
-                            'message' => 'Veuiller sélectionner le fichier Excel à rattacher au mail.', // Message d'erreur si le champ est vide
-                        ]),
                         new File([
                             'maxSize' => '5M',
                             'maxSizeMessage' => 'Le fichier ne doit pas dépasser 5 Mo.', // Message personnalisé pour la taille
