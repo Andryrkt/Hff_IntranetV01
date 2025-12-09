@@ -72,7 +72,7 @@ class DevisMagasinVerificationPrixController extends Controller
         $remoteUrl = $this->getLastEditedDevis($numeroDevis);
 
         // Instantiation et validation de la présence du numéro de devis
-        $orchestrator = new DevisMagasinValidationVpOrchestrator($numeroDevis ?? '', $remoteUrl);
+        $orchestrator = new DevisMagasinValidationVpOrchestrator($numeroDevis ?? '', $remoteUrl["court"]);
 
         //recupération des informations utile dans IPS
         $firstDevisIps = $this->getInfoDevisIps($numeroDevis);
@@ -91,22 +91,22 @@ class DevisMagasinVerificationPrixController extends Controller
 
         //création du formulaire
         $form = $this->getFormFactory()->createBuilder(DevisMagasinType::class, $devisMagasin, [
-            "fichier_initialise" => (bool)$remoteUrl
+            "fichier_initialise" => (bool)$remoteUrl["court"]
         ])->getForm();
 
         //traitement du formualire
-        $this->traitementFormualire($form, $request,  $devisMagasin, $firstDevisIps, $orchestrator, $devisMagasinRepository);
+        $this->traitementFormualire($form, $request,  $devisMagasin, $firstDevisIps, $orchestrator, $devisMagasinRepository, $remoteUrl["long"]);
 
         //affichage du formulaire
         return $this->render('magasin/devis/soumission.html.twig', [
             'form'        => $form->createView(),
             'message'     => self::MESSAGE_DE_CONFIRMATION,
             'numeroDevis' => $numeroDevis,
-            'remoteUrl'   => $remoteUrl,
+            'remoteUrl'   => $remoteUrl["court"],
         ]);
     }
 
-    private function traitementFormualire($form, Request $request,  DevisMagasin $devisMagasin, array $firstDevisIps, DevisMagasinValidationVpOrchestrator $orchestrator, DevisMagasinRepository $devisMagasinRepository)
+    private function traitementFormualire($form, Request $request,  DevisMagasin $devisMagasin, array $firstDevisIps, DevisMagasinValidationVpOrchestrator $orchestrator, DevisMagasinRepository $devisMagasinRepository, $remoteUrl)
     {
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
@@ -130,7 +130,7 @@ class DevisMagasinVerificationPrixController extends Controller
              * @var string $nomAvecCheminFichier
              * @var string $nomFichier
              */
-            [$nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, $nomFichier] = $this->enregistrementFichier($form, $devisMagasin->getNumeroDevis(), VersionService::autoIncrement($numeroVersion), $suffixConstructeur, explode('@', $this->getUserMail())[0], self::TYPE_SOUMISSION_VERIFICATION_PRIX);
+            [$nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, $nomFichier] = $this->enregistrementFichier($form, $devisMagasin->getNumeroDevis(), VersionService::autoIncrement($numeroVersion), $suffixConstructeur, explode('@', $this->getUserMail())[0], self::TYPE_SOUMISSION_VERIFICATION_PRIX, $remoteUrl);
 
             // creation du page de garde 
             $this->generatePdfDevisMagasin->genererPdf($this->getUser(), $devisMagasin, $nomAvecCheminFichier);
@@ -160,9 +160,10 @@ class DevisMagasinVerificationPrixController extends Controller
         }
     }
 
-    private function getLastEditedDevis(string $numeroDevis): string
+    private function getLastEditedDevis(string $numeroDevis): array
     {
         $filePath = '';
+        $destination = '';
         $dossier = "\\\\192.168.0.15\\hff_pdf\\VALIDATION VENTE NEGOCE\\";   // dossier contenant les fichiers
         $dernierFichier = null;
         $derniereDate = 0;
@@ -194,6 +195,9 @@ class DevisMagasinVerificationPrixController extends Controller
             $filePath = $this->cheminCourtUpload . "$numeroDevis/$dernierFichier"; // chemin court du fichier local
         }
 
-        return $filePath;
+        return [
+            "court" => $filePath,
+            "long"  => $destination
+        ];
     }
 }

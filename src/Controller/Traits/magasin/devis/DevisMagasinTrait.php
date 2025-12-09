@@ -83,8 +83,9 @@ trait DevisMagasinTrait
         ;
     }
 
-    private function enregistrementFichier(FormInterface $form, string $numDevis, int $numeroVersion, string $suffix, string $mail, string $typeDevis): array
+    private function enregistrementFichier(FormInterface $form, string $numDevis, int $numeroVersion, string $suffix, string $mail, string $typeDevis, string $remoteUrl): array
     {
+        $fileName = "";
         $devisPath = $this->cheminBaseUpload . $numDevis . '/';
         if (!is_dir($devisPath)) {
             mkdir($devisPath, 0777, true);
@@ -105,7 +106,9 @@ trait DevisMagasinTrait
             }
         ]);
 
-        $nomAvecCheminFichier = $this->nameGenerator->getCheminEtNomDeFichierSansIndex($nomEtCheminFichiersEnregistrer[0]);
+        $fileName = !empty($nomEtCheminFichiersEnregistrer) ? $nomEtCheminFichiersEnregistrer[0] : $remoteUrl;
+
+        $nomAvecCheminFichier = $this->nameGenerator->getCheminEtNomDeFichierSansIndex($fileName);
         $nomFichier = $this->nameGenerator->getNomFichier($nomAvecCheminFichier);
 
         return [$nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, $nomFichier];
