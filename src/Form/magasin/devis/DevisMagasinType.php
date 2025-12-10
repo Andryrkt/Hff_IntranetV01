@@ -178,7 +178,6 @@ class DevisMagasinType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver
-            ->setDefaults([])
-            ->setDefined("fichier_initialise");
+            ->setDefaults(["fichier_initialise" => false]);
     }
 }
