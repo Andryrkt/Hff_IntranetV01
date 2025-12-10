@@ -124,7 +124,7 @@ trait DevisMagasinTrait
         ]);
 
         $nomAvecCheminFichier = $nomEtCheminFichiersEnregistrer[0] ?? '';
-        $nomFichier = $this->nameGenerator->generateFichierExcelName($numDevis);
+        $nomFichier = $nomAvecCheminFichier ? $this->nameGenerator->generateFichierExcelName($numDevis) : "";
 
         return [$nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, $nomFichier];
     }
