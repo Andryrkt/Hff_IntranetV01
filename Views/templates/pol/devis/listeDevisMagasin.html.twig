@@ -12,78 +12,65 @@
 
 {% block content %}
 
-	<div class="container-fluid">
-		<div class="sticky-header-titre">
-			<div class="container">
-				{% include "/partials/_notification.html.twig" %}
-				{% include "magasin/devis/shared/_formulaireDeRecherche.html.twig" with {'form': form} %}
-			</div>
+<div class="container-fluid">
+	<div class="sticky-header-titre">
+		<div class="container">
+			{% include "/partials/_notification.html.twig" %}
+			{% include "magasin/devis/shared/_formulaireDeRecherche.html.twig" with {'form': form} %}
 		</div>
+	</div>
 
-		<table class="table table-sticky">
-			<thead class="table-dark align-middle">
+	<table class="table table-sticky">
+		<thead class="table-dark align-middle">
+			<tr>
+				<th>
+					<i class="fas fa-ellipsis-vertical"></i>
+				</th>
+				<th class="text-center">Statut devis</th>
+				<th class="text-center">Statut BC</th>
+				<th class="text-center">Numéro devis</th>
+				<th class="text-center">Date de création</th>
+				<th class="text-center">Emetteur</th>
+				<th>Client</th>
+				<th>Libellé</th>
+				<th class="text-end">Montant</th>
+				<th class="text-center">Date envoi au client</th>
+				<th class="text-center">Position IPS</th>
+				<th class="text-center">Crée par</th>
+				<th class="text-center">Soumis par</th>
+			</tr>
+		</thead>
+		<tbody id="tableBody">
+			{% for item in listeDevis %}
 				<tr>
-					<th>
-						<i class="fas fa-ellipsis-vertical"></i>
-					</th>
-					<th class="text-center">Statut devis</th>
-					<th class="text-center">Statut BC</th>
-					<th class="text-center">Numéro devis</th>
-					<th class="text-center">Date de création</th>
-					<th class="text-center">Emetteur</th>
-					<th>Client</th>
-					<th>Libellé</th>
-					<th class="text-end">Montant</th>
-					<th class="text-center">Date envoi au client</th>
-					<th class="text-center">Position IPS</th>
-					<th class="text-center">Crée par</th>
-					<th class="text-center">Soumis par</th>
-				</tr>
-			</thead>
-			<tbody id="tableBody">
-				{% for item in listeDevis %}
-					<tr>
-						<td class="align-middle" style="padding: 0px">
-							<div class="dropdown">
-								<button class="btn btn-sm me-1 dropdown-toggle trois-points-vertical" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-									<i class="fas fa-ellipsis-vertical"></i>
-								</button>
-								<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton">
-									<li>
-										<a class="dropdown-item fw-bold" href="{{ path("devis_magasin_pol_soumission_verification_prix", {numeroDevis:item.numeroDevis})}}">Soumission devis pour verification prix</a>
-										<a class="dropdown-item fw-bold" href="{{ path("devis_magasin_pol_soumission_validation_devis", {numeroDevis:item.numeroDevis})}}">Soumission devis pour validation</a>
-										{% if item.statutDw in
+					<td class="align-middle" style="padding: 0px">
+						<div class="dropdown">
+							<button class="btn btn-sm me-1 dropdown-toggle trois-points-vertical" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+								<i class="fas fa-ellipsis-vertical"></i>
+							</button>
+							<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton">
+								<li>
+									<a class="dropdown-item fw-bold" href="{{ path("devis_magasin_pol_soumission_verification_prix", {numeroDevis:item.numeroDevis})}}">Soumission devis pour verification prix</a>
+									<a class="dropdown-item fw-bold" href="{{ path("devis_magasin_pol_soumission_validation_devis", {numeroDevis:item.numeroDevis, codeAgenceService:item.succursaleServiceEmetteur})}}">Soumission devis pour validation</a>
+									{% if item.statutDw in
 								[constant('App\\Entity\\magasin\\devis\\DevisMagasin::STATUT_PRIX_VALIDER_TANA'),
 								constant('App\\Entity\\magasin\\devis\\DevisMagasin::STATUT_PRIX_MODIFIER_TANA'),
 								constant('App\\Entity\\magasin\\devis\\DevisMagasin::STATUT_VALIDE_AGENCE')] %}
-											<a class="dropdown-item fw-bold" href="{{ path("devis_magasin_pol_envoyer_au_client", {numeroDevis: item.numeroDevis})}}">Pointage envoye devis au client</a>
-										{% endif %}
-										<a class="dropdown-item fw-bold" href="{{ path("bc_magasin_pol_soumission", {numeroDevis:item.numeroDevis})}}">Soumission BC client pour validation</a>
-									</li>
-								</ul>
-							</div>
-						</td>
+										<a class="dropdown-item fw-bold" href="{{ path("devis_magasin_pol_envoyer_au_client", {numeroDevis: item.numeroDevis})}}">Pointage envoye devis au client</a>
+									{% endif %}
+									<a class="dropdown-item fw-bold" href="{{ path("bc_magasin_pol_soumission", {numeroDevis:item.numeroDevis})}}">Soumission BC client pour validation</a>
+								</li>
+							</ul>
+						</div>
+					</td>
 
-						<td class="text-center fw-bold {{styleStatutDw[item.statutDw] ?? 'bg-a-traiter'}}">{{item.statutDw|default('A traiter')}}</td>
-						<td class="text-center fw-bold {{styleStatutBc[item.statutBc] ?? ''}}">{{ item.statutBc }}</td>
-						<td class="text-center">{{item.numeroDevis}}</td>
-						<td class="text-center">{{item.dateCreation}}</td>
-						<td class="text-center">{{item.succursaleServiceEmetteur}}</td>
-						<td>{{item.codeClientLibelleClient}}</td>
-						<td>{{item.referenceCLient}}</td>
-						<td class="text-end">{{item.montant|number_format(2, ',', '.')}}</td>
-						<td class="text-center">{{item.dateDenvoiDevisAuClient}}</td>
-						<td class="text-center">{{item.statutIps}}</td>
-						<td class="text-center">{{item.creePar}}</td>
-						<td class="text-center">{{item.operateur}}</td>
-					</tr>
-				{% endfor %}
-			</tbody>
-		</table>
-	</div>
-{% endblock %}
-
-{% block javascript %}
-	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v=2025.10.22.08.00"></script>
-	<script type="module" src="{{ App.base_path }}/Views/js/magasin/devis/listeDevisMagasin.js?v=2025.10.22.08.00"></script>
-{% endblock %}
+					<td class="text-center fw-bold {{styleStatutDw[item.statutDw] ?? ''}}">{{item.statutDw}}</td>
+					<td class="text-center fw-bold {{styleStatutBc[item.statutBc] ?? ''}}">{{ item.statutBc }}</td>
+					<td class="text-center">{{item.numeroDevis}}</td>
+					<td class="text-center">{{item.dateCreation}}</td>
+					<td class="text-center">{{item.succursaleServiceEmetteur}}</td>
+					<td>{{item.codeClientLibelleClient}}</td>
+					<td>{{item.referenceCLient}}</td>
+					<td class="text-end">{{item.montant|number_format(2, ',', '.')}}</td>
+					<td class="text-center">{{item.dateDenvoiDevisAuClient}}</td>
+					<td class="text-center" data-bs-toggle="tooltip"

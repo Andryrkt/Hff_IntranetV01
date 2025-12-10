@@ -9,7 +9,6 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 trait DevisMagasinTrait
 {
-
     /**
      * Récupère les informations du devis dans IPS
      * 
