@@ -129,4 +129,6 @@ class DevisMagasinValidationConfig
 
     // Routes de redirection
     public const REDIRECT_ROUTE = 'devis_magasin_liste';
+
+
 }

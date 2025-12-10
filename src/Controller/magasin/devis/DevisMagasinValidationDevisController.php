@@ -61,9 +61,9 @@ class DevisMagasinValidationDevisController extends Controller
     }
 
     /**
-     * @Route("/soumission-devis-magasin-validation-devis/{numeroDevis}", name="devis_magasin_soumission_validation_devis", defaults={"numeroDevis"=null})
+     * @Route("/soumission-devis-magasin-validation-devis/{numeroDevis}/{codeAgenceService}", name="devis_magasin_soumission_validation_devis", defaults={"numeroDevis"=null})
      */
-    public function soumission(?string $numeroDevis = null, Request $request)
+    public function soumission(?string $numeroDevis = null, string $codeAgenceService, Request $request)
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
@@ -78,7 +78,15 @@ class DevisMagasinValidationDevisController extends Controller
         //instanciation de l'orchestrateur de validation
         $orchestrator = new DevisMagasinValidationOrchestrator($numeroDevis);
         // Validation avant soumission - utilise la nouvelle méthode qui retourne un booléen
-        $orchestrator->validateBeforeSubmission($this->devisMagasinRepository, $this->listeDevisMagasinModel, $numeroDevis, $newSumOfLines, $newSumOfMontant);
+        $data = [
+            'devisMagasinRepository' => $this->devisMagasinRepository,
+            'listeDevisMagasinModel' => $this->listeDevisMagasinModel,
+            'numeroDevis' => $numeroDevis,
+            'newSumOfLines' => $newSumOfLines,
+            'newSumOfMontant' => $newSumOfMontant,
+            'codeAgence' => trim(explode('-', $codeAgenceService)[0])
+        ];
+        $orchestrator->validateBeforeSubmission($data);
 
 
 
