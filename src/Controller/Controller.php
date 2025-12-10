@@ -521,6 +521,14 @@ class Controller
     }
 
     /**
+     * Méthode helper pour vérifier si l'utilisateur est connecté
+     */
+    public function isUserConnected(): bool
+    {
+        return $this->getSessionService()->has('user_info');
+    }
+
+    /**
      * Vérifier la session utilisateur
      */
     protected function verifierSessionUtilisateur()
@@ -728,29 +736,5 @@ class Controller
             $status,
             ['Content-Type' => 'application/json']
         );
-    }
-
-    /**
-     * Méthode helper pour vérifier si l'utilisateur est connecté
-     */
-    public function isUserConnected(): bool
-    {
-        return $this->getSessionService()->has('user_id');
-    }
-
-    /**
-     * Méthode helper pour obtenir l'ID de l'utilisateur connecté
-     */
-    protected function getCurrentUserId()
-    {
-        return $this->getSessionService()->get('user_id');
-    }
-
-    /**
-     * Méthode helper pour obtenir le nom de l'utilisateur connecté
-     */
-    protected function getCurrentUsername()
-    {
-        return $this->getSessionService()->get('user');
     }
 }
