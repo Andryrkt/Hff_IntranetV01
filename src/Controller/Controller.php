@@ -440,39 +440,27 @@ class Controller
     protected function agenceServiceIpsObjet(): array
     {
         try {
-            $userId = $this->getSessionService()->get('user_id');
+            $userInfo = $this->session->get('user_info');
 
-            if (!$userId) {
-                throw new \Exception("User ID not found in session");
-            }
+            if (!$userInfo) throw new \Exception("User info not found in session");
 
-            $user = $this->getEntityManager()->getRepository(User::class)->find($userId);
-
-            if (!$user) {
-                throw new \Exception("User not found with ID $userId");
-            }
-
-            $codeAgence = $user->getAgenceServiceIrium()->getAgenceIps();
+            $codeAgence = $userInfo["default_agence_code"];
             $agenceIps = $this->getEntityManager()->getRepository(Agence::class)->findOneBy(['codeAgence' => $codeAgence]);
 
-            if (!$agenceIps) {
-                throw new \Exception("Agence not found with code $codeAgence");
-            }
+            if (!$agenceIps) throw new \Exception("Agence not found with code $codeAgence");
 
-            $codeService = $user->getAgenceServiceIrium()->getServiceIps();
+            $codeService = $userInfo["default_service_code"];
             $serviceIps = $this->getEntityManager()->getRepository(Service::class)->findOneBy(['codeService' => $codeService]);
-            if (!$serviceIps) {
-                throw new \Exception("Service not found with code $codeService");
-            }
+            if (!$serviceIps) throw new \Exception("Service not found with code $codeService");
 
             return [
-                'agenceIps' => $agenceIps,
+                'agenceIps'  => $agenceIps,
                 'serviceIps' => $serviceIps
             ];
         } catch (\Exception $e) {
             error_log($e->getMessage());
             return [
-                'agenceIps' => null,
+                'agenceIps'  => null,
                 'serviceIps' => null
             ];
         }
@@ -484,37 +472,26 @@ class Controller
     protected function agenceServiceIpsString(): array
     {
         try {
-            $userId = $this->getSessionService()->get('user_id');
-            if (!$userId) {
-                throw new \Exception("User ID not found in session");
-            }
+            $userInfo = $this->session->get('user_info');
+            if (!$userInfo) throw new \Exception("User info not found in session");
 
-            $user = $this->getEntityManager()->getRepository(User::class)->find($userId);
-            if (!$user) {
-                throw new \Exception("User not found with ID $userId");
-            }
-
-            $codeAgence = $user->getAgenceServiceIrium()->getAgenceips();
+            $codeAgence = $userInfo["default_agence_code"];
             $agenceIps = $this->getEntityManager()->getRepository(Agence::class)->findOneBy(['codeAgence' => $codeAgence]);
-            if (!$agenceIps) {
-                throw new \Exception("Agence not found with code $codeAgence");
-            }
+            if (!$agenceIps) throw new \Exception("Agence not found with code $codeAgence");
 
-            $codeService = $user->getAgenceServiceIrium()->getServiceips();
+            $codeService = $userInfo["default_service_code"];
             $serviceIps = $this->getEntityManager()->getRepository(Service::class)->findOneBy(['codeService' => $codeService]);
-            if (!$serviceIps) {
-                throw new \Exception("Service not found with code $codeService");
-            }
+            if (!$serviceIps) throw new \Exception("Service not found with code $codeService");
 
             return [
-                'agenceIps' => $agenceIps->getCodeAgence() . ' ' . $agenceIps->getLibelleAgence(),
-                'serviceIps' => $serviceIps->getCodeService() . ' ' . $serviceIps->getLibelleService()
+                'agenceIps'  => $agenceIps,
+                'serviceIps' => $serviceIps
             ];
-        } catch (\Throwable $e) {
+        } catch (\Exception $e) {
             error_log($e->getMessage());
             return [
-                'agenceIps' => '',
-                'serviceIps' => ''
+                'agenceIps'  => null,
+                'serviceIps' => null
             ];
         }
     }
