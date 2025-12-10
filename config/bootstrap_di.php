@@ -183,7 +183,7 @@ $authorizationChecker = $container->get('security.authorization_checker');
 $appExtension = new \App\Twig\AppExtension($session, $requestStack, $tokenStorage, $authorizationChecker, $entityManager);
 $container->set('App\Twig\AppExtension', $appExtension);
 
-$menuService = new \App\Service\navigation\MenuService($entityManager, $session);
+$menuService = new \App\Service\navigation\MenuService($session);
 $container->set('App\Service\navigation\MenuService', $menuService);
 
 $breadcrumbMenuService = new \App\Service\navigation\BreadcrumbMenuService($menuService);

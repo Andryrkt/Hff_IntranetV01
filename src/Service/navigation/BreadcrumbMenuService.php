@@ -50,8 +50,8 @@ class BreadcrumbMenuService
             // Appro - Sous-menus spécifiques
             'demande-appro'        => $this->getDemandeApproSubMenu(),
             // pol - sous menus spécifiques
-            'or-pol'            => $this->getOrPolSubMenu(),
-            'cis-pol'            => $this->getCisPolSubMenu(),
+            'or-pol'               => $this->getOrPolSubMenu(),
+            'cis-pol'              => $this->getCisPolSubMenu(),
         ];
     }
 

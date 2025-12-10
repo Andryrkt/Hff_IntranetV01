@@ -6,12 +6,10 @@ use App\Entity\da\DemandeAppro;
 use App\Entity\admin\Application;
 use App\Entity\admin\Service;
 use App\Entity\admin\utilisateur\Role;
-use App\Entity\admin\utilisateur\User;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class MenuService
 {
-    private $em;
     private $session;
     private $connectedUser;
     private bool $estAdmin = false;
@@ -23,9 +21,8 @@ class MenuService
     private $applicationIds = [];
     private $codeAgenceAutorisers = [];
 
-    public function __construct($entityManager, SessionInterface $session)
+    public function __construct(SessionInterface $session)
     {
-        $this->em = $entityManager;
         $this->session = $session;
         $this->basePath = $_ENV['BASE_PATH_FICHIER_COURT']; // Chemin de base pour les liens de téléchargement --> /Upload
     }
@@ -195,23 +192,21 @@ class MenuService
      */
     private function setConnectedUserContext()
     {
-        if ($this->session->has('user_id')) {
-            /** @var User|null $connectedUser */
-            $connectedUser = $this->em->getRepository(User::class)->find($this->session->get('user_id'));
+        if ($this->session->has('user_info')) {
+            $userInfo = $this->session->get('user_info');
+            if ($userInfo) {
+                $roleIds = $userInfo["roles"];
+                $serviceIds = $userInfo["authorized_services"]["ids"];
+                $applicationIds = $userInfo["applications"];
+                $agenceIds = $userInfo["authorized_agences"]["codes"];
 
-            if ($connectedUser) {
-                $roleIds = $connectedUser->getRoleIds();
-                $serviceIds = $connectedUser->getServiceAutoriserIds();
-
-                $this->setConnectedUser($connectedUser);
                 $this->setEstAdmin(in_array(Role::ROLE_ADMINISTRATEUR, $roleIds, true)); // estAdmin
                 $this->setEstAppro(in_array(DemandeAppro::ID_APPRO, $serviceIds)); // est appro
                 $this->setEstAtelier(in_array(DemandeAppro::ID_ATELIER, $serviceIds)); // est atelier
                 $this->setEstRH(in_array(Service::ID_RH, $serviceIds)); // est RH
                 $this->setEstCreateurDeDADirecte(in_array(Role::ROLE_DA_DIRECTE, $roleIds, true)); // est créateur de DA directe
-                $this->setApplicationIds($connectedUser->getApplicationsIds()); // Les applications autorisées de l'utilisateur connecté
-                $this->setCodeAgenceAutorisers($connectedUser->getAgenceAutoriserCode()); // codes des agences autoriser del'utilisateur connecté
-
+                $this->setApplicationIds($applicationIds); // Les applications autorisées de l'utilisateur connecté
+                $this->setCodeAgenceAutorisers($agenceIds); // codes des agences autoriser del'utilisateur connecté
             }
         }
     }
@@ -237,24 +232,22 @@ class MenuService
 
         // Définition des règles d’accès pour chaque menu
         $menus = [
-            [$this->menuReportingBI(), $estAdmin],
-            [$this->menuCompta(), $estAdmin || $this->hasAccess([Application::ID_DDP, Application::ID_DDR, Application::ID_BCS], $applicationIds)], // DDP + DDR
-            [$this->menuRH(), $estAdmin || $this->hasAccess([Application::ID_DOM, Application::ID_MUT, Application::ID_DDC], $applicationIds)],     // DOM + MUT + DDC
-            [$this->menuMateriel(), $estAdmin || $this->hasAccess([Application::ID_BADM, Application::ID_CAS], $applicationIds)], // BDM + CAS
-            [$this->menuAtelier(), $estAdmin || $this->hasAccess([Application::ID_DIT, Application::ID_REP], $applicationIds)], // DIT + REP
-            [$this->menuMagasin(), $estAdmin || $this->hasAccess([Application::ID_MAG, Application::ID_INV, Application::ID_BDL, Application::ID_CFR, Application::ID_LCF], $applicationIds)], // MAG + INV + BDL + CFR + LCF
-            [$this->menuAppro(), $estAdmin || in_array(Application::ID_DAP, $applicationIds, true)],         // DAP
-            [$this->menuIT(), $estAdmin || in_array(Application::ID_TIK, $applicationIds, true)],             // TIK
-            [$this->menuPOL(), $estAdmin || in_array('60', $this->getCodeAgenceAutorisers())],
-            [$this->menuEnergie(), $estAdmin],
-            [$this->menuHSE(), $estAdmin],
+            ["menuReportingBI", $estAdmin],
+            ["menuCompta", $estAdmin || $this->hasAccess([Application::ID_DDP, Application::ID_DDR, Application::ID_BCS], $applicationIds)], // DDP || DDR || BCS
+            ["menuRH", $estAdmin || $this->hasAccess([Application::ID_DOM, Application::ID_MUT, Application::ID_DDC], $applicationIds)],     // DOM || MUT || DDC
+            ["menuMateriel", $estAdmin || $this->hasAccess([Application::ID_BADM, Application::ID_CAS], $applicationIds)], // BDM || CAS
+            ["menuAtelier", $estAdmin || $this->hasAccess([Application::ID_DIT, Application::ID_REP], $applicationIds)], // DIT || REP
+            ["menuMagasin", $estAdmin || $this->hasAccess([Application::ID_MAG, Application::ID_INV, Application::ID_BDL, Application::ID_CFR, Application::ID_LCF], $applicationIds)], // MAG || INV || BDL || CFR || LCF
+            ["menuAppro", $estAdmin || in_array(Application::ID_DAP, $applicationIds, true)],         // DAP
+            ["menuIT", $estAdmin || in_array(Application::ID_TIK, $applicationIds, true)],             // TIK
+            ["menuPOL", $estAdmin || in_array('60', $this->getCodeAgenceAutorisers())],
+            ["menuEnergie", $estAdmin],
+            ["menuHSE", $estAdmin],
         ];
 
         // Ajout uniquement des menus accessibles
-        foreach ($menus as [$menu, $condition]) {
-            if ($condition) {
-                $vignettes[] = $menu;
-            }
+        foreach ($menus as [$menuMethod, $condition]) {
+            if ($condition) $vignettes[] = $this->$menuMethod();
         }
 
         return $vignettes;
@@ -687,13 +680,13 @@ class MenuService
         bool $isModalTrigger = false
     ): array {
         return [
-            'title' => $label,
-            'link' => $link,
-            'icon' => 'fas fa-' . $icon,
+            'title'       => $label,
+            'link'        => $link,
+            'icon'        => 'fas fa-' . $icon,
             'routeParams' => $routeParams,
-            'target' => $target,
-            'modal_id' => $modalId,
-            'is_modal' => $isModalTrigger
+            'target'      => $target,
+            'modal_id'    => $modalId,
+            'is_modal'    => $isModalTrigger
         ];
     }
 }
