@@ -186,7 +186,7 @@ CASE  WHEN A.NLIG_QTELIV <> A.NLIG_QTECDE and A.NLIG_typcf = 'C' THEN
 LEFT JOIN NEG_LIG B ON (A.nlig_soc = b.nlig_soc and A.nlig_numcf = B.nlig_numcde AND A.nlig_constp = B.nlig_constp and A.nlig_refp = B.nlig_refp AND A.nlig_nolign = B.nlig_noligncm)              
 WHERE A.NLIG_SUCC in ('01','20','30','40','50','60')
        AND A.NLIG_NATOP in ('DIR')
-AND A.NLIG_QTEFAC = 0
+--AND A.NLIG_QTEFAC = 0
 AND A.NLIG_constp  not in ('ZDI','Nmc')
                 $numOr
 
