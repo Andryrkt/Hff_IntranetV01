@@ -83,8 +83,8 @@ class CalendarApi extends Controller
             // Validation des données
             if (isset($data['title'], $data['description'], $data['start'], $data['end'])) {
 
-                $userId = $this->getSessionService()->get('user_id');
-                $user = $this->getEntityManager()->getRepository(User::class)->find($userId);
+                $userInfo = $this->session->get('user_info');
+                $user = $this->getEntityManager()->getRepository(User::class)->find($userInfo['id']);
                 // Création de l'événement
                 $event = new TkiPlanning();
                 $event->setObjetDemande($data['title']);
