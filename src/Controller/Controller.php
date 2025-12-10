@@ -569,8 +569,8 @@ class Controller
      */
     protected function getUserName(): string
     {
-        $user = $this->getUser();
-        return $user ? $user->getNomUtilisateur() : 'unknown';
+        $userInfo = $this->getSessionService()->get('user_info');
+        return $userInfo['username'] ?? "";
     }
 
     /**
