@@ -51,7 +51,7 @@
 								<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton">
 									<li>
 										<a class="dropdown-item fw-bold" href="{{ path("devis_magasin_soumission_verification_prix", {numeroDevis:item.numeroDevis})}}">Soumission devis pour verification prix</a>
-										<a class="dropdown-item fw-bold" href="{{ path("devis_magasin_soumission_validation_devis", {numeroDevis:item.numeroDevis})}}">Soumission devis pour validation</a>
+										<a class="dropdown-item fw-bold" href="{{ path("devis_magasin_soumission_validation_devis", {numeroDevis:item.numeroDevis, codeAgenceService:item.succursaleServiceEmetteur})}}">Soumission devis pour validation</a>
 										{% if item.statutDw in
 								[constant('App\\Entity\\magasin\\devis\\DevisMagasin::STATUT_PRIX_VALIDER_TANA'),
 								constant('App\\Entity\\magasin\\devis\\DevisMagasin::STATUT_PRIX_MODIFIER_TANA'),

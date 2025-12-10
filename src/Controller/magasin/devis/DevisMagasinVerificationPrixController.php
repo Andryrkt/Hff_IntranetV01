@@ -161,10 +161,12 @@ class DevisMagasinVerificationPrixController extends Controller
             $this->generatePdfDevisMagasin->copyToDWDevisVpMagasin($nomFichier, $devisMagasin->getNumeroDevis());
 
             //envoie de mail au PM
-            $this->envoyerMailDevisMagasin($devisMagasin->getNumeroDevis(), [
-                'filePath' => $nomAvecCheminFichierExcel,
-                'fileName' => $nomFichierExcel,
-            ]);
+            if (!empty($nomAvecCheminFichierExcel) && !empty($nomFichierExcel) && $this->estValidationPm($devisMagasin)) {
+                $this->envoyerMailDevisMagasin($devisMagasin->getNumeroDevis(), [
+                    'filePath' => $nomAvecCheminFichierExcel,
+                    'fileName' => $nomFichierExcel,
+                ]);
+            }
 
             //HISTORISATION DE L'OPERATION
             $message = "la vérification de prix du devis numero : " . $devisMagasin->getNumeroDevis() . " a été envoyée avec succès .";
@@ -174,6 +176,7 @@ class DevisMagasinVerificationPrixController extends Controller
             $this->historiqueOperationDeviMagasinService->sendNotificationSoumission($message, $devisMagasin->getNumeroDevis(), $nomDeRoute, true, $criteria, $nomInputSearch);
         }
     }
+
 
     private function getLastEditedDevis(string $numeroDevis): array
     {
@@ -223,13 +226,9 @@ class DevisMagasinVerificationPrixController extends Controller
      */
     public function envoyerMailDevisMagasin(string $numDevis,  array $resultatExport)
     {
-        $variables = [
-            'numDevis'   => $numDevis,
-        ];
         $this->envoyerEmail([
-            // 'to'          => "prisca.michea@hff.mg",
-            'to'          => "hasina.andrianadison@hff.mg",
-            'variables' => $variables,
+            'to'          => $_ENV['MAIL_TO_NEG'],
+            'variables'   => ['numDevis' => $numDevis],
             'attachments' => [
                 $resultatExport['filePath'] => $resultatExport['fileName'],
             ],
@@ -245,7 +244,7 @@ class DevisMagasinVerificationPrixController extends Controller
 
         $emailService = new EmailService($this->getTwig());
 
-        $emailService->getMailer()->setFrom($_ENV['MAIL_FROM_ADDRESS'], 'noreply.da');
+        $emailService->getMailer()->setFrom($_ENV['MAIL_FROM_ADDRESS'], 'noreply.neg');
 
         $emailService->sendEmail($content['to'], $content['cc'] ?? [], $emailTemplate, $content['variables'] ?? [], $content['attachments'] ?? []);
     }

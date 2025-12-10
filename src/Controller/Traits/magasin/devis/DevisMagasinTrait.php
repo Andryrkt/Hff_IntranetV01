@@ -9,7 +9,6 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 trait DevisMagasinTrait
 {
-
     /**
      * Récupère les informations du devis dans IPS
      * 
@@ -42,20 +41,18 @@ trait DevisMagasinTrait
         return [$newSumOfLines, $newSumOfMontant];
     }
 
-
-    private function ajoutInfoIpsDansDevisMagasin(DevisMagasin $devisMagasin, array $firstDevisIps, string $numeroVersion, string $nomFichier, string $typeSoumission, ?string $nomFichierExcel = null): void
+    private function estValidationPm(DevisMagasin $devisMagasin): bool
     {
-        $suffixConstructeur = $this->listeDevisMagasinModel->constructeurPieceMagasin($devisMagasin->getNumeroDevis());
-
-        // est validation pm
-        $cosntructeur = false;
         if ($devisMagasin->constructeur === 'TOUS NEST PAS CAT') {
-            $cosntructeur = true;
+            return true;
         } elseif ($devisMagasin->constructeur === 'TOUT CAT' && $devisMagasin->getEstValidationPm() == true) {
-            $cosntructeur = true;
+            return true;
         }
+        return false;
+    }
 
-        // tache validateur
+    private function tacheValidateur(DevisMagasin $devisMagasin, string $typeSoumission): array
+    {
         $tacheValidateur = [];
         if ($typeSoumission === 'VP') {
             if ($devisMagasin->getEstValidationPm() == false) {
@@ -64,6 +61,13 @@ trait DevisMagasinTrait
                 $tacheValidateur = $devisMagasin->getTacheValidateur();
             }
         }
+        return $tacheValidateur;
+    }
+
+    private function ajoutInfoIpsDansDevisMagasin(DevisMagasin $devisMagasin, array $firstDevisIps, string $numeroVersion, string $nomFichier, string $typeSoumission, ?string $nomFichierExcel = null): void
+    {
+        $suffixConstructeur = $this->listeDevisMagasinModel->constructeurPieceMagasin($devisMagasin->getNumeroDevis());
+
 
         $devisMagasin
             ->setNumeroDevis($devisMagasin->getNumeroDevis())
@@ -77,8 +81,8 @@ trait DevisMagasinTrait
             ->setCat($suffixConstructeur === 'C' || $suffixConstructeur === 'CP' ? true : false)
             ->setNonCat($suffixConstructeur === 'P' || $suffixConstructeur === 'CP' ? true : false)
             ->setNomFichier((string)$nomFichier)
-            ->setTacheValidateur($tacheValidateur)
-            ->setEstValidationPm($cosntructeur)
+            ->setTacheValidateur($this->tacheValidateur($devisMagasin, $typeSoumission))
+            ->setEstValidationPm($this->estValidationPm($devisMagasin))
             ->setPieceJointExcel($typeSoumission == 'VP' ? $nomFichierExcel : null)
         ;
     }
@@ -118,8 +122,8 @@ trait DevisMagasinTrait
             }
         ]);
 
-        $nomAvecCheminFichier = $nomEtCheminFichiersEnregistrer[0];
-        $nomFichier = $this->nameGenerator->generateFichierExcelName($numDevis);
+        $nomAvecCheminFichier = $nomEtCheminFichiersEnregistrer[0] ?? '';
+        $nomFichier = $nomAvecCheminFichier ? $this->nameGenerator->generateFichierExcelName($numDevis) : "";
 
         return [$nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, $nomFichier];
     }
