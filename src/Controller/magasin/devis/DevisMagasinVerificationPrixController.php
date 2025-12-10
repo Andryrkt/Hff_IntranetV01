@@ -162,7 +162,6 @@ class DevisMagasinVerificationPrixController extends Controller
 
             //envoie de mail au PM
             if (!empty($nomAvecCheminFichierExcel) && !empty($nomFichierExcel) && $this->estValidationPm($devisMagasin)) {
-
                 $this->envoyerMailDevisMagasin($devisMagasin->getNumeroDevis(), [
                     'filePath' => $nomAvecCheminFichierExcel,
                     'fileName' => $nomFichierExcel,
