@@ -62,7 +62,7 @@ class DomTropPercuController extends Controller
             $this->redirectToRoute("doms_liste");
         }
 
-        $this->initialisationFormTropPercu($this->getEntityManager(), $dom, $oldDom);
+        $this->initialisationFormTropPercu($this->getEntityManager(), $dom, $oldDom, $user);
         $categoryId = $dom->getCategoryId();
         $criteria = [
             'oldDateDebut' => $oldDom->getDateDebut()->format('m/d/Y'),  // formater en mois/jour/année pour faciliter le traitement en JS

@@ -486,11 +486,9 @@ trait DomsTrait
         return $montant === null ? '0' : $montant;
     }
 
-    private function initialisationFormTropPercu($em, Dom $dom, Dom $oldDom)
+    private function initialisationFormTropPercu($em, Dom $dom, Dom $oldDom, User $user)
     {
         $sousTypeDocument = $em->getRepository(SousTypeDocument::class)->find(11);
-        $userId = $this->getSessionService()->get('user_id');
-        $user = $em->getRepository(User::class)->find($userId);
         $statutOuvert = $em->getRepository(StatutDemande::class)->find(1);
         $dom
             ->setSousTypeDocument($sousTypeDocument)
