@@ -888,6 +888,6 @@ class User implements UserInterface
      */
     public function getFullName(): string
     {
-        return $this->getPersonnels()->getNom() . ' ' . $this->getPersonnels()->getPrenoms();
+        return $this->personnels->getNom() . ' ' . $this->personnels->getPrenoms();
     }
 }
