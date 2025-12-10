@@ -46,80 +46,79 @@ class DevisMagasinValidationOrchestrator
     /**
      * Effectue toutes les validations nécessaires avant la soumission d'un devis
      * 
-     * @param DevisMagasinRepository $repository Le repository pour accéder aux données
-     * @param string $numeroDevis Le numéro de devis à valider
-     * @param int $newSumOfLines Le nouveau nombre de lignes
-     * @param float $newSumOfMontant Le nouveau montant total
+     * @param array data Les données nécessaires pour la validation
+     * 
      * @return bool true si toutes les validations passent, false sinon
      */
-    public function validateBeforeSubmission(
-        DevisMagasinRepository $repository,
-        ListeDevisMagasinModel $listeDevisMagasinModel,
-        string $numeroDevis,
-        int $newSumOfLines,
-        float $newSumOfMontant
-    ): bool {
-        // 1. Vérifier si le numéro de devis est manquant
-        if (!$this->contentValidator->checkMissingIdentifier($numeroDevis)) {
+    public function validateBeforeSubmission($data): bool
+    {
+
+        // Bloqué si : 
+        // 1. le numéro de devis est manquant
+        if (!$this->contentValidator->checkMissingIdentifier($data['numeroDevis'])) {
             return false;
         }
 
-        // 2. Vérifier si le devis existe
-        if (!$this->contentValidator->isDevisExiste($repository, $numeroDevis)) {
+        // 2. le devis existe
+        if (!$this->contentValidator->isDevisExiste($data['devisMagasinRepository'], $data['numeroDevis'])) {
             return false;
         }
 
-        // 3. Vérifier si le statut du devis est "Prix à confirmer"
-        if (!$this->statusValidator->checkBlockingStatusOnSubmissionIfStatusVp($repository, $numeroDevis)) {
+        // 3. le statut du devis est "Prix à confirmer"
+        if (!$this->statusValidator->checkBlockingStatusOnSubmissionIfStatusVp($data['devisMagasinRepository'], $data['numeroDevis'])) {
             return false;
         }
 
-        // 4. Vérifier si le statut du devis est "Prix validé" et la somme de lignes et le montant sont inchangés
-        if (!$this->statusValidator->checkBlockingStatusOnSubmissionForVp($repository, $numeroDevis, $newSumOfLines, $newSumOfMontant)) {
+        // 4. le statut du devis est "Prix validé" et la somme de lignes et le montant sont inchangés
+        if (!$this->statusValidator->checkBlockingStatusOnSubmissionForVp($data['devisMagasinRepository'], $data['numeroDevis'], $data['newSumOfLines'], $data['newSumOfMontant'])) {
             return false;
         }
 
-        // 5. Vérifier si le statut du devis est "Prix modifié" et la somme de lignes inchangée mais le montant est changé
-        if (!$this->statusValidator->verificationStatutChangementDeMontantMaisPasLignePourVp($repository, $numeroDevis, $newSumOfLines, $newSumOfMontant)) {
+        // 5. le statut du devis est "Prix modifié" et la somme de lignes inchangée mais le montant est changé
+        if (!$this->statusValidator->verificationStatutChangementDeMontantMaisPasLignePourVp($data['devisMagasinRepository'], $data['numeroDevis'], $data['newSumOfLines'], $data['newSumOfMontant'])) {
             return false;
         }
 
-        // 6. Vérifier si le statut du devis est "Prix validé" et la somme de lignes change mais le montant reste inchangé
-        if (!$this->statusValidator->verificationStatutChangementDeligneMaisPasMontantPourVp($repository, $numeroDevis, $newSumOfLines, $newSumOfMontant)) {
+        // 6. le statut du devis est "Prix validé" et la somme de lignes change mais le montant reste inchangé
+        if (!$this->statusValidator->verificationStatutChangementDeligneMaisPasMontantPourVp($data['devisMagasinRepository'], $data['numeroDevis'], $data['newSumOfLines'], $data['newSumOfMontant'])) {
             return false;
         }
 
 
-        // 7. Vérifié si le statut du devis est "Prix modifié - devis à envoyer au client (si Tana)" et la somme de lignes change mais le montant est inchangé
-        if (!$this->statusValidator->verificationStatutChangementDeligneMaisPasMontant($repository, $numeroDevis, $newSumOfLines, $newSumOfMontant)) {
+        // 7. le statut du devis est "Prix modifié - devis à envoyer au client (si Tana)" et la somme de lignes change mais le montant est inchangé
+        if (!$this->statusValidator->verificationStatutChangementDeligneMaisPasMontant($data['devisMagasinRepository'], $data['numeroDevis'], $data['newSumOfLines'], $data['newSumOfMontant'])) {
             return false;
         }
 
-        // 8. Vérifié si le statut du devis est "Demande refusée par le PM"
-        if (!$this->statusValidator->verificationStatutDemandeRefuseParPm($repository, $numeroDevis)) {
+        // 8. le statut du devis est "Demande refusée par le PM"
+        if (!$this->statusValidator->verificationStatutDemandeRefuseParPm($data['devisMagasinRepository'], $data['numeroDevis'])) {
             return false;
         }
 
-        // 9. Vérifier si le statut du devis est bloquant pour la soumission générale
-        if (!$this->statusValidator->checkBlockingStatusOnSubmission($repository, $numeroDevis)) {
+        // 9. le statut du devis est bloquant pour la soumission générale
+        if (!$this->statusValidator->checkBlockingStatusOnSubmission($data['devisMagasinRepository'], $data['numeroDevis'])) {
             return false;
         }
 
-        // 10. Vérifier si le montant total du devis IPS est inchangé
-        if (!$this->statusValidator->verificationStatutMontantTotalInchangerParRapportAuDevisIps($repository, $listeDevisMagasinModel, $numeroDevis, $newSumOfMontant)) {
+        // 10. le montant total du devis IPS est inchangé
+        if (!$this->statusValidator->verificationStatutMontantTotalInchangerParRapportAuDevisIps($data['devisMagasinRepository'], $data['listeDevisMagasinModel'], $data['numeroDevis'], $data['newSumOfMontant'])) {
             return false;
         }
 
-        // 11. Vérifier si le nombre de lignes et le montant total du devis IPS sont inchangés
-        if (!$this->statusValidator->verificationStatutLignesTotalAmountModifiedParRapportAuDevisIps($repository, $listeDevisMagasinModel, $numeroDevis, $newSumOfLines, $newSumOfMontant)) {
+        // 11. le nombre de lignes et le montant total du devis IPS sont inchangés
+        if (!$this->statusValidator->verificationStatutLignesTotalAmountModifiedParRapportAuDevisIps($data['devisMagasinRepository'], $data['listeDevisMagasinModel'], $data['numeroDevis'], $data['newSumOfLines'], $data['newSumOfMontant'])) {
             return false;
         }
 
-        // 12. Vérifier si le nombre de lignes du devis IPS est inchangé
-        if (!$this->statusValidator->verificationStatutLignesTotalInchanger($repository, $listeDevisMagasinModel, $numeroDevis, $newSumOfLines)) {
+        // 12. le nombre de lignes du devis IPS est inchangé
+        if (!$this->statusValidator->verificationStatutLignesTotalInchanger($data['devisMagasinRepository'], $data['listeDevisMagasinModel'], $data['numeroDevis'], $data['newSumOfLines'])) {
             return false;
         }
 
+        //13. l'agence emetteur du devis est 01 ou 50
+        if (!$this->contentValidator->isDevisTanaOrRental($data['codeAgence'], $data['numeroDevis'])) {
+            return false;
+        }
         return true;
     }
 
