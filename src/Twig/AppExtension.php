@@ -41,7 +41,6 @@ class AppExtension extends AbstractExtension implements GlobalsInterface
         $user = null;
         $token = $this->tokenStorage->getToken();
 
-
         $notification = $this->session->get('notification');
         $this->session->remove('notification'); // Supprime la notification après l'affichage
 
@@ -51,13 +50,13 @@ class AppExtension extends AbstractExtension implements GlobalsInterface
 
         return [
             'App' => [
-                'user' => $user,
-                'base_path' => $_ENV['BASE_PATH_COURT'],
-                'base_path_long' => $_ENV['BASE_PATH_FICHIER'],
+                'user'              => $user,
+                'base_path'         => $_ENV['BASE_PATH_COURT'],
+                'base_path_long'    => $_ENV['BASE_PATH_FICHIER'],
                 'base_path_fichier' => $_ENV['BASE_PATH_FICHIER_COURT'],
-                'session' => $this->session,
-                'request' => $this->requestStack->getCurrentRequest(),
-                'notification' => $notification,
+                'session'           => $this->session,
+                'request'           => $this->requestStack->getCurrentRequest(),
+                'notification'      => $notification,
             ],
         ];
     }
