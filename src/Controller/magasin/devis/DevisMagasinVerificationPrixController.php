@@ -227,12 +227,9 @@ class DevisMagasinVerificationPrixController extends Controller
      */
     public function envoyerMailDevisMagasin(string $numDevis,  array $resultatExport)
     {
-        $variables = [
-            'numDevis'   => $numDevis,
-        ];
         $this->envoyerEmail([
-            'to'        => "prisca.michea@hff.mg",
-            'variables' => $variables,
+            'to'          => $_ENV['MAIL_TO_NEG'],
+            'variables'   => ['numDevis' => $numDevis],
             'attachments' => [
                 $resultatExport['filePath'] => $resultatExport['fileName'],
             ],
