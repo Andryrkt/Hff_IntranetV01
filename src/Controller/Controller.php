@@ -501,17 +501,18 @@ class Controller
      */
     protected function logUserVisit(string $nomRoute, ?array $params = null)
     {
-        $idUtilisateur = $this->getSessionService()->get('user_id');
-        $utilisateur = ($idUtilisateur && $idUtilisateur !== '-') ? $this->getEntityManager()->getRepository(User::class)->find($idUtilisateur) : null;
+        $userInfo = $this->session->get('user_info');
+        $idUtilisateur = $userInfo['id'] ?? "-";
+        $utilisateur = $userInfo ? $this->getEntityManager()->getRepository(User::class)->find($idUtilisateur) : null;
         $utilisateurNom = $utilisateur ? $utilisateur->getNomUtilisateur() : null;
         $page = $this->getEntityManager()->getRepository(PageHff::class)->findPageByRouteName($nomRoute);
         $machine = gethostbyaddr($_SERVER['REMOTE_ADDR']) ?? $_SERVER['REMOTE_ADDR'];
 
         $log = new UserLogger();
 
-        $log->setUtilisateur($utilisateurNom ?: '-');
+        $log->setUtilisateur($utilisateurNom ?? '-');
         $log->setNom_page($page->getNom());
-        $log->setParams($params ?: null);
+        $log->setParams($params);
         $log->setUser($utilisateur);
         $log->setMachineUser($machine);
 
