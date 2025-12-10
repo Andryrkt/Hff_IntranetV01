@@ -161,10 +161,13 @@ class DevisMagasinVerificationPrixController extends Controller
             $this->generatePdfDevisMagasin->copyToDWDevisVpMagasin($nomFichier, $devisMagasin->getNumeroDevis());
 
             //envoie de mail au PM
-            $this->envoyerMailDevisMagasin($devisMagasin->getNumeroDevis(), [
-                'filePath' => $nomAvecCheminFichierExcel,
-                'fileName' => $nomFichierExcel,
-            ]);
+            if (!empty($nomAvecCheminFichierExcel) && !empty($nomFichierExcel) && $this->estValidationPm($devisMagasin)) {
+
+                $this->envoyerMailDevisMagasin($devisMagasin->getNumeroDevis(), [
+                    'filePath' => $nomAvecCheminFichierExcel,
+                    'fileName' => $nomFichierExcel,
+                ]);
+            }
 
             //HISTORISATION DE L'OPERATION
             $message = "la vérification de prix du devis numero : " . $devisMagasin->getNumeroDevis() . " a été envoyée avec succès .";
@@ -174,6 +177,7 @@ class DevisMagasinVerificationPrixController extends Controller
             $this->historiqueOperationDeviMagasinService->sendNotificationSoumission($message, $devisMagasin->getNumeroDevis(), $nomDeRoute, true, $criteria, $nomInputSearch);
         }
     }
+
 
     private function getLastEditedDevis(string $numeroDevis): array
     {
