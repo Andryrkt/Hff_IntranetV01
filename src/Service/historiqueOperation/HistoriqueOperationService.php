@@ -66,11 +66,11 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
      */
     public function enregistrer(string $numeroDocument, int $typeOperationId, bool $statutOperation, ?string $libelleOperation = null): void
     {
-        $historique    = new HistoriqueOperationDocument();
-        $utilisateurId = $this->sessionService->get('user_id');
+        $historique = new HistoriqueOperationDocument();
+        $userInfo   = $this->sessionService->get('user_info');
         $historique
             ->setNumeroDocument($numeroDocument)
-            ->setUtilisateur($this->userRepository->find($utilisateurId)->getNomUtilisateur())
+            ->setUtilisateur($userInfo["userName"] ?? "-")
             ->setIdTypeOperation($this->typeOperationRepository->find($typeOperationId))
             ->setIdTypeDocument($this->typeDocumentRepository->find($this->typeDocumentId))
             ->setStatutOperation($statutOperation ? 'Succès' : 'Echec')
