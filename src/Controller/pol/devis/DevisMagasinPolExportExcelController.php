@@ -5,6 +5,7 @@ namespace App\Controller\pol\devis;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Controller\Controller;
+use App\Service\TableauEnStringService;
 use App\Entity\magasin\devis\DevisMagasin;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\magasin\devis\ListeDevisMagasinModel;
@@ -95,7 +96,10 @@ class DevisMagasinPolExportExcelController extends Controller
     public function recuperationDonner(array $criteria = []): array
     {
         // recupération de la liste des devis magasin dans IPS
-        $devisIps = $this->listeDevisMagasinModel->getDevis();
+        $codeAgenceAutoriserString = TableauEnStringService::orEnString($this->getUser()->getAgenceAutoriserCode());
+        $vignette = 'pneumatique';
+        $adminMutli          = in_array(1, $this->getUser()->getRoleIds()) || in_array(6, $this->getUser()->getRoleIds());
+        $devisIps = $this->listeDevisMagasinModel->getDevis($criteria, $vignette, $codeAgenceAutoriserString, $adminMutli);
 
         $listeDevisFactory = [];
         foreach ($devisIps as  $devisIp) {

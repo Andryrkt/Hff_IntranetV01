@@ -293,7 +293,7 @@ class DitDuplicationController extends Controller
     private function enregistrementFichier(FormInterface $form, string $numDit, string $agServEmetteur): array
     {
         $nameGenerator = new DitNameFileService();
-        $cheminBaseUpload = $_ENV['BASE_PATH_FICHIER'] . 'dit/';
+        $cheminBaseUpload = $_ENV['BASE_PATH_FICHIER'] . '/dit/';
         $uploader = new UploderFileService($cheminBaseUpload, $nameGenerator);
         $path = $cheminBaseUpload . $numDit . '/';
         if (!is_dir($path)) {

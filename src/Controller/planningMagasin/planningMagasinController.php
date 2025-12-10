@@ -73,7 +73,6 @@ class planningMagasinController extends Controller
         //initialisation criteria
         $criteria = $this->planningMagasinSearch;
         if ($form->isSubmitted() && $form->isValid()) {
-            // dd($form->getdata());
             $criteria =  $form->getdata();
         }
         /** @var array $touLesBCSoumis ce qui est valider DW*/
@@ -91,20 +90,14 @@ class planningMagasinController extends Controller
 
 
         $data = $this->planningMagasinModel->recuperationCommadeplanifier($criteria, $backString, $condition, $tousLesBCSoumis, $codeAgence);
-        // dump($data);
-
         $tabObjetPlanning = $this->creationTableauObjetPlanningMagasin($data, $back);
-        // dd($tabObjetPlanning);
-        // die();
-        // Fusionner les objets en fonction de l'idMat
         $fusionResult = $this->ajoutMoiDetailMagasin($tabObjetPlanning);
-        // dd($fusionResult);
         $forDisplay = $this->prepareDataForDisplay($fusionResult, $criteria->getMonths() == null ? 3 : $criteria->getMonths());
         return $this->render('planningMagasin/planning.html.twig', [
-            'form' => $form->createView(),
+            'form'           => $form->createView(),
             'criteria'       => $criteria->toArray(),
-            'uniqueMonths' => $forDisplay['uniqueMonths'],
-            'preparedData' => $forDisplay['preparedData'],
+            'uniqueMonths'   => $forDisplay['uniqueMonths'],
+            'preparedData'   => $forDisplay['preparedData'],
         ]);
     }
 

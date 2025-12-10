@@ -3,11 +3,9 @@
 namespace App\Service\magasin\devis\Validator;
 
 use Symfony\Component\Form\FormInterface;
-use App\Model\magasin\devis\ListeDevisMagasinModel;
 use App\Repository\Interfaces\StatusRepositoryInterface;
 use App\Repository\magasin\devis\DevisMagasinRepository;
 use App\Repository\Interfaces\LatestSumOfLinesRepositoryInterface;
-use App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService;
 
 /**
  * Orchestrateur de validation pour les devis magasin - Validation de Prix (VP)
@@ -27,9 +25,10 @@ class DevisMagasinValidationVpOrchestrator
      * @param string $expectedNumeroDevis Le numéro de devis attendu pour la validation
      */
     public function __construct(
-        string $expectedNumeroDevis
+        string $expectedNumeroDevis,
+        string $remoteUrl = ""
     ) {
-        $this->fileValidator = new DevisMagasinVpFileValidator($expectedNumeroDevis);
+        $this->fileValidator = new DevisMagasinVpFileValidator($expectedNumeroDevis, $remoteUrl);
         $this->statusValidator = new DevisMagasinVpStatusValidator();
         $this->contentValidator = new DevisMagasinVpContentValidator();
     }

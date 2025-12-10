@@ -135,7 +135,7 @@ class DevisMagasin
 
 
     /**
-     * @ORM\Column(type="string", length=50, name="tache_validateur", nullable=true)
+     * @ORM\Column(type="text", name="tache_validateur", nullable=true)
      *
      * @var string|null
      */
@@ -165,13 +165,26 @@ class DevisMagasin
      */
     private $dateBc = null;
 
+    /**
+     * @ORM\Column(type="string", length=5000, name="observation", nullable=true)
+     *
+     * @var string|null
+     */
+    private ?string $observation = null;
+
+
     private $pieceJoint01;
 
     private $pieceJoint2;
 
     public  $constructeur;
 
-
+    /**
+     * @ORM\Column(type="string", length=255, name="piece_joint_excel", nullable=true)
+     *
+     * @var string
+     */
+    private $pieceJointExcel;
 
     /** =========================================
      * GETTERS & SETTERS
@@ -566,9 +579,9 @@ class DevisMagasin
     /**
      * Get the value of tacheValidateur
      */
-    public function getTacheValidateur()
+    public function getTacheValidateur(): array
     {
-        return $this->tacheValidateur;
+        return $this->tacheValidateur ? json_decode($this->tacheValidateur, true) : [];
     }
 
     /**
@@ -576,9 +589,9 @@ class DevisMagasin
      *
      * @return  self
      */
-    public function setTacheValidateur($tacheValidateur)
+    public function setTacheValidateur(array $tacheValidateur): self
     {
-        $this->tacheValidateur = $tacheValidateur;
+        $this->tacheValidateur = json_encode($tacheValidateur);
 
         return $this;
     }
@@ -663,6 +676,42 @@ class DevisMagasin
     public function setDateBc($dateBc): self
     {
         $this->dateBc = $dateBc;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of observation
+     */
+    public function getObservation(): ?string
+    {
+        return $this->observation;
+    }
+
+    /**
+     * Set the value of observation
+     */
+    public function setObservation(?string $observation): self
+    {
+        $this->observation = $observation;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of pieceJointExcel
+     */
+    public function getPieceJointExcel(): string
+    {
+        return $this->pieceJointExcel;
+    }
+
+    /**
+     * Set the value of pieceJointExcel
+     */
+    public function setPieceJointExcel(string $pieceJointExcel): self
+    {
+        $this->pieceJointExcel = $pieceJointExcel;
 
         return $this;
     }

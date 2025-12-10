@@ -67,7 +67,7 @@ class DevisMagasinPolVerificationPrixController extends Controller
         $this->autorisationAcces($this->getUser(), Application::ID_DVM);
 
         // Instantiation et validation de la présence du numéro de devis
-        $orchestrator = new DevisMagasinValidationVpOrchestrator($this->historiqueOperationDeviMagasinService, $numeroDevis ?? '');
+        $orchestrator = new DevisMagasinValidationVpOrchestrator($numeroDevis ?? '');
 
         //recupération des informations utile dans IPS
         $firstDevisIps = $this->getInfoDevisIps($numeroDevis);

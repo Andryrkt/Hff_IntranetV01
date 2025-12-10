@@ -26,6 +26,7 @@ class ListeDevisMagasinModel extends Model
             left JOIN informix.neg_lig on nlig_numcde = nent_numcde
             WHERE nent_natop = 'DEV'
             AND nent_soc = 'HF'
+            AND nent_servcrt <> 'ASS'
             AND CAST(nent_numcli AS VARCHAR(20)) NOT LIKE '199%'
             AND year(Nent_datecde) = year(TODAY)
         ";
@@ -54,10 +55,10 @@ class ListeDevisMagasinModel extends Model
             // entrer par le vignette POL - agence pneumatique
             $piecesPneumatique = GlobalVariablesService::get('pneumatique');
             $statement .= " AND nlig_constp IN ($piecesPneumatique) AND nent_succ in ($codeAgenceAutoriser) ";
-        } elseif (!$adminMulti) {
+        } else {
             // entrer par le vignette MAGASIN - agence tana et autres agence
-            $piecesMagasinPol = GlobalVariablesService::get('pieces_magasin') . ',' . GlobalVariablesService::get('pneumatique');
-            $statement .= " AND nlig_constp IN ($piecesMagasinPol) AND nent_succ in ($codeAgenceAutoriser) ";
+            $piecesMagasin = GlobalVariablesService::get('pieces_magasin');
+            $statement .= " AND nlig_constp IN ($piecesMagasin) AND nent_succ <> '60' ";
         }
 
         $statement .= " ORDER BY nent_datecde DESC";

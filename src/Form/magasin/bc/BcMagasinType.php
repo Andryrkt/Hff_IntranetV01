@@ -2,6 +2,7 @@
 
 namespace App\Form\magasin\bc;
 
+
 use App\Model\magasin\bc\BcMagasinDto;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
