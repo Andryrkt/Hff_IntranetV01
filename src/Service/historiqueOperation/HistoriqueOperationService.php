@@ -70,7 +70,7 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
         $userInfo   = $this->sessionService->get('user_info');
         $historique
             ->setNumeroDocument($numeroDocument)
-            ->setUtilisateur($userInfo["userName"] ?? "-")
+            ->setUtilisateur($userInfo["username"] ?? "-")
             ->setIdTypeOperation($this->typeOperationRepository->find($typeOperationId))
             ->setIdTypeDocument($this->typeDocumentRepository->find($this->typeDocumentId))
             ->setStatutOperation($statutOperation ? 'Succès' : 'Echec')
