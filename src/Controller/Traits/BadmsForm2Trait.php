@@ -137,7 +137,7 @@ trait BadmsForm2Trait
         $file = $form->get($nomFichier)->getData();
         $fileName = $badm->getNumBadm() . '.' . $file->getClientOriginalExtension();
 
-        $fileDossier = $_ENV['BASE_PATH_FICHIER']. '/bdm/fichiers/';
+        $fileDossier = $_ENV['BASE_PATH_FICHIER'] . '/bdm/fichiers/';
 
         $file->move($fileDossier, $fileName);
 
@@ -161,7 +161,7 @@ trait BadmsForm2Trait
         //     $badm->getServiceEmetteurId()->getCodeService()
         // );
 
-                $mainPdf = $_ENV['BASE_PATH_FICHIER'] . '/bdm/' . $badm->getNumBadm() . '_' . $badm->getAgenceEmetteurId()->getCodeAgence() . $badm->getServiceEmetteurId()->getCodeService() . '.pdf';
+        $mainPdf = $_ENV['BASE_PATH_FICHIER'] . '/bdm/' . $badm->getNumBadm() . '_' . $badm->getAgenceEmetteurId()->getCodeAgence() . $badm->getServiceEmetteurId()->getCodeService() . '.pdf';
         // Vérifier que le fichier principal existe avant de l'ajouter
         if (!file_exists($mainPdf)) {
             throw new \RuntimeException('Le fichier PDF principal n\'existe pas.');
@@ -297,7 +297,7 @@ trait BadmsForm2Trait
             ->setNumBadm($this->autoINcriment('BDM'))
             ->setAgenceServiceEmetteur(substr($badm->getAgenceEmetteur(), 0, 2) . substr($badm->getServiceEmetteur(), 0, 3))
             ->setAgenceServiceDestinataire($badm->getAgence()->getCodeAgence() . $badm->getService()->getCodeService())
-            ->setNomUtilisateur($em->getRepository(User::class)->find($this->getSessionService()->get('user_id'))->getNomUtilisateur())
+            ->setNomUtilisateur($this->getUserName())
             ->setServiceEmetteur($serviceEmetteur->getCodeService() . ' ' . $serviceEmetteur->getLibelleService())
             ->setCasierEmetteur($casierEmetteur)
         ;
@@ -315,40 +315,40 @@ trait BadmsForm2Trait
 
 
         $generPdfBadm = [
-            'typeMouvement' => $badm->getTypeMouvement()->getDescription(),
-            'Num_BDM' => $badm->getNumBadm(),
-            'Date_Demande' => $badm->getDateDemande()->format('d/m/Y'),
-            'Designation' => $data[0]['designation'],
-            'Num_ID' => $data[0]['num_matricule'],
-            'Num_Serie' => $data[0]['num_serie'],
-            'Groupe' => $data[0]['famille'],
-            'Num_Parc' => $badm->getNumParc(),
-            'Affectation' => $data[0]['affectation'],
-            'Constructeur' => $data[0]['constructeur'],
-            'Date_Achat' => $this->formatageDate($data[0]['date_achat']),
-            'Annee_Model' => $data[0]['annee'],
-            'Modele' => $data[0]['modele'],
-            'Agence_Service_Emetteur' => substr($badm->getAgenceEmetteur(), 0, 2) . '-' . substr($badm->getServiceEmetteur(), 0, 3),
-            'Casier_Emetteur' => $badm->getCasierEmetteur(),
-            'Agence_Service_Destinataire' => $badm->getAgence()->getCodeAgence() . '-' . $badm->getService()->getCodeService(),
-            'Casier_Destinataire' => $badm->getCasierDestinataire() === null ? '' : $badm->getCasierDestinataire()->getCasier(),
-            'Motif_Arret_Materiel' => $badm->getMotifMateriel(),
-            'Etat_Achat' => $badm->getEtatAchat(),
-            'Date_Mise_Location' => $badm->getDateMiseLocation() === null ? '' : $badm->getDateMiseLocation()->format('d/m/Y'),
-            'Cout_Acquisition' => (float)$badm->getCoutAcquisition(),
-            'Amort' => (float)$data[0]['amortissement'],
-            'VNC' => (float)$badm->getValeurNetComptable(),
-            'Nom_Client' => $badm->getNomClient(),
-            'Modalite_Paiement' => $badm->getModalitePaiement(),
-            'Prix_HT' => $badm->getPrixVenteHt(),
-            'Motif_Mise_Rebut' => $badm->getMotifMiseRebut(),
-            'Heures_Machine' => $data[0]['heure'],
-            'Kilometrage' => $data[0]['km'],
-            'Email_Emetteur' => $em->getRepository(User::class)->find($this->getSessionService()->get('user_id'))->getMail(),
+            'typeMouvement'                       => $badm->getTypeMouvement()->getDescription(),
+            'Num_BDM'                             => $badm->getNumBadm(),
+            'Date_Demande'                        => $badm->getDateDemande()->format('d/m/Y'),
+            'Designation'                         => $data[0]['designation'],
+            'Num_ID'                              => $data[0]['num_matricule'],
+            'Num_Serie'                           => $data[0]['num_serie'],
+            'Groupe'                              => $data[0]['famille'],
+            'Num_Parc'                            => $badm->getNumParc(),
+            'Affectation'                         => $data[0]['affectation'],
+            'Constructeur'                        => $data[0]['constructeur'],
+            'Date_Achat'                          => $this->formatageDate($data[0]['date_achat']),
+            'Annee_Model'                         => $data[0]['annee'],
+            'Modele'                              => $data[0]['modele'],
+            'Agence_Service_Emetteur'             => substr($badm->getAgenceEmetteur(), 0, 2) . '-' . substr($badm->getServiceEmetteur(), 0, 3),
+            'Casier_Emetteur'                     => $badm->getCasierEmetteur(),
+            'Agence_Service_Destinataire'         => $badm->getAgence()->getCodeAgence() . '-' . $badm->getService()->getCodeService(),
+            'Casier_Destinataire'                 => $badm->getCasierDestinataire() === null ? '' : $badm->getCasierDestinataire()->getCasier(),
+            'Motif_Arret_Materiel'                => $badm->getMotifMateriel(),
+            'Etat_Achat'                          => $badm->getEtatAchat(),
+            'Date_Mise_Location'                  => $badm->getDateMiseLocation() === null ? '' : $badm->getDateMiseLocation()->format('d/m/Y'),
+            'Cout_Acquisition'                    => (float)$badm->getCoutAcquisition(),
+            'Amort'                               => (float)$data[0]['amortissement'],
+            'VNC'                                 => (float)$badm->getValeurNetComptable(),
+            'Nom_Client'                          => $badm->getNomClient(),
+            'Modalite_Paiement'                   => $badm->getModalitePaiement(),
+            'Prix_HT'                             => $badm->getPrixVenteHt(),
+            'Motif_Mise_Rebut'                    => $badm->getMotifMiseRebut(),
+            'Heures_Machine'                      => $data[0]['heure'],
+            'Kilometrage'                         => $data[0]['km'],
+            'Email_Emetteur'                      => $this->getUserMail(),
             'Agence_Service_Emetteur_Non_separer' => substr($badm->getAgenceEmetteur(), 0, 2) . substr($badm->getServiceEmetteur(), 0, 3),
-            'image' => $image,
-            'extension' => $extension,
-            'OR' => $OR
+            'image'                               => $image,
+            'extension'                           => $extension,
+            'OR'                                  => $OR
         ];
 
         return $generPdfBadm;
