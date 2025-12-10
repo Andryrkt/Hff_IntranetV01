@@ -2,8 +2,6 @@
 
 namespace App\Controller\Traits\dit;
 
-use FileException;
-use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DemandeIntervention;
 use Symfony\Component\Form\FormInterface;
 use App\Entity\dit\DitOrsSoumisAValidation;
@@ -11,14 +9,12 @@ use App\Entity\dit\DitFactureSoumisAValidation;
 
 trait DitFactureSoumisAValidationtrait
 {
-
-    private function nomUtilisateur($em)
+    private function nomUtilisateur(): array
     {
-        $userId = $this->getSessionService()->get('user_id', []);
-        $user = $em->getRepository(User::class)->find($userId);
+        $userInfo = $this->getSessionService()->get('user_info', []);
         return [
-            'nomUtilisateur' => $user->getNomUtilisateur(),
-            'emailUtilisateur' => $user->getMail()
+            'nomUtilisateur'  => $userInfo['username'],
+            'mailUtilisateur' => $userInfo['email']
         ];
     }
 

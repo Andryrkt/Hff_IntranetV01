@@ -250,7 +250,7 @@ class DitFactureSoumisAValidationController extends Controller
         $etatOr = $this->etatOr($dataForm, $this->ditFactureSoumiAValidationModel);
         $this->modificationEtatFacturDit($etatOr, $numDit);
 
-        return $this->genererPdfFacture->GenererPdfFactureSoumisAValidation($this->ditFactureSoumiAValidation, $numDevis, $montantPdf, $etatOr, $this->nomUtilisateur($this->getEntityManager())['emailUtilisateur'], $interneExterne, $estFactureConformAOr);
+        return $this->genererPdfFacture->GenererPdfFactureSoumisAValidation($this->ditFactureSoumiAValidation, $numDevis, $montantPdf, $etatOr, $this->nomUtilisateur()['mailUtilisateur'], $interneExterne, $estFactureConformAOr);
     }
 
     private function estFactureConformAOr(array $factureSoumisAValidation): string

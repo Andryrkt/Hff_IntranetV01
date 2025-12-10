@@ -419,7 +419,7 @@ class DitDevisSoumisAValidationController extends Controller
 
         $variationPrixRefPiece = $this->variationPrixRefPiece($numDevis);
 
-        $mailUtilisateur = $this->nomUtilisateur($this->getEntityManager())['mailUtilisateur'];
+        $mailUtilisateur = $this->nomUtilisateur()['mailUtilisateur'];
 
         // dd($montantPdf, $quelqueaffichage);
         if ($this->estCeVente($numDevis)) { // vente
@@ -473,13 +473,12 @@ class DitDevisSoumisAValidationController extends Controller
         return $achatLocaux;
     }
 
-    private function nomUtilisateur($em): array
+    private function nomUtilisateur(): array
     {
-        $userId = $this->getSessionService()->get('user_id', []);
-        $user = $em->getRepository(User::class)->find($userId);
+        $userInfo = $this->getSessionService()->get('user_info', []);
         return [
-            'nomUtilisateur' => $user->getNomUtilisateur(),
-            'mailUtilisateur' => $user->getMail()
+            'nomUtilisateur'  => $userInfo['username'],
+            'mailUtilisateur' => $userInfo['email']
         ];
     }
 
