@@ -4,6 +4,7 @@ namespace App\Controller\Traits\da;
 
 use App\Model\da\DaModel;
 use App\Entity\admin\Agence;
+use App\Entity\admin\Service;
 use App\Entity\da\DaAfficher;
 use App\Entity\da\DaSearch;
 use App\Entity\da\DemandeAppro;
@@ -366,6 +367,18 @@ trait DaListeTrait
     {
         $criteria = $this->getSessionService()->get('criteria_search_list_da', []) ?? [];
 
-        $daSearch->toObject($criteria);
+        $daSearch->toObject($criteria, $this->agServCriteria($criteria));
+    }
+
+    private function agServCriteria(array $criteria): array
+    {
+        $agServ = [
+            'agenceEmetteur'  => isset($criteria['agenceEmetteur']) ? $this->getEntityManager()->getRepository(Agence::class)->find($criteria['agenceEmetteur']) : null,
+            'agenceDebiteur'  => isset($criteria['agenceDebiteur']) ? $this->getEntityManager()->getRepository(Agence::class)->find($criteria['agenceDebiteur']) : null,
+            'serviceEmetteur' => isset($criteria['serviceEmetteur']) ? $this->getEntityManager()->getRepository(Service::class)->find($criteria['serviceEmetteur']) : null,
+            'serviceDebiteur' => isset($criteria['serviceDebiteur']) ? $this->getEntityManager()->getRepository(Service::class)->find($criteria['serviceDebiteur']) : null,
+        ];
+
+        return $agServ;
     }
 }

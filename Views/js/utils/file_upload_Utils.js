@@ -241,15 +241,22 @@ export function initializeFileHandlersMultiple(idSuffix, fileInpute) {
 }
 
 /**================================================================
- *TRAITEMENT DE FICHIER NOUVEAU
+ * TRAITEMENT DE FICHIER NOUVEAU
  *================================================================*/
-export function initializeFileHandlersNouveau(idSuffix, fileInputElement) {
+export function initializeFileHandlersNouveau(
+  idSuffix,
+  fileInputElement,
+  remoteFileUrl = ""
+) {
   const fileInput = fileInputElement;
   const uploadBtn = document.getElementById(`upload-btn-${idSuffix}`);
   const dropzone = document.getElementById(`dropzone-${idSuffix}`);
   const fileList = document.getElementById(`file-list-${idSuffix}`); // Preview container
   const fileName = document.getElementById(`file-name-${idSuffix}`); // Info container
   const fileSize = document.getElementById(`file-size-${idSuffix}`); // Info container
+
+  if (remoteFileUrl)
+    displayRemotePDF(remoteFileUrl, fileList, fileName, fileSize);
 
   if (!uploadBtn || !dropzone || !fileList || !fileName || !fileSize) {
     console.error(`One or more elements for dropzone ${idSuffix} are missing.`);
@@ -363,4 +370,144 @@ export function handleFile(
   reader.readAsDataURL(file);
 
   fileListElement.appendChild(container);
+}
+
+export function displayRemotePDF(
+  fileUrl,
+  fileListElement,
+  fileNameElement,
+  fileSizeElement
+) {
+  // Clear previous state
+  fileListElement.innerHTML = "";
+  if (fileNameElement) fileNameElement.innerHTML = "";
+  if (fileSizeElement) fileSizeElement.innerHTML = "";
+
+  if (!fileUrl) return;
+
+  // Affiche nom du fichier depuis le path
+  const fileName = fileUrl.split("/").pop();
+  if (fileNameElement)
+    fileNameElement.innerHTML = `<strong>Fichier :</strong> ${fileName}`;
+
+  // Taille inconnue côté client si distant, optionnel
+  if (fileSizeElement) fileSizeElement.innerHTML = "";
+
+  // Container avec bouton supprimer
+  const container = document.createElement("div");
+  container.className = "position-relative border rounded p-2";
+
+  const removeBtn = document.createElement("button");
+  removeBtn.innerHTML = "&times;";
+  removeBtn.type = "button";
+  removeBtn.className = "btn btn-sm btn-danger position-absolute";
+  removeBtn.style.top = "5px";
+  removeBtn.style.right = "5px";
+  removeBtn.title = "Supprimer le fichier";
+  removeBtn.onclick = () => {
+    fileListElement.innerHTML = "";
+    if (fileNameElement) fileNameElement.innerHTML = "";
+    if (fileSizeElement) fileSizeElement.innerHTML = "";
+  };
+  container.appendChild(removeBtn);
+
+  // Aperçu PDF
+  const embed = document.createElement("embed");
+  embed.src = fileUrl;
+  embed.type = "application/pdf";
+  embed.width = "100%";
+  embed.style.height = "80vh";
+  container.appendChild(embed);
+
+  fileListElement.appendChild(container);
+}
+
+/**================================================================
+ * TRAITEMENT DE FICHIER EXCEL
+ *================================================================*/
+export function initializeFileHandlersExcel(idSuffix, fileInputElement) {
+  const fileInput = fileInputElement;
+  const uploadBtn = document.getElementById(`upload-btn-${idSuffix}`);
+  const dropzone = document.getElementById(`dropzone-${idSuffix}`);
+  const fileName = document.getElementById(`file-name-${idSuffix}`);
+  const fileSize = document.getElementById(`file-size-${idSuffix}`);
+
+  if (!uploadBtn || !dropzone || !fileName || !fileSize) {
+    console.error(`One or more elements for dropzone ${idSuffix} are missing.`);
+    return;
+  }
+
+  uploadBtn.addEventListener("click", function () {
+    fileInput.click();
+  });
+
+  fileInput.addEventListener("change", function () {
+    handleExcelFile(this.files, fileName, fileSize, fileInput);
+  });
+
+  dropzone.addEventListener("dragover", function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    this.style.backgroundColor = "#e2e6ea";
+  });
+
+  dropzone.addEventListener("dragleave", function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    this.style.backgroundColor = "#f8f9fa";
+  });
+
+  dropzone.addEventListener("drop", function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    const files = e.dataTransfer.files;
+    fileInput.files = files;
+    handleExcelFile(files, fileName, fileSize, fileInput);
+    this.style.backgroundColor = "#f8f9fa";
+  });
+}
+
+export function handleExcelFile(
+  files,
+  fileNameElement,
+  fileSizeElement,
+  fileInputElement,
+  maxSizeMB = 5
+) {
+  const file = files[0];
+
+  // Clear previous state
+  if (fileNameElement) fileNameElement.innerHTML = "";
+  if (fileSizeElement) fileSizeElement.innerHTML = "";
+
+  if (!file) return;
+
+  const maxSizeBytes = maxSizeMB * 1024 * 1024;
+
+  const allowedTypes = [
+    "application/vnd.ms-excel", // .xls
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // .xlsx
+  ];
+
+  if (!allowedTypes.includes(file.type)) {
+    alert("Veuillez sélectionner un fichier Excel (.xls ou .xlsx).");
+    if (fileInputElement) fileInputElement.value = "";
+    return;
+  }
+
+  if (file.size > maxSizeBytes) {
+    alert(`Le fichier est trop volumineux (max ${maxSizeMB} Mo).`);
+    if (fileInputElement) fileInputElement.value = "";
+    return;
+  }
+
+  // Affichage infos
+  if (fileNameElement)
+    fileNameElement.innerHTML = `<strong>Fichier :</strong> ${file.name}`;
+
+  if (fileSizeElement)
+    fileSizeElement.innerHTML = `<strong>Taille :</strong> ${(
+      file.size /
+      (1024 * 1024)
+    ).toFixed(2)} MB`;
 }

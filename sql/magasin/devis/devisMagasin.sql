@@ -28,7 +28,7 @@ CREATE TABLE devis_soumis_a_validation_neg
     ADD date_pointage DATETIME2(0) NULL
 
     ALTER TABLE devis_soumis_a_validation_neg
-    ADD  tache_validateur VARCHAR(50) NULL;
+    ADD  tache_validateur TEXT NULL;
 
     ALTER TABLE devis_soumis_a_validation_neg
     ADD statut_bc VARCHAR(100) NULL;
@@ -41,3 +41,9 @@ CREATE TABLE devis_soumis_a_validation_neg
 
     ALTER TABLE devis_soumis_a_validation_neg
     ADD date_bc DATETIME2(0) NULL
+
+    ALTER TABLE devis_soumis_a_validation_neg
+    ADD observation VARCHAR(5000) NULL;
+
+    ALTER TABLE devis_soumis_a_validation_neg
+    ADD piece_joint_excel varchar(255) null;
