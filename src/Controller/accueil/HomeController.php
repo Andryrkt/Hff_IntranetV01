@@ -4,7 +4,6 @@ namespace App\Controller\accueil;
 
 use App\Controller\Controller;
 use App\Service\navigation\MenuService;
-use App\Utils\PerfLogger;
 use Symfony\Component\Routing\Annotation\Route;
 use Exception;
 

@@ -44,9 +44,9 @@ class AppExtension extends AbstractExtension implements GlobalsInterface
         $notification = $this->session->get('notification');
         $this->session->remove('notification'); // Supprime la notification après l'affichage
 
-        if ($this->session->get('user_id') !== null) {
-            $user = $this->em->getRepository(User::class)->find($this->session->get('user_id'));
-        }
+        $userInfo = $this->session->get('user_info');
+
+        if ($userInfo) $user = $this->em->getRepository(User::class)->find($userInfo['id']);
 
         return [
             'App' => [
