@@ -4,8 +4,6 @@ namespace App\Controller\dom;
 
 
 use App\Entity\dom\Dom;
-use App\Entity\admin\Agence;
-use App\Entity\admin\Service;
 use App\Controller\Controller;
 use App\Form\dom\DomForm1Type;
 use App\Entity\admin\Application;
@@ -51,8 +49,7 @@ class DomFirstController extends Controller
 
         //HISTORISATION DE LA PAGE
         $this->logUserVisit('dom_first_form'); // historisation du page visité par l'utilisateur
-        
-        
+
         //RENDU DE LA VUE
         return $this->render('doms/firstForm.html.twig', [
             'form' => $form->createView(),
@@ -94,14 +91,6 @@ class DomFirstController extends Controller
             ->setCodeAgenceAutoriser($user->getAgenceAutoriserCode())
             ->setCodeServiceAutoriser($user->getServiceAutoriserCode())
         ;
-    }
-    private function autorisationRole($em): bool
-    {
-        /** CREATION D'AUTORISATION */
-        $userId = $this->getSessionService()->get('user_id');
-        $userConnecter = $em->getRepository(User::class)->find($userId);
-        $roleIds = $userConnecter->getRoleIds();
-        return in_array(1, $roleIds) || in_array(4, $roleIds);
     }
 
     private function notification($message)
