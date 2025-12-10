@@ -27,8 +27,8 @@ class ProfilUserType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-
-        $users = $this->ldap->infoUser($this->sessionService->get('user'), $this->sessionService->get('password'));
+        $userInfo = $this->sessionService->get('user_info');
+        $users = $this->ldap->infoUser($userInfo['username'], $userInfo['password']);
 
         $nom = [];
         foreach ($users as $key => $value) {
