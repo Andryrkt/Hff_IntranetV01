@@ -7,6 +7,7 @@ use App\Entity\admin\Service;
 use App\Controller\Controller;
 use App\Entity\admin\Application;
 use App\Entity\magasin\bc\BcMagasin;
+use App\Service\TableauEnStringService;
 use App\Entity\magasin\devis\DevisMagasin;
 use App\Repository\admin\AgenceRepository;
 use App\Controller\Traits\AutorisationTrait;
@@ -134,7 +135,9 @@ class ListeDevisMagasinPolController extends Controller
     {
         // recupération de la liste des devis magasin dans IPS
         $admin = in_array(1, $this->getUser()->getRoleIds()); // verification si admin
-        $devisIps = $this->listeDevisMagasinModel->getDevis($criteria, 'pneumatique', '60', $admin);
+        $codeAgenceAutoriserString = TableauEnStringService::orEnString($this->getUser()->getAgenceAutoriserCode());
+        $vignette = 'pneumatique';
+        $devisIps = $this->listeDevisMagasinModel->getDevis($criteria, $vignette, $codeAgenceAutoriserString, $admin);
 
         $listeDevisFactory = [];
         foreach ($devisIps as  $devisIp) {

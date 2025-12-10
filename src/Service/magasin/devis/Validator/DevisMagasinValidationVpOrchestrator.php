@@ -3,11 +3,9 @@
 namespace App\Service\magasin\devis\Validator;
 
 use Symfony\Component\Form\FormInterface;
-use App\Model\magasin\devis\ListeDevisMagasinModel;
 use App\Repository\Interfaces\StatusRepositoryInterface;
 use App\Repository\magasin\devis\DevisMagasinRepository;
 use App\Repository\Interfaces\LatestSumOfLinesRepositoryInterface;
-use App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService;
 
 /**
  * Orchestrateur de validation pour les devis magasin - Validation de Prix (VP)
@@ -24,16 +22,15 @@ class DevisMagasinValidationVpOrchestrator
     /**
      * Constructeur de l'orchestrateur de validation VP
      * 
-     * @param HistoriqueOperationDevisMagasinService $historiqueService Service pour l'historique des opérations
      * @param string $expectedNumeroDevis Le numéro de devis attendu pour la validation
      */
     public function __construct(
-        HistoriqueOperationDevisMagasinService $historiqueService,
-        string $expectedNumeroDevis
+        string $expectedNumeroDevis,
+        string $remoteUrl = ""
     ) {
-        $this->fileValidator = new DevisMagasinVpFileValidator($historiqueService, $expectedNumeroDevis);
-        $this->statusValidator = new DevisMagasinVpStatusValidator($historiqueService);
-        $this->contentValidator = new DevisMagasinVpContentValidator($historiqueService);
+        $this->fileValidator = new DevisMagasinVpFileValidator($expectedNumeroDevis, $remoteUrl);
+        $this->statusValidator = new DevisMagasinVpStatusValidator();
+        $this->contentValidator = new DevisMagasinVpContentValidator();
     }
 
     /**
@@ -86,23 +83,28 @@ class DevisMagasinValidationVpOrchestrator
         return $this->statusValidator->verifierStatutPrixValideAgenceEtSommeDeLignesAndAmountInchangée($repository, $numeroDevis, $newSumOfLines, $newSumOfMontant);
     }
 
-    public function verificationStatutPrixModifierAgenceEtSommeDeLignesInchangéeEtMontantchange(DevisMagasinRepository $repository, string $numeroDevis, int $newSumOfLines, float $newSumOfMontant): bool {
+    public function verificationStatutPrixModifierAgenceEtSommeDeLignesInchangéeEtMontantchange(DevisMagasinRepository $repository, string $numeroDevis, int $newSumOfLines, float $newSumOfMontant): bool
+    {
         return $this->statusValidator->verificationStatutPrixModifierAgenceEtSommeDeLignesInchangéeEtMontantchange($repository, $numeroDevis, $newSumOfLines, $newSumOfMontant);
     }
 
-    public function verificationStatutValideAEnvoyerAuclientEtSommeDeLignesChangeEtMontantChange(DevisMagasinRepository $repository, string $numeroDevis, int $newSumOfLines, float $newSumOfMontant): bool {
+    public function verificationStatutValideAEnvoyerAuclientEtSommeDeLignesChangeEtMontantChange(DevisMagasinRepository $repository, string $numeroDevis, int $newSumOfLines, float $newSumOfMontant): bool
+    {
         return $this->statusValidator->verificationStatutValideAEnvoyerAuclientEtSommeDeLignesChangeEtMontantChange($repository, $numeroDevis, $newSumOfLines, $newSumOfMontant);
     }
 
-    public function verifieStatutAvalideChefAgence(DevisMagasinRepository $repository, string $numeroDevis): bool {
+    public function verifieStatutAvalideChefAgence(DevisMagasinRepository $repository, string $numeroDevis): bool
+    {
         return $this->statusValidator->verifieStatutAvalideChefAgence($repository, $numeroDevis);
     }
 
-    public function verifieStatutValideAEnvoyerAuclientEtSommeLignesInchange(DevisMagasinRepository $repository, string $numeroDevis, int $newSumOfLines, float $newSumOfMontant): bool {
+    public function verifieStatutValideAEnvoyerAuclientEtSommeLignesInchange(DevisMagasinRepository $repository, string $numeroDevis, int $newSumOfLines, float $newSumOfMontant): bool
+    {
         return $this->statusValidator->verifieStatutValideAEnvoyerAuclientEtSommeLignesInchange($repository, $numeroDevis, $newSumOfLines, $newSumOfMontant);
     }
 
-    public function verifieStatutClotureAModifierEtSommeLignesIpsInferieurSommeLignesDevis(DevisMagasinRepository $repository, string $numeroDevis, int $newSumOfLines): bool {
+    public function verifieStatutClotureAModifierEtSommeLignesIpsInferieurSommeLignesDevis(DevisMagasinRepository $repository, string $numeroDevis, int $newSumOfLines): bool
+    {
         return $this->statusValidator->verifieStatutClotureAModifierEtSommeLignesIpsInferieurSommeLignesDevis($repository, $numeroDevis, $newSumOfLines);
     }
 

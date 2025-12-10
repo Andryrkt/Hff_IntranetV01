@@ -3,15 +3,6 @@ import {
   initializeFileHandlersMultiple,
 } from "../../utils/file_upload_Utils.js";
 import { setupConfirmationButtons } from "../../utils/ui/boutonConfirmUtils.js";
-
-/** ============================
- * CHAMP FORMULAIRE
- * =============================*/
-const numLivInput = document.getElementById("da_soumission_fac_bl_numLiv");
-numLivInput.addEventListener("input", function () {
-  this.value = this.value.replace(/[^\d]/g, "").slice(0, 8);
-});
-
 /** ============================
  * FICHIER
  * =============================*/

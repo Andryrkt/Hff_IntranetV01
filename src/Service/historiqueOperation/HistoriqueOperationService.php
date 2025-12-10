@@ -12,6 +12,12 @@ use App\Entity\admin\historisation\documentOperation\HistoriqueOperationDocument
 
 class HistoriqueOperationService implements HistoriqueOperationInterface
 {
+    private const FILTER_NULL = 1;
+    private const FILTER_EMPTY_STRING = 2;
+    private const FILTER_FALSE = 4;
+    private const FILTER_ZERO = 8;
+    private const FILTER_ALL = self::FILTER_NULL | self::FILTER_EMPTY_STRING | self::FILTER_FALSE;
+
     private $em;
     private $userRepository;
     private $typeOperationRepository;
@@ -120,23 +126,121 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
      *  - 5 : CREATION
      *  - 6 : CLOTURE
      */
-    protected function sendNotification(string $message, string $numeroDocument, string $routeName, int $typeOperationId, bool $success = false)
-    {
+    protected function sendNotification(
+        string $message,
+        string $numeroDocument,
+        string $routeName,
+        int $typeOperationId,
+        bool $success = false,
+        ?array $structuredParams = null,
+        string $paramPrefix = 'devis_magasin_search',
+        array $routeParams = [],
+        ?array $queryParams = null,
+        int $filterFlags = self::FILTER_NULL // Flags pour le filtrage
+    ) {
         $this->enregistrerDansSession($message, $success);
-
         $this->sendNotificationCore($message, $numeroDocument, $typeOperationId, $success);
 
         global $container;
+
+        // Si structuredParams est fourni, le convertir
+        if ($structuredParams !== null) {
+            $queryParameters = $this->convertStructuredToQueryParams($structuredParams, $paramPrefix, $filterFlags);
+        } else {
+            // Sinon utiliser queryParams ou $_GET
+            $queryParameters = $queryParams ?? $_GET;
+        }
+
+        // Filtrer les paramètres selon les flags
+        $queryParameters = $this->filterParamsByFlags($queryParameters, $filterFlags);
+
         if ($container && $container->has('router')) {
             $urlGenerator = $container->get('router');
-            $url = $urlGenerator->generate($routeName);
+            $url = $urlGenerator->generate($routeName, $routeParams);
+
+            if (!empty($queryParameters)) {
+                $url .= (strpos($url, '?') === false ? '?' : '&') . http_build_query($queryParameters);
+            }
         } else {
-            // Fallback si le conteneur n'est pas disponible
             $url = '/' . $routeName;
+            if (!empty($queryParameters)) {
+                $url .= '?' . http_build_query($queryParameters);
+            }
         }
+
         header("Location: " . $url);
         exit();
     }
+
+    /**
+     * Transforme un tableau structuré en paramètres GET compatibles
+     * Exemple: ['numeroDevis' => '19407835', 'emetteur' => ['agence' => null, 'service' => null]]
+     * Devient: ['devis_magasin_search[numeroDevis]' => '19407835', ...]
+     */
+    private function convertStructuredToQueryParams(
+        array $structured,
+        string $prefix,
+        int $filterFlags = self::FILTER_NULL
+    ): array {
+        $params = [];
+
+        foreach ($structured as $key => $value) {
+            if (is_array($value)) {
+                foreach ($value as $subKey => $subValue) {
+                    $paramName = $prefix . '[' . $key . '][' . $subKey . ']';
+                    // Vérifier si on doit inclure cette valeur
+                    if ($this->shouldIncludeValue($subValue, $filterFlags)) {
+                        $params[$paramName] = $subValue;
+                    }
+                }
+            } else {
+                $paramName = $prefix . '[' . $key . ']';
+                if ($this->shouldIncludeValue($value, $filterFlags)) {
+                    $params[$paramName] = $value;
+                }
+            }
+        }
+
+        return $params;
+    }
+
+    private function filterParamsByFlags(array $params, int $filterFlags): array
+    {
+        return array_filter($params, function ($value) use ($filterFlags) {
+            return $this->shouldIncludeValue($value, $filterFlags);
+        });
+    }
+
+    private function shouldIncludeValue($value, int $filterFlags): bool
+    {
+        // Filtrer null
+        if (($filterFlags & self::FILTER_NULL) && $value === null) {
+            return false;
+        }
+
+        // Filtrer chaîne vide
+        if (($filterFlags & self::FILTER_EMPTY_STRING) && $value === '') {
+            return false;
+        }
+
+        // Filtrer false
+        if (($filterFlags & self::FILTER_FALSE) && $value === false) {
+            return false;
+        }
+
+        // Filtrer 0 (optionnel)
+        if (($filterFlags & self::FILTER_ZERO) && $value === 0) {
+            return false;
+        }
+
+        // Filtrer tableaux vides
+        if (is_array($value) && empty($value)) {
+            return false;
+        }
+
+        return true;
+    }
+
 
     /** 
      * Méthode pour envoyer une notification et enregistrer l'historique de la SOUMISSION dU document
@@ -148,9 +252,17 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
      *  - true : Succès de la soumission
      *  - false : Echec de la soumission (valeur par défaut)
      */
-    public function sendNotificationSoumission(string $message, string $numeroDocument, string $routeName, bool $success = false)
-    {
-        $this->sendNotification($message, $numeroDocument, $routeName, 1, $success);
+    public function sendNotificationSoumission(
+        string $message,
+        string $numeroDocument,
+        string $routeName,
+        bool $success = false,
+        ?array $structuredParams = null, // tableau structuré des paramètres de recherche (session)
+        string $paramPrefix = 'devis_magasin_search', // name de l'input de recherche
+        array $routeParams = [],
+        ?array $queryParams = null
+    ) {
+        $this->sendNotification($message, $numeroDocument, $routeName, 1, $success, $structuredParams, $paramPrefix, $routeParams, $queryParams);
     }
 
     /** 

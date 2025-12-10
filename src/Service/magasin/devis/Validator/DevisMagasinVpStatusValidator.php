@@ -4,10 +4,13 @@ namespace App\Service\magasin\devis\Validator;
 
 use App\Entity\magasin\devis\DevisMagasin;
 use App\Service\validation\ValidationServiceBase;
+use App\Traits\Validator\ValidatorNotificationTrait;
 use App\Repository\Interfaces\StatusRepositoryInterface;
 use App\Repository\magasin\devis\DevisMagasinRepository;
-use App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService;
 use App\Service\magasin\devis\Config\DevisMagasinValidationConfig;
+use App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService;
+use App\Service\SessionManagerService;
+use Illuminate\Support\Facades\Session;
 
 /**
  * Validateur spécialisé pour les statuts des devis magasin VP
@@ -17,17 +20,7 @@ use App\Service\magasin\devis\Config\DevisMagasinValidationConfig;
  */
 class DevisMagasinVpStatusValidator extends ValidationServiceBase
 {
-    private HistoriqueOperationDevisMagasinService $historiqueService;
-
-    /**
-     * Constructeur du validateur de statuts VP
-     * 
-     * @param HistoriqueOperationDevisMagasinService $historiqueService Service pour l'historique des opérations
-     */
-    public function __construct(HistoriqueOperationDevisMagasinService $historiqueService)
-    {
-        $this->historiqueService = $historiqueService;
-    }
+    use ValidatorNotificationTrait;
 
     /**
      * Bloqué si le devis est en cours de vérification de prix
@@ -60,7 +53,8 @@ class DevisMagasinVpStatusValidator extends ValidationServiceBase
      * @param float $newSumOfMontant Le nouveau montant total
      * @return bool true si la soumission est autorisée, false si elle est bloquée
      */
-    public function verifierStatutPrixValideAgenceEtSommeDeLignesAndAmountInchangée(DevisMagasinRepository $repository, string $numeroDevis, int $newSumOfLines, float $newSumOfMontant): bool {
+    public function verifierStatutPrixValideAgenceEtSommeDeLignesAndAmountInchangée(DevisMagasinRepository $repository, string $numeroDevis, int $newSumOfLines, float $newSumOfMontant): bool
+    {
         return $this->validateStatusWithContent(
             $repository,
             $numeroDevis,
@@ -82,7 +76,8 @@ class DevisMagasinVpStatusValidator extends ValidationServiceBase
      * @param float $newSumOfMontant Le nouveau montant total
      * @return bool true si la soumission est autorisée, false si elle est bloquée
      */
-    public function verificationStatutPrixModifierAgenceEtSommeDeLignesInchangéeEtMontantchange(DevisMagasinRepository $repository, string $numeroDevis, int $newSumOfLines, float $newSumOfMontant): bool {
+    public function verificationStatutPrixModifierAgenceEtSommeDeLignesInchangéeEtMontantchange(DevisMagasinRepository $repository, string $numeroDevis, int $newSumOfLines, float $newSumOfMontant): bool
+    {
         return $this->validateStatusWithContent(
             $repository,
             $numeroDevis,
@@ -97,7 +92,8 @@ class DevisMagasinVpStatusValidator extends ValidationServiceBase
 
 
 
-    public function verificationStatutValideAEnvoyerAuclientEtSommeDeLignesChangeEtMontantChange(DevisMagasinRepository $repository, string $numeroDevis, int $newSumOfLines, float $newSumOfMontant): bool {
+    public function verificationStatutValideAEnvoyerAuclientEtSommeDeLignesChangeEtMontantChange(DevisMagasinRepository $repository, string $numeroDevis, int $newSumOfLines, float $newSumOfMontant): bool
+    {
         return $this->validateStatusWithContent(
             $repository,
             $numeroDevis,
@@ -129,7 +125,7 @@ class DevisMagasinVpStatusValidator extends ValidationServiceBase
         );
     }
 
-/**
+    /**
      * Vérifie si le statut est "A valider chef d'agence"
      * 
      * @param StatusRepositoryInterface $repository Le repository pour accéder aux statuts
@@ -167,9 +163,10 @@ class DevisMagasinVpStatusValidator extends ValidationServiceBase
     }
 
     public function verifieStatutClotureAModifierEtSommeLignesIpsInferieurSommeLignesDevis(
-        DevisMagasinRepository $repository, 
-        string $numeroDevis, 
-        int $newSumOfLines): bool {
+        DevisMagasinRepository $repository,
+        string $numeroDevis,
+        int $newSumOfLines
+    ): bool {
         return $this->validateStatusWithContent(
             $repository,
             $numeroDevis,
@@ -199,7 +196,7 @@ class DevisMagasinVpStatusValidator extends ValidationServiceBase
         string $errorMessage
     ): bool {
         if ($this->isStatusBlocking($repository, $numeroDevis, $blockingStatuses)) {
-            $this->historiqueService->sendNotificationSoumission($errorMessage, $numeroDevis, 'devis_magasin_liste', false);
+            $this->sendNotificationDevisMagasin($errorMessage, $numeroDevis, false);
             return false; // Validation failed
         }
 
@@ -213,11 +210,10 @@ class DevisMagasinVpStatusValidator extends ValidationServiceBase
         callable $conditionCallback,
         string $errorMessage
     ): bool {
-        if($this->isStatusBlocking($repository, $numeroDevis, $blockingStatuses) && $conditionCallback()) {
-            $this->historiqueService->sendNotificationSoumission($errorMessage, $numeroDevis, 'devis_magasin_liste', false);
+        if ($this->isStatusBlocking($repository, $numeroDevis, $blockingStatuses) && $conditionCallback()) {
+            $this->sendNotificationDevisMagasin($errorMessage, $numeroDevis, false);
             return false;
         }
         return true;
     }
-
 }

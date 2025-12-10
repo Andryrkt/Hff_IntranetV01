@@ -436,7 +436,7 @@ class DitOrsSoumisAValidationController extends Controller
             $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
             exit;
         } elseif ($conditionBloquage['invalidePosition']) {
-            $message = "Echec de la soumission de l'OR";
+            $message = "Echec de la soumission de l'OR, la position de l'OR est parmis 'FC', 'FE', 'CP', 'ST'";
             $okey = false;
             $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
             exit;

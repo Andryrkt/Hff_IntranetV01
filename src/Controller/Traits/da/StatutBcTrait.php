@@ -89,7 +89,7 @@ trait StatutBcTrait
         [$ref, $numDit, $numDa, $designation, $numeroOr, $statutOr, $statutBc, $statutDa] = $this->getVariableNecessaire($DaAfficher);
 
         // 2. on met vide la statut bc selon le condition en survolon la fonction
-        if ($this->doitRetournerVide($statutDa)) return '';
+        if ($this->doitRetournerVide($statutDa, $statutOr)) return '';
 
         /** 3. recuperation type DA @var bool $daDirect @var bool $daViaOR @var bool $daReappro  */
         [$daDirect, $daViaOR, $daReappro] = $this->getTypeDa($DaAfficher);
@@ -104,7 +104,7 @@ trait StatutBcTrait
         [$infoDaDirect, $situationCde] = $this->getInfoNecessaireIps($ref, $numDit, $numDa, $designation, $numeroOr, $statutBc);
 
         /** 7. Non dispo || DA avec DIT et numéro OR null || numéro OR non vide et statut OR non vide || infoDaDirect ou situationCde est vide */
-        if ($DaAfficher->getNonDispo() || ($numeroOr == null && $daViaOR) || ($numeroOr != null && empty($statutOr)) || !$this->aSituationCde($situationCde, $infoDaDirect, $daReappro)) {
+        if ($DaAfficher->getNonDispo() || ($numeroOr == null && $daViaOR) || ($numeroOr != null && empty($statutOr)) || $this->aSituationCde($situationCde, $daViaOR)) {
             return $statutBc;
         }
 
@@ -123,7 +123,8 @@ trait StatutBcTrait
         // 12. modification du Qte de commande dans DaAfficher
         $this->updateQteCdeDansDaAfficher($qte, $DaAfficher, $infoDaDirect, $daDirect, $daViaOR);
 
-        if (empty($situationCde) && $daViaOR && $statutOr === DitOrsSoumisAValidation::STATUT_VALIDE) {
+        // DA DIRECT et DA REAPPRO
+        if ((empty($situationCde) && $daViaOR && $statutOr === DitOrsSoumisAValidation::STATUT_VALIDE) || ($daReappro && $statutOr ===  DemandeAppro::STATUT_DW_VALIDEE && $DaAfficher->getNumeroCde() === null)) {
             return 'PAS DANS OR';
         }
         // DA Direct , DA Via OR
@@ -160,6 +161,11 @@ trait StatutBcTrait
         elseif ($daDirect || $daViaOR) {
             return $statutSoumissionBc;
         }
+        // DA REAPPRO
+        elseif ($daReappro && $numeroOr != null && $statutOr == DemandeAppro::STATUT_DW_VALIDEE && $DaAfficher->getEstBlReapproSoumis() == true) {
+            return DaSoumissionBc::STATUT_EN_COURS_DE_PREPARATION;
+        }
+
 
         return '';
     }
@@ -177,6 +183,7 @@ trait StatutBcTrait
     {
         /**  pour le DaDirect @var array $infoDaDirect */
         $infoDaDirect = $this->daModel->getInfoDaDirect($numDa, $ref, $designation);
+
         /** IPS pour le DaViaOR @var array $situationCde */
         $situationCde = $this->daModel->getSituationCde($ref, $numDit, $numDa, $designation, $numeroOr, $statutBc);
 
@@ -188,10 +195,14 @@ trait StatutBcTrait
      * statut_dal n'est validé || statut_dal est parmis (soumis à l'ate, soumis à l'appro, autoriser à modifier l'ate)
      *
      * @param string|null $statutDa
+     * @param string|null $statutOr
+     * 
      * @return boolean
      */
-    private function doitRetournerVide(?string $statutDa): bool
+    private function doitRetournerVide(?string $statutDa, ?string $statutOr): bool
     {
+        if ($statutOr === DemandeAppro::STATUT_DW_REFUSEE || strtolower($statutOr) === strtolower(DemandeAppro::STATUT_DW_A_VALIDE)) return true;
+
         // si statut Da n'est pas validé
         if ($statutDa !== DemandeAppro::STATUT_VALIDE) return true;
 
@@ -251,10 +262,11 @@ trait StatutBcTrait
         return $numCde;
     }
 
-    private function aSituationCde(array $situationCde, array $infoDaDirect, bool $daReappro): bool
+    private function aSituationCde(array $situationCde, bool $daViaOR): bool
     {
-        if ($daReappro) return true;
-        return array_key_exists(0, $situationCde) || array_key_exists(0, $infoDaDirect);
+        if ($daViaOR) return !array_key_exists(0, $situationCde);
+        // elseif ($daDirect) return array_key_exists(0, $infoDaDirect);
+        else return false;
     }
 
     private function doitGenererBc(array $situationCde, string $statutDa, ?string $statutOr, array $infoDaDirect, bool $daDirect, bool $daViaOR): bool
@@ -292,10 +304,10 @@ trait StatutBcTrait
 
     private function doitEditerBc(array $situationCde, array $infoDaDirect, bool $daDirect, bool $daViaOR): bool
     {
-        if ($daDirect) {
+        if ($infoDaDirect && $daDirect) {
             return (int)$infoDaDirect[0]['num_cde'] > 0
                 &&  ($infoDaDirect[0]['position_bc'] === DaSoumissionBc::POSITION_TERMINER || $infoDaDirect[0]['position_bc'] === DaSoumissionBc::POSITION_ENCOUR);
-        } elseif ($daViaOR) {
+        } elseif ($situationCde && $daViaOR) {
             // numero de commande existe && ... && position terminer
             return (int)$situationCde[0]['num_cde'] > 0
                 && $situationCde[0]['slor_natcm'] === 'C'
@@ -319,12 +331,12 @@ trait StatutBcTrait
 
         $bcExiste = $this->daSoumissionBcRepository->bcExists($numCde);
 
-        if ($daDirect) {
+        if ($infoDaDirect && $daDirect) {
             return (int)$infoDaDirect[0]['num_cde'] > 0
                 && $infoDaDirect[0]['position_bc'] === DaSoumissionBc::POSITION_EDITER
                 && !in_array($statutBc, $statutBcDw)
                 && !$bcExiste;
-        } elseif ($daViaOR) {
+        } elseif ($situationCde && $daViaOR) {
             // numero de commande existe && ... && position editer && BC n'est pas encore soumis
             return (int)$situationCde[0]['num_cde'] > 0
                 && $situationCde[0]['slor_natcm'] === 'C'
@@ -338,11 +350,11 @@ trait StatutBcTrait
 
     private function doitEnvoyerBc(array $situationCde, ?string $statutBc, DaAfficher $DaAfficher, string $statutSoumissionBc, array $infoDaDirect, bool $daDirect, bool $daViaOR): bool
     {
-        if ($daDirect) {
+        if ($infoDaDirect && $daDirect) {
             return $infoDaDirect[0]['position_bc'] === DaSoumissionBc::POSITION_EDITER
                 && in_array($statutSoumissionBc, [DaSoumissionBc::STATUT_VALIDE, DaSoumissionBc::STATUT_CLOTURE])
                 && !$DaAfficher->getBcEnvoyerFournisseur();
-        } else if ($daViaOR) {
+        } elseif ($situationCde && $daViaOR) {
             // numero de commande existe && ... && position editer && BC n'est pas encore soumis
             return $situationCde[0]['position_bc'] === DaSoumissionBc::POSITION_EDITER
                 && in_array($statutSoumissionBc, [DaSoumissionBc::STATUT_VALIDE, DaSoumissionBc::STATUT_CLOTURE])

@@ -254,6 +254,10 @@ trait PlanningTraits
         }
         return $fusionResult;
     }
+
+    /**
+     * @param PlanningMateriel[] $objetPlanning
+     */
     private function ajoutMoiDetailMagasin(array $objetPlanning): array
     {
         // Fusionner les objets en fonction de l'idMat
@@ -262,15 +266,16 @@ trait PlanningTraits
 
             $codeAgence = $materiel->getCodeSuc();
             $codeService = $materiel->getCodeServ();
-            $key = $codeAgence . '-' . $codeService; // Utiliser idMat comme clé unique
+            $commercial = $materiel->getCommercial();
+            $codeClient = $materiel->getIdMat();
+            $key = md5("$codeAgence|$codeService|$commercial|$codeClient");
 
-            $condition = isset($fusionResult[$key]) && $codeAgence === $fusionResult[$key]->getCodeSuc() && $codeService === $fusionResult[$key]->getCodeServ();
+            $condition = isset($fusionResult[$key]) && $codeAgence === $fusionResult[$key]->getCodeSuc() && $codeService === $fusionResult[$key]->getCodeServ() && $commercial === $fusionResult[$key]->getCommercial() && $codeClient === $fusionResult[$key]->getIdMat();
             if (!$condition) {
                 $fusionResult[$key] = $materiel; // Si la clé n'existe pas, on l'ajoute
             } else {
                 // Si l'élément existe déjà, on fusionne les détails des mois
                 foreach ($materiel->moisDetails as $moisDetail) {
-
                     $fusionResult[$key]->addMoisDetailMagasin(
                         $moisDetail['mois'],
                         $moisDetail['annee'],

@@ -40,10 +40,11 @@ class BcMagasinRepository extends EntityRepository implements StatusRepositoryIn
     {
         $query = $this->createQueryBuilder('b')
             ->select("DISTINCT b.numeroDevis")
+            ->where('b.statutBc = :statutBc')
+            ->setParameter('statutBc', 'Validé - Devis à transferer')
             ->getQuery()
             ->getSingleColumnResult();
 
         return $query;
     }
 }
-

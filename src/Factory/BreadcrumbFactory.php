@@ -132,6 +132,8 @@ class BreadcrumbFactory
             'planning-detaille'                     => 'Planning détaillé',
             'planningAtelier'                       => 'Planning Interne de l\'Atelier',
             'planningAte'                           => 'Planning',
+            'demande-de-conge'                      => 'Demande de congé',
+            'conge-liste'                           => ' Liste des demandes de congés'
         ];
 
         $cleanSegment = str_replace(['-', '_'], ' ', $segment);

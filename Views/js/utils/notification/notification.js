@@ -4,7 +4,7 @@ const swalStyles = {
     color: "#0f5132",
     iconColor: "#198754",
     toast: true,
-    position: "bottom-end",
+    position: "top-start",
     timer: 7000,
     timerProgressBar: true,
     showConfirmButton: false,
