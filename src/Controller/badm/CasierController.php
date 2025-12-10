@@ -143,7 +143,8 @@ class CasierController extends Controller
 
 
             $NumCAS = $casier->getNumeroCas();
-            $user = $this->getEntityManager()->getRepository(User::class)->find($this->getSessionService()->get('user_id'));
+            $userInfo = $this->getSessionService()->get('user_info');
+            $user = $this->getEntityManager()->getRepository(User::class)->find($userInfo['id']);
             $casier->setAgenceRattacher($form->getData()->getAgence());
             $casier->setCasier($casier->getClient() . ' - ' . $casier->getChantier());
             $casier->setIdStatutDemande($this->getEntityManager()->getRepository(StatutDemande::class)->find(55));
