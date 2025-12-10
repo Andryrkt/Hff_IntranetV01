@@ -248,6 +248,7 @@ class PlanningMagasinModel extends Model
                         AND nent_natop not in ('DEV')
                         AND nent_posf not in ('CP')
                         AND to_char(nent_numcli) not like '150%'
+                        AND nlig_constp not in ('ZDI','Nmc')
                         group by 1
                         HAVING
                             CASE
@@ -284,8 +285,9 @@ class PlanningMagasinModel extends Model
                         AND (nent_servcrt = ser.atab_code AND ser.atab_nom = 'SER')
                         AND (nent_usr = ausr_num)
                         AND nent_natop not in ('DEV')
-                        AND nent_posf not in ('CP')
+                        AND nent_posf not in ('CP','FC')
                         AND to_char(nent_numcli) not like '150%'
+                        AND nlig_constp not in ('ZDI','Nmc')
                         group by 1
                         HAVING
                             CASE
@@ -325,6 +327,7 @@ class PlanningMagasinModel extends Model
                         AND nent_natop not in ('DEV')
                         AND nent_posf not in ('CP')
                         AND to_char(nent_numcli) not like '150%'
+                        AND nlig_constp not in ('ZDI','Nmc')    
                         group by 1
                         HAVING
                             CASE

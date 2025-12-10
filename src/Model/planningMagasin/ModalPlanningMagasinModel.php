@@ -17,7 +17,7 @@ class ModalPlanningMagasinModel extends Model
   public function recupDetailPlanningMagasinInformix($numOrIntv)
   {
     $numOr  = "AND A.NLIG_NUMCDE ='" . $numOrIntv . "' ";
-
+    
     $statement = " SELECT 'PLANIFIE' as plan,
 A.NLIG_NUMCDE as numOr,
 A.NLIG_NUMCF as numCis,
@@ -187,7 +187,7 @@ LEFT JOIN NEG_LIG B ON (A.nlig_soc = b.nlig_soc and A.nlig_numcf = B.nlig_numcde
 WHERE A.NLIG_SUCC in ('01','20','30','40','50','60')
        AND A.NLIG_NATOP in ('DIR')
 AND A.NLIG_QTEFAC = 0
-
+AND A.NLIG_constp  not in ('ZDI','Nmc')
                 $numOr
 
 
@@ -257,7 +257,7 @@ public function recupeQteCISlig($numOr, $itv, $refp)
                   from neg_lig
                   where nlig_natop = 'CIS'
                   and nlig_numcde ='".$numOr."'
-                  AND  NLIG_NOLIGN  = '".$itv."'
+                  --AND  NLIG_NOLIGN  = '".$itv."'
                   and nlig_refp ='" . $refp . "'
         ";
     // dump($statement);

@@ -63,14 +63,13 @@
 										{% set qteLiv = detail.details.qteLiv | default(0) * 1 %}
 										{% set qteAll = detail.details.qteAll | default(0) * 1 %}
 										{% set back = detail.details.back | default('') %}
-
 											{% if qteCdm == qteLiv and qteCdm != '' and qteLiv != '' %}
 											{# Tout livré #}
 											{# {% set classe = 'tout-livre bg-success text-white' %} #}
 										{% elseif qteLiv > 0 and qteLiv != qteCdm and qteCdm > (qteLiv + qteAll) %}
 											{# Partiellement livré #}
 											{% set classe = 'partiellement-livre bg-warning text-white' %}
-										{% elseif qteCdm != qteAll and qteLiv == 0 and qteAll > 0 %}
+										{% elseif (qteCdm != qteAll and qteLiv == 0 and qteAll > 0 )%}
 											{# Partiellement dispo #}
 											{% set classe = 'partiellement-dispo bg-info text-white' %}
 										{% elseif (qteCdm == qteAll and qteLiv < qteCdm) or (qteAll > 0 and qteCdm == (qteAll + qteLiv)) %}

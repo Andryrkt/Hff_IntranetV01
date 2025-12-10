@@ -88,8 +88,9 @@ class CoursController extends Controller
             /** @var CoursEchangeSearch */
             $criteria =  $form->getdata();
             $datesys =  $criteria->getDateHisto()->format("m/d/Y");
-        }
-        $datesys =  date("m/d/Y");
+         }else {
+            $datesys =  date("m/d/Y");
+        } 
         $libtab = $this->dateSemaineNow($datesys)['libelleDate'];
         $dateInformix = $this->dateSemaineNow($datesys)['dateInformix'];
         $data = $this->recupDataHisto($dateInformix)['data'];
