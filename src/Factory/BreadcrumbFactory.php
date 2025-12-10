@@ -9,7 +9,7 @@ class BreadcrumbFactory
     private string $baseUrl;
     private array $menuConfig;
 
-    public function __construct(string $baseUrl = '/', BreadcrumbMenuService $breadcrumbMenuService)
+    public function __construct(string $baseUrl, BreadcrumbMenuService $breadcrumbMenuService)
     {
         $this->baseUrl = rtrim($baseUrl, '/');
         $this->menuConfig = $breadcrumbMenuService->getFullMenuConfig();
@@ -25,17 +25,13 @@ class BreadcrumbFactory
         $homeItem = $this->createItem('Accueil', $this->baseUrl ?: '/', false, 'fas fa-home');
 
         // Ajouter dropdown pour l'accueil si configuré
-        if (isset($this->menuConfig['accueil'])) {
-            $homeItem['dropdown'] = $this->createSubItems($path, 'accueil');
-        }
+        if (isset($this->menuConfig['accueil'])) $homeItem['dropdown'] = $this->createSubItems($path, 'accueil');
 
         $breadcrumbs[] = $homeItem;
 
         // Traiter chaque segment de l'URL
         foreach ($segments as $index => $segment) {
-            if ($index == 0 || is_numeric($segment) || preg_match('/\d$/', $segment)) {
-                continue;
-            }
+            if ($index == 0 || is_numeric($segment) || preg_match('/\d$/', $segment)) continue;
             $isLast = ($index === count($segments) - 1);
             $label = $this->formatLabel($segment);
             $icon = $this->getIconForSegment($segment);
@@ -44,9 +40,7 @@ class BreadcrumbFactory
 
             // Ajouter dropdown si configuré pour ce segment
             $slug = strtolower($segment);
-            if (isset($this->menuConfig[$slug])) {
-                $item['dropdown'] = $this->createSubItems($path, $slug);
-            }
+            if (isset($this->menuConfig[$slug])) $item['dropdown'] = $this->createSubItems($path, $slug);
 
             $breadcrumbs[] = $item;
         }

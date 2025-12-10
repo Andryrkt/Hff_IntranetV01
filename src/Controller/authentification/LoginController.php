@@ -36,29 +36,37 @@ class LoginController extends Controller
             try {
                 /** @var User $user */
                 $user = $this->userRepository->findOneBy(['nom_utilisateur' => $username]);
-                $userId = $user ? $user->getId() : '-';
 
-                if (!$user) {
-                    throw new \Exception('Utilisateur non trouvé avec le nom d\'utilisateur : ' . $username);
-                }
+                if (!$user) throw new \Exception('Utilisateur non trouvé avec le nom d\'utilisateur : ' . $username);
 
                 if (!$this->ldapModel->userConnect($username, $password)) {
                     $this->logUserVisit('security_signin');
                     $error_msg = "Vérifier les informations de connexion, veuillez saisir le nom d'utilisateur et le mot de passe de votre session Windows";
                 } else {
+                    $userId = $user->getId();
                     $userInfo = [
-                        "id"       => $userId,
-                        "name"     => $username,
-                        "mail"     => $user->getMail(),
-                        "role"     => $user->getRoleIdsAssoc(),
-                        "password" => $password,
+                        "id"                   => $userId,
+                        "username"             => $username,
+                        "fullname"             => $user->getFullName(),
+                        "email"                => $user->getMail(),
+                        "roles"                => $user->getRoleIds(),
+                        "applications"         => $user->getApplicationsIds(),
+                        "authorized_agences"   => [
+                            "ids"   => $user->getAgenceAutoriserIds(),
+                            "codes" => $user->getAgenceAutoriserCode(),
+                        ],
+                        "authorized_services"  => [
+                            "ids"   => $user->getServiceAutoriserIds(),
+                            "codes" => $user->getServiceAutoriserCode(),
+                        ],
+                        "default_agence_code"  => $user->getCodeAgenceUser(),
+                        "default_service_code" => $user->getCodeServiceUser(),
+                        'password'             => $password,
                     ];
 
                     $this->getSessionService()->set('user_info', $userInfo);
 
                     $this->getSessionService()->set('user_id', $userId);
-                    $this->getSessionService()->set('user', $username);
-                    $this->getSessionService()->set('password', $password);
 
                     $filename = $_ENV['BASE_PATH_LONG'] . "\src\Controller\authentification.csv";
                     $newData = [$userId, $username, $password];
