@@ -80,7 +80,7 @@ class DitValidationController extends Controller
         //         dump($userDemandeur);
         //         $emailSuperieurs = $this->recupMailSuperieur($userDemandeur);
         //         dump($emailSuperieurs);
-        //         $id = $this->getSessionService()->get('user_id');
+        //         $id = $this->getSessionService()->get('user_info')['id'];
         //         dump($id);
         //         $userConnecter = $this->getEntityManager()->getRepository(User::class)->find($id);
         //         dump($userDemandeur);

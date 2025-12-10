@@ -8,17 +8,10 @@ class SecurityApi extends Controller
 {
     public function checkSession()
     {
-        $user = $this->getSessionService()->get('user_id', []);
-
-        if (!$user) {
-            $statut = ['status' => 'active'];
-        } else {
-            $statut = ['status' => 'inactive'];
-        }
-
+        $userInfo = $this->getSessionService()->get('user_info');
 
         header("Content-type:application/json");
 
-        echo json_encode($statut);
+        echo json_encode(['status' => $userInfo ? 'active' : 'inactive']);
     }
 }

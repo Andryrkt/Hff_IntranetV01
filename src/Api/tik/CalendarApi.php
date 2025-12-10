@@ -23,7 +23,8 @@ class CalendarApi extends Controller
         // Vérifier si c'est une méthode GET
         if ($request->isMethod('GET')) {
             $tab = $this->getSessionService()->get('tik_planning_search', []); // Pour le tri ou formulaire de recherche
-            $userId = $this->getSessionService()->get('user_id');
+            $userInfo = $this->getSessionService()->get('user_info');
+            $userId = $userInfo['id'];
 
             // Récupération des événements depuis la base de données
             $events = $this->getEntityManager()->getRepository(TkiPlanning::class)->findByFilter($tab);

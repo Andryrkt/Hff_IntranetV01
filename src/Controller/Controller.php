@@ -543,7 +543,8 @@ class Controller
      */
     protected function getUserId(): ?int
     {
-        return $this->getSessionService()->get('user_id');
+        $userInfo = $this->getSessionService()->get('user_info');
+        return $userInfo['id'] ?? null;
     }
 
     /**
