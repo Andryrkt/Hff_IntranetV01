@@ -162,19 +162,19 @@ class PlanningMagasinModel extends Model
                         CASE 
                             WHEN  ( SUM(nlig_qteliv) > 0 AND SUM(nlig_qteliv) != SUM(nlig_qtecde) AND SUM(nlig_qtecde) > (SUM(nlig_qteliv) + SUM(nlig_qtealiv)) )
                             OR ( SUM(nlig_qtecde) != SUM(nlig_qtealiv) AND SUM(nlig_qteliv) = 0 AND SUM(nlig_qtealiv) > 0 )  THEN 
-                            SUM(CASE WHEN nlig_constp NOT IN ('ZDI') THEN nlig_qtecde ELSE 0 END)
+                            SUM(CASE WHEN nlig_constp NOT IN ('ZDI','Nmc') THEN nlig_qtecde ELSE 0 END)
                             ELSE sum(nlig_qtecde) 
                             END QteCdm, 
                         CASE 
                             WHEN  ( SUM(nlig_qteliv) > 0 AND SUM(nlig_qteliv) != SUM(nlig_qtecde) AND SUM(nlig_qtecde) > (SUM(nlig_qteliv) + SUM(nlig_qtealiv)) )
                             OR ( SUM(nlig_qtecde) != SUM(nlig_qtealiv) AND SUM(nlig_qteliv) = 0 AND SUM(nlig_qtealiv) > 0 )  THEN 
-                            SUM(CASE WHEN nlig_constp NOT IN ('ZDI') THEN nlig_qteliv ELSE 0 END)
+                            SUM(CASE WHEN nlig_constp NOT IN ('ZDI','Nmc') THEN nlig_qteliv ELSE 0 END)
                             ELSE sum(nlig_qteliv) 
                         END qtliv,
                         CASE 
                             WHEN  ( SUM(nlig_qteliv) > 0 AND SUM(nlig_qteliv) != SUM(nlig_qtecde) AND SUM(nlig_qtecde) > (SUM(nlig_qteliv) + SUM(nlig_qtealiv)) )
                             OR ( SUM(nlig_qtecde) != SUM(nlig_qtealiv) AND SUM(nlig_qteliv) = 0 AND SUM(nlig_qtealiv) > 0 )  THEN 
-                            SUM(CASE WHEN nlig_constp NOT IN ('ZDI') THEN nlig_qtealiv ELSE 0 END)
+                            SUM(CASE WHEN nlig_constp NOT IN ('ZDI','Nmc') THEN nlig_qtealiv ELSE 0 END)
                             ELSE sum(nlig_qtealiv) 
                         END QteALL 
 
@@ -252,6 +252,7 @@ class PlanningMagasinModel extends Model
                         AND nent_natop not in ('DEV')
                         AND nent_posf not in ('CP')
                         AND to_char(nent_numcli) not like '150%'
+                        AND nlig_constp not in ('ZDI','Nmc')
                         group by 1
                         HAVING
                             CASE
@@ -290,6 +291,7 @@ class PlanningMagasinModel extends Model
                         AND nent_natop not in ('DEV')
                         AND nent_posf not in ('CP')
                         AND to_char(nent_numcli) not like '150%'
+                        AND nlig_constp not in ('ZDI','Nmc')
                         group by 1
                         HAVING
                             CASE
@@ -329,6 +331,7 @@ class PlanningMagasinModel extends Model
                         AND nent_natop not in ('DEV')
                         AND nent_posf not in ('CP')
                         AND to_char(nent_numcli) not like '150%'
+                        AND nlig_constp not in ('ZDI','Nmc')
                         group by 1
                         HAVING
                             CASE
