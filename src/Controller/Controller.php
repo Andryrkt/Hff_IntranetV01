@@ -558,10 +558,10 @@ class Controller
     /**
      * Récupérer l'email de l'utilisateur
      */
-    protected function getUserMail(): ?string
+    protected function getUserMail(): string
     {
-        $user = $this->getUser();
-        return $user ? $user->getMail() : null;
+        $userInfo = $this->getSessionService()->get('user_info');
+        return $userInfo['email'] ?? "";
     }
 
     /**
