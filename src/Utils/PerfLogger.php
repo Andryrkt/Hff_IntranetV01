@@ -60,7 +60,7 @@ class PerfLogger
      */
     public function save(): void
     {
-        $filename = "perf_logs_" . date('Y-m-d_H-i-s') . ".json";
+        $filename = "logPerfLogger/perf_logs_" . date('Y-m-d_H-i-s') . ".json";
         file_put_contents($filename, json_encode($this->logs, JSON_PRETTY_PRINT));
     }
 
