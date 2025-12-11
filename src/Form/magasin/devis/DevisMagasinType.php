@@ -89,6 +89,7 @@ class DevisMagasinType extends AbstractType
                             'maxSize' => '5M',
                             'maxSizeMessage' => 'Le fichier ne doit pas dépasser 5 Mo.', // Message personnalisé pour la taille
                             'mimeTypes' => [
+                                'application/vnd.ms-excel',
                                 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                             ],
                             'mimeTypesMessage' => 'Veuillez télécharger un fichier Excel valide.',
