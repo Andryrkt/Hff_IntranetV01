@@ -21,7 +21,7 @@ class DevisMagasin
     public const STATUT_PRIX_MODIFIER_TANA = 'Prix modifié - devis à envoyer au client';
     public const STATUT_PRIX_MODIFIER_AGENCE = 'Prix modifié - devis à soumettre';
     public const STATUT_DEMANDE_REFUSE_PAR_PM = 'Demande refusée par le PM';
-    public const STATUT_A_VALIDER_CHEF_AGENCE = 'A valider chef d’agence';
+    public const STATUT_A_VALIDER_CHEF_AGENCE = "A valider chef d'agence";
     public const STATUT_VALIDE_AGENCE = 'Validé - à envoyer au client';
     public const STATUT_ENVOYER_CLIENT = 'Envoyé au client';
     public const STATUT_CLOTURER_A_MODIFIER = 'Cloturé - A modifier';
