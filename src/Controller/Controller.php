@@ -22,6 +22,7 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use App\Service\SessionManagerService;
+use App\Utils\PerfLogger;
 
 /**
  * Classe Controller avec injection de dépendances
@@ -440,7 +441,7 @@ class Controller
     protected function agenceServiceIpsObjet(): array
     {
         try {
-            $userInfo = $this->session->get('user_info');
+            $userInfo = $this->getSessionService()->get('user_info');
 
             if (!$userInfo) throw new \Exception("User info not found in session");
 
@@ -472,7 +473,7 @@ class Controller
     protected function agenceServiceIpsString(): array
     {
         try {
-            $userInfo = $this->session->get('user_info');
+            $userInfo = $this->getSessionService()->get('user_info');
             if (!$userInfo) throw new \Exception("User info not found in session");
 
             $codeAgence = $userInfo["default_agence_code"];
@@ -501,7 +502,7 @@ class Controller
      */
     protected function logUserVisit(string $nomRoute, ?array $params = null)
     {
-        $userInfo = $this->session->get('user_info');
+        $userInfo = $this->getSessionService()->get('user_info');
         $idUtilisateur = $userInfo['id'] ?? "-";
         $utilisateur = $userInfo ? $this->getEntityManager()->getRepository(User::class)->find($idUtilisateur) : null;
         $utilisateurNom = $utilisateur ? $utilisateur->getNomUtilisateur() : null;
@@ -703,6 +704,8 @@ class Controller
     protected function render(string $template, array $parameters = []): Response
     {
         $content = $this->getTwig()->render($template, $parameters);
+        $perfLogger = PerfLogger::getInstance();
+        $perfLogger->log('Fin du script render de Twig', 'Controller.php');
         return new Response($content);
     }
 
