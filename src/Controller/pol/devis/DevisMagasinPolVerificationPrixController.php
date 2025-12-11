@@ -83,7 +83,13 @@ class DevisMagasinPolVerificationPrixController extends Controller
         $devisMagasinRepository = $this->getEntityManager()->getRepository(DevisMagasin::class);
 
         // Validation avant soumission - utilise la nouvelle méthode qui retourne un booléen
-        $orchestrator->validateBeforeVpSubmission($devisMagasinRepository, $numeroDevis, $newSumOfLines, $newSumOfMontant);
+        $data = [
+            'devisMagasinRepository' => $this->devisMagasinRepository,
+            'numeroDevis' => $numeroDevis,
+            'newSumOfLines' => $newSumOfLines,
+            'newSumOfMontant' => $newSumOfMontant
+        ];
+        $orchestrator->validateBeforeVpSubmission($data);
 
         //instancier le devis magasin
         $devisMagasin = new DevisMagasin();
