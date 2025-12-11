@@ -9,6 +9,10 @@
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/inventaire/liste.css?v=2025.10.22.08.00"/>
 {% endblock %}
 
+{% block overlay %}
+	{% include "/shared/_overlay.html.twig"  %}
+{% endblock %}
+
 {% block content %}
 	<div class="sticky-header-titre">
 		<div class="container">
@@ -26,6 +30,7 @@
 				<th>
 					TOTAL
 				</th>
+				<th></th>
 				<th style="text-align: center;">{{ data.data|length == 0 ? "" : data.data|length }}</th>
 				<th></th>
 				<th></th>
@@ -51,42 +56,24 @@
 				<th>
 					<i class="fas fa-ellipsis-vertical"></i>
 				</th>
-				<th style="text-align: center;">
-					Saisie compte</th>
-				<th style="text-align: center;">
-					Comptage encours</th>
-				<th style="text-align: center;">
-					Numéro</th>
-				<th style="text-align: center;">
-					Description</th>
-				<th style="text-align: center;">
-					Ouvert le
-				</th>
-				<th style="text-align: center;">
-					Clôturer le
-				</th>
-				<th style="text-align: center;">
-					Nbr casier</th>
-				<th style="text-align: center;">
-					Nbr Ref</th>
-				<th style="text-align: center;">
-					Qté comptée</th>
-				<th style="text-align: center;">
-					Statut</th>
-				<th style="text-align: center;">
-					Montant</th>
-				<th style="text-align: center;">
-					Nbr Ref écart > 0</th>
-				<th style="text-align: center;">
-					Nbr Ref écart < 0</th>
-				<th style="text-align: center;">
-					Nbr Ref en écart</th>
-				<th style="text-align: center;">
-					% Ref avec écart</th>
-				<th style="text-align: center;">
-					Mont. écart</th>
-				<th style="text-align: center;">
-					% écart</th>
+				<th class="text-center">Upload déjà fait</th>
+				<th class="text-center">Saisie compte</th>
+				<th class="text-center">Comptage encours</th>
+				<th class="text-center">Numéro</th>
+				<th class="text-center">Description</th>
+				<th class="text-center">Ouvert le</th>
+				<th class="text-center">Clôturer le</th>
+				<th class="text-center">Nbr casier</th>
+				<th class="text-center">Nbr Ref</th>
+				<th class="text-center">Qté comptée</th>
+				<th class="text-center">Statut</th>
+				<th class="text-center">Montant</th>
+				<th class="text-center">Nbr Ref écart > 0</th>
+				<th class="text-center">Nbr Ref écart < 0</th>
+				<th class="text-center">Nbr Ref en écart</th>
+				<th class="text-center">% Ref avec écart</th>
+				<th class="text-center">Mont. écart</th>
+				<th class="text-center">% écart</th>
 			</tr>
 		</thead>
 		<tbody id="tableBody">
@@ -108,14 +95,14 @@
 										<a class="dropdown-item fw-bold" href="{{path('bordereu_comptage',{numInv : item.numero})}}" target="_blank">Impression feuille de comptage</a>
 									{% endif %}
 								</li>
-								{% if item.excel is same as(true) %}
+								{% if item.excel %}
 									<li>
-										<a class="dropdown-item fw-bold" href="{{path('download_file',{'filename':'INV'~item.numero~'.xlsx'}) }}" target="_blank">Voir fichier</a>
+										<a class="dropdown-item fw-bold" href="{{path('download_file',{'filename':'INV_'~item.numero~'.xlsx'}) }}" target="_blank">Voir fichier</a>
 									</li>
-								{% else %}
+								{% elseif estAdmin %}
 									<li>
-										<input type="file" accept=".xlsx" id="file{{ item.numero }}" style="display: none;" onchange="uploadFile(this, {{ item.numero }})">
-										<a class="dropdown-item fw-bold" onclick="document.getElementById('file{{ item.numero }}').click()">Upload fichier d'analyse</a>
+										<input type="file" accept=".xlsx" class="input-file-analyse" data-numero="{{ item.numero }}" style="display: none;">
+										<a class="dropdown-item fw-bold upload-fichier-analyse" role="button">Upload fichier d'analyse</a>
 									</li>
 								{% endif %}
 
@@ -123,93 +110,31 @@
 						</div>
 					</td>
 					{# Fin Actions #}
-					<td style="text-align: center;">
-						{{item.saisie_compte}}</td>
-					<td style="text-align: center;">
-						{{item.compte_cours}}</td>
-					<td style="text-align: center;">
-						{{item.numero}}</td>
-					<td>
-						{{item.description}}</td>
-					<td style="text-align: center;">
-						{{item.ouvert}}</td>
-					<td style="text-align: center;">
-						{{item.dateClo}}</td>
-					<td style="text-align: center;">
-						{{item.nbr_casier}}</td>
-					<td style="text-align: center;">
-						{{item.nbr_ref}}</td>
-					<td style="text-align: center;">
-						{{item.qte_comptee}}</td>
-					<td>
-						{{item.statut}}</td>
-					<td style="text-align: right;">
-						{{item.montant |number_format(0, '', ' ')}}</td>
-					<td style="text-align: center;">
-						{{item.nbre_ref_ecarts_positif is same as("0") ?"" : item.nbre_ref_ecarts_positif }}</td>
-					<td style="text-align: center;">
-						{{item.nbre_ref_ecarts_negatifs is same as("0") ?"" : item.nbre_ref_ecarts_negatifs}}</td>
-					<td style="text-align: center;">
-						{{item.total_nbre_ref_ecarts is same as("0") ?"": item.total_nbre_ref_ecarts }}</td>
-					<td style="text-align: center;">
-						{{item.pourcentage_ref_avec_ecart is same as("0") ?"" : item.pourcentage_ref_avec_ecart ~ ' %'}}</td>
-					<td style="text-align: right;">
-						{{item.montant_ecart is same as("0")?"":item.montant_ecart |number_format(0, '', ' ') }}</td>
-					<td style="text-align: center;">
-						{{item.pourcentage_ecart  is same as("0") ?"" : item.pourcentage_ecart ~ ' %'}}</td>
+					<td style="text-align: center;">{{ item.excel ? "OUI" : "NON" }}</td>
+					<td style="text-align: center;">{{item.saisie_compte}}</td>
+					<td style="text-align: center;">{{item.compte_cours}}</td>
+					<td style="text-align: center;">{{item.numero}}</td>
+					<td>{{item.description}}</td>
+					<td style="text-align: center;">{{item.ouvert}}</td>
+					<td style="text-align: center;">{{item.dateClo}}</td>
+					<td style="text-align: center;">{{item.nbr_casier}}</td>
+					<td style="text-align: center;">{{item.nbr_ref}}</td>
+					<td style="text-align: center;">{{item.qte_comptee}}</td>
+					<td>{{item.statut}}</td>
+					<td style="text-align: right;">{{item.montant |number_format(0, '', ' ')}}</td>
+					<td style="text-align: center;">{{item.nbre_ref_ecarts_positif is same as("0") ?"" : item.nbre_ref_ecarts_positif }}</td>
+					<td style="text-align: center;">{{item.nbre_ref_ecarts_negatifs is same as("0") ?"" : item.nbre_ref_ecarts_negatifs}}</td>
+					<td style="text-align: center;">{{item.total_nbre_ref_ecarts is same as("0") ?"": item.total_nbre_ref_ecarts }}</td>
+					<td style="text-align: center;">{{item.pourcentage_ref_avec_ecart is same as("0") ?"" : item.pourcentage_ref_avec_ecart ~ ' %'}}</td>
+					<td style="text-align: right;">{{item.montant_ecart is same as("0")?"":item.montant_ecart |number_format(0, '', ' ') }}</td>
+					<td style="text-align: center;">{{item.pourcentage_ecart  is same as("0") ?"" : item.pourcentage_ecart ~ ' %'}}</td>
 				</tr>
 			{% endfor %}
 		</tbody>
 	</table>
-
 {% endblock %}
+
 {% block javascript %}
-	<script>
-		function uploadFile( input, id ) {
-
-
-
-
-
-let file = input.files[ 0 ];
-if ( ! file ) {
-
-
-
-
-
-alert( "Aucun fichier sélectionné." );
-return;
-
-
-
-
-
-}
-
-let formData = new FormData();
-formData.append( "fichier", file );
-fetch ( `/Hffintranet/Upload/fichier/${ id }`, {
-
-
-
-
-
-method: "POST",
-body: formData
-
-
-
-
-
-} ).then( response => response.text() ).then( data => alert( data ) ).catch( error => console.error( "Erreur:", error ) );
-
-
-
-
-
-}
-	</script>
 	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v=2025.10.22.08.00"></script>
 	<script src="{{ App.base_path }}/Views/js/inventaire/inventaireAg.js?v=2025.10.22.08.00" type="module"></script>
 {% endblock %}

@@ -2,11 +2,12 @@
 
 namespace App\Service\magasin\devis\Validator;
 
+use App\Entity\magasin\devis\DevisMagasin;
 use App\Service\validation\ValidationServiceBase;
-use App\Repository\Interfaces\LatestSumOfLinesRepositoryInterface;
 use App\Repository\magasin\devis\DevisMagasinRepository;
-use App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService;
+use App\Repository\Interfaces\LatestSumOfLinesRepositoryInterface;
 use App\Service\magasin\devis\Config\DevisMagasinValidationConfig;
+use App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService;
 
 /**
  * Validateur spécialisé pour le contenu des devis magasin
@@ -146,6 +147,49 @@ class DevisMagasinContentValidator extends ValidationServiceBase
         return $this->isDevisUnchanged($repository, $numeroDevis, $newSumOfLines, $newSumOfMontant);
     }
 
+
+    /**
+     * Verifie si le devis est tana ou rental (on le bloque)
+     *
+     * @return boolean false bloquer true autoriser
+     */
+    public function isDevisTanaOrRental(string $codeAgence, string $numeroDevis): bool
+    {
+        if (in_array($codeAgence, ['01', '50'])) {
+            $this->sendNotificationDevisMagasin(
+                'Le devis appartient à une agence Tana ou Rental, la soumission est bloquée.',
+                $numeroDevis,
+                false
+            );
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Undocumented function
+     *
+     * @param DevisMagasinRepository $repository
+     * @param string $numeroDevis
+     * @return boolean false bloquer true autoriser
+     */
+    public function isStatutEnvoyerAuClient(DevisMagasinRepository $repository, string $numeroDevis): bool
+    {
+        $oldStatut = $repository->findLatestStatusByIdentifier($numeroDevis);
+
+        if ($oldStatut === DevisMagasin::STATUT_ENVOYER_CLIENT) {
+            $this->sendNotificationDevisMagasin(
+                'Le statut du devis est "Envoyé au client", la soumission est bloquée.',
+                $numeroDevis,
+                false
+            );
+            return false;
+        }
+
+        return true;
+    }
+    
     /**
      * Envoie une notification pour les modifications de lignes
      * 
@@ -173,6 +217,4 @@ class DevisMagasinContentValidator extends ValidationServiceBase
             false
         );
     }
-
-
 }
