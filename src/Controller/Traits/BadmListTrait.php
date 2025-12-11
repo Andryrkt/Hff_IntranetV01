@@ -6,7 +6,6 @@ namespace App\Controller\Traits;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Entity\admin\StatutDemande;
-use App\Entity\admin\utilisateur\User;
 use App\Entity\admin\badm\TypeMouvement;
 
 trait BadmListTrait
@@ -21,16 +20,6 @@ trait BadmListTrait
         $badmSearch->setServiceEmetteur($form->get('serviceEmetteur')->getData());
         $badmSearch->setAgenceDebiteur($form->get('agenceDebiteur')->getData());
         $badmSearch->setServiceDebiteur($form->get('serviceDebiteur')->getData());
-    }
-
-    private function autorisationRole($em): bool
-    {
-        /** CREATION D'AUTORISATION */
-        $userId = $this->getSessionService()->get('user_id');
-        $userConnecter = $em->getRepository(User::class)->find($userId);
-        $roleIds = $userConnecter->getRoleIds();
-        return in_array(1, $roleIds);
-        //FIN AUTORISATION
     }
 
     private function agenceServiceEmetteur(bool $autoriser): array

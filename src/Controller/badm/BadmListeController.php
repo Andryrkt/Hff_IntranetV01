@@ -8,7 +8,6 @@ use App\Controller\Controller;
 use App\Entity\badm\BadmSearch;
 use App\Entity\admin\Application;
 use App\Form\badm\BadmSearchType;
-use App\Entity\admin\utilisateur\User;
 use App\Model\badm\BadmRechercheModel;
 use App\Controller\Traits\BadmListTrait;
 use App\Controller\Traits\AutorisationTrait;
@@ -37,7 +36,7 @@ class BadmListeController extends Controller
 
         $userConnecter = $this->getUser();
 
-        $autoriser = $this->autorisationRole($this->getEntityManager());
+        $autoriser = $this->estAdmin();
 
         $badmSearch = new BadmSearch();
 
@@ -163,7 +162,7 @@ class BadmListeController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $autoriser = $this->autorisationRole($this->getEntityManager());
+        $autoriser = $this->estAdmin();
 
         $badmSearch = new BadmSearch();
         $agenceServiceIps = $this->agenceServiceIpsObjet();
