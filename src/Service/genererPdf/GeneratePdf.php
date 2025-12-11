@@ -170,7 +170,7 @@ class GeneratePdf
         $cheminDestinationLocal = $this->baseCheminDuFichier . 'da/' . $numDa . '/' . $fileName;
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
-    
+
 
     //facture et bl de demande appro
     public function copyToDWFacBlDa($fileName, $numDa)
@@ -191,7 +191,7 @@ class GeneratePdf
     // devis Magasin
     public function copyToDWDevisMagasin($fileName, $numeroDevis)
     {
-        $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/' . $fileName;
+        $cheminFichierDistant = $this->baseCheminDocuware . 'DEVIS MAGASIN/' . $fileName;
         $cheminDestinationLocal = $this->baseCheminDuFichier . 'magasin/devis/' . $numeroDevis . '/' . $fileName;
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
