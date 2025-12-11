@@ -65,8 +65,6 @@ class BadmListeController extends Controller
         //enregistre le critère dans la session
         $this->getSessionService()->set('badm_search_criteria', $criteria);
 
-
-        //$agenceServiceEmetteur = $this->agenceServiceEmetteur($autoriser, $this->getEntityManager());
         $criteria['agenceAutoriser'] = $userConnecter->getAgenceAutoriserIds();
 
 
@@ -190,7 +188,7 @@ class BadmListeController extends Controller
         $page = max(1, $request->query->getInt('page', 1));
         $limit = 10;
 
-        $agenceServiceEmetteur = $this->agenceServiceEmetteur($autoriser, $this->getEntityManager());
+        $agenceServiceEmetteur = $this->agenceServiceEmetteur($autoriser);
 
         $option = [
             'boolean' => $autoriser,
