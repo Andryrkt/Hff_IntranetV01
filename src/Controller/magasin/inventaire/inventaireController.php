@@ -415,6 +415,7 @@ class InventaireController extends Controller
                 $countivent   += (int) $data['data'][$j]["montant_inventaire"];
                 $countMontEcart   += (int) $data['data'][$j]["montant_ajuste"];
             }
+            $MontEcartPourcent = ($countMontEcart / $countivent)*100;
             $data['sum'] = [
                 'cpt1' => $countQtee1,
                 'cpt2' => $countQtee2,
@@ -422,6 +423,7 @@ class InventaireController extends Controller
                 'countPmp' => $countPMP,
                 'countInvent' => $countivent,
                 'countMontEcart' => $countMontEcart,
+                'MontEcartPourcent'=>$MontEcartPourcent,
             ];
         }
         return $data;
