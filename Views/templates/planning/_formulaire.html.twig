@@ -34,9 +34,9 @@
 						{{form_row(form.typeDocument)}}
 						{{form_row(form.orBackOrder)}}
 						{% if 1 in role_ids %}
-						{{form_row(form.orNonValiderDw)}}
+							{{form_row(form.orNonValiderDw)}}
 						{% else %}
-						{{form_row(form.orNonValiderDw, {'row_attr': {'class': 'd-none'}})}}
+							{{form_row(form.orNonValiderDw, {'row_attr': {'class': 'd-none'}})}}
 						{% endif %}					
 					</div>
 					<div class="col-12 col-md-2">
