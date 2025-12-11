@@ -259,6 +259,11 @@ class DaAfficher
     private bool $achatDirect = false;
 
     /**
+     * @ORM\Column(type="boolean", name="last_version")
+     */
+    private bool $lastVersion = false;
+
+    /**
      * @ORM\Column(type="boolean", name="or_a_resoumettre")
      */
     private bool $orResoumettre = false;
@@ -1768,6 +1773,24 @@ class DaAfficher
     public function setDesiCentrale($desiCentrale)
     {
         $this->desiCentrale = $desiCentrale;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of lastVersion
+     */
+    public function isLastVersion(): bool
+    {
+        return $this->lastVersion;
+    }
+
+    /**
+     * Set the value of lastVersion
+     */
+    public function setLastVersion(bool $lastVersion): self
+    {
+        $this->lastVersion = $lastVersion;
 
         return $this;
     }
