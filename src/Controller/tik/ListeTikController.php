@@ -31,8 +31,7 @@ class ListeTikController extends Controller
 
         $tikSearch = new TikSearch();
 
-        $userId = $this->getSessionService()->get('user_id');
-        $user = $this->getEntityManager()->getRepository(User::class)->find($userId);
+        $user = $this->getUser();
 
         /** CREATION D'AUTORISATION */
         $autoriser = $this->autorisationRole($user);
@@ -203,9 +202,7 @@ class ListeTikController extends Controller
 
         $this->verifierSessionUtilisateur();
 
-        $idUtilisateur  = $this->getSessionService()->get('user_id');
-
-        $utilisateur    = $idUtilisateur !== '-' ? $this->getEntityManager()->getRepository(User::class)->find($idUtilisateur) : null;
+        $utilisateur    = $this->getUser();
 
         if (is_null($utilisateur)) {
             $this->SessionDestroy();
@@ -263,14 +260,10 @@ class ListeTikController extends Controller
     {
         $result = [];
 
-        $idUtilisateur  = $this->getSessionService()->get('user_id');
+        $userInfo = $this->getSessionService()->get('user_info');
+        $id = $userInfo['id'] ?? null;
 
-        /** 
-         * @var User $utilisateur l'utilisateur connecté
-         */
-        $utilisateur    = $this->getEntityManager()->getRepository(User::class)->find($idUtilisateur);
-
-        $result['profil'] = ($ticket->getUserId()->getId() === $utilisateur->getId()) ? 1 : 0;
+        $result['profil'] = ($ticket->getUserId()->getId() === $id) ? 1 : 0;
         $result['statut'] = $ticket->getIdStatutDemande()->getId();
 
         return $result;
