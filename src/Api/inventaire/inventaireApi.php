@@ -37,7 +37,7 @@ class inventaireApi extends Controller
                 mkdir($uploadsDir, 0755, true);
             }
 
-            $newFilename = 'INV' . $id . $file->guessExtension();
+            $newFilename = "INV_$id." . $file->guessExtension();
 
             try {
                 $file->move($uploadsDir, $newFilename);

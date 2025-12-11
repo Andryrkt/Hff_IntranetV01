@@ -504,7 +504,7 @@ class InventaireController extends Controller
     private function parcourFichier($numInvent)
     {
         $downloadDir  =   $_ENV['BASE_PATH_FICHIER'] . '/inventaire/';
-        $searchPattern  = $downloadDir . '*INV' . $numInvent . '*.xlsx';
+        $searchPattern  = $downloadDir . '*INV_' . $numInvent . '*.xlsx';
         $matchingFiles = glob($searchPattern);
 
         if (!empty($matchingFiles)) {
