@@ -84,7 +84,7 @@ class DevisMagasinVerificationPrixController extends Controller
 
         // Validation avant soumission - utilise la nouvelle méthode qui retourne un booléen
         $data = [
-            'devisMagasinRepository' => $this->devisMagasinRepository,
+            'devisRepository' => $devisMagasinRepository,
             'numeroDevis' => $numeroDevis,
             'newSumOfLines' => $newSumOfLines,
             'newSumOfMontant' => $newSumOfMontant
