@@ -30,10 +30,11 @@ class ReouvertTikController extends Controller
      */
     public function reouvert($id)
     {
+        $userInfo = $this->session->get('user_info');
         /** 
          * @var User $connectedUser l'utilisateur connecté
          */
-        $connectedUser = $this->getEntityManager()->getRepository(User::class)->find($this->getSessionService()->get('user_id'));
+        $connectedUser = $this->getEntityManager()->getRepository(User::class)->find($userInfo['id']);
 
         /** 
          * @var DemandeSupportInformatique $supportInfo entité correspondant à l'id 

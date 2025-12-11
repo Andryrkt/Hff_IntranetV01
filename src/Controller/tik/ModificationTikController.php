@@ -85,9 +85,11 @@ class ModificationTikController extends Controller
     {
         $this->verifierSessionUtilisateur();
 
-        $idUtilisateur  = $this->getSessionService()->get('user_id');
-
-        $utilisateur    = $idUtilisateur !== '-' ? $this->getEntityManager()->getRepository(User::class)->find($idUtilisateur) : null;
+        $userInfo = $this->session->get('user_info');
+        /** 
+         * @var User $utilisateur l'utilisateur connecté
+         */
+        $utilisateur = $this->getEntityManager()->getRepository(User::class)->find($userInfo['id']);
 
         if (is_null($utilisateur)) {
             $this->SessionDestroy();
