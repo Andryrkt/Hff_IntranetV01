@@ -85,7 +85,7 @@ class ModificationTikController extends Controller
     {
         $this->verifierSessionUtilisateur();
 
-        $connectedUser = $this->getUser();
+        $utilisateur = $this->getUser();
 
         if (is_null($utilisateur)) {
             $this->SessionDestroy();
