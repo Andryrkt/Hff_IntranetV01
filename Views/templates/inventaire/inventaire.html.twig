@@ -95,11 +95,11 @@
 										<a class="dropdown-item fw-bold" href="{{path('bordereu_comptage',{numInv : item.numero})}}" target="_blank">Impression feuille de comptage</a>
 									{% endif %}
 								</li>
-								{% if item.excel is same as(true) %}
+								{% if item.excel %}
 									<li>
 										<a class="dropdown-item fw-bold" href="{{path('download_file',{'filename':'INV_'~item.numero~'.xlsx'}) }}" target="_blank">Voir fichier</a>
 									</li>
-								{% else %}
+								{% elseif estAdmin %}
 									<li>
 										<input type="file" accept=".xlsx" class="input-file-analyse" data-numero="{{ item.numero }}" style="display: none;">
 										<a class="dropdown-item fw-bold upload-fichier-analyse" role="button">Upload fichier d'analyse</a>

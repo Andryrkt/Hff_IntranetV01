@@ -88,6 +88,7 @@ class InventaireController extends Controller
         }
         return $this->render('inventaire/inventaire.html.twig', [
             'form' => $form->createView(),
+            'estAdmin' => $this->estAdmin(),
             'data' => $data
         ]);
     }
