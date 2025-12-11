@@ -13,7 +13,7 @@ class GenererPdfDit extends GeneratePdf
 
     public function copyToDOCUWARE(string $fileName, string $numDit)
     {
-        $cheminFichierDistant = rtrim($this->baseCheminDocuware, '/\\') . '/ORDRE_DE_MISSION/' . $fileName;
+        $cheminFichierDistant = rtrim($this->baseCheminDocuware, '/\\') . '/DIT/' . $fileName;
         $cheminDestinationLocal = rtrim($this->baseCheminDuFichier, '/\\') . '/dit/' . $numDit . '/' . $fileName;
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }

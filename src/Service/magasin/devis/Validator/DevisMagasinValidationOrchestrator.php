@@ -119,6 +119,12 @@ class DevisMagasinValidationOrchestrator
         if (!$this->contentValidator->isDevisTanaOrRental($data['codeAgence'], $data['numeroDevis'])) {
             return false;
         }
+
+        //14. le statut du devis est "Envoyé au client"
+        if (!$this->contentValidator->isStatutEnvoyerAuClient($data['devisMagasinRepository'], $data['numeroDevis'])) {
+            return false;
+        }
+
         return true;
     }
 
