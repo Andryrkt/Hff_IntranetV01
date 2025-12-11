@@ -47,7 +47,7 @@ class DomsListeController extends Controller
         $this->autorisationAcces($this->getUser(), Application::ID_DOM);
         /** FIN AUtorisation acées */
 
-        $autoriser = $this->autorisationRole($this->getEntityManager());
+        $autoriser = $this->estAdmin();
 
         $domSearch = new DomSearch();
 
@@ -199,7 +199,7 @@ class DomsListeController extends Controller
      */
     public function listAnnuler(Request $request)
     {
-        $autoriser = $this->autorisationRole($this->getEntityManager());
+        $autoriser = $this->estAdmin();
 
         $domSearch = new DomSearch();
 
