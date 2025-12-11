@@ -484,29 +484,19 @@ export function handleExcelFile(
 
   const maxSizeBytes = maxSizeMB * 1024 * 1024;
 
-  // const allowedTypes = [
-  //   "application/vnd.ms-excel", // .xls
-  //   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // .xlsx
-  // ];
+  const allowedTypes = [
+    "application/vnd.ms-excel", // .xls
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // .xlsx
+  ];
 
-  // if (!allowedTypes.includes(file.type)) {
-
-  if (file.type !== "application/vnd.ms-excel") {
-    Swal.fire({
-      icon: "error",
-      title: "Erreur",
-      text: "Le type du fichier n'est pas conforme: veuillez sélectionner un fichier Excel (.xls)",
-    });
+  if (!allowedTypes.includes(file.type)) {
+    alert("Veuillez sélectionner un fichier Excel (.xls ou .xlsx).");
     if (fileInputElement) fileInputElement.value = "";
     return;
   }
 
   if (file.size > maxSizeBytes) {
-    Swal.fire({
-      icon: "error",
-      title: "Erreur",
-      text: `Le fichier est trop volumineux (max ${maxSizeMB} Mo).`,
-    });
+    alert(`Le fichier est trop volumineux (max ${maxSizeMB} Mo).`);
     if (fileInputElement) fileInputElement.value = "";
     return;
   }
