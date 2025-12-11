@@ -4,11 +4,10 @@ document.addEventListener("DOMContentLoaded", function () {
   if (localStorage.getItem(STORAGE_KEY) === "1") return;
 
   const userNameElement = document.getElementById("userName");
-  const firstname = userNameElement.dataset.userFirstName; // prénom de l'utilisateur
-  const lastname = userNameElement.dataset.userLastName; // nom de l'utilisateur
+  const fullname = userNameElement.dataset.userFullName; // prénom de l'utilisateur
 
   Swal.fire({
-    title: `Bienvenue <strong>${firstname} ${lastname}</strong> 👋 !`,
+    title: `Bienvenue <strong>${fullname}</strong> 👋 !`,
     html: `
       <p style="margin:0 0 8px;">
         Ravi de vous revoir&nbsp;!
