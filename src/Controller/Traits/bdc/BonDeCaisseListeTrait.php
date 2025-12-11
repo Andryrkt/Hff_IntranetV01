@@ -2,7 +2,6 @@
 
 namespace App\Controller\Traits\bdc;
 
-use App\Entity\admin\Agence;
 use App\Entity\admin\StatutDemande;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\bdc\BonDeCaisse;
@@ -18,26 +17,6 @@ trait BonDeCaisseListeTrait
         $userConnecter = $em->getRepository(User::class)->find($userId);
         $roleIds = $userConnecter->getRoleIds();
         return in_array(1, $roleIds);
-        //FIN AUTORISATION
-    }
-
-    private function agenceIdAutoriser($em): array
-    {
-        /** CREATION D'AUTORISATION */
-        $userId = $this->getSessionService()->get('user_id');
-        $userConnecter = $em->getRepository(User::class)->find($userId);
-        $agenceIds = $userConnecter->getAgenceAutoriserIds();
-
-        // Get the agency codes instead of IDs
-        $agenceCodes = [];
-        foreach ($agenceIds as $agenceId) {
-            $agence = $em->getRepository(Agence::class)->find($agenceId);
-            if ($agence && $agence->getCodeAgence()) {
-                $agenceCodes[] = $agence->getCodeAgence();
-            }
-        }
-
-        return $agenceCodes;
         //FIN AUTORISATION
     }
 
