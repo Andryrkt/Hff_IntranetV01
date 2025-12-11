@@ -2,8 +2,6 @@
 
 namespace App\Controller\Traits\dom;
 
-use App\Entity\admin\Agence;
-use App\Entity\admin\Service;
 use App\Entity\admin\StatutDemande;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\admin\dom\SousTypeDocument;
@@ -23,15 +21,11 @@ trait DomListeTrait
         //FIN AUTORISATION
     }
 
-    private function agenceIdAutoriser($em): array
+    private function agenceIdAutoriser(): array
     {
-        /** CREATION D'AUTORISATION */
-        $userId = $this->getSessionService()->get('user_id');
-        $userConnecter = $em->getRepository(User::class)->find($userId);
-        return $userConnecter->getAgenceAutoriserIds();
-        //FIN AUTORISATION
+        $userInfo = $this->getSessionService()->get('user_info');
+        return $userInfo['authorized_agences']['ids'] ?? [];
     }
-
 
     private function initialisation($badmSearch, $em)
     {

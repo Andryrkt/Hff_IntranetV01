@@ -7,7 +7,6 @@ use App\Entity\dom\DomSearch;
 use App\Controller\Controller;
 use App\Form\dom\DomSearchType;
 use App\Entity\admin\Application;
-use App\Entity\admin\utilisateur\User;
 use App\Controller\Traits\FormatageTrait;
 use App\Controller\Traits\ConversionTrait;
 use App\Controller\Traits\AutorisationTrait;
@@ -76,7 +75,7 @@ class DomsListeController extends Controller
 
         $option = [
             'boolean'  => $autoriser,
-            'idAgence' => $this->agenceIdAutoriser($this->getEntityManager())
+            'idAgence' => $this->agenceIdAutoriser()
         ];
 
         $paginationData = $this->getEntityManager()->getRepository(Dom::class)->findPaginatedAndFiltered($page, $limit, $domSearch, $option);
@@ -228,7 +227,7 @@ class DomsListeController extends Controller
 
         $option = [
             'boolean' => $autoriser,
-            'idAgence' => $this->agenceIdAutoriser($this->getEntityManager())
+            'idAgence' => $this->agenceIdAutoriser()
         ];
         $paginationData = $this->getEntityManager()->getRepository(Dom::class)->findPaginatedAndFilteredAnnuler($page, $limit, $domSearch, $option);
 
