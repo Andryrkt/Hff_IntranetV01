@@ -1,6 +1,6 @@
 {% set fileType = fileType ?? 'PDF' %}
-{% set class = fileType == 'XLS' ? 'text-success' : 'text-warning' %}
-{% set bgColor = fileType == 'XLS' ? 'bg-success' : 'bg-warning' %}
+{% set class = fileType == 'XLSX' ? 'text-success' : 'text-warning' %}
+{% set bgColor = fileType == 'XLSX' ? 'bg-success' : 'bg-warning' %}
 <div id="dropzone-{{ id }}" style="border: 2px dashed #ccc; padding: 50px; text-align: center;">
 	<i class="fa fa-cloud-upload {{ class }} fs-1 mb-3"></i>
 	<br>
