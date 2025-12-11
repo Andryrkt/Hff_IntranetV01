@@ -3,23 +3,12 @@
 namespace App\Controller\Traits\bdc;
 
 use App\Entity\admin\StatutDemande;
-use App\Entity\admin\utilisateur\User;
 use App\Entity\bdc\BonDeCaisse;
 use App\Entity\dw\DwBonDeCaisse;
 use App\Repository\dw\DwBonDeCaisseRepository;
 
 trait BonDeCaisseListeTrait
 {
-    private function autorisationRole($em): bool
-    {
-        /** CREATION D'AUTORISATION */
-        $userId = $this->getSessionService()->get('user_id');
-        $userConnecter = $em->getRepository(User::class)->find($userId);
-        $roleIds = $userConnecter->getRoleIds();
-        return in_array(1, $roleIds);
-        //FIN AUTORISATION
-    }
-
     private function initialisation($bonCaisseSearch, $em)
     {
         $criteria = $this->getSessionService()->get('bon_caisse_search_criteria', []);
