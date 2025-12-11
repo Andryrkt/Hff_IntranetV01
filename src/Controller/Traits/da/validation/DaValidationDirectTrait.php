@@ -104,7 +104,7 @@ trait DaValidationDirectTrait
         array_unshift($fichiersConvertis, $bav);
         $nomAvecCheminPdfFusionner = $this->cheminDeBase . "$numDa/$numDa#_a_valider.pdf";
         $this->traitementDeFichier->fusionFichers($fichiersConvertis, $nomAvecCheminPdfFusionner);
-        $this->genererPdfDaDirect->copyToDWDaAValider($numDa);
+        $this->genererPdfDaDirect->copyToDWDaAValiderDirect($numDa);
     }
 
     /** 
