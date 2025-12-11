@@ -182,9 +182,9 @@ class DevisMagasin
     /**
      * @ORM\Column(type="string", length=255, name="piece_joint_excel", nullable=true)
      *
-     * @var string
+     * @var string|null
      */
-    private $pieceJointExcel;
+    private ?string $pieceJointExcel = null;
 
     /** =========================================
      * GETTERS & SETTERS
@@ -701,7 +701,7 @@ class DevisMagasin
     /**
      * Get the value of pieceJointExcel
      */
-    public function getPieceJointExcel(): string
+    public function getPieceJointExcel(): ?string
     {
         return $this->pieceJointExcel;
     }
@@ -709,7 +709,7 @@ class DevisMagasin
     /**
      * Set the value of pieceJointExcel
      */
-    public function setPieceJointExcel(string $pieceJointExcel): self
+    public function setPieceJointExcel($pieceJointExcel): self
     {
         $this->pieceJointExcel = $pieceJointExcel;
 
