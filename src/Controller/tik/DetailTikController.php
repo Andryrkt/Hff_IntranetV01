@@ -50,11 +50,7 @@ class DetailTikController extends Controller
          */
         $supportInfo = $this->getEntityManager()->getRepository(DemandeSupportInformatique::class)->find($id);
 
-        $userInfo = $this->session->get('user_info');
-        /** 
-         * @var User $connectedUser l'utilisateur connecté
-         */
-        $connectedUser = $this->getEntityManager()->getRepository(User::class)->find($userInfo['id']);
+        $connectedUser = $this->getUser();
 
         $handleRequestService = new HandleRequestService($this->getEntityManager(), $this->getTwig(), $connectedUser, $supportInfo);
 

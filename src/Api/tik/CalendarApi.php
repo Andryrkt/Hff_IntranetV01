@@ -6,7 +6,6 @@ use DateTime;
 use Exception;
 use App\Controller\Controller;
 use App\Entity\tik\TkiPlanning;
-use App\Entity\admin\utilisateur\User;
 use App\Entity\tik\DemandeSupportInformatique;
 use App\Entity\tik\TkiReplannification;
 use Symfony\Component\HttpFoundation\Request;
@@ -83,16 +82,13 @@ class CalendarApi extends Controller
 
             // Validation des données
             if (isset($data['title'], $data['description'], $data['start'], $data['end'])) {
-
-                $userInfo = $this->session->get('user_info');
-                $user = $this->getEntityManager()->getRepository(User::class)->find($userInfo['id']);
                 // Création de l'événement
                 $event = new TkiPlanning();
                 $event->setObjetDemande($data['title']);
                 $event->setDetailDemande($data['description']);
                 $event->setDateDebutPlanning(new \DateTime($data['start']));
                 $event->setDateFinPlanning(new \DateTime($data['end']));
-                $event->setUser($user);
+                $event->setUser($this->getUser());
 
                 // Sauvegarde dans la base de données
                 $entityManager = $this->getEntityManager();

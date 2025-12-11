@@ -25,8 +25,7 @@ class DitValidationController extends Controller
 
 
         /** CREATION D'AUTORISATION */
-        $userInfo = $this->getSessionService()->get('user_info');
-        $userConnecter = $this->getEntityManager()->getRepository(User::class)->find($userInfo['id']);
+        $userConnecter = $this->getUser();
         $roleNames = [];
         foreach ($userConnecter->getRoles() as $role) {
             $roleNames[] = $role->getRoleName();
