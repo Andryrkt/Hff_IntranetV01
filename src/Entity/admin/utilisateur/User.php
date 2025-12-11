@@ -687,6 +687,18 @@ class User implements UserInterface
         })->toArray();
     }
 
+    /**
+     * RECUPERE LES codes de l'application
+     *
+     * @return array
+     */
+    public function getApplicationsCodes(): array
+    {
+        return $this->applications->map(function ($app) {
+            return $app->getCodeApp();
+        })->toArray();
+    }
+
     public function getCodeAgenceUser()
     {
         return $this->agenceServiceIrium ? $this->agenceServiceIrium->getAgenceIps() : null;
