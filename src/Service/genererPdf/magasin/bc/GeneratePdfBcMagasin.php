@@ -100,7 +100,7 @@ class GeneratePdfBcMagasin extends GeneratePdf
         $html1 = $generatorFlexible->generateTable($header, $dto->lignes, []);
         $pdf->writeHTML($html1, true, false, true, false, '');
 
-        $pdf->Output($filePath, 'I');
+        $pdf->Output($filePath, 'F');
     }
 
     private function headerTableau(): array

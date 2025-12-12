@@ -27,6 +27,7 @@ class MigrationPdfDevisMagasinService
         $devisMagasinRepository = $this->entityManager->getRepository(DevisMagasin::class);
 
         //recupération des données à migrer
+        $numeroDevis = $devisMagasinRepository->getNumeroDevisMigration();
         $listeDevisMagasinModel = new ListeDevisMagasinModel();
         $devisMagasin = $listeDevisMagasinModel->getDevisMagasinToMigrationPdf();
 
