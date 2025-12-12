@@ -105,4 +105,16 @@ class DevisMagasinRepository extends EntityRepository implements StatusRepositor
 
         return $result[0] ?? null;
     }
+
+    public function getFileNameMigration(string $numeroDevis)
+    {
+        return  $this->createQueryBuilder('d')
+            ->select('d.nomFichier')
+            ->where('d.numeroDevis = :numeroDevis')
+            ->setParameter('numeroDevis', $numeroDevis)
+            ->orderBy('d.numeroVersion', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getScalarResult();
+    }
 }

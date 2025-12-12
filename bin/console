@@ -3,7 +3,7 @@
 
 require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'vendor/autoload.php';
 require_once dirname(__DIR__) . '/config/dotenv.php';
-$entitymanager = require_once dirname(__DIR__)."/doctrineBootstrap.php";
+$entitymanager = require_once dirname(__DIR__) . "/doctrineBootstrap.php";
 
 use Dotenv\Dotenv;
 use App\Command\AncienDitCommand;
@@ -11,6 +11,7 @@ use App\Command\MigrationPdfCommand;
 use App\Command\MigrationDataCommand;
 use App\Command\MigrationDevisCommand;
 use Symfony\Component\Console\Application;
+use App\Service\genererPdf\magasin\devis\MigrationPdfDevisMagasinCommand;
 
 //Charger le fichier .env
 // $dotenv = Dotenv::createImmutable(dirname(__DIR__));
@@ -21,6 +22,7 @@ $command = new AncienDitCommand($entityManager);
 $migrationPdfDit = new MigrationPdfCommand($entityManager);
 $migrationDataDit = new MigrationDataCommand($entityManager);
 $migrationDevis = new MigrationDevisCommand();
+$migrationPdfDevisMagasin = new MigrationPdfDevisMagasinCommand($entityManager);
 
 // Ajouter la commande à l'application Symfony Console
 $application = new Application();
@@ -28,6 +30,7 @@ $application->add($command);
 $application->add($migrationPdfDit);
 $application->add($migrationDataDit);
 $application->add($migrationDevis);
+$application->add($migrationPdfDevisMagasin);
 
 // Exécuter la commande
 $application->run();

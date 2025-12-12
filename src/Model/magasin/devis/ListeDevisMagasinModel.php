@@ -294,7 +294,7 @@ class ListeDevisMagasinModel extends Model
     }
 
 
-    public function dataMigrationDevisMagasinVp(string $numeroDevis): array
+    public function getDevisMagasinToMigrationPdf(): array
     {
         $statement = " SELECT nent_numcde as numero_devis
                         ,nent_nomcli as nom_client
@@ -304,7 +304,6 @@ class ListeDevisMagasinModel extends Model
                         ,CAST(nent_cdeht AS VARCHAR(20)) as total_ht
                         ,CAST(nent_cdettc AS VARCHAR(20)) as total_ttc
                     from informix.neg_ent 
-                    where nent_numcde ='$numeroDevis'
         ";
 
         $result = $this->connect->executeQuery($statement);
