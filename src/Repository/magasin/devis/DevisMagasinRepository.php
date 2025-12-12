@@ -115,6 +115,16 @@ class DevisMagasinRepository extends EntityRepository implements StatusRepositor
             ->orderBy('d.numeroVersion', 'DESC')
             ->setMaxResults(1)
             ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function getNumeroDevisMigration()
+    {
+        $resultat = $this->createQueryBuilder('d')
+            ->select('DISTINCT d.numeroDevis as numeroDevis')
+            ->getQuery()
             ->getScalarResult();
+
+        return array_column($resultat, 'numeroDevis');
     }
 }
