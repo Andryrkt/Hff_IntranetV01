@@ -15,6 +15,7 @@ use App\Entity\admin\StatutDemande;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\dit\DitListTrait;
 use App\Controller\Traits\AutorisationTrait;
+use App\Entity\admin\utilisateur\Role;
 use App\Model\dit\DitModel;
 use App\Service\docuware\CopyDocuwareService;
 use Symfony\Component\HttpFoundation\Request;
@@ -57,8 +58,9 @@ class DitListeController extends Controller
 
         /** CREATION D'AUTORISATION */
         $this->autorisationAcces($this->getUser(), Application::ID_DIT);
-        $autoriser = $this->autorisationRole($this->getEntityManager());
-        $autorisationRoleEnergie = $this->autorisationRoleEnergie($this->getEntityManager());
+
+        $autoriser = $this->hasRoles(Role::ROLE_ADMINISTRATEUR, Role::ROLE_ATELIER, Role::ROLE_MULTI_SUCURSALES) || $this->hasName('stg.iaro');
+        $autorisationRoleEnergie = $this->hasRoles(Role::ROLE_ENERGIE);
         //FIN AUTORISATION
 
         $ditListeModel = new DitListModel();

@@ -260,26 +260,6 @@ trait DitListTrait
         }
     }
 
-
-    private function autorisationRole($em): bool
-    {
-        /** CREATION D'AUTORISATION */
-        $userId = $this->getSessionService()->get('user_id');
-        $userConnecter = $em->getRepository(User::class)->find($userId);
-        $roleIds = $userConnecter->getRoleIds();
-        return $this->estAdmin() || in_array(Role::ROLE_ATELIER, $roleIds) || in_array(Role::ROLE_MULTI_SUCURSALES, $roleIds) || $userId == 1157;
-    }
-
-    private function autorisationRoleEnergie($em): bool
-    {
-        /** CREATION D'AUTORISATION */
-        $userId = $this->getSessionService()->get('user_id');
-        $userConnecter = $em->getRepository(User::class)->find($userId);
-        $roleIds = $userConnecter->getRoleIds();
-        return in_array(5, $roleIds);
-    }
-
-
     private function ajoutQuatreStatutOr($data)
     {
         for ($i = 0; $i < count($data); $i++) {
