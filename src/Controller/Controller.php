@@ -607,10 +607,11 @@ class Controller
      */
     protected function estUserDansServiceAtelier(): bool
     {
-        $user = $this->getUser();
-        if (!$user) return false;
-        $serviceIds = $user->getServiceAutoriserIds();
-        return in_array(DemandeAppro::ID_ATELIER, $serviceIds);
+        $userInfo = $this->getSessionService()->get('user_info');
+        if (!$userInfo) return false;
+        $userServiceIds = $userInfo['authorized_services']['ids'] ?? [];
+
+        return in_array(DemandeAppro::ID_ATELIER, $userServiceIds);
     }
 
     /**
@@ -618,10 +619,11 @@ class Controller
      */
     protected function estUserDansServiceAppro(): bool
     {
-        $user = $this->getUser();
-        if (!$user) return false;
-        $serviceIds = $user->getServiceAutoriserIds();
-        return in_array(DemandeAppro::ID_APPRO, $serviceIds);
+        $userInfo = $this->getSessionService()->get('user_info');
+        if (!$userInfo) return false;
+        $userServiceIds = $userInfo['authorized_services']['ids'] ?? [];
+
+        return in_array(DemandeAppro::ID_APPRO, $userServiceIds);
     }
 
     /**
