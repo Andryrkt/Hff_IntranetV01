@@ -18,11 +18,39 @@ class inventaireApi extends Controller
         $this->inventaireModel = new InventaireModel;
     }
     /**
-     * @Route("/Upload/fichier/{id}", name = "upload_fichier_inventaire")
+     * @Route("/Delete/fichier/{numInv}", name = "delete_fichier_inventaire")
      * 
      * @return void
      */
-    public function listeInventaire(Request $request, $id)
+    public function supprimerFichierInventaire($numInv)
+    {
+        $uploadsDir = rtrim($_ENV['BASE_PATH_FICHIER'], '/') . '/inventaire';
+        $filePath = $uploadsDir . "/INV_$numInv.xlsx";
+
+        try {
+            // Vérification de l'existence du fichier
+            if (!file_exists($filePath)) {
+                return new Response("Fichier introuvable : INV_$numInv.xlsx", 404);
+            }
+
+            // Tentative de suppression
+            if (!unlink($filePath)) {
+                return new Response("Impossible de supprimer le fichier INV_$numInv.xlsx", 500);
+            }
+
+            return new Response("Fichier INV_$numInv.xlsx supprimé avec succès", 200);
+        } catch (\Exception $e) {
+            return new Response("Erreur lors de la suppression : " . $e->getMessage(), 500);
+        }
+    }
+
+
+    /**
+     * @Route("/Upload/fichier/{numInv}", name = "upload_fichier_inventaire")
+     * 
+     * @return void
+     */
+    public function uploadFichierInventaire(Request $request, $numInv)
     {
         $file = $request->files->get('fichier');
 
@@ -37,7 +65,7 @@ class inventaireApi extends Controller
                 mkdir($uploadsDir, 0755, true);
             }
 
-            $newFilename = "INV_$id." . $file->guessExtension();
+            $newFilename = "INV_$numInv." . $file->guessExtension();
 
             try {
                 $file->move($uploadsDir, $newFilename);
@@ -49,6 +77,7 @@ class inventaireApi extends Controller
 
         return new Response("Aucun fichier reçu.", 400);
     }
+
     /**
      * @Route("/listeInventaireDispo-fetch/{agence}/{dateDeb}/{dateFin}")
      */
@@ -65,14 +94,14 @@ class inventaireApi extends Controller
         $tab = [];
         foreach ($listeInventaireDispo as $keys => $listes) {
             foreach ($listes as $key => $liste) {
-                $tab[]=[
+                $tab[] = [
                     'id' => $keys,
                     'value' => $liste,
-                    'label' =>trim($key)
+                    'label' => trim($key)
                 ];
             }
         }
-        
+
 
 
 
