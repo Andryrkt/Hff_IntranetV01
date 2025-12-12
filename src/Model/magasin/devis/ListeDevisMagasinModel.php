@@ -9,7 +9,7 @@ use Symfony\Component\Finder\Glob;
 
 class ListeDevisMagasinModel extends Model
 {
-    public function getDevis(array $criteria = [],  string $vignette = 'magasin', string $codeAgenceAutoriser, bool $adminMulti = false, string $numDeviAExclureString): array
+    public function getDevis(array $criteria = [],  string $vignette = 'magasin', string $codeAgenceAutoriser, bool $adminMulti = false, $numDeviAExclureString): array
     { // TODO : effacer le FIRST 100 et decommenter AND nent_datecde >= ADD_MONTHS(TODAY, -3) apres le migration
         $statement = "SELECT FIRST 100 DISTINCT
             nent_numcde as numero_devis

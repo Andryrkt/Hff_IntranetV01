@@ -151,9 +151,9 @@ class ListeDevisMagasinController extends Controller
         $vignette = 'magasin';
         $adminMutli          = in_array(1, $this->getUser()->getRoleIds()) || in_array(6, $this->getUser()->getRoleIds());
 
-        $numDeviAExclureString = TableauEnStringService::orEnString($this->listeDevisMagasinModel->getNumeroDevisExclure());
+        $numDeviAExclure = TableauEnStringService::simpleNumeric(array_map('intval', $this->listeDevisMagasinModel->getNumeroDevisExclure()));
 
-        $devisIps = $this->listeDevisMagasinModel->getDevis($criteria, $vignette, $codeAgenceAutoriserString, $adminMutli, $numDeviAExclureString);
+        $devisIps = $this->listeDevisMagasinModel->getDevis($criteria, $vignette, $codeAgenceAutoriserString, $adminMutli, $numDeviAExclure);
 
         $listeDevisFactory = [];
         $dejaVu = []; // Tableau pour mémoriser les numéros de devis déjà traités
