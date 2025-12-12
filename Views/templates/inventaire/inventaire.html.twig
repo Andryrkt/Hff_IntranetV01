@@ -99,7 +99,7 @@
 									<li>
 										<a class="dropdown-item fw-bold" href="{{path('download_file',{'filename':'INV_'~item.numero~'.xlsx'}) }}" target="_blank">Voir fichier</a>
 									</li>
-								{% elseif estAdmin %}
+								{% elseif estAcces %}
 									<li>
 										<input type="file" accept=".xlsx" class="input-file-analyse" data-numero="{{ item.numero }}" style="display: none;">
 										<a class="dropdown-item fw-bold upload-fichier-analyse" role="button">Upload fichier d'analyse</a>
