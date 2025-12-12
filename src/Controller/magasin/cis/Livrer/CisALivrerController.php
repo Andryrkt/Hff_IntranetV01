@@ -10,6 +10,7 @@ use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\magasin\cis\ALivrerTrait;
+use App\Entity\admin\utilisateur\Role;
 
 /**
  * @Route("/magasin/cis")
@@ -32,7 +33,7 @@ class CisALivrerController extends Controller
         /** FIN AUtorisation acées */
 
         /** CREATION D'AUTORISATION */
-        $autoriser = $this->autorisationRole($this->getEntityManager());
+        $autoriser = $this->hasRoles(Role::ROLE_ADMINISTRATEUR, Role::ROLE_MULTI_SUCURSALES);
         //FIN AUTORISATION
 
         $agenceUser = $this->agenceUser($autoriser);

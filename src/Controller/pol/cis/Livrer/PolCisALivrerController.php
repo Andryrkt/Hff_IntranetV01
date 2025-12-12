@@ -11,6 +11,7 @@ use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\magasin\cis\ALivrerTrait;
+use App\Entity\admin\utilisateur\Role;
 
 /**
  * @Route("/pol/cis-pol")
@@ -29,7 +30,7 @@ class PolCisALivrerController extends Controller
         $this->verifierSessionUtilisateur();
 
         /** CREATION D'AUTORISATION */
-        $autoriser = $this->autorisationRole($this->getEntityManager());
+        $autoriser = $this->hasRoles(Role::ROLE_ADMINISTRATEUR, Role::ROLE_MULTI_SUCURSALES);
         //FIN AUTORISATION
 
         $agenceUser = $this->agenceUser($autoriser);
@@ -70,5 +71,4 @@ class PolCisALivrerController extends Controller
         //recupération des données
         return $this->recupData($criteria);
     }
-
 }
