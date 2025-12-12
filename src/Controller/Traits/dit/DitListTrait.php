@@ -90,44 +90,27 @@ trait DitListTrait
      *
      * @param [type] $ditSearch
      * @param [type] $em
-     * @param [type] $request
-     * @param [type] $agence
-     * @param [type] $service
      * @return void
      */
-    private function initialisationRechercheDit($ditSearch, $em, $agenceServiceIps, $autoriser)
+    private function initialisationRechercheDit($ditSearch, $em)
     {
 
         $criteria = $this->getSessionService()->get('dit_search_criteria', []);
         if ($criteria !== null) {
-            // if ($autoriser) {
-            $agenceIpsEmetteur = null;
-            $serviceIpsEmetteur = null;
-            // } else {
-            //     $agenceIpsEmetteur = $agenceServiceIps['agenceIps'];
-            //     $serviceIpsEmetteur = $agenceServiceIps['serviceIps'];
-            // }
             $typeDocument = $criteria['typeDocument'] === null ? null : $em->getRepository(WorTypeDocument::class)->find($criteria['typeDocument']->getId());
             $niveauUrgence = $criteria['niveauUrgence'] === null ? null : $em->getRepository(WorNiveauUrgence::class)->find($criteria['niveauUrgence']->getId());
             $statut = $criteria['statut'] === null ? null : $em->getRepository(StatutDemande::class)->find($criteria['statut']->getId());
-            $serviceEmetteur = $criteria['serviceEmetteur'] === null ? $serviceIpsEmetteur : $em->getRepository(Service::class)->find($criteria['serviceEmetteur']->getId());
+            $serviceEmetteur = $criteria['serviceEmetteur'] === null ? null : $em->getRepository(Service::class)->find($criteria['serviceEmetteur']->getId());
             $serviceDebiteur = $criteria['serviceDebiteur'] === null ? null : $em->getRepository(Service::class)->find($criteria['serviceDebiteur']->getId());
-            $agenceEmetteur = $criteria['agenceEmetteur'] === null ? $agenceIpsEmetteur : $em->getRepository(Agence::class)->find($criteria['agenceEmetteur']->getId());
+            $agenceEmetteur = $criteria['agenceEmetteur'] === null ? null : $em->getRepository(Agence::class)->find($criteria['agenceEmetteur']->getId());
             $agenceDebiteur = $criteria['agenceDebiteur'] === null ? null : $em->getRepository(Agence::class)->find($criteria['agenceDebiteur']->getId());
             $categorie = $criteria['categorie'] === null ? null : $em->getRepository(CategorieAteApp::class)->find($criteria['categorie']);
         } else {
-            // if ($autoriser) {
-            $agenceIpsEmetteur = null;
-            $serviceIpsEmetteur = null;
-            // } else {
-            //     $agenceIpsEmetteur = $agenceServiceIps['agenceIps'];
-            //     $serviceIpsEmetteur = $agenceServiceIps['serviceIps'];
-            // }
             $typeDocument = null;
             $niveauUrgence = null;
             $statut = null;
-            $agenceEmetteur = $agenceIpsEmetteur;
-            $serviceEmetteur = $serviceIpsEmetteur;
+            $agenceEmetteur = null;
+            $serviceEmetteur = null;
             $serviceDebiteur = null;
             $agenceDebiteur = null;
             $categorie = null;

@@ -65,12 +65,11 @@ class DitListeController extends Controller
         $ditSearch = new DitSearch();
         $agenceServiceIps = $this->agenceServiceIpsObjet();
 
-        $this->initialisationRechercheDit($ditSearch, $this->getEntityManager(), $agenceServiceIps, $autoriser);
+        $this->initialisationRechercheDit($ditSearch, $this->getEntityManager());
 
         //création et initialisation du formulaire de la recherche
         $form = $this->getFormFactory()->createBuilder(DitSearchType::class, $ditSearch, [
             'method' => 'GET',
-            //'idAgenceEmetteur' => $agenceServiceIps['agenceIps']->getId(),
             'autorisationRoleEnergie' => $autorisationRoleEnergie
         ])->getForm();
 
