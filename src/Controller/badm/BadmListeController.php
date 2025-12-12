@@ -11,6 +11,7 @@ use App\Form\badm\BadmSearchType;
 use App\Model\badm\BadmRechercheModel;
 use App\Controller\Traits\BadmListTrait;
 use App\Controller\Traits\AutorisationTrait;
+use App\Entity\admin\utilisateur\Role;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -36,7 +37,7 @@ class BadmListeController extends Controller
 
         $userConnecter = $this->getUser();
 
-        $autoriser = $this->estAdmin();
+        $autoriser = $this->hasRoles(Role::ROLE_ADMINISTRATEUR);
 
         $badmSearch = new BadmSearch();
 
@@ -162,7 +163,7 @@ class BadmListeController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $autoriser = $this->estAdmin();
+        $autoriser = $this->hasRoles(Role::ROLE_ADMINISTRATEUR);
 
         $badmSearch = new BadmSearch();
         $agenceServiceIps = $this->agenceServiceIpsObjet();
