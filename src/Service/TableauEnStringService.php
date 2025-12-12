@@ -19,6 +19,13 @@ class TableauEnStringService
         return "'" . implode("','", $flattenedArray) . "'";
     }
 
+    public static function simpleNumeric(array $tab)
+    {
+        $flattenedArray = self::flattenArray($tab);
+
+        return implode(",", $flattenedArray);
+    }
+
     /**
      * Transforme un tableau multidimensionnel en un tableau unidimensionnel.
      *
@@ -40,7 +47,7 @@ class TableauEnStringService
         return $result;
     }
 
-     /**
+    /**
      * Methode general pour transformer un tableau en string
      *
      * @param array $tab
@@ -55,7 +62,7 @@ class TableauEnStringService
         if (empty($flattenedArray)) {
             return $quote . $quote;
         }
-        
+
         // Échappe les caractères spéciaux si nécessaire
         $escapedArray = array_map(function ($el) use ($quote) {
             // Convertir en chaîne de caractères si ce n'est pas déjà une
@@ -64,14 +71,14 @@ class TableauEnStringService
             }
             return $quote . $el . $quote;
         }, $flattenedArray);
-        
+
         // Joindre les éléments avec le séparateur
         return implode($separateur, $escapedArray);
     }
 
-    public static function like(array $numeroBc, string $nomColone): string 
+    public static function like(array $numeroBc, string $nomColone): string
     {
-        $tab = array_map(function ($value) use($nomColone) {
+        $tab = array_map(function ($value) use ($nomColone) {
             return " $nomColone LIKE '%$value%'";
         }, $numeroBc);
 

@@ -9,7 +9,7 @@ use Symfony\Component\Finder\Glob;
 
 class ListeDevisMagasinModel extends Model
 {
-    public function getDevis(array $criteria = [],  string $vignette = 'magasin', string $codeAgenceAutoriser, bool $adminMulti = false): array
+    public function getDevis(array $criteria = [],  string $vignette = 'magasin', string $codeAgenceAutoriser, bool $adminMulti = false, $numDeviAExclureString): array
     { // TODO : effacer le FIRST 100 et decommenter AND nent_datecde >= ADD_MONTHS(TODAY, -3) apres le migration
         $statement = "SELECT FIRST 100 DISTINCT
             nent_numcde as numero_devis
@@ -28,6 +28,7 @@ class ListeDevisMagasinModel extends Model
             AND nent_soc = 'HF'
             AND nent_servcrt <> 'ASS'
             AND (CAST(nent_numcli AS VARCHAR(20)) NOT LIKE '199%' and nent_numcli <> '1101222')
+            AND nent_numcde not in ($numDeviAExclureString)
             -- AND nent_datecde >= ADD_MONTHS(TODAY, -3)
             AND year(Nent_datecde) = year(TODAY)
         ";
@@ -312,5 +313,20 @@ class ListeDevisMagasinModel extends Model
         $data = $this->connect->fetchResults($result);
 
         return $this->convertirEnUtf8($data);
+    }
+
+    public function getNumeroDevisExclure()
+    {
+        $sql = " SELECT distinct Numero_Devis_ERP as numDevis
+                from GCOT_Devis
+                ";
+
+        $statement = $this->connexion04Gcot->query($sql);
+        $data = [];
+        while ($List = odbc_fetch_array($statement)) {
+            $data[] = $List;
+        }
+
+        return array_column($data, 'numDevis');
     }
 }

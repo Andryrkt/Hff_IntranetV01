@@ -97,7 +97,8 @@ class DevisMagasinExportExcelController extends Controller
         $vignette = 'magasin';
         $adminMutli          = in_array(1, $this->getUser()->getRoleIds()) || in_array(6, $this->getUser()->getRoleIds());
         // recupération de la liste des devis magasin dans IPS
-        $devisIps = $this->listeDevisMagasinModel->getDevis($criteria, $vignette, $codeAgenceAutoriserString, $adminMutli);
+        $numDeviAExclure = TableauEnStringService::simpleNumeric(array_map('intval', $this->listeDevisMagasinModel->getNumeroDevisExclure()));
+        $devisIps = $this->listeDevisMagasinModel->getDevis($criteria, $vignette, $codeAgenceAutoriserString, $adminMutli, $numDeviAExclure);
 
         $listeDevisFactory = [];
         foreach ($devisIps as  $devisIp) {
