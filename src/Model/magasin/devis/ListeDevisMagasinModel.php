@@ -273,6 +273,7 @@ class ListeDevisMagasinModel extends Model
 
     public function getConstructeur(string $numeroDevis)
     {
+        $cstMagasin = GlobalVariablesService::get('pieces_magasin');
         $statement = " SELECT 
                 CASE 
                     WHEN COUNT(*) = 0 THEN 'AUCUNE CONSTRUCTEUR'
@@ -282,7 +283,7 @@ class ListeDevisMagasinModel extends Model
             FROM informix.neg_lig 
             WHERE nlig_numcde = '$numeroDevis' 
             AND nlig_constp NOT LIKE 'Nmc%'
-            AND nlig_constp IN (" . GlobalVariablesService::get('pieces_magasin') . ")
+            AND nlig_constp IN ($cstMagasin)
     ";
 
         $result = $this->connect->executeQuery($statement);
@@ -290,5 +291,26 @@ class ListeDevisMagasinModel extends Model
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
 
         return array_column($data, 'resultat')[0];
+    }
+
+
+    public function dataMigrationDevisMagasinVp(string $numeroDevis): array
+    {
+        $statement = " SELECT nent_numcde as numero_devis
+                        ,nent_nomcli as nom_client
+                        ,nent_succ as  succursale
+                        ,nent_servcrt as service
+                        ,TO_CHAR(nent_datecde, '%d/%m/%Y') as date
+                        ,CAST(nent_cdeht AS VARCHAR(20)) as total_ht
+                        ,CAST(nent_cdettc AS VARCHAR(20)) as total_ttc
+                    from informix.neg_ent 
+                    where nent_numcde ='$numeroDevis'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
     }
 }
