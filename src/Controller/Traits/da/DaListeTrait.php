@@ -14,7 +14,6 @@ use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Model\dw\DossierInterventionAtelierModel;
 use App\Repository\da\DaSoumissionBcRepository;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
-use App\Service\Users\UserDataService;
 use Twig\Markup;
 
 trait DaListeTrait
@@ -35,7 +34,6 @@ trait DaListeTrait
     private AgenceRepository $agenceRepository;
     private DaSoumissionBcRepository $daSoumissionBcRepository;
     private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
-    private UserDataService $userDataService;
 
     /**
      * Initialise les valeurs par défaut du trait
@@ -47,7 +45,6 @@ trait DaListeTrait
 
         $this->daModel = new DaModel();
         $this->dwModel = new DossierInterventionAtelierModel();
-        $this->userDataService = new UserDataService($em);
         $this->agenceRepository = $em->getRepository(Agence::class);
         $this->daSoumissionBcRepository = $em->getRepository(DaSoumissionBc::class);
         $this->ditOrsSoumisAValidationRepository = $em->getRepository(DitOrsSoumisAValidation::class);
