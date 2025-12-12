@@ -410,6 +410,13 @@ class MenuService
                     $this->createSubItem('Consultation', 'search', 'listeTemporaire_affichageListeCasier')
                 ]
             ),
+            $this->createSubMenuItem(
+                'Logistique',
+                'truck-fast',
+                [
+                    $this->createSubItem('Nouvelle demande', 'plus-circle', 'new_logistique'),
+                ]
+            ),
         ];
         if ($this->getEstAdmin()) {
             $subitems[] = $this->createSimpleItem('Commandes matériels', 'shopping-basket');

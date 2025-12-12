@@ -4,6 +4,7 @@ namespace App\Controller\logistique;
 
 use App\Controller\Controller;
 use App\Controller\Traits\AutorisationTrait;
+use App\Entity\admin\Application;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -22,7 +23,7 @@ class NewLogistiqueController extends Controller
         $this->verifierSessionUtilisateur();
 
         /** Autorisation accès */
-        $this->checkPageAccess($this->estAdmin());
+        $this->autorisationAcces($this->getUser(), Application::ID_BADM);
         /** FIN AUtorisation accès */
 
         return $this->render("dwForm/dwForm.html.twig", [
