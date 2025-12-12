@@ -572,6 +572,37 @@ class Controller
     }
 
     /**
+     * Vérifie si l'utilisateur a au moins un des rôles cités
+     * 
+     * @param int ...$roleIds
+     * @return bool
+     */
+    protected function hasRoles(int ...$roleIds): bool
+    {
+        $userInfo = $this->getSessionService()->get('user_info');
+        if (!$userInfo) return false;
+        $userRoleIds = $userInfo['roles'];
+
+        foreach ($roleIds as $role) {
+            if (in_array($role, $userRoleIds)) return true;
+        }
+        return false;
+    }
+
+    /**
+     * Vérifie si l'utilisateur est dans la liste des noms
+     * 
+     * @param string ...$names
+     * @return bool
+     */
+    protected function hasName(string ...$names): bool
+    {
+        $userInfo = $this->getSessionService()->get('user_info');
+        if (!$userInfo) return false;
+        return in_array($userInfo['username'], $names);
+    }
+
+    /**
      * Vérifier si l'utilisateur est dans le service atelier
      */
     protected function estUserDansServiceAtelier(): bool
