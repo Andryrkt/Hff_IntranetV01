@@ -5,17 +5,14 @@ namespace App\Controller\magasin\ors\Traiter;
 
 use App\Controller\Controller;
 use App\Entity\admin\Application;
-use App\Entity\dit\DemandeIntervention;
 use App\Service\TableauEnStringService;
 use App\Controller\Traits\Transformation;
 use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Model\magasin\MagasinListeOrATraiterModel;
 use App\Form\magasin\MagasinListeOrATraiterSearchType;
 use App\Controller\Traits\magasin\ors\MagasinOrATraiterTrait;
-use App\Controller\Traits\magasin\ors\MagasinTrait as OrsMagasinTrait;
-use App\Model\dit\DitModel;
+use App\Entity\admin\utilisateur\Role;
 
 /**
  * @Route("/magasin/or")
@@ -23,7 +20,6 @@ use App\Model\dit\DitModel;
 class OrTraiterController extends Controller
 {
     use Transformation;
-    use OrsMagasinTrait;
     use MagasinOrATraiterTrait;
     use AutorisationTrait;
 
@@ -36,15 +32,15 @@ class OrTraiterController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
+
         /** Autorisation accées */
         $this->autorisationAcces($this->getUser(), Application::ID_MAG);
         /** FIN AUtorisation acées */
 
-        
         $codeAgence = $this->getUser()->getAgenceAutoriserCode();
 
         /** CREATION D'AUTORISATION */
-        $autoriser = $this->autorisationRole($this->getEntityManager());
+        $autoriser = $this->hasRoles(Role::ROLE_ADMINISTRATEUR, Role::ROLE_MULTI_SUCURSALES);
         //FIN AUTORISATION
 
         if ($autoriser) {
