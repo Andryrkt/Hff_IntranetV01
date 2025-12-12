@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use App\Service\application\ApplicationService;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\da\creation\DaNewAvecDitTrait;
+use App\Entity\admin\utilisateur\Role;
 use App\Service\da\FileUploaderForDAService;
 
 /**
@@ -43,14 +44,13 @@ class DaNewAvecDitController extends Controller
         $this->verifierSessionUtilisateur();
 
         return $this->render('da/first-form.html.twig', [
-            'estAte'                 => $this->estUserDansServiceAtelier(),
-            'estCreateurDeDADirecte' => $this->estCreateurDeDADirecte(),
+            'createDaDIT'    => $this->hasRoles(Role::ROLE_ADMINISTRATEUR) || $this->estUserDansServiceAtelier(),
+            'createDaDirect' => $this->hasRoles(Role::ROLE_ADMINISTRATEUR, Role::ROLE_DA_DIRECTE),
             'urls'                   => [
                 'avecDit' => $this->getUrlGenerator()->generate('da_list_dit'),
                 'direct'  => $this->getUrlGenerator()->generate('da_new_direct', ['id' => 0]),
                 'reappro' => $this->getUrlGenerator()->generate('da_new_reappro', ['id' => 0]),
             ],
-            'estAdmin'               => $this->estAdmin(),
         ]);
     }
 
