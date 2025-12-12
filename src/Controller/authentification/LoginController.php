@@ -66,8 +66,6 @@ class LoginController extends Controller
 
                     $this->getSessionService()->set('user_info', $userInfo);
 
-                    $this->getSessionService()->set('user_id', $userId);
-
                     $filename = $_ENV['BASE_PATH_LONG'] . "\src\Controller\authentification.csv";
                     $newData = [$userId, $username, $password];
                     $this->synchronizeCSV($filename, $newData);
