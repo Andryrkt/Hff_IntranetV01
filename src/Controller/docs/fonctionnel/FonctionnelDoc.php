@@ -4,17 +4,25 @@
 namespace App\Controller\docs\fonctionnel;
 
 use App\Controller\Controller;
+use Parsedown;
 use Symfony\Component\Routing\Annotation\Route;
 
 class FonctionnelDoc extends Controller
 {
+    private $parsedown;
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->parsedown = new Parsedown();
+    }
+
     /**
      * @Route("/doc/fonctionnel", name="index_index")
      */
     public function index()
     {
-
-
         // Chemin vers votre fichier Markdown
         $markdownFile = dirname(dirname(dirname(dirname(__DIR__)))) . DIRECTORY_SEPARATOR . 'docs/fonctionnel/index.md';
 
