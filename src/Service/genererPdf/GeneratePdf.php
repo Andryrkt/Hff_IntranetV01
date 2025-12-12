@@ -100,10 +100,10 @@ class GeneratePdf
         }
     }
 
-    // devis DIT (atelier)
+    // devis DIT (atelier) - page de garde (fiche de controle)
     public function copyToDWDevisSoumis($fileName)
     {
-        $cheminFichierDistant = $this->baseCheminDocuware . 'DEVIS ATELIER/' . $fileName;
+        $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/' . $fileName;
         $cheminDestinationLocal = $this->baseCheminDuFichier . 'dit/dev/' . $fileName;
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
