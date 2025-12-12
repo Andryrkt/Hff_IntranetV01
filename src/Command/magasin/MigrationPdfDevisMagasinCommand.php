@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Service\genererPdf\magasin\devis;
+namespace App\Command\magasin;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use App\Service\migration\magasin\MigrationPdfDevisMagasinService;
 
 class MigrationPdfDevisMagasinCommand extends Command
 {

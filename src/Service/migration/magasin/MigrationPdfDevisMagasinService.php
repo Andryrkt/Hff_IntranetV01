@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Service\genererPdf\magasin\devis;
+namespace App\Service\migration\magasin;
 
 use Dom\Entity;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\magasin\devis\DevisMagasin;
 use Symfony\Component\Console\Helper\ProgressBar;
 use App\Model\magasin\devis\ListeDevisMagasinModel;
+use App\Service\genererPdf\magasin\devis\PdfMigrationDevisMagasinVp;
 
 class MigrationPdfDevisMagasinService
 {
@@ -49,7 +50,7 @@ class MigrationPdfDevisMagasinService
                 // $suffix = $listeDevisMagasinModel->constructeurPieceMagasin($numeroDevis);
                 // $fileName = "negverificationprix_$numeroDevis-1#$suffix!{mail}.pdf";
                 $fileName = $devisMagasinRepository->getFileNameMigration($numeroDevis);
-                $path = "C:\wamp64\www\Upload\magasin\migrations\devis/" .$numeroDevis;
+                $path = "C:\wamp64\www\Upload\magasin\migrations\devis/" . $numeroDevis;
                 $filePath = $path . '' . $fileName;
                 $pdfMigrationDevisMagasinVp->genererPdf($devis, $filePath);
 
