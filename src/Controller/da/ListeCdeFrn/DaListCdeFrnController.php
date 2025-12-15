@@ -2,6 +2,9 @@
 
 namespace App\Controller\da\ListeCdeFrn;
 
+
+use App\Model\da\DaModel;;
+
 use Twig\Markup;
 use App\Entity\admin\Service;
 use App\Entity\da\DaAfficher;
@@ -36,6 +39,7 @@ class DaListCdeFrnController extends Controller
 
     private DaAfficherRepository $daAfficherRepository;
     private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
+    private DaModel $daModel;
     private DemandeApproRepository $demandeApproRepository;
     private DaSoumissionBcRepository $daSoumissionBcRepository;
 
@@ -45,6 +49,7 @@ class DaListCdeFrnController extends Controller
         parent::__construct();
         $this->daAfficherRepository = $this->getEntityManager()->getRepository(DaAfficher::class);
         $this->ditOrsSoumisAValidationRepository = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class);
+        $this->daModel = new DaModel();
         $this->demandeApproRepository = $this->getEntityManager()->getRepository(DemandeAppro::class);
         $this->daSoumissionBcRepository = $this->getEntityManager()->getRepository(DaSoumissionBc::class);
         $this->initStatutBcTrait();

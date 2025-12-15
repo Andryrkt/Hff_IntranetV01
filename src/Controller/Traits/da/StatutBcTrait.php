@@ -3,7 +3,6 @@
 namespace App\Controller\Traits\da;
 
 use DateTime;
-use App\Model\da\DaModel;
 use App\Entity\da\DaAfficher;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaSoumissionBc;
@@ -176,13 +175,11 @@ trait StatutBcTrait
 
     private function getInfoNecessaireIps($ref, $numDit, $numDa, $designation, $numeroOr, $statutBc): array
     {
-        $daModel = new DaModel();
-
         /**  pour le DaDirect @var array $infoDaDirect */
-        $infoDaDirect = $daModel->getInfoDaDirect($numDa, $ref, $designation);
+        $infoDaDirect = $this->daModel->getInfoDaDirect($numDa, $ref, $designation);
 
         /** IPS pour le DaViaOR @var array $situationCde */
-        $situationCde = $daModel->getSituationCde($ref, $numDit, $numDa, $designation, $numeroOr, $statutBc);
+        $situationCde = $this->daModel->getSituationCde($ref, $numDit, $numDa, $designation, $numeroOr, $statutBc);
 
         return [$infoDaDirect, $situationCde];
     }
@@ -216,11 +213,9 @@ trait StatutBcTrait
 
     private function getQte($ref, $numDit, $numDa, $designation, $numeroOr, $statutBc, $daDirect, $daViaOR, $daReappro, $numCde): array
     {
-        $daModel = new DaModel();
-
-        if ($daDirect) $qte = $daModel->getEvolutionQteDaDirect($numCde, $ref, $designation);
+        if ($daDirect) $qte = $this->daModel->getEvolutionQteDaDirect($numCde, $ref, $designation);
         // pour da via OR et DA reappro
-        if ($daViaOR || $daReappro) $qte = $daModel->getEvolutionQteDaAvecDit($numDit, $ref, $designation, $numeroOr, $statutBc, $numDa, $daReappro);
+        if ($daViaOR || $daReappro) $qte = $this->daModel->getEvolutionQteDaAvecDit($numDit, $ref, $designation, $numeroOr, $statutBc, $numDa, $daReappro);
 
         return $qte;
     }
@@ -466,8 +461,7 @@ trait StatutBcTrait
         }
         //recupération de numero OR dans IPS
         elseif ($daReappro) {
-            $daModel = new DaModel();
-            $numOr = $daModel->getNumeroOrReappro($DaAfficher->getNumeroDemandeAppro());
+            $numOr = $this->daModel->getNumeroOrReappro($DaAfficher->getNumeroDemandeAppro());
             $datePlanningOr = null;
         }
 
@@ -509,8 +503,7 @@ trait StatutBcTrait
 
     private function modificationNumLigneEtItv(string $ref, string $desi, string $numOr, DaAfficher $DaAfficher)
     {
-        $daModel = new DaModel();
-        $numLigneEtItv = $daModel->getNumLigneAntItvIps($ref, $desi, $numOr);
+        $numLigneEtItv = $this->daModel->getNumLigneAntItvIps($ref, $desi, $numOr);
 
         if (!empty($numLigneEtItv)) {
             if (count($numLigneEtItv) > 1) {

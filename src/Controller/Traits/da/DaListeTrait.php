@@ -30,6 +30,8 @@ trait DaListeTrait
     private $styleStatutBC = [];
 
     // Repository et model
+    private DaModel $daModel;
+    private DossierInterventionAtelierModel $dwModel;
     private AgenceRepository $agenceRepository;
     private DaSoumissionBcRepository $daSoumissionBcRepository;
     private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
@@ -42,6 +44,8 @@ trait DaListeTrait
         $em = $this->getEntityManager();
         $this->initDaTrait();
 
+        $this->daModel = new DaModel();
+        $this->dwModel = new DossierInterventionAtelierModel();
         $this->agenceRepository = $em->getRepository(Agence::class);
         $this->daSoumissionBcRepository = $em->getRepository(DaSoumissionBc::class);
         $this->ditOrsSoumisAValidationRepository = $em->getRepository(DitOrsSoumisAValidation::class);
@@ -205,8 +209,6 @@ trait DaListeTrait
         // Initialiser le style pour les statuts
         $this->initStyleStatuts();
 
-        $dwModel = new DossierInterventionAtelierModel();
-
         foreach ($data as $item) {
             // Variables à employer
             $daReappro = $item->getDaTypeId() == DemandeAppro::TYPE_DA_REAPPRO;
@@ -223,7 +225,7 @@ trait DaListeTrait
             $ajouterDA = $daViaOR && ($estAtelier || $estAdmin); // da via OR && (atelier ou admin)  
             $supprimable = ($estAppro || $estAtelier || $estAdmin) && in_array($item->getStatutDal(), $statutDASupprimable) && !$daReappro;
             $demandeDevis = ($estAppro || $estAdmin) && $item->getStatutDal() === DemandeAppro::STATUT_SOUMIS_APPRO && !$daReappro;
-            $dataOR = $dwModel->findCheminOrDernierValide($item->getNumeroDemandeDit(), $item->getNumeroDemandeAppro());
+            $dataOR = $this->dwModel->findCheminOrDernierValide($item->getNumeroDemandeDit(), $item->getNumeroDemandeAppro());
 
             // Construction d'urls
             $urls = $this->buildItemUrls($item, $ajouterDA, $item->getDaTypeId());
