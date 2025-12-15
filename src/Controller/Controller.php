@@ -11,7 +11,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use App\Entity\admin\historisation\pageConsultation\PageHff;
 use App\Entity\admin\historisation\pageConsultation\UserLogger;
-use App\Entity\admin\utilisateur\Role;
 use App\Entity\da\DemandeAppro;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -644,6 +643,19 @@ class Controller
         $userInfo = $this->getSessionService()->get('user_info');
         if (!$userInfo) return "";
         return $userInfo['default_service_code'] ?? '';
+    }
+
+    /**
+     * Obtenir les ids des agence-service autorisés de l'utilisateur
+     */
+    protected function getAgServAutorisesUser(): array
+    {
+        $userInfo = $this->getSessionService()->get('user_info');
+        if (!$userInfo) return [];
+        return [
+            'agences'  => $userInfo['authorized_agences']['ids'] ?? [],
+            'services' => $userInfo['authorized_services']['ids'] ?? [],
+        ];
     }
 
     // =====================================
