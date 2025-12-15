@@ -47,3 +47,6 @@ CREATE TABLE devis_soumis_a_validation_neg
 
     ALTER TABLE devis_soumis_a_validation_neg
     ADD piece_joint_excel varchar(255) null;
+
+    ALTER TABLE devis_soumis_a_validation_neg
+    ADD migration bit default 0;
