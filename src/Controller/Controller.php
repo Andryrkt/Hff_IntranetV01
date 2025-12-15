@@ -626,17 +626,6 @@ class Controller
         return in_array(DemandeAppro::ID_APPRO, $userServiceIds);
     }
 
-    /**
-     * Vérifier si l'utilisateur est super admin
-     */
-    protected function estSuperAdmin(): bool
-    {
-        $user = $this->getUser();
-        if (!$user) return false;
-        $roleIds = $user->getRoleIds();
-        return in_array(Role::ROLE_SUPER_ADMINISTRATEUR, $roleIds);
-    }
-
     // =====================================
     // MÉTHODES STATIQUES DE COMPATIBILITÉ
     // (Temporaires - à supprimer après refactorisation complète)
