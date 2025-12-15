@@ -1,38 +1,60 @@
 services:
-    # Services spécifiques
-    App\Service\ExcelService:
-        public: true
+  # Services spécifiques
+  App\Service\ExcelService:
+    public: true
 
-    App\Service\FusionPdf:
-        public: true
+  App\Service\FusionPdf:
+    public: true
 
-    App\Service\SessionManagerService:
-        public: true
+  App\Service\SessionManagerService:
+    public: true
 
-    # Services de navigation
-    App\Service\navigation\MenuService:
-        autowire: false
-        arguments:
-          - '@doctrine.orm.default_entity_manager'
-        public: true
+  # Services de navigation
+  App\Service\navigation\MenuService:
+    autowire: false
+    arguments:
+      - "@doctrine.orm.default_entity_manager"
+    public: true
 
-    App\Service\navigation\BreadcrumbMenuService:
-        autowire: false
-        arguments:
-          - '@App\Service\navigation\MenuService'
-        public: true
+  App\Service\navigation\BreadcrumbMenuService:
+    autowire: false
+    arguments:
+      - '@App\Service\navigation\MenuService'
+    public: true
 
-    App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService:
-        arguments:
-          - '@doctrine.orm.default_entity_manager'
-        public: true
+  App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService:
+    arguments:
+      - "@doctrine.orm.default_entity_manager"
+    public: true
 
-    App\Service\historiqueOperation\magasin\bc\HistoriqueOperationBcMagasinService:
-        arguments:
-          - '@doctrine.orm.default_entity_manager'
-        public: true
+  App\Service\historiqueOperation\magasin\bc\HistoriqueOperationBcMagasinService:
+    arguments:
+      - "@doctrine.orm.default_entity_manager"
+    public: true
 
-    App\Service\fichier\UploderFileService:
-        arguments:
-            $cheminDeBase: '%env(BASE_PATH_FICHIER)%/magasin/devis/'
-        public: true
+  App\Service\fichier\UploderFileService:
+    arguments:
+      $cheminDeBase: "%env(BASE_PATH_FICHIER)%/magasin/devis/"
+    public: true
+
+  # Modèles
+  App\Model\da\DaModel:
+    public: true
+
+  App\Model\dw\DossierInterventionAtelierModel:
+    public: true
+
+  # Services utilisés dans le contrôleur
+  App\Service\da\DemandeApproService:
+    public: true
+
+  # Controleurs
+  App\Controller\da\ListeDa\listeDaController:
+    autowire: true
+    autoconfigure: true
+    arguments:
+      - "@doctrine.orm.default_entity_manager"
+      - '@App\Model\da\DaModel'
+      - '@App\Model\dw\dossierInterventionAtelierModel'
+      - '@App\Service\da\DemandeApproService'
+    public: true

@@ -27,6 +27,7 @@ use Twig\RuntimeLoader\FactoryRuntimeLoader;
 use Illuminate\Pagination\Paginator;
 use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\Config\Resource\FileResource;
+use Symfony\Component\HttpKernel\Controller\ContainerControllerResolver;
 
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'vendor/autoload.php';
 
@@ -275,7 +276,7 @@ $container->set('router', $urlGenerator);
 $matcher = new UrlMatcher($collection, $context);
 
 // Configurer les resolvers
-$controllerResolver = new ControllerResolver();
+$controllerResolver = new ContainerControllerResolver($container);
 $argumentResolver = new ArgumentResolver();
 
 // Configurer Twig avec les extensions
