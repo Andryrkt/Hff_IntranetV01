@@ -18,32 +18,38 @@ CREATE TABLE devis_soumis_a_validation_neg
     CONSTRAINT PK_devis_soumis_a_validation_neg PRIMARY KEY (id)
 );
 
-    ALTER TABLE devis_soumis_a_validation_neg
+ALTER TABLE devis_soumis_a_validation_neg
     ADD date_envoye_devis_client DATETIME2(0) NULL
 
-    ALTER TABLE devis_soumis_a_validation_neg
+ALTER TABLE devis_soumis_a_validation_neg
     ADD somme_numero_lignes INT NOT NULL DEFAULT 0;
 
-    ALTER TABLE devis_soumis_a_validation_neg
+ALTER TABLE devis_soumis_a_validation_neg
     ADD date_pointage DATETIME2(0) NULL
 
-    ALTER TABLE devis_soumis_a_validation_neg
+ALTER TABLE devis_soumis_a_validation_neg
     ADD  tache_validateur TEXT NULL;
 
-    ALTER TABLE devis_soumis_a_validation_neg
+ALTER TABLE devis_soumis_a_validation_neg
     ADD statut_bc VARCHAR(100) NULL;
 
-    ALTER TABLE devis_soumis_a_validation_neg
+ALTER TABLE devis_soumis_a_validation_neg
     ADD relance VARCHAR(50) NULL;
 
-    ALTER TABLE devis_soumis_a_validation_neg
+ALTER TABLE devis_soumis_a_validation_neg
     ADD est_validation_pm BIT DEFAULT 0;
 
-    ALTER TABLE devis_soumis_a_validation_neg
+ALTER TABLE devis_soumis_a_validation_neg
     ADD date_bc DATETIME2(0) NULL
 
-    ALTER TABLE devis_soumis_a_validation_neg
+ALTER TABLE devis_soumis_a_validation_neg
     ADD observation VARCHAR(5000) NULL;
 
-    ALTER TABLE devis_soumis_a_validation_neg
+ALTER TABLE devis_soumis_a_validation_neg
     ADD piece_joint_excel varchar(255) null;
+
+ALTER TABLE devis_soumis_a_validation_neg
+    ADD migration bit default 0;
+
+ALTER TABLE devis_soumis_a_validation_neg
+    ADD statut_temp VARCHAR(255);

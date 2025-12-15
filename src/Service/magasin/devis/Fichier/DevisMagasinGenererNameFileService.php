@@ -8,7 +8,7 @@ use App\Service\fichier\AbstractFileNameGeneratorService;
 class DevisMagasinGenererNameFileService extends AbstractFileNameGeneratorService
 {
     /**
-     * Génère un nom pour votre cas spécifique de vérification de prix
+     * Génère un nom pour le vérification de prix
      */
     public function generateVerificationPrixName(
         UploadedFile $file,
@@ -31,7 +31,7 @@ class DevisMagasinGenererNameFileService extends AbstractFileNameGeneratorServic
     }
 
     /**
-     * Génère un nom pour votre cas spécifique de vérification de prix
+     * Génère un nom pour validation devis
      */
     public function generateValidationDevisName(
         UploadedFile $file,

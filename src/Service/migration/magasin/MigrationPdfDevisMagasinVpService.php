@@ -2,15 +2,18 @@
 
 namespace App\Service\migration\magasin;
 
-use Dom\Entity;
+
+use App\Service\TableauEnStringService;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\magasin\devis\DevisMagasin;
 use Symfony\Component\Console\Helper\ProgressBar;
 use App\Model\magasin\devis\ListeDevisMagasinModel;
 use App\Service\genererPdf\magasin\devis\PdfMigrationDevisMagasinVp;
 
-class MigrationPdfDevisMagasinService
+class MigrationPdfDevisMagasinVpService
 {
+    use devisMagasinMigrationTrait;
+
     private EntityManagerInterface $entityManager;
 
     public function __construct(EntityManagerInterface $entityManager)
@@ -26,17 +29,29 @@ class MigrationPdfDevisMagasinService
         // repository devis magaisn
         $devisMagasinRepository = $this->entityManager->getRepository(DevisMagasin::class);
 
+        $numeroDevisVp = $devisMagasinRepository->getNumeroDevisMigrationVp();
+
         //recupération des données à migrer
-        $numeroDevis = $devisMagasinRepository->getNumeroDevisMigration();
         $listeDevisMagasinModel = new ListeDevisMagasinModel();
-        $devisMagasin = $listeDevisMagasinModel->getDevisMagasinToMigrationPdf();
+        // [$devisVp, $devisVd, $numeroDevisVp, $numeroDevisVd] = $this->getDataCsv();
+
+        $numerodevis = TableauEnStringService::simpleNumeric($numeroDevisVp);
+        $devisMagasins = $listeDevisMagasinModel->getDevisMagasinToMigrationPdf($numerodevis);
+
+        foreach ($devisMagasins as $numerodevis => &$devisMagasin) {
+            $devisMagasin['statut_temp'] = $devisMagasinRepository->getStatutTempVp($numerodevis);
+        }
+        // foreach ($devisMagasins as $numerodevis => &$devisMagasin) {
+        //     $devisMagasin['statut_verification_prix'] = $devisVp[$numerodevis]['statut_verification_prix'] ?? '';
+        //     $devisMagasin['statut_validation_devis_agence'] = $devisVp[$numerodevis]['statut_validation_devis_agence'] ?? '';
+        // }
 
         //compter le nombre total de devis à migrer
-        $total = count($devisMagasin);
+        $total = count($devisMagasins);
         $batchSize = 5; // Par exemple, 5 éléments par lot
 
         // Diviser les devis en lots
-        $batches = array_chunk($devisMagasin, $batchSize);
+        $batches = array_chunk($devisMagasins, $batchSize);
 
         $progressBar = new ProgressBar($output, $total);
         $progressBar->start();
@@ -48,11 +63,14 @@ class MigrationPdfDevisMagasinService
 
                 //génération du PDF et sauvegarde sur disque
                 $numeroDevis = $devis['numero_devis'];
-                // $suffix = $listeDevisMagasinModel->constructeurPieceMagasin($numeroDevis);
-                // $fileName = "negverificationprix_$numeroDevis-1#$suffix!{mail}.pdf";
-                $fileName = $devisMagasinRepository->getFileNameMigration($numeroDevis);
-                $path = "C:\wamp64\www\Upload\magasin\migrations\devis/" . $numeroDevis;
-                $filePath = $path . '' . $fileName;
+                $suffix = $listeDevisMagasinModel->constructeurPieceMagasinMigration($numeroDevis);
+
+                $fileName = "negverificationprix_$numeroDevis-1#$suffix!noreply.migration.pdf";;
+                $path = "C:\wamp64\www\Upload\magasin\migrations\devis_vp/";
+                if (!is_dir($path)) {
+                    mkdir($path, 0777, true);
+                }
+                $filePath = $path . $fileName;
                 $pdfMigrationDevisMagasinVp->genererPdf($devis, $filePath);
 
                 // Avancer la barre de progression
