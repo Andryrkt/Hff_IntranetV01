@@ -886,6 +886,16 @@ class User implements UserInterface
      * Fonction utilitaire sur l'entité User
      * ========================================
      */
+    public function getFirstName(): string
+    {
+        return $this->personnels->getPrenoms();
+    }
+
+    public function getLastName(): string
+    {
+        return $this->personnels->getNom();
+    }
+
     public function getFullName(): string
     {
         return $this->personnels->getNom() . ' ' . $this->personnels->getPrenoms();

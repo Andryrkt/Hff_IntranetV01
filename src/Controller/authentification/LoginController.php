@@ -47,6 +47,8 @@ class LoginController extends Controller
                     $userInfo = [
                         "id"                   => $userId,
                         "username"             => $username,
+                        "firstname"            => $user->getFirstName(),
+                        "lastname"             => $user->getLastName(),
                         "fullname"             => $user->getFullName(),
                         "email"                => $user->getMail(),
                         "roles"                => $user->getRoleIds(),
