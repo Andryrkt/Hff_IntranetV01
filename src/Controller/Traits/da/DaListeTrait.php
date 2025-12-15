@@ -3,7 +3,6 @@
 namespace App\Controller\Traits\da;
 
 use Twig\Markup;
-use App\Model\da\DaModel;
 use App\Entity\da\DaSearch;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
@@ -11,11 +10,7 @@ use App\Entity\da\DaAfficher;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaSoumissionBc;
 use App\Entity\admin\utilisateur\Role;
-use App\Repository\admin\AgenceRepository;
 use App\Entity\dit\DitOrsSoumisAValidation;
-use App\Repository\da\DaSoumissionBcRepository;
-use App\Model\dw\DossierInterventionAtelierModel;
-use App\Repository\dit\DitOrsSoumisAValidationRepository;
 
 trait DaListeTrait
 {
@@ -28,29 +23,6 @@ trait DaListeTrait
     private $styleStatutDA = [];
     private $styleStatutOR = [];
     private $styleStatutBC = [];
-
-    // Repository et model
-    private DaModel $daModel;
-    private DossierInterventionAtelierModel $dwModel;
-    private AgenceRepository $agenceRepository;
-    private DaSoumissionBcRepository $daSoumissionBcRepository;
-    private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
-
-    /**
-     * Initialise les valeurs par défaut du trait
-     */
-    public function initDaListeTrait()
-    {
-        $em = $this->getEntityManager();
-        $this->initDaTrait();
-
-        $this->daModel = new DaModel();
-        $this->dwModel = new DossierInterventionAtelierModel();
-        $this->agenceRepository = $em->getRepository(Agence::class);
-        $this->daSoumissionBcRepository = $em->getRepository(DaSoumissionBc::class);
-        $this->ditOrsSoumisAValidationRepository = $em->getRepository(DitOrsSoumisAValidation::class);
-    }
-    //=====================================================================================
 
     private function initStyleStatuts()
     {

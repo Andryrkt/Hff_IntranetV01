@@ -2,19 +2,30 @@
 
 namespace App\Controller\da\ListeDa;
 
+use App\Model\da\DaModel;
 use App\Utils\PerfLogger;
 use App\Entity\da\DaSearch;
 use App\Entity\da\DaAfficher;
 use App\Form\da\DaSearchType;
 use App\Controller\Controller;
 use App\Entity\admin\Application;
+use App\Entity\da\DaSoumissionBc;
 use App\Entity\admin\utilisateur\Role;
+use App\Service\da\DemandeApproService;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\FormInterface;
 use App\Controller\Traits\da\DaListeTrait;
+use App\Repository\admin\AgenceRepository;
+use App\Entity\dit\DitOrsSoumisAValidation;
+use App\Repository\da\DaAfficherRepository;
 use App\Controller\Traits\AutorisationTrait;
+use App\Entity\admin\Agence;
 use Symfony\Component\HttpFoundation\Request;
+use App\Repository\da\DaSoumissionBcRepository;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Model\dw\dossierInterventionAtelierModel;
 use App\Form\da\daCdeFrn\DaModalDateLivraisonType;
+use App\Repository\dit\DitOrsSoumisAValidationRepository;
 
 /**
  * @Route("/demande-appro")
@@ -24,16 +35,35 @@ class listeDaController extends Controller
     use DaListeTrait;
     use AutorisationTrait;
     private $perfLogger;
+    private DemandeApproService $demandeApproService;
 
-    public function __construct()
-    {
+    // Repository et model
+    private DaModel $daModel;
+    private dossierInterventionAtelierModel $dwModel;
+    private AgenceRepository $agenceRepository;
+    private DaSoumissionBcRepository $daSoumissionBcRepository;
+    private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
+    private DaAfficherRepository $daAfficherRepository;
+
+    public function __construct(
+        EntityManagerInterface $entityManager,
+        DaModel $daModel,
+        dossierInterventionAtelierModel $dwModel,
+        DemandeApproService $demandeApproService
+    ) {
         $this->perfLogger = PerfLogger::getInstance();
         $this->perfLogger->log('constructeur du controleur listeDaController', __FILE__);
         parent::__construct();
         $this->perfLogger->log('constructeur du parent Controleur', __FILE__);
 
-        $this->initDaListeTrait();
-        $this->perfLogger->log('initialisation du trait DaListeTrait', __FILE__);
+        $this->daModel                           = $daModel;
+        $this->dwModel                           = $dwModel;
+        $this->demandeApproService               = $demandeApproService;
+        $this->agenceRepository                  = $entityManager->getRepository(Agence::class);
+        $this->daSoumissionBcRepository          = $entityManager->getRepository(DaSoumissionBc::class);
+        $this->ditOrsSoumisAValidationRepository = $entityManager->getRepository(DitOrsSoumisAValidation::class);
+        $this->daAfficherRepository              = $entityManager->getRepository(DaAfficher::class);
+
         $this->initStatutBcTrait();
         $this->perfLogger->log('initialisation du trait StatutBcTrait', __FILE__);
     }
