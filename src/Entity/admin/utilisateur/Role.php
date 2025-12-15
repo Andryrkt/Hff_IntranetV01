@@ -24,6 +24,7 @@ class Role
     public const ROLE_MULTI_SUCURSALES     = 6;
     public const ROLE_SUPER_ADMINISTRATEUR = 7;
     public const ROLE_DA_DIRECTE           = 10;
+    public const ROLE_DIRECTION            = 11;
 
     /**
      * @ORM\Id

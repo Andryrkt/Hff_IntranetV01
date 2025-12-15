@@ -895,9 +895,4 @@ class User implements UserInterface
     {
         return $this->personnels->getNom();
     }
-
-    public function getFullName(): string
-    {
-        return $this->personnels->getNom() . ' ' . $this->personnels->getPrenoms();
-    }
 }

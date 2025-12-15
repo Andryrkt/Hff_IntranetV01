@@ -44,12 +44,14 @@ class LoginController extends Controller
                     $error_msg = "Vérifier les informations de connexion, veuillez saisir le nom d'utilisateur et le mot de passe de votre session Windows";
                 } else {
                     $userId = $user->getId();
+                    $firstname = $user->getFirstName();
+                    $lastname = $user->getLastName();
                     $userInfo = [
                         "id"                   => $userId,
                         "username"             => $username,
-                        "firstname"            => $user->getFirstName(),
-                        "lastname"             => $user->getLastName(),
-                        "fullname"             => $user->getFullName(),
+                        "firstname"            => $firstname,
+                        "lastname"             => $lastname,
+                        "fullname"             => "$lastname $firstname",
                         "email"                => $user->getMail(),
                         "roles"                => $user->getRoleIds(),
                         "applications"         => $user->getApplicationsIds(),

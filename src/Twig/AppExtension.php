@@ -4,10 +4,10 @@
 
 namespace App\Twig;
 
+use App\Entity\admin\utilisateur\Role;
 use Doctrine\ORM\EntityManagerInterface;
 use Twig\Extension\GlobalsInterface;
 use Twig\Extension\AbstractExtension;
-use App\Entity\admin\utilisateur\User;
 use App\Model\dom\DomModel;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -38,19 +38,28 @@ class AppExtension extends AbstractExtension implements GlobalsInterface
 
     public function getGlobals(): array
     {
-        $user = null;
         $token = $this->tokenStorage->getToken();
 
         $notification = $this->session->get('notification');
         $this->session->remove('notification'); // Supprime la notification après l'affichage
 
         $userInfo = $this->session->get('user_info');
-
-        if ($userInfo) $user = $this->em->getRepository(User::class)->find($userInfo['id']);
+        $roleIds = $userInfo['roles'] ?? [];
 
         return [
             'App' => [
-                'user'              => $user,
+                'user'              => [
+                    'firstname'    => $userInfo['firstname'] ?? '',
+                    'lastname'     => $userInfo['lastname'] ?? '',
+                    'fullname'     => $userInfo['fullname'] ?? '',
+                    'email'        => $userInfo['email'] ?? '',
+                    'agenceIPS'    => $userInfo['default_agence_code'] ?? '',
+                    'serviceIPS'   => $userInfo['default_service_code'] ?? '',
+                    'isAdmin'      => in_array(Role::ROLE_ADMINISTRATEUR, $roleIds),
+                    'isSuperAdmin' => in_array(Role::ROLE_SUPER_ADMINISTRATEUR, $roleIds),
+                    'isAtelier'    => in_array(Role::ROLE_ATELIER, $roleIds),
+                    'isDirection'  => in_array(Role::ROLE_DIRECTION, $roleIds),
+                ],
                 'base_path'         => $_ENV['BASE_PATH_COURT'],
                 'base_path_long'    => $_ENV['BASE_PATH_FICHIER'],
                 'base_path_fichier' => $_ENV['BASE_PATH_FICHIER_COURT'],
