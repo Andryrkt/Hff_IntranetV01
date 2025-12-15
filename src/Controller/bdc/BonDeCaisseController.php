@@ -32,7 +32,7 @@ class BonDeCaisseController extends Controller
     public function listeBonCaisse(Request $request)
     {
         $this->verifierSessionUtilisateur();
-        $this->autorisationAcces($this->getUser(), Application::ID_BCS);
+        $this->autorisationAcces(Application::ID_BCS);
 
         $bonCaisseSearch = new BonDeCaisseDto();
 

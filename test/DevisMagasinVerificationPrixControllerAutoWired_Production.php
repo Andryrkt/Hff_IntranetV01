@@ -51,7 +51,7 @@ class DevisMagasinVerificationPrixControllerAutoWired extends Controller
         $this->verifierSessionUtilisateur();
 
         // Autorisation accès
-        $this->autorisationAcces($this->getUser(), Application::ID_DVM);
+        $this->autorisationAcces(Application::ID_DVM);
 
         // Service de validation
         $validationService = new DevisMagasinValidationVpService(

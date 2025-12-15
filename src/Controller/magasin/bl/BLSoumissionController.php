@@ -55,7 +55,7 @@ class BLSoumissionController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $this->autorisationAcces($this->getUser(), Application::ID_BDL);
+        $this->autorisationAcces(Application::ID_BDL);
 
         $form = $this->getFormFactory()->createBuilder(BLSoumissionType::class)->getForm();
 

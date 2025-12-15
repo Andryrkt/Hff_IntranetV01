@@ -51,7 +51,7 @@ class BadmsForm2Controller extends Controller
         $this->verifierSessionUtilisateur();
 
         /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_BADM);
+        $this->autorisationAcces(Application::ID_BADM);
         /** FIN AUtorisation acées */
 
         $badm = new Badm();

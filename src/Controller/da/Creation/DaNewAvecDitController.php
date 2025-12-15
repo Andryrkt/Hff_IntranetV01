@@ -63,7 +63,7 @@ class DaNewAvecDitController extends Controller
         $this->verifierSessionUtilisateur();
 
         /** Autorisation accès */
-        $this->autorisationAcces($this->getUser(), Application::ID_DAP, Service::ID_ATELIER);
+        $this->autorisationAcces(Application::ID_DAP, Service::ID_ATELIER);
         /** FIN AUtorisation accès */
 
         /** 

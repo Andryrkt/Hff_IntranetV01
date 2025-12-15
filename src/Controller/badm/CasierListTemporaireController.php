@@ -12,6 +12,7 @@ use App\Controller\Traits\Transformation;
 use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+
 /**
  * @Route("/materiel/casier")
  */
@@ -29,7 +30,7 @@ class CasierListTemporaireController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
         /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_CAS);
+        $this->autorisationAcces(Application::ID_CAS);
         /** FIN AUtorisation acées */
 
         $form = $this->getFormFactory()->createBuilder(CasierSearchType::class, null, [

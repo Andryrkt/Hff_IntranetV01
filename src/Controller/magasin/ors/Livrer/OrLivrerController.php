@@ -37,7 +37,7 @@ class OrLivrerController extends Controller
         $this->verifierSessionUtilisateur();
 
         /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_MAG);
+        $this->autorisationAcces(Application::ID_MAG);
         /** FIN AUtorisation acées */
 
         $codeAgence = $this->getUser()->getAgenceAutoriserCode();

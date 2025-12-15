@@ -24,7 +24,7 @@ class NewBdcController extends Controller
         $this->verifierSessionUtilisateur();
 
         /** Autorisation accès */
-        $this->autorisationAcces($this->getUser(), Application::ID_BCS);
+        $this->autorisationAcces(Application::ID_BCS);
         /** FIN AUtorisation accès */
 
         return $this->render("dwForm/dwForm.html.twig", [

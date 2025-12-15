@@ -57,7 +57,7 @@ class DitListeController extends Controller
         $serviceIds = $this->getUser()->getServiceAutoriserIds();
 
         /** CREATION D'AUTORISATION */
-        $this->autorisationAcces($this->getUser(), Application::ID_DIT);
+        $this->autorisationAcces(Application::ID_DIT);
 
         $autoriser = $this->hasRoles(Role::ROLE_ADMINISTRATEUR, Role::ROLE_ATELIER, Role::ROLE_MULTI_SUCURSALES) || $this->hasName('stg.iaro');
         $autorisationRoleEnergie = $this->hasRoles(Role::ROLE_ENERGIE);

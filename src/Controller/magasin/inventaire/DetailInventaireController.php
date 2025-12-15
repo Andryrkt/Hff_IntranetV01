@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\inventaire\DetailInventaireSearch;
 use App\Form\inventaire\detailInventaireSearchType;
+
 /**
  * @Route("/magasin/inventaire")
  */
@@ -66,7 +67,7 @@ class DetailInventaireController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        $this->autorisationAcces($this->getUser(), Application::ID_INV);
+        $this->autorisationAcces(Application::ID_INV);
 
         $agence = $this->transformEnSeulTableauAvecKey($this->InventaireModel->recuperationAgenceIrium());
         $this->dateDebut->modify('first day of this month');
@@ -84,7 +85,7 @@ class DetailInventaireController extends Controller
         )->getForm();
         $form->handleRequest($request);
         $criteria = $this->DetailInventaireSearch;
-        
+
         $data = [];
         $this->getSessionService()->set('detail_invetaire_search_criteria', $criteria);
         if ($form->isSubmitted() && $form->isValid()) {

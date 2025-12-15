@@ -43,7 +43,7 @@ class BadmsController extends Controller
         $this->verifierSessionUtilisateur();
 
         /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_BADM);
+        $this->autorisationAcces(Application::ID_BADM);
         /** FIN AUtorisation acées */
 
         /** RECUPERATION ID USER CONNECTER */

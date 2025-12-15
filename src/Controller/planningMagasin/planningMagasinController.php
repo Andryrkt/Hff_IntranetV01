@@ -45,7 +45,7 @@ class planningMagasinController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
         /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_REP);
+        $this->autorisationAcces(Application::ID_REP);
         // autorisation pour affichage
         $autoriser = $this->estAutoriser();
         $codeAgence = $autoriser ? "-0" : $this->getUser()->getCodeAgenceUser();

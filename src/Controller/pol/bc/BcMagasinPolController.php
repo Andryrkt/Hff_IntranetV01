@@ -54,7 +54,7 @@ class BcMagasinPolController extends Controller
         $this->verifierSessionUtilisateur();
 
         /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_DVM);
+        $this->autorisationAcces(Application::ID_DVM);
 
         /** Gestion de blocage */
         $this->gestionDeBlocage($numeroDevis);

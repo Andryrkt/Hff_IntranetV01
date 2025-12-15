@@ -40,7 +40,7 @@ class ReportingIpsController extends Controller
         $this->verifierSessionUtilisateur();
 
         /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_DAP);
+        $this->autorisationAcces(Application::ID_DAP);
         /** FIN AUtorisation acées */
 
         $form = $this->getFormFactory()->createBuilder(ReportingIpsSearchType::class, null, [

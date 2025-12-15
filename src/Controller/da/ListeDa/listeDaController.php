@@ -40,7 +40,7 @@ class listeDaController extends Controller
         $this->verifierSessionUtilisateur();
 
         /** Autorisation accès */
-        $this->autorisationAcces($this->getUser(), Application::ID_DAP);
+        $this->autorisationAcces(Application::ID_DAP);
         /** FIN AUtorisation accès */
 
         /** Initialisation DaSearch */

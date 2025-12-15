@@ -75,7 +75,7 @@ class ListeDevisMagasinPolController extends Controller
         $this->verifierSessionUtilisateur();
 
         /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_DVM);
+        $this->autorisationAcces(Application::ID_DVM);
 
         //formulaire de recherhce
         $form = $this->getFormFactory()->createBuilder(DevisMagasinSearchType::class, $this->initialisationCriteria(), [
