@@ -8,6 +8,7 @@ use App\Entity\magasin\devis\DevisMagasin;
 use Symfony\Component\Console\Helper\ProgressBar;
 use App\Model\magasin\devis\ListeDevisMagasinModel;
 use App\Service\genererPdf\magasin\devis\PdfMigrationDevisMagasinVp;
+use App\Service\TableauEnStringService;
 
 class MigrationPdfDevisMagasinService
 {
@@ -27,9 +28,9 @@ class MigrationPdfDevisMagasinService
         $devisMagasinRepository = $this->entityManager->getRepository(DevisMagasin::class);
 
         //recupération des données à migrer
-        $numeroDevis = $devisMagasinRepository->getNumeroDevisMigration();
         $listeDevisMagasinModel = new ListeDevisMagasinModel();
-        $devisMagasin = $listeDevisMagasinModel->getDevisMagasinToMigrationPdf();
+        $numerodevis = TableauEnStringService::simpleNumeric([19399433, 19399434, 19399432, 44211557]);
+        $devisMagasin = $listeDevisMagasinModel->getDevisMagasinToMigrationPdf($numerodevis);
 
         //compter le nombre total de devis à migrer
         $total = count($devisMagasin);
@@ -48,11 +49,14 @@ class MigrationPdfDevisMagasinService
 
                 //génération du PDF et sauvegarde sur disque
                 $numeroDevis = $devis['numero_devis'];
-                // $suffix = $listeDevisMagasinModel->constructeurPieceMagasin($numeroDevis);
-                // $fileName = "negverificationprix_$numeroDevis-1#$suffix!{mail}.pdf";
-                $fileName = $devisMagasinRepository->getFileNameMigration($numeroDevis);
+                $suffix = $listeDevisMagasinModel->constructeurPieceMagasinMigration($numeroDevis);
+
+                $fileName = "negverificationprix_$numeroDevis-1#$suffix!noreply.migration.pdf";;
                 $path = "C:\wamp64\www\Upload\magasin\migrations\devis/" . $numeroDevis;
-                $filePath = $path . '' . $fileName;
+                if (!is_dir($path)) {
+                    mkdir($path, 0777, true);
+                }
+                $filePath = $path . '/' . $fileName;
                 $pdfMigrationDevisMagasinVp->genererPdf($devis, $filePath);
 
                 // Avancer la barre de progression

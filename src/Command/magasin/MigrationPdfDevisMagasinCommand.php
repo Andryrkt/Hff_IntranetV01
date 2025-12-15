@@ -23,7 +23,7 @@ class MigrationPdfDevisMagasinCommand extends Command
     protected function configure()
     {
         $this
-            ->setDescription('Migration des pdfs devis magasin.')
+            ->setDescription('Migration des pdfs devis magasin. ligne de commande "php -d memory_limit=1024M bin/console app:migration-pdf-devis-magasin"')
             ->setHelp('Cette commande vous permet de migrer les pdfs devis magasin...');
     }
 

@@ -11,7 +11,7 @@ use App\Command\MigrationPdfCommand;
 use App\Command\MigrationDataCommand;
 use App\Command\MigrationDevisCommand;
 use Symfony\Component\Console\Application;
-use App\Service\genererPdf\magasin\devis\MigrationPdfDevisMagasinCommand;
+use App\Command\magasin\MigrationPdfDevisMagasinCommand;
 
 //Charger le fichier .env
 // $dotenv = Dotenv::createImmutable(dirname(__DIR__));
