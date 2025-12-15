@@ -5,6 +5,7 @@ namespace App\Controller\da\Creation;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
+use App\Entity\admin\utilisateur\Role;
 use App\Form\da\DemandeApproDirectFormType;
 use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
@@ -40,7 +41,7 @@ class DaNewDirectController extends Controller
         $this->verifierSessionUtilisateur();
 
         /** Autorisation accès */
-        $this->checkPageAccess($this->estAdmin() || $this->estCreateurDeDADirecte());
+        $this->checkPageAccess($this->hasRoles(Role::ROLE_ADMINISTRATEUR, Role::ROLE_DA_DIRECTE));
         /** FIN AUtorisation accès */
 
         $demandeAppro = $id === 0 ? $this->initialisationDemandeApproDirect() : $this->demandeApproRepository->findAvecDernieresDALetLR($id);

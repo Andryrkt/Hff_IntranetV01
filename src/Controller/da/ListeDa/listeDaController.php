@@ -7,6 +7,7 @@ use App\Entity\da\DaAfficher;
 use App\Form\da\DaSearchType;
 use App\Controller\Controller;
 use App\Entity\admin\Application;
+use App\Entity\admin\utilisateur\Role;
 use Symfony\Component\Form\FormInterface;
 use App\Controller\Traits\da\DaListeTrait;
 use App\Controller\Traits\AutorisationTrait;
@@ -48,7 +49,7 @@ class listeDaController extends Controller
 
         $agenceServiceIps = $this->agenceServiceIpsObjet();
         $agence           = $agenceServiceIps['agenceIps'];
-        $codeCentrale     = $this->estAdmin() || in_array($agence->getCodeAgence(), ['90', '91', '92']);
+        $codeCentrale     = $this->hasRoles(Role::ROLE_ADMINISTRATEUR) || in_array($agence->getCodeAgence(), ['90', '91', '92']);
 
         //formulaire de recherche
         $form = $this->getFormFactory()->createBuilder(DaSearchType::class, $daSearch, ['method' => 'GET'])->getForm();
@@ -77,7 +78,7 @@ class listeDaController extends Controller
         $paginationData = $this->getPaginationData($criteria, $page, $limit);
         $dataPrepared = $this->prepareDataForDisplay($paginationData['data']);
 
-         /** === Formulaire pour la date de livraison prevu === */
+        /** === Formulaire pour la date de livraison prevu === */
         $formDateLivraison = $this->getFormFactory()->createBuilder(DaModalDateLivraisonType::class)->getForm();
         $this->TraitementFormulaireDateLivraison($request, $formDateLivraison);
 

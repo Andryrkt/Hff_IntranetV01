@@ -4,6 +4,7 @@ namespace App\Controller\da\DemandeDevis;
 
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
+use App\Entity\admin\utilisateur\Role;
 use App\Controller\Traits\AutorisationTrait;
 use App\Controller\Traits\da\DaAfficherTrait;
 use App\Controller\Traits\da\demandeDevis\DaDemandeDevisTrait;
@@ -42,7 +43,7 @@ class DemandeDevisController extends Controller
         }
 
         /** Autorisation accès */
-        $this->checkPageAccess(($this->estUserDansServiceAppro() || $this->estAdmin()) && $demandeAppro->getStatutDal() === DemandeAppro::STATUT_SOUMIS_APPRO);
+        $this->checkPageAccess(($this->estUserDansServiceAppro() || $this->hasRoles(Role::ROLE_ADMINISTRATEUR)) && $demandeAppro->getStatutDal() === DemandeAppro::STATUT_SOUMIS_APPRO);
         /** FIN AUtorisation accès */
 
         $this->appliquerStatutDemandeDevisEnCours($demandeAppro, $this->getUserName());

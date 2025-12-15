@@ -7,6 +7,7 @@ use App\Entity\dom\DomSearch;
 use App\Controller\Controller;
 use App\Form\dom\DomSearchType;
 use App\Entity\admin\Application;
+use App\Entity\admin\utilisateur\Role;
 use App\Controller\Traits\FormatageTrait;
 use App\Controller\Traits\ConversionTrait;
 use App\Controller\Traits\AutorisationTrait;
@@ -47,7 +48,7 @@ class DomsListeController extends Controller
         $this->autorisationAcces($this->getUser(), Application::ID_DOM);
         /** FIN AUtorisation acées */
 
-        $autoriser = $this->estAdmin();
+        $autoriser = $this->hasRoles(Role::ROLE_ADMINISTRATEUR);
 
         $domSearch = new DomSearch();
 
@@ -199,7 +200,7 @@ class DomsListeController extends Controller
      */
     public function listAnnuler(Request $request)
     {
-        $autoriser = $this->estAdmin();
+        $autoriser = $this->hasRoles(Role::ROLE_ADMINISTRATEUR);
 
         $domSearch = new DomSearch();
 

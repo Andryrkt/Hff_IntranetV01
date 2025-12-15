@@ -7,6 +7,7 @@ use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\admin\Application;
 use App\Form\da\DaObservationType;
+use App\Entity\admin\utilisateur\Role;
 use App\Controller\Traits\lienGenerique;
 use App\Controller\Traits\AutorisationTrait;
 use App\Controller\Traits\da\DaAfficherTrait;
@@ -61,7 +62,7 @@ class DaDetailReapproController extends Controller
 			'detailTemplate'    => 'detail-reappro',
 			'formObservation'	=> $formObservation->createView(),
 			'demandeAppro'      => $demandeAppro,
-			'codeCentrale'      => $this->estAdmin() || in_array($demandeAppro->getAgenceEmetteur()->getCodeAgence(), ['90', '91', '92']),
+			'codeCentrale'      => $this->hasRoles(Role::ROLE_ADMINISTRATEUR) || in_array($demandeAppro->getAgenceEmetteur()->getCodeAgence(), ['90', '91', '92']),
 			'observations'      => $observations,
 			'fichiers'          => $fichiers,
 			'connectedUser'     => $this->getUser(),

@@ -12,6 +12,7 @@ use App\Controller\Traits\da\DaAfficherTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\da\validation\DaValidationReapproTrait;
+use App\Entity\admin\utilisateur\Role;
 use App\Form\da\DaObservationValidationType;
 
 /**
@@ -61,7 +62,7 @@ class DaValidationReapproController extends Controller
         return $this->render("da/validation-reappro.html.twig", [
             'demandeAppro'    => $da,
             'numDa'           => $da->getNumeroDemandeAppro(),
-            'codeCentrale'    => $this->estAdmin() || in_array($da->getAgenceEmetteur()->getCodeAgence(), ['90', '91', '92']),
+            'codeCentrale'    => $this->hasRoles(Role::ROLE_ADMINISTRATEUR) || in_array($da->getAgenceEmetteur()->getCodeAgence(), ['90', '91', '92']),
             'formReappro'     => $formReappro->createView(),
             'formObservation' => $formObservation->createView(),
             'observations'    => $observations,

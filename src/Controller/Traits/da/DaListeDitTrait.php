@@ -17,21 +17,17 @@ trait DaListeDitTrait
      */
     private function autorisationRole(): bool
     {
-        $userConnecter = $this->getUser();
-        $roleIds = $userConnecter->getRoleIds();
-        return $this->estAdmin() || in_array(Role::ROLE_ATELIER, $roleIds);
+        return $this->hasRoles(Role::ROLE_ADMINISTRATEUR, Role::ROLE_ATELIER);
     }
 
     /**
-     * Methode pour autorise le role atelier
+     * Methode pour autorise le role energie
      *
      * @return boolean
      */
     private function autorisationRoleEnergie(): bool
     {
-        $userConnecter = $this->getUser();
-        $roleIds = $userConnecter->getRoleIds();
-        return in_array(5, $roleIds);
+        return $this->hasRoles(Role::ROLE_ENERGIE);
     }
 
 

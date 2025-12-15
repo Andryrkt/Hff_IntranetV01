@@ -3,20 +3,21 @@
 namespace App\Controller\dw;
 
 use App\Controller\Controller;
-use App\Entity\admin\Application;
-use App\Controller\Traits\AutorisationTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
+use App\Traits\FileUtilityTrait;
+use App\Entity\admin\Application;
 use App\Entity\da\DemandeApproLR;
+use App\Entity\admin\utilisateur\Role;
+use App\Controller\Traits\AutorisationTrait;
+use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
+use App\Repository\da\DemandeApproLRepository;
+use App\Repository\da\DemandeApproLRRepository;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\dw\DossierInterventionAtelierModel;
 use App\Form\dw\DossierInterventionAtelierSearchType;
-use App\Repository\da\DemandeApproRepository;
-use App\Repository\da\DemandeApproLRepository;
-use App\Repository\da\DemandeApproLRRepository;
 use App\Service\historiqueOperation\HistoriqueOperationDITService;
-use App\Traits\FileUtilityTrait;
 
 /**
  * @Route("/atelier/demande-intervention")
@@ -138,7 +139,7 @@ class DossierInterventionAtelierController extends Controller
 
     public function ajoutNbDoc(DossierInterventionAtelierModel $dwModel, $criteria)
     {
-        $dwDits = $dwModel->findAllDwDit($criteria, $this->getUser()->getCodeAgenceUser(), $this->estAdmin(), $this->getUserName());
+        $dwDits = $dwModel->findAllDwDit($criteria, $this->getUser()->getCodeAgenceUser(), $this->hasRoles(Role::ROLE_ADMINISTRATEUR), $this->getUserName());
 
         $dwfac = $dwRi = $dwCde = $dwBc = $dwDev = $dwBca = $dwFacBl = [];
 

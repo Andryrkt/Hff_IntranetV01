@@ -2,19 +2,20 @@
 
 namespace App\Controller\Traits\da;
 
+use Twig\Markup;
 use App\Model\da\DaModel;
+use App\Entity\da\DaSearch;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Entity\da\DaAfficher;
-use App\Entity\da\DaSearch;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaSoumissionBc;
+use App\Entity\admin\utilisateur\Role;
 use App\Repository\admin\AgenceRepository;
 use App\Entity\dit\DitOrsSoumisAValidation;
-use App\Model\dw\DossierInterventionAtelierModel;
 use App\Repository\da\DaSoumissionBcRepository;
+use App\Model\dw\DossierInterventionAtelierModel;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
-use Twig\Markup;
 
 trait DaListeTrait
 {
@@ -114,7 +115,7 @@ trait DaListeTrait
         $userConnecter = $this->getUser();
         $codeAgence = $userConnecter->getCodeAgenceUser();
         $idAgenceUser = $this->agenceRepository->findIdByCodeAgence($codeAgence);
-        $paginationData = $this->daAfficherRepository->findPaginatedAndFilteredDA($userConnecter, $criteria, $idAgenceUser, $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier(), $this->estAdmin(), $page, $limit);
+        $paginationData = $this->daAfficherRepository->findPaginatedAndFilteredDA($userConnecter, $criteria, $idAgenceUser, $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier(), $this->hasRoles(Role::ROLE_ADMINISTRATEUR), $page, $limit);
         /** @var array $daAffichers Filtrage des DA en fonction des critères */
         $daAffichers = $paginationData['data'];
 
@@ -122,7 +123,7 @@ trait DaListeTrait
         $this->quelqueModifictionDansDatabase($daAffichers);
 
         // Vérification du verrouillage des DA et Retourne les DA filtrées
-        $paginationData['data'] = $this->appliquerVerrouillageSelonProfil($daAffichers, $this->estAdmin(), $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier(), $this->estCreateurDeDADirecte());
+        $paginationData['data'] = $this->appliquerVerrouillageSelonProfil($daAffichers, $this->hasRoles(Role::ROLE_ADMINISTRATEUR), $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier(), $this->estCreateurDeDADirecte());
 
         return $paginationData;
     }
@@ -198,7 +199,7 @@ trait DaListeTrait
         $statutDASupprimable = [DemandeAppro::STATUT_SOUMIS_APPRO, DemandeAppro::STATUT_SOUMIS_ATE, DemandeAppro::STATUT_VALIDE];
 
         // Roles
-        $estAdmin   = $this->estAdmin();
+        $estAdmin   = $this->hasRoles(Role::ROLE_ADMINISTRATEUR);
         $estAppro   = $this->estUserDansServiceAppro();
         $estAtelier = $this->estUserDansServiceAtelier();
 
