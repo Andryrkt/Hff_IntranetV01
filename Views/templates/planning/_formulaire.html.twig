@@ -1,5 +1,3 @@
-{% set role_ids = App.user.roleIds %}
-
 <div class="accordion" id="formAccordion">
 	<div class="accordion-item">
 		<h2 class="accordion-header">
@@ -33,7 +31,7 @@
 						{{form_row(form.numOr)}}
 						{{form_row(form.typeDocument)}}
 						{{form_row(form.orBackOrder)}}
-						{% if 1 in role_ids %}
+						{% if App.userConnecter.isAdmin %}
 							{{form_row(form.orNonValiderDw)}}
 						{% else %}
 							{{form_row(form.orNonValiderDw, {'row_attr': {'class': 'd-none'}})}}

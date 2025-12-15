@@ -48,7 +48,7 @@ class AppExtension extends AbstractExtension implements GlobalsInterface
 
         return [
             'App' => [
-                'user'              => [
+                'userConnecter'     => [
                     'firstname'    => $userInfo['firstname'] ?? '',
                     'lastname'     => $userInfo['lastname'] ?? '',
                     'fullname'     => $userInfo['fullname'] ?? '',

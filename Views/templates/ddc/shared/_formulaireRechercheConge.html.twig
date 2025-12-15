@@ -1,4 +1,4 @@
-{% set role_ids = App.user.roleIds %}
+{% set role_ids = App.userConnecter.roleIds %}
 
 <div class="accordion" id="accordionConge">
 	<div class="accordion-item">
@@ -29,7 +29,7 @@
 						<div id="loader-matricule-nom-prenom" class="spinner" style="display: none;">Chargement...</div>
 					</div>
 					<div class="col-md-3">
-						{{ form_row(form.agence, {'attr': {'class': 'form-select-sm', 'data-default-agence': App.user.agenceServiceIrium.agenceIps|default('') }}) }}
+						{{ form_row(form.agence, {'attr': {'class': 'form-select-sm', 'data-default-agence': App.userConnecter.agenceIPS|default('') }}) }}
 					</div>
 					<div class="col-md-3">
 						{{ form_row(form.dateDemande, {'attr': {'class': 'form-control-sm datepicker', 'type': 'date'}})}}
@@ -48,7 +48,7 @@
 							<span class="ms-2 small text-muted">Chargement des services...</span>
 						</div>
 						<div id="serviceFieldContainer">
-							{{ form_row(form.service, {'attr': {'class': 'form-select-sm', 'data-default-service': App.user.agenceServiceIrium.serviceips|default('')}}) }}
+							{{ form_row(form.service, {'attr': {'class': 'form-select-sm', 'data-default-service': App.userConnecter.serviceIPS|default('')}}) }}
 						</div>
 					</div>
 					<div class="col-md-3">
@@ -62,7 +62,7 @@
 					<div class="col-md-3">
 						{{ form_row(form.statutDemande, {'attr': {'class': 'form-select-sm'}}) }}
 					</div>
-					<div class="col-md-3 {{ 1 in role_ids or 11 in role_ids ? '' : 'd-none' }}">
+					<div class="col-md-3 {{ App.userConnecter.isAdmin or App.userConnecter.isDirection ? '' : 'd-none' }}">
 						{{ form_row(form.groupeDirection, {'attr': {'class': 'form-select-sm'}}) }}
 					</div>
 					<div class="col-12 text-end">
