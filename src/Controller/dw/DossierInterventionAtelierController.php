@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DemandeApproLRepository;
 use App\Repository\da\DemandeApproLRRepository;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Model\dw\DossierInterventionAtelierModel;
+use App\Model\dw\dossierInterventionAtelierModel;
 use App\Form\dw\DossierInterventionAtelierSearchType;
 use App\Service\historiqueOperation\HistoriqueOperationDITService;
 
@@ -57,7 +57,7 @@ class DossierInterventionAtelierController extends Controller
 
         $form = $this->getFormFactory()->createBuilder(DossierInterventionAtelierSearchType::class, null, ['method' => 'GET'])->getForm();
 
-        $dwModel = new DossierInterventionAtelierModel();
+        $dwModel = new dossierInterventionAtelierModel();
 
         $dwDits = []; // Initialisation du tableau pour les demandes d'intervention
         $criteria = [
@@ -99,7 +99,7 @@ class DossierInterventionAtelierController extends Controller
         $this->autorisationAcces(Application::ID_DIT);
         /** FIN AUtorisation acées */
 
-        $dwModel = new DossierInterventionAtelierModel();
+        $dwModel = new dossierInterventionAtelierModel();
 
         // Récupération initiale : Demande d'intervention
         $dwDit = $this->fetchAndLabel($dwModel, 'findDwDit', $numDit, "Demande d'intervention");
@@ -137,7 +137,7 @@ class DossierInterventionAtelierController extends Controller
         ]);
     }
 
-    public function ajoutNbDoc(DossierInterventionAtelierModel $dwModel, $criteria)
+    public function ajoutNbDoc(dossierInterventionAtelierModel $dwModel, $criteria)
     {
         $dwDits = $dwModel->findAllDwDit($criteria, $this->getUser()->getCodeAgenceUser(), $this->hasRoles(Role::ROLE_ADMINISTRATEUR), $this->getUserName());
 

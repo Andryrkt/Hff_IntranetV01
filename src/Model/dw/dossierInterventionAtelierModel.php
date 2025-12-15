@@ -5,7 +5,7 @@ namespace App\Model\dw;
 use App\Controller\Traits\ConversionTrait;
 use App\Model\Model;
 
-class DossierInterventionAtelierModel extends Model
+class dossierInterventionAtelierModel extends Model
 {
 
     use ConversionTrait;
