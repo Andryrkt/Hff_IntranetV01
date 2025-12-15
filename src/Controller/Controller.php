@@ -626,6 +626,26 @@ class Controller
         return in_array(DemandeAppro::ID_APPRO, $userServiceIds);
     }
 
+    /**
+     * Obtenir le code agence par défaut (IPS) de l'utilisateur
+     */
+    protected function getCodeAgenceUser(): string
+    {
+        $userInfo = $this->getSessionService()->get('user_info');
+        if (!$userInfo) return "";
+        return $userInfo['default_agence_code'] ?? '';
+    }
+
+    /**
+     * Obtenir le code service par défaut (IPS) de l'utilisateur
+     */
+    protected function getCodeServiceUser(): string
+    {
+        $userInfo = $this->getSessionService()->get('user_info');
+        if (!$userInfo) return "";
+        return $userInfo['default_service_code'] ?? '';
+    }
+
     // =====================================
     // MÉTHODES STATIQUES DE COMPATIBILITÉ
     // (Temporaires - à supprimer après refactorisation complète)
