@@ -2,6 +2,7 @@
 
 namespace App\Controller\da\ListeDa;
 
+use App\Utils\PerfLogger;
 use App\Entity\da\DaSearch;
 use App\Entity\da\DaAfficher;
 use App\Form\da\DaSearchType;
@@ -22,13 +23,19 @@ class listeDaController extends Controller
 {
     use DaListeTrait;
     use AutorisationTrait;
+    private $perfLogger;
 
     public function __construct()
     {
+        $this->perfLogger = PerfLogger::getInstance();
+        $this->perfLogger->log('constructeur du controleur listeDaController', __FILE__);
         parent::__construct();
+        $this->perfLogger->log('constructeur du parent Controleur', __FILE__);
 
         $this->initDaListeTrait();
+        $this->perfLogger->log('initialisation du trait DaListeTrait', __FILE__);
         $this->initStatutBcTrait();
+        $this->perfLogger->log('initialisation du trait StatutBcTrait', __FILE__);
     }
 
     /**
@@ -36,23 +43,27 @@ class listeDaController extends Controller
      */
     public function index(Request $request)
     {
+        $this->perfLogger->log('debut de la fonction index', __FILE__);
         //verification si user connecter
         $this->verifierSessionUtilisateur();
+        $this->perfLogger->log('verification si user connecter', __FILE__);
 
         /** Autorisation accès */
         $this->autorisationAcces(Application::ID_DAP);
+        $this->perfLogger->log('Autorisation acces', __FILE__);
         /** FIN AUtorisation accès */
 
         /** Initialisation DaSearch */
         $daSearch = new DaSearch;
         $this->initialisationRechercheDa($daSearch);
+        $this->perfLogger->log('Initialisation DaSearch', __FILE__);
 
-        $agenceServiceIps = $this->agenceServiceIpsObjet();
-        $agence           = $agenceServiceIps['agenceIps'];
-        $codeCentrale     = $this->hasRoles(Role::ROLE_ADMINISTRATEUR) || in_array($agence->getCodeAgence(), ['90', '91', '92']);
+        $codeCentrale = $this->hasRoles(Role::ROLE_ADMINISTRATEUR) || in_array($this->getCodeAgenceUser(), ['90', '91', '92']);
+        $this->perfLogger->log('Initialisation agence', __FILE__);
 
         //formulaire de recherche
         $form = $this->getFormFactory()->createBuilder(DaSearchType::class, $daSearch, ['method' => 'GET'])->getForm();
+        $this->perfLogger->log('formulaire de recherche', __FILE__);
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
@@ -74,13 +85,18 @@ class listeDaController extends Controller
         //nombre de ligne par page
         $limit = 20;
 
+        $this->perfLogger->log('recupération du numero de page et nombre de ligne par page', __FILE__);
         // Donnée à envoyer à la vue
         $paginationData = $this->getPaginationData($criteria, $page, $limit);
+        $this->perfLogger->log('récupération des données à envoyer à la vue', __FILE__);
         $dataPrepared = $this->prepareDataForDisplay($paginationData['data']);
+        $this->perfLogger->log('préparation des données à envoyer à la vue', __FILE__);
 
         /** === Formulaire pour la date de livraison prevu === */
         $formDateLivraison = $this->getFormFactory()->createBuilder(DaModalDateLivraisonType::class)->getForm();
+        $this->perfLogger->log('création du formulaire de date de livraison', __FILE__);
         $this->TraitementFormulaireDateLivraison($request, $formDateLivraison);
+        $this->perfLogger->log('traitement du formulaire de date de livraison', __FILE__);
 
         return $this->render('da/list-da.html.twig', [
             'data'           => $dataPrepared,

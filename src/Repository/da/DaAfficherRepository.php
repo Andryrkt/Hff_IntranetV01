@@ -413,9 +413,9 @@ class DaAfficherRepository extends EntityRepository
     }
 
     private function getFilteredLastVersions(
-        User $user,
         array $criteria,
         int $idAgenceUser,
+        array $agServAutorisesUser,
         bool $estAppro,
         bool $estAtelier,
         bool $estAdmin,
@@ -430,7 +430,7 @@ class DaAfficherRepository extends EntityRepository
 
         // 2️⃣ Appliquer les filtres dynamiques
         $this->applyDynamicFilters($qb, "daf", $criteria);
-        $this->applyAgencyServiceFilters($qb, "daf", $criteria, $user, $idAgenceUser, $estAppro, $estAtelier, $estAdmin);
+        $this->applyAgencyServiceFilters($qb, "daf", $criteria, $idAgenceUser, $agServAutorisesUser, $estAppro, $estAtelier, $estAdmin);
         $this->applyDateFilters($qb, "daf", $criteria);
         $this->applyFilterAppro($qb, "daf", $estAppro, $estAdmin);
         $this->applyStatutsFilters($qb, "daf", $criteria);
@@ -486,16 +486,16 @@ class DaAfficherRepository extends EntityRepository
      * Fonction publique : renvoie les DA paginés avec filtres appliqués uniquement sur les dernières versions
      */
     public function findPaginatedAndFilteredDA(
-        User $user,
         array $criteria,
         int $idAgenceUser,
+        array $agServAutorisesUser,
         bool $estAppro,
         bool $estAtelier,
         bool $estAdmin,
         int $page,
         int $limit
     ): array {
-        $paginated = $this->getFilteredLastVersions($user, $criteria, $idAgenceUser, $estAppro, $estAtelier, $estAdmin, $page, $limit);
+        $paginated = $this->getFilteredLastVersions($criteria, $idAgenceUser, $agServAutorisesUser, $estAppro, $estAtelier, $estAdmin, $page, $limit);
 
         $totalItems = $paginated['totalItems'];
         $lastPage = $totalItems > 0 ? ceil($totalItems / $limit) : 0;
@@ -694,7 +694,7 @@ class DaAfficherRepository extends EntityRepository
         }
     }
 
-    private function applyAgencyServiceFilters($qb, string $qbLabel, array $criteria, User $user, int $idAgenceUser, bool $estAppro, bool $estAtelier, bool $estAdmin)
+    private function applyAgencyServiceFilters($qb, string $qbLabel, array $criteria, int $idAgenceUser, array $agServAutorisesUser, bool $estAppro, bool $estAtelier, bool $estAdmin)
     {
         if (!$estAtelier && !$estAppro && !$estAdmin) {
             $qb
@@ -704,7 +704,7 @@ class DaAfficherRepository extends EntityRepository
                         "$qbLabel.agenceEmetteur = :codeAgence"
                     )
                 )
-                ->setParameter('agenceAutoriserIds', $user->getAgenceAutoriserIds(), ArrayParameterType::INTEGER)
+                ->setParameter('agenceAutoriserIds', $agServAutorisesUser['agences'] ?? [], ArrayParameterType::INTEGER)
                 ->setParameter('codeAgence', $idAgenceUser)
                 ->andWhere(
                     $qb->expr()->orX(
@@ -712,7 +712,7 @@ class DaAfficherRepository extends EntityRepository
                         "$qbLabel.serviceEmetteur IN (:serviceAutoriserIds)"
                     )
                 )
-                ->setParameter('serviceAutoriserIds', $user->getServiceAutoriserIds(), ArrayParameterType::INTEGER);
+                ->setParameter('serviceAutoriserIds', $agServAutorisesUser['services'] ?? [], ArrayParameterType::INTEGER);
         }
 
         if (!empty($criteria['agenceEmetteur'])) {
@@ -790,7 +790,7 @@ class DaAfficherRepository extends EntityRepository
     }
 
 
-    public function findDerniereVersionDesDA(User $user, array $criteria,  int $idAgenceUser, bool $estAppro, bool $estAtelier, bool $estAdmin): array //liste_da
+    public function findDerniereVersionDesDA(array $criteria,  int $idAgenceUser, array $agServAutorisesUser, bool $estAppro, bool $estAtelier, bool $estAdmin): array //liste_da
     {
         $qb = $this->createQueryBuilder('d');
 
@@ -803,7 +803,7 @@ class DaAfficherRepository extends EntityRepository
         );
 
         $this->applyDynamicFilters($qb, 'd', $criteria);
-        $this->applyAgencyServiceFilters($qb, 'd', $criteria, $user, $idAgenceUser, $estAppro, $estAtelier, $estAdmin);
+        $this->applyAgencyServiceFilters($qb, 'd', $criteria, $idAgenceUser, $agServAutorisesUser, $estAppro, $estAtelier, $estAdmin);
         $this->applyDateFilters($qb, 'd', $criteria);
 
         $this->applyFilterAppro($qb, 'd', $estAppro, $estAdmin);

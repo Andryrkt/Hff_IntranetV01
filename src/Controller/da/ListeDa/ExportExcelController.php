@@ -52,12 +52,12 @@ class ExportExcelController extends Controller
     public function getDataExcel(array $criteria): array
     {
         //recuperation de l'id de l'agence de l'utilisateur connecter
-        $userConnecter = $this->getUser();
-        $codeAgence = $userConnecter->getCodeAgenceUser();
+        $codeAgence = $this->getCodeAgenceUser();
         $idAgenceUser = $this->agenceRepository->findOneBy(['codeAgence' => $codeAgence])->getId();
+        $agServAutorisesUser = $this->getAgServAutorisesUser();
 
         // Filtrage des DA en fonction des critères
-        $daAffichers = $this->daAfficherRepository->findDerniereVersionDesDA($userConnecter, $criteria, $idAgenceUser, $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier(), $this->hasRoles(Role::ROLE_ADMINISTRATEUR));
+        $daAffichers = $this->daAfficherRepository->findDerniereVersionDesDA($criteria, $idAgenceUser, $agServAutorisesUser, $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier(), $this->hasRoles(Role::ROLE_ADMINISTRATEUR));
 
         // Retourne les DA filtrées
         return $daAffichers;
