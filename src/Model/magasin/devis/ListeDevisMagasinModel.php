@@ -10,8 +10,8 @@ use Symfony\Component\Finder\Glob;
 class ListeDevisMagasinModel extends Model
 {
     public function getDevis(array $criteria = [],  string $vignette = 'magasin', string $codeAgenceAutoriser, bool $adminMulti = false, $numDeviAExclureString): array
-    { // TODO : effacer le FIRST 100 et decommenter AND nent_datecde >= ADD_MONTHS(TODAY, -3) apres le migration
-        $statement = "SELECT FIRST 100 DISTINCT
+    {
+        $statement = "SELECT DISTINCT
             nent_numcde as numero_devis
             ,nent_datecde as date_creation
             ,nent_succ || ' - ' || nent_servcrt as emmeteur
@@ -29,7 +29,7 @@ class ListeDevisMagasinModel extends Model
             AND nent_servcrt <> 'ASS'
             AND (CAST(nent_numcli AS VARCHAR(20)) NOT LIKE '199%' and nent_numcli <> '1101222')
             AND nent_numcde not in ($numDeviAExclureString)
-            -- AND nent_datecde >= ADD_MONTHS(TODAY, -3)
+            AND nent_datecde >= '01-09-2025'
             AND year(Nent_datecde) = year(TODAY)
         ";
 
@@ -327,13 +327,15 @@ class ListeDevisMagasinModel extends Model
                         ,CAST(nent_cdettc AS VARCHAR(20)) as total_ttc
                     from informix.neg_ent 
                     where nent_numcde in ($numDevis)
+                    AND nent_soc ='HF'
+                    order by nent_numcde ASC
         ";
 
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);
 
-        return $this->convertirEnUtf8($data);
+        return array_column($this->convertirEnUtf8($data), null, 'numero_devis');
     }
 
 

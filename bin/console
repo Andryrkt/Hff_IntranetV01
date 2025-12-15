@@ -23,8 +23,8 @@ $command = new AncienDitCommand($entityManager);
 $migrationPdfDit = new MigrationPdfCommand($entityManager);
 $migrationDataDit = new MigrationDataCommand($entityManager);
 $migrationDevis = new MigrationDevisCommand();
-$migrationPdfDevisMagasinVp = new MigrationPdfDevisMagasinVpCommand();
-$migrationPdfDevisMagasinVd = new MigrationPdfDevisMagasinVdCommand();
+$migrationPdfDevisMagasinVp = new MigrationPdfDevisMagasinVpCommand($entitymanager);
+$migrationPdfDevisMagasinVd = new MigrationPdfDevisMagasinVdCommand($entitymanager);
 
 // Ajouter la commande à l'application Symfony Console
 $application = new Application();
