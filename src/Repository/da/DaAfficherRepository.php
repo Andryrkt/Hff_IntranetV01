@@ -835,4 +835,19 @@ class DaAfficherRepository extends EntityRepository
             ->addOrderBy('d.numeroCde', 'DESC');
         return $qb->getQuery()->getResult();
     }
+
+
+    public function getStatutsBc()
+    {
+        $originalArray =  $this->createQueryBuilder('d')
+            ->select('DISTINCT d.statutCde')
+            ->where('d.statutCde IS NOT NULL')
+            ->andWhere('d.statutCde != :statutVide')
+            ->setParameter('statutVide', '')
+            ->orderBy('d.statutCde', 'ASC')
+            ->getQuery()
+            ->getSingleColumnResult();
+
+        return array_combine($originalArray, $originalArray);
+    }
 }

@@ -55,7 +55,7 @@
         "symfony/twig-bridge": "^5.4",
         "symfony/asset": "^5.4",
         "symfony/http-kernel": "^5.4",
-        "phpoffice/phpspreadsheet": "^1.29",
+        "phpoffice/phpspreadsheet": "^1.30",
         "symfony/form": "^5.4",
         "symfony/validator": "^5.4",
         "symfony/translation": "^5.4",
