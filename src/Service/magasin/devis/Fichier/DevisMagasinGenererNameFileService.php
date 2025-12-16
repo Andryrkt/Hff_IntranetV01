@@ -55,9 +55,9 @@ class DevisMagasinGenererNameFileService extends AbstractFileNameGeneratorServic
     /**
      * Génère un nom pour le cas de fichier excel
      */
-    public function generateFichierExcelName(string $numDevis): string
+    public function generateFichierExcelName(string $numDevis, string $extension): string
     {
-        return "feuille_calcul_$numDevis.xlsx";
+        return "feuille_calcul_$numDevis.$extension";
     }
 
     /**
