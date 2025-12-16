@@ -398,6 +398,7 @@ trait StatutBcTrait
 
     private function updateQteCdeDansDaAfficher(array $qte, DaAfficher $DaAfficher, array $infoDaDirect, bool $daDirect, bool $daViaOR): void
     {
+
         if (!empty($qte) || !empty($infoDaDirect)) {
 
             if ($daDirect) {
@@ -410,8 +411,8 @@ trait StatutBcTrait
                 $q = $qte[0];
                 $qteDem = (int)$q['qte_dem'];
                 $qteLivee = (int)$q['qte_livree'];
-                $qteReliquat = $qteDem - $qteLivee; // quantiter en attente
-                $qteDispo = (int)$q['qte_dispo'];
+                $qteDispo = (int)$q['qte_dispo']; // quantité à livrer
+                $qteReliquat = $qteLivee == 0  ? $qteDem - $qteDispo : $qteDem - $qteLivee; // quantiter en attente
             }
 
             if ($DaAfficher->getNumeroCde() != '26246458' && $DaAfficher->getArtDesi() != 'ECROU HEX. AC.GALVA A CHAUD CL.8 DI') {
