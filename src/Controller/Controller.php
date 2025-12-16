@@ -54,8 +54,8 @@ class Controller
         if ($this->sessionService === null) {
             try {
                 $container = $this->getContainer();
-                if ($container && $container->has('App\\Service\\SessionManagerService')) {
-                    $this->sessionService = $container->get('App\\Service\\SessionManagerService');
+                if ($container && $container->has('session')) {
+                    $this->sessionService = $container->get('session');
                 } else {
                     $this->sessionService = new \App\Service\SessionManagerService();
                 }
