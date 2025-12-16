@@ -117,13 +117,13 @@ trait DevisMagasinTrait
         $nomEtCheminFichiersEnregistrer = $this->uploader->getNomsEtCheminFichiers($form, [
             'pattern' => '/^pieceJointExcel$/i',
             'repertoire' => $devisPath,
-            'generer_nom_callback' => function () use ($numDevis) {
-                return $this->nameGenerator->generateFichierExcelName($numDevis);
+            'generer_nom_callback' => function (UploadedFile $file) use ($numDevis) {
+                return $this->nameGenerator->generateFichierExcelName($numDevis, $file->getClientOriginalExtension());
             }
         ]);
 
         $nomAvecCheminFichier = $nomEtCheminFichiersEnregistrer[0] ?? '';
-        $nomFichier = $nomAvecCheminFichier ? $this->nameGenerator->generateFichierExcelName($numDevis) : "";
+        $nomFichier = $nomAvecCheminFichier ? basename($nomAvecCheminFichier) : "";
 
         return [$nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, $nomFichier];
     }
