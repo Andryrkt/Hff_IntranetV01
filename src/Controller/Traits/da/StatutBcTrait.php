@@ -128,15 +128,15 @@ trait StatutBcTrait
             return 'PAS DANS OR';
         }
         // DA Direct , DA Via OR
-        elseif ($this->doitGenererBc($situationCde, $statutDa, $statutOr, $infoDaDirect, $daDirect, $daViaOR)) {
+        elseif (!$daReappro && $this->doitGenererBc($situationCde, $statutDa, $statutOr, $infoDaDirect, $daDirect, $daViaOR)) {
             return 'A générer';
-        } elseif ($this->doitEditerBc($situationCde, $infoDaDirect, $daDirect, $daViaOR)) {
+        } elseif (!$daReappro && $this->doitEditerBc($situationCde, $infoDaDirect, $daDirect, $daViaOR)) {
             return 'A éditer';
-        } elseif ($this->doitSoumettreBc($situationCde, $numCde, $statutBc, $infoDaDirect, $daDirect, $daViaOR)) {
+        } elseif (!$daReappro && $this->doitSoumettreBc($situationCde, $numCde, $statutBc, $infoDaDirect, $daDirect, $daViaOR)) {
             return 'A soumettre à validation';
-        } elseif ($this->doitEnvoyerBc($situationCde, $statutBc, $DaAfficher, $statutSoumissionBc, $infoDaDirect, $daDirect, $daViaOR)) {
+        } elseif (!$daReappro && $this->doitEnvoyerBc($situationCde, $statutBc, $DaAfficher, $statutSoumissionBc, $infoDaDirect, $daDirect, $daViaOR)) {
             return 'A envoyer au fournisseur';
-        } elseif ($DaAfficher->getBcEnvoyerFournisseur() && !$DaAfficher->getEstFactureBlSoumis()) {
+        } elseif (!$daReappro && $DaAfficher->getBcEnvoyerFournisseur() && !$DaAfficher->getEstFactureBlSoumis()) {
             return 'BC envoyé au fournisseur';
         }
         // DA Reappro
@@ -398,6 +398,7 @@ trait StatutBcTrait
 
     private function updateQteCdeDansDaAfficher(array $qte, DaAfficher $DaAfficher, array $infoDaDirect, bool $daDirect, bool $daViaOR): void
     {
+
         if (!empty($qte) || !empty($infoDaDirect)) {
 
             if ($daDirect) {
@@ -410,8 +411,8 @@ trait StatutBcTrait
                 $q = $qte[0];
                 $qteDem = (int)$q['qte_dem'];
                 $qteLivee = (int)$q['qte_livree'];
-                $qteReliquat = $qteDem - $qteLivee; // quantiter en attente
-                $qteDispo = (int)$q['qte_dispo'];
+                $qteDispo = (int)$q['qte_dispo']; // quantité à livrer
+                $qteReliquat = $qteLivee == 0  ? $qteDem - $qteDispo : $qteDem - $qteLivee; // quantiter en attente
             }
 
             if ($DaAfficher->getNumeroCde() != '26246458' && $DaAfficher->getArtDesi() != 'ECROU HEX. AC.GALVA A CHAUD CL.8 DI') {
@@ -443,8 +444,8 @@ trait StatutBcTrait
             $q = $qte[0];
             $qteDem = (int)$q['qte_dem'];
             $qteLivee = (int)$q['qte_livree'];
-            $qteReliquat = $qteDem - $qteLivee; // quantiter en attente
             $qteDispo = (int)$q['qte_dispo'];
+            $qteReliquat = $qteLivee == 0  ? $qteDem - $qteDispo : $qteDem - $qteLivee;; // quantiter en attente
 
             if ($qteDem >= $qteLivee) {
                 $DaAfficher->setNumeroCde($numcde);
