@@ -1,45 +1,32 @@
 <?php
 
-// src/Twig/AppExtension.php
-
 namespace App\Twig;
 
 use App\Entity\admin\utilisateur\Role;
-use Doctrine\ORM\EntityManagerInterface;
 use Twig\Extension\GlobalsInterface;
 use Twig\Extension\AbstractExtension;
 use App\Model\dom\DomModel;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
-use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Twig\TwigFunction;
 
 class AppExtension extends AbstractExtension implements GlobalsInterface
 {
     private $session;
     private $requestStack;
-    private $tokenStorage;
     private $domModel;
-    private $authorizationChecker;
-    private $em;
 
 
-    public function __construct(SessionInterface $session, RequestStack $requestStack, TokenStorageInterface $tokenStorage, AuthorizationCheckerInterface $authorizationChecker, EntityManagerInterface $em)
+    public function __construct(SessionInterface $session, RequestStack $requestStack)
     {
 
         $this->session = $session;
         $this->requestStack = $requestStack;
-        $this->tokenStorage = $tokenStorage;
-        $this->authorizationChecker = $authorizationChecker;
-        $this->em = $em;
         $this->domModel = new DomModel;
     }
 
     public function getGlobals(): array
     {
-        $token = $this->tokenStorage->getToken();
-
         $notification = $this->session->get('notification');
         $this->session->remove('notification'); // Supprime la notification après l'affichage
 
