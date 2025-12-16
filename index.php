@@ -10,30 +10,38 @@ $perfLogger = PerfLogger::getInstance();
 $perfLogger->log('Démarrage du script', 'index.php');
 
 // Charger le bootstrap DI
-$services = require __DIR__ . '/config/bootstrap_di.php';
+$services = require __DIR__ . '/config/bootstrap.php';
+$perfLogger->log("\$services = require __DIR__ . '/config/bootstrap.php'", 'index.php');
 
 // Récupérer les services nécessaires
-$container          = $services['container'];
-$matcher            = $services['matcher'];
-$controllerResolver = $services['controllerResolver'];
-$argumentResolver   = $services['argumentResolver'];
 $twig               = $services['twig'];
+$matcher            = $services['matcher'];
+$argumentResolver   = $services['argumentResolver'];
+$controllerResolver = $services['controllerResolver'];
+$perfLogger->log("assignation des services", 'index.php');
 $response           = new \Symfony\Component\HttpFoundation\Response();
+$perfLogger->log("assignation de la response new \Symfony\Component\HttpFoundation\Response()", 'index.php');
 
 // Créer la requête depuis les variables globales
 $request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
+$perfLogger->log("assignation de la request \Symfony\Component\HttpFoundation\Request::createFromGlobals()", 'index.php');
 
 try {
     // Matcher la route
     $currentRoute = $matcher->match($request->getPathInfo());
+    $perfLogger->log("\$currentRoute = \$matcher->match(\$request->getPathInfo());", 'index.php');
     $request->attributes->add($currentRoute);
+    $perfLogger->log("\$request->attributes->add(\$currentRoute);", 'index.php');
 
     // Résoudre le contrôleur
     $controller = $controllerResolver->getController($request);
+    $perfLogger->log("\$controller = \$controllerResolver->getController(\$request);", 'index.php');
     $arguments = $argumentResolver->getArguments($request, $controller);
+    $perfLogger->log("\$arguments = \$argumentResolver->getArguments(\$request, \$controller);", 'index.php');
 
     // Exécuter le contrôleur
     $result = call_user_func_array($controller, $arguments);
+    $perfLogger->log("\$result = call_user_func_array(\$controller, \$arguments);", 'index.php');
 
     // Si le contrôleur retourne une Response, l'utiliser
     if ($result instanceof \Symfony\Component\HttpFoundation\Response) {
@@ -44,6 +52,7 @@ try {
             $response->setContent($result);
         }
     }
+    $perfLogger->log("Obtention de Response", 'index.php');
 } catch (ResourceNotFoundException $e) {
     // Route non trouvée
     $htmlContent = $twig->render('erreur/404.html.twig');
