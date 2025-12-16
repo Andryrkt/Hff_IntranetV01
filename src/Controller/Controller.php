@@ -49,7 +49,7 @@ class Controller
         $this->response = new Response();
     }
 
-    protected function getSessionService(): SessionManagerService
+    protected function getSessionService(): SessionInterface
     {
         if ($this->sessionService === null) {
             try {
