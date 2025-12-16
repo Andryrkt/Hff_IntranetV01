@@ -213,7 +213,7 @@ if (stripos($pathInfo, '/hffintranet') === 0 && strpos($pathInfo, '/Hffintranet'
 }
 
 $cacheAllRoutesFile = dirname(__DIR__) . '/var/cache/all_routes.php'; // Fichier cache commun pour routes controllers + API
-$cacheRoutes = new ConfigCache($cacheAllRoutesFile, true); // TODO Mode debug : true => vérifie si les fichiers ont changé
+$cacheRoutes = new ConfigCache($cacheAllRoutesFile, false); // TODO Mode debug : true => vérifie si les fichiers ont changé
 
 // Dossiers à charger
 $dirs = [
