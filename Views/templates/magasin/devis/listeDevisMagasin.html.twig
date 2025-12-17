@@ -36,6 +36,7 @@
 					<th class="text-end">Montant</th>
 					<th class="text-center">Date envoi au client</th>
 					<th class="text-center">Position IPS</th>
+					<th class="text-center">PO/BC client</th>
 					<th class="text-center">Crée par</th>
 					<th class="text-center">Soumis par</th>
 				</tr>
@@ -70,6 +71,13 @@
 						<td class="text-end">{{ row.montant }}</td>
 						<td class="text-center">{{ row.dateEnvoiClient }}</td>
 						<td class="text-center" data-bs-toggle="tooltip" title="{{ row.titreStatutIps }}">{{ row.statutIps }}</td>
+						<td class="text-center">
+							{% if row.numeroPO %}
+								<a href="{{ row.urlPO }}" target="_blank">{{ row.numeroPO }}</a>
+							{% else %}
+								{{ row.numeroPO }}
+							{% endif %}
+						</td>
 						<td class="text-center">{{ row.creePar }}</td>
 						<td class="text-center">{{ row.operateur }}</td>
 					</tr>

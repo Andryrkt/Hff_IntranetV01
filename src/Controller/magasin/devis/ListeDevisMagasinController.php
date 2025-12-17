@@ -8,7 +8,7 @@ use App\Controller\Controller;
 use App\Entity\admin\Application;
 use App\Entity\magasin\bc\BcMagasin;
 use App\Entity\magasin\devis\DevisMagasin;
-use App\Repository\admin\AgenceRepository;
+use App\Entity\dw\DwBcClientNegoce;
 use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -16,7 +16,7 @@ use App\Factory\magasin\devis\ListeDevisSearchDto;
 use App\Form\magasin\devis\DevisMagasinSearchType;
 use App\Model\magasin\devis\ListeDevisMagasinModel;
 use App\Factory\magasin\devis\ListeDevisMagasinFactory;
-use App\Repository\magasin\devis\DevisMagasinRepository;
+use App\Repository\dw\DwBcClientNegoceRepository;
 use App\Service\TableauEnStringService;
 
 /**
@@ -317,6 +317,8 @@ class ListeDevisMagasinController extends Controller
     {
         $data = [];
 
+        /** @var DwBcClientNegoceRepository $dwBcClientNegoceRepository */
+        $dwBcClientNegoceRepository = $this->getEntityManager()->getRepository(DwBcClientNegoce::class);
         foreach ($listeDevisFactory as $devis) {
             // Données utiles
             $statutDw = $devis->getStatutDw();
@@ -336,6 +338,17 @@ class ListeDevisMagasinController extends Controller
 
             if ($pointageDevis) $url["pointageDevis"] = $this->getUrlGenerator()->generate("devis_magasin_envoyer_au_client", ["numeroDevis" => $numeroDevis]);
 
+            /** @var DwBcClientNegoce|null $dwBcClientNegoce */
+            $dwBcClientNegoce = $dwBcClientNegoceRepository->findOneBy(['numeroDevis' => $numeroDevis]);
+
+            // initialisation
+            $numeroPO = '';
+            $urlPO = '';
+            if ($dwBcClientNegoce) {
+                $numeroPO = $dwBcClientNegoce->getNumeroBccNeg();
+                $urlPO = $_ENV['BASE_PATH_FICHIER_COURT'] . '/' . $dwBcClientNegoce->getPath();
+            }
+
             $data[] = [
                 'url'             => $url,
                 'pointageDevis'   => $pointageDevis,
@@ -354,6 +367,8 @@ class ListeDevisMagasinController extends Controller
                 'statutIps'       => $statutIps,
                 'creePar'         => $devis->getCreePar(),
                 'operateur'       => $devis->getOperateur(),
+                'numeroPO'        => $numeroPO,
+                'urlPO'           => $urlPO,
             ];
         }
 
