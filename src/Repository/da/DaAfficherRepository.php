@@ -328,6 +328,8 @@ class DaAfficherRepository extends EntityRepository
         ;
 
 
+        $qb->andWhere('d.statutDal = :statutDal')
+            ->setParameter('statutDal', DemandeAppro::STATUT_VALIDE);
         $qb->andWhere(
             $qb->expr()->orX(
                 $qb->expr()->eq('d.daTypeId', ':typeDaDirect'),
