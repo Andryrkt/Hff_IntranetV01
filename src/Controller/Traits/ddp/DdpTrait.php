@@ -38,11 +38,24 @@ trait DdpTrait
         foreach ($pathAndCdes as  $pathAndCde) {
             if ($pathAndCde[0]['path'] != null) {
                 $cheminDufichierInitial = $_ENV['BASE_PATH_FICHIER'] . "/" . $pathAndCde[0]['path'];
-                $nomFichierInitial = explode("/", $pathAndCde[0]['path'])[2];
+
+                if (!file_exists($cheminDufichierInitial)) {
+                    // Le fichier n'existe pas, on passe au suivant
+                    continue;
+                }
+
+                $nomFichierInitial = basename($pathAndCde[0]['path']);
 
                 $cheminDufichierDestinataire = $this->cheminDeBase . '/' . $numDdp . '_New_' . $numVersion . '/' . $nomFichierInitial;
-                copy($cheminDufichierInitial, $cheminDufichierDestinataire);
-                $nomDufichierCde[] =  $nomFichierInitial;
+                
+                $destinationDir = dirname($cheminDufichierDestinataire);
+                if (!is_dir($destinationDir)) {
+                    mkdir($destinationDir, 0777, true);
+                }
+
+                if (copy($cheminDufichierInitial, $cheminDufichierDestinataire)) {
+                    $nomDufichierCde[] =  $nomFichierInitial;
+                }
             }
         }
 
