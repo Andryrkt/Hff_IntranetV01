@@ -81,8 +81,10 @@ class DemandePaiementController extends Controller
         $this->autorisationAcces($this->getUser(), Application::ID_DDP);
         /** FIN AUtorisation acées */
 
+        // creation du formulaire
         $form = $this->getFormFactory()->createBuilder(DemandePaiementType::class, null, ['id_type' => $id])->getForm();
 
+        // traitement du formulaire
         $this->traitementForm($request, $form, $id);
 
         return $this->render('ddp/demandePaiementNew.html.twig', [
