@@ -274,6 +274,9 @@ class DaAfficherRepository extends EntityRepository
         $subQb->setParameter('statutOrs', $statutOrs)
             ->setParameter('exceptions', $exceptions);
 
+        $subQb->andWhere('d.statutDal = :statutDal')
+            ->setParameter('statutDal', DemandeAppro::STATUT_VALIDE);
+
         $this->applyDynamicFilters($subQb, "d", $criteria, true);
         $this->applyStatutsFilters($subQb, "d", $criteria, true);
         $this->applyDateFilters($subQb, "d", $criteria, true);
