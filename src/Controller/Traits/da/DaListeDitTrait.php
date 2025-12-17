@@ -37,7 +37,7 @@ trait DaListeDitTrait
     private function initialisationRechercheDit(): DitSearch
     {
 
-        $criteria = $this->getSessionService()->get('list_dit_da_search_criteria', []);
+        $criteria = $this->getSessionService()->get('list_dit_da_search_criteria');
         if ($criteria !== null) {
             $agenceIpsEmetteur = null;
             $serviceIpsEmetteur = null;
