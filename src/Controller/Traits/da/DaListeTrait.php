@@ -85,20 +85,16 @@ trait DaListeTrait
     {
         $codeAgence = $this->getCodeAgenceUser();
         $idAgenceUser = $this->agenceRepository->findIdByCodeAgence($codeAgence);
-        $this->perfLogger->log('recuperation de l\'id de l\'agence de l\'utilisateur connecter', __FILE__);
         $agServAutorisesUser = $this->getAgServAutorisesUser();
         $paginationData = $this->daAfficherRepository->findPaginatedAndFilteredDA($criteria, $idAgenceUser, $agServAutorisesUser, $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier(), $this->hasRoles(Role::ROLE_ADMINISTRATEUR), $page, $limit);
-        $this->perfLogger->log('recuperation des données à envoyer à la vue', __FILE__);
         /** @var array $daAffichers Filtrage des DA en fonction des critères */
         $daAffichers = $paginationData['data'];
 
         // mise à jours des donner dans la base de donner
         $this->quelqueModifictionDansDatabase($daAffichers);
-        $this->perfLogger->log('mise à jours des donner dans la base de donner', __FILE__);
 
         // Vérification du verrouillage des DA et Retourne les DA filtrées
         $paginationData['data'] = $this->appliquerVerrouillageSelonProfil($daAffichers, $this->hasRoles(Role::ROLE_ADMINISTRATEUR), $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier(), $this->hasRoles(Role::ROLE_DA_DIRECTE));
-        $this->perfLogger->log('verification du verrouillage des DA et Retourne les DA filtrées', __FILE__);
 
         return $paginationData;
     }
