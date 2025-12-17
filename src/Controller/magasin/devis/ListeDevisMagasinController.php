@@ -97,14 +97,12 @@ class ListeDevisMagasinController extends Controller
         $this->getSessionService()->set('criteria_for_excel_liste_devis_magasin', $criteriaForSession);
 
         $listeDevisFactory = $this->recuperationDonner($criteria);
+        $preparedDatas     = $this->prepareDatasForView($listeDevisFactory, $this->styleStatutDw, $this->styleStatutBc, $this->statutIPS);
 
         // affichage de la liste des devis magasin
         return $this->render('magasin/devis/listeDevisMagasin.html.twig', [
-            'listeDevis'    => $listeDevisFactory,
-            'form'          => $form->createView(),
-            'styleStatutDw' => $this->styleStatutDw,
-            'styleStatutBc' => $this->styleStatutBc,
-            'statutIPS'     => $this->statutIPS,
+            'datas' => $preparedDatas,
+            'form'  => $form->createView(),
         ]);
     }
 
@@ -164,9 +162,7 @@ class ListeDevisMagasinController extends Controller
             $numeroDevis = $devisIp['numero_devis'] ?? null;
 
             // Si on a déjà traité ce numéro de devis → on ignore
-            if ($numeroDevis === null || in_array($numeroDevis, $dejaVu, true)) {
-                continue;
-            }
+            if ($numeroDevis === null || in_array($numeroDevis, $dejaVu, true)) continue;
 
             $dejaVu[] = $numeroDevis; // On le marque comme vu
 
@@ -186,14 +182,10 @@ class ListeDevisMagasinController extends Controller
             $devisIp['statut_bc']                  = $devisSoumi ? $devisSoumi->getStatutBc()                  : '';
 
             // statut DW = A traiter et statut BC = TR
-            if ($devisIp['statut_dw'] === DevisMagasin::STATUT_A_TRAITER && $devisIp['statut_ips'] === 'TR') {
-                continue;
-            }
+            if ($devisIp['statut_dw'] === DevisMagasin::STATUT_A_TRAITER && $devisIp['statut_ips'] === 'TR') continue;
 
             // Application des filtres critères
-            if (!empty($criteria) && !$this->matchesCriteria($devisIp, $criteria)) {
-                continue;
-            }
+            if (!empty($criteria) && !$this->matchesCriteria($devisIp, $criteria)) continue;
 
             // Transformation via le factory
             $listeDevisFactory[] = (new ListeDevisMagasinFactory())->transformationEnObjet($devisIp);
@@ -309,5 +301,62 @@ class ListeDevisMagasinController extends Controller
         }
 
         return true;
+    }
+
+    /**
+     * Prépare les données pour la vue
+     *
+     * @param ListeDevisMagasinFactory[] $listeDevisFactory
+     * @param array $styleStatutDw
+     * @param array $styleStatutBc
+     * @param array $statutIpsArray
+     * 
+     * @return array
+     */
+    private function prepareDatasForView(array $listeDevisFactory, array $styleStatutDw, array $styleStatutBc, array $statutIpsArray): array
+    {
+        $data = [];
+
+        foreach ($listeDevisFactory as $devis) {
+            // Données utiles
+            $statutDw = $devis->getStatutDw();
+            $statutBc = $devis->getStatutBc();
+            $statutIps = $devis->getStatutIps();
+            $emetteur = $devis->getSuccursaleServiceEmetteur();
+            $numeroDevis = $devis->getNumeroDevis();
+
+            $pointageDevis = in_array($statutDw, [DevisMagasin::STATUT_PRIX_VALIDER_TANA, DevisMagasin::STATUT_PRIX_MODIFIER_TANA, DevisMagasin::STATUT_VALIDE_AGENCE,]);
+
+            // Création d'url
+            $url = [
+                "verificationPrix" => $this->getUrlGenerator()->generate('devis_magasin_soumission_verification_prix', ['numeroDevis' => $numeroDevis]),
+                "validationDevis"  => $this->getUrlGenerator()->generate('devis_magasin_soumission_validation_devis', ['numeroDevis' => $numeroDevis, 'codeAgenceService' => $emetteur]),
+                "soumissionBC"     => $this->getUrlGenerator()->generate('bc_magasin_soumission', ['numeroDevis' => $numeroDevis]),
+            ];
+
+            if ($pointageDevis) $url["pointageDevis"] = $this->getUrlGenerator()->generate("devis_magasin_envoyer_au_client", ["numeroDevis" => $numeroDevis]);
+
+            $data[] = [
+                'url'             => $url,
+                'pointageDevis'   => $pointageDevis,
+                'statutDw'        => $statutDw,
+                'statutBc'        => $statutBc,
+                'styleStatutDw'   => $styleStatutDw[$statutDw] ?? '',
+                'styleStatutBc'   => $styleStatutBc[$statutBc] ?? '',
+                'numeroDevis'     => $numeroDevis,
+                'dateCreation'    => $devis->getDateCreation(),
+                'emetteur'        => $emetteur,
+                'client'          => $devis->getCodeClientLibelleClient(),
+                'libelle'         => $devis->getReferenceCLient(),
+                'montant'         => number_format($devis->getMontant(), 2, ',', '.'),
+                'dateEnvoiClient' => $devis->getDateDenvoiDevisAuClient(),
+                'titreStatutIps'  => $statutIpsArray[$statutIps] ?? '',
+                'statutIps'       => $statutIps,
+                'creePar'         => $devis->getCreePar(),
+                'operateur'       => $devis->getOperateur(),
+            ];
+        }
+
+        return $data;
     }
 }
