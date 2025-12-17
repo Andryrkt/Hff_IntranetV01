@@ -100,11 +100,11 @@ class ListeDevisMagasinController extends Controller
 
         // affichage de la liste des devis magasin
         return $this->render('magasin/devis/listeDevisMagasin.html.twig', [
-            'listeDevis' => $listeDevisFactory,
-            'form' => $form->createView(),
+            'listeDevis'    => $listeDevisFactory,
+            'form'          => $form->createView(),
             'styleStatutDw' => $this->styleStatutDw,
             'styleStatutBc' => $this->styleStatutBc,
-            'statutIPS' => $this->statutIPS,
+            'statutIPS'     => $this->statutIPS,
         ]);
     }
 
@@ -158,6 +158,8 @@ class ListeDevisMagasinController extends Controller
         $listeDevisFactory = [];
         $dejaVu = []; // Tableau pour mémoriser les numéros de devis déjà traités
 
+        $devisMagasinRepository = $this->getEntityManager()->getRepository(DevisMagasin::class);
+
         foreach ($devisIps as $devisIp) {
             $numeroDevis = $devisIp['numero_devis'] ?? null;
 
@@ -167,8 +169,6 @@ class ListeDevisMagasinController extends Controller
             }
 
             $dejaVu[] = $numeroDevis; // On le marque comme vu
-
-            $devisMagasinRepository = $this->getEntityManager()->getRepository(DevisMagasin::class);
 
             // Récupération de la version maximale
             $numeroVersionMax = $devisMagasinRepository->getNumeroVersionMax($numeroDevis);
