@@ -19,43 +19,34 @@ class DwBcClientNegoce
     private int $id;
 
     /**
-     * @ORM\Column(type="integer", name="id_bc")
+     * @ORM\Column(type="integer", name="id_bcc_neg")
      */
-    private $idBc;
+    private $idBccNeg;
 
     /**
-     * @ORM\Column(type="string", length=8, name="numero_bc")
+     * @ORM\Column(type="string", length=100, name="numero_bcc_neg", nullable=true)
      */
-    private $numeroBc;
-
+    private $numeroBccNeg;
 
     /**
-     * @ORM\Column(type="string", name="nom_document", length=255, nullable=true)
-     */
-    private $nomDocument;
-
-
-    /**
-     * @ORM\Column(type="string", name="id_tiroir", length=255, nullable=true)
-     */
-    private $idTiroir;
-
-
-    /**
-     * @ORM\Column(type="string", name="numero_dit", length=11, nullable=true)
-     */
-    private $numeroDit;
-
-
-    /**
-     * @ORM\Column(type="string", name="numero_devis", length=11, nullable=true)
+     * @ORM\Column(type="string", name="numero_devis", length=50, nullable=true)
      */
     private $numeroDevis;
+    
+    /**
+     * @ORM\Column(type="string", name="statut_bcc_neg", nullable=true)
+     */
+    private $statutBccNeg;
 
     /**
      * @ORM\Column(type="integer", name="numero_version", nullable=true)
      */
     private $numeroVersion;
+
+    /**
+     * @ORM\Column(type="string", name="id_tiroir", length=255, nullable=true)
+     */
+    private $idTiroir;
 
     /**
      * @ORM\Column(type="date", name="date_creation", nullable=true)
@@ -72,23 +63,15 @@ class DwBcClientNegoce
      */
     private $dateDerniereModification;
 
-
     /**
      * @ORM\Column(type="time", name="heure_derniere_modification", nullable=true)
      */
     private $heureDerniereModification;
 
     /**
-     * @ORM\Column(type="string", name="statut_bc", nullable=true)
-     */
-    private $statutBc;
-
-
-    /**
      * @ORM\Column(type="string", name="extension_fichier", nullable=true)
      */
     private $extensionFichier;
-
 
     /**
      * @ORM\Column(type="integer", name="total_page", nullable=true)
@@ -105,113 +88,60 @@ class DwBcClientNegoce
      */
     private $path;
 
-
     // Getters and setters for each property...
+
+
 
     /**
      * Get the value of id
      */
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }
 
     /**
-     * Get the value of idBc
+     * Set the value of id
      */
-    public function getIdBc()
+    public function setId(int $id): self
     {
-        return $this->idBc;
-    }
-
-    /**
-     * Set the value of idBc
-     *
-     * @return  self
-     */
-    public function setIdBc($idBc)
-    {
-        $this->idBc = $idBc;
+        $this->id = $id;
 
         return $this;
     }
 
     /**
-     * Get the value of numeroBc
+     * Get the value of idBccNeg
      */
-    public function getNumeroBc()
+    public function getIdBccNeg()
     {
-        return $this->numeroBc;
+        return $this->idBccNeg;
     }
 
     /**
-     * Set the value of numeroBc
-     *
-     * @return  self
+     * Set the value of idBccNeg
      */
-    public function setNumeroBc($numeroBc)
+    public function setIdBccNeg($idBccNeg): self
     {
-        $this->numeroBc = $numeroBc;
+        $this->idBccNeg = $idBccNeg;
 
         return $this;
     }
 
     /**
-     * Get the value of nomDocument
+     * Get the value of numeroBccNeg
      */
-    public function getNomDocument()
+    public function getNumeroBccNeg()
     {
-        return $this->nomDocument;
+        return $this->numeroBccNeg;
     }
 
     /**
-     * Set the value of nomDocument
-     *
-     * @return  self
+     * Set the value of numeroBccNeg
      */
-    public function setNomDocument($nomDocument)
+    public function setNumeroBccNeg($numeroBccNeg): self
     {
-        $this->nomDocument = $nomDocument;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of idTiroir
-     */
-    public function getIdTiroir()
-    {
-        return $this->idTiroir;
-    }
-
-    /**
-     * Set the value of idTiroir
-     *
-     * @return  self
-     */
-    public function setIdTiroir($idTiroir)
-    {
-        $this->idTiroir = $idTiroir;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of numeroDit
-     */
-    public function getNumeroDit()
-    {
-        return $this->numeroDit;
-    }
-
-    /**
-     * Set the value of numeroDit
-     *
-     * @return  self
-     */
-    public function setNumeroDit($numeroDit)
-    {
-        $this->numeroDit = $numeroDit;
+        $this->numeroBccNeg = $numeroBccNeg;
 
         return $this;
     }
@@ -226,12 +156,28 @@ class DwBcClientNegoce
 
     /**
      * Set the value of numeroDevis
-     *
-     * @return  self
      */
-    public function setNumeroDevis($numeroDevis)
+    public function setNumeroDevis($numeroDevis): self
     {
         $this->numeroDevis = $numeroDevis;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of statutBccNeg
+     */
+    public function getStatutBccNeg()
+    {
+        return $this->statutBccNeg;
+    }
+
+    /**
+     * Set the value of statutBccNeg
+     */
+    public function setStatutBccNeg($statutBccNeg): self
+    {
+        $this->statutBccNeg = $statutBccNeg;
 
         return $this;
     }
@@ -246,12 +192,28 @@ class DwBcClientNegoce
 
     /**
      * Set the value of numeroVersion
-     *
-     * @return  self
      */
-    public function setNumeroVersion($numeroVersion)
+    public function setNumeroVersion($numeroVersion): self
     {
         $this->numeroVersion = $numeroVersion;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of idTiroir
+     */
+    public function getIdTiroir()
+    {
+        return $this->idTiroir;
+    }
+
+    /**
+     * Set the value of idTiroir
+     */
+    public function setIdTiroir($idTiroir): self
+    {
+        $this->idTiroir = $idTiroir;
 
         return $this;
     }
@@ -266,10 +228,8 @@ class DwBcClientNegoce
 
     /**
      * Set the value of dateCreation
-     *
-     * @return  self
      */
-    public function setDateCreation($dateCreation)
+    public function setDateCreation($dateCreation): self
     {
         $this->dateCreation = $dateCreation;
 
@@ -286,10 +246,8 @@ class DwBcClientNegoce
 
     /**
      * Set the value of heureCreation
-     *
-     * @return  self
      */
-    public function setHeureCreation($heureCreation)
+    public function setHeureCreation($heureCreation): self
     {
         $this->heureCreation = $heureCreation;
 
@@ -306,10 +264,8 @@ class DwBcClientNegoce
 
     /**
      * Set the value of dateDerniereModification
-     *
-     * @return  self
      */
-    public function setDateDerniereModification($dateDerniereModification)
+    public function setDateDerniereModification($dateDerniereModification): self
     {
         $this->dateDerniereModification = $dateDerniereModification;
 
@@ -326,32 +282,10 @@ class DwBcClientNegoce
 
     /**
      * Set the value of heureDerniereModification
-     *
-     * @return  self
      */
-    public function setHeureDerniereModification($heureDerniereModification)
+    public function setHeureDerniereModification($heureDerniereModification): self
     {
         $this->heureDerniereModification = $heureDerniereModification;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of statutBc
-     */
-    public function getStatutBc()
-    {
-        return $this->statutBc;
-    }
-
-    /**
-     * Set the value of statutBc
-     *
-     * @return  self
-     */
-    public function setStatutBc($statutBc)
-    {
-        $this->statutBc = $statutBc;
 
         return $this;
     }
@@ -366,10 +300,8 @@ class DwBcClientNegoce
 
     /**
      * Set the value of extensionFichier
-     *
-     * @return  self
      */
-    public function setExtensionFichier($extensionFichier)
+    public function setExtensionFichier($extensionFichier): self
     {
         $this->extensionFichier = $extensionFichier;
 
@@ -386,10 +318,8 @@ class DwBcClientNegoce
 
     /**
      * Set the value of totalPage
-     *
-     * @return  self
      */
-    public function setTotalPage($totalPage)
+    public function setTotalPage($totalPage): self
     {
         $this->totalPage = $totalPage;
 
@@ -406,10 +336,8 @@ class DwBcClientNegoce
 
     /**
      * Set the value of tailleFichier
-     *
-     * @return  self
      */
-    public function setTailleFichier($tailleFichier)
+    public function setTailleFichier($tailleFichier): self
     {
         $this->tailleFichier = $tailleFichier;
 
@@ -426,10 +354,8 @@ class DwBcClientNegoce
 
     /**
      * Set the value of path
-     *
-     * @return  self
      */
-    public function setPath($path)
+    public function setPath($path): self
     {
         $this->path = $path;
 
