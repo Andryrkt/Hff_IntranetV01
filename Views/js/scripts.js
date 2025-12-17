@@ -86,22 +86,33 @@ document.addEventListener("DOMContentLoaded", () => {
   if (modalTypeDemande) {
     modalTypeDemande.addEventListener("click", (event) => {
       event.preventDefault();
-      const overlay = document.getElementById("loading-overlays");
-      overlay.classList.remove("hidden");
+
+      // 1. Prépare et affiche la modale avec un spinner
+      const modalContent = document.getElementById("modalContent");
+      const formModalEl = document.getElementById("formModal");
+      const formModal = bootstrap.Modal.getOrCreateInstance(formModalEl);
+
+      modalContent.innerHTML = `
+        <div class="d-flex justify-content-center my-5">
+            <div class="spinner-border" style="width: 3rem; height: 3rem;" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>`;
+      formModal.show();
+
+      // 2. Récupère le contenu
       const url = "api/form-type-demande";
       fetchManager
         .get(url, "text")
         .then((html) => {
-          document.getElementById("modalContent").innerHTML = html;
-          new bootstrap.Modal(document.getElementById("formModal")).show();
-
-          document
-            .getElementById("typeDemandeForm")
-            .addEventListener("submit", (event) => {
-              event.preventDefault();
+          modalContent.innerHTML = html;
+          // Attache le listener au formulaire fraîchement injecté
+          const typeDemandeForm = document.getElementById("typeDemandeForm");
+          if (typeDemandeForm) {
+            typeDemandeForm.addEventListener("submit", function (submitEvent) {
+              submitEvent.preventDefault();
 
               const formData = new FormData(this);
-
               let jsonData = {};
               formData.forEach((value, key) => {
                 let cleanKey = key.replace(
@@ -109,22 +120,22 @@ document.addEventListener("DOMContentLoaded", () => {
                   "$1"
                 );
                 jsonData[cleanKey] = value;
-
-                console.log(jsonData.typeDemande === "1");
               });
 
               if (jsonData.typeDemande === "1") {
-                window.location.href = `${baseUrl}/demande-paiement/${jsonData.typeDemande}`;
+                window.location.href = `${baseUrl}/compta/demande-de-paiement/new/${jsonData.typeDemande}`;
               } else if (jsonData.typeDemande === "2") {
-                window.location.href = `${baseUrl}/demande-paiement/${jsonData.typeDemande}`;
+                window.location.href = `${baseUrl}/compta/demande-de-paiement/new/${jsonData.typeDemande}`;
               }
             });
+          }
         })
-        .catch((error) =>
-          console.error("Erreur lors du chargement du formulaire:", error)
-        )
-        .finally(() => {
-          overlay.classList.add("hidden");
+        .catch((error) => {
+          console.error("Erreur lors du chargement du formulaire:", error);
+          modalContent.innerHTML = `
+                <div class="alert alert-danger m-3">
+                    Une erreur est survenue lors du chargement du contenu. Veuillez réessayer.
+                </div>`;
         });
     });
   }
