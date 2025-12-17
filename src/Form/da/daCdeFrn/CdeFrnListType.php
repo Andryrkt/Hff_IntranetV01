@@ -6,8 +6,10 @@ namespace App\Form\da\daCdeFrn;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaSoumissionBc;
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\AbstractType;
 use App\Entity\admin\dit\WorNiveauUrgence;
+use App\Entity\da\DaAfficher;
 use App\Factory\da\CdeFrnDto\CdeFrnSearchDto;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -18,15 +20,17 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 
 class CdeFrnListType extends  AbstractType
 {
+    private $em;
 
-    private const STATUT_BC = [
-        DaSoumissionBc::STATUT_A_GENERER                    => DaSoumissionBc::STATUT_A_GENERER,
-        DaSoumissionBc::STATUT_A_EDITER                     => DaSoumissionBc::STATUT_A_EDITER,
-        DaSoumissionBc::STATUT_A_SOUMETTRE_A_VALIDATION     => DaSoumissionBc::STATUT_A_SOUMETTRE_A_VALIDATION,
-        DaSoumissionBc::STATUT_A_VALIDER_DA                 => DaSoumissionBc::STATUT_A_VALIDER_DA,
-        DaSoumissionBc::STATUT_A_ENVOYER_AU_FOURNISSEUR     => DaSoumissionBc::STATUT_A_ENVOYER_AU_FOURNISSEUR,
-        DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR     => DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR
-    ];
+    public function __construct(EntityManagerInterface $em)
+    {
+        $this->em = $em;
+    }
+
+    private function statutBc()
+    {
+        return $this->em->getRepository(DaAfficher::class)->getStatutsBc();
+    }
 
     private const TYPE_ACHAT = [
         'DA Avec DIT' => DemandeAppro::TYPE_DA_AVEC_DIT,
@@ -101,7 +105,7 @@ class CdeFrnListType extends  AbstractType
                 ChoiceType::class,
                 [
                     'label' => "Statut BC",
-                    'choices' => self::STATUT_BC,
+                    'choices' => $this->statutBc(),
                     'placeholder' => '-- Choisir la statut --',
                     'required' => false,
                 ]
@@ -138,7 +142,8 @@ class CdeFrnListType extends  AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => CdeFrnSearchDto::class
+            'data_class' => CdeFrnSearchDto::class,
+            'em' => null,
         ]);
     }
 }

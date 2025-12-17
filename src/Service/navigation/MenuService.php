@@ -300,7 +300,7 @@ class MenuService
             'Demande de paiement',
             'file-invoice-dollar',
             [
-                $this->createSubItem('Nouvelle demande', 'plus-circle', '#', [], 'modalTypeDemande', true),
+                $this->createSubItem('Nouvelle demande', 'plus-circle', '#', [], '', 'modalTypeDemande', true),
                 $this->createSubItem('Consultation', 'search', 'ddp_liste')
             ]
         );

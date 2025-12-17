@@ -143,7 +143,7 @@ class ExportExcelController extends Controller
             "Qté en attente"           => fn(DaAfficher $da) => $da->getQteEnAttent() == 0 ? '-' : $da->getQteEnAttent(),
             "Qté Dispo (Qté à livrer)" => fn(DaAfficher $da) => $da->getQteDispo() == 0 ? '-' : $da->getQteDispo(),
             "Qté livrée"               => fn(DaAfficher $da) => $da->getQteLivrer() == 0 ? '-' : $da->getQteLivrer(),
-            "Date fin souhaitée"       => fn(DaAfficher $da) => $da->getDateFinSouhaite()->format('d/m/Y'),
+            "Date fin souhaitée"       => fn(DaAfficher $da) => $da->getDateFinSouhaite() ? $da->getDateFinSouhaite()->format('d/m/Y') : '',
             "Date livraison prévue"    => fn(DaAfficher $da) => $da->getDateLivraisonPrevue() ? $da->getDateLivraisonPrevue()->format('d/m/Y') : '',
             "Nbr Jour(s) dispo"        => fn(DaAfficher $da) => $da->getJoursDispo(),
         ];

@@ -87,9 +87,11 @@ class InventaireController extends Controller
             $listInvent = $this->inventaireModel->listeInventaire($criteria);
             $data = $this->recupDataList($listInvent, true);
         }
+
+        $userConnect = $this->getUserName();
         return $this->render('inventaire/inventaire.html.twig', [
             'form' => $form->createView(),
-            'estAdmin' => $this->hasRoles(Role::ROLE_ADMINISTRATEUR),
+            'estAcces' => $userConnect==='Olivier.Carbon' || $userConnect==='marie' ,
             'data' => $data
         ]);
     }

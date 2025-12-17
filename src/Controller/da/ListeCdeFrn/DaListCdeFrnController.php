@@ -68,6 +68,7 @@ class DaListCdeFrnController extends Controller
 
         /** ===  Formulaire pour la recherche === */
         $form = $this->getFormFactory()->createBuilder(CdeFrnListType::class, $this->initialisationCdeFrnSearchDto(), [
+            'em' => $this->getEntityManager(),
             'method' => 'GET',
         ])->getForm();
         $criteriaTab = $this->traitementFormulaireRecherche($request, $form);

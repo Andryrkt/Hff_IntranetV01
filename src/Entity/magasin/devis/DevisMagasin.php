@@ -186,6 +186,18 @@ class DevisMagasin
      */
     private ?string $pieceJointExcel = null;
 
+    /**
+     * @ORM\Column(type="boolean", name="migration", options={"default": false}, nullable=true)
+     */
+    private ?bool $migration = false;
+
+    /**
+     * @ORM\Column(type="string", length=255, name="statut_temp", nullable=true)
+     *
+     * @var string|null
+     */
+    private ?string $statutTemp = '';
+
     /** =========================================
      * GETTERS & SETTERS
      *============================================*/
@@ -712,6 +724,42 @@ class DevisMagasin
     public function setPieceJointExcel($pieceJointExcel): self
     {
         $this->pieceJointExcel = $pieceJointExcel;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of migration
+     */
+    public function isMigration(): ?bool
+    {
+        return $this->migration;
+    }
+
+    /**
+     * Set the value of migration
+     */
+    public function setMigration(?bool $migration): self
+    {
+        $this->migration = $migration;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of statutTemp
+     */
+    public function getStatutTemp(): ?string
+    {
+        return $this->statutTemp;
+    }
+
+    /**
+     * Set the value of statutTemp
+     */
+    public function setStatutTemp(?string $statutTemp): self
+    {
+        $this->statutTemp = $statutTemp;
 
         return $this;
     }
