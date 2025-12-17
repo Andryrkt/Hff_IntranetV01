@@ -17,7 +17,7 @@ class HomeController extends Controller
 
     private function getMenuService(): MenuService
     {
-        return $this->getContainer()->get('App\Service\navigation\MenuService');
+        return $this->getContainer()->get('menuService');
     }
 
     /**
