@@ -465,29 +465,11 @@ class Controller
      */
     protected function agenceServiceIpsString(): array
     {
-        try {
-            $userInfo = $this->getSessionService()->get('user_info');
-            if (!$userInfo) throw new \Exception("User info not found in session");
-
-            $codeAgence = $userInfo["default_agence_code"];
-            $agenceIps = $this->getEntityManager()->getRepository(Agence::class)->findOneBy(['codeAgence' => $codeAgence]);
-            if (!$agenceIps) throw new \Exception("Agence not found with code $codeAgence");
-
-            $codeService = $userInfo["default_service_code"];
-            $serviceIps = $this->getEntityManager()->getRepository(Service::class)->findOneBy(['codeService' => $codeService]);
-            if (!$serviceIps) throw new \Exception("Service not found with code $codeService");
-
-            return [
-                'agenceIps'  => $agenceIps,
-                'serviceIps' => $serviceIps
-            ];
-        } catch (\Exception $e) {
-            error_log($e->getMessage());
-            return [
-                'agenceIps'  => null,
-                'serviceIps' => null
-            ];
-        }
+        $userInfo = $this->getSessionService()->get('user_info');
+        return [
+            'agenceIps'  => $userInfo["default_agence_code"],
+            'serviceIps' => $userInfo["default_service_code"]
+        ];
     }
 
     /**
