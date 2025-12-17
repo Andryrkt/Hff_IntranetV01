@@ -19,8 +19,6 @@ use Twig\Environment;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-use App\Service\SessionManagerService;
-use App\Utils\PerfLogger;
 
 /**
  * Classe Controller avec injection de dépendances
@@ -732,8 +730,6 @@ class Controller
     protected function render(string $template, array $parameters = []): Response
     {
         $content = $this->getTwig()->render($template, $parameters);
-        $perfLogger = PerfLogger::getInstance();
-        $perfLogger->log('Fin du script render de Twig', 'Controller.php');
         return new Response($content);
     }
 
