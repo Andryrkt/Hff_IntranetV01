@@ -228,9 +228,9 @@ class DaAfficherRepository extends EntityRepository
     {
         $criteria = $criteria ?? [];
 
-        // ----------------------
+        // -------------------------------------
         // 1. Sous-requête : versions maximales
-        // ----------------------
+        // -------------------------------------
         $subQb = $this->_em->createQueryBuilder();
         $subQb->select('d.numeroDemandeAppro', 'MAX(d.numeroVersion) as maxVersion')
             ->from(DaAfficher::class, 'd')
@@ -274,13 +274,16 @@ class DaAfficherRepository extends EntityRepository
         $subQb->setParameter('statutOrs', $statutOrs)
             ->setParameter('exceptions', $exceptions);
 
+        $subQb->andWhere('d.statutDal = :statutDal')
+            ->setParameter('statutDal', DemandeAppro::STATUT_VALIDE);
+
         $this->applyDynamicFilters($subQb, "d", $criteria, true);
         $this->applyStatutsFilters($subQb, "d", $criteria, true);
         $this->applyDateFilters($subQb, "d", $criteria, true);
 
-        // ----------------------
+        // ---------------------------------
         // 2. Compter distinctement les DA
-        // ----------------------
+        // ---------------------------------
         $countQb = clone $subQb;
         $countQb->resetDQLPart('select');
         $countQb->resetDQLPart('orderBy');
@@ -292,9 +295,9 @@ class DaAfficherRepository extends EntityRepository
 
         $lastPage = (int) ceil($totalItems / $limit);
 
-        // ----------------------
+        // ---------------------------
         // 3. Paginer la sous-requête
-        // ----------------------
+        // ---------------------------
         $subQb->orderBy('MAX(d.dateDemande)', 'DESC')
             ->addOrderBy('MAX(d.numeroFournisseur)', 'DESC')
             ->addOrderBy('MAX(d.numeroCde)', 'DESC')
@@ -313,9 +316,9 @@ class DaAfficherRepository extends EntityRepository
             ];
         }
 
-        // ----------------------
+        // ------------------------------------
         // 4. Construire la requête principale
-        // ----------------------
+        // ------------------------------------
         $qb = $this->_em->createQueryBuilder();
         $qb->select('d')
             ->from(DaAfficher::class, 'd')
@@ -327,10 +330,25 @@ class DaAfficherRepository extends EntityRepository
             ->setParameter('statutPasDansOr', DaSoumissionBc::STATUT_PAS_DANS_OR)
         ;
 
+
         $qb->andWhere('d.statutDal = :statutDal')
-            ->andWhere($qb->expr()->in('d.statutOr', ':statutOrsValide'))
-            ->setParameter('statutOrsValide', $statutOrs)
             ->setParameter('statutDal', DemandeAppro::STATUT_VALIDE);
+        $qb->andWhere(
+            $qb->expr()->orX(
+                $qb->expr()->eq('d.daTypeId', ':typeDaDirect'),
+                $qb->expr()->andX(
+                    $qb->expr()->in('d.daTypeId', ':typeDa'),
+                    $qb->expr()->orX(
+                        $qb->expr()->in('d.statutOr', ':statutOrsValide'),
+                        $qb->expr()->in('d.numeroDemandeAppro', ':exceptions')
+                    )
+                )
+            )
+        )
+            ->setParameter('typeDaDirect', $typeDaDirect)
+            ->setParameter('typeDa', $typeDa)
+            ->setParameter('statutOrsValide', $statutOrs)
+            ->setParameter('exceptions', $exceptions);
 
         // Condition sur les versions maximales (à partir de la sous-requête)
         $orX = $qb->expr()->orX();
