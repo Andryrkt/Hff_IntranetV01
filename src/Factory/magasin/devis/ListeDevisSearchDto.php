@@ -17,6 +17,7 @@ class ListeDevisSearchDto
     private ?array $dateCreation = [];
     private ?string $statutBc = null;
     private ?string $creePar = null;
+    private ?string $numeroPO = null;
 
     /** ============================================================
      * getter and setter
@@ -201,6 +202,24 @@ class ListeDevisSearchDto
     public function setCreePar($creePar)
     {
         $this->creePar = $creePar;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroPO
+     */
+    public function getNumeroPO(): ?string
+    {
+        return $this->numeroPO;
+    }
+
+    /**
+     * Set the value of numeroPO
+     */
+    public function setNumeroPO(?string $numeroPO): self
+    {
+        $this->numeroPO = $numeroPO;
 
         return $this;
     }
