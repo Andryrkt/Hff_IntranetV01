@@ -16,6 +16,8 @@ class listeDevisMagasinFactory
     private $statutIps;
     private $statutBc;
     private $creePar;
+    private $numeroPO;
+    private $urlPO;
 
     /**
      * Get the value of statutDw
@@ -253,6 +255,42 @@ class listeDevisMagasinFactory
         return $this;
     }
 
+    /**
+     * Get the value of numeroPO
+     */
+    public function getNumeroPO()
+    {
+        return $this->numeroPO;
+    }
+
+    /**
+     * Set the value of numeroPO
+     */
+    public function setNumeroPO($numeroPO): self
+    {
+        $this->numeroPO = $numeroPO;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of urlPO
+     */
+    public function getUrlPO()
+    {
+        return $this->urlPO;
+    }
+
+    /**
+     * Set the value of urlPO
+     */
+    public function setUrlPO($urlPO): self
+    {
+        $this->urlPO = $urlPO;
+
+        return $this;
+    }
+
     public function transformationEnObjet(array $data): listeDevisMagasinFactory
     {
         $this
@@ -268,6 +306,8 @@ class listeDevisMagasinFactory
             ->setStatutIps($data['statut_ips'] ?? '')
             ->setStatutBc($data['statut_bc'] ?? '')
             ->setCreePar($data['utilisateur_createur_devis'] ?? '')
+            ->setNumeroPO($data['numero_po'] ?? '')
+            ->setUrlPO($data['url_po'] ?? '')
         ;
 
         return $this;

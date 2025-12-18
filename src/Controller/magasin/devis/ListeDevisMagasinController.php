@@ -158,6 +158,9 @@ class ListeDevisMagasinController extends Controller
 
         $devisMagasinRepository = $this->getEntityManager()->getRepository(DevisMagasin::class);
 
+        /** @var DwBcClientNegoceRepository $dwBcClientNegoceRepository */
+        $dwBcClientNegoceRepository = $this->getEntityManager()->getRepository(DwBcClientNegoce::class);
+
         foreach ($devisIps as $devisIp) {
             $numeroDevis = $devisIp['numero_devis'] ?? null;
 
@@ -183,6 +186,18 @@ class ListeDevisMagasinController extends Controller
 
             // statut DW = A traiter et statut BC = TR
             if ($devisIp['statut_dw'] === DevisMagasin::STATUT_A_TRAITER && $devisIp['statut_ips'] === 'TR') continue;
+
+            // initialisation
+            $devisIp['numero_po'] = '';
+            $devisIp['url_po'] = '';
+
+            if ($numeroDevis) {
+                $dwBcClientNegoce = $dwBcClientNegoceRepository->findLastValidatedBcc($numeroDevis);
+                if ($dwBcClientNegoce) {
+                    $devisIp['numero_po'] = $dwBcClientNegoce['numeroBccNeg'];
+                    $devisIp['url_po'] = $_ENV['BASE_PATH_FICHIER_COURT'] . '/' . $dwBcClientNegoce['path'];
+                }
+            }
 
             // Application des filtres critères
             if (!empty($criteria) && !$this->matchesCriteria($devisIp, $criteria)) continue;
@@ -252,6 +267,14 @@ class ListeDevisMagasinController extends Controller
             return false;
         }
 
+        //Filtre par numero PO
+        if (
+            !empty($criteria['numeroPO']) &&
+            $devisIp['numero_po'] !== $criteria['numeroPO']
+        ) {
+            return false;
+        }
+
         // Filtre par agence émetteur
         if (!empty($criteria['emetteur']['agence'])) {
             // Récupérer les 2 premiers caractères de l'agence émetteur
@@ -316,9 +339,6 @@ class ListeDevisMagasinController extends Controller
     private function prepareDatasForView(array $listeDevisFactory, array $styleStatutDw, array $styleStatutBc, array $statutIpsArray): array
     {
         $data = [];
-
-        /** @var DwBcClientNegoceRepository $dwBcClientNegoceRepository */
-        $dwBcClientNegoceRepository = $this->getEntityManager()->getRepository(DwBcClientNegoce::class);
         foreach ($listeDevisFactory as $devis) {
             // Données utiles
             $statutDw = $devis->getStatutDw();
@@ -338,16 +358,6 @@ class ListeDevisMagasinController extends Controller
 
             if ($pointageDevis) $url["pointageDevis"] = $this->getUrlGenerator()->generate("devis_magasin_envoyer_au_client", ["numeroDevis" => $numeroDevis]);
 
-            $dwBcClientNegoce = $dwBcClientNegoceRepository->findLastValidatedBcc($numeroDevis);
-
-            // initialisation
-            $numeroPO = '';
-            $urlPO = '';
-            if ($dwBcClientNegoce) {
-                $numeroPO = $dwBcClientNegoce['numeroBccNeg'];
-                $urlPO = $_ENV['BASE_PATH_FICHIER_COURT'] . '/' . $dwBcClientNegoce['path'];
-            }
-
             $data[] = [
                 'url'             => $url,
                 'pointageDevis'   => $pointageDevis,
@@ -366,8 +376,8 @@ class ListeDevisMagasinController extends Controller
                 'statutIps'       => $statutIps,
                 'creePar'         => $devis->getCreePar(),
                 'operateur'       => $devis->getOperateur(),
-                'numeroPO'        => $numeroPO,
-                'urlPO'           => $urlPO,
+                'numeroPO'        => $devis->getNumeroPO(),
+                'urlPO'           => $devis->getUrlPO(),
             ];
         }
 
