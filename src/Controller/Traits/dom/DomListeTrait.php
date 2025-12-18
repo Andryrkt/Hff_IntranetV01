@@ -19,7 +19,7 @@ trait DomListeTrait
     private function initialisation($badmSearch, $em)
     {
         $criteria = $this->getSessionService()->get('dom_search_criteria', []);
-        if ($criteria !== null) {
+        if (!empty($criteria)) {
             $sousTypeDocument = $criteria['sousTypeDocument'] === null ? null : $em->getRepository(SousTypeDocument::class)->find($criteria['sousTypeDocument']->getId());
             $statut = $criteria['statut'] === null ? null : $em->getRepository(StatutDemande::class)->find($criteria['statut']->getId());
         } else {

@@ -38,7 +38,7 @@ trait DaListeDitTrait
     {
 
         $criteria = $this->getSessionService()->get('list_dit_da_search_criteria');
-        if ($criteria !== null) {
+        if (!empty($criteria)) {
             $agenceIpsEmetteur = null;
             $serviceIpsEmetteur = null;
             $typeDocument = $criteria['typeDocument'] === null ? null : $this->worTypeDocumentRepository->find($criteria['typeDocument']->getId());

@@ -105,7 +105,7 @@ class ListeTikController extends Controller
     private function initialisationFormRecherche(array $autorisation, array $agenceServiceIps, TikSearch $tikSearch, User $user)
     {
         // Initialisation des critères depuis la session
-        $criteria = $this->getSessionService()->get('tik_search_criteria', []) ?? [];
+        $criteria = $this->getSessionService()->get('tik_search_criteria', []);
 
         // Définition des valeurs par défaut en fonction des autorisations
         $agenceIpsEmetteur  = $autorisation['autoriser'] ? null : $agenceServiceIps['agenceIps'];

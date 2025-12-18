@@ -60,7 +60,7 @@ trait BadmListTrait
     {
         $criteria = $this->getSessionService()->get('badm_search_criteria', []);
         $agenceServiceIpsEmetteur = $this->agenceServiceIpsEmetteur($autoriser, $agenceServiceIps);
-        if ($criteria !== null) {
+        if (!empty($criteria)) {
             $typeMouvement = $criteria['typeMouvement'] === null ? null : $em->getRepository(TypeMouvement::class)->find($criteria['typeMouvement']->getId());
             $statut = $criteria['statut'] === null ? null : $em->getRepository(StatutDemande::class)->find($criteria['statut']->getId());
             // $serviceEmetteur = $criteria['serviceEmetteur'] === null ? $agenceServiceIpsEmetteur['serviceIpsEmetteur'] : $em->getRepository(Service::class)->find($criteria['serviceEmetteur']->getId());

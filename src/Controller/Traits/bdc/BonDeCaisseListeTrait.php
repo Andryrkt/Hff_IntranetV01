@@ -12,7 +12,7 @@ trait BonDeCaisseListeTrait
     private function initialisation($bonCaisseSearch, $em)
     {
         $criteria = $this->getSessionService()->get('bon_caisse_search_criteria', []);
-        if ($criteria !== null) {
+        if (!empty($criteria)) {
             // Vérifier si statutDemande est un objet ou une chaîne
             if (isset($criteria['statutDemande']) && is_object($criteria['statutDemande'])) {
                 $statut = $criteria['statutDemande'] === null ? null : $em->getRepository(StatutDemande::class)->find($criteria['statutDemande']->getId());
