@@ -338,15 +338,14 @@ class ListeDevisMagasinController extends Controller
 
             if ($pointageDevis) $url["pointageDevis"] = $this->getUrlGenerator()->generate("devis_magasin_envoyer_au_client", ["numeroDevis" => $numeroDevis]);
 
-            /** @var DwBcClientNegoce|null $dwBcClientNegoce */
-            $dwBcClientNegoce = $dwBcClientNegoceRepository->findOneBy(['numeroDevis' => $numeroDevis]);
+            $dwBcClientNegoce = $dwBcClientNegoceRepository->findLastValidatedBcc($numeroDevis);
 
             // initialisation
             $numeroPO = '';
             $urlPO = '';
             if ($dwBcClientNegoce) {
-                $numeroPO = $dwBcClientNegoce->getNumeroBccNeg();
-                $urlPO = $_ENV['BASE_PATH_FICHIER_COURT'] . '/' . $dwBcClientNegoce->getPath();
+                $numeroPO = $dwBcClientNegoce['numeroBccNeg'];
+                $urlPO = $_ENV['BASE_PATH_FICHIER_COURT'] . '/' . $dwBcClientNegoce['path'];
             }
 
             $data[] = [
