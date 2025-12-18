@@ -253,21 +253,22 @@ class listeDevisMagasinFactory
         return $this;
     }
 
-
     public function transformationEnObjet(array $data): listeDevisMagasinFactory
     {
-        $this->setStatutDw($data['statut_dw'] ?? '');
-        $this->setNumeroDevis($data['numero_devis'] ?? '');
-        $this->setDateCreation($this->convertToDateTime($data['date_creation']) ? $this->convertToDateTime($data['date_creation'])->format('d/m/Y') : null);
-        $this->setSuccursaleServiceEmetteur($data['emmeteur'] ?? '');
-        $this->setCodeClientLibelleClient($data['client'] ?? '');
-        $this->setReferenceCLient($data['reference_client'] ?? '');
-        $this->setMontant($data['montant'] ?? 0.00);
-        $this->setOperateur($data['operateur'] ?? ''); //utilisateur qui a soumis le devis
-        $this->setDateDenvoiDevisAuClient($this->convertToDateTime($data['date_envoi_devis_au_client']) ? $this->convertToDateTime($data['date_envoi_devis_au_client'])->format('d/m/Y') : null);
-        $this->setStatutIps($data['statut_ips'] ?? '');
-        $this->setStatutBc($data['statut_bc'] ?? '');
-        $this->setCreePar($data['utilisateur_createur_devis'] ?? '');
+        $this
+            ->setStatutDw($data['statut_dw'] ?? '')
+            ->setNumeroDevis($data['numero_devis'] ?? '')
+            ->setDateCreation($this->convertToDateTime($data['date_creation']) ? $this->convertToDateTime($data['date_creation'])->format('d/m/Y') : null)
+            ->setSuccursaleServiceEmetteur($data['emmeteur'] ?? '')
+            ->setCodeClientLibelleClient($data['client'] ?? '')
+            ->setReferenceCLient($data['reference_client'] ?? '')
+            ->setMontant($data['montant'] ?? 0.00)
+            ->setOperateur($data['operateur'] ?? '') //utilisateur qui a soumis le devis
+            ->setDateDenvoiDevisAuClient($this->convertToDateTime($data['date_envoi_devis_au_client']) ? $this->convertToDateTime($data['date_envoi_devis_au_client'])->format('d/m/Y') : null)
+            ->setStatutIps($data['statut_ips'] ?? '')
+            ->setStatutBc($data['statut_bc'] ?? '')
+            ->setCreePar($data['utilisateur_createur_devis'] ?? '')
+        ;
 
         return $this;
     }
