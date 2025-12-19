@@ -2,11 +2,12 @@
 
 namespace App\Service\magasin\devis\Validator;
 
+use App\Entity\magasin\devis\DevisMagasin;
 use App\Service\validation\ValidationServiceBase;
-use App\Repository\Interfaces\LatestSumOfLinesRepositoryInterface;
 use App\Repository\magasin\devis\DevisMagasinRepository;
-use App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService;
+use App\Repository\Interfaces\LatestSumOfLinesRepositoryInterface;
 use App\Service\magasin\devis\Config\DevisMagasinValidationConfig;
+use App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService;
 
 /**
  * Validateur spécialisé pour le contenu des devis magasin
@@ -16,17 +17,8 @@ use App\Service\magasin\devis\Config\DevisMagasinValidationConfig;
  */
 class DevisMagasinContentValidator extends ValidationServiceBase
 {
-    private HistoriqueOperationDevisMagasinService $historiqueService;
+    use \App\Traits\Validator\ValidatorNotificationTrait;
 
-    /**
-     * Constructeur du validateur de contenu
-     * 
-     * @param HistoriqueOperationDevisMagasinService $historiqueService Service pour l'historique des opérations
-     */
-    public function __construct(HistoriqueOperationDevisMagasinService $historiqueService)
-    {
-        $this->historiqueService = $historiqueService;
-    }
 
     /**
      * Vérifie si le numéro de devis est manquant lors de la soumission
@@ -37,7 +29,7 @@ class DevisMagasinContentValidator extends ValidationServiceBase
     public function checkMissingIdentifier(?string $numeroDevis): bool
     {
         if ($this->isIdentifierMissing($numeroDevis)) {
-            $this->sendNotification(
+            $this->sendNotificationDevisMagasin(
                 DevisMagasinValidationConfig::ERROR_MESSAGES['missing_identifier'],
                 '',
                 false
@@ -61,7 +53,7 @@ class DevisMagasinContentValidator extends ValidationServiceBase
         $oldSumOfLines = $repository->findLatestSumOfLinesByIdentifier($numeroDevis);
 
         if ($oldSumOfLines === null) {
-            $this->sendNotification(
+            $this->sendNotificationDevisMagasin(
                 DevisMagasinValidationConfig::ERROR_MESSAGES['devis_not_exists'],
                 $numeroDevis,
                 false
@@ -125,7 +117,7 @@ class DevisMagasinContentValidator extends ValidationServiceBase
         }
 
         if ($oldSumOfMontant === $newSumOfMontant && in_array($oldStatut, $newStatuts)) {
-            $this->sendNotification(
+            $this->sendNotificationDevisMagasin(
                 DevisMagasinValidationConfig::ERROR_MESSAGES['price_not_modified_in_ips'],
                 $numeroDevis,
                 false
@@ -155,6 +147,49 @@ class DevisMagasinContentValidator extends ValidationServiceBase
         return $this->isDevisUnchanged($repository, $numeroDevis, $newSumOfLines, $newSumOfMontant);
     }
 
+
+    /**
+     * Verifie si le devis est tana ou rental (on le bloque)
+     *
+     * @return boolean false bloquer true autoriser
+     */
+    public function isDevisTanaOrRental(string $codeAgence, string $numeroDevis): bool
+    {
+        if (in_array($codeAgence, ['01', '50'])) {
+            $this->sendNotificationDevisMagasin(
+                'Le devis appartient à une agence Tana ou Rental, la soumission est bloquée.',
+                $numeroDevis,
+                false
+            );
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Undocumented function
+     *
+     * @param DevisMagasinRepository $repository
+     * @param string $numeroDevis
+     * @return boolean false bloquer true autoriser
+     */
+    public function isStatutEnvoyerAuClient(DevisMagasinRepository $repository, string $numeroDevis): bool
+    {
+        $oldStatut = $repository->findLatestStatusByIdentifier($numeroDevis);
+
+        if ($oldStatut === DevisMagasin::STATUT_ENVOYER_CLIENT) {
+            $this->sendNotificationDevisMagasin(
+                'Le statut du devis est "Envoyé au client", la soumission est bloquée.',
+                $numeroDevis,
+                false
+            );
+            return false;
+        }
+
+        return true;
+    }
+    
     /**
      * Envoie une notification pour les modifications de lignes
      * 
@@ -162,7 +197,7 @@ class DevisMagasinContentValidator extends ValidationServiceBase
      */
     private function sendLinesChangedNotification(string $numeroDevis): void
     {
-        $this->sendNotification(
+        $this->sendNotificationDevisMagasin(
             DevisMagasinValidationConfig::ERROR_MESSAGES['lines_modified'],
             $numeroDevis,
             false
@@ -176,27 +211,10 @@ class DevisMagasinContentValidator extends ValidationServiceBase
      */
     private function sendAmountChangedNotification(string $numeroDevis): void
     {
-        $this->sendNotification(
+        $this->sendNotificationDevisMagasin(
             DevisMagasinValidationConfig::ERROR_MESSAGES['amount_modified'],
             $numeroDevis,
             false
-        );
-    }
-
-    /**
-     * Envoie une notification via le service d'historique
-     * 
-     * @param string $message Le message à envoyer
-     * @param string $numeroDevis Le numéro de devis concerné
-     * @param bool $success Indique si l'opération a réussi
-     */
-    private function sendNotification(string $message, string $numeroDevis, bool $success): void
-    {
-        $this->historiqueService->sendNotificationSoumission(
-            $message,
-            $numeroDevis,
-            DevisMagasinValidationConfig::REDIRECT_ROUTE,
-            $success
         );
     }
 }

@@ -32,8 +32,9 @@ class AgenceServiceType extends AbstractType
                 'choice_label'        => function (Agence $agence): string {
                     return $agence->getCodeAgence() . ' ' . $agence->getLibelleAgence();
                 },
-                'placeholder'         => $options['agence_placeholder'],
-                'required'            => $options['agence_required'],
+                'placeholder' => $options['agence_placeholder'],
+                'required' => $options['agence_required'],
+                'data' => $options['data_agence'] ?? null,
             ]);
 
         // Pré-set data
@@ -47,7 +48,7 @@ class AgenceServiceType extends AbstractType
         // Pré-submit
         $builder->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) use ($options) {
             $data = $event->getData();
-            $agence = $this->getAgenceFromFormData($data, $event->getForm());
+            $agence = $data ? $this->getAgenceFromFormData($data, $event->getForm()) : null;
             $this->addServiceField($event->getForm(), $agence, $options);
         });
     }
@@ -62,9 +63,10 @@ class AgenceServiceType extends AbstractType
             'choice_label'        => function (Service $service): string {
                 return $service->getCodeService() . ' ' . $service->getLibelleService();
             },
-            'placeholder'         => $options['service_placeholder'],
-            'choices'             => $services,
-            'required'            => $options['service_required'],
+            'placeholder' => $options['service_placeholder'],
+            'choices' => $services,
+            'required' => $options['service_required'],
+            'data' => $options['data_service'] ?? null,
         ]);
     }
 
@@ -106,8 +108,11 @@ class AgenceServiceType extends AbstractType
             'agence_required'     => false,
             'service_label'       => "Service",
             'service_placeholder' => '-- Choisir un service--',
-            'service_required'    => false,
-            'agence_codes'        => [],
+            'service_required' => false,
+            'em' => null,
+            'agence_codes' => [],
+            'data_agence' => null,
+            'data_service' => null,
         ]);
     }
 }

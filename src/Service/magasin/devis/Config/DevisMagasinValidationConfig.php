@@ -94,6 +94,9 @@ class DevisMagasinValidationConfig
     public const POINTAGE_PRIX_A_CONFIRMER_BLOCKING_STATUSES = [
         DevisMagasin::STATUT_PRIX_A_CONFIRMER,
     ];
+    public const POINTAGE_PRIX_MODIFIER_BLOCKING_STATUSES = [
+        DevisMagasin::STATUT_PRIX_MODIFIER_TANA,
+    ];
 
     // Messages d'erreur
     public const ERROR_MESSAGES = [
@@ -114,6 +117,7 @@ class DevisMagasinValidationConfig
         'vp_valide_a_envoyer_au_client_et_somme_de_lignes_changeet_amount_inchange' => "Le montant du devis validé ne correspond pas au montant du devis dans IPS. Veuillez refaire valider le devis.",
         'vp_valide_a_envoyer_au_client_et_somme_lignes_inchange' => "Le devis a déjà été validé. Veuillez l'envoyer au client",
         'vp_cloture_a_modifier_et_somme_montant_ips_inferieur_somme_montant_devis' => "Le devis a été modifié dans IPS. Veuillez le refaire valider par le chef d'agence.",
+        'pointage_prix_modifier_montant_inchanger' => "Le montant du devis n'a pas été modifié dans IPS.",
         //TODO: ----------------------------
         'no_file_submitted' => "Aucun fichier n'a été soumis.",
         'invalid_filename_format' => 'Le nom du fichier soumis n\'est pas conforme au format attendu. Reçu: %s',
@@ -125,4 +129,6 @@ class DevisMagasinValidationConfig
 
     // Routes de redirection
     public const REDIRECT_ROUTE = 'devis_magasin_liste';
+
+
 }

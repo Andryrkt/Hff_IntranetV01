@@ -51,7 +51,8 @@
 					<th style="text-align: right;">{{data.sum.countPmp |number_format(0, '', ' ') }}</th>
 					<th style="text-align: right;">{{ data.sum.countInvent |number_format(0, '', ' ') }}</th>
 					<th style="text-align: right;">{{ data.sum.countMontEcart |number_format(0, '', ' ') }}</th>
-					<th style="text-align: center;">{{row.pourcentage_ecart}}</th>
+					{# <th style="text-align: center;">{{row.pourcentage_ecart}}</th> #}
+					<th style="text-align: center;">{{data.sum.MontEcartPourcent |number_format(0, '', ' ')}}%</th>
 				</tr>
 			{% endfor %}
 

@@ -259,9 +259,9 @@ class DaAfficherRepository extends EntityRepository
     {
         $criteria = $criteria ?? [];
 
-        // ----------------------
+        // -------------------------------------
         // 1. Sous-requête : versions maximales
-        // ----------------------
+        // -------------------------------------
         $subQb = $this->_em->createQueryBuilder();
         $subQb->select('d.numeroDemandeAppro', 'MAX(d.numeroVersion) as maxVersion')
             ->from(DaAfficher::class, 'd')
@@ -283,35 +283,22 @@ class DaAfficherRepository extends EntityRepository
             $subQb->expr()->in('d.numeroDemandeAppro', ':exceptions')
         );
 
-        $typeDa = [
-            DemandeAppro::TYPE_DA_AVEC_DIT,
-            DemandeAppro::TYPE_DA_REAPPRO
-        ];
-        $typeDaDirect = DemandeAppro::TYPE_DA_DIRECT;
-        // Appliquer la condition selon le type de la DA
-        $subQb->andWhere(
-            $subQb->expr()->orX(
-                $subQb->expr()->eq('d.daTypeId', ':typeDaDirect'),
-                $subQb->expr()->andX(
-                    $subQb->expr()->in('d.daTypeId', ':typeDa'),
-                    $orCondition
-                )
-            )
-        )
-            ->setParameter('typeDaDirect', $typeDaDirect)
-            ->setParameter('typeDa', $typeDa);
+        $subQb->andWhere($orCondition);
 
         // Paramètres communs
         $subQb->setParameter('statutOrs', $statutOrs)
             ->setParameter('exceptions', $exceptions);
 
+        $subQb->andWhere('d.statutDal = :statutDal')
+            ->setParameter('statutDal', DemandeAppro::STATUT_VALIDE);
+
         $this->applyDynamicFilters($subQb, "d", $criteria, true);
         $this->applyStatutsFilters($subQb, "d", $criteria, true);
         $this->applyDateFilters($subQb, "d", $criteria, true);
 
-        // ----------------------
+        // ---------------------------------
         // 2. Compter distinctement les DA
-        // ----------------------
+        // ---------------------------------
         $countQb = clone $subQb;
         $countQb->resetDQLPart('select');
         $countQb->resetDQLPart('orderBy');
@@ -323,9 +310,9 @@ class DaAfficherRepository extends EntityRepository
 
         $lastPage = (int) ceil($totalItems / $limit);
 
-        // ----------------------
+        // ---------------------------
         // 3. Paginer la sous-requête
-        // ----------------------
+        // ---------------------------
         $subQb->orderBy('MAX(d.dateDemande)', 'DESC')
             ->addOrderBy('MAX(d.numeroFournisseur)', 'DESC')
             ->addOrderBy('MAX(d.numeroCde)', 'DESC')
@@ -344,9 +331,9 @@ class DaAfficherRepository extends EntityRepository
             ];
         }
 
-        // ----------------------
+        // ------------------------------------
         // 4. Construire la requête principale
-        // ----------------------
+        // ------------------------------------
         $qb = $this->_em->createQueryBuilder();
         $qb->select('d')
             ->from(DaAfficher::class, 'd')
@@ -358,10 +345,17 @@ class DaAfficherRepository extends EntityRepository
             ->setParameter('statutPasDansOr', DaSoumissionBc::STATUT_PAS_DANS_OR)
         ;
 
+
         $qb->andWhere('d.statutDal = :statutDal')
-            ->andWhere($qb->expr()->in('d.statutOr', ':statutOrsValide'))
-            ->setParameter('statutOrsValide', $statutOrs)
             ->setParameter('statutDal', DemandeAppro::STATUT_VALIDE);
+        $qb->andWhere(
+            $qb->expr()->orX(
+                $qb->expr()->in('d.statutOr', ':statutOrsValide'),
+                $qb->expr()->in('d.numeroDemandeAppro', ':exceptions')
+            )
+        )
+            ->setParameter('statutOrsValide', $statutOrs)
+            ->setParameter('exceptions', $exceptions);
 
         // Condition sur les versions maximales (à partir de la sous-requête)
         $orX = $qb->expr()->orX();
@@ -769,23 +763,23 @@ class DaAfficherRepository extends EntityRepository
 
         if (!empty($criteria['agenceEmetteur'])) {
             $qb->andWhere("$qbLabel.agenceEmetteur = :agEmet")
-                ->setParameter('agEmet', $criteria['agenceEmetteur']->getId());
+                ->setParameter('agEmet', $criteria['agenceEmetteur']);
         }
         if (!empty($criteria['serviceEmetteur'])) {
             $qb->andWhere("$qbLabel.serviceEmetteur = :agServEmet")
-                ->setParameter('agServEmet', $criteria['serviceEmetteur']->getId());
+                ->setParameter('agServEmet', $criteria['serviceEmetteur']);
         }
 
 
         if (!empty($criteria['agenceDebiteur'])) {
             $qb->andWhere("$qbLabel.agenceDebiteur = :agDebit")
-                ->setParameter('agDebit', $criteria['agenceDebiteur']->getId())
+                ->setParameter('agDebit', $criteria['agenceDebiteur'])
             ;
         }
 
         if (!empty($criteria['serviceDebiteur'])) {
             $qb->andWhere("$qbLabel.serviceDebiteur = :serviceDebiteur")
-                ->setParameter('serviceDebiteur', $criteria['serviceDebiteur']->getId());
+                ->setParameter('serviceDebiteur', $criteria['serviceDebiteur']);
         }
     }
 
@@ -865,5 +859,20 @@ class DaAfficherRepository extends EntityRepository
             ->addOrderBy('d.numeroFournisseur', 'DESC')
             ->addOrderBy('d.numeroCde', 'DESC');
         return $qb->getQuery()->getResult();
+    }
+
+
+    public function getStatutsBc()
+    {
+        $originalArray =  $this->createQueryBuilder('d')
+            ->select('DISTINCT d.statutCde')
+            ->where('d.statutCde IS NOT NULL')
+            ->andWhere('d.statutCde != :statutVide')
+            ->setParameter('statutVide', '')
+            ->orderBy('d.statutCde', 'ASC')
+            ->getQuery()
+            ->getSingleColumnResult();
+
+        return array_combine($originalArray, $originalArray);
     }
 }

@@ -8,9 +8,12 @@ use App\Service\validation\ValidationServiceBase;
 use App\Repository\Interfaces\StatusRepositoryInterface;
 use App\Repository\magasin\devis\DevisMagasinRepository;
 use App\Service\historiqueOperation\magasin\bc\HistoriqueOperationBcMagasinService;
+use App\Traits\Validator\ValidatorNotificationTrait;
 
 class BcMagasinValidationService extends ValidationServiceBase
 {
+    use ValidatorNotificationTrait;
+
     private const STATUT_BC_EN_COURS_VALIDATION = [
         BcMagasin::STATUT_SOUMIS_VALIDATION
     ];
@@ -18,7 +21,7 @@ class BcMagasinValidationService extends ValidationServiceBase
         'missing_identifier' => 'Le numéro de Devis est manquant.',
         'blocage_statut_En_cours_validation' => 'Le BC est en cours de validation',
         'statut_devis_et_bc_coherents' => 'on ne peut pas soumettre un BC à validation que si le devis est envoyé au client et la reception du bc est en attente.',
-        'statut_devis_a_traiter' => 'on ne peut pas soumettre un BC à validation que si le devis est à traiter.'
+        'statut_devis_a_traiter' => 'on ne peut pas soumettre un BC à validation que si la statut de la devis est encore "A traiter".'
 
     ];
 
@@ -70,7 +73,7 @@ class BcMagasinValidationService extends ValidationServiceBase
     public function checkMissingIdentifier(?string $numeroDevis): bool
     {
         if ($this->isIdentifierMissing($numeroDevis)) {
-            $this->sendNotification(
+            $this->sendNotificationDevisMagasin(
                 self::ERROR_MESSAGES['missing_identifier'],
                 '-',
                 false
@@ -108,7 +111,7 @@ class BcMagasinValidationService extends ValidationServiceBase
         $statut = $devisMagasinRepository->getStatutDwEtStatutBc($numeroDevis);
 
         if ($statut && $statut['statutDw'] != DevisMagasin::STATUT_ENVOYER_CLIENT && $statut['statutBc'] != BcMagasin::STATUT_EN_ATTENTE_BC) {
-            $this->sendNotification(
+            $this->sendNotificationDevisMagasin(
                 self::ERROR_MESSAGES['statut_devis_et_bc_coherents'],
                 $numeroDevis,
                 false
@@ -126,8 +129,8 @@ class BcMagasinValidationService extends ValidationServiceBase
         //recupération du statut devis
         $statut = $devisMagasinRepository->getStatutDwEtStatutBc($numeroDevis);
 
-        if ($statut && $statut['statutDw'] != DevisMagasin::STATUT_A_TRAITER) {
-            $this->sendNotification(
+        if (!$statut) {
+            $this->sendNotificationDevisMagasin(
                 self::ERROR_MESSAGES['statut_devis_a_traiter'],
                 $numeroDevis,
                 false
@@ -155,29 +158,13 @@ class BcMagasinValidationService extends ValidationServiceBase
         string $errorMessage
     ): bool {
         if ($this->isStatusBlocking($repository, $numeroDevis, $blockingStatuses)) {
-            $this->sendNotification($errorMessage, $numeroDevis, false);
+            $this->sendNotificationDevisMagasin($errorMessage, $numeroDevis, false);
             return false;
         }
 
         return true;
     }
 
-    /**
-     * Envoie une notification via le service d'historique
-     * 
-     * @param string $message Le message à envoyer
-     * @param string $numeroDevis Le numéro de devis concerné
-     * @param bool $success Indique si l'opération a réussi
-     */
-    private function sendNotification(string $message, string $numeroDevis, bool $success): void
-    {
-        $this->historiqueService->sendNotificationSoumission(
-            $message,
-            $numeroDevis,
-            self::REDIRECT_ROUTE,
-            $success
-        );
-    }
 
     public function getRedirectRoute(): string
     {

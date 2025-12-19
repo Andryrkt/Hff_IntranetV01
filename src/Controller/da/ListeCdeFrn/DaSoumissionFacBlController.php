@@ -7,7 +7,7 @@ use App\Entity\da\DaAfficher;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaSoumissionFacBl;
-use App\Entity\dw\DwBcAppro;
+use App\Repository\dit\DitRepository;
 use App\Form\da\DaSoumissionFacBlType;
 use App\Model\da\DaModel;
 use App\Model\dit\DitModel;
@@ -18,10 +18,6 @@ use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\da\DaSoumissionFacBlRepository;
-use App\Repository\dw\DwBcApproRepository;
-use App\Service\autres\VersionService;
-use App\Service\dataPdf\ordreReparation\Recapitulation;
-use App\Service\genererPdf\bap\GenererPdfBonAPayer;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Service\historiqueOperation\HistoriqueOperationService;
 use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
@@ -35,6 +31,7 @@ class DaSoumissionFacBlController extends Controller
 {
     const STATUT_SOUMISSION = 'Soumis à validation';
 
+    private  DaSoumissionFacBl $daSoumissionFacBl;
     private TraitementDeFichier $traitementDeFichier;
     private string $cheminDeBase;
     private HistoriqueOperationService $historiqueOperation;
@@ -48,10 +45,11 @@ class DaSoumissionFacBlController extends Controller
     {
         parent::__construct();
 
-        $this->generatePdf                 = new GeneratePdf();
-        $this->traitementDeFichier         = new TraitementDeFichier();
-        $this->cheminDeBase                = $_ENV['BASE_PATH_FICHIER'] . '/da/';
-        $this->historiqueOperation         = new HistoriqueOperationDaBcService($this->getEntityManager());
+        $this->generatePdf = new GeneratePdf();
+        $this->daSoumissionFacBl = new DaSoumissionFacBl();
+        $this->traitementDeFichier = new TraitementDeFichier();
+        $this->cheminDeBase = $_ENV['BASE_PATH_FICHIER'] . '/da/';
+        $this->historiqueOperation      = new HistoriqueOperationDaBcService($this->getEntityManager());
         $this->daSoumissionFacBlRepository = $this->getEntityManager()->getRepository(DaSoumissionFacBl::class);
         $this->demandeApproRepository      = $this->getEntityManager()->getRepository(DemandeAppro::class);
         $this->dwBcApproRepository         = $this->getEntityManager()->getRepository(DwBcAppro::class);
@@ -123,7 +121,9 @@ class DaSoumissionFacBlController extends Controller
                 /** ENREGISTREMENT DE FICHIER */
                 $nomDeFichiers = $this->enregistrementFichier($form, $numCde, $numDa);
 
-                /** AJOUT DES CHEMINS DANS LE TABLEAU */
+                //numeroversion max
+                $numeroVersionMax = $this->autoIncrement($this->daSoumissionFacBlRepository->getNumeroVersionMax($numCde));
+                /** FUSION DES PDF */
                 $nomFichierAvecChemins = $this->addPrefixToElementArray($nomDeFichiers, $this->cheminDeBase . $numDa . '/');
 
                 /** CREATION DE LA PAGE DE GARDE */
@@ -139,8 +139,6 @@ class DaSoumissionFacBlController extends Controller
                 $numeroVersionMax          = VersionService::autoIncrement($this->daSoumissionFacBlRepository->getNumeroVersionMax($numCde));
                 $nomPdfFusionner           =  "FACBL$numCde#$numDa-{$numOr}_{$numeroVersionMax}~{$nomOriginalFichier}";
                 $nomAvecCheminPdfFusionner = $this->cheminDeBase . $numDa . '/' . $nomPdfFusionner;
-
-                /** FUSION DES PDF */
                 $this->traitementDeFichier->fusionFichers($fichierConvertir, $nomAvecCheminPdfFusionner);
 
                 /** AJOUT DES INFO NECESSAIRE */
@@ -188,10 +186,12 @@ class DaSoumissionFacBlController extends Controller
     {
         $soumissionFacBl
             ->setPieceJoint1($nomPdfFusionner)
+            ->setStatut(self::STATUT_SOUMISSION)
             ->setNumeroVersion($numeroVersionMax)
             ->setDateClotLiv(new DateTime($infoLivraison["date_clot"]))
             ->setRefBlFac($infoLivraison["ref_fac_bl"])
         ;
+        return $soumissionFacBl;
     }
 
     /**
@@ -253,6 +253,14 @@ class DaSoumissionFacBlController extends Controller
         return array_map(function ($file) use ($prefix) {
             return $prefix . $file;
         }, $files);
+    }
+
+    private function autoIncrement(?int $num): int
+    {
+        if ($num === null) {
+            $num = 0;
+        }
+        return (int)$num + 1;
     }
 
     private function ConvertirLesPdf(array $tousLesFichersAvecChemin)
@@ -348,6 +356,8 @@ class DaSoumissionFacBlController extends Controller
 
             $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn');
             $okey = false;
+        } else {
+            $okey = true; // Aucune condition de blocage n'est remplie
         }
 
         return $okey;

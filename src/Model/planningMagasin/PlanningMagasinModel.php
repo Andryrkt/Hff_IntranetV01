@@ -2,9 +2,10 @@
 
 namespace App\Model\planningMagasin;
 
-use App\Entity\planningMagasin\PlanningMagasinSearch;
 use App\Model\Model;
+use App\Service\GlobalVariablesService;
 use App\Service\TableauEnStringService;
+use App\Entity\planningMagasin\PlanningMagasinSearch;
 
 class PlanningMagasinModel extends Model
 {
@@ -141,6 +142,7 @@ class PlanningMagasinModel extends Model
         $codeClient  = $this->codeClient($criteria);
         $commercial = $this->commercial($criteria);
         $refClient = $this->refClient($criteria);
+        $piecesMagasin = GlobalVariablesService::get('pieces_magasin');
         $statement = "SELECT 
                         trim(nent_succ) as codeSuc,
                         trim(asuc_lib) as libSuc,
@@ -156,23 +158,23 @@ class PlanningMagasinModel extends Model
                         year(nent_datexp) as annee,
                         month(nent_datexp) as mois,
                         nent_numcde as orIntv,
-                        TRIM((select ausr_nom from agr_usr where ausr_num = nent_usr and ausr_soc = nent_soc)) as commercial,
+                        TRIM((select atab_lib from agr_tab where atab_code = nent_codope and atab_nom = 'OPE' )) as commercial,
                         CASE 
                             WHEN  ( SUM(nlig_qteliv) > 0 AND SUM(nlig_qteliv) != SUM(nlig_qtecde) AND SUM(nlig_qtecde) > (SUM(nlig_qteliv) + SUM(nlig_qtealiv)) )
                             OR ( SUM(nlig_qtecde) != SUM(nlig_qtealiv) AND SUM(nlig_qteliv) = 0 AND SUM(nlig_qtealiv) > 0 )  THEN 
-                            SUM(CASE WHEN nlig_constp NOT IN ('ZDI') THEN nlig_qtecde ELSE 0 END)
+                            SUM(CASE WHEN nlig_constp NOT IN ('ZDI','Nmc') THEN nlig_qtecde ELSE 0 END)
                             ELSE sum(nlig_qtecde) 
                             END QteCdm, 
                         CASE 
                             WHEN  ( SUM(nlig_qteliv) > 0 AND SUM(nlig_qteliv) != SUM(nlig_qtecde) AND SUM(nlig_qtecde) > (SUM(nlig_qteliv) + SUM(nlig_qtealiv)) )
                             OR ( SUM(nlig_qtecde) != SUM(nlig_qtealiv) AND SUM(nlig_qteliv) = 0 AND SUM(nlig_qtealiv) > 0 )  THEN 
-                            SUM(CASE WHEN nlig_constp NOT IN ('ZDI') THEN nlig_qteliv ELSE 0 END)
+                            SUM(CASE WHEN nlig_constp NOT IN ('ZDI','Nmc') THEN nlig_qteliv ELSE 0 END)
                             ELSE sum(nlig_qteliv) 
                         END qtliv,
                         CASE 
                             WHEN  ( SUM(nlig_qteliv) > 0 AND SUM(nlig_qteliv) != SUM(nlig_qtecde) AND SUM(nlig_qtecde) > (SUM(nlig_qteliv) + SUM(nlig_qtealiv)) )
                             OR ( SUM(nlig_qtecde) != SUM(nlig_qtealiv) AND SUM(nlig_qteliv) = 0 AND SUM(nlig_qtealiv) > 0 )  THEN 
-                            SUM(CASE WHEN nlig_constp NOT IN ('ZDI') THEN nlig_qtealiv ELSE 0 END)
+                            SUM(CASE WHEN nlig_constp NOT IN ('ZDI','Nmc') THEN nlig_qtealiv ELSE 0 END)
                             ELSE sum(nlig_qtealiv) 
                         END QteALL 
 
@@ -184,10 +186,12 @@ class PlanningMagasinModel extends Model
                         AND (nent_servcrt = ser.atab_code AND ser.atab_nom = 'SER')
                         AND (nent_usr = ausr_num)
                         AND nent_natop not in ('DEV')
-                        AND nent_posf not in ('CP')
+                        AND nent_posf not in ('CP', 'FC')
                         AND to_char(nent_numcli) not like '150%'
                         AND not nent_numcli between 1800000 and 1999999
                         AND trim(nent_succ) in ('01', '20', '30', '40')
+                        AND trim(nent_servcrt) <> 'ASS'
+                        AND nlig_constp IN ($piecesMagasin)
 
                         $numDevis
                         $numCmd
@@ -248,6 +252,7 @@ class PlanningMagasinModel extends Model
                         AND nent_natop not in ('DEV')
                         AND nent_posf not in ('CP')
                         AND to_char(nent_numcli) not like '150%'
+                        AND nlig_constp not in ('ZDI','Nmc')
                         group by 1
                         HAVING
                             CASE
@@ -286,6 +291,7 @@ class PlanningMagasinModel extends Model
                         AND nent_natop not in ('DEV')
                         AND nent_posf not in ('CP')
                         AND to_char(nent_numcli) not like '150%'
+                        AND nlig_constp not in ('ZDI','Nmc')
                         group by 1
                         HAVING
                             CASE
@@ -325,6 +331,7 @@ class PlanningMagasinModel extends Model
                         AND nent_natop not in ('DEV')
                         AND nent_posf not in ('CP')
                         AND to_char(nent_numcli) not like '150%'
+                        AND nlig_constp not in ('ZDI','Nmc')
                         group by 1
                         HAVING
                             CASE
@@ -353,30 +360,23 @@ class PlanningMagasinModel extends Model
 
     public function recupCommercial(string $codeAgence)
     {
-        $statement = " SELECT   TRIM((select ausr_nom from agr_usr where ausr_num = nent_usr and ausr_soc = nent_soc))  as commercial 
-
-                        from neg_ent, neg_lig, agr_succ, agr_tab ser, agr_usr ope, cli_bse, cli_soc
-                        where nent_soc = 'HF'
-                        and nlig_soc = nent_soc and nlig_numcde = nent_numcde
-                        and asuc_numsoc = nent_soc and asuc_num = nent_succ
-                        and csoc_soc = nent_soc and csoc_numcli = cbse_numcli and cbse_numcli = nent_numcli
-                        AND (nent_servcrt = ser.atab_code AND ser.atab_nom = 'SER')
-                        AND (nent_usr = ausr_num)
-                        AND nent_natop not in ('DEV')
-                        AND nent_posf not in ('CP')
-                        AND to_char(nent_numcli) not like '150%'
-                        AND not nent_numcli between 1800000 and 1999999
+        $statement = " SELECT  TRIM(atab_lib) as nom, 
+        TRIM(nent_codope) as value
+        from agr_tab, neg_ent
+            where nent_soc = 'HF'
+            and nent_servcrt in ('NEG','FLE','MAP')
+            and atab_nom = 'OPE' and atab_code = nent_codope
                         
         ";
         if ($codeAgence != "-0") {
             $statement .= " AND trim(nent_succ) = $codeAgence";
         }
 
-        $statement .= " group by 1";
+        $statement .= " group by 1, 2 order by 1";
 
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
-        $resultat = array_column($this->convertirEnUtf8($data), "commercial");
+        $resultat = $this->convertirEnUtf8($data);
         return $resultat;
     }
 }

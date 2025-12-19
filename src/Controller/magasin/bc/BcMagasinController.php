@@ -114,7 +114,10 @@ class BcMagasinController extends Controller
 
             // historique du document
             $message = 'Le bon de commande a été soumis avec succès.';
-            $this->historiqueOperationBcMagasinService->sendNotificationSoumission($message, $numeroDevis, 'devis_magasin_liste', true);
+            $criteria = $this->getSessionService()->get('criteria_for_excel_liste_devis_magasin');
+            $nomDeRoute = 'devis_magasin_liste'; // route de redirection après soumission
+            $nomInputSearch = 'devis_magasin_search'; // initialistion de nom de chaque champ ou input
+            $this->historiqueOperationBcMagasinService->sendNotificationSoumission($message, $numeroDevis, $nomDeRoute, true, $criteria, $nomInputSearch);
         }
     }
 
@@ -137,7 +140,7 @@ class BcMagasinController extends Controller
         $clientAndModePaiement = $listeDevisMagasinModel->getClientAndModePaiement($numeroDevis);
         $dto->codeClient = $clientAndModePaiement[0]['code_client'];
         $dto->nomClient = $clientAndModePaiement[0]['nom_client'];
-        $dto->modePayement = $clientAndModePaiement[0]['mode_paiement'];
+        $dto->modePayement = $clientAndModePaiement[0]['mode_paiement'] ?? '';
         $generatePdf->generer($this->getUser(), $dto, $nomAvecCheminFichier, (float) $montantDevis);
 
 

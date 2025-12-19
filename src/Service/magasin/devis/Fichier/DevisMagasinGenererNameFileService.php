@@ -8,7 +8,7 @@ use App\Service\fichier\AbstractFileNameGeneratorService;
 class DevisMagasinGenererNameFileService extends AbstractFileNameGeneratorService
 {
     /**
-     * Génère un nom pour votre cas spécifique de vérification de prix
+     * Génère un nom pour le vérification de prix
      */
     public function generateVerificationPrixName(
         UploadedFile $file,
@@ -31,7 +31,7 @@ class DevisMagasinGenererNameFileService extends AbstractFileNameGeneratorServic
     }
 
     /**
-     * Génère un nom pour votre cas spécifique de vérification de prix
+     * Génère un nom pour validation devis
      */
     public function generateValidationDevisName(
         UploadedFile $file,
@@ -50,6 +50,14 @@ class DevisMagasinGenererNameFileService extends AbstractFileNameGeneratorServic
                 'mail' => $mail
             ]
         ], $index);
+    }
+
+    /**
+     * Génère un nom pour le cas de fichier excel
+     */
+    public function generateFichierExcelName(string $numDevis, string $extension): string
+    {
+        return "feuille_calcul_$numDevis.$extension";
     }
 
     /**

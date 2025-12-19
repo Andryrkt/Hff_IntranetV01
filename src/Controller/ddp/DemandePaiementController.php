@@ -81,8 +81,10 @@ class DemandePaiementController extends Controller
         $this->autorisationAcces($this->getUser(), Application::ID_DDP);
         /** FIN AUtorisation acées */
 
+        // creation du formulaire
         $form = $this->getFormFactory()->createBuilder(DemandePaiementType::class, null, ['id_type' => $id])->getForm();
 
+        // traitement du formulaire
         $this->traitementForm($request, $form, $id);
 
         return $this->render('ddp/demandePaiementNew.html.twig', [
@@ -387,10 +389,20 @@ class DemandePaiementController extends Controller
         $cheminDeFichiers = $this->recupCheminFichierDistant($data);
         $cheminDestination = $chemin . '/' . $numDdp . '_New_1';
 
+        // S'assurer que le répertoire de destination existe
+        if (!is_dir($cheminDestination)) {
+            mkdir($cheminDestination, 0777, true);
+        }
+
         foreach ($cheminDeFichiers as $cheminDeFichier) {
-            $nomFichier = $this->nomFichier($cheminDeFichier);
-            $destinationFinal = $cheminDestination . '/' . $nomFichier;
-            copy($cheminDeFichier, $destinationFinal);
+            // Vérifier si le fichier source existe et est lisible avant de continuer
+            if (file_exists($cheminDeFichier) && is_readable($cheminDeFichier)) {
+                $nomFichier = $this->nomFichier($cheminDeFichier);
+                $destinationFinal = $cheminDestination . '/' . $nomFichier;
+                
+                // Copier le fichier et vérifier le succès (le ! supprime l'avertissement en cas d'échec)
+                @copy($cheminDeFichier, $destinationFinal);
+            }
         }
     }
 

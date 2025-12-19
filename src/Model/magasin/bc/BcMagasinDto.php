@@ -16,7 +16,7 @@ class BcMagasinDto
     public array $pieceJoint2 = [];
     public string $codeClient;
     public string $nomClient;
-    public string $modePayement;
+    public string $modePayement = '';
 
     /** @var BcMagasinLigneDto[] */
     public array $lignes = [];

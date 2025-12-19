@@ -9,7 +9,7 @@ use App\Entity\magasin\devis\DevisMagasin;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\magasin\devis\ListeDevisMagasinModel;
 use App\Factory\magasin\devis\ListeDevisMagasinFactory;
-use App\Repository\magasin\devis\DevisMagasinRepository;
+use App\Service\TableauEnStringService;
 
 class DevisMagasinExportExcelController extends Controller
 {
@@ -30,8 +30,11 @@ class DevisMagasinExportExcelController extends Controller
         $this->verifierSessionUtilisateur();
 
         $criteria = $this->getSessionService()->get('criteria_for_excel_liste_devis_magasin');
-        $criteria["emetteur"]["agence"] = $this->getEntityManager()->getRepository(Agence::class)->find($criteria["emetteur"]["agence"]);
-        $criteria["emetteur"]["service"] = $this->getEntityManager()->getRepository(Service::class)->find($criteria["emetteur"]["service"]);
+
+        if ($criteria && $criteria["emetteur"]) {
+            $criteria["emetteur"]["agence"] = $criteria["emetteur"]["agence"] ? $this->getEntityManager()->getRepository(Agence::class)->find($criteria["emetteur"]["agence"]) : null;
+            $criteria["emetteur"]["service"] = $criteria["emetteur"]["service"] ? $this->getEntityManager()->getRepository(Service::class)->find($criteria["emetteur"]["service"]) : null;
+        }
 
         $listeDevisFactory = $this->recuperationDonner($criteria);
 
@@ -69,9 +72,8 @@ class DevisMagasinExportExcelController extends Controller
     {
         /** @var ListeDevisMagasinFactory $devisFactory */
         foreach ($listeDevisFactory as $devisFactory) {
-
             $data[] = [
-                $devisFactory->getStatutDw(),
+                $devisFactory->getStatutDw() ? $devisFactory->getStatutDw() : "A traiter",
                 $devisFactory->getStatutBc(),
                 $devisFactory->getNumeroDevis(),
                 $devisFactory->getDateCreation(),
@@ -91,28 +93,57 @@ class DevisMagasinExportExcelController extends Controller
 
     public function recuperationDonner(array $criteria = []): array
     {
-        // recupération de la liste des devis magasin dans IPS
-        $devisIps = $this->listeDevisMagasinModel->getDevis();
+        // $codeAgenceUser = $this->getUser()->getCodeAgenceUser();
+        $codeAgenceAutoriserString = TableauEnStringService::orEnString($this->getUser()->getAgenceAutoriserCode());
+        // $vignette       = $codeAgenceUser === '01' ? 'magasin' : 'magasin_pol';
+        $vignette = 'magasin';
+        $adminMutli          = in_array(1, $this->getUser()->getRoleIds()) || in_array(6, $this->getUser()->getRoleIds());
+
+        $numDeviAExclure = TableauEnStringService::simpleNumeric(array_map('intval', $this->listeDevisMagasinModel->getNumeroDevisExclure()));
+
+        $devisIps = $this->listeDevisMagasinModel->getDevis($criteria, $vignette, $codeAgenceAutoriserString, $adminMutli, $numDeviAExclure);
 
         $listeDevisFactory = [];
-        foreach ($devisIps as  $devisIp) {
-            $devisMagasinRepository = $this->getEntityManager()->getRepository(DevisMagasin::class);
-            //recupération des information de devis soumission à validation neg
-            $numeroVersionMax = $devisMagasinRepository->getNumeroVersionMax($devisIp['numero_devis']);
-            $devisSoumi = $devisMagasinRepository->findOneBy(['numeroDevis' => $devisIp['numero_devis'], 'numeroVersion' => $numeroVersionMax]);
-            //ajout des informations manquantes
-            $devisIp['statut_dw'] = $devisSoumi ? $devisSoumi->getStatutDw() : '';
-            $devisIp['operateur'] = $devisSoumi ? $devisSoumi->getUtilisateur() : '';
-            $devisIp['date_envoi_devis_au_client'] = $devisSoumi ? ($devisSoumi->getDateEnvoiDevisAuClient() ? $devisSoumi->getDateEnvoiDevisAuClient() : '') : '';
-            $devisIp['utilisateur_createur_devis'] = $this->listeDevisMagasinModel->getUtilisateurCreateurDevis($devisIp['numero_devis']) ?? '';
-            $devisIp['statut_bc'] = $devisSoumi ? $devisSoumi->getStatutBc() : '';
+        $dejaVu = []; // Tableau pour mémoriser les numéros de devis déjà traités
 
-            // Appliquer les filtres si des critères sont fournis
-            if (!empty($criteria) && !$this->matchesCriteria($devisIp, $criteria)) {
-                continue; // Ignorer cet élément s'il ne correspond pas aux critères
+        foreach ($devisIps as $devisIp) {
+            $numeroDevis = $devisIp['numero_devis'] ?? null;
+
+            // Si on a déjà traité ce numéro de devis → on ignore
+            if ($numeroDevis === null || in_array($numeroDevis, $dejaVu, true)) {
+                continue;
             }
 
-            //transformation par le factory
+            $dejaVu[] = $numeroDevis; // On le marque comme vu
+
+            $devisMagasinRepository = $this->getEntityManager()->getRepository(DevisMagasin::class);
+
+            // Récupération de la version maximale
+            $numeroVersionMax = $devisMagasinRepository->getNumeroVersionMax($numeroDevis);
+            $devisSoumi       = $devisMagasinRepository->findOneBy([
+                'numeroDevis'    => $numeroDevis,
+                'numeroVersion'  => $numeroVersionMax
+            ]);
+
+            // Ajout des informations complémentaires
+            $devisIp['statut_dw']                  = $devisSoumi ? $devisSoumi->getStatutDw()                  : DevisMagasin::STATUT_A_TRAITER;
+            $devisIp['operateur']                  = $devisSoumi ? $devisSoumi->getUtilisateur()               : '';
+            $devisIp['date_envoi_devis_au_client'] = $devisSoumi ? ($devisSoumi->getDateEnvoiDevisAuClient() ? $devisSoumi->getDateEnvoiDevisAuClient() : '') : '';
+            $devisIp['utilisateur_createur_devis'] = $this->listeDevisMagasinModel
+                ->getUtilisateurCreateurDevis($numeroDevis) ?? '';
+            $devisIp['statut_bc']                  = $devisSoumi ? $devisSoumi->getStatutBc()                  : '';
+
+            // statut DW = A traiter et statut BC = TR
+            if ($devisIp['statut_dw'] === DevisMagasin::STATUT_A_TRAITER && $devisIp['statut_ips'] === 'TR') {
+                continue;
+            }
+
+            // Application des filtres critères
+            if (!empty($criteria) && !$this->matchesCriteria($devisIp, $criteria)) {
+                continue;
+            }
+
+            // Transformation via le factory
             $listeDevisFactory[] = (new ListeDevisMagasinFactory())->transformationEnObjet($devisIp);
         }
 

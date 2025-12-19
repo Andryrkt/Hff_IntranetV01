@@ -2,6 +2,7 @@
 
 namespace App\Form\magasin\bc;
 
+
 use App\Model\magasin\bc\BcMagasinDto;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -39,7 +40,7 @@ class BcMagasinType extends AbstractType
                 'dateBc',
                 DateType::class,
                 [
-                    'label' => 'Date mise en location',
+                    'label' => 'Date BC *',
                     'widget' => 'single_text',
                     'html5' => true,
                     //'format' => 'dd/MM/yyyy', 

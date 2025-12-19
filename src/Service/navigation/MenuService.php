@@ -307,7 +307,7 @@ class MenuService
             'Demande de paiement',
             'file-invoice-dollar',
             [
-                $this->createSubItem('Nouvelle demande', 'plus-circle', '#', [], 'modalTypeDemande', true),
+                $this->createSubItem('Nouvelle demande', 'plus-circle', '#', [], '', 'modalTypeDemande', true),
                 $this->createSubItem('Consultation', 'search', 'ddp_liste')
             ]
         );
@@ -507,13 +507,13 @@ class MenuService
             );
         }
         /** =====================dematerialisation========================= */
-        if ($this->getEstAdmin()) {
+        if ($this->getEstAdmin() || in_array(Application::ID_DVM, $this->getApplicationIds())) {
             $subitems[] = $this->createSubMenuItem(
                 'DEMATERIALISATION',
                 'cloud-arrow-up',
                 [
                     $this->createSubItem('Devis', 'file-invoice', 'devis_magasin_liste'),
-                    $this->createSubItem('Commandes clients', 'shopping-basket', '#'),
+                    // $this->createSubItem('Commandes clients', 'shopping-basket', '#'),
                     $this->createSubItem('Planning de commande Magasin', 'calendar-alt', 'interface_planningMag'),
                 ]
             );

@@ -171,7 +171,7 @@ class PlanningMagasinSearchType extends AbstractType
             //     'required' => false
             // ])
             ->add('refcde', TextType::class, [
-                'label' => "reférence Client",
+                'label' => "PO Client",
                 'required' => false
             ])
             ->add('numParc', TextType::class, [

@@ -91,7 +91,7 @@ class ExportExcelCdefrnController extends Controller
                 $da->getNomFournisseur(),
                 $da->getNumeroCde(),
                 $da->getStatutCde(),
-                $da->getDateFinSouhaite()->format('d/m/Y'),
+                $da->getDateFinSouhaite() == null ? '' : $da->getDateFinSouhaite()->format('d/m/Y'),
                 $da->getArtRefp(),
                 $da->getArtDesi(),
                 $da->getQteDem(),

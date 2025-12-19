@@ -19,7 +19,7 @@ class GeneratePdfBcMagasin extends GeneratePdf
      */
     public function copyToDWBcMagasin(string $fileName, string $numeroDevis): void
     {
-        $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/' . $fileName;
+        $cheminFichierDistant = $this->baseCheminDocuware . 'BC MAGASIN/' . $fileName;
         $cheminDestinationLocal = $this->baseCheminDuFichier . 'magasin/devis/' . $numeroDevis . '/' . $fileName;
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
@@ -42,6 +42,7 @@ class GeneratePdfBcMagasin extends GeneratePdf
 
         $pdf->AddPage();
 
+        $pdf->Ln(2, true);
         // numero Devis
         $pdf->SetFont($font2, 'B', 10);
         $pdf->Cell(30, 10, 'Devis', 0, 0, 'L');
@@ -54,10 +55,6 @@ class GeneratePdfBcMagasin extends GeneratePdf
         $pdf->Cell(30, 10, 'Client', 0, 0, 'L');
         $pdf->SetFont($font2, '', 10);
         $pdf->Cell(90, 10, ': ' . $dto->codeClient . ' - ' . $dto->nomClient, 0, 0, 'L');
-        $pdf->SetFont($font2, 'B', 10);
-        $pdf->Cell(35, 10, 'Mode de paiement : ', 0, 0, 'L');
-        $pdf->SetFont($font2, '', 10);
-        $pdf->Cell(0, 10, $dto->modePayement, 0, 0, 'L');
         $pdf->Ln(7, true);
 
         //numero BC
@@ -65,31 +62,34 @@ class GeneratePdfBcMagasin extends GeneratePdf
         $pdf->Cell(30, 10, 'BC', 0, 0, 'L');
         $pdf->SetFont($font2, '', 10);
         $pdf->Cell(90, 10, ': ' . $dto->numeroBc, 0, 0, 'L');
-        $pdf->SetFont($font2, 'B', 10);
-        $pdf->Cell(35, 10, 'Date BC', 0, 0, 'L');
-        $pdf->SetFont($font2, '', 10);
-        $pdf->Cell(0, 10, ': ' . $dto->dateBc->format('d/m/Y'), 0, 0, 'L');
         $pdf->Ln(7, true);
 
         // montant Devis
         $pdf->SetFont($font2, 'B', 10);
         $pdf->Cell(30, 10, 'Montant devis', 0, 0, 'L');
         $pdf->SetFont($font2, '', 10);
-        $pdf->Cell(0, 10, ': ' . number_format((float) $montantDevis, 2, ',', '.'), 0, 0, 'L');
+        $pdf->Cell(90, 10, ': ' . number_format((float) $montantDevis, 2, ',', '.'), 0, 0, 'L');
+        $pdf->SetFont($font2, 'B', 10);
+        $pdf->Cell(35, 10, 'Mode de paiement : ', 0, 0, 'L');
+        $pdf->SetFont($font2, '', 10);
+        $pdf->Cell(0, 10, $dto->modePayement, 0, 0, 'L');
         $pdf->Ln(7, true);
 
         //montant BC
         $pdf->SetFont($font2, 'B', 10);
         $pdf->Cell(30, 10, 'Montant BC', 0, 0, 'L');
         $pdf->SetFont($font2, '', 10);
-        $pdf->Cell(0, 10, ': ' . number_format(str_replace([' ', ','], ['', '.'], $dto->montantBc), 2, ',', '.'), 0, 1, 'L');
-        // $pdf->Ln(5, true);
+        $pdf->Cell(90, 10, ': ' . number_format(str_replace([' ', ','], ['', '.'], $dto->montantBc), 2, ',', '.'), 0, 0, 'L');
+        $pdf->SetFont($font2, 'B', 10);
+        $pdf->Cell(35, 10, 'Date BC : ', 0, 0, 'L');
+        $pdf->SetFont($font2, '', 10);
+        $pdf->Cell(0, 10,  $dto->dateBc->format('d/m/Y'), 0, 1, 'L');
 
         // observation
         $pdf->setFont($font2, 'B', 10);
-        $pdf->Cell(30, 6, 'Observation', 0, 0, 'L', false, '', 0, false, 'T', 'M');
+        $pdf->Cell(31, 6, 'Observation', 0, 0, 'L', false, '', 0, false, 'T', 'M');
         $pdf->setFont($font2, '', 10);
-        $pdf->MultiCell(164, 100, ': ' . $dto->observation, 0, '', 0, 0, '', '', true);
+        $pdf->MultiCell(163, 100, ': ' . $dto->observation, 0, '', 0, 0, '', '', true);
         $pdf->Ln(50, true);
 
         // tableau des lignes

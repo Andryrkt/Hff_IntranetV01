@@ -21,7 +21,7 @@ class DevisMagasin
     public const STATUT_PRIX_MODIFIER_TANA = 'Prix modifié - devis à envoyer au client';
     public const STATUT_PRIX_MODIFIER_AGENCE = 'Prix modifié - devis à soumettre';
     public const STATUT_DEMANDE_REFUSE_PAR_PM = 'Demande refusée par le PM';
-    public const STATUT_A_VALIDER_CHEF_AGENCE = 'A valider chef d’agence';
+    public const STATUT_A_VALIDER_CHEF_AGENCE = "A valider chef d'agence";
     public const STATUT_VALIDE_AGENCE = 'Validé - à envoyer au client';
     public const STATUT_ENVOYER_CLIENT = 'Envoyé au client';
     public const STATUT_CLOTURER_A_MODIFIER = 'Cloturé - A modifier';
@@ -135,11 +135,11 @@ class DevisMagasin
 
 
     /**
-     * @ORM\Column(type="string", length=50, name="tache_validateur", nullable=true)
+     * @ORM\Column(type="text", name="tache_validateur", nullable=true)
      *
      * @var string|null
      */
-    private ?string $tacheValidateur;
+    private ?string $tacheValidateur = null;
 
     /**
      * @ORM\Column(type="boolean", name="est_validation_pm")
@@ -165,13 +165,38 @@ class DevisMagasin
      */
     private $dateBc = null;
 
+    /**
+     * @ORM\Column(type="string", length=5000, name="observation", nullable=true)
+     *
+     * @var string|null
+     */
+    private ?string $observation = null;
+
+
     private $pieceJoint01;
 
     private $pieceJoint2;
 
     public  $constructeur;
 
+    /**
+     * @ORM\Column(type="string", length=255, name="piece_joint_excel", nullable=true)
+     *
+     * @var string|null
+     */
+    private ?string $pieceJointExcel = null;
 
+    /**
+     * @ORM\Column(type="boolean", name="migration", options={"default": false}, nullable=true)
+     */
+    private ?bool $migration = false;
+
+    /**
+     * @ORM\Column(type="string", length=255, name="statut_temp", nullable=true)
+     *
+     * @var string|null
+     */
+    private ?string $statutTemp = '';
 
     /** =========================================
      * GETTERS & SETTERS
@@ -566,9 +591,9 @@ class DevisMagasin
     /**
      * Get the value of tacheValidateur
      */
-    public function getTacheValidateur()
+    public function getTacheValidateur(): array
     {
-        return $this->tacheValidateur;
+        return $this->tacheValidateur ? json_decode($this->tacheValidateur, true) : [];
     }
 
     /**
@@ -576,9 +601,9 @@ class DevisMagasin
      *
      * @return  self
      */
-    public function setTacheValidateur($tacheValidateur)
+    public function setTacheValidateur(array $tacheValidateur): self
     {
-        $this->tacheValidateur = $tacheValidateur;
+        $this->tacheValidateur = json_encode($tacheValidateur);
 
         return $this;
     }
@@ -663,6 +688,78 @@ class DevisMagasin
     public function setDateBc($dateBc): self
     {
         $this->dateBc = $dateBc;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of observation
+     */
+    public function getObservation(): ?string
+    {
+        return $this->observation;
+    }
+
+    /**
+     * Set the value of observation
+     */
+    public function setObservation(?string $observation): self
+    {
+        $this->observation = $observation;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of pieceJointExcel
+     */
+    public function getPieceJointExcel(): ?string
+    {
+        return $this->pieceJointExcel;
+    }
+
+    /**
+     * Set the value of pieceJointExcel
+     */
+    public function setPieceJointExcel($pieceJointExcel): self
+    {
+        $this->pieceJointExcel = $pieceJointExcel;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of migration
+     */
+    public function isMigration(): ?bool
+    {
+        return $this->migration;
+    }
+
+    /**
+     * Set the value of migration
+     */
+    public function setMigration(?bool $migration): self
+    {
+        $this->migration = $migration;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of statutTemp
+     */
+    public function getStatutTemp(): ?string
+    {
+        return $this->statutTemp;
+    }
+
+    /**
+     * Set the value of statutTemp
+     */
+    public function setStatutTemp(?string $statutTemp): self
+    {
+        $this->statutTemp = $statutTemp;
 
         return $this;
     }

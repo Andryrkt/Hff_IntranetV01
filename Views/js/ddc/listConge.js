@@ -308,14 +308,20 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         if (conge) {
-          if (conge.statutDemande === "Validé") {
+          if (conge.statutDemande.trim().startsWith("Validé")) {
+            cell.classList.remove("conge-bar-annuler");
+            cell.classList.remove("conge-bar-encours");
             cell.classList.add("conge-bar-valide");
           } else if (
-            conge.statutDemande === "Refusé" ||
-            conge.statutDemande === "Annulé"
+            conge.statutDemande.trim().startsWith("Refusé") ||
+            conge.statutDemande.trim().startsWith("Annulé")
           ) {
+            cell.classList.remove("conge-bar-valide");
+            cell.classList.remove("conge-bar-encours");
             cell.classList.add("conge-bar-annuler");
           } else {
+            cell.classList.remove("conge-bar-valide");
+            cell.classList.remove("conge-bar-annuler");
             cell.classList.add("conge-bar-encours");
           }
           // Vérifier si c'est le premier jour du congé pour ajouter l'indicateur
@@ -545,302 +551,303 @@ document.addEventListener("DOMContentLoaded", function () {
 /** ========================================================
  * Multiselect Tag Box champ Matricule, nom et prénom
  *==========================================================*/
-document.addEventListener("DOMContentLoaded", function () {
-  const champMatricule = document.querySelector("#demande_conge_matricule"); // Sélectionner le bon ID
-  let hiddenMatriculeInput = document.querySelector("#form-matricule"); // Ancien champ caché potentiellement encore utilisé
+// document.addEventListener("DOMContentLoaded", function () {
+//   const champMatricule = document.querySelector("#demande_conge_matricule"); // Sélectionner le bon ID
+//   let hiddenMatriculeInput = document.querySelector("#form-matricule"); // Ancien champ caché potentiellement encore utilisé
 
-  // Si le champ caché n'existe pas, utiliser directement le champ principal
-  if (!hiddenMatriculeInput) {
-    // For multiple values, we need to set the value differently
-    hiddenMatriculeInput = champMatricule; // Use the main field if no hidden field exists
-  }
+//   // Si le champ caché n'existe pas, utiliser directement le champ principal
+//   if (!hiddenMatriculeInput) {
+//     // For multiple values, we need to set the value differently
+//     hiddenMatriculeInput = champMatricule; // Use the main field if no hidden field exists
+//   }
 
-  // Vérifier si l'élément requis existe avant d'initialiser
-  if (champMatricule) {
-    // Création d'une structure de base pour le multiselect
-    // On enveloppe l'input dans un conteneur pour y ajouter les tags visuellement
-    const container = document.createElement("div");
-    container.classList.add("tag-input-container");
-    container.style.position = "relative";
-    container.style.display = "flex";
-    container.style.flexWrap = "wrap";
-    container.style.gap = "4px";
-    container.style.alignItems = "center";
-    container.style.border = "1px solid #ccc";
-    container.style.padding = "4px";
-    container.style.borderRadius = "4px";
+//   // Vérifier si l'élément requis existe avant d'initialiser
+//   if (champMatricule) {
+//     // Création d'une structure de base pour le multiselect
+//     // On enveloppe l'input dans un conteneur pour y ajouter les tags visuellement
+//     const container = document.createElement("div");
+//     container.classList.add("tag-input-container");
+//     container.style.position = "relative";
+//     container.style.display = "flex";
+//     container.style.flexWrap = "wrap";
+//     container.style.gap = "4px";
+//     container.style.alignItems = "center";
+//     container.style.border = "1px solid #ccc";
+//     container.style.padding = "4px";
+//     container.style.borderRadius = "4px";
 
-    // Déplacer l'input dans le conteneur
-    champMatricule.parentNode.insertBefore(container, champMatricule);
-    container.appendChild(champMatricule);
+//     // Déplacer l'input dans le conteneur
+//     champMatricule.parentNode.insertBefore(container, champMatricule);
+//     container.appendChild(champMatricule);
 
-    // Conteneur pour les tags
-    const tagsContainer = document.createElement("div");
-    tagsContainer.classList.add("tags-list");
-    tagsContainer.style.display = "flex";
-    tagsContainer.style.flexWrap = "wrap";
-    tagsContainer.style.gap = "4px";
-    container.insertBefore(tagsContainer, champMatricule); // Les tags apparaissent avant l'input
+//     // Conteneur pour les tags
+//     const tagsContainer = document.createElement("div");
+//     tagsContainer.classList.add("tags-list");
+//     tagsContainer.style.display = "flex";
+//     tagsContainer.style.flexWrap = "wrap";
+//     tagsContainer.style.gap = "4px";
+//     container.insertBefore(tagsContainer, champMatricule); // Les tags apparaissent avant l'input
 
-    // Gestion des tags sélectionnés
-    const selectedTags = new Set();
+//     // Gestion des tags sélectionnés
+//     const selectedTags = new Set();
 
-    // Fonction pour ajouter un tag
-    function addTag(matricule) {
-      if (selectedTags.has(matricule)) {
-        champMatricule.value = ""; // Réinitialiser l'input après tentative d'ajout d'un doublon
-        return; // Ne pas ajouter si déjà présent
-      }
-      selectedTags.add(matricule);
+//     // Fonction pour ajouter un tag
+//     function addTag(matricule) {
+//       if (selectedTags.has(matricule)) {
+//         champMatricule.value = ""; // Réinitialiser l'input après tentative d'ajout d'un doublon
+//         return; // Ne pas ajouter si déjà présent
+//       }
+//       selectedTags.add(matricule);
 
-      const tagElement = document.createElement("span");
-      tagElement.classList.add("tag");
-      tagElement.textContent = matricule;
-      tagElement.style.backgroundColor = "#007bff";
-      tagElement.style.color = "white";
-      tagElement.style.padding = "2px 6px";
-      tagElement.style.borderRadius = "4px";
-      tagElement.style.display = "inline-flex";
-      tagElement.style.alignItems = "center";
-      tagElement.style.gap = "4px";
+//       const tagElement = document.createElement("span");
+//       tagElement.classList.add("tag");
+//       tagElement.textContent = matricule;
+//       tagElement.style.backgroundColor = "#007bff";
+//       tagElement.style.color = "white";
+//       tagElement.style.padding = "2px 6px";
+//       tagElement.style.borderRadius = "4px";
+//       tagElement.style.display = "inline-flex";
+//       tagElement.style.alignItems = "center";
+//       tagElement.style.gap = "4px";
 
-      const removeButton = document.createElement("button");
-      removeButton.textContent = "×";
-      removeButton.type = "button"; // Important pour ne pas soumettre le formulaire
-      removeButton.style.marginLeft = "4px";
-      removeButton.style.background = "none";
-      removeButton.style.border = "none";
-      removeButton.style.color = "inherit";
-      removeButton.style.cursor = "pointer";
-      removeButton.style.fontSize = "18px";
-      removeButton.style.lineHeight = "1";
-      removeButton.style.padding = "0";
-      removeButton.onclick = function () {
-        selectedTags.delete(matricule);
-        tagsContainer.removeChild(tagElement);
-        updateHiddenInput(); // Mettre à jour le champ caché après suppression
-      };
+//       const removeButton = document.createElement("button");
+//       removeButton.textContent = "×";
+//       removeButton.type = "button"; // Important pour ne pas soumettre le formulaire
+//       removeButton.style.marginLeft = "4px";
+//       removeButton.style.background = "none";
+//       removeButton.style.border = "none";
+//       removeButton.style.color = "inherit";
+//       removeButton.style.cursor = "pointer";
+//       removeButton.style.fontSize = "18px";
+//       removeButton.style.lineHeight = "1";
+//       removeButton.style.padding = "0";
+//       removeButton.onclick = function () {
+//         selectedTags.delete(matricule);
+//         tagsContainer.removeChild(tagElement);
+//         updateHiddenInput(); // Mettre à jour le champ caché après suppression
+//       };
 
-      tagElement.appendChild(removeButton);
-      tagsContainer.appendChild(tagElement);
-      champMatricule.value = ""; // Réinitialiser l'input après ajout
-      updateHiddenInput(); // Mettre à jour le champ caché après ajout
-    }
+//       tagElement.appendChild(removeButton);
+//       tagsContainer.appendChild(tagElement);
+//       champMatricule.value = ""; // Réinitialiser l'input après ajout
+//       updateHiddenInput(); // Mettre à jour le champ caché après ajout
+//     }
 
-    // Fonction pour retirer un tag (si nécessaire via API externe ou logique spécifique)
-    function removeTag(matricule) {
-      if (selectedTags.has(matricule)) {
-        const tagElement = Array.from(tagsContainer.children).find(
-          (child) =>
-            child.textContent.includes(matricule) &&
-            child.querySelector("button")
-        );
-        if (tagElement) {
-          selectedTags.delete(matricule);
-          tagsContainer.removeChild(tagElement);
-          updateHiddenInput();
-        }
-      }
-    }
+//     // Fonction pour retirer un tag (si nécessaire via API externe ou logique spécifique)
+//     function removeTag(matricule) {
+//       if (selectedTags.has(matricule)) {
+//         const tagElement = Array.from(tagsContainer.children).find(
+//           (child) =>
+//             child.textContent.includes(matricule) &&
+//             child.querySelector("button")
+//         );
+//         if (tagElement) {
+//           selectedTags.delete(matricule);
+//           tagsContainer.removeChild(tagElement);
+//           updateHiddenInput();
+//         }
+//       }
+//     }
 
-    // Fonction pour mettre à jour le champ caché ou l'input principal avec les valeurs sélectionnées
-    function updateHiddenInput() {
-      const selectedValuesArray = Array.from(selectedTags);
-      const selectedValuesString = selectedValuesArray.join(","); // Format CSV
+//     // Fonction pour mettre à jour le champ caché ou l'input principal avec les valeurs sélectionnées
+//     function updateHiddenInput() {
+//       const selectedValuesArray = Array.from(selectedTags);
+//       const selectedValuesString = selectedValuesArray.join(","); // Format CSV
 
-      if (hiddenMatriculeInput && hiddenMatriculeInput !== champMatricule) {
-        hiddenMatriculeInput.value = selectedValuesString; // Mettre à jour le champ caché
-      } else if (hiddenMatriculeInput === champMatricule) {
-        // If we're using the main field directly, we need to handle multiple values differently
-        // Since this is likely a Symfony form field, we need to add multiple options or use a different approach
+//       if (hiddenMatriculeInput && hiddenMatriculeInput !== champMatricule) {
+//         hiddenMatriculeInput.value = selectedValuesString; // Mettre à jour le champ caché
+//       } else if (hiddenMatriculeInput === champMatricule) {
+//         // If we're using the main field directly, we need to handle multiple values differently
+//         // Since this is likely a Symfony form field, we need to add multiple options or use a different approach
 
-        // Clear the current value first
-        champMatricule.value = "";
+//         // Clear the current value first
+//         champMatricule.value = "";
 
-        // For multiple selection in form submission, we might need to handle it differently
-        // depending on the form field type (input vs select multiple)
-        if (champMatricule.tagName === "SELECT" && champMatricule.multiple) {
-          // If it's a multi-select, select the appropriate options
-          Array.from(champMatricule.options).forEach((option) => {
-            option.selected = selectedTags.has(option.value);
-          });
-        } else {
-          // For text input or if it's not a multi-select, join values with comma
-          champMatricule.value = selectedValuesString;
-        }
-      } else {
-        // Si pas de champ caché, on pourrait envisager de mettre à jour l'input principal
-        // MAIS ceci pourrait interférer avec la saisie utilisateur, donc on laisse vide.
-        // champMatricule.value = selectedValuesString;
-        champMatricule.value = ""; // Garder l'input vide pour la saisie utilisateur
-      }
-    }
+//         // For multiple selection in form submission, we might need to handle it differently
+//         // depending on the form field type (input vs select multiple)
+//         if (champMatricule.tagName === "SELECT" && champMatricule.multiple) {
+//           // If it's a multi-select, select the appropriate options
+//           Array.from(champMatricule.options).forEach((option) => {
+//             option.selected = selectedTags.has(option.value);
+//           });
+//         } else {
+//           // For text input or if it's not a multi-select, join values with comma
+//           champMatricule.value = selectedValuesString;
+//         }
+//       } else {
+//         // Si pas de champ caché, on pourrait envisager de mettre à jour l'input principal
+//         // MAIS ceci pourrait interférer avec la saisie utilisateur, donc on laisse vide.
+//         // champMatricule.value = selectedValuesString;
+//         champMatricule.value = ""; // Garder l'input vide pour la saisie utilisateur
+//       }
+//     }
 
-    // --- Intégration avec l'API (étape 4 et 5) ---
-    const suggestionContainer = document.querySelector(
-      "#suggestion-matricule-nom-prenom"
-    ); // Utiliser le conteneur existant ou en créer un nouveau
-    const loaderElement = document.querySelector(
-      "#loader-matricule-nom-prenom"
-    ); // Utiliser le loader existant
+//     // --- Intégration avec l'API (étape 4 et 5) ---
+//     const suggestionContainer = document.querySelector(
+//       "#suggestion-matricule-nom-prenom"
+//     ); // Utiliser le conteneur existant ou en créer un nouveau
+//     const loaderElement = document.querySelector(
+//       "#loader-matricule-nom-prenom"
+//     ); // Utiliser le loader existant
 
-    if (!suggestionContainer) {
-      // Si le conteneur n'existe pas, on le crée
-      const newSuggestionContainer = document.createElement("div");
-      newSuggestionContainer.id = "suggestion-matricule-nom-prenom";
-      newSuggestionContainer.classList.add("suggestions-container");
-      newSuggestionContainer.style.position = "absolute";
-      newSuggestionContainer.style.top = "100%";
-      newSuggestionContainer.style.left = "0";
-      newSuggestionContainer.style.width = "100%";
-      newSuggestionContainer.style.backgroundColor = "white";
-      newSuggestionContainer.style.border = "1px solid #ccc";
-      newSuggestionContainer.style.zIndex = "1000";
-      newSuggestionContainer.style.display = "none"; // Caché par défaut
-      container.appendChild(newSuggestionContainer);
-    }
+//     if (!suggestionContainer) {
+//       // Si le conteneur n'existe pas, on le crée
+//       const newSuggestionContainer = document.createElement("div");
+//       newSuggestionContainer.id = "suggestion-matricule-nom-prenom";
+//       newSuggestionContainer.classList.add("suggestions-container");
+//       newSuggestionContainer.style.position = "absolute";
+//       newSuggestionContainer.style.top = "100%";
+//       newSuggestionContainer.style.left = "0";
+//       newSuggestionContainer.style.width = "100%";
+//       newSuggestionContainer.style.backgroundColor = "white";
+//       newSuggestionContainer.style.border = "1px solid #ccc";
+//       newSuggestionContainer.style.zIndex = "1000";
+//       newSuggestionContainer.style.display = "none"; // Caché par défaut
+//       container.appendChild(newSuggestionContainer);
+//     }
 
-    if (!loaderElement) {
-      // Si le loader n'existe pas, on le crée (optionnel, peut être stylé via CSS)
-      const newLoaderElement = document.createElement("div");
-      newLoaderElement.id = "loader-matricule-nom-prenom";
-      newLoaderElement.textContent = "Chargement...";
-      newLoaderElement.style.display = "none"; // Caché par défaut
-      newLoaderElement.classList.add("spinner");
-      container.appendChild(newLoaderElement);
-    }
+//     if (!loaderElement) {
+//       // Si le loader n'existe pas, on le crée (optionnel, peut être stylé via CSS)
+//       const newLoaderElement = document.createElement("div");
+//       newLoaderElement.id = "loader-matricule-nom-prenom";
+//       newLoaderElement.textContent = "Chargement...";
+//       newLoaderElement.style.display = "none"; // Caché par défaut
+//       newLoaderElement.classList.add("spinner");
+//       container.appendChild(newLoaderElement);
+//     }
 
-    async function fetchSuggestions(query) {
-      try {
-        if (loaderElement) loaderElement.style.display = "block";
-        // Appeler l'API avec un filtre potentiel sur la requête utilisateur
-        // Pour l'instant, on récupère toutes les suggestions
-        const data = await fetchManager.get(
-          "rh/demande-de-conge/api/matricule-nom-prenom"
-        );
-        if (loaderElement) loaderElement.style.display = "none";
+//     async function fetchSuggestions(query) {
+//       try {
+//         if (loaderElement) loaderElement.style.display = "block";
+//         // Appeler l'API avec un filtre potentiel sur la requête utilisateur
+//         // Pour l'instant, on récupère toutes les suggestions
+//         const data = await fetchManager.get(
+//           "rh/demande-de-conge/api/matricule-nom-prenom"
+//         );
+//         if (loaderElement) loaderElement.style.display = "none";
 
-        // Filtrer côté client en fonction de la saisie (optionnel, l'API pourrait le faire)
-        if (query) {
-          return data.filter(
-            (item) =>
-              item.matricule.toLowerCase().includes(query.toLowerCase()) ||
-              item.nomPrenoms.toLowerCase().includes(query.toLowerCase())
-          );
-        }
-        return data;
-      } catch (error) {
-        console.error("Erreur lors de la récupération des suggestions:", error);
-        if (loaderElement) loaderElement.style.display = "none";
-        return [];
-      }
-    }
+//         // Filtrer côté client en fonction de la saisie (optionnel, l'API pourrait le faire)
+//         if (query) {
+//           return data.filter(
+//             (item) =>
+//               item.matricule.toLowerCase().includes(query.toLowerCase()) ||
+//               item.nomPrenoms.toLowerCase().includes(query.toLowerCase())
+//           );
+//         }
+//         return data;
+//       } catch (error) {
+//         console.error("Erreur lors de la récupération des suggestions:", error);
+//         if (loaderElement) loaderElement.style.display = "none";
+//         return [];
+//       }
+//     }
 
-    function showSuggestions(suggestions) {
-      const suggestionContainer = document.querySelector(
-        "#suggestion-matricule-nom-prenom"
-      );
-      if (!suggestionContainer) return;
+//     function showSuggestions(suggestions) {
+//       const suggestionContainer = document.querySelector(
+//         "#suggestion-matricule-nom-prenom"
+//       );
+//       if (!suggestionContainer) return;
 
-      suggestionContainer.innerHTML = ""; // Vider les suggestions précédentes
-      if (suggestions.length === 0) {
-        suggestionContainer.style.display = "none";
-        return;
-      }
+//       suggestionContainer.innerHTML = ""; // Vider les suggestions précédentes
+//       if (suggestions.length === 0) {
+//         suggestionContainer.style.display = "none";
+//         return;
+//       }
 
-      suggestions.forEach((item) => {
-        const suggestionElement = document.createElement("div");
-        suggestionElement.classList.add("suggestion-item");
-        suggestionElement.textContent = `${item.matricule} - ${item.nomPrenoms}`;
-        suggestionElement.style.padding = "8px";
-        suggestionElement.style.cursor = "pointer";
-        suggestionElement.style.borderBottom = "1px solid #eee";
+//       suggestions.forEach((item) => {
+//         const suggestionElement = document.createElement("div");
+//         suggestionElement.classList.add("suggestion-item");
+//         suggestionElement.textContent = `${item.matricule} - ${item.nomPrenoms}`;
+//         suggestionElement.style.padding = "8px";
+//         suggestionElement.style.cursor = "pointer";
+//         suggestionElement.style.borderBottom = "1px solid #eee";
 
-        suggestionElement.addEventListener("click", () => {
-          addTag(item.matricule);
-          suggestionContainer.style.display = "none"; // Cacher après sélection
-        });
+//         suggestionElement.addEventListener("click", () => {
+//           addTag(item.matricule);
+//           suggestionContainer.style.display = "none"; // Cacher après sélection
+//         });
 
-        suggestionContainer.appendChild(suggestionElement);
-      });
+//         suggestionContainer.appendChild(suggestionElement);
+//       });
 
-      suggestionContainer.style.display = "block"; // Afficher le conteneur
-    }
+//       suggestionContainer.style.display = "block"; // Afficher le conteneur
+//     }
 
-    // Gestion de l'input pour afficher les suggestions
-    champMatricule.addEventListener("input", async (e) => {
-      const query = e.target.value.trim();
-      if (query.length > 0) {
-        // Afficher suggestions seulement si qqch est saisi
-        const suggestions = await fetchSuggestions(query);
-        showSuggestions(suggestions);
-      } else {
-        const suggestionContainer = document.querySelector(
-          "#suggestion-matricule-nom-prenom"
-        );
-        if (suggestionContainer) suggestionContainer.style.display = "none";
-      }
-    });
+//     // Gestion de l'input pour afficher les suggestions
+//     champMatricule.addEventListener("input", async (e) => {
+//       const query = e.target.value.trim();
+//       if (query.length > 0) {
+//         // Afficher suggestions seulement si qqch est saisi
+//         const suggestions = await fetchSuggestions(query);
+//         showSuggestions(suggestions);
+//       } else {
+//         const suggestionContainer = document.querySelector(
+//           "#suggestion-matricule-nom-prenom"
+//         );
+//         if (suggestionContainer) suggestionContainer.style.display = "none";
+//       }
+//     });
 
-    // Gestion de la soumission via touche Entrée (facultatif, dépend du comportement souhaité)
-    champMatricule.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" && e.target.value.trim() !== "") {
-        e.preventDefault(); // Empêcher la soumission de formulaire
-        // Essayer d'ajouter la valeur saisie si elle correspond à un élément connu ou si on autorise la saisie libre
-        // Pour simplifier, on va juste effacer l'input si ce n'est pas une sélection directe
-        // Une implémentation plus poussée vérifierait la correspondance avec les suggestions
-        const inputValue = e.target.value.trim();
-        // Pour l'instant, on suppose qu'on ne peut ajouter que via la sélection dans la liste
-        e.target.value = ""; // Effacer si "Entrée" est pressé sans sélection claire
-      }
-    });
+//     // Gestion de la soumission via touche Entrée (facultatif, dépend du comportement souhaité)
+//     champMatricule.addEventListener("keydown", (e) => {
+//       if (e.key === "Enter" && e.target.value.trim() !== "") {
+//         e.preventDefault(); // Empêcher la soumission de formulaire
+//         // Essayer d'ajouter la valeur saisie si elle correspond à un élément connu ou si on autorise la saisie libre
+//         // Pour simplifier, on va juste effacer l'input si ce n'est pas une sélection directe
+//         // Une implémentation plus poussée vérifierait la correspondance avec les suggestions
+//         const inputValue = e.target.value.trim();
+//         // Pour l'instant, on suppose qu'on ne peut ajouter que via la sélection dans la liste
+//         e.target.value = ""; // Effacer si "Entrée" est pressé sans sélection claire
+//       }
+//     });
 
-    // Cacher les suggestions quand l'input perd le focus (facultatif)
-    champMatricule.addEventListener("blur", () => {
-      setTimeout(() => {
-        const suggestionContainer = document.querySelector(
-          "#suggestion-matricule-nom-prenom"
-        );
-        if (suggestionContainer) suggestionContainer.style.display = "none";
-      }, 200); // Petit délai pour permettre le clic sur une suggestion
-    });
+//     // Cacher les suggestions quand l'input perd le focus (facultatif)
+//     champMatricule.addEventListener("blur", () => {
+//       setTimeout(() => {
+//         const suggestionContainer = document.querySelector(
+//           "#suggestion-matricule-nom-prenom"
+//         );
+//         if (suggestionContainer) suggestionContainer.style.display = "none";
+//       }, 200); // Petit délai pour permettre le clic sur une suggestion
+//     });
 
-    champMatricule.addEventListener("focus", () => {
-      if (champMatricule.value.trim() !== "") {
-        // Si l'input a du texte au focus, réafficher les suggestions
-        fetchSuggestions(champMatricule.value.trim()).then(showSuggestions);
-      }
-    });
+//     champMatricule.addEventListener("focus", () => {
+//       if (champMatricule.value.trim() !== "") {
+//         // Si l'input a du texte au focus, réafficher les suggestions
+//         fetchSuggestions(champMatricule.value.trim()).then(showSuggestions);
+//       }
+//     });
 
-    // Intégration potentielle avec la fonction addTag existante dans le template (si elle existe toujours)
-    // Cela permettrait de synchroniser les ajouts faits ailleurs
-    if (typeof window.addTag === "function") {
-      console.warn(
-        "Fonction addTag globale détectée dans le template. Cela peut causer des conflits."
-      );
-      // Option 1: Remplacer la fonction globale par la nôtre
-      // window.addTag = addTag;
-      // Option 2: Conserver la fonction du template mais l'adapter pour interagir avec notre logique
-      // Cela dépend de la logique exacte de la fonction existante dans le template
-      // Pour l'instant, on ne fait rien et on suppose que notre logique est autonome
-    }
+//     // Intégration potentielle avec la fonction addTag existante dans le template (si elle existe toujours)
+//     // Cela permettrait de synchroniser les ajouts faits ailleurs
+//     if (typeof window.addTag === "function") {
+//       console.warn(
+//         "Fonction addTag globale détectée dans le template. Cela peut causer des conflits."
+//       );
+//       // Option 1: Remplacer la fonction globale par la nôtre
+//       // window.addTag = addTag;
+//       // Option 2: Conserver la fonction du template mais l'adapter pour interagir avec notre logique
+//       // Cela dépend de la logique exacte de la fonction existante dans le template
+//       // Pour l'instant, on ne fait rien et on suppose que notre logique est autonome
+//     }
 
-    // Trouver le formulaire parent et ajouter un écouteur pour la mise à jour
-    const form = champMatricule.closest("form");
-    if (form) {
-      form.addEventListener("submit", function (e) {
-        // Mettre à jour le champ une dernière fois avant la soumission
-        updateHiddenInput();
-      });
-    }
+//     // Trouver le formulaire parent et ajouter un écouteur pour la mise à jour
+//     const form = champMatricule.closest("form");
+//     if (form) {
+//       form.addEventListener("submit", function (e) {
+//         // Mettre à jour le champ une dernière fois avant la soumission
+//         updateHiddenInput();
+//       });
+//     }
 
-    console.log(
-      "Multiselect initialisé pour le champ matricule:",
-      champMatricule.id
-    );
-  } else {
-    console.warn(
-      "Élément requis pour le champ matricule non trouvé - le script ne s'exécutera pas"
-    );
-  }
-});
+//     console.log(
+//       "Multiselect initialisé pour le champ matricule:",
+//       champMatricule.id
+//     );
+//   } else {
+//     console.warn(
+//       "Élément requis pour le champ matricule non trouvé - le script ne s'exécutera pas"
+//     );
+//   }
+// });
+

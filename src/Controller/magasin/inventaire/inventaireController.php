@@ -86,8 +86,11 @@ class InventaireController extends Controller
             $listInvent = $this->inventaireModel->listeInventaire($criteria);
             $data = $this->recupDataList($listInvent, true);
         }
+
+        $userConnect = $this->getUserName();
         return $this->render('inventaire/inventaire.html.twig', [
             'form' => $form->createView(),
+            'estAcces' => $userConnect==='Olivier.Carbon' || $userConnect==='marie' ,
             'data' => $data
         ]);
     }
@@ -415,6 +418,7 @@ class InventaireController extends Controller
                 $countivent   += (int) $data['data'][$j]["montant_inventaire"];
                 $countMontEcart   += (int) $data['data'][$j]["montant_ajuste"];
             }
+            $MontEcartPourcent = ($countMontEcart / $countivent)*100;
             $data['sum'] = [
                 'cpt1' => $countQtee1,
                 'cpt2' => $countQtee2,
@@ -422,6 +426,7 @@ class InventaireController extends Controller
                 'countPmp' => $countPMP,
                 'countInvent' => $countivent,
                 'countMontEcart' => $countMontEcart,
+                'MontEcartPourcent'=>$MontEcartPourcent,
             ];
         }
         return $data;
@@ -502,7 +507,7 @@ class InventaireController extends Controller
     private function parcourFichier($numInvent)
     {
         $downloadDir  =   $_ENV['BASE_PATH_FICHIER'] . '/inventaire/';
-        $searchPattern  = $downloadDir . '*INV' . $numInvent . '*.xlsx';
+        $searchPattern  = $downloadDir . '*INV_' . $numInvent . '*.xlsx';
         $matchingFiles = glob($searchPattern);
 
         if (!empty($matchingFiles)) {

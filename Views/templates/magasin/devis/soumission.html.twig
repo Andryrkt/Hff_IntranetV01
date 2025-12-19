@@ -22,6 +22,7 @@
 					</div>
 
 					{{ form_start(form, {'attr': {'enctype': 'multipart/form-data', 'id': 'upload-form'}}) }}
+
 					{{ form_errors(form)}}
 					<div class="row">
 						{{ form_row(form.numeroDevis) }}
@@ -37,17 +38,27 @@
 							{{ form_row(form.tacheValidateur) }}
 						</div>
 					</div>
+					<div class="row {{message == 'verification prix' ? '' : 'd-none'}}">
+						<div class="col-12 col-md-12">
+							{{ form_row(form.observation) }}
+						</div>
+					</div>
 					<div class="row">
 						<div class="col-12 col-md-3">
-							<p>Veuillez insérer
-								<strong>le devis *</strong>
+							<p>Veuillez insérer le
+								<strong>devis *</strong>
 							</p>
 							{% include '/partials/_dropZoneFile.html.twig' with {'id': '1', 'form': form, 'fieldName': 'pieceJoint01'} %}
 						</div>
-
 						<div class="col-12 col-md-3 {{message == 'verification prix' ? '' : 'd-none'}}">
-							<p>Insérer
-								<strong>les autres fichiers ici </strong>
+							<p>Veuillez insérer le
+								<strong>fichier Excel</strong>
+							</p>
+							{% include '/partials/_dropZoneFile.html.twig' with {'id': '3', 'form': form, 'fieldName': 'pieceJointExcel', 'fileType': 'EXCEL'} %}
+						</div>
+						<div class="col-12 col-md-3 {{message == 'verification prix' ? '' : 'd-none'}}">
+							<p>Insérer les
+								<strong>autres fichiers ici</strong>
 							</p>
 							{% include '/partials/_dropZoneFileMultiple.html.twig' with {'id': '2', 'form': form, 'fieldName': 'pieceJoint2'} %}
 						</div>
@@ -68,7 +79,7 @@
 			<!-- Onglets -->
 			<ul class="nav nav-tabs" id="pdfTabs" role="tablist">
 				<li class="nav-item" role="presentation">
-					<button class="nav-link active" id="tab1-tab" data-bs-toggle="tab" data-bs-target="#tab1" type="button" role="tab">
+					<button class="nav-link active" id="tab1-tab" data-bs-toggle="tab" data-bs-target="#tab1" data-remote-url="{{ remoteUrl }}" type="button" role="tab">
 						Devis
 					</button>
 				</li>

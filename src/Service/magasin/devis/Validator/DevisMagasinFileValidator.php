@@ -15,20 +15,18 @@ use App\Service\magasin\devis\Config\DevisMagasinValidationConfig;
  */
 class DevisMagasinFileValidator extends ValidationServiceBase
 {
-    private HistoriqueOperationDevisMagasinService $historiqueService;
+    use \App\Traits\Validator\ValidatorNotificationTrait;
+
     private string $expectedNumeroDevis;
 
     /**
      * Constructeur du validateur de fichiers
      * 
-     * @param HistoriqueOperationDevisMagasinService $historiqueService Service pour l'historique des opérations
      * @param string $expectedNumeroDevis Le numéro de devis attendu pour la validation
      */
     public function __construct(
-        HistoriqueOperationDevisMagasinService $historiqueService,
         string $expectedNumeroDevis
     ) {
-        $this->historiqueService = $historiqueService;
         $this->expectedNumeroDevis = $expectedNumeroDevis;
     }
 
@@ -47,7 +45,7 @@ class DevisMagasinFileValidator extends ValidationServiceBase
     {
         // Vérifie si un fichier a été soumis
         if (!$this->isFileSubmitted($form, DevisMagasinValidationConfig::FILE_FIELD_NAME)) {
-            $this->sendNotification(
+            $this->sendNotificationDevisMagasin(
                 DevisMagasinValidationConfig::ERROR_MESSAGES['no_file_submitted'],
                 '',
                 false
@@ -84,7 +82,7 @@ class DevisMagasinFileValidator extends ValidationServiceBase
                 DevisMagasinValidationConfig::ERROR_MESSAGES['invalid_filename_format'],
                 $fileName
             );
-            $this->sendNotification($message, '', false);
+            $this->sendNotificationDevisMagasin($message, '', false);
             return false;
         }
 
@@ -105,27 +103,12 @@ class DevisMagasinFileValidator extends ValidationServiceBase
                 $fileName,
                 $this->expectedNumeroDevis
             );
-            $this->sendNotification($message, $this->expectedNumeroDevis, false);
+            $this->sendNotificationDevisMagasin($message, $this->expectedNumeroDevis, false);
             return false;
         }
 
         return true;
     }
 
-    /**
-     * Envoie une notification via le service d'historique
-     * 
-     * @param string $message Le message à envoyer
-     * @param string $numeroDevis Le numéro de devis concerné
-     * @param bool $success Indique si l'opération a réussi
-     */
-    private function sendNotification(string $message, string $numeroDevis, bool $success): void
-    {
-        $this->historiqueService->sendNotificationSoumission(
-            $message,
-            $numeroDevis,
-            DevisMagasinValidationConfig::REDIRECT_ROUTE,
-            $success
-        );
-    }
+
 }

@@ -61,9 +61,9 @@ class DevisMagasinPolValidationDevisController extends Controller
     }
 
     /**
-     * @Route("/soumission-devis-magasin-pol-validation-devis/{numeroDevis}", name="devis_magasin_pol_soumission_validation_devis", defaults={"numeroDevis"=null})
+     * @Route("/soumission-devis-magasin-pol-validation-devis/{numeroDevis}/{codeAgenceService}", name="devis_magasin_pol_soumission_validation_devis", defaults={"numeroDevis"=null})
      */
-    public function soumission(?string $numeroDevis = null, Request $request)
+    public function soumission(?string $numeroDevis = null, string $codeAgenceService, Request $request)
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
@@ -76,9 +76,17 @@ class DevisMagasinPolValidationDevisController extends Controller
         [$newSumOfLines, $newSumOfMontant] = $this->newSumOfLinesAndAmount($firstDevisIps);
 
         //instanciation de l'orchestrateur de validation
-        $orchestrator = new DevisMagasinValidationOrchestrator($this->historiqueOperationDeviMagasinService, $numeroDevis);
+        $orchestrator = new DevisMagasinValidationOrchestrator($numeroDevis);
         // Validation avant soumission - utilise la nouvelle méthode qui retourne un booléen
-        $orchestrator->validateBeforeSubmission($this->devisMagasinRepository, $this->listeDevisMagasinModel, $numeroDevis, $newSumOfLines, $newSumOfMontant);
+        $data = [
+            'devisMagasinRepository' => $this->devisMagasinRepository,
+            'listeDevisMagasinModel' => $this->listeDevisMagasinModel,
+            'numeroDevis' => $numeroDevis,
+            'newSumOfLines' => $newSumOfLines,
+            'newSumOfMontant' => $newSumOfMontant,
+            'codeAgence' => trim(explode('-', $codeAgenceService)[0])
+        ];
+        $orchestrator->validateBeforeSubmission($data);
 
 
 
@@ -93,7 +101,7 @@ class DevisMagasinPolValidationDevisController extends Controller
         $this->traitementFormulaire($form, $request, $devisMagasin, $orchestrator, $firstDevisIps);
 
         //affichage du formulaire
-        return $this->render('pol/devis/soumission.html.twig', [
+        return $this->render('magasin/devis/soumission.html.twig', [
             'form' => $form->createView(),
             'message' => self::MESSAGE_DE_CONFIRMATION,
             'numeroDevis' => $devisMagasin->getNumeroDevis()
@@ -145,7 +153,10 @@ class DevisMagasinPolValidationDevisController extends Controller
 
             //HISTORISATION DE L'OPERATION
             $message = "la validation du devis numero : " . $devisMagasin->getNumeroDevis() . " a été envoyée avec succès .";
-            $this->historiqueOperationDeviMagasinService->sendNotificationSoumission($message, $devisMagasin->getNumeroDevis(), 'devis_magasin_pol_liste', true);
+            $criteria = $this->getSessionService()->get('criteria_for_excel_liste_devis_magasin');
+            $nomDeRoute = 'devis_magasin_liste'; // route de redirection après soumission
+            $nomInputSearch = 'devis_magasin_search'; // initialistion de nom de chaque champ ou input
+            $this->historiqueOperationDeviMagasinService->sendNotificationSoumission($message, $devisMagasin->getNumeroDevis(), $nomDeRoute, true, $criteria, $nomInputSearch);
         }
     }
 }
