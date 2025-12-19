@@ -8,6 +8,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Validator\Constraints\Callback;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -46,6 +47,7 @@ class DaSoumissionFacBlType extends AbstractType
                 FileType::class,
                 [
                     'label' => 'FacBl à soumettre',
+                    'attr' => ['data-field-name' => 'Pièce Jointe Facture / BL'],
                     'required' => true,
                     'constraints' => [
                         new File([
