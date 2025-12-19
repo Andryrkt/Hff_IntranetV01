@@ -90,7 +90,7 @@ class InventaireController extends Controller
         $userConnect = $this->getUserName();
         return $this->render('inventaire/inventaire.html.twig', [
             'form' => $form->createView(),
-            'estAcces' => $userConnect==='Olivier.Carbon' || $userConnect==='marie' ,
+            'estAcces' => $userConnect==='Olivier.Carbon' || $userConnect==='marie' || $userConnect==='martin'|| $userConnect==='hasimanjaka',
             'data' => $data
         ]);
     }
