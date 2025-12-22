@@ -280,7 +280,7 @@ class DaModel extends Model
                             OR (slor.slor_natcm = 'L' AND TRIM(REPLACE(REPLACE(cde.fcde_cdeext, '\t', ''), CHR(9), '')) = '$numDa')
                             )";
         }
-
+        $statement .= " ORDER BY slor_natcm desc ";
 
         $result = $this->connect->executeQuery($statement);
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
