@@ -52,6 +52,11 @@ class DevisMagasinSearchType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
+            ->add('numeroPO', TextType::class, [
+                'label' => 'PO/BC client',
+                'required' => false,
+                'data' => $options['data']->getNumeroPO(),
+            ])
             ->add('numeroDevis', TextType::class, [
                 'label' => 'Numéro de devis',
                 'required' => false,

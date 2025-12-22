@@ -252,27 +252,14 @@ class DaAfficherRepository extends EntityRepository
             $subQb->expr()->in('d.numeroDemandeAppro', ':exceptions')
         );
 
-        $typeDa = [
-            DemandeAppro::TYPE_DA_AVEC_DIT,
-            DemandeAppro::TYPE_DA_REAPPRO
-        ];
-        $typeDaDirect = DemandeAppro::TYPE_DA_DIRECT;
-        // Appliquer la condition selon le type de la DA
-        $subQb->andWhere(
-            $subQb->expr()->orX(
-                $subQb->expr()->eq('d.daTypeId', ':typeDaDirect'),
-                $subQb->expr()->andX(
-                    $subQb->expr()->in('d.daTypeId', ':typeDa'),
-                    $orCondition
-                )
-            )
-        )
-            ->setParameter('typeDaDirect', $typeDaDirect)
-            ->setParameter('typeDa', $typeDa);
+        $subQb->andWhere($orCondition);
 
         // Paramètres communs
         $subQb->setParameter('statutOrs', $statutOrs)
             ->setParameter('exceptions', $exceptions);
+
+        $subQb->andWhere('d.statutDal = :statutDal')
+            ->setParameter('statutDal', DemandeAppro::STATUT_VALIDE);
 
         $this->applyDynamicFilters($subQb, "d", $criteria, true);
         $this->applyStatutsFilters($subQb, "d", $criteria, true);
@@ -332,18 +319,10 @@ class DaAfficherRepository extends EntityRepository
             ->setParameter('statutDal', DemandeAppro::STATUT_VALIDE);
         $qb->andWhere(
             $qb->expr()->orX(
-                $qb->expr()->eq('d.daTypeId', ':typeDaDirect'),
-                $qb->expr()->andX(
-                    $qb->expr()->in('d.daTypeId', ':typeDa'),
-                    $qb->expr()->orX(
-                        $qb->expr()->in('d.statutOr', ':statutOrsValide'),
-                        $qb->expr()->in('d.numeroDemandeAppro', ':exceptions')
-                    )
-                )
+                $qb->expr()->in('d.statutOr', ':statutOrsValide'),
+                $qb->expr()->in('d.numeroDemandeAppro', ':exceptions')
             )
         )
-            ->setParameter('typeDaDirect', $typeDaDirect)
-            ->setParameter('typeDa', $typeDa)
             ->setParameter('statutOrsValide', $statutOrs)
             ->setParameter('exceptions', $exceptions);
 
