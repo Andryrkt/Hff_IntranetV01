@@ -150,7 +150,7 @@ class GeneratePdf
     // demande appro DIRECT à valider
     public function copyToDWDaAValiderDirect($numDa, string $suffix = "#_a_valider")
     {
-        $cheminFichierDistant = $this->baseCheminDocuware . "DA DIRECT/$numDa#_a_valider.pdf";
+        $cheminFichierDistant = $this->baseCheminDocuware . "DA DIRECTE/$numDa#_a_valider.pdf";
         $cheminDestinationLocal = $this->baseCheminDuFichier . "da/$numDa/$numDa$suffix.pdf";
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }

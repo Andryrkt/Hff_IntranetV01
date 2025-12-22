@@ -85,19 +85,19 @@ trait StatutBcTrait
         // 0. recupération de l'entity manager
         $em = self::getEntity();
 
-        // 1. recupération des données necessaire dans DaAfficher
+        // 1. recupération des données necessaire dans DaAfficher (version max)
         [$ref, $numDit, $numDa, $designation, $numeroOr, $statutOr, $statutBc, $statutDa] = $this->getVariableNecessaire($DaAfficher);
 
         // 2. on met vide la statut bc selon le condition en survolon la fonction
         if ($this->doitRetournerVide($statutDa, $statutOr)) return '';
 
-        /** 3. recuperation type DA @var bool $daDirect @var bool $daViaOR @var bool $daReappro  */
+        /** 3. recuperation type DA (version max) @var bool $daDirect @var bool $daViaOR @var bool $daReappro  */
         [$daDirect, $daViaOR, $daReappro] = $this->getTypeDa($DaAfficher);
 
-        // 4. modification de l'information de l'or
+        // 4. modification de l'information de l'or (version max)
         if (!$daDirect) $this->updateInfoOR($DaAfficher, $daViaOR, $daReappro);
 
-        // 5. modification du statut de la DA
+        //!OKey 5. modification du statut de la DA (statut_dal)
         if ($statutOr === DemandeAppro::STATUT_DW_A_MODIFIER && $statutDa !== DemandeAppro::STATUT_EN_COURS_CREATION) $DaAfficher->setStatutDal(DemandeAppro::STATUT_EN_COURS_CREATION);
 
         /** 6.recuperation des informations necessaire dans IPS  @var array $infoDaDirect @var array $situationCde*/
@@ -105,7 +105,7 @@ trait StatutBcTrait
 
         /** 7. Non dispo || DA avec DIT et numéro OR null || numéro OR non vide et statut OR non vide || infoDaDirect ou situationCde est vide */
         if ($DaAfficher->getNonDispo() || ($numeroOr == null && $daViaOR) || ($numeroOr != null && empty($statutOr)) || $this->aSituationCde($situationCde, $daViaOR)) {
-            return $statutBc;
+            return $statutBc; // ne change pas le statut_cde dans da_afficher
         }
 
         /** 8. recupération de numero commande dans IPS et  statut commande dans da_bc_soumission */
@@ -117,7 +117,7 @@ trait StatutBcTrait
         /** 10.  @var bool $partiellementDispo @var bool $completNonLivrer @var bool $toutLivres @var bool $partiellementLivrer */
         [$partiellementDispo, $completNonLivrer, $tousLivres, $partiellementLivre] = $this->evaluerQuantites($qte,  $infoDaDirect, $daDirect, $DaAfficher);
 
-        // 11. modification de situation commande dans DaAfficher
+        // 11. modification de situation commande dans DaAfficher (numero_cde)
         $this->updateSituationCdeDansDaAfficher($situationCde, $DaAfficher, $numCde, $infoDaDirect, $daDirect, $daViaOR, $daReappro, $qte);
 
         // 12. modification du Qte de commande dans DaAfficher
@@ -174,6 +174,7 @@ trait StatutBcTrait
     {
         $numCde = $this->numeroCde($infoDaDirect, $situationCde, $daDirect, $daViaOR, $daReappro, $numeroOr);
 
+        // recuperation statut dans la table da_soumission_bc dsb 
         $statutSoumissionBc = $em->getRepository(DaSoumissionBc::class)->getStatut($numCde);
 
         return [$numCde, $statutSoumissionBc];
@@ -264,7 +265,7 @@ trait StatutBcTrait
 
     private function aSituationCde(array $situationCde, bool $daViaOR): bool
     {
-        if ($daViaOR) return !array_key_exists(0, $situationCde);
+        if ($daViaOR) return !array_key_exists(0, $situationCde); // si la situationCde est un tableau vide
         // elseif ($daDirect) return array_key_exists(0, $infoDaDirect);
         else return false;
     }
@@ -308,7 +309,7 @@ trait StatutBcTrait
             return (int)$infoDaDirect[0]['num_cde'] > 0
                 &&  ($infoDaDirect[0]['position_bc'] === DaSoumissionBc::POSITION_TERMINER || $infoDaDirect[0]['position_bc'] === DaSoumissionBc::POSITION_ENCOUR);
         } elseif ($situationCde && $daViaOR) {
-            // numero de commande existe && ... && position terminer
+            // numero de commande existe && nature contremarque == 'C' && position terminer
             return (int)$situationCde[0]['num_cde'] > 0
                 && $situationCde[0]['slor_natcm'] === 'C'
                 &&
