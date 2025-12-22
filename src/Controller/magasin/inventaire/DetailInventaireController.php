@@ -40,24 +40,30 @@ class DetailInventaireController extends Controller
         $this->dateDebut->modify('first day of this month');
     }
     private function exportDonneesExcel($data)
-    {
-        $spreadsheet = new Spreadsheet();
-        $sheet = $spreadsheet->getActiveSheet();
+{
+    ini_set('memory_limit', '512M');
 
-        // Ajout des données
-        $rowIndex = 1;
-        foreach ($data as $row) {
-            $sheet->fromArray([$row], null, "A$rowIndex");
-            $rowIndex++;
-        }
+    $spreadsheet = new Spreadsheet();
+    $sheet = $spreadsheet->getActiveSheet();
 
-        // Téléchargement du fichier
-        $writer = new Xlsx($spreadsheet);
-        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment; filename="export.xlsx"');
-        $writer->save('php://output');
-        exit();
-    }
+    // Écriture en une seule fois
+    $sheet->fromArray($data, null, 'A1', true);
+
+    // Téléchargement
+    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    header('Content-Disposition: attachment; filename="export.xlsx"');
+    header('Cache-Control: max-age=0');
+
+    $writer = new Xlsx($spreadsheet);
+    $writer->save('php://output');
+
+    // Libération mémoire
+    $spreadsheet->disconnectWorksheets();
+    unset($spreadsheet);
+
+    exit;
+}
+
     /**
      * @Route("/inventaire_detail", name = "liste_detail_inventaire")
      * 

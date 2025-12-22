@@ -157,9 +157,9 @@ class DevisMagasinValidationVpOrchestrator
         }
 
         // 8. Vérifier si le statut est Cloturé - A modifier et somme de lignes IPS inférieure à somme de lignes devis
-        if (!$this->verifieStatutClotureAModifierEtSommeLignesIpsInferieurSommeLignesDevis($data['devisRepository'], $data['numeroDevis'], $data['newSumOfLines'])) {
-            return false;
-        }
+        // if (!$this->verifieStatutClotureAModifierEtSommeLignesIpsInferieurSommeLignesDevis($data['devisRepository'], $data['numeroDevis'], $data['newSumOfLines'])) {
+        //     return false;
+        // }
 
         return true;
     }
