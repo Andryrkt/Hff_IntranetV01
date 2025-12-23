@@ -306,13 +306,14 @@ trait StatutBcTrait
     {
         if ($infoDaDirect && $daDirect) {
             return (int)$infoDaDirect[0]['num_cde'] > 0
+                && $infoDaDirect[0]['position_livraison'] === '--'
                 &&  ($infoDaDirect[0]['position_bc'] === DaSoumissionBc::POSITION_TERMINER || $infoDaDirect[0]['position_bc'] === DaSoumissionBc::POSITION_ENCOUR);
         } elseif ($situationCde && $daViaOR) {
             // numero de commande existe && ... && position terminer
             return (int)$situationCde[0]['num_cde'] > 0
                 && $situationCde[0]['slor_natcm'] === 'C'
-                &&
-                ($situationCde[0]['position_bc'] === DaSoumissionBc::POSITION_TERMINER || $situationCde[0]['position_bc'] === DaSoumissionBc::POSITION_ENCOUR);
+                && $situationCde[0]['position_livraison'] === '--'
+                && ($situationCde[0]['position_bc'] === DaSoumissionBc::POSITION_TERMINER || $situationCde[0]['position_bc'] === DaSoumissionBc::POSITION_ENCOUR);
         } else {
             return false; // DA réappro
         }
@@ -333,14 +334,14 @@ trait StatutBcTrait
 
         if ($infoDaDirect && $daDirect) {
             return (int)$infoDaDirect[0]['num_cde'] > 0
-                && $infoDaDirect[0]['position_bc'] === DaSoumissionBc::POSITION_EDITER
+                && ($infoDaDirect[0]['position_bc'] === DaSoumissionBc::POSITION_EDITER || ($infoDaDirect[0]['position_bc'] === DaSoumissionBc::POSITION_TERMINER && $infoDaDirect[0]['position_livraison'] !== '--'))
                 && !in_array($statutBc, $statutBcDw)
                 && !$bcExiste;
         } elseif ($situationCde && $daViaOR) {
             // numero de commande existe && ... && position editer && BC n'est pas encore soumis
             return (int)$situationCde[0]['num_cde'] > 0
                 && $situationCde[0]['slor_natcm'] === 'C'
-                && $situationCde[0]['position_bc'] === DaSoumissionBc::POSITION_EDITER
+                && ($situationCde[0]['position_bc'] === DaSoumissionBc::POSITION_EDITER || ($situationCde[0]['position_bc'] === DaSoumissionBc::POSITION_EDITER && $situationCde[0]['position_livraison'] !== '--'))
                 && !in_array($statutBc, $statutBcDw)
                 && !$bcExiste;
         } else {
