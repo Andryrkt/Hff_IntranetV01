@@ -1,27 +1,24 @@
 {% extends "baseTemplate.html.twig" %}
 
+{% block title %}
+	Listes des utilisateurs
+{% endblock %}
 
 {% block content %}
-
-
-	<div class="container">
+	<div class="container mt-6">
 		<div class="card">
 			<div class="card-body">
-
 				<h2 class="perso-titre">
 					Listes des utilisateurs
 				</h2>
 				<input type="text" id="searchInput" class="form-control my-3" placeholder="Rechercher...">
-
 				<div class="d-flex flex-row ">
 					<div class="p-2">
 						<a href="{{ path("utilisateur_new")}}" class="btn btn-success fw-bold">
-							Add
+							Ajouter
 						</a>
-
 					</div>
 				</div>
-
 				<table class="table">
 					<thead class="table-dark">
 						<tr>
@@ -40,7 +37,6 @@
 					</thead>
 					<tbody id="tableBody">
 						{% for item in data %}
-
 							<tr>
 								<td>
 									<div class="dropdown">
@@ -71,7 +67,6 @@
 									</ul>
 								</td>
 								<td>
-
 									<ul>
 										{% for a in item.applications %}
 											<li>{{a.codeApp}}</li>
