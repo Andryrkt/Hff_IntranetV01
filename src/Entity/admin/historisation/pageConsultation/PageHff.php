@@ -2,6 +2,7 @@
 
 namespace App\Entity\admin\historisation\pageConsultation;
 
+use App\Entity\admin\Application;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use App\Entity\admin\historisation\pageConsultation\UserLogger;
@@ -39,6 +40,12 @@ class PageHff
      * @ORM\OneToMany(targetEntity=UserLogger::class, mappedBy="page", cascade={"persist", "remove"})
      */
     private $userLoggers;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Application::class, inversedBy="pages")
+     * @ORM\JoinColumn(name="application_id", referencedColumnName="id", nullable=true)
+     */
+    private ?Application $application = null;
 
     //===================================================================================================
 
@@ -155,6 +162,24 @@ class PageHff
     public function setUserLoggers($userLoggers)
     {
         $this->userLoggers = $userLoggers;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of application
+     */
+    public function getApplication(): ?Application
+    {
+        return $this->application;
+    }
+
+    /**
+     * Set the value of application
+     */
+    public function setApplication(?Application $application): self
+    {
+        $this->application = $application;
 
         return $this;
     }

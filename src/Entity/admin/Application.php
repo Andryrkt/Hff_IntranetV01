@@ -4,6 +4,7 @@ namespace App\Entity\admin;
 
 use App\Entity\Traits\DateTrait;
 use App\Entity\admin\dit\CategorieAteApp;
+use App\Entity\admin\historisation\pageConsultation\PageHff;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\utilisateur\User;
 use Doctrine\Common\Collections\Collection;
@@ -98,10 +99,16 @@ class Application
      */
     private ?Vignette $vignette = null;
 
+    /**
+     * @ORM\OneToMany(targetEntity=PageHff::class, mappedBy="application")
+     */
+    private Collection $pages;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
         $this->categorieAtes = new ArrayCollection();
+        $this->pages = new ArrayCollection();
     }
 
 
@@ -216,6 +223,52 @@ class Application
     public function setVignette(?Vignette $vignette): self
     {
         $this->vignette = $vignette;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of pages
+     */
+    public function getPages(): Collection
+    {
+        return $this->pages;
+    }
+
+    /**
+     * Add Page
+     */
+    public function addPage(PageHff $page): self
+    {
+        if (!$this->pages->contains($page)) {
+            $this->pages[] = $page;
+            $page->setApplication($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Remove Page
+     */
+    public function removePage(PageHff $page): self
+    {
+        if ($this->pages->contains($page)) {
+            $this->pages->removeElement($page);
+            if ($page->getApplication() === $this) {
+                $page->setApplication(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Set the value of pages
+     */
+    public function setPages(Collection $pages): self
+    {
+        $this->pages = $pages;
 
         return $this;
     }
