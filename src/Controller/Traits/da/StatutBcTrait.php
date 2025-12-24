@@ -378,7 +378,7 @@ trait StatutBcTrait
             $q = $infoDaDirect[0];
             $qteDem = (int)$q['qte_dem'];
             $qteALivrer = (int)$q['qte_dispo'];
-            $qteLivee = 0; //TODO: en attend du decision du client
+            $qteLivee = (int)$q['qte_livree'];
         } else { // pour via or et reappro
             $q = $qte[0];
             $qteDem = (int)$q['qte_dem'];
@@ -405,7 +405,7 @@ trait StatutBcTrait
             if ($daDirect) {
                 $q = $infoDaDirect[0];
                 $qteDem = (int)$q['qte_dem'];
-                $qteLivee = 0; //TODO: en attend du decision du client
+                $qteLivee = (int)$q['qte_livree'];
                 $qteReliquat = (int)$q['qte_en_attente']; // quantiter en attente
                 $qteDispo = (int)$q['qte_dispo'];
             } else { // pour via or et reappro
