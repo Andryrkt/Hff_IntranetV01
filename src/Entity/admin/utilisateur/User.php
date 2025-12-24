@@ -5,7 +5,6 @@ namespace App\Entity\admin\utilisateur;
 use App\Entity\cas\Casier;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
-use App\Controller\Controller;
 use App\Entity\admin\Societte;
 use App\Entity\admin\Personnel;
 use App\Entity\da\DemandeAppro;
@@ -199,6 +198,13 @@ class User implements UserInterface
      * @var string
      */
     private ?string $poste;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Profil::class, inversedBy="users")
+     * @ORM\JoinColumn(name="profil_id", referencedColumnName="id", nullable=true)
+     */
+    private ?Profil $profil = null;
+
     //=================================================================================================================================
 
     public function __construct()
@@ -879,6 +885,24 @@ class User implements UserInterface
     public function setDemandeApproValidateur($demandeApproValidateur)
     {
         $this->demandeApproValidateur = $demandeApproValidateur;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of profil
+     */
+    public function getProfil(): ?Profil
+    {
+        return $this->profil;
+    }
+
+    /**
+     * Set the value of profil
+     */
+    public function setProfil(?Profil $profil): self
+    {
+        $this->profil = $profil;
 
         return $this;
     }
