@@ -2,11 +2,12 @@
 
 namespace App\Entity\admin\utilisateur;
 
+use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\Application;
-use App\Entity\Traits\DateTrait;
-use Doctrine\Common\Collections\ArrayCollection;
+use App\Entity\admin\ApplicationProfil;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * @ORM\Entity
@@ -40,14 +41,13 @@ class Profil
     private Collection $users;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Application::class, mappedBy="profils")
+     * @ORM\OneToMany(targetEntity=ApplicationProfil::class, mappedBy="profil", cascade={"persist", "remove"})
      */
-    private ?Collection $applications = null;
+    private Collection $applicationProfils;
 
     public function __construct()
     {
         $this->users = new ArrayCollection();
-        $this->applications = new ArrayCollection();
     }
 
     /**
@@ -155,44 +155,6 @@ class Profil
      */
     public function getApplications(): ?Collection
     {
-        return $this->applications;
-    }
-
-    /**
-     * Set the value of applications
-     */
-    public function setApplications(?Collection $applications): self
-    {
-        $this->applications = $applications;
-
-        return $this;
-    }
-
-    /**
-     * Add Application
-     */
-    public function addApplication(Application $application): self
-    {
-        if (!$this->applications->contains($application)) {
-            $this->applications[] = $application;
-            $application->addProfil($this);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Remove Application
-     */
-    public function removeApplication(Application $application): self
-    {
-        if ($this->applications->contains($application)) {
-            $this->applications->removeElement($application);
-            if ($application->getProfils() === $this) {
-                $application->setProfils(null);
-            }
-        }
-
-        return $this;
+        return $this->applicationProfils->map(fn (ApplicationProfil $applicationProfil) => $applicationProfil->getApplication());
     }
 }

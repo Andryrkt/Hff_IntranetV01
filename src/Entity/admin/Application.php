@@ -3,13 +3,14 @@
 namespace App\Entity\admin;
 
 use App\Entity\Traits\DateTrait;
-use App\Entity\admin\dit\CategorieAteApp;
-use App\Entity\admin\historisation\pageConsultation\PageHff;
-use App\Entity\admin\utilisateur\Profil;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\utilisateur\User;
+use App\Entity\admin\ApplicationProfil;
+use App\Entity\admin\utilisateur\Profil;
+use App\Entity\admin\dit\CategorieAteApp;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
+use App\Entity\admin\historisation\pageConsultation\PageHff;
 
 /**
  * @ORM\Entity
@@ -106,17 +107,15 @@ class Application
     private Collection $pages;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Profil::class, inversedBy="applications")
-     * @ORM\JoinTable(name="application_profil")
+     * @ORM\OneToMany(targetEntity=ApplicationProfil::class, mappedBy="application", cascade={"persist", "remove"})
      */
-    private ?Collection $profils = null;
+    private Collection $applicationProfils;
 
     public function __construct()
     {
         $this->users = new ArrayCollection();
         $this->categorieAtes = new ArrayCollection();
         $this->pages = new ArrayCollection();
-        $this->profils = new ArrayCollection();
     }
 
 
@@ -286,44 +285,6 @@ class Application
      */
     public function getProfils(): ?Collection
     {
-        return $this->profils;
-    }
-
-    /**
-     * Add Profil
-     */
-    public function addProfil(Profil $profil): self
-    {
-        if (!$this->profils->contains($profil)) {
-            $this->profils[] = $profil;
-            $profil->addApplication($this);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Remove Profil
-     */
-    public function removeProfil(Profil $profil): self
-    {
-        if ($this->profils->contains($profil)) {
-            $this->profils->removeElement($profil);
-            if ($profil->getApplications() === $this) {
-                $profil->setApplications(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * Set the value of profils
-     */
-    public function setProfils(?Collection $profils): self
-    {
-        $this->profils = $profils;
-
-        return $this;
+        return $this->applicationProfils->map(fn(ApplicationProfil $applicationProfil) => $applicationProfil->getProfil());
     }
 }
