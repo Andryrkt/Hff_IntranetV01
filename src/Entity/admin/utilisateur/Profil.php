@@ -2,6 +2,7 @@
 
 namespace App\Entity\admin\utilisateur;
 
+use App\Entity\admin\Application;
 use App\Entity\Traits\DateTrait;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -37,9 +38,15 @@ class Profil
      */
     private Collection $users;
 
+    /**
+     * @ORM\ManyToMany(targetEntity=Application::class, mappedBy="profils")
+     */
+    private ?Collection $applications = null;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
+        $this->applications = new ArrayCollection();
     }
 
     /**
@@ -136,6 +143,52 @@ class Profil
             $this->users->removeElement($user);
             if ($user->getProfil() === $this) {
                 $user->setProfil(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Get the value of applications
+     */
+    public function getApplications(): ?Collection
+    {
+        return $this->applications;
+    }
+
+    /**
+     * Set the value of applications
+     */
+    public function setApplications(?Collection $applications): self
+    {
+        $this->applications = $applications;
+
+        return $this;
+    }
+
+    /**
+     * Add Application
+     */
+    public function addApplication(Application $application): self
+    {
+        if (!$this->applications->contains($application)) {
+            $this->applications[] = $application;
+            $application->addProfil($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Remove Application
+     */
+    public function removeApplication(Application $application): self
+    {
+        if ($this->applications->contains($application)) {
+            $this->applications->removeElement($application);
+            if ($application->getProfils() === $this) {
+                $application->setProfils(null);
             }
         }
 

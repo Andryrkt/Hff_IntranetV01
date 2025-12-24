@@ -5,6 +5,7 @@ namespace App\Entity\admin;
 use App\Entity\Traits\DateTrait;
 use App\Entity\admin\dit\CategorieAteApp;
 use App\Entity\admin\historisation\pageConsultation\PageHff;
+use App\Entity\admin\utilisateur\Profil;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\utilisateur\User;
 use Doctrine\Common\Collections\Collection;
@@ -104,11 +105,18 @@ class Application
      */
     private Collection $pages;
 
+    /**
+     * @ORM\ManyToMany(targetEntity=Profil::class, inversedBy="applications")
+     * @ORM\JoinTable(name="application_profil")
+     */
+    private ?Collection $profils = null;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
         $this->categorieAtes = new ArrayCollection();
         $this->pages = new ArrayCollection();
+        $this->profils = new ArrayCollection();
     }
 
 
@@ -269,6 +277,52 @@ class Application
     public function setPages(Collection $pages): self
     {
         $this->pages = $pages;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of profils
+     */
+    public function getProfils(): ?Collection
+    {
+        return $this->profils;
+    }
+
+    /**
+     * Add Profil
+     */
+    public function addProfil(Profil $profil): self
+    {
+        if (!$this->profils->contains($profil)) {
+            $this->profils[] = $profil;
+            $profil->addApplication($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Remove Profil
+     */
+    public function removeProfil(Profil $profil): self
+    {
+        if ($this->profils->contains($profil)) {
+            $this->profils->removeElement($profil);
+            if ($profil->getApplications() === $this) {
+                $profil->setApplications(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Set the value of profils
+     */
+    public function setProfils(?Collection $profils): self
+    {
+        $this->profils = $profils;
 
         return $this;
     }
