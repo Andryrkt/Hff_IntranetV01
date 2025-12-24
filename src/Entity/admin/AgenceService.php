@@ -2,7 +2,6 @@
 
 namespace App\Entity\admin;
 
-use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -14,8 +13,6 @@ use Doctrine\Common\Collections\Collection;
  */
 class AgenceService
 {
-    use DateTrait;
-
     /**
      * @ORM\Id
      * @ORM\GeneratedValue

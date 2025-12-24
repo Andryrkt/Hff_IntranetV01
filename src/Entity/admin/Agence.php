@@ -7,12 +7,13 @@ use App\Entity\dom\Dom;
 use App\Entity\badm\Badm;
 use App\Entity\cas\Casier;
 use App\Entity\admin\Service;
+use App\Entity\da\DemandeAppro;
 use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\cas\CasierValider;
 use App\Entity\mutation\Mutation;
+use App\Entity\admin\AgenceService;
 use App\Entity\admin\utilisateur\User;
-use App\Entity\da\DemandeAppro;
 use App\Entity\dit\DemandeIntervention;
 use App\Repository\admin\AgenceRepository;
 use Doctrine\Common\Collections\Collection;
@@ -48,13 +49,10 @@ class Agence
      */
     private string $libelleAgence;
 
-
     /**
-     * @ORM\ManyToMany(targetEntity=Service::class, inversedBy="agences", fetch="EAGER")
-     * @ORM\JoinTable(name="agence_service")
+     * @ORM\OneToMany(targetEntity=AgenceService::class, mappedBy="agence", cascade={"persist", "remove"})
      */
-    private Collection $services;
-
+    private Collection $agenceServices;
 
     /**
      * @ORM\OneToMany(targetEntity=CasierValider::class, mappedBy="agenceRattacher")
@@ -133,7 +131,6 @@ class Agence
 
     public function __construct()
     {
-        $this->services = new ArrayCollection();
         $this->casiers = new ArrayCollection();
         $this->ditAgenceEmetteur = new ArrayCollection();
         $this->ditAgenceDebiteur = new ArrayCollection();
@@ -181,30 +178,10 @@ class Agence
         return $this;
     }
 
-
     public function getServices(): Collection
     {
-        return $this->services;
+        return $this->agenceServices->map(fn(AgenceService $as) => $as->getService());
     }
-
-    public function addService(Service $service): self
-    {
-        if (!$this->services->contains($service)) {
-            $this->services[] = $service;
-        }
-
-        return $this;
-    }
-
-    public function removeService(Service $service): self
-    {
-        if ($this->services->contains($service)) {
-            $this->services->removeElement($service);
-        }
-
-        return $this;
-    }
-
 
     /**
      * Get the value of demandeInterventions

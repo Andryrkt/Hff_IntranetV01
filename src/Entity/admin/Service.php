@@ -9,6 +9,7 @@ use App\Entity\admin\Agence;
 use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\mutation\Mutation;
+use App\Entity\admin\AgenceService;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DemandeIntervention;
 use App\Repository\admin\ServiceRepository;
@@ -52,10 +53,9 @@ class Service
     private string $libelleService;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Agence::class, mappedBy="services")
+     * @ORM\OneToMany(targetEntity=AgenceService::class, mappedBy="service", cascade={"persist", "remove"})
      */
-    private Collection $agences;
-
+    private Collection $agenceServices;
 
     /**
      * @ORM\OneToMany(targetEntity=DemandeIntervention::class, mappedBy="serviceEmetteurId")
@@ -120,7 +120,6 @@ class Service
 
     public function __construct()
     {
-        $this->agences = new ArrayCollection();
         $this->ditServiceEmetteur = new ArrayCollection();
         $this->ditServiceDebiteur = new ArrayCollection();
         $this->badmServiceEmetteur = new ArrayCollection();
@@ -171,29 +170,8 @@ class Service
 
     public function getAgences(): Collection
     {
-        return $this->agences;
+        return $this->agenceServices->map(fn(AgenceService $as) => $as->getAgence());
     }
-
-    public function addAgence(Agence $agence): self
-    {
-        if (!$this->agences->contains($agence)) {
-            $this->agences[] = $agence;
-            $agence->addService($this);
-        }
-        return $this;
-    }
-
-    public function removeAgence(Agence $agence): self
-    {
-        if ($this->agences->contains($agence)) {
-            $this->agences->removeElement($agence);
-            $agence->removeService($this);
-        }
-        return $this;
-    }
-
-
-
 
     /** DIT */
 
