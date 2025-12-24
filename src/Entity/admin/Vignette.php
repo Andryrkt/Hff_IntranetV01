@@ -3,6 +3,8 @@
 namespace App\Entity\admin;
 
 use App\Entity\Traits\DateTrait;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -30,6 +32,16 @@ class Vignette
      * @ORM\Column(type="string", name="nom_vignette", length=100)
      */
     private $nom;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Application::class, mappedBy="vignette")
+     */
+    private Collection $applications;
+
+    public function __construct()
+    {
+        $this->applications = new ArrayCollection();
+    }
 
     /**
      * Get the value of id
@@ -81,6 +93,52 @@ class Vignette
     public function setNom($nom): self
     {
         $this->nom = $nom;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of applications
+     */
+    public function getApplications(): Collection
+    {
+        return $this->applications;
+    }
+
+    /**
+     * Add Application
+     */
+    public function addApplication(Application $application): self
+    {
+        if (!$this->applications->contains($application)) {
+            $this->applications[] = $application;
+            $application->setVignette($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Remove Application
+     */
+    public function removeApplication(Application $application): self
+    {
+        if ($this->applications->contains($application)) {
+            $this->applications->removeElement($application);
+            if ($application->getVignette() === $this) {
+                $application->setVignette(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Set the value of applications
+     */
+    public function setApplications(Collection $applications): self
+    {
+        $this->applications = $applications;
 
         return $this;
     }

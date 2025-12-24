@@ -2,8 +2,6 @@
 
 namespace App\Entity\admin;
 
-
-
 use App\Entity\Traits\DateTrait;
 use App\Entity\admin\dit\CategorieAteApp;
 use Doctrine\ORM\Mapping as ORM;
@@ -94,6 +92,11 @@ class Application
      */
     private $categorieAtes;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=Vignette::class, inversedBy="applications")
+     * @ORM\JoinColumn(name="vignette_id", referencedColumnName="id", nullable=true)
+     */
+    private ?Vignette $vignette = null;
 
     public function __construct()
     {
@@ -197,5 +200,23 @@ class Application
     public function __toString()
     {
         return $this->codeApp;
+    }
+
+    /**
+     * Get the value of vignette
+     */
+    public function getVignette(): ?Vignette
+    {
+        return $this->vignette;
+    }
+
+    /**
+     * Set the value of vignette
+     */
+    public function setVignette(?Vignette $vignette): self
+    {
+        $this->vignette = $vignette;
+
+        return $this;
     }
 }
