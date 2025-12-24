@@ -2,6 +2,7 @@
 
 namespace App\Entity\admin\utilisateur;
 
+use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\Application;
 use App\Entity\Traits\DateTrait;
 use Doctrine\Common\Collections\ArrayCollection;
