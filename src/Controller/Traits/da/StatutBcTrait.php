@@ -30,6 +30,7 @@ trait StatutBcTrait
         //----------------------------------------------------------------------------------------------------
         $this->styleStatutDA = [
             DemandeAppro::STATUT_VALIDE               => 'bg-bon-achat-valide',
+            DemandeAppro::STATUT_CLOTUREE             => 'bg-bon-achat-valide',
             DemandeAppro::STATUT_TERMINER             => 'bg-primary text-white',
             DemandeAppro::STATUT_SOUMIS_ATE           => 'bg-proposition-achat',
             DemandeAppro::STATUT_DW_A_VALIDE          => 'bg-soumis-validation',
@@ -204,8 +205,7 @@ trait StatutBcTrait
         if ($statutOr === DemandeAppro::STATUT_DW_REFUSEE || strtolower($statutOr) === strtolower(DemandeAppro::STATUT_DW_A_VALIDE)) return true;
 
         // si statut Da n'est pas validé
-        if ($statutDa !== DemandeAppro::STATUT_VALIDE) return true;
-
+        if ($statutDa !== DemandeAppro::STATUT_VALIDE && $statutDa !== DemandeAppro::STATUT_CLOTUREE) return true;
         $statutDaInternet = [
             DemandeAppro::STATUT_SOUMIS_ATE,
             DemandeAppro::STATUT_SOUMIS_APPRO,

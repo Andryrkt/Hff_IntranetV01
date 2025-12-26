@@ -258,8 +258,12 @@ class DaAfficherRepository extends EntityRepository
         $subQb->setParameter('statutOrs', $statutOrs)
             ->setParameter('exceptions', $exceptions);
 
-        $subQb->andWhere('d.statutDal = :statutDal')
-            ->setParameter('statutDal', DemandeAppro::STATUT_VALIDE);
+        $statutDas = [
+            DemandeAppro::STATUT_CLOTUREE,
+            DemandeAppro::STATUT_VALIDE
+        ];
+        $subQb->andWhere('d.statutDal IN (:statutDal)')
+            ->setParameter('statutDal', $statutDas);
 
         $this->applyDynamicFilters($subQb, "d", $criteria, true);
         $this->applyStatutsFilters($subQb, "d", $criteria, true);
@@ -315,8 +319,8 @@ class DaAfficherRepository extends EntityRepository
         ;
 
 
-        $qb->andWhere('d.statutDal = :statutDal')
-            ->setParameter('statutDal', DemandeAppro::STATUT_VALIDE);
+        $qb->andWhere('d.statutDal IN (:statutDal)')
+            ->setParameter('statutDal', $statutDas);
         $qb->andWhere(
             $qb->expr()->orX(
                 $qb->expr()->in('d.statutOr', ':statutOrsValide'),

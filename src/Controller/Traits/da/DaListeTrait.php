@@ -59,6 +59,7 @@ trait DaListeTrait
     {
         $this->styleStatutDA = [
             DemandeAppro::STATUT_VALIDE               => 'bg-bon-achat-valide',
+            DemandeAppro::STATUT_CLOTUREE             => 'bg-bon-achat-valide',
             DemandeAppro::STATUT_TERMINER             => 'bg-primary text-white',
             DemandeAppro::STATUT_SOUMIS_ATE           => 'bg-proposition-achat',
             DemandeAppro::STATUT_DW_A_VALIDE          => 'bg-soumis-validation',

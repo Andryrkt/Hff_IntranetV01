@@ -7,7 +7,7 @@
 Récupérer l'Entity Manager
 ```
 
-### Étape 1 : Extraction des données de DaAfficher
+### Étape 1 : Extraction des données de DaAfficher (version max)
 ```
 Extraire :
   - ref (référence article)
@@ -29,7 +29,7 @@ FIN SI
 Conditions de retour vide :
   - si statutOr == 'DA refusée' ou statuOr == 'A valider chef de service' alors retourner VRAI;
   - si statutDa == 'Bon d’achats validé' alors retourner VRAI;
-  - statutDaIntranet = [ 'Proposition achats', 'Demande d’achats','Création demande initiale'];
+  statutDaIntranet = [ 'Proposition achats', 'Demande d’achats','Création demande initiale'];
   - si statutDa est parmis statutDaDansDaAfficher alors retourn VRAI sinon FAUX
 ```
 
