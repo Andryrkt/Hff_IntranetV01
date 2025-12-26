@@ -88,7 +88,7 @@ trait StatutBcTrait
         // 1. recupération des données necessaire dans DaAfficher
         [$ref, $numDit, $numDa, $designation, $numeroOr, $statutOr, $statutBc, $statutDa] = $this->getVariableNecessaire($DaAfficher);
 
-        // 2. on met vide la statut bc selon le condition en survolon la fonction
+        // 2. on met vide la statut bc selon le condition en survolant la fonction
         if ($this->doitRetournerVide($statutDa, $statutOr)) return '';
 
         /** 3. recuperation type DA @var bool $daDirect @var bool $daViaOR @var bool $daReappro  */
