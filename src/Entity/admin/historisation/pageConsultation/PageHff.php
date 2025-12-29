@@ -6,14 +6,18 @@ use App\Entity\admin\Application;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use App\Entity\admin\historisation\pageConsultation\UserLogger;
+use App\Entity\Traits\DateTrait;
 use App\Repository\admin\historisation\pageConsultation\PageHffRepository;
 
 /** 
  * @ORM\Entity(repositoryClass=PageHffRepository::class)
  * @ORM\Table(name="Hff_pages")
+ * @ORM\HasLifecycleCallbacks()
  */
 class PageHff
 {
+    use DateTrait;
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue

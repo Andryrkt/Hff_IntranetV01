@@ -15,7 +15,11 @@ ALTER TABLE applications ADD vignette_id INT NULL, CONSTRAINT FK_applications_vi
 ALTER TABLE applications ALTER COLUMN code_app VARCHAR(10) NULL; 
 
 -- Relation entre les pages et les applications
-ALTER TABLE Hff_pages ADD application_id INT NULL, CONSTRAINT FK_pages_applications FOREIGN KEY (application_id) REFERENCES applications (id);
+ALTER TABLE Hff_pages 
+ADD application_id INT NULL,
+date_creation DATETIME2(0) NOT NULL,
+date_modification DATETIME2(0) NULL,
+CONSTRAINT FK_pages_applications FOREIGN KEY (application_id) REFERENCES applications (id);
 
 -- Table pour stocker les profils
 CREATE TABLE profil (
