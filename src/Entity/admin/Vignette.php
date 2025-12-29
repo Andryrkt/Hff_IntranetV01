@@ -36,7 +36,7 @@ class Vignette
     private $nom;
 
     /**
-     * @ORM\OneToMany(targetEntity=Application::class, mappedBy="vignette")
+     * @ORM\OneToMany(targetEntity=Application::class, mappedBy="vignette", cascade={"persist"})
      */
     private Collection $applications;
 
