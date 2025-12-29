@@ -1,7 +1,7 @@
 {% extends "baseTemplate.html.twig" %}
 
 {% block title %}
-	Modification vignette
+	Modification profil
 {% endblock %}
 
 {% block content %}
@@ -10,10 +10,10 @@
 			<div class="card-body">
 				<div class="container">
 					<h3 class="perso-titre">
-						Formulaire Modification Vignette
+						Formulaire Modification Profil
 					</h3>
 
-					<a href="{{path("vignette_index")}}" class="btn btn-sm  text-white my-3 fw-bold" style="background-color: #FBBB01;">Liste</a>
+					<a href="{{path("profil_index")}}" class="btn btn-sm  text-white my-3 fw-bold" style="background-color: #FBBB01;">Liste</a>
 
 					{{ form_start(form) }}
 					{{ form_errors(form)}}
@@ -40,5 +40,5 @@
 {% endblock %}
 
 {% block javascript %}
-	<script src="{{ App.base_path }}/Views/js/admin/vignette/vignette.js?v=2025.10.22.08.00"></script>
+	<script src="{{ App.base_path }}/Views/js/admin/profil/profil.js?v=2025.10.22.08.00"></script>
 {% endblock %}
