@@ -25,7 +25,6 @@ class ApplicationController extends Controller
 
         $data = $this->getEntityManager()->getRepository(Application::class)->findAll();
 
-        //  dd($data[0]->getDerniereId());
         return $this->render(
             'admin/application/list.html.twig',
             [
@@ -48,8 +47,10 @@ class ApplicationController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             $application = $form->getData();
+
             $this->getEntityManager()->persist($application);
             $this->getEntityManager()->flush();
+
             $this->redirectToRoute("application_index");
         }
 
@@ -80,8 +81,10 @@ class ApplicationController extends Controller
         // Vérifier si le formulaire est soumis et valide
         if ($form->isSubmitted() && $form->isValid()) {
             $application = $form->getData();
+
             $this->getEntityManager()->persist($application);
             $this->getEntityManager()->flush();
+            
             $this->redirectToRoute("application_index");
         }
 
