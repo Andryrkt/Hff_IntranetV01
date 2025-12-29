@@ -1,0 +1,44 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block title %}
+	Modification vignette
+{% endblock %}
+
+{% block content %}
+	<div class="container mt-6 mb-4">
+		<div class="card">
+			<div class="card-body">
+				<div class="container">
+					<h3 class="perso-titre">
+						Formulaire Modification Vignette
+					</h3>
+
+					<a href="{{path("vignette_index")}}" class="btn btn-sm  text-white my-3 fw-bold" style="background-color: #FBBB01;">Liste</a>
+
+					{{ form_start(form) }}
+					{{ form_errors(form)}}
+
+					<div class="row">
+						<div class="col-12 col-md-6">
+							{{ form_row(form.nom) }}
+						</div>
+						<div class="col-12 col-md-6">
+							{{ form_row(form.reference) }}
+						</div>
+						{{ form_row(form.applications) }}
+					</div>
+
+					<button type="submit" class="btn btn-primary">
+						<i class="fas fa-save"></i>
+						Enregistrer
+					</button>
+					{{ form_end(form) }}
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block javascript %}
+	<script src="{{ App.base_path }}/Views/js/admin/vignette/vignette.js?v=2025.10.22.08.00"></script>
+{% endblock %}
