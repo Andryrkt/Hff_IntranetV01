@@ -31,64 +31,64 @@ class VignetteController extends Controller
         );
     }
 
-    // /**
-    //  * @Route("/admin/appStructure/vignette/new", name="vignette_new")
-    //  */
-    // public function new(Request $request)
-    // {
-    //     //verification si user connecter
-    //     $this->verifierSessionUtilisateur();
+    /**
+     * @Route("/admin/appStructure/vignette/new", name="vignette_new")
+     */
+    public function new(Request $request)
+    {
+        //     //verification si user connecter
+        //     $this->verifierSessionUtilisateur();
 
-    //     $form = $this->getFormFactory()->createBuilder(VignetteType::class)->getForm();
+        //     $form = $this->getFormFactory()->createBuilder(VignetteType::class)->getForm();
 
-    //     $form->handleRequest($request);
+        //     $form->handleRequest($request);
 
-    //     if ($form->isSubmitted() && $form->isValid()) {
-    //         $vignette = $form->getData();
+        //     if ($form->isSubmitted() && $form->isValid()) {
+        //         $vignette = $form->getData();
 
-    //         $this->getEntityManager()->persist($vignette);
-    //         $this->getEntityManager()->flush();
+        //         $this->getEntityManager()->persist($vignette);
+        //         $this->getEntityManager()->flush();
 
-    //         $this->redirectToRoute("vignette_index");
-    //     }
+        //         $this->redirectToRoute("vignette_index");
+        //     }
 
-    //     return $this->render('admin/appStructure/vignette/new.html.twig', [
-    //         'form' => $form->createView()
-    //     ]);
-    // }
+        //     return $this->render('admin/appStructure/vignette/new.html.twig', [
+        //         'form' => $form->createView()
+        //     ]);
+    }
 
-    // /**
-    //  * @Route("/admin/appStructure/vignette/edit/{id}", name="vignette_update")
-    //  *
-    //  * @param Request $request
-    //  * @param int $id
-    //  * @return Response
-    //  */
-    // public function edit(Request $request, $id)
-    // {
-    //     //verification si user connecter
-    //     $this->verifierSessionUtilisateur();
+    /**
+     * @Route("/admin/appStructure/vignette/edit/{id}", name="vignette_update")
+     *
+     * @param Request $request
+     * @param int $id
+     * @return Response
+     */
+    public function edit(Request $request, $id)
+    {
+        //     //verification si user connecter
+        //     $this->verifierSessionUtilisateur();
 
-    //     $vignette = $this->getEntityManager()->getRepository(Vignette::class)->find($id);
+        //     $vignette = $this->getEntityManager()->getRepository(Vignette::class)->find($id);
 
-    //     $form = $this->getFormFactory()->createBuilder(VignetteType::class, $vignette)->getForm();
+        //     $form = $this->getFormFactory()->createBuilder(VignetteType::class, $vignette)->getForm();
 
-    //     $form->handleRequest($request);
+        //     $form->handleRequest($request);
 
-    //     // Vérifier si le formulaire est soumis et valide
-    //     if ($form->isSubmitted() && $form->isValid()) {
-    //         $this->getEntityManager()->flush();
-    //         return $this->redirectToRoute("vignette_index");
-    //     }
+        //     // Vérifier si le formulaire est soumis et valide
+        //     if ($form->isSubmitted() && $form->isValid()) {
+        //         $this->getEntityManager()->flush();
+        //         return $this->redirectToRoute("vignette_index");
+        //     }
 
-    //     // Debugging: Vérifiez que createView() ne retourne pas null
-    //     $formView = $form->createView();
-    //     if ($formView === null) {
-    //         throw new \Exception('FormView is null');
-    //     }
+        //     // Debugging: Vérifiez que createView() ne retourne pas null
+        //     $formView = $form->createView();
+        //     if ($formView === null) {
+        //         throw new \Exception('FormView is null');
+        //     }
 
-    //     return $this->render('admin/appStructure/vignette/edit.html.twig', [
-    //         'form' => $form->createView(),
-    //     ]);
-    // }
+        //     return $this->render('admin/appStructure/vignette/edit.html.twig', [
+        //         'form' => $form->createView(),
+        //     ]);
+    }
 }

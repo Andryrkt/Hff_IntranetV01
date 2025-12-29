@@ -1,0 +1,60 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block title %}
+	Vignettes
+{% endblock %}
+
+{% block content %}
+	<div class="container mt-6 mb-4">
+		<div class="card">
+			<div class="card-body">
+				<div class="d-flex flex-row ">
+					<div class="p-2">
+						<a href="{{ path("vignette_new")}}" class="btn btn-success fw-bold">
+							Add
+						</a>
+					</div>
+				</div>
+				<table class="table">
+					<thead class="table-dark">
+						<tr>
+							<th>Actions</th>
+							<th>Reference</th>
+							<th>Nom du vignette</th>
+							<th>Applications</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for item in data %}
+							<tr>
+								<td>
+									<div class="dropdown">
+										<button class="btn btn-warning dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" style="text-decoration: none; color: #000; font-weight: 700">
+											Actions
+										</button>
+										<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
+											<li>
+												<a class="dropdown-item fw-bold" href="{{ path("vignette_update", {id: item.id})}}">Modifier</a>
+											</li>
+										</ul>
+									</div>
+								</td>
+								<td>{{item.reference}}</td>
+								<td>{{item.nom}}</td>
+								<td>
+									<ul>
+										{% for p in item.applications %}
+											<li>
+												{{ p.codeApp ~ ' - ' ~ p.nom}}
+											</li>
+										{% endfor %}
+									</ul>
+								</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+{% endblock %}
