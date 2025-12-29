@@ -3,12 +3,13 @@
 namespace App\Entity\admin;
 
 use App\Entity\Traits\DateTrait;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
+use App\Repository\admin\appStructure\VignetteRepository;
 
 /**
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass=VignetteRepository::class)
  * @ORM\Table(name="vignette")
  * @ORM\HasLifecycleCallbacks
  */
