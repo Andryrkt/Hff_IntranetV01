@@ -2,16 +2,16 @@
 
 
 {% block content %}
-	<div class=" container">
+	<div class=" container mt-6 mb-4">
 		<div class="card">
 			<div class="card-body">
 
 				<div class="container">
-					<h2 class="text-center fs-1 fw-bold bg-black py-2" style="color: #FBBB01">
-						Formulaire Service
-					</h2>
+					<h3 class="perso-titre">
+						Formulaire création Service
+					</h3>
 
-					<a href="{{path("permission_index")}}" class="btn btn-sm  text-white my-3 fw-bold" style="background-color: #FBBB01;">Liste</a>
+					<a href="{{path("service_index")}}" class="btn btn-sm  text-white my-3 fw-bold" style="background-color: #FBBB01;">Liste</a>
 
 					{{ form_start(form) }}
 					{{ form_errors(form)}}
