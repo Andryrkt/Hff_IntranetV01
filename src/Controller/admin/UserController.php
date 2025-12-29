@@ -69,8 +69,8 @@ class UserController extends Controller
         $this->verifierSessionUtilisateur();
 
         $user = $this->getEntityManager()->getRepository(User::class)->find($id);
-        if ($this->getUser()->getChefService()) {
-            $nomPrenomChefService = $this->getUser()->getChefService()->getNom() . ' ' . $this->getUser()->getChefService()->getPrenoms();
+        if ($user->getChefService()) {
+            $nomPrenomChefService = $user->getChefService()->getNom() . ' ' . $user->getChefService()->getPrenoms();
             $user->setSuperieur($nomPrenomChefService);
         }
 
