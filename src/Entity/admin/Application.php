@@ -102,12 +102,12 @@ class Application
     private ?Vignette $vignette = null;
 
     /**
-     * @ORM\OneToMany(targetEntity=PageHff::class, mappedBy="application", cascade={"persist", "remove"})
+     * @ORM\OneToMany(targetEntity=PageHff::class, mappedBy="application", cascade={"persist"})
      */
     private Collection $pages;
 
     /**
-     * @ORM\OneToMany(targetEntity=ApplicationProfil::class, mappedBy="application", cascade={"persist", "remove"})
+     * @ORM\OneToMany(targetEntity=ApplicationProfil::class, mappedBy="application", cascade={"persist"})
      */
     private Collection $applicationProfils;
 

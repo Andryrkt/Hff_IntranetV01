@@ -6,6 +6,7 @@ namespace App\Controller\admin;
 
 use App\Controller\Controller;
 use App\Entity\admin\Application;
+use App\Entity\admin\historisation\pageConsultation\PageHff;
 use App\Form\admin\ApplicationType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -18,7 +19,8 @@ class ApplicationController extends Controller
      * @return void
      */
     public function index()
-    {    //verification si user connecter
+    {
+        //verification si user connecter
         $this->verifierSessionUtilisateur();
 
         $data = $this->getEntityManager()->getRepository(Application::class)->findAll();
@@ -37,6 +39,9 @@ class ApplicationController extends Controller
      */
     public function new(Request $request)
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
         $form = $this->getFormFactory()->createBuilder(ApplicationType::class)->getForm();
 
         $form->handleRequest($request);
@@ -63,14 +68,19 @@ class ApplicationController extends Controller
      */
     public function edit(Request $request, $id)
     {
-        $user = $this->getEntityManager()->getRepository(Application::class)->find($id);
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
 
-        $form = $this->getFormFactory()->createBuilder(ApplicationType::class, $user)->getForm();
+        $application = $this->getEntityManager()->getRepository(Application::class)->find($id);
+
+        $form = $this->getFormFactory()->createBuilder(ApplicationType::class, $application)->getForm();
 
         $form->handleRequest($request);
 
         // Vérifier si le formulaire est soumis et valide
         if ($form->isSubmitted() && $form->isValid()) {
+            $application = $form->getData();
+            $this->getEntityManager()->persist($application);
             $this->getEntityManager()->flush();
             $this->redirectToRoute("application_index");
         }
@@ -90,20 +100,19 @@ class ApplicationController extends Controller
      */
     public function delete($id)
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
+        /** @var Application $application */
         $application = $this->getEntityManager()->getRepository(Application::class)->find($id);
 
         if ($application) {
-            $roles = $application->getUsers();
-            foreach ($roles as $role) {
-                $application->removeUser($role);
-                $this->getEntityManager()->persist($role); // Persist the permission to register the removal
+            /** @var PageHff[] $pages */
+            $pages = $application->getPages();
+            // Détacher les pages
+            foreach ($pages as $page) {
+                $page->setApplication(null);
             }
-
-            // Clear the collection to ensure Doctrine updates the join table
-            $application->getUsers()->clear();
-
-            // Flush the entity manager to ensure the removal of the join table entries
-            $this->getEntityManager()->flush();
 
             $this->getEntityManager()->remove($application);
             $this->getEntityManager()->flush();

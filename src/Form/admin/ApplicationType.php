@@ -36,6 +36,7 @@ class ApplicationType extends AbstractType
                 'choice_label' => 'nom', // ou un autre champ de PageHff que tu veux afficher
                 'multiple' => true,       // permet de choisir plusieurs pages
                 'expanded' => false,      // false = select multiple, true = checkboxes
+                'by_reference' => false,
                 'required' => false,
             ])
         ;
