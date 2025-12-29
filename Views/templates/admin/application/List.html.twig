@@ -14,12 +14,10 @@
 				<div class="d-flex flex-row ">
 					<div class="p-2">
 						<a href="{{ path("application_new")}}" class="btn btn-success fw-bold">
-							Ajouter nouveau Application
+							Ajouter nouvelle application
 						</a>
-
 					</div>
 				</div>
-
 				<table class="table">
 					<thead class="table-dark">
 						<tr>
@@ -28,7 +26,7 @@
 							<th>Nom</th>
 							<th>Code Applications</th>
 							<th>Dernière numéro</th>
-
+							<th>Pages</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -53,8 +51,15 @@
 								<td>{{item.nom}}</td>
 								<td>{{item.codeApp}}</td>
 								<td>{{item.derniereId}}</td>
-
-
+								<td>
+									<ul>
+										{% for page in item.pages %}
+											<li>
+												{{ page.nom ~ ' ' ~ page.lien}}
+											</li>
+										{% endfor %}
+									</ul>
+								</td>
 							</tr>
 						{% endfor %}
 					</tbody>
