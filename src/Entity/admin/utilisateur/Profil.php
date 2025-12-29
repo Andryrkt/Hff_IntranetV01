@@ -155,6 +155,31 @@ class Profil
      */
     public function getApplications(): ?Collection
     {
-        return $this->applicationProfils->map(fn (ApplicationProfil $applicationProfil) => $applicationProfil->getApplication());
+        return $this->applicationProfils->map(fn(ApplicationProfil $applicationProfil) => $applicationProfil->getApplication());
+    }
+
+    /**
+     * Get the value of applicationProfils
+     */
+    public function getApplicationProfils(): Collection
+    {
+        return $this->applicationProfils;
+    }
+
+    /**
+     * Set the value of applicationProfils
+     */
+    public function addApplicationProfil(ApplicationProfil $applicationProfil): self
+    {
+        $this->applicationProfils[] = $applicationProfil;
+
+        return $this;
+    }
+
+    public function removeApplicationProfil(ApplicationProfil $applicationProfil): self
+    {
+        $this->applicationProfils->removeElement($applicationProfil);
+
+        return $this;
     }
 }
