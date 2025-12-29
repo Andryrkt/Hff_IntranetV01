@@ -1,0 +1,54 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block title %}
+	Pages HFF
+{% endblock %}
+
+{% block content %}
+	<div class="container mt-6 mb-4">
+		<div class="card">
+			<div class="card-body">
+				<h3 class="perso-titre">
+					Liste des pages de l'app HffIntranet
+				</h3>
+				<a href="{{ path("page_hff_new")}}" class="btn btn-success fw-bold my-3">
+					Ajouter une nouvelle page
+				</a>
+				<table class="table">
+					<thead class="table-dark">
+						<tr>
+							<th>Actions</th>
+							<th>Application associée</th>
+							<th>Nom</th>
+							<th>Lien</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for item in data %}
+							<tr>
+								<td>
+									<div class="dropdown">
+										<button class="btn btn-warning dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" style="text-decoration: none; color: #000; font-weight: 700">
+											Actions
+										</button>
+										<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
+											<li>
+												<a class="dropdown-item fw-bold" href="{{ path("page_hff_update", {id: item.id})}}">Modifier</a>
+											</li>
+											<li>
+												<a class="dropdown-item fw-bold text-danger" href="{{ path("page_hff_delete", {id: item.id})}}">Supprimer</a>
+											</li>
+										</ul>
+									</div>
+								</td>
+								<td>{{ item.application.codeApp }}</td>
+								<td>{{ item.nom }}</td>
+								<td>{{ item.lien }}</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+{% endblock %}

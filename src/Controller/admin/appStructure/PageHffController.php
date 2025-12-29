@@ -20,9 +20,9 @@ class PageHffController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $data = $this->getEntityManager()->getRepository(PageHff::class)->findBy([], ['id' => 'DESC']);
+        $data = $this->getEntityManager()->getRepository(PageHff::class)->findAll();
 
-        return $this->render('admin/appStructure/page-hff/index.html.twig', [
+        return $this->render('admin/page-hff/list.html.twig', [
             'data' => $data,
         ]);
     }
@@ -32,15 +32,15 @@ class PageHffController extends Controller
      */
     public function new(Request $request)
     {
-        return $this->render('admin/appStructure/page-hff/new.html.twig');
+        return $this->render('admin/page-hff/new.html.twig');
     }
 
     /**
-     * @Route("/edit/{id}", name="page_hff_edit")
+     * @Route("/edit/{id}", name="page_hff_update")
      */
     public function edit(Request $request, $id)
     {
-        return $this->render('admin/appStructure/page-hff/edit.html.twig');
+        return $this->render('admin/page-hff/edit.html.twig');
     }
 
     /**
@@ -48,6 +48,6 @@ class PageHffController extends Controller
      */
     public function delete($id)
     {
-        return $this->render('admin/appStructure/page-hff/delete.html.twig');
+        return $this->render('admin/page-hff/delete.html.twig');
     }
 }
