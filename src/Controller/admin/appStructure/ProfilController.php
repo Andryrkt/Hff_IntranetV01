@@ -3,6 +3,7 @@
 namespace App\Controller\admin\appStructure;
 
 use App\Controller\Controller;
+use App\Entity\admin\ApplicationProfil;
 use App\Form\admin\ProfilType;
 use App\Entity\admin\utilisateur\Profil;
 use Symfony\Component\HttpFoundation\Request;
@@ -39,12 +40,19 @@ class ProfilController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $form = $this->getFormFactory()->createBuilder(ProfilType::class)->getForm();
-
+        $profil = new Profil();
+        $form = $this->getFormFactory()->createBuilder(ProfilType::class, $profil)->getForm();
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $profil = $form->getData();
+            $selectedApps = $form->get('applications')->getData();
+
+            // Créer les nouveaux liens
+            foreach ($selectedApps as $app) {
+                $applicationProfil = new ApplicationProfil($profil, $app);
+                $profil->addApplicationProfil($applicationProfil);
+                $this->getEntityManager()->persist($applicationProfil);
+            }
 
             $this->getEntityManager()->persist($profil);
             $this->getEntityManager()->flush();
@@ -71,19 +79,50 @@ class ProfilController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
+        $em = $this->getEntityManager();
 
-        $profil = $this->getEntityManager()->getRepository(Profil::class)->find($id);
+        /** @var Profil $profil */
+        $profil = $em->getRepository(Profil::class)->find($id);
+        $applicationsLinked = $profil->getApplications()->toArray();
 
         $form = $this->getFormFactory()->createBuilder(ProfilType::class, $profil)->getForm();
 
+        // Pré-remplir le champ 'applications'
+        $form->get('applications')->setData($applicationsLinked);
         $form->handleRequest($request);
 
         // Vérifier si le formulaire est soumis et valide
         if ($form->isSubmitted() && $form->isValid()) {
-            $profil = $form->getData();
+            $selectedApps = $form->get('applications')->getData(); // Collection d'Application
 
-            $this->getEntityManager()->persist($profil);
-            $this->getEntityManager()->flush();
+            // Supprimer les liens qui ne sont plus sélectionnés
+            foreach ($profil->getApplicationProfils() as $ap) {
+                if (!in_array($ap->getApplication(), $selectedApps, true)) {
+                    $profil->removeApplicationProfil($ap);
+                    $em->remove($ap); // cascade remove assure suppression automatique
+                }
+            }
+
+            // Ajouter les nouveaux liens
+            foreach ($selectedApps as $app) {
+                $exists = false;
+                foreach ($profil->getApplicationProfils() as $ap) {
+                    if ($ap->getApplication() === $app) {
+                        $exists = true;
+                        break;
+                    }
+                }
+                if (!$exists) {
+                    $applicationProfil = new ApplicationProfil();
+                    $applicationProfil->setApplication($app);
+                    $applicationProfil->setProfil($profil);
+                    $profil->addApplicationProfil($applicationProfil);
+                    $em->persist($applicationProfil);
+                }
+            }
+
+            $em->persist($profil);
+            $em->flush();
 
             $this->redirectToRoute("profil_index");
         }

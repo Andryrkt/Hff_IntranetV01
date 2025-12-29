@@ -31,6 +31,12 @@ class ApplicationProfil
      */
     private $profil;
 
+    public function __construct(?Profil $profil = null, ?Application $application = null)
+    {
+        $this->profil = $profil;
+        $this->application = $application;
+    }
+
     /**
      * Get the value of id
      */

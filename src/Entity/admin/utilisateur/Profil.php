@@ -48,6 +48,7 @@ class Profil
     public function __construct()
     {
         $this->users = new ArrayCollection();
+        $this->applicationProfils = new ArrayCollection();
     }
 
     /**
