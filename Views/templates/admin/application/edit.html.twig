@@ -8,7 +8,6 @@
 	<div class="container mt-6 mb-4">
 		<div class="card">
 			<div class="card-body">
-
 				<div class="container">
 					<h3 class="perso-titre">
 						Formulaire Modification Application
@@ -21,15 +20,13 @@
 
 					<div class="row">
 						<div class="col-12 col-md-6">
-
 							{{ form_row(form.nom) }}
-
 						</div>
 						<div class="col-12 col-md-6">
 							{{ form_row(form.codeApp) }}
 						</div>
+						{{ form_row(form.pages) }}
 					</div>
-
 
 					<button type="submit" class="btn btn-primary">
 						<i class="fas fa-save"></i>
@@ -37,7 +34,11 @@
 					</button>
 					{{ form_end(form) }}
 				</div>
-
 			</div>
 		</div>
-	{% endblock %}
+	</div>
+{% endblock %}
+
+{% block javascript %}
+	<script src="{{ App.base_path }}/Views/js/admin/application/application.js?v=2025.10.22.08.00"></script>
+{% endblock %}

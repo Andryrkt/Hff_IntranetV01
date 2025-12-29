@@ -3,6 +3,8 @@
 namespace App\Form\admin;
 
 use App\Entity\admin\Application;
+use App\Entity\admin\historisation\pageConsultation\PageHff;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -18,16 +20,24 @@ class ApplicationType extends AbstractType
                 'nom',
                 TextType::class,
                 [
-                    'label' => 'nom',
+                    'label' => 'Nom de l\'application',
                 ]
             )
             ->add(
                 'codeApp',
                 TextType::class,
                 [
-                    'label' => 'Code Application'
+                    'label' => 'Code de l\'application'
                 ]
             )
+            ->add('pages', EntityType::class, [
+                'label'    => 'Pages associées',
+                'class'    => PageHff::class,
+                'choice_label' => 'nom', // ou un autre champ de PageHff que tu veux afficher
+                'multiple' => true,       // permet de choisir plusieurs pages
+                'expanded' => false,      // false = select multiple, true = checkboxes
+                'required' => false,
+            ])
         ;
     }
 
