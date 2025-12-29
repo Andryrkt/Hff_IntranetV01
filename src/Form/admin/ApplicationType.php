@@ -14,19 +14,21 @@ class ApplicationType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-       
-        ->add('nom', 
-            TextType::class, 
-            [
-                'label' => 'nom',
-            ])
-        ->add('codeApp',
-            TextType::class,
-            [
-                'label' => 'Code Application'
-            ]
-        )
-    ;
+            ->add(
+                'nom',
+                TextType::class,
+                [
+                    'label' => 'nom',
+                ]
+            )
+            ->add(
+                'codeApp',
+                TextType::class,
+                [
+                    'label' => 'Code Application'
+                ]
+            )
+        ;
     }
 
     public function configureOptions(OptionsResolver $resolver)
@@ -35,6 +37,4 @@ class ApplicationType extends AbstractType
             'data_class' => Application::class,
         ]);
     }
-
-
 }
