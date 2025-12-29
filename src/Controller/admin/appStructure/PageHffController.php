@@ -6,6 +6,7 @@ use App\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\admin\historisation\pageConsultation\PageHff;
+use App\Form\admin\PageHffType;
 
 /**
  * @Route("/admin/page-hff")
@@ -32,7 +33,25 @@ class PageHffController extends Controller
      */
     public function new(Request $request)
     {
-        return $this->render('admin/page-hff/new.html.twig');
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
+        $form = $this->getFormFactory()->createBuilder(PageHffType::class)->getForm();
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $pageHff = $form->getData();
+
+            $this->getEntityManager()->persist($pageHff);
+            $this->getEntityManager()->flush();
+
+            $this->redirectToRoute("page_hff_index");
+        }
+
+        return $this->render('admin/page-hff/new.html.twig', [
+            'form' => $form->createView(),
+        ]);
     }
 
     /**
@@ -40,7 +59,26 @@ class PageHffController extends Controller
      */
     public function edit(Request $request, $id)
     {
-        return $this->render('admin/page-hff/edit.html.twig');
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
+        $pageHff = $this->getEntityManager()->getRepository(PageHff::class)->find($id);
+
+        $form = $this->getFormFactory()->createBuilder(PageHffType::class, $pageHff)->getForm();
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $pageHff = $form->getData();
+
+            $this->getEntityManager()->persist($pageHff);
+            $this->getEntityManager()->flush();
+            return $this->redirectToRoute("page_hff_index");
+        }
+
+        return $this->render('admin/page-hff/edit.html.twig', [
+            'form' => $form->createView(),
+        ]);
     }
 
     /**
@@ -48,6 +86,14 @@ class PageHffController extends Controller
      */
     public function delete($id)
     {
-        return $this->render('admin/page-hff/delete.html.twig');
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
+        $pageHff = $this->getEntityManager()->getRepository(PageHff::class)->find($id);
+
+        $this->getEntityManager()->remove($pageHff);
+        $this->getEntityManager()->flush();
+
+        $this->redirectToRoute("page_hff_index");
     }
 }
