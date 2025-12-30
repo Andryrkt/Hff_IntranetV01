@@ -131,6 +131,7 @@ class Service
         $this->tkiServiceDebiteur = new ArrayCollection();
         $this->mutationServiceEmetteur = new ArrayCollection();
         $this->mutationServiceDebiteur = new ArrayCollection();
+        $this->agenceServices = new ArrayCollection();
     }
 
     public function getId()
@@ -171,6 +172,28 @@ class Service
     public function getAgences(): Collection
     {
         return $this->agenceServices->map(fn(AgenceService $as) => $as->getAgence());
+    }
+
+    /**
+     * @return Collection<int, AgenceService>
+     */
+    public function getAgenceServices(): Collection
+    {
+        return $this->agenceServices;
+    }
+
+    public function addAgenceService(AgenceService $agenceService): self
+    {
+        $this->agenceServices[] = $agenceService;
+
+        return $this;
+    }
+
+    public function removeAgenceService(AgenceService $agenceService): self
+    {
+        $this->agenceServices->removeElement($agenceService);
+
+        return $this;
     }
 
     /** DIT */
