@@ -194,22 +194,14 @@ class Agence
 
     public function addAgenceService(AgenceService $agenceService): self
     {
-        if (!$this->agenceServices->contains($agenceService)) {
-            $this->agenceServices[] = $agenceService;
-            $agenceService->setAgence($this);
-        }
+        $this->agenceServices[] = $agenceService;
 
         return $this;
     }
 
     public function removeAgenceService(AgenceService $agenceService): self
     {
-        if ($this->agenceServices->removeElement($agenceService)) {
-            // set the owning side to null (unless already changed)
-            if ($agenceService->getAgence() === $this) {
-                $agenceService->setAgence(null);
-            }
-        }
+        $this->agenceServices->removeElement($agenceService);
 
         return $this;
     }
