@@ -113,6 +113,7 @@ class Application
 
     public function __construct()
     {
+        $this->applicationProfils = new ArrayCollection();
         $this->users = new ArrayCollection();
         $this->categorieAtes = new ArrayCollection();
         $this->pages = new ArrayCollection();
@@ -276,6 +277,28 @@ class Application
     public function setPages(Collection $pages): self
     {
         $this->pages = $pages;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of applicationProfils
+     */
+    public function getApplicationProfils(): Collection
+    {
+        return $this->applicationProfils;
+    }
+
+    public function addApplicationProfil(ApplicationProfil $applicationProfil): self
+    {
+        $this->applicationProfils[] = $applicationProfil;
+
+        return $this;
+    }
+
+    public function removeApplicationProfil(ApplicationProfil $applicationProfil): self
+    {
+        $this->applicationProfils->removeElement($applicationProfil);
 
         return $this;
     }
