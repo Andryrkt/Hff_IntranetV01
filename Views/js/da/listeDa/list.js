@@ -1,5 +1,5 @@
 import { displayOverlay } from "../../utils/ui/overlay";
-import { mergeCellsTable } from "./tableHandler";
+import { mergeCellsTable } from "../../utils/tableHandler.js";
 import { configAgenceService } from "../../dit/config/listDitConfig.js";
 import { handleAgenceChange } from "../../dit/fonctionUtils/fonctionListDit.js";
 import { allowOnlyNumbers } from "../../magasin/utils/inputUtils.js";
@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", function () {
       localStorage.setItem(`currentTab_${numeroDa}`, numeroLigne);
     });
   });
-  mergeCellsTable(1); // fusionne le tableau en fonction de la colonne DA
+  mergeCellsTable("#tableBody", [0, 1, 2, 3, 4, 5, 6, 7], 1); // fusionne les colonnes 0 à 7 du tableau en fonction de la colonne DA (col n° 1) à l'aide du sélecteur du tbody
 
   /**===========================================================================
    * Configuration des agences et services
