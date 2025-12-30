@@ -15,27 +15,19 @@ class ProfilType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add(
-                'designation',
-                TextType::class,
-                [
-                    'label' => 'Désignation du profil',
-                ]
-            )
-            ->add(
-                'reference',
-                TextType::class,
-                [
-                    'label' => 'Référence du profil'
-                ]
-            )
+            ->add('designation', TextType::class, [
+                'label' => 'Désignation du profil',
+            ])
+            ->add('reference', TextType::class, [
+                'label' => 'Référence du profil'
+            ])
             ->add('applications', EntityType::class, [
-                'label'    => 'Applications autorisées',
-                'class' => Application::class,
+                'label'        => 'Applications autorisées',
+                'class'        => Application::class,
                 'choice_label' => 'codeApp', // ou refVignette, ou un champ visible
-                'multiple' => true,
-                'expanded' => false, // true = checkboxes
-                'mapped' => false, // on gère manuellement la synchronisation avec ApplicationProfil
+                'multiple'     => true,
+                'expanded'     => false, // true = checkboxes
+                'mapped'       => false, // on gère manuellement la synchronisation avec ApplicationProfil
             ])
         ;
     }

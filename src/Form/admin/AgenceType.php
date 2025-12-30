@@ -19,33 +19,22 @@ class AgenceType extends AbstractType
     {
         $builder
 
-            ->add(
-                'codeAgence',
-                NumberType::class,
-                [
-                    'label' => 'Code Agence',
-                ]
-            )
-            ->add(
-                'libelleAgence',
-                TextType::class,
-                [
-                    'label' => 'Libelle Agence',
-                ]
-            )
-            ->add(
-                'services',
-                EntityType::class,
-                [
-                    'label' => 'Service',
-                    'class' => Service::class,
-                    'choice_label' => function (Service $service): string {
-                        return $service->getCodeService() . ' ' . $service->getLibelleService();
-                    },
-                    'multiple' => true,
-                    'expanded' => true
-                ]
-            )
+            ->add('codeAgence', NumberType::class, [
+                'label' => 'Code Agence',
+            ])
+            ->add('libelleAgence', TextType::class, [
+                'label' => 'Libelle Agence',
+            ])
+            ->add('services', EntityType::class, [
+                'label'        => 'Services liées',
+                'class'        => Service::class,
+                'choice_label' => function (Service $service): string {
+                    return $service->getCodeService() . ' ' . $service->getLibelleService();
+                },
+                'multiple'     => true,
+                'expanded'     => false,
+                'mapped'       => false,
+            ])
         ;
     }
 

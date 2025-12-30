@@ -1,7 +1,7 @@
 {% extends "baseTemplate.html.twig" %}
 
 {% block title %}
-	Ajout agence
+	Nouvelle agence
 {% endblock %}
 
 {% block content %}
@@ -9,17 +9,20 @@
 		<div class="card">
 			<div class="card-body">
 				<div class="container">
+					<h3 class="perso-titre">
+						Formulaire Création Agence
+					</h3>
 					<a href="{{path("agence_index")}}" class="btn btn-sm  text-white my-3 fw-bold" style="background-color: #FBBB01;">Liste</a>
 					{{ form_start(form) }}
 					{{ form_errors(form)}}
 					<div class="row">
 						<div class="col-12 col-md-6">
 							{{ form_row(form.codeAgence) }}
-							{{ form_row(form.libelleAgence) }}
 						</div>
 						<div class="col-12 col-md-6">
-							{{ form_row(form.services) }}
+							{{ form_row(form.libelleAgence) }}
 						</div>
+						{{ form_row(form.services) }}
 					</div>
 					<button type="submit" class="btn btn-primary">
 						<i class="fas fa-save"></i>
@@ -30,4 +33,8 @@
 			</div>
 		</div>
 	</div>
+{% endblock %}
+
+{% block javascript %}
+	<script src="{{ App.base_path }}/Views/js/admin/agence/agence.js?v=2025.10.22.08.00"></script>
 {% endblock %}
