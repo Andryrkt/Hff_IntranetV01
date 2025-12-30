@@ -26,10 +26,28 @@ class AgenceController extends Controller
 
         $data = $this->getEntityManager()->getRepository(Agence::class)->findBy([], ['id' => 'DESC']);
 
+        $preparedData = [];
+
+        /** @var Agence $agence */
+        foreach ($data as $agence) {
+            $urlUpdate = $this->getUrlGenerator()->generate('agence_update', ['id' => $agence->getId()]);
+            $codeAgence = $agence->getCodeAgence();
+            $libelleAgence = $agence->getLibelleAgence();
+            foreach ($agence->getServices() as $service) {
+                $preparedData[] = [
+                    'urlUpdate'      => $urlUpdate,
+                    'codeAgence'     => $codeAgence,
+                    'libelleAgence'  => $libelleAgence,
+                    'codeService'    => $service->getCodeService(),
+                    'libelleService' => $service->getLibelleService()
+                ];
+            }
+        }
+
         return $this->render(
             'admin/agence/list.html.twig',
             [
-                'data' => $data
+                'data' => $preparedData
             ]
         );
     }
