@@ -23,11 +23,12 @@ class ProfilController extends Controller
         $this->verifierSessionUtilisateur();
 
         $data = $this->getEntityManager()->getRepository(Profil::class)->findAll();
+        $preparedData = $this->prepareForDisplay($data);
 
         return $this->render(
             'admin/profil/list.html.twig',
             [
-                'data' => $data
+                'data' => $preparedData
             ]
         );
     }
@@ -131,5 +132,38 @@ class ProfilController extends Controller
                 'form' => $form->createView(),
             ]
         );
+    }
+
+    private function prepareForDisplay(array $data)
+    {
+        $preparedData = [];
+
+        /** @var Profil $profil */
+        foreach ($data as $profil) {
+            $baseData = [
+                'urlUpdate' => $this->getUrlGenerator()->generate(
+                    'profil_update',
+                    ['id' => $profil->getId()]
+                ),
+                'reference'   => $profil->getReference(),
+                'designation' => $profil->getDesignation(),
+            ];
+
+            $applications = $profil->getApplications();
+
+            if ($applications->isEmpty()) {
+                $preparedData[] = $baseData + ['codeApp' => '', 'nomApp' => ''];
+                continue;
+            }
+
+            foreach ($applications as $application) {
+                $preparedData[] = $baseData + [
+                    'codeApp' => $application->getCodeApp(),
+                    'nomApp'  => $application->getNom()
+                ];
+            }
+        }
+
+        return $preparedData;
     }
 }

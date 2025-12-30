@@ -15,16 +15,17 @@
 					Ajouter nouveau profil
 				</a>
 				<table class="table">
-					<thead class="table-dark">
+					<thead class="table-dark align-middle">
 						<tr>
 							<th>Actions</th>
 							<th>Reference</th>
 							<th>Nom du profil</th>
-							<th>Applications</th>
+							<th>Code App</th>
+							<th>Nom App</th>
 						</tr>
 					</thead>
-					<tbody>
-						{% for item in data %}
+					<tbody id="tableBody" class="align-middle">
+						{% for row in data %}
 							<tr>
 								<td>
 									<div class="dropdown">
@@ -33,22 +34,15 @@
 										</button>
 										<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
 											<li>
-												<a class="dropdown-item fw-bold" href="{{ path("profil_update", {id: item.id})}}">Modifier</a>
+												<a class="dropdown-item fw-bold" href="{{ row.urlUpdate }}">Modifier</a>
 											</li>
 										</ul>
 									</div>
 								</td>
-								<td>{{item.reference}}</td>
-								<td>{{item.designation}}</td>
-								<td>
-									<ul>
-										{% for p in item.applications %}
-											<li>
-												{{ p.codeApp ~ ' | ' ~ p.nom}}
-											</li>
-										{% endfor %}
-									</ul>
-								</td>
+								<td>{{ row.reference }}</td>
+								<td>{{ row.designation }}</td>
+								<td>{{ row.codeApp }}</td>
+								<td>{{ row.nomApp }}</td>
 							</tr>
 						{% endfor %}
 					</tbody>
@@ -56,4 +50,8 @@
 			</div>
 		</div>
 	</div>
+{% endblock %}
+
+{% block javascript %}
+	<script src="{{ App.base_path }}/Views/js/admin/profil/list.js?v=2025.10.22.08.00" type="module"></script>
 {% endblock %}
