@@ -131,6 +131,7 @@ class Agence
 
     public function __construct()
     {
+        $this->agenceServices = new ArrayCollection();
         $this->casiers = new ArrayCollection();
         $this->ditAgenceEmetteur = new ArrayCollection();
         $this->ditAgenceDebiteur = new ArrayCollection();
@@ -181,6 +182,36 @@ class Agence
     public function getServices(): Collection
     {
         return $this->agenceServices->map(fn(AgenceService $as) => $as->getService());
+    }
+
+    /**
+     * @return Collection<int, AgenceService>
+     */
+    public function getAgenceServices(): Collection
+    {
+        return $this->agenceServices;
+    }
+
+    public function addAgenceService(AgenceService $agenceService): self
+    {
+        if (!$this->agenceServices->contains($agenceService)) {
+            $this->agenceServices[] = $agenceService;
+            $agenceService->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAgenceService(AgenceService $agenceService): self
+    {
+        if ($this->agenceServices->removeElement($agenceService)) {
+            // set the owning side to null (unless already changed)
+            if ($agenceService->getAgence() === $this) {
+                $agenceService->setAgence(null);
+            }
+        }
+
+        return $this;
     }
 
     /**
