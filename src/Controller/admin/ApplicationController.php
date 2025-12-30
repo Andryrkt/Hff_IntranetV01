@@ -24,11 +24,12 @@ class ApplicationController extends Controller
         $this->verifierSessionUtilisateur();
 
         $data = $this->getEntityManager()->getRepository(Application::class)->findAll();
+        $preparedData = $this->prepareForDisplay($data);
 
         return $this->render(
             'admin/application/list.html.twig',
             [
-                'data' => $data
+                'data' => $preparedData
             ]
         );
     }
@@ -84,7 +85,7 @@ class ApplicationController extends Controller
 
             $this->getEntityManager()->persist($application);
             $this->getEntityManager()->flush();
-            
+
             $this->redirectToRoute("application_index");
         }
 
@@ -122,5 +123,43 @@ class ApplicationController extends Controller
         }
 
         $this->redirectToRoute("application_index");
+    }
+
+    private function prepareForDisplay(array $data)
+    {
+        $preparedData = [];
+
+        /** @var Application $application */
+        foreach ($data as $application) {
+            $baseData = [
+                'id'         => $application->getId(),
+                'nom'        => $application->getNom(),
+                'codeApp'    => $application->getCodeApp(),
+                'derniereId' => $application->getDerniereId(),
+                'urlUpdate'  => $this->getUrlGenerator()->generate(
+                    'application_update',
+                    ['id' => $application->getId()]
+                ),
+                'urlDelete'  => $this->getUrlGenerator()->generate(
+                    'application_delete',
+                    ['id' => $application->getId()]
+                ),
+            ];
+
+            $pages = $application->getPages();
+
+            if ($pages->isEmpty()) {
+                $preparedData[] = $baseData + ['pageName' => ''];
+                continue;
+            }
+
+            foreach ($pages as $page) {
+                $preparedData[] = $baseData + [
+                    'pageName' => $page->getNom()
+                ];
+            }
+        }
+
+        return $preparedData;
     }
 }

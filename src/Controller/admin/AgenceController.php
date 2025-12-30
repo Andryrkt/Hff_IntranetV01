@@ -25,24 +25,7 @@ class AgenceController extends Controller
         $this->verifierSessionUtilisateur();
 
         $data = $this->getEntityManager()->getRepository(Agence::class)->findBy([], ['id' => 'DESC']);
-
-        $preparedData = [];
-
-        /** @var Agence $agence */
-        foreach ($data as $agence) {
-            $urlUpdate = $this->getUrlGenerator()->generate('agence_update', ['id' => $agence->getId()]);
-            $codeAgence = $agence->getCodeAgence();
-            $libelleAgence = $agence->getLibelleAgence();
-            foreach ($agence->getServices() as $service) {
-                $preparedData[] = [
-                    'urlUpdate'      => $urlUpdate,
-                    'codeAgence'     => $codeAgence,
-                    'libelleAgence'  => $libelleAgence,
-                    'codeService'    => $service->getCodeService(),
-                    'libelleService' => $service->getLibelleService()
-                ];
-            }
-        }
+        $preparedData = $this->prepareForDisplay($data);
 
         return $this->render(
             'admin/agence/list.html.twig',
@@ -145,5 +128,38 @@ class AgenceController extends Controller
         return $this->render('admin/agence/edit.html.twig', [
             'form' => $form->createView(),
         ]);
+    }
+
+    private function prepareForDisplay(array $data)
+    {
+        $preparedData = [];
+
+        /** @var Agence $agence */
+        foreach ($data as $agence) {
+            $baseData = [
+                'urlUpdate'      => $this->getUrlGenerator()->generate(
+                    'agence_update',
+                    ['id' => $agence->getId()]
+                ),
+                'codeAgence'     => $agence->getCodeAgence(),
+                'libelleAgence'  => $agence->getLibelleAgence(),
+            ];
+
+            $services = $agence->getServices();
+
+            if ($services->isEmpty()) {
+                $preparedData[] = $baseData + ['codeService' => '', 'libelleService' => ''];
+                continue;
+            }
+
+            foreach ($services as $service) {
+                $preparedData[] = $baseData + [
+                    'codeService'    => $service->getCodeService(),
+                    'libelleService' => $service->getLibelleService()
+                ];
+            }
+        }
+
+        return $preparedData;
     }
 }
