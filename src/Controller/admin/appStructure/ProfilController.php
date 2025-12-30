@@ -113,9 +113,7 @@ class ProfilController extends Controller
                     }
                 }
                 if (!$exists) {
-                    $applicationProfil = new ApplicationProfil();
-                    $applicationProfil->setApplication($app);
-                    $applicationProfil->setProfil($profil);
+                    $applicationProfil = new ApplicationProfil($profil, $app);
                     $profil->addApplicationProfil($applicationProfil);
                     $em->persist($applicationProfil);
                 }

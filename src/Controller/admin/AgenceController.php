@@ -6,6 +6,7 @@ namespace App\Controller\admin;
 
 use App\Entity\admin\Agence;
 use App\Controller\Controller;
+use App\Entity\admin\AgenceService;
 use App\Form\admin\AgenceType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -41,21 +42,20 @@ class AgenceController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $form = $this->getFormFactory()->createBuilder(AgenceType::class)->getForm();
-
+        $agence = new Agence();
+        $form = $this->getFormFactory()->createBuilder(AgenceType::class, $agence)->getForm();
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $role = $form->getData();
-
-
             $selectedService = $form->get('services')->getData();
 
-            foreach ($selectedService as $permission) {
-                $role->addService($permission);
+            foreach ($selectedService as $service) {
+                $agenceService = new AgenceService($agence, $service);
+                $agence->addAgenceService($agenceService);
+                $this->getEntityManager()->persist($agenceService);
             }
 
-            $this->getEntityManager()->persist($role);
+            $this->getEntityManager()->persist($agence);
             $this->getEntityManager()->flush();
 
             $this->redirectToRoute("agence_index");
@@ -78,23 +78,50 @@ class AgenceController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
+        $em = $this->getEntityManager();
 
-        $agence = $this->getEntityManager()->getRepository(Agence::class)->find($id);
+        /** @var Agence $agence */
+        $agence = $em->getRepository(Agence::class)->find($id);
+        $servicesLinked = $agence->getServices()->toArray();
 
         $form = $this->getFormFactory()->createBuilder(AgenceType::class, $agence)->getForm();
 
+        // Pré-remplir le champ 'services'
+        $form->get('services')->setData($servicesLinked);
         $form->handleRequest($request);
 
         // Vérifier si le formulaire est soumis et valide
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->getEntityManager()->flush();
-            return $this->redirectToRoute("agence_index");
-        }
+            $selectedServices = $form->get('services')->getData(); // Collection de services
 
-        // Debugging: Vérifiez que createView() ne retourne pas null
-        $formView = $form->createView();
-        if ($formView === null) {
-            throw new \Exception('FormView is null');
+            // Supprimer les liens qui ne sont plus sélectionnés
+            foreach ($agence->getAgenceServices() as $ap) {
+                if (!in_array($ap->getService(), $selectedServices, true)) {
+                    $agence->removeAgenceService($ap);
+                    $em->remove($ap); // cascade remove assure suppression automatique
+                }
+            }
+
+            // Ajouter les nouveaux liens
+            foreach ($selectedServices as $service) {
+                $exists = false;
+                foreach ($agence->getAgenceServices() as $ap) {
+                    if ($ap->getService() === $service) {
+                        $exists = true;
+                        break;
+                    }
+                }
+                if (!$exists) {
+                    $agenceService = new AgenceService($agence, $service);
+                    $agence->addAgenceService($agenceService);
+                    $em->persist($agenceService);
+                }
+            }
+
+            $em->persist($agence);
+            $em->flush();
+
+            $this->redirectToRoute("agence_index");
         }
 
         return $this->render('admin/agence/edit.html.twig', [

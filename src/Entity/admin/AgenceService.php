@@ -37,6 +37,12 @@ class AgenceService
      *
     =====================================================================================*/
 
+    public function __construct(?Agence $agence = null, ?Service $service = null)
+    {
+        $this->agence = $agence;
+        $this->service = $service;
+    }
+
     public function getId()
     {
         return $this->id;
