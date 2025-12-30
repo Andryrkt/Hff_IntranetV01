@@ -22,11 +22,12 @@ class VignetteController extends Controller
         $this->verifierSessionUtilisateur();
 
         $data = $this->getEntityManager()->getRepository(Vignette::class)->findAll();
+        $preparedData = $this->prepareForDisplay($data);
 
         return $this->render(
             'admin/vignette/list.html.twig',
             [
-                'data' => $data
+                'data' => $preparedData
             ]
         );
     }
@@ -94,5 +95,38 @@ class VignetteController extends Controller
                 'form' => $form->createView(),
             ]
         );
+    }
+
+    private function prepareForDisplay(array $data)
+    {
+        $preparedData = [];
+
+        /** @var Vignette $vignette */
+        foreach ($data as $vignette) {
+            $baseData = [
+                'urlUpdate' => $this->getUrlGenerator()->generate(
+                    'vignette_update',
+                    ['id' => $vignette->getId()]
+                ),
+                'reference' => $vignette->getReference(),
+                'nom'       => $vignette->getNom(),
+            ];
+
+            $applications = $vignette->getApplications();
+
+            if ($applications->isEmpty()) {
+                $preparedData[] = $baseData + ['codeApp' => '', 'nomApp' => ''];
+                continue;
+            }
+
+            foreach ($applications as $application) {
+                $preparedData[] = $baseData + [
+                    'codeApp' => $application->getCodeApp(),
+                    'nomApp'  => $application->getNom()
+                ];
+            }
+        }
+
+        return $preparedData;
     }
 }
