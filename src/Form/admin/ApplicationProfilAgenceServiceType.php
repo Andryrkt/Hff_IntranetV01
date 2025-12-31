@@ -16,6 +16,7 @@ class ApplicationProfilAgenceServiceType extends AbstractType
     {
         $builder
             ->add('applicationProfil', EntityType::class, [
+                'label' => 'Profil - Application',
                 'class' => ApplicationProfil::class,
                 'choice_label' => fn(ApplicationProfil $ap) =>
                 $ap->getProfil()->getReference()
@@ -24,6 +25,7 @@ class ApplicationProfilAgenceServiceType extends AbstractType
                 'placeholder' => '-- Choisir une application / profil --',
             ])
             ->add('agenceServiceIds', EntityType::class, [
+                'label' => 'Agence(s) - Service(s) autorisée(s)',
                 'class' => AgenceService::class,
                 'choice_label' => fn(AgenceService $as) =>
                 $as->getAgence()->getCodeAgence()

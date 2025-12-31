@@ -1,0 +1,38 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block title %}
+	Nouveau liaison App-Profil Agence-Service
+{% endblock %}
+
+{% block content %}
+	<div class=" container mt-6 mb-4">
+		<div class="card">
+			<div class="card-body">
+				<div class="container">
+					<h3 class="perso-titre">Formulaire de création de nouveau liaison APP-Profil Agence-Service</h3>
+					<a href="{{ path("app_profil_ag_serv_index") }}" class="btn btn-sm  text-white my-3 fw-bold" style="background-color: #FBBB01;">Liste de tous les liaisons</a>
+					{{ form_start(form) }}
+					{{ form_errors(form)}}
+
+					<div class="row mb-3">
+						<div class="col">
+							{{ form_row(form.applicationProfil) }}
+						</div>
+						<div class="col">
+							{{ form_row(form.agenceServiceIds) }}
+						</div>
+					</div>
+					<button type="submit" class="btn btn-primary">
+						<i class="fas fa-save"></i>
+						Enregistrer
+					</button>
+					{{ form_end(form) }}
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block javascript %}
+	<script src="{{ App.base_path }}/Views/js/admin/appProfilAgServ/appProfilAgServ.js?v=2025.10.22.08.00"></script>
+{% endblock %}
