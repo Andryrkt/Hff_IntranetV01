@@ -16,10 +16,10 @@ class ProfilType extends AbstractType
     {
         $builder
             ->add('designation', TextType::class, [
-                'label' => 'Désignation du profil',
+                'label' => 'Désignation du profil (100 caractères max)',
             ])
             ->add('reference', TextType::class, [
-                'label' => 'Référence du profil'
+                'label' => 'Référence du profil (10 caractères max)',
             ])
             ->add('applications', EntityType::class, [
                 'label'        => 'Applications autorisées',
