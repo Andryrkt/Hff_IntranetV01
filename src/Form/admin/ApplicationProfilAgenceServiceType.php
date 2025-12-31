@@ -24,7 +24,7 @@ class ApplicationProfilAgenceServiceType extends AbstractType
                     . $ap->getApplication()->getCodeApp(),
                 'placeholder' => '-- Choisir une application / profil --',
             ])
-            ->add('agenceServiceIds', EntityType::class, [
+            ->add('agenceServices', EntityType::class, [
                 'label' => 'Agence(s) - Service(s) autorisée(s)',
                 'class' => AgenceService::class,
                 'choice_label' => fn(AgenceService $as) =>

@@ -3,11 +3,12 @@
 namespace App\Dto\admin;
 
 use App\Entity\admin\ApplicationProfil;
+use App\Entity\admin\AgenceService;
 
 class ApplicationProfilAgenceServiceDTO
 {
     public ?ApplicationProfil $applicationProfil = null;
 
-    /** @var int[] */
-    public array $agenceServiceIds = [];
+    /** @var AgenceService[] */
+    public array $agenceServices = [];
 }

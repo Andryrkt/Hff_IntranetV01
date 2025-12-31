@@ -4,7 +4,7 @@ $(document).ready(function () {
     allowClear: true,
     theme: "bootstrap",
   });
-  $("#application_profil_agence_service_agenceServiceIds").select2({
+  $("#application_profil_agence_service_agenceServices").select2({
     placeholder: "-- Choisir des agences - services --",
     allowClear: true,
     theme: "bootstrap",
