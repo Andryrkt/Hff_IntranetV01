@@ -1,4 +1,5 @@
 import { AutoComplete } from "../../utils/AutoComplete";
+import { getAllDesignations, getAllFournisseurs } from "../data/fetchData";
 
 export function autocompleteTheField(field, fieldName) {
   let baseId = field.id.replace("demande_appro_proposition", "");
@@ -19,17 +20,33 @@ export function autocompleteTheField(field, fieldName) {
     suggestionContainer: suggestionContainer,
     loaderElement: loaderElement,
     debounceDelay: 300,
-    fetchDataCallback: () => {
+    fetchDataCallback: async () => {
       const cache = JSON.parse(
         localStorage.getItem("autocompleteCache") || "{}"
       );
-      const dataList =
-        fieldName === "fournisseur"
-          ? cache.fournisseurs || []
-          : cache.designationsZDI || [];
 
-      return Promise.resolve(dataList);
-    }, // non filtré par famille et sous-famille
+      if (fieldName === "fournisseur") {
+        if (!cache.fournisseurs) {
+          const data = await getAllFournisseurs(); // fetch si cache vide
+          cache.fournisseurs = data;
+          console.log("préchargement fournisseurs OK");
+          localStorage.setItem("autocompleteCache", JSON.stringify(cache));
+          return data;
+        }
+
+        return cache.fournisseurs;
+      }
+
+      if (!cache.designationsZDI) {
+        const data = await getAllDesignations(true); // fetch si cache vide
+        cache.designationsZDI = data;
+        console.log("préchargement designationsZDI OK");
+        localStorage.setItem("autocompleteCache", JSON.stringify(cache));
+        return data;
+      }
+
+      return cache.designationsZDI;
+    },
     displayItemCallback: (item) => displayValues(item, fieldName),
     itemToStringCallback: (item) => stringsToSearch(item, fieldName),
     onSelectCallback: (item) => handleValuesOfFields(item, fieldName, fields),

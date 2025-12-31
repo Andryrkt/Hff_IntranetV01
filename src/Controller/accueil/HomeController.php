@@ -42,11 +42,8 @@ class HomeController extends Controller
             $this->redirectToRoute('security_signin');
         }
 
-        $userInfo = $this->getSessionService()->get('user_info');
-
         return $this->render('main/accueil.html.twig', [
-            'menuItems' => $menu,
-            'hasDAP'    => in_array(Application::ID_DAP, $userInfo["applications"] ?? []),
+            'menuItems'  => $menu
         ]);
     }
 }
