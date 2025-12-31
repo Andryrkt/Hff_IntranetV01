@@ -1,4 +1,5 @@
 import { AutoComplete } from "../../utils/AutoComplete";
+import { getAllFournisseurs } from "../data/fetchData";
 
 export function initializeAutoCompletionFrn(fournisseur) {
   let baseId = fournisseur.id.replace("demande_appro_direct_form_DAL", "");
@@ -13,11 +14,19 @@ export function initializeAutoCompletionFrn(fournisseur) {
     suggestionContainer: suggestionContainer,
     loaderElement: loaderElement,
     debounceDelay: 150,
-    fetchDataCallback: () => {
+    fetchDataCallback: async () => {
       const cache = JSON.parse(
         localStorage.getItem("autocompleteCache") || "{}"
       );
-      return Promise.resolve(cache.fournisseurs || []);
+      if (!cache.fournisseurs) {
+        const data = await getAllFournisseurs(); // fetch si cache vide
+        cache.fournisseurs = data;
+        console.log("préchargement fournisseurs OK");
+        localStorage.setItem("autocompleteCache", JSON.stringify(cache));
+        return data;
+      }
+
+      return cache.fournisseurs;
     },
     displayItemCallback: (item) =>
       `${item.numerofournisseur} - ${item.nomfournisseur}`,
