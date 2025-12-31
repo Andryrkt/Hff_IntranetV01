@@ -19,14 +19,14 @@ class VignetteType extends AbstractType
                 'nom',
                 TextType::class,
                 [
-                    'label' => 'Nom de la vignette',
+                    'label' => 'Nom de la vignette (100 caractères max)',
                 ]
             )
             ->add(
                 'reference',
                 TextType::class,
                 [
-                    'label' => 'Reference'
+                    'label' => 'Référence de la vignette (10 caractères max)',
                 ]
             )
             ->add('applications', EntityType::class, [
