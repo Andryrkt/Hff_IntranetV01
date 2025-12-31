@@ -20,14 +20,14 @@ class ApplicationType extends AbstractType
                 'nom',
                 TextType::class,
                 [
-                    'label' => 'Nom de l\'application',
+                    'label' => 'Nom de l\'application (255 caractères max)',
                 ]
             )
             ->add(
                 'codeApp',
                 TextType::class,
                 [
-                    'label' => 'Code de l\'application'
+                    'label' => 'Code de l\'application (10 caractères max)',
                 ]
             )
             ->add('pages', EntityType::class, [

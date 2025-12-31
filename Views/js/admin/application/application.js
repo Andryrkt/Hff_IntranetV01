@@ -5,3 +5,16 @@ $(document).ready(function () {
     theme: "bootstrap",
   });
 });
+
+document.addEventListener("DOMContentLoaded", function () {
+  const nom = document.querySelector("#application_nom");
+  const codeApp = document.querySelector("#application_codeApp");
+
+  nom.addEventListener("input", function () {
+    this.value = this.value.toUpperCase().slice(0, 255);
+  });
+
+  codeApp.addEventListener("input", function () {
+    this.value = this.value.toUpperCase().slice(0, 10);
+  });
+});
