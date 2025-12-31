@@ -94,35 +94,31 @@ class DaModel extends Model
 
     public function getAllDesignationZST($codeFamille, $codeSousFamille)
     {
-        $statement = "SELECT 
-            trim(abse_fams1) as codefamille,
-            trim(abse_fams2) as codesousfamille,
-            trim(abse_refp) as referencepiece,
-            trim(abse_desi) as designation,
-            abse_numf as numerofournisseur,
-            (
-                SELECT trim(fbse_nomfou) 
-                    FROM frn_bse 
-                    WHERE fbse_numfou = a.abse_numf
-            ) AS fournisseur,
-            (
-                SELECT c.afrn_pxach
-                    FROM art_frn c 
-                    WHERE c.afrn_refp = a.abse_refp 
-                    AND c.afrn_numf = a.abse_numf
-                    AND c.afrn_constp = a.abse_constp
-                    AND c.afrn_dated = (
-                        SELECT MAX(d.afrn_dated) 
-                            FROM Informix.art_frn d 
-                            WHERE d.afrn_refp = a.abse_refp 
-                            AND d.afrn_numf = a.abse_numf
-                            AND d.afrn_constp = a.abse_constp
+        $statement = "SELECT
+                        TRIM(a.abse_fams1) AS codefamille,
+                        TRIM(a.abse_fams2) AS codesousfamille,
+                        TRIM(a.abse_refp) AS referencepiece,
+                        TRIM(a.abse_desi) AS designation,
+                        TRIM(f.fbse_nomfou) AS fournisseur,
+                        a.abse_numf AS numerofournisseur,
+                        fr.afrn_pxach AS prix
+                    FROM art_bse a
+                    LEFT JOIN frn_bse f
+                        ON f.fbse_numfou = a.abse_numf
+                    LEFT JOIN art_frn fr
+                        ON fr.afrn_refp   = a.abse_refp
+                        AND fr.afrn_numf   = a.abse_numf
+                        AND fr.afrn_constp = a.abse_constp
+                        AND fr.afrn_dated = (
+                            SELECT MAX(d.afrn_dated)
+                            FROM art_frn d
+                            WHERE d.afrn_refp   = a.abse_refp
+                                AND d.afrn_numf   = a.abse_numf
+                                AND d.afrn_constp = a.abse_constp
                         )
-            ) AS prix
-                FROM art_bse a
-                    WHERE abse_constp = 'ZST'                    
-                    AND abse_refp <> 'ST'
-                    AND abse_numf <> '99' 
+                    WHERE a.abse_constp = 'ZST'
+                    AND a.abse_refp <> 'ST'
+                    AND a.abse_numf <> '99'
                     ";
         if ($codeFamille !== '-') {
             $statement .= " AND abse_fams1 = '$codeFamille'";
@@ -138,21 +134,19 @@ class DaModel extends Model
 
     public function getAllDesignationZDI()
     {
-        $statement = "SELECT 
-            trim(abse_fams1) as codefamille,
-            trim(abse_fams2) as codesousfamille,
-            trim(abse_refp) as referencepiece,
-            trim(abse_desi) as designation,
-            abse_numf as numerofournisseur,
-            (
-                SELECT trim(fbse_nomfou) 
-                    FROM Informix.frn_bse 
-                    WHERE fbse_numfou = a.abse_numf
-            ) AS fournisseur
-                FROM Informix.art_bse a
-                    WHERE abse_constp = 'ZDI'
-                    AND abse_numf <> '99'
-                    ";
+        $statement = "SELECT
+                    TRIM(a.abse_fams1) AS codefamille,
+                    TRIM(a.abse_fams2) AS codesousfamille,
+                    TRIM(a.abse_refp) AS referencepiece,
+                    TRIM(a.abse_desi) AS designation,
+                    TRIM(f.fbse_nomfou) AS fournisseur,
+                    a.abse_numf AS numerofournisseur
+                FROM art_bse a
+                LEFT JOIN frn_bse f
+                    ON f.fbse_numfou = a.abse_numf
+                WHERE a.abse_constp = 'ZDI'
+                AND a.abse_numf <> '99'
+                ";
         $result = $this->connect->executeQuery($statement);
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
 
@@ -576,7 +570,8 @@ class DaModel extends Model
                     inner join Informix.frn_liv f2 on f.fllf_numliv = f2.fliv_numliv 
                 where f.fllf_numliv = '$numLiv'";
         $result = $this->connect->executeQuery($statement);
-        return $this->convertirEnUtf8($this->connect->fetchResults($result));
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+        return $data;
     }
 
     public function getInfoBC(string $numCde)
