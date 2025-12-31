@@ -23,13 +23,19 @@ class ApplicationProfilAgenceService
      * @ORM\ManyToOne(targetEntity=ApplicationProfil::class)
      * @ORM\JoinColumn(name="application_profil_id", referencedColumnName="id", nullable=false)
      */
-    private ApplicationProfil $applicationProfil;
+    private ?ApplicationProfil $applicationProfil;
 
     /**
      * @ORM\ManyToOne(targetEntity=AgenceService::class)
      * @ORM\JoinColumn(name="agence_service_id", referencedColumnName="id", nullable=false)
      */
-    private AgenceService $agenceService;
+    private ?AgenceService $agenceService;
+
+    public function __construct(?ApplicationProfil $applicationProfil = null, ?AgenceService $agenceService = null)
+    {
+        $this->applicationProfil = $applicationProfil;
+        $this->agenceService = $agenceService;
+    }
 
     public function getId(): ?int
     {
@@ -41,7 +47,7 @@ class ApplicationProfilAgenceService
         return $this->applicationProfil;
     }
 
-    public function setApplicationProfil(ApplicationProfil $applicationProfil): self
+    public function setApplicationProfil(?ApplicationProfil $applicationProfil): self
     {
         $this->applicationProfil = $applicationProfil;
 
@@ -53,7 +59,7 @@ class ApplicationProfilAgenceService
         return $this->agenceService;
     }
 
-    public function setAgenceService(AgenceService $agenceService): self
+    public function setAgenceService(?AgenceService $agenceService): self
     {
         $this->agenceService = $agenceService;
 
