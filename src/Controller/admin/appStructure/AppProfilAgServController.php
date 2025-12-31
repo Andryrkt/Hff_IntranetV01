@@ -3,7 +3,9 @@
 namespace App\Controller\admin\appStructure;
 
 use App\Controller\Controller;
+use App\Dto\admin\ApplicationProfilAgenceServiceDTO;
 use App\Entity\admin\utilisateur\ApplicationProfilAgenceService;
+use App\Form\admin\ApplicationProfilAgenceServiceType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -17,26 +19,83 @@ class AppProfilAgServController extends Controller
         $this->verifierSessionUtilisateur();
 
         $data = $this->getEntityManager()->getRepository(ApplicationProfilAgenceService::class)->findAll();
+        $preparedData = $this->prepareForDisplay($data);
         return $this->render('admin/appProfilAgServ/list.html.twig', [
-            'data' => $data,
+            'data' => $preparedData,
         ]);
     }
 
-    /** @Route("/new", name="app_profil_ag_serv_new") */
+    /** @Route("/liaison", name="app_profil_ag_serv_liaison") */
     public function new(Request $request)
     {
         // verifier si l'utilisateur est connecté
         $this->verifierSessionUtilisateur();
 
-        return $this->render('admin/appProfilAgServ/new.html.twig');
+        $em = $this->getEntityManager();
+
+        $dto = new ApplicationProfilAgenceServiceDTO();
+        $form = $this->getFormFactory()->createBuilder(ApplicationProfilAgenceServiceType::class, $dto)->getForm();
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+
+            $ap = $dto->applicationProfil;
+            $as = $dto->agenceServices;
+
+            $existingIds = array_map(
+                fn($l) => $l->getAgenceService()->getId(),
+                $ap->getLiaisonsAgenceService()->toArray()
+            );
+
+            // Ajout
+            foreach ($as as $agServ) {
+                if (!in_array($agServ->getId(), $existingIds)) {
+                    $apas = new ApplicationProfilAgenceService($ap, $agServ);
+                    $em->persist($apas);
+                }
+            }
+
+            // Suppression
+            foreach ($ap->getLiaisonsAgenceService() as $link) {
+                if (!in_array($link->getAgenceService()->getId(), $existingIds)) {
+                    $em->remove($link);
+                }
+            }
+
+            $em->flush();
+            $this->redirectToRoute("app_profil_ag_serv_index");
+        }
+
+        return $this->render('admin/appProfilAgServ/new.html.twig', [
+            'form' => $form->createView(),
+        ]);
     }
 
-    /** @Route("/edit/{id}", name="app_profil_ag_serv_update") */
-    public function edit(Request $request, $id)
+    private function prepareForDisplay(array $data)
     {
-        // verifier si l'utilisateur est connecté
-        $this->verifierSessionUtilisateur();
+        $preparedData = [];
 
-        return $this->render('admin/appProfilAgServ/edit.html.twig');
+        /** @var ApplicationProfilAgenceService $liaison */
+        foreach ($data as $liaison) {
+            $profil = $liaison->getApplicationProfil()->getProfil();
+            $application = $liaison->getApplicationProfil()->getApplication();
+            $agence = $liaison->getAgenceService()->getAgence();
+            $service = $liaison->getAgenceService()->getService();
+
+            $preparedData[] = [
+                'appProfilId'    => $liaison->getApplicationProfil()->getId(),
+                'reference'      => $profil->getReference(),
+                'nomProfil'      => $profil->getDesignation(),
+                'codeApp'        => $application->getCodeApp(),
+                'nomApp'         => $application->getNom(),
+                'codeAgence'     => $agence->getCodeAgence(),
+                'libelleAgence'  => $agence->getLibelleAgence(),
+                'codeService'    => $service->getCodeService(),
+                'libelleService' => $service->getLibelleService(),
+            ];
+        }
+
+        return $preparedData;
     }
 }

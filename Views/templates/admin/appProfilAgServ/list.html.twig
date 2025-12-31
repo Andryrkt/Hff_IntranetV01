@@ -1,0 +1,57 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block title %}
+	Profil-Application Agence-Service
+{% endblock %}
+
+{% block content %}
+	<div class="container mt-6 mb-4">
+		<div class="card">
+			<div class="card-body">
+				<h3 class="perso-titre">
+					Liste de tous les liaisons Profil-Application Agence-Service
+				</h3>
+				<a href="{{ path("app_profil_ag_serv_liaison")}}" class="btn btn-success fw-bold my-3">
+					Ajouter une nouvelle liaison
+				</a>
+				<span class="pe-3">
+					Ceci ajoute et supprime des liaisons entre les profils et les applications
+				</span>
+				<table class="table">
+					<thead class="table-dark align-middle">
+						<tr>
+							<th class="d-none">Id profil</th>
+							<th>Référence profil</th>
+							<th>Nom profil</th>
+							<th>Code application</th>
+							<th>Nom application</th>
+							<th>Code agence</th>
+							<th>Libelle agence</th>
+							<th>Code service</th>
+							<th>Libelle service</th>
+						</tr>
+					</thead>
+					<tbody id="tableBody" class="align-middle">
+						{% for row in data %}
+							<tr>
+								<td class="d-none">{{ row.appProfilId }}</td>
+								<td>{{ row.reference }}</td>
+								<td>{{ row.nomProfil }}</td>
+								<td>{{ row.codeApp }}</td>
+								<td>{{ row.nomApp }}</td>
+								<td>{{ row.codeAgence }}</td>
+								<td>{{ row.libelleAgence }}</td>
+								<td>{{ row.codeService }}</td>
+								<td>{{ row.libelleService }}</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block javascript %}
+	<script src="{{ App.base_path }}/Views/js/admin/appProfilAgServ/list.js?v=2025.10.22.08.00" type="module"></script>
+{% endblock %}
