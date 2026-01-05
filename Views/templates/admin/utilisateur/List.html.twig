@@ -4,6 +4,11 @@
 	Listes des utilisateurs
 {% endblock %}
 
+{% block stylesheets %}
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/new.css?v=2025.10.22.08.00">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.10.22.08.00">
+{% endblock %}
+
 {% block content %}
 	<div class="container mt-6">
 		<div class="card">
@@ -11,14 +16,10 @@
 				<h3 class="perso-titre">
 					Liste des utilisateurs
 				</h3>
-				<input type="text" id="searchInput" class="form-control my-3" placeholder="Rechercher...">
-				<div class="d-flex flex-row ">
-					<div class="p-2">
-						<a href="{{ path("utilisateur_new")}}" class="btn btn-success fw-bold">
-							Ajouter
-						</a>
-					</div>
-				</div>
+				{% include "admin/utilisateur/shared/_formulaireRecherche.html.twig" %}
+				<a href="{{ path("utilisateur_new")}}" class="btn btn-success fw-bold my-3">
+					Ajouter nouvel utilisateur
+				</a>
 				<table class="table">
 					<thead class="table-dark">
 						<tr>
@@ -56,32 +57,32 @@
 										</ul>
 									</div>
 								</td>
-								<td>{{item.nomUtilisateur}}</td>
-								<td>{{item.matricule}}</td>
-								<td>{{item.mail}}</td>
-								<td>
+								<td data-label="username">{{item.nomUtilisateur}}</td>
+								<td data-label="matricule">{{item.matricule}}</td>
+								<td data-label="mail">{{item.mail}}</td>
+								<td data-label="role">
 									<ul>
 										{% for a in item.roles %}
 											<li>{{a.rolename}}</li>
 										{% endfor %}
 									</ul>
 								</td>
-								<td>
+								<td data-label="applications">
 									<ul>
 										{% for a in item.applications %}
 											<li>{{a.codeApp}}</li>
 										{% endfor %}
 									</ul>
 								</td>
-								<td>{{item.agenceServiceIrium.serviceSagePaie}}</td>
-								<td>
+								<td data-label="code-sage">{{item.agenceServiceIrium.serviceSagePaie}}</td>
+								<td data-label="agence-autoriser">
 									<ul>
 										{% for a in item.agenceAutoriserCode %}
 											<li>{{a}}</li>
 										{% endfor %}
 									</ul>
 								</td>
-								<td>
+								<td data-label="service-autoriser">
 									<ul>
 										{% for a in item.serviceAutoriserCode %}
 											<li>{{a}}</li>
