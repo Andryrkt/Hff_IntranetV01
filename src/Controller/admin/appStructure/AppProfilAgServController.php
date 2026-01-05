@@ -10,6 +10,8 @@ use App\Form\admin\ApplicationProfilAgenceServiceType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
+use function PHPUnit\Framework\isEmpty;
+
 /** @Route("/admin/appProfilAgServ") */
 class AppProfilAgServController extends Controller
 {
@@ -37,7 +39,8 @@ class AppProfilAgServController extends Controller
         $dto = new ApplicationProfilAgenceServiceDTO();
         $dto->applicationProfil = $em->getRepository(ApplicationProfil::class)->find($id);
         /** Obtenir les agences services deja liées au combinaison ApplicationProfil */
-        $dto->agenceServices = $dto->applicationProfil->getLiaisonsAgenceService()->map(fn($l) => $l->getAgenceService())->toArray();
+        $oldLinks = $dto->applicationProfil->getLiaisonsAgenceService(); // collection de liaison (objet ApplicationProfilAgenceService)
+        $dto->agenceServices = $oldLinks->map(fn($l) => $l->getAgenceService())->toArray(); // tableau d'objets AgenceService
         $form = $this->getFormFactory()->createBuilder(ApplicationProfilAgenceServiceType::class, $dto)->getForm();
 
         $form->handleRequest($request);
@@ -45,25 +48,27 @@ class AppProfilAgServController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
 
             $ap = $dto->applicationProfil;
-            $as = $dto->agenceServices;
+            $as = $dto->agenceServices; // nouveau tableau d'objets AgenceService (selectionné dans le formulaire)
 
             $existingIds = array_map(
                 fn($l) => $l->getAgenceService()->getId(),
-                $ap->getLiaisonsAgenceService()->toArray()
-            );
+                $oldLinks->toArray()
+            ); // tableau d'ids des agences services deja liées
 
             // Ajout
             foreach ($as as $agServ) {
-                if (!in_array($agServ->getId(), $existingIds)) {
+                if ($existingIds && !in_array($agServ->getId(), $existingIds)) {
                     $apas = new ApplicationProfilAgenceService($ap, $agServ);
                     $em->persist($apas);
                 }
             }
 
             // Suppression
-            foreach ($ap->getLiaisonsAgenceService() as $link) {
-                if (!in_array($link->getAgenceService()->getId(), $existingIds)) {
-                    $em->remove($link);
+            if (!$oldLinks->isEmpty()) {
+                foreach ($oldLinks as $link) {
+                    if (!in_array($link->getAgenceService()->getId(), $existingIds)) {
+                        $em->remove($link);
+                    }
                 }
             }
 
