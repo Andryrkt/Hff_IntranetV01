@@ -1,6 +1,6 @@
 /** RECHERCHE */
 document.addEventListener("DOMContentLoaded", function () {
-  const searchInputs = document.querySelectorAll(".user-search-input");
+  const searchInputs = document.querySelectorAll(".js-search-input");
 
   // Fonction pour vérifier tous les filtres
   function applyAllFilters() {
