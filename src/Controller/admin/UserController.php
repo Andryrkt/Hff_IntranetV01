@@ -104,7 +104,6 @@ class UserController extends Controller
         $this->verifierSessionUtilisateur();
 
         $data = $this->getEntityManager()->getRepository(User::class)->findBy([], ['id' => 'DESC']);
-        $data = $this->transformIdEnObjetEntitySuperieur($data);
 
         //$this->logUserVisit('utilisateur_index'); // historisation du page visité par l'utilisateur
 
@@ -112,12 +111,6 @@ class UserController extends Controller
             'data' => $data
         ]);
     }
-
-    private function transformIdEnObjetEntitySuperieur(array $data): array
-    {
-        return $data;
-    }
-
 
     /**
      * @Route("/admin/utilisateur/delete/{id}", name="utilisateur_delete")
