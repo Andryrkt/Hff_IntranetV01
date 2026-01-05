@@ -12,15 +12,14 @@ use App\Form\dit\DocDansDwType;
 use App\Model\dit\DitListModel;
 use App\Entity\admin\Application;
 use App\Entity\admin\StatutDemande;
-use App\Service\Users\UserDataService;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\dit\DitListTrait;
 use App\Controller\Traits\AutorisationTrait;
+use App\Entity\admin\utilisateur\Role;
 use App\Model\dit\DitModel;
 use App\Service\docuware\CopyDocuwareService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Model\dw\DossierInterventionAtelierModel;
 use App\Service\historiqueOperation\HistoriqueOperationDITService;
 
 /**
@@ -32,7 +31,6 @@ class DitListeController extends Controller
     use AutorisationTrait;
 
     private $historiqueOperation;
-    private UserDataService $userDataService;
     private $excelService;
     private DitModel $ditModel;
 
@@ -40,7 +38,6 @@ class DitListeController extends Controller
     {
         parent::__construct();
         $this->historiqueOperation = new HistoriqueOperationDITService($this->getEntityManager());
-        $this->userDataService = new UserDataService($this->getEntityManager());
         $this->excelService = new \App\Service\ExcelService();
         $this->ditModel = new DitModel();
     }
@@ -60,21 +57,21 @@ class DitListeController extends Controller
         $serviceIds = $this->getUser()->getServiceAutoriserIds();
 
         /** CREATION D'AUTORISATION */
-        $this->autorisationAcces($this->getUser(), Application::ID_DIT);
-        $autoriser = $this->autorisationRole($this->getEntityManager());
-        $autorisationRoleEnergie = $this->autorisationRoleEnergie($this->getEntityManager());
+        $this->autorisationAcces(Application::ID_DIT);
+
+        $autoriser = $this->hasRoles(Role::ROLE_ADMINISTRATEUR, Role::ROLE_ATELIER, Role::ROLE_MULTI_SUCURSALES) || $this->hasName('stg.iaro');
+        $autorisationRoleEnergie = $this->hasRoles(Role::ROLE_ENERGIE);
         //FIN AUTORISATION
 
         $ditListeModel = new DitListModel();
         $ditSearch = new DitSearch();
         $agenceServiceIps = $this->agenceServiceIpsObjet();
 
-        $this->initialisationRechercheDit($ditSearch, $this->getEntityManager(), $agenceServiceIps, $autoriser);
+        $this->initialisationRechercheDit($ditSearch, $this->getEntityManager());
 
         //création et initialisation du formulaire de la recherche
         $form = $this->getFormFactory()->createBuilder(DitSearchType::class, $ditSearch, [
             'method' => 'GET',
-            //'idAgenceEmetteur' => $agenceServiceIps['agenceIps']->getId(),
             'autorisationRoleEnergie' => $autorisationRoleEnergie
         ])->getForm();
 

@@ -2,15 +2,12 @@
 
 namespace App\Controller\Traits\dit;
 
-use App\Entity\admin\utilisateur\User;
-
 trait DitRiSoumisAValidationTrait
 {
-    private function nomUtilisateur($em)
+    private function nomUtilisateur()
     {
-        $userId = $this->getSessionService()->get('user_id', []);
-        $user = $em->getRepository(User::class)->find($userId);
-        return $user->getNomUtilisateur();
+        $userInfo = $this->getSessionService()->get('user_info', []);
+        return $userInfo['username'];
     }
 
     /**
@@ -24,7 +21,7 @@ trait DitRiSoumisAValidationTrait
         $file = $form->get($nomFichier)->getData();
         $fileName = 'RI_' . $ditri->getNumeroOR() . '_' . $ditri->getNumeroSoumission() . '-01.' . $file->getClientOriginalExtension();
 
-        $fileDossier = $_ENV['BASE_PATH_FICHIER'].'/vri/fichier/';
+        $fileDossier = $_ENV['BASE_PATH_FICHIER'] . '/vri/fichier/';
 
         $file->move($fileDossier, $fileName);
 
@@ -45,10 +42,10 @@ trait DitRiSoumisAValidationTrait
             }
         }
         //ajouter le nom du pdf crée par dit en avant du tableau
-        array_unshift($pdfFiles, $_ENV['BASE_PATH_FICHIER'].'/vri/RI_' . $ditri->getNumeroOR() . '-' . $ditri->getNumeroSoumission() . '.pdf');
+        array_unshift($pdfFiles, $_ENV['BASE_PATH_FICHIER'] . '/vri/RI_' . $ditri->getNumeroOR() . '-' . $ditri->getNumeroSoumission() . '.pdf');
 
         // Nom du fichier PDF fusionné
-        $mergedPdfFile = $_ENV['BASE_PATH_FICHIER'].'/vri/RI_' . $ditri->getNumeroOR() . '-' . $ditri->getNumeroSoumission() . '.pdf';
+        $mergedPdfFile = $_ENV['BASE_PATH_FICHIER'] . '/vri/RI_' . $ditri->getNumeroOR() . '-' . $ditri->getNumeroSoumission() . '.pdf';
 
         // Appeler la fonction pour fusionner les fichiers PDF
         if (!empty($pdfFiles)) {

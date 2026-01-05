@@ -41,7 +41,7 @@ class ListeCdeFrnNonPlaceController extends  Controller
         $this->verifierSessionUtilisateur();
 
         /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_LCF);
+        $this->autorisationAcces(Application::ID_LCF);
         /** FIN AUtorisation acées */
 
         $form = $this->getFormFactory()->createBuilder(ListeCdeFrnNonPlaceSearchType::class, [], [

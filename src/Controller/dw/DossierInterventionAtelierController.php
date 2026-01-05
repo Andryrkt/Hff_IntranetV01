@@ -3,20 +3,21 @@
 namespace App\Controller\dw;
 
 use App\Controller\Controller;
-use App\Entity\admin\Application;
-use App\Controller\Traits\AutorisationTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
+use App\Traits\FileUtilityTrait;
+use App\Entity\admin\Application;
 use App\Entity\da\DemandeApproLR;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
-use App\Model\dw\DossierInterventionAtelierModel;
-use App\Form\dw\DossierInterventionAtelierSearchType;
+use App\Entity\admin\utilisateur\Role;
+use App\Controller\Traits\AutorisationTrait;
 use App\Repository\da\DemandeApproRepository;
+use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DemandeApproLRepository;
 use App\Repository\da\DemandeApproLRRepository;
+use Symfony\Component\Routing\Annotation\Route;
+use App\Model\dw\dossierInterventionAtelierModel;
+use App\Form\dw\DossierInterventionAtelierSearchType;
 use App\Service\historiqueOperation\HistoriqueOperationDITService;
-use App\Traits\FileUtilityTrait;
 
 /**
  * @Route("/atelier/demande-intervention")
@@ -51,12 +52,12 @@ class DossierInterventionAtelierController extends Controller
         $this->verifierSessionUtilisateur();
 
         /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_DIT);
+        $this->autorisationAcces(Application::ID_DIT);
         /** FIN AUtorisation acées */
 
         $form = $this->getFormFactory()->createBuilder(DossierInterventionAtelierSearchType::class, null, ['method' => 'GET'])->getForm();
 
-        $dwModel = new DossierInterventionAtelierModel();
+        $dwModel = new dossierInterventionAtelierModel();
 
         $dwDits = []; // Initialisation du tableau pour les demandes d'intervention
         $criteria = [
@@ -95,10 +96,10 @@ class DossierInterventionAtelierController extends Controller
         $this->verifierSessionUtilisateur();
 
         /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_DIT);
+        $this->autorisationAcces(Application::ID_DIT);
         /** FIN AUtorisation acées */
 
-        $dwModel = new DossierInterventionAtelierModel();
+        $dwModel = new dossierInterventionAtelierModel();
 
         // Récupération initiale : Demande d'intervention
         $dwDit = $this->fetchAndLabel($dwModel, 'findDwDit', $numDit, "Demande d'intervention");
@@ -136,9 +137,9 @@ class DossierInterventionAtelierController extends Controller
         ]);
     }
 
-    public function ajoutNbDoc(DossierInterventionAtelierModel $dwModel, $criteria)
+    public function ajoutNbDoc(dossierInterventionAtelierModel $dwModel, $criteria)
     {
-        $dwDits = $dwModel->findAllDwDit($criteria, $this->getUser()->getCodeAgenceUser(), $this->estAdmin(), $this->getUserName());
+        $dwDits = $dwModel->findAllDwDit($criteria, $this->getUser()->getCodeAgenceUser(), $this->hasRoles(Role::ROLE_ADMINISTRATEUR), $this->getUserName());
 
         $dwfac = $dwRi = $dwCde = $dwBc = $dwDev = $dwBca = $dwFacBl = [];
 

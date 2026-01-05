@@ -57,7 +57,7 @@ class DitDuplicationController extends Controller
     public function Duplication($numDit, $id, Request $request)
     {
         $this->verifierSessionUtilisateur();
-        $this->autorisationAcces($this->getUser(), Application::ID_DIT);
+        $this->autorisationAcces(Application::ID_DIT);
 
         $user = $this->getUser();
         $dit = $this->getEntityManager()->getRepository(DemandeIntervention::class)->find($id);

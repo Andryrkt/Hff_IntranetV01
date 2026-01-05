@@ -2,7 +2,6 @@
 
 namespace App\Entity\da;
 
-use App\Controller\Traits\da\DaTrait;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DemandeIntervention;
@@ -21,7 +20,6 @@ use App\Repository\da\DemandeApproRepository;
 class DemandeAppro
 {
     use DateTrait;
-    use DaTrait;
 
     public const TYPE_DA_AVEC_DIT            = 0; // id du type de DA avec DIT 
     public const TYPE_DA_DIRECT              = 1; // id du type de DA direct

@@ -10,9 +10,6 @@
 
 {% import "macroForm.html.twig" as macroForm %}
 
-{% set role_ids = App.user.roleIds %}
-{% set user_connecter = App.user.nom_utilisateur %}
-
 {% block content %}
 
 <div class="sticky-header-titre">
@@ -121,6 +118,7 @@
 						{% set classeQuatreStatutOr = '' %}
 					{% endif %}
 					{# FIN LOGIQUE #}
+					{% set mots_a_supprimer = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe'] %}
 					<tr>
 						{# Début Action #}
 						<td class="align-middle" style="padding: 0px">
@@ -171,38 +169,36 @@
 						<td>{{ item.internetExterne}}</td>
 						<td>{{ item.agenceServiceEmetteur }}</td>
 						<td>{{ item.agenceServiceDebiteur}}</td>
+						<td>{{ item.objetDemande}}</td>
 						<td>
-							{{ item.objetDemande}}</td>
-						{% set mots_a_supprimer = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe'] %}
-							<td>
-								<a href="#" data-bs-toggle="modal" data-bs-target="#sectionAffectee" data-id="{{item.id}}" id="">
-									{{ item.sectionAffectee | remove_words(mots_a_supprimer)}}
-								</a>
-							</td>
-							<td>{{item.numeroDevisRattache}}</td>
-							<td>{{ item.statutDevis}}</td>
-							<td>
-								{% if item.numeroOr != '' %}
-									<a href="#" data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{item.numeroOr}}" id="numOr" class="{{classeQuatreStatutOr}} text-black" data-bs-toggle="tooltip" title="lister les commandes">{{ item.numeroOr}}</a>
-								{% endif %}
-							</td>
+							<a href="#" data-bs-toggle="modal" data-bs-target="#sectionAffectee" data-id="{{item.id}}" id="">
+								{{ item.sectionAffectee | remove_words(mots_a_supprimer)}}
+							</a>
+						</td>
+						<td>{{item.numeroDevisRattache}}</td>
+						<td>{{ item.statutDevis}}</td>
+						<td>
+							{% if item.numeroOr != '' %}
+								<a href="#" data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{item.numeroOr}}" id="numOr" class="{{classeQuatreStatutOr}} text-black" data-bs-toggle="tooltip" title="lister les commandes">{{ item.numeroOr}}</a>
+							{% endif %}
+						</td>
 
-							{# <td class="fw-bold {{classeQuatreStatutOr}} ">{{ item.quatrestatutor}}</td> #}
-							<td class="fw-bold ">{{ item.statutor}}</td>
-							<td style="text-align: right;">{{ item.montantTotalOR is not null ? item.montantTotalOR|number_format(2, ',', '.') : '' }}</td>
-							<td>{{ item.dateSoumissionOR is not null ? item.dateSoumissionOR|date('d/m/Y') : '' }}</td>
-							{# <td>{{ item.statutachatpiece}}</td> #}
-							{# <td>{{ item.statutachatlocaux}}</td> #}
-							<td>
-								<a href="#" data-bs-toggle="modal" data-bs-target="#facturation" data-id="{{item.numeroOr}}" id="numOr">{{item.etatFacturation}}</a>
-							</td>
-							<td>
-								<a href="#" data-bs-toggle="modal" data-bs-target="#ri" data-id="{{item.numeroOr}}" id="numOr" data-bs-toggle="tooltip" title="lister les intervention soumis RI">{{ item.ri}}</a>
-							</td>
-							<td class="text-center">{{ item.nbrPj}}</td>
-							<td>{{ item.utilisateurDemandeur|upper }}</td>
+						{# <td class="fw-bold {{classeQuatreStatutOr}} ">{{ item.quatrestatutor}}</td> #}
+						<td class="fw-bold ">{{ item.statutor}}</td>
+						<td style="text-align: right;">{{ item.montantTotalOR is not null ? item.montantTotalOR|number_format(2, ',', '.') : '' }}</td>
+						<td>{{ item.dateSoumissionOR is not null ? item.dateSoumissionOR|date('d/m/Y') : '' }}</td>
+						{# <td>{{ item.statutachatpiece}}</td> #}
+						{# <td>{{ item.statutachatlocaux}}</td> #}
+						<td>
+							<a href="#" data-bs-toggle="modal" data-bs-target="#facturation" data-id="{{item.numeroOr}}" id="numOr">{{item.etatFacturation}}</a>
+						</td>
+						<td>
+							<a href="#" data-bs-toggle="modal" data-bs-target="#ri" data-id="{{item.numeroOr}}" id="numOr" data-bs-toggle="tooltip" title="lister les intervention soumis RI">{{ item.ri}}</a>
+						</td>
+						<td class="text-center">{{ item.nbrPj}}</td>
+						<td>{{ item.utilisateurDemandeur|upper }}</td>
 
-						</tr>
+					</tr>
 					{% endfor %}
 				</tbody>
 			</table>

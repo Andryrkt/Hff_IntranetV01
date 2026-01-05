@@ -1,14 +1,13 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\accueil;
 
+use App\Controller\Controller;
+use App\Entity\admin\Application;
 use App\Service\navigation\MenuService;
 use Symfony\Component\Routing\Annotation\Route;
 use Exception;
 
-/**
- * Contrôleur de la page d'accueil refactorisé pour utiliser l'injection de dépendances
- */
 class HomeController extends Controller
 {
     public function __construct()
@@ -18,7 +17,7 @@ class HomeController extends Controller
 
     private function getMenuService(): MenuService
     {
-        return $this->getContainer()->get('App\Service\navigation\MenuService');
+        return $this->getContainer()->get('menuService');
     }
 
     /**

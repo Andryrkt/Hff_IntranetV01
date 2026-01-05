@@ -45,9 +45,9 @@ class planningMagasinController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
         /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_REP);
+        $this->autorisationAcces(Application::ID_REP);
         // autorisation pour affichage
-        $autoriser = $this->estAutoriser($this->getUser());
+        $autoriser = $this->estAutoriser();
         $codeAgence = $autoriser ? "-0" : $this->getUser()->getCodeAgenceUser();
         /** FIN AUtorisation acées */
         //initialisation
@@ -108,9 +108,8 @@ class planningMagasinController extends Controller
         return $numBc;
     }
 
-    private function estAutoriser(User $user)
+    private function estAutoriser()
     {
-        $roleIds = $user->getRoleIds();
-        return $this->estAdmin()  || in_array(Role::ROLE_MULTI_SUCURSALES, $roleIds);
+        return $this->hasRoles(Role::ROLE_ADMINISTRATEUR, Role::ROLE_MULTI_SUCURSALES);
     }
 }

@@ -13,7 +13,6 @@ use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\bdc\BonDeCaisseListeTrait;
-use App\Entity\dw\DwBonDeCaisse;
 use App\Factory\bdc\BonDeCaisseFactory;
 
 /**
@@ -33,7 +32,7 @@ class BonDeCaisseController extends Controller
     public function listeBonCaisse(Request $request)
     {
         $this->verifierSessionUtilisateur();
-        $this->autorisationAcces($this->getUser(), Application::ID_BCS);
+        $this->autorisationAcces(Application::ID_BCS);
 
         $bonCaisseSearch = new BonDeCaisseDto();
 

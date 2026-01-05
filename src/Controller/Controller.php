@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use Parsedown;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Entity\admin\Application;
@@ -12,7 +11,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use App\Entity\admin\historisation\pageConsultation\PageHff;
 use App\Entity\admin\historisation\pageConsultation\UserLogger;
-use App\Entity\admin\utilisateur\Role;
 use App\Entity\da\DemandeAppro;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -21,7 +19,6 @@ use Twig\Environment;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-use App\Service\SessionManagerService;
 
 /**
  * Classe Controller avec injection de dépendances
@@ -29,8 +26,6 @@ use App\Service\SessionManagerService;
  */
 class Controller
 {
-    protected $parsedown;
-
     // Services injectés (accessibles via getters)
     protected $entityManager;
     protected $urlGenerator;
@@ -50,16 +45,15 @@ class Controller
         // Créer la requête et la réponse
         $this->request = Request::createFromGlobals();
         $this->response = new Response();
-        $this->parsedown = new Parsedown();
     }
 
-    protected function getSessionService(): SessionManagerService
+    protected function getSessionService(): SessionInterface
     {
         if ($this->sessionService === null) {
             try {
                 $container = $this->getContainer();
-                if ($container && $container->has('App\\Service\\SessionManagerService')) {
-                    $this->sessionService = $container->get('App\\Service\\SessionManagerService');
+                if ($container && $container->has('session')) {
+                    $this->sessionService = $container->get('session');
                 } else {
                     $this->sessionService = new \App\Service\SessionManagerService();
                 }
@@ -440,39 +434,27 @@ class Controller
     protected function agenceServiceIpsObjet(): array
     {
         try {
-            $userId = $this->getSessionService()->get('user_id');
+            $userInfo = $this->getSessionService()->get('user_info');
 
-            if (!$userId) {
-                throw new \Exception("User ID not found in session");
-            }
+            if (!$userInfo) throw new \Exception("User info not found in session");
 
-            $user = $this->getEntityManager()->getRepository(User::class)->find($userId);
-
-            if (!$user) {
-                throw new \Exception("User not found with ID $userId");
-            }
-
-            $codeAgence = $user->getAgenceServiceIrium()->getAgenceIps();
+            $codeAgence = $userInfo["default_agence_code"];
             $agenceIps = $this->getEntityManager()->getRepository(Agence::class)->findOneBy(['codeAgence' => $codeAgence]);
 
-            if (!$agenceIps) {
-                throw new \Exception("Agence not found with code $codeAgence");
-            }
+            if (!$agenceIps) throw new \Exception("Agence not found with code $codeAgence");
 
-            $codeService = $user->getAgenceServiceIrium()->getServiceIps();
+            $codeService = $userInfo["default_service_code"];
             $serviceIps = $this->getEntityManager()->getRepository(Service::class)->findOneBy(['codeService' => $codeService]);
-            if (!$serviceIps) {
-                throw new \Exception("Service not found with code $codeService");
-            }
+            if (!$serviceIps) throw new \Exception("Service not found with code $codeService");
 
             return [
-                'agenceIps' => $agenceIps,
+                'agenceIps'  => $agenceIps,
                 'serviceIps' => $serviceIps
             ];
         } catch (\Exception $e) {
             error_log($e->getMessage());
             return [
-                'agenceIps' => null,
+                'agenceIps'  => null,
                 'serviceIps' => null
             ];
         }
@@ -484,23 +466,17 @@ class Controller
     protected function agenceServiceIpsString(): array
     {
         try {
-            $userId = $this->getSessionService()->get('user_id');
-            if (!$userId) {
-                throw new \Exception("User ID not found in session");
-            }
+            $userInfo = $this->getSessionService()->get('user_info');
 
-            $user = $this->getEntityManager()->getRepository(User::class)->find($userId);
-            if (!$user) {
-                throw new \Exception("User not found with ID $userId");
-            }
+            if (!$userInfo) throw new \Exception("User info not found in session");
 
-            $codeAgence = $user->getAgenceServiceIrium()->getAgenceips();
+            $codeAgence = $userInfo["default_agence_code"];
             $agenceIps = $this->getEntityManager()->getRepository(Agence::class)->findOneBy(['codeAgence' => $codeAgence]);
             if (!$agenceIps) {
                 throw new \Exception("Agence not found with code $codeAgence");
             }
 
-            $codeService = $user->getAgenceServiceIrium()->getServiceips();
+            $codeService = $userInfo["default_service_code"];
             $serviceIps = $this->getEntityManager()->getRepository(Service::class)->findOneBy(['codeService' => $codeService]);
             if (!$serviceIps) {
                 throw new \Exception("Service not found with code $codeService");
@@ -513,7 +489,7 @@ class Controller
         } catch (\Throwable $e) {
             error_log($e->getMessage());
             return [
-                'agenceIps' => '',
+                'agenceIps'  => '',
                 'serviceIps' => ''
             ];
         }
@@ -524,22 +500,31 @@ class Controller
      */
     protected function logUserVisit(string $nomRoute, ?array $params = null)
     {
-        $idUtilisateur = $this->getSessionService()->get('user_id');
-        $utilisateur = ($idUtilisateur && $idUtilisateur !== '-') ? $this->getEntityManager()->getRepository(User::class)->find($idUtilisateur) : null;
+        $userInfo = $this->getSessionService()->get('user_info');
+        $idUtilisateur = $userInfo['id'] ?? "-";
+        $utilisateur = $userInfo ? $this->getEntityManager()->getRepository(User::class)->find($idUtilisateur) : null;
         $utilisateurNom = $utilisateur ? $utilisateur->getNomUtilisateur() : null;
         $page = $this->getEntityManager()->getRepository(PageHff::class)->findPageByRouteName($nomRoute);
         $machine = gethostbyaddr($_SERVER['REMOTE_ADDR']) ?? $_SERVER['REMOTE_ADDR'];
 
         $log = new UserLogger();
 
-        $log->setUtilisateur($utilisateurNom ?: '-');
+        $log->setUtilisateur($utilisateurNom ?? '-');
         $log->setNom_page($page->getNom());
-        $log->setParams($params ?: null);
+        $log->setParams($params);
         $log->setUser($utilisateur);
         $log->setMachineUser($machine);
 
         $this->getEntityManager()->persist($log);
         $this->getEntityManager()->flush();
+    }
+
+    /**
+     * Méthode helper pour vérifier si l'utilisateur est connecté
+     */
+    public function isUserConnected(): bool
+    {
+        return $this->getSessionService()->has('user_info');
     }
 
     /**
@@ -557,7 +542,8 @@ class Controller
      */
     protected function getUserId(): ?int
     {
-        return $this->getSessionService()->get('user_id');
+        $userInfo = $this->getSessionService()->get('user_info');
+        return $userInfo['id'] ?? null;
     }
 
     /**
@@ -572,10 +558,10 @@ class Controller
     /**
      * Récupérer l'email de l'utilisateur
      */
-    protected function getUserMail(): ?string
+    protected function getUserMail(): string
     {
-        $user = $this->getUser();
-        return $user ? $user->getMail() : null;
+        $userInfo = $this->getSessionService()->get('user_info');
+        return $userInfo['email'] ?? "";
     }
 
     /**
@@ -583,8 +569,39 @@ class Controller
      */
     protected function getUserName(): string
     {
-        $user = $this->getUser();
-        return $user ? $user->getNomUtilisateur() : 'unknown';
+        $userInfo = $this->getSessionService()->get('user_info');
+        return $userInfo['username'] ?? "";
+    }
+
+    /**
+     * Vérifie si l'utilisateur a au moins un des rôles cités
+     * 
+     * @param int ...$roleIds
+     * @return bool
+     */
+    protected function hasRoles(int ...$roleIds): bool
+    {
+        $userInfo = $this->getSessionService()->get('user_info');
+        if (!$userInfo) return false;
+        $userRoleIds = $userInfo['roles'];
+
+        foreach ($roleIds as $role) {
+            if (in_array($role, $userRoleIds)) return true;
+        }
+        return false;
+    }
+
+    /**
+     * Vérifie si l'utilisateur est dans la liste des noms
+     * 
+     * @param string ...$names
+     * @return bool
+     */
+    protected function hasName(string ...$names): bool
+    {
+        $userInfo = $this->getSessionService()->get('user_info');
+        if (!$userInfo) return false;
+        return in_array($userInfo['username'], $names);
     }
 
     /**
@@ -592,10 +609,11 @@ class Controller
      */
     protected function estUserDansServiceAtelier(): bool
     {
-        $user = $this->getUser();
-        if (!$user) return false;
-        $serviceIds = $user->getServiceAutoriserIds();
-        return in_array(DemandeAppro::ID_ATELIER, $serviceIds);
+        $userInfo = $this->getSessionService()->get('user_info');
+        if (!$userInfo) return false;
+        $userServiceIds = $userInfo['authorized_services']['ids'] ?? [];
+
+        return in_array(DemandeAppro::ID_ATELIER, $userServiceIds);
     }
 
     /**
@@ -603,43 +621,44 @@ class Controller
      */
     protected function estUserDansServiceAppro(): bool
     {
-        $user = $this->getUser();
-        if (!$user) return false;
-        $serviceIds = $user->getServiceAutoriserIds();
-        return in_array(DemandeAppro::ID_APPRO, $serviceIds);
+        $userInfo = $this->getSessionService()->get('user_info');
+        if (!$userInfo) return false;
+        $userServiceIds = $userInfo['authorized_services']['ids'] ?? [];
+
+        return in_array(DemandeAppro::ID_APPRO, $userServiceIds);
     }
 
     /**
-     * Vérifier si l'utilisateur est un créateur de DA directe
+     * Obtenir le code agence par défaut (IPS) de l'utilisateur
      */
-    protected function estCreateurDeDADirecte(): bool
+    protected function getCodeAgenceUser(): string
     {
-        $user = $this->getUser();
-        if (!$user) return false;
-        $roleIds = $user->getRoleIds();
-        return in_array(Role::ROLE_DA_DIRECTE, $roleIds);
+        $userInfo = $this->getSessionService()->get('user_info');
+        if (!$userInfo) return "";
+        return $userInfo['default_agence_code'] ?? '';
     }
 
     /**
-     * Vérifier si l'utilisateur est admin
+     * Obtenir le code service par défaut (IPS) de l'utilisateur
      */
-    protected function estAdmin(): bool
+    protected function getCodeServiceUser(): string
     {
-        $user = $this->getUser();
-        if (!$user) return false;
-        $roleIds = $user->getRoleIds();
-        return in_array(Role::ROLE_ADMINISTRATEUR, $roleIds);
+        $userInfo = $this->getSessionService()->get('user_info');
+        if (!$userInfo) return "";
+        return $userInfo['default_service_code'] ?? '';
     }
 
     /**
-     * Vérifier si l'utilisateur est super admin
+     * Obtenir les ids des agence-service autorisés de l'utilisateur
      */
-    protected function estSuperAdmin(): bool
+    protected function getAgServAutorisesUser(): array
     {
-        $user = $this->getUser();
-        if (!$user) return false;
-        $roleIds = $user->getRoleIds();
-        return in_array(Role::ROLE_SUPER_ADMINISTRATEUR, $roleIds);
+        $userInfo = $this->getSessionService()->get('user_info');
+        if (!$userInfo) return [];
+        return [
+            'agences'  => $userInfo['authorized_agences']['ids'] ?? [],
+            'services' => $userInfo['authorized_services']['ids'] ?? [],
+        ];
     }
 
     // =====================================
@@ -750,29 +769,5 @@ class Controller
             $status,
             ['Content-Type' => 'application/json']
         );
-    }
-
-    /**
-     * Méthode helper pour vérifier si l'utilisateur est connecté
-     */
-    public function isUserConnected(): bool
-    {
-        return $this->getSessionService()->has('user_id');
-    }
-
-    /**
-     * Méthode helper pour obtenir l'ID de l'utilisateur connecté
-     */
-    protected function getCurrentUserId()
-    {
-        return $this->getSessionService()->get('user_id');
-    }
-
-    /**
-     * Méthode helper pour obtenir le nom de l'utilisateur connecté
-     */
-    protected function getCurrentUsername()
-    {
-        return $this->getSessionService()->get('user');
     }
 }

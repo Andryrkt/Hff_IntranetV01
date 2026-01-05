@@ -6,21 +6,16 @@ namespace App\Controller\pol\ors\Livrer;
 ini_set('max_execution_time', 10000);
 ini_set('memory_limit', '1000M');
 
-
-use App\Model\dit\DitModel;
 use App\Controller\Controller;
-use App\Entity\admin\Application;
-use App\Entity\dit\DemandeIntervention;
+use App\Entity\admin\utilisateur\Role;
 use App\Service\TableauEnStringService;
 use App\Controller\Traits\Transformation;
 use Symfony\Component\Form\FormInterface;
 use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Model\magasin\MagasinListeOrLivrerModel;
 use App\Form\magasin\MagasinListeOrALivrerSearchType;
 use App\Controller\Traits\magasin\ors\MagasinOrALivrerTrait;
-use App\Controller\Traits\magasin\ors\MagasinTrait as OrsMagasinTrait;
 
 /**
  * @Route("/pol/ors-pol")
@@ -28,7 +23,6 @@ use App\Controller\Traits\magasin\ors\MagasinTrait as OrsMagasinTrait;
 class OrLivrerController extends Controller
 {
     use Transformation;
-    use OrsMagasinTrait;
     use MagasinOrALivrerTrait;
     use AutorisationTrait;
 
@@ -45,7 +39,7 @@ class OrLivrerController extends Controller
         $codeAgence = $this->getUser()->getAgenceAutoriserCode();
 
         /** CREATION D'AUTORISATION */
-        $autoriser = $this->autorisationRole($this->getEntityManager());
+        $autoriser = $this->hasRoles(Role::ROLE_ADMINISTRATEUR, Role::ROLE_MULTI_SUCURSALES);
         //FIN AUTORISATION
 
         if ($autoriser) {
@@ -91,5 +85,4 @@ class OrLivrerController extends Controller
         //recupération des données
         return $this->recupData($criteria);
     }
-    
 }

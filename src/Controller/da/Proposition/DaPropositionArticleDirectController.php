@@ -19,6 +19,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Service\da\FileUploaderForDAService;
 use App\Controller\Traits\da\validation\DaValidationDirectTrait;
 use App\Controller\Traits\da\proposition\DaPropositionDirectTrait;
+use App\Entity\admin\utilisateur\Role;
 
 /**
  * @Route("/demande-appro")
@@ -49,7 +50,7 @@ class DaPropositionArticleDirectController extends Controller
         $this->verifierSessionUtilisateur();
 
         /** Autorisation accès */
-        $this->autorisationAcces($this->getUser(), Application::ID_DAP);
+        $this->autorisationAcces(Application::ID_DAP);
         /** FIN AUtorisation accès */
 
         $da = $this->demandeApproRepository->findAvecDernieresDALetLR($id);
@@ -84,7 +85,7 @@ class DaPropositionArticleDirectController extends Controller
             'numDa'                   => $numDa,
             'connectedUser'           => $this->getUser(),
             'statutAutoriserModifAte' => $da->getStatutDal() === DemandeAppro::STATUT_AUTORISER_MODIF_ATE,
-            'estCreateurDaDirecte'    => $this->estCreateurDeDADirecte(),
+            'estCreateurDaDirecte'    => $this->hasRoles(Role::ROLE_DA_DIRECTE),
             'estAppro'                => $this->estUserDansServiceAppro(),
             'nePeutPasModifier'       => $this->nePeutPasModifier($da),
             'propValTemplate'         => 'proposition-validation-direct',

@@ -35,7 +35,7 @@ class CongeController extends Controller
         $this->verifierSessionUtilisateur();
 
         // DEBUT D'AUTORISATION
-        $this->autorisationAcces($this->getUser(), Application::ID_DDC);
+        $this->autorisationAcces(Application::ID_DDC);
         //FIN AUTORISATION
 
         $congeSearch = new DemandeConge();
@@ -624,7 +624,7 @@ class CongeController extends Controller
         $this->verifierSessionUtilisateur();
 
         // DEBUT D'AUTORISATION
-        $this->autorisationAcces($this->getUser(), Application::ID_DDC);
+        $this->autorisationAcces(Application::ID_DDC);
         //FIN AUTORISATION
 
         // Récupérer toutes les demandes de congé pour les afficher dans le calendrier

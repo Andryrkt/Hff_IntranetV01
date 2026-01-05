@@ -12,7 +12,6 @@ use App\Entity\admin\Personnel;
 use App\Entity\admin\Application;
 use App\Entity\admin\dom\Indemnite;
 use App\Entity\admin\StatutDemande;
-use App\Entity\admin\utilisateur\User;
 use App\Entity\admin\AgenceServiceIrium;
 use App\Entity\admin\dom\SousTypeDocument;
 use App\Service\genererPdf\GeneratePdfDom;
@@ -33,9 +32,11 @@ trait DomsDupliTrait
 
     public function initialisationSecondForm($form1Data, $em, $dom)
     {
+        $userInfo = $this->getSessionService()->get('user_info');
+        $username = $userInfo["username"];
 
-        $Code_AgenceService_Sage = $this->badm->getAgence_SageofCours($this->getSessionService()->get('user'));
-        $CodeServiceofCours = $this->badm->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $this->getSessionService()->get('user'));
+        $Code_AgenceService_Sage = $this->badm->getAgence_SageofCours($username);
+        $CodeServiceofCours = $this->badm->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $username);
 
         $dom->setMatricule($form1Data['matricule']);
         $dom->setSalarier($form1Data['salarier']);
@@ -88,10 +89,13 @@ trait DomsDupliTrait
 
     private function criteria($dom, $em, $form1Data)
     {
+        $userInfo = $this->getSessionService()->get('user_info');
+        $username = $userInfo["username"];
+
         $sousTypedocument = $form1Data['sousTypeDocument'];
         $catg = $form1Data['categoryId'];
-        $Code_AgenceService_Sage = $this->badm->getAgence_SageofCours($this->getSessionService()->get('user'));
-        $CodeServiceofCours = $this->badm->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $this->getSessionService()->get('user'));
+        $Code_AgenceService_Sage = $this->badm->getAgence_SageofCours($username);
+        $CodeServiceofCours = $this->badm->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $username);
 
         if ($CodeServiceofCours[0]['agence_ips'] === '50') {
             $rmq = $em->getRepository(Rmq::class)->findOneBy(['description' => '50']);
@@ -209,14 +213,16 @@ trait DomsDupliTrait
         } else {
             $site = $domForm->getSite();
         }
+        $userInfo = $this->getSessionService()->get('user_info');
+        $username = $userInfo["username"];
 
         $dom
             ->setTypeDocument($form1Data['sousTypeDocument']->getCodeDocument())
             ->setSousTypeDocument($sousTypeDocument)
             ->setCategorie($categoryId)
             ->setMatricule($matricule)
-            ->setUtilisateurCreation($this->getSessionService()->get('user'))
-            ->setNomSessionUtilisateur($this->getSessionService()->get('user'))
+            ->setUtilisateurCreation($username)
+            ->setNomSessionUtilisateur($username)
             ->setNumeroOrdreMission($this->autoINcriment('DOM'))
             ->setIdStatutDemande($statutDemande)
             ->setCodeAgenceServiceDebiteur($agenceDebiteur->getCodeagence() . $serviceDebiteur->getCodeService())
@@ -248,7 +254,8 @@ trait DomsDupliTrait
             $mode = 'TEL' . explode(':', $dom->getModePayement())[1];
         }
 
-        $email = $em->getRepository(User::class)->findOneBy(['nom_utilisateur' => $this->getSessionService()->get('user')])->getMail();
+        $userInfo = $this->getSessionService()->get('user_info');
+        $email = $userInfo["email"];
         return  [
             "Devis" => $dom->getDevis(),
             "Prenoms" => $dom->getPrenom(),

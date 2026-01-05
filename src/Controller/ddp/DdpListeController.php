@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\ddp\DemandePaiementRepository;
 use App\Repository\ddp\DemandePaiementLigneRepository;
+
 /**
  * @Route("/compta/demande-de-paiement")
  */
@@ -39,7 +40,7 @@ class DdpListeController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
         /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_DDP);
+        $this->autorisationAcces(Application::ID_DDP);
         /** FIN AUtorisation acées */
 
         $form = $this->getFormFactory()->createBuilder(DdpSearchType::class, $this->ddpSearch, [

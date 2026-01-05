@@ -69,7 +69,7 @@ class DevisMagasinValidationDevisController extends Controller
         $this->verifierSessionUtilisateur();
 
         /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_DVM);
+        $this->autorisationAcces(Application::ID_DVM);
 
         //recupération des informations utile dans IPS
         $firstDevisIps = $this->getInfoDevisIps($numeroDevis);

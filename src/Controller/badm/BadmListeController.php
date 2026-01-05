@@ -8,10 +8,10 @@ use App\Controller\Controller;
 use App\Entity\badm\BadmSearch;
 use App\Entity\admin\Application;
 use App\Form\badm\BadmSearchType;
-use App\Entity\admin\utilisateur\User;
 use App\Model\badm\BadmRechercheModel;
 use App\Controller\Traits\BadmListTrait;
 use App\Controller\Traits\AutorisationTrait;
+use App\Entity\admin\utilisateur\Role;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -32,12 +32,12 @@ class BadmListeController extends Controller
         $this->verifierSessionUtilisateur();
 
         /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_BADM);
+        $this->autorisationAcces(Application::ID_BADM);
         /** FIN AUtorisation acées */
 
         $userConnecter = $this->getUser();
 
-        $autoriser = $this->autorisationRole($this->getEntityManager());
+        $autoriser = $this->hasRoles(Role::ROLE_ADMINISTRATEUR);
 
         $badmSearch = new BadmSearch();
 
@@ -65,8 +65,6 @@ class BadmListeController extends Controller
         //enregistre le critère dans la session
         $this->getSessionService()->set('badm_search_criteria', $criteria);
 
-
-        //$agenceServiceEmetteur = $this->agenceServiceEmetteur($autoriser, $this->getEntityManager());
         $criteria['agenceAutoriser'] = $userConnecter->getAgenceAutoriserIds();
 
 
@@ -165,7 +163,7 @@ class BadmListeController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $autoriser = $this->autorisationRole($this->getEntityManager());
+        $autoriser = $this->hasRoles(Role::ROLE_ADMINISTRATEUR);
 
         $badmSearch = new BadmSearch();
         $agenceServiceIps = $this->agenceServiceIpsObjet();
@@ -190,7 +188,7 @@ class BadmListeController extends Controller
         $page = max(1, $request->query->getInt('page', 1));
         $limit = 10;
 
-        $agenceServiceEmetteur = $this->agenceServiceEmetteur($autoriser, $this->getEntityManager());
+        $agenceServiceEmetteur = $this->agenceServiceEmetteur($autoriser);
 
         $option = [
             'boolean' => $autoriser,

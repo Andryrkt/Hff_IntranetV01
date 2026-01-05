@@ -1,5 +1,3 @@
-{% set role_ids = App.user.roleIds %}
-
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark navbar-dark sticky-top border-bottom" id="main-nav-bar">
 	<div
 		class="container-fluid mx-4">
@@ -40,7 +38,7 @@
 							Guide utilisateur intranet
 						</a>
 					</li>
-					{% if 7 in role_ids %}
+					{% if App.userConnecter.isSuperAdmin %}
 						<li class="me-3">
 							<a class="tech-doc-link" href="{{ path('app_doc_tech_index') }}" role="button">
 								<i class="fas fa-code pe-2"></i>
@@ -49,12 +47,12 @@
 						</li>
 					{% endif %}
 					<li class="nav-item dropdown">
-						<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" id="userName" data-user-first-name="{{ App.user.Personnels.prenoms }}" data-user-last-name="{{ App.user.Personnels.nom }}" ria-expanded="false" style="color: #fbbb01;">
+						<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" id="userName" data-user-full-name="{{ App.userConnecter.fullname }}" aria-expanded="false" style="color: #fbbb01;">
 							<i class="fas fa-user pe-1"></i>
-							{{ App.user.Personnels.prenoms ~ '.' ~ App.user.Personnels.nom }}
+							{{ App.userConnecter.lastname ~ '.' ~ App.userConnecter.firstname }}
 						</a>
 						<ul class="dropdown-menu dropdown-menu-end">
-							{% if 1 in role_ids or 7 in role_ids %}
+							{% if App.userConnecter.isAdmin or App.userConnecter.isSuperAdmin %}
 								<li class="dropstart">
 									<a class="dropdown-item dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #fbbb01;">
 										<i class="fas fa-shield-alt pe-2"></i>

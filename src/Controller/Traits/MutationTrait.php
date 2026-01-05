@@ -28,7 +28,7 @@ trait MutationTrait
         ;
     }
 
-    private function enregistrementValeurDansMutation($form, $em, $user)
+    private function enregistrementValeurDansMutation($form, $em)
     {
         /** 
          * @var Mutation $mutation entité correspondant aux données du formulaire
@@ -47,7 +47,7 @@ trait MutationTrait
             ->setModePaiement($form->get('modePaiementLabel')->getData() . ':' . $form->get('modePaiementValue')->getData())
             ->setStatutDemande($statutDemande)
             ->setCodeStatut($statutDemande->getCodeStatut())
-            ->setUtilisateurCreation($user->getNomUtilisateur())
+            ->setUtilisateurCreation($this->getUserName())
         ;
 
         if ($mutation->getPieceJoint01() !== null) {
@@ -67,7 +67,7 @@ trait MutationTrait
         return $mutation;
     }
 
-    private function donneePourPdf($form, User $user): array
+    private function donneePourPdf($form): array
     {
         /** 
          * @var Mutation $mutation entité correspondant aux données du formulaire
@@ -81,7 +81,7 @@ trait MutationTrait
         $rental = $mutation->getAgenceDebiteur()->getCodeAgence() === '50';
 
         $tab = [
-            'MailUser'              => $user->getMail(),
+            'MailUser'              => $this->getUserMail(),
             'dateS'                 => $formatDate($mutation->getDateDemande()),
             "NumMut"                => $mutation->getNumeroMutation(),
             "Nom"                   => $mutation->getNom(),

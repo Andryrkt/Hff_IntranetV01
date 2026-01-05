@@ -30,10 +30,9 @@ class ClotureTikController extends Controller
      */
     public function cloture($id)
     {
-        /** 
-         * @var User $connectedUser l'utilisateur connecté
-         */
-        $connectedUser = $this->getEntityManager()->getRepository(User::class)->find($this->getSessionService()->get('user_id'));
+        $this->verifierSessionUtilisateur();
+
+        $connectedUser = $this->getUser();
 
         /** 
          * @var DemandeSupportInformatique $supportInfo entité correspondant à l'id 
@@ -41,7 +40,7 @@ class ClotureTikController extends Controller
         $supportInfo = $this->getEntityManager()->getRepository(DemandeSupportInformatique::class)->find($id);
 
         // Vérifier si l'utilisateur peut modifier le ticket
-        if (!$this->canCloturer($supportInfo)) {
+        if (!$this->canCloturer($supportInfo, $connectedUser)) {
             $this->redirectToRoute('profil_acceuil');
         }
 
@@ -58,17 +57,8 @@ class ClotureTikController extends Controller
     /** 
      * Fonction pour vérifier si l'utilisateur peut cloturer le ticket
      */
-    private function canCloturer(DemandeSupportInformatique $ticket): bool
+    private function canCloturer(DemandeSupportInformatique $ticket, User $utilisateur): bool
     {
-        $this->verifierSessionUtilisateur();
-
-        $idUtilisateur  = $this->getSessionService()->get('user_id');
-
-        /** 
-         * @var User $utilisateur l'utilisateur connecté
-         */
-        $utilisateur    = $idUtilisateur !== '-' ? $this->getEntityManager()->getRepository(User::class)->find($idUtilisateur) : null;
-
         if (is_null($utilisateur)) {
             $this->SessionDestroy();
             $this->redirectToRoute("security_signin");

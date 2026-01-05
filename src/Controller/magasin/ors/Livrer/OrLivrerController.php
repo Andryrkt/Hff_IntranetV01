@@ -6,8 +6,6 @@ namespace App\Controller\magasin\ors\Livrer;
 ini_set('max_execution_time', 10000);
 ini_set('memory_limit', '1000M');
 
-
-use App\Model\dit\DitModel;
 use App\Controller\Controller;
 use App\Entity\admin\Application;
 use App\Service\TableauEnStringService;
@@ -17,7 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Form\magasin\MagasinListeOrALivrerSearchType;
 use App\Controller\Traits\magasin\ors\MagasinOrALivrerTrait;
-use App\Controller\Traits\magasin\ors\MagasinTrait as OrsMagasinTrait;
+use App\Entity\admin\utilisateur\Role;
 
 /**
  * @Route("/magasin/or")
@@ -25,7 +23,6 @@ use App\Controller\Traits\magasin\ors\MagasinTrait as OrsMagasinTrait;
 class OrLivrerController extends Controller
 {
     use Transformation;
-    use OrsMagasinTrait;
     use MagasinOrALivrerTrait;
     use AutorisationTrait;
 
@@ -40,14 +37,14 @@ class OrLivrerController extends Controller
         $this->verifierSessionUtilisateur();
 
         /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_MAG);
+        $this->autorisationAcces(Application::ID_MAG);
         /** FIN AUtorisation acées */
 
         $codeAgence = $this->getUser()->getAgenceAutoriserCode();
         $serviceAgence = $this->getUser()->getServiceAutoriserCode();
 
         /** CREATION D'AUTORISATION */
-        $autoriser = $this->autorisationRole($this->getEntityManager());
+        $autoriser = $this->hasRoles(Role::ROLE_ADMINISTRATEUR, Role::ROLE_MULTI_SUCURSALES);
         //FIN AUTORISATION
 
         if ($autoriser) {
@@ -82,5 +79,4 @@ class OrLivrerController extends Controller
             'form' => $form->createView()
         ]);
     }
-
 }

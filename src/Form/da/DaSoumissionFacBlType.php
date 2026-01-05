@@ -10,16 +10,21 @@ use Symfony\Component\Validator\Constraints\Callback;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class DaSoumissionFacBlType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+        $numLivs = $options['numLivs'];
+
         $builder
             ->add('numeroCde', TextType::class, [
                 'label' => 'Numéro Commande',
-                'attr' => ['disabled' => true]
+                'attr'  => [
+                    'class' => 'div-disabled',
+                ]
             ])
             ->add(
                 'pieceJoint1',
@@ -45,11 +50,11 @@ class DaSoumissionFacBlType extends AbstractType
                 'pieceJoint2',
                 FileType::class,
                 [
-                    'label' => 'Pièces Jointes',
-                    'required' => false,
-                    'multiple' => true,
-                    'data_class' => null,
-                    'mapped' => true,
+                    'label'       => 'Pièces Jointes',
+                    'required'    => false,
+                    'multiple'    => true,
+                    'data_class'  => null,
+                    'mapped'      => true,
                     'constraints' => [
                         new Callback([$this, 'validateFiles']),
                     ],
@@ -97,5 +102,7 @@ class DaSoumissionFacBlType extends AbstractType
         $resolver->setDefaults([
             'data_class' => DaSoumissionFacBl::class,
         ]);
+        // Ajoutez l'option 'id_type' pour éviter l'erreur
+        $resolver->setDefined('numLivs');
     }
 }

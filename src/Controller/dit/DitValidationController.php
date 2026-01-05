@@ -25,8 +25,7 @@ class DitValidationController extends Controller
 
 
         /** CREATION D'AUTORISATION */
-        $userId = $this->getSessionService()->get('user_id');
-        $userConnecter = $this->getEntityManager()->getRepository(User::class)->find($userId);
+        $userConnecter = $this->getUser();
         $roleNames = [];
         foreach ($userConnecter->getRoles() as $role) {
             $roleNames[] = $role->getRoleName();
@@ -36,7 +35,7 @@ class DitValidationController extends Controller
 
 
         $dit = $this->getEntityManager()->getRepository(DemandeIntervention::class)->find($id);
-$ditModel = new DitModel();
+        $ditModel = new DitModel();
         $data = $ditModel->findAll($dit->getIdMateriel(), $dit->getNumParc(), $dit->getNumSerie());
 
         $dit->setNumParc($data[0]['num_parc']);
@@ -80,7 +79,7 @@ $ditModel = new DitModel();
         //         dump($userDemandeur);
         //         $emailSuperieurs = $this->recupMailSuperieur($userDemandeur);
         //         dump($emailSuperieurs);
-        //         $id = $this->getSessionService()->get('user_id');
+        //         $id = $this->getSessionService()->get('user_info')['id'];
         //         dump($id);
         //         $userConnecter = $this->getEntityManager()->getRepository(User::class)->find($id);
         //         dump($userDemandeur);

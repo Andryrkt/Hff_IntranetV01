@@ -499,7 +499,7 @@ class DitOrsSoumisAValidationController extends Controller
         // information sur les pièces à faible achat
         $pieceFaibleAchat = $this->preparationDesPiecesFaibleAchat($numOr);
 
-        $genererPdfOrSoumisAValidation->GenererPdf($ditInsertionOrSoumis, $montantPdf, $quelqueaffichage, $this->nomUtilisateur($this->getEntityManager())['mailUtilisateur'], $suffix, $pieceFaibleAchat, $nomAvecCheminFichier);
+        $genererPdfOrSoumisAValidation->GenererPdf($ditInsertionOrSoumis, $montantPdf, $quelqueaffichage, $this->nomUtilisateur()['mailUtilisateur'], $suffix, $pieceFaibleAchat, $nomAvecCheminFichier);
     }
 
     private function modificationStatutOr($numDit)

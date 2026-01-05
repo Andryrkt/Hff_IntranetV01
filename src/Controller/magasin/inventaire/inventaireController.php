@@ -6,6 +6,7 @@ use TCPDF;
 use DateTime;
 use App\Controller\Controller;
 use App\Entity\admin\Application;
+use App\Entity\admin\utilisateur\Role;
 use App\Controller\Traits\FormatageTrait;
 use App\Controller\Traits\Transformation;
 use App\Entity\Bordereau\BordereauSearch;
@@ -58,7 +59,7 @@ class InventaireController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        $this->autorisationAcces($this->getUser(), Application::ID_INV);
+        $this->autorisationAcces(Application::ID_INV);
 
         $form = $this->getFormFactory()->createBuilder(
             InventaireSearchType::class,
@@ -351,7 +352,7 @@ class InventaireController extends Controller
                 'nbre_ref_ecarts_positif' => $sumNbrPositif,
                 'nbre_ref_ecarts_negatifs' => $sumNbrNegatif,
                 'total_nbre_ref_ecarts' => $sumNbrRefsansEcart,
-                'pourcentage_ref_avec_ecart' =>$sumNbrecartavecEcart, //$sumNbrRefavecEcart,
+                'pourcentage_ref_avec_ecart' => $sumNbrecartavecEcart, //$sumNbrRefavecEcart,
                 'montant_ecart' => $sumNbrEcart,
                 'pourcentage_ecart' => $sumEcart, //$sumNbrPourcentEcart,
             ];
@@ -418,7 +419,7 @@ class InventaireController extends Controller
                 $countivent   += (int) $data['data'][$j]["montant_inventaire"];
                 $countMontEcart   += (int) $data['data'][$j]["montant_ajuste"];
             }
-            $MontEcartPourcent = ($countMontEcart / $countivent)*100;
+            $MontEcartPourcent = ($countMontEcart / $countivent) * 100;
             $data['sum'] = [
                 'cpt1' => $countQtee1,
                 'cpt2' => $countQtee2,
@@ -426,7 +427,7 @@ class InventaireController extends Controller
                 'countPmp' => $countPMP,
                 'countInvent' => $countivent,
                 'countMontEcart' => $countMontEcart,
-                'MontEcartPourcent'=>$MontEcartPourcent,
+                'MontEcartPourcent' => $MontEcartPourcent,
             ];
         }
         return $data;

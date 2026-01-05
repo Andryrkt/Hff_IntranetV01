@@ -8,7 +8,6 @@ use App\Entity\admin\dom\Catg;
 use App\Entity\admin\dom\Site;
 use App\Entity\admin\Personnel;
 use App\Entity\admin\dom\Indemnite;
-use App\Entity\admin\utilisateur\User;
 use App\Controller\Traits\FormatageTrait;
 use App\Entity\admin\dom\SousTypeDocument;
 use Symfony\Component\Routing\Annotation\Route;
@@ -28,28 +27,17 @@ class DomApi extends Controller
     public function categoriefetch(int $id)
     {
         try {
-            $userId = $this->getSessionService()->get('user_id');
-            $user = $this->getEntityManager()->getRepository(User::class)->find($userId);
+            $userInfo = $this->session->get('user_info');
 
-            if (!$user) {
-                throw new \Exception('Utilisateur non trouvé');
-            }
+            if (!$userInfo) throw new \Exception('Utilisateur non trouvé');
 
             $sousTypedocument = $this->getEntityManager()->getRepository(SousTypeDocument::class)->find($id);
 
-            if (!$sousTypedocument) {
-                throw new \Exception('Sous-type de document non trouvé');
-            }
+            if (!$sousTypedocument) throw new \Exception('Sous-type de document non trouvé');
 
-            if ($user->getAgenceServiceIrium()->getAgenceIps() === '50') {
-                $rmq = $this->getEntityManager()->getRepository(Rmq::class)->findOneBy(['description' => '50']);
-            } else {
-                $rmq = $this->getEntityManager()->getRepository(Rmq::class)->findOneBy(['description' => 'STD']);
-            }
+            $rmq = $this->getEntityManager()->getRepository(Rmq::class)->findOneBy(['description' => $userInfo["default_agence_code"] == '50' ? '50' : 'STD']);
 
-            if (!$rmq) {
-                throw new \Exception('Rmq non trouvé');
-            }
+            if (!$rmq) throw new \Exception('Rmq non trouvé');
 
             $criteria = [
                 'sousTypeDoc' => $sousTypedocument,

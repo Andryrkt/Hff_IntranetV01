@@ -5,12 +5,13 @@ namespace App\Controller\da\Creation;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
+use App\Entity\admin\utilisateur\Role;
 use App\Controller\Traits\AutorisationTrait;
+use App\Form\da\DemandeApproReapproFormType;
 use Symfony\Component\HttpFoundation\Request;
 use App\Service\application\ApplicationService;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\da\creation\DaNewReapproTrait;
-use App\Form\da\DemandeApproReapproFormType;
 
 /**
  * @Route("/demande-appro")
@@ -39,7 +40,7 @@ class DaNewReApproController extends Controller
         $this->verifierSessionUtilisateur();
 
         /** Autorisation accès */
-        $this->checkPageAccess($this->estAdmin() || $this->estCreateurDeDADirecte());
+        $this->checkPageAccess($this->hasRoles(Role::ROLE_ADMINISTRATEUR, Role::ROLE_DA_DIRECTE));
         /** FIN AUtorisation accès */
 
         $demandeAppro     = $id === 0 ? $this->initialisationDemandeApproReappro() : $this->demandeApproRepository->find($id);
@@ -52,7 +53,7 @@ class DaNewReApproController extends Controller
 
         return $this->render('da/new-da-reappro.html.twig', [
             'form'         => $form->createView(),
-            'codeCentrale' => $this->estAdmin() || in_array($demandeAppro->getAgenceEmetteur()->getCodeAgence(), ['90', '91', '92']),
+            'codeCentrale' => $this->hasRoles(Role::ROLE_ADMINISTRATEUR) || in_array($demandeAppro->getAgenceEmetteur()->getCodeAgence(), ['90', '91', '92']),
         ]);
     }
 

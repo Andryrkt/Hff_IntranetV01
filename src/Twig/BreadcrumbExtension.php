@@ -11,11 +11,13 @@ use App\Service\navigation\BreadcrumbMenuService;
 class BreadcrumbExtension extends AbstractExtension
 {
     use lienGenerique;
-    private BreadcrumbFactory $breadcrumbFactory;
+    private BreadcrumbMenuService $breadcrumbService;
+    private string $baseUrl;
 
     public function __construct(BreadcrumbMenuService $breadcrumbMenuService)
     {
-        $this->breadcrumbFactory = new BreadcrumbFactory($this->urlGenerique($_ENV['BASE_PATH_COURT']), $breadcrumbMenuService);
+        $this->breadcrumbService = $breadcrumbMenuService;
+        $this->baseUrl = $this->urlGenerique($_ENV['BASE_PATH_COURT']);
     }
 
     public function getFunctions(): array
@@ -27,6 +29,9 @@ class BreadcrumbExtension extends AbstractExtension
 
     public function generateBreadcrumbs(): array
     {
-        return $this->breadcrumbFactory->createFromCurrentUrl();
+        return (new BreadcrumbFactory(
+            $this->baseUrl,
+            $this->breadcrumbService
+        ))->createFromCurrentUrl();
     }
 }

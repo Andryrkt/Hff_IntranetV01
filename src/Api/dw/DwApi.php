@@ -12,7 +12,7 @@ use App\Repository\da\DemandeApproRepository;
 use App\Repository\da\DemandeApproLRepository;
 use App\Repository\da\DemandeApproLRRepository;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Model\dw\DossierInterventionAtelierModel;
+use App\Model\dw\dossierInterventionAtelierModel;
 
 class DwApi extends Controller
 {
@@ -39,7 +39,7 @@ class DwApi extends Controller
      */
     public function dwfetch($numDit)
     {
-        $dwModel = new DossierInterventionAtelierModel();
+        $dwModel = new dossierInterventionAtelierModel();
 
         // Récupération initiale : Demande d'intervention
         $dwDit = $this->fetchAndLabel($dwModel, 'findDwDit', $numDit, "Demande d'intervention");
@@ -77,7 +77,7 @@ class DwApi extends Controller
      */
     public function dwCheminFichier($numDoc, $nomDoc, $numVersion)
     {
-        $dwModel = new DossierInterventionAtelierModel();
+        $dwModel = new dossierInterventionAtelierModel();
 
         switch ($nomDoc) {
             case 'Demande d\'intervention':

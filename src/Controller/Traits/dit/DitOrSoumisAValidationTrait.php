@@ -468,13 +468,12 @@ trait DitOrSoumisAValidationTrait
         return empty($datePlannig1) ? $datePlannig2[0]['dateplanning2'] : $datePlannig1[0]['dateplanning1'];
     }
 
-    private function nomUtilisateur($em)
+    private function nomUtilisateur(): array
     {
-        $userId = $this->getSessionService()->get('user_id', []);
-        $user = $em->getRepository(User::class)->find($userId);
+        $userInfo = $this->getSessionService()->get('user_info', []);
         return [
-            'nomUtilisateur' => $user->getNomUtilisateur(),
-            'mailUtilisateur' => $user->getMail()
+            'nomUtilisateur'  => $userInfo['username'],
+            'mailUtilisateur' => $userInfo['email']
         ];
     }
 }

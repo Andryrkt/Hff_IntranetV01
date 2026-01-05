@@ -63,7 +63,7 @@ class DitController extends Controller
         $this->verifierSessionUtilisateur();
 
         /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_DIT);
+        $this->autorisationAcces(Application::ID_DIT);
         /** FIN AUtorisation acées */
 
         $demandeIntervention = new DemandeIntervention();

@@ -3,31 +3,29 @@
 namespace App\Controller\Traits;
 
 use App\Entity\admin\utilisateur\Role;
-use App\Entity\admin\utilisateur\User;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 trait AutorisationTrait
 {
-    private function autorisationApp(User $user, int $idApp, int $idServ = 0): bool
+    private function autorisationApp(int $idApp, int $idServ = 0): bool
     {
-        $AppIds = $user->getApplicationsIds();
-        $idServAutoriser = $user->getServiceAutoriserIds();
-        $roleIds = $user->getRoleIds();
+        $userInfo = $this->getSessionService()->get('user_info');
+        if (!$userInfo) return false; // si l'utilisateur n'est pas connecté
 
-        if (in_array(Role::ROLE_ADMINISTRATEUR, $roleIds)) {
-            return true;
-        }
+        if ($this->hasRoles(Role::ROLE_ADMINISTRATEUR)) return true; // si l'utilisateur est administrateur
 
-        if ($idServ === 0) {
-            return in_array($idApp, $AppIds);
-        }
+        $hasAppAccess = in_array($idApp, $userInfo['applications'] ?? []);
 
-        return in_array($idApp, $AppIds) && in_array($idServ, $idServAutoriser);
+        if ($idServ === 0) return $hasAppAccess;
+
+        $hasServAccess = in_array($idServ, $userInfo['authorized_services']['ids'] ?? []);
+
+        return $hasAppAccess && $hasServAccess;
     }
 
-    private function autorisationAcces(User $user, int $idApp, int $idServ = 0)
+    private function autorisationAcces(int $idApp, int $idServ = 0)
     {
-        if (!$this->autorisationApp($user, $idApp, $idServ)) {
+        if (!$this->autorisationApp($idApp, $idServ)) {
             throw new AccessDeniedException();
         }
     }

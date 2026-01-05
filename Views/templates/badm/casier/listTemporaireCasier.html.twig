@@ -61,8 +61,7 @@
 						<th>Casier</th>
 						<th>Date de création</th>
 						<th>Numero Casier</th>
-						{% set role_ids = App.user.roleIds %}
-						{% if 1 in role_ids  %}
+						{% if App.userConnecter.isAdmin  %}
 							<th>Action</th>
 						{% endif %}
 					</tr>
@@ -75,7 +74,7 @@
 							<td style="text-align:left">{{item.Casier}}</td>
 							<td>{{item.dateCreation|date("d/m/Y")}}</td>
 							<td>{{item.NumeroCAS}}</td>
-							{% if 1 in role_ids  %}
+							{% if App.userConnecter.isAdmin  %}
 								<td>
 									<a href="{{ path("CasierListTemporaire_btnValide", { id: item.Id})}}" class="btn  fw-bold mb-3" style="background-color: #FF0000; color: white">Validé</a>
 								</td>

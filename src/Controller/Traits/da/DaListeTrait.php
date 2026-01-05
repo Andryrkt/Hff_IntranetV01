@@ -2,21 +2,15 @@
 
 namespace App\Controller\Traits\da;
 
-use App\Model\da\DaModel;
+use Twig\Markup;
+use App\Entity\da\DaSearch;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Entity\da\DaAfficher;
-use App\Entity\da\DaSearch;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaSoumissionBc;
-use App\Repository\admin\AgenceRepository;
+use App\Entity\admin\utilisateur\Role;
 use App\Entity\dit\DitOrsSoumisAValidation;
-use App\Model\dw\DossierInterventionAtelierModel;
-use App\Repository\da\DaSoumissionBcRepository;
-use App\Repository\dit\DitOrsSoumisAValidationRepository;
-use App\Service\Users\UserDataService;
-use DateTime;
-use Twig\Markup;
 
 trait DaListeTrait
 {
@@ -29,31 +23,6 @@ trait DaListeTrait
     private $styleStatutDA = [];
     private $styleStatutOR = [];
     private $styleStatutBC = [];
-
-    // Repository et model
-    private DaModel $daModel;
-    private DossierInterventionAtelierModel $dwModel;
-    private AgenceRepository $agenceRepository;
-    private DaSoumissionBcRepository $daSoumissionBcRepository;
-    private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
-    private UserDataService $userDataService;
-
-    /**
-     * Initialise les valeurs par défaut du trait
-     */
-    public function initDaListeTrait()
-    {
-        $em = $this->getEntityManager();
-        $this->initDaTrait();
-
-        $this->daModel = new DaModel();
-        $this->dwModel = new DossierInterventionAtelierModel();
-        $this->userDataService = new UserDataService($em);
-        $this->agenceRepository = $em->getRepository(Agence::class);
-        $this->daSoumissionBcRepository = $em->getRepository(DaSoumissionBc::class);
-        $this->ditOrsSoumisAValidationRepository = $em->getRepository(DitOrsSoumisAValidation::class);
-    }
-    //=====================================================================================
 
     private function initStyleStatuts()
     {
@@ -114,11 +83,10 @@ trait DaListeTrait
 
     public function getPaginationData(array $criteria, int $page, int $limit): array
     {
-        //recuperation de l'id de l'agence de l'utilisateur connecter
-        $userConnecter = $this->getUser();
-        $codeAgence = $userConnecter->getCodeAgenceUser();
+        $codeAgence = $this->getCodeAgenceUser();
         $idAgenceUser = $this->agenceRepository->findIdByCodeAgence($codeAgence);
-        $paginationData = $this->daAfficherRepository->findPaginatedAndFilteredDA($userConnecter, $criteria, $idAgenceUser, $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier(), $this->estAdmin(), $page, $limit);
+        $agServAutorisesUser = $this->getAgServAutorisesUser();
+        $paginationData = $this->daAfficherRepository->findPaginatedAndFilteredDA($criteria, $idAgenceUser, $agServAutorisesUser, $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier(), $this->hasRoles(Role::ROLE_ADMINISTRATEUR), $page, $limit);
         /** @var array $daAffichers Filtrage des DA en fonction des critères */
         $daAffichers = $paginationData['data'];
 
@@ -126,7 +94,7 @@ trait DaListeTrait
         $this->quelqueModifictionDansDatabase($daAffichers);
 
         // Vérification du verrouillage des DA et Retourne les DA filtrées
-        $paginationData['data'] = $this->appliquerVerrouillageSelonProfil($daAffichers, $this->estAdmin(), $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier(), $this->estCreateurDeDADirecte());
+        $paginationData['data'] = $this->appliquerVerrouillageSelonProfil($daAffichers, $this->hasRoles(Role::ROLE_ADMINISTRATEUR), $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier(), $this->hasRoles(Role::ROLE_DA_DIRECTE));
 
         return $paginationData;
     }
@@ -202,7 +170,7 @@ trait DaListeTrait
         $statutDASupprimable = [DemandeAppro::STATUT_SOUMIS_APPRO, DemandeAppro::STATUT_SOUMIS_ATE, DemandeAppro::STATUT_VALIDE];
 
         // Roles
-        $estAdmin   = $this->estAdmin();
+        $estAdmin   = $this->hasRoles(Role::ROLE_ADMINISTRATEUR);
         $estAppro   = $this->estUserDansServiceAppro();
         $estAtelier = $this->estUserDansServiceAtelier();
 

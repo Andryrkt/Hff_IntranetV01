@@ -68,7 +68,7 @@ class DevisMagasinPolVerificationPrixController extends Controller
         $this->verifierSessionUtilisateur();
 
         /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_DVM);
+        $this->autorisationAcces(Application::ID_DVM);
 
         $remoteUrl = $this->getLastEditedDevis($numeroDevis);
 

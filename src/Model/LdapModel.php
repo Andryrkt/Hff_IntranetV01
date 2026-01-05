@@ -19,12 +19,12 @@ class LdapModel
 
         $this->ldapconn = ldap_connect("ldap://{$this->ldapHost}:{$this->ldapPort}");
 
+        ldap_set_option($this->ldapconn, LDAP_OPT_PROTOCOL_VERSION, 3);
+        ldap_set_option($this->ldapconn, LDAP_OPT_REFERRALS, 0);
+
         if (!$this->ldapconn) {
             die("Connexion au serveur LDAP échouée.");
         }
-
-        ldap_set_option($this->ldapconn, LDAP_OPT_PROTOCOL_VERSION, 3);
-        ldap_set_option($this->ldapconn, LDAP_OPT_REFERRALS, 0);
     }
 
     public function showconnect()
@@ -43,8 +43,7 @@ class LdapModel
      */
     public function userConnect(string $user, string $password): bool
     {
-        ldap_set_option($this->ldapconn, LDAP_OPT_PROTOCOL_VERSION, 3);
-        $bind = @ldap_bind($this->ldapconn, $user . $this->Domain, $password);
+        $bind = ldap_bind($this->ldapconn, $user . $this->Domain, $password);
         return $bind;
     }
 
@@ -76,14 +75,14 @@ class LdapModel
                 if (isset($entries[$i]["userprincipalname"][0])) {
 
                     $data[$entries[$i]["samaccountname"][0]] = [
-                        "nom" => $entries[$i]["sn"][0] ?? '',
-                        "prenom" => $entries[$i]["givenname"][0] ?? '',
-                        "nomPrenom" => $entries[$i]["name"][0],
-                        "fonction" => $entries[$i]["description"][0] ?? '',
+                        "nom"             => $entries[$i]["sn"][0] ?? '',
+                        "prenom"          => $entries[$i]["givenname"][0] ?? '',
+                        "nomPrenom"       => $entries[$i]["name"][0],
+                        "fonction"        => $entries[$i]["description"][0] ?? '',
                         "numeroTelephone" => $entries[$i]["telephonenumber"][0] ?? '',
-                        "nomUtilisateur" => $entries[$i]["samaccountname"][0],
-                        "email" => $entries[$i]["mail"][0] ?? '',
-                        "nameUserMain" => $entries[$i]["userprincipalname"][0]
+                        "nomUtilisateur"  => $entries[$i]["samaccountname"][0],
+                        "email"           => $entries[$i]["mail"][0] ?? '',
+                        "nameUserMain"    => $entries[$i]["userprincipalname"][0]
                     ];
                 }
             }

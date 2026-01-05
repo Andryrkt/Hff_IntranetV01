@@ -87,7 +87,6 @@ class DemandeApproDirectFormType extends AbstractType
                 'agence_placeholder'  => '-- Agence Debiteur --',
                 'service_placeholder' => '-- Service Debiteur --',
                 'em'                  => $options['em'] ?? null,
-                // 'agence_codes' => $this->agenceCodes()
             ])
             ->add('niveauUrgence', ChoiceType::class, [
                 'label'        => 'Niveau d\'urgence *',

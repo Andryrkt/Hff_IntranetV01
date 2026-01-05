@@ -52,7 +52,7 @@ class PlanningController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
         /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_REP);
+        $this->autorisationAcces(Application::ID_REP);
         /** FIN AUtorisation acées */
 
         //initialisation
@@ -89,13 +89,13 @@ class PlanningController extends Controller
 
         if ($request->query->get('action') !== 'oui') {
             /** @var string $orAvecItv @var string $orSansItv */
-            ['orAvecItv' => $orAvecItv,'orSansItv' => $orSansItv] = $this->recupNumOrValider($criteria);
+            ['orAvecItv' => $orAvecItv, 'orSansItv' => $orSansItv] = $this->recupNumOrValider($criteria);
             $tousLesOrSoumis = $this->allOrs();
             $touslesOrItvSoumis = $this->allOrsItv();
 
             $back = $this->planningModel->backOrderPlanning($orSansItv, $criteria, $tousLesOrSoumis);
             $backString = is_array($back) ? TableauEnStringService::orEnString($back) : '';
-            
+
             $data = $this->planningModel->recuperationMaterielplanifier($criteria, $orAvecItv, $backString, $touslesOrItvSoumis);
         } else {
             $data = [];

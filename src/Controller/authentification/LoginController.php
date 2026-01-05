@@ -1,30 +1,25 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\authentification;
 
+use App\Controller\Controller;
 use Exception;
 use App\Entity\admin\utilisateur\User;
 use App\Model\LdapModel;
+use App\Repository\admin\utilisateur\UserRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-/**
- * Contrôleur d'authentification refactorisé pour utiliser l'injection de dépendances
- */
-class Authentification extends Controller
+
+class LoginController extends Controller
 {
     private ?LdapModel $ldapModel = null;
+    private UserRepository $userRepository;
 
     public function __construct()
     {
         parent::__construct();
-    }
-
-    private function getLdapModel(): LdapModel
-    {
-        if ($this->ldapModel === null) {
-            $this->ldapModel = new LdapModel();
-        }
-        return $this->ldapModel;
+        $this->ldapModel = new LdapModel();
+        $this->userRepository = $this->getEntityManager()->getRepository(User::class);
     }
 
     /**
@@ -35,41 +30,52 @@ class Authentification extends Controller
         $error_msg = null;
 
         if ($request->isMethod('POST')) {
-            $Username = $request->request->get('Username', '');
-            $Password = $request->request->get('Pswd', '');
+            $username = $request->request->get('username', '');
+            $password = $request->request->get('password', '');
 
             try {
-                $user = $this->getEntityManager()->getRepository(User::class)->findOneBy(['nom_utilisateur' => $Username]);
-                $userId = ($user) ? $user->getId() : '-';
+                /** @var User $user */
+                $user = $this->userRepository->findOneBy(['nom_utilisateur' => $username]);
 
-                // Utiliser le service de session injecté
-                $this->getSessionService()->set('user_id', $userId);
+                if (!$user) throw new \Exception('Utilisateur non trouvé avec le nom d\'utilisateur : ' . $username);
 
-                if (!$user) {
-                    throw new \Exception('Utilisateur non trouvé avec le nom d\'utilisateur : ' . $Username);
-                }
-
-                if (!$this->getLdapModel()->userConnect($Username, $Password)) {
+                if (!$this->ldapModel->userConnect($username, $password)) {
                     $this->logUserVisit('security_signin');
                     $error_msg = "Vérifier les informations de connexion, veuillez saisir le nom d'utilisateur et le mot de passe de votre session Windows";
                 } else {
-                    $this->getSessionService()->set('user', $Username);
-                    $this->getSessionService()->set('password', $Password);
+                    $userId = $user->getId();
+                    $firstname = $user->getFirstName();
+                    $lastname = $user->getLastName();
+                    $userInfo = [
+                        "id"                   => $userId,
+                        "username"             => $username,
+                        "firstname"            => $firstname,
+                        "lastname"             => $lastname,
+                        "fullname"             => "$lastname $firstname",
+                        "email"                => $user->getMail(),
+                        "roles"                => $user->getRoleIds(),
+                        "applications"         => $user->getApplicationsIds(),
+                        "authorized_agences"   => [
+                            "ids"   => $user->getAgenceAutoriserIds(),
+                            "codes" => $user->getAgenceAutoriserCode(),
+                        ],
+                        "authorized_services"  => [
+                            "ids"   => $user->getServiceAutoriserIds(),
+                            "codes" => $user->getServiceAutoriserCode(),
+                        ],
+                        "default_agence_code"  => $user->getCodeAgenceUser(),
+                        "default_service_code" => $user->getCodeServiceUser(),
+                        'password'             => $password,
+                    ];
+
+                    $this->getSessionService()->set('user_info', $userInfo);
 
                     $filename = $_ENV['BASE_PATH_LONG'] . "\src\Controller\authentification.csv";
-                    $newData = [$userId, $Username, $Password];
-                    $this->updateOrInsertCSV($filename, $newData);
+                    $newData = [$userId, $username, $password];
+                    $this->synchronizeCSV($filename, $newData);
 
-                    if (preg_match('/Hffintranet_pre_prod/i', $_SERVER['REQUEST_URI'])) {
-                        // Donner accès qu'à certains utilisateurs
-                        if (in_array(1, $user->getRoleIds())) {
-                            $this->redirectToRoute('profil_acceuil');
-                        } else {
-                            $this->redirectTo('/Hffintranet/login');
-                        }
-                    }
-
-                    $this->redirectToRoute('profil_acceuil');
+                    if (preg_match('/Hffintranet_pre_prod/i', $_SERVER['REQUEST_URI']) && !in_array(1, $user->getRoleIds())) $this->redirectTo('/Hffintranet/login');
+                    else $this->redirectToRoute('profil_acceuil');
                 }
             } catch (Exception $e) {
                 $this->logUserVisit('security_signin');
@@ -77,12 +83,12 @@ class Authentification extends Controller
             }
         }
 
-        return $this->render('signin.html.twig', [
+        return $this->render('signIn.html.twig', [
             'error_msg' => $error_msg,
         ]);
     }
 
-    private function updateOrInsertCSV(string $filename, array $newData)
+    private function synchronizeCSV(string $filename, array $newData)
     {
         $rows = [];
         $found = false;

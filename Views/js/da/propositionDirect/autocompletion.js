@@ -3,11 +3,14 @@ import { getAllDesignations, getAllFournisseurs } from "../data/fetchData";
 
 export function autocompleteTheField(field, fieldName) {
   let baseId = field.id.replace("demande_appro_proposition", "");
-
-  let reference = getField(field.id, fieldName, "reference");
-  let fournisseur = getField(field.id, fieldName, "fournisseur");
-  let numeroFournisseur = getField(field.id, fieldName, "numeroFournisseur");
-  let designation = getField(field.id, fieldName, "designation");
+  let fields = {
+    reference: getField(field.id, fieldName, "reference"),
+    fournisseur: getField(field.id, fieldName, "fournisseur"),
+    numeroFournisseur: getField(field.id, fieldName, "numeroFournisseur"),
+    designation: getField(field.id, fieldName, "designation"),
+    famille: getField(field.id, fieldName, "codeFams1"),
+    sousFamille: getField(field.id, fieldName, "codeFams2"),
+  };
 
   let suggestionContainer = document.getElementById(`suggestion${baseId}`);
   let loaderElement = document.getElementById(`spinner_container${baseId}`);
@@ -45,72 +48,11 @@ export function autocompleteTheField(field, fieldName) {
       return cache.designationsZDI;
     },
     displayItemCallback: (item) => displayValues(item, fieldName),
-    onSelectCallback: (item) =>
-      handleValuesOfFields(
-        item,
-        fieldName,
-        fournisseur,
-        numeroFournisseur,
-        reference,
-        getField(field.id, fieldName, "codeFams1"),
-        getField(field.id, fieldName, "codeFams2")
-      ),
     itemToStringCallback: (item) => stringsToSearch(item, fieldName),
+    onSelectCallback: (item) => handleValuesOfFields(item, fieldName, fields),
     itemToStringForBlur: (item) => stringsToSearchForBlur(item, fieldName),
-    onBlurCallback: (found) => onBlurEvents(found, designation, fieldName),
+    onBlurCallback: (found) => onBlurEvents(found, fieldName, fields),
   });
-}
-
-function onBlurEvents(found, designation, fieldName) {
-  const numeroDa = document
-    .querySelector(".tab-pane.fade.show.active.dalr")
-    .id.split("_")
-    .pop();
-  const numPage = localStorage.getItem(`currentTab_${numeroDa}`);
-  const desi = `designation_${numPage}`;
-  let baseId = designation.id.replace(desi, "");
-  let allFields = document.querySelectorAll(`[id*="${baseId}"]`);
-  let referencePiece = document.querySelector(
-    `#demande_appro_proposition_reference_${numPage}`
-  );
-
-  if (fieldName == "reference") {
-    console.log("baseID = " + baseId);
-
-    let foundInput = document.querySelector(
-      `[id*="${baseId}"][id*="found_${numPage}"]`
-    );
-    foundInput.value = found ? "1" : "0";
-    console.log(foundInput.value);
-  } else if (fieldName == "designation") {
-    if (designation.value.trim() !== "") {
-      // Texte rouge ou non, ajout de valeur dans catalogue
-      allFields.forEach((field) => {
-        if (!found) {
-          if (field.id.includes(`numeroFournisseur_${numPage}`)) {
-            field.value = 0;
-          }
-          if (
-            field.id.includes("codeFams") &&
-            field.id.includes(`_${numPage}`)
-          ) {
-            console.log("codeFams");
-
-            field.value = "-";
-          }
-        }
-      });
-      // Si non trouvé alors valeur de reférence pièce = ''
-      referencePiece.value = found ? referencePiece.value : "ST";
-    }
-  } else if (fieldName == "fournisseur") {
-    if (!found) {
-      let numFrnInput = document.querySelector(
-        `[id*="${baseId}"][id*="numeroFournisseur_${numPage}"]`
-      );
-      numFrnInput.value = "-";
-    }
-  }
 }
 
 function getField(id, fieldName, fieldNameReplace) {
@@ -125,6 +67,17 @@ function displayValues(item, fieldName) {
   }
 }
 
+function handleValuesOfFields(item, fieldName, fields) {
+  if (fieldName === "fournisseur") {
+    fields.fournisseur.value = item.nomfournisseur;
+    fields.numeroFournisseur.value = item.numerofournisseur;
+  } else {
+    fields.reference.value = item.referencepiece;
+    fields.famille.value = item.codefamille ?? "-";
+    fields.sousFamille.value = item.codesousfamille ?? "-";
+  }
+}
+
 function stringsToSearch(item, fieldName) {
   if (fieldName === "reference") {
     return `${item.referencepiece} - `;
@@ -135,6 +88,55 @@ function stringsToSearch(item, fieldName) {
   }
 }
 
+function onBlurEvents(found, fieldName, fields) {
+  if (fieldName === "reference") {
+    let reference = fields.reference;
+
+    if (!found && reference.value.trim() !== "") {
+      Swal.fire({
+        icon: "error",
+        title: "Référence inexistant",
+        html: `La référence <b class="text-danger">"${reference.value}"</b> n'existe pas dans le catalogue des référence ZDI. <br> Veuillez sélectionner une réference ZDI valide svp.`,
+        confirmButtonText: "OK",
+        customClass: {
+          htmlContainer: "swal-text-left",
+        },
+      }).then(() => {
+        reference.focus();
+        reference.value = "";
+      });
+    }
+  } else if (fieldName === "designation") {
+    let designation = fields.designation;
+
+    if (!found && designation.value.trim() !== "") {
+      fields.numeroFournisseur.value = 0;
+      fields.reference.value = "ST";
+      fields.famille.value = "-";
+      fields.sousFamille.value = "-";
+    }
+  } else if (fieldName == "fournisseur") {
+    let fournisseur = fields.fournisseur;
+    let numeroFournisseur = fields.numeroFournisseur;
+
+    if (!found && fournisseur.value.trim() !== "") {
+      Swal.fire({
+        icon: "error",
+        title: "Fournisseur inexistant !",
+        html: `Le fournisseur <b class="text-danger">"${fournisseur.value}"</b> n'existe pas, veuillez en sélectionner un dans la liste s'il vous plaît!`,
+        confirmButtonText: "OK",
+        customClass: {
+          htmlContainer: "swal-text-left",
+        },
+      }).then(() => {
+        fournisseur.focus();
+        fournisseur.value = "";
+        numeroFournisseur.value = "-";
+      });
+    }
+  }
+}
+
 function stringsToSearchForBlur(item, fieldName) {
   if (fieldName === "reference") {
     return `${item.referencepiece}`;
@@ -142,27 +144,5 @@ function stringsToSearchForBlur(item, fieldName) {
     return `${item.nomfournisseur}`;
   } else {
     return `${item.designation}`;
-  }
-}
-
-function handleValuesOfFields(
-  item,
-  fieldName,
-  fournisseur,
-  numeroFournisseur,
-  reference,
-  famille,
-  sousFamille
-) {
-  if (fieldName === "fournisseur") {
-    fournisseur.value = item.nomfournisseur;
-    numeroFournisseur.value = item.numerofournisseur;
-  } else {
-    reference.value = item.referencepiece;
-    /* fournisseur.value = item.fournisseur;
-    numeroFournisseur.value = item.numerofournisseur;
-    designation.value = item.designation; */
-    famille.value = item.codefamille ?? "-";
-    sousFamille.value = item.codesousfamille ?? "-";
   }
 }

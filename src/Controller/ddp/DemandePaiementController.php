@@ -78,7 +78,7 @@ class DemandePaiementController extends Controller
         $this->verifierSessionUtilisateur();
 
         /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_DDP);
+        $this->autorisationAcces(Application::ID_DDP);
         /** FIN AUtorisation acées */
 
         // creation du formulaire

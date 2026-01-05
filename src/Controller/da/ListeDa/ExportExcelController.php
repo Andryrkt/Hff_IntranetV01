@@ -7,6 +7,7 @@ use App\Entity\da\DaAfficher;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use Doctrine\ORM\EntityRepository;
+use App\Entity\admin\utilisateur\Role;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -36,7 +37,7 @@ class ExportExcelController extends Controller
 
         $agenceServiceIps = $this->agenceServiceIpsObjet();
         $agence           = $agenceServiceIps['agenceIps'];
-        $codeCentrale     = $this->estAdmin() || in_array($agence->getCodeAgence(), ['90', '91', '92']);
+        $codeCentrale     = $this->hasRoles(Role::ROLE_ADMINISTRATEUR) || in_array($agence->getCodeAgence(), ['90', '91', '92']);
 
         // recupération des données de la DA
         $dasFiltered = $this->getDataExcel($criteria);
@@ -51,12 +52,12 @@ class ExportExcelController extends Controller
     public function getDataExcel(array $criteria): array
     {
         //recuperation de l'id de l'agence de l'utilisateur connecter
-        $userConnecter = $this->getUser();
-        $codeAgence = $userConnecter->getCodeAgenceUser();
+        $codeAgence = $this->getCodeAgenceUser();
         $idAgenceUser = $this->agenceRepository->findOneBy(['codeAgence' => $codeAgence])->getId();
+        $agServAutorisesUser = $this->getAgServAutorisesUser();
 
         // Filtrage des DA en fonction des critères
-        $daAffichers = $this->daAfficherRepository->findDerniereVersionDesDA($userConnecter, $criteria, $idAgenceUser, $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier(), $this->estAdmin());
+        $daAffichers = $this->daAfficherRepository->findDerniereVersionDesDA($criteria, $idAgenceUser, $agServAutorisesUser, $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier(), $this->hasRoles(Role::ROLE_ADMINISTRATEUR));
 
         // Retourne les DA filtrées
         return $daAffichers;

@@ -5,14 +5,13 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Yaml\Yaml;
 
 // Charger le bootstrap DI
-$services = require __DIR__ . '/config/bootstrap_di.php';
+$services = require __DIR__ . '/config/bootstrap_runtime.php';
 
 // Récupérer les services nécessaires
-$container          = $services['container'];
-$matcher            = $services['matcher'];
-$controllerResolver = $services['controllerResolver'];
-$argumentResolver   = $services['argumentResolver'];
 $twig               = $services['twig'];
+$matcher            = $services['matcher'];
+$argumentResolver   = $services['argumentResolver'];
+$controllerResolver = $services['controllerResolver'];
 $response           = new \Symfony\Component\HttpFoundation\Response();
 
 // Créer la requête depuis les variables globales
@@ -63,7 +62,6 @@ try {
         'request_method' => $request->getMethod(),
         'user_agent'     => $request->headers->get('User-Agent'),
     ];
-
     // Charger la configuration d'environnement
     $envConfig = Yaml::parseFile(__DIR__ . '/config/environment.yaml');
     $isDevMode = $envConfig['app']['env'] === 'dev';

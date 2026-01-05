@@ -6,7 +6,6 @@ use App\Entity\cas\Casier;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Entity\admin\Societte;
-use App\Entity\admin\Personnel;
 use App\Entity\da\DemandeAppro;
 use App\Entity\tik\TkiPlanning;
 use App\Entity\Traits\DateTrait;
@@ -14,16 +13,17 @@ use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\Application;
 use App\Entity\dit\CommentaireDitOr;
 use App\Entity\admin\utilisateur\Role;
-use App\Entity\tik\TkiReplannification;
-use App\Entity\admin\AgenceServiceIrium;
-use App\Entity\admin\utilisateur\Fonction;
 use Doctrine\Common\Collections\Collection;
 use App\Entity\admin\utilisateur\Permission;
 use App\Entity\tik\DemandeSupportInformatique;
 use Doctrine\Common\Collections\ArrayCollection;
-use App\Repository\admin\utilisateur\UserRepository;
 use Symfony\Component\Security\Core\User\UserInterface;
 use App\Entity\admin\historisation\pageConsultation\UserLogger;
+use App\Entity\admin\Personnel;
+use App\Entity\tik\TkiReplannification;
+use App\Entity\admin\AgenceServiceIrium;
+use App\Entity\admin\utilisateur\Fonction;
+use App\Repository\admin\utilisateur\UserRepository;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
@@ -618,7 +618,6 @@ class User implements UserInterface
         return $this;
     }
 
-
     /**
      * RECUPERE LES id de role de l'User sous forme de tableau
      */
@@ -912,8 +911,13 @@ class User implements UserInterface
      * Fonction utilitaire sur l'entité User
      * ========================================
      */
-    public function getFullName(): string
+    public function getFirstName(): string
     {
-        return $this->getPersonnels()->getNom() . ' ' . $this->getPersonnels()->getPrenoms();
+        return $this->personnels->getPrenoms();
+    }
+
+    public function getLastName(): string
+    {
+        return $this->personnels->getNom();
     }
 }

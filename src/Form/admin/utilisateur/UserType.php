@@ -42,10 +42,8 @@ class UserType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $userId = $this->sessionService->get('user_id');
-        $password = $this->sessionService->get('password');
-        $user = $this->em->getRepository(User::class)->find($userId)->getNomUtilisateur();
-        $users = $this->ldap->infoUser($user, $password);
+        $userInfo = $this->sessionService->get('user_info');
+        $users = $this->ldap->infoUser($userInfo['username'], $userInfo['password']);
 
         $nom = [];
         foreach ($users as $key => $value) {

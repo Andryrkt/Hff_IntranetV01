@@ -7,9 +7,7 @@ use App\Entity\da\DaAfficher;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaSoumissionFacBl;
-use App\Repository\dit\DitRepository;
 use App\Form\da\DaSoumissionFacBlType;
-use App\Entity\dit\DemandeIntervention;
 use App\Service\genererPdf\GeneratePdf;
 use App\Service\fichier\TraitementDeFichier;
 use App\Repository\da\DemandeApproRepository;
@@ -19,7 +17,6 @@ use App\Repository\da\DaSoumissionFacBlRepository;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Service\historiqueOperation\HistoriqueOperationService;
 use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
-use DateTime;
 
 /**
  * @Route("/demande-appro")
@@ -28,14 +25,13 @@ class DaSoumissionFacBlController extends Controller
 {
     const STATUT_SOUMISSION = 'Soumis à validation';
 
-    private  DaSoumissionFacBl $daSoumissionFacBl;
+    private DaSoumissionFacBl $daSoumissionFacBl;
     private TraitementDeFichier $traitementDeFichier;
     private string $cheminDeBase;
     private HistoriqueOperationService $historiqueOperation;
     private DaSoumissionFacBlRepository $daSoumissionFacBlRepository;
     private GeneratePdf $generatePdf;
     private DemandeApproRepository $demandeApproRepository;
-    private DitRepository $ditRepository;
 
     public function __construct()
     {
@@ -48,7 +44,6 @@ class DaSoumissionFacBlController extends Controller
         $this->historiqueOperation      = new HistoriqueOperationDaBcService($this->getEntityManager());
         $this->daSoumissionFacBlRepository = $this->getEntityManager()->getRepository(DaSoumissionFacBl::class);
         $this->demandeApproRepository = $this->getEntityManager()->getRepository(DemandeAppro::class);
-        $this->ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class);
     }
 
     /**
@@ -86,6 +81,7 @@ class DaSoumissionFacBlController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            /** @var DaSoumissionFacBl $soumissionFacBl */
             $soumissionFacBl = $form->getData();
             $nomOriginalFichier = $soumissionFacBl->getPieceJoint1()->getClientOriginalName();
             if ($this->verifierConditionDeBlocage($soumissionFacBl, $numCde, $nomOriginalFichier)) {

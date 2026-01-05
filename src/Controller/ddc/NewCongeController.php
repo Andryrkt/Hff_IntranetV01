@@ -23,7 +23,7 @@ class NewCongeController extends Controller
         $this->verifierSessionUtilisateur();
 
         /** Autorisation accès */
-        $this->autorisationAcces($this->getUser(), Application::ID_DDC);
+        $this->autorisationAcces(Application::ID_DDC);
         /** FIN AUtorisation accès */
 
         return $this->render("dwForm/dwForm.html.twig", [

@@ -45,6 +45,37 @@ class DaAfficherRepository extends EntityRepository
         }
     }
 
+    /**
+     * @param string $numeroDemandeAppro
+     * @param string $numeroCde
+     */
+    public function getDateLivraisonPrevue(string $numeroDemandeAppro, string $numeroCde)
+    {
+        $maxVersion = $this->createQueryBuilder('d')
+            ->select('MAX(d.numeroVersion)')
+            ->where('d.numeroDemandeAppro = :num')
+            ->setParameter('num', $numeroDemandeAppro)
+            ->getQuery()
+            ->getSingleScalarResult(); // Renvoie null si aucune ligne
+
+        if ($maxVersion === null) {
+            return [];
+        } else {
+            return $this->createQueryBuilder('d')
+                ->select('DISTINCT(d.dateLivraisonPrevue)')
+                ->where('d.numeroDemandeAppro = :num')
+                ->andWhere('d.numeroCde = :numCde')
+                ->andWhere('d.numeroVersion = :version')
+                ->setParameters([
+                    'num'     => $numeroDemandeAppro,
+                    'numCde'  => $numeroCde,
+                    'version' => $maxVersion,
+                ])
+                ->getQuery()
+                ->getSingleScalarResult();
+        }
+    }
+
     public function markAsDeletedByNumeroLigne(string $numeroDemandeAppro, array $numeroLignes, string $userName, $numeroVersion): void
     {
         if (empty($numeroLignes)) return; // rien à faire
@@ -375,74 +406,35 @@ class DaAfficherRepository extends EntityRepository
         ];
     }
 
-    /**
-     * Étape 1 : Récupérer les dernières versions de chaque DA
-     */
-    private function getLastVersions(): array
-    {
-        $qb = $this->createQueryBuilder('d')
-            ->select('d.numeroDemandeAppro, MAX(d.numeroVersion) AS maxVersion')
-            ->groupBy('d.numeroDemandeAppro');
-
-        return $qb->getQuery()->getArrayResult(); // retourne [ ['numeroDemandeAppro'=>.., 'maxVersion'=>..], ... ]
-    }
-
-    /**
-     * Étape 2 : Filtrer les dernières versions et paginer
-     */
     private function getFilteredLastVersions(
-        User $user,
         array $criteria,
         int $idAgenceUser,
+        array $agServAutorisesUser,
         bool $estAppro,
         bool $estAtelier,
         bool $estAdmin,
         int $page,
         int $limit
     ): array {
-        // 1️⃣ Récupérer toutes les dernières versions
-        $lastVersions = $this->getLastVersions();
-        if (empty($lastVersions)) {
-            return [
-                'results'    => [],
-                'totalItems' => 0
-            ];
-        }
 
-        $numeroDAs = array_column($lastVersions, 'numeroDemandeAppro');
-        $versionsMax = array_column($lastVersions, 'maxVersion', 'numeroDemandeAppro');
-
-        // 2️⃣ Créer la requête sur les dernières versions uniquement
+        // 1️⃣ Requête de base : uniquement les dernières versions
         $qb = $this->createQueryBuilder('daf')
-            ->where('daf.numeroDemandeAppro IN (:numeroDAs)')
-            ->andWhere('daf.deleted = 0')
-            ->setParameter('numeroDAs', $numeroDAs);
+            ->where('daf.deleted = 0')
+            ->andWhere('daf.lastVersion = 1'); // <= Nouveau filtre simple
 
-        // Limiter aux numéros de version max
-        $orX = $qb->expr()->orX();
-        foreach ($versionsMax as $numeroDA => $versionMax) {
-            $orX->add($qb->expr()->andX(
-                $qb->expr()->eq('daf.numeroDemandeAppro', ':da_' . $numeroDA),
-                $qb->expr()->eq('daf.numeroVersion', ':ver_' . $numeroDA)
-            ));
-            $qb->setParameter('da_' . $numeroDA, $numeroDA);
-            $qb->setParameter('ver_' . $numeroDA, $versionMax);
-        }
-        $qb->andWhere($orX);
-
-        // 3️⃣ Appliquer les filtres sur ces dernières versions uniquement
+        // 2️⃣ Appliquer les filtres dynamiques
         $this->applyDynamicFilters($qb, "daf", $criteria);
-        $this->applyAgencyServiceFilters($qb, "daf", $criteria, $user, $idAgenceUser, $estAppro, $estAtelier, $estAdmin);
+        $this->applyAgencyServiceFilters($qb, "daf", $criteria, $idAgenceUser, $agServAutorisesUser, $estAppro, $estAtelier, $estAdmin);
         $this->applyDateFilters($qb, "daf", $criteria);
         $this->applyFilterAppro($qb, "daf", $estAppro, $estAdmin);
         $this->applyStatutsFilters($qb, "daf", $criteria);
 
-        // 4️⃣ Compter le total distinct des DA après filtrage
+        // 3️⃣ Compter les items distincts
         $countQb = clone $qb;
-        $countQb->select('COUNT(DISTINCT daf.numeroDemandeAppro) as total');
-        $totalItems = (int)$countQb->getQuery()->getSingleScalarResult();
+        $countQb->select('COUNT(DISTINCT daf.numeroDemandeAppro)');
+        $totalItems = (int) $countQb->getQuery()->getSingleScalarResult();
 
-        // 5️⃣ Pagination sur les DA distincts
+        // 4️⃣ Pagination
         $distinctQb = clone $qb;
         $distinctQb
             ->select('daf.numeroDemandeAppro')
@@ -459,35 +451,22 @@ class DaAfficherRepository extends EntityRepository
 
         if (empty($numeroDAsPage)) {
             return [
-                'results' => [],
+                'results'    => [],
                 'totalItems' => $totalItems
             ];
         }
 
-        // 6️⃣ Charger les dernières versions uniquement pour les DA de la page
+        // 5️⃣ Charger uniquement les dernières versions correspondantes
         $finalQb = $this->createQueryBuilder('daf')
             ->where('daf.numeroDemandeAppro IN (:numeroDAsPage)')
             ->andWhere('daf.deleted = 0')
+            ->andWhere('daf.lastVersion = 1') // <= Ajout pour rester cohérent
             ->setParameter('numeroDAsPage', $numeroDAsPage);
         $this->handleOrderBy($finalQb, 'daf', $criteria);
         $finalQb
             ->addOrderBy('daf.numeroDemandeAppro', 'DESC')
             ->addOrderBy('daf.numeroFournisseur', 'DESC')
             ->addOrderBy('daf.numeroCde', 'DESC');
-
-        // Limiter aux numéros de version max
-        $orX = $finalQb->expr()->orX();
-        foreach ($versionsMax as $numeroDA => $versionMax) {
-            if (in_array($numeroDA, $numeroDAsPage)) {
-                $orX->add($finalQb->expr()->andX(
-                    $finalQb->expr()->eq('daf.numeroDemandeAppro', ':da_' . $numeroDA),
-                    $finalQb->expr()->eq('daf.numeroVersion', ':ver_' . $numeroDA)
-                ));
-                $finalQb->setParameter('da_' . $numeroDA, $numeroDA);
-                $finalQb->setParameter('ver_' . $numeroDA, $versionMax);
-            }
-        }
-        $finalQb->andWhere($orX);
 
         $results = $finalQb->getQuery()->getResult();
 
@@ -501,16 +480,16 @@ class DaAfficherRepository extends EntityRepository
      * Fonction publique : renvoie les DA paginés avec filtres appliqués uniquement sur les dernières versions
      */
     public function findPaginatedAndFilteredDA(
-        User $user,
         array $criteria,
         int $idAgenceUser,
+        array $agServAutorisesUser,
         bool $estAppro,
         bool $estAtelier,
         bool $estAdmin,
         int $page,
         int $limit
     ): array {
-        $paginated = $this->getFilteredLastVersions($user, $criteria, $idAgenceUser, $estAppro, $estAtelier, $estAdmin, $page, $limit);
+        $paginated = $this->getFilteredLastVersions($criteria, $idAgenceUser, $agServAutorisesUser, $estAppro, $estAtelier, $estAdmin, $page, $limit);
 
         $totalItems = $paginated['totalItems'];
         $lastPage = $totalItems > 0 ? ceil($totalItems / $limit) : 0;
@@ -709,7 +688,7 @@ class DaAfficherRepository extends EntityRepository
         }
     }
 
-    private function applyAgencyServiceFilters($qb, string $qbLabel, array $criteria, User $user, int $idAgenceUser, bool $estAppro, bool $estAtelier, bool $estAdmin)
+    private function applyAgencyServiceFilters($qb, string $qbLabel, array $criteria, int $idAgenceUser, array $agServAutorisesUser, bool $estAppro, bool $estAtelier, bool $estAdmin)
     {
         if (!$estAtelier && !$estAppro && !$estAdmin) {
             $qb
@@ -719,7 +698,7 @@ class DaAfficherRepository extends EntityRepository
                         "$qbLabel.agenceEmetteur = :codeAgence"
                     )
                 )
-                ->setParameter('agenceAutoriserIds', $user->getAgenceAutoriserIds(), ArrayParameterType::INTEGER)
+                ->setParameter('agenceAutoriserIds', $agServAutorisesUser['agences'] ?? [], ArrayParameterType::INTEGER)
                 ->setParameter('codeAgence', $idAgenceUser)
                 ->andWhere(
                     $qb->expr()->orX(
@@ -727,7 +706,7 @@ class DaAfficherRepository extends EntityRepository
                         "$qbLabel.serviceEmetteur IN (:serviceAutoriserIds)"
                     )
                 )
-                ->setParameter('serviceAutoriserIds', $user->getServiceAutoriserIds(), ArrayParameterType::INTEGER);
+                ->setParameter('serviceAutoriserIds', $agServAutorisesUser['services'] ?? [], ArrayParameterType::INTEGER);
         }
 
         if (!empty($criteria['agenceEmetteur'])) {
@@ -805,7 +784,7 @@ class DaAfficherRepository extends EntityRepository
     }
 
 
-    public function findDerniereVersionDesDA(User $user, array $criteria,  int $idAgenceUser, bool $estAppro, bool $estAtelier, bool $estAdmin): array //liste_da
+    public function findDerniereVersionDesDA(array $criteria,  int $idAgenceUser, array $agServAutorisesUser, bool $estAppro, bool $estAtelier, bool $estAdmin): array //liste_da
     {
         $qb = $this->createQueryBuilder('d');
 
@@ -818,7 +797,7 @@ class DaAfficherRepository extends EntityRepository
         );
 
         $this->applyDynamicFilters($qb, 'd', $criteria);
-        $this->applyAgencyServiceFilters($qb, 'd', $criteria, $user, $idAgenceUser, $estAppro, $estAtelier, $estAdmin);
+        $this->applyAgencyServiceFilters($qb, 'd', $criteria, $idAgenceUser, $agServAutorisesUser, $estAppro, $estAtelier, $estAdmin);
         $this->applyDateFilters($qb, 'd', $criteria);
 
         $this->applyFilterAppro($qb, 'd', $estAppro, $estAdmin);

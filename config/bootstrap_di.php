@@ -8,7 +8,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\Matcher\UrlMatcher;
-use Symfony\Component\HttpKernel\Controller\ControllerResolver;
 use Symfony\Component\HttpKernel\Controller\ArgumentResolver;
 use Symfony\Component\Routing\Loader\AnnotationDirectoryLoader;
 use App\Loader\CustomAnnotationClassLoader;
@@ -27,6 +26,7 @@ use Twig\RuntimeLoader\FactoryRuntimeLoader;
 use Illuminate\Pagination\Paginator;
 use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\Config\Resource\FileResource;
+use Symfony\Component\HttpKernel\Controller\ContainerControllerResolver;
 
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'vendor/autoload.php';
 
@@ -36,15 +36,14 @@ if (file_exists(dirname(__DIR__) . '/.env')) {
     $dotenv->load();
 }
 
-
 // Charger les variables globales
 require_once __DIR__ . '/listeConstructeur.php';
 
-
 // Définir les variables d'environnement manquantes pour les tests CLI
-if (!isset($_ENV['BASE_PATH_COURT'])) $_ENV['BASE_PATH_COURT'] = '/Hffintranet';
-if (!isset($_SERVER['HTTP_HOST']))    $_SERVER['HTTP_HOST'] = 'localhost';
-if (!isset($_SERVER['REQUEST_URI']))  $_SERVER['REQUEST_URI'] = '/';
+$_ENV['BASE_PATH_COURT'] ??= '/Hffintranet';
+$_SERVER['HTTP_HOST'] ??= 'localhost';
+$_SERVER['REQUEST_URI'] ??= '/';
+// Configuration pour les tests CLI (session gérée dans test_di.php)
 
 // Créer le conteneur de services
 $container = new ContainerBuilder();
@@ -64,6 +63,7 @@ $registry = new \core\SimpleManagerRegistry($entityManager);
 $container->set('doctrine.orm.default_entity_manager', $entityManager);
 $loader = new YamlFileLoader($container, new FileLocator(__DIR__));
 $loader->load('services.yaml');
+$loader->load('parameters.yaml');
 
 // Créer les services de base manuellement
 $container->register('twig', 'Twig\Environment')
@@ -83,14 +83,6 @@ $container->register('session', 'Symfony\Component\HttpFoundation\Session\Sessio
     ->setPublic(true);
 
 $container->register('request_stack', 'Symfony\Component\HttpFoundation\RequestStack')
-    ->setSynthetic(true)
-    ->setPublic(true);
-
-$container->register('security.token_storage', 'Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage')
-    ->setSynthetic(true)
-    ->setPublic(true);
-
-$container->register('security.authorization_checker', 'Symfony\Component\Security\Core\Authorization\AuthorizationChecker')
     ->setSynthetic(true)
     ->setPublic(true);
 
@@ -118,9 +110,6 @@ $container->register('App\Twig\CarbonExtension', \App\Twig\CarbonExtension::clas
 $container->register('App\Twig\DeleteWordExtension', \App\Twig\DeleteWordExtension::class)
     ->setSynthetic(true)
     ->setPublic(true);
-
-// Charger les paramètres
-$loader->load('parameters.yaml');
 
 // Compiler le conteneur
 $container->compile();
@@ -152,15 +141,6 @@ $container->set('session', $session);
 $requestStack = new \Symfony\Component\HttpFoundation\RequestStack();
 $container->set('request_stack', $requestStack);
 
-$tokenStorage = new \Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage();
-$container->set('security.token_storage', $tokenStorage);
-
-$accessDecisionManager = new \Symfony\Component\Security\Core\Authorization\AccessDecisionManager([
-    new \Symfony\Component\Security\Core\Authorization\Strategy\AffirmativeStrategy()
-]);
-$authorizationChecker = new \Symfony\Component\Security\Core\Authorization\AuthorizationChecker($tokenStorage, $accessDecisionManager);
-$container->set('security.authorization_checker', $authorizationChecker);
-
 // Créer et assigner le translator
 $translator = new \Symfony\Component\Translation\Translator('fr_FR');
 $translator->addLoader('xlf', new \Symfony\Component\Translation\Loader\XliffFileLoader());
@@ -169,14 +149,12 @@ $container->set('translator', $translator);
 // Récupérer les services du conteneur
 $session = $container->get('session');
 $requestStack = $container->get('request_stack');
-$tokenStorage = $container->get('security.token_storage');
-$authorizationChecker = $container->get('security.authorization_checker');
 
 // Créer et assigner les services Twig APRÈS la compilation
-$appExtension = new \App\Twig\AppExtension($session, $requestStack, $tokenStorage, $authorizationChecker, $entityManager);
+$appExtension = new \App\Twig\AppExtension($session, $requestStack);
 $container->set('App\Twig\AppExtension', $appExtension);
 
-$menuService = new \App\Service\navigation\MenuService($entityManager, $session);
+$menuService = new \App\Service\navigation\MenuService($session);
 $container->set('App\Service\navigation\MenuService', $menuService);
 
 $breadcrumbMenuService = new \App\Service\navigation\BreadcrumbMenuService($menuService);
@@ -205,7 +183,7 @@ if (stripos($pathInfo, '/hffintranet') === 0 && strpos($pathInfo, '/Hffintranet'
 }
 
 $cacheAllRoutesFile = dirname(__DIR__) . '/var/cache/all_routes.php'; // Fichier cache commun pour routes controllers + API
-$cacheRoutes = new ConfigCache($cacheAllRoutesFile, true); // TODO Mode debug : true => vérifie si les fichiers ont changé
+$cacheRoutes = new ConfigCache($cacheAllRoutesFile, false); // TODO Mode debug : true => vérifie si les fichiers ont changé
 
 // Dossiers à charger
 $dirs = [
@@ -268,7 +246,7 @@ $container->set('router', $urlGenerator);
 $matcher = new UrlMatcher($collection, $context);
 
 // Configurer les resolvers
-$controllerResolver = new ControllerResolver();
+$controllerResolver = new ContainerControllerResolver($container);
 $argumentResolver = new ArgumentResolver();
 
 // Configurer Twig avec les extensions
@@ -305,17 +283,8 @@ Paginator::useBootstrap();
 global $container;
 
 return [
-    'container'            => $container,
-    'entityManager'        => $entityManager,
     'twig'                 => $twig,
-    'formFactory'          => $formFactory,
-    'urlGenerator'         => $urlGenerator,
-    'session'              => $session,
-    'requestStack'         => $requestStack,
-    'tokenStorage'         => $tokenStorage,
-    'authorizationChecker' => $authorizationChecker,
     'matcher'              => $matcher,
     'controllerResolver'   => $controllerResolver,
     'argumentResolver'     => $argumentResolver,
-    'routeCollection'      => $collection,
 ];

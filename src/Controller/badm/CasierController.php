@@ -9,7 +9,6 @@ use App\Entity\admin\Application;
 use App\Form\cas\CasierForm1Type;
 use App\Form\cas\CasierForm2Type;
 use App\Entity\admin\StatutDemande;
-use App\Entity\admin\utilisateur\User;
 use App\Controller\Traits\FormatageTrait;
 use App\Controller\Traits\Transformation;
 use App\Controller\Traits\ConversionTrait;
@@ -47,7 +46,7 @@ class CasierController extends Controller
         $this->verifierSessionUtilisateur();
 
         /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_CAS);
+        $this->autorisationAcces(Application::ID_CAS);
         /** FIN AUtorisation acées */
 
         $casier = new Casier();
@@ -100,7 +99,7 @@ class CasierController extends Controller
         $this->verifierSessionUtilisateur();
 
         /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_CAS);
+        $this->autorisationAcces(Application::ID_CAS);
         /** FIN AUtorisation acées */
 
         $casier = new Casier();
@@ -143,7 +142,7 @@ class CasierController extends Controller
 
 
             $NumCAS = $casier->getNumeroCas();
-            $user = $this->getEntityManager()->getRepository(User::class)->find($this->getSessionService()->get('user_id'));
+            $user = $this->getUser();
             $casier->setAgenceRattacher($form->getData()->getAgence());
             $casier->setCasier($casier->getClient() . ' - ' . $casier->getChantier());
             $casier->setIdStatutDemande($this->getEntityManager()->getRepository(StatutDemande::class)->find(55));

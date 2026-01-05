@@ -6,6 +6,7 @@ vendor
 /src/Service/FPDI-2.6.0/
 /node_modules/
 /Views/images/
+/logPerfLogger
 .env
 configuration_lanto_hasina.txt
 configuration_prod.txt
