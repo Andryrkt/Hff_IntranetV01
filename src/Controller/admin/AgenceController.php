@@ -24,7 +24,7 @@ class AgenceController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $data = $this->getEntityManager()->getRepository(Agence::class)->findBy([], ['id' => 'DESC']);
+        $data = $this->getEntityManager()->getRepository(Agence::class)->findAll();
         $preparedData = $this->prepareForDisplay($data);
 
         return $this->render(

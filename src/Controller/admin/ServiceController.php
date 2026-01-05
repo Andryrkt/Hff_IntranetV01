@@ -21,8 +21,7 @@ class ServiceController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $data = $this->getEntityManager()->getRepository(Service::class)->findBy([], ['id' => 'DESC']);
-
+        $data = $this->getEntityManager()->getRepository(Service::class)->findAll();
 
         return $this->render(
             'admin/service/list.html.twig',

@@ -1,24 +1,22 @@
 {% extends "baseTemplate.html.twig" %}
 
+{% block title %}
+	Services
+{% endblock %}
 
 {% block content %}
-
-
 	<div class="container mt-6 mb-4">
 		<div class="card">
 			<div class="card-body">
-
 				<h3 class="perso-titre">
 					Liste des Services
 				</h3>
-				<div class="d-flex flex-row ">
-					<div class="p-2">
-						<a href="{{ path("service_new")}}" class="btn btn-success fw-bold">
-							Add
-						</a>
-					</div>
-				</div>
-
+				<a href="{{ path("service_new")}}" class="btn btn-success fw-bold my-3">
+					Ajouter une nouvelle service
+				</a>
+				<a href="{{ path("agence_index")}}" class="btn btn-primary fw-bold my-3 ms-2">
+					Liste des agences
+				</a>
 				<table class="table">
 					<thead class="table-dark">
 						<tr>
@@ -50,7 +48,6 @@
 								</td>
 								<td>{{item.codeService}}</td>
 								<td>{{item.libelleService}}</td>
-
 							</tr>
 						{% endfor %}
 					</tbody>
