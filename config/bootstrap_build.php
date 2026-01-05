@@ -51,3 +51,5 @@ $dumper = new PhpDumper($container);
 file_put_contents($cacheDir . '/Container.php', $dumper->dump([
     'class' => 'AppContainer'
 ]));
+
+echo "Compilation de bootstrap_build terminé.";
