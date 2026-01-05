@@ -6,7 +6,6 @@ use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\admin\ApplicationProfil;
-use App\Entity\admin\utilisateur\Profil;
 use App\Entity\admin\dit\CategorieAteApp;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -282,6 +281,14 @@ class Application
     }
 
     /**
+     * Get the value of profils
+     */
+    public function getProfils(): ?Collection
+    {
+        return $this->applicationProfils->map(fn(ApplicationProfil $applicationProfil) => $applicationProfil->getProfil());
+    }
+
+    /**
      * Get the value of applicationProfils
      */
     public function getApplicationProfils(): Collection
@@ -301,13 +308,5 @@ class Application
         $this->applicationProfils->removeElement($applicationProfil);
 
         return $this;
-    }
-
-    /**
-     * Get the value of profils
-     */
-    public function getProfils(): ?Collection
-    {
-        return $this->applicationProfils->map(fn(ApplicationProfil $applicationProfil) => $applicationProfil->getProfil());
     }
 }

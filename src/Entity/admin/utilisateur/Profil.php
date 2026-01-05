@@ -4,7 +4,6 @@ namespace App\Entity\admin\utilisateur;
 
 use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
-use App\Entity\admin\Application;
 use App\Entity\admin\ApplicationProfil;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;

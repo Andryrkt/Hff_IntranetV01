@@ -7,6 +7,7 @@ namespace App\Controller\admin;
 use App\Controller\Controller;
 use App\Entity\admin\Application;
 use App\Entity\admin\historisation\pageConsultation\PageHff;
+use App\Entity\admin\utilisateur\Profil;
 use App\Form\admin\ApplicationType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -128,14 +129,14 @@ class ApplicationController extends Controller
     private function prepareForDisplay(array $data)
     {
         $preparedData = [];
-
         /** @var Application $application */
         foreach ($data as $application) {
+            $vignette = $application->getVignette();
             $baseData = [
-                'id'         => $application->getId(),
                 'nom'        => $application->getNom(),
                 'codeApp'    => $application->getCodeApp(),
-                'derniereId' => $application->getDerniereId(),
+                'vignette'   => $vignette ? $vignette->getNom() : '-',
+                'derniereId' => $application->getDerniereId() ?? '-',
                 'urlUpdate'  => $this->getUrlGenerator()->generate(
                     'application_update',
                     ['id' => $application->getId()]
@@ -147,19 +148,23 @@ class ApplicationController extends Controller
             ];
 
             $pages = $application->getPages();
+            $profils = $application->getProfils();
 
-            if ($pages->isEmpty()) {
-                $preparedData[] = $baseData + ['pageName' => ''];
-                continue;
-            }
+            /** @var PageHff[] $pagesArray */
+            $pagesArray = $pages->isEmpty() ? [null] : $pages->toArray();
+            /** @var Profil[] $profilsArray */
+            $profilsArray = $profils->isEmpty() ? [null] : $profils->toArray();
 
-            foreach ($pages as $page) {
+            // Obtenir le nombre maximum de lignes nécessaires
+            $maxRows = max(count($pagesArray), count($profilsArray));
+
+            for ($i = 0; $i < $maxRows; $i++) {
                 $preparedData[] = $baseData + [
-                    'pageName' => $page->getNom()
+                    'pageName'   => isset($pagesArray[$i]) ? $pagesArray[$i]->getNom() : '-',
+                    'profilName' => isset($profilsArray[$i]) ? $profilsArray[$i]->getDesignation() : '-'
                 ];
             }
         }
-
         return $preparedData;
     }
 }

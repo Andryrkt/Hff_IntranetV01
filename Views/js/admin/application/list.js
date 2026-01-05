@@ -1,5 +1,9 @@
-import { mergeCellsTable } from "../../utils/tableHandler";
+import { mergeCellsRecursiveTable } from "../../utils/tableHandler";
 
 document.addEventListener("DOMContentLoaded", function () {
-  mergeCellsTable("#tableBody", [0, 1, 2, 3, 4], 1);
+  mergeCellsRecursiveTable([
+    { pivotIndex: 1, columns: [0, 1, 2, 4, 5], insertSeparator: true },
+    { pivotIndex: 3, columns: [3], insertSeparator: false },
+    { pivotIndex: 6, columns: [6], insertSeparator: false },
+  ]);
 });

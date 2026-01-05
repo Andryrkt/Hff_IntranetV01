@@ -14,15 +14,25 @@
 				<a href="{{ path("application_new")}}" class="btn btn-success fw-bold my-3">
 					Ajouter nouvelle application
 				</a>
+				<a href="{{ path("vignette_index")}}" class="btn btn-primary fw-bold my-3 ms-2">
+					Liste des vignettes
+				</a>
+				<a href="{{ path("profil_index")}}" class="btn btn-primary fw-bold my-3 ms-2">
+					Liste des profils
+				</a>
+				<a href="{{ path("page_hff_index")}}" class="btn btn-primary fw-bold my-3 ms-2">
+					Liste des pages
+				</a>
 				<table class="table">
 					<thead class="table-dark align-middle">
 						<tr>
 							<th>Actions</th>
-							<th>Id</th>
 							<th>Code App</th>
-							<th>Nom</th>
+							<th>Nom de l'application</th>
+							<th>Profil(s) autorisé(s)</th>
 							<th>Dernière numéro</th>
-							<th>Pages</th>
+							<th>Vignette mère</th>
+							<th>Page(s) associée(s) à l'application</th>
 						</tr>
 					</thead>
 					<tbody id="tableBody" class="align-middle">
@@ -43,10 +53,11 @@
 										</ul>
 									</div>
 								</td>
-								<td>{{ row.id }}</td>
 								<td>{{ row.codeApp }}</td>
 								<td>{{ row.nom }}</td>
+								<td>{{ row.profilName }}</td>
 								<td>{{ row.derniereId }}</td>
+								<td>{{ row.vignette }}</td>
 								<td>{{ row.pageName }}</td>
 							</tr>
 						{% endfor %}
