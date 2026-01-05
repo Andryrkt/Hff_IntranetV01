@@ -4,6 +4,7 @@ namespace App\Controller\admin\appStructure;
 
 use App\Controller\Controller;
 use App\Dto\admin\ApplicationProfilAgenceServiceDTO;
+use App\Entity\admin\ApplicationProfil;
 use App\Entity\admin\utilisateur\ApplicationProfilAgenceService;
 use App\Form\admin\ApplicationProfilAgenceServiceType;
 use Symfony\Component\HttpFoundation\Request;
@@ -12,21 +13,21 @@ use Symfony\Component\Routing\Annotation\Route;
 /** @Route("/admin/appProfilAgServ") */
 class AppProfilAgServController extends Controller
 {
-    /** @Route("/", name="app_profil_ag_serv_index") */
+    /** @Route("", name="app_profil_ag_serv_index") */
     public function index()
     {
         // verifier si l'utilisateur est connecté
         $this->verifierSessionUtilisateur();
 
-        $data = $this->getEntityManager()->getRepository(ApplicationProfilAgenceService::class)->findAll();
-        $preparedData = $this->prepareForDisplay($data);
+        $allAppProfil = $this->getEntityManager()->getRepository(ApplicationProfil::class)->findAll();
+        $preparedData = $this->prepareForDisplay($allAppProfil);
         return $this->render('admin/appProfilAgServ/list.html.twig', [
             'data' => $preparedData,
         ]);
     }
 
-    /** @Route("/liaison", name="app_profil_ag_serv_liaison") */
-    public function new(Request $request)
+    /** @Route("/liaison/{id}", name="app_profil_ag_serv_liaison") */
+    public function liaison(int $id, Request $request)
     {
         // verifier si l'utilisateur est connecté
         $this->verifierSessionUtilisateur();
@@ -34,6 +35,9 @@ class AppProfilAgServController extends Controller
         $em = $this->getEntityManager();
 
         $dto = new ApplicationProfilAgenceServiceDTO();
+        $dto->applicationProfil = $em->getRepository(ApplicationProfil::class)->find($id);
+        /** Obtenir les agences services deja liées au combinaison ApplicationProfil */
+        $dto->agenceServices = $dto->applicationProfil->getLiaisonsAgenceService()->map(fn($l) => $l->getAgenceService())->toArray();
         $form = $this->getFormFactory()->createBuilder(ApplicationProfilAgenceServiceType::class, $dto)->getForm();
 
         $form->handleRequest($request);
@@ -72,28 +76,38 @@ class AppProfilAgServController extends Controller
         ]);
     }
 
-    private function prepareForDisplay(array $data)
+    private function prepareForDisplay(array $allAppProfil)
     {
         $preparedData = [];
 
-        /** @var ApplicationProfilAgenceService $liaison */
-        foreach ($data as $liaison) {
-            $profil = $liaison->getApplicationProfil()->getProfil();
-            $application = $liaison->getApplicationProfil()->getApplication();
-            $agence = $liaison->getAgenceService()->getAgence();
-            $service = $liaison->getAgenceService()->getService();
-
-            $preparedData[] = [
-                'appProfilId'    => $liaison->getApplicationProfil()->getId(),
-                'reference'      => $profil->getReference(),
-                'nomProfil'      => $profil->getDesignation(),
-                'codeApp'        => $application->getCodeApp(),
-                'nomApp'         => $application->getNom(),
-                'codeAgence'     => $agence->getCodeAgence(),
-                'libelleAgence'  => $agence->getLibelleAgence(),
-                'codeService'    => $service->getCodeService(),
-                'libelleService' => $service->getLibelleService(),
+        /** @var ApplicationProfil $appProfil */
+        foreach ($allAppProfil as $appProfil) {
+            $baseData = [
+                'urlLiaison'     => $this->getUrlGenerator()->generate('app_profil_ag_serv_liaison', ['id' => $appProfil->getId()]),
+                'appProfilId'    => $appProfil->getId(),
+                'reference'      => $appProfil->getProfil()->getReference(),
+                'nomProfil'      => $appProfil->getProfil()->getDesignation(),
+                'codeApp'        => $appProfil->getApplication()->getCodeApp(),
+                'nomApp'         => $appProfil->getApplication()->getNom(),
             ];
+
+            $liaisons = $appProfil->getLiaisonsAgenceService();
+
+            if ($liaisons->isEmpty()) {
+                $preparedData[] = $baseData + ['liaisons' => ''];
+                continue;
+            }
+
+            foreach ($liaisons as $liaison) {
+                $agence = $liaison->getAgenceService()->getAgence();
+                $service = $liaison->getAgenceService()->getService();
+                $preparedData[] = $baseData + [
+                    'codeAgence'     => $agence->getCodeAgence(),
+                    'libelleAgence'  => $agence->getLibelleAgence(),
+                    'codeService'    => $service->getCodeService(),
+                    'libelleService' => $service->getLibelleService(),
+                ];
+            }
         }
 
         return $preparedData;

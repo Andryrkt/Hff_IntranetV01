@@ -18,6 +18,7 @@ class ApplicationProfilAgenceServiceType extends AbstractType
             ->add('applicationProfil', EntityType::class, [
                 'label' => 'Profil - Application',
                 'class' => ApplicationProfil::class,
+                'disabled' => true,
                 'choice_label' => fn(ApplicationProfil $ap) =>
                 $ap->getProfil()->getReference()
                     . ' — '
@@ -29,7 +30,7 @@ class ApplicationProfilAgenceServiceType extends AbstractType
                 'class' => AgenceService::class,
                 'choice_label' => fn(AgenceService $as) =>
                 $as->getAgence()->getCodeAgence()
-                    . ' / '
+                    . ' — '
                     . $as->getService()->getCodeService(),
                 'multiple' => true,
                 'expanded' => false,

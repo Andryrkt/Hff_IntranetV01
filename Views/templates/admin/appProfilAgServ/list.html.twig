@@ -11,23 +11,21 @@
 				<h3 class="perso-titre">
 					Liste de tous les liaisons Profil-Application Agence-Service
 				</h3>
-				<a href="{{ path("app_profil_ag_serv_liaison")}}" class="btn btn-success fw-bold my-3">
+				<a href="" class="btn btn-success fw-bold my-3">
 					Ajouter une nouvelle liaison
 				</a>
-				<span class="pe-3">
-					Ceci ajoute et supprime des liaisons entre les profils et les applications
-				</span>
 				<table class="table">
 					<thead class="table-dark align-middle">
 						<tr>
 							<th class="d-none">Id profil</th>
+							<th>Actions</th>
 							<th>Référence profil</th>
 							<th>Nom profil</th>
-							<th>Code application</th>
+							<th class="text-center">Code application</th>
 							<th>Nom application</th>
-							<th>Code agence</th>
+							<th class="text-center">Code agence</th>
 							<th>Libelle agence</th>
-							<th>Code service</th>
+							<th class="text-center">Code service</th>
 							<th>Libelle service</th>
 						</tr>
 					</thead>
@@ -35,13 +33,25 @@
 						{% for row in data %}
 							<tr>
 								<td class="d-none">{{ row.appProfilId }}</td>
+								<td>
+									<div class="dropdown">
+										<button class="btn btn-warning dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" style="text-decoration: none; color: #000; font-weight: 700">
+											Actions
+										</button>
+										<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
+											<li>
+												<a class="dropdown-item fw-bold" href="{{ row.urlLiaison }}">Gérer liaison</a>
+											</li>
+										</ul>
+									</div>
+								</td>
 								<td>{{ row.reference }}</td>
 								<td>{{ row.nomProfil }}</td>
-								<td>{{ row.codeApp }}</td>
+								<td class="text-center">{{ row.codeApp }}</td>
 								<td>{{ row.nomApp }}</td>
-								<td>{{ row.codeAgence }}</td>
+								<td class="text-center">{{ row.codeAgence }}</td>
 								<td>{{ row.libelleAgence }}</td>
-								<td>{{ row.codeService }}</td>
+								<td class="text-center">{{ row.codeService }}</td>
 								<td>{{ row.libelleService }}</td>
 							</tr>
 						{% endfor %}
