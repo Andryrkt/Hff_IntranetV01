@@ -7,19 +7,21 @@ use Exception;
 use App\Entity\admin\utilisateur\User;
 use App\Model\LdapModel;
 use App\Repository\admin\utilisateur\UserRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 class LoginController extends Controller
 {
-    private ?LdapModel $ldapModel = null;
+    private LdapModel $ldapModel;
     private UserRepository $userRepository;
 
-    public function __construct()
+    public function __construct(EntityManagerInterface $entityManager, LdapModel $ldapModel)
     {
         parent::__construct();
-        $this->ldapModel = new LdapModel();
-        $this->userRepository = $this->getEntityManager()->getRepository(User::class);
+
+        $this->ldapModel      = $ldapModel;
+        $this->userRepository = $entityManager->getRepository(User::class);
     }
 
     /**

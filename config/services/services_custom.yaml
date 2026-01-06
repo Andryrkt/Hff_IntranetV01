@@ -41,6 +41,9 @@ services:
   App\Model\da\DaModel:
     public: true
 
+  App\Model\LdapModel:
+    public: true
+
   App\Model\dw\DossierInterventionAtelierModel:
     public: true
 
@@ -57,4 +60,12 @@ services:
       - '@App\Model\da\DaModel'
       - '@App\Model\dw\dossierInterventionAtelierModel'
       - '@App\Service\da\DemandeApproService'
+    public: true
+
+  App\Controller\authentification\LoginController:
+    autowire: true
+    autoconfigure: true
+    arguments:
+      - "@doctrine.orm.default_entity_manager"
+      - '@App\Model\LdapModel'
     public: true
