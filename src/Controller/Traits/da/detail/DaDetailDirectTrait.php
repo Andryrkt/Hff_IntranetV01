@@ -5,6 +5,7 @@ namespace App\Controller\Traits\da\detail;
 use App\Entity\dw\DwFacBl;
 use App\Entity\dw\DwBcAppro;
 use App\Entity\da\DaObservation;
+use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
 use App\Entity\dw\DwDaDirect;
 use App\Repository\dw\DwBcApproRepository;
@@ -86,12 +87,15 @@ trait DaDetailDirectTrait
     /** 
      * Fonction pour préparer les données à afficher dans Twig 
      * @param iterable<DemandeApproL> $dals lignes demande appro avant affichage twig
+     * @param string $statutDal statut de la demande appro
      * 
      * @return iterable
      **/
-    private function prepareDataForDisplayDetail(iterable $dals): iterable
+    private function prepareDataForDisplayDetail(iterable $dals, string $statutDal): iterable
     {
         $datasPrepared = [];
+        $statutDASupprimable = [DemandeAppro::STATUT_SOUMIS_APPRO, DemandeAppro::STATUT_SOUMIS_ATE, DemandeAppro::STATUT_VALIDE];
+        $supprimable = in_array($statutDal, $statutDASupprimable);
 
         foreach ($dals as $dal) {
             $datasPrepared[] = [
@@ -107,10 +111,11 @@ trait DaDetailDirectTrait
                 "numeroDemandeAppro" => $dal->getNumeroDemandeAppro(),
                 "demandeApproLR"     => $dal->getDemandeApproLR(),
                 "estFicheTechnique"  => $dal->getEstFicheTechnique(),
-                "urlDelete"          => $this->getUrlGenerator()->generate(
+                "supprimable"        => $supprimable,
+                "urlDelete"          => $supprimable ? $this->getUrlGenerator()->generate(
                     'da_delete_line_direct',
                     ['numDa' => $dal->getNumeroDemandeAppro(), 'ligne' => $dal->getNumeroLigne()]
-                ),
+                ) : null,
             ];
         }
 

@@ -71,7 +71,7 @@ class DaDetailAvecDitController extends Controller
 			'devPjPath' => $this->getDevisPjPath($demandeAppro),
 		]);
 
-		$demandeApproLPrepared = $this->prepareDataForDisplayDetail($demandeAppro->getDAL());
+		$demandeApproLPrepared = $this->prepareDataForDisplayDetail($demandeAppro->getDAL(), $demandeAppro->getStatutDal());
 
 		return $this->render('da/detail.html.twig', [
 			'detailTemplate'      		=> 'detail-avec-dit',
