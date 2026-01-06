@@ -1,18 +1,18 @@
 import { initialiserIdTabs, showTab } from "../utils/pageNavigation";
 import { boutonRadio } from "./boutonRadio";
 import { handleRowClick } from "./dalr";
-import { handleAllButtonEvents, handleAllInputEvents } from "./event";
+import {
+  handleAllButtonEvents,
+  handleAllInputEvents,
+  handleFormSubmit,
+} from "./event";
 
 document.addEventListener("DOMContentLoaded", function () {
   initialiserIdTabs(); // initialiser les ID des onglets pour la navigation
   showTab(); // afficher la page d'article sélectionné par l'utilisateur
   handleAllInputEvents(); // gérer les événements sur tous les champs d'entrée
   handleAllButtonEvents(); // gérer les événements sur tous les boutons
-
-  document.getElementById("myForm").addEventListener("submit", function (e) {
-    const prototype = document.getElementById("child-prototype");
-    if (prototype) prototype.remove();
-  });
+  handleFormSubmit(); // gérer les événements sur le submit du formulaire
 
   /**=============================================
    * Desactive le bouton OK si la cage à cocher n'est pas cocher
