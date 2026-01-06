@@ -43,7 +43,6 @@ class User implements UserInterface
      */
     private $id;
 
-
     /**
      * @ORM\Column(type="string", length="255")
      *
@@ -229,6 +228,15 @@ class User implements UserInterface
         return $this->id;
     }
 
+    /**
+     * Set the value of id
+     */
+    public function setId($id): self
+    {
+        $this->id = $id;
+
+        return $this;
+    }
 
     public function getRoles(): Collection
     {

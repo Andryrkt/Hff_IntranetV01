@@ -2,7 +2,10 @@
 
 namespace App\Security;
 
-use App\Entity\admin\Personnel;
+use App\Entity\admin\Application;
+use App\Entity\admin\ApplicationProfil;
+use App\Entity\admin\historisation\pageConsultation\PageHff;
+use App\Entity\admin\utilisateur\Profil;
 use App\Entity\admin\utilisateur\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -150,20 +153,14 @@ class UserSessionManager
             ];
         }
 
-        // Sérialiser le personnel
-        /** @var Personnel $personnel */
-        $personnel = $user->getPersonnels(); // TODO : à sérialiser plus tard si nécéssaire
-
         // Sérialiser le profil
         $profil = $user->getProfil();
-        $profilData = null;
+        $profilData = [];
         if ($profil) {
             $profilData = [
-                'id' => $profil->getId(),
-                'code' => $profil->getCode(),
-                'libelle' => $profil->getLibelle(),
-                'description' => $profil->getDescription(),
-                // Ajoute d'autres propriétés du profil si nécessaire
+                'id'          => $profil->getId(),
+                'reference'   => $profil->getReference(),
+                'designation' => $profil->getDesignation(),
             ];
         }
 
@@ -173,29 +170,26 @@ class UserSessionManager
         $accessibleRoutes = [];
 
         if ($profil) {
+            /** @var Application $application */
             foreach ($profil->getApplications() as $application) {
                 $applicationIds[] = $application->getId();
 
                 $pages = [];
+                /** @var PageHff $page */
                 foreach ($application->getPages() as $page) {
-                    $accessibleRoutes[] = $page->getRouteName();
+                    $accessibleRoutes[$page->getNomRoute()] = true;
                     $pages[] = [
-                        'id' => $page->getId(),
-                        'nom' => $page->getNom(),
-                        'route_name' => $page->getRouteName(),
-                        'description' => $page->getDescription(),
-                        // Autres propriétés de Page
+                        'id'         => $page->getId(),
+                        'nom'        => $page->getNom(),
+                        'nom_route'  => $page->getNomRoute(),
+                        'lien'       => $page->getLien(),
                     ];
                 }
 
                 $applications[] = [
-                    'id' => $application->getId(),
-                    'nom' => $application->getNom(),
-                    'code' => $application->getCode(),
-                    'description' => $application->getDescription(),
-                    'icone' => $application->getIcone(),
-                    'pages' => $pages,
-                    // Autres propriétés d'Application
+                    'id'         => $application->getId(),
+                    'nom'        => $application->getNom(),
+                    'code'       => $application->getCodeApp(),
                 ];
             }
         }
@@ -208,28 +202,13 @@ class UserSessionManager
             'matricule'         => $user->getMatricule(),
             'mail'              => $user->getMail(),
             'societe'           => $societesData,
-            'nom'               => $personnel->getNom(),
-            'prenom'            => $personnel->getPrenoms(),
-
-            
-            'telephone'         => $user->getTelephone(),
-            'departement'       => $user->getDepartement(),
-            'poste'             => $user->getPoste(),
-            'date_creation'     => $user->getDateCreation()?->format('Y-m-d H:i:s'),
-            'actif'             => $user->isActif(),
-
-            // Profil complet
+            'nom'               => $user->getFirstName(),
+            'prenom'            => $user->getLastName(),
             'profil'            => $profilData,
-
-            // Applications complètes avec leurs pages
-            'applications'      => $applications,
-
-            // Listes rapides pour les vérifications
-            'application_ids'   => $applicationIds,
-            'accessible_routes' => array_unique($accessibleRoutes),
-
-            // Métadonnées
-            'serialized_at'     => time(),
+            'applications'      => $applications, // Applications complètes avec leurs pages
+            'application_ids'   => $applicationIds, // Listes rapides pour les vérifications
+            'accessible_routes' => $accessibleRoutes,
+            'serialized_at'     => time(), // Métadonnées
         ];
     }
 
@@ -243,49 +222,37 @@ class UserSessionManager
         $user = new User();
         $user->setId($userData['id']);
         $user->setNomUtilisateur($userData['nom_utilisateur']);
-        $user->setNom($userData['nom']);
-        $user->setPrenom($userData['prenom']);
-        $user->setEmail($userData['email']);
-        $user->setMatricule($userData['matricule'] ?? null);
-        $user->setTelephone($userData['telephone'] ?? null);
-        $user->setDepartement($userData['departement'] ?? null);
-        $user->setPoste($userData['poste'] ?? null);
-        $user->setActif($userData['actif'] ?? true);
-
-        if (isset($userData['date_creation'])) {
-            $user->setDateCreation(new \DateTime($userData['date_creation']));
-        }
+        $user->setMatricule($userData['matricule']);
+        $user->setMail($userData['mail']);
 
         // Reconstruire le profil
-        if ($userData['profil']) {
+        $userDataProfil = $userData['profil'];
+        if ($userDataProfil) {
             $profil = new Profil();
-            $profil->setId($userData['profil']['id']);
-            $profil->setCode($userData['profil']['code']);
-            $profil->setLibelle($userData['profil']['libelle']);
-            $profil->setDescription($userData['profil']['description'] ?? null);
+            $profil->setId($userDataProfil['id']);
+            $profil->setReference($userDataProfil['reference']);
+            $profil->setDesignation($userDataProfil['designation']);
 
             // Reconstruire les applications
             foreach ($userData['applications'] as $appData) {
                 $application = new Application();
                 $application->setId($appData['id']);
                 $application->setNom($appData['nom']);
-                $application->setCode($appData['code']);
-                $application->setDescription($appData['description'] ?? null);
-                $application->setIcone($appData['icone'] ?? null);
+                $application->setCodeApp($appData['code']);
 
                 // Reconstruire les pages
                 foreach ($appData['pages'] as $pageData) {
-                    $page = new Page();
+                    $page = new PageHff();
                     $page->setId($pageData['id']);
                     $page->setNom($pageData['nom']);
-                    $page->setRouteName($pageData['route_name']);
-                    $page->setDescription($pageData['description'] ?? null);
-                    $page->setApplication($application);
+                    $page->setNomRoute($pageData['nom_route']);
+                    $page->setLien($pageData['lien']);
 
                     $application->addPage($page);
                 }
 
-                $profil->addApplication($application);
+                $applicationProfil = new ApplicationProfil($profil, $application);
+                $profil->addApplicationProfil($applicationProfil);
             }
 
             $user->setProfil($profil);
