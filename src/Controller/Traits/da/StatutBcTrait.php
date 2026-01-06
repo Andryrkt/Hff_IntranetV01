@@ -30,6 +30,7 @@ trait StatutBcTrait
         //----------------------------------------------------------------------------------------------------
         $this->styleStatutDA = [
             DemandeAppro::STATUT_VALIDE               => 'bg-bon-achat-valide',
+            DemandeAppro::STATUT_CLOTUREE             => 'bg-bon-achat-valide',
             DemandeAppro::STATUT_TERMINER             => 'bg-primary text-white',
             DemandeAppro::STATUT_SOUMIS_ATE           => 'bg-proposition-achat',
             DemandeAppro::STATUT_DW_A_VALIDE          => 'bg-soumis-validation',
@@ -88,7 +89,7 @@ trait StatutBcTrait
         // 1. recupération des données necessaire dans DaAfficher
         [$ref, $numDit, $numDa, $designation, $numeroOr, $statutOr, $statutBc, $statutDa] = $this->getVariableNecessaire($DaAfficher);
 
-        // 2. on met vide la statut bc selon le condition en survolon la fonction
+        // 2. on met vide la statut bc selon le condition en survolant la fonction
         if ($this->doitRetournerVide($statutDa, $statutOr)) return '';
 
         /** 3. recuperation type DA @var bool $daDirect @var bool $daViaOR @var bool $daReappro  */
@@ -204,8 +205,7 @@ trait StatutBcTrait
         if ($statutOr === DemandeAppro::STATUT_DW_REFUSEE || strtolower($statutOr) === strtolower(DemandeAppro::STATUT_DW_A_VALIDE)) return true;
 
         // si statut Da n'est pas validé
-        if ($statutDa !== DemandeAppro::STATUT_VALIDE) return true;
-
+        if ($statutDa !== DemandeAppro::STATUT_VALIDE && $statutDa !== DemandeAppro::STATUT_CLOTUREE) return true;
         $statutDaInternet = [
             DemandeAppro::STATUT_SOUMIS_ATE,
             DemandeAppro::STATUT_SOUMIS_APPRO,
@@ -306,13 +306,14 @@ trait StatutBcTrait
     {
         if ($infoDaDirect && $daDirect) {
             return (int)$infoDaDirect[0]['num_cde'] > 0
+                && $infoDaDirect[0]['position_livraison'] === '--'
                 &&  ($infoDaDirect[0]['position_bc'] === DaSoumissionBc::POSITION_TERMINER || $infoDaDirect[0]['position_bc'] === DaSoumissionBc::POSITION_ENCOUR);
         } elseif ($situationCde && $daViaOR) {
             // numero de commande existe && ... && position terminer
             return (int)$situationCde[0]['num_cde'] > 0
                 && $situationCde[0]['slor_natcm'] === 'C'
-                &&
-                ($situationCde[0]['position_bc'] === DaSoumissionBc::POSITION_TERMINER || $situationCde[0]['position_bc'] === DaSoumissionBc::POSITION_ENCOUR);
+                && $situationCde[0]['position_livraison'] === '--'
+                && ($situationCde[0]['position_bc'] === DaSoumissionBc::POSITION_TERMINER || $situationCde[0]['position_bc'] === DaSoumissionBc::POSITION_ENCOUR);
         } else {
             return false; // DA réappro
         }
@@ -333,14 +334,14 @@ trait StatutBcTrait
 
         if ($infoDaDirect && $daDirect) {
             return (int)$infoDaDirect[0]['num_cde'] > 0
-                && $infoDaDirect[0]['position_bc'] === DaSoumissionBc::POSITION_EDITER
+                && ($infoDaDirect[0]['position_bc'] === DaSoumissionBc::POSITION_EDITER || ($infoDaDirect[0]['position_bc'] === DaSoumissionBc::POSITION_TERMINER && $infoDaDirect[0]['position_livraison'] !== '--'))
                 && !in_array($statutBc, $statutBcDw)
                 && !$bcExiste;
         } elseif ($situationCde && $daViaOR) {
             // numero de commande existe && ... && position editer && BC n'est pas encore soumis
             return (int)$situationCde[0]['num_cde'] > 0
                 && $situationCde[0]['slor_natcm'] === 'C'
-                && $situationCde[0]['position_bc'] === DaSoumissionBc::POSITION_EDITER
+                && ($situationCde[0]['position_bc'] === DaSoumissionBc::POSITION_EDITER || ($situationCde[0]['position_bc'] === DaSoumissionBc::POSITION_EDITER && $situationCde[0]['position_livraison'] !== '--'))
                 && !in_array($statutBc, $statutBcDw)
                 && !$bcExiste;
         } else {
@@ -377,7 +378,7 @@ trait StatutBcTrait
             $q = $infoDaDirect[0];
             $qteDem = (int)$q['qte_dem'];
             $qteALivrer = (int)$q['qte_dispo'];
-            $qteLivee = 0; //TODO: en attend du decision du client
+            $qteLivee = (int)$q['qte_livree'];
         } else { // pour via or et reappro
             $q = $qte[0];
             $qteDem = (int)$q['qte_dem'];
@@ -404,7 +405,7 @@ trait StatutBcTrait
             if ($daDirect) {
                 $q = $infoDaDirect[0];
                 $qteDem = (int)$q['qte_dem'];
-                $qteLivee = 0; //TODO: en attend du decision du client
+                $qteLivee = (int)$q['qte_livree'];
                 $qteReliquat = (int)$q['qte_en_attente']; // quantiter en attente
                 $qteDispo = (int)$q['qte_dispo'];
             } else { // pour via or et reappro

@@ -50,7 +50,7 @@ class DaAfficher
     /**
      * @ORM\Column(type="string", length=50, name="statut_dal")
      */
-    private string $statutDal;
+    private string $statutDal = '';
 
     /**
      * @ORM\Column(type="string", length=50, name="statut_or")
@@ -65,12 +65,12 @@ class DaAfficher
     /**
      * @ORM\Column(type="string", length=100, name="objet_dal")
      */
-    private string $objetDal;
+    private string $objetDal = '';
 
     /**
      * @ORM\Column(type="string", length=1000, name="detail_dal", nullable=true)
      */
-    private string $detailDal;
+    private ?string $detailDal = null;
 
     /**
      * @ORM\Column(type="string", length=11, name="num_ligne")
@@ -140,7 +140,7 @@ class DaAfficher
     /**
      * @ORM\Column(type="string", length=50, name="nom_fournisseur")
      */
-    private ?string $nomFournisseur;
+    private ?string $nomFournisseur = null;
 
     /**
      * @ORM\Column(type="datetime", name="date_fin_souhaitee_l", nullable=true)
@@ -150,7 +150,7 @@ class DaAfficher
     /**
      * @ORM\Column(type="string", length=1000)
      */
-    private string $commentaire;
+    private string $commentaire = '';
 
     /**
      * @ORM\Column(type="string", length=100, name="prix_unitaire")
@@ -483,7 +483,7 @@ class DaAfficher
     /**
      * Get the value of detailDal
      */
-    public function getDetailDal()
+    public function getDetailDal(): ?string
     {
         return $this->detailDal;
     }
@@ -493,7 +493,7 @@ class DaAfficher
      *
      * @return  self
      */
-    public function setDetailDal($detailDal)
+    public function setDetailDal(?string $detailDal): self
     {
         $this->detailDal = $detailDal;
 
