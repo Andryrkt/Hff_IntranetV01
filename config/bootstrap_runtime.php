@@ -14,19 +14,28 @@ require dirname(__DIR__) . '/var/cache/Container.php';
 /** @var \Symfony\Component\DependencyInjection\ContainerInterface $container */
 $container = new AppContainer();
 
-// Session runtime
+// --- Variables d'environnement & CLI ---
+if (file_exists(dirname(__DIR__) . '/.env')) \Dotenv\Dotenv::createImmutable(dirname(__DIR__))->load();
+
+require_once __DIR__ . '/listeConstructeur.php';
+$isDevMode = $_ENV['APP_ENV'] === 'dev';
+$_ENV['BASE_PATH_COURT'] ??= '/Hffintranet';
+$_SERVER['HTTP_HOST'] ??= 'localhost';
+$_SERVER['REQUEST_URI'] ??= '/';
+
+// --- Session runtime ---
 $session = new \Symfony\Component\HttpFoundation\Session\Session(
     new \Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage()
 );
 $container->set('session', $session);
 
-// Twig runtime
+// --- Twig runtime ---
 $twig = new \Twig\Environment(
     new \Twig\Loader\FilesystemLoader([
         dirname(__DIR__) . '/Views/templates',
         dirname(__DIR__) . '/vendor/symfony/twig-bridge/Resources/views/Form',
     ]),
-    ['debug' => false, 'cache' => dirname(__DIR__) . '/var/cache/twig']
+    ['debug' => $isDevMode, 'cache' => dirname(__DIR__) . '/var/cache/twig']
 );
 $container->set('twig', $twig);
 
@@ -40,15 +49,6 @@ $formFactory = \Symfony\Component\Form\Forms::createFormFactoryBuilder()
 
 $container->set('form.factory', $formFactory);
 
-// --- Variables d'environnement & CLI ---
-if (file_exists(dirname(__DIR__) . '/.env')) {
-    \Dotenv\Dotenv::createImmutable(dirname(__DIR__))->load();
-}
-require_once __DIR__ . '/listeConstructeur.php';
-$_ENV['BASE_PATH_COURT'] ??= '/Hffintranet';
-$_SERVER['HTTP_HOST'] ??= 'localhost';
-$_SERVER['REQUEST_URI'] ??= '/';
-
 // --- Request / Session ---
 $request = Request::createFromGlobals();
 $container->get('request_stack')->push($request);
@@ -56,7 +56,7 @@ $session = $container->get('session');
 
 // --- Routes cacheées ---
 $routeCacheFile = dirname(__DIR__) . '/var/cache/routes.php';
-$cacheRoutes = new ConfigCache($routeCacheFile, false); // TODO Mode debug : true => vérifie si les fichiers ont changé
+$cacheRoutes = new ConfigCache($routeCacheFile, $isDevMode); // TODO Mode debug : true => vérifie si les fichiers ont changé
 
 if (!$cacheRoutes->isFresh()) {
     $collection = new \Symfony\Component\Routing\RouteCollection();
