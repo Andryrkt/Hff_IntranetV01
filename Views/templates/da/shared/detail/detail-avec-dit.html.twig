@@ -124,7 +124,7 @@
 					{% endif %}
 				</td>
 				<td class="text-center">
-					<i class="fas fa-trash-can text-danger fs-6 delete-line-DA" style="cursor:pointer;" title="Supprimer la ligne de DA" data-bs-toggle="tooltip" data-delete-path="{{ DAL.urlDelete }}"></i>
+					<i class="fas fa-trash-can text-danger fs-6 delete-line-DA {{ DAL.supprimable ? '' : 'd-none' }}" style="cursor:pointer;" title="Supprimer la ligne de DA" data-bs-toggle="tooltip" data-delete-path="{{ DAL.urlDelete }}"></i>
 				</td>
 			</tr>
 			{% if DAL.demandeApproLR is empty %}
