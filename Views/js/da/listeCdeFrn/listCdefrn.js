@@ -115,6 +115,7 @@ document.addEventListener("contextmenu", function (event) {
     "Complet non livré",
     "Tous livrés",
     "Partiellement livré",
+    "Non Dispo Fournisseur",
   ];
 
   if (typeDa == 2) {
