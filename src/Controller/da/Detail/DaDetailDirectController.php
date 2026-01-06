@@ -58,7 +58,7 @@ class DaDetailDirectController extends Controller
 
 		$observations = $this->daObservationRepository->findBy(['numDa' => $demandeAppro->getNumeroDemandeAppro()]);
 
-		$demandeApproLPrepared = $this->prepareDataForDisplayDetail($demandeAppro->getDAL());
+		$demandeApproLPrepared = $this->prepareDataForDisplayDetail($demandeAppro->getDAL(), $demandeAppro->getStatutDal());
 
 		$fichiers = $this->getAllDAFile([
 			'baiPath'   => $this->getBaIntranetPath($demandeAppro),
