@@ -36,12 +36,13 @@
 					<th class="text-end">Montant</th>
 					<th class="text-center">Date envoi au client</th>
 					<th class="text-center">Position IPS</th>
+					<th class="text-center">PO/BC client</th>
 					<th class="text-center">Crée par</th>
 					<th class="text-center">Soumis par</th>
 				</tr>
 			</thead>
 			<tbody id="tableBody">
-				{% for item in listeDevis %}
+				{% for row in datas %}
 					<tr>
 						<td class="align-middle" style="padding: 0px">
 							<div class="dropdown">
@@ -50,32 +51,35 @@
 								</button>
 								<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton">
 									<li>
-										<a class="dropdown-item fw-bold" href="{{ path("devis_magasin_soumission_verification_prix", {numeroDevis:item.numeroDevis})}}">Soumission devis pour verification prix</a>
-										<a class="dropdown-item fw-bold" href="{{ path("devis_magasin_soumission_validation_devis", {numeroDevis:item.numeroDevis, codeAgenceService:item.succursaleServiceEmetteur})}}">Soumission devis pour validation</a>
-										{% if item.statutDw in
-								[constant('App\\Entity\\magasin\\devis\\DevisMagasin::STATUT_PRIX_VALIDER_TANA'),
-								constant('App\\Entity\\magasin\\devis\\DevisMagasin::STATUT_PRIX_MODIFIER_TANA'),
-								constant('App\\Entity\\magasin\\devis\\DevisMagasin::STATUT_VALIDE_AGENCE')] %}
-											<a class="dropdown-item fw-bold" href="{{ path("devis_magasin_envoyer_au_client", {numeroDevis: item.numeroDevis})}}">Pointage envoye devis au client</a>
+										<a class="dropdown-item fw-bold" href="{{ row.url.verificationPrix }}">Soumission devis pour verification prix</a>
+										<a class="dropdown-item fw-bold" href="{{ row.url.validationDevis }}">Soumission devis pour validation</a>
+										{% if row.pointageDevis %}
+											<a class="dropdown-item fw-bold" href="{{ row.url.pointageDevis }}">Pointage envoye devis au client</a>
 										{% endif %}
-										<a class="dropdown-item fw-bold" href="{{ path("bc_magasin_soumission", {numeroDevis:item.numeroDevis})}}">Soumission BC client pour validation</a>
+										<a class="dropdown-item fw-bold" href="{{ row.url.soumissionBC }}">Soumission BC client pour validation</a>
 									</li>
 								</ul>
 							</div>
 						</td>
-
-						<td class="text-center fw-bold {{styleStatutDw[item.statutDw] ?? ''}}">{{ item.statutDw }}</td>
-						<td class="text-center fw-bold {{styleStatutBc[item.statutBc] ?? ''}}">{{ item.statutBc }}</td>
-						<td class="text-center">{{item.numeroDevis}}</td>
-						<td class="text-center">{{item.dateCreation}}</td>
-						<td class="text-center">{{item.succursaleServiceEmetteur}}</td>
-						<td>{{item.codeClientLibelleClient}}</td>
-						<td>{{item.referenceCLient}}</td>
-						<td class="text-end">{{item.montant|number_format(2, ',', '.')}}</td>
-						<td class="text-center">{{item.dateDenvoiDevisAuClient}}</td>
-						<td class="text-center" data-bs-toggle="tooltip" title="{{statutIPS[item.statutIps] ?? ''}}">{{item.statutIps}}</td>
-						<td class="text-center">{{item.creePar}}</td>
-						<td class="text-center">{{item.operateur}}</td>
+						<td class="text-center fw-bold {{ row.styleStatutDw }}">{{ row.statutDw }}</td>
+						<td class="text-center fw-bold {{ row.styleStatutBc }}">{{ row.statutBc }}</td>
+						<td class="text-center">{{ row.numeroDevis }}</td>
+						<td class="text-center">{{ row.dateCreation }}</td>
+						<td class="text-center">{{ row.emetteur }}</td>
+						<td>{{ row.client }}</td>
+						<td>{{ row.libelle }}</td>
+						<td class="text-end">{{ row.montant }}</td>
+						<td class="text-center">{{ row.dateEnvoiClient }}</td>
+						<td class="text-center" data-bs-toggle="tooltip" title="{{ row.titreStatutIps }}">{{ row.statutIps }}</td>
+						<td class="text-center">
+							{% if row.numeroPO %}
+								<a href="{{ row.urlPO }}" target="_blank">{{ row.numeroPO }}</a>
+							{% else %}
+								{{ row.numeroPO }}
+							{% endif %}
+						</td>
+						<td class="text-center">{{ row.creePar }}</td>
+						<td class="text-center">{{ row.operateur }}</td>
 					</tr>
 				{% endfor %}
 			</tbody>

@@ -2,10 +2,11 @@
 
 namespace App\Service\genererPdf\bap;
 
-use App\Controller\Traits\FormatageTrait;
 use TCPDF;
 use App\Entity\da\DemandeAppro;
+use App\Entity\da\DaSoumissionFacBl;
 use App\Service\genererPdf\GeneratePdf;
+use App\Controller\Traits\FormatageTrait;
 use App\Service\genererPdf\PdfTableGeneratorFlexible;
 
 class GenererPdfBonAPayer extends GeneratePdf
@@ -15,14 +16,14 @@ class GenererPdfBonAPayer extends GeneratePdf
     /**
      * Fonction pour générer le PDF du bon à payer
      */
-    public function genererPageDeGarde(array $infoBC, array $infoValidationBC, array $infoMateriel, array $dataRecapOR, DemandeAppro $demandeAppro, array $infoFacBl): string
+    public function genererPageDeGarde(array $infoBC, array $infoValidationBC, array $infoMateriel, array $dataRecapOR, DemandeAppro $demandeAppro, DaSoumissionFacBl $daSoumissionFacBl, array $infoFacBl): string
     {
         $pdf = $this->initPDF();
         $w100 = $this->getUsableWidth($pdf);
 
         $this->renderInfoBCAndValidation($pdf, $w100, $infoBC, $infoValidationBC);
         $this->renderInfoMateriel($pdf, $w100, $infoMateriel);
-        $this->renderRecapOR($pdf, $dataRecapOR);
+        $this->renderRecapOR($pdf, $dataRecapOR, $daSoumissionFacBl);
         $this->renderRecapDA($pdf, $w100, $demandeAppro);
         $this->renderInfoFACBL($pdf, $w100, $infoFacBl);
 
@@ -69,42 +70,42 @@ class GenererPdfBonAPayer extends GeneratePdf
 
     private function renderInfoBCAndValidation(TCPDF $pdf, int $w100, array $infoBC, array $infoValidationBC)
     {
-        $this->renderInfoSection($pdf, 'INFORMATION DU BC', 'INFORMATION VALIDATION BC', function () use ($pdf, $w100, $infoBC, $infoValidationBC) {
-            $this->addInfoLine($pdf, 'Fournisseur', $infoBC["nom_fournisseur"], $w100 / 2 - 6, 30, 0, 0);
-            $this->addInfoLine($pdf, 'Nom Validateur', $infoValidationBC["validateur"] ?? "-", $w100 / 2, 30, 0);
+        $this->renderInfoSection($pdf, 'RESUME DU BC', 'INFORMATION VALIDATION BC', function () use ($pdf, $w100, $infoBC, $infoValidationBC) {
+            $this->addInfoLine($pdf, 'Nom fournisseur', $infoBC["nom_fournisseur"], $w100 / 2 - 6, 35, 0, 0);
+            $this->addInfoLine($pdf, 'Nom Validateur', $infoValidationBC["validateur"] ?? "-", $w100 / 2, 25, 0);
 
-            $this->addInfoLine($pdf, 'N° FRN', $infoBC["num_fournisseur"], $w100 / 2 - 6, 30, 0, 0);
-            $this->addInfoLine($pdf, 'Date Validation', $infoValidationBC["dateValidation"] ? $infoValidationBC["dateValidation"]->format("d/m/Y") : "-", $w100 / 2, 30, 0);
+            $this->addInfoLine($pdf, 'N° fournisseur', $infoBC["num_fournisseur"], $w100 / 2 - 6, 35, 0, 0);
+            $this->addInfoLine($pdf, 'Date Validation', $infoValidationBC["dateValidation"] ? $infoValidationBC["dateValidation"]->format("d/m/Y") : "-", $w100 / 2, 25, 0);
             $pdf->Ln(3);
 
-            $this->addInfoLine($pdf, 'Téléphone', $infoBC["tel_fournisseur"], $w100, 30, 0);
+            $this->addInfoLine($pdf, 'Téléphone', $infoBC["tel_fournisseur"], $w100, 35, 0);
 
             // Adresse
             $this->renderAdresseFournisseur($pdf, $w100, $infoBC);
 
             $fields = [
-                'N°'                => $infoBC["num_cde"] ?? "-",
-                'Date'              => $infoBC["date_cde"] ? date("d/m/Y", strtotime($infoBC["date_cde"])) : "-",
-                'Succursale'        => $infoBC["succ_cde"] ?? "-",
-                'Service'           => $infoBC["serv_cde"] ?? "-",
-                'Opérateur'         => $infoBC["nom_ope"] ?? "-",
-                'N° cmd externe'    => $infoBC["num_cde_ext"] ?? "-",
-                'Référence'         => $infoBC["libelle_cde"] ?? "-",
-                'Montant HT'        => $this->formaterPrix($infoBC["mtn_cde"] ?? 0),
-                'Montant TTC'       => $this->formaterPrix($infoBC["ttc_cde"] ?? 0),
-                'Nature de l’achat' => $infoBC["type_cde"] ?? "-"
+                'N° commande'        => $infoBC["num_cde"] ?? "-",
+                'N° demande appro'   => $infoBC["num_cde_ext"] ?? "-",
+                'Référence commande' => $infoBC["libelle_cde"] ?? "-",
+                'Date commande'      => $infoBC["date_cde"] ? date("d/m/Y", strtotime($infoBC["date_cde"])) : "-",
+                'Succursale'         => $infoBC["succ_cde"] ?? "-",
+                'Service'            => $infoBC["serv_cde"] ?? "-",
+                'Opérateur'          => $infoBC["nom_ope"] ?? "-",
+                'Montant HT'         => $this->formaterPrix($infoBC["mtn_cde"] ?? 0) . " " . $infoBC["devise"],
+                'Montant TTC'        => $this->formaterPrix($infoBC["ttc_cde"] ?? 0) . " " . $infoBC["devise"],
+                'Nature de l’achat'  => $infoBC["type_cde"] ?? "-"
             ];
 
             foreach ($fields as $label => $value) {
-                $this->addInfoLine($pdf, $label, $value, $w100, 30, 0);
-                if ($label === 'Date') $pdf->Ln(3);
+                $this->addInfoLine($pdf, $label, $value, $w100, 35, 0);
+                if ($label === 'Date commande') $pdf->Ln(3);
             }
         });
     }
 
     private function renderAdresseFournisseur(TCPDF $pdf, $w100, array $infoBC)
     {
-        $this->addInfoLine($pdf, 'Adresse FRN', '', $w100, 30, 0, 1);
+        $this->addInfoLine($pdf, 'Adresse fournisseur', '', $w100, 35, 0, 1);
 
         $adresse = [
             $infoBC["adr1_fournisseur"],
@@ -127,9 +128,12 @@ class GenererPdfBonAPayer extends GeneratePdf
         });
     }
 
-    private function renderRecapOR(TCPDF $pdf, array $dataRecapOR)
+    private function renderRecapOR(TCPDF $pdf, array $dataRecapOR, DaSoumissionFacBl $daSoumissionFacBl)
     {
-        $this->renderInfoSection($pdf, 'RECAPITULATION DE L’OR', '', function () use ($pdf, $dataRecapOR) {
+        $numOR = $daSoumissionFacBl->getNumeroOR();
+        $numDIT = $daSoumissionFacBl->getNumeroDemandeDit();
+        $numDIT = $numDIT ? "- $numDIT" : "";
+        $this->renderInfoSection($pdf, "RECAPITULATIF DE L’OR $numOR $numDIT", '', function () use ($pdf, $dataRecapOR) {
             $tableGenerator = new PdfTableGeneratorFlexible();
             $tableGenerator->setOptions([
                 'table_attributes' => 'border="0" cellpadding="0" cellspacing="0" align="center" style="font-size: 8px;"',
@@ -149,7 +153,7 @@ class GenererPdfBonAPayer extends GeneratePdf
 
     private function renderRecapDA(TCPDF $pdf, $w100, DemandeAppro $demandeAppro)
     {
-        $this->renderInfoSection($pdf, 'RECAPITULATION DE LA DA', '', function () use ($pdf, $w100, $demandeAppro) {
+        $this->renderInfoSection($pdf, 'RECAPITULATIF DE LA DA', '', function () use ($pdf, $w100, $demandeAppro) {
             $this->addInfoLine($pdf, 'N° DA', $demandeAppro->getNumeroDemandeAppro(), $w100, 25);
             $this->addInfoLine($pdf, 'Date de création', $demandeAppro->getDateCreation()->format('d/m/Y'), $w100, 25);
             $this->addInfoLine($pdf, 'Objet', $demandeAppro->getObjetDal(), $w100, 25);

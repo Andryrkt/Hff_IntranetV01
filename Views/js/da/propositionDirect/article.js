@@ -18,46 +18,27 @@ export function ajouterReference(addLineId) {
     numeroFournisseur: getField("numeroFournisseur", line),
     prixUnitaire: getField("PU", line),
   };
-  const foundInput = getField("found", line);
 
   const divValidation = document.getElementById(`validationButtons`);
   const envoyerSelections = document.getElementById(`envoyerSelections`);
   const validerSelections = document.getElementById(`validerSelections`);
   const enregistrerDraft = document.getElementById(`enregistrerDraft`);
   const nePasAjouter = Object.values(fields).some(handleFieldValue);
-  console.log(nePasAjouter);
 
   if (!nePasAjouter) {
-    if (foundInput.value == "1") {
-      if (divValidation) {
-        divValidation.classList.add("d-none"); // On le cache
-      }
-      if (
-        envoyerSelections &&
-        envoyerSelections.dataset.daDirecteAppro != "1"
-      ) {
-        envoyerSelections.classList.remove("d-none"); // On l'affiche
-      }
-      if (validerSelections) {
-        validerSelections.classList.remove("d-none"); // On l'affiche
-      }
-      if (enregistrerDraft) {
-        enregistrerDraft.classList.remove("d-none"); // On l'affiche
-      }
-      ajouterUneLigne(line, fields, iscatalogue);
-    } else {
-      const referenceInput = fields.reference;
-      referenceInput.focus();
-      Swal.fire({
-        icon: "error",
-        title: "Référence inexistant",
-        html: `La proposition de l'article est bloquée car la référence <b class="text-danger">"${referenceInput.value}"</b> n'existe pas dans le catalogue des référence ZDI. <br> Veuillez sélectionner une réference ZDI valide svp.`,
-        confirmButtonText: "OK",
-        customClass: {
-          htmlContainer: "swal-text-left",
-        },
-      });
+    if (divValidation) {
+      divValidation.classList.add("d-none"); // On le cache
     }
+    if (envoyerSelections && envoyerSelections.dataset.daDirecteAppro != "1") {
+      envoyerSelections.classList.remove("d-none"); // On l'affiche
+    }
+    if (validerSelections) {
+      validerSelections.classList.remove("d-none"); // On l'affiche
+    }
+    if (enregistrerDraft) {
+      enregistrerDraft.classList.remove("d-none"); // On l'affiche
+    }
+    ajouterUneLigne(line, fields, iscatalogue);
   }
 }
 
