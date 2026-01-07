@@ -7,6 +7,7 @@ use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Entity\admin\StatutDemande;
 use App\Entity\admin\dit\WorNiveauUrgence;
+use App\Entity\admin\Societte;
 
 class DemandeInterventionDto
 {
@@ -52,6 +53,8 @@ class DemandeInterventionDto
     public bool $estDitRefacturation = false;
 
     public bool $estAtePolTana = false;
+
+    public ?Societte $societe = null;
 
 
     // Cette méthode peut être utilisée pour hydrater le DTO depuis l'entité/formulaire
