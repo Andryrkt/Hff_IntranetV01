@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   buildIndexFromLines(); // initialiser le compteur de ligne pour la création d'une DA directe
 
-  handleAllOldFileEvents(); // gérer les évènements sur les anciens fichiers
+  handleAllOldFileEvents("demande_appro_direct_form_DAL"); // gérer les évènements sur les anciens fichiers
 
   const actionsConfig = {
     enregistrerBrouillon: {

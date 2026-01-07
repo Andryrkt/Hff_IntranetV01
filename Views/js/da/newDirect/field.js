@@ -198,9 +198,11 @@ export function onFileNamesInputChange(event) {
   renderFileList(inputId, inputFile);
 }
 
-export function handleAllOldFileEvents() {
+export function handleAllOldFileEvents(
+  prefixId = "demande_appro_direct_form_DAL"
+) {
   const allFileInputs = document.querySelectorAll(
-    '[id^="demande_appro_direct_form_DAL_"][id$="_fileNames"]'
+    `[id^="${prefixId}_"][id$="_fileNames"]`
   );
 
   const allAddFileIcons = document.querySelectorAll(".add-file-icon");
@@ -258,7 +260,7 @@ export function handleAllOldFileEvents() {
   // 4. Gestion de la suppression des fichiers EXISTANTS (Twig)
   document
     .querySelectorAll(
-      '[id^="demande_appro_direct_form_DAL_"][id$="_fileNamesContainer"] .remove-file'
+      `[id^="${prefixId}_"][id$="_fileNamesContainer"] .remove-file`
     )
     .forEach((removeBtn) => {
       console.log("removeBtn = ");
