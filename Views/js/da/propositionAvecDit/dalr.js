@@ -316,7 +316,7 @@ export function createPieceJointe(line, rowIndex, inputFile) {
     );
 
     if (inputFileInserted) {
-      inputFileInserted.accept = ".pdf, image/*";
+      inputFileInserted.accept = ".pdf";
       // 🔁 Supprimer l'ancien listener si déjà ajouté
       inputFileInserted.removeEventListener(
         "change",
@@ -331,7 +331,7 @@ export function createPieceJointe(line, rowIndex, inputFile) {
       );
     }
   } else {
-    inputFile.accept = ".pdf, image/*";
+    inputFile.accept = ".pdf";
 
     // 🔁 Supprimer l'ancien listener si déjà ajouté
     inputFile.removeEventListener("change", handleFileNamesInputChange);
