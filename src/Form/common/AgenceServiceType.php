@@ -56,6 +56,9 @@ class AgenceServiceType extends AbstractType
     private function addServiceField(FormInterface $form, ?Agence $agence, array $options): void
     {
         $services = $agence ? $agence->getServices() : [];
+        if (isset($options['data_agence'])) {
+            $services = $options['data_agence']->getServices();
+        }
 
         $form->add('service', EntityType::class, [
             'label'               => $options['service_label'],

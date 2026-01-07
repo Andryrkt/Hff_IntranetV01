@@ -45,9 +45,7 @@ class DaNewDirectController extends Controller
 
         $demandeAppro = $id === 0 ? $this->initialisationDemandeApproDirect() : $this->demandeApproRepository->findAvecDernieresDALetLR($id);
 
-        $form = $this->getFormFactory()->createBuilder(DemandeApproDirectFormType::class, $demandeAppro, [
-            'em' => $this->getEntityManager()
-        ])->getForm();
+        $form = $this->getFormFactory()->createBuilder(DemandeApproDirectFormType::class, $demandeAppro)->getForm();
         $this->traitementFormDirect($form, $request, $demandeAppro);
 
         return $this->render('da/new-da-direct.html.twig', [
