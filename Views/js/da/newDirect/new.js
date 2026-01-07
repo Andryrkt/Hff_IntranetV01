@@ -4,6 +4,7 @@ import { handleAgenceChange } from "../../dit/fonctionUtils/fonctionListDit.js";
 import { API_ENDPOINTS } from "../../api/apiEndpoints.js";
 import { swalOptions } from "../listeCdeFrn/ui/swalUtils.js";
 import { baseUrl } from "../../utils/config.js";
+import { handleAllOldFileEvents } from "./field.js";
 
 document.addEventListener("DOMContentLoaded", async function () {
   let listDaReappro = await getListDaReappro();
@@ -11,6 +12,8 @@ document.addEventListener("DOMContentLoaded", async function () {
   console.log(listDaReappro);
 
   buildIndexFromLines(); // initialiser le compteur de ligne pour la création d'une DA directe
+
+  handleAllOldFileEvents(); // gérer les évènements sur les anciens fichiers
 
   const actionsConfig = {
     enregistrerBrouillon: {
