@@ -589,7 +589,7 @@ class DaAfficherRepository extends EntityRepository
                     DemandeAppro::STATUT_DEMANDE_DEVIS,
                     DemandeAppro::STATUT_DEVIS_A_RELANCER,
                     DemandeAppro::STATUT_EN_COURS_PROPOSITION,
-                    DemandeAppro::STATUT_AUTORISER_MODIF_ATE,
+                    DemandeAppro::STATUT_AUTORISER_EMETTEUR,
                     DemandeAppro::STATUT_VALIDE,
                     DemandeAppro::STATUT_REFUSE_APPRO,
                     DemandeAppro::STATUT_TERMINER
@@ -657,18 +657,25 @@ class DaAfficherRepository extends EntityRepository
     private function applyStatutsFilters(QueryBuilder $queryBuilder, string $qbLabel, array $criteria, bool $estCdeFrn = false)
     {
         if ($estCdeFrn) {
-
             if (!empty($criteria['statutBC'])) {
                 $queryBuilder->andWhere($qbLabel . '.statutCde = :statutBc')
                     ->setParameter('statutBc', $criteria['statutBC']);
+            }
+
+            if (!empty($criteria['statutDA'])) {
+                $queryBuilder->andWhere($qbLabel . '.statutDal = :statutDa')
+                    ->setParameter('statutDa', $criteria['statutDA']);
+            } else {
+                $queryBuilder->andWhere($qbLabel . '.statutDal NOT IN (:statutDa)')
+                    ->setParameter('statutDa', [DemandeAppro::STATUT_TERMINER, DemandeAppro::STATUT_CLOTUREE], ArrayParameterType::STRING);
             }
         } else {
             if (!empty($criteria['statutDA'])) {
                 $queryBuilder->andWhere($qbLabel . '.statutDal = :statutDa')
                     ->setParameter('statutDa', $criteria['statutDA']);
             } else {
-                $queryBuilder->andWhere($qbLabel . '.statutDal != :statutDa')
-                    ->setParameter('statutDa', DemandeAppro::STATUT_TERMINER);
+                $queryBuilder->andWhere($qbLabel . '.statutDal NOT IN (:statutDa)')
+                    ->setParameter('statutDa', [DemandeAppro::STATUT_TERMINER, DemandeAppro::STATUT_CLOTUREE], ArrayParameterType::STRING);
             }
 
             if (!empty($criteria['statutOR'])) {

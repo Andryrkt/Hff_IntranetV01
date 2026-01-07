@@ -26,7 +26,7 @@ class DemandeApproService
             DemandeAppro::STATUT_EN_COURS_CREATION    => true,
             DemandeAppro::STATUT_DEMANDE_DEVIS        => true,
             DemandeAppro::STATUT_DEVIS_A_RELANCER     => true,
-            DemandeAppro::STATUT_AUTORISER_MODIF_ATE  => true,
+            DemandeAppro::STATUT_AUTORISER_EMETTEUR   => true,
             DemandeAppro::STATUT_EN_COURS_PROPOSITION => true,
             DemandeAppro::STATUT_VALIDE               => [
                 DemandeAppro::STATUT_DW_A_VALIDE => false,
@@ -47,11 +47,12 @@ class DemandeApproService
         'atelier' => [
             DemandeAppro::STATUT_SOUMIS_ATE          => true,
             DemandeAppro::STATUT_EN_COURS_CREATION   => true,
-            DemandeAppro::STATUT_AUTORISER_MODIF_ATE => true,
+            DemandeAppro::STATUT_AUTORISER_EMETTEUR => true,
         ],
         'createur_da_directe' => [
             DemandeAppro::STATUT_SOUMIS_ATE          => true,
             DemandeAppro::STATUT_EN_COURS_CREATION   => true,
+            DemandeAppro::STATUT_AUTORISER_EMETTEUR => true,
             DemandeAppro::STATUT_VALIDE              => [
                 DemandeAppro::STATUT_DW_A_VALIDE => false,
                 DemandeAppro::STATUT_DW_REFUSEE  => false,

@@ -18,11 +18,41 @@ class CdeFrnSearchDto
     private ?string $designation = null;
     private ?string $niveauUrgence = null;
     private ?string $statutBC = null;
+    private ?string $statutDA = null;
     private ?DateTime $dateDebutOR = null;
     private ?DateTime $dateFinOR = null;
     private ?DateTime $dateDebutfinSouhaite = null;
     private ?DateTime $dateFinFinSouhaite = null;
     private ?string $sortNbJours = null;
+
+    /** ============================================================
+     * fonction personnaliser
+     *============================================================*/
+
+    /**
+     * Transforme l'objet en tableau en filtrant les propriétés nulles ou vides
+     */
+    public function toArrayFilter(): array
+    {
+        return array_filter([
+            'numDa' => $this->numDa,
+            'typeAchat' => $this->typeAchat,
+            'numDit' => $this->numDit,
+            'numOr' => $this->numOr,
+            'numFrn' => $this->numFrn,
+            'frn' => $this->frn,
+            'numCde' => $this->numCde,
+            'ref' => $this->ref,
+            'designation' => $this->designation,
+            'niveauUrgence' => $this->niveauUrgence,
+            'statutBC' => $this->statutBC,
+            'dateDebutOR' => $this->dateDebutOR,
+            'dateFinOR' => $this->dateFinOR,
+            'dateDebutfinSouhaite' => $this->dateDebutfinSouhaite,
+            'dateFinFinSouhaite' => $this->dateFinFinSouhaite,
+            'sortNbJours' => $this->sortNbJours,
+        ], fn($val) => $val !== null && $val !== '');
+    }
 
     /** ============================================================
      * getter and setter
@@ -360,27 +390,20 @@ class CdeFrnSearchDto
     }
 
     /**
-     * Transforme l'objet en tableau en filtrant les propriétés nulles ou vides
+     * Get the value of statutDA
      */
-    public function toArrayFilter(): array
+    public function getStatutDA(): ?string
     {
-        return array_filter([
-            'numDa' => $this->numDa,
-            'typeAchat' => $this->typeAchat,
-            'numDit' => $this->numDit,
-            'numOr' => $this->numOr,
-            'numFrn' => $this->numFrn,
-            'frn' => $this->frn,
-            'numCde' => $this->numCde,
-            'ref' => $this->ref,
-            'designation' => $this->designation,
-            'niveauUrgence' => $this->niveauUrgence,
-            'statutBC' => $this->statutBC,
-            'dateDebutOR' => $this->dateDebutOR,
-            'dateFinOR' => $this->dateFinOR,
-            'dateDebutfinSouhaite' => $this->dateDebutfinSouhaite,
-            'dateFinFinSouhaite' => $this->dateFinFinSouhaite,
-            'sortNbJours' => $this->sortNbJours,
-        ], fn($val) => $val !== null && $val !== '');
+        return $this->statutDA;
+    }
+
+    /**
+     * Set the value of statutDA
+     */
+    public function setStatutDA(?string $statutDA): self
+    {
+        $this->statutDA = $statutDA;
+
+        return $this;
     }
 }
