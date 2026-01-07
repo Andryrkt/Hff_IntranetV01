@@ -121,7 +121,6 @@ class DemandeApproLFormType extends AbstractType
                                     'maxSize' => '5M',
                                     'mimeTypes' => [
                                         'application/pdf',
-                                        'image/*',
                                     ],
                                     'mimeTypesMessage' => 'Veuillez télécharger un fichier valide (PDF, image).',
                                 ])
