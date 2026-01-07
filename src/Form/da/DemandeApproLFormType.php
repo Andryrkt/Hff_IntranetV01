@@ -9,6 +9,7 @@ use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -103,6 +104,14 @@ class DemandeApproLFormType extends AbstractType
             ])
             ->add('numeroLigne', TextType::class, [
                 'label' => false,
+                'required' => false,
+            ])
+            ->add('existingFileNames', HiddenType::class, [
+                'mapped' => false,
+                'required' => false,
+            ])
+            ->add('filesToDelete', HiddenType::class, [
+                'mapped' => false,
                 'required' => false,
             ])
             ->add(
