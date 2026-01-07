@@ -39,7 +39,7 @@ trait StatutBcTrait
             DemandeAppro::STATUT_DEMANDE_DEVIS        => 'bg-demande-devis',
             DemandeAppro::STATUT_DEVIS_A_RELANCER     => 'bg-devis-a-relancer',
             DemandeAppro::STATUT_EN_COURS_CREATION    => 'bg-en-cours-creation',
-            DemandeAppro::STATUT_AUTORISER_MODIF_ATE  => 'bg-creation-demande-initiale',
+            DemandeAppro::STATUT_AUTORISER_EMETTEUR   => 'bg-creation-demande-initiale',
             DemandeAppro::STATUT_EN_COURS_PROPOSITION => 'bg-en-cours-proposition',
         ];
         $this->styleStatutOR = [
@@ -104,7 +104,7 @@ trait StatutBcTrait
         /** 6.recuperation des informations necessaire dans IPS  @var array $infoDaDirect @var array $situationCde*/
         [$infoDaDirect, $situationCde] = $this->getInfoNecessaireIps($ref, $numDit, $numDa, $designation, $numeroOr, $statutBc);
 
-        /** 7. Statut DA Clôturée || Non dispo || DA avec DIT et numéro OR null || numéro OR non vide et statut OR non vide || infoDaDirect ou situationCde est vide */
+        /** 7.Statut DA Clôturée || Non dispo || DA avec DIT et numéro OR null || numéro OR non vide et statut OR non vide || infoDaDirect ou situationCde est vide */
         if ($statutDa === DemandeAppro::STATUT_CLOTUREE || $DaAfficher->getNonDispo() || ($numeroOr == null && $daViaOR) || ($numeroOr != null && empty($statutOr)) || $this->aSituationCde($situationCde, $daViaOR)) {
             return $statutBc;
         }
@@ -171,6 +171,7 @@ trait StatutBcTrait
         return '';
     }
 
+
     private function getInfoCde($infoDaDirect, $situationCde, $daDirect, $daViaOR, $daReappro, $numeroOr, $em): array
     {
         $numCde = $this->numeroCde($infoDaDirect, $situationCde, $daDirect, $daViaOR, $daReappro, $numeroOr);
@@ -209,7 +210,7 @@ trait StatutBcTrait
         $statutDaInternet = [
             DemandeAppro::STATUT_SOUMIS_ATE,
             DemandeAppro::STATUT_SOUMIS_APPRO,
-            DemandeAppro::STATUT_AUTORISER_MODIF_ATE,
+            DemandeAppro::STATUT_AUTORISER_EMETTEUR,
         ];
         // si le statut DA est par mis ci dessus
         return in_array($statutDa, $statutDaInternet, true);

@@ -1790,8 +1790,13 @@ class DaAfficher
             ->setNumeroVersionOrMajStatut($oldDaAfficher->getNumeroVersionOrMajStatut())
             ->setDateValidation($oldDaAfficher->getDateValidation())
             ->setDateMajStatutOr($oldDaAfficher->getDateMajStatutOr())
+            ->setNumeroCde($oldDaAfficher->getNumeroCde())
+            ->setPositionBc($oldDaAfficher->getPositionBc())
             ->setStatutCde($oldDaAfficher->getStatutCde())
             ->setDit($oldDaAfficher->getDit())
+            ->setEstFactureBlSoumis($oldDaAfficher->getEstFactureBlSoumis())
+            ->setBcEnvoyerFournisseur($oldDaAfficher->getBcEnvoyerFournisseur())
+            ->setDateLivraisonPrevue($oldDaAfficher->getDateLivraisonPrevue())
         ;
     }
 
