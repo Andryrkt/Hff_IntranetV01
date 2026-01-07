@@ -258,9 +258,12 @@ export function handleAllOldFileEvents() {
   // 4. Gestion de la suppression des fichiers EXISTANTS (Twig)
   document
     .querySelectorAll(
-      "#demande_appro_direct_form_DAL_\\d+_fileNamesContainer .remove-file"
+      '[id^="demande_appro_direct_form_DAL_"][id$="_fileNamesContainer"] .remove-file'
     )
     .forEach((removeBtn) => {
+      console.log("removeBtn = ");
+      console.log(removeBtn);
+
       removeBtn.addEventListener("click", function () {
         const listItem = this.closest(".file-item");
         const container = this.closest('[id$="fileNamesContainer"]');
@@ -324,59 +327,143 @@ function addFileToDeleteField(inputId, fileName) {
   deleteField.value = currentValue.join(",");
 }
 
+// Modifier isValidFile pour éviter les doublons
 function isValidFile(file, maxSize = 5 * 1024 * 1024) {
+  // Vérifier la taille
   if (file.size > maxSize) {
     Swal.fire({
       icon: "error",
       title: "Fichier trop volumineux",
-      html: `Le fichier <strong>"${file.name}"</strong> dépasse la taille maximale autorisée de <strong>5 Mo</strong>. Il ne sera donc pas ajouté.`,
+      html: `Le fichier <strong>"${file.name}"</strong> dépasse la taille maximale autorisée de <strong>5 Mo</strong>.`,
       confirmButtonText: "OK",
     });
     return false;
   }
+
+  // Vérifier les doublons dans selectedFilesMap
+  const inputId = document.activeElement?.id || "";
+  const existingFiles = selectedFilesMap[inputId] || [];
+  const isDuplicate = existingFiles.some((existing) =>
+    typeof existing === "string"
+      ? existing === file.name
+      : existing.name === file.name
+  );
+
+  if (isDuplicate) {
+    Swal.fire({
+      icon: "warning",
+      title: "Fichier déjà ajouté",
+      html: `Le fichier <strong>"${file.name}"</strong> est déjà dans la liste.`,
+      confirmButtonText: "OK",
+    });
+    return false;
+  }
+
   return true;
 }
 
+// Modifier la fonction renderFileList pour prendre en compte les fichiers existants
 function renderFileList(inputId, inputFile) {
   const containerId = inputId.replace("fileNames", "fileNamesContainer");
-  const fieldContainer = document.getElementById(containerId); // Conteneur du champ de fichier correspondant
-  const files = selectedFilesMap[inputId];
+  const fieldContainer = document.getElementById(containerId);
+  const files = selectedFilesMap[inputId] || [];
 
-  // Vider l'affichage
-  fieldContainer.innerHTML = "";
+  // Ne pas vider si contient déjà des fichiers existants (Twig)
+  const existingList = fieldContainer.querySelector(".file-list");
 
-  // Vérifier si un fichier a été sélectionné
-  if (files.length > 0) {
-    const fileList = document.createElement("ul");
-    fileList.classList.add("ps-0", "mb-0", "file-list");
+  if (existingList) {
+    // Mettre à jour la liste existante
+    // Supprimer seulement les éléments de la liste (pas le conteneur entier)
+    while (existingList.firstChild) {
+      existingList.removeChild(existingList.firstChild);
+    }
 
+    // Ajouter tous les fichiers (existants + nouveaux)
     files.forEach((file, index) => {
+      const isExistingFile = typeof file === "string"; // Fichier Twig est une string
+      const fileName = isExistingFile ? file : file.name;
+
       const listItem = document.createElement("li");
       listItem.classList.add("file-item");
 
       const fileNameSpan = document.createElement("span");
       fileNameSpan.classList.add("file-name");
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(file);
-      a.textContent = file.name; // Afficher le nom du fichier
-      a.target = "_blank";
-      fileNameSpan.appendChild(a);
+
+      if (isExistingFile) {
+        // Pour les fichiers existants, créer un lien vers le fichier
+        const a = document.createElement("a");
+        // Vous aurez besoin de l'URL du fichier - à récupérer du DOM original
+        const originalLink = fieldContainer.querySelector(
+          `a[href*="${fileName}"]`
+        );
+        a.href = originalLink ? originalLink.href : "#";
+        a.textContent = fileName;
+        a.target = "_blank";
+        fileNameSpan.appendChild(a);
+      } else {
+        // Pour les nouveaux fichiers, créer un lien blob
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(file);
+        a.textContent = fileName;
+        a.target = "_blank";
+        fileNameSpan.appendChild(a);
+      }
 
       const deleteBtn = document.createElement("span");
       deleteBtn.textContent = "x";
       deleteBtn.classList.add("remove-file");
       deleteBtn.onclick = () => {
-        // Supprimer le fichier de la liste et re-render
         selectedFilesMap[inputId].splice(index, 1);
         transfererDonnees(selectedFilesMap[inputId], inputFile);
         renderFileList(inputId, inputFile);
+
+        // Si c'était un fichier existant, ajouter au champ de suppression
+        if (isExistingFile) {
+          addFileToDeleteField(inputId, fileName);
+        }
       };
 
       listItem.appendChild(fileNameSpan);
       listItem.appendChild(deleteBtn);
-      fileList.appendChild(listItem);
+      existingList.appendChild(listItem);
     });
-    fieldContainer.appendChild(fileList); // Ajouter le lien au conteneur
+  } else {
+    // Pas de liste existante, créer une nouvelle
+    fieldContainer.innerHTML = "";
+
+    if (files.length > 0) {
+      const fileList = document.createElement("ul");
+      fileList.classList.add("ps-0", "mb-0", "file-list");
+
+      files.forEach((file, index) => {
+        const listItem = document.createElement("li");
+        listItem.classList.add("file-item");
+
+        const fileNameSpan = document.createElement("span");
+        fileNameSpan.classList.add("file-name");
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(file);
+        a.textContent = file.name; // Afficher le nom du fichier
+        a.target = "_blank";
+        fileNameSpan.appendChild(a);
+
+        const deleteBtn = document.createElement("span");
+        deleteBtn.textContent = "x";
+        deleteBtn.classList.add("remove-file");
+        deleteBtn.onclick = () => {
+          // Supprimer le fichier de la liste et re-render
+          selectedFilesMap[inputId].splice(index, 1);
+          transfererDonnees(selectedFilesMap[inputId], inputFile);
+          renderFileList(inputId, inputFile);
+        };
+
+        listItem.appendChild(fileNameSpan);
+        listItem.appendChild(deleteBtn);
+        fileList.appendChild(listItem);
+      });
+
+      fieldContainer.appendChild(fileList);
+    }
   }
 }
 
