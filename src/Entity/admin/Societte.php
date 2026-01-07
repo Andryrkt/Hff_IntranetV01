@@ -40,7 +40,7 @@ class Societte
 
 
     /**
-     * @ORM\OneToMany(targetEntity=Badm::class, mappedBy="statutDemande")
+     * @ORM\OneToMany(targetEntity=Badm::class, mappedBy="societe")
      */
     private $demandeInterventions;
 
@@ -53,7 +53,6 @@ class Societte
     {
         $this->demandeInterventions = new ArrayCollection();
         $this->users = new ArrayCollection();
-
     }
 
     public function getId(): int
@@ -68,7 +67,7 @@ class Societte
         return $this->nom;
     }
 
-  
+
     public function setNom($nom): self
     {
         $this->nom = $nom;
@@ -81,14 +80,14 @@ class Societte
         return $this->codeSociete;
     }
 
-    
+
     public function setCodeSociete($codeSociete): self
     {
         $this->codeSociete = $codeSociete;
 
         return $this;
     }
-    
+
     public function getDemandeInterventions()
     {
         return $this->demandeInterventions;
@@ -98,7 +97,7 @@ class Societte
     {
         if (!$this->demandeInterventions->contains($demandeIntervention)) {
             $this->demandeInterventions[] = $demandeIntervention;
-            $demandeIntervention->setCodeSociete($this);
+            $demandeIntervention->setSociete($this);
         }
         return $this;
     }
@@ -107,8 +106,8 @@ class Societte
     {
         if ($this->demandeInterventions->contains($demandeIntervention)) {
             $this->demandeInterventions->removeElement($demandeIntervention);
-            if ($demandeIntervention->getCodeSociete() === $this) {
-                $demandeIntervention->setCodeSociete(null);
+            if ($demandeIntervention->getSociete() === $this) {
+                $demandeIntervention->setSociete(null);
             }
         }
         return $this;
@@ -120,10 +119,10 @@ class Societte
         return $this;
     }
 
-    
-     /**
+
+    /**
      * @return Collection|User[]
-     */ 
+     */
     public function getUsers(): Collection
     {
         return $this->users;
@@ -147,7 +146,7 @@ class Societte
                 $user->setSociettes(null);
             }
         }
-        
+
         return $this;
     }
 

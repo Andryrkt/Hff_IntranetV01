@@ -40,7 +40,10 @@ class DitRepository extends EntityRepository
             ->leftJoin('d.typeDocument', 'td')
             ->leftJoin('d.idNiveauUrgence', 'nu')
             ->leftJoin('d.idStatutDemande', 's')
-            ->leftJoin(AtelierRealise::class, 'ar', 'WITH', 'd.reparationRealise = ar.codeAtelier');
+            ->leftJoin(AtelierRealise::class, 'ar', 'WITH', 'd.reparationRealise = ar.codeAtelier')
+            ->leftJoin('d.societe', 'soc')
+            ->andWhere('soc.codeSociete = :codeSociete')
+            ->setParameter('codeSociete', 'HF');
 
         $this->applyStatusFilter($queryBuilder, $ditSearch);
         $this->applyCommonFilters($queryBuilder, $ditSearch, $options);
@@ -719,8 +722,11 @@ class DitRepository extends EntityRepository
             ->leftJoin('d.typeDocument', 'td')
             ->leftJoin('d.idNiveauUrgence', 'nu')
             ->leftJoin('d.idStatutDemande', 's')
+            ->innerJoin('d.societe', 'soc')
             ->where('d.sectionAffectee <> :sectionAffectee')
-            ->setParameter('sectionAffectee', '');
+            ->setParameter('sectionAffectee', '')
+            ->andWhere('soc.codeSociete = :codeSociete')
+            ->setParameter('codeSociete', 'HF');
 
         $this->applyStatusFilterDa($queryBuilder, $ditSearch);
 
@@ -740,7 +746,17 @@ class DitRepository extends EntityRepository
         $queryBuilder->setFirstResult(($page - 1) * $limit)
             ->setMaxResults($limit)
         ;
+        //DEBUT
+        // $query = $queryBuilder->getQuery();
+        // $sql = $query->getSQL();
+        // $params = $query->getParameters();
 
+        // dump("SQL : " . $sql . "\n");
+        // foreach ($params as $param) {
+        //     dump($param->getName());
+        //     dump($param->getValue());
+        // }
+        //FIN
         $paginator = new DoctrinePaginator($queryBuilder->getQuery());
 
         $totalItems = count($paginator);

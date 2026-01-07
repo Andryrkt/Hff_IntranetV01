@@ -48,33 +48,33 @@ class DemandeIntervention
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Groups("intervention")
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=11, name="numero_demande_dit",nullable=true)
-     * @Groups("intervention")
      */
     private ?string $numeroDemandeIntervention = null;
 
     /**
      * @ORM\ManyToOne(targetEntity=WorTypeDocument::class, inversedBy="demandeInterventions")
      * @ORM\JoinColumn(name="type_document", referencedColumnName="id")
-     * @Groups("intervention")
      */
     private  $typeDocument = null; //relation avec la table wor_type_document
 
     /**
-     * @ORM\ManyToOne(targetEntity=Societte::class, inversedBy="demandeInterventions")
-     * @ORM\JoinColumn(name="code_societe", referencedColumnName="id")
-     * @Groups("intervention")
+     * @ORM\Column(type="string", length=3, name="code_societe",nullable=true)
      */
-    private  $codeSociete = null; // relation avec la table societe
+    private  $codeSociete = null;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Societte::class, inversedBy="demandeInterventions")
+     * @ORM\JoinColumn(name="societe", referencedColumnName="id")
+     */
+    private  $societe = null; // relation avec la table societe
 
     /**
      * @ORM\Column(type="string", length=30, name="type_reparation",nullable=true)
-     * @Groups("intervention")
      */
     private  $typeReparation = null;
 
@@ -568,7 +568,7 @@ class DemandeIntervention
     }
 
 
-        public function getNumeroDemandeIntervention(): ?string
+    public function getNumeroDemandeIntervention(): ?string
     {
         return $this->numeroDemandeIntervention;
     }
@@ -605,6 +605,19 @@ class DemandeIntervention
     public function setCodeSociete($codeSociete): self
     {
         $this->codeSociete = $codeSociete;
+
+        return $this;
+    }
+
+    public function getSociete()
+    {
+        return $this->societe;
+    }
+
+
+    public function setSociete($societe): self
+    {
+        $this->societe = $societe;
 
         return $this;
     }
@@ -1808,7 +1821,7 @@ class DemandeIntervention
 
     /**
      * Get the value of estAtePolTana
-     */ 
+     */
     public function getEstAtePolTana()
     {
         return $this->estAtePolTana;
@@ -1818,7 +1831,7 @@ class DemandeIntervention
      * Set the value of estAtePolTana
      *
      * @return  self
-     */ 
+     */
     public function setEstAtePolTana($estAtePolTana)
     {
         $this->estAtePolTana = $estAtePolTana;
