@@ -39,7 +39,7 @@ trait StatutBcTrait
             DemandeAppro::STATUT_DEMANDE_DEVIS        => 'bg-demande-devis',
             DemandeAppro::STATUT_DEVIS_A_RELANCER     => 'bg-devis-a-relancer',
             DemandeAppro::STATUT_EN_COURS_CREATION    => 'bg-en-cours-creation',
-            DemandeAppro::STATUT_AUTORISER_MODIF_ATE  => 'bg-creation-demande-initiale',
+            DemandeAppro::STATUT_AUTORISER_EMETTEUR   => 'bg-creation-demande-initiale',
             DemandeAppro::STATUT_EN_COURS_PROPOSITION => 'bg-en-cours-proposition',
         ];
         $this->styleStatutOR = [
@@ -210,7 +210,7 @@ trait StatutBcTrait
         $statutDaInternet = [
             DemandeAppro::STATUT_SOUMIS_ATE,
             DemandeAppro::STATUT_SOUMIS_APPRO,
-            DemandeAppro::STATUT_AUTORISER_MODIF_ATE,
+            DemandeAppro::STATUT_AUTORISER_EMETTEUR,
         ];
         // si le statut DA est par mis ci dessus
         return in_array($statutDa, $statutDaInternet, true);

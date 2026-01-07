@@ -86,7 +86,7 @@ class DaPropositionRefAvecDitController extends Controller
             'observations'            => $observations,
             'numDa'                   => $numDa,
             'connectedUser'           => $this->getUser(),
-            'statutAutoriserModifAte' => $da->getStatutDal() === DemandeAppro::STATUT_AUTORISER_MODIF_ATE,
+            'statutAutoriserModifAte' => $da->getStatutDal() === DemandeAppro::STATUT_AUTORISER_EMETTEUR,
             'estAte'                  => $this->estUserDansServiceAtelier(),
             'estAppro'                => $this->estUserDansServiceAppro(),
             'nePeutPasModifier'       => $this->nePeutPasModifier($da),
@@ -143,8 +143,8 @@ class DaPropositionRefAvecDitController extends Controller
         $this->insertionObservation($daObservation->getObservation(), $demandeAppro);
 
         if ($this->estUserDansServiceAppro() && $daObservation->getStatutChange()) {
-            $this->modificationStatutDal($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_AUTORISER_MODIF_ATE);
-            $this->modificationStatutDa($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_AUTORISER_MODIF_ATE);
+            $this->modificationStatutDal($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_AUTORISER_EMETTEUR);
+            $this->modificationStatutDa($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_AUTORISER_EMETTEUR);
 
             $this->ajouterDansTableAffichageParNumDa($demandeAppro->getNumeroDemandeAppro()); // ajout dans la table DaAfficher si le statut a changé
         }
