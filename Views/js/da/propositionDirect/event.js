@@ -2,6 +2,7 @@ import { ajouterReference } from "./article";
 import { autocompleteTheField } from "./autocompletion";
 import { createFicheTechnique } from "./dalr";
 import { changeTab } from "../utils/pageNavigation";
+import { displayOverlay } from "../../utils/ui/overlay";
 
 export function handleAllInputEvents() {
   // Utilitaire pour ajouter un listener à tous les éléments correspondant à un sélecteur

@@ -2,6 +2,7 @@ import { resetDropdown } from "../../utils/dropdownUtils";
 import { updateDropdown } from "../../utils/selectionHandler";
 import { ajouterReference } from "./article";
 import { autocompleteTheField } from "./autocompletion";
+import { displayOverlay } from "../../utils/ui/overlay";
 import { createFicheTechnique } from "./dalr";
 import { changeTab } from "../utils/pageNavigation";
 
