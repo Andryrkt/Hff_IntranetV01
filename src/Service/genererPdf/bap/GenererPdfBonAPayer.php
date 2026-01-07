@@ -75,7 +75,8 @@ class GenererPdfBonAPayer extends GeneratePdf
             $this->addInfoLine($pdf, 'Nom Validateur', $infoValidationBC["validateur"] ?? "-", $w100 / 2, 25, 0);
 
             $this->addInfoLine($pdf, 'N° fournisseur', $infoBC["num_fournisseur"], $w100 / 2 - 6, 35, 0, 0);
-            $this->addInfoLine($pdf, 'Date Validation', $infoValidationBC["dateValidation"] ? $infoValidationBC["dateValidation"]->format("d/m/Y") : "-", $w100 / 2, 25, 0);
+            $dateValidation = $infoValidationBC["dateValidation"] ?? "-";
+            $this->addInfoLine($pdf, 'Date Validation', $dateValidation === "-" ? $dateValidation : $dateValidation->format("d/m/Y"), $w100 / 2, 25, 0);
             $pdf->Ln(3);
 
             $this->addInfoLine($pdf, 'Téléphone', $infoBC["tel_fournisseur"], $w100, 35, 0);

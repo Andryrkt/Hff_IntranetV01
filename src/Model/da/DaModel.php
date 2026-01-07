@@ -285,7 +285,7 @@ class DaModel extends Model
                             )";
         }
         $statement .= " ORDER BY slor_natcm desc ";
-
+        
         $result = $this->connect->executeQuery($statement);
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
 

@@ -364,7 +364,7 @@ class DaSoumissionFacBlController extends Controller
         $numOr            = $soumissionFacBl->getNumeroOR();
 
         $infoBC           = $daModel->getInfoBC($numCde);
-        $infoValidationBC = $this->dwBcApproRepository->getInfoValidationBC($numCde);
+        $infoValidationBC = $this->dwBcApproRepository->getInfoValidationBC($numCde) ?? [];
         $infoMateriel     = $ditModel->recupInfoMateriel($numOr);
         $dataRecapOR      = $recapitulationOR->getData($numOr);
         $demandeAppro     = $this->demandeApproRepository->findOneBy(['numeroDemandeAppro' => $soumissionFacBl->getNumeroDemandeAppro()]);

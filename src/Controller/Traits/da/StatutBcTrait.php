@@ -104,8 +104,8 @@ trait StatutBcTrait
         /** 6.recuperation des informations necessaire dans IPS  @var array $infoDaDirect @var array $situationCde*/
         [$infoDaDirect, $situationCde] = $this->getInfoNecessaireIps($ref, $numDit, $numDa, $designation, $numeroOr, $statutBc);
 
-        /** 7. Non dispo || DA avec DIT et numéro OR null || numéro OR non vide et statut OR non vide || infoDaDirect ou situationCde est vide */
-        if ($DaAfficher->getNonDispo() || ($numeroOr == null && $daViaOR) || ($numeroOr != null && empty($statutOr)) || $this->aSituationCde($situationCde, $daViaOR)) {
+        /** 7. Statut DA Clôturée || Non dispo || DA avec DIT et numéro OR null || numéro OR non vide et statut OR non vide || infoDaDirect ou situationCde est vide */
+        if ($statutDa === DemandeAppro::STATUT_CLOTUREE || $DaAfficher->getNonDispo() || ($numeroOr == null && $daViaOR) || ($numeroOr != null && empty($statutOr)) || $this->aSituationCde($situationCde, $daViaOR)) {
             return $statutBc;
         }
 
@@ -204,7 +204,7 @@ trait StatutBcTrait
     {
         if ($statutOr === DemandeAppro::STATUT_DW_REFUSEE || strtolower($statutOr) === strtolower(DemandeAppro::STATUT_DW_A_VALIDE)) return true;
 
-        // si statut Da n'est pas validé
+        // si statut Da n'est pas validé et n'est pas clôturée
         if ($statutDa !== DemandeAppro::STATUT_VALIDE && $statutDa !== DemandeAppro::STATUT_CLOTUREE) return true;
         $statutDaInternet = [
             DemandeAppro::STATUT_SOUMIS_ATE,
