@@ -1,8 +1,14 @@
 import { displayOverlay } from "../../utils/ui/overlay";
 import { onFileNamesInputChange } from "../newDirect/field";
+import { handleAgenceChange } from "../../dit/fonctionUtils/fonctionListDit.js";
 
 document.addEventListener("DOMContentLoaded", function () {
   buildIndexFromLines();
+
+  // Attachement des événements pour les agences
+  document
+    .getElementById("demande_appro_direct_form_debiteur_agence")
+    .addEventListener("change", () => handleAgenceChange("debiteur"));
 
   document.querySelectorAll(".trombone-add-pj").forEach((el) => {
     el.addEventListener("click", function () {
