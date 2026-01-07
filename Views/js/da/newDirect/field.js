@@ -311,7 +311,7 @@ function addFileToDeleteField(inputId, fileName) {
     deleteField = document.createElement("input");
     deleteField.type = "hidden";
     deleteField.id = deleteFieldId;
-    deleteField.name = inputId.replace("_fileNames", "[filesToDelete][]");
+    deleteField.name = inputId.replace("_fileNames", "[filesToDelete]");
     deleteField.value = "";
 
     // Trouver où l'ajouter (près de l'input file)
@@ -503,7 +503,7 @@ function storeTwigFilesInHiddenField(filesArray, inputId) {
       hiddenField = document.createElement("input");
       hiddenField.type = "hidden";
       hiddenField.id = hiddenFieldId;
-      hiddenField.name = inputId.replace("_fileNames", "[existingFileNames][]");
+      hiddenField.name = inputId.replace("_fileNames", "[existingFileNames]");
 
       const fileInput = document.getElementById(inputId);
       if (fileInput && fileInput.parentNode) {
