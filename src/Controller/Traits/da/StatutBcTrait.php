@@ -104,7 +104,7 @@ trait StatutBcTrait
         /** 6.recuperation des informations necessaire dans IPS  @var array $infoDaDirect @var array $situationCde*/
         [$infoDaDirect, $situationCde] = $this->getInfoNecessaireIps($ref, $numDit, $numDa, $designation, $numeroOr, $statutBc);
 
-        /** 7. Statut DA Clôturée || Non dispo || DA avec DIT et numéro OR null || numéro OR non vide et statut OR non vide || infoDaDirect ou situationCde est vide */
+        /** 7.Statut DA Clôturée || Non dispo || DA avec DIT et numéro OR null || numéro OR non vide et statut OR non vide || infoDaDirect ou situationCde est vide */
         if ($statutDa === DemandeAppro::STATUT_CLOTUREE || $DaAfficher->getNonDispo() || ($numeroOr == null && $daViaOR) || ($numeroOr != null && empty($statutOr)) || $this->aSituationCde($situationCde, $daViaOR)) {
             return $statutBc;
         }
@@ -170,6 +170,7 @@ trait StatutBcTrait
 
         return '';
     }
+
 
     private function getInfoCde($infoDaDirect, $situationCde, $daDirect, $daViaOR, $daReappro, $numeroOr, $em): array
     {
