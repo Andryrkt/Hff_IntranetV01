@@ -59,7 +59,7 @@ class DaEditDirectController extends Controller
         return $this->render('da/edit-da-direct.html.twig', [
             'form'              => $form->createView(),
             'observations'      => $observations,
-            'peutModifier'      => $this->PeutModifier($demandeAppro),
+            'peutModifier'      => $this->peutModifier($demandeAppro->getStatutDal(), $this->estCreateurDeDADirecte()),
             'numDa'             => $numDa,
         ]);
     }
