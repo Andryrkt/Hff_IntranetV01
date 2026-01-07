@@ -77,7 +77,7 @@ class DaDetailDirectController extends Controller
 			'fichiers'            		=> $fichiers,
 			'connectedUser'     		=> $this->getUser(),
 			'statutAutoriserModifAte' 	=> $demandeAppro->getStatutDal() === DemandeAppro::STATUT_AUTORISER_EMETTEUR,
-			'estAte'            		=> $this->estUserDansServiceAtelier(),
+			'estCreateurDaDirecte'      => $this->estCreateurDeDADirecte(),
 			'estAppro'          		=> $this->estUserDansServiceAppro(),
 		]);
 	}
