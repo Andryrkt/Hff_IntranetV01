@@ -110,8 +110,27 @@ class DaNewAvecDitController extends Controller
                 if ($demandeApproL->getDeleted() == 1) {
                     $this->getEntityManager()->remove($demandeApproL);
                 } else {
-                    $files = $subFormDAL->get('fileNames')->getData(); // Récupération des fichiers
-                    $fileNames = $this->daFileUploader->uploadMultipleDaFiles($files, $numDa, FileUploaderForDAService::FILE_TYPE["DEVIS"]);
+                    // Récupérer les données
+                    $filesToDelete = $subFormDAL->get('filesToDelete')->getData();
+                    $existingFileNames = $subFormDAL->get('existingFileNames')->getData();
+                    $newFiles = $subFormDAL->get('fileNames')->getData();
+
+                    // Supprimer les fichiers
+                    if ($filesToDelete) {
+                        $this->daFileUploader->deleteFiles(
+                            explode(',', $filesToDelete),
+                            $numDa
+                        );
+                    }
+
+                    // Gérer l'upload et obtenir la liste finale
+                    $allFileNames = $this->daFileUploader->handleFileUpload(
+                        $newFiles,
+                        $existingFileNames,
+                        $numDa,
+                        FileUploaderForDAService::FILE_TYPE["DEVIS"]
+                    );
+
                     /** 
                      * @var DemandeApproL $demandeApproL
                      */
@@ -121,7 +140,7 @@ class DaNewAvecDitController extends Controller
                         ->setPrixUnitaire($this->daModel->getPrixUnitaire($demandeApproL->getArtRefp())[0])
                         ->setNumeroDit($demandeAppro->getNumeroDemandeDit())
                         ->setJoursDispo($this->getJoursRestants($demandeApproL))
-                        ->setFileNames($fileNames)
+                        ->setFileNames($allFileNames)
                     ;
 
                     if ($demandeApproL->getNumeroFournisseur() == 0) {

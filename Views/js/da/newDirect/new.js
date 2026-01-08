@@ -4,6 +4,7 @@ import { handleAgenceChange } from "../../dit/fonctionUtils/fonctionListDit.js";
 import { API_ENDPOINTS } from "../../api/apiEndpoints.js";
 import { swalOptions } from "../listeCdeFrn/ui/swalUtils.js";
 import { baseUrl } from "../../utils/config.js";
+import { handleAllOldFileEvents } from "./field.js";
 
 document.addEventListener("DOMContentLoaded", async function () {
   let listDaReappro = await getListDaReappro();
@@ -11,6 +12,17 @@ document.addEventListener("DOMContentLoaded", async function () {
   console.log(listDaReappro);
 
   buildIndexFromLines(); // initialiser le compteur de ligne pour la création d'une DA directe
+
+  handleAllOldFileEvents("demande_appro_direct_form_DAL"); // gérer les évènements sur les anciens fichiers
+
+  /**===========================================================================
+   * Configuration des agences et services
+   *============================================================================*/
+
+  // Attachement des événements pour les agences
+  document
+    .getElementById("demande_appro_direct_form_debiteur_agence")
+    .addEventListener("change", () => handleAgenceChange("debiteur"));
 
   const actionsConfig = {
     enregistrerBrouillon: {
@@ -258,12 +270,3 @@ function verifierArticleStocke(listDaReappro) {
 
   return articleStocke;
 }
-
-/**===========================================================================
- * Configuration des agences et services
- *============================================================================*/
-
-// Attachement des événements pour les agences
-document
-  .getElementById("demande_appro_direct_form_debiteur_agence")
-  .addEventListener("change", () => handleAgenceChange("debiteur"));
