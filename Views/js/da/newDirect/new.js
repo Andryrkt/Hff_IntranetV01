@@ -15,6 +15,15 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   handleAllOldFileEvents("demande_appro_direct_form_DAL"); // gérer les évènements sur les anciens fichiers
 
+  /**===========================================================================
+   * Configuration des agences et services
+   *============================================================================*/
+
+  // Attachement des événements pour les agences
+  document
+    .getElementById("demande_appro_direct_form_debiteur_agence")
+    .addEventListener("change", () => handleAgenceChange("debiteur"));
+
   const actionsConfig = {
     enregistrerBrouillon: {
       title: "Confirmer l’enregistrement",
@@ -261,12 +270,3 @@ function verifierArticleStocke(listDaReappro) {
 
   return articleStocke;
 }
-
-/**===========================================================================
- * Configuration des agences et services
- *============================================================================*/
-
-// Attachement des événements pour les agences
-document
-  .getElementById("demande_appro_direct_form_debiteur_agence")
-  .addEventListener("change", () => handleAgenceChange("debiteur"));
