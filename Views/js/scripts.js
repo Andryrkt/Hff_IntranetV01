@@ -2,7 +2,6 @@ import { baseUrl } from "./utils/config";
 import { FetchManager } from "./api/FetchManager";
 import { initSessionTimer } from "./utils/session/sessionTimer";
 import { displayOverlay } from "./utils/ui/overlay";
-import { preloadAllData } from "./da/data/preloadData";
 import { showNotification } from "./utils/notification/notification";
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -35,27 +34,6 @@ document.addEventListener("DOMContentLoaded", () => {
   confirmLogout?.addEventListener("click", () => {
     window.location.href = logoutUrl;
   });
-
-  /*=============================*
-   * PRELOAD DATA POUR LA DA     *
-   *=============================*/
-  const hasDAPinput = document.getElementById("hasDAP");
-
-  if (hasDAPinput) {
-    console.log("hasDAPinput existe");
-    console.log("hasDAPinput.dataset.hasDAP = " + hasDAPinput.dataset.hasDap);
-    localStorage.setItem("hasDAP", hasDAPinput.dataset.hasDap);
-  } else {
-    console.log("hasDAPinput n'existe pas");
-  }
-
-  if (localStorage.getItem("hasDAP") === "1") {
-    (async () => {
-      await preloadAllData();
-    })();
-  } else {
-    console.log("Pas besoin de preloadData");
-  }
 
   /*=============================*
    * LES DROPDOWNS               *
