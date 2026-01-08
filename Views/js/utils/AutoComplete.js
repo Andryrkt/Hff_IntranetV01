@@ -43,19 +43,9 @@ export class AutoComplete {
     this.inputElement.addEventListener("keydown", (e) => this.onKeyDown(e));
 
     if (this.onBlurCallback) {
-      // On ajoute un flag pour savoir si un clic est sur une suggestion
-      let clickedOnSuggestion = false;
-
-      this.suggestionContainer.addEventListener("mousedown", () => {
-        clickedOnSuggestion = true;
-      });
-
-      this.inputElement.addEventListener("blur", () => {
-        if (!clickedOnSuggestion) {
-          this.onBlur(this.onBlurCallback);
-        }
-        clickedOnSuggestion = false; // reset le flag
-      });
+      this.inputElement.addEventListener("blur", () =>
+        this.onBlur(this.onBlurCallback)
+      );
     }
 
     document.addEventListener("click", (e) => {

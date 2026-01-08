@@ -72,7 +72,7 @@ class DemandeApproReapproFormType extends AbstractType
                 'service_label'       => 'Service Debiteur (*)',
                 'agence_placeholder'  => '-- Agence Debiteur --',
                 'service_placeholder' => '-- Service Debiteur --',
-                'em'                  => $options['em'] ?? null,
+                'em'                  => $options['em'] ?? null
             ])
             ->add(
                 'codeCentrale',

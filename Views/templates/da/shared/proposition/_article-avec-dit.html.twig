@@ -1,5 +1,6 @@
 {% import "macroForm.html.twig" as macroForm %}
 
+
 {% set currentPage = article.numeroLigne %}
 {% set catalogueCss = article.catalogue ? 'success' : 'danger' %}
 {% set catalogueBool = article.catalogue ? 'catalogué' : 'non catalogué' %}
@@ -272,7 +273,6 @@
 					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }};">
 						<input type="radio" name="selectedRow_{{DALR.numeroLigne}}" id="radio_{{DALR.numeroLigne}}_{{DALR.numLigneTableau}}" value="{{ DALR.numeroLigne}}-{{DALR.numLigneTableau}}" {{ DALR.choix ? 'checked' : '' }} {{ nePeutPasModifier ? 'disabled':''}}>
 					</td>
-					<td class="d-none numero-fournisseur">{{ DALR.numeroFournisseur }}</td>
 					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }};">{{ DALR.nomFournisseur }}</td>
 					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }};">{{ DALR.artRefp }}</td>
 					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }}; text-align: left;">{{ DALR.artDesi }}</td>

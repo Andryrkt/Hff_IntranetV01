@@ -168,6 +168,7 @@ class DaModel extends Model
             INNER JOIN art_bse ON abse_refp = afrn_refp AND afrn_constp = abse_constp
             INNER JOIN frn_bse ON fbse_numfou = afrn_numf
             WHERE abse_constp = 'ZST'
+            AND fbse_numfou <> '99'
             ORDER BY nomfournisseur
             ";
         $result = $this->connect->executeQuery($statement);
@@ -572,7 +573,7 @@ class DaModel extends Model
         return $data;
     }
 
-    public function getInfoLivraison(string $numCde)
+    public function getInfoLivraison(string $numLiv)
     {
         $statement = "SELECT distinct 
                         f.fllf_numliv AS num_liv, 
@@ -581,12 +582,9 @@ class DaModel extends Model
                         TRIM(f2.fliv_livext) AS ref_fac_bl
                     from Informix.frn_llf f 
                     inner join Informix.frn_liv f2 on f.fllf_numliv = f2.fliv_numliv 
-                where f.fllf_numcde = '$numCde'";
+                where f.fllf_numliv = '$numLiv'";
         $result = $this->connect->executeQuery($statement);
-        $rows = $this->convertirEnUtf8($this->connect->fetchResults($result));
-
-        // On réindexe directement par num_liv en une seule étape
-        return array_column($rows, null, 'num_liv');
+        return $this->convertirEnUtf8($this->connect->fetchResults($result));
     }
 
     public function getInfoBC(string $numCde)
@@ -608,7 +606,6 @@ class DaModel extends Model
                 TRIM(fcde_lib) as libelle_cde, 
                 fcde_mtn as mtn_cde,
                 fcde_ttc as ttc_cde,
-                TRIM(fcde_devise) as devise,
                 TRIM(fcde_typcde) as type_cde 
             from frn_cde 
             inner join frn_bse on fbse_numfou = fcde_numfou

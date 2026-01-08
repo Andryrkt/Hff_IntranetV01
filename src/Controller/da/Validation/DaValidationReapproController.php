@@ -8,12 +8,11 @@ use App\Entity\da\DaObservation;
 use App\Entity\admin\Application;
 use App\Form\da\DaObservationType;
 use App\Controller\Traits\AutorisationTrait;
-use App\Form\da\DaObservationValidationType;
 use App\Controller\Traits\da\DaAfficherTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\Traits\da\detail\DaDetailReapproTrait;
 use App\Controller\Traits\da\validation\DaValidationReapproTrait;
+use App\Form\da\DaObservationValidationType;
 
 /**
  * @Route("/demande-appro")
@@ -23,14 +22,12 @@ class DaValidationReapproController extends Controller
     use DaAfficherTrait;
     use AutorisationTrait;
     use DaValidationReapproTrait;
-    use DaDetailReapproTrait;
 
     public function __construct()
     {
         parent::__construct();
 
         $this->initDaValidationReapproTrait();
-        $this->initDaDetailReapproTrait();
     }
 
     /**
@@ -61,15 +58,9 @@ class DaValidationReapproController extends Controller
         $this->traitementFormulaire($formReappro, $formObservation, $request, $da, $observations, $monthsList, $dataHistoriqueConsommation);
         //==================================================================================================================================//
 
-        $fichiers = $this->getAllDAFile([
-            'baiPath'   => $this->getBaIntranetPath($da),
-            'badPath'   => $this->getBaDocuWarePath($da),
-        ]);
-
         return $this->render("da/validation-reappro.html.twig", [
             'demandeAppro'    => $da,
             'numDa'           => $da->getNumeroDemandeAppro(),
-            'fichiers'        => $fichiers,
             'codeCentrale'    => $this->estAdmin() || in_array($da->getAgenceEmetteur()->getCodeAgence(), ['90', '91', '92']),
             'formReappro'     => $formReappro->createView(),
             'formObservation' => $formObservation->createView(),
