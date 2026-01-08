@@ -7,6 +7,7 @@
 {% block stylesheets %}
 	<link href="{{ App.base_path }}/Views/css/new.css?v=2025.10.22.08.00" rel="stylesheet"/>
 	<link href="{{ App.base_path }}/Views/css/da/soumissionBC/soumiBc.css?v=2025.10.22.08.00" rel="stylesheet"/>
+	<link href=" {{ App.base_path }}/Views/css/bl/blsoumission.css?v=2025.10.22.08.00" rel="stylesheet"/>
 {% endblock %}
 
 {% block content %}
@@ -31,7 +32,16 @@
 							{{ form_row(form.numeroCde) }}
 							{{ form_errors(form.numeroCde) }}
 						</div>
+						<div class="col-12 col-md-3">
+							{{ form_row(form.numLiv) }}
+							{{ form_errors(form.numLiv) }}
+						</div>
+						<div class="col-12 col-md-3">
+							{{ form_row(form.dateBlFac) }}
+							{{ form_errors(form.dateBlFac) }}
+						</div>
 					</div>
+					<hr>
 					<div class="row">
 						<div class="col-12 col-md-3">
 							<p>Veuillez insérer

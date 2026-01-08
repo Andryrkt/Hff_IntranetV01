@@ -5,6 +5,14 @@ import {
 import { setupConfirmationButtons } from "../../utils/ui/boutonConfirmUtils.js";
 
 /** ============================
+ * CHAMP FORMULAIRE
+ * =============================*/
+const numLivInput = document.getElementById("da_soumission_fac_bl_numLiv");
+numLivInput.addEventListener("input", function () {
+  this.value = this.value.replace(/[^\d]/g, "").slice(0, 8);
+});
+
+/** ============================
  * FICHIER
  * =============================*/
 const fileInput1 = document.querySelector("#da_soumission_fac_bl_pieceJoint1");

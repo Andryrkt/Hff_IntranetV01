@@ -8,24 +8,46 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Validator\Constraints\Callback;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class DaSoumissionFacBlType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+        $numLivs = $options['numLivs'];
+
         $builder
             ->add('numeroCde', TextType::class, [
                 'label' => 'Numéro Commande',
-                'attr' => ['disabled' => true]
+                'attr'  => [
+                    'class' => 'div-disabled',
+                ]
+            ])
+            ->add('numLiv', ChoiceType::class, [
+                'label'       => 'Numéro de livraison IPS (*)',
+                'placeholder' => '-- Choisir un numéro de livraison --',
+                'choices'     => array_combine($numLivs, $numLivs),
+                'attr'        => [
+                    'class'           => count($numLivs) === 1 ? 'div-disabled' : '',
+                    'data-field-name' => 'Numéro de livraison IPS',
+                ],
+                'data'        => count($numLivs) === 1 ? $numLivs[0] : null,
+            ])
+            ->add('dateBlFac', DateType::class, [
+                'widget' => 'single_text',
+                'label'  => 'Date BL facture fournisseur (*)',
+                'attr'   => ['data-field-name' => 'Date BL facture fournisseur']
             ])
             ->add(
                 'pieceJoint1',
                 FileType::class,
                 [
                     'label' => 'FacBl à soumettre',
+                    'attr' => ['data-field-name' => 'Pièce Jointe Facture / BL'],
                     'required' => true,
                     'constraints' => [
                         new File([
@@ -45,11 +67,11 @@ class DaSoumissionFacBlType extends AbstractType
                 'pieceJoint2',
                 FileType::class,
                 [
-                    'label' => 'Pièces Jointes',
-                    'required' => false,
-                    'multiple' => true,
-                    'data_class' => null,
-                    'mapped' => true,
+                    'label'       => 'Pièces Jointes',
+                    'required'    => false,
+                    'multiple'    => true,
+                    'data_class'  => null,
+                    'mapped'      => true,
                     'constraints' => [
                         new Callback([$this, 'validateFiles']),
                     ],
@@ -97,5 +119,7 @@ class DaSoumissionFacBlType extends AbstractType
         $resolver->setDefaults([
             'data_class' => DaSoumissionFacBl::class,
         ]);
+        // Ajoutez l'option 'id_type' pour éviter l'erreur
+        $resolver->setDefined('numLivs');
     }
 }
