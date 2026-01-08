@@ -6,7 +6,11 @@ import { swalOptions } from "../listeCdeFrn/ui/swalUtils.js";
 import { baseUrl } from "../../utils/config.js";
 import { handleAllOldFileEvents } from "./field.js";
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", async function () {
+  let listDaReappro = await getListDaReappro();
+  console.log("listDaReappro = ");
+  console.log(listDaReappro);
+
   buildIndexFromLines(); // initialiser le compteur de ligne pour la création d'une DA directe
 
   handleAllOldFileEvents("demande_appro_direct_form_DAL"); // gérer les évènements sur les anciens fichiers
@@ -49,6 +53,32 @@ document.addEventListener("DOMContentLoaded", function () {
 
   document.getElementById("myForm").addEventListener("submit", function (e) {
     e.preventDefault(); // empêcher l'envoi immédiat
+    const articleStocke = verifierArticleStocke(listDaReappro);
+
+    if (articleStocke.length > 0) {
+      const listeHtml = `
+        <ul style="text-align:left;">
+          ${articleStocke.map((article) => `<li>${article}</li>`).join("")}
+        </ul>
+      `;
+
+      Swal.fire({
+        icon: "error",
+        title: "Création de la DA impossible",
+        html: `
+          <p>
+            La demande d’approvisionnement ne peut pas être créée car les articles suivants sont déjà stockés dans la liste de création de DA réappro:
+          </p>
+          ${listeHtml}
+        `,
+        confirmButtonText: "OK",
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+      });
+
+      return;
+    }
+
     const action = e.submitter.name; // 👉 nom (attribut "name") du bouton qui a déclenché le submit
     // Définition des paramètres selon l'action
 
