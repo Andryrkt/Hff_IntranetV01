@@ -556,7 +556,7 @@ class DitModel extends Model
     $statement = "SELECT 
         TRIM(mmat_desi) AS designation, 
         TRIM(mmat_numserie) AS numserie,
-        mmat_nummat AS identite
+        TRIM(mmat_nummat) AS identite
       FROM sav_eor
       INNER JOIN mat_mat on mmat_nummat = seor_nummat and seor_soc = 'HF'
       WHERE seor_numor = '$numOr'";
