@@ -60,7 +60,7 @@ class DaEditAvecDitController extends Controller
         return $this->render('da/edit-avec-dit.html.twig', [
             'form'         => $form->createView(),
             'observations' => $observations,
-            'peutModifier' => $this->PeutModifier($demandeAppro),
+            'peutModifier' => $this->peutModifier($demandeAppro->getStatutDal(), $this->estUserDansServiceAtelier()),
             'numDa'        => $numDa,
         ]);
     }

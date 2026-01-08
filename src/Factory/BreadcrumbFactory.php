@@ -7,12 +7,21 @@ use App\Service\navigation\BreadcrumbMenuService;
 class BreadcrumbFactory
 {
     private string $baseUrl;
-    private array $menuConfig;
+    private array $menuConfig = [];
+    private BreadcrumbMenuService $breadcrumbMenuService;
 
     public function __construct(string $baseUrl = '/', BreadcrumbMenuService $breadcrumbMenuService)
     {
         $this->baseUrl = rtrim($baseUrl, '/');
-        $this->menuConfig = $breadcrumbMenuService->getFullMenuConfig();
+        $this->breadcrumbMenuService = $breadcrumbMenuService;
+    }
+
+    private function getMenuConfig(): array
+    {
+        if (empty($this->menuConfig)) {
+            $this->menuConfig = $this->breadcrumbMenuService->getFullMenuConfig();
+        }
+        return $this->menuConfig;
     }
 
     public function createFromCurrentUrl(): array
@@ -25,7 +34,8 @@ class BreadcrumbFactory
         $homeItem = $this->createItem('Accueil', $this->baseUrl ?: '/', false, 'fas fa-home');
 
         // Ajouter dropdown pour l'accueil si configuré
-        if (isset($this->menuConfig['accueil'])) {
+        $config = $this->getMenuConfig();
+        if (isset($config['accueil'])) {
             $homeItem['dropdown'] = $this->createSubItems($path, 'accueil');
         }
 
@@ -44,7 +54,7 @@ class BreadcrumbFactory
 
             // Ajouter dropdown si configuré pour ce segment
             $slug = strtolower($segment);
-            if (isset($this->menuConfig[$slug])) {
+            if (isset($config[$slug])) {
                 $item['dropdown'] = $this->createSubItems($path, $slug);
             }
 
@@ -66,6 +76,7 @@ class BreadcrumbFactory
 
     private function createSubItems(string $currentPath, string $slug): array
     {
+        $config = $this->getMenuConfig();
         return array_map(function ($sub) use ($currentPath) {
             $subLink = isset($sub['link']) ? $sub['link'] : null;
             return [
@@ -76,7 +87,7 @@ class BreadcrumbFactory
                 'is_active' => ($subLink === $currentPath),
                 'items' => $sub['items'] ?? [] // Ajouter les items pour le modal
             ];
-        }, $this->menuConfig[$slug]);
+        }, $config[$slug]);
     }
 
     private function formatLabel(string $segment): string

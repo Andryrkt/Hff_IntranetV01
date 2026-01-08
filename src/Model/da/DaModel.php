@@ -228,8 +228,13 @@ class DaModel extends Model
                         CASE
                             WHEN slor_natcm = 'C' THEN c.fcde_posc
                             WHEN slor_natcm = 'L' THEN cde.fcde_posc
-                        END AS position_bc
+                        END AS position_bc,
 
+                        CASE
+                            WHEN slor_natcm = 'C' THEN c.fcde_posl
+                            WHEN slor_natcm = 'L' THEN cde.fcde_posl
+                        END AS position_livraison
+                        
                     FROM Informix.sav_lor slor
                     INNER JOIN Informix.sav_eor seor 
                         ON seor.seor_numor = slor.slor_numor 
@@ -273,8 +278,8 @@ class DaModel extends Model
                             OR (slor.slor_natcm = 'L' AND TRIM(REPLACE(REPLACE(cde.fcde_cdeext, '\t', ''), CHR(9), '')) = '$numDa')
                             )";
         }
-
-
+        $statement .= " ORDER BY slor_natcm desc ";
+        
         $result = $this->connect->executeQuery($statement);
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
 
@@ -294,8 +299,10 @@ class DaModel extends Model
                 TRIM(fcdl_refp) as ref,
                 TRIM(fcdl_desi) as desi,
                 fcde_posc as position_bc,
+                fcde_posl as position_livraison,
                 ROUND(fcdl_qte) as qte_dem,
                 ROUND(fcdl_solde) as qte_en_attente,
+                ROUND(fcdl_qtefa) as qte_livree,
                 sum(fllf_qteliv) as qte_dispo
 
                 FROM informix.frn_cde
@@ -305,7 +312,7 @@ class DaModel extends Model
                 and TRIM(REPLACE(REPLACE(fcde_cdeext, '\t', ''), CHR(9), '')) = '$numDa'
                 and TRIM(fcdl_refp) LIKE '%$ref%'
                 and TRIM(fcdl_desi) like '%$designation%'
-                GROUP BY fcde_cdeext,fcde_numfou,num_fou,fcde_numcde,fcdl_constp,fcdl_refp,fcdl_desi,fcde_posc,qte_dem,qte_en_attente
+                GROUP BY fcde_cdeext,fcde_numfou,num_fou,fcde_numcde,fcdl_constp,fcdl_refp,fcdl_desi,fcde_posc,fcde_posl,qte_dem,qte_en_attente,qte_livree
         ";
 
         $result = $this->connect->executeQuery($statement);
@@ -451,7 +458,8 @@ class DaModel extends Model
                 TRIM(fcdl_refp) as reference,
                 TRIM(fcdl_desi) as designation, 
                 ROUND(fcdl_qte) as qte_dem,
-                ROUND(fcdl_qteli) as qte_receptionnee 
+                ROUND(fcdl_qteli) as qte_receptionnee,
+                ROUND(fcdl_qtefa) as qte_livree
                     FROM frn_cdl c 
                 WHERE fcdl_constp ='ZDI' 
                 AND fcdl_numcde = '$numCde'
