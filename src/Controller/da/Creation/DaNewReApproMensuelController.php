@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 use App\Service\application\ApplicationService;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\da\creation\DaNewReapproMensuelTrait;
-use App\Form\da\DemandeApproReapproFormType;
+use App\Form\da\DemandeApproReapproMensuelFormType;
 
 /**
  * @Route("/demande-appro")
@@ -45,12 +45,12 @@ class DaNewReApproMensuelController extends Controller
         $demandeAppro     = $id === 0 ? $this->initialisationDemandeApproReapproMensuel() : $this->demandeApproRepository->find($id);
         $this->generateDemandApproLinesFromReappros($demandeAppro);
 
-        $form = $this->getFormFactory()->createBuilder(DemandeApproReapproFormType::class, $demandeAppro, [
+        $form = $this->getFormFactory()->createBuilder(DemandeApproReapproMensuelFormType::class, $demandeAppro, [
             'em' => $this->getEntityManager()
         ])->getForm();
         $this->traitementFormReappro($form, $request);
 
-        return $this->render('da/new-da-reappro.html.twig', [
+        return $this->render('da/new-da-reappro-mensuel.html.twig', [
             'form'         => $form->createView(),
             'codeCentrale' => $this->estAdmin() || in_array($demandeAppro->getAgenceEmetteur()->getCodeAgence(), ['90', '91', '92']),
         ]);

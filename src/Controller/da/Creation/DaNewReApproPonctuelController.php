@@ -9,7 +9,7 @@ use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use App\Service\application\ApplicationService;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\Traits\da\creation\DaNewReapproTrait;
+// use App\Controller\Traits\da\creation\DaNewReapproTrait;
 use App\Form\da\DemandeApproReapproFormType;
 
 /**
@@ -17,7 +17,7 @@ use App\Form\da\DemandeApproReapproFormType;
  */
 class DaNewReApproPonctuelController extends Controller
 {
-    use DaNewReapproTrait;
+    // use DaNewReapproTrait;
     use AutorisationTrait;
     const STATUT_DAL = [
         'enregistrerBrouillon' => DemandeAppro::STATUT_EN_COURS_CREATION,
