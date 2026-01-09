@@ -2,8 +2,6 @@
 
 namespace App\Controller\Traits\da\creation;
 
-use App\Entity\admin\Agence;
-use App\Entity\admin\Service;
 use App\Entity\da\DaArticleReappro;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
@@ -12,7 +10,7 @@ use App\Traits\JoursOuvrablesTrait;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\HttpFoundation\Request;
 
-trait DaNewReapproTrait
+trait DaNewReapproMensuelTrait
 {
     use DaNewTrait, JoursOuvrablesTrait;
 
@@ -23,7 +21,7 @@ trait DaNewReapproTrait
     /**
      * Initialise les valeurs par défaut du trait
      */
-    public function initDaNewReapproTrait(): void
+    public function initDaNewReapproMensuelTrait(): void
     {
         $this->initDaTrait();
         $em = $this->getEntityManager();
@@ -36,7 +34,7 @@ trait DaNewReapproTrait
      * 
      * @return DemandeAppro la demande appro initialisée
      */
-    private function initialisationDemandeApproReappro(): DemandeAppro
+    private function initialisationDemandeApproReapproMensuel(): DemandeAppro
     {
         $demandeAppro     = new DemandeAppro;
 

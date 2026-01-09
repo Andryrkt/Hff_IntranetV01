@@ -72,6 +72,8 @@ class DemandeApproReapproFormType extends AbstractType
                 'service_label'       => 'Service Debiteur (*)',
                 'agence_placeholder'  => '-- Agence Debiteur --',
                 'service_placeholder' => '-- Service Debiteur --',
+                'data_agence'         => $options['data']->getAgenceDebiteur() ?? null,
+                'data_service'        => $options['data']->getServiceDebiteur() ?? null,
                 'em'                  => $options['em'] ?? null,
             ])
             ->add(

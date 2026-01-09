@@ -9,7 +9,7 @@ use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use App\Service\application\ApplicationService;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\Traits\da\creation\DaNewReapproTrait;
+use App\Controller\Traits\da\creation\DaNewReapproMensuelTrait;
 use App\Form\da\DemandeApproReapproFormType;
 
 /**
@@ -17,7 +17,7 @@ use App\Form\da\DemandeApproReapproFormType;
  */
 class DaNewReApproMensuelController extends Controller
 {
-    use DaNewReapproTrait;
+    use DaNewReapproMensuelTrait;
     use AutorisationTrait;
     const STATUT_DAL = [
         'enregistrerBrouillon' => DemandeAppro::STATUT_EN_COURS_CREATION,
@@ -27,13 +27,13 @@ class DaNewReApproMensuelController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->initDaNewReapproTrait();
+        $this->initDaNewReapproMensuelTrait();
     }
 
     /**
      * @Route("/new-da-reappro-mensuel/{id<\d+>}", name="da_new_reappro_mensuel")
      */
-    public function newDAReappro(int $id, Request $request)
+    public function newDAReapproMensuel(int $id, Request $request)
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
@@ -42,7 +42,7 @@ class DaNewReApproMensuelController extends Controller
         $this->checkPageAccess($this->estAdmin() || $this->estCreateurDeDADirecte());
         /** FIN AUtorisation accès */
 
-        $demandeAppro     = $id === 0 ? $this->initialisationDemandeApproReappro() : $this->demandeApproRepository->find($id);
+        $demandeAppro     = $id === 0 ? $this->initialisationDemandeApproReapproMensuel() : $this->demandeApproRepository->find($id);
         $this->generateDemandApproLinesFromReappros($demandeAppro);
 
         $form = $this->getFormFactory()->createBuilder(DemandeApproReapproFormType::class, $demandeAppro, [
