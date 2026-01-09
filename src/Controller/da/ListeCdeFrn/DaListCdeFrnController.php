@@ -243,7 +243,7 @@ class DaListCdeFrnController extends Controller
         $daType = [
             DemandeAppro::TYPE_DA_AVEC_DIT => $this->getIconDaAvecDIT(),
             DemandeAppro::TYPE_DA_DIRECT   => $this->getIconDaDirect(),
-            DemandeAppro::TYPE_DA_REAPPRO  => $this->getIconDaReappro(),
+            DemandeAppro::TYPE_DA_REAPPRO  => $this->getIconDaReapproMensuel(),
         ];
 
         $routeDetailName = [
