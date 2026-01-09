@@ -87,6 +87,9 @@ class CongeController extends Controller
 
         $form->handleRequest($request);
 
+        // Récupérer l'état du filtre "Groupe Direction" depuis la requête
+        $groupeDirection = $request->query->get('groupeDirection');
+
         // Options pour le repository
         $options = [
             'admin' => in_array(1, $this->getUser()->getRoleIds()),
@@ -97,6 +100,7 @@ class CongeController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             // Formulaire soumis avec des critères de recherche
             $congeSearch = $form->getData();
+
             // Gestion spéciale pour les matricules multiples
             // On divise la chaîne de matricules multiples pour éviter les problèmes de longueur de champ
             $originalMatricule = $congeSearch->getMatricule();
@@ -168,11 +172,20 @@ class CongeController extends Controller
             // Enregistrement des critères dans la session
             $this->sessionService->set('conge_search_criteria', $criteria);
             $this->sessionService->set('conge_search_option', $options);
+
+            // Enregistrer l'état du filtre "Groupe Direction" dans la session
+            $this->sessionService->set('groupe_direction_filter', $groupeDirection);
         } else if (!$isDirectAccess) {
             // Utiliser les options de recherche stockées dans la session si disponibles
             // (seulement si ce n'est pas un accès direct)
             $sessionOptions = $this->sessionService->get('conge_search_option', []);
             $options = $sessionOptions;
+
+            // Récupérer l'état du filtre "Groupe Direction" depuis la session
+            $groupeDirection = $this->sessionService->get('groupe_direction_filter', false);
+        } else {
+            // Pour un accès direct, réinitialiser le filtre "Groupe Direction"
+            $this->sessionService->remove('groupe_direction_filter');
         }
 
         // Déterminer les codes agence/service pour l'affichage même si le formulaire n'a pas été soumis
@@ -183,9 +196,18 @@ class CongeController extends Controller
         $page = max(1, $request->query->getInt('page', 1));
         $limit = 50;
 
-        // Récupération des données filtrées
+        // Vérifier si le filtre "Groupe Direction" est activé
+        $groupeDirection = $request->query->get('groupeDirection');
+
         $repository = $this->getEntityManager()->getRepository(DemandeConge::class);
-        $paginationData = $repository->findPaginatedAndFiltered($page, $limit, $congeSearch, $options, $this->getUser());
+
+        if ($groupeDirection) {
+            // Si le filtre "Groupe Direction" est coché, ignorer tous les autres filtres
+            $paginationData = $repository->findCongesByGroupeDirection($page, $limit, $this->getUser());
+        } else {
+            // Sinon, utiliser la logique normale de recherche avec tous les filtres
+            $paginationData = $repository->findPaginatedAndFiltered($page, $limit, $congeSearch, $options, $this->getUser());
+        }
 
 
 
@@ -251,16 +273,11 @@ class CongeController extends Controller
         $employees = [];
         foreach ($rawCongesForCalendar as $conge) {
             $nomPrenoms = $conge->getNomPrenoms();
-
-
-            $codeAgenceService = $conge->getAgenceServiceirium() ? $conge->getAgenceServiceirium()->getAgenceips() . '-' . $conge->getAgenceServiceirium()->getServiceips() : $conge->getCodeAgenceService();
-
-            $key =  $codeAgenceService . '_' . $conge->getMatricule() . '_' . $nomPrenoms;
-            if (!isset($employees[$key])) {
-                $employees[$key] = [];
+            if (!isset($employees[$nomPrenoms])) {
+                $employees[$nomPrenoms] = [];
             }
 
-            $employees[$key][] = [
+            $employees[$nomPrenoms][] = [
                 'id' => $conge->getId(),
                 'typeDemande' => $conge->getTypeDemande(),
                 'numeroDemande' => $conge->getNumeroDemande(),
@@ -285,9 +302,9 @@ class CongeController extends Controller
             ];
         }
 
-        // Affichage du template
+        // Affichage du template pour la liste
         return $this->render(
-            'ddc/conge_view.html.twig',
+            'ddc/conge_list_view.html.twig',
             [
                 'form' => $form->createView(),
                 'data' => $paginationData['data'],
@@ -297,9 +314,232 @@ class CongeController extends Controller
                 'criteria' => $filteredCriteria,
                 'conges' => $conges,
                 'employees' => $employees,
-                'viewMode' => 'list', // Ajout du mode d'affichage
+                'type_view' => 'lists',
             ]
         );
+    }
+
+    /**
+     * @Route("/conge-calendrier", name="conge_calendrier")
+     */
+    public function calendrierConge()
+    {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
+        // DEBUT D'AUTORISATION
+        $this->autorisationAcces($this->getUser(), Application::ID_DDC);
+        //FIN AUTORISATION
+
+        $request = Request::createFromGlobals();
+
+        // Récupérer toutes les demandes de congé pour les afficher dans le calendrier
+        // On peut filtrer selon les critères enregistrés dans la session
+        $criteria = $this->sessionService->get('conge_search_criteria', []);
+        $options = $this->sessionService->get('conge_search_option', []);
+
+        // Vérifier s'il s'agit d'un accès direct à la route (sans paramètres de recherche)
+        // Dans ce cas, nous réinitialisons tous les filtres
+        $isDirectAccess = empty($request->query->all());
+
+        if ($isDirectAccess) {
+            // Réinitialiser tous les filtres - créer un objet vide sans données de session
+            $congeSearch = new DemandeConge();
+
+            // Effacer les critères de recherche de la session
+            $this->sessionService->remove('conge_search_criteria');
+            $this->sessionService->remove('conge_search_option');
+        } else {
+            // Utiliser les critères de recherche stockés dans la session si disponibles
+            // ou directement depuis la requête si le formulaire est soumis
+            if ($request->query->count() > 0) {
+                // Extraire les données du formulaire depuis la requête
+                $formData = $request->query->get('demande_conge', []);
+
+                $congeSearch = new DemandeConge();
+
+                // Remplir l'objet congeSearch avec les données de la requête
+                $congeSearch->setMatricule($formData['matricule'] ?? null)
+                    ->setDateDebut($formData['dateDebut'] ? new \DateTime($formData['dateDebut']) : null)
+                    ->setDateFin($formData['dateFin'] ? new \DateTime($formData['dateFin']) : null)
+                    ->setDateDemande($formData['dateDemande'] ? new \DateTime($formData['dateDemande']) : null)
+                    ->setNumeroDemande($formData['numeroDemande'] ?? null)
+                    ->setStatutDemande($formData['statutDemande'] ?? null);
+
+                // Stocker les critères dans la session
+                $criteria = $congeSearch->toArray();
+                $criteria['dateDebut'] = $formData['dateDebut'] ?? null;
+                $criteria['dateFin'] = $formData['dateFin'] ?? null;
+                $criteria['dateDemande'] = $formData['dateDemande'] ?? null;
+                $criteria['statutDemande'] = $formData['statutDemande'] ?? null;
+
+                $this->sessionService->set('conge_search_criteria', $criteria);
+                $this->sessionService->set('conge_search_option', $options);
+            } else {
+                // Utiliser les critères de la session
+                $congeSearch = new DemandeConge();
+                $congeSearch->setTypeDemande($criteria['typeDemande'] ?? null)
+                    ->setNumeroDemande($criteria['numeroDemande'] ?? null)
+                    ->setMatricule($criteria['matricule'] ?? null)
+                    ->setNomPrenoms($criteria['nomPrenoms'] ?? null)
+                    ->setDateDemande($criteria['dateDemande'] ?? null)
+                    ->setAdresseMailDemandeur($criteria['adresseMailDemandeur'] ?? null)
+                    ->setSousTypeDocument($criteria['sousTypeDocument'] ?? null)
+                    ->setDureeConge($criteria['dureeConge'] ?? null)
+                    ->setDateDebut($criteria['dateDebut'] ?? null)
+                    ->setDateFin($criteria['dateFin'] ?? null)
+                    ->setSoldeConge($criteria['soldeConge'] ?? null)
+                    ->setMotifConge($criteria['motifConge'] ?? null)
+                    ->setStatutDemande($criteria['statutDemande'] ?? null)
+                    ->setDateStatut($criteria['dateStatut'] ?? null)
+                    ->setPdfDemande($criteria['pdfDemande'] ?? null);
+            }
+        }
+
+        // Création du formulaire avec l'EntityManager
+        $form = $this->getFormFactory()->createBuilder(DemandeCongeType::class, $congeSearch, [
+            'method' => 'GET',
+            'em' => $this->getEntityManager()
+        ])->getForm();
+
+        $form->handleRequest($request);
+
+        // S'assurer que $options est un tableau
+        if (!is_array($options)) {
+            $options = [];
+        }
+
+        // Ajouter l'option admin si elle n'existe pas
+        if (!isset($options['admin'])) {
+            $options['admin'] = in_array(1, $this->getUser()->getRoleIds());
+        }
+
+        // Récupérer l'état du filtre "Groupe Direction" depuis la requête (s'il est soumis)
+        $groupeDirection = $request->query->get('groupeDirection');
+
+        // Si le formulaire est soumis, mettre à jour le filtre dans la session
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->sessionService->set('groupe_direction_filter', $groupeDirection);
+        } else {
+            // Sinon, récupérer l'état du filtre "Groupe Direction" depuis la session
+            $groupeDirection = $this->sessionService->get('groupe_direction_filter', false);
+        }
+
+        $repository = $this->getEntityManager()->getRepository(DemandeConge::class);
+
+        if ($groupeDirection) {
+            // Si le filtre "Groupe Direction" est activé, ignorer tous les autres filtres
+            $rawConges = $repository->findCongesByGroupeDirectionExcel($this->getUser());
+        } else {
+            // Sinon, utiliser la logique normale de recherche avec tous les filtres
+            $rawConges = $repository->findAndFilteredExcel($congeSearch, $options, $this->getUser());
+        }
+
+        // Transformer les objets DemandeConge en tableaux simples pour la vue
+        $conges = [];
+        foreach ($rawConges as $conge) {
+            $conges[] = [
+                'id' => $conge->getId(),
+                'typeDemande' => $conge->getTypeDemande(),
+                'numeroDemande' => $conge->getNumeroDemande(),
+                'matricule' => $conge->getMatricule(),
+                'nomPrenoms' => $conge->getNomPrenoms(),
+                'dateDemande' => $conge->getDateDemande() ? $conge->getDateDemande()->format('Y-m-d H:i:s') : null,
+                'agenceDebiteur' => $conge->getAgenceDebiteur(),
+                'adresseMailDemandeur' => $conge->getAdresseMailDemandeur(),
+                'sousTypeDocument' => $conge->getSousTypeDocument(),
+                'dureeConge' => $conge->getDureeConge(),
+                'dateDebut' => $conge->getDateDebut() ? [
+                    'date' => $conge->getDateDebut()->format('Y-m-d H:i:s')
+                ] : null,
+                'dateFin' => $conge->getDateFin() ? [
+                    'date' => $conge->getDateFin()->format('Y-m-d H:i:s')
+                ] : null,
+                'soldeConge' => $conge->getSoldeConge(),
+                'motifConge' => $conge->getMotifConge(),
+                'statutDemande' => $conge->getStatutDemande(),
+                'dateStatut' => $conge->getDateStatut() ? $conge->getDateStatut()->format('Y-m-d H:i:s') : null,
+                'pdfDemande' => $conge->getPdfDemande(),
+            ];
+        }
+
+        // Grouper les congés par nom et prénoms pour le calendrier
+        $employees = [];
+        foreach ($rawConges as $conge) {
+            $nomPrenoms = $conge->getNomPrenoms();
+            if (!isset($employees[$nomPrenoms])) {
+                $employees[$nomPrenoms] = [];
+            }
+
+            $employees[$nomPrenoms][] = [
+                'id' => $conge->getId(),
+                'typeDemande' => $conge->getTypeDemande(),
+                'numeroDemande' => $conge->getNumeroDemande(),
+                'matricule' => $conge->getMatricule(),
+                'nomPrenoms' => $conge->getNomPrenoms(),
+                'dateDemande' => $conge->getDateDemande() ? $conge->getDateDemande()->format('Y-m-d H:i:s') : null,
+                'agenceDebiteur' => $conge->getAgenceDebiteur(),
+                'adresseMailDemandeur' => $conge->getAdresseMailDemandeur(),
+                'sousTypeDocument' => $conge->getSousTypeDocument(),
+                'dureeConge' => $conge->getDureeConge(),
+                'dateDebut' => $conge->getDateDebut() ? [
+                    'date' => $conge->getDateDebut()->format('Y-m-d H:i:s')
+                ] : null,
+                'dateFin' => $conge->getDateFin() ? [
+                    'date' => $conge->getDateFin()->format('Y-m-d H:i:s')
+                ] : null,
+                'soldeConge' => $conge->getSoldeConge(),
+                'motifConge' => $conge->getMotifConge(),
+                'statutDemande' => $conge->getStatutDemande(),
+                'dateStatut' => $conge->getDateStatut() ? $conge->getDateStatut()->format('Y-m-d H:i:s') : null,
+                'pdfDemande' => $conge->getPdfDemande(),
+            ];
+        }
+
+        // Déterminer le mois à afficher dans le calendrier
+        $selectedMonth = null;
+
+        // Vérifier si une date de début est spécifiée dans les critères
+        // Les dates peuvent être dans différents formats selon leur provenance
+        if (isset($criteria['dateDebut']) && $criteria['dateDebut']) {
+            if ($criteria['dateDebut'] instanceof \DateTimeInterface) {
+                $selectedMonth = $criteria['dateDebut'];
+            } else {
+                // Essayer différents formats de date
+                $selectedMonth = \DateTime::createFromFormat('Y-m-d', $criteria['dateDebut']);
+                if (!$selectedMonth) {
+                    $selectedMonth = \DateTime::createFromFormat('d-m-Y', $criteria['dateDebut']);
+                }
+            }
+        }
+
+        // Si pas de date de début ou si la conversion a échoué, essayer avec dateFin
+        if (!$selectedMonth && isset($criteria['dateFin']) && $criteria['dateFin']) {
+            if ($criteria['dateFin'] instanceof \DateTimeInterface) {
+                $selectedMonth = $criteria['dateFin'];
+            } else {
+                // Essayer différents formats de date
+                $selectedMonth = \DateTime::createFromFormat('Y-m-d', $criteria['dateFin']);
+                if (!$selectedMonth) {
+                    $selectedMonth = \DateTime::createFromFormat('d-m-Y', $criteria['dateFin']);
+                }
+            }
+        }
+
+        if (!$selectedMonth) {
+            // Sinon, utiliser le mois en cours
+            $selectedMonth = new \DateTime();
+        }
+
+        // Affichage du template
+        return $this->render('ddc/conge_calendar_view.html.twig', [
+            'conges' => $conges,
+            'employees' => $employees,
+            'criteria' => $criteria,
+            'form' => $form->createView(),
+            'type_view' => 'calendar',
+            'selected_month' => $selectedMonth,
+        ]);
     }
 
     private function getCodeAgenceService(string $agenceServiceSage)
@@ -385,8 +625,19 @@ class CongeController extends Controller
             ->setDateStatut(isset($criteria['dateStatut']) ? $criteria['dateStatut'] : null)
             ->setPdfDemande(isset($criteria['pdfDemande']) ? $criteria['pdfDemande'] : null);
 
+        // Vérifier si le filtre "Groupe Direction" est activé
+        $groupeDirection = $this->sessionService->get('groupe_direction_filter', false);
+
         // Récupère les entités filtrées
-        $entities = $this->getEntityManager()->getRepository(DemandeConge::class)->findAndFilteredExcel($congeSearch, $option, $this->getUser());
+        $repository = $this->getEntityManager()->getRepository(DemandeConge::class);
+
+        if ($groupeDirection) {
+            // Si le filtre "Groupe Direction" est activé, ignorer tous les autres filtres
+            $entities = $repository->findCongesByGroupeDirectionExcel($this->getUser());
+        } else {
+            // Sinon, utiliser la logique normale de recherche avec tous les filtres
+            $entities = $repository->findAndFilteredExcel($congeSearch, $option, $this->getUser());
+        }
 
         if ($format === 'table') {
             // Export au format tableau (calendrier)
@@ -542,8 +793,15 @@ class CongeController extends Controller
         $this->sessionService->remove('conge_search_criteria');
         $this->sessionService->remove('conge_search_option');
 
-        // Redirect to the main congé list
-        return $this->redirectToRoute("conge_liste");
+        // Récupérer le mode d'affichage actuel pour le conserver après réinitialisation
+        $currentViewMode = $this->sessionService->get('conge_view_mode', 'list');
+
+        // Redirect to the main congé list with the current view mode
+        if ($currentViewMode === 'calendar') {
+            return $this->redirectToRoute("conge_calendrier");
+        } else {
+            return $this->redirectToRoute("conge_liste");
+        }
     }
 
     /**
@@ -560,7 +818,14 @@ class CongeController extends Controller
             $this->getEntityManager()->flush();
         }
 
-        return $this->redirectToRoute("conge_liste");
+        // Récupérer le mode d'affichage actuel pour le conserver après annulation
+        $currentViewMode = $this->sessionService->get('conge_view_mode', 'list');
+
+        if ($currentViewMode === 'calendar') {
+            return $this->redirectToRoute("conge_calendrier");
+        } else {
+            return $this->redirectToRoute("conge_liste");
+        }
     }
 
     /**
@@ -595,7 +860,7 @@ class CongeController extends Controller
 
 
     /**
-     * @Route("/api/personnel-matricule-nom-prenoms")
+     * @Route("/api/matricule-nom-prenom")
      */
     public function getMatriculeNomPrenom(Request $request)
     {
@@ -613,130 +878,5 @@ class CongeController extends Controller
         $tags = $this->getEntityManager()->getRepository(DemandeConge::class)->getTagsByMatricule($matricule);
 
         return new JsonResponse(['tags' => $tags]);
-    }
-
-    /**
-     * @Route("/conge-calendrier", name="conge_calendrier")
-     */
-    public function calendrierConge()
-    {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
-        // DEBUT D'AUTORISATION
-        $this->autorisationAcces($this->getUser(), Application::ID_DDC);
-        //FIN AUTORISATION
-
-        // Récupérer toutes les demandes de congé pour les afficher dans le calendrier
-        // On peut filtrer selon les critères enregistrés dans la session
-        $criteria = $this->sessionService->get('conge_search_criteria', []);
-        $options = $this->sessionService->get('conge_search_option', []);
-
-        $congeSearch = new DemandeConge();
-        $congeSearch->setTypeDemande($criteria['typeDemande'] ?? null)
-            ->setNumeroDemande($criteria['numeroDemande'] ?? null)
-            ->setMatricule($criteria['matricule'] ?? null)
-            ->setNomPrenoms($criteria['nomPrenoms'] ?? null)
-            ->setDateDemande($criteria['dateDemande'] ?? null)
-            ->setAdresseMailDemandeur($criteria['adresseMailDemandeur'] ?? null)
-            ->setSousTypeDocument($criteria['sousTypeDocument'] ?? null)
-            ->setDureeConge($criteria['dureeConge'] ?? null)
-            ->setDateDebut($criteria['dateDebut'] ?? null)
-            ->setDateFin($criteria['dateFin'] ?? null)
-            ->setSoldeConge($criteria['soldeConge'] ?? null)
-            ->setMotifConge($criteria['motifConge'] ?? null)
-            ->setStatutDemande($criteria['statutDemande'] ?? null)
-            ->setDateStatut($criteria['dateStatut'] ?? null)
-            ->setPdfDemande($criteria['pdfDemande'] ?? null);
-
-        // Création du formulaire avec l'EntityManager
-        $form = $this->getFormFactory()->createBuilder(DemandeCongeType::class, $congeSearch, [
-            'method' => 'GET',
-            'em' => $this->getEntityManager()
-        ])->getForm();
-
-        // S'assurer que $options est un tableau
-        if (!is_array($options)) {
-            $options = [];
-        }
-
-        // Ajouter l'option admin si elle n'existe pas
-        if (!isset($options['admin'])) {
-            $options['admin'] = in_array(1, $this->getUser()->getRoleIds());
-        }
-
-        // Récupérer les congés filtrés pour le calendrier
-        $repository = $this->getEntityManager()->getRepository(DemandeConge::class);
-        $rawConges = $repository->findAndFilteredExcel($congeSearch, $options, $this->getUser());
-
-        // Transformer les objets DemandeConge en tableaux simples pour la vue
-        $conges = [];
-        foreach ($rawConges as $conge) {
-            $conges[] = [
-                'id' => $conge->getId(),
-                'typeDemande' => $conge->getTypeDemande(),
-                'numeroDemande' => $conge->getNumeroDemande(),
-                'matricule' => $conge->getMatricule(),
-                'nomPrenoms' => $conge->getNomPrenoms(),
-                'dateDemande' => $conge->getDateDemande() ? $conge->getDateDemande()->format('Y-m-d H:i:s') : null,
-                'agenceDebiteur' => $conge->getAgenceDebiteur(),
-                'adresseMailDemandeur' => $conge->getAdresseMailDemandeur(),
-                'sousTypeDocument' => $conge->getSousTypeDocument(),
-                'dureeConge' => $conge->getDureeConge(),
-                'dateDebut' => $conge->getDateDebut() ? [
-                    'date' => $conge->getDateDebut()->format('Y-m-d H:i:s')
-                ] : null,
-                'dateFin' => $conge->getDateFin() ? [
-                    'date' => $conge->getDateFin()->format('Y-m-d H:i:s')
-                ] : null,
-                'soldeConge' => $conge->getSoldeConge(),
-                'motifConge' => $conge->getMotifConge(),
-                'statutDemande' => $conge->getStatutDemande(),
-                'dateStatut' => $conge->getDateStatut() ? $conge->getDateStatut()->format('Y-m-d H:i:s') : null,
-                'pdfDemande' => $conge->getPdfDemande(),
-            ];
-        }
-
-        // Grouper les congés par nom et prénoms pour le calendrier
-        $employees = [];
-        foreach ($rawConges as $conge) {
-            $nomPrenoms = $conge->getNomPrenoms();
-            if (!isset($employees[$nomPrenoms])) {
-                $employees[$nomPrenoms] = [];
-            }
-
-            $employees[$nomPrenoms][] = [
-                'id' => $conge->getId(),
-                'typeDemande' => $conge->getTypeDemande(),
-                'numeroDemande' => $conge->getNumeroDemande(),
-                'matricule' => $conge->getMatricule(),
-                'nomPrenoms' => $conge->getNomPrenoms(),
-                'dateDemande' => $conge->getDateDemande() ? $conge->getDateDemande()->format('Y-m-d H:i:s') : null,
-                'agenceDebiteur' => $conge->getAgenceDebiteur(),
-                'adresseMailDemandeur' => $conge->getAdresseMailDemandeur(),
-                'sousTypeDocument' => $conge->getSousTypeDocument(),
-                'dureeConge' => $conge->getDureeConge(),
-                'dateDebut' => $conge->getDateDebut() ? [
-                    'date' => $conge->getDateDebut()->format('Y-m-d H:i:s')
-                ] : null,
-                'dateFin' => $conge->getDateFin() ? [
-                    'date' => $conge->getDateFin()->format('Y-m-d H:i:s')
-                ] : null,
-                'soldeConge' => $conge->getSoldeConge(),
-                'motifConge' => $conge->getMotifConge(),
-                'statutDemande' => $conge->getStatutDemande(),
-                'dateStatut' => $conge->getDateStatut() ? $conge->getDateStatut()->format('Y-m-d H:i:s') : null,
-                'pdfDemande' => $conge->getPdfDemande(),
-            ];
-        }
-
-        // Affichage du template
-        return $this->render('ddc/conge_view.html.twig', [
-            'conges' => $conges,
-            'employees' => $employees,
-            'criteria' => $criteria,
-            'form' => $form->createView(),
-            'viewMode' => 'calendar', // Ajout du mode d'affichage
-        ]);
     }
 }

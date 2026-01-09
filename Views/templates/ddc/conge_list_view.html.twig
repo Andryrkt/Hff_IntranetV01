@@ -1,0 +1,57 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
+<link rel="stylesheet" href="{{ App.base_path }}/Views/css/ddc/listeConge.css">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between mb-3">
+        <h3 class="perso-titre">Liste des Demandes de Congé</h3>
+        <a href="{{ path('conge_calendrier') }}" class="btn btn-sm btn-warning switch-view">
+            <i class="fas fa-calendar"></i> Calendrier
+        </a>
+    </div>
+
+    {% include "/ddc/shared/_formulaireRechercheConge.html.twig" with {'form': form} %}
+    {% include "/ddc/shared/_pagination_conge.html.twig" with {'viewMode': 'list'} %}
+
+    <div id="view-container">
+        {% include "/ddc/_list_content.html.twig" %}
+    </div>
+</div>
+
+<!-- MODAL DETAILS -->
+<div class="modal fade" id="congeDetailsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Détails de la demande de congé</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="congeDetailsContent"></div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script>
+    // Données pour les vues
+    window.pageData = {{ data|json_encode|raw }};
+    window.congesData = {{ conges|json_encode|raw }};
+    window.employeesData = {{ employees|json_encode|raw }};
+    document.body.dataset.viewMode = "list";
+</script>
+
+<!-- Templates pour le rendu côté client -->
+<script type="text/template" id="list-template">
+    {% include "/ddc/_list_content.html.twig" %}
+</script>
+
+<script src="{{ App.base_path }}/Views/js/ddc/listConge.js" type="module"></script>
+{% endblock %}

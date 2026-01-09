@@ -100,16 +100,13 @@ class DemandeConge
      */
     private ?string $pdfDemande = null;
 
-    private ?string $codeAgenceService = '-';
+    private ?string $codeAgenceService;
 
     /**
      * @ORM\ManyToOne(targetEntity=AgenceServiceIrium::class, inversedBy="demandeDeConge")
      * @ORM\JoinColumn(name="Agence_Service", referencedColumnName="service_sage_paie")
      */
     private $agenceServiceirium;
-
-
-    private $groupeDirection;
 
     /** ==================================================================================
      * Getters et Setters (inchangés)
@@ -304,7 +301,6 @@ class DemandeConge
             'statutDemande' => $this->statutDemande,
             'dateStatut' => $this->dateStatut,
             'pdfDemande' => $this->pdfDemande,
-            'groupeDirection' => $this->groupeDirection,
         ];
     }
 
@@ -322,24 +318,6 @@ class DemandeConge
     public function setAgenceServiceirium($agenceServiceirium): self
     {
         $this->agenceServiceirium = $agenceServiceirium;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of groupeDirection
-     */
-    public function getGroupeDirection()
-    {
-        return $this->groupeDirection;
-    }
-
-    /**
-     * Set the value of groupeDirection
-     */
-    public function setGroupeDirection($groupeDirection): self
-    {
-        $this->groupeDirection = $groupeDirection;
 
         return $this;
     }

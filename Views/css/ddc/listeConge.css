@@ -61,6 +61,7 @@
   justify-content: center;
   font-size: 11px;
   box-sizing: border-box;
+  cursor: pointer; /* Curseur main/hand au survol */
 }
 
 .employee-name {
@@ -78,20 +79,9 @@
 }
 
 /* Congé fusionné */
-.conge-bar-annuler {
-  background: #e22f29 !important;
-  border: 1px solid #c93900 !important;
-  position: relative;
-}
-
-.conge-bar-valide {
-  background: #157725 !important;
-  border: 1px solid #0a6b12 !important;
-  position: relative;
-}
-.conge-bar-encours {
-  background: #e6d46e !important;
-  border: 1px solid #e9c31b !important;
+.conge-bar {
+  background: #b9d7ff !important;
+  border: 1px solid #0067c9 !important;
   position: relative;
 }
 

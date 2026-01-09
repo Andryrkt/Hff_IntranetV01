@@ -2,7 +2,6 @@
 
 namespace App\Repository\ddc;
 
-use App\Entity\admin\Personnel;
 use Doctrine\ORM\QueryBuilder;
 use App\Entity\ddc\DemandeConge;
 use Doctrine\ORM\EntityRepository;
@@ -20,8 +19,7 @@ class DemandeCongeRepository extends EntityRepository
     ): array {
         $queryBuilder = $this->createQueryBuilder('d')
             ->leftJoin('d.agenceServiceirium', 'asi')
-            ->addSelect('asi')
-            ->leftJoin(Personnel::class, 'p', 'WITH', 'd.matricule = p.Matricule');
+            ->addSelect('asi');
 
         $this->filtredParDate($queryBuilder, $conge, $options);
         $this->filtredParAgenceService($queryBuilder, $options, $user);
@@ -64,8 +62,7 @@ class DemandeCongeRepository extends EntityRepository
     {
         $queryBuilder = $this->createQueryBuilder('d')
             ->leftJoin('d.agenceServiceirium', 'asi')
-            ->addSelect('asi')
-            ->leftJoin(Personnel::class, 'p', 'WITH', 'd.matricule = p.Matricule');
+            ->addSelect('asi');
 
         $this->filtredParDate($queryBuilder, $conge, $options);
         $this->filtredParAgenceService($queryBuilder, $options, $user);
@@ -120,12 +117,6 @@ class DemandeCongeRepository extends EntityRepository
         if ($conge->getStatutDemande()) {
             $queryBuilder->andWhere('d.statutDemande = :statutDemande')
                 ->setParameter('statutDemande', $conge->getStatutDemande());
-        }
-
-        // Filtrer par groupe de direction
-        if ($conge->getGroupeDirection()) {
-            $queryBuilder->andWhere('p.groupeDirection = :groupeDirection')
-                ->setParameter('groupeDirection', $conge->getGroupeDirection());
         }
     }
 
@@ -258,5 +249,51 @@ class DemandeCongeRepository extends EntityRepository
 
         // For now, return an empty array - you would implement the actual logic
         return [];
+    }
+
+    public function findCongesByGroupeDirection(int $page, int $limit, ?User $user = null): array
+    {
+        $offset = ($page - 1) * $limit;
+
+        $queryBuilder = $this->createQueryBuilder('d')
+            ->leftJoin('d.agenceServiceirium', 'asi')
+            ->addSelect('asi')
+            ->join('App\Entity\ddc\GroupeDirection', 'gd', 'WITH', 'd.matricule = gd.matricule')
+            ->where('gd.actif = :actif')
+            ->setParameter('actif', 1);
+
+        $totalItems = clone $queryBuilder;
+        $totalItems = $totalItems->select('COUNT(d.id)')->getQuery()->getSingleScalarResult();
+
+        $data = clone $queryBuilder;
+        $data = $data
+            ->orderBy('d.dateDemande', 'DESC')
+            ->addOrderBy('d.dateDebut', 'DESC')
+            ->setFirstResult($offset)
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+
+        return [
+            'data' => $data,
+            'currentPage' => $page,
+            'lastPage' => ceil($totalItems / $limit),
+            'totalItems' => $totalItems
+        ];
+    }
+
+    public function findCongesByGroupeDirectionExcel(?User $user = null): array
+    {
+        $queryBuilder = $this->createQueryBuilder('d')
+            ->leftJoin('d.agenceServiceirium', 'asi')
+            ->addSelect('asi')
+            ->join('App\Entity\ddc\GroupeDirection', 'gd', 'WITH', 'd.matricule = gd.matricule')
+            ->where('gd.actif = :actif')
+            ->setParameter('actif', 1);
+
+        return $queryBuilder
+            ->orderBy('d.id', 'DESC')
+            ->getQuery()
+            ->getResult();
     }
 }
