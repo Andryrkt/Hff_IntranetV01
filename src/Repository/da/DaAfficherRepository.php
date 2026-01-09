@@ -642,7 +642,7 @@ class DaAfficherRepository extends EntityRepository
             if (!empty($criteria['statutDA'])) {
                 $queryBuilder->andWhere($qbLabel . '.statutDal = :statutDa')
                     ->setParameter('statutDa', $criteria['statutDA']);
-            } else {
+            } elseif (empty($criteria['numDa'])) {
                 $queryBuilder->andWhere($qbLabel . '.statutDal NOT IN (:statutDa)')
                     ->setParameter('statutDa', [DemandeAppro::STATUT_TERMINER, DemandeAppro::STATUT_CLOTUREE], ArrayParameterType::STRING);
             }
