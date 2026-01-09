@@ -19,7 +19,6 @@ use App\Repository\da\DaSoumissionFacBlRepository;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Service\historiqueOperation\HistoriqueOperationService;
 use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
-use DateTime;
 
 /**
  * @Route("/demande-appro")
@@ -145,6 +144,7 @@ class DaSoumissionFacBlController extends Controller
     private function ajoutInfoNecesaireSoumissionFacBl(string $numCde, string $numDa, DaSoumissionFacBl $soumissionFacBl, string $nomPdfFusionner, int $numeroVersionMax, string $numOr): DaSoumissionFacBl
     {
         $numDit = $this->demandeApproRepository->getNumDitDa($numDa);
+        // $numOr = $this->ditRepository->getNumOr($numDit);
         $soumissionFacBl->setNumeroCde($numCde)
             ->setUtilisateur($this->getUserName())
             ->setPieceJoint1($nomPdfFusionner)
@@ -156,6 +156,7 @@ class DaSoumissionFacBlController extends Controller
         ;
         return $soumissionFacBl;
     }
+
 
     /**
      * Enregistrement des fichiers téléchagrer dans le dossier de destination

@@ -23,7 +23,7 @@
 			<div class="card-body">
 				{{ form_start(form, { 'attr': { 'id': 'myForm' } }) }}
 				{{ form_errors(form)}}
-				<div class="container-fluid">
+				<div class="container-fluid" id="agenceServiceDA" data-agence="{{ codeAgence }}" data-service="{{ codeService }}">
 					<div class="row">
 						<h3 class="perso-titre">
 							Formulaire Demande d'achat direct
@@ -83,21 +83,12 @@
 						{% for ligne, DAL in form.DAL %}
 							{% set dalData = DAL.vars.data %}
 							<div id="demande_appro_direct_form_DAL_{{ ligne }}" class="DAL-container">
-								<div class="row g-3">
+								<div class="d-flex gap-3">
 									<div class="w-25">
 										{{ form_widget(DAL.artDesi, { 'attr': { class:"non-modifiable" } }) }}
-										<div id="suggestion_{{ ligne }}_artDesi" class="suggestions-container"></div>
-										<div id="spinner_container_{{ ligne }}_artDesi" class="text-center" style="display: none;">
-											<div class="text-overlay">
-												Veuillez patienter s'il vous plaît! Chargement des données
-											</div>
-											<div class="loader-points"></div>
-										</div>
 									</div>
 									<div class="w-15">
 										{{ form_widget(DAL.nomFournisseur, { 'attr': { class:"non-modifiable" } }) }}
-										<div id="suggestion_{{ ligne }}_nomFournisseur" class="suggestions-container"></div>
-										<div id="spinner_container_{{ ligne }}_nomFournisseur" class="text-center" style="display: none;"></div>
 									</div>
 									<div class="w-15">
 										{{ form_widget(DAL.dateFinSouhaite, { 'attr': { class:"non-modifiable" } }) }}
@@ -105,56 +96,42 @@
 									<div class="w-5">
 										{{ form_widget(DAL.qteDem) }}
 									</div>
-									<div class="w-20">
+									<div class="w-19">
 										{{ form_widget(DAL.commentaire) }}
 									</div>
-									<div class="d-none">
-										{{ form_widget(DAL.fileNames) }}
+									<div class="w-1">
+										<i class="fas fa-paperclip text-primary add-file-icon" data-file-input-id="demande_appro_direct_form_DAL_{{ ligne }}_fileNames" title="Ajouter une pièce jointe" style="cursor: pointer;"></i>
 									</div>
-									<div class="w-15">
+									<div class="w-15" id="demande_appro_direct_form_DAL_{{ ligne }}_fileNamesContainer">
 										{% if dalData.fileNames is not empty %}
-											<ul class="mb-0 ps-3">
+											<ul class="ps-0 mb-0 file-list">
 												{% for file in dalData.fileNames %}
-													<li>
-														<a href="{{ App.base_path_fichier }}/da/{{ dalData.numeroDemandeAppro }}/{{ file }}" target="_blank">{{ file }}</a>
+													<li class="file-item">
+														<span class="file-name">
+															<a href="{{ App.base_path_fichier }}/da/{{ dalData.numeroDemandeAppro }}/{{ file }}" target="_blank">{{ file }}</a>
+														</span>
+														<span class="remove-file">x</span>
 													</li>
 												{% endfor %}
 											</ul>
-										{% else %}
-											Aucune pièce jointe
 										{% endif %}
 									</div>
 									<div class="w-2">
 										{{ form_widget(DAL.estFicheTechnique) }}
 									</div>
 									<div class="d-none">
+										{{ form_widget(DAL.fileNames) }}
+										{{ form_widget(DAL.existingFileNames) }}
+										{{ form_widget(DAL.filesToDelete) }}
 										{{ form_widget(DAL.artRefp) }}
-									</div>
-									<div class="d-none">
 										{{ form_widget(DAL.codeFams1) }}
-									</div>
-									<div class="d-none">
 										{{ form_widget(DAL.codeFams2) }}
-									</div>
-									<div class="d-none">
 										{{ form_widget(DAL.artConstp) }}
-									</div>
-									<div class="d-none">
 										{{ form_widget(DAL.artFams1) }}
-									</div>
-									<div class="d-none">
 										{{ form_widget(DAL.artFams2) }}
-									</div>
-									<div class="d-none">
 										{{ form_widget(DAL.numeroFournisseur) }}
-									</div>
-									<div class="d-none">
 										{{ form_widget(DAL.catalogue) }}
-									</div>
-									<div class="d-none">
 										{{ form_widget(DAL.deleted) }}
-									</div>
-									<div class="d-none">
 										{{ form_widget(DAL.numeroLigne) }}
 									</div>
 									<div class="w-2">

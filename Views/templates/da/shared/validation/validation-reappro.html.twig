@@ -1,133 +1,129 @@
 {% import "macroForm.html.twig" as macroForm %}
 
-<div class="card border-top-left-radius-0">
-	<div class="card-body">
-		{{ form_start(formReappro, { 'attr': { 'id': 'myForm' } }) }}
-		<div class="container-fluid">
-			<div class="row">
-				<h3 class="perso-titre">
-					Validation
-					{{ numDa }}
-				</h3>
-			</div>
+{{ form_start(formReappro, { 'attr': { 'id': 'myForm' } }) }}
+<div class="container-fluid">
+	<div class="row">
+		<h3 class="perso-titre">
+			Validation
+			{{ numDa }}
+		</h3>
+	</div>
 
+	<div class="row">
+		<div class="col-12 col-md-6">
+			{{ macroForm.sousTitre('Information sur la demande') }}
+			{{ macroForm.affichage2('Objet de la demande', demandeAppro.objetDal, 'mb-2') }}
+			{{ macroForm.affichage2('Détail de la demande', demandeAppro.detailDal, 'h-90 mb-2') }}
+			{{ macroForm.affichage2('Date fin souhaitée', demandeAppro.dateFinSouhaite|date('d/m/Y'), 'mb-2') }}
+		</div>
+		<div class="col-12 col-md-6">
+			{{ macroForm.sousTitre('Agence et service') }}
 			<div class="row">
-				<div class="col-12 col-md-6">
-					{{ macroForm.sousTitre('Information sur la demande') }}
-					{{ macroForm.affichage2('Objet de la demande', demandeAppro.objetDal, 'mb-2') }}
-					{{ macroForm.affichage2('Détail de la demande', demandeAppro.detailDal, 'h-90 mb-2') }}
-					{{ macroForm.affichage2('Date fin souhaitée', demandeAppro.dateFinSouhaite|date('d/m/Y'), 'mb-2') }}
+				<div class="col-6 col-md-6">
+					{{ macroForm.sousTitre('Emetteur') }}
+					{{ macroForm.affichage2('Agence', demandeAppro.agenceEmetteur.codeAgence ~ ' ' ~ demandeAppro.agenceEmetteur.libelleAgence, 'mb-2') }}
+					{{ macroForm.affichage2('Service', demandeAppro.serviceEmetteur.codeService ~ ' ' ~  demandeAppro.serviceEmetteur.libelleService, 'mb-2') }}
 				</div>
-				<div class="col-12 col-md-6">
-					{{ macroForm.sousTitre('Agence et service') }}
-					<div class="row">
-						<div class="col-6 col-md-6">
-							{{ macroForm.sousTitre('Emetteur') }}
-							{{ macroForm.affichage2('Agence', demandeAppro.agenceEmetteur.codeAgence ~ ' ' ~ demandeAppro.agenceEmetteur.libelleAgence, 'mb-2') }}
-							{{ macroForm.affichage2('Service', demandeAppro.serviceEmetteur.codeService ~ ' ' ~  demandeAppro.serviceEmetteur.libelleService, 'mb-2') }}
-						</div>
-						<div class="col-6 col-md-6">
-							{{ macroForm.sousTitre('Débiteur') }}
-							{{ macroForm.affichage2('Agence Débiteur', demandeAppro.agenceDebiteur.codeAgence ~ ' ' ~ demandeAppro.agenceDebiteur.libelleAgence, 'mb-2') }}
-							{{ macroForm.affichage2('Service Débiteur', demandeAppro.serviceDebiteur.codeService ~ ' ' ~  demandeAppro.serviceDebiteur.libelleService, 'mb-2') }}
-							<div class="{{ codeCentrale ? '' : 'd-none'}}">
-								{{ macroForm.affichage2('Centrale rattachée à la DA', demandeAppro.desiCentrale ?? '-', 'mb-2') }}
-							</div>
-						</div>
+				<div class="col-6 col-md-6">
+					{{ macroForm.sousTitre('Débiteur') }}
+					{{ macroForm.affichage2('Agence Débiteur', demandeAppro.agenceDebiteur.codeAgence ~ ' ' ~ demandeAppro.agenceDebiteur.libelleAgence, 'mb-2') }}
+					{{ macroForm.affichage2('Service Débiteur', demandeAppro.serviceDebiteur.codeService ~ ' ' ~  demandeAppro.serviceDebiteur.libelleService, 'mb-2') }}
+					<div class="{{ codeCentrale ? '' : 'd-none'}}">
+						{{ macroForm.affichage2('Centrale rattachée à la DA', demandeAppro.desiCentrale ?? '-', 'mb-2') }}
 					</div>
 				</div>
 			</div>
-
-			{{ macroForm.sousTitre('Liste des articles demandés') }}
-			<table class="table text-center mt-3 align-middle">
-				<thead class="table-dark align-middle">
-					<tr>
-						<th width="7%">Constructeur</th>
-						<th width="13%">Référence</th>
-						<th>Désignation</th>
-						<th width="10%" class="text-end pe-3">PU</th>
-						<th width="10%">Qté demandée</th>
-						<th width="10%">Qté validée</th>
-						<th width="10%" class="text-end pe-3">Montant</th>
-					</tr>
-				</thead>
-				<tbody>
-					{% for dal in demandeAppro.DAL %}
-						<tr>
-							<td>{{ macroForm.affichageSimple(dal.artConstp, 'text-center') }}</td>
-							<td>{{ macroForm.affichageSimple(dal.artRefp, 'text-center') }}</td>
-							<td>{{ macroForm.affichageSimple(dal.artDesi, 'text-start') }}</td>
-							<td>{{ macroForm.affichageSimple(dal.PUFormatted, 'text-end') }}</td>
-							<td>{{ macroForm.affichageSimple(dal.qteDem, 'text-center qte-dem-da-reappro', {"data-qte-dem": dal.qteDem, "data-qte-valide": dal.qteValAppro}) }}</td>
-							<td>{{ macroForm.affichageSimple(dal.qteValAppro, 'text-center') }}</td>
-							<td>{{ macroForm.affichageSimple(dal.montantFormatted, 'text-end') }}</td>
-						</tr>
-					{% endfor %}
-				</tbody>
-			</table>
-
-			{{ macroForm.sousTitre('Historique des consommations') }}
-			<table class="table text-center mt-3 align-middle">
-				<thead class="table-dark align-middle">
-					<tr>
-						<th rowspan="2">Constructeur</th>
-						<th rowspan="2">Référence</th>
-						<th rowspan="2">Désignation</th>
-						<th colspan="13">Quantités facturées sur les 12 derniers mois</th>
-					</tr>
-					<tr>
-						{% for month in monthsList %}
-							<th class="text-end">{{ month }}</th>
-						{% endfor %}
-						<th class="text-end">Total qte</th>
-					</tr>
-				</thead>
-				<tbody>
-					{% if dataHistorique.data is empty %}
-						<tr>
-							<td colspan="16">Aucun historique de consommation disponible</td>
-						</tr>
-					{% endif %}
-					{% for data in dataHistorique.data %}
-						<tr>
-							<td>{{ data.cst }}</td>
-							<td>{{ data.refp }}</td>
-							<td class="text-start">{{ data.desi }}</td>
-							{% for month in monthsList %}
-								<td class="text-end">{{ data.qte[month] }}</td>
-							{% endfor %}
-							<td class="text-end">{{ data.qteTotal }}</td>
-						</tr>
-					{% endfor %}
-				</tbody>
-				{% if dataHistorique.data is not empty %}
-					<tfoot>
-						<tr>
-							<td colspan="16"></td>
-						</tr>
-						<tr>
-							<td colspan="3" class="fw-bold">MONTANT en AR</td>
-							{% for month in monthsList %}
-								<td class="text-end fw-bold">{{ dataHistorique.montants[month] }}</td>
-							{% endfor %}
-							<td></td>
-						</tr>
-					</tfoot>
-				{% endif %}
-			</table>
-
-			<div>
-				{{ form_row(formReappro.observation)}}
-			</div>
-			<div class="d-flex justify-content-between mt-2">
-				<button type="submit" class="btn bouton mb-2 bg-danger text-white" name="refuser">
-					Refuser la demande
-				</button>
-				<button type="submit" class="btn bouton mb-2 bg-success text-white" name="valider">
-					Valider la demande
-				</button>
-			</div>
 		</div>
-		{{ form_end(formReappro) }}
+	</div>
+
+	{{ macroForm.sousTitre('Liste des articles demandés') }}
+	<table class="table text-center mt-3 align-middle">
+		<thead class="table-dark align-middle">
+			<tr>
+				<th width="7%">Constructeur</th>
+				<th width="13%">Référence</th>
+				<th>Désignation</th>
+				<th width="10%" class="text-end pe-3">PU</th>
+				<th width="10%">Qté demandée</th>
+				<th width="10%">Qté validée</th>
+				<th width="10%" class="text-end pe-3">Montant</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for dal in demandeAppro.DAL %}
+				<tr>
+					<td>{{ macroForm.affichageSimple(dal.artConstp, 'text-center') }}</td>
+					<td>{{ macroForm.affichageSimple(dal.artRefp, 'text-center') }}</td>
+					<td>{{ macroForm.affichageSimple(dal.artDesi, 'text-start') }}</td>
+					<td>{{ macroForm.affichageSimple(dal.PUFormatted, 'text-end') }}</td>
+					<td>{{ macroForm.affichageSimple(dal.qteDem, 'text-center qte-dem-da-reappro', {"data-qte-dem": dal.qteDem, "data-qte-valide": dal.qteValAppro}) }}</td>
+					<td>{{ macroForm.affichageSimple(dal.qteValAppro, 'text-center') }}</td>
+					<td>{{ macroForm.affichageSimple(dal.montantFormatted, 'text-end') }}</td>
+				</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+
+	{{ macroForm.sousTitre('Historique des consommations') }}
+	<table class="table text-center mt-3 align-middle">
+		<thead class="table-dark align-middle">
+			<tr>
+				<th rowspan="2">Constructeur</th>
+				<th rowspan="2">Référence</th>
+				<th rowspan="2">Désignation</th>
+				<th colspan="13">Quantités facturées sur les 12 derniers mois</th>
+			</tr>
+			<tr>
+				{% for month in monthsList %}
+					<th class="text-end">{{ month }}</th>
+				{% endfor %}
+				<th class="text-end">Total qte</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% if dataHistorique.data is empty %}
+				<tr>
+					<td colspan="16">Aucun historique de consommation disponible</td>
+				</tr>
+			{% endif %}
+			{% for data in dataHistorique.data %}
+				<tr>
+					<td>{{ data.cst }}</td>
+					<td>{{ data.refp }}</td>
+					<td class="text-start">{{ data.desi }}</td>
+					{% for month in monthsList %}
+						<td class="text-end">{{ data.qte[month] }}</td>
+					{% endfor %}
+					<td class="text-end">{{ data.qteTotal }}</td>
+				</tr>
+			{% endfor %}
+		</tbody>
+		{% if dataHistorique.data is not empty %}
+			<tfoot>
+				<tr>
+					<td colspan="16"></td>
+				</tr>
+				<tr>
+					<td colspan="3" class="fw-bold">MONTANT en AR</td>
+					{% for month in monthsList %}
+						<td class="text-end fw-bold">{{ dataHistorique.montants[month] }}</td>
+					{% endfor %}
+					<td></td>
+				</tr>
+			</tfoot>
+		{% endif %}
+	</table>
+
+	<div>
+		{{ form_row(formReappro.observation)}}
+	</div>
+	<div class="d-flex justify-content-between mt-2">
+		<button type="submit" class="btn bouton mb-2 bg-danger text-white" name="refuser">
+			Refuser la demande
+		</button>
+		<button type="submit" class="btn bouton mb-2 bg-success text-white" name="valider">
+			Valider la demande
+		</button>
 	</div>
 </div>
+{{ form_end(formReappro) }}

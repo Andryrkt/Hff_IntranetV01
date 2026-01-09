@@ -76,8 +76,8 @@ class PdfTableMatriceGenerator
                 $ref = $dal->getDemandeApproLR()->first()->getArtRefp();
             }
             $html .= '<tr>';
-            $html .= '<td>' . $cst . '</td>';
-            $html .= '<td>' . $ref . '</td>';
+            $html .= "<td>$cst</td>";
+            $html .= "<td>$ref</td>";
             $html .= '<td>' . htmlspecialchars($desi) . '</td>';
             $html .= '<td align="right">' . $qte . '</td>';
 

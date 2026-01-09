@@ -16,6 +16,7 @@ use App\Controller\Traits\da\DaAfficherTrait;
 use App\Form\da\DemandeApproLRCollectionType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Controller\Traits\da\detail\DaDetailDirectTrait;
 use App\Service\da\FileUploaderForDAService;
 use App\Controller\Traits\da\validation\DaValidationDirectTrait;
 use App\Controller\Traits\da\proposition\DaPropositionDirectTrait;
@@ -28,6 +29,7 @@ class DaPropositionArticleDirectController extends Controller
     use DaAfficherTrait;
     use DaValidationDirectTrait;
     use DaPropositionDirectTrait;
+    use DaDetailDirectTrait;
     use AutorisationTrait;
 
     private const EDIT = 0;
@@ -38,6 +40,7 @@ class DaPropositionArticleDirectController extends Controller
 
         $this->initDaPropositionDirectTrait();
         $this->initDaValidationDirectTrait();
+        $this->initDaDetailDirectTrait();
     }
 
     /**
@@ -74,6 +77,14 @@ class DaPropositionArticleDirectController extends Controller
 
         $observations = $this->daObservationRepository->findBy(['numDa' => $numDa]);
 
+        $fichiers = $this->getAllDAFile([
+            'baiPath'   => $this->getBaIntranetPath($da),
+            'badPath'   => $this->getBaDocuWarePath($da),
+            'bcPath'    => $this->getBcPath($da),
+            'facblPath' => $this->getFacBlPath($da),
+            'devPjPath' => $this->getDevisPjPath($da),
+        ]);
+
         return $this->render("da/proposition.html.twig", [
             'demandeAppro'            => $da,
             'id'                      => $id,
@@ -81,9 +92,10 @@ class DaPropositionArticleDirectController extends Controller
             'formValidation'          => $formValidation->createView(),
             'formObservation'         => $formObservation->createView(),
             'observations'            => $observations,
+            'fichiers'                => $fichiers,
             'numDa'                   => $numDa,
             'connectedUser'           => $this->getUser(),
-            'statutAutoriserModifAte' => $da->getStatutDal() === DemandeAppro::STATUT_AUTORISER_MODIF_ATE,
+            'statutAutoriserModifAte' => $da->getStatutDal() === DemandeAppro::STATUT_AUTORISER_EMETTEUR,
             'estCreateurDaDirecte'    => $this->estCreateurDeDADirecte(),
             'estAppro'                => $this->estUserDansServiceAppro(),
             'nePeutPasModifier'       => $this->nePeutPasModifier($da),
@@ -140,8 +152,8 @@ class DaPropositionArticleDirectController extends Controller
         $this->insertionObservation($daObservation->getObservation(), $demandeAppro);
 
         if ($this->estUserDansServiceAppro() && $daObservation->getStatutChange()) {
-            $this->modificationStatutDal($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_AUTORISER_MODIF_ATE);
-            $this->modificationStatutDa($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_AUTORISER_MODIF_ATE);
+            $this->modificationStatutDal($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_AUTORISER_EMETTEUR);
+            $this->modificationStatutDa($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_AUTORISER_EMETTEUR);
 
             $this->ajouterDansTableAffichageParNumDa($demandeAppro->getNumeroDemandeAppro()); // ajout dans la table DaAfficher si le statut a changé
         }

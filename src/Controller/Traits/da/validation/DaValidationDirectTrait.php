@@ -98,7 +98,7 @@ trait DaValidationDirectTrait
      */
     private function fusionAndCopyToDW(string $numDa)
     {
-        $allDevisPj = $this->getDevisPjPath($numDa);
+        $allDevisPj = $this->getDevisPjPathPDFDW($numDa);
         $bav = $this->cheminDeBase . "$numDa/$numDa.pdf";
         $fichiersConvertis = $this->ConvertirLesPdf($allDevisPj);
         array_unshift($fichiersConvertis, $bav);
@@ -110,7 +110,7 @@ trait DaValidationDirectTrait
     /** 
      * Obtenir l'url des devis et pièces jointes
      */
-    private function getDevisPjPath(string $numDa)
+    private function getDevisPjPathPDFDW(string $numDa)
     {
         $pjDals = $this->demandeApproLRepository->findAttachmentsByNumeroDA($numDa);
         $pjDalrs = $this->demandeApproLRRepository->findAttachmentsByNumeroDA($numDa);

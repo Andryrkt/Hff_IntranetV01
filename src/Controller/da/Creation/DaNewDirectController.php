@@ -45,13 +45,13 @@ class DaNewDirectController extends Controller
 
         $demandeAppro = $id === 0 ? $this->initialisationDemandeApproDirect() : $this->demandeApproRepository->findAvecDernieresDALetLR($id);
 
-        $form = $this->getFormFactory()->createBuilder(DemandeApproDirectFormType::class, $demandeAppro, [
-            'em' => $this->getEntityManager()
-        ])->getForm();
+        $form = $this->getFormFactory()->createBuilder(DemandeApproDirectFormType::class, $demandeAppro)->getForm();
         $this->traitementFormDirect($form, $request, $demandeAppro);
 
         return $this->render('da/new-da-direct.html.twig', [
-            'form' => $form->createView(),
+            'form'        => $form->createView(),
+            'codeAgence'  => $demandeAppro->getAgenceDebiteur()->getCodeAgence(),
+            'codeService' => $demandeAppro->getServiceDebiteur()->getCodeService(),
         ]);
     }
 
@@ -91,8 +91,26 @@ class DaNewDirectController extends Controller
                 if ($demandeApproL->getDeleted() == 1) {
                     $this->getEntityManager()->remove($demandeApproL);
                 } else {
-                    $files = $subFormDAL->get('fileNames')->getData(); // Récupération des fichiers
-                    $fileNames = $this->daFileUploader->uploadMultipleDaFiles($files, $numDa, FileUploaderForDAService::FILE_TYPE["DEVIS"]);
+                    // Récupérer les données
+                    $filesToDelete = $subFormDAL->get('filesToDelete')->getData();
+                    $existingFileNames = $subFormDAL->get('existingFileNames')->getData();
+                    $newFiles = $subFormDAL->get('fileNames')->getData();
+
+                    // Supprimer les fichiers
+                    if ($filesToDelete) {
+                        $this->daFileUploader->deleteFiles(
+                            explode(',', $filesToDelete),
+                            $numDa
+                        );
+                    }
+
+                    // Gérer l'upload et obtenir la liste finale
+                    $allFileNames = $this->daFileUploader->handleFileUpload(
+                        $newFiles,
+                        $existingFileNames,
+                        $numDa,
+                        FileUploaderForDAService::FILE_TYPE["DEVIS"]
+                    );
 
                     $demandeApproL
                         ->setNumeroDemandeAppro($numDa)
@@ -100,7 +118,7 @@ class DaNewDirectController extends Controller
                         ->setNumeroFournisseur($demandeApproL->getNumeroFournisseur() ?? '-')
                         ->setNomFournisseur($demandeApproL->getNomFournisseur() ?? '-')
                         ->setJoursDispo($this->getJoursRestants($demandeApproL))
-                        ->setFileNames($fileNames)
+                        ->setFileNames($allFileNames)
                     ;
 
                     $this->getEntityManager()->persist($demandeApproL);
