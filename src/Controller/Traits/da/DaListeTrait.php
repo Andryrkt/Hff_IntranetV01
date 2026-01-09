@@ -316,7 +316,7 @@ trait DaListeTrait
             'creation' => [
                 DemandeAppro::TYPE_DA_AVEC_DIT  => 'da_new_avec_dit',
                 DemandeAppro::TYPE_DA_DIRECT    => 'da_new_direct',
-                DemandeAppro::TYPE_DA_REAPPRO_MENSUEL   => 'da_new_reappro',
+                DemandeAppro::TYPE_DA_REAPPRO_MENSUEL   => 'da_new_reappro_mensuel',
             ],
             'detail' => [
                 DemandeAppro::TYPE_DA_AVEC_DIT  => 'da_detail_avec_dit',

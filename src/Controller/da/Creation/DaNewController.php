@@ -22,7 +22,7 @@ class DaNewController extends Controller
             'urls'                   => [
                 'avecDit' => $this->getUrlGenerator()->generate('da_list_dit'),
                 'direct'  => $this->getUrlGenerator()->generate('da_new_direct', ['id' => 0]),
-                'reappro' => $this->getUrlGenerator()->generate('da_new_reappro', ['id' => 0]),
+                'reappro' => $this->getUrlGenerator()->generate('da_new_reappro_mensuel', ['id' => 0]),
             ],
             'estAdmin'               => $this->estAdmin(),
         ]);

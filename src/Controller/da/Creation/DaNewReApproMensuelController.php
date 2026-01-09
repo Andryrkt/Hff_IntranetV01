@@ -15,7 +15,7 @@ use App\Form\da\DemandeApproReapproFormType;
 /**
  * @Route("/demande-appro")
  */
-class DaNewReApproController extends Controller
+class DaNewReApproMensuelController extends Controller
 {
     use DaNewReapproTrait;
     use AutorisationTrait;
@@ -31,7 +31,7 @@ class DaNewReApproController extends Controller
     }
 
     /**
-     * @Route("/new-da-reappro/{id<\d+>}", name="da_new_reappro")
+     * @Route("/new-da-reappro-mensuel/{id<\d+>}", name="da_new_reappro_mensuel")
      */
     public function newDAReappro(int $id, Request $request)
     {
