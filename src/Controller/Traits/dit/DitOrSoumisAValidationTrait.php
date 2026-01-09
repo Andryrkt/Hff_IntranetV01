@@ -358,6 +358,7 @@ trait DitOrSoumisAValidationTrait
                 ->setStatut('Soumis à validation')
                 ->setNumeroDit($numDit)
                 ->setPieceFaibleActiviteAchat(empty($pieceFaibleAchat) ? false : true)
+                ->setSociete($this->getUser()->getSociettes()) //TODO: bien specifier la societe
             ;
 
             $orSoumisValidataion[] = $ditInsertionOr; // Ajouter l'objet dans le tableau

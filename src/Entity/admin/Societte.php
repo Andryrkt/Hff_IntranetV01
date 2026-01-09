@@ -2,12 +2,12 @@
 
 namespace App\Entity\admin;
 
-use App\Entity\badm\Badm;
 use App\Entity\TypeReparation;
 use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DemandeIntervention;
+use App\Entity\dit\DitOrsSoumisAValidation;
 use Doctrine\Common\Collections\Collection;
 use App\Repository\admin\SocietteRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -40,9 +40,13 @@ class Societte
 
 
     /**
-     * @ORM\OneToMany(targetEntity=Badm::class, mappedBy="societe")
+     * @ORM\OneToMany(targetEntity=DemandeIntervention::class, mappedBy="societe")
      */
     private $demandeInterventions;
+    /**
+     * @ORM\OneToMany(targetEntity=DitOrsSoumisAValidation::class, mappedBy="societe")
+     */
+    private $ditOrsSoumissionsAValidations;
 
     /**
      * @ORM\OneToMany(targetEntity=User::class, mappedBy="societtes", orphanRemoval=true)
@@ -52,6 +56,7 @@ class Societte
     public function __construct()
     {
         $this->demandeInterventions = new ArrayCollection();
+        $this->ditOrsSoumissionsAValidations = new ArrayCollection();
         $this->users = new ArrayCollection();
     }
 
@@ -113,12 +118,43 @@ class Societte
         return $this;
     }
 
-    public function setBadms($demandeIntervention): self
+    public function setDemandeIntervention($demandeIntervention): self
     {
         $this->demandeInterventions = $demandeIntervention;
         return $this;
     }
 
+
+    public function getDitOrsSoumissionsAValidations()
+    {
+        return $this->ditOrsSoumissionsAValidations;
+    }
+
+    public function addDitOrsSoumisAValidation(DitOrsSoumisAValidation $ditOrsSoumisAValidation): self
+    {
+        if (!$this->ditOrsSoumissionsAValidations->contains($ditOrsSoumisAValidation)) {
+            $this->ditOrsSoumissionsAValidations[] = $ditOrsSoumisAValidation;
+            $ditOrsSoumisAValidation->setSociete($this);
+        }
+        return $this;
+    }
+
+    public function removeDitOrsSoumissionsAValidations(DitOrsSoumisAValidation $ditOrsSoumisAValidation): self
+    {
+        if ($this->ditOrsSoumissionsAValidations->contains($ditOrsSoumisAValidation)) {
+            $this->ditOrsSoumissionsAValidations->removeElement($ditOrsSoumisAValidation);
+            if ($ditOrsSoumisAValidation->getSociete() === $this) {
+                $ditOrsSoumisAValidation->setSociete(null);
+            }
+        }
+        return $this;
+    }
+
+    public function setDitOrsSoumissionsAValidations($ditOrsSoumissionsAValidations): self
+    {
+        $this->ditOrsSoumissionsAValidations = $ditOrsSoumissionsAValidations;
+        return $this;
+    }
 
     /**
      * @return Collection|User[]

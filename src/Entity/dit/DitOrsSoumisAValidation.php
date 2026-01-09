@@ -136,6 +136,12 @@ class DitOrsSoumisAValidation
      * @ORM\Column(type="boolean", name="piece_faible_activite_achat")
      */
     private $pieceFaibleActiviteAchat;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Societte::class, inversedBy="ditOrsSoumissionsAValidations")
+     * @ORM\JoinColumn(name="societe", referencedColumnName="id")
+     */
+    private  $societe = null; // relation avec la table societe
     //==========================================================================================
 
 
@@ -603,6 +609,24 @@ class DitOrsSoumisAValidation
     public function setPieceFaibleActiviteAchat($pieceFaibleActiviteAchat): self
     {
         $this->pieceFaibleActiviteAchat = $pieceFaibleActiviteAchat;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of societe
+     */
+    public function getSociete()
+    {
+        return $this->societe;
+    }
+
+    /**
+     * Set the value of societe
+     */
+    public function setSociete($societe): self
+    {
+        $this->societe = $societe;
 
         return $this;
     }
