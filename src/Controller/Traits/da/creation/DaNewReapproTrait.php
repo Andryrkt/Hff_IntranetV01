@@ -46,7 +46,6 @@ trait DaNewReapproTrait
 
         $codeAgence       = $agence->getCodeAgence();
         $codeService      = $service->getCodeService();
-        $numDa            = $this->autoDecrement('DAP');
 
         $demandeAppro
             ->setDaTypeId(DemandeAppro::TYPE_DA_REAPPRO)
@@ -57,7 +56,6 @@ trait DaNewReapproTrait
             ->setAgenceServiceDebiteur("$codeAgence-$codeService")
             ->setAgenceServiceEmetteur("$codeAgence-$codeService")
             ->setUser($this->getUser())
-            ->setNumeroDemandeAppro($numDa)
             ->setDemandeur($this->getUser()->getNomUtilisateur())
             ->setDateFinSouhaite($this->ajouterJoursOuvrables(5)) // Définit la date de fin souhaitée automatiquement à 3 jours après la date actuelle
         ;
@@ -71,7 +69,6 @@ trait DaNewReapproTrait
         $newDals      = [];
         $lineNumber   = 0;
 
-        $numDa        = $demandeAppro->getNumeroDemandeAppro();
         $agence       = $demandeAppro->getAgenceEmetteur();
         $service      = $demandeAppro->getServiceEmetteur();
 
@@ -97,7 +94,6 @@ trait DaNewReapproTrait
             }
 
             $newDals[] = (new DemandeApproL())
-                ->setNumeroDemandeAppro($numDa)
                 ->setNumeroFournisseur('-')
                 ->setNomFournisseur('-')
                 ->setCommentaire('-')

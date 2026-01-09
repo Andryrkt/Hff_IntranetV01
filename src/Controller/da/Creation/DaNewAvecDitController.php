@@ -93,7 +93,8 @@ class DaNewAvecDitController extends Controller
             /** @var DemandeAppro $demandeAppro */
             $demandeAppro = $form->getData();
 
-            $numDa = $demandeAppro->getNumeroDemandeAppro();
+            $numDa = $demandeAppro->getNumeroDemandeAppro() ?? $this->autoDecrement('DAP');
+            $demandeAppro->setNumeroDemandeAppro($numDa);
             $formDAL = $form->get('DAL');
 
             // Récupérer le nom du bouton cliqué
