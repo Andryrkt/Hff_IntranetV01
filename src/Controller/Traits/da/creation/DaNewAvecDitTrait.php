@@ -61,7 +61,6 @@ trait DaNewAvecDitTrait
             ->setAgenceServiceDebiteur($dit->getAgenceDebiteurId()->getCodeAgence() . '-' . $dit->getServiceDebiteurId()->getCodeService())
             ->setAgenceServiceEmetteur($dit->getAgenceEmetteurId()->getCodeAgence() . '-' . $dit->getServiceEmetteurId()->getCodeService())
             ->setUser($this->getUser())
-            ->setNumeroDemandeAppro($this->autoDecrement('DAP'))
             ->setDemandeur($this->getUser()->getNomUtilisateur())
         ;
 
