@@ -193,7 +193,7 @@ trait DaListeTrait
         $daType = [
             DemandeAppro::TYPE_DA_AVEC_DIT => $this->getIconDaAvecDIT(),
             DemandeAppro::TYPE_DA_DIRECT   => $this->getIconDaDirect(),
-            DemandeAppro::TYPE_DA_REAPPRO  => $this->getIconDaReapproMensuel(),
+            DemandeAppro::TYPE_DA_REAPPRO_MENSUEL  => $this->getIconDaReapproMensuel(),
         ];
 
         $safeIconSuccess = new Markup('<i class="fas fa-check text-success"></i>', 'UTF-8');
@@ -212,7 +212,7 @@ trait DaListeTrait
 
         foreach ($data as $item) {
             // Variables à employer
-            $daReappro = $item->getDaTypeId() == DemandeAppro::TYPE_DA_REAPPRO;
+            $daReappro = $item->getDaTypeId() == DemandeAppro::TYPE_DA_REAPPRO_MENSUEL;
             $daDirect = $item->getDaTypeId() == DemandeAppro::TYPE_DA_DIRECT;
             $daViaOR = $item->getDaTypeId() == DemandeAppro::TYPE_DA_AVEC_DIT;
             $envoyeFrn = $item->getStatutCde() === DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR;
@@ -316,17 +316,17 @@ trait DaListeTrait
             'creation' => [
                 DemandeAppro::TYPE_DA_AVEC_DIT  => 'da_new_avec_dit',
                 DemandeAppro::TYPE_DA_DIRECT    => 'da_new_direct',
-                DemandeAppro::TYPE_DA_REAPPRO   => 'da_new_reappro',
+                DemandeAppro::TYPE_DA_REAPPRO_MENSUEL   => 'da_new_reappro',
             ],
             'detail' => [
                 DemandeAppro::TYPE_DA_AVEC_DIT  => 'da_detail_avec_dit',
                 DemandeAppro::TYPE_DA_DIRECT    => 'da_detail_direct',
-                DemandeAppro::TYPE_DA_REAPPRO   => 'da_detail_reappro',
+                DemandeAppro::TYPE_DA_REAPPRO_MENSUEL   => 'da_detail_reappro',
             ],
             'proposition' => [
                 DemandeAppro::TYPE_DA_AVEC_DIT  => 'da_proposition_ref_avec_dit',
                 DemandeAppro::TYPE_DA_DIRECT    => 'da_proposition_direct',
-                DemandeAppro::TYPE_DA_REAPPRO   => 'da_validate_reappro',
+                DemandeAppro::TYPE_DA_REAPPRO_MENSUEL   => 'da_validate_reappro',
             ],
             'delete' => [
                 DemandeAppro::TYPE_DA_AVEC_DIT  => 'da_delete_line_avec_dit',
@@ -356,7 +356,7 @@ trait DaListeTrait
             : $this->getUrlGenerator()->generate($routeNames['proposition'][$daTypeId], $parametres['daId']);
 
         // URL suppression de ligne
-        $urls['delete'] = $daTypeId != DemandeAppro::TYPE_DA_REAPPRO ? $this->getUrlGenerator()->generate($routeNames['delete'][$daTypeId], $parametres['numDa-numLigne']) : '';
+        $urls['delete'] = $daTypeId != DemandeAppro::TYPE_DA_REAPPRO_MENSUEL ? $this->getUrlGenerator()->generate($routeNames['delete'][$daTypeId], $parametres['numDa-numLigne']) : '';
 
         // URL demande de devis
         $urls['demandeDevis'] = $this->getUrlGenerator()->generate('da_demande_devis_en_cours', $parametres['daId']);

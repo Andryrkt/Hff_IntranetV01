@@ -121,7 +121,7 @@ trait DaDetailTrait
 
         if ($daTypeId === DemandeAppro::TYPE_DA_DIRECT) {
             $allDocs = $this->dwDaDirectRepository->getPathByNumDa($numDa);
-        } elseif ($daTypeId === DemandeAppro::TYPE_DA_REAPPRO) {
+        } elseif ($daTypeId === DemandeAppro::TYPE_DA_REAPPRO_MENSUEL) {
             $allDocs = $this->dwDaReapproRepository->getPathByNumDa($numDa);
         }
 

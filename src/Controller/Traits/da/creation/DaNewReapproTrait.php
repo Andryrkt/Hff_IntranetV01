@@ -49,7 +49,7 @@ trait DaNewReapproTrait
         $numDa            = $this->autoDecrement('DAP');
 
         $demandeAppro
-            ->setDaTypeId(DemandeAppro::TYPE_DA_REAPPRO)
+            ->setDaTypeId(DemandeAppro::TYPE_DA_REAPPRO_MENSUEL)
             ->setAgenceDebiteur($agence)
             ->setServiceDebiteur($service)
             ->setAgenceEmetteur($agence)

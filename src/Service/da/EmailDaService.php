@@ -43,7 +43,7 @@ class EmailDaService
         $template = [
             DemandeAppro::TYPE_DA_AVEC_DIT  => 'demande-appro/detail-avec-dit',
             DemandeAppro::TYPE_DA_DIRECT    => 'demande-appro/detail-direct',
-            DemandeAppro::TYPE_DA_REAPPRO   => 'demande-appro/detail-reappro',
+            DemandeAppro::TYPE_DA_REAPPRO_MENSUEL   => 'demande-appro/detail-reappro',
         ];
         return $this->urlGenerique("{$_ENV['BASE_PATH_COURT']}/{$template[$daTypeId]}/$id");
     }
@@ -56,7 +56,7 @@ class EmailDaService
         $daLabels = [
             DemandeAppro::TYPE_DA_AVEC_DIT  => "d'approvisionnement",
             DemandeAppro::TYPE_DA_DIRECT    => "d'achat",
-            DemandeAppro::TYPE_DA_REAPPRO   => "de réappro mensuel",
+            DemandeAppro::TYPE_DA_REAPPRO_MENSUEL   => "de réappro mensuel",
         ];
         return $daLabels[$daTypeId];
     }
@@ -220,7 +220,7 @@ class EmailDaService
                 'subject'       => "{$demandeAppro->getNumeroDemandeAppro()} - Demande de réappro $valide par le service " . strtoupper($service),
                 'valide'        => $valide,
                 'validation'    => $validation,
-                'preparedDatas' => $this->prepareDataForMailValidationDaReappro(DemandeAppro::TYPE_DA_REAPPRO, $demandeAppro->getDAL()),
+                'preparedDatas' => $this->prepareDataForMailValidationDaReappro(DemandeAppro::TYPE_DA_REAPPRO_MENSUEL, $demandeAppro->getDAL()),
                 'observationDa' => $observation,
             ] + $this->getImportantVariables($demandeAppro, $connectedUser, $daLabel, $service), // opérateur `+` pour ne pas écraser les clés existantes
         ]);

@@ -25,7 +25,8 @@ class DemandeAppro
 
     public const TYPE_DA_AVEC_DIT            = 0; // id du type de DA avec DIT 
     public const TYPE_DA_DIRECT              = 1; // id du type de DA direct
-    public const TYPE_DA_REAPPRO             = 2; // id du type de DA réappro
+    public const TYPE_DA_REAPPRO_MENSUEL     = 2; // id du type de DA réappro mensuel
+    public const TYPE_DA_REAPPRO_PONCTUEL    = 3; // id du type de DA réappro ponctuel
 
     public const ID_APPRO                    = 16;
     public const ID_ATELIER                  = 3;
