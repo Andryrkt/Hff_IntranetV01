@@ -18,7 +18,7 @@ use App\Controller\Traits\da\validation\DaValidationReapproTrait;
 /**
  * @Route("/demande-appro")
  */
-class DaValidationReapproMensuelController extends Controller
+class DaValidationReapproPonctuelController extends Controller
 {
     use DaAfficherTrait;
     use AutorisationTrait;
@@ -34,9 +34,9 @@ class DaValidationReapproMensuelController extends Controller
     }
 
     /**
-     * @Route("/validation-reappro-mensuel/{id}", name="da_validate_reappro_mensuel")
+     * @Route("/validation-reappro-ponctuel/{id}", name="da_validate_reappro_ponctuel")
      */
-    public function validationDaReapproMensuel($id, Request $request)
+    public function validationDaReapproPonctuel($id, Request $request)
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
