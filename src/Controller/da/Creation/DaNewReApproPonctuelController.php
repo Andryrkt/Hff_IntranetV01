@@ -69,7 +69,8 @@ class DaNewReApproPonctuelController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var DemandeAppro $demandeAppro */
             $demandeAppro = $form->getData();
-            $numDa = $demandeAppro->getNumeroDemandeAppro() ?? $this->autoDecrement('DAP');
+            $firstCreation = $demandeAppro->getNumeroDemandeAppro() === null;
+            $numDa = $firstCreation ? $this->autoDecrement('DAP') : $demandeAppro->getNumeroDemandeAppro();
 
             $this->gererAgenceServiceDebiteur($demandeAppro);
 
@@ -98,9 +99,12 @@ class DaNewReApproPonctuelController extends Controller
                 }
             }
 
-            /** Modifie la colonne dernière_id dans la table applications */
-            $applicationService = new ApplicationService($this->getEntityManager());
-            $applicationService->mettreAJourDerniereIdApplication('DAP', $numDa);
+            // si c'est la première création, on met à jour la colonne dernière_id dans la table applications
+            if ($firstCreation) {
+                /** Modifie la colonne dernière_id dans la table applications */
+                $applicationService = new ApplicationService($this->getEntityManager());
+                $applicationService->mettreAJourDerniereIdApplication('DAP', $numDa);
+            }
 
             /** Ajout de demande appro dans la base de donnée (table: Demande_Appro) */
             $this->getEntityManager()->persist($demandeAppro);
