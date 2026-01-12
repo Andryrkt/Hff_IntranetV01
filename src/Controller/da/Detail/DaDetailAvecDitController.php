@@ -118,7 +118,7 @@ class DaDetailAvecDitController extends Controller
 			/** @var DaObservation $daObservation daObservation correspondant au donnée du form */
 			$daObservation = $form->getData();
 
-			$this->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $daObservation->getObservation());
+			$this->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $daObservation->getObservation(), $daObservation->getFileNames());
 
 			if ($this->estUserDansServiceAppro() && $daObservation->getStatutChange()) {
 				$this->modificationStatutDal($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_AUTORISER_EMETTEUR);

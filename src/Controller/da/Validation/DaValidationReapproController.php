@@ -129,7 +129,7 @@ class DaValidationReapproController extends Controller
 
     private function traitementEnvoiObservation(DaObservation $daObservation, DemandeAppro $demandeAppro)
     {
-        $this->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $daObservation->getObservation());
+        $this->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $daObservation->getObservation(), $daObservation->getFileNames());
 
         $this->emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->getUser(), $this->estUserDansServiceAppro());
 

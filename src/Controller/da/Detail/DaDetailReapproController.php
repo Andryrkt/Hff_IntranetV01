@@ -79,7 +79,7 @@ class DaDetailReapproController extends Controller
 			/** @var DaObservation $daObservation daObservation correspondant au donnée du form */
 			$daObservation = $form->getData();
 
-			$this->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $daObservation->getObservation());
+			$this->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $daObservation->getObservation(), $daObservation->getFileNames());
 
 			$notification = [
 				'type'    => 'success',

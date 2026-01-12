@@ -152,7 +152,7 @@ class DaPropositionRefAvecDitController extends Controller
 
     private function traitementEnvoiObservation(DaObservation $daObservation, DemandeAppro $demandeAppro)
     {
-        $this->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $daObservation->getObservation());
+        $this->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $daObservation->getObservation(), $daObservation->getFileNames());
 
         if ($this->estUserDansServiceAppro() && $daObservation->getStatutChange()) {
             $this->modificationStatutDal($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_AUTORISER_EMETTEUR);
