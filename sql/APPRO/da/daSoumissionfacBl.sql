@@ -21,3 +21,13 @@ alter table da_soumission_facture_bl add
     reference_bl_facture varchar(255) null,
     date_bl_facture DATETIME2(0) null,
     date_cloture_liv DATETIME2(0) null;
+
+
+ALTER TABLE da_soumission_facture_bl ADD
+    numero_bap VARCHAR(11) NULL,
+    statut_bap VARCHAR(100) NULL,
+    date_soumission_compta DATETIME2(0) NULL,
+    montant_bl_facture DECIMAL(18,2) NULL,
+    montant_reception_ips DECIMAL(18,2) NULL,
+    numero_demande_paiement VARCHAR(11) NULL
+    ;

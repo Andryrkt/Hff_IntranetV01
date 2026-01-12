@@ -82,6 +82,36 @@ class DaSoumissionFacBl
      */
     private $numeroVersion;
 
+    /**
+     * @ORM\Column(type="string", length=11, name="numero_bap")
+     */
+    private $numeroBap;
+
+    /**
+     * @ORM\Column(type="string", length=100, name="statut_bap")
+     */
+    private $statutBap;
+
+    /**
+     * @ORM\Column(type="date", name="date_soumission_compta")
+     */
+    private $dateSoumissionCompta;
+
+    /**
+     * @ORM\Column(type="decimal", precision=18, scale=2, name="montant_bl_facture")
+     */
+    private $montantBlFacture;
+
+    /**
+     * @ORM\Column(type="decimal", precision=18, scale=2, name="montant_reception_ips")
+     */
+    private $montantReceptionIps;
+
+    /**
+     * @ORM\Column(type="string", length=11, name="numero_demande_paiement")
+     */
+    private $numeroDemandePaiement;
+
     private $pieceJoint2;
 
     /**===========================================================================
@@ -325,6 +355,115 @@ class DaSoumissionFacBl
     public function setNumeroVersion($numeroVersion): self
     {
         $this->numeroVersion = $numeroVersion;
+
+        return $this;
+    }
+
+
+    /**
+     * Get the value of numeroBap
+     */
+    public function getNumeroBap()
+    {
+        return $this->numeroBap;
+    }
+
+    /**
+     * Set the value of numeroBap
+     */
+    public function setNumeroBap($numeroBap): self
+    {
+        $this->numeroBap = $numeroBap;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of statutBap
+     */
+    public function getStatutBap()
+    {
+        return $this->statutBap;
+    }
+
+    /**
+     * Set the value of statutBap
+     */
+    public function setStatutBap($statutBap): self
+    {
+        $this->statutBap = $statutBap;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateSoumissionCompta
+     */
+    public function getDateSoumissionCompta()
+    {
+        return $this->dateSoumissionCompta;
+    }
+
+    /**
+     * Set the value of dateSoumissionCompta
+     */
+    public function setDateSoumissionCompta($dateSoumissionCompta): self
+    {
+        $this->dateSoumissionCompta = $dateSoumissionCompta;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of montantBlFacture
+     */
+    public function getMontantBlFacture()
+    {
+        return $this->montantBlFacture;
+    }
+
+    /**
+     * Set the value of montantBlFacture
+     */
+    public function setMontantBlFacture($montantBlFacture): self
+    {
+        $this->montantBlFacture = $montantBlFacture;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of montantReceptionIps
+     */
+    public function getMontantReceptionIps()
+    {
+        return $this->montantReceptionIps;
+    }
+
+    /**
+     * Set the value of montantReceptionIps
+     */
+    public function setMontantReceptionIps($montantReceptionIps): self
+    {
+        $this->montantReceptionIps = $montantReceptionIps;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroDemandePaiement
+     */
+    public function getNumeroDemandePaiement()
+    {
+        return $this->numeroDemandePaiement;
+    }
+
+    /**
+     * Set the value of numeroDemandePaiement
+     */
+    public function setNumeroDemandePaiement($numeroDemandePaiement): self
+    {
+        $this->numeroDemandePaiement = $numeroDemandePaiement;
 
         return $this;
     }
