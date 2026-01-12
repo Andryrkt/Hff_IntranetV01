@@ -152,7 +152,7 @@ class DaPropositionRefAvecDitController extends Controller
 
     private function traitementEnvoiObservation(DaObservation $daObservation, DemandeAppro $demandeAppro)
     {
-        $this->insertionObservation($daObservation->getObservation(), $demandeAppro);
+        $this->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $daObservation->getObservation());
 
         if ($this->estUserDansServiceAppro() && $daObservation->getStatutChange()) {
             $this->modificationStatutDal($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_AUTORISER_EMETTEUR);
@@ -178,7 +178,7 @@ class DaPropositionRefAvecDitController extends Controller
     private function traitementPourBtnEnvoyerObservation($observation, DemandeAppro $demandeAppro, $statutChange)
     {
         if ($observation !== null) {
-            $this->insertionObservation($observation, $demandeAppro);
+            $this->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $observation);
             if ($statutChange) {
                 $this->modificationStatutDal($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_SOUMIS_APPRO);
                 $this->modificationStatutDa($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_SOUMIS_APPRO);
@@ -379,7 +379,7 @@ class DaPropositionRefAvecDitController extends Controller
         }
 
         if ($observation !== null) {
-            $this->insertionObservation($observation, $demandeAppro);
+            $this->insertionObservation($numDa, $observation);
         }
 
         $this->modificationStatutDal($numDa, $statut);

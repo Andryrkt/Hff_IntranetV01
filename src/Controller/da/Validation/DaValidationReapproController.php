@@ -88,7 +88,7 @@ class DaValidationReapproController extends Controller
             // ✅ Récupérer les valeurs des champs caché
             $observation = $formReappro->getData()->getObservation();
 
-            if ($observation) $this->insertionObservation($observation, $da);
+            if ($observation) $this->insertionObservation($da->getNumeroDemandeAppro(), $observation);
 
             if ($request->request->has('refuser')) {
                 $this->refuserDemande($da);
@@ -129,7 +129,7 @@ class DaValidationReapproController extends Controller
 
     private function traitementEnvoiObservation(DaObservation $daObservation, DemandeAppro $demandeAppro)
     {
-        $this->insertionObservation($daObservation->getObservation(), $demandeAppro);
+        $this->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $daObservation->getObservation());
 
         $this->emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->getUser(), $this->estUserDansServiceAppro());
 

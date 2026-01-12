@@ -60,6 +60,9 @@
 							{{ form_widget(formObservation.statutChange) }}
 						</div>
 					{% endif %}
+					<div class="d-none">
+						{{ form_widget(formObservation.fileNames) }}
+					</div>
 					<button type="submit" class="btn bouton mt-2" name="observation">
 						Envoyer l'observation
 						<i class="fa-solid fa-paper-plane"></i>

@@ -113,7 +113,7 @@ class DaEditDirectController extends Controller
 
             $this->modificationDa($demandeAppro, $form->get('DAL'), DemandeAppro::STATUT_SOUMIS_APPRO);
             if ($demandeAppro->getObservation() !== null) {
-                $this->insertionObservation($demandeAppro->getObservation(), $demandeAppro);
+                $this->insertionObservation($numDa, $demandeAppro->getObservation());
             }
 
             // ajout des données dans la table DaAfficher

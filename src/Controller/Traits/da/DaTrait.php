@@ -79,12 +79,12 @@ trait DaTrait
     /** 
      * Fonction pour l'insertion d'une observation
      * 
+     * @param string $numDa       le numéro de la DA
      * @param string $observation l'Observation à insérer
-     * @param DemandeAppro $demandeAppro l'objet DemandeAppro auquel l'observation est liée
      * 
      * @return void
      */
-    private function insertionObservation(string $observation, DemandeAppro $demandeAppro): void
+    private function insertionObservation(string $numDa, string $observation): void
     {
         $em = $this->getEntityManager();
 
@@ -94,7 +94,7 @@ trait DaTrait
 
         $daObservation
             ->setObservation($text)
-            ->setNumDa($demandeAppro->getNumeroDemandeAppro())
+            ->setNumDa($numDa)
             ->setUtilisateur($this->getUser()->getNomUtilisateur())
         ;
 
