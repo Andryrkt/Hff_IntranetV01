@@ -31,3 +31,6 @@ ALTER TABLE da_soumission_facture_bl ADD
     montant_reception_ips DECIMAL(18,2) NULL,
     numero_demande_paiement VARCHAR(11) NULL
     ;
+
+ALTER TABLE da_soumission_facture_bl ADD
+    date_statut_bap DATETIME2(0) NULL;

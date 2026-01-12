@@ -1,0 +1,64 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block title %}
+	Liste des bons à payer
+{% endblock %}
+
+{% block stylesheets %}
+   <link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.10.22.08.00">
+{% endblock %}
+
+{% block overlay %}
+	{% include "/shared/_overlay.html.twig" %}
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid mt-6 mb-4">
+		<div class="sticky-header-titre">
+			<div class="container">
+				{% include "/partials/_notification.html.twig" %}
+			</div>
+		</div>
+
+		<table class="table table-sticky">
+			<thead class="table-dark align-middle">
+				<tr>
+					<th class="text-center">Numéro DA</th>
+					<th class="text-center">Numéro DDP</th>
+					<th class="text-center">Fournisseur</th>
+					<th class="text-center">Numéro cde</th>
+					<th class="text-center">Numéro livraison</th>
+					<th class="text-center">Facture BL</th>
+					<th class="text-center">Numéro BAP</th>
+					<th class="text-center">Statut</th>
+					<th class="text-center">Transmise le</th>
+					<th class="text-center">Date Statut</th>
+					<th class="text-center">Date réception IPS</th>
+					<th class="text-center">Montant des réceptions IPS</th>
+					<th class="text-center">Montant Facture bl</th>
+				</tr>
+			</thead>
+			<tbody id="tableBody" class="align-middle">
+				{% for row in daSoumissionFacBl %}
+					<tr>
+						<td>{{ row.numeroDemandeAppro }}</td>
+						<td>{{ row.numeroDemandePaiement }}</td>
+						<td>{{ row.nomFournisseur }}</td>
+						<td>{{ row.numeroCde }}</td>
+						<td>{{ row.numLiv }}</td>
+						<td>{{ row.refBlFac }}</td>
+						<td>{{ row.numeroBap }}</td>
+						<td class="text-center fw-bold {{ row.styleStatutDA }}">{{ row.statutBap }}</td>
+						<td class="text-center">{{ row.dateSoumissionCompta }}</td>
+						<td class="text-center">{{ row.dateStatutBap }}</td>
+						<td class="text-center">{{ row.dateReceptionIPS }}</td>
+						<td class="text-center">{{ row.montantReceptionIps }}</td>
+						<td class="text-center">{{ row.montantBlFacture }}</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+
+{% endblock %}

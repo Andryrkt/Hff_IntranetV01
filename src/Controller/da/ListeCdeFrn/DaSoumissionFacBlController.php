@@ -2,31 +2,34 @@
 
 namespace App\Controller\da\ListeCdeFrn;
 
+use DateTime;
 use Exception;
+use App\Model\da\DaModel;
+use App\Model\dit\DitModel;
+use App\Entity\dw\DwBcAppro;
 use App\Entity\da\DaAfficher;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
+use App\Entity\admin\Application;
 use App\Entity\da\DaSoumissionFacBl;
-use App\Entity\dw\DwBcAppro;
 use App\Form\da\DaSoumissionFacBlType;
-use App\Model\da\DaModel;
-use App\Model\dit\DitModel;
-use App\Repository\da\DaAfficherRepository;
+use App\Model\da\DaSoumissionFacBlModel;
+use App\Service\autres\VersionService;
 use App\Service\genererPdf\GeneratePdf;
+use App\Service\autres\AutoIncDecService;
+use Symfony\Component\Form\FormInterface;
+use App\Repository\dw\DwBcApproRepository;
+use App\Repository\da\DaAfficherRepository;
 use App\Service\fichier\TraitementDeFichier;
 use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\da\DaSoumissionFacBlRepository;
-use App\Repository\dw\DwBcApproRepository;
-use App\Service\autres\VersionService;
-use App\Service\dataPdf\ordreReparation\Recapitulation;
 use App\Service\genererPdf\bap\GenererPdfBonAPayer;
+use App\Service\dataPdf\ordreReparation\Recapitulation;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Service\historiqueOperation\HistoriqueOperationService;
 use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
-use DateTime;
-use Symfony\Component\Form\FormInterface;
 
 /**
  * @Route("/demande-appro")
@@ -43,6 +46,7 @@ class DaSoumissionFacBlController extends Controller
     private DemandeApproRepository $demandeApproRepository;
     private DwBcApproRepository $dwBcApproRepository;
     private DaAfficherRepository $daAfficherRepository;
+    private DaSoumissionFacBlModel $daSoumissionFacBlModel;
 
     public function __construct()
     {
@@ -56,6 +60,7 @@ class DaSoumissionFacBlController extends Controller
         $this->demandeApproRepository      = $this->getEntityManager()->getRepository(DemandeAppro::class);
         $this->dwBcApproRepository         = $this->getEntityManager()->getRepository(DwBcAppro::class);
         $this->daAfficherRepository        = $this->getEntityManager()->getRepository(DaAfficher::class);
+        $this->daSoumissionFacBlModel        = new DaSoumissionFacBlModel();
     }
 
     /**
@@ -85,6 +90,8 @@ class DaSoumissionFacBlController extends Controller
     {
         $numDit = $this->demandeApproRepository->getNumDitDa($numDa);
         $dateLivraisonPrevue = $this->daAfficherRepository->getDateLivraisonPrevue($numDa, $numCde);
+
+
         return (new DaSoumissionFacBl)
             ->setNumeroCde($numCde)
             ->setUtilisateur($this->getUserName())
@@ -186,11 +193,24 @@ class DaSoumissionFacBlController extends Controller
 
     private function ajoutInfoNecesaireSoumissionFacBl(DaSoumissionFacBl $soumissionFacBl, string $nomPdfFusionner, int $numeroVersionMax, array $infoLivraison)
     {
+        //recupereation de l'application BAP pour generer le numero de bap
+        $application = $this->getEntityManager()->getRepository(Application::class)->findOneBy(['codeApp' => 'BAP']);
+        //generation du numero de bap
+        $numeroBap = AutoIncDecService::autoGenerateNumero('BAP', $application->getDerniereId(), true);
+        //mise a jour de la derniere id de l'application BAP
+        AutoIncDecService::mettreAJourDerniereIdApplication($application, $this->getEntityManager(), $numeroBap);
+        // recupération du montant reception IPS
+        $montantReceptionIps = $this->daSoumissionFacBlModel->getMontantReceptionIps($soumissionFacBl->getNumLiv());
+
         $soumissionFacBl
             ->setPieceJoint1($nomPdfFusionner)
             ->setNumeroVersion($numeroVersionMax)
             ->setDateClotLiv(new DateTime($infoLivraison["date_clot"]))
             ->setRefBlFac($infoLivraison["ref_fac_bl"])
+            ->setStatutBap('A transmettre')
+            ->setNumeroBap($numeroBap)
+            ->setDateStatutBap(new DateTime())
+            ->setMontantReceptionIps($montantReceptionIps[0] ?? 0)
         ;
     }
 

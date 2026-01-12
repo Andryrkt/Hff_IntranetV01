@@ -112,6 +112,11 @@ class DaSoumissionFacBl
      */
     private $numeroDemandePaiement;
 
+    /** 
+     * @ORM\Column(type="date", name="date_statut_bap", nullable=true)
+     */
+    private $dateStatutBap;
+
     private $pieceJoint2;
 
     /**===========================================================================
@@ -464,6 +469,24 @@ class DaSoumissionFacBl
     public function setNumeroDemandePaiement($numeroDemandePaiement): self
     {
         $this->numeroDemandePaiement = $numeroDemandePaiement;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateStatutBap
+     */
+    public function getDateStatutBap()
+    {
+        return $this->dateStatutBap;
+    }
+
+    /**
+     * Set the value of dateStatutBap
+     */
+    public function setDateStatutBap($dateStatutBap): self
+    {
+        $this->dateStatutBap = $dateStatutBap;
 
         return $this;
     }
