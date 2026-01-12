@@ -93,7 +93,9 @@ class DaNewAvecDitController extends Controller
             /** @var DemandeAppro $demandeAppro */
             $demandeAppro = $form->getData();
 
-            $numDa = $demandeAppro->getNumeroDemandeAppro();
+            $firstCreation = $demandeAppro->getNumeroDemandeAppro() === null;
+            $numDa = $firstCreation ? $this->autoDecrement('DAP') : $demandeAppro->getNumeroDemandeAppro();
+            $demandeAppro->setNumeroDemandeAppro($numDa);
             $formDAL = $form->get('DAL');
 
             // Récupérer le nom du bouton cliqué
@@ -151,9 +153,12 @@ class DaNewAvecDitController extends Controller
                 }
             }
 
-            /** Modifie la colonne dernière_id dans la table applications */
-            $applicationService = new ApplicationService($this->getEntityManager());
-            $applicationService->mettreAJourDerniereIdApplication('DAP', $numDa);
+            // si c'est la première création, on met à jour la colonne dernière_id dans la table applications
+            if ($firstCreation) {
+                /** Modifie la colonne dernière_id dans la table applications */
+                $applicationService = new ApplicationService($this->getEntityManager());
+                $applicationService->mettreAJourDerniereIdApplication('DAP', $numDa);
+            }
 
             /** Ajout de demande appro dans la base de donnée (table: Demande_Appro) */
             $this->getEntityManager()->persist($demandeAppro);
