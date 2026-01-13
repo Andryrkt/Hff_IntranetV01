@@ -424,7 +424,7 @@
   gap: 0.25rem;
 }
 
-.file-item {
+.attached-file-item {
   display: flex;
   align-items: baseline;
   gap: 0.5rem;
@@ -435,16 +435,16 @@
   transition: all 0.2s ease;
 }
 
-.file-item:hover {
+.attached-file-item:hover {
   background: #f8f9fa;
   border-color: #ffb74d;
 }
 
-.file-item i {
+.attached-file-item i {
   font-size: 1.25rem;
 }
 
-.file-name {
+.attached-file-item .file-name {
   flex: 1;
   font-size: 0.9rem;
   font-weight: 500;
@@ -454,12 +454,12 @@
   text-overflow: ellipsis;
 }
 
-.file-size {
+.attached-file-item .file-size {
   font-size: 0.8rem;
   color: #5f6368;
 }
 
-.btn-remove-file {
+.attached-file-item .btn-remove-file {
   background: none;
   border: none;
   color: #5f6368;
@@ -474,7 +474,7 @@
   transition: all 0.2s ease;
 }
 
-.btn-remove-file:hover {
+.attached-file-item .btn-remove-file:hover {
   background: #ffebee;
   color: #d32f2f;
 }
