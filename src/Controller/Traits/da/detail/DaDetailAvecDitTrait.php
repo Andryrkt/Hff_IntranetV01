@@ -67,11 +67,18 @@ trait DaDetailAvecDitTrait
                 'fichiers'   => $this->normalizePathsForOneFile($tab['orPath'], 'numeroOr'),
             ],
             [
-                'labelType'  => 'DEVPJ',
-                'type'       => 'Devis / Pièce(s) jointe(s)',
+                'labelType'  => 'DEVPJ-DA',
+                'type'       => 'Devis / PJ (émis dans la demande / proposition)',
                 'icon'       => 'fa-solid fa-money-bill-wave',
                 'colorClass' => 'border-left-devpj',
                 'fichiers'   => $this->normalizePathsForManyFiles($tab['devPjPathDal'], 'nomPj'),
+            ],
+            [
+                'labelType'  => 'DEVPJ-OBS',
+                'type'       => 'Devis / PJ (émis dans l\'observation)',
+                'icon'       => 'fa-solid fa-money-bill-wave',
+                'colorClass' => 'border-left-devpj',
+                'fichiers'   => $this->normalizePathsForManyFiles($tab['devPjPathObs'], 'nomPj'),
             ],
             [
                 'labelType'  => 'BC',
