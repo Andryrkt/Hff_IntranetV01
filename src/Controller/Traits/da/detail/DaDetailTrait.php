@@ -190,7 +190,7 @@ trait DaDetailTrait
     /** 
      * Obtenir l'url des devis et pièces jointes
      */
-    private function getDevisPjPath(DemandeAppro $demandeAppro)
+    private function getDevisPjPathDal(DemandeAppro $demandeAppro)
     {
         $items = [];
 

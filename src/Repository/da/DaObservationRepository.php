@@ -7,7 +7,7 @@ use Doctrine\ORM\EntityRepository;
 class DaObservationRepository extends EntityRepository
 {
     /**
-     * @return array<int, array{numeroDemandeAppro: string, fileNames: array}>
+     * @return array<int, array{numDa: string, fileNames: array}>
      */
     public function findAttachmentsByNumeroDA(string $numDa): array
     {

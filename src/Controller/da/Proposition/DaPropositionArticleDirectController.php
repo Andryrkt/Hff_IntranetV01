@@ -82,7 +82,7 @@ class DaPropositionArticleDirectController extends Controller
             'badPath'   => $this->getBaDocuWarePath($da),
             'bcPath'    => $this->getBcPath($da),
             'facblPath' => $this->getFacBlPath($da),
-            'devPjPath' => $this->getDevisPjPath($da),
+            'devPjPath' => $this->getDevisPjPathDal($da),
         ]);
 
         return $this->render("da/proposition.html.twig", [
