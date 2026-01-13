@@ -7,6 +7,7 @@
 {% block stylesheets %}
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.10.22.08.00">
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/list.css?v=2025.10.22.08.00">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/ddp/list.css?v=2025.10.22.08.00">
 {% endblock %}
 
 {% block overlay %}
@@ -67,7 +68,7 @@
 								{{ row.numeroBap }}
 							{% endif %}
 						</td>
-						<td class="text-center fw-bold {{ row.styleStatutBap }}">{{ row.statutBap }}</td>
+						<td class="text-center fw-bold {{ row.statutCssClass }}">{{ row.statutBap }}</td>
 						<td class="text-center">{{ row.dateSoumissionCompta }}</td>
 						<td class="text-center">{{ row.dateStatutBap }}</td>
 						<td class="text-center">{{ row.dateReceptionIPS }}</td>

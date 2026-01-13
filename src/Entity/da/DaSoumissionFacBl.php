@@ -2,6 +2,7 @@
 
 namespace App\Entity\da;
 
+use App\Constants\da\ddp\BonApayerConstants;
 use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\da\DaSoumissionFacBlRepository;
@@ -556,5 +557,20 @@ class DaSoumissionFacBl
         $this->pieceJoint2 = $pieceJoint2;
 
         return $this;
+    }
+
+    /**
+     * Retourne la classe CSS appropriée pour le statut de la demande
+     * Utilise StatutDomConstants pour centraliser la logique
+     * 
+     * @return string
+     */
+    public function getStatutCssClass(): string
+    {
+        if (!$this->statutBap) {
+            return '';
+        }
+
+        return BonApayerConstants::getCssClass($this->statutBap);
     }
 }

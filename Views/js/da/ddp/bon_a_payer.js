@@ -62,7 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (confirmation.isConfirmed) {
         try {
-          displayOverlay(
+          window.displayOverlay(
             true,
             "Transmission des demandes BAP en cours, merci de patienter ..."
           );
@@ -94,7 +94,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
           }
         } catch (error) {
-          displayOverlay(false);
+          window.displayOverlay(false);
           console.error(
             "Erreur lors de la transmission des demandes BAP :",
             error
