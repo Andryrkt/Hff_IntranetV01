@@ -28,3 +28,84 @@ new AutoComplete({
   displayItemCallback: displayFournisseur,
   onSelectCallback: onSelectNumFournisseur,
 });
+
+/**============================================
+ * Bouton TRANSMETTRE BAP
+ *============================================*/
+
+document.addEventListener("DOMContentLoaded", () => {
+  const transmettreBAPButton = document.getElementById("transmettreBAP");
+
+  if (transmettreBAPButton) {
+    transmettreBAPButton.addEventListener("click", async () => {
+      const checkboxes = document.querySelectorAll(".bap-checkbox");
+      const checkedBoxes = Array.from(checkboxes).filter((cb) => cb.checked);
+
+      if (checkedBoxes.length === 0) {
+        Swal.fire({
+          icon: "warning",
+          title: "Aucune sélection",
+          text: "Veuillez sélectionner au moins une demande BAP à transmettre.",
+        });
+        return;
+      }
+      const selectedBAPs = checkedBoxes.map((cb) => cb.name);
+
+      const confirmation = await Swal.fire({
+        title: "Confirmer la transmission",
+        text: `Êtes-vous sûr de vouloir transmettre ${selectedBAPs.length} demande(s) BAP à la comptabilité ?`,
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Oui, transmettre",
+        cancelButtonText: "Annuler",
+      });
+
+      if (confirmation.isConfirmed) {
+        try {
+          displayOverlay(
+            true,
+            "Transmission des demandes BAP en cours, merci de patienter ..."
+          );
+          const response = await fetchManager.post(
+            "api/transmettre-bap-compta",
+            {
+              bapNumbers: selectedBAPs,
+            }
+          );
+          displayOverlay(false);
+
+          if (response.success) {
+            Swal.fire({
+              icon: "success",
+              title: "Transmission réussie",
+              text:
+                response.message ||
+                "Les demandes BAP ont été transmises avec succès.",
+            }).then(() => {
+              window.location.reload();
+            });
+          } else {
+            Swal.fire({
+              icon: "error",
+              title: "Erreur lors de la transmission",
+              text:
+                response.message ||
+                "Une erreur est survenue lors de la transmission des demandes BAP.",
+            });
+          }
+        } catch (error) {
+          displayOverlay(false);
+          console.error(
+            "Erreur lors de la transmission des demandes BAP :",
+            error
+          );
+          Swal.fire({
+            icon: "error",
+            title: "Erreur réseau",
+            text: "Une erreur réseau est survenue. Veuillez réessayer plus tard.",
+          });
+        }
+      }
+    });
+  }
+});

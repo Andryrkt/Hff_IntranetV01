@@ -104,4 +104,13 @@ class DaSoumissionFacBlRepository extends EntityRepository
 
         return $result->getQuery()->getResult();
     }
+
+    public function getAllSelonNumBap(array $bapNumbers)
+    {
+        return  $this->createQueryBuilder('dabc')
+            ->where('dabc.numeroBap IN (:numBap)')
+            ->setParameter('numBap', $bapNumbers)
+            ->getQuery()
+            ->getResult();
+    }
 }
