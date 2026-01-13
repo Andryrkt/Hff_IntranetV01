@@ -56,7 +56,17 @@
 						<td class="text-center">{{ row.numeroCde }}</td>
 						<td class="text-center">{{ row.numLiv }}</td>
 						<td class="text-center">{{ row.refBlFac }}</td>
-						<td class="text-center">{{ row.numeroBap }}</td>
+						<td class="text-center">
+							{% set fileExists = fileCheckerService.checkBapFileExists(row.numeroDemandeAppro, row.numeroCde) %}
+							{% if fileExists %}
+								<a href="#" class="show-pdf-modal" data-pdf-url="{{ path('bap_pdf_viewer', {numeroDa: row.numeroDemandeAppro, numeroCde: row.numeroCde}) }}">
+									{{ row.numeroBap }}
+									<i class="fas fa-file-pdf ml-1"></i>
+								</a>
+							{% else %}
+								{{ row.numeroBap }}
+							{% endif %}
+						</td>
 						<td class="text-center fw-bold {{ row.styleStatutBap }}">{{ row.statutBap }}</td>
 						<td class="text-center">{{ row.dateSoumissionCompta }}</td>
 						<td class="text-center">{{ row.dateStatutBap }}</td>
@@ -69,6 +79,20 @@
 		</table>
 	</div>
 
+	<!-- PDF Modal -->
+	<div class="modal fade" id="pdfModal" tabindex="-1" aria-labelledby="pdfModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-xl">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="pdfModalLabel">Bon à Payer - PDF</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<iframe src="" style="width:100%; height:75vh;" frameborder="0"></iframe>
+				</div>
+			</div>
+		</div>
+	</div>
 {% endblock %}
 
 {% block javascript %}

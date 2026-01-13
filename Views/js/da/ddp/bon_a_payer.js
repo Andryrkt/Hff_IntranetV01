@@ -108,4 +108,31 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
+
+  /**============================================
+   * Modal affichage PDF BAP
+   *============================================*/
+  const pdfModalElement = document.getElementById("pdfModal");
+  if (pdfModalElement) {
+    const pdfModal = new bootstrap.Modal(pdfModalElement);
+    const iframe = pdfModalElement.querySelector("iframe");
+
+    document.querySelectorAll(".show-pdf-modal").forEach((button) => {
+      button.addEventListener("click", (e) => {
+        e.preventDefault();
+        const pdfUrl = button.dataset.pdfUrl;
+        if (pdfUrl && iframe) {
+          // Ajout d'un paramètre pour forcer le rafraîchissement (cache busting)
+          iframe.src = pdfUrl + '?v=' + new Date().getTime();
+          pdfModal.show();
+        }
+      });
+    });
+
+    pdfModalElement.addEventListener("hidden.bs.modal", () => {
+      if (iframe) {
+        iframe.src = "";
+      }
+    });
+  }
 });
