@@ -21,18 +21,18 @@ class BonApayerController extends Controller
         $this->verifierSessionUtilisateur();
 
         // Création du formulaire de recherche
-        $form = $this->getFormFactory()->createBuilder(BonApayerType::class)->getForm();
+        $form = $this->getFormFactory()->createBuilder(BonApayerType::class, null, ['method' => 'GET'])->getForm();
 
         // Traitement du formulaire de recherche
         $form->handleRequest($request);
 
+        $criteria = [];
         if ($form->isSubmitted() && $form->isValid()) {
-            $data = $form->getData();
-            dd($data);
+            $criteria = $form->getData();
         }
 
         // Récupération des données à afficher
-        $daSoumissionFacBl = $this->getEntityManager()->getRepository(DaSoumissionFacBl::class)->findAll();
+        $daSoumissionFacBl = $this->getEntityManager()->getRepository(DaSoumissionFacBl::class)->getAll($criteria);
 
 
         return $this->render('da/ddp/bon_a_payer.html.twig', [
