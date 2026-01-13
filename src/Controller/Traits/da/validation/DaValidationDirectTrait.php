@@ -62,7 +62,7 @@ trait DaValidationDirectTrait
     private function creationPDFDirect(string $numDa): void
     {
         $da = $this->demandeApproRepository->findAvecDernieresDALetLRParNumero($numDa);
-        $observations = $this->daObservationRepository->findBy(['numDa' => $numDa]);
+        $observations = $this->daObservationRepository->findBy(['numDa' => $numDa], ['dateCreation' => 'ASC']);
         $this->genererPdfDaDirect->genererPdfBonAchatValide($da, $observations);
     }
 

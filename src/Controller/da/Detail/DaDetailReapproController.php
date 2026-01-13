@@ -45,7 +45,7 @@ class DaDetailReapproController extends Controller
 
 		/** @var DemandeAppro $demandeAppro la demande appro correspondant à l'id $id */
 		$demandeAppro = $this->demandeApproRepository->find($id); // recupération de la DA
-		$observations = $this->daObservationRepository->findBy(['numDa' => $demandeAppro->getNumeroDemandeAppro()]);
+		$observations = $this->daObservationRepository->findBy(['numDa' => $demandeAppro->getNumeroDemandeAppro()], ['dateCreation' => 'ASC']);
 
 		$daObservation = new DaObservation;
 		$formObservation = $this->getFormFactory()->createBuilder(DaObservationType::class, $daObservation, ['daTypeId' => $demandeAppro->getDaTypeId()])->getForm();

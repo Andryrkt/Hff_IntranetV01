@@ -55,7 +55,7 @@ class DaValidationReapproController extends Controller
         $dateRange = $this->getLast12MonthsRange();
         $monthsList = $this->getMonthsList($dateRange['start'], $dateRange['end']);
         $dataHistoriqueConsommation = $this->getHistoriqueConsommation($da, $dateRange, $monthsList);
-        $observations = $this->daObservationRepository->findBy(['numDa' => $da->getNumeroDemandeAppro()]);
+        $observations = $this->daObservationRepository->findBy(['numDa' => $da->getNumeroDemandeAppro()], ['dateCreation' => 'ASC']);
 
         //========================================== Traitement du formulaire en général ===================================================//
         $this->traitementFormulaire($formReappro, $formObservation, $request, $da, $observations, $monthsList, $dataHistoriqueConsommation);

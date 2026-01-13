@@ -75,7 +75,7 @@ class DaPropositionArticleDirectController extends Controller
         $this->traitementFormulaire($form, $formObservation, $dals, $request, $numDa, $da); //
         // ===============================================================//
 
-        $observations = $this->daObservationRepository->findBy(['numDa' => $numDa]);
+        $observations = $this->daObservationRepository->findBy(['numDa' => $numDa], ['dateCreation' => 'ASC']);
 
         $fichiers = $this->getAllDAFile([
             'baiPath'   => $this->getBaIntranetPath($da),
