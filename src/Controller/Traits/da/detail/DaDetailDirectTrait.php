@@ -65,7 +65,7 @@ trait DaDetailDirectTrait
                 'type'       => 'Devis / Pièce(s) jointe(s)',
                 'icon'       => 'fa-solid fa-money-bill-wave',
                 'colorClass' => 'border-left-devpj',
-                'fichiers'   => $this->normalizePathsForManyFiles($tab['devPjPath'], 'nomPj'),
+                'fichiers'   => $this->normalizePathsForManyFiles($tab['devPjPathDal'], 'nomPj'),
             ],
             [
                 'labeltype'  => 'BC',
