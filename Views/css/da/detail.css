@@ -142,17 +142,35 @@
 .talk .msg p {
   margin-bottom: 0 !important;
 }
+.file-comment {
+  display: flex;
+  min-height: 22px;
+  gap: 0.25rem;
+  color: black;
+  align-items: baseline;
+  border-radius: 5px;
+  margin-top: 5px;
+  padding: 7px 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.file-comment:hover {
+  color: #0d6efd;
+}
 
 .right {
   margin-left: auto;
   justify-content: flex-end;
 }
-.right .msg {
-  background: #ffc107;
+.right .msg,
+.right .file-comment {
+  background-color: #ffc107;
   color: black;
 }
-.right .file-comment {
-  background-color: #ffc10880;
+.right .file-comment:hover {
+  background-color: #ffc928;
+  transform: translateX(-5px);
 }
 .left .msg::after {
   border-width: 0px 10px 10px 0;
@@ -167,8 +185,12 @@
   color: #000;
 }
 .left .file-comment {
-  background-color: #d8d8d880;
+  background-color: #cbcbcb;
   transform: translateX(10px);
+}
+.left .file-comment:hover {
+  background-color: #e1dfdf;
+  transform: translateX(15px);
 }
 .msg-file {
   display: flex;
@@ -426,6 +448,7 @@
 
 .attached-file-item {
   display: flex;
+  cursor: pointer;
   align-items: baseline;
   gap: 0.5rem;
   padding: 0.25rem 0.5rem;

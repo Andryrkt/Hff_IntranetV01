@@ -39,6 +39,14 @@
 											<p>{{ observation.observation|raw }}</p>
 											<span class="time">{{ observation.dateCreation|date('H:i') }}</span>
 										</div>
+										{% for fileName in observation.fileNames %}
+											<div class="file-comment">
+												<i class="fas fa-file-pdf text-primary fs-6"></i>
+												<span data-file-path="{{ App.base_path_fichier }}/da/{{ demandeAppro.numeroDemandeAppro }}/{{ fileName }}" data-file-name="{{ fileName }}">
+													{{ fileName }}
+												</span>
+											</div>
+										{% endfor %}
 									</div>
 								</div>
 
@@ -49,10 +57,7 @@
 			</div>
 			<div class="attached-files-preview d-none">
 				<div class="attached-files-header">
-					<small class="text-muted">
-						<i class="fas fa-paperclip me-1"></i>
-						Fichiers joints
-					</small>
+					<small class="text-muted"></small>
 				</div>
 				<div class="attached-files-list"></div>
 			</div>
