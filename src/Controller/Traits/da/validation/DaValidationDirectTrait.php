@@ -114,12 +114,13 @@ trait DaValidationDirectTrait
     {
         $pjDals = $this->demandeApproLRepository->findAttachmentsByNumeroDA($numDa);
         $pjDalrs = $this->demandeApproLRRepository->findAttachmentsByNumeroDA($numDa);
+        $pjObservations = $this->daObservationRepository->findAttachmentsByNumeroDA($numDa);
 
         /** 
          * Fusionner les résultats des deux tables
          * @var array<int, array{numeroDemandeAppro: string, fileNames: array}>
          **/
-        $allRows = array_merge($pjDals, $pjDalrs);
+        $allRows = array_merge($pjDals, $pjDalrs, $pjObservations);
         $filePaths = [];
 
         foreach ($allRows as $row) {
