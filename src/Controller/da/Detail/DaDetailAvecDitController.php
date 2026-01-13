@@ -64,11 +64,12 @@ class DaDetailAvecDitController extends Controller
 		$observations = $this->daObservationRepository->findBy(['numDa' => $demandeAppro->getNumeroDemandeAppro()], ['dateCreation' => 'ASC']);
 
 		$fichiers = $this->getAllDAFile([
-			'baiPath'   => $this->getBaIntranetPath($demandeAppro),
-			'orPath'    => $this->getOrPath($demandeAppro),
-			'bcPath'    => $this->getBcPath($demandeAppro),
-			'facblPath' => $this->getFacBlPath($demandeAppro),
+			'baiPath'      => $this->getBaIntranetPath($demandeAppro),
+			'orPath'       => $this->getOrPath($demandeAppro),
+			'bcPath'       => $this->getBcPath($demandeAppro),
+			'facblPath'    => $this->getFacBlPath($demandeAppro),
 			'devPjPathDal' => $this->getDevisPjPathDal($demandeAppro),
+			'devPjPathObs' => $this->getDevisPjPathObservation($demandeAppro),
 		]);
 
 		$demandeApproLPrepared = $this->prepareDataForDisplayDetail($demandeAppro->getDAL(), $demandeAppro->getStatutDal());

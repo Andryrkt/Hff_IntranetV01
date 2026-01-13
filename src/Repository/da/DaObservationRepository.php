@@ -14,6 +14,7 @@ class DaObservationRepository extends EntityRepository
         return $this->createQueryBuilder('do')
             ->select('do.numDa, do.fileNames')
             ->where('do.numDa = :numDa')
+            ->andWhere('do.fileNames IS NOT NULL')
             ->setParameter('numDa', $numDa)
             ->getQuery()
             ->getArrayResult();

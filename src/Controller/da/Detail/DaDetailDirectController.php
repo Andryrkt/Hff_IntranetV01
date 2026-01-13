@@ -61,11 +61,12 @@ class DaDetailDirectController extends Controller
 		$demandeApproLPrepared = $this->prepareDataForDisplayDetail($demandeAppro->getDAL(), $demandeAppro->getStatutDal());
 
 		$fichiers = $this->getAllDAFile([
-			'baiPath'   => $this->getBaIntranetPath($demandeAppro),
-			'badPath'   => $this->getBaDocuWarePath($demandeAppro),
-			'bcPath'    => $this->getBcPath($demandeAppro),
-			'facblPath' => $this->getFacBlPath($demandeAppro),
+			'baiPath'      => $this->getBaIntranetPath($demandeAppro),
+			'badPath'      => $this->getBaDocuWarePath($demandeAppro),
+			'bcPath'       => $this->getBcPath($demandeAppro),
+			'facblPath'    => $this->getFacBlPath($demandeAppro),
 			'devPjPathDal' => $this->getDevisPjPathDal($demandeAppro),
+			'devPjPathObs' => $this->getDevisPjPathObservation($demandeAppro),
 		]);
 
 		return $this->render('da/detail.html.twig', [

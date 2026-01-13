@@ -80,11 +80,12 @@ class DaPropositionRefAvecDitController extends Controller
         $observations = $this->daObservationRepository->findBy(['numDa' => $numDa], ['dateCreation' => 'ASC']);
 
         $fichiers = $this->getAllDAFile([
-            'baiPath'   => $this->getBaIntranetPath($da),
-            'orPath'    => $this->getOrPath($da),
-            'bcPath'    => $this->getBcPath($da),
-            'facblPath' => $this->getFacBlPath($da),
+            'baiPath'      => $this->getBaIntranetPath($da),
+            'orPath'       => $this->getOrPath($da),
+            'bcPath'       => $this->getBcPath($da),
+            'facblPath'    => $this->getFacBlPath($da),
             'devPjPathDal' => $this->getDevisPjPathDal($da),
+            'devPjPathObs' => $this->getDevisPjPathObservation($da),
         ]);
 
         return $this->render("da/proposition.html.twig", [

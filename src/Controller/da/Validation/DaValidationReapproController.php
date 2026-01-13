@@ -62,8 +62,9 @@ class DaValidationReapproController extends Controller
         //==================================================================================================================================//
 
         $fichiers = $this->getAllDAFile([
-            'baiPath'   => $this->getBaIntranetPath($da),
-            'badPath'   => $this->getBaDocuWarePath($da),
+            'baiPath'      => $this->getBaIntranetPath($da),
+            'badPath'      => $this->getBaDocuWarePath($da),
+            'devPjPathObs' => $this->getDevisPjPathObservation($da),
         ]);
 
         return $this->render("da/validation-reappro.html.twig", [
