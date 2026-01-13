@@ -155,7 +155,8 @@
   transition: all 0.2s ease;
 }
 
-.file-comment:hover {
+.right .file-comment:hover,
+.left .file-comment:hover {
   color: #0d6efd;
 }
 
