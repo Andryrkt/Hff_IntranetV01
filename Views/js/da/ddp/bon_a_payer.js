@@ -116,14 +116,26 @@ document.addEventListener("DOMContentLoaded", () => {
   if (pdfModalElement) {
     const pdfModal = new bootstrap.Modal(pdfModalElement);
     const iframe = pdfModalElement.querySelector("iframe");
+    const spinner = pdfModalElement.querySelector(".pdf-spinner");
+
+    if (iframe) {
+      iframe.addEventListener("load", () => {
+        if (spinner) 
+          spinner.style.display = "none";
+        iframe.style.visibility = "visible";
+      });
+    }
 
     document.querySelectorAll(".show-pdf-modal").forEach((button) => {
       button.addEventListener("click", (e) => {
         e.preventDefault();
         const pdfUrl = button.dataset.pdfUrl;
         if (pdfUrl && iframe) {
+          if (spinner) 
+            spinner.style.display = "block";
+          iframe.style.visibility = "hidden";
           // Ajout d'un paramètre pour forcer le rafraîchissement (cache busting)
-          iframe.src = pdfUrl + '?v=' + new Date().getTime();
+          iframe.src = pdfUrl + "?v=" + new Date().getTime();
           pdfModal.show();
         }
       });
@@ -132,6 +144,10 @@ document.addEventListener("DOMContentLoaded", () => {
     pdfModalElement.addEventListener("hidden.bs.modal", () => {
       if (iframe) {
         iframe.src = "";
+        iframe.style.visibility = "hidden";
+      }
+      if (spinner) {
+        spinner.style.display = "none";
       }
     });
   }
