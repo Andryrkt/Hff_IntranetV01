@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block stylesheets %}
-   <link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.10.22.08.00">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.10.22.08.00">
 {% endblock %}
 
 {% block overlay %}
@@ -14,16 +14,20 @@
 
 {% block content %}
 
-<div class="container-fluid mt-6 mb-4">
+	<div class="container-fluid mt-6 mb-4">
 		<div class="sticky-header-titre">
 			<div class="container">
 				{% include "/partials/_notification.html.twig" %}
+				{% include "/da/ddp/_formulaire_recherche.html.twig" %}
 			</div>
 		</div>
-
+		<div class="my-3 mx-3 d-flex justify-content-end">
+			<button type="button" class="btn btn-warning" id="transmettreBAP">Transmettre les demandes BAP sélectionnés à la compta</button>
+		</div>
 		<table class="table table-sticky">
 			<thead class="table-dark align-middle">
 				<tr>
+					<th class="text-center">-</th>
 					<th class="text-center">Numéro DA</th>
 					<th class="text-center">Numéro DDP</th>
 					<th class="text-center">Fournisseur</th>
@@ -42,14 +46,17 @@
 			<tbody id="tableBody" class="align-middle">
 				{% for row in daSoumissionFacBl %}
 					<tr>
-						<td>{{ row.numeroDemandeAppro }}</td>
-						<td>{{ row.numeroDemandePaiement }}</td>
-						<td>{{ row.nomFournisseur }}</td>
-						<td>{{ row.numeroCde }}</td>
-						<td>{{ row.numLiv }}</td>
-						<td>{{ row.refBlFac }}</td>
-						<td>{{ row.numeroBap }}</td>
-						<td class="text-center fw-bold {{ row.styleStatutDA }}">{{ row.statutBap }}</td>
+						<td class="text-center">
+							<input type="checkbox" name="{{ row.numeroBap }}" class="bap-checkbox">
+						</td>
+						<td class="text-center">{{ row.numeroDemandeAppro }}</td>
+						<td class="text-center">{{ row.numeroDemandePaiement }}</td>
+						<td>{{ row.numeroFournisseur ~ '-' ~ row.nomFournisseur }}</td>
+						<td class="text-center">{{ row.numeroCde }}</td>
+						<td class="text-center">{{ row.numLiv }}</td>
+						<td class="text-center">{{ row.refBlFac }}</td>
+						<td class="text-center">{{ row.numeroBap }}</td>
+						<td class="text-center fw-bold {{ row.styleStatutBap }}">{{ row.statutBap }}</td>
 						<td class="text-center">{{ row.dateSoumissionCompta }}</td>
 						<td class="text-center">{{ row.dateStatutBap }}</td>
 						<td class="text-center">{{ row.dateReceptionIPS }}</td>

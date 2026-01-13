@@ -117,6 +117,17 @@ class DaSoumissionFacBl
      */
     private $dateStatutBap;
 
+    /**
+     * @ORM\Column(type="integer", name="numero_fournisseur", nullable=true)
+     */
+    private $numeroFournisseur;
+
+    /**
+     * @ORM\Column(type="string", length=255, name="nom_fournisseur", nullable=true)
+     */
+    private $nomFournisseur;
+
+
     private $pieceJoint2;
 
     /**===========================================================================
@@ -487,6 +498,42 @@ class DaSoumissionFacBl
     public function setDateStatutBap($dateStatutBap): self
     {
         $this->dateStatutBap = $dateStatutBap;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroFournisseur
+     */
+    public function getNumeroFournisseur()
+    {
+        return $this->numeroFournisseur;
+    }
+
+    /**
+     * Set the value of numeroFournisseur
+     */
+    public function setNumeroFournisseur($numeroFournisseur): self
+    {
+        $this->numeroFournisseur = $numeroFournisseur;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of nomFournisseur
+     */
+    public function getNomFournisseur()
+    {
+        return $this->nomFournisseur;
+    }
+
+    /**
+     * Set the value of nomFournisseur
+     */
+    public function setNomFournisseur($nomFournisseur): self
+    {
+        $this->nomFournisseur = $nomFournisseur;
 
         return $this;
     }

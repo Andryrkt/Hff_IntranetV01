@@ -34,3 +34,7 @@ ALTER TABLE da_soumission_facture_bl ADD
 
 ALTER TABLE da_soumission_facture_bl ADD
     date_statut_bap DATETIME2(0) NULL;
+
+ALTER TABLE da_soumission_facture_bl ADD
+    numero_fournisseur INT NULL,
+    nom_fournisseur VARCHAR(255) NULL;

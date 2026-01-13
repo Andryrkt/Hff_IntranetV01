@@ -47,6 +47,7 @@ class DaSoumissionFacBlController extends Controller
     private DwBcApproRepository $dwBcApproRepository;
     private DaAfficherRepository $daAfficherRepository;
     private DaSoumissionFacBlModel $daSoumissionFacBlModel;
+    private DaModel $daModel;
 
     public function __construct()
     {
@@ -61,6 +62,7 @@ class DaSoumissionFacBlController extends Controller
         $this->dwBcApproRepository         = $this->getEntityManager()->getRepository(DwBcAppro::class);
         $this->daAfficherRepository        = $this->getEntityManager()->getRepository(DaAfficher::class);
         $this->daSoumissionFacBlModel        = new DaSoumissionFacBlModel();
+        $this->daModel                     = new DaModel();
     }
 
     /**
@@ -127,6 +129,8 @@ class DaSoumissionFacBlController extends Controller
             $nomOriginalFichier = $soumissionFacBl->getPieceJoint1()->getClientOriginalName();
 
             if ($this->verifierConditionDeBlocage($soumissionFacBl, $infoLiv, $nomOriginalFichier)) {
+                $infoBC = $this->daModel->getInfoBC($numCde);
+
                 /** ENREGISTREMENT DE FICHIER */
                 $nomDeFichiers = $this->enregistrementFichier($form, $numCde, $numDa);
 
@@ -134,7 +138,7 @@ class DaSoumissionFacBlController extends Controller
                 $nomFichierAvecChemins = $this->addPrefixToElementArray($nomDeFichiers, $this->cheminDeBase . $numDa . '/');
 
                 /** CREATION DE LA PAGE DE GARDE */
-                $pageDeGarde = $this->genererPageDeGarde($infoLiv, $soumissionFacBl);
+                $pageDeGarde = $this->genererPageDeGarde($infoLiv, $soumissionFacBl, $infoBC);
 
                 /** AJOUT DE LA PAGE DE GARDE A LA PREMIERE POSITION */
                 $nomFichierAvecChemins = $this->traitementDeFichier->insertFileAtPosition($nomFichierAvecChemins, $pageDeGarde, 0);
@@ -151,7 +155,7 @@ class DaSoumissionFacBlController extends Controller
                 $this->traitementDeFichier->fusionFichers($fichierConvertir, $nomAvecCheminPdfFusionner);
 
                 /** AJOUT DES INFO NECESSAIRE */
-                $this->ajoutInfoNecesaireSoumissionFacBl($soumissionFacBl, $nomPdfFusionner, $numeroVersionMax, $infoLiv);
+                $this->ajoutInfoNecesaireSoumissionFacBl($soumissionFacBl, $nomPdfFusionner, $numeroVersionMax, $infoLiv, $infoBC);
 
                 /** ENREGISTREMENT DANS LA BASE DE DONNEE */
                 $this->getEntityManager()->persist($soumissionFacBl);
@@ -191,7 +195,7 @@ class DaSoumissionFacBlController extends Controller
         $this->getEntityManager()->flush();
     }
 
-    private function ajoutInfoNecesaireSoumissionFacBl(DaSoumissionFacBl $soumissionFacBl, string $nomPdfFusionner, int $numeroVersionMax, array $infoLivraison)
+    private function ajoutInfoNecesaireSoumissionFacBl(DaSoumissionFacBl $soumissionFacBl, string $nomPdfFusionner, int $numeroVersionMax, array $infoLivraison, array $infoBC)
     {
         //recupereation de l'application BAP pour generer le numero de bap
         $application = $this->getEntityManager()->getRepository(Application::class)->findOneBy(['codeApp' => 'BAP']);
@@ -211,6 +215,8 @@ class DaSoumissionFacBlController extends Controller
             ->setNumeroBap($numeroBap)
             ->setDateStatutBap(new DateTime())
             ->setMontantReceptionIps($montantReceptionIps[0] ?? 0)
+            ->setNumeroFournisseur($infoBC['num_fournisseur'] ?? null)
+            ->setNomFournisseur($infoBC['nom_fournisseur'] ?? null)
         ;
     }
 
@@ -373,9 +379,8 @@ class DaSoumissionFacBlController extends Controller
         return $okey;
     }
 
-    private function genererPageDeGarde(array $infoLivraison, DaSoumissionFacBl $soumissionFacBl): string
+    private function genererPageDeGarde(array $infoLivraison, DaSoumissionFacBl $soumissionFacBl, array $infoBC): string
     {
-        $daModel          = new DaModel();
         $ditModel         = new DitModel();
         $generatePdfBap   = new GenererPdfBonAPayer();
         $recapitulationOR = new Recapitulation();
@@ -383,7 +388,7 @@ class DaSoumissionFacBlController extends Controller
         $numCde           = $soumissionFacBl->getNumeroCde();
         $numOr            = $soumissionFacBl->getNumeroOR();
 
-        $infoBC           = $daModel->getInfoBC($numCde);
+
         $infoValidationBC = $this->dwBcApproRepository->getInfoValidationBC($numCde) ?? [];
         $infoMateriel     = $ditModel->recupInfoMateriel($numOr);
         $dataRecapOR      = $recapitulationOR->getData($numOr);
