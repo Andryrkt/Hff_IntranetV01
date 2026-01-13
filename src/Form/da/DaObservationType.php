@@ -31,9 +31,11 @@ class DaObservationType extends AbstractType
 
         $builder
             ->add('observation', TextareaType::class, [
-                'label' => 'Observation',
+                'label' => false,
                 'attr'  => [
-                    'rows' => 5,
+                    'placeholder' => 'Ecrivez votre observation ...',
+                    'rows' => 1,
+                    'class' => 'message-input',
                 ],
                 'required' => true
             ])
@@ -45,6 +47,9 @@ class DaObservationType extends AbstractType
                     'required'   => false,
                     'multiple'   => true,
                     'data_class' => null,
+                    'attr' => [
+                        'accept' => '.pdf'
+                    ],
                     'constraints' => [
                         new All([
                             'constraints' => [
@@ -53,7 +58,7 @@ class DaObservationType extends AbstractType
                                     'mimeTypes' => [
                                         'application/pdf',
                                     ],
-                                    'mimeTypesMessage' => 'Veuillez télécharger un fichier valide (PDF, image).',
+                                    'mimeTypesMessage' => 'Veuillez télécharger un fichier valide (PDF).',
                                 ])
                             ]
                         ])
