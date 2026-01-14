@@ -1,5 +1,7 @@
 {% extends "baseTemplate.html.twig" %}
 
+{% block title %}{{ title }}{% endblock %}
+
 {% block stylesheets %}
 <link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
 <link rel="stylesheet" href="{{ App.base_path }}/Views/css/ddc/listeConge.css">
@@ -9,7 +11,7 @@
 <div class="container">
     <div class="d-flex justify-content-between mb-3">
         <h3 class="perso-titre">Liste des Demandes de Congé</h3>
-        <a href="{{ path('conge_calendrier') }}" class="btn btn-sm btn-warning switch-view">
+        <a href="{{ path('conge_calendrier') }}" class="btn btn-sm btn-info text-white">
             <i class="fas fa-calendar"></i> Calendrier
         </a>
     </div>
@@ -46,6 +48,9 @@
     window.congesData = {{ conges|json_encode|raw }};
     window.employeesData = {{ employees|json_encode|raw }};
     document.body.dataset.viewMode = "list";
+    {% if selected_month %}
+    window.selectedMonth = {{ selected_month|date('Y-m-d')|json_encode|raw }};
+    {% endif %}
 </script>
 
 <!-- Templates pour le rendu côté client -->

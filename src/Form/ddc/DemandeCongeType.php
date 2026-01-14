@@ -13,6 +13,8 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 
 class DemandeCongeType extends AbstractType
 {
@@ -47,9 +49,9 @@ class DemandeCongeType extends AbstractType
         $statuts = $this->getStatutChoicesFromDatabase($em);
 
         $builder
-            ->add('matricule', TextType::class, [
+            ->add('matricule', HiddenType::class, [
                 'required' => false,
-                'mapped' => true,
+                'mapped' => false,  // Changer à false pour gérer manuellement
                 'label' => 'Matricule, Nom et Prénoms',
                 'attr' => [
                     'placeholder' => 'Saisissez plusieurs matricules séparés par une virgule'
@@ -118,6 +120,13 @@ class DemandeCongeType extends AbstractType
                 'choice_value' => function ($value) {
                     return $value; // Retourne la valeur telle quelle au lieu d'un indice
                 }
+            ])
+            ->add('groupeDirection', CheckboxType::class, [
+                'required' => false,
+                'mapped' => true,
+                'label' => 'Groupe Direction',
+                // 'expanded' => true,
+                // 'multiple' => false,
             ])
         ;
 

@@ -23,7 +23,7 @@
             {% set classeStatut = 'bg-success text-white' %}
             {% elseif demande.statutDemande | trim == 'A valider chef de service' %}
             {% set classeStatut = 'bg-warning text-dark' %}
-            {% elseif demande.statutDemande | trim == 'Refusé chef de service' %}
+            {% elseif demande.statutDemande | trim == 'Refusé chef de service' or demande.statutDemande | trim == 'Annulé'%}
             {% set classeStatut = 'bg-danger text-white' %}
             {% elseif demande.statutDemande | trim == 'EN COURS' %}
             {% set classeStatut = 'bg-info text-dark' %}
