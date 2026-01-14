@@ -123,7 +123,6 @@ class DomForm2Type extends AbstractType
                 $form = $event->getForm();
                 $data = $event->getData();
 
-
                 $agenceId = $data['agence'];
 
                 $agence = $this->em->getRepository(Agence::class)->find($agenceId);
