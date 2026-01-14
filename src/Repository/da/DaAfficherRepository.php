@@ -826,7 +826,9 @@ class DaAfficherRepository extends EntityRepository
                     FROM ' . DaAfficher::class . ' d2
                     WHERE d2.numeroDemandeAppro = d.numeroDemandeAppro
                 )'
-        );
+        )
+            ->andWhere('d.deleted = :deleted')
+            ->setParameter('deleted', 0);
 
         $this->applyDynamicFilters($qb, 'd', $criteria);
         $this->applyAgencyServiceFilters($qb, 'd', $criteria, $user, $idAgenceUser, $estAppro, $estAtelier, $estAdmin);
