@@ -1,5 +1,6 @@
 import { AutoComplete } from "../../utils/AutoComplete.js";
 import { FetchManager } from "../../api/FetchManager.js";
+import { displayOverlay } from "../../utils/ui/overlay.js";
 const fetchManager = new FetchManager();
 
 /**===================================================
@@ -50,6 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
       const selectedBAPs = checkedBoxes.map((cb) => cb.name);
+      console.log(selectedBAPs);
 
       const confirmation = await Swal.fire({
         title: "Confirmer la transmission",
@@ -62,12 +64,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (confirmation.isConfirmed) {
         try {
-          window.displayOverlay(
+          displayOverlay(
             true,
             "Transmission des demandes BAP en cours, merci de patienter ..."
           );
           const response = await fetchManager.post(
-            "api/transmettre-bap-compta",
+            `api/transmettre-bap-compta`,
             {
               bapNumbers: selectedBAPs,
             }
@@ -89,12 +91,12 @@ document.addEventListener("DOMContentLoaded", () => {
               icon: "error",
               title: "Erreur lors de la transmission",
               text:
-                response.message ||
+                response.error || response.message ||
                 "Une erreur est survenue lors de la transmission des demandes BAP.",
             });
           }
         } catch (error) {
-          window.displayOverlay(false);
+          displayOverlay(false);
           console.error(
             "Erreur lors de la transmission des demandes BAP :",
             error
@@ -120,8 +122,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (iframe) {
       iframe.addEventListener("load", () => {
-        if (spinner) 
-          spinner.style.display = "none";
+        if (spinner) spinner.style.display = "none";
         iframe.style.visibility = "visible";
       });
     }
@@ -131,8 +132,7 @@ document.addEventListener("DOMContentLoaded", () => {
         e.preventDefault();
         const pdfUrl = button.dataset.pdfUrl;
         if (pdfUrl && iframe) {
-          if (spinner) 
-            spinner.style.display = "block";
+          if (spinner) spinner.style.display = "block";
           iframe.style.visibility = "hidden";
           // Ajout d'un paramètre pour forcer le rafraîchissement (cache busting)
           iframe.src = pdfUrl + "?v=" + new Date().getTime();

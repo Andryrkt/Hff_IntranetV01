@@ -40,6 +40,9 @@ class DdpApiController extends Controller
                 $ddp = new DemandePaiement();
                 //recupereation de l'application DDP pour generer le numero de ddp
                 $application = $this->getEntityManager()->getRepository(Application::class)->findOneBy(['codeApp' => 'DDP']);
+                if (!$application) {
+                    throw new \Exception("L'application 'DDP' n'a pas été trouvée dans la configuration.");
+                }
                 //generation du numero de ddp
                 $numeroDdp = AutoIncDecService::autoGenerateNumero('DDP', $application->getDerniereId(), true);
                 //mise a jour de la derniere id de l'application DDP
@@ -48,6 +51,14 @@ class DdpApiController extends Controller
                 $ddpApresLivraison = $this->getEntityManager()->getRepository(TypeDemande::class)->find(2);
                 // recupération des informations dans IPS
                 $demandePaiementModel = new DemandePaiementModel();
+
+                if (null === $value->getNumeroFournisseur()) {
+                    throw new \Exception("Le numéro de fournisseur est manquant pour le BAP : " . $value->getNumeroBap());
+                }
+                if (null === $value->getNumeroCde()) {
+                    throw new \Exception("Le numéro de commande est manquant pour le BAP : " . $value->getNumeroBap());
+                }
+
                 // recup info ips pour la da
                 $infoIps = $demandePaiementModel->recupInfoPourDa($value->getNumeroFournisseur(), $value->getNumeroCde());
                 // remplissage de la nouvelle demande de paiement
@@ -85,7 +96,7 @@ class DdpApiController extends Controller
                 'success' => true,
                 'message' => " demande(s) BAP ont été transmises avec succès.",
             ]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return new JsonResponse([
                 'success' => false,
                 'message' => 'Une erreur est survenue lors de la transmission des demandes BAP.',
