@@ -4,24 +4,17 @@ namespace App\Controller\Traits;
 
 
 use App\Model\dit\DitModel;
-use App\Entity\admin\Application;
 use App\Dto\Dit\DemandeInterventionDto;
-
+use App\Factory\Dit\DemandeInterventionFactory;
 
 trait DitTrait
 {
 
     /**
-
      * @var DemandeInterventionFactory
-
      * Cette propriété doit être injectée dans le constructeur du contrôleur qui utilise ce trait.
-
      */
-
     private $demandeInterventionFactory;
-
-
 
     private function createDemandeInterventionFromDto(DemandeInterventionDto $dto): array
     {
@@ -30,16 +23,15 @@ trait DitTrait
             $ditAteTanaPol =  $this->demandeInterventionFactory->createFromDtoPol($dto);
             return [$ditAteTana, $ditAteTanaPol];
         } else {
-
             return [$this->demandeInterventionFactory->createFromDto($dto)];
         }
     }
 
-
     private function historiqueInterventionMateriel(int $idMateriel): array
-    {$ditModel = new DitModel();
+    {
+        $ditModel = new DitModel();
         $historiqueMateriel = $ditModel->historiqueMateriel($idMateriel);
-        
+
         foreach ($historiqueMateriel as $keys => $values) {
             foreach ($values as $key => $value) {
                 if ($key == "datedebut") {
