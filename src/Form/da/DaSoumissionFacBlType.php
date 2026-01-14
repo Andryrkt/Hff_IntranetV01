@@ -42,6 +42,10 @@ class DaSoumissionFacBlType extends AbstractType
                 'label'  => 'Date BL facture fournisseur (*)',
                 'attr'   => ['data-field-name' => 'Date BL facture fournisseur']
             ])
+            ->add('montantBlFacture', TextType::class, [
+                'label' => 'Montant BL facture fournisseur (*)',
+                'required' => true,
+            ])
             ->add(
                 'pieceJoint1',
                 FileType::class,

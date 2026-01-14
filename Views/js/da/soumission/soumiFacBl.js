@@ -3,6 +3,11 @@ import {
   initializeFileHandlersMultiple,
 } from "../../utils/file_upload_Utils.js";
 import { setupConfirmationButtons } from "../../utils/ui/boutonConfirmUtils.js";
+import {
+  registerLocale,
+  setLocale,
+  formatNumberSpecial,
+} from "../../utils/formatNumberUtils.js";
 
 /** ============================
  * CHAMP FORMULAIRE
@@ -25,3 +30,17 @@ initializeFileHandlersMultiple("2", fileInput2);
  * sweetalert pour le bouton Enregistrer
  *==================================================*/
 setupConfirmationButtons();
+
+/** ======================================================
+ * validation du donnée pour le champ montant bc
+ *=========================================================*/
+const montantFacBlInput = document.querySelector(
+  "#da_soumission_fac_bl_montantBlFacture"
+);
+registerLocale("fr-custom", { delimiters: { thousands: " ", decimal: "," } }); // Enregistrer une locale personnalisée "fr-custom"
+setLocale("fr-custom"); // Utiliser la locale personnalisée
+if (montantFacBlInput) {
+  montantFacBlInput.addEventListener("input", (e) => {
+    montantFacBlInput.value = formatNumberSpecial(montantFacBlInput.value);
+  });
+}
