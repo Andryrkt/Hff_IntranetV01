@@ -5,6 +5,7 @@ namespace App\Model\dit;
 
 use App\Model\Model;
 use App\Model\Traits\ConversionModel;
+use App\Service\GlobalVariablesService;
 
 class DitModel extends Model
 {
@@ -76,33 +77,47 @@ class DitModel extends Model
 
   public function historiqueMateriel(int $idMateriel, string $reparationRealise)
   {
+    $estPneumatique = in_array($reparationRealise, ['ATE POL TANA']);
+    $estPiece = in_array($reparationRealise, ['ATE TANA', 'ATE STAR', 'ATE MAS']);
+    $constructeurPneumatique = GlobalVariablesService::get('pneumatique') . ",'PNE'";
+    $conditionConstructeur = "";
+
+    if ($estPneumatique) {
+      $conditionConstructeur = "AND slor_constp IN ($constructeurPneumatique)";
+    } else if ($estPiece) {
+      $conditionConstructeur = "AND slor_constp NOT IN ($constructeurPneumatique)";
+    }
 
     $statement = "SELECT
-            trim(seor_succ) AS codeAgence,
-            trim(seor_servcrt) AS codeService,
-            sitv_datdeb AS dateDebut,
-            sitv_numor AS numeroOr, 
-            sitv_interv AS numeroIntervention, 
-            trim(sitv_comment) AS commentaire,
-            sitv_pos AS pos,
-            sum(slor_pxnreel* (CASE 
-            WHEN slor_typlig = 'P' 
-                THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) 
-            WHEN slor_typlig IN ('F','M','U','C') 
-                THEN slor_qterea 
-        END)) AS somme
-            FROM  sav_eor, sav_lor, sav_itv, agr_succ, agr_tab ser, mat_mat, agr_tab ope, OUTER agr_tab sec
+              TRIM(seor_succ) AS codeAgence,
+              TRIM(seor_servcrt) AS codeService,
+              sitv_datdeb AS dateDebut,
+              sitv_numor AS numeroOr, 
+              sitv_interv AS numeroIntervention, 
+              TRIM(sitv_comment) AS commentaire,
+              sitv_pos AS pos,
+              SUM(
+                slor_pxnreel * (
+                CASE 
+                  WHEN slor_typlig = 'P' 
+                    THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) 
+                  WHEN slor_typlig IN ('F','M','U','C') 
+                    THEN slor_qterea 
+                END)
+              ) AS somme
+            FROM sav_eor, sav_lor, sav_itv, agr_succ, agr_tab ser, mat_mat, agr_tab ope, OUTER agr_tab sec
             WHERE seor_numor = slor_numor
-            AND seor_serv <> 'DEV'
-            AND sitv_numor = slor_numor
-            AND sitv_interv = slor_nogrp/100
-            AND (seor_succ = asuc_num)
-            AND (seor_servcrt = ser.atab_code AND ser.atab_nom = 'SER')
-            AND (sitv_typitv = sec.atab_code AND sec.atab_nom = 'TYI')
-            AND (seor_ope = ope.atab_code AND ope.atab_nom = 'OPE')
-            AND sitv_pos IN ('FC','FE','CP','ST', 'EC')
-            AND (seor_nummat = mmat_nummat)
-            AND mmat_nummat ='$idMateriel'
+              AND seor_serv <> 'DEV'
+              AND sitv_numor = slor_numor
+              AND sitv_interv = slor_nogrp/100
+              AND (seor_succ = asuc_num)
+              AND (seor_servcrt = ser.atab_code AND ser.atab_nom = 'SER')
+              AND (sitv_typitv = sec.atab_code AND sec.atab_nom = 'TYI')
+              AND (seor_ope = ope.atab_code AND ope.atab_nom = 'OPE')
+              AND sitv_pos IN ('FC','FE','CP','ST', 'EC')
+              AND (seor_nummat = mmat_nummat)
+              AND mmat_nummat ='$idMateriel'
+              $conditionConstructeur
             GROUP BY 1,2,3,4,5,6,7
             ORDER BY sitv_pos DESC, sitv_datdeb DESC, sitv_numor, sitv_interv
     ";
