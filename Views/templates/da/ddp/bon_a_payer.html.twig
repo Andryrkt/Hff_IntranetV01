@@ -51,7 +51,7 @@
 				{% for row in daSoumissionFacBl %}
 					<tr>
 						<td class="text-center">
-							<input type="checkbox" name="{{ row.numeroBap }}" class="bap-checkbox">
+							<input type="checkbox" name="{{ row.numeroBap }}" class="bap-checkbox" {{ row.statutBap != 'A transmettre' ? 'disabled' : '' }}>
 						</td>
 						<td class="text-center">{{ row.numeroDemandeAppro }}</td>
 						<td class="text-center">{{ row.numeroDemandePaiement }}</td>
@@ -64,7 +64,7 @@
 							{% if fileExists %}
 								<a href="#" class="show-pdf-modal" data-pdf-url="{{ path('bap_pdf_viewer', {numeroDa: row.numeroDemandeAppro, numeroCde: row.numeroCde}) }}">
 									{{ row.numeroBap }}
-									<i class="fas fa-file-pdf ml-1"></i>
+									<i class="fas fa-file-pdf ml-1" style="color: red;"></i>
 								</a>
 							{% else %}
 								{{ row.numeroBap }}

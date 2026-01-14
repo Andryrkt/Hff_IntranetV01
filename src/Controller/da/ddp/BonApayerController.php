@@ -16,7 +16,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class BonApayerController extends Controller
 {
     /**
-     * @Route("/da-bon-a-payer", name="da_bon_a_payer" )
+     * @Route("/consultation-facture", name="da_bon_a_payer" )
      */
     public function index(Request $request)
     {

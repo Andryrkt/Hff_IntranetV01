@@ -74,14 +74,14 @@ class DdpApiController extends Controller
                     ], 400);
                 }
 
-                $numeroCde = [$infoIps['numero_cde']] ?? [];
+
                 // remplissage de la nouvelle demande de paiement
                 $ddp->setNumeroDdp($numeroDdp)
                     ->setTypeDemandeId($ddpApresLivraison)
                     ->setNumeroFournisseur($infoIps['num_fournisseur'] ?? '')
                     ->setRibFournisseur($infoIps['rib'] ?? '')
                     ->setBeneficiaire($infoIps['nom_fournisseur'] ?? '')
-                    ->setMotif("Bon a payer {$value->getNumeroFournisseur()} - <numero_facture_fournisseur>")
+                    ->setMotif("Bon a payer {$value->getNumeroFournisseur()} - {$value->getNumeroFactureFournisseur()}")
                     ->setAgenceDebiter($infoIps['code_agence'] ?? '')
                     ->setServiceDebiter($infoIps['code_service'] ?? '')
                     ->setStatut('Soumis à validation')
@@ -90,8 +90,8 @@ class DdpApiController extends Controller
                     ->setModePaiement($infoIps['mode_paiement'] ?? '')
                     ->setMontantAPayers(0.00)
                     ->setContact(Null)
-                    ->setNumeroCommande($numeroCde)
-                    ->setNumeroFacture([])
+                    ->setNumeroCommande([$infoIps['numero_cde']] ?? [])
+                    ->setNumeroFacture([$value->getNumeroFactureFournisseur()] ?? [])
                     ->setStatutDossierRegul(Null)
                     ->setNumeroVersion(1)
                     ->setDevise($infoIps['devise'] ?? '')
