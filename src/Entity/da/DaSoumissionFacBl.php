@@ -94,7 +94,7 @@ class DaSoumissionFacBl
     private $statutBap;
 
     /**
-     * @ORM\Column(type="date", name="date_soumission_compta")
+     * @ORM\Column(type="datetime", name="date_soumission_compta")
      */
     private $dateSoumissionCompta;
 
@@ -114,7 +114,7 @@ class DaSoumissionFacBl
     private $numeroDemandePaiement;
 
     /** 
-     * @ORM\Column(type="date", name="date_statut_bap", nullable=true)
+     * @ORM\Column(type="datetime", name="date_statut_bap", nullable=true)
      */
     private $dateStatutBap;
 

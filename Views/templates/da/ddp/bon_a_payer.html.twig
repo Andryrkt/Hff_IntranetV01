@@ -21,11 +21,13 @@
 			<div class="container">
 				{% include "/partials/_notification.html.twig" %}
 				{% include "/da/ddp/_formulaire_recherche.html.twig" %}
+				<div class="my-3 mx-3 d-flex justify-content-end">
+					<button type="button" class="btn btn-warning" id="transmettreBAP">Transmettre les demandes BAP sélectionnés à la compta</button>
+				</div>
 			</div>
+
 		</div>
-		<div class="my-3 mx-3 d-flex justify-content-end">
-			<button type="button" class="btn btn-warning" id="transmettreBAP">Transmettre les demandes BAP sélectionnés à la compta</button>
-		</div>
+
 		<table class="table table-sticky">
 			<thead class="table-dark align-middle">
 				<tr>
@@ -69,9 +71,9 @@
 							{% endif %}
 						</td>
 						<td class="text-center fw-bold {{ row.statutCssClass }}">{{ row.statutBap }}</td>
-						<td class="text-center">{{ row.dateSoumissionCompta }}</td>
-						<td class="text-center">{{ row.dateStatutBap }}</td>
-						<td class="text-center">{{ row.dateReceptionIPS }}</td>
+						<td class="text-center">{{ row.dateSoumissionCompta ? row.dateSoumissionCompta | date('d/m/Y'):null }}</td>
+						<td class="text-center">{{ row.dateStatutBap ? row.dateStatutBap | date('d/m/Y'):null }}</td>
+						<td class="text-center">{{ row.dateReceptionIPS ? row.dateReceptionIPS | date('d/m/Y'):null }}</td>
 						<td class="text-center">{{ row.montantReceptionIps }}</td>
 						<td class="text-center">{{ row.montantBlFacture }}</td>
 					</tr>
@@ -102,5 +104,6 @@
 {% endblock %}
 
 {% block javascript %}
+	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v=2025.10.22.08.00"></script>
 	<script src="{{ App.base_path }}/Views/js/da/ddp/bon_a_payer.js?v=2025.10.22.08.00" type="module"></script>
 {% endblock %}

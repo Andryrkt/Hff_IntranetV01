@@ -102,7 +102,7 @@ class DaSoumissionFacBlRepository extends EntityRepository
         }
 
 
-        return $result->getQuery()->getResult();
+        return $result->orderBy('dabc.id', 'DESC')->getQuery()->getResult();
     }
 
     public function getAllSelonNumBap(array $bapNumbers)

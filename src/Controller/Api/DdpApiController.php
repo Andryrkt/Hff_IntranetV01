@@ -25,6 +25,8 @@ class DdpApiController extends Controller
             $this->verifierSessionUtilisateur();
             $data = json_decode($request->getContent(), true);
             $bapNumbers = $data['bapNumbers'] ?? [];
+            $bapNumberString = implode(', ', $bapNumbers);
+
 
             if (empty($bapNumbers)) {
                 return new JsonResponse([
@@ -49,6 +51,9 @@ class DdpApiController extends Controller
                 AutoIncDecService::mettreAJourDerniereIdApplication($application, $this->getEntityManager(), $numeroDdp);
                 // recupération du type de demande "DDP après livraison"
                 $ddpApresLivraison = $this->getEntityManager()->getRepository(TypeDemande::class)->find(2);
+                if (!$ddpApresLivraison) {
+                    throw new \Exception("Le type de demande 'DDP après livraison' (ID 2) n'a pas été trouvé.");
+                }
                 // recupération des informations dans IPS
                 $demandePaiementModel = new DemandePaiementModel();
 
@@ -60,7 +65,16 @@ class DdpApiController extends Controller
                 }
 
                 // recup info ips pour la da
-                $infoIps = $demandePaiementModel->recupInfoPourDa($value->getNumeroFournisseur(), $value->getNumeroCde());
+                $infoIps = $demandePaiementModel->recupInfoPourDa($value->getNumeroFournisseur(), $value->getNumeroCde())[0] ?? [];
+
+                if (empty($infoIps)) {
+                    return new JsonResponse([
+                        'success' => false,
+                        'message' => 'InfoIps est vide pour le BAP : ' . $value->getNumeroBap(),
+                    ], 400);
+                }
+
+                $numeroCde = [$infoIps['numero_cde']] ?? [];
                 // remplissage de la nouvelle demande de paiement
                 $ddp->setNumeroDdp($numeroDdp)
                     ->setTypeDemandeId($ddpApresLivraison)
@@ -76,8 +90,8 @@ class DdpApiController extends Controller
                     ->setModePaiement($infoIps['mode_paiement'] ?? '')
                     ->setMontantAPayers(0.00)
                     ->setContact(Null)
-                    ->setNumeroCommande('["' . $infoIps['numero_cde'] . '"]')
-                    ->setNumeroFacture('[]')
+                    ->setNumeroCommande($numeroCde)
+                    ->setNumeroFacture([])
                     ->setStatutDossierRegul(Null)
                     ->setNumeroVersion(1)
                     ->setDevise($infoIps['devise'] ?? '')
@@ -88,15 +102,28 @@ class DdpApiController extends Controller
                     ->setNumeroDossierDouane(Null)
                 ;
                 $this->getEntityManager()->persist($ddp);
+
+                /** modification de la table da_soumission_fac_bl pour  le numéro de DDP créés, 
+                 * le changement de statut BAP transmis à la compta 
+                 * et la date de soumission compta */
+                $value->setNumeroDemandePaiement($numeroDdp)
+                    ->setStatutBap('Transmise')
+                    ->setDateSoumissionCompta(new DateTime())
+                ;
+                $this->getEntityManager()->persist($value);
             }
 
             $this->getEntityManager()->flush();
 
+
             return new JsonResponse([
                 'success' => true,
-                'message' => " demande(s) BAP ont été transmises avec succès.",
+                'message' => count($bapNumbers) . " demande(s) BAP ont été transmises avec succès. ($bapNumberString)",
             ]);
         } catch (\Throwable $e) {
+            if (ob_get_length() > 0) {
+                ob_clean();
+            }
             return new JsonResponse([
                 'success' => false,
                 'message' => 'Une erreur est survenue lors de la transmission des demandes BAP.',

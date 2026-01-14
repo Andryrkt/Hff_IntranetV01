@@ -217,6 +217,7 @@ class DaSoumissionFacBlController extends Controller
             ->setMontantReceptionIps($montantReceptionIps[0] ?? 0)
             ->setNumeroFournisseur($infoBC['num_fournisseur'] ?? null)
             ->setNomFournisseur($infoBC['nom_fournisseur'] ?? null)
+            ->setMontantBlFacture(0.00)
         ;
     }
 
