@@ -204,7 +204,7 @@ class DaSoumissionFacBlController extends Controller
         //mise a jour de la derniere id de l'application BAP
         AutoIncDecService::mettreAJourDerniereIdApplication($application, $this->getEntityManager(), $numeroBap);
         // recupération du montant reception IPS
-        $montantReceptionIps = $this->daSoumissionFacBlModel->getMontantReceptionIps($soumissionFacBl->getNumLiv());
+        $montantReceptionIps = $this->daSoumissionFacBlModel->getMontantReceptionIpsEtNumFac($soumissionFacBl->getNumLiv());
 
         $soumissionFacBl
             ->setPieceJoint1($nomPdfFusionner)
@@ -214,10 +214,11 @@ class DaSoumissionFacBlController extends Controller
             ->setStatutBap('A transmettre')
             ->setNumeroBap($numeroBap)
             ->setDateStatutBap(new DateTime())
-            ->setMontantReceptionIps($montantReceptionIps[0] ?? 0)
+            ->setMontantReceptionIps($montantReceptionIps[0]['montant_reception_ips'] ?? 0)
             ->setNumeroFournisseur($infoBC['num_fournisseur'] ?? null)
             ->setNomFournisseur($infoBC['nom_fournisseur'] ?? null)
             ->setMontantBlFacture(0.00)
+            ->setNumeroFactureFournisseur($montantReceptionIps[0]['numero_facture'] ?? null)
         ;
     }
 

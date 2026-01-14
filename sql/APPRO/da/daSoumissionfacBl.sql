@@ -38,3 +38,6 @@ ALTER TABLE da_soumission_facture_bl ADD
 ALTER TABLE da_soumission_facture_bl ADD
     numero_fournisseur INT NULL,
     nom_fournisseur VARCHAR(255) NULL;
+
+ALTER TABLE da_soumission_facture_bl ADD
+    numero_facture_fournisseur VARCHAR(255) NULL;

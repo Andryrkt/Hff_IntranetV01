@@ -128,6 +128,11 @@ class DaSoumissionFacBl
      */
     private $nomFournisseur;
 
+    /**
+     * @ORM\Column(type="string", length=255, name="numero_facture_fournisseur", nullable=true)
+     */
+    private $NumeroFactureFournisseur;
+
 
     private $pieceJoint2;
 
@@ -535,6 +540,18 @@ class DaSoumissionFacBl
     public function setNomFournisseur($nomFournisseur): self
     {
         $this->nomFournisseur = $nomFournisseur;
+
+        return $this;
+    }
+
+    public function getNumeroFactureFournisseur()
+    {
+        return $this->NumeroFactureFournisseur;
+    }
+
+    public function setNumeroFactureFournisseur($NumeroFactureFournisseur): self
+    {
+        $this->NumeroFactureFournisseur = $NumeroFactureFournisseur;
 
         return $this;
     }
