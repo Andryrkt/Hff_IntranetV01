@@ -27,10 +27,10 @@ trait DitTrait
         }
     }
 
-    private function historiqueInterventionMateriel(int $idMateriel): array
+    private function historiqueInterventionMateriel(int $idMateriel, string $reparationRealise): array
     {
         $ditModel = new DitModel();
-        $historiqueMateriel = $ditModel->historiqueMateriel($idMateriel);
+        $historiqueMateriel = $ditModel->historiqueMateriel($idMateriel, $reparationRealise);
 
         foreach ($historiqueMateriel as $keys => $values) {
             foreach ($values as $key => $value) {

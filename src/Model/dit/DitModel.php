@@ -74,48 +74,38 @@ class DitModel extends Model
   }
 
 
-  public function historiqueMateriel(int $idMateriel)
+  public function historiqueMateriel(int $idMateriel, string $reparationRealise)
   {
 
-    $statement = " SELECT
-
-            trim(seor_succ) as codeAgence,
-            --trim(asuc_lib),
-            trim(seor_servcrt) as codeService,
-            --trim(ser.atab_lib),
-            sitv_datdeb as dateDebut,
-            sitv_numor as numeroOr, 
-            sitv_interv as numeroIntervention, 
-            trim(sitv_comment) as commentaire,
-	          sitv_pos as pos,
-            --sum(slor_qterea*slor_pmp) as somme d'après le demande de Hoby rahalahy 
+    $statement = "SELECT
+            trim(seor_succ) AS codeAgence,
+            trim(seor_servcrt) AS codeService,
+            sitv_datdeb AS dateDebut,
+            sitv_numor AS numeroOr, 
+            sitv_interv AS numeroIntervention, 
+            trim(sitv_comment) AS commentaire,
+            sitv_pos AS pos,
             sum(slor_pxnreel* (CASE 
             WHEN slor_typlig = 'P' 
                 THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) 
             WHEN slor_typlig IN ('F','M','U','C') 
                 THEN slor_qterea 
-        END)) as somme
-
-
-            FROM  sav_eor, sav_lor, sav_itv, agr_succ, agr_tab ser, mat_mat, agr_tab ope, outer agr_tab sec
-
-            where seor_numor = slor_numor
-            and seor_serv <> 'DEV'
-            and sitv_numor = slor_numor
-            and sitv_interv = slor_nogrp/100
-            and (seor_succ = asuc_num) -- or mmat_succ = asuc_parc)
-            and (seor_servcrt = ser.atab_code and ser.atab_nom = 'SER')
-            and (sitv_typitv = sec.atab_code and sec.atab_nom = 'TYI')
-            and (seor_ope = ope.atab_code and ope.atab_nom = 'OPE')
-            and sitv_pos in ('FC','FE','CP','ST', 'EC')
-            --and sitv_servcrt in ('ATE','FOR','GAR','MAN','CSP','MAS', 'LR6', 'LST')
-            and (seor_nummat = mmat_nummat)
-
-            and mmat_nummat ='$idMateriel'
-
-            group by 1,2,3,4,5,6,7
-            order by sitv_pos desc, sitv_datdeb desc, sitv_numor, sitv_interv
-            ";
+        END)) AS somme
+            FROM  sav_eor, sav_lor, sav_itv, agr_succ, agr_tab ser, mat_mat, agr_tab ope, OUTER agr_tab sec
+            WHERE seor_numor = slor_numor
+            AND seor_serv <> 'DEV'
+            AND sitv_numor = slor_numor
+            AND sitv_interv = slor_nogrp/100
+            AND (seor_succ = asuc_num)
+            AND (seor_servcrt = ser.atab_code AND ser.atab_nom = 'SER')
+            AND (sitv_typitv = sec.atab_code AND sec.atab_nom = 'TYI')
+            AND (seor_ope = ope.atab_code AND ope.atab_nom = 'OPE')
+            AND sitv_pos IN ('FC','FE','CP','ST', 'EC')
+            AND (seor_nummat = mmat_nummat)
+            AND mmat_nummat ='$idMateriel'
+            GROUP BY 1,2,3,4,5,6,7
+            ORDER BY sitv_pos DESC, sitv_datdeb DESC, sitv_numor, sitv_interv
+    ";
 
     $result = $this->connect->executeQuery($statement);
 
