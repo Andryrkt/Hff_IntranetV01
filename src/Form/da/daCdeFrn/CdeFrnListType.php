@@ -27,6 +27,18 @@ class CdeFrnListType extends  AbstractType
         $this->em = $em;
     }
 
+    private const STATUT_DA = [
+        DemandeAppro::STATUT_VALIDE               => DemandeAppro::STATUT_VALIDE,
+        DemandeAppro::STATUT_CLOTUREE             => DemandeAppro::STATUT_CLOTUREE,
+        DemandeAppro::STATUT_SOUMIS_ATE           => DemandeAppro::STATUT_SOUMIS_ATE,
+        DemandeAppro::STATUT_SOUMIS_APPRO         => DemandeAppro::STATUT_SOUMIS_APPRO,
+        DemandeAppro::STATUT_DEMANDE_DEVIS        => DemandeAppro::STATUT_DEMANDE_DEVIS,
+        DemandeAppro::STATUT_DEVIS_A_RELANCER     => DemandeAppro::STATUT_DEVIS_A_RELANCER,
+        DemandeAppro::STATUT_EN_COURS_CREATION    => DemandeAppro::STATUT_EN_COURS_CREATION,
+        DemandeAppro::STATUT_AUTORISER_MODIF_ATE  => DemandeAppro::STATUT_AUTORISER_MODIF_ATE,
+        DemandeAppro::STATUT_EN_COURS_PROPOSITION => DemandeAppro::STATUT_EN_COURS_PROPOSITION,
+    ];
+
     private function statutBc()
     {
         return $this->em->getRepository(DaAfficher::class)->getStatutsBc();
@@ -45,6 +57,9 @@ class CdeFrnListType extends  AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+        $statut_da = self::STATUT_DA;
+        ksort($statut_da);
+
         $builder
             ->add('numDa', TextType::class, [
                 'label'    => 'n° DA',
@@ -110,6 +125,12 @@ class CdeFrnListType extends  AbstractType
                     'required' => false,
                 ]
             )
+            ->add('statutDA', ChoiceType::class, [
+                'placeholder'   => '-- Choisir un statut --',
+                'label'         => 'Statut de la DA',
+                'choices'       => $statut_da,
+                'required'      => false
+            ])
             ->add('dateDebutOR', DateType::class, [
                 'widget' => 'single_text',
                 'label' => 'Date début planning OR',

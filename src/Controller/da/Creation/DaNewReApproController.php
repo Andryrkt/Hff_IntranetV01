@@ -70,6 +70,9 @@ class DaNewReApproController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var DemandeAppro $demandeAppro */
             $demandeAppro = $form->getData();
+            $firstCreation = $demandeAppro->getNumeroDemandeAppro() === null;
+            $numDa = $firstCreation ? $this->autoDecrement('DAP') : $demandeAppro->getNumeroDemandeAppro();
+
             $this->gererAgenceServiceDebiteur($demandeAppro);
 
             // Récupérer le nom du bouton cliqué
@@ -77,6 +80,7 @@ class DaNewReApproController extends Controller
             $statutDa = self::STATUT_DAL[$clickedButtonName];
 
             $demandeAppro
+                ->setNumeroDemandeAppro($numDa)
                 ->setDetailDal($demandeAppro->getDetailDal() ?? '-')
                 ->setStatutDal($statutDa);
 
@@ -84,6 +88,7 @@ class DaNewReApproController extends Controller
             foreach ($demandeAppro->getDAL() as $dal) {
                 if ($dal->getQteDem()) {
                     $dal
+                        ->setNumeroDemandeAppro($numDa)
                         ->setDemandeAppro($demandeAppro)
                         ->setDateFinSouhaite($demandeAppro->getDateFinSouhaite())
                         ->setJoursDispo($this->getJoursRestants($dal))
@@ -95,9 +100,12 @@ class DaNewReApproController extends Controller
                 }
             }
 
-            /** Modifie la colonne dernière_id dans la table applications */
-            $applicationService = new ApplicationService($this->getEntityManager());
-            $applicationService->mettreAJourDerniereIdApplication('DAP', $demandeAppro->getNumeroDemandeAppro());
+            // si c'est la première création, on met à jour la colonne dernière_id dans la table applications
+            if ($firstCreation) {
+                /** Modifie la colonne dernière_id dans la table applications */
+                $applicationService = new ApplicationService($this->getEntityManager());
+                $applicationService->mettreAJourDerniereIdApplication('DAP', $numDa);
+            }
 
             /** Ajout de demande appro dans la base de donnée (table: Demande_Appro) */
             $this->getEntityManager()->persist($demandeAppro);

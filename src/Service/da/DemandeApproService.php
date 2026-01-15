@@ -52,6 +52,7 @@ class DemandeApproService
         'createur_da_directe' => [
             DemandeAppro::STATUT_SOUMIS_ATE          => true,
             DemandeAppro::STATUT_EN_COURS_CREATION   => true,
+            DemandeAppro::STATUT_AUTORISER_MODIF_ATE => true,
             DemandeAppro::STATUT_VALIDE              => [
                 DemandeAppro::STATUT_DW_A_VALIDE => false,
                 DemandeAppro::STATUT_DW_REFUSEE  => false,

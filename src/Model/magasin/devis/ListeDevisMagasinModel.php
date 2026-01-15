@@ -31,7 +31,7 @@ class ListeDevisMagasinModel extends Model
             AND nent_numcde not in ($numDeviAExclureString)
             AND nent_numcde not in ('19407989','19407991','19408971','19410383','19409906','19409996')
             AND nent_datecde >= MDY(9, 1, 2025)
-            AND year(Nent_datecde) = year(TODAY)
+            --AND year(Nent_datecde) = year(TODAY)
         ";
 
         if (array_key_exists('statutIps', $criteria) && ($criteria['statutIps'] == 'RE' || $criteria['statutIps'] == 'TR')) {
@@ -66,7 +66,7 @@ class ListeDevisMagasinModel extends Model
 
         $statement .= " ORDER BY nent_datecde DESC";
 
-
+    
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);

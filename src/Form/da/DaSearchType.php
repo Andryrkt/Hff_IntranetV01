@@ -26,6 +26,7 @@ class DaSearchType extends  AbstractType
 {
     private const STATUT_DA = [
         DemandeAppro::STATUT_VALIDE               => DemandeAppro::STATUT_VALIDE,
+        DemandeAppro::STATUT_CLOTUREE             => DemandeAppro::STATUT_CLOTUREE,
         DemandeAppro::STATUT_SOUMIS_ATE           => DemandeAppro::STATUT_SOUMIS_ATE,
         DemandeAppro::STATUT_SOUMIS_APPRO         => DemandeAppro::STATUT_SOUMIS_APPRO,
         DemandeAppro::STATUT_DEMANDE_DEVIS        => DemandeAppro::STATUT_DEMANDE_DEVIS,

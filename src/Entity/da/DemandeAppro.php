@@ -28,6 +28,7 @@ class DemandeAppro
     public const ID_APPRO                    = 16;
     public const ID_ATELIER                  = 3;
     public const STATUT_VALIDE               = 'Bon d’achats validé';       /*__ DA direct et DA via OR __*/ /*_ statut_dal _*/ // cliquable par Admin et Appro
+    public const STATUT_CLOTUREE             = 'Clôturée';                  /*__ DA direct et DA via OR __*/ /*_ statut_dal _*/ // ! non cliquable par quiconque
     public const STATUT_REFUSE_APPRO         = 'Refusé appro';              /*__ DA direct et DA via OR __*/ /*_ statut_dal _*/ // ! non cliquable par quiconque
     public const STATUT_TERMINER             = 'TERMINER';                  /*__ DA direct et DA via OR __*/ /*_ statut_dal _*/ // ! non cliquable par quiconque
     public const STATUT_EN_COURS_CREATION    = 'En cours de création';      /*_________ DA via OR ________*/ /*_ statut_dal _*/ // cliquable par Admin et Atelier
@@ -53,7 +54,7 @@ class DemandeAppro
     /**
      * @ORM\Column(type="string", length=11, name="numero_demande_appro")
      */
-    private string $numeroDemandeAppro;
+    private ?string $numeroDemandeAppro = null;
 
     /**
      * @ORM\Column(type="integer", name="da_type_id")
@@ -252,7 +253,7 @@ class DemandeAppro
      *
      * @return string
      */
-    public function getNumeroDemandeAppro(): string
+    public function getNumeroDemandeAppro(): ?string
     {
         return $this->numeroDemandeAppro;
     }
@@ -264,7 +265,7 @@ class DemandeAppro
      *
      * @return self
      */
-    public function setNumeroDemandeAppro(string $numeroDemandeAppro): self
+    public function setNumeroDemandeAppro(?string $numeroDemandeAppro): self
     {
         $this->numeroDemandeAppro = $numeroDemandeAppro;
         return $this;

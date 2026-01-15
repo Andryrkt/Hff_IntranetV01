@@ -24,6 +24,7 @@ trait StatutBcTrait
         //----------------------------------------------------------------------------------------------------
         $this->styleStatutDA = [
             DemandeAppro::STATUT_VALIDE               => 'bg-bon-achat-valide',
+            DemandeAppro::STATUT_CLOTUREE             => 'bg-bon-achat-valide',
             DemandeAppro::STATUT_TERMINER             => 'bg-primary text-white',
             DemandeAppro::STATUT_SOUMIS_ATE           => 'bg-proposition-achat',
             DemandeAppro::STATUT_DW_A_VALIDE          => 'bg-soumis-validation',
@@ -82,11 +83,12 @@ trait StatutBcTrait
         // 1. recupération des données necessaire dans DaAfficher
         [$ref, $numDit, $numDa, $designation, $numeroOr, $statutOr, $statutBc, $statutDa] = $this->getVariableNecessaire($DaAfficher);
 
-        // 2. on met vide la statut bc selon le condition en survolon la fonction
-        if ($this->doitRetournerVide($statutDa, $statutOr)) return '';
-
-        /** 3. recuperation type DA @var bool $daDirect @var bool $daViaOR @var bool $daReappro  */
+        /** 2. recuperation type DA @var bool $daDirect @var bool $daViaOR @var bool $daReappro  */
         [$daDirect, $daViaOR, $daReappro] = $this->getTypeDa($DaAfficher);
+
+        // 3. on met vide la statut bc selon le condition en survolant la fonction
+        if ($this->doitRetournerVide($statutDa, $statutOr, $daViaOR)) return '';
+
 
         // 4. modification de l'information de l'or
         if (!$daDirect) $this->updateInfoOR($DaAfficher, $daViaOR, $daReappro);
@@ -97,8 +99,8 @@ trait StatutBcTrait
         /** 6.recuperation des informations necessaire dans IPS  @var array $infoDaDirect @var array $situationCde*/
         [$infoDaDirect, $situationCde] = $this->getInfoNecessaireIps($ref, $numDit, $numDa, $designation, $numeroOr, $statutBc);
 
-        /** 7. Non dispo || DA avec DIT et numéro OR null || numéro OR non vide et statut OR non vide || infoDaDirect ou situationCde est vide */
-        if ($DaAfficher->getNonDispo() || ($numeroOr == null && $daViaOR) || ($numeroOr != null && empty($statutOr)) || $this->aSituationCde($situationCde, $daViaOR)) {
+        /** 7.Statut DA Clôturée || Non dispo || DA avec DIT et numéro OR null || numéro OR non vide et statut OR non vide || infoDaDirect ou situationCde est vide */
+        if ($statutDa === DemandeAppro::STATUT_CLOTUREE || $DaAfficher->getNonDispo() || ($numeroOr == null && $daViaOR) || ($numeroOr != null && empty($statutOr)) || $this->aSituationCde($situationCde, $daViaOR)) {
             return $statutBc;
         }
 
@@ -164,6 +166,7 @@ trait StatutBcTrait
         return '';
     }
 
+
     private function getInfoCde($infoDaDirect, $situationCde, $daDirect, $daViaOR, $daReappro, $numeroOr, $em): array
     {
         $numCde = $this->numeroCde($infoDaDirect, $situationCde, $daDirect, $daViaOR, $daReappro, $numeroOr);
@@ -193,13 +196,15 @@ trait StatutBcTrait
      * 
      * @return boolean
      */
-    private function doitRetournerVide(?string $statutDa, ?string $statutOr): bool
+    private function doitRetournerVide(?string $statutDa, ?string $statutOr, bool $daViaOR): bool
     {
+         // si statut Or est <> validée et le da est Via OR
+         if ($daViaOR && $statutOr !== DitOrsSoumisAValidation::STATUT_VALIDE) return true;
+
         if ($statutOr === DemandeAppro::STATUT_DW_REFUSEE || strtolower($statutOr) === strtolower(DemandeAppro::STATUT_DW_A_VALIDE)) return true;
 
         // si statut Da n'est pas validé
-        if ($statutDa !== DemandeAppro::STATUT_VALIDE) return true;
-
+        if ($statutDa !== DemandeAppro::STATUT_VALIDE && $statutDa !== DemandeAppro::STATUT_CLOTUREE) return true;
         $statutDaInternet = [
             DemandeAppro::STATUT_SOUMIS_ATE,
             DemandeAppro::STATUT_SOUMIS_APPRO,
