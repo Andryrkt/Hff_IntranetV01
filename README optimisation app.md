@@ -308,4 +308,4 @@ php config/bootstrap_build.php
 
 ---
 
-Made with ❤️ by [ranofi]
+Made with ❤️ by [RANDRIANANTENAINA Nomenjanahary Fidison](https://github.com/ranofi).
