@@ -24,11 +24,7 @@ $_SERVER['REQUEST_URI'] ??= '/';
 // ========================================
 $containerFile = dirname(__DIR__) . '/var/cache/Container.php';
 
-if (!file_exists($containerFile)) {
-    throw new \RuntimeException(
-        "Le conteneur n'existe pas. Exécutez : php config/bootstrap_build.php"
-    );
-}
+if (!file_exists($containerFile)) dd("Le conteneur n'existe pas.", "Exécutez d'abord : php config/bootstrap_build.php");
 
 require $containerFile;
 /** @var \Symfony\Component\DependencyInjection\ContainerInterface $container */
