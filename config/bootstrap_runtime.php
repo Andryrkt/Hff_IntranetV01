@@ -9,19 +9,30 @@ use Symfony\Component\HttpKernel\Controller\ArgumentResolver;
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
-require dirname(__DIR__) . '/var/cache/Container.php';
-
-/** @var \Symfony\Component\DependencyInjection\ContainerInterface $container */
-$container = new AppContainer();
-
 // --- Variables d'environnement & CLI ---
 if (file_exists(dirname(__DIR__) . '/.env')) \Dotenv\Dotenv::createImmutable(dirname(__DIR__))->load();
 
 require_once __DIR__ . '/listeConstructeur.php';
+
 $isDevMode = $_ENV['APP_ENV'] === 'dev';
 $_ENV['BASE_PATH_COURT'] ??= '/Hffintranet';
 $_SERVER['HTTP_HOST'] ??= 'localhost';
 $_SERVER['REQUEST_URI'] ??= '/';
+
+// ========================================
+// 🔥 CHARGER LE CONTENEUR
+// ========================================
+$containerFile = dirname(__DIR__) . '/var/cache/Container.php';
+
+if (!file_exists($containerFile)) {
+    throw new \RuntimeException(
+        "Le conteneur n'existe pas. Exécutez : php config/bootstrap_build.php"
+    );
+}
+
+require $containerFile;
+/** @var \Symfony\Component\DependencyInjection\ContainerInterface $container */
+$container = new AppContainer();
 
 // --- Session runtime ---
 $session = new \Symfony\Component\HttpFoundation\Session\Session(
