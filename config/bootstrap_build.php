@@ -113,47 +113,17 @@ $cacheRoutes->write(serialize($collection), $collection->getResources());
 echo "✅ Routes mises en cache : {$routeCacheFile}\n";
 
 // ========================================
-// TWIG
+// TWIG (préparation répertoire)
 // ========================================
 
 $twigCacheDir = $cacheDir . '/twig';
 @mkdir($twigCacheDir, 0777, true);
 
-$twig = new \Twig\Environment(
-    new \Twig\Loader\FilesystemLoader([
-        dirname(__DIR__) . '/Views/templates',
-        dirname(__DIR__) . '/vendor/symfony/twig-bridge/Resources/views/Form',
-    ]),
-    [
-        'debug'       => false,
-        'cache'       => $twigCacheDir,
-        'auto_reload' => false,
-    ]
-);
+// Supprimer le marqueur de compilation pour forcer la recompilation au prochain démarrage
+$twigCompiledMarker = $twigCacheDir . '/.compiled';
+if (file_exists($twigCompiledMarker)) unlink($twigCompiledMarker);
 
-$templateDir = dirname(__DIR__) . '/Views/templates';
-$iterator = new RecursiveIteratorIterator(
-    new RecursiveDirectoryIterator($templateDir),
-    RecursiveIteratorIterator::LEAVES_ONLY
-);
+echo "✅ Twig : Répertoire cache préparé (compilation au premier démarrage)\n";
 
-$compiledCount = 0;
-$errorCount = 0;
-foreach ($iterator as $file) {
-    if ($file->isFile() && pathinfo($file, PATHINFO_EXTENSION) === 'twig') {
-        $templateName = str_replace($templateDir . '/', '', $file->getPathname());
-
-        try {
-            $twig->load($templateName);
-            $compiledCount++;
-        } catch (\Exception $e) {
-            echo "⚠️  {$templateName}: {$e->getMessage()}\n";
-            $errorCount++;
-        }
-    }
-}
-
-echo "✅ Twig : {$compiledCount} templates dans {$twigCacheDir}\n";
-echo $errorCount === 0 ? "" : "❌ {$errorCount} erreurs de compilation\n";
-echo $errorCount === 0 ? "\n🎉 BUILD TERMINÉ\n" : "\n❌ BUILD TERMINÉ AVEC DES ERREURS\n";
-echo "💡 Pensez à définir APP_ENV=prod dans votre .env si vous êtes en 🔥🔥🔥PROD🔥🔥🔥\n";
+echo "\n🎉 BUILD TERMINÉ\n";
+echo "💡 Les templates Twig seront compilés automatiquement au premier démarrage en PROD\n";

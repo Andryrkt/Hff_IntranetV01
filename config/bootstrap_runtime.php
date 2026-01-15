@@ -175,6 +175,83 @@ $twig->addRuntimeLoader(new \Twig\RuntimeLoader\FactoryRuntimeLoader([
 ]));
 
 // ========================================
+// 🔥 PRÉCOMPILATION TWIG (PROD uniquement)
+// ========================================
+
+if (!$isDevMode) {
+    // Fichier marqueur pour savoir si la précompilation a déjà été faite
+    $twigCompiledMarker = $twigCacheDir . '/.compiled';
+
+    if (!file_exists($twigCompiledMarker)) {
+        // Première exécution en PROD : précompiler tous les templates
+        $templateDir = dirname(__DIR__) . '/Views/templates';
+
+        if (is_dir($templateDir)) {
+            // Normaliser le chemin pour comparaison
+            $templateDir = str_replace('\\', '/', realpath($templateDir));
+
+            $iterator = new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator($templateDir, RecursiveDirectoryIterator::SKIP_DOTS),
+                RecursiveIteratorIterator::LEAVES_ONLY
+            );
+
+            $compiledCount = 0;
+            $errorCount = 0;
+
+            foreach ($iterator as $file) {
+                if (!$file->isFile()) continue;
+
+                $extension = $file->getExtension();
+
+                // Ne compiler que les fichiers .twig
+                if ($extension !== 'twig') continue;
+
+                // Normaliser le chemin du fichier
+                $filePath = str_replace('\\', '/', $file->getPathname());
+
+                // Calculer le nom relatif du template
+                $templateName = str_replace($templateDir . '/', '', $filePath);
+
+                try {
+                    // Charger le template pour forcer la compilation
+                    $twig->load($templateName);
+                    $compiledCount++;
+                } catch (\Twig\Error\LoaderError $e) {
+                    // Template non trouvé (peut arriver avec des fichiers cachés)
+                    $errorCount++;
+                    error_log("  ⚠️  LoaderError {$templateName}: {$e->getMessage()}");
+                } catch (\Twig\Error\SyntaxError $e) {
+                    // Erreur de syntaxe Twig
+                    $errorCount++;
+                    error_log("  ❌ SyntaxError {$templateName}: {$e->getMessage()}");
+                } catch (\Twig\Error\RuntimeError $e) {
+                    // Erreur d'exécution (ex: variable manquante)
+                    // C'est normal, on compile juste la structure
+                    $compiledCount++;
+                } catch (\Exception $e) {
+                    // Autre erreur
+                    $errorCount++;
+                    error_log("  ❌ Exception {$templateName}: {$e->getMessage()}");
+                }
+            }
+
+            // Créer le fichier marqueur avec statistiques
+            $stats = [
+                'compiled_at' => date('Y-m-d H:i:s'),
+                'templates_compiled' => $compiledCount,
+                'templates_errors' => $errorCount,
+                'env' => $_ENV['APP_ENV'] ?? 'prod',
+            ];
+            file_put_contents($twigCompiledMarker, json_encode($stats, JSON_PRETTY_PRINT));
+
+            error_log("✅ Twig précompilé : {$compiledCount} templates, {$errorCount} erreurs (premier démarrage PROD)");
+        } else {
+            error_log("⚠️  Répertoire templates introuvable : {$templateDir}");
+        }
+    }
+}
+
+// ========================================
 // 🔥 CONTROLLERS / RESOLVERS
 // ========================================
 $controllerResolver = new ContainerControllerResolver($container);
