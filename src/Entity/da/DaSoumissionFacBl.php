@@ -134,6 +134,17 @@ class DaSoumissionFacBl
     private $NumeroFactureFournisseur;
 
 
+    /**
+     * @ORM\Column(type="boolean", name="est_facture_reappro", nullable=true, options={"default" : 0})
+     */
+    private bool $estFactureReappro = false;
+
+    /**
+     * @ORM\Column(type="string", length=8, name="numero_facture_reappro", nullable=true)
+     */
+    private ?string $numeroFactureReappro = null;
+
+
     private $pieceJoint2;
 
     /**===========================================================================
@@ -556,6 +567,59 @@ class DaSoumissionFacBl
         return $this;
     }
 
+
+
+    /**
+     * Retourne la classe CSS appropriée pour le statut de la demande
+     * Utilise StatutDomConstants pour centraliser la logique
+     * 
+     * @return string
+     */
+    public function getStatutCssClass(): string
+    {
+        if (!$this->statutBap) {
+            return '';
+        }
+
+        return BonApayerConstants::getCssClass($this->statutBap);
+    }
+
+    /**
+     * Get the value of estFactureReappro
+     */
+    public function isEstFactureReappro(): bool
+    {
+        return $this->estFactureReappro;
+    }
+
+    /**
+     * Set the value of estFactureReappro
+     */
+    public function setEstFactureReappro(bool $estFactureReappro): self
+    {
+        $this->estFactureReappro = $estFactureReappro;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroFactureReappro
+     */
+    public function getNumeroFactureReappro(): ?string
+    {
+        return $this->numeroFactureReappro;
+    }
+
+    /**
+     * Set the value of numeroFactureReappro
+     */
+    public function setNumeroFactureReappro(?string $numeroFactureReappro): self
+    {
+        $this->numeroFactureReappro = $numeroFactureReappro;
+
+        return $this;
+    }
+
     /**
      * Get the value of nomFicheBc
      */
@@ -574,20 +638,5 @@ class DaSoumissionFacBl
         $this->pieceJoint2 = $pieceJoint2;
 
         return $this;
-    }
-
-    /**
-     * Retourne la classe CSS appropriée pour le statut de la demande
-     * Utilise StatutDomConstants pour centraliser la logique
-     * 
-     * @return string
-     */
-    public function getStatutCssClass(): string
-    {
-        if (!$this->statutBap) {
-            return '';
-        }
-
-        return BonApayerConstants::getCssClass($this->statutBap);
     }
 }
