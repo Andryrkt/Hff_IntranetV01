@@ -80,7 +80,7 @@ class DitModel extends Model
     $estPneumatique = in_array($reparationRealise, ['ATE POL TANA']);
     $estPiece = in_array($reparationRealise, ['ATE TANA', 'ATE STAR', 'ATE MAS']);
     $constructeurPneumatique = GlobalVariablesService::get('pneumatique') . ",'PNE'";
-    $constructeurPiece = GlobalVariablesService::get('pieces_magasin') . "," . GlobalVariablesService::get('lub') . ",'ZST','ZDI','SHE'";
+    $constructeurPiece = GlobalVariablesService::get('pieces_magasin') . "," . GlobalVariablesService::get('lub') . "," . GlobalVariablesService::get('achat_locaux') . ",'SHE'";
     $conditionConstructeur = "";
 
     if ($estPneumatique) {
