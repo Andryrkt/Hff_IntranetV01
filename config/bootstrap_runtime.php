@@ -196,7 +196,7 @@ if (!$isDevMode) {
             );
 
             $compiledCount = 0;
-            $errorCount = 0;
+            $templateError = [];
 
             foreach ($iterator as $file) {
                 if (!$file->isFile()) continue;
@@ -218,33 +218,34 @@ if (!$isDevMode) {
                     $compiledCount++;
                 } catch (\Twig\Error\LoaderError $e) {
                     // Template non trouvé (peut arriver avec des fichiers cachés)
-                    $errorCount++;
-                    error_log("  ⚠️  LoaderError {$templateName}: {$e->getMessage()}");
+                    $templateError[] = "  ⚠️  LoaderError {$templateName}: {$e->getMessage()}";
                 } catch (\Twig\Error\SyntaxError $e) {
                     // Erreur de syntaxe Twig
-                    $errorCount++;
-                    error_log("  ❌ SyntaxError {$templateName}: {$e->getMessage()}");
+                    $templateError[] = "  ❌ SyntaxError {$templateName}: {$e->getMessage()}";
                 } catch (\Twig\Error\RuntimeError $e) {
                     // Erreur d'exécution (ex: variable manquante)
                     // C'est normal, on compile juste la structure
                     $compiledCount++;
                 } catch (\Exception $e) {
                     // Autre erreur
-                    $errorCount++;
-                    error_log("  ❌ Exception {$templateName}: {$e->getMessage()}");
+                    $templateError[] = "  ❌ Exception {$templateName}: {$e->getMessage()}";
                 }
             }
 
+            $errorCount = count($templateError);
             // Créer le fichier marqueur avec statistiques
             $stats = [
-                'compiled_at' => date('Y-m-d H:i:s'),
+                'compiled_at'        => date('Y-m-d H:i:s'),
+                'env'                => $_ENV['APP_ENV'] ?? 'prod',
                 'templates_compiled' => $compiledCount,
-                'templates_errors' => $errorCount,
-                'env' => $_ENV['APP_ENV'] ?? 'prod',
+                'templates_errors'   => $errorCount,
             ];
-            file_put_contents($twigCompiledMarker, json_encode($stats, JSON_PRETTY_PRINT));
+            file_put_contents($twigCompiledMarker, json_encode($stats, JSON_PRETTY_PRINT) . PHP_EOL);
+            foreach ($templateError as $error) {
+                file_put_contents($twigCompiledMarker, $error . PHP_EOL, FILE_APPEND);
+            }
 
-            error_log("✅ Twig précompilé : {$compiledCount} templates, {$errorCount} erreurs (premier démarrage PROD)");
+            file_put_contents($twigCompiledMarker, "✅ Twig précompilé : {$compiledCount} templates, {$errorCount} erreurs (premier démarrage PROD)" . PHP_EOL, FILE_APPEND);
         } else {
             error_log("⚠️  Répertoire templates introuvable : {$templateDir}");
         }
