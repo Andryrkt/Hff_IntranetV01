@@ -22,8 +22,10 @@ class GenererPdfBonAPayer extends GeneratePdf
         $w100 = $this->getUsableWidth($pdf);
 
         $this->renderInfoBCAndValidation($pdf, $w100, $infoBC, $infoValidationBC);
-        $this->renderInfoMateriel($pdf, $w100, $infoMateriel);
-        $this->renderRecapOR($pdf, $dataRecapOR, $daSoumissionFacBl);
+        if ($demandeAppro->getDaTypeId() === DemandeAppro::TYPE_DA_AVEC_DIT) {
+            $this->renderInfoMateriel($pdf, $w100, $infoMateriel);
+            $this->renderRecapOR($pdf, $dataRecapOR, $daSoumissionFacBl);
+        }
         $this->renderRecapDA($pdf, $w100, $demandeAppro);
         $this->renderInfoFACBL($pdf, $w100, $infoFacBl);
 
@@ -56,8 +58,8 @@ class GenererPdfBonAPayer extends GeneratePdf
 
         if ($title2) {
             $w100 = $this->getUsableWidth($pdf);
-            $pdf->Cell($w100 / 2, 5, $title1);
-            $pdf->Cell($w100 / 2, 5, $title2, 0, 1);
+            $pdf->Cell($w100 * 0.7, 5, $title1);
+            $pdf->Cell($w100 * 0.3, 5, $title2, 0, 1);
         } else {
             $pdf->Cell(0, 5, $title1, 0, 1);
         }
@@ -71,15 +73,15 @@ class GenererPdfBonAPayer extends GeneratePdf
     private function renderInfoBCAndValidation(TCPDF $pdf, int $w100, array $infoBC, array $infoValidationBC)
     {
         $this->renderInfoSection($pdf, 'RESUME DU BC', 'INFORMATION VALIDATION BC', function () use ($pdf, $w100, $infoBC, $infoValidationBC) {
-            $this->addInfoLine($pdf, 'Nom fournisseur', $infoBC["nom_fournisseur"], $w100 / 2 - 6, 35, 0, 0);
-            $this->addInfoLine($pdf, 'Nom Validateur', $infoValidationBC["validateur"] ?? "-", $w100 / 2, 25, 0);
+            $this->addInfoLine($pdf, 'Nom fournisseur', $infoBC["nom_fournisseur"] ?? "-", $w100 * 0.7 - 6, 35, 0, 0);
+            $this->addInfoLine($pdf, 'Nom Validateur', $infoValidationBC["validateur"] ?? "-", $w100 * 0.3, 25, 0);
 
-            $this->addInfoLine($pdf, 'N° fournisseur', $infoBC["num_fournisseur"], $w100 / 2 - 6, 35, 0, 0);
+            $this->addInfoLine($pdf, 'N° fournisseur', $infoBC["num_fournisseur"] ?? "-", $w100 * 0.7 - 6, 35, 0, 0);
             $dateValidation = $infoValidationBC["dateValidation"] ?? "-";
-            $this->addInfoLine($pdf, 'Date Validation', $dateValidation === "-" ? $dateValidation : $dateValidation->format("d/m/Y"), $w100 / 2, 25, 0);
+            $this->addInfoLine($pdf, 'Date Validation', $dateValidation === "-" ? $dateValidation : $dateValidation->format("d/m/Y"), $w100 * 0.3, 25, 0);
             $pdf->Ln(3);
 
-            $this->addInfoLine($pdf, 'Téléphone', $infoBC["tel_fournisseur"], $w100, 35, 0);
+            $this->addInfoLine($pdf, 'Téléphone', $infoBC["tel_fournisseur"] ?? "-", $w100, 35, 0);
 
             // Adresse
             $this->renderAdresseFournisseur($pdf, $w100, $infoBC);
@@ -92,8 +94,8 @@ class GenererPdfBonAPayer extends GeneratePdf
                 'Succursale'         => $infoBC["succ_cde"] ?? "-",
                 'Service'            => $infoBC["serv_cde"] ?? "-",
                 'Opérateur'          => $infoBC["nom_ope"] ?? "-",
-                'Montant HT'         => $this->formaterPrix($infoBC["mtn_cde"] ?? 0) . " " . $infoBC["devise"],
-                'Montant TTC'        => $this->formaterPrix($infoBC["ttc_cde"] ?? 0) . " " . $infoBC["devise"],
+                'Montant HT'         => $this->formaterPrix($infoBC["mtn_cde"] ?? 0) . " " . ($infoBC["devise"] ?? ""),
+                'Montant TTC'        => $this->formaterPrix($infoBC["ttc_cde"] ?? 0) . " " . ($infoBC["devise"] ?? ""),
                 'Nature de l’achat'  => $infoBC["type_cde"] ?? "-"
             ];
 
@@ -109,9 +111,9 @@ class GenererPdfBonAPayer extends GeneratePdf
         $this->addInfoLine($pdf, 'Adresse fournisseur', '', $w100, 35, 0, 1);
 
         $adresse = [
-            $infoBC["adr1_fournisseur"],
-            $infoBC["adr2_fournisseur"],
-            $infoBC["ptt_fournisseur"] . " " . $infoBC["adr4_fournisseur"]
+            $infoBC["adr1_fournisseur"] ?? "-",
+            $infoBC["adr2_fournisseur"] ?? "-",
+            ($infoBC["ptt_fournisseur"] ?? "-") . " " . ($infoBC["adr4_fournisseur"] ?? "-")
         ];
 
         foreach ($adresse as $line) {
