@@ -4,7 +4,7 @@ use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Yaml\Yaml;
 
-// Charger le bootstrap DI
+// Chargement du bootstrap runtime (adaptatif)
 $services = require __DIR__ . '/config/bootstrap_runtime.php';
 
 // Récupérer les services nécessaires
