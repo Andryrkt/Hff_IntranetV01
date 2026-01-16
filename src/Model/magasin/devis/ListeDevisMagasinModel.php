@@ -66,7 +66,7 @@ class ListeDevisMagasinModel extends Model
 
         $statement .= " ORDER BY nent_datecde DESC";
 
-        dd($statement);
+    
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);
