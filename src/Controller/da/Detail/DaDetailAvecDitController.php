@@ -48,12 +48,12 @@ class DaDetailAvecDitController extends Controller
 		/** FIN AUtorisation accès */
 
 		/** @var DemandeAppro $demandeAppro la demande appro correspondant à l'id $id */
-		$demandeAppro = $this->getEntityManager()->getRepository(DemandeAppro::class)->find($id); // recupération de la DA
-		$dit = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $demandeAppro->getNumeroDemandeDit()]); // recupération du DIT associée à la DA
+		$demandeAppro = $this->demandeApproRepository->find($id); // recupération de la DA
+		$dit = $this->ditRepository->findOneBy(['numeroDemandeIntervention' => $demandeAppro->getNumeroDemandeDit()]); // recupération du DIT associée à la DA
 		$ditModel = new DitModel();
 		$dataModel = $ditModel->recupNumSerieParcPourDa($dit->getIdMateriel());
 
-		$numeroVersionMax = $this->getEntityManager()->getRepository(DemandeApproL::class)->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
+		$numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
 		$demandeAppro = $this->filtreDal($demandeAppro, $dit, (int)$numeroVersionMax); // on filtre les lignes de la DA selon le numero de version max
 
 		$daObservation = new DaObservation;
@@ -61,14 +61,15 @@ class DaDetailAvecDitController extends Controller
 
 		$this->traitementFormulaire($formObservation, $request, $demandeAppro);
 
-		$observations = $this->getEntityManager()->getRepository(DaObservation::class)->findBy(['numDa' => $demandeAppro->getNumeroDemandeAppro()]);
+		$observations = $this->daObservationRepository->findBy(['numDa' => $demandeAppro->getNumeroDemandeAppro()], ['dateCreation' => 'ASC']);
 
 		$fichiers = $this->getAllDAFile([
-			'baiPath'   => $this->getBaIntranetPath($demandeAppro),
-			'orPath'    => $this->getOrPath($demandeAppro),
-			'bcPath'    => $this->getBcPath($demandeAppro),
-			'facblPath' => $this->getFacBlPath($demandeAppro),
-			'devPjPath' => $this->getDevisPjPath($demandeAppro),
+			'baiPath'      => $this->getBaIntranetPath($demandeAppro),
+			'orPath'       => $this->getOrPath($demandeAppro),
+			'bcPath'       => $this->getBcPath($demandeAppro),
+			'facblPath'    => $this->getFacBlPath($demandeAppro),
+			'devPjPathDal' => $this->getDevisPjPathDal($demandeAppro),
+			'devPjPathObs' => $this->getDevisPjPathObservation($demandeAppro),
 		]);
 
 		$demandeApproLPrepared = $this->prepareDataForDisplayDetail($demandeAppro->getDAL(), $demandeAppro->getStatutDal());
@@ -84,7 +85,7 @@ class DaDetailAvecDitController extends Controller
 			'dit'               		=> $dit,
 			'fichiers'            		=> $fichiers,
 			'connectedUser'     		=> $this->getUser(),
-			'statutAutoriserModifAte' 	=> $demandeAppro->getStatutDal() === DemandeAppro::STATUT_AUTORISER_MODIF_ATE,
+			'statutAutoriserModifAte' 	=> $demandeAppro->getStatutDal() === DemandeAppro::STATUT_AUTORISER_EMETTEUR,
 			'estAte'            		=> $this->estUserDansServiceAtelier(),
 			'estAppro'          		=> $this->estUserDansServiceAppro(),
 		]);
@@ -118,11 +119,11 @@ class DaDetailAvecDitController extends Controller
 			/** @var DaObservation $daObservation daObservation correspondant au donnée du form */
 			$daObservation = $form->getData();
 
-			$this->insertionObservation($daObservation->getObservation(), $demandeAppro);
+			$this->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $daObservation->getObservation(), $daObservation->getFileNames());
 
 			if ($this->estUserDansServiceAppro() && $daObservation->getStatutChange()) {
-				$this->modificationStatutDal($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_AUTORISER_MODIF_ATE);
-				$this->modificationStatutDa($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_AUTORISER_MODIF_ATE);
+				$this->modificationStatutDal($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_AUTORISER_EMETTEUR);
+				$this->modificationStatutDa($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_AUTORISER_EMETTEUR);
 
 				$this->ajouterDansTableAffichageParNumDa($demandeAppro->getNumeroDemandeAppro());
 			}
@@ -141,8 +142,8 @@ class DaDetailAvecDitController extends Controller
 
 	private function modificationStatutDal(string $numDa, string $statut): void
 	{
-		$numeroVersionMax = $this->getEntityManager()->getRepository(DemandeApproL::class)->getNumeroVersionMax($numDa);
-		$dals = $this->getEntityManager()->getRepository(DemandeApproL::class)->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
+		$numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
+		$dals = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
 
 		foreach ($dals as  $dal) {
 			$dal->setStatutDal($statut);
@@ -155,7 +156,7 @@ class DaDetailAvecDitController extends Controller
 
 	private function modificationStatutDa(string $numDa, string $statut): void
 	{
-		$da = $this->getEntityManager()->getRepository(DemandeAppro::class)->findOneBy(['numeroDemandeAppro' => $numDa]);
+		$da = $this->demandeApproRepository->findOneBy(['numeroDemandeAppro' => $numDa]);
 		$da->setStatutDal($statut);
 
 		$this->getEntityManager()->persist($da);

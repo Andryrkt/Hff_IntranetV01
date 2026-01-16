@@ -589,7 +589,7 @@ class DaAfficherRepository extends EntityRepository
                     DemandeAppro::STATUT_DEMANDE_DEVIS,
                     DemandeAppro::STATUT_DEVIS_A_RELANCER,
                     DemandeAppro::STATUT_EN_COURS_PROPOSITION,
-                    DemandeAppro::STATUT_AUTORISER_MODIF_ATE,
+                    DemandeAppro::STATUT_AUTORISER_EMETTEUR,
                     DemandeAppro::STATUT_VALIDE,
                     DemandeAppro::STATUT_REFUSE_APPRO,
                     DemandeAppro::STATUT_TERMINER
@@ -673,7 +673,7 @@ class DaAfficherRepository extends EntityRepository
             if (!empty($criteria['statutDA'])) {
                 $queryBuilder->andWhere($qbLabel . '.statutDal = :statutDa')
                     ->setParameter('statutDa', $criteria['statutDA']);
-            } else {
+            } elseif (empty($criteria['numDa'])) {
                 $queryBuilder->andWhere($qbLabel . '.statutDal NOT IN (:statutDa)')
                     ->setParameter('statutDa', [DemandeAppro::STATUT_TERMINER, DemandeAppro::STATUT_CLOTUREE], ArrayParameterType::STRING);
             }

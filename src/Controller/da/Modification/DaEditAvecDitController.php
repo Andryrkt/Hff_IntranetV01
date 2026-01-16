@@ -60,7 +60,7 @@ class DaEditAvecDitController extends Controller
         return $this->render('da/edit-avec-dit.html.twig', [
             'form'         => $form->createView(),
             'observations' => $observations,
-            'peutModifier' => $this->PeutModifier($demandeAppro),
+            'peutModifier' => $this->peutModifier($demandeAppro->getStatutDal(), $this->estUserDansServiceAtelier()),
             'numDa'        => $numDa,
         ]);
     }
@@ -114,7 +114,7 @@ class DaEditAvecDitController extends Controller
 
             $this->modificationDa($demandeAppro, $form->get('DAL'), DemandeAppro::STATUT_SOUMIS_APPRO);
             if ($demandeAppro->getObservation() !== null) {
-                $this->insertionObservation($demandeAppro->getObservation(), $demandeAppro);
+                $this->insertionObservation($numDa, $demandeAppro->getObservation());
             }
 
             $this->ajouterDansTableAffichageParNumDa($numDa); // ajout dans la table DaAfficher si le statut a changé

@@ -55,15 +55,16 @@ class DaValidationReapproController extends Controller
         $dateRange = $this->getLast12MonthsRange();
         $monthsList = $this->getMonthsList($dateRange['start'], $dateRange['end']);
         $dataHistoriqueConsommation = $this->getHistoriqueConsommation($da, $dateRange, $monthsList);
-        $observations = $this->daObservationRepository->findBy(['numDa' => $da->getNumeroDemandeAppro()]);
+        $observations = $this->daObservationRepository->findBy(['numDa' => $da->getNumeroDemandeAppro()], ['dateCreation' => 'ASC']);
 
         //========================================== Traitement du formulaire en général ===================================================//
         $this->traitementFormulaire($formReappro, $formObservation, $request, $da, $observations, $monthsList, $dataHistoriqueConsommation);
         //==================================================================================================================================//
 
         $fichiers = $this->getAllDAFile([
-            'baiPath'   => $this->getBaIntranetPath($da),
-            'badPath'   => $this->getBaDocuWarePath($da),
+            'baiPath'      => $this->getBaIntranetPath($da),
+            'badPath'      => $this->getBaDocuWarePath($da),
+            'devPjPathObs' => $this->getDevisPjPathObservation($da),
         ]);
 
         return $this->render("da/validation-reappro.html.twig", [
@@ -88,7 +89,7 @@ class DaValidationReapproController extends Controller
             // ✅ Récupérer les valeurs des champs caché
             $observation = $formReappro->getData()->getObservation();
 
-            if ($observation) $this->insertionObservation($observation, $da);
+            if ($observation) $this->insertionObservation($da->getNumeroDemandeAppro(), $observation);
 
             if ($request->request->has('refuser')) {
                 $this->refuserDemande($da);
@@ -129,7 +130,7 @@ class DaValidationReapproController extends Controller
 
     private function traitementEnvoiObservation(DaObservation $daObservation, DemandeAppro $demandeAppro)
     {
-        $this->insertionObservation($daObservation->getObservation(), $demandeAppro);
+        $this->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $daObservation->getObservation(), $daObservation->getFileNames());
 
         $this->emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->getUser(), $this->estUserDansServiceAppro());
 
