@@ -80,12 +80,13 @@ class DitModel extends Model
     $estPneumatique = in_array($reparationRealise, ['ATE POL TANA']);
     $estPiece = in_array($reparationRealise, ['ATE TANA', 'ATE STAR', 'ATE MAS']);
     $constructeurPneumatique = GlobalVariablesService::get('pneumatique') . ",'PNE'";
+    $constructeurPiece = GlobalVariablesService::get('pieces_magasin') . "," . GlobalVariablesService::get('lub') . ",'ZST','ZDI','SHE'";
     $conditionConstructeur = "";
 
     if ($estPneumatique) {
       $conditionConstructeur = "AND slor_constp IN ($constructeurPneumatique)";
     } else if ($estPiece) {
-      $conditionConstructeur = "AND slor_constp NOT IN ($constructeurPneumatique)";
+      $conditionConstructeur = "AND slor_constp IN ($constructeurPiece)";
     }
 
     $statement = "SELECT
