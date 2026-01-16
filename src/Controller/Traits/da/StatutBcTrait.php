@@ -89,11 +89,12 @@ trait StatutBcTrait
         // 1. recupération des données necessaire dans DaAfficher
         [$ref, $numDit, $numDa, $designation, $numeroOr, $statutOr, $statutBc, $statutDa] = $this->getVariableNecessaire($DaAfficher);
 
-        // 2. on met vide la statut bc selon le condition en survolant la fonction
-        if ($this->doitRetournerVide($statutDa, $statutOr)) return '';
-
-        /** 3. recuperation type DA @var bool $daDirect @var bool $daViaOR @var bool $daReappro  */
+        /** 2. recuperation type DA @var bool $daDirect @var bool $daViaOR @var bool $daReappro  */
         [$daDirect, $daViaOR, $daReappro] = $this->getTypeDa($DaAfficher);
+
+        // 3. on met vide la statut bc selon le condition en survolant la fonction
+        if ($this->doitRetournerVide($statutDa, $statutOr, $daViaOR)) return '';
+
 
         // 4. modification de l'information de l'or
         if (!$daDirect) $this->updateInfoOR($DaAfficher, $daViaOR, $daReappro);
@@ -201,8 +202,11 @@ trait StatutBcTrait
      * 
      * @return boolean
      */
-    private function doitRetournerVide(?string $statutDa, ?string $statutOr): bool
+    private function doitRetournerVide(?string $statutDa, ?string $statutOr, bool $daViaOR): bool
     {
+         // si statut Or est <> validée et le da est Via OR
+         if ($daViaOR && $statutOr !== DitOrsSoumisAValidation::STATUT_VALIDE) return true;
+
         if ($statutOr === DemandeAppro::STATUT_DW_REFUSEE || strtolower($statutOr) === strtolower(DemandeAppro::STATUT_DW_A_VALIDE)) return true;
 
         // si statut Da n'est pas validé et n'est pas clôturée

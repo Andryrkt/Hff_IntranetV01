@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", function () {
       '[id^="demande_appro_direct_form_DAL_"][id$="_fileNames"]'
     )
     .forEach((inputFile) => {
-      inputFile.accept = ".pdf, image/*"; // Accepter les fichiers PDF et images
+      inputFile.accept = ".pdf"; // Accepter les fichiers PDF
       inputFile.addEventListener("change", (event) =>
         onFileNamesInputChange(event)
       );

@@ -42,7 +42,7 @@ export function createFieldAndAppendTo(
     localStorage.setItem("daWithDitNumLigneMax", newLine); // Changer la valeur de newLine
     field.value = newLine; // le numéro de la ligne de création d'une DA avec DIT
   } else if (fieldName === "fileNames") {
-    field.accept = ".pdf, image/*"; // Accepter les fichiers PDF et images
+    field.accept = ".pdf"; // Accepter les fichiers PDF
     field.addEventListener("change", (event) => onFileNamesInputChange(event));
   }
 
