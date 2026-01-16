@@ -494,6 +494,23 @@ class CongeController extends Controller
         // Si le formulaire est soumis, mettre à jour le filtre dans la session
         if ($form->isSubmitted() && $form->isValid()) {
             $this->sessionService->set('groupe_direction_filter', $groupeDirection);
+            // Récupérer l'agence pour le filtre Agence_service
+            $agence = $request->query->get('demande_conge')['agence'] ?? null;
+            if ($agence) {
+                $options['agence'] = $agence;
+            }
+
+            // Récupérer le service pour le filtre Agence_service
+            $service = $request->query->get('demande_conge')['service'] ?? null;
+            if ($service) {
+                $options['service'] = $service;
+            }
+
+            $agenceCode = isset($options['agence']) ? $options['agence'] : null;
+            $serviceCode = isset($options['service']) ? $options['service'] : null;
+            $options['agenceService'] = ($agenceCode && $serviceCode)
+                ? $this->getAgenceServiceSage($agenceCode, $serviceCode)
+                : null;
         } else {
             // Sinon, récupérer l'état du filtre "Groupe Direction" depuis la session
             $groupeDirection = $this->sessionService->get('groupe_direction_filter', false);

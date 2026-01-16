@@ -71,7 +71,6 @@ class DemandeCongeRepository extends EntityRepository
         $this->filtredParAgenceService($queryBuilder, $options, $user);
         $this->filtredParInformationPrincipal($queryBuilder, $conge, $options);
 
-
         return $queryBuilder
             ->orderBy('d.id', 'DESC')
             ->getQuery()
