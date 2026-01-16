@@ -102,6 +102,29 @@
 												this.clearSuggestions();
 											}
 
+											// Surcharge de la méthode filterData pour chercher sur matricule et nom/prénom
+											filterData(searchValue) {
+												if (searchValue.trim() === "") {
+													this.clearSuggestions();
+													return;
+												}
+
+												const lowerCaseSearch = searchValue.toLowerCase();
+
+												// Exclure les éléments déjà sélectionnés et chercher sur plusieurs champs
+												this.filteredData = this.data.filter((item) => {
+													const itemMatricule = (item.matricule || '').toString().toLowerCase();
+													const itemNomPrenoms = (item.nomPrenoms || '').toLowerCase();
+													const isSelected = this.selectedItems.some(selected => this.itemToString(selected) === this.itemToString(item));
+													
+													return (
+														(itemMatricule.includes(lowerCaseSearch) || itemNomPrenoms.includes(lowerCaseSearch)) && !isSelected
+													);
+												});
+
+												this.showSuggestions(this.filteredData);
+											}
+
 											// Surcharge de la méthode renderTags pour n'afficher que le matricule dans le tag
 											renderTags() {
 												if (!this.tagsContainer) return;
