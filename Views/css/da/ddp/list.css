@@ -1,0 +1,17 @@
+.statut-a-transmettre {
+  background-color: #cf0c0c !important;
+  color: #ffffff !important;
+}
+
+.statut-transmise {
+  background-color: #4ef177 !important;
+}
+
+.statut-cloturee {
+  background-color: #062c0f !important;
+  color: #ffffff !important;
+}
+
+.statut-refusee {
+  background-color: #f8d7da !important;
+}

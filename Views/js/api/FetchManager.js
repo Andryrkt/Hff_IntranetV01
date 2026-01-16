@@ -78,9 +78,6 @@ export class FetchManager {
       },
       body: JSON.stringify(data),
     });
-    if (!response.ok) {
-      throw new Error(`Failed to post data to ${this.baseUrl}/${endpoint}`);
-    }
     return await response.json();
   }
 
