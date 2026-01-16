@@ -110,7 +110,7 @@ class BcMagasinValidationService extends ValidationServiceBase
         //recupération du statut devis
         $statut = $devisMagasinRepository->getStatutDwEtStatutBc($numeroDevis);
 
-        if ($statut && $statut['statutDw'] != DevisMagasin::STATUT_ENVOYER_CLIENT && $statut['statutBc'] != BcMagasin::STATUT_EN_ATTENTE_BC) {
+        if ($statut && $statut['statutDw'] != DevisMagasin::STATUT_ENVOYER_CLIENT || $statut['statutBc'] != BcMagasin::STATUT_EN_ATTENTE_BC) {
             $this->sendNotificationDevisMagasin(
                 self::ERROR_MESSAGES['statut_devis_et_bc_coherents'],
                 $numeroDevis,

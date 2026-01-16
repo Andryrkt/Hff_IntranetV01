@@ -123,10 +123,8 @@ class DemandeCongeRepository extends EntityRepository
         }
 
         // Filtrer par groupe de direction
-        if ($conge->getGroupeDirection()) {
-            $queryBuilder->andWhere('p.groupeDirection = :groupeDirection')
-                ->setParameter('groupeDirection', $conge->getGroupeDirection());
-        }
+        // Cette logique est gérée séparément dans les méthodes findCongesByGroupeDirection
+        // Ne pas inclure ici pour éviter les conflits avec les autres filtres
     }
 
     private function filtredParAgenceService(QueryBuilder $queryBuilder, array $options, User $user): void
@@ -173,17 +171,23 @@ class DemandeCongeRepository extends EntityRepository
         }
 
         // Filtrer par plage de date de congé
-        if ($conge->getDateDebut() && $conge->getDateFin()) {
+        // Trouver les congés qui se chevauchent avec la période spécifiée
+        // Un congé se chevauche si : (dateDebut <= dateFin_recherche) ET (dateFin >= dateDebut_recherche)
+        $dateDebut = $conge->getDateDebut();
+        $dateFin = $conge->getDateFin();
+
+        if ($dateDebut && $dateFin) {
+            $queryBuilder->andWhere('d.dateDebut <= :dateFin AND d.dateFin >= :dateDebut')
+                ->setParameter('dateDebut', $dateDebut)
+                ->setParameter('dateFin', $dateFin);
+        } else if ($dateDebut) {
+            // Si seule la date de début est spécifiée, trouver les congés qui commencent à partir de cette date
             $queryBuilder->andWhere('d.dateDebut >= :dateDebut')
-                ->andWhere('d.dateFin <= :dateFin')
-                ->setParameter('dateDebut', $conge->getDateDebut())
-                ->setParameter('dateFin', $conge->getDateFin());
-        } else if ($conge->getDateDebut()) {
-            $queryBuilder->andWhere('d.dateDebut >= :dateDebut')
-                ->setParameter('dateDebut', $conge->getDateDebut());
-        } else if ($conge->getDateFin()) {
+                ->setParameter('dateDebut', $dateDebut);
+        } else if ($dateFin) {
+            // Si seule la date de fin est spécifiée, trouver les congés qui se terminent jusqu'à cette date
             $queryBuilder->andWhere('d.dateFin <= :dateFin')
-                ->setParameter('dateFin', $conge->getDateFin());
+                ->setParameter('dateFin', $dateFin);
         }
     }
 
@@ -258,5 +262,59 @@ class DemandeCongeRepository extends EntityRepository
 
         // For now, return an empty array - you would implement the actual logic
         return [];
+    }
+
+    public function findCongesByGroupeDirection(int $page, int $limit, ?User $user = null): array
+    {
+        $offset = ($page - 1) * $limit;
+
+        $queryBuilder = $this->createQueryBuilder('d')
+            ->leftJoin('d.agenceServiceirium', 'asi')
+            ->addSelect('asi')
+            ->join('App\Entity\ddc\GroupeDirection', 'gd', 'WITH', 'd.matricule = gd.matricule')
+            ->where('gd.actif = :actif')
+            ->setParameter('actif', 1);
+
+        // Pour le filtre "Groupe Direction", on récupère toutes les demandes
+        // des membres du groupe direction, peu importe leur agence/service
+        // Donc on n'applique pas les filtres d'administration
+
+        $totalItems = clone $queryBuilder;
+        $totalItems = $totalItems->select('COUNT(d.id)')->getQuery()->getSingleScalarResult();
+
+        $data = clone $queryBuilder;
+        $data = $data
+            ->orderBy('d.dateDemande', 'DESC')
+            ->addOrderBy('d.dateDebut', 'DESC')
+            ->setFirstResult($offset)
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+
+        return [
+            'data' => $data,
+            'currentPage' => $page,
+            'lastPage' => ceil($totalItems / $limit),
+            'totalItems' => $totalItems
+        ];
+    }
+
+    public function findCongesByGroupeDirectionExcel(?User $user = null): array
+    {
+        $queryBuilder = $this->createQueryBuilder('d')
+            ->leftJoin('d.agenceServiceirium', 'asi')
+            ->addSelect('asi')
+            ->join('App\Entity\ddc\GroupeDirection', 'gd', 'WITH', 'd.matricule = gd.matricule')
+            ->where('gd.actif = :actif')
+            ->setParameter('actif', 1);
+
+        // Pour le filtre "Groupe Direction", on récupère toutes les demandes
+        // des membres du groupe direction, peu importe leur agence/service
+        // Donc on n'applique pas les filtres d'administration
+
+        return $queryBuilder
+            ->orderBy('d.id', 'DESC')
+            ->getQuery()
+            ->getResult();
     }
 }

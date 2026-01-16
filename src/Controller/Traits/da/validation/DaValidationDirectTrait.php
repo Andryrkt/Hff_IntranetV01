@@ -62,7 +62,7 @@ trait DaValidationDirectTrait
     private function creationPDFDirect(string $numDa): void
     {
         $da = $this->demandeApproRepository->findAvecDernieresDALetLRParNumero($numDa);
-        $observations = $this->daObservationRepository->findBy(['numDa' => $numDa]);
+        $observations = $this->daObservationRepository->findBy(['numDa' => $numDa], ['dateCreation' => 'ASC']);
         $this->genererPdfDaDirect->genererPdfBonAchatValide($da, $observations);
     }
 
@@ -114,12 +114,13 @@ trait DaValidationDirectTrait
     {
         $pjDals = $this->demandeApproLRepository->findAttachmentsByNumeroDA($numDa);
         $pjDalrs = $this->demandeApproLRRepository->findAttachmentsByNumeroDA($numDa);
+        $pjObservations = $this->daObservationRepository->findAttachmentsByNumeroDA($numDa);
 
         /** 
          * Fusionner les résultats des deux tables
          * @var array<int, array{numeroDemandeAppro: string, fileNames: array}>
          **/
-        $allRows = array_merge($pjDals, $pjDalrs);
+        $allRows = array_merge($pjDals, $pjDalrs, $pjObservations);
         $filePaths = [];
 
         foreach ($allRows as $row) {
