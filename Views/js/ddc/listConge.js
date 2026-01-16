@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Données fournies depuis Twig
   const conges = window.congesData || null;
   const employees = window.employeesData || null;
-  const initialViewMode = document.body.dataset.viewMode || "list";
+  const initialViewMode = document.body.dataset.typeView || "list";
 
   // Variables globales pour le calendrier
   let congesCalendar = null;
@@ -29,7 +29,9 @@ document.addEventListener("DOMContentLoaded", function () {
     "Novembre",
     "Décembre",
   ];
-  let currentMonthCalendar = new Date();
+  let currentMonthCalendar = window.selectedMonth
+    ? new Date(window.selectedMonth)
+    : new Date();
 
   // Fonction pour charger dynamiquement le contenu
   async function loadViewContent(viewMode, data) {
@@ -127,6 +129,72 @@ document.addEventListener("DOMContentLoaded", function () {
       // Ajouter le format
       params.set("format", viewMode === "calendar" ? "table" : "list");
 
+      // Récupérer les paramètres de filtre depuis le formulaire de recherche
+      // Mettre à jour les formulaires Excel avec les paramètres actuels
+      const mainForm =
+        document.querySelector("#form-demande-conge") ||
+        document.querySelector("form");
+      if (mainForm) {
+        // Mettre à jour les formulaires Excel avec l'état actuel des filtres
+        const excelForms = document.querySelectorAll("form.excel-form");
+        excelForms.forEach((excelForm) => {
+          // Gérer le champ groupeDirection
+          let groupeDirectionInput = excelForm.querySelector(
+            'input[name="demande_conge[groupeDirection]"]'
+          );
+          const groupeDirectionCheckbox = mainForm.querySelector(
+            'input[name="demande_conge[groupeDirection]"]'
+          );
+
+          if (groupeDirectionCheckbox) {
+            if (groupeDirectionCheckbox.checked) {
+              if (!groupeDirectionInput) {
+                groupeDirectionInput = document.createElement("input");
+                groupeDirectionInput.type = "hidden";
+                groupeDirectionInput.name = "demande_conge[groupeDirection]";
+                excelForm.appendChild(groupeDirectionInput);
+              }
+              groupeDirectionInput.value = groupeDirectionCheckbox.value;
+            } else {
+              // Si la case n'est pas cochée, supprimer le champ s'il existe
+              if (groupeDirectionInput) {
+                groupeDirectionInput.remove();
+              }
+            }
+          }
+
+          // S'assurer que tous les autres champs de filtre sont également mis à jour
+          const allFilterInputs = mainForm.querySelectorAll(
+            "input, select, textarea"
+          );
+          allFilterInputs.forEach((input) => {
+            if (
+              input.name &&
+              input.name.startsWith("demande_conge[") &&
+              input.name !== "demande_conge[groupeDirection]"
+            ) {
+              // Trouver ou créer le champ correspondant dans le formulaire Excel
+              let excelInput = excelForm.querySelector(
+                `input[name="${input.name}"], select[name="${input.name}"], textarea[name="${input.name}"]`
+              );
+
+              if (!excelInput) {
+                excelInput = document.createElement(input.tagName);
+                excelInput.type = input.type;
+                excelInput.name = input.name;
+                excelForm.appendChild(excelInput);
+              }
+
+              if (input.type === "checkbox" || input.type === "radio") {
+                excelInput.checked = input.checked;
+              } else {
+                excelInput.value = input.value;
+              }
+            }
+          });
+        });
+      }
+
       // Si on est en mode calendrier, ajouter les paramètres de mois et année
       if (viewMode === "calendar") {
         // Récupérer le mois et l'année courants du calendrier
@@ -150,6 +218,48 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
   }
+
+  // Fonction pour synchroniser les filtres avant la soumission du formulaire Excel
+  function syncFiltersBeforeSubmit() {
+    const mainForm =
+      document.querySelector("#form-demande-conge") ||
+      document.querySelector("form");
+    if (!mainForm) return;
+
+    // Attacher un gestionnaire d'événement aux formulaires Excel
+    const excelForms = document.querySelectorAll("form.excel-form");
+    excelForms.forEach((form) => {
+      form.addEventListener("submit", function (e) {
+        // Mettre à jour le formulaire avec l'état actuel des filtres
+        const groupeDirectionCheckbox = mainForm.querySelector(
+          'input[name="demande_conge[groupeDirection]"]'
+        );
+        if (groupeDirectionCheckbox) {
+          // Supprimer l'ancien champ s'il existe
+          const existingInput = form.querySelector(
+            'input[name="demande_conge[groupeDirection]"]'
+          );
+          if (existingInput) {
+            existingInput.remove();
+          }
+
+          // Ajouter le champ avec la valeur actuelle
+          if (groupeDirectionCheckbox.checked) {
+            const newInput = document.createElement("input");
+            newInput.type = "hidden";
+            newInput.name = "demande_conge[groupeDirection]";
+            newInput.value = groupeDirectionCheckbox.value;
+            form.appendChild(newInput);
+          }
+        }
+      });
+    });
+  }
+
+  // Exécuter la synchronisation après le chargement du DOM
+  document.addEventListener("DOMContentLoaded", syncFiltersBeforeSubmit);
+  // Et aussi après chaque mise à jour de l'interface
+  setTimeout(syncFiltersBeforeSubmit, 100);
 
   // Exécuter la mise à jour du lien Excel après le changement de mode
   function updateAllViewElements(currentViewMode) {
@@ -324,6 +434,7 @@ document.addEventListener("DOMContentLoaded", function () {
             cell.classList.remove("conge-bar-annuler");
             cell.classList.add("conge-bar-encours");
           }
+
           // Vérifier si c'est le premier jour du congé pour ajouter l'indicateur
           const isStartDate =
             new Date(
@@ -530,6 +641,16 @@ document.addEventListener("DOMContentLoaded", function () {
                 `;
       });
     }
+  }
+
+  // Initialiser le mode de vue actuel au chargement de la page
+  // Similaire à l'approche du script original qui fonctionne
+  const currentTypeView = document.body.dataset.typeView || "list";
+  if (currentTypeView === "calendar") {
+    // Attendre un peu pour s'assurer que le DOM est complètement chargé
+    setTimeout(() => {
+      initializeCalendar();
+    }, 150);
   }
 
   // Utilisation de l'événement delegation pour gérer les clics sur les boutons switch-view
@@ -850,4 +971,3 @@ document.addEventListener("DOMContentLoaded", function () {
 //     );
 //   }
 // });
-
