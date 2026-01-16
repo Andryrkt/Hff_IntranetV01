@@ -94,9 +94,8 @@
 													this.itemToString(selectedItem) === this.itemToString(item))) {
 													this.selectedItems.push(item);
 													// Mettre à jour l'affichage
-													this.updateInputValue();
 													this.renderTags();
-													this.updateHiddenInput();
+													this.updateHiddenInputValue();
 												}
 												// Vider le champ de recherche après sélection
 												this.inputElement.value = '';
@@ -150,8 +149,8 @@
 														});
 
 														// Mettre à jour l'affichage
-														this.updateInputValue();
 														this.renderTags();
+														this.updateHiddenInputValue();
 													}).catch(error => {
 														console.error('Erreur lors de la récupération des données pour la restauration:', error);
 													});
@@ -190,7 +189,7 @@
 										if (form) {
 											form.addEventListener('submit', function(e) {
 												// Assurer que les sélections sont mises à jour dans le champ caché avant la soumission
-												customAutoComplete.updateHiddenInput();
+												customAutoComplete.updateHiddenInputValue();
 											});
 										}
 									}).catch(error => {
