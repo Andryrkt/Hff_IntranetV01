@@ -51,7 +51,7 @@ class DemandeCongeType extends AbstractType
         $builder
             ->add('matricule', HiddenType::class, [
                 'required' => false,
-                'mapped' => true,
+                'mapped' => false,  // Changer à false pour gérer manuellement
                 'label' => 'Matricule, Nom et Prénoms',
                 'attr' => [
                     'placeholder' => 'Saisissez plusieurs matricules séparés par une virgule'

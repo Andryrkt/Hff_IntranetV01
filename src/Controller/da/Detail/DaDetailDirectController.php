@@ -56,16 +56,17 @@ class DaDetailDirectController extends Controller
 
 		$this->traitementFormulaire($formObservation, $request, $demandeAppro);
 
-		$observations = $this->daObservationRepository->findBy(['numDa' => $demandeAppro->getNumeroDemandeAppro()]);
+		$observations = $this->daObservationRepository->findBy(['numDa' => $demandeAppro->getNumeroDemandeAppro()], ['dateCreation' => 'ASC']);
 
 		$demandeApproLPrepared = $this->prepareDataForDisplayDetail($demandeAppro->getDAL(), $demandeAppro->getStatutDal());
 
 		$fichiers = $this->getAllDAFile([
-			'baiPath'   => $this->getBaIntranetPath($demandeAppro),
-			'badPath'   => $this->getBaDocuWarePath($demandeAppro),
-			'bcPath'    => $this->getBcPath($demandeAppro),
-			'facblPath' => $this->getFacBlPath($demandeAppro),
-			'devPjPath' => $this->getDevisPjPath($demandeAppro),
+			'baiPath'      => $this->getBaIntranetPath($demandeAppro),
+			'badPath'      => $this->getBaDocuWarePath($demandeAppro),
+			'bcPath'       => $this->getBcPath($demandeAppro),
+			'facblPath'    => $this->getFacBlPath($demandeAppro),
+			'devPjPathDal' => $this->getDevisPjPathDal($demandeAppro),
+			'devPjPathObs' => $this->getDevisPjPathObservation($demandeAppro),
 		]);
 
 		return $this->render('da/detail.html.twig', [
@@ -107,7 +108,7 @@ class DaDetailDirectController extends Controller
 			/** @var DaObservation $daObservation daObservation correspondant au donnée du form */
 			$daObservation = $form->getData();
 
-			$this->insertionObservation($daObservation->getObservation(), $demandeAppro);
+			$this->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $daObservation->getObservation(), $daObservation->getFileNames());
 
 			if ($this->estUserDansServiceAppro() && $daObservation->getStatutChange()) {
 				$this->modificationStatutDal($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_AUTORISER_EMETTEUR);

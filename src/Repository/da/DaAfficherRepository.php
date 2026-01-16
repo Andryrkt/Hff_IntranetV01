@@ -665,7 +665,7 @@ class DaAfficherRepository extends EntityRepository
             if (!empty($criteria['statutDA'])) {
                 $queryBuilder->andWhere($qbLabel . '.statutDal = :statutDa')
                     ->setParameter('statutDa', $criteria['statutDA']);
-            } else {
+            } elseif (empty($criteria['numDa'])) {
                 $queryBuilder->andWhere($qbLabel . '.statutDal NOT IN (:statutDa)')
                     ->setParameter('statutDa', [DemandeAppro::STATUT_TERMINER, DemandeAppro::STATUT_CLOTUREE], ArrayParameterType::STRING);
             }
@@ -673,7 +673,7 @@ class DaAfficherRepository extends EntityRepository
             if (!empty($criteria['statutDA'])) {
                 $queryBuilder->andWhere($qbLabel . '.statutDal = :statutDa')
                     ->setParameter('statutDa', $criteria['statutDA']);
-            } else {
+            } elseif (empty($criteria['numDa'])) {
                 $queryBuilder->andWhere($qbLabel . '.statutDal NOT IN (:statutDa)')
                     ->setParameter('statutDa', [DemandeAppro::STATUT_TERMINER, DemandeAppro::STATUT_CLOTUREE], ArrayParameterType::STRING);
             }
@@ -857,7 +857,9 @@ class DaAfficherRepository extends EntityRepository
                     FROM ' . DaAfficher::class . ' d2
                     WHERE d2.numeroDemandeAppro = d.numeroDemandeAppro
                 )'
-        );
+        )
+            ->andWhere('d.deleted = :deleted')
+            ->setParameter('deleted', 0);
 
         $this->applyDynamicFilters($qb, 'd', $criteria);
         $this->applyAgencyServiceFilters($qb, 'd', $criteria, $user, $idAgenceUser, $estAppro, $estAtelier, $estAdmin);

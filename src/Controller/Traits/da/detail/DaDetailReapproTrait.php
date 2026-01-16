@@ -50,6 +50,13 @@ trait DaDetailReapproTrait
                 'colorClass' => 'border-left-bad',
                 'fichiers'   => $this->normalizePathsForManyFiles($tab['badPath'], 'num'),
             ],
+            [
+                'labelType'  => 'DEVPJ-OBS',
+                'type'       => 'Devis / PJ (émis dans l\'observation)',
+                'icon'       => 'fa-solid fa-money-bill-wave',
+                'colorClass' => 'border-left-devpj',
+                'fichiers'   => $this->normalizePathsForManyFiles($tab['devPjPathObs'], 'nomPj'),
+            ],
         ];
     }
 }

@@ -56,7 +56,7 @@ class DemandeAppro
     /**
      * @ORM\Column(type="string", length=11, name="numero_demande_appro")
      */
-    private string $numeroDemandeAppro;
+    private ?string $numeroDemandeAppro = null;
 
     /**
      * @ORM\Column(type="integer", name="da_type_id")
@@ -255,7 +255,7 @@ class DemandeAppro
      *
      * @return string
      */
-    public function getNumeroDemandeAppro(): string
+    public function getNumeroDemandeAppro(): ?string
     {
         return $this->numeroDemandeAppro;
     }
@@ -267,7 +267,7 @@ class DemandeAppro
      *
      * @return self
      */
-    public function setNumeroDemandeAppro(string $numeroDemandeAppro): self
+    public function setNumeroDemandeAppro(?string $numeroDemandeAppro): self
     {
         $this->numeroDemandeAppro = $numeroDemandeAppro;
         return $this;

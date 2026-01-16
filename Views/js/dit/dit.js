@@ -481,12 +481,13 @@ const atePolTanaContainer = document.querySelector("#ate_pol_tana_container");
 const atePolTanaInput = document.querySelector(
   "#demande_intervention_estAtePolTana"
 );
+const valuesAutorisees = ["ATE TANA", "ATE MAS", "ATE STAR"]; // valeurs autorisées pour la réparation réalisé afin de créer deux DIT
 
 if (reparationRealiseSelect) {
   // permet d'afficher et cacher le champ intervention pneumatique (ate pol tana)
   reparationRealiseSelect.addEventListener("change", function () {
     if (atePolTanaContainer) {
-      if (reparationRealiseSelect.value === "ATE TANA") {
+      if (valuesAutorisees.includes(reparationRealiseSelect.value)) {
         atePolTanaContainer.style.display = "block";
       } else {
         atePolTanaContainer.style.display = "none";
@@ -517,7 +518,7 @@ if (atePolTanaInput) {
     if (atePolTanaInput.checked === true) {
       Swal.fire({
         title: "êtes vous sure?",
-        html: `Les travaux seront réalisés par l'ATE TANA en solicitant également l'ATE TANA POL, une deuxième DIT sera créée automatiquement. 
+        html: `Les travaux seront réalisés par l'${reparationRealiseSelect.value} en solicitant également l'ATE POL TANA, une deuxième DIT sera créée automatiquement.<br>
     <b>Cliquer sur oui pour confirmer et non pour abandonner.</b>`,
         icon: "warning",
         showCancelButton: true,

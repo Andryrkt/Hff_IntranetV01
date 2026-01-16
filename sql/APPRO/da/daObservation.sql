@@ -10,3 +10,5 @@ CREATE TABLE da_observation
 
     CONSTRAINT PK_da_observation PRIMARY KEY (id)
 );
+
+ALTER TABLE da_observation ADD file_names text;

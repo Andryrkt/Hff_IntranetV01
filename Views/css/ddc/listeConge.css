@@ -111,3 +111,9 @@
   border-bottom: 2px solid #ccc;
   display: flex;
 }
+
+/* Curseur en pointeur main sur le planning du calendrier */
+.calendar-container .calendar-cell:hover,
+.calendar-container .day-indicator:hover {
+  cursor: pointer;
+}

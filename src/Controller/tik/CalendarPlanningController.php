@@ -28,7 +28,7 @@ class CalendarPlanningController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            dd($form->getData());
+            //dd($form->getData());
         }
 
         $formSearch = $this->getFormFactory()->createBuilder(TikPlanningSearchType::class, $tikPlanningSearch, [
