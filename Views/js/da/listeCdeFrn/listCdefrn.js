@@ -71,6 +71,9 @@ const hiddenInputDa = document.getElementById("da_soumission_da_id");
 const hiddenInputNumOr = document.getElementById("da_soumission_num_or");
 const statutAffiche = document.getElementById("statut-affiche");
 const form = document.forms["da_soumission"];
+const DA_REAPPRO = 2;
+const DAO = 0;
+const DAD = 1;
 
 document.addEventListener("contextmenu", function (event) {
   const targetCell = event.target.closest(".commande-cellule");
@@ -104,7 +107,7 @@ document.addEventListener("contextmenu", function (event) {
     "Partiellement livré",
   ];
 
-  if (statutsTelechargeBC.includes(statutBc) && typeDa != 2) {
+  if (statutsTelechargeBC.includes(statutBc) && typeDa != DA_REAPPRO) {
     telechargerBcValide(commandeId);
   }
 
@@ -117,7 +120,10 @@ document.addEventListener("contextmenu", function (event) {
     "Non Dispo Fournisseur",
   ];
 
-  if (typeDa == 2) {
+  if (statutBc == "BC envoyé au fournisseur" && [DAO, DAD].includes(typeDa)) {
+    Array.from(form.elements).forEach((el) => (el.disabled = false)); // active tous les champs du formulaire
+    form.querySelector("button[type='submit']").classList.remove("disabled"); //changer l'apparence du bouton
+  } else if (typeDa == DA_REAPPRO) {
     statutAffiche.style.display = "none"; // n'affiche pas le statut BC envoyé au fournisseur
 
     //desactive une partie du formulaire
@@ -184,7 +190,7 @@ document.addEventListener("contextmenu", function (event) {
           });
       })
       .catch((error) =>
-        console.error("Erreur lors du chargement du formulaire:", error)
+        console.error("Erreur lors du chargement du formulaire:", error),
       )
       .finally(() => {
         overlay.classList.add("hidden");
@@ -261,7 +267,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // Pré-rempli le champ de date dans le formulaire du modal
       const dateInput = modalDateLivraison.querySelector(
-        "#da_modal_date_livraison_dateLivraisonPrevue"
+        "#da_modal_date_livraison_dateLivraisonPrevue",
       );
       if (dateInput) {
         dateInput.value = dateActuelle;
@@ -269,7 +275,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // remplir le champ cacher avec le numero commande
       const numeroCdeInput = modalDateLivraison.querySelector(
-        "#da_modal_date_livraison_numeroCde"
+        "#da_modal_date_livraison_numeroCde",
       );
       if (numeroCdeInput) {
         numeroCdeInput.value = numeroCde;
