@@ -86,7 +86,7 @@ trait StatutBcTrait
         // 0. recupération de l'entity manager
         $em = self::getEntity();
 
-        // 1. recupération des données necessaire dans DaAfficher (version max)
+        // 1. recupération des données necessaire dans DaAfficher
         [$ref, $numDit, $numDa, $designation, $numeroOr, $statutOr, $statutBc, $statutDa] = $this->getVariableNecessaire($DaAfficher);
 
         /** 2. recuperation type DA @var bool $daDirect @var bool $daViaOR @var bool $daReappro  */
@@ -98,7 +98,7 @@ trait StatutBcTrait
         // 4. modification de l'information de l'or
         if (!$daDirect) $this->updateInfoOR($DaAfficher, $daViaOR, $daReappro);
 
-        //!OKey 5. modification du statut de la DA (statut_dal)
+        // 5. modification du statut de la DA
         if ($statutOr === DemandeAppro::STATUT_DW_A_MODIFIER && $statutDa !== DemandeAppro::STATUT_EN_COURS_CREATION) $DaAfficher->setStatutDal(DemandeAppro::STATUT_EN_COURS_CREATION);
 
         /** 6.recuperation des informations necessaire dans IPS  @var array $infoDaDirect @var array $situationCde*/
@@ -118,7 +118,7 @@ trait StatutBcTrait
         /** 10.  @var bool $partiellementDispo @var bool $completNonLivrer @var bool $toutLivres @var bool $partiellementLivrer */
         [$partiellementDispo, $completNonLivrer, $tousLivres, $partiellementLivre] = $this->evaluerQuantites($qte,  $infoDaDirect, $daDirect, $DaAfficher);
 
-        // 11. modification de situation commande dans DaAfficher (numero_cde)
+        // 11. modification de situation commande dans DaAfficher
         $this->updateSituationCdeDansDaAfficher($situationCde, $DaAfficher, $numCde, $infoDaDirect, $daDirect, $daViaOR, $daReappro, $qte);
 
         // 12. modification du Qte de commande dans DaAfficher
@@ -176,7 +176,6 @@ trait StatutBcTrait
     {
         $numCde = $this->numeroCde($infoDaDirect, $situationCde, $daDirect, $daViaOR, $daReappro, $numeroOr);
 
-        // recuperation statut dans la table da_soumission_bc dsb 
         $statutSoumissionBc = $em->getRepository(DaSoumissionBc::class)->getStatut($numCde);
 
         return [$numCde, $statutSoumissionBc];
@@ -269,7 +268,7 @@ trait StatutBcTrait
 
     private function aSituationCde(array $situationCde, bool $daViaOR): bool
     {
-        if ($daViaOR) return !array_key_exists(0, $situationCde); // si la situationCde est un tableau vide
+        if ($daViaOR) return !array_key_exists(0, $situationCde);
         // elseif ($daDirect) return array_key_exists(0, $infoDaDirect);
         else return false;
     }
@@ -314,7 +313,7 @@ trait StatutBcTrait
                 && $infoDaDirect[0]['position_livraison'] === '--'
                 &&  ($infoDaDirect[0]['position_bc'] === DaSoumissionBc::POSITION_TERMINER || $infoDaDirect[0]['position_bc'] === DaSoumissionBc::POSITION_ENCOUR);
         } elseif ($situationCde && $daViaOR) {
-            // numero de commande existe && nature contremarque == 'C' && position terminer
+            // numero de commande existe && ... && position terminer
             return (int)$situationCde[0]['num_cde'] > 0
                 && $situationCde[0]['slor_natcm'] === 'C'
                 && $situationCde[0]['position_livraison'] === '--'
