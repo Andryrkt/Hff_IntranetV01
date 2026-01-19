@@ -95,8 +95,6 @@ trait StatutBcTrait
         // 3. on met vide la statut bc selon le condition en survolant la fonction
         if ($this->doitRetournerVide($statutDa, $statutOr, $daViaOR)) return '';
 
-
-
         // 4. modification de l'information de l'or
         if (!$daDirect) $this->updateInfoOR($DaAfficher, $daViaOR, $daReappro);
 

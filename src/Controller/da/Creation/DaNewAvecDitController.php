@@ -145,7 +145,7 @@ class DaNewAvecDitController extends Controller
             $this->getEntityManager()->flush();
 
             /** ajout de l'observation dans la table da_observation si ceci n'est pas null */
-            if ($demandeAppro->getObservation()) $this->insertionObservation($demandeAppro->getObservation(), $demandeAppro);
+            if ($demandeAppro->getObservation()) $this->insertionObservation($numDa, $demandeAppro->getObservation());
 
             // ajout des données dans la table DaAfficher
             $this->ajouterDaDansTableAffichage($demandeAppro, $dit);
