@@ -280,7 +280,7 @@ class DitRepository extends EntityRepository
         if (!empty($ditSearch->getStatut())) {
             $queryBuilder->andWhere('s.description LIKE :statut')
                 ->setParameter('statut', '%' . $ditSearch->getStatut() . '%');
-        } elseif (empty($ditSearch->getNumDit()) && (empty($ditSearch->getNumOr()) && $ditSearch->getNumOr() == 0) && empty($ditSearch->getEtatFacture())) {
+        } elseif (empty($ditSearch->getNumDit()) && empty($ditSearch->getIdMateriel()) && empty($ditSearch->getNumParc()) && empty($ditSearch->getNumSerie()) && (empty($ditSearch->getNumOr()) && $ditSearch->getNumOr() == 0) && empty($ditSearch->getEtatFacture())) {
             $queryBuilder->andWhere($queryBuilder->expr()->in('s.id', ':excludedStatuses'))
                 ->setParameter('excludedStatuses', $statusesDefault);
         }
