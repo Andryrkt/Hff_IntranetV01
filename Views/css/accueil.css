@@ -130,7 +130,6 @@ body {
 .vignette-bande span {
   display: inline-block;
   padding-left: 20%; /* démarre hors écran */
-  animation: defilement 30s linear infinite;
 }
 
 .news-ticker {
