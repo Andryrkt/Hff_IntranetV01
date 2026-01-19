@@ -1,9 +1,28 @@
 import { displayOverlay } from "../../utils/ui/overlay";
 import { ajouterUneLigne } from "./dal";
 import { handleAgenceChange } from "../../dit/fonctionUtils/fonctionListDit.js";
+import { API_ENDPOINTS } from "../../api/apiEndpoints.js";
+import { swalOptions } from "../listeCdeFrn/ui/swalUtils.js";
+import { baseUrl } from "../../utils/config.js";
+import { handleAllOldFileEvents } from "./field.js";
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", async function () {
+  let listDaReappro = await getListDaReappro();
+  console.log("listDaReappro = ");
+  console.log(listDaReappro);
+
   buildIndexFromLines(); // initialiser le compteur de ligne pour la création d'une DA directe
+
+  handleAllOldFileEvents("demande_appro_direct_form_DAL"); // gérer les évènements sur les anciens fichiers
+
+  /**===========================================================================
+   * Configuration des agences et services
+   *============================================================================*/
+
+  // Attachement des événements pour les agences
+  document
+    .getElementById("demande_appro_direct_form_debiteur_agence")
+    .addEventListener("change", () => handleAgenceChange("debiteur"));
 
   const actionsConfig = {
     enregistrerBrouillon: {
@@ -34,6 +53,32 @@ document.addEventListener("DOMContentLoaded", function () {
 
   document.getElementById("myForm").addEventListener("submit", function (e) {
     e.preventDefault(); // empêcher l'envoi immédiat
+    const articleStocke = verifierArticleStocke(listDaReappro);
+
+    if (articleStocke.length > 0) {
+      const listeHtml = `
+        <ul style="text-align:left;">
+          ${articleStocke.map((article) => `<li>${article}</li>`).join("")}
+        </ul>
+      `;
+
+      Swal.fire({
+        icon: "error",
+        title: "Création de la DA impossible",
+        html: `
+          <p>
+            La demande d’approvisionnement ne peut pas être créée car les articles suivants sont déjà stockés dans la liste de création de DA réappro:
+          </p>
+          ${listeHtml}
+        `,
+        confirmButtonText: "OK",
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+      });
+
+      return;
+    }
+
     const action = e.submitter.name; // 👉 nom (attribut "name") du bouton qui a déclenché le submit
     // Définition des paramètres selon l'action
 
@@ -176,11 +221,52 @@ function deleteLigneDa(button) {
   });
 }
 
-/**===========================================================================
- * Configuration des agences et services
- *============================================================================*/
+async function getListDaReappro() {
+  const agenceServiceDA = document.getElementById("agenceServiceDA");
+  const agence = agenceServiceDA.dataset.agence;
+  const service = agenceServiceDA.dataset.service;
+  const url = `${baseUrl}/${API_ENDPOINTS.getArticlesDaReappro(
+    agence,
+    service
+  )}`;
 
-// Attachement des événements pour les agences
-document
-  .getElementById("demande_appro_direct_form_debiteur_agence")
-  .addEventListener("change", () => handleAgenceChange("debiteur"));
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+      },
+    });
+    const result = await response.json();
+
+    if (!response.ok) {
+      // Erreur HTTP (400, 404, 500...)
+      Swal.fire(swalOptions.genericResponse(result));
+      return [];
+    }
+
+    return result.data;
+  } catch (error) {
+    console.error(error);
+    Swal.fire(swalOptions.errorGeneric(error));
+    return [];
+  }
+}
+
+function verifierArticleStocke(listDaReappro) {
+  let articleStocke = [];
+
+  let allArticles = document.querySelectorAll(
+    "[id^='demande_appro_direct_form_DAL_'][id$='_artDesi']:not([id*='__name__'])"
+  );
+
+  allArticles.forEach((article) => {
+    let designation = article.value;
+
+    if (listDaReappro.hasOwnProperty(designation)) {
+      articleStocke.push(designation);
+    }
+  });
+
+  return articleStocke;
+}

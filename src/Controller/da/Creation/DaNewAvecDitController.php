@@ -93,7 +93,9 @@ class DaNewAvecDitController extends Controller
             /** @var DemandeAppro $demandeAppro */
             $demandeAppro = $form->getData();
 
-            $numDa = $demandeAppro->getNumeroDemandeAppro();
+            $firstCreation = $demandeAppro->getNumeroDemandeAppro() === null;
+            $numDa = $firstCreation ? $this->autoDecrement('DAP') : $demandeAppro->getNumeroDemandeAppro();
+            $demandeAppro->setNumeroDemandeAppro($numDa);
             $formDAL = $form->get('DAL');
 
             // Récupérer le nom du bouton cliqué
@@ -110,8 +112,27 @@ class DaNewAvecDitController extends Controller
                 if ($demandeApproL->getDeleted() == 1) {
                     $this->getEntityManager()->remove($demandeApproL);
                 } else {
-                    $files = $subFormDAL->get('fileNames')->getData(); // Récupération des fichiers
-                    $fileNames = $this->daFileUploader->uploadMultipleDaFiles($files, $numDa, FileUploaderForDAService::FILE_TYPE["DEVIS"]);
+                    // Récupérer les données
+                    $filesToDelete = $subFormDAL->get('filesToDelete')->getData();
+                    $existingFileNames = $subFormDAL->get('existingFileNames')->getData();
+                    $newFiles = $subFormDAL->get('fileNames')->getData();
+
+                    // Supprimer les fichiers
+                    if ($filesToDelete) {
+                        $this->daFileUploader->deleteFiles(
+                            explode(',', $filesToDelete),
+                            $numDa
+                        );
+                    }
+
+                    // Gérer l'upload et obtenir la liste finale
+                    $allFileNames = $this->daFileUploader->handleFileUpload(
+                        $newFiles,
+                        $existingFileNames,
+                        $numDa,
+                        FileUploaderForDAService::FILE_TYPE["DEVIS"]
+                    );
+
                     /** 
                      * @var DemandeApproL $demandeApproL
                      */
@@ -121,7 +142,7 @@ class DaNewAvecDitController extends Controller
                         ->setPrixUnitaire($this->daModel->getPrixUnitaire($demandeApproL->getArtRefp())[0])
                         ->setNumeroDit($demandeAppro->getNumeroDemandeDit())
                         ->setJoursDispo($this->getJoursRestants($demandeApproL))
-                        ->setFileNames($fileNames)
+                        ->setFileNames($allFileNames)
                     ;
 
                     if ($demandeApproL->getNumeroFournisseur() == 0) {
@@ -132,16 +153,19 @@ class DaNewAvecDitController extends Controller
                 }
             }
 
-            /** Modifie la colonne dernière_id dans la table applications */
-            $applicationService = new ApplicationService($this->getEntityManager());
-            $applicationService->mettreAJourDerniereIdApplication('DAP', $numDa);
+            // si c'est la première création, on met à jour la colonne dernière_id dans la table applications
+            if ($firstCreation) {
+                /** Modifie la colonne dernière_id dans la table applications */
+                $applicationService = new ApplicationService($this->getEntityManager());
+                $applicationService->mettreAJourDerniereIdApplication('DAP', $numDa);
+            }
 
             /** Ajout de demande appro dans la base de donnée (table: Demande_Appro) */
             $this->getEntityManager()->persist($demandeAppro);
             $this->getEntityManager()->flush();
 
             /** ajout de l'observation dans la table da_observation si ceci n'est pas null */
-            if ($demandeAppro->getObservation()) $this->insertionObservation($demandeAppro->getObservation(), $demandeAppro);
+            if ($demandeAppro->getObservation()) $this->insertionObservation($numDa, $demandeAppro->getObservation());
 
             // ajout des données dans la table DaAfficher
             $this->ajouterDaDansTableAffichage($demandeAppro, $dit);

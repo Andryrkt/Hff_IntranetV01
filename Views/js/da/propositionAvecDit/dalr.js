@@ -29,6 +29,10 @@ export function ajouterUneLigne(line, fields, iscatalogue) {
       line + "-" + rowIndex
     }" checked>`
   );
+  insertCellData(row, fields.numeroFournisseur.value, "Center", color, [
+    "d-none",
+    "numero-fournisseur",
+  ]);
   insertCellData(row, fields.fournisseur.value, "Center", color);
   insertCellData(row, fields.reference.value, "Center", color);
   insertCellData(row, fields.designation.value, "left", color);
@@ -87,11 +91,20 @@ export function ajouterUneLigne(line, fields, iscatalogue) {
   fields.designation.classList.remove("non-modifiable");
 }
 
-function insertCellData(row, $data, align = "center", color = "red") {
+function insertCellData(
+  row,
+  $data,
+  align = "center",
+  color = "red",
+  classList = []
+) {
   let cell = row.insertCell();
   cell.innerHTML = $data;
   cell.style.textAlign = align;
   cell.style.color = color;
+  classList.forEach((cssClass) => {
+    cell.classList.add(cssClass);
+  });
 }
 
 function insertCellToRow(row, htmlContent, align = "center", color = "red") {
@@ -316,7 +329,7 @@ export function createPieceJointe(line, rowIndex, inputFile) {
     );
 
     if (inputFileInserted) {
-      inputFileInserted.accept = ".pdf, image/*";
+      inputFileInserted.accept = ".pdf";
       // 🔁 Supprimer l'ancien listener si déjà ajouté
       inputFileInserted.removeEventListener(
         "change",
@@ -331,7 +344,7 @@ export function createPieceJointe(line, rowIndex, inputFile) {
       );
     }
   } else {
-    inputFile.accept = ".pdf, image/*";
+    inputFile.accept = ".pdf";
 
     // 🔁 Supprimer l'ancien listener si déjà ajouté
     inputFile.removeEventListener("change", handleFileNamesInputChange);

@@ -16,13 +16,11 @@ use App\Service\autres\AutoIncDecService;
 use Symfony\Component\Form\FormInterface;
 use App\Service\fichier\UploderFileService;
 use App\Controller\Traits\AutorisationTrait;
-use App\Controller\Traits\MiseAjourAppTrait;
 use App\Service\fichier\TraitementDeFichier;
 use App\Controller\Traits\PdfConversionTrait;
 use App\Service\genererPdf\dit\GenererPdfDit;
 use Symfony\Component\HttpFoundation\Request;
 use App\Factory\Dit\DemandeInterventionFactory;
-use App\Service\application\ApplicationService;
 use App\Service\dit\fichier\DitNameFileService;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -119,9 +117,8 @@ class DitController extends Controller
             $dto->idStatutDemande = $em->getRepository(StatutDemande::class)->find(50);
             $dto->mailDemandeur = $user->getMail();
 
-            /**   @var array $demandeInterventions 3. Utiliser la factory pour créer l'entité complète*/
+            /**   @var DemandeIntervention[] $demandeInterventions 3. Utiliser la factory pour créer l'entité complète*/
             $demandeInterventions = $this->createDemandeInterventionFromDto($dto);
-
 
             foreach ($demandeInterventions as $demandeIntervention) {
                 // 4. recuperation du dernière numero demande d'intervention et generation du numero de demande 
@@ -199,7 +196,7 @@ class DitController extends Controller
         $idMateriel = (int)$demandeIntervention->getIdMateriel();
         if (!in_array($idMateriel, $this->ditModel->getNumeroMatriculePasMateriel())) {
             //récupération des historique de materiel (informix)
-            $historiqueMateriel = $this->historiqueInterventionMateriel($idMateriel);
+            $historiqueMateriel = $this->historiqueInterventionMateriel($idMateriel, $demandeIntervention->getReparationRealise());
         } else {
             $historiqueMateriel = [];
         }

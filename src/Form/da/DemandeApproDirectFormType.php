@@ -19,10 +19,12 @@ use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 
 class DemandeApproDirectFormType extends AbstractType
 {
+    private EntityManagerInterface $em;
     private WorNiveauUrgenceRepository $niveauUrgenceRepository;
 
     public function __construct(EntityManagerInterface $em)
     {
+        $this->em = $em;
         $this->niveauUrgenceRepository = $em->getRepository(WorNiveauUrgence::class);
     }
 
@@ -86,8 +88,9 @@ class DemandeApproDirectFormType extends AbstractType
                 'service_label'       => 'Service Debiteur (*)',
                 'agence_placeholder'  => '-- Agence Debiteur --',
                 'service_placeholder' => '-- Service Debiteur --',
-                'em'                  => $options['em'] ?? null,
-                // 'agence_codes' => $this->agenceCodes()
+                'data_agence'         => $options['data']->getAgenceDebiteur() ?? null,
+                'data_service'        => $options['data']->getServiceDebiteur() ?? null,
+                'em'                  => $this->em,
             ])
             ->add('niveauUrgence', ChoiceType::class, [
                 'label'        => 'Niveau d\'urgence *',

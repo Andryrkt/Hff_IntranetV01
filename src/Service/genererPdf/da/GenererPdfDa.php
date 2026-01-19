@@ -74,9 +74,9 @@ abstract class GenererPdfDa extends GeneratePdf
         $pdf->setFont('helvetica', 'B', 10);
         $pdf->cell(25, 6, 'Détails :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->setFont('helvetica', '', 9);
-        $pdf->MultiCell(165, 50, $detailDal, 1, '', 0, 0, '', '', true);
+        $pdf->MultiCell(165, 100, $detailDal, 1, '', 0, 0, '', '', true);
         $pdf->Ln(3);
-        $pdf->setAbsY(85);
+        $pdf->setAbsY(135);
     }
 
     /** 

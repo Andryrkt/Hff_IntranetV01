@@ -45,7 +45,7 @@ class DaDetailReapproController extends Controller
 
 		/** @var DemandeAppro $demandeAppro la demande appro correspondant à l'id $id */
 		$demandeAppro = $this->demandeApproRepository->find($id); // recupération de la DA
-		$observations = $this->daObservationRepository->findBy(['numDa' => $demandeAppro->getNumeroDemandeAppro()]);
+		$observations = $this->daObservationRepository->findBy(['numDa' => $demandeAppro->getNumeroDemandeAppro()], ['dateCreation' => 'ASC']);
 
 		$daObservation = new DaObservation;
 		$formObservation = $this->getFormFactory()->createBuilder(DaObservationType::class, $daObservation, ['daTypeId' => $demandeAppro->getDaTypeId()])->getForm();
@@ -53,8 +53,9 @@ class DaDetailReapproController extends Controller
 		$this->traitementFormulaire($formObservation, $request, $demandeAppro);
 
 		$fichiers = $this->getAllDAFile([
-			'baiPath'   => $this->getBaIntranetPath($demandeAppro),
-			'badPath'   => $this->getBaDocuWarePath($demandeAppro),
+			'baiPath'      => $this->getBaIntranetPath($demandeAppro),
+			'badPath'      => $this->getBaDocuWarePath($demandeAppro),
+			'devPjPathObs' => $this->getDevisPjPathObservation($demandeAppro),
 		]);
 
 		return $this->render('da/detail.html.twig', [
@@ -79,7 +80,7 @@ class DaDetailReapproController extends Controller
 			/** @var DaObservation $daObservation daObservation correspondant au donnée du form */
 			$daObservation = $form->getData();
 
-			$this->insertionObservation($daObservation->getObservation(), $demandeAppro);
+			$this->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $daObservation->getObservation(), $daObservation->getFileNames());
 
 			$notification = [
 				'type'    => 'success',

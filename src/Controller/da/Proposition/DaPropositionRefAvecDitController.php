@@ -13,6 +13,7 @@ use App\Entity\da\DemandeApproLRCollection;
 use App\Controller\Traits\AutorisationTrait;
 use App\Form\da\DaPropositionValidationType;
 use App\Controller\Traits\da\DaAfficherTrait;
+use App\Controller\Traits\da\detail\DaDetailAvecDitTrait;
 use App\Form\da\DemandeApproLRCollectionType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -29,6 +30,7 @@ class DaPropositionRefAvecDitController extends Controller
     use AutorisationTrait;
     use DaValidationAvecDitTrait;
     use DaPropositionAvecDitTrait;
+    use DaDetailAvecDitTrait;
 
     private const EDIT = 0;
 
@@ -38,6 +40,7 @@ class DaPropositionRefAvecDitController extends Controller
 
         $this->initDaPropositionAvecDitTrait();
         $this->initDaValidationAvecDitTrait();
+        $this->initDaDetailAvecDitTrait();
     }
 
     /**
@@ -74,7 +77,16 @@ class DaPropositionRefAvecDitController extends Controller
         $this->traitementFormulaire($form, $formObservation, $dals, $request, $numDa, $da);
         // =================================================================================//
 
-        $observations = $this->daObservationRepository->findBy(['numDa' => $numDa]);
+        $observations = $this->daObservationRepository->findBy(['numDa' => $numDa], ['dateCreation' => 'ASC']);
+
+        $fichiers = $this->getAllDAFile([
+            'baiPath'      => $this->getBaIntranetPath($da),
+            'orPath'       => $this->getOrPath($da),
+            'bcPath'       => $this->getBcPath($da),
+            'facblPath'    => $this->getFacBlPath($da),
+            'devPjPathDal' => $this->getDevisPjPathDal($da),
+            'devPjPathObs' => $this->getDevisPjPathObservation($da),
+        ]);
 
         return $this->render("da/proposition.html.twig", [
             'demandeAppro'            => $da,
@@ -85,8 +97,9 @@ class DaPropositionRefAvecDitController extends Controller
             'formObservation'         => $formObservation->createView(),
             'observations'            => $observations,
             'numDa'                   => $numDa,
+            'fichiers'                => $fichiers,
             'connectedUser'           => $this->getUser(),
-            'statutAutoriserModifAte' => $da->getStatutDal() === DemandeAppro::STATUT_AUTORISER_MODIF_ATE,
+            'statutAutoriserModifAte' => $da->getStatutDal() === DemandeAppro::STATUT_AUTORISER_EMETTEUR,
             'estAte'                  => $this->estUserDansServiceAtelier(),
             'estAppro'                => $this->estUserDansServiceAppro(),
             'nePeutPasModifier'       => $this->nePeutPasModifier($da),
@@ -140,11 +153,11 @@ class DaPropositionRefAvecDitController extends Controller
 
     private function traitementEnvoiObservation(DaObservation $daObservation, DemandeAppro $demandeAppro)
     {
-        $this->insertionObservation($daObservation->getObservation(), $demandeAppro);
+        $this->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $daObservation->getObservation(), $daObservation->getFileNames());
 
         if ($this->estUserDansServiceAppro() && $daObservation->getStatutChange()) {
-            $this->modificationStatutDal($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_AUTORISER_MODIF_ATE);
-            $this->modificationStatutDa($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_AUTORISER_MODIF_ATE);
+            $this->modificationStatutDal($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_AUTORISER_EMETTEUR);
+            $this->modificationStatutDa($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_AUTORISER_EMETTEUR);
 
             $this->ajouterDansTableAffichageParNumDa($demandeAppro->getNumeroDemandeAppro()); // ajout dans la table DaAfficher si le statut a changé
         }
@@ -166,7 +179,7 @@ class DaPropositionRefAvecDitController extends Controller
     private function traitementPourBtnEnvoyerObservation($observation, DemandeAppro $demandeAppro, $statutChange)
     {
         if ($observation !== null) {
-            $this->insertionObservation($observation, $demandeAppro);
+            $this->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $observation);
             if ($statutChange) {
                 $this->modificationStatutDal($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_SOUMIS_APPRO);
                 $this->modificationStatutDa($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_SOUMIS_APPRO);
@@ -367,7 +380,7 @@ class DaPropositionRefAvecDitController extends Controller
         }
 
         if ($observation !== null) {
-            $this->insertionObservation($observation, $demandeAppro);
+            $this->insertionObservation($numDa, $observation);
         }
 
         $this->modificationStatutDal($numDa, $statut);

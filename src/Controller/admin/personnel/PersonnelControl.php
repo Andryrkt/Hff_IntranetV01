@@ -56,7 +56,7 @@ class PersonnelControl extends Controller
          // Vérifier si le formulaire est soumis et valide
          if ($form->isSubmitted() && $form->isValid()) {
             // Traitement des données du formulaire
-           dd( $form->getData());
+           //dd( $form->getData());
           
         }
 

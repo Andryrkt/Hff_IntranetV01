@@ -1,29 +1,10 @@
 import { displayOverlay } from "../../utils/ui/overlay";
-import { onFileNamesInputChange } from "../newAvecDit/field";
+import { handleAllOldFileEvents } from "../newDirect/field";
 
 document.addEventListener("DOMContentLoaded", function () {
   buildIndexFromLines();
 
-  document.querySelectorAll(".trombone-add-pj").forEach((el) => {
-    el.addEventListener("click", function () {
-      this.closest(".DAL-container") // le plus proche conteneur de la ligne DA
-        .querySelector('input[type="file"]') // trouver l'input file dans ce conteneur
-        .click();
-    });
-  });
-
-  document
-    .querySelectorAll('[id^="demande_appro_form_DAL_"][id$="_fileNames"]')
-    .forEach((inputFile) => {
-      inputFile.accept = ".pdf, image/*"; // Accepter les fichiers PDF et images
-      inputFile.addEventListener("change", (event) =>
-        onFileNamesInputChange(event)
-      );
-    });
-
-  /* document
-    .getElementById("add-child")
-    .addEventListener("click", ajouterUneLigne); */
+  handleAllOldFileEvents("demande_appro_form_DAL"); // gérer les évènements sur les anciens fichiers
 
   document.getElementById("myForm").addEventListener("submit", function (e) {
     e.preventDefault();

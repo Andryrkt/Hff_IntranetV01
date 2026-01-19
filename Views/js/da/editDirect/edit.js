@@ -1,31 +1,16 @@
 import { displayOverlay } from "../../utils/ui/overlay";
-import { onFileNamesInputChange } from "../newDirect/field";
+import { handleAllOldFileEvents } from "../newDirect/field";
+import { handleAgenceChange } from "../../dit/fonctionUtils/fonctionListDit.js";
 
 document.addEventListener("DOMContentLoaded", function () {
   buildIndexFromLines();
 
-  document.querySelectorAll(".trombone-add-pj").forEach((el) => {
-    el.addEventListener("click", function () {
-      this.closest(".DAL-container") // le plus proche conteneur de la ligne DA
-        .querySelector('input[type="file"]') // trouver l'input file dans ce conteneur
-        .click();
-    });
-  });
+  handleAllOldFileEvents("demande_appro_direct_form_DAL"); // gérer les évènements sur les anciens fichiers
 
+  // Attachement des événements pour les agences
   document
-    .querySelectorAll(
-      '[id^="demande_appro_direct_form_DAL_"][id$="_fileNames"]'
-    )
-    .forEach((inputFile) => {
-      inputFile.accept = ".pdf, image/*"; // Accepter les fichiers PDF et images
-      inputFile.addEventListener("change", (event) =>
-        onFileNamesInputChange(event)
-      );
-    });
-
-  /* document
-    .getElementById("add-child")
-    .addEventListener("click", ajouterUneLigne); */
+    .getElementById("demande_appro_direct_form_debiteur_agence")
+    .addEventListener("change", () => handleAgenceChange("debiteur"));
 
   document.getElementById("myForm").addEventListener("submit", function (e) {
     e.preventDefault();
