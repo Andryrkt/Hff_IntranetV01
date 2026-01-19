@@ -177,6 +177,11 @@ class DemandePaiement
      */
     private $numeroDossierDouane = [];
 
+    /**
+     * @ORM\Column(type="boolean", name="appro")
+     */
+    private $appro = false;
+
     private string $montantAPayer = '0';
 
     private $pieceJoint01;
@@ -899,7 +904,7 @@ class DemandePaiement
 
     /**
      * Get the value of numeroDossierDouane
-     */ 
+     */
     public function getNumeroDossierDouane()
     {
         return $this->numeroDossierDouane;
@@ -909,10 +914,28 @@ class DemandePaiement
      * Set the value of numeroDossierDouane
      *
      * @return  self
-     */ 
+     */
     public function setNumeroDossierDouane($numeroDossierDouane)
     {
         $this->numeroDossierDouane = $numeroDossierDouane;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of appro
+     */
+    public function getAppro()
+    {
+        return $this->appro;
+    }
+
+    /**
+     * Set the value of appro
+     */
+    public function setAppro($appro): self
+    {
+        $this->appro = $appro;
 
         return $this;
     }

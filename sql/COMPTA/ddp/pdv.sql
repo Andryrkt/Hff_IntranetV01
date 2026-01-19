@@ -78,19 +78,17 @@ CREATE TABLE demande_paiement_ligne
 );
 
 ALTER TABLE demande_paiement
-ADD mode_paiement VARCHAR(50)
+ADD mode_paiement VARCHAR(50),
+montant_a_payer DECIMAL(18, 2),
+contact VARCHAR(50),
+numero_commande VARCHAR(max),
+numero_facture VARCHAR(max)
+;
 
 ALTER TABLE demande_paiement
-ADD montant_a_payer DECIMAL(18, 2)
+ADD appro bit DEFAULT 0
 
-ALTER TABLE demande_paiement
-ADD contact VARCHAR(50)
 
-ALTER TABLE demande_paiement
-ADD numero_commande VARCHAR(max)
-
-ALTER TABLE demande_paiement
-ADD numero_facture VARCHAR(max)
 
 
 CREATE TABLE historique_statut_ddp
