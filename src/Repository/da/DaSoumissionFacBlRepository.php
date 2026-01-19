@@ -113,4 +113,17 @@ class DaSoumissionFacBlRepository extends EntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function getNumeroFactureDansFacBl(string $numeroCde): array
+    {
+        $result = $this->createQueryBuilder('dabc')
+            ->select('dabc.numeroFactureReappro')
+            ->where('dabc.numeroCde = :numCde')
+            ->andWhere('dabc.refBlFac IS NOT NULL')
+            ->setParameter('numCde', $numeroCde)
+            ->getQuery()
+            ->getSingleColumnResult();
+
+        return $result;
+    }
 }

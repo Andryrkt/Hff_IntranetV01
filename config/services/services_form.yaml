@@ -106,3 +106,8 @@ services:
         arguments:
           - '@doctrine.orm.default_entity_manager'
         public: true
+
+    App\Form\da\daCdeFrn\DaSoumissionBlReapprotype:
+        arguments:
+          - '@doctrine.orm.default_entity_manager'
+        public: true
