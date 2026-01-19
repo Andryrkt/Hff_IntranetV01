@@ -12,6 +12,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Dto\Da\ListeCdeFrn\DaSoumisionBlReapproDto;
 use App\Form\da\daCdeFrn\DaSoumissionBlReapprotype;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use App\Factory\da\CdeFrnDto\DaSoumissionBlReapproFactory;
 use App\Service\historiqueOperation\HistoriqueOperationService;
 use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
 
@@ -42,8 +43,7 @@ class DaSoumissionBlReapproController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $dto = new DaSoumisionBlReapproDto();
-        $dto->numCde = $numCde;
+        $dto = DaSoumissionBlReapproFactory::createFromDto($numCde);
 
         $form = $this->getFormFactory()->createBuilder(DaSoumissionBlReapprotype::class, $dto)->getForm();
 

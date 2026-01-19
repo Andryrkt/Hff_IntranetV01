@@ -71,4 +71,13 @@ class DaReapproModel extends Model
 
         return $rows;
     }
+
+
+    public function getNumeroFactureReappro(string $numeroOR)
+    {
+        $statement = " SELECT distinct slor_numfac 
+                    from informix.sav_lor 
+                    where slor_numor =  '$numeroOR'
+        ";
+    }
 }

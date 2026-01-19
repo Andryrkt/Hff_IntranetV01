@@ -6,20 +6,32 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\File;
 use App\Dto\Da\ListeCdeFrn\DaSoumisionBlReapproDto;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Validator\Constraints\Callback;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class DaSoumissionBlReapprotype extends AbstractType
 {
+    
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
             ->add('numCde', TextType::class, [
                 'label' => 'Numéro OR',
                 'attr' => ['disabled' => true]
+            ])
+            ->add('numeroFactureReappro', ChoiceType::class, [
+                'label' => 'Numéro de facture réappro',
+                'choices' => [
+                    'FACT-1001' => 'FACT-1001',
+                    'FACT-1002' => 'FACT-1002',
+                    'FACT-1003' => 'FACT-1003',
+                ],
+                'placeholder' => 'Sélectionnez une facture',
             ])
             ->add(
                 'pieceJoint1',
