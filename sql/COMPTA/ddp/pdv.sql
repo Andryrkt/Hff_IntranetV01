@@ -88,6 +88,9 @@ numero_facture VARCHAR(max)
 ALTER TABLE demande_paiement
 ADD appro bit DEFAULT 0
 
+ALTER TABLE demande_paiement_ligne
+ADD ratio_montant_payer DECIMAL(18, 2)
+
 
 
 

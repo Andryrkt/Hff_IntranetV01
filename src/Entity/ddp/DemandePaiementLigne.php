@@ -11,7 +11,7 @@ use App\Repository\ddp\DemandePaiementLigneRepository;
  * @ORM\Table(name="demande_paiement_ligne")
  * @ORM\HasLifecycleCallbacks
  */
-class DemandePaiementLigne 
+class DemandePaiementLigne
 {
     use DateTrait;
 
@@ -49,11 +49,16 @@ class DemandePaiementLigne
      */
     private float $montantFacture = 0.00;
 
- /**
+    /**
      * @ORM\Column(type="integer", name="numeroVersion")
      */
     private ?int $numeroVersion = 0;
-    
+
+    /**
+     * @ORM\Column(type="float", scale="2", name="ratio_montant_payer")
+     */
+    private $ratioMontantPayer;
+
 
     /**===========================================================================
      * GETTER & SETTER
@@ -69,7 +74,7 @@ class DemandePaiementLigne
      * Get the value of numeroDdp
      *
      * @return  string|null
-     */ 
+     */
     public function getNumeroDdp()
     {
         return $this->numeroDdp;
@@ -81,7 +86,7 @@ class DemandePaiementLigne
      * @param  string|null  $numeroDdp
      *
      * @return  self
-     */ 
+     */
     public function setNumeroDdp($numeroDdp)
     {
         $this->numeroDdp = $numeroDdp;
@@ -91,7 +96,7 @@ class DemandePaiementLigne
 
     /**
      * Get the value of numeroLigne
-     */ 
+     */
     public function getNumeroLigne()
     {
         return $this->numeroLigne;
@@ -101,7 +106,7 @@ class DemandePaiementLigne
      * Set the value of numeroLigne
      *
      * @return  self
-     */ 
+     */
     public function setNumeroLigne($numeroLigne)
     {
         $this->numeroLigne = $numeroLigne;
@@ -111,7 +116,7 @@ class DemandePaiementLigne
 
     /**
      * Get the value of numeroCommande
-     */ 
+     */
     public function getNumeroCommande()
     {
         return $this->numeroCommande;
@@ -121,7 +126,7 @@ class DemandePaiementLigne
      * Set the value of numeroCommande
      *
      * @return  self
-     */ 
+     */
     public function setNumeroCommande($numeroCommande)
     {
         $this->numeroCommande = $numeroCommande;
@@ -131,7 +136,7 @@ class DemandePaiementLigne
 
     /**
      * Get the value of numeroFacture
-     */ 
+     */
     public function getNumeroFacture()
     {
         return $this->numeroFacture;
@@ -141,7 +146,7 @@ class DemandePaiementLigne
      * Set the value of numeroFacture
      *
      * @return  self
-     */ 
+     */
     public function setNumeroFacture($numeroFacture)
     {
         $this->numeroFacture = $numeroFacture;
@@ -151,7 +156,7 @@ class DemandePaiementLigne
 
     /**
      * Get the value of montantFacture
-     */ 
+     */
     public function getMontantFacture()
     {
         return $this->montantFacture;
@@ -161,7 +166,7 @@ class DemandePaiementLigne
      * Set the value of montantFacture
      *
      * @return  self
-     */ 
+     */
     public function setMontantFacture($montantFacture)
     {
         $this->montantFacture = $montantFacture;
@@ -169,11 +174,11 @@ class DemandePaiementLigne
         return $this;
     }
 
- 
+
 
     /**
      * Get the value of numeroVersion
-     */ 
+     */
     public function getNumeroVersion()
     {
         return $this->numeroVersion;
@@ -183,10 +188,28 @@ class DemandePaiementLigne
      * Set the value of numeroVersion
      *
      * @return  self
-     */ 
+     */
     public function setNumeroVersion($numeroVersion)
     {
         $this->numeroVersion = $numeroVersion;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of ratioMontantPayer
+     */
+    public function getRatioMontantPayer()
+    {
+        return $this->ratioMontantPayer;
+    }
+
+    /**
+     * Set the value of ratioMontantPayer
+     */
+    public function setRatioMontantPayer($ratioMontantPayer): self
+    {
+        $this->ratioMontantPayer = $ratioMontantPayer;
 
         return $this;
     }
