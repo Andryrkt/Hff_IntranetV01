@@ -6,6 +6,7 @@ use App\Controller\Traits\da\PrixFournisseurTrait;
 use App\Controller\Traits\lienGenerique;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\da\DemandeAppro;
+use App\Entity\da\DemandeApproParent;
 use App\Service\EmailService;
 use App\Traits\PrepareDataDAP;
 
@@ -64,7 +65,7 @@ class EmailDaService
     /** 
      * Fonction pour obtenir les variables indispensables du template de mail
      */
-    private function getImportantVariables(DemandeAppro $demandeAppro, User $connectedUser, string $daLabel, string $service): array
+    private function getImportantVariables($demandeAppro, User $connectedUser, string $daLabel, string $service): array
     {
         return [
             'demandeAppro' => $demandeAppro,
@@ -73,7 +74,7 @@ class EmailDaService
             'observation'  => $demandeAppro->getObservation() ?? '-',
             'service'      => strtoupper($service),
             'urlIntranet'  => $this->getUrlIntranet(),
-            'urlDetail'    => $this->getUrlDetail($demandeAppro->getId(), $demandeAppro->getDaTypeId()),
+            'urlDetail'    => $demandeAppro instanceof DemandeAppro ? $this->getUrlDetail($demandeAppro->getId(), $demandeAppro->getDaTypeId()) : "",
             'dateYear'     => date('Y'),
         ];
     }
@@ -118,6 +119,26 @@ class EmailDaService
                 'subject'       => "{$demandeAppro->getNumeroDemandeAppro()} - Nouvelle demande $daLabel créé",
                 'preparedDatas' => $this->prepareDataForMailCreationDa($demandeAppro->getDaTypeId(), $demandeAppro->getDAL()),
             ] + $this->getImportantVariables($demandeAppro, $connectedUser, $daLabel, $service), // opérateur `+` pour ne pas écraser les clés existantes
+        ]);
+    }
+
+    /** 
+     * Méthode pour envoyer une email pour la création d'une DA parent (avec DIT, Direct, Réappro)
+     * @param DemandeApproParent $demandeApproParent objet de la demande appro parent
+     * @param User $connectedUser l'utilisateur connecté
+     */
+    public function envoyerMailCreationDaParent(DemandeApproParent $demandeApproParent, User $connectedUser)
+    {
+        $daLabel = "d'achat";
+        $service = $demandeApproParent->getServiceEmetteur()->getLibelleService();
+        $this->envoyerEmail([
+            'to'        => $this->mailAppro,
+            'variables' => [
+                'templateName'  => "newDa",
+                'header'        => "{$demandeApproParent->getNumeroDemandeAppro()} - DEMANDE " . strtoupper($daLabel) . " : <span class=\"newDa\"> CRÉATION </span>",
+                'subject'       => "{$demandeApproParent->getNumeroDemandeAppro()} - Nouvelle demande $daLabel créé",
+                'preparedDatas' => $this->prepareDataForMailCreationDa(DemandeAppro::TYPE_DA_DIRECT, $demandeApproParent->getDemandeApproParentLines()),
+            ] + $this->getImportantVariables($demandeApproParent, $connectedUser, $daLabel, $service), // opérateur `+` pour ne pas écraser les clés existantes
         ]);
     }
 
