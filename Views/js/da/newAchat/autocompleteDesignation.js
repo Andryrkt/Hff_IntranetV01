@@ -1,6 +1,6 @@
 import { AutoComplete } from "../../utils/AutoComplete";
 
-export function initializeAutoCompletionDesi(designation) {
+export function initializeAutoCompletionDesi(designation, articleStockeList) {
   let baseId = designation.id.replace(
     "demande_appro_achat_form_demandeApproParentLines",
     ""
@@ -24,10 +24,10 @@ export function initializeAutoCompletionDesi(designation) {
     loaderElement: document.getElementById(`spinner_container${baseId}`),
     debounceDelay: 150,
     fetchDataCallback: async () => {
-      return [];
+      return articleStockeList;
     },
     displayItemCallback: (item) =>
-      `Référence: ${item.refp} - Fournisseur: ${item.nomFournisseur} - Prix: ${item.prixUnitaire} <br>Désignation: ${item.designation}`,
+      `Référence: ${item.refp} - Fournisseur: ${item.nom_fournisseur} - Prix: ${item.prix_unitaire} <br>Désignation: ${item.designation}`,
     itemToStringCallback: (item) => `${item.designation}`,
     itemToStringForBlur: (item) => `${item.designation}`,
     onBlurCallback: (found) => onBlurEvent(found, designation, fields),
@@ -50,9 +50,9 @@ async function handleValueOfTheFields(item, designation, fields) {
 
   constp.value = item.constp;
   refp.value = item.refp;
-  numeroFournisseur.value = item.numeroFournisseur;
-  nomFournisseur.value = item.nomFournisseur;
-  prixUnitaire.value = item.prixUnitaire;
+  numeroFournisseur.value = item.numero_fournisseur;
+  nomFournisseur.value = item.nom_fournisseur;
+  prixUnitaire.value = item.prix_unitaire;
   designation.value = item.designation;
 
   designation.classList.add("non-modifiable");

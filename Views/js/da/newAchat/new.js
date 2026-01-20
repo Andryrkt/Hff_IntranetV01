@@ -7,8 +7,6 @@ import { ajouterUneLigne } from "./dapl";
 document.addEventListener("DOMContentLoaded", async function () {
   const articleStockeList = await getAllArticleStocke();
 
-  console.log(articleStockeList);
-
   initCentraleCodeDesiInputs(
     "demande_appro_achat_form_codeCentrale",
     "demande_appro_achat_form_desiCentrale"
@@ -25,7 +23,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   document
     .getElementById("add-child")
-    .addEventListener("click", ajouterUneLigne);
+    .addEventListener("click", ajouterUneLigne(articleStockeList));
 
   document.querySelectorAll(".delete-DA").forEach((deleteButton) => {
     deleteButton.addEventListener("click", function () {

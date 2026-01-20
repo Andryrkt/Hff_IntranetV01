@@ -176,9 +176,9 @@ class DaModel extends Model
                         a.abse_constp AS constp,
                         TRIM(a.abse_refp) AS refp,
                         TRIM(a.abse_desi) AS designation,
-                        af.afrn_numf AS numerofournisseur,
-                        fbse_nomfou AS nomfournisseur,
-                        af.afrn_pxach AS prixUnitaire 
+                        af.afrn_numf AS numero_fournisseur,
+                        fbse_nomfou AS nom_fournisseur,
+                        af.afrn_pxach AS prix_unitaire 
                     FROM art_bse a 
                     LEFT JOIN art_frn af ON afrn_constp = abse_constp AND afrn_refp = abse_refp
                     INNER JOIN art_soc ON asoc_soc = 'HF' AND asoc_constp = a.abse_constp AND asoc_refp = a.abse_refp

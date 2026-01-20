@@ -12,7 +12,7 @@ import {
 
 let container = document.getElementById("children-container");
 
-export function ajouterUneLigne() {
+export function ajouterUneLigne(articleStockeList) {
   let newIndex = parseInt(localStorage.getItem("daAchatLineCounter")) + 1; // Déterminer un index unique pour les nouveaux champs
   localStorage.setItem("daAchatLineCounter", newIndex); // Changer la valeur de newIndex
   let prototype = document
@@ -76,17 +76,17 @@ export function ajouterUneLigne() {
   container.appendChild(prototype);
 
   formatAllField(newIndex); // formater les champs à la ligne newIndex
-  autocompleteTheFields(newIndex); // autocomplète les champs
+  autocompleteTheFields(newIndex, articleStockeList); // autocomplète les champs
 }
 
 export function replaceNameToNewIndex(element, newIndex) {
   return element.replace("__name__", newIndex);
 }
 
-export function autocompleteTheFields(line) {
+export function autocompleteTheFields(line, articleStockeList) {
   let designation = getTheField(line, "artDesi");
   let nomFournisseur = getTheField(line, "nomFournisseur");
 
-  initializeAutoCompletionDesi(designation);
+  initializeAutoCompletionDesi(designation, articleStockeList);
   initializeAutoCompletionFrn(nomFournisseur);
 }
