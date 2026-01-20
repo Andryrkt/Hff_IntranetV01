@@ -134,13 +134,14 @@ class DevisMagasinType extends AbstractType
             ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
                 $devisMagasin = $event->getData();
                 $form = $event->getForm();
+                $entity = $form->getData();
                 $form->add('tacheValidateur', ChoiceType::class, [
                     'label' => 'Tâche du validateur',
                     'choices' => self::TACHE_VALIDATEUR,
                     'data' => isset($devisMagasin['tacheValidateur']) ? $devisMagasin['tacheValidateur'] : ['Vérification prix'],
                     'expanded' => true,
                     'multiple' => true,
-                    'disabled' => false
+                    'disabled' => $entity && $entity->constructeur == 'TOUS NEST PAS CAT' ? false : true,
                 ]);
             })
         ;

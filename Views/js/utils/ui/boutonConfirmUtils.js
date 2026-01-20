@@ -123,7 +123,7 @@ function validateFormFields(form) {
         handleValidField();
         group.forEach(radio => radio.closest('label')?.classList.remove('text-danger'));
       }
-    } else if (field.value !== undefined) {
+    } else if (typeof field.value === 'string') {
       if (!field.value.trim()) {
         handleInvalidField(errorMessage);
         field.classList.add("border", "border-danger");
