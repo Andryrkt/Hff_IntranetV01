@@ -2,6 +2,7 @@
 
 namespace App\Form\ddp;
 
+use App\Constants\ddp\TypeDemandePaiementConstants;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use Doctrine\ORM\EntityManagerInterface;
@@ -48,10 +49,6 @@ class DemandePaiementType extends AbstractType
 
     private function numeroFac($numeroFournisseur, $typeId)
     {
-        //   $numComandes = $this->demandePaiementRepository->getnumCde();
-        //     $excludedCommands = $this->changeStringToArray($numComandes);
-        // $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur, $typeId, $excludedCommands);
-
         $numCdes = $this->recuperationCdeFacEtNonFac($typeId);
         $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
 
@@ -59,11 +56,8 @@ class DemandePaiementType extends AbstractType
         return array_combine($listeGcot, $listeGcot);
     }
 
-    private function numeroCmd($numeroFournisseur, $typeId)
+    private function numeroCmd($typeId)
     {
-        //  $numComandes = $this->demandePaiementRepository->getnumCde();
-        //     $excludedCommands = $this->changeStringToArray($numComandes);
-        // $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur, $typeId, $excludedCommands);
         $numCdes = $this->recuperationCdeFacEtNonFac($typeId);
         return array_combine($numCdes, $numCdes);
     }
@@ -105,6 +99,7 @@ class DemandePaiementType extends AbstractType
         return $devises;
     }
 
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
@@ -124,7 +119,7 @@ class DemandePaiementType extends AbstractType
                 ChoiceType::class,
                 [
                     'label'     => 'N° Commande fournisseur *',
-                    'choices'   =>  array_key_exists('data', $options) ? $this->numeroCmd($options['data']->getNumeroFournisseur(), $options['id_type']) : [],
+                    'choices'   =>  array_key_exists('data', $options) ? $this->numeroCmd($options['id_type']) : [],
                     'multiple'  => true,
                     'expanded'  => false,
                     'attr'      => [
@@ -142,7 +137,7 @@ class DemandePaiementType extends AbstractType
                     'multiple'  => true,
                     'expanded'  => false,
                     'attr'      => [
-                        'disabled' => $options['id_type'] == 1,
+                        'disabled' => $options['id_type'] == TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE,
                         'data-typeId' => $options['id_type']
                     ]
                 ]
@@ -151,7 +146,7 @@ class DemandePaiementType extends AbstractType
                 $form = $event->getForm();
                 $data = $event->getData();
 
-                if ($options['id_type'] == 1) {
+                if ($options['id_type'] == TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE) {
                     $form->add(
                         'numeroCommande',
                         ChoiceType::class,
@@ -454,5 +449,6 @@ class DemandePaiementType extends AbstractType
 
         // Ajoutez l'option 'id_type' pour éviter l'erreur
         $resolver->setDefined('id_type');
+        $resolver->setDefined('numcdeDa');
     }
 }

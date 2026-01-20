@@ -19,6 +19,7 @@ use App\Service\genererPdf\GeneratePdfDdp;
 use App\Entity\cde\CdefnrSoumisAValidation;
 use App\Controller\Traits\AutorisationTrait;
 use App\Entity\admin\ddp\DocDemandePaiement;
+use App\Factory\ddp\DemandePaiementFactory;
 use App\Service\fichier\TraitementDeFichier;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -70,9 +71,9 @@ class DemandePaiementController extends Controller
     }
 
     /**
-     * @Route("/new/{id}", name="demande_paiement")
+     * @Route("/new/{id}/{numCdeDa}", name="demande_paiement", defaults={"numCdeDa"=null})
      */
-    public function afficheForm(Request $request, $id)
+    public function afficheForm(Request $request, int $id, ?int $numCdeDa = null)
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
@@ -82,7 +83,7 @@ class DemandePaiementController extends Controller
         /** FIN AUtorisation acées */
 
         // creation du formulaire
-        $form = $this->getFormFactory()->createBuilder(DemandePaiementType::class, null, ['id_type' => $id])->getForm();
+        $form = $this->getFormFactory()->createBuilder(DemandePaiementType::class, null, ['id_type' => $id, 'numcdeDa' => $numCdeDa])->getForm();
 
         // traitement du formulaire
         $this->traitementForm($request, $form, $id);
@@ -399,7 +400,7 @@ class DemandePaiementController extends Controller
             if (file_exists($cheminDeFichier) && is_readable($cheminDeFichier)) {
                 $nomFichier = $this->nomFichier($cheminDeFichier);
                 $destinationFinal = $cheminDestination . '/' . $nomFichier;
-                
+
                 // Copier le fichier et vérifier le succès (le ! supprime l'avertissement en cas d'échec)
                 @copy($cheminDeFichier, $destinationFinal);
             }

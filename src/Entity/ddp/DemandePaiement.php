@@ -200,6 +200,12 @@ class DemandePaiement
 
     private $lesFichiers;
 
+    // Pour le DA =====================================
+    private $montantTotalCde;
+    private $montantDejaPaye;
+    private $montantRestantApayer;
+    private $poucentageAvance;
+
     /**===========================================================================
      * GETTER & SETTER
      *
@@ -965,5 +971,23 @@ class DemandePaiement
         $nouvelle->modePaiement = $this->modePaiement;
         $nouvelle->typeDemandeId  = $this->typeDemandeId;
         return $nouvelle;
+    }
+
+    /**
+     * Get the value of montantTotalCde
+     */
+    public function getMontantTotalCde()
+    {
+        return $this->montantTotalCde;
+    }
+
+    /**
+     * Set the value of montantTotalCde
+     */
+    public function setMontantTotalCde($montantTotalCde): self
+    {
+        $this->montantTotalCde = $montantTotalCde;
+
+        return $this;
     }
 }

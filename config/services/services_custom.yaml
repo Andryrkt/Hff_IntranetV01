@@ -32,6 +32,11 @@ services:
           - '@doctrine.orm.default_entity_manager'
         public: true
 
+    App\Factory\ddp\DemandePaiementFactory:
+        arguments:
+          - '@doctrine.orm.default_entity_manager'
+        public: true
+
     App\Service\fichier\UploderFileService:
         arguments:
             $cheminDeBase: '%env(BASE_PATH_FICHIER)%/magasin/devis/'
