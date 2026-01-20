@@ -134,6 +134,11 @@ class DemandeApproParentLine
      */
     private ?string $demandeur = '';
 
+    /**
+     * @ORM\Column(type="integer", name="jours_dispo")
+     */
+    private ?int $joursDispo;
+
     private bool $deleted = false;
 
     /**
@@ -564,6 +569,24 @@ class DemandeApproParentLine
     public function setDeleted(bool $deleted): self
     {
         $this->deleted = $deleted;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of joursDispo
+     */
+    public function getJoursDispo(): ?int
+    {
+        return $this->joursDispo;
+    }
+
+    /**
+     * Set the value of joursDispo
+     */
+    public function setJoursDispo(?int $joursDispo): self
+    {
+        $this->joursDispo = $joursDispo;
 
         return $this;
     }

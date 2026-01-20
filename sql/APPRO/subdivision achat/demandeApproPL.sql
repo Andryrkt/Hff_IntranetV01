@@ -24,5 +24,6 @@ CREATE TABLE Demande_Appro_P_L (
 	nom_fiche_technique varchar(255) NULL,
 	file_names text NULL,
 	demandeur varchar(100) NULL,
+    jours_dispo int NULL,
     CONSTRAINT PK_Demande_Appro_P_L PRIMARY KEY (id)
 );
