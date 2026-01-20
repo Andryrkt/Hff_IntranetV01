@@ -1823,6 +1823,53 @@ class DaAfficher
         ;
     }
 
+    public function enregistrerDaParent(DemandeApproParent $demandeApproParent)
+    {
+        $this
+            ->setDemandeAppro($demandeApproParent)
+            ->setNumeroDemandeApproMere($demandeApproParent->getNumeroDemandeAppro())
+            ->setNumeroDemandeAppro($demandeApproParent->getNumeroDemandeAppro())
+            ->setStatutDal($demandeApproParent->getStatutDal())
+            ->setObjetDal($demandeApproParent->getObjetDal())
+            ->setDetailDal($demandeApproParent->getDetailDal())
+            ->setDemandeur($demandeApproParent->getDemandeur())
+            ->setCodeCentrale($demandeApproParent->getCodeCentrale())
+            ->setDesiCentrale($demandeApproParent->getDesiCentrale())
+            ->setDaTypeId(DemandeAppro::TYPE_DA_PARENT)
+            ->setDateDemande($demandeApproParent->getDateCreation())
+            ->setNiveauUrgence($demandeApproParent->getNiveauUrgence())
+            ->setAgenceEmetteur($demandeApproParent->getAgenceEmetteur()->getId())
+            ->setServiceEmetteur($demandeApproParent->getServiceEmetteur()->getId())
+            ->setAgenceDebiteur($demandeApproParent->getAgenceDebiteur()->getId())
+            ->setServiceDebiteur($demandeApproParent->getServiceDebiteur()->getId())
+        ;
+    }
+
+    public function enregistrerDaParentLine(DemandeApproParentLine $demandeApproParentLine)
+    {
+        $this
+            ->setQteDem($demandeApproParentLine->getQteDem())
+            ->setNumeroLigne($demandeApproParentLine->getNumeroLigne())
+            ->setArtConstp($demandeApproParentLine->getArtConstp())
+            ->setArtRefp($demandeApproParentLine->getArtRefp())
+            ->setArtDesi($demandeApproParentLine->getArtDesi())
+            ->setArtFams1($demandeApproParentLine->getArtFams1())
+            ->setArtFams2($demandeApproParentLine->getArtFams2())
+            ->setCodeFams1($demandeApproParentLine->getCodeFams1())
+            ->setCodeFams2($demandeApproParentLine->getCodeFams2())
+            ->setNumeroFournisseur($demandeApproParentLine->getNumeroFournisseur())
+            ->setNomFournisseur($demandeApproParentLine->getNomFournisseur())
+            ->setDateFinSouhaite($demandeApproParentLine->getDateFinSouhaite())
+            ->setCommentaire($demandeApproParentLine->getCommentaire())
+            ->setPrixUnitaire($demandeApproParentLine->getPrixUnitaire())
+            ->setTotal($demandeApproParentLine->getPrixUnitaire() * $demandeApproParentLine->getQteDem())
+            ->setEstFicheTechnique($demandeApproParentLine->getEstFicheTechnique())
+            ->setPjNewAte($demandeApproParentLine->getFileNames())
+            ->setNomFicheTechnique($demandeApproParentLine->getNomFicheTechnique())
+            ->setJoursDispo($demandeApproParentLine->getJoursDispo())
+        ;
+    }
+
     public function enregistrerDa(DemandeAppro $da)
     {
         $this

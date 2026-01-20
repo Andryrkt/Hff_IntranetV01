@@ -77,7 +77,7 @@ trait DaNewAchatTrait
      *
      * @param DemandeApproParent $demandeApproParent  Objet de la demande d'achat à traiter
      */
-    public function ajouterDaDansTableAffichage(DemandeApproParent $demandeApproParent): void
+    public function ajouterDaDansTableAffichageParent(DemandeApproParent $demandeApproParent): void
     {
         // Récupère le dernier numéro de version existant pour cette demande d'achat
         $numeroVersionMax = $this->daAfficherRepository->getNumeroVersionMax($demandeApproParent->getNumeroDemandeAppro());

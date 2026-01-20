@@ -114,6 +114,7 @@ class DaNewAchatController extends Controller
                     $demandeApproParentLine
                         ->setNumeroDemandeAppro($numDa)
                         ->setStatutDal(self::STATUT_DAL[$clickedButtonName])
+                        ->setJoursDispo($this->getJoursRestants($demandeApproParentLine))
                         ->setFileNames($allFileNames)
                     ;
 
@@ -136,7 +137,7 @@ class DaNewAchatController extends Controller
             if ($demandeApproParent->getObservation()) $this->insertionObservation($numDa, $demandeApproParent->getObservation());
 
             // ajout des données dans la table DaAfficher
-            $this->ajouterDaDansTableAffichage($demandeApproParent);
+            $this->ajouterDaDansTableAffichageParent($demandeApproParent);
 
             if ($clickedButtonName === "soumissionAppro") $this->emailDaService->envoyerMailCreationDaParent($demandeApproParent, $this->getUser());
 
