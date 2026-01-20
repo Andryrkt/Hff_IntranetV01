@@ -134,19 +134,16 @@
 										{{ form_widget(demandeApproParentLine.estFicheTechnique) }}
 									</div>
 									<div class="d-none">
+										{{ form_widget(demandeApproParentLine.numeroLigne) }}
+										{{ form_widget(demandeApproParentLine.artConstp) }}
+										{{ form_widget(demandeApproParentLine.artRefp) }}
 										{{ form_widget(demandeApproParentLine.fileNames) }}
 										{{ form_widget(demandeApproParentLine.existingFileNames) }}
 										{{ form_widget(demandeApproParentLine.filesToDelete) }}
-										{{ form_widget(demandeApproParentLine.artRefp) }}
-										{{ form_widget(demandeApproParentLine.codeFams1) }}
-										{{ form_widget(demandeApproParentLine.codeFams2) }}
-										{{ form_widget(demandeApproParentLine.artConstp) }}
-										{{ form_widget(demandeApproParentLine.artFams1) }}
-										{{ form_widget(demandeApproParentLine.artFams2) }}
 										{{ form_widget(demandeApproParentLine.numeroFournisseur) }}
-										{{ form_widget(demandeApproParentLine.catalogue) }}
+										{{ form_widget(demandeApproParentLine.articleStocke) }}
+										{{ form_widget(demandeApproParentLine.prixUnitaire) }}
 										{{ form_widget(demandeApproParentLine.deleted) }}
-										{{ form_widget(demandeApproParentLine.numeroLigne) }}
 									</div>
 									<div class="w-2">
 										<span class="delete-DA" data-num-ligne="{{ ligne }}" title="Supprimer la ligne de DA" style="cursor: pointer;">

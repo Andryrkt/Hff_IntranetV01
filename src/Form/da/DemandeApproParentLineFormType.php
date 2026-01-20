@@ -77,6 +77,10 @@ class DemandeApproParentLineFormType extends AbstractType
                 'label' => false,
                 'required' => false,
             ])
+            ->add('prixUnitaire', TextType::class, [
+                'label' => false,
+                'required' => false,
+            ])
             ->add('existingFileNames', HiddenType::class, [
                 'mapped' => false,
                 'required' => false,
