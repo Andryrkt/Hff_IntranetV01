@@ -115,7 +115,7 @@ class DevisMagasinType extends AbstractType
                 'label'         => 'Envoyer à validation au PM',
                 'data'          => $options['data']->constructeur == 'TOUS NEST PAS CAT' ? true : null,
                 'disabled'      => $options['data']->constructeur == 'TOUS NEST PAS CAT' ? true : false,
-                // 'required'      => $options['data']->constructeur == 'TOUS NEST PAS CAT' ? false : true,
+                'required'      => $options['data']->constructeur == 'TOUS NEST PAS CAT' ? false : true,
                 'attr'          => [
                     'required' => $options['data']->constructeur == 'TOUS NEST PAS CAT' ? false : true
                 ]
