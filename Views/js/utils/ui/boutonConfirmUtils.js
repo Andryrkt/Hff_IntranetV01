@@ -25,12 +25,11 @@ export function setupConfirmationButtons() {
 
       // Validation spécifique au formulaire (importée depuis l'autre fichier)
       try {
-        const { validateSpecificForm } = await import(
-          "./form-specific-validation.js"
-        );
+        const { validateSpecificForm } =
+          await import("./form-specific-validation.js");
         const specificValidation = await validateSpecificForm(
           form,
-          formSelector
+          formSelector,
         );
 
         if (!specificValidation.isValid) {
@@ -44,7 +43,7 @@ export function setupConfirmationButtons() {
       } catch (error) {
         console.error(
           "Erreur lors du chargement des validations spécifiques:",
-          error
+          error,
         );
         // Continuer sans validation spécifique si le fichier n'est pas trouvé
       }
@@ -86,25 +85,67 @@ function validateFormFields(form) {
   let isValid = true;
   const errors = [];
   const requiredFields = form.querySelectorAll("[required]");
+  const validatedRadioGroups = new Set(); // Pour éviter de valider le même groupe radio plusieurs fois
 
   requiredFields.forEach((field) => {
     const errorElement = document.querySelector(`#error-${field.id}`);
     const fieldName = field.dataset.fieldName || field.name || field.id;
 
-    if (!field.value.trim()) {
-      field.classList.add("border", "border-danger");
-      const errorMessage = `Le champ "<span class="text-danger text-decoration-underline">${fieldName}</span>" est obligatoire`;
-      errors.push(errorMessage);
-
+    const handleInvalidField = (message) => {
+      isValid = false;
+      if (!errors.some(e => e.includes(fieldName))) {
+        errors.push(message);
+      }
       if (errorElement) {
-        errorElement.textContent = errorMessage;
+        errorElement.textContent = message;
         errorElement.classList.add("text-danger");
       }
-      isValid = false;
-    } else {
-      field.classList.remove("border", "border-danger");
+    };
+
+    const handleValidField = () => {
       if (errorElement) {
         errorElement.textContent = "";
+      }
+    };
+
+    const errorMessage = `Le champ "<span class="text-danger text-decoration-underline">${fieldName}</span>" est obligatoire`;
+
+    if (field.type === 'radio') {
+      const groupName = field.name;
+      if (validatedRadioGroups.has(groupName)) return;
+      validatedRadioGroups.add(groupName);
+
+      const group = form.querySelectorAll(`input[name="${groupName}"]`);
+      if (!Array.from(group).some(radio => radio.checked)) {
+        handleInvalidField(errorMessage);
+        group.forEach(radio => radio.closest('label')?.classList.add('text-danger'));
+      } else {
+        handleValidField();
+        group.forEach(radio => radio.closest('label')?.classList.remove('text-danger'));
+      }
+    } else if (typeof field.value === 'string') {
+      if (!field.value.trim()) {
+        handleInvalidField(errorMessage);
+        field.classList.add("border", "border-danger");
+      } else {
+        handleValidField();
+        field.classList.remove("border", "border-danger");
+      }
+    } else {
+      // Cas où 'field' est un conteneur (ex: div pour ChoiceType étendu)
+      const radios = field.querySelectorAll('input[type="radio"]');
+      if (radios.length > 0) {
+        const groupName = radios[0].name;
+        if (validatedRadioGroups.has(groupName)) return;
+        validatedRadioGroups.add(groupName);
+
+        if (!Array.from(radios).some(radio => radio.checked)) {
+          handleInvalidField(errorMessage);
+          field.classList.add("border", "border-danger");
+        } else {
+          handleValidField();
+          field.classList.remove("border", "border-danger");
+        }
       }
     }
   });
