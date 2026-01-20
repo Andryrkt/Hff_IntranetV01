@@ -1,6 +1,4 @@
-import { FetchManager } from "../../api/FetchManager";
 import { AutoComplete } from "../../utils/AutoComplete";
-import { updateDropdown } from "../../utils/selectionHandler";
 
 export function initializeAutoCompletionDesi(designation) {
   let baseId = designation.id.replace(
@@ -29,7 +27,7 @@ export function initializeAutoCompletionDesi(designation) {
       return [];
     },
     displayItemCallback: (item) =>
-      `Référence: ${item.referencepiece} - Fournisseur: ${item.fournisseur} - Prix: ${item.prix} <br>Désignation: ${item.designation}`,
+      `Référence: ${item.refp} - Fournisseur: ${item.nomFournisseur} - Prix: ${item.prixUnitaire} <br>Désignation: ${item.designation}`,
     itemToStringCallback: (item) => `${item.designation}`,
     itemToStringForBlur: (item) => `${item.designation}`,
     onBlurCallback: (found) => onBlurEvent(found, designation, fields),
@@ -65,10 +63,12 @@ function onBlurEvent(found, designation, fields) {
   if (designation.value.trim() !== "") {
     let constp = fields.constp;
     let refp = fields.refp;
-    let numeroFournisseur = fields.numeroFournisseur;
-    let nomFournisseur = fields.nomFournisseur;
     let prixUnitaire = fields.prixUnitaire;
     let articleStocke = fields.articleStocke;
+
+    constp.value = found ? constp.value : "-";
+    refp.value = found ? refp.value : "-";
+    prixUnitaire.value = found ? prixUnitaire.value : 0;
 
     articleStocke.checked = found;
   }

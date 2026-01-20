@@ -1,9 +1,14 @@
 import { handleAgenceChange } from "../../dit/fonctionUtils/fonctionListDit";
+import { getAllArticleStocke } from "../data/fetchData";
 import { handleAllOldFileEvents } from "../newDirect/field";
 import { initCentraleCodeDesiInputs } from "../newReappro/event";
 import { ajouterUneLigne } from "./dapl";
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", async function () {
+  const articleStockeList = await getAllArticleStocke();
+
+  console.log(articleStockeList);
+
   initCentraleCodeDesiInputs(
     "demande_appro_achat_form_codeCentrale",
     "demande_appro_achat_form_desiCentrale"
