@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   document
     .getElementById("add-child")
-    .addEventListener("click", ajouterUneLigne(articleStockeList));
+    .addEventListener("click", () => ajouterUneLigne(articleStockeList));
 
   document.querySelectorAll(".delete-DA").forEach((deleteButton) => {
     deleteButton.addEventListener("click", function () {
