@@ -14,10 +14,16 @@ class DemandePaiementFactory
         $this->em = $em;
     }
 
-    public function load(int $id): DemandePaiementDto
+    public function load(int $typeDdp, ?int $numCdeDa, ?int $typeDa): DemandePaiementDto
     {
         $dto = new DemandePaiementDto();
-        $dto->typeDemande = $this->em->getRepository(TypeDemande::class)->find($id);
+        $dto->typeDemande = $this->em->getRepository(TypeDemande::class)->find($typeDdp);
+        $dto->numeroFacture = [];
+        $dto->numeroCommande = [$numCdeDa];
+        $dto->agenceDebiter = '';
+        $dto->serviceDebiteur = '';
+        $dto->typeDa = $typeDa;
+
 
         return $dto;
     }

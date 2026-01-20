@@ -127,6 +127,9 @@ class DemandePaiementDaType extends AbstractType
     {
         $typeDemandeId = $options['data']->typeDemande->getId();
         $numeroFournisseur = $options['data']->numeroFournisseur;
+        $typeDa = $options['data']->typeDa;
+        $numCde = $options['data']->numeroCommande;
+        $numFac = $options['data']->numeroFacture;
 
         $builder
             ->add(
@@ -134,12 +137,13 @@ class DemandePaiementDaType extends AbstractType
                 ChoiceType::class,
                 [
                     'label'     => 'N° Commande fournisseur *',
-                    'choices'   => $this->numeroCmd($typeDemandeId),
-                    'multiple'  => true,
+                    'choices'   => $typeDa !== null ? (!empty($numCde) ? array_combine($numCde, $numCde) : []) : $this->numeroCmd($typeDemandeId),
+                    'multiple'  => $typeDa !== null ? false : true,
                     'expanded'  => false,
                     'attr'      => [
-                        'disabled' => $typeDemandeId == TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE,
-                    ]
+                        'disabled' => $typeDemandeId == TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE || ($typeDemandeId === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE && $typeDa !== null),
+                    ],
+                    'data' => $typeDa !== null ? ($numCde[0] ?? null) : $numCde,
                 ]
             )
             ->add(
@@ -148,13 +152,14 @@ class DemandePaiementDaType extends AbstractType
                 [
                     'label' => 'N° Facture fournisseur *',
                     'required' => false,
-                    'choices'   => $this->numeroFac($numeroFournisseur, $typeDemandeId),
-                    'multiple'  => true,
+                    'choices'   => $typeDa !== null ? (!empty($numFac) ? array_combine($numFac, $numFac) : []) : $this->numeroFac($numeroFournisseur, $typeDemandeId),
+                    'multiple'  => $typeDa !== null ? false : true,
                     'expanded'  => false,
                     'attr'      => [
                         'disabled' => $typeDemandeId == TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE,
                         'data-typeId' => $typeDemandeId
-                    ]
+                    ],
+                    'data' => $typeDa !== null ? ($numFac[0] ?? null) : $numFac,
                 ]
             )
             ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) use ($typeDemandeId) {
@@ -167,7 +172,7 @@ class DemandePaiementDaType extends AbstractType
                         ChoiceType::class,
                         [
                             'label'     => 'N° Commande *',
-                            'choices'   => $data['numeroCommande'],
+                            'choices'   => $data['numeroCommande'] ?? [],
                             'multiple'  => true,
                             'expanded'  => false,
                         ]

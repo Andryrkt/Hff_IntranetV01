@@ -69,6 +69,7 @@ const menu = document.getElementById("menuContextuelGlobal");
 const hiddenInputCde = document.getElementById("da_soumission_commande_id");
 const hiddenInputDa = document.getElementById("da_soumission_da_id");
 const hiddenInputNumOr = document.getElementById("da_soumission_num_or");
+const hiddenInputTypeDa = document.getElementById("da_soumission_type_da");
 const statutAffiche = document.getElementById("statut-affiche");
 const form = document.forms["da_soumission"];
 const DA_REAPPRO = 2;
@@ -90,12 +91,13 @@ document.addEventListener("contextmenu", function (event) {
   const numOr = targetCell.dataset.numOr;
   hiddenInputNumOr.value = numOr;
 
+  const typeDa = targetCell.dataset.typeDa;
+  hiddenInputTypeDa.value = typeDa;
+
   const statutBc = targetCell.dataset.statutBc;
 
   const positionCde = targetCell.dataset.positionCde;
   const positionCdeFacturer = ["FC", "FA", "CP"].includes(positionCde);
-
-  const typeDa = targetCell.dataset.typeDa;
 
   const statutsTelechargeBC = [
     "Validé",

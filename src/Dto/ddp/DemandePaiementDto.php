@@ -48,4 +48,6 @@ class DemandePaiementDto
     public $titreDeTransportFichier;
 
     public $lesFichiers;
+
+    public ?int $typeDa = null;
 }

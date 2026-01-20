@@ -17,9 +17,9 @@ class DemandePaiementDaController extends Controller
     use AutorisationTrait;
 
     /**
-     * @Route("/newDa/{id}/{numCdeDa}", name="demande_paiement_da", defaults={"numCdeDa"=null})
+     * @Route("/newDa/{typeDdp}/{numCdeDa}/{typeDa}", name="demande_paiement_da", defaults={"numCdeDa"=null, "typeDa"=null})
      */
-    public function index(int $id, int $numCdeDa)
+    public function index(int $typeDdp, int $numCdeDa, int $typeDa)
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
@@ -29,7 +29,7 @@ class DemandePaiementDaController extends Controller
         /** FIN AUtorisation acées */
 
         // creation du formulaire
-        $dto = (new DemandePaiementFactory($this->getEntityManager()))->load($id);
+        $dto = (new DemandePaiementFactory($this->getEntityManager()))->load($typeDdp, $numCdeDa, $typeDa);
         $form = $this->getFormFactory()->createBuilder(DemandePaiementDaType::class, $dto)->getForm();
 
         return $this->render('ddp/demande_paiement_da_new.html.twig', [
