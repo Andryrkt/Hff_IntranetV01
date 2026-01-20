@@ -23,6 +23,11 @@ class DaAfficher
     private $id;
 
     /**
+     * @ORM\Column(type="string", length=11, name="numero_demande_appro_mere")
+     */
+    private string $numeroDemandeApproMere;
+
+    /**
      * @ORM\Column(type="string", length=11, name="numero_demande_appro")
      */
     private string $numeroDemandeAppro;
@@ -378,6 +383,24 @@ class DaAfficher
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * Get the value of numeroDemandeApproMere
+     */
+    public function getNumeroDemandeApproMere(): string
+    {
+        return $this->numeroDemandeApproMere;
+    }
+
+    /**
+     * Set the value of numeroDemandeApproMere
+     */
+    public function setNumeroDemandeApproMere(string $numeroDemandeApproMere): self
+    {
+        $this->numeroDemandeApproMere = $numeroDemandeApproMere;
+
+        return $this;
     }
 
     /**
