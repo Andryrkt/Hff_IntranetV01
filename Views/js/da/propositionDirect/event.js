@@ -140,6 +140,13 @@ export function handleFormSubmit() {
       confirmButtonText: "Oui, Valider",
       canceledText: "La validation de la demande a été annulée.",
     },
+    changement: {
+      title: "Confirmer la validation",
+      html: `Êtes-vous sûr de vouloir <strong class="text-success"">valider</strong> cette demande ?<br><small class="text-success""><strong><u>NB</u>: </strong>Après validation de la demande, le statut de la DA sera <strong class="text-success">'Bon d’achats validé'</strong> et sera soumise à validation dans Docuware.</small>`,
+      icon: "warning",
+      confirmButtonText: "Oui, Valider",
+      canceledText: "La validation de la demande a été annulée.",
+    },
   };
 
   document.getElementById("myForm").addEventListener("submit", function (e) {
@@ -149,7 +156,12 @@ export function handleFormSubmit() {
     const config = actionsConfig[action];
     if (!config) return;
 
-    if (action !== "brouillon" && blockFournisseur99(action)) return;
+    if (
+      action !== "brouillon" &&
+      action !== "changement" &&
+      blockFournisseur99(action)
+    )
+      return;
 
     Swal.fire({
       title: config.title,
