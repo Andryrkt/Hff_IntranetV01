@@ -113,6 +113,22 @@ class DemandeApproAchatFormType extends AbstractType
                 'by_reference' => false,
                 'prototype'    => true,
             ])
+            ->add(
+                'codeCentrale',
+                TextType::class,
+                [
+                    'label'    => false,
+                    'required' => false
+                ]
+            )
+            ->add(
+                'desiCentrale',
+                TextType::class,
+                [
+                    'label'    => 'Centrale rattachée à la DA',
+                    'required' => false
+                ]
+            )
             ->add('observation', TextareaType::class, [
                 'label' => 'Observation',
                 'attr' => [

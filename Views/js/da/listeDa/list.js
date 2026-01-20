@@ -170,10 +170,6 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
-window.addEventListener("load", () => {
-  displayOverlay(false);
-});
-
 /** ===================================================
  * Modal du Date livraison prevu
  *==================================================*/

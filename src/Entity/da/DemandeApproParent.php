@@ -118,6 +118,10 @@ class DemandeApproParent
      */
     private Collection $demandeApproParentLines;
 
+    private $observation;
+
+    private $debiteur;
+
     public function __construct()
     {
         $this->demandeApproParentLines = new ArrayCollection();
@@ -461,6 +465,42 @@ class DemandeApproParent
                 $demandeApproParentLine->setDemandeApproParent(null);
             }
         }
+
+        return $this;
+    }
+
+    /**
+     * Get the value of debiteur
+     */
+    public function getDebiteur()
+    {
+        return $this->debiteur;
+    }
+
+    /**
+     * Set the value of debiteur
+     */
+    public function setDebiteur($debiteur): self
+    {
+        $this->debiteur = $debiteur;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of observation
+     */
+    public function getObservation()
+    {
+        return $this->observation;
+    }
+
+    /**
+     * Set the value of observation
+     */
+    public function setObservation($observation): self
+    {
+        $this->observation = $observation;
 
         return $this;
     }
