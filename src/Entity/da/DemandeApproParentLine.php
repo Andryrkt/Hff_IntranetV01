@@ -134,7 +134,7 @@ class DemandeApproParentLine
      */
     private ?string $demandeur = '';
 
-    
+    private bool $deleted = false;
 
     /**
      * Get the value of id
@@ -546,6 +546,24 @@ class DemandeApproParentLine
     public function setDemandeur(?string $demandeur): self
     {
         $this->demandeur = $demandeur;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of deleted
+     */
+    public function isDeleted(): bool
+    {
+        return $this->deleted;
+    }
+
+    /**
+     * Set the value of deleted
+     */
+    public function setDeleted(bool $deleted): self
+    {
+        $this->deleted = $deleted;
 
         return $this;
     }

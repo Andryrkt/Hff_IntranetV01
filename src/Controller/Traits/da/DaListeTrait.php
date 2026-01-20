@@ -326,7 +326,7 @@ trait DaListeTrait
             'proposition' => [
                 DemandeAppro::TYPE_DA_AVEC_DIT  => 'da_proposition_ref_avec_dit',
                 DemandeAppro::TYPE_DA_DIRECT    => 'da_proposition_direct',
-                DemandeAppro::TYPE_DA_REAPPRO_MENSUEL   => 'da_validate_reappro',
+                DemandeAppro::TYPE_DA_REAPPRO_MENSUEL   => 'da_validate_reappro_mensuel',
             ],
             'delete' => [
                 DemandeAppro::TYPE_DA_AVEC_DIT  => 'da_delete_line_avec_dit',

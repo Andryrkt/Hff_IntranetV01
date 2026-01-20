@@ -27,6 +27,7 @@ class DemandeAppro
     public const TYPE_DA_DIRECT              = 1; // id du type de DA direct
     public const TYPE_DA_REAPPRO_MENSUEL     = 2; // id du type de DA réappro mensuel
     public const TYPE_DA_REAPPRO_PONCTUEL    = 3; // id du type de DA réappro ponctuel
+    public const TYPE_DA_PARENT              = 4; // id du type de DA parent ou DA achat
 
     public const ID_APPRO                    = 16;
     public const ID_ATELIER                  = 3;
