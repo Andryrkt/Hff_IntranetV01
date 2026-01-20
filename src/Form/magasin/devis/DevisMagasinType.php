@@ -113,8 +113,12 @@ class DevisMagasinType extends AbstractType
                 'expanded'      => true,
                 'multiple'      => false,
                 'label'         => 'Envoyer à validation au PM',
-                'data'          => $options['data']->constructeur == 'TOUS NEST PAS CAT' ? true : false,
-                'disabled'      => $options['data']->constructeur == 'TOUS NEST PAS CAT' ? true : false
+                'data'          => $options['data']->constructeur == 'TOUS NEST PAS CAT' ? true : null,
+                'disabled'      => $options['data']->constructeur == 'TOUS NEST PAS CAT' ? true : false,
+                'required'      => $options['data']->getTypeSoumission() == 'VP' ? ($options['data']->constructeur == 'TOUS NEST PAS CAT' ? false : true) : false,
+                'attr'          => [
+                    'required' => $options['data']->getTypeSoumission() == 'VP' ? ($options['data']->constructeur == 'TOUS NEST PAS CAT' ? false : true) : false
+                ]
             ])
             ->add(
                 'observation',
@@ -130,13 +134,14 @@ class DevisMagasinType extends AbstractType
             ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
                 $devisMagasin = $event->getData();
                 $form = $event->getForm();
+                $entity = $form->getData();
                 $form->add('tacheValidateur', ChoiceType::class, [
                     'label' => 'Tâche du validateur',
                     'choices' => self::TACHE_VALIDATEUR,
                     'data' => isset($devisMagasin['tacheValidateur']) ? $devisMagasin['tacheValidateur'] : ['Vérification prix'],
                     'expanded' => true,
                     'multiple' => true,
-                    'disabled' => false
+                    'disabled' => $entity && $entity->constructeur == 'TOUS NEST PAS CAT' ? false : true,
                 ]);
             })
         ;

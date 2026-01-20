@@ -353,33 +353,34 @@ class DaSoumissionFacBlController extends Controller
         return $infosLivraisons;
     }
 
-    private function conditionDeBlocage(array $infoLivraison, string $nomOriginalFichier): array
-    {
-        return [
-            'nomDeFichier' => preg_match('/[#\-_~]/', $nomOriginalFichier), // contient au moins un des caractères
-            'nonCloture'   => !empty($infoLivraison) && isset($infoLivraison['date_clot']) && $infoLivraison['date_clot'] === null,
-        ];
-    }
-
     private function verifierConditionDeBlocage(DaSoumissionFacBl $soumissionFacBl, array $infoLivraison, string $nomOriginalFichier): bool
     {
         $numCde = $soumissionFacBl->getNumeroCde();
         $numLiv = $soumissionFacBl->getNumLiv();
-        $conditions = $this->conditionDeBlocage($infoLivraison, $nomOriginalFichier);
+        $mttFac = $soumissionFacBl->getMontantBlFacture();
 
+        $mttFacFormate = (float)str_replace(',', '.', str_replace(' ', '', $mttFac));
+
+        $message = '';
         $okey = true;
 
-        if ($conditions['nonCloture']) {
+        // Blocage si la livraison n'est pas clôturée
+        if (!empty($infoLivraison) && isset($infoLivraison['date_clot']) && $infoLivraison['date_clot'] === null) {
             $message = "La livraison n° '$numLiv' associée à la commande n° '$numCde' n'est pas encore clôturée. Merci de clôturer la livraison avant de soumettre le document dans DocuWare.";
-
-            $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn');
-            $okey = false;
-        } elseif ($conditions['nomDeFichier']) {
-            $message = "Le nom de fichier ('{$nomOriginalFichier}') n'est pas valide. Il ne doit pas contenir les caractères suivants : #, -, _ ou ~. Merci de renommer votre fichier avant de le soumettre dans DocuWare.";
-
-            $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn');
             $okey = false;
         }
+        // Blocage si le nom de fichier contient des caractères spéciaux
+        elseif (preg_match('/[#\-_~]/', $nomOriginalFichier)) {
+            $message = "Le nom de fichier ('{$nomOriginalFichier}') n'est pas valide. Il ne doit pas contenir les caractères suivants : #, -, _ ou ~. Merci de renommer votre fichier avant de le soumettre dans DocuWare.";
+            $okey = false;
+        }
+        // Blocage si montant ne correspond pas au montant de la livraison dans IPS
+        elseif ($mttFacFormate !== (float) $infoLivraison['montant_fac_bl']) {
+            $message = "Le montant de la facture <b>{$mttFac}</b> ne correspond pas au montant de la livraison dans IPS. Merci de vérifier le montant de la facture avant de le soumettre dans DocuWare.";
+            $okey = false;
+        }
+
+        if (!$okey) $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn');
 
         return $okey;
     }

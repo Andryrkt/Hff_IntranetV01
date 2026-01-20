@@ -1,13 +1,53 @@
 <span class="vignette-bande">
 	{% for i in 0..4 %}
 		<span>
-			18/12/2025 - V20251218.6.1.0 :
+			16/01/2026 - V20260116.7.0.0 :
 			<div class="news-ticker">
 				<ul>
 					<li>
-						<b>MAGASIN – Devis :</b>
+						<b>RH – Congé :</b>
 						<ul>
-							<li>Récupération des BC/PO validées dans l’interface de suivi des validations des devis</li>
+							<li>Amélioration et rectification sur la liste de congés.</li>
+						</ul>
+					</li>
+					<li>
+						<b>APPRO – Soumission facture BL :</b>
+						<ul>
+							<li>Ajout de nouveaux champs dans l’interface:
+								<ul>
+									<li>
+										<u>Numéro de livraison IPS</u>
+										: numéro de la livraison rattachée à la facture.
+									</li>
+									<li>
+										<u>Date BL facture fournisseur</u>
+										: date de la facture BL (date de livraison prévue affichée par défaut).
+									</li>
+									<li>
+										<u>Montant BL facture fournisseur</u>
+										: si le montant saisie ne correspond pas au montant de la livraison dans IPS, la soumission sera bloqué
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</li>
+					<li>
+						<b>APPRO – Saisie observation :</b>
+						<ul>
+							<li>Possibilité de rattacher un ou plusieurs pièces jointes dans l’onglet observation situé dans l’interface de détail d’une DA ou l’interface de proposition / validation d’une DA.</li>
+						</ul>
+					</li>
+					<li>
+						<b>APPRO – Document rattaché :</b>
+						<ul>
+							<li>Ajout des devis / PJ émis dans l’observation dans la liste des documents rattachés à une DA.</li>
+							<li>Possibilité d’accéder à l’onglet `Documents rattachés` dans l’interface de proposition / validation d’une DA.</li>
+						</ul>
+					</li>
+					<li>
+						<b>APPRO – Modification DA (Emetteur) :</b>
+						<ul>
+							<li>Possibilité de rajouter et supprimer des pièces jointes lors de la modification d’une DA, lors de la modification d’une DA ou lors du brouillon de la création d’une DA.</li>
 						</ul>
 					</li>
 				</ul>

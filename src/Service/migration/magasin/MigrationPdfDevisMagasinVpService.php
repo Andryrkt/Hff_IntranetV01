@@ -29,7 +29,8 @@ class MigrationPdfDevisMagasinVpService
         // repository devis magaisn
         $devisMagasinRepository = $this->entityManager->getRepository(DevisMagasin::class);
 
-        $numeroDevisVp = $devisMagasinRepository->getNumeroDevisMigrationVp();
+        // $numeroDevisVp = $devisMagasinRepository->getNumeroDevisMigrationVp();
+        $numeroDevisVp = ['19407078', '19407903', '19408311', '19408316', '19408326', '19408332', '19408337', '19408345', '19408346', '19408347', '19408349', '19408350', '19408355', '19408356', '19408358', '19408360', '19408397', '19408399', '19408401', '19408402', '19408403', '19408498', '19409302', '19409688'];
 
         //recupération des données à migrer
         $listeDevisMagasinModel = new ListeDevisMagasinModel();
@@ -39,7 +40,8 @@ class MigrationPdfDevisMagasinVpService
         $devisMagasins = $listeDevisMagasinModel->getDevisMagasinToMigrationPdf($numerodevis);
 
         foreach ($devisMagasins as $numerodevis => &$devisMagasin) {
-            $devisMagasin['statut_temp'] = $devisMagasinRepository->getStatutTempVp($numerodevis);
+            // $devisMagasin['statut_temp'] = $devisMagasinRepository->getStatutTempVp($numerodevis);
+            $devisMagasin['statut_temp'] = "Prix validé - devis à envoyer au client";
         }
         // foreach ($devisMagasins as $numerodevis => &$devisMagasin) {
         //     $devisMagasin['statut_verification_prix'] = $devisVp[$numerodevis]['statut_verification_prix'] ?? '';

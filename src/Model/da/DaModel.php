@@ -572,10 +572,11 @@ class DaModel extends Model
                         f.fllf_numliv AS num_liv, 
                         f.fllf_numcde AS num_cde,
                         f2.fliv_dateclot AS date_clot, 
-                        TRIM(f2.fliv_livext) AS ref_fac_bl
+                        TRIM(f2.fliv_livext) AS ref_fac_bl,
+                        f2.fliv_mtn AS montant_fac_bl
                     from Informix.frn_llf f 
                     inner join Informix.frn_liv f2 on f.fllf_numliv = f2.fliv_numliv 
-                where f.fllf_numcde = '$numCde'";
+                where f.fllf_numcde = '$numCde' and f2.fliv_soc ='HF'";
         $result = $this->connect->executeQuery($statement);
         $rows = $this->convertirEnUtf8($this->connect->fetchResults($result));
 

@@ -95,6 +95,7 @@ class DevisMagasinVerificationPrixController extends Controller
         $devisMagasin = new DevisMagasin();
         $devisMagasin->setNumeroDevis($numeroDevis);
         $devisMagasin->constructeur = trim($this->listeDevisMagasinModel->getConstructeur($numeroDevis));
+        $devisMagasin->setTypeSoumission('VP');
 
         //création du formulaire
         $form = $this->getFormFactory()->createBuilder(DevisMagasinType::class, $devisMagasin, [
