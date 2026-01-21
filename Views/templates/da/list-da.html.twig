@@ -28,10 +28,10 @@
 		<table class="table table-sticky">
 			<thead class="table-dark align-middle">
 				<tr>
+					<th class="text-center">N° Demande</th>
 					<th>
 						<i class="fas fa-ellipsis-vertical"></i>
 					</th>
-					<th class="text-center">N° Demande</th>
 					<th class="text-center">Type de demande</th>
 					<th class="text-center">N° DIT</th>
 					<th class="text-center">Niveau urgence</th>
@@ -70,6 +70,11 @@
 			<tbody id="tableBody" class="align-middle">
 				{% for row in data %}
 					<tr>
+						<td>
+							<a href="{{ row.urlDetail }}" target="_blank" data-bs-toggle="tooltip" title="{{ row.objet }}">
+								{{ row.numeroDemandeAppro }}
+							</a>
+						</td>
 						{# === Début Action ==== #}
 						<td style="padding: 0px">
 							<div class="dropdown">
@@ -101,11 +106,6 @@
 							</div>
 						</td>
 						{# === Fin Actions ==== #}
-						<td class="{{ row.aDeverouiller ? 'bg-danger' : '' }}">
-							<a href="{{ row.urlDetail }}" target="_blank" class="{{ row.aDeverouiller ? 'text-white' : '' }}" data-bs-toggle="tooltip" title="{{ row.objet }}">
-								{{ row.numeroDemandeAppro }}
-							</a>
-						</td>
 						<td class="text-center">{{ row.datype }}</td>
 						<td>{{ row.numeroDemandeDit }}</td>
 						<td>{{ row.niveauUrgence }}</td>
