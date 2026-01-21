@@ -341,10 +341,10 @@ trait DaListeTrait
         ];
 
         $parametres = [
-            'daId'           => $item->getDemandeAppro() ? ['id'    => $item->getDemandeAppro()->getId()] : [],
-            'daParentId'     => $item->getDemandeApproParent() ? ['id'    => $item->getDemandeApproParent()->getId()] : [],
-            'daId-0-ditId'   => $item->getDit() ? ['daId'  => 0, 'ditId' => $item->getDit()->getId()] : [],
-            'daId-ditId'     => $item->getDemandeApproParent() && $item->getDit() ? ['daId'  => $item->getDemandeAppro()->getId(), 'ditId' => $item->getDit()->getId()] : [],
+            'daId'           => $item->getDemandeAppro() ? ['id' => $item->getDemandeAppro()->getId()] : [],
+            'daParentId'     => $item->getDemandeApproParent() ? ['id' => $item->getDemandeApproParent()->getId()] : [],
+            'daId-0-ditId'   => $item->getDit() ? ['daId' => 0, 'ditId' => $item->getDit()->getId()] : [],
+            'daId-ditId'     => $item->getDemandeAppro() && $item->getDit() ? ['daId' => $item->getDemandeAppro()->getId(), 'ditId' => $item->getDit()->getId()] : [],
             'numDa-numLigne' => ['numDa' => $item->getNumeroDemandeAppro(), 'ligne' => $item->getNumeroLigne()],
         ];
 
@@ -355,22 +355,22 @@ trait DaListeTrait
         ];
 
         // URL création de DA avec DIT
-        $urls['creation'] = $ajouterDA ? $this->getUrlGenerator()->generate($routeNames['creation'][0], $parametres['daId-0-ditId']) : '';
+        $urls['creation'] = $ajouterDA ? $this->getUrlGenerator()->generate($routeNames['creation'][$daTypeId], $parametres['daId-0-ditId']) : '';
 
         // URL détail
-        $urls['detail'] = $routeNames['detail'][$daTypeId] ? $this->getUrlGenerator()->generate($routeNames['detail'][$daTypeId], $parametres['daId']) : '';
+        $urls['detail'] = isset($routeNames['detail'][$daTypeId]) ? $this->getUrlGenerator()->generate($routeNames['detail'][$daTypeId], $parametres['daId']) : '';
 
         // URL désignation (peut basculer sur "new" si statut en cours de création)
-        $urls['designation'] = $item->getStatutDal() === DemandeAppro::STATUT_EN_COURS_CREATION
+        $urls['designation'] = $item->getStatutDal() === DemandeAppro::STATUT_EN_COURS_CREATION && isset($routeNames['creation'][$daTypeId])
             ? $this->getUrlGenerator()->generate($routeNames['creation'][$daTypeId], $paramEncoursCreation[$daTypeId])
-            : $this->getUrlGenerator()->generate($routeNames['proposition'][$daTypeId], $parametres['daId']);
+            : (isset($routeNames['proposition'][$daTypeId]) ? $this->getUrlGenerator()->generate($routeNames['proposition'][$daTypeId], $parametres['daId']) : '');
 
         // URL suppression de ligne
-        $urls['delete'] = $routeNames['delete'][$daTypeId] ? $this->getUrlGenerator()->generate($routeNames['delete'][$daTypeId], $parametres['numDa-numLigne']) : '';
+        $urls['delete'] = isset($routeNames['delete'][$daTypeId]) ? $this->getUrlGenerator()->generate($routeNames['delete'][$daTypeId], $parametres['numDa-numLigne']) : '';
 
         // URL demande de devis
         // Si c'est via OR ou direct
-        $urls['demandeDevis'] = $routeNames['delete'][$daTypeId] ? $this->getUrlGenerator()->generate('da_demande_devis_en_cours', $parametres['daId']) : '';
+        $urls['demandeDevis'] = isset($routeNames['delete'][$daTypeId]) ? $this->getUrlGenerator()->generate('da_demande_devis_en_cours', $parametres['daId']) : '';
 
         return $urls;
     }
