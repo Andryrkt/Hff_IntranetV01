@@ -27,11 +27,11 @@
 					<th style="text-align: center;">Agence débité</th>
 					<th style="text-align: center;">Service débité</th>
 					<th style="text-align: center;">N° demande</th>
+					<th style="text-align: center;">Date DDP</th>
 					<th style="text-align: center;">version</th>
 					<th style="text-align: center;">Type</th>
 					<th style="text-align: center;">Statut DDP</th>
 					<th style="text-align: center;">Statut dossier de régul</th>
-					<th style="text-align: center;">Date</th>
 					<th style="text-align: center;">Motif</th>
 					<th style="text-align: center;">N° facture</th>
 					<th style="text-align: center;">N° Commande</th>
@@ -79,6 +79,7 @@
 						<td class="text-center" style="text-align: center;">{{ item.agencedebiter}}</td>
 						<td class="text-center" style="text-align: center;">{{ item.servicedebiter}}</td>
 						<td style="text-align: center;">{{ item.numeroDdp }}</td>
+						<td style="text-align: center;">{{ item.dateCreation|date('d/m/Y')}}</td>
 						<td style="text-align: center;">{{ item.numeroVersion }}</td>
 						<td style="text-align: center;">{{ item.typeDemandeId.libelle}}</td>
 						<td class="text-center" style="text-align: center;">
@@ -87,9 +88,6 @@
 							</a>
 						</td>
 						<td style="text-align: center;">{{ item.statutDossierRegul }}</td>
-						<td style="text-align: center;">
-							{{ item.dateCreation|date('d/m/Y')}}
-						</td>
 						<td>{{item.motif}}</td>
 						<td>
 							<ul>

@@ -113,7 +113,9 @@
   font-size: 14px;
   color: #ffc107;
   cursor: pointer;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 
 /* Effet hover sur une suggestion */
@@ -167,8 +169,8 @@ tr.sub-separator > td {
 *==================================================*/
 .commande {
   cursor: pointer;
-  color: inherit;
-  text-decoration: none !important;
+  color: #0d6efd !important;
+  text-decoration: underline !important;
 }
 .menu-contextuel-custom {
   position: absolute;
