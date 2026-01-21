@@ -12,8 +12,7 @@ class DemandePaiementDto
     public $ribFournisseur;
     public $beneficiaire; // nom du fournisseur
     public $motif;
-    public $agenceDebiter;
-    public $serviceDebiteur;
+    public array $debiteur = [];
     public $statut;
     public $adresseMailDemandeur;
     public $demandeur;
@@ -34,20 +33,13 @@ class DemandePaiementDto
     public string $montantAPayer = '0';
 
     public $pieceJoint01;
-
     public $pieceJoint02;
-
     public array $pieceJoint03 = [];
-
     public $pieceJoint04;
 
     public $commandeFichier;
-
     public $factureFournisseurFichier;
-
     public $titreDeTransportFichier;
-
     public $lesFichiers;
-
     public ?int $typeDa = null;
 }

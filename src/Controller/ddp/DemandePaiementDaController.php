@@ -30,7 +30,10 @@ class DemandePaiementDaController extends Controller
 
         // creation du formulaire
         $dto = (new DemandePaiementFactory($this->getEntityManager()))->load($typeDdp, $numCdeDa, $typeDa);
-        $form = $this->getFormFactory()->createBuilder(DemandePaiementDaType::class, $dto)->getForm();
+        $form = $this->getFormFactory()->createBuilder(DemandePaiementDaType::class, $dto, [
+            'method' => 'POST',
+            'em' => $this->getEntityManager()
+        ])->getForm();
 
         return $this->render('ddp/demande_paiement_da_new.html.twig', [
             'dto' => $dto,

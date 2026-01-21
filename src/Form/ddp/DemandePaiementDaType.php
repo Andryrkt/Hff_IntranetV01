@@ -2,6 +2,7 @@
 
 namespace App\Form\ddp;
 
+use App\Constants\da\TypeDaConstants;
 use App\Dto\ddp\DemandePaiementDto;
 use App\Entity\ddp\DemandePaiement;
 use App\Form\Common\FileUploadType;
@@ -91,7 +92,7 @@ class DemandePaiementDaType extends AbstractType
             )
         ;
 
-        $this->addAgenceServiceDebiteur($builder);
+        $this->addAgenceServiceDebiteur($builder, $options);
         $this->addFournisseur($builder);
         $this->addFile($builder);
         $this->addNumeroCdeAndFacture($builder, $options);
@@ -123,7 +124,7 @@ class DemandePaiementDaType extends AbstractType
             );
     }
 
-    private function addNumeroCdeAndFacture(FormBuilderInterface $builder, $options)
+    private function addNumeroCdeAndFacture(FormBuilderInterface $builder, array $options)
     {
         $typeDemandeId = $options['data']->typeDemande->getId();
         $numeroFournisseur = $options['data']->numeroFournisseur;
@@ -157,7 +158,8 @@ class DemandePaiementDaType extends AbstractType
                     'expanded'  => false,
                     'attr'      => [
                         'disabled' => $typeDemandeId == TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE,
-                        'data-typeId' => $typeDemandeId
+                        'data-typeId' => $typeDemandeId,
+                        'data-typeDa' => $typeDa
                     ],
                     'data' => $typeDa !== null ? ($numFac[0] ?? null) : $numFac,
                 ]
@@ -193,7 +195,7 @@ class DemandePaiementDaType extends AbstractType
             });
     }
 
-    private function addAgenceServiceDebiteur(FormBuilderInterface $builder): void
+    private function addAgenceServiceDebiteur(FormBuilderInterface $builder, array $options): void
     {
         $builder->add('debiteur', AgenceServiceType::class, [
             'label' => false,
@@ -204,6 +206,9 @@ class DemandePaiementDaType extends AbstractType
             'agence_placeholder' => '-- Agence Debiteur --',
             'service_placeholder' => '-- Service Debiteur --',
             'em' => $options['em'] ?? null,
+            'data_agence' => $options['data']->debiteur['agence'],
+            'data_service' => $options['data']->debiteur['service'],
+            'disabled' => $options['data']->typeDa == TypeDaConstants::TYPE_DA_AVEC_DIT ? true : false
         ]);
     }
 
@@ -325,5 +330,8 @@ class DemandePaiementDaType extends AbstractType
         $resolver->setDefaults([
             'data_class' => DemandePaiementDto::class,
         ]);
+        // Définir l'option 'em' pour permettre de passer l'EntityManager
+        $resolver->setDefined(['em']);
+        $resolver->setAllowedTypes('em', ['null', EntityManagerInterface::class]);
     }
 }

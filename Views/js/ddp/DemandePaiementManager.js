@@ -14,7 +14,6 @@ import {
   formatNumberSpecial,
   formaterNombre,
 } from "../utils/formatNumberUtils.js";
-import { baseUrl } from "../utils/config.js";
 
 export class DemandePaiementManager {
   constructor(config) {
@@ -28,17 +27,20 @@ export class DemandePaiementManager {
     this.initElements();
     if (this.elements.numFactureInput) {
       this.typeId = this.elements.numFactureInput.dataset.typeid;
+      this.typeDa = this.elements.numFactureInput.dataset.typeda;
     }
   }
 
   initElements() {
     for (const key in this.config.selectors) {
-      this.elements[key] = document.querySelector(this.config.selectors[key]);
+      const selector = this.config.selectors[key];
+      this.elements[key] = document.querySelector(selector);
+      if (!this.elements[key]) {
+        console.warn(
+          `Element with selector "${selector}" not found for key "${key}".`,
+        );
+      }
     }
-    // For elements that might be selected with getElementById
-    this.elements.numCommandeInput = document.getElementById(
-      this.config.selectors.numCommandeInput.substring(1),
-    );
   }
 
   init() {
@@ -51,18 +53,16 @@ export class DemandePaiementManager {
   }
 
   initAutocomplete() {
-    // Activation sur le champ "Numéro Fournisseur"
     new AutoComplete({
       inputElement: this.elements.numFrnInput,
       suggestionContainer: this.elements.suggestionNumFournisseur,
-      loaderElement: this.elements.loaderNumFournisseur, // Ajout du loader
-      debounceDelay: 300, // Délai en ms
+      loaderElement: this.elements.loaderNumFournisseur,
+      debounceDelay: 300,
       fetchDataCallback: () => this.fetchFournisseurs(),
       displayItemCallback: (item) => this.displayFournisseur(item),
       onSelectCallback: (item) => this.onSelectFournisseur(item),
     });
 
-    // Activation sur le champ "Nom Fournisseur"
     new AutoComplete({
       inputElement: this.elements.beneficiaireInput,
       suggestionContainer: this.elements.suggestionNomFournisseur,
@@ -108,9 +108,11 @@ export class DemandePaiementManager {
       });
     }
 
-    this.elements.agenceDebiteurInput.addEventListener("change", () =>
-      this.selectAgence(),
-    );
+    if (this.elements.agenceDebiteurInput) {
+      this.elements.agenceDebiteurInput.addEventListener("change", () =>
+        this.selectAgence(),
+      );
+    }
   }
 
   initFileUploads() {
@@ -165,7 +167,7 @@ export class DemandePaiementManager {
       $(this.elements.numFactureInput).on("change", () => {
         this.changeCommandeSelonFacture(item.num_fournisseur, this.typeId);
       });
-    } else {
+    } else if (this.typeId == 1 && this.typeDa === null) {
       this.listeCommande(item.num_fournisseur, this.typeId);
     }
   }
@@ -233,7 +235,7 @@ export class DemandePaiementManager {
       );
       this.ajoutDesOptions(this.elements.numFactureInput, listeFacture);
     } catch (error) {
-      console.error("Erreur lors de la récupération des commandes :", error);
+      console.error("Erreur lors de la récupération des factures :", error);
     }
   }
 
@@ -307,19 +309,17 @@ export class DemandePaiementManager {
       const nom = this.nomFichier(fichier.Nom_Fichier);
       const li = document.createElement("li");
       const a = document.createElement("a");
-
+      const baseUrl = window.location.origin;
       const encodedPath = encodeURIComponent(fichier.Nom_Fichier);
-      a.href = `${this.config.urls.recupererFichier}?path=${encodedPath}`;
+      a.href = `${baseUrl}${this.config.urls.recupererFichier}?path=${encodedPath}`;
       a.textContent = `Ouvrir ${nom}`;
       a.target = "_blank";
 
-      // Gestion des erreurs
       a.onclick = async (e) => {
         e.preventDefault();
-
-        // Créer un nouvel onglet immédiatement
         const newWindow = window.open("", "_blank");
-        newWindow.document.write(`
+        newWindow.document.write(
+          `
             <!DOCTYPE html>
             <html>
             <head>
@@ -345,31 +345,21 @@ export class DemandePaiementManager {
                 <p style="text-align: center">Chargement du document...</p>
             </body>
             </html>
-        `);
+        `,
+        );
 
         try {
           const response = await fetch(a.href);
-
-          if (!response.ok) {
-            throw new Error(await response.text());
-          }
-
+          if (!response.ok) throw new Error(await response.text());
           const contentType = response.headers.get("content-type");
           const blob = await response.blob();
           const blobUrl = URL.createObjectURL(blob);
 
-          // Solution robuste pour l'affichage PDF
           if (contentType.includes("pdf")) {
             newWindow.location.href = blobUrl;
-          }
-          // Solution pour les images
-          else if (contentType.startsWith("image/")) {
-            newWindow.document.body.innerHTML = `
-                    <img src="${blobUrl}" style="max-width: 100%; max-height: 100vh">
-                `;
-          }
-          // Solution générique
-          else {
+          } else if (contentType.startsWith("image/")) {
+            newWindow.document.body.innerHTML = `<img src="${blobUrl}" style="max-width: 100%; max-height: 100vh">`;
+          } else {
             const iframe = document.createElement("iframe");
             iframe.src = blobUrl;
             iframe.style = "width:100%; height:100vh; border:none";
@@ -377,10 +367,7 @@ export class DemandePaiementManager {
             newWindow.document.body.appendChild(iframe);
           }
 
-          // Nettoyage lorsque la fenêtre se ferme
-          newWindow.onunload = () => {
-            URL.revokeObjectURL(blobUrl);
-          };
+          newWindow.onunload = () => URL.revokeObjectURL(blobUrl);
         } catch (error) {
           console.error("Erreur:", error);
           newWindow.document.body.innerHTML = `
@@ -421,13 +408,117 @@ export class DemandePaiementManager {
       theadClass: "table-dark",
       rowClassName: "clickable-row clickable",
       customRenderRow: (row, index, data) =>
-        customRenderRow(row, index, data, columns),
-      onRowClick: (row) => chargerDocuments(row.Numero_Dossier_Douane),
+        this.customRenderRow(row, index, data, columns),
+      onRowClick: (row) => this.chargerDocuments(row.Numero_Dossier_Douane),
     });
 
     tableauComponent.mount(
       this.config.selectors.invoiceTableContainer.substring(1),
     );
+  }
+
+  customRenderRow(row, index, data, columns) {
+    const tr = document.createElement("tr");
+    const columnsToMerge = [
+      "Numero_Facture",
+      "Code_Fournisseur",
+      "Libelle_Fournisseur",
+      "Numero_Dossier_Douane",
+      "Numero_LTA",
+      "Numero_HAWB",
+    ];
+    const previousRow = data[index - 1] || {};
+    const isFirstOfGroup =
+      index === 0 ||
+      columnsToMerge.some((key) => row[key] !== previousRow[key]);
+
+    if (isFirstOfGroup) {
+      let rowspan = 1;
+      for (let i = index + 1; i < data.length; i++) {
+        if (columnsToMerge.every((key) => row[key] === data[i][key])) {
+          rowspan++;
+        } else {
+          break;
+        }
+      }
+      columns.forEach((column) => {
+        const td = document.createElement("td");
+        td.textContent = row[column.key] || "-";
+        if (columnsToMerge.includes(column.key)) {
+          td.setAttribute("rowspan", rowspan);
+          td.style.verticalAlign = "middle";
+        }
+        tr.appendChild(td);
+      });
+    } else {
+      columns.forEach((column) => {
+        if (!columnsToMerge.includes(column.key)) {
+          const td = document.createElement("td");
+          td.textContent = row[column.key] || "-";
+          tr.appendChild(td);
+        }
+      });
+    }
+    const nextRow = data[index + 1] || {};
+    const isLastOfGroup =
+      index === data.length - 1 ||
+      columnsToMerge.some((key) => row[key] !== nextRow[key]);
+    if (isLastOfGroup) {
+      tr.style.borderBottom = "3px solid black";
+    }
+
+    tr.addEventListener("click", () =>
+      this.chargerDocuments(row.Numero_Dossier_Douane),
+    );
+    return tr;
+  }
+
+  async chargerDocuments(numeroDossier) {
+    try {
+      const url = this.config.urls.listeDoc.replace(":numero", numeroDossier);
+      const dossier = await this.fetchManager.get(url);
+
+      const tContainer = this.elements.documentTableContainer;
+      tContainer.innerHTML = "";
+      const columns = [
+        {
+          label: "Nom de fichier",
+          key: "Nom_Fichier",
+          format: (value) => this.nomFichier(value),
+        },
+        {
+          label: "Date",
+          key: "Date_Fichier",
+          format: (value) => new Date(value).toLocaleDateString("fr-FR"),
+        },
+      ];
+
+      const tableauComponent = new TableauComponent({
+        columns: columns,
+        data: dossier,
+        theadClass: "table-dark",
+        rowClassName: "clickable-row clickable",
+        onRowClick: (row) => this.afficherFichier(row.Nom_Fichier),
+      });
+
+      tableauComponent.mount(
+        this.config.selectors.documentTableContainer.substring(1),
+      );
+    } catch (error) {
+      console.error("Erreur chargement des documents : ", error);
+    }
+  }
+
+  async afficherFichier(nomFichie) {
+    try {
+      const encodedPath = encodeURIComponent(nomFichie);
+      const url = `${window.location.origin}${this.config.urls.recupererFichier}?path=${encodedPath}`;
+
+      const newWindow = window.open("", "_blank");
+      // ... (même logique d'affichage que dans recupFichier)
+    } catch (error) {
+      console.error("Erreur lors de l'ouverture du fichier : ", error);
+    }
   }
 
   nomFichier(cheminFichier) {
@@ -457,8 +548,14 @@ export class DemandePaiementManager {
   }
 
   toggleSpinner(show) {
-    this.elements.spinnerService.style.display = show ? "inline-block" : "none";
-    this.elements.serviceContainer.style.display = show ? "none" : "block";
+    if (this.elements.spinnerService) {
+      this.elements.spinnerService.style.display = show
+        ? "inline-block"
+        : "none";
+    }
+    if (this.elements.serviceContainer) {
+      this.elements.serviceContainer.style.display = show ? "none" : "block";
+    }
   }
 
   updateServiceOptions(services) {

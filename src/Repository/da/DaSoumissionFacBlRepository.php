@@ -2,6 +2,9 @@
 
 namespace App\Repository\da;
 
+use App\Entity\da\DaAfficher;
+use App\Entity\da\DaSoumisAValidation;
+use App\Entity\da\DaSoumissionFacBl;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\EntityRepository;
 
@@ -125,5 +128,18 @@ class DaSoumissionFacBlRepository extends EntityRepository
             ->getSingleColumnResult();
 
         return $result;
+    }
+
+    public function getInfoDa(int $numCde)
+    {
+        return  $this->createQueryBuilder('dabc')
+            ->select('da.agenceDebiteur, da.serviceDebiteur, dabc.numeroOR, dabc.NumeroFactureFournisseur')
+            ->join(DaAfficher::class, 'da', 'WITH', 'da.numeroCde = dabc.numeroCde')
+            ->where('dabc.numeroCde = :numCde')
+            ->setParameter('numCde', $numCde)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
     }
 }

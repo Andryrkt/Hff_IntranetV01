@@ -138,7 +138,8 @@ class DemandePaiementType extends AbstractType
                     'expanded'  => false,
                     'attr'      => [
                         'disabled' => $options['id_type'] == TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE,
-                        'data-typeId' => $options['id_type']
+                        'data-typeId' => $options['id_type'],
+                        'data-typeDa' => null
                     ]
                 ]
             )

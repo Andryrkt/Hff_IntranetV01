@@ -48,7 +48,18 @@
 
 					</div>
 					<div class="col-12 col-md-3">
-						{{ macroForm.agence_service_change(form.debiteur.agence, form.debiteur.service, 'spinner-service', 'service-container')}}
+						<div class="spinner-container">
+							{{ form_row(form.debiteur.agence, {'attr': {'class': 'agenceDebiteur'}}) }}
+							{% include 'components/spinner.html.twig' with {
+								'id': 'spinner-service-debiteur',
+								'size': 'small',
+								'class': 'spinner-absolute'
+							} %}
+						</div>
+						<div id="service-container-debiteur" class="mb-3">
+							{{ form_label(form.debiteur.service) }}
+							{{ form_widget(form.debiteur.service, {'attr': {'class': 'serviceDebiteur'}}) }}
+						</div>
 					</div>
 					<div class="col-12 col-md-3">
 						{{ form_row(form.contact)}}
@@ -193,5 +204,5 @@
 		{% endblock %}
 
 		{% block javascript %}
-			<script type="module" src="{{ App.base_path }}/Views/js/ddp/demandePaiement.js?v=2025.10.22.08.00"></script>
+			<script type="module" src="{{ App.base_path }}/Views/js/ddp/demandePaiementDa.js?v=2025.10.22.08.00"></script>
 		{% endblock %}
