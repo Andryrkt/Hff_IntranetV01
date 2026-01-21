@@ -29,15 +29,15 @@
 			<thead class="table-dark align-middle">
 				<tr>
 					<th class="text-center">N° Demande</th>
-					<th>
-						<i class="fas fa-ellipsis-vertical"></i>
-					</th>
 					<th class="text-center">Type de demande</th>
 					<th class="text-center">N° DIT</th>
 					<th class="text-center">Niveau urgence</th>
 					<th class="text-center">N° OR</th>
 					<th class="text-center">Demandeur</th>
 					<th class="text-center">Date de demande</th>
+					<th>
+						<i class="fas fa-ellipsis-vertical"></i>
+					</th>
 					<th class="text-center">Statut DA</th>
 					<th class="text-center">Statut DW</th>
 					<th class="text-center">Statut BC</th>
@@ -71,6 +71,12 @@
 				{% for row in data %}
 					<tr>
 						<td class="fs-7 fw-bold ps-3" data-bs-toggle="tooltip" title="{{ row.objet }}">{{ row.numDaParent }}</td>
+						<td class="text-center" data-bs-toggle="tooltip" title="{{ row.numeroDemandeAppro }}">{{ row.datype }}</td>
+						<td>{{ row.numeroDemandeDit }}</td>
+						<td>{{ row.niveauUrgence }}</td>
+						<td>{{ row.numeroOr }}</td>
+						<td>{{ row.demandeur }}</td>
+						<td>{{ row.dateDemande }}</td>
 						{# === Début Action ==== #}
 						<td style="padding: 0px">
 							<div class="dropdown">
@@ -102,12 +108,6 @@
 							</div>
 						</td>
 						{# === Fin Actions ==== #}
-						<td class="text-center" data-bs-toggle="tooltip" title="{{ row.numeroDemandeAppro }}">{{ row.datype }}</td>
-						<td>{{ row.numeroDemandeDit }}</td>
-						<td>{{ row.niveauUrgence }}</td>
-						<td>{{ row.numeroOr }}</td>
-						<td>{{ row.demandeur }}</td>
-						<td>{{ row.dateDemande }}</td>
 						<td class="text-center fw-bold {{ row.styleStatutDA }}">{{ row.statutDal }}</td>
 						<td class="text-center fw-bold {{ row.styleStatutOR }}">{{ row.statutOr }}</td>
 						<td class="text-center fw-bold {{ row.styleStatutBC }}">{{ row.statutCde }}</td>
