@@ -75,6 +75,7 @@ class DevisMagasinValidationConfig
 
     public const VP_VALIDE_A_ENVOYER_AU_CLIENT_BLOCKING_STATUSES = [
         DevisMagasin::STATUT_VALIDE_AGENCE,
+        DevisMagasin::STATUT_ENVOYER_CLIENT
     ];
 
     public const VP_BLOCKING_STATUTS_VALIDE_CHEF_AGENCE = [
@@ -129,6 +130,4 @@ class DevisMagasinValidationConfig
 
     // Routes de redirection
     public const REDIRECT_ROUTE = 'devis_magasin_liste';
-
-
 }
