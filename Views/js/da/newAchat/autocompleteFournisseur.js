@@ -41,6 +41,7 @@ export function initializeAutoCompletionFrn(fournisseur) {
     },
     itemToStringForBlur: (item) => `${item.nomfournisseur}`,
     onBlurCallback: (found) => {
+      if (fournisseur.value.trim() === "") numeroFournisseur.value = "-";
       if (!found && fournisseur.value.trim() !== "") {
         Swal.fire({
           icon: "warning",
