@@ -330,6 +330,12 @@ class DaAfficher
     private ?DemandeAppro $demandeAppro = null;
 
     /**
+     * @ORM\ManyToOne(targetEntity=DemandeApproParent::class)
+     * @ORM\JoinColumn(name="demande_appro_parent_id", referencedColumnName="id", nullable=false)
+     */
+    private ?DemandeApproParent $demandeApproParent = null;
+
+    /**
      * @ORM\ManyToOne(targetEntity=DemandeIntervention::class)
      * @ORM\JoinColumn(name="dit_id", referencedColumnName="id", nullable=true)
      */
@@ -1504,6 +1510,24 @@ class DaAfficher
     }
 
     /**
+     * Get the value of demandeApproParent
+     */
+    public function getDemandeApproParent(): ?DemandeApproParent
+    {
+        return $this->demandeApproParent;
+    }
+
+    /**
+     * Set the value of demandeApproParent
+     */
+    public function setDemandeApproParent(?DemandeApproParent $demandeApproParent): self
+    {
+        $this->demandeApproParent = $demandeApproParent;
+
+        return $this;
+    }
+
+    /**
      * Get the value of dit
      */
     public function getDit()
@@ -1826,7 +1850,7 @@ class DaAfficher
     public function enregistrerDaParent(DemandeApproParent $demandeApproParent)
     {
         $this
-            ->setDemandeAppro($demandeApproParent)
+            ->setDemandeApproParent($demandeApproParent)
             ->setNumeroDemandeApproMere($demandeApproParent->getNumeroDemandeAppro())
             ->setNumeroDemandeAppro($demandeApproParent->getNumeroDemandeAppro())
             ->setStatutDal($demandeApproParent->getStatutDal())
