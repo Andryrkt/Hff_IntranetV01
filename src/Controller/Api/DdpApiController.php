@@ -88,7 +88,7 @@ class DdpApiController extends Controller
                     ->setAdresseMailDemandeur($this->getUserMail())
                     ->setDemandeur($this->getUserName())
                     ->setModePaiement($infoIps['mode_paiement'] ?? '')
-                    ->setMontantAPayers(0.00)
+                    ->setMontantAPayers($value->getMontantBlFacture())
                     ->setContact(Null)
                     ->setNumeroCommande([$infoIps['numero_cde']] ?? [])
                     ->setNumeroFacture([$value->getNumeroFactureFournisseur()] ?? [])

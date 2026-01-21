@@ -72,9 +72,9 @@ const hiddenInputNumOr = document.getElementById("da_soumission_num_or");
 const hiddenInputTypeDa = document.getElementById("da_soumission_type_da");
 const statutAffiche = document.getElementById("statut-affiche");
 const form = document.forms["da_soumission"];
-const DA_REAPPRO = 2;
-const DAO = 0;
-const DAD = 1;
+const DA_REAPPRO = "2";
+const DAO = "0";
+const DAD = "1";
 
 document.addEventListener("contextmenu", function (event) {
   const targetCell = event.target.closest(".commande-cellule");
@@ -109,7 +109,7 @@ document.addEventListener("contextmenu", function (event) {
     "Partiellement livré",
   ];
 
-  if (statutsTelechargeBC.includes(statutBc) && typeDa != DA_REAPPRO) {
+  if (statutsTelechargeBC.includes(statutBc) && typeDa !== DA_REAPPRO) {
     telechargerBcValide(commandeId);
   }
 
@@ -119,21 +119,50 @@ document.addEventListener("contextmenu", function (event) {
     "Complet non livré",
     "Tous livrés",
     "Partiellement livré",
-    "Non Dispo Fournisseur",
   ];
 
-  if (statutBc == "BC envoyé au fournisseur" && [DAO, DAD].includes(typeDa)) {
+  function affichageStatutBcEnvoyerFournisseur() {
+    statutAffiche.style.display = "block";
+    statutAffiche.innerHTML = `
+      <p title="cliquer pour confirmer l'envoi"
+          class="text-decoration-none text-dark cursor-pointer bg-success text-white border-0 rounded px-2 py-1">
+          BC envoyé au fournisseur
+      </p> <hr/>`;
+  }
+
+  function desactiveTousLesChampsDuFormulaire() {
+    //desactive le formulaire
+    Array.from(form.elements).forEach((el) => (el.disabled = true)); // Désactive tous les champs du formulaire
+    form.querySelector("button[type='submit']").classList.add("disabled"); //changer l'apparence du bouton
+  }
+
+  function activeTousLesChampsDuFormulaire() {
     Array.from(form.elements).forEach((el) => (el.disabled = false)); // active tous les champs du formulaire
     form.querySelector("button[type='submit']").classList.remove("disabled"); //changer l'apparence du bouton
-  } else if (typeDa == DA_REAPPRO) {
-    statutAffiche.style.display = "none"; // n'affiche pas le statut BC envoyé au fournisseur
+  }
 
+  function activeDesactiveFormualirePourSoumettreAValidation() {
     //desactive une partie du formulaire
     Array.from(form.elements).forEach((el) => {
       const value = el.value;
-      console.log(value);
 
-      if (value === "BC" || value === "Facture + BL") {
+      if (
+        value === "BL Reappro" ||
+        value === "Facture + BL" ||
+        value === "Ddpa"
+      ) {
+        el.disabled = true;
+      }
+    });
+    form.querySelector("button[type='submit']").classList.remove("disabled"); //changer l'apparence du bouton
+  }
+
+  function activeDesactiveFormulairePourReappro() {
+    //desactive une partie du formulaire
+    Array.from(form.elements).forEach((el) => {
+      const value = el.value;
+
+      if (value === "BC" || value === "Facture + BL" || value === "Ddpa") {
         el.disabled = true;
       } else if (value === "BL Reappro") {
         // Choose one based on your needs:
@@ -143,25 +172,9 @@ document.addEventListener("contextmenu", function (event) {
       }
     });
     form.querySelector("button[type='submit']").classList.remove("disabled"); //changer l'apparence du bouton
-  } else if (statutsBcEnvoyer.includes(statutBc)) {
-    statutAffiche.style.display = "block";
-    statutAffiche.innerHTML = `
-      <p title="cliquer pour confirmer l'envoi"
-          class="text-decoration-none text-dark cursor-pointer bg-success text-white border-0 rounded px-2 py-1">
-          BC envoyé au fournisseur
-      </p> <hr/>`;
-    // if (statutBc !== "Tous livrés") { // selon le demande de hoby rahalahy le 25/09/2025
-    //active le formulaire
-    Array.from(form.elements).forEach((el) => (el.disabled = false)); // active tous les champs du formulaire
-    form.querySelector("button[type='submit']").classList.remove("disabled"); //changer l'apparence du bouton
-    // } else {
-    //   //desactive le formulaire
-    //   Array.from(form.elements).forEach((el) => (el.disabled = true)); // Désactive tous les champs du formulaire
-    //   form.querySelector("button[type='submit']").classList.add("disabled"); //changer l'apparence du bouton
-    // }
-  } else if (statutBc == "A envoyer au fournisseur") {
-    statutAffiche.style.display = "block";
+  }
 
+  function AffichageEtTraitementFOrmAEnvoyerFournisseur() {
     const overlay = document.getElementById("loading-overlays");
     overlay.classList.remove("hidden");
     const url = "api/da-envoie-cde"; // L'URL de votre route Symfony
@@ -169,7 +182,7 @@ document.addEventListener("contextmenu", function (event) {
       .get(url, "text")
       .then((html) => {
         statutAffiche.innerHTML = html + "<hr>";
-
+        statutAffiche.style.display = "block";
         // Ajouter un écouteur sur la soumission du formulaire
         document
           .getElementById("daCdeEnvoyer")
@@ -184,7 +197,6 @@ document.addEventListener("contextmenu", function (event) {
               let cleanKey = key.replace(/^da_cde_envoyer\[(.*?)\]$/, "$1");
               jsonData[cleanKey] = value;
             });
-            console.log(jsonData);
 
             // Génère le lien dynamiquement, avec une vraie URL (pas Twig)
             const urlLien = `${baseUrl}/demande-appro/changement-statuts-envoyer-fournisseur/${commandeId}/${jsonData.dateLivraisonPrevue}/${jsonData.estEnvoyer}`;
@@ -197,22 +209,36 @@ document.addEventListener("contextmenu", function (event) {
       .finally(() => {
         overlay.classList.add("hidden");
       });
+  }
 
-    //desactive le formulaire
-    Array.from(form.elements).forEach((el) => (el.disabled = true)); // Désactive tous les champs du formulaire
-    form.querySelector("button[type='submit']").classList.add("disabled"); //changer l'apparence du bouton
+  function activeDesactiveFormulairePourStatutsBcEnvoyer() {
+    //desactive une partie du formulaire
+    Array.from(form.elements).forEach((el) => {
+      const value = el.value;
+
+      if (value === "BC" || value === "BL Reappro" || value === "Ddpa") {
+        el.disabled = true;
+      }
+    });
+    form.querySelector("button[type='submit']").classList.remove("disabled"); //changer l'apparence du bouton
+  }
+
+  if (typeDa === DA_REAPPRO) {
+    statutAffiche.style.display = "none"; // n'affiche pas le statut BC envoyé au fournisseur
+    activeDesactiveFormulairePourReappro();
+  } else if (statutsBcEnvoyer.includes(statutBc)) {
+    affichageStatutBcEnvoyerFournisseur();
+    activeDesactiveFormulairePourStatutsBcEnvoyer();
+  } else if (statutBc == "A envoyer au fournisseur") {
+    statutAffiche.style.display = "none";
+    AffichageEtTraitementFOrmAEnvoyerFournisseur();
+    desactiveTousLesChampsDuFormulaire();
   } else if (statutBc == "A soumettre à validation") {
     statutAffiche.style.display = "none";
-
-    //active le formulaire
-    Array.from(form.elements).forEach((el) => (el.disabled = false)); // active tous les champs du formulaire
-    form.querySelector("button[type='submit']").classList.remove("disabled"); //changer l'apparence du bouton
+    activeDesactiveFormualirePourSoumettreAValidation();
   } else {
     statutAffiche.style.display = "none";
-
-    //desactive le formulaire
-    Array.from(form.elements).forEach((el) => (el.disabled = true)); // Désactive tous les champs du formulaire
-    form.querySelector("button[type='submit']").classList.add("disabled"); //changer l'apparence du bouton
+    desactiveTousLesChampsDuFormulaire();
   }
 
   menu.style.top = event.pageY + "px";
