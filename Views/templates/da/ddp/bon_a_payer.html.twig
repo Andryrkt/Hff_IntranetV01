@@ -62,7 +62,7 @@
 						<td class="text-center">
 							{% set fileExists = fileCheckerService.checkBapFileExists(row.numeroDemandeAppro, row.numeroCde) %}
 							{% if fileExists %}
-								<a href="#" class="show-pdf-modal" data-pdf-url="{{ path('bap_pdf_viewer', {numeroDa: row.numeroDemandeAppro, numeroCde: row.numeroCde}) }}">
+								<a href="#" class="show-pdf-modal" data-pdf-url="{{ path('bap_pdf_viewer', { numeroDa: row.numeroDemandeAppro, urlPdf: row.piecejoint1 }) }}">
 									{{ row.numeroBap }}
 									<i class="fas fa-file-pdf ml-1" style="color: red;"></i>
 								</a>
