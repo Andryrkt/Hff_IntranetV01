@@ -15,7 +15,7 @@ class FileCheckerService
         $this->filesystem = new Filesystem();
     }
 
-    public function checkBapFileExists(string $numeroDa, string $numeroCde): bool
+    public function checkBapFileExists(string $numeroDa, ?string $numeroCde = ''): bool
     {
         $filePath = $this->projectDir . "/da/$numeroDa/BAP_{$numeroDa}_{$numeroCde}.pdf";
         return $this->filesystem->exists($filePath);

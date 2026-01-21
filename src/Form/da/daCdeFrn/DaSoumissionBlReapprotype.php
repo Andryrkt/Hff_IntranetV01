@@ -33,8 +33,9 @@ class DaSoumissionBlReapprotype extends AbstractType
         $numeroFactureReapproChoices = (new DaReapproModel())->getNumeroFactureReappro($options['data']->numOr, $numeroFactureDansFacBl);
 
         $builder
-            ->add('numCde', TextType::class, [
+            ->add('numOr', TextType::class, [
                 'label' => 'Numéro OR',
+                'mapped' => false,
                 'attr' => ['disabled' => true]
             ])
             ->add('numeroFactureReappro', ChoiceType::class, [

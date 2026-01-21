@@ -544,6 +544,7 @@ class MenuService
         $subitems[] = $this->createSimpleItem('Consultation des DA', 'search', 'list_da');
         if ($this->getEstAdmin() || $this->getEstAppro()) {
             $subitems[] = $this->createSimpleItem('Liste des commandes fournisseurs', 'list-ul', 'da_list_cde_frn');
+            $subitems[] = $this->createSimpleItem('Consultation facture', 'list-ul', 'da_bon_a_payer');
         }
         if ($this->getEstAdmin()) {
             $subitems[] = $this->createSimpleItem('Reporting IPS DA reappro', 'chart-bar', 'da_reporting_ips');

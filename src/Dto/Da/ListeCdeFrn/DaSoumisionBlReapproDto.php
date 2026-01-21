@@ -4,9 +4,9 @@ namespace App\Dto\Da\ListeCdeFrn;
 
 class DaSoumisionBlReapproDto
 {
-    public ?string $numCde;
+    public int $numCde;
     public string $numDa;
-    public string $numOr;
+    public int $numOr;
     public string $pieceJoint1;
     public array $pieceJoint2 = [];
     public ?string $numeroFactureReappro;

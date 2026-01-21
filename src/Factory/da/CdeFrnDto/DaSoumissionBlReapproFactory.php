@@ -8,7 +8,7 @@ class DaSoumissionBlReapproFactory
 {
 
 
-    public static function createFromDto(string  $numCde, string $numOr, string $numDa): DaSoumisionBlReapproDto
+    public static function createFromDto(int  $numCde, int $numOr, string $numDa): DaSoumisionBlReapproDto
     {
         $dto = new DaSoumisionBlReapproDto();
         $dto->numCde = $numCde;

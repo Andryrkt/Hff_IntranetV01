@@ -66,7 +66,8 @@ class DaSoumissionFacBlRepository extends EntityRepository
 
     public function getAll(array $criteria = [])
     {
-        $result = $this->createQueryBuilder('dabc');
+        $result = $this->createQueryBuilder('dabc')
+            ->where('dabc.numeroBap IS NOT NULL');
 
         // filtres par le numero demande appro
         if (isset($criteria['numDa']) && !empty($criteria['numDa'])) {

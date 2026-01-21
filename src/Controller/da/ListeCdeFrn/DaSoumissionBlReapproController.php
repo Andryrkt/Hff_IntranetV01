@@ -79,7 +79,7 @@ class DaSoumissionBlReapproController extends Controller
             /** modification du table da_valider */
             $this->modificationDaAfficher($numDa, $numCde);
 
-            /** modification du table da_soumission_facture_bl */
+            /** creation de ligne dans le table da_soumission_facture_bl */
             $this->creationFacBl($dto, $nomPdfFusionner);
 
             /** HISTORISATION */
