@@ -3,6 +3,7 @@ import { getAllArticleStocke } from "../data/fetchData";
 import { handleAllOldFileEvents } from "../newDirect/field";
 import { initCentraleCodeDesiInputs } from "../newReappro/event";
 import { ajouterUneLigne } from "./dapl";
+import { displayOverlay } from "../../utils/ui/overlay";
 
 document.addEventListener("DOMContentLoaded", async function () {
   const articleStockeList = await getAllArticleStocke();

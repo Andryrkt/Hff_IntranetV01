@@ -110,7 +110,7 @@ export function createFieldAutocompleteAndAppendTo(
 
   // Sélection de l'élément cible
   let field = prototype.querySelector(`[id*="${fieldName}"]`);
-  field.required = true; // champ requis
+  field.required = fieldName === "artDesi"; // champ requis
 
   // Génération des nouveaux IDs pour le spinner et le conteneur
   let baseId = field.id.replace(
