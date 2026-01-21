@@ -86,7 +86,7 @@ class DemandePaiementDaType extends AbstractType
                 [
                     'label' => 'Montant à payer *',
                     'attr' => [
-                        'readOnly' => true
+                        'readOnly' => $options['data']->typeDa !== null ? false : true
                     ]
                 ]
             )
@@ -96,6 +96,49 @@ class DemandePaiementDaType extends AbstractType
         $this->addFournisseur($builder);
         $this->addFile($builder);
         $this->addNumeroCdeAndFacture($builder, $options);
+        $this->addDdpaDa($builder);
+    }
+
+    private function addDdpaDa(FormBuilderInterface $builder)
+    {
+        $builder
+            ->add(
+                'montantTotalCde',
+                TextType::class,
+                [
+                    'label' => 'Montant total cmde',
+                    'required' => false,
+                    'disabled' => true
+                ]
+            )
+            ->add(
+                'montantDejaPaye',
+                TextType::class,
+                [
+                    'label' => 'Montant déjà payé',
+                    'required' => false,
+                    'disabled' => true
+                ]
+            )
+            ->add(
+                'montantRestantApayer',
+                TextType::class,
+                [
+                    'label' => 'Montant restant à payer',
+                    'required' => false,
+                    'disabled' => true
+                ]
+            )
+            ->add(
+                'poucentageAvance',
+                TextType::class,
+                [
+                    'label' => '% avance (déjà payé inclu)',
+                    'required' => false,
+                    'disabled' => true
+                ]
+            )
+        ;
     }
 
     private function addFournisseur(FormBuilderInterface $builder)

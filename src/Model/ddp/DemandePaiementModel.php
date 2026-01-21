@@ -324,6 +324,7 @@ class DemandePaiementModel extends Model
 
         return $this->convertirEnUtf8($data);
     }
+
     public function getCodeAgenceService(int $numOr)
     {
         $statement = " SELECT 
@@ -339,5 +340,19 @@ class DemandePaiementModel extends Model
         $data = $this->connect->fetchResults($result);
 
         return $this->convertirEnUtf8($data);
+    }
+
+    public function getMontantTotalCde(int $numCde): float
+    {
+        $statement = " SELECT fcde_mtn as montant_total_cde
+                from informix.frn_cde 
+                where fcde_numcde ='$numCde'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return array_column($data, 'montant_total_cde')[0];
     }
 }

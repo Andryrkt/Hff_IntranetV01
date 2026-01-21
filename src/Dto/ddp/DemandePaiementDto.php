@@ -42,4 +42,12 @@ class DemandePaiementDto
     public $titreDeTransportFichier;
     public $lesFichiers;
     public ?int $typeDa = null;
+
+
+
+    // Pour le DA =====================================
+    public $montantTotalCde;
+    public $montantDejaPaye;
+    public $montantRestantApayer;
+    public $poucentageAvance;
 }

@@ -155,4 +155,18 @@ class DemandePaiementRepository extends EntityRepository
             ->getSingleColumnResult()
         ;
     }
+
+    public function getMontantDejaPayer(array $numeroCde): ?float
+    {
+        $resultat = $this->createQueryBuilder('d')
+            ->select('SUM(d.montantAPayers)')
+            ->where('d.statut = :statut')
+            ->setParameter('statut', 'Validé')
+            ->andWhere('JSON_CONTAINS(d.numeroCommande, :numero) = 1')
+            ->setParameter('numero', json_encode($numeroCde))
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $resultat;
+    }
 }
