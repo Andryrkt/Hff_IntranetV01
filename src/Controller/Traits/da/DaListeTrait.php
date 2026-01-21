@@ -195,7 +195,7 @@ trait DaListeTrait
             DemandeAppro::TYPE_DA_DIRECT           => $this->getIconDaDirect(),
             DemandeAppro::TYPE_DA_REAPPRO_MENSUEL  => $this->getIconDaReapproMensuel(),
             DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL => $this->getIconDaReapproPonctuel(),
-            DemandeAppro::TYPE_DA_PARENT           => $this->getIconDaDirect()
+            DemandeAppro::TYPE_DA_PARENT           => ''
         ];
 
         $safeIconSuccess = new Markup('<i class="fas fa-check text-success"></i>', 'UTF-8');
