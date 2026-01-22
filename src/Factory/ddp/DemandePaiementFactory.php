@@ -12,18 +12,21 @@ use App\Constants\da\TypeDaConstants;
 use App\Entity\admin\ddp\TypeDemande;
 use App\Entity\admin\utilisateur\User;
 use App\Model\ddp\DemandePaiementModel;
-use App\Service\TableauEnStringService;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Service\autres\AutoIncDecService;
+use App\Service\ddp\DocDemandePaiementService;
 
 class DemandePaiementFactory
 {
     private $em;
     private DemandePaiementModel $ddpModel;
+    private DocDemandePaiementService $docDemandePaiementService;
+
     public function __construct(EntityManagerInterface $em)
     {
         $this->em = $em;
         $this->ddpModel  = new DemandePaiementModel();
+        $this->docDemandePaiementService = new DocDemandePaiementService($em);
     }
 
     public function load(int $typeDdp, ?int $numCdeDa, ?int $typeDa, User $user): DemandePaiementDto
@@ -54,7 +57,7 @@ class DemandePaiementFactory
         $dto->appro = $typeDa ? true : false;
         $dto->numeroDdp = $this->numeroDdp();
         $dto->numeroVersion = 1;
-        $dto->numeroDossierDouane = $this->recupNumDossierDouane($dto);
+        $dto->numeroDossierDouane = $this->docDemandePaiementService->recupNumDossierDouane($dto);
 
 
         return $dto;
@@ -92,25 +95,5 @@ class DemandePaiementFactory
         //mise a jour de la derniere id de l'application DDP
         AutoIncDecService::mettreAJourDerniereIdApplication($application, $this->em, $numeroDdp);
         return $numeroDdp;
-    }
-
-    /**
-     * Récupération de numero de dossier de douane
-     *
-     * @param DemandePaiement $data
-     * @return array
-     */
-    private function recupNumDossierDouane(DemandePaiementDto $dto): array
-    {
-        $numFrs = $dto->numeroFournisseur;
-        $numCde = $dto->numeroCommande;
-        $numFactures = $dto->numeroFacture;
-
-        $numCdesString = TableauEnStringService::TableauEnString(',', $numCde);
-        $numFactString = TableauEnStringService::TableauEnString(',', $numFactures);
-
-        $numDossiers = array_column($this->ddpModel->getNumDossierGcot($numFrs, $numCdesString, $numFactString), 'Numero_Dossier_Douane');
-
-        return $numDossiers;
     }
 }

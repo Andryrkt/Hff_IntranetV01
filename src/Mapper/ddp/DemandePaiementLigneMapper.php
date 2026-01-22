@@ -7,19 +7,30 @@ use App\Entity\ddp\DemandePaiementLigne;
 
 class DemandePaiementLigneMapper
 {
-    public static function map(DemandePaiementDto $dto)
+    public static function map(DemandePaiementDto $dto): array
     {
-        $ddpls = [];
+        $lignes = [];
 
         for ($i = 0; $i < count($dto->numeroCommande); $i++) {
-            $ddpl = new DemandePaiementLigne();
-            $ddpl->setNumeroDdp($dto->numeroDdp)
+            $ligne = new DemandePaiementLigne();
+            $ligne->setNumeroDdp($dto->numeroDdp)
                 ->setNumeroLigne($i + 1)
-                ->setNumeroCommande('')
-                ->setNumeroFacture('')
-                ->setMontantFacture('')
+                ->setNumeroCommande($dto->numeroCommande[$i] ?? '')
+                ->setNumeroFacture(self::numeroFacture($dto, $i))
+                ->setMontantFacture($dto->montantAPayer())
                 ->setNumeroVersion(1)
                 ->setRatioMontantPayer(0.00);
+
+            $lignes[] = $lignes;
         }
+
+        return $lignes;
+    }
+
+    private function numeroFacture(DemandePaiementDto $dto, int $i): string
+    {
+        return is_array($dto->numeroFacture) && array_key_exists($i, $dto->numeroFacture)
+            ? $dto->numeroFacture[$i]
+            : '-';
     }
 }

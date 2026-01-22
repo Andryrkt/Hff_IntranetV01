@@ -16,6 +16,10 @@ use App\Controller\Traits\PdfConversionTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Constants\ddp\TypeDemandePaiementConstants;
+use App\Model\ddp\DemandePaiementModel;
+use App\Service\ddp\DemandePaiementLigneService;
+use App\Service\ddp\DemandePaiementService;
+use App\Service\ddp\DocDemandePaiementService;
 
 /**
  * @Route("/compta/demande-de-paiement")
@@ -24,6 +28,20 @@ class DemandePaiementDaController extends Controller
 {
     use AutorisationTrait;
     use PdfConversionTrait;
+
+    private DemandePaiementModel $demandePaiementModel;
+    private DemandePaiementLigneService $demandePaiementLigneService;
+    private DemandePaiementService $demandePaiementService;
+    private DocDemandePaiementService $docDemandePaiementService;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->demandePaiementModel = new DemandePaiementModel();
+        $this->demandePaiementLigneService = new DemandePaiementLigneService($this->getEntityManager());
+        $this->demandePaiementService = new DemandePaiementService($this->getEntityManager());
+        $this->docDemandePaiementService = new DocDemandePaiementService($this->getEntityManager());
+    }
 
     /**
      * @Route("/newDa/{typeDdp}/{numCdeDa}/{typeDa}", name="demande_paiement_da", defaults={"numCdeDa"=null, "typeDa"=null})
@@ -54,7 +72,7 @@ class DemandePaiementDaController extends Controller
     }
 
 
-    public function traitementDuFormulaire(Request $request, FormInterface $form)
+    private function traitementDuFormulaire(Request $request, FormInterface $form)
     {
         $form->handleRequest($request);
 
@@ -64,7 +82,18 @@ class DemandePaiementDaController extends Controller
         }
     }
 
-    public function traitementDeFichier(DemandePaiementDto $dto, FormInterface $form)
+    private function enregistrementSurBd(DemandePaiementDto $dto)
+    {
+        // enregistrement dans la table deamnde_paiement
+        $this->demandePaiementService->createDdp($dto);
+        // enregistrement dans la table demande_paiement_ligne
+        $lignesCreees = $this->demandePaiementLigneService->createLignesFromDto($dto);
+        // enregistrement dans la table doc_demande_paiement
+        $this->docDemandePaiementService->createDocDdp($dto);
+        // enregistrement dans la table historique_statut_ddp
+    }
+
+    private function traitementDeFichier(DemandePaiementDto $dto, FormInterface $form)
     {
         $numCdes = $this->demandePaiementModel->getCommandeReceptionnee($dto->numeroFournisseur);
         $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
@@ -113,10 +142,10 @@ class DemandePaiementDaController extends Controller
         return [$nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, $nomFichier];
     }
 
-    private function recupCdeDw($data, $numDdp, $numVersion): array
+    private function recupCdeDw(DemandePaiementDto $dto, $numDdp, $numVersion): array
     {
         $pathAndCdes = [];
-        foreach ($data->getNumeroCommande() as  $numcde) {
+        foreach ($dto->numeroCommande as  $numcde) {
             $pathAndCdes[] = $this->demandePaiementModel->getPathDwCommande($numcde);
         }
 

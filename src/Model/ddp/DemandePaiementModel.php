@@ -314,7 +314,7 @@ class DemandePaiementModel extends Model
                 GROUP BY 
                     FBSE_NUMFOU, code_agence, code_service, numero_cde
                 ORDER BY 
-                    nom_fournisseur;
+                    nom_fournisseur
 
         ";
 
