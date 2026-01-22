@@ -339,6 +339,7 @@ trait DaListeTrait
             'proposition' => [
                 DemandeAppro::TYPE_DA_AVEC_DIT        => 'da_proposition_ref_avec_dit',
                 DemandeAppro::TYPE_DA_DIRECT          => 'da_proposition_direct',
+                DemandeAppro::TYPE_DA_PARENT          => 'da_affectation_achat',
                 DemandeAppro::TYPE_DA_REAPPRO_MENSUEL => 'da_validate_reappro_mensuel',
             ],
             'delete' => [
@@ -361,6 +362,14 @@ trait DaListeTrait
             DemandeAppro::TYPE_DA_REAPPRO_MENSUEL => $parametres['daId']
         ];
 
+        $paramId = [
+            DemandeAppro::TYPE_DA_PARENT           => $parametres['daParentId'],
+            DemandeAppro::TYPE_DA_AVEC_DIT         => $parametres['daId'],
+            DemandeAppro::TYPE_DA_DIRECT           => $parametres['daId'],
+            DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL => $parametres['daId'],
+            DemandeAppro::TYPE_DA_REAPPRO_MENSUEL  => $parametres['daId'],
+        ];
+
         // URL création de DA avec DIT
         $urls['creation'] = $ajouterDA ? $this->getUrlGenerator()->generate($routeNames['creation'][$daTypeId], $parametres['daId-0-ditId']) : '#';
 
@@ -370,7 +379,7 @@ trait DaListeTrait
         // URL désignation (peut basculer sur "new" si statut en cours de création)
         $urls['designation'] = $item->getStatutDal() === DemandeAppro::STATUT_EN_COURS_CREATION && isset($routeNames['creation'][$daTypeId])
             ? $this->getUrlGenerator()->generate($routeNames['creation'][$daTypeId], $paramEncoursCreation[$daTypeId])
-            : (isset($routeNames['proposition'][$daTypeId]) ? $this->getUrlGenerator()->generate($routeNames['proposition'][$daTypeId], $parametres['daId']) : '#');
+            : (isset($routeNames['proposition'][$daTypeId]) ? $this->getUrlGenerator()->generate($routeNames['proposition'][$daTypeId], $paramId[$daTypeId]) : '#');
 
         // URL suppression de ligne
         $urls['delete'] = isset($routeNames['delete'][$daTypeId]) ? $this->getUrlGenerator()->generate($routeNames['delete'][$daTypeId], $parametres['numDa-numLigne']) : '#';
