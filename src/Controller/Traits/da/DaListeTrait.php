@@ -239,6 +239,15 @@ trait DaListeTrait
             $statutOR = $item->getStatutOr();
             if ($daViaOR && !empty($statutOR)) $statutOR = "OR - $statutOR";
 
+            // Préparer attributs pour la balise <a> de la désignation de la DA
+            $aArtDesiAttributes = [
+                'href'              => $urls['designation'],
+                'class'             => 'designation-btn',
+                'data-numero-ligne' => $item->getNumeroLigne(),
+                'data-numero-da'    => $item->getNumeroDemandeAppro(),
+                'target'            => $urls['designation'] === "#" ? "_self" : "_blank"
+            ];
+
             // Préparer attributs pour la balise <a> de la date de livraison prévue
             $aDtLivPrevAttributes = [
                 'href'               => '#',
@@ -271,7 +280,6 @@ trait DaListeTrait
                 'artDesi'              => $item->getArtDesi(),
                 'estDalr'              => $item->getEstDalr(),
                 'verouille'            => $item->getVerouille(),
-                'numeroligne'          => $item->getNumeroLigne(),
                 'estFicheTechnique'    => $item->getEstFicheTechnique() ? $safeIconSuccess : $safeIconXmark,
                 'qteDem'               => $item->getQteDem() == 0 ? '-' : $item->getQteDem(),
                 'qteEnAttent'          => $item->getQteEnAttent() == 0 ? '-' : $item->getQteEnAttent(),
@@ -286,7 +294,6 @@ trait DaListeTrait
                 'styleStatutBC'        => $styleStatutBC,
                 'urlCreation'          => $urls['creation'],
                 'urlDetail'            => $urls['detail'],
-                'urlDesignation'       => $urls['designation'],
                 'urlDelete'            => $urls['delete'],
                 'urlDemandeDevis'      => $urls['demandeDevis'],
                 'ajouterDA'            => $ajouterDA,
@@ -297,6 +304,7 @@ trait DaListeTrait
                 'statutValide'         => $item->getStatutDal() === DemandeAppro::STATUT_VALIDE,
                 'centrale'             => !$daViaOR ? $item->getDesiCentrale() : $safeIconBan,
                 'envoyeFrn'            => $envoyeFrn,
+                'aArtDesiAttributes'   => $aArtDesiAttributes,
                 'aDtLivPrevAttributes' => $aDtLivPrevAttributes,
             ];
         }
@@ -326,7 +334,6 @@ trait DaListeTrait
                 DemandeAppro::TYPE_DA_AVEC_DIT         => 'da_detail_avec_dit',
                 DemandeAppro::TYPE_DA_DIRECT           => 'da_detail_direct',
                 DemandeAppro::TYPE_DA_REAPPRO_MENSUEL  => 'da_detail_reappro',
-                // DemandeAppro::TYPE_DA_PARENT           => 'da_detail_achat',
                 DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL => 'da_detail_reappro',
             ],
             'proposition' => [
@@ -355,22 +362,22 @@ trait DaListeTrait
         ];
 
         // URL création de DA avec DIT
-        $urls['creation'] = $ajouterDA ? $this->getUrlGenerator()->generate($routeNames['creation'][$daTypeId], $parametres['daId-0-ditId']) : '';
+        $urls['creation'] = $ajouterDA ? $this->getUrlGenerator()->generate($routeNames['creation'][$daTypeId], $parametres['daId-0-ditId']) : '#';
 
         // URL détail
-        $urls['detail'] = isset($routeNames['detail'][$daTypeId]) ? $this->getUrlGenerator()->generate($routeNames['detail'][$daTypeId], $parametres['daId']) : '';
+        $urls['detail'] = isset($routeNames['detail'][$daTypeId]) ? $this->getUrlGenerator()->generate($routeNames['detail'][$daTypeId], $parametres['daId']) : '#';
 
         // URL désignation (peut basculer sur "new" si statut en cours de création)
         $urls['designation'] = $item->getStatutDal() === DemandeAppro::STATUT_EN_COURS_CREATION && isset($routeNames['creation'][$daTypeId])
             ? $this->getUrlGenerator()->generate($routeNames['creation'][$daTypeId], $paramEncoursCreation[$daTypeId])
-            : (isset($routeNames['proposition'][$daTypeId]) ? $this->getUrlGenerator()->generate($routeNames['proposition'][$daTypeId], $parametres['daId']) : '');
+            : (isset($routeNames['proposition'][$daTypeId]) ? $this->getUrlGenerator()->generate($routeNames['proposition'][$daTypeId], $parametres['daId']) : '#');
 
         // URL suppression de ligne
-        $urls['delete'] = isset($routeNames['delete'][$daTypeId]) ? $this->getUrlGenerator()->generate($routeNames['delete'][$daTypeId], $parametres['numDa-numLigne']) : '';
+        $urls['delete'] = isset($routeNames['delete'][$daTypeId]) ? $this->getUrlGenerator()->generate($routeNames['delete'][$daTypeId], $parametres['numDa-numLigne']) : '#';
 
         // URL demande de devis
         // Si c'est via OR ou direct
-        $urls['demandeDevis'] = isset($routeNames['delete'][$daTypeId]) ? $this->getUrlGenerator()->generate('da_demande_devis_en_cours', $parametres['daId']) : '';
+        $urls['demandeDevis'] = isset($routeNames['delete'][$daTypeId]) ? $this->getUrlGenerator()->generate('da_demande_devis_en_cours', $parametres['daId']) : '#';
 
         return $urls;
     }

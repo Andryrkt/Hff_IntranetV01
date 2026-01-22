@@ -71,7 +71,9 @@
 				{% for row in data %}
 					<tr>
 						<td class="fs-7 fw-bold ps-3" data-bs-toggle="tooltip" title="{{ row.objet }}">{{ row.numDaParent }}</td>
-						<td class="text-center" data-bs-toggle="tooltip" title="{{ row.numeroDemandeAppro }}">{{ row.datype }}</td>
+						<td class="text-center" data-bs-toggle="tooltip" title="{{ row.numeroDemandeAppro }}">
+							<a href="{{ row.urlDetail }}" target="_blank">{{ row.datype }}</a>
+						</td>
 						<td>{{ row.numeroDemandeDit }}</td>
 						<td>{{ row.niveauUrgence }}</td>
 						<td>{{ row.numeroOr }}</td>
@@ -122,7 +124,7 @@
 							{% if row.verouille %}
 								{{ row.artDesi }}
 							{% else %}
-								<a href="{{ row.urlDesignation }}" class="designation-btn" data-numero-ligne="{{ row.numeroligne }}" data-numero-da="{{ row.numeroDemandeAppro }}" target="_blank">
+								<a {% for attr, val in row.aArtDesiAttributes %} {{ attr }}="{{ val }}" {% endfor %}>
 									{{ row.artDesi }}
 								</a>
 							{% endif %}
