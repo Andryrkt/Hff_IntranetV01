@@ -2,10 +2,10 @@
 
 namespace App\Form\ddp;
 
-use App\Constants\da\TypeDaConstants;
 use App\Dto\ddp\DemandePaiementDto;
 use App\Entity\ddp\DemandePaiement;
 use App\Form\Common\FileUploadType;
+use App\Constants\da\TypeDaConstants;
 use Symfony\Component\Form\FormEvent;
 use App\Form\common\AgenceServiceType;
 use Symfony\Component\Form\FormEvents;
@@ -13,6 +13,7 @@ use App\Model\ddp\DemandePaiementModel;
 use App\Service\TableauEnStringService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\AbstractType;
+use App\Controller\Traits\FormatageTrait;
 use App\Entity\cde\CdefnrSoumisAValidation;
 use Symfony\Component\Form\FormBuilderInterface;
 use App\Repository\ddp\DemandePaiementRepository;
@@ -23,6 +24,8 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 
 class DemandePaiementDaType extends AbstractType
 {
+    use FormatageTrait;
+
     private $demandePaiementModel;
 
     public function __construct()
@@ -96,10 +99,10 @@ class DemandePaiementDaType extends AbstractType
         $this->addFournisseur($builder);
         $this->addFile($builder);
         $this->addNumeroCdeAndFacture($builder, $options);
-        $this->addDdpaDa($builder);
+        $this->addDdpaDa($builder, $options);
     }
 
-    private function addDdpaDa(FormBuilderInterface $builder)
+    private function addDdpaDa(FormBuilderInterface $builder, array $options)
     {
         $builder
             ->add(
@@ -108,7 +111,8 @@ class DemandePaiementDaType extends AbstractType
                 [
                     'label' => 'Montant total cmde',
                     'required' => false,
-                    'disabled' => true
+                    'disabled' => true,
+                    'data' => $this->formatNumberGeneral($options['data']->montantTotalCde)
                 ]
             )
             ->add(
@@ -117,7 +121,8 @@ class DemandePaiementDaType extends AbstractType
                 [
                     'label' => 'Montant déjà payé',
                     'required' => false,
-                    'disabled' => true
+                    'disabled' => true,
+                    'data' => $this->formatNumberGeneral($options['data']->montantDejaPaye)
                 ]
             )
             ->add(
@@ -126,7 +131,8 @@ class DemandePaiementDaType extends AbstractType
                 [
                     'label' => 'Montant restant à payer',
                     'required' => false,
-                    'disabled' => true
+                    'disabled' => true,
+                    'data' => $this->formatNumberGeneral($options['data']->montantRestantApayer)
                 ]
             )
             ->add(

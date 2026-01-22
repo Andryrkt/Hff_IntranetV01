@@ -38,10 +38,10 @@ class DemandePaiementFactory
         $dto->typeDa = $typeDa;
 
         $dto->montantTotalCde = $ddpModel->getMontantTotalCde($numCdeDa);
-        $dto->montantDejaPaye = $ddpRepository->getMontantDejaPayer([$numCdeDa]);
+        $dto->montantDejaPaye = $ddpRepository->getMontantDejaPayer($numCdeDa);
         $dto->montantRestantApayer = $dto->montantTotalCde - $dto->montantDejaPaye;
         $dto->montantAPayer = 0.00;
-        $dto->poucentageAvance = (($dto->montantDejaPaye + $dto->montantAPayer) / $dto->montantTotalCde) * 100;
+        $dto->poucentageAvance = (($dto->montantDejaPaye + $dto->montantAPayer) / $dto->montantTotalCde) * 100 . ' %';
 
 
         return $dto;

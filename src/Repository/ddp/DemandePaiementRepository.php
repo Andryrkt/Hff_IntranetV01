@@ -156,17 +156,18 @@ class DemandePaiementRepository extends EntityRepository
         ;
     }
 
-    public function getMontantDejaPayer(array $numeroCde): ?float
+    public function getMontantDejaPayer(string $numeroCommande)
     {
         $resultat = $this->createQueryBuilder('d')
             ->select('SUM(d.montantAPayers)')
             ->where('d.statut = :statut')
             ->setParameter('statut', 'Validé')
-            ->andWhere('JSON_CONTAINS(d.numeroCommande, :numero) = 1')
-            ->setParameter('numero', json_encode($numeroCde))
+            // Cherche le numéro dans le JSON (format: ["num1", "num2"])
+            ->andWhere('d.numeroCommande LIKE :numero')
+            ->setParameter('numero', '%"' . $numeroCommande . '"%')
             ->getQuery()
             ->getSingleScalarResult();
 
-        return $resultat;
+        return $resultat ?? 0;
     }
 }

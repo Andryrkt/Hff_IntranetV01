@@ -1,4 +1,5 @@
 import { DemandePaiementManager } from "./DemandePaiementManager.js";
+import { formaterNombre } from "../utils/formatNumberUtils.js";
 
 document.addEventListener("DOMContentLoaded", function () {
   const config = {
@@ -27,7 +28,7 @@ document.addEventListener("DOMContentLoaded", function () {
       documentTableContainer: "#tableau_dossier",
       spinnerService: "#spinner-service-debiteur",
       serviceContainer: "#service-container-debiteur",
-      
+
       // Sélecteurs de classe (probablement inchangés)
       agenceDebiteurInput: ".agenceDebiteur",
       serviceDebiteurInput: ".serviceDebiteur",
@@ -36,7 +37,8 @@ document.addEventListener("DOMContentLoaded", function () {
       fournisseurs: "api/info-fournisseur-ddp",
       commandes: "api/num-cde-frn/:numFournisseur/:typeId",
       montantCommande: "api/montant-commande/:numCde",
-      montantFacture: "api/montant-facture/:numFournisseur/:facturesString/:typeId",
+      montantFacture:
+        "api/montant-facture/:numFournisseur/:facturesString/:typeId",
       listeDoc: "api/liste-doc/:numero",
       recupererFichier: "/Hffintranet/api/recuperer-fichier",
       agenceFetch: "agence-fetch/:agenceDebiteur",
@@ -45,4 +47,58 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const manager = new DemandePaiementManager(config);
   manager.init();
+
+  const montantTotalCde = document.querySelector(
+    "#demande_paiement_da_montantTotalCde",
+  );
+  const montantDejaPayer = document.querySelector(
+    "#demande_paiement_da_montantDejaPaye",
+  );
+  const montantRestantApayer = document.querySelector(
+    "#demande_paiement_da_montantRestantApayer",
+  );
+  const montantAPayer = document.querySelector(
+    "#demande_paiement_da_montantAPayer",
+  );
+  const poucentageAvance = document.querySelector(
+    "#demande_paiement_da_poucentageAvance",
+  );
+
+  montantAPayer.addEventListener("input", changeMontant);
+
+  function changeMontant(e) {
+    let montantAPayerValue = stringEnNumber(e.target.value, " ");
+    let montantTotalCdeValue = stringEnNumber(montantTotalCde.value, ".");
+    let montantDejaPayerValue = stringEnNumber(montantDejaPayer.value, ".");
+    let montantRestantApayerValue = montantRestantApayer.value;
+
+    montantRestantApayer.value = formaterNombre(
+      montantTotalCdeValue - montantDejaPayerValue - montantAPayerValue,
+    );
+
+    // changement de pourcentage des avances
+    pourcentageAvence(
+      montantAPayerValue,
+      montantTotalCdeValue,
+      montantDejaPayerValue,
+    );
+  }
+
+  function stringEnNumber(value, separateurMilier) {
+    return parseFloat(value.replace(separateurMilier, "").replace(",", "."));
+  }
+
+  function pourcentageAvence(
+    montantAPayerValue,
+    montantTotalCdeValue,
+    montantDejaPayerValue,
+  ) {
+    poucentageAvance.value =
+      (
+        ((montantDejaPayerValue + montantAPayerValue) / montantTotalCdeValue) *
+        100
+      ).toFixed(2) +
+      " " +
+      "%";
+  }
 });

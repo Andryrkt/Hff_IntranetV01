@@ -7,6 +7,7 @@ use App\Entity\admin\Application;
 use App\Form\ddp\DemandePaiementDaType;
 use App\Factory\ddp\DemandePaiementFactory;
 use App\Controller\Traits\AutorisationTrait;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -19,7 +20,7 @@ class DemandePaiementDaController extends Controller
     /**
      * @Route("/newDa/{typeDdp}/{numCdeDa}/{typeDa}", name="demande_paiement_da", defaults={"numCdeDa"=null, "typeDa"=null})
      */
-    public function index(int $typeDdp, int $numCdeDa, int $typeDa)
+    public function index(int $typeDdp, int $numCdeDa, int $typeDa, Request $request)
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
@@ -34,6 +35,13 @@ class DemandePaiementDaController extends Controller
             'method' => 'POST',
             'em' => $this->getEntityManager()
         ])->getForm();
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $dto = $form->getData();
+            dd($dto);
+        }
 
         return $this->render('ddp/demande_paiement_da_new.html.twig', [
             'dto' => $dto,
