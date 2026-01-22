@@ -71,16 +71,126 @@ const hiddenInputDa = document.getElementById("da_soumission_da_id");
 const hiddenInputNumOr = document.getElementById("da_soumission_num_or");
 const hiddenInputTypeDa = document.getElementById("da_soumission_type_da");
 const statutAffiche = document.getElementById("statut-affiche");
+const bcValideTelecharger = document.getElementById("bcValideTelecharger"); // Déplacé ici
 const form = document.forms["da_soumission"];
 const DA_REAPPRO = "2";
 const DAO = "0";
 const DAD = "1";
+
+function affichageStatutBcEnvoyerFournisseur() {
+  statutAffiche.style.display = "block";
+  statutAffiche.innerHTML = `
+    <p title="cliquer pour confirmer l'envoi"
+        class="text-decoration-none text-dark cursor-pointer bg-success text-white border-0 rounded px-2 py-1">
+        BC envoyé au fournisseur
+    </p> <hr/>`;
+}
+
+function desactiveTousLesChampsDuFormulaire() {
+  //desactive le formulaire
+  Array.from(form.elements).forEach((el) => (el.disabled = true)); // Désactive tous les champs du formulaire
+  form.querySelector("button[type='submit']").classList.add("disabled"); //changer l'apparence du bouton
+}
+
+function activeTousLesChampsDuFormulaire() {
+  Array.from(form.elements).forEach((el) => (el.disabled = false)); // active tous les champs du formulaire
+  form.querySelector("button[type='submit']").classList.remove("disabled"); //changer l'apparence du bouton
+}
+
+function activeDesactiveFormualirePourSoumettreAValidation() {
+  //desactive une partie du formulaire
+  Array.from(form.elements).forEach((el) => {
+    const value = el.value;
+
+    if (
+      value === "BL Reappro" ||
+      value === "Facture + BL" ||
+      value === "Ddpa"
+    ) {
+      el.disabled = true;
+    }
+  });
+  form.querySelector("button[type='submit']").classList.remove("disabled"); //changer l'apparence du bouton
+}
+
+function activeDesactiveFormulairePourReappro() {
+  //desactive une partie du formulaire
+  Array.from(form.elements).forEach((el) => {
+    const value = el.value;
+
+    if (value === "BC" || value === "Facture + BL" || value === "Ddpa") {
+      el.disabled = true;
+    } else if (value === "BL Reappro") {
+      // Choose one based on your needs:
+      el.focus(); // Focus the element
+      el.checked = true;
+      el.style.borderColor = "blue";
+    }
+  });
+  form.querySelector("button[type='submit']").classList.remove("disabled"); //changer l'apparence du bouton
+}
+
+function AffichageEtTraitementFOrmAEnvoyerFournisseur(commandeId) {
+  // <<-- commandeId comme paramètre
+  const overlay = document.getElementById("loading-overlays");
+  overlay.classList.remove("hidden");
+  const url = "api/da-envoie-cde"; // L'URL de votre route Symfony
+  fetchManager
+    .get(url, "text")
+    .then((html) => {
+      statutAffiche.innerHTML = html + "<hr>";
+      statutAffiche.style.display = "block";
+      // Ajouter un écouteur sur la soumission du formulaire
+      document
+        .getElementById("daCdeEnvoyer")
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+
+          const formData = new FormData(this);
+
+          let jsonData = {};
+          formData.forEach((value, key) => {
+            // Supprimer le préfixe `form_type_demande[...]`
+            let cleanKey = key.replace(/^da_cde_envoyer\[(.*?)\]$/, "$1");
+            jsonData[cleanKey] = value;
+          });
+
+          // Génère le lien dynamiquement, avec une vraie URL (pas Twig)
+          const urlLien = `${baseUrl}/demande-appro/changement-statuts-envoyer-fournisseur/${commandeId}/${jsonData.dateLivraisonPrevue}/${jsonData.estEnvoyer}`;
+          window.location.href = urlLien;
+        });
+    })
+    .catch((error) =>
+      console.error("Erreur lors du chargement du formulaire:", error),
+    )
+    .finally(() => {
+      overlay.classList.add("hidden");
+    });
+}
+
+function activeDesactiveFormulairePourStatutsBcEnvoyer() {
+  //desactive une partie du formulaire
+  Array.from(form.elements).forEach((el) => {
+    const value = el.value;
+
+    if (value === "BC" || value === "BL Reappro" || value === "Ddpa") {
+      // if (value === "BC" || value === "BL Reappro") {
+      el.disabled = true;
+    }
+  });
+  form.querySelector("button[type='submit']").classList.remove("disabled"); //changer l'apparence du bouton
+}
 
 document.addEventListener("contextmenu", function (event) {
   const targetCell = event.target.closest(".commande-cellule");
   if (!targetCell) return; // Ne fait rien si ce n’est pas une cellule cible
 
   event.preventDefault(); // Empêche le menu contextuel natif
+
+  // --- Logique de réinitialisation ---
+  statutAffiche.innerHTML = ""; // Vide le contenu précédent de statutAffiche
+  bcValideTelecharger.innerHTML = ""; // Vide le contenu précédent de bcValideTelecharger
+  activeTousLesChampsDuFormulaire(); // Réactive tous les champs du formulaire par défaut
 
   const commandeId = targetCell.dataset.commandeId;
   hiddenInputCde.value = commandeId;
@@ -121,109 +231,6 @@ document.addEventListener("contextmenu", function (event) {
     "Partiellement livré",
   ];
 
-  function affichageStatutBcEnvoyerFournisseur() {
-    statutAffiche.style.display = "block";
-    statutAffiche.innerHTML = `
-      <p title="cliquer pour confirmer l'envoi"
-          class="text-decoration-none text-dark cursor-pointer bg-success text-white border-0 rounded px-2 py-1">
-          BC envoyé au fournisseur
-      </p> <hr/>`;
-  }
-
-  function desactiveTousLesChampsDuFormulaire() {
-    //desactive le formulaire
-    Array.from(form.elements).forEach((el) => (el.disabled = true)); // Désactive tous les champs du formulaire
-    form.querySelector("button[type='submit']").classList.add("disabled"); //changer l'apparence du bouton
-  }
-
-  function activeTousLesChampsDuFormulaire() {
-    Array.from(form.elements).forEach((el) => (el.disabled = false)); // active tous les champs du formulaire
-    form.querySelector("button[type='submit']").classList.remove("disabled"); //changer l'apparence du bouton
-  }
-
-  function activeDesactiveFormualirePourSoumettreAValidation() {
-    //desactive une partie du formulaire
-    Array.from(form.elements).forEach((el) => {
-      const value = el.value;
-
-      if (
-        value === "BL Reappro" ||
-        value === "Facture + BL" ||
-        value === "Ddpa"
-      ) {
-        el.disabled = true;
-      }
-    });
-    form.querySelector("button[type='submit']").classList.remove("disabled"); //changer l'apparence du bouton
-  }
-
-  function activeDesactiveFormulairePourReappro() {
-    //desactive une partie du formulaire
-    Array.from(form.elements).forEach((el) => {
-      const value = el.value;
-
-      if (value === "BC" || value === "Facture + BL" || value === "Ddpa") {
-        el.disabled = true;
-      } else if (value === "BL Reappro") {
-        // Choose one based on your needs:
-        el.focus(); // Focus the element
-        el.checked = true;
-        el.style.borderColor = "blue";
-      }
-    });
-    form.querySelector("button[type='submit']").classList.remove("disabled"); //changer l'apparence du bouton
-  }
-
-  function AffichageEtTraitementFOrmAEnvoyerFournisseur() {
-    const overlay = document.getElementById("loading-overlays");
-    overlay.classList.remove("hidden");
-    const url = "api/da-envoie-cde"; // L'URL de votre route Symfony
-    fetchManager
-      .get(url, "text")
-      .then((html) => {
-        statutAffiche.innerHTML = html + "<hr>";
-        statutAffiche.style.display = "block";
-        // Ajouter un écouteur sur la soumission du formulaire
-        document
-          .getElementById("daCdeEnvoyer")
-          .addEventListener("submit", function (event) {
-            event.preventDefault();
-
-            const formData = new FormData(this);
-
-            let jsonData = {};
-            formData.forEach((value, key) => {
-              // Supprimer le préfixe `form_type_demande[...]`
-              let cleanKey = key.replace(/^da_cde_envoyer\[(.*?)\]$/, "$1");
-              jsonData[cleanKey] = value;
-            });
-
-            // Génère le lien dynamiquement, avec une vraie URL (pas Twig)
-            const urlLien = `${baseUrl}/demande-appro/changement-statuts-envoyer-fournisseur/${commandeId}/${jsonData.dateLivraisonPrevue}/${jsonData.estEnvoyer}`;
-            window.location.href = urlLien;
-          });
-      })
-      .catch((error) =>
-        console.error("Erreur lors du chargement du formulaire:", error),
-      )
-      .finally(() => {
-        overlay.classList.add("hidden");
-      });
-  }
-
-  function activeDesactiveFormulairePourStatutsBcEnvoyer() {
-    //desactive une partie du formulaire
-    Array.from(form.elements).forEach((el) => {
-      const value = el.value;
-
-      // if (value === "BC" || value === "BL Reappro" || value === "Ddpa") {
-      if (value === "BC" || value === "BL Reappro") {
-        el.disabled = true;
-      }
-    });
-    form.querySelector("button[type='submit']").classList.remove("disabled"); //changer l'apparence du bouton
-  }
-
   if (typeDa === DA_REAPPRO) {
     statutAffiche.style.display = "none"; // n'affiche pas le statut BC envoyé au fournisseur
     activeDesactiveFormulairePourReappro();
@@ -232,7 +239,7 @@ document.addEventListener("contextmenu", function (event) {
     activeDesactiveFormulairePourStatutsBcEnvoyer();
   } else if (statutBc == "A envoyer au fournisseur") {
     statutAffiche.style.display = "none";
-    AffichageEtTraitementFOrmAEnvoyerFournisseur();
+    AffichageEtTraitementFOrmAEnvoyerFournisseur(commandeId); // <<-- Passé commandeId
     desactiveTousLesChampsDuFormulaire();
   } else if (statutBc == "A soumettre à validation") {
     statutAffiche.style.display = "none";
@@ -254,8 +261,15 @@ document.addEventListener("click", function (event) {
   }
 });
 
+// Fermer le menu si clic ailleurs
+document.addEventListener("click", function (event) {
+  if (!menu.contains(event.target)) {
+    menu.style.display = "none";
+  }
+});
+
 function telechargerBcValide(commandeId) {
-  const bcValideTelecharger = document.getElementById("bcValideTelecharger");
+  // const bcValideTelecharger = document.getElementById("bcValideTelecharger"); // Cett ligne n'est plus nécessaire ici
   bcValideTelecharger.innerHTML =
     '<button id="downloadBcBtn" class="btn btn-warning fw-bold"><i class="fas fa-download"></i> BC VALIDE</button> <hr/>';
 

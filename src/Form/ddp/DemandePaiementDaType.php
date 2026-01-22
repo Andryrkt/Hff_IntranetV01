@@ -181,6 +181,10 @@ class DemandePaiementDaType extends AbstractType
         $numCde = $options['data']->numeroCommande;
         $numFac = $options['data']->numeroFacture;
 
+        $isMultiple = $typeDa !== null ? false : true;
+        $isCdeDisabled = $typeDemandeId == TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE || ($typeDemandeId === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE && $typeDa !== null);
+        $isFacDisabled = $typeDemandeId == TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE;
+
         $builder
             ->add(
                 'numeroCommande',
@@ -188,11 +192,10 @@ class DemandePaiementDaType extends AbstractType
                 [
                     'label'     => 'N° Commande fournisseur *',
                     'choices'   => $typeDa !== null ? (!empty($numCde) ? array_combine($numCde, $numCde) : []) : $this->numeroCmd($typeDemandeId),
-                    'multiple'  => $typeDa !== null ? false : true,
+                    'multiple'  => $isMultiple,
                     'expanded'  => false,
-                    'attr'      => [
-                        'disabled' => $typeDemandeId == TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE || ($typeDemandeId === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE && $typeDa !== null),
-                    ],
+                    'required' => false,
+                    'disabled' => $isCdeDisabled,
                     'data' => $typeDa !== null ? ($numCde[0] ?? null) : $numCde,
                 ]
             )
@@ -203,42 +206,49 @@ class DemandePaiementDaType extends AbstractType
                     'label' => 'N° Facture fournisseur *',
                     'required' => false,
                     'choices'   => $typeDa !== null ? (!empty($numFac) ? array_combine($numFac, $numFac) : []) : $this->numeroFac($numeroFournisseur, $typeDemandeId),
-                    'multiple'  => $typeDa !== null ? false : true,
+                    'multiple'  => $isMultiple,
                     'expanded'  => false,
-                    'attr'      => [
-                        'disabled' => $typeDemandeId == TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE,
-                        'data-typeId' => $typeDemandeId,
-                        'data-typeDa' => $typeDa
-                    ],
+                    'required' => false,
+                    'disabled' => $isFacDisabled,
                     'data' => $typeDa !== null ? ($numFac[0] ?? null) : $numFac,
                 ]
             )
-            ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) use ($typeDemandeId) {
+            ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) use ($isMultiple, $isCdeDisabled, $isFacDisabled) {
                 $form = $event->getForm();
                 $data = $event->getData();
+                $dto = $form->getData();
 
-                if ($typeDemandeId == TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE) {
-                    $form->add(
-                        'numeroCommande',
-                        ChoiceType::class,
-                        [
-                            'label'     => 'N° Commande *',
-                            'choices'   => $data['numeroCommande'] ?? [],
-                            'multiple'  => true,
-                            'expanded'  => false,
-                        ]
-                    );
-                }
+                $cde = $data['numeroCommande'] ?? null;
+                $cdeChoices = $cde ? array_combine((array)$cde, (array)$cde) : [];
+
+                $form->add(
+                    'numeroCommande',
+                    ChoiceType::class,
+                    [
+                        'label'     => 'N° Commande *',
+                        'choices'   => $cdeChoices,
+                        'multiple'  => $isMultiple,
+                        'expanded'  => false,
+                        'required' => false,
+                        'disabled' => $isCdeDisabled,
+                        'data'      => $isMultiple ? $dto->numeroCommande : ($dto->numeroCommande[0] ?? null)
+                    ]
+                );
+
+                $fac = $data['numeroFacture'] ?? null;
+                $facChoices = $fac ? array_combine((array)$fac, (array)$fac) : [];
 
                 $form->add(
                     'numeroFacture',
                     ChoiceType::class,
                     [
                         'label' => 'N° Facture *',
-                        'choices'   => $data['numeroFacture'] ?? [],
-                        'multiple'  => true,
+                        'choices'   => $facChoices,
+                        'multiple'  => $isMultiple,
                         'expanded'  => false,
-                        'required' => false
+                        'required' => false,
+                        'disabled' => $isFacDisabled,
+                        'data'      => $isMultiple ? $dto->numeroFacture : ($dto->numeroFacture[0] ?? null)
                     ]
                 );
             });

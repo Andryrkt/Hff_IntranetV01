@@ -31,6 +31,7 @@ class UploderFileService
             'index_depart'         => 1,
             'generer_nom_callback' => null,
             'variables'            => [],
+            'conserver_nom_original' => false,
         ];
 
         $options = array_merge($defaultOptions, $options);
@@ -46,18 +47,21 @@ class UploderFileService
 
                     foreach ($fichiers as $singleFile) {
                         if ($singleFile instanceof UploadedFile) {
-                            $nomFichier = $this->nameGenerator->generateFileName(
-                                $singleFile,
-                                [
-                                    'format'               => $options['format_nom'],
-                                    'prefixe'              => $options['prefixe'],
-                                    'generer_nom_callback' => $options['generer_nom_callback'],
-                                    'variables'            => $options['variables'],
-                                    'index_depart'         => $options['index_depart'],
-                                ],
-                                $compteur
-                            );
-
+                            if ($options['conserver_nom_original']) {
+                                $nomFichier = $singleFile->getClientOriginalName();
+                            } else {
+                                $nomFichier = $this->nameGenerator->generateFileName(
+                                    $singleFile,
+                                    [
+                                        'format'               => $options['format_nom'],
+                                        'prefixe'              => $options['prefixe'],
+                                        'generer_nom_callback' => $options['generer_nom_callback'],
+                                        'variables'            => $options['variables'],
+                                        'index_depart'         => $options['index_depart'],
+                                    ],
+                                    $compteur
+                                );
+                            }
                             $repertoireFinal = $this->getRepertoireFinal($options);
 
                             $this->upload($singleFile, $repertoireFinal, $nomFichier);
