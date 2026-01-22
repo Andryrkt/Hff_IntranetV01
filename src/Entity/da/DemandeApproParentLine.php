@@ -384,6 +384,14 @@ class DemandeApproParentLine
     }
 
     /**
+     * Get the value of formatted dateFinSouhaite
+     */
+    public function getDateFinSouhaiteFormatted()
+    {
+        return $this->dateFinSouhaite->format('d/m/Y');
+    }
+
+    /**
      * Set the value of dateFinSouhaite
      */
     public function setDateFinSouhaite($dateFinSouhaite): self
