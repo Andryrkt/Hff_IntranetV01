@@ -1894,7 +1894,7 @@ class DaAfficher
         ;
     }
 
-    public function enregistrerDa(DemandeAppro $da)
+    public function duplicateDa(DemandeAppro $da)
     {
         $this
             ->setDemandeAppro($da)
@@ -1918,7 +1918,7 @@ class DaAfficher
         ;
     }
 
-    public function enregistrerDal(DemandeApproL $dal)
+    public function duplicateDal(DemandeApproL $dal)
     {
         $this
             ->setQteDem($dal->getQteDem())
@@ -1944,7 +1944,7 @@ class DaAfficher
         ;
     }
 
-    public function enregistrerDalr(DemandeApproLR $dalr)
+    public function duplicateDalr(DemandeApproLR $dalr)
     {
         $this
             ->setQteDem($dalr->getQteDem())

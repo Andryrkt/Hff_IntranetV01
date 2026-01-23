@@ -37,8 +37,8 @@ trait DaNewTrait
             $daAfficher = new DaAfficher();
             if ($dit) $daAfficher->setDit($dit);
             $daAfficher->setStatutOr(''); // définir à vide
-            $daAfficher->enregistrerDa($demandeAppro);
-            $daAfficher->enregistrerDal($dal);
+            $daAfficher->duplicateDa($demandeAppro);
+            $daAfficher->duplicateDal($dal);
             $daAfficher->setNumeroVersion($numeroVersion);
 
             $this->getEntityManager()->persist($daAfficher);
