@@ -74,8 +74,6 @@ class DaAffectationAchatController extends Controller
             // traitement des DA ponctuel
             if ($allDaPonctuel->count() > 0) $this->traitementDaParentLines($allDaPonctuel, $daParent, DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL);
 
-            $this->getEntityManager()->flush();
-
             $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'L\'affectation a été enregistrée']);
             $this->redirectToRoute("list_da");
         }
