@@ -31,7 +31,7 @@ class DemandePaiementService
 
     public function createHistoriqueStatut(DemandePaiementDto $dto)
     {
-        $hitoriqueStatut = DemandePaiementMapper::map($dto);
+        $hitoriqueStatut = DemandePaiementMapper::mapStatut($dto);
 
         $this->em->persist($hitoriqueStatut);
         $this->em->flush();

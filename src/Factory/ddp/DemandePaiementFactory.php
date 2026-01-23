@@ -37,13 +37,13 @@ class DemandePaiementFactory
 
 
         $infoDa = $DaSoumissionFacBlRepository->getInfoDa($numCdeDa);
-        $codeAgenceServiceIps = $this->ddpModel->getCodeAgenceService($infoDa['numeroOR']);
+
 
         $dto = new DemandePaiementDto();
         $dto->typeDemande = $typeDemandeRepository->find($typeDdp);
         $dto->numeroFacture = [trim($infoDa['NumeroFactureFournisseur'])];
         $dto->numeroCommande = [$numCdeDa];
-        $dto->debiteur = $this->debiteur($typeDa, $infoDa, $codeAgenceServiceIps);
+        $dto->debiteur = $this->debiteur($typeDa, $infoDa);
 
         // Pour le DA =====================================
         $dto->typeDa = $typeDa;
@@ -63,18 +63,25 @@ class DemandePaiementFactory
         $dto->dateDemande = new \DateTime();
 
         // fournisseur ======================
-        // $dto->numeroFournisseur = '';
-        // $dto->ribFournisseur = '';
-        // $dto->beneficiaire = ''; // nom du fournisseur
-        // $dto->modePaiement = '';
-        // $dto->devise = '';
+        $infoFournisseur = $this->ddpModel->recupInfoPourDa($infoDa['numeroFournisseur'], $numCdeDa);
+
+        if (!empty($infoFournisseur)) {
+            $dto->numeroFournisseur = $infoFournisseur[0]['num_fournisseur'];
+            $dto->ribFournisseur = $infoFournisseur[0]['rib_fournisseur'];
+            $dto->beneficiaire = $infoFournisseur[0]['nom_fournisseur']; // nom du fournisseur
+            $dto->modePaiement = $infoFournisseur[0]['mode_paiement'];
+            $dto->devise = $infoFournisseur[0]['devise'];
+        }
+
 
 
         return $dto;
     }
 
-    private function debiteur(int $typeDa, array $infoDa, array $codeAgenceServiceIps): array
+    private function debiteur(int $typeDa, array $infoDa): array
     {
+        $codeAgenceServiceIps = $this->ddpModel->getCodeAgenceService($infoDa['numeroOR']);
+
         $agenceRepository = $this->em->getRepository(Agence::class);
         $serviceRepository = $this->em->getRepository(Service::class);
 

@@ -134,7 +134,7 @@ class DaSoumissionFacBlRepository extends EntityRepository
     public function getInfoDa(int $numCde)
     {
         return  $this->createQueryBuilder('dabc')
-            ->select('da.agenceDebiteur, da.serviceDebiteur, dabc.numeroOR, dabc.NumeroFactureFournisseur')
+            ->select('da.agenceDebiteur, da.serviceDebiteur, dabc.numeroOR, dabc.NumeroFactureFournisseur, da.numeroFournisseur')
             ->join(DaAfficher::class, 'da', 'WITH', 'da.numeroCde = dabc.numeroCde')
             ->where('dabc.numeroCde = :numCde')
             ->setParameter('numCde', $numCde)

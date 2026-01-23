@@ -283,7 +283,7 @@ class DemandePaiementModel extends Model
                     FBSE_NUMFOU AS num_fournisseur,
                     UPPER(MIN(FBSE_NOMFOU)) AS nom_fournisseur,  -- Prend un seul nom fournisseur (Beneficiaire)
                     MIN(fbse_devise) AS devise,                  -- Prend une seule devise
-                    MIN(CASE
+                    TRIM(MIN(CASE
                         WHEN ffou_modp = 'CB' THEN 'CARTE BANCAIRE'
                         WHEN ffou_modp = 'CD' THEN 'CHEQUE DIFFERE'
                         WHEN ffou_modp = 'CH' THEN 'CHEQUE COMPTANT'
@@ -291,11 +291,11 @@ class DemandePaiementModel extends Model
                         WHEN ffou_modp = 'TA' THEN 'TRAITE'
                         WHEN ffou_modp = 'VI' THEN 'VIREMENT'
                         ELSE ffou_modp
-                    END) AS mode_paiement,
-                    MIN(CASE
+                    END)) AS mode_paiement,
+                    TRIM(MIN(CASE
                         WHEN fbqe_ciban = '' OR fbqe_ciban = 'MG' THEN fbqe_bqcpte
                         ELSE fbqe_ciban
-                    END) AS rib_fournisseur,
+                    END)) AS rib_fournisseur,
                     fcde_succ as code_agence, 
                     fcde_serv as code_service,
                     fcde_numcde as numero_cde
