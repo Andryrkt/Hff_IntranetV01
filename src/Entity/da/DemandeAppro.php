@@ -1054,7 +1054,7 @@ class DemandeAppro
     public function duplicateDaParent(DemandeApproParent $daParent): self
     {
         $this
-            ->setNumeroDemandeAppro($daParent->getNumeroDemandeAppro())
+            ->setNumeroDemandeApproMere($daParent->getNumeroDemandeAppro())
             ->setDemandeur($daParent->getDemandeur())
             ->setObjetDal($daParent->getObjetDal())
             ->setDetailDal($daParent->getDetailDal())

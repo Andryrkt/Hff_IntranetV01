@@ -75,7 +75,7 @@ class DaNewAvecDitController extends Controller
 
             $firstCreation = $demandeAppro->getNumeroDemandeAppro() === null;
             $numDa = $firstCreation ? $this->autoDecrement('DAP') : $demandeAppro->getNumeroDemandeAppro();
-            $demandeAppro->setNumeroDemandeAppro($numDa);
+            $demandeAppro->setNumeroDemandeAppro($numDa)->setNumeroDemandeApproMere($numDa);
             $formDAL = $form->get('DAL');
 
             // Récupérer le nom du bouton cliqué

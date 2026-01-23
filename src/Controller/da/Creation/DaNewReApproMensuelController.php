@@ -80,6 +80,7 @@ class DaNewReApproMensuelController extends Controller
 
             $demandeAppro
                 ->setNumeroDemandeAppro($numDa)
+                ->setNumeroDemandeApproMere($numDa)
                 ->setDetailDal($demandeAppro->getDetailDal() ?? '-')
                 ->setStatutDal($statutDa);
 
