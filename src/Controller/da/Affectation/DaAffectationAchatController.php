@@ -42,28 +42,24 @@ class DaAffectationAchatController extends Controller
 
         $form = $this->getFormFactory()->createBuilder(DaAffectationType::class, $daParent)->getForm();
 
-        // $daObservation = new DaObservation();
-
-        // $formReappro = $this->getFormFactory()->createBuilder(DaObservationValidationType::class, $daObservation)->getForm();
-        // $formObservation = $this->getFormFactory()->createBuilder(DaObservationType::class, $daObservation, ['daTypeId' => $da->getDaTypeId()])->getForm();
-
-        // $dateRange = $this->getLast12MonthsRange();
-        // $monthsList = $this->getMonthsList($dateRange['start'], $dateRange['end']);
-        // $dataHistoriqueConsommation = $this->getHistoriqueConsommation($da, $dateRange, $monthsList);
-        // $observations = $this->daObservationRepository->findBy(['numDa' => $da->getNumeroDemandeAppro()]);
-
-        // //========================================== Traitement du formulaire en général ===================================================//
-        // $this->traitementFormulaire($formReappro, $formObservation, $request, $da, $observations, $monthsList, $dataHistoriqueConsommation);
-        // //==================================================================================================================================//
-
-        // $fichiers = $this->getAllDAFile([
-        //     'baiPath'   => $this->getBaIntranetPath($da),
-        //     'badPath'   => $this->getBaDocuWarePath($da),
-        // ]);
+        //========================================== Traitement du formulaire en général ===================================================//
+        $this->traitementFormulaire($form, $request, $daParent);
+        //==================================================================================================================================//
 
         return $this->render("da/affectation-da.html.twig", [
             'form'               => $form->createView(),
             'demandeApproParent' => $daParent,
         ]);
+    }
+
+    private function traitementFormulaire($form, $request, $daParent)
+    {
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            // $this->getEntityManager()->flush();
+            // $this->addFlash('success', 'La demande a été affectée avec succès');
+            // return $this->redirectToRoute('da_affectation_achat', ['id' => $daParent->getId()]);
+        }
     }
 }
