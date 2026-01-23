@@ -891,7 +891,7 @@ class DaAfficherRepository extends EntityRepository
 
     public function getInfoDa(int $numCde)
     {
-        return  $this->createQueryBuilder('dabc')
+        return  $this->createQueryBuilder('da')
             ->select('da.agenceDebiteur, da.serviceDebiteur, da.numeroOr, da.numeroFournisseur')
             ->where('da.numeroCde = :numCde')
             ->setParameter('numCde', $numCde)
