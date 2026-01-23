@@ -44,13 +44,15 @@ class DemandePaiementFactory
         $dto->numeroFacture = [trim($infoDa['NumeroFactureFournisseur'])];
         $dto->numeroCommande = [$numCdeDa];
         $dto->debiteur = $this->debiteur($typeDa, $infoDa, $codeAgenceServiceIps);
-        $dto->typeDa = $typeDa;
 
+        // Pour le DA =====================================
+        $dto->typeDa = $typeDa;
         $dto->montantTotalCde = $this->ddpModel->getMontantTotalCde($numCdeDa);
         $dto->montantDejaPaye = $ddpRepository->getMontantDejaPayer($numCdeDa);
         $dto->montantRestantApayer = $dto->montantTotalCde - $dto->montantDejaPaye;
         $dto->poucentageAvance = (($dto->montantDejaPaye + $dto->montantAPayer) / $dto->montantTotalCde) * 100 . ' %';
 
+        // info generale =====================
         $dto->demandeur = $user->getNomUtilisateur();
         $dto->adresseMailDemandeur = $user->getMail();
         $dto->statut = 'Soumis à validation';
@@ -58,6 +60,14 @@ class DemandePaiementFactory
         $dto->numeroDdp = $this->numeroDdp();
         $dto->numeroVersion = 1;
         $dto->numeroDossierDouane = $this->docDemandePaiementService->recupNumDossierDouane($dto);
+        $dto->dateDemande = new \DateTime();
+
+        // fournisseur ======================
+        // $dto->numeroFournisseur = '';
+        // $dto->ribFournisseur = '';
+        // $dto->beneficiaire = ''; // nom du fournisseur
+        // $dto->modePaiement = '';
+        // $dto->devise = '';
 
 
         return $dto;

@@ -300,6 +300,7 @@ class DemandePaiementDaType extends AbstractType
                 FileUploadType::class,
                 [
                     'label' => 'Pièce joint 03',
+                    'multiple' => true,
                     'required' => false,
                     'allowed_mime_types' => ['application/pdf'],
                     'accept' => '.pdf',

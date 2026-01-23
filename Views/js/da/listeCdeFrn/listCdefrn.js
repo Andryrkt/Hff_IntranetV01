@@ -173,8 +173,8 @@ function activeDesactiveFormulairePourStatutsBcEnvoyer() {
   Array.from(form.elements).forEach((el) => {
     const value = el.value;
 
-    if (value === "BC" || value === "BL Reappro" || value === "Ddpa") {
-      // if (value === "BC" || value === "BL Reappro") {
+    // if (value === "BC" || value === "BL Reappro" || value === "Ddpa") {
+    if (value === "BC" || value === "BL Reappro") {
       el.disabled = true;
     }
   });

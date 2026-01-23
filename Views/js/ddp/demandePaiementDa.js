@@ -71,21 +71,36 @@ document.addEventListener("DOMContentLoaded", function () {
     let montantTotalCdeValue = stringEnNumber(montantTotalCde.value, ".");
     let montantDejaPayerValue = stringEnNumber(montantDejaPayer.value, ".");
     let montantRestantApayerValue = montantRestantApayer.value;
-
-    montantRestantApayer.value = formaterNombre(
-      montantTotalCdeValue - montantDejaPayerValue - montantAPayerValue,
-    );
-
-    // changement de pourcentage des avances
-    pourcentageAvence(
-      montantAPayerValue,
+    console.log(
+      montantTotalCde.value,
       montantTotalCdeValue,
       montantDejaPayerValue,
+      montantAPayerValue,
     );
+
+    ((montantRestantApayer.value = formaterNombre(
+      montantTotalCdeValue - montantDejaPayerValue - montantAPayerValue,
+    )),
+      // changement de pourcentage des avances
+      pourcentageAvence(
+        montantAPayerValue,
+        montantTotalCdeValue,
+        montantDejaPayerValue,
+      ));
   }
 
   function stringEnNumber(value, separateurMilier) {
-    return parseFloat(value.replace(separateurMilier, "").replace(",", "."));
+    // D'abord, supprimer TOUS les séparateurs de milliers
+    if (separateurMilier) {
+      const regex = new RegExp(`\\${separateurMilier}`, "g");
+      value = value.replace(regex, "");
+    }
+
+    // Ensuite, remplacer la virgule décimale par un point
+    value = value.replace(",", ".");
+
+    // Convertir en nombre
+    return parseFloat(value);
   }
 
   function pourcentageAvence(

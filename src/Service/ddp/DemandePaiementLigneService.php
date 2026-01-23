@@ -20,6 +20,7 @@ class DemandePaiementLigneService
         $lignes = DemandePaiementLigneMapper::map($dto);
 
         foreach ($lignes as $ligne) {
+
             $this->em->persist($ligne);
         }
 

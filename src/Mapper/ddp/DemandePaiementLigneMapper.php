@@ -21,13 +21,13 @@ class DemandePaiementLigneMapper
                 ->setNumeroVersion(1)
                 ->setRatioMontantPayer(0.00);
 
-            $lignes[] = $lignes;
+            $lignes[] = $ligne;
         }
 
         return $lignes;
     }
 
-    private function numeroFacture(DemandePaiementDto $dto, int $i): string
+    private static function numeroFacture(DemandePaiementDto $dto, int $i): string
     {
         return is_array($dto->numeroFacture) && array_key_exists($i, $dto->numeroFacture)
             ? $dto->numeroFacture[$i]

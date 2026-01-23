@@ -20,6 +20,7 @@ use App\Model\ddp\DemandePaiementModel;
 use App\Service\ddp\DemandePaiementLigneService;
 use App\Service\ddp\DemandePaiementService;
 use App\Service\ddp\DocDemandePaiementService;
+use App\Service\genererPdf\ddp\GeneratePdfDdpDa;
 
 /**
  * @Route("/compta/demande-de-paiement")
@@ -78,19 +79,35 @@ class DemandePaiementDaController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             $dto = $form->getdata();
-            dd($dto);
+
+            $this->traitementDeFichier($dto, $form);
+            $this->enregistrementSurBd($dto);
         }
     }
 
-    private function enregistrementSurBd(DemandePaiementDto $dto)
+    private function pageDeGarde(DemandePaiementDto $dto, $cheminEtNom)
+    {
+        $generatePdfDdp = new GeneratePdfDdpDa();
+        $generatePdfDdp->generer($dto, $cheminEtNom);
+    }
+
+    private function copierFichierDistant(DemandePaiementDto $dto): void
+    {
+        if ($dto->typeDemande->getId() === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE) {
+            $this->docDemandePaiementService->copierFichierDistant($dto);
+        }
+    }
+
+    private function enregistrementSurBd(DemandePaiementDto $dto): void
     {
         // enregistrement dans la table deamnde_paiement
         $this->demandePaiementService->createDdp($dto);
         // enregistrement dans la table demande_paiement_ligne
-        $lignesCreees = $this->demandePaiementLigneService->createLignesFromDto($dto);
+        $this->demandePaiementLigneService->createLignesFromDto($dto);
         // enregistrement dans la table doc_demande_paiement
         $this->docDemandePaiementService->createDocDdp($dto);
         // enregistrement dans la table historique_statut_ddp
+        $this->demandePaiementService->createHistoriqueStatut($dto);
     }
 
     private function traitementDeFichier(DemandePaiementDto $dto, FormInterface $form)
@@ -116,11 +133,14 @@ class DemandePaiementDaController extends Controller
         }
 
         /** ENREGISTREMENT DU FICHIER */
-        [$nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, $nomFichier] = $this->enregistrementFichier($form, $dto);
+        [$nomEtCheminFichiersEnregistrer, $nomFichiersTelecharger,  $nomAvecCheminFichier, $nomFichier] = $this->enregistrementFichier($form, $dto);
         if ($dto->typeDemande->getId() === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE) {
             $dto->numeroCommande = $numeroCommandes;
         }
-        $nomDufichierCde = $this->recupCdeDw($dto, $dto->numeroDdp, $dto->numeroVersion); //recupération de fichier cde dans DW
+        $dto->lesFichiers = $this->docDemandePaiementService->fusionDesFichiersDansUnTableau($dto, $nomFichiersTelecharger);
+        $this->pageDeGarde($dto, $nomAvecCheminFichier);
+
+        $this->copierFichierDistant($dto);
     }
 
     private function enregistrementFichier(FormInterface $form, DemandePaiementDto $dto): array
@@ -128,10 +148,10 @@ class DemandePaiementDaController extends Controller
         $nameGenerator = new DdpGeneratorNameService();
         $cheminBaseUpload = $_ENV['BASE_PATH_FICHIER'] . '/ddp/';
         $uploader = new UploderFileService($cheminBaseUpload, $nameGenerator);
-        $path = $this->cheminBaseUpload . $dto->numeroDdp . '_New_1';
+        $path = $cheminBaseUpload . $dto->numeroDdp . '_New_1/';
         if (!is_dir($path)) mkdir($path, 0777, true);
 
-        $nomEtCheminFichiersEnregistrer = $uploader->getNomsEtCheminFichiers($form, [
+        [$nomEtCheminFichiersEnregistrer, $nomFichierTelecharger] = $uploader->getFichiers($form, [
             'repertoire' => $path,
             'conserver_nom_original' => true,
         ]);
@@ -139,41 +159,6 @@ class DemandePaiementDaController extends Controller
         $nomFichier = $nameGenerator->generateNamePrincipal($dto->numeroDdp);
         $nomAvecCheminFichier = $path . '/' . $nomFichier;
 
-        return [$nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, $nomFichier];
-    }
-
-    private function recupCdeDw(DemandePaiementDto $dto, $numDdp, $numVersion): array
-    {
-        $pathAndCdes = [];
-        foreach ($dto->numeroCommande as  $numcde) {
-            $pathAndCdes[] = $this->demandePaiementModel->getPathDwCommande($numcde);
-        }
-
-        $nomDufichierCde = [];
-        foreach ($pathAndCdes as  $pathAndCde) {
-            if ($pathAndCde[0]['path'] != null) {
-                $cheminDufichierInitial = $_ENV['BASE_PATH_FICHIER'] . "/" . $pathAndCde[0]['path'];
-
-                if (!file_exists($cheminDufichierInitial)) {
-                    // Le fichier n'existe pas, on passe au suivant
-                    continue;
-                }
-
-                $nomFichierInitial = basename($pathAndCde[0]['path']);
-
-                $cheminDufichierDestinataire = $this->cheminDeBase . '/' . $numDdp . '_New_' . $numVersion . '/' . $nomFichierInitial;
-
-                $destinationDir = dirname($cheminDufichierDestinataire);
-                if (!is_dir($destinationDir)) {
-                    mkdir($destinationDir, 0777, true);
-                }
-
-                if (copy($cheminDufichierInitial, $cheminDufichierDestinataire)) {
-                    $nomDufichierCde[] =  $nomFichierInitial;
-                }
-            }
-        }
-
-        return $nomDufichierCde;
+        return [$nomEtCheminFichiersEnregistrer, $nomFichierTelecharger,  $nomAvecCheminFichier, $nomFichier];
     }
 }

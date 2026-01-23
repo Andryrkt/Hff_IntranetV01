@@ -4,6 +4,7 @@ namespace App\Mapper\ddp;
 
 use App\Dto\ddp\DemandePaiementDto;
 use App\Entity\ddp\DemandePaiement;
+use App\Entity\ddp\HistoriqueStatutDdp;
 
 class DemandePaiementMapper
 {
@@ -16,8 +17,8 @@ class DemandePaiementMapper
             ->setRibFournisseur($dto->ribFournisseur)
             ->setBeneficiaire($dto->beneficiaire)
             ->setMotif($dto->motif)
-            ->setAgenceDebiter($dto->debiteur['agence'])
-            ->setServiceDebiter($dto->debiteur['service'])
+            ->setAgenceDebiter($dto->debiteur['agence']->getCodeAgence())
+            ->setServiceDebiter($dto->debiteur['service']->getCodeService())
             ->setStatut($dto->statut)
             ->setAdresseMailDemandeur($dto->adresseMailDemandeur)
             ->setDemandeur($dto->demandeur)
@@ -38,5 +39,15 @@ class DemandePaiementMapper
         ;
 
         return $ddp;
+    }
+
+    public static function mapStatut(DemandePaiementDto $dto): HistoriqueStatutDdp
+    {
+        $historiqueStatutDdp = new HistoriqueStatutDdp();
+        return $historiqueStatutDdp
+            ->setNumeroDdp($dto->numeroDdp)
+            ->setStatut($dto->statut)
+            ->setDate(new \DateTime())
+        ;
     }
 }

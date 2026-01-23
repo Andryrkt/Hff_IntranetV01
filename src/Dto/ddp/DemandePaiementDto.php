@@ -2,32 +2,36 @@
 
 namespace App\Dto\ddp;
 
+use App\Traits\ChaineCaractereTrait;
 use App\Entity\admin\ddp\TypeDemande;
 
 class DemandePaiementDto
 {
+    use ChaineCaractereTrait;
+
+    // info generale =====================
     public string $numeroDdp;
     public $statut;
     public $adresseMailDemandeur;
     public $demandeur;
     public int $numeroVersion = 0;
     public ?TypeDemande $typeDemande = null;
+    public ?\DateTime $dateDemande = null;
 
     // fournisseur ======================
     public $numeroFournisseur;
     public $ribFournisseur;
     public $beneficiaire; // nom du fournisseur
+    public $modePaiement;
+    public ?string $devise = null;
+    public ?string $contact = null;
 
-
+    // info sur Ddp =========================
     public $motif;
     public array $debiteur = [];
-    public $modePaiement;
-
-    public ?string $contact;
     public array $numeroCommande;
     public array $numeroFacture;
-    public ?string $devise = null;
-    public ?string $statutDossierRegul;
+    public ?string $statutDossierRegul = null;
 
     public bool $estCdeClientExterneDoc = false;
     public array $nomCdeClientExterneDoc = [];
@@ -38,7 +42,7 @@ class DemandePaiementDto
     public bool $estAutresDoc = false;
     public $pieceJoint01;
     public $pieceJoint02;
-    public ?array $pieceJoint03 = null;
+    public $pieceJoint03;
     public $pieceJoint04;
 
     public $commandeFichier;
@@ -76,5 +80,35 @@ class DemandePaiementDto
     public function ratioMontantpayer()
     {
         return $this->montantAPayer / $this->montantTotalCde;
+    }
+
+    public function numCdeString()
+    {
+        return implode(';', $this->numeroCommande);
+    }
+
+    public function numFacString()
+    {
+        return implode(';', $this->numeroFacture);
+    }
+
+    public function numeroDossierDouaneString()
+    {
+        implode(";", $this->numeroDossierDouane);
+    }
+
+    public function dateDemandeFormater()
+    {
+        return $this->dateDemande->format('d/m/Y');
+    }
+
+    public function lesFichiersStringSansExtension()
+    {
+        return implode(";", $this->removePdfExtension($this->lesFichiers));
+    }
+
+    public function lesFichiersStringAvecExtension()
+    {
+        return implode(";", $this->lesFichiers);
     }
 }
