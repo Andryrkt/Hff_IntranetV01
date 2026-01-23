@@ -56,6 +56,11 @@ class DemandeAppro
     private $id;
 
     /**
+     * @ORM\Column(type="string", length=12, name="numero_demande_appro_mere", nullable=true)
+     */
+    private ?string $numeroDemandeApproMere = null;
+
+    /**
      * @ORM\Column(type="string", length=12, name="numero_demande_appro")
      */
     private ?string $numeroDemandeAppro = null;
@@ -249,6 +254,24 @@ class DemandeAppro
     public function setId($id): self
     {
         $this->id = $id;
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroDemandeApproMere
+     */
+    public function getNumeroDemandeApproMere(): ?string
+    {
+        return $this->numeroDemandeApproMere;
+    }
+
+    /**
+     * Set the value of numeroDemandeApproMere
+     */
+    public function setNumeroDemandeApproMere(?string $numeroDemandeApproMere): self
+    {
+        $this->numeroDemandeApproMere = $numeroDemandeApproMere;
+
         return $this;
     }
 

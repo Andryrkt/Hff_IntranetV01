@@ -1898,6 +1898,7 @@ class DaAfficher
     {
         $this
             ->setDemandeAppro($da)
+            ->setNumeroDemandeApproMere($da->getNumeroDemandeApproMere())
             ->setNumeroDemandeAppro($da->getNumeroDemandeAppro())
             ->setNumeroDemandeDit($da->getNumeroDemandeDit())
             ->setStatutDal($da->getStatutDal())
