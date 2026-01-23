@@ -88,7 +88,13 @@ function affichageStatutBcEnvoyerFournisseur() {
 
 function desactiveTousLesChampsDuFormulaire() {
   //desactive le formulaire
-  Array.from(form.elements).forEach((el) => (el.disabled = true)); // Désactive tous les champs du formulaire
+  Array.from(form.elements).forEach((el) => {
+    el.disabled = true; // Désactive tous les champs du formulaire
+    // Si c'est un bouton radio ou une case à cocher, le décocher
+    if (el.type === "radio" || el.type === "checkbox") {
+      el.checked = false;
+    }
+  });
   form.querySelector("button[type='submit']").classList.add("disabled"); //changer l'apparence du bouton
 }
 
@@ -98,10 +104,18 @@ function activeTousLesChampsDuFormulaire() {
 }
 
 function activeDesactiveFormualirePourSoumettreAValidation() {
-  //desactive une partie du formulaire
+  let elementToCheck = null;
+
   Array.from(form.elements).forEach((el) => {
+    // Réinitialiser l'état de chaque champ
+    if (el.type === 'radio' || el.type === 'checkbox') {
+      el.checked = false;
+    }
+    el.disabled = false;
+
     const value = el.value;
 
+    // Appliquer les règles de désactivation
     if (
       value === "BL Reappro" ||
       value === "Facture + BL" ||
@@ -109,24 +123,51 @@ function activeDesactiveFormualirePourSoumettreAValidation() {
     ) {
       el.disabled = true;
     }
+
+    // Marquer l'élément à cocher par défaut
+    if (value === "BC") {
+      elementToCheck = el;
+    }
   });
+
+  // Cocher l'élément par défaut s'il est bien activé
+  if (elementToCheck && !elementToCheck.disabled) {
+    elementToCheck.checked = true;
+  }
+
   form.querySelector("button[type='submit']").classList.remove("disabled"); //changer l'apparence du bouton
 }
 
 function activeDesactiveFormulairePourReappro() {
-  //desactive une partie du formulaire
+  let blReapproElement = null; // Pour stocker l'élément "BL Reappro"
+
   Array.from(form.elements).forEach((el) => {
+    // 1. Décocher tous les éléments de type radio/checkbox par défaut
+    if (el.type === 'radio' || el.type === 'checkbox') {
+        el.checked = false;
+    }
+    // 2. Réactiver tous les champs par défaut pour éviter des états persistants de désactivation
+    el.disabled = false;
+
+
     const value = el.value;
 
     if (value === "BC" || value === "Facture + BL" || value === "Ddpa") {
       el.disabled = true;
     } else if (value === "BL Reappro") {
-      // Choose one based on your needs:
-      el.focus(); // Focus the element
-      el.checked = true;
-      el.style.borderColor = "blue";
+      el.disabled = false; // S'assurer qu'il est activé
+      blReapproElement = el; // Marquer cet élément comme celui à cocher
     }
+    // Pour les autres éléments, ils restent actifs par défaut.
   });
+
+  // Après la boucle, cocher l'élément "BL Reappro" s'il a été trouvé et n'est pas désactivé
+  if (blReapproElement && !blReapproElement.disabled) {
+      blReapproElement.focus();
+      blReapproElement.checked = true;
+      blReapproElement.style.borderColor = "blue";
+  }
+
   form.querySelector("button[type='submit']").classList.remove("disabled"); //changer l'apparence du bouton
 }
 
@@ -169,15 +210,33 @@ function AffichageEtTraitementFOrmAEnvoyerFournisseur(commandeId) {
 }
 
 function activeDesactiveFormulairePourStatutsBcEnvoyer() {
-  //desactive une partie du formulaire
+  let elementToCheck = null;
+
   Array.from(form.elements).forEach((el) => {
+    // Réinitialiser l'état
+    if (el.type === 'radio' || el.type === 'checkbox') {
+      el.checked = false;
+    }
+    el.disabled = false;
+
     const value = el.value;
 
-    // if (value === "BC" || value === "BL Reappro" || value === "Ddpa") {
+    // Appliquer les règles de désactivation
     if (value === "BC" || value === "BL Reappro") {
       el.disabled = true;
     }
+
+    // Marquer l'élément à cocher par défaut
+    if (value === "Facture + BL") {
+      elementToCheck = el;
+    }
   });
+
+  // Cocher l'élément par défaut s'il est bien activé
+  if (elementToCheck && !elementToCheck.disabled) {
+    elementToCheck.checked = true;
+  }
+
   form.querySelector("button[type='submit']").classList.remove("disabled"); //changer l'apparence du bouton
 }
 
