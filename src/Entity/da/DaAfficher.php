@@ -28,7 +28,7 @@ class DaAfficher
     private string $numeroDemandeApproMere;
 
     /**
-     * @ORM\Column(type="string", length=11, name="numero_demande_appro")
+     * @ORM\Column(type="string", length=12, name="numero_demande_appro")
      */
     private string $numeroDemandeAppro;
 
