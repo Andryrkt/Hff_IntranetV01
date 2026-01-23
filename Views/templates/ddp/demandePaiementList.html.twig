@@ -71,6 +71,12 @@
 											</a>
 										</li>
 									{% endif %}
+									{% if item.typeDemandeId.id == 2 and item.appro %}
+										<li>
+											<a class="dropdown-item fw-bold" href="{{path("da_bon_a_payer")}}">Consultation Facture
+											</a>
+										</li>
+									{% endif %}
 								</ul>
 
 							</div>

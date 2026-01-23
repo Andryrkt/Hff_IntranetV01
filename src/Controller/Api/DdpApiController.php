@@ -100,6 +100,7 @@ class DdpApiController extends Controller
                     ->setEstCdeClientExterneDoc(false)
                     ->setNomCdeClientExterneDoc(Null)
                     ->setNumeroDossierDouane(Null)
+                    ->setAppro(true)
                 ;
                 $this->getEntityManager()->persist($ddp);
 
