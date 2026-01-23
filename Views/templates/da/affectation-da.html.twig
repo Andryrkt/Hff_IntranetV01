@@ -52,32 +52,69 @@
 					</div>
 
 					{{ macroForm.sousTitre('Affectation des articles demandés') }}
+					{{ form_start(form) }}
+					{{ form_errors(form)}}
 					<table class="table text-center mt-3 align-middle">
 						<thead class="table-dark align-middle">
 							<tr>
-								<th width="7%">Constructeur</th>
-								<th width="13%">Référence</th>
-								<th>Désignation</th>
-								<th width="10%" class="text-end pe-3">PU</th>
-								<th width="10%">Qté demandée</th>
-								<th width="10%">Qté validée</th>
-								<th width="10%" class="text-end pe-3">Montant</th>
+								<th width="7%">Référence</th>
+								<th>Désignation initiale</th>
+								<th>Désignation proposée</th>
+								<th width="7%">Numéro Fournisseur</th>
+								<th>Nom Fournisseur</th>
+								<th width="7%">Date fin souhaitée</th>
+								<th width="4%">Qté demandée</th>
+								<th>Commentaire</th>
+								<th>Pièces jointes</th>
+								<th width="4%">Fiche technique</th>
 							</tr>
 						</thead>
 						<tbody>
-							{% for dal in demandeApproParent.DAL %}
+							{% for dalForm in form.demandeApproParentLines %}
+								{% set dal = dalForm.vars.data %}
 								<tr>
-									<td>{{ macroForm.affichageSimple(dal.artConstp, 'text-center') }}</td>
-									<td>{{ macroForm.affichageSimple(dal.artRefp, 'text-center') }}</td>
+									<td>{{ form_widget(dalForm.artRefp) }}</td>
 									<td>{{ macroForm.affichageSimple(dal.artDesi, 'text-start') }}</td>
-									<td>{{ macroForm.affichageSimple(dal.PUFormatted, 'text-end') }}</td>
-									<td>{{ macroForm.affichageSimple(dal.qteDem, 'text-center qte-dem-da-reappro', {"data-qte-dem": dal.qteDem, "data-qte-valide": dal.qteValAppro}) }}</td>
-									<td>{{ macroForm.affichageSimple(dal.qteValAppro, 'text-center') }}</td>
-									<td>{{ macroForm.affichageSimple(dal.montantFormatted, 'text-end') }}</td>
+									<td>{{ form_widget(dalForm.artDesi) }}</td>
+									<td>{{ form_widget(dalForm.numeroFournisseur) }}</td>
+									<td>{{ form_widget(dalForm.nomFournisseur) }}</td>
+									<td>{{ macroForm.affichageSimple(dal.dateFinSouhaiteFormatted, 'text-center') }}</td>
+									<td>{{ macroForm.affichageSimple(dal.qteDem, 'text-center') }}</td>
+									<td>{{ macroForm.affichageSimple(dal.commentaire is not empty ? dal.commentaire : '-', 'text-start') }}</td>
+									<td>
+										{% if dal.fileNames|length > 0 %}
+											<ul class="mb-0 px-0">
+												{% for file in dal.fileNames %}
+													<li>
+														<a href="{{ App.base_path_fichier }}/da/{{ dal.numeroDemandeAppro }}/{{ file }}" target="_blank">{{ file }}</a>
+													</li>
+												{% endfor %}
+											</ul>
+										{% else %}
+											Pas de pièces jointes
+										{% endif %}
+									</td>
+									<td>
+										{% if dal.estFicheTechnique %}
+											<i class="fas fa-check text-success"></i>
+										{% else %}
+											<i class="fas fa-xmark text-danger"></i>
+										{% endif %}
+									</td>
+									<td class="d-none">{{ form_widget(dalForm.articleStocke) }}</td>
+									<td class="d-none">{{ form_widget(dalForm.artConstp) }}</td>
+									<td class="d-none">{{ form_widget(dalForm.prixUnitaire) }}</td>
 								</tr>
 							{% endfor %}
 						</tbody>
 					</table>
+					<div class="d-flex justify-content-end container-fluid mt-2">
+						<button type="submit" class="bouton-principal">
+							<i class="fas fa-floppy-disk"></i>
+							Enregistrer
+						</button>
+					</div>
+					{{ form_end(form) }}
 				</div>
 			</div>
 		</div>

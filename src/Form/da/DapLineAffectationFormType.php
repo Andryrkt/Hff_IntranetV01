@@ -39,26 +39,6 @@ class DapLineAffectationFormType extends AbstractType
                     'required' => false,
                     'disabled' => $articleStocke,
                 ])
-                ->add('dateFinSouhaite', DateType::class, [
-                    'label' => false,
-                    'required' => false,
-                    'widget' => 'single_text',
-                    'disabled' => $articleStocke,
-                    'constraints' => [
-                        new NotBlank(['message' => 'la date ne doit pas être vide'])
-                    ]
-                ])
-                ->add('qteDem', TextType::class,  [
-                    'label' => false,
-                    'required' => false,
-                    'disabled' => $articleStocke,
-                ])
-                ->add('commentaire', TextType::class, [
-                    'label' => false,
-                    'required' => false,
-                    'empty_data' => '',
-                    'disabled' => $articleStocke,
-                ])
                 ->add('artConstp', TextType::class, [
                     'label' => false,
                     'required' => false,
@@ -66,10 +46,12 @@ class DapLineAffectationFormType extends AbstractType
                 ->add('numeroFournisseur', TextType::class, [
                     'label' => false,
                     'required' => false,
+                    'disabled' => $articleStocke,
                 ])
                 ->add('nomFournisseur', TextType::class, [
                     'label' => false,
-                    'required' => false
+                    'required' => false,
+                    'disabled' => $articleStocke,
                 ])
                 ->add('articleStocke', CheckboxType::class, [
                     'required' => false,
