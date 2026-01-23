@@ -54,6 +54,11 @@ class DaSoumisAValidation
      */
     private string $utilisateur = '';
 
+    public function __construct()
+    {
+        $this->dateSoumission = new \DateTime();
+    }
+
     /**
      * Get the value of id
      */
