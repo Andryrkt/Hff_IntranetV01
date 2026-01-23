@@ -888,4 +888,16 @@ class DaAfficherRepository extends EntityRepository
 
         return array_combine($originalArray, $originalArray);
     }
+
+    public function getInfoDa(int $numCde)
+    {
+        return  $this->createQueryBuilder('dabc')
+            ->select('da.agenceDebiteur, da.serviceDebiteur, da.numeroOr, da.numeroFournisseur')
+            ->where('da.numeroCde = :numCde')
+            ->setParameter('numCde', $numCde)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
+    }
 }

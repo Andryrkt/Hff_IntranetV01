@@ -17,6 +17,7 @@ class DemandePaiementDto
     public int $numeroVersion = 0;
     public ?TypeDemande $typeDemande = null;
     public ?\DateTime $dateDemande = null;
+    public bool $estChangementDeRib = false;
 
     // fournisseur ======================
     public $numeroFournisseur;
@@ -35,9 +36,9 @@ class DemandePaiementDto
 
     public bool $estCdeClientExterneDoc = false;
     public array $nomCdeClientExterneDoc = [];
-    public array $numeroDossierDouane = [];
 
     // piece joint ================================
+    public array $numeroDossierDouane = [];
     public ?string $nomAutreDoc = null;
     public bool $estAutresDoc = false;
     public $pieceJoint01;
@@ -51,11 +52,11 @@ class DemandePaiementDto
     public $lesFichiers;
 
 
-    public string $montantAPayer = '0';
 
-    // Pour le DA =====================================
+    // Pour le DA et les montants =====================================
     public bool $appro = false;
     public ?int $typeDa = null;
+    public string $montantAPayer = '0';
     public $montantTotalCde;
     public $montantDejaPaye;
     public $montantRestantApayer;

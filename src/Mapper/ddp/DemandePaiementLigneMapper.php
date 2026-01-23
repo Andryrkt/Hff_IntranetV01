@@ -19,7 +19,7 @@ class DemandePaiementLigneMapper
                 ->setNumeroFacture(self::numeroFacture($dto, $i))
                 ->setMontantFacture($dto->montantAPayer())
                 ->setNumeroVersion(1)
-                ->setRatioMontantPayer(0.00);
+                ->setRatioMontantPayer($dto->ratioMontantpayer());
 
             $lignes[] = $ligne;
         }
