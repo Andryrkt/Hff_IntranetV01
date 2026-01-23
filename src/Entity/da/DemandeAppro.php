@@ -1027,4 +1027,28 @@ class DemandeAppro
 
         return $this;
     }
+
+    public function duplicateDaParent(DemandeApproParent $daParent): self
+    {
+        $this
+            ->setNumeroDemandeAppro($daParent->getNumeroDemandeAppro())
+            ->setDemandeur($daParent->getDemandeur())
+            ->setObjetDal($daParent->getObjetDal())
+            ->setDetailDal($daParent->getDetailDal())
+            ->setAgenceDebiteur($daParent->getAgenceDebiteur())
+            ->setServiceDebiteur($daParent->getServiceDebiteur())
+            ->setAgenceEmetteur($daParent->getAgenceEmetteur())
+            ->setServiceEmetteur($daParent->getServiceEmetteur())
+            ->setAgenceServiceDebiteur($daParent->getAgenceServiceDebiteur())
+            ->setAgenceServiceEmetteur($daParent->getAgenceServiceEmetteur())
+            ->setDateFinSouhaite($daParent->getDateFinSouhaite())
+            ->setStatutDal($daParent->getStatutDal())
+            ->setUser($daParent->getUser())
+            ->setNiveauUrgence($daParent->getNiveauUrgence())
+            ->setCodeCentrale($daParent->getCodeCentrale())
+            ->setDesiCentrale($daParent->getDesiCentrale())
+        ;
+
+        return $this;
+    }
 }

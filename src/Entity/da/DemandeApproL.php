@@ -1047,4 +1047,27 @@ class DemandeApproL
         $montant = $this->getPrixUnitaire();
         return $montant == 0 ? '-' : number_format($montant, 2, ',', '.');
     }
+
+    public function duplicateDaParentLine(DemandeApproParentLine $daParentLine): self
+    {
+        $this
+            ->setQteDem($daParentLine->getQteDem())
+            ->setArtConstp($daParentLine->getArtConstp())
+            ->setArtRefp($daParentLine->getArtRefp())
+            ->setArtDesi($daParentLine->getArtDesi())
+            ->setNumeroFournisseur($daParentLine->getNumeroFournisseur())
+            ->setNomFournisseur($daParentLine->getNomFournisseur())
+            ->setDateFinSouhaite($daParentLine->getDateFinSouhaite())
+            ->setCommentaire($daParentLine->getCommentaire())
+            ->setPrixUnitaire($daParentLine->getPrixUnitaire())
+            ->setStatutDal($daParentLine->getStatutDal())
+            ->setCatalogue($daParentLine->getArticleStocke())
+            ->setEstFicheTechnique($daParentLine->getEstFicheTechnique())
+            ->setNomFicheTechnique($daParentLine->getNomFicheTechnique())
+            ->setJoursDispo($daParentLine->getJoursDispo())
+            ->setFileNames($daParentLine->getFileNames())
+        ;
+
+        return $this;
+    }
 }
