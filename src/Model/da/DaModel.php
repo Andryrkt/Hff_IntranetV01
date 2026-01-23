@@ -161,7 +161,18 @@ class DaModel extends Model
             FROM art_frn
             INNER JOIN art_bse ON abse_refp = afrn_refp AND afrn_constp = abse_constp
             INNER JOIN frn_bse ON fbse_numfou = afrn_numf
+            INNER JOIN frn_fou ON ffou_numfou = afrn_numf and ffou_soc = 'HF' and ffou_solv = 'ST'
             WHERE abse_constp = 'ZST'
+
+            UNION
+
+                SELECT distinct
+            fbse_numfou as numerofournisseur,
+            trim(fbse_nomfou) as nomfournisseur
+            FROM frn_bse
+            INNER JOIN frn_fou ON ffou_numfou = fbse_numfou and ffou_soc = 'HF' and ffou_solv = 'ST'
+            WHERE fbse_categ = 'ALT'
+
             ORDER BY nomfournisseur
             ";
         $result = $this->connect->executeQuery($statement);
