@@ -23,14 +23,14 @@ class PdfMigrationDevisMagasinVp extends GeneratePdf
 
         $pdf->AddPage();
 
-        $pdf->Ln(5, true);
+        $pdf->Ln(3, true);
 
         $pdf->SetFont($font2, 'B', 12);
-        $pdf->Cell(30, 10, 'Numéro devis : ', 0, 0, 'L');
+        $pdf->Cell(33, 10, 'Numéro devis : ', 0, 0, 'L');
         $pdf->SetFont($font2, '', 10);
         $pdf->Cell(0, 10, $data['numero_devis'], 0, 1, 'L');
 
-        $pdf->Ln(5, true);
+        $pdf->Ln(3, true);
 
 
         $pdf->SetFont($font2, 'B', 12);
@@ -38,14 +38,14 @@ class PdfMigrationDevisMagasinVp extends GeneratePdf
         $pdf->SetFont($font2, '', 10);
         $pdf->Cell(0, 10, $data['nom_client'], 0, 1, 'L');
 
-        $pdf->Ln(5, true);
+        $pdf->Ln(3, true);
 
         $pdf->SetFont($font2, 'B', 12);
         $pdf->Cell(30, 10, 'Succursale : ', 0, 0, 'L');
         $pdf->SetFont($font2, '', 10);
         $pdf->Cell(0, 10, $data['succursale'], 0, 1, 'L');
 
-        $pdf->Ln(5, true);
+        $pdf->Ln(3, true);
 
 
         $pdf->SetFont($font2, 'B', 12);
@@ -53,25 +53,34 @@ class PdfMigrationDevisMagasinVp extends GeneratePdf
         $pdf->SetFont($font2, '', 10);
         $pdf->Cell(0, 10, $data['service'], 0, 1, 'L');
 
-        $pdf->Ln(5, true);
+        $pdf->Ln(3, true);
+
         $pdf->SetFont($font2, 'B', 12);
         $pdf->Cell(30, 10, 'date : ', 0, 0, 'L');
         $pdf->SetFont($font2, '', 10);
         $pdf->Cell(0, 10, $data['date'], 0, 1, 'L');
 
-        $pdf->Ln(5, true);
+        $pdf->Ln(3, true);
 
         $pdf->SetFont($font2, 'B', 12);
         $pdf->Cell(30, 10, 'Total HT : ', 0, 0, 'L');
         $pdf->SetFont($font2, '', 10);
         $pdf->Cell(0, 10, $data['total_ht'], 0, 1, 'L');
 
-        $pdf->Ln(5, true);
+        $pdf->Ln(3, true);
 
         $pdf->SetFont($font2, 'B', 12);
         $pdf->Cell(30, 10, 'Total TTC : ', 0, 0, 'L');
         $pdf->SetFont($font2, '', 10);
         $pdf->Cell(0, 10, $data['total_ttc'], 0, 1, 'L');
+
+        $pdf->Ln(3, true);
+
+        $pdf->SetFont($font2, 'B', 12);
+        $pdf->Cell(30, 10, 'Statut : ', 0, 0, 'L');
+        $pdf->SetFont($font2, '', 10);
+        $pdf->Cell(0, 10, $data['statut_temp'], 0, 1, 'L');
+
 
         $pdf->Output($filePath, 'F');
     }

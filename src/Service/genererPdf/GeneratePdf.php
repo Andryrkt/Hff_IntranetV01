@@ -58,7 +58,7 @@ class GeneratePdf
     // Facture OR
     public function copyToDwFactureSoumis($numeroVersion, $numeroOR)
     {
-        $cheminFichierDistant = $this->baseCheminDocuware . 'FACTURE OR/factureValidation_' . $numeroOR . '_' . $numeroVersion . '.pdf';
+        $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/factureValidation_' . $numeroOR . '_' . $numeroVersion . '.pdf';
         $cheminDestinationLocal = $this->baseCheminDuFichier . 'vfac/factureValidation_' . $numeroOR . '_' . $numeroVersion . '.pdf';
         copy($cheminDestinationLocal, $cheminFichierDistant);
     }
@@ -66,7 +66,7 @@ class GeneratePdf
 
     public function copyToDwFacture($numeroVersion, $numeroDoc)
     {
-        $cheminFichierDistant = $this->baseCheminDocuware . 'FACTURE OR/validation_facture_client_' . $numeroDoc . '_' . $numeroVersion . '.pdf';
+        $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/validation_facture_client_' . $numeroDoc . '_' . $numeroVersion . '.pdf';
         $cheminDestinationLocal = $this->baseCheminDuFichier . 'vfac/validation_facture_client_' . $numeroDoc . '_' . $numeroVersion . '.pdf';
         copy($cheminDestinationLocal, $cheminFichierDistant);
     }
@@ -75,7 +75,7 @@ class GeneratePdf
     public function copyToDwFactureFichier($numeroVersion, $numeroDoc, array $pathFichiers)
     {
         for ($i = 0; $i < count($pathFichiers); $i++) {
-            $cheminFichierDistant = $this->baseCheminDocuware . 'FACTURE OR/facture_client_' . $numeroDoc . '_' . $numeroVersion . '_' . $i . '.pdf';
+            $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/facture_client_' . $numeroDoc . '_' . $numeroVersion . '_' . $i . '.pdf';
             $cheminDestinationLocal = $pathFichiers[$i];
             $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
         }
@@ -150,7 +150,7 @@ class GeneratePdf
     // demande appro DIRECT à valider
     public function copyToDWDaAValiderDirect($numDa, string $suffix = "#_a_valider")
     {
-        $cheminFichierDistant = $this->baseCheminDocuware . "DA DIRECT/$numDa#_a_valider.pdf";
+        $cheminFichierDistant = $this->baseCheminDocuware . "DA DIRECTE/$numDa#_a_valider.pdf";
         $cheminDestinationLocal = $this->baseCheminDuFichier . "da/$numDa/$numDa$suffix.pdf";
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }

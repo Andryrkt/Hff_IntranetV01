@@ -45,13 +45,13 @@ class DaNewDirectController extends Controller
 
         $demandeAppro = $id === 0 ? $this->initialisationDemandeApproDirect() : $this->demandeApproRepository->findAvecDernieresDALetLR($id);
 
-        $form = $this->getFormFactory()->createBuilder(DemandeApproDirectFormType::class, $demandeAppro, [
-            'em' => $this->getEntityManager()
-        ])->getForm();
+        $form = $this->getFormFactory()->createBuilder(DemandeApproDirectFormType::class, $demandeAppro)->getForm();
         $this->traitementFormDirect($form, $request, $demandeAppro);
 
         return $this->render('da/new-da-direct.html.twig', [
-            'form' => $form->createView(),
+            'form'        => $form->createView(),
+            'codeAgence'  => $demandeAppro->getAgenceDebiteur()->getCodeAgence(),
+            'codeService' => $demandeAppro->getServiceDebiteur()->getCodeService(),
         ]);
     }
 
@@ -73,7 +73,9 @@ class DaNewDirectController extends Controller
             $demandeAppro = $form->getData();
             $this->gererAgenceServiceDebiteur($demandeAppro);
 
-            $numDa = $demandeAppro->getNumeroDemandeAppro();
+            $firstCreation = $demandeAppro->getNumeroDemandeAppro() === null;
+            $numDa = $firstCreation ? $this->autoDecrement('DAP') : $demandeAppro->getNumeroDemandeAppro();
+            $demandeAppro->setNumeroDemandeAppro($numDa);
             $formDAL = $form->get('DAL');
 
             // Récupérer le nom du bouton cliqué
@@ -90,8 +92,26 @@ class DaNewDirectController extends Controller
                 if ($demandeApproL->getDeleted() == 1) {
                     $this->getEntityManager()->remove($demandeApproL);
                 } else {
-                    $files = $subFormDAL->get('fileNames')->getData(); // Récupération des fichiers
-                    $fileNames = $this->daFileUploader->uploadMultipleDaFiles($files, $numDa, FileUploaderForDAService::FILE_TYPE["DEVIS"]);
+                    // Récupérer les données
+                    $filesToDelete = $subFormDAL->get('filesToDelete')->getData();
+                    $existingFileNames = $subFormDAL->get('existingFileNames')->getData();
+                    $newFiles = $subFormDAL->get('fileNames')->getData();
+
+                    // Supprimer les fichiers
+                    if ($filesToDelete) {
+                        $this->daFileUploader->deleteFiles(
+                            explode(',', $filesToDelete),
+                            $numDa
+                        );
+                    }
+
+                    // Gérer l'upload et obtenir la liste finale
+                    $allFileNames = $this->daFileUploader->handleFileUpload(
+                        $newFiles,
+                        $existingFileNames,
+                        $numDa,
+                        FileUploaderForDAService::FILE_TYPE["DEVIS"]
+                    );
 
                     $demandeApproL
                         ->setNumeroDemandeAppro($numDa)
@@ -99,23 +119,26 @@ class DaNewDirectController extends Controller
                         ->setNumeroFournisseur($demandeApproL->getNumeroFournisseur() ?? '-')
                         ->setNomFournisseur($demandeApproL->getNomFournisseur() ?? '-')
                         ->setJoursDispo($this->getJoursRestants($demandeApproL))
-                        ->setFileNames($fileNames)
+                        ->setFileNames($allFileNames)
                     ;
 
                     $this->getEntityManager()->persist($demandeApproL);
                 }
             }
 
-            /** Modifie la colonne dernière_id dans la table applications */
-            $applicationService = new ApplicationService($this->getEntityManager());
-            $applicationService->mettreAJourDerniereIdApplication('DAP', $numDa);
+            // si c'est la première création, on met à jour la colonne dernière_id dans la table applications
+            if ($firstCreation) {
+                /** Modifie la colonne dernière_id dans la table applications */
+                $applicationService = new ApplicationService($this->getEntityManager());
+                $applicationService->mettreAJourDerniereIdApplication('DAP', $numDa);
+            }
 
             /** Ajout de demande appro dans la base de donnée (table: Demande_Appro) */
             $this->getEntityManager()->persist($demandeAppro);
             $this->getEntityManager()->flush();
 
             /** ajout de l'observation dans la table da_observation si ceci n'est pas null */
-            if ($demandeAppro->getObservation()) $this->insertionObservation($demandeAppro->getObservation(), $demandeAppro);
+            if ($demandeAppro->getObservation()) $this->insertionObservation($numDa, $demandeAppro->getObservation());
 
             // ajout des données dans la table DaAfficher
             $this->ajouterDaDansTableAffichage($demandeAppro);

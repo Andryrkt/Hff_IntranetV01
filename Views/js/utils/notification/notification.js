@@ -39,7 +39,7 @@ export function bootstrapNotify(type, title, text = "") {
   Swal.fire({
     icon: type,
     title: `<strong>${title}</strong>`,
-    text: text,
+    html: text,
     ...swalStyles[type],
   });
 }

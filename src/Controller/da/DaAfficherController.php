@@ -34,6 +34,6 @@ class DaAfficherController extends Controller
             $this->ajouterDansTableAffichageParNumDa($numDa, true, DitOrsSoumisAValidation::STATUT_VALIDE);
             dump("Génération de Da Afficher réussie pour " . $numDa);
         }
-        dd('Génération réussie pour tous les DAs');
+        //dd('Génération réussie pour tous les DAs');
     }
 }

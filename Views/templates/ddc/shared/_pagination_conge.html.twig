@@ -15,22 +15,82 @@
 <div class="d-flex justify-content-between">
 	<div>
 		{% if viewMode == 'calendar' %}
-			{# <a href="{{ path("export_conge_excel", {'format': 'table'}) }}" class="btn btn-sm bg-success text-white my-3 fw-bold excel-button"> #}
-				{# <i class="fas fa-table"></i> #}
-				{# <span class="btn-text">Excel calendrier</span> #}
-			{# </a> #}
-			<a href="#" class="btn btn-sm bg-warning text-white my-3 fw-bold switch-view" data-mode="list">Liste</a>
-			<a href="#" class="btn btn-sm bg-info text-white my-3 fw-bold">
-				<i class="fas fa-calendar"></i>
-				Calendrier</a>
+			<form method="GET" action="{{ path('export_conge_excel') }}" style="display:inline;" class="excel-form" id="excel-export-form-calendar">
+				<input type="hidden" name="format" value="table">
+
+				{# Gestion du filtre "Groupe Direction" #}
+				{% set groupeDirectionFromRequest = app.request.query.get('groupeDirection') %}
+				{% set groupeDirectionFromNested = app.request.query.get('demande_conge', {})['groupeDirection'] %}
+
+				{% if groupeDirectionFromRequest is not null %}
+					<input type="hidden" name="groupeDirection" value="{{ groupeDirectionFromRequest }}">
+				{% elseif groupeDirectionFromNested is not null %}
+					<input type="hidden" name="demande_conge[groupeDirection]" value="{{ groupeDirectionFromNested }}">
+				{% endif %}
+
+				{% for key, value in app.request.query.all %}
+					{% if key != 'format' %}
+						{% if key starts with 'demande_conge[' %}
+							{% if key != 'demande_conge[groupeDirection]' %}
+								{% if value is iterable %}
+									{% for subkey, subvalue in value %}
+										<input type="hidden" name="demande_conge[{{ subkey }}]" value="{{ subvalue }}">
+									{% endfor %}
+								{% else %}
+									<input type="hidden" name="{{ key }}" value="{{ value }}">
+								{% endif %}
+							{% endif %}
+						{% else %}
+							<input type="hidden" name="{{ key }}" value="{{ value }}">
+						{% endif %}
+					{% endif %}
+				{% endfor %}
+
+				<button type="submit" class="btn btn-sm bg-success text-white my-3 fw-bold excel-button">
+					<i class="fas fa-table"></i>
+					<span class="btn-text">Excel calendrier</span>
+				</button>
+			</form>
+			<a href="{{ path('conge_liste') }}" class="btn btn-sm bg-warning text-white"><i class="fas fa-list"></i> Liste</a>
 		{% else %}
-			{# <a href="{{ path("export_conge_excel", {'format': 'list'}) }}" class="btn btn-sm bg-success text-white my-3 fw-bold excel-button"> #}
-				{# <i class="fas fa-table"></i> #}
-				{# <span class="btn-text">Excel liste</span> #}
-			{# </a> #}
-			<a href="#" class="btn btn-sm bg-info text-white my-3 fw-bold switch-view" data-mode="calendar">
-				<i class="fas fa-calendar"></i>
-				Calendrier</a>
+			<form method="GET" action="{{ path('export_conge_excel') }}" style="display:inline;" class="excel-form" id="excel-export-form-list">
+				<input type="hidden" name="format" value="list">
+
+				{# Gestion du filtre "Groupe Direction" #}
+				{% set groupeDirectionFromRequest = app.request.query.get('groupeDirection') %}
+				{% set groupeDirectionFromNested = app.request.query.get('demande_conge', {})['groupeDirection'] %}
+
+				{% if groupeDirectionFromRequest is not null %}
+					<input type="hidden" name="groupeDirection" value="{{ groupeDirectionFromRequest }}">
+				{% elseif groupeDirectionFromNested is not null %}
+					<input type="hidden" name="demande_conge[groupeDirection]" value="{{ groupeDirectionFromNested }}">
+				{% endif %}
+
+				{% for key, value in app.request.query.all %}
+					{% if key != 'format' %}
+						{% if key starts with 'demande_conge[' %}
+							{% if key != 'demande_conge[groupeDirection]' %}
+								{% if value is iterable %}
+									{% for subkey, subvalue in value %}
+										<input type="hidden" name="demande_conge[{{ subkey }}]" value="{{ subvalue }}">
+									{% endfor %}
+								{% else %}
+									<input type="hidden" name="{{ key }}" value="{{ value }}">
+								{% endif %}
+							{% endif %}
+						{% else %}
+							<input type="hidden" name="{{ key }}" value="{{ value }}">
+						{% endif %}
+					{% endif %}
+				{% endfor %}
+
+				<button type="submit" class="btn btn-sm bg-success text-white my-3 fw-bold excel-button">
+					<i class="fas fa-table"></i>
+					<span class="btn-text">Excel liste</span>
+				</button>
+			</form>
+			<a href="{{ path('conge_calendrier') }}" class="btn btn-sm bg-info text-white my-3 fw-bold"> <i class="fas fa-calendar"></i>
+			Calendrier</a>
 		{% endif %}
 	</div>
 	<div>

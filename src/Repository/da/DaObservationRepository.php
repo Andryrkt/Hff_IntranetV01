@@ -4,4 +4,19 @@ namespace App\Repository\da;
 
 use Doctrine\ORM\EntityRepository;
 
-class DaObservationRepository extends EntityRepository {}
+class DaObservationRepository extends EntityRepository
+{
+    /**
+     * @return array<int, array{numDa: string, fileNames: array}>
+     */
+    public function findAttachmentsByNumeroDA(string $numDa): array
+    {
+        return $this->createQueryBuilder('do')
+            ->select('do.numDa, do.fileNames')
+            ->where('do.numDa = :numDa')
+            ->andWhere('do.fileNames IS NOT NULL')
+            ->setParameter('numDa', $numDa)
+            ->getQuery()
+            ->getArrayResult();
+    }
+}

@@ -115,6 +115,66 @@ class DevisMagasinRepository extends EntityRepository implements StatusRepositor
             ->orderBy('d.numeroVersion', 'DESC')
             ->setMaxResults(1)
             ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function getNumeroDevisMigrationVp()
+    {
+        $resultat = $this->createQueryBuilder('d')
+            ->select('DISTINCT d.numeroDevis as numeroDevis')
+            ->where('d.migration = :mig')
+            ->andWhere('d.typeSoumission = :type')
+            ->setParameter('mig', 1)
+            ->setParameter('type', 'VP')
+            ->getQuery()
             ->getScalarResult();
+
+        return array_column($resultat, 'numeroDevis');
+    }
+
+    public function getNumeroDevisMigrationVd()
+    {
+        $resultat = $this->createQueryBuilder('d')
+            ->select('DISTINCT d.numeroDevis as numeroDevis')
+            ->where('d.migration = :mig')
+            ->andWhere('d.typeSoumission = :type')
+            ->setParameter('mig', 1)
+            ->setParameter('type', 'VD')
+            ->getQuery()
+            ->getScalarResult();
+
+        return array_column($resultat, 'numeroDevis');
+    }
+
+    public function getStatutTempVp($numeroDevis)
+    {
+        $resultat = $this->createQueryBuilder('d')
+            ->select('d.statutTemp as numeroDevis')
+            ->where('d.numeroDevis = :numeroDevis')
+            ->setParameter('numeroDevis', $numeroDevis)
+            ->andwhere('d.migration = :mig')
+            ->andWhere('d.typeSoumission = :type')
+            ->setParameter('mig', 1)
+            ->setParameter('type', 'VP')
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $resultat;
+    }
+
+    public function getStatutTempVd($numeroDevis)
+    {
+        $resultat = $this->createQueryBuilder('d')
+            ->select('d.statutTemp as numeroDevis')
+            ->where('d.numeroDevis = :numeroDevis')
+            ->setParameter('numeroDevis', $numeroDevis)
+            ->andwhere('d.migration = :mig')
+            ->andWhere('d.typeSoumission = :type')
+            ->setParameter('mig', 1)
+            ->setParameter('type', 'VD')
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $resultat;
     }
 }

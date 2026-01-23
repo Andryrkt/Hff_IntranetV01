@@ -2,24 +2,34 @@
 
 namespace App\Controller\da\ListeCdeFrn;
 
+use DateTime;
 use Exception;
+use App\Model\da\DaModel;
+use App\Model\dit\DitModel;
+use App\Entity\dw\DwBcAppro;
 use App\Entity\da\DaAfficher;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
+use App\Entity\admin\Application;
 use App\Entity\da\DaSoumissionFacBl;
-use App\Repository\dit\DitRepository;
 use App\Form\da\DaSoumissionFacBlType;
-use App\Entity\dit\DemandeIntervention;
+use App\Model\da\DaSoumissionFacBlModel;
+use App\Service\autres\VersionService;
 use App\Service\genererPdf\GeneratePdf;
+use App\Service\autres\AutoIncDecService;
+use Symfony\Component\Form\FormInterface;
+use App\Repository\dw\DwBcApproRepository;
+use App\Repository\da\DaAfficherRepository;
 use App\Service\fichier\TraitementDeFichier;
 use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\da\DaSoumissionFacBlRepository;
+use App\Service\genererPdf\bap\GenererPdfBonAPayer;
+use App\Service\dataPdf\ordreReparation\Recapitulation;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Service\historiqueOperation\HistoriqueOperationService;
 use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
-use DateTime;
 
 /**
  * @Route("/demande-appro")
@@ -28,27 +38,31 @@ class DaSoumissionFacBlController extends Controller
 {
     const STATUT_SOUMISSION = 'Soumis à validation';
 
-    private  DaSoumissionFacBl $daSoumissionFacBl;
     private TraitementDeFichier $traitementDeFichier;
     private string $cheminDeBase;
     private HistoriqueOperationService $historiqueOperation;
     private DaSoumissionFacBlRepository $daSoumissionFacBlRepository;
     private GeneratePdf $generatePdf;
     private DemandeApproRepository $demandeApproRepository;
-    private DitRepository $ditRepository;
+    private DwBcApproRepository $dwBcApproRepository;
+    private DaAfficherRepository $daAfficherRepository;
+    private DaSoumissionFacBlModel $daSoumissionFacBlModel;
+    private DaModel $daModel;
 
     public function __construct()
     {
         parent::__construct();
 
-        $this->generatePdf = new GeneratePdf();
-        $this->daSoumissionFacBl = new DaSoumissionFacBl();
-        $this->traitementDeFichier = new TraitementDeFichier();
-        $this->cheminDeBase = $_ENV['BASE_PATH_FICHIER'] . '/da/';
-        $this->historiqueOperation      = new HistoriqueOperationDaBcService($this->getEntityManager());
+        $this->generatePdf                 = new GeneratePdf();
+        $this->traitementDeFichier         = new TraitementDeFichier();
+        $this->cheminDeBase                = $_ENV['BASE_PATH_FICHIER'] . '/da/';
+        $this->historiqueOperation         = new HistoriqueOperationDaBcService($this->getEntityManager());
         $this->daSoumissionFacBlRepository = $this->getEntityManager()->getRepository(DaSoumissionFacBl::class);
-        $this->demandeApproRepository = $this->getEntityManager()->getRepository(DemandeAppro::class);
-        $this->ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class);
+        $this->demandeApproRepository      = $this->getEntityManager()->getRepository(DemandeAppro::class);
+        $this->dwBcApproRepository         = $this->getEntityManager()->getRepository(DwBcAppro::class);
+        $this->daAfficherRepository        = $this->getEntityManager()->getRepository(DaAfficher::class);
+        $this->daSoumissionFacBlModel        = new DaSoumissionFacBlModel();
+        $this->daModel                     = new DaModel();
     }
 
     /**
@@ -59,50 +73,89 @@ class DaSoumissionFacBlController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $this->daSoumissionFacBl->setNumeroCde($numCde);
+        $infosLivraison = $this->getInfoLivraison($numCde, $numDa);
 
-        $form = $this->getFormFactory()->createBuilder(DaSoumissionFacBlType::class, $this->daSoumissionFacBl, [
-            'method' => 'POST',
+        $daSoumissionFacBl = $this->initialisationFacBl($numCde, $numDa, $numOr);
+        $form = $this->getFormFactory()->createBuilder(DaSoumissionFacBlType::class, $daSoumissionFacBl, [
+            'method'  => 'POST',
+            'numLivs' => array_keys($infosLivraison),
         ])->getForm();
 
-        $this->traitementFormulaire($request, $numCde, $form, $numDa, $numOr);
+        $this->traitementFormulaire($request, $form, $infosLivraison);
 
         return $this->render('da/soumissionFacBl.html.twig', [
             'form' => $form->createView(),
-            'numCde' => $numCde,
         ]);
+    }
+
+    private function initialisationFacBl(string $numCde, string $numDa, string $numOr): DaSoumissionFacBl
+    {
+        $numDit = $this->demandeApproRepository->getNumDitDa($numDa);
+        $dateLivraisonPrevue = $this->daAfficherRepository->getDateLivraisonPrevue($numDa, $numCde);
+
+
+        return (new DaSoumissionFacBl)
+            ->setNumeroCde($numCde)
+            ->setUtilisateur($this->getUserName())
+            ->setStatut(self::STATUT_SOUMISSION)
+            ->setNumeroDemandeAppro($numDa)
+            ->setNumeroDemandeDit($numDit)
+            ->setNumeroOR($numOr)
+            ->setDateBlFac($dateLivraisonPrevue ? new DateTime($dateLivraisonPrevue) : null)
+        ;
     }
 
     /**
      * permet de faire le rtraitement du formulaire
      *
      * @param Request $request
-     * @param string $numCde
-     * @param [type] $form
+     * @param FormInterface $form
+     * @param array $infosLivraison
+     * 
      * @return void
      */
-    private function traitementFormulaire(Request $request, string $numCde, $form, string $numDa, string $numOr): void
+    private function traitementFormulaire(Request $request, FormInterface $form, array $infosLivraison): void
     {
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            /** @var DaSoumissionFacBl $soumissionFacBl */
             $soumissionFacBl = $form->getData();
+            $numCde  = $soumissionFacBl->getNumeroCde();
+            $numDa   = $soumissionFacBl->getNumeroDemandeAppro();
+            $numOr   = $soumissionFacBl->getNumeroOR();
+            $numLiv  = $soumissionFacBl->getNumLiv();
+            $infoLiv = $infosLivraison[$numLiv];
             $nomOriginalFichier = $soumissionFacBl->getPieceJoint1()->getClientOriginalName();
-            if ($this->verifierConditionDeBlocage($soumissionFacBl, $numCde, $nomOriginalFichier)) {
+
+            if ($this->verifierConditionDeBlocage($soumissionFacBl, $infoLiv, $nomOriginalFichier)) {
+                $infoBC = $this->daModel->getInfoBC($numCde);
+
                 /** ENREGISTREMENT DE FICHIER */
                 $nomDeFichiers = $this->enregistrementFichier($form, $numCde, $numDa);
 
-                //numeroversion max
-                $numeroVersionMax = $this->autoIncrement($this->daSoumissionFacBlRepository->getNumeroVersionMax($numCde));
-                /** FUSION DES PDF */
+                /** AJOUT DES CHEMINS DANS LE TABLEAU */
                 $nomFichierAvecChemins = $this->addPrefixToElementArray($nomDeFichiers, $this->cheminDeBase . $numDa . '/');
+
+                /** CREATION DE LA PAGE DE GARDE */
+                $pageDeGarde = $this->genererPageDeGarde($infoLiv, $soumissionFacBl, $infoBC);
+
+                /** AJOUT DE LA PAGE DE GARDE A LA PREMIERE POSITION */
+                $nomFichierAvecChemins = $this->traitementDeFichier->insertFileAtPosition($nomFichierAvecChemins, $pageDeGarde, 0);
+
+                /** CONVERTIR LES PDF */
                 $fichierConvertir = $this->ConvertirLesPdf($nomFichierAvecChemins);
-                $nomPdfFusionner =  'FACBL' . $numCde . '#' . $numDa . '-' . $numOr . '_' . $numeroVersionMax . '~' . $nomOriginalFichier;
+
+                /** GENERATION DU NOM DU FICHIER */
+                $numeroVersionMax          = VersionService::autoIncrement($this->daSoumissionFacBlRepository->getNumeroVersionMax($numCde));
+                $nomPdfFusionner           =  "FACBL$numCde#$numDa-{$numOr}_{$numeroVersionMax}~{$nomOriginalFichier}";
                 $nomAvecCheminPdfFusionner = $this->cheminDeBase . $numDa . '/' . $nomPdfFusionner;
+
+                /** FUSION DES PDF */
                 $this->traitementDeFichier->fusionFichers($fichierConvertir, $nomAvecCheminPdfFusionner);
 
                 /** AJOUT DES INFO NECESSAIRE */
-                $soumissionFacBl = $this->ajoutInfoNecesaireSoumissionFacBl($numCde, $numDa, $soumissionFacBl, $nomPdfFusionner, $numeroVersionMax, $numOr);
+                $this->ajoutInfoNecesaireSoumissionFacBl($soumissionFacBl, $nomPdfFusionner, $numeroVersionMax, $infoLiv, $infoBC);
 
                 /** ENREGISTREMENT DANS LA BASE DE DONNEE */
                 $this->getEntityManager()->persist($soumissionFacBl);
@@ -116,7 +169,10 @@ class DaSoumissionFacBlController extends Controller
 
                 /** HISTORISATION */
                 $message = 'Le document est soumis pour validation';
-                $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn', true);
+                $criteria = $this->getSessionService()->get('criteria_for_excel_Da_Cde_frn');
+                $nomDeRoute = 'da_list_cde_frn'; // route de redirection après soumission
+                $nomInputSearch = 'cde_frn_list'; // initialistion de nom de chaque champ ou input
+                $this->historiqueOperation->sendNotificationSoumission($message, $numCde, $nomDeRoute, true, $criteria, $nomInputSearch);
             }
         }
     }
@@ -142,19 +198,31 @@ class DaSoumissionFacBlController extends Controller
         $this->getEntityManager()->flush();
     }
 
-    private function ajoutInfoNecesaireSoumissionFacBl(string $numCde, string $numDa, DaSoumissionFacBl $soumissionFacBl, string $nomPdfFusionner, int $numeroVersionMax, string $numOr): DaSoumissionFacBl
+    private function ajoutInfoNecesaireSoumissionFacBl(DaSoumissionFacBl $soumissionFacBl, string $nomPdfFusionner, int $numeroVersionMax, array $infoLivraison, array $infoBC)
     {
-        $numDit = $this->demandeApproRepository->getNumDitDa($numDa);
-        $soumissionFacBl->setNumeroCde($numCde)
-            ->setUtilisateur($this->getUserName())
+        //recupereation de l'application BAP pour generer le numero de bap
+        $application = $this->getEntityManager()->getRepository(Application::class)->findOneBy(['codeApp' => 'BAP']);
+        //generation du numero de bap
+        $numeroBap = AutoIncDecService::autoGenerateNumero('BAP', $application->getDerniereId(), true);
+        //mise a jour de la derniere id de l'application BAP
+        AutoIncDecService::mettreAJourDerniereIdApplication($application, $this->getEntityManager(), $numeroBap);
+        // recupération du montant reception IPS
+        $montantReceptionIps = $this->daSoumissionFacBlModel->getMontantReceptionIpsEtNumFac($soumissionFacBl->getNumLiv());
+
+        $soumissionFacBl
             ->setPieceJoint1($nomPdfFusionner)
-            ->setStatut(self::STATUT_SOUMISSION)
             ->setNumeroVersion($numeroVersionMax)
-            ->setNumeroDemandeAppro($numDa)
-            ->setNumeroDemandeDit($numDit)
-            ->setNumeroOR($numOr)
+            ->setDateClotLiv(new DateTime($infoLivraison["date_clot"]))
+            ->setRefBlFac($infoLivraison["ref_fac_bl"])
+            ->setStatutBap('A transmettre')
+            ->setNumeroBap($numeroBap)
+            ->setDateStatutBap(new DateTime())
+            ->setMontantReceptionIps($montantReceptionIps[0]['montant_reception_ips'] ?? 0)
+            ->setNumeroFournisseur($infoBC['num_fournisseur'] ?? null)
+            ->setNomFournisseur($infoBC['nom_fournisseur'] ?? null)
+            ->setMontantBlFacture((float)str_replace(',', '.', str_replace(' ', '', $soumissionFacBl->getMontantBlFacture() ?? '0')))
+            ->setNumeroFactureFournisseur($montantReceptionIps[0]['numero_facture'] ?? null)
         ;
-        return $soumissionFacBl;
     }
 
     /**
@@ -218,14 +286,6 @@ class DaSoumissionFacBlController extends Controller
         }, $files);
     }
 
-    private function autoIncrement(?int $num): int
-    {
-        if ($num === null) {
-            $num = 0;
-        }
-        return (int)$num + 1;
-    }
-
     private function ConvertirLesPdf(array $tousLesFichersAvecChemin)
     {
         $tousLesFichiers = [];
@@ -270,30 +330,82 @@ class DaSoumissionFacBlController extends Controller
         return $filePath;
     }
 
-    private function conditionDeBlocage(DaSoumissionFacBl $soumissionFacBl): array
+    private function getInfoLivraison(string $numCde, string $numDa): array
     {
-        $nomDeFichier = $soumissionFacBl->getPieceJoint1()->getClientOriginalName();
+        $infosLivraisons = (new DaModel)->getInfoLivraison($numCde);
 
-        return [
-            'nomDeFichier' => preg_match('/[#\-_~]/', $nomDeFichier), // contient au moins un des caractères
-        ];
-    }
-
-    private function verifierConditionDeBlocage(DaSoumissionFacBl $soumissionFacBl, $numCde, $nomOriginalFichier): bool
-    {
-        $conditions = $this->conditionDeBlocage($soumissionFacBl);
-
-        $okey = false;
-
-        if ($conditions['nomDeFichier']) {
-            $message = "Le nom de fichier ('{$nomOriginalFichier}') n'est pas valide. Il ne doit pas contenir les caractères suivants : #, -, _ ou ~. Merci de renommer votre fichier avant de le soumettre dans DocuWare.";
-
+        if (empty($infosLivraisons)) {
+            $message = "La commande n° <b>$numCde</b> n'a pas de livraison associé dans IPS. Merci de bien vérifier le numéro de la commande.";
             $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn');
-            $okey = false;
-        } else {
-            $okey = true; // Aucune condition de blocage n'est remplie
         }
 
+        $livraisonSoumis = $this->daSoumissionFacBlRepository->getAllLivraisonSoumis($numDa, $numCde);
+
+        foreach ($livraisonSoumis as $numLiv) {
+            unset($infosLivraisons[$numLiv]); // exclure les livraisons déjà soumises
+        }
+
+        if (empty($infosLivraisons)) {
+            $message = "La commande n° <b>$numCde</b> n'a plus de livraison à soumettre. Toutes les livraisons associées ont déjà été soumises.";
+            $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn');
+        }
+
+        return $infosLivraisons;
+    }
+
+    private function verifierConditionDeBlocage(DaSoumissionFacBl $soumissionFacBl, array $infoLivraison, string $nomOriginalFichier): bool
+    {
+        $numCde = $soumissionFacBl->getNumeroCde();
+        $numLiv = $soumissionFacBl->getNumLiv();
+        $mttFac = $soumissionFacBl->getMontantBlFacture();
+
+        $mttFacFormate = (float)str_replace(',', '.', str_replace(' ', '', $mttFac));
+
+        $message = '';
+        $okey = true;
+
+        // Blocage si la livraison n'est pas clôturée
+        if (!empty($infoLivraison) && isset($infoLivraison['date_clot']) && $infoLivraison['date_clot'] === null) {
+            $message = "La livraison n° '$numLiv' associée à la commande n° '$numCde' n'est pas encore clôturée. Merci de clôturer la livraison avant de soumettre le document dans DocuWare.";
+            $okey = false;
+        }
+        // Blocage si le nom de fichier contient des caractères spéciaux
+        elseif (preg_match('/[#\-_~]/', $nomOriginalFichier)) {
+            $message = "Le nom de fichier ('{$nomOriginalFichier}') n'est pas valide. Il ne doit pas contenir les caractères suivants : #, -, _ ou ~. Merci de renommer votre fichier avant de le soumettre dans DocuWare.";
+            $okey = false;
+        }
+        // Blocage si montant ne correspond pas au montant de la livraison dans IPS
+        elseif ($mttFacFormate !== (float) $infoLivraison['montant_fac_bl']) {
+            $message = "Le montant de la facture <b>{$mttFac}</b> ne correspond pas au montant de la livraison dans IPS. Merci de vérifier le montant de la facture avant de le soumettre dans DocuWare.";
+            $okey = false;
+        }
+
+        if (!$okey) $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn');
+
         return $okey;
+    }
+
+    private function genererPageDeGarde(array $infoLivraison, DaSoumissionFacBl $soumissionFacBl, array $infoBC): string
+    {
+        $ditModel         = new DitModel();
+        $generatePdfBap   = new GenererPdfBonAPayer();
+        $recapitulationOR = new Recapitulation();
+
+        $numCde           = $soumissionFacBl->getNumeroCde();
+        $numOr            = $soumissionFacBl->getNumeroOR();
+
+
+        $infoValidationBC = $this->dwBcApproRepository->getInfoValidationBC($numCde) ?? [];
+        $infoMateriel     = $ditModel->recupInfoMateriel($numOr);
+        $dataRecapOR      = $recapitulationOR->getData($numOr);
+        $demandeAppro     = $this->demandeApproRepository->findOneBy(['numeroDemandeAppro' => $soumissionFacBl->getNumeroDemandeAppro()]);
+        $infoFacBl        = [
+            "refBlFac"   => $infoLivraison["ref_fac_bl"],
+            "dateBlFac"  => $soumissionFacBl->getDateBlFac(),
+            "numLivIPS"  => $infoLivraison["num_liv"],
+            "dateLivIPS" => $infoLivraison["date_clot"],
+        ];
+
+        return $generatePdfBap->genererPageDeGarde($infoBC, $infoValidationBC, $infoMateriel, $dataRecapOR, $demandeAppro, $soumissionFacBl, $infoFacBl);
     }
 }

@@ -273,7 +273,7 @@ class DitDuplicationController extends Controller
         $idMateriel = (int)$demandeIntervention->getIdMateriel();
         if (!in_array($idMateriel, $this->ditModel->getNumeroMatriculePasMateriel())) {
             //récupération des historique de materiel (informix)
-            $historiqueMateriel = $this->historiqueInterventionMateriel($idMateriel);
+            $historiqueMateriel = $this->historiqueInterventionMateriel($idMateriel, $demandeIntervention->getReparationRealise());
         } else {
             $historiqueMateriel = [];
         }

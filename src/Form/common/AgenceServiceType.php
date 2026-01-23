@@ -20,16 +20,16 @@ class AgenceServiceType extends AbstractType
     {
         $builder
             ->add('agence', EntityType::class, [
-                'label' => $options['agence_label'],
-                'class' => Agence::class,
-                'query_builder' => function (EntityRepository $er) use ($options) {
+                'label'               => $options['agence_label'],
+                'class'               => Agence::class,
+                'query_builder'       => function (EntityRepository $er) use ($options) {
                     $qb = $er->createQueryBuilder('a');
                     if (!empty($options['agence_codes'])) {
                         $qb->where($qb->expr()->in('a.codeAgence', $options['agence_codes']));
                     }
                     return $qb;
                 },
-                'choice_label' => function (Agence $agence): string {
+                'choice_label'        => function (Agence $agence): string {
                     return $agence->getCodeAgence() . ' ' . $agence->getLibelleAgence();
                 },
                 'placeholder' => $options['agence_placeholder'],
@@ -55,12 +55,12 @@ class AgenceServiceType extends AbstractType
 
     private function addServiceField(FormInterface $form, ?Agence $agence, array $options): void
     {
-        $services = $agence ? $agence->getServices() : [];
+        $services = $agence ? $agence->getServices() : (isset($options['data_agence']) ? $options['data_agence']->getServices() : []);
 
         $form->add('service', EntityType::class, [
-            'label' => $options['service_label'],
-            'class' => Service::class,
-            'choice_label' => function (Service $service): string {
+            'label'               => $options['service_label'],
+            'class'               => Service::class,
+            'choice_label'        => function (Service $service): string {
                 return $service->getCodeService() . ' ' . $service->getLibelleService();
             },
             'placeholder' => $options['service_placeholder'],
@@ -102,10 +102,11 @@ class AgenceServiceType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'agence_label' => "Agence",
-            'agence_placeholder' => '-- Choisir une agence--',
-            'agence_required' => false,
-            'service_label' => "Service",
+            'em'                  => null,
+            'agence_label'        => "Agence",
+            'agence_placeholder'  => '-- Choisir une agence--',
+            'agence_required'     => false,
+            'service_label'       => "Service",
             'service_placeholder' => '-- Choisir un service--',
             'service_required' => false,
             'em' => null,

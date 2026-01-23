@@ -9,9 +9,9 @@ use Symfony\Component\Finder\Glob;
 
 class ListeDevisMagasinModel extends Model
 {
-    public function getDevis(array $criteria = [],  string $vignette = 'magasin', string $codeAgenceAutoriser, bool $adminMulti = false): array
+    public function getDevis(array $criteria = [],  string $vignette = 'magasin', string $codeAgenceAutoriser, bool $adminMulti = false, $numDeviAExclureString): array
     {
-        $statement = "SELECT FIRST 100 DISTINCT
+        $statement = "SELECT DISTINCT
             nent_numcde as numero_devis
             ,nent_datecde as date_creation
             ,nent_succ || ' - ' || nent_servcrt as emmeteur
@@ -27,8 +27,11 @@ class ListeDevisMagasinModel extends Model
             WHERE nent_natop = 'DEV'
             AND nent_soc = 'HF'
             AND nent_servcrt <> 'ASS'
-            AND (CAST(nent_numcli AS VARCHAR(20)) NOT LIKE '199%' and nent_numcli <> '1101222')
-            AND year(Nent_datecde) = year(TODAY)
+            AND (CAST(nent_numcli AS VARCHAR(20)) NOT LIKE '199%' and nent_numcli not in ('1101222', '1990000'))
+            AND nent_numcde not in ($numDeviAExclureString)
+            AND nent_numcde not in ('19407989','19407991','19408971','19410383','19409906','19409996')
+            AND nent_datecde >= MDY(9, 1, 2025)
+            --AND year(Nent_datecde) = year(TODAY)
         ";
 
         if (array_key_exists('statutIps', $criteria) && ($criteria['statutIps'] == 'RE' || $criteria['statutIps'] == 'TR')) {
@@ -63,7 +66,7 @@ class ListeDevisMagasinModel extends Model
 
         $statement .= " ORDER BY nent_datecde DESC";
 
-
+    
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);
@@ -203,6 +206,8 @@ class ListeDevisMagasinModel extends Model
                         AND COUNT(CASE WHEN nlig_constp  IN ($constructeurMagasinSansCat) THEN 1 END) = 0
                         AND COUNT(CASE WHEN nlig_constp IN($constructeurPneumatique) THEN 1 END) = 0
                         THEN TRIM('NO')
+                    -- sinon
+                        ELSE 'N'
                     END AS retour
 
                     from informix.neg_lig 
@@ -211,6 +216,7 @@ class ListeDevisMagasinModel extends Model
                     and nlig_constp <> 'Nmc' 
                     and nlig_numcde = '$numeroDevis'
             ";
+
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);
@@ -294,7 +300,24 @@ class ListeDevisMagasinModel extends Model
     }
 
 
-    public function getDevisMagasinToMigrationPdf(): array
+
+    public function getNumeroDevisExclure()
+    {
+        $sql = " SELECT distinct Numero_Devis_ERP as numDevis
+                from GCOT_Devis
+                ";
+
+        $statement = $this->connexion04Gcot->query($sql);
+        $data = [];
+        while ($List = odbc_fetch_array($statement)) {
+            $data[] = $List;
+        }
+
+        return array_column($data, 'numDevis');
+    }
+
+    //** ==========================  Migration ==========================================*/
+    public function getDevisMagasinToMigrationPdf($numDevis): array
     {
         $statement = " SELECT nent_numcde as numero_devis
                         ,nent_nomcli as nom_client
@@ -304,12 +327,79 @@ class ListeDevisMagasinModel extends Model
                         ,CAST(nent_cdeht AS VARCHAR(20)) as total_ht
                         ,CAST(nent_cdettc AS VARCHAR(20)) as total_ttc
                     from informix.neg_ent 
+                    where nent_numcde in ($numDevis)
+                    AND nent_soc ='HF'
+                    order by nent_numcde ASC
         ";
 
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);
 
-        return $this->convertirEnUtf8($data);
+        return array_column($this->convertirEnUtf8($data), null, 'numero_devis');
+    }
+
+
+    public function constructeurPieceMagasinMigration(string $numeroDevis)
+    {
+        $constructeurMagasinSansCat = "'AGR','ATC','AUS','CGM','CMX','DNL','DYN','GRO','HYS','JDR','KIT','MAN','MNT','OLY','OOM','PAR','PDV','PER','PUB','REM','SHM','TBI','THO'";
+        $constructeurPneumatique = "'ATG','BET','DOG','GDY','HER','PND','TIP','TKI'";
+        $statement = "SELECT 
+                    CASE
+                    -- si CAT et autre constructeur magasin
+                        WHEN COUNT(CASE WHEN nlig_constp = 'CAT' THEN 1 END) > 0
+                        AND COUNT(CASE WHEN nlig_constp  IN ($constructeurMagasinSansCat) THEN 1 END) > 0
+                        THEN TRIM('CP')
+                    -- si  CAT
+                        WHEN COUNT(CASE WHEN nlig_constp  = 'CAT' THEN 1 END) > 0
+                        AND COUNT(CASE WHEN nlig_constp  IN ($constructeurMagasinSansCat) THEN 1 END) = 0
+                        THEN TRIM('C')
+                    -- si ni CAT ni autre constructeur magasin
+                        WHEN COUNT(CASE WHEN nlig_constp  = 'CAT' THEN 1 END) = 0
+                        AND COUNT(CASE WHEN nlig_constp  IN ($constructeurMagasinSansCat) THEN 1 END) = 0
+                        THEN TRIM('N')
+                    -- si autre constructeur magasin
+                        WHEN COUNT(CASE WHEN nlig_constp  = 'CAT' THEN 1 END) = 0
+                        AND COUNT(CASE WHEN nlig_constp IN ($constructeurMagasinSansCat) THEN 1 END) > 0
+                        THEN TRIM('P')
+                    -- si constructeur pneumatique
+                        WHEN COUNT(CASE WHEN nlig_constp IN($constructeurPneumatique) THEN 1 END) > 0
+                        THEN TRIM('O')
+                    -- si CAT , autre constructeur magasin et constructeur pneumatique
+                        WHEN COUNT(CASE WHEN nlig_constp = 'CAT' THEN 1 END) > 0
+                        AND COUNT(CASE WHEN nlig_constp  IN ($constructeurMagasinSansCat) THEN 1 END) > 0
+                        AND COUNT(CASE WHEN nlig_constp IN($constructeurPneumatique) THEN 1 END) > 0
+                        THEN TRIM('CPO')
+                    -- si CAT et constructeur pneumatique
+                        WHEN COUNT(CASE WHEN nlig_constp  = 'CAT' THEN 1 END) > 0
+                        AND COUNT(CASE WHEN nlig_constp  IN ($constructeurMagasinSansCat) THEN 1 END) = 0
+                        AND COUNT(CASE WHEN nlig_constp IN($constructeurPneumatique) THEN 1 END) > 0
+                        THEN TRIM('CO')
+                    -- si autre constructeur magasin et constructeur pneumatique
+                        WHEN COUNT(CASE WHEN nlig_constp  = 'CAT' THEN 1 END) = 0
+                        AND COUNT(CASE WHEN nlig_constp IN ($constructeurMagasinSansCat) THEN 1 END) > 0
+                        AND COUNT(CASE WHEN nlig_constp IN($constructeurPneumatique) THEN 1 END) > 0
+                        THEN TRIM('PO')
+                    -- si ni CAT ni autre constructeur magasin ni constructeur pneumatique
+                        WHEN COUNT(CASE WHEN nlig_constp  = 'CAT' THEN 1 END) = 0
+                        AND COUNT(CASE WHEN nlig_constp  IN ($constructeurMagasinSansCat) THEN 1 END) = 0
+                        AND COUNT(CASE WHEN nlig_constp IN($constructeurPneumatique) THEN 1 END) = 0
+                        THEN TRIM('NO')
+                    -- sinon
+                        ELSE 'N'
+                    END AS retour
+
+                    from informix.neg_lig 
+                    where nlig_soc='HF' 
+                    and nlig_natop='DEV'
+                    and nlig_constp <> 'Nmc' 
+                    and nlig_numcde = '$numeroDevis'
+            ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return array_column($this->convertirEnUtf8($data), 'retour')[0];
     }
 }

@@ -1,0 +1,45 @@
+<div class="accordion mb-2" id="formAccordion">
+	<div class="accordion-item">
+		<h2 class="accordion-header">
+			<button class="accordion-button enteteAccordion" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+				Formulaire de recherche
+			</button>
+		</h2>
+		<div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#formAccordion">
+			<div class="accordion-body">
+				{{ form_start(form, {'method': 'GET'}) }}
+				<div class="row">
+					<div class="col-12 col-md-2">
+						{{ form_row(form.numDa)}}
+					</div>
+					<div class="col-12 col-md-2">
+						{{ form_row(form.numCde)}}
+					</div>
+					<div class="col-12 col-md-2">
+						{{ form_row(form.numLivIps) }}
+					</div>
+					<div class="col-12 col-md-2">
+						{{ form_row(form.numDdp) }}
+					</div>
+					<div class="col-12 col-md-2">
+						{{ form_row(form.FactureBl) }}
+					</div>
+					<div class="col-12 col-md-2">
+						{{ form_row(form.fournisseur) }}
+						<div id="suggestion-fournisseur" class="suggestions-container" style="width:20%;"></div>
+						<div id="loader-fournisseur" class="spinner invisible" style="display: none;"></div>
+					</div>
+				</div>
+
+				<div class="d-flex justify-content-end mb-2">
+					<button class="btn btn-warning fw-bold" type="submit">
+						<i class="fab fa-searchengin"></i>
+						Recherche
+					</button>
+				</div>
+
+				{{ form_end(form) }}
+			</div>
+		</div>
+	</div>
+</div>

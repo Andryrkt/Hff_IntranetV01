@@ -413,25 +413,36 @@ class Controller
      */
     protected function autoDecrement(string $nomDemande): string
     {
-        $YearsOfcours = date('y');
-        $MonthOfcours = date('m');
-        $AnneMoisOfcours = $YearsOfcours . $MonthOfcours;
+        $anneMoisCourant = date('ym'); // Format: 2512
 
-        $Max_Num = $this->getEntityManager()->getRepository(Application::class)->findOneBy(['codeApp' => $nomDemande])->getDerniereId();
+        $application = $this->getEntityManager()
+            ->getRepository(Application::class)
+            ->findOneBy(['codeApp' => $nomDemande]);
 
-        $vNumSequential = substr($Max_Num, -4);
-        $DateAnneemoisnum = substr($Max_Num, -8);
-        $DateYearsMonthOfMax = substr($DateAnneemoisnum, 0, 4);
-
-        if ($DateYearsMonthOfMax == $AnneMoisOfcours) {
-            $vNumSequential = $vNumSequential - 1;
-        } else {
-            if ($AnneMoisOfcours > $DateYearsMonthOfMax) {
-                $vNumSequential = 9999;
-            }
+        if (!$application) {
+            throw new \RuntimeException("Application '{$nomDemande}' non trouvée");
         }
 
-        return $nomDemande . $AnneMoisOfcours . $vNumSequential;
+        $dernierId = $application->getDerniereId();
+
+        // Extraction des composants (ex: DAP25129902)
+        // Format attendu: [CODE][YYMM][NNNN]
+        $longueurCode = strlen($nomDemande);
+        $anneMoisDernier = substr($dernierId, $longueurCode, 4);
+        $numeroSequentiel = (int) substr($dernierId, $longueurCode + 4, 4);
+
+        // Logique de décrémentation
+        if ($anneMoisDernier === $anneMoisCourant) {
+            // Même mois : décrémentation
+            $numeroSequentiel = max(0, $numeroSequentiel - 1);
+        } elseif ($anneMoisCourant > $anneMoisDernier) {
+            // Nouveau mois : réinitialisation à 9999
+            $numeroSequentiel = 9999;
+        }
+        // Si mois courant < dernier mois : garde le numéro actuel (cas edge)
+
+        // Formatage avec padding sur 4 chiffres
+        return sprintf('%s%s%04d', $nomDemande, $anneMoisCourant, $numeroSequentiel);
     }
 
     /**

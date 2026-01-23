@@ -1,0 +1,109 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block title %}
+	Liste des bons à payer
+{% endblock %}
+
+{% block stylesheets %}
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.10.22.08.00">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/list.css?v=2025.10.22.08.00">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/ddp/list.css?v=2025.10.22.08.00">
+{% endblock %}
+
+{% block overlay %}
+	{% include "/shared/_overlay.html.twig" %}
+{% endblock %}
+
+{% block content %}
+
+	<div class="container-fluid mt-6 mb-4">
+		<div class="sticky-header-titre">
+			<div class="container">
+				{% include "/partials/_notification.html.twig" %}
+				{% include "/da/ddp/_formulaire_recherche.html.twig" %}
+				<div class="my-3 mx-3 d-flex justify-content-end">
+					<button type="button" class="btn btn-warning" id="transmettreBAP">Transmettre les demandes BAP sélectionnés à la compta</button>
+				</div>
+			</div>
+
+		</div>
+
+		<table class="table table-sticky">
+			<thead class="table-dark align-middle">
+				<tr>
+					<th class="text-center">-</th>
+					<th class="text-center">Numéro DA</th>
+					<th class="text-center">Numéro DDP</th>
+					<th class="text-center">Fournisseur</th>
+					<th class="text-center">Numéro cde</th>
+					<th class="text-center">Numéro livraison</th>
+					<th class="text-center">Facture BL</th>
+					<th class="text-center">Numéro BAP</th>
+					<th class="text-center">Statut</th>
+					<th class="text-center">Transmise le</th>
+					<th class="text-center">Date Statut</th>
+					<th class="text-center">Date réception IPS</th>
+					<th class="text-center">Montant des réceptions IPS</th>
+					<th class="text-center">Montant Facture bl</th>
+				</tr>
+			</thead>
+			<tbody id="tableBody" class="align-middle">
+				{% for row in daSoumissionFacBl %}
+					<tr>
+						<td class="text-center">
+							<input type="checkbox" name="{{ row.numeroBap }}" class="bap-checkbox" {{ row.statutBap != 'A transmettre' ? 'disabled' : '' }}>
+						</td>
+						<td class="text-center">{{ row.numeroDemandeAppro }}</td>
+						<td class="text-center">{{ row.numeroDemandePaiement }}</td>
+						<td>{{ row.numeroFournisseur ~ '-' ~ row.nomFournisseur }}</td>
+						<td class="text-center">{{ row.numeroCde }}</td>
+						<td class="text-center">{{ row.numLiv }}</td>
+						<td class="text-center">{{ row.refBlFac }}</td>
+						<td class="text-center">
+							{% set fileExists = fileCheckerService.checkBapFileExists(row.numeroDemandeAppro, row.numeroCde) %}
+							{% if fileExists %}
+								<a href="#" class="show-pdf-modal" data-pdf-url="{{ path('bap_pdf_viewer', {numeroDa: row.numeroDemandeAppro, numeroCde: row.numeroCde}) }}">
+									{{ row.numeroBap }}
+									<i class="fas fa-file-pdf ml-1" style="color: red;"></i>
+								</a>
+							{% else %}
+								{{ row.numeroBap }}
+							{% endif %}
+						</td>
+						<td class="text-center fw-bold {{ row.statutCssClass }}">{{ row.statutBap }}</td>
+						<td class="text-center">{{ row.dateSoumissionCompta ? row.dateSoumissionCompta | date('d/m/Y'):null }}</td>
+						<td class="text-center">{{ row.dateStatutBap ? row.dateStatutBap | date('d/m/Y'):null }}</td>
+						<td class="text-center">{{ row.dateReceptionIPS ? row.dateReceptionIPS | date('d/m/Y'):null }}</td>
+						<td class="text-center">{{ row.montantReceptionIps }}</td>
+						<td class="text-center">{{ row.montantBlFacture }}</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+
+	<!-- PDF Modal -->
+	<div class="modal fade" id="pdfModal" tabindex="-1" aria-labelledby="pdfModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-xl">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="pdfModalLabel">Bon à Payer - PDF</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<div class="pdf-spinner" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: none;">
+						<div class="spinner-border text-primary" role="status">
+							<span class="visually-hidden">Loading...</span>
+						</div>
+					</div>
+					<iframe src="" style="width:100%; height:75vh;" frameborder="0"></iframe>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block javascript %}
+	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v=2025.10.22.08.00"></script>
+	<script src="{{ App.base_path }}/Views/js/da/ddp/bon_a_payer.js?v=2025.10.22.08.00" type="module"></script>
+{% endblock %}

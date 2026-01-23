@@ -32,9 +32,9 @@ export function ajouterUneLigne() {
       : element.name;
   });
 
-  // Créer la structure Bootstrap "row g-3"
+  // Créer la structure Bootstrap "d-flex gap-3"
   let row = document.createElement("div");
-  row.classList.add("row", "g-3");
+  row.classList.add("d-flex", "gap-3");
 
   let fields = [
     ["w-10", "codeFams1"],

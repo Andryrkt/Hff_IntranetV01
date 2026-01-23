@@ -59,7 +59,7 @@ class DaEditDirectController extends Controller
         return $this->render('da/edit-da-direct.html.twig', [
             'form'              => $form->createView(),
             'observations'      => $observations,
-            'peutModifier'      => $this->PeutModifier($demandeAppro),
+            'peutModifier'      => $this->peutModifier($demandeAppro->getStatutDal(), $this->estCreateurDeDADirecte()),
             'numDa'             => $numDa,
         ]);
     }
@@ -113,7 +113,7 @@ class DaEditDirectController extends Controller
 
             $this->modificationDa($demandeAppro, $form->get('DAL'), DemandeAppro::STATUT_SOUMIS_APPRO);
             if ($demandeAppro->getObservation() !== null) {
-                $this->insertionObservation($demandeAppro->getObservation(), $demandeAppro);
+                $this->insertionObservation($numDa, $demandeAppro->getObservation());
             }
 
             // ajout des données dans la table DaAfficher

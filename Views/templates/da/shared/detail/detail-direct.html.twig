@@ -32,7 +32,7 @@
 	</div>
 </div>
 <div class="d-flex justify-content-end">
-	<a href="{{ path("da_edit_direct", {id: demandeAppro.id})}}" class="btn bouton mt-2 me-4 {{ estAte and statutAutoriserModifAte ? '' : 'd-none'}}" target="_blank">
+	<a href="{{ path("da_edit_direct", {id: demandeAppro.id})}}" class="btn bouton mt-2 me-4 {{ estCreateurDaDirecte and statutAutoriserModifAte ? '' : 'd-none'}}" target="_blank">
 		Modifier la demande
 	</a>
 </div>
@@ -101,7 +101,7 @@
 					{% endif %}
 				</td>
 				<td class="text-center">
-					<i class="fas fa-trash-can text-danger fs-6 delete-line-DA" style="cursor:pointer;" title="Supprimer la ligne de DA" data-bs-toggle="tooltip" data-delete-path="{{ DAL.urlDelete }}"></i>
+					<i class="fas fa-trash-can text-danger fs-6 delete-line-DA {{ DAL.supprimable ? '' : 'd-none' }}" style="cursor:pointer;" title="Supprimer la ligne de DA" data-bs-toggle="tooltip" data-delete-path="{{ DAL.urlDelete }}"></i>
 				</td>
 			</tr>
 			{% if DAL.demandeApproLR is empty %}

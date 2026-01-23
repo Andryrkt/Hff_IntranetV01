@@ -1,68 +1,70 @@
 {% extends "baseTemplate.html.twig" %}
 
+{% block title %}{{ title }}{% endblock %}
+
 {% block stylesheets %}
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/ddc/listeConge.css">
+<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
+<link rel="stylesheet" href="{{ App.base_path }}/Views/css/ddc/listeConge.css">
 
-	{% if viewMode == 'calendar' %}
-		<style>
-			/* Styles spécifiques au calendrier */
-			.calendar-container {
-				max-height: 70vh;
-				overflow: auto;
-			}
+{% if viewMode == 'calendar' %}
+<style>
+/* Styles spécifiques au calendrier */
+.calendar-container {
+    max-height: 70vh;
+    overflow: auto;
+}
 
-			.calendar-cell {
-				min-width: 40px;
-				max-width: 40px;
-				height: 32px;
-				border: 1px solid #dee2e6;
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				font-size: 11px;
-				box-sizing: border-box;
-			}
+.calendar-cell {
+    min-width: 40px;
+    max-width: 40px;
+    height: 32px;
+    border: 1px solid #dee2e6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    box-sizing: border-box;
+}
 
-			.employee-name {
-				background: #f8f9fa;
-				font-weight: bold;
-				position: sticky;
-				left: 0;
-				z-index: 3;
-				box-shadow: 2px 0 2px -2px rgba(0, 0, 0, 0.1);
-			}
+.employee-name {
+    background: #f8f9fa;
+    font-weight: bold;
+    position: sticky;
+    left: 0;
+    z-index: 3;
+    box-shadow: 2px 0 2px -2px rgba(0,0,0,0.1);
+}
 
-			/* Week-end */
-			.weekend {
-				background: #f3f3f3 !important;
-			}
+/* Week-end */
+.weekend {
+    background: #f3f3f3 !important;
+}
 
-			/* Congé fusionné */
-			.conge-bar {
-				background: #b9d7ff !important;
-				border: 1px solid #0067c9 !important;
-				position: relative;
-			}
+/* Congé fusionné */
+.conge-bar {
+    background: #b9d7ff !important;
+    border: 1px solid #0067c9 !important;
+    position: relative;
+}
 
-			/* Indicator */
-			.day-indicator {
-				cursor: pointer;
-				font-size: 10px;
-				font-weight: bold;
-			}
+/* Indicator */
+.day-indicator {
+    cursor: pointer;
+    font-size: 10px;
+    font-weight: bold;
+}
 
-			/* Entête fixe */
-			.calendar-header {
-				position: sticky;
-				top: 0;
-				z-index: 5;
-				background: white;
-				border-bottom: 2px solid #ccc;
-				display: flex;
-			}
-		</style>
-	{% endif %}
+/* Entête fixe */
+.calendar-header {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: white;
+    border-bottom: 2px solid #ccc;
+    display: flex;
+}
+</style>
+{% endif %}
 {% endblock %}
 
 {% block content %}
@@ -124,6 +126,9 @@ window.pageData = {{ data|json_encode|raw }};
 window.congesData = {{ conges|json_encode|raw }};
 window.employeesData = {{ employees|json_encode|raw }};
 document.body.dataset.viewMode = "{{ viewMode }}";
+{% if selected_month %}
+window.selectedMonth = {{ selected_month|date('Y-m-d')|json_encode|raw }};
+{% endif %}
 	</script>
 
 	<!-- Templates pour le rendu côté client -->
@@ -135,5 +140,4 @@ document.body.dataset.viewMode = "{{ viewMode }}";
 	</script>
 
 	<script src="{{ App.base_path }}/Views/js/ddc/listConge.js" type="module"></script>
-	<script src="{{ App.base_path }}/Views/js/ddc/autoCompleteMatriculNomPrenom.js" type="module"></script>
 {% endblock %}
