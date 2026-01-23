@@ -12,7 +12,6 @@ use App\Repository\da\DaSoumisAValidationRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use App\Repository\da\DemandeApproParentRepository;
 use App\Service\autres\VersionService;
-use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 
 trait DaAffectationTrait

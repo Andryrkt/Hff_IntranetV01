@@ -177,9 +177,9 @@ class DemandeAppro
     private ?string $devisDemandePar = '';
 
     /**
-     * @ORM\Column(type="string", length=50, name="valide_par")
+     * @ORM\Column(type="string", length=50, name="valide_par", nullable=true)
      */
-    private string $validePar;
+    private ?string $validePar = null;
 
     /**
      * @ORM\Column(type="string", length=255, name="nom_fichier_bav")
