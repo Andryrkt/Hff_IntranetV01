@@ -6,21 +6,23 @@ use App\Controller\Controller;
 use App\Entity\admin\Application;
 use App\Dto\ddp\DemandePaiementDto;
 use App\Form\ddp\DemandePaiementDaType;
+use App\Model\ddp\DemandePaiementModel;
 use App\Service\TableauEnStringService;
 use Symfony\Component\Form\FormInterface;
 use App\Factory\ddp\DemandePaiementFactory;
+use App\Service\ddp\DemandePaiementService;
 use App\Service\fichier\UploderFileService;
 use App\Controller\Traits\AutorisationTrait;
 use App\Service\ddp\DdpGeneratorNameService;
+use App\Service\fichier\TraitementDeFichier;
 use App\Controller\Traits\PdfConversionTrait;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
-use App\Constants\ddp\TypeDemandePaiementConstants;
-use App\Model\ddp\DemandePaiementModel;
-use App\Service\ddp\DemandePaiementLigneService;
-use App\Service\ddp\DemandePaiementService;
 use App\Service\ddp\DocDemandePaiementService;
+use Symfony\Component\Routing\Annotation\Route;
+use App\Service\ddp\DemandePaiementLigneService;
 use App\Service\genererPdf\ddp\GeneratePdfDdpDa;
+use App\Constants\ddp\TypeDemandePaiementConstants;
+use App\Service\historiqueOperation\HistoriqueOperationDDPService;
 
 /**
  * @Route("/compta/demande-de-paiement")
@@ -34,6 +36,7 @@ class DemandePaiementDaController extends Controller
     private DemandePaiementLigneService $demandePaiementLigneService;
     private DemandePaiementService $demandePaiementService;
     private DocDemandePaiementService $docDemandePaiementService;
+    private HistoriqueOperationDDPService $historiqueOperation;
 
     public function __construct()
     {
@@ -42,6 +45,7 @@ class DemandePaiementDaController extends Controller
         $this->demandePaiementLigneService = new DemandePaiementLigneService($this->getEntityManager());
         $this->demandePaiementService = new DemandePaiementService($this->getEntityManager());
         $this->docDemandePaiementService = new DocDemandePaiementService($this->getEntityManager());
+        $this->historiqueOperation = new HistoriqueOperationDDPService($this->getEntityManager());
     }
 
     /**
@@ -82,13 +86,18 @@ class DemandePaiementDaController extends Controller
 
             $this->traitementDeFichier($dto, $form);
             $this->enregistrementSurBd($dto);
+
+            /** HISTORISATION */
+            $this->historiqueOperation->sendNotificationSoumission('Le document a été généré avec succès', $dto->numeroDdp, 'ddp_liste', true);
         }
     }
 
-    private function pageDeGarde(DemandePaiementDto $dto, $cheminEtNom)
+    private function pageDeGarde(DemandePaiementDto $dto, string $cheminEtNom): GeneratePdfDdpDa
     {
         $generatePdfDdp = new GeneratePdfDdpDa();
         $generatePdfDdp->generer($dto, $cheminEtNom);
+
+        return $generatePdfDdp;
     }
 
     private function copierFichierDistant(DemandePaiementDto $dto): void
@@ -133,14 +142,15 @@ class DemandePaiementDaController extends Controller
         }
 
         /** ENREGISTREMENT DU FICHIER */
+        $this->copierFichierDistant($dto);
         [$nomEtCheminFichiersEnregistrer, $nomFichiersTelecharger,  $nomAvecCheminFichier, $nomFichier] = $this->enregistrementFichier($form, $dto);
         if ($dto->typeDemande->getId() === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE) {
             $dto->numeroCommande = $numeroCommandes;
         }
         $dto->lesFichiers = $this->docDemandePaiementService->fusionDesFichiersDansUnTableau($dto, $nomFichiersTelecharger);
-        $this->pageDeGarde($dto, $nomAvecCheminFichier);
-
-        $this->copierFichierDistant($dto);
+        $generatePdf = $this->pageDeGarde($dto, $nomAvecCheminFichier);
+        $this->fusionDesPdf($nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier);
+        $generatePdf->copyToDw($nomAvecCheminFichier, $nomFichier);
     }
 
     private function enregistrementFichier(FormInterface $form, DemandePaiementDto $dto): array
@@ -160,5 +170,14 @@ class DemandePaiementDaController extends Controller
         $nomAvecCheminFichier = $path . '/' . $nomFichier;
 
         return [$nomEtCheminFichiersEnregistrer, $nomFichierTelecharger,  $nomAvecCheminFichier, $nomFichier];
+    }
+
+    private function fusionDesPdf(array $nomEtCheminFichiersEnregistrer, string $nomAvecCheminFichier): void
+    {
+        $traitementDeFichier = new TraitementDeFichier();
+
+        $fichierConvertir = $this->ConvertirLesPdf($nomEtCheminFichiersEnregistrer);
+        $tousLesFichersAvecChemin = $traitementDeFichier->insertFileAtPosition($fichierConvertir, $nomAvecCheminFichier, 0);
+        $traitementDeFichier->fusionFichers($tousLesFichersAvecChemin, $nomAvecCheminFichier);
     }
 }

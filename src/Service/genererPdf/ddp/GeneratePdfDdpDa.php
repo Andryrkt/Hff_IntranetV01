@@ -3,11 +3,17 @@
 namespace App\Service\genererPdf\ddp;
 
 use App\Dto\ddp\DemandePaiementDto;
-
+use App\Service\genererPdf\GeneratePdf;
 use TCPDF;
 
-class GeneratePdfDdpDa
+class GeneratePdfDdpDa extends GeneratePdf
 {
+    public function copyToDw(string $nomAvecCheminFichier, string $nomFichier): void
+    {
+        $cheminDestinationLocal = $nomAvecCheminFichier;
+        $cheminFichierDistant = $this->baseCheminDocuware . 'DEMANDE_DE_PAIEMENT/' . $nomFichier;
+        $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
+    }
 
     public function generer(DemandePaiementDto $dto, string $cheminEtNomDeFichier)
     {
