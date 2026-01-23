@@ -474,23 +474,23 @@ class DaAfficherRepository extends EntityRepository
 
         // 4️⃣ Compter le total distinct des DA après filtrage
         $countQb = clone $qb;
-        $countQb->select('COUNT(DISTINCT daf.numeroDemandeApproMere) as total');
+        $countQb->select('COUNT(DISTINCT daf.numeroDemandeAppro) as total');
         $totalItems = (int)$countQb->getQuery()->getSingleScalarResult();
 
         // 5️⃣ Pagination sur les DA distincts
         $distinctQb = clone $qb;
         $distinctQb
-            ->select('daf.numeroDemandeApproMere')
-            ->groupBy('daf.numeroDemandeApproMere');
+            ->select('daf.numeroDemandeAppro')
+            ->groupBy('daf.numeroDemandeAppro');
         $this->handleOrderBy($distinctQb, 'daf', $criteria, true);
         $distinctQb
-            ->addOrderBy('MAX(daf.numeroDemandeApproMere)', 'DESC')
+            ->addOrderBy('MAX(daf.numeroDemandeAppro)', 'DESC')
             ->addOrderBy('MAX(daf.numeroFournisseur)', 'DESC')
             ->addOrderBy('MAX(daf.numeroCde)', 'DESC')
             ->setFirstResult(($page - 1) * $limit)
             ->setMaxResults($limit);
 
-        $numeroDAsPage = array_column($distinctQb->getQuery()->getResult(), 'numeroDemandeApproMere');
+        $numeroDAsPage = array_column($distinctQb->getQuery()->getResult(), 'numeroDemandeAppro');
 
         if (empty($numeroDAsPage)) {
             return [
@@ -501,12 +501,12 @@ class DaAfficherRepository extends EntityRepository
 
         // 6️⃣ Charger les dernières versions uniquement pour les DA de la page
         $finalQb = $this->createQueryBuilder('daf')
-            ->where('daf.numeroDemandeApproMere IN (:numeroDAsPage)')
+            ->where('daf.numeroDemandeAppro IN (:numeroDAsPage)')
             ->andWhere('daf.deleted = 0')
             ->setParameter('numeroDAsPage', $numeroDAsPage);
         $this->handleOrderBy($finalQb, 'daf', $criteria);
         $finalQb
-            ->addOrderBy('daf.numeroDemandeApproMere', 'DESC')
+            ->addOrderBy('daf.numeroDemandeAppro', 'DESC')
             ->addOrderBy('daf.numeroFournisseur', 'DESC')
             ->addOrderBy('daf.numeroCde', 'DESC');
 
@@ -601,7 +601,7 @@ class DaAfficherRepository extends EntityRepository
     {
         if ($estCdeFrn) {
             $map = [
-                'numDa'         => "$qbLabel.numeroDemandeApproMere",
+                'numDa'         => "$qbLabel.numeroDemandeAppro",
                 'numDit'        => "$qbLabel.numeroDemandeDit",
                 'numCde'        => "$qbLabel.numeroCde",
                 'numOr'         => "$qbLabel.numeroOr",
@@ -611,7 +611,7 @@ class DaAfficherRepository extends EntityRepository
             ];
         } else {
             $map = [
-                'numDa'         => "$qbLabel.numeroDemandeAppro",
+                'numDa'         => "$qbLabel.numeroDemandeApproMere",
                 'numDit'        => "$qbLabel.numeroDemandeDit",
                 'demandeur'     => "$qbLabel.demandeur",
                 'codeCentrale'  => "$qbLabel.codeCentrale",
