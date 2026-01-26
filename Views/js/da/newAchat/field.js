@@ -170,6 +170,9 @@ export function onFileNamesInputChange(event) {
     selectedFilesMap[inputId] = [];
   }
 
+  console.log("input ID = ", inputId);
+  console.log("selectedFilesMap = ", selectedFilesMap);
+
   // Récupérer les fichiers sélectionnés et valider leur taille
   const currentFiles = Array.from(inputFile.files).filter((file) =>
     isValidFile(file)
@@ -230,7 +233,7 @@ function renderFileList(inputId, inputFile) {
       deleteBtn.onclick = () => {
         // Supprimer le fichier de la liste et re-render
         selectedFilesMap[inputId].splice(index, 1);
-        transfererDonnees(selectedFilesMap[inputId], inputFile);
+        transfererDonnees(inputId);
         renderFileList(inputId, inputFile);
       };
 
