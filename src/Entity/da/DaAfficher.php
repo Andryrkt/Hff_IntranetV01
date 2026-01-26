@@ -368,6 +368,11 @@ class DaAfficher
      */
     private $estBlReapproSoumis = false;
 
+    /**
+     * @ORM\Column(type="boolean", name="est_correction_statut_bc")
+     */
+    private $estCorrectionStatutBc = false;
+
     /**==============================================================================
      * GETTERS & SETTERS
      *===============================================================================*/
@@ -1768,6 +1773,24 @@ class DaAfficher
     public function setDesiCentrale($desiCentrale)
     {
         $this->desiCentrale = $desiCentrale;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of estCorrectionStatutBc
+     */
+    public function getEstCorrectionStatutBc()
+    {
+        return $this->estCorrectionStatutBc;
+    }
+
+    /**
+     * Set the value of estCorrectionStatutBc
+     */
+    public function setEstCorrectionStatutBc($estCorrectionStatutBc): self
+    {
+        $this->estCorrectionStatutBc = $estCorrectionStatutBc;
 
         return $this;
     }

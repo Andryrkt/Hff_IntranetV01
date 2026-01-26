@@ -399,24 +399,22 @@ trait StatutBcTrait
             $qteDem = (int)$q['qte_dem'];
             $qteALivrer = (int)$q['qte_dispo'];
             $qteLivee = (int)$q['qte_livree'];
-            $appro = isset($q['appro']);
         } else { // pour via or et reappro
             $q = $qte[0];
             $qteDem = (int)$q['qte_dem'];
             $qteALivrer = (int)$q['qte_dispo'];
             $qteLivee = (int)$q['qte_livree'];
-            $appro = isset($q['appro']);
         }
 
 
-        $soumissionFait = ($DaAfficher->getEstFactureBlSoumis() || $DaAfficher->getEstBlReapproSoumis());
+        $soumissionFait = ($DaAfficher->getEstFactureBlSoumis() || $DaAfficher->getEstBlReapproSoumis()) && $DaAfficher->getEstCorrectionStatutBc();
 
-        $partiellementDispo = $appro ? false  : ($qteDem != $qteALivrer && $qteLivee == 0 && $qteALivrer > 0) && $soumissionFait;
-        $completNonLivrer = $appro ? false  : (($qteDem == $qteALivrer && $qteLivee < $qteDem) || ($qteALivrer > 0 && $qteDem == ($qteALivrer + $qteLivee))) && $soumissionFait;
-        $tousLivres = $appro ? false  : ($qteDem == $qteLivee && $qteDem != 0) && $soumissionFait;
-        $partiellementLivre = $appro ? false  : ($qteLivee > 0 && $qteLivee != $qteDem && $qteDem > ($qteLivee + $qteALivrer)) && $soumissionFait;
-        $partiellementLivreAppro = $appro ? $qteDem !==  $qteALivrer  : false;
-        $tousLivresAppro =  $appro ? $qteDem ===  $qteALivrer : false;
+        $partiellementDispo = ($qteDem != $qteALivrer && $qteLivee == 0 && $qteALivrer > 0) && $soumissionFait;
+        $completNonLivrer =  (($qteDem == $qteALivrer && $qteLivee < $qteDem) || ($qteALivrer > 0 && $qteDem == ($qteALivrer + $qteLivee))) && $soumissionFait;
+        $tousLivres = ($qteDem == $qteLivee && $qteDem != 0) && $soumissionFait;
+        $partiellementLivre =  ($qteLivee > 0 && $qteLivee != $qteDem && $qteDem > ($qteLivee + $qteALivrer)) && $soumissionFait;
+        $partiellementLivreAppro =  $qteDem !==  $qteALivrer && !$soumissionFait;
+        $tousLivresAppro =   $qteDem ===  $qteALivrer && !$soumissionFait;
 
         return [$partiellementDispo, $completNonLivrer, $tousLivres, $partiellementLivre, $partiellementLivreAppro, $tousLivresAppro];
     }
