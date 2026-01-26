@@ -66,6 +66,7 @@ class DaAfficherRepository extends EntityRepository
                 ->where('d.numeroDemandeAppro = :num')
                 ->andWhere('d.numeroCde = :numCde')
                 ->andWhere('d.numeroVersion = :version')
+                ->andWhere('d.dateLivraisonPrevue IS NOT NULL')
                 ->setParameters([
                     'num'     => $numeroDemandeAppro,
                     'numCde'  => $numeroCde,
