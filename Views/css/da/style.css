@@ -49,7 +49,9 @@ a.choix {
   text-decoration: none;
   color: #000;
   display: block;
-  transition: background-color 0.3s, transform 0.2s;
+  transition:
+    background-color 0.3s,
+    transform 0.2s;
 }
 
 a.choix:hover {
@@ -228,16 +230,32 @@ a.choix:hover {
 
 @keyframes animloader {
   0% {
-    box-shadow: -15px -12px, -5px 0, 5px 0, 15px 0;
+    box-shadow:
+      -15px -12px,
+      -5px 0,
+      5px 0,
+      15px 0;
   }
   33% {
-    box-shadow: -15px 0px, -5px -12px, 5px 0, 15px 0;
+    box-shadow:
+      -15px 0px,
+      -5px -12px,
+      5px 0,
+      15px 0;
   }
   66% {
-    box-shadow: -15px 0px, -5px 0, 5px -12px, 15px 0;
+    box-shadow:
+      -15px 0px,
+      -5px 0,
+      5px -12px,
+      15px 0;
   }
   100% {
-    box-shadow: -15px 0, -5px 0, 5px 0, 15px -12px;
+    box-shadow:
+      -15px 0,
+      -5px 0,
+      5px 0,
+      15px -12px;
   }
 }
 
@@ -454,7 +472,7 @@ a.choix:hover {
 }
 
 /* Pour les statuts du BC */
-.bg-bc-a-generer, 
+.bg-bc-a-generer,
 .bg-bc-cession-a-generer {
   background-color: #ff66cc !important;
   color: #660033 !important;
@@ -501,12 +519,14 @@ a.choix:hover {
 }
 
 /* Statuts supplémentaires */
-.tout-livre {
+.tout-livre,
+.tout-livre-appro {
   background-color: #28a745 !important;
   /* color: #1c4d20 !important; */
   color: #f1f8f2 !important;
 }
-.partiellement-livre {
+.partiellement-livre,
+.partiellement-livre-appro {
   background-color: #ffc107 !important;
   color: #6b3e00 !important;
 }

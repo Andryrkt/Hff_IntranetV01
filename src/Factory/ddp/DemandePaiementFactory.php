@@ -7,10 +7,10 @@ use App\Entity\admin\Service;
 use App\Entity\admin\Application;
 use App\Dto\ddp\DemandePaiementDto;
 use App\Entity\ddp\DemandePaiement;
-use App\Entity\da\DaSoumissionFacBl;
 use App\Constants\da\TypeDaConstants;
 use App\Entity\admin\ddp\TypeDemande;
 use App\Entity\admin\utilisateur\User;
+use App\Entity\da\DaAfficher;
 use App\Model\ddp\DemandePaiementModel;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Service\autres\AutoIncDecService;
@@ -32,22 +32,27 @@ class DemandePaiementFactory
     public function load(int $typeDdp, ?int $numCdeDa, ?int $typeDa, User $user): DemandePaiementDto
     {
         $typeDemandeRepository = $this->em->getRepository(TypeDemande::class);
-        $DaSoumissionFacBlRepository = $this->em->getRepository(DaSoumissionFacBl::class);
+        $DaAfficher = $this->em->getRepository(DaAfficher::class);
         $ddpRepository = $this->em->getRepository(DemandePaiement::class);
 
 
-        $infoDa = $DaSoumissionFacBlRepository->getInfoDa($numCdeDa);
+        $infoDa = $DaAfficher->getInfoDa($numCdeDa);
 
 
         $dto = new DemandePaiementDto();
         $dto->typeDemande = $typeDemandeRepository->find($typeDdp);
-        $dto->numeroFacture = [trim($infoDa['NumeroFactureFournisseur'])];
+        $dto->numeroFacture = []; // TODO: mbola anontaniana
         $dto->numeroCommande = [$numCdeDa];
         $dto->debiteur = $this->debiteur($typeDa, $infoDa);
 
         // Pour le DA =====================================
         $dto->typeDa = $typeDa;
-        $dto->montantTotalCde = $this->ddpModel->getMontantTotalCde($numCdeDa);
+        $recupMontantTotal = $this->ddpModel->getMontantTotalCde($numCdeDa);
+        if (empty($recupMontantTotal)) {
+            throw new \Exception("Montant total introuvable pour le numero commande $numCdeDa");
+        }
+
+        $dto->montantTotalCde = (float)$recupMontantTotal[0];
         $dto->montantDejaPaye = $ddpRepository->getMontantDejaPayer($numCdeDa);
         $dto->montantRestantApayer = $dto->montantTotalCde - $dto->montantDejaPaye;
         $dto->poucentageAvance = (($dto->montantDejaPaye + $dto->montantAPayer) / $dto->montantTotalCde) * 100 . ' %';
@@ -80,7 +85,7 @@ class DemandePaiementFactory
 
     private function debiteur(int $typeDa, array $infoDa): array
     {
-        $codeAgenceServiceIps = $this->ddpModel->getCodeAgenceService($infoDa['numeroOR']);
+        $codeAgenceServiceIps = $this->ddpModel->getCodeAgenceService($infoDa['numeroOr']);
 
         $agenceRepository = $this->em->getRepository(Agence::class);
         $serviceRepository = $this->em->getRepository(Service::class);

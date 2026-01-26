@@ -74,8 +74,8 @@
 						<td class="text-center">{{ row.dateSoumissionCompta ? row.dateSoumissionCompta | date('d/m/Y'):null }}</td>
 						<td class="text-center">{{ row.dateStatutBap ? row.dateStatutBap | date('d/m/Y'):null }}</td>
 						<td class="text-center">{{ row.dateReceptionIPS ? row.dateReceptionIPS | date('d/m/Y'):null }}</td>
-						<td class="text-center">{{ row.montantReceptionIps }}</td>
-						<td class="text-center">{{ row.montantBlFacture }}</td>
+						<td class="text-center">{{ row.montantReceptionIps|number_format(2,',', '.') }}</td>
+						<td class="text-center">{{ row.montantBlFacture|number_format(2,',', '.') }}</td>
 					</tr>
 				{% endfor %}
 			</tbody>

@@ -114,7 +114,9 @@ class GeneratePdfDdpDa extends GeneratePdf
         $pdf->SetFont('helvetica', '', 12);
         $pdf->Cell($usable_width - 50, 10, $dto->contact, 1, 1); //  valeur de "Contact" (03xxxxxxxx)
 
-        $pdf->Cell(0, 10, '*Attention : RIB mis à jour', 0, 1); // TODO: il faut mettre une codition pour l'afficher ou pas (si l'utilisateur modifie le rib initial)
+        if ($dto->estChangementDeRib) {
+            $pdf->Cell(0, 10, '*Attention : RIB mis à jour', 0, 1);
+        }
 
         $pdf->Line($pdf->GetX() + 1, $pdf->GetY() - 2.5, $pdf->GetX() + $pdf->GetStringWidth('*Attention') + 1, $pdf->GetY() - 2.5);
 

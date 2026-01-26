@@ -34,6 +34,8 @@ class DaSoumissionBc
 
 
     // statut pour Da Reappro , Da Direct, Da Via OR
+    public const STATUT_TOUS_LIVRES_APPRO              = 'Tout livrée Appro';
+    public const STATUT_PARTIELLEMENT_LIVRE_APPRO      = 'Partiellement Livrée Appro';
     public const STATUT_TOUS_LIVRES              = 'Tous livrés';
     public const STATUT_PARTIELLEMENT_LIVRE      = 'Partiellement livré';
     public const STATUT_PARTIELLEMENT_DISPO      = 'Partiellement dispo';
@@ -98,6 +100,11 @@ class DaSoumissionBc
      * @var float|null
      */
     private ?float $montantBc;
+
+    /**
+     * @ORM\Column(type="boolean", name="est_demande_paiement_a_l_avance")
+     */
+    private $DemandePaiementAvance;
 
     /**===========================================================================
      * GETTER & SETTER
@@ -304,6 +311,24 @@ class DaSoumissionBc
     public function setMontantBc($montantBc)
     {
         $this->montantBc = $montantBc;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of DemandePaiementAvance
+     */
+    public function getDemandePaiementAvance()
+    {
+        return $this->DemandePaiementAvance;
+    }
+
+    /**
+     * Set the value of DemandePaiementAvance
+     */
+    public function setDemandePaiementAvance($DemandePaiementAvance): self
+    {
+        $this->DemandePaiementAvance = $DemandePaiementAvance;
 
         return $this;
     }

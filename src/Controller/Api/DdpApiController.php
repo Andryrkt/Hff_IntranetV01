@@ -2,6 +2,7 @@
 
 namespace App\Controller\Api;
 
+use App\Constants\ddp\TypeDemandePaiementConstants;
 use DateTime;
 use App\Controller\Controller;
 use App\Entity\admin\Application;
@@ -50,7 +51,7 @@ class DdpApiController extends Controller
                 //mise a jour de la derniere id de l'application DDP
                 AutoIncDecService::mettreAJourDerniereIdApplication($application, $this->getEntityManager(), $numeroDdp);
                 // recupération du type de demande "DDP après livraison"
-                $ddpApresLivraison = $this->getEntityManager()->getRepository(TypeDemande::class)->find(2);
+                $ddpApresLivraison = $this->getEntityManager()->getRepository(TypeDemande::class)->find(TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE);
                 if (!$ddpApresLivraison) {
                     throw new \Exception("Le type de demande 'DDP après livraison' (ID 2) n'a pas été trouvé.");
                 }
