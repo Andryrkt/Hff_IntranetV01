@@ -101,6 +101,11 @@ class DaSoumissionBc
      */
     private ?float $montantBc;
 
+    /**
+     * @ORM\Column(type="boolean", name="est_demande_paiement_a_l_avance")
+     */
+    private $DemandePaiementAvance;
+
     /**===========================================================================
      * GETTER & SETTER
      *
@@ -306,6 +311,24 @@ class DaSoumissionBc
     public function setMontantBc($montantBc)
     {
         $this->montantBc = $montantBc;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of DemandePaiementAvance
+     */
+    public function getDemandePaiementAvance()
+    {
+        return $this->DemandePaiementAvance;
+    }
+
+    /**
+     * Set the value of DemandePaiementAvance
+     */
+    public function setDemandePaiementAvance($DemandePaiementAvance): self
+    {
+        $this->DemandePaiementAvance = $DemandePaiementAvance;
 
         return $this;
     }

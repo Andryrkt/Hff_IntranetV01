@@ -10,6 +10,7 @@ use Symfony\Component\Validator\Constraints\Callback;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class DaSoumissionBcType extends AbstractType
@@ -20,6 +21,18 @@ class DaSoumissionBcType extends AbstractType
             ->add('numeroCde', TextType::class, [
                 'label' => 'Numéro Commande',
                 'attr' => ['disabled' => true]
+            ])
+            ->add('DemandePaiementAvance', ChoiceType::class, [
+                'choices'       => [
+                    'OUI' => true,
+                    'NON' => false
+                ],
+                'expanded'      => true,
+                'multiple'      => false,
+                'label'         => 'Demande paiement à l\'avance',
+                'attr' => [
+                    'required' => true
+                ]
             ])
             ->add(
                 'pieceJoint1',

@@ -289,7 +289,7 @@ document.addEventListener("contextmenu", function (event) {
     statutAffiche.style.display = "block";
     if (statutBcAppro.includes(statutBc)) {
       statutAffiche.innerHTML = `<button id="confirmerStatutBtn" class="btn btn-primary">
-        Confirmer le statut
+        correction statut sur livraison OR
       </button>`;
       document
         .getElementById("confirmerStatutBtn")
