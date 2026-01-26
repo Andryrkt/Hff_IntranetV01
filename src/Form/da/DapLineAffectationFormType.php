@@ -5,13 +5,11 @@ namespace App\Form\da;
 use App\Entity\da\DemandeApproParentLine;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
-use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Validator\Constraints\NotBlank;
 
 class DapLineAffectationFormType extends AbstractType
 {
@@ -27,7 +25,7 @@ class DapLineAffectationFormType extends AbstractType
             $form
                 ->add('artRefp', TextType::class, [
                     'label' => false,
-                    'required' => false,
+                    'required' => true,
                     'disabled' => $articleStocke,
                 ])
                 ->add('artDesi', TextType::class, [
