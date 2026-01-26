@@ -231,7 +231,7 @@ class MenuService
     {
         $this->setConnectedUserContext();
 
-        $vignettes = [$this->menuDocumentation()]; // tout le monde
+        $vignettes = [$this->menuDocumentation(), $this->menuMateriel()]; // tout le monde
         $estAdmin = $this->getEstAdmin(); // estAdmin
         $applicationIds = $this->getApplicationIds(); // les ids des applications autorisées de l'utilisateur connecté
 
@@ -240,7 +240,6 @@ class MenuService
             [$this->menuReportingBI(), $estAdmin],
             [$this->menuCompta(), $estAdmin || $this->hasAccess([Application::ID_DDP, Application::ID_DDR, Application::ID_BCS], $applicationIds)], // DDP + DDR
             [$this->menuRH(), $estAdmin || $this->hasAccess([Application::ID_DOM, Application::ID_MUT, Application::ID_DDC], $applicationIds)],     // DOM + MUT + DDC
-            [$this->menuMateriel(), $estAdmin || $this->hasAccess([Application::ID_BADM, Application::ID_CAS], $applicationIds)], // BDM + CAS
             [$this->menuAtelier(), $estAdmin || $this->hasAccess([Application::ID_DIT, Application::ID_REP], $applicationIds)], // DIT + REP
             [$this->menuMagasin(), $estAdmin || $this->hasAccess([Application::ID_MAG, Application::ID_INV, Application::ID_BDL, Application::ID_CFR, Application::ID_LCF], $applicationIds)], // MAG + INV + BDL + CFR + LCF
             [$this->menuAppro(), $estAdmin || in_array(Application::ID_DAP, $applicationIds, true)],         // DAP
@@ -395,29 +394,33 @@ class MenuService
     {
         $subitems = [
             $this->createSubMenuItem(
-                'Mouvement matériel',
-                'exchange-alt',
-                [
-                    $this->createSubItem('Nouvelle demande', 'plus-circle', 'badms_newForm1'),
-                    $this->createSubItem('Consultation', 'search', 'badmListe_AffichageListeBadm')
-                ]
-            ),
-            $this->createSubMenuItem(
-                'Casier',
-                'box-open',
-                [
-                    $this->createSubItem('Nouvelle demande', 'plus-circle', 'casier_nouveau'),
-                    $this->createSubItem('Consultation', 'search', 'listeTemporaire_affichageListeCasier')
-                ]
-            ),
-            $this->createSubMenuItem(
                 'Logistique',
                 'truck-fast',
                 [
                     $this->createSubItem('Nouvelle demande', 'plus-circle', 'new_logistique'),
                 ]
-            ),
+            )
         ];
+        if ($this->getEstAdmin() || $this->hasAccess([Application::ID_BADM, Application::ID_CAS], $this->getApplicationIds())) {
+            $subitems = array_merge($subitems, [
+                $this->createSubMenuItem(
+                    'Mouvement matériel',
+                    'exchange-alt',
+                    [
+                        $this->createSubItem('Nouvelle demande', 'plus-circle', 'badms_newForm1'),
+                        $this->createSubItem('Consultation', 'search', 'badmListe_AffichageListeBadm')
+                    ]
+                ),
+                $this->createSubMenuItem(
+                    'Casier',
+                    'box-open',
+                    [
+                        $this->createSubItem('Nouvelle demande', 'plus-circle', 'casier_nouveau'),
+                        $this->createSubItem('Consultation', 'search', 'listeTemporaire_affichageListeCasier')
+                    ]
+                ),
+            ]);
+        }
         if ($this->getEstAdmin()) {
             $subitems[] = $this->createSimpleItem('Commandes matériels', 'shopping-basket');
             $subitems[] = $this->createSimpleItem('Suivi administratif des matériels', 'clipboard-check');
