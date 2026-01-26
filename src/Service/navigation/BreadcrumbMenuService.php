@@ -462,6 +462,13 @@ class BreadcrumbMenuService
                 'link'        => 'da_list_cde_frn',
                 'icon'        => 'fas fa-search',
                 'routeParams' => []
+            ],
+            [
+                'id'          => null,
+                'title'       => 'Consultation facture',
+                'link'        => 'da_bon_a_payer',
+                'icon'        => 'fas fa-search',
+                'routeParams' => []
             ]
         ];
     }

@@ -342,7 +342,7 @@ class DemandePaiementModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function getMontantTotalCde(int $numCde): float
+    public function getMontantTotalCde(int $numCde): array
     {
         $statement = " SELECT fcde_mtn as montant_total_cde
                 from informix.frn_cde 
@@ -353,6 +353,8 @@ class DemandePaiementModel extends Model
 
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
 
-        return array_column($data, 'montant_total_cde')[0];
+
+
+        return array_column($data, 'montant_total_cde');
     }
 }
