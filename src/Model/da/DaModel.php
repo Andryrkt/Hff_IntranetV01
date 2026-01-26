@@ -523,6 +523,28 @@ class DaModel extends Model
     }
 
     /**
+     * Récupérer les références autorisées
+     */
+    public function getAllReferenceAutorisees(): array
+    {
+        $statement = "SELECT 
+                        TRIM(abs.abse_refp) as reference, 
+                        TRIM(abs.abse_constp) as const
+                    FROM Informix.art_bse abs
+                    INNER JOIN Informix.art_soc asoc 
+                        ON asoc.asoc_constp = abs.abse_constp 
+                    AND asoc.asoc_refp = abs.abse_refp
+                    WHERE abs.abse_constp in ('ALI','BOI','CEN','FBU','HAB','OUT','ZDI')
+                    AND asoc.asoc_soc = 'HF'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return array_column($data, 'const', 'reference');
+    }
+
+    /**
      * recupère le numéro et le nom du fournissuer
      * 
      * cette méthode utilise les tables frn_cdl et frn_bse pour recupérer le numéro et le nom du fournisseur
