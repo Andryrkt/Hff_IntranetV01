@@ -612,7 +612,7 @@ class DaAfficherRepository extends EntityRepository
             ];
         } else {
             $map = [
-                'numDa'         => "$qbLabel.numeroDemandeAppro",
+                'numDa'         => "$qbLabel.numeroDemandeApproMere",
                 'numDit'        => "$qbLabel.numeroDemandeDit",
                 'demandeur'     => "$qbLabel.demandeur",
                 'codeCentrale'  => "$qbLabel.codeCentrale",

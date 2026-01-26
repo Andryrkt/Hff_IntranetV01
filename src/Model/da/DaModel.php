@@ -181,6 +181,30 @@ class DaModel extends Model
         return $data;
     }
 
+    public function getAllArticleStocke()
+    {
+        $statement = "SELECT 
+                        a.abse_constp AS constp,
+                        TRIM(a.abse_refp) AS refp,
+                        TRIM(a.abse_desi) AS designation,
+                        af.afrn_numf AS numero_fournisseur,
+                        fbse_nomfou AS nom_fournisseur,
+                        af.afrn_pxach AS prix_unitaire 
+                    FROM art_bse a 
+                    LEFT JOIN art_frn af ON afrn_constp = abse_constp AND afrn_refp = abse_refp
+                    INNER JOIN art_soc ON asoc_soc = 'HF' AND asoc_constp = a.abse_constp AND asoc_refp = a.abse_refp
+                    INNER JOIN frn_bse ON af.afrn_numf = fbse_numfou
+                        WHERE a.abse_constp IN ('ALI','BOI','CEN','FBU','HAB','OUT')
+                        AND af.afrn_dated = (
+                            SELECT MAX(afrn_dated) FROM art_frn WHERE afrn_constp = a.abse_constp AND afrn_refp = a.abse_refp
+                        )
+                    ORDER BY designation";
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return $data;
+    }
+
     public function getPrixUnitaire($referencePiece)
     {
         $statement = "SELECT c.afrn_pxach as prix

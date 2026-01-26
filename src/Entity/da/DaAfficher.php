@@ -23,7 +23,12 @@ class DaAfficher
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=11, name="numero_demande_appro")
+     * @ORM\Column(type="string", length=11, name="numero_demande_appro_mere")
+     */
+    private string $numeroDemandeApproMere;
+
+    /**
+     * @ORM\Column(type="string", length=12, name="numero_demande_appro")
      */
     private string $numeroDemandeAppro;
 
@@ -325,6 +330,12 @@ class DaAfficher
     private ?DemandeAppro $demandeAppro = null;
 
     /**
+     * @ORM\ManyToOne(targetEntity=DemandeApproParent::class)
+     * @ORM\JoinColumn(name="demande_appro_parent_id", referencedColumnName="id", nullable=false)
+     */
+    private ?DemandeApproParent $demandeApproParent = null;
+
+    /**
      * @ORM\ManyToOne(targetEntity=DemandeIntervention::class)
      * @ORM\JoinColumn(name="dit_id", referencedColumnName="id", nullable=true)
      */
@@ -383,6 +394,24 @@ class DaAfficher
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * Get the value of numeroDemandeApproMere
+     */
+    public function getNumeroDemandeApproMere(): string
+    {
+        return $this->numeroDemandeApproMere;
+    }
+
+    /**
+     * Set the value of numeroDemandeApproMere
+     */
+    public function setNumeroDemandeApproMere(string $numeroDemandeApproMere): self
+    {
+        $this->numeroDemandeApproMere = $numeroDemandeApproMere;
+
+        return $this;
     }
 
     /**
@@ -1486,6 +1515,24 @@ class DaAfficher
     }
 
     /**
+     * Get the value of demandeApproParent
+     */
+    public function getDemandeApproParent(): ?DemandeApproParent
+    {
+        return $this->demandeApproParent;
+    }
+
+    /**
+     * Set the value of demandeApproParent
+     */
+    public function setDemandeApproParent(?DemandeApproParent $demandeApproParent): self
+    {
+        $this->demandeApproParent = $demandeApproParent;
+
+        return $this;
+    }
+
+    /**
      * Get the value of dit
      */
     public function getDit()
@@ -1823,10 +1870,58 @@ class DaAfficher
         ;
     }
 
-    public function enregistrerDa(DemandeAppro $da)
+    public function enregistrerDaParent(DemandeApproParent $demandeApproParent)
+    {
+        $this
+            ->setDemandeApproParent($demandeApproParent)
+            ->setNumeroDemandeApproMere($demandeApproParent->getNumeroDemandeAppro())
+            ->setNumeroDemandeAppro($demandeApproParent->getNumeroDemandeAppro())
+            ->setStatutDal($demandeApproParent->getStatutDal())
+            ->setObjetDal($demandeApproParent->getObjetDal())
+            ->setDetailDal($demandeApproParent->getDetailDal())
+            ->setDemandeur($demandeApproParent->getDemandeur())
+            ->setCodeCentrale($demandeApproParent->getCodeCentrale())
+            ->setDesiCentrale($demandeApproParent->getDesiCentrale())
+            ->setDaTypeId(DemandeAppro::TYPE_DA_PARENT)
+            ->setDateDemande($demandeApproParent->getDateCreation())
+            ->setNiveauUrgence($demandeApproParent->getNiveauUrgence())
+            ->setAgenceEmetteur($demandeApproParent->getAgenceEmetteur()->getId())
+            ->setServiceEmetteur($demandeApproParent->getServiceEmetteur()->getId())
+            ->setAgenceDebiteur($demandeApproParent->getAgenceDebiteur()->getId())
+            ->setServiceDebiteur($demandeApproParent->getServiceDebiteur()->getId())
+        ;
+    }
+
+    public function enregistrerDaParentLine(DemandeApproParentLine $demandeApproParentLine)
+    {
+        $this
+            ->setQteDem($demandeApproParentLine->getQteDem())
+            ->setNumeroLigne($demandeApproParentLine->getNumeroLigne())
+            ->setArtConstp($demandeApproParentLine->getArtConstp())
+            ->setArtRefp($demandeApproParentLine->getArtRefp())
+            ->setArtDesi($demandeApproParentLine->getArtDesi())
+            ->setArtFams1($demandeApproParentLine->getArtFams1())
+            ->setArtFams2($demandeApproParentLine->getArtFams2())
+            ->setCodeFams1($demandeApproParentLine->getCodeFams1())
+            ->setCodeFams2($demandeApproParentLine->getCodeFams2())
+            ->setNumeroFournisseur($demandeApproParentLine->getNumeroFournisseur())
+            ->setNomFournisseur($demandeApproParentLine->getNomFournisseur())
+            ->setDateFinSouhaite($demandeApproParentLine->getDateFinSouhaite())
+            ->setCommentaire($demandeApproParentLine->getCommentaire())
+            ->setPrixUnitaire($demandeApproParentLine->getPrixUnitaire())
+            ->setTotal($demandeApproParentLine->getPrixUnitaire() * $demandeApproParentLine->getQteDem())
+            ->setEstFicheTechnique($demandeApproParentLine->getEstFicheTechnique())
+            ->setPjNewAte($demandeApproParentLine->getFileNames())
+            ->setNomFicheTechnique($demandeApproParentLine->getNomFicheTechnique())
+            ->setJoursDispo($demandeApproParentLine->getJoursDispo())
+        ;
+    }
+
+    public function duplicateDa(DemandeAppro $da)
     {
         $this
             ->setDemandeAppro($da)
+            ->setNumeroDemandeApproMere($da->getNumeroDemandeApproMere())
             ->setNumeroDemandeAppro($da->getNumeroDemandeAppro())
             ->setNumeroDemandeDit($da->getNumeroDemandeDit())
             ->setStatutDal($da->getStatutDal())
@@ -1846,7 +1941,7 @@ class DaAfficher
         ;
     }
 
-    public function enregistrerDal(DemandeApproL $dal)
+    public function duplicateDal(DemandeApproL $dal)
     {
         $this
             ->setQteDem($dal->getQteDem())
@@ -1872,7 +1967,7 @@ class DaAfficher
         ;
     }
 
-    public function enregistrerDalr(DemandeApproLR $dalr)
+    public function duplicateDalr(DemandeApproLR $dalr)
     {
         $this
             ->setQteDem($dalr->getQteDem())

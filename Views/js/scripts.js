@@ -5,6 +5,13 @@ import { displayOverlay } from "./utils/ui/overlay";
 import { showNotification } from "./utils/notification/notification";
 
 document.addEventListener("DOMContentLoaded", () => {
+  /*=============================*
+   * TOOLTIP BOOTSTRAP           *
+   *=============================*/
+  document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach((el) => {
+    new bootstrap.Tooltip(el);
+  });
+
   const logoutLink = document.getElementById("logoutLink");
   const logoutUrl = logoutLink?.getAttribute("href");
 
@@ -46,15 +53,6 @@ document.addEventListener("DOMContentLoaded", () => {
         e.nextElementSibling.classList.toggle("show");
       });
     });
-
-  /*=============================*
-   * TOOLTIP BOOTSTRAP           *
-   *=============================*/
-  document.addEventListener("DOMContentLoaded", () => {
-    document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach((el) => {
-      new bootstrap.Tooltip(el);
-    });
-  });
 
   /*====================================*
    * MODAL TYPE DE DEMANDE PAIEMENT     *

@@ -18,7 +18,7 @@ abstract class GenererPdfDa extends GeneratePdf
         $titre = [
             DemandeAppro::TYPE_DA_AVEC_DIT  => "DEMANDE D’APPROVISIONNEMENT",
             DemandeAppro::TYPE_DA_DIRECT    => "DEMANDE D’ACHAT",
-            DemandeAppro::TYPE_DA_REAPPRO   => "DEMANDE DE REAPPRO MENSUEL",
+            DemandeAppro::TYPE_DA_REAPPRO_MENSUEL   => "DEMANDE DE REAPPRO MENSUEL",
         ];
 
         $pdf->setFont('helvetica', 'B', 14);
@@ -46,7 +46,7 @@ abstract class GenererPdfDa extends GeneratePdf
             $pdf->cell(110, 6, $dit->getTypeDocument() ? $dit->getTypeDocument()->getDescription() : '', 0, 0, 'C', false, '', 0, false, 'T', 'M');
         }
 
-        if ($demandeAppro->getDaTypeId() === DemandeAppro::TYPE_DA_REAPPRO && in_array($demandeAppro->getAgenceEmetteur()->getCodeAgence(), ['90', '91', '92'])) {
+        if ($demandeAppro->getDaTypeId() === DemandeAppro::TYPE_DA_REAPPRO_MENSUEL && in_array($demandeAppro->getAgenceEmetteur()->getCodeAgence(), ['90', '91', '92'])) {
             $pdf->setFont('helvetica', 'B', 12);
             $pdf->setAbsX(90);
             $pdf->cell(110, 6, "Centrale : " . ($demandeAppro->getCodeCentrale() ?? '-'), 0, 0, 'L', false, '', 0, false, 'T', 'M');

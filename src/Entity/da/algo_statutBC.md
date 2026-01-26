@@ -42,7 +42,7 @@ Conditions de retour vide :
 Déterminer le type selon daTypeId :
   - daDirect = si (daTypeId == TYPE_DA_DIRECT) alors VRAI sinon FAUX
   - daViaOR = si (daTypeId == TYPE_DA_AVEC_DIT) alors VRAI sinon FAUX
-  - daReappro = si (daTypeId == TYPE_DA_REAPPRO) alors VRAI sinon FAUX
+  - daReappro = si (daTypeId == TYPE_DA_REAPPRO_MENSUEL) alors VRAI sinon FAUX
 ```
 
 ### Étape 4 : Mise à jour des informations OR
@@ -399,4 +399,4 @@ RETOURNER statut BC
 
 - TYPE_DA_AVEC_DIT = 0
 - TYPE_DA_DIRECT = 1
-- TYPE_DA_REAPPRO = 2
+- TYPE_DA_REAPPRO_MENSUEL = 2

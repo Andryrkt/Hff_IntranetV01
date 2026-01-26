@@ -251,7 +251,7 @@ trait StatutBcTrait
         $daTypeId = $DaAfficher->getDaTypeId();
         $daDirect = $daTypeId == DemandeAppro::TYPE_DA_DIRECT; // condition pour daDirect
         $daViaOR = $daTypeId == DemandeAppro::TYPE_DA_AVEC_DIT; // condition pour Da via OR
-        $daReappro = $daTypeId == DemandeAppro::TYPE_DA_REAPPRO;
+        $daReappro = $daTypeId == DemandeAppro::TYPE_DA_REAPPRO_MENSUEL;
 
         return [$daDirect, $daViaOR, $daReappro];
     }

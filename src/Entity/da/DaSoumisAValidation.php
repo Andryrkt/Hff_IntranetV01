@@ -23,7 +23,7 @@ class DaSoumisAValidation
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=11, name="numero_demande_appro")
+     * @ORM\Column(type="string", length=12, name="numero_demande_appro")
      */
     private string $numeroDemandeAppro;
 
@@ -53,6 +53,11 @@ class DaSoumisAValidation
      * @ORM\Column(type="string", length=100)
      */
     private string $utilisateur = '';
+
+    public function __construct()
+    {
+        $this->dateSoumission = new \DateTime();
+    }
 
     /**
      * Get the value of id

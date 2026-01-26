@@ -1,0 +1,193 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block title %}
+	Création d’une DA directe
+{% endblock %}
+
+{% block stylesheets %}
+	<link href="{{ App.base_path }}/Views/css/new.css?v=2025.10.22.08.00" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/da/list.css?v=2025.10.22.08.00" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/da/style.css?v=2025.10.22.08.00" rel="stylesheet"/>
+{% endblock %}
+
+{% import "macroForm.html.twig" as macroForm %}
+{% import "macros/form_macros.html.twig" as formMacros %}
+
+{% block overlay %}
+	{% include "/shared/_overlay.html.twig"  %}
+{% endblock %}
+
+{% block content %}
+	<div class="container-spaced">
+		<div class="card">
+			<div class="card-body">
+				{{ form_start(form, { 'attr': { 'id': 'myForm' } }) }}
+				{{ form_errors(form)}}
+				<div class="container-fluid">
+					<div class="row">
+						<h3 class="perso-titre">
+							Formulaire Demande d'achat direct
+						</h3>
+					</div>
+
+					<div class="row">
+						<div class="col-12 col-md-6">
+							{{ macroForm.sousTitre('Information sur la demande') }}
+							{{ form_row(form.objetDal)}}
+							<div class="mb-3 position-relative">
+								{{ form_row(form.detailDal) }}
+								<span id="charCount" class="position-absolute bottom-0 end-0 p-0 small text-muted"></span>
+							</div>
+							<div class="row">
+								<div class="col col-md">
+									{{ form_row(form.niveauUrgence) }}
+								</div>
+								<div class="col col-md">
+									{{ form_row(form.dateFinSouhaite) }}
+								</div>
+							</div>
+						</div>
+						<div class="col-12 col-md-6">
+							{{ macroForm.sousTitre('Agence et service') }}
+							<div class="row">
+								<div class="col-6 col-md-6">
+									{{ macroForm.sousTitre('Emetteur') }}
+									{{ form_row(form.agenceEmetteur) }}
+									{{ form_row(form.serviceEmetteur) }}
+								</div>
+								<div class="col-6 col-md-6">
+									{{ macroForm.sousTitre('Débiteur') }}
+									{{ formMacros.debiteurOuEmetteurFields(form, 'debiteur') }}
+									<div class="{{ codeCentrale ? '' : 'd-none'}}">
+										{{ form_label(form.desiCentrale) }}
+										<div>
+											{{ form_widget(form.desiCentrale) }}
+											<span class="input-group-text bg-primary bg-opacity-25 d-none" role="button" id="editIcon" data-bs-toggle="tooltip" data-bs-original-title='Modifier la centrale rattachée'>
+												<i class="fas fa-marker text-primary fs-6"></i>
+											</span>
+										</div>
+									</div>
+									<div class="d-none">
+										{{ form_widget(form.codeCentrale) }}
+									</div>
+									<div id="suggestion-code-centrale" class="suggestions-container"></div>
+									<div id="loader-code-centrale" class="spinner invisible" style="display: none;"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<table class="table rounded table-plein-ecran mt-4">
+						<thead class="table-dark text-center">
+							<tr>
+								<th class="w-20 align-middle">Désignation *</th>
+								<th class="w-15 align-middle">Fournisseur</th>
+								<th class="w-15 align-middle">Date fin souhaitée *</th>
+								<th class="w-5 align-middle text-end">Qté *</th>
+								<th class="w-20 align-middle">Commentaire</th>
+								<th class="w-15 align-middle">Pièces jointes</th>
+								<th class="w-2 align-middle">Fiche technique</th>
+								<th class="w-2 align-middle">
+									<i class="fas fa-times fs-5"></i>
+								</th>
+							</tr>
+						</thead>
+					</table>
+					<div id="children-container">
+						{% for ligne, demandeApproParentLine in form.demandeApproParentLines %}
+							{% set demandeApproParentLineData = demandeApproParentLine.vars.data %}
+							<div id="demande_appro_achat_form_demandeApproParentLines_{{ ligne }}" class="demandeApproParentLines-container">
+								<div class="d-flex gap-3">
+									<div class="w-25">
+										{{ form_widget(demandeApproParentLine.artDesi, { 'attr': { class:"non-modifiable" } }) }}
+									</div>
+									<div class="w-15">
+										{{ form_widget(demandeApproParentLine.nomFournisseur, { 'attr': { class:"non-modifiable" } }) }}
+									</div>
+									<div class="w-15">
+										{{ form_widget(demandeApproParentLine.dateFinSouhaite, { 'attr': { class:"non-modifiable" } }) }}
+									</div>
+									<div class="w-5">
+										{{ form_widget(demandeApproParentLine.qteDem) }}
+									</div>
+									<div class="w-19">
+										{{ form_widget(demandeApproParentLine.commentaire) }}
+									</div>
+									<div class="w-1">
+										<i class="fas fa-paperclip text-primary add-file-icon" data-file-input-id="demande_appro_achat_form_demandeApproParentLines_{{ ligne }}_fileNames" title="Ajouter une pièce jointe" style="cursor: pointer;"></i>
+									</div>
+									<div class="w-15" id="demande_appro_achat_form_demandeApproParentLines_{{ ligne }}_fileNamesContainer">
+										{% if demandeApproParentLineData.fileNames is not empty %}
+											<ul class="ps-0 mb-0 file-list">
+												{% for file in demandeApproParentLineData.fileNames %}
+													<li class="file-item">
+														<span class="file-name">
+															<a href="{{ App.base_path_fichier }}/da/{{ demandeApproParentLineData.numeroDemandeAppro }}/{{ file }}" target="_blank">{{ file }}</a>
+														</span>
+														<span class="remove-file">x</span>
+													</li>
+												{% endfor %}
+											</ul>
+										{% endif %}
+									</div>
+									<div class="w-2">
+										{{ form_widget(demandeApproParentLine.estFicheTechnique) }}
+									</div>
+									<div class="d-none">
+										{{ form_widget(demandeApproParentLine.numeroLigne) }}
+										{{ form_widget(demandeApproParentLine.artConstp) }}
+										{{ form_widget(demandeApproParentLine.artRefp) }}
+										{{ form_widget(demandeApproParentLine.fileNames) }}
+										{{ form_widget(demandeApproParentLine.existingFileNames) }}
+										{{ form_widget(demandeApproParentLine.filesToDelete) }}
+										{{ form_widget(demandeApproParentLine.numeroFournisseur) }}
+										{{ form_widget(demandeApproParentLine.articleStocke) }}
+										{{ form_widget(demandeApproParentLine.prixUnitaire) }}
+										{{ form_widget(demandeApproParentLine.deleted) }}
+									</div>
+									<div class="w-2">
+										<span class="delete-DA" data-num-ligne="{{ ligne }}" title="Supprimer la ligne de DA" style="cursor: pointer;">
+											<i class="fas fa-times fs-4"></i>
+										</span>
+									</div>
+								</div>
+								<div class="mt-3 mb-3"></div>
+							</div>
+						{% endfor %}
+					</div>
+
+					<div id="child-prototype" style="display: none;">
+						{{ form_widget(form.demandeApproParentLines.vars.prototype)|raw }}
+					</div>
+
+					<div class="d-flex justify-content-end">
+						<button type="button" id="add-child" class="bouton-secondaire mt-2">
+							<i class="fas fa-plus"></i>
+							Ajouter une ligne
+						</button>
+					</div>
+
+					<div class="row">
+						{{ form_row(form.observation)}}
+					</div>
+				</div>
+
+				<div class="d-flex justify-content-end container-fluid mt-2">
+					<button type="submit" class="bouton-brouillon mx-3" name="enregistrerBrouillon">
+						<i class="fas fa-floppy-disk"></i>
+						Enregistrer provisoirement
+					</button>
+					<button type="submit" class="bouton-principal" name="soumissionAppro">
+						<i class="fas fa-paper-plane"></i>
+						Soumettre la demande
+					</button>
+				</div>
+				{{ form_end(form) }}
+			</div>
+		</div>
+
+	</div>
+{% endblock %}
+{% block javascript %}
+	<script type="module" src="{{ App.base_path }}/Views/js/da/newAchat/new.js?v=2025.10.22.08.00" type="module"></script>
+{% endblock %}

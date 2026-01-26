@@ -16,6 +16,21 @@ export async function getAllFournisseurs() {
 }
 
 /**
+ * Récupère la liste des articles stockés
+ */
+export async function getAllArticleStocke() {
+  try {
+    return await fetchManager.get(`${BASE_URL_DA}/all-article-stocke`);
+  } catch (error) {
+    console.error(
+      "Erreur lors de la récupération des articles stockés :",
+      error
+    );
+    throw error;
+  }
+}
+
+/**
  * Récupère la liste des désignations
  * @param {boolean} direct - si true, utilise le mode direct ("zdi")
  * @param {string} codeFams1 - premier code famille (par défaut "-")

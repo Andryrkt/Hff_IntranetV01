@@ -35,26 +35,6 @@ class DaNewAvecDitController extends Controller
     }
 
     /**
-     * @Route("/da-first-form", name="da_first_form")
-     */
-    public function firstForm()
-    {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
-        return $this->render('da/first-form.html.twig', [
-            'estAte'                 => $this->estUserDansServiceAtelier(),
-            'estCreateurDeDADirecte' => $this->estCreateurDeDADirecte(),
-            'urls'                   => [
-                'avecDit' => $this->getUrlGenerator()->generate('da_list_dit'),
-                'direct'  => $this->getUrlGenerator()->generate('da_new_direct', ['id' => 0]),
-                'reappro' => $this->getUrlGenerator()->generate('da_new_reappro', ['id' => 0]),
-            ],
-            'estAdmin'               => $this->estAdmin(),
-        ]);
-    }
-
-    /**
      * @Route("/new-avec-dit/{daId<\d+>}/{ditId}", name="da_new_avec_dit")
      */
     public function new(int $daId, int $ditId, Request $request)
@@ -95,7 +75,7 @@ class DaNewAvecDitController extends Controller
 
             $firstCreation = $demandeAppro->getNumeroDemandeAppro() === null;
             $numDa = $firstCreation ? $this->autoDecrement('DAP') : $demandeAppro->getNumeroDemandeAppro();
-            $demandeAppro->setNumeroDemandeAppro($numDa);
+            $demandeAppro->setNumeroDemandeAppro($numDa)->setNumeroDemandeApproMere($numDa);
             $formDAL = $form->get('DAL');
 
             // Récupérer le nom du bouton cliqué

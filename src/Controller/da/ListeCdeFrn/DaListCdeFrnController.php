@@ -250,13 +250,13 @@ class DaListCdeFrnController extends Controller
         $daType = [
             DemandeAppro::TYPE_DA_AVEC_DIT => $this->getIconDaAvecDIT(),
             DemandeAppro::TYPE_DA_DIRECT   => $this->getIconDaDirect(),
-            DemandeAppro::TYPE_DA_REAPPRO  => $this->getIconDaReappro(),
+            DemandeAppro::TYPE_DA_REAPPRO_MENSUEL  => $this->getIconDaReapproMensuel(),
         ];
 
         $routeDetailName = [
             DemandeAppro::TYPE_DA_DIRECT   => 'da_detail_direct',
             DemandeAppro::TYPE_DA_AVEC_DIT => 'da_detail_avec_dit',
-            DemandeAppro::TYPE_DA_REAPPRO  => 'da_detail_reappro',
+            DemandeAppro::TYPE_DA_REAPPRO_MENSUEL  => 'da_detail_reappro',
         ];
 
         $safeIconBan     = new Markup('<i class="fas fa-ban text-muted"></i>', 'UTF-8');

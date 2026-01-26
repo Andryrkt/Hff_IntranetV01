@@ -71,7 +71,7 @@ class DaSearchType extends  AbstractType
     private const TYPE_ACHAT = [
         'DA Avec DIT' => DemandeAppro::TYPE_DA_AVEC_DIT,
         'DA Direct'   => DemandeAppro::TYPE_DA_DIRECT,
-        'DA reappro'  => DemandeAppro::TYPE_DA_REAPPRO,
+        'DA reappro'  => DemandeAppro::TYPE_DA_REAPPRO_MENSUEL,
     ];
 
     private $agenceRepository;

@@ -6,18 +6,18 @@ use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
 use App\Controller\Traits\AutorisationTrait;
+use App\Controller\Traits\da\creation\DaNewReapproPonctuelTrait;
 use Symfony\Component\HttpFoundation\Request;
 use App\Service\application\ApplicationService;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\Traits\da\creation\DaNewReapproTrait;
 use App\Form\da\DemandeApproReapproFormType;
 
 /**
  * @Route("/demande-appro")
  */
-class DaNewReApproController extends Controller
+class DaNewReApproPonctuelController extends Controller
 {
-    use DaNewReapproTrait;
+    use DaNewReapproPonctuelTrait;
     use AutorisationTrait;
     const STATUT_DAL = [
         'enregistrerBrouillon' => DemandeAppro::STATUT_EN_COURS_CREATION,
@@ -27,11 +27,11 @@ class DaNewReApproController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->initDaNewReapproTrait();
+        $this->initDaNewReapproPonctuelTrait();
     }
 
     /**
-     * @Route("/new-da-reappro/{id<\d+>}", name="da_new_reappro")
+     * @Route("/new-da-reappro-ponctuel/{id<\d+>}", name="da_new_reappro_ponctuel")
      */
     public function newDAReappro(int $id, Request $request)
     {
@@ -42,8 +42,7 @@ class DaNewReApproController extends Controller
         $this->checkPageAccess($this->estAdmin() || $this->estCreateurDeDADirecte());
         /** FIN AUtorisation accès */
 
-        $demandeAppro     = $id === 0 ? $this->initialisationDemandeApproReappro() : $this->demandeApproRepository->find($id);
-        $this->generateDemandApproLinesFromReappros($demandeAppro);
+        $demandeAppro     = $id === 0 ? $this->initialisationDemandeApproReapproPonctuel() : $this->demandeApproRepository->find($id);
 
         $form = $this->getFormFactory()->createBuilder(DemandeApproReapproFormType::class, $demandeAppro, [
             'em' => $this->getEntityManager()

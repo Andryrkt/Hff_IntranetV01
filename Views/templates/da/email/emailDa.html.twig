@@ -11,17 +11,19 @@
 			<div class="email-body">
 				<p>Bonjour,</p>
 				{{ include('da/email/shared/_body.' ~ templateName ~ '.html.twig') }}
-				<p>
-					Pour consulter les détails de la demande, veuillez cliquer sur le bouton ci-dessous:
-					<br>
-					<a href="{{ urlDetail }}" class="button">Détail de la demande</a>
-				</p>
-				<p>
-					<span class="fw-bold">NB:</span>
-					Assurez-vous d’être connecté à
-					<a href="{{ urlIntranet }}">Hffintranet</a>
-					avant de cliquer sur le bouton.
-				</p>
+				{% if urlDetail %}
+					<p>
+						Pour consulter les détails de la demande, veuillez cliquer sur le bouton ci-dessous:
+						<br>
+						<a href="{{ urlDetail }}" class="button">Détail de la demande</a>
+					</p>
+					<p>
+						<span class="fw-bold">NB:</span>
+						Assurez-vous d’être connecté à
+						<a href="{{ urlIntranet }}">Hffintranet</a>
+						avant de cliquer sur le bouton.
+					</p>
+				{% endif %}
 				<p class="fw-bold">Cordialement,</p>
 			</div>
 			<div class="email-footer">

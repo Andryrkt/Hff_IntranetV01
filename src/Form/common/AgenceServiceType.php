@@ -109,7 +109,6 @@ class AgenceServiceType extends AbstractType
             'service_label'       => "Service",
             'service_placeholder' => '-- Choisir un service--',
             'service_required' => false,
-            'em' => null,
             'agence_codes' => [],
             'data_agence' => null,
             'data_service' => null,

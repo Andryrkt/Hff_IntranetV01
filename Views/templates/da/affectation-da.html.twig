@@ -1,0 +1,124 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block title %}
+	Validation d’une DA Réappro
+{% endblock %}
+
+{% block stylesheets %}
+	<link href="{{ App.base_path }}/Views/css/new.css?v=2025.10.22.08.00" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/da/style.css?v=2025.10.22.08.00" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/da/list.css?v=2025.10.22.08.00" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/da/detail.css?v=2025.10.22.08.00" rel="stylesheet"/>
+{% endblock %}
+
+{% import "macroForm.html.twig" as macroForm %}
+
+{% block overlay %}
+	{% include "/shared/_overlay.html.twig"  %}
+{% endblock %}
+
+{% block content %}
+	<div class="container-spaced">
+		<div class="card">
+			<div class="card-body">
+				<div class="container-fluid">
+					<h3 class="perso-titre">
+						Affectation de la DA n°
+						{{ demandeApproParent.numeroDemandeAppro }}
+					</h3>
+					<div class="row">
+						<div class="col-12 col-md-6">
+							{{ macroForm.sousTitre('Information sur la demande') }}
+							{{ macroForm.affichage2('Objet de la demande', demandeApproParent.objetDal, 'mb-2') }}
+							{{ macroForm.affichage2('Détail de la demande', demandeApproParent.detailDal, 'h-90 mb-2') }}
+							{{ macroForm.affichage2('Date fin souhaitée', demandeApproParent.dateFinSouhaite|date('d/m/Y'), 'mb-2') }}
+						</div>
+						<div class="col-12 col-md-6">
+							{{ macroForm.sousTitre('Agence et service') }}
+							<div class="row">
+								<div class="col-6 col-md-6">
+									{{ macroForm.sousTitre('Emetteur') }}
+									{{ macroForm.affichage2('Agence', demandeApproParent.agenceEmetteur.codeAgence ~ ' ' ~ demandeApproParent.agenceEmetteur.libelleAgence, 'mb-2') }}
+									{{ macroForm.affichage2('Service', demandeApproParent.serviceEmetteur.codeService ~ ' ' ~  demandeApproParent.serviceEmetteur.libelleService, 'mb-2') }}
+								</div>
+								<div class="col-6 col-md-6">
+									{{ macroForm.sousTitre('Débiteur') }}
+									{{ macroForm.affichage2('Agence Débiteur', demandeApproParent.agenceDebiteur.codeAgence ~ ' ' ~ demandeApproParent.agenceDebiteur.libelleAgence, 'mb-2') }}
+									{{ macroForm.affichage2('Service Débiteur', demandeApproParent.serviceDebiteur.codeService ~ ' ' ~  demandeApproParent.serviceDebiteur.libelleService, 'mb-2') }}
+									{{ macroForm.affichage2('Centrale rattachée à la DA', demandeApproParent.desiCentrale ?? '-', 'mb-2') }}
+								</div>
+							</div>
+						</div>
+					</div>
+
+					{{ macroForm.sousTitre('Affectation des articles demandés') }}
+					{{ form_start(form) }}
+					{{ form_errors(form)}}
+					<table class="table text-center mt-3 align-middle">
+						<thead class="table-dark align-middle">
+							<tr>
+								<th width="7%">Référence</th>
+								<th>Désignation initiale</th>
+								<th>Désignation proposée</th>
+								<th width="7%">Numéro Fournisseur</th>
+								<th>Nom Fournisseur</th>
+								<th width="7%">Date fin souhaitée</th>
+								<th width="4%">Qté demandée</th>
+								<th>Commentaire</th>
+								<th>Pièces jointes</th>
+								<th width="4%">Fiche technique</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for dalForm in form.demandeApproParentLines %}
+								{% set dal = dalForm.vars.data %}
+								<tr>
+									<td>{{ form_widget(dalForm.artRefp) }}</td>
+									<td>{{ macroForm.affichageSimple(dal.artDesi, 'text-start') }}</td>
+									<td>{{ form_widget(dalForm.artDesi) }}</td>
+									<td>{{ form_widget(dalForm.numeroFournisseur) }}</td>
+									<td>{{ form_widget(dalForm.nomFournisseur) }}</td>
+									<td>{{ macroForm.affichageSimple(dal.dateFinSouhaiteFormatted, 'text-center') }}</td>
+									<td>{{ macroForm.affichageSimple(dal.qteDem, 'text-center') }}</td>
+									<td>{{ macroForm.affichageSimple(dal.commentaire is not empty ? dal.commentaire : '-', 'text-start') }}</td>
+									<td>
+										{% if dal.fileNames|length > 0 %}
+											<ul class="mb-0 px-0">
+												{% for file in dal.fileNames %}
+													<li>
+														<a href="{{ App.base_path_fichier }}/da/{{ dal.numeroDemandeAppro }}/{{ file }}" target="_blank">{{ file }}</a>
+													</li>
+												{% endfor %}
+											</ul>
+										{% else %}
+											Pas de pièces jointes
+										{% endif %}
+									</td>
+									<td>
+										{% if dal.estFicheTechnique %}
+											<i class="fas fa-check text-success"></i>
+										{% else %}
+											<i class="fas fa-xmark text-danger"></i>
+										{% endif %}
+									</td>
+									<td class="d-none">{{ form_widget(dalForm.articleStocke) }}</td>
+									<td class="d-none">{{ form_widget(dalForm.artConstp) }}</td>
+									<td class="d-none">{{ form_widget(dalForm.prixUnitaire) }}</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+					<div class="d-flex justify-content-end container-fluid mt-2">
+						<button type="submit" class="bouton-principal ajout-overlay">
+							<i class="fas fa-floppy-disk"></i>
+							Enregistrer
+						</button>
+					</div>
+					{{ form_end(form) }}
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block javascript %}{% endblock %}

@@ -18,7 +18,7 @@ use App\Controller\Traits\da\validation\DaValidationReapproTrait;
 /**
  * @Route("/demande-appro")
  */
-class DaValidationReapproController extends Controller
+class DaValidationReapproPonctuelController extends Controller
 {
     use DaAfficherTrait;
     use AutorisationTrait;
@@ -34,9 +34,9 @@ class DaValidationReapproController extends Controller
     }
 
     /**
-     * @Route("/validation-reappro/{id}", name="da_validate_reappro")
+     * @Route("/validation-reappro-ponctuel/{id}", name="da_validate_reappro_ponctuel")
      */
-    public function validationDaReappro($id, Request $request)
+    public function validationDaReapproPonctuel($id, Request $request)
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
@@ -55,16 +55,15 @@ class DaValidationReapproController extends Controller
         $dateRange = $this->getLast12MonthsRange();
         $monthsList = $this->getMonthsList($dateRange['start'], $dateRange['end']);
         $dataHistoriqueConsommation = $this->getHistoriqueConsommation($da, $dateRange, $monthsList);
-        $observations = $this->daObservationRepository->findBy(['numDa' => $da->getNumeroDemandeAppro()], ['dateCreation' => 'ASC']);
+        $observations = $this->daObservationRepository->findBy(['numDa' => $da->getNumeroDemandeAppro()]);
 
         //========================================== Traitement du formulaire en général ===================================================//
         $this->traitementFormulaire($formReappro, $formObservation, $request, $da, $observations, $monthsList, $dataHistoriqueConsommation);
         //==================================================================================================================================//
 
         $fichiers = $this->getAllDAFile([
-            'baiPath'      => $this->getBaIntranetPath($da),
-            'badPath'      => $this->getBaDocuWarePath($da),
-            'devPjPathObs' => $this->getDevisPjPathObservation($da),
+            'baiPath'   => $this->getBaIntranetPath($da),
+            'badPath'   => $this->getBaDocuWarePath($da),
         ]);
 
         return $this->render("da/validation-reappro.html.twig", [
@@ -89,7 +88,7 @@ class DaValidationReapproController extends Controller
             // ✅ Récupérer les valeurs des champs caché
             $observation = $formReappro->getData()->getObservation();
 
-            if ($observation) $this->insertionObservation($da->getNumeroDemandeAppro(), $observation);
+            if ($observation) $this->insertionObservation($observation, $da);
 
             if ($request->request->has('refuser')) {
                 $this->refuserDemande($da);
@@ -130,7 +129,7 @@ class DaValidationReapproController extends Controller
 
     private function traitementEnvoiObservation(DaObservation $daObservation, DemandeAppro $demandeAppro)
     {
-        $this->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $daObservation->getObservation(), $daObservation->getFileNames());
+        $this->insertionObservation($daObservation->getObservation(), $demandeAppro);
 
         $this->emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->getUser(), $this->estUserDansServiceAppro());
 
