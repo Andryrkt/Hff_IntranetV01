@@ -7,7 +7,7 @@ use App\Model\da\DaModel;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
-/** @Route("/api/demande-appro/affectation") */
+/** @Route("/demande-appro/autocomplete") */
 class DaAffectationApi extends Controller
 {
     /**

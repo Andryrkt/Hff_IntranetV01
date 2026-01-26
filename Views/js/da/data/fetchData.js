@@ -20,7 +20,7 @@ export async function getAllFournisseurs() {
  */
 export async function getAllReferences() {
   try {
-    return await fetchManager.get(`${BASE_URL_DA}/affectation/all-reference`);
+    return await fetchManager.get(`${BASE_URL_DA}/all-reference`);
   } catch (error) {
     console.error("Erreur lors de la récupération des références :", error);
     throw error;
