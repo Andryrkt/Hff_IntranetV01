@@ -15,7 +15,6 @@ class NewBdcController extends Controller
     use AutorisationTrait;
 
     /**
-     * Affiche la liste des bons de caisse
      * @Route("/bon-de-caisse", name="new_bon_caisse")
      */
     public function newBonCaisse()
