@@ -51,7 +51,8 @@ class DemandePaiementFactory
         if (empty($recupMontantTotal)) {
             throw new \Exception("Montant total introuvable pour le numero commande $numCdeDa");
         }
-        $dto->montantTotalCde = $recupMontantTotal[0];
+
+        $dto->montantTotalCde = (float)$recupMontantTotal[0];
         $dto->montantDejaPaye = $ddpRepository->getMontantDejaPayer($numCdeDa);
         $dto->montantRestantApayer = $dto->montantTotalCde - $dto->montantDejaPaye;
         $dto->poucentageAvance = (($dto->montantDejaPaye + $dto->montantAPayer) / $dto->montantTotalCde) * 100 . ' %';

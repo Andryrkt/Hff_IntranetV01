@@ -34,6 +34,8 @@ class DaSoumissionBc
 
 
     // statut pour Da Reappro , Da Direct, Da Via OR
+    public const STATUT_TOUS_LIVRES_APPRO              = 'Tout livrée Appro';
+    public const STATUT_PARTIELLEMENT_LIVRE_APPRO      = 'Partiellement Livrée Appro';
     public const STATUT_TOUS_LIVRES              = 'Tous livrés';
     public const STATUT_PARTIELLEMENT_LIVRE      = 'Partiellement livré';
     public const STATUT_PARTIELLEMENT_DISPO      = 'Partiellement dispo';
