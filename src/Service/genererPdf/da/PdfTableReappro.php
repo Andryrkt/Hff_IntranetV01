@@ -6,62 +6,72 @@ use App\Entity\da\DemandeApproL;
 
 class PdfTableReappro
 {
-    public function generateTableArticleDemandeReappro(iterable $dals)
+    public function generateTableArticleDemandeReappro(iterable $dals, bool $isPonctuel)
     {
         $html = '<table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse; font-size: 9px;">';
-        $html .= $this->generateHeaderArticleDemandeReappro();
-        $html .= $this->generateBodyArticleDemandeReappro($dals);
+        $html .= $this->generateHeaderArticleDemandeReappro($isPonctuel);
+        $html .= $this->generateBodyArticleDemandeReappro($dals, $isPonctuel);
         $html .= '</table>';
         return $html;
     }
 
-    private function generateHeaderArticleDemandeReappro()
+    private function generateHeaderArticleDemandeReappro(bool $isPonctuel): string
     {
-        return '
-            <thead>
-                <tr style="background-color: #dcdcdc; font-weight: bold;">
-                    <th align="center" style="width:10%;">Const</th>
-                    <th align="center" style="width:15%;">Référence</th>
-                    <th align="center" style="width:30%;">Désignation</th>
-                    <th align="right" style="width:12%;">PU</th>
-                    <th align="center" style="width:10%;">Qté demandé</th>
-                    <th align="center" style="width:10%;">Qté Validée</th>
-                    <th align="right" style="width:13%;">Montant</th>
-                </tr>
-            </thead>
-        ';
+        $columns = [
+            $this->createTableCell('center', '10%', 'Const'),
+            $this->createTableCell('center', '15%', 'Référence'),
+            $this->createTableCell('center', $isPonctuel ? '40%' : '30%', 'Désignation'),
+            $this->createTableCell('right', '12%', 'PU'),
+            $this->createTableCell('center', '10%', 'Qté demandé'),
+        ];
+
+        if (!$isPonctuel) $columns[] = $this->createTableCell('center', '10%', 'Qté Validée');
+
+        $columns[] = $this->createTableCell('right', '13%', 'Montant');
+
+        return sprintf(
+            '<thead><tr style="background-color: #dcdcdc; font-weight: bold;">%s</tr></thead>',
+            implode('', $columns)
+        );
     }
 
-    private function generateBodyArticleDemandeReappro(iterable $dals)
+    private function createTableCell(string $align, string $width, string $label, string $style = "", bool $header = true): string
     {
-        $html = '<tbody>';
+        $tag = $header ? 'th' : 'td';
+        return sprintf('<%s align="%s" style="width:%s; %s">%s</%s>', $tag, $align, $width, $style, $label, $tag);
+    }
 
-        // Si aucune ligne n’existe
+    private function generateBodyArticleDemandeReappro(iterable $dals, bool $isPonctuel): string
+    {
         if (empty($dals)) {
-            $html .= '<tr><td colspan="6" align="center">Aucun article demandé</td></tr>';
-            $html .= '</tbody>';
-            return $html;
+            return '<tbody><tr><td colspan="6" align="center">Aucun article demandé</td></tr></tbody>';
         }
 
-        $bgRed = "background-color: #dc3545; color: #fff; font-weight: bold;";
-        /** @var DemandeApproL $dal */
-        foreach ($dals as $dal) {
-            $qteDem = $dal->getQteDem();
-            $qteVal = $dal->getQteValAppro();
-            $exces  = $qteDem > $qteVal;
-            $html .= '<tr>';
-            $html .= '<td align="center" style="width:10%;">' . $dal->getArtConstp() . '</td>';
-            $html .= '<td align="center" style="width:15%;">' . $dal->getArtRefp() . '</td>';
-            $html .= '<td align="left" style="width:30%;">' . $dal->getArtDesi() . '</td>';
-            $html .= '<td align="right" style="width:12%;">' . $dal->getPUFormatted() . '</td>';
-            $html .= '<td align="center" style="width:10%;' . ($exces ? $bgRed : "") . ' ">' . $qteDem . '</td>';
-            $html .= '<td align="center" style="width:10%;">' . $qteVal . '</td>';
-            $html .= '<td align="right" style="width:13%;">' . $dal->getMontantFormatted() . '</td>';
-            $html .= '</tr>';
-        }
+        $rows = array_map(fn($dal) => $this->createArticleRow($dal, $isPonctuel), $dals);
 
-        $html .= '</tbody>';
-        return $html;
+        return '<tbody>' . implode('', $rows) . '</tbody>';
+    }
+
+    private function createArticleRow(DemandeApproL $dal, bool $isPonctuel): string
+    {
+        $qteDem = $dal->getQteDem();
+        $qteVal = $dal->getQteValAppro();
+        $exces = $qteDem > $qteVal;
+        $bgRed = $exces ? "background-color: #dc3545; color: #fff; font-weight: bold;" : "";
+
+        $cells = [
+            $this->createTableCell('center', '10%', $dal->getArtConstp(), "", false),
+            $this->createTableCell('center', '15%', $dal->getArtRefp(), "", false),
+            $this->createTableCell('left', $isPonctuel ? '40%' : '30%', $dal->getArtDesi(), "", false),
+            $this->createTableCell('right', '12%', $dal->getPUFormatted(), "", false),
+            $this->createTableCell('center', '10%', $qteDem, $bgRed, false),
+        ];
+
+        if (!$isPonctuel) $cells[] = $this->createTableCell('center', '10%', $qteVal, "", false);
+
+        $cells[] = $this->createTableCell('right', '13%', $dal->getMontantFormatted(), "", false);
+
+        return '<tr>' . implode('', $cells) . '</tr>';
     }
 
     public function generateHistoriqueTable(array $monthsList, array $dataHistorique)

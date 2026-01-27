@@ -118,7 +118,7 @@ abstract class GenererPdfDa extends GeneratePdf
     /** 
      * Fonction pour générer la table sur la liste des articles demandés du service émetteur
      */
-    protected function renderTableArticleDemandeReappro(TCPDF $pdf, iterable $dals): void
+    protected function renderTableArticleDemandeReappro(TCPDF $pdf, iterable $dals, bool $isPonctuel): void
     {
         $generator = new PdfTableReappro;
         $this->renderTextWithLine($pdf, 'Liste des articles demandés');
@@ -127,7 +127,7 @@ abstract class GenererPdfDa extends GeneratePdf
 
         $pdf->SetTextColor(0, 0, 0);
         $pdf->setFont('helvetica', '');
-        $html = $generator->generateTableArticleDemandeReappro($dals);
+        $html = $generator->generateTableArticleDemandeReappro($dals, $isPonctuel);
         $pdf->writeHTML($html, false, false, true, false, '');
         $pdf->Ln(3);
     }
