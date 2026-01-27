@@ -1,4 +1,5 @@
 import { AutoComplete } from "../../utils/AutoComplete";
+import { displayOverlay } from "../../utils/ui/overlay";
 import { getAllFournisseurs, getAllReferences } from "../data/fetchData";
 
 document.addEventListener("DOMContentLoaded", async function () {
@@ -8,6 +9,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   setupInputFormatters();
   setupReferenceValidation(referencesMap);
   setupAutocompleteField();
+  confirmForm();
 });
 
 function setupInputFormatters() {
@@ -154,6 +156,29 @@ function setupAutocompleteField() {
           });
         }
       },
+    });
+  });
+}
+
+function confirmForm() {
+  const form = document.querySelector('form[name="da_affectation"]');
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    Swal.fire({
+      icon: "warning",
+      title: "Attention !",
+      html: `Voulez-vous vraiment enregistrer les affectations sur les lignes d'articles ?`,
+      showCancelButton: true,
+      confirmButtonText: "Oui, enregistrer",
+      cancelButtonText: "Non, annuler",
+      customClass: {
+        htmlContainer: "swal-text-left",
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        displayOverlay(true, "Enregistrement en cours ...");
+        form.submit();
+      }
     });
   });
 }
