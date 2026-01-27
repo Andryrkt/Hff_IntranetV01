@@ -2,75 +2,101 @@ import { getAllReferences } from "../data/fetchData";
 
 document.addEventListener("DOMContentLoaded", async function () {
   const { data } = await getAllReferences();
-  console.log(data);
+  const referencesMap = new Map(data.map((ref) => [ref.reference, ref]));
 
-  document.querySelectorAll(".da-art-refp").forEach((refp) => {
-    refp.addEventListener("input", function () {
-      refp.value = refp.value.toUpperCase().slice(0, 35);
-    });
-
-    refp.addEventListener("blur", async function () {
-      const refpValue = refp.value.trim();
-      if (refpValue === "") return;
-
-      const articleFound = data.find((ref) => ref.reference === refpValue);
-      const found = typeof articleFound !== "undefined";
-      const articleStocke = getInputLine(refp, '[id$="_articleStocke"]');
-      const desi = getInputLine(refp, '[id$="_artDesi"]');
-      const constp = getInputLine(refp, '[id$="_artConstp"]');
-      const prix = getInputLine(refp, '[id$="_prixUnitaire"]');
-      const numFrn = getInputLine(refp, '[id$="_numeroFournisseur"]');
-      const nomFrn = getInputLine(refp, '[id$="_nomFournisseur"]');
-
-      articleStocke.checked = false;
-      if (!found) {
-        await Swal.fire({
-          icon: "error",
-          title: "Référence inexistant",
-          html: "La référence saisie n'exsite pas pour la liste de constructeurs </br> (<b>'ALI', 'BOI', 'CEN', 'FBU', 'HAB', 'OUT', 'ZDI'</b>)</br> Veuillez en saisir une dans la liste s'il vous plaît.",
-        });
-        refp.value = "";
-        desi.value = "";
-        nomFrn.value = "";
-        prix.value = "0";
-        numFrn.value = "-";
-        constp.value = "-";
-        desi.classList.remove("non-modifiable");
-        nomFrn.classList.remove("non-modifiable");
-        refp.focus();
-      } else {
-        if (articleFound.constp === "ZDI") {
-          constp.value = "ZDI";
-          prix.value = "0";
-          desi.classList.remove("non-modifiable");
-          nomFrn.classList.remove("non-modifiable");
-        } else {
-          articleStocke.checked = true;
-          constp.value = articleFound.constp;
-          desi.value = articleFound.desi;
-          nomFrn.value = articleFound.nom_frn;
-          prix.value = articleFound.prix_unitaire;
-          numFrn.value = articleFound.num_frn;
-          desi.classList.add("non-modifiable");
-          nomFrn.classList.add("non-modifiable");
-        }
-      }
-    });
-  });
-
-  document.querySelectorAll(".da-art-desi").forEach((desi) => {
-    desi.addEventListener("input", function () {
-      desi.value = desi.value.toUpperCase().slice(0, 35);
-    });
-  });
-
-  document.querySelectorAll(".da-nom-frn").forEach((frn) => {
-    frn.addEventListener("input", function () {
-      frn.value = frn.value.toUpperCase().slice(0, 50);
-    });
-  });
-
-  function getInputLine(el, selector) {
-    return el.parentElement.parentElement.querySelector(selector);
-  }
+  setupInputFormatters();
+  setupReferenceValidation(referencesMap);
 });
+
+function setupInputFormatters() {
+  setupInputFormatter(".da-art-refp", 35);
+  setupInputFormatter(".da-art-desi", 35);
+  setupInputFormatter(".da-nom-frn", 50);
+}
+
+function setupInputFormatter(selector, maxLength) {
+  document.querySelectorAll(selector).forEach((input) => {
+    input.addEventListener("input", function () {
+      this.value = this.value.toUpperCase().slice(0, maxLength);
+    });
+  });
+}
+
+function setupReferenceValidation(referencesMap) {
+  document.querySelectorAll(".da-art-refp").forEach((refp) => {
+    refp.addEventListener("blur", async function () {
+      await handleReferenceBlur(refp, referencesMap);
+    });
+  });
+}
+
+async function handleReferenceBlur(refp, referencesMap) {
+  const refpValue = refp.value.trim();
+  if (!refpValue) return;
+
+  const articleFound = referencesMap.get(refpValue);
+  const fields = getRelatedFields(refp);
+
+  if (!articleFound) {
+    await showReferenceNotFoundError();
+    resetArticleFields({ ...fields, refp });
+    refp.focus();
+  } else {
+    populateArticleFields(articleFound, fields);
+  }
+}
+
+function getRelatedFields(refp) {
+  return {
+    articleStocke: getInputLine(refp, '[id$="_articleStocke"]'),
+    desi: getInputLine(refp, '[id$="_artDesi"]'),
+    constp: getInputLine(refp, '[id$="_artConstp"]'),
+    prix: getInputLine(refp, '[id$="_prixUnitaire"]'),
+    numFrn: getInputLine(refp, '[id$="_numeroFournisseur"]'),
+    nomFrn: getInputLine(refp, '[id$="_nomFournisseur"]'),
+  };
+}
+
+function getInputLine(el, selector) {
+  return el.parentElement.parentElement.querySelector(selector);
+}
+
+async function showReferenceNotFoundError() {
+  await Swal.fire({
+    icon: "error",
+    title: "Référence inexistante",
+    html: "La référence saisie n'existe pas pour la liste de constructeurs </br> (<b>'ALI', 'BOI', 'CEN', 'FBU', 'HAB', 'OUT', 'ZDI'</b>)</br> Veuillez en saisir une dans la liste s'il vous plaît.",
+  });
+}
+
+function resetArticleFields(fields) {
+  fields.articleStocke.checked = false;
+  fields.refp.value = "";
+  fields.desi.value = "";
+  fields.nomFrn.value = "";
+  fields.prix.value = "0";
+  fields.numFrn.value = "-";
+  fields.constp.value = "-";
+  fields.desi.classList.remove("non-modifiable");
+  fields.nomFrn.classList.remove("non-modifiable");
+}
+
+function populateArticleFields(articleFound, fields) {
+  fields.articleStocke.checked = false;
+
+  if (articleFound.constp === "ZDI") {
+    fields.constp.value = "ZDI";
+    fields.prix.value = "0";
+    fields.desi.classList.remove("non-modifiable");
+    fields.nomFrn.classList.remove("non-modifiable");
+  } else {
+    fields.articleStocke.checked = true;
+    fields.constp.value = articleFound.constp;
+    fields.desi.value = articleFound.desi;
+    fields.nomFrn.value = articleFound.nom_frn;
+    fields.prix.value = articleFound.prix_unitaire;
+    fields.numFrn.value = articleFound.num_frn;
+    fields.desi.classList.add("non-modifiable");
+    fields.nomFrn.classList.add("non-modifiable");
+  }
+}
