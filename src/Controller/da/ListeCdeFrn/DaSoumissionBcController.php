@@ -5,14 +5,16 @@ namespace App\Controller\da\ListeCdeFrn;
 use Exception;
 use App\Model\da\DaModel;
 use App\Entity\da\DaValider;
+use App\Entity\da\DaAfficher;
 use App\Controller\Controller;
+use App\Controller\Traits\PdfConversionTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaSoumissionBc;
 use App\Model\da\DaSoumissionBcModel;
 use App\Repository\dit\DitRepository;
 use App\Entity\dit\DemandeIntervention;
 use App\Service\genererPdf\GeneratePdf;
-use App\Repository\da\DaValiderRepository;
+use App\Repository\da\DaAfficherRepository;
 use App\Service\fichier\TraitementDeFichier;
 use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
@@ -28,6 +30,7 @@ use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
  */
 class DaSoumissionBcController extends Controller
 {
+    use PdfConversionTrait;
 
     private  DaSoumissionBc $daSoumissionBc;
     private TraitementDeFichier $traitementDeFichier;
@@ -36,8 +39,7 @@ class DaSoumissionBcController extends Controller
     private DaSoumissionBcRepository $daSoumissionBcRepository;
     private GeneratePdf $generatePdf;
     private DemandeApproRepository $demandeApproRepository;
-    private DitRepository $ditRepository;
-    private DaValiderRepository $daValiderRepository;
+    private DaAfficherRepository $daAfficherRepository;
     private DaSoumissionBcModel $daSoumissionBcModel;
 
     public function __construct()
@@ -51,8 +53,7 @@ class DaSoumissionBcController extends Controller
         $this->daSoumissionBcRepository = $this->getEntityManager()->getRepository(DaSoumissionBc::class);
         $this->generatePdf = new GeneratePdf();
         $this->demandeApproRepository = $this->getEntityManager()->getRepository(DemandeAppro::class);
-        $this->ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class);
-        $this->daValiderRepository = $this->getEntityManager()->getRepository(DaValider::class);
+        $this->daAfficherRepository = $this->getEntityManager()->getRepository(DaAfficher::class);
         $this->daSoumissionBcModel = new DaSoumissionBcModel();
     }
 
@@ -115,8 +116,10 @@ class DaSoumissionBcController extends Controller
                 /** COPIER DANS DW */
                 $this->generatePdf->copyToDWBcDa($nomPdfFusionner, $numDa);
 
-                /** modification du table da_valider */
-                $this->modificationDaValider($numDa, $numCde);
+                /** modification du table da_afficher */
+                $this->modificationDaAfficher($numDa, $numCde);
+
+
 
                 /** HISTORISATION */
                 $message = 'Le document est soumis pour validation';
@@ -128,11 +131,12 @@ class DaSoumissionBcController extends Controller
         }
     }
 
+    private function EnregistrementDansLaTableDemandepaiement() {}
 
-    private function modificationDaValider(string $numDa, string $numCde): void
+    private function modificationDaAfficher(string $numDa, string $numCde): void
     {
-        $numeroVersionMaxCde = $this->daValiderRepository->getNumeroVersionMax($numDa);
-        $daValiders = $this->daValiderRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMaxCde, 'numeroCde' => $numCde]);
+        $numeroVersionMaxCde = $this->daAfficherRepository->getNumeroVersionMax($numDa);
+        $daValiders = $this->daAfficherRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMaxCde, 'numeroCde' => $numCde]);
         if (!empty($daValiders)) {
             foreach ($daValiders as $key => $daValider) {
                 $daValider
@@ -284,49 +288,5 @@ class DaSoumissionBcController extends Controller
             $num = 0;
         }
         return (int)$num + 1;
-    }
-
-    private function ConvertirLesPdf(array $tousLesFichersAvecChemin)
-    {
-        $tousLesFichiers = [];
-        foreach ($tousLesFichersAvecChemin as $filePath) {
-            $tousLesFichiers[] = $this->convertPdfWithGhostscript($filePath);
-        }
-
-        return $tousLesFichiers;
-    }
-
-
-    private function convertPdfWithGhostscript($filePath)
-    {
-        $gsPath = 'C:\Program Files\gs\gs10.05.0\bin\gswin64c.exe'; // Modifier selon l'OS
-        $tempFile = $filePath . "_temp.pdf";
-
-        // Vérifier si le fichier existe et est accessible
-        if (!file_exists($filePath)) {
-            throw new Exception("Fichier introuvable : $filePath");
-        }
-
-        if (!is_readable($filePath)) {
-            throw new Exception("Le fichier PDF ne peut pas être lu : $filePath");
-        }
-
-        // Commande Ghostscript
-        $command = "\"$gsPath\" -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -o \"$tempFile\" \"$filePath\"";
-        // echo "Commande exécutée : $command<br>";
-
-        exec($command, $output, $returnVar);
-
-        if ($returnVar !== 0) {
-            echo "Sortie Ghostscript : " . implode("\n", $output);
-            throw new Exception("Erreur lors de la conversion du PDF avec Ghostscript");
-        }
-
-        // Remplacement du fichier
-        if (!rename($tempFile, $filePath)) {
-            throw new Exception("Impossible de remplacer l'ancien fichier PDF.");
-        }
-
-        return $filePath;
     }
 }
