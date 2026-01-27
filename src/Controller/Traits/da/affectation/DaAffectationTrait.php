@@ -21,6 +21,7 @@ use App\Repository\da\DaSoumisAValidationRepository;
 trait DaAffectationTrait
 {
     use DaAfficherTrait;
+    private ?array $oldObservations = null;
 
     //=====================================================================================
     private EntityManagerInterface $em;
@@ -51,6 +52,7 @@ trait DaAffectationTrait
     private function traitementDaParentLines(ArrayCollection $daParentLines, DemandeApproParent $daParent, int $daType)
     {
         $demandeAppro = $this->createDemandeAppro($daParent, $daType);
+        $numeroDemandeAppro = $demandeAppro->getNumeroDemandeAppro();
 
         $numLigne = 0;
         /** @var DemandeApproParentLine $daParentLine */
@@ -59,7 +61,7 @@ trait DaAffectationTrait
 
             $demandeApproLine
                 ->duplicateDaParentLine($daParentLine)
-                ->setNumeroDemandeAppro($demandeAppro->getNumeroDemandeAppro())
+                ->setNumeroDemandeAppro($numeroDemandeAppro)
                 ->setNumeroLigne(++$numLigne)
                 ->setStatutDal($demandeAppro->getStatutDal())
                 ->setEstValidee($demandeAppro->getEstValidee())
@@ -74,12 +76,15 @@ trait DaAffectationTrait
         $this->em->persist($demandeAppro);
         $this->em->flush();
 
+        $this->handleOldObservation($numeroDemandeAppro, $daParent->getNumeroDemandeAppro());
+        $this->insertionObservation($numeroDemandeAppro, $daParent->getObservation());
+
         $validationDA = $daType === DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL;
         $statutDW = $validationDA ? DemandeAppro::STATUT_DW_A_VALIDE : '';
 
-        $this->ajouterDansTableAffichageParNumDa($demandeAppro->getNumeroDemandeAppro(), $validationDA, $statutDW);
+        $this->ajouterDansTableAffichageParNumDa($numeroDemandeAppro, $validationDA, $statutDW);
 
-        if ($validationDA) $this->ajouterDansDaSoumisAValidation($demandeAppro->getNumeroDemandeAppro(), $demandeAppro->getDemandeur());
+        if ($validationDA) $this->ajouterDansDaSoumisAValidation($numeroDemandeAppro, $demandeAppro->getDemandeur());
     }
 
     /**
@@ -256,5 +261,33 @@ trait DaAffectationTrait
             'data'     => $result,
             'montants' => $montantTotal
         ];
+    }
+
+    private function handleOldObservation(string $numDa, string $numDaParent): void
+    {
+        $observations = $this->getOldObservations($numDaParent);
+
+        if (empty($observations)) return;
+
+        /** @var DaObservation $observation */
+        foreach ($observations as $observation) {
+            $newObservation = clone $observation;
+            $newObservation->setNumDa($numDa);
+            $this->em->persist($newObservation);
+        }
+
+        $this->em->flush();
+    }
+
+    private function getOldObservations(string $numeroDemandeAppro): array
+    {
+        if ($this->oldObservations !== null) return $this->oldObservations;
+
+        $this->oldObservations = $this->daObservationRepository->findBy(
+            ['numDa' => $numeroDemandeAppro],
+            ['dateCreation' => 'ASC']
+        );
+
+        return $this->oldObservations;
     }
 }
