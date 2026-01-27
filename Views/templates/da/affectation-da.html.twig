@@ -60,7 +60,6 @@
 								<th width="7%">Référence</th>
 								<th>Désignation initiale</th>
 								<th>Désignation proposée</th>
-								<th width="7%">Numéro Fournisseur</th>
 								<th>Nom Fournisseur</th>
 								<th width="7%">Date fin souhaitée</th>
 								<th width="4%">Qté demandée</th>
@@ -76,7 +75,6 @@
 									<td>{{ form_widget(dalForm.artRefp) }}</td>
 									<td>{{ macroForm.affichageSimple(dal.artDesi, 'text-start') }}</td>
 									<td>{{ form_widget(dalForm.artDesi) }}</td>
-									<td>{{ form_widget(dalForm.numeroFournisseur) }}</td>
 									<td>{{ form_widget(dalForm.nomFournisseur) }}</td>
 									<td>{{ macroForm.affichageSimple(dal.dateFinSouhaiteFormatted, 'text-center') }}</td>
 									<td>{{ macroForm.affichageSimple(dal.qteDem, 'text-center') }}</td>
@@ -101,6 +99,7 @@
 											<i class="fas fa-xmark text-danger"></i>
 										{% endif %}
 									</td>
+									<td class="d-none">{{ form_widget(dalForm.numeroFournisseur) }}</td>
 									<td class="d-none">{{ form_widget(dalForm.articleStocke) }}</td>
 									<td class="d-none">{{ form_widget(dalForm.artConstp) }}</td>
 									<td class="d-none">{{ form_widget(dalForm.prixUnitaire) }}</td>

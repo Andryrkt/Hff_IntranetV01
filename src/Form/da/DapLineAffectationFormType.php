@@ -27,12 +27,15 @@ class DapLineAffectationFormType extends AbstractType
                     'label' => false,
                     'required' => true,
                     'disabled' => $articleStocke,
+                    'attr' => [
+                        'class' => 'da-art-refp',
+                        'autocomplete' => 'off',
+                    ],
                 ])
                 ->add('artDesi', TextType::class, [
                     'label' => false,
                     'attr' => [
-                        'class' => 'autocomplete',
-                        'autocomplete' => 'off',
+                        'class' => 'da-art-desi',
                     ],
                     'required' => false,
                     'disabled' => $articleStocke,
@@ -50,6 +53,10 @@ class DapLineAffectationFormType extends AbstractType
                     'label' => false,
                     'required' => false,
                     'disabled' => $articleStocke,
+                    'attr' => [
+                        'class' => 'da-nom-frn',
+                        'autocomplete' => 'off',
+                    ],
                 ])
                 ->add('articleStocke', CheckboxType::class, [
                     'required' => false,
