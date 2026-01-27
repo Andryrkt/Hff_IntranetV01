@@ -1,4 +1,5 @@
-import { getAllReferences } from "../data/fetchData";
+import { AutoComplete } from "../../utils/AutoComplete";
+import { getAllFournisseurs, getAllReferences } from "../data/fetchData";
 
 document.addEventListener("DOMContentLoaded", async function () {
   const { data } = await getAllReferences();
@@ -6,6 +7,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   setupInputFormatters();
   setupReferenceValidation(referencesMap);
+  setupAutocompleteField();
 });
 
 function setupInputFormatters() {
@@ -99,4 +101,59 @@ function populateArticleFields(articleFound, fields) {
     fields.desi.classList.add("non-modifiable");
     fields.nomFrn.classList.add("non-modifiable");
   }
+}
+
+function setupAutocompleteField() {
+  document.querySelectorAll(".da-nom-frn").forEach((field) => {
+    let numeroFournisseur = getInputLine(field, '[id$="_numeroFournisseur"]');
+    let suggestionContainer = field.nextElementSibling;
+    let loaderElement = suggestionContainer.nextElementSibling;
+
+    new AutoComplete({
+      inputElement: field,
+      suggestionContainer: suggestionContainer,
+      loaderElement: loaderElement,
+      debounceDelay: 300,
+      fetchDataCallback: async () => {
+        const cache = JSON.parse(
+          localStorage.getItem("autocompleteCache") || "{}"
+        );
+
+        if (!cache.fournisseurs) {
+          const data = await getAllFournisseurs(); // fetch si cache vide
+          cache.fournisseurs = data;
+          console.log("préchargement fournisseurs OK");
+          localStorage.setItem("autocompleteCache", JSON.stringify(cache));
+          return data;
+        }
+
+        return cache.fournisseurs;
+      },
+      displayItemCallback: (item) =>
+        `N° Fournisseur: ${item.numerofournisseur} - Nom Fournisseur: ${item.nomfournisseur}`,
+      itemToStringCallback: (item) => `- ${item.nomfournisseur}`,
+      onSelectCallback: (item) => {
+        field.value = item.nomfournisseur;
+        numeroFournisseur.value = item.numerofournisseur;
+      },
+      itemToStringForBlur: (item) => item.nomfournisseur,
+      onBlurCallback: (found) => {
+        if (!found && field.value.trim() !== "") {
+          Swal.fire({
+            icon: "warning",
+            title: "Attention ! Fournisseur non trouvé !",
+            html: `Le fournisseur saisi n'existe pas, veuillez en sélectionner un dans la liste. Ou laisser vide car ce champ n'est pas obligatoire.`,
+            confirmButtonText: "OK",
+            customClass: {
+              htmlContainer: "swal-text-left",
+            },
+          }).then(() => {
+            field.focus();
+            field.value = "";
+            numeroFournisseur.value = "-";
+          });
+        }
+      },
+    });
+  });
 }

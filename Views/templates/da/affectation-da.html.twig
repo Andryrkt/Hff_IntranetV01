@@ -75,7 +75,11 @@
 									<td>{{ form_widget(dalForm.artRefp) }}</td>
 									<td>{{ macroForm.affichageSimple(dal.artDesi, 'text-start') }}</td>
 									<td>{{ form_widget(dalForm.artDesi) }}</td>
-									<td>{{ form_widget(dalForm.nomFournisseur) }}</td>
+									<td>
+										{{ form_widget(dalForm.nomFournisseur) }}
+										<div class="suggestions-container"></div>
+										<div class="text-center d-none"></div>
+									</td>
 									<td>{{ macroForm.affichageSimple(dal.dateFinSouhaiteFormatted, 'text-center') }}</td>
 									<td>{{ macroForm.affichageSimple(dal.qteDem, 'text-center') }}</td>
 									<td>{{ macroForm.affichageSimple(dal.commentaire is not empty ? dal.commentaire : '-', 'text-start') }}</td>
