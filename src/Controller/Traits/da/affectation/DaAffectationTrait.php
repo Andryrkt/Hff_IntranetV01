@@ -4,14 +4,16 @@ namespace App\Controller\Traits\da\affectation;
 
 use DateTime;
 use App\Entity\da\DemandeAppro;
+use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
+use App\Model\da\DaReapproModel;
 use App\Entity\da\DemandeApproParent;
 use App\Entity\da\DaSoumisAValidation;
 use App\Service\autres\VersionService;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\da\DemandeApproParentLine;
 use App\Controller\Traits\da\DaAfficherTrait;
-use App\Model\da\DaReapproModel;
+use App\Repository\da\DaObservationRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use App\Repository\da\DemandeApproParentRepository;
 use App\Repository\da\DaSoumisAValidationRepository;
@@ -22,6 +24,7 @@ trait DaAffectationTrait
 
     //=====================================================================================
     private EntityManagerInterface $em;
+    private DaObservationRepository $daObservationRepository;
     private DemandeApproParentRepository $demandeApproParentRepository;
     private DaSoumisAValidationRepository $daSoumisAValidationRepository;
     //=====================================================================================
@@ -32,8 +35,9 @@ trait DaAffectationTrait
     {
         $this->initDaTrait();
         $this->em = $this->getEntityManager();
-        $this->demandeApproParentRepository = $this->em->getRepository(DemandeApproParent::class);
+        $this->demandeApproParentRepository  = $this->em->getRepository(DemandeApproParent::class);
         $this->daSoumisAValidationRepository = $this->em->getRepository(DaSoumisAValidation::class);
+        $this->daObservationRepository       = $this->em->getRepository(DaObservation::class);
     }
     //=====================================================================================
 
