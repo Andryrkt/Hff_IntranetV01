@@ -49,7 +49,7 @@ class DemandePaiementDaController extends Controller
     }
 
     /**
-     * @Route("/newDa/{typeDdp}/{numCdeDa}/{typeDa}", name="demande_paiement_da", defaults={"numCdeDa"=null, "typeDa"=null})
+     * @Route("/newDdpa/{typeDdp}/{numCdeDa}/{typeDa}", name="demande_paiement_da", defaults={"numCdeDa"=null, "typeDa"=null})
      */
     public function index(int $typeDdp, int $numCdeDa, int $typeDa, Request $request)
     {

@@ -2,6 +2,7 @@
 
 namespace App\Controller\da\ListeCdeFrn;
 
+use App\Constants\ddp\StatutConstants;
 use Exception;
 use App\Model\da\DaModel;
 use App\Entity\da\DaValider;
@@ -182,7 +183,7 @@ class DaSoumissionBcController extends Controller
                 ->setMotif(null)
                 ->setAgenceDebiter($infoCde[0]['code_agence'] ?? '')
                 ->setServiceDebiter($infoCde[0]['code_service'] ?? '')
-                ->setStatut('Soumis à validation')
+                ->setStatut(StatutConstants::STATUT_EN_ATTENTE_VALIDATION_BC)
                 ->setAdresseMailDemandeur($this->getUserMail())
                 ->setDemandeur($this->getUserName())
                 ->setModePaiement($infoCde[0]['mode_paiement'] ?? '')
