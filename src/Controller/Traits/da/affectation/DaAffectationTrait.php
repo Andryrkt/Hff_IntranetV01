@@ -68,6 +68,8 @@ trait DaAffectationTrait
                 ->setValidePar($demandeAppro->getValidePar())
             ;
 
+            $this->handleOldFiles($numeroDemandeAppro, $daParent->getNumeroDemandeAppro(), $daParentLine->getFileNames());
+
             // ajouter dans la collection des DAL de la nouvelle DA
             $demandeAppro->addDAL($demandeApproLine);
 
@@ -289,5 +291,23 @@ trait DaAffectationTrait
         );
 
         return $this->oldObservations;
+    }
+
+    private function handleOldFiles(string $numeroDemandeAppro, string $numeroDemandeApproParent, array $fileNames): void
+    {
+        if (empty($fileNames)) return;
+
+        $baseFichier    = $_ENV['BASE_PATH_FICHIER'] . "/da/$numeroDemandeApproParent";
+        $baseFichierNew = $_ENV['BASE_PATH_FICHIER'] . "/da/$numeroDemandeAppro";
+
+        foreach ($fileNames as $fileName) {
+            $cheminComplet    = $baseFichier . "/$fileName";
+            $cheminCompletNew = $baseFichierNew . "/$fileName";
+
+            if (file_exists($cheminComplet)) {
+                if (!is_dir($baseFichierNew)) mkdir($baseFichierNew, 0777, true);
+                if (!file_exists($cheminCompletNew)) copy($cheminComplet, $cheminCompletNew);
+            }
+        }
     }
 }
