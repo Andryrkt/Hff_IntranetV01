@@ -13,9 +13,9 @@ class FileUploaderForDAService
         "OBSERVATION"     => "observation_pj",
     ];
 
-    public function __construct(string $basePath)
+    public function __construct()
     {
-        $this->basePath = rtrim($basePath, '/');
+        $this->basePath = rtrim($_ENV['BASE_PATH_FICHIER'], '/');
     }
 
     /**

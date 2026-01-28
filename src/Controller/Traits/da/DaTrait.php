@@ -43,7 +43,7 @@ trait DaTrait
         $em = $this->getEntityManager();
         $this->emailDaService           = new EmailDaService($this->getTwig()); // Injection du service Twig depuis Controller
         $this->permissionDaService      = new PermissionDaService;
-        $this->daFileUploader           = new FileUploaderForDAService($_ENV['BASE_PATH_FICHIER']);
+        $this->daFileUploader           = new FileUploaderForDAService();
         $this->daAfficherRepository     = $em->getRepository(DaAfficher::class);
         $this->demandeApproRepository   = $em->getRepository(DemandeAppro::class);
         $this->demandeApproLRepository  = $em->getRepository(DemandeApproL::class);
