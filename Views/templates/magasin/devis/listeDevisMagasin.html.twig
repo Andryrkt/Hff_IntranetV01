@@ -53,6 +53,7 @@
 									<li>
 										<a class="dropdown-item fw-bold" href="{{ row.url.verificationPrix }}">Soumission devis pour verification prix</a>
 										<a class="dropdown-item fw-bold" href="{{ row.url.validationDevis }}">Soumission devis pour validation</a>
+										<a class="dropdown-item fw-bold" href="#" data-bs-toggle="modal" data-bs-target="#pointageRelanceModal" data-bs-numero-devis="{{ row.numeroDevis }}">Pointer relance devis client</a>
 										{% if row.pointageDevis %}
 											<a class="dropdown-item fw-bold" href="{{ row.url.pointageDevis }}">Pointage envoye devis au client</a>
 										{% endif %}
@@ -85,9 +86,12 @@
 			</tbody>
 		</table>
 	</div>
+
+    {% include 'magasin/devis/pointage_relance/index.html.twig' %}
 {% endblock %}
 
 {% block javascript %}
 	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v=2025.10.22.08.00"></script>
 	<script type="module" src="{{ App.base_path }}/Views/js/magasin/devis/listeDevisMagasin.js?v=2025.10.22.08.00"></script>
+    <script src="{{ App.base_path }}/Views/js/magasin/devis/pointageRelanceModal.js" type="module"></script>
 {% endblock %}

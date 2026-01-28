@@ -358,7 +358,6 @@ class ListeDevisMagasinController extends Controller
             ];
 
             if ($pointageDevis) $url["pointageDevis"] = $this->getUrlGenerator()->generate("devis_magasin_envoyer_au_client", ["numeroDevis" => $numeroDevis]);
-            if ($relanceClient) $url["relanceClient"] = $this->getUrlGenerator()->generate("devis_magasin_relance_client", ["numeroDevis" => $numeroDevis]);
 
             $data[] = [
                 'url'             => $url,

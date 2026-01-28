@@ -31,6 +31,7 @@ class PointageRelanceType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => PointageRelanceDto::class,
+            'csrf_protection' => false,
         ]);
     }
 }
