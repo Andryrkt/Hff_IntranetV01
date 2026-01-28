@@ -15,7 +15,6 @@ use App\Model\dw\DossierInterventionAtelierModel;
 use App\Repository\da\DaSoumissionBcRepository;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
 use App\Service\Users\UserDataService;
-use DateTime;
 use Twig\Markup;
 
 trait DaListeTrait
@@ -169,7 +168,7 @@ trait DaListeTrait
     private function appliquerVerrouillageSelonProfil(iterable $daAffichers, bool $estAdmin, bool $estAppro, bool $estAtelier, bool $estCreateurDaDirecte): iterable
     {
         foreach ($daAffichers as $daAfficher) {
-            $verrouille = $this->estDaVerrouillee(
+            $verrouille = $this->demandeApproService->estDaVerrouillee(
                 $daAfficher->getStatutDal(),
                 $daAfficher->getStatutOr(),
                 $estAdmin,
