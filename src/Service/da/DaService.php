@@ -2,11 +2,17 @@
 
 namespace App\Service\da;
 
+use App\Entity\da\DaAfficher;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
+use App\Entity\da\DemandeApproParent;
+use App\Service\autres\VersionService;
+use App\Entity\dit\DemandeIntervention;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Entity\da\DemandeApproParentLine;
+use App\Repository\da\DaAfficherRepository;
 use App\Repository\da\DemandeApproRepository;
 use App\Repository\da\DaObservationRepository;
 use App\Repository\da\DemandeApproLRepository;
@@ -19,12 +25,14 @@ class DaService
     private DemandeApproRepository $demandeApproRepository;
     private DemandeApproLRepository $demandeApproLRepository;
     private DemandeApproLRRepository $demandeApproLRRepository;
+    private DaAfficherRepository $daAfficherRepository;
     private DaObservationRepository $daObservationRepository;
     private FileUploaderForDAService $daFileUploader;
 
     public function __construct(EntityManagerInterface $em, FileUploaderForDAService $daFileUploader)
     {
         $this->em                       = $em;
+        $this->daAfficherRepository     = $em->getRepository(DaAfficher::class);
         $this->demandeApproRepository   = $em->getRepository(DemandeAppro::class);
         $this->demandeApproLRepository  = $em->getRepository(DemandeApproL::class);
         $this->demandeApproLRRepository = $em->getRepository(DemandeApproLR::class);
@@ -185,5 +193,64 @@ class DaService
         $this->em->persist($demandeAppro);
 
         if ($withFlush) $this->em->flush();
+    }
+
+    /**
+     * Ajoute les données d'une DA
+     * dans la table `DaAfficher`, une ligne par DAL.
+     *
+     * ⚠️ IMPORTANT : Avant d'appeler cette fonction, il est impératif d'exécuter :
+     *     $this->em->flush();
+     * Sans cela, les données risquent de ne pas être cohérentes ou correctement persistées.
+     *
+     * @param DemandeAppro             $demandeAppro  Objet de la demande d'achat à traiter
+     * @param DemandeIntervention|null $dit           Optionnellement, la demande d'intervention associée
+     */
+    public function generateDaAfficherOnCreationDa(DemandeAppro $demandeAppro, ?DemandeIntervention $dit = null): void
+    {
+        // Récupère le dernier numéro de version existant pour cette demande d'achat
+        $numeroVersionMax = $this->daAfficherRepository->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
+        $numeroVersion = VersionService::autoIncrement($numeroVersionMax);
+
+        // Parcours chaque ligne DAL de la demande d'achat
+        /** @var DemandeApproL $dal */
+        foreach ($demandeAppro->getDAL() as $dal) {
+            $daAfficher = new DaAfficher();
+            if ($dit) $daAfficher->setDit($dit);
+            $daAfficher->duplicateDa($demandeAppro);
+            $daAfficher->duplicateDal($dal);
+            $daAfficher->setNumeroVersion($numeroVersion);
+
+            $this->em->persist($daAfficher);
+        }
+        $this->em->flush();
+    }
+
+    /**
+     * Ajoute les données d'une DA Parent dans la table `DaAfficher`, une ligne par DAL.
+     *
+     * ⚠️ IMPORTANT : Avant d'appeler cette fonction, il est impératif d'exécuter :
+     *     $this->getEntityManager()->flush();
+     * Sans cela, les données risquent de ne pas être cohérentes ou correctement persistées.
+     *
+     * @param DemandeApproParent $demandeApproParent  Objet de la demande d'achat à traiter
+     */
+    public function generateDaAfficherOnCreationDaParent(DemandeApproParent $demandeApproParent): void
+    {
+        // Récupère le dernier numéro de version existant pour cette demande d'achat
+        $numeroVersionMax = $this->daAfficherRepository->getNumeroVersionMax($demandeApproParent->getNumeroDemandeAppro());
+        $numeroVersion = VersionService::autoIncrement($numeroVersionMax);
+
+        // Parcours chaque ligne DAL de la demande d'achat
+        /** @var DemandeApproParentLine $dal */
+        foreach ($demandeApproParent->getDemandeApproParentLines() as $demandeApproParentLine) {
+            $daAfficher = new DaAfficher();
+            $daAfficher->duplicateDaParent($demandeApproParent);
+            $daAfficher->duplicateDaParentLine($demandeApproParentLine);
+            $daAfficher->setNumeroVersion($numeroVersion);
+
+            $this->em->persist($daAfficher);
+        }
+        $this->em->flush();
     }
 }
