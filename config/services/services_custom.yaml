@@ -1,38 +1,47 @@
 services:
-    # Services spécifiques
-    App\Service\ExcelService:
-        public: true
+  # Services spécifiques
+  App\Service\ExcelService:
+    public: true
 
-    App\Service\FusionPdf:
-        public: true
+  App\Service\FusionPdf:
+    public: true
 
-    App\Service\SessionManagerService:
-        public: true
+  App\Service\SessionManagerService:
+    public: true
 
-    # Services de navigation
-    App\Service\navigation\MenuService:
-        autowire: false
-        arguments:
-          - '@doctrine.orm.default_entity_manager'
-        public: true
+  # Services de navigation
+  App\Service\navigation\MenuService:
+    autowire: false
+    arguments:
+      - "@doctrine.orm.default_entity_manager"
+    public: true
 
-    App\Service\navigation\BreadcrumbMenuService:
-        autowire: false
-        arguments:
-          - '@App\Service\navigation\MenuService'
-        public: true
+  App\Service\navigation\BreadcrumbMenuService:
+    autowire: false
+    arguments:
+      - '@App\Service\navigation\MenuService'
+    public: true
 
-    App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService:
-        arguments:
-          - '@doctrine.orm.default_entity_manager'
-        public: true
+  App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService:
+    arguments:
+      - "@doctrine.orm.default_entity_manager"
+    public: true
 
-    App\Service\historiqueOperation\magasin\bc\HistoriqueOperationBcMagasinService:
-        arguments:
-          - '@doctrine.orm.default_entity_manager'
-        public: true
+  App\Service\historiqueOperation\magasin\bc\HistoriqueOperationBcMagasinService:
+    arguments:
+      - "@doctrine.orm.default_entity_manager"
+    public: true
 
-    App\Service\fichier\UploderFileService:
-        arguments:
-            $cheminDeBase: '%env(BASE_PATH_FICHIER)%/magasin/devis/'
-        public: true
+  App\Service\fichier\UploderFileService:
+    arguments:
+      $cheminDeBase: "%env(BASE_PATH_FICHIER)%/magasin/devis/"
+    public: true
+
+  App\Service\da\FileUploaderForDAService:
+    public: true
+
+  App\Service\da\DaService:
+    arguments:
+      $em: "@doctrine.orm.default_entity_manager"
+      $daFileUploader: '@App\Service\da\FileUploaderForDAService'
+    public: true
