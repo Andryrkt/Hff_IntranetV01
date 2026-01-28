@@ -17,6 +17,7 @@ use App\Repository\da\DaObservationRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use App\Repository\da\DemandeApproParentRepository;
 use App\Repository\da\DaSoumisAValidationRepository;
+use App\Service\genererPdf\da\GenererPdfDaReappro;
 
 trait DaAffectationTrait
 {
@@ -78,15 +79,27 @@ trait DaAffectationTrait
         $this->em->persist($demandeAppro);
         $this->em->flush();
 
-        $this->handleOldObservation($numeroDemandeAppro, $daParent->getNumeroDemandeAppro());
-        $this->insertionObservation($numeroDemandeAppro, $daParent->getObservation());
+        $this->handleOldObservation($numeroDemandeAppro, $daParent->getNumeroDemandeAppro()); // copier les observations de la DA parent
+        $this->insertionObservation($numeroDemandeAppro, $daParent->getObservation()); // insertion d'observation du formulaire dans le nouveau DA
 
         $validationDA = $daType === DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL;
         $statutDW = $validationDA ? DemandeAppro::STATUT_DW_A_VALIDE : '';
 
         $this->ajouterDansTableAffichageParNumDa($numeroDemandeAppro, $validationDA, $statutDW);
 
-        if ($validationDA) $this->ajouterDansDaSoumisAValidation($numeroDemandeAppro, $demandeAppro->getDemandeur());
+        if ($validationDA) {
+            $genererPdfReappro = new GenererPdfDaReappro();
+            $dateRange = $this->getLast12MonthsRange();
+            $monthsList = $this->getMonthsList($dateRange['start'], $dateRange['end']);
+            $dataHistoriqueConsommation = $this->getHistoriqueConsommation($demandeAppro, $dateRange, $monthsList);
+            $observations = $this->daObservationRepository->findBy(
+                ['numDa' => $numeroDemandeAppro],
+                ['dateCreation' => 'ASC']
+            );
+            $genererPdfReappro->genererPdfBonAchatValide($demandeAppro, $observations, $monthsList, $dataHistoriqueConsommation);
+
+            $this->ajouterDansDaSoumisAValidation($numeroDemandeAppro, $demandeAppro->getDemandeur());
+        }
     }
 
     /**
