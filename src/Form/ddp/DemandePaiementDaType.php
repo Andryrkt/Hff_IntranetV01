@@ -87,10 +87,11 @@ class DemandePaiementDaType extends AbstractType
                 'montantAPayer',
                 TextType::class,
                 [
-                    'label' => 'Montant à payer *',
+                    'label' => 'Montant à payer',
                     'attr' => [
-                        'readOnly' => $options['data']->typeDa !== null ? false : true
-                    ]
+                        'readOnly' => true
+                    ],
+                    'data' => $this->formatNumberGeneral($options['data']->montantAPayer)
                 ]
             )
         ;
@@ -136,12 +137,20 @@ class DemandePaiementDaType extends AbstractType
                 ]
             )
             ->add(
-                'poucentageAvance',
+                'pourcentageAvance',
                 TextType::class,
                 [
                     'label' => '% avance (déjà payé inclu)',
                     'required' => false,
                     'disabled' => true
+                ]
+            )
+            ->add(
+                'pourcentageAPayer',
+                TextType::class,
+                [
+                    'label' => '% à payer *',
+                    'required' => true,
                 ]
             )
         ;

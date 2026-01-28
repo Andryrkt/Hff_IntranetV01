@@ -61,13 +61,17 @@ document.addEventListener("DOMContentLoaded", function () {
     "#demande_paiement_da_montantAPayer",
   );
   const poucentageAvance = document.querySelector(
-    "#demande_paiement_da_poucentageAvance",
+    "#demande_paiement_da_pourcentageAvance",
+  );
+  const poucentageAPayer = document.querySelector(
+    "#demande_paiement_da_pourcentageAPayer",
   );
 
-  montantAPayer.addEventListener("input", changeMontant);
+  poucentageAPayer.addEventListener("input", changeMontant);
 
   function changeMontant(e) {
-    let montantAPayerValue = stringEnNumber(e.target.value, " ");
+    let poucentageAPayerValue = e.target.value;
+    let montantAPayerValue = stringEnNumber(montantAPayer.value, " ");
     let montantTotalCdeValue = stringEnNumber(montantTotalCde.value, ".");
     let montantDejaPayerValue = stringEnNumber(montantDejaPayer.value, ".");
     let montantRestantApayerValue = montantRestantApayer.value;
@@ -78,15 +82,41 @@ document.addEventListener("DOMContentLoaded", function () {
       montantAPayerValue,
     );
 
-    ((montantRestantApayer.value = formaterNombre(
-      montantTotalCdeValue - montantDejaPayerValue - montantAPayerValue,
-    )),
-      // changement de pourcentage des avances
-      pourcentageAvence(
-        montantAPayerValue,
-        montantTotalCdeValue,
-        montantDejaPayerValue,
-      ));
+    //changement de montant à payer
+    montantAPayerCalc(poucentageAPayerValue, montantTotalCdeValue);
+
+    // changement de montant restant à payer
+    montantRestantApayerCalc(
+      montantTotalCdeValue,
+      montantDejaPayerValue,
+      poucentageAPayerValue,
+    );
+
+    // changement de pourcentage des avances
+    pourcentageAvenceCalc(
+      poucentageAPayerValue,
+      montantTotalCdeValue,
+      montantDejaPayerValue,
+    );
+  }
+
+  function montantAPayerCalc(pourcentageAPayerValue, montantTotalCdeValue) {
+    montantAPayer.value = formaterNombre(
+      (pourcentageAPayerValue / 100) * montantTotalCdeValue,
+    );
+    return (pourcentageAPayerValue / 100) * montantTotalCdeValue;
+  }
+
+  function montantRestantApayerCalc(
+    montantTotalCdeValue,
+    montantDejaPayerValue,
+    pourcentageAPayerValue,
+  ) {
+    montantRestantApayer.value = formaterNombre(
+      montantTotalCdeValue -
+        montantDejaPayerValue -
+        montantAPayerCalc(pourcentageAPayerValue, montantTotalCdeValue),
+    );
   }
 
   function stringEnNumber(value, separateurMilier) {
@@ -103,14 +133,16 @@ document.addEventListener("DOMContentLoaded", function () {
     return parseFloat(value);
   }
 
-  function pourcentageAvence(
-    montantAPayerValue,
+  function pourcentageAvenceCalc(
+    pourcentageAPayerValue,
     montantTotalCdeValue,
     montantDejaPayerValue,
   ) {
     poucentageAvance.value =
       (
-        ((montantDejaPayerValue + montantAPayerValue) / montantTotalCdeValue) *
+        ((montantDejaPayerValue +
+          montantAPayerCalc(pourcentageAPayerValue, montantTotalCdeValue)) /
+          montantTotalCdeValue) *
         100
       ).toFixed(2) +
       " " +

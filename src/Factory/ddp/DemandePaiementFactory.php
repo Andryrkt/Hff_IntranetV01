@@ -55,7 +55,9 @@ class DemandePaiementFactory
         $dto->montantTotalCde = (float)$recupMontantTotal[0];
         $dto->montantDejaPaye = $ddpRepository->getMontantDejaPayer($numCdeDa);
         $dto->montantRestantApayer = $dto->montantTotalCde - $dto->montantDejaPaye;
-        $dto->poucentageAvance = (($dto->montantDejaPaye + $dto->montantAPayer) / $dto->montantTotalCde) * 100 . ' %';
+        $dto->pourcentageAvance = (($dto->montantDejaPaye + $dto->montantAPayer) / $dto->montantTotalCde) * 100 . ' %';
+        $dto->montantAPayer = $dto->montantRestantApayer;
+        $dto->pourcentageAPayer = (int)(($dto->montantAPayer / $dto->montantTotalCde) * 100);
 
         // info generale =====================
         $dto->demandeur = $user->getNomUtilisateur();

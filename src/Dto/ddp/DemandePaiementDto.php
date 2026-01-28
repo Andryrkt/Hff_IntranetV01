@@ -57,10 +57,11 @@ class DemandePaiementDto
     public bool $appro = false;
     public ?int $typeDa = null;
     public string $montantAPayer = '0';
+    public int $pourcentageAPayer;
     public $montantTotalCde;
     public $montantDejaPaye;
     public $montantRestantApayer;
-    public $poucentageAvance;
+    public $pourcentageAvance;
     public $ratioMontantpayer;
 
     public function montantAPayer(): float
