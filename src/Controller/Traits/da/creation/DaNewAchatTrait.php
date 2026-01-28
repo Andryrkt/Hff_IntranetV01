@@ -87,8 +87,8 @@ trait DaNewAchatTrait
         /** @var DemandeApproParentLine $dal */
         foreach ($demandeApproParent->getDemandeApproParentLines() as $demandeApproParentLine) {
             $daAfficher = new DaAfficher();
-            $daAfficher->enregistrerDaParent($demandeApproParent);
-            $daAfficher->enregistrerDaParentLine($demandeApproParentLine);
+            $daAfficher->duplicateDaParent($demandeApproParent);
+            $daAfficher->duplicateDaParentLine($demandeApproParentLine);
             $daAfficher->setNumeroVersion($numeroVersion);
 
             $this->getEntityManager()->persist($daAfficher);

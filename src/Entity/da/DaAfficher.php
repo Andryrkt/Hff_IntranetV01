@@ -1847,7 +1847,7 @@ class DaAfficher
         ;
     }
 
-    public function enregistrerDaParent(DemandeApproParent $demandeApproParent)
+    public function duplicateDaParent(DemandeApproParent $demandeApproParent)
     {
         $this
             ->setDemandeApproParent($demandeApproParent)
@@ -1869,7 +1869,7 @@ class DaAfficher
         ;
     }
 
-    public function enregistrerDaParentLine(DemandeApproParentLine $demandeApproParentLine)
+    public function duplicateDaParentLine(DemandeApproParentLine $demandeApproParentLine)
     {
         $this
             ->setQteDem($demandeApproParentLine->getQteDem())
