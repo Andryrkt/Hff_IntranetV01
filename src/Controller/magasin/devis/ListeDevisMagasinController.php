@@ -347,7 +347,8 @@ class ListeDevisMagasinController extends Controller
             $emetteur = $devis->getSuccursaleServiceEmetteur();
             $numeroDevis = $devis->getNumeroDevis();
 
-            $pointageDevis = in_array($statutDw, [DevisMagasin::STATUT_PRIX_VALIDER_TANA, DevisMagasin::STATUT_PRIX_MODIFIER_TANA, DevisMagasin::STATUT_VALIDE_AGENCE,]);
+            $pointageDevis = in_array($statutDw, [DevisMagasin::STATUT_PRIX_VALIDER_TANA, DevisMagasin::STATUT_PRIX_MODIFIER_TANA, DevisMagasin::STATUT_VALIDE_AGENCE]);
+            $relanceClient = $statutDw === DevisMagasin::STATUT_ENVOYER_CLIENT && $statutBc ===  BcMagasin::STATUT_EN_ATTENTE_BC;
 
             // Création d'url
             $url = [
@@ -357,6 +358,7 @@ class ListeDevisMagasinController extends Controller
             ];
 
             if ($pointageDevis) $url["pointageDevis"] = $this->getUrlGenerator()->generate("devis_magasin_envoyer_au_client", ["numeroDevis" => $numeroDevis]);
+            if ($relanceClient) $url["relanceClient"] = $this->getUrlGenerator()->generate("devis_magasin_relance_client", ["numeroDevis" => $numeroDevis]);
 
             $data[] = [
                 'url'             => $url,
