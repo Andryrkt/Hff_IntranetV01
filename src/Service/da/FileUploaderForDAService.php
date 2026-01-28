@@ -2,8 +2,6 @@
 
 namespace App\Service\da;
 
-use App\Entity\da\DemandeApproL;
-use App\Entity\da\DemandeApproLR;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class FileUploaderForDAService
