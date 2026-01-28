@@ -148,7 +148,7 @@ class DaNewAvecDitController extends Controller
             if ($demandeAppro->getObservation()) $this->insertionObservation($numDa, $demandeAppro->getObservation());
 
             // ajout des données dans la table DaAfficher
-            $this->ajouterDaDansTableAffichage($demandeAppro, $dit);
+            $this->ajouterDaDansTableAffichage($demandeAppro, $firstCreation, $dit);
 
             if ($clickedButtonName === "soumissionAppro") $this->emailDaService->envoyerMailCreationDa($demandeAppro, $this->getUser());
 

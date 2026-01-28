@@ -135,7 +135,7 @@ class DaNewAchatController extends Controller
             if ($demandeApproParent->getObservation()) $this->insertionObservation($numDa, $demandeApproParent->getObservation());
 
             // ajout des données dans la table DaAfficher
-            $this->ajouterDaDansTableAffichageParent($demandeApproParent);
+            $this->ajouterDaDansTableAffichageParent($demandeApproParent, $firstCreation);
 
             if ($clickedButtonName === "soumissionAppro") $this->emailDaService->envoyerMailCreationDaParent($demandeApproParent, $this->getUser());
 

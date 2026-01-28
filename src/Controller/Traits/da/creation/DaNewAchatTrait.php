@@ -76,11 +76,12 @@ trait DaNewAchatTrait
      * Sans cela, les données risquent de ne pas être cohérentes ou correctement persistées.
      *
      * @param DemandeApproParent $demandeApproParent  Objet de la demande d'achat à traiter
+     * @param bool               $firstCreation       indique si c'est la première création de la DA
      */
-    public function ajouterDaDansTableAffichageParent(DemandeApproParent $demandeApproParent): void
+    public function ajouterDaDansTableAffichageParent(DemandeApproParent $demandeApproParent, bool $firstCreation): void
     {
         // Récupère le dernier numéro de version existant pour cette demande d'achat
-        $numeroVersionMax = $this->daAfficherRepository->getNumeroVersionMax($demandeApproParent->getNumeroDemandeAppro());
+        $numeroVersionMax = $firstCreation ? 0 : $this->daAfficherRepository->getNumeroVersionMax($demandeApproParent->getNumeroDemandeAppro());
         $numeroVersion = VersionService::autoIncrement($numeroVersionMax);
 
         // Parcours chaque ligne DAL de la demande d'achat

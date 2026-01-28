@@ -204,12 +204,13 @@ class DaService
      * Sans cela, les données risquent de ne pas être cohérentes ou correctement persistées.
      *
      * @param DemandeAppro             $demandeAppro  Objet de la demande d'achat à traiter
+     * @param bool                     $firstCreation indique si c'est la première création de la DA
      * @param DemandeIntervention|null $dit           Optionnellement, la demande d'intervention associée
      */
-    public function generateDaAfficherOnCreationDa(DemandeAppro $demandeAppro, ?DemandeIntervention $dit = null): void
+    public function generateDaAfficherOnCreationDa(DemandeAppro $demandeAppro, bool $firstCreation, ?DemandeIntervention $dit = null): void
     {
         // Récupère le dernier numéro de version existant pour cette demande d'achat
-        $numeroVersionMax = $this->daAfficherRepository->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
+        $numeroVersionMax = $firstCreation ? 0 : $this->daAfficherRepository->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
         $numeroVersion = VersionService::autoIncrement($numeroVersionMax);
 
         // Parcours chaque ligne DAL de la demande d'achat
@@ -234,11 +235,12 @@ class DaService
      * Sans cela, les données risquent de ne pas être cohérentes ou correctement persistées.
      *
      * @param DemandeApproParent $demandeApproParent  Objet de la demande d'achat à traiter
+     * @param bool               $firstCreation      indique si c'est la première création de la DA
      */
-    public function generateDaAfficherOnCreationDaParent(DemandeApproParent $demandeApproParent): void
+    public function generateDaAfficherOnCreationDaParent(DemandeApproParent $demandeApproParent, bool $firstCreation): void
     {
         // Récupère le dernier numéro de version existant pour cette demande d'achat
-        $numeroVersionMax = $this->daAfficherRepository->getNumeroVersionMax($demandeApproParent->getNumeroDemandeAppro());
+        $numeroVersionMax = $firstCreation ? 0 : $this->daAfficherRepository->getNumeroVersionMax($demandeApproParent->getNumeroDemandeAppro());
         $numeroVersion = VersionService::autoIncrement($numeroVersionMax);
 
         // Parcours chaque ligne DAL de la demande d'achat
