@@ -901,4 +901,16 @@ class DaAfficherRepository extends EntityRepository
             ->getOneOrNullResult()
         ;
     }
+
+    public function getNumFrnDa(int $numcde)
+    {
+        return $this->createQueryBuilder('da')
+            ->select('da.numeroFournisseur')
+            ->where('da.numeroCde = :numCde')
+            ->setParameter('numCde', $numcde)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
+    }
 }

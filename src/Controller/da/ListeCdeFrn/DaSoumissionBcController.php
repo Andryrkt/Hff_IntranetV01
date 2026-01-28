@@ -7,20 +7,26 @@ use App\Model\da\DaModel;
 use App\Entity\da\DaValider;
 use App\Entity\da\DaAfficher;
 use App\Controller\Controller;
-use App\Controller\Traits\PdfConversionTrait;
 use App\Entity\da\DemandeAppro;
+use App\Entity\admin\Application;
 use App\Entity\da\DaSoumissionBc;
+use App\Entity\ddp\DemandePaiement;
+use App\Entity\admin\ddp\TypeDemande;
 use App\Model\da\DaSoumissionBcModel;
 use App\Repository\dit\DitRepository;
 use App\Entity\dit\DemandeIntervention;
+use App\Model\ddp\DemandePaiementModel;
 use App\Service\genererPdf\GeneratePdf;
+use App\Service\autres\AutoIncDecService;
 use App\Repository\da\DaAfficherRepository;
 use App\Service\fichier\TraitementDeFichier;
+use App\Controller\Traits\PdfConversionTrait;
 use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DaSoumissionBcRepository;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Form\da\soumissionBC\DaSoumissionBcType;
+use App\Constants\ddp\TypeDemandePaiementConstants;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Service\historiqueOperation\HistoriqueOperationService;
 use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
@@ -119,10 +125,11 @@ class DaSoumissionBcController extends Controller
                 /** modification du table da_afficher */
                 $this->modificationDaAfficher($numDa, $numCde);
 
-
+                /** ENREGISTREMENT DANS LA TABLE DEMANDE DE PAIEMENT */
+                $this->EnregistrementDansLaTableDemandepaiement($numCde);
 
                 /** HISTORISATION */
-                $message = 'Le document est soumis pour validation';
+                $message = "Le document est soumis pour validation";
                 $criteria = $this->getSessionService()->get('criteria_for_excel_Da_Cde_frn');
                 $nomDeRoute = 'da_list_cde_frn'; // route de redirection après soumission
                 $nomInputSearch = 'cde_frn_list'; // initialistion de nom de chaque champ ou input
@@ -131,7 +138,73 @@ class DaSoumissionBcController extends Controller
         }
     }
 
-    private function EnregistrementDansLaTableDemandepaiement() {}
+    private function getNumeroDdp(): string
+    {
+        //recupereation de l'application DDP pour generer le numero de ddp
+        $application = $this->getEntityManager()->getRepository(Application::class)->findOneBy(['codeApp' => 'DDP']);
+        if (!$application) {
+            throw new \Exception("L'application 'DDP' n'a pas été trouvée dans la configuration.");
+        }
+        //generation du numero de ddp
+        $numeroDdp = AutoIncDecService::autoGenerateNumero('DDP', $application->getDerniereId(), true);
+        //mise a jour de la derniere id de l'application DDP
+        AutoIncDecService::mettreAJourDerniereIdApplication($application, $this->getEntityManager(), $numeroDdp);
+
+        return $numeroDdp;
+    }
+
+    private function getTypePayementAvantLivraison(): TypeDemande
+    {
+        // recupération du type de demande "DDP avant livraison"
+        $ddpAvantLivraison = $this->getEntityManager()->getRepository(TypeDemande::class)->find(TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE);
+        if (!$ddpAvantLivraison) {
+            throw new \Exception("Le type de demande 'DDP avant livraison' (ID 1) n'a pas été trouvé.");
+        }
+
+        return $ddpAvantLivraison;
+    }
+
+    private function EnregistrementDansLaTableDemandepaiement(int $numCde)
+    {
+        $numFrn = $this->daAfficherRepository->getNumFrnDa($numCde)['numeroFournisseur'] ?? '';
+
+        $ddpModel = new DemandePaiementModel();
+        $infoCde = $ddpModel->recupInfoComamnde($numCde, $numFrn);
+
+        if (!empty($infoCde)) {
+            $demandePaiement = new DemandePaiement();
+
+            $demandePaiement->setNumeroDdp($this->getNumeroDdp())
+                ->setTypeDemandeId($this->getTypePayementAvantLivraison())
+                ->setNumeroFournisseur($infoCde[0]['num_fournisseur'] ?? '')
+                ->setRibFournisseur($infoCde[0]['rib'] ?? '')
+                ->setBeneficiaire($infoCde[0]['nom_fournisseur'] ?? '')
+                ->setMotif(null)
+                ->setAgenceDebiter($infoCde[0]['code_agence'] ?? '')
+                ->setServiceDebiter($infoCde[0]['code_service'] ?? '')
+                ->setStatut('Soumis à validation')
+                ->setAdresseMailDemandeur($this->getUserMail())
+                ->setDemandeur($this->getUserName())
+                ->setModePaiement($infoCde[0]['mode_paiement'] ?? '')
+                ->setMontantAPayers($infoCde[0]['montant_total_cde'] ?? 0)
+                ->setContact(Null)
+                ->setNumeroCommande([$infoCde[0]['numero_cde']] ?? [])
+                ->setNumeroFacture([])
+                ->setStatutDossierRegul(Null)
+                ->setNumeroVersion(1)
+                ->setDevise($infoCde[0]['devise'] ?? '')
+                ->setEstAutreDoc(false)
+                ->setNomAutreDoc(Null)
+                ->setEstCdeClientExterneDoc(false)
+                ->setNomCdeClientExterneDoc(Null)
+                ->setNumeroDossierDouane(Null)
+                ->setAppro(true)
+            ;
+
+            $this->getEntityManager()->persist($demandePaiement);
+            $this->getEntityManager()->flush();
+        }
+    }
 
     private function modificationDaAfficher(string $numDa, string $numCde): void
     {

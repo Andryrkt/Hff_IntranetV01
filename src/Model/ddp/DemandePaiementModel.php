@@ -395,11 +395,11 @@ class DemandePaiementModel extends Model
                     AND fcde_numcde = '{$numCde}'
                     AND fbse_numfou = '{$numeroFournisseur}'
                 GROUP BY 
-                    FBSE_NUMFOU, code_agence, code_service, numero_cde
+                    FBSE_NUMFOU, code_agence, code_service, numero_cde, montant_total_cde
                 ORDER BY 
                     nom_fournisseur
-
         ";
+
 
         $result = $this->connect->executeQuery($statement);
 
