@@ -4,7 +4,7 @@ namespace App\Service\da;
 
 use App\Entity\da\DemandeAppro;
 
-class DemandeApproService
+class PermissionDaService
 {
     /**
      * Règles de déverrouillage par rôle utilisateur.
