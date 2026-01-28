@@ -88,6 +88,7 @@ trait DaAffectationTrait
         $this->ajouterDansTableAffichageParNumDa($numeroDemandeAppro, $validationDA, $statutDW);
 
         if ($validationDA) {
+            // création de PDF
             $genererPdfReappro = new GenererPdfDaReappro();
             $dateRange = $this->getLast12MonthsRange();
             $monthsList = $this->getMonthsList($dateRange['start'], $dateRange['end']);
@@ -98,6 +99,10 @@ trait DaAffectationTrait
             );
             $genererPdfReappro->genererPdfBonAchatValide($demandeAppro, $observations, $monthsList, $dataHistoriqueConsommation);
 
+            // Dépôt du document dans DocuWare
+            $genererPdfReappro->copyToDWDaAValiderReappro($numeroDemandeAppro, "");
+
+            // Enregistrement dans la table de Soumission
             $this->ajouterDansDaSoumisAValidation($numeroDemandeAppro, $demandeAppro->getDemandeur());
         }
     }
