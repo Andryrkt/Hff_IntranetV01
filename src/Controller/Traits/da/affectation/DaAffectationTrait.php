@@ -86,7 +86,8 @@ trait DaAffectationTrait
         $this->em->flush();
 
         $this->handleOldObservation($numeroDemandeAppro, $daParent->getNumeroDemandeAppro()); // copier les observations de la DA parent
-        $this->insertionObservation($numeroDemandeAppro, $daParent->getObservation() ?? "-"); // insertion d'observation du formulaire dans le nouveau DA
+
+        if ($daParent->getObservation()) $this->insertionObservation($numeroDemandeAppro, $daParent->getObservation()); // insertion d'observation du formulaire dans le nouveau DA
 
         $validationDA = $daType === DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL;
         $statutDW = $validationDA ? DemandeAppro::STATUT_DW_A_VALIDE : '';
