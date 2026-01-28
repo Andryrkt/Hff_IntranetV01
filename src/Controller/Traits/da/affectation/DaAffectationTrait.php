@@ -56,6 +56,9 @@ trait DaAffectationTrait
         $numeroDemandeAppro = $demandeAppro->getNumeroDemandeAppro();
 
         $numLigne = 0;
+
+        $linesToDelete = []; // lignes à supprimer pour les lignes de DA parent dans da_afficher
+
         /** @var DemandeApproParentLine $daParentLine */
         foreach ($daParentLines as $daParentLine) {
             $demandeApproLine = new DemandeApproL();
@@ -75,16 +78,23 @@ trait DaAffectationTrait
             $demandeAppro->addDAL($demandeApproLine);
 
             $this->em->persist($demandeApproLine);
+
+            // ajout de ligne à supprimer pour les lignes de DA parent dans da_afficher
+            $linesToDelete[] = $daParentLine->getNumeroLigne();
         }
         $this->em->persist($demandeAppro);
         $this->em->flush();
 
         $this->handleOldObservation($numeroDemandeAppro, $daParent->getNumeroDemandeAppro()); // copier les observations de la DA parent
-        $this->insertionObservation($numeroDemandeAppro, $daParent->getObservation()); // insertion d'observation du formulaire dans le nouveau DA
+        $this->insertionObservation($numeroDemandeAppro, $daParent->getObservation() ?? "-"); // insertion d'observation du formulaire dans le nouveau DA
 
         $validationDA = $daType === DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL;
         $statutDW = $validationDA ? DemandeAppro::STATUT_DW_A_VALIDE : '';
 
+        // Supprimer les lignes de DA Parent dans la table da_afficher
+        $this->daAfficherRepository->markAsDeletedByNumeroLigne($daParent->getNumeroDemandeAppro(), $linesToDelete, $this->getUserName());
+
+        // Ajouter les nouveaux données dans la table da_afficher
         $this->ajouterDansTableAffichageParNumDa($numeroDemandeAppro, $validationDA, $statutDW);
 
         if ($validationDA) {
