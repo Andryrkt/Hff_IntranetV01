@@ -43,11 +43,17 @@ class PdfTableReappro
 
     private function generateBodyArticleDemandeReappro(iterable $dals, bool $isPonctuel): string
     {
-        if (empty($dals)) {
-            return '<tbody><tr><td colspan="6" align="center">Aucun article demandé</td></tr></tbody>';
+        $rows = [];
+        $hasRows = false;
+
+        foreach ($dals as $dal) {
+            $hasRows = true;
+            $rows[] = $this->createArticleRow($dal, $isPonctuel);
         }
 
-        $rows = array_map(fn($dal) => $this->createArticleRow($dal, $isPonctuel), $dals);
+        if (!$hasRows) {
+            return '<tbody><tr><td colspan="7" align="center">Aucun article demandé</td></tr></tbody>';
+        }
 
         return '<tbody>' . implode('', $rows) . '</tbody>';
     }
@@ -57,7 +63,7 @@ class PdfTableReappro
         $qteDem = $dal->getQteDem();
         $qteVal = $dal->getQteValAppro();
         $exces = $qteDem > $qteVal;
-        $bgRed = $exces ? "background-color: #dc3545; color: #fff; font-weight: bold;" : "";
+        $bgRed = !$isPonctuel && $exces ? "background-color: #dc3545; color: #fff; font-weight: bold;" : "";
 
         $cells = [
             $this->createTableCell('center', '10%', $dal->getArtConstp(), "", false),
