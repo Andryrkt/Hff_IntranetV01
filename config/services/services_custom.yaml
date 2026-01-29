@@ -45,3 +45,8 @@ services:
       $em: "@doctrine.orm.default_entity_manager"
       $daFileUploader: '@App\Service\da\FileUploaderForDAService'
     public: true
+
+  App\Service\da\DaAfficherService:
+    arguments:
+      $em: "@doctrine.orm.default_entity_manager"
+    public: true
