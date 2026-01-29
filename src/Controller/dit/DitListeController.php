@@ -12,7 +12,6 @@ use App\Form\dit\DocDansDwType;
 use App\Model\dit\DitListModel;
 use App\Entity\admin\Application;
 use App\Entity\admin\StatutDemande;
-use App\Service\Users\UserDataService;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\dit\DitListTrait;
 use App\Controller\Traits\AutorisationTrait;
@@ -32,7 +31,6 @@ class DitListeController extends Controller
     use AutorisationTrait;
 
     private $historiqueOperation;
-    private UserDataService $userDataService;
     private $excelService;
     private DitModel $ditModel;
 
@@ -40,7 +38,6 @@ class DitListeController extends Controller
     {
         parent::__construct();
         $this->historiqueOperation = new HistoriqueOperationDITService($this->getEntityManager());
-        $this->userDataService = new UserDataService($this->getEntityManager());
         $this->excelService = new \App\Service\ExcelService();
         $this->ditModel = new DitModel();
     }

@@ -1,58 +1,45 @@
 <?php
 
-namespace App\Controller\Traits\da;
+namespace App\Service\da;
 
-use DateTime;
 use App\Entity\da\DaAfficher;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
-use App\Service\da\EmailDaService;
-use App\Controller\Traits\lienGenerique;
+use App\Entity\da\DemandeApproParent;
+use App\Service\autres\VersionService;
+use App\Entity\dit\DemandeIntervention;
+use Doctrine\ORM\EntityManagerInterface;
+use App\Entity\da\DemandeApproParentLine;
 use App\Repository\da\DaAfficherRepository;
-use App\Service\da\FileUploaderForDAService;
 use App\Repository\da\DemandeApproRepository;
+use App\Repository\da\DaObservationRepository;
 use App\Repository\da\DemandeApproLRepository;
 use App\Repository\da\DemandeApproLRRepository;
-use App\Service\da\PermissionDaService;
+use DateTime;
+use DateTimeZone;
 
-trait DaTrait
+class DaService
 {
-    use lienGenerique;
-
-    private bool $daTraitInitialise = false;
-
-    //=====================================================================================
-    private DaAfficherRepository $daAfficherRepository;
+    private EntityManagerInterface $em;
     private DemandeApproRepository $demandeApproRepository;
     private DemandeApproLRepository $demandeApproLRepository;
     private DemandeApproLRRepository $demandeApproLRRepository;
-    private EmailDaService $emailDaService;
-    private PermissionDaService $permissionDaService;
+    private DaAfficherRepository $daAfficherRepository;
+    private DaObservationRepository $daObservationRepository;
     private FileUploaderForDAService $daFileUploader;
 
-    /**
-     * Initialise les valeurs par défaut du trait
-     */
-    public function initDaTrait(): void
+    public function __construct(EntityManagerInterface $em, FileUploaderForDAService $daFileUploader)
     {
-        // Si déjà exécuté → on sort immédiatement
-        if ($this->daTraitInitialise) return;
-
-        $em = $this->getEntityManager();
-        $this->emailDaService           = new EmailDaService($this->getTwig()); // Injection du service Twig depuis Controller
-        $this->permissionDaService      = new PermissionDaService;
-        $this->daFileUploader           = new FileUploaderForDAService();
+        $this->em                       = $em;
         $this->daAfficherRepository     = $em->getRepository(DaAfficher::class);
         $this->demandeApproRepository   = $em->getRepository(DemandeAppro::class);
         $this->demandeApproLRepository  = $em->getRepository(DemandeApproL::class);
         $this->demandeApproLRRepository = $em->getRepository(DemandeApproLR::class);
-
-        // On note que l'init a été faite
-        $this->daTraitInitialise = true;
+        $this->daObservationRepository  = $em->getRepository(DaObservation::class);
+        $this->daFileUploader           = $daFileUploader;
     }
-    //=====================================================================================
 
     /**
      * Permet de calculer le nombre de jours disponibles avant la date de fin souhaitée
@@ -81,14 +68,13 @@ trait DaTrait
      * 
      * @param string         $numDa       le numéro de la DA
      * @param string         $observation l'Observation à insérer
+     * @param string         $username    le nom de l'utilisateur
      * @param UploadedFile[] $files       les fichiers à uploader
      * 
      * @return void
      */
-    private function insertionObservation(string $numDa, string $observation, ?array $files = null): void
+    public function insertionObservation(string $numDa, string $observation, string $username, ?array $files = null): void
     {
-        $em = $this->getEntityManager();
-
         $text = str_replace(["\r\n", "\n", "\r"], "<br>", $observation);
 
         $daObservation = new DaObservation();
@@ -96,7 +82,7 @@ trait DaTrait
         $daObservation
             ->setObservation($text)
             ->setNumDa($numDa)
-            ->setUtilisateur($this->getUser()->getNomUtilisateur())
+            ->setUtilisateur($username)
         ;
 
         if ($files) {
@@ -104,50 +90,26 @@ trait DaTrait
             $daObservation->setFileNames($fileNames);
         }
 
-        $em->persist($daObservation);
-        $em->flush();
+        $this->em->persist($daObservation);
+        $this->em->flush();
     }
 
     /**
      * Récupère les lignes d'une Demande d'Achat en tenant compte des rectifications utilisateur (DALR).
-     * Optimisé pour éviter les requêtes en boucle (N+1).
      *
-     * @param string $numeroDA le numéro de la Demande d'Achat
-     * @param int    $version la version de la Demande d'Achat
+     * @param iterable<DemandeApproL> $lignesDAL les lignes de DAL de la DA
      *
      * @return array
      */
-    private function getLignesRectifieesDA(string $numeroDA, int $version): array
+    public function getLignesRectifiees(iterable $lignesDAL): array
     {
-        // 1. Récupération des lignes DAL (non supprimées)
-        /** @var iterable<DemandeApproL> les lignes de DAL non supprimées */
-        $lignesDAL = $this->demandeApproLRepository->findBy([
-            'numeroDemandeAppro' => $numeroDA,
-            'numeroVersion'      => $version,
-            'deleted'            => false,
-        ]);
-
-        // 2. Récupération en une seule requête des DALR associés à la DA
-        /** @var iterable<DemandeApproLR> les lignes de DALR correspondant au numéro de la DA */
-        $dalrs = $this->demandeApproLRRepository->findBy([
-            'numeroDemandeAppro' => $numeroDA,
-        ]);
-
-        // 3. Indexation des DALR par numéro de ligne, uniquement s'ils sont validés (choix = true)
-        $dalrParLigne = [];
-
-        foreach ($dalrs as $dalr) {
-            if ($dalr->getChoix()) {
-                $dalrParLigne[$dalr->getNumeroLigne()] = $dalr;
-            }
-        }
-
-        // 4. Construction de la liste finale en remplaçant les DAL par DALR si dispo
         $resultats = [];
 
         foreach ($lignesDAL as $ligneDAL) {
-            $numeroLigne = $ligneDAL->getNumeroLigne(); // numéro de ligne de la DAL
-            $resultats[] = $dalrParLigne[$numeroLigne] ?? $ligneDAL;
+            /** @var iterable<DemandeApproLR> $lignesDalr */
+            $lignesDalr = $ligneDAL->getDemandeApproLR();
+            if ($lignesDalr->isEmpty()) $resultats[] = $ligneDAL;
+            else                        $resultats[] = $lignesDalr->filter(fn(DemandeApproLR $dalr) => $dalr->getChoix())->first();
         }
 
         return $resultats;
@@ -192,8 +154,6 @@ trait DaTrait
 
     public function appliquerChangementStatut(DemandeAppro $demandeAppro, string $statut, bool $withFlush = true)
     {
-        $em = $this->getEntityManager();
-
         $demandeAppro->setStatutDal($statut);
 
         /** @var DemandeApproL $demandeApproL */
@@ -202,15 +162,74 @@ trait DaTrait
             /** @var DemandeApproLR $demandeApproLR */
             foreach ($demandeApproL->getDemandeApproLR() as $demandeApproLR) {
                 $demandeApproLR->setStatutDal($statut);
-                $em->persist($demandeApproLR);
+                $this->em->persist($demandeApproLR);
             }
-            $em->persist($demandeApproL);
+            $this->em->persist($demandeApproL);
         }
 
-        $em->persist($demandeAppro);
+        $this->em->persist($demandeAppro);
 
-        if ($withFlush) {
-            $em->flush();
+        if ($withFlush) $this->em->flush();
+    }
+
+    /**
+     * Ajoute les données d'une DA
+     * dans la table `DaAfficher`, une ligne par DAL.
+     *
+     * ⚠️ IMPORTANT : Avant d'appeler cette fonction, il est impératif d'exécuter :
+     *     $this->em->flush();
+     * Sans cela, les données risquent de ne pas être cohérentes ou correctement persistées.
+     *
+     * @param DemandeAppro             $demandeAppro  Objet de la demande d'achat à traiter
+     * @param bool                     $firstCreation indique si c'est la première création de la DA
+     * @param DemandeIntervention|null $dit           Optionnellement, la demande d'intervention associée
+     */
+    public function generateDaAfficherOnCreationDa(DemandeAppro $demandeAppro, bool $firstCreation, ?DemandeIntervention $dit = null): void
+    {
+        // Récupère le dernier numéro de version existant pour cette demande d'achat
+        $numeroVersionMax = $firstCreation ? 0 : $this->daAfficherRepository->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
+        $numeroVersion = VersionService::autoIncrement($numeroVersionMax);
+
+        // Parcours chaque ligne DAL de la demande d'achat
+        /** @var DemandeApproL $dal */
+        foreach ($demandeAppro->getDAL() as $dal) {
+            $daAfficher = new DaAfficher();
+            if ($dit) $daAfficher->setDit($dit);
+            $daAfficher->duplicateDa($demandeAppro);
+            $daAfficher->duplicateDal($dal);
+            $daAfficher->setNumeroVersion($numeroVersion);
+
+            $this->em->persist($daAfficher);
         }
+        $this->em->flush();
+    }
+
+    /**
+     * Ajoute les données d'une DA Parent dans la table `DaAfficher`, une ligne par DAL.
+     *
+     * ⚠️ IMPORTANT : Avant d'appeler cette fonction, il est impératif d'exécuter :
+     *     $this->getEntityManager()->flush();
+     * Sans cela, les données risquent de ne pas être cohérentes ou correctement persistées.
+     *
+     * @param DemandeApproParent $demandeApproParent  Objet de la demande d'achat à traiter
+     * @param bool               $firstCreation      indique si c'est la première création de la DA
+     */
+    public function generateDaAfficherOnCreationDaParent(DemandeApproParent $demandeApproParent, bool $firstCreation): void
+    {
+        // Récupère le dernier numéro de version existant pour cette demande d'achat
+        $numeroVersionMax = $firstCreation ? 0 : $this->daAfficherRepository->getNumeroVersionMax($demandeApproParent->getNumeroDemandeAppro());
+        $numeroVersion = VersionService::autoIncrement($numeroVersionMax);
+
+        // Parcours chaque ligne DAL de la demande d'achat
+        /** @var DemandeApproParentLine $dal */
+        foreach ($demandeApproParent->getDemandeApproParentLines() as $demandeApproParentLine) {
+            $daAfficher = new DaAfficher();
+            $daAfficher->duplicateDaParent($demandeApproParent);
+            $daAfficher->duplicateDaParentLine($demandeApproParentLine);
+            $daAfficher->setNumeroVersion($numeroVersion);
+
+            $this->em->persist($daAfficher);
+        }
+        $this->em->flush();
     }
 }

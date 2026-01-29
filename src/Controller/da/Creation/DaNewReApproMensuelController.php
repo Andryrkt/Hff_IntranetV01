@@ -115,7 +115,7 @@ class DaNewReApproMensuelController extends Controller
             if ($demandeAppro->getObservation()) $this->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $demandeAppro->getObservation());
 
             // ajout des données dans la table DaAfficher
-            $this->ajouterDaDansTableAffichage($demandeAppro);
+            $this->ajouterDaDansTableAffichage($demandeAppro, $firstCreation);
 
             if ($clickedButtonName === "soumissionAppro") $this->emailDaService->envoyerMailCreationDa($demandeAppro, $this->getUser());
 

@@ -49,7 +49,7 @@ trait DaAfficherTrait
         $newDaAffichers = $this->getLignesRectifieesDA($numDa, (int) $numeroVersionMaxDAL); // Récupère les lignes rectifiées de la DA (nouveaux Da afficher)
 
         $deletedLineNumbers = $this->getDeletedLineNumbers($oldDaAffichers, $newDaAffichers);
-        $this->daAfficherRepository->markAsDeletedByNumeroLigne($numDa, $deletedLineNumbers, $this->getUserName(), $numeroVersionMaxDaAfficher);
+        $this->daAfficherRepository->markAsDeletedByNumeroLigne($numDa, $deletedLineNumbers, $this->getUserName());
 
         $dateValidation = new DateTime('now', new DateTimeZone('Indian/Antananarivo'));
 

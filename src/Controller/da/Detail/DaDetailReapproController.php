@@ -62,6 +62,7 @@ class DaDetailReapproController extends Controller
 			'detailTemplate'    => 'detail-reappro',
 			'formObservation'	=> $formObservation->createView(),
 			'demandeAppro'      => $demandeAppro,
+			'isMensuel'         => $demandeAppro->getDaTypeId() == DemandeAppro::TYPE_DA_REAPPRO_MENSUEL,
 			'codeCentrale'      => $this->estAdmin() || in_array($demandeAppro->getAgenceEmetteur()->getCodeAgence(), ['90', '91', '92']),
 			'observations'      => $observations,
 			'fichiers'          => $fichiers,
