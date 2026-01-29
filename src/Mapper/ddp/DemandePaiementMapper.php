@@ -4,6 +4,7 @@ namespace App\Mapper\ddp;
 
 use App\Dto\ddp\DemandePaiementDto;
 use App\Entity\ddp\DemandePaiement;
+use App\Constants\ddp\StatutConstants;
 use App\Entity\ddp\HistoriqueStatutDdp;
 
 class DemandePaiementMapper
@@ -39,6 +40,21 @@ class DemandePaiementMapper
         ;
 
         return $ddp;
+    }
+
+    public static function mapUpdate(DemandePaiementDto $dto, DemandePaiement $ddp): DemandePaiement
+    {
+        return $ddp->setStatut(StatutConstants::STATUT_SOUMIS_A_VALIDATION)
+        ->setMontantApayer($dto->montantAPayer)
+        ->setRibFournisseur($dto->ribFournisseur)
+        ->setEstAutreDoc($dto->estAutresDoc)
+            ->setNomAutreDoc($dto->nomAutreDoc)
+            ->setEstCdeClientExterneDoc($dto->estCdeClientExterneDoc)
+            ->setNomCdeClientExterneDoc($dto->nomCdeClientExterneDoc)
+            ->setAppro($dto->appro)
+            ->setDevise($dto->devise)
+            ->setModePaiement($dto->modePaiement)
+        ;
     }
 
     public static function mapStatut(DemandePaiementDto $dto): HistoriqueStatutDdp

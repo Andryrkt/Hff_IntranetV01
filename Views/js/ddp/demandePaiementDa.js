@@ -148,4 +148,45 @@ document.addEventListener("DOMContentLoaded", function () {
       " " +
       "%";
   }
+
+  // File viewer logic
+  const fileLinks = document.querySelectorAll('.view-file-link');
+
+  fileLinks.forEach(link => {
+      link.addEventListener('click', function(e) {
+          e.preventDefault();
+          const fileUrl = this.getAttribute('data-url');
+          
+          const previewTabItem = document.getElementById('pj-preview-tab-item');
+          const previewTab = document.getElementById('pj-preview-tab');
+          const previewPane = document.getElementById('pj-preview-pane');
+
+          if (previewTabItem && previewPane && fileUrl) {
+              // Make tab visible
+              previewTabItem.classList.remove('d-none');
+
+              // Create iframe
+              const iframe = document.createElement('iframe');
+              iframe.src = fileUrl;
+              iframe.style.width = '100%';
+              iframe.style.height = '80vh';
+              iframe.style.border = 'none';
+
+              // Add iframe to pane
+              previewPane.innerHTML = '';
+              previewPane.appendChild(iframe);
+
+              // Activate the new tab
+              const tab = new bootstrap.Tab(previewTab);
+              tab.show();
+          }
+      });
+  });
+
+  document.querySelectorAll('.remove-pj-file').forEach(button => {
+      button.addEventListener('click', function () {
+          this.closest('li.file-item-pj').remove();
+      });
+  });
 });
+

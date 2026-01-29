@@ -49,9 +49,9 @@ class DemandePaiementDaController extends Controller
     }
 
     /**
-     * @Route("/newDdpa/{typeDdp}/{numCdeDa}/{typeDa}", name="demande_paiement_da", defaults={"numCdeDa"=null, "typeDa"=null})
+     * @Route("/newDdpa/{typeDdp}/{numCdeDa}/{typeDa}/{numDdp}", name="demande_paiement_da", defaults={"numCdeDa"=null, "typeDa"=null, "numDdp"=null}, methods={"GET","POST"})
      */
-    public function index(int $typeDdp, int $numCdeDa, int $typeDa, Request $request)
+    public function index(int $typeDdp, ?int $numCdeDa, ?int $typeDa, ?string $numDdp, Request $request)
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
@@ -61,7 +61,7 @@ class DemandePaiementDaController extends Controller
         /** FIN AUtorisation acées */
 
         // creation du formulaire
-        $dto = (new DemandePaiementFactory($this->getEntityManager()))->load($typeDdp, $numCdeDa, $typeDa, $this->getUser());
+        $dto = (new DemandePaiementFactory($this->getEntityManager()))->load($typeDdp, $numCdeDa, $typeDa, $numDdp, $this->getUser());
         $form = $this->getFormFactory()->createBuilder(DemandePaiementDaType::class, $dto, [
             'method' => 'POST',
             'em' => $this->getEntityManager()
@@ -70,11 +70,17 @@ class DemandePaiementDaController extends Controller
         //traitement du formulaire
         $this->traitementDuFormulaire($request, $form);
 
+
+
+
         return $this->render('ddp/demande_paiement_da_new.html.twig', [
             'dto' => $dto,
-            'form' => $form->createView()
+            'form' => $form->createView(),
+            'baseUrlFichier' => $_ENV['BASE_PATH_FICHIER_COURT'] . 'da/' . $dto->numeroDa . '/',
         ]);
     }
+
+
 
 
     private function traitementDuFormulaire(Request $request, FormInterface $form)
@@ -83,7 +89,6 @@ class DemandePaiementDaController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             $dto = $form->getdata();
-
             $this->traitementDeFichier($dto, $form);
             $this->enregistrementSurBd($dto);
 
@@ -110,7 +115,7 @@ class DemandePaiementDaController extends Controller
     private function enregistrementSurBd(DemandePaiementDto $dto): void
     {
         // enregistrement dans la table deamnde_paiement
-        $this->demandePaiementService->createDdp($dto);
+        $this->demandePaiementService->updateDdp($dto);
         // enregistrement dans la table demande_paiement_ligne
         $this->demandePaiementLigneService->createLignesFromDto($dto);
         // enregistrement dans la table doc_demande_paiement
@@ -149,9 +154,13 @@ class DemandePaiementDaController extends Controller
         }
         $dto->lesFichiers = $this->docDemandePaiementService->fusionDesFichiersDansUnTableau($dto, $nomFichiersTelecharger);
         $generatePdf = $this->pageDeGarde($dto, $nomAvecCheminFichier);
-        $this->fusionDesPdf($nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier);
+        $fichierChoisiAvecChemins = $this->docDemandePaiementService->fichierChoisiAvecChemin($dto);
+        $this->docDemandePaiementService->copieFichierChoisi($dto);
+        $this->fusionDesPdf($nomEtCheminFichiersEnregistrer, $fichierChoisiAvecChemins, $nomAvecCheminFichier);
         $generatePdf->copyToDw($nomAvecCheminFichier, $nomFichier);
     }
+
+
 
     private function enregistrementFichier(FormInterface $form, DemandePaiementDto $dto): array
     {
@@ -172,10 +181,10 @@ class DemandePaiementDaController extends Controller
         return [$nomEtCheminFichiersEnregistrer, $nomFichierTelecharger,  $nomAvecCheminFichier, $nomFichier];
     }
 
-    private function fusionDesPdf(array $nomEtCheminFichiersEnregistrer, string $nomAvecCheminFichier): void
+    private function fusionDesPdf(array $nomEtCheminFichiersEnregistrer, array $fichierChoisiAvecChemins, string $nomAvecCheminFichier): void
     {
         $traitementDeFichier = new TraitementDeFichier();
-
+        $nomEtCheminFichiersEnregistrer = array_merge($nomEtCheminFichiersEnregistrer, $fichierChoisiAvecChemins);
         $fichierConvertir = $this->ConvertirLesPdf($nomEtCheminFichiersEnregistrer);
         $tousLesFichersAvecChemin = $traitementDeFichier->insertFileAtPosition($fichierConvertir, $nomAvecCheminFichier, 0);
         $traitementDeFichier->fusionFichers($tousLesFichersAvecChemin, $nomAvecCheminFichier);

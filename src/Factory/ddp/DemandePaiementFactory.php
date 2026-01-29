@@ -29,14 +29,14 @@ class DemandePaiementFactory
         $this->docDemandePaiementService = new DocDemandePaiementService($em);
     }
 
-    public function load(int $typeDdp, ?int $numCdeDa, ?int $typeDa, User $user): DemandePaiementDto
+    public function load(int $typeDdp, ?int $numCdeDa, ?int $typeDa, ?string $numDdp, User $user): DemandePaiementDto
     {
         $typeDemandeRepository = $this->em->getRepository(TypeDemande::class);
-        $DaAfficher = $this->em->getRepository(DaAfficher::class);
+        $DaAfficherRepository = $this->em->getRepository(DaAfficher::class);
         $ddpRepository = $this->em->getRepository(DemandePaiement::class);
 
 
-        $infoDa = $DaAfficher->getInfoDa($numCdeDa);
+        $infoDa = $DaAfficherRepository->getInfoDa($numCdeDa);
 
 
         $dto = new DemandePaiementDto();
@@ -58,13 +58,16 @@ class DemandePaiementFactory
         $dto->pourcentageAvance = (($dto->montantDejaPaye + $dto->montantAPayer) / $dto->montantTotalCde) * 100 . ' %';
         $dto->montantAPayer = $dto->montantRestantApayer;
         $dto->pourcentageAPayer = (int)(($dto->montantAPayer / $dto->montantTotalCde) * 100);
+        $dto->numeroDa = $infoDa['numeroDemandeAppro'];
+        // recupération des fichiers de devis de la DA
+        $dto->fichiersChoisis = $this->recupFichierDevisDa($dto);
 
         // info generale =====================
         $dto->demandeur = $user->getNomUtilisateur();
         $dto->adresseMailDemandeur = $user->getMail();
         $dto->statut = 'Soumis à validation';
         $dto->appro = $typeDa !== null ? true : false;
-        $dto->numeroDdp = $this->numeroDdp();
+        $dto->numeroDdp = $typeDa !== null ? $numDdp : $this->numeroDdp();
         $dto->numeroVersion = 1;
         $dto->numeroDossierDouane = $this->docDemandePaiementService->recupNumDossierDouane($dto);
         $dto->dateDemande = new \DateTime();
@@ -75,14 +78,28 @@ class DemandePaiementFactory
         if (!empty($infoFournisseur)) {
             $dto->numeroFournisseur = $infoFournisseur[0]['num_fournisseur'];
             $dto->ribFournisseur = $infoFournisseur[0]['rib_fournisseur'];
+            $dto->ribFournisseurAncien = $infoFournisseur[0]['rib_fournisseur'];
             $dto->beneficiaire = $infoFournisseur[0]['nom_fournisseur']; // nom du fournisseur
             $dto->modePaiement = $infoFournisseur[0]['mode_paiement'];
             $dto->devise = $infoFournisseur[0]['devise'];
         }
 
-
-
         return $dto;
+    }
+
+    private function recupFichierDevisDa(DemandePaiementDto $dto)
+    {
+        $listeFichiersPJ = [];
+        $path = $_ENV['BASE_PATH_FICHIER'] . 'da/' . $dto->numeroDa . '/';
+        if (is_dir($path)) {
+            $files = scandir($path);
+            foreach ($files as $file) {
+                if (preg_match('/^(_pj_|PJ_|devis_pj_)/', $file)) {
+                    $listeFichiersPJ[] = $file;
+                }
+            }
+        }
+        return $listeFichiersPJ;
     }
 
     private function debiteur(int $typeDa, array $infoDa): array

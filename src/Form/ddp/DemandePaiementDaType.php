@@ -21,6 +21,8 @@ use App\Constants\ddp\TypeDemandePaiementConstants;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 
 class DemandePaiementDaType extends AbstractType
 {
@@ -49,9 +51,9 @@ class DemandePaiementDaType extends AbstractType
                 TextType::class,
                 [
                     'label' => 'RIB *',
-                    'attr' => [
-                        'readOnly' => true
-                    ]
+                    // 'attr' => [
+                    //     'readOnly' => true
+                    // ]
                 ]
             )
             ->add(
@@ -99,8 +101,28 @@ class DemandePaiementDaType extends AbstractType
         $this->addAgenceServiceDebiteur($builder, $options);
         $this->addFournisseur($builder);
         $this->addFile($builder);
+        $this->addFichiersJointsDa($builder);
         $this->addNumeroCdeAndFacture($builder, $options);
         $this->addDdpaDa($builder, $options);
+
+        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
+            /** @var ?DemandePaiementDto $dto */
+            $dto = $event->getData();
+
+            if ($dto instanceof DemandePaiementDto && !empty($dto->lesFichiers)) {
+                $dto->fichiersChoisis = $dto->lesFichiers;
+            }
+        });
+    }
+
+    private function addFichiersJointsDa(FormBuilderInterface $builder): void
+    {
+        $builder->add('fichiersChoisis', CollectionType::class, [
+            'label' => false,
+            'entry_type' => HiddenType::class,
+            'allow_add' => true,
+            'allow_delete' => true,
+        ]);
     }
 
     private function addDdpaDa(FormBuilderInterface $builder, array $options)

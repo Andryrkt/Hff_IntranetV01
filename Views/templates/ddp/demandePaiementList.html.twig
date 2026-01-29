@@ -78,7 +78,7 @@
 										</li>
 									{% endif %}
 									{% if item.statut == 'A confirmer' %}
-										<a class="dropdown-item fw-bold" href="{{path("demande_paiement_da", {typeDdp: item.typeDemandeId.id, numCdeDa: item.numeroCommande.0, typeDa: item.typeDa})}}">Confirmation Demande paiement</a>
+										<a class="dropdown-item fw-bold" href="{{path("demande_paiement_da", {typeDdp: item.typeDemandeId.id, numCdeDa: item.numeroCommande.0, typeDa: item.typeDa, numDdp: item.numeroDdp})}}">Confirmation Demande paiement</a>
 									{% endif %}
 								</ul>
 
