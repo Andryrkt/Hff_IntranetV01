@@ -109,8 +109,7 @@ function activeDesactiveFormualirePourSoumettreAValidation() {
     // Appliquer les règles de désactivation
     if (
       value === "BL Reappro" ||
-      value === "Facture + BL" ||
-      value === "Ddpa"
+      value === "Facture + BL"
     ) {
       el.disabled = true;
     }
@@ -142,7 +141,7 @@ function activeDesactiveFormulairePourReappro() {
 
     const value = el.value;
 
-    if (value === "BC" || value === "Facture + BL" || value === "Ddpa") {
+    if (value === "BC" || value === "Facture + BL") {
       el.disabled = true;
     } else if (value === "BL Reappro") {
       el.disabled = false; // S'assurer qu'il est activé

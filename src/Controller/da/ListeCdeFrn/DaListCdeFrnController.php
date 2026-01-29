@@ -220,8 +220,6 @@ class DaListCdeFrnController extends Controller
                 $this->redirectToRoute("da_soumission_facbl", ['numCde' => $soumission['commande_id'], 'numDa' => $soumission['da_id'], 'numOr' => $soumission['num_or']]);
             } elseif ($soumission['soumission'] === 'BL Reappro') {
                 $this->redirectToRoute("da_soumission_bl_reappro", ['numCde' => $soumission['commande_id'], 'numDa' => $soumission['da_id'], 'numOr' => $soumission['num_or']]);
-            } elseif ($soumission['soumission'] === 'Ddpa') {
-                $this->redirectToRoute("demande_paiement_da", ['typeDdp' => TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE, 'numCdeDa' => $soumission['commande_id'], 'typeDa' => $soumission['type_da']]);
             }
         }
     }
