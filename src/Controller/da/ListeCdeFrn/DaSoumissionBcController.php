@@ -168,6 +168,7 @@ class DaSoumissionBcController extends Controller
     private function EnregistrementDansLaTableDemandepaiement(int $numCde)
     {
         $numFrn = $this->daAfficherRepository->getNumFrnDa($numCde)['numeroFournisseur'] ?? '';
+        $typeDa = $this->daAfficherRepository->getTypeDa($numCde)['daTypeId'] ?? null;
 
         $ddpModel = new DemandePaiementModel();
         $infoCde = $ddpModel->recupInfoComamnde($numCde, $numFrn);
@@ -200,6 +201,7 @@ class DaSoumissionBcController extends Controller
                 ->setNomCdeClientExterneDoc(Null)
                 ->setNumeroDossierDouane(Null)
                 ->setAppro(true)
+                ->setTypeDa($typeDa)
             ;
 
             $this->getEntityManager()->persist($demandePaiement);
