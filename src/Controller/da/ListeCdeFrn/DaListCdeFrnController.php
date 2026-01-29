@@ -323,6 +323,7 @@ class DaListCdeFrnController extends Controller
             $datasPrepared[] = [
                 'objet'                => $item->getObjetDal(),
                 'urlDetail'            => $urlDetail,
+                'numDaParent'          => $item->getNumeroDemandeApproMere(),
                 'numeroDemandeAppro'   => $item->getNumeroDemandeAppro(),
                 'datype'               => $daType[$item->getDaTypeId()],
                 'numeroDemandeDit'     => $item->getNumeroDemandeDit() ?? $safeIconBan,
