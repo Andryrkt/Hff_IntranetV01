@@ -113,6 +113,50 @@ class DocDemandePaiementService
         }
     }
 
+    /**
+     * ajout  de chemin pour les noms de fichier choisi
+     *
+     * @param DemandePaiementDto $dto
+     * @return array
+     */
+    public function fichierChoisiAvecChemin(DemandePaiementDto $dto): array
+    {
+        $chemin = $_ENV['BASE_PATH_FICHIER'] . '/da/' . $dto->numeroDa . '/';
+        $fichierChoisiAvecChemins = [];
+        foreach ($dto->fichiersChoisis as $value) {
+            $fichierChoisiAvecChemins[] = $chemin . $value;
+        }
+        return $fichierChoisiAvecChemins;
+    }
+
+    /**
+     * copie des fichiers choisi dans le repertoir 'da' ver 'ddp' 
+     *
+     * @param DemandePaiementDto $dto
+     * @return void
+     */
+    public function copieFichierChoisi(DemandePaiementDto $dto)
+    {
+        $chemin = $_ENV['BASE_PATH_FICHIER'] . '/ddp';
+        $cheminDestination = $chemin . '/' . $dto->numeroDdp . '_New_1';
+
+        // S'assurer que le répertoire de destination existe
+        if (!is_dir($cheminDestination)) {
+            mkdir($cheminDestination, 0777, true);
+        }
+
+        foreach ($dto->fichiersChoisis as $fichier) {
+            $cheminDeFichier = $_ENV['BASE_PATH_FICHIER'] . '/da/' . $dto->numeroDa . '/' . $fichier;
+            // Vérifier si le fichier source existe et est lisible avant de continuer
+            if (file_exists($cheminDeFichier) && is_readable($cheminDeFichier)) {
+                $destinationFinal = $cheminDestination . '/' . $fichier;
+
+                // Copier le fichier et vérifier le succès (le ! supprime l'avertissement en cas d'échec)
+                @copy($cheminDeFichier, $destinationFinal);
+            }
+        }
+    }
+
     public function ajoutDesFichiers(DemandePaiementDto $dto, array $nomFichiersTelecharger): array
     {
         $lesCheminsFichiers = $this->recupCheminFichierDistant($dto);

@@ -22,6 +22,7 @@ class DemandePaiementDto
     // fournisseur ======================
     public $numeroFournisseur;
     public $ribFournisseur;
+    public $ribFournisseurAncien;
     public $beneficiaire; // nom du fournisseur
     public $modePaiement;
     public ?string $devise = null;
@@ -45,6 +46,7 @@ class DemandePaiementDto
     public $pieceJoint02;
     public $pieceJoint03;
     public $pieceJoint04;
+    public array $fichiersChoisis = [];
 
     public $commandeFichier;
     public $factureFournisseurFichier;
@@ -57,15 +59,17 @@ class DemandePaiementDto
     public bool $appro = false;
     public ?int $typeDa = null;
     public string $montantAPayer = '0';
+    public int $pourcentageAPayer;
     public $montantTotalCde;
     public $montantDejaPaye;
     public $montantRestantApayer;
-    public $poucentageAvance;
+    public $pourcentageAvance;
     public $ratioMontantpayer;
+    public $numeroDa;
 
     public function montantAPayer(): float
     {
-        return (float)str_replace(',', '.', str_replace(' ', '', $this->montantAPayer));
+        return (float)str_replace(',', '.', str_replace('.', '', $this->montantAPayer));
     }
 
     public function montantRestantApayer(): float
@@ -80,7 +84,7 @@ class DemandePaiementDto
 
     public function ratioMontantpayer()
     {
-        return $this->montantAPayer / $this->montantTotalCde;
+        return $this->montantAPayer() / $this->montantTotalCde;
     }
 
     public function numCdeString()
@@ -111,5 +115,10 @@ class DemandePaiementDto
     public function lesFichiersStringAvecExtension()
     {
         return implode(";", $this->lesFichiers);
+    }
+
+    public function ribFournisseurChanger(): bool
+    {
+        return $this->ribFournisseurAncien !== $this->ribFournisseur;
     }
 }

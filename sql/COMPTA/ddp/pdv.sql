@@ -82,11 +82,12 @@ ADD mode_paiement VARCHAR(50),
 montant_a_payer DECIMAL(18, 2),
 contact VARCHAR(50),
 numero_commande VARCHAR(max),
-numero_facture VARCHAR(max)
+numero_facture VARCHAR(max),
+appro bit DEFAULT 0
 ;
 
 ALTER TABLE demande_paiement
-ADD appro bit DEFAULT 0
+ADD type_da INT DEFAULT NULL
 
 ALTER TABLE demande_paiement_ligne
 ADD ratio_montant_payer DECIMAL(18, 2)

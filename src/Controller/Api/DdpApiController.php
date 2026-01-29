@@ -2,6 +2,7 @@
 
 namespace App\Controller\Api;
 
+use App\Constants\ddp\StatutConstants;
 use App\Constants\ddp\TypeDemandePaiementConstants;
 use DateTime;
 use App\Controller\Controller;
@@ -85,7 +86,7 @@ class DdpApiController extends Controller
                     ->setMotif("Bon a payer {$value->getNumeroFournisseur()} - {$value->getNumeroFactureFournisseur()}")
                     ->setAgenceDebiter($infoIps['code_agence'] ?? '')
                     ->setServiceDebiter($infoIps['code_service'] ?? '')
-                    ->setStatut('Soumis à validation')
+                    ->setStatut(StatutConstants::STATUT_SOUMIS_A_VALIDATION)
                     ->setAdresseMailDemandeur($this->getUserMail())
                     ->setDemandeur($this->getUserName())
                     ->setModePaiement($infoIps['mode_paiement'] ?? '')

@@ -182,6 +182,11 @@ class DemandePaiement
      */
     private $appro = false;
 
+    /**
+     * @ORM\Column(type="integer", name="type_da")
+     */
+    private $typeDa;
+
     private string $montantAPayer = '0';
 
     private $pieceJoint01;
@@ -946,6 +951,42 @@ class DemandePaiement
         return $this;
     }
 
+    /**
+     * Get the value of montantTotalCde
+     */
+    public function getMontantTotalCde()
+    {
+        return $this->montantTotalCde;
+    }
+
+    /**
+     * Set the value of montantTotalCde
+     */
+    public function setMontantTotalCde($montantTotalCde): self
+    {
+        $this->montantTotalCde = $montantTotalCde;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of typeDa
+     */
+    public function getTypeDa()
+    {
+        return $this->typeDa;
+    }
+
+    /**
+     * Set the value of typeDa
+     */
+    public function setTypeDa($typeDa): self
+    {
+        $this->typeDa = $typeDa;
+
+        return $this;
+    }
+
     public function dupliquer(): self
     {
         $nouvelle = new self();
@@ -971,23 +1012,5 @@ class DemandePaiement
         $nouvelle->modePaiement = $this->modePaiement;
         $nouvelle->typeDemandeId  = $this->typeDemandeId;
         return $nouvelle;
-    }
-
-    /**
-     * Get the value of montantTotalCde
-     */
-    public function getMontantTotalCde()
-    {
-        return $this->montantTotalCde;
-    }
-
-    /**
-     * Set the value of montantTotalCde
-     */
-    public function setMontantTotalCde($montantTotalCde): self
-    {
-        $this->montantTotalCde = $montantTotalCde;
-
-        return $this;
     }
 }
