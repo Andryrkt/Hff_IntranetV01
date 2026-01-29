@@ -1,7 +1,7 @@
 {% extends "baseTemplate.html.twig" %}
 
 {% block title %}
-	Validation d’une DA Réappro
+	Affectation d'une DA
 {% endblock %}
 
 {% block stylesheets %}
@@ -60,7 +60,6 @@
 								<th width="7%">Référence</th>
 								<th>Désignation initiale</th>
 								<th>Désignation proposée</th>
-								<th width="7%">Numéro Fournisseur</th>
 								<th>Nom Fournisseur</th>
 								<th width="7%">Date fin souhaitée</th>
 								<th width="4%">Qté demandée</th>
@@ -76,8 +75,11 @@
 									<td>{{ form_widget(dalForm.artRefp) }}</td>
 									<td>{{ macroForm.affichageSimple(dal.artDesi, 'text-start') }}</td>
 									<td>{{ form_widget(dalForm.artDesi) }}</td>
-									<td>{{ form_widget(dalForm.numeroFournisseur) }}</td>
-									<td>{{ form_widget(dalForm.nomFournisseur) }}</td>
+									<td>
+										{{ form_widget(dalForm.nomFournisseur) }}
+										<div class="suggestions-container text-start"></div>
+										<div class="text-center d-none"></div>
+									</td>
 									<td>{{ macroForm.affichageSimple(dal.dateFinSouhaiteFormatted, 'text-center') }}</td>
 									<td>{{ macroForm.affichageSimple(dal.qteDem, 'text-center') }}</td>
 									<td>{{ macroForm.affichageSimple(dal.commentaire is not empty ? dal.commentaire : '-', 'text-start') }}</td>
@@ -96,11 +98,12 @@
 									</td>
 									<td>
 										{% if dal.estFicheTechnique %}
-											<i class="fas fa-check text-success"></i>
+											<span class="bg-success text-white p-1 rounded">OUI</span>
 										{% else %}
-											<i class="fas fa-xmark text-danger"></i>
+											<span class="bg-danger text-white p-1 rounded">NON</span>
 										{% endif %}
 									</td>
+									<td class="d-none">{{ form_widget(dalForm.numeroFournisseur) }}</td>
 									<td class="d-none">{{ form_widget(dalForm.articleStocke) }}</td>
 									<td class="d-none">{{ form_widget(dalForm.artConstp) }}</td>
 									<td class="d-none">{{ form_widget(dalForm.prixUnitaire) }}</td>
@@ -108,8 +111,11 @@
 							{% endfor %}
 						</tbody>
 					</table>
+					<div class="row">
+						{{ form_row(form.observation)}}
+					</div>
 					<div class="d-flex justify-content-end container-fluid mt-2">
-						<button type="submit" class="bouton-principal ajout-overlay">
+						<button type="submit" class="bouton-principal">
 							<i class="fas fa-floppy-disk"></i>
 							Enregistrer
 						</button>
@@ -121,4 +127,6 @@
 	</div>
 {% endblock %}
 
-{% block javascript %}{% endblock %}
+{% block javascript %}
+	<script src="{{ App.base_path }}/Views/js/da/affectation/script.js?v=2025.10.22.08.00" type="module"></script>
+{% endblock %}

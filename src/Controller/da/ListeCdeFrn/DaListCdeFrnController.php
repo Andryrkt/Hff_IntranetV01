@@ -246,15 +246,17 @@ class DaListCdeFrnController extends Controller
         $datasPrepared = [];
 
         $daType = [
-            DemandeAppro::TYPE_DA_AVEC_DIT => $this->getIconDaAvecDIT(),
-            DemandeAppro::TYPE_DA_DIRECT   => $this->getIconDaDirect(),
+            DemandeAppro::TYPE_DA_AVEC_DIT         => $this->getIconDaAvecDIT(),
+            DemandeAppro::TYPE_DA_DIRECT           => $this->getIconDaDirect(),
             DemandeAppro::TYPE_DA_REAPPRO_MENSUEL  => $this->getIconDaReapproMensuel(),
+            DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL => $this->getIconDaReapproPonctuel(),
         ];
 
         $routeDetailName = [
-            DemandeAppro::TYPE_DA_DIRECT   => 'da_detail_direct',
-            DemandeAppro::TYPE_DA_AVEC_DIT => 'da_detail_avec_dit',
+            DemandeAppro::TYPE_DA_DIRECT           => 'da_detail_direct',
+            DemandeAppro::TYPE_DA_AVEC_DIT         => 'da_detail_avec_dit',
             DemandeAppro::TYPE_DA_REAPPRO_MENSUEL  => 'da_detail_reappro',
+            DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL => 'da_detail_reappro',
         ];
 
         $safeIconBan     = new Markup('<i class="fas fa-ban text-muted"></i>', 'UTF-8');
@@ -321,6 +323,7 @@ class DaListCdeFrnController extends Controller
             $datasPrepared[] = [
                 'objet'                => $item->getObjetDal(),
                 'urlDetail'            => $urlDetail,
+                'numDaParent'          => $item->getNumeroDemandeApproMere(),
                 'numeroDemandeAppro'   => $item->getNumeroDemandeAppro(),
                 'datype'               => $daType[$item->getDaTypeId()],
                 'numeroDemandeDit'     => $item->getNumeroDemandeDit() ?? $safeIconBan,
