@@ -96,44 +96,20 @@ class DaService
 
     /**
      * Récupère les lignes d'une Demande d'Achat en tenant compte des rectifications utilisateur (DALR).
-     * Optimisé pour éviter les requêtes en boucle (N+1).
      *
-     * @param string $numeroDA le numéro de la Demande d'Achat
-     * @param int    $version la version de la Demande d'Achat
+     * @param iterable<DemandeApproL> $lignesDAL les lignes de DAL de la DA
      *
      * @return array
      */
-    public function getLignesRectifieesDA(string $numeroDA, int $version): array
+    public function getLignesRectifiees(iterable $lignesDAL): array
     {
-        // 1. Récupération des lignes DAL (non supprimées)
-        /** @var iterable<DemandeApproL> les lignes de DAL non supprimées */
-        $lignesDAL = $this->demandeApproLRepository->findBy([
-            'numeroDemandeAppro' => $numeroDA,
-            'numeroVersion'      => $version,
-            'deleted'            => false,
-        ]);
-
-        // 2. Récupération en une seule requête des DALR associés à la DA
-        /** @var iterable<DemandeApproLR> les lignes de DALR correspondant au numéro de la DA */
-        $dalrs = $this->demandeApproLRRepository->findBy([
-            'numeroDemandeAppro' => $numeroDA,
-        ]);
-
-        // 3. Indexation des DALR par numéro de ligne, uniquement s'ils sont validés (choix = true)
-        $dalrParLigne = [];
-
-        foreach ($dalrs as $dalr) {
-            if ($dalr->getChoix()) {
-                $dalrParLigne[$dalr->getNumeroLigne()] = $dalr;
-            }
-        }
-
-        // 4. Construction de la liste finale en remplaçant les DAL par DALR si dispo
         $resultats = [];
 
         foreach ($lignesDAL as $ligneDAL) {
-            $numeroLigne = $ligneDAL->getNumeroLigne(); // numéro de ligne de la DAL
-            $resultats[] = $dalrParLigne[$numeroLigne] ?? $ligneDAL;
+            /** @var iterable<DemandeApproLR> $lignesDalr */
+            $lignesDalr = $ligneDAL->getDemandeApproLR();
+            if ($lignesDalr->isEmpty()) $resultats[] = $ligneDAL;
+            else                        $resultats[] = $lignesDalr->filter(fn(DemandeApproLR $dalr) => $dalr->getChoix())->first();
         }
 
         return $resultats;
@@ -251,66 +227,6 @@ class DaService
             $daAfficher->duplicateDaParent($demandeApproParent);
             $daAfficher->duplicateDaParentLine($demandeApproParentLine);
             $daAfficher->setNumeroVersion($numeroVersion);
-
-            $this->em->persist($daAfficher);
-        }
-        $this->em->flush();
-    }
-
-    /**
-     * Ajoute les données d'une Demande d'Achat dans la table `DaAfficher`, 
-     * par le numéro de la Demande d'Achat.
-     *
-     * ⚠️ IMPORTANT : Avant d'appeler cette fonction, il est impératif d'exécuter :
-     *     $this->getEntityManager()->flush();
-     * Sans cela, les données risquent de ne pas être cohérentes ou correctement persistées.
-     *
-     * @param string $numDa          le numéro de la Demande d'Achat à traiter
-     * @param string $username       le nom de l'utilisateur effectuant l'ajout/validation/suppression
-     * @param bool   $validationDA   indique si l'ajout est effectué dans le cadre d'une validation de la DA
-     * @param string $statutOr       le statut depuis DW (statut OR pour une DA avec DIT)
-     * 
-     * @return void
-     */
-    public function generateDaAfficherByNumDa(string $numDa, string $username, bool $validationDA = false, string $statutOr = ''): void
-    {
-        /** @var DemandeAppro $demandeAppro la DA correspondant au numero DA $numDa */
-        $demandeAppro = $this->demandeApproRepository->findOneBy(['numeroDemandeAppro' => $numDa]);
-
-        /** @var iterable<DaAfficher> $oldDaAffichers collection d'objets d'anciens DaAfficher */
-        $oldDaAffichers = $this->daAfficherRepository->getLastDaAfficher($numDa);
-        $oldDaAffichersByNumero = [];
-        foreach ($oldDaAffichers as $old) {
-            $oldDaAffichersByNumero[$old->getNumeroLigne()] = $old;
-        }
-
-        $numeroVersionMaxDaAfficher = !empty($oldDaAffichers) ? $oldDaAffichers[0]->getNumeroVersion() : 0;
-        $numeroVersionMaxDAL = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
-
-        /** @var iterable<DaAfficher> $newDaAffichers collection d'objets des nouveaux DaAfficher */
-        $newDaAffichers = $this->getLignesRectifieesDA($numDa, (int) $numeroVersionMaxDAL); // Récupère les lignes rectifiées de la DA (nouveaux Da afficher)
-
-        $deletedLineNumbers = $this->getDeletedLineNumbers($oldDaAffichers, $newDaAffichers);
-        $this->daAfficherRepository->markAsDeletedByNumeroLigne($numDa, $deletedLineNumbers, $username);
-
-        $dateValidation = new DateTime('now', new DateTimeZone('Indian/Antananarivo'));
-
-        foreach ($newDaAffichers as $newDaAfficher) {
-            $daAfficher = new DaAfficher();
-            if (isset($oldDaAffichersByNumero[$newDaAfficher->getNumeroLigne()])) {
-                $ancien = $oldDaAffichersByNumero[$newDaAfficher->getNumeroLigne()];
-                $daAfficher->copyFromOld($ancien);
-            }
-            if ($demandeAppro->getDit()) $daAfficher->setDit($demandeAppro->getDit());
-
-            $daAfficher->duplicateDa($demandeAppro);
-            $daAfficher->setNumeroVersion(VersionService::autoIncrement($numeroVersionMaxDaAfficher));
-
-            if ($newDaAfficher instanceof DemandeApproL) $daAfficher->duplicateDal($newDaAfficher); // enregistrement pour DAL
-            else if ($newDaAfficher instanceof DemandeApproLR) $daAfficher->duplicateDalr($newDaAfficher); // enregistrement pour DALR
-
-            if ($validationDA) $daAfficher->setDateValidation($dateValidation);
-            if ($statutOr) $daAfficher->setStatutOr($statutOr);
 
             $this->em->persist($daAfficher);
         }
