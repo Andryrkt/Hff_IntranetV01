@@ -6,18 +6,19 @@ use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Controller\Controller;
 use App\Entity\admin\Application;
-use App\Entity\magasin\bc\BcMagasin;
-use App\Entity\magasin\devis\DevisMagasin;
 use App\Entity\dw\DwBcClientNegoce;
+use App\Entity\magasin\bc\BcMagasin;
+use App\Service\TableauEnStringService;
+use App\Entity\magasin\devis\DevisMagasin;
 use App\Controller\Traits\AutorisationTrait;
+use App\Entity\magasin\devis\PointageRelance;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Repository\dw\DwBcClientNegoceRepository;
 use App\Factory\magasin\devis\ListeDevisSearchDto;
 use App\Form\magasin\devis\DevisMagasinSearchType;
 use App\Model\magasin\devis\ListeDevisMagasinModel;
 use App\Factory\magasin\devis\ListeDevisMagasinFactory;
-use App\Repository\dw\DwBcClientNegoceRepository;
-use App\Service\TableauEnStringService;
 
 /**
  * @Route("/magasin/dematerialisation")
@@ -161,6 +162,8 @@ class ListeDevisMagasinController extends Controller
         /** @var DwBcClientNegoceRepository $dwBcClientNegoceRepository */
         $dwBcClientNegoceRepository = $this->getEntityManager()->getRepository(DwBcClientNegoce::class);
 
+        $pointageRelanceRepository = $this->getEntityManager()->getRepository(PointageRelance::class);
+
         foreach ($devisIps as $devisIp) {
             $numeroDevis = $devisIp['numero_devis'] ?? null;
 
@@ -197,6 +200,11 @@ class ListeDevisMagasinController extends Controller
                     $devisIp['numero_po'] = $dwBcClientNegoce['numeroBccNeg'];
                     $devisIp['url_po'] = $_ENV['BASE_PATH_FICHIER_COURT'] . '/' . $dwBcClientNegoce['path'];
                 }
+                $dateRelance = $pointageRelanceRepository->findDernierDateDeRelance($numeroDevis);
+                $nombreDeRelance = $pointageRelanceRepository->findNombreDeRelances($numeroDevis);
+
+                $devisIp['date_derniere_relance'] = $dateRelance;
+                $devisIp['nombre_de_relance'] = $nombreDeRelance;
             }
 
             // Application des filtres critères
@@ -347,7 +355,8 @@ class ListeDevisMagasinController extends Controller
             $emetteur = $devis->getSuccursaleServiceEmetteur();
             $numeroDevis = $devis->getNumeroDevis();
 
-            $pointageDevis = in_array($statutDw, [DevisMagasin::STATUT_PRIX_VALIDER_TANA, DevisMagasin::STATUT_PRIX_MODIFIER_TANA, DevisMagasin::STATUT_VALIDE_AGENCE,]);
+            $pointageDevis = in_array($statutDw, [DevisMagasin::STATUT_PRIX_VALIDER_TANA, DevisMagasin::STATUT_PRIX_MODIFIER_TANA, DevisMagasin::STATUT_VALIDE_AGENCE]);
+            $relanceClient = $statutDw === DevisMagasin::STATUT_ENVOYER_CLIENT && $statutBc ===  BcMagasin::STATUT_EN_ATTENTE_BC;
 
             // Création d'url
             $url = [
@@ -378,6 +387,9 @@ class ListeDevisMagasinController extends Controller
                 'operateur'       => $devis->getOperateur(),
                 'numeroPO'        => $devis->getNumeroPO(),
                 'urlPO'           => $devis->getUrlPO(),
+                'relanceClient'   => $relanceClient,
+                'dateDerniereRelance' => $devis->getDateDerniereRelance(),
+                'nombreDeRelance' => $devis->getNombreDeRelance(),
             ];
         }
 

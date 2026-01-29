@@ -18,6 +18,8 @@ class listeDevisMagasinFactory
     private $creePar;
     private $numeroPO;
     private $urlPO;
+    private $dateDerniereRelance;
+    private $nombreDeRelance;
 
     /**
      * Get the value of statutDw
@@ -308,6 +310,8 @@ class listeDevisMagasinFactory
             ->setCreePar($data['utilisateur_createur_devis'] ?? '')
             ->setNumeroPO($data['numero_po'] ?? '')
             ->setUrlPO($data['url_po'] ?? '')
+            ->setDateDerniereRelance($data['date_derniere_relance'] ? $this->convertToDateTime($data['date_derniere_relance'])->format('d/m/Y') : null)
+            ->setNombreDeRelance($data['nombre_de_relance'] ?? null)
         ;
 
         return $this;
@@ -328,5 +332,41 @@ class listeDevisMagasinFactory
         } catch (\Exception $e) {
             return null;
         }
+    }
+
+    /**
+     * Get the value of dateDerniereRelance
+     */
+    public function getDateDerniereRelance()
+    {
+        return $this->dateDerniereRelance;
+    }
+
+    /**
+     * Set the value of dateDerniereRelance
+     */
+    public function setDateDerniereRelance($dateDerniereRelance): self
+    {
+        $this->dateDerniereRelance = $dateDerniereRelance;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of nombreDeRelance
+     */
+    public function getNombreDeRelance()
+    {
+        return $this->nombreDeRelance;
+    }
+
+    /**
+     * Set the value of nombreDeRelance
+     */
+    public function setNombreDeRelance($nombreDeRelance): self
+    {
+        $this->nombreDeRelance = $nombreDeRelance;
+
+        return $this;
     }
 }
