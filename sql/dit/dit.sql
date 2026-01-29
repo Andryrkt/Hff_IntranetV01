@@ -377,23 +377,19 @@ WHERE num_migr=4
 
 
 ALTER TABLE demande_intervention
-ADD a_annuler bit DEFAULT 0
+ADD a_annuler bit DEFAULT 0,
+date_annulation DATETIME2,
+numero_demande_dit_avoir VARCHAR(11),
+numero_demande_dit_refacturation VARCHAR(11),
+dit_avoir bit DEFAULT 0,
+dit_refacturation bit DEFAULT 0
 
 ALTER TABLE demande_intervention
-ADD date_annulation DATETIME2
+ADD pdf_deposer_dw bit DEFAULT 0,
+date_depot_pdf_dw DATETIME2;
 
 
-ALTER TABLE demande_intervention
-ADD numero_demande_dit_avoir VARCHAR(11)
 
-ALTER TABLE demande_intervention
-ADD numero_demande_dit_refacturation VARCHAR(11)
-
-ALTER TABLE demande_intervention
-ADD dit_avoir bit DEFAULT 0
-
-ALTER TABLE demande_intervention
-ADD dit_refacturation bit DEFAULT 0
 
 UPDATE demande_intervention SET dit_avoir = 0
 UPDATE demande_intervention SET dit_refacturation = 0
