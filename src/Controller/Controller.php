@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use Parsedown;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Entity\admin\Application;
@@ -29,8 +28,6 @@ use App\Service\SessionManagerService;
  */
 class Controller
 {
-    protected $parsedown;
-
     // Services injectés (accessibles via getters)
     protected $entityManager;
     protected $urlGenerator;
@@ -50,7 +47,6 @@ class Controller
         // Créer la requête et la réponse
         $this->request = Request::createFromGlobals();
         $this->response = new Response();
-        $this->parsedown = new Parsedown();
     }
 
     protected function getSessionService(): SessionManagerService
