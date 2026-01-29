@@ -125,4 +125,16 @@ class DaService
 
         if ($withFlush) $this->em->flush();
     }
+
+    /** Récupère une demande appro par son id */
+    public function getDemandeAppro(int $id): ?DemandeAppro
+    {
+        return $this->demandeApproRepository->find($id);
+    }
+
+    /** Récupère tous les observations d'une DA */
+    public function getObservations(string $numDa): array
+    {
+        return $this->daObservationRepository->findBy(['numDa' => $numDa], ['dateCreation' => 'ASC']);
+    }
 }
