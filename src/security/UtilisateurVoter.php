@@ -2,12 +2,12 @@
 
 namespace App\Security;
 
-use App\security\Voter;
+use App\Security\PermissionVoterInterface;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DemandeIntervention;
 
 
-class UtilisateurVoter implements Voter
+class UtilisateurVoter implements PermissionVoterInterface
 {
 
     const CREATE = 'cree_dit';

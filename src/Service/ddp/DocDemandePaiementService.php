@@ -147,11 +147,9 @@ class DocDemandePaiementService
 
         foreach ($dto->fichiersChoisis as $fichier) {
             $cheminDeFichier = $_ENV['BASE_PATH_FICHIER'] . '/da/' . $dto->numeroDa . '/' . $fichier;
-
             // Vérifier si le fichier source existe et est lisible avant de continuer
             if (file_exists($cheminDeFichier) && is_readable($cheminDeFichier)) {
-                $nomFichier = $this->nomFichier($cheminDeFichier);
-                $destinationFinal = $cheminDestination . '/' . $nomFichier;
+                $destinationFinal = $cheminDestination . '/' . $fichier;
 
                 // Copier le fichier et vérifier le succès (le ! supprime l'avertissement en cas d'échec)
                 @copy($cheminDeFichier, $destinationFinal);
