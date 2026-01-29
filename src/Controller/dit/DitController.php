@@ -141,22 +141,21 @@ class DitController extends Controller
                 $this->enregistrementBd($demandeIntervention, $nomFichierEnregistrer);
 
                 // 8.Copier le PDF DANS DOXCUWARE
-                $genererPdfDit->copyToDOCUWARE($nomFichier, $demandeIntervention->getNumeroDemandeIntervention());
+                $reponse = $genererPdfDit->copyToDOCUWARE($nomFichier, $demandeIntervention->getNumeroDemandeIntervention());
 
                 // 9. modification de la colonne pdf_deposer_dw et date_depot_pdf_dw
-                $this->modificationBdPourHitorisationDw($em, $demandeIntervention);
+                $this->modificationBdPourHitorisationDw($em, $demandeIntervention, $reponse);
             }
-
 
             // 10. enregistrement dans l'historisation de la sucès de la demande
             $this->historiqueOperation->sendNotificationCreation('Votre demande a été enregistrée', $demandeInterventions[0]->getNumeroDemandeIntervention(), 'dit_index', true);
         }
     }
 
-    private function modificationBdPourHitorisationDw($em, $demandeIntervention): void
+    private function modificationBdPourHitorisationDw($em, $demandeIntervention, bool $reponse): void
     {
         $dit = $this->demandeRepository->findOneBy(['numeroDemandeIntervention' => $demandeIntervention->getNumeroDemandeIntervention()]);
-        $dit->setPdfDeposerDw(true)
+        $dit->setPdfDeposerDw($reponse)
             ->setDateDepotPdfDw(new \DateTime());
         $em->persist($dit);
         $em->flush();
