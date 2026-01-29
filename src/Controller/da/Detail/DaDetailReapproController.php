@@ -2,33 +2,29 @@
 
 namespace App\Controller\da\Detail;
 
+use App\Service\da\DaService;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\admin\Application;
+use App\Service\da\EmailDaService;
 use App\Form\da\DaObservationType;
-use App\Controller\Traits\lienGenerique;
 use App\Controller\Traits\AutorisationTrait;
-use App\Controller\Traits\da\DaAfficherTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\Traits\da\detail\DaDetailReapproTrait;
 
 /**
  * @Route("/demande-appro")
  */
 class DaDetailReapproController extends Controller
 {
-	use lienGenerique;
-	use DaAfficherTrait;
-	use DaDetailReapproTrait;
 	use AutorisationTrait;
 
-	public function __construct()
-	{
-		parent::__construct();
+	private DaService $daService;
 
-		$this->initDaDetailReapproTrait();
+	public function __construct(DaService $daService)
+	{
+		$this->daService = $daService;
 	}
 
 	/**
@@ -43,9 +39,8 @@ class DaDetailReapproController extends Controller
 		$this->autorisationAcces($this->getUser(), Application::ID_DAP);
 		/** FIN AUtorisation accès */
 
-		/** @var DemandeAppro $demandeAppro la demande appro correspondant à l'id $id */
-		$demandeAppro = $this->demandeApproRepository->find($id); // recupération de la DA
-		$observations = $this->daObservationRepository->findBy(['numDa' => $demandeAppro->getNumeroDemandeAppro()], ['dateCreation' => 'ASC']);
+		$demandeAppro = $this->daService->getDemandeAppro($id); // recupération de la DA
+		$observations = $this->daService->getObservations($demandeAppro->getNumeroDemandeAppro());
 
 		$daObservation = new DaObservation;
 		$formObservation = $this->getFormFactory()->createBuilder(DaObservationType::class, $daObservation, ['daTypeId' => $demandeAppro->getDaTypeId()])->getForm();
@@ -81,14 +76,15 @@ class DaDetailReapproController extends Controller
 			/** @var DaObservation $daObservation daObservation correspondant au donnée du form */
 			$daObservation = $form->getData();
 
-			$this->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $daObservation->getObservation(), $daObservation->getFileNames());
+			$this->daService->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $daObservation->getObservation(), $this->getUserName(), $daObservation->getFileNames());
 
 			$notification = [
 				'type'    => 'success',
 				'message' => 'Votre observation a été enregistré avec succès.',
 			];
 
-			$this->emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->getUser(), $this->estUserDansServiceAppro());
+			$emailDaService = new EmailDaService($this->getTwig());
+			$emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->getUser(), $this->estUserDansServiceAppro());
 
 			$this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
 			return $this->redirectToRoute("list_da");
