@@ -80,19 +80,15 @@
 						<div id="loader" style="display: none;">Chargement...</div>
 					</div>
 
-					<div
-						class="col-12 col-md-4">
-						{# <p><b>Listes des fichiers</b></p> #}
-						<ul id="liste_fichiers" class="d-none"></ul>
-						{# liste des fichiers #}
-					</div>
+					<div class="col-12 col-md-4"></div>
 				</div>
 				<div class="row">
 					<div class="col-12 col-md-2">{{ form_row(form.montantTotalCde)}}</div>
 					<div class="col-12 col-md-2">{{ form_row(form.montantDejaPaye)}}</div>
 					<div class="col-12 col-md-2">{{ form_row(form.montantRestantApayer)}}</div>
 					<div class="col-12 col-md-2">{{ form_row(form.montantAPayer)}}</div>
-					<div class="col-12 col-md-2">{{ form_row(form.poucentageAvance)}}</div>
+					<div class="col-12 col-md-2">{{ form_row(form.pourcentageAPayer)}}</div>
+					<div class="col-12 col-md-2">{{ form_row(form.pourcentageAvance)}}</div>
 					<div class="col-12 col-md-2"></div>
 				</div>
 				<div class="row">
@@ -136,6 +132,28 @@
 						</p>
 						{% include '/partials/_dropZoneFile.html.twig' with {'id': '4', 'form': form, 'fieldName': 'pieceJoint04'} %}
 					</div>
+
+					<div class="col-12 col-md-4">
+						{% if form.fichiersChoisis is defined %}
+							<p>
+								<b>Pièces jointes de la DA :</b>
+							</p>
+							<ul id="liste_fichiers" class="list-unstyled d-flex flex-wrap">
+								{% for file_input in form.fichiersChoisis %}
+									<li class="d-flex justify-content-between align-items-center mb-2 me-2 p-2 border rounded file-item-pj flex-grow-0 flex-shrink-1">
+										<div class="d-flex align-items-center me-2">
+											<i class="fas fa-file-pdf me-2 text-danger"></i>
+											<a href="#" class="view-file-link" data-url="{{ baseUrlFichier ~ file_input.vars.value }}">{{ file_input.vars.value }}</a>
+											{{ form_widget(file_input) }}
+										</div>
+										<button type="button" class="btn btn-sm btn-outline-danger remove-pj-file" title="Supprimer ce fichier">
+											<i class="fas fa-trash-alt"></i>
+										</button>
+									</li>
+								{% endfor %}
+							</ul>
+						{% endif %}
+					</div>
 				</div>
 				<div
 					class="row">
@@ -178,6 +196,11 @@
 								Autres documents
 							</button>
 						</li>
+						<li class="nav-item d-none" role="presentation" id="pj-preview-tab-item">
+							<button class="nav-link" id="pj-preview-tab" data-bs-toggle="tab" data-bs-target="#pj-preview-pane" type="button" role="tab">
+								Aperçu PJ
+							</button>
+						</li>
 					</ul>
 
 					<!-- Contenu des onglets -->
@@ -201,6 +224,11 @@
 						<!-- Tab 4 -->
 						<div class="tab-pane fade" id="tab4" role="tabpanel" aria-labelledby="tab4-tab">
 							<div id="file-list-4" class="mt-3"></div>
+						</div>
+
+						<!-- PJ Preview Tab -->
+						<div
+							class="tab-pane fade" id="pj-preview-pane" role="tabpanel" aria-labelledby="pj-preview-tab"><!-- Iframe will be injected here -->
 						</div>
 					</div>
 				</div>
