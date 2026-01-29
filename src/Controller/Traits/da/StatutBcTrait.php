@@ -407,7 +407,7 @@ trait StatutBcTrait
         }
 
 
-        $soumissionFait = ($DaAfficher->getEstFactureBlSoumis() || $DaAfficher->getEstBlReapproSoumis()) && $DaAfficher->getEstCorrectionStatutBc();
+        $soumissionFait = ($DaAfficher->getEstFactureBlSoumis() || $DaAfficher->getEstBlReapproSoumis()) && in_array($DaAfficher->getEstCorrectionStatutBc(), [null, 0]) ;
 
         $partiellementDispo = ($qteDem != $qteALivrer && $qteLivee == 0 && $qteALivrer > 0) && $soumissionFait;
         $completNonLivrer =  (($qteDem == $qteALivrer && $qteLivee < $qteDem) || ($qteALivrer > 0 && $qteDem == ($qteALivrer + $qteLivee))) && $soumissionFait;

@@ -282,8 +282,7 @@ document.addEventListener("contextmenu", function (event) {
 
   const statutBcAppro = [
     "Tout livrée Appro",
-    "Partiellement Livrée Appro",
-    "Tous livrés",
+    "Partiellement Livrée Appro"
   ];
   function affichageStatutBcEnvoyerFournisseur() {
     statutAffiche.style.display = "block";
