@@ -6,6 +6,7 @@ use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
+use App\Model\dw\DossierInterventionAtelierModel;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\da\DemandeApproRepository;
 use App\Repository\da\DaObservationRepository;
@@ -204,5 +205,23 @@ class DaService
             }
         }
         return $items;
+    }
+
+    /** 
+     * Obtenir l'url de la dernière ordre de réparation validé liée à la DA
+     */
+    public function getOrPath(DemandeAppro $demandeAppro)
+    {
+        $result = [];
+        $dataOR = (new DossierInterventionAtelierModel)->findCheminOrDernierValide($demandeAppro->getNumeroDemandeDit(), $demandeAppro->getNumeroDemandeAppro());
+
+        if ($dataOR) {
+            $result = [
+                'numeroOr' => $dataOR['numero'],
+                'path'     => $_ENV['BASE_PATH_FICHIER_COURT'] . '/' . $dataOR['chemin']
+            ];
+        }
+
+        return $result;
     }
 }
