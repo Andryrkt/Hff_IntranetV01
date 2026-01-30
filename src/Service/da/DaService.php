@@ -137,4 +137,72 @@ class DaService
     {
         return $this->daObservationRepository->findBy(['numDa' => $numDa], ['dateCreation' => 'ASC']);
     }
+
+    /** 
+     * Obtenir l'url du bon d'achat
+     */
+    public function getBaIntranetPath(DemandeAppro $demandeAppro): array
+    {
+        $item = [];
+        $numDa = $demandeAppro->getNumeroDemandeAppro();
+        $filePath = $_ENV['BASE_PATH_FICHIER_COURT'] . "/da/$numDa/$numDa.pdf";
+        if (file_exists($filePath)) {
+            $item = [
+                'filename' => pathinfo($filePath, PATHINFO_FILENAME),
+                'path'     => $filePath,
+            ];
+        }
+        return $item;
+    }
+
+    /** 
+     * Obtenir l'url des devis et pièces jointes émis dans les lignes de la DA
+     */
+    public function getDevisPjPathDaLine(DemandeAppro $demandeAppro): array
+    {
+        $items = [];
+
+        $numDa = $demandeAppro->getNumeroDemandeAppro();
+
+        $pjDals = $this->demandeApproLRepository->findAttachmentsByNumeroDA($numDa);
+        $pjDalrs = $this->demandeApproLRRepository->findAttachmentsByNumeroDA($numDa);
+
+        /** 
+         * Fusionner les résultats des deux tables
+         * @var array<int, array{numeroDemandeAppro: string, fileNames: array}>
+         **/
+        $allRows = array_merge($pjDals, $pjDalrs);
+
+        foreach ($allRows as $row) {
+            $files = $row['fileNames'];
+            foreach ($files as $fileName) {
+                $items[] = [
+                    'nomPj' => $fileName,
+                    'path'  => "{$_ENV['BASE_PATH_FICHIER_COURT']}/da/$numDa/$fileName",
+                ];
+            }
+        }
+        return $items;
+    }
+
+    /** 
+     * Obtenir l'url des devis et pièces jointes émis dans l'observation
+     */
+    public function getDevisPjPathObservation(DemandeAppro $demandeAppro): array
+    {
+        $items = [];
+        $numDa = $demandeAppro->getNumeroDemandeAppro();
+        $pjs = $this->daObservationRepository->findAttachmentsByNumeroDA($numDa);
+
+        foreach ($pjs as $row) {
+            $files = $row['fileNames'];
+            foreach ($files as $fileName) {
+                $items[] = [
+                    'nomPj' => $fileName,
+                    'path'  => "{$_ENV['BASE_PATH_FICHIER_COURT']}/da/$numDa/$fileName",
+                ];
+            }
+        }
+        return $items;
+    }
 }
