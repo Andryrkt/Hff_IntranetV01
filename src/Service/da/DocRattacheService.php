@@ -53,7 +53,10 @@ class DocRattacheService
 
             // Normaliser les données
             $normalizer = $config['normalizer'];
-            $fichiers = $this->$normalizer($data, $config['normalizerParam']);
+            $normalizerParam = $config['normalizerParam'];
+            $params = $normalizerParam ? [$data, $normalizerParam] : [$data];
+
+            $fichiers = $this->$normalizer(...$params);
 
             // Construire le résultat
             $result[] = [
