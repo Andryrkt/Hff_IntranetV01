@@ -69,4 +69,5 @@ services:
   App\Controller\da\Detail\DaDetailReapproController:
     arguments:
       $daService: '@App\Service\da\DaService'
+      $docRattacheService: '@App\Service\da\DocRattacheService'
     public: true

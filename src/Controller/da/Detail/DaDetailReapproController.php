@@ -10,6 +10,7 @@ use App\Entity\admin\Application;
 use App\Service\da\EmailDaService;
 use App\Form\da\DaObservationType;
 use App\Controller\Traits\AutorisationTrait;
+use App\Service\da\DocRattacheService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -21,10 +22,12 @@ class DaDetailReapproController extends Controller
 	use AutorisationTrait;
 
 	private DaService $daService;
+	private DocRattacheService $docRattacheService;
 
-	public function __construct(DaService $daService)
+	public function __construct(DaService $daService, DocRattacheService $docRattacheService)
 	{
 		$this->daService = $daService;
+		$this->docRattacheService = $docRattacheService;
 	}
 
 	/**
@@ -47,11 +50,7 @@ class DaDetailReapproController extends Controller
 
 		$this->traitementFormulaire($formObservation, $request, $demandeAppro);
 
-		$fichiers = $this->getAllDAFile([
-			'baiPath'      => $this->getBaIntranetPath($demandeAppro),
-			'badPath'      => $this->getBaDocuWarePath($demandeAppro),
-			'devPjPathObs' => $this->getDevisPjPathObservation($demandeAppro),
-		]);
+		$fichiers = $this->docRattacheService->getAllAttachedFiles($demandeAppro);
 
 		return $this->render('da/detail.html.twig', [
 			'detailTemplate'    => 'detail-reappro',
