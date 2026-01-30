@@ -127,7 +127,9 @@ class DaSoumissionBcController extends Controller
                 $this->modificationDaAfficher($numDa, $numCde);
 
                 /** ENREGISTREMENT DANS LA TABLE DEMANDE DE PAIEMENT */
-                $this->EnregistrementDansLaTableDemandepaiement($numCde);
+                if ($soumissionBc->getDemandePaiementAvance()) {
+                    $this->EnregistrementDansLaTableDemandepaiement($numCde);
+                }
 
                 /** HISTORISATION */
                 $message = "Le document est soumis pour validation";
