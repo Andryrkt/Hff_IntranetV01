@@ -39,7 +39,7 @@ trait DaEditTrait
 
     private function peutModifier(string $statutDa, bool $profil)
     {
-        $statutModifiable = in_array($statutDa, [DemandeAppro::STATUT_SOUMIS_APPRO, DemandeAppro::STATUT_VALIDE, DemandeAppro::STATUT_AUTORISER_EMETTEUR]);
+        $statutModifiable = in_array($statutDa, [DemandeAppro::STATUT_SOUMIS_ATE, DemandeAppro::STATUT_VALIDE, DemandeAppro::STATUT_AUTORISER_EMETTEUR]);
         return $statutModifiable && $profil;
     }
 }
