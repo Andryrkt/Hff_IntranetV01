@@ -3,20 +3,19 @@
 namespace App\Service\da;
 
 use App\Entity\da\DemandeAppro;
-use Doctrine\ORM\EntityManagerInterface;
 
 class DocRattacheService
 {
-    private EntityManagerInterface $em;
     private DaService $daService;
+    private DwDataService $dwDataService;
     private array $docTypes;
     private array $daDocumentMapping;
 
-    public function __construct(EntityManagerInterface $em, DaService $daService)
+    public function __construct(DaService $daService, DwDataService $dwDataService)
     {
-        $this->em = $em;
-        $this->daService = $daService;
-        $this->docTypes = $this->getDocTypesConfig();
+        $this->daService         = $daService;
+        $this->dwDataService     = $dwDataService;
+        $this->docTypes          = $this->getDocTypesConfig();
         $this->daDocumentMapping = $this->getDaDocumentMappingConfig();
     }
 

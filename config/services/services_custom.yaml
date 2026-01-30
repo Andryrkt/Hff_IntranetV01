@@ -54,10 +54,15 @@ services:
       $em: "@doctrine.orm.default_entity_manager"
     public: true
 
-  App\Service\da\DocRattacheService:
+  App\Service\da\DwDataService:
     arguments:
       $em: "@doctrine.orm.default_entity_manager"
+    public: true
+
+  App\Service\da\DocRattacheService:
+    arguments:
       $daService: '@App\Service\da\DaService'
+      $dwDataService: '@App\Service\da\DwDataService'
     public: true
 
   # Controleur
