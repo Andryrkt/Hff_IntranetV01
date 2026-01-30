@@ -18,52 +18,32 @@ class DocRattacheService
     /************************* 
      * Fonctions utilitaires *
      *************************/
-
-    /** 
-     * Normaliser les chemins des fichiers pour l'affichage
-     * 
-     * @param mixed $paths
-     * @return array
-     */
-    private function normalizePaths($paths): array
-    {
-        if ($paths === '-' || empty($paths)) return [];
-        if (!is_array($paths)) $paths = [$paths];
-        return array_map(function ($path) {
-            return [
-                'nom'  => pathinfo($path, PATHINFO_FILENAME),
-                'path' => $path
-            ];
-        }, $paths);
-    }
-
     /** 
      * Normaliser les chemins pour un seul fichier
      * 
-     * @param mixed $doc
+     * @param array  $doc
      * @param string $numKey
+     * 
      * @return array
      */
-    private function normalizePathsForOneFile($doc, string $numKey): array
+    private function normalizePathSingleFile(array $doc, string $numKey): array
     {
-        $tabReturn = [];
-        if ($doc !== '-' && !empty($doc)) $tabReturn[] = [
-            'nom'  => $doc[$numKey],
-            'path' => $doc['path']
-        ];
-        return $tabReturn;
+        if (empty($doc)) return [];
+
+        return $this->normalizePathsMultipleFiles([$doc], $numKey);
     }
 
     /** 
      * Normaliser les chemins pour plusieurs fichiers
      * 
-     * @param array $allDocs
+     * @param array  $allDocs
      * @param string $numKey
+     * 
      * @return array
      */
-    private function normalizePathsForManyFiles($allDocs, string $numKey): array
+    private function normalizePathsMultipleFiles(array $allDocs, string $numKey): array
     {
-        if ($allDocs === '-' || empty($allDocs)) return [];
+        if (empty($allDocs)) return [];
 
         return array_map(function ($doc) use ($numKey) {
             return [
@@ -77,11 +57,12 @@ class DocRattacheService
      * Normaliser les chemins pour plusieurs fichiers de facture / Bon de Livraison
      * 
      * @param array $allDocs
+     * 
      * @return array
      */
-    private function normalizePathsForFacBl($allDocs): array
+    private function normalizePathsFacBl(array $allDocs): array
     {
-        if ($allDocs === '-' || empty($allDocs)) return [];
+        if (empty($allDocs)) return [];
 
         return array_map(function ($doc) {
             return [
