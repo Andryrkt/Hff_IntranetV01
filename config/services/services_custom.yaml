@@ -54,6 +54,12 @@ services:
       $em: "@doctrine.orm.default_entity_manager"
     public: true
 
+  App\Service\da\DocRattacheService:
+    arguments:
+      $em: "@doctrine.orm.default_entity_manager"
+      $daService: '@App\Service\da\DaService'
+    public: true
+
   # Controleur
   App\Controller\da\Detail\DaDetailReapproController:
     arguments:
