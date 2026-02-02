@@ -77,37 +77,43 @@ class DaAfficherRepository extends EntityRepository
         }
     }
 
-    public function markAsDeletedByNumeroLigne(string $numeroDemandeAppro, array $numeroLignes, string $userName): void
+    public function markAsDeletedByNumeroLigne(string $numeroDemandeAppro, array $numeroLignes, string $userName, bool $allVersions = false): void
     {
         if (empty($numeroLignes)) return; // rien à faire
 
-        // 1. Récupérer le numéro de la dernière version
-        $lastVersion = $this->createQueryBuilder('d')
-            ->select('MAX(d.numeroVersion)')
+        $qb = $this->createQueryBuilder('d')
+            ->update()
+            ->set('d.deleted', ':deleted')
+            ->set('d.deletedBy', ':deletedBy')
             ->where('d.numeroDemandeAppro = :num')
-            ->setParameter('num', $numeroDemandeAppro)
-            ->getQuery()
-            ->getSingleScalarResult();
+            ->andWhere('d.numeroLigne IN (:lines)')
+            ->setParameters([
+                'num'       => $numeroDemandeAppro,
+                'deleted'   => true,
+                'deletedBy' => $userName,
+                'lines'     => $numeroLignes,
+            ]);
 
-        // 2. Mettre à jour uniquement si une version existe
-        if ($lastVersion !== null) {
-            $this->createQueryBuilder('d')
-                ->update()
-                ->set('d.deleted', ':deleted')
-                ->set('d.deletedBy', ':deletedBy')
+        // Si $allVersions = false, on cible uniquement la dernière version
+        if (!$allVersions) {
+            // Récupérer le numéro de la dernière version
+            $lastVersion = $this->createQueryBuilder('d')
+                ->select('MAX(d.numeroVersion)')
                 ->where('d.numeroDemandeAppro = :num')
-                ->andWhere('d.numeroVersion = :version')
-                ->andWhere('d.numeroLigne IN (:lines)')
-                ->setParameters([
-                    'num'       => $numeroDemandeAppro,
-                    'version'   => $lastVersion,
-                    'deleted'   => true,
-                    'deletedBy' => $userName,
-                    'lines'     => $numeroLignes,
-                ])
+                ->setParameter('num', $numeroDemandeAppro)
                 ->getQuery()
-                ->execute();
+                ->getSingleScalarResult();
+
+            // Si aucune version n'existe, on arrête
+            if ($lastVersion === null) return;
+
+            // Ajouter la condition sur la version
+            $qb->andWhere('d.numeroVersion = :version')
+                ->setParameter('version', $lastVersion);
         }
+
+        // Exécuter la requête
+        $qb->getQuery()->execute();
     }
 
     public function markAsDeletedByListId(array $ids, string $userName): void
@@ -436,13 +442,17 @@ class DaAfficherRepository extends EntityRepository
         int $limit
     ): array {
         // -------------------------------------
-        // 1. Sous-requête : versions maximales
+        // 1. Sous-requête : versions maximales par DA
         // -------------------------------------
         $subQb = $this->_em->createQueryBuilder();
-        $subQb->select('d.numeroDemandeAppro', 'MAX(d.numeroVersion) as maxVersion')
+        $subQb->select(
+            'd.numeroDemandeApproMere',
+            'd.numeroDemandeAppro',
+            'MAX(d.numeroVersion) as maxVersion'
+        )
             ->from(DaAfficher::class, 'd')
             ->andWhere('d.deleted = 0')
-            ->groupBy('d.numeroDemandeAppro');
+            ->groupBy('d.numeroDemandeApproMere, d.numeroDemandeAppro');
 
         // Appliquer les filtres sur la sous-requête
         $this->applyDynamicFilters($subQb, "d", $criteria);
@@ -452,13 +462,13 @@ class DaAfficherRepository extends EntityRepository
         $this->applyStatutsFilters($subQb, "d", $criteria);
 
         // ---------------------------------
-        // 2. Compter distinctement les DA
+        // 2. Compter distinctement les DA mères
         // ---------------------------------
         $countQb = clone $subQb;
         $countQb->resetDQLPart('select');
         $countQb->resetDQLPart('orderBy');
         $countQb->resetDQLPart('groupBy');
-        $countQb->select('COUNT(DISTINCT d.numeroDemandeAppro)');
+        $countQb->select('COUNT(DISTINCT d.numeroDemandeApproMere)');
 
         $totalItems = (int) $countQb->getQuery()
             ->getSingleScalarResult();
@@ -466,25 +476,50 @@ class DaAfficherRepository extends EntityRepository
         $lastPage = (int) ceil($totalItems / $limit);
 
         // ---------------------------
-        // 3. Paginer la sous-requête
+        // 3. Paginer par DA mère
         // ---------------------------
-        $this->handleOrderBy($subQb, 'd', $criteria, true);
-        $subQb->addOrderBy('MAX(d.numeroDemandeAppro)', 'DESC')
-            ->addOrderBy('MAX(d.numeroFournisseur)', 'DESC')
-            ->addOrderBy('MAX(d.numeroCde)', 'DESC')
+        // D'abord récupérer les DA mères paginées
+        $paginatedMeresQb = clone $subQb;
+        $paginatedMeresQb->resetDQLPart('select');
+        $paginatedMeresQb->resetDQLPart('groupBy');
+
+        // ✅ Sélectionner les colonnes nécessaires pour le ORDER BY (pour SQL Server)
+        $paginatedMeresQb->select('d.numeroDemandeApproMere')
+            ->addSelect('MAX(d.dateDemande) as maxDateDemande')
+            ->groupBy('d.numeroDemandeApproMere');
+
+        $this->handleOrderBy($paginatedMeresQb, 'd', $criteria, true);
+        $paginatedMeresQb
+            ->addOrderBy('d.numeroDemandeApproMere', 'DESC')
             ->setFirstResult(($page - 1) * $limit)
             ->setMaxResults($limit);
 
-        $latestVersions = $subQb->getQuery()->getArrayResult();
+        $paginatedMeres = array_column(
+            $paginatedMeresQb->getQuery()->getArrayResult(),
+            'numeroDemandeApproMere'
+        );
 
-        if (empty($latestVersions)) {
+        if (empty($paginatedMeres)) {
             return [
-                'data'        => [],
+                'results'     => [],
                 'totalItems'  => 0,
                 'currentPage' => $page,
                 'lastPage'    => 0,
             ];
         }
+
+        // Maintenant récupérer toutes les versions max pour ces DA mères
+        $versionsQb = clone $subQb;
+        $versionsQb->andWhere('d.numeroDemandeApproMere IN (:paginatedMeres)')
+            ->setParameter('paginatedMeres', $paginatedMeres);
+
+        $this->handleOrderBy($versionsQb, 'd', $criteria, true);
+        $versionsQb
+            ->addOrderBy('MAX(d.numeroDemandeApproMere)', 'DESC')
+            ->addOrderBy('MAX(d.numeroDemandeAppro)', 'DESC');
+
+        $latestVersions = $versionsQb->getQuery()
+            ->getArrayResult();
 
         // ------------------------------------
         // 4. Construire la requête principale
@@ -493,6 +528,10 @@ class DaAfficherRepository extends EntityRepository
         $qb->select('d')
             ->from(DaAfficher::class, 'd')
             ->andWhere('d.deleted = 0');
+
+        // Condition sur les DA mères paginées
+        $qb->andWhere('d.numeroDemandeApproMere IN (:paginatedMeres)')
+            ->setParameter('paginatedMeres', $paginatedMeres);
 
         // Condition sur les versions maximales (à partir de la sous-requête)
         $orX = $qb->expr()->orX();
@@ -517,7 +556,8 @@ class DaAfficherRepository extends EntityRepository
 
         // Ordre final
         $this->handleOrderBy($qb, 'd', $criteria);
-        $qb->addOrderBy('d.numeroDemandeAppro', 'DESC')
+        $qb->addOrderBy('d.numeroDemandeApproMere', 'DESC')
+            ->addOrderBy('d.numeroDemandeAppro', 'DESC')
             ->addOrderBy('d.numeroFournisseur', 'DESC')
             ->addOrderBy('d.numeroCde', 'DESC');
 

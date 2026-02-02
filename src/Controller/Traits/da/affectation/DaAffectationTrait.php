@@ -93,7 +93,7 @@ trait DaAffectationTrait
         $statutDW = $validationDA ? DemandeAppro::STATUT_DW_A_VALIDE : '';
 
         // Supprimer les lignes de DA Parent dans la table da_afficher
-        $this->daAfficherRepository->markAsDeletedByNumeroLigne($daParent->getNumeroDemandeAppro(), $linesToDelete, $this->getUserName());
+        $this->daAfficherRepository->markAsDeletedByNumeroLigne($daParent->getNumeroDemandeAppro(), $linesToDelete, $this->getUserName(), true);
 
         // Ajouter les nouveaux données dans la table da_afficher
         $this->ajouterDansTableAffichageParNumDa($numeroDemandeAppro, $validationDA, $statutDW);
