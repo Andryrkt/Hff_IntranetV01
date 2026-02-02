@@ -6,8 +6,8 @@ use App\Entity\da\DemandeAppro;
 
 class DocRattacheService
 {
-    private DaService $daService;
-    private DwDataService $dwDataService;
+    private DaService $daService; // ! ne pas supprimer car utile dans la méthode `getAllAttachedFiles` sur la récupération dynamique de service (ligne 45)
+    private DwDataService $dwDataService; // ! ne pas supprimer car utile dans la méthode `getAllAttachedFiles` sur la récupération dynamique de service (ligne 45)
     private array $docTypes;
     private array $daDocumentMapping;
 
