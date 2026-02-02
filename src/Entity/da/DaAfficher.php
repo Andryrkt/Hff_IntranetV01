@@ -203,6 +203,11 @@ class DaAfficher
     private $dateLivraisonPrevue;
 
     /**
+     * @ORM\Column(type="datetime", name="date_envoi_fournisseur", nullable=true)
+     */
+    private $dateEnvoiFournisseur;
+
+    /**
      * @ORM\Column(type="string", length=50, name="valide_par")
      */
     private ?string $validePar = null;
@@ -1820,6 +1825,24 @@ class DaAfficher
     }
 
     /**
+     * Get the value of dateEnvoiFournisseur
+     */
+    public function getDateEnvoiFournisseur()
+    {
+        return $this->dateEnvoiFournisseur;
+    }
+
+    /**
+     * Set the value of dateEnvoiFournisseur
+     */
+    public function setDateEnvoiFournisseur($dateEnvoiFournisseur): self
+    {
+        $this->dateEnvoiFournisseur = $dateEnvoiFournisseur;
+
+        return $this;
+    }
+
+    /**
      * Copie les propriétés pertinentes d'un ancien DaAfficher vers l'objet courant.
      *
      * Cela permet de "mettre à jour" l'objet courant avec les valeurs de référence
@@ -1844,6 +1867,7 @@ class DaAfficher
             ->setEstFactureBlSoumis($oldDaAfficher->getEstFactureBlSoumis())
             ->setBcEnvoyerFournisseur($oldDaAfficher->getBcEnvoyerFournisseur())
             ->setDateLivraisonPrevue($oldDaAfficher->getDateLivraisonPrevue())
+            ->setDateEnvoiFournisseur($oldDaAfficher->getDateEnvoiFournisseur())
         ;
     }
 
