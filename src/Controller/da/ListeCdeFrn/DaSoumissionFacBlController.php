@@ -9,8 +9,10 @@ use App\Model\dit\DitModel;
 use App\Entity\dw\DwBcAppro;
 use App\Entity\da\DaAfficher;
 use App\Controller\Controller;
+use App\Controller\Traits\PdfConversionTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\admin\Application;
+use App\Entity\da\DaSoumissionBc;
 use App\Entity\da\DaSoumissionFacBl;
 use App\Form\da\DaSoumissionFacBlType;
 use App\Model\da\DaSoumissionFacBlModel;
@@ -36,6 +38,8 @@ use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
  */
 class DaSoumissionFacBlController extends Controller
 {
+    use PdfConversionTrait;
+
     const STATUT_SOUMISSION = 'Soumis à validation';
 
     private TraitementDeFichier $traitementDeFichier;
@@ -200,12 +204,12 @@ class DaSoumissionFacBlController extends Controller
 
     private function ajoutInfoNecesaireSoumissionFacBl(DaSoumissionFacBl $soumissionFacBl, string $nomPdfFusionner, int $numeroVersionMax, array $infoLivraison, array $infoBC)
     {
-        //recupereation de l'application BAP pour generer le numero de bap
-        $application = $this->getEntityManager()->getRepository(Application::class)->findOneBy(['codeApp' => 'BAP']);
-        //generation du numero de bap
-        $numeroBap = AutoIncDecService::autoGenerateNumero('BAP', $application->getDerniereId(), true);
-        //mise a jour de la derniere id de l'application BAP
-        AutoIncDecService::mettreAJourDerniereIdApplication($application, $this->getEntityManager(), $numeroBap);
+        //recupérer le Bc correspondant au numero Cde
+        $bcRepository = $this->getEntityManager()->getRepository(DaSoumissionBc::class);
+        $numeroVersionMax = $bcRepository->getNumeroVersionMax($soumissionFacBl->getNumeroCde());
+        $bc = $bcRepository->findOneBy(['numeroCde' => $soumissionFacBl->getNumeroCde(), 'numeroVersion' => $numeroVersionMax]);
+        $numeroBap = $bc->getDemandePaiementAvance() ?? $this->genererNumeroBap();
+
         // recupération du montant reception IPS
         $montantReceptionIps = $this->daSoumissionFacBlModel->getMontantReceptionIpsEtNumFac($soumissionFacBl->getNumLiv());
 
@@ -223,6 +227,17 @@ class DaSoumissionFacBlController extends Controller
             ->setMontantBlFacture((float)str_replace(',', '.', str_replace(' ', '', $soumissionFacBl->getMontantBlFacture() ?? '0')))
             ->setNumeroFactureFournisseur($montantReceptionIps[0]['numero_facture'] ?? null)
         ;
+    }
+
+    private function genererNumeroBap(): string
+    {
+        //recupereation de l'application BAP pour generer le numero de bap
+        $application = $this->getEntityManager()->getRepository(Application::class)->findOneBy(['codeApp' => 'BAP']);
+        //generation du numero de bap
+        $numeroBap = AutoIncDecService::autoGenerateNumero('BAP', $application->getDerniereId(), true);
+        //mise a jour de la derniere id de l'application BAP
+        AutoIncDecService::mettreAJourDerniereIdApplication($application, $this->getEntityManager(), $numeroBap);
+        return $numeroBap;
     }
 
     /**
@@ -284,50 +299,6 @@ class DaSoumissionFacBlController extends Controller
         return array_map(function ($file) use ($prefix) {
             return $prefix . $file;
         }, $files);
-    }
-
-    private function ConvertirLesPdf(array $tousLesFichersAvecChemin)
-    {
-        $tousLesFichiers = [];
-        foreach ($tousLesFichersAvecChemin as $filePath) {
-            $tousLesFichiers[] = $this->convertPdfWithGhostscript($filePath);
-        }
-
-        return $tousLesFichiers;
-    }
-
-
-    private function convertPdfWithGhostscript($filePath)
-    {
-        $gsPath = 'C:\Program Files\gs\gs10.05.0\bin\gswin64c.exe'; // Modifier selon l'OS
-        $tempFile = $filePath . "_temp.pdf";
-
-        // Vérifier si le fichier existe et est accessible
-        if (!file_exists($filePath)) {
-            throw new Exception("Fichier introuvable : $filePath");
-        }
-
-        if (!is_readable($filePath)) {
-            throw new Exception("Le fichier PDF ne peut pas être lu : $filePath");
-        }
-
-        // Commande Ghostscript
-        $command = "\"$gsPath\" -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -o \"$tempFile\" \"$filePath\"";
-        // echo "Commande exécutée : $command<br>";
-
-        exec($command, $output, $returnVar);
-
-        if ($returnVar !== 0) {
-            echo "Sortie Ghostscript : " . implode("\n", $output);
-            throw new Exception("Erreur lors de la conversion du PDF avec Ghostscript");
-        }
-
-        // Remplacement du fichier
-        if (!rename($tempFile, $filePath)) {
-            throw new Exception("Impossible de remplacer l'ancien fichier PDF.");
-        }
-
-        return $filePath;
     }
 
     private function getInfoLivraison(string $numCde, string $numDa): array
