@@ -9,9 +9,10 @@ document.addEventListener("DOMContentLoaded", function () {
    *  2ᵉ appel : colonnes 4-5 selon la colonne 4.
    */
   mergeCellsRecursiveTable([
-    { pivotIndex: 0, columns: [0, 1, 2, 3, 4, 5, 22], insertSeparator: true },
-    { pivotIndex: 6, columns: [6, 7], insertSeparator: true },
-    { pivotIndex: 8, columns: [8, 20], insertSeparator: true },
+    { pivotIndex: 0, columns: [0], insertSeparator: true },
+    { pivotIndex: 1, columns: [1, 2, 3, 4, 5, 6, 23], insertSeparator: true },
+    { pivotIndex: 7, columns: [7, 8], insertSeparator: true },
+    { pivotIndex: 9, columns: [9, 21], insertSeparator: true },
   ]);
 });
 
@@ -277,14 +278,16 @@ document.addEventListener("contextmenu", function (event) {
     "Complet non livré",
     "Tous livrés",
     "Partiellement livré",
+    "Tout livrée Appro",
+    "Partiellement Livrée Appro"
   ];
 
   const statutBcAppro = [
     "Tout livrée Appro",
-    "Partiellement Livrée Appro",
-    "Tous livrés",
+    "Partiellement Livrée Appro"
   ];
   function affichageStatutBcEnvoyerFournisseur() {
+    console.log(statutBc, statutBcAppro.includes(statutBc));
     statutAffiche.style.display = "block";
     if (statutBcAppro.includes(statutBc)) {
       statutAffiche.innerHTML = `<button id="confirmerStatutBtn" class="btn btn-primary">

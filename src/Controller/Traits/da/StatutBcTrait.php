@@ -251,7 +251,7 @@ trait StatutBcTrait
         $daTypeId = $DaAfficher->getDaTypeId();
         $daDirect = $daTypeId == DemandeAppro::TYPE_DA_DIRECT; // condition pour daDirect
         $daViaOR = $daTypeId == DemandeAppro::TYPE_DA_AVEC_DIT; // condition pour Da via OR
-        $daReappro = $daTypeId == DemandeAppro::TYPE_DA_REAPPRO_MENSUEL;
+        $daReappro = $daTypeId == DemandeAppro::TYPE_DA_REAPPRO_MENSUEL || $daTypeId == DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL;
 
         return [$daDirect, $daViaOR, $daReappro];
     }
@@ -407,7 +407,7 @@ trait StatutBcTrait
         }
 
 
-        $soumissionFait = ($DaAfficher->getEstFactureBlSoumis() || $DaAfficher->getEstBlReapproSoumis()) && $DaAfficher->getEstCorrectionStatutBc();
+        $soumissionFait = ($DaAfficher->getEstFactureBlSoumis() || $DaAfficher->getEstBlReapproSoumis()) && in_array($DaAfficher->getEstCorrectionStatutBc(), [null, 0]) ;
 
         $partiellementDispo = ($qteDem != $qteALivrer && $qteLivee == 0 && $qteALivrer > 0) && $soumissionFait;
         $completNonLivrer =  (($qteDem == $qteALivrer && $qteLivee < $qteDem) || ($qteALivrer > 0 && $qteDem == ($qteALivrer + $qteLivee))) && $soumissionFait;

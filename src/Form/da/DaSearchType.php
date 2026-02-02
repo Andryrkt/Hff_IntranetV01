@@ -2,6 +2,7 @@
 
 namespace App\Form\da;
 
+use App\Controller\Traits\da\MarkupIconTrait;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Entity\da\DemandeAppro;
@@ -24,6 +25,8 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 
 class DaSearchType extends  AbstractType
 {
+    use MarkupIconTrait;
+
     private const STATUT_DA = [
         DemandeAppro::STATUT_VALIDE               => DemandeAppro::STATUT_VALIDE,
         DemandeAppro::STATUT_CLOTUREE             => DemandeAppro::STATUT_CLOTUREE,
@@ -68,12 +71,6 @@ class DaSearchType extends  AbstractType
         DemandeAppro::STATUT_DW_REFUSEE                               => DemandeAppro::STATUT_DW_REFUSEE,
     ];
 
-    private const TYPE_ACHAT = [
-        'DA Avec DIT' => DemandeAppro::TYPE_DA_AVEC_DIT,
-        'DA Direct'   => DemandeAppro::TYPE_DA_DIRECT,
-        'DA reappro'  => DemandeAppro::TYPE_DA_REAPPRO_MENSUEL,
-    ];
-
     private $agenceRepository;
 
     private $em;
@@ -95,8 +92,12 @@ class DaSearchType extends  AbstractType
         $statut_da = self::STATUT_DA;
         ksort($statut_da);
 
-        $type_achat = self::TYPE_ACHAT;
-        ksort($type_achat);
+        $type_achat = [
+            'Demande d’approvisionnement via OR'      => DemandeAppro::TYPE_DA_AVEC_DIT,
+            'Demande d’achat direct'                  => DemandeAppro::TYPE_DA_DIRECT,
+            'Demande de réapprovisionnement mensuel'  => DemandeAppro::TYPE_DA_REAPPRO_MENSUEL,
+            'Demande de réapprovisionnement ponctuel' => DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL
+        ];
 
         $builder
             ->add('numDit', TextType::class, [

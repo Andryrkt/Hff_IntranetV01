@@ -22,13 +22,14 @@ trait DaNewTrait
      *     $this->getEntityManager()->flush();
      * Sans cela, les données risquent de ne pas être cohérentes ou correctement persistées.
      *
-     * @param DemandeAppro $demandeAppro  Objet de la demande d'achat à traiter
-     * @param DemandeIntervention|null $dit  Optionnellement, la demande d'intervention associée
+     * @param DemandeAppro             $demandeAppro  Objet de la demande d'achat à traiter
+     * @param bool                     $firstCreation indique si c'est la première création de la DA
+     * @param DemandeIntervention|null $dit           Optionnellement, la demande d'intervention associée
      */
-    public function ajouterDaDansTableAffichage(DemandeAppro $demandeAppro, ?DemandeIntervention $dit = null): void
+    public function ajouterDaDansTableAffichage(DemandeAppro $demandeAppro, bool $firstCreation, ?DemandeIntervention $dit = null): void
     {
         // Récupère le dernier numéro de version existant pour cette demande d'achat
-        $numeroVersionMax = $this->daAfficherRepository->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
+        $numeroVersionMax = $firstCreation ? 0 : $this->daAfficherRepository->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
         $numeroVersion = VersionService::autoIncrement($numeroVersionMax);
 
         // Parcours chaque ligne DAL de la demande d'achat
@@ -36,7 +37,6 @@ trait DaNewTrait
         foreach ($demandeAppro->getDAL() as $dal) {
             $daAfficher = new DaAfficher();
             if ($dit) $daAfficher->setDit($dit);
-            $daAfficher->setStatutOr(''); // définir à vide
             $daAfficher->duplicateDa($demandeAppro);
             $daAfficher->duplicateDal($dal);
             $daAfficher->setNumeroVersion($numeroVersion);

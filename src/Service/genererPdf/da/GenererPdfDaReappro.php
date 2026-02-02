@@ -31,7 +31,7 @@ class GenererPdfDaReappro extends GenererPdfDa
 
         $this->renderAgenceServicePdfDA($pdf, $da->getAgenceServiceEmetteur(), $da->getAgenceServiceDebiteur());
 
-        $this->renderTableArticleDemandeReappro($pdf, $da->getDAL());
+        $this->renderTableArticleDemandeReappro($pdf, $da->getDAL(), $da->getDaTypeId() === DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL);
 
         $this->renderTableHistoriqueConsomReappro($pdf, $monthsList, $dataHistoriqueConsommation);
 

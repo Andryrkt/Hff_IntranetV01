@@ -81,8 +81,6 @@ class DaNewAchatController extends Controller
             $clickedButtonName = $this->getButtonName($request);
             $demandeApproParent->setStatutDal(self::STATUT_DAL[$clickedButtonName]);
 
-            $daFileUploader = new FileUploaderForDAService($_ENV['BASE_PATH_FICHIER']); // pour le traitement de fichier
-
             foreach ($formDemandeApproLines as $subFormDapL) {
                 /** @var DemandeApproParentLine $demandeApproParentLine */
                 $demandeApproParentLine = $subFormDapL->getData();
@@ -97,14 +95,14 @@ class DaNewAchatController extends Controller
 
                     // Supprimer les fichiers
                     if ($filesToDelete) {
-                        $daFileUploader->deleteFiles(
+                        $this->daFileUploader->deleteFiles(
                             explode(',', $filesToDelete),
                             $numDa
                         );
                     }
 
                     // Gérer l'upload et obtenir la liste finale
-                    $allFileNames = $daFileUploader->handleFileUpload(
+                    $allFileNames = $this->daFileUploader->handleFileUpload(
                         $newFiles,
                         $existingFileNames,
                         $numDa,
@@ -137,7 +135,7 @@ class DaNewAchatController extends Controller
             if ($demandeApproParent->getObservation()) $this->insertionObservation($numDa, $demandeApproParent->getObservation());
 
             // ajout des données dans la table DaAfficher
-            $this->ajouterDaDansTableAffichageParent($demandeApproParent);
+            $this->ajouterDaDansTableAffichageParent($demandeApproParent, $firstCreation);
 
             if ($clickedButtonName === "soumissionAppro") $this->emailDaService->envoyerMailCreationDaParent($demandeApproParent, $this->getUser());
 

@@ -77,26 +77,37 @@ class DaAfficherRepository extends EntityRepository
         }
     }
 
-    public function markAsDeletedByNumeroLigne(string $numeroDemandeAppro, array $numeroLignes, string $userName, $numeroVersion): void
+    public function markAsDeletedByNumeroLigne(string $numeroDemandeAppro, array $numeroLignes, string $userName): void
     {
         if (empty($numeroLignes)) return; // rien à faire
 
-        $this->createQueryBuilder('d')
-            ->update()
-            ->set('d.deleted', ':deleted')
-            ->set('d.deletedBy', ':deletedBy')
+        // 1. Récupérer le numéro de la dernière version
+        $lastVersion = $this->createQueryBuilder('d')
+            ->select('MAX(d.numeroVersion)')
             ->where('d.numeroDemandeAppro = :num')
-            ->andWhere('d.numeroVersion = :version')
-            ->andWhere('d.numeroLigne IN (:lines)')
-            ->setParameters([
-                'num'       => $numeroDemandeAppro,
-                'version'   => $numeroVersion,
-                'deleted'   => true,
-                'deletedBy' => $userName,
-                'lines'     => $numeroLignes,
-            ])
+            ->setParameter('num', $numeroDemandeAppro)
             ->getQuery()
-            ->execute();
+            ->getSingleScalarResult();
+
+        // 2. Mettre à jour uniquement si une version existe
+        if ($lastVersion !== null) {
+            $this->createQueryBuilder('d')
+                ->update()
+                ->set('d.deleted', ':deleted')
+                ->set('d.deletedBy', ':deletedBy')
+                ->where('d.numeroDemandeAppro = :num')
+                ->andWhere('d.numeroVersion = :version')
+                ->andWhere('d.numeroLigne IN (:lines)')
+                ->setParameters([
+                    'num'       => $numeroDemandeAppro,
+                    'version'   => $lastVersion,
+                    'deleted'   => true,
+                    'deletedBy' => $userName,
+                    'lines'     => $numeroLignes,
+                ])
+                ->getQuery()
+                ->execute();
+        }
     }
 
     public function markAsDeletedByListId(array $ids, string $userName): void
@@ -602,7 +613,7 @@ class DaAfficherRepository extends EntityRepository
     {
         if ($estCdeFrn) {
             $map = [
-                'numDa'         => "$qbLabel.numeroDemandeAppro",
+                'numDa'         => "$qbLabel.numeroDemandeApproMere",
                 'numDit'        => "$qbLabel.numeroDemandeDit",
                 'numCde'        => "$qbLabel.numeroCde",
                 'numOr'         => "$qbLabel.numeroOr",
@@ -906,6 +917,18 @@ class DaAfficherRepository extends EntityRepository
     {
         return $this->createQueryBuilder('da')
             ->select('da.numeroFournisseur')
+            ->where('da.numeroCde = :numCde')
+            ->setParameter('numCde', $numcde)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
+    }
+
+    public function getTypeDa(int $numCde)
+    {
+        return $this->createQueryBuilder('da')
+            ->select('da.daTypeId')
             ->where('da.numeroCde = :numCde')
             ->setParameter('numCde', $numcde)
             ->setMaxResults(1)

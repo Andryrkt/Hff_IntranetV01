@@ -41,6 +41,10 @@ class DaAffectationAchatController extends Controller
         /** @var DemandeApproParent $daParent */
         $daParent = $this->demandeApproParentRepository->find($id);
 
+        foreach ($daParent->getDemandeApproParentLines() as $dapl) {
+            if ($dapl->getArtRefp() === "-") $dapl->setArtRefp("");
+        }
+
         $form = $this->getFormFactory()->createBuilder(DaAffectationType::class, $daParent)->getForm();
 
         //========================================== Traitement du formulaire en général ===================================================//

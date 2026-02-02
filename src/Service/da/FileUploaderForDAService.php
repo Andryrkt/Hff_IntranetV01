@@ -2,8 +2,6 @@
 
 namespace App\Service\da;
 
-use App\Entity\da\DemandeApproL;
-use App\Entity\da\DemandeApproLR;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class FileUploaderForDAService
@@ -15,9 +13,9 @@ class FileUploaderForDAService
         "OBSERVATION"     => "observation_pj",
     ];
 
-    public function __construct(string $basePath)
+    public function __construct()
     {
-        $this->basePath = rtrim($basePath, '/');
+        $this->basePath = rtrim($_ENV['BASE_PATH_FICHIER'], '/');
     }
 
     /**
