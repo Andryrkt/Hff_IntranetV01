@@ -208,7 +208,7 @@ class DaSoumissionFacBlController extends Controller
         $bcRepository = $this->getEntityManager()->getRepository(DaSoumissionBc::class);
         $numeroVersionMax = $bcRepository->getNumeroVersionMax($soumissionFacBl->getNumeroCde());
         $bc = $bcRepository->findOneBy(['numeroCde' => $soumissionFacBl->getNumeroCde(), 'numeroVersion' => $numeroVersionMax]);
-        $numeroBap = $bc->getDemandePaiementAvance() ?? $this->genererNumeroBap();
+        $numeroBap = $bc->getDemandePaiementAvance() ? null : $this->genererNumeroBap();
 
         // recupération du montant reception IPS
         $montantReceptionIps = $this->daSoumissionFacBlModel->getMontantReceptionIpsEtNumFac($soumissionFacBl->getNumLiv());

@@ -113,14 +113,16 @@
 						</p>
 						{% include '/partials/_dropZoneFile.html.twig' with {'id': '2', 'form': form, 'fieldName': 'pieceJoint02'} %}
 					</div>
-					<div class="col-12 col-md-4">
-						<p>
-							<strong>
-								BC client externe / BC client magasin
-							</strong>
-						</p>
-						{% include '/partials/_dropZoneFileMultiple.html.twig' with {'id': '3', 'form': form, 'fieldName': 'pieceJoint03'} %}
-					</div>
+					{% if dto.typeDa is null %}
+						<div class="col-12 col-md-4">
+							<p>
+								<strong>
+									BC client externe / BC client magasin
+								</strong>
+							</p>
+							{% include '/partials/_dropZoneFileMultiple.html.twig' with {'id': '3', 'form': form, 'fieldName': 'pieceJoint03'} %}
+						</div>
+					{% endif %}
 
 				</div>
 				<div class="row">
@@ -178,7 +180,11 @@
 					<ul class="nav nav-tabs" id="pdfTabs" role="tablist">
 						<li class="nav-item" role="presentation">
 							<button class="nav-link active" id="tab1-tab" data-bs-toggle="tab" data-bs-target="#tab1" type="button" role="tab">
-								Contrôle livraison
+								{% if typeDemande == 1 %}
+									Proforma facture fournisseur
+								{% else %}
+									Contrôle livraison
+								{% endif %}
 							</button>
 						</li>
 						<li class="nav-item" role="presentation">
@@ -186,11 +192,13 @@
 								RIB fournisseur
 							</button>
 						</li>
-						<li class="nav-item" role="presentation">
-							<button class="nav-link" id="tab3-tab" data-bs-toggle="tab" data-bs-target="#tab3" type="button" role="tab">
-								BC client externe / BC client magasin
-							</button>
-						</li>
+						{% if dto.typeDa is null %}
+							<li class="nav-item" role="presentation">
+								<button class="nav-link" id="tab3-tab" data-bs-toggle="tab" data-bs-target="#tab3" type="button" role="tab">
+									BC client externe / BC client magasin
+								</button>
+							</li>
+						{% endif %}
 						<li class="nav-item" role="presentation">
 							<button class="nav-link" id="tab4-tab" data-bs-toggle="tab" data-bs-target="#tab4" type="button" role="tab">
 								Autres documents

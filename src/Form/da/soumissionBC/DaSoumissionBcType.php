@@ -29,7 +29,7 @@ class DaSoumissionBcType extends AbstractType
                 ],
                 'expanded'      => true,
                 'multiple'      => false,
-                'label'         => 'Demande paiement à l\'avance',
+                'label'         => 'Demande paiement à l\'avance *',
                 'attr' => [
                     'required' => true
                 ]
