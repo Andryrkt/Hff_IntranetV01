@@ -59,6 +59,11 @@ services:
       $em: "@doctrine.orm.default_entity_manager"
     public: true
 
+  App\Service\da\DaTimelineService:
+    arguments:
+      $em: "@doctrine.orm.default_entity_manager"
+    public: true
+
   App\Service\da\DocRattacheService:
     arguments:
       $daService: '@App\Service\da\DaService'
