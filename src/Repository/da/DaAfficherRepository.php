@@ -930,7 +930,7 @@ class DaAfficherRepository extends EntityRepository
         return $this->createQueryBuilder('da')
             ->select('da.daTypeId')
             ->where('da.numeroCde = :numCde')
-            ->setParameter('numCde', $numcde)
+            ->setParameter('numCde', $numCde)
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult()

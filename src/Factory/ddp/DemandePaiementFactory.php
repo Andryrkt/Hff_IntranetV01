@@ -104,12 +104,10 @@ class DemandePaiementFactory
 
     private function debiteur(int $typeDa, array $infoDa): array
     {
-        $codeAgenceServiceIps = $this->ddpModel->getCodeAgenceService($infoDa['numeroOr']);
-
         $agenceRepository = $this->em->getRepository(Agence::class);
         $serviceRepository = $this->em->getRepository(Service::class);
-
         if ($typeDa === TypeDaConstants::TYPE_DA_AVEC_DIT) {
+            $codeAgenceServiceIps = $this->ddpModel->getCodeAgenceService($infoDa['numeroOr']);
             $debiteur = [
                 'agence' => $agenceRepository->findOneBy(['codeAgence' => $codeAgenceServiceIps[0]['code_agence']]),
                 'service' => $serviceRepository->findOneBy(['codeService' => $codeAgenceServiceIps[0]['code_service']])

@@ -413,8 +413,8 @@ trait StatutBcTrait
         $completNonLivrer =  (($qteDem == $qteALivrer && $qteLivee < $qteDem) || ($qteALivrer > 0 && $qteDem == ($qteALivrer + $qteLivee))) && $soumissionFait;
         $tousLivres = ($qteDem == $qteLivee && $qteDem != 0) && $soumissionFait;
         $partiellementLivre =  ($qteLivee > 0 && $qteLivee != $qteDem && $qteDem > ($qteLivee + $qteALivrer)) && $soumissionFait;
-        $partiellementLivreAppro =  $qteDem !==  $qteALivrer && !$soumissionFait;
-        $tousLivresAppro =   $qteDem ===  $qteALivrer && !$soumissionFait;
+        $partiellementLivreAppro =  $qteDem !==  $qteALivrer && $soumissionFait;
+        $tousLivresAppro =   $qteDem ===  $qteALivrer && $soumissionFait;
 
         return [$partiellementDispo, $completNonLivrer, $tousLivres, $partiellementLivre, $partiellementLivreAppro, $tousLivresAppro];
     }

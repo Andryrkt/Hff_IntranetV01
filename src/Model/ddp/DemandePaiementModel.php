@@ -325,7 +325,7 @@ class DemandePaiementModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function getCodeAgenceService(int $numOr)
+    public function getCodeAgenceService(?int $numOr)
     {
         $statement = " SELECT 
                     seor_succ as code_agence, 
