@@ -105,15 +105,37 @@ export function enableDropzone(id) {
 let fileStore = [];
 
 export function initializeFileHandlersMultiple(idSuffix, fileInpute) {
+  if (!fileInpute) {
+    return; // Silently fail if the input element doesn't exist
+  }
   const fileInput = fileInpute;
   const fileList = document.querySelector(`#file-list-${idSuffix}`);
   const uploadBtn = document.getElementById(`upload-btn-${idSuffix}`);
   const dropzone = document.getElementById(`dropzone-${idSuffix}`);
   const fileSummary = document.getElementById(`file-summary-${idSuffix}`); // Get summary element
 
-  if (!fileList || !uploadBtn || !dropzone || !fileSummary) {
+  let missingElement = false;
+  if (!fileList) {
+    console.error(`Missing element: #file-list-${idSuffix}`);
+    missingElement = true;
+  }
+  if (!uploadBtn) {
+    console.error(`Missing element: #upload-btn-${idSuffix}`);
+    missingElement = true;
+  }
+  if (!dropzone) {
+    console.error(`Missing element: #dropzone-${idSuffix}`);
+    missingElement = true;
+  }
+  if (!fileSummary) {
+    console.error(`Missing element: #file-summary-${idSuffix}`);
+    missingElement = true;
+  }
+
+  if (missingElement) {
     console.error(
-      "Missing elements for multiple file handler with suffix: " + idSuffix
+      "Aborting initializeFileHandlersMultiple due to missing elements for suffix: " +
+        idSuffix,
     );
     return;
   }
