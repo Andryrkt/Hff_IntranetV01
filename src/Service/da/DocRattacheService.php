@@ -115,7 +115,7 @@ class DocRattacheService
                 'colorClass'      => 'border-left-bad',
                 'service'         => 'dwDataService',
                 'method'          => 'getBaDocuWarePath',
-                'normalizer'      => 'normalizePathsForManyFiles',
+                'normalizer'      => 'normalizePathsMultipleFiles',
                 'normalizerParam' => 'num',
             ],
             'DEV_PJ_DA' => [
@@ -125,7 +125,7 @@ class DocRattacheService
                 'colorClass'      => 'border-left-devpj',
                 'service'         => 'daService',
                 'method'          => 'getDevisPjPathDaLine',
-                'normalizer'      => 'normalizePathsForManyFiles',
+                'normalizer'      => 'normalizePathsMultipleFiles',
                 'normalizerParam' => 'nomPj',
             ],
             'DEV_PJ_OBS' => [
@@ -135,7 +135,7 @@ class DocRattacheService
                 'colorClass'      => 'border-left-devpj',
                 'service'         => 'daService',
                 'method'          => 'getDevisPjPathObservation',
-                'normalizer'      => 'normalizePathsForManyFiles',
+                'normalizer'      => 'normalizePathsMultipleFiles',
                 'normalizerParam' => 'nomPj',
             ],
             'BC' => [
@@ -145,7 +145,7 @@ class DocRattacheService
                 'colorClass'      => 'border-left-bc',
                 'service'         => 'dwDataService',
                 'method'          => 'getBcPath',
-                'normalizer'      => 'normalizePathsForManyFiles',
+                'normalizer'      => 'normalizePathsMultipleFiles',
                 'normalizerParam' => 'numeroBc',
             ],
             'FACBL' => [
