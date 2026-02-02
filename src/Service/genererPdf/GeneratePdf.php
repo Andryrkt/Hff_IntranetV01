@@ -18,25 +18,37 @@ class GeneratePdf
         $this->baseCheminDocuware = $baseCheminDocuware ?? rtrim($_ENV['BASE_PATH_DOCUWARE'] ?? '', '/\\') . '/';
     }
 
-    protected function copyFile(string $sourcePath, string $destinationPath): void
+    protected function copyFile(string $sourcePath, string $destinationPath): bool
     {
-        if (!file_exists($sourcePath)) {
-            throw new \Exception("Le fichier source n'existe pas : $sourcePath");
-        }
+        // Fonction interne pour tenter la copie
+        $attemptCopy = function ($attemptNumber) use ($sourcePath, $destinationPath) {
+            try {
+                if (!file_exists($sourcePath) || !copy($sourcePath, $destinationPath)) {
+                    return false;
+                }
 
-        // Créer le répertoire de destination s'il n'existe pas
-        $destinationDir = dirname($destinationPath);
-        if (!is_dir($destinationDir)) {
-            if (!mkdir($destinationDir, 0755, true)) {
-                throw new \Exception("Impossible de créer le répertoire : $destinationDir");
+                // Vérification rapide
+                return file_exists($destinationPath) && filesize($destinationPath) > 0;
+            } catch (\Exception $e) {
+                return false;
             }
+        };
+
+        // Première tentative
+        if ($attemptCopy(1)) {
+            echo "Fichier copié avec succès : $destinationPath\n";
+            return true;
         }
 
-        if (!copy($sourcePath, $destinationPath)) {
-            throw new \Exception("Impossible de copier le fichier : $sourcePath vers $destinationPath");
+        // Deuxième tentative après un court délai
+        usleep(50000); // 50ms
+        if ($attemptCopy(2)) {
+            echo "Fichier copié avec succès après retry : $destinationPath\n";
+            return true;
         }
 
-        echo "Fichier copié avec succès : $destinationPath\n";
+        error_log("Échec de copyFile après 2 tentatives : $sourcePath");
+        return false;
     }
 
 

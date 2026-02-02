@@ -11,11 +11,11 @@ class GenererPdfDit extends GeneratePdf
 {
     use FormatageTrait;
 
-    public function copyToDOCUWARE(string $fileName, string $numDit)
+    public function copyToDOCUWARE(string $fileName, string $numDit): bool
     {
         $cheminFichierDistant = rtrim($this->baseCheminDocuware, '/\\') . '/DIT/' . $fileName;
         $cheminDestinationLocal = rtrim($this->baseCheminDuFichier, '/\\') . '/dit/' . $numDit . '/' . $fileName;
-        $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
+        return $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 
     /**
