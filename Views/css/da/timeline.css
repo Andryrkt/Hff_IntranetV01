@@ -1,0 +1,53 @@
+.timeline {
+  position: relative;
+  margin: 20px 0;
+  padding-left: 40px;
+  border-left: 3px solid #2c3e50;
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 30px;
+}
+
+.timeline-dot {
+  position: absolute;
+  left: -11px;
+  top: 5px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 3px solid white;
+}
+
+/* Couleurs des statuts */
+.dot-success {
+  background-color: #4caf50;
+}
+
+.dot-pending {
+  background-color: #3498db;
+}
+
+.dot-current {
+  background-color: #f1c40f;
+}
+
+.timeline-content {
+  padding-left: 10px;
+}
+
+.timeline-date {
+  font-weight: bold;
+  color: #555;
+}
+
+.timeline-status {
+  font-size: 16px;
+  margin: 2px 0;
+}
+
+.timeline-duration {
+  font-size: 13px;
+  color: #777;
+}
