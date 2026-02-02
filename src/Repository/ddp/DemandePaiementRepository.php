@@ -3,6 +3,8 @@
 namespace App\Repository\ddp;
 
 use Doctrine\ORM\EntityRepository;
+use App\Constants\ddp\StatutConstants;
+use App\Entity\admin\utilisateur\User;
 use App\Service\TableauEnStringService;
 
 class DemandePaiementRepository extends EntityRepository
@@ -59,7 +61,7 @@ class DemandePaiementRepository extends EntityRepository
         return $numeroVersionMax;
     }
 
-    public function findDemandePaiement($criteria)
+    public function findDemandePaiement($criteria, User $user)
     {
         $qb = $this->createQueryBuilder('d');
 
@@ -73,6 +75,11 @@ class DemandePaiementRepository extends EntityRepository
                 AND dp2.serviceDebiter = d.serviceDebiter
             )'
         );
+        if ($user->getCodeAgenceUser() === '80' && $user->getCodeServiceUser() === 'FIN') {
+            $qb->andWhere('d.statut NOT IN (:statutPourDA)')
+                ->setParameter('statutPourDa', [StatutConstants::STATUT_EN_ATTENTE_VALIDATION_BC, StatutConstants::STATUT_A_CONFIRMER])
+            ;
+        }
         if (!empty($criteria->getAgence())) {
             $qb->andWhere('d.agenceDebiter = :agenceDebiter')
                 ->setParameter('agenceDebiter', $criteria->getAgence()->getCodeAgence());

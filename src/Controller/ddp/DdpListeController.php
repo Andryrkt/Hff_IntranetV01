@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\ddp\DemandePaiementRepository;
 use App\Repository\ddp\DemandePaiementLigneRepository;
+
 /**
  * @Route("/compta/demande-de-paiement")
  */
@@ -52,7 +53,7 @@ class DdpListeController extends Controller
             // dd($criteria);
         }
         // $data = $this->demandePaiementRepository->findBy([], ['dateCreation' => 'DESC']);
-        $data = $this->demandePaiementRepository->findDemandePaiement($criteria);
+        $data = $this->demandePaiementRepository->findDemandePaiement($criteria, $this->getUser());
         /** suppression de ssession page_loadede  */
         if ($this->getSessionService()->has('page_loaded')) {
             $this->getSessionService()->remove('page_loaded');
