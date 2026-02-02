@@ -108,10 +108,7 @@ function activeDesactiveFormualirePourSoumettreAValidation() {
     const value = el.value;
 
     // Appliquer les règles de désactivation
-    if (
-      value === "BL Reappro" ||
-      value === "Facture + BL"
-    ) {
+    if (value === "BL Reappro" || value === "Facture + BL") {
       el.disabled = true;
     }
 
@@ -279,81 +276,15 @@ document.addEventListener("contextmenu", function (event) {
     "Tous livrés",
     "Partiellement livré",
     "Tout livrée Appro",
-    "Partiellement Livrée Appro"
+    "Partiellement Livrée Appro",
   ];
 
-  const statutBcAppro = [
-    "Tout livrée Appro",
-    "Partiellement Livrée Appro"
-  ];
   function affichageStatutBcEnvoyerFournisseur() {
-    console.log(statutBc, statutBcAppro.includes(statutBc));
-    statutAffiche.style.display = "block";
-    if (statutBcAppro.includes(statutBc)) {
-      statutAffiche.innerHTML = `<button id="confirmerStatutBtn" class="btn btn-primary">
-        correction statut sur livraison OR
-      </button>`;
-      document
-        .getElementById("confirmerStatutBtn")
-        .addEventListener("click", async function () {
-          const result = await Swal.fire({
-            title: "Confirmer la correction statut sur livraison OR",
-            text: "Voulez-vous vraiment corrigé le statut sur la livraison OR ?",
-            icon: "question",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Oui, confirmer",
-            cancelButtonText: "Annuler",
-            reverseButtons: true,
-          });
-
-          if (result.isConfirmed) {
-            try {
-              // Récupérer l'ID si nécessaire (à adapter selon votre contexte)
-              const id = commandeId;
-
-              const data = await fetchManager.post(
-                "api/mettre-a-jour-statut-bc-da",
-                {
-                  id: id,
-                  estCorrectionStatutBc: true,
-                },
-              );
-
-              if (data.success) {
-                await Swal.fire("Succès!", "Correction fait", "success");
-
-                // Mettre à jour l'interface
-                this.disabled = true;
-                this.textContent = "Statut confirmé ✓";
-                this.classList.remove("btn-primary");
-                this.classList.add("btn-success");
-
-                // Optionnel: déclencher un événement personnalisé pour informer d'autres composants
-                window.dispatchEvent(new CustomEvent("statutMisAJour"));
-              } else {
-                throw new Error(
-                  data.message || "Erreur lors de la mise à jour",
-                );
-              }
-            } catch (error) {
-              console.error("Erreur:", error);
-              Swal.fire(
-                "Erreur!",
-                "Une erreur est survenue lors de la mise à jour.",
-                "error",
-              );
-            }
-          }
-        });
-    } else {
-      statutAffiche.innerHTML = `
+    statutAffiche.innerHTML = `
     <p title="cliquer pour confirmer l'envoi"
     class="text-decoration-none text-dark cursor-pointer bg-success text-white border-0 rounded px-2 py-1">
     BC envoyé au fournisseur
     </p> <hr/>`;
-    }
   }
 
   if (typeDa === DA_REAPPRO) {
