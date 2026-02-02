@@ -208,6 +208,11 @@ class DaAfficher
     private $dateEnvoiFournisseur;
 
     /**
+     * @ORM\Column(type="datetime", name="date_demande_devis", nullable=true)
+     */
+    private $dateDemandeDevis;
+
+    /**
      * @ORM\Column(type="string", length=50, name="valide_par")
      */
     private ?string $validePar = null;
@@ -1843,6 +1848,24 @@ class DaAfficher
     }
 
     /**
+     * Get the value of dateDemandeDevis
+     */
+    public function getDateDemandeDevis()
+    {
+        return $this->dateDemandeDevis;
+    }
+
+    /**
+     * Set the value of dateDemandeDevis
+     */
+    public function setDateDemandeDevis($dateDemandeDevis): self
+    {
+        $this->dateDemandeDevis = $dateDemandeDevis;
+
+        return $this;
+    }
+
+    /**
      * Copie les propriétés pertinentes d'un ancien DaAfficher vers l'objet courant.
      *
      * Cela permet de "mettre à jour" l'objet courant avec les valeurs de référence
@@ -1939,6 +1962,7 @@ class DaAfficher
             ->setServiceEmetteur($da->getServiceEmetteur()->getId())
             ->setAgenceDebiteur($da->getAgenceDebiteur()->getId())
             ->setServiceDebiteur($da->getServiceDebiteur()->getId())
+            ->setDateDemandeDevis($da->getDateDemandeDevis())
         ;
     }
 
