@@ -2,43 +2,35 @@
 
 namespace App\Service\da;
 
-use App\Entity\da\DaAfficher;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
-use App\Entity\da\DemandeApproParent;
-use App\Service\autres\VersionService;
-use App\Entity\dit\DemandeIntervention;
+use App\Model\dw\DossierInterventionAtelierModel;
 use Doctrine\ORM\EntityManagerInterface;
-use App\Entity\da\DemandeApproParentLine;
-use App\Repository\da\DaAfficherRepository;
 use App\Repository\da\DemandeApproRepository;
 use App\Repository\da\DaObservationRepository;
 use App\Repository\da\DemandeApproLRepository;
 use App\Repository\da\DemandeApproLRRepository;
 use DateTime;
-use DateTimeZone;
 
 class DaService
 {
     private EntityManagerInterface $em;
     private DemandeApproRepository $demandeApproRepository;
+    private DaObservationRepository $daObservationRepository;
     private DemandeApproLRepository $demandeApproLRepository;
     private DemandeApproLRRepository $demandeApproLRRepository;
-    private DaAfficherRepository $daAfficherRepository;
-    private DaObservationRepository $daObservationRepository;
     private FileUploaderForDAService $daFileUploader;
 
     public function __construct(EntityManagerInterface $em, FileUploaderForDAService $daFileUploader)
     {
         $this->em                       = $em;
-        $this->daAfficherRepository     = $em->getRepository(DaAfficher::class);
+        $this->daFileUploader           = $daFileUploader;
         $this->demandeApproRepository   = $em->getRepository(DemandeAppro::class);
+        $this->daObservationRepository  = $em->getRepository(DaObservation::class);
         $this->demandeApproLRepository  = $em->getRepository(DemandeApproL::class);
         $this->demandeApproLRRepository = $em->getRepository(DemandeApproLR::class);
-        $this->daObservationRepository  = $em->getRepository(DaObservation::class);
-        $this->daFileUploader           = $daFileUploader;
     }
 
     /**
@@ -115,43 +107,6 @@ class DaService
         return $resultats;
     }
 
-    /**
-     * Détecte les lignes supprimées entre deux ensembles de lignes de DA (DaAfficher).
-     *
-     * Une ligne est considérée comme supprimée si son numéro de ligne existe dans
-     * l'ancien jeu de données (`$oldDAs`) mais pas dans le nouveau (`$newDAs`).
-     *
-     * @param iterable<DaAfficher> $oldDAs Les anciennes lignes de la DA (stockées en base)
-     * @param iterable<DaAfficher> $newDAs Les nouvelles lignes de la DA (venant de l'utilisateur ou d'un formulaire)
-     *
-     * @return string[] Tableau des numéros de ligne à marquer comme supprimés
-     */
-    public function getDeletedLineNumbers(iterable $oldDAs, iterable $newDAs): array
-    {
-        if (empty($oldDAs)) return [];
-
-        $oldLineNumbers = [];
-        $newLineNumbers = [];
-
-        // Indexer les anciens numéros de ligne
-        foreach ($oldDAs as $old) {
-            $oldLineNumbers[$old->getNumeroLigne()] = true;
-        }
-
-        // Indexer les nouveaux numéros de ligne
-        foreach ($newDAs as $new) {
-            $newLineNumbers[$new->getNumeroLigne()] = true;
-        }
-
-        // Détecter les numéros présents dans l'ancien mais absents dans le nouveau
-        $deletedLineNumbers = [];
-        foreach ($oldLineNumbers as $numeroLigne => $_) {
-            if (!isset($newLineNumbers[$numeroLigne])) $deletedLineNumbers[] = $numeroLigne;
-        }
-
-        return $deletedLineNumbers;
-    }
-
     public function appliquerChangementStatut(DemandeAppro $demandeAppro, string $statut, bool $withFlush = true)
     {
         $demandeAppro->setStatutDal($statut);
@@ -172,64 +127,101 @@ class DaService
         if ($withFlush) $this->em->flush();
     }
 
-    /**
-     * Ajoute les données d'une DA
-     * dans la table `DaAfficher`, une ligne par DAL.
-     *
-     * ⚠️ IMPORTANT : Avant d'appeler cette fonction, il est impératif d'exécuter :
-     *     $this->em->flush();
-     * Sans cela, les données risquent de ne pas être cohérentes ou correctement persistées.
-     *
-     * @param DemandeAppro             $demandeAppro  Objet de la demande d'achat à traiter
-     * @param bool                     $firstCreation indique si c'est la première création de la DA
-     * @param DemandeIntervention|null $dit           Optionnellement, la demande d'intervention associée
-     */
-    public function generateDaAfficherOnCreationDa(DemandeAppro $demandeAppro, bool $firstCreation, ?DemandeIntervention $dit = null): void
+    /** Récupère une demande appro par son id */
+    public function getDemandeAppro(int $id): ?DemandeAppro
     {
-        // Récupère le dernier numéro de version existant pour cette demande d'achat
-        $numeroVersionMax = $firstCreation ? 0 : $this->daAfficherRepository->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
-        $numeroVersion = VersionService::autoIncrement($numeroVersionMax);
-
-        // Parcours chaque ligne DAL de la demande d'achat
-        /** @var DemandeApproL $dal */
-        foreach ($demandeAppro->getDAL() as $dal) {
-            $daAfficher = new DaAfficher();
-            if ($dit) $daAfficher->setDit($dit);
-            $daAfficher->duplicateDa($demandeAppro);
-            $daAfficher->duplicateDal($dal);
-            $daAfficher->setNumeroVersion($numeroVersion);
-
-            $this->em->persist($daAfficher);
-        }
-        $this->em->flush();
+        return $this->demandeApproRepository->find($id);
     }
 
-    /**
-     * Ajoute les données d'une DA Parent dans la table `DaAfficher`, une ligne par DAL.
-     *
-     * ⚠️ IMPORTANT : Avant d'appeler cette fonction, il est impératif d'exécuter :
-     *     $this->getEntityManager()->flush();
-     * Sans cela, les données risquent de ne pas être cohérentes ou correctement persistées.
-     *
-     * @param DemandeApproParent $demandeApproParent  Objet de la demande d'achat à traiter
-     * @param bool               $firstCreation      indique si c'est la première création de la DA
-     */
-    public function generateDaAfficherOnCreationDaParent(DemandeApproParent $demandeApproParent, bool $firstCreation): void
+    /** Récupère tous les observations d'une DA */
+    public function getObservations(string $numDa): array
     {
-        // Récupère le dernier numéro de version existant pour cette demande d'achat
-        $numeroVersionMax = $firstCreation ? 0 : $this->daAfficherRepository->getNumeroVersionMax($demandeApproParent->getNumeroDemandeAppro());
-        $numeroVersion = VersionService::autoIncrement($numeroVersionMax);
+        return $this->daObservationRepository->findBy(['numDa' => $numDa], ['dateCreation' => 'ASC']);
+    }
 
-        // Parcours chaque ligne DAL de la demande d'achat
-        /** @var DemandeApproParentLine $dal */
-        foreach ($demandeApproParent->getDemandeApproParentLines() as $demandeApproParentLine) {
-            $daAfficher = new DaAfficher();
-            $daAfficher->duplicateDaParent($demandeApproParent);
-            $daAfficher->duplicateDaParentLine($demandeApproParentLine);
-            $daAfficher->setNumeroVersion($numeroVersion);
-
-            $this->em->persist($daAfficher);
+    /** 
+     * Obtenir l'url du bon d'achat
+     */
+    public function getBaIntranetPath(DemandeAppro $demandeAppro): array
+    {
+        $item = [];
+        $numDa = $demandeAppro->getNumeroDemandeAppro();
+        $filePath = $_ENV['BASE_PATH_FICHIER_COURT'] . "/da/$numDa/$numDa.pdf";
+        if (file_exists($filePath)) {
+            $item = [
+                'filename' => pathinfo($filePath, PATHINFO_FILENAME),
+                'path'     => $filePath,
+            ];
         }
-        $this->em->flush();
+        return $item;
+    }
+
+    /** 
+     * Obtenir l'url des devis et pièces jointes émis dans les lignes de la DA
+     */
+    public function getDevisPjPathDaLine(DemandeAppro $demandeAppro): array
+    {
+        $items = [];
+
+        $numDa = $demandeAppro->getNumeroDemandeAppro();
+
+        $pjDals = $this->demandeApproLRepository->findAttachmentsByNumeroDA($numDa);
+        $pjDalrs = $this->demandeApproLRRepository->findAttachmentsByNumeroDA($numDa);
+
+        /** 
+         * Fusionner les résultats des deux tables
+         * @var array<int, array{numeroDemandeAppro: string, fileNames: array}>
+         **/
+        $allRows = array_merge($pjDals, $pjDalrs);
+
+        foreach ($allRows as $row) {
+            $files = $row['fileNames'];
+            foreach ($files as $fileName) {
+                $items[] = [
+                    'nomPj' => $fileName,
+                    'path'  => "{$_ENV['BASE_PATH_FICHIER_COURT']}/da/$numDa/$fileName",
+                ];
+            }
+        }
+        return $items;
+    }
+
+    /** 
+     * Obtenir l'url des devis et pièces jointes émis dans l'observation
+     */
+    public function getDevisPjPathObservation(DemandeAppro $demandeAppro): array
+    {
+        $items = [];
+        $numDa = $demandeAppro->getNumeroDemandeAppro();
+        $pjs = $this->daObservationRepository->findAttachmentsByNumeroDA($numDa);
+
+        foreach ($pjs as $row) {
+            $files = $row['fileNames'];
+            foreach ($files as $fileName) {
+                $items[] = [
+                    'nomPj' => $fileName,
+                    'path'  => "{$_ENV['BASE_PATH_FICHIER_COURT']}/da/$numDa/$fileName",
+                ];
+            }
+        }
+        return $items;
+    }
+
+    /** 
+     * Obtenir l'url de la dernière ordre de réparation validé liée à la DA
+     */
+    public function getOrPath(DemandeAppro $demandeAppro)
+    {
+        $result = [];
+        $dataOR = (new DossierInterventionAtelierModel)->findCheminOrDernierValide($demandeAppro->getNumeroDemandeDit(), $demandeAppro->getNumeroDemandeAppro());
+
+        if ($dataOR) {
+            $result = [
+                'numeroOr' => $dataOR['numero'],
+                'path'     => $_ENV['BASE_PATH_FICHIER_COURT'] . '/' . $dataOR['chemin']
+            ];
+        }
+
+        return $result;
     }
 }

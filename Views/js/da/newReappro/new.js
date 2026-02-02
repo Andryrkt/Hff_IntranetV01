@@ -4,8 +4,8 @@ import { handleAgenceChange } from "../../dit/fonctionUtils/fonctionListDit.js";
 
 document.addEventListener("DOMContentLoaded", function () {
   initCentraleCodeDesiInputs(
-    "demande_appro_reappro_form_codeCentrale",
-    "demande_appro_reappro_form_desiCentrale"
+    "demande_appro_reappro_mensuel_form_codeCentrale",
+    "demande_appro_reappro_mensuel_form_desiCentrale"
   );
   const myForm = document.getElementById("myForm");
   const actionsConfig = {
@@ -87,5 +87,5 @@ document.addEventListener("DOMContentLoaded", function () {
 
 // Attachement des événements pour les agences
 document
-  .getElementById("demande_appro_reappro_form_debiteur_agence")
+  .getElementById("demande_appro_reappro_mensuel_form_debiteur_agence")
   .addEventListener("change", () => handleAgenceChange("debiteur"));

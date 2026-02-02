@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\Matcher\UrlMatcher;
-use Symfony\Component\HttpKernel\Controller\ControllerResolver;
+use Symfony\Component\HttpKernel\Controller\ContainerControllerResolver;
 use Symfony\Component\HttpKernel\Controller\ArgumentResolver;
 use Symfony\Component\Routing\Loader\AnnotationDirectoryLoader;
 use App\Loader\CustomAnnotationClassLoader;
@@ -267,10 +267,6 @@ $container->set('router', $urlGenerator);
 // Configurer le matcher d'URL
 $matcher = new UrlMatcher($collection, $context);
 
-// Configurer les resolvers
-$controllerResolver = new ControllerResolver();
-$argumentResolver = new ArgumentResolver();
-
 // Configurer Twig avec les extensions
 $twig->addExtension(new DebugExtension());
 $twig->addExtension(new TranslationExtension($container->get('translator')));
@@ -298,8 +294,11 @@ $twig->addRuntimeLoader(new FactoryRuntimeLoader([
 // Configurer la pagination
 Paginator::useBootstrap();
 
-// Le contrôleur principal utilise maintenant l'injection de dépendances
-// Plus besoin de configuration statique
+// ========================================
+// 🔥 CONTROLLERS / RESOLVERS
+// ========================================
+$controllerResolver = new ContainerControllerResolver($container);
+$argumentResolver = new ArgumentResolver();
 
 // Stocker le conteneur dans une variable globale pour y accéder
 global $container;
