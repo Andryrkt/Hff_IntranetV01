@@ -22,6 +22,7 @@ services:
     - '@App\Service\navigation\MenuService'
     public: true
 
+  # Historique d'opération
   App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService:
     arguments:
     - "@doctrine.orm.default_entity_manager"
@@ -37,6 +38,7 @@ services:
     - '@doctrine.orm.default_entity_manager'
     public: true
 
+  # Upload de fichier
   App\Service\fichier\UploderFileService:
     arguments:
       $cheminDeBase: "%env(BASE_PATH_FICHIER)%/magasin/devis/"
@@ -45,8 +47,32 @@ services:
   App\Service\da\FileUploaderForDAService:
     public: true
 
+  # Service DA
   App\Service\da\DaService:
     arguments:
       $em: "@doctrine.orm.default_entity_manager"
       $daFileUploader: '@App\Service\da\FileUploaderForDAService'
+    public: true
+
+  App\Service\da\DaAfficherService:
+    arguments:
+      $em: "@doctrine.orm.default_entity_manager"
+    public: true
+
+  App\Service\da\DwDataService:
+    arguments:
+      $em: "@doctrine.orm.default_entity_manager"
+    public: true
+
+  App\Service\da\DocRattacheService:
+    arguments:
+      $daService: '@App\Service\da\DaService'
+      $dwDataService: '@App\Service\da\DwDataService'
+    public: true
+
+  # Controleur
+  App\Controller\da\Detail\DaDetailReapproController:
+    arguments:
+      $daService: '@App\Service\da\DaService'
+      $docRattacheService: '@App\Service\da\DocRattacheService'
     public: true
