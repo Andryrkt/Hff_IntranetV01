@@ -24,6 +24,7 @@
 				<button class="nav-link active" id="nav-detail-tab" data-bs-toggle="tab" data-bs-target="#nav-detail" type="button" role="tab" aria-controls="nav-detail" aria-selected="true">Détail</button>
 				<button class="nav-link" id="nav-observation-tab" data-bs-toggle="tab" data-bs-target="#nav-observation" type="button" role="tab" aria-controls="nav-observation" aria-selected="false">Observation</button>
 				<button class="nav-link" id="nav-document-rattache-tab" data-bs-toggle="tab" data-bs-target="#nav-document-rattache" type="button" role="tab" aria-controls="nav-document-rattache" aria-selected="false">Documents rattachés</button>
+				<button class="nav-link {{ timelineAccess ? '' : 'd-none'}}" id="nav-timeline-tab" data-bs-toggle="tab" data-bs-target="#nav-timeline" type="button" role="tab" aria-controls="nav-timeline" aria-selected="false">Timeline</button>
 			</div>
 		</nav>
 		<div class="card border-top-left-radius-0">
@@ -38,6 +39,9 @@
 						</div>
 						<div class="tab-pane fade" id="nav-document-rattache" role="tabpanel" aria-labelledby="nav-document-rattache-tab">
 							{{ include('da/shared/detail/document-rattache.html.twig') }}
+						</div>
+						<div class="tab-pane fade {{ timelineAccess ? '' : 'd-none'}}" id="nav-timeline" role="tabpanel" aria-labelledby="nav-timeline-tab">
+							{{ include('da/shared/detail/timeline.html.twig') }}
 						</div>
 					</div>
 				</div>

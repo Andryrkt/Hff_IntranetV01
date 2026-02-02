@@ -60,6 +60,7 @@ class DaDetailReapproController extends Controller
 			'codeCentrale'      => $this->estAdmin() || in_array($demandeAppro->getAgenceEmetteur()->getCodeAgence(), ['90', '91', '92']),
 			'observations'      => $observations,
 			'fichiers'          => $fichiers,
+			'timelineAccess'    => $this->estAdmin(),
 			'connectedUser'     => $this->getUser(),
 		]);
 	}

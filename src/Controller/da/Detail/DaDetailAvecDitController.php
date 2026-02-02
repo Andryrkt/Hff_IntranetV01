@@ -86,6 +86,7 @@ class DaDetailAvecDitController extends Controller
 			'statutAutoriserModifAte' 	=> $demandeAppro->getStatutDal() === DemandeAppro::STATUT_AUTORISER_EMETTEUR,
 			'estAte'            		=> $this->estUserDansServiceAtelier(),
 			'estAppro'          		=> $this->estUserDansServiceAppro(),
+			'timelineAccess'    		=> $this->estAdmin(),
 		]);
 	}
 
