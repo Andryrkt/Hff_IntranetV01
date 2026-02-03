@@ -1,6 +1,6 @@
 .timeline-item {
   position: relative;
-  margin-bottom: 20px;
+  height: 100px;
 }
 
 /* Petit segment entre les points */
@@ -39,7 +39,7 @@
 }
 
 .timeline-content {
-  padding-left: 50px;
+  padding-left: 2.5rem;
 }
 
 .timeline-date {
