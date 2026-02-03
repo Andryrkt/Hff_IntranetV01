@@ -1,45 +1,63 @@
 <div class="row mb-3">
-	<h3 class="perso-titre">
-		Timeline de la DA
-	</h3>
+	<h3 class="perso-titre">Timeline de la DA</h3>
 </div>
+
 <div class="row mb-2">
-	<div class="timeline">
-		{% for event in events %}
-			<div class="timeline-item">
-				<div class="timeline-dot
-										                {% if loop.last %}
-										                    dot-current
-										                {% elseif event.statut == 'Bon d\'achat validé' %}
-										                    dot-success
-										                {% else %}
-										                    dot-pending
-										                {% endif %}
-										            "></div>
+	<div class="ps-4">
 
-				<div class="timeline-content">
-					<div class="timeline-date">
-						{{ event.dateCreation|date('d/m/Y') }}
-					</div>
-
-					<div class="timeline-status">
-						{{ event.statut }}
-					</div>
-
-					<div class="timeline-duration">
-						{% if not loop.last %}
-							{{ events[loop.index].dateCreation|date('d/m/Y') }}
-							-
-							{{ event.dateCreation.diff(events[loop.index].dateCreation).days }}
-							j
-						{% else %}
-							&lt;date du jour&gt; -
-							{{ event.dateCreation.diff("now"|date).days }}
-							j
-						{% endif %}
-					</div>
-				</div>
+		<div class="timeline-item">
+			<div class="timeline-dot dot-pending"></div>
+			<div class="timeline-content">
+				<div class="timeline-date">01/01/2025</div>
+				<div class="timeline-status">Demande d’achat</div>
+				<div class="timeline-duration">06/01/2025 - 5 j</div>
 			</div>
-		{% endfor %}
+		</div>
+
+		<div class="timeline-item">
+			<div class="timeline-dot dot-pending"></div>
+			<div class="timeline-content">
+				<div class="timeline-date">06/01/2025</div>
+				<div class="timeline-status">En cours de proposition</div>
+				<div class="timeline-duration">06/01/2025 - 1 j</div>
+			</div>
+		</div>
+
+		<div class="timeline-item">
+			<div class="timeline-dot dot-success"></div>
+			<div class="timeline-content">
+				<div class="timeline-date">06/01/2025</div>
+				<div class="timeline-status">Bon d’achat validé</div>
+				<div class="timeline-duration">08/01/2025 - 2 j</div>
+			</div>
+		</div>
+
+		<div class="timeline-item">
+			<div class="timeline-dot dot-pending"></div>
+			<div class="timeline-content">
+				<div class="timeline-date">08/01/2025</div>
+				<div class="timeline-status">Commande envoyée au fournisseur</div>
+				<div class="timeline-duration">15/01/2025 - 7 j</div>
+			</div>
+		</div>
+
+		<div class="timeline-item">
+			<div class="timeline-dot dot-pending"></div>
+			<div class="timeline-content">
+				<div class="timeline-date">15/01/2025</div>
+				<div class="timeline-status">Livraison partielle</div>
+				<div class="timeline-duration">20/01/2025 - 5 j</div>
+			</div>
+		</div>
+
+		<div class="timeline-item">
+			<div class="timeline-dot dot-current"></div>
+			<div class="timeline-content">
+				<div class="timeline-date">20/01/2025</div>
+				<div class="timeline-status">En attente de livraison finale</div>
+				<div class="timeline-duration">&lt;date du jour&gt; - 12 j</div>
+			</div>
+		</div>
+
 	</div>
 </div>

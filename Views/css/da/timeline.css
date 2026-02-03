@@ -1,50 +1,56 @@
-.timeline {
-  position: relative;
-  margin: 20px 0;
-  padding-left: 40px;
-  border-left: 3px solid #2c3e50;
-}
-
 .timeline-item {
   position: relative;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
+}
+
+/* Petit segment entre les points */
+.timeline-item::before {
+  content: "";
+  position: absolute;
+  left: 8px;
+  top: 20px;
+  width: 4px;
+  height: 100%;
+  background: #d0d7de;
+}
+
+/* On enlève le segment du dernier */
+.timeline-item:last-child::before {
+  display: none;
 }
 
 .timeline-dot {
   position: absolute;
-  left: -11px;
-  top: 5px;
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
-  border: 3px solid white;
+  z-index: 2;
 }
 
-/* Couleurs des statuts */
+/* Couleurs */
 .dot-success {
   background-color: #4caf50;
 }
-
 .dot-pending {
   background-color: #3498db;
 }
-
 .dot-current {
   background-color: #f1c40f;
 }
 
 .timeline-content {
-  padding-left: 10px;
+  padding-left: 50px;
 }
 
 .timeline-date {
   font-weight: bold;
-  color: #555;
+  color: #444;
+  font-size: 14px;
 }
 
 .timeline-status {
   font-size: 16px;
-  margin: 2px 0;
+  margin: 3px 0;
 }
 
 .timeline-duration {
