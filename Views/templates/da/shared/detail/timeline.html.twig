@@ -4,65 +4,17 @@
 
 <div class="row mb-2">
 	<div class="ps-4">
-		<div class="timeline-item">
-			<div class="timeline-dot dot-pending"></div>
-			<div class="timeline-content">
-				<div class="d-flex flex-row align-items-center gap-4">
-					<div class="timeline-date">01/01/2025</div>
-					<div class="timeline-status">Demande d’achat</div>
+		{% for item in timelineData %}
+			<div class="timeline-item">
+				<div class="timeline-dot {{ item.dotClass }}"></div>
+				<div class="timeline-content">
+					<div class="d-flex flex-row align-items-center gap-4">
+						<div class="timeline-date">{{ item.date }}</div>
+						<div class="timeline-status">{{ item.statut }}</div>
+					</div>
+					<div class="timeline-duration mt-4">{{ item.nbrJours }}</div>
 				</div>
-				<div class="timeline-duration mt-4">5 j</div>
 			</div>
-		</div>
-		<div class="timeline-item">
-			<div class="timeline-dot dot-pending"></div>
-			<div class="timeline-content">
-				<div class="d-flex flex-row align-items-center gap-4">
-					<div class="timeline-date">01/01/2025</div>
-					<div class="timeline-status">Demande d’achat</div>
-				</div>
-				<div class="timeline-duration mt-4">5 j</div>
-			</div>
-		</div>
-		<div class="timeline-item">
-			<div class="timeline-dot dot-pending"></div>
-			<div class="timeline-content">
-				<div class="d-flex flex-row align-items-center gap-4">
-					<div class="timeline-date">01/01/2025</div>
-					<div class="timeline-status">Demande d’achat</div>
-				</div>
-				<div class="timeline-duration mt-4">5 j</div>
-			</div>
-		</div>
-		<div class="timeline-item">
-			<div class="timeline-dot dot-pending"></div>
-			<div class="timeline-content">
-				<div class="d-flex flex-row align-items-center gap-4">
-					<div class="timeline-date">01/01/2025</div>
-					<div class="timeline-status">Demande d’achat</div>
-				</div>
-				<div class="timeline-duration mt-4">5 j</div>
-			</div>
-		</div>
-		<div class="timeline-item">
-			<div class="timeline-dot dot-pending"></div>
-			<div class="timeline-content">
-				<div class="d-flex flex-row align-items-center gap-4">
-					<div class="timeline-date">01/01/2025</div>
-					<div class="timeline-status">Demande d’achat</div>
-				</div>
-				<div class="timeline-duration mt-4">5 j</div>
-			</div>
-		</div>
-		<div class="timeline-item">
-			<div class="timeline-dot dot-pending"></div>
-			<div class="timeline-content">
-				<div class="d-flex flex-row align-items-center gap-4">
-					<div class="timeline-date">01/01/2025</div>
-					<div class="timeline-status">Demande d’achat</div>
-				</div>
-				<div class="timeline-duration mt-4">5 j</div>
-			</div>
-		</div>
+		{% endfor %}
 	</div>
 </div>
