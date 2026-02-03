@@ -83,93 +83,19 @@ class PlanningMagasinSearchType extends AbstractType
 
         // $section = $this->planningMagasinModel->recuperationSection();
         $builder
-
+            ->add('numeroDevis', TextType::class, [
+                'label' => 'N° Devis',
+                'required' => false,
+            ])
             ->add('commercial', TextType::class, [
                 'label' =>  'Commercial',
                 'required' => false,
             ])
-            // ->add('agence', ChoiceType::class, [
-            //     'label' =>  'Agence Travaux',
-            //     'required' => false,
-            //     'choices' => $agence,
-            //     'placeholder' => ' -- Choisir une agence --',
-            //     /*'choice_label' => function($choice,$key,$values){
-            //           return $values;  
-            //         },*/
-
-
-            // ])
-            // ->add('niveauUrgence', EntityType::class, [
-            //     'label' => 'Niveau d\'urgence',
-            //     'class' => WorNiveauUrgence::class,
-            //     'choice_label' => 'description',
-            //     'placeholder' => '-- Choisir un niveau--',
-            //     'required' => false,
-            //     'query_builder' => function (EntityRepository $er) {
-            //         return $er->createQueryBuilder('n')
-            //             ->orderBy('n.description', 'DESC');
-            //     },
-            //     'attr' => [
-            //         'class' => 'niveauUrgence'
-            //     ]
-            // ])
-
-            // ->add('annee', ChoiceType::class,[
-            //     'label' =>'Année',
-            //     'required' =>true,
-            //     'choices' => $annee,
-            //     'placeholder' => " -- Choisir l'année --",
-            //     'data' => date('Y')
-            // ])
-            // ->add('interneExterne', ChoiceType::class, [
-            //     'label' => 'Interne / Externe',
-            //     'required' => true,
-            //     'choices' => self::INTERNE_EXTERNE,
-            //     'attr' => ['class' => 'interneExterne'],
-
-            // ])
-
-            // ->add('typeligne', ChoiceType::class, [
-            //     'label' => 'Type de ligne',
-            //     'required' => False,
-            //     'choices' => self::TYPELIGNE,
-            //     'attr' => ['class' => 'typeligne'],
-            //     'data' => 'TOUTES',
-            //     'placeholder' => False
-            // ])
-
-            // ->add('facture', ChoiceType::class,[
-            //     'label' => 'Facturation',
-            //     'required' => true,
-            //     'choices' => self::FACTURE,
-            //     'attr' => ['class'=> 'facture'],
-            //     'data' => 'ENCOURS'
-            // ])
-            // ->add('plan',ChoiceType::class,[
-            //     'label' => 'Planification',
-            //     'required' => true,
-            //     'choices' => self::PLANIFIER,
-            //     'attr' => ['class'=> 'plan'],
-            //     'data' => 'PLANIFIE'
-            //                 ])
-            // ->add('dateDebut', DateType::class, [
-            //     'widget' => 'single_text',
-            //     'label' => $options['planningDetaille'] ? 'Date Début Planning' : 'Date Début',
-            //     'required' => false,
-            // ])
-            // ->add('dateFin', DateType::class, [
-            //     'widget' => 'single_text',
-            //     'label' => $options['planningDetaille'] ? 'Date Fin Planning' : 'Date Fin',
-            //     'required' => false,
-            // ])
             ->add('numOr', TextType::class, [
                 'label' => "N° Commande",
                 'required' => false
             ])
-            // ->add('numSerie', TextType::class, [
-            //     'label' => "N° Série",
-            //     'required' => false
-            // ])
+
             ->add('refcde', TextType::class, [
                 'label' => "PO Client",
                 'required' => false
@@ -178,10 +104,7 @@ class PlanningMagasinSearchType extends AbstractType
                 'label' => "Client ",
                 'required' => false
             ])
-            // ->add('casier', TextType::class, [
-            //     'label' => "Casier",
-            //     'required' => false
-            // ])
+
             ->add('agenceDebite', ChoiceType::class, [
                 'label' => 'Agence',
                 'required' => false,
@@ -190,14 +113,6 @@ class PlanningMagasinSearchType extends AbstractType
                 'data' => $codeAgence,
                 'disabled' => $codeAgence === "-0" ? false : true
             ])
-            //     ->add('section',ChoiceType::class,[
-            //         'label' => 'Section',
-            //         'required' => false,
-            //         'choices' => $section,
-            //         'placeholder' => "-- Choisir une section --"
-            //     ]
-
-            // )
             ->add(
                 'orBackOrder',
                 CheckboxType::class,
@@ -214,34 +129,6 @@ class PlanningMagasinSearchType extends AbstractType
                 'expanded' => true,
                 'data' => array_values($this->serviceDebiteur($codeAgence))
             ])
-            // ->add(
-            //     'typeDocument',
-            //     EntityType::class,
-            //     [
-            //         'label' => 'Type de document ',
-            //         'placeholder' => '-- Choisir--',
-            //         'class' => WorTypeDocument::class,
-            //         'choice_label' => 'description',
-            //         'required' => false,
-            //         'query_builder' => function (WorTypeDocumentRepository $repository) {
-            //             return $repository->createQueryBuilder('w')
-            //                 ->where('w.id >= :id')
-            //                 ->setParameter('id', 5)
-            //                 ->orderBy('w.description', 'ASC');
-            //         }
-            //     ]
-            // )
-            // ->add(
-            //     'reparationRealise',
-            //     ChoiceType::class,
-            //     [
-            //         'label' => "Réparation réalisé par *",
-            //         'choices' => self::REPARATION_REALISE,
-            //         'placeholder' => '-- Choisir le répartion réalisé --',
-            //         'required' => false,
-
-            //     ]
-            // )
             ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) use ($codeAgence) {
                 $form = $event->getForm();
                 $data = $event->getData();

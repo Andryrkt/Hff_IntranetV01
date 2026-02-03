@@ -64,4 +64,14 @@ trait planningMagasinModelTrait
         }
         return $condRefclient;
     }
+
+    private function numeroDevis($criteria)
+    {
+        if (!empty($criteria->getNumeroDevis())) {
+            $condNumeroDevis = "AND nent_numcde = '" . $criteria->getNumeroDevis() . "'  ";
+        } else {
+            $condNumeroDevis = "";
+        }
+        return $condNumeroDevis;
+    }
 }
