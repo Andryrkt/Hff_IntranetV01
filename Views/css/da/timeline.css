@@ -7,9 +7,9 @@
 .timeline-item::before {
   content: "";
   position: absolute;
-  left: 8px;
+  left: 9px;
   top: 20px;
-  width: 4px;
+  width: 2px;
   height: 100%;
   background: #d0d7de;
 }
@@ -27,33 +27,16 @@
   z-index: 2;
 }
 
-/* Couleurs */
-.dot-success {
-  background-color: #4caf50;
-}
-.dot-pending {
-  background-color: #3498db;
-}
-.dot-current {
-  background-color: #f1c40f;
-}
-
 .timeline-content {
   padding-left: 2.5rem;
 }
 
 .timeline-date {
-  font-weight: bold;
-  color: #444;
-  font-size: 14px;
+  font-size: 0.85rem;
 }
 
-.timeline-status {
-  font-size: 16px;
-  margin: 3px 0;
-}
-
+.timeline-status,
 .timeline-duration {
-  font-size: 13px;
-  color: #777;
+  font-size: 0.85rem;
+  font-weight: bold;
 }
