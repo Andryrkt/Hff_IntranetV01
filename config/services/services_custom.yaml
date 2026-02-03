@@ -77,3 +77,13 @@ services:
       $docRattacheService: '@App\Service\da\DocRattacheService'
       $daTimelineService: '@App\Service\da\DaTimelineService'
     public: true
+
+  App\Controller\da\Detail\DaDetailAvecDitController:
+    arguments:
+      $daTimelineService: '@App\Service\da\DaTimelineService'
+    public: true
+
+  App\Controller\da\Detail\DaDetailDirectController:
+    arguments:
+      $daTimelineService: '@App\Service\da\DaTimelineService'
+    public: true

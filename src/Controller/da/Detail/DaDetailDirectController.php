@@ -14,6 +14,7 @@ use App\Controller\Traits\da\DaAfficherTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\da\detail\DaDetailDirectTrait;
+use App\Service\da\DaTimelineService;
 
 /**
  * @Route("/demande-appro")
@@ -24,12 +25,14 @@ class DaDetailDirectController extends Controller
 	use DaAfficherTrait;
 	use DaDetailDirectTrait;
 	use AutorisationTrait;
+	private DaTimelineService $daTimelineService;
 
-	public function __construct()
+	public function __construct(DaTimelineService $daTimelineService)
 	{
 		parent::__construct();
 
 		$this->initDaDetailDirectTrait();
+		$this->daTimelineService = $daTimelineService;
 	}
 
 	/**
@@ -68,6 +71,7 @@ class DaDetailDirectController extends Controller
 			'devPjPathDal' => $this->getDevisPjPathDal($demandeAppro),
 			'devPjPathObs' => $this->getDevisPjPathObservation($demandeAppro),
 		]);
+		$timeLineData = $this->estAdmin() ? $this->daTimelineService->getTimelineData($demandeAppro->getNumeroDemandeAppro()) : [];
 
 		return $this->render('da/detail.html.twig', [
 			'detailTemplate'      		=> 'detail-direct',
@@ -81,6 +85,7 @@ class DaDetailDirectController extends Controller
 			'estCreateurDaDirecte'      => $this->estCreateurDeDADirecte(),
 			'estAppro'          		=> $this->estUserDansServiceAppro(),
 			'timelineAccess'    		=> $this->estAdmin(),
+			'timelineData'      		=> $timeLineData,
 		]);
 	}
 

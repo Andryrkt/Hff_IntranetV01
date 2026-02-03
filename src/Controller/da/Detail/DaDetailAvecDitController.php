@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\da\detail\DaDetailAvecDitTrait;
 use App\Model\dit\DitModel;
+use App\Service\da\DaTimelineService;
 
 /**
  * @Route("/demande-appro")
@@ -25,12 +26,14 @@ class DaDetailAvecDitController extends Controller
 	use DaAfficherTrait;
 	use DaDetailAvecDitTrait;
 	use AutorisationTrait;
+	private DaTimelineService $daTimelineService;
 
-	public function __construct()
+	public function __construct(DaTimelineService $daTimelineService)
 	{
 		parent::__construct();
 
 		$this->initDaDetailAvecDitTrait();
+		$this->daTimelineService = $daTimelineService;
 	}
 
 	/**
@@ -71,6 +74,7 @@ class DaDetailAvecDitController extends Controller
 		]);
 
 		$demandeApproLPrepared = $this->prepareDataForDisplayDetail($demandeAppro->getDAL(), $demandeAppro->getStatutDal());
+		$timeLineData = $this->estAdmin() ? $this->daTimelineService->getTimelineData($demandeAppro->getNumeroDemandeAppro()) : [];
 
 		return $this->render('da/detail.html.twig', [
 			'detailTemplate'      		=> 'detail-avec-dit',
@@ -87,6 +91,7 @@ class DaDetailAvecDitController extends Controller
 			'estAte'            		=> $this->estUserDansServiceAtelier(),
 			'estAppro'          		=> $this->estUserDansServiceAppro(),
 			'timelineAccess'    		=> $this->estAdmin(),
+			'timelineData'      		=> $timeLineData,
 		]);
 	}
 
