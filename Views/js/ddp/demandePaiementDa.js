@@ -63,14 +63,42 @@ document.addEventListener("DOMContentLoaded", function () {
   const poucentageAvance = document.querySelector(
     "#demande_paiement_da_pourcentageAvance",
   );
+  let lastValidPourcentageAPayer = 0; // Pour stocker la dernière valeur valide
+
   const poucentageAPayer = document.querySelector(
     "#demande_paiement_da_pourcentageAPayer",
   );
 
   poucentageAPayer.addEventListener("input", changeMontant);
 
+  function validatePourcentage(value) {
+    // Permettre à l'utilisateur d'effacer complètement le champ
+    if (value.trim() === "") {
+      return true;
+    }
+
+    // Remplacer la virgule par un point pour une validation correcte avec les décimaux
+    const valueWithDot = value.replace(",", ".");
+    const numValue = parseFloat(valueWithDot);
+
+    if (isNaN(numValue) || numValue < 0 || numValue > 100) {
+      return false;
+    }
+    return true;
+  }
+
   function changeMontant(e) {
-    let poucentageAPayerValue = e.target.value;
+    let currentInput = e.target;
+    let poucentageAPayerValue = currentInput.value;
+
+    if (!validatePourcentage(poucentageAPayerValue)) {
+      alert("Veuillez entrer un pourcentage valide entre 0 et 100.");
+      currentInput.value = lastValidPourcentageAPayer; // Rétablit la dernière valeur valide
+      return; // Arrête l'exécution si la validation échoue
+    }
+    
+    lastValidPourcentageAPayer = poucentageAPayerValue; // Met à jour la dernière valeur valide
+
     let montantAPayerValue = stringEnNumber(montantAPayer.value, " ");
     let montantTotalCdeValue = stringEnNumber(montantTotalCde.value, ".");
     let montantDejaPayerValue = stringEnNumber(montantDejaPayer.value, ".");

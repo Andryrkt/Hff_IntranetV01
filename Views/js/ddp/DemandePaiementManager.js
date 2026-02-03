@@ -118,7 +118,9 @@ export class DemandePaiementManager {
   initFileUploads() {
     initializeFileHandlersNouveau("1", this.elements.fileInput1);
     initializeFileHandlersNouveau("2", this.elements.fileInput2);
-    initializeFileHandlersMultiple("3", this.elements.fileInput3);
+    if (this.elements.fileInput3) {
+      initializeFileHandlersMultiple("3", this.elements.fileInput3);
+    }
     initializeFileHandlersNouveau("4", this.elements.fileInput4);
   }
 

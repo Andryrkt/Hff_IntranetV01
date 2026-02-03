@@ -72,8 +72,6 @@ trait StatutBcTrait
             DaSoumissionBc::STATUT_CESSION_A_GENERER        => 'bg-bc-cession-a-generer',
             DaSoumissionBc::STATUT_EN_COURS_DE_PREPARATION  => 'bg-bc-en-cours-de-preparation',
             //statut pour DA Reappro, DA direct, DA via OR
-            DaSoumissionBc::STATUT_TOUS_LIVRES_APPRO              => 'tout-livre-appro',
-            DaSoumissionBc::STATUT_PARTIELLEMENT_LIVRE_APPRO      => 'partiellement-livre-appro',
             DaSoumissionBc::STATUT_TOUS_LIVRES              => 'tout-livre',
             DaSoumissionBc::STATUT_PARTIELLEMENT_LIVRE      => 'partiellement-livre',
             DaSoumissionBc::STATUT_PARTIELLEMENT_DISPO      => 'partiellement-dispo',
@@ -118,7 +116,7 @@ trait StatutBcTrait
         $qte = $this->getQte($ref, $numDit, $numDa, $designation, $numeroOr, $statutBc, $daDirect, $daViaOR, $daReappro, $numCde);
 
         /** 10.  @var bool $partiellementDispo @var bool $completNonLivrer @var bool $toutLivres @var bool $partiellementLivrer @var bool $partiellementLivreAppro @var bool $tousLivresAppro*/
-        [$partiellementDispo, $completNonLivrer, $tousLivres, $partiellementLivre, $partiellementLivreAppro, $tousLivresAppro] = $this->evaluerQuantites($qte,  $infoDaDirect, $daDirect, $DaAfficher);
+        [$partiellementDispo, $completNonLivrer, $tousLivres, $partiellementLivre] = $this->evaluerQuantites($qte,  $infoDaDirect, $daDirect, $DaAfficher);
 
         // 11. modification de situation commande dans DaAfficher
         $this->updateSituationCdeDansDaAfficher($situationCde, $DaAfficher, $numCde, $infoDaDirect, $daDirect, $daViaOR, $daReappro, $qte);
@@ -149,11 +147,7 @@ trait StatutBcTrait
             return DaSoumissionBc::STATUT_EN_COURS_DE_PREPARATION;
         }
         // DA Reappro, DA Direct , DA Via OR
-        elseif ($partiellementLivreAppro) {
-            return 'Partiellement Livrée Appro';
-        } elseif ($tousLivresAppro) {
-            return 'Tout livrée Appro';
-        } elseif ($partiellementDispo) {
+        elseif ($partiellementDispo) {
             return 'Partiellement dispo';
         } elseif ($completNonLivrer) {
             return 'Complet non livré';
@@ -232,15 +226,7 @@ trait StatutBcTrait
         $qte = [];
         if ($daDirect) $qte = $this->daModel->getEvolutionQteDaDirect($numCde, $ref, $designation);
         // pour da via OR et DA reappro
-        if ($daViaOR || $daReappro) {
-            $qte = $this->daModel->getEvolutionQteDaAvecDit($numDit, $ref, $designation, $numeroOr, $statutBc, $numDa, $daReappro);
-            if (!empty($qte) && $qte[0]['qte_livree'] === 0) {
-                $qte = $this->daModel->getEvolutionQteDaDirect($numCde, $ref, $designation);
-                if (!empty($qte)) {
-                    $qte[0]['appro'] = true;
-                }
-            }
-        }
+        if ($daViaOR || $daReappro) $qte = $this->daModel->getEvolutionQteDaAvecDit($numDit, $ref, $designation, $numeroOr, $statutBc, $numDa, $daReappro);
 
         return $qte;
     }
@@ -388,13 +374,10 @@ trait StatutBcTrait
     {
 
         if (empty($qte)) {
-            return [false, false, false, false, false, false];
+            return [false, false, false, false];
         }
 
         if ($daDirect) {
-            if (empty($infoDaDirect)) {
-                return [false, false, false, false, false, false];
-            }
             $q = $infoDaDirect[0];
             $qteDem = (int)$q['qte_dem'];
             $qteALivrer = (int)$q['qte_dispo'];
@@ -407,16 +390,14 @@ trait StatutBcTrait
         }
 
 
-        $soumissionFait = ($DaAfficher->getEstFactureBlSoumis() || $DaAfficher->getEstBlReapproSoumis()) && in_array($DaAfficher->getEstCorrectionStatutBc(), [null, 0]) ;
+        $soumissionFait = ($DaAfficher->getEstFactureBlSoumis() || $DaAfficher->getEstBlReapproSoumis());
 
         $partiellementDispo = ($qteDem != $qteALivrer && $qteLivee == 0 && $qteALivrer > 0) && $soumissionFait;
         $completNonLivrer =  (($qteDem == $qteALivrer && $qteLivee < $qteDem) || ($qteALivrer > 0 && $qteDem == ($qteALivrer + $qteLivee))) && $soumissionFait;
         $tousLivres = ($qteDem == $qteLivee && $qteDem != 0) && $soumissionFait;
         $partiellementLivre =  ($qteLivee > 0 && $qteLivee != $qteDem && $qteDem > ($qteLivee + $qteALivrer)) && $soumissionFait;
-        $partiellementLivreAppro =  $qteDem !==  $qteALivrer && $soumissionFait;
-        $tousLivresAppro =   $qteDem ===  $qteALivrer && $soumissionFait;
 
-        return [$partiellementDispo, $completNonLivrer, $tousLivres, $partiellementLivre, $partiellementLivreAppro, $tousLivresAppro];
+        return [$partiellementDispo, $completNonLivrer, $tousLivres, $partiellementLivre];
     }
 
 

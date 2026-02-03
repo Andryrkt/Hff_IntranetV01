@@ -519,14 +519,12 @@ a.choix:hover {
 }
 
 /* Statuts supplémentaires */
-.tout-livre,
-.tout-livre-appro {
+.tout-livre {
   background-color: #28a745 !important;
   /* color: #1c4d20 !important; */
   color: #f1f8f2 !important;
 }
-.partiellement-livre,
-.partiellement-livre-appro {
+.partiellement-livre {
   background-color: #ffc107 !important;
   color: #6b3e00 !important;
 }
