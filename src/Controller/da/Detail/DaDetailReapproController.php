@@ -10,6 +10,7 @@ use App\Entity\admin\Application;
 use App\Service\da\EmailDaService;
 use App\Form\da\DaObservationType;
 use App\Controller\Traits\AutorisationTrait;
+use App\Service\da\DaTimelineService;
 use App\Service\da\DocRattacheService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -23,11 +24,13 @@ class DaDetailReapproController extends Controller
 
 	private DaService $daService;
 	private DocRattacheService $docRattacheService;
+	private DaTimelineService $daTimelineService;
 
-	public function __construct(DaService $daService, DocRattacheService $docRattacheService)
+	public function __construct(DaService $daService, DocRattacheService $docRattacheService, DaTimelineService $daTimelineService)
 	{
 		$this->daService = $daService;
 		$this->docRattacheService = $docRattacheService;
+		$this->daTimelineService = $daTimelineService;
 	}
 
 	/**
@@ -61,6 +64,7 @@ class DaDetailReapproController extends Controller
 			'observations'      => $observations,
 			'fichiers'          => $fichiers,
 			'timelineAccess'    => $this->estAdmin(),
+			'timelineData'      => $this->daTimelineService->getTimelineData($demandeAppro->getNumeroDemandeAppro()),
 			'connectedUser'     => $this->getUser(),
 		]);
 	}
