@@ -698,6 +698,6 @@ class DaModel extends Model
         where fcde_numcde = '$numcde'";
         $result = $this->connect->executeQuery($statement);
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
-        return new \DateTime(array_column($data, 'date_creation_cde')[0]) ?? null;
+        return !empty($data) ? new \DateTime(array_column($data, 'date_creation_cde')[0]) : null;
     }
 }
