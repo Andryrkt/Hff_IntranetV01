@@ -968,4 +968,31 @@ class DaAfficherRepository extends EntityRepository
 
         return $qb->getQuery()->getResult();
     }
+
+    public function getTimelineDataForBC(string $numDa)
+    {
+        $numeroVersionMax = $this->createQueryBuilder('d')
+            ->select('MAX(d.numeroVersion)')
+            ->where('d.numeroDemandeAppro = :numDa')
+            ->setParameter('numDa', $numDa)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        if (!$numeroVersionMax) return [];
+
+        $qb = $this->createQueryBuilder('d')
+            ->select('DISTINCT d.numeroCde', 'd.dateCreationBc', 'd.dateValidationBc', 'd.dateEnvoiFournisseur')
+            ->where('d.numeroDemandeAppro = :numDa')
+            ->andWhere('d.numeroVersion = :numeroVersionMax')
+            ->andWhere('d.numeroCde IS NOT NULL')
+            ->andWhere('d.numeroCde != :vide')
+            ->setParameters([
+                'vide' => '',
+                'numDa' => $numDa,
+                'numeroVersionMax' => $numeroVersionMax
+            ])
+            ->orderBy('d.dateCreationBc', 'ASC');
+
+        return $qb->getQuery()->getResult();
+    }
 }
