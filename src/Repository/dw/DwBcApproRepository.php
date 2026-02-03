@@ -50,4 +50,22 @@ class DwBcApproRepository extends EntityRepository
             ->getQuery()
             ->getOneOrNullResult();
     }
+
+    /**
+     * Récupération du date de validation commande
+     *
+     * @param string $numeroBc
+     * @return \DateTimeInterface|null
+     */
+    public function getDateValidationBC(string $numeroBc): ?\DateTimeInterface
+    {
+        return $this->createQueryBuilder('d')
+            ->select('d.dateValidation')
+            ->where('d.numeroBc = :numeroBc')
+            ->setParameter('numeroBc', $numeroBc)
+            ->orderBy('d.numeroVersion', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult(Query::HYDRATE_SINGLE_SCALAR);
+    }
 }

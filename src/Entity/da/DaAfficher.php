@@ -389,6 +389,21 @@ class DaAfficher
      */
     private $estBlReapproSoumis = false;
 
+    /**
+     * @ORM\Column(type="datetime", name="date_creation_bc", nullable=true)
+     */
+    private $dateCreationBc;
+
+    /**
+     * @ORM\Column(type="datetime", name="date_validation_bc", nullable=true)
+     */
+    private $dateValidationBc;
+
+    /**
+     * @ORM\Column(type="datetime", name="date_livraison_article", nullable=true)
+     */
+    private $dateLivraisonArticle;
+
     /**==============================================================================
      * GETTERS & SETTERS
      *===============================================================================*/
@@ -1861,6 +1876,60 @@ class DaAfficher
     public function setDateDemandeDevis($dateDemandeDevis): self
     {
         $this->dateDemandeDevis = $dateDemandeDevis;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateCreationBc
+     */
+    public function getDateCreationBc()
+    {
+        return $this->dateCreationBc;
+    }
+
+    /**
+     * Set the value of dateCreationBc
+     */
+    public function setDateCreationBc($dateCreationBc): self
+    {
+        $this->dateCreationBc = $dateCreationBc;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateValidationBc
+     */
+    public function getDateValidationBc()
+    {
+        return $this->dateValidationBc;
+    }
+
+    /**
+     * Set the value of dateValidationBc
+     */
+    public function setDateValidationBc($dateValidationBc): self
+    {
+        $this->dateValidationBc = $dateValidationBc;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateLivraisonArticle
+     */
+    public function getDateLivraisonArticle()
+    {
+        return $this->dateLivraisonArticle;
+    }
+
+    /**
+     * Set the value of dateLivraisonArticle
+     */
+    public function setDateLivraisonArticle($dateLivraisonArticle): self
+    {
+        $this->dateLivraisonArticle = $dateLivraisonArticle;
 
         return $this;
     }
