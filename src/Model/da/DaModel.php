@@ -684,4 +684,20 @@ class DaModel extends Model
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
         return $data ? $data[0] : [];
     }
+
+    /**
+     * Recupère la date de creation d'une commande dans IPS
+     *
+     * @param integer $numcde
+     * @return \DateTime|null
+     */
+    public function getdateCreationBc(int $numcde): ?\DateTime
+    {
+        $statement = "SELECT fcde_datec as date_creation_cde 
+        from Informix.frn_cde 
+        where fcde_numcde = '$numcde'";
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+        return new \DateTime(array_column($data, 'date_creation_cde')[0]) ?? null;
+    }
 }
