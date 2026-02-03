@@ -34,17 +34,17 @@
 					<div class="row">
 						<div class="col-12 col-md-6">
 							{{ macroForm.sousTitre('Information sur la demande') }}
-							{{ form_row(form.objetDal, { 'attr': { 'disabled': not peutModifier} })}}
+							{{ form_row(form.objetDal)}}
 							<div class="mb-3 position-relative">
-								{{ form_row(form.detailDal, { 'attr': { 'disabled': not peutModifier} }) }}
+								{{ form_row(form.detailDal) }}
 								<span id="charCount" class="position-absolute bottom-0 end-0 p-0 small text-muted"></span>
 							</div>
 							<div class="row">
 								<div class="col col-md">
-									{{ form_row(form.niveauUrgence, { 'attr': { 'disabled': not peutModifier} }) }}
+									{{ form_row(form.niveauUrgence) }}
 								</div>
 								<div class="col col-md">
-									{{ form_row(form.dateFinSouhaite, { 'attr': { 'disabled': not peutModifier} }) }}
+									{{ form_row(form.dateFinSouhaite) }}
 								</div>
 							</div>
 						</div>
@@ -94,13 +94,13 @@
 										<div id="spinner_container_{{ ligne }}_nomFournisseur" class="text-center" style="display: none;"></div>
 									</div>
 									<div class="w-15">
-										{{ form_widget(DAL.dateFinSouhaite, { 'attr': { 'disabled': not peutModifier } }) }}
+										{{ form_widget(DAL.dateFinSouhaite) }}
 									</div>
 									<div class="w-5">
-										{{ form_widget(DAL.qteDem, { 'attr': { 'disabled': not peutModifier } }) }}
+										{{ form_widget(DAL.qteDem) }}
 									</div>
 									<div class="w-19">
-										{{ form_widget(DAL.commentaire, { 'attr': { 'disabled': not peutModifier } }) }}
+										{{ form_widget(DAL.commentaire) }}
 									</div>
 									<div class="w-1">
 										<i class="fas fa-paperclip text-primary add-file-icon" data-file-input-id="demande_appro_direct_form_DAL_{{ ligne }}_fileNames" title="Ajouter une pièce jointe" style="cursor: pointer;"></i>
@@ -120,7 +120,7 @@
 										{% endif %}
 									</div>
 									<div class="w-2">
-										{{ form_widget(DAL.estFicheTechnique, { 'attr': { 'disabled': not peutModifier } }) }}
+										{{ form_widget(DAL.estFicheTechnique) }}
 									</div>
 									<div class="d-none">
 										{{ form_widget(DAL.fileNames) }}
@@ -138,11 +138,9 @@
 										{{ form_widget(DAL.numeroLigne) }}
 									</div>
 									<div class="w-2">
-										<a style="visibility:{{ not peutModifier ? 'hidden' : 'visible'}}">
-											<span class="delete-DA" prototype-id="{{ ligne }}" title="Supprimer la ligne de DA" style="cursor: pointer; ">
-												<i class="fas fa-times fs-4"></i>
-											</span>
-										</a>
+										<span class="delete-DA" prototype-id="{{ ligne }}" title="Supprimer la ligne de DA" style="cursor: pointer; ">
+											<i class="fas fa-times fs-4"></i>
+										</span>
 									</div>
 								</div>
 								<div class="mt-3 mb-3"></div>
@@ -157,12 +155,12 @@
 					{# <div class="d-flex justify-content-end"><button type="button" id="add-child" class="bouton-secondaire mt-2" {{ not peutModifier ? 'disabled' : ''}}><i class="fas fa-plus"></i>Ajouter une ligne</button></div> #}
 
 					<div class="row">
-						{{ form_row(form.observation, { 'attr': { 'disabled': not peutModifier} })}}
+						{{ form_row(form.observation)}}
 					</div>
 				</div>
 
 				<div class="d-flex justify-content-end container-fluid">
-					<button type="submit" class="bouton-principal mt-2" {{ not peutModifier ? 'disabled' : ''}}>
+					<button type="submit" class="bouton-principal mt-2">
 						<i class="fas fa-save"></i>
 						Enregistrer
 					</button>
