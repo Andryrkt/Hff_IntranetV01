@@ -57,13 +57,18 @@ class DaTimelineService
         }
 
         // Calculer les différences de jours ouvrables
-        for ($i = 1; $i < count($result); $i++) {
-            $result[$i - 1]['nbrJours'] = $this->differenceJoursOuvrables(
-                $result[$i]['date'],
-                $result[$i - 1]['date']
-            );
+        for ($i = 0; $i < count($result); $i++) {
+            if ($i < count($result) - 1) {
+                $nbrJours = $this->differenceJoursOuvrables(
+                    $result[$i + 1]['date'],
+                    $result[$i]['date']
+                );
+                $result[$i]['nbrJours'] = $nbrJours === 0 ? "< 1 jour" : $nbrJours . " jour(s)";
+            } else {
+                $result[$i]['nbrJours'] = "";
+            }
+            $result[$i]['date'] = $result[$i]['date']->format('d/m/Y');
         }
-
         return $result;
     }
 }
