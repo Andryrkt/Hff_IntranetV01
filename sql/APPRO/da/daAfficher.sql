@@ -58,17 +58,22 @@ CREATE TABLE da_afficher
 
 ALTER TABLE da_afficher DROP COLUMN id_da;
 
-ALTER TABLE da_afficher ADD bc_envoyer_fournisseur BIT NOT NULL DEFAULT 0;
-ALTER TABLE da_afficher ADD agence_emmetteur_id int;
-ALTER TABLE da_afficher ADD Service_emmetteur_id int;
-ALTER TABLE da_afficher ADD agence_debiteur_id int;
-ALTER TABLE da_afficher ADD service_debiteur_id int;
-
-ALTER TABLE da_afficher ADD demande_appro_id INT NOT NULL;
-ALTER TABLE da_afficher ADD dit_id INT DEFAULT NULL;
-
-ALTER TABLE da_afficher ADD deleted_by varchar(100);
-ALTER TABLE da_afficher ADD deleted BIT NOT NULL DEFAULT 0;
+ALTER TABLE da_afficher ADD 
+bc_envoyer_fournisseur BIT NOT NULL DEFAULT 0,
+agence_emmetteur_id int,
+Service_emmetteur_id int,
+agence_debiteur_id int,
+service_debiteur_id int,
+demande_appro_id INT NOT NULL,
+dit_id INT DEFAULT NULL,
+deleted_by varchar(100),
+deleted BIT NOT NULL DEFAULT 0
+;
+ALTER TABLE da_afficher ADD 
+date_creation_bc DATETIME2(0),
+date_validation_bc DATETIME2(0),
+date_livraison_article DATETIME2(0)
+;
 
 ALTER TABLE da_afficher
     ADD CONSTRAINT FK_da_demande_appro FOREIGN KEY (demande_appro_id) REFERENCES demande_appro (id);
@@ -116,7 +121,7 @@ SET
 da.agence_emmetteur_id = d.agence_emmetteur_id,
 da.Service_emmetteur_id = d.Service_emmetteur_id,
 da.agence_debiteur_id = d.agence_debiteur_id,
-da.service_debiteur_id = d.service_debiteur_id,
+da.service_debiteur_id = d.service_debiteur_id
 FROM da_afficher da
 JOIN Demande_Appro d ON da.numero_demande_appro = d.numero_demande_appro ;
 
