@@ -560,7 +560,7 @@ class DemandeIntervention
     private bool $estAtePolTana = false;
 
     /**
-     * @ORM\OneToMany(targetEntity="DemandeAppro::class", mappedBy="dit")
+     * @ORM\OneToMany(targetEntity=DemandeAppro::class, mappedBy="dit")
      */
     private Collection $demandeAppro;
 
