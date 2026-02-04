@@ -44,9 +44,24 @@ class DaTimelineService
 
         $this->initStyleStatuts();
 
+        $timelineDa = $this->buildTimelineDA($allDatas);
+        $timelineBc = $this->buildTimelineBC($numeroDa, end($allDatas));
+
+        if (empty($timelineBc)) {
+            $lastEntryData = end($allDatas);
+            $nbrJours = $this->formatDuration(
+                $this->differenceJoursOuvrables(
+                    $lastEntryData['dateCreation'],
+                    new \DateTime()
+                )
+            );
+            $timelineDa[array_key_last($timelineDa)]['nbrJours'] = $nbrJours;
+            $timelineDa[] = $this->createCurrentDateEntry(new \DateTime());
+        }
+
         return [
-            'DA' => $this->buildTimelineDA($allDatas),
-            'BC' => $this->buildTimelineBC($numeroDa, $allDatas[count($allDatas) - 1]),
+            'DA' => $timelineDa,
+            'BC' => $timelineBc,
         ];
     }
 
