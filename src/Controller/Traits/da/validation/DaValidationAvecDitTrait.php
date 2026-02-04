@@ -2,8 +2,6 @@
 
 namespace App\Controller\Traits\da\validation;
 
-use App\Repository\dit\DitRepository;
-use App\Entity\dit\DemandeIntervention;
 use App\Service\genererPdf\da\GenererPdfDaAvecDit;
 
 trait DaValidationAvecDitTrait
@@ -11,7 +9,6 @@ trait DaValidationAvecDitTrait
     use DaValidationTrait;
 
     //====================================================================================================
-    private DitRepository $ditRepository;
     private GenererPdfDaAvecDit $genererPdfDaAvecDit;
 
     /**
@@ -19,7 +16,6 @@ trait DaValidationAvecDitTrait
      */
     public function initDaValidationAvecDitTrait(): void
     {
-        $em = $this->getEntityManager();
         $this->initDaTrait();
         $this->genererPdfDaAvecDit = new GenererPdfDaAvecDit;
     }

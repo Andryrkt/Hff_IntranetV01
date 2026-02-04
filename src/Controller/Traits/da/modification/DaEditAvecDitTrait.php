@@ -6,8 +6,6 @@ use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
-use App\Repository\dit\DitRepository;
-use App\Entity\dit\DemandeIntervention;
 use App\Repository\da\DaObservationRepository;
 use App\Service\da\FileUploaderForDAService;
 
@@ -16,7 +14,6 @@ trait DaEditAvecDitTrait
     use DaEditTrait;
 
     //==================================================================================================
-    private DitRepository $ditRepository;
     private DaObservationRepository $daObservationRepository;
     /**
      * Initialise les valeurs par défaut du trait

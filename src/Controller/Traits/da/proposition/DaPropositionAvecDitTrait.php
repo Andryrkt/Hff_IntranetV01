@@ -3,10 +3,6 @@
 namespace App\Controller\Traits\da\proposition;
 
 use App\Model\da\DaModel;
-use App\Entity\da\DemandeAppro;
-use App\Entity\da\DaObservation;
-use App\Repository\dit\DitRepository;
-use App\Entity\dit\DemandeIntervention;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Repository\da\DaObservationRepository;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
@@ -18,7 +14,6 @@ trait DaPropositionAvecDitTrait
     //==================================================================================================
     private DaModel $daModel;
     private DaObservationRepository $daObservationRepository;
-    private DitRepository $ditRepository;
     private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
     private $fournisseurs;
 
@@ -30,7 +25,6 @@ trait DaPropositionAvecDitTrait
         $em = $this->getEntityManager();
         $this->initDaTrait();
         $this->daModel = new DaModel();
-        $this->daObservationRepository = $em->getRepository(DaObservation::class);
         $this->ditOrsSoumisAValidationRepository = $em->getRepository(DitOrsSoumisAValidation::class);
         $this->setAllFournisseurs();
     }
