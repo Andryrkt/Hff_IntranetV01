@@ -30,12 +30,9 @@ trait DaEditAvecDitTrait
     }
     //==================================================================================================
 
-    private function filtreDal($demandeAppro, $dit, int $numeroVersionMax): DemandeAppro
+    private function filtreDal($demandeAppro, int $numeroVersionMax): DemandeAppro
     {
-        $demandeAppro->setDit($dit); // association de la DA avec le DIT
-
         // filtre une collection de versions selon le numero de version max
-
         $dernieresVersions = $demandeAppro->getDAL()->filter(function ($item) use ($numeroVersionMax) {
             return $item->getNumeroVersion() == $numeroVersionMax && $item->getDeleted() == 0;
         });
