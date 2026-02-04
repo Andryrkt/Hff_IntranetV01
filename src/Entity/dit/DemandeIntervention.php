@@ -7,6 +7,7 @@ use App\Entity\admin\Agence;
 use App\Entity\admin\Secteur;
 use App\Entity\admin\Service;
 use App\Entity\admin\Societte;
+use App\Entity\da\DemandeAppro;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\StatutDemande;
 use App\Repository\dit\DitRepository;
@@ -15,9 +16,11 @@ use App\Entity\admin\dit\CategorieAteApp;
 use App\Entity\admin\dit\WorTypeDocument;
 use App\Entity\Traits\AgenceServiceTrait;
 use App\Entity\admin\dit\WorNiveauUrgence;
+use Doctrine\Common\Collections\Collection;
 use App\Entity\Traits\AgenceServiceEmetteurTrait;
 use App\Entity\Traits\BilanFinancierMaterielTrait;
 use App\Entity\Traits\CaracteristiqueMaterielTrait;
+use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -556,11 +559,21 @@ class DemandeIntervention
      */
     private bool $estAtePolTana = false;
 
+    /**
+     * @ORM\OneToMany(targetEntity="DemandeAppro::class", mappedBy="dit")
+     */
+    private Collection $demandeAppro;
+
     /** ===================================================================================================================
      * 
      * GETTER and SETTER
      * 
      *===============================================================================================================*/
+
+    public function __construct()
+    {
+        $this->demandeAppro = new ArrayCollection();
+    }
 
     public function getId()
     {
@@ -568,7 +581,7 @@ class DemandeIntervention
     }
 
 
-        public function getNumeroDemandeIntervention(): ?string
+    public function getNumeroDemandeIntervention(): ?string
     {
         return $this->numeroDemandeIntervention;
     }
@@ -1808,7 +1821,7 @@ class DemandeIntervention
 
     /**
      * Get the value of estAtePolTana
-     */ 
+     */
     public function getEstAtePolTana()
     {
         return $this->estAtePolTana;
@@ -1818,11 +1831,36 @@ class DemandeIntervention
      * Set the value of estAtePolTana
      *
      * @return  self
-     */ 
+     */
     public function setEstAtePolTana($estAtePolTana)
     {
         $this->estAtePolTana = $estAtePolTana;
 
         return $this;
+    }
+
+    /**
+     * Get the value of DemandeAppro
+     */
+    public function getDemandeAppro(): Collection
+    {
+        return $this->demandeAppro;
+    }
+
+    public function addDemandeAppro(DemandeAppro $demandeAppro): void
+    {
+        if (!$this->demandeAppro->contains($demandeAppro)) {
+            $this->demandeAppro[] = $demandeAppro;
+            $demandeAppro->setDit($this);
+        }
+    }
+
+    public function removeDemandeAppro(DemandeAppro $demandeAppro): void
+    {
+        if ($this->demandeAppro->removeElement($demandeAppro)) {
+            if ($demandeAppro->getDit() === $this) {
+                $demandeAppro->setDit(null);
+            }
+        }
     }
 }
