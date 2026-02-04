@@ -40,60 +40,163 @@ class DaTimelineService
     public function getTimelineData(string $numeroDa): array
     {
         $allDatas = $this->daAfficherRepository->getTimelineData($numeroDa);
-        if (empty($allDatas)) return [];
+        if (empty($allDatas)) return ['DA' => [], 'BC' => []];
 
-        $result = [];
         $this->initStyleStatuts();
 
-        foreach ($allDatas as $key => $data) {
-            $statutDal = $data['statutDal'];
+        return [
+            'DA' => $this->buildTimelineDA($allDatas),
+            'BC' => $this->buildTimelineBC($numeroDa, $allDatas[count($allDatas) - 1]['dateCreation']),
+        ];
+    }
 
+    private function buildTimelineDA(array $allDatas): array
+    {
+        $tabTemp = [];
+
+        foreach ($allDatas as $key => $data) {
             // Ajouter le statut initial si nécessaire
-            if ($key === 0 && $statutDal !== DemandeAppro::STATUT_SOUMIS_APPRO) {
-                $result[] = [
-                    'statut'   => DemandeAppro::STATUT_SOUMIS_APPRO,
-                    'dotClass' => $this->styleStatutDA[DemandeAppro::STATUT_SOUMIS_APPRO],
-                    'date'     => $data['dateDemande'],
-                    'nbrJours' => 0,
-                ];
+            if ($key === 0 && $data['statutDal'] !== DemandeAppro::STATUT_SOUMIS_APPRO) {
+                $tabTemp[] = $this->createTimelineEntry(
+                    DemandeAppro::STATUT_SOUMIS_APPRO,
+                    $data['dateDemande']
+                );
             }
 
             // Déterminer le statut final
-            $statutOr = $data['statutOr'];
-            $estDaValide = ($statutOr && $statutOr === DemandeAppro::STATUT_DW_A_MODIFIER &&
-                $statutDal === DemandeAppro::STATUT_EN_COURS_CREATION) ||
-                $statutDal === DemandeAppro::STATUT_CLOTUREE;
-            $statutFinal = $estDaValide ? DemandeAppro::STATUT_VALIDE : $statutDal;
+            $statutFinal = $this->getStatutFinal($data['statutOr'], $data['statutDal']);
 
-            // Ajouter uniquement si le statut est différent du précédent
-            $lastIndex = count($result) - 1;
-            if ($lastIndex < 0 || $result[$lastIndex]['statut'] !== $statutFinal) {
-                $result[] = [
-                    'statut'   => $statutFinal,
-                    'dotClass' => $this->styleStatutDA[$statutFinal],
-                    'date'     => $data['dateCreation'],
-                    'nbrJours' => 0,
+            // Ajouter ou mettre à jour le statut
+            $lastIndex = count($tabTemp) - 1;
+            if ($lastIndex < 0 || $tabTemp[$lastIndex]['statut'] !== $statutFinal) {
+                $tabTemp[] = $this->createTimelineEntry($statutFinal, $data['dateCreation']);
+            } else {
+                // Mettre à jour avec la date la plus récente
+                $tabTemp[$lastIndex]['date'] = $data['dateCreation'];
+            }
+        }
+
+        // Calculer les durées
+        return $this->calculateDurations($tabTemp);
+    }
+
+    private function buildTimelineBC(string $numeroDa, \DateTime $lastDateDA): array
+    {
+        $allDatas = $this->daAfficherRepository->getTimelineDataForBC($numeroDa);
+        $tabTemp = [];
+        $today = new \DateTime();
+
+        foreach ($allDatas as $data) {
+            $numBC = $data['numeroCde'];
+
+            // Lien DA → BC
+            $tabTemp[$numBC][] = [
+                'statut'   => '',
+                'dotClass' => '',
+                'date'     => '',
+                'nbrJours' => $this->formatDuration(
+                    $this->differenceJoursOuvrables($lastDateDA, $data['dateCreationBc'])
+                ),
+            ];
+
+            // Génération BC
+            $dateValidation = $data['dateValidationBc'];
+            $dateEnvoi = $data['dateEnvoiFournisseur'];
+
+            $tabTemp[$numBC][] = [
+                'statut'   => 'Génération BC',
+                'dotClass' => 'bg-bc-a-generer',
+                'date'     => $data['dateCreationBc']->format('d/m/Y'),
+                'nbrJours' => $this->formatDuration(
+                    $this->differenceJoursOuvrables(
+                        $data['dateCreationBc'],
+                        $dateValidation ?? $today
+                    )
+                ),
+            ];
+
+            if (!$dateValidation) {
+                $tabTemp[$numBC][] = $this->createCurrentDateEntry($today);
+                continue;
+            }
+
+            // Validation BC
+            $tabTemp[$numBC][] = [
+                'statut'   => 'Validation BC',
+                'dotClass' => 'bg-bc-valide',
+                'date'     => $dateValidation->format('d/m/Y'),
+                'nbrJours' => $this->formatDuration(
+                    $this->differenceJoursOuvrables(
+                        $dateValidation,
+                        $dateEnvoi ?? $today
+                    )
+                ),
+            ];
+
+            if ($dateEnvoi) {
+                $tabTemp[$numBC][] = [
+                    'statut'   => 'BC envoyé au fournisseur',
+                    'dotClass' => 'bg-bc-envoye-au-fournisseur',
+                    'date'     => $dateEnvoi->format('d/m/Y'),
+                    'nbrJours' => '',
                 ];
             } else {
-                // Mettre à jour la date du statut existant (prendre la plus récente)
-                $result[$lastIndex]['date'] = $data['dateCreation'];
+                $tabTemp[$numBC][] = $this->createCurrentDateEntry($today);
             }
         }
 
-        // Calculer les différences de jours ouvrables
-        for ($i = 0; $i < count($result); $i++) {
-            if ($i < count($result) - 1) {
+        return $tabTemp;
+    }
+
+    private function getStatutFinal(?string $statutOr, string $statutDal): string
+    {
+        $estDaValide = ($statutOr === DemandeAppro::STATUT_DW_A_MODIFIER &&
+            $statutDal === DemandeAppro::STATUT_EN_COURS_CREATION) ||
+            $statutDal === DemandeAppro::STATUT_CLOTUREE;
+
+        return $estDaValide ? DemandeAppro::STATUT_VALIDE : $statutDal;
+    }
+
+    private function createTimelineEntry(string $statut, \DateTime $date): array
+    {
+        return [
+            'statut'   => $statut,
+            'dotClass' => $this->styleStatutDA[$statut],
+            'date'     => $date,
+            'nbrJours' => 0,
+        ];
+    }
+
+    private function createCurrentDateEntry(\DateTime $today): array
+    {
+        return [
+            'statut'   => 'Date du jour',
+            'dotClass' => '',
+            'date'     => $today->format('d/m/Y'),
+            'nbrJours' => '',
+        ];
+    }
+
+    private function calculateDurations(array $timeline): array
+    {
+        for ($i = 0; $i < count($timeline); $i++) {
+            if ($i < count($timeline) - 1) {
                 $nbrJours = $this->differenceJoursOuvrables(
-                    $result[$i + 1]['date'],
-                    $result[$i]['date']
+                    $timeline[$i + 1]['date'],
+                    $timeline[$i]['date']
                 );
-                $result[$i]['nbrJours'] = $nbrJours === 0 ? "< 1 jour" : $nbrJours . " jour(s)";
+                $timeline[$i]['nbrJours'] = $this->formatDuration($nbrJours);
             } else {
-                $result[$i]['nbrJours'] = "";
+                $timeline[$i]['nbrJours'] = '';
             }
-            $result[$i]['date'] = $result[$i]['date']->format('d/m/Y');
+            $timeline[$i]['date'] = $timeline[$i]['date']->format('d/m/Y');
         }
 
-        return $result;
+        return $timeline;
+    }
+
+    private function formatDuration(int $nbrJours): string
+    {
+        return $nbrJours === 0 ? "< 1 jour" : $nbrJours . " jour(s)";
     }
 }
