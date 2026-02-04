@@ -45,7 +45,7 @@ class DaValidationReapproMensuelController extends Controller
         $this->autorisationAcces($this->getUser(), Application::ID_DAP);
         /** FIN AUtorisation accès */
 
-        $da = $this->demandeApproRepository->findAvecDernieresDALetLR($id);
+        $da = $this->demandeApproRepository->find($id);
 
         $daObservation = new DaObservation();
 

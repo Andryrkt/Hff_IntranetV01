@@ -55,7 +55,7 @@ class DaPropositionArticleDirectController extends Controller
         $this->autorisationAcces($this->getUser(), Application::ID_DAP);
         /** FIN AUtorisation accès */
 
-        $da = $this->demandeApproRepository->findAvecDernieresDALetLR($id);
+        $da = $this->demandeApproRepository->find($id);
         $numDa = $da->getNumeroDemandeAppro();
         $dals = $da->getDAL();
 
@@ -326,7 +326,7 @@ class DaPropositionArticleDirectController extends Controller
 
         $this->ajouterDansTableAffichageParNumDa($numDa);
 
-        $this->emailDaService->envoyerMailPropositionDa($this->demandeApproRepository->findAvecDernieresDALetLR($da->getId()), $this->getUser());
+        $this->emailDaService->envoyerMailPropositionDa($da, $this->getUser());
 
         $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         $this->redirectToRoute("list_da");
