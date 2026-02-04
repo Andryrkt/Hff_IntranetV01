@@ -30,7 +30,6 @@ trait DaPropositionAvecDitTrait
         $em = $this->getEntityManager();
         $this->initDaTrait();
         $this->daModel = new DaModel();
-        $this->ditRepository = $em->getRepository(DemandeIntervention::class);
         $this->daObservationRepository = $em->getRepository(DaObservation::class);
         $this->ditOrsSoumisAValidationRepository = $em->getRepository(DitOrsSoumisAValidation::class);
         $this->setAllFournisseurs();

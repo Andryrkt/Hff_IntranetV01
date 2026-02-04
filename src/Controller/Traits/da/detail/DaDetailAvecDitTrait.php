@@ -35,7 +35,6 @@ trait DaDetailAvecDitTrait
     {
         $em = $this->getEntityManager();
         $this->initDaTrait();
-        $this->ditRepository = $em->getRepository(DemandeIntervention::class);
         $this->dwFacBlRepository = $em->getRepository(DwFacBl::class);
         $this->dwBcApproRepository = $em->getRepository(DwBcAppro::class);
         $this->daObservationRepository = $em->getRepository(DaObservation::class);
