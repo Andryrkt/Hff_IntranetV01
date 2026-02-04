@@ -48,3 +48,7 @@ CREATE TABLE pointage_relance
     date_modification DATETIME2(0) not null,
     CONSTRAINT PK_pointage_relance PRIMARY KEY (id)
 );
+
+
+ALTER TABLE pointage_relance
+    ADD numero_relance INT NULL;
