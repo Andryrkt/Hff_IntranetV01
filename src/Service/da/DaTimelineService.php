@@ -46,7 +46,7 @@ class DaTimelineService
 
         return [
             'DA' => $this->buildTimelineDA($allDatas),
-            'BC' => $this->buildTimelineBC($numeroDa, $allDatas[count($allDatas) - 1]['dateCreation']),
+            'BC' => $this->buildTimelineBC($numeroDa, $allDatas[count($allDatas) - 1]),
         ];
     }
 
@@ -80,7 +80,7 @@ class DaTimelineService
         return $this->calculateDurations($tabTemp);
     }
 
-    private function buildTimelineBC(string $numeroDa, \DateTime $lastDateDA): array
+    private function buildTimelineBC(string $numeroDa, array $lastDataDA): array
     {
         $allDatas = $this->daAfficherRepository->getTimelineDataForBC($numeroDa);
         $tabTemp = [];
@@ -94,11 +94,11 @@ class DaTimelineService
 
             // Lien DA → BC
             $tabTemp[$numBC][] = [
-                'statut'   => '',
-                'dotClass' => '',
-                'date'     => '',
+                'statut'   => $lastDataDA['statutDal'],
+                'dotClass' => $this->styleStatutDA[$lastDataDA['statutDal']],
+                'date'     => $lastDataDA['dateCreation']->format('d/m/Y'),
                 'nbrJours' => $this->formatDuration(
-                    $this->differenceJoursOuvrables($lastDateDA, $dateCreationBc)
+                    $this->differenceJoursOuvrables($lastDataDA['dateCreation'], $dateCreationBc)
                 ),
             ];
 

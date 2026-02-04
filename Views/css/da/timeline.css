@@ -10,13 +10,12 @@
   left: 9px;
   top: 20px;
   width: 2px;
-  height: 100%;
+  height: calc(100% - 20px);
   background: #d0d7de;
 }
 
-/* On enlève le segment du dernier */
-.timeline-item:last-child::before {
-  display: none;
+.timeline-item:last-child {
+  height: 20px;
 }
 
 .timeline-dot {
