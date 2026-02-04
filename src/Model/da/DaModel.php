@@ -543,7 +543,7 @@ class DaModel extends Model
                         AND asoc.asoc_refp = abs.abse_refp
                     INNER JOIN Informix.frn_bse fbse 
                         ON af.afrn_numf = fbse.fbse_numfou
-                    WHERE abs.abse_constp IN ('ALI','BOI','CEN','FBU','HAB','OUT','ZDI')
+                    WHERE abs.abse_constp IN ('ALI','BOI','CEN','FBU','HAB','OUT','ZDI','INF','MIN')
                         AND asoc.asoc_soc = 'HF'
                         AND af.afrn_dated = (
                             SELECT MAX(afrn_dated) 
