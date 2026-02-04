@@ -59,8 +59,6 @@ class DaPropositionRefAvecDitController extends Controller
         $numDa = $da->getNumeroDemandeAppro();
         $dals = $da->getDAL();
 
-        $dit = $this->ditRepository->findOneBy(['numeroDemandeIntervention' => $da->getNumeroDemandeDit()]);
-
         $DapLRCollection = new DemandeApproLRCollection();
         $daObservation = new DaObservation();
         $form = $this->getFormFactory()->createBuilder(DemandeApproLRCollectionType::class, $DapLRCollection)->getForm();
@@ -91,7 +89,6 @@ class DaPropositionRefAvecDitController extends Controller
         return $this->render("da/proposition.html.twig", [
             'demandeAppro'            => $da,
             'id'                      => $id,
-            'dit'                     => $dit,
             'form'                    => $form->createView(),
             'formValidation'          => $formValidation->createView(),
             'formObservation'         => $formObservation->createView(),
