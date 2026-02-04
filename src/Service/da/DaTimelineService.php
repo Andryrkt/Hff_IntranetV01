@@ -88,6 +88,9 @@ class DaTimelineService
 
         foreach ($allDatas as $data) {
             $numBC = $data['numeroCde'];
+            $dateCreationBc = $data['dateCreationBc'];
+
+            if (!$dateCreationBc) continue;
 
             // Lien DA → BC
             $tabTemp[$numBC][] = [
@@ -95,7 +98,7 @@ class DaTimelineService
                 'dotClass' => '',
                 'date'     => '',
                 'nbrJours' => $this->formatDuration(
-                    $this->differenceJoursOuvrables($lastDateDA, $data['dateCreationBc'])
+                    $this->differenceJoursOuvrables($lastDateDA, $dateCreationBc)
                 ),
             ];
 
@@ -106,10 +109,10 @@ class DaTimelineService
             $tabTemp[$numBC][] = [
                 'statut'   => 'Génération BC',
                 'dotClass' => 'bg-bc-a-generer',
-                'date'     => $data['dateCreationBc']->format('d/m/Y'),
+                'date'     => $dateCreationBc->format('d/m/Y'),
                 'nbrJours' => $this->formatDuration(
                     $this->differenceJoursOuvrables(
-                        $data['dateCreationBc'],
+                        $dateCreationBc,
                         $dateValidation ?? $today
                     )
                 ),
