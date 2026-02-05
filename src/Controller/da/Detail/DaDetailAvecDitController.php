@@ -53,9 +53,6 @@ class DaDetailAvecDitController extends Controller
 		$ditModel = new DitModel();
 		$dataModel = $ditModel->recupNumSerieParcPourDa($demandeAppro->getDit()->getIdMateriel());
 
-		$numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
-		$demandeAppro = $this->filtreDal($demandeAppro, (int)$numeroVersionMax); // on filtre les lignes de la DA selon le numero de version max
-
 		$daObservation = new DaObservation;
 		$formObservation = $this->getFormFactory()->createBuilder(DaObservationType::class, $daObservation, ['daTypeId' => $demandeAppro->getDaTypeId()])->getForm();
 
@@ -121,8 +118,7 @@ class DaDetailAvecDitController extends Controller
 			$this->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $daObservation->getObservation(), $daObservation->getFileNames());
 
 			if ($this->estUserDansServiceAppro() && $daObservation->getStatutChange()) {
-				$this->modificationStatutDal($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_AUTORISER_EMETTEUR);
-				$this->modificationStatutDa($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_AUTORISER_EMETTEUR);
+				$this->appliquerChangementStatut($demandeAppro, DemandeAppro::STATUT_AUTORISER_EMETTEUR);
 
 				$this->ajouterDansTableAffichageParNumDa($demandeAppro->getNumeroDemandeAppro());
 			}
@@ -137,28 +133,5 @@ class DaDetailAvecDitController extends Controller
 			$this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
 			return $this->redirectToRoute("list_da");
 		}
-	}
-
-	private function modificationStatutDal(string $numDa, string $statut): void
-	{
-		$numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
-		$dals = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
-
-		foreach ($dals as  $dal) {
-			$dal->setStatutDal($statut);
-			$dal->setEdit(3);
-			$this->getEntityManager()->persist($dal);
-		}
-
-		$this->getEntityManager()->flush();
-	}
-
-	private function modificationStatutDa(string $numDa, string $statut): void
-	{
-		$da = $this->demandeApproRepository->findOneBy(['numeroDemandeAppro' => $numDa]);
-		$da->setStatutDal($statut);
-
-		$this->getEntityManager()->persist($da);
-		$this->getEntityManager()->flush();
 	}
 }
