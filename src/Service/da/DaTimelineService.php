@@ -128,28 +128,29 @@ class DaTimelineService
                 'nbrJours' => $this->formatDuration(
                     $this->differenceJoursOuvrables(
                         $dateCreationBc,
-                        $dateValidation ?? $today
+                        $dateValidation ?? $dateEnvoi ?? $today
                     )
                 ),
             ];
 
-            if (!$dateValidation) {
+            if (!$dateValidation && !$dateEnvoi) {
                 $tabTemp[$numBC][] = $this->createCurrentDateEntry($today);
                 continue;
+            } elseif ($dateValidation) {
+                // Validation BC
+                $tabTemp[$numBC][] = [
+                    'statut'   => 'Validation BC',
+                    'dotClass' => 'bg-bc-valide',
+                    'date'     => $dateValidation->format('d/m/Y'),
+                    'nbrJours' => $this->formatDuration(
+                        $this->differenceJoursOuvrables(
+                            $dateValidation,
+                            $dateEnvoi ?? $today
+                        )
+                    ),
+                ];
             }
 
-            // Validation BC
-            $tabTemp[$numBC][] = [
-                'statut'   => 'Validation BC',
-                'dotClass' => 'bg-bc-valide',
-                'date'     => $dateValidation->format('d/m/Y'),
-                'nbrJours' => $this->formatDuration(
-                    $this->differenceJoursOuvrables(
-                        $dateValidation,
-                        $dateEnvoi ?? $today
-                    )
-                ),
-            ];
 
             if ($dateEnvoi) {
                 $tabTemp[$numBC][] = [
