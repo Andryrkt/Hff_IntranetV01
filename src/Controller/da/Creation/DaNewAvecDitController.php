@@ -51,7 +51,7 @@ class DaNewAvecDitController extends Controller
          */
         $dit = $this->ditRepository->find($ditId);
 
-        $demandeAppro = $daId === 0 ? $this->initialisationDemandeApproAvecDit($dit) : $this->demandeApproRepository->findAvecDernieresDALetLR($daId);
+        $demandeAppro = $daId === 0 ? $this->initialisationDemandeApproAvecDit($dit) : $this->demandeApproRepository->find($daId);
         $demandeAppro
             ->setDit($dit)
             ->setDateFinSouhaite($this->dateLivraisonPrevueDA($dit->getNumeroDemandeIntervention(), $dit->getIdNiveauUrgence()->getDescription()))

@@ -543,7 +543,7 @@ class DaModel extends Model
                         AND asoc.asoc_refp = abs.abse_refp
                     INNER JOIN Informix.frn_bse fbse 
                         ON af.afrn_numf = fbse.fbse_numfou
-                    WHERE abs.abse_constp IN ('ALI','BOI','CEN','FBU','HAB','OUT','ZDI')
+                    WHERE abs.abse_constp IN ('ALI','BOI','CEN','FBU','HAB','OUT','ZDI','INF','MIN')
                         AND asoc.asoc_soc = 'HF'
                         AND af.afrn_dated = (
                             SELECT MAX(afrn_dated) 
@@ -683,5 +683,21 @@ class DaModel extends Model
         $result = $this->connect->executeQuery($statement);
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
         return $data ? $data[0] : [];
+    }
+
+    /**
+     * Recupère la date de creation d'une commande dans IPS
+     *
+     * @param integer $numcde
+     * @return \DateTime|null
+     */
+    public function getdateCreationBc(int $numcde): ?\DateTime
+    {
+        $statement = "SELECT fcde_datec as date_creation_cde 
+        from Informix.frn_cde 
+        where fcde_numcde = '$numcde'";
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+        return !empty($data) ? new \DateTime(array_column($data, 'date_creation_cde')[0]) : null;
     }
 }

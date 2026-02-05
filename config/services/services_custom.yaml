@@ -64,6 +64,11 @@ services:
       $em: "@doctrine.orm.default_entity_manager"
     public: true
 
+  App\Service\da\DaTimelineService:
+    arguments:
+      $em: "@doctrine.orm.default_entity_manager"
+    public: true
+
   App\Service\da\DocRattacheService:
     arguments:
       $daService: '@App\Service\da\DaService'
@@ -75,4 +80,15 @@ services:
     arguments:
       $daService: '@App\Service\da\DaService'
       $docRattacheService: '@App\Service\da\DocRattacheService'
+      $daTimelineService: '@App\Service\da\DaTimelineService'
+    public: true
+
+  App\Controller\da\Detail\DaDetailAvecDitController:
+    arguments:
+      $daTimelineService: '@App\Service\da\DaTimelineService'
+    public: true
+
+  App\Controller\da\Detail\DaDetailDirectController:
+    arguments:
+      $daTimelineService: '@App\Service\da\DaTimelineService'
     public: true

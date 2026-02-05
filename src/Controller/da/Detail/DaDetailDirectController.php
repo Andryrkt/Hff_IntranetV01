@@ -14,6 +14,7 @@ use App\Controller\Traits\da\DaAfficherTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\da\detail\DaDetailDirectTrait;
+use App\Service\da\DaTimelineService;
 
 /**
  * @Route("/demande-appro")
@@ -24,12 +25,14 @@ class DaDetailDirectController extends Controller
 	use DaAfficherTrait;
 	use DaDetailDirectTrait;
 	use AutorisationTrait;
+	private DaTimelineService $daTimelineService;
 
-	public function __construct()
+	public function __construct(DaTimelineService $daTimelineService)
 	{
 		parent::__construct();
 
 		$this->initDaDetailDirectTrait();
+		$this->daTimelineService = $daTimelineService;
 	}
 
 	/**
@@ -46,10 +49,6 @@ class DaDetailDirectController extends Controller
 
 		/** @var DemandeAppro $demandeAppro la demande appro correspondant à l'id $id */
 		$demandeAppro = $this->demandeApproRepository->find($id); // recupération de la DA
-
-		$numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
-
-		$demandeAppro = $this->filtreDal($demandeAppro, (int)$numeroVersionMax); // on filtre les lignes de la DA selon le numero de version max
 
 		$daObservation = new DaObservation;
 		$formObservation = $this->getFormFactory()->createBuilder(DaObservationType::class, $daObservation, ['daTypeId' => $demandeAppro->getDaTypeId()])->getForm();
@@ -68,6 +67,7 @@ class DaDetailDirectController extends Controller
 			'devPjPathDal' => $this->getDevisPjPathDal($demandeAppro),
 			'devPjPathObs' => $this->getDevisPjPathObservation($demandeAppro),
 		]);
+		$timeLineData = $this->estAdmin() ? $this->daTimelineService->getTimelineData($demandeAppro->getNumeroDemandeAppro()) : [];
 
 		return $this->render('da/detail.html.twig', [
 			'detailTemplate'      		=> 'detail-direct',
@@ -80,21 +80,9 @@ class DaDetailDirectController extends Controller
 			'statutAutoriserModifAte' 	=> $demandeAppro->getStatutDal() === DemandeAppro::STATUT_AUTORISER_EMETTEUR,
 			'estCreateurDaDirecte'      => $this->estCreateurDeDADirecte(),
 			'estAppro'          		=> $this->estUserDansServiceAppro(),
+			'timelineAccess'    		=> $this->estAdmin(),
+			'timelineData'      		=> $timeLineData,
 		]);
-	}
-
-	/**  
-	 * Filtre les lignes de la DA (Demande Appro) pour ne garder que celles qui correspondent au numero de version max
-	 */
-	private function filtreDal($demandeAppro, int $numeroVersionMax): DemandeAppro
-	{
-		// filtre une collection de versions selon le numero de version max
-		$dernieresVersions = $demandeAppro->getDAL()->filter(function ($item) use ($numeroVersionMax) {
-			return $item->getNumeroVersion() == $numeroVersionMax && $item->getDeleted() == 0;
-		});
-		$demandeAppro->setDAL($dernieresVersions); // on remplace la collection de versions par la collection filtrée
-
-		return $demandeAppro;
 	}
 
 	/** 
@@ -111,8 +99,7 @@ class DaDetailDirectController extends Controller
 			$this->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $daObservation->getObservation(), $daObservation->getFileNames());
 
 			if ($this->estUserDansServiceAppro() && $daObservation->getStatutChange()) {
-				$this->modificationStatutDal($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_AUTORISER_EMETTEUR);
-				$this->modificationStatutDa($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_AUTORISER_EMETTEUR);
+				$this->appliquerChangementStatut($demandeAppro, DemandeAppro::STATUT_AUTORISER_EMETTEUR);
 
 				$this->ajouterDansTableAffichageParNumDa($demandeAppro->getNumeroDemandeAppro());
 			}
@@ -127,28 +114,5 @@ class DaDetailDirectController extends Controller
 			$this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
 			return $this->redirectToRoute("list_da");
 		}
-	}
-
-	private function modificationStatutDal(string $numDa, string $statut): void
-	{
-		$numeroVersionMax = $this->getEntityManager()->getRepository(DemandeApproL::class)->getNumeroVersionMax($numDa);
-		$dals = $this->getEntityManager()->getRepository(DemandeApproL::class)->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
-
-		foreach ($dals as  $dal) {
-			$dal->setStatutDal($statut);
-			$dal->setEdit(3);
-			$this->getEntityManager()->persist($dal);
-		}
-
-		$this->getEntityManager()->flush();
-	}
-
-	private function modificationStatutDa(string $numDa, string $statut): void
-	{
-		$da = $this->getEntityManager()->getRepository(DemandeAppro::class)->findOneBy(['numeroDemandeAppro' => $numDa]);
-		$da->setStatutDal($statut);
-
-		$this->getEntityManager()->persist($da);
-		$this->getEntityManager()->flush();
 	}
 }

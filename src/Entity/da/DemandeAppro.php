@@ -201,6 +201,10 @@ class DemandeAppro
      */
     private $historiqueDemandeModifDA;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=DemandeIntervention::class, inversedBy="demandeAppro")
+     * @ORM\JoinColumn(nullable=true, name="dit_id", referencedColumnName="id")
+     */
     private ?DemandeIntervention $dit = null;
 
     /**

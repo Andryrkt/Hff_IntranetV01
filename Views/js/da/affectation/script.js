@@ -4,11 +4,9 @@ import { getAllFournisseurs, getAllReferences } from "../data/fetchData";
 
 document.addEventListener("DOMContentLoaded", async function () {
   const { data } = await getAllReferences();
-  const referencesMap = new Map(data.map((ref) => [ref.reference, ref]));
 
   setupInputFormatters();
-  setupReferenceValidation(referencesMap);
-  setupAutocompleteField();
+  setupAutocompleteField(data);
   confirmForm();
 });
 
@@ -24,30 +22,6 @@ function setupInputFormatter(selector, maxLength) {
       this.value = this.value.toUpperCase().slice(0, maxLength);
     });
   });
-}
-
-function setupReferenceValidation(referencesMap) {
-  document.querySelectorAll(".da-art-refp").forEach((refp) => {
-    refp.addEventListener("blur", async function () {
-      await handleReferenceBlur(refp, referencesMap);
-    });
-  });
-}
-
-async function handleReferenceBlur(refp, referencesMap) {
-  const refpValue = refp.value.trim();
-  if (!refpValue) return;
-
-  const articleFound = referencesMap.get(refpValue);
-  const fields = getRelatedFields(refp);
-
-  if (!articleFound) {
-    await showReferenceNotFoundError();
-    resetArticleFields({ ...fields, refp });
-    refp.focus();
-  } else {
-    populateArticleFields(articleFound, fields);
-  }
 }
 
 function getRelatedFields(refp) {
@@ -69,7 +43,7 @@ async function showReferenceNotFoundError() {
   await Swal.fire({
     icon: "error",
     title: "Référence inexistante",
-    html: "La référence saisie n'existe pas pour la liste de constructeurs </br> (<b>'ALI', 'BOI', 'CEN', 'FBU', 'HAB', 'OUT', 'ZDI'</b>)</br> Veuillez en saisir une dans la liste s'il vous plaît.",
+    html: "La référence saisie n'existe pas pour la liste de constructeurs </br> (<b>'ALI', 'BOI', 'CEN', 'FBU', 'HAB', 'OUT', 'ZDI', 'INF', 'MIN'</b>)</br> Veuillez en saisir une dans la liste s'il vous plaît.",
   });
 }
 
@@ -82,30 +56,9 @@ function resetArticleFields(fields) {
   fields.numFrn.value = "-";
   fields.constp.value = "-";
   fields.desi.classList.remove("non-modifiable");
-  fields.nomFrn.classList.remove("non-modifiable");
 }
 
-function populateArticleFields(articleFound, fields) {
-  fields.articleStocke.checked = false;
-
-  if (articleFound.constp === "ZDI") {
-    fields.constp.value = "ZDI";
-    fields.prix.value = "0";
-    fields.desi.classList.remove("non-modifiable");
-    fields.nomFrn.classList.remove("non-modifiable");
-  } else {
-    fields.articleStocke.checked = true;
-    fields.constp.value = articleFound.constp;
-    fields.desi.value = articleFound.desi;
-    fields.nomFrn.value = articleFound.nom_frn;
-    fields.prix.value = articleFound.prix_unitaire;
-    fields.numFrn.value = articleFound.num_frn;
-    fields.desi.classList.add("non-modifiable");
-    fields.nomFrn.classList.add("non-modifiable");
-  }
-}
-
-function setupAutocompleteField() {
+function setupAutocompleteField(articleStockeList) {
   document.querySelectorAll(".da-nom-frn").forEach((field) => {
     let numeroFournisseur = getInputLine(field, '[id$="_numeroFournisseur"]');
     let suggestionContainer = field.nextElementSibling;
@@ -154,6 +107,53 @@ function setupAutocompleteField() {
             field.value = "";
             numeroFournisseur.value = "-";
           });
+        }
+      },
+    });
+  });
+
+  document.querySelectorAll(".da-art-refp").forEach((refp) => {
+    let fields = getRelatedFields(refp);
+    let suggestionContainer = refp.nextElementSibling;
+    let loaderElement = suggestionContainer.nextElementSibling;
+
+    if (fields.articleStocke.checked)
+      fields.desi.classList.add("non-modifiable");
+
+    new AutoComplete({
+      inputElement: refp,
+      suggestionContainer: suggestionContainer,
+      loaderElement: loaderElement,
+      debounceDelay: 150,
+      fetchDataCallback: async () => {
+        console.log(articleStockeList);
+
+        return articleStockeList;
+      },
+      displayItemCallback: (item) =>
+        `Référence: ${item.reference} - Fournisseur: ${item.nom_frn} <br>Désignation: ${item.desi}`,
+      itemToStringCallback: (item) => `${item.reference}`,
+      itemToStringForBlur: (item) => `${item.reference}`,
+      onBlurCallback: async (found) => {
+        if (!found && refp.value.trim() !== "") {
+          await showReferenceNotFoundError();
+          resetArticleFields({ ...fields, refp });
+          refp.focus();
+        }
+      },
+      onSelectCallback: (item) => {
+        let articleStocke = item.constp !== "ZDI";
+        refp.value = item.reference;
+        fields.articleStocke.checked = articleStocke;
+        fields.constp.value = item.constp;
+        fields.desi.value = item.desi;
+        fields.nomFrn.value = item.nom_frn;
+        fields.prix.value = item.prix_unitaire;
+        fields.numFrn.value = item.num_frn;
+        if (articleStocke) {
+          fields.desi.classList.add("non-modifiable");
+        } else {
+          fields.desi.classList.remove("non-modifiable");
         }
       },
     });

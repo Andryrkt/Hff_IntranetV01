@@ -209,8 +209,6 @@ trait DaTrait
 
         $em->persist($demandeAppro);
 
-        if ($withFlush) {
-            $em->flush();
-        }
+        if ($withFlush) $em->flush();
     }
 }
