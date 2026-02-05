@@ -201,10 +201,11 @@ class ListeDevisMagasinController extends Controller
                     $devisIp['url_po'] = $_ENV['BASE_PATH_FICHIER_COURT'] . '/' . $dwBcClientNegoce['path'];
                 }
                 $dateRelance = $pointageRelanceRepository->findDernierDateDeRelance($numeroDevis);
-                $nombreDeRelance = $pointageRelanceRepository->findNombreDeRelances($numeroDevis);
-
+                $numeroRelance = $pointageRelanceRepository->findNumeroRelance($numeroDevis);
+                $statutRelance = $this->listeDevisMagasinModel->getStatutRelance($numeroDevis);
                 $devisIp['date_derniere_relance'] = $dateRelance;
-                $devisIp['nombre_de_relance'] = $nombreDeRelance;
+                $devisIp['numero_relance'] = $numeroRelance;
+                $devisIp['statut_relance'] = $statutRelance ?? null;
             }
 
             // Application des filtres critères
@@ -389,7 +390,8 @@ class ListeDevisMagasinController extends Controller
                 'urlPO'           => $devis->getUrlPO(),
                 'relanceClient'   => $relanceClient,
                 'dateDerniereRelance' => $devis->getDateDerniereRelance(),
-                'nombreDeRelance' => $devis->getNombreDeRelance(),
+                'numeroRelance' => $devis->getNombreDeRelance(),
+                'statutRelance' => $devis->getStatutRelance(),
             ];
         }
 

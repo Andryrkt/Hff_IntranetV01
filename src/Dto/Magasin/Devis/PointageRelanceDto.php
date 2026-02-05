@@ -10,4 +10,5 @@ class PointageRelanceDto
     public ?string $utilisateur = null;
     public ?\DateTimeInterface $dateDePointage = null;
     public ?string $agence = null;
+    public ?int $numeroRelance = null;
 }
