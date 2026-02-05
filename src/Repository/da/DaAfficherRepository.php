@@ -981,7 +981,7 @@ class DaAfficherRepository extends EntityRepository
         if (!$numeroVersionMax) return [];
 
         $qb = $this->createQueryBuilder('d')
-            ->select('DISTINCT d.numeroCde', 'd.dateCreationBc', 'd.dateValidationBc', 'd.dateEnvoiFournisseur')
+            ->select('DISTINCT d.numeroCde', 'd.dateCreationBc', 'd.dateValidationBc', 'd.dateEnvoiFournisseur', 'd.dateLivraisonArticle')
             ->where('d.numeroDemandeAppro = :numDa')
             ->andWhere('d.numeroVersion = :numeroVersionMax')
             ->andWhere('d.numeroCde IS NOT NULL')
