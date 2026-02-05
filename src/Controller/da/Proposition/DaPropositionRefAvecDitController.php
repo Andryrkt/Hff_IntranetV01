@@ -344,26 +344,6 @@ class DaPropositionRefAvecDitController extends Controller
         $this->redirectToRoute("list_da");
     }
 
-    private function getNouveauDal($numDa)
-    {
-        $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
-        $dalNouveau = $this->getLignesRectifieesDA($numDa, $numeroVersionMax);
-        return $dalNouveau;
-    }
-
-    private function nouveauEtAncienDal(DemandeAppro $da, string $numDa): array
-    {
-        $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa); //la position de cette ligne ne peut pas modifier (il faut mettre en haut ou en bas)
-        $numeroVersionMaxAvant = $numeroVersionMax - 1;
-        $dalNouveau = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $da->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMax]);
-        $dalAncien = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $da->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMaxAvant]);
-
-        return [
-            'dalAncien' => $dalAncien,
-            'dalNouveau' => $dalNouveau
-        ];
-    }
-
     private function traiterProposition($dals, $dalrList, ?string $observation, DemandeAppro $demandeAppro, array $refs, string $messageSuccess, bool $doSaveDb = false, $statut = DemandeAppro::STATUT_SOUMIS_ATE): array
     {
         $numDa = $demandeAppro->getNumeroDemandeAppro();
