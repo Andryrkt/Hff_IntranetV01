@@ -2,6 +2,7 @@
 
 namespace App\Controller\magasin\devis;
 
+use App\Constants\Magasin\Devis\PointageRelanceStatutConstant;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Controller\Controller;
@@ -30,6 +31,7 @@ class ListeDevisMagasinController extends Controller
     private $styleStatutDw = [];
     private $styleStatutBc = [];
     private $statutIPS = [];
+    private $styleStatutPR = [];
 
     private ListeDevisMagasinModel $listeDevisMagasinModel;
 
@@ -56,6 +58,11 @@ class ListeDevisMagasinController extends Controller
             BcMagasin::STATUT_SOUMIS_VALIDATION => 'bg-bc-soumis-validation',
             BcMagasin::STATUT_EN_ATTENTE_BC => 'bg-bc-en-attente',
             BcMagasin::STATUT_VALIDER => 'bg-bc-valide'
+        ];
+
+        $this->styleStatutPR = [
+            PointageRelanceStatutConstant::STATUT_POINTAGE_RELANCE_A_RELANCER => 'bg-danger text-white',
+            PointageRelanceStatutConstant::STATUT_POINTAGE_RELANCE_RELANCE => 'bg-warning'
         ];
 
         $this->statutIPS = [
@@ -98,7 +105,7 @@ class ListeDevisMagasinController extends Controller
         $this->getSessionService()->set('criteria_for_excel_liste_devis_magasin', $criteriaForSession);
 
         $listeDevisFactory = $this->recuperationDonner($criteria);
-        $preparedDatas     = $this->prepareDatasForView($listeDevisFactory, $this->styleStatutDw, $this->styleStatutBc, $this->statutIPS);
+        $preparedDatas     = $this->prepareDatasForView($listeDevisFactory, $this->styleStatutDw, $this->styleStatutBc, $this->statutIPS, $this->styleStatutPR);
 
 
         // affichage de la liste des devis magasin
@@ -349,7 +356,7 @@ class ListeDevisMagasinController extends Controller
      * 
      * @return array
      */
-    private function prepareDatasForView(array $listeDevisFactory, array $styleStatutDw, array $styleStatutBc, array $statutIpsArray): array
+    private function prepareDatasForView(array $listeDevisFactory, array $styleStatutDw, array $styleStatutBc, array $statutIpsArray, array $styleStatutPR): array
     {
         $data = [];
         foreach ($listeDevisFactory as $devis) {
@@ -396,7 +403,8 @@ class ListeDevisMagasinController extends Controller
                 'dateDerniereRelance' => $devis->getDateDerniereRelance(),
                 'numeroRelance' => $devis->getNombreDeRelance(),
                 'statutRelance' => $devis->getStatutRelance(),
-                'relances' => $devis->getRelances() ?? []
+                'relances' => $devis->getRelances() ?? [],
+                'styleStatutPR' => $styleStatutPR[$devis->getStatutRelance()]
             ];
         }
 

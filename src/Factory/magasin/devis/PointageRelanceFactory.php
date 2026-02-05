@@ -17,7 +17,7 @@ class PointageRelanceFactory
         return $dto;
     }
 
-    public function map(array $data, string $userName): PointageRelance
+    public function map(array $data, string $userName, int $numeroRelance): PointageRelance
     {
         $entity = new PointageRelance();
         $entity->setNumeroDevis($data['numeroDevis']);
@@ -25,6 +25,7 @@ class PointageRelanceFactory
         $entity->setUtilisateur($userName);
         $entity->setAgence('01');
         $entity->setSociete('HF');
+        $entity->setNumeroRelance($numeroRelance);
         return $entity;
     }
 }
