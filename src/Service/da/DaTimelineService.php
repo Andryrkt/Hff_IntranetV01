@@ -103,7 +103,7 @@ class DaTimelineService
 
         foreach ($allDatas as $data) {
             $numBC = $data['numeroCde'];
-            $dateCreationBc = $data['dateCreationBc'];
+            $dateCreationBc = $data['dateCreationBc']; // Génération BC
 
             if (!$dateCreationBc) continue;
 
@@ -111,29 +111,30 @@ class DaTimelineService
             $tabTemp[$numBC][] = [
                 'statut'   => $lastDataDA['statutDal'],
                 'dotClass' => $this->styleStatutDA[$lastDataDA['statutDal']],
-                'date'     => $lastDataDA['dateCreation']->format('d/m/Y'),
+                'date'     => $lastDataDA['dateCreation']->format('d/m/Y'), // Date validation DA
                 'nbrJours' => $this->formatDuration(
                     $this->differenceJoursOuvrables($lastDataDA['dateCreation'], $dateCreationBc)
                 ),
             ];
 
-            // Génération BC
-            $dateValidation = $data['dateValidationBc'];
-            $dateEnvoi = $data['dateEnvoiFournisseur'];
+            $dateValidation = $data['dateValidationBc'];           // Validation BC
+            $dateEnvoi = $data['dateEnvoiFournisseur'];            // Envoi au fournisseur
+            $dateLivraisonArticle = $data['dateLivraisonArticle']; // Article livré
+
 
             $tabTemp[$numBC][] = [
                 'statut'   => 'Génération BC',
                 'dotClass' => 'bg-bc-a-generer',
-                'date'     => $dateCreationBc->format('d/m/Y'),
+                'date'     => $dateCreationBc->format('d/m/Y'), // Date de génération BC
                 'nbrJours' => $this->formatDuration(
                     $this->differenceJoursOuvrables(
                         $dateCreationBc,
-                        $dateValidation ?? $dateEnvoi ?? $today
+                        $dateValidation ?? $dateEnvoi ?? $dateLivraisonArticle ?? $today
                     )
                 ),
             ];
 
-            if (!$dateValidation && !$dateEnvoi) {
+            if (!$dateValidation && !$dateEnvoi && !$dateLivraisonArticle) {
                 $tabTemp[$numBC][] = $this->createCurrentDateEntry($today);
                 continue;
             } elseif ($dateValidation) {
@@ -141,26 +142,43 @@ class DaTimelineService
                 $tabTemp[$numBC][] = [
                     'statut'   => 'Validation BC',
                     'dotClass' => 'bg-bc-valide',
-                    'date'     => $dateValidation->format('d/m/Y'),
+                    'date'     => $dateValidation->format('d/m/Y'), // Validation BC
                     'nbrJours' => $this->formatDuration(
                         $this->differenceJoursOuvrables(
                             $dateValidation,
-                            $dateEnvoi ?? $today
+                            $dateEnvoi ?? $dateLivraisonArticle ?? $today
                         )
                     ),
                 ];
             }
 
-
-            if ($dateEnvoi) {
+            if (!$dateEnvoi && !$dateLivraisonArticle) {
+                $tabTemp[$numBC][] = $this->createCurrentDateEntry($today);
+                continue;
+            } elseif ($dateEnvoi) {
                 $tabTemp[$numBC][] = [
                     'statut'   => 'BC envoyé au fournisseur',
                     'dotClass' => 'bg-bc-envoye-au-fournisseur',
-                    'date'     => $dateEnvoi->format('d/m/Y'),
+                    'date'     => $dateEnvoi->format('d/m/Y'), // Date d'envoi fournisseur
+                    'nbrJours' => $this->formatDuration(
+                        $this->differenceJoursOuvrables(
+                            $dateEnvoi,
+                            $dateLivraisonArticle ?? $today
+                        )
+                    ),
+                ];
+            }
+
+            if (!$dateLivraisonArticle) {
+                $tabTemp[$numBC][] = $this->createCurrentDateEntry($today);
+                continue;
+            } else {
+                $tabTemp[$numBC][] = [
+                    'statut'   => 'Article(s) livré(s)',
+                    'dotClass' => 'tout-livre',
+                    'date'     => $dateLivraisonArticle->format('d/m/Y'), // Date de livraison article
                     'nbrJours' => '',
                 ];
-            } else {
-                $tabTemp[$numBC][] = $this->createCurrentDateEntry($today);
             }
         }
 
