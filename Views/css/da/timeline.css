@@ -1,0 +1,42 @@
+.timeline-item {
+  position: relative;
+  height: 100px;
+}
+
+/* Petit segment entre les points */
+.timeline-item::before {
+  content: "";
+  position: absolute;
+  left: 9px;
+  top: 20px;
+  width: 2px;
+  height: calc(100% - 20px);
+  background: #d0d7de;
+}
+
+.timeline-item:last-child {
+  height: 20px;
+}
+
+.timeline-dot {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid #ccc;
+  z-index: 2;
+}
+
+.timeline-content {
+  padding-left: 2.5rem;
+}
+
+.timeline-date {
+  font-size: 0.85rem;
+}
+
+.timeline-status,
+.timeline-duration {
+  font-size: 0.85rem;
+  font-weight: bold;
+}

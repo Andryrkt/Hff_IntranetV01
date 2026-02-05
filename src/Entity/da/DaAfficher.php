@@ -203,6 +203,16 @@ class DaAfficher
     private $dateLivraisonPrevue;
 
     /**
+     * @ORM\Column(type="datetime", name="date_envoi_fournisseur", nullable=true)
+     */
+    private $dateEnvoiFournisseur;
+
+    /**
+     * @ORM\Column(type="datetime", name="date_demande_devis", nullable=true)
+     */
+    private $dateDemandeDevis;
+
+    /**
      * @ORM\Column(type="string", length=50, name="valide_par")
      */
     private ?string $validePar = null;
@@ -378,6 +388,21 @@ class DaAfficher
      * @ORM\Column(type="boolean", name="est_bl_reappro_soumis")
      */
     private $estBlReapproSoumis = false;
+
+    /**
+     * @ORM\Column(type="datetime", name="date_creation_bc", nullable=true)
+     */
+    private $dateCreationBc;
+
+    /**
+     * @ORM\Column(type="datetime", name="date_validation_bc", nullable=true)
+     */
+    private $dateValidationBc;
+
+    /**
+     * @ORM\Column(type="datetime", name="date_livraison_article", nullable=true)
+     */
+    private $dateLivraisonArticle;
 
     /**
      * @ORM\Column(type="boolean", name="est_correction_statut_bc")
@@ -1825,6 +1850,96 @@ class DaAfficher
     }
 
     /**
+     * Get the value of dateEnvoiFournisseur
+     */
+    public function getDateEnvoiFournisseur()
+    {
+        return $this->dateEnvoiFournisseur;
+    }
+
+    /**
+     * Set the value of dateEnvoiFournisseur
+     */
+    public function setDateEnvoiFournisseur($dateEnvoiFournisseur): self
+    {
+        $this->dateEnvoiFournisseur = $dateEnvoiFournisseur;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateDemandeDevis
+     */
+    public function getDateDemandeDevis()
+    {
+        return $this->dateDemandeDevis;
+    }
+
+    /**
+     * Set the value of dateDemandeDevis
+     */
+    public function setDateDemandeDevis($dateDemandeDevis): self
+    {
+        $this->dateDemandeDevis = $dateDemandeDevis;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateCreationBc
+     */
+    public function getDateCreationBc()
+    {
+        return $this->dateCreationBc;
+    }
+
+    /**
+     * Set the value of dateCreationBc
+     */
+    public function setDateCreationBc($dateCreationBc): self
+    {
+        $this->dateCreationBc = $dateCreationBc;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateValidationBc
+     */
+    public function getDateValidationBc()
+    {
+        return $this->dateValidationBc;
+    }
+
+    /**
+     * Set the value of dateValidationBc
+     */
+    public function setDateValidationBc($dateValidationBc): self
+    {
+        $this->dateValidationBc = $dateValidationBc;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateLivraisonArticle
+     */
+    public function getDateLivraisonArticle()
+    {
+        return $this->dateLivraisonArticle;
+    }
+
+    /**
+     * Set the value of dateLivraisonArticle
+     */
+    public function setDateLivraisonArticle($dateLivraisonArticle): self
+    {
+        $this->dateLivraisonArticle = $dateLivraisonArticle;
+
+        return $this;
+    }
+
+    /**
      * Get the value of estCorrectionStatutBc
      */
     public function getEstCorrectionStatutBc()
@@ -1867,6 +1982,7 @@ class DaAfficher
             ->setEstFactureBlSoumis($oldDaAfficher->getEstFactureBlSoumis())
             ->setBcEnvoyerFournisseur($oldDaAfficher->getBcEnvoyerFournisseur())
             ->setDateLivraisonPrevue($oldDaAfficher->getDateLivraisonPrevue())
+            ->setDateEnvoiFournisseur($oldDaAfficher->getDateEnvoiFournisseur())
         ;
     }
 
@@ -1938,6 +2054,7 @@ class DaAfficher
             ->setServiceEmetteur($da->getServiceEmetteur()->getId())
             ->setAgenceDebiteur($da->getAgenceDebiteur()->getId())
             ->setServiceDebiteur($da->getServiceDebiteur()->getId())
+            ->setDateDemandeDevis($da->getDateDemandeDevis())
         ;
     }
 

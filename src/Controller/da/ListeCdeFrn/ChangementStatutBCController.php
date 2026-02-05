@@ -8,6 +8,7 @@ use App\Entity\da\DaSoumissionBc;
 use App\Repository\da\DaAfficherRepository;
 use App\Repository\da\DaSoumissionBcRepository;
 use Symfony\Component\Routing\Annotation\Route;
+
 /**
  * @Route("/demande-appro")
  */
@@ -34,23 +35,18 @@ class ChangementStatutBCController extends Controller
         $this->verifierSessionUtilisateur();
 
         if ($estEnvoyer) {
-            // modification de statut dans la soumission bc
-            // $numVersionMaxSoumissionBc = $this->daSoumissionBcRepository->getNumeroVersionMax($numCde);
-            // $soumissionBc = $this->daSoumissionBcRepository->findOneBy(['numeroCde' => $numCde, 'numeroVersion' => $numVersionMaxSoumissionBc]);
-            // if ($soumissionBc) {
-            //     $soumissionBc->setStatut(DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR);
-            //     $this->getEntityManager()->persist($soumissionBc);
-            // }
-
             //modification dans la table da_afficher
-            $numVersionMaxDaValider = $this->daAfficherRepository->getNumeroVersionMaxCde($numCde);
-            $daAffichers = $this->daAfficherRepository->findBy(['numeroCde' => $numCde, 'numeroVersion' => $numVersionMaxDaValider]);
-            foreach ($daAffichers as $valider) {
-                $valider->setStatutCde(DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR)
+            $numVersionMaxDaAfficher = $this->daAfficherRepository->getNumeroVersionMaxCde($numCde);
+            /** @var DaAfficher[] $daAffichers */
+            $daAffichers = $this->daAfficherRepository->findBy(['numeroCde' => $numCde, 'numeroVersion' => $numVersionMaxDaAfficher]);
+            foreach ($daAffichers as $daAfficher) {
+                $daAfficher
+                    ->setStatutCde(DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR)
                     ->setDateLivraisonPrevue(new \DateTime($datePrevue))
                     ->setBcEnvoyerFournisseur(true)
+                    ->setDateEnvoiFournisseur(new \DateTime('now', new \DateTimeZone('Indian/Antananarivo')))
                 ;
-                $this->getEntityManager()->persist($valider);
+                $this->getEntityManager()->persist($daAfficher);
             }
             $this->getEntityManager()->flush();
             // envoyer une notification de succès

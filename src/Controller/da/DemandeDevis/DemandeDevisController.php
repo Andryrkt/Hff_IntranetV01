@@ -33,7 +33,7 @@ class DemandeDevisController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $demandeAppro = $this->demandeApproRepository->findAvecDernieresDALetLR($id);
+        $demandeAppro = $this->demandeApproRepository->find($id);
 
         if (!$demandeAppro) {
             /** NOTIFICATION */
