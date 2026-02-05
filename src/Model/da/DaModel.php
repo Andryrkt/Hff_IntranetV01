@@ -700,4 +700,20 @@ class DaModel extends Model
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
         return !empty($data) ? new \DateTime(array_column($data, 'date_creation_cde')[0]) : null;
     }
+
+    public function getDateLivraisonArticle(int $numcde)
+    {
+        $statement = " SELECT  first 1 fliv_datec as date_livraison_article
+                    from frn_cdl, frn_llf, frn_liv
+                    where (fcdl_numcde = fllf_numcde and fcdl_ligne = fllf_ligne and fcdl_soc = fllf_soc and fcdl_succ = fllf_succ)
+                    and (fllf_soc = fliv_soc and fllf_succ = fliv_succ and fllf_numliv = fliv_numliv)
+                    and fllf_numcde = '$numcde'
+                    order by fliv_datec asc
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return !empty($data) ? new \DateTime(array_column($data, 'date_livraison_article')[0]) : null;
+    }
 }
