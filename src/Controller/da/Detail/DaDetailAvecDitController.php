@@ -90,20 +90,6 @@ class DaDetailAvecDitController extends Controller
 		]);
 	}
 
-	/**  
-	 * Filtre les lignes de la DA (Demande Appro) pour ne garder que celles qui correspondent au numero de version max
-	 */
-	private function filtreDal($demandeAppro, int $numeroVersionMax): DemandeAppro
-	{
-		// filtre une collection de versions selon le numero de version max
-		$dernieresVersions = $demandeAppro->getDAL()->filter(function ($item) use ($numeroVersionMax) {
-			return $item->getNumeroVersion() == $numeroVersionMax && $item->getDeleted() == 0;
-		});
-		$demandeAppro->setDAL($dernieresVersions); // on remplace la collection de versions par la collection filtrée
-
-		return $demandeAppro;
-	}
-
 	/** 
 	 * Traitement du formulaire
 	 */
