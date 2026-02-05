@@ -2,6 +2,7 @@
 
 namespace App\Entity\magasin\devis;
 
+use App\Constants\Magasin\Devis\PointageRelanceStatutConstant;
 use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\magasin\devis\DevisMagasinRepository;

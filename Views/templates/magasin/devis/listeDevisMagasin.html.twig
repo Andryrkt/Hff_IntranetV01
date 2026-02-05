@@ -36,7 +36,7 @@
 					<th class="text-end">Montant</th>
 					<th class="text-center">Date envoi au client</th>
 					<th class="text-center">Statut relance</th>
-					<th class="text-center">Relance</th>
+					<th class="text-center">Relancé le</th>
 					<th class="text-center">Position IPS</th>
 					<th class="text-center">PO/BC client</th>
 					<th class="text-center">Crée par</th>
@@ -75,7 +75,7 @@
 						<td>{{ row.libelle }}</td>
 						<td class="text-end">{{ row.montant }}</td>
 						<td class="text-center">{{ row.dateEnvoiClient }}</td>
-						<td class="text-start">{{ row.statutRelance }}</td>
+						<td class="text-center fw-bold {{ row.styleStatutPR}}">{{ row.statutRelance }}</td>
 						<td class="text-center">
 							{% if row.numeroRelance and row.dateDerniereRelance %}
 								<a href="#" data-bs-toggle="modal" data-bs-target="#relance" data-id="{{row.numeroDevis }}" class="text-decoration-none" data-bs-toggle="tooltip" title="Voir les relances client">
@@ -96,11 +96,11 @@
 						<td class="text-center">{{ row.creePar }}</td>
 						<td class="text-center">{{ row.operateur }}</td>
 					</tr>
-					{% endfor %}
-				</tbody>
+				{% endfor %}
+			</tbody>
 		</table>
 
-	{% include "magasin/devis/shared/_modalRelance.html.twig" %}
+		{% include "magasin/devis/shared/_modalRelance.html.twig" %}
 	</div>
 
 	{% include 'magasin/devis/pointage_relance/index.html.twig' %}

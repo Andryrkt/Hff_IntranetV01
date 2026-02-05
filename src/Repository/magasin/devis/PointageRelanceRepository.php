@@ -32,4 +32,18 @@ class PointageRelanceRepository extends EntityRepository
 
         return is_numeric($count[0]['numeroRelance'] ?? null) ? (int)$count[0]['numeroRelance'] : null;
     }
+
+    public function getNumeroRelanceMax(int $numeroDevis): ?int
+    {
+        $numeroVersionMax = $this->createQueryBuilder('pr')
+            ->select('pr.numeroRelance')
+            ->where('pr.numeroDevis = :numDevis')
+            ->setParameter('numDevis', $numeroDevis)
+            ->orderBy('pr.numeroRelance', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        return $numeroVersionMax;
+    }
 }

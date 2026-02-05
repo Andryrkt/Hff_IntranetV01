@@ -2,6 +2,8 @@
 
 namespace App\Factory\magasin\devis;
 
+use App\Constants\Magasin\Devis\PointageRelanceStatutConstant;
+
 class listeDevisMagasinFactory
 {
     private $statutDw = '';
@@ -409,4 +411,5 @@ class listeDevisMagasinFactory
 
         return $this;
     }
+
 }
