@@ -100,6 +100,7 @@ class ListeDevisMagasinController extends Controller
         $listeDevisFactory = $this->recuperationDonner($criteria);
         $preparedDatas     = $this->prepareDatasForView($listeDevisFactory, $this->styleStatutDw, $this->styleStatutBc, $this->statutIPS);
 
+
         // affichage de la liste des devis magasin
         return $this->render('magasin/devis/listeDevisMagasin.html.twig', [
             'datas' => $preparedDatas,
@@ -203,9 +204,12 @@ class ListeDevisMagasinController extends Controller
                 $dateRelance = $pointageRelanceRepository->findDernierDateDeRelance($numeroDevis);
                 $numeroRelance = $pointageRelanceRepository->findNumeroRelance($numeroDevis);
                 $statutRelance = $this->listeDevisMagasinModel->getStatutRelance($numeroDevis);
+                $relances = $this->getEntityManager()->getRepository(PointageRelance::class)->findBy(['numeroDevis' => $numeroDevis], ['dateDeRelance' => 'DESC']);
+
                 $devisIp['date_derniere_relance'] = $dateRelance;
                 $devisIp['numero_relance'] = $numeroRelance;
                 $devisIp['statut_relance'] = $statutRelance ?? null;
+                $devisIp['relances'] = $relances;
             }
 
             // Application des filtres critères
@@ -392,6 +396,7 @@ class ListeDevisMagasinController extends Controller
                 'dateDerniereRelance' => $devis->getDateDerniereRelance(),
                 'numeroRelance' => $devis->getNombreDeRelance(),
                 'statutRelance' => $devis->getStatutRelance(),
+                'relances' => $devis->getRelances() ?? []
             ];
         }
 
