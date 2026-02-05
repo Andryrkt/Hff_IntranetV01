@@ -21,10 +21,11 @@ class RelanceApi extends Controller
         foreach ($relances as $relance) {
             $response[] = [
                 'numeroRelance' => $relance->getNumeroRelance(),
-                'dateDeRelance' => $relance->getDateDeRelance()->format('d/m/Y'),
+                'dateRelance' => $relance->getDateDeRelance()->format('d/m/Y'),
                 'societe' => $relance->getSociete(),
                 'agence' => $relance->getAgence(),
-                'utilisateur' => $relance->getUtilisateur()
+                'utilisateur' => $relance->getUtilisateur(),
+                'numeroDevis' => $relance->getNumeroDevis()
             ];
         }
         echo json_encode($response);

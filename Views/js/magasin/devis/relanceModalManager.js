@@ -1,6 +1,9 @@
+import { FetchManager } from "../../api/FetchManager.js";
+
 document.addEventListener('DOMContentLoaded', function() {
     const relanceModal = document.getElementById('relance');
     const modalRelanceBody = document.getElementById('modalRelanceBody');
+    const fetchManager = new FetchManager();
 
     if (relanceModal) {
         relanceModal.addEventListener('show.bs.modal', async function (event) {
@@ -12,12 +15,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (numeroDevis) {
                 try {
-                    // TODO: Remplacer cette URL par l'endpoint API réel de votre application Symfony
-                    const response = await fetch(`/api/devis/${numeroDevis}/relances`);
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    const relances = await response.json();
+                    // Utilisation de FetchManager pour l'appel API
+                    const relances = await fetchManager.get(`api/devis/${numeroDevis}/relances`);
 
                     modalRelanceBody.innerHTML = ''; // Vide le message de chargement
 

@@ -204,12 +204,12 @@ class ListeDevisMagasinController extends Controller
                 $dateRelance = $pointageRelanceRepository->findDernierDateDeRelance($numeroDevis);
                 $numeroRelance = $pointageRelanceRepository->findNumeroRelance($numeroDevis);
                 $statutRelance = $this->listeDevisMagasinModel->getStatutRelance($numeroDevis);
-                $relances = $this->getEntityManager()->getRepository(PointageRelance::class)->findBy(['numeroDevis' => $numeroDevis], ['dateDeRelance' => 'DESC']);
+                // $relances = $this->getEntityManager()->getRepository(PointageRelance::class)->findBy(['numeroDevis' => $numeroDevis], ['dateDeRelance' => 'DESC']);
 
                 $devisIp['date_derniere_relance'] = $dateRelance;
                 $devisIp['numero_relance'] = $numeroRelance;
                 $devisIp['statut_relance'] = $statutRelance ?? null;
-                $devisIp['relances'] = $relances;
+                $devisIp['relances'] = [];
             }
 
             // Application des filtres critères
