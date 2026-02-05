@@ -188,9 +188,9 @@ class DaTimelineService
     private function createCurrentDateEntry(\DateTime $today): array
     {
         return [
-            'statut'   => 'Date du jour',
+            'statut'   => '',
             'dotClass' => '',
-            'date'     => $today->format('d/m/Y'),
+            'date'     => 'Aujourd’hui',
             'nbrJours' => '',
         ];
     }
