@@ -52,7 +52,12 @@ class DapLineAffectationFormType extends AbstractType
             ->add('prixUnitaire', TextType::class, [
                 'label' => false,
                 'required' => false,
-            ]);
+            ])
+            ->add('qteDem', TextType::class,  [
+                'label' => false,
+                'required' => true,
+            ])
+        ;
     }
 
     public function configureOptions(OptionsResolver $resolver)

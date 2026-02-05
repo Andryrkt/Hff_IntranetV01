@@ -81,7 +81,7 @@
 										<div class="text-center d-none"></div>
 									</td>
 									<td>{{ macroForm.affichageSimple(dal.dateFinSouhaiteFormatted, 'text-center') }}</td>
-									<td>{{ macroForm.affichageSimple(dal.qteDem, 'text-center') }}</td>
+									<td>{{ form_widget(dalForm.qteDem) }}</td>
 									<td>{{ macroForm.affichageSimple(dal.commentaire is not empty ? dal.commentaire : '-', 'text-start') }}</td>
 									<td>
 										{% if dal.fileNames|length > 0 %}
