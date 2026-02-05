@@ -2,10 +2,13 @@
 
 namespace App\Repository\magasin\devis;
 
+use App\Entity\magasin\devis\DevisMagasin;
+use Doctrine\ORM\Query\Expr\Join;
+use Doctrine\ORM\EntityRepository;
+use App\Entity\magasin\devis\PointageRelance;
+use App\Repository\Interfaces\StatusRepositoryInterface;
 use App\Repository\Interfaces\LatestSumOfLinesRepositoryInterface;
 use App\Repository\Interfaces\LatestSumOfMontantRepositoryInterface;
-use App\Repository\Interfaces\StatusRepositoryInterface;
-use Doctrine\ORM\EntityRepository;
 
 class DevisMagasinRepository extends EntityRepository implements StatusRepositoryInterface, LatestSumOfLinesRepositoryInterface, LatestSumOfMontantRepositoryInterface
 {
@@ -176,5 +179,16 @@ class DevisMagasinRepository extends EntityRepository implements StatusRepositor
             ->getSingleScalarResult();
 
         return $resultat;
+    }
+
+    public function getDevis(string $numeroDevis): DevisMagasin
+    {
+        return  $this->createQueryBuilder('d')
+            ->where('d.numeroDevis = :numeroDevis')
+            ->setParameter('numeroDevis', $numeroDevis)
+            ->orderBy('d.numeroVersion', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
     }
 }

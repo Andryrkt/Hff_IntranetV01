@@ -198,6 +198,13 @@ class DevisMagasin
      */
     private ?string $statutTemp = '';
 
+    /**
+     * @ORM\Column(type="string", length=100, name="statut_relance", nullable=true)
+     *
+     * @var string|null
+     */
+    private ?string $statutRelance = null;
+
     /** =========================================
      * GETTERS & SETTERS
      *============================================*/
@@ -760,6 +767,24 @@ class DevisMagasin
     public function setStatutTemp(?string $statutTemp): self
     {
         $this->statutTemp = $statutTemp;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of statutRelance
+     */
+    public function getStatutRelance(): ?string
+    {
+        return $this->statutRelance;
+    }
+
+    /**
+     * Set the value of statutRelance
+     */
+    public function setStatutRelance(?string $statutRelance): self
+    {
+        $this->statutRelance = $statutRelance;
 
         return $this;
     }

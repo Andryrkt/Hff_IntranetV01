@@ -20,6 +20,8 @@ class listeDevisMagasinFactory
     private $urlPO;
     private $dateDerniereRelance;
     private $nombreDeRelance;
+    private ?string $statutRelance = null;
+    private array $relances = [];
 
     /**
      * Get the value of statutDw
@@ -311,7 +313,9 @@ class listeDevisMagasinFactory
             ->setNumeroPO($data['numero_po'] ?? '')
             ->setUrlPO($data['url_po'] ?? '')
             ->setDateDerniereRelance($data['date_derniere_relance'] ? $this->convertToDateTime($data['date_derniere_relance'])->format('d/m/Y') : null)
-            ->setNombreDeRelance($data['nombre_de_relance'] ?? null)
+            ->setNombreDeRelance($data['numero_relance'] ?? null)
+            ->setStatutRelance($data['statut_relance'] ?? null)
+            ->setRelances($data['relances'] ?? [])
         ;
 
         return $this;
@@ -366,6 +370,42 @@ class listeDevisMagasinFactory
     public function setNombreDeRelance($nombreDeRelance): self
     {
         $this->nombreDeRelance = $nombreDeRelance;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of statutRelance
+     */
+    public function getStatutRelance()
+    {
+        return $this->statutRelance;
+    }
+
+    /**
+     * Set the value of statutRelance
+     */
+    public function setStatutRelance($statutRelance): self
+    {
+        $this->statutRelance = $statutRelance;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of relances
+     */
+    public function getRelances(): array
+    {
+        return $this->relances;
+    }
+
+    /**
+     * Set the value of relances
+     */
+    public function setRelances(array $relances): self
+    {
+        $this->relances = $relances;
 
         return $this;
     }

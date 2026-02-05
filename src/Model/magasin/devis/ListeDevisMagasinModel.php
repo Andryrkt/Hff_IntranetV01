@@ -66,7 +66,7 @@ class ListeDevisMagasinModel extends Model
 
         $statement .= " ORDER BY nent_datecde DESC";
 
-    
+
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);
@@ -401,5 +401,48 @@ class ListeDevisMagasinModel extends Model
         $data = $this->connect->fetchResults($result);
 
         return array_column($this->convertirEnUtf8($data), 'retour')[0];
+    }
+
+
+    public function getStatutRelance(string $numeroDevis): ?string
+    {
+        $sql = " SELECT TOP 1
+                CASE
+                    WHEN dsavn.statut_bc = 'En attente BC'
+                        AND (
+                            (NOT EXISTS (
+                                SELECT 1 
+                                FROM pointage_relance pr2 
+                                WHERE pr2.numero_devis = dsavn.numero_devis
+                            )
+                            AND DATEDIFF(DAY, dsavn.date_envoye_devis_client, GETDATE()) >= 7)
+                            OR
+                            (EXISTS (
+                                SELECT 1 
+                                FROM pointage_relance pr2 
+                                WHERE pr2.numero_devis = dsavn.numero_devis
+                            )
+                            AND DATEDIFF(DAY, MAX(pr.date_de_relance), GETDATE()) >= 7)
+                        )
+                    THEN 'A relancer'
+                    ELSE dsavn.statut_relance 
+                END AS statut_relance
+            FROM devis_soumis_a_validation_neg dsavn
+            LEFT JOIN pointage_relance pr 
+                ON pr.numero_devis = dsavn.numero_devis
+            WHERE dsavn.numero_devis = '$numeroDevis'
+            GROUP BY 
+                dsavn.numero_devis,
+                dsavn.date_envoye_devis_client,
+                dsavn.statut_bc,
+                dsavn.statut_relance,
+                dsavn.numero_version
+            ORDER BY dsavn.numero_version DESC
+        ";
+
+        $exec = $this->connexion->query($sql);
+        $result = odbc_fetch_array($exec);
+
+        return is_array($result) && isset($result['statut_relance']) ? $result['statut_relance'] : null;
     }
 }

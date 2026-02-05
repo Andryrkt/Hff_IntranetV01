@@ -35,6 +35,7 @@
 					<th>Libellé</th>
 					<th class="text-end">Montant</th>
 					<th class="text-center">Date envoi au client</th>
+					<th class="text-center">Statut relance</th>
 					<th class="text-center">Relance</th>
 					<th class="text-center">Position IPS</th>
 					<th class="text-center">PO/BC client</th>
@@ -74,7 +75,16 @@
 						<td>{{ row.libelle }}</td>
 						<td class="text-end">{{ row.montant }}</td>
 						<td class="text-center">{{ row.dateEnvoiClient }}</td>
-						<td class="text-center">{{ row.nombreDeRelance ~ ' - '~row.dateDerniereRelance }}</td>
+						<td class="text-start">{{ row.statutRelance }}</td>
+						<td class="text-center">
+							{% if row.numeroRelance and row.dateDerniereRelance %}
+								<a href="#" data-bs-toggle="modal" data-bs-target="#relance" data-id="{{row.numeroDevis }}" class="text-decoration-none" data-bs-toggle="tooltip" title="Voir les relances client">
+									{{ row.numeroRelance ~ ' - '~ row.dateDerniereRelance }}
+								</a>
+							{% else %}
+								{{ row.numeroRelance ~ ' - '~ row.dateDerniereRelance }}
+							{% endif %}
+						</td>
 						<td class="text-center" data-bs-toggle="tooltip" title="{{ row.titreStatutIps }}">{{ row.statutIps }}</td>
 						<td class="text-center">
 							{% if row.numeroPO %}
@@ -86,9 +96,11 @@
 						<td class="text-center">{{ row.creePar }}</td>
 						<td class="text-center">{{ row.operateur }}</td>
 					</tr>
-				{% endfor %}
-			</tbody>
+					{% endfor %}
+				</tbody>
 		</table>
+
+	{% include "magasin/devis/shared/_modalRelance.html.twig" %}
 	</div>
 
 	{% include 'magasin/devis/pointage_relance/index.html.twig' %}
@@ -98,4 +110,5 @@
 	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v=2025.10.22.08.00"></script>
 	<script type="module" src="{{ App.base_path }}/Views/js/magasin/devis/listeDevisMagasin.js?v=2025.10.22.08.00"></script>
 	<script src="{{ App.base_path }}/Views/js/magasin/devis/pointageRelanceModal.js" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/magasin/devis/relanceModalManager.js" type="module"></script>
 {% endblock %}
