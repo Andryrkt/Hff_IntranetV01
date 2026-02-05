@@ -25,19 +25,6 @@ trait DaEditAvecDitTrait
         $this->daObservationRepository = $em->getRepository(DaObservation::class);
     }
     //==================================================================================================
-
-    private function filtreDal($demandeAppro, int $numeroVersionMax): DemandeAppro
-    {
-        // filtre une collection de versions selon le numero de version max
-        $dernieresVersions = $demandeAppro->getDAL()->filter(function ($item) use ($numeroVersionMax) {
-            return $item->getNumeroVersion() == $numeroVersionMax && $item->getDeleted() == 0;
-        });
-        $demandeAppro->setDAL($dernieresVersions); // on remplace la collection de versions par la collection filtrée
-
-        return $demandeAppro;
-    }
-
-
     private function modificationDa(DemandeAppro $demandeAppro, $formDAL, string $statut): void
     {
         $em = $this->getEntityManager();
@@ -51,7 +38,6 @@ trait DaEditAvecDitTrait
     {
         $em = $this->getEntityManager();
         $numeroDemandeAppro = $demandeAppro->getNumeroDemandeAppro();
-        $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numeroDemandeAppro);
 
         // Indexation des DAL par numéro de ligne
         $dalParLigne = [];
@@ -93,7 +79,6 @@ trait DaEditAvecDitTrait
                 $demandeApproL
                     ->setNumeroDemandeAppro($numeroDemandeAppro)
                     ->setStatutDal($statut)
-                    ->setNumeroVersion($numeroVersionMax)
                     ->setJoursDispo($this->getJoursRestants($demandeApproL))
                     ->setFileNames($allFileNames)
                 ;

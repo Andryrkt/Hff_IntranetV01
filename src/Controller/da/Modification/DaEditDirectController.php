@@ -45,8 +45,6 @@ class DaEditDirectController extends Controller
         /** @var DemandeAppro $demandeAppro la demande appro correspondant à l'id $id */
         $demandeAppro = $this->demandeApproRepository->find($id); // recupération de la DA
         $numDa = $demandeAppro->getNumeroDemandeAppro();
-        $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
-        $demandeAppro = $this->filtreDal($demandeAppro, (int)$numeroVersionMax); // on filtre les lignes de la DA selon le numero de version max
 
         $ancienDals = $this->getAncienDAL($demandeAppro);
 
