@@ -404,6 +404,11 @@ class DaAfficher
      */
     private $dateLivraisonArticle;
 
+    /**
+     * @ORM\Column(type="datetime", name="date_reception_article", nullable=true)
+     */
+    private $dateReceptionArticle;
+
     /**==============================================================================
      * GETTERS & SETTERS
      *===============================================================================*/
@@ -1935,6 +1940,24 @@ class DaAfficher
     }
 
     /**
+     * Get the value of dateReceptionArticle
+     */
+    public function getDateReceptionArticle()
+    {
+        return $this->dateReceptionArticle;
+    }
+
+    /**
+     * Set the value of dateReceptionArticle
+     */
+    public function setDateReceptionArticle($dateReceptionArticle): self
+    {
+        $this->dateReceptionArticle = $dateReceptionArticle;
+
+        return $this;
+    }
+
+    /**
      * Copie les propriétés pertinentes d'un ancien DaAfficher vers l'objet courant.
      *
      * Cela permet de "mettre à jour" l'objet courant avec les valeurs de référence
@@ -1959,6 +1982,10 @@ class DaAfficher
             ->setEstFactureBlSoumis($oldDaAfficher->getEstFactureBlSoumis())
             ->setBcEnvoyerFournisseur($oldDaAfficher->getBcEnvoyerFournisseur())
             ->setDateLivraisonPrevue($oldDaAfficher->getDateLivraisonPrevue())
+            ->setDateCreationBc($oldDaAfficher->getDateCreationBc())
+            ->setDateValidationBc($oldDaAfficher->getDateValidationBc())
+            ->setDateReceptionArticle($oldDaAfficher->getDateReceptionArticle())
+            ->setDateLivraisonArticle($oldDaAfficher->getDateLivraisonArticle())
             ->setDateEnvoiFournisseur($oldDaAfficher->getDateEnvoiFournisseur())
         ;
     }
