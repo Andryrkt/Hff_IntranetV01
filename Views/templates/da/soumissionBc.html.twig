@@ -32,8 +32,8 @@
 							{{ form_errors(form.numeroCde) }}
 						</div>
 						<div class="col-12 col-md-3">
-							{{ form_row(form.DemandePaiementAvance) }}
-							{{ form_errors(form.DemandePaiementAvance) }}
+							{{ form_row(form.demandePaiementAvance) }}
+							{{ form_errors(form.demandePaiementAvance) }}
 						</div>
 					</div>
 					<div class="row">
@@ -45,15 +45,18 @@
 						</div>
 						<div class="col-12 col-md-3">
 							<p>Insérer
-								<strong>les autres fichiers ici *</strong>
+								<strong>les autres fichiers ici</strong>
 							</p>
 							{% include '/partials/_dropZoneFileMultiple.html.twig' with {'id': '2', 'form': form, 'fieldName': 'pieceJoint2'} %}
 						</div>
 					</div>
 					<div class="d-flex justify-content-end">
-						<button type="submit" class="btn bouton mt-2" data-confirmation data-form="#myForm" data-confirmation-message="Confirmez-vous l'envoi ?" data-confirmation-text="Vous êtes en train de soumettre une bon de commande à validation dans DocuWare" data-warning-message="Merci de ne pas fermer la page pendant le traitement.">
+						<button type="submit" name="enregistrer" class="btn bouton mt-2" data-confirmation data-form="#myForm" data-confirmation-message="Confirmez-vous l'envoi ?" data-confirmation-text="Vous êtes en train de soumettre une bon de commande à validation dans DocuWare" data-warning-message="Merci de ne pas fermer la page pendant le traitement.">
 							<i class="fas fa-save"></i>
 							Enregistrer
+						</button>
+						<button type="submit" name="suivant" class="btn btn-outline-primary mt-2 ml-2" style="display:none;" data-confirmation data-form="#myForm" data-confirmation-message="Confirmez-vous la redirection ?" data-confirmation-text="Vous êtes sur le point de passer au formulaire du demande de paiement à l'avance" data-warning-message="Merci de ne pas fermer la page pendant la redirection.">Suivant
+							<i class="fas fa-arrow-right"></i>
 						</button>
 					</div>
 					{{ form_end(form) }}

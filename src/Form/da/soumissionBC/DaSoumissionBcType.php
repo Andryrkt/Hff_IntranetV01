@@ -2,7 +2,7 @@
 
 namespace App\Form\da\soumissionBC;
 
-use App\Entity\da\DaSoumissionBc;
+use App\Dto\Da\ListeCdeFrn\DaSoumissionBcDto;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\File;
@@ -22,7 +22,7 @@ class DaSoumissionBcType extends AbstractType
                 'label' => 'Numéro Commande',
                 'attr' => ['disabled' => true]
             ])
-            ->add('DemandePaiementAvance', ChoiceType::class, [
+            ->add('demandePaiementAvance', ChoiceType::class, [
                 'choices'       => [
                     'OUI' => true,
                     'NON' => false
@@ -108,7 +108,7 @@ class DaSoumissionBcType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => DaSoumissionBc::class,
+            'data_class' => DaSoumissionBcDto::class,
         ]);
     }
 }
