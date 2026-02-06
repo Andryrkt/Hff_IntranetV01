@@ -3,7 +3,9 @@
 namespace App\Model\da;
 
 use App\Entity\da\DemandeAppro;
+use App\Entity\da\DemandeApproL;
 use App\Model\Model;
+use App\Service\TableauEnStringService;
 
 class DaReapproModel extends Model
 {
@@ -36,6 +38,9 @@ class DaReapproModel extends Model
             $conditionNumDa = "AND seor_lib IN ('" . implode("', '", $numDa) . "')";
         }
 
+        $allRefp = $demandeAppro->getDAL()->map(fn(DemandeApproL $demandeApproL) => $demandeApproL->getArtRefp())->toArray();
+        $allRefpString = TableauEnStringService::orEnString($allRefp);
+
         $statement = "SELECT 
                         dfcc_datefac AS date_fac,
                         slor_constp AS cst, 
@@ -55,6 +60,7 @@ class DaReapproModel extends Model
                         AND seor_natop = 'CES'
                         AND seor_typeor IN ('601','602','603','604','605','606','607','608','609')
                         AND slor_constp IN ('ALI','BOI','CEN','FAT','FBU','HAB','INF','MIN','OUT')
+                        AND trim(slor_refp) IN ($allRefpString)
                     GROUP BY 1,2,3,4
                     ORDER BY slor_constp asc
                     ";

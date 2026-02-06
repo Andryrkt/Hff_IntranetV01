@@ -138,11 +138,11 @@ abstract class GenererPdfDa extends GeneratePdf
     protected function renderTableHistoriqueConsomReappro(TCPDF $pdf, array $monthsList, array $dataHistoriqueConsommation): void
     {
         $generator = new PdfTableReappro;
-        $this->renderTextWithLine($pdf, 'Historique des consommations');
 
-        $pdf->SetTextColor(0, 0, 0);
-        $pdf->setFont('helvetica', '', 10);
         if (empty($dataHistoriqueConsommation["data"])) {
+            $this->renderTextWithLine($pdf, 'Historique des consommations');
+            $pdf->SetTextColor(0, 0, 0);
+            $pdf->setFont('helvetica', '', 10);
             $pdf->cell(0, 6, 'Aucun historique de consommation disponible', 0, 1);
             $pdf->Ln(3);
         } else {
@@ -156,6 +156,9 @@ abstract class GenererPdfDa extends GeneratePdf
             $pdf->SetAutoPageBreak(true, 7);
             $pdf->AddPage('L');
 
+            $this->renderTextWithLine($pdf, 'Historique des consommations');
+            $pdf->SetTextColor(0, 0, 0);
+            $pdf->setFont('helvetica', '', 10);
             $html = $generator->generateHistoriqueTable($monthsList, $dataHistoriqueConsommation);
             $pdf->writeHTML($html, false, false, true, false, '');
 
