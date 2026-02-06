@@ -97,13 +97,14 @@ class DaTimelineService
 
     private function buildTimelineBC(string $numeroDa, array $lastDataDA): array
     {
-        $allDatas = $this->daAfficherRepository->getTimelineDataForBC($numeroDa);
+        $allDatas = $this->daAfficherRepository->getAllNumCdeAndVmax($numeroDa);
         $tabTemp = [];
         $today = new \DateTime();
 
         foreach ($allDatas as $data) {
             $numBC = $data['numeroCde'];
-            $dateCreationBc = $data['dateCreationBc']; // Génération BC
+            $numeroVersion = $data['numeroVersion'];
+            $dateCreationBc = $this->daAfficherRepository->getDateCreationBc($numeroDa, $numeroVersion, $numBC); // Génération BC
 
             if (!$dateCreationBc) continue;
 
@@ -117,10 +118,10 @@ class DaTimelineService
                 ),
             ];
 
-            $dateValidation = $data['dateValidationBc'];           // Validation BC
-            $dateEnvoi = $data['dateEnvoiFournisseur'];            // Envoi au fournisseur
-            $dateReceptionArticle = $data['dateReceptionArticle']; // Reception article
-            $dateLivraisonArticle = $data['dateLivraisonArticle']; // Article livré
+            $dateValidation       = $this->daAfficherRepository->getDateValidationBc($numeroDa, $numeroVersion, $numBC); // Validation BC
+            $dateEnvoi            = $this->daAfficherRepository->getDateEnvoiFournisseur($numeroDa, $numeroVersion, $numBC); // Envoi au fournisseur
+            $dateReceptionArticle = $this->daAfficherRepository->getDateReceptionArticle($numeroDa, $numeroVersion, $numBC); // Reception article
+            $dateLivraisonArticle = $this->daAfficherRepository->getDateLivraisonArticle($numeroDa, $numeroVersion, $numBC); // Article livré
 
 
             $tabTemp[$numBC][] = [
