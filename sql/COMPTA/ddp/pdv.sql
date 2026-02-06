@@ -83,11 +83,12 @@ montant_a_payer DECIMAL(18, 2),
 contact VARCHAR(50),
 numero_commande VARCHAR(max),
 numero_facture VARCHAR(max),
-appro bit DEFAULT 0
+appro bit DEFAULT 0,
+type_da INT DEFAULT NULL
 ;
 
 ALTER TABLE demande_paiement
-ADD type_da INT DEFAULT NULL
+ADD numero_version_bc int 
 
 ALTER TABLE demande_paiement_ligne
 ADD ratio_montant_payer DECIMAL(18, 2)
