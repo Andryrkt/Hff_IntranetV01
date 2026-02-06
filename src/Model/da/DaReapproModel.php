@@ -39,6 +39,8 @@ class DaReapproModel extends Model
         }
 
         $allRefp = $demandeAppro->getDAL()->map(fn(DemandeApproL $demandeApproL) => $demandeApproL->getArtRefp())->toArray();
+        if (empty($allRefp)) return [];
+
         $allRefpString = TableauEnStringService::orEnString($allRefp);
 
         $statement = "SELECT 
