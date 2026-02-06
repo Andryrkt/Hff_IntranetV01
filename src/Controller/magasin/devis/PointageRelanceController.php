@@ -2,8 +2,9 @@
 
 namespace App\Controller\magasin\devis;
 
-use App\Api\magasin\AutocompletionApi;
 use App\Controller\Controller;
+use App\Api\magasin\AutocompletionApi;
+use App\Service\autres\AutoIncDecService;
 use App\Entity\magasin\devis\DevisMagasin;
 use App\Dto\Magasin\Devis\PointageRelanceDto;
 use App\Entity\magasin\devis\PointageRelance;
@@ -12,7 +13,6 @@ use Symfony\Component\HttpFoundation\Response;
 use App\Form\magasin\devis\PointageRelanceType;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Factory\magasin\devis\PointageRelanceFactory;
-use App\Service\autres\AutoIncDecService;
 
 /**
  * @Route("/magasin/dematerialisation")
@@ -79,7 +79,9 @@ class PointageRelanceController extends Controller
     private function modifictionTableDevisSoumisAValidationNeg(PointageRelance $pointageRelanceEntity): void
     {
         $devis = $this->getEntityManager()->getRepository(DevisMagasin::class)->getDevis($pointageRelanceEntity->getNumeroDevis());
-        $devis->setStatutRelance('Relancé');
-        $this->getEntityManager()->flush();
+        if ($devis) {
+            $devis->setStatutRelance('Relancé');
+            $this->getEntityManager()->flush();
+        }
     }
 }

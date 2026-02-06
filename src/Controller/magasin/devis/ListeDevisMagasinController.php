@@ -20,6 +20,7 @@ use App\Factory\magasin\devis\ListeDevisSearchDto;
 use App\Form\magasin\devis\DevisMagasinSearchType;
 use App\Model\magasin\devis\ListeDevisMagasinModel;
 use App\Factory\magasin\devis\ListeDevisMagasinFactory;
+use App\Model\Traits\ConversionModel;
 
 /**
  * @Route("/magasin/dematerialisation")
@@ -27,6 +28,7 @@ use App\Factory\magasin\devis\ListeDevisMagasinFactory;
 class ListeDevisMagasinController extends Controller
 {
     use AutorisationTrait;
+    use ConversionModel;
 
     private $styleStatutDw = [];
     private $styleStatutBc = [];
@@ -402,9 +404,9 @@ class ListeDevisMagasinController extends Controller
                 'relanceClient'   => $relanceClient,
                 'dateDerniereRelance' => $devis->getDateDerniereRelance(),
                 'numeroRelance' => $devis->getNombreDeRelance(),
-                'statutRelance' => $devis->getStatutRelance(),
+                'statutRelance' => $this->convertirEnUtf8($devis->getStatutRelance()),
                 'relances' => $devis->getRelances() ?? [],
-                'styleStatutPR' => $styleStatutPR[$devis->getStatutRelance()]
+                'styleStatutPR' => $styleStatutPR[$this->convertirEnUtf8($devis->getStatutRelance())] ?? ''
             ];
         }
 

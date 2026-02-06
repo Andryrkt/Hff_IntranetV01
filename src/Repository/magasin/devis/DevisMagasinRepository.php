@@ -181,7 +181,7 @@ class DevisMagasinRepository extends EntityRepository implements StatusRepositor
         return $resultat;
     }
 
-    public function getDevis(string $numeroDevis): DevisMagasin
+    public function getDevis(string $numeroDevis): ?DevisMagasin
     {
         return  $this->createQueryBuilder('d')
             ->where('d.numeroDevis = :numeroDevis')
