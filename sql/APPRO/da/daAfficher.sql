@@ -72,6 +72,7 @@ deleted BIT NOT NULL DEFAULT 0
 ALTER TABLE da_afficher ADD 
 date_creation_bc DATETIME2(0),
 date_validation_bc DATETIME2(0),
+date_reception_article DATETIME2(0)
 date_livraison_article DATETIME2(0)
 ;
 
