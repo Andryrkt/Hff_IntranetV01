@@ -187,6 +187,13 @@ class DemandePaiement
      */
     private $typeDa;
 
+    /**
+     * @ORM\Column(type="integer", name="numero_version_bc")
+     *
+     * @var integer|null
+     */
+    private ?int $numeroVersionBc = null;
+
     private string $montantAPayer = '0';
 
     private $pieceJoint01;
@@ -983,6 +990,24 @@ class DemandePaiement
     public function setTypeDa($typeDa): self
     {
         $this->typeDa = $typeDa;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroVersionBc
+     */
+    public function getNumeroVersionBc(): ?int
+    {
+        return $this->numeroVersionBc;
+    }
+
+    /**
+     * Set the value of numeroVersionBc
+     */
+    public function setNumeroVersionBc(?int $numeroVersionBc): self
+    {
+        $this->numeroVersionBc = $numeroVersionBc;
 
         return $this;
     }
