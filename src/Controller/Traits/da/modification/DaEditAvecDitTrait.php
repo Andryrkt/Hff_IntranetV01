@@ -6,8 +6,6 @@ use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
-use App\Repository\dit\DitRepository;
-use App\Entity\dit\DemandeIntervention;
 use App\Repository\da\DaObservationRepository;
 use App\Service\da\FileUploaderForDAService;
 
@@ -16,7 +14,6 @@ trait DaEditAvecDitTrait
     use DaEditTrait;
 
     //==================================================================================================
-    private DitRepository $ditRepository;
     private DaObservationRepository $daObservationRepository;
     /**
      * Initialise les valeurs par défaut du trait
@@ -25,26 +22,9 @@ trait DaEditAvecDitTrait
     {
         $em = $this->getEntityManager();
         $this->initDaTrait();
-        $this->ditRepository = $em->getRepository(DemandeIntervention::class);
         $this->daObservationRepository = $em->getRepository(DaObservation::class);
     }
     //==================================================================================================
-
-    private function filtreDal($demandeAppro, $dit, int $numeroVersionMax): DemandeAppro
-    {
-        $demandeAppro->setDit($dit); // association de la DA avec le DIT
-
-        // filtre une collection de versions selon le numero de version max
-
-        $dernieresVersions = $demandeAppro->getDAL()->filter(function ($item) use ($numeroVersionMax) {
-            return $item->getNumeroVersion() == $numeroVersionMax && $item->getDeleted() == 0;
-        });
-        $demandeAppro->setDAL($dernieresVersions); // on remplace la collection de versions par la collection filtrée
-
-        return $demandeAppro;
-    }
-
-
     private function modificationDa(DemandeAppro $demandeAppro, $formDAL, string $statut): void
     {
         $em = $this->getEntityManager();
@@ -58,7 +38,6 @@ trait DaEditAvecDitTrait
     {
         $em = $this->getEntityManager();
         $numeroDemandeAppro = $demandeAppro->getNumeroDemandeAppro();
-        $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numeroDemandeAppro);
 
         // Indexation des DAL par numéro de ligne
         $dalParLigne = [];
@@ -100,7 +79,6 @@ trait DaEditAvecDitTrait
                 $demandeApproL
                     ->setNumeroDemandeAppro($numeroDemandeAppro)
                     ->setStatutDal($statut)
-                    ->setNumeroVersion($numeroVersionMax)
                     ->setJoursDispo($this->getJoursRestants($demandeApproL))
                     ->setFileNames($allFileNames)
                 ;

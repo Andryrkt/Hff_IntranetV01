@@ -203,7 +203,6 @@ trait DaValidationReapproTrait
             ->setNumeroDemandeAppro($demandeAppro->getNumeroDemandeAppro())
             ->setNumeroVersion($numeroVersion)
             ->setStatut(DemandeAppro::STATUT_DW_A_VALIDE)
-            ->setDateSoumission(new DateTime())
             ->setUtilisateur($demandeAppro->getDemandeur())
         ;
 

@@ -9,15 +9,15 @@ use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use App\Service\application\ApplicationService;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\Traits\da\creation\DaNewReapproTrait;
-use App\Form\da\DemandeApproReapproFormType;
+use App\Controller\Traits\da\creation\DaNewReapproMensuelTrait;
+use App\Form\da\DemandeApproReapproMensuelFormType;
 
 /**
  * @Route("/demande-appro")
  */
-class DaNewReApproController extends Controller
+class DaNewReApproMensuelController extends Controller
 {
-    use DaNewReapproTrait;
+    use DaNewReapproMensuelTrait;
     use AutorisationTrait;
     const STATUT_DAL = [
         'enregistrerBrouillon' => DemandeAppro::STATUT_EN_COURS_CREATION,
@@ -27,13 +27,13 @@ class DaNewReApproController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->initDaNewReapproTrait();
+        $this->initDaNewReapproMensuelTrait();
     }
 
     /**
-     * @Route("/new-da-reappro/{id<\d+>}", name="da_new_reappro")
+     * @Route("/new-da-reappro-mensuel/{id<\d+>}", name="da_new_reappro_mensuel")
      */
-    public function newDAReappro(int $id, Request $request)
+    public function newDAReapproMensuel(int $id, Request $request)
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
@@ -42,15 +42,15 @@ class DaNewReApproController extends Controller
         $this->checkPageAccess($this->estAdmin() || $this->estCreateurDeDADirecte());
         /** FIN AUtorisation accès */
 
-        $demandeAppro     = $id === 0 ? $this->initialisationDemandeApproReappro() : $this->demandeApproRepository->find($id);
+        $demandeAppro     = $id === 0 ? $this->initialisationDemandeApproReapproMensuel() : $this->demandeApproRepository->find($id);
         $this->generateDemandApproLinesFromReappros($demandeAppro);
 
-        $form = $this->getFormFactory()->createBuilder(DemandeApproReapproFormType::class, $demandeAppro, [
+        $form = $this->getFormFactory()->createBuilder(DemandeApproReapproMensuelFormType::class, $demandeAppro, [
             'em' => $this->getEntityManager()
         ])->getForm();
         $this->traitementFormReappro($form, $request);
 
-        return $this->render('da/new-da-reappro.html.twig', [
+        return $this->render('da/new-da-reappro-mensuel.html.twig', [
             'form'         => $form->createView(),
             'codeCentrale' => $this->estAdmin() || in_array($demandeAppro->getAgenceEmetteur()->getCodeAgence(), ['90', '91', '92']),
         ]);
@@ -80,6 +80,7 @@ class DaNewReApproController extends Controller
 
             $demandeAppro
                 ->setNumeroDemandeAppro($numDa)
+                ->setNumeroDemandeApproMere($numDa)
                 ->setDetailDal($demandeAppro->getDetailDal() ?? '-')
                 ->setStatutDal($statutDa);
 
@@ -111,10 +112,10 @@ class DaNewReApproController extends Controller
             $this->getEntityManager()->flush();
 
             /** ajout de l'observation dans la table da_observation si ceci n'est pas null */
-            if ($demandeAppro->getObservation()) $this->insertionObservation($numDa, $demandeAppro->getObservation());
+            if ($demandeAppro->getObservation()) $this->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $demandeAppro->getObservation());
 
             // ajout des données dans la table DaAfficher
-            $this->ajouterDaDansTableAffichage($demandeAppro);
+            $this->ajouterDaDansTableAffichage($demandeAppro, $firstCreation);
 
             if ($clickedButtonName === "soumissionAppro") $this->emailDaService->envoyerMailCreationDa($demandeAppro, $this->getUser());
 

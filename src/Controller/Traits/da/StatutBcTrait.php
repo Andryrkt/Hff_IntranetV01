@@ -6,7 +6,9 @@ use DateTime;
 use App\Entity\da\DaAfficher;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaSoumissionBc;
+use App\Entity\da\DaSoumissionFacBl;
 use App\Entity\dit\DitOrsSoumisAValidation;
+use App\Entity\dw\DwBcAppro;
 use App\Model\magasin\MagasinListeOrLivrerModel;
 use App\Model\da\DaModel;
 
@@ -124,6 +126,9 @@ trait StatutBcTrait
         // 12. modification du Qte de commande dans DaAfficher
         $this->updateQteCdeDansDaAfficher($qte, $DaAfficher, $infoDaDirect, $daDirect, $daViaOR);
 
+        // 13. modification du date de creation et validation Bc
+        $this->updateDateBc($DaAfficher, $numCde, $em);
+
         // DA DIRECT et DA REAPPRO
         if ((empty($situationCde) && $daViaOR && $statutOr === DitOrsSoumisAValidation::STATUT_VALIDE) || ($daReappro && $statutOr ===  DemandeAppro::STATUT_DW_VALIDEE && $DaAfficher->getNumeroCde() === null)) {
             return 'PAS DANS OR';
@@ -171,6 +176,22 @@ trait StatutBcTrait
         return '';
     }
 
+    private function updateDateBc(DaAfficher $DaAfficher, ?string $numcde, $em)
+    {
+        if ($numcde == null) return;
+
+        $dateCreationBc = $this->daModel->getDateCreationBc($numcde);
+        $dateValidationBc = $em->getRepository(DwBcAppro::class)->getDateValidationBC($numcde);
+        $dateReceptionArticle = $this->daModel->getDateReceptionArticle($numcde);
+        $dateLivraisonArticle = $em->getRepository(DaSoumissionFacBl::class)->getDateLivraisonArticle($numcde);
+
+        $DaAfficher
+            ->setDateCreationBc($dateCreationBc)
+            ->setDateValidationBc($dateValidationBc)
+            ->setDateReceptionArticle($dateReceptionArticle)
+            ->setDateLivraisonArticle($dateLivraisonArticle)
+        ;
+    }
 
     private function getInfoCde($infoDaDirect, $situationCde, $daDirect, $daViaOR, $daReappro, $numeroOr, $em): array
     {
@@ -236,7 +257,7 @@ trait StatutBcTrait
         $daTypeId = $DaAfficher->getDaTypeId();
         $daDirect = $daTypeId == DemandeAppro::TYPE_DA_DIRECT; // condition pour daDirect
         $daViaOR = $daTypeId == DemandeAppro::TYPE_DA_AVEC_DIT; // condition pour Da via OR
-        $daReappro = $daTypeId == DemandeAppro::TYPE_DA_REAPPRO;
+        $daReappro = $daTypeId == DemandeAppro::TYPE_DA_REAPPRO_MENSUEL || $daTypeId == DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL;
 
         return [$daDirect, $daViaOR, $daReappro];
     }

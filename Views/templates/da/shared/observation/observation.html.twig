@@ -75,7 +75,7 @@
 					</div>
 				</div>
 				<div class="form-footer">
-					{% if demandeAppro.daTypeId != 2 %}
+					{% if demandeAppro.daTypeId != 2 and demandeAppro.daTypeId != 3 %}
 						<div class="{{ estAppro and not statutAutoriserModifAte ? 'd-block' : 'd-none' }}">
 							<div class="form-switch ps-3">
 								{{ form_widget(formObservation.statutChange) }}

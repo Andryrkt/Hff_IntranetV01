@@ -159,6 +159,39 @@ class DaApi extends Controller
     }
 
     /**
+     * @Route("/demande-appro/autocomplete/all-article-stocke", name="autocomplete_all_article_stocke")
+     *
+     * @return void
+     */
+    public function autocompleteAllArticleStocke()
+    {
+        try {
+            $daModel = new DaModel;
+            $data = $daModel->getAllArticleStocke();
+
+            // Vérifier que les données sont valides
+            if (!is_array($data)) {
+                throw new \Exception("Les données retournées ne sont pas un tableau valide");
+            }
+
+            // Nettoyer les données avant l'encodage JSON
+            $cleanedData = $this->cleanDataForJson($data);
+
+            header("Content-type:application/json; charset=utf-8");
+            echo json_encode($cleanedData, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_IGNORE);
+        } catch (\Exception $e) {
+            // En cas d'erreur, retourner un tableau vide avec un message d'erreur
+            header("Content-type:application/json; charset=utf-8");
+            http_response_code(500);
+            echo json_encode([
+                'error' => true,
+                'message' => 'Erreur lors du chargement des données: ' . $e->getMessage(),
+                'data' => []
+            ], JSON_UNESCAPED_UNICODE);
+        }
+    }
+
+    /**
      * @Route("/demande-appro/autocomplete/all-fournisseur", name="autocomplete_all_fournisseur")
      *
      * @return void

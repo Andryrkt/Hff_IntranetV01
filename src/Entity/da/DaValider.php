@@ -1243,7 +1243,7 @@ class DaValider
         return $this;
     }
 
-    public function enregistrerDa(DemandeAppro $da)
+    public function duplicateDa(DemandeAppro $da)
     {
         $this
             ->setNumeroDemandeAppro($da->getNumeroDemandeAppro())
@@ -1258,7 +1258,7 @@ class DaValider
         ;
     }
 
-    public function enregistrerDal(DemandeApproL $dal)
+    public function duplicateDal(DemandeApproL $dal)
     {
         $this
             ->setQteDem($dal->getQteDem())
@@ -1283,7 +1283,7 @@ class DaValider
         ;
     }
 
-    public function enregistrerDalr(DemandeApproLR $dalr)
+    public function duplicateDalr(DemandeApproLR $dalr)
     {
         $this
             ->setQteDem($dalr->getQteDem())

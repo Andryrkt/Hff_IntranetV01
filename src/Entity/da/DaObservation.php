@@ -23,7 +23,7 @@ class DaObservation
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=11, name="numero_da")
+     * @ORM\Column(type="string", length=12, name="numero_da")
      */
     private string $numDa;
 

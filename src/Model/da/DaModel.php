@@ -181,6 +181,30 @@ class DaModel extends Model
         return $data;
     }
 
+    public function getAllArticleStocke()
+    {
+        $statement = "SELECT 
+                        a.abse_constp AS constp,
+                        TRIM(a.abse_refp) AS refp,
+                        TRIM(a.abse_desi) AS designation,
+                        af.afrn_numf AS numero_fournisseur,
+                        fbse_nomfou AS nom_fournisseur,
+                        af.afrn_pxach AS prix_unitaire 
+                    FROM art_bse a 
+                    LEFT JOIN art_frn af ON afrn_constp = abse_constp AND afrn_refp = abse_refp
+                    INNER JOIN art_soc ON asoc_soc = 'HF' AND asoc_constp = a.abse_constp AND asoc_refp = a.abse_refp
+                    INNER JOIN frn_bse ON af.afrn_numf = fbse_numfou
+                        WHERE a.abse_constp IN ('ALI','BOI','CEN','FBU','HAB','OUT')
+                        AND af.afrn_dated = (
+                            SELECT MAX(afrn_dated) FROM art_frn WHERE afrn_constp = a.abse_constp AND afrn_refp = a.abse_refp
+                        )
+                    ORDER BY designation";
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return $data;
+    }
+
     public function getPrixUnitaire($referencePiece)
     {
         $statement = "SELECT c.afrn_pxach as prix
@@ -499,6 +523,43 @@ class DaModel extends Model
     }
 
     /**
+     * Récupérer les références autorisées
+     */
+    public function getAllReferenceAutorisees(): array
+    {
+        $statement = "SELECT 
+                        TRIM(abs.abse_refp) as reference, 
+                        TRIM(abs.abse_constp) as constp,
+                        TRIM(abs.abse_desi) as desi,
+                        af.afrn_numf as num_frn, 
+                        TRIM(fbse.fbse_nomfou) as nom_frn,
+                        af.afrn_pxach as prix_unitaire 
+                    FROM Informix.art_bse abs
+                    LEFT JOIN Informix.art_frn af 
+                        ON af.afrn_constp = abs.abse_constp 
+                        AND af.afrn_refp = abs.abse_refp
+                    INNER JOIN Informix.art_soc asoc 
+                        ON asoc.asoc_constp = abs.abse_constp 
+                        AND asoc.asoc_refp = abs.abse_refp
+                    INNER JOIN Informix.frn_bse fbse 
+                        ON af.afrn_numf = fbse.fbse_numfou
+                    WHERE abs.abse_constp IN ('ALI','BOI','CEN','FBU','HAB','OUT','ZDI','INF','MIN')
+                        AND asoc.asoc_soc = 'HF'
+                        AND af.afrn_dated = (
+                            SELECT MAX(afrn_dated) 
+                                FROM Informix.art_frn 
+                            WHERE afrn_constp = abs.abse_constp 
+                            AND afrn_refp = abs.abse_refp
+                        )
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return $data;
+    }
+
+    /**
      * recupère le numéro et le nom du fournissuer
      * 
      * cette méthode utilise les tables frn_cdl et frn_bse pour recupérer le numéro et le nom du fournisseur
@@ -622,5 +683,37 @@ class DaModel extends Model
         $result = $this->connect->executeQuery($statement);
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
         return $data ? $data[0] : [];
+    }
+
+    /**
+     * Recupère la date de creation d'une commande dans IPS
+     *
+     * @param integer $numcde
+     * @return \DateTime|null
+     */
+    public function getdateCreationBc(int $numcde): ?\DateTime
+    {
+        $statement = "SELECT fcde_datec as date_creation_cde 
+        from Informix.frn_cde 
+        where fcde_numcde = '$numcde'";
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+        return !empty($data) ? new \DateTime(array_column($data, 'date_creation_cde')[0]) : null;
+    }
+
+    public function getDateReceptionArticle(int $numcde)
+    {
+        $statement = " SELECT  first 1 fliv_datec as date_reception_article
+                    from frn_cdl, frn_llf, frn_liv
+                    where (fcdl_numcde = fllf_numcde and fcdl_ligne = fllf_ligne and fcdl_soc = fllf_soc and fcdl_succ = fllf_succ)
+                    and (fllf_soc = fliv_soc and fllf_succ = fliv_succ and fllf_numliv = fliv_numliv)
+                    and fllf_numcde = '$numcde'
+                    order by fliv_datec asc
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return !empty($data) ? new \DateTime(array_column($data, 'date_reception_article')[0]) : null;
     }
 }

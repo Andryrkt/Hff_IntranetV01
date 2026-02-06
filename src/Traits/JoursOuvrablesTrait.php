@@ -58,13 +58,20 @@ trait JoursOuvrablesTrait
     public function differenceJoursOuvrables(DateTime $dateDebut, DateTime $dateFin): int
     {
         $diff = 0;
-        $interval = $dateDebut < $dateFin ? 1 : -1;
-        $date = clone $dateDebut;
+        // Cloner les dates pour éviter de modifier les originales
+        $debut = clone $dateDebut;
+        $fin = clone $dateFin;
 
-        while ($date != $dateFin) {
-            $date->modify(($interval > 0 ? '+1 day' : '-1 day'));
-            if ($date->format('N') < 6) {
-                $diff += $interval;
+        // Normaliser les dates à minuit pour éviter les problèmes de comparaison
+        $debut->setTime(0, 0, 0);
+        $fin->setTime(0, 0, 0);
+
+        $dateActuelle = clone $debut;
+
+        while ($dateActuelle != $fin) {
+            $dateActuelle->modify(($debut < $fin ? '+1 day' : '-1 day'));
+            if ($dateActuelle->format('N') < 6) {
+                $diff++;
             }
         }
 

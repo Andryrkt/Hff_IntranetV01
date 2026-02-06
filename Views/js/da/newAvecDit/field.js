@@ -280,7 +280,7 @@ function renderFileList(inputId, inputFile) {
       deleteBtn.onclick = () => {
         // Supprimer le fichier de la liste et re-render
         selectedFilesMap[inputId].splice(index, 1);
-        transfererDonnees(selectedFilesMap[inputId], inputFile);
+        transfererDonnees(inputId);
         renderFileList(inputId, inputFile);
       };
 

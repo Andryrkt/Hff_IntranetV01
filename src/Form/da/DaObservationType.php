@@ -19,7 +19,7 @@ class DaObservationType extends AbstractType
     {
         $datypeId = $options['daTypeId'];
 
-        if ($datypeId != DemandeAppro::TYPE_DA_REAPPRO) {
+        if ($datypeId != DemandeAppro::TYPE_DA_REAPPRO_MENSUEL && $datypeId != DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL) {
             if ($datypeId == DemandeAppro::TYPE_DA_DIRECT) $observationLabel = 'Autoriser le service à modifier';
             if ($datypeId == DemandeAppro::TYPE_DA_AVEC_DIT) $observationLabel = 'Autoriser l’ATELIER à modifier';
             $builder

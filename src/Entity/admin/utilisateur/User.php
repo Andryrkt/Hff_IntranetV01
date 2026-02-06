@@ -14,6 +14,7 @@ use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\Application;
 use App\Entity\dit\CommentaireDitOr;
+use App\Entity\da\DemandeApproParent;
 use App\Entity\admin\utilisateur\Role;
 use App\Entity\tik\TkiReplannification;
 use App\Entity\admin\AgenceServiceIrium;
@@ -152,6 +153,11 @@ class User implements UserInterface
     private $demandeApproUser;
 
     /**
+     * @ORM\OneToMany(targetEntity=DemandeApproParent::class, mappedBy="user")
+     */
+    private $demandeApproParentUser;
+
+    /**
      * @ORM\OneToOne(targetEntity=DemandeAppro::class, mappedBy="validateur")
      */
     private $demandeApproValidateur;
@@ -212,6 +218,7 @@ class User implements UserInterface
         $this->commentaireDitOr = new ArrayCollection();
         $this->supportInfoUser = new ArrayCollection();
         $this->demandeApproUser = new ArrayCollection();
+        $this->demandeApproParentUser = new ArrayCollection();
         $this->supportInfoIntervenant = new ArrayCollection();
         $this->tikPlanningUser = new ArrayCollection();
         $this->userLoggers = new ArrayCollection();
@@ -859,6 +866,36 @@ class User implements UserInterface
     public function setDemandeApproUser($demandeApproUser)
     {
         $this->demandeApproUser = $demandeApproUser;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of demandeApproParentUser
+     */
+    public function getDemandeApproParentUser()
+    {
+        return $this->demandeApproParentUser;
+    }
+
+    public function addDemandeApproParentUser(DemandeApproParent $demandeApproParentUser): self
+    {
+        if (!$this->demandeApproParentUser->contains($demandeApproParentUser)) {
+            $this->demandeApproParentUser[] = $demandeApproParentUser;
+            $demandeApproParentUser->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDemandeApproParentUser(DemandeApproParent $demandeApproParentUser): self
+    {
+        if ($this->demandeApproParentUser->contains($demandeApproParentUser)) {
+            $this->demandeApproParentUser->removeElement($demandeApproParentUser);
+            if ($demandeApproParentUser->getUser() === $this) {
+                $demandeApproParentUser->setUser(null);
+            }
+        }
 
         return $this;
     }

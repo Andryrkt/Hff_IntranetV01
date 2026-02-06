@@ -51,7 +51,7 @@ trait DaMailColumnsTrait
                 'frn'   => 'Fournisseur',
                 'com'   => 'Commentaire',
             ],
-            DemandeAppro::TYPE_DA_REAPPRO => [
+            DemandeAppro::TYPE_DA_REAPPRO_MENSUEL => [
                 'constp' => 'Constructeur',
                 'refp'   => 'Référence',
                 'desi'   => 'Désignation',
@@ -73,7 +73,7 @@ trait DaMailColumnsTrait
         return [
             DemandeAppro::TYPE_DA_AVEC_DIT => $common[DemandeAppro::TYPE_DA_AVEC_DIT],
             DemandeAppro::TYPE_DA_DIRECT   => ['desi' => 'Désignation', 'frn' => 'Fournisseur', 'com' => 'Commentaire',],
-            DemandeAppro::TYPE_DA_REAPPRO  => $common[DemandeAppro::TYPE_DA_REAPPRO],
+            DemandeAppro::TYPE_DA_REAPPRO_MENSUEL  => $common[DemandeAppro::TYPE_DA_REAPPRO_MENSUEL],
         ];
     }
 

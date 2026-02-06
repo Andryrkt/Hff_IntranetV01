@@ -18,7 +18,7 @@ use App\Controller\Traits\da\validation\DaValidationReapproTrait;
 /**
  * @Route("/demande-appro")
  */
-class DaValidationReapproController extends Controller
+class DaValidationReapproMensuelController extends Controller
 {
     use DaAfficherTrait;
     use AutorisationTrait;
@@ -34,9 +34,9 @@ class DaValidationReapproController extends Controller
     }
 
     /**
-     * @Route("/validation-reappro/{id}", name="da_validate_reappro")
+     * @Route("/validation-reappro-mensuel/{id}", name="da_validate_reappro_mensuel")
      */
-    public function validationDaReappro($id, Request $request)
+    public function validationDaReapproMensuel($id, Request $request)
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
@@ -45,7 +45,7 @@ class DaValidationReapproController extends Controller
         $this->autorisationAcces($this->getUser(), Application::ID_DAP);
         /** FIN AUtorisation accès */
 
-        $da = $this->demandeApproRepository->findAvecDernieresDALetLR($id);
+        $da = $this->demandeApproRepository->find($id);
 
         $daObservation = new DaObservation();
 

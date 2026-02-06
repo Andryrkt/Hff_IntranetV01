@@ -23,7 +23,12 @@ class DaAfficher
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=11, name="numero_demande_appro")
+     * @ORM\Column(type="string", length=11, name="numero_demande_appro_mere")
+     */
+    private string $numeroDemandeApproMere;
+
+    /**
+     * @ORM\Column(type="string", length=12, name="numero_demande_appro")
      */
     private string $numeroDemandeAppro;
 
@@ -198,6 +203,16 @@ class DaAfficher
     private $dateLivraisonPrevue;
 
     /**
+     * @ORM\Column(type="datetime", name="date_envoi_fournisseur", nullable=true)
+     */
+    private $dateEnvoiFournisseur;
+
+    /**
+     * @ORM\Column(type="datetime", name="date_demande_devis", nullable=true)
+     */
+    private $dateDemandeDevis;
+
+    /**
      * @ORM\Column(type="string", length=50, name="valide_par")
      */
     private ?string $validePar = null;
@@ -325,6 +340,12 @@ class DaAfficher
     private ?DemandeAppro $demandeAppro = null;
 
     /**
+     * @ORM\ManyToOne(targetEntity=DemandeApproParent::class)
+     * @ORM\JoinColumn(name="demande_appro_parent_id", referencedColumnName="id", nullable=false)
+     */
+    private ?DemandeApproParent $demandeApproParent = null;
+
+    /**
      * @ORM\ManyToOne(targetEntity=DemandeIntervention::class)
      * @ORM\JoinColumn(name="dit_id", referencedColumnName="id", nullable=true)
      */
@@ -368,6 +389,26 @@ class DaAfficher
      */
     private $estBlReapproSoumis = false;
 
+    /**
+     * @ORM\Column(type="datetime", name="date_creation_bc", nullable=true)
+     */
+    private $dateCreationBc;
+
+    /**
+     * @ORM\Column(type="datetime", name="date_validation_bc", nullable=true)
+     */
+    private $dateValidationBc;
+
+    /**
+     * @ORM\Column(type="datetime", name="date_livraison_article", nullable=true)
+     */
+    private $dateLivraisonArticle;
+
+    /**
+     * @ORM\Column(type="datetime", name="date_reception_article", nullable=true)
+     */
+    private $dateReceptionArticle;
+
     /**==============================================================================
      * GETTERS & SETTERS
      *===============================================================================*/
@@ -378,6 +419,24 @@ class DaAfficher
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * Get the value of numeroDemandeApproMere
+     */
+    public function getNumeroDemandeApproMere(): string
+    {
+        return $this->numeroDemandeApproMere;
+    }
+
+    /**
+     * Set the value of numeroDemandeApproMere
+     */
+    public function setNumeroDemandeApproMere(string $numeroDemandeApproMere): self
+    {
+        $this->numeroDemandeApproMere = $numeroDemandeApproMere;
+
+        return $this;
     }
 
     /**
@@ -1481,6 +1540,24 @@ class DaAfficher
     }
 
     /**
+     * Get the value of demandeApproParent
+     */
+    public function getDemandeApproParent(): ?DemandeApproParent
+    {
+        return $this->demandeApproParent;
+    }
+
+    /**
+     * Set the value of demandeApproParent
+     */
+    public function setDemandeApproParent(?DemandeApproParent $demandeApproParent): self
+    {
+        $this->demandeApproParent = $demandeApproParent;
+
+        return $this;
+    }
+
+    /**
      * Get the value of dit
      */
     public function getDit()
@@ -1773,6 +1850,114 @@ class DaAfficher
     }
 
     /**
+     * Get the value of dateEnvoiFournisseur
+     */
+    public function getDateEnvoiFournisseur()
+    {
+        return $this->dateEnvoiFournisseur;
+    }
+
+    /**
+     * Set the value of dateEnvoiFournisseur
+     */
+    public function setDateEnvoiFournisseur($dateEnvoiFournisseur): self
+    {
+        $this->dateEnvoiFournisseur = $dateEnvoiFournisseur;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateDemandeDevis
+     */
+    public function getDateDemandeDevis()
+    {
+        return $this->dateDemandeDevis;
+    }
+
+    /**
+     * Set the value of dateDemandeDevis
+     */
+    public function setDateDemandeDevis($dateDemandeDevis): self
+    {
+        $this->dateDemandeDevis = $dateDemandeDevis;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateCreationBc
+     */
+    public function getDateCreationBc()
+    {
+        return $this->dateCreationBc;
+    }
+
+    /**
+     * Set the value of dateCreationBc
+     */
+    public function setDateCreationBc($dateCreationBc): self
+    {
+        $this->dateCreationBc = $dateCreationBc;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateValidationBc
+     */
+    public function getDateValidationBc()
+    {
+        return $this->dateValidationBc;
+    }
+
+    /**
+     * Set the value of dateValidationBc
+     */
+    public function setDateValidationBc($dateValidationBc): self
+    {
+        $this->dateValidationBc = $dateValidationBc;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateLivraisonArticle
+     */
+    public function getDateLivraisonArticle()
+    {
+        return $this->dateLivraisonArticle;
+    }
+
+    /**
+     * Set the value of dateLivraisonArticle
+     */
+    public function setDateLivraisonArticle($dateLivraisonArticle): self
+    {
+        $this->dateLivraisonArticle = $dateLivraisonArticle;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateReceptionArticle
+     */
+    public function getDateReceptionArticle()
+    {
+        return $this->dateReceptionArticle;
+    }
+
+    /**
+     * Set the value of dateReceptionArticle
+     */
+    public function setDateReceptionArticle($dateReceptionArticle): self
+    {
+        $this->dateReceptionArticle = $dateReceptionArticle;
+
+        return $this;
+    }
+
+    /**
      * Copie les propriétés pertinentes d'un ancien DaAfficher vers l'objet courant.
      *
      * Cela permet de "mettre à jour" l'objet courant avec les valeurs de référence
@@ -1797,13 +1982,66 @@ class DaAfficher
             ->setEstFactureBlSoumis($oldDaAfficher->getEstFactureBlSoumis())
             ->setBcEnvoyerFournisseur($oldDaAfficher->getBcEnvoyerFournisseur())
             ->setDateLivraisonPrevue($oldDaAfficher->getDateLivraisonPrevue())
+            ->setDateCreationBc($oldDaAfficher->getDateCreationBc())
+            ->setDateValidationBc($oldDaAfficher->getDateValidationBc())
+            ->setDateReceptionArticle($oldDaAfficher->getDateReceptionArticle())
+            ->setDateLivraisonArticle($oldDaAfficher->getDateLivraisonArticle())
+            ->setDateEnvoiFournisseur($oldDaAfficher->getDateEnvoiFournisseur())
         ;
     }
 
-    public function enregistrerDa(DemandeAppro $da)
+    public function duplicateDaParent(DemandeApproParent $demandeApproParent)
+    {
+        $this
+            ->setDemandeApproParent($demandeApproParent)
+            ->setNumeroDemandeApproMere($demandeApproParent->getNumeroDemandeAppro())
+            ->setNumeroDemandeAppro($demandeApproParent->getNumeroDemandeAppro())
+            ->setStatutDal($demandeApproParent->getStatutDal())
+            ->setObjetDal($demandeApproParent->getObjetDal())
+            ->setDetailDal($demandeApproParent->getDetailDal())
+            ->setDemandeur($demandeApproParent->getDemandeur())
+            ->setCodeCentrale($demandeApproParent->getCodeCentrale())
+            ->setDesiCentrale($demandeApproParent->getDesiCentrale())
+            ->setDaTypeId(DemandeAppro::TYPE_DA_PARENT)
+            ->setDateDemande($demandeApproParent->getDateCreation())
+            ->setNiveauUrgence($demandeApproParent->getNiveauUrgence())
+            ->setAgenceEmetteur($demandeApproParent->getAgenceEmetteur()->getId())
+            ->setServiceEmetteur($demandeApproParent->getServiceEmetteur()->getId())
+            ->setAgenceDebiteur($demandeApproParent->getAgenceDebiteur()->getId())
+            ->setServiceDebiteur($demandeApproParent->getServiceDebiteur()->getId())
+        ;
+    }
+
+    public function duplicateDaParentLine(DemandeApproParentLine $demandeApproParentLine)
+    {
+        $this
+            ->setQteDem($demandeApproParentLine->getQteDem())
+            ->setNumeroLigne($demandeApproParentLine->getNumeroLigne())
+            ->setArtConstp($demandeApproParentLine->getArtConstp())
+            ->setArtRefp($demandeApproParentLine->getArtRefp())
+            ->setArtDesi($demandeApproParentLine->getArtDesi())
+            ->setArtFams1($demandeApproParentLine->getArtFams1())
+            ->setArtFams2($demandeApproParentLine->getArtFams2())
+            ->setCodeFams1($demandeApproParentLine->getCodeFams1())
+            ->setCodeFams2($demandeApproParentLine->getCodeFams2())
+            ->setNumeroFournisseur($demandeApproParentLine->getNumeroFournisseur())
+            ->setNomFournisseur($demandeApproParentLine->getNomFournisseur())
+            ->setDateFinSouhaite($demandeApproParentLine->getDateFinSouhaite())
+            ->setCommentaire($demandeApproParentLine->getCommentaire())
+            ->setPrixUnitaire($demandeApproParentLine->getPrixUnitaire())
+            ->setTotal($demandeApproParentLine->getPrixUnitaire() * $demandeApproParentLine->getQteDem())
+            ->setEstFicheTechnique($demandeApproParentLine->getEstFicheTechnique())
+            ->setPjNewAte($demandeApproParentLine->getFileNames())
+            ->setNomFicheTechnique($demandeApproParentLine->getNomFicheTechnique())
+            ->setJoursDispo($demandeApproParentLine->getJoursDispo())
+        ;
+    }
+
+    public function duplicateDa(DemandeAppro $da)
     {
         $this
             ->setDemandeAppro($da)
+            ->setNumeroDemandeApproMere($da->getNumeroDemandeApproMere())
             ->setNumeroDemandeAppro($da->getNumeroDemandeAppro())
             ->setNumeroDemandeDit($da->getNumeroDemandeDit())
             ->setStatutDal($da->getStatutDal())
@@ -1820,10 +2058,11 @@ class DaAfficher
             ->setServiceEmetteur($da->getServiceEmetteur()->getId())
             ->setAgenceDebiteur($da->getAgenceDebiteur()->getId())
             ->setServiceDebiteur($da->getServiceDebiteur()->getId())
+            ->setDateDemandeDevis($da->getDateDemandeDevis())
         ;
     }
 
-    public function enregistrerDal(DemandeApproL $dal)
+    public function duplicateDal(DemandeApproL $dal)
     {
         $this
             ->setQteDem($dal->getQteDem())
@@ -1849,7 +2088,7 @@ class DaAfficher
         ;
     }
 
-    public function enregistrerDalr(DemandeApproLR $dalr)
+    public function duplicateDalr(DemandeApproLR $dalr)
     {
         $this
             ->setQteDem($dalr->getQteDem())

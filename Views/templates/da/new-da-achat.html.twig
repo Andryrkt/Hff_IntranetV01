@@ -23,7 +23,7 @@
 			<div class="card-body">
 				{{ form_start(form, { 'attr': { 'id': 'myForm' } }) }}
 				{{ form_errors(form)}}
-				<div class="container-fluid" id="agenceServiceDA" data-agence="{{ codeAgence }}" data-service="{{ codeService }}">
+				<div class="container-fluid">
 					<div class="row">
 						<h3 class="perso-titre">
 							Formulaire Demande d'achat direct
@@ -58,6 +58,20 @@
 								<div class="col-6 col-md-6">
 									{{ macroForm.sousTitre('Débiteur') }}
 									{{ formMacros.debiteurOuEmetteurFields(form, 'debiteur') }}
+									<div class="{{ codeCentrale ? '' : 'd-none'}}">
+										{{ form_label(form.desiCentrale) }}
+										<div>
+											{{ form_widget(form.desiCentrale) }}
+											<span class="input-group-text bg-primary bg-opacity-25 d-none" role="button" id="editIcon" data-bs-toggle="tooltip" data-bs-original-title='Modifier la centrale rattachée'>
+												<i class="fas fa-marker text-primary fs-6"></i>
+											</span>
+										</div>
+									</div>
+									<div class="d-none">
+										{{ form_widget(form.codeCentrale) }}
+									</div>
+									<div id="suggestion-code-centrale" class="suggestions-container"></div>
+									<div id="loader-code-centrale" class="spinner invisible" style="display: none;"></div>
 								</div>
 							</div>
 						</div>
@@ -80,35 +94,35 @@
 						</thead>
 					</table>
 					<div id="children-container">
-						{% for ligne, DAL in form.DAL %}
-							{% set dalData = DAL.vars.data %}
-							<div id="demande_appro_direct_form_DAL_{{ ligne }}" class="DAL-container">
+						{% for ligne, demandeApproParentLine in form.demandeApproParentLines %}
+							{% set demandeApproParentLineData = demandeApproParentLine.vars.data %}
+							<div id="demande_appro_achat_form_demandeApproParentLines_{{ ligne }}" class="demandeApproParentLines-container">
 								<div class="d-flex gap-3">
 									<div class="w-25">
-										{{ form_widget(DAL.artDesi, { 'attr': { class:"non-modifiable" } }) }}
+										{{ form_widget(demandeApproParentLine.artDesi, { 'attr': { class:"non-modifiable" } }) }}
 									</div>
 									<div class="w-15">
-										{{ form_widget(DAL.nomFournisseur, { 'attr': { class:"non-modifiable" } }) }}
+										{{ form_widget(demandeApproParentLine.nomFournisseur, { 'attr': { class:"non-modifiable" } }) }}
 									</div>
 									<div class="w-15">
-										{{ form_widget(DAL.dateFinSouhaite, { 'attr': { class:"non-modifiable" } }) }}
+										{{ form_widget(demandeApproParentLine.dateFinSouhaite, { 'attr': { class:"non-modifiable" } }) }}
 									</div>
 									<div class="w-5">
-										{{ form_widget(DAL.qteDem) }}
+										{{ form_widget(demandeApproParentLine.qteDem) }}
 									</div>
 									<div class="w-19">
-										{{ form_widget(DAL.commentaire) }}
+										{{ form_widget(demandeApproParentLine.commentaire) }}
 									</div>
 									<div class="w-1">
-										<i class="fas fa-paperclip text-primary add-file-icon" data-file-input-id="demande_appro_direct_form_DAL_{{ ligne }}_fileNames" title="Ajouter une pièce jointe" style="cursor: pointer;"></i>
+										<i class="fas fa-paperclip text-primary add-file-icon" data-file-input-id="demande_appro_achat_form_demandeApproParentLines_{{ ligne }}_fileNames" title="Ajouter une pièce jointe" style="cursor: pointer;"></i>
 									</div>
-									<div class="w-15" id="demande_appro_direct_form_DAL_{{ ligne }}_fileNamesContainer">
-										{% if dalData.fileNames is not empty %}
+									<div class="w-15" id="demande_appro_achat_form_demandeApproParentLines_{{ ligne }}_fileNamesContainer">
+										{% if demandeApproParentLineData.fileNames is not empty %}
 											<ul class="ps-0 mb-0 file-list">
-												{% for file in dalData.fileNames %}
+												{% for file in demandeApproParentLineData.fileNames %}
 													<li class="file-item">
 														<span class="file-name">
-															<a href="{{ App.base_path_fichier }}/da/{{ dalData.numeroDemandeAppro }}/{{ file }}" target="_blank">{{ file }}</a>
+															<a href="{{ App.base_path_fichier }}/da/{{ demandeApproParentLineData.numeroDemandeAppro }}/{{ file }}" target="_blank">{{ file }}</a>
 														</span>
 														<span class="remove-file">x</span>
 													</li>
@@ -117,22 +131,19 @@
 										{% endif %}
 									</div>
 									<div class="w-2">
-										{{ form_widget(DAL.estFicheTechnique) }}
+										{{ form_widget(demandeApproParentLine.estFicheTechnique) }}
 									</div>
 									<div class="d-none">
-										{{ form_widget(DAL.fileNames) }}
-										{{ form_widget(DAL.existingFileNames) }}
-										{{ form_widget(DAL.filesToDelete) }}
-										{{ form_widget(DAL.artRefp) }}
-										{{ form_widget(DAL.codeFams1) }}
-										{{ form_widget(DAL.codeFams2) }}
-										{{ form_widget(DAL.artConstp) }}
-										{{ form_widget(DAL.artFams1) }}
-										{{ form_widget(DAL.artFams2) }}
-										{{ form_widget(DAL.numeroFournisseur) }}
-										{{ form_widget(DAL.catalogue) }}
-										{{ form_widget(DAL.deleted) }}
-										{{ form_widget(DAL.numeroLigne) }}
+										{{ form_widget(demandeApproParentLine.numeroLigne) }}
+										{{ form_widget(demandeApproParentLine.artConstp) }}
+										{{ form_widget(demandeApproParentLine.artRefp) }}
+										{{ form_widget(demandeApproParentLine.fileNames) }}
+										{{ form_widget(demandeApproParentLine.existingFileNames) }}
+										{{ form_widget(demandeApproParentLine.filesToDelete) }}
+										{{ form_widget(demandeApproParentLine.numeroFournisseur) }}
+										{{ form_widget(demandeApproParentLine.articleStocke) }}
+										{{ form_widget(demandeApproParentLine.prixUnitaire) }}
+										{{ form_widget(demandeApproParentLine.deleted) }}
 									</div>
 									<div class="w-2">
 										<span class="delete-DA" data-num-ligne="{{ ligne }}" title="Supprimer la ligne de DA" style="cursor: pointer;">
@@ -146,7 +157,7 @@
 					</div>
 
 					<div id="child-prototype" style="display: none;">
-						{{ form_widget(form.DAL.vars.prototype)|raw }}
+						{{ form_widget(form.demandeApproParentLines.vars.prototype)|raw }}
 					</div>
 
 					<div class="d-flex justify-content-end">
@@ -178,5 +189,5 @@
 	</div>
 {% endblock %}
 {% block javascript %}
-	<script type="module" src="{{ App.base_path }}/Views/js/da/newDirect/new.js?v=2025.10.22.08.00" type="module"></script>
+	<script type="module" src="{{ App.base_path }}/Views/js/da/newAchat/new.js?v=2025.10.22.08.00" type="module"></script>
 {% endblock %}

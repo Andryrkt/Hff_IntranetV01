@@ -65,9 +65,14 @@ trait MarkupIconTrait
         return $this->faIconLayer('fa-cart-shopping', null, '#b97309',  null, '#ffe8cc',  'fa-bolt',  '#ffb703', 'translate(-30%, -85%) scale(0.7)');
     }
 
-    private function getIconDaReappro(): Markup
+    private function getIconDaReapproMensuel(): Markup
     {
         return $this->faIconLayer('fa-calendar-days', null, '#0f5132', null, '#d9f0e5', 'fa-arrows-rotate', '#20c997', 'translate(20%, -130%)');
+    }
+
+    private function getIconDaReapproPonctuel(): Markup
+    {
+        return $this->faIconLayer('fa-calendar-day', null, '#6f42c1', null, '#e8dff5', 'fa-clock', '#9d72d4', 'translate(25%, -120%)');
     }
 
     private function getAllIcons(): array
@@ -86,7 +91,12 @@ trait MarkupIconTrait
             [
                 'color' => '#0f5132',
                 'label' => 'Demande de réapprovisionnement mensuel',
-                'icon'  => $this->getIconDaReappro(),
+                'icon'  => $this->getIconDaReapproMensuel(),
+            ],
+            [
+                'color' => '#6f42c1',
+                'label' => 'Demande de réapprovisionnement ponctuel',
+                'icon'  => $this->getIconDaReapproPonctuel(),
             ],
         ];
     }

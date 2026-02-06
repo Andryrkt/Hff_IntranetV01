@@ -29,6 +29,7 @@
 			<thead class="table-dark align-middle">
 				<tr>
 					<th class="text-center">N° DA</th>
+					<th class="text-center">N° DA réel</th>
 					<th class="text-center">Type de demande</th>
 					<th class="text-center">N° DIT</th>
 					<th class="text-center">Niv. Urgence</th>
@@ -63,12 +64,15 @@
 			<tbody id="tableBody" class="align-middle">
 				{% for row in data %}
 					<tr>
-						<td class="text-center">
-							<a href="{{ row.urlDetail }}" target="_blank" data-bs-toggle="tooltip" title="{{ row.objet }}">
-								{{ row.numeroDemandeAppro }}
-							</a>
+						<td class="text-center fs-7 fw-bold" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ row.objet }}">
+							{{ row.numDaParent }}
 						</td>
-						<td class="text-center">{{ row.datype }}</td>
+						<td class="">
+							<a href="{{ row.urlDetail }}" target="_blank">{{ row.numeroDemandeAppro }}</a>
+						</td>
+						<td class="text-center" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ row.numeroDemandeAppro }}">
+							{{ row.datype }}
+						</td>
 						<td class="text-center">{{ row.numeroDemandeDit }}</td>
 						<td class="text-center">{{ row.niveauUrgence }}</td>
 						<td class="text-center">{{ row.numeroOr }}</td>

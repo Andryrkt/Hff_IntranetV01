@@ -15,7 +15,7 @@ use App\Service\da\FileUploaderForDAService;
 use App\Repository\da\DemandeApproRepository;
 use App\Repository\da\DemandeApproLRepository;
 use App\Repository\da\DemandeApproLRRepository;
-use App\Service\da\DemandeApproService;
+use App\Service\da\PermissionDaService;
 
 trait DaTrait
 {
@@ -29,7 +29,7 @@ trait DaTrait
     private DemandeApproLRepository $demandeApproLRepository;
     private DemandeApproLRRepository $demandeApproLRRepository;
     private EmailDaService $emailDaService;
-    private DemandeApproService $demandeApproService;
+    private PermissionDaService $permissionDaService;
     private FileUploaderForDAService $daFileUploader;
 
     /**
@@ -42,8 +42,8 @@ trait DaTrait
 
         $em = $this->getEntityManager();
         $this->emailDaService           = new EmailDaService($this->getTwig()); // Injection du service Twig depuis Controller
-        $this->demandeApproService      = new DemandeApproService;
-        $this->daFileUploader           = new FileUploaderForDAService($_ENV['BASE_PATH_FICHIER']);
+        $this->permissionDaService      = new PermissionDaService;
+        $this->daFileUploader           = new FileUploaderForDAService();
         $this->daAfficherRepository     = $em->getRepository(DaAfficher::class);
         $this->demandeApproRepository   = $em->getRepository(DemandeAppro::class);
         $this->demandeApproLRepository  = $em->getRepository(DemandeApproL::class);
@@ -154,31 +154,6 @@ trait DaTrait
     }
 
     /**
-     * Détermine si une Demande d'Approvisionnement (DA) doit être verrouillée
-     * en fonction de son statut et du profil utilisateur.
-     *
-     * @param string      $statutDa  Statut actuel de la DA
-     * @param string|null $statut    Statut complémentaire (OR ou DW)
-     * @param bool        $estAdmin  Vrai si l'utilisateur est administrateur
-     * @param bool        $estAppro  Vrai si l'utilisateur est approvisionneur
-     * @param bool        $estAtelier Vrai si l'utilisateur est membre de l'atelier
-     * @param bool        $estCreateurDaDirecte Vrai si l'utilisateur est le créateur d'une DA directe
-     *
-     * @return bool True si la DA doit être verrouillée, False sinon
-     */
-    private function estDaVerrouillee(string $statutDa, ?string $statut, bool $estAdmin, bool $estAppro, bool $estAtelier, bool $estCreateurDaDirecte): bool
-    {
-        $roles = [];
-
-        if ($estAdmin) $roles[] = 'admin';
-        if ($estAppro) $roles[] = 'appro';
-        if ($estAtelier) $roles[] = 'atelier';
-        if ($estCreateurDaDirecte) $roles[] = 'createur_da_directe';
-
-        return $this->demandeApproService->isDemandeVerrouillee($statutDa, $statut, $roles);
-    }
-
-    /**
      * Détecte les lignes supprimées entre deux ensembles de lignes de DA (DaAfficher).
      *
      * Une ligne est considérée comme supprimée si son numéro de ligne existe dans
@@ -234,8 +209,6 @@ trait DaTrait
 
         $em->persist($demandeAppro);
 
-        if ($withFlush) {
-            $em->flush();
-        }
+        if ($withFlush) $em->flush();
     }
 }

@@ -5,14 +5,12 @@ namespace App\Controller\Traits\da\detail;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
-use App\Entity\dit\DemandeIntervention;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Entity\dw\DwBcAppro;
 use App\Entity\dw\DwFacBl;
 use App\Model\dw\DossierInterventionAtelierModel;
 use App\Repository\da\DaObservationRepository;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
-use App\Repository\dit\DitRepository;
 use App\Repository\dw\DwBcApproRepository;
 use App\Repository\dw\DwFactureBonLivraisonRepository;
 
@@ -21,7 +19,6 @@ trait DaDetailAvecDitTrait
     use DaDetailTrait;
 
     //==================================================================================================
-    private DitRepository $ditRepository;
     private DwBcApproRepository $dwBcApproRepository;
     private DaObservationRepository $daObservationRepository;
     private DwFactureBonLivraisonRepository $dwFacBlRepository;
@@ -35,7 +32,6 @@ trait DaDetailAvecDitTrait
     {
         $em = $this->getEntityManager();
         $this->initDaTrait();
-        $this->ditRepository = $em->getRepository(DemandeIntervention::class);
         $this->dwFacBlRepository = $em->getRepository(DwFacBl::class);
         $this->dwBcApproRepository = $em->getRepository(DwBcAppro::class);
         $this->daObservationRepository = $em->getRepository(DaObservation::class);
