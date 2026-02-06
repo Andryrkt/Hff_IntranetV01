@@ -121,7 +121,7 @@ class DaSoumissionFacBlRepository extends EntityRepository
      */
     public function getDateLivraisonArticle(string $numeroBc): ?\DateTimeInterface
     {
-        return $this->createQueryBuilder('d')
+        $result = $this->createQueryBuilder('d')
             ->select('d.dateCreation')
             ->where('d.numeroCde = :numeroBc')
             ->andWhere('d.numeroVersion = :firstVersion')
@@ -132,5 +132,7 @@ class DaSoumissionFacBlRepository extends EntityRepository
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult(Query::HYDRATE_SINGLE_SCALAR);
+
+        return $result ? new \DateTime($result) : null;
     }
 }
