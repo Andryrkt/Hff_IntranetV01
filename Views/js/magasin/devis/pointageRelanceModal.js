@@ -33,7 +33,9 @@ document.addEventListener("DOMContentLoaded", function () {
       event.preventDefault();
 
       var form = event.target;
-      var submitButton = form.querySelector('button[type="submit"]');
+      var submitButton = pointageRelanceModal.querySelector(
+        'button[form="pointageRelanceForm"][type="submit"]',
+      );
       var originalButtonText = submitButton
         ? submitButton.textContent
         : "Soumettre";
@@ -135,7 +137,9 @@ document.addEventListener("DOMContentLoaded", function () {
     pointageRelanceModal.addEventListener("hidden.bs.modal", function () {
       var form = document.getElementById("pointageRelanceForm");
       if (form) {
-        var submitButton = form.querySelector('button[type="submit"]');
+        var submitButton = pointageRelanceModal.querySelector(
+          'button[form="pointageRelanceForm"][type="submit"]',
+        );
         if (submitButton) {
           submitButton.disabled = false;
           submitButton.textContent =
