@@ -665,6 +665,17 @@ class DaAfficherRepository extends EntityRepository
                 ], ArrayParameterType::STRING);
         }
     }
+    private function supprimerQuatriemeLettrePD3($chaine)
+    {
+        if (strlen($chaine) > 11 && isset($chaine[3])) {
+            $lettresASupprimer = ['P', 'p', 'D', 'd'];
+
+            if (in_array($chaine[3], $lettresASupprimer, true)) {
+                $chaine = substr($chaine, 0, 3) . substr($chaine, 4);
+            }
+        }
+        return $chaine;
+    }
 
     private function applyDynamicFilters(QueryBuilder $qb, string $qbLabel, array $criteria, bool $estCdeFrn = false): void
     {
@@ -691,8 +702,9 @@ class DaAfficherRepository extends EntityRepository
 
         foreach ($map as $key => $field) {
             if (!empty($criteria[$key])) {
+                $criteria = $key === 'numDa' ? $this->supprimerQuatriemeLettrePD3($criteria[$key]) : $criteria[$key];
                 $qb->andWhere("$field = :$key")
-                    ->setParameter($key, $criteria[$key]);
+                    ->setParameter($key, $criteria);
             }
         }
 
