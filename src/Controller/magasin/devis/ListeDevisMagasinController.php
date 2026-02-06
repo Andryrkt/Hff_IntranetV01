@@ -404,7 +404,7 @@ class ListeDevisMagasinController extends Controller
                 'numeroRelance' => $devis->getNombreDeRelance(),
                 'statutRelance' => $devis->getStatutRelance(),
                 'relances' => $devis->getRelances() ?? [],
-                'styleStatutPR' => $styleStatutPR[$devis->getStatutRelance()]
+                'styleStatutPR' => $styleStatutPR[$devis->getStatutRelance()] ?? ''
             ];
         }
 

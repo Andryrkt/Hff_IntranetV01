@@ -556,7 +556,7 @@ class DaAfficherRepository extends EntityRepository
 
         if (empty($paginatedMeres)) {
             return [
-                'results'     => [],
+                'data'        => [],
                 'totalItems'  => 0,
                 'currentPage' => $page,
                 'lastPage'    => 0,
