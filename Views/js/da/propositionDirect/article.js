@@ -19,25 +19,9 @@ export function ajouterReference(addLineId) {
     prixUnitaire: getField("PU", line),
   };
 
-  const divValidation = document.getElementById(`validationButtons`);
-  const envoyerSelections = document.getElementById(`envoyerSelections`);
-  const validerSelections = document.getElementById(`validerSelections`);
-  const enregistrerDraft = document.getElementById(`enregistrerDraft`);
   const nePasAjouter = Object.values(fields).some(handleFieldValue);
 
   if (!nePasAjouter) {
-    if (divValidation) {
-      divValidation.classList.add("d-none"); // On le cache
-    }
-    if (envoyerSelections && envoyerSelections.dataset.daDirecteAppro != "1") {
-      envoyerSelections.classList.remove("d-none"); // On l'affiche
-    }
-    if (validerSelections) {
-      validerSelections.classList.remove("d-none"); // On l'affiche
-    }
-    if (enregistrerDraft) {
-      enregistrerDraft.classList.remove("d-none"); // On l'affiche
-    }
     ajouterUneLigne(line, fields, iscatalogue);
   }
 }

@@ -405,6 +405,11 @@ class DaAfficher
     private $dateLivraisonArticle;
 
     /**
+     * @ORM\Column(type="datetime", name="date_reception_article", nullable=true)
+     */
+    private $dateReceptionArticle;
+
+    /**
      * @ORM\Column(type="boolean", name="est_correction_statut_bc")
      */
     private $estCorrectionStatutBc = false;
@@ -1940,6 +1945,24 @@ class DaAfficher
     }
 
     /**
+     * Get the value of dateReceptionArticle
+     */
+    public function getDateReceptionArticle()
+    {
+        return $this->dateReceptionArticle;
+    }
+
+    /**
+     * Set the value of dateReceptionArticle
+     */
+    public function setDateReceptionArticle($dateReceptionArticle): self
+    {
+        $this->dateReceptionArticle = $dateReceptionArticle;
+
+        return $this;
+    }
+
+    /**
      * Get the value of estCorrectionStatutBc
      */
     public function getEstCorrectionStatutBc()
@@ -1982,6 +2005,10 @@ class DaAfficher
             ->setEstFactureBlSoumis($oldDaAfficher->getEstFactureBlSoumis())
             ->setBcEnvoyerFournisseur($oldDaAfficher->getBcEnvoyerFournisseur())
             ->setDateLivraisonPrevue($oldDaAfficher->getDateLivraisonPrevue())
+            ->setDateCreationBc($oldDaAfficher->getDateCreationBc())
+            ->setDateValidationBc($oldDaAfficher->getDateValidationBc())
+            ->setDateReceptionArticle($oldDaAfficher->getDateReceptionArticle())
+            ->setDateLivraisonArticle($oldDaAfficher->getDateLivraisonArticle())
             ->setDateEnvoiFournisseur($oldDaAfficher->getDateEnvoiFournisseur())
         ;
     }

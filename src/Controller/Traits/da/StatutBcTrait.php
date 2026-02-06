@@ -6,6 +6,7 @@ use DateTime;
 use App\Entity\da\DaAfficher;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaSoumissionBc;
+use App\Entity\da\DaSoumissionFacBl;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Entity\dw\DwBcAppro;
 use App\Model\magasin\MagasinListeOrLivrerModel;
@@ -181,11 +182,13 @@ trait StatutBcTrait
 
         $dateCreationBc = $this->daModel->getDateCreationBc($numcde);
         $dateValidationBc = $em->getRepository(DwBcAppro::class)->getDateValidationBC($numcde);
-        $dateLivraisonArticle = $this->daModel->getDateLivraisonArticle($numcde);
+        $dateReceptionArticle = $this->daModel->getDateReceptionArticle($numcde);
+        $dateLivraisonArticle = $em->getRepository(DaSoumissionFacBl::class)->getDateLivraisonArticle($numcde);
 
         $DaAfficher
             ->setDateCreationBc($dateCreationBc)
             ->setDateValidationBc($dateValidationBc)
+            ->setDateReceptionArticle($dateReceptionArticle)
             ->setDateLivraisonArticle($dateLivraisonArticle)
         ;
     }

@@ -97,13 +97,14 @@ class DaTimelineService
 
     private function buildTimelineBC(string $numeroDa, array $lastDataDA): array
     {
-        $allDatas = $this->daAfficherRepository->getTimelineDataForBC($numeroDa);
+        $allDatas = $this->daAfficherRepository->getAllNumCdeAndVmax($numeroDa);
         $tabTemp = [];
         $today = new \DateTime();
 
         foreach ($allDatas as $data) {
             $numBC = $data['numeroCde'];
-            $dateCreationBc = $data['dateCreationBc']; // Génération BC
+            $numeroVersion = $data['numeroVersion'];
+            $dateCreationBc = $this->daAfficherRepository->getDateCreationBc($numeroDa, $numeroVersion, $numBC); // Génération BC
 
             if (!$dateCreationBc) continue;
 
@@ -117,9 +118,10 @@ class DaTimelineService
                 ),
             ];
 
-            $dateValidation = $data['dateValidationBc'];           // Validation BC
-            $dateEnvoi = $data['dateEnvoiFournisseur'];            // Envoi au fournisseur
-            $dateLivraisonArticle = $data['dateLivraisonArticle']; // Article livré
+            $dateValidation       = $this->daAfficherRepository->getDateValidationBc($numeroDa, $numeroVersion, $numBC); // Validation BC
+            $dateEnvoi            = $this->daAfficherRepository->getDateEnvoiFournisseur($numeroDa, $numeroVersion, $numBC); // Envoi au fournisseur
+            $dateReceptionArticle = $this->daAfficherRepository->getDateReceptionArticle($numeroDa, $numeroVersion, $numBC); // Reception article
+            $dateLivraisonArticle = $this->daAfficherRepository->getDateLivraisonArticle($numeroDa, $numeroVersion, $numBC); // Article livré
 
 
             $tabTemp[$numBC][] = [
@@ -129,12 +131,12 @@ class DaTimelineService
                 'nbrJours' => $this->formatDuration(
                     $this->differenceJoursOuvrables(
                         $dateCreationBc,
-                        $dateValidation ?? $dateEnvoi ?? $dateLivraisonArticle ?? $today
+                        $dateValidation ?? $dateEnvoi ?? $dateReceptionArticle ?? $dateLivraisonArticle ?? $today
                     )
                 ),
             ];
 
-            if (!$dateValidation && !$dateEnvoi && !$dateLivraisonArticle) {
+            if (!$dateValidation && !$dateEnvoi && !$dateReceptionArticle && !$dateLivraisonArticle) {
                 $tabTemp[$numBC][] = $this->createCurrentDateEntry($today);
                 continue;
             } elseif ($dateValidation) {
@@ -146,13 +148,13 @@ class DaTimelineService
                     'nbrJours' => $this->formatDuration(
                         $this->differenceJoursOuvrables(
                             $dateValidation,
-                            $dateEnvoi ?? $dateLivraisonArticle ?? $today
+                            $dateEnvoi ?? $dateReceptionArticle ?? $dateLivraisonArticle ?? $today
                         )
                     ),
                 ];
             }
 
-            if (!$dateEnvoi && !$dateLivraisonArticle) {
+            if (!$dateEnvoi && !$dateReceptionArticle && !$dateLivraisonArticle) {
                 $tabTemp[$numBC][] = $this->createCurrentDateEntry($today);
                 continue;
             } elseif ($dateEnvoi) {
@@ -163,6 +165,23 @@ class DaTimelineService
                     'nbrJours' => $this->formatDuration(
                         $this->differenceJoursOuvrables(
                             $dateEnvoi,
+                            $dateReceptionArticle ?? $dateLivraisonArticle ?? $today
+                        )
+                    ),
+                ];
+            }
+
+            if (!$dateReceptionArticle && !$dateLivraisonArticle) {
+                $tabTemp[$numBC][] = $this->createCurrentDateEntry($today);
+                continue;
+            } elseif ($dateReceptionArticle) {
+                $tabTemp[$numBC][] = [
+                    'statut'   => 'Réception des articles',
+                    'dotClass' => 'partiellement-livre',
+                    'date'     => $dateReceptionArticle->format('d/m/Y'), // Date de reception article
+                    'nbrJours' => $this->formatDuration(
+                        $this->differenceJoursOuvrables(
+                            $dateReceptionArticle,
                             $dateLivraisonArticle ?? $today
                         )
                     ),
@@ -174,7 +193,7 @@ class DaTimelineService
                 continue;
             } else {
                 $tabTemp[$numBC][] = [
-                    'statut'   => 'Article(s) livré(s)',
+                    'statut'   => 'Livraison des articles',
                     'dotClass' => 'tout-livre',
                     'date'     => $dateLivraisonArticle->format('d/m/Y'), // Date de livraison article
                     'nbrJours' => '',
