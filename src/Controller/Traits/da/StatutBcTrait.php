@@ -181,12 +181,13 @@ trait StatutBcTrait
 
         $dateCreationBc = $this->daModel->getDateCreationBc($numcde);
         $dateValidationBc = $em->getRepository(DwBcAppro::class)->getDateValidationBC($numcde);
-        $dateLivraisonArticle = $this->daModel->getDateLivraisonArticle($numcde);
+        $dateReceptionArticle = $this->daModel->getDateReceptionArticle($numcde);
+
 
         $DaAfficher
             ->setDateCreationBc($dateCreationBc)
             ->setDateValidationBc($dateValidationBc)
-            ->setDateLivraisonArticle($dateLivraisonArticle)
+            ->setDateReceptionArticle($dateReceptionArticle)
         ;
     }
 
