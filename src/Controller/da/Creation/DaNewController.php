@@ -44,7 +44,7 @@ class DaNewController extends Controller
             ];
 
             $options['reappro'] = [
-                'label' => 'Demande de réapprovisionnement',
+                'label' => 'Demande de réapprovisionnement mensuel',
                 'url'   => $this->getUrlGenerator()->generate('da_new_reappro_mensuel', ['id' => 0]),
                 'icon'  => $this->getIconDaReapproMensuel(),
                 'type'  => 'simple'
