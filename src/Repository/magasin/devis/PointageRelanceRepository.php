@@ -42,8 +42,8 @@ class PointageRelanceRepository extends EntityRepository
             ->orderBy('pr.numeroRelance', 'DESC')
             ->setMaxResults(1)
             ->getQuery()
-            ->getOneOrNullResult();
+            ->getScalarResult();
 
-        return $numeroVersionMax;
+        return $numeroVersionMax[0]['numeroRelance'] ?? null;
     }
 }
