@@ -113,4 +113,24 @@ class DaSoumissionFacBlRepository extends EntityRepository
             ->getQuery()
             ->getResult();
     }
+    /**
+     * Récupération du date de livraison commande
+     *
+     * @param string $numeroBc
+     * @return \DateTimeInterface|null
+     */
+    public function getDateLivraisonArticle(string $numeroBc): ?\DateTimeInterface
+    {
+        return $this->createQueryBuilder('d')
+            ->select('d.dateCreation')
+            ->where('d.numeroCde = :numeroBc')
+            ->andWhere('d.numeroVersion = :firstVersion')
+            ->setParameters([
+                'numeroBc' => $numeroBc,
+                'firstVersion' => 1
+            ])
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult(Query::HYDRATE_SINGLE_SCALAR);
+    }
 }
