@@ -3,6 +3,19 @@ import { FetchManager } from "../../api/FetchManager.js";
 document.addEventListener("DOMContentLoaded", function () {
   const fetchManager = new FetchManager();
   var pointageRelanceModal = document.getElementById("pointageRelanceModal");
+  var loadingOverlay = document.getElementById("loading-overlays");
+
+  function showLoadingOverlay() {
+    if (loadingOverlay) {
+      loadingOverlay.style.display = "flex"; // Utilise flex pour centrer le contenu
+    }
+  }
+
+  function hideLoadingOverlay() {
+    if (loadingOverlay) {
+      loadingOverlay.style.display = "none";
+    }
+  }
 
   if (pointageRelanceModal) {
     pointageRelanceModal.addEventListener("show.bs.modal", function (event) {
@@ -105,6 +118,7 @@ document.addEventListener("DOMContentLoaded", function () {
               title: "Succès",
               text: response.message,
             }).then(() => {
+              showLoadingOverlay(); // Affiche l'overlay après confirmation de la popup
               location.reload();
             });
           } else {

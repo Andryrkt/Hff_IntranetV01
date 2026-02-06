@@ -366,11 +366,12 @@ class ListeDevisMagasinController extends Controller
             $statutDw = $devis->getStatutDw();
             $statutBc = $devis->getStatutBc();
             $statutIps = $devis->getStatutIps();
+            $statutRelance = $this->convertirEnUtf8($devis->getStatutRelance());
             $emetteur = $devis->getSuccursaleServiceEmetteur();
             $numeroDevis = $devis->getNumeroDevis();
 
             $pointageDevis = in_array($statutDw, [DevisMagasin::STATUT_PRIX_VALIDER_TANA, DevisMagasin::STATUT_PRIX_MODIFIER_TANA, DevisMagasin::STATUT_VALIDE_AGENCE]);
-            $relanceClient = $statutDw === DevisMagasin::STATUT_ENVOYER_CLIENT && $statutBc ===  BcMagasin::STATUT_EN_ATTENTE_BC;
+            $relanceClient = $statutDw === DevisMagasin::STATUT_ENVOYER_CLIENT && $statutBc ===  BcMagasin::STATUT_EN_ATTENTE_BC && $statutRelance === PointageRelanceStatutConstant::STATUT_POINTAGE_RELANCE_A_RELANCER;
 
             // Création d'url
             $url = [
@@ -404,9 +405,9 @@ class ListeDevisMagasinController extends Controller
                 'relanceClient'   => $relanceClient,
                 'dateDerniereRelance' => $devis->getDateDerniereRelance(),
                 'numeroRelance' => $devis->getNombreDeRelance(),
-                'statutRelance' => $this->convertirEnUtf8($devis->getStatutRelance()),
+                'statutRelance' => $statutRelance,
                 'relances' => $devis->getRelances() ?? [],
-                'styleStatutPR' => $styleStatutPR[$this->convertirEnUtf8($devis->getStatutRelance())] ?? ''
+                'styleStatutPR' => $styleStatutPR[$statutRelance] ?? ''
             ];
         }
 
