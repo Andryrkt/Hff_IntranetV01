@@ -150,6 +150,7 @@ class ActionSurNonDispoController extends Controller
         $da = new DemandeAppro;
         $da
             ->setNumeroDemandeAppro($numDa)
+            ->setNumeroDemandeApproMere($numDa)
             ->setDaTypeId($demandeAppro->getDaTypeId())
             ->setNumeroDemandeDit($demandeAppro->getNumeroDemandeDit())
             ->setObjetDal($demandeAppro->getObjetDal())
@@ -207,6 +208,7 @@ class ActionSurNonDispoController extends Controller
         $newDaAfficher = new DaAfficher;
         $newDaAfficher
             ->setNumeroDemandeAppro($numDa)
+            ->setNumeroDemandeApproMere($numDa)
             ->setNumeroDemandeDit($daAfficher->getNumeroDemandeDit())
             ->setStatutDal($statutDa)
             ->setObjetDal($daAfficher->getObjetDal())
