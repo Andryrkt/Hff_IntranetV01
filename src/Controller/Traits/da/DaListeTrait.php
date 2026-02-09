@@ -11,10 +11,6 @@ use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaSoumissionBc;
 use App\Entity\admin\utilisateur\Role;
 use App\Entity\dit\DitOrsSoumisAValidation;
-use App\Model\dw\DossierInterventionAtelierModel;
-use App\Repository\da\DaSoumissionBcRepository;
-use App\Repository\dit\DitOrsSoumisAValidationRepository;
-use Twig\Markup;
 
 trait DaListeTrait
 {
@@ -27,29 +23,6 @@ trait DaListeTrait
     private $styleStatutDA = [];
     private $styleStatutOR = [];
     private $styleStatutBC = [];
-
-    // Repository et model
-    private DaModel $daModel;
-    private DossierInterventionAtelierModel $dwModel;
-    private AgenceRepository $agenceRepository;
-    private DaSoumissionBcRepository $daSoumissionBcRepository;
-    private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
-
-    /**
-     * Initialise les valeurs par défaut du trait
-     */
-    public function initDaListeTrait()
-    {
-        $em = $this->getEntityManager();
-        $this->initDaTrait();
-
-        $this->daModel = new DaModel();
-        $this->dwModel = new DossierInterventionAtelierModel();
-        $this->agenceRepository = $em->getRepository(Agence::class);
-        $this->daSoumissionBcRepository = $em->getRepository(DaSoumissionBc::class);
-        $this->ditOrsSoumisAValidationRepository = $em->getRepository(DitOrsSoumisAValidation::class);
-    }
-    //=====================================================================================
 
     private function initStyleStatuts()
     {
