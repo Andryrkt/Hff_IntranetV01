@@ -47,95 +47,6 @@ class Controller
         $this->response = new Response();
     }
 
-    protected function getSessionService(): SessionInterface
-    {
-        if ($this->sessionService === null) {
-            try {
-                $container = $this->getContainer();
-                if ($container && $container->has('session')) {
-                    $this->sessionService = $container->get('session');
-                } else {
-                    $this->sessionService = new \App\Service\SessionManagerService();
-                }
-            } catch (\Throwable $e) {
-                $this->sessionService = new \App\Service\SessionManagerService();
-            }
-        }
-        return $this->sessionService;
-    }
-
-    /**
-     * Récupérer l'EntityManager
-     */
-    public function getEntityManager(): EntityManagerInterface
-    {
-        $container = $this->getContainer();
-        if (!$container) {
-            throw new \RuntimeException('Le conteneur de services n\'est pas disponible');
-        }
-        return $container->get('doctrine.orm.default_entity_manager');
-    }
-
-    /**
-     * Récupérer le générateur d'URL
-     */
-    public function getUrlGenerator(): UrlGeneratorInterface
-    {
-        $container = $this->getContainer();
-        if (!$container) {
-            throw new \RuntimeException('Le conteneur de services n\'est pas disponible');
-        }
-        return $container->get('router');
-    }
-
-    /**
-     * Récupérer Twig
-     */
-    public function getTwig(): Environment
-    {
-        $container = $this->getContainer();
-        if (!$container) {
-            throw new \RuntimeException('Le conteneur de services n\'est pas disponible');
-        }
-        return $container->get('twig');
-    }
-
-    /**
-     * Récupérer la factory de formulaires
-     */
-    public function getFormFactory(): FormFactoryInterface
-    {
-        $container = $this->getContainer();
-        if (!$container) {
-            throw new \RuntimeException('Le conteneur de services n\'est pas disponible');
-        }
-        return $container->get('form.factory');
-    }
-
-    /**
-     * Récupérer le stockage de tokens
-     */
-    public function getTokenStorage(): TokenStorageInterface
-    {
-        $container = $this->getContainer();
-        if (!$container) {
-            throw new \RuntimeException('Le conteneur de services n\'est pas disponible');
-        }
-        return $container->get('security.token_storage');
-    }
-
-    /**
-     * Récupérer le vérificateur d'autorisation
-     */
-    public function getAuthorizationChecker(): AuthorizationCheckerInterface
-    {
-        $container = $this->getContainer();
-        if (!$container) {
-            throw new \RuntimeException('Le conteneur de services n\'est pas disponible');
-        }
-        return $container->get('security.authorization_checker');
-    }
-
     /**
      * Récupérer le conteneur de services
      */
@@ -151,12 +62,63 @@ class Controller
     protected function getService(string $serviceId)
     {
         $container = $this->getContainer();
-        if (!$container) {
-            throw new \RuntimeException('Le conteneur de services n\'est pas disponible');
-        }
+        if (!$container) throw new \RuntimeException('Le conteneur de services n\'est pas disponible');
+
         return $container->get($serviceId);
     }
 
+    protected function getSessionService(): SessionInterface
+    {
+        return $this->getService('session');
+    }
+
+    /**
+     * Récupérer l'EntityManager
+     */
+    public function getEntityManager(): EntityManagerInterface
+    {
+        return $this->getService('doctrine.orm.default_entity_manager');
+    }
+
+    /**
+     * Récupérer le générateur d'URL
+     */
+    public function getUrlGenerator(): UrlGeneratorInterface
+    {
+        return $this->getService('router');
+    }
+
+    /**
+     * Récupérer Twig
+     */
+    public function getTwig(): Environment
+    {
+        return $this->getService('twig');
+    }
+
+    /**
+     * Récupérer la factory de formulaires
+     */
+    public function getFormFactory(): FormFactoryInterface
+    {
+        return $this->getService('form.factory');
+    }
+
+    /**
+     * Récupérer le stockage de tokens
+     */
+    public function getTokenStorage(): TokenStorageInterface
+    {
+        return $this->getService('security.token_storage');
+    }
+
+    /**
+     * Récupérer le vérificateur d'autorisation
+     */
+    public function getAuthorizationChecker(): AuthorizationCheckerInterface
+    {
+        return $this->getService('security.authorization_checker');
+    }
 
     /**
      * Getter magique pour charger les services à la demande
@@ -640,74 +602,6 @@ class Controller
             'services' => $userInfo['authorized_services']['ids'] ?? [],
         ];
     }
-
-    // =====================================
-    // MÉTHODES STATIQUES DE COMPATIBILITÉ
-    // (Temporaires - à supprimer après refactorisation complète)
-    // =====================================
-
-    /**
-     * @deprecated Utiliser l'injection de dépendances à la place
-     */
-    public static function getEntity()
-    {
-        global $container;
-        return $container ? $container->get('doctrine.orm.default_entity_manager') : null;
-    }
-
-    /**
-     * @deprecated Utiliser l'injection de dépendances à la place
-     */
-    public static function getTwigStatic()
-    {
-        global $container;
-        return $container ? $container->get('twig') : null;
-    }
-
-    /**
-     * @deprecated Utiliser l'injection de dépendances à la place
-     */
-    public static function getGeneratorStatic()
-    {
-        global $container;
-        return $container ? $container->get('router') : null;
-    }
-
-    /**
-     * @deprecated Utiliser l'injection de dépendances à la place
-     */
-    public static function getValidatorStatic()
-    {
-        global $container;
-        return $container ? $container->get('form.factory') : null;
-    }
-
-
-
-    /**
-     * @deprecated Ne pas utiliser - méthode obsolète
-     */
-    public static function setTwig($twig) {}
-
-    /**
-     * @deprecated Ne pas utiliser - méthode obsolète
-     */
-    public static function setValidator($validator) {}
-
-    /**
-     * @deprecated Ne pas utiliser - méthode obsolète
-     */
-    public static function setGenerator($generator) {}
-
-    /**
-     * @deprecated Ne pas utiliser - méthode obsolète
-     */
-    public static function setEntity($entity) {}
-
-    /**
-     * @deprecated Ne pas utiliser - méthode obsolète
-     */
-    public static function setPaginator($paginator) {}
 
     /**
      * Rendre un template Twig

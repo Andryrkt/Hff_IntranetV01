@@ -80,7 +80,7 @@ trait StatutBcTrait
     private function statutBc(DaAfficher $DaAfficher): ?string
     {
         // 0. recupération de l'entity manager
-        $em = self::getEntity();
+        $em = $this->getEntityManager();
 
         // 1. recupération des données necessaire dans DaAfficher
         [$ref, $numDit, $numDa, $designation, $numeroOr, $statutOr, $statutBc, $statutDa] = $this->getVariableNecessaire($DaAfficher);
