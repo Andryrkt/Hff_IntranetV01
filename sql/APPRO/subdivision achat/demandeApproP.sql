@@ -1,0 +1,22 @@
+CREATE TABLE Demande_Appro_P (
+	id int IDENTITY(1,1) NOT NULL,
+	numero_demande_appro varchar(11) NULL,
+	demandeur varchar(100) NULL,
+	objet_dal varchar(1000) NULL,
+	detail_dal varchar(1000) NULL,
+	agence_emmetteur_id int NOT NULL,
+	service_emmetteur_id int NOT NULL,
+	agence_service_emmeteur varchar(6) NULL,
+	agence_debiteur_id int NOT NULL,
+	service_debiteur_id int NOT NULL,
+	agence_service_debiteur varchar(6) NULL,
+	date_creation datetime2(0) NULL,
+	date_modification datetime2(0) NULL,
+	date_heure_fin_souhaitee datetime2(0) NULL,
+	statut_dal varchar(100) NULL,
+	user_id int NULL,
+	niveau_urgence varchar(50) NULL,
+	code_centrale varchar(4) NULL,
+	designation_central varchar(50) NULL,
+    CONSTRAINT PK_Demande_Appro_P PRIMARY KEY (id)
+);

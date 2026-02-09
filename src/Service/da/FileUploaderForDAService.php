@@ -2,8 +2,6 @@
 
 namespace App\Service\da;
 
-use App\Entity\da\DemandeApproL;
-use App\Entity\da\DemandeApproLR;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class FileUploaderForDAService
@@ -15,9 +13,9 @@ class FileUploaderForDAService
         "OBSERVATION"     => "observation_pj",
     ];
 
-    public function __construct(string $basePath)
+    public function __construct()
     {
-        $this->basePath = rtrim($basePath, '/');
+        $this->basePath = rtrim($_ENV['BASE_PATH_FICHIER'], '/');
     }
 
     /**
@@ -87,5 +85,38 @@ class FileUploaderForDAService
             }
         }
         return $fileNames;
+    }
+
+    // FileUploaderForDAService.php
+    public function handleFileUpload(?array $newFiles, ?string $existingFiles, string $numeroDemandeAppro, string $fileType): array
+    {
+        $finalFileNames = [];
+
+        // 1. Ajouter les fichiers existants (s'ils sont fournis)
+        if ($existingFiles) {
+            $existingArray = explode(',', $existingFiles);
+            $finalFileNames = array_merge($finalFileNames, $existingArray);
+        }
+
+        // 2. Uploader les nouveaux fichiers
+        if ($newFiles) {
+            $uploadedFileNames = $this->uploadMultipleDaFiles($newFiles, $numeroDemandeAppro, $fileType);
+            $finalFileNames = array_merge($finalFileNames, $uploadedFileNames);
+        }
+
+        return $finalFileNames;
+    }
+
+    public function deleteFiles(array $fileNames, string $numeroDemandeAppro): void
+    {
+        $destination = "{$this->basePath}/da/$numeroDemandeAppro";
+
+        foreach ($fileNames as $fileName) {
+            if (empty($fileName)) continue;
+
+            $filePath = "$destination/$fileName";
+
+            if (file_exists($filePath)) unlink($filePath);
+        }
     }
 }

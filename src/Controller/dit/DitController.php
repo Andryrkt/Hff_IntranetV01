@@ -14,15 +14,15 @@ use App\Controller\Traits\FormatageTrait;
 use App\Form\dit\demandeInterventionType;
 use App\Service\autres\AutoIncDecService;
 use Symfony\Component\Form\FormInterface;
+use App\Entity\admin\dit\WorNiveauUrgence;
 use App\Service\fichier\UploderFileService;
 use App\Controller\Traits\AutorisationTrait;
-use App\Controller\Traits\MiseAjourAppTrait;
 use App\Service\fichier\TraitementDeFichier;
 use App\Controller\Traits\PdfConversionTrait;
 use App\Service\genererPdf\dit\GenererPdfDit;
 use Symfony\Component\HttpFoundation\Request;
 use App\Factory\Dit\DemandeInterventionFactory;
-use App\Service\application\ApplicationService;
+use App\Repository\dit\DitRepository;
 use App\Service\dit\fichier\DitNameFileService;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -42,6 +42,7 @@ class DitController extends Controller
     private $historiqueOperation;
     private $demandeInterventionFactory;
     private DitModel $ditModel;
+    private DitRepository $demandeRepository;
 
     public function __construct()
     {
@@ -49,6 +50,7 @@ class DitController extends Controller
         $this->historiqueOperation = new HistoriqueOperationDITService($this->getEntityManager());
         $this->ditModel = new DitModel();
         $this->demandeInterventionFactory = new DemandeInterventionFactory($this->getEntityManager(), $this->ditModel, $this->historiqueOperation);
+        $this->demandeRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class);
     }
 
     /**
@@ -74,7 +76,7 @@ class DitController extends Controller
         $demandeIntervention->setServiceEmetteur($agenceService['serviceIps']->getCodeService() . ' ' . $agenceService['serviceIps']->getLibelleService());
         $demandeIntervention->setAgence($agenceService['agenceIps']);
         $demandeIntervention->setService($agenceService['serviceIps']);
-        $demandeIntervention->setIdNiveauUrgence($this->getEntityManager()->getRepository(\App\Entity\admin\dit\WorNiveauUrgence::class)->find(1));
+        $demandeIntervention->setIdNiveauUrgence($this->getEntityManager()->getRepository(WorNiveauUrgence::class)->find(1));
 
         //AFFICHAGE ET TRAITEMENT DU FORMULAIRE
         $form = $this->getFormFactory()->createBuilder(demandeInterventionType::class, $demandeIntervention)->getForm();
@@ -119,9 +121,8 @@ class DitController extends Controller
             $dto->idStatutDemande = $em->getRepository(StatutDemande::class)->find(50);
             $dto->mailDemandeur = $user->getMail();
 
-            /**   @var array $demandeInterventions 3. Utiliser la factory pour créer l'entité complète*/
+            /**   @var DemandeIntervention[] $demandeInterventions 3. Utiliser la factory pour créer l'entité complète*/
             $demandeInterventions = $this->createDemandeInterventionFromDto($dto);
-
 
             foreach ($demandeInterventions as $demandeIntervention) {
                 // 4. recuperation du dernière numero demande d'intervention et generation du numero de demande 
@@ -140,13 +141,24 @@ class DitController extends Controller
                 $this->enregistrementBd($demandeIntervention, $nomFichierEnregistrer);
 
                 // 8.Copier le PDF DANS DOXCUWARE
-                $genererPdfDit->copyToDOCUWARE($nomFichier, $demandeIntervention->getNumeroDemandeIntervention());
+                $reponse = $genererPdfDit->copyToDOCUWARE($nomFichier, $demandeIntervention->getNumeroDemandeIntervention());
+
+                // 9. modification de la colonne pdf_deposer_dw et date_depot_pdf_dw
+                $this->modificationBdPourHitorisationDw($em, $demandeIntervention, $reponse);
             }
 
-
-            // 9. enregistrement dans l'historisation de la sucès de la demande
+            // 10. enregistrement dans l'historisation de la sucès de la demande
             $this->historiqueOperation->sendNotificationCreation('Votre demande a été enregistrée', $demandeInterventions[0]->getNumeroDemandeIntervention(), 'dit_index', true);
         }
+    }
+
+    private function modificationBdPourHitorisationDw($em, $demandeIntervention, bool $reponse): void
+    {
+        $dit = $this->demandeRepository->findOneBy(['numeroDemandeIntervention' => $demandeIntervention->getNumeroDemandeIntervention()]);
+        $dit->setPdfDeposerDw($reponse)
+            ->setDateDepotPdfDw(new \DateTime());
+        $em->persist($dit);
+        $em->flush();
     }
 
     public function genererNumeroDemandeIntervention(Application $application)
@@ -155,8 +167,7 @@ class DitController extends Controller
         $numeroDemandeIntervention = AutoIncDecService::autoGenerateNumero(DemandeIntervention::CODE_APP, $application->getDerniereId(), false);
 
         // 2. Vérification de l'unicité du numéro de demande
-        $demandeRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class);
-        $existingDemande = $demandeRepository->findOneBy(['numeroDemandeIntervention' => $numeroDemandeIntervention]);
+        $existingDemande = $this->demandeRepository->findOneBy(['numeroDemandeIntervention' => $numeroDemandeIntervention]);
         if ($existingDemande) {
             // Log de l'erreur et notification à l'utilisateur
             $message = sprintf(
@@ -199,7 +210,7 @@ class DitController extends Controller
         $idMateriel = (int)$demandeIntervention->getIdMateriel();
         if (!in_array($idMateriel, $this->ditModel->getNumeroMatriculePasMateriel())) {
             //récupération des historique de materiel (informix)
-            $historiqueMateriel = $this->historiqueInterventionMateriel($idMateriel);
+            $historiqueMateriel = $this->historiqueInterventionMateriel($idMateriel, $demandeIntervention->getReparationRealise());
         } else {
             $historiqueMateriel = [];
         }

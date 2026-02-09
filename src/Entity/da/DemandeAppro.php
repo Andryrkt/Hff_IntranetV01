@@ -23,7 +23,9 @@ class DemandeAppro
 
     public const TYPE_DA_AVEC_DIT            = 0; // id du type de DA avec DIT 
     public const TYPE_DA_DIRECT              = 1; // id du type de DA direct
-    public const TYPE_DA_REAPPRO             = 2; // id du type de DA réappro
+    public const TYPE_DA_REAPPRO_MENSUEL     = 2; // id du type de DA réappro mensuel
+    public const TYPE_DA_REAPPRO_PONCTUEL    = 3; // id du type de DA réappro ponctuel
+    public const TYPE_DA_PARENT              = 4; // id du type de DA parent ou DA achat
 
     public const ID_APPRO                    = 16;
     public const ID_ATELIER                  = 3;
@@ -35,7 +37,7 @@ class DemandeAppro
     public const STATUT_SOUMIS_APPRO         = 'Demande d’achats';          /*__ DA direct et DA via OR __*/ /*_ statut_dal _*/ // cliquable par Admin et Appro
     public const STATUT_DEMANDE_DEVIS        = 'Demande de devis en cours'; /*__ DA direct et DA via OR __*/ /*_ statut_dal _*/ // cliquable par Admin et Appro
     public const STATUT_DEVIS_A_RELANCER     = 'Devis à relancer APP';      /*__ DA direct et DA via OR __*/ /*_ statut_dal _*/ // cliquable par Admin et Appro
-    public const STATUT_AUTORISER_MODIF_ATE  = 'Création demande initiale'; /*_________ DA via OR ________*/ /*_ statut_dal _*/ // cliquable par Admin et Atelier
+    public const STATUT_AUTORISER_EMETTEUR   = 'Création demande initiale'; /*_________ DA via OR ________*/ /*_ statut_dal _*/ // cliquable par Admin et Atelier
     public const STATUT_EN_COURS_PROPOSITION = 'En cours de proposition';   /*__ DA direct et DA via OR __*/ /*_ statut_dal _*/ // cliquable par Admin et Appro
     public const STATUT_SOUMIS_ATE           = 'Proposition achats';        /*__ DA direct et DA via OR __*/ /*_ statut_dal _*/ // cliquable par Admin et (Atelier ou service emetteur) et Appro
 
@@ -52,7 +54,12 @@ class DemandeAppro
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=11, name="numero_demande_appro")
+     * @ORM\Column(type="string", length=12, name="numero_demande_appro_mere", nullable=true)
+     */
+    private ?string $numeroDemandeApproMere = null;
+
+    /**
+     * @ORM\Column(type="string", length=12, name="numero_demande_appro")
      */
     private ?string $numeroDemandeAppro = null;
 
@@ -168,9 +175,9 @@ class DemandeAppro
     private ?string $devisDemandePar = '';
 
     /**
-     * @ORM\Column(type="string", length=50, name="valide_par")
+     * @ORM\Column(type="string", length=50, name="valide_par", nullable=true)
      */
-    private string $validePar;
+    private ?string $validePar = null;
 
     /**
      * @ORM\Column(type="string", length=255, name="nom_fichier_bav")
@@ -192,6 +199,10 @@ class DemandeAppro
      */
     private $historiqueDemandeModifDA;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=DemandeIntervention::class, inversedBy="demandeAppro")
+     * @ORM\JoinColumn(nullable=true, name="dit_id", referencedColumnName="id")
+     */
     private ?DemandeIntervention $dit = null;
 
     /**
@@ -245,6 +256,24 @@ class DemandeAppro
     public function setId($id): self
     {
         $this->id = $id;
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroDemandeApproMere
+     */
+    public function getNumeroDemandeApproMere(): ?string
+    {
+        return $this->numeroDemandeApproMere;
+    }
+
+    /**
+     * Set the value of numeroDemandeApproMere
+     */
+    public function setNumeroDemandeApproMere(?string $numeroDemandeApproMere): self
+    {
+        $this->numeroDemandeApproMere = $numeroDemandeApproMere;
+
         return $this;
     }
 
@@ -1020,6 +1049,30 @@ class DemandeAppro
     public function setDesiCentrale($desiCentrale)
     {
         $this->desiCentrale = $desiCentrale;
+
+        return $this;
+    }
+
+    public function duplicateDaParent(DemandeApproParent $daParent): self
+    {
+        $this
+            ->setNumeroDemandeApproMere($daParent->getNumeroDemandeAppro())
+            ->setDemandeur($daParent->getDemandeur())
+            ->setObjetDal($daParent->getObjetDal())
+            ->setDetailDal($daParent->getDetailDal())
+            ->setAgenceDebiteur($daParent->getAgenceDebiteur())
+            ->setServiceDebiteur($daParent->getServiceDebiteur())
+            ->setAgenceEmetteur($daParent->getAgenceEmetteur())
+            ->setServiceEmetteur($daParent->getServiceEmetteur())
+            ->setAgenceServiceDebiteur($daParent->getAgenceServiceDebiteur())
+            ->setAgenceServiceEmetteur($daParent->getAgenceServiceEmetteur())
+            ->setDateFinSouhaite($daParent->getDateFinSouhaite())
+            ->setStatutDal($daParent->getStatutDal())
+            ->setUser($daParent->getUser())
+            ->setNiveauUrgence($daParent->getNiveauUrgence())
+            ->setCodeCentrale($daParent->getCodeCentrale())
+            ->setDesiCentrale($daParent->getDesiCentrale())
+        ;
 
         return $this;
     }

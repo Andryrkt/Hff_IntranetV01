@@ -35,7 +35,7 @@ class CdeFrnListType extends  AbstractType
         DemandeAppro::STATUT_DEMANDE_DEVIS        => DemandeAppro::STATUT_DEMANDE_DEVIS,
         DemandeAppro::STATUT_DEVIS_A_RELANCER     => DemandeAppro::STATUT_DEVIS_A_RELANCER,
         DemandeAppro::STATUT_EN_COURS_CREATION    => DemandeAppro::STATUT_EN_COURS_CREATION,
-        DemandeAppro::STATUT_AUTORISER_MODIF_ATE  => DemandeAppro::STATUT_AUTORISER_MODIF_ATE,
+        DemandeAppro::STATUT_AUTORISER_EMETTEUR   => DemandeAppro::STATUT_AUTORISER_EMETTEUR,
         DemandeAppro::STATUT_EN_COURS_PROPOSITION => DemandeAppro::STATUT_EN_COURS_PROPOSITION,
     ];
 
@@ -47,7 +47,7 @@ class CdeFrnListType extends  AbstractType
     private const TYPE_ACHAT = [
         'DA Avec DIT' => DemandeAppro::TYPE_DA_AVEC_DIT,
         'DA Direct'   => DemandeAppro::TYPE_DA_DIRECT,
-        'DA reappro'  => DemandeAppro::TYPE_DA_REAPPRO,
+        'DA reappro'  => DemandeAppro::TYPE_DA_REAPPRO_MENSUEL,
     ];
 
     private const TRI_NBR_JOURS =  [

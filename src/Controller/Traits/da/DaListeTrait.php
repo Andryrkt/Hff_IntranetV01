@@ -11,6 +11,10 @@ use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaSoumissionBc;
 use App\Entity\admin\utilisateur\Role;
 use App\Entity\dit\DitOrsSoumisAValidation;
+use App\Model\dw\DossierInterventionAtelierModel;
+use App\Repository\da\DaSoumissionBcRepository;
+use App\Repository\dit\DitOrsSoumisAValidationRepository;
+use Twig\Markup;
 
 trait DaListeTrait
 {
@@ -23,6 +27,29 @@ trait DaListeTrait
     private $styleStatutDA = [];
     private $styleStatutOR = [];
     private $styleStatutBC = [];
+
+    // Repository et model
+    private DaModel $daModel;
+    private DossierInterventionAtelierModel $dwModel;
+    private AgenceRepository $agenceRepository;
+    private DaSoumissionBcRepository $daSoumissionBcRepository;
+    private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
+
+    /**
+     * Initialise les valeurs par défaut du trait
+     */
+    public function initDaListeTrait()
+    {
+        $em = $this->getEntityManager();
+        $this->initDaTrait();
+
+        $this->daModel = new DaModel();
+        $this->dwModel = new DossierInterventionAtelierModel();
+        $this->agenceRepository = $em->getRepository(Agence::class);
+        $this->daSoumissionBcRepository = $em->getRepository(DaSoumissionBc::class);
+        $this->ditOrsSoumisAValidationRepository = $em->getRepository(DitOrsSoumisAValidation::class);
+    }
+    //=====================================================================================
 
     private function initStyleStatuts()
     {
@@ -37,7 +64,7 @@ trait DaListeTrait
             DemandeAppro::STATUT_DEMANDE_DEVIS        => 'bg-demande-devis',
             DemandeAppro::STATUT_DEVIS_A_RELANCER     => 'bg-devis-a-relancer',
             DemandeAppro::STATUT_EN_COURS_CREATION    => 'bg-en-cours-creation',
-            DemandeAppro::STATUT_AUTORISER_MODIF_ATE  => 'bg-creation-demande-initiale',
+            DemandeAppro::STATUT_AUTORISER_EMETTEUR   => 'bg-creation-demande-initiale',
             DemandeAppro::STATUT_EN_COURS_PROPOSITION => 'bg-en-cours-proposition',
         ];
         $this->styleStatutOR = [
@@ -137,7 +164,7 @@ trait DaListeTrait
     private function appliquerVerrouillageSelonProfil(iterable $daAffichers, bool $estAdmin, bool $estAppro, bool $estAtelier, bool $estCreateurDaDirecte): iterable
     {
         foreach ($daAffichers as $daAfficher) {
-            $verrouille = $this->estDaVerrouillee(
+            $verrouille = $this->permissionDaService->estDaVerrouillee(
                 $daAfficher->getStatutDal(),
                 $daAfficher->getStatutOr(),
                 $estAdmin,
@@ -159,9 +186,11 @@ trait DaListeTrait
         $datasPrepared = [];
 
         $daType = [
-            DemandeAppro::TYPE_DA_AVEC_DIT => $this->getIconDaAvecDIT(),
-            DemandeAppro::TYPE_DA_DIRECT   => $this->getIconDaDirect(),
-            DemandeAppro::TYPE_DA_REAPPRO  => $this->getIconDaReappro(),
+            DemandeAppro::TYPE_DA_AVEC_DIT         => $this->getIconDaAvecDIT(),
+            DemandeAppro::TYPE_DA_DIRECT           => $this->getIconDaDirect(),
+            DemandeAppro::TYPE_DA_REAPPRO_MENSUEL  => $this->getIconDaReapproMensuel(),
+            DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL => $this->getIconDaReapproPonctuel(),
+            DemandeAppro::TYPE_DA_PARENT           => ''
         ];
 
         $safeIconSuccess = new Markup('<i class="fas fa-check text-success"></i>', 'UTF-8');
@@ -180,9 +209,11 @@ trait DaListeTrait
 
         foreach ($data as $item) {
             // Variables à employer
-            $daReappro = $item->getDaTypeId() == DemandeAppro::TYPE_DA_REAPPRO;
+            $daReappro = $item->getDaTypeId() == DemandeAppro::TYPE_DA_REAPPRO_MENSUEL;
             $daDirect = $item->getDaTypeId() == DemandeAppro::TYPE_DA_DIRECT;
             $daViaOR = $item->getDaTypeId() == DemandeAppro::TYPE_DA_AVEC_DIT;
+            $daPonctuel = $item->getDaTypeId() == DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL;
+            $daParent = $item->getDaTypeId() == DemandeAppro::TYPE_DA_PARENT;
             $envoyeFrn = $item->getStatutCde() === DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR;
 
             // Pré-calculer les styles
@@ -192,8 +223,8 @@ trait DaListeTrait
 
             // Pré-calculer les booléens
             $ajouterDA = $daViaOR && ($estAtelier || $estAdmin); // da via OR && (atelier ou admin)  
-            $supprimable = ($estAppro || $estAtelier || $estAdmin) && in_array($item->getStatutDal(), $statutDASupprimable) && !$daReappro;
-            $demandeDevis = ($estAppro || $estAdmin) && $item->getStatutDal() === DemandeAppro::STATUT_SOUMIS_APPRO && !$daReappro;
+            $supprimable = ($estAppro || $estAtelier || $estAdmin) && in_array($item->getStatutDal(), $statutDASupprimable) && ($daViaOR || $daDirect);
+            $demandeDevis = ($estAppro || $estAdmin) && $item->getStatutDal() === DemandeAppro::STATUT_SOUMIS_APPRO && ($daViaOR || $daDirect);
             $dataOR = $this->dwModel->findCheminOrDernierValide($item->getNumeroDemandeDit(), $item->getNumeroDemandeAppro());
 
             // Construction d'urls
@@ -202,6 +233,15 @@ trait DaListeTrait
             // Statut OR | Statut DocuWare
             $statutOR = $item->getStatutOr();
             if ($daViaOR && !empty($statutOR)) $statutOR = "OR - $statutOR";
+
+            // Préparer attributs pour la balise <a> de la désignation de la DA
+            $aArtDesiAttributes = [
+                'href'              => $urls['designation'],
+                'class'             => 'designation-btn',
+                'data-numero-ligne' => $item->getNumeroLigne(),
+                'data-numero-da'    => $item->getNumeroDemandeAppro(),
+                'target'            => $urls['designation'] === "#" ? "_self" : "_blank"
+            ];
 
             // Préparer attributs pour la balise <a> de la date de livraison prévue
             $aDtLivPrevAttributes = [
@@ -215,52 +255,51 @@ trait DaListeTrait
 
             // Tout regrouper
             $datasPrepared[] = [
-                'dit'                 => $item->getDit(),
-                'objet'               => $item->getObjetDal(),
-                'numeroDemandeAppro'  => $item->getNumeroDemandeAppro(),
-                'demandeAppro'        => $item->getDemandeAppro(),
-                'datype'              => $daType[$item->getDaTypeId()],
-                'numeroDemandeDit'    => $daViaOR ? $item->getNumeroDemandeDit() : $safeIconBan,
-                'numeroOr'            => $daDirect ? $safeIconBan : $item->getNumeroOr(),
-                'niveauUrgence'       => $daReappro ? $safeIconBan : $item->getNiveauUrgence(),
-                'demandeur'           => $item->getDemandeur(),
-                'dateDemande'         => $item->getDateDemande() ? $item->getDateDemande()->format('d/m/Y') : '',
-                'statutDal'           => $item->getStatutDal(),
-                'statutOr'            => $statutOR,
-                'statutCde'           => $item->getStatutCde(),
-                'datePlannigOr'       => $daViaOR ? ($item->getDatePlannigOr() ? $item->getDatePlannigOr()->format('d/m/Y') : '') : $safeIconBan,
-                'nomFournisseur'      => $item->getNomFournisseur(),
-                'artConstp'           => $item->getArtConstp(),
-                'artRefp'             => $item->getArtRefp(),
-                'artDesi'             => $item->getArtDesi(),
-                'estDalr'             => $item->getEstDalr(),
-                'verouille'           => $item->getVerouille(),
-                'numeroligne'         => $item->getNumeroLigne(),
-                'estFicheTechnique'   => $item->getEstFicheTechnique() ? $safeIconSuccess : $safeIconXmark,
-                'qteDem'              => $item->getQteDem() == 0 ? '-' : $item->getQteDem(),
-                'qteEnAttent'         => $item->getQteEnAttent() == 0 ? '-' : $item->getQteEnAttent(),
-                'qteDispo'            => $item->getQteDispo() == 0 ? '-' : $item->getQteDispo(),
-                'qteLivrer'           => $item->getQteLivrer() == 0 ? '-' : $item->getQteLivrer(),
-                'dateFinSouhaite'     => $item->getDateFinSouhaite() ? $item->getDateFinSouhaite()->format('d/m/Y') : 'N/A',
-                'dateLivraisonPrevue' => $item->getDateLivraisonPrevue() ? $item->getDateLivraisonPrevue()->format('d/m/Y') : 'N/A',
-                'joursDispo'          => $item->getJoursDispo() ?? '',
-                'styleJoursDispo'     => $item->getJoursDispo() && $item->getJoursDispo() < 0 ? 'text-danger' : '',
-                'styleStatutDA'       => $styleStatutDA,
-                'styleStatutOR'       => $styleStatutOR,
-                'styleStatutBC'       => $styleStatutBC,
-                'urlCreation'         => $urls['creation'],
-                'urlDetail'           => $urls['detail'],
-                'urlDesignation'      => $urls['designation'],
-                'urlDelete'           => $urls['delete'],
-                'urlDemandeDevis'     => $urls['demandeDevis'],
-                'ajouterDA'           => $ajouterDA,
-                'supprimable'         => $supprimable,
-                'demandeDevis'        => $demandeDevis,
-                'telechargerOR'       => !empty($dataOR),
-                'pathOr'              => empty($dataOR) ? '' : $dataOR['chemin'],
-                'statutValide'        => $item->getStatutDal() === DemandeAppro::STATUT_VALIDE,
-                'centrale'            => $daReappro ? $item->getDesiCentrale() : $safeIconBan,
+                'dit'                  => $item->getDit(),
+                'objet'                => $item->getObjetDal(),
+                'numDaParent'          => $item->getNumeroDemandeApproMere(),
+                'numeroDemandeAppro'   => $item->getNumeroDemandeAppro(),
+                'datype'               => $daType[$item->getDaTypeId()],
+                'numeroDemandeDit'     => $daViaOR ? $item->getNumeroDemandeDit() : $safeIconBan,
+                'numeroOr'             => $daDirect || $daParent ? $safeIconBan : $item->getNumeroOr(),
+                'niveauUrgence'        => $daReappro ? $safeIconBan : $item->getNiveauUrgence(),
+                'demandeur'            => $item->getDemandeur(),
+                'dateDemande'          => $item->getDateDemande() ? $item->getDateDemande()->format('d/m/Y') : '',
+                'statutDal'            => $item->getStatutDal(),
+                'statutOr'             => $statutOR,
+                'statutCde'            => $item->getStatutCde(),
+                'datePlannigOr'        => $daViaOR ? ($item->getDatePlannigOr() ? $item->getDatePlannigOr()->format('d/m/Y') : '') : $safeIconBan,
+                'nomFournisseur'       => $item->getNomFournisseur(),
+                'artConstp'            => $item->getArtConstp(),
+                'artRefp'              => $item->getArtRefp(),
+                'artDesi'              => $item->getArtDesi(),
+                'estDalr'              => $item->getEstDalr(),
+                'verouille'            => $item->getVerouille(),
+                'estFicheTechnique'    => $item->getEstFicheTechnique() ? $safeIconSuccess : $safeIconXmark,
+                'qteDem'               => $item->getQteDem() == 0 ? '-' : $item->getQteDem(),
+                'qteEnAttent'          => $item->getQteEnAttent() == 0 ? '-' : $item->getQteEnAttent(),
+                'qteDispo'             => $item->getQteDispo() == 0 ? '-' : $item->getQteDispo(),
+                'qteLivrer'            => $item->getQteLivrer() == 0 ? '-' : $item->getQteLivrer(),
+                'dateFinSouhaite'      => $item->getDateFinSouhaite() ? $item->getDateFinSouhaite()->format('d/m/Y') : 'N/A',
+                'dateLivraisonPrevue'  => $item->getDateLivraisonPrevue() ? $item->getDateLivraisonPrevue()->format('d/m/Y') : 'N/A',
+                'joursDispo'           => $item->getJoursDispo() ?? '',
+                'styleJoursDispo'      => $item->getJoursDispo() && $item->getJoursDispo() < 0 ? 'text-danger' : '',
+                'styleStatutDA'        => $styleStatutDA,
+                'styleStatutOR'        => $styleStatutOR,
+                'styleStatutBC'        => $styleStatutBC,
+                'urlCreation'          => $urls['creation'],
+                'urlDetail'            => $urls['detail'],
+                'urlDelete'            => $urls['delete'],
+                'urlDemandeDevis'      => $urls['demandeDevis'],
+                'ajouterDA'            => $ajouterDA,
+                'supprimable'          => $supprimable,
+                'demandeDevis'         => $demandeDevis,
+                'telechargerOR'        => !empty($dataOR),
+                'pathOr'               => empty($dataOR) ? '' : $dataOR['chemin'],
+                'statutValide'         => $item->getStatutDal() === DemandeAppro::STATUT_VALIDE,
+                'centrale'             => !$daViaOR ? $item->getDesiCentrale() : $safeIconBan,
                 'envoyeFrn'            => $envoyeFrn,
+                'aArtDesiAttributes'   => $aArtDesiAttributes,
                 'aDtLivPrevAttributes' => $aDtLivPrevAttributes,
             ];
         }
@@ -282,19 +321,21 @@ trait DaListeTrait
         $urls = [];
         $routeNames = [
             'creation' => [
-                DemandeAppro::TYPE_DA_AVEC_DIT  => 'da_new_avec_dit',
-                DemandeAppro::TYPE_DA_DIRECT    => 'da_new_direct',
-                DemandeAppro::TYPE_DA_REAPPRO   => 'da_new_reappro',
+                DemandeAppro::TYPE_DA_AVEC_DIT        => 'da_new_avec_dit',
+                DemandeAppro::TYPE_DA_REAPPRO_MENSUEL => 'da_new_reappro_mensuel',
+                DemandeAppro::TYPE_DA_PARENT          => 'da_new_achat'
             ],
             'detail' => [
-                DemandeAppro::TYPE_DA_AVEC_DIT  => 'da_detail_avec_dit',
-                DemandeAppro::TYPE_DA_DIRECT    => 'da_detail_direct',
-                DemandeAppro::TYPE_DA_REAPPRO   => 'da_detail_reappro',
+                DemandeAppro::TYPE_DA_AVEC_DIT         => 'da_detail_avec_dit',
+                DemandeAppro::TYPE_DA_DIRECT           => 'da_detail_direct',
+                DemandeAppro::TYPE_DA_REAPPRO_MENSUEL  => 'da_detail_reappro',
+                DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL => 'da_detail_reappro',
             ],
             'proposition' => [
-                DemandeAppro::TYPE_DA_AVEC_DIT  => 'da_proposition_ref_avec_dit',
-                DemandeAppro::TYPE_DA_DIRECT    => 'da_proposition_direct',
-                DemandeAppro::TYPE_DA_REAPPRO   => 'da_validate_reappro',
+                DemandeAppro::TYPE_DA_AVEC_DIT        => 'da_proposition_ref_avec_dit',
+                DemandeAppro::TYPE_DA_DIRECT          => 'da_proposition_direct',
+                DemandeAppro::TYPE_DA_PARENT          => 'da_affectation_achat',
+                DemandeAppro::TYPE_DA_REAPPRO_MENSUEL => 'da_validate_reappro_mensuel',
             ],
             'delete' => [
                 DemandeAppro::TYPE_DA_AVEC_DIT  => 'da_delete_line_avec_dit',
@@ -303,31 +344,44 @@ trait DaListeTrait
         ];
 
         $parametres = [
-            'daId'           => ['id'    => $item->getDemandeAppro()->getId()],
+            'daId'           => $item->getDemandeAppro() ? ['id' => $item->getDemandeAppro()->getId()] : [],
+            'daParentId'     => $item->getDemandeApproParent() ? ['id' => $item->getDemandeApproParent()->getId()] : [],
+            'daId-0-ditId'   => $item->getDit() ? ['daId' => 0, 'ditId' => $item->getDit()->getId()] : [],
+            'daId-ditId'     => $item->getDemandeAppro() && $item->getDit() ? ['daId' => $item->getDemandeAppro()->getId(), 'ditId' => $item->getDit()->getId()] : [],
             'numDa-numLigne' => ['numDa' => $item->getNumeroDemandeAppro(), 'ligne' => $item->getNumeroLigne()],
         ];
 
-        if ($daTypeId === DemandeAppro::TYPE_DA_AVEC_DIT) {
-            $parametres['daId-0-ditId'] = ['daId'  => 0,                                 'ditId' => $item->getDit()->getId(),];
-            $parametres['daId-ditId']   = ['daId'  => $item->getDemandeAppro()->getId(), 'ditId' => $item->getDit()->getId(),];
-        }
+        $paramEncoursCreation = [
+            DemandeAppro::TYPE_DA_AVEC_DIT        => $parametres['daId-ditId'],
+            DemandeAppro::TYPE_DA_PARENT          => $parametres['daParentId'],
+            DemandeAppro::TYPE_DA_REAPPRO_MENSUEL => $parametres['daId']
+        ];
+
+        $paramId = [
+            DemandeAppro::TYPE_DA_PARENT           => $parametres['daParentId'],
+            DemandeAppro::TYPE_DA_AVEC_DIT         => $parametres['daId'],
+            DemandeAppro::TYPE_DA_DIRECT           => $parametres['daId'],
+            DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL => $parametres['daId'],
+            DemandeAppro::TYPE_DA_REAPPRO_MENSUEL  => $parametres['daId'],
+        ];
 
         // URL création de DA avec DIT
-        $urls['creation'] = $ajouterDA ? $this->getUrlGenerator()->generate($routeNames['creation'][0], $parametres['daId-0-ditId']) : '';
+        $urls['creation'] = $ajouterDA ? $this->getUrlGenerator()->generate($routeNames['creation'][$daTypeId], $parametres['daId-0-ditId']) : '#';
 
         // URL détail
-        $urls['detail'] = $this->getUrlGenerator()->generate($routeNames['detail'][$daTypeId], $parametres['daId']);
+        $urls['detail'] = isset($routeNames['detail'][$daTypeId]) ? $this->getUrlGenerator()->generate($routeNames['detail'][$daTypeId], $parametres['daId']) : '#';
 
         // URL désignation (peut basculer sur "new" si statut en cours de création)
-        $urls['designation'] = $item->getStatutDal() === DemandeAppro::STATUT_EN_COURS_CREATION
-            ? $this->getUrlGenerator()->generate($routeNames['creation'][$daTypeId], $daTypeId === DemandeAppro::TYPE_DA_AVEC_DIT ? $parametres['daId-ditId'] : $parametres['daId'])
-            : $this->getUrlGenerator()->generate($routeNames['proposition'][$daTypeId], $parametres['daId']);
+        $urls['designation'] = $item->getStatutDal() === DemandeAppro::STATUT_EN_COURS_CREATION && isset($routeNames['creation'][$daTypeId])
+            ? $this->getUrlGenerator()->generate($routeNames['creation'][$daTypeId], $paramEncoursCreation[$daTypeId])
+            : (isset($routeNames['proposition'][$daTypeId]) ? $this->getUrlGenerator()->generate($routeNames['proposition'][$daTypeId], $paramId[$daTypeId]) : '#');
 
         // URL suppression de ligne
-        $urls['delete'] = $daTypeId != DemandeAppro::TYPE_DA_REAPPRO ? $this->getUrlGenerator()->generate($routeNames['delete'][$daTypeId], $parametres['numDa-numLigne']) : '';
+        $urls['delete'] = isset($routeNames['delete'][$daTypeId]) ? $this->getUrlGenerator()->generate($routeNames['delete'][$daTypeId], $parametres['numDa-numLigne']) : '#';
 
         // URL demande de devis
-        $urls['demandeDevis'] = $this->getUrlGenerator()->generate('da_demande_devis_en_cours', $parametres['daId']);
+        // Si c'est via OR ou direct
+        $urls['demandeDevis'] = isset($routeNames['delete'][$daTypeId]) ? $this->getUrlGenerator()->generate('da_demande_devis_en_cours', $parametres['daId']) : '#';
 
         return $urls;
     }

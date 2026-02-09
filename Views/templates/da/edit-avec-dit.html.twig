@@ -33,17 +33,17 @@
 					<div class="row">
 						<div class="col-12 col-md-4">
 							{{ macroForm.sousTitre('Information sur la demande') }}
-							{{ form_row(form.objetDal, { 'attr': { 'disabled': peutModifier} })}}
+							{{ form_row(form.objetDal)}}
 							<div class="mb-3 position-relative">
-								{{ form_row(form.detailDal, { 'attr': { 'disabled': peutModifier} }) }}
+								{{ form_row(form.detailDal) }}
 								<span id="charCount" class="position-absolute bottom-0 end-0 p-0 small text-muted"></span>
 							</div>
 							<div class="row">
 								<div class="col col-md">
-									{{ form_row(form.niveauUrgence, { 'attr': { 'disabled': peutModifier} }) }}
+									{{ form_row(form.niveauUrgence) }}
 								</div>
 								<div class="col col-md">
-									{{ form_row(form.dateFinSouhaite, { 'attr': { 'disabled': peutModifier} }) }}
+									{{ form_row(form.dateFinSouhaite) }}
 								</div>
 							</div>
 						</div>
@@ -147,59 +147,48 @@
 										<div id="spinner_container_{{ ligne }}_nomFournisseur" class="text-center" style="display: none;"></div>
 									</div>
 									<div class="w-10">
-										{{ form_widget(DAL.dateFinSouhaite, { 'attr': { 'disabled': peutModifier } }) }}
+										{{ form_widget(DAL.dateFinSouhaite) }}
 									</div>
 									<div class="w-5">
-										{{ form_widget(DAL.qteDem, { 'attr': { 'disabled': peutModifier } }) }}
+										{{ form_widget(DAL.qteDem) }}
 									</div>
 									<div class="w-13">
-										{{ form_widget(DAL.commentaire, { 'attr': { 'disabled': peutModifier } }) }}
+										{{ form_widget(DAL.commentaire) }}
 									</div>
-									<div class="w-1" style="visibility:{{ peutModifier ? 'hidden' : 'visible'}}">
-										<i class="fas fa-paperclip text-primary trombone-add-pj" title="Mettre en pièces jointes un ou plusieur(s) fichier(s)" style="cursor: pointer;"></i>
+									<div class="w-1">
+										<i class="fas fa-paperclip text-primary add-file-icon" data-file-input-id="demande_appro_form_DAL_{{ ligne }}_fileNames" title="Ajouter une pièce jointe" style="cursor: pointer;"></i>
 									</div>
 									<div class="w-9" id="demande_appro_form_DAL_{{ ligne }}_fileNamesContainer">
 										{% if dalData.fileNames is not empty %}
-											<ul class="mb-0 ps-3">
+											<ul class="ps-0 mb-0 file-list">
 												{% for file in dalData.fileNames %}
-													<li>
-														<a href="{{ App.base_path_fichier }}/da/{{ dalData.numeroDemandeAppro }}/{{ file }}" target="_blank">{{ file }}</a>
+													<li class="file-item">
+														<span class="file-name">
+															<a href="{{ App.base_path_fichier }}/da/{{ dalData.numeroDemandeAppro }}/{{ file }}" target="_blank">{{ file }}</a>
+														</span>
+														<span class="remove-file">x</span>
 													</li>
 												{% endfor %}
 											</ul>
-										{% else %}
-											Aucune pièce jointe
 										{% endif %}
 									</div>
 									<div class="w-2">
-										{{ form_widget(DAL.estFicheTechnique, { 'attr': { 'disabled': peutModifier } }) }}
-									</div>
-									<div class="d-none">
-										{{ form_widget(DAL.artConstp, { 'attr': { 'disabled': peutModifier } }) }}
-									</div>
-									<div class="d-none">
-										{{ form_widget(DAL.artFams1, { 'attr': { 'disabled': peutModifier } }) }}
-									</div>
-									<div class="d-none">
-										{{ form_widget(DAL.artFams2, { 'attr': { 'disabled': peutModifier } }) }}
-									</div>
-									<div class="d-none">
-										{{ form_widget(DAL.numeroFournisseur, { 'attr': { 'disabled': peutModifier } }) }}
-									</div>
-									<div class="d-none">
-										{{ form_widget(DAL.catalogue, { 'attr': { 'disabled': peutModifier } }) }}
-									</div>
-									<div class="d-none">
-										{{ form_widget(DAL.deleted, { 'attr': { 'disabled': peutModifier } }) }}
-									</div>
-									<div class="d-none">
-										{{ form_widget(DAL.numeroLigne, { 'attr': { 'disabled': peutModifier }, 'data': dalData.numeroLigne}) }}
+										{{ form_widget(DAL.estFicheTechnique) }}
 									</div>
 									<div class="d-none">
 										{{ form_widget(DAL.fileNames) }}
+										{{ form_widget(DAL.existingFileNames) }}
+										{{ form_widget(DAL.filesToDelete) }}
+										{{ form_widget(DAL.artConstp) }}
+										{{ form_widget(DAL.artFams1) }}
+										{{ form_widget(DAL.artFams2) }}
+										{{ form_widget(DAL.numeroFournisseur) }}
+										{{ form_widget(DAL.catalogue) }}
+										{{ form_widget(DAL.deleted) }}
+										{{ form_widget(DAL.numeroLigne) }}
 									</div>
 									<div class="w-2">
-										<a style="visibility:{{ peutModifier ? 'hidden' : 'visible'}}">
+										<a style="visibility:{{ not peutModifier ? 'hidden' : 'visible'}}">
 											<span class="delete-DA" prototype-id="{{ dalData.numeroLigne }}" title="Supprimer la ligne de DA" style="cursor: pointer; ">
 												<i class="fas fa-times fs-4"></i>
 											</span>
@@ -215,15 +204,15 @@
 						{{ form_widget(form.DAL.vars.prototype)|raw }}
 					</div>
 
-					{# <div class="d-flex justify-content-end"><button type="button" id="add-child" class="bouton-secondaire mt-2" {{ peutModifier ? 'disabled' : ''}}><i class="fas fa-plus"></i>Ajouter une ligne</button></div> #}
+					{# <div class="d-flex justify-content-end"><button type="button" id="add-child" class="bouton-secondaire mt-2" {{ not peutModifier ? 'disabled' : ''}}><i class="fas fa-plus"></i>Ajouter une ligne</button></div> #}
 
 					<div class="row">
-						{{ form_row(form.observation, { 'attr': { 'disabled': peutModifier} })}}
+						{{ form_row(form.observation)}}
 					</div>
 				</div>
 
 				<div class="d-flex justify-content-end container-fluid">
-					<button type="submit" class="bouton-principal mt-2" {{ peutModifier ? 'disabled' : ''}}>
+					<button type="submit" class="bouton-principal mt-2">
 						<i class="fas fa-save"></i>
 						Enregistrer
 					</button>

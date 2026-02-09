@@ -19,37 +19,37 @@ CREATE TABLE devis_soumis_a_validation_neg
 );
 
 ALTER TABLE devis_soumis_a_validation_neg
-    ADD date_envoye_devis_client DATETIME2(0) NULL
+    ADD date_envoye_devis_client DATETIME2(0) NULL,
+    somme_numero_lignes INT NOT NULL DEFAULT 0,
+    date_pointage DATETIME2(0) NULL,
+    tache_validateur TEXT NULL,
+    statut_bc VARCHAR(100) NULL,
+    relance VARCHAR(50) NULL,
+    est_validation_pm BIT DEFAULT 0,
+    date_bc DATETIME2(0) NULL,
+    observation VARCHAR(5000) NULL,
+    piece_joint_excel varchar(255) null,
+    migration bit default 0,
+    statut_temp VARCHAR(255);
 
 ALTER TABLE devis_soumis_a_validation_neg
-    ADD somme_numero_lignes INT NOT NULL DEFAULT 0;
+    ADD statut_relance VARCHAR(50) NULL;
 
-ALTER TABLE devis_soumis_a_validation_neg
-    ADD date_pointage DATETIME2(0) NULL
 
-ALTER TABLE devis_soumis_a_validation_neg
-    ADD  tache_validateur TEXT NULL;
+CREATE TABLE pointage_relance
+(
+    id int IDENTITY(1,1) NOT NULL,
+    numero_devis varchar(11) NOT NULL,
+    numero_version INT NULL DEFAULT 0,
+    date_de_relance DATETIME2(0) not null,
+    utilisateur varchar(100) not null,
+    societe VARCHAR(5) NULL,
+    agence VARCHAR(2) NULL,
+    date_creation DATETIME2(0) not null,
+    date_modification DATETIME2(0) not null,
+    CONSTRAINT PK_pointage_relance PRIMARY KEY (id)
+);
 
-ALTER TABLE devis_soumis_a_validation_neg
-    ADD statut_bc VARCHAR(100) NULL;
 
-ALTER TABLE devis_soumis_a_validation_neg
-    ADD relance VARCHAR(50) NULL;
-
-ALTER TABLE devis_soumis_a_validation_neg
-    ADD est_validation_pm BIT DEFAULT 0;
-
-ALTER TABLE devis_soumis_a_validation_neg
-    ADD date_bc DATETIME2(0) NULL
-
-ALTER TABLE devis_soumis_a_validation_neg
-    ADD observation VARCHAR(5000) NULL;
-
-ALTER TABLE devis_soumis_a_validation_neg
-    ADD piece_joint_excel varchar(255) null;
-
-ALTER TABLE devis_soumis_a_validation_neg
-    ADD migration bit default 0;
-
-ALTER TABLE devis_soumis_a_validation_neg
-    ADD statut_temp VARCHAR(255);
+ALTER TABLE pointage_relance
+    ADD numero_relance INT NULL;

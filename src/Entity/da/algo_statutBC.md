@@ -3,11 +3,13 @@
 ## Fonction principale : `statutBc(DaAfficher)`
 
 ### Étape 0 : Initialisation
+
 ```
 Récupérer l'Entity Manager
 ```
 
 ### Étape 1 : Extraction des données de DaAfficher (version max)
+
 ```
 Extraire :
   - ref (référence article)
@@ -21,6 +23,7 @@ Extraire :
 ```
 
 ### Étape 2 : Vérification des conditions de retour vide
+
 ```
 SI doitRetournerVide(statutDa, statutOr) ALORS
   RETOURNER ''
@@ -34,14 +37,16 @@ Conditions de retour vide :
 ```
 
 ### Étape 3 : Détermination du type de DA
+
 ```
 Déterminer le type selon daTypeId :
   - daDirect = si (daTypeId == TYPE_DA_DIRECT) alors VRAI sinon FAUX
   - daViaOR = si (daTypeId == TYPE_DA_AVEC_DIT) alors VRAI sinon FAUX
-  - daReappro = si (daTypeId == TYPE_DA_REAPPRO) alors VRAI sinon FAUX
+  - daReappro = si (daTypeId == TYPE_DA_REAPPRO_MENSUEL) alors VRAI sinon FAUX
 ```
 
 ### Étape 4 : Mise à jour des informations OR
+
 ```
 SI NON daDirect ALORS
   Mettre à jour les informations OR dans DaAfficher
@@ -50,6 +55,7 @@ FIN SI
 ```
 
 ### Étape 5 : Modification du statut DA si nécessaire
+
 ```
 SI statutOr = "DA à modifier" ET statutDa ≠ "En cours de création" ALORS
   statutDa ← "EN_COURS_CREATION"
@@ -57,6 +63,7 @@ FIN SI
 ```
 
 ### Étape 6 : Récupération des informations IPS
+
 ```
 Récupérer depuis IPS :
   - infoDaDirect (pour DA Direct)
@@ -64,16 +71,18 @@ Récupérer depuis IPS :
 ```
 
 ### Étape 7 : Vérification des conditions d'arrêt
+
 ```
-SI (NonDispo OU 
-    (numeroOr = NULL ET daViaOR) OU 
-    (numeroOr ≠ NULL ET statutOr vide) OU 
+SI (NonDispo OU
+    (numeroOr = NULL ET daViaOR) OU
+    (numeroOr ≠ NULL ET statutOr vide) OU
     (situationCde vide ET daViaOR)) ALORS
   RETOURNER statutBc actuel
 FIN SI
 ```
 
 ### Étape 8 : Récupération des informations de commande
+
 ```
 Récupérer :
   - numCde (numéro de commande)
@@ -86,6 +95,7 @@ Règles de récupération numCde :
 ```
 
 ### Étape 9 : Récupération des quantités
+
 ```
 Récupérer depuis IPS :
   - qteDem (quantité demandée)
@@ -95,19 +105,21 @@ Récupérer depuis IPS :
 ```
 
 ### Étape 10 : Évaluation des quantités
+
 ```
 Calculer les états de livraison :
   - partiellementDispo = (qteDem ≠ qteALivrer ET qteLivee = 0 ET qteALivrer > 0) ET soumissionFait
-  - completNonLivrer = ((qteDem = qteALivrer ET qteLivee < qteDem) OU 
+  - completNonLivrer = ((qteDem = qteALivrer ET qteLivee < qteDem) OU
                         (qteALivrer > 0 ET qteDem = qteALivrer + qteLivee)) ET soumissionFait
   - tousLivres = (qteDem = qteLivee ET qteDem ≠ 0) ET soumissionFait
-  - partiellementLivre = (qteLivee > 0 ET qteLivee ≠ qteDem ET 
+  - partiellementLivre = (qteLivee > 0 ET qteLivee ≠ qteDem ET
                           qteDem > qteLivee + qteALivrer) ET soumissionFait
 
 Où soumissionFait = (EstFactureBlSoumis OU EstBlReapproSoumis)
 ```
 
 ### Étape 11 : Mise à jour de la situation commande
+
 ```
 Mettre à jour dans DaAfficher :
   - positionBc
@@ -116,6 +128,7 @@ Mettre à jour dans DaAfficher :
 ```
 
 ### Étape 12 : Mise à jour des quantités de commande
+
 ```
 Mettre à jour dans DaAfficher :
   - qteEnAttent
@@ -129,14 +142,16 @@ Mettre à jour dans DaAfficher :
 ## Détermination du statut BC (ordre de priorité)
 
 ### Cas 1 : DA Direct et DA Reappro - Pas dans OR
+
 ```
-SI ((situationCde vide ET daViaOR ET statutOr = "Validé") OU 
+SI ((situationCde vide ET daViaOR ET statutOr = "Validé") OU
     (daReappro ET statutOr = "DA validée" ET numeroCde = NULL)) ALORS
   RETOURNER "PAS DANS OR"
 FIN SI
 ```
 
 ### Cas 2 : DA Direct / DA Via OR - À générer
+
 ```
 SI NON daReappro ET doitGenererBc() ALORS
   RETOURNER "A générer"
@@ -146,11 +161,12 @@ Conditions doitGenererBc :
   Pour daDirect :
     - statutOr = "DA validée" ET (infoDaDirect vide OU num_cde vide)
   Pour daViaOR :
-    - statutDa = "Bon d’achats validé" ET statutOr = "Validé" ET 
+    - statutDa = "Bon d’achats validé" ET statutOr = "Validé" ET
       (situationCde vide OU num_cde vide)
 ```
 
 ### Cas 3 : DA Direct / DA Via OR - À éditer
+
 ```
 SI NON daReappro ET doitEditerBc() ALORS
   RETOURNER "A éditer"
@@ -158,14 +174,15 @@ FIN SI
 
 Conditions doitEditerBc :
   Pour daDirect :
-    - num_cde > 0 ET position_livraison = "--" ET 
+    - num_cde > 0 ET position_livraison = "--" ET
       position_bc ∈ ["TE", "EC"]
   Pour daViaOR :
-    - num_cde > 0 ET slor_natcm = "C" ET position_livraison = "--" ET 
+    - num_cde > 0 ET slor_natcm = "C" ET position_livraison = "--" ET
       position_bc ∈ ["TE", "EC"]
 ```
 
 ### Cas 4 : DA Direct / DA Via OR - À soumettre à validation
+
 ```
 SI NON daReappro ET doitSoumettreBc() ALORS
   RETOURNER "A soumettre à validation"
@@ -186,6 +203,7 @@ Pour daViaOR :
 ```
 
 ### Cas 5 : DA Direct / DA Via OR - À envoyer au fournisseur
+
 ```
 SI NON daReappro ET doitEnvoyerBc() ALORS
   RETOURNER "A envoyer au fournisseur"
@@ -198,6 +216,7 @@ Conditions doitEnvoyerBc :
 ```
 
 ### Cas 6 : BC envoyé au fournisseur (sans facture/BL)
+
 ```
 SI NON daReappro ET BcEnvoyerFournisseur ET NON EstFactureBlSoumis ALORS
   RETOURNER "BC envoyé au fournisseur"
@@ -205,6 +224,7 @@ FIN SI
 ```
 
 ### Cas 7 : DA Reappro - Cession à générer
+
 ```
 SI daReappro ET numeroOr = NULL ET statutOr = "DA validée" ALORS
   RETOURNER "CESSION_A_GENERER"
@@ -212,14 +232,16 @@ FIN SI
 ```
 
 ### Cas 8 : DA Reappro - En cours de préparation (BL non soumis)
+
 ```
-SI daReappro ET numeroOr ≠ NULL ET statutOr = "DA validée" ET 
+SI daReappro ET numeroOr ≠ NULL ET statutOr = "DA validée" ET
    EstBlReapproSoumis = FALSE ALORS
   RETOURNER "EN_COURS_DE_PREPARATION"
 FIN SI
 ```
 
 ### Cas 9 : États de livraison (tous types de DA)
+
 ```
 SI partiellementDispo ALORS
   RETOURNER "Partiellement dispo"
@@ -233,6 +255,7 @@ FIN SI
 ```
 
 ### Cas 10 : BC envoyé avec facture/BL soumis
+
 ```
 SI EstFactureBlSoumis ALORS
   RETOURNER "BC envoyé au fournisseur"
@@ -240,6 +263,7 @@ FIN SI
 ```
 
 ### Cas 11 : DA Direct / DA Via OR - Statut soumission
+
 ```
 SI daDirect OU daViaOR ALORS
   RETOURNER statutSoumissionBc
@@ -247,14 +271,16 @@ FIN SI
 ```
 
 ### Cas 12 : DA Reappro - En cours de préparation (BL soumis)
+
 ```
-SI daReappro ET numeroOr ≠ NULL ET statutOr = "DA validée" ET 
+SI daReappro ET numeroOr ≠ NULL ET statutOr = "DA validée" ET
    EstBlReapproSoumis = TRUE ALORS
   RETOURNER "EN_COURS_DE_PREPARATION"
 FIN SI
 ```
 
 ### Cas 13 : Par défaut
+
 ```
 RETOURNER ''
 ```
@@ -300,6 +326,7 @@ RETOURNER statut BC
 ## Types de DA et leurs statuts possibles
 
 ### DA Direct
+
 - PAS DANS OR
 - A générer
 - A éditer
@@ -310,6 +337,7 @@ RETOURNER statut BC
 - Statut soumission BC (de la table da_bc_soumission)
 
 ### DA Via OR
+
 - PAS DANS OR
 - A générer
 - A éditer
@@ -320,6 +348,7 @@ RETOURNER statut BC
 - Statut soumission BC (de la table da_bc_soumission)
 
 ### DA Reappro
+
 - PAS DANS OR
 - CESSION_A_GENERER
 - EN_COURS_DE_PREPARATION
@@ -331,17 +360,19 @@ RETOURNER statut BC
 ## Constantes et valeurs importantes
 
 ### Statuts DA
+
 - STATUT_VALIDE
 - STATUT_EN_COURS_CREATION
 - STATUT_SOUMIS_ATE
 - STATUT_SOUMIS_APPRO
-- STATUT_AUTORISER_MODIF_ATE
+- STATUT_AUTORISER_EMETTEUR
 - STATUT_DW_VALIDEE
 - STATUT_DW_REFUSEE = 'DA refusée'
 - STATUT_DW_A_VALIDE
 - STATUT_DW_A_MODIFIER
 
 ### Statuts OR
+
 - STATUT_VALIDE (DitOrsSoumisAValidation)
 - STATUT_DW_VALIDEE
 - STATUT_DW_REFUSEE
@@ -349,11 +380,13 @@ RETOURNER statut BC
 - STATUT_DW_A_MODIFIER
 
 ### Positions BC
+
 - POSITION_TERMINER
 - POSITION_ENCOUR
 - POSITION_EDITER
 
 ### Statuts Soumission BC
+
 - STATUT_SOUMISSION
 - STATUT_A_VALIDER_DA
 - STATUT_VALIDE
@@ -363,6 +396,7 @@ RETOURNER statut BC
 - STATUT_EN_COURS_DE_PREPARATION
 
 ### Types DA
+
 - TYPE_DA_AVEC_DIT = 0
 - TYPE_DA_DIRECT = 1
-- TYPE_DA_REAPPRO = 2
+- TYPE_DA_REAPPRO_MENSUEL = 2

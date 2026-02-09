@@ -121,7 +121,7 @@ trait DaDetailTrait
 
         if ($daTypeId === DemandeAppro::TYPE_DA_DIRECT) {
             $allDocs = $this->dwDaDirectRepository->getPathByNumDa($numDa);
-        } elseif ($daTypeId === DemandeAppro::TYPE_DA_REAPPRO) {
+        } elseif ($daTypeId === DemandeAppro::TYPE_DA_REAPPRO_MENSUEL) {
             $allDocs = $this->dwDaReapproRepository->getPathByNumDa($numDa);
         }
 
@@ -190,7 +190,7 @@ trait DaDetailTrait
     /** 
      * Obtenir l'url des devis et pièces jointes
      */
-    private function getDevisPjPath(DemandeAppro $demandeAppro)
+    private function getDevisPjPathDal(DemandeAppro $demandeAppro)
     {
         $items = [];
 
@@ -218,6 +218,30 @@ trait DaDetailTrait
             return $items;
         }
 
+        return "-";
+    }
+
+    /** 
+     * Obtenir l'url des devis et pièces jointes
+     */
+    private function getDevisPjPathObservation(DemandeAppro $demandeAppro)
+    {
+        $items = [];
+        $numDa = $demandeAppro->getNumeroDemandeAppro();
+        $pjs = $this->daObservationRepository->findAttachmentsByNumeroDA($numDa);
+
+        if (!empty($pjs)) {
+            foreach ($pjs as $row) {
+                $files = $row['fileNames'];
+                foreach ($files as $fileName) {
+                    $items[] = [
+                        'nomPj' => $fileName,
+                        'path'  => "{$_ENV['BASE_PATH_FICHIER_COURT']}/da/$numDa/$fileName",
+                    ];
+                }
+            }
+            return $items;
+        }
         return "-";
     }
 }

@@ -40,6 +40,7 @@ class BreadcrumbMenuService
             'inventaire'            => $this->getInventaireSubMenu(),
             'dematerialisation'     => $this->getDematerialisationSubMenu(),
             // Matériel - Sous-menus spécifiques
+            'logistique'            => $this->getLogistiqueSubMenu(),
             'mouvement-materiel'   => $this->getMouvementMaterielSubMenu(),
             'casier'               => $this->getCasierSubMenu(),
             // Atelier - Sous-menus spécifiques
@@ -341,6 +342,19 @@ class BreadcrumbMenuService
                 'title'       => 'Consultation',
                 'link'        => 'badmListe_AffichageListeBadm',
                 'icon'        => 'fas fa-search',
+                'routeParams' => []
+            ]
+        ];
+    }
+
+    private function getLogistiqueSubMenu(): array
+    {
+        return [
+            [
+                'id'          => null,
+                'title'       => 'Nouvelle demande',
+                'link'        => 'new_logistique',
+                'icon'        => 'fas fa-plus-circle',
                 'routeParams' => []
             ]
         ];

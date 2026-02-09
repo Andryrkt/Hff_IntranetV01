@@ -36,25 +36,6 @@ class DaNewAvecDitController extends Controller
     }
 
     /**
-     * @Route("/da-first-form", name="da_first_form")
-     */
-    public function firstForm()
-    {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
-        return $this->render('da/first-form.html.twig', [
-            'createDaDIT'    => $this->hasRoles(Role::ROLE_ADMINISTRATEUR) || $this->estUserDansServiceAtelier(),
-            'createDaDirect' => $this->hasRoles(Role::ROLE_ADMINISTRATEUR, Role::ROLE_DA_DIRECTE),
-            'urls'                   => [
-                'avecDit' => $this->getUrlGenerator()->generate('da_list_dit'),
-                'direct'  => $this->getUrlGenerator()->generate('da_new_direct', ['id' => 0]),
-                'reappro' => $this->getUrlGenerator()->generate('da_new_reappro', ['id' => 0]),
-            ],
-        ]);
-    }
-
-    /**
      * @Route("/new-avec-dit/{daId<\d+>}/{ditId}", name="da_new_avec_dit")
      */
     public function new(int $daId, int $ditId, Request $request)
@@ -71,7 +52,7 @@ class DaNewAvecDitController extends Controller
          */
         $dit = $this->ditRepository->find($ditId);
 
-        $demandeAppro = $daId === 0 ? $this->initialisationDemandeApproAvecDit($dit) : $this->demandeApproRepository->findAvecDernieresDALetLR($daId);
+        $demandeAppro = $daId === 0 ? $this->initialisationDemandeApproAvecDit($dit) : $this->demandeApproRepository->find($daId);
         $demandeAppro
             ->setDit($dit)
             ->setDateFinSouhaite($this->dateLivraisonPrevueDA($dit->getNumeroDemandeIntervention(), $dit->getIdNiveauUrgence()->getDescription()))
@@ -95,7 +76,7 @@ class DaNewAvecDitController extends Controller
 
             $firstCreation = $demandeAppro->getNumeroDemandeAppro() === null;
             $numDa = $firstCreation ? $this->autoDecrement('DAP') : $demandeAppro->getNumeroDemandeAppro();
-            $demandeAppro->setNumeroDemandeAppro($numDa);
+            $demandeAppro->setNumeroDemandeAppro($numDa)->setNumeroDemandeApproMere($numDa);
             $formDAL = $form->get('DAL');
 
             // Récupérer le nom du bouton cliqué
@@ -112,8 +93,27 @@ class DaNewAvecDitController extends Controller
                 if ($demandeApproL->getDeleted() == 1) {
                     $this->getEntityManager()->remove($demandeApproL);
                 } else {
-                    $files = $subFormDAL->get('fileNames')->getData(); // Récupération des fichiers
-                    $fileNames = $this->daFileUploader->uploadMultipleDaFiles($files, $numDa, FileUploaderForDAService::FILE_TYPE["DEVIS"]);
+                    // Récupérer les données
+                    $filesToDelete = $subFormDAL->get('filesToDelete')->getData();
+                    $existingFileNames = $subFormDAL->get('existingFileNames')->getData();
+                    $newFiles = $subFormDAL->get('fileNames')->getData();
+
+                    // Supprimer les fichiers
+                    if ($filesToDelete) {
+                        $this->daFileUploader->deleteFiles(
+                            explode(',', $filesToDelete),
+                            $numDa
+                        );
+                    }
+
+                    // Gérer l'upload et obtenir la liste finale
+                    $allFileNames = $this->daFileUploader->handleFileUpload(
+                        $newFiles,
+                        $existingFileNames,
+                        $numDa,
+                        FileUploaderForDAService::FILE_TYPE["DEVIS"]
+                    );
+
                     /** 
                      * @var DemandeApproL $demandeApproL
                      */
@@ -123,7 +123,7 @@ class DaNewAvecDitController extends Controller
                         ->setPrixUnitaire($this->daModel->getPrixUnitaire($demandeApproL->getArtRefp())[0])
                         ->setNumeroDit($demandeAppro->getNumeroDemandeDit())
                         ->setJoursDispo($this->getJoursRestants($demandeApproL))
-                        ->setFileNames($fileNames)
+                        ->setFileNames($allFileNames)
                     ;
 
                     if ($demandeApproL->getNumeroFournisseur() == 0) {
@@ -146,10 +146,10 @@ class DaNewAvecDitController extends Controller
             $this->getEntityManager()->flush();
 
             /** ajout de l'observation dans la table da_observation si ceci n'est pas null */
-            if ($demandeAppro->getObservation()) $this->insertionObservation($demandeAppro->getObservation(), $demandeAppro);
+            if ($demandeAppro->getObservation()) $this->insertionObservation($numDa, $demandeAppro->getObservation());
 
             // ajout des données dans la table DaAfficher
-            $this->ajouterDaDansTableAffichage($demandeAppro, $dit);
+            $this->ajouterDaDansTableAffichage($demandeAppro, $firstCreation, $dit);
 
             if ($clickedButtonName === "soumissionAppro") $this->emailDaService->envoyerMailCreationDa($demandeAppro, $this->getUser());
 

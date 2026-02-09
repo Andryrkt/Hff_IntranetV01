@@ -16,9 +16,10 @@ abstract class GenererPdfDa extends GeneratePdf
     protected function renderHeaderPdfDA(TCPDF $pdf, string $userMail, DemandeAppro $demandeAppro, ?DemandeIntervention $dit = null): void
     {
         $titre = [
-            DemandeAppro::TYPE_DA_AVEC_DIT  => "DEMANDE D’APPROVISIONNEMENT",
-            DemandeAppro::TYPE_DA_DIRECT    => "DEMANDE D’ACHAT",
-            DemandeAppro::TYPE_DA_REAPPRO   => "DEMANDE DE REAPPRO MENSUEL",
+            DemandeAppro::TYPE_DA_AVEC_DIT          => "DEMANDE D’APPROVISIONNEMENT",
+            DemandeAppro::TYPE_DA_DIRECT            => "DEMANDE D’ACHAT",
+            DemandeAppro::TYPE_DA_REAPPRO_MENSUEL   => "DEMANDE DE REAPPRO MENSUEL",
+            DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL  => "DEMANDE DE REAPPRO PONCTUEL",
         ];
 
         $pdf->setFont('helvetica', 'B', 14);
@@ -46,7 +47,7 @@ abstract class GenererPdfDa extends GeneratePdf
             $pdf->cell(110, 6, $dit->getTypeDocument() ? $dit->getTypeDocument()->getDescription() : '', 0, 0, 'C', false, '', 0, false, 'T', 'M');
         }
 
-        if ($demandeAppro->getDaTypeId() === DemandeAppro::TYPE_DA_REAPPRO && in_array($demandeAppro->getAgenceEmetteur()->getCodeAgence(), ['90', '91', '92'])) {
+        if (in_array($demandeAppro->getAgenceEmetteur()->getCodeAgence(), ['90', '91', '92'])) {
             $pdf->setFont('helvetica', 'B', 12);
             $pdf->setAbsX(90);
             $pdf->cell(110, 6, "Centrale : " . ($demandeAppro->getCodeCentrale() ?? '-'), 0, 0, 'L', false, '', 0, false, 'T', 'M');
@@ -74,9 +75,9 @@ abstract class GenererPdfDa extends GeneratePdf
         $pdf->setFont('helvetica', 'B', 10);
         $pdf->cell(25, 6, 'Détails :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->setFont('helvetica', '', 9);
-        $pdf->MultiCell(165, 50, $detailDal, 1, '', 0, 0, '', '', true);
+        $pdf->MultiCell(165, 100, $detailDal, 1, '', 0, 0, '', '', true);
         $pdf->Ln(3);
-        $pdf->setAbsY(85);
+        $pdf->setAbsY(135);
     }
 
     /** 
@@ -117,7 +118,7 @@ abstract class GenererPdfDa extends GeneratePdf
     /** 
      * Fonction pour générer la table sur la liste des articles demandés du service émetteur
      */
-    protected function renderTableArticleDemandeReappro(TCPDF $pdf, iterable $dals): void
+    protected function renderTableArticleDemandeReappro(TCPDF $pdf, iterable $dals, bool $isPonctuel): void
     {
         $generator = new PdfTableReappro;
         $this->renderTextWithLine($pdf, 'Liste des articles demandés');
@@ -126,7 +127,7 @@ abstract class GenererPdfDa extends GeneratePdf
 
         $pdf->SetTextColor(0, 0, 0);
         $pdf->setFont('helvetica', '');
-        $html = $generator->generateTableArticleDemandeReappro($dals);
+        $html = $generator->generateTableArticleDemandeReappro($dals, $isPonctuel);
         $pdf->writeHTML($html, false, false, true, false, '');
         $pdf->Ln(3);
     }
@@ -137,11 +138,11 @@ abstract class GenererPdfDa extends GeneratePdf
     protected function renderTableHistoriqueConsomReappro(TCPDF $pdf, array $monthsList, array $dataHistoriqueConsommation): void
     {
         $generator = new PdfTableReappro;
-        $this->renderTextWithLine($pdf, 'Historique des consommations');
 
-        $pdf->SetTextColor(0, 0, 0);
-        $pdf->setFont('helvetica', '', 10);
         if (empty($dataHistoriqueConsommation["data"])) {
+            $this->renderTextWithLine($pdf, 'Historique des consommations');
+            $pdf->SetTextColor(0, 0, 0);
+            $pdf->setFont('helvetica', '', 10);
             $pdf->cell(0, 6, 'Aucun historique de consommation disponible', 0, 1);
             $pdf->Ln(3);
         } else {
@@ -155,6 +156,9 @@ abstract class GenererPdfDa extends GeneratePdf
             $pdf->SetAutoPageBreak(true, 7);
             $pdf->AddPage('L');
 
+            $this->renderTextWithLine($pdf, 'Historique des consommations');
+            $pdf->SetTextColor(0, 0, 0);
+            $pdf->setFont('helvetica', '', 10);
             $html = $generator->generateHistoriqueTable($monthsList, $dataHistoriqueConsommation);
             $pdf->writeHTML($html, false, false, true, false, '');
 

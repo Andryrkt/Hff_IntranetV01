@@ -22,6 +22,11 @@ services:
       - "@doctrine.orm.default_entity_manager"
     public: true
 
+  App\Form\da\DemandeApproAchatFormType:
+    arguments:
+      - "@doctrine.orm.default_entity_manager"
+    public: true
+
   App\Form\da\DemandeApproDirectFormType:
     arguments:
       - "@doctrine.orm.default_entity_manager"

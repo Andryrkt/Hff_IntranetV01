@@ -23,7 +23,7 @@ class DaObservation
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=11, name="numero_da")
+     * @ORM\Column(type="string", length=12, name="numero_da")
      */
     private string $numDa;
 
@@ -38,6 +38,11 @@ class DaObservation
      * @var string|NULL
      */
     private ?string $observation = '';
+
+    /**
+     * @ORM\Column(type="json", name="file_names")
+     */
+    private $fileNames = [];
 
     private bool $statutChange = false;
 
@@ -128,6 +133,24 @@ class DaObservation
     public function setStatutChange($statutChange)
     {
         $this->statutChange = $statutChange;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of fileNames
+     */
+    public function getFileNames()
+    {
+        return $this->fileNames;
+    }
+
+    /**
+     * Set the value of fileNames
+     */
+    public function setFileNames($fileNames): self
+    {
+        $this->fileNames = $fileNames;
 
         return $this;
     }

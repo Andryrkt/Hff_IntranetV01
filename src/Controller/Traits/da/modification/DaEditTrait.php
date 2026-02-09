@@ -37,8 +37,9 @@ trait DaEditTrait
         }
     }
 
-    private function PeutModifier($demandeAppro)
+    private function peutModifier(string $statutDa, bool $profil)
     {
-        return ($this->estUserDansServiceAtelier() && ($demandeAppro->getStatutDal() == DemandeAppro::STATUT_SOUMIS_APPRO || $demandeAppro->getStatutDal() == DemandeAppro::STATUT_VALIDE));
+        $statutModifiable = in_array($statutDa, [DemandeAppro::STATUT_SOUMIS_APPRO, DemandeAppro::STATUT_VALIDE, DemandeAppro::STATUT_AUTORISER_EMETTEUR]);
+        return $statutModifiable && $profil;
     }
 }

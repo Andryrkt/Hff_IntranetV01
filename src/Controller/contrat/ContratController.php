@@ -29,7 +29,7 @@ class ContratController extends Controller
             'url'       => "https://hffc.docuware.cloud/docuware/formsweb/enregistrement-contrats?orgID=5adf2517-2f77-4e19-8b42-9c3da43af7be",
             'pageTitle' => "Nouveau contrat",
             'bgColor'   => "bg-bleu-hff",
-            'height'    => 980,
+            'height'    => 1300,
         ]);
     }
 }

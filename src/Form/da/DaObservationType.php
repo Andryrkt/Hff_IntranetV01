@@ -2,13 +2,16 @@
 
 namespace App\Form\da;
 
-use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeAppro;
+use App\Entity\da\DaObservation;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Validator\Constraints\All;
+use Symfony\Component\Validator\Constraints\File;
+use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
-use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class DaObservationType extends AbstractType
 {
@@ -16,7 +19,7 @@ class DaObservationType extends AbstractType
     {
         $datypeId = $options['daTypeId'];
 
-        if ($datypeId != DemandeAppro::TYPE_DA_REAPPRO) {
+        if ($datypeId != DemandeAppro::TYPE_DA_REAPPRO_MENSUEL && $datypeId != DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL) {
             if ($datypeId == DemandeAppro::TYPE_DA_DIRECT) $observationLabel = 'Autoriser le service à modifier';
             if ($datypeId == DemandeAppro::TYPE_DA_AVEC_DIT) $observationLabel = 'Autoriser l’ATELIER à modifier';
             $builder
@@ -28,12 +31,41 @@ class DaObservationType extends AbstractType
 
         $builder
             ->add('observation', TextareaType::class, [
-                'label' => 'Observation',
+                'label' => false,
                 'attr'  => [
-                    'rows' => 5,
+                    'placeholder' => 'Ecrivez votre observation ...',
+                    'rows' => 1,
+                    'class' => 'message-input',
                 ],
                 'required' => true
-            ]);
+            ])
+            ->add(
+                'fileNames',
+                FileType::class,
+                [
+                    'label'      => false,
+                    'required'   => false,
+                    'multiple'   => true,
+                    'data_class' => null,
+                    'attr' => [
+                        'accept' => '.pdf'
+                    ],
+                    'constraints' => [
+                        new All([
+                            'constraints' => [
+                                new File([
+                                    'maxSize' => '5M',
+                                    'mimeTypes' => [
+                                        'application/pdf',
+                                    ],
+                                    'mimeTypesMessage' => 'Veuillez télécharger un fichier valide (PDF).',
+                                ])
+                            ]
+                        ])
+                    ]
+                ]
+            )
+        ;
     }
 
     public function configureOptions(OptionsResolver $resolver): void

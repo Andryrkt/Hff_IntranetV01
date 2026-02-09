@@ -24,7 +24,7 @@ class DemandeApproL
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=11, name="numero_demande_appro")
+     * @ORM\Column(type="string", length=12, name="numero_demande_appro")
      */
     private string $numeroDemandeAppro;
 
@@ -1046,5 +1046,28 @@ class DemandeApproL
     {
         $montant = $this->getPrixUnitaire();
         return $montant == 0 ? '-' : number_format($montant, 2, ',', '.');
+    }
+
+    public function duplicateDaParentLine(DemandeApproParentLine $daParentLine): self
+    {
+        $this
+            ->setQteDem($daParentLine->getQteDem())
+            ->setArtConstp($daParentLine->getArtConstp())
+            ->setArtRefp($daParentLine->getArtRefp())
+            ->setArtDesi($daParentLine->getArtDesi())
+            ->setNumeroFournisseur($daParentLine->getNumeroFournisseur() ?? "-")
+            ->setNomFournisseur($daParentLine->getNomFournisseur() ?? "-")
+            ->setDateFinSouhaite($daParentLine->getDateFinSouhaite())
+            ->setCommentaire($daParentLine->getCommentaire() ?? "-")
+            ->setPrixUnitaire($daParentLine->getPrixUnitaire())
+            ->setStatutDal($daParentLine->getStatutDal())
+            ->setCatalogue($daParentLine->getArticleStocke())
+            ->setEstFicheTechnique($daParentLine->getEstFicheTechnique())
+            ->setNomFicheTechnique($daParentLine->getNomFicheTechnique())
+            ->setJoursDispo($daParentLine->getJoursDispo())
+            ->setFileNames($daParentLine->getFileNames())
+        ;
+
+        return $this;
     }
 }

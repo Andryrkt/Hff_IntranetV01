@@ -33,6 +33,7 @@ class DaSoumissionBlReapproController extends Controller
         $this->generatePdf = new GeneratePdf();
         $this->historiqueOperation      = new HistoriqueOperationDaBcService($this->getEntityManager());
     }
+
     /**
      * @Route("/soumission-bl-reappro/{numCde}/{numDa}/{numOr}", name="da_soumission_bl_reappro", defaults={"numOr"=0})
      */
@@ -73,15 +74,18 @@ class DaSoumissionBlReapproController extends Controller
             $this->generatePdf->copyToDWBLReappro($nomPdfFusionner, $numDa);
 
             /** modification du table da_valider */
-            $this->modificationDaValider($numDa, $numCde);
+            $this->modificationDaAfficher($numDa, $numCde);
 
             /** HISTORISATION */
             $message = 'Le document est soumis pour validation';
-            $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn', true);
+            $criteria = $this->getSessionService()->get('criteria_for_excel_Da_Cde_frn');
+            $nomDeRoute = 'da_list_cde_frn'; // route de redirection après soumission
+            $nomInputSearch = 'cde_frn_list'; // initialistion de nom de chaque champ ou input
+            $this->historiqueOperation->sendNotificationSoumission($message, $numCde, $nomDeRoute, true, $criteria, $nomInputSearch);
         }
     }
 
-    private function modificationDaValider(string $numDa, string $numCde): void
+    private function modificationDaAfficher(string $numDa, string $numCde): void
     {
         $daAfficherRepository = $this->getEntityManager()->getRepository(DaAfficher::class);
         $numeroVersionMaxCde = $daAfficherRepository->getNumeroVersionMax($numDa);

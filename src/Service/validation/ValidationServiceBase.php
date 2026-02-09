@@ -93,7 +93,8 @@ abstract class ValidationServiceBase
             // Can't be blocking if no status is found.
             return false;
         }
-
+        // dump($currentStatus, $blockingStatuses);
+        // dump(in_array($currentStatus, $blockingStatuses, true));
         return in_array($currentStatus, $blockingStatuses, true);
     }
 

@@ -1,13 +1,71 @@
 <span class="vignette-bande">
 	{% for i in 0..4 %}
 		<span>
-			18/12/2025 - V20251218.6.1.0 :
+			06/02/2026 - V20260206.7.1.0 :
 			<div class="news-ticker">
 				<ul>
 					<li>
-						<b>MAGASIN – Devis :</b>
+						<b>APPRO – Subdivision des achats :</b>
 						<ul>
-							<li>Récupération des BC/PO validées dans l’interface de suivi des validations des devis</li>
+							<li>
+								L’émetteur peut demander n’importe quel article sans se soucier du type (stocké ou non).
+							</li>
+							<li>
+								Le service appro se charge ensuite de catégoriser la demande en :
+								<ul>
+									<li>
+										<u>
+											<b>Achat ponctuel DAPP</b>
+										</u>
+										: article stocké.
+									</li>
+									<li>
+										<u>
+											<b>Achat direct DAPD</b>
+										</u>
+										: article non stocké.
+									</li>
+								</ul>
+							</li>
+							<li class="text-danger">
+								<b>NB :</b>
+								Les achats via OR et le réapprovisionnement mensuel ne sont pas concernés par cette subdivision.
+							</li>
+						</ul>
+					</li>
+					<li>
+						<b>APPRO – Timeline :</b>
+						<ul>
+							<li>
+								Mise en place d’une timeline affichant l’évolution d’une demande d’achat à chaque étape.
+							</li>
+							<li>
+								Suivi depuis la création de la demande jusqu’à la livraison des articles au demandeur.
+							</li>
+							<li>
+								Permet de visualiser l’avancement de la demande dans le temps.
+							</li>
+						</ul>
+					</li>
+					<li>
+						<b>Magasin – Devis négoce :</b>
+						<ul>
+							<li>
+								Intranet gère automatiquement le suivi des attentes de BC :
+								<ul>
+									<li>
+										Passe le statut
+										<u>« À relancer »</u>
+										si aucun BC n’est soumis après 7 jours.
+									</li>
+									<li>
+										Permet de pointer les relances effectuées par les commerciaux.
+									</li>
+									<li>
+										Historise toutes les relances déjà effectuées.
+									</li>
+								</ul>
+							</li>
 						</ul>
 					</li>
 				</ul>

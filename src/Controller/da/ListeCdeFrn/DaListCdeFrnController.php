@@ -3,7 +3,7 @@
 namespace App\Controller\da\ListeCdeFrn;
 
 
-use App\Model\da\DaModel;;
+use App\Model\da\DaModel;
 
 use Twig\Markup;
 use App\Entity\admin\Service;
@@ -67,12 +67,20 @@ class DaListCdeFrnController extends Controller
         /** FIN AUtorisation acées */
 
         /** ===  Formulaire pour la recherche === */
-        $form = $this->getFormFactory()->createBuilder(CdeFrnListType::class, $this->initialisationCdeFrnSearchDto(), [
+        $searchDto = $this->initialisationCdeFrnSearchDto();
+        $form = $this->getFormFactory()->createBuilder(CdeFrnListType::class, $searchDto, [
             'em' => $this->getEntityManager(),
             'method' => 'GET',
         ])->getForm();
-        $criteriaTab = $this->traitementFormulaireRecherche($request, $form);
-        $this->getSessionService()->set('criteria_for_excel_Da_Cde_frn', $criteriaTab);
+
+        // Traitement du formulaire de recherche
+        $newCriteria = $this->traitementFormulaireRecherche($request, $form);
+
+        if ($newCriteria !== null) {
+            $criteriaTab = $newCriteria;
+        } else {
+            $criteriaTab = $this->getSessionService()->get('criteria_for_excel_Da_Cde_frn') ?? [];
+        }
 
         // classe pour visuel de trie nombre de jour dispo
         $sortJoursClass = false;
@@ -146,8 +154,8 @@ class DaListCdeFrnController extends Controller
 
     private function initialisationCdeFrnSearchDto(): CdeFrnSearchDto
     {
-        // recupération de la session pour le criteria
-        $criteriaTab = $this->getSessionService()->get('criteria_for_excel_Da_Cde_frn');
+        // recupération de la session pour le criteria, en s'assurant que c'est toujours un tableau
+        $criteriaTab = $this->getSessionService()->get('criteria_for_excel_Da_Cde_frn') ?? [];
 
         // transforme en objet
         $cdeFrnSearchDto = new CdeFrnSearchDto();
@@ -220,16 +228,13 @@ class DaListCdeFrnController extends Controller
     {
         $form->handleRequest($request);
 
-        if (!$form->isSubmitted() || !$form->isValid()) {
-            return [];
+        if ($form->isSubmitted() && $form->isValid()) {
+            $criteriaTab = $form->getData()->toArray() ?? [];
+            $this->getSessionService()->set('criteria_for_excel_Da_Cde_frn', $criteriaTab);
+            return $criteriaTab;
         }
 
-        $data = $form->getData()->toArray();
-
-        // Filtrer les champs vides ou nuls
-        $dataFiltered = array_filter($data, fn($val) => $val !== null && $val !== '');
-
-        return empty($dataFiltered) ? [] : $data;
+        return null;
     }
 
     /** 
@@ -241,15 +246,17 @@ class DaListCdeFrnController extends Controller
         $datasPrepared = [];
 
         $daType = [
-            DemandeAppro::TYPE_DA_AVEC_DIT => $this->getIconDaAvecDIT(),
-            DemandeAppro::TYPE_DA_DIRECT   => $this->getIconDaDirect(),
-            DemandeAppro::TYPE_DA_REAPPRO  => $this->getIconDaReappro(),
+            DemandeAppro::TYPE_DA_AVEC_DIT         => $this->getIconDaAvecDIT(),
+            DemandeAppro::TYPE_DA_DIRECT           => $this->getIconDaDirect(),
+            DemandeAppro::TYPE_DA_REAPPRO_MENSUEL  => $this->getIconDaReapproMensuel(),
+            DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL => $this->getIconDaReapproPonctuel(),
         ];
 
         $routeDetailName = [
-            DemandeAppro::TYPE_DA_DIRECT   => 'da_detail_direct',
-            DemandeAppro::TYPE_DA_AVEC_DIT => 'da_detail_avec_dit',
-            DemandeAppro::TYPE_DA_REAPPRO  => 'da_detail_reappro',
+            DemandeAppro::TYPE_DA_DIRECT           => 'da_detail_direct',
+            DemandeAppro::TYPE_DA_AVEC_DIT         => 'da_detail_avec_dit',
+            DemandeAppro::TYPE_DA_REAPPRO_MENSUEL  => 'da_detail_reappro',
+            DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL => 'da_detail_reappro',
         ];
 
         $safeIconBan     = new Markup('<i class="fas fa-ban text-muted"></i>', 'UTF-8');
@@ -316,6 +323,7 @@ class DaListCdeFrnController extends Controller
             $datasPrepared[] = [
                 'objet'                => $item->getObjetDal(),
                 'urlDetail'            => $urlDetail,
+                'numDaParent'          => $item->getNumeroDemandeApproMere(),
                 'numeroDemandeAppro'   => $item->getNumeroDemandeAppro(),
                 'datype'               => $daType[$item->getDaTypeId()],
                 'numeroDemandeDit'     => $item->getNumeroDemandeDit() ?? $safeIconBan,

@@ -60,4 +60,79 @@ class DaSoumissionFacBlRepository extends EntityRepository
             ->getQuery()
             ->getSingleColumnResult());
     }
+
+    public function getAll(array $criteria = [])
+    {
+        $result = $this->createQueryBuilder('dabc');
+
+        // filtres par le numero demande appro
+        if (isset($criteria['numDa']) && !empty($criteria['numDa'])) {
+            $result->andWhere('dabc.numeroDemandeAppro = :numDa')
+                ->setParameter('numDa', $criteria['numDa']);
+        }
+
+        // filtres par le numero commande
+        if (isset($criteria['numCde']) && !empty($criteria['numCde'])) {
+            $result->andWhere('dabc.numeroCde = :numCde')
+                ->setParameter('numCde', $criteria['numCde']);
+        }
+
+        // filtres par le numero livraison IPS
+        if (isset($criteria['numLivIps']) && !empty($criteria['numLivIps'])) {
+            $result->andWhere('dabc.numLiv = :numLivIps')
+                ->setParameter('numLivIps', $criteria['numLivIps']);
+        }
+
+        // filtres par le numero demande de paiement
+        if (isset($criteria['numDdp']) && !empty($criteria['numDdp'])) {
+            $result->andWhere('dabc.numeroDemandePaiement = :numDdp')
+                ->setParameter('numDdp', $criteria['numDdp']);
+        }
+
+        // filtres par la facture ou le bon de livraison
+        if (isset($criteria['FactureBl']) && !empty($criteria['FactureBl'])) {
+            $result->andWhere('dabc.refBlFac = :facBl')
+                ->setParameter('facBl', $criteria['FactureBl']);
+        }
+
+        // filtres par le numéro fournisseur
+        if (isset($criteria['fournisseur']) && !empty($criteria['fournisseur'])) {
+            $result->andWhere('dabc.numeroFournisseur = :fournisseur')
+                ->setParameter('fournisseur', trim(explode('-', $criteria['fournisseur'])[0]));
+        }
+
+
+        return $result->orderBy('dabc.id', 'DESC')->getQuery()->getResult();
+    }
+
+    public function getAllSelonNumBap(array $bapNumbers)
+    {
+        return  $this->createQueryBuilder('dabc')
+            ->where('dabc.numeroBap IN (:numBap)')
+            ->setParameter('numBap', $bapNumbers)
+            ->getQuery()
+            ->getResult();
+    }
+    /**
+     * Récupération du date de livraison commande
+     *
+     * @param string $numeroBc
+     * @return \DateTimeInterface|null
+     */
+    public function getDateLivraisonArticle(string $numeroBc): ?\DateTimeInterface
+    {
+        $result = $this->createQueryBuilder('d')
+            ->select('d.dateCreation')
+            ->where('d.numeroCde = :numeroBc')
+            ->andWhere('d.numeroVersion = :firstVersion')
+            ->setParameters([
+                'numeroBc' => $numeroBc,
+                'firstVersion' => 1
+            ])
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult(Query::HYDRATE_SINGLE_SCALAR);
+
+        return $result ? new \DateTime($result) : null;
+    }
 }

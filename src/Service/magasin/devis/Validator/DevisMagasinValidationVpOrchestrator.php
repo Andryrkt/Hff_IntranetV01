@@ -90,6 +90,7 @@ class DevisMagasinValidationVpOrchestrator
 
     public function verificationStatutValideAEnvoyerAuclientEtSommeDeLignesChangeEtMontantChange(DevisMagasinRepository $repository, string $numeroDevis, int $newSumOfLines, float $newSumOfMontant): bool
     {
+        // dump($this->statusValidator->verificationStatutValideAEnvoyerAuclientEtSommeDeLignesChangeEtMontantChange($repository, $numeroDevis, $newSumOfLines, $newSumOfMontant));
         return $this->statusValidator->verificationStatutValideAEnvoyerAuclientEtSommeDeLignesChangeEtMontantChange($repository, $numeroDevis, $newSumOfLines, $newSumOfMontant);
     }
 

@@ -62,7 +62,7 @@ trait DaValidationDirectTrait
     private function creationPDFDirect(string $numDa): void
     {
         $da = $this->demandeApproRepository->findAvecDernieresDALetLRParNumero($numDa);
-        $observations = $this->daObservationRepository->findBy(['numDa' => $numDa]);
+        $observations = $this->daObservationRepository->findBy(['numDa' => $numDa], ['dateCreation' => 'ASC']);
         $this->genererPdfDaDirect->genererPdfBonAchatValide($da, $observations);
     }
 
@@ -83,7 +83,6 @@ trait DaValidationDirectTrait
             ->setNumeroDemandeAppro($demandeAppro->getNumeroDemandeAppro())
             ->setNumeroVersion($numeroVersion)
             ->setStatut(DemandeAppro::STATUT_DW_A_VALIDE)
-            ->setDateSoumission(new DateTime())
             ->setUtilisateur($demandeAppro->getDemandeur())
         ;
 
@@ -98,7 +97,7 @@ trait DaValidationDirectTrait
      */
     private function fusionAndCopyToDW(string $numDa)
     {
-        $allDevisPj = $this->getDevisPjPath($numDa);
+        $allDevisPj = $this->getDevisPjPathPDFDW($numDa);
         $bav = $this->cheminDeBase . "$numDa/$numDa.pdf";
         $fichiersConvertis = $this->ConvertirLesPdf($allDevisPj);
         array_unshift($fichiersConvertis, $bav);
@@ -110,16 +109,17 @@ trait DaValidationDirectTrait
     /** 
      * Obtenir l'url des devis et pièces jointes
      */
-    private function getDevisPjPath(string $numDa)
+    private function getDevisPjPathPDFDW(string $numDa)
     {
         $pjDals = $this->demandeApproLRepository->findAttachmentsByNumeroDA($numDa);
         $pjDalrs = $this->demandeApproLRRepository->findAttachmentsByNumeroDA($numDa);
+        $pjObservations = $this->daObservationRepository->findAttachmentsByNumeroDA($numDa);
 
         /** 
          * Fusionner les résultats des deux tables
          * @var array<int, array{numeroDemandeAppro: string, fileNames: array}>
          **/
-        $allRows = array_merge($pjDals, $pjDalrs);
+        $allRows = array_merge($pjDals, $pjDalrs, $pjObservations);
         $filePaths = [];
 
         foreach ($allRows as $row) {

@@ -36,7 +36,8 @@ class FonctionnelDoc extends Controller
         $markdownContent = file_get_contents($markdownFile);
 
         // Convertir le Markdown en HTML
-        $htmlContent = $this->parsedown->text($markdownContent);
+        $parsedown = new Parsedown();
+        $htmlContent = $parsedown->text($markdownContent);
 
         // Rendre le template avec le contenu HTML
         return $this->render(

@@ -30,13 +30,14 @@ class PlanningMagasinSearch
     private $orNonValiderDw;
     private $commercial;
     private $refCde;
+    private $numeroDevis;
 
     public function getNiveauUrgence()
     {
         return $this->niveauUrgence;
     }
 
-    
+
     public function setNiveauUrgence($niveauUrgence): self
     {
         $this->niveauUrgence = $niveauUrgence;
@@ -46,7 +47,7 @@ class PlanningMagasinSearch
 
     /**
      * Get the value of agence
-     */ 
+     */
     public function getAgence()
     {
         return $this->agence;
@@ -56,7 +57,7 @@ class PlanningMagasinSearch
      * Set the value of agence
      *
      * @return  self
-     */ 
+     */
     public function setAgence($agence)
     {
         $this->agence = $agence;
@@ -66,7 +67,7 @@ class PlanningMagasinSearch
 
     /**
      * Get the value of annee
-     */ 
+     */
     public function getAnnee()
     {
         return $this->annee;
@@ -76,7 +77,7 @@ class PlanningMagasinSearch
      * Set the value of annee
      *
      * @return  self
-     */ 
+     */
     public function setAnnee($annee)
     {
         $this->annee = $annee;
@@ -86,7 +87,7 @@ class PlanningMagasinSearch
 
     /**
      * Get the value of interneExterne
-     */ 
+     */
     public function getInterneExterne()
     {
         return $this->interneExterne;
@@ -96,7 +97,7 @@ class PlanningMagasinSearch
      * Set the value of interneExterne
      *
      * @return  self
-     */ 
+     */
     public function setInterneExterne($interneExterne)
     {
         $this->interneExterne = $interneExterne;
@@ -106,7 +107,7 @@ class PlanningMagasinSearch
 
     /**
      * Get the value of facture
-     */ 
+     */
     public function getFacture()
     {
         return $this->facture;
@@ -116,7 +117,7 @@ class PlanningMagasinSearch
      * Set the value of facture
      *
      * @return  self
-     */ 
+     */
     public function setFacture($facture)
     {
         $this->facture = $facture;
@@ -126,7 +127,7 @@ class PlanningMagasinSearch
 
     /**
      * Get the value of plan
-     */ 
+     */
     public function getPlan()
     {
         return $this->plan;
@@ -136,7 +137,7 @@ class PlanningMagasinSearch
      * Set the value of plan
      *
      * @return  self
-     */ 
+     */
     public function setPlan($plan)
     {
         $this->plan = $plan;
@@ -146,7 +147,7 @@ class PlanningMagasinSearch
 
     /**
      * Get the value of dateDebut
-     */ 
+     */
     public function getDateDebut()
     {
         return $this->dateDebut;
@@ -156,7 +157,7 @@ class PlanningMagasinSearch
      * Set the value of dateDebut
      *
      * @return  self
-     */ 
+     */
     public function setDateDebut($dateDebut)
     {
         $this->dateDebut = $dateDebut;
@@ -166,7 +167,7 @@ class PlanningMagasinSearch
 
     /**
      * Get the value of dateFin
-     */ 
+     */
     public function getDateFin()
     {
         return $this->dateFin;
@@ -176,7 +177,7 @@ class PlanningMagasinSearch
      * Set the value of dateFin
      *
      * @return  self
-     */ 
+     */
     public function setDateFin($dateFin)
     {
         $this->dateFin = $dateFin;
@@ -186,7 +187,7 @@ class PlanningMagasinSearch
 
     /**
      * Get the value of numOr
-     */ 
+     */
     public function getNumOr()
     {
         return $this->numOr;
@@ -196,7 +197,7 @@ class PlanningMagasinSearch
      * Set the value of numOr
      *
      * @return  self
-     */ 
+     */
     public function setNumOr($numOr)
     {
         $this->numOr = $numOr;
@@ -206,7 +207,7 @@ class PlanningMagasinSearch
 
     /**
      * Get the value of numSerie
-     */ 
+     */
     public function getNumSerie()
     {
         return $this->numSerie;
@@ -216,7 +217,7 @@ class PlanningMagasinSearch
      * Set the value of numSerie
      *
      * @return  self
-     */ 
+     */
     public function setNumSerie($numSerie)
     {
         $this->numSerie = $numSerie;
@@ -226,7 +227,7 @@ class PlanningMagasinSearch
 
     /**
      * Get the value of idMat
-     */ 
+     */
     public function getIdMat()
     {
         return $this->idMat;
@@ -236,7 +237,7 @@ class PlanningMagasinSearch
      * Set the value of idMat
      *
      * @return  self
-     */ 
+     */
     public function setIdMat($idMat)
     {
         $this->idMat = $idMat;
@@ -246,7 +247,7 @@ class PlanningMagasinSearch
 
     /**
      * Get the value of numParc
-     */ 
+     */
     public function getNumParc()
     {
         return $this->numParc;
@@ -256,7 +257,7 @@ class PlanningMagasinSearch
      * Set the value of numParc
      *
      * @return  self
-     */ 
+     */
     public function setNumParc($numParc)
     {
         $this->numParc = $numParc;
@@ -266,7 +267,7 @@ class PlanningMagasinSearch
 
     /**
      * Get the value of agenceDebite
-     */ 
+     */
     public function getAgenceDebite()
     {
         return $this->agenceDebite;
@@ -276,7 +277,7 @@ class PlanningMagasinSearch
      * Set the value of agenceDebite
      *
      * @return  self
-     */ 
+     */
     public function setAgenceDebite($agenceDebite)
     {
         $this->agenceDebite = $agenceDebite;
@@ -286,7 +287,7 @@ class PlanningMagasinSearch
 
     /**
      * Get the value of serviceDebite
-     */ 
+     */
     public function getServiceDebite()
     {
         return $this->serviceDebite;
@@ -296,7 +297,7 @@ class PlanningMagasinSearch
      * Set the value of serviceDebite
      *
      * @return  self
-     */ 
+     */
     public function setServiceDebite($serviceDebite)
     {
         $this->serviceDebite = $serviceDebite;
@@ -304,10 +305,10 @@ class PlanningMagasinSearch
         return $this;
     }
 
-    
+
     /**
      * Get the value of typeLigne
-     */ 
+     */
     public function getTypeLigne()
     {
         return $this->typeligne;
@@ -317,18 +318,18 @@ class PlanningMagasinSearch
      * Set the value of typeLigne
      *
      * @return  self
-     */ 
+     */
     public function setTypeLigne($typeligne)
     {
         $this->typeligne = $typeligne;
 
         return $this;
     }
-   
+
 
     /**
      * Get the value of casier
-     */ 
+     */
     public function getCasier()
     {
         return $this->casier;
@@ -338,7 +339,7 @@ class PlanningMagasinSearch
      * Set the value of casier
      *
      * @return  self
-     */ 
+     */
     public function setCasier($casier)
     {
         $this->casier = $casier;
@@ -348,7 +349,7 @@ class PlanningMagasinSearch
 
     /**
      * Get the value of section
-     */ 
+     */
     public function getSection()
     {
         return $this->section;
@@ -358,7 +359,7 @@ class PlanningMagasinSearch
      * Set the value of section
      *
      * @return  self
-     */ 
+     */
     public function setSection($section)
     {
         $this->section = $section;
@@ -369,7 +370,7 @@ class PlanningMagasinSearch
 
     /**
      * Get the value of months
-     */ 
+     */
     public function getMonths()
     {
         return $this->months;
@@ -379,7 +380,7 @@ class PlanningMagasinSearch
      * Set the value of months
      *
      * @return  self
-     */ 
+     */
     public function setMonths($months)
     {
         $this->months = $months;
@@ -389,7 +390,7 @@ class PlanningMagasinSearch
 
     /**
      * Get the value of orBackOrder
-     */ 
+     */
     public function getOrBackOrder()
     {
         return $this->orBackOrder;
@@ -399,7 +400,7 @@ class PlanningMagasinSearch
      * Set the value of orBackOrder
      *
      * @return  self
-     */ 
+     */
     public function setOrBackOrder($orBackOrder)
     {
         $this->orBackOrder = $orBackOrder;
@@ -409,7 +410,7 @@ class PlanningMagasinSearch
 
     /**
      * Get the value of typeDocument
-     */ 
+     */
     public function getTypeDocument()
     {
         return $this->typeDocument;
@@ -419,7 +420,7 @@ class PlanningMagasinSearch
      * Set the value of typeDocument
      *
      * @return  self
-     */ 
+     */
     public function setTypeDocument($typeDocument)
     {
         $this->typeDocument = $typeDocument;
@@ -429,7 +430,7 @@ class PlanningMagasinSearch
 
     /**
      * Get the value of reparationRealise
-     */ 
+     */
     public function getReparationRealise()
     {
         return $this->reparationRealise;
@@ -439,7 +440,7 @@ class PlanningMagasinSearch
      * Set the value of reparationRealise
      *
      * @return  self
-     */ 
+     */
     public function setReparationRealise($reparationRealise)
     {
         $this->reparationRealise = $reparationRealise;
@@ -449,7 +450,7 @@ class PlanningMagasinSearch
 
     /**
      * Get the value of orNonValiderDw
-     */ 
+     */
     public function getOrNonValiderDw()
     {
         return $this->orNonValiderDw;
@@ -459,7 +460,7 @@ class PlanningMagasinSearch
      * Set the value of orNonValiderDw
      *
      * @return  self
-     */ 
+     */
     public function setOrNonValiderDw($orNonValiderDw)
     {
         $this->orNonValiderDw = $orNonValiderDw;
@@ -486,14 +487,14 @@ class PlanningMagasinSearch
             'typeligne' => $this->typeligne,
             'orBackOrder' => $this->orBackOrder,
             'orNonValiderDw' => $this->orNonValiderDw,
-            'commercial'=> $this->commercial,
-            'refClient'=>$this->refCde
+            'commercial' => $this->commercial,
+            'refClient' => $this->refCde
         ];
     }
 
     /**
      * Get the value of commercial
-     */ 
+     */
     public function getCommercial()
     {
         return $this->commercial;
@@ -503,7 +504,7 @@ class PlanningMagasinSearch
      * Set the value of commercial
      *
      * @return  self
-     */ 
+     */
     public function setCommercial($commercial)
     {
         $this->commercial = $commercial;
@@ -512,7 +513,7 @@ class PlanningMagasinSearch
     }
     /**
      * Get the value of refcde
-     */ 
+     */
     public function getRefcde()
     {
         return $this->refCde;
@@ -522,10 +523,28 @@ class PlanningMagasinSearch
      * Set the value of commercial
      *
      * @return  self
-     */ 
+     */
     public function setRefCde($refCde)
     {
         $this->refCde = $refCde;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroDevis
+     */
+    public function getNumeroDevis()
+    {
+        return $this->numeroDevis;
+    }
+
+    /**
+     * Set the value of numeroDevis
+     */
+    public function setNumeroDevis($numeroDevis): self
+    {
+        $this->numeroDevis = $numeroDevis;
 
         return $this;
     }

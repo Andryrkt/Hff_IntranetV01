@@ -1,4 +1,12 @@
 document.addEventListener("DOMContentLoaded", function () {
+  // Régler le défilement de la bande sur la page d'accueil
+  const newsTicker = document.querySelectorAll(".vignette-bande span");
+  newsTicker.forEach((ticker) => {
+    ticker.style.animation = `defilement ${
+      ticker.offsetWidth / 50
+    }s infinite linear`;
+  });
+
   // Ne plus afficher si l'utilisateur l'a déjà masqué
   const STORAGE_KEY = "welcomeAlertDismissed";
   if (localStorage.getItem(STORAGE_KEY) === "1") return;

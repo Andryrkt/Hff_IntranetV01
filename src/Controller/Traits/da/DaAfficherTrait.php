@@ -49,7 +49,7 @@ trait DaAfficherTrait
         $newDaAffichers = $this->getLignesRectifieesDA($numDa, (int) $numeroVersionMaxDAL); // Récupère les lignes rectifiées de la DA (nouveaux Da afficher)
 
         $deletedLineNumbers = $this->getDeletedLineNumbers($oldDaAffichers, $newDaAffichers);
-        $this->daAfficherRepository->markAsDeletedByNumeroLigne($numDa, $deletedLineNumbers, $this->getUserName(), $numeroVersionMaxDaAfficher);
+        $this->daAfficherRepository->markAsDeletedByNumeroLigne($numDa, $deletedLineNumbers, $this->getUserName());
 
         $dateValidation = new DateTime('now', new DateTimeZone('Indian/Antananarivo'));
 
@@ -61,11 +61,11 @@ trait DaAfficherTrait
             }
             if ($demandeAppro->getDit()) $daAfficher->setDit($demandeAppro->getDit());
 
-            $daAfficher->enregistrerDa($demandeAppro);
+            $daAfficher->duplicateDa($demandeAppro);
             $daAfficher->setNumeroVersion(VersionService::autoIncrement($numeroVersionMaxDaAfficher));
 
-            if ($newDaAfficher instanceof DemandeApproL) $daAfficher->enregistrerDal($newDaAfficher); // enregistrement pour DAL
-            else if ($newDaAfficher instanceof DemandeApproLR) $daAfficher->enregistrerDalr($newDaAfficher); // enregistrement pour DALR
+            if ($newDaAfficher instanceof DemandeApproL) $daAfficher->duplicateDal($newDaAfficher); // enregistrement pour DAL
+            else if ($newDaAfficher instanceof DemandeApproLR) $daAfficher->duplicateDalr($newDaAfficher); // enregistrement pour DALR
 
             if ($validationDA) $daAfficher->setDateValidation($dateValidation);
             if ($statutOr) $daAfficher->setStatutOr($statutOr);

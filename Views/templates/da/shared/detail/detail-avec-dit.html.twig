@@ -2,7 +2,7 @@
 
 <div class="row">
 	<h3 class="perso-titre">
-		<span class="urgency-level">{{ dit.idNiveauUrgence.description }}</span>
+		<span class="urgency-level">{{ demandeAppro.niveauUrgence }}</span>
 		Détails Demande d'achat, n°
 		{{ demandeAppro.numeroDemandeAppro }}
 	</h3>
@@ -39,7 +39,7 @@
 			</div>
 			<div class="col-md-6 col-6">
 				{{ macroForm.affichage2('N° Parc', numParc, 'mb-2') }}
-				{{ macroForm.affichage2('N° DIT', demandeAppro.dit.numeroDemandeIntervention, 'mb-2') }}
+				{{ macroForm.affichage2('N° DIT', demandeAppro.numeroDemandeDit, 'mb-2') }}
 			</div>
 			<div class="col-md-12 col-12">
 				{{ macroForm.affichage2('Objet du DIT', demandeAppro.dit.objetDemande, 'mb-2') }}

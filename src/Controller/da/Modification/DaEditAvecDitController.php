@@ -44,10 +44,7 @@ class DaEditAvecDitController extends Controller
 
         /** @var DemandeAppro $demandeAppro la demande appro correspondant à l'id $id */
         $demandeAppro = $this->demandeApproRepository->find($id); // recupération de la DA
-        $dit = $this->ditRepository->findOneBy(['numeroDemandeIntervention' => $demandeAppro->getNumeroDemandeDit()]); // recupération du DIT associée à la DA
         $numDa = $demandeAppro->getNumeroDemandeAppro();
-        $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
-        $demandeAppro = $this->filtreDal($demandeAppro, $dit, (int)$numeroVersionMax); // on filtre les lignes de la DA selon le numero de version max
 
         $ancienDals = $this->getAncienDAL($demandeAppro);
 
@@ -60,7 +57,7 @@ class DaEditAvecDitController extends Controller
         return $this->render('da/edit-avec-dit.html.twig', [
             'form'         => $form->createView(),
             'observations' => $observations,
-            'peutModifier' => $this->PeutModifier($demandeAppro),
+            'peutModifier' => $this->peutModifier($demandeAppro->getStatutDal(), $this->estUserDansServiceAtelier()),
             'numDa'        => $numDa,
         ]);
     }
@@ -114,7 +111,7 @@ class DaEditAvecDitController extends Controller
 
             $this->modificationDa($demandeAppro, $form->get('DAL'), DemandeAppro::STATUT_SOUMIS_APPRO);
             if ($demandeAppro->getObservation() !== null) {
-                $this->insertionObservation($demandeAppro->getObservation(), $demandeAppro);
+                $this->insertionObservation($numDa, $demandeAppro->getObservation());
             }
 
             $this->ajouterDansTableAffichageParNumDa($numDa); // ajout dans la table DaAfficher si le statut a changé

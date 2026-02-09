@@ -375,24 +375,6 @@ class DitOrsSoumisAValidationController extends Controller
 
         $countAgServDeb = $this->ditOrsoumisAValidationModel->countAgServDebit($numOr);
 
-        // $numDa = $this->demandeApproRepository->getNumDa($numDit);
-        // if ($numDa) {
-        //     $articleDas = $this->ditOrsoumisAValidationModel->validationArticleZstDa($numOr);
-        //     $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
-        //     $daValiders = $this->getLignesRectifieesDA($numDa, $numeroVersionMax);
-        //     $referenceDas = array_map(function ($item) {
-        //         return [
-        //             "quantite" => $item->getQteDem(),
-        //             "reference" => $item->getArtRefp(),
-        //             "montant" => $item->getPrixUnitaire(),
-        //             "designation" => $item->getArtDesi()
-        //         ];
-        //     }, $daValiders);
-        //     // dd($articleDas, $referenceDas, $this->compareTableaux($articleDas, $referenceDas), !$this->compareTableaux($articleDas, $referenceDas) && !empty($referenceDas) && !empty($articleDas));
-        // }
-
-        // dd($nbrArticlesComparet, $nombreArticleDansDaValider);
-
         return [
             'nomFichier'            => strpos($originalName, 'Ordre de réparation') !== 0,
             'numeroOrDifferent'     => $numOr !== $ditInsertionOrSoumis->getNumeroOR(),

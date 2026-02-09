@@ -4,7 +4,7 @@ namespace App\Service\da;
 
 use App\Entity\da\DemandeAppro;
 
-class DemandeApproService
+class PermissionDaService
 {
     /**
      * Règles de déverrouillage par rôle utilisateur.
@@ -26,7 +26,7 @@ class DemandeApproService
             DemandeAppro::STATUT_EN_COURS_CREATION    => true,
             DemandeAppro::STATUT_DEMANDE_DEVIS        => true,
             DemandeAppro::STATUT_DEVIS_A_RELANCER     => true,
-            DemandeAppro::STATUT_AUTORISER_MODIF_ATE  => true,
+            DemandeAppro::STATUT_AUTORISER_EMETTEUR   => true,
             DemandeAppro::STATUT_EN_COURS_PROPOSITION => true,
             DemandeAppro::STATUT_VALIDE               => [
                 DemandeAppro::STATUT_DW_A_VALIDE => false,
@@ -47,12 +47,12 @@ class DemandeApproService
         'atelier' => [
             DemandeAppro::STATUT_SOUMIS_ATE          => true,
             DemandeAppro::STATUT_EN_COURS_CREATION   => true,
-            DemandeAppro::STATUT_AUTORISER_MODIF_ATE => true,
+            DemandeAppro::STATUT_AUTORISER_EMETTEUR => true,
         ],
         'createur_da_directe' => [
             DemandeAppro::STATUT_SOUMIS_ATE          => true,
             DemandeAppro::STATUT_EN_COURS_CREATION   => true,
-            DemandeAppro::STATUT_AUTORISER_MODIF_ATE => true,
+            DemandeAppro::STATUT_AUTORISER_EMETTEUR => true,
             DemandeAppro::STATUT_VALIDE              => [
                 DemandeAppro::STATUT_DW_A_VALIDE => false,
                 DemandeAppro::STATUT_DW_REFUSEE  => false,
@@ -60,6 +60,32 @@ class DemandeApproService
             ],
         ],
     ];
+
+
+    /**
+     * Détermine si une Demande d'Approvisionnement (DA) doit être verrouillée
+     * en fonction de son statut et du profil utilisateur.
+     *
+     * @param string      $statutDa  Statut actuel de la DA
+     * @param string|null $statut    Statut complémentaire (OR ou DW)
+     * @param bool        $estAdmin  Vrai si l'utilisateur est administrateur
+     * @param bool        $estAppro  Vrai si l'utilisateur est approvisionneur
+     * @param bool        $estAtelier Vrai si l'utilisateur est membre de l'atelier
+     * @param bool        $estCreateurDaDirecte Vrai si l'utilisateur est le créateur d'une DA directe
+     *
+     * @return bool True si la DA doit être verrouillée, False sinon
+     */
+    public function estDaVerrouillee(string $statutDa, ?string $statut, bool $estAdmin, bool $estAppro, bool $estAtelier, bool $estCreateurDaDirecte): bool
+    {
+        $roles = [];
+
+        if ($estAdmin) $roles[] = 'admin';
+        if ($estAppro) $roles[] = 'appro';
+        if ($estAtelier) $roles[] = 'atelier';
+        if ($estCreateurDaDirecte) $roles[] = 'createur_da_directe';
+
+        return $this->isDemandeVerrouillee($statutDa, $statut, $roles);
+    }
 
     /**
      * Détermine si une Demande d'Approvisionnement (DA) doit être verrouillée
@@ -71,7 +97,7 @@ class DemandeApproService
      *
      * @return bool True si la DA doit être verrouillée, False sinon
      */
-    public function isDemandeVerrouillee(string $statutDa, ?string $statut, array $roles): bool
+    private function isDemandeVerrouillee(string $statutDa, ?string $statut, array $roles): bool
     {
         foreach ($roles as $role) {
             if ($this->canRoleEditDa($role, $statutDa, $statut)) return false; // déverrouillage si au moins un rôle est autorisé

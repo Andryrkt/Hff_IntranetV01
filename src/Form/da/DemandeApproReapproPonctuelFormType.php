@@ -13,7 +13,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 
-class DemandeApproReapproFormType extends AbstractType
+class DemandeApproReapproPonctuelFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -72,7 +72,9 @@ class DemandeApproReapproFormType extends AbstractType
                 'service_label'       => 'Service Debiteur (*)',
                 'agence_placeholder'  => '-- Agence Debiteur --',
                 'service_placeholder' => '-- Service Debiteur --',
-                'em'                  => $options['em'] ?? null
+                'data_agence'         => $options['data']->getAgenceDebiteur() ?? null,
+                'data_service'        => $options['data']->getServiceDebiteur() ?? null,
+                'em'                  => $options['em'] ?? null,
             ])
             ->add(
                 'codeCentrale',

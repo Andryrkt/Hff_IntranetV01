@@ -7,35 +7,58 @@
 {% block stylesheets %}
 	<link href="{{ App.base_path }}/Views/css/new.css?v=2025.10.22.08.00" rel="stylesheet"/>
 	<link href="{{ App.base_path }}/Views/css/da/style.css?v=2025.10.22.08.00" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/da/first-form.css?v=2025.10.22.08.00" rel="stylesheet"/>
 {% endblock %}
 
 {% import "macroForm.html.twig" as macroForm %}
 
 {% block content %}
 	<div class="container mt-6">
-		<div class="card">
-			<div class="card-body">
-				<div class="m-5">
-					<div class="text-center">
-						<p class="fs-6">Veuillez cliquer sur le type de demande que vous souhaitez créer:</p>
-						{% if createDaDIT %}
-							<a class="choix" href="{{ urls.avecDit }}">
-								Demande d’achat avec DIT
-							</a>
-						{% endif %}
-						{% if createDaDirect %}
-							<a class="choix" href="{{ urls.direct }}">
-								Demande d’achat direct
-							</a>
-						{% endif %}
-						{% if createDaDirect %}
-							<a class="choix" href="{{ urls.reappro }}">
-								Demande de réappro mensuel
-							</a>
-						{% endif %}
+		<div class="text-center mb-4 pt-4">
+			<h2 class="mb-2 fw-bold">Créer une demande d'achat</h2>
+			<p class="text-muted fs-5">Veuillez cliquer sur le type de demande que vous souhaitez créer:</p>
+		</div>
+
+		<div class="da-choice-menu">
+			{% for key, option in options %}
+				{% if option.type == 'simple' %}
+					{# Option simple - lien direct #}
+					<a href="{{ option.url }}" class="da-choice-item">
+						<div class="da-choice-icon">
+							{{ option.icon }}
+						</div>
+						<div class="da-choice-label">
+							{{ option.label }}
+						</div>
+					</a>
+				{% else %}
+					{# Option avec sous-menu #}
+					<div class="da-choice-group">
+						<button type="button" class="da-choice-item da-choice-parent" data-bs-toggle="collapse" data-bs-target="#collapse-{{ key }}" aria-expanded="false">
+							<div class="da-choice-icon">
+								{{ option.icon }}
+							</div>
+							<div class="da-choice-label">
+								{{ option.label }}
+								<i class="fas fa-chevron-down ms-2 collapse-icon"></i>
+							</div>
+						</button>
+
+						<div class="collapse da-choice-submenu" id="collapse-{{ key }}">
+							{% for subKey, subOption in option.sousOptions %}
+								<a href="{{ subOption.url }}" class="da-choice-subitem">
+									<div class="da-choice-icon">
+										{{ subOption.icon }}
+									</div>
+									<div class="da-choice-label">
+										{{ subOption.label }}
+									</div>
+								</a>
+							{% endfor %}
+						</div>
 					</div>
-				</div>
-			</div>
+				{% endif %}
+			{% endfor %}
 		</div>
 	</div>
 {% endblock %}

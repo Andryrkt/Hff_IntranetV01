@@ -142,6 +142,7 @@ class PlanningMagasinModel extends Model
         $codeClient  = $this->codeClient($criteria);
         $commercial = $this->commercial($criteria);
         $refClient = $this->refClient($criteria);
+        $numeroDevis = $this->numeroDevis($criteria);
         $piecesMagasin = GlobalVariablesService::get('pieces_magasin');
         $statement = "SELECT 
                         trim(nent_succ) as codeSuc,
@@ -192,7 +193,7 @@ class PlanningMagasinModel extends Model
                         AND trim(nent_succ) in ('01', '20', '30', '40')
                         AND trim(nent_servcrt) <> 'ASS'
                         AND nlig_constp IN ($piecesMagasin)
-
+                
                         $numDevis
                         $numCmd
                         $agDebit
@@ -200,6 +201,7 @@ class PlanningMagasinModel extends Model
                         $codeClient
                         $commercial
                         $refClient
+                        $numeroDevis
                         group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
                         order by 12 desc, 13 desc";
         // dump($statement);

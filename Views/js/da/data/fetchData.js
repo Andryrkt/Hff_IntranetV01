@@ -16,6 +16,33 @@ export async function getAllFournisseurs() {
 }
 
 /**
+ * Récupère tous les références autorisées
+ */
+export async function getAllReferences() {
+  try {
+    return await fetchManager.get(`${BASE_URL_DA}/all-reference`);
+  } catch (error) {
+    console.error("Erreur lors de la récupération des références :", error);
+    throw error;
+  }
+}
+
+/**
+ * Récupère la liste des articles stockés
+ */
+export async function getAllArticleStocke() {
+  try {
+    return await fetchManager.get(`${BASE_URL_DA}/all-article-stocke`);
+  } catch (error) {
+    console.error(
+      "Erreur lors de la récupération des articles stockés :",
+      error
+    );
+    throw error;
+  }
+}
+
+/**
  * Récupère la liste des désignations
  * @param {boolean} direct - si true, utilise le mode direct ("zdi")
  * @param {string} codeFams1 - premier code famille (par défaut "-")
@@ -28,7 +55,7 @@ export async function getAllDesignations(
 ) {
   try {
     let endpoint;
-    
+
     if (direct) {
       endpoint = "all-designation-zdi";
     } else if (codeFams1 === "-" && codeFams2 === "-") {
