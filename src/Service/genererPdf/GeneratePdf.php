@@ -167,10 +167,18 @@ class GeneratePdf
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 
-    // demande appro reappro à valider
-    public function copyToDWDaAValiderReappro($numDa, string $suffix = "#_a_valider")
+    // demande appro reappro mensuel à valider
+    public function copyToDWDaAValiderReapproMensuel($numDa, string $suffix = "#_a_valider")
     {
         $cheminFichierDistant = $this->baseCheminDocuware . "DA REAPPRO/$numDa#_a_valider.pdf";
+        $cheminDestinationLocal = $this->baseCheminDuFichier . "da/$numDa/$numDa$suffix.pdf";
+        $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
+    }
+
+    // demande appro reappro ponctuel à valider
+    public function copyToDWDaAValiderReapproPonctuel($numDa, string $suffix = "#_a_valider")
+    {
+        $cheminFichierDistant = $this->baseCheminDocuware . "DA REAPPRO PONCTUEL/$numDa#_a_valider.pdf";
         $cheminDestinationLocal = $this->baseCheminDuFichier . "da/$numDa/$numDa$suffix.pdf";
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
