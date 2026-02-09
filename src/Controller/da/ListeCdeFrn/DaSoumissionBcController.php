@@ -110,9 +110,9 @@ class DaSoumissionBcController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             if ($soumissionBc->demandePaiementAvance) {
                 $this->redirectToRoute('da_soumission_ddp', [
-                    'numCde' => $numCde,
-                    'numDa' => $numDa,
-                    'numOr' => $numOr
+                    'typeDdp' => 1,
+                    'numCdeDa' => $numCde,
+                    'typeDa' => 2
                 ]);
             } else {
 
