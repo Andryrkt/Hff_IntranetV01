@@ -314,7 +314,9 @@ class listeDevisMagasinFactory
             ->setCreePar($data['utilisateur_createur_devis'] ?? '')
             ->setNumeroPO($data['numero_po'] ?? '')
             ->setUrlPO($data['url_po'] ?? '')
-            ->setDateDerniereRelance($data['date_derniere_relance'] ? $this->convertToDateTime($data['date_derniere_relance'])->format('d/m/Y') : null)
+            ->setDateDerniereRelance(
+                ($convertedDate = $this->convertToDateTime($data['date_derniere_relance'] ?? null)) ? $convertedDate->format('d/m/Y') : null
+            )
             ->setNombreDeRelance($data['numero_relance'] ?? null)
             ->setStatutRelance($data['statut_relance'] ?? null)
             ->setRelances($data['relances'] ?? [])
