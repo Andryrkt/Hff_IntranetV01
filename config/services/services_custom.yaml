@@ -70,11 +70,6 @@ services:
       - "@doctrine.orm.default_entity_manager"
       - '@App\Model\LdapModel'
     public: true
-  # Upload de fichier
-  App\Service\fichier\UploderFileService:
-    arguments:
-      $cheminDeBase: "%env(BASE_PATH_FICHIER)%/magasin/devis/"
-    public: true
 
   App\Service\da\FileUploaderForDAService:
     public: true
