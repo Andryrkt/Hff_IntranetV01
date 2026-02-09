@@ -10,7 +10,6 @@ use App\Controller\Controller;
 use App\Entity\admin\Application;
 use App\Entity\da\DaSoumissionBc;
 use App\Entity\admin\utilisateur\Role;
-use App\Service\da\DemandeApproService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\FormInterface;
 use App\Controller\Traits\da\DaListeTrait;
@@ -33,7 +32,6 @@ class listeDaController extends Controller
 {
     use DaListeTrait;
     use AutorisationTrait;
-    private DemandeApproService $demandeApproService;
 
     // Repository et model
     private DaModel $daModel;
@@ -46,14 +44,12 @@ class listeDaController extends Controller
     public function __construct(
         EntityManagerInterface $entityManager,
         DaModel $daModel,
-        dossierInterventionAtelierModel $dwModel,
-        DemandeApproService $demandeApproService
+        dossierInterventionAtelierModel $dwModel
     ) {
         parent::__construct();
 
         $this->daModel                           = $daModel;
         $this->dwModel                           = $dwModel;
-        $this->demandeApproService               = $demandeApproService;
         $this->agenceRepository                  = $entityManager->getRepository(Agence::class);
         $this->daSoumissionBcRepository          = $entityManager->getRepository(DaSoumissionBc::class);
         $this->ditOrsSoumisAValidationRepository = $entityManager->getRepository(DitOrsSoumisAValidation::class);

@@ -48,10 +48,6 @@ services:
   App\Model\dw\DossierInterventionAtelierModel:
     public: true
 
-  # Services utilisés dans le contrôleur
-  App\Service\da\DemandeApproService:
-    public: true
-
   # Controleurs
   App\Controller\da\ListeDa\listeDaController:
     autowire: true
@@ -60,7 +56,6 @@ services:
       - "@doctrine.orm.default_entity_manager"
       - '@App\Model\da\DaModel'
       - '@App\Model\dw\dossierInterventionAtelierModel'
-      - '@App\Service\da\DemandeApproService'
     public: true
 
   App\Controller\authentification\LoginController:
