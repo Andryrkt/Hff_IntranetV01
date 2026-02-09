@@ -188,15 +188,26 @@ class DaModel extends Model
                         TRIM(a.abse_refp) AS refp,
                         TRIM(a.abse_desi) AS designation,
                         af.afrn_numf AS numero_fournisseur,
-                        fbse_nomfou AS nom_fournisseur,
+                        TRIM(fbse_nomfou) AS nom_fournisseur,
                         af.afrn_pxach AS prix_unitaire 
                     FROM art_bse a 
-                    LEFT JOIN art_frn af ON afrn_constp = abse_constp AND afrn_refp = abse_refp
-                    INNER JOIN art_soc ON asoc_soc = 'HF' AND asoc_constp = a.abse_constp AND asoc_refp = a.abse_refp
-                    INNER JOIN frn_bse ON af.afrn_numf = fbse_numfou
-                        WHERE a.abse_constp IN ('ALI','BOI','CEN','FBU','HAB','OUT')
-                        AND af.afrn_dated = (
-                            SELECT MAX(afrn_dated) FROM art_frn WHERE afrn_constp = a.abse_constp AND afrn_refp = a.abse_refp
+                    LEFT JOIN art_frn af 
+                        ON afrn_constp = abse_constp 
+                        AND afrn_refp = abse_refp
+                    INNER JOIN art_soc 
+                        ON asoc_soc = 'HF' 
+                        AND asoc_constp = a.abse_constp 
+                        AND asoc_refp = a.abse_refp
+                    LEFT JOIN frn_bse 
+                        ON af.afrn_numf = fbse_numfou
+                    WHERE a.abse_constp IN ('ALI','BOI','CEN','FBU','HAB','OUT','INF','MIN')
+                        AND (af.afrn_dated = (
+                                SELECT MAX(afrn_dated) 
+                                FROM art_frn 
+                                WHERE afrn_constp = a.abse_constp 
+                                AND afrn_refp = a.abse_refp
+                            )
+                            OR af.afrn_dated is null
                         )
                     ORDER BY designation";
         $result = $this->connect->executeQuery($statement);
@@ -534,22 +545,24 @@ class DaModel extends Model
                         af.afrn_numf as num_frn, 
                         TRIM(fbse.fbse_nomfou) as nom_frn,
                         af.afrn_pxach as prix_unitaire 
-                    FROM Informix.art_bse abs
-                    LEFT JOIN Informix.art_frn af 
+                    FROM art_bse abs
+                    LEFT JOIN art_frn af 
                         ON af.afrn_constp = abs.abse_constp 
                         AND af.afrn_refp = abs.abse_refp
-                    INNER JOIN Informix.art_soc asoc 
+                    INNER JOIN art_soc asoc 
                         ON asoc.asoc_constp = abs.abse_constp 
                         AND asoc.asoc_refp = abs.abse_refp
-                    INNER JOIN Informix.frn_bse fbse 
+                    LEFT JOIN frn_bse fbse 
                         ON af.afrn_numf = fbse.fbse_numfou
                     WHERE abs.abse_constp IN ('ALI','BOI','CEN','FBU','HAB','OUT','ZDI','INF','MIN')
                         AND asoc.asoc_soc = 'HF'
-                        AND af.afrn_dated = (
-                            SELECT MAX(afrn_dated) 
-                                FROM Informix.art_frn 
-                            WHERE afrn_constp = abs.abse_constp 
-                            AND afrn_refp = abs.abse_refp
+                        AND (af.afrn_dated = (
+                                SELECT MAX(afrn_dated) 
+                                FROM art_frn 
+                                WHERE afrn_constp = a.abse_constp 
+                                AND afrn_refp = a.abse_refp
+                            )
+                            OR af.afrn_dated is null
                         )
         ";
 
