@@ -7,6 +7,7 @@ use App\Entity\dit\DitOrsSoumisAValidation;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\magasin\lcfng\ListeCdeFrnNonGenererModel;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
+use App\Service\ExcelService;
 
 /**
  * @Route("/magasin")
@@ -45,7 +46,7 @@ class ListeCdeFrnNonGenererExportExcelController extends Controller
         $entities = $this->transformationEnTableauAvecEntiter($data);
 
         //creation du fichier excel
-        $this->getExcelService()->createSpreadsheet($entities);
+        (new ExcelService())->createSpreadsheet($entities);
     }
 
     private function transformationEnTableauAvecEntiter(array $data): array

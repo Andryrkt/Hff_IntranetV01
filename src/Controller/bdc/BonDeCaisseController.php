@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\bdc\BonDeCaisseListeTrait;
 use App\Factory\bdc\BonDeCaisseFactory;
+use App\Service\ExcelService;
 
 /**
  * @Route("/compta/demande-de-paiement")
@@ -187,6 +188,6 @@ class BonDeCaisseController extends Controller
         }
 
         // Crée le fichier Excel
-        $this->getExcelService()->createSpreadsheet($data);
+        (new ExcelService())->createSpreadsheet($data);
     }
 }

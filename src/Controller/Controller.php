@@ -113,18 +113,6 @@ class Controller
     }
 
     /**
-     * Récupérer la session
-     */
-    public function getSession(): SessionInterface
-    {
-        $container = $this->getContainer();
-        if (!$container) {
-            throw new \RuntimeException('Le conteneur de services n\'est pas disponible');
-        }
-        return $container->get('session');
-    }
-
-    /**
      * Récupérer le stockage de tokens
      */
     public function getTokenStorage(): TokenStorageInterface
@@ -168,25 +156,6 @@ class Controller
         }
         return $container->get($serviceId);
     }
-
-    /**
-     * Récupérer le service Excel
-     */
-    protected function getExcelService(): \App\Service\ExcelService
-    {
-        $container = $this->getContainer();
-        if (!$container) {
-            throw new \RuntimeException('Le conteneur de services n\'est pas disponible');
-        }
-
-        if ($container->has('App\\Service\\ExcelService')) {
-            return $container->get('App\\Service\\ExcelService');
-        }
-
-        // Fallback : créer une nouvelle instance si le service n'est pas enregistré
-        return new \App\Service\ExcelService();
-    }
-
 
 
     /**

@@ -12,6 +12,7 @@ use App\Model\badm\BadmRechercheModel;
 use App\Controller\Traits\BadmListTrait;
 use App\Controller\Traits\AutorisationTrait;
 use App\Entity\admin\utilisateur\Role;
+use App\Service\ExcelService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -149,7 +150,7 @@ class BadmListeController extends Controller
         }
 
         // Crée le fichier Excel
-        $this->getExcelService()->createSpreadsheet($data);
+        (new ExcelService())->createSpreadsheet($data);
     }
 
     /**

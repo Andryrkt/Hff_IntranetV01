@@ -5,6 +5,7 @@ namespace App\Controller\magasin\ors\Livrer;
 use App\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\magasin\ors\MagasinOrALivrerTrait;
+use App\Service\ExcelService;
 
 /**
  * @Route("/magasin/or")
@@ -56,6 +57,6 @@ class ExportExcelController extends Controller
             ];
         }
 
-        $this->getExcelService()->createSpreadsheet($data);
+        (new ExcelService())->createSpreadsheet($data);
     }
 }

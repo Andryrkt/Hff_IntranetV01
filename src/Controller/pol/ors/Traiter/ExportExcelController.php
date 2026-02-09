@@ -5,6 +5,7 @@ namespace App\Controller\pol\ors\Traiter;
 use App\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\magasin\ors\MagasinOrATraiterTrait;
+use App\Service\ExcelService;
 
 /**
  * @Route("/pol/or-pol")
@@ -32,7 +33,7 @@ class ExportExcelController extends Controller
         // Convertir les entités en tableau de données avec entête
         $data = $this->conversionEnTableauAvecEntete($entities);
 
-        $this->getExcelService()->createSpreadsheet($data);
+        (new ExcelService())->createSpreadsheet($data);
     }
 
     public function conversionEnTableauAvecEntete(array $entities): array

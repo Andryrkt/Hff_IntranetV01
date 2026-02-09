@@ -8,6 +8,7 @@ use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use Doctrine\ORM\EntityRepository;
 use App\Entity\admin\utilisateur\Role;
+use App\Service\ExcelService;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -46,7 +47,7 @@ class ExportExcelController extends Controller
         $data = $this->generateTableData($dasFiltered, $codeCentrale);
 
         // Crée le fichier Excel
-        $this->getExcelService()->createSpreadsheet($data, "donnees_" . date('Y-m-d_H-i-s'));
+        (new ExcelService())->createSpreadsheet($data, "donnees_" . date('Y-m-d_H-i-s'));
     }
 
     public function getDataExcel(array $criteria): array

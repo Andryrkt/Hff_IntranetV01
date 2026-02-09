@@ -5,6 +5,7 @@ namespace App\Controller\da\reappro;
 use App\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\da\reappro\ReportingIpsTrait;
+use App\Service\ExcelService;
 
 /**
  * @Route("/demande-appro")
@@ -52,7 +53,7 @@ class ExportExcelController extends Controller
         $totalRow[10] = number_format($reportingIpsData['montantTotal'], 2, ',', ' '); // Ajoute le montant total formaté dans la 11ème colonne
         $data[] = $totalRow;
 
-        $this->getExcelService()->createSpreadsheet($data);
+        (new ExcelService())->createSpreadsheet($data);
     }
 
     private function convertirObjetEnTableau(array $reportingIpsData, array $data): array

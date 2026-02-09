@@ -5,6 +5,7 @@ namespace App\Controller\pol\cis\Traiter;
 use App\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\magasin\cis\AtraiterTrait;
+use App\Service\ExcelService;
 
 /**
  * @Route("/pol/cis")
@@ -51,6 +52,6 @@ class ExportExcelController extends Controller
             ];
         }
 
-        $this->getExcelService()->createSpreadsheet($data);
+        (new ExcelService())->createSpreadsheet($data);
     }
 }

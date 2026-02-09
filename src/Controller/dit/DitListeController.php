@@ -18,6 +18,7 @@ use App\Controller\Traits\AutorisationTrait;
 use App\Entity\admin\utilisateur\Role;
 use App\Model\dit\DitModel;
 use App\Service\docuware\CopyDocuwareService;
+use App\Service\ExcelService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\historiqueOperation\HistoriqueOperationDITService;
@@ -195,7 +196,7 @@ class DitListeController extends Controller
         // Convertir les entités en tableau de données
         $data = $this->transformationEnTableauAvecEntet($entities);
         //creation du fichier excel
-        $this->getExcelService()->createSpreadsheet($data);
+        (new ExcelService())->createSpreadsheet($data);
     }
 
 

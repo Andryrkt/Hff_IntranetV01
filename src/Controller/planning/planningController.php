@@ -16,6 +16,7 @@ use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
+use App\Service\ExcelService;
 use App\Service\historiqueOperation\HistoriqueOperationDITService;
 use Symfony\Component\Form\FormInterface;
 
@@ -204,7 +205,7 @@ class PlanningController extends Controller
             $data[] = array_merge($row, $moisData);
         }
 
-        $this->getExcelService()->createSpreadsheet($data);
+        (new ExcelService())->createSpreadsheet($data);
     }
 
 
@@ -253,6 +254,6 @@ class PlanningController extends Controller
             ];
         }
 
-        $this->getExcelService()->createSpreadsheet($data);
+        (new ExcelService())->createSpreadsheet($data);
     }
 }

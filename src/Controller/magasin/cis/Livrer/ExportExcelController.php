@@ -5,6 +5,7 @@ namespace App\Controller\magasin\cis\Livrer;
 use App\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\magasin\cis\ALivrerTrait;
+use App\Service\ExcelService;
 
 /**
  * @Route("/magasin/cis")
@@ -49,6 +50,6 @@ class ExportExcelController extends Controller
             ];
         }
 
-        $this->getExcelService()->createSpreadsheet($data);
+        (new ExcelService())->createSpreadsheet($data);
     }
 }

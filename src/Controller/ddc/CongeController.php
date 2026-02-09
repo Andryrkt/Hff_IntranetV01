@@ -12,6 +12,7 @@ use App\Controller\Traits\ConversionTrait;
 use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use App\Controller\Traits\ddc\CongeListeTrait;
+use App\Service\ExcelService;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
@@ -832,7 +833,7 @@ class CongeController extends Controller
             $data = $this->formatListExport($entities);
         }
         // Crée le fichier Excel
-        $this->getExcelService()->createSpreadsheet($data);
+        (new ExcelService())->createSpreadsheet($data);
         exit();
     }
 

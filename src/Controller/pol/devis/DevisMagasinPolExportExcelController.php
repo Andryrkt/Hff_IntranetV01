@@ -11,6 +11,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Model\magasin\devis\ListeDevisMagasinModel;
 use App\Factory\magasin\devis\ListeDevisMagasinFactory;
 use App\Repository\magasin\devis\DevisMagasinRepository;
+use App\Service\ExcelService;
 
 /**
  * @Route("/pol")
@@ -61,7 +62,7 @@ class DevisMagasinPolExportExcelController extends Controller
 
         $data = $this->convertirObjetEnTableau($listeDevisFactory, $data);
 
-        $this->getExcelService()->createSpreadsheet($data);
+        (new ExcelService())->createSpreadsheet($data);
     }
 
     /** 

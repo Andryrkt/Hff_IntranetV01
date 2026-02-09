@@ -7,6 +7,7 @@ use App\Entity\da\DaAfficher;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Repository\da\DaAfficherRepository;
+use App\Service\ExcelService;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -64,7 +65,7 @@ class ExportExcelCdefrnController extends Controller
         $data = $this->convertirObjetEnTableau($dasFiltered, $data);
 
         // Crée le fichier Excel
-        $this->getExcelService()->createSpreadsheet($data, "donnees_" . date('YmdHis'));
+        (new ExcelService())->createSpreadsheet($data, "donnees_" . date('YmdHis'));
     }
 
 

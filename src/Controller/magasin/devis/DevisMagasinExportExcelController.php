@@ -9,6 +9,7 @@ use App\Entity\magasin\devis\DevisMagasin;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\magasin\devis\ListeDevisMagasinModel;
 use App\Factory\magasin\devis\ListeDevisMagasinFactory;
+use App\Service\ExcelService;
 use App\Service\TableauEnStringService;
 
 class DevisMagasinExportExcelController extends Controller
@@ -59,7 +60,7 @@ class DevisMagasinExportExcelController extends Controller
 
         $data = $this->convertirObjetEnTableau($listeDevisFactory, $data);
 
-        $this->getExcelService()->createSpreadsheet($data);
+        (new ExcelService())->createSpreadsheet($data);
     }
 
     /** 

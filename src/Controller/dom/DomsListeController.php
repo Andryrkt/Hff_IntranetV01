@@ -15,6 +15,7 @@ use App\Controller\Traits\dom\DomListeTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\dom\DomListModel;
+use App\Service\ExcelService;
 
 /**
  * @Route("/rh/ordre-de-mission")
@@ -187,7 +188,7 @@ class DomsListeController extends Controller
         }
 
         // Crée le fichier Excel
-        $this->getExcelService()->createSpreadsheet($data);
+        (new ExcelService())->createSpreadsheet($data);
     }
 
 
