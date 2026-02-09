@@ -541,7 +541,7 @@ class DaModel extends Model
                     INNER JOIN Informix.art_soc asoc 
                         ON asoc.asoc_constp = abs.abse_constp 
                         AND asoc.asoc_refp = abs.abse_refp
-                    INNER JOIN Informix.frn_bse fbse 
+                    LEFT JOIN Informix.frn_bse fbse 
                         ON af.afrn_numf = fbse.fbse_numfou
                     WHERE abs.abse_constp IN ('ALI','BOI','CEN','FBU','HAB','OUT','ZDI','INF','MIN')
                         AND asoc.asoc_soc = 'HF'
