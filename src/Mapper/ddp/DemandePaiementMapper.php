@@ -37,6 +37,8 @@ class DemandePaiementMapper
             ->setNomCdeClientExterneDoc($dto->nomCdeClientExterneDoc)
             ->setNumeroDossierDouane($dto->numeroDossierDouane)
             ->setAppro($dto->appro)
+            ->setTypeDa($dto->typeDa)
+            ->setNumeroVersionBc($dto->numeroVersionBc)
         ;
 
         return $ddp;
@@ -45,9 +47,9 @@ class DemandePaiementMapper
     public static function mapUpdate(DemandePaiementDto $dto, DemandePaiement $ddp): DemandePaiement
     {
         return $ddp->setStatut(StatutConstants::STATUT_SOUMIS_A_VALIDATION)
-        ->setMontantApayer($dto->montantAPayer)
-        ->setRibFournisseur($dto->ribFournisseur)
-        ->setEstAutreDoc($dto->estAutresDoc)
+            ->setMontantApayer($dto->montantAPayer)
+            ->setRibFournisseur($dto->ribFournisseur)
+            ->setEstAutreDoc($dto->estAutresDoc)
             ->setNomAutreDoc($dto->nomAutreDoc)
             ->setEstCdeClientExterneDoc($dto->estCdeClientExterneDoc)
             ->setNomCdeClientExterneDoc($dto->nomCdeClientExterneDoc)

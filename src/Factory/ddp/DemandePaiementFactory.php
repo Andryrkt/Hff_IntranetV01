@@ -29,7 +29,7 @@ class DemandePaiementFactory
         $this->docDemandePaiementService = new DocDemandePaiementService($em);
     }
 
-    public function load(int $typeDdp, ?int $numCdeDa, ?int $typeDa, ?string $numDdp, User $user): DemandePaiementDto
+    public function load(int $typeDdp, ?int $numCdeDa, ?int $typeDa, ?int $numeroVersionBc, User $user, $sessionService): DemandePaiementDto
     {
         $typeDemandeRepository = $this->em->getRepository(TypeDemande::class);
         $DaAfficherRepository = $this->em->getRepository(DaAfficher::class);
@@ -59,15 +59,18 @@ class DemandePaiementFactory
         $dto->montantAPayer = $dto->montantRestantApayer;
         $dto->pourcentageAPayer = (int)(($dto->montantAPayer / $dto->montantTotalCde) * 100);
         $dto->numeroDa = $infoDa['numeroDemandeAppro'];
+        $dto->ddpaDa = $sessionService->get('demande_paiement_a_l_avance')['ddpa'] ?? false;
+        $dto->numeroVersionBc = $numeroVersionBc ?? 0;
+        $dto->nomPdfFusionnerBc = $sessionService->get('demande_paiement_a_l_avance')['nom_pdf'] ?? '';
         // recupération des fichiers de devis de la DA
         $dto->fichiersChoisis = $this->recupFichierDevisDa($dto);
+        $dto->appro = $typeDa !== null ? true : false;
 
         // info generale =====================
         $dto->demandeur = $user->getNomUtilisateur();
         $dto->adresseMailDemandeur = $user->getMail();
         $dto->statut = 'Soumis à validation';
-        $dto->appro = $typeDa !== null ? true : false;
-        $dto->numeroDdp = $typeDa !== null ? $numDdp : $this->numeroDdp();
+        $dto->numeroDdp = $this->numeroDdp();
         $dto->numeroVersion = 1;
         $dto->numeroDossierDouane = $this->docDemandePaiementService->recupNumDossierDouane($dto);
         $dto->dateDemande = new \DateTime();

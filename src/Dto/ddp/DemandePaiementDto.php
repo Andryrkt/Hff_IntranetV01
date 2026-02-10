@@ -66,6 +66,9 @@ class DemandePaiementDto
     public $pourcentageAvance;
     public $ratioMontantpayer;
     public $numeroDa;
+    public $ddpaDa = false;
+    public int $numeroVersionBc = 0;
+    public string $nomPdfFusionnerBc = '';
 
     public function montantAPayer(): float
     {

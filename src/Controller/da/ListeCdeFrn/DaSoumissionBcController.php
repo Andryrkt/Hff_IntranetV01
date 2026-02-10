@@ -100,35 +100,26 @@ class DaSoumissionBcController extends Controller
     {
         $form->handleRequest($request);
 
-        // Get the DTO from the form
-        $soumissionBc = $form->getData();
-
-        // Explicitly set numeroCde from the URL parameter, as it's a disabled field
-        // and should retain its value from the initial DTO population.
-        // Ensure the type matches the DTO property
-        $soumissionBc->numeroCde = (string) $numCde; // Cast to string as DTO expects string
-
         if ($form->isSubmitted() && $form->isValid()) {
+            $soumissionBc = $form->getData();
+            $soumissionBc->numeroCde = $numCde; // Set the numeroCde in the DTO
             if ($soumissionBc->demandePaiementAvance) {
                 if ($this->verifierConditionDeBlocage($soumissionBc, $numCde, $numDa)) {
+                    [$numeroVersionMax, $nomPdfFusionner] = $this->traitemnetBc($form, $numCde, $numDa, $numOr, $soumissionBc, false);
 
-                    $this->traitemnetBc($form, $numCde, $numDa, $numOr, $soumissionBc);
-
-                    // enregistrement dans la session des information de Bc
-                    $this->getSessionService()->set('soumissionBc', $soumissionBc);
-
+                    $this->getSessionService()->set('demande_paiement_a_l_avance', ['ddpa' => $soumissionBc->demandePaiementAvance, 'nom_pdf' => $nomPdfFusionner]);
                     // redirection vers la page de creation de demande de paiement
                     $this->redirectToRoute('demande_paiement_da', [
                         'typeDdp' => 1,
                         'numCdeDa' => $numCde,
                         'typeDa' => $typeDa,
-                        'numDdp' => $this->getNumeroDdp()
+                        'numeroVersionBc' => $numeroVersionMax,
                     ]);
                 }
             } else {
                 if ($this->verifierConditionDeBlocage($soumissionBc, $numCde, $numDa)) {
 
-                    $this->traitemnetBc($form, $numCde, $numDa, $numOr, $soumissionBc);
+                    $this->traitemnetBc($form, $numCde, $numDa, $numOr, $soumissionBc, true);
 
                     /** HISTORISATION */
                     $message = "Le document est soumis pour validation";
@@ -141,7 +132,7 @@ class DaSoumissionBcController extends Controller
         }
     }
 
-    private function traitemnetBc($form, $numCde, $numDa, $numOr, DaSoumissionBc $soumissionBc): void
+    private function traitemnetBc($form, $numCde, $numDa, $numOr, DaSoumissionBcDto $soumissionBc, bool $copier): array
     {
         /** ENREGISTREMENT DE FICHIER */
         $nomDeFichiers = $this->enregistrementFichier($form, $numCde, $numDa);
@@ -162,25 +153,15 @@ class DaSoumissionBcController extends Controller
         $this->getEntityManager()->persist($soumissionBc);
         $this->getEntityManager()->flush();
 
-        /** COPIER DANS DW */
-        $this->generatePdf->copyToDWBcDa($nomPdfFusionner, $numDa);
+        if ($copier) {
+            /** COPIER DANS DW */
+            $this->generatePdf->copyToDWBcDa($nomPdfFusionner, $numDa);
 
-        /** modification du table da_afficher */
-        $this->modificationDaAfficher($numDa, $numCde);
-    }
-    private function getNumeroDdp(): string
-    {
-        //recupereation de l'application DDP pour generer le numero de ddp
-        $application = $this->getEntityManager()->getRepository(Application::class)->findOneBy(['codeApp' => 'DDP']);
-        if (!$application) {
-            throw new \Exception("L'application 'DDP' n'a pas été trouvée dans la configuration.");
+            /** modification du table da_afficher */
+            $this->modificationDaAfficher($numDa, $numCde);
         }
-        //generation du numero de ddp
-        $numeroDdp = AutoIncDecService::autoGenerateNumero('DDP', $application->getDerniereId(), true);
-        //mise a jour de la derniere id de l'application DDP
-        AutoIncDecService::mettreAJourDerniereIdApplication($application, $this->getEntityManager(), $numeroDdp);
 
-        return $numeroDdp;
+        return [$numeroVersionMax, $nomPdfFusionner];
     }
 
     private function getTypePayementAvantLivraison(): TypeDemande
@@ -209,14 +190,16 @@ class DaSoumissionBcController extends Controller
         }
     }
 
-    private function ajoutInfoNecesaireSoumissionBc(string $numCde, string $numDa, DaSoumissionBc $soumissionBc, string $nomPdfFusionner, int $numeroVersionMax, string $numOr): DaSoumissionBc
+    private function ajoutInfoNecesaireSoumissionBc(string $numCde, string $numDa, DaSoumissionBcDto $soumissionBc, string $nomPdfFusionner, int $numeroVersionMax, string $numOr): DaSoumissionBc
     {
         $numDit = $this->demandeApproRepository->getNumDitDa($numDa);
         // $numOr = $this->ditRepository->getNumOr($numDit);
 
         $montantBc = $this->getMontantBc($numCde);
 
-        $soumissionBc->setNumeroCde($numCde)
+        $daSoumissionBc = new DaSoumissionBc();
+
+        $daSoumissionBc->setNumeroCde($numCde)
             ->setUtilisateur($this->getUserName())
             ->setPieceJoint1($nomPdfFusionner)
             ->setStatut(DaSoumissionBc::STATUT_SOUMISSION)
@@ -226,7 +209,7 @@ class DaSoumissionBcController extends Controller
             ->setNumeroOR($numOr)
             ->setMontantBc($montantBc)
         ;
-        return $soumissionBc;
+        return $daSoumissionBc;
     }
 
     private function getMontantBc(string $numCde): float
