@@ -13,6 +13,7 @@ use App\Controller\Traits\da\DaAfficherTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\da\modification\DaEditDirectTrait;
+use App\Entity\admin\utilisateur\Role;
 
 /**
  * @Route("/demande-appro")
@@ -46,6 +47,7 @@ class DaEditDirectController extends Controller
         $demandeAppro = $this->demandeApproRepository->find($id); // recupération de la DA
         $numDa = $demandeAppro->getNumeroDemandeAppro();
 
+        $estCreateurDeDADirecte = $this->hasRoles(Role::ROLE_DA_DIRECTE);
         $ancienDals = $this->getAncienDAL($demandeAppro);
 
         $form = $this->getFormFactory()->createBuilder(DemandeApproDirectFormType::class, $demandeAppro)->getForm();
@@ -57,7 +59,7 @@ class DaEditDirectController extends Controller
         return $this->render('da/edit-da-direct.html.twig', [
             'form'              => $form->createView(),
             'observations'      => $observations,
-            'peutModifier'      => $this->peutModifier($demandeAppro->getStatutDal(), $this->estCreateurDeDADirecte()),
+            'peutModifier'      => $this->peutModifier($demandeAppro->getStatutDal(), $estCreateurDeDADirecte),
             'numDa'             => $numDa,
         ]);
     }
