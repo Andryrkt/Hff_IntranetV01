@@ -104,101 +104,79 @@ class DaTimelineService
         foreach ($allDatas as $data) {
             $numBC = $data['numeroCde'];
             $numeroVersion = $data['numeroVersion'];
-            $dateCreationBc = $this->daAfficherRepository->getDateCreationBc($numeroDa, $numeroVersion, $numBC); // Génération BC
 
-            if (!$dateCreationBc) continue;
-
-            // Lien DA → BC
-            $tabTemp[$numBC][] = [
-                'statut'   => $lastDataDA['statutDal'],
-                'dotClass' => $this->styleStatutDA[$lastDataDA['statutDal']],
-                'date'     => $lastDataDA['dateCreation']->format('d/m/Y'), // Date validation DA
-                'nbrJours' => $this->formatDuration(
-                    $this->differenceJoursOuvrables($lastDataDA['dateCreation'], $dateCreationBc)
-                ),
-            ];
-
-            $dateValidation       = $this->daAfficherRepository->getDateValidationBc($numeroDa, $numeroVersion, $numBC); // Validation BC
+            // Récupération de toutes les dates possibles
+            $dateValidationDA     = $lastDataDA['dateCreation'];
+            $dateCreationBc       = $this->daAfficherRepository->getDateCreationBc($numeroDa, $numeroVersion, $numBC);       // Génération BC
+            $dateValidation       = $this->daAfficherRepository->getDateValidationBc($numeroDa, $numeroVersion, $numBC);     // Validation BC
             $dateEnvoi            = $this->daAfficherRepository->getDateEnvoiFournisseur($numeroDa, $numeroVersion, $numBC); // Envoi au fournisseur
-            $dateReceptionArticle = $this->daAfficherRepository->getDateReceptionArticle($numeroDa, $numeroVersion, $numBC); // Reception article
-            $dateLivraisonArticle = $this->daAfficherRepository->getDateLivraisonArticle($numeroDa, $numeroVersion, $numBC); // Article livré
+            $dateReceptionArticle = $this->daAfficherRepository->getDateReceptionArticle($numeroDa, $numeroVersion, $numBC); // Réception des articles
+            $dateLivraisonArticle = $this->daAfficherRepository->getDateLivraisonArticle($numeroDa, $numeroVersion, $numBC); // Livraison des articles
 
-
-            $tabTemp[$numBC][] = [
-                'statut'   => 'Génération BC',
-                'dotClass' => 'bg-bc-a-generer',
-                'date'     => $dateCreationBc->format('d/m/Y'), // Date de génération BC
-                'nbrJours' => $this->formatDuration(
-                    $this->differenceJoursOuvrables(
-                        $dateCreationBc,
-                        $dateValidation ?? $dateEnvoi ?? $dateReceptionArticle ?? $dateLivraisonArticle ?? $today
-                    )
-                ),
-            ];
-
-            if (!$dateValidation && !$dateEnvoi && !$dateReceptionArticle && !$dateLivraisonArticle) {
-                $tabTemp[$numBC][] = $this->createCurrentDateEntry($today);
-                continue;
-            } elseif ($dateValidation) {
-                // Validation BC
-                $tabTemp[$numBC][] = [
+            // Définition de toutes les étapes possibles
+            $etapes = [
+                [
+                    'statut'   => $lastDataDA['statutDal'],
+                    'dotClass' => $this->styleStatutDA[$lastDataDA['statutDal']],
+                    'date'     => $dateValidationDA
+                ],
+                [
+                    'statut'   => 'Génération BC',
+                    'dotClass' => 'bg-bc-a-generer',
+                    'date'     => $dateCreationBc
+                ],
+                [
                     'statut'   => 'Validation BC',
                     'dotClass' => 'bg-bc-valide',
-                    'date'     => $dateValidation->format('d/m/Y'), // Validation BC
-                    'nbrJours' => $this->formatDuration(
-                        $this->differenceJoursOuvrables(
-                            $dateValidation,
-                            $dateEnvoi ?? $dateReceptionArticle ?? $dateLivraisonArticle ?? $today
-                        )
-                    ),
-                ];
-            }
-
-            if (!$dateEnvoi && !$dateReceptionArticle && !$dateLivraisonArticle) {
-                $tabTemp[$numBC][] = $this->createCurrentDateEntry($today);
-                continue;
-            } elseif ($dateEnvoi) {
-                $tabTemp[$numBC][] = [
+                    'date'     => $dateValidation
+                ],
+                [
                     'statut'   => 'BC envoyé au fournisseur',
                     'dotClass' => 'bg-bc-envoye-au-fournisseur',
-                    'date'     => $dateEnvoi->format('d/m/Y'), // Date d'envoi fournisseur
-                    'nbrJours' => $this->formatDuration(
-                        $this->differenceJoursOuvrables(
-                            $dateEnvoi,
-                            $dateReceptionArticle ?? $dateLivraisonArticle ?? $today
-                        )
-                    ),
-                ];
-            }
-
-            if (!$dateReceptionArticle && !$dateLivraisonArticle) {
-                $tabTemp[$numBC][] = $this->createCurrentDateEntry($today);
-                continue;
-            } elseif ($dateReceptionArticle) {
-                $tabTemp[$numBC][] = [
+                    'date'     => $dateEnvoi
+                ],
+                [
                     'statut'   => 'Réception des articles',
                     'dotClass' => 'partiellement-livre',
-                    'date'     => $dateReceptionArticle->format('d/m/Y'), // Date de reception article
-                    'nbrJours' => $this->formatDuration(
-                        $this->differenceJoursOuvrables(
-                            $dateReceptionArticle,
-                            $dateLivraisonArticle ?? $today
-                        )
-                    ),
+                    'date'     => $dateReceptionArticle
+                ],
+                [
+                    'statut'   => 'Livraison des articles',
+                    'dotClass' => 'tout-livre',
+                    'date'     => $dateLivraisonArticle
+                ]
+            ];
+
+            // Filtrer les étapes qui ont une date
+            $etapesValides = array_filter($etapes, fn($etape) => $etape['date'] !== null);
+
+            // S'il n'y a aucune étape valide, passer au suivant
+            if (empty($etapesValides)) continue;
+
+            // Trier les étapes par date (du plus ancien au plus récent)
+            usort($etapesValides, fn($a, $b) => $a['date'] <=> $b['date']);
+
+            // Construire le tableau avec calcul automatique des durées
+            $nbEtapes = count($etapesValides);
+            foreach ($etapesValides as $index => $etape) {
+                // Déterminer la date de fin pour le calcul
+                // Si c'est la dernière étape, pas de durée
+                // Sinon, la date de fin est la date de l'étape suivante
+                $isLastStep = ($index === $nbEtapes - 1);
+                $dateFinCalcul = !$isLastStep ? $etapesValides[$index + 1]['date'] : ($dateLivraisonArticle ? NULL : $today);
+
+                $tabTemp[$numBC][] = [
+                    'statut'   => $etape['statut'],
+                    'dotClass' => $etape['dotClass'],
+                    'date'     => $etape['date']->format('d/m/Y'),
+                    'nbrJours' => $dateFinCalcul
+                        ? $this->formatDuration($this->differenceJoursOuvrables($etape['date'], $dateFinCalcul))
+                        : ''
                 ];
             }
 
-            if (!$dateLivraisonArticle) {
-                $tabTemp[$numBC][] = $this->createCurrentDateEntry($today);
-                continue;
-            } else {
-                $tabTemp[$numBC][] = [
-                    'statut'   => 'Livraison des articles',
-                    'dotClass' => 'tout-livre',
-                    'date'     => $dateLivraisonArticle->format('d/m/Y'), // Date de livraison article
-                    'nbrJours' => '',
-                ];
-            }
+            // Ajouter la date actuelle si le processus n'est pas terminé
+            if (!$dateLivraisonArticle) $tabTemp[$numBC][] = $this->createCurrentDateEntry($today);
         }
 
         return $tabTemp;

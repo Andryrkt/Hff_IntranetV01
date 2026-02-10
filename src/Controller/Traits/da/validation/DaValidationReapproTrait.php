@@ -183,7 +183,7 @@ trait DaValidationReapproTrait
      */
     private function copyPDFToDW(string $numDa)
     {
-        $this->genererPdfDaReappro->copyToDWDaAValiderReappro($numDa, "");
+        $this->genererPdfDaReappro->copyToDWDaAValiderReapproMensuel($numDa, "");
     }
 
     /**

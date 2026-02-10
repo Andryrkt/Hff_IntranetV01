@@ -20,15 +20,30 @@ class PointageRelanceRepository extends EntityRepository
         return $result[0]['dateDeRelance'] ?? null;
     }
 
-    public function findNombreDeRelances(string $numeroDevis): int
+    public function findNumeroRelance(string $numeroDevis): ?int
     {
         $count = $this->createQueryBuilder('pr')
-            ->select('COUNT(pr.id)')
+            ->select('pr.numeroRelance')
             ->where('pr.numeroDevis = :numeroDevis')
             ->setParameter('numeroDevis', $numeroDevis)
+            ->setMaxResults(1)
             ->getQuery()
-            ->getSingleScalarResult();
+            ->getScalarResult();
 
-        return (int)$count;
+        return is_numeric($count[0]['numeroRelance'] ?? null) ? (int)$count[0]['numeroRelance'] : null;
+    }
+
+    public function getNumeroRelanceMax(int $numeroDevis): ?int
+    {
+        $numeroVersionMax = $this->createQueryBuilder('pr')
+            ->select('pr.numeroRelance')
+            ->where('pr.numeroDevis = :numDevis')
+            ->setParameter('numDevis', $numeroDevis)
+            ->orderBy('pr.numeroRelance', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getScalarResult();
+
+        return $numeroVersionMax[0]['numeroRelance'] ?? null;
     }
 }
