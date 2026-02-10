@@ -3,6 +3,7 @@
 namespace App\Form\admin;
 
 use App\Entity\admin\Application;
+use App\Entity\admin\Societte;
 use App\Entity\admin\utilisateur\Profil;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -16,15 +17,23 @@ class ProfilType extends AbstractType
     {
         $builder
             ->add('designation', TextType::class, [
-                'label' => 'Désignation du profil (100 caractères max)',
+                'label' => 'Désignation du profil (100 caractères max) *',
             ])
             ->add('reference', TextType::class, [
-                'label' => 'Référence du profil (10 caractères max)',
+                'label' => 'Référence du profil (10 caractères max) *',
+            ])
+            ->add('societe', EntityType::class, [
+                'label'        => 'Société associée *',
+                'placeholder'  => '-- Sélectionner une société --',
+                'class'        => Societte::class,
+                'choice_label' => fn(Societte $s) => $s->getCodeSociete() . ' — ' . $s->getNom(), // ou refVignette, ou un champ visible
+                'multiple'     => false,
+                'expanded'     => false,
             ])
             ->add('applications', EntityType::class, [
-                'label'        => 'Applications autorisées',
+                'label'        => 'Applications autorisées *',
                 'class'        => Application::class,
-                'choice_label' => 'codeApp', // ou refVignette, ou un champ visible
+                'choice_label' => fn(Application $a) => $a->getCodeApp() . ' — ' . $a->getNom(), // ou refVignette, ou un champ visible
                 'multiple'     => true,
                 'expanded'     => false, // true = checkboxes
                 'mapped'       => false, // on gère manuellement la synchronisation avec ApplicationProfil
