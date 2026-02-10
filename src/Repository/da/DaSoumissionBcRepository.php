@@ -2,6 +2,7 @@
 
 namespace App\Repository\da;
 
+use App\Entity\da\DaSoumissionBc;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\EntityRepository;
 
