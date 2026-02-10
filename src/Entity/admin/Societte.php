@@ -8,6 +8,7 @@ use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DemandeIntervention;
+use App\Entity\admin\utilisateur\Profil;
 use Doctrine\Common\Collections\Collection;
 use App\Repository\admin\SocietteRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -40,7 +41,7 @@ class Societte
 
 
     /**
-     * @ORM\OneToMany(targetEntity=Badm::class, mappedBy="statutDemande")
+     * @ORM\OneToMany(targetEntity=DemandeIntervention::class, mappedBy="codeSociete")
      */
     private $demandeInterventions;
 
@@ -49,11 +50,16 @@ class Societte
      */
     private $users;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Profil::class, mappedBy="societe", cascade={"persist"})
+     */
+    private Collection $profils;
+
     public function __construct()
     {
         $this->demandeInterventions = new ArrayCollection();
         $this->users = new ArrayCollection();
-
+        $this->profils = new ArrayCollection();
     }
 
     public function getId(): int
@@ -68,7 +74,7 @@ class Societte
         return $this->nom;
     }
 
-  
+
     public function setNom($nom): self
     {
         $this->nom = $nom;
@@ -81,14 +87,14 @@ class Societte
         return $this->codeSociete;
     }
 
-    
+
     public function setCodeSociete($codeSociete): self
     {
         $this->codeSociete = $codeSociete;
 
         return $this;
     }
-    
+
     public function getDemandeInterventions()
     {
         return $this->demandeInterventions;
@@ -120,10 +126,10 @@ class Societte
         return $this;
     }
 
-    
-     /**
+
+    /**
      * @return Collection|User[]
-     */ 
+     */
     public function getUsers(): Collection
     {
         return $this->users;
@@ -147,13 +153,40 @@ class Societte
                 $user->setSociettes(null);
             }
         }
-        
+
         return $this;
     }
 
     public function setUsers($users): self
     {
         $this->users = $users;
+
+        return $this;
+    }
+
+    public function getProfils(): Collection
+    {
+        return $this->profils;
+    }
+
+    public function addProfil(Profil $profil): self
+    {
+        if (!$this->profils->contains($profil)) {
+            $this->profils[] = $profil;
+            $profil->setSociete($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProfil(Profil $profil): self
+    {
+        if ($this->profils->contains($profil)) {
+            $this->profils->removeElement($profil);
+            if ($profil->getSociete() === $this) {
+                $profil->setSociete(null);
+            }
+        }
 
         return $this;
     }

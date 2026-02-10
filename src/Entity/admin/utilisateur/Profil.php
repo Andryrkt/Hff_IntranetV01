@@ -5,6 +5,7 @@ namespace App\Entity\admin\utilisateur;
 use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\ApplicationProfil;
+use App\Entity\admin\Societte;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 
@@ -33,6 +34,12 @@ class Profil
      * @ORM\Column(type="string", name="designation_profil", length=100)
      */
     private $designation;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Societte::class, inversedBy="profils")
+     * @ORM\JoinColumn(name="societe_id", referencedColumnName="id", nullable=true)
+     */
+    private ?Societte $societe = null;
 
     /**
      * @ORM\OneToMany(targetEntity=User::class, mappedBy="profil")
@@ -179,6 +186,24 @@ class Profil
     public function removeApplicationProfil(ApplicationProfil $applicationProfil): self
     {
         $this->applicationProfils->removeElement($applicationProfil);
+
+        return $this;
+    }
+
+    /**
+     * Get the value of societe
+     */
+    public function getSociete(): ?Societte
+    {
+        return $this->societe;
+    }
+
+    /**
+     * Set the value of societe
+     */
+    public function setSociete(?Societte $societe): self
+    {
+        $this->societe = $societe;
 
         return $this;
     }

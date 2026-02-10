@@ -28,6 +28,7 @@ CREATE TABLE profil (
     designation_profil VARCHAR(100) NOT NULL,
     date_creation DATETIME2(0) NOT NULL,
     date_modification DATETIME2(0) NULL,
+    societe_id INT NULL,
     CONSTRAINT PK_profil PRIMARY KEY (id)
 ); 
 
