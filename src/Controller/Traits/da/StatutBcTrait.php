@@ -6,6 +6,7 @@ use DateTime;
 use App\Entity\da\DaAfficher;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaSoumissionBc;
+use App\Entity\da\DaSoumissionFacBl;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Entity\dw\DwBcAppro;
 use App\Model\magasin\MagasinListeOrLivrerModel;
@@ -107,6 +108,9 @@ trait StatutBcTrait
 
         /** 7.Statut DA Clôturée || Non dispo || DA avec DIT et numéro OR null || numéro OR non vide et statut OR non vide || infoDaDirect ou situationCde est vide */
         if ($statutDa === DemandeAppro::STATUT_CLOTUREE || $DaAfficher->getNonDispo() || ($numeroOr == null && $daViaOR) || ($numeroOr != null && empty($statutOr)) || $this->aSituationCde($situationCde, $daViaOR)) {
+            if ($statutOr === DitOrsSoumisAValidation::STATUT_VALIDE) {
+                return 'PAS DANS OR';
+            }
             return $statutBc;
         }
 
@@ -181,10 +185,15 @@ trait StatutBcTrait
 
         $dateCreationBc = $this->daModel->getDateCreationBc($numcde);
         $dateValidationBc = $em->getRepository(DwBcAppro::class)->getDateValidationBC($numcde);
+        $dateReceptionArticle = $this->daModel->getDateReceptionArticle($numcde);
+        $dateLivraisonArticle = $em->getRepository(DaSoumissionFacBl::class)->getDateLivraisonArticle($numcde);
 
         $DaAfficher
             ->setDateCreationBc($dateCreationBc)
-            ->setDateValidationBc($dateValidationBc);
+            ->setDateValidationBc($dateValidationBc)
+            ->setDateReceptionArticle($dateReceptionArticle)
+            ->setDateLivraisonArticle($dateLivraisonArticle)
+        ;
     }
 
     private function getInfoCde($infoDaDirect, $situationCde, $daDirect, $daViaOR, $daReappro, $numeroOr, $em): array

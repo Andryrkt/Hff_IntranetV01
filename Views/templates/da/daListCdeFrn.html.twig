@@ -29,7 +29,7 @@
 			<thead class="table-dark align-middle">
 				<tr>
 					<th class="text-center">N° DA</th>
-					<th class="text-center">N° DA réelles</th>
+					<th class="text-center">N° DA réel</th>
 					<th class="text-center">Type de demande</th>
 					<th class="text-center">N° DIT</th>
 					<th class="text-center">Niv. Urgence</th>
@@ -67,7 +67,7 @@
 						<td class="text-center fs-7 fw-bold" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ row.objet }}">
 							{{ row.numDaParent }}
 						</td>
-						<td>
+						<td class="">
 							<a href="{{ row.urlDetail }}" target="_blank">{{ row.numeroDemandeAppro }}</a>
 						</td>
 						<td class="text-center" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ row.numeroDemandeAppro }}">

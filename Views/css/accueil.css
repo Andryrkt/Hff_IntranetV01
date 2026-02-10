@@ -32,8 +32,13 @@ body {
   -webkit-backdrop-filter: blur(16px) saturate(140%);
   border: 2px solid rgba(248, 249, 250, 0.25);
   overflow: hidden;
-  transition: 0.5s box-shadow, 0.5s border, 0.7s transform, 1s background;
-  box-shadow: inset 0 6px 8px rgba(248, 249, 250, 0.45),
+  transition:
+    0.5s box-shadow,
+    0.5s border,
+    0.7s transform,
+    1s background;
+  box-shadow:
+    inset 0 6px 8px rgba(248, 249, 250, 0.45),
     0 5px 10px rgba(0, 0, 0, 0.1); /* ombre portée */
 }
 
@@ -73,7 +78,8 @@ body {
   transform: translateY(8px) scale(1.02);
   background: linear-gradient(rgb(239, 239, 239), #fff);
   border: 1px solid #ffffff44;
-  box-shadow: inset 0 6px 8px rgba(248, 249, 250, 0.45),
+  box-shadow:
+    inset 0 6px 8px rgba(248, 249, 250, 0.45),
     0 15px 25px rgba(0, 0, 0, 0.2); /* ombre renforcée */
 }
 .vignette:hover::after,
@@ -157,7 +163,6 @@ body {
 
 .news-ticker ul ul li {
   margin-left: 0.2rem; /* indentation hiérarchie */
-  font-style: italic;
   font-size: 0.6rem;
 }
 
@@ -186,7 +191,9 @@ body {
   background: rgba(251, 187, 1, 0.15);
   border-radius: 14px;
   color: #333;
-  transition: background 0.3s ease, transform 0.3s ease;
+  transition:
+    background 0.3s ease,
+    transform 0.3s ease;
 }
 .icon-container-bg {
   position: absolute;
@@ -211,12 +218,16 @@ body {
 }
 .vignette:hover .icon-container-bg {
   transform: rotate(-10deg) scale(1.02);
-  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.5s ease;
+  transition:
+    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.5s ease;
 }
 .vignette:hover .icon-container-bg i {
   color: #fbbb01;
   opacity: 1;
-  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.5s ease;
+  transition:
+    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.5s ease;
 }
 
 /* ========================= */
@@ -384,6 +395,8 @@ kbd {
   border-radius: 6px;
   background: #111; /* fond noir */
   color: #fff; /* texte blanc */
-  box-shadow: 0 2px 0 #000, 0 3px 6px rgba(0, 0, 0, 0.5);
+  box-shadow:
+    0 2px 0 #000,
+    0 3px 6px rgba(0, 0, 0, 0.5);
   margin: 0 3px;
 }

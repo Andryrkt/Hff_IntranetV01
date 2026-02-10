@@ -111,7 +111,7 @@ trait DaAffectationTrait
             $genererPdfReappro->genererPdfBonAchatValide($demandeAppro, $observations, $monthsList, $dataHistoriqueConsommation);
 
             // Dépôt du document dans DocuWare
-            $genererPdfReappro->copyToDWDaAValiderReappro($numeroDemandeAppro, "");
+            $genererPdfReappro->copyToDWDaAValiderReapproPonctuel($numeroDemandeAppro, "");
 
             // Enregistrement dans la table de Soumission
             $this->ajouterDansDaSoumisAValidation($numeroDemandeAppro, $demandeAppro->getDemandeur());

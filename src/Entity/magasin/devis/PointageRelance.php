@@ -51,6 +51,10 @@ class PointageRelance
      * @ORM\Column(type="string", length=2, name="agence", nullable=true)
      */
     private ?string $agence = null;
+    /**
+     * @ORM\Column(type="integer", name="numero_relance", nullable=true)
+     */
+    private ?int $numeroRelance = null;
 
     /** =========================================
      * GETTERS & SETTERS
@@ -164,6 +168,24 @@ class PointageRelance
     public function setAgence(?string $agence): self
     {
         $this->agence = $agence;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroRelance
+     */
+    public function getNumeroRelance(): ?int
+    {
+        return $this->numeroRelance;
+    }
+
+    /**
+     * Set the value of numeroRelance
+     */
+    public function setNumeroRelance(?int $numeroRelance): self
+    {
+        $this->numeroRelance = $numeroRelance;
 
         return $this;
     }

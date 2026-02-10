@@ -3,12 +3,16 @@
 namespace App\Controller\magasin\devis;
 
 use App\Controller\Controller;
+use App\Api\magasin\AutocompletionApi;
+use App\Service\autres\AutoIncDecService;
+use App\Entity\magasin\devis\DevisMagasin;
 use App\Dto\Magasin\Devis\PointageRelanceDto;
-use App\Factory\magasin\devis\PointageRelanceFactory;
+use App\Entity\magasin\devis\PointageRelance;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Form\magasin\devis\PointageRelanceType;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Factory\magasin\devis\PointageRelanceFactory;
 
 /**
  * @Route("/magasin/dematerialisation")
@@ -52,13 +56,32 @@ class PointageRelanceController extends Controller
         $form->submit($data);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $pointageRelanceEntity = (new PointageRelanceFactory())->map($data, $this->getUserName());
+            $pointageRelanceEntity = (new PointageRelanceFactory())->map($data, $this->getUserName(), $this->numeroRelance($data['numeroDevis']));
             $this->getEntityManager()->persist($pointageRelanceEntity);
             $this->getEntityManager()->flush();
+
+            // Mettre à jour le statut de relance du devis
+            $this->modifictionTableDevisSoumisAValidationNeg($pointageRelanceEntity);
+
             return $this->jsonResponse(['success' => true, 'message' => 'Formulaire soumis avec succès.']);
         }
 
         // Si le formulaire n'est pas valide, renvoyer les erreurs.
         return $this->jsonResponse(['success' => false, 'message' => 'Erreurs de validation.', 'errors' => (string) $form->getErrors(true, false)], 400);
+    }
+
+    public function numeroRelance(int $numeroDevis): int
+    {
+        $numeroRelanceMax = $this->getEntityManager()->getRepository(PointageRelance::class)->getNumeroRelanceMax($numeroDevis);
+        return AutoIncDecService::autoIncrement($numeroRelanceMax);
+    }
+
+    private function modifictionTableDevisSoumisAValidationNeg(PointageRelance $pointageRelanceEntity): void
+    {
+        $devis = $this->getEntityManager()->getRepository(DevisMagasin::class)->getDevis($pointageRelanceEntity->getNumeroDevis());
+        if ($devis) {
+            $devis->setStatutRelance('Relancé');
+            $this->getEntityManager()->flush();
+        }
     }
 }

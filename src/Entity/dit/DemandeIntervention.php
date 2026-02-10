@@ -560,6 +560,11 @@ class DemandeIntervention
     private bool $estAtePolTana = false;
 
     /**
+     * @ORM\OneToMany(targetEntity=DemandeAppro::class, mappedBy="dit")
+     */
+    private Collection $demandeAppro;
+
+    /**
      * @ORM\Column(type="boolean", name="pdf_deposer_dw", nullable=true)
      */
     private $pdfDeposerDw;
@@ -1847,6 +1852,31 @@ class DemandeIntervention
         $this->estAtePolTana = $estAtePolTana;
 
         return $this;
+    }
+
+    /**
+     * Get the value of DemandeAppro
+     */
+    public function getDemandeAppro(): Collection
+    {
+        return $this->demandeAppro;
+    }
+
+    public function addDemandeAppro(DemandeAppro $demandeAppro): void
+    {
+        if (!$this->demandeAppro->contains($demandeAppro)) {
+            $this->demandeAppro[] = $demandeAppro;
+            $demandeAppro->setDit($this);
+        }
+    }
+
+    public function removeDemandeAppro(DemandeAppro $demandeAppro): void
+    {
+        if ($this->demandeAppro->removeElement($demandeAppro)) {
+            if ($demandeAppro->getDit() === $this) {
+                $demandeAppro->setDit(null);
+            }
+        }
     }
 
     /**

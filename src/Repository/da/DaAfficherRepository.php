@@ -509,12 +509,24 @@ class DaAfficherRepository extends EntityRepository
             ->andWhere('d.deleted = 0')
             ->groupBy('d.numeroDemandeApproMere, d.numeroDemandeAppro');
 
-        // Appliquer les filtres sur la sous-requête
+        // Appliquer les filtres sur la sous-requête (C'EST ICI QUE ÇA COMPTE)
         $this->applyDynamicFilters($subQb, "d", $criteria);
         $this->applyAgencyServiceFilters($subQb, "d", $criteria, $user, $idAgenceUser, $estAppro, $estAtelier, $estAdmin);
         $this->applyDateFilters($subQb, "d", $criteria);
         $this->applyFilterAppro($subQb, "d", $estAppro, $estAdmin);
         $this->applyStatutsFilters($subQb, "d", $criteria);
+
+        // IMPORTANT : il faut faire une sous-requête pour filtrer sur la dernière version
+        // On crée une sous-sous-requête pour trouver les versions max par DA
+        $maxVersionSubQb = $this->_em->createQueryBuilder();
+        $maxVersionSubQb->select('MAX(d2.numeroVersion)')
+            ->from(DaAfficher::class, 'd2')
+            ->andWhere('d2.deleted = 0')
+            ->andWhere('d2.numeroDemandeApproMere = d.numeroDemandeApproMere')
+            ->andWhere('d2.numeroDemandeAppro = d.numeroDemandeAppro');
+
+        // Ajouter la condition sur la version max
+        $subQb->andWhere('d.numeroVersion = (' . $maxVersionSubQb->getDQL() . ')');
 
         // ---------------------------------
         // 2. Compter distinctement les DA mères
@@ -538,7 +550,7 @@ class DaAfficherRepository extends EntityRepository
         $paginatedMeresQb->resetDQLPart('select');
         $paginatedMeresQb->resetDQLPart('groupBy');
 
-        // ✅ Sélectionner les colonnes nécessaires pour le ORDER BY (pour SQL Server)
+        // Sélectionner les colonnes nécessaires pour le ORDER BY
         $paginatedMeresQb->select('d.numeroDemandeApproMere')
             ->addSelect('MAX(d.dateDemande) as maxDateDemande')
             ->groupBy('d.numeroDemandeApproMere');
@@ -556,10 +568,10 @@ class DaAfficherRepository extends EntityRepository
 
         if (empty($paginatedMeres)) {
             return [
-                'results'     => [],
-                'totalItems'  => 0,
+                'data'        => [],
+                'totalItems'  => $totalItems,
                 'currentPage' => $page,
-                'lastPage'    => 0,
+                'lastPage'    => $lastPage,
             ];
         }
 
@@ -570,8 +582,8 @@ class DaAfficherRepository extends EntityRepository
 
         $this->handleOrderBy($versionsQb, 'd', $criteria, true);
         $versionsQb
-            ->addOrderBy('MAX(d.numeroDemandeApproMere)', 'DESC')
-            ->addOrderBy('MAX(d.numeroDemandeAppro)', 'DESC');
+            ->addOrderBy('d.numeroDemandeApproMere', 'DESC')
+            ->addOrderBy('d.numeroDemandeAppro', 'DESC');
 
         $latestVersions = $versionsQb->getQuery()
             ->getArrayResult();
@@ -588,19 +600,15 @@ class DaAfficherRepository extends EntityRepository
         $qb->andWhere('d.numeroDemandeApproMere IN (:paginatedMeres)')
             ->setParameter('paginatedMeres', $paginatedMeres);
 
-        // Condition sur les versions maximales (à partir de la sous-requête)
-        $orX = $qb->expr()->orX();
-        foreach ($latestVersions as $i => $version) {
-            $orX->add(
-                $qb->expr()->andX(
-                    $qb->expr()->eq('d.numeroDemandeAppro', ':numDa' . $i),
-                    $qb->expr()->eq('d.numeroVersion', ':maxVer' . $i)
-                )
-            );
-            $qb->setParameter('numDa' . $i, $version['numeroDemandeAppro']);
-            $qb->setParameter('maxVer' . $i, $version['maxVersion']);
-        }
-        $qb->andWhere($orX);
+        // IMPORTANT : Encore une fois, on s'assure qu'on prend la dernière version
+        $maxVersionSubQb2 = $this->_em->createQueryBuilder();
+        $maxVersionSubQb2->select('MAX(d2.numeroVersion)')
+            ->from(DaAfficher::class, 'd2')
+            ->andWhere('d2.deleted = 0')
+            ->andWhere('d2.numeroDemandeApproMere = d.numeroDemandeApproMere')
+            ->andWhere('d2.numeroDemandeAppro = d.numeroDemandeAppro');
+
+        $qb->andWhere('d.numeroVersion = (' . $maxVersionSubQb2->getDQL() . ')');
 
         // Appliquer les mêmes filtres sur la requête principale
         $this->applyDynamicFilters($qb, "d", $criteria);
@@ -665,6 +673,17 @@ class DaAfficherRepository extends EntityRepository
                 ], ArrayParameterType::STRING);
         }
     }
+    private function supprimerQuatriemeLettrePD3($chaine)
+    {
+        if (strlen($chaine) > 11 && isset($chaine[3])) {
+            $lettresASupprimer = ['P', 'p', 'D', 'd'];
+
+            if (in_array($chaine[3], $lettresASupprimer, true)) {
+                $chaine = substr($chaine, 0, 3) . substr($chaine, 4);
+            }
+        }
+        return $chaine;
+    }
 
     private function applyDynamicFilters(QueryBuilder $qb, string $qbLabel, array $criteria, bool $estCdeFrn = false): void
     {
@@ -691,8 +710,9 @@ class DaAfficherRepository extends EntityRepository
 
         foreach ($map as $key => $field) {
             if (!empty($criteria[$key])) {
+                $criteria = $key === 'numDa' ? $this->supprimerQuatriemeLettrePD3($criteria[$key]) : $criteria[$key];
                 $qb->andWhere("$field = :$key")
-                    ->setParameter($key, $criteria[$key]);
+                    ->setParameter($key, $criteria);
             }
         }
 
@@ -1005,7 +1025,7 @@ class DaAfficherRepository extends EntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function getTimelineDataForBC(string $numDa)
+    public function getAllNumCdeAndVmax(string $numDa)
     {
         $numeroVersionMax = $this->createQueryBuilder('d')
             ->select('MAX(d.numeroVersion)')
@@ -1017,7 +1037,7 @@ class DaAfficherRepository extends EntityRepository
         if (!$numeroVersionMax) return [];
 
         $qb = $this->createQueryBuilder('d')
-            ->select('DISTINCT d.numeroCde', 'd.dateCreationBc', 'd.dateValidationBc', 'd.dateEnvoiFournisseur')
+            ->select('DISTINCT d.numeroCde', 'd.numeroVersion')
             ->where('d.numeroDemandeAppro = :numDa')
             ->andWhere('d.numeroVersion = :numeroVersionMax')
             ->andWhere('d.numeroCde IS NOT NULL')
@@ -1027,8 +1047,103 @@ class DaAfficherRepository extends EntityRepository
                 'numDa' => $numDa,
                 'numeroVersionMax' => $numeroVersionMax
             ])
-            ->orderBy('d.dateCreationBc', 'ASC');
+            ->orderBy('d.numeroCde', 'ASC');
 
         return $qb->getQuery()->getResult();
+    }
+
+    public function getDateCreationBc(string $numDa, int $numeroVersion, string $numeroCde): ?\DateTimeInterface
+    {
+        $result = $this->createQueryBuilder('d')
+            ->select('MIN(d.dateCreationBc)')
+            ->where('d.numeroDemandeAppro = :numDa')
+            ->andWhere('d.numeroVersion = :numeroVersion')
+            ->andWhere('d.numeroCde = :numeroCde')
+            ->andWhere('d.dateCreationBc IS NOT NULL')
+            ->setParameters([
+                'numDa' => $numDa,
+                'numeroVersion' => $numeroVersion,
+                'numeroCde' => $numeroCde
+            ])
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $result ? new \DateTime($result) : null;
+    }
+
+    public function getDateValidationBc(string $numDa, int $numeroVersion, string $numeroCde): ?\DateTimeInterface
+    {
+        $result = $this->createQueryBuilder('d')
+            ->select('MIN(d.dateValidationBc)')
+            ->where('d.numeroDemandeAppro = :numDa')
+            ->andWhere('d.numeroVersion = :numeroVersion')
+            ->andWhere('d.numeroCde = :numeroCde')
+            ->andWhere('d.dateValidationBc IS NOT NULL')
+            ->setParameters([
+                'numDa' => $numDa,
+                'numeroVersion' => $numeroVersion,
+                'numeroCde' => $numeroCde
+            ])
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $result ? new \DateTime($result) : null;
+    }
+
+    public function getDateEnvoiFournisseur(string $numDa, int $numeroVersion, string $numeroCde): ?\DateTimeInterface
+    {
+        $result = $this->createQueryBuilder('d')
+            ->select('MIN(d.dateEnvoiFournisseur)')
+            ->where('d.numeroDemandeAppro = :numDa')
+            ->andWhere('d.numeroVersion = :numeroVersion')
+            ->andWhere('d.numeroCde = :numeroCde')
+            ->andWhere('d.dateEnvoiFournisseur IS NOT NULL')
+            ->setParameters([
+                'numDa' => $numDa,
+                'numeroVersion' => $numeroVersion,
+                'numeroCde' => $numeroCde
+            ])
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $result ? new \DateTime($result) : null;
+    }
+
+    public function getDateReceptionArticle(string $numDa, int $numeroVersion, string $numeroCde): ?\DateTimeInterface
+    {
+        $result = $this->createQueryBuilder('d')
+            ->select('MIN(d.dateReceptionArticle)')
+            ->where('d.numeroDemandeAppro = :numDa')
+            ->andWhere('d.numeroVersion = :numeroVersion')
+            ->andWhere('d.numeroCde = :numeroCde')
+            ->andWhere('d.dateReceptionArticle IS NOT NULL')
+            ->setParameters([
+                'numDa' => $numDa,
+                'numeroVersion' => $numeroVersion,
+                'numeroCde' => $numeroCde
+            ])
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $result ? new \DateTime($result) : null;
+    }
+
+    public function getDateLivraisonArticle(string $numDa, int $numeroVersion, string $numeroCde): ?\DateTimeInterface
+    {
+        $result = $this->createQueryBuilder('d')
+            ->select('MIN(d.dateLivraisonArticle)')
+            ->where('d.numeroDemandeAppro = :numDa')
+            ->andWhere('d.numeroVersion = :numeroVersion')
+            ->andWhere('d.numeroCde = :numeroCde')
+            ->andWhere('d.dateLivraisonArticle IS NOT NULL')
+            ->setParameters([
+                'numDa' => $numDa,
+                'numeroVersion' => $numeroVersion,
+                'numeroCde' => $numeroCde
+            ])
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $result ? new \DateTime($result) : null;
     }
 }

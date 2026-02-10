@@ -2,6 +2,7 @@
 
 namespace App\Controller\magasin\devis;
 
+use App\Constants\Magasin\Devis\PointageRelanceStatutConstant;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Controller\Controller;
@@ -19,6 +20,7 @@ use App\Factory\magasin\devis\ListeDevisSearchDto;
 use App\Form\magasin\devis\DevisMagasinSearchType;
 use App\Model\magasin\devis\ListeDevisMagasinModel;
 use App\Factory\magasin\devis\ListeDevisMagasinFactory;
+use App\Model\Traits\ConversionModel;
 
 /**
  * @Route("/magasin/dematerialisation")
@@ -26,10 +28,12 @@ use App\Factory\magasin\devis\ListeDevisMagasinFactory;
 class ListeDevisMagasinController extends Controller
 {
     use AutorisationTrait;
+    use ConversionModel;
 
     private $styleStatutDw = [];
     private $styleStatutBc = [];
     private $statutIPS = [];
+    private $styleStatutPR = [];
 
     private ListeDevisMagasinModel $listeDevisMagasinModel;
 
@@ -56,6 +60,11 @@ class ListeDevisMagasinController extends Controller
             BcMagasin::STATUT_SOUMIS_VALIDATION => 'bg-bc-soumis-validation',
             BcMagasin::STATUT_EN_ATTENTE_BC => 'bg-bc-en-attente',
             BcMagasin::STATUT_VALIDER => 'bg-bc-valide'
+        ];
+
+        $this->styleStatutPR = [
+            PointageRelanceStatutConstant::STATUT_POINTAGE_RELANCE_A_RELANCER => 'bg-danger text-white',
+            PointageRelanceStatutConstant::STATUT_POINTAGE_RELANCE_RELANCE => 'bg-warning'
         ];
 
         $this->statutIPS = [
@@ -98,7 +107,8 @@ class ListeDevisMagasinController extends Controller
         $this->getSessionService()->set('criteria_for_excel_liste_devis_magasin', $criteriaForSession);
 
         $listeDevisFactory = $this->recuperationDonner($criteria);
-        $preparedDatas     = $this->prepareDatasForView($listeDevisFactory, $this->styleStatutDw, $this->styleStatutBc, $this->statutIPS);
+        $preparedDatas     = $this->prepareDatasForView($listeDevisFactory, $this->styleStatutDw, $this->styleStatutBc, $this->statutIPS, $this->styleStatutPR);
+
 
         // affichage de la liste des devis magasin
         return $this->render('magasin/devis/listeDevisMagasin.html.twig', [
@@ -201,10 +211,14 @@ class ListeDevisMagasinController extends Controller
                     $devisIp['url_po'] = $_ENV['BASE_PATH_FICHIER_COURT'] . '/' . $dwBcClientNegoce['path'];
                 }
                 $dateRelance = $pointageRelanceRepository->findDernierDateDeRelance($numeroDevis);
-                $nombreDeRelance = $pointageRelanceRepository->findNombreDeRelances($numeroDevis);
+                $numeroRelance = $pointageRelanceRepository->findNumeroRelance($numeroDevis);
+                $statutRelance = $this->listeDevisMagasinModel->getStatutRelance($numeroDevis);
+                // $relances = $this->getEntityManager()->getRepository(PointageRelance::class)->findBy(['numeroDevis' => $numeroDevis], ['dateDeRelance' => 'DESC']);
 
                 $devisIp['date_derniere_relance'] = $dateRelance;
-                $devisIp['nombre_de_relance'] = $nombreDeRelance;
+                $devisIp['numero_relance'] = $numeroRelance;
+                $devisIp['statut_relance'] = $statutRelance ?? null;
+                $devisIp['relances'] = [];
             }
 
             // Application des filtres critères
@@ -344,7 +358,7 @@ class ListeDevisMagasinController extends Controller
      * 
      * @return array
      */
-    private function prepareDatasForView(array $listeDevisFactory, array $styleStatutDw, array $styleStatutBc, array $statutIpsArray): array
+    private function prepareDatasForView(array $listeDevisFactory, array $styleStatutDw, array $styleStatutBc, array $statutIpsArray, array $styleStatutPR): array
     {
         $data = [];
         foreach ($listeDevisFactory as $devis) {
@@ -352,11 +366,12 @@ class ListeDevisMagasinController extends Controller
             $statutDw = $devis->getStatutDw();
             $statutBc = $devis->getStatutBc();
             $statutIps = $devis->getStatutIps();
+            $statutRelance = $this->convertirEnUtf8($devis->getStatutRelance());
             $emetteur = $devis->getSuccursaleServiceEmetteur();
             $numeroDevis = $devis->getNumeroDevis();
 
             $pointageDevis = in_array($statutDw, [DevisMagasin::STATUT_PRIX_VALIDER_TANA, DevisMagasin::STATUT_PRIX_MODIFIER_TANA, DevisMagasin::STATUT_VALIDE_AGENCE]);
-            $relanceClient = $statutDw === DevisMagasin::STATUT_ENVOYER_CLIENT && strcasecmp($statutBc, BcMagasin::STATUT_EN_ATTENTE_BC) === 0;
+            $relanceClient = $statutDw === DevisMagasin::STATUT_ENVOYER_CLIENT && $statutBc ===  BcMagasin::STATUT_EN_ATTENTE_BC && $statutRelance === PointageRelanceStatutConstant::STATUT_POINTAGE_RELANCE_A_RELANCER;
 
             // Création d'url
             $url = [
@@ -389,7 +404,10 @@ class ListeDevisMagasinController extends Controller
                 'urlPO'           => $devis->getUrlPO(),
                 'relanceClient'   => $relanceClient,
                 'dateDerniereRelance' => $devis->getDateDerniereRelance(),
-                'nombreDeRelance' => $devis->getNombreDeRelance(),
+                'numeroRelance' => $devis->getNombreDeRelance(),
+                'statutRelance' => $statutRelance,
+                'relances' => $devis->getRelances() ?? [],
+                'styleStatutPR' => $styleStatutPR[$statutRelance] ?? ''
             ];
         }
 

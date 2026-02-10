@@ -59,7 +59,7 @@ class DwBcApproRepository extends EntityRepository
      */
     public function getDateValidationBC(string $numeroBc): ?\DateTimeInterface
     {
-        return $this->createQueryBuilder('d')
+        $result = $this->createQueryBuilder('d')
             ->select('d.dateValidation')
             ->where('d.numeroBc = :numeroBc')
             ->setParameter('numeroBc', $numeroBc)
@@ -67,5 +67,7 @@ class DwBcApproRepository extends EntityRepository
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult(Query::HYDRATE_SINGLE_SCALAR);
+
+        return $result ? new \DateTime($result) : null;
     }
 }

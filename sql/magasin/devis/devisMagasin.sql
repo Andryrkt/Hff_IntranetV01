@@ -32,7 +32,8 @@ ALTER TABLE devis_soumis_a_validation_neg
     migration bit default 0,
     statut_temp VARCHAR(255);
 
-
+ALTER TABLE devis_soumis_a_validation_neg
+    ADD statut_relance VARCHAR(50) NULL;
 
 
 CREATE TABLE pointage_relance
@@ -48,3 +49,7 @@ CREATE TABLE pointage_relance
     date_modification DATETIME2(0) not null,
     CONSTRAINT PK_pointage_relance PRIMARY KEY (id)
 );
+
+
+ALTER TABLE pointage_relance
+    ADD numero_relance INT NULL;
