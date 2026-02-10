@@ -559,8 +559,8 @@ class DaModel extends Model
                         AND (af.afrn_dated = (
                                 SELECT MAX(afrn_dated) 
                                 FROM art_frn 
-                                WHERE afrn_constp = a.abse_constp 
-                                AND afrn_refp = a.abse_refp
+                                WHERE afrn_constp = abs.abse_constp 
+                                AND afrn_refp = abs.abse_refp
                             )
                             OR af.afrn_dated is null
                         )
