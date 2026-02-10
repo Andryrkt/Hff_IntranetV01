@@ -15,7 +15,6 @@ use App\Service\da\FileUploaderForDAService;
 use App\Repository\da\DemandeApproRepository;
 use App\Repository\da\DemandeApproLRepository;
 use App\Repository\da\DemandeApproLRRepository;
-use App\Service\da\PermissionDaService;
 
 trait DaTrait
 {
@@ -29,7 +28,6 @@ trait DaTrait
     private DemandeApproLRepository $demandeApproLRepository;
     private DemandeApproLRRepository $demandeApproLRRepository;
     private EmailDaService $emailDaService;
-    private PermissionDaService $permissionDaService;
     private FileUploaderForDAService $daFileUploader;
 
     /**
@@ -42,7 +40,6 @@ trait DaTrait
 
         $em = $this->getEntityManager();
         $this->emailDaService           = new EmailDaService($this->getTwig()); // Injection du service Twig depuis Controller
-        $this->permissionDaService      = new PermissionDaService;
         $this->daFileUploader           = new FileUploaderForDAService();
         $this->daAfficherRepository     = $em->getRepository(DaAfficher::class);
         $this->demandeApproRepository   = $em->getRepository(DemandeAppro::class);

@@ -11,6 +11,7 @@ use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaSoumissionBc;
 use App\Entity\admin\utilisateur\Role;
 use App\Entity\dit\DitOrsSoumisAValidation;
+use App\Service\da\PermissionDaService;
 
 trait DaListeTrait
 {
@@ -136,8 +137,9 @@ trait DaListeTrait
      */
     private function appliquerVerrouillageSelonProfil(iterable $daAffichers, bool $estAdmin, bool $estAppro, bool $estAtelier, bool $estCreateurDaDirecte): iterable
     {
+        $permissionDaService = new PermissionDaService();
         foreach ($daAffichers as $daAfficher) {
-            $verrouille = $this->permissionDaService->estDaVerrouillee(
+            $verrouille = $permissionDaService->estDaVerrouillee(
                 $daAfficher->getStatutDal(),
                 $daAfficher->getStatutOr(),
                 $estAdmin,

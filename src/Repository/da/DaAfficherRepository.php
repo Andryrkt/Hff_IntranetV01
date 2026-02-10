@@ -487,7 +487,6 @@ class DaAfficherRepository extends EntityRepository
      * Fonction publique : renvoie les DA paginés avec filtres appliqués uniquement sur les dernières versions
      */
     public function findPaginatedAndFilteredDA(
-        User $user,
         array $criteria,
         int $idAgenceUser,
         array $agServAutorisesUser,
@@ -512,7 +511,7 @@ class DaAfficherRepository extends EntityRepository
 
         // Appliquer les filtres sur la sous-requête (C'EST ICI QUE ÇA COMPTE)
         $this->applyDynamicFilters($subQb, "d", $criteria);
-        $this->applyAgencyServiceFilters($subQb, "d", $criteria, $user, $idAgenceUser, $estAppro, $estAtelier, $estAdmin);
+        $this->applyAgencyServiceFilters($subQb, "d", $criteria, $idAgenceUser, $agServAutorisesUser, $estAppro, $estAtelier, $estAdmin);
         $this->applyDateFilters($subQb, "d", $criteria);
         $this->applyFilterAppro($subQb, "d", $estAppro, $estAdmin);
         $this->applyStatutsFilters($subQb, "d", $criteria);
@@ -613,7 +612,7 @@ class DaAfficherRepository extends EntityRepository
 
         // Appliquer les mêmes filtres sur la requête principale
         $this->applyDynamicFilters($qb, "d", $criteria);
-        $this->applyAgencyServiceFilters($qb, "d", $criteria, $user, $idAgenceUser, $estAppro, $estAtelier, $estAdmin);
+        $this->applyAgencyServiceFilters($qb, "d", $criteria, $idAgenceUser, $agServAutorisesUser, $estAppro, $estAtelier, $estAdmin);
         $this->applyDateFilters($qb, "d", $criteria);
         $this->applyFilterAppro($qb, "d", $estAppro, $estAdmin);
         $this->applyStatutsFilters($qb, "d", $criteria);
