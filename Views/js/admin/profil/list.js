@@ -1,5 +1,5 @@
 import { mergeCellsTable } from "../../utils/tableHandler";
 
 document.addEventListener("DOMContentLoaded", function () {
-  mergeCellsTable("#tableBody", [0, 1, 2], 1);
+  mergeCellsTable("#tableBody", [0, 1, 2, 3], 1);
 });

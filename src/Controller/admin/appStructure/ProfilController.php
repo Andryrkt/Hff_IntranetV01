@@ -147,6 +147,7 @@ class ProfilController extends Controller
                 ),
                 'reference'   => $profil->getReference(),
                 'designation' => $profil->getDesignation(),
+                'societe'     => $profil->getSociete()->getCodeSociete() . ' - ' . $profil->getSociete()->getNom(),
             ];
 
             $applications = $profil->getApplications();
