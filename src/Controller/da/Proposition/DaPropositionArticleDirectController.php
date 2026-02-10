@@ -97,7 +97,7 @@ class DaPropositionArticleDirectController extends Controller
             'fichiers'                => $fichiers,
             'numDa'                   => $numDa,
             'connectedUser'           => $this->getUser(),
-            'statutAutoriserModifAte' => $da->getStatutDal() === DemandeAppro::STATUT_AUTORISER_MODIF_ATE,
+            'statutAutoriserModifAte' => $da->getStatutDal() === DemandeAppro::STATUT_AUTORISER_EMETTEUR,
             'estCreateurDaDirecte'    => $this->hasRoles(Role::ROLE_DA_DIRECTE),
             'estAppro'                => $this->estUserDansServiceAppro(),
             'nePeutPasModifier'       => $this->nePeutPasModifier($da),
