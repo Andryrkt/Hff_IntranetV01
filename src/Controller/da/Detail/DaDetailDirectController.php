@@ -14,6 +14,7 @@ use App\Controller\Traits\da\DaAfficherTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\da\detail\DaDetailDirectTrait;
+use App\Entity\admin\utilisateur\Role;
 use App\Service\da\DaTimelineService;
 
 /**
@@ -67,7 +68,9 @@ class DaDetailDirectController extends Controller
 			'devPjPathDal' => $this->getDevisPjPathDal($demandeAppro),
 			'devPjPathObs' => $this->getDevisPjPathObservation($demandeAppro),
 		]);
-		$timeLineData = $this->estAdmin() ? $this->daTimelineService->getTimelineData($demandeAppro->getNumeroDemandeAppro()) : [];
+
+		$estAdmin = $this->hasRoles(Role::ROLE_ADMINISTRATEUR);
+		$timeLineData = $estAdmin ? $this->daTimelineService->getTimelineData($demandeAppro->getNumeroDemandeAppro()) : [];
 
 		return $this->render('da/detail.html.twig', [
 			'detailTemplate'      		=> 'detail-direct',
@@ -78,9 +81,9 @@ class DaDetailDirectController extends Controller
 			'fichiers'            		=> $fichiers,
 			'connectedUser'     		=> $this->getUser(),
 			'statutAutoriserModifAte' 	=> $demandeAppro->getStatutDal() === DemandeAppro::STATUT_AUTORISER_EMETTEUR,
-			'estCreateurDaDirecte'      => $this->estCreateurDeDADirecte(),
+			'estCreateurDaDirecte'      => $this->hasRoles(Role::ROLE_DA_DIRECTE),
 			'estAppro'          		=> $this->estUserDansServiceAppro(),
-			'timelineAccess'    		=> $this->estAdmin(),
+			'timelineAccess'    		=> $estAdmin,
 			'timelineData'      		=> $timeLineData,
 		]);
 	}

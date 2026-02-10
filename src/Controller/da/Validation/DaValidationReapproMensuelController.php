@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\da\detail\DaDetailReapproTrait;
 use App\Controller\Traits\da\validation\DaValidationReapproTrait;
+use App\Entity\admin\utilisateur\Role;
 
 /**
  * @Route("/demande-appro")
@@ -71,7 +72,7 @@ class DaValidationReapproMensuelController extends Controller
             'demandeAppro'    => $da,
             'numDa'           => $da->getNumeroDemandeAppro(),
             'fichiers'        => $fichiers,
-            'codeCentrale'    => $this->estAdmin() || in_array($da->getAgenceEmetteur()->getCodeAgence(), ['90', '91', '92']),
+            'codeCentrale'    => $this->hasRoles(Role::ROLE_ADMINISTRATEUR) || in_array($da->getAgenceEmetteur()->getCodeAgence(), ['90', '91', '92']),
             'formReappro'     => $formReappro->createView(),
             'formObservation' => $formObservation->createView(),
             'observations'    => $observations,

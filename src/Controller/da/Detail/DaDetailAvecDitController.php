@@ -14,6 +14,7 @@ use App\Controller\Traits\da\DaAfficherTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\da\detail\DaDetailAvecDitTrait;
+use App\Entity\admin\utilisateur\Role;
 use App\Model\dit\DitModel;
 use App\Service\da\DaTimelineService;
 
@@ -69,8 +70,9 @@ class DaDetailAvecDitController extends Controller
 			'devPjPathObs' => $this->getDevisPjPathObservation($demandeAppro),
 		]);
 
+		$estAdmin = $this->hasRoles(Role::ROLE_ADMINISTRATEUR);
 		$demandeApproLPrepared = $this->prepareDataForDisplayDetail($demandeAppro->getDAL(), $demandeAppro->getStatutDal());
-		$timeLineData = $this->estAdmin() ? $this->daTimelineService->getTimelineData($demandeAppro->getNumeroDemandeAppro()) : [];
+		$timeLineData = $estAdmin ? $this->daTimelineService->getTimelineData($demandeAppro->getNumeroDemandeAppro()) : [];
 
 		return $this->render('da/detail.html.twig', [
 			'detailTemplate'      		=> 'detail-avec-dit',
@@ -85,7 +87,7 @@ class DaDetailAvecDitController extends Controller
 			'statutAutoriserModifAte' 	=> $demandeAppro->getStatutDal() === DemandeAppro::STATUT_AUTORISER_EMETTEUR,
 			'estAte'            		=> $this->estUserDansServiceAtelier(),
 			'estAppro'          		=> $this->estUserDansServiceAppro(),
-			'timelineAccess'    		=> $this->estAdmin(),
+			'timelineAccess'    		=> $estAdmin,
 			'timelineData'      		=> $timeLineData,
 		]);
 	}

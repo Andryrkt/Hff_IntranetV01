@@ -5,6 +5,7 @@ namespace App\Controller\da\Creation;
 use App\Controller\Controller;
 use App\Controller\Traits\AutorisationTrait;
 use App\Controller\Traits\da\creation\DaNewAchatTrait;
+use App\Entity\admin\utilisateur\Role;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproParent;
 use App\Entity\da\DemandeApproParentLine;
@@ -39,7 +40,7 @@ class DaNewAchatController extends Controller
         $this->verifierSessionUtilisateur();
 
         /** Autorisation accès */
-        $this->checkPageAccess($this->estAdmin() || $this->estCreateurDeDADirecte());
+        $this->checkPageAccess($this->hasRoles(Role::ROLE_ADMINISTRATEUR, Role::ROLE_DA_DIRECTE));
         /** FIN AUtorisation accès */
 
         $demandeApproParentRepository = $this->getEntityManager()->getRepository(DemandeApproParent::class);
@@ -51,7 +52,7 @@ class DaNewAchatController extends Controller
 
         return $this->render('da/new-da-achat.html.twig', [
             'form'        => $form->createView(),
-            'codeCentrale' => $this->estAdmin() || in_array($demandeApproParent->getAgenceEmetteur()->getCodeAgence(), ['90', '91', '92']),
+            'codeCentrale' => $this->hasRoles(Role::ROLE_ADMINISTRATEUR) || in_array($demandeApproParent->getAgenceEmetteur()->getCodeAgence(), ['90', '91', '92']),
         ]);
     }
 

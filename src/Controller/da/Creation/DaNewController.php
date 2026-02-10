@@ -4,6 +4,7 @@ namespace App\Controller\da\Creation;
 
 use App\Controller\Controller;
 use App\Controller\Traits\da\MarkupIconTrait;
+use App\Entity\admin\utilisateur\Role;
 use Symfony\Component\Routing\Annotation\Route;
 
 /** @Route("/demande-appro") */
@@ -20,8 +21,8 @@ class DaNewController extends Controller
         $this->verifierSessionUtilisateur();
 
         $estAtelier = $this->estUserDansServiceAtelier();
-        $estCreateurDeDADirecte = $this->estCreateurDeDADirecte();
-        $estAdmin = $this->estAdmin();
+        $estCreateurDeDADirecte = $this->hasRoles(Role::ROLE_DA_DIRECTE);
+        $estAdmin = $this->hasRoles(Role::ROLE_ADMINISTRATEUR);
 
         // Préparer les options disponibles
         $options = [];
