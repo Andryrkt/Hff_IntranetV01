@@ -10,7 +10,7 @@ use App\Form\admin\ApplicationProfilAgenceServiceType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-/** @Route("/admin/appProfilAgServ") */
+/** @Route("/admin/droits") */
 class AppProfilAgServController extends Controller
 {
     /** @Route("", name="app_profil_ag_serv_index") */
