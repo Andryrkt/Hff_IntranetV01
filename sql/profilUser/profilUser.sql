@@ -32,9 +32,6 @@ CREATE TABLE profil (
     CONSTRAINT PK_profil PRIMARY KEY (id)
 ); 
 
--- Relation entre les utilisateurs et profil
-ALTER TABLE users ADD profil_id INT NULL, CONSTRAINT FK_users_profil FOREIGN KEY (profil_id) REFERENCES profil (id);
-
 -- Table de relation entre les applications, profil
 CREATE TABLE application_profil (
     id INT IDENTITY(1,1) PRIMARY KEY,
@@ -74,3 +71,7 @@ CREATE TABLE users_profils (
     CONSTRAINT FK_users_profils_profil_id FOREIGN KEY (profil_id) REFERENCES profil (id)
 );
 
+alter table users drop column role_id;
+alter table users drop column agence_id;
+alter table users drop column superieurs;
+alter table users drop column fonction;
