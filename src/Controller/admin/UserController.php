@@ -19,11 +19,6 @@ class UserController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
         $user = new User();
-        $userConnecter = $this->getUser();
-        if ($userConnecter->getChefService()) {
-            $nomPrenomChefService = $userConnecter->getChefService()->getNom() . ' ' . $userConnecter->getChefService()->getPrenoms();
-            $user->setSuperieur($nomPrenomChefService);
-        }
 
         $form = $this->getFormFactory()->createBuilder(UserType::class, $user)->getForm();
 
@@ -70,12 +65,6 @@ class UserController extends Controller
         $this->verifierSessionUtilisateur();
 
         $user = $this->getEntityManager()->getRepository(User::class)->find($id);
-        if ($user->getChefService()) {
-            $nomPrenomChefService = $user->getChefService()->getNom() . ' ' . $user->getChefService()->getPrenoms();
-            $user->setSuperieur($nomPrenomChefService);
-        }
-
-
         $form = $this->getFormFactory()->createBuilder(UserType::class, $user)->getForm();
 
         $form->handleRequest($request);

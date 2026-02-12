@@ -138,20 +138,6 @@ class DitValidationController extends Controller
         ]);
     }
 
-    private function recupMailSuperieur(User $userDemandeur): array
-    {
-        $emailSuperieurs = [];
-        foreach ($userDemandeur->getSuperieur() as $value) {
-            if (empty($value)) {
-                return [];
-            } else {
-
-                $emailSuperieurs[] = $value->getMail();
-            }
-        }
-        return $emailSuperieurs;
-    }
-
     private function donnerRefu($userDemandeur, $emailSuperieurs, $userConnecter, $dit): array
     {
         return [
