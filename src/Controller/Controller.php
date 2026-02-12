@@ -220,8 +220,7 @@ class Controller
     protected function redirectToRoute(string $routeName, array $params = [])
     {
         $url = $this->getUrlGenerator()->generate($routeName, $params);
-        header("Location: $url");
-        exit();
+        $this->redirectTo($url);
     }
 
     /**
