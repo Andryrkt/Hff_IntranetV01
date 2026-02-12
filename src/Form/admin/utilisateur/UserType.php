@@ -122,16 +122,6 @@ class UserType extends AbstractType
                 ]
             )
             ->add(
-                'fonction',
-                EntityType::class,
-                [
-                    'label' => 'Fonction de l\'utilisateur',
-                    'class' => Fonction::class,
-                    'choice_label' => 'description',
-                    'required' => false
-                ]
-            )
-            ->add(
                 'agenceServiceIrium',
                 EntityType::class,
                 [
