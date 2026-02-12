@@ -2,7 +2,6 @@
 
 namespace App\Controller\admin;
 
-
 use App\Controller\Controller;
 use App\Dto\admin\UserDTO;
 use App\Entity\admin\utilisateur\User;
@@ -34,14 +33,10 @@ class UserController extends Controller
             $this->redirectToRoute("utilisateur_index");
         }
 
-        //$this->logUserVisit('utilisateur_new'); // historisation du page visité par l'utilisateur
-
         return $this->render('admin/utilisateur/new.html.twig', [
             'form' => $form->createView()
         ]);
     }
-
-
 
     /**
      * @Route("/admin/utilisateur/edit/{id}", name="utilisateur_update")
@@ -54,18 +49,18 @@ class UserController extends Controller
         $this->verifierSessionUtilisateur();
 
         $user = $this->getEntityManager()->getRepository(User::class)->find($id);
-        $form = $this->getFormFactory()->createBuilder(UserType::class, $user)->getForm();
-
+        $userFactory = new UserFactory();
+        $dto = $userFactory->createDTOFromUser($user);
+        $form = $this->getFormFactory()->createBuilder(UserType::class, $dto)->getForm();
         $form->handleRequest($request);
 
         // Vérifier si le formulaire est soumis et valide
         if ($form->isSubmitted() && $form->isValid()) {
+            $userFactory->updateFromDTO($dto, $user);
 
             $this->getEntityManager()->flush();
             return $this->redirectToRoute("utilisateur_index");
         }
-
-        //$this->logUserVisit('utilisateur_update', ['id' => $id]); // historisation du page visité par l'utilisateur 
 
         return $this->render('admin/utilisateur/edit.html.twig', [
             'form' => $form->createView(),
@@ -83,8 +78,6 @@ class UserController extends Controller
         $this->verifierSessionUtilisateur();
 
         $data = $this->getEntityManager()->getRepository(User::class)->findBy([], ['id' => 'DESC']);
-
-        //$this->logUserVisit('utilisateur_index'); // historisation du page visité par l'utilisateur
 
         return $this->render('admin/utilisateur/list.html.twig', [
             'data' => $data
@@ -147,8 +140,6 @@ class UserController extends Controller
         $this->verifierSessionUtilisateur();
 
         $data = $this->getEntityManager()->getRepository(User::class)->find($id);
-
-        //$this->logUserVisit('utilisateur_show', ['id' => $id]); // historisation du page visité par l'utilisateur 
 
         return $this->render('admin/utilisateur/details.html.twig', [
             'data' => $data

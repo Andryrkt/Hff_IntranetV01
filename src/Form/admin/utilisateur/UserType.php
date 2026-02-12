@@ -5,7 +5,6 @@ namespace App\Form\admin\utilisateur;
 use App\Dto\admin\UserDTO;
 use App\Model\LdapModel;
 use App\Entity\admin\Personnel;
-use App\Entity\admin\AgenceServiceIrium;
 use Symfony\Component\Form\AbstractType;
 use App\Entity\admin\utilisateur\Profil;
 use Symfony\Component\Form\FormBuilderInterface;
