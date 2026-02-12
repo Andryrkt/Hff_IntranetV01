@@ -117,6 +117,13 @@ class AppProfilAgServController extends Controller
             }
         }
 
+        usort($preparedData, static function (array $a, array $b) {
+            return ($a['appProfilId'] <=> $b['appProfilId'])
+                ?: ($a['codeApp'] <=> $b['codeApp'])
+                ?: (($a['codeAgence'] ?? '') <=> ($b['codeAgence'] ?? ''))
+                ?: (($a['codeService'] ?? '') <=> ($b['codeService'] ?? ''));
+        });
+
         return $preparedData;
     }
 }
