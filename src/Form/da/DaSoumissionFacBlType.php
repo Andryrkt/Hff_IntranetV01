@@ -2,6 +2,7 @@
 
 namespace App\Form\da;
 
+use App\Dto\Da\ListeCdeFrn\DaSoumissionFacBlDto;
 use App\Entity\da\DaSoumissionFacBl;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -18,7 +19,7 @@ class DaSoumissionFacBlType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $numLivs = $options['numLivs'];
+        $numLivs = $options['data']->numLiv;
 
         $builder
             ->add('numeroCde', TextType::class, [
@@ -121,9 +122,7 @@ class DaSoumissionFacBlType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => DaSoumissionFacBl::class,
+            'data_class' => DaSoumissionFacBlDto::class,
         ]);
-        // Ajoutez l'option 'id_type' pour éviter l'erreur
-        $resolver->setDefined('numLivs');
     }
 }

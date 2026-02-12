@@ -7,6 +7,7 @@ use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaSoumissionFacBl;
 use App\Service\genererPdf\GeneratePdf;
 use App\Controller\Traits\FormatageTrait;
+use App\Dto\Da\ListeCdeFrn\DaSoumissionFacBlDto;
 use App\Service\genererPdf\PdfTableGeneratorFlexible;
 
 class GenererPdfBonAPayer extends GeneratePdf
@@ -16,15 +17,16 @@ class GenererPdfBonAPayer extends GeneratePdf
     /**
      * Fonction pour générer le PDF du bon à payer
      */
-    public function genererPageDeGarde(array $infoBC, array $infoValidationBC, array $infoMateriel, array $dataRecapOR, DemandeAppro $demandeAppro, DaSoumissionFacBl $daSoumissionFacBl, array $infoFacBl): string
+    public function genererPageDeGarde(array $infoValidationBC, array $infoMateriel, array $dataRecapOR, DemandeAppro $demandeAppro, DaSoumissionFacBlDto $dto, array $infoFacBl): string
     {
+        $infoBC = $dto->infoBc;
         $pdf = $this->initPDF();
         $w100 = $this->getUsableWidth($pdf);
 
         $this->renderInfoBCAndValidation($pdf, $w100, $infoBC, $infoValidationBC);
         if ($demandeAppro->getDaTypeId() === DemandeAppro::TYPE_DA_AVEC_DIT) {
             $this->renderInfoMateriel($pdf, $w100, $infoMateriel);
-            $this->renderRecapOR($pdf, $dataRecapOR, $daSoumissionFacBl);
+            $this->renderRecapOR($pdf, $dataRecapOR, $dto);
         }
         $this->renderRecapDA($pdf, $w100, $demandeAppro);
         $this->renderInfoFACBL($pdf, $w100, $infoFacBl);
@@ -131,10 +133,10 @@ class GenererPdfBonAPayer extends GeneratePdf
         });
     }
 
-    private function renderRecapOR(TCPDF $pdf, array $dataRecapOR, DaSoumissionFacBl $daSoumissionFacBl)
+    private function renderRecapOR(TCPDF $pdf, array $dataRecapOR, DaSoumissionFacBlDto $dto)
     {
-        $numOR = $daSoumissionFacBl->getNumeroOR();
-        $numDIT = $daSoumissionFacBl->getNumeroDemandeDit();
+        $numOR = $dto->numeroOR;
+        $numDIT = $dto->numeroDemandeDit;
         $numDIT = $numDIT ? "- $numDIT" : "";
         $this->renderInfoSection($pdf, "RECAPITULATIF DE L’OR $numOR $numDIT", '', function () use ($pdf, $dataRecapOR) {
             $tableGenerator = new PdfTableGeneratorFlexible();
