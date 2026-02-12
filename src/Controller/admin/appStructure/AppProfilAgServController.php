@@ -75,7 +75,11 @@ class AppProfilAgServController extends Controller
         }
 
         return $this->render('admin/appProfilAgServ/new.html.twig', [
-            'form' => $form->createView(),
+            'reference' => $dto->applicationProfil->getProfil()->getReference(),
+            'nomProfil' => $dto->applicationProfil->getProfil()->getDesignation(),
+            'codeApp'   => $dto->applicationProfil->getApplication()->getCodeApp(),
+            'nomApp'    => $dto->applicationProfil->getApplication()->getNom(),
+            'form'      => $form->createView(),
         ]);
     }
 

@@ -16,25 +16,23 @@ class ApplicationProfilAgenceServiceType extends AbstractType
     {
         $builder
             ->add('applicationProfil', EntityType::class, [
-                'label' => 'Profil - Application',
-                'class' => ApplicationProfil::class,
-                'disabled' => true,
+                'label'        => false,
+                'class'        => ApplicationProfil::class,
+                'disabled'     => true,
                 'choice_label' => fn(ApplicationProfil $ap) =>
                 $ap->getProfil()->getReference()
                     . ' — '
                     . $ap->getApplication()->getCodeApp(),
-                'placeholder' => '-- Choisir une application / profil --',
             ])
             ->add('agenceServices', EntityType::class, [
-                'label' => 'Agence(s) - Service(s) autorisée(s)',
-                'class' => AgenceService::class,
+                'label'        => 'Agence(s) - Service(s) autorisée(s)',
+                'class'        => AgenceService::class,
                 'choice_label' => fn(AgenceService $as) =>
                 $as->getAgence()->getCodeAgence()
                     . ' — '
                     . $as->getService()->getCodeService(),
-                'multiple' => true,
-                'expanded' => false,
-                'placeholder' => '-- Choisir des agences/services --',
+                'multiple'     => true,
+                'expanded'     => false,
             ]);
     }
 

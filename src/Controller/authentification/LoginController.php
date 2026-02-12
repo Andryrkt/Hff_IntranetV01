@@ -72,9 +72,9 @@ class LoginController extends Controller
 
                     $this->getSessionService()->set('user_info', $userInfo);
 
-                    $filename = $_ENV['BASE_PATH_LONG'] . "\src\Controller\authentification.csv";
-                    $newData = [$userId, $username, $password];
-                    $this->synchronizeCSV($filename, $newData);
+                    // $filename = $_ENV['BASE_PATH_LONG'] . "\src\Controller\authentification.csv";
+                    // $newData = [$userId, $username, $password];
+                    // $this->synchronizeCSV($filename, $newData);
 
                     if (preg_match('/Hffintranet_pre_prod/i', $_SERVER['REQUEST_URI']) && !in_array(1, $user->getRoleIds())) $this->redirectTo('/Hffintranet/login');
                     else $this->redirectToRoute('profil_acceuil');
