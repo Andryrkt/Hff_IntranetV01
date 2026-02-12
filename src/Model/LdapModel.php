@@ -43,7 +43,7 @@ class LdapModel
      */
     public function userConnect(string $user, string $password): bool
     {
-        $bind = ldap_bind($this->ldapconn, $user . $this->Domain, $password);
+        $bind = @ldap_bind($this->ldapconn, $user . $this->Domain, $password);
         return $bind;
     }
 
