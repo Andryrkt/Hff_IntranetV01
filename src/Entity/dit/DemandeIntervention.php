@@ -574,11 +574,6 @@ class DemandeIntervention
      */
     private $dateDepotPdfDw;
 
-    /**
-     * @ORM\OneToMany(targetEntity=DemandeAppro::class, mappedBy="dit")
-     */
-    private Collection $demandeAppro;
-
     /** ===================================================================================================================
      * 
      * GETTER and SETTER
@@ -1852,31 +1847,6 @@ class DemandeIntervention
         $this->estAtePolTana = $estAtePolTana;
 
         return $this;
-    }
-
-    /**
-     * Get the value of DemandeAppro
-     */
-    public function getDemandeAppro(): Collection
-    {
-        return $this->demandeAppro;
-    }
-
-    public function addDemandeAppro(DemandeAppro $demandeAppro): void
-    {
-        if (!$this->demandeAppro->contains($demandeAppro)) {
-            $this->demandeAppro[] = $demandeAppro;
-            $demandeAppro->setDit($this);
-        }
-    }
-
-    public function removeDemandeAppro(DemandeAppro $demandeAppro): void
-    {
-        if ($this->demandeAppro->removeElement($demandeAppro)) {
-            if ($demandeAppro->getDit() === $this) {
-                $demandeAppro->setDit(null);
-            }
-        }
     }
 
     /**
