@@ -7,6 +7,7 @@ use App\Entity\admin\Application;
 use App\Entity\admin\utilisateur\Profil;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
+use App\Entity\admin\utilisateur\ApplicationProfilPage;
 use App\Entity\admin\utilisateur\ApplicationProfilAgenceService;
 
 /**
@@ -39,11 +40,17 @@ class ApplicationProfil
      */
     private Collection $liaisonsAgenceService;
 
+    /**
+     * @ORM\OneToMany(targetEntity=ApplicationProfilPage::class, mappedBy="applicationProfil", cascade={"persist"})
+     */
+    private Collection $liaisonsPage;
+
     public function __construct(?Profil $profil = null, ?Application $application = null)
     {
         $this->profil = $profil;
         $this->application = $application;
         $this->liaisonsAgenceService = new ArrayCollection();
+        $this->liaisonsPage = new ArrayCollection();
     }
 
     /**
@@ -121,6 +128,33 @@ class ApplicationProfil
             $this->liaisonsAgenceService->removeElement($liaisonAgenceService);
             if ($liaisonAgenceService->getApplicationProfil() === $this) {
                 $liaisonAgenceService->setApplicationProfil(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getLiaisonsPage(): Collection
+    {
+        return $this->liaisonsPage;
+    }
+
+    public function addLiaisonPage(ApplicationProfilPage $liaisonPage): self
+    {
+        if (!$this->liaisonsPage->contains($liaisonPage)) {
+            $this->liaisonsPage[] = $liaisonPage;
+            $liaisonPage->setApplicationProfil($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLiaisonPage(ApplicationProfilPage $liaisonPage): self
+    {
+        if ($this->liaisonsPage->contains($liaisonPage)) {
+            $this->liaisonsPage->removeElement($liaisonPage);
+            if ($liaisonPage->getApplicationProfil() === $this) {
+                $liaisonPage->setApplicationProfil(null);
             }
         }
 
