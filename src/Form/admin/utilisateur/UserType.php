@@ -21,12 +21,7 @@ class UserType extends AbstractType
         global $container;
         $userInfo = $container->get('session')->get('user_info');
         $users = (new LdapModel())->infoUser($userInfo['username'], $userInfo['password']);
-
-        $nom = [];
-        foreach ($users as $key => $value) {
-            $nom[] = $key;
-        }
-
+        $nom = array_keys($users);
 
         $builder
             ->add(
