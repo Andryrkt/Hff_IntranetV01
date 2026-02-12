@@ -42,7 +42,7 @@ class Profil
     private ?Societte $societe = null;
 
     /**
-     * @ORM\OneToMany(targetEntity=User::class, mappedBy="profil")
+     * @ORM\ManyToMany(targetEntity=User::class, mappedBy="profils")
      */
     private Collection $users;
 
@@ -120,23 +120,13 @@ class Profil
     }
 
     /**
-     * Set the value of users
-     */
-    public function setUsers(Collection $users): self
-    {
-        $this->users = $users;
-
-        return $this;
-    }
-
-    /**
      * Add User
      */
     public function addUser(User $user): self
     {
         if (!$this->users->contains($user)) {
             $this->users[] = $user;
-            $user->setProfil($this);
+            $user->addProfil($this);
         }
 
         return $this;
@@ -149,8 +139,8 @@ class Profil
     {
         if ($this->users->contains($user)) {
             $this->users->removeElement($user);
-            if ($user->getProfil() === $this) {
-                $user->setProfil(null);
+            if ($user->getProfils()->contains($this)) {
+                $user->removeProfil($this);
             }
         }
 

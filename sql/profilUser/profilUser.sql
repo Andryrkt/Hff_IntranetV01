@@ -65,3 +65,12 @@ CREATE TABLE application_profil_agence_service (
     FOREIGN KEY (agence_service_id) REFERENCES agence_service(id)
 );
 
+/** TABLE RELATION ENTRE L'UTILISATEUR ET LE PROFIL */
+CREATE TABLE users_profils (
+    user_id INT,
+    profil_id INT,
+    CONSTRAINT PK_users_profils PRIMARY KEY (user_id, profil_id),
+    CONSTRAINT FK_users_profils_user_id FOREIGN KEY (user_id) REFERENCES users (id),
+    CONSTRAINT FK_users_profils_profil_id FOREIGN KEY (profil_id) REFERENCES profil (id)
+);
+

@@ -205,10 +205,10 @@ class User implements UserInterface
     private ?string $poste;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Profil::class, inversedBy="users")
-     * @ORM\JoinColumn(name="profil_id", referencedColumnName="id", nullable=true)
+     * @ORM\ManyToMany(targetEntity=Profil::class, inversedBy="users")
+     * @ORM\JoinTable(name="users_profils")
      */
-    private ?Profil $profil = null;
+    private Collection $profils;
 
     //=================================================================================================================================
 
@@ -227,6 +227,7 @@ class User implements UserInterface
         $this->supportInfoIntervenant = new ArrayCollection();
         $this->tikPlanningUser = new ArrayCollection();
         $this->userLoggers = new ArrayCollection();
+        $this->profils = new ArrayCollection();
     }
 
 
@@ -310,8 +311,32 @@ class User implements UserInterface
         return $this;
     }
 
+    public function getProfils(): Collection
+    {
+        return $this->profils;
+    }
 
+    public function addProfil(Profil $profil): self
+    {
+        if (!$this->profils->contains($profil)) {
+            $this->profils[] = $profil;
+            $profil->addUser($this);
+        }
 
+        return $this;
+    }
+
+    public function removeProfil(Profil $profil): self
+    {
+        if ($this->profils->contains($profil)) {
+            $this->profils->removeElement($profil);
+            if ($profil->getUsers()->contains($this)) {
+                $profil->removeUser($this);
+            }
+        }
+
+        return $this;
+    }
 
     /**
      * @return Collection|Application[]
@@ -929,24 +954,6 @@ class User implements UserInterface
     public function setDemandeApproValidateur($demandeApproValidateur)
     {
         $this->demandeApproValidateur = $demandeApproValidateur;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of profil
-     */
-    public function getProfil(): ?Profil
-    {
-        return $this->profil;
-    }
-
-    /**
-     * Set the value of profil
-     */
-    public function setProfil(?Profil $profil): self
-    {
-        $this->profil = $profil;
 
         return $this;
     }
