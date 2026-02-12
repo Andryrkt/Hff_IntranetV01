@@ -10,11 +10,21 @@ class UserFactory
     public function createFromDto(UserDTO $dto): User
     {
         $user = new User();
-        $user->setUsername($dto->username);
-        $user->setEmail($dto->email);
-        $user->setAgenceServiceIrium($dto->agenceServiceIrium);
-        $user->setPersonnel($dto->personnel);
-        $user->setProfils($dto->profils);
+
+        $personnel = $dto->personnel;
+        $matricule = $personnel->getMatricule();
+        $agenceServiceIrium = $personnel->getAgenceServiceIriumId();
+
+        $user->setNomUtilisateur($dto->username);
+        $user->setMail($dto->email);
+        $user->setMatricule($matricule);
+        $user->setPersonnels($personnel);
+        $user->setAgenceServiceIrium($agenceServiceIrium);
+
+        $profils = $dto->profils;
+        foreach ($profils as $profil) {
+            $user->addProfil($profil);
+        }
 
         return $user;
     }

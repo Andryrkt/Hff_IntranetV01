@@ -6,6 +6,7 @@ namespace App\Controller\admin;
 use App\Controller\Controller;
 use App\Dto\admin\UserDTO;
 use App\Entity\admin\utilisateur\User;
+use App\Factory\admin\UserFactory;
 use App\Form\admin\utilisateur\UserType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -20,25 +21,12 @@ class UserController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
         $dto = new UserDTO();
-
         $form = $this->getFormFactory()->createBuilder(UserType::class, $dto)->getForm();
-
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $utilisateur = $form->getData();
-
-            $selectedApplications = $form->get('applications')->getData();
-
-            foreach ($selectedApplications as $application) {
-                $utilisateur->addApplication($application);
-            }
-
-            $selectedRoles = $form->get('roles')->getData();
-
-            foreach ($selectedRoles as $role) {
-                $utilisateur->addRole($role);
-            }
+            $userFactory = new UserFactory();
+            $utilisateur = $userFactory->createFromDto($dto);
 
             $this->getEntityManager()->persist($utilisateur);
             $this->getEntityManager()->flush();
