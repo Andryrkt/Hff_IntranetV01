@@ -27,23 +27,11 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 
 class UserType extends AbstractType
 {
-    private $ldap;
-    private $em;
-    private $sessionService;
-
-    public function __construct(EntityManagerInterface $em)
-    {
-        $this->ldap = new LdapModel();
-        $this->em = $em;
-        $this->sessionService = new SessionManagerService();
-    }
-
-
-
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $userInfo = $this->sessionService->get('user_info');
-        $users = $this->ldap->infoUser($userInfo['username'], $userInfo['password']);
+        global $container;
+        $userInfo = $container->get('session')->get('user_info');
+        $users = (new LdapModel())->infoUser($userInfo['username'], $userInfo['password']);
 
         $nom = [];
         foreach ($users as $key => $value) {

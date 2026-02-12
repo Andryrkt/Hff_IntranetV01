@@ -47,11 +47,6 @@ services:
       - "@doctrine.orm.default_entity_manager"
     public: true
 
-  App\Form\admin\utilisateur\UserType:
-    arguments:
-      - "@doctrine.orm.default_entity_manager"
-    public: true
-
   App\Form\dom\DomForm1Type:
     arguments:
       - "@doctrine.orm.default_entity_manager"
