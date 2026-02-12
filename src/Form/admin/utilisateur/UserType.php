@@ -43,17 +43,6 @@ class UserType extends AbstractType
                 ]
             )
             ->add(
-                'agenceServiceIrium',
-                EntityType::class,
-                [
-                    'label'        => 'Code Sage *',
-                    'class'        => AgenceServiceIrium::class,
-                    'choice_label' => 'service_sage_paie',
-                    'placeholder'  => "-- choisir une code sage --",
-                    'required'     => true,
-                ]
-            )
-            ->add(
                 'personnel',
                 EntityType::class,
                 [

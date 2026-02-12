@@ -4,6 +4,7 @@ namespace App\Controller\admin;
 
 
 use App\Controller\Controller;
+use App\Dto\admin\UserDTO;
 use App\Entity\admin\utilisateur\User;
 use App\Form\admin\utilisateur\UserType;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,9 +19,9 @@ class UserController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        $user = new User();
+        $dto = new UserDTO();
 
-        $form = $this->getFormFactory()->createBuilder(UserType::class, $user)->getForm();
+        $form = $this->getFormFactory()->createBuilder(UserType::class, $dto)->getForm();
 
         $form->handleRequest($request);
 
