@@ -75,3 +75,17 @@ alter table users drop column role_id;
 alter table users drop column agence_id;
 alter table users drop column superieurs;
 alter table users drop column fonction;
+
+CREATE TABLE application_profil_page (
+    id                    INT IDENTITY(1,1) NOT NULL,
+    application_profil_id INT               NOT NULL,
+    page_id               INT               NOT NULL,
+    peut_voir             bit               NOT NULL DEFAULT 1,
+    peut_ajouter          bit               NOT NULL DEFAULT 0,
+    peut_modifier         bit               NOT NULL DEFAULT 0,
+    peut_supprimer        bit               NOT NULL DEFAULT 0,
+    PRIMARY KEY (id),
+    UNIQUE (application_profil_id, page_id),
+    CONSTRAINT fk_app_profil_page_ap FOREIGN KEY (application_profil_id) REFERENCES application_profil (id),
+    CONSTRAINT fk_app_profil_page_page FOREIGN KEY (page_id) REFERENCES Hff_pages (id)
+);
