@@ -29,17 +29,14 @@
 								<i class="fas fa-ellipsis-vertical"></i>
 							</th>
 							<th>Nom d'utilisateur</th>
-							<th>matricule</th>
-							<th>mail</th>
-							<th>Rôle</th>
-							<th>Applications</th>
+							<th>Matricule</th>
+							<th>Email</th>
 							<th>Code Sage</th>
-							<th>Agence Autoriser</th>
-							<th>Service Autoriser</th>
+							<th>Profil</th>
 						</tr>
 					</thead>
 					<tbody id="tableBody">
-						{% for item in data %}
+						{% for row in rows %}
 							<tr>
 								<td>
 									<div class="dropdown">
@@ -48,49 +45,22 @@
 										</button>
 										<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
 											<li>
-												<a class="dropdown-item fw-bold" href="{{ path("utilisateur_show", {id: item.id})}}">Détails</a>
+												<a class="dropdown-item fw-bold" href="{{ row.url_show }}">Détails</a>
 											</li>
 											<li>
-												<a class="dropdown-item fw-bold" href="{{ path("utilisateur_update", {id: item.id})}}">Modifier</a>
+												<a class="dropdown-item fw-bold" href="{{ row.url_edit }}">Modifier</a>
 											</li>
 											<li>
-												<a class="dropdown-item fw-bold" style="color: red;" href="{{ path("utilisateur_delete", {id: item.id})}}">Supprimer</a>
+												<a class="dropdown-item fw-bold" style="color: red;" href="{{ row.url_delete }}">Supprimer</a>
 											</li>
 										</ul>
 									</div>
 								</td>
-								<td data-label="username">{{item.nomUtilisateur}}</td>
-								<td data-label="matricule">{{item.matricule}}</td>
-								<td data-label="mail">{{item.mail}}</td>
-								<td data-label="role">
-									<ul>
-										{% for a in item.roles %}
-											<li>{{a.rolename}}</li>
-										{% endfor %}
-									</ul>
-								</td>
-								<td data-label="applications">
-									<ul>
-										{% for a in item.applications %}
-											<li>{{a.codeApp}}</li>
-										{% endfor %}
-									</ul>
-								</td>
-								<td data-label="code-sage">{{item.agenceServiceIrium.serviceSagePaie}}</td>
-								<td data-label="agence-autoriser">
-									<ul>
-										{% for a in item.agenceAutoriserCode %}
-											<li>{{a}}</li>
-										{% endfor %}
-									</ul>
-								</td>
-								<td data-label="service-autoriser">
-									<ul>
-										{% for a in item.serviceAutoriserCode %}
-											<li>{{a}}</li>
-										{% endfor %}
-									</ul>
-								</td>
+								<td data-label="username">{{ row.username }}</td>
+								<td data-label="matricule">{{ row.matricule }}</td>
+								<td data-label="mail">{{ row.email }}</td>
+								<td data-label="code-sage">{{ row.codeSage }}</td>
+								<td data-label="profil">{{ row.profil }}</td>
 							</tr>
 						{% endfor %}
 					</tbody>

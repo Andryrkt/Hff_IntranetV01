@@ -4,6 +4,7 @@ namespace App\Controller\admin;
 
 use App\Controller\Controller;
 use App\Dto\admin\UserDTO;
+use App\Entity\admin\utilisateur\Profil;
 use App\Entity\admin\utilisateur\User;
 use App\Factory\admin\UserFactory;
 use App\Form\admin\utilisateur\UserType;
@@ -17,6 +18,41 @@ class UserController extends Controller
     public function __construct(UserFactory $userFactory)
     {
         $this->userFactory = $userFactory;
+    }
+
+    /**
+     * @Route("/admin/utilisateur", name="utilisateur_index")
+     *
+     * @return void
+     */
+    public function index()
+    {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
+        $data = $this->getEntityManager()->getRepository(User::class)->findBy([], ['id' => 'DESC']);
+        $preparedData = $this->prepareDataForListDisplay($data);
+
+        return $this->render('admin/utilisateur/list.html.twig', [
+            'rows' => $preparedData
+        ]);
+    }
+
+    /**
+     * @Route("/admin/utilisateur/show/{id}", name="utilisateur_show")
+     *
+     * @return void
+     */
+    public function show($id)
+    {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
+        $data = $this->getEntityManager()->getRepository(User::class)->find($id);
+
+        return $this->render('admin/utilisateur/details.html.twig', [
+            'data' => $data
+        ]);
     }
 
     /**
@@ -73,23 +109,6 @@ class UserController extends Controller
     }
 
     /**
-     * @Route("/admin/utilisateur", name="utilisateur_index")
-     *
-     * @return void
-     */
-    public function index()
-    {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
-        $data = $this->getEntityManager()->getRepository(User::class)->findBy([], ['id' => 'DESC']);
-
-        return $this->render('admin/utilisateur/list.html.twig', [
-            'data' => $data
-        ]);
-    }
-
-    /**
      * @Route("/admin/utilisateur/delete/{id}", name="utilisateur_delete")
      *
      * @return void
@@ -133,21 +152,44 @@ class UserController extends Controller
         return $this->redirectToRoute("utilisateur_index");
     }
 
-
-    /**
-     * @Route("/admin/utilisateur/show/{id}", name="utilisateur_show")
-     *
-     * @return void
+    /** 
+     * Fonction pour préparer les données avant de donner à twig
+     * @param  User[] $dataUsers
+     * @return array
      */
-    public function show($id)
+    private function prepareDataForListDisplay(array $dataUsers): array
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
+        $rows = [];
+        $urlGenerator = $this->getUrlGenerator();
 
-        $data = $this->getEntityManager()->getRepository(User::class)->find($id);
+        foreach ($dataUsers as $user) {
+            $id = $user->getId();
+            $agenceServiceIrium = $user->getAgenceServiceIrium();
+            $profils = $user->getProfils();
 
-        return $this->render('admin/utilisateur/details.html.twig', [
-            'data' => $data
-        ]);
+            $baseData = [
+                'username'   => $user->getNomUtilisateur(),
+                'matricule'  => $user->getMatricule(),
+                'email'      => $user->getMail(),
+                'codeSage'   => $agenceServiceIrium->getServiceSagePaie(),
+                'url_show'   => $urlGenerator->generate('utilisateur_show', ['id' => $id]),
+                'url_edit'   => $urlGenerator->generate('utilisateur_update', ['id' => $id]),
+                'url_delete' => $urlGenerator->generate('utilisateur_delete', ['id' => $id]),
+            ];
+
+            if ($profils->isEmpty()) {
+                $rows[] = $baseData + ['profil' => '-'];
+                continue;
+            }
+
+            foreach ($profils as $profil) {
+                /** @var Profil $profil */
+                foreach ($profils as $profil) {
+                    $rows[] = $baseData + ['profil' => $profil->getDesignation()];
+                }
+            }
+        }
+
+        return $rows;
     }
 }

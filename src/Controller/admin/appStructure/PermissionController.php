@@ -101,7 +101,7 @@ class PermissionController extends Controller
             $liaisons = $appProfil->getLiaisonsAgenceService();
 
             if ($liaisons->isEmpty()) {
-                $preparedData[] = $baseData + ['liaisons' => ''];
+                $preparedData[] = $baseData + ['codeAgence' => '-', 'libelleAgence' => '-', 'codeService' => '-', 'libelleService' => '-'];
                 continue;
             }
 
