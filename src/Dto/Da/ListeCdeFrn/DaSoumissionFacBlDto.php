@@ -41,9 +41,4 @@ class DaSoumissionFacBlDto
     // Reappro =====================
     public $estfactureReappro = false;
     public $numerofactureReappro = null;
-
-    // si DA qui a une Demande de paiement à l'avance
-    public $totalMontantCommande;
-    public $ratio = 0;
-    public ?int $cumul = 0;
 }
