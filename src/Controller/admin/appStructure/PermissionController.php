@@ -3,7 +3,7 @@
 namespace App\Controller\admin\appStructure;
 
 use App\Controller\Controller;
-use App\Dto\admin\ApplicationProfilAgenceServiceDTO;
+use App\Dto\admin\PermissionsDTO;
 use App\Entity\admin\ApplicationProfil;
 use App\Entity\admin\utilisateur\ApplicationProfilAgenceService;
 use App\Form\admin\ApplicationProfilAgenceServiceType;
@@ -34,7 +34,7 @@ class PermissionController extends Controller
 
         $em = $this->getEntityManager();
 
-        $dto = new ApplicationProfilAgenceServiceDTO();
+        $dto = new PermissionsDTO();
         $dto->applicationProfil = $em->getRepository(ApplicationProfil::class)->find($id);
         /** Obtenir les agences services deja liées au combinaison ApplicationProfil */
         $oldLinks = $dto->applicationProfil->getLiaisonsAgenceService(); // collection de liaison (objet ApplicationProfilAgenceService)

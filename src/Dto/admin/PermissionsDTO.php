@@ -5,7 +5,7 @@ namespace App\Dto\admin;
 use App\Entity\admin\ApplicationProfil;
 use App\Entity\admin\AgenceService;
 
-class ApplicationProfilAgenceServiceDTO
+class PermissionsDTO
 {
     public ?ApplicationProfil $applicationProfil = null;
 

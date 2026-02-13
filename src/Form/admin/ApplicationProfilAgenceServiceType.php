@@ -2,7 +2,7 @@
 
 namespace App\Form\admin;
 
-use App\Dto\admin\ApplicationProfilAgenceServiceDTO;
+use App\Dto\admin\PermissionsDTO;
 use App\Entity\admin\AgenceService;
 use App\Entity\admin\ApplicationProfil;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -39,7 +39,7 @@ class ApplicationProfilAgenceServiceType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => ApplicationProfilAgenceServiceDTO::class,
+            'data_class' => PermissionsDTO::class,
         ]);
     }
 }
