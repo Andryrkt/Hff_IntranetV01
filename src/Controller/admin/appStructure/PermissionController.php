@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /** @Route("/admin/permission") */
-class AppProfilAgServController extends Controller
+class PermissionController extends Controller
 {
     /** @Route("", name="permission_index") */
     public function index()
@@ -21,7 +21,7 @@ class AppProfilAgServController extends Controller
 
         $allAppProfil = $this->getEntityManager()->getRepository(ApplicationProfil::class)->findAll();
         $preparedData = $this->prepareForDisplay($allAppProfil);
-        return $this->render('admin/appProfilAgServ/list.html.twig', [
+        return $this->render('admin/permissions/list.html.twig', [
             'data' => $preparedData,
         ]);
     }
@@ -74,7 +74,7 @@ class AppProfilAgServController extends Controller
             $this->redirectToRoute("permission_index");
         }
 
-        return $this->render('admin/appProfilAgServ/new.html.twig', [
+        return $this->render('admin/permissions/new.html.twig', [
             'reference' => $dto->applicationProfil->getProfil()->getReference(),
             'nomProfil' => $dto->applicationProfil->getProfil()->getDesignation(),
             'codeApp'   => $dto->applicationProfil->getApplication()->getCodeApp(),
