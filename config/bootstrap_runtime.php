@@ -99,6 +99,9 @@ $session = new \Symfony\Component\HttpFoundation\Session\Session(
 );
 $container->set('session', $session);
 
+$securityService = new \App\Service\security\SecurityService($container->get('doctrine.orm.default_entity_manager'), $session);
+$container->set('securityService', $securityService);
+
 $formFactory = \Symfony\Component\Form\Forms::createFormFactoryBuilder()
     ->addExtension(new \Symfony\Component\Form\Extension\Core\CoreExtension())
     ->addExtension(new \Symfony\Component\Form\Extension\Validator\ValidatorExtension(\Symfony\Component\Validator\Validation::createValidator()))
@@ -263,6 +266,7 @@ global $container;
 return [
     'twig'               => $twig,
     'matcher'            => $matcher,
+    'securityService'    => $securityService,
     'controllerResolver' => $controllerResolver,
     'argumentResolver'   => $argumentResolver,
 ];

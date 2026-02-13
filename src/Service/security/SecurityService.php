@@ -38,8 +38,8 @@ class SecurityService
     private ?string $routeCourrante = null;
 
     public function __construct(
-        SessionInterface $session,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
+        SessionInterface $session
     ) {
         $this->entityManager = $entityManager;
         $this->session = $session;

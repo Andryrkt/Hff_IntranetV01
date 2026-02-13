@@ -1,8 +1,9 @@
 <?php
 
+use Symfony\Component\Yaml\Yaml;
+use App\Service\security\SecurityService;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
-use Symfony\Component\Yaml\Yaml;
 
 // Chargement du bootstrap runtime (adaptatif)
 $services = require __DIR__ . '/config/bootstrap_runtime.php';
@@ -12,6 +13,8 @@ $twig               = $services['twig'];
 $matcher            = $services['matcher'];
 $argumentResolver   = $services['argumentResolver'];
 $controllerResolver = $services['controllerResolver'];
+/** @var SecurityService $securityService */
+$securityService    = $services['securityService'];
 $response           = new \Symfony\Component\HttpFoundation\Response();
 
 // Créer la requête depuis les variables globales
