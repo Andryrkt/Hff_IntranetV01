@@ -182,11 +182,9 @@ class UserController extends Controller
                 continue;
             }
 
+            /** @var Profil $profil */
             foreach ($profils as $profil) {
-                /** @var Profil $profil */
-                foreach ($profils as $profil) {
-                    $rows[] = $baseData + ['profil' => $profil->getDesignation()];
-                }
+                $rows[] = $baseData + ['profil' => $profil->getDesignation()];
             }
         }
 
