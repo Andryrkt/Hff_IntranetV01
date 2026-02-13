@@ -2,6 +2,8 @@
 
 use Symfony\Component\Yaml\Yaml;
 use App\Service\security\SecurityService;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
@@ -15,10 +17,10 @@ $argumentResolver   = $services['argumentResolver'];
 $controllerResolver = $services['controllerResolver'];
 /** @var SecurityService $securityService */
 $securityService    = $services['securityService'];
-$response           = new \Symfony\Component\HttpFoundation\Response();
+$response           = new Response();
 
 // Créer la requête depuis les variables globales
-$request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
+$request = Request::createFromGlobals();
 
 try {
     // Matcher la route
@@ -33,7 +35,7 @@ try {
     $result = call_user_func_array($controller, $arguments);
 
     // Si le contrôleur retourne une Response, l'utiliser
-    if ($result instanceof \Symfony\Component\HttpFoundation\Response) {
+    if ($result instanceof Response) {
         $response = $result;
     } else {
         // Sinon, essayer de rendre le résultat avec Twig
