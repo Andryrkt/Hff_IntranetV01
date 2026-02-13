@@ -32,7 +32,7 @@
 							<th class="text-center">Matricule</th>
 							<th class="text-start">Email</th>
 							<th class="text-center">Code Sage</th>
-							<th class="text-start">Profil</th>
+							<th class="text-start ps-4">Profil</th>
 						</tr>
 					</thead>
 					<tbody id="tableBody">
@@ -60,7 +60,17 @@
 								<td class="text-center" data-label="matricule">{{ row.matricule }}</td>
 								<td class="text-start" data-label="mail">{{ row.email }}</td>
 								<td class="text-center" data-label="code-sage">{{ row.codeSage }}</td>
-								<td class="text-start" data-label="profil">{{ row.profil }}</td>
+								<td class="text-start p-0" data-label="profil">
+									{% if row.profils.isEmpty() %}
+										-
+									{% else %}
+										<ul class="list-group list-group-flush">
+											{% for profil in row.profils %}
+												<li class="list-group-item">{{ profil.designation }}</li>
+											{% endfor %}
+										</ul>
+									{% endif %}
+								</td>
 							</tr>
 						{% endfor %}
 					</tbody>

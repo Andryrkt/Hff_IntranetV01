@@ -167,25 +167,16 @@ class UserController extends Controller
             $agenceServiceIrium = $user->getAgenceServiceIrium();
             $profils = $user->getProfils();
 
-            $baseData = [
+            $rows[] = [
                 'username'   => $user->getNomUtilisateur(),
                 'matricule'  => $user->getMatricule(),
                 'email'      => $user->getMail(),
                 'codeSage'   => $agenceServiceIrium->getServiceSagePaie(),
+                'profils'    => $profils,
                 'url_show'   => $urlGenerator->generate('utilisateur_show', ['id' => $id]),
                 'url_edit'   => $urlGenerator->generate('utilisateur_update', ['id' => $id]),
                 'url_delete' => $urlGenerator->generate('utilisateur_delete', ['id' => $id]),
             ];
-
-            if ($profils->isEmpty()) {
-                $rows[] = $baseData + ['profil' => '-'];
-                continue;
-            }
-
-            /** @var Profil $profil */
-            foreach ($profils as $profil) {
-                $rows[] = $baseData + ['profil' => $profil->getDesignation()];
-            }
         }
 
         return $rows;
