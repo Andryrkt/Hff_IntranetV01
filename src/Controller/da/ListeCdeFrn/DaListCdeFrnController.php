@@ -164,7 +164,6 @@ class DaListCdeFrnController extends Controller
 
     private function quelqueMiseAjourDaAfficher(array $daAfficherValides)
     {
-
         foreach ($daAfficherValides as $davalide) {
             if ($davalide->getArtDesi() !== 'ECROU HEX. AC.GALVA A CHAUD CL.8 DI') {
                 $this->modificationStatutBC($davalide);

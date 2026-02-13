@@ -39,7 +39,57 @@
 						<div class="col-12 col-md-3"></div>
 						<div class="col-12 col-md-3"></div>
 					</div>
-                    
+					{# =========================== #}
+					<div class="row">
+						<div class="col-12 col-md-6">
+							<h5 class="fw-bold">Liste des demandes de paiement à l'avance</h5>
+							<table class="table">
+								<thead class="table-dark align-middle">
+									<tr>
+										<th class="text-center">Numéro</th>
+										<th class="text-center">Date</th>
+										<th>Motif</th>
+										<th class="text-center">Montant</th>
+										<th class="text-center">%</th>
+										<th class="text-center">% cummul</th>
+									</tr>
+								</thead>
+								<tbody>
+									{% for item in ddpa %}
+										<tr>
+											<td>{{item.numeroDdp}}</td>
+											<td class="text-center">{{item.datecreation|date('d/m/Y')}}</td>
+											<td>{{item.motif}}</td>
+											<td class="text-end">{{item.montant|number_format(2,',','.')}}</td>
+											<td class="text-center">{{item.ratio|round(2)}}%</td>
+											<td class="text-center">{{item.cumul|round(2)}}%</td>
+										</tr>
+									{% endfor %}
+									<tr>
+										<td colspan="6"></td>
+									</tr>
+									<tr>
+										<td class="fw-bold">Total payé / encours</td>
+										<td colspan="2"></td>
+										<td class="text-end">{{montant.totalPayer|number_format(2,',','.')}}</td>
+										<td class="text-center">{{montant.ratioTotalPayer|round(2)}}%</td>
+										<td></td>
+									</tr>
+									<tr>
+										<td colspan="6"></td>
+									</tr>
+									<tr>
+										<td class="fw-bold">Montant à régulariser</td>
+										<td colspan="2"></td>
+										<td class="text-end">{{montant.montantAregulariser|number_format(2,',','.')}}</td>
+										<td class="text-center">{{montant.ratioMontantARegul|round(2)}}%</td>
+										<td></td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+					{# ============================ #}
 					<hr>
 					<div class="row">
 						<div class="col-12 col-md-3">
