@@ -10,10 +10,10 @@ use App\Form\admin\ApplicationProfilAgenceServiceType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-/** @Route("/admin/appProfilAgServ") */
+/** @Route("/admin/permission") */
 class AppProfilAgServController extends Controller
 {
-    /** @Route("", name="app_profil_ag_serv_index") */
+    /** @Route("", name="permission_index") */
     public function index()
     {
         // verifier si l'utilisateur est connecté
@@ -26,8 +26,8 @@ class AppProfilAgServController extends Controller
         ]);
     }
 
-    /** @Route("/liaison/{id}", name="app_profil_ag_serv_liaison") */
-    public function liaison(int $id, Request $request)
+    /** @Route("/{id}", name="permission_handle") */
+    public function handlePermission(int $id, Request $request)
     {
         // verifier si l'utilisateur est connecté
         $this->verifierSessionUtilisateur();
@@ -71,7 +71,7 @@ class AppProfilAgServController extends Controller
             }
 
             $em->flush();
-            $this->redirectToRoute("app_profil_ag_serv_index");
+            $this->redirectToRoute("permission_index");
         }
 
         return $this->render('admin/appProfilAgServ/new.html.twig', [
@@ -90,7 +90,7 @@ class AppProfilAgServController extends Controller
         /** @var ApplicationProfil $appProfil */
         foreach ($allAppProfil as $appProfil) {
             $baseData = [
-                'urlLiaison'     => $this->getUrlGenerator()->generate('app_profil_ag_serv_liaison', ['id' => $appProfil->getId()]),
+                'urlLiaison'     => $this->getUrlGenerator()->generate('permission_handle', ['id' => $appProfil->getId()]),
                 'appProfilId'    => $appProfil->getId(),
                 'reference'      => $appProfil->getProfil()->getReference(),
                 'nomProfil'      => $appProfil->getProfil()->getDesignation(),
