@@ -12,6 +12,13 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class UserController extends Controller
 {
+    private UserFactory $userFactory;
+
+    public function __construct(UserFactory $userFactory)
+    {
+        $this->userFactory = $userFactory;
+    }
+
     /**
      * @Route("/admin/utilisateur/new", name="utilisateur_new")
      */
@@ -24,8 +31,7 @@ class UserController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $userFactory = new UserFactory();
-            $utilisateur = $userFactory->createFromDto($dto);
+            $utilisateur = $this->userFactory->createFromDto($dto);
 
             $this->getEntityManager()->persist($utilisateur);
             $this->getEntityManager()->flush();
@@ -49,14 +55,13 @@ class UserController extends Controller
         $this->verifierSessionUtilisateur();
 
         $user = $this->getEntityManager()->getRepository(User::class)->find($id);
-        $userFactory = new UserFactory();
-        $dto = $userFactory->createDTOFromUser($user);
+        $dto = $this->userFactory->createDTOFromUser($user);
         $form = $this->getFormFactory()->createBuilder(UserType::class, $dto)->getForm();
         $form->handleRequest($request);
 
         // Vérifier si le formulaire est soumis et valide
         if ($form->isSubmitted() && $form->isValid()) {
-            $userFactory->updateFromDTO($dto, $user);
+            $this->userFactory->updateFromDTO($dto, $user);
 
             $this->getEntityManager()->flush();
             return $this->redirectToRoute("utilisateur_index");

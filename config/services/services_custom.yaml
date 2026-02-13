@@ -114,3 +114,12 @@ services:
     arguments:
       $daTimelineService: '@App\Service\da\DaTimelineService'
     public: true
+
+  # Factory
+  App\Factory\admin\UserFactory:
+    public: true
+
+  App\Controller\admin\UserController:
+    arguments:
+      - '@App\Factory\admin\UserFactory'
+    public: true
