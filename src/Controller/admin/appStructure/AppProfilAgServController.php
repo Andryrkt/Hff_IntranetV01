@@ -90,7 +90,7 @@ class AppProfilAgServController extends Controller
         /** @var ApplicationProfil $appProfil */
         foreach ($allAppProfil as $appProfil) {
             $baseData = [
-                'urlLiaison'     => $this->getUrlGenerator()->generate('permission_handle', ['id' => $appProfil->getId()]),
+                'urlPermission'     => $this->getUrlGenerator()->generate('permission_handle', ['id' => $appProfil->getId()]),
                 'appProfilId'    => $appProfil->getId(),
                 'reference'      => $appProfil->getProfil()->getReference(),
                 'nomProfil'      => $appProfil->getProfil()->getDesignation(),
