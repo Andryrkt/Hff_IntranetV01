@@ -148,20 +148,13 @@ class ApplicationController extends Controller
             ];
 
             $pages = $application->getPages();
-            $profils = $application->getProfils();
 
             /** @var PageHff[] $pagesArray */
             $pagesArray = $pages->isEmpty() ? [null] : $pages->toArray();
-            /** @var Profil[] $profilsArray */
-            $profilsArray = $profils->isEmpty() ? [null] : $profils->toArray();
 
-            // Obtenir le nombre maximum de lignes nécessaires
-            $maxRows = max(count($pagesArray), count($profilsArray));
-
-            for ($i = 0; $i < $maxRows; $i++) {
+            for ($i = 0; $i < count($pagesArray); $i++) {
                 $preparedData[] = $baseData + [
                     'pageName'   => isset($pagesArray[$i]) ? $pagesArray[$i]->getNom() : '-',
-                    'profilName' => isset($profilsArray[$i]) ? $profilsArray[$i]->getDesignation() : '-'
                 ];
             }
         }
