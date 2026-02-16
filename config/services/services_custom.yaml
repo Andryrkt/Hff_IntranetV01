@@ -115,6 +115,11 @@ services:
       $daTimelineService: '@App\Service\da\DaTimelineService'
     public: true
 
+  App\Service\Admin\PermissionsService:
+    arguments:
+      $entityManager: "@doctrine.orm.default_entity_manager"
+    public: true
+
   # Factory
   App\Factory\admin\UserFactory:
     public: true
@@ -129,6 +134,7 @@ services:
 
   App\Controller\admin\appStructure\PermissionController:
     arguments:
-      - "@doctrine.orm.default_entity_manager"
-      - '@App\Factory\admin\PermissionsFactory'
+      $entityManager: "@doctrine.orm.default_entity_manager"
+      $permissionsService: '@App\Service\Admin\PermissionsService'
+      $permissionsFactory: '@App\Factory\admin\PermissionsFactory'
     public: true

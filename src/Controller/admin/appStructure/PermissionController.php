@@ -3,23 +3,24 @@
 namespace App\Controller\admin\appStructure;
 
 use App\Controller\Controller;
-use App\Dto\admin\PermissionsDTO;
 use App\Form\admin\PermissionsType;
 use App\Entity\admin\ApplicationProfil;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Factory\admin\PermissionsFactory;
+use App\Service\Admin\PermissionsService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Entity\admin\utilisateur\ApplicationProfilAgenceService;
-use App\Factory\admin\PermissionsFactory;
 
 /** @Route("/admin/permission") */
 class PermissionController extends Controller
 {
     private PermissionsFactory $permissionsFactory;
+    private PermissionsService $permissionsService;
 
-    public function __construct(EntityManagerInterface $entityManager, PermissionsFactory $permissionsFactory)
+    public function __construct(EntityManagerInterface $entityManager, PermissionsService $permissionsService, PermissionsFactory $permissionsFactory)
     {
         $this->entityManager = $entityManager;
+        $this->permissionsService = $permissionsService;
         $this->permissionsFactory = $permissionsFactory;
     }
 
@@ -42,41 +43,16 @@ class PermissionController extends Controller
         // verifier si l'utilisateur est connecté
         $this->verifierSessionUtilisateur();
 
-        $dto = new PermissionsDTO();
-        $dto->applicationProfil = $this->entityManager->getRepository(ApplicationProfil::class)->find($id);
-        /** Obtenir les agences services deja liées au combinaison ApplicationProfil */
-        $oldLinks = $dto->applicationProfil->getLiaisonsAgenceService(); // collection de liaison (objet ApplicationProfilAgenceService)
-        $dto->agenceServices = $oldLinks->map(fn($l) => $l->getAgenceService())->toArray(); // tableau d'objets AgenceService
+        $appProfil = $this->entityManager->getRepository(ApplicationProfil::class)->find($id);
+        $oldLinks = $appProfil->getLiaisonsAgenceService(); // collection de liaison (objet ApplicationProfilAgenceService)
+
+        $dto = $this->permissionsFactory->createDTOFromAppProfil($appProfil, $oldLinks);
         $form = $this->getFormFactory()->createBuilder(PermissionsType::class, $dto)->getForm();
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
-            $ap = $dto->applicationProfil;
-            $as = $dto->agenceServices; // nouveau tableau d'objets AgenceService (selectionné dans le formulaire)
-
-            $existingIds = array_map(
-                fn($l) => $l->getAgenceService()->getId(),
-                $oldLinks->toArray()
-            ); // tableau d'ids des agences services deja liées
-
-            // Ajout
-            foreach ($as as $agServ) {
-                if ($existingIds && !in_array($agServ->getId(), $existingIds)) {
-                    $apas = new ApplicationProfilAgenceService($ap, $agServ);
-                    $this->entityManager->persist($apas);
-                }
-            }
-
-            // Suppression
-            if (!$oldLinks->isEmpty()) {
-                foreach ($oldLinks as $link) {
-                    if (!in_array($link->getAgenceService()->getId(), $existingIds)) {
-                        $this->entityManager->remove($link);
-                    }
-                }
-            }
+            $this->permissionsService->synchroniserLiaisons($dto, $oldLinks);
 
             $this->entityManager->flush();
             $this->redirectToRoute("permission_index");
