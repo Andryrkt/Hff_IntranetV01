@@ -16,9 +16,9 @@ class PermissionsService
         $this->entityManager = $entityManager;
     }
 
-    public function synchroniserLiaisons(PermissionsDTO $dto, Collection $oldLinks): void
+    public function synchroniserLiaisons(PermissionsDTO $dto, Collection $linksAgServ): void
     {
-        $existingIds = array_map(fn($l) => $l->getAgenceService()->getId(), $oldLinks->toArray());
+        $existingIds = array_map(fn($l) => $l->getAgenceService()->getId(), $linksAgServ->toArray());
         $newIds = array_map(fn($a) => $a->getId(), $dto->agenceServices);
 
         // Ajout
@@ -30,7 +30,7 @@ class PermissionsService
         }
 
         // Suppression
-        foreach ($oldLinks as $link) {
+        foreach ($linksAgServ as $link) {
             if (!in_array($link->getAgenceService()->getId(), $newIds)) {
                 $this->entityManager->remove($link);
             }

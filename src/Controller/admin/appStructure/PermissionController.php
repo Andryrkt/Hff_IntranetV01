@@ -45,15 +45,16 @@ class PermissionController extends Controller
         $this->verifierSessionUtilisateur();
 
         $appProfil = $this->entityManager->getRepository(ApplicationProfil::class)->find($id);
-        $oldLinks = $appProfil->getLiaisonsAgenceService(); // collection de liaison (objet ApplicationProfilAgenceService)
+        $oldLinksAgServ = $appProfil->getLiaisonsAgenceService(); // collection de liaison (objet ApplicationProfilAgenceService)
+        $oldLinksPage = $appProfil->getLiaisonsPage(); // collection de liaison (objet ApplicationProfilPage)
 
-        $dto = $this->permissionsFactory->createDTOFromAppProfil($appProfil, $oldLinks);
+        $dto = $this->permissionsFactory->createDTOFromAppProfil($appProfil, $oldLinksAgServ, $oldLinksPage);
         $form = $this->getFormFactory()->createBuilder(PermissionsType::class, $dto)->getForm();
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->permissionsService->synchroniserLiaisons($dto, $oldLinks);
+            $this->permissionsService->synchroniserLiaisons($dto, $oldLinksAgServ);
 
             $this->entityManager->flush();
             $this->redirectToRoute("permission_index");
