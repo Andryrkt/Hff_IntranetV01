@@ -2,21 +2,22 @@
 
 namespace App\Mapper\Da\ListCdeFrn;
 
+use App\Dto\Da\ListeCdeFrn\DaDdpaDto;
 use App\Dto\Da\ListeCdeFrn\DaSoumissionFacBlDdpaDto;
 use App\Entity\ddp\DemandePaiement;
 
 class DaSoumissionFacBlDdpaMapper
 {
-    public static  function mapDdp(DaSoumissionFacBlDdpaDto $dto, DemandePaiement $ddp): DaSoumissionFacBlDdpaDto
+    public static  function mapDdp(DaDdpaDto $ddpaDto, DemandePaiement $ddp): DaDdpaDto
     {
-        $dto->numeroDdp = $ddp->getNumeroDdp();
-        $dto->dateCreation = $ddp->getDateCreation();
-        $dto->motif = $ddp->getMotif();
-        $dto->montant = $ddp->getMontantAPayers();
-        $dto->ratio = $dto->getRatio();
+        $ddpaDto->numeroDdp = $ddp->getNumeroDdp();
+        $ddpaDto->dateCreation = $ddp->getDateCreation();
+        $ddpaDto->motif = $ddp->getMotif();
+        $ddpaDto->montant = $ddp->getMontantAPayers();
+        $ddpaDto->ratio = $ddpaDto->getRatio();
 
 
-        return $dto;
+        return $ddpaDto;
     }
 
     public static function mapTotalPayer(DaSoumissionFacBlDdpaDto $dto, $montantPayer, $ratioTotalPayer, $montantAregulariser, $ratioMontantARegul)

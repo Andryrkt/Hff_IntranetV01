@@ -22,13 +22,8 @@ class DaSoumissionFacBlDdpaDto
     public $statut;
 
     // si DA qui a une Demande de paiement à l'avance
+    public $daDdpa = [];
     public $totalMontantCommande;
-    public $ratio = 0;
-    public $cumul = 0;
-    public $numeroDdp;
-    public $dateCreation;
-    public $motif;
-    public $montant = 0;
     public $totalPayer = 0;
     public $ratioTotalPayer = 0;
     public $montantAregulariser;
@@ -43,12 +38,4 @@ class DaSoumissionFacBlDdpaDto
     public $statutRecep;
     public $receptions = [];
 
-
-    public function getRatio()
-    {
-        if ($this->totalMontantCommande == 0) {
-            return 0;
-        }
-        return (($this->montant / $this->totalMontantCommande) * 100);
-    }
 }

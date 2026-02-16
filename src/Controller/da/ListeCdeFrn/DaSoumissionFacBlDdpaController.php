@@ -46,15 +46,9 @@ class DaSoumissionFacBlDdpaController extends Controller
             'method'  => 'POST'
         ])->getForm();
 
-        // recuperation des demandes de paiement déjà payer
-        $ddpa = $this->getDdpa($numCde, $dto);
-
-        $montant = $this->getMontant($numCde, $dto);
 
         return $this->render('da/soumissionFacBlDdpa.html.twig', [
             'form' => $form->createView(),
-            'ddpa' => $ddpa,
-            'montant' => $montant,
             'dto' => $dto
         ]);
     }
@@ -223,52 +217,5 @@ class DaSoumissionFacBlDdpaController extends Controller
         if (!$okey) $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn');
 
         return $okey;
-    }
-
-    public function getDdpa(int $numCde, DaSoumissionFacBlDdpaDto $dto)
-    {
-        $ddpRepository = $this->getEntityManager()->getRepository(DemandePaiement::class);
-        $ddps = $ddpRepository->getDdpSelonNumCde($numCde);
-
-        $ddpa = [];
-        $runningCumul = 0; // Variable pour maintenir le total cumulé
-
-        foreach ($ddps as  $ddp) {
-            // Crée un nouveau DTO pour chaque élément afin d'avoir des objets distincts
-            $itemDto = new DaSoumissionFacBlDdpaDto();
-
-            // Copie les propriétés nécessaires du DTO initial qui sont communes à tous les éléments
-            $itemDto->totalMontantCommande = $dto->totalMontantCommande;
-
-            // Mappe l'entité vers le nouveau DTO (le mapper ne s'occupe plus du cumul)
-            DaSoumissionFacBlDdpaMapper::mapDdp($itemDto, $ddp);
-
-            // Calcule et définit la valeur cumulative ici dans la logique du contrôleur
-            $runningCumul += $itemDto->ratio;
-            $itemDto->cumul = $runningCumul;
-
-            $ddpa[] = $itemDto;
-        }
-
-        return $ddpa;
-    }
-
-    public function getMontant(int $numCde, DaSoumissionFacBlDdpaDto $dto)
-    {
-        $montantpayer = 0;
-        $ddpRepository = $this->getEntityManager()->getRepository(DemandePaiement::class);
-        $ddps = $ddpRepository->getDdpSelonNumCde($numCde);
-        foreach ($ddps as $item) {
-            $montantpayer = $montantpayer + $item->getMontantAPayers();
-        }
-
-        $ratioTotalPayer = ($montantpayer / $dto->totalMontantCommande) * 100;
-
-        $montantAregulariser = $dto->totalMontantCommande - $montantpayer;
-        $ratioMontantARegul = ($montantAregulariser /  $dto->totalMontantCommande) * 100;
-
-        $dto = DaSoumissionFacBlDdpaMapper::mapTotalPayer($dto, $montantpayer, $ratioTotalPayer, $montantAregulariser, $ratioMontantARegul);
-
-        return $dto;
     }
 }

@@ -55,7 +55,7 @@
 									</tr>
 								</thead>
 								<tbody>
-									{% for item in ddpa %}
+									{% for item in dto.daDdpa %}
 										<tr>
 											<td class="text-center">{{item.numeroDdp}}</td>
 											<td class="text-center">{{item.datecreation|date('d/m/Y')}}</td>
@@ -71,8 +71,8 @@
 									<tr>
 										<td class="fw-bold">Total payé / encours</td>
 										<td colspan="2"></td>
-										<td class="text-end">{{montant.totalPayer|number_format(2,',','.')}}</td>
-										<td class="text-end">{{montant.ratioTotalPayer|round(2)|number_format(2,',','.')}}%</td>
+										<td class="text-end">{{dto.totalPayer|number_format(2,',','.')}}</td>
+										<td class="text-end">{{dto.ratioTotalPayer|round(2)|number_format(2,',','.')}}%</td>
 										<td></td>
 									</tr>
 									<tr>
@@ -81,8 +81,8 @@
 									<tr>
 										<td class="fw-bold">Montant à régulariser</td>
 										<td colspan="2"></td>
-										<td class="text-end text-danger fw-bold">{{montant.montantAregulariser|number_format(2,',','.')}}</td>
-										<td class="text-end text-danger fw-bold">{{montant.ratioMontantARegul|round(2)|number_format(2,',','.')}}%</td>
+										<td class="text-end text-danger fw-bold">{{dto.montantAregulariser|number_format(2,',','.')}}</td>
+										<td class="text-end text-danger fw-bold">{{dto.ratioMontantARegul|round(2)|number_format(2,',','.')}}%</td>
 										<td></td>
 									</tr>
 								</tbody>
