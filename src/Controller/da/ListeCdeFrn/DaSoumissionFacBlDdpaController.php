@@ -16,13 +16,10 @@ use App\Factory\da\CdeFrnDto\DaSoumissionFacBlDdpaFactory;
 class DaSoumissionFacBlDdpaController extends Controller
 {
     private DaSoumissionFacBlDdpaFactory $daSoumissionFacBlDdpaFactory;
-    private DaSoumissionFacBlDdpaMapper $daSoumissionFacBlDdpaMapper;
-
 
     public function __construct()
     {
         $this->daSoumissionFacBlDdpaFactory = new DaSoumissionFacBlDdpaFactory($this->getEntityManager());
-        $this->daSoumissionFacBlDdpaMapper = new DaSoumissionFacBlDdpaMapper();
     }
 
     /**
@@ -45,11 +42,12 @@ class DaSoumissionFacBlDdpaController extends Controller
         $ddpa = $this->getDdpa($numCde, $dto);
 
         $montant = $this->getMontant($numCde, $dto);
-        
+
         return $this->render('da/soumissionFacBlDdpa.html.twig', [
             'form' => $form->createView(),
             'ddpa' => $ddpa,
-            'montant' => $montant
+            'montant' => $montant,
+            'dto' => $dto
         ]);
     }
 

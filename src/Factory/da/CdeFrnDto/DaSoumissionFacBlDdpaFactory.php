@@ -9,6 +9,7 @@ use App\Service\autres\AutoIncDecService;
 use App\Model\da\DaSoumissionFacBlDdpaModel;
 use App\Repository\da\DaSoumissionFacBlRepository;
 use App\Dto\Da\ListeCdeFrn\DaSoumissionFacBlDdpaDto;
+use App\Mapper\Da\ListCdeFrn\DaSoumissionFacBlDdpaMapper;
 
 class DaSoumissionFacBlDdpaFactory
 {
@@ -26,6 +27,7 @@ class DaSoumissionFacBlDdpaFactory
         $this->daSoumissionFacBlRepository = $em->getRepository(DaSoumissionFacBl::class);
         $this->daSoumissionFacBlDdpaModel = new DaSoumissionFacBlDdpaModel();
     }
+
     public function initialisation($numCde, string $utilisateur): DaSoumissionFacBlDdpaDto
     {
         $dto = new DaSoumissionFacBlDdpaDto();
@@ -33,6 +35,8 @@ class DaSoumissionFacBlDdpaFactory
         $dto->utilisateur = $utilisateur;
         $dto->numeroVersion = $this->getNumeroVersion($numCde);
         $dto->totalMontantCommande = $this->getTotalMontantCommande($numCde);
+
+        $this->getReception($numCde, $dto);
 
         return $dto;
     }
@@ -50,5 +54,15 @@ class DaSoumissionFacBlDdpaFactory
         if ($totalMontantCommande) return (float)$totalMontantCommande[0];
 
         return 0;
+    }
+
+    public function getReception(int $numCde, $dto)
+    {
+        $articleCdes = $this->daSoumissionFacBlDdpaModel->getArticleCde($numCde);
+
+        foreach ($articleCdes as $articleCde) {
+            $itemDto = new DaSoumissionFacBlDdpaDto();
+            $dto->receptions[] = DaSoumissionFacBlDdpaMapper::mapReception($itemDto, $articleCde);
+        }
     }
 }

@@ -28,6 +28,15 @@ class DaSoumissionFacBlDdpaDto
     public $montantAregulariser;
     public $ratioMontantARegul;
 
+    public $const;
+    public $ref;
+    public $designation;
+    public $qteCde;
+    public $qteReceptionnee;
+    public $qteReliquat;
+    public $statutRecep;
+    public $receptions = [];
+
 
     public function getRatio()
     {
@@ -36,5 +45,4 @@ class DaSoumissionFacBlDdpaDto
         }
         return (($this->montant / $this->totalMontantCommande) * 100);
     }
-
 }

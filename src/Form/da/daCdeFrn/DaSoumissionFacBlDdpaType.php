@@ -29,9 +29,6 @@ class DaSoumissionFacBlDdpaType extends AbstractType
             ])
             ->add('totalMontantCommande', TextType::class, [
                 'label' => 'Total commande',
-                'attr'  => [
-                    'class' => 'div-disabled',
-                ],
                 'data' => $this->formatNumberGeneral($options['data']->totalMontantCommande)
             ])
             ->add(

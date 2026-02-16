@@ -28,4 +28,39 @@ class DaSoumissionFacBlDdpaMapper
 
         return $dto;
     }
+
+    public static function mapReception(DaSoumissionFacBlDdpaDto $dto, $reception)
+    {
+        $dto->const = $reception['constructeur'];
+        $dto->ref = $reception['reference'];
+        $dto->designation = $reception['designation'];
+        $dto->qteCde = $reception['qte_cde'];
+        $dto->qteReceptionnee = $reception['qte_receptionnee'];
+        $dto->qteReliquat = $reception['qte_reliquat'];
+        self::getStatutRecep($dto);
+
+        return $dto;
+    }
+
+    private static function getStatutRecep($dto)
+    {
+        $qteCde = (int)$dto->qteCde;
+        $qteReliq = (int)$dto->qteReliquat;
+        $qteRecep = (int)$dto->qteReceptionnee;
+
+        $partiellementDispo = $qteReliq !== 0 && $qteRecep > 0 && $qteCde !== $qteReliq;
+        $completNonLivrer =  $qteReliq === 0 && $qteCde === $qteRecep;
+        $nonReceptionner = $qteRecep === 0 && $qteCde === $qteReliq;
+
+
+        if ($partiellementDispo) {
+            $dto->statutRecep = 'Partiellement dispo';
+        } elseif ($completNonLivrer) {
+            $dto->statutRecep = 'Complet non livré';
+        } elseif ($nonReceptionner) {
+            $dto->statutRecep = 'Non receptionné';
+        } else {
+            $dto->statutRecep = 'erreur';
+        }
+    }
 }
