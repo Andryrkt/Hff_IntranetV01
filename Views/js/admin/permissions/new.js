@@ -1,3 +1,5 @@
+import { initSelect2WithSelectAll } from "../../utils/select2SelectAll.js";
+
 document.addEventListener("DOMContentLoaded", function () {
   // ── Règle : décocher "Voir" désactive toutes les autres permissions de la ligne ──
   function appliquerRegleVoir(row) {
@@ -20,6 +22,11 @@ document.addEventListener("DOMContentLoaded", function () {
     caseVoir.addEventListener("change", mettreAJour);
     mettreAJour(); // Appliquer l'état initial au chargement
   }
+
+  // --- Initialisation du Select2 avec "Tout sélectionner" ---
+  initSelect2WithSelectAll("#permissions_agenceServices", {
+    placeholder: "-- Choisir des agences - services --",
+  });
 
   document.querySelectorAll(".ligne-page").forEach(appliquerRegleVoir);
 
