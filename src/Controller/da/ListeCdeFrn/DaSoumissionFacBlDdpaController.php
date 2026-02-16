@@ -225,12 +225,19 @@ class DaSoumissionFacBlDdpaController extends Controller
         $numCde = $dto->numeroCde;
         $nomOriginalFichier = $dto->pieceJoint1->getClientOriginalName();
 
+        $nonReceptionnes = array_filter($dto->receptions, function ($item) {
+            return $item->statutRecep === 'Non receptionnee';
+        });
+
         $message = '';
         $okey = true;
 
         // Blocage si le nom de fichier contient des caractères spéciaux
         if (preg_match('/[#\-_~]/', $nomOriginalFichier)) {
             $message = "Le nom de fichier ('{$nomOriginalFichier}') n'est pas valide. Il ne doit pas contenir les caractères suivants : #, -, _ ou ~. Merci de renommer votre fichier avant de le soumettre dans DocuWare.";
+            $okey = false;
+        } elseif (!empty($nonReceptionnes)) {
+            $message = " il y des quantités non réceptionné sur la commande a fait objet d'une demande de paiement à l'avance (non refusé) ";
             $okey = false;
         }
 
