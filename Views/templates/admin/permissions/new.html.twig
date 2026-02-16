@@ -34,6 +34,77 @@
 						</div>
 						{{ form_row(form.agenceServices) }}
 					</div>
+					<div class="mb-3">
+						{% if pagesVide %}
+							<div class="alert alert-warning">
+								<i class="fas fa-exclamation-triangle"></i>
+								Aucune page n'est encore liée à l'application
+								<b>{{ codeApp }}
+									-
+									{{ nomApp }}</b>.
+								<a href="{{ urlAppEdit }}" class="ms-2 btn btn-sm btn-warning">
+									<i class="fas fa-edit"></i>
+									Configurer les pages
+								</a>
+							</div>
+							<div class="d-none">
+								{{ form_row(form.lignes) }}
+							</div>
+						{% else %}
+							<div class="table-responsive">
+								<table class="table table-hover table-bordered align-middle mb-0" id="tableau-permissions">
+									<thead class="table-dark align-middle">
+										<tr>
+											<th class="ps-3 fw-bold">
+												Page
+											</th>
+											{# En-têtes permissions avec case "tout cocher" #}
+											{% for cle, col in colonnes %}
+												<th class="text-center" style="width: 120px">
+													<div class="d-flex flex-column align-items-center gap-1">
+														<span class="badge bg-{{ col.couleur }}">
+															<i class="fa {{ col.icon }} me-1"></i>
+															{{ col.label }}
+														</span>
+														<div class="form-check mb-0" title="Tout cocher / décocher">
+															<input class="form-check-input toggle-colonne" type="checkbox" id="toggle-{{ cle }}" data-colonne="{{ cle }}">
+															<label class="form-check-label small text-white-50" for="toggle-{{ cle }}">
+																tous
+															</label>
+														</div>
+													</div>
+												</th>
+											{% endfor %}
+										</tr>
+									</thead>
+									<tbody>
+										{% for formLigne in form.lignes %}
+											<tr class="ligne-page">
+												<td class="text-muted small font-monospace">
+													{{ form_widget(formLigne.page) }}
+												</td>
+												{# Cases à cocher — une par permission #}
+												{% for cle, col in colonnes %}
+													<td class="text-center">
+														<div class="form-check d-flex justify-content-center mb-0">
+															{{- form_widget(attribute(formLigne, cle), {
+																'attr': {
+																	'class': 'form-check-input case-permission fs-5',
+																	'data-colonne': cle,
+																	'data-depend-voir': cle != 'peutVoir' ? 'true' : false,
+																}
+															}) -}}
+														</div>
+													</td>
+												{% endfor %}
+
+											</tr>
+										{% endfor %}
+									</tbody>
+								</table>
+							</div>
+						{% endif %}
+					</div>
 					<div class="d-none">
 						{{ form_row(form.applicationProfil) }}
 					</div>

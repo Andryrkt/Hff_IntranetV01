@@ -7,6 +7,7 @@ use App\Form\admin\PermissionsType;
 use App\Entity\admin\ApplicationProfil;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Factory\admin\PermissionsFactory;
+use App\Form\admin\ApplicationProfilPagetype;
 use App\Service\Admin\PermissionsService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -59,11 +60,14 @@ class PermissionController extends Controller
         }
 
         return $this->render('admin/permissions/new.html.twig', [
-            'reference' => $dto->applicationProfil->getProfil()->getReference(),
-            'nomProfil' => $dto->applicationProfil->getProfil()->getDesignation(),
-            'codeApp'   => $dto->applicationProfil->getApplication()->getCodeApp(),
-            'nomApp'    => $dto->applicationProfil->getApplication()->getNom(),
-            'form'      => $form->createView(),
+            'reference'  => $dto->applicationProfil->getProfil()->getReference(),
+            'nomProfil'  => $dto->applicationProfil->getProfil()->getDesignation(),
+            'codeApp'    => $dto->applicationProfil->getApplication()->getCodeApp(),
+            'nomApp'     => $dto->applicationProfil->getApplication()->getNom(),
+            'colonnes'   => ApplicationProfilPagetype::permissionsDisponibles(),
+            'pagesVide'  => $dto->lignes->isEmpty(),
+            'urlAppEdit' => $this->getUrlGenerator()->generate('application_update', ['id' => $dto->applicationProfil->getApplication()->getId()]),
+            'form'       => $form->createView(),
         ]);
     }
 
