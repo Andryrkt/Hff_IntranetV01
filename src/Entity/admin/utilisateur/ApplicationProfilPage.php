@@ -32,27 +32,33 @@ class ApplicationProfilPage
      */
     private ?PageHff $page;
 
+    public function __construct(ApplicationProfil $applicationProfil, PageHff $page)
+    {
+        $this->applicationProfil = $applicationProfil;
+        $this->page = $page;
+    }
+
     // -------------------------------------------------------------------------
     //  Permissions
     // -------------------------------------------------------------------------
 
     /**
-     * @ORM\Column(type="boolean", options={"default": true})
+     * @ORM\Column(type="boolean", name="peut_voir", options={"default": true})
      */
     private bool $peutVoir = true;
 
     /**
-     * @ORM\Column(type="boolean", options={"default": false})
+     * @ORM\Column(type="boolean", name="peut_ajouter", options={"default": false})
      */
     private bool $peutAjouter = false;
 
     /**
-     * @ORM\Column(type="boolean", options={"default": false})
+     * @ORM\Column(type="boolean", name="peut_modifier", options={"default": false})
      */
     private bool $peutModifier = false;
 
     /**
-     * @ORM\Column(type="boolean", options={"default": false})
+     * @ORM\Column(type="boolean", name="peut_supprimer", options={"default": false})
      */
     private bool $peutSupprimer = false;
 
