@@ -1,11 +1,3 @@
-$(document).ready(function () {
-  $("#permissions_agenceServices").select2({
-    placeholder: "-- Choisir des agences - services --",
-    allowClear: true,
-    theme: "bootstrap",
-  });
-});
-
 document.addEventListener("DOMContentLoaded", function () {
   // ── Règle : décocher "Voir" désactive toutes les autres permissions de la ligne ──
   function appliquerRegleVoir(row) {
