@@ -10,6 +10,11 @@ use App\Entity\ddp\DemandePaiement;
 use App\Factory\da\CdeFrnDto\DaSoumissionFacBlDdpaFactory;
 use App\Form\da\daCdeFrn\DaSoumissionFacBlDdpaType;
 use App\Mapper\Da\ListCdeFrn\DaSoumissionFacBlDdpaMapper;
+use App\Repository\da\DaAfficherRepository;
+use App\Service\fichier\TraitementDeFichier;
+use App\Service\genererPdf\GeneratePdf;
+use App\Service\historiqueOperation\HistoriqueOperationDaFacBlService;
+use App\Service\historiqueOperation\HistoriqueOperationService;
 use Exception;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -24,16 +29,28 @@ class DaSoumissionFacBlDdpaController extends Controller
     use PdfConversionTrait;
 
     private DaSoumissionFacBlDdpaFactory $daSoumissionFacBlDdpaFactory;
+    private TraitementDeFichier $traitementDeFichier;
+    private string $cheminDeBase;
+    private HistoriqueOperationService $historiqueOperation;
+    private DaAfficherRepository $daAfficherRepository;
+    private DaSoumissionFacBlDdpaMapper $daSoumissionfacBlDdpaMapper;
+    private GeneratePdf $generatePdf;
 
     public function __construct()
     {
         $this->daSoumissionFacBlDdpaFactory = new DaSoumissionFacBlDdpaFactory($this->getEntityManager());
+        $this->traitementDeFichier         = new TraitementDeFichier();
+        $this->cheminDeBase                = $_ENV['BASE_PATH_FICHIER'] . '/da/';
+        $this->historiqueOperation = new HistoriqueOperationDaFacBlService($this->getEntityManager());
+        $this->daAfficherRepository        = $this->getEntityManager()->getRepository(DaAfficher::class);
+        $this->daSoumissionfacBlDdpaMapper = new DaSoumissionFacBlDdpaMapper();
+        $this->generatePdf                 = new GeneratePdf();
     }
 
     /**
      * @Route("/soumission-facbl-ddpa/{numCde}/{numDa}/{numOr}", name="da_soumission_facbl_ddpa", defaults={"numOr"=0})
      */
-    public function index(int $numCde, ?string $numDa, ?int $numOr)
+    public function index(int $numCde, ?string $numDa, ?int $numOr, Request $request)
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
@@ -46,6 +63,9 @@ class DaSoumissionFacBlDdpaController extends Controller
             'method'  => 'POST'
         ])->getForm();
 
+        //traitement du formulaire
+        $this->TraitementFormualire($request, $form);
+
 
         return $this->render('da/soumissionFacBlDdpa.html.twig', [
             'form' => $form->createView(),
@@ -53,7 +73,7 @@ class DaSoumissionFacBlDdpaController extends Controller
         ]);
     }
 
-    public function TraitementFormualire(Request $request, FormInterface $form)
+    private function TraitementFormualire(Request $request, FormInterface $form)
     {
         $form->handleRequest($request);
 
@@ -71,7 +91,7 @@ class DaSoumissionFacBlDdpaController extends Controller
                 // enrichissement Dto
                 $dto  = $this->daSoumissionFacBlDdpaFactory->enrichissementDtoApresSoumission($dto, $nomPdfFusionner);
                 /** ENREGISTREMENT DANS LA BASE DE DONNEE */
-                $daSoumissionFacBl = $this->daSoumissionfacBlMapper->map($dto);
+                $daSoumissionFacBl = $this->daSoumissionfacBlDdpaMapper->map($dto);
                 $this->getEntityManager()->persist($daSoumissionFacBl);
                 $this->getEntityManager()->flush();
 

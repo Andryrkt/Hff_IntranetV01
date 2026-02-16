@@ -7,8 +7,9 @@ class DaSoumissionFacBlDdpaDto
     // demande appro ====
     public $numeroDemandeAppro;
 
-    // OR =====
+    // OR  et DIT=====
     public $numeroOR;
+    public $numeroDemandeDit;
 
     // commande ========
     public $numeroCde;

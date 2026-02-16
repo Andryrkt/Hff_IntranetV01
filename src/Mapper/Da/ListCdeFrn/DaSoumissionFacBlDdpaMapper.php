@@ -5,6 +5,7 @@ namespace App\Mapper\Da\ListCdeFrn;
 use App\Dto\Da\ListeCdeFrn\DaDdpaDto;
 use App\Dto\Da\ListeCdeFrn\DaSituationReceptionDto;
 use App\Dto\Da\ListeCdeFrn\DaSoumissionFacBlDdpaDto;
+use App\Entity\da\DaSoumissionFacBl;
 use App\Entity\ddp\DemandePaiement;
 
 class DaSoumissionFacBlDdpaMapper
@@ -68,5 +69,21 @@ class DaSoumissionFacBlDdpaMapper
             $dto->statutRecep = 'erreur';
             $dto->class = ' bg-danger';
         }
+    }
+    public function map(DaSoumissionFacBlDdpaDto $dto): DaSoumissionFacBl
+    {
+        $daSoumissionFacBl = new DaSoumissionFacBl();
+        $daSoumissionFacBl
+            ->setNumeroDemandeAppro($dto->numeroDemandeAppro)
+            ->setNumeroDemandeDit(null)
+            ->setNumeroOR($dto->numeroOR)
+            ->setNumeroCde($dto->numeroCde)
+            ->setStatut($dto->statut)
+            ->setPieceJoint1($dto->pieceJoint1)
+            ->setUtilisateur($dto->utilisateur)
+            ->setNumeroVersion($dto->numeroVersion)
+        ;
+
+        return $daSoumissionFacBl;
     }
 }

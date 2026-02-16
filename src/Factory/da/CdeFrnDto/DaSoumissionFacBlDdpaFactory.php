@@ -6,10 +6,12 @@ use App\Dto\Da\ListeCdeFrn\DaDdpaDto;
 use App\Dto\Da\ListeCdeFrn\DaSituationReceptionDto;
 use App\Dto\Da\ListeCdeFrn\DaSoumissionFacBlDdpaDto;
 use App\Entity\da\DaSoumissionFacBl;
+use App\Entity\da\DemandeAppro;
 use App\Entity\ddp\DemandePaiement;
 use App\Mapper\Da\ListCdeFrn\DaSoumissionFacBlDdpaMapper;
 use App\Model\da\DaSoumissionFacBlDdpaModel;
 use App\Repository\da\DaSoumissionFacBlRepository;
+use App\Repository\da\DemandeApproRepository;
 use App\Service\autres\AutoIncDecService;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -21,6 +23,7 @@ class DaSoumissionFacBlDdpaFactory
 
     private DaSoumissionFacBlRepository $daSoumissionFacBlRepository;
     private DaSoumissionFacBlDdpaModel $daSoumissionFacBlDdpaModel;
+    private DemandeApproRepository $demandeApproRepository;
 
 
     public function __construct(EntityManagerInterface $em)
@@ -28,6 +31,7 @@ class DaSoumissionFacBlDdpaFactory
         $this->em = $em;
         $this->daSoumissionFacBlRepository = $em->getRepository(DaSoumissionFacBl::class);
         $this->daSoumissionFacBlDdpaModel = new DaSoumissionFacBlDdpaModel();
+        $this->demandeApproRepository = $em->getRepository(DemandeAppro::class);
     }
 
     public function initialisation($numCde, $numDa, $numOR,  string $utilisateur): DaSoumissionFacBlDdpaDto
@@ -36,6 +40,7 @@ class DaSoumissionFacBlDdpaFactory
         $dto->numeroCde = $numCde;
         $dto->numeroDemandeAppro = $numDa;
         $dto->numeroOR = $numOR;
+        $dto->numeroDemandeDit = $this->getNumeroDit($numDa);
         $dto->utilisateur = $utilisateur;
         $dto->numeroVersion = $this->getNumeroVersion($numCde);
         $dto->totalMontantCommande = $this->getTotalMontantCommande($numCde);
@@ -49,6 +54,10 @@ class DaSoumissionFacBlDdpaFactory
         $this->getReception($numCde, $dto);
 
         return $dto;
+    }
+    private function getNumeroDit(string $numDa): ?string
+    {
+        return $this->demandeApproRepository->getNumDitDa($numDa);
     }
 
     public function enrichissementDtoApresSoumission(DaSoumissionFacBlDdpaDto $dto, $nomPdfFusionner = null)
