@@ -28,10 +28,12 @@ class DaSoumissionFacBlDdpaFactory
         $this->daSoumissionFacBlDdpaModel = new DaSoumissionFacBlDdpaModel();
     }
 
-    public function initialisation($numCde, string $utilisateur): DaSoumissionFacBlDdpaDto
+    public function initialisation($numCde, $numDa, $numOR,  string $utilisateur): DaSoumissionFacBlDdpaDto
     {
         $dto = new DaSoumissionFacBlDdpaDto();
         $dto->numeroCde = $numCde;
+        $dto->numeroDemandeAppro = $numDa;
+        $dto->numeroOR = $numOR;
         $dto->utilisateur = $utilisateur;
         $dto->numeroVersion = $this->getNumeroVersion($numCde);
         $dto->totalMontantCommande = $this->getTotalMontantCommande($numCde);
@@ -41,6 +43,15 @@ class DaSoumissionFacBlDdpaFactory
         return $dto;
     }
 
+    public function enrichissementDtoApresSoumission(DaSoumissionFacBlDdpaDto $dto, $nomPdfFusionner = null)
+    {
+        if (empty($nomPdfFusionner)) return;
+
+        $dto->pieceJoint1 = $nomPdfFusionner;
+
+        return $dto;
+    }
+    
     private function getNumeroVersion($numCde): int
     {
         $numeroVersionMax = $this->daSoumissionFacBlRepository->getNumeroVersionMax($numCde);

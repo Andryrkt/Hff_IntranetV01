@@ -79,4 +79,17 @@ class DaSoumissionBcRepository extends EntityRepository
 
         return $result !== null ? (float) $result : null;
     }
+
+    public function getEstDdpAvance(int $numCde): ?bool
+    {
+        $queryBuilder = $this->createQueryBuilder('dabc')
+            ->select('dabc.DemandePaiementAvance')
+            ->where('dabc.numeroCde = :numCde')
+            ->setParameter('numCde', $numCde)
+            ->orderBy('dabc.numeroVersion', 'DESC')
+            ->setMaxResults(1);
+
+        return $queryBuilder->getQuery()
+            ->getOneOrNullResult(Query::HYDRATE_SINGLE_SCALAR);
+    }
 }

@@ -4,6 +4,12 @@ namespace App\Dto\Da\ListeCdeFrn;
 
 class DaSoumissionFacBlDdpaDto
 {
+    // demande appro ====
+    public $numeroDemandeAppro;
+
+    // OR =====
+    public $numeroOR;
+
     // commande ========
     public $numeroCde;
     public $montantTotalCde;
