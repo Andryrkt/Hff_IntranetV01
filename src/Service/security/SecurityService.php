@@ -2,11 +2,13 @@
 
 namespace App\Service\security;
 
+use App\Entity\admin\ApplicationProfil;
+use App\Entity\admin\utilisateur\ApplicationProfilPage;
 use App\Entity\admin\utilisateur\Profil;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Finder\Exception\AccessDeniedException;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\Finder\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class SecurityService
@@ -37,10 +39,8 @@ class SecurityService
      */
     private ?string $routeCourrante = null;
 
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        SessionInterface $session
-    ) {
+    public function __construct(EntityManagerInterface $entityManager, SessionInterface $session)
+    {
         $this->entityManager = $entityManager;
         $this->session = $session;
     }
@@ -162,14 +162,15 @@ class SecurityService
         $pages = [];
 
         // Profil → ApplicationProfil[] → ApplicationProfilPage[] → PageHff
+        /** @var ApplicationProfil $applicationProfil */
         foreach ($profil->getApplicationProfils() as $applicationProfil) {
             $application    = $applicationProfil->getApplication();
             $nomApplication = $application->getNom();
 
-            foreach ($applicationProfil->getApplicationProfilPages() as $applicationProfilPage) {
-                if (!$applicationProfilPage->isPeutVoir()) {
-                    continue;
-                }
+            /** @var ApplicationProfilPage $applicationProfilPage */
+            foreach ($applicationProfil->getLiaisonsPage() as $applicationProfilPage) {
+                if (!$applicationProfilPage->isPeutVoir()) continue;
+
                 $pages[$nomApplication][] = $applicationProfilPage->getPage();
             }
         }
@@ -219,8 +220,10 @@ class SecurityService
         }
 
         // Navigation via les relations : Profil → ApplicationProfil[] → ApplicationProfilPage[]
+        /** @var ApplicationProfil $applicationProfil */
         foreach ($profil->getApplicationProfils() as $applicationProfil) {
-            foreach ($applicationProfil->getApplicationProfilPages() as $applicationProfilPage) {
+            /** @var ApplicationProfilPage $applicationProfilPage */
+            foreach ($applicationProfil->getLiaisonsPage() as $applicationProfilPage) {
                 if ($applicationProfilPage->getPage()->getNomRoute() === $nomRoute) {
                     return $this->cachePermissions[$nomRoute] = [
                         self::PERMISSION_VOIR      => $applicationProfilPage->isPeutVoir(),

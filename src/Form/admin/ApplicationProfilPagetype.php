@@ -51,6 +51,7 @@ class ApplicationProfilPagetype extends AbstractType
             'peutAjouter'   => ['label' => 'Ajouter',   'icon' => 'fa-plus-circle',  'couleur' => 'success'],
             'peutModifier'  => ['label' => 'Modifier',  'icon' => 'fa-pencil',       'couleur' => 'warning'],
             'peutSupprimer' => ['label' => 'Supprimer', 'icon' => 'fa-trash',        'couleur' => 'danger'],
+            'peutExporter'  => ['label' => 'Exporter',  'icon' => 'fa-download',     'couleur' => 'info'],
         ];
     }
 }

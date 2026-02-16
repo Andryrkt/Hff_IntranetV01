@@ -11,4 +11,5 @@ class AppProfilPageDTO
     public bool $peutAjouter = false;
     public bool $peutModifier = false;
     public bool $peutSupprimer = false;
+    public bool $peutExporter = false;
 }

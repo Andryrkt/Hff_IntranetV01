@@ -17,6 +17,7 @@ class AppProfilPageFactory
         $dto->peutAjouter = $appProfilPage->isPeutAjouter();
         $dto->peutModifier = $appProfilPage->isPeutModifier();
         $dto->peutSupprimer = $appProfilPage->isPeutSupprimer();
+        $dto->peutExporter = $appProfilPage->isPeutExporter();
         return $dto;
     }
 
@@ -32,6 +33,7 @@ class AppProfilPageFactory
         $entity->setPeutAjouter($dto->peutAjouter);
         $entity->setPeutModifier($dto->peutModifier);
         $entity->setPeutSupprimer($dto->peutSupprimer);
+        $entity->setPeutExporter($dto->peutExporter);
 
         return $entity;
     }
@@ -42,6 +44,7 @@ class AppProfilPageFactory
         $appProfilPage->setPeutAjouter($dto->peutAjouter);
         $appProfilPage->setPeutModifier($dto->peutModifier);
         $appProfilPage->setPeutSupprimer($dto->peutSupprimer);
+        $appProfilPage->setPeutExporter($dto->peutExporter);
 
         return $appProfilPage;
     }

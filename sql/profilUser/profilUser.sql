@@ -84,6 +84,7 @@ CREATE TABLE application_profil_page (
     peut_ajouter          bit               NOT NULL DEFAULT 0,
     peut_modifier         bit               NOT NULL DEFAULT 0,
     peut_supprimer        bit               NOT NULL DEFAULT 0,
+    peut_exporter         bit               NOT NULL DEFAULT 0,
     PRIMARY KEY (id),
     UNIQUE (application_profil_id, page_id),
     CONSTRAINT fk_app_profil_page_ap FOREIGN KEY (application_profil_id) REFERENCES application_profil (id),

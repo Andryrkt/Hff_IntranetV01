@@ -62,6 +62,11 @@ class ApplicationProfilPage
      */
     private bool $peutSupprimer = false;
 
+    /**
+     * @ORM\Column(type="boolean", name="peut_exporter", options={"default": false})
+     */
+    private bool $peutExporter = false;
+
     // -------------------------------------------------------------------------
     //  Getters / Setters
     // -------------------------------------------------------------------------
@@ -137,6 +142,17 @@ class ApplicationProfilPage
         return $this;
     }
 
+    public function isPeutExporter(): bool
+    {
+        return $this->peutExporter;
+    }
+
+    public function setPeutExporter(bool $peutExporter): self
+    {
+        $this->peutExporter = $peutExporter;
+        return $this;
+    }
+
     // -------------------------------------------------------------------------
     //  Helper : retourne toutes les permissions sous forme de tableau
     // -------------------------------------------------------------------------
@@ -147,7 +163,8 @@ class ApplicationProfilPage
             'peutVoir'      => $this->peutVoir,
             'peutAjouter'   => $this->peutAjouter,
             'peutModifier'  => $this->peutModifier,
-            'peutSupprimer' => $this->peutSupprimer
+            'peutSupprimer' => $this->peutSupprimer,
+            'peutExporter'  => $this->peutExporter
         ];
     }
 }
