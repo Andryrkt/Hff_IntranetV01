@@ -22,6 +22,7 @@ class PermissionsFactory
 
     private function createLigneFromAppProfil(ApplicationProfil $appProfil): Collection
     {
+        $factory = new AppProfilPageFactory();
         $links = $appProfil->getLiaisonsPage();
 
         $pageLinkedId = $links->map(fn(ApplicationProfilPage $l) => $l->getPage()->getId())->toArray();
@@ -30,8 +31,10 @@ class PermissionsFactory
             ->filter(fn(PageHff $page) => !in_array($page->getId(), $pageLinkedId))
             ->map(fn(PageHff $page) => new ApplicationProfilPage($appProfil, $page));
 
-        return new ArrayCollection(
+        $collection = new ArrayCollection(
             array_merge($links->toArray(), $newLinks->toArray())
         );
+
+        return $factory->createDTOCollection($collection);
     }
 }
