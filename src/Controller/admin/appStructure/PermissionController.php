@@ -54,7 +54,7 @@ class PermissionController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->permissionsService->synchroniserLiaisons($dto, $oldLinksAgServ);
+            $this->permissionsService->synchroniserLiaisons($dto, $oldLinksAgServ, $oldLinksPage);
 
             $this->entityManager->flush();
             $this->redirectToRoute("permission_index");
