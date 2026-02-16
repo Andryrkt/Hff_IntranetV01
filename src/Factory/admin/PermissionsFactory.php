@@ -29,7 +29,7 @@ class PermissionsFactory
 
         $newLinks = $appProfil->getApplication()->getPages()
             ->filter(fn(PageHff $page) => !in_array($page->getId(), $pageLinkedId))
-            ->map(fn(PageHff $page) => new ApplicationProfilPage($appProfil, $page));
+            ->map(fn(PageHff $page) => (new ApplicationProfilPage($appProfil, $page))->setPeutVoir(false)); // initialiser à false pour les nouveaux
 
         $collection = new ArrayCollection(
             array_merge($links->toArray(), $newLinks->toArray())
