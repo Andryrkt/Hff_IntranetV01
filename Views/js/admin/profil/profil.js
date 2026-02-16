@@ -1,10 +1,4 @@
-$(document).ready(function () {
-  $("#profil_applications").select2({
-    placeholder: "-- Choisir application(s) autorisée(s) --",
-    allowClear: true,
-    theme: "bootstrap",
-  });
-});
+import { initSelect2WithSelectAll } from "../../utils/select2SelectAll.js";
 
 document.addEventListener("DOMContentLoaded", function () {
   const designation = document.querySelector("#profil_designation");
@@ -16,5 +10,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
   reference.addEventListener("input", function () {
     this.value = this.value.toUpperCase().slice(0, 10);
+  });
+
+  initSelect2WithSelectAll("#profil_applications", {
+    placeholder: "-- Choisir application(s) autorisée(s) --",
   });
 });

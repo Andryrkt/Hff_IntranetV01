@@ -1,4 +1,4 @@
-import { initSelect2WithSelectAll } from "../../utils/select2SelectAll";
+import { initSelect2WithSelectAll } from "../../utils/select2SelectAll.js";
 
 document.addEventListener("DOMContentLoaded", function () {
   const nom = document.querySelector("#application_nom");
