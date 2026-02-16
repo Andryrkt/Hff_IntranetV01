@@ -119,7 +119,16 @@ services:
   App\Factory\admin\UserFactory:
     public: true
 
+  App\Factory\admin\PermissionsFactory:
+    public: true
+
   App\Controller\admin\UserController:
     arguments:
       - '@App\Factory\admin\UserFactory'
+    public: true
+
+  App\Controller\admin\PermissionController:
+    arguments:
+      - "@doctrine.orm.default_entity_manager"
+      - '@App\Factory\admin\PermissionsFactory'
     public: true

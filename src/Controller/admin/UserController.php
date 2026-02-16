@@ -4,7 +4,6 @@ namespace App\Controller\admin;
 
 use App\Controller\Controller;
 use App\Dto\admin\UserDTO;
-use App\Entity\admin\utilisateur\Profil;
 use App\Entity\admin\utilisateur\User;
 use App\Factory\admin\UserFactory;
 use App\Form\admin\utilisateur\UserType;
