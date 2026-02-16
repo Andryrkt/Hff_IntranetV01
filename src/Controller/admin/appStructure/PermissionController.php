@@ -4,11 +4,11 @@ namespace App\Controller\admin\appStructure;
 
 use App\Controller\Controller;
 use App\Dto\admin\PermissionsDTO;
+use App\Form\admin\PermissionsType;
 use App\Entity\admin\ApplicationProfil;
-use App\Entity\admin\utilisateur\ApplicationProfilAgenceService;
-use App\Form\admin\ApplicationProfilAgenceServiceType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Entity\admin\utilisateur\ApplicationProfilAgenceService;
 
 /** @Route("/admin/permission") */
 class PermissionController extends Controller
@@ -39,7 +39,7 @@ class PermissionController extends Controller
         /** Obtenir les agences services deja liées au combinaison ApplicationProfil */
         $oldLinks = $dto->applicationProfil->getLiaisonsAgenceService(); // collection de liaison (objet ApplicationProfilAgenceService)
         $dto->agenceServices = $oldLinks->map(fn($l) => $l->getAgenceService())->toArray(); // tableau d'objets AgenceService
-        $form = $this->getFormFactory()->createBuilder(ApplicationProfilAgenceServiceType::class, $dto)->getForm();
+        $form = $this->getFormFactory()->createBuilder(PermissionsType::class, $dto)->getForm();
 
         $form->handleRequest($request);
 
