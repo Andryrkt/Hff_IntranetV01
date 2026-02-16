@@ -11,4 +11,5 @@ class DaSituationReceptionDto
     public $qteReceptionnee;
     public $qteReliquat;
     public $statutRecep;
+    public $class;
 }

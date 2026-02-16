@@ -57,12 +57,16 @@ class DaSoumissionFacBlDdpaMapper
 
         if ($partiellementDispo) {
             $dto->statutRecep = 'Partiellement dispo';
+            $dto->class = 'bg-info';
         } elseif ($completNonLivrer) {
             $dto->statutRecep = 'Complet non livré';
+            $dto->class = 'bg-primary';
         } elseif ($nonReceptionner) {
             $dto->statutRecep = 'Non receptionné';
+            $dto->class = 'bg-danger';
         } else {
             $dto->statutRecep = 'erreur';
+            $dto->class = ' bg-danger';
         }
     }
 }
