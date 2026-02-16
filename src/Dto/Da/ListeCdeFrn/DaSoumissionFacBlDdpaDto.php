@@ -29,13 +29,6 @@ class DaSoumissionFacBlDdpaDto
     public $montantAregulariser;
     public $ratioMontantARegul;
 
-    public $const;
-    public $ref;
-    public $designation;
-    public $qteCde;
-    public $qteReceptionnee;
-    public $qteReliquat;
-    public $statutRecep;
+    // situation reception 
     public $receptions = [];
-
 }

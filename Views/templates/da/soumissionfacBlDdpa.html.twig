@@ -42,80 +42,10 @@
 					{# =========================== #}
 					<div class="row">
 						<div class="col-12 col-md-6">
-							<h5 class="fw-bold">Liste des demandes de paiement à l'avance</h5>
-							<table class="table">
-								<thead class="table-dark align-middle">
-									<tr>
-										<th class="text-center">Numéro</th>
-										<th class="text-center">Date</th>
-										<th>Motif</th>
-										<th class="text-center">Montant</th>
-										<th class="text-center">%</th>
-										<th class="text-center">% cummul</th>
-									</tr>
-								</thead>
-								<tbody>
-									{% for item in dto.daDdpa %}
-										<tr>
-											<td class="text-center">{{item.numeroDdp}}</td>
-											<td class="text-center">{{item.datecreation|date('d/m/Y')}}</td>
-											<td>{{item.motif}}</td>
-											<td class="text-end">{{item.montant|number_format(2,',','.')}}</td>
-											<td class="text-end">{{item.ratio|round(2)|number_format(2,',','.')}}%</td>
-											<td class="text-end">{{item.cumul|round(2)|number_format(2,',','.')}}%</td>
-										</tr>
-									{% endfor %}
-									<tr>
-										<td colspan="6"></td>
-									</tr>
-									<tr>
-										<td class="fw-bold">Total payé / encours</td>
-										<td colspan="2"></td>
-										<td class="text-end">{{dto.totalPayer|number_format(2,',','.')}}</td>
-										<td class="text-end">{{dto.ratioTotalPayer|round(2)|number_format(2,',','.')}}%</td>
-										<td></td>
-									</tr>
-									<tr>
-										<td colspan="6"></td>
-									</tr>
-									<tr>
-										<td class="fw-bold">Montant à régulariser</td>
-										<td colspan="2"></td>
-										<td class="text-end text-danger fw-bold">{{dto.montantAregulariser|number_format(2,',','.')}}</td>
-										<td class="text-end text-danger fw-bold">{{dto.ratioMontantARegul|round(2)|number_format(2,',','.')}}%</td>
-										<td></td>
-									</tr>
-								</tbody>
-							</table>
+							{% include "/da/shared/cdeFrn/_tableauDdpa.html.twig" %}
 						</div>
 						<div class="col-12 col-md-6">
-							<h5 class="fw-bold">Détails situation réception</h5>
-							<table class="table">
-								<thead class="table-dark align-middle">
-									<tr>
-										<th class="text-center">Const</th>
-										<th class="text-center">Ref</th>
-										<th>Désignation</th>
-										<th class="text-center">Qté cde</th>
-										<th class="text-center">Qté receptionnée</th>
-										<th class="text-center">Reliquat</th>
-										<th class="text-center">Statut</th>
-									</tr>
-								</thead>
-								<tbody>
-									{% for item in dto.receptions %}
-										<tr>
-											<td class="text-center">{{item.const}}</td>
-											<td class="text-center">{{item.ref}}</td>
-											<td>{{item.designation}}</td>
-											<td class="text-center">{{item.qteCde}}</td>
-											<td class="text-center">{{item.qteReceptionnee}}</td>
-											<td class="text-center">{{item.qteReliquat}}</td>
-											<td class="text-center">{{item.statutRecep}}</td>
-										</tr>
-									{% endfor %}
-								</tbody>
-							</table>
+							{% include "/da/shared/cdeFrn/_tableauSituationReception.html.twig" %}
 						</div>
 					</div>
 					{# ============================ #}

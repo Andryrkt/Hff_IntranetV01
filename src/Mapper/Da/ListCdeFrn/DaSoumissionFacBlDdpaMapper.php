@@ -3,6 +3,7 @@
 namespace App\Mapper\Da\ListCdeFrn;
 
 use App\Dto\Da\ListeCdeFrn\DaDdpaDto;
+use App\Dto\Da\ListeCdeFrn\DaSituationReceptionDto;
 use App\Dto\Da\ListeCdeFrn\DaSoumissionFacBlDdpaDto;
 use App\Entity\ddp\DemandePaiement;
 
@@ -30,17 +31,17 @@ class DaSoumissionFacBlDdpaMapper
         return $dto;
     }
 
-    public static function mapReception(DaSoumissionFacBlDdpaDto $dto, $reception)
+    public static function mapReception(DaSituationReceptionDto $situRecepDto, $reception)
     {
-        $dto->const = $reception['constructeur'];
-        $dto->ref = $reception['reference'];
-        $dto->designation = $reception['designation'];
-        $dto->qteCde = $reception['qte_cde'];
-        $dto->qteReceptionnee = $reception['qte_receptionnee'];
-        $dto->qteReliquat = $reception['qte_reliquat'];
-        self::getStatutRecep($dto);
+        $situRecepDto->const = $reception['constructeur'];
+        $situRecepDto->ref = $reception['reference'];
+        $situRecepDto->designation = $reception['designation'];
+        $situRecepDto->qteCde = $reception['qte_cde'];
+        $situRecepDto->qteReceptionnee = $reception['qte_receptionnee'];
+        $situRecepDto->qteReliquat = $reception['qte_reliquat'];
+        self::getStatutRecep($situRecepDto);
 
-        return $dto;
+        return $situRecepDto;
     }
 
     private static function getStatutRecep($dto)

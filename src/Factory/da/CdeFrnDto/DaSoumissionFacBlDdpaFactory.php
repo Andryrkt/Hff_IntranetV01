@@ -3,6 +3,7 @@
 namespace App\Factory\da\CdeFrnDto;
 
 use App\Dto\Da\ListeCdeFrn\DaDdpaDto;
+use App\Dto\Da\ListeCdeFrn\DaSituationReceptionDto;
 use App\Dto\Da\ListeCdeFrn\DaSoumissionFacBlDdpaDto;
 use App\Entity\da\DaSoumissionFacBl;
 use App\Entity\ddp\DemandePaiement;
@@ -79,8 +80,8 @@ class DaSoumissionFacBlDdpaFactory
         $articleCdes = $this->daSoumissionFacBlDdpaModel->getArticleCde($numCde);
 
         foreach ($articleCdes as $articleCde) {
-            $itemDto = new DaSoumissionFacBlDdpaDto();
-            $dto->receptions[] = DaSoumissionFacBlDdpaMapper::mapReception($itemDto, $articleCde);
+            $situRecepDto = new DaSituationReceptionDto();
+            $dto->receptions[] = DaSoumissionFacBlDdpaMapper::mapReception($situRecepDto, $articleCde);
         }
     }
 
