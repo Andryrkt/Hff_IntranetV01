@@ -48,10 +48,10 @@ class ApplicationProfilPagetype extends AbstractType
     {
         return [
             'peutVoir'      => ['label' => 'Voir',      'icon' => 'fa-eye',          'couleur' => 'primary'],
-            'peutAjouter'   => ['label' => 'Ajouter',   'icon' => 'fa-plus-circle',  'couleur' => 'success'],
+            'peutAjouter'   => ['label' => 'Ajouter',   'icon' => 'fa-plus-circle',  'couleur' => 'info'],
             'peutModifier'  => ['label' => 'Modifier',  'icon' => 'fa-pencil',       'couleur' => 'warning'],
             'peutSupprimer' => ['label' => 'Supprimer', 'icon' => 'fa-trash',        'couleur' => 'danger'],
-            'peutExporter'  => ['label' => 'Exporter',  'icon' => 'fa-download',     'couleur' => 'info'],
+            'peutExporter'  => ['label' => 'Exporter',  'icon' => 'fa-download',     'couleur' => 'success'],
         ];
     }
 }
