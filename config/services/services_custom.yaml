@@ -127,7 +127,7 @@ services:
       - '@App\Factory\admin\UserFactory'
     public: true
 
-  App\Controller\admin\PermissionController:
+  App\Controller\admin\appStructure\PermissionController:
     arguments:
       - "@doctrine.orm.default_entity_manager"
       - '@App\Factory\admin\PermissionsFactory'
