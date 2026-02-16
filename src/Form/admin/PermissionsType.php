@@ -7,6 +7,7 @@ use App\Entity\admin\AgenceService;
 use App\Entity\admin\ApplicationProfil;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -33,6 +34,12 @@ class PermissionsType extends AbstractType
                     . $as->getService()->getCodeService(),
                 'multiple'     => true,
                 'expanded'     => false,
+            ])
+            ->add('lignes', CollectionType::class, [
+                'entry_type'   => ApplicationProfilPagetype::class,
+                'label'        => false,
+                'allow_add'    => false,
+                'allow_delete' => false,
             ]);
     }
 
