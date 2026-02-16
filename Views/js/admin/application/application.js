@@ -1,10 +1,4 @@
-$(document).ready(function () {
-  $("#application_pages").select2({
-    placeholder: "-- Choisir page(s) associée(s) --",
-    allowClear: true,
-    theme: "bootstrap",
-  });
-});
+import { initSelect2WithSelectAll } from "../../utils/select2SelectAll";
 
 document.addEventListener("DOMContentLoaded", function () {
   const nom = document.querySelector("#application_nom");
@@ -16,5 +10,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
   codeApp.addEventListener("input", function () {
     this.value = this.value.toUpperCase().slice(0, 10);
+  });
+
+  initSelect2WithSelectAll("#application_pages", {
+    placeholder: "-- Choisir page(s) associée(s) --",
   });
 });
