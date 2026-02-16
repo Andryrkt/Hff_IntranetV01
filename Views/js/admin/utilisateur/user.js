@@ -1,22 +1,15 @@
-/**
- * SELECTE 2/ permet de faire une recherche sur le select
- */
-$(document).ready(function () {
-  $(".selectUser").select2({
+import { initSelect2WithSelectAll } from "../../utils/select2SelectAll";
+
+document.addEventListener("DOMContentLoaded", function () {
+  initSelect2WithSelectAll(".selectUser", {
     placeholder: "-- Choisir nom d'utilisateur --",
-    allowClear: true,
-    theme: "bootstrap",
   });
 
-  $(".selectPersonnel").select2({
+  initSelect2WithSelectAll(".selectPersonnel", {
     placeholder: "-- Choisir matricule --",
-    allowClear: true,
-    theme: "bootstrap",
   });
 
-  $(".selectProfils").select2({
+  initSelect2WithSelectAll(".selectProfils", {
     placeholder: "-- Choisir profil(s) --",
-    allowClear: true,
-    theme: "bootstrap",
   });
 });
