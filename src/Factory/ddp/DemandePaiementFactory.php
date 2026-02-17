@@ -2,31 +2,37 @@
 
 namespace App\Factory\ddp;
 
-use App\Entity\admin\Agence;
-use App\Entity\admin\Service;
-use App\Entity\admin\Application;
-use App\Dto\ddp\DemandePaiementDto;
-use App\Entity\ddp\DemandePaiement;
 use App\Constants\da\TypeDaConstants;
+use App\Dto\Da\ListeCdeFrn\DaDdpaDto;
+use App\Dto\Da\ListeCdeFrn\DaSoumissionFacBlDdpaDto;
+use App\Dto\ddp\DemandePaiementDto;
+use App\Entity\admin\Agence;
+use App\Entity\admin\Application;
 use App\Entity\admin\ddp\TypeDemande;
+use App\Entity\admin\Service;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\da\DaAfficher;
+use App\Entity\ddp\DemandePaiement;
+use App\Mapper\Da\ListCdeFrn\DaSoumissionFacBlDdpaMapper;
+use App\Model\da\DaSoumissionFacBlDdpaModel;
 use App\Model\ddp\DemandePaiementModel;
-use Doctrine\ORM\EntityManagerInterface;
 use App\Service\autres\AutoIncDecService;
 use App\Service\ddp\DocDemandePaiementService;
+use Doctrine\ORM\EntityManagerInterface;
 
 class DemandePaiementFactory
 {
     private $em;
     private DemandePaiementModel $ddpModel;
     private DocDemandePaiementService $docDemandePaiementService;
+    private DaSoumissionFacBlDdpaModel $daSoumissionFacBlDdpaModel;
 
     public function __construct(EntityManagerInterface $em)
     {
         $this->em = $em;
         $this->ddpModel  = new DemandePaiementModel();
         $this->docDemandePaiementService = new DocDemandePaiementService($em);
+        $this->daSoumissionFacBlDdpaModel = new DaSoumissionFacBlDdpaModel();
     }
 
     public function load(int $typeDdp, ?int $numCdeDa, ?int $typeDa, ?int $numeroVersionBc, User $user, $sessionService): DemandePaiementDto
@@ -65,6 +71,9 @@ class DemandePaiementFactory
         // recupération des fichiers de devis de la DA
         $dto->fichiersChoisis = $this->recupFichierDevisDa($dto);
         $dto->appro = $typeDa !== null ? true : false;
+        $dto->totalMontantCommande = $this->getTotalMontantCommande($numCdeDa);
+        $this->getDdpa($numCdeDa, $dto);
+        $this->getMontant($numCdeDa, $dto);
 
         // info generale =====================
         $dto->demandeur = $user->getNomUtilisateur();
@@ -88,6 +97,66 @@ class DemandePaiementFactory
         }
 
         return $dto;
+    }
+
+    private function getTotalMontantCommande($numCde): float
+    {
+        $totalMontantCommande = $this->daSoumissionFacBlDdpaModel->getTotalMontantCommande($numCde);
+        if ($totalMontantCommande) return (float)$totalMontantCommande[0];
+
+        return 0;
+    }
+
+    public function getDdpa(int $numCde, DemandePaiementDto $dto)
+    {
+        $ddpRepository = $this->em->getRepository(DemandePaiement::class);
+        $ddps = $ddpRepository->getDdpSelonNumCde($numCde);
+
+        $runningCumul = 0; // Variable pour maintenir le total cumulé
+
+        foreach ($ddps as  $ddp) {
+            // Crée un nouveau DTO pour chaque élément afin d'avoir des objets distincts
+            $ddpaDto = new DaDdpaDto();
+
+            // Copie les propriétés nécessaires du DTO initial qui sont communes à tous les éléments
+            $ddpaDto->totalMontantCommande = $dto->totalMontantCommande;
+
+            // Mappe l'entité vers le nouveau DTO (le mapper ne s'occupe plus du cumul)
+            DaSoumissionFacBlDdpaMapper::mapDdp($ddpaDto, $ddp);
+
+            // Calcule et définit la valeur cumulative ici dans la logique du contrôleur
+            $runningCumul += $ddpaDto->ratio;
+            $ddpaDto->cumul = $runningCumul;
+
+            $dto->daDdpa[] = $ddpaDto;
+        }
+
+        return $dto;
+    }
+
+    public function getMontant(int $numCde, DemandePaiementDto $dto)
+    {
+        $ddpRepository = $this->em->getRepository(DemandePaiement::class);
+        $ddps = $ddpRepository->getDdpSelonNumCde($numCde);
+
+        $totalMontantPayer = $this->getTotalPayer($ddps);
+        $ratioTotalPayer = ($totalMontantPayer / $dto->totalMontantCommande) * 100;
+        $montantAregulariser = $dto->totalMontantCommande - $totalMontantPayer;
+        $ratioMontantARegul = ($montantAregulariser /  $dto->totalMontantCommande) * 100;
+
+        $dto = DaSoumissionFacBlDdpaMapper::mapTotalPayer($dto, $totalMontantPayer, $ratioTotalPayer, $montantAregulariser, $ratioMontantARegul);
+
+        return $dto;
+    }
+    private function getTotalPayer(array $ddps): float
+    {
+        $montantpayer = 0;
+
+        foreach ($ddps as $item) {
+            $montantpayer = $montantpayer + $item->getMontantAPayers();
+        }
+
+        return $montantpayer;
     }
 
     private function recupFichierDevisDa(DemandePaiementDto $dto)

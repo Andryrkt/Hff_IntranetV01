@@ -69,6 +69,12 @@ class DemandePaiementDto
     public $ddpaDa = false;
     public int $numeroVersionBc = 0;
     public string $nomPdfFusionnerBc = '';
+    public $daDdpa = [];
+    public $totalMontantCommande = 0;
+    public $totalPayer = 0;
+    public $ratioTotalPayer = 0;
+    public $montantAregulariser;
+    public $ratioMontantARegul;
 
     public function montantAPayer(): float
     {

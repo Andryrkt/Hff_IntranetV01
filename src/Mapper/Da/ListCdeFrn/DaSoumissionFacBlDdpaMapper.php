@@ -22,7 +22,7 @@ class DaSoumissionFacBlDdpaMapper
         return $ddpaDto;
     }
 
-    public static function mapTotalPayer(DaSoumissionFacBlDdpaDto $dto, $montantPayer, $ratioTotalPayer, $montantAregulariser, $ratioMontantARegul)
+    public static function mapTotalPayer($dto, $montantPayer, $ratioTotalPayer, $montantAregulariser, $ratioMontantARegul)
     {
         $dto->totalPayer = $montantPayer;
         $dto->ratioTotalPayer = $ratioTotalPayer;
