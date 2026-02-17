@@ -416,13 +416,13 @@ class ListeDevisMagasinModel extends Model
                                 WHERE pr2.numero_devis = dsavn.numero_devis
                             )
                             AND DATEDIFF(DAY, dsavn.date_envoye_devis_client, GETDATE()) >= 7)
-                            OR
-                            (EXISTS (
-                                SELECT 1 
-                                FROM pointage_relance pr2 
-                                WHERE pr2.numero_devis = dsavn.numero_devis
-                            )
-                            AND DATEDIFF(DAY, MAX(pr.date_de_relance), GETDATE()) >= 7)
+                            --OR
+                            --(EXISTS (
+                               -- SELECT 1 
+                               -- FROM pointage_relance pr2 
+                               -- WHERE pr2.numero_devis = dsavn.numero_devis
+                            --)
+                            --AND DATEDIFF(DAY, MAX(pr.date_de_relance), GETDATE()) >= 7)
                         )
                     THEN 'A relancer'
                     ELSE dsavn.statut_relance 
