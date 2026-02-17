@@ -6,6 +6,7 @@ use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\Matcher\UrlMatcher;
 use Symfony\Component\HttpKernel\Controller\ContainerControllerResolver;
 use Symfony\Component\HttpKernel\Controller\ArgumentResolver;
+use Symfony\Component\Cache\Adapter\FilesystemTagAwareAdapter;
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
@@ -99,7 +100,22 @@ $session = new \Symfony\Component\HttpFoundation\Session\Session(
 );
 $container->set('session', $session);
 
-$securityService = new \App\Service\security\SecurityService($container->get('doctrine.orm.default_entity_manager'), $session);
+// ─── Cache des permissions (inter-requêtes, par profil) ───────────────────────
+// FilesystemTagAwareAdapter : stockage fichier + support des tags (invalidation par profil).
+// En DEV : TTL court (60s) pour voir les changements rapidement.
+// En PROD : TTL 1h, invalidation explicite via invaliderCacheProfil() depuis le back-office.
+$cachePermissions = new FilesystemTagAwareAdapter(
+    'security',                                         // namespace : sous-dossier dans var/cache/pools/
+    $isDevMode ? 60 : 3600,                             // defaultLifetime : DEV=1min, PROD=1h
+    dirname(__DIR__) . '/var/cache/pools'               // directory : séparé du cache Twig/routes
+);
+$container->set('cache.permissions', $cachePermissions);
+
+$securityService = new \App\Service\security\SecurityService(
+    $container->get('doctrine.orm.default_entity_manager'),
+    $session,
+    $cachePermissions                                   // ← nouveau 3e argument
+);
 $container->set('securityService', $securityService);
 
 $formFactory = \Symfony\Component\Form\Forms::createFormFactoryBuilder()

@@ -10,6 +10,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Finder\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 
 class SecurityService
 {
@@ -23,15 +25,24 @@ class SecurityService
     public const PERMISSION_SUPPRIMER = 'peutSupprimer';
     public const PERMISSION_EXPORTER  = 'peutExporter';
 
+    // ─── Durée de vie du cache (en secondes) ─────────────────────────────────
+    // 3600 = 1 heure. À ajuster selon la fréquence de modification des droits.
+    private const CACHE_TTL = 3600;
+
+    // ─── Préfixe des clés de cache ────────────────────────────────────────────
+    private const CACHE_PREFIX = 'permissions';
+
     private EntityManagerInterface $entityManager;
     private SessionInterface $session;
+    private CacheInterface $cache;
 
     /**
-     * Cache des permissions pour la requête courante.
-     * Évite plusieurs requêtes BDD pour la même route.
+     * Cache intra-requête : évite plusieurs appels au cache persistant
+     * dans la même requête HTTP (ex: controlerAcces + getPermissions + verifierPermission).
+     *
      * @var array<string, array|null>
      */
-    private array $cachePermissions = [];
+    private array $cacheRequete = [];
 
     /**
      * Route courante mémorisée lors de controlerAcces().
@@ -39,10 +50,14 @@ class SecurityService
      */
     private ?string $routeCourrante = null;
 
-    public function __construct(EntityManagerInterface $entityManager, SessionInterface $session)
-    {
+    public function __construct(
+        EntityManagerInterface $entityManager,
+        SessionInterface $session,
+        CacheInterface $cache
+    ) {
         $this->entityManager = $entityManager;
-        $this->session = $session;
+        $this->session       = $session;
+        $this->cache         = $cache;
     }
 
     // =========================================================================
@@ -189,15 +204,46 @@ class SecurityService
         return $this->session->get('user_info');
     }
 
+    /**
+     * Invalide TOUTES les entrées de cache pour un profil donné.
+     *
+     * À appeler depuis le back-office après toute modification des droits d'un profil :
+     *
+     *   // Dans ton contrôleur de gestion des profils :
+     *   $securityService->invaliderCacheProfil($profil->getId());
+     *
+     * Après l'appel, la prochaine requête de n'importe quel utilisateur
+     * ayant ce profil recalculera les permissions depuis la BDD.
+     */
+    public function invaliderCacheProfil(int $profilId): void
+    {
+        // Invalidation par tag si l'adaptateur le supporte (FilesystemTagAwareAdapter, RedisTagAwareAdapter...)
+        if ($this->cache instanceof \Symfony\Contracts\Cache\TagAwareCacheInterface) {
+            $this->cache->invalidateTags([$this->tagProfil($profilId)]);
+        } else {
+            // Fallback : suppression clé par clé en parcourant les pages du profil
+            $this->invaliderCacheProfilSansTags($profilId);
+        }
+
+        // Vider aussi le cache intra-requête
+        $this->cacheRequete = [];
+    }
+
     // =========================================================================
     //  LOGIQUE INTERNE
     // =========================================================================
 
     /**
-     * Charge les permissions depuis la BDD avec cache par route.
-     * Retourne null si aucune entrée trouvée (= accès non configuré → refusé).
+     * Charge les permissions avec deux niveaux de cache :
      *
-     * Navigation : Profil → ApplicationProfil[] → ApplicationProfilPage[] → PageHff
+     *   Niveau 1 — cache intra-requête ($cacheRequete)
+     *              Tableau PHP en mémoire. Évite plusieurs appels au cache persistant
+     *              dans la même requête (ex: controlerAcces + verifierPermission + getPermissions).
+     *
+     *   Niveau 2 — cache persistant ($cache)
+     *              Fichier / Redis / APCu selon la config de ton conteneur.
+     *              Clé : "permissions_<profilId>_<nomRoute>"
+     *              Partagée entre tous les utilisateurs ayant le même profil.
      *
      * @return array|null  ['peutVoir' => bool, 'peutAjouter' => bool, ...]
      */
@@ -209,23 +255,55 @@ class SecurityService
             return null;
         }
 
-        // Retour depuis le cache si déjà chargé
-        if (array_key_exists($nomRoute, $this->cachePermissions)) {
-            return $this->cachePermissions[$nomRoute];
+        // ── Niveau 1 : cache intra-requête ────────────────────────────────────
+        if (array_key_exists($nomRoute, $this->cacheRequete)) {
+            return $this->cacheRequete[$nomRoute];
         }
 
+        $profilId = $this->getProfilId();
+        if ($profilId === null) {
+            return $this->cacheRequete[$nomRoute] = null;
+        }
+
+        // ── Niveau 2 : cache persistant ───────────────────────────────────────
+        $cleCache = $this->construireCleCache($profilId, $nomRoute);
+
+        $permissions = $this->cache->get(
+            $cleCache,
+            function (ItemInterface $item) use ($profilId, $nomRoute): ?array {
+                // Ce callback n'est exécuté qu'en cas de MISS (clé absente ou expirée)
+                $item->expiresAfter(self::CACHE_TTL);
+
+                // Associer un tag au profil pour invalider toutes ses routes en une fois
+                if (method_exists($item, 'tag')) {
+                    $item->tag([$this->tagProfil($profilId)]);
+                }
+
+                return $this->calculerPermissionsDepuisBdd($nomRoute);
+            }
+        );
+
+        // Stocker dans le cache intra-requête pour les appels suivants de la même requête
+        return $this->cacheRequete[$nomRoute] = $permissions;
+    }
+
+    /**
+     * Requête BDD réelle : navigue Profil → ApplicationProfil → ApplicationProfilPage.
+     * N'est appelée que lors d'un MISS de cache persistant.
+     */
+    private function calculerPermissionsDepuisBdd(string $nomRoute): ?array
+    {
         $profil = $this->getProfil();
         if ($profil === null) {
-            return $this->cachePermissions[$nomRoute] = null;
+            return null;
         }
 
-        // Navigation via les relations : Profil → ApplicationProfil[] → ApplicationProfilPage[]
         /** @var ApplicationProfil $applicationProfil */
         foreach ($profil->getApplicationProfils() as $applicationProfil) {
             /** @var ApplicationProfilPage $applicationProfilPage */
             foreach ($applicationProfil->getLiaisonsPage() as $applicationProfilPage) {
                 if ($applicationProfilPage->getPage()->getNomRoute() === $nomRoute) {
-                    return $this->cachePermissions[$nomRoute] = [
+                    return [
                         self::PERMISSION_VOIR      => $applicationProfilPage->isPeutVoir(),
                         self::PERMISSION_AJOUTER   => $applicationProfilPage->isPeutAjouter(),
                         self::PERMISSION_MODIFIER  => $applicationProfilPage->isPeutModifier(),
@@ -236,9 +314,54 @@ class SecurityService
             }
         }
 
-        // Aucune entrée trouvée pour cette route → accès non configuré = refusé
-        return $this->cachePermissions[$nomRoute] = null;
+        // Route non configurée → accès refusé
+        return null;
     }
+
+    /**
+     * Fallback d'invalidation sans tags.
+     * Supprime les clés route par route en parcourant les pages du profil depuis la BDD.
+     */
+    private function invaliderCacheProfilSansTags(int $profilId): void
+    {
+        $profil = $this->entityManager->getRepository(Profil::class)->find($profilId);
+        if ($profil === null) {
+            return;
+        }
+
+        /** @var ApplicationProfil $applicationProfil */
+        foreach ($profil->getApplicationProfils() as $applicationProfil) {
+            /** @var ApplicationProfilPage $applicationProfilPage */
+            foreach ($applicationProfil->getLiaisonsPage() as $applicationProfilPage) {
+                $nomRoute = $applicationProfilPage->getPage()->getNomRoute();
+                $cleCache = $this->construireCleCache($profilId, $nomRoute);
+                $this->cache->delete($cleCache);
+            }
+        }
+    }
+
+    // ─── Helpers de nommage ──────────────────────────────────────────────────
+
+    /**
+     * Construit la clé de cache : "permissions_<profilId>_<nomRoute>".
+     * Les caractères spéciaux sont remplacés car les clés PSR-6 n'acceptent pas {}()/\@:
+     */
+    private function construireCleCache(int $profilId, string $nomRoute): string
+    {
+        $routeSanitisee = preg_replace('/[^a-zA-Z0-9_\-]/', '_', $nomRoute);
+        return sprintf('%s_%d_%s', self::CACHE_PREFIX, $profilId, $routeSanitisee);
+    }
+
+    /**
+     * Tag de cache pour un profil : "profil_<profilId>".
+     * Permet d'invalider d'un coup toutes les routes de ce profil.
+     */
+    private function tagProfil(int $profilId): string
+    {
+        return sprintf('profil_%d', $profilId);
+    }
+
+    // ─── Helpers session ─────────────────────────────────────────────────────
 
     private function estRoutePublique(?string $nomRoute): bool
     {
@@ -251,14 +374,22 @@ class SecurityService
     }
 
     /**
+     * Retourne uniquement le profilId depuis la session (sans charger l'entité).
+     * Utilisé pour construire la clé de cache sans requête BDD.
+     */
+    private function getProfilId(): ?int
+    {
+        $userInfo = $this->session->get('user_info');
+        return isset($userInfo['profilId']) ? (int) $userInfo['profilId'] : null;
+    }
+
+    /**
      * Charge l'entité Profil depuis la session.
      * Retourne null si non connecté ou profil introuvable.
      */
     private function getProfil(): ?Profil
     {
-        $userInfo = $this->session->get('user_info');
-        $profilId = isset($userInfo['profilId']) ? (int) $userInfo['profilId'] : null;
-
+        $profilId = $this->getProfilId();
         return $profilId ? $this->entityManager->getRepository(Profil::class)->find($profilId) : null;
     }
 
