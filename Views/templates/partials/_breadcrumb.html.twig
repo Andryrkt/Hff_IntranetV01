@@ -5,16 +5,49 @@
 <nav id="fil-d-ariane" aria-label="Fil d'Ariane" class="breadcrumb-nav container-fluid">
 	<ol class="breadcrumb flat align-items-center mb-3">
 		{% for item in items %}
-			<li class="breadcrumb-item {% if item.is_active %}active{% endif %} position-relative {% if item.dropdown is defined and item.dropdown|length > 0 %}dropdown-hover{% endif %}">
-				{% if item.link and not item.is_active %}
-					<a href="{% if item.link is not null and (item.link == '#' or item.link starts with 'http' or item.link starts with '/') %}{{ item.link }}{% elseif item.link is not null and item.routeParams is defined %}{{ path(item.link, item.routeParams) }}{% elseif item.link is not null %}{{ path(item.link) }}{% else %}#{% endif %}" class="breadcrumb-link d-flex align-items-center">
+			{# Seul l'Accueil a un dropdown — les autres items sont de simples textes #}
+			{% set hasDropdown = item.dropdown is defined and item.dropdown|length > 0 %}
+
+			<li class="breadcrumb-item {{ item.is_active ? 'active' }} position-relative dropdown-hover">
+
+				{% if item.is_active %}
+					{# Page courante : texte simple, non cliquable #}
+					<span class="breadcrumb-text">
+						{% if item.icon %}
+							<i class="{{ item.icon }} me-1"></i>
+						{% endif %}
+						{{ item.title }}
+					</span>
+
+				{% elseif hasDropdown %}
+					{# Accueil : lien cliquable + dropdown qui ouvre les modals #}
+					<a href="{{ item.link }}" class="breadcrumb-link d-flex align-items-center">
 						{% if item.icon %}
 							<i class="{{ item.icon }} me-1"></i>
 						{% endif %}
 						{{ item.title }}
 					</a>
+					{% set columnsNeeded = (item.dropdown|length / 6)|round(0, 'ceil') %}
+					<div class="dropdown-menu shadow-sm p-2 rounded-3" style="min-width: {{ columnsNeeded * 220 }}px;">
+						<div class="row">
+							{% for column in 1..columnsNeeded %}
+								<div class="col-md-{{ 12 // columnsNeeded }}">
+									{% for subitem in item.dropdown|slice((column - 1) * 6, 6) %}
+										<a class="dropdown-item d-flex align-items-center" href="#" data-bs-toggle="modal" data-bs-target="#{{ subitem.id }}">
+											{% if subitem.icon %}
+												<i class="{{ subitem.icon }} me-2 text-secondary"></i>
+											{% endif %}
+											{{ subitem.title }}
+										</a>
+									{% endfor %}
+								</div>
+							{% endfor %}
+						</div>
+					</div>
+
 				{% else %}
-					<span class="breadcrumb-text">
+					{# Module / sous-menu intermédiaire : texte sans lien #}
+					<span class="breadcrumb-text d-flex align-items-center">
 						{% if item.icon %}
 							<i class="{{ item.icon }} me-1"></i>
 						{% endif %}
@@ -22,39 +55,6 @@
 					</span>
 				{% endif %}
 
-				{% if item.dropdown is defined and item.dropdown|length > 0 %}
-					{% set itemsPerColumn = 6 %}
-					{% set totalItems = item.dropdown|length %}
-					{% set columnsNeeded = (totalItems / itemsPerColumn)|round(0, 'ceil') %}
-					{% if columnsNeeded == 0 %}
-						{% set columnsNeeded = 1 %}
-					{% endif %}
-
-					<div class="dropdown-menu shadow-sm p-2 rounded-3" style="min-width: {{ columnsNeeded * 220 }}px;">
-						<div class="row">
-							{% for column in 1 .. columnsNeeded %}
-								<div class="col-md-{{ 12 // columnsNeeded }}">
-										{% for subitem in item.dropdown|slice((column - 1) * itemsPerColumn, itemsPerColumn) %}
-											{% if subitem.link %}
-												<a class="dropdown-item {% if subitem.is_active %}active{% endif %} d-flex align-items-center" href="{% if subitem.link == '#' or subitem.link starts with 'http' or subitem.link starts with '/' %}{{ subitem.link }}{% elseif subitem.link is not null and subitem.routeParams is defined %}{{ path(subitem.link, subitem.routeParams) }}{% elseif subitem.link is not null %}{{ path(subitem.link) }}{% else %}#{% endif %}" {% if subitem.id %} data-bs-toggle="modal" data-bs-target="#{{ subitem.id }}" {% endif %} {% if subitem.link starts with 'http' or subitem.link starts with '/' %} target="_blank" {% endif %}> {% if subitem.icon %}
-													<i class="{{ subitem.icon }} me-2 text-secondary"></i>
-												{% endif %}
-												{{ subitem.title }}
-											</a>
-										{% else %}
-											<h6 class="dropdown-header">
-												{% if subitem.icon %}
-													<i class="{{ subitem.icon }} me-2 text-secondary"></i>
-												{% endif %}
-												{{ subitem.title }}
-											</h6>
-										{% endif %}
-									{% endfor %}
-								</div>
-							{% endfor %}
-						</div>
-					</div>
-				{% endif %}
 			</li>
 
 			{% if not loop.last %}
@@ -64,52 +64,44 @@
 	</ol>
 </nav>
 
-<!-- Modals pour les éléments de dropdown avec ID -->
-{% for item in items %}
-	{% if item.dropdown is defined %}
-		{% for subitem in item.dropdown %}
-			{% if subitem.id and subitem.items|length > 0 %}
-				<!-- Modal pour {{ subitem.title }} -->
-				<div class="modal fade" id="{{ subitem.id }}" tabindex="-1" aria-labelledby="{{ subitem.id }}Label" aria-hidden="true">
-					<div class="modal-dialog modal-dialog-centered modal-xl menu">
-						<div class="modal-content">
-							<div class="modal-header">
-								<h5 class="modal-title" id="{{ subitem.id }}Label">
-									{% if subitem.icon %}
-										<i class="{{ subitem.icon }} me-2"></i>
-									{% endif %}
-									{{ subitem.title }}
-								</h5>
-								<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-							</div>
-							<div
-								class="modal-body">
-
-								{# Bootstrap gère automatiquement le découpage en colonnes #}
-								<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
-									{% for modalItem in subitem.items %}
-										<div class="col">
-											<ul class="list-group list-group-flush h-100">
-												{% if modalItem.subitems is defined and modalItem.subitems|length > 0 %}
-													<!-- Groupe avec sous-éléments -->
-													{{ menu_item.render(modalItem) }}
-													{% for subsubitem in modalItem.subitems %}
-														{{ menu_item.render(subsubitem, true) }}
-													{% endfor %}
-												{% else %}
-													<!-- Élément simple -->
-													{{ menu_item.render(modalItem) }}
-												{% endif %}
-											</ul>
-										</div>
-									{% endfor %}
+{# Modals — identiques à ceux de la page d'accueil, générés depuis le dropdown Accueil #}
+{% set accueil = items|first %}
+{% if accueil.dropdown is defined %}
+	{% for module in accueil.dropdown %}
+		<div class="modal fade" id="{{ module.id }}" tabindex="-1" aria-labelledby="{{ module.id }}Label" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered modal-xl menu">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="{{ module.id }}Label">
+							{% if module.icon %}
+								<i class="{{ module.icon }} me-2"></i>
+							{% endif %}
+							{{ module.title }}
+						</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+						<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+							{% for modalItem in module.items %}
+								<div class="col">
+									<ul class="list-group list-group-flush h-100">
+										{% if modalItem.subitems is defined and modalItem.subitems|length > 0 %}
+											<!-- Groupe avec sous-éléments -->
+											{{ menu_item.render(modalItem) }}
+											{% for subsubitem in modalItem.subitems %}
+												{{ menu_item.render(subsubitem, true) }}
+											{% endfor %}
+										{% else %}
+											<!-- Élément simple -->
+											{{ menu_item.render(modalItem) }}
+										{% endif %}
+									</ul>
 								</div>
-
-							</div>
+							{% endfor %}
 						</div>
 					</div>
 				</div>
-			{% endif %}
-		{% endfor %}
-	{% endif %}
-{% endfor %}
+			</div>
+		</div>
+	{% endfor %}
+{% endif %}

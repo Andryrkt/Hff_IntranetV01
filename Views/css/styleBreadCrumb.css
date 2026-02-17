@@ -38,6 +38,15 @@
   padding-right: 20px;
 }
 
+.breadcrumb .breadcrumb-item .breadcrumb-text {
+  color: #fbbb01;
+}
+
+.breadcrumb .breadcrumb-item.active .breadcrumb-text,
+.breadcrumb .breadcrumb-item:hover .breadcrumb-text {
+  color: #000;
+}
+
 /*hover/active styles*/
 .breadcrumb .breadcrumb-item.active,
 .breadcrumb .breadcrumb-item:hover {
@@ -61,7 +70,9 @@
   transform: rotate(45deg);
   z-index: 1;
   background: linear-gradient(135deg, #666, #333);
-  box-shadow: 2px -2px 0 2px rgba(0, 0, 0, 0.4), 2.2px -2.2px 0 2px #ccc;
+  box-shadow:
+    2px -2px 0 2px rgba(0, 0, 0, 0.4),
+    2.2px -2.2px 0 2px #ccc;
   border-radius: 5px 5px 5px 50px;
 }
 /*we dont need an arrow after the last link*/
@@ -298,7 +309,9 @@
   opacity: 0;
   visibility: hidden;
   transform: translateY(12px) scale(0.97);
-  transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+  transition:
+    opacity 0.35s ease,
+    transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
     visibility 0.35s;
   pointer-events: none;
   border-radius: 8px;

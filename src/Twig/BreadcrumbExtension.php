@@ -2,12 +2,12 @@
 
 namespace App\Twig;
 
-use Twig\TwigFunction;
 use App\Factory\BreadcrumbFactory;
-use Twig\Extension\AbstractExtension;
 use App\Service\navigation\MenuService;
-use App\Controller\Traits\lienGenerique;
 use App\Service\security\SecurityService;
+use App\Controller\Traits\lienGenerique;
+use Twig\TwigFunction;
+use Twig\Extension\AbstractExtension;
 
 class BreadcrumbExtension extends AbstractExtension
 {
@@ -17,11 +17,11 @@ class BreadcrumbExtension extends AbstractExtension
     private SecurityService $securityService;
     private string $baseUrl;
 
-    public function __construct(MenuService $menuService)
+    public function __construct(MenuService $menuService, SecurityService $securityService)
     {
-        $this->menuService     = $menuService;
-        $this->securityService = $menuService->getSecurityService();
-        $this->baseUrl         = $this->urlGenerique($_ENV['BASE_PATH_COURT']);
+        $this->menuService    = $menuService;
+        $this->securityService = $securityService;
+        $this->baseUrl        = $this->urlGenerique($_ENV['BASE_PATH_COURT']);
     }
 
     public function getFunctions(): array
@@ -36,7 +36,7 @@ class BreadcrumbExtension extends AbstractExtension
     public function generateBreadcrumbs(): array
     {
         return (new BreadcrumbFactory($this->baseUrl, $this->menuService))
-            ->createFromCurrentUrl();
+            ->createFromCurrentUrl($this->securityService->getRouteCourrante());
     }
 
     /**

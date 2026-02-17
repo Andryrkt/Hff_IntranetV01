@@ -176,7 +176,7 @@ $twig->addExtension(new \Symfony\Bridge\Twig\Extension\TranslationExtension(new 
 $twig->addExtension(new \Symfony\Bridge\Twig\Extension\RoutingExtension($urlGenerator));
 $twig->addExtension(new \Symfony\Bridge\Twig\Extension\FormExtension());
 $twig->addExtension(new \App\Twig\AppExtension($session, $container->get('request_stack')));
-$twig->addExtension(new \App\Twig\BreadcrumbExtension($menuService));
+$twig->addExtension(new \App\Twig\BreadcrumbExtension($menuService, $securityService));
 $twig->addExtension(new \App\Twig\CarbonExtension());
 $twig->addExtension(new \App\Twig\DeleteWordExtension());
 

@@ -15,11 +15,6 @@ class MenuService
         $this->basePath        = $_ENV['BASE_PATH_FICHIER_COURT'];
     }
 
-    public function getSecurityService(): SecurityService
-    {
-        return $this->securityService;
-    }
-
     // =========================================================================
     //  API PUBLIQUE
     // =========================================================================
@@ -384,6 +379,44 @@ class MenuService
         }
 
         return $this->createMenuItem('hseModal', 'HSE', 'shield-alt', $subitems);
+    }
+
+    // =========================================================================
+    //  NAVIGATION — recherche du chemin vers une route
+    // =========================================================================
+
+    /**
+     * Retourne le chemin hiérarchique vers la route donnée dans l'arbre du menu.
+     * Utilisé par BreadcrumbFactory pour construire le fil d'ariane sans parser l'URL.
+     */
+    public function findChemin(string $nomRoute): array
+    {
+        foreach ($this->getMenuStructure() as $module) {
+            foreach ($module['items'] as $item) {
+                // Item simple directement dans le module
+                if (($item['link'] ?? null) === $nomRoute) {
+                    return [
+                        ['title' => $module['title'], 'icon' => $module['icon']],
+                        ['title' => $item['title'],   'icon' => $item['icon'], 'route' => $nomRoute],
+                    ];
+                }
+
+                // Item avec sous-items (createSubMenuItem)
+                if (!empty($item['subitems'])) {
+                    foreach ($item['subitems'] as $subitem) {
+                        if (($subitem['link'] ?? null) === $nomRoute) {
+                            return [
+                                ['title' => $module['title'], 'icon' => $module['icon']],
+                                ['title' => $item['title'],   'icon' => $item['icon']],
+                                ['title' => $subitem['title'], 'icon' => $subitem['icon'], 'route' => $nomRoute],
+                            ];
+                        }
+                    }
+                }
+            }
+        }
+
+        return [];
     }
 
     // =========================================================================

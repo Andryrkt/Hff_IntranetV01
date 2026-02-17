@@ -60,6 +60,11 @@ class SecurityService
         $this->cache         = $cache;
     }
 
+    public function getRouteCourrante(): ?string
+    {
+        return $this->routeCourrante;
+    }
+
     // =========================================================================
     //  POINT D'ENTRÉE — appelé dans index.php avant le contrôleur
     // =========================================================================
