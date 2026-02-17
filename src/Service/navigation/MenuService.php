@@ -15,6 +15,11 @@ class MenuService
         $this->basePath        = $_ENV['BASE_PATH_FICHIER_COURT'];
     }
 
+    public function getSecurityService(): SecurityService
+    {
+        return $this->securityService;
+    }
+
     // =========================================================================
     //  API PUBLIQUE
     // =========================================================================
