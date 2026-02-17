@@ -68,12 +68,6 @@ class BreadcrumbFactory
      * Construit le dropdown de l'item Accueil.
      * Chaque entrée correspond à un module du menu avec ses items complets,
      * pour que les modals fonctionnent exactement comme sur la page d'accueil.
-     *
-     * Structure compatible avec _breadcrumb.html.twig :
-     * [
-     *   ['id' => 'rhModal', 'title' => 'RH', 'icon' => '...', 'link' => '#', 'items' => [...]],
-     *   ...
-     * ]
      */
     private function buildDropdownAccueil(array $modules): array
     {
