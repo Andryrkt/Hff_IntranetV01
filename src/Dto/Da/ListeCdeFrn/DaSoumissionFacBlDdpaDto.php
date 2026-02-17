@@ -24,6 +24,7 @@ class DaSoumissionFacBlDdpaDto
 
     // si DA qui a une Demande de paiement à l'avance
     public $daDdpa = [];
+    public $titreDaDdpa = "Liste des demandes de paiement à l'avance";
     public $totalMontantCommande;
     public $totalPayer = 0;
     public $ratioTotalPayer = 0;
