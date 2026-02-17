@@ -58,8 +58,13 @@ class DemandePaiementFactory
             throw new \Exception("Montant total introuvable pour le numero commande $numCdeDa");
         }
 
+        $dto->totalMontantCommande = $this->getTotalMontantCommande($numCdeDa);
+        $this->getDdpa($numCdeDa, $dto);
+        $this->getMontant($numCdeDa, $dto);
+
         $dto->montantTotalCde = (float)$recupMontantTotal[0];
-        $dto->montantDejaPaye = $ddpRepository->getMontantDejaPayer($numCdeDa);
+        // $dto->montantDejaPaye = $ddpRepository->getMontantDejaPayer($numCdeDa);
+        $dto->montantDejaPaye = $dto->totalPayer;
         $dto->montantRestantApayer = $dto->montantTotalCde - $dto->montantDejaPaye;
         $dto->pourcentageAvance = (($dto->montantDejaPaye + $dto->montantAPayer) / $dto->montantTotalCde) * 100 . ' %';
         $dto->montantAPayer = $dto->montantRestantApayer;
@@ -71,9 +76,7 @@ class DemandePaiementFactory
         // recupération des fichiers de devis de la DA
         $dto->fichiersChoisis = $this->recupFichierDevisDa($dto);
         $dto->appro = $typeDa !== null ? true : false;
-        $dto->totalMontantCommande = $this->getTotalMontantCommande($numCdeDa);
-        $this->getDdpa($numCdeDa, $dto);
-        $this->getMontant($numCdeDa, $dto);
+
 
         // info generale =====================
         $dto->demandeur = $user->getNomUtilisateur();
