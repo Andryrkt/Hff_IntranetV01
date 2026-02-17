@@ -3,6 +3,7 @@
 namespace App\Entity\dit;
 
 use DateTime;
+use App\Entity\admin\Societte;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
