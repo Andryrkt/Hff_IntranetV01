@@ -3,30 +3,31 @@
 namespace App\Controller\da\ListeCdeFrn;
 
 use App\Constants\ddp\TypeDemandePaiementConstants;
-use App\Model\da\DaModel;
-
-use Twig\Markup;
-use App\Entity\admin\Service;
-use App\Entity\da\DaAfficher;
 use App\Controller\Controller;
-use App\Entity\da\DemandeAppro;
-use App\Entity\admin\Application;
-use App\Entity\da\DaSoumissionBc;
-use App\Form\da\daCdeFrn\CdeFrnListType;
-use Symfony\Component\Form\FormInterface;
-use App\Form\da\daCdeFrn\DaSoumissionType;
-use App\Controller\Traits\da\StatutBcTrait;
-use App\Entity\dit\DitOrsSoumisAValidation;
-use App\Repository\da\DaAfficherRepository;
+
 use App\Controller\Traits\AutorisationTrait;
 use App\Controller\Traits\da\MarkupIconTrait;
+use App\Controller\Traits\da\StatutBcTrait;
+use App\Entity\admin\Application;
+use App\Entity\admin\Service;
+use App\Entity\da\DaAfficher;
+use App\Entity\da\DaSoumissionBc;
+use App\Entity\da\DemandeAppro;
+use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Factory\da\CdeFrnDto\CdeFrnSearchDto;
+use App\Form\da\daCdeFrn\CdeFrnListType;
+use App\Form\da\daCdeFrn\DaDdpType;
 use App\Form\da\daCdeFrn\DaModalDateLivraisonType;
-use App\Repository\da\DemandeApproRepository;
-use Symfony\Component\HttpFoundation\Request;
+use App\Form\da\daCdeFrn\DaSoumissionType;
+use App\Model\da\DaModel;
+use App\Repository\da\DaAfficherRepository;
 use App\Repository\da\DaSoumissionBcRepository;
-use Symfony\Component\Routing\Annotation\Route;
+use App\Repository\da\DemandeApproRepository;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
+use Twig\Markup;
 
 /**
  * @Route("/demande-appro")
@@ -109,6 +110,12 @@ class DaListCdeFrnController extends Controller
         ])->getForm();
         $this->traitementFormulaireSoumission($request, $formSoumission);
 
+        /** === Formulaire pour l'envoie de DDP === */
+        $formDdp = $this->getFormFactory()->createBuilder(DaDdpType::class, null, [
+            'method' => 'GET',
+        ])->getForm();
+        $this->traitementFormulaireDdp($request, $formDdp);
+
         /** === Formulaire pour la date de livraison prevu === */
         $formDateLivraison = $this->getFormFactory()->createBuilder(DaModalDateLivraisonType::class)->getForm();
         $this->TraitementFormulaireDateLivraison($request, $formDateLivraison);
@@ -116,6 +123,7 @@ class DaListCdeFrnController extends Controller
         return $this->render('da/daListCdeFrn.html.twig', [
             'data'              => $dataPrepared,
             'formSoumission'    => $formSoumission->createView(),
+            'formDdp'           => $formDdp->createView(),
             'form'              => $form->createView(),
             'criteria'          => $criteriaTab,
             'daTypeIcons'       => $this->getAllIcons(),
@@ -225,6 +233,33 @@ class DaListCdeFrnController extends Controller
             } elseif ($soumission['soumission'] === 'BL Reappro') {
                 $this->redirectToRoute("da_soumission_bl_reappro", ['numCde' => $soumission['commande_id'], 'numDa' => $soumission['da_id'], 'numOr' => $soumission['num_or']]);
             }
+        }
+    }
+
+    private function traitementFormulaireDdp(Request $request, $formDdp): void
+    {
+        $formDdp->handleRequest($request);
+
+        if ($formDdp->isSubmitted() && $formDdp->isValid()) {
+            $ddp = $formDdp->getData();
+
+            if ($ddp['ddp'] === 'avance') {
+                // redirection vers la page de creation de demande de paiement
+                $this->redirectToRoute('demande_paiement_da', [
+                    'typeDdp' => 1,
+                    'numCdeDa' => $ddp['commande_id'],
+                    'typeDa' => (int)$ddp['type_da'],
+                    'numeroVersionBc' => null,
+                ]);
+            } elseif ($ddp['ddp'] === 'regule') {
+                $estDdpa = $this->daSoumissionBcRepository->getEstDdpAvance($ddp['commande_id']);
+                if ($estDdpa) {
+                    $this->redirectToRoute("da_soumission_facbl_ddpa", ['numCde' => $ddp['commande_id'], 'numDa' => $ddp['da_id'], 'numOr' => $ddp['num_or']]);
+                } else {
+                    $this->redirectToRoute("da_soumission_facbl", ['numCde' => $ddp['commande_id'], 'numDa' => $ddp['da_id'], 'numOr' => $ddp['num_or']]);
+                }
+            }
+            dd($ddp);
         }
     }
 

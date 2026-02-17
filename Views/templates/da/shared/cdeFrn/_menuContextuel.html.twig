@@ -12,10 +12,10 @@
 
 	<div class="m-3 fw-bold text-center" id="bcValideTelecharger"></div>
 
-	{# Formulaire de soumission BC et FAC + BL #}
+	{# Début Formulaire de soumission BC et FAC + BL #}
 	{{ form_start(formSoumission, {'method': 'GET'}) }}
 	<div class="p-2">
-		{{ form_row(formSoumission.soumission) }}
+		{{ form_row(formSoumission.soumission)}}
 		{# <input type="hidden" name="commande_id" id="hiddenCommandeId"/> #}
 		{{ form_row(formSoumission.commande_id) }}
 		{{ form_row(formSoumission.da_id) }}
@@ -27,6 +27,23 @@
 		</div>
 	</div>
 	{{ form_end(formSoumission) }}
+	{# Fin Formulaire de soumission BC et FAC + BL #}
+	<hr>
+	{# Début Formulaire de soumission DDP #}
+	{{ form_start(formDdp, {'method': 'GET'}) }}
+	<div class="p-2">
+		{{ form_row(formDdp.ddp)}}
+		{{ form_row(formDdp.commande_id) }}
+		{{ form_row(formDdp.da_id) }}
+		{{ form_row(formDdp.type_da) }}
+		<div class="d-flex justify-content-end">
+			<button class="btn btn-sm btn-warning fw-bold" type="submit">
+				soumettre
+			</button>
+		</div>
+	</div>
+	{{ form_end(formDdp) }}
+	{# Début Formulaire de soumission DDP #}
 
 
 </div>
