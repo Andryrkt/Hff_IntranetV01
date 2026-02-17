@@ -259,7 +259,6 @@ class DaListCdeFrnController extends Controller
                     $this->redirectToRoute("da_soumission_facbl", ['numCde' => $ddp['commande_id'], 'numDa' => $ddp['da_id'], 'numOr' => $ddp['num_or']]);
                 }
             }
-            dd($ddp);
         }
     }
 
