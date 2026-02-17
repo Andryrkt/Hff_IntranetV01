@@ -8,7 +8,7 @@ use App\Entity\admin\utilisateur\Profil;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\Finder\Exception\AccessDeniedException;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
@@ -16,7 +16,7 @@ use Symfony\Contracts\Cache\ItemInterface;
 class SecurityService
 {
     // ─── Routes publiques (pas de contrôle d'accès) ──────────────────────────
-    private const ROUTES_PUBLIQUES = ['security_signin', 'auth_deconnexion', 'accueil'];
+    private const ROUTES_PUBLIQUES = ['security_signin', 'auth_deconnexion', 'profil_acceuil'];
 
     // ─── Constantes de permissions (évite les fautes de frappe) ─────────────
     public const PERMISSION_VOIR      = 'peutVoir';
@@ -89,9 +89,7 @@ class SecurityService
 
         // Connecté mais peutVoir = false → 403
         if (!$this->verifierPermission(self::PERMISSION_VOIR, $nomRoute)) {
-            throw new AccessDeniedException(
-                sprintf('Accès refusé à la route "%s".', $nomRoute)
-            );
+            throw new AccessDeniedException();
         }
 
         return null;

@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use App\Entity\admin\historisation\pageConsultation\PageHff;
 use App\Entity\admin\historisation\pageConsultation\UserLogger;
 use App\Entity\da\DemandeAppro;
+use App\Service\security\SecurityService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Form\FormFactoryInterface;
@@ -118,6 +119,14 @@ class Controller
     public function getAuthorizationChecker(): AuthorizationCheckerInterface
     {
         return $this->getService('security.authorization_checker');
+    }
+
+    /**
+     * Récupérer le service de sécurité
+     */
+    public function getSecurityService(): SecurityService
+    {
+        return $this->getService('security.service');
     }
 
     /**

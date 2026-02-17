@@ -3,7 +3,6 @@
 namespace App\Controller\accueil;
 
 use App\Controller\Controller;
-use App\Entity\admin\Application;
 use App\Service\navigation\MenuService;
 use Symfony\Component\Routing\Annotation\Route;
 use Exception;

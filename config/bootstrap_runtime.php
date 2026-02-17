@@ -116,7 +116,7 @@ $securityService = new \App\Service\security\SecurityService(
     $session,
     $cachePermissions                                   // ← nouveau 3e argument
 );
-$container->set('securityService', $securityService);
+$container->set('security.service', $securityService);
 
 $formFactory = \Symfony\Component\Form\Forms::createFormFactoryBuilder()
     ->addExtension(new \Symfony\Component\Form\Extension\Core\CoreExtension())

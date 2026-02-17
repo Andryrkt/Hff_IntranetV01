@@ -23,25 +23,31 @@ $response           = new Response();
 $request = Request::createFromGlobals();
 
 try {
-    // Matcher la route
+    // 1. Matcher la route
     $currentRoute = $matcher->match($request->getPathInfo());
     $request->attributes->add($currentRoute);
 
-    // Résoudre le contrôleur
+    // 2. Contrôler l'accès
+    $securityResponse = $securityService->controlerAcces($request);
+
+    if ($securityResponse !== null) {
+        // L'utilisateur n'est pas connecté : on le redirige vers le login
+        $securityResponse->send();
+        exit;
+    }
+
+    // 3. Résoudre le contrôleur
     $controller = $controllerResolver->getController($request);
-    $arguments = $argumentResolver->getArguments($request, $controller);
+    $arguments  = $argumentResolver->getArguments($request, $controller);
 
-    // Exécuter le contrôleur
-    $result = call_user_func_array($controller, $arguments);
+    // 4. Exécuter le contrôleur
+    $result     = call_user_func_array($controller, $arguments);
 
-    // Si le contrôleur retourne une Response, l'utiliser
+    // 5. Construire la réponse
     if ($result instanceof Response) {
         $response = $result;
-    } else {
-        // Sinon, essayer de rendre le résultat avec Twig
-        if (is_string($result)) {
-            $response->setContent($result);
-        }
+    } elseif (is_string($result)) {
+        $response->setContent($result);
     }
 } catch (ResourceNotFoundException $e) {
     // Route non trouvée
