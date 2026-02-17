@@ -38,7 +38,7 @@ services:
       $cheminDeBase: "%env(BASE_PATH_FICHIER)%/magasin/devis/"
     public: true
 
-  # Modèles
+  # Demande Appro
   App\Model\da\DaModel:
     public: true
 
@@ -48,7 +48,6 @@ services:
   App\Model\dw\DossierInterventionAtelierModel:
     public: true
 
-  # Controleurs
   App\Controller\da\ListeDa\listeDaController:
     autowire: true
     autoconfigure: true
@@ -69,7 +68,6 @@ services:
   App\Service\da\FileUploaderForDAService:
     public: true
 
-  # Service DA
   App\Service\da\DaService:
     arguments:
       $em: "@doctrine.orm.default_entity_manager"
@@ -97,7 +95,6 @@ services:
       $dwDataService: '@App\Service\da\DwDataService'
     public: true
 
-  # Controleur
   App\Controller\da\Detail\DaDetailReapproController:
     arguments:
       $daService: '@App\Service\da\DaService'
@@ -120,7 +117,7 @@ services:
       $entityManager: "@doctrine.orm.default_entity_manager"
     public: true
 
-  # Factory
+  # Utilisateur et Profil
   App\Factory\admin\UserFactory:
     public: true
 
