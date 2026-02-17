@@ -117,13 +117,14 @@ class DemandeInterventionFactory
         $demandeIntervention->setPieceJoint02($dto->pieceJoint02);
         $demandeIntervention->setPieceJoint03($dto->pieceJoint03);
 
-        // statut demande - numero DIT - email - non d'utilisateur - date - heure
+        // statut demande - numero DIT - email - non d'utilisateur - date - heure - societe
         $demandeIntervention->setIdStatutDemande($dto->idStatutDemande);
         //$demandeIntervention->setNumeroDemandeIntervention($dto->numeroDemandeIntervention);
         $demandeIntervention->setMailDemandeur($dto->mailDemandeur);
         $demandeIntervention->setUtilisateurDemandeur($dto->utilisateurDemandeur);
         $demandeIntervention->setDateDemande($dto->dateDemande);
         $demandeIntervention->setHeureDemande($dto->heureDemande);
+        $demandeIntervention->setSociete($dto->societe);
 
         // Agence et service emetteur et debiteur ID
         $em = $this->entityManager;

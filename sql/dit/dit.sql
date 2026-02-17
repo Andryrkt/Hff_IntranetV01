@@ -1,3 +1,5 @@
+ALTER TABLE demande_intervention ADD societe INT
+
 ALTER TABLE demande_intervention ADD section_affectee VARCHAR(255)
 
 ALTER TABLE demande_intervention ADD statut_or VARCHAR(255)
