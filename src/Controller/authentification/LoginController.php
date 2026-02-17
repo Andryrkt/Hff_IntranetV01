@@ -55,6 +55,7 @@ class LoginController extends Controller
                         "lastname"             => $lastname,
                         "fullname"             => "$lastname $firstname",
                         "email"                => $user->getMail(),
+                        "profilId"             => $user->getProfils()->first()->getId(),
                         "roles"                => $user->getRoleIds(),
                         "applications"         => $user->getApplicationsIds(),
                         "authorized_agences"   => [

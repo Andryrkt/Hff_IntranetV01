@@ -2,60 +2,62 @@
 
 namespace App\Factory;
 
-use App\Service\navigation\BreadcrumbMenuService;
+use App\Service\navigation\MenuService;
 
 class BreadcrumbFactory
 {
     private string $baseUrl;
-    private array $menuConfig = [];
-    private BreadcrumbMenuService $breadcrumbMenuService;
+    private MenuService $menuService;
 
-    public function __construct(string $baseUrl = '/', BreadcrumbMenuService $breadcrumbMenuService)
-    {
-        $this->baseUrl = rtrim($baseUrl, '/');
-        $this->breadcrumbMenuService = $breadcrumbMenuService;
-    }
+    /**
+     * Cache de la config menu pour la requête courante.
+     * getMenuStructure() peut être appelé plusieurs fois (breadcrumb + vignettes) :
+     * on ne le calcule qu'une seule fois.
+     */
+    private ?array $menuConfig = null;
 
-    private function getMenuConfig(): array
+    public function __construct(string $baseUrl = '/', MenuService $menuService)
     {
-        if (empty($this->menuConfig)) {
-            $this->menuConfig = $this->breadcrumbMenuService->getFullMenuConfig();
-        }
-        return $this->menuConfig;
+        $this->baseUrl     = rtrim($baseUrl, '/');
+        $this->menuService = $menuService;
     }
 
     public function createFromCurrentUrl(): array
     {
-        $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+        $path     = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
         $segments = array_filter(explode('/', trim($path, '/')));
-        $breadcrumbs = [];
 
-        // Toujours ajouter l'accueil en premier
-        $homeItem = $this->createItem('Accueil', $this->baseUrl ?: '/', false, 'fas fa-home');
+        // ─── Accueil ──────────────────────────────────────────────────────────
+        $homeItem  = $this->createItem('Accueil', $this->baseUrl ?: '/', false, 'fas fa-home');
+        $config    = $this->getMenuConfig();
 
-        // Ajouter dropdown pour l'accueil si configuré
-        $config = $this->getMenuConfig();
-        if (isset($config['accueil'])) {
-            $homeItem['dropdown'] = $this->createSubItems($path, 'accueil');
+        // Le premier item (Accueil) reçoit un dropdown avec tous les modules
+        if (!empty($config)) {
+            $homeItem['dropdown'] = $this->buildDropdownFromMenu($path, $config);
         }
 
-        $breadcrumbs[] = $homeItem;
+        $breadcrumbs = [$homeItem];
 
-        // Traiter chaque segment de l'URL
+        // ─── Segments de l'URL ───────────────────────────────────────────────
         foreach ($segments as $index => $segment) {
+            // Ignorer le premier segment (base path), les IDs numériques et les segments finissant par un chiffre
             if ($index == 0 || is_numeric($segment) || preg_match('/\d$/', $segment)) {
                 continue;
             }
-            $isLast = ($index === count($segments) - 1);
-            $label = $this->formatLabel($segment);
-            $icon = $this->getIconForSegment($segment);
 
-            $item = $this->createItem($label, $isLast ? null : '#', $isLast, $icon);
+            $isLast = ($index === array_key_last($segments));
+            $slug   = strtolower($segment);
+            $item   = $this->createItem(
+                $this->formatLabel($segment),
+                $isLast ? null : '#',
+                $isLast,
+                $this->getIconForSegment($segment)
+            );
 
-            // Ajouter dropdown si configuré pour ce segment
-            $slug = strtolower($segment);
-            if (isset($config[$slug])) {
-                $item['dropdown'] = $this->createSubItems($path, $slug);
+            // Dropdown sur le segment si un sous-menu existe pour ce slug
+            $subMenu = $this->findSubMenuBySlug($slug, $config);
+            if ($subMenu !== null) {
+                $item['dropdown'] = $this->buildSubItemsDropdown($path, $subMenu);
             }
 
             $breadcrumbs[] = $item;
@@ -64,30 +66,83 @@ class BreadcrumbFactory
         return $breadcrumbs;
     }
 
+    // =========================================================================
+    //  CONSTRUCTION DES DROPDOWNS
+    // =========================================================================
+
+    /**
+     * Construit le dropdown de l'Accueil : liste tous les modules du menu.
+     */
+    private function buildDropdownFromMenu(string $currentPath, array $menuModules): array
+    {
+        $dropdown = [];
+        foreach ($menuModules as $module) {
+            $dropdown[] = [
+                'id'       => $module['id'],
+                'title'    => $module['title'],
+                'link'     => '#',
+                'icon'     => $module['icon'],
+                'is_active' => false,
+                'items'    => $module['items'],
+            ];
+        }
+        return $dropdown;
+    }
+
+    /**
+     * Construit le dropdown d'un segment : items du sous-menu correspondant.
+     */
+    private function buildSubItemsDropdown(string $currentPath, array $subMenu): array
+    {
+        return array_map(function ($item) use ($currentPath) {
+            $link = $item['link'] ?? null;
+            return [
+                'id'          => $item['id'] ?? null,
+                'title'       => $item['title'],
+                'link'        => $link,
+                'icon'        => $item['icon'] ?? '',
+                'is_active'   => ($link === $currentPath),
+                'routeParams' => $item['routeParams'] ?? [],
+                'items'       => $item['items'] ?? [],
+            ];
+        }, $subMenu);
+    }
+
+    /**
+     * Trouve le sous-menu d'un module par son slug (nom en minuscules).
+     * Ex : 'magasin' → items du module Magasin.
+     * Retourne null si aucun module ne correspond.
+     */
+    private function findSubMenuBySlug(string $slug, array $menuModules): ?array
+    {
+        foreach ($menuModules as $module) {
+            if (strtolower($module['title']) === $slug) {
+                return $module['items'];
+            }
+        }
+        return null;
+    }
+
+    // =========================================================================
+    //  HELPERS
+    // =========================================================================
+
+    private function getMenuConfig(): array
+    {
+        if ($this->menuConfig === null) {
+            $this->menuConfig = $this->menuService->getMenuStructure();
+        }
+        return $this->menuConfig;
+    }
+
     private function createItem(string $label, ?string $url, bool $isActive, string $icon): array
     {
         return [
-            'title' => $label,
-            'link' => $url,
-            'icon' => $icon,
-            'is_active' => $isActive
+            'title'     => $label,
+            'link'      => $url,
+            'icon'      => $icon,
+            'is_active' => $isActive,
         ];
-    }
-
-    private function createSubItems(string $currentPath, string $slug): array
-    {
-        $config = $this->getMenuConfig();
-        return array_map(function ($sub) use ($currentPath) {
-            $subLink = isset($sub['link']) ? $sub['link'] : null;
-            return [
-                'id' => $sub['id'] ?? null,
-                'title' => $sub['title'],
-                'link' => $subLink,
-                'icon' => $sub['icon'] ?? '',
-                'is_active' => ($subLink === $currentPath),
-                'items' => $sub['items'] ?? [] // Ajouter les items pour le modal
-            ];
-        }, $config[$slug]);
     }
 
     private function formatLabel(string $segment): string
@@ -150,7 +205,7 @@ class BreadcrumbFactory
             'planningAtelier'                       => 'Planning Interne de l\'Atelier',
             'planningAte'                           => 'Planning',
             'demande-de-conge'                      => 'Demande de congé',
-            'conge-liste'                           => ' Liste des demandes de congés'
+            'conge-liste'                           => 'Liste des demandes de congés',
         ];
 
         $cleanSegment = str_replace(['-', '_'], ' ', $segment);
@@ -179,7 +234,7 @@ class BreadcrumbFactory
             'messages'              => 'fas fa-envelope',
             'notifications'         => 'fas fa-bell',
             'admin'                 => 'fas fa-shield-alt',
-            'maintenance'           => 'fas fa-wrench'
+            'maintenance'           => 'fas fa-wrench',
         ];
 
         return $iconMapping[$segment] ?? 'fas fa-folder';

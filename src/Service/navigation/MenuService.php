@@ -2,645 +2,443 @@
 
 namespace App\Service\navigation;
 
-use App\Entity\da\DemandeAppro;
-use App\Entity\admin\Application;
-use App\Entity\admin\Service;
-use App\Entity\admin\utilisateur\Role;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use App\Service\security\SecurityService;
 
 class MenuService
 {
-    private $session;
-    private $connectedUser;
-    private bool $estAdmin = false;
-    private bool $estAtelier = false;
-    private bool $estAppro = false;
-    private bool $estRH = false;
-    private bool $estCreateurDeDADirecte = false;
-    private $basePath;
-    private $applicationIds = [];
-    private $codeAgenceAutorisers = [];
+    private SecurityService $securityService;
+    private string $basePath;
 
-    public function __construct(SessionInterface $session)
+    public function __construct(SecurityService $securityService)
     {
-        $this->session = $session;
-        $this->basePath = $_ENV['BASE_PATH_FICHIER_COURT']; // Chemin de base pour les liens de téléchargement --> /Upload
+        $this->securityService = $securityService;
+        $this->basePath        = $_ENV['BASE_PATH_FICHIER_COURT'];
     }
 
-    /**
-     * Get the value of estAdmin
-     */
-    public function getEstAdmin()
-    {
-        return $this->estAdmin;
-    }
+    // =========================================================================
+    //  API PUBLIQUE
+    // =========================================================================
 
     /**
-     * Set the value of estAdmin
-     *
-     * @return  self
-     */
-    public function setEstAdmin($estAdmin)
-    {
-        $this->estAdmin = $estAdmin;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of estAtelier
-     */
-    public function getEstAtelier()
-    {
-        return $this->estAtelier;
-    }
-
-    /**
-     * Set the value of estAtelier
-     *
-     * @return  self
-     */
-    public function setEstAtelier($estAtelier)
-    {
-        $this->estAtelier = $estAtelier;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of estAppro
-     */
-    public function getEstAppro()
-    {
-        return $this->estAppro;
-    }
-
-    /**
-     * Set the value of estAppro
-     *
-     * @return  self
-     */
-    public function setEstAppro($estAppro)
-    {
-        $this->estAppro = $estAppro;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of applicationIds
-     */
-    public function getApplicationIds()
-    {
-        return $this->applicationIds;
-    }
-
-    /**
-     * Set the value of applicationIds
-     *
-     * @return  self
-     */
-    public function setApplicationIds($applicationIds)
-    {
-        $this->applicationIds = $applicationIds;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of codeAgenceAutorisers
-     */
-    public function getCodeAgenceAutorisers()
-    {
-        return $this->codeAgenceAutorisers;
-    }
-
-    /**
-     * Set the value of codeAgenceAutorisers
-     */
-    public function setCodeAgenceAutorisers($codeAgenceAutorisers): self
-    {
-        $this->codeAgenceAutorisers = $codeAgenceAutorisers;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of connectedUser
-     */
-    public function getConnectedUser()
-    {
-        return $this->connectedUser;
-    }
-
-    /**
-     * Set the value of connectedUser
-     *
-     * @return  self
-     */
-    public function setConnectedUser($connectedUser)
-    {
-        $this->connectedUser = $connectedUser;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of estCreateurDeDADirecte
-     */
-    public function getEstCreateurDeDADirecte()
-    {
-        return $this->estCreateurDeDADirecte;
-    }
-
-    /**
-     * Set the value of estCreateurDeDADirecte
-     *
-     * @return  self
-     */
-    public function setEstCreateurDeDADirecte($estCreateurDeDADirecte)
-    {
-        $this->estCreateurDeDADirecte = $estCreateurDeDADirecte;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of estRH
-     */
-    public function getEstRH()
-    {
-        return $this->estRH;
-    }
-
-    /**
-     * Set the value of estRH
-     *
-     * @return  self
-     */
-    public function setEstRH($estRH)
-    {
-        $this->estRH = $estRH;
-
-        return $this;
-    }
-
-    /**
-     * Définit les informations de l'utilisateur connecté :
-     * - son statut admin
-     * - la liste de ses applications
-     */
-    private function setConnectedUserContext()
-    {
-        if ($this->session->has('user_info')) {
-            $userInfo = $this->session->get('user_info');
-            if ($userInfo) {
-                $roleIds = $userInfo["roles"];
-                $serviceIds = $userInfo["authorized_services"]["ids"];
-                $applicationIds = $userInfo["applications"];
-                $agenceIds = $userInfo["authorized_agences"]["codes"];
-
-                $this->setEstAdmin(in_array(Role::ROLE_ADMINISTRATEUR, $roleIds, true)); // estAdmin
-                $this->setEstAppro(in_array(DemandeAppro::ID_APPRO, $serviceIds)); // est appro
-                $this->setEstAtelier(in_array(DemandeAppro::ID_ATELIER, $serviceIds)); // est atelier
-                $this->setEstRH(in_array(Service::ID_RH, $serviceIds)); // est RH
-                $this->setEstCreateurDeDADirecte(in_array(Role::ROLE_DA_DIRECTE, $roleIds, true)); // est créateur de DA directe
-                $this->setApplicationIds($applicationIds); // Les applications autorisées de l'utilisateur connecté
-                $this->setCodeAgenceAutorisers($agenceIds); // codes des agences autoriser del'utilisateur connecté
-            }
-        }
-    }
-
-    /**
-     * Vérifie si l’utilisateur a accès via ses applications
-     */
-    private function hasAccess(array $requiredIds, array $userApplications): bool
-    {
-        return !empty(array_intersect($requiredIds, $userApplications));
-    }
-
-    /**
-     * Retourne la structure du menu organiséegit a
+     * Retourne la structure complète du menu pour l'utilisateur connecté.
+     * Seuls les modules ayant au moins un item accessible sont inclus.
      */
     public function getMenuStructure(): array
     {
-        $this->setConnectedUserContext();
+        $vignettes = [];
 
-        $vignettes = [$this->menuDocumentation(), $this->menuMateriel()]; // tout le monde
-        $estAdmin = $this->getEstAdmin(); // estAdmin
-        $applicationIds = $this->getApplicationIds(); // les ids des applications autorisées de l'utilisateur connecté
-
-        // Définition des règles d’accès pour chaque menu
-        $menus = [
-            ["menuReportingBI", $estAdmin],
-            ["menuCompta", $estAdmin || $this->hasAccess([Application::ID_DDP, Application::ID_DDR, Application::ID_BCS], $applicationIds)], // DDP || DDR || BCS
-            ["menuRH", $estAdmin || $this->hasAccess([Application::ID_DOM, Application::ID_MUT, Application::ID_DDC], $applicationIds)],     // DOM || MUT || DDC
-            ["menuAtelier", $estAdmin || $this->hasAccess([Application::ID_DIT, Application::ID_REP], $applicationIds)], // DIT || REP
-            ["menuMagasin", $estAdmin || $this->hasAccess([Application::ID_MAG, Application::ID_INV, Application::ID_BDL, Application::ID_CFR, Application::ID_LCF], $applicationIds)], // MAG || INV || BDL || CFR || LCF
-            ["menuAppro", $estAdmin || in_array(Application::ID_DAP, $applicationIds, true)],         // DAP
-            ["menuIT", $estAdmin || in_array(Application::ID_TIK, $applicationIds, true)],             // TIK
-            ["menuPOL", $estAdmin || in_array('60', $this->getCodeAgenceAutorisers())],
-            ["menuEnergie", $estAdmin],
-            ["menuHSE", $estAdmin],
+        $modules = [
+            fn() => $this->menuDocumentation(),
+            fn() => $this->menuReportingBI(),
+            fn() => $this->menuCompta(),
+            fn() => $this->menuRH(),
+            fn() => $this->menuMateriel(),
+            fn() => $this->menuAtelier(),
+            fn() => $this->menuMagasin(),
+            fn() => $this->menuAppro(),
+            fn() => $this->menuIT(),
+            fn() => $this->menuPOL(),
+            fn() => $this->menuEnergie(),
+            fn() => $this->menuHSE(),
         ];
 
-        // Ajout uniquement des menus accessibles
-        foreach ($menus as [$menuMethod, $condition]) {
-            if ($condition) $vignettes[] = $this->$menuMethod();
+        foreach ($modules as $factory) {
+            $menu = $factory();
+            if (!empty($menu['items'])) {
+                $vignettes[] = $menu;
+            }
         }
 
         return $vignettes;
     }
 
-    public function menuDocumentation()
+    // =========================================================================
+    //  CONSTRUCTION DES MENUS
+    //  Chaque méthode construit uniquement les items accessibles.
+    //  La vérification est faite via hasAccesRoute() — zéro requête BDD.
+    // =========================================================================
+
+    public function menuDocumentation(): array
     {
+        $subitems = [];
+
+        if ($this->hasAccesRoute('documentation_interne')) {
+            $subitems[] = $this->createSimpleItem('Annuaire', 'address-book', '#');
+            $subitems[] = $this->createSimpleItem('Plan analytique HFF', 'ruler-vertical', "{$this->basePath}/documentation/Structure%20analytique%20HFF.pdf", [], '_blank');
+            $subitems[] = $this->createSimpleItem('Documentation interne', 'folder-tree', 'documentation_interne');
+        }
+
+        if ($this->hasAccesRoute('new_contrat')) {
+            $subitems[] = $this->createSubMenuItem('Contrat', 'file-contract', [
+                $this->createSubItem('Nouveau contrat', 'plus-circle', 'new_contrat', [], '_blank'),
+                $this->createSubItem('Consultation', 'search', '#'),
+            ]);
+        }
+
+        return $this->createMenuItem('documentationModal', 'Documentation', 'book', $subitems);
+    }
+
+    public function menuReportingBI(): array
+    {
+        if (!$this->hasAccesRoute('da_reporting_ips')) {
+            return $this->createMenuItem('reportingModal', 'Reporting', 'chart-line', []);
+        }
+
+        return $this->createMenuItem('reportingModal', 'Reporting', 'chart-line', [
+            $this->createSimpleItem('Reporting Power BI', null, '#'),
+            $this->createSimpleItem('Reporting Excel', null, '#'),
+        ]);
+    }
+
+    public function menuCompta(): array
+    {
+        if (!$this->hasAccesModule('ddp_liste', 'new_bon_caisse', 'bon_caisse_liste')) {
+            return $this->createMenuItem('comptaModal', 'Compta', 'calculator', []);
+        }
+
         $subitems = [
-            $this->createSimpleItem('Annuaire', 'address-book', '#'),
-            $this->createSimpleItem('Plan analytique HFF', 'ruler-vertical', "{$this->basePath}/documentation/Structure%20analytique%20HFF.pdf", [], "_blank"),
-            $this->createSimpleItem('Documentation interne', 'folder-tree', 'documentation_interne'),
+            $this->createSimpleItem('Cours de change', 'money-bill-wave'),
         ];
-        if ($this->getEstAdmin()) {
-            $subitems[] = $this->createSubMenuItem(
-                'Contrat',
-                'file-contract',
-                [
-                    $this->createSubItem('Nouveau contrat', 'plus-circle', 'new_contrat', [], "_blank"),
-                    $this->createSubItem('Consultation', 'search', '#')
-                ]
-            );
-        }
-        return $this->createMenuItem(
-            'documentationModal',
-            'Documentation',
-            'book',
-            $subitems,
-        );
-    }
 
-    public function menuReportingBI()
-    {
-        return $this->createMenuItem(
-            'reportingModal',
-            'Reporting',
-            'chart-line',
-            [
-                $this->createSimpleItem('Reporting Power BI', null, '#'),
-                $this->createSimpleItem('Reporting Excel', null, '#')
-            ]
-        );
-    }
-
-    public function menuCompta()
-    {
-        $subitems = [];
-
-        $subitems[] = $this->createSimpleItem('Cours de change', 'money-bill-wave');
-        $subitems[] = $this->createSubMenuItem(
-            'Demande de paiement',
-            'file-invoice-dollar',
-            [
+        if ($this->hasAccesRoute('ddp_liste')) {
+            $subitems[] = $this->createSubMenuItem('Demande de paiement', 'file-invoice-dollar', [
                 $this->createSubItem('Nouvelle demande', 'plus-circle', '#', [], '', 'modalTypeDemande', true),
-                $this->createSubItem('Consultation', 'search', 'ddp_liste')
-            ]
-        );
-
-        if ($this->getEstAdmin() || in_array(Application::ID_BCS, $this->getApplicationIds())) {
-            $subitems[] = $this->createSubMenuItem(
-                'Bon de caisse',
-                'receipt',
-                [
-                    $this->createSubItem('Nouvelle demande', 'plus-circle', 'new_bon_caisse'),
-                    $this->createSubItem('Consultation', 'search', 'bon_caisse_liste')
-                ]
-            );
+                $this->createSubItem('Consultation', 'search', 'ddp_liste'),
+            ]);
         }
 
-        return $this->createMenuItem(
-            'comptaModal',
-            'Compta',
-            'calculator',
-            $subitems
-        );
+        if ($this->hasAccesModule('new_bon_caisse', 'bon_caisse_liste')) {
+            $subitems[] = $this->createSubMenuItem('Bon de caisse', 'receipt', [
+                $this->createSubItem('Nouvelle demande', 'plus-circle', 'new_bon_caisse'),
+                $this->createSubItem('Consultation', 'search', 'bon_caisse_liste'),
+            ]);
+        }
+
+        return $this->createMenuItem('comptaModal', 'Compta', 'calculator', $subitems);
     }
 
-    public function menuRH()
+    public function menuRH(): array
     {
+        if (!$this->hasAccesModule('dom_first_form', 'doms_liste', 'mutation_nouvelle_demande', 'mutation_liste', 'new_conge', 'conge_liste')) {
+            return $this->createMenuItem('rhModal', 'RH', 'users', []);
+        }
+
         $subitems = [];
-        $nomUtilisateur = $this->getConnectedUser() ? $this->getConnectedUser()->getNomUtilisateur() : '';
-        if ($this->getEstAdmin() || in_array(Application::ID_DOM, $this->getApplicationIds())) { // DOM
+
+        // Ordre de mission (DOM)
+        if ($this->hasAccesModule('dom_first_form', 'doms_liste')) {
             $subSubitems = [];
-            if ($nomUtilisateur != 'roddy') {
+            if ($this->hasAccesRoute('dom_first_form')) {
                 $subSubitems[] = $this->createSubItem('Nouvelle demande', 'plus-circle', 'dom_first_form');
             }
             $subSubitems[] = $this->createSubItem('Consultation', 'search', 'doms_liste');
-            $subitems[] = $this->createSubMenuItem(
-                'Ordre de mission',
-                'file-signature',
-                $subSubitems
-            );
+            $subitems[]    = $this->createSubMenuItem('Ordre de mission', 'file-signature', $subSubitems);
         }
-        if ($this->getEstAdmin() || in_array(Application::ID_MUT, $this->getApplicationIds())) { // MUT
-            $subitems[] = $this->createSubMenuItem(
-                'Mutations',
-                'user-friends',
-                [
-                    $this->createSubItem('Nouvelle demande', 'plus-circle', 'mutation_nouvelle_demande'),
-                    $this->createSubItem('Consultation', 'search', 'mutation_liste')
-                ]
-            );
+
+        // Mutations
+        if ($this->hasAccesModule('mutation_nouvelle_demande', 'mutation_liste')) {
+            $subitems[] = $this->createSubMenuItem('Mutations', 'user-friends', [
+                $this->createSubItem('Nouvelle demande', 'plus-circle', 'mutation_nouvelle_demande'),
+                $this->createSubItem('Consultation', 'search', 'mutation_liste'),
+            ]);
         }
-        if ($this->getEstAdmin() || in_array(Application::ID_DDC, $this->getApplicationIds())) { // DDC
+
+        // Congés
+        if ($this->hasAccesModule('new_conge', 'conge_liste')) {
             $subSubitems = [];
-            $subSubitems[] = $this->createSubItem('Nouvelle demande', 'plus-circle', 'new_conge', [], '_blank');
-            $subSubitems[] = $this->createSubItem('Annulation de congés validés', 'calendar-xmark', 'annulation_conge', [], '_blank');
-            if ($this->getEstAdmin() || $this->getEstRH()) {
+            if ($this->hasAccesRoute('new_conge')) {
+                $subSubitems[] = $this->createSubItem('Nouvelle demande', 'plus-circle', 'new_conge', [], '_blank');
+            }
+            if ($this->hasAccesRoute('annulation_conge')) {
+                $subSubitems[] = $this->createSubItem('Annulation de congés validés', 'calendar-xmark', 'annulation_conge', [], '_blank');
+            }
+            if ($this->hasAccesRoute('annulation_conge_rh')) {
                 $subSubitems[] = $this->createSubItem('Annulation de congé dédiée RH', 'calendar-xmark', 'annulation_conge_rh', [], '_blank');
             }
             $subSubitems[] = $this->createSubItem('Consultation', 'search', 'conge_liste');
-            $subitems[] = $this->createSubMenuItem(
-                'Congés',
-                'umbrella-beach',
-                $subSubitems
-            );
-        }
-        if ($this->getEstAdmin()) {
-
-            $subitems[] = $this->createSubMenuItem(
-                'Temporaires',
-                'user-clock',
-                [
-                    $this->createSubItem('Nouvelle demande', 'plus-circle', '#'),
-                    $this->createSubItem('Consultation', 'search', '#')
-                ]
-            );
+            $subitems[]    = $this->createSubMenuItem('Congés', 'umbrella-beach', $subSubitems);
         }
 
-        return $this->createMenuItem(
-            'rhModal',
-            'RH',
-            'users',
-            $subitems,
-        );
-    }
-
-    public function menuMateriel()
-    {
-        $subitems = [
-            $this->createSubMenuItem(
-                'Logistique',
-                'truck-fast',
-                [
-                    $this->createSubItem('Nouvelle demande', 'plus-circle', 'new_logistique'),
-                ]
-            )
-        ];
-        if ($this->getEstAdmin() || $this->hasAccess([Application::ID_BADM, Application::ID_CAS], $this->getApplicationIds())) {
-            $subitems = array_merge($subitems, [
-                $this->createSubMenuItem(
-                    'Mouvement matériel',
-                    'exchange-alt',
-                    [
-                        $this->createSubItem('Nouvelle demande', 'plus-circle', 'badms_newForm1'),
-                        $this->createSubItem('Consultation', 'search', 'badmListe_AffichageListeBadm')
-                    ]
-                ),
-                $this->createSubMenuItem(
-                    'Casier',
-                    'box-open',
-                    [
-                        $this->createSubItem('Nouvelle demande', 'plus-circle', 'casier_nouveau'),
-                        $this->createSubItem('Consultation', 'search', 'listeTemporaire_affichageListeCasier')
-                    ]
-                ),
+        // Temporaires
+        if ($this->hasAccesRoute('temporaires_liste')) {
+            $subitems[] = $this->createSubMenuItem('Temporaires', 'user-clock', [
+                $this->createSubItem('Nouvelle demande', 'plus-circle', '#'),
+                $this->createSubItem('Consultation', 'search', '#'),
             ]);
         }
-        if ($this->getEstAdmin()) {
-            $subitems[] = $this->createSimpleItem('Commandes matériels', 'shopping-basket');
-            $subitems[] = $this->createSimpleItem('Suivi administratif des matériels', 'clipboard-check');
-        }
-        return $this->createMenuItem(
-            'materielModal',
-            'Matériel',
-            'snowplow',
-            $subitems
-        );
+
+        return $this->createMenuItem('rhModal', 'RH', 'users', $subitems);
     }
 
-    public function menuAtelier()
+    public function menuMateriel(): array
     {
         $subitems = [];
-        $nomUtilisateur = $this->getConnectedUser() ? $this->getConnectedUser()->getNomUtilisateur() : '';
-        if ($this->getEstAdmin() || in_array(Application::ID_DIT, $this->getApplicationIds())) { // DIT
+
+        if ($this->hasAccesRoute('new_logistique')) {
+            $subitems[] = $this->createSubMenuItem('Logistique', 'truck-fast', [
+                $this->createSubItem('Nouvelle demande', 'plus-circle', 'new_logistique'),
+            ]);
+        }
+
+        if ($this->hasAccesModule('badms_newForm1', 'badmListe_AffichageListeBadm')) {
+            $subitems[] = $this->createSubMenuItem('Mouvement matériel', 'exchange-alt', [
+                $this->createSubItem('Nouvelle demande', 'plus-circle', 'badms_newForm1'),
+                $this->createSubItem('Consultation', 'search', 'badmListe_AffichageListeBadm'),
+            ]);
+        }
+
+        if ($this->hasAccesModule('casier_nouveau', 'listeTemporaire_affichageListeCasier')) {
+            $subitems[] = $this->createSubMenuItem('Casier', 'box-open', [
+                $this->createSubItem('Nouvelle demande', 'plus-circle', 'casier_nouveau'),
+                $this->createSubItem('Consultation', 'search', 'listeTemporaire_affichageListeCasier'),
+            ]);
+        }
+
+        return $this->createMenuItem('materielModal', 'Matériel', 'snowplow', $subitems);
+    }
+
+    public function menuAtelier(): array
+    {
+        if (!$this->hasAccesModule(
+            'dit_new',
+            'dit_index',
+            'dit_dossier_intervention_atelier',
+            'planning_vue',
+            'liste_planning',
+            'planningAtelier_vue'
+        )) {
+            return $this->createMenuItem('atelierModal', 'Atelier', 'tools', []);
+        }
+
+        $subitems = [];
+
+        // DIT
+        if ($this->hasAccesModule('dit_new', 'dit_index', 'dit_dossier_intervention_atelier')) {
             $subSubitems = [];
-            if ($nomUtilisateur != 'stg.iaro' && $nomUtilisateur != 'roddy') {
+            if ($this->hasAccesRoute('dit_new')) {
                 $subSubitems[] = $this->createSubItem('Nouvelle demande', 'plus-circle', 'dit_new');
+            }
+            if ($this->hasAccesRoute('dit_index')) {
                 $subSubitems[] = $this->createSubItem('Consultation', 'search', 'dit_index');
             }
             $subSubitems[] = $this->createSubItem('Dossier DIT', 'folder', 'dit_dossier_intervention_atelier');
             $subSubitems[] = $this->createSubItem('Matrice des responsabilités', 'table', "{$this->basePath}/documentation/MATRICE DE RESPONSABILITES OR v9.xlsx");
-            $subitems[] = $this->createSubMenuItem(
-                'Demande d\'intervention',
-                'toolbox',
-                $subSubitems
-            );
-            if ($nomUtilisateur != 'stg.iaro') {
-                $subitems[] = $this->createSimpleItem('Glossaire OR', 'book', "{$this->basePath}/dit/glossaire_or/Glossaire_OR.pdf", [], '_blank');
-            }
+            $subitems[]    = $this->createSubMenuItem('Demande d\'intervention', 'toolbox', $subSubitems);
+            $subitems[]    = $this->createSimpleItem('Glossaire OR', 'book', "{$this->basePath}/dit/glossaire_or/Glossaire_OR.pdf", [], '_blank');
         }
-        if ($this->getEstAdmin() || in_array(Application::ID_REP, $this->getApplicationIds())) { // REP
+
+        // REP
+        if ($this->hasAccesModule('planning_vue', 'liste_planning')) {
             $subitems[] = $this->createSimpleItem('Planning', 'calendar-alt', 'planning_vue', ['action' => 'oui']);
             $subitems[] = $this->createSimpleItem('Planning détaillé', 'calendar-day', 'liste_planning', ['action' => 'oui']);
         }
-        if ($this->getEstAdmin() || in_array(Application::ID_PAT, $this->getApplicationIds())) { // PAT
+
+        // PAT
+        if ($this->hasAccesRoute('planningAtelier_vue')) {
             $subitems[] = $this->createSimpleItem('Planning interne Atelier', 'calendar-alt', 'planningAtelier_vue');
         }
-        if ($this->getEstAdmin()) {
-            $subitems[] = $this->createSimpleItem('Satisfaction client (Atelier excellence survey)', 'smile', '#');
-        }
-        return $this->createMenuItem(
-            'atelierModal',
-            'Atelier',
-            'tools',
-            $subitems
-        );
+
+        return $this->createMenuItem('atelierModal', 'Atelier', 'tools', $subitems);
     }
 
-
-    public function menuMagasin()
+    public function menuMagasin(): array
     {
+        if (!$this->hasAccesModule(
+            'magasinListe_index',
+            'magasinListe_or_Livrer',
+            'cis_liste_a_traiter',
+            'cis_liste_a_livrer',
+            'liste_inventaire',
+            'liste_detail_inventaire',
+            'bl_soumission',
+            'devis_magasin_liste',
+            'cde_fournisseur',
+            'liste_Cde_Frn_Non_Placer'
+        )) {
+            return $this->createMenuItem('magasinModal', 'Magasin', 'dolly', []);
+        }
+
         $subitems = [];
-        /** =====================Magasin OR et CIS========================= */
-        if ($this->getEstAdmin() || in_array(Application::ID_MAG, $this->getApplicationIds())) { // MAG
-            $subitems[] = $this->createSubMenuItem(
-                'OR',
-                'warehouse',
-                [
-                    $this->createSubItem('Liste à traiter', 'tasks', 'magasinListe_index'),
-                    $this->createSubItem('Liste à livrer', 'truck-loading', 'magasinListe_or_Livrer')
-                ]
-            );
-            $subitems[] = $this->createSubMenuItem(
-                'CIS',
-                'pallet',
-                [
-                    $this->createSubItem('Liste à traiter', 'tasks', 'cis_liste_a_traiter'),
-                    $this->createSubItem('Liste à livrer', 'truck-loading', 'cis_liste_a_livrer')
-                ]
-            );
+
+        if ($this->hasAccesModule('magasinListe_index', 'magasinListe_or_Livrer')) {
+            $subitems[] = $this->createSubMenuItem('OR', 'warehouse', [
+                $this->createSubItem('Liste à traiter', 'tasks', 'magasinListe_index'),
+                $this->createSubItem('Liste à livrer', 'truck-loading', 'magasinListe_or_Livrer'),
+            ]);
         }
-        /** =====================Inventaire========================= */
-        if ($this->getEstAdmin() || in_array(Application::ID_INV, $this->getApplicationIds())) { // INV
-            $subitems[] = $this->createSubMenuItem(
-                'INVENTAIRE',
-                'file-alt',
-                [
-                    $this->createSubItem('Liste inventaire', 'file-alt', 'liste_inventaire', ['action' => 'oui']),
-                    $this->createSubItem('Inventaire détaillé', 'file-alt', 'liste_detail_inventaire'),
-                ]
-            );
+
+        if ($this->hasAccesModule('cis_liste_a_traiter', 'cis_liste_a_livrer')) {
+            $subitems[] = $this->createSubMenuItem('CIS', 'pallet', [
+                $this->createSubItem('Liste à traiter', 'tasks', 'cis_liste_a_traiter'),
+                $this->createSubItem('Liste à livrer', 'truck-loading', 'cis_liste_a_livrer'),
+            ]);
         }
-        /** =====================sortie de pieces / lubs========================= */
-        if ($this->getEstAdmin() || in_array(Application::ID_BDL, $this->getApplicationIds())) { // BDL
-            $subitems[] = $this->createSubMenuItem(
-                'SORTIE DE PIECES',
-                'arrow-left',
-                [
-                    $this->createSubItem('Nouvelle demande', 'plus-circle', 'bl_soumission'),
-                ]
-            );
+
+        if ($this->hasAccesModule('liste_inventaire', 'liste_detail_inventaire')) {
+            $subitems[] = $this->createSubMenuItem('INVENTAIRE', 'file-alt', [
+                $this->createSubItem('Liste inventaire', 'file-alt', 'liste_inventaire', ['action' => 'oui']),
+                $this->createSubItem('Inventaire détaillé', 'file-alt', 'liste_detail_inventaire'),
+            ]);
         }
-        /** =====================dematerialisation========================= */
-        if ($this->getEstAdmin() || in_array(Application::ID_DVM, $this->getApplicationIds())) {
-            $subitems[] = $this->createSubMenuItem(
-                'DEMATERIALISATION',
-                'cloud-arrow-up',
-                [
-                    $this->createSubItem('Devis', 'file-invoice', 'devis_magasin_liste'),
-                    // $this->createSubItem('Commandes clients', 'shopping-basket', '#'),
-                    $this->createSubItem('Planning de commande Magasin', 'calendar-alt', 'interface_planningMag'),
-                ]
-            );
+
+        if ($this->hasAccesRoute('bl_soumission')) {
+            $subitems[] = $this->createSubMenuItem('SORTIE DE PIECES', 'arrow-left', [
+                $this->createSubItem('Nouvelle demande', 'plus-circle', 'bl_soumission'),
+            ]);
         }
-        /** =====================soumission commande fournisseur========================= */
-        if ($this->getEstAdmin() || in_array(Application::ID_CFR, $this->getApplicationIds())) { // CFR
+
+        if ($this->hasAccesModule('devis_magasin_liste', 'interface_planningMag')) {
+            $subitems[] = $this->createSubMenuItem('DEMATERIALISATION', 'cloud-arrow-up', [
+                $this->createSubItem('Devis', 'file-invoice', 'devis_magasin_liste'),
+                $this->createSubItem('Planning de commande Magasin', 'calendar-alt', 'interface_planningMag'),
+            ]);
+        }
+
+        if ($this->hasAccesRoute('cde_fournisseur')) {
             $subitems[] = $this->createSimpleItem('Soumission commandes fournisseur', 'list-alt', 'cde_fournisseur');
         }
-        /** =====================liste des commandes fournisseur non generer========================= */
-        if ($this->getEstAdmin() || in_array(Application::ID_LCF, $this->getApplicationIds())) { // LCF
+
+        if ($this->hasAccesRoute('liste_Cde_Frn_Non_Placer')) {
             $subitems[] = $this->createSimpleItem('Liste des cmds non placées', 'exclamation-circle', 'liste_Cde_Frn_Non_Placer');
         }
 
-        return $this->createMenuItem(
-            'magasinModal',
-            'Magasin',
-            'dolly',
-            $subitems
-        );
+        return $this->createMenuItem('magasinModal', 'Magasin', 'dolly', $subitems);
     }
 
-    public function menuAppro()
+    public function menuAppro(): array
     {
+        if (!$this->hasAccesModule('da_first_form', 'list_da', 'da_list_cde_frn')) {
+            return $this->createMenuItem('approModal', 'Appro', 'shopping-cart', []);
+        }
+
         $subitems = [];
-        if ($this->getEstAdmin() || $this->getEstAtelier() || $this->getEstCreateurDeDADirecte()) { // admin OU atelier OU créateur de DA directe
+
+        if ($this->hasAccesRoute('da_first_form')) {
             $subitems[] = $this->createSimpleItem('Nouvelle DA', 'file-alt', 'da_first_form');
         }
+
         $subitems[] = $this->createSimpleItem('Consultation des DA', 'search', 'list_da');
-        if ($this->getEstAdmin() || $this->getEstAppro()) {
+
+        if ($this->hasAccesRoute('da_list_cde_frn')) {
             $subitems[] = $this->createSimpleItem('Liste des commandes fournisseurs', 'list-ul', 'da_list_cde_frn');
         }
-        if ($this->getEstAdmin()) {
+
+        if ($this->hasAccesRoute('da_reporting_ips')) {
             $subitems[] = $this->createSimpleItem('Reporting IPS DA reappro', 'chart-bar', 'da_reporting_ips');
         }
-        return $this->createMenuItem(
-            'approModal',
-            'Appro',
-            'shopping-cart',
-            $subitems
-        );
+
+        return $this->createMenuItem('approModal', 'Appro', 'shopping-cart', $subitems);
     }
 
-    public function menuIT()
+    public function menuIT(): array
     {
-        return $this->createMenuItem(
-            'itModal',
-            'IT',
-            'laptop-code',
-            [
-                $this->createSimpleItem('Nouvelle Demande', 'plus-circle', 'demande_support_informatique'),
-                $this->createSimpleItem('Consultation', 'search', 'liste_tik_index'),
-                $this->createSimpleItem('Planning', 'file-alt', 'tik_calendar_planning'),
-            ]
-        );
-    }
-
-    public function menuPOL()
-    {
-        $subitems = [];
-        $subitems[] = $this->createSimpleItem('Nouvelle DLUB', 'file-alt');
-        $subitems[] = $this->createSimpleItem('Consultation des DLUB', 'search');
-        $subitems[] = $this->createSimpleItem('Liste des commandes fournisseurs', 'list-ul');
-
-        /** =====================POL OR et CIS========================= */
-        if ($this->getEstAdmin() || in_array('60', $this->getCodeAgenceAutorisers())) { // admin uniquement
-            $subitems[] = $this->createSubMenuItem(
-                'OR',
-                'warehouse',
-                [
-                    $this->createSubItem('Liste à traiter', 'tasks', 'pol_or_liste_a_traiter'),
-                    $this->createSubItem('Liste à livrer', 'truck-loading', 'pol_or_liste_a_livrer')
-                ]
-            );
-            $subitems[] = $this->createSubMenuItem(
-                'CIS',
-                'pallet',
-                [
-                    $this->createSubItem('Liste à traiter', 'tasks', 'pol_cis_liste_a_traiter'),
-                    $this->createSubItem('Liste à livrer', 'truck-loading', 'pol_cis_liste_a_livrer')
-                ]
-            );
+        if (!$this->hasAccesModule('demande_support_informatique', 'liste_tik_index', 'tik_calendar_planning')) {
+            return $this->createMenuItem('itModal', 'IT', 'laptop-code', []);
         }
-        /** =====================POL Devis magasin========================= */
-        $subitems[] = $this->createSimpleItem('Devis negoce pol', 'list-ul', 'devis_magasin_pol_liste');
 
+        return $this->createMenuItem('itModal', 'IT', 'laptop-code', [
+            $this->createSimpleItem('Nouvelle Demande', 'plus-circle', 'demande_support_informatique'),
+            $this->createSimpleItem('Consultation', 'search', 'liste_tik_index'),
+            $this->createSimpleItem('Planning', 'file-alt', 'tik_calendar_planning'),
+        ]);
+    }
+
+    public function menuPOL(): array
+    {
+        if (!$this->hasAccesModule(
+            'pol_or_liste_a_traiter',
+            'pol_or_liste_a_livrer',
+            'pol_cis_liste_a_traiter',
+            'pol_cis_liste_a_livrer',
+            'devis_magasin_pol_liste'
+        )) {
+            return $this->createMenuItem('polModal', 'POL', 'ring rotate-90', []);
+        }
+
+        $subitems = [
+            $this->createSimpleItem('Nouvelle DLUB', 'file-alt'),
+            $this->createSimpleItem('Consultation des DLUB', 'search'),
+            $this->createSimpleItem('Liste des commandes fournisseurs', 'list-ul'),
+        ];
+
+        if ($this->hasAccesModule('pol_or_liste_a_traiter', 'pol_or_liste_a_livrer')) {
+            $subitems[] = $this->createSubMenuItem('OR', 'warehouse', [
+                $this->createSubItem('Liste à traiter', 'tasks', 'pol_or_liste_a_traiter'),
+                $this->createSubItem('Liste à livrer', 'truck-loading', 'pol_or_liste_a_livrer'),
+            ]);
+        }
+
+        if ($this->hasAccesModule('pol_cis_liste_a_traiter', 'pol_cis_liste_a_livrer')) {
+            $subitems[] = $this->createSubMenuItem('CIS', 'pallet', [
+                $this->createSubItem('Liste à traiter', 'tasks', 'pol_cis_liste_a_traiter'),
+                $this->createSubItem('Liste à livrer', 'truck-loading', 'pol_cis_liste_a_livrer'),
+            ]);
+        }
+
+        $subitems[] = $this->createSimpleItem('Devis negoce pol', 'list-ul', 'devis_magasin_pol_liste');
         $subitems[] = $this->createSimpleItem('Pneumatiques', 'ring');
 
-
-        return $this->createMenuItem(
-            'polModal',
-            'POL',
-            'ring rotate-90',
-            $subitems
-        );
+        return $this->createMenuItem('polModal', 'POL', 'ring rotate-90', $subitems);
     }
 
-    public function menuEnergie()
+    public function menuEnergie(): array
     {
-        return $this->createMenuItem(
-            'energieModal',
-            'Energie',
-            'bolt',
-            [
-                $this->createSimpleItem('Rapport de production centrale'),
-            ]
-        );
+        if (!$this->hasAccesRoute('energie_rapport_production')) {
+            return $this->createMenuItem('energieModal', 'Energie', 'bolt', []);
+        }
+
+        return $this->createMenuItem('energieModal', 'Energie', 'bolt', [
+            $this->createSimpleItem('Rapport de production centrale'),
+        ]);
     }
 
-
-    public function menuHSE()
+    public function menuHSE(): array
     {
-        return $this->createMenuItem(
-            'hseModal',
-            'HSE',
-            'shield-alt',
-            [
-                $this->createSimpleItem('Rapport d\'incident'),
-                $this->createSimpleItem('Documentation'),
-            ]
-        );
+        if (!$this->hasAccesModule('hse_rapport_incident', 'hse_documentation')) {
+            return $this->createMenuItem('hseModal', 'HSE', 'shield-alt', []);
+        }
+
+        return $this->createMenuItem('hseModal', 'HSE', 'shield-alt', [
+            $this->createSimpleItem('Rapport d\'incident'),
+            $this->createSimpleItem('Documentation'),
+        ]);
     }
+
+    // =========================================================================
+    //  HELPERS DE VÉRIFICATION (via SecurityService — zéro BDD)
+    // =========================================================================
+
     /**
-     * Crée un élément de menu principal
+     * True si la route est visible pour le profil connecté.
+     * Résultat depuis le cache intra-requête de SecurityService.
      */
+    private function hasAccesRoute(string $route): bool
+    {
+        return $this->securityService->verifierPermission(
+            SecurityService::PERMISSION_VOIR,
+            $route
+        );
+    }
+
+    /**
+     * True si AU MOINS UNE des routes listées est visible.
+     * Détermine si un module entier doit s'afficher.
+     */
+    private function hasAccesModule(string ...$routes): bool
+    {
+        foreach ($routes as $route) {
+            if ($this->hasAccesRoute($route)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    // =========================================================================
+    //  BUILDERS D'ITEMS (inchangés)
+    // =========================================================================
+
     public function createMenuItem(string $id, string $title, string $icon, array $items): array
     {
         return [
@@ -651,41 +449,32 @@ class MenuService
         ];
     }
 
-    /**
-     * Crée un item simple sans sous-menu
-     */
-    public function createSimpleItem(string $label, ?string $icon = null, string $link = '#', array $routeParams = [], string $target = ""): array
+    public function createSimpleItem(string $label, ?string $icon = null, string $link = '#', array $routeParams = [], string $target = ''): array
     {
         return [
-            'title' => $label,
-            'link' => $link,
-            'icon' => 'fas fa-' . ($icon ?? 'file'),
-            'target' => $target,
-            'routeParams' => $routeParams
+            'title'       => $label,
+            'link'        => $link,
+            'icon'        => 'fas fa-' . ($icon ?? 'file'),
+            'target'      => $target,
+            'routeParams' => $routeParams,
         ];
     }
 
-    /**
-     * Crée un item avec sous-menu
-     */
     public function createSubMenuItem(string $label, string $icon, array $subitems): array
     {
         return [
-            'title' => $label,
-            'icon' => 'fas fa-' . $icon,
-            'subitems' => $subitems
+            'title'    => $label,
+            'icon'     => 'fas fa-' . $icon,
+            'subitems' => $subitems,
         ];
     }
 
-    /**
-     * Crée un sous-item
-     */
     public function createSubItem(
         string $label,
         string $icon,
         ?string $link = null,
         array $routeParams = [],
-        string $target = "",
+        string $target = '',
         ?string $modalId = null,
         bool $isModalTrigger = false
     ): array {
@@ -696,7 +485,7 @@ class MenuService
             'routeParams' => $routeParams,
             'target'      => $target,
             'modal_id'    => $modalId,
-            'is_modal'    => $isModalTrigger
+            'is_modal'    => $isModalTrigger,
         ];
     }
 }
