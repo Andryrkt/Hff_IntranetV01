@@ -36,6 +36,7 @@ class Controller
     protected $tokenStorage;
     protected $authorizationChecker;
     protected $sessionService;
+    protected $securityService;
 
     // Propriétés publiques avec getters lazy pour les modèles et services
     public $request;
@@ -70,7 +71,10 @@ class Controller
 
     protected function getSessionService(): SessionInterface
     {
-        return $this->getService('session');
+        if ($this->sessionService === null) {
+            $this->sessionService = $this->getService('session');
+        }
+        return $this->sessionService;
     }
 
     /**
@@ -78,7 +82,10 @@ class Controller
      */
     public function getEntityManager(): EntityManagerInterface
     {
-        return $this->getService('doctrine.orm.default_entity_manager');
+        if ($this->entityManager === null) {
+            $this->entityManager = $this->getService('doctrine.orm.default_entity_manager');
+        }
+        return $this->entityManager;
     }
 
     /**
@@ -86,7 +93,10 @@ class Controller
      */
     public function getUrlGenerator(): UrlGeneratorInterface
     {
-        return $this->getService('router');
+        if ($this->urlGenerator === null) {
+            $this->urlGenerator = $this->getService('router');
+        }
+        return $this->urlGenerator;
     }
 
     /**
@@ -94,7 +104,10 @@ class Controller
      */
     public function getTwig(): Environment
     {
-        return $this->getService('twig');
+        if ($this->twig === null) {
+            $this->twig = $this->getService('twig');
+        }
+        return $this->twig;
     }
 
     /**
@@ -102,7 +115,10 @@ class Controller
      */
     public function getFormFactory(): FormFactoryInterface
     {
-        return $this->getService('form.factory');
+        if ($this->formFactory === null) {
+            $this->formFactory = $this->getService('form.factory');
+        }
+        return $this->formFactory;
     }
 
     /**
@@ -110,7 +126,10 @@ class Controller
      */
     public function getTokenStorage(): TokenStorageInterface
     {
-        return $this->getService('security.token_storage');
+        if ($this->tokenStorage === null) {
+            $this->tokenStorage = $this->getService('security.token_storage');
+        }
+        return $this->tokenStorage;
     }
 
     /**
@@ -118,7 +137,10 @@ class Controller
      */
     public function getAuthorizationChecker(): AuthorizationCheckerInterface
     {
-        return $this->getService('security.authorization_checker');
+        if ($this->authorizationChecker === null) {
+            $this->authorizationChecker = $this->getService('security.authorization_checker');
+        }
+        return $this->authorizationChecker;
     }
 
     /**
@@ -126,7 +148,10 @@ class Controller
      */
     public function getSecurityService(): SecurityService
     {
-        return $this->getService('security.service');
+        if ($this->securityService === null) {
+            $this->securityService = $this->getService('security.service');
+        }
+        return $this->securityService;
     }
 
     /**
