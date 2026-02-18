@@ -61,6 +61,19 @@ class BreadcrumbFactory
     }
 
     // =========================================================================
+    //  NAVIGATION ADMIN — menu latéral / dropdown Administrateur
+    // =========================================================================
+
+    /**
+     * Construit la navigation Admin pour la requête courante.
+     * Délègue à MenuService le filtrage des accès (peutVoir).
+     */
+    public function createAdminNavigation(): array
+    {
+        return $this->menuService->getAdminMenuStructure();
+    }
+
+    // =========================================================================
     //  DROPDOWN ACCUEIL — même structure que les vignettes de la page d'accueil
     // =========================================================================
 
