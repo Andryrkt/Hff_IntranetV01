@@ -38,12 +38,6 @@ class MenuService
 
     /**
      * Retourne la structure du menu principal filtré par peutVoir.
-     *
-     * Deux niveaux de cache :
-     *  1. Intra-requête  (propriété PHP)         → zéro overhead si appelé plusieurs fois
-     *  2. Persistant     (TagAwareCacheInterface) → survit entre les requêtes, TTL 1 h
-     *     Clé : menu.principal.profil_{id}
-     *     Tag : menu.profil_{id} → invalide les deux menus d'un profil en un seul appel
      */
     public function getMenuStructure(): array
     {
@@ -114,28 +108,6 @@ class MenuService
     /**
      * Retourne la structure du menu Administrateur, filtrée par peutVoir.
      * Chaque groupe n'est inclus que s'il contient au moins un lien accessible.
-     *
-     * Structure retournée :
-     * [
-     *   [
-     *     'header' => 'Accès & Sécurité',
-     *     'icon'   => 'fa-user-shield',
-     *     'links'  => [
-     *       ['label' => 'Utilisateurs', 'icon' => 'fa-user', 'route' => 'utilisateur_index'],
-     *       ...
-     *     ],
-     *   ],
-     *   ...
-     * ]
-     */
-    /**
-     * Retourne la structure du menu Administrateur filtrée par peutVoir.
-     *
-     * Deux niveaux de cache (même stratégie que getMenuStructure) :
-     *  1. Intra-requête  (propriété PHP)
-     *  2. Persistant     (TagAwareCacheInterface), TTL 1 h
-     *     Clé : menu.admin.profil_{id}
-     *     Tag : menu.profil_{id} → invalidation groupée avec le menu principal
      */
     public function getAdminMenuStructure(): array
     {
@@ -648,10 +620,7 @@ class MenuService
      */
     private function getProfilId(): ?int
     {
-        $userInfo = $this->securityService->getUserInfo();
-        $profilId = $userInfo['profilId'] ?? null;
-
-        return $profilId !== null ? (int) $profilId : null;
+        return $this->securityService->getProfilId();
     }
 
     private function hasAccesRoute(string $route): bool
