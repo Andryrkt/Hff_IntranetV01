@@ -255,6 +255,7 @@ class Controller
     {
         $url = $this->getUrlGenerator()->generate($routeName, $params);
         $this->redirectTo($url);
+        exit;
     }
 
     /**
