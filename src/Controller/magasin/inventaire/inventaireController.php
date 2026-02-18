@@ -57,8 +57,6 @@ class InventaireController extends Controller
      */
     public function listeInventaire(Request $request)
     {
-        $this->autorisationAcces(Application::ID_INV);
-
         $form = $this->getFormFactory()->createBuilder(
             InventaireSearchType::class,
             $this->inventaireSearch,

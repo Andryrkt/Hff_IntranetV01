@@ -71,8 +71,6 @@ class DetailInventaireController extends Controller
      */
     public function listeDetailInventaire(Request $request)
     {
-        $this->autorisationAcces(Application::ID_INV);
-
         $agence = $this->transformEnSeulTableauAvecKey($this->InventaireModel->recuperationAgenceIrium());
         $this->dateDebut->modify('first day of this month');
         $this->DetailInventaireSearch

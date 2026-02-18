@@ -52,8 +52,6 @@ class BLSoumissionController extends Controller
      */
     public function createBLSoumission(Request $request)
     {
-        $this->autorisationAcces(Application::ID_BDL);
-
         $form = $this->getFormFactory()->createBuilder(BLSoumissionType::class)->getForm();
 
         $this->traitementFormulaire($form, $request);

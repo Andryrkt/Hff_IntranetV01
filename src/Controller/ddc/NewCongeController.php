@@ -19,10 +19,6 @@ class NewCongeController extends Controller
      */
     public function nouveauConge()
     {
-        /** Autorisation accès */
-        $this->autorisationAcces(Application::ID_DDC);
-        /** FIN AUtorisation accès */
-
         return $this->render("dwForm/dwForm.html.twig", [
             'url'       => "https://hffc.docuware.cloud/docuware/formsweb/demande-de-conges-new?orgID=5adf2517-2f77-4e19-8b42-9c3da43af7be",
             'pageTitle' => "Nouvelle demande de congé",
