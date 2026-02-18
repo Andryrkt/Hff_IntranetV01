@@ -15,13 +15,13 @@ class BreadcrumbExtension extends AbstractExtension
 
     private MenuService $menuService;
     private SecurityService $securityService;
-    private string $baseUrl;
+    private BreadcrumbFactory $breadcrumbFactory;
 
     public function __construct(MenuService $menuService, SecurityService $securityService)
     {
-        $this->menuService    = $menuService;
-        $this->securityService = $securityService;
-        $this->baseUrl        = $this->urlGenerique($_ENV['BASE_PATH_COURT']);
+        $baseUrl                 = $this->urlGenerique($_ENV['BASE_PATH_COURT']);
+        $this->securityService   = $securityService;
+        $this->breadcrumbFactory = new BreadcrumbFactory($baseUrl, $menuService);
     }
 
     public function getFunctions(): array
@@ -35,8 +35,7 @@ class BreadcrumbExtension extends AbstractExtension
 
     public function generateBreadcrumbs(): array
     {
-        return (new BreadcrumbFactory($this->baseUrl, $this->menuService))
-            ->createFromCurrentUrl($this->securityService->getRouteCourrante());
+        return $this->breadcrumbFactory->createFromCurrentUrl($this->securityService->getRouteCourrante());
     }
 
     /**
@@ -45,8 +44,7 @@ class BreadcrumbExtension extends AbstractExtension
      */
     public function generateNavigationAdmin(): array
     {
-        return (new BreadcrumbFactory($this->baseUrl, $this->menuService))
-            ->createAdminNavigation();
+        return $this->breadcrumbFactory->createAdminNavigation();
     }
 
     /**
