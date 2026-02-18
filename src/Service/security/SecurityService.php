@@ -16,7 +16,7 @@ use Symfony\Contracts\Cache\ItemInterface;
 class SecurityService
 {
     // ─── Routes publiques (pas de contrôle d'accès) ──────────────────────────
-    private const ROUTES_PUBLIQUES = ['security_signin', 'auth_deconnexion', 'profil_acceuil'];
+    private const ROUTES_PUBLIQUES = ['security_signin', 'auth_deconnexion', 'profil_acceuil', 'choix_societe'];
 
     // ─── Constantes de permissions (évite les fautes de frappe) ─────────────
     public const PERMISSION_VOIR      = 'peutVoir';
