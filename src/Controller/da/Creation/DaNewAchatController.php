@@ -37,8 +37,6 @@ class DaNewAchatController extends Controller
     public function newDaAchat(int $id, Request $request)
     {
         // verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         /** Autorisation accès */
         $this->checkPageAccess($this->hasRoles(Role::ROLE_ADMINISTRATEUR, Role::ROLE_DA_DIRECTE));
         /** FIN AUtorisation accès */

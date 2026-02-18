@@ -27,8 +27,6 @@ class CasierListTemporaireController extends Controller
      */
     public function AffichageListeCasier(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
         /** Autorisation accées */
         $this->autorisationAcces(Application::ID_CAS);
         /** FIN AUtorisation acées */
@@ -78,9 +76,6 @@ class CasierListTemporaireController extends Controller
      */
     public function tratitementBtnValide($id)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $casierValide = new CasierValider();
         //$CasierSeul = $this->caiserListTemporaire->recuperSeulCasier($id);
 

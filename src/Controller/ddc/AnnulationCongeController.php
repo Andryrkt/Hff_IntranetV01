@@ -19,9 +19,6 @@ class AnnulationCongeController extends Controller
      */
     public function annulationConge()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         /** Autorisation accès */
         $this->autorisationAcces(Application::ID_DDC);
         /** FIN AUtorisation accès */
@@ -39,9 +36,6 @@ class AnnulationCongeController extends Controller
      */
     public function annulationCongeDedieRH()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         /** Autorisation accès */
         $this->autorisationAcces(Application::ID_DDC);
         /** FIN AUtorisation accès */

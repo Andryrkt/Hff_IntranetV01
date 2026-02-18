@@ -26,9 +26,6 @@ class UserController extends Controller
      */
     public function index()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $data = $this->getEntityManager()->getRepository(User::class)->findBy([], ['id' => 'DESC']);
         $preparedData = $this->prepareDataForListDisplay($data);
 
@@ -44,9 +41,6 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $data = $this->getEntityManager()->getRepository(User::class)->find($id);
 
         return $this->render('admin/utilisateur/details.html.twig', [
@@ -59,8 +53,6 @@ class UserController extends Controller
      */
     public function new(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
         $dto = new UserDTO();
         $form = $this->getFormFactory()->createBuilder(UserType::class, $dto)->getForm();
         $form->handleRequest($request);
@@ -86,9 +78,6 @@ class UserController extends Controller
      */
     public function edit(Request $request, $id)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $user = $this->getEntityManager()->getRepository(User::class)->find($id);
         $dto = $this->userFactory->createDTOFromUser($user);
         $form = $this->getFormFactory()->createBuilder(UserType::class, $dto)->getForm();
@@ -114,9 +103,6 @@ class UserController extends Controller
      */
     public function delete($id)
     {
-        // Vérification de la session utilisateur
-        $this->verifierSessionUtilisateur();
-
         // Récupération de l'utilisateur
         $user = $this->getEntityManager()->getRepository(User::class)->find($id);
 

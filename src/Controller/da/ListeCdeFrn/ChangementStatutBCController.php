@@ -32,8 +32,6 @@ class ChangementStatutBCController extends Controller
      */
     public function changementStatutEnvoyerFournisseur(string $numCde = '', string $datePrevue = '', bool $estEnvoyer = false)
     {
-        $this->verifierSessionUtilisateur();
-
         if ($estEnvoyer) {
             //modification dans la table da_afficher
             $numVersionMaxDaAfficher = $this->daAfficherRepository->getNumeroVersionMaxCde($numCde);

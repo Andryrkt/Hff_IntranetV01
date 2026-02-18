@@ -83,9 +83,6 @@ class DitOrsSoumisAValidationController extends Controller
      */
     public function insertionOr(Request $request, $numDit)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         // verification si l'OR est lié à un DA
         $lierAUnDa = false;
         $demandeApproRepository = $this->getEntityManager()->getRepository(DemandeAppro::class);

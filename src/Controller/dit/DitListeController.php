@@ -50,9 +50,6 @@ class DitListeController extends Controller
      */
     public function index(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         //recuperation agence et service autoriser
         $agenceIds = $this->getUser()->getAgenceAutoriserIds();
         $serviceIds = $this->getUser()->getServiceAutoriserIds();
@@ -180,9 +177,6 @@ class DitListeController extends Controller
      */
     public function exportExcel()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         //recupères les critère dans la session 
         $criteria = $this->getSessionService()->get('dit_search_criteria', []);
         //recupère les critères dans la session 
@@ -205,9 +199,6 @@ class DitListeController extends Controller
      */
     public function clotureStatut($id)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class);
 
         $dit = $ditRepository->find($id); // recupération de l'information du DIT à annuler

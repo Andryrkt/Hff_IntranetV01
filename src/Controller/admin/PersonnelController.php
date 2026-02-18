@@ -21,9 +21,6 @@ class PersonnelController extends Controller
     public function index(Request $request)
     {
 
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $data = $this->getEntityManager()->getRepository(Personnel::class)->findBy([], ['id' => 'DESC']);
 
         $criteria = [
@@ -65,9 +62,6 @@ class PersonnelController extends Controller
      */
     public function new(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $personnel = new Personnel();
 
         $form = $this->getFormFactory()->createBuilder(PersonnelType::class)->getForm();
@@ -111,9 +105,6 @@ class PersonnelController extends Controller
      */
     public function edit(Request $request, $id)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $user = $this->getEntityManager()->getRepository(Personnel::class)->find($id);
 
         $form = $this->getFormFactory()->createBuilder(PersonnelType::class, $user)->getForm();
@@ -142,9 +133,6 @@ class PersonnelController extends Controller
      */
     public function delete($id)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $user = $this->getEntityManager()->getRepository(Personnel::class)->find($id);
 
         $this->getEntityManager()->remove($user);
@@ -158,9 +146,6 @@ class PersonnelController extends Controller
      */
     public function show($id)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $user = $this->getEntityManager()->getRepository(Personnel::class)->find($id);
 
         return $this->render('admin/Personnel/show.html.twig', [

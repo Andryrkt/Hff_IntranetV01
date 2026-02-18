@@ -25,9 +25,6 @@ class CisALivrerController extends Controller
      */
     public function listCisALivrer(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         /** Autorisation accées */
         $this->autorisationAcces(Application::ID_MAG);
         /** FIN AUtorisation acées */

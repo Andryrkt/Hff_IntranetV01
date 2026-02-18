@@ -40,9 +40,6 @@ class DomTropPercuController extends Controller
      */
     public function secondForm(Request $request, $id)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         //recuperation de l'utilisateur connecter
         $user = $this->getUser();
 

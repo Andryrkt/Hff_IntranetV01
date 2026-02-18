@@ -31,9 +31,6 @@ class DaAffectationAchatController extends Controller
      */
     public function affectationDaAchat($id, Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         /** Autorisation accès */
         $this->autorisationAcces($this->getUser(), Application::ID_DAP);
         /** FIN AUtorisation accès */

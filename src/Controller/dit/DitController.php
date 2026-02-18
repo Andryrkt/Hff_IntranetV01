@@ -61,9 +61,6 @@ class DitController extends Controller
      */
     public function new(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         /** Autorisation accées */
         $this->autorisationAcces(Application::ID_DIT);
         /** FIN AUtorisation acées */

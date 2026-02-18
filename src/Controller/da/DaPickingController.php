@@ -25,9 +25,6 @@ class DaPickingController extends Controller
      */
     public function index()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $form = $this->getFormFactory()->createBuilder(DaPicking::class, null)->getForm();
 
         return $this->render('da/picking.html.twig', []);

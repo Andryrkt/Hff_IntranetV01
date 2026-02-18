@@ -42,9 +42,6 @@ class DomSecondController extends Controller
      */
     public function secondForm(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         /** Autorisation accées */
         $this->autorisationAcces(Application::ID_DOM);
         /** FIN AUtorisation acées */

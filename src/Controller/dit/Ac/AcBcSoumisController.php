@@ -53,9 +53,6 @@ class AcBcSoumisController extends Controller
     public function traitementFormulaire(Request $request, $numDit)
     {
 
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         // $devis = $this->filtredataDevis($numDit);
         $devis = $this->getEntityManager()->getRepository(DitDevisSoumisAValidation::class)->findInfoDevis($numDit);
 

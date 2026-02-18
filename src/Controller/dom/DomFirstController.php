@@ -25,9 +25,6 @@ class DomFirstController extends Controller
      */
     public function firstForm(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         /** Autorisation accées */
         $this->autorisationAcces(Application::ID_DOM);
         /** FIN AUtorisation acées */

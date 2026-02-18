@@ -61,9 +61,6 @@ class DaSoumissionBcController extends Controller
      */
     public function index(string $numCde, string $numDa, string $numOr, Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $this->daSoumissionBc->setNumeroCde($numCde);
 
         $form = $this->getFormFactory()->createBuilder(DaSoumissionBcType::class, $this->daSoumissionBc, [

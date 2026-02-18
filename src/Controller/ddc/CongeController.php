@@ -32,9 +32,6 @@ class CongeController extends Controller
      */
     public function listeConge(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         // DEBUT D'AUTORISATION
         $this->autorisationAcces(Application::ID_DDC);
         //FIN AUTORISATION
@@ -396,9 +393,6 @@ class CongeController extends Controller
      */
     public function calendrierConge()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         // DEBUT D'AUTORISATION
         $this->autorisationAcces($this->getUser(), Application::ID_DDC);
         //FIN AUTORISATION
@@ -659,9 +653,6 @@ class CongeController extends Controller
      */
     public function exportExcel(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         // Récupère le paramètre format de la requête
         $format = $request->query->get('format', 'list'); // Valeur par défaut : 'list'
 

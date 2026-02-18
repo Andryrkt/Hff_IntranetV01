@@ -74,9 +74,6 @@ class DemandePaiementController extends Controller
      */
     public function afficheForm(Request $request, $id)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         /** Autorisation accées */
         $this->autorisationAcces(Application::ID_DDP);
         /** FIN AUtorisation acées */
@@ -399,7 +396,7 @@ class DemandePaiementController extends Controller
             if (file_exists($cheminDeFichier) && is_readable($cheminDeFichier)) {
                 $nomFichier = $this->nomFichier($cheminDeFichier);
                 $destinationFinal = $cheminDestination . '/' . $nomFichier;
-                
+
                 // Copier le fichier et vérifier le succès (le ! supprime l'avertissement en cas d'échec)
                 @copy($cheminDeFichier, $destinationFinal);
             }

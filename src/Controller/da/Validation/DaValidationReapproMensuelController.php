@@ -39,9 +39,6 @@ class DaValidationReapproMensuelController extends Controller
      */
     public function validationDaReapproMensuel($id, Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         /** Autorisation accès */
         $this->autorisationAcces(Application::ID_DAP);
         /** FIN AUtorisation accès */

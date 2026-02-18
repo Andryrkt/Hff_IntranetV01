@@ -41,9 +41,6 @@ class MutationController extends Controller
      */
     public function nouveau(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         /** Autorisation accées */
         $this->autorisationAcces(Application::ID_MUT);
         /** FIN AUtorisation acées */
@@ -88,9 +85,6 @@ class MutationController extends Controller
      */
     public function listeMutation(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         /** Autorisation accées */
         $this->autorisationAcces(Application::ID_MUT);
         /** FIN AUtorisation acées */
@@ -138,9 +132,6 @@ class MutationController extends Controller
      */
     public function detailMutation($id)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         /** 
          * @var Mutation entité correspondant à l'id $id
          */

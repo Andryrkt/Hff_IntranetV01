@@ -30,8 +30,6 @@ class ClotureTikController extends Controller
      */
     public function cloture($id)
     {
-        $this->verifierSessionUtilisateur();
-
         $connectedUser = $this->getUser();
 
         /** 

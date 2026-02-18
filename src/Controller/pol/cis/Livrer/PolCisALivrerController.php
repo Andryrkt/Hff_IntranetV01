@@ -26,9 +26,6 @@ class PolCisALivrerController extends Controller
      */
     public function listCisALivrer(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         /** CREATION D'AUTORISATION */
         $autoriser = $this->hasRoles(Role::ROLE_ADMINISTRATEUR, Role::ROLE_MULTI_SUCURSALES);
         //FIN AUTORISATION

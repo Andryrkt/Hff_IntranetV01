@@ -19,9 +19,6 @@ class NewCongeController extends Controller
      */
     public function nouveauConge()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         /** Autorisation accès */
         $this->autorisationAcces(Application::ID_DDC);
         /** FIN AUtorisation accès */

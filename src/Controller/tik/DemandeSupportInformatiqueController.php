@@ -229,9 +229,6 @@ class DemandeSupportInformatiqueController extends Controller
      */
     private function conditionNouveauTicket($userId): bool
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         if ($this->tikRepository->countByStatutDemande('62', $userId) === 0) {
             return true;
         }

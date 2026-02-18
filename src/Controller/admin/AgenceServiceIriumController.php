@@ -7,6 +7,7 @@ use App\Entity\admin\AgenceServiceIrium;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Form\admin\utilisateur\AgenceServiceIriumType;
+
 /**
  * @Route("/admin/agServIrium")
  */
@@ -19,9 +20,6 @@ class AgenceServiceIriumController extends Controller
      */
     public function index()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $data = $this->getEntityManager()->getRepository(AgenceServiceIrium::class)->findBy([], ['id' => 'DESC']);
 
         return $this->render(
@@ -39,9 +37,6 @@ class AgenceServiceIriumController extends Controller
      */
     public function new(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $form = $this->getFormFactory()->createBuilder(AgenceServiceIriumType::class)->getForm();
 
         $form->handleRequest($request);
@@ -70,9 +65,6 @@ class AgenceServiceIriumController extends Controller
      */
     public function edit(Request $request, $id)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $user = $this->getEntityManager()->getRepository(AgenceServiceIrium::class)->find($id);
 
         $form = $this->getFormFactory()->createBuilder(AgenceServiceIriumType::class, $user)->getForm();
@@ -101,9 +93,6 @@ class AgenceServiceIriumController extends Controller
      */
     public function delete($id)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $user = $this->getEntityManager()->getRepository(AgenceServiceIrium::class)->find($id);
 
         $this->getEntityManager()->remove($user);

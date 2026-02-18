@@ -19,9 +19,6 @@ class NewBdcController extends Controller
      */
     public function newBonCaisse()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         /** Autorisation accès */
         $this->autorisationAcces(Application::ID_BCS);
         /** FIN AUtorisation accès */

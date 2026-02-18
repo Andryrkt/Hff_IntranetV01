@@ -32,9 +32,6 @@ class ListeCdeFrnNonGenererExportExcelController extends Controller
      */
     public function exportExcel()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $criteria = $this->getSessionService()->get('lcfng_liste_cde_frs_non_generer');
 
         // récupération des OR valide dans Ors_soumis_a_validation

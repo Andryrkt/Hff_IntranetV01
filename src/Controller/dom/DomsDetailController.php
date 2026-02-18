@@ -5,6 +5,7 @@ namespace App\Controller\dom;
 use App\Entity\dom\Dom;
 use App\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
+
 /**
  * @Route("/rh/ordre-de-mission")
  */
@@ -16,9 +17,6 @@ class DomsDetailController extends Controller
      */
     public function detailDom($id)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $dom = $this->getEntityManager()->getRepository(Dom::class)->findOneBy(['id' => $id]);
         $dom->setIdemnityDepl((int)str_replace('.', '', $dom->getIdemnityDepl()));
         $matricule = $dom->getMatricule();

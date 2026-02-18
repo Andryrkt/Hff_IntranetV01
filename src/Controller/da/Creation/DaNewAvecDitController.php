@@ -40,9 +40,6 @@ class DaNewAvecDitController extends Controller
      */
     public function new(int $daId, int $ditId, Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         /** Autorisation accès */
         $this->autorisationAcces(Application::ID_DAP, Service::ID_ATELIER);
         /** FIN AUtorisation accès */

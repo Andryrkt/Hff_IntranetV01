@@ -31,9 +31,6 @@ class ExportExcelController extends Controller
      */
     public function exportExcel()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $criteria = $this->getSessionService()->get('criteria_search_list_da');
 
         $agenceServiceIps = $this->agenceServiceIpsObjet();

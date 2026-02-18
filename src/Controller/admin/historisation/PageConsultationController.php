@@ -17,9 +17,6 @@ class PageConsultationController extends Controller
      */
     public function index(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $pageConsultationSearch = new PageConsultationSearch;
 
         $this->initialisationFormRecherche($pageConsultationSearch);

@@ -39,9 +39,6 @@ class BadmsController extends Controller
      */
     public function newForm1(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         /** Autorisation accées */
         $this->autorisationAcces(Application::ID_BADM);
         /** FIN AUtorisation acées */

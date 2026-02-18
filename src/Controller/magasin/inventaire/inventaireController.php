@@ -57,8 +57,6 @@ class InventaireController extends Controller
      */
     public function listeInventaire(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
         $this->autorisationAcces(Application::ID_INV);
 
         $form = $this->getFormFactory()->createBuilder(
@@ -91,7 +89,7 @@ class InventaireController extends Controller
         $userConnect = $this->getUserName();
         return $this->render('inventaire/inventaire.html.twig', [
             'form' => $form->createView(),
-            'estAcces' => $userConnect==='Olivier.Carbon' || $userConnect==='marie' || $userConnect==='martin'|| $userConnect==='hasimanjaka',
+            'estAcces' => $userConnect === 'Olivier.Carbon' || $userConnect === 'marie' || $userConnect === 'martin' || $userConnect === 'hasimanjaka',
             'data' => $data
         ]);
     }
@@ -100,8 +98,6 @@ class InventaireController extends Controller
      */
     public function inventaireDetail($numinv, Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
         $form = $this->getFormFactory()->createBuilder(
             InventaireDetailSearchType::class,
             $this->inventaireDetailSearch,
@@ -136,8 +132,6 @@ class InventaireController extends Controller
      */
     public function exportExcelListe()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
         $criteriaTAb = $this->getSessionService()->get('inventaire_search_criteria');
         $this->inventaireSearch->arrayToObjet($criteriaTAb);
         $listInvent = $this->inventaireModel->listeInventaire($this->inventaireSearch);
@@ -174,8 +168,6 @@ class InventaireController extends Controller
      */
     public function exportExcelDetail($numinv)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
         $countSequence = $this->inventaireModel->countSequenceInvent($numinv);
         $dataExcel = $this->dataDetailExcel($countSequence, $numinv);
         $header = [
@@ -207,7 +199,6 @@ class InventaireController extends Controller
     public function exportPdfListe($numinv)
     {
         // Vérification si l'utilisateur est connecté
-        $this->verifierSessionUtilisateur();
         $countSequence = $this->inventaireModel->countSequenceInvent($numinv);
         $data = $this->dataDetail($countSequence, $numinv);
         // dd($data);
@@ -544,8 +535,6 @@ class InventaireController extends Controller
      */
     public function bordereau_comptage($numInv, Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
         $this->bordereauSearch->setNumInv($numInv);
         $form = $this->getFormFactory()->createBuilder(
             BordereauSearchType::class,
@@ -577,7 +566,6 @@ class InventaireController extends Controller
     public function pdfExport($numInv)
     {
         // Vérification si l'utilisateur est connecté
-        $this->verifierSessionUtilisateur();
         $criteriaTab =  $this->getSessionService()->get('bordereau_search_criteria');
         $data = $this->recupDataBordereau($numInv, $criteriaTab);
         $this->generetePdfBordereau->genererPDF($data);

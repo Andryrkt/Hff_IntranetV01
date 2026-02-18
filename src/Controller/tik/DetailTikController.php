@@ -42,9 +42,6 @@ class DetailTikController extends Controller
      */
     public function detail($id, Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         /** 
          * @var DemandeSupportInformatique $supportInfo l'entité du DemandeSupportInformatique correspondant à l'id $id
          */

@@ -25,9 +25,6 @@ class PolCisATraiterController extends Controller
      */
     public function listCisATraiter(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         /** CREATION D'AUTORISATION */
         $autoriser = $this->autorisationRole($this->getEntityManager());
         //FIN AUTORISATION
@@ -70,5 +67,4 @@ class PolCisATraiterController extends Controller
         //recupération des données
         return $this->recupData($criteria);
     }
-
 }

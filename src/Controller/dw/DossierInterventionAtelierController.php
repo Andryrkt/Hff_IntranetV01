@@ -48,9 +48,6 @@ class DossierInterventionAtelierController extends Controller
      */
     public function dossierInterventionAtelier(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         /** Autorisation accées */
         $this->autorisationAcces(Application::ID_DIT);
         /** FIN AUtorisation acées */
@@ -92,9 +89,6 @@ class DossierInterventionAtelierController extends Controller
      */
     public function dwintervAteAvecDit($numDit)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         /** Autorisation accées */
         $this->autorisationAcces(Application::ID_DIT);
         /** FIN AUtorisation acées */

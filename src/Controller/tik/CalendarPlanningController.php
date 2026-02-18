@@ -8,6 +8,7 @@ use App\Entity\tik\TikPlanningSearch;
 use App\Form\tik\TikPlanningSearchType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+
 /**
  * @Route("/it")
  */
@@ -18,9 +19,6 @@ class CalendarPlanningController extends Controller
      */
     public function calendar(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $tikPlanningSearch = new TikPlanningSearch;
 
         $form = $this->getFormFactory()->createBuilder(CalendarType::class)->getForm();

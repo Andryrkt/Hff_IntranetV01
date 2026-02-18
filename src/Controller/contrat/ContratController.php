@@ -19,9 +19,6 @@ class ContratController extends Controller
      */
     public function nouveauContrat()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         /** Autorisation accès */
         $this->checkPageAccess($this->hasRoles(Role::ROLE_ADMINISTRATEUR));
 

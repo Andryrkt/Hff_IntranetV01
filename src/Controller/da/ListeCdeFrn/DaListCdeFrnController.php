@@ -60,8 +60,6 @@ class DaListCdeFrnController extends Controller
      */
     public function index(Request $request)
     {
-        $this->verifierSessionUtilisateur();
-
         /** Autorisation accées */
         $this->autorisationAcces(Application::ID_DAP, Service::ID_APPRO);
         /** FIN AUtorisation acées */

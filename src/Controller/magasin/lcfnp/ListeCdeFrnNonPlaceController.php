@@ -37,9 +37,6 @@ class ListeCdeFrnNonPlaceController extends  Controller
      */
     public function index(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         /** Autorisation accées */
         $this->autorisationAcces(Application::ID_LCF);
         /** FIN AUtorisation acées */

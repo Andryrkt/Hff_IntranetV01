@@ -28,9 +28,6 @@ class PermissionController extends Controller
     /** @Route("", name="permission_index") */
     public function index()
     {
-        // verifier si l'utilisateur est connecté
-        $this->verifierSessionUtilisateur();
-
         $allAppProfil = $this->entityManager->getRepository(ApplicationProfil::class)->findAll();
         $preparedData = $this->prepareForDisplay($allAppProfil);
         return $this->render('admin/permissions/list.html.twig', [
@@ -41,9 +38,6 @@ class PermissionController extends Controller
     /** @Route("/{id}", name="permission_handle") */
     public function handlePermission(int $id, Request $request)
     {
-        // verifier si l'utilisateur est connecté
-        $this->verifierSessionUtilisateur();
-
         $appProfil = $this->entityManager->getRepository(ApplicationProfil::class)->find($id);
         $oldLinksAgServ = $appProfil->getLiaisonsAgenceService(); // collection de liaison (objet ApplicationProfilAgenceService)
         $oldLinksPage = $appProfil->getLiaisonsPage(); // collection de liaison (objet ApplicationProfilPage)

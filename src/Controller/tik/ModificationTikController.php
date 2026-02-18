@@ -83,8 +83,6 @@ class ModificationTikController extends Controller
      */
     private function canEdit(string $numTik): bool
     {
-        $this->verifierSessionUtilisateur();
-
         $utilisateur = $this->getUser();
 
         if (is_null($utilisateur)) {

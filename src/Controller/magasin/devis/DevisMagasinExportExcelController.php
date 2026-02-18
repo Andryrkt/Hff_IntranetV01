@@ -28,8 +28,6 @@ class DevisMagasinExportExcelController extends Controller
      */
     public function exportExcel()
     {
-        $this->verifierSessionUtilisateur();
-
         $criteria = $this->getSessionService()->get('criteria_for_excel_liste_devis_magasin');
 
         if ($criteria && $criteria["emetteur"]) {

@@ -39,9 +39,6 @@ class DaDetailReapproController extends Controller
 	 */
 	public function detail(int $id, Request $request)
 	{
-		//verification si user connecter
-		$this->verifierSessionUtilisateur();
-
 		/** Autorisation accès */
 		$this->autorisationAcces(Application::ID_DAP);
 		/** FIN AUtorisation accès */

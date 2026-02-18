@@ -22,7 +22,6 @@ class DdpApiController extends Controller
     public function transmettreBap(Request $request)
     {
         try {
-            $this->verifierSessionUtilisateur();
             $data = json_decode($request->getContent(), true);
             $bapNumbers = $data['bapNumbers'] ?? [];
             $bapNumberString = implode(', ', $bapNumbers);

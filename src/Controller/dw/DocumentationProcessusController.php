@@ -19,9 +19,6 @@ class DocumentationProcessusController extends Controller
      */
     public function documentationInterne(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $docInterneSearch = new DocInternesearch;
 
         $form = $this->getFormFactory()->createBuilder(DocInterneSearchType::class, $docInterneSearch, [

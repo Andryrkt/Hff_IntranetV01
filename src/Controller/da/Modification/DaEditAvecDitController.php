@@ -35,9 +35,6 @@ class DaEditAvecDitController extends Controller
      */
     public function edit(int $id, Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         /** Autorisation accès */
         $this->autorisationAcces(Application::ID_DAP);
         /** FIN AUtorisation accès */
@@ -67,8 +64,6 @@ class DaEditAvecDitController extends Controller
      */
     public function deleteLineDa(string $numDa, string $ligne)
     {
-        $this->verifierSessionUtilisateur();
-
         $demandeApproLs = $this->getEntityManager()->getRepository(DemandeApproL::class)->findBy([
             'numeroDemandeAppro' => $numDa,
             'numeroLigne'        => $ligne

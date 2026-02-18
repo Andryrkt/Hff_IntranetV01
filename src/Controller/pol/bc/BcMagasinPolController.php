@@ -50,9 +50,6 @@ class BcMagasinPolController extends Controller
      */
     public function index(?string $numeroDevis = null, Request $request): Response
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         /** Autorisation accées */
         $this->autorisationAcces(Application::ID_DVM);
 

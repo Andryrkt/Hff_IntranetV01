@@ -20,8 +20,6 @@ class BonApayerController extends Controller
      */
     public function index(Request $request)
     {
-        $this->verifierSessionUtilisateur();
-
         // Création du formulaire de recherche
         $form = $this->getFormFactory()->createBuilder(BonApayerType::class, null, ['method' => 'GET'])->getForm();
 

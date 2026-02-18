@@ -42,9 +42,6 @@ class CasierController extends Controller
      */
     public function NouveauCasier(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         /** Autorisation accées */
         $this->autorisationAcces(Application::ID_CAS);
         /** FIN AUtorisation acées */
@@ -95,9 +92,6 @@ class CasierController extends Controller
      */
     public function FormulaireCasier(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         /** Autorisation accées */
         $this->autorisationAcces(Application::ID_CAS);
         /** FIN AUtorisation acées */

@@ -503,16 +503,6 @@ class Controller
     }
 
     /**
-     * Vérifier la session utilisateur
-     */
-    protected function verifierSessionUtilisateur()
-    {
-        if (!$this->isUserConnected()) {
-            $this->redirectToRoute("security_signin");
-        }
-    }
-
-    /**
      * Récupérer l'ID de l'utilisateur
      */
     protected function getUserId(): ?int

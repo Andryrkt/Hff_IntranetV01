@@ -19,8 +19,6 @@ class ExportExcelController extends Controller
      */
     public function exportExcel()
     {
-        $this->verifierSessionUtilisateur();
-
         $criterias = $this->getSessionService()->get('criterias_reporting_ips');
 
         $reportingIpsData = $this->getData($criterias);

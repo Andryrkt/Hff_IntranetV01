@@ -20,9 +20,6 @@ class DitValidationController extends Controller
      */
     public function validationDit($numDit, $id, Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
 
         /** CREATION D'AUTORISATION */
         $userConnecter = $this->getUser();

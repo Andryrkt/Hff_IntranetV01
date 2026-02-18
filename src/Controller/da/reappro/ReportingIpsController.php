@@ -37,8 +37,6 @@ class ReportingIpsController extends Controller
     public function index(Request $request)
     {
         // verification de la session utilisateur
-        $this->verifierSessionUtilisateur();
-
         /** Autorisation accées */
         $this->autorisationAcces(Application::ID_DAP);
         /** FIN AUtorisation acées */

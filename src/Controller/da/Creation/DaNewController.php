@@ -18,8 +18,6 @@ class DaNewController extends Controller
     public function firstForm()
     {
         // Vérification si user connecté
-        $this->verifierSessionUtilisateur();
-
         $estAtelier = $this->estUserDansServiceAtelier();
         $estCreateurDeDADirecte = $this->hasRoles(Role::ROLE_DA_DIRECTE);
         $estAdmin = $this->hasRoles(Role::ROLE_ADMINISTRATEUR);

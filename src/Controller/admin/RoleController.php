@@ -8,6 +8,7 @@ use App\Entity\admin\utilisateur\Role;
 use App\Form\admin\utilisateur\RoleType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+
 class RoleController extends Controller
 {
     /**
@@ -17,9 +18,6 @@ class RoleController extends Controller
      */
     public function index()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $data = $this->getEntityManager()->getRepository(Role::class)->findBy([], ['id' => 'DESC']);
 
         return $this->render(
@@ -35,9 +33,6 @@ class RoleController extends Controller
      */
     public function new(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $form = $this->getFormFactory()->createBuilder(RoleType::class)->getForm();
 
         $form->handleRequest($request);
@@ -58,7 +53,8 @@ class RoleController extends Controller
             $this->redirectToRoute("role_index");
         }
 
-        return $this->render('admin/role/new.html.twig', 
+        return $this->render(
+            'admin/role/new.html.twig',
             [
                 'form' => $form->createView()
             ]
@@ -73,9 +69,6 @@ class RoleController extends Controller
      */
     public function edit(Request $request, $id)
     {
-
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
 
         $user = $this->getEntityManager()->getRepository(Role::class)->find($id);
 
@@ -102,9 +95,6 @@ class RoleController extends Controller
      */
     public function delete($id)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $role = $this->getEntityManager()->getRepository(Role::class)->find($id);
 
         if ($role) {

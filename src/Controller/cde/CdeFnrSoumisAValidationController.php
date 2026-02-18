@@ -40,8 +40,6 @@ class CdefnrSoumisAValidationController extends Controller
      */
     public function cdeFournisseur(Request $request)
     {
-        $this->verifierSessionUtilisateur();
-
         $form = $this->getFormFactory()->createBuilder(CdeFnrSoumisAValidationType::class)->getForm();
 
         $this->traitementFormulaire($request, $form);

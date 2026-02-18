@@ -59,9 +59,6 @@ class DitFactureSoumisAValidationController extends Controller
      */
     public function factureSoumisAValidation(Request $request, $numDit)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
 
         $numOrBaseDonner = $this->ditFactureSoumiAValidationModel->recupNumeroOr($numDit);
 

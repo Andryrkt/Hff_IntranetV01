@@ -18,9 +18,6 @@ class VignetteController extends Controller
      */
     public function index()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $data = $this->getEntityManager()->getRepository(Vignette::class)->findAll();
         $preparedData = $this->prepareForDisplay($data);
 
@@ -37,9 +34,6 @@ class VignetteController extends Controller
      */
     public function new(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $form = $this->getFormFactory()->createBuilder(VignetteType::class)->getForm();
 
         $form->handleRequest($request);
@@ -70,9 +64,6 @@ class VignetteController extends Controller
      */
     public function edit(Request $request, $id)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $vignette = $this->getEntityManager()->getRepository(Vignette::class)->find($id);
 
         $form = $this->getFormFactory()->createBuilder(VignetteType::class, $vignette)->getForm();

@@ -63,9 +63,6 @@ class DitDevisSoumisAValidationController extends Controller
      */
     public function insertionDevis(Request $request, $numDit, $type)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $numDevis = $this->numeroDevis($numDit);
 
         $devisSoumisAValidationInformix = $this->InformationDevisInformix($numDevis);

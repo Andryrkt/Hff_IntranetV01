@@ -5,6 +5,7 @@ namespace App\Controller\dit;
 use App\Controller\Controller;
 use App\Form\dit\CommentaireDitOrType;
 use Symfony\Component\Routing\Annotation\Route;
+
 /**
  * @Route("/atelier/demande-intervention")
  */
@@ -17,9 +18,6 @@ class CommentaireDitOrController extends Controller
      */
     public function newCommentaire()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $form = $this->getFormFactory()->createBuilder(CommentaireDitOrType::class)->getForm();
 
         return $this->render('dit/newCommentaireDitOr.html.twig', [

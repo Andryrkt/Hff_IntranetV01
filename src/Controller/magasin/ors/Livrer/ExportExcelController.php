@@ -21,9 +21,6 @@ class ExportExcelController extends Controller
      */
     public function exportExcel()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         //recupères les critère dans la session 
         $criteria = $this->getSessionService()->get('magasin_liste_or_livrer_search_criteria', []);
 

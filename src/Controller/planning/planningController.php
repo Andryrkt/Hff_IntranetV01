@@ -50,8 +50,6 @@ class PlanningController extends Controller
      */
     public function listePlanning(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
         /** Autorisation accées */
         $this->autorisationAcces(Application::ID_REP);
         /** FIN AUtorisation acées */
@@ -153,9 +151,6 @@ class PlanningController extends Controller
      */
     public function exportExcel()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $criteria = $this->getSessionService()->get('planning_search_criteria');
 
         $planningSearch = $this->creationObjetCriteria($criteria);
@@ -216,9 +211,6 @@ class PlanningController extends Controller
      */
     public function exportExcel01()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $criteria = $this->getSessionService()->get('planning_search_criteria');
 
         $planningSearch = $this->creationObjetCriteria($criteria);

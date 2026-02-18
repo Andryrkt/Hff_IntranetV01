@@ -61,9 +61,6 @@ class DaListeDitController extends Controller
      */
     public function listeDIT(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         //recupère les information de l'utilisateur connecter
         $user = $this->getUser();
 

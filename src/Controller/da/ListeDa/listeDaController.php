@@ -63,9 +63,6 @@ class listeDaController extends Controller
      */
     public function index(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         /** Autorisation accès */
         $this->autorisationAcces(Application::ID_DAP);
         /** FIN AUtorisation accès */

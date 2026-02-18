@@ -39,9 +39,6 @@ class DaSoumissionBlReapproController extends Controller
      */
     public function index(string $numCde, string $numDa, string $numOr, Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $dto = new DaSoumisionBlReapproDto();
         $dto->numCde = $numCde;
 

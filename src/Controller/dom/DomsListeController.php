@@ -42,9 +42,6 @@ class DomsListeController extends Controller
      */
     public function listeDom(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         /** Autorisation accées */
         $this->autorisationAcces(Application::ID_DOM);
         /** FIN AUtorisation acées */
@@ -126,9 +123,6 @@ class DomsListeController extends Controller
      */
     public function exportExcel()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         // Récupère les critères dans la session
         $criteria = $this->getSessionService()->get('dom_search_criteria', []);
         $option = $this->getSessionService()->get('dom_search_option', []);

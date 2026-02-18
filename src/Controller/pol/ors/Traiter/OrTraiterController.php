@@ -33,9 +33,6 @@ class OrTraiterController extends Controller
      */
     public function index(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $codeAgence = $this->getUser()->getAgenceAutoriserCode();
 
         /** CREATION D'AUTORISATION */

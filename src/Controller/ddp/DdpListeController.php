@@ -37,8 +37,6 @@ class DdpListeController extends Controller
      */
     public function ddpListe(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
         /** Autorisation accées */
         $this->autorisationAcces(Application::ID_DDP);
         /** FIN AUtorisation acées */

@@ -19,16 +19,15 @@ class FonctionController extends Controller
      */
     public function index()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
+        $data = $this->getEntityManager()->getRepository(Fonction::class)->findBy([], ['id' => 'DESC']);
 
-        $data = $this->getEntityManager()->getRepository(Fonction::class)->findBy([], ['id'=>'DESC']);
-    
-    
-        return $this->render('admin/fonction/list.html.twig', 
-        [
-            'data' => $data
-        ]);
+
+        return $this->render(
+            'admin/fonction/list.html.twig',
+            [
+                'data' => $data
+            ]
+        );
     }
 
     /**
@@ -37,27 +36,24 @@ class FonctionController extends Controller
      * @return void
      */
     public function new(Request $request)
-    {    
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-        
+    {
         $form = $this->getFormFactory()->createBuilder(FonctionType::class)->getForm();
 
         $form->handleRequest($request);
 
-        if($form->isSubmitted() && $form->isValid())
-        {
-            $fonction= $form->getData();
-                
+        if ($form->isSubmitted() && $form->isValid()) {
+            $fonction = $form->getData();
+
             $this->getEntityManager()->persist($fonction);
             $this->getEntityManager()->flush();
             $this->redirectToRoute("fonction_index");
         }
 
-        return $this->render('admin/fonction/new.html.twig', 
-        [
-            'form' => $form->createView()
-        ]);
+        return $this->render(
+            'admin/fonction/new.html.twig',
+            [
+                'form' => $form->createView()
+            ]
+        );
     }
-
 }

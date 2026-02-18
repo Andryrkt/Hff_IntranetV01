@@ -44,9 +44,6 @@ class DevisMagasinEnvoyerAuClientController extends Controller
      */
     public function envoyerAuClient(Request $request, string $numeroDevis)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         /** Autorisation accées */
         $this->autorisationAcces(Application::ID_DVM);
 

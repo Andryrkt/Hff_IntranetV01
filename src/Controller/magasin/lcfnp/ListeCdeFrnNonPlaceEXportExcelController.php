@@ -34,7 +34,6 @@ class ListeCdeFrnNonPlaceEXportExcelController extends Controller
     public function exportExcel()
     {
 
-        $this->verifierSessionUtilisateur();
         $today = new DateTime('now', new DateTimeZone('Indian/Antananarivo'));
         $vheure = $today->format("H:i:s");
         $vinstant = str_replace(":", "", $vheure);

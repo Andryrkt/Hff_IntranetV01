@@ -51,9 +51,6 @@ class ListeController extends Controller
     {
         $resultat = 0;
         $pagesCount = 0;
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         /** Autorisation accées */
         $this->autorisationAcces(Application::ID_REP);
         /** FIN AUtorisation acées */
@@ -133,8 +130,6 @@ class ListeController extends Controller
      */
     public function exportExcel()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
         $data = $this->getSessionService()->get('data_planning_detail_excel');
         $header = [
             'agenceServiceTravaux' => 'Agence - Service',

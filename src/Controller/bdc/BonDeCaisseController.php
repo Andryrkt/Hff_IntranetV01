@@ -32,7 +32,6 @@ class BonDeCaisseController extends Controller
      */
     public function listeBonCaisse(Request $request)
     {
-        $this->verifierSessionUtilisateur();
         $this->autorisationAcces(Application::ID_BCS);
 
         $bonCaisseSearch = new BonDeCaisseDto();
@@ -126,9 +125,6 @@ class BonDeCaisseController extends Controller
      */
     public function exportExcel()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         /** Récupère les critères dans la session @var array $criteira*/
         $criteria = $this->sessionService->get('bon_caisse_search_criteria', []);
 

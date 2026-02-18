@@ -47,9 +47,6 @@ class DemandeDevisController extends Controller
      */
     public function demandeDevisEnCours(int $id)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $demandeAppro = $this->demandeApproRepository->find($id);
 
         if (!$demandeAppro) {

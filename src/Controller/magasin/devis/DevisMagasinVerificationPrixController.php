@@ -64,9 +64,6 @@ class DevisMagasinVerificationPrixController extends Controller
      */
     public function soumission(?string $numeroDevis = null, Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         /** Autorisation accées */
         $this->autorisationAcces(Application::ID_DVM);
 

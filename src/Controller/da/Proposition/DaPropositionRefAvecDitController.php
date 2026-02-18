@@ -48,9 +48,6 @@ class DaPropositionRefAvecDitController extends Controller
      */
     public function propositionDeReference($id, Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         /** Autorisation accès */
         $this->autorisationAcces(Application::ID_DAP);
         /** FIN AUtorisation accès */

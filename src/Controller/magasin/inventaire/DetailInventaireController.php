@@ -40,29 +40,29 @@ class DetailInventaireController extends Controller
         $this->dateDebut->modify('first day of this month');
     }
     private function exportDonneesExcel($data)
-{
-    ini_set('memory_limit', '512M');
+    {
+        ini_set('memory_limit', '512M');
 
-    $spreadsheet = new Spreadsheet();
-    $sheet = $spreadsheet->getActiveSheet();
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
 
-    // Écriture en une seule fois
-    $sheet->fromArray($data, null, 'A1', true);
+        // Écriture en une seule fois
+        $sheet->fromArray($data, null, 'A1', true);
 
-    // Téléchargement
-    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    header('Content-Disposition: attachment; filename="export.xlsx"');
-    header('Cache-Control: max-age=0');
+        // Téléchargement
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment; filename="export.xlsx"');
+        header('Cache-Control: max-age=0');
 
-    $writer = new Xlsx($spreadsheet);
-    $writer->save('php://output');
+        $writer = new Xlsx($spreadsheet);
+        $writer->save('php://output');
 
-    // Libération mémoire
-    $spreadsheet->disconnectWorksheets();
-    unset($spreadsheet);
+        // Libération mémoire
+        $spreadsheet->disconnectWorksheets();
+        unset($spreadsheet);
 
-    exit;
-}
+        exit;
+    }
 
     /**
      * @Route("/inventaire_detail", name = "liste_detail_inventaire")
@@ -71,8 +71,6 @@ class DetailInventaireController extends Controller
      */
     public function listeDetailInventaire(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
         $this->autorisationAcces(Application::ID_INV);
 
         $agence = $this->transformEnSeulTableauAvecKey($this->InventaireModel->recuperationAgenceIrium());
@@ -110,8 +108,6 @@ class DetailInventaireController extends Controller
      */
     public function exportExcel()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
         $criteria = $this->getSessionService()->get('detail_invetaire_search_criteria');
         $listInvent = $this->InventaireModel->ligneInventaire($criteria);
         $data = $this->recupData($listInvent);

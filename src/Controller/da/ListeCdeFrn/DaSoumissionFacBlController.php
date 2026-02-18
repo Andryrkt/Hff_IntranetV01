@@ -70,9 +70,6 @@ class DaSoumissionFacBlController extends Controller
      */
     public function index(string $numCde, string $numDa, string $numOr, Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $infosLivraison = $this->getInfoLivraison($numCde, $numDa);
 
         $daSoumissionFacBl = $this->initialisationFacBl($numCde, $numDa, $numOr);

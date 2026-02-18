@@ -26,9 +26,6 @@ class ListeTikController extends Controller
      */
     public function index(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $tikSearch = new TikSearch();
 
         $user = $this->getUser();
@@ -199,8 +196,6 @@ class ListeTikController extends Controller
             'monTicket' => 0,
             'ouvert'    => in_array($ticket->getIdStatutDemande()->getId(), [58, 65]) ? 1 : 0, // le statut du ticket est ouvert ou en attente
         ];
-
-        $this->verifierSessionUtilisateur();
 
         $utilisateur    = $this->getUser();
 

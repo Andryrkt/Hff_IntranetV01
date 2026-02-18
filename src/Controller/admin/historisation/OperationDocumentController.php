@@ -19,9 +19,6 @@ class OperationDocumentController extends Controller
      */
     public function index(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $historiqueOperationDocumentSearch = new HistoriqueOperationDocumentSearch;
 
         $this->initialisationFormRecherche($historiqueOperationDocumentSearch);

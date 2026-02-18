@@ -43,9 +43,6 @@ class DitRiSoumisAValidationController extends Controller
      */
     public function riSoumisAValidation(Request $request, $numDit)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $ditRiSoumisAValidationModel = new DitRiSoumisAValidationModel();
         $numOrBaseDonner = $ditRiSoumisAValidationModel->recupNumeroOr($numDit);
         if (empty($numOrBaseDonner)) {
