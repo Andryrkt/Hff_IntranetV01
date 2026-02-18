@@ -4,6 +4,8 @@ namespace App\Api\magasin\devis;
 
 use App\Controller\Controller;
 use App\Entity\magasin\devis\PointageRelance;
+use App\Model\magasin\devis\ListeDevisMagasinModel;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
 class RelanceApi extends Controller
@@ -30,5 +32,22 @@ class RelanceApi extends Controller
         }
         echo json_encode($response);
         exit;
+    }
+
+    /**
+     * @Route("/api/stop-relance/{numeroDevis}", name="devis_magasin_stop_relance", methods={"POST"})
+     */
+    public function stopRelance(string $numeroDevis)
+    {
+        try {
+            $listeDevisMagasinModel = new ListeDevisMagasinModel();
+            $success = $listeDevisMagasinModel->stopRelance($numeroDevis);
+            return new JsonResponse([
+                'success' => $success,
+                'message' => "la relance du devis n°$numeroDevis a été stopé avec succés"
+            ]);
+        } catch (\Exception $e) {
+            return new JsonResponse(['success' => false, 'message' => $e->getMessage()], 500);
+        }
     }
 }

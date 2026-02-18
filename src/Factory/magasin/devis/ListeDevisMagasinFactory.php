@@ -26,6 +26,7 @@ class listeDevisMagasinFactory
     public ?string $statutRelance2 = null;
     public ?string $statutRelance3 = null;
     private array $relances = [];
+    private bool $stopRelance = false;
 
     /**
      * Get the value of statutDw
@@ -321,6 +322,7 @@ class listeDevisMagasinFactory
             )
             ->setNombreDeRelance($data['numero_relance'] ?? null)
             ->setRelances($data['relances'] ?? [])
+            ->setStopRelance($data['stop_relance'] ?? false)
         ;
         $this->statutRelance1 = $data['statut_relance_1'] ?? null;
         $this->statutRelance2 = $data['statut_relance_2'] ?? null;
@@ -344,6 +346,24 @@ class listeDevisMagasinFactory
         } catch (\Exception $e) {
             return null;
         }
+    }
+
+    /**
+     * Get the value of stopRelance
+     */
+    public function getStopRelance(): bool
+    {
+        return $this->stopRelance;
+    }
+
+    /**
+     * Set the value of stopRelance
+     */
+    public function setStopRelance(bool $stopRelance): self
+    {
+        $this->stopRelance = $stopRelance;
+
+        return $this;
     }
 
     /**

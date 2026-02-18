@@ -584,4 +584,39 @@ class ListeDevisMagasinModel extends Model
 
         return $fetchedRow;
     }
+
+    public function stopRelance(string $numeroDevis): bool
+    {
+        // On récupère l'état actuel pour savoir si on stoppe ou si on réactive
+        $sqlCheck = "SELECT TOP 1 stop_progression_global 
+                     FROM devis_soumis_a_validation_neg 
+                     WHERE numero_devis = '$numeroDevis' 
+                     ORDER BY numero_version DESC";
+        $execCheck = $this->connexion->query($sqlCheck);
+        $row = @odbc_fetch_array($execCheck);
+        
+        $currentState = $row ? (int)$row['stop_progression_global'] : 0;
+        $newState = ($currentState === 1) ? 0 : 1;
+        
+        if ($newState === 1) {
+            // On stoppe
+            $sql = "UPDATE devis_soumis_a_validation_neg 
+                    SET stop_progression_global = 1, 
+                        date_stop_global = GETDATE(),
+                        motif_stop_global = 'Arrêt manuel par l''utilisateur',
+                        date_reprise_manuel = NULL
+                    WHERE numero_devis = '$numeroDevis' 
+                    AND numero_version = (SELECT MAX(numero_version) FROM devis_soumis_a_validation_neg WHERE numero_devis = '$numeroDevis')";
+        } else {
+            // On réactive
+            $sql = "UPDATE devis_soumis_a_validation_neg 
+                    SET stop_progression_global = 0, 
+                        date_reprise_manuel = GETDATE()
+                    WHERE numero_devis = '$numeroDevis' 
+                    AND numero_version = (SELECT MAX(numero_version) FROM devis_soumis_a_validation_neg WHERE numero_devis = '$numeroDevis')";
+        }
+
+        $exec = $this->connexion->query($sql);
+        return $exec !== false;
+    }
 }

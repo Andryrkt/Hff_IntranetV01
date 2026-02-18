@@ -196,6 +196,7 @@ class ListeDevisMagasinController extends Controller
             $devisIp['utilisateur_createur_devis'] = $this->listeDevisMagasinModel
                 ->getUtilisateurCreateurDevis($numeroDevis) ?? '';
             $devisIp['statut_bc']                  = $devisSoumi ? $devisSoumi->getStatutBc()                  : '';
+            $devisIp['stop_relance']               = $devisSoumi ? ($devisSoumi->getStopProgressionGlobal() ?? false) : false;
 
             // statut DW = A traiter et statut BC = TR
             if ($devisIp['statut_dw'] === DevisMagasin::STATUT_A_TRAITER && $devisIp['statut_ips'] === 'TR') continue;
@@ -413,10 +414,13 @@ class ListeDevisMagasinController extends Controller
                 'statutRelance2' => $statutRelance2,
                 'statutRelance3' => $statutRelance3,
                 'relances' => $devis->getRelances() ?? [],
-                'styleStatutPR' => $styleStatutPR[$statutRelance1] ?? ''
+                'styleStatutPR' => $styleStatutPR[$statutRelance1] ?? '',
+                'stopRelance' => $devis->getStopRelance()
             ];
         }
 
         return $data;
     }
+
+    
 }
