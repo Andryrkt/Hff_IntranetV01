@@ -5,12 +5,18 @@ namespace App\Model\magasin\devis;
 
 use App\Model\Model;
 use App\Service\GlobalVariablesService;
-use Symfony\Component\Finder\Glob;
 
 class ListeDevisMagasinModel extends Model
 {
     public function getDevis(array $criteria = [],  string $vignette = 'magasin', string $codeAgenceAutoriser, bool $adminMulti = false, $numDeviAExclureString): array
     {
+        if (!empty($criteria) && array_key_exists('numeroDevis', $criteria) && !empty($criteria['numeroDevis'])) {
+            $numeroDevis = $criteria['numeroDevis'];
+            $statementNumDevis = " AND nent_numcde = $numeroDevis ";
+        } else {
+            $statementNumDevis = "";
+        }
+
         $statement = "SELECT DISTINCT
             nent_numcde as numero_devis
             ,nent_datecde as date_creation
@@ -27,6 +33,7 @@ class ListeDevisMagasinModel extends Model
             WHERE nent_natop = 'DEV'
             AND nent_soc = 'HF'
             AND nent_servcrt <> 'ASS'
+            $statementNumDevis
             AND (CAST(nent_numcli AS VARCHAR(20)) NOT LIKE '199%' and nent_numcli not in ('1101222', '1990000'))
             AND nent_numcde not in ($numDeviAExclureString)
             AND nent_numcde not in ('19407989','19407991','19408971','19410383','19409906','19409996')
@@ -404,45 +411,177 @@ class ListeDevisMagasinModel extends Model
     }
 
 
-    public function getStatutRelance(string $numeroDevis): ?string
+    public function getStatutRelance(string $numeroDevis): ?array
     {
-        $sql = " SELECT TOP 1
-                CASE
-                    WHEN dsavn.statut_bc = 'En attente bc'
-                        AND (
-                            (NOT EXISTS (
-                                SELECT 1 
-                                FROM pointage_relance pr2 
-                                WHERE pr2.numero_devis = dsavn.numero_devis
-                            )
-                            AND DATEDIFF(DAY, dsavn.date_envoye_devis_client, GETDATE()) >= 7)
-                            --OR
-                            --(EXISTS (
-                               -- SELECT 1 
-                               -- FROM pointage_relance pr2 
-                               -- WHERE pr2.numero_devis = dsavn.numero_devis
-                            --)
-                            --AND DATEDIFF(DAY, MAX(pr.date_de_relance), GETDATE()) >= 7)
-                        )
-                    THEN 'A relancer'
-                    ELSE dsavn.statut_relance 
-                END AS statut_relance
-            FROM devis_soumis_a_validation_neg dsavn
-            LEFT JOIN pointage_relance pr 
-                ON pr.numero_devis = dsavn.numero_devis
-            WHERE dsavn.numero_devis = '$numeroDevis'
-            GROUP BY 
-                dsavn.numero_devis,
-                dsavn.date_envoye_devis_client,
-                dsavn.statut_bc,
-                dsavn.statut_relance,
-                dsavn.numero_version
-            ORDER BY dsavn.numero_version DESC
+        $sql = " SET NOCOUNT ON;
+                DECLARE @date_limite DATE = '2026-02-18';
+                WITH relance_stats AS (
+                    SELECT 
+                        dsavn.numero_devis,
+                        dsavn.date_envoye_devis_client,
+                        dsavn.statut_bc,
+                        dsavn.numero_version,
+                        
+                        -- Champs de stop global avec historique
+                        dsavn.stop_progression_global,
+                        dsavn.date_stop_global,
+                        dsavn.motif_stop_global,
+                        dsavn.date_reprise_manuel, -- Date de la dernière reprise
+                        
+                        COUNT(pr.numero_devis) AS nb_relances,
+                        MAX(pr.date_de_relance) AS derniere_relance,
+                        
+                        -- Dates historiques (toujours conservées)
+                        MAX(CASE WHEN pr.numero_relance = 1 THEN pr.date_de_relance END) AS date_relance_1,
+                        MAX(CASE WHEN pr.numero_relance = 2 THEN pr.date_de_relance END) AS date_relance_2,
+                        MAX(CASE WHEN pr.numero_relance = 3 THEN pr.date_de_relance END) AS date_relance_3,
+                        
+                        -- Stops par niveau (peuvent être désactivés)
+                        MAX(CASE WHEN pr.numero_relance = 1 AND pr.stop_progression_niveau = 1 THEN 1 ELSE 0 END) AS stop_niveau_1,
+                        MAX(CASE WHEN pr.numero_relance = 2 AND pr.stop_progression_niveau = 1 THEN 1 ELSE 0 END) AS stop_niveau_2,
+                        MAX(CASE WHEN pr.numero_relance = 3 AND pr.stop_progression_niveau = 1 THEN 1 ELSE 0 END) AS stop_niveau_3,
+                        
+                        -- Calcul du délai (toujours basé sur la réalité, pas sur les stops)
+                        CASE 
+                            WHEN COUNT(pr.numero_devis) = 0 
+                            THEN DATEDIFF(DAY, dsavn.date_envoye_devis_client, GETDATE())
+                            ELSE DATEDIFF(DAY, MAX(pr.date_de_relance), GETDATE())
+                        END AS delai_jours
+                        
+                    FROM devis_soumis_a_validation_neg dsavn
+                    LEFT JOIN pointage_relance pr 
+                        ON pr.numero_devis = dsavn.numero_devis
+                    WHERE dsavn.numero_devis = '$numeroDevis'
+                    GROUP BY 
+                        dsavn.numero_devis,
+                        dsavn.date_envoye_devis_client,
+                        dsavn.statut_bc,
+                        dsavn.numero_version,
+                        dsavn.stop_progression_global,
+                        dsavn.date_stop_global,
+                        dsavn.motif_stop_global,
+                        dsavn.date_reprise_manuel
+                )
+
+                SELECT TOP 1
+                    -- Statut relance 1 - Les dates historiques restent
+                    CASE 
+                        -- TOUJOURS afficher la date si elle existe (même après réactivation)
+                        WHEN rs.date_relance_1 IS NOT NULL 
+                            THEN FORMAT(rs.date_relance_1, 'dd/MM/yyyy')
+                        
+                        -- Si pas de date, on regarde si on peut relancer
+                        -- La condition de stop est basée sur l'état actuel (0 = réactivé)
+                        WHEN rs.statut_bc = 'En attente bc' 
+                            AND rs.nb_relances = 0 
+                            AND rs.delai_jours >= 7
+                            AND (rs.stop_progression_global = 0) -- Si réactivé, c'est 0
+                            AND (rs.stop_niveau_1 = 0) -- Si réactivé, c'est 0
+                        THEN 'A relancer'
+                        
+                        WHEN rs.date_relance_1 < @date_limite THEN NULL
+                        ELSE FORMAT(rs.date_envoye_devis_client, 'dd/MM/yyyy')
+                    END AS statut_relance_1,
+                    
+                    -- Statut relance 2
+                    CASE 
+                        -- Date historique toujours visible
+                        WHEN rs.date_relance_2 IS NOT NULL 
+                            THEN FORMAT(rs.date_relance_2, 'dd/MM/yyyy')
+                        
+                        -- Logique de relance avec état actuel des stops
+                        WHEN rs.statut_bc = 'En attente bc' 
+                            AND rs.nb_relances = 1 
+                            AND rs.delai_jours >= 7
+                            AND (rs.stop_progression_global = 0)
+                            AND (rs.stop_niveau_2 = 0)
+                        THEN 'A relancer'
+                        
+                        WHEN rs.statut_bc = 'En attente bc' 
+                            AND rs.nb_relances = 1 
+                            AND rs.delai_jours < 7 
+                        THEN NULL
+                        
+                        WHEN rs.date_relance_2 < @date_limite THEN NULL
+                        ELSE FORMAT(COALESCE(rs.date_relance_2, rs.derniere_relance), 'dd/MM/yyyy')
+                    END AS statut_relance_2,
+                    
+                    -- Statut relance 3
+                    CASE 
+                        WHEN rs.date_relance_3 IS NOT NULL 
+                            THEN FORMAT(rs.date_relance_3, 'dd/MM/yyyy')
+                        
+                        WHEN rs.statut_bc = 'En attente bc' 
+                            AND rs.nb_relances = 2 
+                            AND rs.delai_jours >= 7
+                            AND (rs.stop_progression_global = 0)
+                            AND (rs.stop_niveau_3 = 0)
+                        THEN 'A relancer'
+                        
+                        WHEN rs.statut_bc = 'En attente bc' 
+                            AND (rs.nb_relances < 2 OR (rs.nb_relances = 2 AND rs.delai_jours < 7))
+                        THEN NULL
+                        
+                        WHEN rs.derniere_relance < @date_limite THEN NULL
+                        ELSE FORMAT(rs.derniere_relance, 'dd/MM/yyyy')
+                    END AS statut_relance_3,
+                    
+                    -- Traçabilité : montrer l'historique des stops/reprises
+                    CONCAT(
+                        CASE 
+                            WHEN rs.date_reprise_manuel IS NOT NULL 
+                            THEN CONCAT('Réactivé le ', FORMAT(rs.date_reprise_manuel, 'dd/MM/yyyy'), ' | ')
+                            ELSE '' 
+                        END,
+                        CASE 
+                            WHEN rs.stop_progression_global = 0 AND rs.date_stop_global IS NOT NULL 
+                            THEN 'Ancien stop global (réactivé) | '
+                            WHEN rs.stop_progression_global = 1 
+                            THEN 'Stop global actif | '
+                            ELSE '' 
+                        END,
+                        CASE 
+                            WHEN rs.stop_niveau_1 = 0 AND EXISTS(
+                                SELECT 1 FROM pointage_relance 
+                                WHERE numero_devis = rs.numero_devis 
+                                AND numero_relance = 1 
+                                AND stop_progression_niveau IS NOT NULL
+                            ) THEN 'Niv.1 réactivé | '
+                            WHEN rs.stop_niveau_1 = 1 THEN 'Niv.1 stoppé | '
+                            ELSE '' 
+                        END,
+                        CASE 
+                            WHEN rs.stop_niveau_2 = 0 AND EXISTS(
+                                SELECT 1 FROM pointage_relance 
+                                WHERE numero_devis = rs.numero_devis 
+                                AND numero_relance = 2 
+                                AND stop_progression_niveau IS NOT NULL
+                            ) THEN 'Niv.2 réactivé | '
+                            WHEN rs.stop_niveau_2 = 1 THEN 'Niv.2 stoppé | '
+                            ELSE '' 
+                        END,
+                        CASE 
+                            WHEN rs.stop_niveau_3 = 0 AND EXISTS(
+                                SELECT 1 FROM pointage_relance 
+                                WHERE numero_devis = rs.numero_devis 
+                                AND numero_relance = 3 
+                                AND stop_progression_niveau IS NOT NULL
+                            ) THEN 'Niv.3 réactivé'
+                            WHEN rs.stop_niveau_3 = 1 THEN 'Niv.3 stoppé'
+                            ELSE '' 
+                        END
+                    ) AS historique_stops_reprises
+
+                FROM relance_stats rs
+                ORDER BY rs.numero_version DESC
         ";
 
         $exec = $this->connexion->query($sql);
-        $result = odbc_fetch_array($exec);
+        $fetchedRow = @odbc_fetch_array($exec);
+        if ($fetchedRow === false) {
+            return [];
+        }
 
-        return is_array($result) && isset($result['statut_relance']) ? $result['statut_relance'] : null;
+        return $fetchedRow;
     }
 }

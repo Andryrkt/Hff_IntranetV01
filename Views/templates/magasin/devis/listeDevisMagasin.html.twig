@@ -35,8 +35,10 @@
 					<th>Libellé</th>
 					<th class="text-end">Montant</th>
 					<th class="text-center">Date envoi au client</th>
-					<th class="text-center">Statut relance</th>
-					<th class="text-center">Relancé le</th>
+					<th class="text-center">Relance 1</th>
+					<th class="text-center">Relance 2</th>
+					<th class="text-center">Relance 3</th>
+					<th class="text-center">Stop relance</th>
 					<th class="text-center">Position IPS</th>
 					<th class="text-center">PO/BC client</th>
 					<th class="text-center">Crée par</th>
@@ -75,16 +77,10 @@
 						<td>{{ row.libelle }}</td>
 						<td class="text-end">{{ row.montant }}</td>
 						<td class="text-center">{{ row.dateEnvoiClient }}</td>
-						<td class="text-center fw-bold {{ row.styleStatutPR}}">{{ row.statutRelance }}</td>
-						<td class="text-center">
-							{% if row.numeroRelance and row.dateDerniereRelance %}
-								<a href="#" data-bs-toggle="modal" data-bs-target="#relance" data-id="{{row.numeroDevis }}" class="text-decoration-none" data-bs-toggle="tooltip" title="Voir les relances client">
-									{{ row.dateDerniereRelance ~ ' - '~  row.numeroRelance}}
-								</a>
-							{% else %}
-								{{ row.dateDerniereRelance ~ ' - '~  row.numeroRelance}}
-							{% endif %}
-						</td>
+						<td class="text-center fw-bold {{ row.styleStatutPR}}">{{ row.statutRelance1 }}</td>
+						<td class="text-center fw-bold {{ row.styleStatutPR}}">{{ row.statutRelance2 }}</td>
+						<td class="text-center fw-bold {{ row.styleStatutPR}}">{{ row.statutRelance3 }}</td>
+						<td class="text-center">stop relance</td>
 						<td class="text-center" data-bs-toggle="tooltip" title="{{ row.titreStatutIps }}">{{ row.statutIps }}</td>
 						<td class="text-center">
 							{% if row.numeroPO %}

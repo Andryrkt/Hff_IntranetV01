@@ -22,7 +22,9 @@ class listeDevisMagasinFactory
     private $urlPO;
     private $dateDerniereRelance;
     private $nombreDeRelance;
-    private ?string $statutRelance = null;
+    public ?string $statutRelance1 = null;
+    public ?string $statutRelance2 = null;
+    public ?string $statutRelance3 = null;
     private array $relances = [];
 
     /**
@@ -318,9 +320,11 @@ class listeDevisMagasinFactory
                 ($convertedDate = $this->convertToDateTime($data['date_derniere_relance'] ?? null)) ? $convertedDate->format('d/m/Y') : null
             )
             ->setNombreDeRelance($data['numero_relance'] ?? null)
-            ->setStatutRelance($data['statut_relance'] ?? null)
             ->setRelances($data['relances'] ?? [])
         ;
+        $this->statutRelance1 = $data['statut_relance_1'] ?? null;
+        $this->statutRelance2 = $data['statut_relance_2'] ?? null;
+        $this->statutRelance3 = $data['statut_relance_3'] ?? null;
 
         return $this;
     }
@@ -379,24 +383,6 @@ class listeDevisMagasinFactory
     }
 
     /**
-     * Get the value of statutRelance
-     */
-    public function getStatutRelance()
-    {
-        return $this->statutRelance;
-    }
-
-    /**
-     * Set the value of statutRelance
-     */
-    public function setStatutRelance($statutRelance): self
-    {
-        $this->statutRelance = $statutRelance;
-
-        return $this;
-    }
-
-    /**
      * Get the value of relances
      */
     public function getRelances(): array
@@ -413,5 +399,4 @@ class listeDevisMagasinFactory
 
         return $this;
     }
-
 }
