@@ -549,6 +549,15 @@ class Controller
     }
 
     /**
+     * Récupérer le profil id enregistré
+     */
+    protected function getProfilId(): string
+    {
+        $userInfo = $this->getSessionService()->get('user_info');
+        return $userInfo['profil_id'] ?? "";
+    }
+
+    /**
      * Vérifie si l'utilisateur a au moins un des rôles cités
      * 
      * @param int ...$roleIds
