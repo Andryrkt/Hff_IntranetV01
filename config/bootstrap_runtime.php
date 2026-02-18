@@ -100,10 +100,10 @@ $session = new \Symfony\Component\HttpFoundation\Session\Session(
 );
 $container->set('session', $session);
 
-// ─── Cache des permissions (inter-requêtes, par profil) ───────────────────────
+// ─── Cache applicatif (inter-requêtes, partagé par profil) ───────────────────
 // FilesystemTagAwareAdapter : stockage fichier + support des tags (invalidation par profil).
 // En DEV : TTL court (60s) pour voir les changements rapidement.
-// En PROD : TTL 1h, invalidation explicite via invaliderCacheProfil() depuis le back-office.
+// En PROD : TTL 1h, invalidation explicite via DataService::invaliderCacheProfil().
 $cachePermissions = new FilesystemTagAwareAdapter(
     'security',                                         // namespace : sous-dossier dans var/cache/pools/
     $isDevMode ? 60 : 3600,                             // defaultLifetime : DEV=1min, PROD=1h
@@ -111,11 +111,19 @@ $cachePermissions = new FilesystemTagAwareAdapter(
 );
 $container->set('cache.permissions', $cachePermissions);
 
-$securityService = new \App\Service\security\SecurityService(
+// ─── DataService : source de vérité du contexte utilisateur ──────────────────
+// Gère session + BDD + cache applicatif.
+// Les permissions/pages sont calculées une fois par profil puis mises en cache.
+// Les entités (Profil, etc.) sont rechargées 1 fois par requête HTTP (cache mémoire).
+$dataService = new \App\Service\UserData\UserDataService(
     $container->get('doctrine.orm.default_entity_manager'),
     $session,
-    $cachePermissions                                   // ← nouveau 3e argument
+    $cachePermissions
 );
+$container->set('data.service', $dataService);
+
+// ─── SecurityService : contrôle d'accès (délègue tout à DataService) ─────────
+$securityService = new \App\Service\security\SecurityService($dataService);
 $container->set('security.service', $securityService);
 
 $formFactory = \Symfony\Component\Form\Forms::createFormFactoryBuilder()
