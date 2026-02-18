@@ -5,7 +5,6 @@ namespace App\Entity\admin\utilisateur;
 use App\Entity\cas\Casier;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
-use App\Entity\admin\Societte;
 use App\Entity\da\DemandeAppro;
 use App\Entity\tik\TkiPlanning;
 use App\Entity\Traits\DateTrait;
@@ -77,13 +76,6 @@ class User implements UserInterface
      * @ORM\JoinTable(name="users_applications")
      */
     private $applications;
-
-    /**
-     * @ORM\ManyToOne(targetEntity=Societte::class, inversedBy="users")
-     * @ORM\JoinColumn(name="societe_id", referencedColumnName="id")
-     */
-    private ?Societte $societtes;
-
 
     /**
      * @ORM\ManyToOne(targetEntity=Personnel::class, inversedBy="users")
@@ -356,21 +348,6 @@ class User implements UserInterface
 
         return $this;
     }
-
-
-
-    public function getSociettes()
-    {
-        return $this->societtes;
-    }
-
-    public function setSociettes(?Societte $societtes): self
-    {
-        $this->societtes = $societtes;
-        return $this;
-    }
-
-
 
     public function getPersonnels()
     {

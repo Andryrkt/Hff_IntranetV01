@@ -5,7 +5,6 @@ namespace App\Entity\admin;
 use App\Entity\TypeReparation;
 use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
-use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DemandeIntervention;
 use App\Entity\admin\utilisateur\Profil;
 use App\Entity\dit\DitOrsSoumisAValidation;
@@ -50,11 +49,6 @@ class Societte
     private $ditOrsSoumissionsAValidations;
 
     /**
-     * @ORM\OneToMany(targetEntity=User::class, mappedBy="societtes", orphanRemoval=true)
-     */
-    private $users;
-
-    /**
      * @ORM\OneToMany(targetEntity=Profil::class, mappedBy="societe", cascade={"persist"})
      */
     private Collection $profils;
@@ -63,7 +57,6 @@ class Societte
     {
         $this->demandeInterventions = new ArrayCollection();
         $this->ditOrsSoumissionsAValidations = new ArrayCollection();
-        $this->users = new ArrayCollection();
         $this->profils = new ArrayCollection();
     }
 
@@ -160,44 +153,6 @@ class Societte
     public function setDitOrsSoumissionsAValidations($ditOrsSoumissionsAValidations): self
     {
         $this->ditOrsSoumissionsAValidations = $ditOrsSoumissionsAValidations;
-        return $this;
-    }
-
-    /**
-     * @return Collection|User[]
-     */
-    public function getUsers(): Collection
-    {
-        return $this->users;
-    }
-
-    public function addUser(User $user): self
-    {
-        if (!$this->users->contains($user)) {
-            $this->users[] = $user;
-            $user->setSociettes($this);
-        }
-
-        return $this;
-    }
-
-    public function removeUser(User $user): self
-    {
-        if ($this->users->contains($user)) {
-            $this->users->removeElement($user);
-            if ($user->getSociettes() === $this) {
-                $user->setSociettes(null);
-            }
-        }
-
-
-        return $this;
-    }
-
-    public function setUsers($users): self
-    {
-        $this->users = $users;
-
         return $this;
     }
 
