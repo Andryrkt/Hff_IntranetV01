@@ -157,6 +157,14 @@ class SecurityService
         return $this->dataService->getUserInfo();
     }
 
+    /** 
+     * Retourne l'id du profil
+     */
+    public function getProfilId(): ?int
+    {
+        return $this->dataService->getProfilId();
+    }
+
     // =========================================================================
     //  LOGIQUE INTERNE
     // =========================================================================

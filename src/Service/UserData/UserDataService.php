@@ -70,7 +70,7 @@ class UserDataService
     /**
      * Récupérer l'email de l'utilisateur
      */
-    protected function getUserMail(): string
+    public function getUserMail(): string
     {
         $userInfo = $this->getUserInfo();
         return $userInfo['email'] ?? "";
@@ -79,7 +79,7 @@ class UserDataService
     /**
      * Récupérer le nom de l'utilisateur
      */
-    protected function getUserName(): string
+    public function getUserName(): string
     {
         $userInfo = $this->getUserInfo();
         return $userInfo['username'] ?? "";
@@ -88,10 +88,10 @@ class UserDataService
     /**
      * Récupérer le profil id enregistré
      */
-    protected function getProfilId(): string
+    public function getProfilId(): ?int
     {
         $userInfo = $this->getUserInfo();
-        return $userInfo['profil_id'] ?? "";
+        return $userInfo['profil_id'] ?? NULL;
     }
 
 // =========================================================================
