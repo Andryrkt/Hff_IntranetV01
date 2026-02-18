@@ -2,14 +2,15 @@
 
 namespace App\Controller\authentification;
 
-use App\Controller\Controller;
 use Exception;
-use App\Entity\admin\utilisateur\User;
 use App\Model\LdapModel;
-use App\Repository\admin\utilisateur\UserRepository;
+use App\Controller\Controller;
+use App\Entity\admin\utilisateur\User;
+use App\Entity\admin\utilisateur\Profil;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Repository\admin\utilisateur\UserRepository;
 
 class LoginController extends Controller
 {
@@ -45,6 +46,10 @@ class LoginController extends Controller
                     $this->logUserVisit('security_signin');
                     $error_msg = "Vérifier les informations de connexion, veuillez saisir le nom d'utilisateur et le mot de passe de votre session Windows";
                 } else {
+                    $profils = $user->getProfils();
+
+                    if ($profils->isEmpty()) throw new \Exception('Aucun profil trouvé pour l\'utilisateur : ' . $username . '. Veuillez contacter le support informatique.');
+
                     $userId = $user->getId();
                     $firstname = $user->getFirstName();
                     $lastname = $user->getLastName();
@@ -55,7 +60,6 @@ class LoginController extends Controller
                         "lastname"             => $lastname,
                         "fullname"             => "$lastname $firstname",
                         "email"                => $user->getMail(),
-                        "profilId"             => $user->getProfils()->first()->getId(),
                         "roles"                => $user->getRoleIds(),
                         "applications"         => $user->getApplicationsIds(),
                         "authorized_agences"   => [
@@ -73,9 +77,17 @@ class LoginController extends Controller
 
                     $this->getSessionService()->set('user_info', $userInfo);
 
-                    // $filename = $_ENV['BASE_PATH_LONG'] . "\src\Controller\authentification.csv";
-                    // $newData = [$userId, $username, $password];
-                    // $this->synchronizeCSV($filename, $newData);
+                    if ($profils->count() > 1) $this->redirectToRoute('choix_societe');
+
+                    /** @var Profil $profil */
+                    $profil = $profils->first();
+                    $userInfo['profil_id'] = $profil->getId();
+                    $userInfo['societe_id'] = $profil->getSociete()->getId();
+                    $this->getSessionService()->set('user_info', $userInfo);
+
+                    $filename = $_ENV['BASE_PATH_LONG'] . "\src\Controller\authentification.csv";
+                    $newData = [$userId, $username, $password];
+                    $this->synchronizeCSV($filename, $newData);
 
                     if (preg_match('/Hffintranet_pre_prod/i', $_SERVER['REQUEST_URI']) && !in_array(1, $user->getRoleIds())) $this->redirectTo('/Hffintranet/login');
                     else $this->redirectToRoute('profil_acceuil');
