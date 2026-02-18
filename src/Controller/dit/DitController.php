@@ -120,7 +120,9 @@ class DitController extends Controller
             $dto->dateDemande = new \DateTime($this->getDatesystem());
             $dto->idStatutDemande = $em->getRepository(StatutDemande::class)->find(50);
             $dto->mailDemandeur = $user->getMail();
-            $dto->societe = $user->getSociettes(); //TODO: rectifier pour la recupération de la société dans user
+
+            $profilId = $this->getProfilId();
+            $dto->societe = $user->getProfils()->filter(fn($profil) => $profil->getId() === $profilId)->first()->getSociete();
 
             /**   @var DemandeIntervention[] $demandeInterventions 3. Utiliser la factory pour créer l'entité complète*/
             $demandeInterventions = $this->createDemandeInterventionFromDto($dto);
