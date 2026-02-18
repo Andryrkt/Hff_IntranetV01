@@ -30,10 +30,6 @@ class OrTraiterController extends Controller
      */
     public function index(Request $request)
     {
-        /** Autorisation accées */
-        $this->autorisationAcces(Application::ID_MAG);
-        /** FIN AUtorisation acées */
-
         $codeAgence = $this->getUser()->getAgenceAutoriserCode();
 
         /** CREATION D'AUTORISATION */

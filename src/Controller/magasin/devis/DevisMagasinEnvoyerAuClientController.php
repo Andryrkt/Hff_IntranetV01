@@ -44,9 +44,6 @@ class DevisMagasinEnvoyerAuClientController extends Controller
      */
     public function envoyerAuClient(Request $request, string $numeroDevis)
     {
-        /** Autorisation accées */
-        $this->autorisationAcces(Application::ID_DVM);
-
         /** Gestion de blocage */
         $this->gestionDeBlocage($numeroDevis);
 

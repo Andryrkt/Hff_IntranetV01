@@ -29,10 +29,6 @@ class BadmListeController extends Controller
      */
     public function AffichageListeBadm(Request $request)
     {
-        /** Autorisation accées */
-        $this->autorisationAcces(Application::ID_BADM);
-        /** FIN AUtorisation acées */
-
         $userConnecter = $this->getUser();
 
         $autoriser = $this->hasRoles(Role::ROLE_ADMINISTRATEUR);

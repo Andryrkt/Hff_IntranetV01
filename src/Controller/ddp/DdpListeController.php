@@ -37,10 +37,6 @@ class DdpListeController extends Controller
      */
     public function ddpListe(Request $request)
     {
-        /** Autorisation accées */
-        $this->autorisationAcces(Application::ID_DDP);
-        /** FIN AUtorisation acées */
-
         $form = $this->getFormFactory()->createBuilder(DdpSearchType::class, $this->ddpSearch, [
             'method' => 'GET',
         ])->getForm();

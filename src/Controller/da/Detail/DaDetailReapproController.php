@@ -39,10 +39,6 @@ class DaDetailReapproController extends Controller
 	 */
 	public function detail(int $id, Request $request)
 	{
-		/** Autorisation accès */
-		$this->autorisationAcces(Application::ID_DAP);
-		/** FIN AUtorisation accès */
-
 		$demandeAppro = $this->daService->getDemandeAppro($id); // recupération de la DA
 		$observations = $this->daService->getObservations($demandeAppro->getNumeroDemandeAppro());
 

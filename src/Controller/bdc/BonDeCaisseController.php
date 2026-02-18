@@ -32,8 +32,6 @@ class BonDeCaisseController extends Controller
      */
     public function listeBonCaisse(Request $request)
     {
-        $this->autorisationAcces(Application::ID_BCS);
-
         $bonCaisseSearch = new BonDeCaisseDto();
 
         $hasGetParams = !empty($request->query->all());

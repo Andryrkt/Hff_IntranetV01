@@ -31,10 +31,6 @@ class DaAffectationAchatController extends Controller
      */
     public function affectationDaAchat($id, Request $request)
     {
-        /** Autorisation accès */
-        $this->autorisationAcces($this->getUser(), Application::ID_DAP);
-        /** FIN AUtorisation accès */
-
         /** @var DemandeApproParent $daParent */
         $daParent = $this->demandeApproParentRepository->find($id);
 

@@ -39,10 +39,6 @@ class BadmsController extends Controller
      */
     public function newForm1(Request $request)
     {
-        /** Autorisation accées */
-        $this->autorisationAcces(Application::ID_BADM);
-        /** FIN AUtorisation acées */
-
         /** RECUPERATION ID USER CONNECTER */
         $user = $this->getUser();
         /** INITIALISATION*/

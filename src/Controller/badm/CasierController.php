@@ -42,10 +42,6 @@ class CasierController extends Controller
      */
     public function NouveauCasier(Request $request)
     {
-        /** Autorisation accées */
-        $this->autorisationAcces(Application::ID_CAS);
-        /** FIN AUtorisation acées */
-
         $casier = new Casier();
 
         $agenceService = $this->agenceServiceIpsString();
@@ -92,10 +88,6 @@ class CasierController extends Controller
      */
     public function FormulaireCasier(Request $request)
     {
-        /** Autorisation accées */
-        $this->autorisationAcces(Application::ID_CAS);
-        /** FIN AUtorisation acées */
-
         $casier = new Casier();
         $form1Data = $this->getSessionService()->get('casierform1Data', []);
 

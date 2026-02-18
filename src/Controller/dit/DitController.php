@@ -61,10 +61,6 @@ class DitController extends Controller
      */
     public function new(Request $request)
     {
-        /** Autorisation accées */
-        $this->autorisationAcces(Application::ID_DIT);
-        /** FIN AUtorisation acées */
-
         $demandeIntervention = new DemandeIntervention();
 
         //INITIALISATION DU FORMULAIRE

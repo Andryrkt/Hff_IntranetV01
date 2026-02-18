@@ -74,10 +74,6 @@ class DemandePaiementController extends Controller
      */
     public function afficheForm(Request $request, $id)
     {
-        /** Autorisation accées */
-        $this->autorisationAcces(Application::ID_DDP);
-        /** FIN AUtorisation acées */
-
         // creation du formulaire
         $form = $this->getFormFactory()->createBuilder(DemandePaiementType::class, null, ['id_type' => $id])->getForm();
 

@@ -42,9 +42,6 @@ class planningMagasinController extends Controller
      */
     public function headPlanning(Request $request)
     {
-        /** Autorisation accées */
-        $this->autorisationAcces(Application::ID_REP);
-        // autorisation pour affichage
         $autoriser = $this->estAutoriser();
         $codeAgence = $autoriser ? "-0" : $this->getUser()->getCodeAgenceUser();
         /** FIN AUtorisation acées */

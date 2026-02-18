@@ -48,10 +48,6 @@ class DossierInterventionAtelierController extends Controller
      */
     public function dossierInterventionAtelier(Request $request)
     {
-        /** Autorisation accées */
-        $this->autorisationAcces(Application::ID_DIT);
-        /** FIN AUtorisation acées */
-
         $form = $this->getFormFactory()->createBuilder(DossierInterventionAtelierSearchType::class, null, ['method' => 'GET'])->getForm();
 
         $dwModel = new dossierInterventionAtelierModel();
@@ -89,10 +85,6 @@ class DossierInterventionAtelierController extends Controller
      */
     public function dwintervAteAvecDit($numDit)
     {
-        /** Autorisation accées */
-        $this->autorisationAcces(Application::ID_DIT);
-        /** FIN AUtorisation acées */
-
         $dwModel = new dossierInterventionAtelierModel();
 
         // Récupération initiale : Demande d'intervention

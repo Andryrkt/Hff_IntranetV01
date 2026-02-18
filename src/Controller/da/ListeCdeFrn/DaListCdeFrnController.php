@@ -60,10 +60,6 @@ class DaListCdeFrnController extends Controller
      */
     public function index(Request $request)
     {
-        /** Autorisation accées */
-        $this->autorisationAcces(Application::ID_DAP, Service::ID_APPRO);
-        /** FIN AUtorisation acées */
-
         /** ===  Formulaire pour la recherche === */
         $searchDto = $this->initialisationCdeFrnSearchDto();
         $form = $this->getFormFactory()->createBuilder(CdeFrnListType::class, $searchDto, [

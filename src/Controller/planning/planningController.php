@@ -50,10 +50,6 @@ class PlanningController extends Controller
      */
     public function listePlanning(Request $request)
     {
-        /** Autorisation accées */
-        $this->autorisationAcces(Application::ID_REP);
-        /** FIN AUtorisation acées */
-
         //initialisation
         $this->planningSearch
             ->setAnnee(date('Y'))

@@ -32,10 +32,6 @@ class CongeController extends Controller
      */
     public function listeConge(Request $request)
     {
-        // DEBUT D'AUTORISATION
-        $this->autorisationAcces(Application::ID_DDC);
-        //FIN AUTORISATION
-
         $congeSearch = new DemandeConge();
 
         // Vérifier s'il s'agit d'un accès direct à la route (sans paramètres de recherche)
@@ -393,10 +389,6 @@ class CongeController extends Controller
      */
     public function calendrierConge()
     {
-        // DEBUT D'AUTORISATION
-        $this->autorisationAcces($this->getUser(), Application::ID_DDC);
-        //FIN AUTORISATION
-
         $request = Request::createFromGlobals();
 
         // Récupérer toutes les demandes de congé pour les afficher dans le calendrier

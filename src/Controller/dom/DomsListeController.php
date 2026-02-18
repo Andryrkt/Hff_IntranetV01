@@ -42,10 +42,6 @@ class DomsListeController extends Controller
      */
     public function listeDom(Request $request)
     {
-        /** Autorisation accées */
-        $this->autorisationAcces(Application::ID_DOM);
-        /** FIN AUtorisation acées */
-
         $autoriser = $this->hasRoles(Role::ROLE_ADMINISTRATEUR);
 
         $domSearch = new DomSearch();

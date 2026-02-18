@@ -51,9 +51,7 @@ class ListeController extends Controller
     {
         $resultat = 0;
         $pagesCount = 0;
-        /** Autorisation accées */
-        $this->autorisationAcces(Application::ID_REP);
-        /** FIN AUtorisation acées */
+        
         //initialisation
         $this->conditionFormulaireRecherche();
 

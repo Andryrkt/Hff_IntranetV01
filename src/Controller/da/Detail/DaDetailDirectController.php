@@ -41,10 +41,6 @@ class DaDetailDirectController extends Controller
 	 */
 	public function detail(int $id, Request $request)
 	{
-		/** Autorisation accès */
-		$this->autorisationAcces(Application::ID_DAP);
-		/** FIN AUtorisation accès */
-
 		/** @var DemandeAppro $demandeAppro la demande appro correspondant à l'id $id */
 		$demandeAppro = $this->demandeApproRepository->find($id); // recupération de la DA
 

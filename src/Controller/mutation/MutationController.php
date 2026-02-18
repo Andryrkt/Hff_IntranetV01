@@ -41,10 +41,6 @@ class MutationController extends Controller
      */
     public function nouveau(Request $request)
     {
-        /** Autorisation accées */
-        $this->autorisationAcces(Application::ID_MUT);
-        /** FIN AUtorisation acées */
-
         $mutation = new Mutation;
         $this->initialisationMutation($mutation, $this->getEntityManager());
 
@@ -85,10 +81,6 @@ class MutationController extends Controller
      */
     public function listeMutation(Request $request)
     {
-        /** Autorisation accées */
-        $this->autorisationAcces(Application::ID_MUT);
-        /** FIN AUtorisation acées */
-
         $mutationSearch = new MutationSearch();
 
         $form = $this->getFormFactory()->createBuilder(MutationSearchType::class, $mutationSearch, [

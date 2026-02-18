@@ -37,10 +37,6 @@ class ListeCdeFrnNonPlaceController extends  Controller
      */
     public function index(Request $request)
     {
-        /** Autorisation accées */
-        $this->autorisationAcces(Application::ID_LCF);
-        /** FIN AUtorisation acées */
-
         $form = $this->getFormFactory()->createBuilder(ListeCdeFrnNonPlaceSearchType::class, [], [
             'method' => 'GET'
         ])->getForm();

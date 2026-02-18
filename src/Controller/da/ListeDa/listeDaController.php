@@ -63,10 +63,6 @@ class listeDaController extends Controller
      */
     public function index(Request $request)
     {
-        /** Autorisation accès */
-        $this->autorisationAcces(Application::ID_DAP);
-        /** FIN AUtorisation accès */
-
         /** Initialisation DaSearch */
         $daSearch = new DaSearch;
         $this->initialisationRechercheDa($daSearch);

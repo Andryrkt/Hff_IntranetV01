@@ -47,10 +47,6 @@ class BadmsForm2Controller extends Controller
      */
     public function newForm1(Request $request)
     {
-        /** Autorisation accées */
-        $this->autorisationAcces(Application::ID_BADM);
-        /** FIN AUtorisation acées */
-
         $badm = new Badm();
 
         //recupération des donnée qui vient du formulaire 1

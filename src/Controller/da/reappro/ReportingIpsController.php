@@ -36,11 +36,6 @@ class ReportingIpsController extends Controller
      */
     public function index(Request $request)
     {
-        // verification de la session utilisateur
-        /** Autorisation accées */
-        $this->autorisationAcces(Application::ID_DAP);
-        /** FIN AUtorisation acées */
-
         $form = $this->getFormFactory()->createBuilder(ReportingIpsSearchType::class, null, [
             'method' => 'GET',
             'em' => $this->getEntityManager()

@@ -64,9 +64,6 @@ class DevisMagasinVerificationPrixController extends Controller
      */
     public function soumission(?string $numeroDevis = null, Request $request)
     {
-        /** Autorisation accées */
-        $this->autorisationAcces(Application::ID_DVM);
-
         $remoteUrl = $this->getLastEditedDevis($numeroDevis);
 
         // Instantiation et validation de la présence du numéro de devis

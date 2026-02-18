@@ -23,10 +23,6 @@ class CisATraiterController extends Controller
      */
     public function listCisATraiter(Request $request)
     {
-        /** Autorisation accées */
-        $this->autorisationAcces(Application::ID_MAG);
-        /** FIN AUtorisation acées */
-
         /** CREATION D'AUTORISATION */
         $autoriser = $this->autorisationRole($this->getEntityManager());
         //FIN AUTORISATION

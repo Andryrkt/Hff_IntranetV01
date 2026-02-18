@@ -39,10 +39,6 @@ class DaValidationReapproMensuelController extends Controller
      */
     public function validationDaReapproMensuel($id, Request $request)
     {
-        /** Autorisation accès */
-        $this->autorisationAcces(Application::ID_DAP);
-        /** FIN AUtorisation accès */
-
         $da = $this->demandeApproRepository->find($id);
 
         $daObservation = new DaObservation();

@@ -25,10 +25,6 @@ class CisALivrerController extends Controller
      */
     public function listCisALivrer(Request $request)
     {
-        /** Autorisation accées */
-        $this->autorisationAcces(Application::ID_MAG);
-        /** FIN AUtorisation acées */
-
         /** CREATION D'AUTORISATION */
         $autoriser = $this->hasRoles(Role::ROLE_ADMINISTRATEUR, Role::ROLE_MULTI_SUCURSALES);
         //FIN AUTORISATION

@@ -65,9 +65,6 @@ class DevisMagasinPolValidationDevisController extends Controller
      */
     public function soumission(?string $numeroDevis = null, string $codeAgenceService, Request $request)
     {
-        /** Autorisation accées */
-        $this->autorisationAcces(Application::ID_DVM);
-
         //recupération des informations utile dans IPS
         $firstDevisIps = $this->getInfoDevisIps($numeroDevis);
         [$newSumOfLines, $newSumOfMontant] = $this->newSumOfLinesAndAmount($firstDevisIps);

@@ -42,10 +42,6 @@ class DomSecondController extends Controller
      */
     public function secondForm(Request $request)
     {
-        /** Autorisation accées */
-        $this->autorisationAcces(Application::ID_DOM);
-        /** FIN AUtorisation acées */
-
         //recuperation de l'utilisateur connecter
         $user = $this->getUser();
 

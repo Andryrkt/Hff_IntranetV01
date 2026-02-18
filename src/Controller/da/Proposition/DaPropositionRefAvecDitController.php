@@ -48,10 +48,6 @@ class DaPropositionRefAvecDitController extends Controller
      */
     public function propositionDeReference($id, Request $request)
     {
-        /** Autorisation accès */
-        $this->autorisationAcces(Application::ID_DAP);
-        /** FIN AUtorisation accès */
-
         $da = $this->demandeApproRepository->find($id);
         $numDa = $da->getNumeroDemandeAppro();
         $dals = $da->getDAL();

@@ -33,10 +33,6 @@ class OrLivrerController extends Controller
      */
     public function listOrLivrer(Request $request)
     {
-        /** Autorisation accées */
-        $this->autorisationAcces(Application::ID_MAG);
-        /** FIN AUtorisation acées */
-
         $codeAgence = $this->getUser()->getAgenceAutoriserCode();
         $serviceAgence = $this->getUser()->getServiceAutoriserCode();
 

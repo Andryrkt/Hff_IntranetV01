@@ -25,10 +25,6 @@ class DomFirstController extends Controller
      */
     public function firstForm(Request $request)
     {
-        /** Autorisation accées */
-        $this->autorisationAcces(Application::ID_DOM);
-        /** FIN AUtorisation acées */
-
         //récupération de l'utilisateur connecté
         $user = $this->getUser();
 

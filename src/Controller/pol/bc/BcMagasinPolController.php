@@ -50,9 +50,6 @@ class BcMagasinPolController extends Controller
      */
     public function index(?string $numeroDevis = null, Request $request): Response
     {
-        /** Autorisation accées */
-        $this->autorisationAcces(Application::ID_DVM);
-
         /** Gestion de blocage */
         $this->gestionDeBlocage($numeroDevis);
 

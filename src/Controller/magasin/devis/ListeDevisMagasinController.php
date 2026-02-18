@@ -81,9 +81,6 @@ class ListeDevisMagasinController extends Controller
      */
     public function listeDevisMagasin(Request $request)
     {
-        /** Autorisation accées */
-        $this->autorisationAcces(Application::ID_DVM);
-
         //formulaire de recherhce
         $form = $this->getFormFactory()->createBuilder(DevisMagasinSearchType::class, $this->initialisationCriteria(), [
             'em' => $this->getEntityManager(),

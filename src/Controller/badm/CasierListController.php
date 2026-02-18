@@ -25,10 +25,6 @@ class CasierListController extends Controller
      */
     public function AffichageListeCasier(Request $request)
     {
-        /** Autorisation accées */
-        $this->autorisationAcces(Application::ID_CAS);
-        /** FIN AUtorisation acées */
-
         $form = $this->getFormFactory()->createBuilder(CasierSearchType::class, null, [
             'method' => 'GET'
         ])->getForm();

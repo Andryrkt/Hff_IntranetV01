@@ -19,10 +19,6 @@ class NewBdcController extends Controller
      */
     public function newBonCaisse()
     {
-        /** Autorisation accès */
-        $this->autorisationAcces(Application::ID_BCS);
-        /** FIN AUtorisation accès */
-
         return $this->render("dwForm/dwForm.html.twig", [
             'url'       => "https://hffc.docuware.cloud/docuware/forms/bon-de-caisse?orgID=5adf2517-2f77-4e19-8b42-9c3da43af7be",
             'pageTitle' => "Nouveau bon de caisse",

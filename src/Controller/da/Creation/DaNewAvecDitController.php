@@ -40,10 +40,6 @@ class DaNewAvecDitController extends Controller
      */
     public function new(int $daId, int $ditId, Request $request)
     {
-        /** Autorisation accès */
-        $this->autorisationAcces(Application::ID_DAP, Service::ID_ATELIER);
-        /** FIN AUtorisation accès */
-
         /** 
          * @var DemandeIntervention $dit DIT correspondant à l'id $ditId
          */
