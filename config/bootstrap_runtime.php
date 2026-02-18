@@ -173,8 +173,16 @@ $container->set('router', $urlGenerator);
 // ========================================
 
 // --- Twig extensions runtime (Menuservice) ---
+
+// ─── Cache applicatif (inter-requêtes, partagé par profil) ───────────────────
+$cacheMenu = new FilesystemTagAwareAdapter(
+    'menu',
+    $isDevMode ? 60 : 3600,
+    dirname(__DIR__) . '/var/cache/pools'
+);
+
 // MenuService reçoit SecurityService pour filtrer les items via les routes (zéro BDD)
-$menuService = new \App\Service\navigation\MenuService($securityService);
+$menuService = new \App\Service\navigation\MenuService($securityService, $cacheMenu);
 $container->set('menuService', $menuService);
 
 // --- Twig extensions runtime ---

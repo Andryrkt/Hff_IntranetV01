@@ -3,15 +3,32 @@
 namespace App\Service\navigation;
 
 use App\Service\security\SecurityService;
+use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 class MenuService
 {
+    // ─── Configuration du cache persistant ───────────────────────────────────
+    private const CACHE_TTL          = 3600;          // 1 heure en secondes
+    private const CACHE_KEY_PRINCIPAL = 'menu.principal.profil_';
+    private const CACHE_KEY_ADMIN     = 'menu.admin.profil_';
+    private const CACHE_TAG_PREFIX    = 'menu.profil_'; // tag partagé → invalidation groupée
+
     private SecurityService $securityService;
+    private TagAwareCacheInterface $cache;
     private string $basePath;
 
-    public function __construct(SecurityService $securityService)
+    /**
+     * Cache intra-requête — évite de reconstruire les menus plusieurs fois
+     * dans la même requête HTTP (breadcrumb + dropdown + page d'accueil…).
+     */
+    private ?array $cacheMenuStructure      = null;
+    private ?array $cacheAdminMenuStructure = null;
+
+    public function __construct(SecurityService $securityService, TagAwareCacheInterface $cache)
     {
         $this->securityService = $securityService;
+        $this->cache           = $cache;
         $this->basePath        = $_ENV['BASE_PATH_FICHIER_COURT'];
     }
 
@@ -20,9 +37,48 @@ class MenuService
     // =========================================================================
 
     /**
-     * Retourne la structure du menu : uniquement les modules ayant au moins un item accessible.
+     * Retourne la structure du menu principal filtré par peutVoir.
+     *
+     * Deux niveaux de cache :
+     *  1. Intra-requête  (propriété PHP)         → zéro overhead si appelé plusieurs fois
+     *  2. Persistant     (TagAwareCacheInterface) → survit entre les requêtes, TTL 1 h
+     *     Clé : menu.principal.profil_{id}
+     *     Tag : menu.profil_{id} → invalide les deux menus d'un profil en un seul appel
      */
     public function getMenuStructure(): array
+    {
+        // Couche 1 : cache intra-requête
+        if ($this->cacheMenuStructure !== null) {
+            return $this->cacheMenuStructure;
+        }
+
+        $profilId = $this->getProfilId();
+
+        // Pas de profil connecté → on construit sans cacher (résultat vide de toute façon)
+        if ($profilId === null) {
+            return $this->cacheMenuStructure = $this->construireMenuPrincipal();
+        }
+
+        // Couche 2 : cache persistant
+        $cle = self::CACHE_KEY_PRINCIPAL . $profilId;
+        $tag = self::CACHE_TAG_PREFIX    . $profilId;
+
+        return $this->cacheMenuStructure = $this->cache->get(
+            $cle,
+            function (ItemInterface $item) use ($tag): array {
+                $item->expiresAfter(self::CACHE_TTL);
+                $item->tag($tag);
+
+                return $this->construireMenuPrincipal();
+            }
+        );
+    }
+
+    /**
+     * Construit le menu principal sans mise en cache.
+     * Appelé uniquement par getMenuStructure() via le cache persistant.
+     */
+    private function construireMenuPrincipal(): array
     {
         $vignettes = [];
 
@@ -58,10 +114,64 @@ class MenuService
     /**
      * Retourne la structure du menu Administrateur, filtrée par peutVoir.
      * Chaque groupe n'est inclus que s'il contient au moins un lien accessible.
+     *
+     * Structure retournée :
+     * [
+     *   [
+     *     'header' => 'Accès & Sécurité',
+     *     'icon'   => 'fa-user-shield',
+     *     'links'  => [
+     *       ['label' => 'Utilisateurs', 'icon' => 'fa-user', 'route' => 'utilisateur_index'],
+     *       ...
+     *     ],
+     *   ],
+     *   ...
+     * ]
+     */
+    /**
+     * Retourne la structure du menu Administrateur filtrée par peutVoir.
+     *
+     * Deux niveaux de cache (même stratégie que getMenuStructure) :
+     *  1. Intra-requête  (propriété PHP)
+     *  2. Persistant     (TagAwareCacheInterface), TTL 1 h
+     *     Clé : menu.admin.profil_{id}
+     *     Tag : menu.profil_{id} → invalidation groupée avec le menu principal
      */
     public function getAdminMenuStructure(): array
     {
-        $groupes = $this->adminMenuGroupes();
+        // Couche 1 : cache intra-requête
+        if ($this->cacheAdminMenuStructure !== null) {
+            return $this->cacheAdminMenuStructure;
+        }
+
+        $profilId = $this->getProfilId();
+
+        if ($profilId === null) {
+            return $this->cacheAdminMenuStructure = $this->construireMenuAdmin();
+        }
+
+        // Couche 2 : cache persistant
+        $cle = self::CACHE_KEY_ADMIN  . $profilId;
+        $tag = self::CACHE_TAG_PREFIX . $profilId;
+
+        return $this->cacheAdminMenuStructure = $this->cache->get(
+            $cle,
+            function (ItemInterface $item) use ($tag): array {
+                $item->expiresAfter(self::CACHE_TTL);
+                $item->tag($tag);
+
+                return $this->construireMenuAdmin();
+            }
+        );
+    }
+
+    /**
+     * Construit le menu Admin sans mise en cache.
+     * Appelé uniquement par getAdminMenuStructure() via le cache persistant.
+     */
+    private function construireMenuAdmin(): array
+    {
+        $groupes  = $this->adminMenuGroupes();
         $resultat = [];
 
         foreach ($groupes as $groupe) {
@@ -505,6 +615,26 @@ class MenuService
     }
 
     // =========================================================================
+    //  INVALIDATION DU CACHE PERSISTANT
+    // =========================================================================
+
+    /**
+     * Invalide les deux menus (principal + admin) d'un profil donné.
+     * À appeler après toute modification des droits/permissions d'un profil.
+     *
+     * Exemple depuis un contrôleur :
+     *   $menuService->invaliderCacheProfil($profilId);
+     */
+    public function invaliderCacheProfil(int $profilId): void
+    {
+        $this->cache->invalidateTags([self::CACHE_TAG_PREFIX . $profilId]);
+
+        // Vide aussi le cache intra-requête pour que la même requête soit cohérente
+        $this->cacheMenuStructure      = null;
+        $this->cacheAdminMenuStructure = null;
+    }
+
+    // =========================================================================
     //  HELPERS DE VÉRIFICATION (via SecurityService — zéro BDD)
     // =========================================================================
 
@@ -512,6 +642,18 @@ class MenuService
      * True si la route est visible pour le profil connecté.
      * Résultat depuis le cache intra-requête de SecurityService — zéro BDD.
      */
+    /**
+     * Retourne l'identifiant du profil connecté, ou null si non connecté.
+     * Utilisé comme discriminant de clé de cache.
+     */
+    private function getProfilId(): ?int
+    {
+        $userInfo = $this->securityService->getUserInfo();
+        $profilId = $userInfo['profilId'] ?? null;
+
+        return $profilId !== null ? (int) $profilId : null;
+    }
+
     private function hasAccesRoute(string $route): bool
     {
         return $this->securityService->verifierPermission(
