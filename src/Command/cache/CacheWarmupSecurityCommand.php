@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Command;
+namespace App\Command\cache;
 
 use App\Entity\admin\utilisateur\ApplicationProfilPage;
 use App\Entity\admin\utilisateur\Profil;
@@ -54,8 +54,8 @@ class CacheWarmupSecurityCommand extends Command
         $io->progressStart(count($profils));
 
         foreach ($profils as $profil) {
-            $this->warmupSecurityProfil($profil, $io);
             $io->progressAdvance();
+            $this->warmupSecurityProfil($profil, $io);
         }
 
         $io->progressFinish();

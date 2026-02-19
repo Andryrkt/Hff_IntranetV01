@@ -6,8 +6,8 @@ require_once dirname(__DIR__) . '/config/dotenv.php';
 $entitymanager = require_once dirname(__DIR__) . "/doctrineBootstrap.php";
 
 use App\Command\AncienDitCommand;
-use App\Command\CacheWarmupMenuCommand;
-use App\Command\CacheWarmupSecurityCommand;
+use App\Command\cache\CacheWarmupSecurityCommand;
+use App\Command\cache\CacheWarmupMenuCommand;
 use App\Command\MigrationPdfCommand;
 use App\Command\MigrationDataCommand;
 use App\Command\MigrationDevisCommand;
