@@ -96,47 +96,6 @@ class UserController extends Controller
         ]);
     }
 
-    /**
-     * @Route("/admin/utilisateur/delete/{id}", name="utilisateur_delete")
-     *
-     * @return void
-     */
-    public function delete($id)
-    {
-        // Récupération de l'utilisateur
-        $user = $this->getEntityManager()->getRepository(User::class)->find($id);
-
-
-        // Supprimer les relations manuellement avant suppression
-        $user->getRoles()->clear();
-        $user->getApplications()->clear();
-        $user->getAgencesAutorisees()->clear();
-        $user->getServiceAutoriser()->clear();
-        $user->getPermissions()->clear();
-
-        foreach ($user->getUserLoggers() as $logger) {
-            $this->getEntityManager()->remove($logger);
-        }
-
-        // foreach ($user->getCommentaireDitOrs() as $commentaire) {
-        //     $this->getEntityManager()->remove($commentaire);
-        // }
-
-        // foreach ($user->getSupportInfoUser() as $support) {
-        //     $this->getEntityManager()->remove($support);
-        // }
-
-        // foreach ($user->getTikPlanningUser() as $planning) {
-        //     $this->getEntityManager()->remove($planning);
-        // }
-
-        // Supprimer l'utilisateur
-        $this->getEntityManager()->remove($user);
-        $this->getEntityManager()->flush();
-
-        return $this->redirectToRoute("utilisateur_index");
-    }
-
     /** 
      * Fonction pour préparer les données avant de donner à twig
      * @param  User[] $dataUsers
