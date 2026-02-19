@@ -131,7 +131,7 @@ class UserDataService
         $donnees = $this->cache->get($cle, function (ItemInterface $item) use ($tag, $nomRoute) {
             $item->expiresAfter(3600);
             $item->tag($tag);
-            return $this->calculerPermissions($nomRoute);
+            return $this->calculerPermissions($nomRoute, $this->getProfil());
         });
 
         return $this->cachePermissions[$nomRoute] = $donnees;
@@ -165,7 +165,7 @@ class UserDataService
             function (ItemInterface $item) use ($tag) {
                 $item->expiresAfter(3600);
                 $item->tag($tag);
-                return $this->calculerPagesProfil();
+                return $this->calculerPagesProfil($this->getProfil());
             }
         );
 
@@ -224,9 +224,8 @@ class UserDataService
      *
      * @return array|null
      */
-    private function calculerPermissions(string $nomRoute): ?array
+    public function calculerPermissions(string $nomRoute, ?Profil $profil = null): ?array
     {
-        $profil = $this->getProfil();
         if ($profil === null) {
             return null;
         }
@@ -254,9 +253,8 @@ class UserDataService
      * Calcule les pages visibles du profil depuis la BDD.
      * Retourne des tableaux de scalaires (sérialisables en cache).
      */
-    private function calculerPagesProfil(): array
+    public function calculerPagesProfil(?Profil $profil = null): array
     {
-        $profil = $this->getProfil();
         if ($profil === null) {
             return [];
         }
