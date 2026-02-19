@@ -114,12 +114,6 @@ class User implements UserInterface
     private $serviceAutoriser;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Permission::class, inversedBy="users")
-     * @ORM\JoinTable(name="users_permission")
-     */
-    private $permissions;
-
-    /**
      * @ORM\Column(type="string", length=10, name="num_tel")
      *
      * @var string 
@@ -148,7 +142,6 @@ class User implements UserInterface
         $this->casiers = new ArrayCollection();
         $this->agencesAutorisees = new ArrayCollection();
         $this->serviceAutoriser = new ArrayCollection();
-        $this->permissions = new ArrayCollection();
         $this->profils = new ArrayCollection();
     }
 
@@ -405,29 +398,6 @@ class User implements UserInterface
     {
         if ($this->serviceAutoriser->contains($serviceAutoriser)) {
             $this->serviceAutoriser->removeElement($serviceAutoriser);
-        }
-
-        return $this;
-    }
-
-    public function getPermissions(): Collection
-    {
-        return $this->permissions;
-    }
-
-    public function addPermisssion(Permission $permissions): self
-    {
-        if (!$this->permissions->contains($permissions)) {
-            $this->permissions[] = $permissions;
-        }
-
-        return $this;
-    }
-
-    public function removePermission(Permission $permissions): self
-    {
-        if ($this->permissions->contains($permissions)) {
-            $this->permissions->removeElement($permissions);
         }
 
         return $this;
