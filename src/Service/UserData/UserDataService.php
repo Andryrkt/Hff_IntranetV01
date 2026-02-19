@@ -215,7 +215,7 @@ class UserDataService
      */
     public function invaliderCacheProfil(int $profilId): void
     {
-        $this->cache->invalidateTags(['profil_' . $profilId]);
+        $this->cache->invalidateTags([self::CACHE_TAG_PREFIX . $profilId]);
 
         // Vider aussi le cache mémoire de la requête courante
         $this->cacheProfil          = null;

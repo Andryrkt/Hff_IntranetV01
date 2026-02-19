@@ -120,7 +120,7 @@ $dataService = new \App\Service\UserData\UserDataService(
     $cachePermissions,
     $session
 );
-$container->set('data.service', $dataService);
+$container->set('userData.service', $dataService);
 
 // ─── SecurityService : contrôle d'accès (délègue tout à DataService) ─────────
 $securityService = new \App\Service\security\SecurityService($dataService);
