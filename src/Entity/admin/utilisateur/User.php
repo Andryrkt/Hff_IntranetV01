@@ -15,7 +15,6 @@ use App\Entity\da\DemandeApproParent;
 use App\Entity\admin\utilisateur\Role;
 use Doctrine\Common\Collections\Collection;
 use App\Entity\admin\utilisateur\Permission;
-use App\Entity\tik\DemandeSupportInformatique;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Security\Core\User\UserInterface;
 use App\Entity\admin\historisation\pageConsultation\UserLogger;
@@ -141,21 +140,6 @@ class User implements UserInterface
     private $demandeApproValidateur;
 
     /**
-     * @ORM\OneToMany(targetEntity=DemandeSupportInformatique::class, mappedBy="userId")
-     */
-    private $supportInfoUser;
-
-    /**
-     * @ORM\OneToMany(targetEntity=DemandeSupportInformatique::class, mappedBy="intervenant")
-     */
-    private $supportInfoIntervenant;
-
-    /**
-     * @ORM\OneToMany(targetEntity=DemandeSupportInformatique::class, mappedBy="validateur")
-     */
-    private $supportInfoValidateur;
-
-    /**
      * @ORM\Column(type="string", length=10, name="num_tel")
      *
      * @var string 
@@ -186,10 +170,8 @@ class User implements UserInterface
         $this->serviceAutoriser = new ArrayCollection();
         $this->permissions = new ArrayCollection();
         $this->commentaireDitOr = new ArrayCollection();
-        $this->supportInfoUser = new ArrayCollection();
         $this->demandeApproUser = new ArrayCollection();
         $this->demandeApproParentUser = new ArrayCollection();
-        $this->supportInfoIntervenant = new ArrayCollection();
         $this->profils = new ArrayCollection();
     }
 
@@ -508,57 +490,6 @@ class User implements UserInterface
     public function setCommentaireDitOrs($commentaireDitOr)
     {
         $this->commentaireDitOr = $commentaireDitOr;
-
-        return $this;
-    }
-
-
-    /**
-     * Get the value of demandeInterventions
-     */
-    public function getSupportInfoUser()
-    {
-        return $this->supportInfoUser;
-    }
-
-    public function addSupportInfoUser(DemandeSupportInformatique $supportInfoUser): self
-    {
-        if (!$this->supportInfoUser->contains($supportInfoUser)) {
-            $this->supportInfoUser[] = $supportInfoUser;
-            $supportInfoUser->setUserId($this);
-        }
-
-        return $this;
-    }
-
-    public function removeSupportInfoUser(DemandeSupportInformatique $supportInfoUser): self
-    {
-        if ($this->supportInfoUser->contains($supportInfoUser)) {
-            $this->supportInfoUser->removeElement($supportInfoUser);
-            if ($supportInfoUser->getUserId() === $this) {
-                $supportInfoUser->setUserId(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * Get the value of supportInfoIntervenant
-     */
-    public function getSupportInfoIntervenant()
-    {
-        return $this->supportInfoIntervenant;
-    }
-
-    /**
-     * Set the value of supportInfoIntervenant
-     *
-     * @return  self
-     */
-    public function setSupportInfoIntervenant($supportInfoIntervenant)
-    {
-        $this->supportInfoIntervenant = $supportInfoIntervenant;
 
         return $this;
     }

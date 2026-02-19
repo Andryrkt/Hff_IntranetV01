@@ -96,13 +96,13 @@ class DemandeSupportInformatique
     private string $agenceServiceDebiteur;
 
     /**
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="supportInfoIntervenant")
+     * @ORM\ManyToOne(targetEntity=User::class)
      * @ORM\JoinColumn(nullable=true, name="ID_Intervenant", referencedColumnName="id")
      */
     private ?User $intervenant;
 
     /**
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="supportInfoValidateur")
+     * @ORM\ManyToOne(targetEntity=User::class)
      * @ORM\JoinColumn(nullable=true, name="ID_Validateur", referencedColumnName="id")
      */
     private ?User $validateur;
@@ -202,7 +202,7 @@ class DemandeSupportInformatique
     private  $serviceDebiteurId;
 
     /**
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="supportInfoUser")
+     * @ORM\ManyToOne(targetEntity=User::class)
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
      * 
      */
