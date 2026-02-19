@@ -53,8 +53,9 @@ class CacheWarmupMenuCommand extends Command
         $io->progressStart(count($profils));
 
         foreach ($profils as $profil) {
-            $this->warmupMenuProfil($profil, $io);
             $io->progressAdvance();
+            $this->menuService->userDataService->setProfilId($profil->getId());
+            $this->warmupMenuProfil($profil, $io);
         }
 
         $io->progressFinish();
@@ -66,28 +67,24 @@ class CacheWarmupMenuCommand extends Command
     private function warmupMenuProfil(Profil $profil, SymfonyStyle $io): void
     {
         $profilId = $profil->getId();
-        $tag      = 'profil_' . $profilId;
+        $tag = MenuService::CACHE_TAG_PREFIX . $profilId;
 
         $io->writeln(sprintf('  → Profil <info>%s</info> (id: %d)', $profil->getDesignation(), $profilId));
 
-        // ── 3. Menu principal (MenuService::getMenuStructure) ─────────────────
-        $this->cache->get(
-            'menu_principal_' . $profilId,   // ← même clé que MenuService::CACHE_KEY_PRINCIPAL
-            function (ItemInterface $item) use ($profilId, $tag) {
-                $item->expiresAfter(3600);
-                $item->tag([$tag]);
-                return $this->menuService->construireMenuPrincipalPourProfil($profilId);
-            }
-        );
+        // ── 1. Menu principal (MenuService::getMenuStructure) ─────────────────
+        $cleMenuPrincipal = MenuService::CACHE_KEY_PRINCIPAL . $profilId;
+        $this->cache->delete($cleMenuPrincipal);
+        $this->cache->get($cleMenuPrincipal, function (ItemInterface $item) use ($tag) {
+            $item->tag($tag);
+            return $this->menuService->construireMenuPrincipal();
+        });
 
-        // ── 4. Menu admin (MenuService::getAdminMenuStructure) ────────────────
-        $this->cache->get(
-            'menu_admin_' . $profilId,       // ← même clé que MenuService::CACHE_KEY_ADMIN
-            function (ItemInterface $item) use ($profilId, $tag) {
-                $item->expiresAfter(3600);
-                $item->tag([$tag]);
-                return $this->menuService->construireMenuAdminPourProfil($profilId);
-            }
-        );
+        // ── 2. Menu admin (MenuService::getAdminMenuStructure) ────────────────
+        $cleMenuAdmin = MenuService::CACHE_KEY_ADMIN . $profilId;
+        $this->cache->delete($cleMenuAdmin);
+        $this->cache->get($cleMenuAdmin, function (ItemInterface $item) use ($tag) {
+            $item->tag($tag);
+            return $this->menuService->construireMenuAdmin();
+        });
     }
 }

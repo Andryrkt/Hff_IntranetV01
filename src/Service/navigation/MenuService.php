@@ -9,12 +9,11 @@ use Symfony\Contracts\Cache\TagAwareCacheInterface;
 class MenuService
 {
     // ─── Configuration du cache persistant ───────────────────────────────────
-    private const CACHE_TTL          = 3600;          // 1 heure en secondes
     public const CACHE_KEY_PRINCIPAL = 'menu.principal.profil_';
     public const CACHE_KEY_ADMIN     = 'menu.admin.profil_';
     public const CACHE_TAG_PREFIX    = 'menu.profil_'; // tag partagé → invalidation groupée
 
-    private UserDataService $userDataService;
+    public UserDataService $userDataService;
     private TagAwareCacheInterface $cache;
     private string $basePath;
 
@@ -57,22 +56,17 @@ class MenuService
         $cle = self::CACHE_KEY_PRINCIPAL . $profilId;
         $tag = self::CACHE_TAG_PREFIX    . $profilId;
 
-        return $this->cacheMenuStructure = $this->cache->get(
-            $cle,
-            function (ItemInterface $item) use ($tag): array {
-                $item->expiresAfter(self::CACHE_TTL);
-                $item->tag($tag);
-
-                return $this->construireMenuPrincipal();
-            }
-        );
+        return $this->cacheMenuStructure = $this->cache->get($cle, function (ItemInterface $item) use ($tag): array {
+            $item->tag($tag);
+            return $this->construireMenuPrincipal();
+        });
     }
 
     /**
      * Construit le menu principal sans mise en cache.
      * Appelé uniquement par getMenuStructure() via le cache persistant.
      */
-    private function construireMenuPrincipal(): array
+    public function construireMenuPrincipal(): array
     {
         $vignettes = [];
 
@@ -126,22 +120,17 @@ class MenuService
         $cle = self::CACHE_KEY_ADMIN  . $profilId;
         $tag = self::CACHE_TAG_PREFIX . $profilId;
 
-        return $this->cacheAdminMenuStructure = $this->cache->get(
-            $cle,
-            function (ItemInterface $item) use ($tag): array {
-                $item->expiresAfter(self::CACHE_TTL);
-                $item->tag($tag);
-
-                return $this->construireMenuAdmin();
-            }
-        );
+        return $this->cacheAdminMenuStructure = $this->cache->get($cle, function (ItemInterface $item) use ($tag): array {
+            $item->tag($tag);
+            return $this->construireMenuAdmin();
+        });
     }
 
     /**
      * Construit le menu Admin sans mise en cache.
      * Appelé uniquement par getAdminMenuStructure() via le cache persistant.
      */
-    private function construireMenuAdmin(): array
+    public function construireMenuAdmin(): array
     {
         $groupes  = $this->adminMenuGroupes();
         $resultat = [];

@@ -74,28 +74,20 @@ class CacheWarmupSecurityCommand extends Command
         // ── 1. Pages du profil (UserDataService::getPagesProfil) ─────────────
         $clePage = sprintf('%s_%s', $tag, UserDataService::SUFFIX_PAGES);
         $this->cache->delete($clePage); // forcer l'écriture
-        $this->cache->get(
-            $clePage,
-            function (ItemInterface $item) use ($profil, $tag) {
-                $item->expiresAfter(3600);
-                $item->tag($tag);
-                return $this->userDataService->calculerPagesProfil($profil);
-            }
-        );
+        $this->cache->get($clePage, function (ItemInterface $item) use ($profil, $tag) {
+            $item->tag($tag);
+            return $this->userDataService->calculerPagesProfil($profil);
+        });
 
         // ── 2. Permissions par route (UserDataService::getPermissions) ────────
         $routes = $this->getRoutesForProfil($profil);
         foreach ($routes as $nomRoute) {
             $clePermissions = sprintf('%s_%s_%s', $tag, UserDataService::SUFFIX_PERMISSIONS, md5($nomRoute));
             $this->cache->delete($clePermissions);
-            $this->cache->get(
-                $clePermissions,
-                function (ItemInterface $item) use ($nomRoute, $profil, $tag) {
-                    $item->expiresAfter(3600);
-                    $item->tag($tag);
-                    return $this->userDataService->calculerPermissions($nomRoute, $profil);
-                }
-            );
+            $this->cache->get($clePermissions, function (ItemInterface $item) use ($nomRoute, $profil, $tag) {
+                $item->tag($tag);
+                return $this->userDataService->calculerPermissions($nomRoute, $profil);
+            });
         }
     }
 

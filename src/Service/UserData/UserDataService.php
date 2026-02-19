@@ -28,6 +28,7 @@ class UserDataService
     private array $cachePermissions = [];
     private ?array $cachePagesProfilDonnees = null;
     private ?array $cacheRoutesIndex = null;
+    private ?int $profilId = null;
 
     public function __construct(EntityManagerInterface $em, TagAwareCacheInterface $cache, ?SessionInterface $session = null)
     {
@@ -98,8 +99,21 @@ class UserDataService
      */
     public function getProfilId(): ?int
     {
-        $userInfo = $this->getUserInfo();
-        return $userInfo['profil_id'] ?? NULL;
+        if ($this->profilId === null) {
+            $userInfo = $this->getUserInfo();
+            $this->profilId = $userInfo['profil_id'] ?? NULL;
+        }
+        return $this->profilId;
+    }
+
+    /**
+     * Set the value of profilId
+     */
+    public function setProfilId(?int $profilId): self
+    {
+        $this->profilId = $profilId;
+
+        return $this;
     }
 
     // =========================================================================
@@ -129,7 +143,6 @@ class UserDataService
         $cle = sprintf('%s_%s_%s', $tag, self::SUFFIX_PERMISSIONS, md5($nomRoute));
 
         $donnees = $this->cache->get($cle, function (ItemInterface $item) use ($tag, $nomRoute) {
-            $item->expiresAfter(3600);
             $item->tag($tag);
             return $this->calculerPermissions($nomRoute, $this->getProfil());
         });
@@ -160,14 +173,10 @@ class UserDataService
         $tag = self::CACHE_TAG_PREFIX . $profilId;
         $cle = sprintf('%s_%s', $tag, self::SUFFIX_PAGES);
 
-        $donnees = $this->cache->get(
-            $cle,
-            function (ItemInterface $item) use ($tag) {
-                $item->expiresAfter(3600);
-                $item->tag($tag);
-                return $this->calculerPagesProfil($this->getProfil());
-            }
-        );
+        $donnees = $this->cache->get($cle, function (ItemInterface $item) use ($tag) {
+            $item->tag($tag);
+            return $this->calculerPagesProfil($this->getProfil());
+        });
 
         return $this->cachePagesProfilDonnees = $donnees;
     }
