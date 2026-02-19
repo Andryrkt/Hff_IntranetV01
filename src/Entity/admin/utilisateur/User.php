@@ -82,11 +82,6 @@ class User implements UserInterface
     private $personnels;
 
     /**
-     * @ORM\OneToMany(targetEntity=Casier::class, mappedBy="nomSessionUtilisateur",  cascade={"remove"})
-     */
-    private $casiers;
-
-    /**
      * @ORM\ManyToOne(targetEntity=AgenceServiceIrium::class, inversedBy="userAgenceService")
      * @ORM\JoinColumn(name="agence_utilisateur", referencedColumnName="id")
      */
@@ -133,7 +128,6 @@ class User implements UserInterface
     {
         $this->applications = new ArrayCollection();
         $this->roles = new ArrayCollection();
-        $this->casiers = new ArrayCollection();
         $this->agencesAutorisees = new ArrayCollection();
         $this->serviceAutoriser = new ArrayCollection();
         $this->profils = new ArrayCollection();
@@ -282,43 +276,6 @@ class User implements UserInterface
     public function setPersonnels($personnel): self
     {
         $this->personnels = $personnel;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of demandeInterventions
-     */
-    public function getCasiers()
-    {
-        return $this->casiers;
-    }
-
-    public function addCasier(Casier $casier): self
-    {
-        if (!$this->casiers->contains($casier)) {
-            $this->casiers[] = $casier;
-            $casier->setNomSessionUtilisateur($this);
-        }
-
-        return $this;
-    }
-
-    public function removeCasier(Casier $casier): self
-    {
-        if ($this->casiers->contains($casier)) {
-            $this->casiers->removeElement($casier);
-            if ($casier->getNomSessionUtilisateur() === $this) {
-                $casier->setNomSessionUtilisateur(null);
-            }
-        }
-
-        return $this;
-    }
-
-    public function setCasiers($casier)
-    {
-        $this->casiers = $casier;
 
         return $this;
     }
