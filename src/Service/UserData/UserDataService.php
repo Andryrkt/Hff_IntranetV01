@@ -2,13 +2,15 @@
 
 namespace App\Service\UserData;
 
-use App\Entity\admin\utilisateur\Profil;
+use App\Entity\admin\ApplicationProfil;
 use App\Entity\admin\utilisateur\User;
-use App\Service\security\SecurityService;
+use App\Entity\admin\utilisateur\Profil;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
-use Symfony\Contracts\Cache\TagAwareCacheInterface;
+use App\Service\security\SecurityService;
 use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
+use App\Entity\admin\utilisateur\ApplicationProfilPage;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class UserDataService
 {
@@ -17,6 +19,7 @@ class UserDataService
     private TagAwareCacheInterface $cache;
     private ?User $user = null;
     private ?Profil $cacheProfil = null;
+
     /** @var array<string, array|null> */
     private array $cachePermissions = [];
     private ?array $cachePagesProfilDonnees = null;
@@ -266,8 +269,8 @@ class UserDataService
                 // On stocke uniquement des scalaires (pas d'entité Doctrine)
                 $pages[$nomApplication][] = [
                     'nom'    => $page->getNom(),
-                    'route'  => $page->getNomRoute(),
-                    'icone'  => $page->getIcone(), // adapter selon tes getters réels
+                    'route'  => $page->getNomRoute(), // nom de la route dans le controleur
+                    'lien'   => $page->getLien(), // lien de la page
                 ];
             }
         }
