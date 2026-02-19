@@ -152,10 +152,6 @@ class DitDevisSoumisAValidation
      */
     private $tacheValidateur;
 
-    /**
-     * @ORM\Column(type="string", length="3000", name="observation")
-     */
-    private $observation;
     /** ========================================================================================== 
      * GETTERS & SETTERS
      *==========================================================================================*/
@@ -773,24 +769,6 @@ class DitDevisSoumisAValidation
     public function setTacheValidateur($tacheValidateur): self
     {
         $this->tacheValidateur = $tacheValidateur;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of observation
-     */
-    public function getObservation()
-    {
-        return $this->observation;
-    }
-
-    /**
-     * Set the value of observation
-     */
-    public function setObservation($observation): self
-    {
-        $this->observation = $observation;
 
         return $this;
     }

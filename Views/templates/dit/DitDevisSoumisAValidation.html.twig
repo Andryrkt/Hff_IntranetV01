@@ -50,9 +50,8 @@
 									{{ form_errors(form.numeroDevis)}}
 								</div>
 							</div>
-							<div class="row">
-								{{form_row(form.tacheValidateur)}}
-								{{ form_row(form.observation)}}
+							<div class="row {{type == 'VP' ? '' : 'd-none'}}">
+								{{form_row(form.tacheValidateur, {'required': type == 'VP'})}}
 							</div>
 						</div>
 

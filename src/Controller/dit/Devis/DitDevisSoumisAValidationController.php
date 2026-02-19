@@ -198,7 +198,6 @@ class DitDevisSoumisAValidationController extends Controller
 
         $blockages = $this->ConditionDeBlockage($numDevis, $numDit, $this->devisRepository, $originalName);
         if ($this->blockageSoumission($blockages, $numDevis)) {
-            // if (true) {
 
             /** ENVOIE des DONNEE dans BASE DE DONNEE */
             $this->envoieDonnerDansBd($devisSoumisValidataion, $type, $data);
@@ -504,13 +503,11 @@ class DitDevisSoumisAValidationController extends Controller
             foreach ($devisSoumisValidataion as $entity) {
                 $entity->setStatut($statut);
                 $entity->setTacheValidateur($data->getTacheValidateur());
-                $entity->setObservation($data->getObservation());
                 $this->getEntityManager()->persist($entity); // Persister chaque entité individuellement
             }
         } elseif (count($devisSoumisValidataion) === 1) {
             $devisSoumisValidataion[0]->setStatut($statut);
             $devisSoumisValidataion[0]->setTacheValidateur($data->getTacheValidateur());
-            $devisSoumisValidataion[0]->setObservation($data->getObservation());
             $this->getEntityManager()->persist($devisSoumisValidataion[0]);
         }
 

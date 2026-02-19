@@ -59,23 +59,11 @@ class DitDevisSoumisAValidationType extends AbstractType
                 ]
             )
             ->add('tacheValidateur', ChoiceType::class, [
-                'label' => 'Tâche du validateur',
+                'label' => 'Tâche du validateur *',
                 'choices' => self::TACHE_VALIDATEUR,
                 'expanded' => true,
                 'multiple' => false,
-                'required' => true
             ])
-            ->add(
-                'observation',
-                TextareaType::class,
-                [
-                    'label' => 'Observation',
-                    'required' => false,
-                    'attr' => [
-                        'rows' => 5,
-                    ],
-                ]
-            )
             ->add(
                 'pieceJoint01',
                 FileType::class,
