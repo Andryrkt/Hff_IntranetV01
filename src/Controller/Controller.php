@@ -174,28 +174,10 @@ class Controller
      */
     protected function SessionDestroy()
     {
-        // Commence la session si elle n'est pas déjà démarrée
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-
-        // Supprime l'utilisateur de la session
-        $this->getSessionService()->remove('user');
-
-        // Détruit la session
-        session_destroy();
-
-        // Réinitialise toutes les variables de session
-        session_unset();
+        $this->getSessionService()->invalidate();
 
         // Redirige vers la page d'accueil
         $this->redirectToRoute('security_signin');
-
-        // Ferme l'écriture de la session pour éviter les problèmes de verrouillage
-        session_write_close();
-
-        // Arrête l'exécution du script pour s'assurer que rien d'autre ne se passe après la redirection
-        exit();
     }
 
     /**
