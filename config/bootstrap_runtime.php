@@ -117,8 +117,8 @@ $container->set('cache.permissions', $cachePermissions);
 // Les entités (Profil, etc.) sont rechargées 1 fois par requête HTTP (cache mémoire).
 $dataService = new \App\Service\UserData\UserDataService(
     $container->get('doctrine.orm.default_entity_manager'),
-    $session,
-    $cachePermissions
+    $cachePermissions,
+    $session
 );
 $container->set('data.service', $dataService);
 

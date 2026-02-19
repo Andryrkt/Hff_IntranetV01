@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 class UserDataService
 {
     private EntityManagerInterface $em;
-    private SessionInterface $session;
+    private ?SessionInterface $session = null;
     private TagAwareCacheInterface $cache;
     private ?User $user = null;
     private ?Profil $cacheProfil = null;
@@ -25,7 +25,7 @@ class UserDataService
     private ?array $cachePagesProfilDonnees = null;
     private ?array $cacheRoutesIndex = null;
 
-    public function __construct(EntityManagerInterface $em, SessionInterface $session, TagAwareCacheInterface $cache)
+    public function __construct(EntityManagerInterface $em, TagAwareCacheInterface $cache, ?SessionInterface $session = null)
     {
         $this->em      = $em;
         $this->session = $session;
