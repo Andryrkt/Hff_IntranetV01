@@ -14,6 +14,10 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class UserDataService
 {
+    public const SUFFIX_PAGES        = 'pages';
+    public const SUFFIX_PERMISSIONS  = 'permissions';
+    public const CACHE_TAG_PREFIX    = 'security.profil_';
+
     private EntityManagerInterface $em;
     private ?SessionInterface $session = null;
     private TagAwareCacheInterface $cache;
@@ -121,11 +125,12 @@ class UserDataService
         }
 
         // 2. Cache applicatif (entre requêtes, partagé par profil)
-        $cacheKey = sprintf('profil_%d_permissions_%s', $profilId, md5($nomRoute));
+        $tag = self::CACHE_TAG_PREFIX . $profilId;
+        $cle = sprintf('%s_%s_%s', $tag, self::SUFFIX_PERMISSIONS, md5($nomRoute));
 
-        $donnees = $this->cache->get($cacheKey, function (ItemInterface $item) use ($profilId, $nomRoute) {
+        $donnees = $this->cache->get($cle, function (ItemInterface $item) use ($tag, $nomRoute) {
             $item->expiresAfter(3600);
-            $item->tag(['profil_' . $profilId]);
+            $item->tag($tag);
             return $this->calculerPermissions($nomRoute);
         });
 
@@ -152,13 +157,14 @@ class UserDataService
         }
 
         // 2. Cache applicatif
-        $cacheKey = sprintf('profil_%d_pages', $profilId);
+        $tag = self::CACHE_TAG_PREFIX . $profilId;
+        $cle = sprintf('%s_%s', $tag, self::SUFFIX_PAGES);
 
         $donnees = $this->cache->get(
-            $cacheKey,
-            function (ItemInterface $item) use ($profilId) {
+            $cle,
+            function (ItemInterface $item) use ($tag) {
                 $item->expiresAfter(3600);
-                $item->tag(['profil_' . $profilId]);
+                $item->tag($tag);
                 return $this->calculerPagesProfil();
             }
         );

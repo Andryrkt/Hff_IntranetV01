@@ -10,9 +10,9 @@ class MenuService
 {
     // ─── Configuration du cache persistant ───────────────────────────────────
     private const CACHE_TTL          = 3600;          // 1 heure en secondes
-    private const CACHE_KEY_PRINCIPAL = 'menu.principal.profil_';
-    private const CACHE_KEY_ADMIN     = 'menu.admin.profil_';
-    private const CACHE_TAG_PREFIX    = 'menu.profil_'; // tag partagé → invalidation groupée
+    public const CACHE_KEY_PRINCIPAL = 'menu.principal.profil_';
+    public const CACHE_KEY_ADMIN     = 'menu.admin.profil_';
+    public const CACHE_TAG_PREFIX    = 'menu.profil_'; // tag partagé → invalidation groupée
 
     private UserDataService $userDataService;
     private TagAwareCacheInterface $cache;
