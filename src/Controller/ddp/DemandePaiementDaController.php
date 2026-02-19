@@ -89,8 +89,8 @@ class DemandePaiementDaController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             $dto = $form->getdata();
-            $this->traitementDeFichier($dto, $form);
-            $this->enregistrementSurBd($dto);
+            $nomAvecCheminFichier = $this->traitementDeFichier($dto, $form);
+            $this->enregistrementSurBd($dto, $nomAvecCheminFichier);
 
             if ($dto->ddpaDa) {
                 $ddpaDaService = new DdpaDaService($this->getEntityManager());
@@ -122,10 +122,10 @@ class DemandePaiementDaController extends Controller
         }
     }
 
-    private function enregistrementSurBd(DemandePaiementDto $dto): void
+    private function enregistrementSurBd(DemandePaiementDto $dto, string $nomAvecCheminFichier): void
     {
         // enregistrement dans la table deamnde_paiement
-        $this->demandePaiementService->createDdp($dto);
+        $this->demandePaiementService->createDdp($dto, $nomAvecCheminFichier);
         // enregistrement dans la table demande_paiement_ligne
         $this->demandePaiementLigneService->createLignesFromDto($dto);
         // enregistrement dans la table doc_demande_paiement
@@ -134,7 +134,7 @@ class DemandePaiementDaController extends Controller
         $this->demandePaiementService->createHistoriqueStatut($dto);
     }
 
-    private function traitementDeFichier(DemandePaiementDto $dto, FormInterface $form)
+    private function traitementDeFichier(DemandePaiementDto $dto, FormInterface $form): string
     {
         $numCdes = $this->demandePaiementModel->getCommandeReceptionnee($dto->numeroFournisseur);
         $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
@@ -167,7 +167,10 @@ class DemandePaiementDaController extends Controller
         $fichierChoisiAvecChemins = $this->docDemandePaiementService->fichierChoisiAvecChemin($dto);
         $this->docDemandePaiementService->copieFichierChoisi($dto);
         $this->fusionDesPdf($nomEtCheminFichiersEnregistrer, $fichierChoisiAvecChemins, $nomAvecCheminFichier);
+        // COPIE VERS DOCUWARE
         $generatePdf->copyToDw($nomAvecCheminFichier, $nomFichier);
+
+        return $nomAvecCheminFichier;
     }
 
 

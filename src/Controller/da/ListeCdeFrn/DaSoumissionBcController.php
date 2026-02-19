@@ -150,7 +150,7 @@ class DaSoumissionBcController extends Controller
         $this->traitementDeFichier->fusionFichers($fichierConvertir, $nomAvecCheminPdfFusionner);
 
         /** AJOUT DES INFO NECESSAIRE */
-        $soumissionBc = $this->ajoutInfoNecesaireSoumissionBc($numCde, $numDa, $soumissionBc, $nomPdfFusionner, $numeroVersionMax, $numOr);
+        $soumissionBc = $this->ajoutInfoNecesaireSoumissionBc($numCde, $numDa, $nomPdfFusionner, $numeroVersionMax, $numOr);
 
         /** ENREGISTREMENT DANS LA BASE DE DONNEE */
         $this->getEntityManager()->persist($soumissionBc);
@@ -193,7 +193,7 @@ class DaSoumissionBcController extends Controller
         }
     }
 
-    private function ajoutInfoNecesaireSoumissionBc(string $numCde, string $numDa, DaSoumissionBcDto $soumissionBc, string $nomPdfFusionner, int $numeroVersionMax, string $numOr): DaSoumissionBc
+    private function ajoutInfoNecesaireSoumissionBc(string $numCde, string $numDa, string $nomPdfFusionner, int $numeroVersionMax, string $numOr): DaSoumissionBc
     {
         $numDit = $this->demandeApproRepository->getNumDitDa($numDa);
         // $numOr = $this->ditRepository->getNumOr($numDit);

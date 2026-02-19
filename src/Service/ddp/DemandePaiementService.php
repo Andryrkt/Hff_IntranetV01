@@ -26,9 +26,9 @@ class DemandePaiementService
      * @param DemandePaiementDto $dto
      * @return void
      */
-    public function createDdp(DemandePaiementDto $dto)
+    public function createDdp(DemandePaiementDto $dto, $nomAvecCheminFichier)
     {
-        $ddp = DemandePaiementMapper::map($dto);
+        $ddp = DemandePaiementMapper::map($dto, $nomAvecCheminFichier);
 
         $this->em->persist($ddp);
         $this->em->flush();

@@ -22,7 +22,9 @@ class DdpaDaService
         $daSoumisionBcRepository = $this->em->getRepository(DaSoumissionBc::class);
         $daSoumissionBc = $daSoumisionBcRepository->findOneBy(['numeroCde' => $dto->numeroCommande[0], 'numeroVersion' => $dto->numeroVersionBc]);
         if ($daSoumissionBc) {
-            $daSoumissionBc->setDemandePaiementAvance($dto->ddpaDa);
+            $daSoumissionBc->setDemandePaiementAvance($dto->ddpaDa)
+                ->setNumerodemandePaiement($dto->numeroDdp)
+            ;
 
             $this->em->persist($daSoumissionBc);
             $this->em->flush();
