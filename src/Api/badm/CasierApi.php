@@ -22,9 +22,6 @@ class CasierApi extends Controller
      */
     public function casierDestinataire()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $casierDestinataireInformix = $this->badm->recupeCasierDestinataireInformix();
         //$casierDestinataireSqlServer = $this->badm->recupeCasierDestinataireSqlServer();
         $casierDestinataire = $this->getEntityManager()->getRepository(CasierValider::class)->findAll();

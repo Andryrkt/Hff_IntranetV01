@@ -21,9 +21,6 @@ class ApplicationController extends Controller
      */
     public function index()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $data = $this->getEntityManager()->getRepository(Application::class)->findAll();
         $preparedData = $this->prepareForDisplay($data);
 
@@ -40,9 +37,6 @@ class ApplicationController extends Controller
      */
     public function new(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $form = $this->getFormFactory()->createBuilder(ApplicationType::class)->getForm();
 
         $form->handleRequest($request);
@@ -71,9 +65,6 @@ class ApplicationController extends Controller
      */
     public function edit(Request $request, $id)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $application = $this->getEntityManager()->getRepository(Application::class)->find($id);
 
         $form = $this->getFormFactory()->createBuilder(ApplicationType::class, $application)->getForm();
@@ -105,9 +96,6 @@ class ApplicationController extends Controller
      */
     public function delete($id)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         /** @var Application $application */
         $application = $this->getEntityManager()->getRepository(Application::class)->find($id);
 

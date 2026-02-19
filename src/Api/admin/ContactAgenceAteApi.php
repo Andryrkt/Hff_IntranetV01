@@ -17,9 +17,6 @@ class ContactAgenceAteApi extends Controller
      */
     public function getMatriculeData($id)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $user = $this->getEntityManager()->getRepository(User::class)->findOneBy(['id' => $id]);
 
         $nomEmail = [

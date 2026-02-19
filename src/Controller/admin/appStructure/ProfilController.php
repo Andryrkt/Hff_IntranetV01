@@ -19,9 +19,6 @@ class ProfilController extends Controller
      */
     public function index()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $data = $this->getEntityManager()->getRepository(Profil::class)->findAll();
         $preparedData = $this->prepareForDisplay($data);
 
@@ -38,9 +35,6 @@ class ProfilController extends Controller
      */
     public function new(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $profil = new Profil();
         $form = $this->getFormFactory()->createBuilder(ProfilType::class, $profil)->getForm();
         $form->handleRequest($request);
@@ -78,8 +72,6 @@ class ProfilController extends Controller
      */
     public function edit(Request $request, $id)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
         $em = $this->getEntityManager();
 
         /** @var Profil $profil */

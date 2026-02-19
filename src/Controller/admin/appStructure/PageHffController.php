@@ -18,9 +18,6 @@ class PageHffController extends Controller
      */
     public function index()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $data = $this->getEntityManager()->getRepository(PageHff::class)->findAll();
 
         return $this->render('admin/page-hff/list.html.twig', [
@@ -33,9 +30,6 @@ class PageHffController extends Controller
      */
     public function new(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $form = $this->getFormFactory()->createBuilder(PageHffType::class)->getForm();
 
         $form->handleRequest($request);
@@ -59,9 +53,6 @@ class PageHffController extends Controller
      */
     public function edit(Request $request, $id)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $pageHff = $this->getEntityManager()->getRepository(PageHff::class)->find($id);
 
         $form = $this->getFormFactory()->createBuilder(PageHffType::class, $pageHff)->getForm();
@@ -86,9 +77,6 @@ class PageHffController extends Controller
      */
     public function delete($id)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $pageHff = $this->getEntityManager()->getRepository(PageHff::class)->find($id);
 
         $this->getEntityManager()->remove($pageHff);

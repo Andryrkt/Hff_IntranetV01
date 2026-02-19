@@ -47,9 +47,6 @@ class DdpDossierRegularisationController extends Controller
      */
     public function afficheForm(Request $request, $numDdp, $numVersion)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $form = $this->getFormFactory()->createBuilder(DdpDossierRegulType::class, null)->getForm();
         $form->handleRequest($request);
         $Ddp = $this->demandePaiementRepository->findOneBy(['numeroDdp' => $numDdp, 'numeroVersion' => $numVersion]);

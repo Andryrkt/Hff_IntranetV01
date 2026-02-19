@@ -21,9 +21,6 @@ class AgenceController extends Controller
      */
     public function index()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $data = $this->getEntityManager()->getRepository(Agence::class)->findAll();
         $preparedData = $this->prepareForDisplay($data);
 
@@ -40,9 +37,6 @@ class AgenceController extends Controller
      */
     public function new(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $agence = new Agence();
         $form = $this->getFormFactory()->createBuilder(AgenceType::class, $agence)->getForm();
         $form->handleRequest($request);
@@ -77,8 +71,6 @@ class AgenceController extends Controller
      */
     public function edit(Request $request, $id)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
         $em = $this->getEntityManager();
 
         /** @var Agence $agence */
