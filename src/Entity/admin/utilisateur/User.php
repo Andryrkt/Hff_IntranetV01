@@ -156,11 +156,6 @@ class User implements UserInterface
     private $supportInfoValidateur;
 
     /**
-     * @ORM\OneToMany(targetEntity=TkiPlanning::class, mappedBy="userId")
-     */
-    private $tikPlanningUser;
-
-    /**
      * @ORM\Column(type="string", length=10, name="num_tel")
      *
      * @var string 
@@ -195,7 +190,6 @@ class User implements UserInterface
         $this->demandeApproUser = new ArrayCollection();
         $this->demandeApproParentUser = new ArrayCollection();
         $this->supportInfoIntervenant = new ArrayCollection();
-        $this->tikPlanningUser = new ArrayCollection();
         $this->profils = new ArrayCollection();
     }
 
@@ -565,36 +559,6 @@ class User implements UserInterface
     public function setSupportInfoIntervenant($supportInfoIntervenant)
     {
         $this->supportInfoIntervenant = $supportInfoIntervenant;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of demandeInterventions
-     */
-    public function getTikPlanningUser()
-    {
-        return $this->tikPlanningUser;
-    }
-
-    public function addTikPlanningUser(TkiPlanning $tikPlanningUser): self
-    {
-        if (!$this->tikPlanningUser->contains($tikPlanningUser)) {
-            $this->tikPlanningUser[] = $tikPlanningUser;
-            $tikPlanningUser->setUser($this);
-        }
-
-        return $this;
-    }
-
-    public function removeTikPlanningUser(TkiPlanning $tikPlanningUser): self
-    {
-        if ($this->tikPlanningUser->contains($tikPlanningUser)) {
-            $this->tikPlanningUser->removeElement($tikPlanningUser);
-            if ($tikPlanningUser->getUser() === $this) {
-                $tikPlanningUser->setUser(null);
-            }
-        }
 
         return $this;
     }
