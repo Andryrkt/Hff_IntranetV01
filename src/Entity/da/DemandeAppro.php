@@ -206,13 +206,13 @@ class DemandeAppro
     private ?DemandeIntervention $dit = null;
 
     /**
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="demandeApproUser")
+     * @ORM\ManyToOne(targetEntity=User::class)
      * @ORM\JoinColumn(nullable=true, name="user_id", referencedColumnName="id")
      */
     private ?User $user = null;
 
     /**
-     * @ORM\OneToOne(targetEntity=User::class, inversedBy="demandeApproValidateur")
+     * @ORM\ManyToOne(targetEntity=User::class)
      * @ORM\JoinColumn(nullable=true, name="validateur_id", referencedColumnName="id")
      */
     private ?User $validateur = null;

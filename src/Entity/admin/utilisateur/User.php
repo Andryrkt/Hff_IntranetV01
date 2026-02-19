@@ -125,19 +125,9 @@ class User implements UserInterface
     private $commentaireDitOr;
 
     /**
-     * @ORM\OneToMany(targetEntity=DemandeAppro::class, mappedBy="user")
-     */
-    private $demandeApproUser;
-
-    /**
      * @ORM\OneToMany(targetEntity=DemandeApproParent::class, mappedBy="user")
      */
     private $demandeApproParentUser;
-
-    /**
-     * @ORM\OneToOne(targetEntity=DemandeAppro::class, mappedBy="validateur")
-     */
-    private $demandeApproValidateur;
 
     /**
      * @ORM\Column(type="string", length=10, name="num_tel")
@@ -170,7 +160,6 @@ class User implements UserInterface
         $this->serviceAutoriser = new ArrayCollection();
         $this->permissions = new ArrayCollection();
         $this->commentaireDitOr = new ArrayCollection();
-        $this->demandeApproUser = new ArrayCollection();
         $this->demandeApproParentUser = new ArrayCollection();
         $this->profils = new ArrayCollection();
     }
@@ -651,48 +640,6 @@ class User implements UserInterface
     }
 
     /**
-     * Get the value of demandeApproUser
-     */
-    public function getDemandeApproUser()
-    {
-        return $this->demandeApproUser;
-    }
-
-    public function addDemandeApproUser(DemandeAppro $demandeApproUser): self
-    {
-        if (!$this->demandeApproUser->contains($demandeApproUser)) {
-            $this->demandeApproUser[] = $demandeApproUser;
-            $demandeApproUser->setUser($this);
-        }
-
-        return $this;
-    }
-
-    public function removeDemandeApproUser(DemandeAppro $demandeApproUser): self
-    {
-        if ($this->demandeApproUser->contains($demandeApproUser)) {
-            $this->demandeApproUser->removeElement($demandeApproUser);
-            if ($demandeApproUser->getUser() === $this) {
-                $demandeApproUser->setUser(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * Set the value of demandeApproUser
-     *
-     * @return  self
-     */
-    public function setDemandeApproUser($demandeApproUser)
-    {
-        $this->demandeApproUser = $demandeApproUser;
-
-        return $this;
-    }
-
-    /**
      * Get the value of demandeApproParentUser
      */
     public function getDemandeApproParentUser()
@@ -718,26 +665,6 @@ class User implements UserInterface
                 $demandeApproParentUser->setUser(null);
             }
         }
-
-        return $this;
-    }
-
-    /**
-     * Get the value of demandeApproValidateur
-     */
-    public function getDemandeApproValidateur()
-    {
-        return $this->demandeApproValidateur;
-    }
-
-    /**
-     * Set the value of demandeApproValidateur
-     *
-     * @return  self
-     */
-    public function setDemandeApproValidateur($demandeApproValidateur)
-    {
-        $this->demandeApproValidateur = $demandeApproValidateur;
 
         return $this;
     }
