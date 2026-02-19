@@ -125,11 +125,6 @@ class User implements UserInterface
     private $commentaireDitOr;
 
     /**
-     * @ORM\OneToMany(targetEntity=DemandeApproParent::class, mappedBy="user")
-     */
-    private $demandeApproParentUser;
-
-    /**
      * @ORM\Column(type="string", length=10, name="num_tel")
      *
      * @var string 
@@ -160,7 +155,6 @@ class User implements UserInterface
         $this->serviceAutoriser = new ArrayCollection();
         $this->permissions = new ArrayCollection();
         $this->commentaireDitOr = new ArrayCollection();
-        $this->demandeApproParentUser = new ArrayCollection();
         $this->profils = new ArrayCollection();
     }
 
@@ -635,36 +629,6 @@ class User implements UserInterface
     public function setPoste(string $poste)
     {
         $this->poste = $poste;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of demandeApproParentUser
-     */
-    public function getDemandeApproParentUser()
-    {
-        return $this->demandeApproParentUser;
-    }
-
-    public function addDemandeApproParentUser(DemandeApproParent $demandeApproParentUser): self
-    {
-        if (!$this->demandeApproParentUser->contains($demandeApproParentUser)) {
-            $this->demandeApproParentUser[] = $demandeApproParentUser;
-            $demandeApproParentUser->setUser($this);
-        }
-
-        return $this;
-    }
-
-    public function removeDemandeApproParentUser(DemandeApproParent $demandeApproParentUser): self
-    {
-        if ($this->demandeApproParentUser->contains($demandeApproParentUser)) {
-            $this->demandeApproParentUser->removeElement($demandeApproParentUser);
-            if ($demandeApproParentUser->getUser() === $this) {
-                $demandeApproParentUser->setUser(null);
-            }
-        }
 
         return $this;
     }

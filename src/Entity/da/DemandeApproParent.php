@@ -93,7 +93,7 @@ class DemandeApproParent
     private string $statutDal;
 
     /**
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="demandeApproParentUser")
+     * @ORM\ManyToOne(targetEntity=User::class)
      * @ORM\JoinColumn(nullable=true, name="user_id", referencedColumnName="id")
      */
     private ?User $user = null;
