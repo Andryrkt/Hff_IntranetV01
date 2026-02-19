@@ -104,6 +104,11 @@ class DaSoumissionBc
      */
     private $DemandePaiementAvance;
 
+    /**
+     * @ORM\Column(type="string", length="12", name="numero_demande_paiement ")
+     */
+    private $numeroDemandePaiement;
+
     /**===========================================================================
      * GETTER & SETTER
      *
@@ -327,6 +332,24 @@ class DaSoumissionBc
     public function setDemandePaiementAvance($DemandePaiementAvance): self
     {
         $this->DemandePaiementAvance = $DemandePaiementAvance;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroDemandePaiement
+     */
+    public function getNumeroDemandePaiement()
+    {
+        return $this->numeroDemandePaiement;
+    }
+
+    /**
+     * Set the value of numeroDemandePaiement
+     */
+    public function setNumeroDemandePaiement($numeroDemandePaiement): self
+    {
+        $this->numeroDemandePaiement = $numeroDemandePaiement;
 
         return $this;
     }

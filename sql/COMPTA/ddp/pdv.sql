@@ -77,23 +77,6 @@ CREATE TABLE demande_paiement_ligne
     CONSTRAINT PK_demande_paiement_ligne PRIMARY KEY (id)
 );
 
-ALTER TABLE demande_paiement
-ADD mode_paiement VARCHAR(50),
-montant_a_payer DECIMAL(18, 2),
-contact VARCHAR(50),
-numero_commande VARCHAR(max),
-numero_facture VARCHAR(max),
-appro bit DEFAULT 0,
-type_da INT DEFAULT NULL
-;
-
-ALTER TABLE demande_paiement
-ADD numero_version_bc int 
-
-ALTER TABLE demande_paiement_ligne
-ADD ratio_montant_payer DECIMAL(18, 2)
-
-
 
 
 CREATE TABLE historique_statut_ddp
@@ -107,37 +90,38 @@ CREATE TABLE historique_statut_ddp
 
 
 ALTER TABLE document_demande_paiement
-ADD nom_dossier VARCHAR(255)
+ADD nom_dossier VARCHAR(255),
+num_ddr VARCHAR(11),
+numeroVersion int
 
-ALTER TABLE document_demande_paiement
-ADD num_ddr VARCHAR(11)
-
-ALTER TABLE demande_paiement
-ADD statut_dossier_regul VARCHAR(100)
 
 ALTER TABLE demande_paiement
-ADD numeroVersion int
+ADD statut_dossier_regul VARCHAR(100),
+numeroVersion int,
+devise varchar(5),
+est_autre_doc bit DEFAULT 0,
+nom_autre_doc VARCHAR(255),
+est_cde_client_externe_doc bit DEFAULT 0,
+nom_cde_client_externe_doc VARCHAR(max),
+numero_dossier_douane VARCHAR(max),
+numero_version_bc int,
+mode_paiement VARCHAR(50),
+montant_a_payer DECIMAL(18, 2),
+contact VARCHAR(50),
+numero_commande VARCHAR(max),
+numero_facture VARCHAR(max),
+appro bit DEFAULT 0,
+type_da INT DEFAULT NULL
+
 
 ALTER TABLE demande_paiement_ligne
-ADD numeroVersion int
+ADD numeroVersion int,
+ratio_montant_payer DECIMAL(18, 2)
 
-ALTER TABLE document_demande_paiement
-ADD numeroVersion int
 
-ALTER TABLE demande_paiement
-ADD devise varchar(5)
+
 
 ALTER TABLE demande_paiement
-ADD est_autre_doc bit DEFAULT 0
-
-ALTER TABLE demande_paiement
-ADD nom_autre_doc VARCHAR(255)
-
-ALTER TABLE demande_paiement
-ADD est_cde_client_externe_doc bit DEFAULT 0
-
-ALTER TABLE demande_paiement
-ADD nom_cde_client_externe_doc VARCHAR(max)
-
-ALTER TABLE demande_paiement
-ADD numero_dossier_douane VARCHAR(max)
+ADD fichier_ddpa VARCHAR(255),
+deposer_dw BIT DEFAULT 0,
+date_depot_dw DATETIME2 (3)
