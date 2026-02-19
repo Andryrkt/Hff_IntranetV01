@@ -2,7 +2,7 @@
 
 namespace App\Service\navigation;
 
-use App\Service\security\SecurityService;
+use App\Service\UserData\UserDataService;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
@@ -14,7 +14,7 @@ class MenuService
     private const CACHE_KEY_ADMIN     = 'menu.admin.profil_';
     private const CACHE_TAG_PREFIX    = 'menu.profil_'; // tag partagé → invalidation groupée
 
-    private SecurityService $securityService;
+    private UserDataService $userDataService;
     private TagAwareCacheInterface $cache;
     private string $basePath;
 
@@ -25,9 +25,9 @@ class MenuService
     private ?array $cacheMenuStructure      = null;
     private ?array $cacheAdminMenuStructure = null;
 
-    public function __construct(SecurityService $securityService, TagAwareCacheInterface $cache)
+    public function __construct(UserDataService $userDataService, TagAwareCacheInterface $cache)
     {
-        $this->securityService = $securityService;
+        $this->userDataService = $userDataService;
         $this->cache           = $cache;
         $this->basePath        = $_ENV['BASE_PATH_FICHIER_COURT'];
     }
@@ -50,7 +50,7 @@ class MenuService
 
         // Pas de profil connecté → on construit sans cacher (résultat vide de toute façon)
         if ($profilId === null) {
-            return $this->cacheMenuStructure = $this->construireMenuPrincipal();
+            return $this->cacheMenuStructure = [];
         }
 
         // Couche 2 : cache persistant
@@ -119,7 +119,7 @@ class MenuService
         $profilId = $this->getProfilId();
 
         if ($profilId === null) {
-            return $this->cacheAdminMenuStructure = $this->construireMenuAdmin();
+            return $this->cacheAdminMenuStructure = [];
         }
 
         // Couche 2 : cache persistant
@@ -620,31 +620,17 @@ class MenuService
      */
     private function getProfilId(): ?int
     {
-        return $this->securityService->getProfilId();
+        return $this->userDataService->getProfilId();
     }
 
     private function hasAccesRoute(string $route): bool
     {
-        return $this->securityService->verifierPermission(
-            SecurityService::PERMISSION_VOIR,
-            $route
-        );
+        return $this->userDataService->peutVoir($route);
     }
 
-    /**
-     * True si AU MOINS UNE des routes listées est visible.
-     * Utilisé pour décider si un BLOC entier s'affiche.
-     * Ne pas revérifier les routes individuelles à l'intérieur du bloc
-     * sauf si leurs droits peuvent différer.
-     */
     private function hasAccesModule(string ...$routes): bool
     {
-        foreach ($routes as $route) {
-            if ($this->hasAccesRoute($route)) {
-                return true;
-            }
-        }
-        return false;
+        return $this->userDataService->peutVoirModule(...$routes);
     }
 
     // =========================================================================

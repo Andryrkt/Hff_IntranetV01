@@ -181,8 +181,8 @@ $cacheMenu = new FilesystemTagAwareAdapter(
     dirname(__DIR__) . '/var/cache/pools'
 );
 
-// MenuService reçoit SecurityService pour filtrer les items via les routes (zéro BDD)
-$menuService = new \App\Service\navigation\MenuService($securityService, $cacheMenu);
+// MenuService reçoit dataService pour filtrer les items via les routes (zéro BDD)
+$menuService = new \App\Service\navigation\MenuService($dataService, $cacheMenu);
 $container->set('menuService', $menuService);
 
 // --- Twig extensions runtime ---

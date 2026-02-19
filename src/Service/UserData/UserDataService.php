@@ -23,6 +23,7 @@ class UserDataService
     /** @var array<string, array|null> */
     private array $cachePermissions = [];
     private ?array $cachePagesProfilDonnees = null;
+    private ?array $cacheRoutesIndex = null;
 
     public function __construct(EntityManagerInterface $em, SessionInterface $session, TagAwareCacheInterface $cache)
     {
@@ -97,7 +98,7 @@ class UserDataService
         return $userInfo['profil_id'] ?? NULL;
     }
 
-// =========================================================================
+    // =========================================================================
     //  PERMISSIONS
     // =========================================================================
 
@@ -116,7 +117,7 @@ class UserDataService
 
         $profilId = $this->getProfilId();
         if ($profilId === null) {
-            return $this->cachePermissions[$nomRoute] = null;
+            return $this->cachePermissions[$nomRoute] = [];
         }
 
         // 2. Cache applicatif (entre requêtes, partagé par profil)
@@ -138,7 +139,7 @@ class UserDataService
      * Stocké en cache applicatif (tableaux de scalaires, pas d'entités).
      * Reconstruit en entités PageHff à la demande via getPagesProfil().
      */
-    public function getPagesProfil(): array
+    public function getPagesProfil(): ?array
     {
         // 1. Cache mémoire
         if ($this->cachePagesProfilDonnees !== null) {
@@ -147,7 +148,7 @@ class UserDataService
 
         $profilId = $this->getProfilId();
         if ($profilId === null) {
-            return [];
+            return $this->cachePagesProfilDonnees = [];
         }
 
         // 2. Cache applicatif
@@ -276,5 +277,50 @@ class UserDataService
         }
 
         return $pages;
+    }
+
+    /**
+     * Retourne un index plat de toutes les routes visibles du profil.
+     * Accès O(1) par nom de route.
+     *
+     * Structure : ['nom_route' => ['nom' => ..., 'route' => ..., 'lien' => ...], ...]
+     */
+    public function getRoutesVisiblesIndex(): array
+    {
+        if ($this->cacheRoutesIndex !== null) {
+            return $this->cacheRoutesIndex;
+        }
+
+        $this->cacheRoutesIndex = [];
+
+        foreach ($this->getPagesProfil() as $pages) {
+            foreach ($pages as $page) {
+                $this->cacheRoutesIndex[$page['route']] = $page;
+            }
+        }
+
+        return $this->cacheRoutesIndex;
+    }
+
+    /**
+     * Vérifie si une route est visible — O(1), cache persistant.
+     */
+    public function peutVoir(string $route): bool
+    {
+        return isset($this->getRoutesVisiblesIndex()[$route]);
+    }
+
+    /**
+     * True si au moins une des routes est visible.
+     */
+    public function peutVoirModule(string ...$routes): bool
+    {
+        $index = $this->getRoutesVisiblesIndex();
+        foreach ($routes as $route) {
+            if (isset($index[$route])) {
+                return true;
+            }
+        }
+        return false;
     }
 }
