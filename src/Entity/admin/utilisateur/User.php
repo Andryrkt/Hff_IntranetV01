@@ -70,7 +70,6 @@ class User implements UserInterface
      */
     private $roles;
 
-
     /**
      * @ORM\ManyToMany(targetEntity=Application::class, inversedBy="users")
      * @ORM\JoinTable(name="users_applications")
@@ -109,21 +108,17 @@ class User implements UserInterface
      */
     private $agencesAutorisees;
 
-
     /**
      * @ORM\ManyToMany(targetEntity=Service::class, inversedBy="userServiceAutoriser")
      * @ORM\JoinTable(name="users_service")
      */
     private $serviceAutoriser;
 
-
-
     /**
      * @ORM\ManyToMany(targetEntity=Permission::class, inversedBy="users")
      * @ORM\JoinTable(name="users_permission")
      */
     private $permissions;
-
 
     /**
      * @ORM\OneToMany(targetEntity=CommentaireDitOr::class, mappedBy="utilisateurId")
@@ -171,11 +166,6 @@ class User implements UserInterface
     private $replanificationUser;
 
     /**
-     * @ORM\OneToMany(targetEntity=UserLogger::class, mappedBy="user", cascade={"persist", "remove"})
-     */
-    private $userLoggers;
-
-    /**
      * @ORM\Column(type="string", length=10, name="num_tel")
      *
      * @var string 
@@ -211,7 +201,6 @@ class User implements UserInterface
         $this->demandeApproParentUser = new ArrayCollection();
         $this->supportInfoIntervenant = new ArrayCollection();
         $this->tikPlanningUser = new ArrayCollection();
-        $this->userLoggers = new ArrayCollection();
         $this->profils = new ArrayCollection();
     }
 
@@ -722,38 +711,6 @@ class User implements UserInterface
     public function getUsername() {}
 
     public function getUserIdentifier() {}
-
-    /**
-     * Get the value of userLoggers
-     */
-    public function getUserLoggers(): Collection
-    {
-        return $this->userLoggers;
-    }
-
-    /**
-     * Add value to userLoggers
-     *
-     * @return self
-     */
-    public function addUserLogger(UserLogger $userLogger): self
-    {
-        $this->userLoggers[] = $userLogger;
-        $userLogger->setUser($this); // Synchronisation inverse
-        return $this;
-    }
-
-    /**
-     * Set the value of userLoggers
-     *
-     * @return  self
-     */
-    public function setUserLoggers($userLoggers)
-    {
-        $this->userLoggers = $userLoggers;
-
-        return $this;
-    }
 
     /**
      * Get the value of numTel
