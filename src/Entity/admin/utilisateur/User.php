@@ -120,11 +120,6 @@ class User implements UserInterface
     private $permissions;
 
     /**
-     * @ORM\OneToMany(targetEntity=CommentaireDitOr::class, mappedBy="utilisateurId")
-     */
-    private $commentaireDitOr;
-
-    /**
      * @ORM\Column(type="string", length=10, name="num_tel")
      *
      * @var string 
@@ -154,7 +149,6 @@ class User implements UserInterface
         $this->agencesAutorisees = new ArrayCollection();
         $this->serviceAutoriser = new ArrayCollection();
         $this->permissions = new ArrayCollection();
-        $this->commentaireDitOr = new ArrayCollection();
         $this->profils = new ArrayCollection();
     }
 
@@ -435,44 +429,6 @@ class User implements UserInterface
         if ($this->permissions->contains($permissions)) {
             $this->permissions->removeElement($permissions);
         }
-
-        return $this;
-    }
-
-
-    /**
-     * Get the value of demandeInterventions
-     */
-    public function getCommentaireDitOrs()
-    {
-        return $this->commentaireDitOr;
-    }
-
-    public function addCommentaireDitOr(CommentaireDitOr $commentaireDitOr): self
-    {
-        if (!$this->commentaireDitOr->contains($commentaireDitOr)) {
-            $this->commentaireDitOr[] = $commentaireDitOr;
-            $commentaireDitOr->setUtilisateurId($this);
-        }
-
-        return $this;
-    }
-
-    public function removeCommentaireDitOr(CommentaireDitOr $commentaireDitOr): self
-    {
-        if ($this->commentaireDitOr->contains($commentaireDitOr)) {
-            $this->casiers->removeElement($commentaireDitOr);
-            if ($commentaireDitOr->getUtilisateurId() === $this) {
-                $commentaireDitOr->setUtilisateurId(null);
-            }
-        }
-
-        return $this;
-    }
-
-    public function setCommentaireDitOrs($commentaireDitOr)
-    {
-        $this->commentaireDitOr = $commentaireDitOr;
 
         return $this;
     }
