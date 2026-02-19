@@ -161,11 +161,6 @@ class User implements UserInterface
     private $tikPlanningUser;
 
     /**
-     * @ORM\OneToMany(targetEntity=TkiReplannification::class, mappedBy="user")
-     */
-    private $replanificationUser;
-
-    /**
      * @ORM\Column(type="string", length=10, name="num_tel")
      *
      * @var string 
@@ -756,26 +751,6 @@ class User implements UserInterface
     public function setPoste(string $poste)
     {
         $this->poste = $poste;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of replanificationUser
-     */
-    public function getReplanificationUser()
-    {
-        return $this->replanificationUser;
-    }
-
-    /**
-     * Set the value of replanificationUser
-     *
-     * @return  self
-     */
-    public function setReplanificationUser($replanificationUser)
-    {
-        $this->replanificationUser = $replanificationUser;
 
         return $this;
     }

@@ -56,7 +56,7 @@ class TkiReplannification
     private $demandeSupportInfo;
 
     /**
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="replanificationUser")
+     * @ORM\ManyToOne(targetEntity=User::class)
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
      */
     private $user;
