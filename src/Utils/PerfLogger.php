@@ -34,7 +34,7 @@ class PerfLogger
     /**
      * Log avec label et option category
      */
-    public function log(string $label, string $category = 'default'): self
+    public function log(string $category = 'default', string $label = '...'): self
     {
         $now = microtime(true);
         $this->counter++;
