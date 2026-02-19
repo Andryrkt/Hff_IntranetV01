@@ -87,12 +87,6 @@ class User implements UserInterface
     private $casiers;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Fonction::class, inversedBy="users")
-     * @ORM\JoinColumn(name="fonctions_id", referencedColumnName="id")
-     */
-    private  $fonction;
-
-    /**
      * @ORM\ManyToOne(targetEntity=AgenceServiceIrium::class, inversedBy="userAgenceService")
      * @ORM\JoinColumn(name="agence_utilisateur", referencedColumnName="id")
      */
@@ -328,21 +322,6 @@ class User implements UserInterface
 
         return $this;
     }
-
-    public function getFonction()
-    {
-        return $this->fonction;
-    }
-
-
-    public function setFonction($fonction): self
-    {
-        $this->fonction = $fonction;
-
-        return $this;
-    }
-
-
 
     public function getAgenceServiceIrium()
     {
