@@ -103,9 +103,9 @@ class DaSoumissionBcController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             $soumissionBc = $form->getData();
             $soumissionBc->numeroCde = $numCde; // Set the numeroCde in the DTO
-            $bc = $this->daSoumissionBcRepository->getBc((int)$numCde);
-            $condition_1 =  $soumissionBc->demandePaiementAvance && !$bc;
-            $condition_2 = $soumissionBc->demandePaiementAvance && $bc->getStatut() === 'Réfusé';
+            $bcStatut = $this->daSoumissionBcRepository->getStatut($numCde);
+            $condition_1 =  $soumissionBc->demandePaiementAvance && !$bcStatut;
+            $condition_2 = $soumissionBc->demandePaiementAvance && $bcStatut === 'Réfusé';
             if ($condition_1 || $condition_2) {
                 if ($this->verifierConditionDeBlocage($soumissionBc, $numCde, $numDa)) {
                     [$numeroVersionMax, $nomPdfFusionner] = $this->traitemnetBc($form, $numCde, $numDa, $numOr, $soumissionBc, false);
