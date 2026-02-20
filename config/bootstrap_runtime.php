@@ -1,12 +1,13 @@
 <?php
 
+use App\Service\navigation\MenuService;
+use App\Service\security\SecurityService;
 use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\Matcher\UrlMatcher;
 use Symfony\Component\HttpKernel\Controller\ContainerControllerResolver;
 use Symfony\Component\HttpKernel\Controller\ArgumentResolver;
-use Symfony\Component\Cache\Adapter\FilesystemTagAwareAdapter;
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
@@ -95,36 +96,8 @@ $container->set('twig', $twig);
 // 🔥 SESSION & SERVICES RUNTIME
 // ========================================
 
-$session = new \Symfony\Component\HttpFoundation\Session\Session(
-    new \Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage()
-);
-$container->set('session', $session);
-
-// ─── Cache applicatif (inter-requêtes, partagé par profil) ───────────────────
-// FilesystemTagAwareAdapter : stockage fichier + support des tags (invalidation par profil).
-// En DEV : TTL court (60s) pour voir les changements rapidement.
-// En PROD : TTL 1h, invalidation explicite via DataService::invaliderCacheProfil().
-$cachePermissions = new FilesystemTagAwareAdapter(
-    'security',                                         // namespace : sous-dossier dans var/cache/pools/
-    $isDevMode ? 60 : 3600,                             // defaultLifetime : DEV=1min, PROD=1h
-    dirname(__DIR__) . '/var/cache/pools'               // directory : séparé du cache Twig/routes
-);
-$container->set('cache.permissions', $cachePermissions);
-
-// ─── DataService : source de vérité du contexte utilisateur ──────────────────
-// Gère session + BDD + cache applicatif.
-// Les permissions/pages sont calculées une fois par profil puis mises en cache.
-// Les entités (Profil, etc.) sont rechargées 1 fois par requête HTTP (cache mémoire).
-$dataService = new \App\Service\UserData\UserDataService(
-    $container->get('doctrine.orm.default_entity_manager'),
-    $cachePermissions,
-    $session
-);
-$container->set('userData.service', $dataService);
-
-// ─── SecurityService : contrôle d'accès (délègue tout à DataService) ─────────
-$securityService = new \App\Service\security\SecurityService($dataService);
-$container->set('security.service', $securityService);
+$session = $container->get('session');
+$session->start();
 
 $formFactory = \Symfony\Component\Form\Forms::createFormFactoryBuilder()
     ->addExtension(new \Symfony\Component\Form\Extension\Core\CoreExtension())
@@ -174,16 +147,11 @@ $container->set('router', $urlGenerator);
 
 // --- Twig extensions runtime (Menuservice) ---
 
-// ─── Cache applicatif (inter-requêtes, partagé par profil) ───────────────────
-$cacheMenu = new FilesystemTagAwareAdapter(
-    'menu',
-    $isDevMode ? 60 : 3600,
-    dirname(__DIR__) . '/var/cache/pools'
-);
+/** @var MenuService $menuService */
+$menuService = $container->get('menu.service');
 
-// MenuService reçoit dataService pour filtrer les items via les routes (zéro BDD)
-$menuService = new \App\Service\navigation\MenuService($dataService, $cacheMenu);
-$container->set('menuService', $menuService);
+/** @var SecurityService $securityService */
+$securityService = $container->get('security.service');
 
 // --- Twig extensions runtime ---
 $twig = $container->get('twig');

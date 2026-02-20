@@ -7,8 +7,12 @@ use App\Doctrine\EntityManagerFactory;
 use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\Config\FileLocator;
 use App\Loader\CustomAnnotationClassLoader;
+use App\Service\navigation\MenuService;
+use App\Service\security\SecurityService;
+use App\Service\UserData\UserDataService;
 use Symfony\Component\Routing\RouteCollection;
 use Doctrine\Common\Annotations\AnnotationReader;
+use Symfony\Component\Cache\Adapter\FilesystemTagAwareAdapter;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Config\Resource\FileResource;
 use Symfony\Component\DependencyInjection\Definition;
@@ -16,6 +20,9 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Dumper\PhpDumper;
 use Symfony\Component\Routing\Loader\AnnotationDirectoryLoader;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
+use Symfony\Component\DependencyInjection\Reference;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage;
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
@@ -35,38 +42,121 @@ $container->setParameter('kernel.project_dir', dirname(__DIR__));
 $container->setParameter('kernel.cache_dir', $cacheDir);
 $container->setParameter('kernel.debug', false);
 
+// =============================
 // EntityManager
+// =============================
 $entityManagerDef = new Definition(EntityManager::class);
 $entityManagerDef->setFactory([EntityManagerFactory::class, 'createEntityManager']);
 $entityManagerDef->setPublic(true);
+
 $container->setDefinition('doctrine.orm.default_entity_manager', $entityManagerDef);
 
-// ManagerRegistry (si tu utilises ton SimpleManagerRegistry)
+// =============================
+// ManagerRegistry
+// =============================
 $registryDef = new Definition(SimpleManagerRegistry::class, [
-    $container->getDefinition('doctrine.orm.default_entity_manager')
+    new Reference('doctrine.orm.default_entity_manager')
 ]);
 $registryDef->setPublic(true);
+
 $container->setDefinition('doctrine', $registryDef);
 
+// =============================
 // RequestStack
+// =============================
 $requestStackDef = new Definition(RequestStack::class);
 $requestStackDef->setPublic(true);
+
 $container->setDefinition('request_stack', $requestStackDef);
 
-// Charger les services YAML
+// =============================
+// 🔥 SESSION (déclaré comme service)
+// =============================
+$container->register('session.storage', NativeSessionStorage::class);
+
+$container->register('session', Session::class)
+    ->setArguments([
+        new Reference('session.storage')
+    ])
+    ->setPublic(true);
+
+// =============================
+// 🔥 Cache SECURITY (déclaré comme service)
+// =============================
+$container->register('cache.security', FilesystemTagAwareAdapter::class)
+    ->setArguments([
+        'security',
+        0,
+        dirname(__DIR__) . '/var/cache/pools'
+    ])
+    ->setPublic(true);
+
+// =============================
+// 🔥 Cache MENU (déclaré comme service)
+// =============================
+$container->register('cache.menu', FilesystemTagAwareAdapter::class)
+    ->setArguments([
+        'menu',
+        0,
+        dirname(__DIR__) . '/var/cache/pools'
+    ])
+    ->setPublic(true);
+
+// =============================
+// 🔥 UserDataService
+// =============================
+$dataServiceDef = new Definition(UserDataService::class, [
+    new Reference('doctrine.orm.default_entity_manager'),
+    new Reference('cache.security'),
+    new Reference('session')
+]);
+$dataServiceDef->setPublic(true);
+
+$container->setDefinition('userData.service', $dataServiceDef);
+
+// =============================
+// 🔥 SecurityService
+// =============================
+$securityServiceDef = new Definition(SecurityService::class, [
+    new Reference('userData.service')
+]);
+$securityServiceDef->setPublic(true);
+
+$container->setDefinition('security.service', $securityServiceDef);
+
+// =============================
+// 🔥 MenuService
+// =============================
+$menuServiceDef = new Definition(MenuService::class, [
+    new Reference('userData.service'),
+    new Reference('cache.menu')
+]);
+$menuServiceDef->setPublic(true);
+
+$container->setDefinition('menu.service', $menuServiceDef);
+
+// =============================
+// Charger YAML
+// =============================
 $loader = new YamlFileLoader($container, new FileLocator(__DIR__));
 $loader->load('services.yaml');
 $loader->load('parameters.yaml');
 
+// =============================
 // Pagination
+// =============================
 Paginator::useBootstrap();
 
-// Compiler et dump PHP natif
+// =============================
+// Compiler + Dump
+// =============================
 $container->compile();
+
 $dumper = new PhpDumper($container);
-file_put_contents($cacheDir . '/Container.php', $dumper->dump([
-    'class' => 'AppContainer'
-]));
+file_put_contents(
+    $cacheDir . '/Container.php',
+    $dumper->dump(['class' => 'AppContainer'])
+);
 
 echo "✅ Conteneur compilé : {$cacheDir}/Container.php\n";
 
