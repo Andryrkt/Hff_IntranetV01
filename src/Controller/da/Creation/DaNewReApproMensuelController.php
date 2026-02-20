@@ -37,10 +37,6 @@ class DaNewReApproMensuelController extends Controller
      */
     public function newDAReapproMensuel(int $id, Request $request)
     {
-        /** Autorisation accès */
-        $this->checkPageAccess($this->hasRoles(Role::ROLE_ADMINISTRATEUR, Role::ROLE_DA_DIRECTE));
-        /** FIN AUtorisation accès */
-
         $demandeAppro     = $id === 0 ? $this->initialisationDemandeApproReapproMensuel() : $this->demandeApproRepository->find($id);
         $this->generateDemandApproLinesFromReappros($demandeAppro);
 

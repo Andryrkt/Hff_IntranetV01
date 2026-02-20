@@ -55,10 +55,6 @@ class DemandeDevisController extends Controller
             $this->redirectToRoute("list_da");
         }
 
-        /** Autorisation accès */
-        $this->checkPageAccess(($this->estUserDansServiceAppro() || $this->hasRoles(Role::ROLE_ADMINISTRATEUR)) && $demandeAppro->getStatutDal() === DemandeAppro::STATUT_SOUMIS_APPRO);
-        /** FIN AUtorisation accès */
-
         $this->appliquerStatutDemandeDevisEnCours($demandeAppro, $this->getUserName());
 
         $this->ajouterDansTableAffichageParNumDa($demandeAppro->getNumeroDemandeAppro()); // enregistrer dans la table Da Afficher

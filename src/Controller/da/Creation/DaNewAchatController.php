@@ -36,11 +36,6 @@ class DaNewAchatController extends Controller
      */
     public function newDaAchat(int $id, Request $request)
     {
-        // verification si user connecter
-        /** Autorisation accès */
-        $this->checkPageAccess($this->hasRoles(Role::ROLE_ADMINISTRATEUR, Role::ROLE_DA_DIRECTE));
-        /** FIN AUtorisation accès */
-
         $demandeApproParentRepository = $this->getEntityManager()->getRepository(DemandeApproParent::class);
 
         $demandeApproParent = $id === 0 ? $this->initialisationDemandeApproAchat() : $demandeApproParentRepository->find($id);
