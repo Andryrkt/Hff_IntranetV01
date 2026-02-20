@@ -15,8 +15,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /** @Route("/demande-appro") */
 class DaAffectationAchatController extends Controller
 {
-    use AutorisationTrait, DaAffectationTrait;
-
+    use DaAffectationTrait;
 
     public function __construct()
     {

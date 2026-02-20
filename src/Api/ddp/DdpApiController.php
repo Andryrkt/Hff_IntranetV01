@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\Api;
+namespace App\Api\ddp;
 
 use DateTime;
 use App\Controller\Controller;
