@@ -26,8 +26,8 @@ class DaSoumissionFacBlDdpaModel extends Model
                 ,TRIM(fcdl_ref) as reference
                 ,TRIM(fcdl_desi) as designation
                 ,ROUND(fcdl_qte) as qte_cde
-                ,ROUND(fcdl_qtefa) as qte_receptionnee
-                ,ROUND(fcdl_qteli) as qte_reliquat
+                ,ROUND(fcdl_solde) as qte_reliquat
+                ,ROUND(fcdl_qteli) as  qte_receptionnee
             FROM informix.frn_cdl 
             where fcdl_numcde ='$numCde'
         ";

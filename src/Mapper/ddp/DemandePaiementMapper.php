@@ -9,8 +9,11 @@ use App\Entity\ddp\HistoriqueStatutDdp;
 
 class DemandePaiementMapper
 {
-    public static function map(DemandePaiementDto $dto, string $nomAvecCheminFichier): DemandePaiement
+    public static function map(DemandePaiementDto $dto, string $nomFichier): DemandePaiement
     {
+        $basePathFichierCourt = $_ENV['BASE_PATH_FICHIER_COURT'];
+        $numeroDdp = $dto->numeroDdp;
+        $nomFichierAvecCheminDistant = "\\\\192.168.0.28\c$\wamp64\www{$basePathFichierCourt}ddp\\{$numeroDdp}_New_1\\{$nomFichier}";
         $ddp = new DemandePaiement();
         $ddp->setNumeroDdp($dto->numeroDdp)
             ->setTypeDemandeId($dto->typeDemande)
@@ -39,7 +42,7 @@ class DemandePaiementMapper
             ->setAppro($dto->appro)
             ->setTypeDa($dto->typeDa)
             ->setNumeroVersionBc($dto->numeroVersionBc)
-            ->setFicherDdpa($nomAvecCheminFichier);
+            ->setFicherDdpa($nomFichierAvecCheminDistant);
 
         return $ddp;
     }
