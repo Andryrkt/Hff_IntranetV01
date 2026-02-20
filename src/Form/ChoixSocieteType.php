@@ -2,37 +2,44 @@
 
 namespace App\Form;
 
-use App\Entity\admin\Societte;
-use App\Entity\admin\utilisateur\Profil;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ChoixSocieteType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+        // Préparer les tableaux id => label pour ChoiceType
+        $societeChoices = [];
+        foreach ($options['societes'] as $societe) {
+            $societeChoices[$societe->getNom()] = $societe->getId();
+        }
+
+        $profilChoices = [];
+        $profilAttr    = [];
+        foreach ($options['profils'] as $profil) {
+            $profilChoices[$profil->getDesignation()] = $profil->getId();
+            $profilAttr[$profil->getId()] = [
+                'data-societe' => $profil->getSociete()->getId(),
+            ];
+        }
+
         $builder
-            ->add('societe', EntityType::class, [
-                'label'        => 'Choisissez une société',
-                'placeholder'  => '-- Choix de la société --',
-                'required'     => true,
-                'class'        => Societte::class,
-                'choices'      => $options['societes'],
-                'choice_label' => 'nom',
+            ->add('societe', ChoiceType::class, [
+                'label'       => 'Choisissez une société',
+                'placeholder' => '-- Choix de la société --',
+                'required'    => true,
+                'choices'     => $societeChoices,
             ])
-            ->add('profil', EntityType::class, [
-                'label'        => 'Choisissez un profil',
-                'placeholder'  => '-- Choix du profil --',
-                'required'     => true,
-                'class'        => Profil::class,
-                'choices'      => $options['profils'],
-                'choice_label' => 'designation',
-                'choice_attr'  => function (Profil $profil) {
-                    return [
-                        'data-societe' => $profil->getSociete()->getId(),
-                    ];
+            ->add('profil', ChoiceType::class, [
+                'label'       => 'Choisissez un profil',
+                'placeholder' => '-- Choix du profil --',
+                'required'    => true,
+                'choices'     => $profilChoices,
+                'choice_attr' => function ($val) use ($profilAttr) {
+                    return $profilAttr[$val] ?? [];
                 },
             ])
         ;

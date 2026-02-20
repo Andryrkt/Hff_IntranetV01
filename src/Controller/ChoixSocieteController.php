@@ -36,12 +36,11 @@ class ChoixSocieteController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
-            $societe = $data['societe'];
-            $profil = $data['profil'];
 
             $userInfo = $this->getSessionService()->get('user_info');
-            $userInfo['societe_id'] = $societe->getId();
-            $userInfo['profil_id'] = $profil->getId();
+            $userInfo['societe_id'] = $data['societe'];
+            $userInfo['profil_id'] = $data['profil'];
+
             $this->getSessionService()->set('user_info', $userInfo);
 
             //TODO: Rediriger vers une autre page après le choix selon le societe choisie
