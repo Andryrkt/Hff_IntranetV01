@@ -163,7 +163,7 @@ class DitDevisSoumisAValidationController extends Controller
             }
 
             // SI (devis est prix refusé ou prix a confirmer ou Demande refusée par le PM)     ET    nouvelle reference ajoutée
-            else if ((in_array("Prix à confirmer", $devisStatut) || in_array('Prix refusé magasin', $devisStatut) || in_array('Demande refusée par le PM', $devisStatut)) && (int)$nbrPieceInformix != (int)$nbrPieceSqlServ) {
+            else if ((in_array("Prix à confirmer", $devisStatut) || in_array('Prix refusé magasin', $devisStatut) || in_array('Demande refusée par le PM', $devisStatut)) && (int)$nbrPieceInformix > (int)$nbrPieceSqlServ) {
                 $message = " Merci de repasser la soumission du devis au magasin pour vérification ";
                 $this->historiqueOperation->sendNotificationSoumission($message, $numDevis, 'dit_index');
             }
