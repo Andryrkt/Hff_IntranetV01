@@ -75,6 +75,7 @@ class CacheWarmupSecurityCommand extends Command
         $clePage = sprintf('%s_%s', $tag, UserDataService::SUFFIX_PAGES);
         $this->cache->delete($clePage); // forcer l'écriture
         $this->cache->get($clePage, function (ItemInterface $item) use ($profil, $tag) {
+            $item->expiresAfter(null);
             $item->tag($tag);
             return $this->userDataService->calculerPagesProfil($profil);
         });
@@ -85,6 +86,7 @@ class CacheWarmupSecurityCommand extends Command
             $clePermissions = sprintf('%s_%s_%s', $tag, UserDataService::SUFFIX_PERMISSIONS, md5($nomRoute));
             $this->cache->delete($clePermissions);
             $this->cache->get($clePermissions, function (ItemInterface $item) use ($nomRoute, $profil, $tag) {
+                $item->expiresAfter(null);
                 $item->tag($tag);
                 return $this->userDataService->calculerPermissions($nomRoute, $profil);
             });

@@ -143,6 +143,7 @@ class UserDataService
         $cle = sprintf('%s_%s_%s', $tag, self::SUFFIX_PERMISSIONS, md5($nomRoute));
 
         $donnees = $this->cache->get($cle, function (ItemInterface $item) use ($tag, $nomRoute) {
+            $item->expiresAfter(null);
             $item->tag($tag);
             return $this->calculerPermissions($nomRoute, $this->getProfil());
         });
@@ -174,6 +175,7 @@ class UserDataService
         $cle = sprintf('%s_%s', $tag, self::SUFFIX_PAGES);
 
         $donnees = $this->cache->get($cle, function (ItemInterface $item) use ($tag) {
+            $item->expiresAfter(null);
             $item->tag($tag);
             return $this->calculerPagesProfil($this->getProfil());
         });

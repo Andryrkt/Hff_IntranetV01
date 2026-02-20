@@ -75,6 +75,7 @@ class CacheWarmupMenuCommand extends Command
         $cleMenuPrincipal = MenuService::CACHE_KEY_PRINCIPAL . $profilId;
         $this->cache->delete($cleMenuPrincipal);
         $this->cache->get($cleMenuPrincipal, function (ItemInterface $item) use ($tag) {
+            $item->expiresAfter(null);
             $item->tag($tag);
             return $this->menuService->construireMenuPrincipal();
         });
@@ -83,6 +84,7 @@ class CacheWarmupMenuCommand extends Command
         $cleMenuAdmin = MenuService::CACHE_KEY_ADMIN . $profilId;
         $this->cache->delete($cleMenuAdmin);
         $this->cache->get($cleMenuAdmin, function (ItemInterface $item) use ($tag) {
+            $item->expiresAfter(null);
             $item->tag($tag);
             return $this->menuService->construireMenuAdmin();
         });

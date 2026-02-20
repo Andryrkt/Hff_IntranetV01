@@ -57,6 +57,7 @@ class MenuService
         $tag = self::CACHE_TAG_PREFIX    . $profilId;
 
         return $this->cacheMenuStructure = $this->cache->get($cle, function (ItemInterface $item) use ($tag): array {
+            $item->expiresAfter(null);
             $item->tag($tag);
             return $this->construireMenuPrincipal();
         });
@@ -121,6 +122,7 @@ class MenuService
         $tag = self::CACHE_TAG_PREFIX . $profilId;
 
         return $this->cacheAdminMenuStructure = $this->cache->get($cle, function (ItemInterface $item) use ($tag): array {
+            $item->expiresAfter(null);
             $item->tag($tag);
             return $this->construireMenuAdmin();
         });
