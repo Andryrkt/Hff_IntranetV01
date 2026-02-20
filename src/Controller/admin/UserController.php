@@ -108,14 +108,13 @@ class UserController extends Controller
 
         foreach ($dataUsers as $user) {
             $id = $user->getId();
-            $agenceServiceIrium = $user->getAgenceServiceIrium();
             $profils = $user->getProfils();
 
             $rows[] = [
                 'username'   => $user->getNomUtilisateur(),
                 'matricule'  => $user->getMatricule(),
                 'email'      => $user->getMail(),
-                'codeSage'   => $agenceServiceIrium->getServiceSagePaie(),
+                'codeSage'   => $user->getCodeSage(),
                 'profils'    => $profils,
                 'url_show'   => $urlGenerator->generate('utilisateur_show', ['id' => $id]),
                 'url_edit'   => $urlGenerator->generate('utilisateur_update', ['id' => $id]),

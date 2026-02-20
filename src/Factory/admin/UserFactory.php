@@ -3,6 +3,7 @@
 namespace App\Factory\admin;
 
 use App\Dto\admin\UserDTO;
+use App\Entity\admin\AgenceServiceIrium;
 use App\Entity\admin\utilisateur\User;
 
 class UserFactory
@@ -13,13 +14,21 @@ class UserFactory
 
         $personnel = $dto->personnel;
         $matricule = $personnel->getMatricule();
+
+        /** @var AgenceServiceIrium $agenceServiceIrium */
         $agenceServiceIrium = $personnel->getAgenceServiceIriumId();
 
-        $user->setNomUtilisateur($dto->username);
-        $user->setMail($dto->email);
-        $user->setMatricule($matricule);
-        $user->setPersonnels($personnel);
-        $user->setAgenceServiceIrium($agenceServiceIrium);
+        $user
+            ->setNomUtilisateur($dto->username)
+            ->setMail($dto->email)
+            ->setMatricule($matricule)
+            ->setPersonnels($personnel)
+            ->setAgenceServiceIrium($agenceServiceIrium)
+            ->setCodeSage($agenceServiceIrium->getServicesagepaie())
+            ->setCodeAgenceUser($agenceServiceIrium->getAgenceips())
+            ->setCodeServiceUser($agenceServiceIrium->getServiceips())
+        ;
+
 
         $profils = $dto->profils;
         foreach ($profils as $profil) {
@@ -45,13 +54,20 @@ class UserFactory
     {
         $personnel = $dto->personnel;
         $matricule = $personnel->getMatricule();
+
+        /** @var AgenceServiceIrium $agenceServiceIrium */
         $agenceServiceIrium = $personnel->getAgenceServiceIriumId();
 
-        $user->setNomUtilisateur($dto->username);
-        $user->setMail($dto->email);
-        $user->setMatricule($matricule);
-        $user->setPersonnels($personnel);
-        $user->setAgenceServiceIrium($agenceServiceIrium);
+        $user
+            ->setNomUtilisateur($dto->username)
+            ->setMail($dto->email)
+            ->setMatricule($matricule)
+            ->setPersonnels($personnel)
+            ->setAgenceServiceIrium($agenceServiceIrium)
+            ->setCodeSage($agenceServiceIrium->getServicesagepaie())
+            ->setCodeAgenceUser($agenceServiceIrium->getAgenceips())
+            ->setCodeServiceUser($agenceServiceIrium->getServiceips())
+        ;
 
         foreach ($user->getProfils() as $existing) {
             if (!$dto->profils->contains($existing)) {
