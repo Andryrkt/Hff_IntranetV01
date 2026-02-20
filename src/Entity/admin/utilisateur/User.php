@@ -95,12 +95,6 @@ class User implements UserInterface
 
 
     /**
-     * @ORM\Column(type="string", name="superieurs", nullable=true)
-     */
-    private $superieur;
-
-
-    /**
      * @ORM\OneToMany(targetEntity=Casier::class, mappedBy="nomSessionUtilisateur",  cascade={"remove"})
      */
     private $casiers;
@@ -349,18 +343,6 @@ class User implements UserInterface
     public function setPersonnels($personnel): self
     {
         $this->personnels = $personnel;
-
-        return $this;
-    }
-
-    public function getSuperieur()
-    {
-        return $this->superieur;
-    }
-
-    public function setSuperieur($superieur): self
-    {
-        $this->superieur = $superieur;
 
         return $this;
     }
