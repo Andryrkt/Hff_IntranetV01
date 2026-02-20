@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use App\Entity\admin\historisation\pageConsultation\PageHff;
 use App\Entity\admin\historisation\pageConsultation\UserLogger;
 use App\Entity\da\DemandeAppro;
+use App\Service\navigation\MenuService;
 use App\Service\security\SecurityService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -37,6 +38,7 @@ class Controller
     protected $authorizationChecker;
     protected $sessionService;
     protected $securityService;
+    protected $menuService;
 
     // Propriétés publiques avec getters lazy pour les modèles et services
     public $request;
@@ -152,6 +154,17 @@ class Controller
             $this->securityService = $this->getService('security.service');
         }
         return $this->securityService;
+    }
+
+    /** 
+     * Récupérer le service de menu
+     */
+    public function getMenuService(): MenuService
+    {
+        if ($this->menuService === null) {
+            $this->menuService = $this->getService('menu.service');
+        }
+        return $this->menuService;
     }
 
     /**
