@@ -119,7 +119,6 @@ class UserController extends Controller
                 'profils'    => $profils,
                 'url_show'   => $urlGenerator->generate('utilisateur_show', ['id' => $id]),
                 'url_edit'   => $urlGenerator->generate('utilisateur_update', ['id' => $id]),
-                'url_delete' => $urlGenerator->generate('utilisateur_delete', ['id' => $id]),
             ];
         }
 
