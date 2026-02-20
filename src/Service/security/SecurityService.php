@@ -20,6 +20,7 @@ class SecurityService
 
     // ─── Routes publiques (pas de contrôle d'accès) ──────────────────────────
     private const ROUTES_PUBLIQUES = ['security_signin', 'auth_deconnexion', 'profil_acceuil', 'choix_societe'];
+    private const PREFIXES_API = ['api_'];
 
     // ─── Constantes de permissions (évite les fautes de frappe) ─────────────
     public const PERMISSION_VOIR      = 'peutVoir';
@@ -61,8 +62,8 @@ class SecurityService
         // Mémoriser la route pour les appels depuis les contrôleurs
         $this->routeCourrante = $nomRoute;
 
-        // Route publique → laisse passer sans aucun contrôle
-        if ($this->estRoutePublique($nomRoute)) {
+        // Route publique ou Routes APi → laisse passer sans aucun contrôle
+        if ($this->estRoutePublique($nomRoute) || $this->estRouteApi($nomRoute)) {
             return null;
         }
 
@@ -172,6 +173,16 @@ class SecurityService
     private function estRoutePublique(?string $nomRoute): bool
     {
         return $nomRoute !== null && in_array($nomRoute, self::ROUTES_PUBLIQUES, true);
+    }
+
+    private function estRouteApi(?string $nomRoute): bool
+    {
+        if ($nomRoute === null) return false;
+
+        foreach (self::PREFIXES_API as $prefix) {
+            if (str_starts_with($nomRoute, $prefix)) return true;
+        }
+        return false;
     }
 
     private function genererUrlConnexion(): string
