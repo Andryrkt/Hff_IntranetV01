@@ -76,6 +76,10 @@ alter table users drop column agence_id;
 alter table users drop column superieurs;
 alter table users drop column fonction;
 
+alter table users add code_agence_user varchar(50) NULL;
+alter table users add code_service_user varchar(50) NULL;
+alter table users add code_sage varchar(50) NULL;
+
 CREATE TABLE application_profil_page (
     id                    INT IDENTITY(1,1) NOT NULL,
     application_profil_id INT               NOT NULL,
@@ -90,3 +94,7 @@ CREATE TABLE application_profil_page (
     CONSTRAINT fk_app_profil_page_ap FOREIGN KEY (application_profil_id) REFERENCES application_profil (id),
     CONSTRAINT fk_app_profil_page_page FOREIGN KEY (page_id) REFERENCES Hff_pages (id)
 );
+
+UPDATE users set code_agence_user=asi.agence_ips, code_service_user=asi.service_ips,code_sage=asi.service_sage_paie
+from users u
+INNER JOIN Agence_Service_Irium asi on asi.id=u.agence_utilisateur;

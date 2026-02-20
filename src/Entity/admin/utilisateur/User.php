@@ -117,6 +117,27 @@ class User implements UserInterface
     private ?string $poste;
 
     /**
+     * @ORM\Column(type="string", length=50, name="code_agence_user")
+     *
+     * @var string
+     */
+    private ?string $codeAgenceUser;
+
+    /**
+     * @ORM\Column(type="string", length=50, name="code_service_user")
+     *
+     * @var string
+     */
+    private ?string $codeServiceUser;
+
+    /**
+     * @ORM\Column(type="string", length=50, name="code_sage")
+     *
+     * @var string
+     */
+    private ?string $codeSage;
+
+    /**
      * @ORM\ManyToMany(targetEntity=Profil::class, inversedBy="users")
      * @ORM\JoinTable(name="users_profils")
      */
@@ -292,6 +313,60 @@ class User implements UserInterface
         return $this;
     }
 
+    /**
+     * Get the value of codeAgenceUser
+     */
+    public function getCodeAgenceUser(): ?string
+    {
+        return $this->codeAgenceUser;
+    }
+
+    /**
+     * Set the value of codeAgenceUser
+     */
+    public function setCodeAgenceUser(?string $codeAgenceUser): self
+    {
+        $this->codeAgenceUser = $codeAgenceUser;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of codeServiceUser
+     */
+    public function getCodeServiceUser(): ?string
+    {
+        return $this->codeServiceUser;
+    }
+
+    /**
+     * Set the value of codeServiceUser
+     */
+    public function setCodeServiceUser(?string $codeServiceUser): self
+    {
+        $this->codeServiceUser = $codeServiceUser;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of codeSage
+     */
+    public function getCodeSage(): ?string
+    {
+        return $this->codeSage;
+    }
+
+    /**
+     * Set the value of codeSage
+     */
+    public function setCodeSage(?string $codeSage): self
+    {
+        $this->codeSage = $codeSage;
+
+        return $this;
+    }
+
     public function getAgencesAutorisees(): Collection
     {
         return $this->agencesAutorisees;
@@ -413,25 +488,6 @@ class User implements UserInterface
         return $this->applications->map(function ($app) {
             return $app->getId();
         })->toArray();
-    }
-
-    public function getCodeAgenceUser()
-    {
-        return $this->agenceServiceIrium ? $this->agenceServiceIrium->getAgenceIps() : null;
-    }
-
-    public function getCodeServiceUser()
-    {
-        return $this->agenceServiceIrium ? $this->agenceServiceIrium->getServiceIps() : null;
-    }
-
-    public function getChefService()
-    {
-        if ($this->agenceServiceIrium && method_exists($this->agenceServiceIrium, '__load')) {
-            $this->agenceServiceIrium->__load();
-        }
-
-        return $this->agenceServiceIrium ? $this->agenceServiceIrium->getChefServiceId() : null;
     }
 
     public function getPassword() {}
