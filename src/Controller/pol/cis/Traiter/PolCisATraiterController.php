@@ -6,7 +6,6 @@ namespace App\Controller\Pol\cis\Traiter;
 use App\Controller\Controller;
 use App\Entity\admin\Application;
 use Symfony\Component\Form\FormInterface;
-use App\Controller\Traits\AutorisationTrait;
 use App\Form\magasin\cis\ATraiterSearchType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -18,8 +17,6 @@ use App\Controller\Traits\magasin\cis\AtraiterTrait;
 class PolCisATraiterController extends Controller
 {
     use AtraiterTrait;
-    use AutorisationTrait;
-
     /**
      * @Route("/cis-liste-a-traiter", name="pol_cis_liste_a_traiter")
      */

@@ -11,7 +11,6 @@ use App\Service\autres\VersionService;
 use App\Model\magasin\bc\BcMagasinModel;
 use Symfony\Component\Form\FormInterface;
 use App\Service\fichier\UploderFileService;
-use App\Controller\Traits\AutorisationTrait;
 use App\Factory\magasin\bc\BcMagasinFactory;
 use App\Service\fichier\TraitementDeFichier;
 use App\Controller\Traits\PdfConversionTrait;
@@ -33,7 +32,6 @@ use DateTime;
  */
 class BcMagasinPolController extends Controller
 {
-    use AutorisationTrait;
     use PdfConversionTrait;
 
     private HistoriqueOperationBcMagasinService $historiqueOperationBcMagasinService;

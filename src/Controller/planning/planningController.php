@@ -12,7 +12,6 @@ use App\Controller\Traits\PlanningTraits;
 use App\Controller\Traits\Transformation;
 use App\Form\planning\PlanningSearchType;
 use App\Entity\dit\DitOrsSoumisAValidation;
-use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
@@ -27,8 +26,6 @@ class PlanningController extends Controller
 {
     use Transformation;
     use PlanningTraits;
-    use AutorisationTrait;
-
     private PlanningModel $planningModel;
     private PlanningSearch $planningSearch;
     private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;

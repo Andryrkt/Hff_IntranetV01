@@ -18,7 +18,6 @@ use App\Form\da\daCdeFrn\DaSoumissionType;
 use App\Controller\Traits\da\StatutBcTrait;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Repository\da\DaAfficherRepository;
-use App\Controller\Traits\AutorisationTrait;
 use App\Controller\Traits\da\MarkupIconTrait;
 use App\Factory\da\CdeFrnDto\CdeFrnSearchDto;
 use App\Form\da\daCdeFrn\DaModalDateLivraisonType;
@@ -34,7 +33,6 @@ use App\Repository\dit\DitOrsSoumisAValidationRepository;
 class DaListCdeFrnController extends Controller
 {
     use StatutBcTrait;
-    use AutorisationTrait;
     use MarkupIconTrait;
 
     private DaAfficherRepository $daAfficherRepository;

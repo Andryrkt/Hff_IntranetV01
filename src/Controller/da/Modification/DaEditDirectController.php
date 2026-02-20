@@ -8,7 +8,6 @@ use App\Entity\da\DemandeApproL;
 use App\Entity\admin\Application;
 use App\Entity\da\DemandeApproLR;
 use App\Form\da\DemandeApproDirectFormType;
-use App\Controller\Traits\AutorisationTrait;
 use App\Controller\Traits\da\DaAfficherTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -22,8 +21,6 @@ class DaEditDirectController extends Controller
 {
     use DaAfficherTrait;
     use DaEditDirectTrait;
-    use AutorisationTrait;
-
     public function __construct()
     {
         parent::__construct();

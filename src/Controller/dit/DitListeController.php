@@ -14,7 +14,6 @@ use App\Entity\admin\Application;
 use App\Entity\admin\StatutDemande;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\dit\DitListTrait;
-use App\Controller\Traits\AutorisationTrait;
 use App\Entity\admin\utilisateur\Role;
 use App\Model\dit\DitModel;
 use App\Service\docuware\CopyDocuwareService;
@@ -29,8 +28,6 @@ use App\Service\historiqueOperation\HistoriqueOperationDITService;
 class DitListeController extends Controller
 {
     use DitListTrait;
-    use AutorisationTrait;
-
     private $historiqueOperation;
     private $excelService;
     private DitModel $ditModel;

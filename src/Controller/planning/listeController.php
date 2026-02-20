@@ -14,7 +14,6 @@ use App\Form\planning\PlanningSearchType;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use App\Entity\dit\DitOrsSoumisAValidation;
-use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
@@ -27,8 +26,6 @@ class ListeController extends Controller
 {
     use Transformation;
     use PlanningTraits;
-    use AutorisationTrait;
-
     private PlanningSearch $planningSearch;
     private PlanningModel $planningModel;
     private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
@@ -51,7 +48,7 @@ class ListeController extends Controller
     {
         $resultat = 0;
         $pagesCount = 0;
-        
+
         //initialisation
         $this->conditionFormulaireRecherche();
 

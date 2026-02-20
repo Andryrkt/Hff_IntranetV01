@@ -9,7 +9,6 @@ use App\Entity\admin\utilisateur\Role;
 use App\Entity\admin\utilisateur\User;
 use App\Service\TableauEnStringService;
 use App\Controller\Traits\PlanningTraits;
-use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\planningMagasin\PlanningMagasinModel;
@@ -21,8 +20,6 @@ use App\Form\planningMagasin\PlanningMagasinSearchType;
  */
 class planningMagasinController extends Controller
 {
-
-    use AutorisationTrait;
     use PlanningTraits;
 
 

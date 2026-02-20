@@ -8,7 +8,6 @@ use App\Entity\admin\Application;
 use App\Entity\admin\ddp\ddpSearch;
 use App\Entity\ddp\DemandePaiement;
 use App\Entity\ddp\DemandePaiementLigne;
-use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\ddp\DemandePaiementRepository;
@@ -19,8 +18,6 @@ use App\Repository\ddp\DemandePaiementLigneRepository;
  */
 class DdpListeController extends Controller
 {
-    use AutorisationTrait;
-
     private DemandePaiementRepository $demandePaiementRepository;
     private DdpSearch $ddpSearch;
     public function __construct()

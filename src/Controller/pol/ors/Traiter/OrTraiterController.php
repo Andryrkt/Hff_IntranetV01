@@ -10,7 +10,6 @@ use App\Entity\admin\utilisateur\Role;
 use App\Service\TableauEnStringService;
 use App\Controller\Traits\Transformation;
 use Symfony\Component\Form\FormInterface;
-use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\magasin\MagasinListeOrATraiterModel;
@@ -24,8 +23,6 @@ class OrTraiterController extends Controller
 {
     use Transformation;
     use MagasinOrATraiterTrait;
-    use AutorisationTrait;
-
     /**
      * @Route("/listes-or-a-traiter", name="pol_or_liste_a_traiter")
      *

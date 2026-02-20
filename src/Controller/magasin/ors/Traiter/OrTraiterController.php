@@ -7,7 +7,6 @@ use App\Controller\Controller;
 use App\Entity\admin\Application;
 use App\Service\TableauEnStringService;
 use App\Controller\Traits\Transformation;
-use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Form\magasin\MagasinListeOrATraiterSearchType;
@@ -21,8 +20,6 @@ class OrTraiterController extends Controller
 {
     use Transformation;
     use MagasinOrATraiterTrait;
-    use AutorisationTrait;
-
     /**
      * @Route("/liste-magasin", name="magasinListe_index")
      *

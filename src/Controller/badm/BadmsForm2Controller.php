@@ -12,7 +12,6 @@ use App\Entity\admin\badm\TypeMouvement;
 use App\Controller\Traits\FormatageTrait;
 use App\Controller\Traits\BadmsForm2Trait;
 use App\Service\genererPdf\GenererPdfBadm;
-use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\historiqueOperation\HistoriqueOperationBADMService;
@@ -26,8 +25,6 @@ class BadmsForm2Controller extends Controller
 {
     use FormatageTrait;
     use BadmsForm2Trait;
-    use AutorisationTrait;
-
     private $historiqueOperation;
     private $fusionPdf;
     private $badm;

@@ -3,7 +3,6 @@
 namespace App\Controller\da\Creation;
 
 use App\Controller\Controller;
-use App\Controller\Traits\AutorisationTrait;
 use App\Controller\Traits\da\creation\DaNewAchatTrait;
 use App\Entity\admin\utilisateur\Role;
 use App\Entity\da\DemandeAppro;
@@ -19,7 +18,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /** @Route("/demande-appro") */
 class DaNewAchatController extends Controller
 {
-    use DaNewAchatTrait, AutorisationTrait;
+    use DaNewAchatTrait;
     const STATUT_DAL = [
         'enregistrerBrouillon' => DemandeAppro::STATUT_EN_COURS_CREATION,
         'soumissionAppro'      => DemandeAppro::STATUT_SOUMIS_APPRO,

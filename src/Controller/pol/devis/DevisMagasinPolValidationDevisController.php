@@ -8,7 +8,6 @@ use App\Service\autres\VersionService;
 use Symfony\Component\Form\FormInterface;
 use App\Entity\magasin\devis\DevisMagasin;
 use App\Service\fichier\UploderFileService;
-use App\Controller\Traits\AutorisationTrait;
 use App\Form\magasin\devis\DevisMagasinType;
 use App\Service\fichier\TraitementDeFichier;
 use App\Controller\Traits\PdfConversionTrait;
@@ -28,7 +27,6 @@ use App\Service\magasin\devis\Validator\DevisMagasinValidationOrchestrator;
  */
 class DevisMagasinPolValidationDevisController extends Controller
 {
-    use AutorisationTrait;
     use DevisMagasinTrait;
     use PdfConversionTrait;
 

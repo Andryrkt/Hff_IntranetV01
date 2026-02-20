@@ -9,7 +9,6 @@ use App\Form\dom\DomForm1Type;
 use App\Entity\admin\Application;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\admin\dom\SousTypeDocument;
-use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -18,8 +17,6 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class DomFirstController extends Controller
 {
-    use AutorisationTrait;
-
     /**
      * @Route("/dom-first-form", name="dom_first_form")
      */

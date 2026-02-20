@@ -16,7 +16,6 @@ use App\Service\autres\AutoIncDecService;
 use Symfony\Component\Form\FormInterface;
 use App\Entity\admin\dit\WorNiveauUrgence;
 use App\Service\fichier\UploderFileService;
-use App\Controller\Traits\AutorisationTrait;
 use App\Service\fichier\TraitementDeFichier;
 use App\Controller\Traits\PdfConversionTrait;
 use App\Service\genererPdf\dit\GenererPdfDit;
@@ -35,7 +34,6 @@ class DitController extends Controller
 {
     use DitTrait;
     use FormatageTrait;
-    use AutorisationTrait;
     use PdfConversionTrait;
 
 

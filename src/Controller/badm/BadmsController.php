@@ -9,7 +9,6 @@ use App\Controller\Controller;
 use App\Form\badm\BadmForm1Type;
 use App\Entity\admin\Application;
 use App\Entity\admin\utilisateur\User;
-use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\historiqueOperation\HistoriqueOperationBADMService;
@@ -20,8 +19,6 @@ use App\Model\badm\BadmModel;
  */
 class BadmsController extends Controller
 {
-    use AutorisationTrait;
-
     private $historiqueOperation;
     private $badm;
 

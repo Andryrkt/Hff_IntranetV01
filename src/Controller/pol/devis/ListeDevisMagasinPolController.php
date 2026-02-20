@@ -10,7 +10,6 @@ use App\Entity\magasin\bc\BcMagasin;
 use App\Service\TableauEnStringService;
 use App\Entity\magasin\devis\DevisMagasin;
 use App\Repository\admin\AgenceRepository;
-use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Factory\magasin\devis\ListeDevisSearchDto;
@@ -24,8 +23,6 @@ use App\Repository\magasin\devis\DevisMagasinRepository;
  */
 class ListeDevisMagasinPolController extends Controller
 {
-    use AutorisationTrait;
-
     private $styleStatutDw = [];
     private $styleStatutBc = [];
     private $statutIPS = [];

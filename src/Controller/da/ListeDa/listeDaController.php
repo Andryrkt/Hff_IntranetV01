@@ -16,7 +16,6 @@ use App\Controller\Traits\da\DaListeTrait;
 use App\Repository\admin\AgenceRepository;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Repository\da\DaAfficherRepository;
-use App\Controller\Traits\AutorisationTrait;
 use App\Entity\admin\Agence;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DaSoumissionBcRepository;
@@ -31,8 +30,6 @@ use App\Repository\dit\DitOrsSoumisAValidationRepository;
 class listeDaController extends Controller
 {
     use DaListeTrait;
-    use AutorisationTrait;
-
     // Repository et model
     private DaModel $daModel;
     private dossierInterventionAtelierModel $dwModel;

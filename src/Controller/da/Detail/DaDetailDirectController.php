@@ -9,7 +9,6 @@ use App\Entity\da\DemandeApproL;
 use App\Entity\admin\Application;
 use App\Form\da\DaObservationType;
 use App\Controller\Traits\lienGenerique;
-use App\Controller\Traits\AutorisationTrait;
 use App\Controller\Traits\da\DaAfficherTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -25,7 +24,6 @@ class DaDetailDirectController extends Controller
 	use lienGenerique;
 	use DaAfficherTrait;
 	use DaDetailDirectTrait;
-	use AutorisationTrait;
 	private DaTimelineService $daTimelineService;
 
 	public function __construct(DaTimelineService $daTimelineService)

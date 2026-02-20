@@ -4,7 +4,6 @@ namespace App\Controller\contrat;
 
 use App\Controller\Controller;
 use App\Entity\admin\utilisateur\Role;
-use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -12,8 +11,6 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class ContratController extends Controller
 {
-    use AutorisationTrait;
-
     /**
      * @Route("/nouveau-contrat", name="new_contrat")
      */

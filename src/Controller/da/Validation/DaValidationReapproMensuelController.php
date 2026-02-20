@@ -7,7 +7,6 @@ use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\admin\Application;
 use App\Form\da\DaObservationType;
-use App\Controller\Traits\AutorisationTrait;
 use App\Form\da\DaObservationValidationType;
 use App\Controller\Traits\da\DaAfficherTrait;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,7 +21,6 @@ use App\Entity\admin\utilisateur\Role;
 class DaValidationReapproMensuelController extends Controller
 {
     use DaAfficherTrait;
-    use AutorisationTrait;
     use DaValidationReapproTrait;
     use DaDetailReapproTrait;
 

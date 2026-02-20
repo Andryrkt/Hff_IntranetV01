@@ -10,7 +10,6 @@ use App\Entity\admin\Application;
 use App\Form\badm\BadmSearchType;
 use App\Model\badm\BadmRechercheModel;
 use App\Controller\Traits\BadmListTrait;
-use App\Controller\Traits\AutorisationTrait;
 use App\Entity\admin\utilisateur\Role;
 use App\Service\ExcelService;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,8 +21,6 @@ use Symfony\Component\Routing\Annotation\Route;
 class BadmListeController extends Controller
 {
     use BadmListTrait;
-    use AutorisationTrait;
-
     /**
      * @Route("/liste", name="badmListe_AffichageListeBadm")
      */

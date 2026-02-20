@@ -10,7 +10,6 @@ use App\Controller\Traits\Transformation;
 use App\Model\inventaire\InventaireModel;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\inventaire\DetailInventaireSearch;
@@ -23,8 +22,6 @@ class DetailInventaireController extends Controller
 {
     use FormatageTrait;
     use Transformation;
-    use AutorisationTrait;
-
     private InventaireModel $InventaireModel;
     private DetailInventaireSearch $DetailInventaireSearch;
     private ?\DateTime $datefin = null;

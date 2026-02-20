@@ -10,7 +10,6 @@ use App\Entity\admin\Application;
 use App\Entity\admin\utilisateur\Role;
 use App\Controller\Traits\FormatageTrait;
 use App\Controller\Traits\ConversionTrait;
-use App\Controller\Traits\AutorisationTrait;
 use App\Controller\Traits\dom\DomListeTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -26,8 +25,6 @@ class DomsListeController extends Controller
     use ConversionTrait;
     use DomListeTrait;
     use FormatageTrait;
-    use AutorisationTrait;
-
     private $domList;
 
     public function __construct()

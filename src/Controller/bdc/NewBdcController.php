@@ -4,7 +4,6 @@ namespace App\Controller\bdc;
 
 use App\Controller\Controller;
 use App\Entity\admin\Application;
-use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -12,8 +11,6 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class NewBdcController extends Controller
 {
-    use AutorisationTrait;
-
     /**
      * @Route("/bon-de-caisse", name="new_bon_caisse")
      */

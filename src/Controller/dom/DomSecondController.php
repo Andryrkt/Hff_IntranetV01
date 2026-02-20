@@ -10,7 +10,6 @@ use App\Entity\admin\Application;
 use App\Entity\admin\utilisateur\User;
 use App\Controller\Traits\dom\DomsTrait;
 use App\Controller\Traits\FormatageTrait;
-use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\historiqueOperation\HistoriqueOperationDOMService;
@@ -24,8 +23,6 @@ class DomSecondController extends Controller
 {
     use FormatageTrait;
     use DomsTrait;
-    use AutorisationTrait;
-
     private $historiqueOperation;
     private $DomModel;
     private $fusionPdf;

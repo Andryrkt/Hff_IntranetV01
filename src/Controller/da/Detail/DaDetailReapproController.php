@@ -9,7 +9,6 @@ use App\Entity\da\DaObservation;
 use App\Entity\admin\Application;
 use App\Service\da\EmailDaService;
 use App\Form\da\DaObservationType;
-use App\Controller\Traits\AutorisationTrait;
 use App\Entity\admin\utilisateur\Role;
 use App\Service\da\DaTimelineService;
 use App\Service\da\DocRattacheService;
@@ -21,7 +20,6 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class DaDetailReapproController extends Controller
 {
-	use AutorisationTrait;
 
 	private DaService $daService;
 	private DocRattacheService $docRattacheService;

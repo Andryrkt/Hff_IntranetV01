@@ -15,7 +15,6 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use App\Entity\inventaire\InventaireSearch;
 use App\Form\bordereau\BordereauSearchType;
-use App\Controller\Traits\AutorisationTrait;
 use App\Form\inventaire\InventaireSearchType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -31,8 +30,6 @@ class InventaireController extends Controller
 {
     use FormatageTrait;
     use Transformation;
-    use AutorisationTrait;
-
     private InventaireModel $inventaireModel;
     private InventaireSearch $inventaireSearch;
     private BordereauSearch $bordereauSearch;

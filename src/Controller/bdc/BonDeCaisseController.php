@@ -9,7 +9,6 @@ use App\Entity\admin\Application;
 use App\Form\bdc\BonDeCaisseType;
 use App\Controller\Traits\FormatageTrait;
 use App\Controller\Traits\ConversionTrait;
-use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\bdc\BonDeCaisseListeTrait;
@@ -24,8 +23,6 @@ class BonDeCaisseController extends Controller
     use ConversionTrait;
     use BonDeCaisseListeTrait;
     use FormatageTrait;
-    use AutorisationTrait;
-
     /**
      * Affiche la liste des bons de caisse
      * @Route("/bon-caisse-liste", name="bon_caisse_liste")

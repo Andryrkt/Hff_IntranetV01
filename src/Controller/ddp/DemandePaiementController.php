@@ -17,7 +17,6 @@ use App\Service\TableauEnStringService;
 use App\Entity\ddp\DemandePaiementLigne;
 use App\Service\genererPdf\GeneratePdfDdp;
 use App\Entity\cde\CdefnrSoumisAValidation;
-use App\Controller\Traits\AutorisationTrait;
 use App\Entity\admin\ddp\DocDemandePaiement;
 use App\Service\fichier\TraitementDeFichier;
 use Symfony\Component\HttpFoundation\Request;
@@ -34,8 +33,6 @@ use App\Service\historiqueOperation\HistoriqueOperationDDPService;
 class DemandePaiementController extends Controller
 {
     use DdpTrait;
-    use AutorisationTrait;
-
     const STATUT_CREATION = 'Soumis à validation';
 
     private TypeDemandeRepository $typeDemandeRepository;

@@ -9,7 +9,6 @@ use App\Service\GlobalVariablesService;
 use App\Service\TableauEnStringService;
 use Symfony\Component\Form\FormInterface;
 use App\Service\Utils\RollingMonthsService;
-use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use App\Form\da\reappro\ReportingIpsSearchType;
 use Symfony\Component\Routing\Annotation\Route;
@@ -20,7 +19,6 @@ use App\Controller\Traits\da\reappro\ReportingIpsTrait;
  */
 class ReportingIpsController extends Controller
 {
-    use AutorisationTrait;
     use ReportingIpsTrait;
 
     private RollingMonthsService $rollingMonthsService;

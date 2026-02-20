@@ -6,7 +6,6 @@ use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
 use App\Entity\admin\utilisateur\Role;
-use App\Controller\Traits\AutorisationTrait;
 use App\Form\da\DemandeApproReapproFormType;
 use Symfony\Component\HttpFoundation\Request;
 use App\Service\application\ApplicationService;
@@ -20,7 +19,6 @@ use App\Form\da\DemandeApproReapproMensuelFormType;
 class DaNewReApproMensuelController extends Controller
 {
     use DaNewReapproMensuelTrait;
-    use AutorisationTrait;
     const STATUT_DAL = [
         'enregistrerBrouillon' => DemandeAppro::STATUT_EN_COURS_CREATION,
         'soumissionAppro'      => DemandeAppro::STATUT_SOUMIS_APPRO,

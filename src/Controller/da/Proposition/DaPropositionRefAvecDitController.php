@@ -10,7 +10,6 @@ use App\Entity\admin\Application;
 use App\Entity\da\DemandeApproLR;
 use App\Form\da\DaObservationType;
 use App\Entity\da\DemandeApproLRCollection;
-use App\Controller\Traits\AutorisationTrait;
 use App\Form\da\DaPropositionValidationType;
 use App\Controller\Traits\da\DaAfficherTrait;
 use App\Controller\Traits\da\detail\DaDetailAvecDitTrait;
@@ -27,7 +26,6 @@ use App\Controller\Traits\da\proposition\DaPropositionAvecDitTrait;
 class DaPropositionRefAvecDitController extends Controller
 {
     use DaAfficherTrait;
-    use AutorisationTrait;
     use DaValidationAvecDitTrait;
     use DaPropositionAvecDitTrait;
     use DaDetailAvecDitTrait;

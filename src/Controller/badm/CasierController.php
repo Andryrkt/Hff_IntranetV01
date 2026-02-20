@@ -12,7 +12,6 @@ use App\Entity\admin\StatutDemande;
 use App\Controller\Traits\FormatageTrait;
 use App\Controller\Traits\Transformation;
 use App\Controller\Traits\ConversionTrait;
-use App\Controller\Traits\AutorisationTrait;
 use App\Service\genererPdf\GenererPdfCasier;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -27,8 +26,6 @@ class CasierController extends Controller
     use Transformation;
     use ConversionTrait;
     use FormatageTrait;
-    use AutorisationTrait;
-
     private $historiqueOperation;
 
     public function __construct()

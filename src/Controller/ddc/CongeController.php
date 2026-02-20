@@ -9,7 +9,6 @@ use App\Form\ddc\DemandeCongeType;
 use App\Entity\admin\AgenceServiceIrium;
 use App\Controller\Traits\FormatageTrait;
 use App\Controller\Traits\ConversionTrait;
-use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use App\Controller\Traits\ddc\CongeListeTrait;
 use App\Service\ExcelService;
@@ -24,8 +23,6 @@ class CongeController extends Controller
     use ConversionTrait;
     use CongeListeTrait;
     use FormatageTrait;
-    use AutorisationTrait;
-
     /**
      * Affiche la liste des demandes de congé
      * @Route("/conge-liste", name="conge_liste")

@@ -5,7 +5,6 @@ namespace App\Controller\da\DemandeDevis;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\admin\utilisateur\Role;
-use App\Controller\Traits\AutorisationTrait;
 use App\Controller\Traits\da\DaAfficherTrait;
 use App\Controller\Traits\da\demandeDevis\DaDemandeDevisTrait;
 use App\Entity\da\DaAfficher;
@@ -23,7 +22,6 @@ use Symfony\Component\Routing\Annotation\Route;
 class DemandeDevisController extends Controller
 {
     use DaAfficherTrait;
-    use AutorisationTrait;
     use DaDemandeDevisTrait;
 
     private DaAfficherRepository $daAfficherRepository;

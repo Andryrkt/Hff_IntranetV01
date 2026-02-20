@@ -11,7 +11,6 @@ use App\Entity\mutation\MutationSearch;
 use App\Form\mutation\MutationFormType;
 use App\Controller\Traits\MutationTrait;
 use App\Form\mutation\MutationSearchType;
-use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use App\Service\genererPdf\GeneratePdfMutation;
 use Symfony\Component\Routing\Annotation\Route;
@@ -24,8 +23,6 @@ use App\Service\FusionPdf;
 class MutationController extends Controller
 {
     use MutationTrait;
-    use AutorisationTrait;
-
     private $historiqueOperation;
     private $fusionPdf;
 

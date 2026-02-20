@@ -10,7 +10,6 @@ use App\Entity\admin\Application;
 use App\Entity\da\DemandeApproLR;
 use App\Form\da\DaObservationType;
 use App\Entity\da\DemandeApproLRCollection;
-use App\Controller\Traits\AutorisationTrait;
 use App\Form\da\DaPropositionValidationType;
 use App\Controller\Traits\da\DaAfficherTrait;
 use App\Form\da\DemandeApproLRCollectionType;
@@ -31,8 +30,6 @@ class DaPropositionArticleDirectController extends Controller
     use DaValidationDirectTrait;
     use DaPropositionDirectTrait;
     use DaDetailDirectTrait;
-    use AutorisationTrait;
-
     private const EDIT = 0;
 
     public function __construct()

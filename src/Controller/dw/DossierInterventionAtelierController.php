@@ -9,7 +9,6 @@ use App\Traits\FileUtilityTrait;
 use App\Entity\admin\Application;
 use App\Entity\da\DemandeApproLR;
 use App\Entity\admin\utilisateur\Role;
-use App\Controller\Traits\AutorisationTrait;
 use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DemandeApproLRepository;
@@ -25,8 +24,6 @@ use App\Service\historiqueOperation\HistoriqueOperationDITService;
 class DossierInterventionAtelierController extends Controller
 {
     use FileUtilityTrait;
-    use AutorisationTrait;
-
     private $historiqueOperation;
     private DemandeApproRepository $demandeApproRepository;
     private DemandeApproLRepository $demandeApproLRepository;

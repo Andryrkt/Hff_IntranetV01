@@ -7,7 +7,6 @@ use App\Controller\Controller;
 use App\Entity\admin\Application;
 use Symfony\Component\Form\FormInterface;
 use App\Form\magasin\cis\ALivrerSearchtype;
-use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\magasin\cis\ALivrerTrait;
@@ -19,8 +18,6 @@ use App\Entity\admin\utilisateur\Role;
 class PolCisALivrerController extends Controller
 {
     use ALivrerTrait;
-    use AutorisationTrait;
-
     /**
      * @Route("/cis-liste-a-livrer", name="pol_cis_liste_a_livrer")
      */

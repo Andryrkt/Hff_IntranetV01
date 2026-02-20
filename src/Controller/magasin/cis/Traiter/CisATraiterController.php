@@ -4,7 +4,6 @@ namespace App\Controller\magasin\cis\Traiter;
 
 use App\Controller\Controller;
 use App\Entity\admin\Application;
-use App\Controller\Traits\AutorisationTrait;
 use App\Form\magasin\cis\ATraiterSearchType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -16,8 +15,6 @@ use App\Controller\Traits\magasin\cis\AtraiterTrait;
 class CisATraiterController extends Controller
 {
     use AtraiterTrait;
-    use AutorisationTrait;
-
     /**
      * @Route("/cis-liste-a-traiter", name="cis_liste_a_traiter")
      */

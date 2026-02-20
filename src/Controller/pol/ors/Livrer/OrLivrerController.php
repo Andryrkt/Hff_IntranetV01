@@ -11,7 +11,6 @@ use App\Entity\admin\utilisateur\Role;
 use App\Service\TableauEnStringService;
 use App\Controller\Traits\Transformation;
 use Symfony\Component\Form\FormInterface;
-use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Form\magasin\MagasinListeOrALivrerSearchType;
@@ -24,8 +23,6 @@ class OrLivrerController extends Controller
 {
     use Transformation;
     use MagasinOrALivrerTrait;
-    use AutorisationTrait;
-
     /**
      * @Route("/liste-or-livrer", name="pol_or_liste_a_livrer")
      *

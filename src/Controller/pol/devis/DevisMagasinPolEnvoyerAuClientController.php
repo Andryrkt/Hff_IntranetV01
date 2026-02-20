@@ -7,7 +7,6 @@ use App\Entity\admin\Application;
 use App\Entity\magasin\bc\BcMagasin;
 use Symfony\Component\Form\FormInterface;
 use App\Entity\magasin\devis\DevisMagasin;
-use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -23,7 +22,6 @@ use App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService;
  */
 class DevisMagasinPolEnvoyerAuClientController extends Controller
 {
-    use AutorisationTrait;
     use DevisMagasinTrait;
 
     private HistoriqueOperationDevisMagasinService $historiqueOperationDeviMagasinService;

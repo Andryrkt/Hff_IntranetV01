@@ -11,7 +11,6 @@ use App\Entity\dw\DwBcClientNegoce;
 use App\Entity\magasin\bc\BcMagasin;
 use App\Service\TableauEnStringService;
 use App\Entity\magasin\devis\DevisMagasin;
-use App\Controller\Traits\AutorisationTrait;
 use App\Entity\magasin\devis\PointageRelance;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -27,7 +26,6 @@ use App\Model\Traits\ConversionModel;
  */
 class ListeDevisMagasinController extends Controller
 {
-    use AutorisationTrait;
     use ConversionModel;
 
     private $styleStatutDw = [];

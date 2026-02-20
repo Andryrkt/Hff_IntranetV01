@@ -4,7 +4,6 @@ namespace App\Controller\ddc;
 
 use App\Controller\Controller;
 use App\Entity\admin\Application;
-use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -12,8 +11,6 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class AnnulationCongeController extends Controller
 {
-    use AutorisationTrait;
-
     /**
      * @Route("/annulation-conges", name="annulation_conge")
      */

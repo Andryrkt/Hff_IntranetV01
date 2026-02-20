@@ -9,7 +9,6 @@ use App\Entity\da\DemandeApproL;
 use App\Entity\admin\Application;
 use App\Form\da\DemandeApproFormType;
 use App\Entity\dit\DemandeIntervention;
-use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use App\Service\application\ApplicationService;
 use Symfony\Component\Routing\Annotation\Route;
@@ -23,7 +22,6 @@ use App\Service\da\FileUploaderForDAService;
 class DaNewAvecDitController extends Controller
 {
     use DaNewAvecDitTrait;
-    use AutorisationTrait;
     const STATUT_DAL = [
         'enregistrerBrouillon' => DemandeAppro::STATUT_EN_COURS_CREATION,
         'soumissionAppro'      => DemandeAppro::STATUT_SOUMIS_APPRO,

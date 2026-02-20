@@ -9,7 +9,6 @@ use App\Entity\cas\CasierValider;
 use App\Form\cas\CasierSearchType;
 use App\Entity\admin\StatutDemande;
 use App\Controller\Traits\Transformation;
-use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -19,8 +18,6 @@ use Symfony\Component\Routing\Annotation\Route;
 class CasierListTemporaireController extends Controller
 {
     use Transformation;
-    use AutorisationTrait;
-
 
     /**
      * @Route("/listTemporaireCasier", name="listeTemporaire_affichageListeCasier")

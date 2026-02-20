@@ -7,7 +7,6 @@ use DateTimeZone;
 use App\Controller\Controller;
 use App\Entity\admin\Application;
 use App\Entity\dit\DitOrsSoumisAValidation;
-use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\magasin\lcfnp\listeCdeFrnNonPlacerModel;
@@ -19,8 +18,6 @@ use App\Repository\dit\DitOrsSoumisAValidationRepository;
  */
 class ListeCdeFrnNonPlaceController extends  Controller
 {
-    use AutorisationTrait;
-
     private DitOrsSoumisAValidationRepository $ditOrsSoumisRepository;
     private listeCdeFrnNonPlacerModel $listeCdeFrnNonPlacerModel;
     public function __construct()
