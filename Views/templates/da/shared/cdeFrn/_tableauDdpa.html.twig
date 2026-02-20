@@ -1,0 +1,45 @@
+<h5 class="fw-bold">{{dto.titreDaDdpa}}</h5>
+<table class="table">
+	<thead class="table-dark align-middle">
+		<tr>
+			<th class="text-center">Numéro</th>
+			<th class="text-center">Date</th>
+			<th>Motif</th>
+			<th class="text-center">Montant</th>
+			<th class="text-center">%</th>
+			<th class="text-center">% cummul</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for item in dto.daDdpa %}
+			<tr>
+				<td class="text-center">{{item.numeroDdp}}</td>
+				<td class="text-center">{{item.datecreation|date('d/m/Y')}}</td>
+				<td>{{item.motif}}</td>
+				<td class="text-end">{{item.montant|number_format(2,',','.')}}</td>
+				<td class="text-end">{{item.ratio|round(2)|number_format(2,',','.')}}%</td>
+				<td class="text-end">{{item.cumul|round(2)|number_format(2,',','.')}}%</td>
+			</tr>
+		{% endfor %}
+		<tr>
+			<td colspan="6"></td>
+		</tr>
+		<tr>
+			<td class="fw-bold">Total payé / encours</td>
+			<td colspan="2"></td>
+			<td class="text-end">{{dto.totalPayer|number_format(2,',','.')}}</td>
+			<td class="text-end">{{dto.ratioTotalPayer|round(2)|number_format(2,',','.')}}%</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td colspan="6"></td>
+		</tr>
+		<tr>
+			<td class="fw-bold">Montant à régulariser</td>
+			<td colspan="2"></td>
+			<td class="text-end text-danger fw-bold">{{dto.montantAregulariser|number_format(2,',','.')}}</td>
+			<td class="text-end text-danger fw-bold">{{dto.ratioMontantARegul|round(2)|number_format(2,',','.')}}%</td>
+			<td></td>
+		</tr>
+	</tbody>
+</table>

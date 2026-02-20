@@ -114,9 +114,11 @@ class ExportExcelController extends Controller
         $data = [];
 
         $typeDemande = [
-            DemandeAppro::TYPE_DA_AVEC_DIT => 'DA AVEC DIT',
-            DemandeAppro::TYPE_DA_DIRECT   => 'DA DIRECT',
-            DemandeAppro::TYPE_DA_REAPPRO_MENSUEL  => 'DA REAPPRO',
+            DemandeAppro::TYPE_DA_AVEC_DIT         => 'DA AVEC DIT',
+            DemandeAppro::TYPE_DA_DIRECT           => 'DA DIRECT',
+            DemandeAppro::TYPE_DA_REAPPRO_MENSUEL  => 'DA REAPPRO MENSUEL',
+            DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL => 'DA REAPPRO PONCTUEL',
+            DemandeAppro::TYPE_DA_PARENT           => 'DA PARENT',
         ];
 
         // Map de chaque entête vers la valeur correspondante

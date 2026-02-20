@@ -147,10 +147,12 @@ class DaService
         $item = [];
         $numDa = $demandeAppro->getNumeroDemandeAppro();
         $filePath = $_ENV['BASE_PATH_FICHIER_COURT'] . "/da/$numDa/$numDa.pdf";
-        if (file_exists($filePath)) {
+        $absolutePath = $_ENV['BASE_PATH_FICHIER'] . "/da/$numDa/$numDa.pdf";
+
+        if (file_exists($absolutePath)) {
             $item = [
-                'filename' => pathinfo($filePath, PATHINFO_FILENAME),
-                'path'     => $filePath,
+                'nom'  => pathinfo($filePath, PATHINFO_FILENAME),
+                'path' => $filePath,
             ];
         }
         return $item;

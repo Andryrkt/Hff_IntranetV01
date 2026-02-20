@@ -66,6 +66,16 @@ class DemandePaiementDto
     public $pourcentageAvance;
     public $ratioMontantpayer;
     public $numeroDa;
+    public $ddpaDa = false;
+    public int $numeroVersionBc = 0;
+    public string $nomPdfFusionnerBc = '';
+    public $daDdpa = [];
+    public $titreDaDdpa = "historique des demandes de paiement à l'avance déjà effectuées dans le formulaire.";
+    public $totalMontantCommande = 0;
+    public $totalPayer = 0;
+    public $ratioTotalPayer = 0;
+    public $montantAregulariser;
+    public $ratioMontantARegul;
 
     public function montantAPayer(): float
     {

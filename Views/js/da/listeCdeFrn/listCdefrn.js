@@ -71,6 +71,10 @@ const hiddenInputCde = document.getElementById("da_soumission_commande_id");
 const hiddenInputDa = document.getElementById("da_soumission_da_id");
 const hiddenInputNumOr = document.getElementById("da_soumission_num_or");
 const hiddenInputTypeDa = document.getElementById("da_soumission_type_da");
+const hiddenInputCdeDdp = document.getElementById("da_ddp_commande_id");
+const hiddenInputDaDdp = document.getElementById("da_ddp_da_id");
+const hiddenInputNumOrDdp = document.getElementById("da_ddp_num_or");
+const hiddenInputTypeDaDdp = document.getElementById("da_ddp_type_da");
 const statutAffiche = document.getElementById("statut-affiche");
 const bcValideTelecharger = document.getElementById("bcValideTelecharger"); // Déplacé ici
 const form = document.forms["da_soumission"];
@@ -240,15 +244,19 @@ document.addEventListener("contextmenu", function (event) {
 
   const commandeId = targetCell.dataset.commandeId;
   hiddenInputCde.value = commandeId;
+  hiddenInputCdeDdp.value = commandeId;
 
   const numDa = targetCell.dataset.numDa;
   hiddenInputDa.value = numDa;
+  hiddenInputDaDdp.value = numDa;
 
   const numOr = targetCell.dataset.numOr;
   hiddenInputNumOr.value = numOr;
+  hiddenInputNumOrDdp.value = numOr;
 
   const typeDa = targetCell.dataset.typeDa;
   hiddenInputTypeDa.value = typeDa;
+  hiddenInputTypeDaDdp.value = typeDa;
 
   const statutBc = targetCell.dataset.statutBc;
 

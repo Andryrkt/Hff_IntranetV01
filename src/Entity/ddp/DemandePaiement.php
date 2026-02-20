@@ -194,6 +194,11 @@ class DemandePaiement
      */
     private ?int $numeroVersionBc = null;
 
+    /**
+     * @ORM\Column(type="string", length="255",name="fichier_ddpa")
+     */
+    private $ficherDdpa;
+
     private string $montantAPayer = '0';
 
     private $pieceJoint01;
@@ -1008,6 +1013,24 @@ class DemandePaiement
     public function setNumeroVersionBc(?int $numeroVersionBc): self
     {
         $this->numeroVersionBc = $numeroVersionBc;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of ficherDdpa
+     */
+    public function getFicherDdpa()
+    {
+        return $this->ficherDdpa;
+    }
+
+    /**
+     * Set the value of ficherDdpa
+     */
+    public function setFicherDdpa($ficherDdpa): self
+    {
+        $this->ficherDdpa = $ficherDdpa;
 
         return $this;
     }

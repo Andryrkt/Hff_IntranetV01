@@ -408,7 +408,7 @@ class ListeDevisMagasinModel extends Model
     {
         $sql = " SELECT TOP 1
                 CASE
-                    WHEN dsavn.statut_bc = 'En attente BC'
+                    WHEN dsavn.statut_bc = 'En attente bc'
                         AND (
                             (NOT EXISTS (
                                 SELECT 1 

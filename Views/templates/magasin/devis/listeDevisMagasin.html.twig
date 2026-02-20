@@ -79,10 +79,10 @@
 						<td class="text-center">
 							{% if row.numeroRelance and row.dateDerniereRelance %}
 								<a href="#" data-bs-toggle="modal" data-bs-target="#relance" data-id="{{row.numeroDevis }}" class="text-decoration-none" data-bs-toggle="tooltip" title="Voir les relances client">
-									{{ row.numeroRelance ~ ' - '~ row.dateDerniereRelance }}
+									{{ row.dateDerniereRelance ~ ' - '~  row.numeroRelance}}
 								</a>
 							{% else %}
-								{{ row.numeroRelance ~ ' - '~ row.dateDerniereRelance }}
+								{{ row.dateDerniereRelance ~ ' - '~  row.numeroRelance}}
 							{% endif %}
 						</td>
 						<td class="text-center" data-bs-toggle="tooltip" title="{{ row.titreStatutIps }}">{{ row.statutIps }}</td>

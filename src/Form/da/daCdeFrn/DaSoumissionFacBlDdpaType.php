@@ -1,26 +1,25 @@
 <?php
 
-namespace App\Form\da;
+namespace App\Form\da\daCdeFrn;
 
-use App\Dto\Da\ListeCdeFrn\DaSoumissionFacBlDto;
-use App\Entity\da\DaSoumissionFacBl;
+
 use Symfony\Component\Form\AbstractType;
+use App\Controller\Traits\FormatageTrait;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\File;
+use App\Dto\Da\ListeCdeFrn\DaSoumissionFacBlDdpaDto;
 use Symfony\Component\Validator\Constraints\Callback;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
-class DaSoumissionFacBlType extends AbstractType
+class DaSoumissionFacBlDdpaType extends AbstractType
 {
+    use FormatageTrait;
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $numLivs = $options['data']->numLiv;
-
         $builder
             ->add('numeroCde', TextType::class, [
                 'label' => 'Numéro Commande',
@@ -28,24 +27,9 @@ class DaSoumissionFacBlType extends AbstractType
                     'class' => 'div-disabled',
                 ]
             ])
-            ->add('numLiv', ChoiceType::class, [
-                'label'       => 'Numéro de livraison IPS (*)',
-                'placeholder' => '-- Choisir un numéro de livraison --',
-                'choices'     => array_combine($numLivs, $numLivs),
-                'attr'        => [
-                    'class'           => count($numLivs) === 1 ? 'div-disabled' : '',
-                    'data-field-name' => 'Numéro de livraison IPS',
-                ],
-                'data'        => count($numLivs) === 1 ? $numLivs[0] : null,
-            ])
-            ->add('dateBlFac', DateType::class, [
-                'widget' => 'single_text',
-                'label'  => 'Date BL facture fournisseur (*)',
-                'attr'   => ['data-field-name' => 'Date BL facture fournisseur']
-            ])
-            ->add('montantBlFacture', TextType::class, [
-                'label' => 'Montant HT du BL facture fournisseur (*)',
-                'required' => true,
+            ->add('totalMontantCommande', TextType::class, [
+                'label' => 'Total commande',
+                'data' => $this->formatNumberGeneral($options['data']->totalMontantCommande)
             ])
             ->add(
                 'pieceJoint1',
@@ -122,7 +106,7 @@ class DaSoumissionFacBlType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => DaSoumissionFacBlDto::class,
+            'data_class' => DaSoumissionFacBlDdpaDto::class,
         ]);
     }
 }

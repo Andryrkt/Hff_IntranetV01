@@ -2,6 +2,8 @@
 
 namespace App\Dto\Da\ListeCdeFrn;
 
+
+
 class DaSoumissionBcDto
 {
     public ?string $numeroCde = null;
@@ -11,7 +13,7 @@ class DaSoumissionBcDto
     public ?string $statut = null;
     public ?string $utilisateur = null;
     public ?int $numeroVersion = null;
-    public ?string $pieceJoint1 = null;
+    public $pieceJoint1;
     public ?array $pieceJoint2 = [];
     public ?float $montantBc = null;
     public ?bool $demandePaiementAvance = null;

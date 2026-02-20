@@ -94,6 +94,7 @@ class User implements UserInterface
     private $personnels;
 
 
+
     /**
      * @ORM\OneToMany(targetEntity=Casier::class, mappedBy="nomSessionUtilisateur",  cascade={"remove"})
      */

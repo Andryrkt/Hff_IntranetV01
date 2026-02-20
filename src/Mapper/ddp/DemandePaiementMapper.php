@@ -9,7 +9,7 @@ use App\Entity\ddp\HistoriqueStatutDdp;
 
 class DemandePaiementMapper
 {
-    public static function map(DemandePaiementDto $dto): DemandePaiement
+    public static function map(DemandePaiementDto $dto, string $nomAvecCheminFichier): DemandePaiement
     {
         $ddp = new DemandePaiement();
         $ddp->setNumeroDdp($dto->numeroDdp)
@@ -37,7 +37,9 @@ class DemandePaiementMapper
             ->setNomCdeClientExterneDoc($dto->nomCdeClientExterneDoc)
             ->setNumeroDossierDouane($dto->numeroDossierDouane)
             ->setAppro($dto->appro)
-        ;
+            ->setTypeDa($dto->typeDa)
+            ->setNumeroVersionBc($dto->numeroVersionBc)
+            ->setFicherDdpa($nomAvecCheminFichier);
 
         return $ddp;
     }
@@ -45,9 +47,9 @@ class DemandePaiementMapper
     public static function mapUpdate(DemandePaiementDto $dto, DemandePaiement $ddp): DemandePaiement
     {
         return $ddp->setStatut(StatutConstants::STATUT_SOUMIS_A_VALIDATION)
-        ->setMontantApayer($dto->montantAPayer)
-        ->setRibFournisseur($dto->ribFournisseur)
-        ->setEstAutreDoc($dto->estAutresDoc)
+            ->setMontantApayer($dto->montantAPayer)
+            ->setRibFournisseur($dto->ribFournisseur)
+            ->setEstAutreDoc($dto->estAutresDoc)
             ->setNomAutreDoc($dto->nomAutreDoc)
             ->setEstCdeClientExterneDoc($dto->estCdeClientExterneDoc)
             ->setNomCdeClientExterneDoc($dto->nomCdeClientExterneDoc)

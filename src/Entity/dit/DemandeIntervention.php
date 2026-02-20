@@ -560,6 +560,11 @@ class DemandeIntervention
     private bool $estAtePolTana = false;
 
     /**
+     * @ORM\OneToMany(targetEntity=DemandeAppro::class, mappedBy="dit")
+     */
+    private Collection $demandeAppro;
+
+    /**
      * @ORM\Column(type="boolean", name="pdf_deposer_dw", nullable=true)
      */
     private $pdfDeposerDw;
@@ -568,11 +573,6 @@ class DemandeIntervention
      * @ORM\Column(type="datetime", name="date_depot_pdf_dw", nullable=true)
      */
     private $dateDepotPdfDw;
-
-    /**
-     * @ORM\OneToMany(targetEntity=DemandeAppro::class, mappedBy="dit")
-     */
-    private Collection $demandeAppro;
 
     /** ===================================================================================================================
      * 

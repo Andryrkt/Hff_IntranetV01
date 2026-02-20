@@ -4,9 +4,11 @@ namespace App\Controller\ddp;
 
 use App\Controller\Controller;
 use App\Entity\admin\Application;
+use App\Entity\da\DaSoumissionBc;
 use App\Dto\ddp\DemandePaiementDto;
 use App\Form\ddp\DemandePaiementDaType;
 use App\Model\ddp\DemandePaiementModel;
+use App\Service\genererPdf\GeneratePdf;
 use App\Service\TableauEnStringService;
 use Symfony\Component\Form\FormInterface;
 use App\Factory\ddp\DemandePaiementFactory;
@@ -22,6 +24,8 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Service\ddp\DemandePaiementLigneService;
 use App\Service\genererPdf\ddp\GeneratePdfDdpDa;
 use App\Constants\ddp\TypeDemandePaiementConstants;
+use App\Entity\da\DaAfficher;
+use App\Service\ddp\DdpaDaService;
 use App\Service\historiqueOperation\HistoriqueOperationDDPService;
 
 /**
@@ -49,9 +53,9 @@ class DemandePaiementDaController extends Controller
     }
 
     /**
-     * @Route("/newDdpa/{typeDdp}/{numCdeDa}/{typeDa}/{numDdp}", name="demande_paiement_da", defaults={"numCdeDa"=null, "typeDa"=null, "numDdp"=null}, methods={"GET","POST"})
+     * @Route("/newDdpa/{typeDdp}/{numCdeDa}/{typeDa}/{numeroVersionBc}", name="demande_paiement_da", defaults={"numCdeDa"=null, "typeDa"=null, "numeroVersionBc"=null}, methods={"GET","POST"})
      */
-    public function index(int $typeDdp, ?int $numCdeDa, ?int $typeDa, ?string $numDdp, Request $request)
+    public function index(int $typeDdp, ?int $numCdeDa, ?int $typeDa, ?int $numeroVersionBc, Request $request)
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
@@ -61,7 +65,7 @@ class DemandePaiementDaController extends Controller
         /** FIN AUtorisation acées */
 
         // creation du formulaire
-        $dto = (new DemandePaiementFactory($this->getEntityManager()))->load($typeDdp, $numCdeDa, $typeDa, $numDdp, $this->getUser());
+        $dto = (new DemandePaiementFactory($this->getEntityManager()))->load($typeDdp, $numCdeDa, $typeDa, $numeroVersionBc, $this->getUser(), $this->getSessionService());
         $form = $this->getFormFactory()->createBuilder(DemandePaiementDaType::class, $dto, [
             'method' => 'POST',
             'em' => $this->getEntityManager()
@@ -69,8 +73,6 @@ class DemandePaiementDaController extends Controller
 
         //traitement du formulaire
         $this->traitementDuFormulaire($request, $form);
-
-
 
 
         return $this->render('ddp/demande_paiement_da_new.html.twig', [
@@ -81,19 +83,27 @@ class DemandePaiementDaController extends Controller
     }
 
 
-
-
     private function traitementDuFormulaire(Request $request, FormInterface $form)
     {
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $dto = $form->getdata();
-            $this->traitementDeFichier($dto, $form);
-            $this->enregistrementSurBd($dto);
+            $nomAvecCheminFichier = $this->traitementDeFichier($dto, $form);
+            $this->enregistrementSurBd($dto, $nomAvecCheminFichier);
 
+            if ($dto->ddpaDa) {
+                $ddpaDaService = new DdpaDaService($this->getEntityManager());
+                $ddpaDaService->modificationtableDaSoumissionBc($dto);
+                $ddpaDaService->copieDwDdpaDa($dto);
+                $ddpaDaService->modificationDaAfficher($dto);
+            }
             /** HISTORISATION */
-            $this->historiqueOperation->sendNotificationSoumission('Le document a été généré avec succès', $dto->numeroDdp, 'ddp_liste', true);
+            $message = "Le document a été généré avec succès";
+            $criteria = $this->getSessionService()->get('criteria_for_excel_Da_Cde_frn');
+            $nomDeRoute = 'da_list_cde_frn'; // route de redirection après soumission
+            $nomInputSearch = 'cde_frn_list'; // initialistion de nom de chaque champ ou input
+            $this->historiqueOperation->sendNotificationSoumission($message, $dto->numeroDdp, $nomDeRoute, true, $criteria, $nomInputSearch);
         }
     }
 
@@ -112,10 +122,10 @@ class DemandePaiementDaController extends Controller
         }
     }
 
-    private function enregistrementSurBd(DemandePaiementDto $dto): void
+    private function enregistrementSurBd(DemandePaiementDto $dto, string $nomAvecCheminFichier): void
     {
         // enregistrement dans la table deamnde_paiement
-        $this->demandePaiementService->updateDdp($dto);
+        $this->demandePaiementService->createDdp($dto, $nomAvecCheminFichier);
         // enregistrement dans la table demande_paiement_ligne
         $this->demandePaiementLigneService->createLignesFromDto($dto);
         // enregistrement dans la table doc_demande_paiement
@@ -124,7 +134,7 @@ class DemandePaiementDaController extends Controller
         $this->demandePaiementService->createHistoriqueStatut($dto);
     }
 
-    private function traitementDeFichier(DemandePaiementDto $dto, FormInterface $form)
+    private function traitementDeFichier(DemandePaiementDto $dto, FormInterface $form): string
     {
         $numCdes = $this->demandePaiementModel->getCommandeReceptionnee($dto->numeroFournisseur);
         $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
@@ -157,7 +167,10 @@ class DemandePaiementDaController extends Controller
         $fichierChoisiAvecChemins = $this->docDemandePaiementService->fichierChoisiAvecChemin($dto);
         $this->docDemandePaiementService->copieFichierChoisi($dto);
         $this->fusionDesPdf($nomEtCheminFichiersEnregistrer, $fichierChoisiAvecChemins, $nomAvecCheminFichier);
+        // COPIE VERS DOCUWARE
         $generatePdf->copyToDw($nomAvecCheminFichier, $nomFichier);
+
+        return $nomAvecCheminFichier;
     }
 
 
