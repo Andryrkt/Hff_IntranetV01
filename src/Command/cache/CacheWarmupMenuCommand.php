@@ -14,7 +14,6 @@ use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 class CacheWarmupMenuCommand extends Command
 {
-    // Le nom de la commande
     protected static $defaultName = 'app:cache-warmup-menu';
 
     private EntityManagerInterface $entityManager;
@@ -26,65 +25,173 @@ class CacheWarmupMenuCommand extends Command
         parent::__construct();
 
         $this->entityManager = $entityManager;
-        $this->cache = $cache;
-        $this->menuService = $menuService;
+        $this->cache         = $cache;
+        $this->menuService   = $menuService;
     }
 
     protected function configure(): void
     {
         $this
-            ->setDescription('Préchauffage du cache des menus (principal et admin) pour tous les profils.')
-            ->setHelp('Lance le préchauffage du cache pour tous les profils actifs. Usage : php bin/console app:cache-warmup-menu');
+            ->setDescription('Préchauffage du cache des menus (principal et admin) pour un ou tous les profils.')
+            ->setHelp(
+                "Cette commande reconstruit et stocke en cache les menus de navigation.\n\n" .
+                    "Deux types de menus sont générés par profil :\n" .
+                    "  • Menu principal  — la barre de navigation filtrée selon les droits du profil\n" .
+                    "  • Menu admin      — le panneau d'administration filtré selon les droits du profil\n\n" .
+                    "Les entrées de cache sont taguées par profil (menu.profil_{id}),\n" .
+                    "ce qui permet une invalidation ciblée lors d'un changement de droits.\n\n" .
+                    "Usage :\n" .
+                    "  php bin/console app:cache-warmup-menu"
+            );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $io->title('Préchauffage du cache — tous les profils');
 
-        // Charger tous les profils depuis la BDD
-        $profils = $this->entityManager->getRepository(Profil::class)->findAll();
+        $io->title('🔥 Préchauffage du cache — Menus de navigation');
+        $io->text([
+            'Cette commande va reconstruire le cache des menus pour chaque profil sélectionné.',
+            'Les anciennes entrées de cache seront supprimées avant d\'être recréées,',
+            'garantissant des données fraîches et cohérentes avec les droits actuels en base.',
+        ]);
+        $io->newLine();
 
-        if (empty($profils)) {
-            $io->warning('Aucun profil trouvé en base.');
+        // ── Choix : tous les profils ou un seul ──────────────────────────────
+        $choix = $io->choice(
+            'Voulez-vous préchauffer le cache pour tous les profils ou pour un profil spécifique ?',
+            [
+                'tous' => 'Tous les profils    — reconstruit le cache de chaque profil enregistré en base',
+                'un'   => 'Un seul profil      — reconstruit le cache d\'un profil précis via son identifiant',
+            ],
+            'tous'
+        );
+
+        // ── Chargement des profils selon le choix ────────────────────────────
+        if ($choix === 'un') {
+            $profilId = (int) $io->ask(
+                'Entrez l\'identifiant (ID) du profil à préchauffer',
+                null,
+                function (?string $valeur): int {
+                    if (!is_numeric($valeur) || (int) $valeur <= 0) {
+                        throw new \RuntimeException('L\'identifiant doit être un nombre entier positif.');
+                    }
+                    return (int) $valeur;
+                }
+            );
+
+            $profil = $this->entityManager->getRepository(Profil::class)->find($profilId);
+
+            if ($profil === null) {
+                $io->error(sprintf(
+                    'Aucun profil trouvé avec l\'identifiant %d. Vérifiez l\'ID et relancez la commande.',
+                    $profilId
+                ));
+                return Command::FAILURE;
+            }
+
+            $profils = [$profil];
+            $io->newLine();
+            $io->text(sprintf(
+                'Profil sélectionné : <info>%s</info> (id: %d)',
+                $profil->getDesignation(),
+                $profilId
+            ));
+        } else {
+            $profils = $this->entityManager->getRepository(Profil::class)->findAll();
+
+            if (empty($profils)) {
+                $io->warning('Aucun profil trouvé en base de données. Rien à préchauffer.');
+                return Command::SUCCESS;
+            }
+
+            $io->newLine();
+            $io->text(sprintf('%d profil(s) trouvé(s) en base. Démarrage du préchauffage...', count($profils)));
+        }
+
+        $io->newLine();
+
+        // ── Confirmation avant exécution ─────────────────────────────────────
+        if (!$io->confirm(
+            sprintf(
+                'Le cache des menus va être supprimé puis reconstruit pour %d profil(s). Continuer ?',
+                count($profils)
+            ),
+            true
+        )) {
+            $io->text('Opération annulée. Aucune modification effectuée.');
             return Command::SUCCESS;
         }
 
+        $io->newLine();
+
+        // ── Traitement ───────────────────────────────────────────────────────
+        $io->section('Reconstruction du cache en cours...');
         $io->progressStart(count($profils));
+
+        $nbSucces = 0;
+        $erreurs  = [];
 
         foreach ($profils as $profil) {
             $io->progressAdvance();
-            $this->menuService->userDataService->setProfilId($profil->getId());
-            $this->warmupMenuProfil($profil, $io);
+            try {
+                $this->menuService->userDataService->setProfilId($profil->getId());
+                $this->warmupMenuProfil($profil);
+                $nbSucces++;
+            } catch (\Throwable $e) {
+                $erreurs[] = sprintf('Profil "%s" (id: %d) : %s', $profil->getDesignation(), $profil->getId(), $e->getMessage());
+            }
         }
 
         $io->progressFinish();
-        $io->success(sprintf('%d profil(s) mis en cache avec succès.', count($profils)));
+        $io->newLine();
 
-        return Command::SUCCESS;
+        // ── Résumé final ─────────────────────────────────────────────────────
+        if (!empty($erreurs)) {
+            $io->warning(sprintf('%d profil(s) ont rencontré une erreur :', count($erreurs)));
+            foreach ($erreurs as $erreur) {
+                $io->text('  ✗ ' . $erreur);
+            }
+            $io->newLine();
+        }
+
+        if ($nbSucces > 0) {
+            $io->success(sprintf(
+                '%d profil(s) mis en cache avec succès. (Menu principal + Menu admin générés pour chacun)',
+                $nbSucces
+            ));
+        }
+
+        return empty($erreurs) ? Command::SUCCESS : Command::FAILURE;
     }
 
-    private function warmupMenuProfil(Profil $profil, SymfonyStyle $io): void
+    // =========================================================================
+    //  LOGIQUE DE PRÉCHAUFFAGE
+    // =========================================================================
+
+    private function warmupMenuProfil(Profil $profil): void
     {
         $profilId = $profil->getId();
-        $tag = MenuService::CACHE_TAG_PREFIX . $profilId;
+        $tag      = MenuService::CACHE_TAG_PREFIX . $profilId;
 
-        $io->writeln(sprintf('  → Profil <info>%s</info> (id: %d)', $profil->getDesignation(), $profilId));
-
-        // ── 1. Menu principal (MenuService::getMenuStructure) ─────────────────
+        // ── 1. Menu principal ─────────────────────────────────────────────────
+        // Représente la barre de navigation principale de l'application,
+        // construite selon les modules et routes accessibles (peutVoir = true) pour ce profil.
         $cleMenuPrincipal = MenuService::CACHE_KEY_PRINCIPAL . $profilId;
         $this->cache->delete($cleMenuPrincipal);
-        $this->cache->get($cleMenuPrincipal, function (ItemInterface $item) use ($tag) {
-            $item->expiresAfter(null);
+        $this->cache->get($cleMenuPrincipal, function (ItemInterface $item) use ($tag): array {
+            $item->expiresAfter(null); // Pas d'expiration automatique : invalidation via tag uniquement
             $item->tag($tag);
             return $this->menuService->construireMenuPrincipal();
         });
 
-        // ── 2. Menu admin (MenuService::getAdminMenuStructure) ────────────────
+        // ── 2. Menu admin ─────────────────────────────────────────────────────
+        // Représente le panneau d'administration, avec ses groupes (Accès & Sécurité,
+        // Applications, etc.), filtré selon les droits du profil.
         $cleMenuAdmin = MenuService::CACHE_KEY_ADMIN . $profilId;
         $this->cache->delete($cleMenuAdmin);
-        $this->cache->get($cleMenuAdmin, function (ItemInterface $item) use ($tag) {
-            $item->expiresAfter(null);
+        $this->cache->get($cleMenuAdmin, function (ItemInterface $item) use ($tag): array {
+            $item->expiresAfter(null); // Pas d'expiration automatique : invalidation via tag uniquement
             $item->tag($tag);
             return $this->menuService->construireMenuAdmin();
         });
