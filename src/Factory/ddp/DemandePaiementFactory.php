@@ -12,6 +12,7 @@ use App\Entity\admin\ddp\TypeDemande;
 use App\Entity\admin\Service;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\da\DaAfficher;
+use App\Entity\da\DaSoumissionBc;
 use App\Entity\ddp\DemandePaiement;
 use App\Mapper\Da\ListCdeFrn\DaSoumissionFacBlDdpaMapper;
 use App\Model\da\DaSoumissionFacBlDdpaModel;
@@ -39,6 +40,7 @@ class DemandePaiementFactory
     {
         $typeDemandeRepository = $this->em->getRepository(TypeDemande::class);
         $DaAfficherRepository = $this->em->getRepository(DaAfficher::class);
+        $daSoumissionBcRepository = $this->em->getRepository(DaSoumissionBc::class);
         $ddpRepository = $this->em->getRepository(DemandePaiement::class);
 
 
@@ -71,7 +73,7 @@ class DemandePaiementFactory
         $dto->pourcentageAPayer = (int)(($dto->montantAPayer / $dto->montantTotalCde) * 100);
         $dto->numeroDa = $infoDa['numeroDemandeAppro'];
         $dto->ddpaDa = $sessionService->get('demande_paiement_a_l_avance')['ddpa'] ?? false;
-        $dto->numeroVersionBc = $numeroVersionBc ?? 0;
+        $dto->numeroVersionBc = $numeroVersionBc ?? $daSoumissionBcRepository->getNumeroVersionMax($numCdeDa);
         $dto->nomPdfFusionnerBc = $sessionService->get('demande_paiement_a_l_avance')['nom_pdf'] ?? '';
         // recupération des fichiers de devis de la DA
         $dto->fichiersChoisis = $this->recupFichierDevisDa($dto);
