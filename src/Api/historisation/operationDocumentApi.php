@@ -9,7 +9,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class operationDocumentApi extends Controller
 {
     /**
-     * @Route("/api/operation-document-fetch-all", name="operation_document_fetch_all")
+     * @Route("/api/operation-document-fetch-all", name="api_operation_document_fetch_all")
      *
      * @return void
      */

@@ -10,7 +10,7 @@ class agenceServiceInformixApi extends Controller
 {
     /** 
      * RECUPERATION SERVICE INFORMIX
-     * @Route("/service-informix-fetch/{agence}", name="service_informix_fetch") 
+     * @Route("/api/service-informix-fetch/{agence}", name="api_service_informix_fetch") 
      * */
     public function agenceInformix($agence)
     {

@@ -101,13 +101,13 @@
 									</li>
 								{% elseif estAcces %}
 									<li>
-										<input type="file" accept=".xlsx" class="input-file-analyse" data-upload-url="{{ path('upload_fichier_inventaire', {'numInv': item.numero}) }}" style="display: none;">
+										<input type="file" accept=".xlsx" class="input-file-analyse" data-upload-url="{{ path('api_upload_fichier_inventaire', {'numInv': item.numero}) }}" style="display: none;">
 										<a class="dropdown-item fw-bold upload-fichier-analyse" role="button">Upload fichier d'analyse</a>
 									</li>
 								{% endif %}
 								{% if item.excel and estAcces %}
 									<li>
-										<a class="dropdown-item fw-bold delete-fichier-analyse" role="button" data-delete-url="{{ path('delete_fichier_inventaire', {'numInv': item.numero}) }}">Supprimer fichier d'analyse</a>
+										<a class="dropdown-item fw-bold delete-fichier-analyse" role="button" data-delete-url="{{ path('api_delete_fichier_inventaire', {'numInv': item.numero}) }}">Supprimer fichier d'analyse</a>
 									</li>
 								{% endif %}
 

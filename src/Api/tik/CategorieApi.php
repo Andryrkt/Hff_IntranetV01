@@ -10,7 +10,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class CategorieApi extends Controller
 {
     /**
-     * @Route("/api/sous-categorie-fetch/{id}", name="sous_categorie_fetch")
+     * @Route("/api/sous-categorie-fetch/{id}", name="api_sous_categorie_fetch")
      *
      * @return void
      */
@@ -32,7 +32,7 @@ class CategorieApi extends Controller
     }
 
     /**
-     * @Route("/api/autres-categorie-fetch/{id}", name="autre_categorie_fetch")
+     * @Route("/api/autres-categorie-fetch/{id}", name="api_autre_categorie_fetch")
      *
      * @return void
      */

@@ -12,7 +12,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class ListApi extends Controller
 {
     /**
-     * @Route("/command-modal/{numOr}", name="liste_commandModal")
+     * @Route("/api/command-modal/{numOr}", name="api_liste_commandModal")
      *
      * @return void
      */

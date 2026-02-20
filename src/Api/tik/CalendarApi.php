@@ -14,7 +14,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class CalendarApi extends Controller
 {
     /**
-     * @Route("/api/tik/calendar-fetch", name="calendar-fetch", methods={"GET", "POST"})
+     * @Route("/api/tik/calendar-fetch", name="api_calendar_fetch", methods={"GET", "POST"})
      */
     public function calendar(Request $request)
     {
@@ -109,7 +109,7 @@ class CalendarApi extends Controller
     }
 
     /**  
-     * @Route("/api/tik/data/calendar/{id<\d+>}", name="planning_data")
+     * @Route("/api/tik/data/calendar/{id<\d+>}", name="api_planning_data")
      */
     public function replanifier($id, Request $request)
     {

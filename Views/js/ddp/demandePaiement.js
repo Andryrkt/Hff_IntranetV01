@@ -198,7 +198,7 @@ document.addEventListener("DOMContentLoaded", function () {
   /**================
    * numéro facture
    ==================*/
-   function afficherSpinner(containerSelector = "body") {
+  function afficherSpinner(containerSelector = "body") {
     // Création du style de l'animation si non déjà présent
     if (!document.getElementById("spinner-style")) {
       const style = document.createElement("style");
@@ -211,7 +211,7 @@ document.addEventListener("DOMContentLoaded", function () {
       `;
       document.head.appendChild(style);
     }
-  
+
     // Création dynamique du spinner
     const spinner = document.createElement("div");
     spinner.id = "spinner";
@@ -219,7 +219,7 @@ document.addEventListener("DOMContentLoaded", function () {
     spinner.style.justifyContent = "center";
     spinner.style.alignItems = "center";
     spinner.style.margin = "1em 0";
-  
+
     spinner.innerHTML = `
       <div style="
         border: 5px solid #f3f3f3;
@@ -230,8 +230,9 @@ document.addEventListener("DOMContentLoaded", function () {
         animation: spin 1s linear infinite;
       "></div>
     `;
-  
-    const container = document.querySelector(containerSelector) || document.body;
+
+    const container =
+      document.querySelector(containerSelector) || document.body;
     container.appendChild(spinner);
   }
 
@@ -239,16 +240,15 @@ document.addEventListener("DOMContentLoaded", function () {
     const spinner = document.getElementById("spinner");
     if (spinner) spinner.remove();
   }
-  
-  
+
   async function listeFacture(numFournisseur, typeId) {
     try {
       console.log(numFournisseur);
       // afficherSpinner(numFactureInput);
 
-      numFactureInput.innerHTML= "";
-      numCommandeInput.innerHTML= "";
-      montantInput.value=0;
+      numFactureInput.innerHTML = "";
+      numCommandeInput.innerHTML = "";
+      montantInput.value = 0;
 
       const commandes = await fetchManager.get(
         `api/num-cde-frn/${numFournisseur}/${typeId}`
@@ -262,7 +262,7 @@ document.addEventListener("DOMContentLoaded", function () {
       console.log(commandes.listeGcot);
     } catch (error) {
       console.error("Erreur lors de la récupération des commandes :", error);
-    } 
+    }
     // finally {
     //   supprimerSpinner();
     // }
@@ -735,7 +735,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function selectAgence() {
     const agenceDebiteur = agenceDebiteurInput.value;
-    const url = `agence-fetch/${agenceDebiteur}`;
+    const url = `api/agence-fetch/${agenceDebiteur}`;
     toggleSpinner(true);
     fetchManager
       .get(url)
@@ -783,7 +783,7 @@ document.addEventListener("DOMContentLoaded", function () {
   /**==========================================
    * blockage  d'ecriture du champ MONTANT
    *=============================================*/
-  
+
   // allowOnlyNumbers(montantInput);
   registerLocale("fr-custom", { delimiters: { thousands: " ", decimal: "," } }); // Enregistrer une locale personnalisée "fr-custom"
   setLocale("fr-custom"); // Utiliser la locale personnalisée

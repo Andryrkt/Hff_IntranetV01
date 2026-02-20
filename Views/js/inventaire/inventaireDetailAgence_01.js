@@ -12,7 +12,7 @@ const config = {
   },
   urls: {
     inventaireFetch: (agence, dateD, dateF) =>
-      `listeInventaireDispo-fetch/${agence}/${dateD}/${dateF}`,
+      `api/listeInventaireDispo-fetch/${agence}/${dateD}/${dateF}`,
   },
 };
 

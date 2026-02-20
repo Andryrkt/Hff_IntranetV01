@@ -11,7 +11,7 @@ export function fetchServicesForAgence(
   spinnerService,
   serviceContainer
 ) {
-  const url = `service-informix-fetch/${agence}`;
+  const url = `api/service-informix-fetch/${agence}`;
   toggleSpinners(spinnerService, serviceContainer, true);
 
   fetchManager

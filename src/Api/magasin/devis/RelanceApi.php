@@ -9,7 +9,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class RelanceApi extends Controller
 {
     /**
-     * @Route("/api/devis/{numeroDevis}/relances")
+     * @Route("/api/devis/{numeroDevis}/relances", name="api_devis_relances")
      *
      * @param integer $numeroDevis
      * @return void

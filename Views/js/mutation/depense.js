@@ -86,7 +86,9 @@ export async function updateIndemnite(siteId, catgId) {
   try {
     // Affiche le spinner avant de lancer le fetch
     toggleSpinner(spinnerElement, containerElement, true);
-    const data = await fetchData(`site-idemnite-fetch/${siteId}/5/${catgId}/1`);
+    const data = await fetchData(
+      `api/site-idemnite-fetch/${siteId}/5/${catgId}/1`
+    );
     indemniteInput.value = data.montant;
     calculTotalIndemnite();
   } catch (error) {
@@ -106,7 +108,7 @@ export async function updateModePaiement(personnelId) {
   try {
     // Affiche le spinner avant de lancer le fetch
     toggleSpinner(spinnerElement, containerElement, true);
-    const personne = await fetchData(`personnel-fetch-id/${personnelId}`);
+    const personne = await fetchData(`api/personnel-fetch-id/${personnelId}`);
     if (modePaiementLabelInput.value === "VIREMENT BANCAIRE") {
       labelMode.textContent = "CPT";
       modePaiementValueInput.classList.add("readonly");

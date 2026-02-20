@@ -12,7 +12,7 @@ agenceDebiteurInput.addEventListener("change", selectAgence);
 
 function selectAgence() {
   const agenceDebiteur = agenceDebiteurInput.value;
-  const url = `agence-fetch/${agenceDebiteur}`;
+  const url = `api/agence-fetch/${agenceDebiteur}`;
   toggleSpinner(true);
   fetchManager
     .get(url)

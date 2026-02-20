@@ -19,7 +19,7 @@ class DocSoumisDwApi extends Controller
         $this->ditOrsoumisAValidationModel = new DitOrSoumisAValidationModel();
     }
     /**
-     * @Route("/constraint-soumission/{numDit}", name="constraint_soumission")
+     * @Route("/api/constraint-soumission/{numDit}", name="api_constraint_soumission")
      *
      * @param string $numDit
      * @return void

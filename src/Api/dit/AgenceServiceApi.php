@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 class AgenceServiceApi extends Controller
 {
     /**
-     * @Route("/agence-fetch/{id}", name="fetch_agence", methods={"GET"})
+     * @Route("/api/agence-fetch/{id}", name="api_fetch_agence", methods={"GET"})
      * cette fonction permet d'envoyer les donner du service debiteur selon l'agence debiteur en ajax
      * @return void
      */
@@ -43,7 +43,7 @@ class AgenceServiceApi extends Controller
 
 
     /**
-     * @Route("/fetch-materiel/{idMateriel?0}/{numParc?0}/{numSerie?}", name="fetch_materiel", methods={"GET"})
+     * @Route("/api/fetch-materiel/{idMateriel?0}/{numParc?0}/{numSerie?}", name="api_fetch_materiel", methods={"GET"})
      * cette fonctin permet d'envoyer les informations materiels en ajax
      */
     public function fetchMateriel($idMateriel,  $numParc, $numSerie)

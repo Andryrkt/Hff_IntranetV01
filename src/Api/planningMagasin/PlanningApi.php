@@ -19,7 +19,7 @@ class PlanningApi extends Controller
     }
 
     /**
-     * @Route("/serviceDebiteurPlanningMagasin-fetch/{agenceId}")
+     * @Route("/api/serviceDebiteurPlanningMagasin-fetch/{agenceId}", name="api_serviceDebiteurPlanningMagasin_fetch")
      */
     public function serviceDebiteur($agenceId)
     {

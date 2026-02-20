@@ -119,7 +119,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
     // Fetch request to get the data
     fetchManager
-      .get(`command-modal/${id}`)
+      .get(`api/command-modal/${id}`)
       .then((data) => {
         const tableBody = document.getElementById("commandesTableBody");
         tableBody.innerHTML = ""; // Clear previous data

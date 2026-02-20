@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
     const agenceDebiteur = agenceDebiteurInput.value;
 
     //MISE EN PLACE DU SERVICE DESTINATAIRE
-    let url = `service-fetch/${agenceDebiteur}`;
+    let url = `api/badm/service-fetch/${agenceDebiteur}`;
     fetchManager
       .get(url)
       .then((services) => {
@@ -49,7 +49,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
       .catch((error) => console.error("Error:", error));
 
     //MISE EN PLACE DU CASIER DESTINATAIRE
-    let urlCasier = `casier-fetch/${agenceDebiteur}`;
+    let urlCasier = `api/badm/casier-fetch/${agenceDebiteur}`;
     fetchManager
       .get(urlCasier)
       .then((casiers) => {

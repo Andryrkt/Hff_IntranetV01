@@ -12,7 +12,7 @@ class DaEnvoieCdeApi extends Controller
     use JoursOuvrablesTrait;
 
     /**
-     * @Route("/api/da-envoie-cde", name="da_envoie_cde_form", methods={"GET", "POST"})
+     * @Route("/api/da-envoie-cde", name="api_da_envoie_cde_form", methods={"GET", "POST"})
      *
      * @return void
      */

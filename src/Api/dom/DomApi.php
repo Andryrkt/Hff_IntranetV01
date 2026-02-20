@@ -17,7 +17,7 @@ class DomApi extends Controller
     use FormatageTrait;
 
     /**
-     * @Route("/categorie-fetch/{id}", name="fetch_categorie", methods={"GET"})
+     * @Route("/api/categorie-fetch/{id}", name="api_fetch_categorie", methods={"GET"})
      * 
      * Cette fonction permet d'envoier les donner de categorie selon la sousType de document
      *
@@ -69,7 +69,7 @@ class DomApi extends Controller
 
 
     /**
-     * @Route("/form1Data-fetch", name="fetch_form1Data", methods={"GET"})
+     * @Route("/api/form1Data-fetch", name="api_fetch_form1Data", methods={"GET"})
      *permet d'envoyer les donnner du form1
      * @return void
      */
@@ -89,7 +89,7 @@ class DomApi extends Controller
 
 
     /**
-     * @Route("/site-idemnite-fetch/{siteId}/{docId}/{catgId}/{rmqId}", name="fetch_siteIdemnite", methods={"GET"})
+     * @Route("/api/site-idemnite-fetch/{siteId}/{docId}/{catgId}/{rmqId}", name="api_fetch_siteIdemnite", methods={"GET"})
      *
      * @return void
      */
@@ -131,7 +131,7 @@ class DomApi extends Controller
     }
 
     /**
-     * @Route("/personnel-fetch/{matricule}", name="fetch_personnel", methods={"GET"})
+     * @Route("/api/personnel-fetch/{matricule}", name="api_fetch_personnel", methods={"GET"})
      *
      * @param [type] $matricule
      * @return void

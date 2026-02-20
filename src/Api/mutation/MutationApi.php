@@ -10,7 +10,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class MutationApi extends Controller
 {
     /**
-     * @Route("/personnel-fetch-id/{personnelId}", name="fetch_personnel_id", methods={"GET"})
+     * @Route("/api/personnel-fetch-id/{personnelId}", name="api_fetch_personnel_id", methods={"GET"})
      *
      * @param [type] $personnelId
      * @return void

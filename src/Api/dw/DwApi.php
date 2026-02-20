@@ -32,7 +32,7 @@ class DwApi extends Controller
     }
 
     /**
-     * @Route("/dw-fetch/{numDit}", name="fetch_dw")
+     * @Route("/api/dw-fetch/{numDit}", name="api_fetch_dw")
      * 
      * Cette fonction permet d'envoier les donners Ordre de réparation, facture, rapport d'intervention, commande
      * qui correspond à un demande d'intervention
@@ -73,7 +73,7 @@ class DwApi extends Controller
     }
 
     /**
-     *@Route("/dw-chemin-fetch/{numDoc}/{nomDoc}/{numVersion}", name="fetch_dw_chemin")
+     *@Route("/api/dw-chemin-fetch/{numDoc}/{nomDoc}/{numVersion}", name="api_fetch_dw_chemin")
      */
     public function dwCheminFichier($numDoc, $nomDoc, $numVersion)
     {

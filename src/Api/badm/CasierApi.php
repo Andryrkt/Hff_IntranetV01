@@ -18,7 +18,7 @@ class CasierApi extends Controller
     }
 
     /**
-     * @Route("/casierDestinataire", name="badm_casierDestinataire")
+     * @Route("/api/badm/casierDestinataire", name="api_badm_casierDestinataire")
      */
     public function casierDestinataire()
     {

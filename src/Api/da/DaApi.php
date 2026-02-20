@@ -15,7 +15,7 @@ class DaApi extends Controller
     use FormatageTrait;
 
     /**
-     * @Route("/api/demande-appro/sous-famille/{code}", name="fetch_sous_famille", methods={"GET"})
+     * @Route("/api/demande-appro/sous-famille/{code}", name="api_fetch_sous_famille", methods={"GET"})
      *
      * @return void
      */
@@ -51,7 +51,7 @@ class DaApi extends Controller
     }
 
     /**
-     * @Route("/demande-appro/autocomplete/all-designation", name="autocomplete_all_designation_default")
+     * @Route("/api/demande-appro/autocomplete/all-designation", name="api_autocomplete_all_designation_default")
      *
      * @return void
      */
@@ -85,7 +85,7 @@ class DaApi extends Controller
     }
 
     /**
-     * @Route("/demande-appro/autocomplete/all-designation-zst/{famille}/{sousfamille}", name="autocomplete_all_designation_zst")
+     * @Route("/api/demande-appro/autocomplete/all-designation-zst/{famille}/{sousfamille}", name="api_autocomplete_all_designation_zst")
      *
      * @return void
      */
@@ -126,7 +126,7 @@ class DaApi extends Controller
     }
 
     /**
-     * @Route("/demande-appro/autocomplete/all-designation-zdi", name="autocomplete_all_designation_zdi")
+     * @Route("/api/demande-appro/autocomplete/all-designation-zdi", name="api_autocomplete_all_designation_zdi")
      *
      * @return void
      */
@@ -159,7 +159,7 @@ class DaApi extends Controller
     }
 
     /**
-     * @Route("/demande-appro/autocomplete/all-article-stocke", name="autocomplete_all_article_stocke")
+     * @Route("/api/demande-appro/autocomplete/all-article-stocke", name="api_autocomplete_all_article_stocke")
      *
      * @return void
      */
@@ -192,7 +192,7 @@ class DaApi extends Controller
     }
 
     /**
-     * @Route("/demande-appro/autocomplete/all-fournisseur", name="autocomplete_all_fournisseur")
+     * @Route("/api/demande-appro/autocomplete/all-fournisseur", name="api_autocomplete_all_fournisseur")
      *
      * @return void
      */

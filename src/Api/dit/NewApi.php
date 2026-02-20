@@ -15,7 +15,7 @@ class NewApi extends Controller
 
 
     /**
-     * @Route("/api/fetch-materiel", name="api_fetch_materiel", methods={"GET"})
+     * @Route("/api/fetch-all-materiel", name="api_fetch_all_materiel", methods={"GET"})
      * cette fonctin permet d'envoyer les informations materiels en ajax
      */
     public function fetchMateriel()

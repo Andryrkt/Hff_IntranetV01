@@ -12,7 +12,7 @@ use App\Model\magasin\lcfnp\ListeCdeFrnNonPlacerModel;
 class AutocompletionApi extends Controller
 {
     /**
-     * @Route("/designation-fetch/{designation}")
+     * @Route("/api/designation-fetch/{designation}", name="api_designation_fetch")
      *
      * @return void
      */
@@ -32,7 +32,7 @@ class AutocompletionApi extends Controller
 
 
     /**
-     * @Route("/refpiece-fetch/{refPiece}")
+     * @Route("/api/refpiece-fetch/{refPiece}", name="api_refpiece_fetch")
      *
      * @return void
      */
@@ -50,7 +50,7 @@ class AutocompletionApi extends Controller
         echo json_encode($refPieces, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_IGNORE);
     }
     /**
-     * @Route("/frs-non-place-fetch")
+     * @Route("/api/frs-non-place-fetch", name="api_frs_non_place_fetch")
      *
      * @return void
      */
@@ -64,7 +64,7 @@ class AutocompletionApi extends Controller
     }
 
     /**
-     * @Route("/api/code-client-fetch")
+     * @Route("/api/code-client-fetch", name="api_code_client_fetch")
      *
      * @return void
      */

@@ -276,7 +276,7 @@ class demandeInterventionType extends AbstractType
                         'disabled' => true,
                         'class' => 'nomClient noEntrer autocomplete',
                         'autocomplete' => 'off',
-                        'data-autocomplete-url' => 'autocomplete/all-client' //  la route de l'autocomplétion
+                        'data-autocomplete-url' => 'api/autocomplete/all-client' //  la route de l'autocomplétion
                     ]
                 ]
             )
@@ -290,7 +290,7 @@ class demandeInterventionType extends AbstractType
                         'disabled' => true,
                         'class' => 'numClient noEntrer autocomplete',
                         'autocomplete' => 'off',
-                        'data-autocomplete-url' => 'autocomplete/all-client' // la route de l'autocomplétion
+                        'data-autocomplete-url' => 'api/autocomplete/all-client' // la route de l'autocomplétion
                     ]
                 ]
             )

@@ -12,7 +12,7 @@ const config = {
   },
   urls: {
     inventaireFetch: (agence, dateD, dateF) =>
-      `listeInventaireDispo-fetch/${agence}/${dateD}/${dateF}`,
+      `api/listeInventaireDispo-fetch/${agence}/${dateD}/${dateF}`,
   },
 };
 
@@ -21,30 +21,32 @@ const inventaireDispo = document.querySelector(config.elements.inventaireDispo);
 const dateD = document.querySelector(config.elements.dateD);
 const dateF = document.querySelector(config.elements.dateF);
 const checkAll = document.getElementById("detailInventaire_search_service_all");
-const buttonSend = document.getElementById('btn_search');
+const buttonSend = document.getElementById("btn_search");
 
-buttonSend.addEventListener("click",function(event) {
+buttonSend.addEventListener("click", function (event) {
   let allInputCheckbox = document.querySelectorAll(".form-check-input");
-  console.log('allInputCheckbox',  allInputCheckbox);
-  const auMoinsUneCochee = [...allInputCheckbox].some(checkbox => checkbox.checked);
-  
-  console.log('auMoinsUneCochee',  auMoinsUneCochee);
+  console.log("allInputCheckbox", allInputCheckbox);
+  const auMoinsUneCochee = [...allInputCheckbox].some(
+    (checkbox) => checkbox.checked
+  );
+
+  console.log("auMoinsUneCochee", auMoinsUneCochee);
   if (!auMoinsUneCochee) {
     event.preventDefault(); // empêcher l'envoi du formulaire
     Swal.fire("Merci de cocher un inventaire au moins!");
-  } 
+  }
 });
 
-checkAll.addEventListener("click", (afficherTous));
+checkAll.addEventListener("click", afficherTous);
 dateD.addEventListener("change", () => {
   dataInventaireDispo();
 });
 dateF.addEventListener("change", () => {
   dataInventaireDispo();
 });
-agenceInput.addEventListener("change",()=>{
+agenceInput.addEventListener("change", () => {
   dataInventaireDispo();
-})
+});
 
 function dataInventaireDispo() {
   const agence = agenceInput.value;
@@ -54,10 +56,10 @@ function dataInventaireDispo() {
   console.log(agence);
   console.log(dateDebut);
   console.log(dateFin);
-  
+
   inventaireDispo.innerHTML = "";
-  if (agence === "" || dateDebut === "" || dateFin === "" ) return;
-  
+  if (agence === "" || dateDebut === "" || dateFin === "") return;
+
   const spinner = createSpinner();
   inventaireDispo.parentElement.appendChild(spinner);
   console.log(agence);
@@ -93,7 +95,7 @@ function dataInventaireDispo() {
       // Suppression du spinner
       spinner.remove();
     });
-    // checkAll.checked = false
+  // checkAll.checked = false
 }
 
 /// Fonction pour créer le spinner HTML avec CSS intégré
@@ -156,7 +158,6 @@ function afficherTous() {
   checkAll.addEventListener("click", () =>
     checkAllCheckbox(allInputCheckbox, false)
   );
- 
 }
 function checkAllCheckbox(allCheckboxes, checked = false) {
   allCheckboxes.forEach((inputCheckbox) => {
