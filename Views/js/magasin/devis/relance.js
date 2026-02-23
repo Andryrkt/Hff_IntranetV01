@@ -44,7 +44,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (data.success) {
               if (data.statuts) {
                 const row = checkbox.closest("tr");
-                updateRelanceColumns(row, data.statuts);
+                updateRelanceColumns(row, data.statuts, data.relanceClient);
               }
 
               Swal.fire({
@@ -87,14 +87,30 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  function updateRelanceColumns(row, statuts) {
+  function updateRelanceColumns(row, statuts, relanceClient) {
     const relance1 = row.querySelector(".js-relance-1");
     const relance2 = row.querySelector(".js-relance-2");
     const relance3 = row.querySelector(".js-relance-3");
+    const checkbox = row.querySelector(".js-checkbox-stop-relance");
+    const relanceLink = row.querySelector(".js-link-relance-client");
 
     updateColumn(relance1, statuts.statut_relance_1);
     updateColumn(relance2, statuts.statut_relance_2);
     updateColumn(relance3, statuts.statut_relance_3);
+
+    if (checkbox) {
+      const isRelance3Done =
+        statuts.statut_relance_3 && statuts.statut_relance_3 !== "A relancer";
+      checkbox.disabled = !!isRelance3Done;
+    }
+
+    if (relanceLink) {
+      if (relanceClient) {
+        relanceLink.classList.remove("d-none");
+      } else {
+        relanceLink.classList.add("d-none");
+      }
+    }
   }
 
   function updateColumn(element, value) {
