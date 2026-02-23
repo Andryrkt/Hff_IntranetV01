@@ -10,23 +10,19 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Contracts\Cache\ItemInterface;
-use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 class CacheWarmupSecurityCommand extends Command
 {
     protected static $defaultName = 'app:cache-warmup-security';
 
     private EntityManagerInterface $entityManager;
-    private TagAwareCacheInterface $cache;
     private UserDataService $userDataService;
 
-    public function __construct(EntityManagerInterface $entityManager, TagAwareCacheInterface $cache, UserDataService $userDataService)
+    public function __construct(EntityManagerInterface $entityManager, UserDataService $userDataService)
     {
         parent::__construct();
 
         $this->entityManager   = $entityManager;
-        $this->cache           = $cache;
         $this->userDataService = $userDataService;
     }
 
@@ -184,36 +180,11 @@ class CacheWarmupSecurityCommand extends Command
      */
     private function warmupSecurityProfil(Profil $profil): int
     {
-        $profilId = $profil->getId();
-        $tag      = UserDataService::CACHE_TAG_PREFIX . $profilId;
+        $this->userDataService->ecraserPagesProfil($profil);
 
-        // ── 1. Pages du profil ────────────────────────────────────────────────
-        // Stocke la liste de toutes les pages visibles pour ce profil.
-        // Utilisée par getPagesProfil() pour construire les menus et la navigation
-        // sans interroger la base de données à chaque requête.
-        $clePage = sprintf('%s_%s', $tag, UserDataService::SUFFIX_PAGES);
-        $this->cache->delete($clePage);
-        $this->cache->get($clePage, function (ItemInterface $item) use ($profil, $tag): array {
-            $item->expiresAfter(null); // Pas d'expiration automatique : invalidation via tag uniquement
-            $item->tag($tag);
-            return $this->userDataService->calculerPagesProfil($profil);
-        });
-
-        // ── 2. Permissions par route ──────────────────────────────────────────
-        // Pour chaque route accessible au profil, stocke un tableau des 5 droits :
-        // [peutVoir, peutAjouter, peutModifier, peutSupprimer, peutExporter].
-        // Chaque route dispose de sa propre clé de cache (via md5 du nom de route)
-        // pour permettre une lecture ciblée et ultra-rapide lors du contrôle d'accès.
         $routes = $this->getRoutesForProfil($profil);
-
         foreach ($routes as $nomRoute) {
-            $clePermissions = sprintf('%s_%s_%s', $tag, UserDataService::SUFFIX_PERMISSIONS, md5($nomRoute));
-            $this->cache->delete($clePermissions);
-            $this->cache->get($clePermissions, function (ItemInterface $item) use ($nomRoute, $profil, $tag): array {
-                $item->expiresAfter(null); // Pas d'expiration automatique : invalidation via tag uniquement
-                $item->tag($tag);
-                return $this->userDataService->calculerPermissions($nomRoute, $profil);
-            });
+            $this->userDataService->ecraserPermissions($nomRoute, $profil);
         }
 
         return count($routes);

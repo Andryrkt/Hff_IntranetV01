@@ -3,6 +3,7 @@
 namespace App\Service\UserData;
 
 use App\Entity\admin\ApplicationProfil;
+use App\Entity\admin\utilisateur\ApplicationProfilAgenceService;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\admin\utilisateur\Profil;
 use Doctrine\ORM\EntityManagerInterface;
@@ -120,6 +121,24 @@ class UserDataService
     //  PERMISSIONS
     // =========================================================================
 
+    /** 
+     * Écrase et reconstruit les permissions d'une route pour un profil donné.
+     */
+    public function ecraserPermissions(string $nomRoute, Profil $profil): void
+    {
+        $profilId = $profil->getId();
+
+        $tag = self::CACHE_TAG_PREFIX . $profilId;
+        $cle = sprintf('%s_%s_%s', $tag, self::SUFFIX_PERMISSIONS, md5($nomRoute));
+
+        $this->cache->delete($cle);
+        $this->cache->get($cle, function (ItemInterface $item) use ($nomRoute, $profil, $tag): array {
+            $item->expiresAfter(null); // Pas d'expiration automatique : invalidation via tag uniquement
+            $item->tag($tag);
+            return $this->calculerPermissions($nomRoute, $profil);
+        });
+    }
+
     /**
      * Retourne les permissions d'une route pour le profil connecté.
      * Résultat mis en cache applicatif par (profilId + route).
@@ -142,13 +161,27 @@ class UserDataService
         $tag = self::CACHE_TAG_PREFIX . $profilId;
         $cle = sprintf('%s_%s_%s', $tag, self::SUFFIX_PERMISSIONS, md5($nomRoute));
 
-        $donnees = $this->cache->get($cle, function (ItemInterface $item) use ($tag, $nomRoute) {
+        return $this->cachePermissions[$nomRoute] = $this->cache->get($cle, function (ItemInterface $item) use ($tag, $nomRoute) {
             $item->expiresAfter(null);
             $item->tag($tag);
             return $this->calculerPermissions($nomRoute, $this->getProfil());
         });
+    }
 
-        return $this->cachePermissions[$nomRoute] = $donnees;
+    /** 
+     * Écrase et reconstruit les pages visibles pour un profil donné.
+     */
+    public function ecraserPagesProfil(Profil $profil): void
+    {
+        $profilId = $profil->getId();
+        $tag = self::CACHE_TAG_PREFIX . $profilId;
+        $cle = sprintf('%s_%s', $tag, self::SUFFIX_PAGES);
+        $this->cache->delete($cle);
+        $this->cache->get($cle, function (ItemInterface $item) use ($tag, $profil) {
+            $item->expiresAfter(null);
+            $item->tag($tag);
+            return $this->calculerPagesProfil($profil);
+        });
     }
 
     /**
@@ -174,13 +207,11 @@ class UserDataService
         $tag = self::CACHE_TAG_PREFIX . $profilId;
         $cle = sprintf('%s_%s', $tag, self::SUFFIX_PAGES);
 
-        $donnees = $this->cache->get($cle, function (ItemInterface $item) use ($tag) {
+        return $this->cachePagesProfilDonnees = $this->cache->get($cle, function (ItemInterface $item) use ($tag) {
             $item->expiresAfter(null);
             $item->tag($tag);
             return $this->calculerPagesProfil($this->getProfil());
         });
-
-        return $this->cachePagesProfilDonnees = $donnees;
     }
 
     // =========================================================================
@@ -292,6 +323,39 @@ class UserDataService
         }
 
         return $pages;
+    }
+
+    /**
+     * Calcule les agences et services autorisés pour le profil depuis la BDD.
+     * Retourne des tableaux de scalaires (sérialisables en cache).
+     */
+    public function calculerAgenceService(?Profil $profil = null): array
+    {
+        if ($profil === null) {
+            return [];
+        }
+
+        $agenceServices = [];
+
+        /** @var ApplicationProfil $applicationProfil */
+        foreach ($profil->getApplicationProfils() as $applicationProfil) {
+            $codeApplication = $applicationProfil->getApplication()->getCodeApp();
+
+            /** @var ApplicationProfilAgenceService $applicationProfilAgenceService */
+            foreach ($applicationProfil->getLiaisonsAgenceService() as $applicationProfilAgenceService) {
+                $agenceService = $applicationProfilAgenceService->getAgenceService();
+
+                // On stocke uniquement des scalaires (pas d'entité Doctrine)
+                $agenceServices[$codeApplication][$agenceService->getId()] = [
+                    'agence_id'    => $agenceService->getAgence()->getId(),
+                    'service_id'   => $agenceService->getService()->getId(),
+                    'agence_code'  => $agenceService->getAgence()->getCodeAgence(),
+                    'service_code' => $agenceService->getService()->getCodeService(),
+                ];
+            }
+        }
+
+        return $agenceServices;
     }
 
     /**

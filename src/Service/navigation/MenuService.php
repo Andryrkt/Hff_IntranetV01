@@ -35,6 +35,22 @@ class MenuService
     //  API PUBLIQUE
     // =========================================================================
 
+    /** 
+     * Écrase et reconstruit le menu principal pour un profil donné.
+     */
+    public function ecraserMenuStructure(int $profilId): void
+    {
+        $cle = self::CACHE_KEY_PRINCIPAL . $profilId;
+        $tag = self::CACHE_TAG_PREFIX    . $profilId;
+
+        $this->cache->delete($cle);
+        $this->cache->get($cle, function (ItemInterface $item) use ($tag): array {
+            $item->expiresAfter(null); // Pas d'expiration automatique : invalidation via tag uniquement
+            $item->tag($tag);
+            return $this->construireMenuPrincipal();
+        });
+    }
+
     /**
      * Retourne la structure du menu principal filtré par peutVoir.
      */
@@ -99,6 +115,22 @@ class MenuService
     // =========================================================================
     //  API PUBLIQUE — MENU ADMIN
     // =========================================================================
+
+    /**
+     * Écrase et reconstruit le menu Administrateur pour un profil donné.
+     */
+    public function ecraserAdminMenuStructure(int $profilId): void
+    {
+        $cle = self::CACHE_KEY_ADMIN  . $profilId;
+        $tag = self::CACHE_TAG_PREFIX . $profilId;
+
+        $this->cache->delete($cle);
+        $this->cache->get($cle, function (ItemInterface $item) use ($tag): array {
+            $item->expiresAfter(null);
+            $item->tag($tag);
+            return $this->construireMenuAdmin();
+        });
+    }
 
     /**
      * Retourne la structure du menu Administrateur, filtrée par peutVoir.

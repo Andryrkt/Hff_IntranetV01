@@ -9,23 +9,19 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Contracts\Cache\ItemInterface;
-use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 class CacheWarmupMenuCommand extends Command
 {
     protected static $defaultName = 'app:cache-warmup-menu';
 
     private EntityManagerInterface $entityManager;
-    private TagAwareCacheInterface $cache;
     private MenuService $menuService;
 
-    public function __construct(EntityManagerInterface $entityManager, TagAwareCacheInterface $cache, MenuService $menuService)
+    public function __construct(EntityManagerInterface $entityManager, MenuService $menuService)
     {
         parent::__construct();
 
         $this->entityManager = $entityManager;
-        $this->cache         = $cache;
         $this->menuService   = $menuService;
     }
 
@@ -172,28 +168,8 @@ class CacheWarmupMenuCommand extends Command
     private function warmupMenuProfil(Profil $profil): void
     {
         $profilId = $profil->getId();
-        $tag      = MenuService::CACHE_TAG_PREFIX . $profilId;
 
-        // ── 1. Menu principal ─────────────────────────────────────────────────
-        // Représente la barre de navigation principale de l'application,
-        // construite selon les modules et routes accessibles (peutVoir = true) pour ce profil.
-        $cleMenuPrincipal = MenuService::CACHE_KEY_PRINCIPAL . $profilId;
-        $this->cache->delete($cleMenuPrincipal);
-        $this->cache->get($cleMenuPrincipal, function (ItemInterface $item) use ($tag): array {
-            $item->expiresAfter(null); // Pas d'expiration automatique : invalidation via tag uniquement
-            $item->tag($tag);
-            return $this->menuService->construireMenuPrincipal();
-        });
-
-        // ── 2. Menu admin ─────────────────────────────────────────────────────
-        // Représente le panneau d'administration, avec ses groupes (Accès & Sécurité,
-        // Applications, etc.), filtré selon les droits du profil.
-        $cleMenuAdmin = MenuService::CACHE_KEY_ADMIN . $profilId;
-        $this->cache->delete($cleMenuAdmin);
-        $this->cache->get($cleMenuAdmin, function (ItemInterface $item) use ($tag): array {
-            $item->expiresAfter(null); // Pas d'expiration automatique : invalidation via tag uniquement
-            $item->tag($tag);
-            return $this->menuService->construireMenuAdmin();
-        });
+        $this->menuService->ecraserMenuStructure($profilId);
+        $this->menuService->ecraserAdminMenuStructure($profilId);
     }
 }

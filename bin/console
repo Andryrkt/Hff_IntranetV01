@@ -29,11 +29,11 @@ $application->add(new MigrationPdfDevisMagasinVdCommand($entitymanager));
 
 $cachePermissions = new FilesystemTagAwareAdapter('security', 3600, dirname(__DIR__) . '/var/cache/pools');
 $userDataService = new UserDataService($entityManager, $cachePermissions);
-$application->add(new CacheWarmupSecurityCommand($entityManager, $cachePermissions, $userDataService));
+$application->add(new CacheWarmupSecurityCommand($entityManager, $userDataService));
 
 $cacheMenu = new FilesystemTagAwareAdapter('menu', 3600, dirname(__DIR__) . '/var/cache/pools');
 $menuService = new MenuService($userDataService, $cacheMenu);
-$application->add(new CacheWarmupMenuCommand($entityManager, $cacheMenu, $menuService));
+$application->add(new CacheWarmupMenuCommand($entityManager, $menuService));
 
 // Exécuter la commande
 $application->run();
