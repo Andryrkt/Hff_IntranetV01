@@ -57,12 +57,8 @@
 									<li>
 										<a class="dropdown-item fw-bold" href="{{ row.url.verificationPrix }}">Soumission devis pour verification prix</a>
 										<a class="dropdown-item fw-bold" href="{{ row.url.validationDevis }}">Soumission devis pour validation</a>
-										{% if row.relanceClient %}
-											<a class="dropdown-item fw-bold" href="#" data-bs-toggle="modal" data-bs-target="#pointageRelanceModal" data-bs-numero-devis="{{ row.numeroDevis }}">Pointer relance devis client</a>
-										{% endif %}
-										{% if row.pointageDevis %}
-											<a class="dropdown-item fw-bold" href="{{ row.url.pointageDevis }}">Pointage envoye devis au client</a>
-										{% endif %}
+										<a class="dropdown-item fw-bold js-link-relance-client {% if not row.relanceClient %}d-none{% endif %}" href="#" data-bs-toggle="modal" data-bs-target="#pointageRelanceModal" data-bs-numero-devis="{{ row.numeroDevis }}">Pointer relance devis client</a>
+										<a class="dropdown-item fw-bold js-link-pointage-devis {% if not row.pointageDevis %}d-none{% endif %}" href="{{ row.url.pointageDevis }}">Pointage envoye devis au client</a>
 										<a class="dropdown-item fw-bold" href="{{ row.url.soumissionBC }}">Soumission BC client pour validation</a>
 									</li>
 								</ul>
@@ -86,7 +82,7 @@
 						<td class="text-center">
 							{% if row.statutRelance1 is not null %}
 								<div class="form-check form-switch d-flex justify-content-center">
-									<input class="form-check-input js-checkbox-stop-relance" type="checkbox" role="switch" data-numero-devis="{{ row.numeroDevis }}" {% if row.stopRelance %} checked {% endif %}>
+									<input class="form-check-input js-checkbox-stop-relance" type="checkbox" role="switch" data-numero-devis="{{ row.numeroDevis }}" {% if row.stopRelance %} checked {% endif %} {% if row.statutRelance3 is not null and row.statutRelance3 != 'A relancer' %} disabled {% endif %}>
 								</div>
 							{% endif %}
 						</td>
