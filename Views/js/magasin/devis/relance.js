@@ -1,19 +1,20 @@
 import { FetchManager } from "../../api/FetchManager.js";
 document.addEventListener("DOMContentLoaded", function () {
-  const btnsStopRelance = document.querySelectorAll(".js-btn-stop-relance");
+  const checkboxesStopRelance = document.querySelectorAll(
+    ".js-checkbox-stop-relance",
+  );
   const fetchManager = new FetchManager();
 
-  btnsStopRelance.forEach((btn) => {
-    btn.addEventListener("click", stopOuRelance);
+  checkboxesStopRelance.forEach((checkbox) => {
+    checkbox.addEventListener("change", stopOuRelance);
   });
 
   function stopOuRelance(event) {
-    event.preventDefault();
-    const btn = event.currentTarget;
-    const numeroDevis = btn.dataset.numeroDevis;
-    const isCurrentlyStopped = btn.textContent.trim() === "OUI";
+    const checkbox = event.currentTarget;
+    const numeroDevis = checkbox.dataset.numeroDevis;
+    const isNowChecked = checkbox.checked;
 
-    const action = isCurrentlyStopped ? "réactiver" : "arrêter";
+    const action = isNowChecked ? "arrêter" : "réactiver";
 
     Swal.fire({
       title: "Confirmation",
@@ -41,30 +42,24 @@ document.addEventListener("DOMContentLoaded", function () {
           .then((data) => {
             if (overlay) overlay.classList.remove("active");
             if (data.success) {
-              const newIsStopped = !isCurrentlyStopped;
-
-              // Mise à jour visuelle du bouton sans rechargement
-              if (newIsStopped) {
-                btn.textContent = "OUI";
-                btn.classList.remove("btn-warning");
-                btn.classList.add("btn-success");
-              } else {
-                btn.textContent = "NON";
-                btn.classList.remove("btn-success");
-                btn.classList.add("btn-warning");
+              if (data.statuts) {
+                const row = checkbox.closest("tr");
+                updateRelanceColumns(row, data.statuts);
               }
 
               Swal.fire({
                 title: "Succès !",
                 text:
                   "Relance " +
-                  (newIsStopped ? "arrêtée" : "réactivée") +
+                  (isNowChecked ? "arrêtée" : "réactivée") +
                   " avec succès.",
                 icon: "success",
-                timer: 1500,
+                timer: 3000,
                 showConfirmButton: false,
               });
             } else {
+              // Revert state on failure
+              checkbox.checked = !isNowChecked;
               Swal.fire({
                 title: "Erreur",
                 text:
@@ -76,6 +71,8 @@ document.addEventListener("DOMContentLoaded", function () {
           })
           .catch((error) => {
             if (overlay) overlay.classList.remove("active");
+            // Revert state on error
+            checkbox.checked = !isNowChecked;
             console.error("Error:", error);
             Swal.fire({
               title: "Erreur",
@@ -83,7 +80,36 @@ document.addEventListener("DOMContentLoaded", function () {
               icon: "error",
             });
           });
+      } else {
+        // Revert state if cancelled
+        checkbox.checked = !isNowChecked;
       }
     });
+  }
+
+  function updateRelanceColumns(row, statuts) {
+    const relance1 = row.querySelector(".js-relance-1");
+    const relance2 = row.querySelector(".js-relance-2");
+    const relance3 = row.querySelector(".js-relance-3");
+
+    updateColumn(relance1, statuts.statut_relance_1);
+    updateColumn(relance2, statuts.statut_relance_2);
+    updateColumn(relance3, statuts.statut_relance_3);
+  }
+
+  function updateColumn(element, value) {
+    if (!element) return;
+
+    element.textContent = value || "";
+
+    // Remove old background classes
+    element.classList.remove("bg-warning", "bg-danger", "text-white");
+
+    if (value === "A relancer") {
+      element.classList.add("bg-danger", "text-white");
+    } else if (value) {
+      // It's a date or other status
+      element.classList.add("bg-warning");
+    }
   }
 });

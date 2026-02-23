@@ -33,7 +33,9 @@ class ListeDevisMagasinController extends Controller
     private $styleStatutDw = [];
     private $styleStatutBc = [];
     private $statutIPS = [];
-    private $styleStatutPR = [];
+    private $styleStatutPR1 = [];
+    private $styleStatutPR2 = [];
+    private $styleStatutPR3 = [];
 
     private ListeDevisMagasinModel $listeDevisMagasinModel;
 
@@ -62,7 +64,16 @@ class ListeDevisMagasinController extends Controller
             BcMagasin::STATUT_VALIDER => 'bg-bc-valide'
         ];
 
-        $this->styleStatutPR = [
+        $this->styleStatutPR1 = [
+            PointageRelanceStatutConstant::STATUT_POINTAGE_RELANCE_A_RELANCER => 'bg-danger text-white',
+            PointageRelanceStatutConstant::STATUT_POINTAGE_RELANCE_RELANCE => 'bg-warning'
+        ];
+        $this->styleStatutPR2 = [
+            PointageRelanceStatutConstant::STATUT_POINTAGE_RELANCE_A_RELANCER => 'bg-danger text-white',
+            PointageRelanceStatutConstant::STATUT_POINTAGE_RELANCE_RELANCE => 'bg-warning'
+        ];
+
+        $this->styleStatutPR3 = [
             PointageRelanceStatutConstant::STATUT_POINTAGE_RELANCE_A_RELANCER => 'bg-danger text-white',
             PointageRelanceStatutConstant::STATUT_POINTAGE_RELANCE_RELANCE => 'bg-warning'
         ];
@@ -107,7 +118,7 @@ class ListeDevisMagasinController extends Controller
         $this->getSessionService()->set('criteria_for_excel_liste_devis_magasin', $criteriaForSession);
 
         $listeDevisFactory = $this->recuperationDonner($criteria);
-        $preparedDatas     = $this->prepareDatasForView($listeDevisFactory, $this->styleStatutDw, $this->styleStatutBc, $this->statutIPS, $this->styleStatutPR);
+        $preparedDatas     = $this->prepareDatasForView($listeDevisFactory, $this->styleStatutDw, $this->styleStatutBc, $this->statutIPS, $this->styleStatutPR1, $this->styleStatutPR2, $this->styleStatutPR3);
 
 
         // affichage de la liste des devis magasin
@@ -361,7 +372,7 @@ class ListeDevisMagasinController extends Controller
      * 
      * @return array
      */
-    private function prepareDatasForView(array $listeDevisFactory, array $styleStatutDw, array $styleStatutBc, array $statutIpsArray, array $styleStatutPR): array
+    private function prepareDatasForView(array $listeDevisFactory, array $styleStatutDw, array $styleStatutBc, array $statutIpsArray, array $styleStatutPR1, array $styleStatutPR2, array $styleStatutPR3): array
     {
         $data = [];
         foreach ($listeDevisFactory as $devis) {
@@ -376,7 +387,7 @@ class ListeDevisMagasinController extends Controller
             $numeroDevis = $devis->getNumeroDevis();
 
             $pointageDevis = in_array($statutDw, [DevisMagasin::STATUT_PRIX_VALIDER_TANA, DevisMagasin::STATUT_PRIX_MODIFIER_TANA, DevisMagasin::STATUT_VALIDE_AGENCE]);
-            $relanceClient = $statutDw === DevisMagasin::STATUT_ENVOYER_CLIENT && $statutBc ===  BcMagasin::STATUT_EN_ATTENTE_BC && in_array(PointageRelanceStatutConstant::STATUT_POINTAGE_RELANCE_A_RELANCER, [$statutRelance1, $statutRelance2, $statutRelance3]);
+            $relanceClient = $statutDw === DevisMagasin::STATUT_ENVOYER_CLIENT && $statutBc ===  BcMagasin::STATUT_EN_ATTENTE_BC && in_array(PointageRelanceStatutConstant::STATUT_POINTAGE_RELANCE_A_RELANCER, [$statutRelance1, $statutRelance2, $statutRelance3]) && !$devis->getStopRelance();
 
             // Création d'url
             $url = [
@@ -414,13 +425,13 @@ class ListeDevisMagasinController extends Controller
                 'statutRelance2' => $statutRelance2,
                 'statutRelance3' => $statutRelance3,
                 'relances' => $devis->getRelances() ?? [],
-                'styleStatutPR' => $styleStatutPR[$statutRelance1] ?? '',
+                'styleStatutPR1' => $styleStatutPR1[$statutRelance1] ?? '',
+                'styleStatutPR2' => $styleStatutPR2[$statutRelance2] ?? '',
+                'styleStatutPR3' => $styleStatutPR3[$statutRelance3] ?? '',
                 'stopRelance' => $devis->getStopRelance()
             ];
         }
 
         return $data;
     }
-
-    
 }

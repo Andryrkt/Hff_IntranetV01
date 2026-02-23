@@ -23,7 +23,21 @@ document.addEventListener("DOMContentLoaded", function () {
       var numeroDevis = button.getAttribute("data-bs-numero-devis");
 
       var modalBody = pointageRelanceModal.querySelector(".modal-body");
-      modalBody.innerHTML = "Chargement du formulaire...";
+      var submitButton = pointageRelanceModal.querySelector(
+        'button[form="pointageRelanceForm"][type="submit"]',
+      );
+
+      if (submitButton) {
+        submitButton.disabled = true;
+      }
+
+      modalBody.innerHTML = `
+        <div class="d-flex justify-content-center p-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="sr-only">Chargement...</span>
+          </div>
+        </div>
+      `;
 
       const endpoint = `magasin/dematerialisation/pointage-relance-form/${numeroDevis}`;
 
@@ -31,6 +45,9 @@ document.addEventListener("DOMContentLoaded", function () {
         .get(endpoint, "text")
         .then((html) => {
           modalBody.innerHTML = html;
+          if (submitButton) {
+            submitButton.disabled = false;
+          }
         })
         .catch((error) => {
           console.error("Error loading the form:", error);
@@ -75,22 +92,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // Validation côté client pour dateDeRelance
       const dateDeRelance = data["dateDeRelance"];
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
 
-      if (dateDeRelance) {
-        const selectedDate = new Date(dateDeRelance);
-        selectedDate.setHours(0, 0, 0, 0);
-
-        if (selectedDate < today) {
-          Swal.fire({
-            icon: "error",
-            title: "Erreur de validation",
-            text: "La date de relance doit être supérieure ou égale à la date du jour.",
-          });
-          return;
-        }
-      } else {
+      if (!dateDeRelance) {
         Swal.fire({
           icon: "error",
           title: "Erreur de validation",

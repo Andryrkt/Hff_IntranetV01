@@ -414,7 +414,7 @@ class ListeDevisMagasinModel extends Model
     public function getStatutRelance(string $numeroDevis): ?array
     {
         $sql = " SET NOCOUNT ON;
-                DECLARE @date_limite DATE = '2026-02-18';
+                DECLARE @date_limite DATE = '2025-02-18';
                 WITH relance_stats AS (
                     SELECT 
                         dsavn.numero_devis,
@@ -475,12 +475,13 @@ class ListeDevisMagasinModel extends Model
                         WHEN rs.statut_bc = 'En attente bc' 
                             AND rs.nb_relances = 0 
                             AND rs.delai_jours >= 7
-                            AND (rs.stop_progression_global = 0) -- Si réactivé, c'est 0
+                            AND (rs.stop_progression_global = 0 OR rs.stop_progression_global IS NULL) -- Si réactivé, c'est 0
                             AND (rs.stop_niveau_1 = 0) -- Si réactivé, c'est 0
                         THEN 'A relancer'
                         
                         WHEN rs.date_relance_1 < @date_limite THEN NULL
-                        ELSE FORMAT(rs.date_envoye_devis_client, 'dd/MM/yyyy')
+                        ELSE null
+                        -- ELSE FORMAT(rs.date_envoye_devis_client, 'dd/MM/yyyy')
                     END AS statut_relance_1,
                     
                     -- Statut relance 2
@@ -493,13 +494,17 @@ class ListeDevisMagasinModel extends Model
                         WHEN rs.statut_bc = 'En attente bc' 
                             AND rs.nb_relances = 1 
                             AND rs.delai_jours >= 7
-                            AND (rs.stop_progression_global = 0)
+                            AND (rs.stop_progression_global = 0 OR rs.stop_progression_global IS NULL)
                             AND (rs.stop_niveau_2 = 0)
                         THEN 'A relancer'
                         
                         WHEN rs.statut_bc = 'En attente bc' 
                             AND rs.nb_relances = 1 
                             AND rs.delai_jours < 7 
+                        THEN NULL
+
+                        WHEN rs.statut_bc = 'En attente bc'
+                            AND rs.stop_progression_global = 1
                         THEN NULL
                         
                         WHEN rs.date_relance_2 < @date_limite THEN NULL
@@ -514,12 +519,16 @@ class ListeDevisMagasinModel extends Model
                         WHEN rs.statut_bc = 'En attente bc' 
                             AND rs.nb_relances = 2 
                             AND rs.delai_jours >= 7
-                            AND (rs.stop_progression_global = 0)
+                            AND (rs.stop_progression_global = 0 OR rs.stop_progression_global IS NULL)
                             AND (rs.stop_niveau_3 = 0)
                         THEN 'A relancer'
                         
                         WHEN rs.statut_bc = 'En attente bc' 
                             AND (rs.nb_relances < 2 OR (rs.nb_relances = 2 AND rs.delai_jours < 7))
+                        THEN NULL
+                        
+                        WHEN rs.statut_bc = 'En attente bc'
+                            AND rs.stop_progression_global = 1
                         THEN NULL
                         
                         WHEN rs.derniere_relance < @date_limite THEN NULL
@@ -594,10 +603,10 @@ class ListeDevisMagasinModel extends Model
                      ORDER BY numero_version DESC";
         $execCheck = $this->connexion->query($sqlCheck);
         $row = @odbc_fetch_array($execCheck);
-        
+
         $currentState = $row ? (int)$row['stop_progression_global'] : 0;
         $newState = ($currentState === 1) ? 0 : 1;
-        
+
         if ($newState === 1) {
             // On stoppe
             $sql = "UPDATE devis_soumis_a_validation_neg 
