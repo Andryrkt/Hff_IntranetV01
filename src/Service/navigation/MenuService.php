@@ -11,7 +11,6 @@ class MenuService
     // ─── Configuration du cache persistant ───────────────────────────────────
     public const CACHE_KEY_PRINCIPAL = 'menu.principal.profil_';
     public const CACHE_KEY_ADMIN     = 'menu.admin.profil_';
-    public const CACHE_TAG_PREFIX    = 'menu.profil_'; // tag partagé → invalidation groupée
 
     public UserDataService $userDataService;
     private TagAwareCacheInterface $cache;
@@ -41,12 +40,10 @@ class MenuService
     public function ecraserMenuStructure(int $profilId): void
     {
         $cle = self::CACHE_KEY_PRINCIPAL . $profilId;
-        $tag = self::CACHE_TAG_PREFIX    . $profilId;
 
         $this->cache->delete($cle);
-        $this->cache->get($cle, function (ItemInterface $item) use ($tag): array {
+        $this->cache->get($cle, function (ItemInterface $item): array {
             $item->expiresAfter(null); // Pas d'expiration automatique : invalidation via tag uniquement
-            $item->tag($tag);
             return $this->construireMenuPrincipal();
         });
     }
@@ -70,11 +67,9 @@ class MenuService
 
         // Couche 2 : cache persistant
         $cle = self::CACHE_KEY_PRINCIPAL . $profilId;
-        $tag = self::CACHE_TAG_PREFIX    . $profilId;
 
-        return $this->cacheMenuStructure = $this->cache->get($cle, function (ItemInterface $item) use ($tag): array {
+        return $this->cacheMenuStructure = $this->cache->get($cle, function (ItemInterface $item): array {
             $item->expiresAfter(null);
-            $item->tag($tag);
             return $this->construireMenuPrincipal();
         });
     }
@@ -606,12 +601,10 @@ class MenuService
     public function ecraserAdminMenuStructure(int $profilId): void
     {
         $cle = self::CACHE_KEY_ADMIN  . $profilId;
-        $tag = self::CACHE_TAG_PREFIX . $profilId;
 
         $this->cache->delete($cle);
-        $this->cache->get($cle, function (ItemInterface $item) use ($tag): array {
+        $this->cache->get($cle, function (ItemInterface $item): array {
             $item->expiresAfter(null);
-            $item->tag($tag);
             return $this->construireMenuAdmin();
         });
     }
@@ -635,11 +628,9 @@ class MenuService
 
         // Couche 2 : cache persistant
         $cle = self::CACHE_KEY_ADMIN  . $profilId;
-        $tag = self::CACHE_TAG_PREFIX . $profilId;
 
-        return $this->cacheAdminMenuStructure = $this->cache->get($cle, function (ItemInterface $item) use ($tag): array {
+        return $this->cacheAdminMenuStructure = $this->cache->get($cle, function (ItemInterface $item): array {
             $item->expiresAfter(null);
-            $item->tag($tag);
             return $this->construireMenuAdmin();
         });
     }
@@ -770,7 +761,8 @@ class MenuService
      */
     public function invaliderCacheProfil(int $profilId): void
     {
-        $this->cache->invalidateTags([self::CACHE_TAG_PREFIX . $profilId]);
+        $this->cache->delete(self::CACHE_KEY_PRINCIPAL . $profilId);
+        $this->cache->delete(self::CACHE_KEY_ADMIN  . $profilId);
 
         // Vide aussi le cache intra-requête pour que la même requête soit cohérente
         $this->cacheMenuStructure      = null;
