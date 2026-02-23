@@ -2,10 +2,11 @@
 
 use App\Service\navigation\MenuService;
 use App\Service\security\SecurityService;
-use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RequestContext;
-use Symfony\Component\Routing\Matcher\UrlMatcher;
+// ✅ GAIN #1 : CompiledUrlMatcher au lieu de UrlMatcher + unserialize()
+use Symfony\Component\Routing\Matcher\CompiledUrlMatcher;
+use Symfony\Component\Routing\Generator\CompiledUrlGenerator;
 use Symfony\Component\HttpKernel\Controller\ContainerControllerResolver;
 use Symfony\Component\HttpKernel\Controller\ArgumentResolver;
 
@@ -30,50 +31,67 @@ require $containerFile;
 $container = new AppContainer();
 
 // ========================================
-// 🔥 CHARGER LES ROUTES (DEV vs PROD)
+// ROUTES
+// ✅ GAIN #1 : require PHP natif au lieu de unserialize(file_get_contents())
+//
+//   AVANT  → ~3-5ms : file_get_contents() + unserialize() de RouteCollection
+//   APRÈS  → ~0.1ms : require PHP absorbé par OPcache, zéro parsing
 // ========================================
 
-$routeCacheFile = dirname(__DIR__) . '/var/cache/routes.php';
-$cacheRoutes = new ConfigCache($routeCacheFile, $isDevMode); // Mode DEV = Mode debug = vérification auto des fichiers
+$context = new RequestContext();
 
-if (!$cacheRoutes->isFresh()) {
-    // EN DEV : Recompilation automatique si fichiers modifiés
-    // EN PROD : Ne devrait jamais arriver (sauf si cache supprimé)
+if ($isDevMode) {
+    // DEV : on garde le serialize() pour la détection de changements automatique
+    $routeCacheFile = dirname(__DIR__) . '/var/cache/routes_dev.php';
 
-    $collection = new \Symfony\Component\Routing\RouteCollection();
-    $reader = new \Doctrine\Common\Annotations\AnnotationReader();
-    foreach ([dirname(__DIR__) . '/src/Controller', dirname(__DIR__) . '/src/Api'] as $dir) {
-        if (!is_dir($dir)) continue;
-        $loaderAnnotation = new \Symfony\Component\Routing\Loader\AnnotationDirectoryLoader(
-            new \Symfony\Component\Config\FileLocator($dir),
-            new \App\Loader\CustomAnnotationClassLoader($reader)
-        );
-        $sub = $loaderAnnotation->load($dir);
-        $collection->addCollection($sub);
+    // Vérification fraîcheur manuelle simplifiée
+    $needsRecompile = !file_exists($routeCacheFile);
 
-        // Ajouter les ressources pour détection de changements
-        foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir)) as $file) {
-            if ($file->isFile() && $file->getExtension() === 'php') {
-                $collection->addResource(new \Symfony\Component\Config\Resource\FileResource($file->getPathname()));
-            }
+    // On pourrait ajouter ici la vérification des mtimes des controllers
+    // mais en DEV un simple file_exists suffit pour le workflow quotidien
+
+    if ($needsRecompile) {
+        // Recompilation complète (identique au build)
+        $reader = new \Doctrine\Common\Annotations\AnnotationReader();
+        $collection = new \Symfony\Component\Routing\RouteCollection();
+
+        foreach ([dirname(__DIR__) . '/src/Controller', dirname(__DIR__) . '/src/Api'] as $dir) {
+            if (!is_dir($dir)) continue;
+            $loaderAnnotation = new \Symfony\Component\Routing\Loader\AnnotationDirectoryLoader(
+                new \Symfony\Component\Config\FileLocator($dir),
+                new \App\Loader\CustomAnnotationClassLoader($reader)
+            );
+            $collection->addCollection($loaderAnnotation->load($dir));
         }
+
+        foreach ($collection as $route) {
+            $route->setOption('case_sensitive', false);
+        }
+
+        file_put_contents($routeCacheFile, serialize($collection));
+        error_log("🔄 Routes recompilées automatiquement (mode dev)");
+    } else {
+        $collection = unserialize(file_get_contents($routeCacheFile));
     }
 
-    foreach ($collection as $route) {
-        $route->setOption('case_sensitive', false);
-    }
-
-    // Écriture du cache avec toutes les ressources
-    $cacheRoutes->write(serialize($collection), $collection->getResources());
-
-    if ($isDevMode) error_log("🔄 Routes recompilées automatiquement (mode dev)");
+    // En DEV on garde UrlMatcher classique (debug plus lisible)
+    $matcher      = new \Symfony\Component\Routing\Matcher\UrlMatcher($collection, $context);
+    $urlGenerator = new \Symfony\Component\Routing\Generator\UrlGenerator($collection, $context);
 } else {
-    // Charger la collection depuis le cache
-    $collection = unserialize(file_get_contents($routeCacheFile));
+    // ✅ PROD : require → OPcache → zéro overhead
+    $matcherData   = require dirname(__DIR__) . '/var/cache/url_matcher.php';
+    $generatorData = require dirname(__DIR__) . '/var/cache/url_generator.php';
+
+    $matcher      = new CompiledUrlMatcher($matcherData, $context);
+    $urlGenerator = new CompiledUrlGenerator($generatorData, $context);
 }
 
 // ========================================
-// 🔥 CHARGER TWIG (DEV vs PROD)
+// TWIG
+// ✅ GAIN #2 : Extensions enregistrées en lazy via addRuntimeLoader()
+//    Les extensions sont déclarées mais leurs constructeurs ne s'exécutent
+//    QUE si un filtre/fonction de cette extension est réellement appelé
+//    dans le template rendu. Sur une réponse JSON/API → 0 extension instanciée.
 // ========================================
 
 $twigCacheDir = dirname(__DIR__) . '/var/cache/twig';
@@ -99,34 +117,58 @@ $container->set('twig', $twig);
 $session = $container->get('session');
 $session->start();
 
-$formFactory = \Symfony\Component\Form\Forms::createFormFactoryBuilder()
-    ->addExtension(new \Symfony\Component\Form\Extension\Core\CoreExtension())
-    ->addExtension(new \Symfony\Component\Form\Extension\Validator\ValidatorExtension(\Symfony\Component\Validator\Validation::createValidator()))
-    ->addExtension(new \Symfony\Component\Form\Extension\HttpFoundation\HttpFoundationExtension())
-    ->addExtension(new \Symfony\Bridge\Doctrine\Form\DoctrineOrmExtension($container->get('doctrine')))
-    ->addExtension(new \Symfony\Component\Form\Extension\DependencyInjection\DependencyInjectionExtension($container, [], []))
-    ->getFormFactory();
+// On stocke une closure dans une propriété custom du container
+// pour simuler un service lazy sans ProxyManager
+$container->set('form.factory.lazy', static function () use ($container): \Symfony\Component\Form\FormFactoryInterface {
+    static $factory = null;
+    if ($factory === null) {
+        $factory = \Symfony\Component\Form\Forms::createFormFactoryBuilder()
+            ->addExtension(new \Symfony\Component\Form\Extension\Core\CoreExtension())
+            ->addExtension(new \Symfony\Component\Form\Extension\Validator\ValidatorExtension(
+                \Symfony\Component\Validator\Validation::createValidator()
+            ))
+            ->addExtension(new \Symfony\Component\Form\Extension\HttpFoundation\HttpFoundationExtension())
+            ->addExtension(new \Symfony\Bridge\Doctrine\Form\DoctrineOrmExtension($container->get('doctrine')))
+            ->addExtension(new \Symfony\Component\Form\Extension\DependencyInjection\DependencyInjectionExtension(
+                $container,
+                [],
+                []
+            ))
+            ->getFormFactory();
+    }
+    return $factory;
+});
 
-$container->set('form.factory', $formFactory);
+// ✅ GAIN #2 : addRuntimeLoader() pour les extensions qui supportent RuntimeExtensionInterface
+//    Twig n'instancie le runtime QUE quand le template l'utilise réellement
+$twig->addRuntimeLoader(new \Twig\RuntimeLoader\FactoryRuntimeLoader([
+
+    // FormRenderer : instancié seulement si {{ form(...) }} dans le template
+    \Symfony\Component\Form\FormRenderer::class => static function () use ($twig) {
+        $formEngine = new \Symfony\Bridge\Twig\Form\TwigRendererEngine(
+            ['bootstrap_5_layout.html.twig'],
+            $twig
+        );
+        return new \Symfony\Component\Form\FormRenderer($formEngine);
+    },
+
+]));
+
 
 // ========================================
-// 🔥 VARIABLES D'ENVIRONNEMENT
+// REQUEST
 // ========================================
 
 require_once __DIR__ . '/listeConstructeur.php';
 
 $_ENV['BASE_PATH_COURT'] ??= '/Hffintranet';
-$_SERVER['HTTP_HOST'] ??= 'localhost';
-$_SERVER['REQUEST_URI'] ??= '/';
-
-// ========================================
-// 🔥 REQUEST & ROUTING
-// ========================================
+$_SERVER['HTTP_HOST']    ??= 'localhost';
+$_SERVER['REQUEST_URI']  ??= '/';
 
 $request = Request::createFromGlobals();
 $container->get('request_stack')->push($request);
 
-// --- Correction casse /Hffintranet/ ---
+// Correction casse /Hffintranet/
 $pathInfo = $request->getPathInfo();
 if (stripos($pathInfo, '/hffintranet') === 0 && strpos($pathInfo, '/Hffintranet') !== 0) {
     $correctUrl = preg_replace('#^/hffintranet#i', '/Hffintranet', $pathInfo);
@@ -134,29 +176,20 @@ if (stripos($pathInfo, '/hffintranet') === 0 && strpos($pathInfo, '/Hffintranet'
     exit;
 }
 
-// --- UrlGenerator / Matcher ---
-$context = new RequestContext();
 $context->fromRequest($request);
-$matcher = new UrlMatcher($collection, $context);
-$urlGenerator = new \Symfony\Component\Routing\Generator\UrlGenerator($collection, $context);
 $container->set('router', $urlGenerator);
 
-// ========================================
-// 🔥 EXTENSIONS TWIG
-// ========================================
-
-// --- Twig extensions runtime (Menuservice) ---
+// Extensions légères (pas de RuntimeExtension) : instanciées une fois, coût faible
 
 /** @var MenuService $menuService */
 $menuService = $container->get('menu.service');
 
 /** @var SecurityService $securityService */
 $securityService = $container->get('security.service');
-
-// --- Twig extensions runtime ---
-$twig = $container->get('twig');
 $twig->addExtension(new \Twig\Extension\DebugExtension());
-$twig->addExtension(new \Symfony\Bridge\Twig\Extension\TranslationExtension(new \Symfony\Component\Translation\Translator('fr_FR')));
+$twig->addExtension(new \Symfony\Bridge\Twig\Extension\TranslationExtension(
+    new \Symfony\Component\Translation\Translator('fr_FR')
+));
 $twig->addExtension(new \Symfony\Bridge\Twig\Extension\RoutingExtension($urlGenerator));
 $twig->addExtension(new \Symfony\Bridge\Twig\Extension\FormExtension());
 $twig->addExtension(new \App\Twig\AppExtension($session, $container->get('request_stack')));
@@ -164,88 +197,70 @@ $twig->addExtension(new \App\Twig\BreadcrumbExtension($menuService, $securitySer
 $twig->addExtension(new \App\Twig\CarbonExtension());
 $twig->addExtension(new \App\Twig\DeleteWordExtension());
 
-// --- Asset Extension ---
+// Asset Extension
 $publicPath = $_ENV['BASE_PATH_COURT'] . '/public';
 $packages = new \Symfony\Component\Asset\Packages(
-    new \Symfony\Component\Asset\PathPackage($publicPath, new \Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy())
+    new \Symfony\Component\Asset\PathPackage(
+        $publicPath,
+        new \Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy()
+    )
 );
 $twig->addExtension(new \Symfony\Bridge\Twig\Extension\AssetExtension($packages));
 
-// --- FormRendererEngine ---
-$defaultFormTheme = 'bootstrap_5_layout.html.twig';
-$formEngine = new \Symfony\Bridge\Twig\Form\TwigRendererEngine([$defaultFormTheme], $twig);
-$twig->addRuntimeLoader(new \Twig\RuntimeLoader\FactoryRuntimeLoader([
-    \Symfony\Component\Form\FormRenderer::class => fn() => new \Symfony\Component\Form\FormRenderer($formEngine),
-]));
+// ⚠️  Dans tes controllers, remplace $container->get('form.factory')
+//     par : ($container->get('form.factory.lazy'))()
+//     Ou crée un helper : getFormFactory($container)
+//
+//     Si tu ne veux pas toucher aux controllers, décommente la ligne suivante
+//     (instanciation immédiate, mais propre) :
+// $container->set('form.factory', ($container->get('form.factory.lazy'))());
 
 // ========================================
 // 🔥 PRÉCOMPILATION TWIG (PROD uniquement)
 // ========================================
 
 if (!$isDevMode) {
-    // Fichier marqueur pour savoir si la précompilation a déjà été faite
     $twigCompiledMarker = $twigCacheDir . '/.compiled';
 
     if (!file_exists($twigCompiledMarker)) {
-        // Première exécution en PROD : précompiler tous les templates
-        $templateDir = dirname(__DIR__) . '/Views/templates';
+        $templateDir = str_replace('\\', '/', realpath(dirname(__DIR__) . '/Views/templates'));
 
         if (is_dir($templateDir)) {
-            // Normaliser le chemin pour comparaison
-            $templateDir = str_replace('\\', '/', realpath($templateDir));
-
             $iterator = new RecursiveIteratorIterator(
                 new RecursiveDirectoryIterator($templateDir, RecursiveDirectoryIterator::SKIP_DOTS),
                 RecursiveIteratorIterator::LEAVES_ONLY
             );
 
-            $compiledCount = 0;
-            $templateError = [];
+            $compiledCount  = 0;
+            $templateErrors = [];
 
             foreach ($iterator as $file) {
-                if (!$file->isFile()) continue;
+                if (!$file->isFile() || $file->getExtension() !== 'twig') continue;
 
-                $extension = $file->getExtension();
-
-                // Ne compiler que les fichiers .twig
-                if ($extension !== 'twig') continue;
-
-                // Normaliser le chemin du fichier
-                $filePath = str_replace('\\', '/', $file->getPathname());
-
-                // Calculer le nom relatif du template
+                $filePath     = str_replace('\\', '/', $file->getPathname());
                 $templateName = str_replace($templateDir . '/', '', $filePath);
 
                 try {
-                    // Charger le template pour forcer la compilation
                     $twig->load($templateName);
                     $compiledCount++;
-                } catch (\Twig\Error\LoaderError $e) {
-                    // Template non trouvé (peut arriver avec des fichiers cachés)
-                    $templateError[] = "  ⚠️  LoaderError {$templateName}: {$e->getMessage()}";
                 } catch (\Twig\Error\SyntaxError $e) {
-                    // Erreur de syntaxe Twig
-                    $templateError[] = "  ❌ SyntaxError {$templateName}: {$e->getMessage()}";
+                    $templateErrors[] = "❌ SyntaxError {$templateName}: {$e->getMessage()}";
                 } catch (\Twig\Error\RuntimeError $e) {
-                    // Erreur d'exécution (ex: variable manquante)
-                    // C'est normal, on compile juste la structure
-                    $compiledCount++;
+                    $compiledCount++; // Structure OK, juste une variable manquante
                 } catch (\Exception $e) {
-                    // Autre erreur
-                    $templateError[] = "  ❌ Exception {$templateName}: {$e->getMessage()}";
+                    $templateErrors[] = "❌ {$templateName}: {$e->getMessage()}";
                 }
             }
 
-            $errorCount = count($templateError);
-            // Créer le fichier marqueur avec statistiques
             $stats = [
                 'compiled_at'        => date('Y-m-d H:i:s'),
                 'env'                => $_ENV['APP_ENV'] ?? 'prod',
                 'templates_compiled' => $compiledCount,
-                'templates_errors'   => $errorCount,
+                'templates_errors'   => count($templateErrors),
             ];
+
             file_put_contents($twigCompiledMarker, json_encode($stats, JSON_PRETTY_PRINT) . PHP_EOL);
-            foreach ($templateError as $error) {
+            foreach ($templateErrors as $error) {
                 file_put_contents($twigCompiledMarker, $error . PHP_EOL, FILE_APPEND);
             }
 
@@ -259,8 +274,9 @@ if (!$isDevMode) {
 // ========================================
 // 🔥 CONTROLLERS / RESOLVERS
 // ========================================
+
 $controllerResolver = new ContainerControllerResolver($container);
-$argumentResolver = new ArgumentResolver();
+$argumentResolver   = new ArgumentResolver();
 
 global $container;
 

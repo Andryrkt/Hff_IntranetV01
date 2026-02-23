@@ -4,7 +4,6 @@ use core\SimpleManagerRegistry;
 use Doctrine\ORM\EntityManager;
 use Illuminate\Pagination\Paginator;
 use App\Doctrine\EntityManagerFactory;
-use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\Config\FileLocator;
 use App\Loader\CustomAnnotationClassLoader;
 use App\Service\navigation\MenuService;
@@ -23,6 +22,8 @@ use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage;
+use Symfony\Component\Routing\Matcher\Dumper\CompiledUrlMatcherDumper;
+use Symfony\Component\Routing\Generator\Dumper\CompiledUrlGeneratorDumper;
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
@@ -153,19 +154,14 @@ Paginator::useBootstrap();
 $container->compile();
 
 $dumper = new PhpDumper($container);
-file_put_contents(
-    $cacheDir . '/Container.php',
-    $dumper->dump(['class' => 'AppContainer'])
-);
-
+file_put_contents($cacheDir . '/Container.php', $dumper->dump(['class' => 'AppContainer']));
 echo "✅ Conteneur compilé : {$cacheDir}/Container.php\n";
 
 // ========================================
 // ROUTES
+// ✅ GAIN #1 : On génère 2 fichiers PHP natifs (matcher + generator)
+//    Au lieu d'un serialize() lent, on obtient du PHP pur opcode-cacheable
 // ========================================
-
-$routeCacheFile = $cacheDir . '/routes.php';
-$cacheRoutes = new ConfigCache($routeCacheFile, false); // Forcer l'écriture
 
 $collection = new RouteCollection();
 $annotationReader = new AnnotationReader();
@@ -198,9 +194,25 @@ foreach ($collection as $route) {
     $route->setOption('case_sensitive', false);
 }
 
-$cacheRoutes->write(serialize($collection), $collection->getResources());
+// ✅ Dump du matcher compilé → PHP natif, require-able, absorbé par OPcache
+$matcherDumper = new CompiledUrlMatcherDumper($collection);
+file_put_contents(
+    $cacheDir . '/url_matcher.php',
+    "<?php\n\nreturn " . var_export($matcherDumper->getCompiledRoutes(), true) . ";\n"
+);
 
-echo "✅ Routes mises en cache : {$routeCacheFile}\n";
+// ✅ Dump du generator compilé → même bénéfice pour path() / url()
+$generatorDumper = new CompiledUrlGeneratorDumper($collection);
+file_put_contents(
+    $cacheDir . '/url_generator.php',
+    "<?php\n\nreturn " . var_export($generatorDumper->getCompiledRoutes(), true) . ";\n"
+);
+
+// ✅ On garde aussi le serialize() UNIQUEMENT pour le mode DEV (recompilation auto)
+//    En PROD, ces fichiers ne sont jamais lus
+file_put_contents($cacheDir . '/routes_dev.php', serialize($collection));
+
+echo "✅ Routes compilées (matcher + generator) : {$cacheDir}/url_matcher.php\n";
 
 // ========================================
 // TWIG (préparation répertoire)

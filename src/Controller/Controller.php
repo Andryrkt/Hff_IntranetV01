@@ -118,7 +118,7 @@ class Controller
     public function getFormFactory(): FormFactoryInterface
     {
         if ($this->formFactory === null) {
-            $this->formFactory = $this->getService('form.factory');
+            $this->formFactory = ($this->getService('form.factory.lazy'))();
         }
         return $this->formFactory;
     }
