@@ -136,9 +136,8 @@ class UserDataService
         $cle = sprintf('%s_%s_%s', $tag, self::SUFFIX_PERMISSIONS, md5($nomRoute));
 
         $this->cache->delete($cle);
-        $this->cache->get($cle, function (ItemInterface $item) use ($nomRoute, $profil, $tag): array {
+        $this->cache->get($cle, function (ItemInterface $item) use ($nomRoute, $profil): array {
             $item->expiresAfter(null); // Pas d'expiration automatique : invalidation via tag uniquement
-            $item->tag($tag);
             return $this->calculerPermissions($nomRoute, $profil);
         });
     }
@@ -165,9 +164,8 @@ class UserDataService
         $tag = self::CACHE_TAG_PREFIX . $profilId;
         $cle = sprintf('%s_%s_%s', $tag, self::SUFFIX_PERMISSIONS, md5($nomRoute));
 
-        return $this->cachePermissions[$nomRoute] = $this->cache->get($cle, function (ItemInterface $item) use ($tag, $nomRoute) {
+        return $this->cachePermissions[$nomRoute] = $this->cache->get($cle, function (ItemInterface $item) use ($nomRoute) {
             $item->expiresAfter(null);
-            $item->tag($tag);
             return $this->calculerPermissions($nomRoute, $this->getProfil());
         });
     }
@@ -181,9 +179,8 @@ class UserDataService
         $tag = self::CACHE_TAG_PREFIX . $profilId;
         $cle = sprintf('%s_%s', $tag, self::SUFFIX_PAGES);
         $this->cache->delete($cle);
-        $this->cache->get($cle, function (ItemInterface $item) use ($tag, $profil) {
+        $this->cache->get($cle, function (ItemInterface $item) use ($profil) {
             $item->expiresAfter(null);
-            $item->tag($tag);
             return $this->calculerPagesProfil($profil);
         });
     }
@@ -211,9 +208,8 @@ class UserDataService
         $tag = self::CACHE_TAG_PREFIX . $profilId;
         $cle = sprintf('%s_%s', $tag, self::SUFFIX_PAGES);
 
-        return $this->cachePagesProfilDonnees = $this->cache->get($cle, function (ItemInterface $item) use ($tag) {
+        return $this->cachePagesProfilDonnees = $this->cache->get($cle, function (ItemInterface $item) {
             $item->expiresAfter(null);
-            $item->tag($tag);
             return $this->calculerPagesProfil($this->getProfil());
         });
     }
@@ -227,9 +223,8 @@ class UserDataService
         $tag = self::CACHE_TAG_PREFIX . $profilId;
         $cle = sprintf('%s_%s_%s', $tag, self::SUFFIX_AG_SERV_ID, md5($codeApp));
         $this->cache->delete($cle);
-        $this->cache->get($cle, function (ItemInterface $item) use ($tag, $codeApp, $profil) {
+        $this->cache->get($cle, function (ItemInterface $item) use ($codeApp, $profil) {
             $item->expiresAfter(null);
-            $item->tag($tag);
             return $this->calculerAgenceService($codeApp, $profil, true);
         });
     }
@@ -253,9 +248,8 @@ class UserDataService
         $tag = self::CACHE_TAG_PREFIX . $profilId;
         $cle = sprintf('%s_%s_%s', $tag, self::SUFFIX_AG_SERV_ID, md5($codeApp));
 
-        return $this->cacheAgServDonneesId = $this->cache->get($cle, function (ItemInterface $item) use ($tag, $codeApp) {
+        return $this->cacheAgServDonneesId = $this->cache->get($cle, function (ItemInterface $item) use ($codeApp) {
             $item->expiresAfter(null);
-            $item->tag($tag);
             return $this->calculerAgenceService($codeApp, $this->getProfil(), true);
         });
     }
@@ -269,9 +263,8 @@ class UserDataService
         $tag = self::CACHE_TAG_PREFIX . $profilId;
         $cle = sprintf('%s_%s_%s', $tag, self::SUFFIX_AG_SERV_CODE, md5($codeApp));
         $this->cache->delete($cle);
-        $this->cache->get($cle, function (ItemInterface $item) use ($tag, $codeApp, $profil) {
+        $this->cache->get($cle, function (ItemInterface $item) use ($codeApp, $profil) {
             $item->expiresAfter(null);
-            $item->tag($tag);
             return $this->calculerAgenceService($codeApp, $profil, false);
         });
     }
@@ -295,9 +288,8 @@ class UserDataService
         $tag = self::CACHE_TAG_PREFIX . $profilId;
         $cle = sprintf('%s_%s_%s', $tag, self::SUFFIX_AG_SERV_CODE, md5($codeApp));
 
-        return $this->cacheAgServDonneesCode = $this->cache->get($cle, function (ItemInterface $item) use ($tag, $codeApp) {
+        return $this->cacheAgServDonneesCode = $this->cache->get($cle, function (ItemInterface $item) use ($codeApp) {
             $item->expiresAfter(null);
-            $item->tag($tag);
             return $this->calculerAgenceService($codeApp, $this->getProfil(), false);
         });
     }
