@@ -28,12 +28,12 @@ $application->add(new MigrationDevisCommand());
 $application->add(new MigrationPdfDevisMagasinVpCommand($entitymanager));
 $application->add(new MigrationPdfDevisMagasinVdCommand($entitymanager));
 
-$cachePermissions = new FilesystemTagAwareAdapter('security', 3600, dirname(__DIR__) . '/var/cache/pools');
+$cachePermissions = new FilesystemTagAwareAdapter('security', 0, dirname(__DIR__) . '/var/cache/pools');
 $userDataService = new UserDataService($entityManager, $cachePermissions);
 $application->add(new CacheWarmupSecurityCommand($entityManager, $userDataService));
 $application->add(new CacheWarmupAgServCommand($entityManager, $userDataService));
 
-$cacheMenu = new FilesystemTagAwareAdapter('menu', 3600, dirname(__DIR__) . '/var/cache/pools');
+$cacheMenu = new FilesystemTagAwareAdapter('menu', 0, dirname(__DIR__) . '/var/cache/pools');
 $menuService = new MenuService($userDataService, $cacheMenu);
 $application->add(new CacheWarmupMenuCommand($entityManager, $menuService));
 

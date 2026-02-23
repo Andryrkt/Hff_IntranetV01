@@ -20,6 +20,7 @@ class SecurityService
 
     // ─── Routes publiques (pas de contrôle d'accès) ──────────────────────────
     private const ROUTES_SEMI_PRIVEES = ['choix_societe'];
+    private const ROUTE_ACCUEIL = 'profil_acceuil';
     private const ROUTES_PUBLIQUES = ['security_signin', 'auth_deconnexion'];
     private const PREFIXES_API = ['api_'];
 
@@ -72,14 +73,20 @@ class SecurityService
         if (!$this->dataService->isUserConnected()) {
             return new RedirectResponse($this->genererUrlConnexion());
         }
+
         // Connecté et route semi-privee → laisse passer
-        elseif ($this->estRouteSemiPrivee($nomRoute)) {
+        if ($this->estRouteSemiPrivee($nomRoute)) {
             return null;
         }
 
         // Connecté mais profil non selectionné → redirection vers login
         if ($this->dataService->getProfilId() === null) {
             return new RedirectResponse($this->genererUrlConnexion());
+        }
+
+        // Si accueil
+        if ($nomRoute === self::ROUTE_ACCUEIL) {
+            return null;
         }
 
         // Connecté mais peutVoir = false → 403
@@ -149,6 +156,14 @@ class SecurityService
     {
         return $this->dataService->getPermissions($nomRoute ?? $this->routeCourrante)
             ?? $this->permissionsVides();
+    }
+
+    /**
+     * Retourne la liste des agences et services groupés par id pour une application donnée
+     */
+    public function getAgenceServices(string $codeApp): array
+    {
+        return $this->dataService->getAgenceServiceGroupById($codeApp);
     }
 
     /**
