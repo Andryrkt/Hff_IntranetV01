@@ -17,6 +17,8 @@ class UserDataService
 {
     public const SUFFIX_PAGES        = 'pages';
     public const SUFFIX_PERMISSIONS  = 'permissions';
+    public const SUFFIX_AG_SERV_ID   = 'agence_service_id';
+    public const SUFFIX_AG_SERV_CODE = 'agence_service_code';
     public const CACHE_TAG_PREFIX    = 'security.profil_';
 
     private EntityManagerInterface $em;
@@ -28,6 +30,8 @@ class UserDataService
     /** @var array<string, array|null> */
     private array $cachePermissions = [];
     private ?array $cachePagesProfilDonnees = null;
+    private ?array $cacheAgServDonneesId = null;
+    private ?array $cacheAgServDonneesCode = null;
     private ?array $cacheRoutesIndex = null;
     private ?int $profilId = null;
 
@@ -186,7 +190,7 @@ class UserDataService
 
     /**
      * Retourne toutes les pages visibles du profil, groupées par application.
-     * Structure : ['NomApplication' => [['nom' => ..., 'route' => ...], ...], ...]
+     * Structure : ['codeApp' => [['nom' => ..., 'route' => ...], ...], ...]
      *
      * Stocké en cache applicatif (tableaux de scalaires, pas d'entités).
      * Reconstruit en entités PageHff à la demande via getPagesProfil().
@@ -211,6 +215,90 @@ class UserDataService
             $item->expiresAfter(null);
             $item->tag($tag);
             return $this->calculerPagesProfil($this->getProfil());
+        });
+    }
+
+    /** 
+     * Écrase et reconstruit les agences et services groupés par ID pour un profil donné.
+     */
+    public function ecraserAgenceServiceGroupById(Profil $profil): void
+    {
+        $profilId = $profil->getId();
+        $tag = self::CACHE_TAG_PREFIX . $profilId;
+        $cle = sprintf('%s_%s', $tag, self::SUFFIX_AG_SERV_ID);
+        $this->cache->delete($cle);
+        $this->cache->get($cle, function (ItemInterface $item) use ($tag, $profil) {
+            $item->expiresAfter(null);
+            $item->tag($tag);
+            return $this->calculerAgenceService($profil, true);
+        });
+    }
+
+    /** 
+     * Retourne toutes les agences et services du profil, groupées par application
+     */
+    public function getAgenceServiceGroupById(): ?array
+    {
+        // 1. Cache mémoire
+        if ($this->cacheAgServDonneesId !== null) {
+            return $this->cacheAgServDonneesId;
+        }
+
+        $profilId = $this->getProfilId();
+        if ($profilId === null) {
+            return $this->cacheAgServDonneesId = [];
+        }
+
+        // 2. Cache applicatif
+        $tag = self::CACHE_TAG_PREFIX . $profilId;
+        $cle = sprintf('%s_%s', $tag, self::SUFFIX_AG_SERV_ID);
+
+        return $this->cacheAgServDonneesId = $this->cache->get($cle, function (ItemInterface $item) use ($tag) {
+            $item->expiresAfter(null);
+            $item->tag($tag);
+            return $this->calculerAgenceService($this->getProfil(), true);
+        });
+    }
+
+    /** 
+     * Écrase et reconstruit les agences et services groupés par CODE pour un profil donné.
+     */
+    public function ecraserAgenceServiceGroupByCode(Profil $profil): void
+    {
+        $profilId = $profil->getId();
+        $tag = self::CACHE_TAG_PREFIX . $profilId;
+        $cle = sprintf('%s_%s', $tag, self::SUFFIX_AG_SERV_CODE);
+        $this->cache->delete($cle);
+        $this->cache->get($cle, function (ItemInterface $item) use ($tag, $profil) {
+            $item->expiresAfter(null);
+            $item->tag($tag);
+            return $this->calculerAgenceService($profil, false);
+        });
+    }
+
+    /** 
+     * Retourne toutes les agences et services du profil, groupées par CODE
+     */
+    public function getAgenceServiceGroupByCode(): ?array
+    {
+        // 1. Cache mémoire
+        if ($this->cacheAgServDonneesCode !== null) {
+            return $this->cacheAgServDonneesCode;
+        }
+
+        $profilId = $this->getProfilId();
+        if ($profilId === null) {
+            return $this->cacheAgServDonneesCode = [];
+        }
+
+        // 2. Cache applicatif
+        $tag = self::CACHE_TAG_PREFIX . $profilId;
+        $cle = sprintf('%s_%s', $tag, self::SUFFIX_AG_SERV_CODE);
+
+        return $this->cacheAgServDonneesCode = $this->cache->get($cle, function (ItemInterface $item) use ($tag) {
+            $item->expiresAfter(null);
+            $item->tag($tag);
+            return $this->calculerAgenceService($this->getProfil(), false);
         });
     }
 
@@ -305,7 +393,7 @@ class UserDataService
 
         /** @var ApplicationProfil $applicationProfil */
         foreach ($profil->getApplicationProfils() as $applicationProfil) {
-            $nomApplication = $applicationProfil->getApplication()->getNom();
+            $codeApp = $applicationProfil->getApplication()->getCodeApp();
 
             /** @var ApplicationProfilPage $applicationProfilPage */
             foreach ($applicationProfil->getLiaisonsPage() as $applicationProfilPage) {
@@ -314,7 +402,7 @@ class UserDataService
                 $page = $applicationProfilPage->getPage();
 
                 // On stocke uniquement des scalaires (pas d'entité Doctrine)
-                $pages[$nomApplication][] = [
+                $pages[$codeApp][] = [
                     'nom'    => $page->getNom(),
                     'route'  => $page->getNomRoute(), // nom de la route dans le controleur
                     'lien'   => $page->getLien(), // lien de la page
@@ -329,7 +417,7 @@ class UserDataService
      * Calcule les agences et services autorisés pour le profil depuis la BDD.
      * Retourne des tableaux de scalaires (sérialisables en cache).
      */
-    public function calculerAgenceService(?Profil $profil = null): array
+    public function calculerAgenceService(?Profil $profil = null, bool $groupById = true): array
     {
         if ($profil === null) {
             return [];
@@ -344,13 +432,18 @@ class UserDataService
             /** @var ApplicationProfilAgenceService $applicationProfilAgenceService */
             foreach ($applicationProfil->getLiaisonsAgenceService() as $applicationProfilAgenceService) {
                 $agenceService = $applicationProfilAgenceService->getAgenceService();
+                $agence = $agenceService->getAgence();
+                $service = $agenceService->getService();
+
+                $key = $groupById ? $agenceService->getId() : $agence->getCodeAgence() . '-' . $service->getCodeService();
 
                 // On stocke uniquement des scalaires (pas d'entité Doctrine)
-                $agenceServices[$codeApplication][$agenceService->getId()] = [
-                    'agence_id'    => $agenceService->getAgence()->getId(),
-                    'service_id'   => $agenceService->getService()->getId(),
-                    'agence_code'  => $agenceService->getAgence()->getCodeAgence(),
-                    'service_code' => $agenceService->getService()->getCodeService(),
+                $agenceServices[$codeApplication][$key] = [
+                    'id'           => $agenceService->getId(),
+                    'agence_id'    => $agence->getId(),
+                    'service_id'   => $service->getId(),
+                    'agence_code'  => $agence->getCodeAgence(),
+                    'service_code' => $service->getCodeService(),
                 ];
             }
         }
