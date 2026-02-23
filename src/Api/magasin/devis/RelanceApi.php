@@ -42,9 +42,16 @@ class RelanceApi extends Controller
         try {
             $listeDevisMagasinModel = new ListeDevisMagasinModel();
             $success = $listeDevisMagasinModel->stopRelance($numeroDevis);
+            
+            $newStatuts = [];
+            if ($success) {
+                $newStatuts = $listeDevisMagasinModel->getStatutRelance($numeroDevis);
+            }
+
             return new JsonResponse([
                 'success' => $success,
-                'message' => "la relance du devis n°$numeroDevis a été stopé avec succés"
+                'message' => $success ? "L'opération sur le devis n°$numeroDevis a été effectuée avec succès" : "Erreur lors de l'opération",
+                'statuts' => $newStatuts
             ]);
         } catch (\Exception $e) {
             return new JsonResponse(['success' => false, 'message' => $e->getMessage()], 500);

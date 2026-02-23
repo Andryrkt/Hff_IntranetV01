@@ -77,16 +77,17 @@
 						<td>{{ row.libelle }}</td>
 						<td class="text-end">{{ row.montant }}</td>
 						<td class="text-center">{{ row.dateEnvoiClient }}</td>
-						<td class="text-center fw-bold {{ row.styleStatutPR}}">{{ row.statutRelance1 }}</td>
-						<td class="text-center fw-bold {{ row.styleStatutPR}}">{{ row.statutRelance2 }}</td>
-						<td class="text-center fw-bold {{ row.styleStatutPR}}">{{ row.statutRelance3 }}</td>
+						{% set statut1 = row.statutRelance1 == null ? '' : 'bg-warning' %}
+						{% set statut2 = row.statutRelance2 == null ? '' : 'bg-warning' %}
+						{% set statut3 = row.statutRelance3 == null ? '' : 'bg-warning' %}
+						<td class="text-center fw-bold {{ row.styleStatutPR1}} {{ statut1}} js-relance-1">{{ row.statutRelance1 }}</td>
+						<td class="text-center fw-bold {{ row.styleStatutPR2}} {{ statut2}} js-relance-2">{{ row.statutRelance2 }}</td>
+						<td class="text-center fw-bold {{ row.styleStatutPR3}} {{ statut3}} js-relance-3">{{ row.statutRelance3 }}</td>
 						<td class="text-center">
 							{% if row.statutRelance1 is not null %}
-								{% if row.stopRelance %}
-									<a href="#" class="btn btn-success fw-bold js-btn-stop-relance" data-numero-devis="{{ row.numeroDevis }}">OUI</a>
-								{% else %}
-									<a href="#" class="btn btn-warning fw-bold js-btn-stop-relance" data-numero-devis="{{ row.numeroDevis }}">NON</a>
-								{% endif %}
+								<div class="form-check form-switch d-flex justify-content-center">
+									<input class="form-check-input js-checkbox-stop-relance" type="checkbox" role="switch" data-numero-devis="{{ row.numeroDevis }}" {% if row.stopRelance %} checked {% endif %}>
+								</div>
 							{% endif %}
 						</td>
 						<td class="text-center" data-bs-toggle="tooltip" title="{{ row.titreStatutIps }}">{{ row.statutIps }}</td>
