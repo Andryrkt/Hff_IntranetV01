@@ -359,6 +359,52 @@ class ListeDevisMagasinController extends Controller
             }
         }
 
+        // Filtre par statut de relance (complexe)
+        if (!empty($criteria['filterRelance'])) {
+            $filter = $criteria['filterRelance'];
+            $r1 = $devisIp['statut_relance_1'] ?? null;
+            $r2 = $devisIp['statut_relance_2'] ?? null;
+            $r3 = $devisIp['statut_relance_3'] ?? null;
+            $isStopped = (bool)($devisIp['stop_relance'] ?? false);
+
+            switch ($filter) {
+                case 'A_RELANCER':
+                    return ($r1 === 'A relancer' || $r2 === 'A relancer' || $r3 === 'A relancer');
+
+                case '3_RELANCES_OK':
+                    // 3ème relance faite (date) et non stoppé
+                    return ($r3 !== null && $r3 !== 'A relancer' && !$isStopped);
+
+                case '3_RELANCES_STOP':
+                    // 3ème relance faite (date) et stoppé
+                    return ($r3 !== null && $r3 !== 'A relancer' && $isStopped);
+
+                case 'STOP_AVANT_R1':
+                    // Stoppé alors qu'aucune relance n'a été faite
+                    return ($isStopped && $r1 === null);
+
+                case 'STOP_R1':
+                    // Stoppé après la relance 1 (R1 est une date, R2 est null ou pas encore A relancer)
+                    return ($isStopped && $r1 !== null && $r1 !== 'A relancer' && ($r2 === null || $r2 === 'A relancer'));
+
+                case 'STOP_R2':
+                    // Stoppé après la relance 2
+                    return ($isStopped && $r2 !== null && $r2 !== 'A relancer' && ($r3 === null || $r3 === 'A relancer'));
+
+                case 'R1_EN_COURS':
+                    // Relance 1 effectuée (date) mais R2 pas encore faite
+                    return ($r1 !== null && $r1 !== 'A relancer' && ($r2 === null || $r2 === 'A relancer'));
+
+                case 'R2_EN_COURS':
+                    // Relance 2 effectuée (date) mais R3 pas encore faite
+                    return ($r2 !== null && $r2 !== 'A relancer' && ($r3 === null || $r3 === 'A relancer'));
+
+                case 'R3_EN_COURS':
+                    // Relance 3 effectuée (date)
+                    return ($r3 !== null && $r3 !== 'A relancer');
+            }
+        }
+
         return true;
     }
 
