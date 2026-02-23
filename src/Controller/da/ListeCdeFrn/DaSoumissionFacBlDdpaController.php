@@ -39,12 +39,12 @@ class DaSoumissionFacBlDdpaController extends Controller
     public function __construct()
     {
         $this->daSoumissionFacBlDdpaFactory = new DaSoumissionFacBlDdpaFactory($this->getEntityManager());
-        $this->traitementDeFichier         = new TraitementDeFichier();
-        $this->cheminDeBase                = $_ENV['BASE_PATH_FICHIER'] . '/da/';
-        $this->historiqueOperation = new HistoriqueOperationDaFacBlService($this->getEntityManager());
-        $this->daAfficherRepository        = $this->getEntityManager()->getRepository(DaAfficher::class);
-        $this->daSoumissionfacBlDdpaMapper = new DaSoumissionFacBlDdpaMapper();
-        $this->generatePdf                 = new GeneratePdf();
+        $this->traitementDeFichier          = new TraitementDeFichier();
+        $this->cheminDeBase                 = $_ENV['BASE_PATH_FICHIER'] . '/da/';
+        $this->historiqueOperation          = new HistoriqueOperationDaFacBlService($this->getEntityManager());
+        $this->daAfficherRepository         = $this->getEntityManager()->getRepository(DaAfficher::class);
+        $this->daSoumissionfacBlDdpaMapper  = new DaSoumissionFacBlDdpaMapper();
+        $this->generatePdf                  = new GeneratePdf();
     }
 
     /**
