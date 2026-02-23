@@ -342,6 +342,8 @@ class UserDataService
         $this->cacheProfil          = null;
         $this->cachePermissions     = [];
         $this->cachePagesProfilDonnees = null;
+        $this->cacheAgServDonneesId = null;
+        $this->cacheAgServDonneesCode = null;
     }
 
     // =========================================================================

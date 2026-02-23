@@ -19,7 +19,8 @@ class SecurityService
     private UserDataService $dataService;
 
     // ─── Routes publiques (pas de contrôle d'accès) ──────────────────────────
-    private const ROUTES_PUBLIQUES = ['security_signin', 'auth_deconnexion', 'profil_acceuil', 'choix_societe'];
+    private const ROUTE_ACCUEIL = 'profil_acceuil';
+    private const ROUTES_PUBLIQUES = ['security_signin', 'auth_deconnexion', 'choix_societe'];
     private const PREFIXES_API = ['api_'];
 
     // ─── Constantes de permissions (évite les fautes de frappe) ─────────────
@@ -73,7 +74,7 @@ class SecurityService
         }
 
         // Connecté mais peutVoir = false → 403
-        if (!$this->verifierPermission(self::PERMISSION_VOIR, $nomRoute)) {
+        if ($nomRoute !== self::ROUTE_ACCUEIL && !$this->verifierPermission(self::PERMISSION_VOIR, $nomRoute)) {
             throw new AccessDeniedException();
         }
 
