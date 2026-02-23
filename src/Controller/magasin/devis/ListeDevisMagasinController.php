@@ -196,6 +196,7 @@ class ListeDevisMagasinController extends Controller
             $devisIp['utilisateur_createur_devis'] = $this->listeDevisMagasinModel
                 ->getUtilisateurCreateurDevis($numeroDevis) ?? '';
             $devisIp['statut_bc']                  = $devisSoumi ? $devisSoumi->getStatutBc()                  : '';
+            $devisIp['stop_relance']               = $devisSoumi ? ($devisSoumi->getStopProgressionGlobal() ?? false) : false;
 
             // statut DW = A traiter et statut BC = TR
             if ($devisIp['statut_dw'] === DevisMagasin::STATUT_A_TRAITER && $devisIp['statut_ips'] === 'TR') continue;
@@ -217,7 +218,9 @@ class ListeDevisMagasinController extends Controller
 
                 $devisIp['date_derniere_relance'] = $dateRelance;
                 $devisIp['numero_relance'] = $numeroRelance;
-                $devisIp['statut_relance'] = $statutRelance ?? null;
+                $devisIp['statut_relance_1'] = $statutRelance['statut_relance_1'] ?? null;
+                $devisIp['statut_relance_2'] = $statutRelance['statut_relance_2'] ?? null;
+                $devisIp['statut_relance_3'] = $statutRelance['statut_relance_3'] ?? null;
                 $devisIp['relances'] = [];
             }
 
@@ -366,12 +369,14 @@ class ListeDevisMagasinController extends Controller
             $statutDw = $devis->getStatutDw();
             $statutBc = $devis->getStatutBc();
             $statutIps = $devis->getStatutIps();
-            $statutRelance = $this->convertirEnUtf8($devis->getStatutRelance());
+            $statutRelance1 = $devis->statutRelance1;
+            $statutRelance2 = $devis->statutRelance2;
+            $statutRelance3 = $devis->statutRelance3;
             $emetteur = $devis->getSuccursaleServiceEmetteur();
             $numeroDevis = $devis->getNumeroDevis();
 
             $pointageDevis = in_array($statutDw, [DevisMagasin::STATUT_PRIX_VALIDER_TANA, DevisMagasin::STATUT_PRIX_MODIFIER_TANA, DevisMagasin::STATUT_VALIDE_AGENCE]);
-            $relanceClient = $statutDw === DevisMagasin::STATUT_ENVOYER_CLIENT && $statutBc ===  BcMagasin::STATUT_EN_ATTENTE_BC && $statutRelance === PointageRelanceStatutConstant::STATUT_POINTAGE_RELANCE_A_RELANCER;
+            $relanceClient = $statutDw === DevisMagasin::STATUT_ENVOYER_CLIENT && $statutBc ===  BcMagasin::STATUT_EN_ATTENTE_BC && in_array(PointageRelanceStatutConstant::STATUT_POINTAGE_RELANCE_A_RELANCER, [$statutRelance1, $statutRelance2, $statutRelance3]);
 
             // Création d'url
             $url = [
@@ -405,12 +410,17 @@ class ListeDevisMagasinController extends Controller
                 'relanceClient'   => $relanceClient,
                 'dateDerniereRelance' => $devis->getDateDerniereRelance(),
                 'numeroRelance' => $devis->getNombreDeRelance(),
-                'statutRelance' => $statutRelance,
+                'statutRelance1' => $statutRelance1,
+                'statutRelance2' => $statutRelance2,
+                'statutRelance3' => $statutRelance3,
                 'relances' => $devis->getRelances() ?? [],
-                'styleStatutPR' => $styleStatutPR[$statutRelance] ?? ''
+                'styleStatutPR' => $styleStatutPR[$statutRelance1] ?? '',
+                'stopRelance' => $devis->getStopRelance()
             ];
         }
 
         return $data;
     }
+
+    
 }
