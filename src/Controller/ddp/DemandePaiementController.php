@@ -67,7 +67,7 @@ class DemandePaiementController extends Controller
     }
 
     /**
-     * @Route("/new/{id}", name="demande_paiement")
+     * @Route("/new/{id}", name="new_demande_paiement")
      */
     public function afficheForm(Request $request, $id)
     {

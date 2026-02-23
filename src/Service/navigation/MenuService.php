@@ -191,7 +191,8 @@ class MenuService
                 'label'    => 'Demande de paiement',
                 'icon'     => 'file-invoice-dollar',
                 'subitems' => [
-                    ['label' => 'Nouvelle demande', 'icon' => 'plus-circle', 'link' => '#',        'modal_id' => 'modalTypeDemande', 'is_modal' => true],
+                    ['label' => 'Nouvelle demande de paiement à l’avance', 'icon' => 'plus-circle', 'route' => 'new_demande_paiement', 'params' => ['id' => 1]],
+                    ['label' => 'Nouvelle demande de paiement après arrivage', 'icon' => 'plus-circle', 'route' => 'new_demande_paiement', 'params' => ['id' => 2]],
                     ['label' => 'Consultation',     'icon' => 'search',      'route' => 'ddp_liste'],
                 ],
             ],
@@ -199,7 +200,7 @@ class MenuService
                 'label'    => 'Bon de caisse',
                 'icon'     => 'receipt',
                 'subitems' => [
-                    ['label' => 'Nouvelle demande', 'icon' => 'plus-circle', 'route' => 'new_bon_caisse'],
+                    ['label' => 'Nouveau bon de caisse', 'icon' => 'plus-circle', 'route' => 'new_bon_caisse'],
                     ['label' => 'Consultation',     'icon' => 'search',      'route' => 'bon_caisse_liste'],
                 ],
             ],
