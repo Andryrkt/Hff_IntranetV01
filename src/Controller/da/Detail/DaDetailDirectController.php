@@ -67,7 +67,7 @@ class DaDetailDirectController extends Controller
 			'devPjPathDal' => $this->getDevisPjPathDal($demandeAppro),
 			'devPjPathObs' => $this->getDevisPjPathObservation($demandeAppro),
 		]);
-		$timeLineData = $this->estAdmin() ? $this->daTimelineService->getTimelineData($demandeAppro->getNumeroDemandeAppro()) : [];
+		$timeLineData = $this->daTimelineService->getTimelineData($demandeAppro->getNumeroDemandeAppro());
 
 		return $this->render('da/detail.html.twig', [
 			'detailTemplate'      		=> 'detail-direct',
@@ -80,7 +80,6 @@ class DaDetailDirectController extends Controller
 			'statutAutoriserModifAte' 	=> $demandeAppro->getStatutDal() === DemandeAppro::STATUT_AUTORISER_EMETTEUR,
 			'estCreateurDaDirecte'      => $this->estCreateurDeDADirecte(),
 			'estAppro'          		=> $this->estUserDansServiceAppro(),
-			'timelineAccess'    		=> $this->estAdmin(),
 			'timelineData'      		=> $timeLineData,
 		]);
 	}

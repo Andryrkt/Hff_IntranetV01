@@ -165,7 +165,7 @@ class DaSoumissionFacBlController extends Controller
                 $this->generatePdf->copyToDWFacBlDa($nomPdfFusionner, $numDa);
 
                 /** MODIFICATION DA AFFICHER */
-                $this->modificationDaAfficher($numDa, $numCde);
+                $this->modificationDaAfficher($numDa, $numCde, $numLiv);
 
                 /** HISTORISATION */
                 $message = 'Le document est soumis pour validation';
@@ -183,10 +183,43 @@ class DaSoumissionFacBlController extends Controller
      * @param string $numDa
      * @param int $numeroVersionMax
      */
-    private function modificationDaAfficher(string $numDa, string $numCde): void
+    private function modificationDaAfficher(string $numDa, string $numCde, $numLiv): void
     {
-        $numeroVersionMax = $this->getEntityManager()->getRepository(DaAfficher::class)->getNumeroVersionMax($numDa);
-        $daAffichers = $this->getEntityManager()->getRepository(DaAfficher::class)->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax, 'numeroCde' => $numCde]);
+        $daAfficherRepository = $this->getEntityManager()->getRepository(DaAfficher::class);
+        $numeroVersionMax = $daAfficherRepository->getNumeroVersionMax($numDa);
+        $typeDa = $daAfficherRepository->getTypeDa($numDa);
+        $daAffichers = [];
+
+        if (in_array((int)$typeDa, [DemandeAppro::TYPE_DA_AVEC_DIT, DemandeAppro::TYPE_DA_REAPPRO_MENSUEL, DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL])) {
+            $refDesiSavLors = $this->daSoumissionFacBlModel->getRefDesiSavLor($numLiv);
+            foreach ($refDesiSavLors as  $refDesiSavLor) {
+                $daAffichers[] = $this->getEntityManager()->getRepository(DaAfficher::class)
+                    ->findOneBy(
+                        [
+                            'numeroDemandeAppro' => $numDa,
+                            'numeroVersion' => $numeroVersionMax,
+                            'numeroCde' => $numCde,
+                            'artRefp' => $refDesiSavLor['reference'],
+                            'artDesi' => $refDesiSavLor['designation']
+                        ]
+                    );
+            }
+        } else {
+            $refDesiFrnCdls = $this->daSoumissionFacBlModel->getRefDesiFrnCdl($numLiv);
+            foreach ($refDesiFrnCdls as  $refDesiFrnCdl) {
+                $daAffichers[] = $this->getEntityManager()->getRepository(DaAfficher::class)
+                    ->findOneBy(
+                        [
+                            'numeroDemandeAppro' => $numDa,
+                            'numeroVersion' => $numeroVersionMax,
+                            'numeroCde' => $numCde,
+                            'artRefp' => $refDesiFrnCdl['reference'],
+                            'artDesi' => $refDesiFrnCdl['designation']
+                        ]
+                    );
+            }
+        }
+
 
         foreach ($daAffichers as  $daAfficher) {
             if (!$daAfficher instanceof DaAfficher) {
