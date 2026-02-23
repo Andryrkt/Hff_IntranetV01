@@ -96,6 +96,7 @@ class DaSoumissionFacBlDdpaController extends Controller
 
                 // enrichissement Dto
                 $dto  = $this->daSoumissionFacBlDdpaFactory->enrichissementDtoApresSoumission($dto, $nomPdfFusionner);
+
                 /** ENREGISTREMENT DANS LA BASE DE DONNEE */
                 $daSoumissionFacBl = $this->daSoumissionfacBlDdpaMapper->map($dto);
                 $this->getEntityManager()->persist($daSoumissionFacBl);
@@ -124,7 +125,7 @@ class DaSoumissionFacBlDdpaController extends Controller
     {
         // GENERATION DE PDF pour le demnade de paiement
         $nomPageDeGarde = $dto->numeroDdp . '.pdf';
-        $cheminEtNom = $this->cheminDeBase . '/' . $dto->numeroDdp . '_New_1/' . $nomPageDeGarde;
+        $cheminEtNom = $this->cheminDeBaseDdp . '/' . $dto->numeroDdp . '_New_1/' . $nomPageDeGarde;
         $this->generatePdfDdp->genererPdfDto($dto, $cheminEtNom);
 
         // fusion du page de garde du demande de paiement et le facture Bl
@@ -133,8 +134,8 @@ class DaSoumissionFacBlDdpaController extends Controller
         $this->traitementDeFichier->fusionFichers($fichierConvertir, $cheminEtNom);
 
         // enregisstrement dans la table demande de paiement
-        $nomAvecCheminFichierDistant = $dto->nomAvecCheminFichierDistant;
-        $ddp = DemandePaiementMapper::map($dto, $nomAvecCheminFichierDistant);
+
+        $ddp = DemandePaiementMapper::map($dto);
         $this->getEntityManager()->persist($ddp);
         $this->getEntityManager()->flush();
     }
