@@ -19,8 +19,8 @@ class SecurityService
     private UserDataService $dataService;
 
     // ─── Routes publiques (pas de contrôle d'accès) ──────────────────────────
-    private const ROUTE_ACCUEIL = 'profil_acceuil';
-    private const ROUTES_PUBLIQUES = ['security_signin', 'auth_deconnexion', 'choix_societe'];
+    private const ROUTES_SEMI_PRIVEES = ['choix_societe'];
+    private const ROUTES_PUBLIQUES = ['security_signin', 'auth_deconnexion'];
     private const PREFIXES_API = ['api_'];
 
     // ─── Constantes de permissions (évite les fautes de frappe) ─────────────
@@ -72,9 +72,18 @@ class SecurityService
         if (!$this->dataService->isUserConnected()) {
             return new RedirectResponse($this->genererUrlConnexion());
         }
+        // Connecté et route semi-privee → laisse passer
+        elseif ($this->estRouteSemiPrivee($nomRoute)) {
+            return null;
+        }
+
+        // Connecté mais profil non selectionné → redirection vers login
+        if ($this->dataService->getProfilId() === null) {
+            return new RedirectResponse($this->genererUrlConnexion());
+        }
 
         // Connecté mais peutVoir = false → 403
-        if ($nomRoute !== self::ROUTE_ACCUEIL && !$this->verifierPermission(self::PERMISSION_VOIR, $nomRoute)) {
+        if ($this->verifierPermission(self::PERMISSION_VOIR, $nomRoute)) {
             throw new AccessDeniedException();
         }
 
@@ -174,6 +183,11 @@ class SecurityService
     private function estRoutePublique(?string $nomRoute): bool
     {
         return $nomRoute !== null && in_array($nomRoute, self::ROUTES_PUBLIQUES, true);
+    }
+
+    private function estRouteSemiPrivee(?string $nomRoute): bool
+    {
+        return $nomRoute !== null && in_array($nomRoute, self::ROUTES_SEMI_PRIVEES, true);
     }
 
     private function estRouteApi(?string $nomRoute): bool
