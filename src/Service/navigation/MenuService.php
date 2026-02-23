@@ -80,36 +80,509 @@ class MenuService
     }
 
     /**
-     * Construit le menu principal sans mise en cache.
-     * Appelé uniquement par getMenuStructure() via le cache persistant.
+     * Construit le menu principal en itérant sur tous les modules déclaratifs.
+     * Chaque module retourne sa définition via xxxGroupes(), ce builder filtre et assemble.
      */
     public function construireMenuPrincipal(): array
     {
-        $vignettes = [];
-
         $modules = [
-            fn() => $this->menuDocumentation(),
-            fn() => $this->menuReportingBI(),
-            fn() => $this->menuCompta(),
-            fn() => $this->menuRH(),
-            fn() => $this->menuMateriel(),
-            fn() => $this->menuAtelier(),
-            fn() => $this->menuMagasin(),
-            fn() => $this->menuAppro(),
-            fn() => $this->menuIT(),
-            fn() => $this->menuPOL(),
-            fn() => $this->menuEnergie(),
-            fn() => $this->menuHSE(),
+            ['id' => 'documentationModal', 'title' => 'Documentation', 'icon' => 'book',           'groupes' => $this->documentationGroupes()],
+            ['id' => 'reportingModal',     'title' => 'Reporting',     'icon' => 'chart-line',     'groupes' => $this->reportingBIGroupes()],
+            ['id' => 'comptaModal',        'title' => 'Compta',        'icon' => 'calculator',     'groupes' => $this->comptaGroupes()],
+            ['id' => 'rhModal',            'title' => 'RH',            'icon' => 'users',          'groupes' => $this->rhGroupes()],
+            ['id' => 'materielModal',      'title' => 'Matériel',      'icon' => 'snowplow',       'groupes' => $this->materielGroupes()],
+            ['id' => 'atelierModal',       'title' => 'Atelier',       'icon' => 'tools',          'groupes' => $this->atelierGroupes()],
+            ['id' => 'magasinModal',       'title' => 'Magasin',       'icon' => 'dolly',          'groupes' => $this->magasinGroupes()],
+            ['id' => 'approModal',         'title' => 'Appro',         'icon' => 'shopping-cart',  'groupes' => $this->approGroupes()],
+            ['id' => 'itModal',            'title' => 'IT',            'icon' => 'laptop-code',    'groupes' => $this->itGroupes()],
+            ['id' => 'polModal',           'title' => 'POL',           'icon' => 'ring rotate-90', 'groupes' => $this->polGroupes()],
+            ['id' => 'energieModal',       'title' => 'Energie',       'icon' => 'bolt',           'groupes' => $this->energieGroupes()],
+            ['id' => 'hseModal',           'title' => 'HSE',           'icon' => 'shield-alt',     'groupes' => $this->hseGroupes()],
         ];
 
-        foreach ($modules as $factory) {
-            $menu = $factory();
-            if (!empty($menu['items'])) {
-                $vignettes[] = $menu;
+        $vignettes = [];
+
+        foreach ($modules as $module) {
+            $items = $this->filtrerGroupes($module['groupes']);
+            if (!empty($items)) {
+                $vignettes[] = $this->createMenuItem($module['id'], $module['title'], $module['icon'], $items);
             }
         }
 
         return $vignettes;
+    }
+
+    // =========================================================================
+    //  DONNÉES STATIQUES — MENUS PRINCIPAUX
+    //
+    //  Structure d'un groupe :
+    //  [
+    //    'route'    => string|null   // route pour filtrage (null = toujours visible)
+    //    'label'    => string        // texte affiché
+    //    'icon'     => string        // icône FontAwesome (sans "fa-")
+    //    'link'     => string        // lien externe ou '#' (si absent, on génère depuis 'route')
+    //    'target'   => string        // '_blank' optionnel
+    //    'params'   => array         // paramètres de route optionnels
+    //    'modal_id' => string|null   // id du modal à ouvrir
+    //    'is_modal' => bool          // true si déclencheur de modal
+    //    'subitems' => array         // sous-items (même structure récursive)
+    //  ]
+    // =========================================================================
+
+    private function documentationGroupes(): array
+    {
+        return [
+            // Bloc documentation générale : contrôlé par documentation_interne
+            // Les items sans 'route' (Annuaire, PDF) sont toujours inclus si le bloc est visible
+            [
+                'label'    => 'Annuaire',
+                'icon'     => 'address-book',
+                'link'     => '#',
+            ],
+            [
+                'label'    => 'Plan analytique HFF',
+                'icon'     => 'ruler-vertical',
+                'link'     => '{basePath}/documentation/Structure%20analytique%20HFF.pdf',
+                'route'    => 'documentation_interne',
+                'target'   => '_blank',
+            ],
+            [
+                'route'    => 'documentation_interne',
+                'label'    => 'Documentation interne',
+                'icon'     => 'folder-tree',
+            ],
+            // Bloc Contrat : accès indépendant, avec sous-menu
+            [
+                'label'    => 'Contrat',
+                'icon'     => 'file-contract',
+                'subitems' => [
+                    ['label' => 'Nouveau contrat', 'icon' => 'plus-circle', 'route' => 'new_contrat', 'target' => '_blank'],
+                    ['label' => 'Consultation',    'icon' => 'search',      'link' => '#'],
+                ],
+            ],
+        ];
+    }
+
+    private function reportingBIGroupes(): array
+    {
+        return [
+            [
+                'label'    => 'Reporting Power BI',
+                'icon'     => null,
+                'link'     => '#',
+            ],
+            [
+                'label'    => 'Reporting Excel',
+                'icon'     => null,
+                'link'     => '#',
+            ],
+        ];
+    }
+
+    private function comptaGroupes(): array
+    {
+        return [
+            [
+                'label'    => 'Cours de change',
+                'icon'     => 'money-bill-wave',
+                'link'     => '#',
+            ],
+            [
+                'label'    => 'Demande de paiement',
+                'icon'     => 'file-invoice-dollar',
+                'subitems' => [
+                    ['label' => 'Nouvelle demande', 'icon' => 'plus-circle', 'link' => '#',        'modal_id' => 'modalTypeDemande', 'is_modal' => true],
+                    ['label' => 'Consultation',     'icon' => 'search',      'route' => 'ddp_liste'],
+                ],
+            ],
+            [
+                'label'    => 'Bon de caisse',
+                'icon'     => 'receipt',
+                'subitems' => [
+                    ['label' => 'Nouvelle demande', 'icon' => 'plus-circle', 'route' => 'new_bon_caisse'],
+                    ['label' => 'Consultation',     'icon' => 'search',      'route' => 'bon_caisse_liste'],
+                ],
+            ],
+        ];
+    }
+
+    private function rhGroupes(): array
+    {
+        return [
+            [
+                'label'    => 'Ordre de mission',
+                'icon'     => 'file-signature',
+                'subitems' => [
+                    ['label' => 'Nouvelle demande', 'icon' => 'plus-circle', 'route' => 'dom_first_form'],
+                    ['label' => 'Consultation',     'icon' => 'search',      'route' => 'doms_liste'],
+                ],
+            ],
+            [
+                'label'    => 'Mutations',
+                'icon'     => 'user-friends',
+                'subitems' => [
+                    ['label' => 'Nouvelle demande', 'icon' => 'plus-circle', 'route' => 'mutation_nouvelle_demande'],
+                    ['label' => 'Consultation',     'icon' => 'search',      'route' => 'mutation_liste'],
+                ],
+            ],
+            [
+                'label'    => 'Congés',
+                'icon'     => 'umbrella-beach',
+                'subitems' => [
+                    ['label' => 'Nouvelle demande',                'icon' => 'plus-circle',  'route' => 'new_conge',             'target' => '_blank'],
+                    ['label' => 'Annulation de congés validés',    'icon' => 'calendar-xmark', 'route' => 'annulation_conge',      'target' => '_blank'],
+                    ['label' => 'Annulation de congé dédiée RH',   'icon' => 'calendar-xmark', 'route' => 'annulation_conge_rh',   'target' => '_blank'],
+                    ['label' => 'Consultation',                    'icon' => 'search',        'route' => 'conge_liste'],
+                ],
+            ],
+            [
+                'label'    => 'Temporaires',
+                'icon'     => 'user-clock',
+                'subitems' => [
+                    ['label' => 'Nouvelle demande', 'icon' => 'plus-circle', 'link' => '#'],
+                    ['label' => 'Consultation',     'icon' => 'search',      'link' => '#'],
+                ],
+            ],
+        ];
+    }
+
+    private function materielGroupes(): array
+    {
+        return [
+            [
+                'label'    => 'Logistique',
+                'icon'     => 'truck-fast',
+                'subitems' => [
+                    ['label' => 'Nouvelle demande', 'icon' => 'plus-circle', 'route' => 'new_logistique'],
+                ],
+            ],
+            [
+                'label'    => 'Mouvement matériel',
+                'icon'     => 'exchange-alt',
+                'subitems' => [
+                    ['label' => 'Nouvelle demande', 'icon' => 'plus-circle', 'route' => 'badms_newForm1'],
+                    ['label' => 'Consultation',     'icon' => 'search',      'route' => 'badmListe_AffichageListeBadm'],
+                ],
+            ],
+            [
+                'label'    => 'Casier',
+                'icon'     => 'box-open',
+                'subitems' => [
+                    ['label' => 'Nouvelle demande', 'icon' => 'plus-circle', 'route' => 'casier_nouveau'],
+                    ['label' => 'Consultation',     'icon' => 'search',      'route' => 'listeTemporaire_affichageListeCasier'],
+                ],
+            ],
+        ];
+    }
+
+    private function atelierGroupes(): array
+    {
+        return [
+            [
+                'label'    => "Demande d'intervention",
+                'icon'     => 'toolbox',
+                'subitems' => [
+                    ['label' => 'Nouvelle demande',            'icon' => 'plus-circle', 'route' => 'dit_new'],
+                    ['label' => 'Consultation',                'icon' => 'search',      'route' => 'dit_index'],
+                    ['label' => 'Dossier DIT',                 'icon' => 'folder',      'route' => 'dit_dossier_intervention_atelier'],
+                    ['label' => 'Matrice des responsabilités', 'icon' => 'table',       'route' => 'dit_new', 'link'  => '{basePath}/documentation/MATRICE DE RESPONSABILITES OR v9.xlsx'],
+                ],
+            ],
+            [
+                'route'    => 'dit_new',
+                'label'    => 'Glossaire OR',
+                'icon'     => 'book',
+                'link'     => '{basePath}/dit/glossaire_or/Glossaire_OR.pdf',
+                'target'   => '_blank',
+            ],
+            [
+                'route'    => 'planning_vue',
+                'label'    => 'Planning',
+                'icon'     => 'calendar-alt',
+                'params'   => ['action' => 'oui'],
+            ],
+            [
+                'route'    => 'liste_planning',
+                'label'    => 'Planning détaillé',
+                'icon'     => 'calendar-day',
+                'params'   => ['action' => 'oui'],
+            ],
+            [
+                'route'    => 'planningAtelier_vue',
+                'label'    => 'Planning interne Atelier',
+                'icon'     => 'calendar-alt',
+            ],
+        ];
+    }
+
+    private function magasinGroupes(): array
+    {
+        return [
+            [
+                'label'    => 'OR',
+                'icon'     => 'warehouse',
+                'subitems' => [
+                    ['label' => 'Liste à traiter', 'icon' => 'tasks',        'route' => 'magasinListe_index'],
+                    ['label' => 'Liste à livrer',  'icon' => 'truck-loading', 'route' => 'magasinListe_or_Livrer'],
+                ],
+            ],
+            [
+                'label'    => 'CIS',
+                'icon'     => 'pallet',
+                'subitems' => [
+                    ['label' => 'Liste à traiter', 'icon' => 'tasks',        'route' => 'cis_liste_a_traiter'],
+                    ['label' => 'Liste à livrer',  'icon' => 'truck-loading', 'route' => 'cis_liste_a_livrer'],
+                ],
+            ],
+            [
+                'label'    => 'INVENTAIRE',
+                'icon'     => 'file-alt',
+                'subitems' => [
+                    ['label' => 'Liste inventaire',    'icon' => 'file-alt', 'route' => 'liste_inventaire',        'params' => ['action' => 'oui']],
+                    ['label' => 'Inventaire détaillé', 'icon' => 'file-alt', 'route' => 'liste_detail_inventaire'],
+                ],
+            ],
+            [
+                'label'    => 'SORTIE DE PIECES',
+                'icon'     => 'arrow-left',
+                'subitems' => [
+                    ['label' => 'Nouvelle demande', 'icon' => 'plus-circle', 'route' => 'bl_soumission'],
+                ],
+            ],
+            [
+                'label'    => 'DEMATERIALISATION',
+                'icon'     => 'cloud-arrow-up',
+                'subitems' => [
+                    ['label' => 'Devis',                        'icon' => 'file-invoice', 'route' => 'devis_magasin_liste'],
+                    ['label' => 'Planning de commande Magasin', 'icon' => 'calendar-alt', 'route' => 'interface_planningMag'],
+                ],
+            ],
+            [
+                'route'    => 'cde_fournisseur',
+                'label'    => 'Soumission commandes fournisseur',
+                'icon'     => 'list-alt',
+            ],
+            [
+                'route'    => 'liste_Cde_Frn_Non_Placer',
+                'label'    => 'Liste des cmds non placées',
+                'icon'     => 'exclamation-circle',
+            ],
+        ];
+    }
+
+    private function approGroupes(): array
+    {
+        return [
+            [
+                'route' => 'da_first_form',
+                'label' => 'Nouvelle DA',
+                'icon'  => 'file-alt',
+            ],
+            [
+                'route' => 'list_da',
+                'label' => 'Consultation des DA',
+                'icon'  => 'search',
+            ],
+            [
+                'route' => 'da_list_cde_frn',
+                'label' => 'Liste des commandes fournisseurs',
+                'icon'  => 'list-ul',
+            ],
+            [
+                'route' => 'da_reporting_ips',
+                'label' => 'Reporting IPS DA reappro',
+                'icon'  => 'chart-bar',
+            ],
+        ];
+    }
+
+    private function itGroupes(): array
+    {
+        return [
+            [
+                'route' => 'demande_support_informatique',
+                'label' => 'Nouvelle Demande',
+                'icon'  => 'plus-circle',
+            ],
+            [
+                'route' => 'liste_tik_index',
+                'label' => 'Consultation',
+                'icon'  => 'search',
+            ],
+            [
+                'route' => 'tik_calendar_planning',
+                'label' => 'Planning',
+                'icon'  => 'file-alt',
+            ],
+        ];
+    }
+
+    private function polGroupes(): array
+    {
+        return [
+            [
+                'label' => 'Nouvelle DLUB',
+                'icon'  => 'file-alt',
+            ],
+            [
+                'label' => 'Consultation des DLUB',
+                'icon'  => 'search',
+            ],
+            [
+                'label' => 'Liste des commandes fournisseurs',
+                'icon'  => 'list-ul',
+            ],
+            [
+                'label'    => 'OR',
+                'icon'     => 'warehouse',
+                'subitems' => [
+                    ['label' => 'Liste à traiter', 'icon' => 'tasks',        'route' => 'pol_or_liste_a_traiter'],
+                    ['label' => 'Liste à livrer',  'icon' => 'truck-loading', 'route' => 'pol_or_liste_a_livrer'],
+                ],
+            ],
+            [
+                'label'    => 'CIS',
+                'icon'     => 'pallet',
+                'subitems' => [
+                    ['label' => 'Liste à traiter', 'icon' => 'tasks',        'route' => 'pol_cis_liste_a_traiter'],
+                    ['label' => 'Liste à livrer',  'icon' => 'truck-loading', 'route' => 'pol_cis_liste_a_livrer'],
+                ],
+            ],
+            [
+                'route' => 'devis_magasin_pol_liste',
+                'label' => 'Devis negoce pol',
+                'icon'  => 'list-ul',
+            ],
+            [
+                'label' => 'Pneumatiques',
+                'icon'  => 'ring',
+            ],
+        ];
+    }
+
+    private function energieGroupes(): array
+    {
+        return [
+            [
+                'label' => 'Rapport de production centrale',
+                'icon'  => 'file-alt',
+            ],
+        ];
+    }
+
+    private function hseGroupes(): array
+    {
+        return [
+            [
+                'label' => "Rapport d'incident",
+                'icon'  => 'file-alt',
+            ],
+            [
+                'label' => 'Documentation',
+                'icon'  => 'folder-open',
+            ],
+        ];
+    }
+
+    // =========================================================================
+    //  MOTEUR DE FILTRAGE — cœur du pattern
+    //
+    //  filtrerGroupes() parcourt les définitions statiques et :
+    //  1. Filtre chaque groupe selon sa 'route' de contrôle (hasAccesRoute)
+    //  2. Si le groupe a des 'subitems', filtre récursivement chaque enfant
+    //  3. Un groupe avec subitems est supprimé si aucun enfant n'est accessible
+    //  4. Un item sans 'route' (lien '#' ou externe) passe toujours
+    // =========================================================================
+
+    private function filtrerGroupes(array $groupes): array
+    {
+        $items = [];
+
+        foreach ($groupes as $groupe) {
+            // Groupe avec sous-items → s'affiche si au moins un enfant est accessible.
+            // La 'route' du groupe n'est PAS utilisée comme condition d'accès ici :
+            // c'est le filtrage des enfants qui décide.
+            if (!empty($groupe['subitems'])) {
+                $subitemsAccessibles = $this->filtrerSousItems($groupe['subitems']);
+                if (empty($subitemsAccessibles)) {
+                    continue;
+                }
+                $items[] = $this->createSubMenuItem(
+                    $groupe['label'],
+                    $groupe['icon'] ?? 'file',
+                    $subitemsAccessibles
+                );
+                continue;
+            }
+
+            // Item simple → filtré par sa propre 'route' (null = toujours visible)
+            $route = $groupe['route'] ?? null;
+            if ($route !== null && !$this->hasAccesRoute($route)) {
+                continue;
+            }
+
+            $items[] = $this->buildSimpleItem($groupe);
+        }
+
+        return $items;
+    }
+
+    /**
+     * Filtre et construit les sous-items d'un groupe.
+     * Un sous-item sans 'route' est toujours inclus (lien '#' ou externe).
+     */
+    private function filtrerSousItems(array $subitems): array
+    {
+        $result = [];
+
+        foreach ($subitems as $subitem) {
+            $route = $subitem['route'] ?? null;
+
+            if ($route !== null && !$this->hasAccesRoute($route)) {
+                continue;
+            }
+
+            $result[] = $this->createSubItem(
+                $subitem['label'],
+                $subitem['icon'] ?? 'file',
+                $this->resoudreLink($subitem),
+                $subitem['params'] ?? [],
+                $subitem['target'] ?? '',
+                $subitem['modal_id'] ?? null,
+                $subitem['is_modal'] ?? false,
+            );
+        }
+
+        return $result;
+    }
+
+    /**
+     * Construit un item simple à partir d'une définition statique.
+     */
+    private function buildSimpleItem(array $groupe): array
+    {
+        return $this->createSimpleItem(
+            $groupe['label'],
+            $groupe['icon'] ?? null,
+            $this->resoudreLink($groupe),
+            $groupe['params'] ?? [],
+            $groupe['target'] ?? '',
+        );
+    }
+
+    /**
+     * Résout le lien d'un item :
+     * - 'link' explicite (externe, '#', chemin avec {basePath}) → retourne tel quel après substitution
+     * - 'route' → retourne le nom de route (les builders Twig/contrôleur génèrent l'URL)
+     * - ni l'un ni l'autre → '#'
+     */
+    private function resoudreLink(array $definition): string
+    {
+        if (isset($definition['link'])) {
+            return str_replace('{basePath}', $this->basePath, $definition['link']);
+        }
+
+        return $definition['route'] ?? '#';
     }
 
     // =========================================================================
@@ -227,8 +700,8 @@ class MenuService
                 'header' => 'Historique',
                 'icon'   => 'fa-clock-rotate-left',
                 'links'  => [
-                    ['label' => 'Consultation de pages',     'icon' => 'fa-eye',               'route' => 'consultation_page_index'],
-                    ['label' => 'Historique des opérations', 'icon' => 'fa-file-circle-check',  'route' => 'operation_document_index'],
+                    ['label' => 'Consultation de pages',     'icon' => 'fa-eye',              'route' => 'consultation_page_index'],
+                    ['label' => 'Historique des opérations', 'icon' => 'fa-file-circle-check', 'route' => 'operation_document_index'],
                 ],
             ],
             [
@@ -242,348 +715,13 @@ class MenuService
     }
 
     // =========================================================================
-    //  CONSTRUCTION DES MENUS
-    //
-    //  Règle stricte :
-    //  - hasAccesModule(r1, r2, ...) → décide si le BLOC PARENT s'affiche.
-    //    On ne revérifie PAS les routes à l'intérieur du bloc.
-    //  - hasAccesRoute(r) → décide si un ITEM INDIVIDUEL s'affiche,
-    //    uniquement quand les routes d'un même bloc ont des droits différents.
-    //  - Un bloc avec une seule route utilise directement hasAccesRoute(),
-    //    pas hasAccesModule().
+    //  NAVIGATION — recherche du chemin vers une route (breadcrumb)
     // =========================================================================
 
-    public function menuDocumentation(): array
-    {
-        $subitems = [];
-
-        // Un seul accès contrôle tout le bloc documentation générale
-        if ($this->hasAccesRoute('documentation_interne')) {
-            $subitems[] = $this->createSimpleItem('Annuaire', 'address-book', '#');
-            $subitems[] = $this->createSimpleItem('Plan analytique HFF', 'ruler-vertical', "{$this->basePath}/documentation/Structure%20analytique%20HFF.pdf", [], '_blank');
-            $subitems[] = $this->createSimpleItem('Documentation interne', 'folder-tree', 'documentation_interne');
-        }
-
-        // Contrat : accès indépendant
-        if ($this->hasAccesRoute('new_contrat')) {
-            $subitems[] = $this->createSubMenuItem('Contrat', 'file-contract', [
-                $this->createSubItem('Nouveau contrat', 'plus-circle', 'new_contrat', [], '_blank'),
-                $this->createSubItem('Consultation', 'search', '#'),
-            ]);
-        }
-
-        return $this->createMenuItem('documentationModal', 'Documentation', 'book', $subitems);
-    }
-
-    public function menuReportingBI(): array
-    {
-        // Un seul accès contrôle tout le module
-        if (!$this->hasAccesRoute('da_reporting_ips')) {
-            return $this->createMenuItem('reportingModal', 'Reporting', 'chart-line', []);
-        }
-
-        return $this->createMenuItem('reportingModal', 'Reporting', 'chart-line', [
-            $this->createSimpleItem('Reporting Power BI', null, '#'),
-            $this->createSimpleItem('Reporting Excel', null, '#'),
-        ]);
-    }
-
-    public function menuCompta(): array
-    {
-        $subitems = [];
-
-        if ($this->hasAccesRoute('ddp_liste')) {
-            $subitems[] = $this->createSimpleItem('Cours de change', 'money-bill-wave');
-            $subitems[] = $this->createSubMenuItem('Demande de paiement', 'file-invoice-dollar', [
-                $this->createSubItem('Nouvelle demande', 'plus-circle', '#', [], '', 'modalTypeDemande', true),
-                $this->createSubItem('Consultation', 'search', 'ddp_liste'),
-            ]);
-        }
-
-        // Bon de caisse : accès indépendant de DDP
-        if ($this->hasAccesModule('new_bon_caisse', 'bon_caisse_liste')) {
-            $subitems[] = $this->createSubMenuItem('Bon de caisse', 'receipt', [
-                $this->createSubItem('Nouvelle demande', 'plus-circle', 'new_bon_caisse'),
-                $this->createSubItem('Consultation', 'search', 'bon_caisse_liste'),
-            ]);
-        }
-
-        return $this->createMenuItem('comptaModal', 'Compta', 'calculator', $subitems);
-    }
-
-    public function menuRH(): array
-    {
-        $subitems = [];
-
-        // Ordre de mission : le bloc s'affiche si au moins une des deux routes est accessible
-        if ($this->hasAccesModule('dom_first_form', 'doms_liste')) {
-            $subSubitems = [];
-            if ($this->hasAccesRoute('dom_first_form')) {
-                $subSubitems[] = $this->createSubItem('Nouvelle demande', 'plus-circle', 'dom_first_form');
-            }
-            // doms_liste est la condition du hasAccesModule : forcément accessible si on est ici
-            $subSubitems[] = $this->createSubItem('Consultation', 'search', 'doms_liste');
-            $subitems[]    = $this->createSubMenuItem('Ordre de mission', 'file-signature', $subSubitems);
-        }
-
-        // Mutations : les deux routes ont le même niveau d'accès, le bloc suffit
-        if ($this->hasAccesModule('mutation_nouvelle_demande', 'mutation_liste')) {
-            $subitems[] = $this->createSubMenuItem('Mutations', 'user-friends', [
-                $this->createSubItem('Nouvelle demande', 'plus-circle', 'mutation_nouvelle_demande'),
-                $this->createSubItem('Consultation', 'search', 'mutation_liste'),
-            ]);
-        }
-
-        // Congés : plusieurs routes avec des droits indépendants → vérification par item
-        if ($this->hasAccesModule('new_conge', 'annulation_conge', 'annulation_conge_rh', 'conge_liste')) {
-            $subSubitems = [];
-            if ($this->hasAccesRoute('new_conge')) {
-                $subSubitems[] = $this->createSubItem('Nouvelle demande', 'plus-circle', 'new_conge', [], '_blank');
-            }
-            if ($this->hasAccesRoute('annulation_conge')) {
-                $subSubitems[] = $this->createSubItem('Annulation de congés validés', 'calendar-xmark', 'annulation_conge', [], '_blank');
-            }
-            if ($this->hasAccesRoute('annulation_conge_rh')) {
-                $subSubitems[] = $this->createSubItem('Annulation de congé dédiée RH', 'calendar-xmark', 'annulation_conge_rh', [], '_blank');
-            }
-            if ($this->hasAccesRoute('conge_liste')) {
-                $subSubitems[] = $this->createSubItem('Consultation', 'search', 'conge_liste');
-            }
-            $subitems[] = $this->createSubMenuItem('Congés', 'umbrella-beach', $subSubitems);
-        }
-
-        // Temporaires : accès unique contrôle tout le bloc
-        if ($this->hasAccesRoute('temporaires_liste')) {
-            $subitems[] = $this->createSubMenuItem('Temporaires', 'user-clock', [
-                $this->createSubItem('Nouvelle demande', 'plus-circle', '#'),
-                $this->createSubItem('Consultation', 'search', '#'),
-            ]);
-        }
-
-        return $this->createMenuItem('rhModal', 'RH', 'users', $subitems);
-    }
-
-    public function menuMateriel(): array
-    {
-        $subitems = [];
-
-        // Logistique : accès unique contrôle tout le bloc
-        if ($this->hasAccesRoute('new_logistique')) {
-            $subitems[] = $this->createSubMenuItem('Logistique', 'truck-fast', [
-                $this->createSubItem('Nouvelle demande', 'plus-circle', 'new_logistique'),
-            ]);
-        }
-
-        // Mouvement matériel : le bloc suffit, droits identiques sur les deux routes
-        if ($this->hasAccesModule('badms_newForm1', 'badmListe_AffichageListeBadm')) {
-            $subitems[] = $this->createSubMenuItem('Mouvement matériel', 'exchange-alt', [
-                $this->createSubItem('Nouvelle demande', 'plus-circle', 'badms_newForm1'),
-                $this->createSubItem('Consultation', 'search', 'badmListe_AffichageListeBadm'),
-            ]);
-        }
-
-        // Casier : le bloc suffit, droits identiques sur les deux routes
-        if ($this->hasAccesModule('casier_nouveau', 'listeTemporaire_affichageListeCasier')) {
-            $subitems[] = $this->createSubMenuItem('Casier', 'box-open', [
-                $this->createSubItem('Nouvelle demande', 'plus-circle', 'casier_nouveau'),
-                $this->createSubItem('Consultation', 'search', 'listeTemporaire_affichageListeCasier'),
-            ]);
-        }
-
-        return $this->createMenuItem('materielModal', 'Matériel', 'snowplow', $subitems);
-    }
-
-    public function menuAtelier(): array
-    {
-        $subitems = [];
-
-        // DIT : création et consultation ont des droits potentiellement différents → vérification par item
-        if ($this->hasAccesModule('dit_new', 'dit_index', 'dit_dossier_intervention_atelier')) {
-            $subSubitems = [];
-            if ($this->hasAccesRoute('dit_new')) {
-                $subSubitems[] = $this->createSubItem('Nouvelle demande', 'plus-circle', 'dit_new');
-            }
-            if ($this->hasAccesRoute('dit_index')) {
-                $subSubitems[] = $this->createSubItem('Consultation', 'search', 'dit_index');
-            }
-            // dit_dossier et glossaire : accessibles si le bloc DIT est accessible
-            $subSubitems[] = $this->createSubItem('Dossier DIT', 'folder', 'dit_dossier_intervention_atelier');
-            $subSubitems[] = $this->createSubItem('Matrice des responsabilités', 'table', "{$this->basePath}/documentation/MATRICE DE RESPONSABILITES OR v9.xlsx");
-            $subitems[]    = $this->createSubMenuItem('Demande d\'intervention', 'toolbox', $subSubitems);
-            $subitems[]    = $this->createSimpleItem('Glossaire OR', 'book', "{$this->basePath}/dit/glossaire_or/Glossaire_OR.pdf", [], '_blank');
-        }
-
-        // REP : le bloc suffit, planning et planning détaillé ont les mêmes droits
-        if ($this->hasAccesModule('planning_vue', 'liste_planning')) {
-            $subitems[] = $this->createSimpleItem('Planning', 'calendar-alt', 'planning_vue', ['action' => 'oui']);
-            $subitems[] = $this->createSimpleItem('Planning détaillé', 'calendar-day', 'liste_planning', ['action' => 'oui']);
-        }
-
-        // PAT : accès unique contrôle tout le bloc
-        if ($this->hasAccesRoute('planningAtelier_vue')) {
-            $subitems[] = $this->createSimpleItem('Planning interne Atelier', 'calendar-alt', 'planningAtelier_vue');
-        }
-
-        return $this->createMenuItem('atelierModal', 'Atelier', 'tools', $subitems);
-    }
-
-    public function menuMagasin(): array
-    {
-        $subitems = [];
-
-        // OR : le bloc suffit, droits identiques sur les deux routes
-        if ($this->hasAccesModule('magasinListe_index', 'magasinListe_or_Livrer')) {
-            $subitems[] = $this->createSubMenuItem('OR', 'warehouse', [
-                $this->createSubItem('Liste à traiter', 'tasks', 'magasinListe_index'),
-                $this->createSubItem('Liste à livrer', 'truck-loading', 'magasinListe_or_Livrer'),
-            ]);
-        }
-
-        // CIS : le bloc suffit, droits identiques sur les deux routes
-        if ($this->hasAccesModule('cis_liste_a_traiter', 'cis_liste_a_livrer')) {
-            $subitems[] = $this->createSubMenuItem('CIS', 'pallet', [
-                $this->createSubItem('Liste à traiter', 'tasks', 'cis_liste_a_traiter'),
-                $this->createSubItem('Liste à livrer', 'truck-loading', 'cis_liste_a_livrer'),
-            ]);
-        }
-
-        // Inventaire : le bloc suffit, droits identiques sur les deux routes
-        if ($this->hasAccesModule('liste_inventaire', 'liste_detail_inventaire')) {
-            $subitems[] = $this->createSubMenuItem('INVENTAIRE', 'file-alt', [
-                $this->createSubItem('Liste inventaire', 'file-alt', 'liste_inventaire', ['action' => 'oui']),
-                $this->createSubItem('Inventaire détaillé', 'file-alt', 'liste_detail_inventaire'),
-            ]);
-        }
-
-        // Sortie de pièces : accès unique contrôle tout le bloc
-        if ($this->hasAccesRoute('bl_soumission')) {
-            $subitems[] = $this->createSubMenuItem('SORTIE DE PIECES', 'arrow-left', [
-                $this->createSubItem('Nouvelle demande', 'plus-circle', 'bl_soumission'),
-            ]);
-        }
-
-        // Dématérialisation : le bloc suffit, droits identiques sur les deux routes
-        if ($this->hasAccesModule('devis_magasin_liste', 'interface_planningMag')) {
-            $subitems[] = $this->createSubMenuItem('DEMATERIALISATION', 'cloud-arrow-up', [
-                $this->createSubItem('Devis', 'file-invoice', 'devis_magasin_liste'),
-                $this->createSubItem('Planning de commande Magasin', 'calendar-alt', 'interface_planningMag'),
-            ]);
-        }
-
-        // Items simples : chacun a son propre accès
-        if ($this->hasAccesRoute('cde_fournisseur')) {
-            $subitems[] = $this->createSimpleItem('Soumission commandes fournisseur', 'list-alt', 'cde_fournisseur');
-        }
-        if ($this->hasAccesRoute('liste_Cde_Frn_Non_Placer')) {
-            $subitems[] = $this->createSimpleItem('Liste des cmds non placées', 'exclamation-circle', 'liste_Cde_Frn_Non_Placer');
-        }
-
-        return $this->createMenuItem('magasinModal', 'Magasin', 'dolly', $subitems);
-    }
-
-    public function menuAppro(): array
-    {
-        $subitems = [];
-
-        // Nouvelle DA : accès indépendant de la consultation
-        if ($this->hasAccesRoute('da_first_form')) {
-            $subitems[] = $this->createSimpleItem('Nouvelle DA', 'file-alt', 'da_first_form');
-        }
-        if ($this->hasAccesRoute('list_da')) {
-            $subitems[] = $this->createSimpleItem('Consultation des DA', 'search', 'list_da');
-        }
-        if ($this->hasAccesRoute('da_list_cde_frn')) {
-            $subitems[] = $this->createSimpleItem('Liste des commandes fournisseurs', 'list-ul', 'da_list_cde_frn');
-        }
-        if ($this->hasAccesRoute('da_reporting_ips')) {
-            $subitems[] = $this->createSimpleItem('Reporting IPS DA reappro', 'chart-bar', 'da_reporting_ips');
-        }
-
-        return $this->createMenuItem('approModal', 'Appro', 'shopping-cart', $subitems);
-    }
-
-    public function menuIT(): array
-    {
-        $subitems = [];
-
-        if ($this->hasAccesRoute('demande_support_informatique')) {
-            $subitems[] = $this->createSimpleItem('Nouvelle Demande', 'plus-circle', 'demande_support_informatique');
-        }
-        if ($this->hasAccesRoute('liste_tik_index')) {
-            $subitems[] = $this->createSimpleItem('Consultation', 'search', 'liste_tik_index');
-        }
-        if ($this->hasAccesRoute('tik_calendar_planning')) {
-            $subitems[] = $this->createSimpleItem('Planning', 'file-alt', 'tik_calendar_planning');
-        }
-
-        return $this->createMenuItem('itModal', 'IT', 'laptop-code', $subitems);
-    }
-
-    public function menuPOL(): array
-    {
-        $subitems = [];
-
-        // OR POL : le bloc suffit, droits identiques sur les deux routes
-        if ($this->hasAccesModule('pol_or_liste_a_traiter', 'pol_or_liste_a_livrer')) {
-            $subitems[] = $this->createSubMenuItem('OR', 'warehouse', [
-                $this->createSubItem('Liste à traiter', 'tasks', 'pol_or_liste_a_traiter'),
-                $this->createSubItem('Liste à livrer', 'truck-loading', 'pol_or_liste_a_livrer'),
-            ]);
-        }
-
-        // CIS POL : le bloc suffit, droits identiques sur les deux routes
-        if ($this->hasAccesModule('pol_cis_liste_a_traiter', 'pol_cis_liste_a_livrer')) {
-            $subitems[] = $this->createSubMenuItem('CIS', 'pallet', [
-                $this->createSubItem('Liste à traiter', 'tasks', 'pol_cis_liste_a_traiter'),
-                $this->createSubItem('Liste à livrer', 'truck-loading', 'pol_cis_liste_a_livrer'),
-            ]);
-        }
-
-        if ($this->hasAccesRoute('devis_magasin_pol_liste')) {
-            $subitems[] = $this->createSimpleItem('Devis negoce pol', 'list-ul', 'devis_magasin_pol_liste');
-        }
-
-        return $this->createMenuItem('polModal', 'POL', 'ring rotate-90', $subitems);
-    }
-
-    public function menuEnergie(): array
-    {
-        $subitems = [];
-
-        if ($this->hasAccesRoute('energie_rapport_production')) {
-            $subitems[] = $this->createSimpleItem('Rapport de production centrale');
-        }
-
-        return $this->createMenuItem('energieModal', 'Energie', 'bolt', $subitems);
-    }
-
-    public function menuHSE(): array
-    {
-        $subitems = [];
-
-        if ($this->hasAccesRoute('hse_rapport_incident')) {
-            $subitems[] = $this->createSimpleItem('Rapport d\'incident');
-        }
-        if ($this->hasAccesRoute('hse_documentation')) {
-            $subitems[] = $this->createSimpleItem('Documentation');
-        }
-
-        return $this->createMenuItem('hseModal', 'HSE', 'shield-alt', $subitems);
-    }
-
-    // =========================================================================
-    //  NAVIGATION — recherche du chemin vers une route
-    // =========================================================================
-
-    /**
-     * Retourne le chemin hiérarchique vers la route donnée dans l'arbre du menu.
-     * Utilisé par BreadcrumbFactory pour construire le fil d'ariane sans parser l'URL.
-     */
     public function findChemin(string $nomRoute): array
     {
         foreach ($this->getMenuStructure() as $module) {
             foreach ($module['items'] as $item) {
-                // Item simple directement dans le module
                 if (($item['link'] ?? null) === $nomRoute) {
                     return [
                         ['title' => $module['title'], 'icon' => $module['icon']],
@@ -591,7 +729,6 @@ class MenuService
                     ];
                 }
 
-                // Item avec sous-items (createSubMenuItem)
                 if (!empty($item['subitems'])) {
                     foreach ($item['subitems'] as $subitem) {
                         if (($subitem['link'] ?? null) === $nomRoute) {
@@ -630,17 +767,9 @@ class MenuService
     }
 
     // =========================================================================
-    //  HELPERS DE VÉRIFICATION (via SecurityService — zéro BDD)
+    //  HELPERS DE VÉRIFICATION (via UserDataService — zéro BDD)
     // =========================================================================
 
-    /**
-     * True si la route est visible pour le profil connecté.
-     * Résultat depuis le cache intra-requête de SecurityService — zéro BDD.
-     */
-    /**
-     * Retourne l'identifiant du profil connecté, ou null si non connecté.
-     * Utilisé comme discriminant de clé de cache.
-     */
     private function getProfilId(): ?int
     {
         return $this->userDataService->getProfilId();
@@ -649,11 +778,6 @@ class MenuService
     private function hasAccesRoute(string $route): bool
     {
         return $this->userDataService->peutVoir($route);
-    }
-
-    private function hasAccesModule(string ...$routes): bool
-    {
-        return $this->userDataService->peutVoirModule(...$routes);
     }
 
     // =========================================================================
