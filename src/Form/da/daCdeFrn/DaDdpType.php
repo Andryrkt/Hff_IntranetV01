@@ -16,7 +16,7 @@ class DaDdpType extends AbstractType
             ->add('ddp', ChoiceType::class, [
                 'choices'  => [
                     'Avance' => 'avance',
-                    'Régule' => 'regule'
+                    // 'Régul' => 'regule'
                 ],
                 'expanded' => true, // pour afficher des boutons radio
                 'multiple' => false, // un seul choix possible

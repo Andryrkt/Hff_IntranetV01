@@ -53,3 +53,52 @@ CREATE TABLE pointage_relance
 
 ALTER TABLE pointage_relance
     ADD numero_relance INT NULL;
+
+
+ALTER TABLE devis_soumis_a_validation_neg 
+ADD stop_progression_global BIT DEFAULT 0,
+    date_stop_global DATETIME NULL,
+    motif_stop_global VARCHAR(255) NULL,
+    -- Permet de reprendre manuellement si besoin
+    date_reprise_manuel DATETIME NULL;
+
+-- 2. Dans la table des relances (pour un stop par niveau)
+ALTER TABLE pointage_relance 
+ADD stop_progression_niveau BIT DEFAULT 0,
+    date_stop_niveau DATETIME NULL,
+    motif_stop_niveau VARCHAR(255) NULL;
+
+-- Ajouter une table d'historique des changements d'état
+CREATE TABLE historique_stop_reprise
+(
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    numero_devis VARCHAR(50),
+    type_action VARCHAR(20),
+    -- 'STOP_GLOBAL', 'REPRISE_GLOBAL', 'STOP_NIVEAU', 'REPRISE_NIVEAU'
+    niveau_relance INT NULL,
+    -- 1,2,3 ou NULL pour global
+    date_action DATETIME DEFAULT GETDATE(),
+    motif VARCHAR(255),
+    utilisateur VARCHAR(100)
+);
+
+-- Trigger pour tracer automatiquement les changements
+CREATE TRIGGER trg_trace_stop_reprise_devis
+ON devis_soumis_a_validation_neg
+AFTER UPDATE
+AS
+BEGIN
+    IF UPDATE(stop_progression_global)
+    BEGIN
+        INSERT INTO historique_stop_reprise
+            (numero_devis, type_action, date_action, motif)
+        SELECT
+            i.numero_devis,
+            CASE WHEN i.stop_progression_global = 1 THEN 'STOP_GLOBAL' ELSE 'REPRISE_GLOBAL' END,
+            GETDATE(),
+            i.motif_stop_global
+        FROM inserted i
+            JOIN deleted d ON i.numero_devis = d.numero_devis
+        WHERE ISNULL(i.stop_progression_global, 0) != ISNULL(d.stop_progression_global, 0);
+    END
+END;

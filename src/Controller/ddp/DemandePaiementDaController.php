@@ -89,8 +89,8 @@ class DemandePaiementDaController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             $dto = $form->getdata();
-            $nomAvecCheminFichier = $this->traitementDeFichier($dto, $form);
-            $this->enregistrementSurBd($dto, $nomAvecCheminFichier);
+            $nomFichier = $this->traitementDeFichier($dto, $form);
+            $this->enregistrementSurBd($dto, $nomFichier);
 
             if ($dto->ddpaDa) {
                 $ddpaDaService = new DdpaDaService($this->getEntityManager());
@@ -122,10 +122,10 @@ class DemandePaiementDaController extends Controller
         }
     }
 
-    private function enregistrementSurBd(DemandePaiementDto $dto, string $nomAvecCheminFichier): void
+    private function enregistrementSurBd(DemandePaiementDto $dto, string $nomFichier): void
     {
         // enregistrement dans la table deamnde_paiement
-        $this->demandePaiementService->createDdp($dto, $nomAvecCheminFichier);
+        $this->demandePaiementService->createDdp($dto, $nomFichier);
         // enregistrement dans la table demande_paiement_ligne
         $this->demandePaiementLigneService->createLignesFromDto($dto);
         // enregistrement dans la table doc_demande_paiement
@@ -170,7 +170,7 @@ class DemandePaiementDaController extends Controller
         // COPIE VERS DOCUWARE
         $generatePdf->copyToDw($nomAvecCheminFichier, $nomFichier);
 
-        return $nomAvecCheminFichier;
+        return $nomFichier;
     }
 
 
