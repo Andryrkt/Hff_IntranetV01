@@ -10,9 +10,11 @@ use App\Entity\ddp\DemandePaiement;
 use App\Factory\da\CdeFrnDto\DaSoumissionFacBlDdpaFactory;
 use App\Form\da\daCdeFrn\DaSoumissionFacBlDdpaType;
 use App\Mapper\Da\ListCdeFrn\DaSoumissionFacBlDdpaMapper;
+use App\Mapper\ddp\DemandePaiementMapper;
 use App\Repository\da\DaAfficherRepository;
 use App\Service\fichier\TraitementDeFichier;
 use App\Service\genererPdf\GeneratePdf;
+use App\Service\genererPdf\GeneratePdfDdp;
 use App\Service\historiqueOperation\HistoriqueOperationDaFacBlService;
 use App\Service\historiqueOperation\HistoriqueOperationService;
 use Exception;
@@ -31,20 +33,22 @@ class DaSoumissionFacBlDdpaController extends Controller
     private DaSoumissionFacBlDdpaFactory $daSoumissionFacBlDdpaFactory;
     private TraitementDeFichier $traitementDeFichier;
     private string $cheminDeBase;
+    private string $cheminDeBaseDdp;
     private HistoriqueOperationService $historiqueOperation;
     private DaAfficherRepository $daAfficherRepository;
     private DaSoumissionFacBlDdpaMapper $daSoumissionfacBlDdpaMapper;
-    private GeneratePdf $generatePdf;
+    private GeneratePdfDdp $generatePdfDdp;
 
     public function __construct()
     {
         $this->daSoumissionFacBlDdpaFactory = new DaSoumissionFacBlDdpaFactory($this->getEntityManager());
         $this->traitementDeFichier         = new TraitementDeFichier();
         $this->cheminDeBase                = $_ENV['BASE_PATH_FICHIER'] . '/da/';
+        $this->cheminDeBaseDdp             = $_ENV['BASE_PATH_FICHIER'] . '/ddp';
         $this->historiqueOperation = new HistoriqueOperationDaFacBlService($this->getEntityManager());
         $this->daAfficherRepository        = $this->getEntityManager()->getRepository(DaAfficher::class);
         $this->daSoumissionfacBlDdpaMapper = new DaSoumissionFacBlDdpaMapper();
-        $this->generatePdf                 = new GeneratePdf();
+        $this->generatePdfDdp                 = new GeneratePdfDdp();
     }
 
     /**
@@ -56,7 +60,7 @@ class DaSoumissionFacBlDdpaController extends Controller
         $this->verifierSessionUtilisateur();
 
         //initialisation 
-        $dto = $this->daSoumissionFacBlDdpaFactory->initialisation($numCde, $numDa, $numOr, $this->getUserName());
+        $dto = $this->daSoumissionFacBlDdpaFactory->initialisation($numCde, $numDa, $numOr, $this->getUser());
 
         // creation du formulaire
         $form = $this->getFormFactory()->createBuilder(DaSoumissionFacBlDdpaType::class, $dto, [
@@ -88,6 +92,11 @@ class DaSoumissionFacBlDdpaController extends Controller
                 // Traitement du fichier
                 [$nomAvecCheminPdfFusionner, $nomPdfFusionner] = $this->traitementDeFichier($form, $dto);
 
+                /** GENERATION DE PDF pour le demnade de paiement */
+                $nomPageDeGarde = $dto->numeroDdp . '.pdf';
+                $cheminEtNom = $this->cheminDeBase . '/' . $dto->numeroDdp . '_New_1/' . $nomPageDeGarde;
+                // $this->generatePdfDdp->genererPDF($dto, $cheminEtNom);
+
                 // enrichissement Dto
                 $dto  = $this->daSoumissionFacBlDdpaFactory->enrichissementDtoApresSoumission($dto, $nomPdfFusionner);
                 /** ENREGISTREMENT DANS LA BASE DE DONNEE */
@@ -100,6 +109,12 @@ class DaSoumissionFacBlDdpaController extends Controller
 
                 /** MODIFICATION DA AFFICHER */
                 $this->modificationDaAfficher($numDa, $numCde);
+
+                // enregisstrement dans la table demande de paiement
+                $nomAvecCheminPdfFusionner = $dto->nomAvecCheminFichierDistant;
+                $ddp = DemandePaiementMapper::map($dto, $nomAvecCheminPdfFusionner);
+                $this->getEntityManager()->persist($ddp);
+                $this->getEntityManager()->flush();
 
                 /** HISTORISATION */
                 $message = 'Le document est soumis pour validation';

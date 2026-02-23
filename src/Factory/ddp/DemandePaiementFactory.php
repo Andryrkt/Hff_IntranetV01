@@ -49,7 +49,7 @@ class DemandePaiementFactory
 
         $dto = new DemandePaiementDto();
         $dto->typeDemande = $typeDemandeRepository->find($typeDdp);
-        $dto->numeroFacture = []; // TODO: mbola anontaniana
+        $dto->numeroFacture = []; 
         $dto->numeroCommande = [$numCdeDa];
         $dto->debiteur = $this->debiteur($typeDa, $infoDa);
 
