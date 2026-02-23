@@ -159,6 +159,10 @@ class GeneratePdfDdp extends GeneratePdf
         $pdf->MultiCell(0, 10, implode(";", $data->getNumeroDossierDouane()), 0, 'L', 0, 1);
 
         // génération de fichier: à changer plus tard
+        $directory = dirname($cheminDeFichier);
+        if (!is_dir($directory)) {
+            mkdir($directory, 0777, true);
+        }
         $pdf->Output($cheminDeFichier, 'F');
     }
 
@@ -311,6 +315,10 @@ class GeneratePdfDdp extends GeneratePdf
         $pdf->MultiCell(0, 10, implode(";", $dto->numeroDossierDouane), 0, 'L', 0, 1);
 
         // génération de fichier: à changer plus tard
+        $directory = dirname($cheminDeFichier);
+        if (!is_dir($directory)) {
+            mkdir($directory, 0777, true);
+        }
         $pdf->Output($cheminDeFichier, 'F');
     }
 }
