@@ -17,7 +17,7 @@ class DaSoumissionType extends  AbstractType
             ->add('soumission', ChoiceType::class, [
                 'choices'  => [
                         'Soumission BC à validation' => 'BC',
-                        'Soumission Facture + BL (générer un BAP)' => 'Facture + BL',
+                        'Soumission Facture + BL' => 'Facture + BL',
                         'Soumettre BL Reappro' => 'BL Reappro',
                 ],
                 'expanded' => true, // pour afficher des boutons radio
