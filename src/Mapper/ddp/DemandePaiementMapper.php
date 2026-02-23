@@ -9,7 +9,7 @@ use App\Entity\ddp\HistoriqueStatutDdp;
 
 class DemandePaiementMapper
 {
-    public static function map(DemandePaiementDto $dto, string $nomAvecCheminFichier): DemandePaiement
+    public static function map($dto, string $nomAvecCheminFichier): DemandePaiement
     {
         $ddp = new DemandePaiement();
         $ddp->setNumeroDdp($dto->numeroDdp)

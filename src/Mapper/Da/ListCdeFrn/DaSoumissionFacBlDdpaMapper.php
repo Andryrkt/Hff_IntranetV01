@@ -70,6 +70,7 @@ class DaSoumissionFacBlDdpaMapper
             $dto->class = ' bg-danger';
         }
     }
+
     public function map(DaSoumissionFacBlDdpaDto $dto): DaSoumissionFacBl
     {
         $daSoumissionFacBl = new DaSoumissionFacBl();
@@ -78,10 +79,10 @@ class DaSoumissionFacBlDdpaMapper
             ->setNumeroDemandeDit(null)
             ->setNumeroOR($dto->numeroOR)
             ->setNumeroCde($dto->numeroCde)
-            ->setStatut($dto->statut)
+            ->setStatut($dto->statutFacBl)
             ->setPieceJoint1($dto->pieceJoint1)
             ->setUtilisateur($dto->utilisateur)
-            ->setNumeroVersion($dto->numeroVersion)
+            ->setNumeroVersion($dto->numeroVersionFacBl)
         ;
 
         return $daSoumissionFacBl;
