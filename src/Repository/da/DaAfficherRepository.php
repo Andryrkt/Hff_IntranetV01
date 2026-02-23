@@ -1147,7 +1147,7 @@ class DaAfficherRepository extends EntityRepository
         return $result ? new \DateTime($result) : null;
     }
 
-    public function getTypeDa(string $numDa)
+    public function getTypeDaSelonNumDa(string $numDa)
     {
         return $this->createQueryBuilder('d')
             ->select('DISTINCT d.daTypeId')
