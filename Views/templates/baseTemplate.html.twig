@@ -67,6 +67,21 @@
 		<script src="https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@10.2.7/dist/autoComplete.min.js"></script>
 
 		<script src="{{ App.base_path }}/Views/js/scripts.js?v=2025.10.22.08.00" type="module"></script>
+		<script>
+			// Afficher le spinner lors du déchargement de la page (navigation)
+			window.addEventListener('beforeunload', function() {
+				const overlay = document.getElementById('loading-overlays');
+				if (overlay) overlay.classList.add('active');
+			});
+
+			// Optionnel : s'assurer que le spinner est caché si l'utilisateur revient en arrière (BFCache)
+			window.addEventListener('pageshow', function(event) {
+				const overlay = document.getElementById('loading-overlays');
+				if (overlay && event.persisted) {
+					overlay.classList.remove('active');
+				}
+			});
+		</script>
 		{% block javascript %}{% endblock %}
 	</body>
 </html>

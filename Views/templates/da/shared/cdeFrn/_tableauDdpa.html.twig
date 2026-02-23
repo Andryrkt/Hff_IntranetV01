@@ -20,6 +20,10 @@
 				<td class="text-end">{{item.ratio|round(2)|number_format(2,',','.')}}%</td>
 				<td class="text-end">{{item.cumul|round(2)|number_format(2,',','.')}}%</td>
 			</tr>
+			{% else %}
+    <tr>
+        <td colspan="6" class="text-center">Aucune donnée disponible</td>
+    </tr>
 		{% endfor %}
 		<tr>
 			<td colspan="6"></td>
@@ -27,8 +31,8 @@
 		<tr>
 			<td class="fw-bold">Total payé / encours</td>
 			<td colspan="2"></td>
-			<td class="text-end">{{dto.totalPayer|number_format(2,',','.')}}</td>
-			<td class="text-end">{{dto.ratioTotalPayer|round(2)|number_format(2,',','.')}}%</td>
+			<td class="text-end fw-bold">{{dto.totalPayer|number_format(2,',','.')}}</td>
+			<td class="text-end fw-bold">{{dto.ratioTotalPayer|round(2)|number_format(2,',','.')}}%</td>
 			<td></td>
 		</tr>
 		<tr>

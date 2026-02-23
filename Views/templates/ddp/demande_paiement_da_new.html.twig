@@ -30,11 +30,13 @@
 						<a href="{{ path("profil_acceuil")}}" class="tablinks p-2 btn btn-outline-warning" style="text-decoration: none;color:black">Retour</a>
 					</div>
 				</div>
+				<hr>
 				<div class="row">
-					<div class="col-12 col-md-12">
+					<div class="col-12 col-md-12 bg-Light shadow-lg rounded">
 						{% include "/da/shared/cdeFrn/_tableauDdpa.html.twig" %}
 					</div>
 				</div>
+				<hr>
 				{{ form_start(form, {'attr': {'id': 'myForm'}}) }}
 				{{ form_errors(form)}}
 				<div class="row">
@@ -118,7 +120,7 @@
 						</p>
 						{% include '/partials/_dropZoneFile.html.twig' with {'id': '2', 'form': form, 'fieldName': 'pieceJoint02'} %}
 					</div>
-					<div class="col-12 col-md-4 {{ dto.typeDa is null ? 'd-none' : ''}}">
+					<div class="col-12 col-md-4 {{ dto.typeDa is not null ? 'd-none' : ''}}">
 						<p>
 							<strong>
 								BC client externe / BC client magasin
@@ -194,7 +196,7 @@
 								RIB fournisseur
 							</button>
 						</li>
-						<li class="nav-item {{dto.typeDa is null ? 'd-none' : ''}}" role="presentation">
+						<li class="nav-item {{dto.typeDa is not null ? 'd-none' : ''}}" role="presentation">
 							<button class="nav-link" id="tab3-tab" data-bs-toggle="tab" data-bs-target="#tab3" type="button" role="tab">
 								BC client externe / BC client magasin</button>
 						</li>

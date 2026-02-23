@@ -35,8 +35,10 @@
 					<th>Libellé</th>
 					<th class="text-end">Montant</th>
 					<th class="text-center">Date envoi au client</th>
-					<th class="text-center">Statut relance</th>
-					<th class="text-center">Relancé le</th>
+					<th class="text-center">Relance 1</th>
+					<th class="text-center">Relance 2</th>
+					<th class="text-center">Relance 3</th>
+					<th class="text-center">Stop relance</th>
 					<th class="text-center">Position IPS</th>
 					<th class="text-center">PO/BC client</th>
 					<th class="text-center">Crée par</th>
@@ -55,12 +57,8 @@
 									<li>
 										<a class="dropdown-item fw-bold" href="{{ row.url.verificationPrix }}">Soumission devis pour verification prix</a>
 										<a class="dropdown-item fw-bold" href="{{ row.url.validationDevis }}">Soumission devis pour validation</a>
-										{% if row.relanceClient %}
-											<a class="dropdown-item fw-bold" href="#" data-bs-toggle="modal" data-bs-target="#pointageRelanceModal" data-bs-numero-devis="{{ row.numeroDevis }}">Pointer relance devis client</a>
-										{% endif %}
-										{% if row.pointageDevis %}
-											<a class="dropdown-item fw-bold" href="{{ row.url.pointageDevis }}">Pointage envoye devis au client</a>
-										{% endif %}
+										<a class="dropdown-item fw-bold js-link-relance-client {% if not row.relanceClient %}d-none{% endif %}" href="#" data-bs-toggle="modal" data-bs-target="#pointageRelanceModal" data-bs-numero-devis="{{ row.numeroDevis }}">Pointer relance devis client</a>
+										<a class="dropdown-item fw-bold js-link-pointage-devis {% if not row.pointageDevis %}d-none{% endif %}" href="{{ row.url.pointageDevis }}">Pointage envoye devis au client</a>
 										<a class="dropdown-item fw-bold" href="{{ row.url.soumissionBC }}">Soumission BC client pour validation</a>
 									</li>
 								</ul>
@@ -75,14 +73,17 @@
 						<td>{{ row.libelle }}</td>
 						<td class="text-end">{{ row.montant }}</td>
 						<td class="text-center">{{ row.dateEnvoiClient }}</td>
-						<td class="text-center fw-bold {{ row.styleStatutPR}}">{{ row.statutRelance }}</td>
+						{% set statut1 = row.statutRelance1 == null ? '' : 'bg-warning' %}
+						{% set statut2 = row.statutRelance2 == null ? '' : 'bg-warning' %}
+						{% set statut3 = row.statutRelance3 == null ? '' : 'bg-warning' %}
+						<td class="text-center fw-bold {{ row.styleStatutPR1}} {{ statut1}} js-relance-1">{{ row.statutRelance1 }}</td>
+						<td class="text-center fw-bold {{ row.styleStatutPR2}} {{ statut2}} js-relance-2">{{ row.statutRelance2 }}</td>
+						<td class="text-center fw-bold {{ row.styleStatutPR3}} {{ statut3}} js-relance-3">{{ row.statutRelance3 }}</td>
 						<td class="text-center">
-							{% if row.numeroRelance and row.dateDerniereRelance %}
-								<a href="#" data-bs-toggle="modal" data-bs-target="#relance" data-id="{{row.numeroDevis }}" class="text-decoration-none" data-bs-toggle="tooltip" title="Voir les relances client">
-									{{ row.dateDerniereRelance ~ ' - '~  row.numeroRelance}}
-								</a>
-							{% else %}
-								{{ row.dateDerniereRelance ~ ' - '~  row.numeroRelance}}
+							{% if row.statutRelance1 is not null %}
+								<div class="form-check form-switch d-flex justify-content-center">
+									<input class="form-check-input js-checkbox-stop-relance" type="checkbox" role="switch" data-numero-devis="{{ row.numeroDevis }}" {% if row.stopRelance %} checked {% endif %} {% if row.statutRelance3 is not null and row.statutRelance3 != 'A relancer' %} disabled {% endif %}>
+								</div>
 							{% endif %}
 						</td>
 						<td class="text-center" data-bs-toggle="tooltip" title="{{ row.titreStatutIps }}">{{ row.statutIps }}</td>
@@ -111,4 +112,5 @@
 	<script type="module" src="{{ App.base_path }}/Views/js/magasin/devis/listeDevisMagasin.js?v=2025.10.22.08.00"></script>
 	<script src="{{ App.base_path }}/Views/js/magasin/devis/pointageRelanceModal.js" type="module"></script>
 	<script src="{{ App.base_path }}/Views/js/magasin/devis/relanceModalManager.js" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/magasin/devis/relance.js" type="module"></script>
 {% endblock %}
