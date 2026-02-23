@@ -48,8 +48,8 @@ class DaSoumissionFacBlDdpaDto
     public $modePaiement;
     public $montantAPayer;
     public $contact = null;
-    public $numeroCommande;
-    public $numeroFacture =[];
+    public $numeroCommande = [];
+    public $numeroFacture = [];
     public $devise;
     public $statutDossierRegul = null;
     public $numeroVersion = 1;
@@ -62,6 +62,9 @@ class DaSoumissionFacBlDdpaDto
     public $typeDa;
     public $numeroVersionBc;
     public $nomAvecCheminFichierDistant;
+    public $dateCreation;
+    public $lesFichiers = [];
+
 
     public function montantAPayer(): float
     {

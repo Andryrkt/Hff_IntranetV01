@@ -22,6 +22,7 @@ use App\Model\ddp\DemandePaiementModel;
 use App\Repository\da\DaSoumissionFacBlRepository;
 use App\Repository\da\DemandeApproRepository;
 use App\Service\autres\AutoIncDecService;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 
 class DaSoumissionFacBlDdpaFactory
@@ -193,6 +194,7 @@ class DaSoumissionFacBlDdpaFactory
         $dto->appro = true;
         $dto->typeDa = $infoDa['daTypeId'];
         $dto->numeroVersionBc = $daSoumissionBcRepository->getNumeroVersionMax($numCde);
+        $dto->dateCreation = new DateTime();
     }
 
     private function numeroDdp(): string

@@ -251,13 +251,13 @@ class GeneratePdfDdp extends GeneratePdf
         $pdf->Cell(50, 10, 'Agence à débiter ', 1, 0);
 
         $pdf->SetFont('helvetica', '', 12);
-        $pdf->Cell($usable_width - 50, 10, $dto->agenceDebiter, 1, 1); // TO DO: valeur de "Agence à débiter" (remplacer '' par sa valeur)
+        $pdf->Cell($usable_width - 50, 10, $dto->debiteur['agence']->getCodeAgence(), 1, 1); // TO DO: valeur de "Agence à débiter" (remplacer '' par sa valeur)
 
         $pdf->SetFont('helvetica', 'B', 12);
         $pdf->Cell(50, 10, 'Service à débiter ', 1, 0);
 
         $pdf->SetFont('helvetica', '', 12);
-        $pdf->Cell($usable_width - 50, 10, $dto->serviceDebiter, 1, 1); // TO DO: valeur de "Service à débiter" (remplacer '' par sa valeur)
+        $pdf->Cell($usable_width - 50, 10, $dto->debiteur['service']->getCodeService(), 1, 1); // TO DO: valeur de "Service à débiter" (remplacer '' par sa valeur)
 
         $pdf->SetFont('helvetica', 'B', 12);
         $pdf->Cell(50, 10, 'RIB ', 1, 0);

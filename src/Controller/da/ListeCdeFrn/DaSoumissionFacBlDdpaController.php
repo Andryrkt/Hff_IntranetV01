@@ -38,6 +38,7 @@ class DaSoumissionFacBlDdpaController extends Controller
     private DaAfficherRepository $daAfficherRepository;
     private DaSoumissionFacBlDdpaMapper $daSoumissionfacBlDdpaMapper;
     private GeneratePdfDdp $generatePdfDdp;
+    private GeneratePdf $generatePdf;
 
     public function __construct()
     {
@@ -49,6 +50,7 @@ class DaSoumissionFacBlDdpaController extends Controller
         $this->daAfficherRepository        = $this->getEntityManager()->getRepository(DaAfficher::class);
         $this->daSoumissionfacBlDdpaMapper = new DaSoumissionFacBlDdpaMapper();
         $this->generatePdfDdp                 = new GeneratePdfDdp();
+        $this->generatePdf = new GeneratePdf();
     }
 
     /**
@@ -92,11 +94,6 @@ class DaSoumissionFacBlDdpaController extends Controller
                 // Traitement du fichier
                 [$nomAvecCheminPdfFusionner, $nomPdfFusionner] = $this->traitementDeFichier($form, $dto);
 
-                /** GENERATION DE PDF pour le demnade de paiement */
-                $nomPageDeGarde = $dto->numeroDdp . '.pdf';
-                $cheminEtNom = $this->cheminDeBase . '/' . $dto->numeroDdp . '_New_1/' . $nomPageDeGarde;
-                // $this->generatePdfDdp->genererPDF($dto, $cheminEtNom);
-
                 // enrichissement Dto
                 $dto  = $this->daSoumissionFacBlDdpaFactory->enrichissementDtoApresSoumission($dto, $nomPdfFusionner);
                 /** ENREGISTREMENT DANS LA BASE DE DONNEE */
@@ -110,11 +107,8 @@ class DaSoumissionFacBlDdpaController extends Controller
                 /** MODIFICATION DA AFFICHER */
                 $this->modificationDaAfficher($numDa, $numCde);
 
-                // enregisstrement dans la table demande de paiement
-                $nomAvecCheminPdfFusionner = $dto->nomAvecCheminFichierDistant;
-                $ddp = DemandePaiementMapper::map($dto, $nomAvecCheminPdfFusionner);
-                $this->getEntityManager()->persist($ddp);
-                $this->getEntityManager()->flush();
+                // generation de demande de paiement
+                $this->traitementPourDdp($dto, $nomAvecCheminPdfFusionner);
 
                 /** HISTORISATION */
                 $message = 'Le document est soumis pour validation';
@@ -124,6 +118,25 @@ class DaSoumissionFacBlDdpaController extends Controller
                 $this->historiqueOperation->sendNotificationSoumission($message, $numCde, $nomDeRoute, true, $criteria, $nomInputSearch);
             }
         }
+    }
+
+    private function traitementPourDdp($dto, string $nomAvecCheminPdfFusionner)
+    {
+        // GENERATION DE PDF pour le demnade de paiement
+        $nomPageDeGarde = $dto->numeroDdp . '.pdf';
+        $cheminEtNom = $this->cheminDeBase . '/' . $dto->numeroDdp . '_New_1/' . $nomPageDeGarde;
+        $this->generatePdfDdp->genererPdfDto($dto, $cheminEtNom);
+
+        // fusion du page de garde du demande de paiement et le facture Bl
+        $pdfAFusionner = [$cheminEtNom, $nomAvecCheminPdfFusionner];
+        $fichierConvertir = $this->ConvertirLesPdf($pdfAFusionner);
+        $this->traitementDeFichier->fusionFichers($fichierConvertir, $cheminEtNom);
+
+        // enregisstrement dans la table demande de paiement
+        $nomAvecCheminFichierDistant = $dto->nomAvecCheminFichierDistant;
+        $ddp = DemandePaiementMapper::map($dto, $nomAvecCheminFichierDistant);
+        $this->getEntityManager()->persist($ddp);
+        $this->getEntityManager()->flush();
     }
 
     private function traitementDeFichier($form, $dto): array
