@@ -83,7 +83,7 @@ class SecurityService
         }
 
         // Connecté mais peutVoir = false → 403
-        if ($this->verifierPermission(self::PERMISSION_VOIR, $nomRoute)) {
+        if (!$this->verifierPermission(self::PERMISSION_VOIR, $nomRoute)) {
             throw new AccessDeniedException();
         }
 

@@ -520,6 +520,11 @@ class MenuService
             $route = $groupe['route'] ?? null;
             if ($route !== null && !$this->hasAccesRoute($route)) {
                 continue;
+            } else {
+                $link = $groupe['link'] ?? '#';
+                if ($route === null && $link === '#') {
+                    continue;
+                }
             }
 
             $items[] = $this->buildSimpleItem($groupe);
@@ -541,6 +546,11 @@ class MenuService
 
             if ($route !== null && !$this->hasAccesRoute($route)) {
                 continue;
+            } else {
+                $link = $subitem['link'] ?? '#';
+                if ($route === null && $link === '#') {
+                    continue;
+                }
             }
 
             $result[] = $this->createSubItem(
