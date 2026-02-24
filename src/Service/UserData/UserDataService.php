@@ -19,7 +19,8 @@ class UserDataService
     public const SUFFIX_PERMISSIONS  = 'permissions';
     public const SUFFIX_AG_SERV_ID   = 'agence_service_id';
     public const SUFFIX_AG_SERV_CODE = 'agence_service_code';
-    public const CACHE_TAG_PREFIX    = 'security.profil_';
+    public const SUFFIX_VERSION      = 'version';
+    public const CACHE_KEY_PREFIX    = 'security.profil_';
 
     private EntityManagerInterface $em;
     private ?SessionInterface $session = null;
@@ -34,6 +35,9 @@ class UserDataService
     private ?array $cacheAgServDonneesCode = null;
     private ?array $cacheRoutesIndex = null;
     private ?int $profilId = null;
+
+    /** Cache mémoire des versions (évite N lectures de pool par requête) */
+    private array $cacheVersions = [];
 
     public function __construct(EntityManagerInterface $em, TagAwareCacheInterface $cache, ?SessionInterface $session = null)
     {
@@ -106,48 +110,114 @@ class UserDataService
     {
         if ($this->profilId === null) {
             $userInfo = $this->getUserInfo();
-            $this->profilId = $userInfo['profil_id'] ?? NULL;
+            $this->profilId = $userInfo['profil_id'] ?? null;
         }
         return $this->profilId;
     }
 
     /**
-     * Set the value of profilId
+     * Set the value of profilId.
+     * Réinitialise automatiquement tous les caches mémoire — indispensable
+     * en CLI lors de la boucle multi-profils du warmup pour éviter que les
+     * données du profil précédent contaminent le suivant.
      */
     public function setProfilId(?int $profilId): self
     {
         $this->profilId = $profilId;
+        $this->resetCacheMemoireIntraRequete();
 
         return $this;
+    }
+
+    /**
+     * Vide tous les caches mémoire intra-requête de ce service.
+     * Appelé par setProfilId() et par invaliderCacheProfil().
+     */
+    public function resetCacheMemoireIntraRequete(): void
+    {
+        $this->cacheProfil             = null;
+        $this->cachePermissions        = [];
+        $this->cachePagesProfilDonnees = null;
+        $this->cacheAgServDonneesId    = null;
+        $this->cacheAgServDonneesCode  = null;
+        $this->cacheRoutesIndex        = null;
+        $this->cacheVersions           = [];
+    }
+
+    // =========================================================================
+    //  VERSIONING MANUEL — remplace les tags Symfony
+    //
+    //  Principe : chaque profil possède une "version" stockée dans le pool.
+    //  Les clés de données incluent cette version. Invalider = changer la version.
+    //  Les anciennes clés deviennent orphelines (jamais relues) puis expirées
+    //  naturellement par le pool (LRU, TTL du pool, etc.).
+    //
+    //  Avantage vs tags Symfony : la version est une simple valeur scalaire lue
+    //  dans le même pool par CLI et web → zéro désynchronisation.
+    // =========================================================================
+
+    /**
+     * Retourne la version courante du profil.
+     * Créée automatiquement si elle n'existe pas encore.
+     * Mise en cache mémoire pour n'interroger le pool qu'une seule fois par requête.
+     */
+    private function getVersion(int $profilId): string
+    {
+        if (isset($this->cacheVersions[$profilId])) {
+            return $this->cacheVersions[$profilId];
+        }
+
+        $cleVersion = self::CACHE_KEY_PREFIX . $profilId . '.' . self::SUFFIX_VERSION;
+
+        return $this->cacheVersions[$profilId] = $this->cache->get($cleVersion, function (ItemInterface $item): string {
+            $item->expiresAfter(null);
+            return uniqid('v', true);
+        });
+    }
+
+    /**
+     * Change la version du profil → toutes les clés de données précédentes
+     * ne seront plus jamais lues (leurs clés contiennent l'ancienne version).
+     */
+    private function invaliderVersion(int $profilId): void
+    {
+        $cleVersion = self::CACHE_KEY_PREFIX . $profilId . '.' . self::SUFFIX_VERSION;
+        $this->cache->delete($cleVersion);
+        unset($this->cacheVersions[$profilId]);
+    }
+
+    /**
+     * Construit une clé de cache versionnée : security.profil_{id}.{version}.{suffix}[.{extra}]
+     */
+    private function buildKey(int $profilId, string $suffix, string $extra = ''): string
+    {
+        $version = $this->getVersion($profilId);
+        $base    = sprintf('%s%d.%s.%s', self::CACHE_KEY_PREFIX, $profilId, $version, $suffix);
+        return $extra !== '' ? $base . '.' . $extra : $base;
     }
 
     // =========================================================================
     //  PERMISSIONS
     // =========================================================================
 
-    /** 
+    /**
      * Écrase et reconstruit les permissions d'une route pour un profil donné.
+     * Appelé par CacheWarmupSecurityCommand après invaliderVersion().
      */
     public function ecraserPermissions(string $nomRoute, Profil $profil): void
     {
         $profilId = $profil->getId();
-
-        $tag = self::CACHE_TAG_PREFIX . $profilId;
-        $cle = sprintf('%s_%s_%s', $tag, self::SUFFIX_PERMISSIONS, md5($nomRoute));
+        $cle      = $this->buildKey($profilId, self::SUFFIX_PERMISSIONS, md5($nomRoute));
 
         $this->cache->delete($cle);
-        $this->cache->get($cle, function (ItemInterface $item) use ($nomRoute, $profil, $tag): array {
-            $item->expiresAfter(null); // Pas d'expiration automatique : invalidation via tag uniquement
-            $item->tag($tag);
+        $this->cache->get($cle, function (ItemInterface $item) use ($nomRoute, $profil): ?array {
+            $item->expiresAfter(null);
             return $this->calculerPermissions($nomRoute, $profil);
         });
     }
 
     /**
      * Retourne les permissions d'une route pour le profil connecté.
-     * Résultat mis en cache applicatif par (profilId + route).
-     *
-     * @return array|null  ['peutVoir' => bool, ...] ou null si non configuré
      */
     public function getPermissions(string $nomRoute): ?array
     {
@@ -162,38 +232,35 @@ class UserDataService
         }
 
         // 2. Cache applicatif (entre requêtes, partagé par profil)
-        $tag = self::CACHE_TAG_PREFIX . $profilId;
-        $cle = sprintf('%s_%s_%s', $tag, self::SUFFIX_PERMISSIONS, md5($nomRoute));
+        $cle = $this->buildKey($profilId, self::SUFFIX_PERMISSIONS, md5($nomRoute));
 
-        return $this->cachePermissions[$nomRoute] = $this->cache->get($cle, function (ItemInterface $item) use ($tag, $nomRoute) {
+        return $this->cachePermissions[$nomRoute] = $this->cache->get($cle, function (ItemInterface $item) use ($nomRoute): ?array {
             $item->expiresAfter(null);
-            $item->tag($tag);
             return $this->calculerPermissions($nomRoute, $this->getProfil());
         });
     }
+    
+    // =========================================================================
+    //  PAGES DU PROFIL
+    // =========================================================================
 
-    /** 
+    /**
      * Écrase et reconstruit les pages visibles pour un profil donné.
      */
     public function ecraserPagesProfil(Profil $profil): void
     {
         $profilId = $profil->getId();
-        $tag = self::CACHE_TAG_PREFIX . $profilId;
-        $cle = sprintf('%s_%s', $tag, self::SUFFIX_PAGES);
+        $cle      = $this->buildKey($profilId, self::SUFFIX_PAGES);
+
         $this->cache->delete($cle);
-        $this->cache->get($cle, function (ItemInterface $item) use ($tag, $profil) {
+        $this->cache->get($cle, function (ItemInterface $item) use ($profil): array {
             $item->expiresAfter(null);
-            $item->tag($tag);
             return $this->calculerPagesProfil($profil);
         });
     }
 
     /**
      * Retourne toutes les pages visibles du profil, groupées par application.
-     * Structure : ['codeApp' => [['nom' => ..., 'route' => ...], ...], ...]
-     *
-     * Stocké en cache applicatif (tableaux de scalaires, pas d'entités).
-     * Reconstruit en entités PageHff à la demande via getPagesProfil().
      */
     public function getPagesProfil(): ?array
     {
@@ -208,34 +275,35 @@ class UserDataService
         }
 
         // 2. Cache applicatif
-        $tag = self::CACHE_TAG_PREFIX . $profilId;
-        $cle = sprintf('%s_%s', $tag, self::SUFFIX_PAGES);
+        $cle = $this->buildKey($profilId, self::SUFFIX_PAGES);
 
-        return $this->cachePagesProfilDonnees = $this->cache->get($cle, function (ItemInterface $item) use ($tag) {
+        return $this->cachePagesProfilDonnees = $this->cache->get($cle, function (ItemInterface $item): array {
             $item->expiresAfter(null);
-            $item->tag($tag);
             return $this->calculerPagesProfil($this->getProfil());
         });
     }
 
-    /** 
-     * Écrase et reconstruit les agences et services groupés par ID pour un profil donné.
+    // =========================================================================
+    //  AGENCES & SERVICES
+    // =========================================================================
+
+    /**
+     * Écrase et reconstruit les agences et services groupés par ID.
      */
     public function ecraserAgenceServiceGroupById(string $codeApp, Profil $profil): void
     {
         $profilId = $profil->getId();
-        $tag = self::CACHE_TAG_PREFIX . $profilId;
-        $cle = sprintf('%s_%s_%s', $tag, self::SUFFIX_AG_SERV_ID, md5($codeApp));
+        $cle      = $this->buildKey($profilId, self::SUFFIX_AG_SERV_ID, md5($codeApp));
+
         $this->cache->delete($cle);
-        $this->cache->get($cle, function (ItemInterface $item) use ($tag, $codeApp, $profil) {
+        $this->cache->get($cle, function (ItemInterface $item) use ($codeApp, $profil): array {
             $item->expiresAfter(null);
-            $item->tag($tag);
             return $this->calculerAgenceService($codeApp, $profil, true);
         });
     }
 
-    /** 
-     * Retourne toutes les agences et services du profil, groupées par application
+    /**
+     * Retourne toutes les agences et services du profil, groupées par ID.
      */
     public function getAgenceServiceGroupById(string $codeApp): ?array
     {
@@ -250,38 +318,34 @@ class UserDataService
         }
 
         // 2. Cache applicatif
-        $tag = self::CACHE_TAG_PREFIX . $profilId;
-        $cle = sprintf('%s_%s_%s', $tag, self::SUFFIX_AG_SERV_ID, md5($codeApp));
+        $cle = $this->buildKey($profilId, self::SUFFIX_AG_SERV_ID, md5($codeApp));
 
-        return $this->cacheAgServDonneesId = $this->cache->get($cle, function (ItemInterface $item) use ($tag, $codeApp) {
+        return $this->cacheAgServDonneesId = $this->cache->get($cle, function (ItemInterface $item) use ($codeApp): array {
             $item->expiresAfter(null);
-            $item->tag($tag);
             return $this->calculerAgenceService($codeApp, $this->getProfil(), true);
         });
     }
 
-    /** 
-     * Écrase et reconstruit les agences et services groupés par CODE pour un profil donné.
+    /**
+     * Écrase et reconstruit les agences et services groupés par CODE.
      */
     public function ecraserAgenceServiceGroupByCode(string $codeApp, Profil $profil): void
     {
         $profilId = $profil->getId();
-        $tag = self::CACHE_TAG_PREFIX . $profilId;
-        $cle = sprintf('%s_%s_%s', $tag, self::SUFFIX_AG_SERV_CODE, md5($codeApp));
+        $cle      = $this->buildKey($profilId, self::SUFFIX_AG_SERV_CODE, md5($codeApp));
+
         $this->cache->delete($cle);
-        $this->cache->get($cle, function (ItemInterface $item) use ($tag, $codeApp, $profil) {
+        $this->cache->get($cle, function (ItemInterface $item) use ($codeApp, $profil): array {
             $item->expiresAfter(null);
-            $item->tag($tag);
             return $this->calculerAgenceService($codeApp, $profil, false);
         });
     }
 
-    /** 
-     * Retourne toutes les agences et services du profil, groupées par CODE
+    /**
+     * Retourne toutes les agences et services du profil, groupées par CODE.
      */
     public function getAgenceServiceGroupByCode(string $codeApp): ?array
     {
-        // 1. Cache mémoire
         if ($this->cacheAgServDonneesCode !== null) {
             return $this->cacheAgServDonneesCode;
         }
@@ -291,27 +355,18 @@ class UserDataService
             return $this->cacheAgServDonneesCode = [];
         }
 
-        // 2. Cache applicatif
-        $tag = self::CACHE_TAG_PREFIX . $profilId;
-        $cle = sprintf('%s_%s_%s', $tag, self::SUFFIX_AG_SERV_CODE, md5($codeApp));
+        $cle = $this->buildKey($profilId, self::SUFFIX_AG_SERV_CODE, md5($codeApp));
 
-        return $this->cacheAgServDonneesCode = $this->cache->get($cle, function (ItemInterface $item) use ($tag, $codeApp) {
+        return $this->cacheAgServDonneesCode = $this->cache->get($cle, function (ItemInterface $item) use ($codeApp): array {
             $item->expiresAfter(null);
-            $item->tag($tag);
             return $this->calculerAgenceService($codeApp, $this->getProfil(), false);
         });
     }
 
     // =========================================================================
     //  ENTITÉS LIÉES AU PROFIL
-    //  Rechargées depuis BDD 1 fois par requête (Doctrine IdentityMap garantit
-    //  qu'un find() avec le même ID ne fait qu'1 seule requête SQL).
     // =========================================================================
 
-    /**
-     * Retourne l'entité Profil de l'utilisateur connecté.
-     * Chargée une seule fois par requête (cache mémoire).
-     */
     public function getProfil(): ?Profil
     {
         if ($this->cacheProfil !== null) {
@@ -327,23 +382,22 @@ class UserDataService
     }
 
     // =========================================================================
-    //  INVALIDATION DU CACHE (à appeler si un profil est modifié en admin)
+    //  INVALIDATION
     // =========================================================================
 
     /**
      * Invalide tout le cache applicatif d'un profil.
+     *
+     * Mécanisme : on change la "version" du profil dans le pool.
+     * Toutes les clés de données qui contenaient l'ancienne version
+     * ne seront plus jamais construites → elles mourront naturellement (LRU/TTL du pool).
+     *
      * À appeler après modification des permissions ou des pages d'un profil.
      */
     public function invaliderCacheProfil(int $profilId): void
     {
-        $this->cache->invalidateTags([self::CACHE_TAG_PREFIX . $profilId]);
-
-        // Vider aussi le cache mémoire de la requête courante
-        $this->cacheProfil          = null;
-        $this->cachePermissions     = [];
-        $this->cachePagesProfilDonnees = null;
-        $this->cacheAgServDonneesId = null;
-        $this->cacheAgServDonneesCode = null;
+        $this->invaliderVersion($profilId);
+        $this->resetCacheMemoireIntraRequete();
     }
 
     // =========================================================================
@@ -437,12 +491,13 @@ class UserDataService
             /** @var ApplicationProfilAgenceService $applicationProfilAgenceService */
             foreach ($applicationProfil->getLiaisonsAgenceService() as $applicationProfilAgenceService) {
                 $agenceService = $applicationProfilAgenceService->getAgenceService();
-                $agence = $agenceService->getAgence();
-                $service = $agenceService->getService();
+                $agence        = $agenceService->getAgence();
+                $service       = $agenceService->getService();
 
-                $key = $groupById ? $agenceService->getId() : $agence->getCodeAgence() . '-' . $service->getCodeService();
+                $key = $groupById
+                    ? $agenceService->getId()
+                    : $agence->getCodeAgence() . '-' . $service->getCodeService();
 
-                // On stocke uniquement des scalaires (pas d'entité Doctrine)
                 $agenceServices[$key] = [
                     'id'           => $agenceService->getId(),
                     'agence_id'    => $agence->getId(),
@@ -456,6 +511,9 @@ class UserDataService
         return $agenceServices;
     }
 
+    // =========================================================================
+    //  HELPERS DE NAVIGATION
+    // =========================================================================
     /**
      * Retourne un index plat de toutes les routes visibles du profil.
      * Accès O(1) par nom de route.

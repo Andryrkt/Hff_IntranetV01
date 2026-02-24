@@ -9,26 +9,83 @@ use Symfony\Contracts\Cache\TagAwareCacheInterface;
 class MenuService
 {
     // ─── Configuration du cache persistant ───────────────────────────────────
-    public const CACHE_KEY_PRINCIPAL = 'menu.principal.profil_';
-    public const CACHE_KEY_ADMIN     = 'menu.admin.profil_';
-    public const CACHE_TAG_PREFIX    = 'menu.profil_'; // tag partagé → invalidation groupée
+    public const SUFFIX_PRINCIPAL = 'principal';
+    public const SUFFIX_ADMIN     = 'admin';
+    public const SUFFIX_VERSION   = 'version';
+    public const CACHE_KEY_PREFIX = 'menu.profil_';
 
     public UserDataService $userDataService;
     private TagAwareCacheInterface $cache;
     private string $basePath;
 
     /**
-     * Cache intra-requête — évite de reconstruire les menus plusieurs fois
-     * dans la même requête HTTP (breadcrumb + dropdown + page d'accueil…).
+     * Cache intra-requête indexé par profilId — évite de reconstruire les menus
+     * plusieurs fois dans la même requête ET empêche qu'un profil serve le menu
+     * d'un autre profil dans le même process (CLI multi-profils ou Swoole).
      */
-    private ?array $cacheMenuStructure      = null;
-    private ?array $cacheAdminMenuStructure = null;
+    private ?array $cacheMenuStructure      = [];
+    private ?array $cacheAdminMenuStructure = [];
+
+    /** Cache mémoire des versions (évite N lectures de pool par requête) */
+    private array $cacheVersions = [];
 
     public function __construct(UserDataService $userDataService, TagAwareCacheInterface $cache)
     {
         $this->userDataService = $userDataService;
         $this->cache           = $cache;
         $this->basePath        = $_ENV['BASE_PATH_FICHIER_COURT'];
+    }
+    
+    // =========================================================================
+    //  VERSIONING MANUEL — remplace les tags Symfony
+    //
+    //  Principe : chaque profil possède une "version" stockée dans le pool.
+    //  Les clés de données incluent cette version. Invalider = changer la version.
+    //  Les anciennes clés deviennent orphelines (jamais relues) puis expirées
+    //  naturellement par le pool (LRU, TTL du pool, etc.).
+    //
+    //  Avantage vs tags Symfony : la version est une simple valeur scalaire lue
+    //  dans le même pool par CLI et web → zéro désynchronisation.
+    // =========================================================================
+
+    /**
+     * Retourne la version courante du profil.
+     * Créée automatiquement si elle n'existe pas encore.
+     * Mise en cache mémoire pour n'interroger le pool qu'une seule fois par requête.
+     */
+    private function getVersion(int $profilId): string
+    {
+        if (isset($this->cacheVersions[$profilId])) {
+            return $this->cacheVersions[$profilId];
+        }
+
+        $cleVersion = self::CACHE_KEY_PREFIX . $profilId . '.' . self::SUFFIX_VERSION;
+
+        return $this->cacheVersions[$profilId] = $this->cache->get($cleVersion, function (ItemInterface $item): string {
+            $item->expiresAfter(null);
+            return uniqid('v', true);
+        });
+    }
+
+    /**
+     * Change la version du profil → toutes les clés de données précédentes
+     * ne seront plus jamais lues (leurs clés contiennent l'ancienne version).
+     */
+    private function invaliderVersion(int $profilId): void
+    {
+        $cleVersion = self::CACHE_KEY_PREFIX . $profilId . '.' . self::SUFFIX_VERSION;
+        $this->cache->delete($cleVersion);
+        unset($this->cacheVersions[$profilId]);
+    }
+
+    /**
+     * Construit une clé de cache versionnée : security.profil_{id}.{version}.{suffix}[.{extra}]
+     */
+    private function buildKey(int $profilId, string $suffix, string $extra = ''): string
+    {
+        $version = $this->getVersion($profilId);
+        $base    = sprintf('%s%d.%s.%s', self::CACHE_KEY_PREFIX, $profilId, $version, $suffix);
+        return $extra !== '' ? $base . '.' . $extra : $base;
     }
 
     // =========================================================================
@@ -40,13 +97,16 @@ class MenuService
      */
     public function ecraserMenuStructure(int $profilId): void
     {
-        $cle = self::CACHE_KEY_PRINCIPAL . $profilId;
-        $tag = self::CACHE_TAG_PREFIX    . $profilId;
+        // ⚠️ On vide le cache mémoire pour que construireMenuPrincipal() interroge
+        // bien UserDataService avec le profilId courant (sinon la couche 1 court-circuite
+        // le pool en CLI quand on boucle sur plusieurs profils).
+        $this->cacheMenuStructure = null;
+
+        $cle = $this->buildKey($profilId, self::SUFFIX_PRINCIPAL);
 
         $this->cache->delete($cle);
-        $this->cache->get($cle, function (ItemInterface $item) use ($tag): array {
-            $item->expiresAfter(null); // Pas d'expiration automatique : invalidation via tag uniquement
-            $item->tag($tag);
+        $this->cache->get($cle, function (ItemInterface $item): array {
+            $item->expiresAfter(null);
             return $this->construireMenuPrincipal();
         });
     }
@@ -56,25 +116,24 @@ class MenuService
      */
     public function getMenuStructure(): array
     {
-        // Couche 1 : cache intra-requête
-        if ($this->cacheMenuStructure !== null) {
-            return $this->cacheMenuStructure;
-        }
-
         $profilId = $this->getProfilId();
 
-        // Pas de profil connecté → on construit sans cacher (résultat vide de toute façon)
+        // Couche 1 : cache intra-requête, indexé par profilId pour éviter
+        // qu'un profil serve le menu d'un autre dans le même process.
+        if (isset($this->cacheMenuStructure[$profilId])) {
+            return $this->cacheMenuStructure[$profilId];
+        }
+
+        // Pas de profil connecté → résultat vide, pas mis en cache
         if ($profilId === null) {
-            return $this->cacheMenuStructure = [];
+            return [];
         }
 
         // Couche 2 : cache persistant
-        $cle = self::CACHE_KEY_PRINCIPAL . $profilId;
-        $tag = self::CACHE_TAG_PREFIX    . $profilId;
+        $cle = $this->buildKey($profilId, self::SUFFIX_PRINCIPAL);
 
-        return $this->cacheMenuStructure = $this->cache->get($cle, function (ItemInterface $item) use ($tag): array {
+        return $this->cacheMenuStructure[$profilId] = $this->cache->get($cle, function (ItemInterface $item): array {
             $item->expiresAfter(null);
-            $item->tag($tag);
             return $this->construireMenuPrincipal();
         });
     }
@@ -605,13 +664,15 @@ class MenuService
      */
     public function ecraserAdminMenuStructure(int $profilId): void
     {
-        $cle = self::CACHE_KEY_ADMIN  . $profilId;
-        $tag = self::CACHE_TAG_PREFIX . $profilId;
+        // ⚠️ Même raison que ecraserMenuStructure : vider la couche mémoire
+        // pour ne pas court-circuiter le pool lors de la boucle CLI multi-profils.
+        $this->cacheAdminMenuStructure = null;
+
+        $cle = $this->buildKey($profilId, self::SUFFIX_ADMIN);
 
         $this->cache->delete($cle);
-        $this->cache->get($cle, function (ItemInterface $item) use ($tag): array {
+        $this->cache->get($cle, function (ItemInterface $item): array {
             $item->expiresAfter(null);
-            $item->tag($tag);
             return $this->construireMenuAdmin();
         });
     }
@@ -622,24 +683,22 @@ class MenuService
      */
     public function getAdminMenuStructure(): array
     {
-        // Couche 1 : cache intra-requête
-        if ($this->cacheAdminMenuStructure !== null) {
-            return $this->cacheAdminMenuStructure;
-        }
-
         $profilId = $this->getProfilId();
 
+        // Couche 1 : cache intra-requête, indexé par profilId
+        if (isset($this->cacheAdminMenuStructure[$profilId])) {
+            return $this->cacheAdminMenuStructure[$profilId];
+        }
+
         if ($profilId === null) {
-            return $this->cacheAdminMenuStructure = [];
+            return [];
         }
 
         // Couche 2 : cache persistant
-        $cle = self::CACHE_KEY_ADMIN  . $profilId;
-        $tag = self::CACHE_TAG_PREFIX . $profilId;
+        $cle = $this->buildKey($profilId, self::SUFFIX_ADMIN);
 
-        return $this->cacheAdminMenuStructure = $this->cache->get($cle, function (ItemInterface $item) use ($tag): array {
+        return $this->cacheAdminMenuStructure[$profilId] = $this->cache->get($cle, function (ItemInterface $item): array {
             $item->expiresAfter(null);
-            $item->tag($tag);
             return $this->construireMenuAdmin();
         });
     }
@@ -770,11 +829,11 @@ class MenuService
      */
     public function invaliderCacheProfil(int $profilId): void
     {
-        $this->cache->invalidateTags([self::CACHE_TAG_PREFIX . $profilId]);
+        $this->invaliderVersion($profilId);
 
-        // Vide aussi le cache intra-requête pour que la même requête soit cohérente
-        $this->cacheMenuStructure      = null;
-        $this->cacheAdminMenuStructure = null;
+        // Vide l'entrée du profil dans le cache mémoire indexé
+        unset($this->cacheMenuStructure[$profilId]);
+        unset($this->cacheAdminMenuStructure[$profilId]);
     }
 
     // =========================================================================
