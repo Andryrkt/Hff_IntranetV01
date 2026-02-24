@@ -81,7 +81,7 @@
 						<td class="text-center fw-bold {{ row.styleStatutPR3}} {{ statut3}} js-relance-3">{{ row.statutRelance3 }}</td>
 						<td class="text-center">
 							{% if row.statutRelance1 is not null %}
-								<div class="form-check form-switch d-flex justify-content-center">
+								<div class="form-check form-switch d-flex justify-content-center" data-bs-toggle="tooltip" title="{{row.motifStop}}">
 									<input class="form-check-input js-checkbox-stop-relance bg-secondary-subtle" type="checkbox" role="switch" data-numero-devis="{{ row.numeroDevis }}" {% if row.stopRelance %} checked {% endif %} {% if row.statutRelance3 is not null and row.statutRelance3 != 'A relancer' %} disabled {% endif %}>
 								</div>
 							{% endif %}
