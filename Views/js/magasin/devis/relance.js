@@ -35,6 +35,8 @@ document.addEventListener("DOMContentLoaded", function () {
         const overlay = document.getElementById("loading-overlays");
         if (overlay) overlay.classList.add("active");
 
+        updateCheckbox(checkbox, isNowChecked);
+
         const endpoint = "api/stop-relance/" + numeroDevis;
 
         fetchManager
@@ -54,7 +56,7 @@ document.addEventListener("DOMContentLoaded", function () {
                   (isNowChecked ? "arrêtée" : "réactivée") +
                   " avec succès.",
                 icon: "success",
-                timer: 3000,
+                timer: 2000,
                 showConfirmButton: false,
               });
             } else {
@@ -85,6 +87,18 @@ document.addEventListener("DOMContentLoaded", function () {
         checkbox.checked = !isNowChecked;
       }
     });
+  }
+
+  function updateCheckbox(element, isNowChecked) {
+    if (!element) return;
+
+    if (isNowChecked) {
+      element.classList.remove("bg-secondary-subtle");
+      element.classList.add("bg-danger", "border", "border-danger");
+    } else {
+      element.classList.remove("bg-danger", "border", "border-danger");
+      element.classList.add("bg-secondary-subtle");
+    }
   }
 
   function updateRelanceColumns(row, statuts, relanceClient) {
