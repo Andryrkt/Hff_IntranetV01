@@ -72,7 +72,7 @@ class RelanceApi extends Controller
                 $newStatuts = $listeDevisMagasinModel->getStatutRelance($numeroDevis);
 
                 // On récupère les infos du devis pour recalculer les droits d'affichage
-                $sql = "SELECT statut_dw, statut_bc, stop_progression_global 
+                $sql = "SELECT statut_dw, statut_bc, stop_progression_global, motif_stop_global
                         FROM devis_soumis_a_validation_neg 
                         WHERE numero_devis = '$numeroDevis' 
                         AND numero_version = (SELECT MAX(numero_version) FROM devis_soumis_a_validation_neg WHERE numero_devis = '$numeroDevis')";
@@ -91,6 +91,8 @@ class RelanceApi extends Controller
                         && $devisData['statut_bc'] === BcMagasin::STATUT_EN_ATTENTE_BC
                         && $hasARelancer
                         && !(bool)$devisData['stop_progression_global']);
+
+                    $motifStop = $devisData['motif_stop_global'];
                 }
             }
 
@@ -98,7 +100,8 @@ class RelanceApi extends Controller
                 'success' => $success,
                 'message' => $success ? "L'opération sur le devis n°$numeroDevis a été effectuée avec succès" : "Erreur lors de l'opération",
                 'statuts' => $newStatuts,
-                'relanceClient' => $relanceClient
+                'relanceClient' => $relanceClient,
+                'motifStop' => $motifStop
             ]);
         } catch (\Exception $e) {
             return new JsonResponse(['success' => false, 'message' => $e->getMessage()], 500);

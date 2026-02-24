@@ -57,8 +57,6 @@ document.addEventListener("DOMContentLoaded", function () {
               },
             }).then((result) => {
               if (result.isConfirmed) {
-                console.log(result);
-
                 performStopRelance(
                   checkbox,
                   numeroDevis,
@@ -128,6 +126,8 @@ document.addEventListener("DOMContentLoaded", function () {
         if (data.success) {
           if (data.statuts) {
             const row = checkbox.closest("tr");
+            const parentCheckbox = checkbox.closest(".form-check");
+            updateTooltip(parentCheckbox, data.motifStop, isNowChecked);
             updateRelanceColumns(row, data.statuts, data.relanceClient);
           }
 
@@ -219,6 +219,24 @@ document.addEventListener("DOMContentLoaded", function () {
     } else if (value) {
       // It's a date or other status
       element.classList.add("bg-warning");
+    }
+  }
+
+  function updateTooltip(parentCheckbox, motifStop, isNowChecked) {
+    if (isNowChecked) {
+      parentCheckbox.setAttribute("title", motifStop);
+      // Réinitialiser le tooltip Bootstrap si nécessaire
+      const existingTooltip = bootstrap.Tooltip.getInstance(parentCheckbox);
+      if (existingTooltip) {
+        existingTooltip.dispose();
+      }
+      new bootstrap.Tooltip(parentCheckbox);
+    } else {
+      // Supprimer le tooltip
+      const tooltip = bootstrap.Tooltip.getInstance(parentCheckbox);
+      if (tooltip) {
+        tooltip.dispose();
+      }
     }
   }
 });
