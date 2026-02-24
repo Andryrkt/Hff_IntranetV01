@@ -5,6 +5,11 @@ document.addEventListener("DOMContentLoaded", function () {
   );
   const fetchManager = new FetchManager();
 
+  // Initialisation : appliquer le style visuel selon l'état initial (après rechargement de page)
+  checkboxesStopRelance.forEach((checkbox) => {
+    updateCheckbox(checkbox, checkbox.checked);
+  });
+
   checkboxesStopRelance.forEach((checkbox) => {
     checkbox.addEventListener("change", stopOuRelance);
   });
