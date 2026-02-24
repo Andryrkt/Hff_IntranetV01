@@ -58,6 +58,8 @@ class DomsListeController extends Controller
 
         $paginationData = $this->getEntityManager()->getRepository(Dom::class)->findPaginatedAndFilteredAsDTO($page, $limit, $domSearch, $agenceServiceAutorises);
 
+        $items = (new DomListFactory())->buildDomDTOs($paginationData['rawRows']);
+
         //enregistre le critère dans la session
         $this->getSessionService()->set('dom_search_criteria', $criteria);
 
@@ -78,8 +80,6 @@ class DomsListeController extends Controller
 
         // Appeler la méthode logUserVisit avec les arguments définis
         $this->logUserVisit(...$logType);
-
-        $items = (new DomListFactory())->buildDomDTOs($paginationData['rawRows']);
 
         return $this->render(
             'doms/list.html.twig',
@@ -173,17 +173,13 @@ class DomsListeController extends Controller
      */
     public function listAnnuler(Request $request)
     {
-        $autoriser = $this->hasRoles(Role::ROLE_ADMINISTRATEUR);
-
         $domSearch = new DomSearch();
 
-        $agenceServiceIps = $this->agenceServiceIpsObjet();
         /** INITIALIASATION et REMPLISSAGE de RECHERCHE pendant la nag=vigation pagiantion */
-        $this->initialisation($domSearch, $this->getEntityManager(), $agenceServiceIps, $autoriser);
+        $this->initialisation($domSearch, $this->getEntityManager());
 
         $form = $this->getFormFactory()->createBuilder(DomSearchType::class, $domSearch, [
-            'method' => 'GET',
-            'idAgenceEmetteur' => $agenceServiceIps['agenceIps']->getId()
+            'method' => 'GET'
         ])->getForm();
 
         $form->handleRequest($request);
@@ -199,29 +195,27 @@ class DomsListeController extends Controller
         $page = max(1, $request->query->getInt('page', 1));
         $limit = 10;
 
-        $option = [
-            'boolean' => $autoriser,
-            'idAgence' => $this->agenceIdAutoriser()
-        ];
-        $paginationData = $this->getEntityManager()->getRepository(Dom::class)->findPaginatedAndFilteredAnnuler($page, $limit, $domSearch, $option);
+        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServiceIds(ApplicationConstant::CODE_DOM);
 
+        $paginationData = $this->getEntityManager()->getRepository(Dom::class)->findPaginatedAndFilteredAsDTO($page, $limit, $domSearch, $agenceServiceAutorises, true);
+
+        $items = (new DomListFactory())->buildDomDTOs($paginationData['rawRows']);
 
         //enregistre le critère dans la session
         $this->getSessionService()->set('dom_search_criteria', $criteria);
-        $this->getSessionService()->set('dom_search_option', $option);
 
         $this->logUserVisit('dom_list_annuler'); // historisation du page visité par l'utilisateur
 
         return $this->render(
             'doms/list.html.twig',
             [
-                'form' => $form->createView(),
-                'data' => $paginationData['data'],
-                'page' => 'dom_list_annuler',
+                'form'        => $form->createView(),
+                'data'        => $items,
+                'page'        => 'dom_list_annuler',
                 'currentPage' => $paginationData['currentPage'],
-                'lastPage' => $paginationData['lastPage'],
-                'resultat' => $paginationData['totalItems'],
-                'criteria' => $criteria,
+                'lastPage'    => $paginationData['lastPage'],
+                'resultat'    => $paginationData['totalItems'],
+                'criteria'    => $criteria,
             ]
         );
     }
