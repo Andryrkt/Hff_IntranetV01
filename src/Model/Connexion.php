@@ -56,13 +56,13 @@ class Connexion
     {
         try {
             $conn = $this->getConnexion();
-            $result = odbc_exec($conn, $sql);
+            $result = @odbc_exec($conn, $sql);
 
             // Échec → tentative de reconnexion unique
             if (!$result) {
                 $this->logError("Première exécution échouée. Tentative de reconnexion...");
                 $conn = $this->getConnexion(false); // Retente sans boucle
-                $result = odbc_exec($conn, $sql);
+                $result = @odbc_exec($conn, $sql);
             }
 
             if (!$result) {
@@ -86,7 +86,7 @@ class Connexion
                 $this->logError("ODBC Prepare failed: " . odbc_errormsg($this->conn));
                 throw new \Exception("ODBC Prepare failed: " . odbc_errormsg($this->conn));
             }
-            if (!odbc_execute($stmt, $params)) {
+            if (!@odbc_execute($stmt, $params)) {
                 $this->logError("ODBC Execute failed: " . odbc_errormsg($this->conn));
                 throw new \Exception("ODBC Execute failed: " . odbc_errormsg($this->conn));
             }
@@ -107,7 +107,17 @@ class Connexion
 
     private function logError($message)
     {
-        error_log($message, 3, $_ENV['BASE_PATH_LOG'] . "/log/app_errors.log");
+        $logPath = $_ENV['BASE_PATH_LOG'] ?? 'var/log/app_errors.log';
+        if (strpos($logPath, '.log') === false) {
+            $logPath = rtrim($logPath, '/') . '/app_errors.log';
+        }
+
+        $logDir = dirname($logPath);
+        if (!is_dir($logDir)) {
+            @mkdir($logDir, 0777, true);
+        }
+
+        @error_log("[" . date('Y-m-d H:i:s') . "] " . $message . "\n", 3, $logPath);
     }
 
     // Méthode pour rediriger vers la page d'erreur

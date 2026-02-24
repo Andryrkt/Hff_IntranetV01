@@ -594,7 +594,7 @@ class ListeDevisMagasinModel extends Model
         return $fetchedRow;
     }
 
-    public function stopRelance(string $numeroDevis): bool
+    public function stopRelance(string $numeroDevis, ?string $motif = null): bool
     {
         // On récupère l'état actuel pour savoir si on stoppe ou si on réactive
         $sqlCheck = "SELECT TOP 1 stop_progression_global 
@@ -609,10 +609,11 @@ class ListeDevisMagasinModel extends Model
 
         if ($newState === 1) {
             // On stoppe
+            $motifStop = $motif ? str_replace("'", "''", $motif) : "Arrêt manuel par l''utilisateur";
             $sql = "UPDATE devis_soumis_a_validation_neg 
                     SET stop_progression_global = 1, 
                         date_stop_global = GETDATE(),
-                        motif_stop_global = 'Arrêt manuel par l''utilisateur',
+                        motif_stop_global = '$motifStop',
                         date_reprise_manuel = NULL
                     WHERE numero_devis = '$numeroDevis' 
                     AND numero_version = (SELECT MAX(numero_version) FROM devis_soumis_a_validation_neg WHERE numero_devis = '$numeroDevis')";
