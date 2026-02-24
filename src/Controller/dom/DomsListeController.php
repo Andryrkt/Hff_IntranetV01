@@ -45,7 +45,7 @@ class DomsListeController extends Controller
 
         $agenceServiceIps = $this->agenceServiceIpsObjet();
         /** INITIALIASATION et REMPLISSAGE de RECHERCHE pendant la nag=vigation pagiantion */
-        $this->initialisation($domSearch, $this->getEntityManager(), $agenceServiceIps, $autoriser);
+        $this->initialisation($domSearch, $this->getEntityManager());
 
         $form = $this->getFormFactory()->createBuilder(DomSearchType::class, $domSearch, [
             'method' => 'GET',

@@ -4,6 +4,7 @@ namespace App\Entity\dom;
 
 use DateTime;
 use App\Entity\admin\Agence;
+use App\Entity\admin\AgenceService;
 use App\Entity\admin\Service;
 use App\Entity\admin\dom\Catg;
 use App\Entity\admin\dom\Site;
@@ -349,6 +350,17 @@ class Dom
      */
     private  $serviceDebiteurId;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=AgenceService::class)
+     * @ORM\JoinColumn(name="agence_service_emetteur_id", referencedColumnName="id")
+     */
+    private ?AgenceService $agenceServiceEmetteur = null;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=AgenceService::class)
+     * @ORM\JoinColumn(name="agence_service_debiteur_id", referencedColumnName="id")
+     */
+    private ?AgenceService $agenceServiceDebiteur = null;
 
     /**
      * @ORM\ManyToOne(targetEntity=Site::class, inversedBy="domSite")
@@ -1348,6 +1360,42 @@ class Dom
     public function setTotalDeplPlusAutres($totalDeplPlusAutres)
     {
         $this->totalDeplPlusAutres = $totalDeplPlusAutres;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of agenceServiceEmetteur
+     */
+    public function getAgenceServiceEmetteur(): ?AgenceService
+    {
+        return $this->agenceServiceEmetteur;
+    }
+
+    /**
+     * Set the value of agenceServiceEmetteur
+     */
+    public function setAgenceServiceEmetteur(?AgenceService $agenceServiceEmetteur): self
+    {
+        $this->agenceServiceEmetteur = $agenceServiceEmetteur;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of agenceServiceDebiteur
+     */
+    public function getAgenceServiceDebiteur(): ?AgenceService
+    {
+        return $this->agenceServiceDebiteur;
+    }
+
+    /**
+     * Set the value of agenceServiceDebiteur
+     */
+    public function setAgenceServiceDebiteur(?AgenceService $agenceServiceDebiteur): self
+    {
+        $this->agenceServiceDebiteur = $agenceServiceDebiteur;
 
         return $this;
     }
