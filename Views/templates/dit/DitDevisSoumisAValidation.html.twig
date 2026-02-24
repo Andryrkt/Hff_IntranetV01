@@ -48,10 +48,8 @@
 								<div class="col-12 col-md-6">
 									{{ form_row(form.numeroDevis)}}
 									{{ form_errors(form.numeroDevis)}}
+
 								</div>
-							</div>
-							<div class="row {{type == 'VP' ? '' : 'd-none'}}">
-								{{form_row(form.tacheValidateur, {'required': type == 'VP'})}}
 							</div>
 						</div>
 
@@ -88,7 +86,10 @@
 
 	<script>
 		{% if App.session.get('devis_version_valide') == 'OK' %}
-Swal.fire({
+Swal.fire( {
+
+
+
 
 
 title: "Attention !",
@@ -99,20 +100,32 @@ confirmButtonText: "Continuer",
 cancelButtonText: "Quitter"
 
 
-}).then((result) => {
 
 
-if (result.isConfirmed) { // L'utilisateur veut continuer
+
+} ).then( ( result ) => {
+
+
+
+
+
+if ( result.isConfirmed ) { // L'utilisateur veut continuer
 
 window.location.href = window.location.href + "?continueDevis=1";
+
+
+
 
 
 } else { // L'utilisateur annule, redirection vers l'accueil
 window.location.href = "{{ path('dit_index') }}";
 
 
+
+
+
 }
 
-});{% endif %}
+} );{% endif %}
 	</script>
 {% endblock %}
