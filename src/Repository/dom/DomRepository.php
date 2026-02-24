@@ -8,7 +8,7 @@ use Doctrine\ORM\Tools\Pagination\Paginator as DoctrinePaginator;
 
 class DomRepository extends EntityRepository
 {
-    public function findPaginatedAndFiltered(int $page = 1, int $limit = 10, DomSearch $domSearch, array $options)
+    public function findPaginatedAndFiltered(int $page = 1, int $limit = 10, DomSearch $domSearch, array $agenceServiceAutorises)
     {
         $queryBuilder = $this->createQueryBuilder('d')
             ->leftJoin('d.sousTypeDocument', 'td')
@@ -72,15 +72,10 @@ class DomRepository extends EntityRepository
                 ->setParameter('pieceJustificatif', $domSearch->getPieceJustificatif());
         }
 
-        if (!$options['boolean']) {
-            //ceci est figer pour les utilisateur autre que l'administrateur
-            $agenceIdAutoriser = is_array($options['idAgence']) ? $options['idAgence'] : [$options['idAgence']];
-            $queryBuilder->andWhere('d.agenceEmetteurId IN (:agenceIdAutoriser)')
-                ->setParameter('agenceIdAutoriser', $agenceIdAutoriser);
-        }
-
-        // Ordre et pagination
-        $queryBuilder->orderBy('d.numeroOrdreMission', 'DESC')
+        $queryBuilder
+            ->andWhere('d.agenceServiceEmetteur IN (:agenceServiceAutorises)')
+            ->setParameter('agenceServiceAutorises', $agenceServiceAutorises)
+            ->orderBy('d.numeroOrdreMission', 'DESC')
             ->setFirstResult(($page - 1) * $limit)
             ->setMaxResults($limit);
 

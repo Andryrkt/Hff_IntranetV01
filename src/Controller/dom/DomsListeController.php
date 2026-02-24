@@ -2,11 +2,11 @@
 
 namespace App\Controller\dom;
 
+use App\Constants\admin\ApplicationConstant;
 use App\Entity\dom\Dom;
 use App\Entity\dom\DomSearch;
 use App\Controller\Controller;
 use App\Form\dom\DomSearchType;
-use App\Entity\admin\Application;
 use App\Entity\admin\utilisateur\Role;
 use App\Controller\Traits\FormatageTrait;
 use App\Controller\Traits\ConversionTrait;
@@ -39,17 +39,13 @@ class DomsListeController extends Controller
      */
     public function listeDom(Request $request)
     {
-        $autoriser = $this->hasRoles(Role::ROLE_ADMINISTRATEUR);
-
         $domSearch = new DomSearch();
 
-        $agenceServiceIps = $this->agenceServiceIpsObjet();
         /** INITIALIASATION et REMPLISSAGE de RECHERCHE pendant la nag=vigation pagiantion */
         $this->initialisation($domSearch, $this->getEntityManager());
 
         $form = $this->getFormFactory()->createBuilder(DomSearchType::class, $domSearch, [
-            'method' => 'GET',
-            'idAgenceEmetteur' => $agenceServiceIps['agenceIps']->getId()
+            'method' => 'GET'
         ])->getForm();
 
         $form->handleRequest($request);
@@ -65,18 +61,14 @@ class DomsListeController extends Controller
         $page = max(1, $request->query->getInt('page', 1));
         $limit = 10;
 
-        $option = [
-            'boolean'  => $autoriser,
-            'idAgence' => $this->agenceIdAutoriser()
-        ];
+        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServiceIds(ApplicationConstant::CODE_DOM);
 
-        $paginationData = $this->getEntityManager()->getRepository(Dom::class)->findPaginatedAndFiltered($page, $limit, $domSearch, $option);
+        $paginationData = $this->getEntityManager()->getRepository(Dom::class)->findPaginatedAndFiltered($page, $limit, $domSearch, $agenceServiceAutorises);
 
         $this->statutTropPercuDomList($paginationData['data']);
 
         //enregistre le critère dans la session
         $this->getSessionService()->set('dom_search_criteria', $criteria);
-        $this->getSessionService()->set('dom_search_option', $option);
 
         $criteriaTab = $criteria;
 
@@ -109,7 +101,6 @@ class DomsListeController extends Controller
             ]
         );
     }
-
 
     /**
      * @Route("/export-dom-excel", name="export_dom_excel")

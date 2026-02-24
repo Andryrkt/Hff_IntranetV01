@@ -167,6 +167,14 @@ class SecurityService
     }
 
     /**
+     * Retourne la liste des agences et services groupés par id pour une application donnée
+     */
+    public function getAgenceServiceIds(string $codeApp): array
+    {
+        return array_keys($this->dataService->getAgenceServiceGroupById($codeApp));
+    }
+
+    /**
      * Retourne toutes les pages visibles du profil connecté, groupées par application.
      * Délègue à DataService — résultat mis en cache applicatif.
      */
