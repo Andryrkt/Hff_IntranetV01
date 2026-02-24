@@ -18,6 +18,7 @@ class ListeDevisSearchDto
     private ?string $statutBc = null;
     private ?string $creePar = null;
     private ?string $numeroPO = null;
+    private ?string $filterRelance = null;
 
     /** ============================================================
      * getter and setter
@@ -220,6 +221,24 @@ class ListeDevisSearchDto
     public function setNumeroPO(?string $numeroPO): self
     {
         $this->numeroPO = $numeroPO;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of filterRelance
+     */
+    public function getFilterRelance(): ?string
+    {
+        return $this->filterRelance;
+    }
+
+    /**
+     * Set the value of filterRelance
+     */
+    public function setFilterRelance(?string $filterRelance): self
+    {
+        $this->filterRelance = $filterRelance;
 
         return $this;
     }

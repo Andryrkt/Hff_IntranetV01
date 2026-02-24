@@ -33,7 +33,9 @@ class ListeDevisMagasinController extends Controller
     private $styleStatutDw = [];
     private $styleStatutBc = [];
     private $statutIPS = [];
-    private $styleStatutPR = [];
+    private $styleStatutPR1 = [];
+    private $styleStatutPR2 = [];
+    private $styleStatutPR3 = [];
 
     private ListeDevisMagasinModel $listeDevisMagasinModel;
 
@@ -62,7 +64,16 @@ class ListeDevisMagasinController extends Controller
             BcMagasin::STATUT_VALIDER => 'bg-bc-valide'
         ];
 
-        $this->styleStatutPR = [
+        $this->styleStatutPR1 = [
+            PointageRelanceStatutConstant::STATUT_POINTAGE_RELANCE_A_RELANCER => 'bg-danger text-white',
+            PointageRelanceStatutConstant::STATUT_POINTAGE_RELANCE_RELANCE => 'bg-warning'
+        ];
+        $this->styleStatutPR2 = [
+            PointageRelanceStatutConstant::STATUT_POINTAGE_RELANCE_A_RELANCER => 'bg-danger text-white',
+            PointageRelanceStatutConstant::STATUT_POINTAGE_RELANCE_RELANCE => 'bg-warning'
+        ];
+
+        $this->styleStatutPR3 = [
             PointageRelanceStatutConstant::STATUT_POINTAGE_RELANCE_A_RELANCER => 'bg-danger text-white',
             PointageRelanceStatutConstant::STATUT_POINTAGE_RELANCE_RELANCE => 'bg-warning'
         ];
@@ -107,7 +118,7 @@ class ListeDevisMagasinController extends Controller
         $this->getSessionService()->set('criteria_for_excel_liste_devis_magasin', $criteriaForSession);
 
         $listeDevisFactory = $this->recuperationDonner($criteria);
-        $preparedDatas     = $this->prepareDatasForView($listeDevisFactory, $this->styleStatutDw, $this->styleStatutBc, $this->statutIPS, $this->styleStatutPR);
+        $preparedDatas     = $this->prepareDatasForView($listeDevisFactory, $this->styleStatutDw, $this->styleStatutBc, $this->statutIPS, $this->styleStatutPR1, $this->styleStatutPR2, $this->styleStatutPR3);
 
 
         // affichage de la liste des devis magasin
@@ -196,6 +207,7 @@ class ListeDevisMagasinController extends Controller
             $devisIp['utilisateur_createur_devis'] = $this->listeDevisMagasinModel
                 ->getUtilisateurCreateurDevis($numeroDevis) ?? '';
             $devisIp['statut_bc']                  = $devisSoumi ? $devisSoumi->getStatutBc()                  : '';
+            $devisIp['stop_relance']               = $devisSoumi ? ($devisSoumi->getStopProgressionGlobal() ?? false) : false;
 
             // statut DW = A traiter et statut BC = TR
             if ($devisIp['statut_dw'] === DevisMagasin::STATUT_A_TRAITER && $devisIp['statut_ips'] === 'TR') continue;
@@ -217,7 +229,9 @@ class ListeDevisMagasinController extends Controller
 
                 $devisIp['date_derniere_relance'] = $dateRelance;
                 $devisIp['numero_relance'] = $numeroRelance;
-                $devisIp['statut_relance'] = $statutRelance ?? null;
+                $devisIp['statut_relance_1'] = $statutRelance['statut_relance_1'] ?? null;
+                $devisIp['statut_relance_2'] = $statutRelance['statut_relance_2'] ?? null;
+                $devisIp['statut_relance_3'] = $statutRelance['statut_relance_3'] ?? null;
                 $devisIp['relances'] = [];
             }
 
@@ -345,6 +359,52 @@ class ListeDevisMagasinController extends Controller
             }
         }
 
+        // Filtre par statut de relance (complexe)
+        if (!empty($criteria['filterRelance'])) {
+            $filter = $criteria['filterRelance'];
+            $r1 = $devisIp['statut_relance_1'] ?? null;
+            $r2 = $devisIp['statut_relance_2'] ?? null;
+            $r3 = $devisIp['statut_relance_3'] ?? null;
+            $isStopped = (bool)($devisIp['stop_relance'] ?? false);
+
+            switch ($filter) {
+                case 'A_RELANCER':
+                    return ($r1 === 'A relancer' || $r2 === 'A relancer' || $r3 === 'A relancer');
+
+                case '3_RELANCES_OK':
+                    // 3ème relance faite (date) et non stoppé
+                    return ($r3 !== null && $r3 !== 'A relancer' && !$isStopped);
+
+                case '3_RELANCES_STOP':
+                    // 3ème relance faite (date) et stoppé
+                    return ($r3 !== null && $r3 !== 'A relancer' && $isStopped);
+
+                case 'STOP_AVANT_R1':
+                    // Stoppé alors qu'aucune relance n'a été faite
+                    return ($isStopped && $r1 === null);
+
+                case 'STOP_R1':
+                    // Stoppé après la relance 1 (R1 est une date, R2 est null ou pas encore A relancer)
+                    return ($isStopped && $r1 !== null && $r1 !== 'A relancer' && ($r2 === null || $r2 === 'A relancer'));
+
+                case 'STOP_R2':
+                    // Stoppé après la relance 2
+                    return ($isStopped && $r2 !== null && $r2 !== 'A relancer' && ($r3 === null || $r3 === 'A relancer'));
+
+                case 'R1_EN_COURS':
+                    // Relance 1 effectuée (date) mais R2 pas encore faite
+                    return ($r1 !== null && $r1 !== 'A relancer' && ($r2 === null || $r2 === 'A relancer'));
+
+                case 'R2_EN_COURS':
+                    // Relance 2 effectuée (date) mais R3 pas encore faite
+                    return ($r2 !== null && $r2 !== 'A relancer' && ($r3 === null || $r3 === 'A relancer'));
+
+                case 'R3_EN_COURS':
+                    // Relance 3 effectuée (date)
+                    return ($r3 !== null && $r3 !== 'A relancer');
+            }
+        }
+
         return true;
     }
 
@@ -358,7 +418,7 @@ class ListeDevisMagasinController extends Controller
      * 
      * @return array
      */
-    private function prepareDatasForView(array $listeDevisFactory, array $styleStatutDw, array $styleStatutBc, array $statutIpsArray, array $styleStatutPR): array
+    private function prepareDatasForView(array $listeDevisFactory, array $styleStatutDw, array $styleStatutBc, array $statutIpsArray, array $styleStatutPR1, array $styleStatutPR2, array $styleStatutPR3): array
     {
         $data = [];
         foreach ($listeDevisFactory as $devis) {
@@ -366,12 +426,14 @@ class ListeDevisMagasinController extends Controller
             $statutDw = $devis->getStatutDw();
             $statutBc = $devis->getStatutBc();
             $statutIps = $devis->getStatutIps();
-            $statutRelance = $this->convertirEnUtf8($devis->getStatutRelance());
+            $statutRelance1 = $devis->statutRelance1;
+            $statutRelance2 = $devis->statutRelance2;
+            $statutRelance3 = $devis->statutRelance3;
             $emetteur = $devis->getSuccursaleServiceEmetteur();
             $numeroDevis = $devis->getNumeroDevis();
 
             $pointageDevis = in_array($statutDw, [DevisMagasin::STATUT_PRIX_VALIDER_TANA, DevisMagasin::STATUT_PRIX_MODIFIER_TANA, DevisMagasin::STATUT_VALIDE_AGENCE]);
-            $relanceClient = $statutDw === DevisMagasin::STATUT_ENVOYER_CLIENT && $statutBc ===  BcMagasin::STATUT_EN_ATTENTE_BC && $statutRelance === PointageRelanceStatutConstant::STATUT_POINTAGE_RELANCE_A_RELANCER;
+            $relanceClient = $statutDw === DevisMagasin::STATUT_ENVOYER_CLIENT && $statutBc ===  BcMagasin::STATUT_EN_ATTENTE_BC && in_array(PointageRelanceStatutConstant::STATUT_POINTAGE_RELANCE_A_RELANCER, [$statutRelance1, $statutRelance2, $statutRelance3]) && !$devis->getStopRelance();
 
             // Création d'url
             $url = [
@@ -405,9 +467,14 @@ class ListeDevisMagasinController extends Controller
                 'relanceClient'   => $relanceClient,
                 'dateDerniereRelance' => $devis->getDateDerniereRelance(),
                 'numeroRelance' => $devis->getNombreDeRelance(),
-                'statutRelance' => $statutRelance,
+                'statutRelance1' => $statutRelance1,
+                'statutRelance2' => $statutRelance2,
+                'statutRelance3' => $statutRelance3,
                 'relances' => $devis->getRelances() ?? [],
-                'styleStatutPR' => $styleStatutPR[$statutRelance] ?? ''
+                'styleStatutPR1' => $styleStatutPR1[$statutRelance1] ?? '',
+                'styleStatutPR2' => $styleStatutPR2[$statutRelance2] ?? '',
+                'styleStatutPR3' => $styleStatutPR3[$statutRelance3] ?? '',
+                'stopRelance' => $devis->getStopRelance()
             ];
         }
 
