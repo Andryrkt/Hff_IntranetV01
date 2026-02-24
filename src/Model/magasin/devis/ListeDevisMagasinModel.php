@@ -594,7 +594,7 @@ class ListeDevisMagasinModel extends Model
         return $fetchedRow;
     }
 
-    public function stopRelance(string $numeroDevis, ?string $motif = null): bool
+    public function stopRelance(string $numeroDevis, ?string $motif = null, string $utilisateur = 'inconnu'): bool
     {
         // On récupère l'état actuel pour savoir si on stoppe ou si on réactive
         $sqlCheck = "SELECT TOP 1 stop_progression_global 
@@ -607,6 +607,8 @@ class ListeDevisMagasinModel extends Model
         $currentState = $row ? (int)$row['stop_progression_global'] : 0;
         $newState = ($currentState === 1) ? 0 : 1;
 
+        $utilisateurSql = str_replace("'", "''", $utilisateur);
+
         if ($newState === 1) {
             // On stoppe
             $motifStop = $motif ? str_replace("'", "''", $motif) : "Arrêt manuel par l''utilisateur";
@@ -614,14 +616,18 @@ class ListeDevisMagasinModel extends Model
                     SET stop_progression_global = 1, 
                         date_stop_global = GETDATE(),
                         motif_stop_global = '$motifStop',
-                        date_reprise_manuel = NULL
+                        utilisateur_stop = '$utilisateurSql',
+                        date_reprise_manuel = NULL,
+                        utilisateur_reprise = NULL
                     WHERE numero_devis = '$numeroDevis' 
                     AND numero_version = (SELECT MAX(numero_version) FROM devis_soumis_a_validation_neg WHERE numero_devis = '$numeroDevis')";
         } else {
-            // On réactive
+            // On réactive : on efface le motif et on note l'utilisateur qui réactive
             $sql = "UPDATE devis_soumis_a_validation_neg 
                     SET stop_progression_global = 0, 
-                        date_reprise_manuel = GETDATE()
+                        motif_stop_global = NULL,
+                        date_reprise_manuel = GETDATE(),
+                        utilisateur_reprise = '$utilisateurSql'
                     WHERE numero_devis = '$numeroDevis' 
                     AND numero_version = (SELECT MAX(numero_version) FROM devis_soumis_a_validation_neg WHERE numero_devis = '$numeroDevis')";
         }

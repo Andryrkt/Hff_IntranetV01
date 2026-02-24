@@ -61,8 +61,9 @@ class RelanceApi extends Controller
         try {
             $body = json_decode($request->getContent(), true);
             $motif = $body['motif'] ?? null;
+            $utilisateur = $this->getUserName();
             $listeDevisMagasinModel = new ListeDevisMagasinModel();
-            $success = $listeDevisMagasinModel->stopRelance($numeroDevis, $motif);
+            $success = $listeDevisMagasinModel->stopRelance($numeroDevis, $motif, $utilisateur);
 
             $newStatuts = [];
             $relanceClient = false;
