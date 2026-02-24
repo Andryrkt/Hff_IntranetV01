@@ -10,12 +10,6 @@ trait DomListeTrait
 {
     use DomsTrait;
 
-    private function agenceIdAutoriser(): array
-    {
-        $userInfo = $this->getSessionService()->get('user_info');
-        return $userInfo['authorized_agences']['ids'] ?? [];
-    }
-
     private function initialisation($badmSearch, $em)
     {
         $criteria = $this->getSessionService()->get('dom_search_criteria', []);
