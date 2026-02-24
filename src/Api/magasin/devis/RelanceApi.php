@@ -8,6 +8,8 @@ use App\Entity\magasin\bc\BcMagasin;
 use App\Entity\magasin\devis\DevisMagasin;
 use App\Constants\Magasin\Devis\PointageRelanceStatutConstant;
 use App\Model\magasin\devis\ListeDevisMagasinModel;
+use App\Form\magasin\devis\MotifStopRelanceType;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -38,13 +40,30 @@ class RelanceApi extends Controller
     }
 
     /**
+     * @Route("/api/devis/motif-stop-form", name="api_devis_motif_stop_form", methods={"GET"})
+     */
+    public function renderMotifForm()
+    {
+        $form = $this->getFormFactory()->create(MotifStopRelanceType::class);
+
+        return new JsonResponse([
+            'html' => $this->getTwig()->render('magasin/devis/shared/_motif_stop_modal.html.twig', [
+                'form' => $form->createView(),
+            ])
+        ]);
+    }
+
+    /**
      * @Route("/api/stop-relance/{numeroDevis}", name="devis_magasin_stop_relance", methods={"POST"})
      */
-    public function stopRelance(string $numeroDevis)
+    public function stopRelance(Request $request, string $numeroDevis)
     {
         try {
+            $body = json_decode($request->getContent(), true);
+            $motif = $body['motif'] ?? null;
+            $utilisateur = $this->getUserName();
             $listeDevisMagasinModel = new ListeDevisMagasinModel();
-            $success = $listeDevisMagasinModel->stopRelance($numeroDevis);
+            $success = $listeDevisMagasinModel->stopRelance($numeroDevis, $motif, $utilisateur);
 
             $newStatuts = [];
             $relanceClient = false;
