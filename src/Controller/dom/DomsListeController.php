@@ -13,7 +13,6 @@ use App\Controller\Traits\ConversionTrait;
 use App\Controller\Traits\dom\DomListeTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Model\dom\DomListModel;
 use App\Service\ExcelService;
 
 /**
@@ -25,13 +24,6 @@ class DomsListeController extends Controller
     use ConversionTrait;
     use DomListeTrait;
     use FormatageTrait;
-    private $domList;
-
-    public function __construct()
-    {
-        parent::__construct();
-        $this->domList = new DomListModel();
-    }
 
     /**
      * affichage de l'architecture de la liste du DOM
@@ -230,14 +222,5 @@ class DomsListeController extends Controller
                 'criteria' => $criteria,
             ]
         );
-    }
-
-    /**
-     * @Route("/annuler/{numDom}", name="domList_annulationStatut")
-     */
-    public function annulationStatutController($numDom)
-    {
-        $this->domList->annulationCodestatut($numDom);
-        $this->redirectToRoute("doms_liste");
     }
 }
