@@ -102,7 +102,8 @@ class DomsListeController extends Controller
     {
         // Récupère les critères dans la session
         $criteria = $this->getSessionService()->get('dom_search_criteria', []);
-        $option = $this->getSessionService()->get('dom_search_option', []);
+
+        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServiceIds(ApplicationConstant::CODE_DOM);
 
         $domSearch = new DomSearch();
         $domSearch->setSousTypeDocument($criteria['sousTypeDocument'])
@@ -119,7 +120,7 @@ class DomsListeController extends Controller
             ->setNumDom($criteria['numDom'])
         ;
         // Récupère les entités filtrées
-        $entities = $this->getEntityManager()->getRepository(Dom::class)->findAndFilteredExcel($domSearch, $option);
+        $entities = $this->getEntityManager()->getRepository(Dom::class)->findAndFilteredExcel($domSearch, $agenceServiceAutorises);
 
         // Convertir les entités en tableau de données
         $data = [];
