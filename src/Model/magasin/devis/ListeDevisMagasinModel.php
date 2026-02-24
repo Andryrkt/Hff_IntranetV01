@@ -4,10 +4,13 @@
 namespace App\Model\magasin\devis;
 
 use App\Model\Model;
+use App\Model\Traits\ConversionModel;
 use App\Service\GlobalVariablesService;
 
 class ListeDevisMagasinModel extends Model
 {
+    use ConversionModel;
+
     public function getDevis(array $criteria = [],  string $vignette = 'magasin', string $codeAgenceAutoriser, bool $adminMulti = false, $numDeviAExclureString): array
     {
         if (!empty($criteria) && array_key_exists('numeroDevis', $criteria) && !empty($criteria['numeroDevis'])) {
@@ -611,7 +614,7 @@ class ListeDevisMagasinModel extends Model
 
         if ($newState === 1) {
             // On stoppe
-            $motifStop = $motif ? str_replace("'", "''", $motif) : "Arrêt manuel par l''utilisateur";
+            $motifStop = $motif ? $this->convertirEnUtf8(str_replace("'", "''", $motif)) : "";
             $sql = "UPDATE devis_soumis_a_validation_neg 
                     SET stop_progression_global = 1, 
                         date_stop_global = GETDATE(),
