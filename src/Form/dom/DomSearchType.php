@@ -2,19 +2,10 @@
 
 namespace App\Form\dom;
 
-
-
-use App\Entity\admin\Agence;
-use App\Entity\admin\Service;
 use App\Entity\dom\DomSearch;
-use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\EntityRepository;
 use App\Entity\admin\StatutDemande;
-use Symfony\Component\Form\FormEvent;
-use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\AbstractType;
 use App\Entity\admin\dom\SousTypeDocument;
-use App\Repository\admin\ServiceRepository;
 use Symfony\Component\Form\FormBuilderInterface;
 use App\Repository\admin\StatutDemandeRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -23,20 +14,10 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 
-
-
 class DomSearchType extends AbstractType
 {
-    private $em;
-
-    public function __construct(EntityManagerInterface $em)
-    {
-        $this->em = $em;
-    }
-
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-
         $builder
             ->add('statut', EntityType::class, [
                 'label'         => 'Statut',
@@ -99,6 +80,5 @@ class DomSearchType extends AbstractType
         $resolver->setDefaults([
             'data_class' => DomSearch::class,
         ]);
-        $resolver->setDefined('idAgenceEmetteur');
     }
 }
