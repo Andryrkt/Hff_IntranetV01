@@ -11,6 +11,7 @@ use App\Entity\admin\utilisateur\Role;
 use App\Controller\Traits\FormatageTrait;
 use App\Controller\Traits\ConversionTrait;
 use App\Controller\Traits\dom\DomListeTrait;
+use App\Factory\Dom\DomListFactory;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\ExcelService;
@@ -55,9 +56,7 @@ class DomsListeController extends Controller
 
         $agenceServiceAutorises = $this->getSecurityService()->getAgenceServiceIds(ApplicationConstant::CODE_DOM);
 
-        $paginationData = $this->getEntityManager()->getRepository(Dom::class)->findPaginatedAndFiltered($page, $limit, $domSearch, $agenceServiceAutorises);
-
-        $this->statutTropPercuDomList($paginationData['data']);
+        $paginationData = $this->getEntityManager()->getRepository(Dom::class)->findPaginatedAndFilteredAsDTO($page, $limit, $domSearch, $agenceServiceAutorises);
 
         //enregistre le critère dans la session
         $this->getSessionService()->set('dom_search_criteria', $criteria);
@@ -80,11 +79,13 @@ class DomsListeController extends Controller
         // Appeler la méthode logUserVisit avec les arguments définis
         $this->logUserVisit(...$logType);
 
+        $items = (new DomListFactory())->buildDomDTOs($paginationData['rawRows']);
+
         return $this->render(
             'doms/list.html.twig',
             [
                 'form'        => $form->createView(),
-                'data'        => $paginationData['data'],
+                'data'        => $items,
                 'page'        => 'doms_liste',
                 'currentPage' => $paginationData['currentPage'],
                 'lastPage'    => $paginationData['lastPage'],

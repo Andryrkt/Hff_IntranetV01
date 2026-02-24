@@ -8,14 +8,33 @@ use Doctrine\ORM\Tools\Pagination\Paginator as DoctrinePaginator;
 
 class DomRepository extends EntityRepository
 {
-    public function findPaginatedAndFiltered(int $page = 1, int $limit = 10, DomSearch $domSearch, array $agenceServiceAutorises)
+    public function findPaginatedAndFilteredAsDTO(int $page, int $limit, DomSearch $domSearch, array $agenceServiceAutorises): array
     {
-        $queryBuilder = $this->createQueryBuilder('d')
-            ->leftJoin('d.sousTypeDocument', 'td')
-            ->leftJoin('d.idStatutDemande', 's');
-
         $excludedStatuses = [9, 18, 22, 24, 26, 32, 33, 34, 35];
-        $queryBuilder->andWhere($queryBuilder->expr()->notIn('s.id', ':excludedStatuses'))
+
+        // SELECT uniquement les champs utiles → hydratation scalaire, pas d'entités complètes
+        $queryBuilder = $this->createQueryBuilder('d');
+        $queryBuilder
+            ->select(
+                'd.id',
+                'd.numeroOrdreMission',
+                'd.dateDemande',
+                'd.motifDeplacement',
+                'd.matricule',
+                'd.libelleCodeAgenceService',
+                'd.dateDebut',
+                'd.dateFin',
+                'd.client',
+                'd.lieuIntervention',
+                'd.totalGeneralPayer',
+                'd.devis',
+                'd.modePayement',
+                's.description  AS statutDescription',
+                'td.codeSousType AS codeSousType',
+            )
+            ->leftJoin('d.sousTypeDocument', 'td')
+            ->leftJoin('d.idStatutDemande', 's')
+            ->andWhere($queryBuilder->expr()->notIn('s.id', ':excludedStatuses'))
             ->setParameter('excludedStatuses', $excludedStatuses);
 
         // Filtre pour le statut        
@@ -75,20 +94,28 @@ class DomRepository extends EntityRepository
         $queryBuilder
             ->andWhere('d.agenceServiceEmetteur IN (:agenceServiceAutorises)')
             ->setParameter('agenceServiceAutorises', $agenceServiceAutorises)
-            ->orderBy('d.numeroOrdreMission', 'DESC')
-            ->setFirstResult(($page - 1) * $limit)
-            ->setMaxResults($limit);
+            ->orderBy('d.numeroOrdreMission', 'DESC');
 
-        // Pagination
-        $paginator = new DoctrinePaginator($queryBuilder);
-        $totalItems = count($paginator);
-        $lastPage = ceil($totalItems / $limit);
+        // --- COUNT séparé et optimisé (sans ORDER BY) ---
+        $countQb = clone $queryBuilder;
+        $totalItems = (int) $countQb
+            ->select('COUNT(d.id)')
+            ->resetDQLPart('orderBy')   // inutile pour le count
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        // --- Requête paginée ---
+        $rows = $queryBuilder
+            ->setFirstResult(($page - 1) * $limit)
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getScalarResult(); // tableau de scalaires, pas d'entités Doctrine
 
         return [
-            'data'        => iterator_to_array($paginator->getIterator()), // Convertir en tableau si nécessaire
+            'rawRows'     => $rows,
             'totalItems'  => $totalItems,
             'currentPage' => $page,
-            'lastPage'    => $lastPage,
+            'lastPage'    => (int) ceil($totalItems / $limit),
         ];
     }
 
