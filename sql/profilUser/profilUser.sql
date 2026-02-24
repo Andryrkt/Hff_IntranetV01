@@ -78,8 +78,6 @@ alter table users drop column fonction;
 
 alter table users add code_agence_user varchar(50) NULL;
 alter table users add code_service_user varchar(50) NULL;
-alter table users add libelle_agence_user varchar(100) NULL;
-alter table users add libelle_service_user varchar(100) NULL;
 alter table users add code_sage varchar(50) NULL;
 
 CREATE TABLE application_profil_page (
@@ -97,16 +95,9 @@ CREATE TABLE application_profil_page (
     CONSTRAINT fk_app_profil_page_page FOREIGN KEY (page_id) REFERENCES Hff_pages (id)
 );
 
-UPDATE users set 
-	code_agence_user=a.code_agence, 
-	libelle_agence_user=a.libelle_agence, 
-	code_service_user=s.code_service,
-	libelle_service_user=s.libelle_service, 
-	code_sage=asi.service_sage_paie
+UPDATE users set code_agence_user=asi.agence_ips, code_service_user=asi.service_ips,code_sage=asi.service_sage_paie
 from users u
-INNER JOIN Agence_Service_Irium asi on asi.id=u.agence_utilisateur
-INNER join agences a on a.code_agence=asi.agence_ips
-INNER  join services s on s.code_service=asi.service_ips ;
+INNER JOIN Agence_Service_Irium asi on asi.id=u.agence_utilisateur;
 
 alter table Demande_ordre_mission add 
 agence_service_emetteur_id int NULL, 

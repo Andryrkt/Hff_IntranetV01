@@ -131,20 +131,6 @@ class User implements UserInterface
     private ?string $codeServiceUser;
 
     /**
-     * @ORM\Column(type="string", length=100, name="libelle_agence_user")
-     *
-     * @var string
-     */
-    private ?string $libelleAgenceUser;
-
-    /**
-     * @ORM\Column(type="string", length=100, name="libelle_service_user")
-     *
-     * @var string
-     */
-    private ?string $libelleServiceUser;
-
-    /**
      * @ORM\Column(type="string", length=50, name="code_sage")
      *
      * @var string
@@ -377,42 +363,6 @@ class User implements UserInterface
     public function setCodeSage(?string $codeSage): self
     {
         $this->codeSage = $codeSage;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of libelleAgenceUser
-     */
-    public function getLibelleAgenceUser(): ?string
-    {
-        return $this->libelleAgenceUser;
-    }
-
-    /**
-     * Set the value of libelleAgenceUser
-     */
-    public function setLibelleAgenceUser(?string $libelleAgenceUser): self
-    {
-        $this->libelleAgenceUser = $libelleAgenceUser;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of libelleServiceUser
-     */
-    public function getLibelleServiceUser(): ?string
-    {
-        return $this->libelleServiceUser;
-    }
-
-    /**
-     * Set the value of libelleServiceUser
-     */
-    public function setLibelleServiceUser(?string $libelleServiceUser): self
-    {
-        $this->libelleServiceUser = $libelleServiceUser;
 
         return $this;
     }
