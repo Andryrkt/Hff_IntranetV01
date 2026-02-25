@@ -14,7 +14,7 @@ class ChoixSocieteType extends AbstractType
         // Préparer les tableaux id => label pour ChoiceType
         $societeChoices = [];
         foreach ($options['societes'] as $societe) {
-            $societeChoices[$societe->getNom()] = $societe->getId();
+            $societeChoices[$societe->getNom()] = $societe->getCodeSociete();
         }
 
         $profilChoices = [];
@@ -22,7 +22,7 @@ class ChoixSocieteType extends AbstractType
         foreach ($options['profils'] as $profil) {
             $profilChoices[$profil->getDesignation()] = $profil->getId();
             $profilAttr[$profil->getId()] = [
-                'data-societe' => $profil->getSociete()->getId(),
+                'data-societe' => $profil->getSociete()->getCodeSociete(),
             ];
         }
 
