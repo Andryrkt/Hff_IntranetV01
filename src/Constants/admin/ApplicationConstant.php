@@ -5,5 +5,6 @@ namespace App\Constants\admin;
 class ApplicationConstant
 {
     public const CODE_DOM = 'DOM';
+    public const CODE_BADM = 'BDM';
     public const CODE_ADMIN = 'ADMIN';
 }
