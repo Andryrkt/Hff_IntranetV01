@@ -28,13 +28,13 @@ class DitSearch
 
     private ?string $numSerie = '';
 
-    private ?Agence $agenceEmetteur = null;
+    private ?int $agenceEmetteur = null;
 
-    private ?Service $serviceEmetteur = null;
+    private ?int $serviceEmetteur = null;
 
-    private ?Agence $agenceDebiteur = null;
+    private ?int $agenceDebiteur = null;
 
-    private ?Service $serviceDebiteur = null;
+    private ?int $serviceDebiteur = null;
 
     private ?string $numDit = '';
 
@@ -261,7 +261,7 @@ class DitSearch
     /**
      * Get the value of agenceEmetteur
      *
-     * @return  Agence|null
+     * @return  ?int
      */
     public function getAgenceEmetteur()
     {
@@ -271,7 +271,7 @@ class DitSearch
     /**
      * Set the value of agenceEmetteur
      *
-     * @param  Agence|null  $agenceEmetteur
+     * @param  ?int $agenceEmetteur
      *
      * @return  self
      */
@@ -285,7 +285,7 @@ class DitSearch
     /**
      * Get undocumented variable
      *
-     * @return  Service|null
+     * @return  ?int
      */
     public function getServiceEmetteur()
     {
@@ -295,7 +295,7 @@ class DitSearch
     /**
      * Set undocumented variable
      *
-     * @param  Service|null  $serviceEmetteur  Undocumented variable
+     * @param  ?int  $serviceEmetteur  Undocumented variable
      *
      * @return  self
      */
@@ -309,7 +309,7 @@ class DitSearch
     /**
      * Get undocumented variable
      *
-     * @return  Agence|null
+     * @return  ?int
      */
     public function getAgenceDebiteur()
     {
@@ -319,7 +319,7 @@ class DitSearch
     /**
      * Set undocumented variable
      *
-     * @param  Agence|null  $agenceDebiteur  Undocumented variable
+     * @param  ?int  $agenceDebiteur  Undocumented variable
      *
      * @return  self
      */
@@ -333,7 +333,7 @@ class DitSearch
     /**
      * Get undocumented variable
      *
-     * @return  Service|null
+     * @return  ?int
      */
     public function getServiceDebiteur()
     {
@@ -343,7 +343,7 @@ class DitSearch
     /**
      * Set undocumented variable
      *
-     * @param  Service|null  $serviceDebiteur  Undocumented variable
+     * @param  ?int  $serviceDebiteur  Undocumented variable
      *
      * @return  self
      */

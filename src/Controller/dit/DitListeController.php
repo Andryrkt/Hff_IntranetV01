@@ -67,7 +67,7 @@ class DitListeController extends Controller
         //création et initialisation du formulaire de la recherche
         $form = $this->getFormFactory()->createBuilder(DitSearchType::class, $ditSearch, [
             'method' => 'GET',
-            'autorisationRoleEnergie' => $autorisationRoleEnergie
+            'agenceServiceAutorises' => $agenceServiceAutorises
         ])->getForm();
 
         $form->handleRequest($request);
@@ -87,6 +87,7 @@ class DitListeController extends Controller
             }
         }
 
+        $this->gererAgenceService($ditSearch, $agenceServiceAutorises);
 
         $criteria = [];
         //transformer l'objet ditSearch en tableau
@@ -100,7 +101,7 @@ class DitListeController extends Controller
         $this->getSessionService()->set('dit_search_option', $option);
 
         //recupération des donnée
-        $paginationData = $this->data($request, $ditListeModel, $ditSearch, $option, $this->getEntityManager());
+        $paginationData = $this->data($request, $ditListeModel, $ditSearch, $option, $agenceServiceAutorises, $this->getEntityManager());
 
         /**  Docs à intégrer dans DW * */
         $formDocDansDW = $this->getFormFactory()->createBuilder(DocDansDwType::class, null, [
@@ -286,13 +287,32 @@ class DitListeController extends Controller
         $criteriaTab['statut']          = $criteria['statut'] ? $criteria['statut']->getDescription() : $criteria['statut'];
         $criteriaTab['dateDebut']       = $criteria['dateDebut'] ? $criteria['dateDebut']->format('d-m-Y') : $criteria['dateDebut'];
         $criteriaTab['dateFin']         = $criteria['dateFin'] ? $criteria['dateFin']->format('d-m-Y') : $criteria['dateFin'];
-        $criteriaTab['agenceEmetteur']  = $criteria['agenceEmetteur'] ? $criteria['agenceEmetteur']->getLibelleAgence() : $criteria['agenceEmetteur'];
-        $criteriaTab['serviceEmetteur'] = $criteria['serviceEmetteur'] ? $criteria['serviceEmetteur']->getLibelleService() : $criteria['serviceEmetteur'];
-        $criteriaTab['agenceDebiteur']  = $criteria['agenceDebiteur'] ? $criteria['agenceDebiteur']->getLibelleAgence() : $criteria['agenceDebiteur'];
-        $criteriaTab['serviceDebiteur'] = $criteria['serviceDebiteur'] ? $criteria['serviceDebiteur']->getLibelleService() : $criteria['serviceDebiteur'];
+        $criteriaTab['agenceEmetteur']  = $criteria['agenceEmetteur'] ?? "";
+        $criteriaTab['serviceEmetteur'] = $criteria['serviceEmetteur'] ?? "";
+        $criteriaTab['agenceDebiteur']  = $criteria['agenceDebiteur'] ?? "";
+        $criteriaTab['serviceDebiteur'] = $criteria['serviceDebiteur'] ?? "";
         $criteriaTab['categorie']       = $criteria['categorie'] ? $criteria['categorie']->getLibelleCategorieAteApp() : $criteria['categorie'];
 
         // Filtrer les critères pour supprimer les valeurs "falsy"
         return  array_filter($criteriaTab);
+    }
+
+    private function gererAgenceService(DitSearch $ditSearch, array $agenceServiceAutorises): void
+    {
+        // Changer le serviceEmetteur
+        if ($ditSearch->getServiceEmetteur()) {
+            $ligneId = $ditSearch->getServiceEmetteur();
+            if ($ligneId && isset($agenceServiceAutorises[$ligneId])) {
+                $ditSearch->setServiceEmetteur($agenceServiceAutorises[$ligneId]['service_id']);
+            }
+        }
+
+        // Changer le serviceDebiteur
+        if ($ditSearch->getServiceDebiteur()) {
+            $ligneId = $ditSearch->getServiceDebiteur();
+            if ($ligneId && isset($agenceServiceAutorises[$ligneId])) {
+                $ditSearch->setServiceDebiteur($agenceServiceAutorises[$ligneId]['service_id']);
+            }
+        }
     }
 }
