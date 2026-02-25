@@ -7,7 +7,6 @@ use App\Entity\dom\Dom;
 use App\Entity\dom\DomSearch;
 use App\Controller\Controller;
 use App\Form\dom\DomSearchType;
-use App\Entity\admin\utilisateur\Role;
 use App\Controller\Traits\FormatageTrait;
 use App\Controller\Traits\ConversionTrait;
 use App\Controller\Traits\dom\DomListeTrait;
@@ -54,7 +53,7 @@ class DomsListeController extends Controller
         $page = max(1, $request->query->getInt('page', 1));
         $limit = 10;
 
-        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServiceIds(ApplicationConstant::CODE_DOM);
+        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DOM);
 
         $paginationData = $this->getEntityManager()->getRepository(Dom::class)->findPaginatedAndFilteredAsDTO($page, $limit, $domSearch, $agenceServiceAutorises);
 

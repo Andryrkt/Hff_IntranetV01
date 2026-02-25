@@ -4,7 +4,6 @@ namespace App\Repository\dom;
 
 use App\Entity\dom\DomSearch;
 use Doctrine\ORM\EntityRepository;
-use Doctrine\ORM\Tools\Pagination\Paginator as DoctrinePaginator;
 
 class DomRepository extends EntityRepository
 {
@@ -91,9 +90,20 @@ class DomRepository extends EntityRepository
                 ->setParameter('pieceJustificatif', $domSearch->getPieceJustificatif());
         }
 
+        // Condition sur les couples agences-services
+        $orX = $queryBuilder->expr()->orX();
+        foreach ($agenceServiceAutorises as $i => $tab) {
+            $orX->add(
+                $queryBuilder->expr()->andX(
+                    $queryBuilder->expr()->eq('d.agenceEmetteurId', ':ag_' . $i),
+                    $queryBuilder->expr()->eq('d.serviceEmetteurId', ':serv_' . $i)
+                )
+            );
+            $queryBuilder->setParameter('ag_' . $i, $tab['agence_id']);
+            $queryBuilder->setParameter('serv_' . $i, $tab['service_id']);
+        }
         $queryBuilder
-            ->andWhere('d.agenceServiceEmetteur IN (:agenceServiceAutorises)')
-            ->setParameter('agenceServiceAutorises', $agenceServiceAutorises)
+            ->andWhere($orX)
             ->orderBy('d.numeroOrdreMission', 'DESC');
 
         // --- COUNT séparé et optimisé (sans ORDER BY) ---
@@ -177,9 +187,20 @@ class DomRepository extends EntityRepository
                 ->setParameter('dateMissionFin', $domSearch->getDateMissionFin());
         }
 
+        // Condition sur les couples agences-services
+        $orX = $queryBuilder->expr()->orX();
+        foreach ($agenceServiceAutorises as $i => $tab) {
+            $orX->add(
+                $queryBuilder->expr()->andX(
+                    $queryBuilder->expr()->eq('d.agenceEmetteurId', ':ag_' . $i),
+                    $queryBuilder->expr()->eq('d.serviceEmetteurId', ':serv_' . $i)
+                )
+            );
+            $queryBuilder->setParameter('ag_' . $i, $tab['agence_id']);
+            $queryBuilder->setParameter('serv_' . $i, $tab['service_id']);
+        }
         $queryBuilder
-            ->andWhere('d.agenceServiceEmetteur IN (:agenceServiceAutorises)')
-            ->setParameter('agenceServiceAutorises', $agenceServiceAutorises)
+            ->andWhere($orX)
             ->orderBy('d.numeroOrdreMission', 'DESC');
 
         return $queryBuilder->getQuery()->getResult();
