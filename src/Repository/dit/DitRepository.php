@@ -46,7 +46,7 @@ class DitRepository extends EntityRepository
             ->setParameter('codeSociete', 'HF');
 
         $this->applyStatusFilter($queryBuilder, $ditSearch);
-        $this->applyCommonFilters($queryBuilder, $ditSearch, $options);
+        $this->applyCommonFilters($queryBuilder, $ditSearch);
         $this->applyniveauUrgenceFilters($queryBuilder, $ditSearch);
         $this->applySection($queryBuilder, $ditSearch); // section affect et support section
         $this->applyAgencyServiceFilters($queryBuilder, $ditSearch, $agenceServiceAutorises);
@@ -65,7 +65,7 @@ class DitRepository extends EntityRepository
         $lastPage = ceil($totalItems / $limit);
 
         // Récupérer le nombre de lignes par statut
-        $statusCounts = $this->countByStatus($ditSearch, $options, $agenceServiceAutorises);
+        $statusCounts = $this->countByStatus($ditSearch, $agenceServiceAutorises);
 
         return [
             'data' => iterator_to_array($paginator->getIterator()), // Convertir en tableau si nécessaire
@@ -112,7 +112,7 @@ class DitRepository extends EntityRepository
      * @param array $options
      * @return void
      *======================================================*/
-    public function countByStatus(DitSearch $ditSearch, array $options, array $agenceServiceAutorises)
+    public function countByStatus(DitSearch $ditSearch, array $agenceServiceAutorises)
     {
         $queryBuilder = $this->createQueryBuilder('d')
             ->select('s.description AS statut, COUNT(d.id) AS count')
@@ -127,7 +127,7 @@ class DitRepository extends EntityRepository
                 ->setParameter('statut', '%' . $ditSearch->getStatut() . '%');
         }
 
-        $this->applyCommonFilters($queryBuilder, $ditSearch, $options);
+        $this->applyCommonFilters($queryBuilder, $ditSearch);
         // section affect et support section
         $this->applySection($queryBuilder, $ditSearch);
 
@@ -143,7 +143,7 @@ class DitRepository extends EntityRepository
      * @param array $options
      * @return void
      */
-    public function findAndFilteredExcel(DitSearch $ditSearch, array $options)
+    public function findAndFilteredExcel(DitSearch $ditSearch, array $options, array $agenceServiceAutorises)
     {
         $queryBuilder = $this->createQueryBuilder('d')
             ->leftJoin('d.typeDocument', 'td')
@@ -152,48 +152,13 @@ class DitRepository extends EntityRepository
 
         $this->applyStatusFilter($queryBuilder, $ditSearch);
         $this->applyniveauUrgenceFilters($queryBuilder, $ditSearch);
-        $this->applyCommonFilters($queryBuilder, $ditSearch, $options);
+        $this->applyCommonFilters($queryBuilder, $ditSearch);
         $this->applySection($queryBuilder, $ditSearch); // section affect et support section
-        $this->applyAgencyServiceFilters($queryBuilder, $ditSearch, $options);
+        $this->applyAgencyServiceFilters($queryBuilder, $ditSearch, $agenceServiceAutorises);
         $this->applyAgencyUserFilter($queryBuilder, $options);
-
-        //filtre selon le section affectée
-        // $sectionAffectee = $ditSearch->getSectionAffectee();
-        // if (!empty($sectionAffectee)) {
-        //     $groupes = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe']; // Les groupes de mots disponibles
-        //     $resultatsSectionAffectee = [];
-
-        //     foreach ($groupes as $groupe) {
-        //         // Construire la phrase avec le groupe de mots
-        //         $phraseConstruite = $groupe . $sectionAffectee;
-
-        //         // Cloner le QueryBuilder initial pour cette requête
-        //         $tempQueryBuilder = clone $queryBuilder;
-
-        //         // Ajouter la condition pour cette itération
-        //         $tempQueryBuilder->andWhere('d.sectionAffectee = :sectionAffectee')
-        //             ->setParameter('sectionAffectee', $phraseConstruite);
-
-        //         // Exécuter la requête pour cette itération et accumuler les résultats
-        //         $resultatsSectionAffectee = array_merge(
-        //             $resultatsSectionAffectee,
-        //             $tempQueryBuilder->getQuery()->getResult()
-        //         );
-        //     }
-
-        //     // Si des résultats sont trouvés pour la section affectée, filtrer la liste
-        //     if (!empty($resultatsSectionAffectee)) {
-        //         // Optionnel : enlever les doublons si nécessaire
-        //         $resultatsSectionAffectee = array_unique($resultatsSectionAffectee, SORT_REGULAR);
-        //         // Retourner les résultats trouvés
-        //         return $resultatsSectionAffectee;
-        //     }
-        // }
-
 
         $queryBuilder->orderBy('d.dateDemande', 'DESC')
             ->addOrderBy('d.numeroDemandeIntervention', 'ASC');
-
 
         return $queryBuilder->getQuery()->getResult();
     }
@@ -287,7 +252,7 @@ class DitRepository extends EntityRepository
         }
     }
 
-    private function applyCommonFilters($queryBuilder, DitSearch $ditSearch, array $options)
+    private function applyCommonFilters($queryBuilder, DitSearch $ditSearch)
     {
         // Filters for type, urgency, material, etc.
         if (!empty($ditSearch->getTypeDocument())) {
@@ -704,7 +669,7 @@ class DitRepository extends EntityRepository
 
         $this->applyStatusFilterDa($queryBuilder, $ditSearch);
 
-        $this->applyCommonFilters($queryBuilder, $ditSearch, $options);
+        $this->applyCommonFilters($queryBuilder, $ditSearch);
 
         $this->applyniveauUrgenceFilters($queryBuilder, $ditSearch);
 

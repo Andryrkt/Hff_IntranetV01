@@ -3,22 +3,21 @@
 
 namespace App\Controller\dit;
 
-use App\Constants\admin\ApplicationConstant;
 use DateTime;
+use App\Model\dit\DitModel;
 use App\Entity\dit\DitSearch;
+use App\Service\ExcelService;
 use App\Controller\Controller;
 use App\Form\dit\DitSearchType;
 use App\Form\dit\DocDansDwType;
 use App\Model\dit\DitListModel;
-use App\Entity\admin\Application;
 use App\Entity\admin\StatutDemande;
+use App\Entity\admin\utilisateur\Role;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\dit\DitListTrait;
-use App\Entity\admin\utilisateur\Role;
-use App\Model\dit\DitModel;
-use App\Service\docuware\CopyDocuwareService;
-use App\Service\ExcelService;
+use App\Constants\admin\ApplicationConstant;
 use Symfony\Component\HttpFoundation\Request;
+use App\Service\docuware\CopyDocuwareService;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\historiqueOperation\HistoriqueOperationDITService;
 
@@ -47,13 +46,7 @@ class DitListeController extends Controller
      */
     public function index(Request $request)
     {
-        //recuperation agence et service autoriser
-        $agenceIds = $this->getUser()->getAgenceAutoriserIds();
-        $serviceIds = $this->getUser()->getServiceAutoriserIds();
-
         $autoriser = $this->hasRoles(Role::ROLE_ADMINISTRATEUR, Role::ROLE_ATELIER, Role::ROLE_MULTI_SUCURSALES) || $this->hasName('stg.iaro');
-        $autorisationRoleEnergie = $this->hasRoles(Role::ROLE_ENERGIE);
-        //FIN AUTORISATION
 
         $ditListeModel = new DitListModel();
         $ditSearch = new DitSearch();
@@ -97,8 +90,7 @@ class DitListeController extends Controller
 
 
         $agenceServiceEmetteur = $this->agenceServiceEmetteur($agenceServiceIps, $autoriser);
-        $option = $this->Option($autoriser, $autorisationRoleEnergie, $agenceServiceEmetteur, $agenceIds, $serviceIds);
-        $this->getSessionService()->set('dit_search_option', $option);
+        $option = $this->Option($autoriser, $agenceServiceEmetteur);
 
         //recupération des donnée
         $paginationData = $this->data($request, $ditListeModel, $ditSearch, $option, $agenceServiceAutorises, $this->getEntityManager());
@@ -180,10 +172,13 @@ class DitListeController extends Controller
         //recupère les critères dans la session 
         $options = $this->getSessionService()->get('dit_search_option', []);
 
+        // Agences Services autorisés sur le DIT
+        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DIT);
+
         //crée une objet à partir du tableau critère reçu par la session
         $ditSearch = $this->transformationEnObjet($criteria);
 
-        $entities = $this->DonnerAAjouterExcel($ditSearch, $options, $this->getEntityManager());
+        $entities = $this->DonnerAAjouterExcel($ditSearch, $options, $agenceServiceAutorises, $this->getEntityManager());
 
         // Convertir les entités en tableau de données
         $data = $this->transformationEnTableauAvecEntet($entities);

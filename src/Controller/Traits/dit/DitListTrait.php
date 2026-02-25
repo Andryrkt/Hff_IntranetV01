@@ -398,17 +398,12 @@ trait DitListTrait
     //     } 
     // }
 
-    private function Option($autoriser, $autorisationRoleEnergie, $agenceServiceEmetteur, $agenceIds, $serviceIds): array
+    private function Option($autoriser, $agenceServiceEmetteur): array
     {
         return  [
             'boolean' => $autoriser,
-            'autorisationRoleEnergie' => $autorisationRoleEnergie,
             'codeAgence' => $agenceServiceEmetteur['agence'] === null ? null : $agenceServiceEmetteur['agence']->getId(),
-            'agenceAutoriserIds' => $agenceIds,
-            'serviceAutoriserIds' => $serviceIds,
             'user_agency' => $this->getUser()->getCodeAgenceUser(),
-            // 'InternetExterne' => 
-            //'codeService' =>$agenceServiceEmetteur['service'] === null ? null : $agenceServiceEmetteur['service']->getCodeService()
         ];
     }
 
@@ -446,9 +441,9 @@ trait DitListTrait
         return $ditSearch;
     }
 
-    private function DonnerAAjouterExcel(DitSearch $ditSearch, $options, $em): array
+    private function DonnerAAjouterExcel(DitSearch $ditSearch, $options, $agenceServiceAutorises, $em): array
     {
-        $entities = $em->getrepository(DemandeIntervention::class)->findAndFilteredExcel($ditSearch, $options);
+        $entities = $em->getrepository(DemandeIntervention::class)->findAndFilteredExcel($ditSearch, $options, $agenceServiceAutorises);
 
         $this->ajoutStatutAchatPiece($entities);
 

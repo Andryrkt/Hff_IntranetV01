@@ -91,7 +91,6 @@ class DaListeDitController extends Controller
         $agenceServiceIps = $this->agenceServiceIpsObjet();
         $agenceServiceEmetteur = $this->agenceServiceEmetteur($agenceServiceIps, $autoriser);
         $option = $this->Option($autoriser, $autorisationRoleEnergie, $agenceServiceEmetteur, $agenceIds, $serviceIds);
-        $this->getSessionService()->set('dit_search_option', $option);
 
         //recupération des donnée
         $paginationData = $this->data($request, $option, $criteria);
