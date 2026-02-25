@@ -210,7 +210,7 @@ class DitRepository extends EntityRepository
                 )
                 ->setParameter('agenceAutoriserIds', $options['agenceAutoriserIds'], \Doctrine\DBAL\Connection::PARAM_INT_ARRAY)
                 ->setParameter('codeAgence', $options['codeAgence'])
-                ->andWhere(
+                ->andWhere( 
                     $queryBuilder->expr()->orX(
                         'd.serviceDebiteurId IN (:serviceAutoriserIds)',
                         'd.serviceEmetteurId IN (:serviceAutoriserIds)'
