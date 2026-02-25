@@ -87,7 +87,7 @@ class BadmRepository extends EntityRepository
     }
 
 
-    public function findAndFilteredExcel(array $criteria = [])
+    public function findAndFilteredExcel(array $criteria = [], array $agenceServiceAutorises)
     {
         $queryBuilder = $this->createQueryBuilder('b')
             ->leftJoin('b.typeMouvement', 'tm')
@@ -97,13 +97,35 @@ class BadmRepository extends EntityRepository
 
         $this->filtredCondition($queryBuilder, $criteria);
 
-
         $this->filtredAgenceServiceEmetteur($queryBuilder, $criteria);
 
         $this->filtredAgenceServiceDebiteur($queryBuilder, $criteria);
 
-        $queryBuilder->orderBy('b.numBadm', 'DESC');
-
+        // Condition sur les couples agences-services
+        $orX1 = $queryBuilder->expr()->orX();
+        $orX2 = $queryBuilder->expr()->orX();
+        foreach ($agenceServiceAutorises as $i => $tab) {
+            $orX1->add(
+                $queryBuilder->expr()->andX(
+                    $queryBuilder->expr()->eq('b.agenceEmetteurId', ':agEmetteur_' . $i),
+                    $queryBuilder->expr()->eq('b.serviceEmetteurId', ':servEmetteur_' . $i)
+                )
+            );
+            $queryBuilder->setParameter('agEmetteur_' . $i, $tab['agence_id']);
+            $queryBuilder->setParameter('servEmetteur_' . $i, $tab['service_id']);
+            $orX2->add(
+                $queryBuilder->expr()->andX(
+                    $queryBuilder->expr()->eq('b.agenceDebiteurId', ':agDebiteur_' . $i),
+                    $queryBuilder->expr()->eq('b.serviceDebiteurId', ':servDebiteur_' . $i)
+                )
+            );
+            $queryBuilder->setParameter('agDebiteur_' . $i, $tab['agence_id']);
+            $queryBuilder->setParameter('servDebiteur_' . $i, $tab['service_id']);
+        }
+        $queryBuilder
+            ->andWhere($orX1)
+            ->andWhere($orX2)
+            ->orderBy('b.numBadm', 'DESC');
 
         return $queryBuilder->getQuery()->getResult();
     }

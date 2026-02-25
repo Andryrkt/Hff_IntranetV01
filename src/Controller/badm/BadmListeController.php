@@ -85,10 +85,12 @@ class BadmListeController extends Controller
     {
         // Récupère les critères dans la session
         $criteria = $this->getSessionService()->get('badm_search_criteria', []);
-        $option = $this->getSessionService()->get('badm_search_option', []);
+
+        // Agences Services autorisés sur le BADM
+        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_BADM);
 
         // Récupère les entités filtrées
-        $entities = $this->getEntityManager()->getRepository(Badm::class)->findAndFilteredExcel($criteria, $option);
+        $entities = $this->getEntityManager()->getRepository(Badm::class)->findAndFilteredExcel($criteria, $agenceServiceAutorises);
 
         // Convertir les entités en tableau de données
         $data = [];
