@@ -23,9 +23,9 @@ class BadmSearch
 
     private ?string $numSerie = '';
 
-    private ?Agence $agenceEmetteur = null;
+    private ?int $agenceEmetteur = null;
 
-    private ?Service $serviceEmetteur = null;
+    private ?int $serviceEmetteur = null;
 
     private ?Agence $agenceDebiteur = null;
 
@@ -193,7 +193,7 @@ class BadmSearch
     /**
      * Get the value of agenceEmetteur
      *
-     * @return  Agence|null
+     * @return  ?int
      */
     public function getAgenceEmetteur()
     {
@@ -203,7 +203,7 @@ class BadmSearch
     /**
      * Set the value of agenceEmetteur
      *
-     * @param  Agence|null  $agenceEmetteur
+     * @param  ?int  $agenceEmetteur
      *
      * @return  self
      */
@@ -217,7 +217,7 @@ class BadmSearch
     /**
      * Get undocumented variable
      *
-     * @return  Service|null
+     * @return  ?int
      */
     public function getServiceEmetteur()
     {
@@ -227,7 +227,7 @@ class BadmSearch
     /**
      * Set undocumented variable
      *
-     * @param  Service|null  $serviceEmetteur  Undocumented variable
+     * @param  ?int  $serviceEmetteur  Undocumented variable
      *
      * @return  self
      */
