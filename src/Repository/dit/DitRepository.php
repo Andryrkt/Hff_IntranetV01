@@ -132,24 +132,6 @@ class DitRepository extends EntityRepository
         $this->applySection($queryBuilder, $ditSearch);
 
         $this->applyAgencyServiceFilters($queryBuilder, $ditSearch, $options);
-        if (!$options['boolean']) {
-            $queryBuilder
-                ->andWhere(
-                    $queryBuilder->expr()->orX(
-                        'd.agenceDebiteurId IN (:agenceAutoriserIds)',
-                        'd.agenceEmetteurId = :codeAgence'
-                    )
-                )
-                ->setParameter('agenceAutoriserIds', $options['agenceAutoriserIds'], \Doctrine\DBAL\Connection::PARAM_INT_ARRAY)
-                ->setParameter('codeAgence', $options['codeAgence'])
-                ->andWhere(
-                    $queryBuilder->expr()->orX(
-                        'd.serviceDebiteurId IN (:serviceAutoriserIds)',
-                        'd.serviceEmetteurId IN (:serviceAutoriserIds)'
-                    )
-                )
-                ->setParameter('serviceAutoriserIds', $options['serviceAutoriserIds'], \Doctrine\DBAL\Connection::PARAM_INT_ARRAY);
-        }
 
         return $queryBuilder->getQuery()->getResult();
     }
@@ -219,9 +201,6 @@ class DitRepository extends EntityRepository
     private function applyAgencyServiceFilters($queryBuilder, DitSearch $ditSearch, array $options)
     {
         if (!$options['boolean']) {
-            // Appliquer le filtre par agence de l'utilisateur connecté
-            // $this->applyAgencyUserFilter($queryBuilder, $options);
-
             $queryBuilder
                 ->andWhere(
                     $queryBuilder->expr()->orX(
@@ -240,7 +219,6 @@ class DitRepository extends EntityRepository
                 ->setParameter('serviceAutoriserIds', $options['serviceAutoriserIds'], \Doctrine\DBAL\Connection::PARAM_INT_ARRAY);
         }
 
-        //if ($options['boolean']) {
         if (!empty($ditSearch->getAgenceEmetteur())) {
             $queryBuilder->andWhere('d.agenceEmetteurId = :agEmet')
                 ->setParameter('agEmet', $ditSearch->getAgenceEmetteur()->getId());
@@ -249,20 +227,10 @@ class DitRepository extends EntityRepository
             $queryBuilder->andWhere('d.serviceEmetteurId = :agServEmet')
                 ->setParameter('agServEmet', $ditSearch->getServiceEmetteur()->getId());
         }
-        // } else {
-        //     if ($options['autorisationRoleEnergie']) {
-        //         $this->applyAgencyRoleFilter($queryBuilder, $ditSearch, [9, 10, 11]);
-        //     } else {
-        //         $this->applyAgencyRoleFilter($queryBuilder, $ditSearch, [$options['codeAgence']]);
-        //     }
-        // }
 
         if (!empty($ditSearch->getAgenceDebiteur())) {
             $queryBuilder->andWhere('d.agenceDebiteurId = :agDebit')
-                //->andWhere('d.agenceEmetteurId = :agEmet')
-                ->setParameter('agDebit', $ditSearch->getAgenceDebiteur()->getId())
-                //->setParameter('agEmet', $options['codeAgence'])
-            ;
+                ->setParameter('agDebit', $ditSearch->getAgenceDebiteur()->getId());
         }
 
         if (!empty($ditSearch->getServiceDebiteur())) {
