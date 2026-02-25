@@ -22,28 +22,28 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 class BadmSearchType extends AbstractType
 {
     private $agenceRepository;
-  private $em;
+    private $em;
 
-  public function __construct(EntityManagerInterface $em)
-  {
-    $this->em = $em;
-    $this->agenceRepository = $this->em->getRepository(Agence::class);
-  }
+    public function __construct(EntityManagerInterface $em)
+    {
+        $this->em = $em;
+        $this->agenceRepository = $this->em->getRepository(Agence::class);
+    }
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-        ->add('statut', EntityType::class, [
-            'label' => 'Statut',
-            'class' => StatutDemande::class,
-            'choice_label' => 'description',
-            'placeholder' => '-- Choisir un statut --',
-            'required' => false,
-            'query_builder' => function (StatutDemandeRepository $er) {
-                return $er->createQueryBuilder('s')
-                    ->where('s.codeApp = :codeApp')
-                    ->setParameter('codeApp', 'BDM');
-            },
-        ])
+            ->add('statut', EntityType::class, [
+                'label' => 'Statut',
+                'class' => StatutDemande::class,
+                'choice_label' => 'description',
+                'placeholder' => '-- Choisir un statut --',
+                'required' => false,
+                'query_builder' => function (StatutDemandeRepository $er) {
+                    return $er->createQueryBuilder('s')
+                        ->where('s.codeApp = :codeApp')
+                        ->setParameter('codeApp', 'BDM');
+                },
+            ])
             ->add('idMateriel', TextType::class, [
                 'label' => 'Id Materiel',
                 'required' => false,
@@ -81,19 +81,19 @@ class BadmSearchType extends AbstractType
                 },
                 'placeholder' => '-- Choisir une agence--',
                 'required' => false,
-                'attr' => [ 'class' => 'agenceEmetteur'],
+                'attr' => ['class' => 'agenceEmetteur'],
                 'data' => $options['idAgenceEmetteur']
             ])
-            ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event) {
+            ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
                 $form = $event->getForm();
                 $data = $event->getData();
-            
+
                 if ($data && $data->getAgenceEmetteur()) {
                     $services = $data->getAgenceEmetteur()->getServices();
                 } else {
                     $services = [];
                 }
-            
+
                 $form->add('serviceEmetteur', EntityType::class, [
                     'label' => "Service émetteur",
                     'class' => Service::class,
@@ -103,31 +103,31 @@ class BadmSearchType extends AbstractType
                     'placeholder' => '-- Choisir un service--',
                     'choices' => $services,
                     'required' => false,
-                    'query_builder' => function(ServiceRepository $serviceRepository) {
+                    'query_builder' => function (ServiceRepository $serviceRepository) {
                         return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
                     },
-                    'attr' => [ 'class' => 'serviceEmetteur']
+                    'attr' => ['class' => 'serviceEmetteur']
                 ]);
             })
-            ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) use ($options){
+            ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) use ($options) {
                 $form = $event->getForm();
                 $data = $event->getData();
 
                 $services = [];
                 if ((isset($data['agenceEmetteur']) && $data['agenceEmetteur']) || !empty($options['idAgenceEmetteur'])) {
-                    if(!empty($options['idAgenceEmetteur'])) {
+                    if (!empty($options['idAgenceEmetteur'])) {
                         $agenceId = $options['idAgenceEmetteur']->getId();
                     } else {
 
                         $agenceId = $data['agenceEmetteur'];
                     }
                     $agence = $this->agenceRepository->find($agenceId);
-            
+
                     if ($agence) {
                         $services = $agence->getServices();
-                    } 
-                } 
-            
+                    }
+                }
+
                 $form->add('serviceEmetteur', EntityType::class, [
                     'label' => "Service Emetteur",
                     'class' => Service::class,
@@ -137,10 +137,10 @@ class BadmSearchType extends AbstractType
                     'placeholder' => '-- Choisir un service--',
                     'choices' => $services,
                     'required' => false,
-                    'query_builder' => function(ServiceRepository $serviceRepository) {
+                    'query_builder' => function (ServiceRepository $serviceRepository) {
                         return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
                     },
-                    'attr' => [ 'class' => 'serviceEmetteur']
+                    'attr' => ['class' => 'serviceEmetteur']
                 ]);
             })
             ->add('agenceDebiteur', EntityType::class, [
@@ -151,18 +151,18 @@ class BadmSearchType extends AbstractType
                 },
                 'placeholder' => '-- Choisir une agence--',
                 'required' => false,
-                'attr' => [ 'class' => 'agenceDebiteur']
+                'attr' => ['class' => 'agenceDebiteur']
             ])
-            ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event) {
+            ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
                 $form = $event->getForm();
                 $data = $event->getData();
-            
+
                 if ($data && $data->getAgenceDebiteur()) {
                     $services = $data->getAgenceDebiteur()->getServices();
                 } else {
                     $services = [];
                 }
-            
+
                 $form->add('serviceDebiteur', EntityType::class, [
                     'label' => "Service Destinataire",
                     'class' => Service::class,
@@ -172,20 +172,20 @@ class BadmSearchType extends AbstractType
                     'placeholder' => '-- Choisir une service--',
                     'choices' => $services,
                     'required' => false,
-                    'query_builder' => function(ServiceRepository $serviceRepository) {
+                    'query_builder' => function (ServiceRepository $serviceRepository) {
                         return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
                     },
-                    'attr' => [ 'class' => 'serviceDebiteur']
+                    'attr' => ['class' => 'serviceDebiteur']
                 ]);
             })
-            ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) {
+            ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
                 $form = $event->getForm();
                 $data = $event->getData();
-            
+
                 if (isset($data['agenceDebiteur']) && $data['agenceDebiteur']) {
                     $agenceId = $data['agenceDebiteur'];
                     $agence = $this->em->getRepository(Agence::class)->find($agenceId);
-            
+
                     if ($agence) {
                         $services = $agence->getServices();
                     } else {
@@ -194,7 +194,7 @@ class BadmSearchType extends AbstractType
                 } else {
                     $services = [];
                 }
-            
+
                 $form->add('serviceDebiteur', EntityType::class, [
                     'label' => "Service Destiantaire",
                     'class' => Service::class,
@@ -204,13 +204,13 @@ class BadmSearchType extends AbstractType
                     'placeholder' => '-- Choisir une service--',
                     'choices' => $services,
                     'required' => false,
-                    'query_builder' => function(ServiceRepository $serviceRepository) {
+                    'query_builder' => function (ServiceRepository $serviceRepository) {
                         return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
                     },
-                    'attr' => [ 'class' => 'serviceDebiteur']
+                    'attr' => ['class' => 'serviceDebiteur']
                 ]);
-            }) 
-            ;
+            })
+        ;
     }
 
     public function configureOptions(OptionsResolver $resolver)

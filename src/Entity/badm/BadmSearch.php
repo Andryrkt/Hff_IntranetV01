@@ -14,7 +14,7 @@ class BadmSearch
     private ?int $idMateriel = null;
 
     private ?TypeMouvement $typeMouvement = null;
-   
+
     private ?\Datetime $dateDebut = null;
 
     private ?\DateTime $dateFin = null;
@@ -35,7 +35,7 @@ class BadmSearch
 
 
     //-===============================================================================================================================
-    
+
     public function getStatut()
     {
         return $this->statut;
@@ -53,7 +53,7 @@ class BadmSearch
      * Get the value of idMateriel
      *
      * @return  int|null
-     */ 
+     */
     public function getIdMateriel()
     {
         return $this->idMateriel;
@@ -65,7 +65,7 @@ class BadmSearch
      * @param  int|null  $idMateriel
      *
      * @return  self
-     */ 
+     */
     public function setIdMateriel($idMateriel)
     {
         $this->idMateriel = $idMateriel;
@@ -73,9 +73,9 @@ class BadmSearch
         return $this;
     }
 
-   /**
+    /**
      * Get the value of typeMouvement
-     */ 
+     */
     public function getTypeMouvement()
     {
         return $this->typeMouvement;
@@ -85,7 +85,7 @@ class BadmSearch
      * Set the value of typeMouvement
      *
      * @return  self
-     */ 
+     */
     public function setTypeMouvement($typeMouvement)
     {
         $this->typeMouvement = $typeMouvement;
@@ -93,12 +93,12 @@ class BadmSearch
         return $this;
     }
 
-   
+
     /**
      * Get the value of dateDebut
      *
      * @return  \DateTime|null
-     */ 
+     */
     public function getDateDebut()
     {
         return $this->dateDebut;
@@ -110,7 +110,7 @@ class BadmSearch
      * @param  \DateTime|null  $dateDebut
      *
      * @return  self
-     */ 
+     */
     public function setDateDebut($dateDebut)
     {
         $this->dateDebut = $dateDebut;
@@ -122,7 +122,7 @@ class BadmSearch
      * Get the value of dateFin
      *
      * @return  \DateTime|null
-     */ 
+     */
     public function getDateFin()
     {
         return $this->dateFin;
@@ -134,7 +134,7 @@ class BadmSearch
      * @param  \DateTime|null  $dateFin
      *
      * @return  self
-     */ 
+     */
     public function setDateFin($dateFin)
     {
         $this->dateFin = $dateFin;
@@ -146,7 +146,7 @@ class BadmSearch
      * Get the value of numParc
      *
      * @return  string|null
-     */ 
+     */
     public function getNumParc()
     {
         return $this->numParc;
@@ -158,7 +158,7 @@ class BadmSearch
      * @param  string|null  $numParc
      *
      * @return  self
-     */ 
+     */
     public function setNumParc($numParc)
     {
         $this->numParc = $numParc;
@@ -170,7 +170,7 @@ class BadmSearch
      * Get the value of numSerie
      *
      * @return  string|null
-     */ 
+     */
     public function getNumSerie()
     {
         return $this->numSerie;
@@ -182,7 +182,7 @@ class BadmSearch
      * @param  string|null  $numSerie
      *
      * @return  self
-     */ 
+     */
     public function setNumSerie($numSerie)
     {
         $this->numSerie = $numSerie;
@@ -194,7 +194,7 @@ class BadmSearch
      * Get the value of agenceEmetteur
      *
      * @return  Agence|null
-     */ 
+     */
     public function getAgenceEmetteur()
     {
         return $this->agenceEmetteur;
@@ -206,7 +206,7 @@ class BadmSearch
      * @param  Agence|null  $agenceEmetteur
      *
      * @return  self
-     */ 
+     */
     public function setAgenceEmetteur($agenceEmetteur)
     {
         $this->agenceEmetteur = $agenceEmetteur;
@@ -218,7 +218,7 @@ class BadmSearch
      * Get undocumented variable
      *
      * @return  Service|null
-     */ 
+     */
     public function getServiceEmetteur()
     {
         return $this->serviceEmetteur;
@@ -230,7 +230,7 @@ class BadmSearch
      * @param  Service|null  $serviceEmetteur  Undocumented variable
      *
      * @return  self
-     */ 
+     */
     public function setServiceEmetteur($serviceEmetteur)
     {
         $this->serviceEmetteur = $serviceEmetteur;
@@ -242,7 +242,7 @@ class BadmSearch
      * Get undocumented variable
      *
      * @return  Agence|null
-     */ 
+     */
     public function getAgenceDebiteur()
     {
         return $this->agenceDebiteur;
@@ -254,7 +254,7 @@ class BadmSearch
      * @param  Agence|null  $agenceDebiteur  Undocumented variable
      *
      * @return  self
-     */ 
+     */
     public function setAgenceDebiteur($agenceDebiteur)
     {
         $this->agenceDebiteur = $agenceDebiteur;
@@ -266,7 +266,7 @@ class BadmSearch
      * Get undocumented variable
      *
      * @return  Service|null
-     */ 
+     */
     public function getServiceDebiteur()
     {
         return $this->serviceDebiteur;
@@ -278,7 +278,7 @@ class BadmSearch
      * @param  Service|null  $serviceDebiteur  Undocumented variable
      *
      * @return  self
-     */ 
+     */
     public function setServiceDebiteur($serviceDebiteur)
     {
         $this->serviceDebiteur = $serviceDebiteur;
@@ -293,39 +293,29 @@ class BadmSearch
         return $this->numBadm;
     }
 
-   
-    public function setNumBadm($numBadm):self
+
+    public function setNumBadm($numBadm): self
     {
         $this->numBadm = $numBadm;
 
         return $this;
     }
 
-
-
-   
-
-  
-
-    
     public function toArray(): array
     {
         return [
-            'typeMouvement' => $this->typeMouvement,
-            'statut' => $this->statut,
-            'dateDebut' => $this->dateDebut,
-            'dateFin' => $this->dateFin,
-            'idMateriel' => $this->idMateriel,
-            'numParc' => $this->numParc,
-            'numSerie' => $this->numSerie,
-            'agenceEmetteur' => $this->agenceEmetteur,
+            'typeMouvement'   => $this->typeMouvement,
+            'statut'          => $this->statut,
+            'dateDebut'       => $this->dateDebut,
+            'dateFin'         => $this->dateFin,
+            'idMateriel'      => $this->idMateriel,
+            'numParc'         => $this->numParc,
+            'numSerie'        => $this->numSerie,
+            'agenceEmetteur'  => $this->agenceEmetteur,
             'serviceEmetteur' => $this->serviceEmetteur,
-            'agenceDebiteur' => $this->agenceDebiteur,
+            'agenceDebiteur'  => $this->agenceDebiteur,
             'serviceDebiteur' => $this->serviceDebiteur,
-            'numBadm' => $this->numBadm,
+            'numBadm'         => $this->numBadm,
         ];
     }
-
-    
 }
-

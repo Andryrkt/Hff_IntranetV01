@@ -71,10 +71,9 @@ trait BadmListTrait
         } else {
             $typeMouvement = null;
             $statut = null;
-            // $serviceEmetteur = $agenceServiceIpsEmetteur['serviceIpsEmetteur'];
             $serviceEmetteur = null;
             $serviceDebiteur = null;
-            $agenceEmetteur = $agenceServiceIpsEmetteur['agenceIpsEmetteur'];
+            $agenceEmetteur = null;
             $agenceDebiteur = null;
         }
 

@@ -64,10 +64,7 @@ class BadmListeController extends Controller
         $limit = 10;
         $paginationData = $repository->findPaginatedAndFiltered($page, $limit, $criteria, $autoriser);
 
-
         $this->ajoutNumSerieNumParc($paginationData);
-
-
 
         $this->logUserVisit('badmListe_AffichageListeBadm'); // historisation du page visité par l'utilisateur
 
