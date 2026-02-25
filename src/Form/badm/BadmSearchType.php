@@ -10,6 +10,7 @@ use App\Entity\admin\badm\TypeMouvement;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use App\Repository\admin\StatutDemandeRepository;
+use App\Traits\PrepareAgenceServiceTrait;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -18,6 +19,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 
 class BadmSearchType extends AbstractType
 {
+    use PrepareAgenceServiceTrait;
     private $agenceRepository;
     private $em;
 
@@ -29,28 +31,11 @@ class BadmSearchType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        // --- Préparer les choices pour agenceEmetteur ---
-        $agenceChoices = [];
-        $serviceChoices = [];
-        $serviceAttr = [];
+        $choices = $this->prepareAgenceServiceChoices($options['agenceServiceAutorises']);
 
-        foreach ($options['agenceServiceAutorises'] as $id => $item) {
-            // Agence : pas de doublon sur le label
-            $agenceLabel = $item['agence_code'] . ' ' . $item['agence_libelle'];
-            if (!isset($agenceChoices[$agenceLabel])) {
-                $agenceChoices[$agenceLabel] = $item['agence_id'];
-            }
-
-            // Service : on accepte les doublons de label
-            // La valeur est l'id de la ligne (unique), pas service_id
-            $serviceLabel = $item['service_code'] . ' ' . $item['service_libelle'];
-            $serviceChoices[$serviceLabel . '_' . $id] = $id; // clé rendue unique pour PHP
-
-            // data-agence et data-service-id sur chaque option
-            $serviceAttr[$id] = [
-                'data-agence' => $item['agence_id']
-            ];
-        }
+        $agenceChoices = $choices['agenceChoices'];
+        $serviceChoices = $choices['serviceChoices'];
+        $serviceAttr = $choices['serviceAttr'];
 
         $builder
             ->add('statut', EntityType::class, [
