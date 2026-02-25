@@ -98,12 +98,3 @@ CREATE TABLE application_profil_page (
 UPDATE users set code_agence_user=asi.agence_ips, code_service_user=asi.service_ips,code_sage=asi.service_sage_paie
 from users u
 INNER JOIN Agence_Service_Irium asi on asi.id=u.agence_utilisateur;
-
-alter table Demande_ordre_mission add 
-agence_service_emetteur_id int NULL, 
-agence_service_debiteur_id int NULL;
-
-update Demande_ordre_mission set agence_service_emetteur_id=emetteur.id, agence_service_debiteur_id=debiteur.id
-from Demande_ordre_mission dom
-left join agence_service emetteur on dom.agence_emetteur_id=emetteur.agence_id and dom.service_emetteur_id=emetteur.service_id
-left join agence_service debiteur on dom.agence_debiteur_id=debiteur.agence_id and dom.service_debiteur_id=debiteur.service_id;
