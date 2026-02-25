@@ -44,21 +44,28 @@ class GeneratePdfDdpDa extends GeneratePdf
 
         $pdf->setY(28);
         $pdf->Cell($pdf->GetStringWidth('TYPE DE DEMANDE : '), 10, 'TYPE DE DEMANDE : ', 0, 0);
-
         $pdf->SetFont('helvetica', '', 12);
         $pdf->Cell(0, 10, $dto->typeDemande->getLibelle(), 0, 0); // valeur de "TYPE DE DEMANDE" (changer 'DEMANDE DE PAIEMENT A L’AVANCE')
 
         $pdf->Line($pdf->GetX() + 1, $pdf->GetY() - 2.5, $pdf->GetX() + $pdf->GetStringWidth('TYPE DE DEMANDE') + 1, $pdf->GetY() - 2.5);
-
-
         $pdf->SetFont('helvetica', 'B', 12);
         $pdf->Cell(0, 10, $dto->numeroDdp . '_' . $dto->numeroVersion, 0, 1, 'R');  // valeur de "NUMERO DOCUMENT" (changer 'DDP25019999'  + le version )
 
+        // Première ligne avec DATE et numeroDA côte à côte
         $pdf->SetFont('helvetica', 'B', 12);
         $pdf->Cell($pdf->GetStringWidth('DATE : '), 10, 'DATE : ', 0, 0);
 
         $pdf->SetFont('helvetica', '', 12);
-        $pdf->Cell(0, 10, $dto->dateDemande->format('d/m/Y'), 0, 1); // valeur de "DATE" (changer '12/02/2024')
+        $largeurDate = $pdf->GetStringWidth($dto->dateDemande->format('d/m/Y'));
+        $pdf->Cell($largeurDate, 10, $dto->dateDemande->format('d/m/Y'), 0, 0);
+
+        // Calcul de l'espace restant pour le numeroDA aligné à droite
+        $largeurTotale = $pdf->GetPageWidth() - $pdf->getMargins()['left'] - $pdf->getMargins()['right'];
+        $largeurUtilisee = $pdf->GetStringWidth('DATE : ') + $largeurDate;
+        $largeurRestante = $largeurTotale - $largeurUtilisee;
+
+        $pdf->SetFont('helvetica', 'B', 12);
+        $pdf->Cell($largeurRestante, 10, $dto->numeroDa, 0, 1, 'R');  // ln=1 pour passer à la ligne suivante
 
         $pdf->Line($pdf->GetX() + 1, $pdf->GetY() - 2.5, $pdf->GetX() + $pdf->GetStringWidth('DATE') + 1, $pdf->GetY() - 2.5);
 
@@ -107,6 +114,12 @@ class GeneratePdfDdpDa extends GeneratePdf
 
         $pdf->SetFont('helvetica', '', 12);
         $pdf->Cell($usable_width - 50, 10, $dto->ribFournisseur, 1, 1); //  valeur de "RIB" 
+
+        $pdf->SetFont('helvetica', 'B', 12);
+        $pdf->Cell(50, 10, 'CIF ', 1, 0);
+
+        $pdf->SetFont('helvetica', '', 12);
+        $pdf->Cell($usable_width - 50, 10, $dto->cif, 1, 1); //  valeur de "CIF" 
 
         $pdf->SetFont('helvetica', 'B', 12);
         $pdf->Cell(50, 10, 'Contact ', 1, 0);

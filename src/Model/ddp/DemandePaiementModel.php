@@ -299,10 +299,12 @@ class DemandePaiementModel extends Model
                     fcde_succ as code_agence, 
                     fcde_serv as code_service,
                     fcde_numcde as numero_cde,
-                    case when ffou_modp = 'CD' or ffou_modp = 'CH'
-                        then 'N°TVA : '||' '||TRIM(fbse_asstva)||' - SIRET : '||fbse_siret
-                        else null
-                    END as cif
+                    'N°TVA : '||TRIM(fbse_asstva)||' - SIRET : '||fbse_siret
+                    --case when ffou_modp = 'CD' or ffou_modp = 'CH'
+                        --then 'N°TVA : '||TRIM(fbse_asstva)||' - SIRET : '||fbse_siret
+                        --else null
+                    --END 
+                    as cif
                 FROM 
                     informix.FRN_BSE
                 JOIN 
