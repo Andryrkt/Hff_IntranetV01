@@ -215,13 +215,13 @@ class BadmRepository extends EntityRepository
         //filtre selon l'agence debiteur
         if (!empty($criteria['agenceDebiteur'])) {
             $queryBuilder->andWhere('b.agenceDebiteurId = :agDebit')
-                ->setParameter('agDebit',  $criteria['agenceDebiteur']->getId());
+                ->setParameter('agDebit',  $criteria['agenceDebiteur']);
         }
 
         //filtre selon le service debiteur
         if (!empty($criteria['serviceDebiteur'])) {
             $queryBuilder->andWhere('b.serviceDebiteurId = :serviceDebiteur')
-                ->setParameter('serviceDebiteur', $criteria['serviceDebiteur']->getId());
+                ->setParameter('serviceDebiteur', $criteria['serviceDebiteur']);
         }
     }
 }

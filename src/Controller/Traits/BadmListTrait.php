@@ -2,9 +2,6 @@
 
 namespace App\Controller\Traits;
 
-
-use App\Entity\admin\Agence;
-use App\Entity\admin\Service;
 use App\Entity\admin\StatutDemande;
 use App\Entity\admin\badm\TypeMouvement;
 
@@ -28,13 +25,9 @@ trait BadmListTrait
         if (!empty($criteria)) {
             $typeMouvement = $criteria['typeMouvement'] === null ? null : $em->getRepository(TypeMouvement::class)->find($criteria['typeMouvement']->getId());
             $statut = $criteria['statut'] === null ? null : $em->getRepository(StatutDemande::class)->find($criteria['statut']->getId());
-            $serviceDebiteur = $criteria['serviceDebiteur'] === null ? null : $em->getRepository(Service::class)->find($criteria['serviceDebiteur']->getId());
-            $agenceDebiteur = $criteria['agenceDebiteur'] === null ? null : $em->getRepository(Agence::class)->find($criteria['agenceDebiteur']->getId());
         } else {
             $typeMouvement = null;
             $statut = null;
-            $serviceDebiteur = null;
-            $agenceDebiteur = null;
         }
 
         $badmSearch
@@ -45,8 +38,8 @@ trait BadmListTrait
             ->setIdMateriel($criteria['idMateriel'] ?? null)
             ->setAgenceEmetteur($criteria['agenceEmetteur'] ?? null)
             ->setServiceEmetteur($criteria['serviceEmetteur'] ?? null)
-            ->setAgenceDebiteur($agenceDebiteur)
-            ->setServiceDebiteur($serviceDebiteur)
+            ->setAgenceDebiteur($criteria['serviceDebiteur'] ?? null)
+            ->setServiceDebiteur($criteria['agenceDebiteur'] ?? null)
         ;
     }
 }
