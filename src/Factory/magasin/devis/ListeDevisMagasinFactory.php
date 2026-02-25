@@ -27,6 +27,7 @@ class listeDevisMagasinFactory
     public ?string $statutRelance3 = null;
     private array $relances = [];
     private bool $stopRelance = false;
+    public $motifStop;
 
     /**
      * Get the value of statutDw
@@ -327,6 +328,7 @@ class listeDevisMagasinFactory
         $this->statutRelance1 = $data['statut_relance_1'] ?? null;
         $this->statutRelance2 = $data['statut_relance_2'] ?? null;
         $this->statutRelance3 = $data['statut_relance_3'] ?? null;
+        $this->motifStop = $data['motif_stop'] ?? null;
 
         return $this;
     }
