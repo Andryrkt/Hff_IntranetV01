@@ -44,13 +44,7 @@ class BadmListeController extends Controller
             $this->rechercherSurNumSerieParc($form, $badmSearch);
         }
 
-        // Changer le serviceEmetteur
-        if ($badmSearch->getServiceEmetteur()) {
-            $ligneId = $badmSearch->getServiceEmetteur();
-            if ($ligneId && isset($agenceServiceAutorises[$ligneId])) {
-                $badmSearch->setServiceEmetteur($agenceServiceAutorises[$ligneId]['service_id']);
-            }
-        }
+        $this->gererAgenceService($badmSearch, $agenceServiceAutorises);
 
         $criteria = [];
         //transformer l'objet ditSearch en tableau
@@ -234,6 +228,25 @@ class BadmListeController extends Controller
                 } else {
                     $paginationData['data'][$i]->setNumParc($badms[0]['num_parc']);
                 }
+            }
+        }
+    }
+
+    private function gererAgenceService(BadmSearch $badmSearch, array $agenceServiceAutorises): void
+    {
+        // Changer le serviceEmetteur
+        if ($badmSearch->getServiceEmetteur()) {
+            $ligneId = $badmSearch->getServiceEmetteur();
+            if ($ligneId && isset($agenceServiceAutorises[$ligneId])) {
+                $badmSearch->setServiceEmetteur($agenceServiceAutorises[$ligneId]['service_id']);
+            }
+        }
+
+        // Changer le serviceDebiteur
+        if ($badmSearch->getServiceDebiteur()) {
+            $ligneId = $badmSearch->getServiceDebiteur();
+            if ($ligneId && isset($agenceServiceAutorises[$ligneId])) {
+                $badmSearch->setServiceDebiteur($agenceServiceAutorises[$ligneId]['service_id']);
             }
         }
     }

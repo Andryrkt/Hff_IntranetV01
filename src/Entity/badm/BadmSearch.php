@@ -27,9 +27,9 @@ class BadmSearch
 
     private ?int $serviceEmetteur = null;
 
-    private ?Agence $agenceDebiteur = null;
+    private ?int $agenceDebiteur = null;
 
-    private ?Service $serviceDebiteur = null;
+    private ?int $serviceDebiteur = null;
 
     private ?string $numBadm = '';
 
@@ -241,7 +241,7 @@ class BadmSearch
     /**
      * Get undocumented variable
      *
-     * @return  Agence|null
+     * @return  ?int
      */
     public function getAgenceDebiteur()
     {
@@ -251,7 +251,7 @@ class BadmSearch
     /**
      * Set undocumented variable
      *
-     * @param  Agence|null  $agenceDebiteur  Undocumented variable
+     * @param  ?int  $agenceDebiteur  Undocumented variable
      *
      * @return  self
      */
@@ -265,7 +265,7 @@ class BadmSearch
     /**
      * Get undocumented variable
      *
-     * @return  Service|null
+     * @return  ?int
      */
     public function getServiceDebiteur()
     {
@@ -275,7 +275,7 @@ class BadmSearch
     /**
      * Set undocumented variable
      *
-     * @param  Service|null  $serviceDebiteur  Undocumented variable
+     * @param  ?int  $serviceDebiteur  Undocumented variable
      *
      * @return  self
      */
