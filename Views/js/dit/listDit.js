@@ -1,12 +1,9 @@
-import { TableauComponent } from "../Component/TableauComponent.js";
 import { baseUrl } from "../utils/config.js";
 import {
-  configAgenceService,
   configDocSoumisDwModal,
   configCloturDit,
 } from "./config/listDitConfig.js";
 import {
-  handleAgenceChange,
   docSoumisModalHidden,
   docSoumisModalShow,
 } from "./fonctionUtils/fonctionListDit.js";
@@ -21,6 +18,7 @@ import {
   affichageSpinner,
 } from "../utils/ui/uiSpinnerUtils.js";
 import { FetchManager } from "../api/FetchManager.js";
+import { filterServiceByAgence } from "../utils/agenceService/filterServiceByAgence.js";
 
 // Instanciation de FetchManager avec la base URL
 const fetchManager = new FetchManager();
@@ -30,14 +28,15 @@ document.addEventListener("DOMContentLoaded", (event) => {
    * Configuration des agences et services
    *===========================================================================*/
 
-  // Attachement des événements pour les agences
-  configAgenceService.emetteur.agenceInput.addEventListener("change", () =>
-    handleAgenceChange("emetteur")
-  );
+  filterServiceByAgence({
+    agenceSelector: "#dit_search_agenceEmetteur",
+    serviceSelector: "#dit_search_serviceEmetteur",
+  });
 
-  configAgenceService.debiteur.agenceInput.addEventListener("change", () =>
-    handleAgenceChange("debiteur")
-  );
+  filterServiceByAgence({
+    agenceSelector: "#dit_search_agenceDebiteur",
+    serviceSelector: "#dit_search_serviceDebiteur",
+  });
 
   /**=======================================
    * Docs à intégrer dans DW MODAL
