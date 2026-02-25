@@ -198,19 +198,29 @@ class DomRepository extends EntityRepository
         }
 
         // Condition sur les couples agences-services
-        $orX = $queryBuilder->expr()->orX();
+        $orX1 = $queryBuilder->expr()->orX();
+        $orX2 = $queryBuilder->expr()->orX();
         foreach ($agenceServiceAutorises as $i => $tab) {
-            $orX->add(
+            $orX1->add(
                 $queryBuilder->expr()->andX(
-                    $queryBuilder->expr()->eq('d.agenceEmetteurId', ':ag_' . $i),
-                    $queryBuilder->expr()->eq('d.serviceEmetteurId', ':serv_' . $i)
+                    $queryBuilder->expr()->eq('d.agenceEmetteurId', ':agEmetteur_' . $i),
+                    $queryBuilder->expr()->eq('d.serviceEmetteurId', ':servEmetteur_' . $i)
                 )
             );
-            $queryBuilder->setParameter('ag_' . $i, $tab['agence_id']);
-            $queryBuilder->setParameter('serv_' . $i, $tab['service_id']);
+            $queryBuilder->setParameter('agEmetteur_' . $i, $tab['agence_id']);
+            $queryBuilder->setParameter('servEmetteur_' . $i, $tab['service_id']);
+            $orX2->add(
+                $queryBuilder->expr()->andX(
+                    $queryBuilder->expr()->eq('d.agenceDebiteurId', ':agDebiteur_' . $i),
+                    $queryBuilder->expr()->eq('d.serviceDebiteurId', ':servDebiteur_' . $i)
+                )
+            );
+            $queryBuilder->setParameter('agDebiteur_' . $i, $tab['agence_id']);
+            $queryBuilder->setParameter('servDebiteur_' . $i, $tab['service_id']);
         }
         $queryBuilder
-            ->andWhere($orX)
+            ->andWhere($orX1)
+            ->andWhere($orX2)
             ->orderBy('d.numeroOrdreMission', 'DESC');
 
         return $queryBuilder->getQuery()->getResult();
