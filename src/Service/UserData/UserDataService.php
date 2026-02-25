@@ -103,6 +103,15 @@ class UserDataService
         return $userInfo['username'] ?? "";
     }
 
+    /** 
+     * Récupérer le code société
+     */
+    public function getCodeSociete(): string
+    {
+        $userInfo = $this->getUserInfo();
+        return $userInfo['societe_code'] ?? "";
+    }
+
     /**
      * Récupérer le profil id enregistré
      */
