@@ -508,11 +508,13 @@ class UserDataService
                     : $agence->getCodeAgence() . '-' . $service->getCodeService();
 
                 $agenceServices[$key] = [
-                    'id'           => $agenceService->getId(),
-                    'agence_id'    => $agence->getId(),
-                    'service_id'   => $service->getId(),
-                    'agence_code'  => $agence->getCodeAgence(),
-                    'service_code' => $service->getCodeService(),
+                    'id'              => $agenceService->getId(),
+                    'agence_id'       => $agence->getId(),
+                    'service_id'      => $service->getId(),
+                    'agence_code'     => $agence->getCodeAgence(),
+                    'agence_libelle'  => $agence->getLibelleAgence(),
+                    'service_code'    => $service->getCodeService(),
+                    'service_libelle' => $service->getLibelleService(),
                 ];
             }
         }
