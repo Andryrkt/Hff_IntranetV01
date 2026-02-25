@@ -34,7 +34,7 @@ class DitRepository extends EntityRepository
      * @param array $options
      * @return void
      */
-    public function findPaginatedAndFiltered(int $page = 1, int $limit = 10, DitSearch $ditSearch, array $options, array $agenceServiceAutorises)
+    public function findPaginatedAndFiltered(int $page = 1, int $limit = 10, DitSearch $ditSearch, array $agenceServiceAutorises, $codeAgenceUser)
     {
         $queryBuilder = $this->createQueryBuilder('d')
             ->leftJoin('d.typeDocument', 'td')
@@ -50,7 +50,7 @@ class DitRepository extends EntityRepository
         $this->applyniveauUrgenceFilters($queryBuilder, $ditSearch);
         $this->applySection($queryBuilder, $ditSearch); // section affect et support section
         $this->applyAgencyServiceFilters($queryBuilder, $ditSearch, $agenceServiceAutorises);
-        $this->applyAgencyUserFilter($queryBuilder, $options);
+        $this->applyAgencyUserFilter($queryBuilder, $codeAgenceUser);
 
 
         $queryBuilder->orderBy('d.dateDemande', 'DESC')
@@ -80,16 +80,14 @@ class DitRepository extends EntityRepository
      * Applique le filtre par agence de l'utilisateur connecté
      *
      * @param QueryBuilder $queryBuilder
-     * @param array $options
      * @return void
      */
-    private function applyAgencyUserFilter(QueryBuilder $queryBuilder, array $options): void
+    private function applyAgencyUserFilter(QueryBuilder $queryBuilder, $codeAgenceUser): void
     {
-        // Vérifier si l'agence de l'utilisateur est fournie dans les options
-        if (isset($options['user_agency']) && !empty($options['user_agency']) && !$options['boolean'] && in_array($options['user_agency'], ['01', '20', '30', '40', '60'])) {
+        if (in_array($codeAgenceUser, ['01', '20', '30', '40', '60'])) {
             $queryBuilder
                 ->andWhere('ar.codeAgence = :userAgency')
-                ->setParameter('userAgency', $options['user_agency']);
+                ->setParameter('userAgency', $codeAgenceUser);
         }
     }
 
@@ -143,7 +141,7 @@ class DitRepository extends EntityRepository
      * @param array $options
      * @return void
      */
-    public function findAndFilteredExcel(DitSearch $ditSearch, array $options, array $agenceServiceAutorises)
+    public function findAndFilteredExcel(DitSearch $ditSearch, array $agenceServiceAutorises, $codeAgenceUser)
     {
         $queryBuilder = $this->createQueryBuilder('d')
             ->leftJoin('d.typeDocument', 'td')
@@ -155,7 +153,7 @@ class DitRepository extends EntityRepository
         $this->applyCommonFilters($queryBuilder, $ditSearch);
         $this->applySection($queryBuilder, $ditSearch); // section affect et support section
         $this->applyAgencyServiceFilters($queryBuilder, $ditSearch, $agenceServiceAutorises);
-        $this->applyAgencyUserFilter($queryBuilder, $options);
+        $this->applyAgencyUserFilter($queryBuilder, $codeAgenceUser);
 
         $queryBuilder->orderBy('d.dateDemande', 'DESC')
             ->addOrderBy('d.numeroDemandeIntervention', 'ASC');

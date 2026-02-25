@@ -46,11 +46,8 @@ class DitListeController extends Controller
      */
     public function index(Request $request)
     {
-        $autoriser = $this->hasRoles(Role::ROLE_ADMINISTRATEUR, Role::ROLE_ATELIER, Role::ROLE_MULTI_SUCURSALES) || $this->hasName('stg.iaro');
-
         $ditListeModel = new DitListModel();
         $ditSearch = new DitSearch();
-        $agenceServiceIps = $this->agenceServiceIpsObjet();
 
         $this->initialisationRechercheDit($ditSearch, $this->getEntityManager());
 
@@ -88,12 +85,9 @@ class DitListeController extends Controller
         //recupères les données du criteria dans une session nommé dit_serch_criteria
         $this->getSessionService()->set('dit_search_criteria', $criteria);
 
-
-        $agenceServiceEmetteur = $this->agenceServiceEmetteur($agenceServiceIps, $autoriser);
-        $option = $this->Option($autoriser, $agenceServiceEmetteur);
-
+        $codeAgenceUser = $this->getSecurityService()->getCodeAgenceUser();
         //recupération des donnée
-        $paginationData = $this->data($request, $ditListeModel, $ditSearch, $option, $agenceServiceAutorises, $this->getEntityManager());
+        $paginationData = $this->data($request, $ditListeModel, $ditSearch, $agenceServiceAutorises, $codeAgenceUser, $this->getEntityManager());
 
         /**  Docs à intégrer dans DW * */
         $formDocDansDW = $this->getFormFactory()->createBuilder(DocDansDwType::class, null, [
@@ -169,16 +163,17 @@ class DitListeController extends Controller
     {
         //recupères les critère dans la session 
         $criteria = $this->getSessionService()->get('dit_search_criteria', []);
-        //recupère les critères dans la session 
-        $options = $this->getSessionService()->get('dit_search_option', []);
 
         // Agences Services autorisés sur le DIT
         $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DIT);
 
+        // Code agence utilisateur
+        $codeAgenceUser = $this->getSecurityService()->getCodeAgenceUser();
+
         //crée une objet à partir du tableau critère reçu par la session
         $ditSearch = $this->transformationEnObjet($criteria);
 
-        $entities = $this->DonnerAAjouterExcel($ditSearch, $options, $agenceServiceAutorises, $this->getEntityManager());
+        $entities = $this->DonnerAAjouterExcel($ditSearch, $agenceServiceAutorises, $codeAgenceUser, $this->getEntityManager());
 
         // Convertir les entités en tableau de données
         $data = $this->transformationEnTableauAvecEntet($entities);

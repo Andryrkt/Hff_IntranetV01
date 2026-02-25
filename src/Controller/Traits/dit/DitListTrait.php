@@ -398,11 +398,10 @@ trait DitListTrait
     //     } 
     // }
 
-    private function Option($autoriser, $agenceServiceEmetteur): array
+    private function Option($autoriser): array
     {
         return  [
             'boolean' => $autoriser,
-            'codeAgence' => $agenceServiceEmetteur['agence'] === null ? null : $agenceServiceEmetteur['agence']->getId(),
             'user_agency' => $this->getUser()->getCodeAgenceUser(),
         ];
     }
@@ -441,9 +440,9 @@ trait DitListTrait
         return $ditSearch;
     }
 
-    private function DonnerAAjouterExcel(DitSearch $ditSearch, $options, $agenceServiceAutorises, $em): array
+    private function DonnerAAjouterExcel(DitSearch $ditSearch, $agenceServiceAutorises, $codeAgenceUser, $em): array
     {
-        $entities = $em->getrepository(DemandeIntervention::class)->findAndFilteredExcel($ditSearch, $options, $agenceServiceAutorises);
+        $entities = $em->getrepository(DemandeIntervention::class)->findAndFilteredExcel($ditSearch, $agenceServiceAutorises, $codeAgenceUser);
 
         $this->ajoutStatutAchatPiece($entities);
 
@@ -501,7 +500,7 @@ trait DitListTrait
         $this->redirectToRoute("dit_index");
     }
 
-    private function data($request, $ditListeModel, $ditSearch, $option, $agenceServiceAutorises, $em)
+    private function data($request, $ditListeModel, $ditSearch, $agenceServiceAutorises, $codeAgenceUser, $em)
     {
         //recupère le numero de page
         $page = $request->query->getInt('page', 1);
@@ -509,7 +508,7 @@ trait DitListTrait
         $limit = 20;
 
         //recupération des données filtrée
-        $paginationData = $em->getRepository(DemandeIntervention::class)->findPaginatedAndFiltered($page, $limit, $ditSearch, $option, $agenceServiceAutorises);
+        $paginationData = $em->getRepository(DemandeIntervention::class)->findPaginatedAndFiltered($page, $limit, $ditSearch, $agenceServiceAutorises, $codeAgenceUser);
 
         //ajout de donner du statut achat piece dans data
         $this->ajoutStatutAchatPiece($paginationData['data']);
