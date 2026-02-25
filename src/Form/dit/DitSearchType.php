@@ -160,7 +160,6 @@ class DitSearchType extends AbstractType
                     'choices' => self::INTERNE_EXTERNE,
                     'placeholder' => '-- Choisir --',
                     'required' => false,
-                    'data' => $options['interne_externe'] ?? '',
                     'attr' => ['class' => 'interneExterne']
                 ]
             )
