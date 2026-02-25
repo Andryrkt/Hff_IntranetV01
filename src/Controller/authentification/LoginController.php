@@ -81,7 +81,7 @@ class LoginController extends Controller
                     /** @var Profil $profil */
                     $profil = $profils->first();
                     $userInfo['profil_id'] = $profil->getId();
-                    $userInfo['societe_id'] = $profil->getSociete()->getId();
+                    $userInfo['societe_code'] = $profil->getSociete()->getCodeSociete();
                     $this->getSessionService()->set('user_info', $userInfo);
 
                     $filename = $_ENV['BASE_PATH_LONG'] . "\src\Controller\authentification.csv";

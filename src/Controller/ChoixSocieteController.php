@@ -24,7 +24,7 @@ class ChoixSocieteController extends Controller
         /** @var Profil $profil */
         foreach ($profils as $profil) {
             $societe = $profil->getSociete();
-            if ($societe && !isset($societes[$societe->getId()])) $societes[$societe->getId()] = $societe;
+            if ($societe && !isset($societes[$societe->getId()])) $societes[$societe->getCodeSociete()] = $societe;
         }
 
         $form = $this->getFormFactory()->createBuilder(ChoixSocieteType::class, NULL, [
@@ -38,7 +38,7 @@ class ChoixSocieteController extends Controller
             $data = $form->getData();
 
             $userInfo = $this->getSessionService()->get('user_info');
-            $userInfo['societe_id'] = $data['societe'];
+            $userInfo['societe_code'] = $data['societe'];
             $userInfo['profil_id'] = $data['profil'];
 
             $this->getSessionService()->set('user_info', $userInfo);
