@@ -78,7 +78,6 @@ class DaListeDitController extends Controller
         //création et initialisation du formulaire de la recherche
         $form = $this->getFormFactory()->createBuilder(DitSearchType::class, $ditSearch, [
             'method' => 'GET',
-            'interne_externe' => 'INTERNE',
             'autorisationRoleEnergie' => $autorisationRoleEnergie
         ])->getForm();
 
