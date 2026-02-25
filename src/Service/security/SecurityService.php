@@ -199,6 +199,22 @@ class SecurityService
         return $this->dataService->getProfilId();
     }
 
+    /** 
+     * Retourne le code agence de l'utilisateur
+     */
+    public function getCodeAgenceUser(): ?string
+    {
+        return $this->dataService->getCodeAgenceUser();
+    }
+
+    /** 
+     * Retourne le code service de l'utilisateur
+     */
+    public function getCodeServiceUser(): ?string
+    {
+        return $this->dataService->getCodeServiceUser();
+    }
+
     // =========================================================================
     //  LOGIQUE INTERNE
     // =========================================================================

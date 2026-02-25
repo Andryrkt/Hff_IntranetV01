@@ -112,6 +112,24 @@ class UserDataService
         return $userInfo['societe_code'] ?? "";
     }
 
+    /** 
+     * Récupérer le code agence de l'utilisateur
+     */
+    public function getCodeAgenceUser(): ?string
+    {
+        $userInfo = $this->getUserInfo();
+        return $userInfo['default_agence_code'] ?? "";
+    }
+
+    /** 
+     * Récupérer le code service de l'utilisateur
+     */
+    public function getCodeServiceUser(): ?string
+    {
+        $userInfo = $this->getUserInfo();
+        return $userInfo['default_service_code'] ?? "";
+    }
+
     /**
      * Récupérer le profil id enregistré
      */
