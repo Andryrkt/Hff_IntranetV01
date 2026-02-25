@@ -90,6 +90,14 @@ class DemandePaiementDaType extends AbstractType
                 ]
             )
             ->add(
+                'cif',
+                TextType::class,
+                [
+                    'label' => 'CIF',
+                    'disabled' => true
+                ]
+            )
+            ->add(
                 'contact',
                 TextType::class,
                 [

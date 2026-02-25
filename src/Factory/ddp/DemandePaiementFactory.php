@@ -49,7 +49,7 @@ class DemandePaiementFactory
 
         $dto = new DemandePaiementDto();
         $dto->typeDemande = $typeDemandeRepository->find($typeDdp);
-        $dto->numeroFacture = []; 
+        $dto->numeroFacture = [];
         $dto->numeroCommande = [$numCdeDa];
         $dto->debiteur = $this->debiteur($typeDa, $infoDa);
 
@@ -96,6 +96,7 @@ class DemandePaiementFactory
             $dto->numeroFournisseur = $infoFournisseur[0]['num_fournisseur'];
             $dto->ribFournisseur = $infoFournisseur[0]['rib_fournisseur'];
             $dto->ribFournisseurAncien = $infoFournisseur[0]['rib_fournisseur'];
+            $dto->cif = $infoFournisseur[0]['cif'];
             $dto->beneficiaire = $infoFournisseur[0]['nom_fournisseur']; // nom du fournisseur
             $dto->modePaiement = $infoFournisseur[0]['mode_paiement'];
             $dto->devise = $infoFournisseur[0]['devise'];
