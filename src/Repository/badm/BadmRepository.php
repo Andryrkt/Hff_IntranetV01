@@ -30,7 +30,7 @@ class BadmRepository extends EntityRepository
         return $idMateriels;
     }
 
-    public function findPaginatedAndFiltered(int $page = 1, int $limit = 10, array $criteria = [], bool $autoriser)
+    public function findPaginatedAndFiltered(int $page = 1, int $limit = 10, array $criteria = [], array $agenceServiceAutorises)
     {
         $queryBuilder = $this->createQueryBuilder('b')
             ->leftJoin('b.typeMouvement', 'tm')
@@ -44,13 +44,22 @@ class BadmRepository extends EntityRepository
 
         $this->filtredAgenceServiceDebiteur($queryBuilder, $criteria);
 
-        if (!$autoriser) {
-            $queryBuilder->andwhere('b.agenceEmetteurId IN (:agenceEmetId)');
-            $queryBuilder->setParameter('agenceEmetId', $criteria['agenceAutoriser']);
+        // Condition sur les couples agences-services
+        $orX = $queryBuilder->expr()->orX();
+        foreach ($agenceServiceAutorises as $i => $tab) {
+            $orX->add(
+                $queryBuilder->expr()->andX(
+                    $queryBuilder->expr()->eq('b.agenceEmetteurId', ':ag_' . $i),
+                    $queryBuilder->expr()->eq('b.serviceEmetteurId', ':serv_' . $i)
+                )
+            );
+            $queryBuilder->setParameter('ag_' . $i, $tab['agence_id']);
+            $queryBuilder->setParameter('serv_' . $i, $tab['service_id']);
         }
-
-        $queryBuilder->orderBy('b.numBadm', 'DESC');
-        $queryBuilder->setFirstResult(($page - 1) * $limit)
+        $queryBuilder
+            ->andWhere($orX)
+            ->orderBy('b.numBadm', 'DESC')
+            ->setFirstResult(($page - 1) * $limit)
             ->setMaxResults($limit)
         ;
 
@@ -90,7 +99,7 @@ class BadmRepository extends EntityRepository
     }
 
 
-    public function findPaginatedAndFilteredListAnnuler(int $page = 1, int $limit = 10, array $criteria = [])
+    public function findPaginatedAndFilteredListAnnuler(int $page = 1, int $limit = 10, array $criteria = [], array $agenceServiceAutorises)
     {
         $queryBuilder = $this->createQueryBuilder('b')
             ->leftJoin('b.typeMouvement', 'tm')
@@ -105,8 +114,21 @@ class BadmRepository extends EntityRepository
 
         $this->filtredAgenceServiceDebiteur($queryBuilder, $criteria);
 
-        $queryBuilder->orderBy('b.numBadm', 'DESC');
-        $queryBuilder->setFirstResult(($page - 1) * $limit)
+        // Condition sur les couples agences-services
+        $orX = $queryBuilder->expr()->orX();
+        foreach ($agenceServiceAutorises as $i => $tab) {
+            $orX->add(
+                $queryBuilder->expr()->andX(
+                    $queryBuilder->expr()->eq('b.agenceEmetteurId', ':ag_' . $i),
+                    $queryBuilder->expr()->eq('b.serviceEmetteurId', ':serv_' . $i)
+                )
+            );
+            $queryBuilder->setParameter('ag_' . $i, $tab['agence_id']);
+            $queryBuilder->setParameter('serv_' . $i, $tab['service_id']);
+        }
+        $queryBuilder
+            ->andWhere($orX)
+            ->setFirstResult(($page - 1) * $limit)
             ->setMaxResults($limit)
         ;
 
@@ -131,15 +153,15 @@ class BadmRepository extends EntityRepository
     private function filtredAgenceServiceEmetteur($queryBuilder, $criteria)
     {
         //filtre selon l'agence emettteur
-        // if (!empty($criteria['agenceEmetteur'])) {
-        //     $queryBuilder->andWhere('b.agenceEmetteurId = :agEmet')
-        //     ->setParameter('agEmet',  $criteria['agenceEmetteur']->getId());
-        // }
+        if (!empty($criteria['agenceEmetteur'])) {
+            $queryBuilder->andWhere('b.agenceEmetteurId = :agEmet')
+                ->setParameter('agEmet',  $criteria['agenceEmetteur']);
+        }
 
         //filtre selon le service emetteur
         if (!empty($criteria['serviceEmetteur'])) {
             $queryBuilder->andWhere('b.serviceEmetteurId = :agServEmet')
-                ->setParameter('agServEmet', $criteria['serviceEmetteur']->getId());
+                ->setParameter('agServEmet', $criteria['serviceEmetteur']);
         }
     }
 

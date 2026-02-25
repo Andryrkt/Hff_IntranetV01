@@ -22,58 +22,18 @@ trait BadmListTrait
         $badmSearch->setServiceDebiteur($form->get('serviceDebiteur')->getData());
     }
 
-    private function agenceServiceEmetteur(bool $autoriser): array
-    {
-        //initialisation agence et service
-        if ($autoriser) {
-            $agence = null;
-            $service = null;
-        } else {
-            $userInfo = $this->getSessionService()->get('user_info');
-            $agence = $userInfo['authorized_agences']['ids'] ?? null;
-            $service = null;
-        }
-
-        return [
-            'agence' => $agence,
-            'service' => $service
-        ];
-    }
-
-    private function agenceServiceIpsEmetteur($autoriser, $agenceServiceIps)
-    {
-        if ($autoriser) {
-            $agenceIpsEmetteur = null;
-            $ServiceIpsEmetteur = null;
-        } else {
-            $agenceIpsEmetteur = $agenceServiceIps['agenceIps'];
-            $ServiceIpsEmetteur = $agenceServiceIps['serviceIps'];
-        }
-
-        return [
-            'agenceIpsEmetteur' => $agenceIpsEmetteur,
-            'serviceIpsEmetteur' => $ServiceIpsEmetteur
-        ];
-    }
-
-    private function initialisation($badmSearch, $em, $agenceServiceIps, $autoriser)
+    private function initialisation($badmSearch, $em)
     {
         $criteria = $this->getSessionService()->get('badm_search_criteria', []);
-        $agenceServiceIpsEmetteur = $this->agenceServiceIpsEmetteur($autoriser, $agenceServiceIps);
         if (!empty($criteria)) {
             $typeMouvement = $criteria['typeMouvement'] === null ? null : $em->getRepository(TypeMouvement::class)->find($criteria['typeMouvement']->getId());
             $statut = $criteria['statut'] === null ? null : $em->getRepository(StatutDemande::class)->find($criteria['statut']->getId());
-            // $serviceEmetteur = $criteria['serviceEmetteur'] === null ? $agenceServiceIpsEmetteur['serviceIpsEmetteur'] : $em->getRepository(Service::class)->find($criteria['serviceEmetteur']->getId());
-            $serviceEmetteur = $criteria['serviceEmetteur'] === null ? null : $em->getRepository(Service::class)->find($criteria['serviceEmetteur']->getId());
             $serviceDebiteur = $criteria['serviceDebiteur'] === null ? null : $em->getRepository(Service::class)->find($criteria['serviceDebiteur']->getId());
-            $agenceEmetteur = $criteria['agenceEmetteur'] === null ? $agenceServiceIpsEmetteur['agenceIpsEmetteur'] : $em->getRepository(Agence::class)->find($criteria['agenceEmetteur']->getId());
             $agenceDebiteur = $criteria['agenceDebiteur'] === null ? null : $em->getRepository(Agence::class)->find($criteria['agenceDebiteur']->getId());
         } else {
             $typeMouvement = null;
             $statut = null;
-            $serviceEmetteur = null;
             $serviceDebiteur = null;
-            $agenceEmetteur = null;
             $agenceDebiteur = null;
         }
 
@@ -83,8 +43,8 @@ trait BadmListTrait
             ->setDateDebut($criteria['dateDebut'] ?? null)
             ->setDateFin($criteria['dateFin'] ?? null)
             ->setIdMateriel($criteria['idMateriel'] ?? null)
-            ->setAgenceEmetteur($agenceEmetteur)
-            ->setServiceEmetteur($serviceEmetteur)
+            ->setAgenceEmetteur($criteria['agenceEmetteur'] ?? null)
+            ->setServiceEmetteur($criteria['serviceEmetteur'] ?? null)
             ->setAgenceDebiteur($agenceDebiteur)
             ->setServiceDebiteur($serviceDebiteur)
         ;

@@ -4,14 +4,14 @@ namespace App\Controller\badm;
 
 use App\Entity\badm\Badm;
 use App\Model\dit\DitModel;
+use App\Service\ExcelService;
 use App\Controller\Controller;
 use App\Entity\badm\BadmSearch;
-use App\Entity\admin\Application;
 use App\Form\badm\BadmSearchType;
 use App\Model\badm\BadmRechercheModel;
+use App\Repository\badm\BadmRepository;
 use App\Controller\Traits\BadmListTrait;
-use App\Entity\admin\utilisateur\Role;
-use App\Service\ExcelService;
+use App\Constants\admin\ApplicationConstant;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -26,20 +26,15 @@ class BadmListeController extends Controller
      */
     public function AffichageListeBadm(Request $request)
     {
-        $userConnecter = $this->getUser();
-
-        $autoriser = $this->hasRoles(Role::ROLE_ADMINISTRATEUR);
-
         $badmSearch = new BadmSearch();
 
-        $agenceServiceIps = $this->agenceServiceIpsObjet();
-
         /** INITIALIASATION et REMPLISSAGE de RECHERCHE pendant la nag=vigation pagiantion */
-        $this->initialisation($badmSearch, $this->getEntityManager(), $agenceServiceIps, $autoriser);
+        $this->initialisation($badmSearch, $this->getEntityManager());
 
+        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_BADM);
         $form = $this->getFormFactory()->createBuilder(BadmSearchType::class, $badmSearch, [
             'method' => 'GET',
-            'idAgenceEmetteur' => $agenceServiceIps['agenceIps']
+            'agenceServiceAutorises' => $agenceServiceAutorises
         ])->getForm();
 
         $form->handleRequest($request);
@@ -47,7 +42,6 @@ class BadmListeController extends Controller
         $empty = false;
         if ($form->isSubmitted() && $form->isValid()) {
             $this->rechercherSurNumSerieParc($form, $badmSearch);
-            $badmSearch->setAgenceEmetteur($agenceServiceIps['agenceIps']);
         }
 
         $criteria = [];
@@ -56,13 +50,11 @@ class BadmListeController extends Controller
         //enregistre le critère dans la session
         $this->getSessionService()->set('badm_search_criteria', $criteria);
 
-        $criteria['agenceAutoriser'] = $userConnecter->getAgenceAutoriserIds();
-
-
+        /** @var BadmRepository $repository */
         $repository = $this->getEntityManager()->getRepository(Badm::class);
         $page = max(1, $request->query->getInt('page', 1));
         $limit = 10;
-        $paginationData = $repository->findPaginatedAndFiltered($page, $limit, $criteria, $autoriser);
+        $paginationData = $repository->findPaginatedAndFiltered($page, $limit, $criteria, $agenceServiceAutorises);
 
         $this->ajoutNumSerieNumParc($paginationData);
 
@@ -71,20 +63,16 @@ class BadmListeController extends Controller
         return $this->render(
             'badm/listBadm.html.twig',
             [
-                'form' => $form->createView(),
-                'data' => $paginationData['data'],
-                'empty' => $empty,
-                'criteria' => $criteria,
+                'form'        => $form->createView(),
+                'data'        => $paginationData['data'],
+                'empty'       => $empty,
+                'criteria'    => $criteria,
                 'currentPage' => $paginationData['currentPage'],
-                'lastPage' => $paginationData['lastPage'],
-                'resultat' => $paginationData['totalItems'],
-                'idAgenceEmetteur' => $agenceServiceIps['agenceIps']->getCodeAgence() . ' ' . $agenceServiceIps['agenceIps']->getLibelleAgence()
+                'lastPage'    => $paginationData['lastPage'],
+                'resultat'    => $paginationData['totalItems'],
             ]
         );
     }
-
-
-
 
     /**
      * @Route("/export-badm-excel", name="export_badm_excel")
@@ -145,15 +133,15 @@ class BadmListeController extends Controller
      */
     public function listAnnuler(Request $request)
     {
-        $autoriser = $this->hasRoles(Role::ROLE_ADMINISTRATEUR);
-
         $badmSearch = new BadmSearch();
-        $agenceServiceIps = $this->agenceServiceIpsObjet();
-        /** INITIALIASATION et REMPLISSAGE de RECHERCHE pendant la nag=vigation pagiantion */
-        $this->initialisation($badmSearch, $this->getEntityManager(), $agenceServiceIps, $autoriser);
 
+        /** INITIALIASATION et REMPLISSAGE de RECHERCHE pendant la nag=vigation pagiantion */
+        $this->initialisation($badmSearch, $this->getEntityManager());
+
+        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_BADM);
         $form = $this->getFormFactory()->createBuilder(BadmSearchType::class, $badmSearch, [
             'method' => 'GET',
+            'agenceServiceAutorises' => $agenceServiceAutorises
         ])->getForm();
 
         $form->handleRequest($request);
@@ -170,21 +158,12 @@ class BadmListeController extends Controller
         $page = max(1, $request->query->getInt('page', 1));
         $limit = 10;
 
-        $agenceServiceEmetteur = $this->agenceServiceEmetteur($autoriser);
-
-        $option = [
-            'boolean' => $autoriser,
-            'codeAgence' => $agenceServiceEmetteur['agence'] === null ? null : $agenceServiceEmetteur['agence']
-        ];
-
         //enregistre le critère dans la session
         $this->getSessionService()->set('badm_search_criteria', $criteria);
-        $this->getSessionService()->set('badm_search_option', $option);
 
+        /** @var BadmRepository $repository */
         $repository = $this->getEntityManager()->getRepository(Badm::class);
-        $paginationData = $repository->findPaginatedAndFilteredListAnnuler($page, $limit, $criteria, $option);
-
-
+        $paginationData = $repository->findPaginatedAndFilteredListAnnuler($page, $limit, $criteria, $agenceServiceAutorises);
 
         for ($i = 0; $i < count($paginationData['data']); $i++) {
             $badmRechercheModel = new BadmRechercheModel();
@@ -195,19 +174,18 @@ class BadmListeController extends Controller
             $paginationData['data'][$i]->setNumParc($badms[0]['num_parc']);
         }
 
-
         $this->logUserVisit('badm_list_annuler'); // historisation du page visité par l'utilisateur
 
         return $this->render(
             'badm/listBadm.html.twig',
             [
-                'form' => $form->createView(),
-                'data' => $paginationData['data'],
-                'empty' => $empty,
-                'criteria' => $criteria,
+                'form'        => $form->createView(),
+                'data'        => $paginationData['data'],
+                'empty'       => $empty,
+                'criteria'    => $criteria,
                 'currentPage' => $paginationData['currentPage'],
-                'lastPage' => $paginationData['lastPage'],
-                'resultat' => $paginationData['totalItems']
+                'lastPage'    => $paginationData['lastPage'],
+                'resultat'    => $paginationData['totalItems']
             ]
         );
     }
