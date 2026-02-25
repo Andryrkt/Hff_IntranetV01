@@ -1,4 +1,4 @@
-export default function filterServiceByAgence({
+export function filterServiceByAgence({
   agenceSelector = "#agenceEmetteur",
   serviceSelector = "#serviceEmetteur",
 } = {}) {
@@ -13,28 +13,22 @@ export default function filterServiceByAgence({
     return;
   }
 
-  // Snapshot de toutes les options service (hors placeholder)
   const allServiceOptions = Array.from(serviceSelect.options).filter(
     (opt) => opt.value !== ""
   );
 
-  function resetService() {
-    // Remettre le placeholder sélectionné
+  function clearService() {
+    while (serviceSelect.options.length > 1) {
+      serviceSelect.remove(1);
+    }
     serviceSelect.value = "";
   }
 
   function filterServices(agenceId) {
-    // Reset d'abord
-    resetService();
-
-    // Vider puis reconstruire
-    // On garde le placeholder (premier enfant)
-    while (serviceSelect.options.length > 1) {
-      serviceSelect.remove(1);
-    }
-
+    clearService();
+    if (!agenceId) return;
     allServiceOptions.forEach((opt) => {
-      if (!agenceId || opt.dataset.agence === String(agenceId)) {
+      if (opt.dataset.agence === String(agenceId)) {
         serviceSelect.appendChild(opt.cloneNode(true));
       }
     });
