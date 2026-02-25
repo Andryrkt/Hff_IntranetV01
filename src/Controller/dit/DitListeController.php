@@ -3,7 +3,7 @@
 
 namespace App\Controller\dit;
 
-
+use App\Constants\admin\ApplicationConstant;
 use DateTime;
 use App\Entity\dit\DitSearch;
 use App\Controller\Controller;
@@ -60,6 +60,9 @@ class DitListeController extends Controller
         $agenceServiceIps = $this->agenceServiceIpsObjet();
 
         $this->initialisationRechercheDit($ditSearch, $this->getEntityManager());
+
+        // Agences Services autorisés sur le DIT
+        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DIT);
 
         //création et initialisation du formulaire de la recherche
         $form = $this->getFormFactory()->createBuilder(DitSearchType::class, $ditSearch, [

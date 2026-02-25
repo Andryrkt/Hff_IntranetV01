@@ -31,7 +31,9 @@ class BadmListeController extends Controller
         /** INITIALIASATION et REMPLISSAGE de RECHERCHE pendant la nag=vigation pagiantion */
         $this->initialisation($badmSearch, $this->getEntityManager());
 
+        // Agences Services autorisés sur le BADM
         $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_BADM);
+
         $form = $this->getFormFactory()->createBuilder(BadmSearchType::class, $badmSearch, [
             'method' => 'GET',
             'agenceServiceAutorises' => $agenceServiceAutorises

@@ -53,6 +53,7 @@ class DomsListeController extends Controller
         $page = max(1, $request->query->getInt('page', 1));
         $limit = 10;
 
+        // Agences Services autorisés sur le DOM
         $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DOM);
 
         $paginationData = $this->getEntityManager()->getRepository(Dom::class)->findPaginatedAndFilteredAsDTO($page, $limit, $domSearch, $agenceServiceAutorises);
