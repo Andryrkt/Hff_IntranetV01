@@ -38,22 +38,21 @@ class BadmSearchType extends AbstractType
         $serviceChoices = [];
         $serviceAttr = [];
 
-        foreach ($options['agenceServiceAutorises'] as $item) {
-            // key = label affiché, value = agence_id
+        foreach ($options['agenceServiceAutorises'] as $id => $item) {
+            // Agence : pas de doublon sur le label
             $agenceLabel = $item['agence_code'] . ' ' . $item['agence_libelle'];
             if (!isset($agenceChoices[$agenceLabel])) {
                 $agenceChoices[$agenceLabel] = $item['agence_id'];
             }
 
-            // key = label affiché, value = service_id
+            // Service : on accepte les doublons de label
+            // La valeur est l'id de la ligne (unique), pas service_id
             $serviceLabel = $item['service_code'] . ' ' . $item['service_libelle'];
-            if (!isset($serviceChoices[$serviceLabel])) {
-                $serviceChoices[$serviceLabel] = $item['service_id'];
-            }
+            $serviceChoices[$serviceLabel . '_' . $id] = $id; // clé rendue unique pour PHP
 
-            // data-agence sur chaque option service pour le filtrage JS
-            $serviceAttr[$item['service_id']] = [
-                'data-agence' => $item['agence_id'],
+            // data-agence et data-service-id sur chaque option
+            $serviceAttr[$id] = [
+                'data-agence' => $item['agence_id']
             ];
         }
 
@@ -112,6 +111,11 @@ class BadmSearchType extends AbstractType
                 'placeholder' => '-- Choisir un service --',
                 'required'    => false,
                 'choices'     => $serviceChoices,
+                'choice_label' => function ($value) use ($options) {
+                    // Retrouver le bon item et afficher service_code . ' ' . service_libelle
+                    $item = $options['agenceServiceAutorises'][$value];
+                    return $item['service_code'] . ' ' . $item['service_libelle'];
+                },
                 'choice_attr' => function ($val) use ($serviceAttr) {
                     return $serviceAttr[$val] ?? [];
                 }

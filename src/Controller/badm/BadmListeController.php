@@ -44,6 +44,14 @@ class BadmListeController extends Controller
             $this->rechercherSurNumSerieParc($form, $badmSearch);
         }
 
+        // Changer le serviceEmetteur
+        if ($badmSearch->getServiceEmetteur()) {
+            $ligneId = $badmSearch->getServiceEmetteur();
+            if ($ligneId && isset($agenceServiceAutorises[$ligneId])) {
+                $badmSearch->setServiceEmetteur($agenceServiceAutorises[$ligneId]['service_id']);
+            }
+        }
+
         $criteria = [];
         //transformer l'objet ditSearch en tableau
         $criteria = $badmSearch->toArray();
