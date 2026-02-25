@@ -96,7 +96,7 @@ document.addEventListener("DOMContentLoaded", function () {
       currentInput.value = lastValidPourcentageAPayer; // Rétablit la dernière valeur valide
       return; // Arrête l'exécution si la validation échoue
     }
-    
+
     lastValidPourcentageAPayer = poucentageAPayerValue; // Met à jour la dernière valeur valide
 
     let montantAPayerValue = stringEnNumber(montantAPayer.value, " ");
@@ -178,43 +178,122 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // File viewer logic
-  const fileLinks = document.querySelectorAll('.view-file-link');
+  const fileLinks = document.querySelectorAll(".view-file-link");
 
-  fileLinks.forEach(link => {
-      link.addEventListener('click', function(e) {
-          e.preventDefault();
-          const fileUrl = this.getAttribute('data-url');
-          
-          const previewTabItem = document.getElementById('pj-preview-tab-item');
-          const previewTab = document.getElementById('pj-preview-tab');
-          const previewPane = document.getElementById('pj-preview-pane');
+  fileLinks.forEach((link) => {
+    link.addEventListener("click", function (e) {
+      e.preventDefault();
+      const fileUrl = this.getAttribute("data-url");
 
-          if (previewTabItem && previewPane && fileUrl) {
-              // Make tab visible
-              previewTabItem.classList.remove('d-none');
+      const previewTabItem = document.getElementById("pj-preview-tab-item");
+      const previewTab = document.getElementById("pj-preview-tab");
+      const previewPane = document.getElementById("pj-preview-pane");
 
-              // Create iframe
-              const iframe = document.createElement('iframe');
-              iframe.src = fileUrl;
-              iframe.style.width = '100%';
-              iframe.style.height = '80vh';
-              iframe.style.border = 'none';
+      if (previewTabItem && previewPane && fileUrl) {
+        // Make tab visible
+        previewTabItem.classList.remove("d-none");
 
-              // Add iframe to pane
-              previewPane.innerHTML = '';
-              previewPane.appendChild(iframe);
+        // Create iframe
+        const iframe = document.createElement("iframe");
+        iframe.src = fileUrl;
+        iframe.style.width = "100%";
+        iframe.style.height = "80vh";
+        iframe.style.border = "none";
 
-              // Activate the new tab
-              const tab = new bootstrap.Tab(previewTab);
-              tab.show();
-          }
-      });
+        // Add iframe to pane
+        previewPane.innerHTML = "";
+        previewPane.appendChild(iframe);
+
+        // Activate the new tab
+        const tab = new bootstrap.Tab(previewTab);
+        tab.show();
+      }
+    });
   });
 
-  document.querySelectorAll('.remove-pj-file').forEach(button => {
-      button.addEventListener('click', function () {
-          this.closest('li.file-item-pj').remove();
-      });
+  document.querySelectorAll(".remove-pj-file").forEach((button) => {
+    button.addEventListener("click", function () {
+      this.closest("li.file-item-pj").remove();
+    });
   });
 });
 
+// Formatage automatique du RIB
+document.addEventListener("DOMContentLoaded", function () {
+  const ribField = document.querySelector('[data-format-rib="true"]');
+
+  if (ribField) {
+    // Restreindre la saisie aux chiffres et espaces uniquement
+    ribField.addEventListener("keydown", function (e) {
+      const allowedKeys = [
+        "Backspace",
+        "Delete",
+        "Tab",
+        "Escape",
+        "Enter",
+        "ArrowLeft",
+        "ArrowRight",
+        "Home",
+        "End",
+      ];
+      
+      if (allowedKeys.includes(e.key) || e.ctrlKey || e.metaKey) {
+        return;
+      }
+
+      // Interdire l'espace au tout début
+      if (e.key === " " && e.target.selectionStart === 0) {
+        e.preventDefault();
+        return;
+      }
+
+      // Autoriser l'espace (si pas au début) et les chiffres uniquement
+      if (e.key === " " || /^[0-9]$/.test(e.key)) {
+        return;
+      }
+
+      e.preventDefault();
+    });
+
+    ribField.addEventListener("input", function (e) {
+      let cursorPosition = e.target.selectionStart;
+      let value = e.target.value.replace(/[^0-9]/g, ""); // Garde uniquement les chiffres pour le formatage
+
+      let formatted = "";
+      if (value.length > 0) {
+        // 5 premiers chiffres
+        formatted += value.substring(0, Math.min(5, value.length));
+
+        // 5 chiffres suivants
+        if (value.length > 5) {
+          formatted += " " + value.substring(5, Math.min(10, value.length));
+        }
+
+        // 11 chiffres suivants
+        if (value.length > 10) {
+          formatted += " " + value.substring(10, Math.min(21, value.length));
+        }
+
+        // 2 derniers chiffres
+        if (value.length > 21) {
+          formatted += " " + value.substring(21, Math.min(23, value.length));
+        }
+
+        // Gérer le décalage du curseur si un espace a été inséré
+        const parts = [5, 11, 23]; // Positions où des espaces sont insérés (index 5, 11, 23)
+        if (parts.includes(cursorPosition) && e.inputType !== "deleteContentBackward") {
+          cursorPosition++;
+        }
+
+        e.target.value = formatted;
+        e.target.setSelectionRange(cursorPosition, cursorPosition);
+      }
+    });
+
+    // Formater la valeur initiale si elle existe
+    if (ribField.value) {
+      const event = new Event("input", { bubbles: true });
+      ribField.dispatchEvent(event);
+    }
+  }
+});
