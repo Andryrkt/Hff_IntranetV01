@@ -491,14 +491,6 @@ class Controller
     }
 
     /**
-     * Méthode helper pour vérifier si l'utilisateur est connecté
-     */
-    public function isUserConnected(): bool
-    {
-        return $this->getSessionService()->has('user_info');
-    }
-
-    /**
      * Récupérer l'ID de l'utilisateur
      */
     protected function getUserId(): ?int
