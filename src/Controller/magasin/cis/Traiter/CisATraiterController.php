@@ -3,10 +3,10 @@
 namespace App\Controller\magasin\cis\Traiter;
 
 use App\Controller\Controller;
-use App\Entity\admin\Application;
+use App\Service\TableauEnStringService;
+use App\Constants\admin\ApplicationConstant;
 use App\Form\magasin\cis\ATraiterSearchType;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\magasin\cis\AtraiterTrait;
 
 /**
@@ -15,18 +15,19 @@ use App\Controller\Traits\magasin\cis\AtraiterTrait;
 class CisATraiterController extends Controller
 {
     use AtraiterTrait;
+
     /**
      * @Route("/cis-liste-a-traiter", name="cis_liste_a_traiter")
      */
     public function listCisATraiter(Request $request)
     {
-        /** CREATION D'AUTORISATION */
-        $autoriser = $this->autorisationRole($this->getEntityManager());
-        //FIN AUTORISATION
+        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_MAGASIN);
 
-        $agenceUser = $this->agenceUser($autoriser);
+        $codeAgence = array_column($agenceServiceAutorises, 'agence_code');
 
-        $form = $this->getFormFactory()->createBuilder(ATraiterSearchType::class, ['agenceUser' => $agenceUser, 'autoriser' => $autoriser], [
+        $agenceUser = TableauEnStringService::TableauEnString(',', $codeAgence);
+
+        $form = $this->getFormFactory()->createBuilder(ATraiterSearchType::class, ['agenceUser' => $agenceUser], [
             'method' => 'GET'
         ])->getForm();
 
