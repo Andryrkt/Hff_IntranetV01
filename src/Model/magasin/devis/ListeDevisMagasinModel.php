@@ -417,7 +417,7 @@ class ListeDevisMagasinModel extends Model
     public function getStatutRelance(string $numeroDevis): ?array
     {
         $sql = " SET NOCOUNT ON;
-                DECLARE @date_limite DATE = '2025-02-18';
+                DECLARE @date_limite DATE = '2026-02-26';
                 WITH relance_stats AS (
                     SELECT 
                         dsavn.numero_devis,
