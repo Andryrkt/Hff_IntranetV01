@@ -22,7 +22,7 @@
 				{% include "/partials/_notification.html.twig" %}
 				{% include "/da/ddp/_formulaire_recherche.html.twig" %}
 				<div class="my-3 mx-3 d-flex justify-content-end">
-					<button type="button" class="btn btn-warning" id="transmettreBAP">Transmettre les demandes BAP sélectionnés à la compta</button>
+					<button type="button" class="btn btn-warning" id="transmettreBAP">Transmettre les BAP à validation.</button>
 				</div>
 			</div>
 
@@ -32,13 +32,14 @@
 			<thead class="table-dark align-middle">
 				<tr>
 					<th class="text-center">-</th>
+					<th class="text-center">Numéro CLA</th>
 					<th class="text-center">Numéro DA</th>
+					<th class="text-center">Numéro BAP</th>
 					<th class="text-center">Numéro DDP</th>
 					<th class="text-center">Fournisseur</th>
 					<th class="text-center">Numéro cde</th>
 					<th class="text-center">Numéro livraison</th>
 					<th class="text-center">Facture BL</th>
-					<th class="text-center">Numéro BAP</th>
 					<th class="text-center">Statut</th>
 					<th class="text-center">Transmise le</th>
 					<th class="text-center">Date Statut</th>
@@ -53,12 +54,8 @@
 						<td class="text-center">
 							<input type="checkbox" name="{{ row.numeroBap }}" class="bap-checkbox" {{ row.statutBap != 'A transmettre' ? 'disabled' : '' }}>
 						</td>
+						<td class="text-center">{{ row.numeroCla}}</td>
 						<td class="text-center">{{ row.numeroDemandeAppro }}</td>
-						<td class="text-center">{{ row.numeroDemandePaiement }}</td>
-						<td>{{ row.numeroFournisseur ~ '-' ~ row.nomFournisseur }}</td>
-						<td class="text-center">{{ row.numeroCde }}</td>
-						<td class="text-center">{{ row.numLiv }}</td>
-						<td class="text-center">{{ row.refBlFac }}</td>
 						<td class="text-center">
 							{% set fileExists = fileCheckerService.checkBapFileExists(row.numeroDemandeAppro, row.numeroCde) %}
 							{% if fileExists %}
@@ -70,6 +67,11 @@
 								{{ row.numeroBap }}
 							{% endif %}
 						</td>
+						<td class="text-center">{{ row.numeroDemandePaiement }}</td>
+						<td>{{ row.numeroFournisseur ~ '-' ~ row.nomFournisseur }}</td>
+						<td class="text-center">{{ row.numeroCde }}</td>
+						<td class="text-center">{{ row.numLiv }}</td>
+						<td class="text-center">{{ row.refBlFac }}</td>
 						<td class="text-center fw-bold {{ row.statutCssClass }}">{{ row.statutBap }}</td>
 						<td class="text-center">{{ row.dateSoumissionCompta ? row.dateSoumissionCompta | date('d/m/Y'):null }}</td>
 						<td class="text-center">{{ row.dateStatutBap ? row.dateStatutBap | date('d/m/Y'):null }}</td>

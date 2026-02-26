@@ -4,17 +4,19 @@ namespace App\Controller\Api;
 
 use App\Constants\ddp\StatutConstants;
 use App\Constants\ddp\TypeDemandePaiementConstants;
-use DateTime;
 use App\Controller\Controller;
 use App\Entity\admin\Application;
-use App\Entity\ddp\DemandePaiement;
 use App\Entity\admin\ddp\TypeDemande;
 use App\Entity\da\DaSoumissionFacBl;
+use App\Entity\ddp\DemandePaiement;
 use App\Model\ddp\DemandePaiementModel;
 use App\Service\autres\AutoIncDecService;
+use App\Service\da\FileCheckerService;
+use App\Service\genererPdf\GeneratePdf;
+use DateTime;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\JsonResponse;
 
 class DdpApiController extends Controller
 {
@@ -24,7 +26,7 @@ class DdpApiController extends Controller
     public function transmettreBap(Request $request)
     {
         try {
-            $this->verifierSessionUtilisateur();
+            // $this->verifierSessionUtilisateur();
             $data = json_decode($request->getContent(), true);
             $bapNumbers = $data['bapNumbers'] ?? [];
             $bapNumberString = implode(', ', $bapNumbers);
@@ -39,25 +41,12 @@ class DdpApiController extends Controller
 
 
             $daSoumissionFacBlRepository = $this->getEntityManager()->getRepository(DaSoumissionFacBl::class)->getAllSelonNumBap($bapNumbers);
+            $numeroCla = $this->genererNumeroCla();
 
             foreach ($daSoumissionFacBlRepository as $key => $value) {
                 $ddp = new DemandePaiement();
-                //recupereation de l'application DDP pour generer le numero de ddp
-                $application = $this->getEntityManager()->getRepository(Application::class)->findOneBy(['codeApp' => 'DDP']);
-                if (!$application) {
-                    throw new \Exception("L'application 'DDP' n'a pas été trouvée dans la configuration.");
-                }
-                //generation du numero de ddp
-                $numeroDdp = AutoIncDecService::autoGenerateNumero('DDP', $application->getDerniereId(), true);
-                //mise a jour de la derniere id de l'application DDP
-                AutoIncDecService::mettreAJourDerniereIdApplication($application, $this->getEntityManager(), $numeroDdp);
-                // recupération du type de demande "DDP après livraison"
-                $ddpApresLivraison = $this->getEntityManager()->getRepository(TypeDemande::class)->find(TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE);
-                if (!$ddpApresLivraison) {
-                    throw new \Exception("Le type de demande 'DDP après livraison' (ID 2) n'a pas été trouvé.");
-                }
-                // recupération des informations dans IPS
-                $demandePaiementModel = new DemandePaiementModel();
+                $numeroDdp = $this->genererNumeroDdp();
+                $typeDdp = $this->getTypeDdp();
 
                 if (null === $value->getNumeroFournisseur()) {
                     throw new \Exception("Le numéro de fournisseur est manquant pour le BAP : " . $value->getNumeroBap());
@@ -67,6 +56,7 @@ class DdpApiController extends Controller
                 }
 
                 // recup info ips pour la da
+                $demandePaiementModel = new DemandePaiementModel();
                 $infoIps = $demandePaiementModel->recupInfoPourDa($value->getNumeroFournisseur(), $value->getNumeroCde())[0] ?? [];
 
                 if (empty($infoIps)) {
@@ -79,7 +69,7 @@ class DdpApiController extends Controller
 
                 // remplissage de la nouvelle demande de paiement
                 $ddp->setNumeroDdp($numeroDdp)
-                    ->setTypeDemandeId($ddpApresLivraison)
+                    ->setTypeDemandeId($typeDdp)
                     ->setNumeroFournisseur($infoIps['num_fournisseur'] ?? '')
                     ->setRibFournisseur($infoIps['rib'] ?? '')
                     ->setBeneficiaire($infoIps['nom_fournisseur'] ?? '')
@@ -112,8 +102,17 @@ class DdpApiController extends Controller
                 $value->setNumeroDemandePaiement($numeroDdp)
                     ->setStatutBap('Transmise')
                     ->setDateSoumissionCompta(new DateTime())
+                    ->setNumeroCla($numeroCla)
                 ;
+
                 $this->getEntityManager()->persist($value);
+
+                /** renomage et copie du fichier BAP dans DW */
+                $fileCheckerService = new FileCheckerService($_ENV['BASE_PATH_FICHIER']);
+                $bapFullpath = $fileCheckerService->getBapFullPath($value->getNumeroDemandeAppro(), $value->getNumeroCde());
+                $fileNameForDW = $value->getNumeroBap() . '#' . $value->getNumeroCla() . '.pdf';
+                $generatePdf = new GeneratePdf();
+                $generatePdf->copyToDWBapDa($bapFullpath, $fileNameForDW);
             }
 
             $this->getEntityManager()->flush();
@@ -133,5 +132,40 @@ class DdpApiController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    private function genererNumeroCla(): string
+    {
+        $em = $this->getEntityManager();
+        //recupereation de l'application CLA pour generer le numero de cla
+        $application = $em->getRepository(Application::class)->findOneBy(['codeApp' => 'CLA']);
+        //generation du numero de cla
+        $numeroCla = AutoIncDecService::autoGenerateNumero('CLA', $application->getDerniereId(), false);
+        //mise a jour de la derniere id de l'application CLA
+        AutoIncDecService::mettreAJourDerniereIdApplication($application, $em, $numeroCla);
+
+        return $numeroCla;
+    }
+
+    private function genererNumeroDdp(): string
+    {
+        //recupereation de l'application DDP pour generer le numero de ddp
+        $application = $this->getEntityManager()->getRepository(Application::class)->findOneBy(['codeApp' => 'DDP']);
+        if (!$application) {
+            throw new \Exception("L'application 'DDP' n'a pas été trouvée dans la configuration.");
+        }
+        //generation du numero de ddp
+        $numeroDdp = AutoIncDecService::autoGenerateNumero('DDP', $application->getDerniereId(), true);
+        //mise a jour de la derniere id de l'application DDP
+        AutoIncDecService::mettreAJourDerniereIdApplication($application, $this->getEntityManager(), $numeroDdp);
+
+        return $numeroDdp;
+    }
+
+    private function getTypeDdp(): TypeDemande
+    {
+        // recupération du type de demande de paiement
+        $typeApresLivraison = $this->getEntityManager()->getRepository(TypeDemande::class)->find(TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE);
+        return  $typeApresLivraison;
     }
 }

@@ -200,6 +200,14 @@ class GeneratePdf
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 
+    //BAP de demande appro
+    public function copyToDWBapDa($fileNamePathBap, $fileNameForDw)
+    {
+        $cheminFichierDistant = $this->baseCheminDocuware . 'DEMANDE_DE_PAIEMENT/' . $fileNameForDw;
+        $cheminDestinationLocal = $fileNamePathBap;
+        $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
+    }
+
     //bl reappro de demande appro
     public function copyToDWBLReappro($fileName, $numDa)
     {
