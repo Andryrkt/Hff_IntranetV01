@@ -117,6 +117,7 @@ class DaSoumissionFacBlController extends Controller
 
             $numCde  = $dto->numeroCde;
             $numDa   = $dto->numeroDemandeAppro;
+            $numLiv = $dto->numLiv;
 
             if ($this->verifierConditionDeBlocage($dto)) {
                 // Traitement du fichier

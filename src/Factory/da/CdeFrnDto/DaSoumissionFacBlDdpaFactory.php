@@ -3,6 +3,7 @@
 namespace App\Factory\da\CdeFrnDto;
 
 use App\Constants\da\TypeDaConstants;
+use App\Constants\ddp\TypeDemandePaiementConstants;
 use App\Dto\Da\ListeCdeFrn\DaDdpaDto;
 use App\Dto\Da\ListeCdeFrn\DaSituationReceptionDto;
 use App\Dto\Da\ListeCdeFrn\DaSoumissionFacBlDdpaDto;
@@ -171,6 +172,8 @@ class DaSoumissionFacBlDdpaFactory
         $daSoumissionBcRepository = $this->em->getRepository(DaSoumissionBc::class);
         $daAfficherRepository = $this->em->getRepository(DaAfficher::class);
         $infoDa = $daAfficherRepository->getInfoDa($numCde);
+        $typeApresLivraison = $typeDemandeRepository->find(TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE);
+        $typeRegule = $typeDemandeRepository->find(TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_REGULE);
 
 
         $infoFournisseur = $this->ddpModel->recupInfoPourDa($infoDa['numeroFournisseur'], $numCde);
@@ -185,7 +188,7 @@ class DaSoumissionFacBlDdpaFactory
 
         $dto->numeroDdp = $this->numeroDdp();
         $dto->debiteur = $this->debiteur($infoDa['daTypeId'], $infoDa);
-        $dto->typeDemande = $typeDemandeRepository->find(2);
+        $dto->typeDemande = $dto->montantAregulariser === 0 ? $typeRegule : $typeApresLivraison;
         $dto->statut = 'Soumis à validation';
         $dto->demandeur = $user->getNomUtilisateur();
         $dto->adresseMailDemandeur = $user->getMail();
