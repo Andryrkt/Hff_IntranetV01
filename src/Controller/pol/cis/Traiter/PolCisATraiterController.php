@@ -2,14 +2,13 @@
 
 namespace App\Controller\Pol\cis\Traiter;
 
-
 use App\Controller\Controller;
-use App\Entity\admin\Application;
 use Symfony\Component\Form\FormInterface;
 use App\Form\magasin\cis\ATraiterSearchType;
+use App\Constants\admin\ApplicationConstant;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\magasin\cis\AtraiterTrait;
+use App\Service\TableauEnStringService;
 
 /**
  * @Route("/pol/cis-pol")
@@ -22,13 +21,13 @@ class PolCisATraiterController extends Controller
      */
     public function listCisATraiter(Request $request)
     {
-        /** CREATION D'AUTORISATION */
-        $autoriser = $this->autorisationRole($this->getEntityManager());
-        //FIN AUTORISATION
+        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_POL);
 
-        $agenceUser = $this->agenceUser($autoriser);
+        $codeAgence = array_column($agenceServiceAutorises, 'agence_code');
 
-        $form = $this->getFormFactory()->createBuilder(ATraiterSearchType::class, ['agenceUser' => $agenceUser, 'autoriser' => $autoriser], [
+        $agenceUser = TableauEnStringService::TableauEnString(',', $codeAgence);
+
+        $form = $this->getFormFactory()->createBuilder(ATraiterSearchType::class, ['agenceUser' => $agenceUser], [
             'method' => 'GET',
             'est_pneumatique' => true
         ])->getForm();
