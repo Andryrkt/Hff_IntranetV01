@@ -2,6 +2,7 @@
 
 namespace App\Controller\da\ListeDa;
 
+use App\Constants\admin\ApplicationConstant;
 use App\Model\da\DaModel;
 use App\Entity\da\DaSearch;
 use App\Entity\da\DaAfficher;
@@ -66,14 +67,22 @@ class listeDaController extends Controller
 
         $codeCentrale = false; // TODO : autorisation sur le code centrale
 
+        // Agences Services autorisés sur le BADM
+        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DAP);
         //formulaire de recherche
-        $form = $this->getFormFactory()->createBuilder(DaSearchType::class, $daSearch, ['method' => 'GET'])->getForm();
+        $form = $this->getFormFactory()->createBuilder(DaSearchType::class, $daSearch, [
+            'method' => 'GET',
+            'agenceServiceAutorises' => $agenceServiceAutorises
+        ])->getForm();
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var DaSearch $daSearch */
             $daSearch = $form->getData();
         }
+
+        $this->gererAgenceService($daSearch, $agenceServiceAutorises);
+
         $criteria = [];
         //transformer l'objet daSearch en tableau
         $criteria = $daSearch->toArray();
@@ -90,7 +99,7 @@ class listeDaController extends Controller
         $limit = 20;
 
         // Donnée à envoyer à la vue
-        $paginationData = $this->getPaginationData($criteria, $page, $limit);
+        $paginationData = $this->getPaginationData($criteria, $agenceServiceAutorises, $page, $limit);
         $dataPrepared = $this->prepareDataForDisplay($paginationData['data']);
 
         /** === Formulaire pour la date de livraison prevu === */
@@ -132,6 +141,25 @@ class listeDaController extends Controller
 
             $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'Date de livraison prévue modifier avec succèss']);
             $this->redirectToRoute("da_list_cde_frn");
+        }
+    }
+
+    private function gererAgenceService(DaSearch $daSearch, array $agenceServiceAutorises): void
+    {
+        // Changer le serviceEmetteur
+        if ($daSearch->getServiceEmetteur()) {
+            $ligneId = $daSearch->getServiceEmetteur();
+            if ($ligneId && isset($agenceServiceAutorises[$ligneId])) {
+                $daSearch->setServiceEmetteur($agenceServiceAutorises[$ligneId]['service_id']);
+            }
+        }
+
+        // Changer le serviceDebiteur
+        if ($daSearch->getServiceDebiteur()) {
+            $ligneId = $daSearch->getServiceDebiteur();
+            if ($ligneId && isset($agenceServiceAutorises[$ligneId])) {
+                $daSearch->setServiceDebiteur($agenceServiceAutorises[$ligneId]['service_id']);
+            }
         }
     }
 }

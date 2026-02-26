@@ -84,10 +84,8 @@ trait DaListeTrait
         ];
     }
 
-    public function getPaginationData(array $criteria, int $page, int $limit): array
+    public function getPaginationData(array $criteria, array $agenceServiceAutorises, int $page, int $limit): array
     {
-        // Agences Services autorisés sur le BADM
-        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DAP);
         $paginationData = $this->daAfficherRepository->findPaginatedAndFilteredDA($criteria, $agenceServiceAutorises, $page, $limit);
         /** @var array $daAffichers Filtrage des DA en fonction des critères */
         $daAffichers = $paginationData['data'];
