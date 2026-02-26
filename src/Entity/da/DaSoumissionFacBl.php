@@ -144,6 +144,13 @@ class DaSoumissionFacBl
      */
     private ?string $numeroFactureReappro = null;
 
+    /**
+     * @ORM\Column(type="string", length=11, name="numero_cla", nullable=true)
+     *
+     * @var string|null
+     */
+    private ?string $numeroCla = null;
+
 
     private $pieceJoint2;
 
@@ -616,6 +623,24 @@ class DaSoumissionFacBl
     public function setNumeroFactureReappro(?string $numeroFactureReappro): self
     {
         $this->numeroFactureReappro = $numeroFactureReappro;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroCla
+     */
+    public function getNumeroCla(): ?string
+    {
+        return $this->numeroCla;
+    }
+
+    /**
+     * Set the value of numeroCla
+     */
+    public function setNumeroCla(?string $numeroCla): self
+    {
+        $this->numeroCla = $numeroCla;
 
         return $this;
     }

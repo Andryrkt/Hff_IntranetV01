@@ -236,17 +236,6 @@ class DaSoumissionFacBlController extends Controller
     }
 
 
-    private function genererNumeroBap(): string
-    {
-        //recupereation de l'application BAP pour generer le numero de bap
-        $application = $this->getEntityManager()->getRepository(Application::class)->findOneBy(['codeApp' => 'BAP']);
-        //generation du numero de bap
-        $numeroBap = AutoIncDecService::autoGenerateNumero('BAP', $application->getDerniereId(), true);
-        //mise a jour de la derniere id de l'application BAP
-        AutoIncDecService::mettreAJourDerniereIdApplication($application, $this->getEntityManager(), $numeroBap);
-        return $numeroBap;
-    }
-
     /**
      * Enregistrement des fichiers téléchagrer dans le dossier de destination
      *

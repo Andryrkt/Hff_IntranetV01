@@ -41,4 +41,7 @@ class DaSoumissionFacBlDto
     // Reappro =====================
     public $estfactureReappro = false;
     public $numerofactureReappro = null;
+
+    // CLA =========================
+    public $numeroCla = null;
 }
