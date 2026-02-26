@@ -82,11 +82,6 @@ services:
       - "@doctrine.orm.default_entity_manager"
     public: true
 
-  App\Form\ddp\DdpSearchType:
-    arguments:
-      - "@doctrine.orm.default_entity_manager"
-    public: true
-
   App\Form\admin\AgenceServiceType:
     arguments:
       - "@doctrine.orm.default_entity_manager"

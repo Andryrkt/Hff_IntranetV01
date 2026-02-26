@@ -232,6 +232,7 @@ class BadmListeController extends Controller
                 } else {
                     $paginationData['data'][$i]->setNumParc($badms[0]['num_parc']);
                 }
+                
             }
         }
     }
