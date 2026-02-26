@@ -4,14 +4,12 @@ namespace App\Controller\ddp;
 
 use App\Controller\Controller;
 use App\Form\ddp\DdpSearchType;
-use App\Entity\admin\Application;
-use App\Entity\admin\ddp\ddpSearch;
+use App\Entity\admin\ddp\DdpSearch;
 use App\Entity\ddp\DemandePaiement;
-use App\Entity\ddp\DemandePaiementLigne;
+use App\Constants\admin\ApplicationConstant;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\ddp\DemandePaiementRepository;
-use App\Repository\ddp\DemandePaiementLigneRepository;
 
 /**
  * @Route("/compta/demande-de-paiement")
@@ -34,17 +32,22 @@ class DdpListeController extends Controller
      */
     public function ddpListe(Request $request)
     {
+        // Agences Services autorisés sur le BADM
+        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DDP);
+
         $form = $this->getFormFactory()->createBuilder(DdpSearchType::class, $this->ddpSearch, [
             'method' => 'GET',
+            'agenceServiceAutorises' => $agenceServiceAutorises
         ])->getForm();
         $form->handleRequest($request);
-        $criteria = $this->ddpSearch;
+
         if ($form->isSubmitted() && $form->isValid()) {
-            $criteria =  $form->getdata();
-            // dd($criteria);
+            $this->ddpSearch =  $form->getdata();
         }
-        // $data = $this->demandePaiementRepository->findBy([], ['dateCreation' => 'DESC']);
-        $data = $this->demandePaiementRepository->findDemandePaiement($criteria);
+
+        $this->gererAgenceService($this->ddpSearch, $agenceServiceAutorises);
+
+        $data = $this->demandePaiementRepository->findDemandePaiement($this->ddpSearch, $agenceServiceAutorises);
         /** suppression de ssession page_loadede  */
         if ($this->getSessionService()->has('page_loaded')) {
             $this->getSessionService()->remove('page_loaded');
@@ -55,5 +58,16 @@ class DdpListeController extends Controller
             'data' => $data,
             'form' => $form->createView(),
         ]);
+    }
+
+    private function gererAgenceService(DdpSearch $ddpSearch, array $agenceServiceAutorises): void
+    {
+        // Changer le serviceDebiteur
+        if ($ddpSearch->getService()) {
+            $ligneId = $ddpSearch->getService();
+            if ($ligneId && isset($agenceServiceAutorises[$ligneId])) {
+                $ddpSearch->setService($agenceServiceAutorises[$ligneId]['service_code']);
+            }
+        }
     }
 }

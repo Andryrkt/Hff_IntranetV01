@@ -3,6 +3,7 @@
 namespace App\Repository\ddp;
 
 use Doctrine\ORM\EntityRepository;
+use App\Entity\admin\ddp\DdpSearch;
 use App\Service\TableauEnStringService;
 
 class DemandePaiementRepository extends EntityRepository
@@ -59,7 +60,7 @@ class DemandePaiementRepository extends EntityRepository
         return $numeroVersionMax;
     }
 
-    public function findDemandePaiement($criteria)
+    public function findDemandePaiement(DdpSearch $ddpSearch, array $agenceServiceAutorises)
     {
         $qb = $this->createQueryBuilder('d');
 
@@ -73,79 +74,76 @@ class DemandePaiementRepository extends EntityRepository
                 AND dp2.serviceDebiter = d.serviceDebiter
             )'
         );
-        if (!empty($criteria->getAgence())) {
+
+        if (!empty($ddpSearch->getAgence())) {
             $qb->andWhere('d.agenceDebiter = :agenceDebiter')
-                ->setParameter('agenceDebiter', $criteria->getAgence()->getCodeAgence());
+                ->setParameter('agenceDebiter', $ddpSearch->getAgence());
         }
-        if (!empty($criteria->getService())) {
+        if (!empty($ddpSearch->getService())) {
             $qb->andWhere('d.serviceDebiter = :serviceDebiter')
-                ->setParameter('serviceDebiter', $criteria->getService()->getCodeService());
+                ->setParameter('serviceDebiter', $ddpSearch->getService());
         }
-        if (!empty($criteria->getTypeDemande())) {
+        if (!empty($ddpSearch->getTypeDemande())) {
             $qb->andWhere('d.typeDemandeId = :typeDemandeId')
-                ->setParameter('typeDemandeId', $criteria->getTypeDemande()->getId());
+                ->setParameter('typeDemandeId', $ddpSearch->getTypeDemande()->getId());
         }
-        if (!empty($criteria->getNumDdp())) {
+        if (!empty($ddpSearch->getNumDdp())) {
             $qb->andWhere('d.numeroDdp = :numeroDdp')
-                ->setParameter('numeroDdp', $criteria->getNumDdp());
+                ->setParameter('numeroDdp', $ddpSearch->getNumDdp());
         }
-        if (!empty($criteria->getNumCommande())) {
+        if (!empty($ddpSearch->getNumCommande())) {
             $qb->andWhere('d.numeroCommande LIKE :numeroCommande')
-                ->setParameter('numeroCommande', '%' . $criteria->getNumCommande() . '%');
+                ->setParameter('numeroCommande', '%' . $ddpSearch->getNumCommande() . '%');
         }
-        if (!empty($criteria->getNumFacture())) {
+        if (!empty($ddpSearch->getNumFacture())) {
             $qb->andWhere('d.numeroFacture LIKE :numeroFacture')
-                ->setParameter('numeroFacture', '%' . $criteria->getNumFacture() . '%');
+                ->setParameter('numeroFacture', '%' . $ddpSearch->getNumFacture() . '%');
         }
 
-        if (!empty($criteria->getUtilisateur())) {
+        if (!empty($ddpSearch->getUtilisateur())) {
             $qb->andWhere('d.demandeur = :demandeur')
-                ->setParameter('demandeur', $criteria->getUtilisateur());
+                ->setParameter('demandeur', $ddpSearch->getUtilisateur());
         }
 
-        if (!empty($criteria->getStatut())) {
+        if (!empty($ddpSearch->getStatut())) {
             $qb->andWhere('d.statut = :statut')
-                ->setParameter('statut', $criteria->getStatut());
+                ->setParameter('statut', $ddpSearch->getStatut());
         }
 
-        if (!empty($criteria->getDateDebut())) {
+        if (!empty($ddpSearch->getDateDebut())) {
             $qb->andWhere('d.dateDemande >= :dateDebut')
-                ->setParameter('dateDebut', $criteria->getDateDebut());
+                ->setParameter('dateDebut', $ddpSearch->getDateDebut());
         }
 
-        if (!empty($criteria->getDateFin())) {
+        if (!empty($ddpSearch->getDateFin())) {
             $qb->andWhere('d.dateDemande <= :dateFin')
-                ->setParameter('dateFin', $criteria->getDateFin());
+                ->setParameter('dateFin', $ddpSearch->getDateFin());
         }
 
-        if (!empty($criteria->getFournisseur())) {
+        if (!empty($ddpSearch->getFournisseur())) {
             $qb->andWhere('d.numeroFournisseur = :numFournisseur')
-                ->setParameter('numFournisseur', explode('-', $criteria->getFournisseur())[0]);
+                ->setParameter('numFournisseur', explode('-', $ddpSearch->getFournisseur())[0]);
         }
 
-        // Tri
-        $qb->orderBy('d.dateCreation', 'DESC');
-        // $query = $qb->getQuery();
-        //         $sql = $query->getSQL();
-        //         $params = $query->getParameters();
+        // Condition sur les couples agences-services
+        $orX = $qb->expr()->orX();
+        foreach ($agenceServiceAutorises as $i => $tab) {
+            $orX->add(
+                $qb->expr()->andX(
+                    $qb->expr()->eq('d.agenceDebiter', ':ag_' . $i),
+                    $qb->expr()->eq('d.serviceDebiter', ':serv_' . $i)
+                )
+            );
+            $qb->setParameter('ag_' . $i, $tab['agence_code']);
+            $qb->setParameter('serv_' . $i, $tab['service_code']);
+        }
 
-        //         dump("SQL : " . $sql . "\n");
-        //         foreach ($params as $param) {
-        //             dump($param->getName());
-        //             dump($param->getValue());
-        //         }
-        //         die();
+        $qb
+            ->andWhere($orX)
+            ->orderBy('d.dateCreation', 'DESC');
+
         return $qb->getQuery()->getResult();
     }
-
-    // public function getnumFacture()
-    // {
-    //     return  $this->createQueryBuilder('d')
-    //             ->select('d.numeroFacture')
-    //             ->getQuery()
-    //             ->getSingleColumnResult()
-    //             ;
-    // }
 
     public function getnumCde()
     {
