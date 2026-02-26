@@ -69,9 +69,7 @@ class PlanningSearchType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        //$serviceDebite = $planningModel->recuperationServiceDebite();
         $agence = $this->transformEnSeulTableauAvecKey($this->planningModel->recuperationAgenceIrium());
-        $annee = $this->planningModel->recuperationAnneeplannification();
         $agenceDebite = $this->planningModel->recuperationAgenceDebite();
         $section = $this->planningModel->recuperationSection();
         $builder
@@ -80,11 +78,6 @@ class PlanningSearchType extends AbstractType
                 'required' => false,
                 'choices' => $agence,
                 'placeholder' => ' -- Choisir une agence --',
-                /*'choice_label' => function($choice,$key,$values){
-                      return $values;  
-                    },*/
-
-
             ])
             ->add('niveauUrgence', EntityType::class, [
                 'label' => 'Niveau d\'urgence',
@@ -100,14 +93,6 @@ class PlanningSearchType extends AbstractType
                     'class' => 'niveauUrgence'
                 ]
             ])
-
-            // ->add('annee', ChoiceType::class,[
-            //     'label' =>'Année',
-            //     'required' =>true,
-            //     'choices' => $annee,
-            //     'placeholder' => " -- Choisir l'année --",
-            //     'data' => date('Y')
-            // ])
             ->add('interneExterne', ChoiceType::class, [
                 'label' => 'Interne / Externe',
                 'required' => true,

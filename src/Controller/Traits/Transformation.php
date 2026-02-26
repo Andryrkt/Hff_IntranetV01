@@ -11,14 +11,13 @@ trait Transformation
     {
         $tab = [];
         foreach ($tabs as  $values) {
-            if(is_array($values)){
+            if (is_array($values)) {
                 foreach ($values as $value) {
                     $tab[] = $value;
                 }
             } else {
                 $tab[] = $values;
             }
-            
         }
 
         return $tab;
@@ -28,7 +27,7 @@ trait Transformation
     {
         $tab = [];
         foreach ($tabs as   $values) {
-            foreach ($values as $key =>$value) {
+            foreach ($values as $key => $value) {
                 $tab[$key] = $value;
             }
         }
@@ -39,13 +38,13 @@ trait Transformation
     {
         $tab = [];
         foreach ($tabs as   $values) {
-           
             $tab[$values['text']] = $values['value'];
         }
         return $tab;
     }
 
-    public function transformeValeur(array $tabs, string $keyLabel, string $keyValue): array{
+    public function transformeValeur(array $tabs, string $keyLabel, string $keyValue): array
+    {
         $tab = [];
         foreach ($tabs as $values) {
             $tab[$values[$keyLabel]] = $values[$keyValue];
