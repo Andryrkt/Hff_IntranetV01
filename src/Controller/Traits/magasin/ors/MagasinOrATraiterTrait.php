@@ -12,7 +12,7 @@ trait MagasinOrATraiterTrait
     private function recupData(array $criteria)
     {
         $magasinListeOrATraiterModel = new MagasinListeOrATraiterModel();
-        $lesOrSelonCondition = $this->recupNumOrTraiterSelonCondition($criteria, $magasinListeOrATraiterModel, $this->getEntityManager());
+        $lesOrSelonCondition = $this->recupNumOrTraiterSelonCondition($criteria, $magasinListeOrATraiterModel);
 
         $data = $magasinListeOrATraiterModel->recupereListeMaterielValider($criteria, $lesOrSelonCondition);
 
@@ -32,7 +32,7 @@ trait MagasinOrATraiterTrait
         return $data;
     }
 
-    private function recupNumOrTraiterSelonCondition(array $criteria, $magasinListeOrATraiterModel, $em): array
+    private function recupNumOrTraiterSelonCondition(array $criteria, MagasinListeOrATraiterModel $magasinListeOrATraiterModel): array
     {
         /** @var array $numOrItv @var array $numORTouCourt @ */
         [$numOrItv, $numORTouCourt] = $magasinListeOrATraiterModel->recupNumOr($criteria);
