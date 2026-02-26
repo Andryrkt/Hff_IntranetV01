@@ -7,12 +7,11 @@ ini_set('max_execution_time', 10000);
 ini_set('memory_limit', '1000M');
 
 use App\Controller\Controller;
-use App\Entity\admin\utilisateur\Role;
 use App\Service\TableauEnStringService;
 use App\Controller\Traits\Transformation;
 use Symfony\Component\Form\FormInterface;
+use App\Constants\admin\ApplicationConstant;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
 use App\Form\magasin\MagasinListeOrALivrerSearchType;
 use App\Controller\Traits\magasin\ors\MagasinOrALivrerTrait;
 
@@ -30,19 +29,13 @@ class OrLivrerController extends Controller
      */
     public function listOrLivrer(Request $request)
     {
-        $codeAgence = $this->getUser()->getAgenceAutoriserCode();
+        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_POL);
 
-        /** CREATION D'AUTORISATION */
-        $autoriser = $this->hasRoles(Role::ROLE_ADMINISTRATEUR, Role::ROLE_MULTI_SUCURSALES);
-        //FIN AUTORISATION
+        $codeAgence = array_column($agenceServiceAutorises, 'agence_code');
 
-        if ($autoriser) {
-            $agenceUser = "''";
-        } else {
-            $agenceUser = TableauEnStringService::TableauEnString(',', $codeAgence);
-        }
+        $agenceUser = TableauEnStringService::TableauEnString(',', $codeAgence);
 
-        $form = $this->getFormFactory()->createBuilder(MagasinListeOrALivrerSearchType::class, ['agenceUser' => $agenceUser, 'autoriser' => $autoriser], [
+        $form = $this->getFormFactory()->createBuilder(MagasinListeOrALivrerSearchType::class, ['agenceUser' => $agenceUser], [
             'method' => 'GET',
             'est_pneumatique' => true
         ])->getForm();
