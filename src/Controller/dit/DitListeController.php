@@ -12,7 +12,6 @@ use App\Form\dit\DitSearchType;
 use App\Form\dit\DocDansDwType;
 use App\Model\dit\DitListModel;
 use App\Entity\admin\StatutDemande;
-use App\Entity\admin\utilisateur\Role;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\dit\DitListTrait;
 use App\Constants\admin\ApplicationConstant;
