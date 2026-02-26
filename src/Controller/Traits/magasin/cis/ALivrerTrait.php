@@ -17,17 +17,4 @@ trait ALivrerTrait
 
         return $data;
     }
-
-    private function agenceUser($autoriser): ?string
-    {
-        $codeAgence = $this->getUser()->getAgenceAutoriserCode();
-
-        if ($autoriser) {
-            $agenceUser = "''";
-        } else {
-            $agenceUser = TableauEnStringService::TableauEnString(',', $codeAgence);
-        }
-
-        return $agenceUser;
-    }
 }
