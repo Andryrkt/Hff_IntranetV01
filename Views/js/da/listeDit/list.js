@@ -1,5 +1,3 @@
-import { configAgenceService } from "../../dit/config/listDitConfig";
-import { handleAgenceChange } from "../../dit/fonctionUtils/fonctionListDit";
 import {
   toUppercase,
   limitInputLength,
@@ -7,19 +5,22 @@ import {
 } from "../../utils/inputUtils";
 import { displayOverlay } from "../../utils/ui/overlay";
 import { handleRowClick } from "../propositionAvecDit/dalr";
+import { filterServiceByAgence } from "../../utils/agenceService/filterServiceByAgence.js";
 
 document.addEventListener("DOMContentLoaded", function () {
   /**===========================================================================
    * Configuration des agences et services
    **============================================================================*/
 
-  // Attachement des événements pour les agences
-  configAgenceService.emetteur.agenceInput.addEventListener("change", () =>
-    handleAgenceChange("emetteur")
-  );
-  configAgenceService.debiteur.agenceInput.addEventListener("change", () =>
-    handleAgenceChange("debiteur")
-  );
+  filterServiceByAgence({
+    agenceSelector: "#dit_search_agenceEmetteur",
+    serviceSelector: "#dit_search_serviceEmetteur",
+  });
+
+  filterServiceByAgence({
+    agenceSelector: "#dit_search_agenceDebiteur",
+    serviceSelector: "#dit_search_serviceDebiteur",
+  });
 
   /**====================================================
    * MISE EN MAJUSCULE
