@@ -16,6 +16,7 @@ use App\Entity\admin\dit\WorTypeDocument;
 use App\Entity\admin\dit\WorNiveauUrgence;
 use App\Repository\admin\AgenceRepository;
 use App\Repository\admin\ServiceRepository;
+use App\Constants\admin\ApplicationConstant;
 use App\Controller\Traits\da\DaListeDitTrait;
 use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
@@ -61,39 +62,29 @@ class DaListeDitController extends Controller
      */
     public function listeDIT(Request $request)
     {
-        //recupère les information de l'utilisateur connecter
-        $user = $this->getUser();
-
-        //recuperation agence et service autoriser
-        $agenceIds = $user->getAgenceAutoriserIds();
-        $serviceIds = $user->getServiceAutoriserIds();
-
-        //creation d'autorisation
-        $autoriser = $this->autorisationRole();
-        $autorisationRoleEnergie = $this->autorisationRoleEnergie();
-
         //initialisation du champ de recherche
         $ditSearch = $this->initialisationRechercheDit();
+
+        // Agences Services autorisés sur le DIT
+        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DIT);
 
         //création et initialisation du formulaire de la recherche
         $form = $this->getFormFactory()->createBuilder(DitSearchType::class, $ditSearch, [
             'method' => 'GET',
-            'autorisationRoleEnergie' => $autorisationRoleEnergie
+            'agenceServiceAutorises' => $agenceServiceAutorises
         ])->getForm();
 
-        $criteria = $this->recupDataFormulaireRecherhce($form, $request);
+        $ditSearch = $this->recupDataFormulaireRecherhce($form, $request);
+
+        $this->gererAgenceService($ditSearch, $agenceServiceAutorises);
 
         //transformer l'objet ditSearch en tableau
-        $criteriaTab = $criteria->toArray();
+        $criteriaTab = $ditSearch->toArray();
 
         $this->ajoutCriteredansSession($criteriaTab);
 
-        $agenceServiceIps = $this->agenceServiceIpsObjet();
-        $agenceServiceEmetteur = $this->agenceServiceEmetteur($agenceServiceIps, $autoriser);
-        $option = $this->Option($autoriser, $autorisationRoleEnergie, $agenceServiceEmetteur, $agenceIds, $serviceIds);
-
         //recupération des donnée
-        $paginationData = $this->data($request, $option, $criteria);
+        $paginationData = $this->data($request, $ditSearch, $agenceServiceAutorises);
 
         return $this->render('da/list-dit.html.twig', [
             'data'            => $paginationData['data'] ?? null,
@@ -105,5 +96,24 @@ class DaListeDitController extends Controller
             'form'            => $form->createView(),
             'formIsSubmitted' => $form->isSubmitted(),
         ]);
+    }
+
+    private function gererAgenceService(DitSearch $ditSearch, array $agenceServiceAutorises): void
+    {
+        // Changer le serviceEmetteur
+        if ($ditSearch->getServiceEmetteur()) {
+            $ligneId = $ditSearch->getServiceEmetteur();
+            if ($ligneId && isset($agenceServiceAutorises[$ligneId])) {
+                $ditSearch->setServiceEmetteur($agenceServiceAutorises[$ligneId]['service_id']);
+            }
+        }
+
+        // Changer le serviceDebiteur
+        if ($ditSearch->getServiceDebiteur()) {
+            $ligneId = $ditSearch->getServiceDebiteur();
+            if ($ligneId && isset($agenceServiceAutorises[$ligneId])) {
+                $ditSearch->setServiceDebiteur($agenceServiceAutorises[$ligneId]['service_id']);
+            }
+        }
     }
 }

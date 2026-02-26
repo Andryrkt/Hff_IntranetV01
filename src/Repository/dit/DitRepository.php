@@ -652,7 +652,7 @@ class DitRepository extends EntityRepository
      * @param array $options
      * @return void
      */
-    public function findPaginatedAndFilteredDa(int $page = 1, int $limit = 10, DitSearch $ditSearch, array $options)
+    public function findPaginatedAndFilteredDa(int $page = 1, int $limit = 10, DitSearch $ditSearch, array $agenceServiceAutorises)
     {
 
         $queryBuilder = $this->createQueryBuilder('d')
@@ -674,7 +674,7 @@ class DitRepository extends EntityRepository
         // section affect et support section
         $this->applySection($queryBuilder, $ditSearch);
 
-        $this->applyAgencyServiceFilters($queryBuilder, $ditSearch, $options);
+        $this->applyAgencyServiceFilters($queryBuilder, $ditSearch, $agenceServiceAutorises);
 
 
         $queryBuilder->orderBy('d.dateDemande', 'DESC')
@@ -702,7 +702,7 @@ class DitRepository extends EntityRepository
         //  echo $sql;
 
         // Récupérer le nombre de lignes par statut
-        $statusCounts = $this->countByStatus($ditSearch, $options);
+        $statusCounts = $this->countByStatus($ditSearch, $agenceServiceAutorises);
         //return $queryBuilder->getQuery()->getResult();
         return [
             'data' => iterator_to_array($paginator->getIterator()), // Convertir en tableau si nécessaire
