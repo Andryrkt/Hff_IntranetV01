@@ -26,7 +26,7 @@ trait PrepareAgenceServiceTrait
      *   - serviceChoices : [label service unique => id de ligne] (doublons de label autorisés, clé rendue unique)
      *   - serviceAttr    : [id de ligne => ['data-agence' => agence_id]] (attributs HTML des options service)
      */
-    private function prepareAgenceServiceChoices(array $agenceServiceAutorises): array
+    private function prepareAgenceServiceChoicesById(array $agenceServiceAutorises): array
     {
         $agenceChoices  = [];
         $serviceChoices = [];

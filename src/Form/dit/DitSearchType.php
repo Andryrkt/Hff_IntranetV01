@@ -300,7 +300,7 @@ class DitSearchType extends AbstractType
             )
         ;
 
-        $choices = $this->prepareAgenceServiceChoices($options['agenceServiceAutorises']);
+        $choices = $this->prepareAgenceServiceChoicesById($options['agenceServiceAutorises']);
 
         $agenceChoices = $choices['agenceChoices'];
         $serviceChoices = $choices['serviceChoices'];
