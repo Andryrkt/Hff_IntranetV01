@@ -2,15 +2,13 @@
 
 namespace App\Controller\pol\cis\Livrer;
 
-
 use App\Controller\Controller;
-use App\Entity\admin\Application;
+use App\Service\TableauEnStringService;
 use Symfony\Component\Form\FormInterface;
 use App\Form\magasin\cis\ALivrerSearchtype;
+use App\Constants\admin\ApplicationConstant;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\magasin\cis\ALivrerTrait;
-use App\Entity\admin\utilisateur\Role;
 
 /**
  * @Route("/pol/cis-pol")
@@ -23,13 +21,13 @@ class PolCisALivrerController extends Controller
      */
     public function listCisALivrer(Request $request)
     {
-        /** CREATION D'AUTORISATION */
-        $autoriser = $this->hasRoles(Role::ROLE_ADMINISTRATEUR, Role::ROLE_MULTI_SUCURSALES);
-        //FIN AUTORISATION
+        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_POL);
 
-        $agenceUser = $this->agenceUser($autoriser);
+        $codeAgence = array_column($agenceServiceAutorises, 'agence_code');
 
-        $form = $this->getFormFactory()->createBuilder(ALivrerSearchtype::class, ['agenceUser' => $agenceUser, 'autoriser' => $autoriser], [
+        $agenceUser = TableauEnStringService::TableauEnString(',', $codeAgence);
+
+        $form = $this->getFormFactory()->createBuilder(ALivrerSearchtype::class, ['agenceUser' => $agenceUser], [
             'method' => 'GET',
             'est_pneumatique' => true
         ])->getForm();
