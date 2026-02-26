@@ -58,8 +58,10 @@ class DaSoumissionFacBlRepository extends EntityRepository
             ->select('dabc.numLiv')
             ->where('dabc.numeroDemandeAppro = :numDa')
             ->andWhere('dabc.numeroCde = :numCde')
+            ->andWhere('dabc.statut != :statut')
             ->setParameter('numDa', $numDa)
             ->setParameter('numCde', $numCde)
+            ->setParameter('statut', 'refusé')
             ->getQuery()
             ->getSingleColumnResult());
     }
