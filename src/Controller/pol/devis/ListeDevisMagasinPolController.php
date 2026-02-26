@@ -136,7 +136,6 @@ class ListeDevisMagasinPolController extends Controller
 
     public function recuperationDonner(array $criteria = []): array
     {
-        // $codeAgenceUser = $this->getUser()->getCodeAgenceUser();
         $codeAgenceAutoriserString = TableauEnStringService::orEnString($this->getUser()->getAgenceAutoriserCode());
         $vignette = 'pneumatique';
         $adminMutli = in_array(1, $this->getUser()->getRoleIds()) || in_array(6, $this->getUser()->getRoleIds());

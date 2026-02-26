@@ -50,7 +50,7 @@ class ExportExcelController extends Controller
     public function getDataExcel(array $criteria): array
     {
         //recuperation de l'id de l'agence de l'utilisateur connecter
-        $codeAgence = $this->getCodeAgenceUser();
+        $codeAgence = $this->getSecurityService()->getCodeAgenceUser();
         $idAgenceUser = $this->agenceRepository->findOneBy(['codeAgence' => $codeAgence])->getId();
         $agServAutorisesUser = $this->getAgServAutorisesUser();
 

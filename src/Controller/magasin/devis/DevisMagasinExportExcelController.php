@@ -96,9 +96,7 @@ class DevisMagasinExportExcelController extends Controller
 
     public function recuperationDonner(array $criteria = []): array
     {
-        // $codeAgenceUser = $this->getUser()->getCodeAgenceUser();
         $codeAgenceAutoriserString = TableauEnStringService::orEnString($this->getUser()->getAgenceAutoriserCode());
-        // $vignette       = $codeAgenceUser === '01' ? 'magasin' : 'magasin_pol';
         $vignette = 'magasin';
         $adminMutli          = in_array(1, $this->getUser()->getRoleIds()) || in_array(6, $this->getUser()->getRoleIds());
 

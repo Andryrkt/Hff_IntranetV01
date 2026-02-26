@@ -40,7 +40,7 @@ class planningMagasinController extends Controller
     public function headPlanning(Request $request)
     {
         $autoriser = $this->estAutoriser();
-        $codeAgence = $autoriser ? "-0" : $this->getUser()->getCodeAgenceUser();
+        $codeAgence = $autoriser ? "-0" : $this->getSecurityService()->getCodeAgenceUser();
         /** FIN AUtorisation acées */
         //initialisation
         $this->planningMagasinSearch

@@ -85,7 +85,7 @@ trait DaListeTrait
 
     public function getPaginationData(array $criteria, int $page, int $limit): array
     {
-        $codeAgence = $this->getCodeAgenceUser();
+        $codeAgence = $this->getSecurityService()->getCodeAgenceUser();
         $idAgenceUser = $this->agenceRepository->findIdByCodeAgence($codeAgence);
         $agServAutorisesUser = $this->getAgServAutorisesUser();
         $paginationData = $this->daAfficherRepository->findPaginatedAndFilteredDA($criteria, $idAgenceUser, $agServAutorisesUser, $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier(), $this->hasRoles(Role::ROLE_ADMINISTRATEUR), $page, $limit);

@@ -402,7 +402,7 @@ trait DitListTrait
     {
         return  [
             'boolean' => $autoriser,
-            'user_agency' => $this->getUser()->getCodeAgenceUser(),
+            'user_agency' => $this->getSecurityService()->getCodeAgenceUser(),
         ];
     }
 
