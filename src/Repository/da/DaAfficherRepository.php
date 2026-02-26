@@ -488,11 +488,7 @@ class DaAfficherRepository extends EntityRepository
      */
     public function findPaginatedAndFilteredDA(
         array $criteria,
-        int $idAgenceUser,
-        array $agServAutorisesUser,
-        bool $estAppro,
-        bool $estAtelier,
-        bool $estAdmin,
+        array $agenceServiceAutorises,
         int $page,
         int $limit
     ): array {
@@ -511,9 +507,9 @@ class DaAfficherRepository extends EntityRepository
 
         // Appliquer les filtres sur la sous-requête (C'EST ICI QUE ÇA COMPTE)
         $this->applyDynamicFilters($subQb, "d", $criteria);
-        $this->applyAgencyServiceFilters($subQb, "d", $criteria, $idAgenceUser, $agServAutorisesUser, $estAppro, $estAtelier, $estAdmin);
+        $this->applyAgencyServiceFilters($subQb, "d", $criteria, $agenceServiceAutorises);
         $this->applyDateFilters($subQb, "d", $criteria);
-        $this->applyFilterAppro($subQb, "d", $estAppro, $estAdmin);
+        // $this->applyFilterAppro($subQb, "d", $estAppro, $estAdmin);
         $this->applyStatutsFilters($subQb, "d", $criteria);
 
         // IMPORTANT : il faut faire une sous-requête pour filtrer sur la dernière version
@@ -612,9 +608,9 @@ class DaAfficherRepository extends EntityRepository
 
         // Appliquer les mêmes filtres sur la requête principale
         $this->applyDynamicFilters($qb, "d", $criteria);
-        $this->applyAgencyServiceFilters($qb, "d", $criteria, $idAgenceUser, $agServAutorisesUser, $estAppro, $estAtelier, $estAdmin);
+        $this->applyAgencyServiceFilters($qb, "d", $criteria, $agenceServiceAutorises);
         $this->applyDateFilters($qb, "d", $criteria);
-        $this->applyFilterAppro($qb, "d", $estAppro, $estAdmin);
+        // $this->applyFilterAppro($qb, "d", $estAppro, $estAdmin);
         $this->applyStatutsFilters($qb, "d", $criteria);
 
         // Ordre final
@@ -840,26 +836,32 @@ class DaAfficherRepository extends EntityRepository
         }
     }
 
-    private function applyAgencyServiceFilters($qb, string $qbLabel, array $criteria, int $idAgenceUser, array $agServAutorisesUser, bool $estAppro, bool $estAtelier, bool $estAdmin)
+    private function applyAgencyServiceFilters($qb, string $qbLabel, array $criteria, array $agenceServiceAutorises)
     {
-        if (!$estAtelier && !$estAppro && !$estAdmin) {
-            $qb
-                ->andWhere(
-                    $qb->expr()->orX(
-                        "$qbLabel.agenceDebiteur IN (:agenceAutoriserIds)",
-                        "$qbLabel.agenceEmetteur = :codeAgence"
-                    )
+        // Condition sur les couples agences-services
+        $orX1 = $qb->expr()->orX();
+        $orX2 = $qb->expr()->orX();
+        foreach ($agenceServiceAutorises as $i => $tab) {
+            $orX1->add(
+                $qb->expr()->andX(
+                    $qb->expr()->eq("$qbLabel.agenceEmetteur", ':agEmetteur_' . $i),
+                    $qb->expr()->eq("$qbLabel.serviceEmetteur", ':servEmetteur_' . $i)
                 )
-                ->setParameter('agenceAutoriserIds', $agServAutorisesUser['agences'] ?? [], ArrayParameterType::INTEGER)
-                ->setParameter('codeAgence', $idAgenceUser)
-                ->andWhere(
-                    $qb->expr()->orX(
-                        "$qbLabel.serviceDebiteur IN (:serviceAutoriserIds)",
-                        "$qbLabel.serviceEmetteur IN (:serviceAutoriserIds)"
-                    )
+            );
+            $qb->setParameter('agEmetteur_' . $i, $tab['agence_id']);
+            $qb->setParameter('servEmetteur_' . $i, $tab['service_id']);
+            $orX2->add(
+                $qb->expr()->andX(
+                    $qb->expr()->eq("$qbLabel.agenceDebiteur", ':agDebiteur_' . $i),
+                    $qb->expr()->eq("$qbLabel.serviceDebiteur", ':servDebiteur_' . $i)
                 )
-                ->setParameter('serviceAutoriserIds', $agServAutorisesUser['services'] ?? [], ArrayParameterType::INTEGER);
+            );
+            $qb->setParameter('agDebiteur_' . $i, $tab['agence_id']);
+            $qb->setParameter('servDebiteur_' . $i, $tab['service_id']);
         }
+        $qb
+            ->andWhere($orX1)
+            ->andWhere($orX2);
 
         if (!empty($criteria['agenceEmetteur'])) {
             $qb->andWhere("$qbLabel.agenceEmetteur = :agEmet")
@@ -936,7 +938,7 @@ class DaAfficherRepository extends EntityRepository
     }
 
 
-    public function findDerniereVersionDesDA(array $criteria,  int $idAgenceUser, array $agServAutorisesUser, bool $estAppro, bool $estAtelier, bool $estAdmin): array //liste_da
+    public function findDerniereVersionDesDA(array $criteria, array $agenceServiceAutorises): array //liste_da
     {
         $qb = $this->createQueryBuilder('d');
 
@@ -951,10 +953,10 @@ class DaAfficherRepository extends EntityRepository
             ->setParameter('deleted', 0);
 
         $this->applyDynamicFilters($qb, 'd', $criteria);
-        $this->applyAgencyServiceFilters($qb, 'd', $criteria, $idAgenceUser, $agServAutorisesUser, $estAppro, $estAtelier, $estAdmin);
+        $this->applyAgencyServiceFilters($qb, 'd', $criteria, $agenceServiceAutorises);
         $this->applyDateFilters($qb, 'd', $criteria);
 
-        $this->applyFilterAppro($qb, 'd', $estAppro, $estAdmin);
+        // $this->applyFilterAppro($qb, 'd', $estAppro, $estAdmin);
         $this->applyStatutsFilters($qb, 'd', $criteria);
 
         $qb->orderBy('d.dateDemande', 'DESC')

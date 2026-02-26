@@ -64,7 +64,7 @@ class listeDaController extends Controller
         $daSearch = new DaSearch;
         $this->initialisationRechercheDa($daSearch);
 
-        $codeCentrale = $this->hasRoles(Role::ROLE_ADMINISTRATEUR) || in_array($this->getSecurityService()->getCodeAgenceUser(), ['90', '91', '92']);
+        $codeCentrale = false; // TODO : autorisation sur le code centrale
 
         //formulaire de recherche
         $form = $this->getFormFactory()->createBuilder(DaSearchType::class, $daSearch, ['method' => 'GET'])->getForm();

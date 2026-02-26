@@ -2,6 +2,7 @@
 
 namespace App\Controller\Traits\da;
 
+use App\Constants\admin\ApplicationConstant;
 use Twig\Markup;
 use App\Entity\da\DaSearch;
 use App\Entity\admin\Agence;
@@ -85,10 +86,9 @@ trait DaListeTrait
 
     public function getPaginationData(array $criteria, int $page, int $limit): array
     {
-        $codeAgence = $this->getSecurityService()->getCodeAgenceUser();
-        $idAgenceUser = $this->agenceRepository->findIdByCodeAgence($codeAgence);
-        $agServAutorisesUser = $this->getAgServAutorisesUser();
-        $paginationData = $this->daAfficherRepository->findPaginatedAndFilteredDA($criteria, $idAgenceUser, $agServAutorisesUser, $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier(), $this->hasRoles(Role::ROLE_ADMINISTRATEUR), $page, $limit);
+        // Agences Services autorisés sur le BADM
+        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DAP);
+        $paginationData = $this->daAfficherRepository->findPaginatedAndFilteredDA($criteria, $agenceServiceAutorises, $page, $limit);
         /** @var array $daAffichers Filtrage des DA en fonction des critères */
         $daAffichers = $paginationData['data'];
 
@@ -365,18 +365,6 @@ trait DaListeTrait
     {
         $criteria = $this->getSessionService()->get('criteria_search_list_da', []) ?? [];
 
-        $daSearch->toObject($criteria, $this->agServCriteria($criteria));
-    }
-
-    private function agServCriteria(array $criteria): array
-    {
-        $agServ = [
-            'agenceEmetteur'  => isset($criteria['agenceEmetteur']) ? $this->getEntityManager()->getRepository(Agence::class)->find($criteria['agenceEmetteur']) : null,
-            'agenceDebiteur'  => isset($criteria['agenceDebiteur']) ? $this->getEntityManager()->getRepository(Agence::class)->find($criteria['agenceDebiteur']) : null,
-            'serviceEmetteur' => isset($criteria['serviceEmetteur']) ? $this->getEntityManager()->getRepository(Service::class)->find($criteria['serviceEmetteur']) : null,
-            'serviceDebiteur' => isset($criteria['serviceDebiteur']) ? $this->getEntityManager()->getRepository(Service::class)->find($criteria['serviceDebiteur']) : null,
-        ];
-
-        return $agServ;
+        $daSearch->toObject($criteria);
     }
 }

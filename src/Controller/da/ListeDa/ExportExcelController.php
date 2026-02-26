@@ -2,13 +2,12 @@
 
 namespace App\Controller\da\ListeDa;
 
-use App\Entity\admin\Agence;
 use App\Entity\da\DaAfficher;
+use App\Service\ExcelService;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use Doctrine\ORM\EntityRepository;
-use App\Entity\admin\utilisateur\Role;
-use App\Service\ExcelService;
+use App\Constants\admin\ApplicationConstant;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -17,13 +16,11 @@ use Symfony\Component\Routing\Annotation\Route;
 class ExportExcelController extends Controller
 {
     private EntityRepository $daAfficherRepository;
-    private EntityRepository $agenceRepository;
 
     public function __construct()
     {
         parent::__construct();
         $this->daAfficherRepository = $this->getEntityManager()->getRepository(DaAfficher::class);
-        $this->agenceRepository = $this->getEntityManager()->getRepository(Agence::class);
     }
 
     /** 
@@ -33,12 +30,13 @@ class ExportExcelController extends Controller
     {
         $criteria = $this->getSessionService()->get('criteria_search_list_da');
 
-        $agenceServiceIps = $this->agenceServiceIpsObjet();
-        $agence           = $agenceServiceIps['agenceIps'];
-        $codeCentrale     = $this->hasRoles(Role::ROLE_ADMINISTRATEUR) || in_array($agence->getCodeAgence(), ['90', '91', '92']);
+        $codeCentrale     = false; // TODO : autorisation sur le code centrale
+
+        // Agences Services autorisés sur le BADM
+        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DAP);
 
         // recupération des données de la DA
-        $dasFiltered = $this->getDataExcel($criteria);
+        $dasFiltered = $this->getDataExcel($criteria, $agenceServiceAutorises);
 
         // Données généré des $dasFiltered
         $data = $this->generateTableData($dasFiltered, $codeCentrale);
@@ -47,15 +45,10 @@ class ExportExcelController extends Controller
         (new ExcelService())->createSpreadsheet($data, "donnees_" . date('Y-m-d_H-i-s'));
     }
 
-    public function getDataExcel(array $criteria): array
+    public function getDataExcel(array $criteria, array $agenceServiceAutorises): array
     {
-        //recuperation de l'id de l'agence de l'utilisateur connecter
-        $codeAgence = $this->getSecurityService()->getCodeAgenceUser();
-        $idAgenceUser = $this->agenceRepository->findOneBy(['codeAgence' => $codeAgence])->getId();
-        $agServAutorisesUser = $this->getAgServAutorisesUser();
-
         // Filtrage des DA en fonction des critères
-        $daAffichers = $this->daAfficherRepository->findDerniereVersionDesDA($criteria, $idAgenceUser, $agServAutorisesUser, $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier(), $this->hasRoles(Role::ROLE_ADMINISTRATEUR));
+        $daAffichers = $this->daAfficherRepository->findDerniereVersionDesDA($criteria, $agenceServiceAutorises);
 
         // Retourne les DA filtrées
         return $daAffichers;

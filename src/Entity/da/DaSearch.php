@@ -26,11 +26,11 @@ class DaSearch
     private ?DateTime $dateDebutfinSouhaite = null;
     private ?DateTime $dateFinFinSouhaite = null;
 
-    private ?Agence $agenceEmetteur = null;
-    private ?Service $serviceEmetteur = null;
+    private ?int $agenceEmetteur = null;
+    private ?int $serviceEmetteur = null;
 
-    private ?Agence $agenceDebiteur = null;
-    private ?Service $serviceDebiteur = null;
+    private ?int $agenceDebiteur = null;
+    private ?int $serviceDebiteur = null;
 
     /**
      * Get the value of numDit
@@ -428,31 +428,29 @@ class DaSearch
             'idMateriel'           => $this->idMateriel,
             'codeCentrale'         => $this->codeCentrale,
             'typeAchat'            => $this->typeAchat,
+            'agenceEmetteur'       => $this->agenceEmetteur,
+            'serviceEmetteur'      => $this->serviceEmetteur,
+            'agenceDebiteur'       => $this->agenceDebiteur,
+            'serviceDebiteur'      => $this->serviceDebiteur,
             'niveauUrgence'        => $this->niveauUrgence        ? $this->niveauUrgence                         : null,
             'dateDebutCreation'    => $this->dateDebutCreation    ? $this->dateDebutCreation->format('Y-m-d')    : null,
             'dateFinCreation'      => $this->dateFinCreation      ? $this->dateFinCreation->format('Y-m-d')      : null,
             'dateDebutfinSouhaite' => $this->dateDebutfinSouhaite ? $this->dateDebutfinSouhaite->format('Y-m-d') : null,
             'dateFinFinSouhaite'   => $this->dateFinFinSouhaite   ? $this->dateFinFinSouhaite->format('Y-m-d')   : null,
-            'agenceEmetteur'       => $this->agenceEmetteur       ? $this->agenceEmetteur->getId()               : null,
-            'serviceEmetteur'      => $this->serviceEmetteur      ? $this->serviceEmetteur->getId()              : null,
-            'agenceDebiteur'       => $this->agenceDebiteur       ? $this->agenceDebiteur->getId()               : null,
-            'serviceDebiteur'      => $this->serviceDebiteur      ? $this->serviceDebiteur->getId()              : null,
         ];
     }
 
     /**
      * Hydrate l'objet à partir d'un tableau
      */
-    public function toObject(array $data, array $agServ): self
+    public function toObject(array $data): self
     {
         $allDateKeys = ['dateDebutCreation', 'dateFinCreation', 'dateDebutfinSouhaite', 'dateFinFinSouhaite',];
-        $allAgServKeys = ['agenceEmetteur', 'agenceDebiteur', 'serviceEmetteur', 'serviceDebiteur'];
         foreach ($data as $key => $value) {
             $method = 'set' . ucfirst($key);
 
             if (method_exists($this, $method)) {
                 if ($value !== null && in_array($key, $allDateKeys)) $value = DateTime::createFromFormat('Y-m-d', $value);
-                elseif ($value !== null && in_array($key, $allAgServKeys)) $value = $agServ[$key];
 
                 $this->$method($value);
             }
