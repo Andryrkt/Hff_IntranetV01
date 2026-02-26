@@ -31,7 +31,7 @@ class BadmSearchType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $choices = $this->prepareAgenceServiceChoicesById($options['agenceServiceAutorises']);
+        $choices = $this->prepareAgenceServiceChoices($options['agenceServiceAutorises']);
 
         $agenceChoices = $choices['agenceChoices'];
         $serviceChoices = $choices['serviceChoices'];
