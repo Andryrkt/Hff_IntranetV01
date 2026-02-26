@@ -108,9 +108,6 @@ trait StatutBcTrait
 
         /** 7.Statut DA Clôturée || Non dispo || DA avec DIT et numéro OR null || numéro OR non vide et statut OR non vide || infoDaDirect ou situationCde est vide */
         if ($statutDa === DemandeAppro::STATUT_CLOTUREE || $DaAfficher->getNonDispo() || ($numeroOr == null && $daViaOR) || ($numeroOr != null && empty($statutOr)) || $this->aSituationCde($situationCde, $daViaOR)) {
-            if ($statutOr === DitOrsSoumisAValidation::STATUT_VALIDE) {
-                return 'PAS DANS OR';
-            }
             return $statutBc;
         }
 
