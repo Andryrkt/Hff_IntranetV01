@@ -67,7 +67,7 @@ class listeDaController extends Controller
 
         $codeCentrale = false; // TODO : autorisation sur le code centrale
 
-        // Agences Services autorisés sur le BADM
+        // Agences Services autorisés sur le DAP
         $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DAP);
         //formulaire de recherche
         $form = $this->getFormFactory()->createBuilder(DaSearchType::class, $daSearch, [

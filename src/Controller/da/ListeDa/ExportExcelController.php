@@ -32,7 +32,7 @@ class ExportExcelController extends Controller
 
         $codeCentrale     = false; // TODO : autorisation sur le code centrale
 
-        // Agences Services autorisés sur le BADM
+        // Agences Services autorisés sur le DAP
         $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DAP);
 
         // recupération des données de la DA

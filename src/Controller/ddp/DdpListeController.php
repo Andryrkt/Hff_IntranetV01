@@ -32,7 +32,7 @@ class DdpListeController extends Controller
      */
     public function ddpListe(Request $request)
     {
-        // Agences Services autorisés sur le BADM
+        // Agences Services autorisés sur le DDP
         $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DDP);
 
         $form = $this->getFormFactory()->createBuilder(DdpSearchType::class, $this->ddpSearch, [
