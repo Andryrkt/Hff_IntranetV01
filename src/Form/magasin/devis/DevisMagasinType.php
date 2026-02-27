@@ -27,10 +27,35 @@ class DevisMagasinType extends AbstractType
         'Insertition ligne transport'              => 'Insertition ligne transport'
     ];
 
+
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $fichier_initialise = $options['fichier_initialise'];
         $PJ1constraints = [];
+
+        $isDisabled = $options['data']->constructeur == 'TOUS NEST PAS CAT' ? false : true;
+        $isRequired = ($options['data']->getTypeSoumission() == 'VP' && !$isDisabled);
+
+        $formOptions = [
+            'label' => 'Tâche du validateur *',
+            'choices' => self::TACHE_VALIDATEUR,
+            'data' => ['Vérification prix'],
+            'expanded' => true,
+            'multiple' => true,
+            'disabled' => $isDisabled,
+            'required' => $isRequired,
+            'attr' => [
+                'data-field-name' => 'Tâche du validateur',
+                'required' => $isRequired
+            ],
+        ];
+
+        if ($isRequired) {
+            $formOptions['constraints'] = [
+                new NotBlank(['message' => 'Veuillez sélectionner une tâche validateur'])
+            ];
+        }
 
         if (!$fichier_initialise) {
             $PJ1constraints[] = new NotBlank([
@@ -61,6 +86,9 @@ class DevisMagasinType extends AbstractType
                             ],
                             'mimeTypesMessage' => 'Veuillez télécharger un fichier PDF valide.',
                         ])
+                    ],
+                    'attr'          => [
+                        'data-field-name' => 'Veuillez insérer le devis',
                     ],
                 ]
             )
@@ -97,28 +125,23 @@ class DevisMagasinType extends AbstractType
                     ],
                 ]
             )
-            ->add('tacheValidateur', ChoiceType::class, [
-                'label' => 'Tâche du validateur',
-                'choices' => self::TACHE_VALIDATEUR,
-                'data' => ['Vérification prix'],
-                'expanded' => true,
-                'multiple' => true,
-                'disabled' => $options['data']->constructeur == 'TOUS NEST PAS CAT' ? false : true,
-            ])
+            ->add('tacheValidateur', ChoiceType::class, $formOptions)
             ->add('estValidationPm', ChoiceType::class, [
                 'choices'       => [
-                    'OUI' => true,
-                    'NON' => false
+                    'OUI - Envoyer le devis pour vérification au Parts Manager' => true,
+                    'NON - Devis autovalidé, il ne passe pas au Parts Manager pour vérification' => false
                 ],
                 'expanded'      => true,
                 'multiple'      => false,
-                'label'         => 'Envoyer à validation au PM',
+                'placeholder'   => false,
+                'label'         => 'Envoyer à validation au PM *',
                 'data'          => $options['data']->constructeur == 'TOUS NEST PAS CAT' ? true : null,
                 'disabled'      => $options['data']->constructeur == 'TOUS NEST PAS CAT' ? true : false,
                 'required'      => $options['data']->getTypeSoumission() == 'VP' ? ($options['data']->constructeur == 'TOUS NEST PAS CAT' ? false : true) : false,
                 'attr'          => [
-                    'required' => $options['data']->getTypeSoumission() == 'VP' ? ($options['data']->constructeur == 'TOUS NEST PAS CAT' ? false : true) : false
-                ]
+                    'required' => $options['data']->getTypeSoumission() == 'VP' ? ($options['data']->constructeur == 'TOUS NEST PAS CAT' ? false : true) : false,
+                    'data-field-name' => 'Envoyer à validation au PM'
+                ],
             ])
             ->add(
                 'observation',
@@ -131,18 +154,27 @@ class DevisMagasinType extends AbstractType
                     ],
                 ]
             )
-            ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
+            ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) use ($isRequired, $isDisabled) {
                 $devisMagasin = $event->getData();
                 $form = $event->getForm();
-                $entity = $form->getData();
-                $form->add('tacheValidateur', ChoiceType::class, [
-                    'label' => 'Tâche du validateur',
+
+                $formOptions = [
+                    'label' => 'Tâche du validateur *',
                     'choices' => self::TACHE_VALIDATEUR,
                     'data' => isset($devisMagasin['tacheValidateur']) ? $devisMagasin['tacheValidateur'] : ['Vérification prix'],
                     'expanded' => true,
                     'multiple' => true,
-                    'disabled' => $entity && $entity->constructeur == 'TOUS NEST PAS CAT' ? false : true,
-                ]);
+                    'disabled' => $isDisabled,
+                    'required' => $isRequired,
+                ];
+
+                if ($isRequired) {
+                    $formOptions['constraints'] = [
+                        new NotBlank(['message' => 'Veuillez sélectionner une tâche validateur'])
+                    ];
+                }
+
+                $form->add('tacheValidateur', ChoiceType::class, $formOptions);
             })
         ;
     }
