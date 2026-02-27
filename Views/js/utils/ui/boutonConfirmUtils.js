@@ -16,9 +16,9 @@ export function setupConfirmationButtons() {
       const generalValidation = validateFormFields(form);
       if (!generalValidation.isValid) {
         Swal.fire({
-          title: "Champs obligatoires manquants",
+          title: "Champs obligatoires",
           html: generalValidation.errors.join("<br>"),
-          icon: "error",
+          icon: "warning",
         });
         return;
       }
@@ -36,7 +36,7 @@ export function setupConfirmationButtons() {
           Swal.fire({
             title: specificValidation.title || "Erreur de validation",
             html: specificValidation.message,
-            icon: "error",
+            icon: "warning",
           });
           return;
         }
@@ -93,7 +93,7 @@ function validateFormFields(form) {
 
     const handleInvalidField = (message) => {
       isValid = false;
-      if (!errors.some(e => e.includes(fieldName))) {
+      if (!errors.some((e) => e.includes(fieldName))) {
         errors.push(message);
       }
       if (errorElement) {
@@ -108,22 +108,26 @@ function validateFormFields(form) {
       }
     };
 
-    const errorMessage = `Le champ "<span class="text-danger text-decoration-underline">${fieldName}</span>" est obligatoire`;
+    const errorMessage = `Le champ "<span class="text-warning text-decoration-underline fw-bold">${fieldName}</span>" est obligatoire`;
 
-    if (field.type === 'radio' || field.type === 'checkbox') {
+    if (field.type === "radio" || field.type === "checkbox") {
       const groupName = field.name;
       if (validatedRadioGroups.has(groupName)) return;
       validatedRadioGroups.add(groupName);
 
       const group = form.querySelectorAll(`input[name="${groupName}"]`);
-      if (!Array.from(group).some(input => input.checked)) {
+      if (!Array.from(group).some((input) => input.checked)) {
         handleInvalidField(errorMessage);
-        group.forEach(input => input.closest('label')?.classList.add('text-danger'));
+        group.forEach((input) =>
+          input.closest("label")?.classList.add("text-danger"),
+        );
       } else {
         handleValidField();
-        group.forEach(input => input.closest('label')?.classList.remove('text-danger'));
+        group.forEach((input) =>
+          input.closest("label")?.classList.remove("text-danger"),
+        );
       }
-    } else if (typeof field.value === 'string') {
+    } else if (typeof field.value === "string") {
       if (!field.value.trim()) {
         handleInvalidField(errorMessage);
         field.classList.add("border", "border-danger");
@@ -133,13 +137,15 @@ function validateFormFields(form) {
       }
     } else {
       // Cas où 'field' est un conteneur (ex: div pour ChoiceType étendu)
-      const inputs = field.querySelectorAll('input[type="radio"], input[type="checkbox"]');
+      const inputs = field.querySelectorAll(
+        'input[type="radio"], input[type="checkbox"]',
+      );
       if (inputs.length > 0) {
         const groupName = inputs[0].name;
         if (validatedRadioGroups.has(groupName)) return;
         validatedRadioGroups.add(groupName);
 
-        if (!Array.from(inputs).some(input => input.checked)) {
+        if (!Array.from(inputs).some((input) => input.checked)) {
           handleInvalidField(errorMessage);
           field.classList.add("border", "border-danger");
         } else {

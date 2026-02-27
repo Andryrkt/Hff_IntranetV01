@@ -44,7 +44,11 @@ class DevisMagasinType extends AbstractType
             'expanded' => true,
             'multiple' => true,
             'disabled' => $isDisabled,
-            'required' => $isRequired, // Pour l'attribut HTML
+            'required' => $isRequired,
+            'attr' => [
+                'data-field-name' => 'Tâche du validateur',
+                'required' => $isRequired
+            ],
         ];
 
         if ($isRequired) {
@@ -82,6 +86,9 @@ class DevisMagasinType extends AbstractType
                             ],
                             'mimeTypesMessage' => 'Veuillez télécharger un fichier PDF valide.',
                         ])
+                    ],
+                    'attr'          => [
+                        'data-field-name' => 'Veuillez insérer le devis',
                     ],
                 ]
             )
@@ -132,8 +139,9 @@ class DevisMagasinType extends AbstractType
                 'disabled'      => $options['data']->constructeur == 'TOUS NEST PAS CAT' ? true : false,
                 'required'      => $options['data']->getTypeSoumission() == 'VP' ? ($options['data']->constructeur == 'TOUS NEST PAS CAT' ? false : true) : false,
                 'attr'          => [
-                    'required' => $options['data']->getTypeSoumission() == 'VP' ? ($options['data']->constructeur == 'TOUS NEST PAS CAT' ? false : true) : false
-                ]
+                    'required' => $options['data']->getTypeSoumission() == 'VP' ? ($options['data']->constructeur == 'TOUS NEST PAS CAT' ? false : true) : false,
+                    'data-field-name' => 'Envoyer à validation au PM'
+                ],
             ])
             ->add(
                 'observation',
