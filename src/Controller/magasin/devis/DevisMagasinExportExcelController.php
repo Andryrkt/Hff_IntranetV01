@@ -2,6 +2,7 @@
 
 namespace App\Controller\magasin\devis;
 
+use App\Constants\admin\ApplicationConstant;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Controller\Controller;
@@ -28,6 +29,9 @@ class DevisMagasinExportExcelController extends Controller
      */
     public function exportExcel()
     {
+        // Agences Services autorisés sur le DVM
+        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DVM);
+
         $criteria = $this->getSessionService()->get('criteria_for_excel_liste_devis_magasin');
 
         if ($criteria && $criteria["emetteur"]) {
@@ -35,7 +39,7 @@ class DevisMagasinExportExcelController extends Controller
             $criteria["emetteur"]["service"] = $criteria["emetteur"]["service"] ? $this->getEntityManager()->getRepository(Service::class)->find($criteria["emetteur"]["service"]) : null;
         }
 
-        $listeDevisFactory = $this->recuperationDonner($criteria);
+        $listeDevisFactory = $this->recuperationDonner($criteria, $agenceServiceAutorises);
 
         $data = [];
         // En-tête du tableau d'excel
@@ -94,15 +98,11 @@ class DevisMagasinExportExcelController extends Controller
         return $data;
     }
 
-    public function recuperationDonner(array $criteria = []): array
+    public function recuperationDonner(array $criteria = [], array $agenceServiceAutorises): array
     {
-        $codeAgenceAutoriserString = TableauEnStringService::orEnString($this->getUser()->getAgenceAutoriserCode());
         $vignette = 'magasin';
-        $adminMutli          = in_array(1, $this->getUser()->getRoleIds()) || in_array(6, $this->getUser()->getRoleIds());
-
         $numDeviAExclure = TableauEnStringService::simpleNumeric(array_map('intval', $this->listeDevisMagasinModel->getNumeroDevisExclure()));
-
-        $devisIps = $this->listeDevisMagasinModel->getDevis($criteria, $vignette, $codeAgenceAutoriserString, $adminMutli, $numDeviAExclure);
+        $devisIps = $this->listeDevisMagasinModel->getDevis($criteria, $vignette, $agenceServiceAutorises, $numDeviAExclure);
 
         $listeDevisFactory = [];
         $dejaVu = []; // Tableau pour mémoriser les numéros de devis déjà traités

@@ -2,6 +2,7 @@
 
 namespace App\Controller\pol\devis;
 
+use App\Constants\admin\ApplicationConstant;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Controller\Controller;
@@ -68,6 +69,9 @@ class ListeDevisMagasinPolController extends Controller
      */
     public function listeDevisMagasin(Request $request)
     {
+        // Agences Services autorisés sur le DVM
+        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DVM);
+
         //formulaire de recherhce
         $form = $this->getFormFactory()->createBuilder(DevisMagasinSearchType::class, $this->initialisationCriteria(), [
             'em' => $this->getEntityManager(),
@@ -87,7 +91,7 @@ class ListeDevisMagasinPolController extends Controller
         }
         $this->getSessionService()->set('criteria_for_excel_liste_devis_magasin', $criteriaForSession);
 
-        $listeDevisFactory = $this->recuperationDonner($criteria);
+        $listeDevisFactory = $this->recuperationDonner($criteria, $agenceServiceAutorises);
 
         // affichage de la liste des devis magasin
         return $this->render('magasin/devis/listeDevisMagasin.html.twig', [
@@ -134,13 +138,11 @@ class ListeDevisMagasinPolController extends Controller
         return $ListeDevisSearchDto->toObject($criteriaTab);
     }
 
-    public function recuperationDonner(array $criteria = []): array
+    public function recuperationDonner(array $criteria = [], array $agenceServiceAutorises): array
     {
-        $codeAgenceAutoriserString = TableauEnStringService::orEnString($this->getUser()->getAgenceAutoriserCode());
         $vignette = 'pneumatique';
-        $adminMutli = in_array(1, $this->getUser()->getRoleIds()) || in_array(6, $this->getUser()->getRoleIds());
         $numDeviAExclure = TableauEnStringService::simpleNumeric(array_map('intval', $this->listeDevisMagasinModel->getNumeroDevisExclure()));
-        $devisIps = $this->listeDevisMagasinModel->getDevis($criteria, $vignette, $codeAgenceAutoriserString, $adminMutli, $numDeviAExclure);
+        $devisIps = $this->listeDevisMagasinModel->getDevis($criteria, $vignette, $agenceServiceAutorises, $numDeviAExclure);
 
         $listeDevisFactory = [];
         $dejaVu = []; // Tableau pour mémoriser les numéros de devis déjà traités

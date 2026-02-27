@@ -2,6 +2,7 @@
 
 namespace App\Controller\magasin\devis;
 
+use App\Constants\admin\ApplicationConstant;
 use App\Constants\Magasin\Devis\PointageRelanceStatutConstant;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
@@ -79,10 +80,14 @@ class ListeDevisMagasinController extends Controller
      */
     public function listeDevisMagasin(Request $request)
     {
+        // Agences Services autorisés sur le DVM
+        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DVM);
+
         //formulaire de recherhce
         $form = $this->getFormFactory()->createBuilder(DevisMagasinSearchType::class, $this->initialisationCriteria(), [
             'em' => $this->getEntityManager(),
-            'method' => 'GET'
+            'method' => 'GET',
+            'agenceServiceAutorises' => $agenceServiceAutorises
         ])->getForm();
 
         /** @var array */
@@ -98,7 +103,7 @@ class ListeDevisMagasinController extends Controller
         }
         $this->getSessionService()->set('criteria_for_excel_liste_devis_magasin', $criteriaForSession);
 
-        $listeDevisFactory = $this->recuperationDonner($criteria);
+        $listeDevisFactory = $this->recuperationDonner($criteria, $agenceServiceAutorises);
         $preparedDatas     = $this->prepareDatasForView($listeDevisFactory, $this->styleStatutDw, $this->styleStatutBc, $this->statutIPS, $this->styleStatutPR);
 
 
@@ -144,15 +149,11 @@ class ListeDevisMagasinController extends Controller
         return $ListeDevisSearchDto->toObject($criteriaTab);
     }
 
-    public function recuperationDonner(array $criteria = []): array
+    public function recuperationDonner(array $criteria = [], array $agenceServiceAutorises): array
     {
-        $codeAgenceAutoriserString = TableauEnStringService::orEnString($this->getUser()->getAgenceAutoriserCode());
         $vignette = 'magasin';
-        $adminMutli          = in_array(1, $this->getUser()->getRoleIds()) || in_array(6, $this->getUser()->getRoleIds());
-
         $numDeviAExclure = TableauEnStringService::simpleNumeric(array_map('intval', $this->listeDevisMagasinModel->getNumeroDevisExclure()));
-
-        $devisIps = $this->listeDevisMagasinModel->getDevis($criteria, $vignette, $codeAgenceAutoriserString, $adminMutli, $numDeviAExclure);
+        $devisIps = $this->listeDevisMagasinModel->getDevis($criteria, $vignette, $agenceServiceAutorises, $numDeviAExclure);
 
         $listeDevisFactory = [];
         $dejaVu = []; // Tableau pour mémoriser les numéros de devis déjà traités

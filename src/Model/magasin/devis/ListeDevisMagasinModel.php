@@ -9,7 +9,7 @@ use Symfony\Component\Finder\Glob;
 
 class ListeDevisMagasinModel extends Model
 {
-    public function getDevis(array $criteria = [],  string $vignette = 'magasin', string $codeAgenceAutoriser, bool $adminMulti = false, $numDeviAExclureString): array
+    public function getDevis(array $criteria = [],  string $vignette = 'magasin', array $agenceServiceAutorises, $numDeviAExclureString): array
     {
         $statement = "SELECT DISTINCT
             nent_numcde as numero_devis
@@ -54,15 +54,22 @@ class ListeDevisMagasinModel extends Model
         //     $statement .= " AND nlig_constp IN ($piecesPneumatique) AND nent_succ = '60' ";
         // }
 
-        if ($vignette === 'pneumatique' && !$adminMulti) {
+        if ($vignette === 'pneumatique') {
             // entrer par le vignette POL - agence pneumatique
             $piecesPneumatique = GlobalVariablesService::get('pneumatique');
-            $statement .= " AND nlig_constp IN ($piecesPneumatique) AND nent_succ in ($codeAgenceAutoriser) ";
+            $statement .= " AND nlig_constp IN ($piecesPneumatique)";
         } else {
             // entrer par le vignette MAGASIN - agence tana et autres agence
             $piecesMagasin = GlobalVariablesService::get('pieces_magasin');
-            $statement .= " AND nlig_constp IN ($piecesMagasin) AND nent_succ <> '60' ";
+            $statement .= " AND nlig_constp IN ($piecesMagasin)";
         }
+
+        // Filtre sur agence et service autorisés
+        $conditions = [];
+        foreach ($agenceServiceAutorises as $tab) {
+            $conditions[] = "(nent_succ = '{$tab['agence_code']}' AND nent_servcrt = '{$tab['service_code']}')";
+        }
+        $statement .= " AND (" . implode(' OR ', $conditions) . ")";
 
         $statement .= " ORDER BY nent_datecde DESC";
 
