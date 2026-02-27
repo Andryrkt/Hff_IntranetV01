@@ -4,12 +4,12 @@ namespace App\Controller\magasin\inventaire;
 
 use DateTime;
 use App\Controller\Controller;
-use App\Entity\admin\Application;
 use App\Controller\Traits\FormatageTrait;
 use App\Controller\Traits\Transformation;
 use App\Model\inventaire\InventaireModel;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use App\Constants\admin\ApplicationConstant;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\inventaire\DetailInventaireSearch;
@@ -68,10 +68,11 @@ class DetailInventaireController extends Controller
      */
     public function listeDetailInventaire(Request $request)
     {
-        $agence = $this->transformEnSeulTableauAvecKey($this->InventaireModel->recuperationAgenceIrium());
+        // Agences Services autorisés sur le inventaire
+        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_INVENTAIRE);
+
         $this->dateDebut->modify('first day of this month');
         $this->DetailInventaireSearch
-            ->setAgence($agence['01-ANTANANARIVO'])
             ->setDateDebut($this->dateDebut)
             ->setDateFin($this->datefin)
         ;
@@ -79,7 +80,8 @@ class DetailInventaireController extends Controller
             detailInventaireSearchType::class,
             $this->DetailInventaireSearch,
             [
-                'method' => 'POST'
+                'method' => 'POST',
+                'agenceServiceAutorises' => $agenceServiceAutorises,
             ]
         )->getForm();
         $form->handleRequest($request);

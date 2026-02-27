@@ -344,6 +344,7 @@ class InventaireModel extends Model
         $statement = " SELECT  ainvi_numinv as ainvi_numinv, 
                             ainvi_comment as ainvi_comment
                        FROM art_invi
+                       WHERE 1=1
                         $agence
                         $dateDebut
                         $dateFin
