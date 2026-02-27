@@ -136,18 +136,6 @@ class UserType extends AbstractType
                 ]
             )
             ->add(
-                'superieur',
-                TextType::class,
-                [
-                    'label' => 'Chef de service',
-                    'required' => false,
-                    'attr' => [
-                        'disabled' => true
-                    ],
-                    'data' => $options['data']->getSuperieur()
-                ]
-            )
-            ->add(
                 'fonction',
                 EntityType::class,
                 [
