@@ -110,18 +110,18 @@ function validateFormFields(form) {
 
     const errorMessage = `Le champ "<span class="text-danger text-decoration-underline">${fieldName}</span>" est obligatoire`;
 
-    if (field.type === 'radio') {
+    if (field.type === 'radio' || field.type === 'checkbox') {
       const groupName = field.name;
       if (validatedRadioGroups.has(groupName)) return;
       validatedRadioGroups.add(groupName);
 
       const group = form.querySelectorAll(`input[name="${groupName}"]`);
-      if (!Array.from(group).some(radio => radio.checked)) {
+      if (!Array.from(group).some(input => input.checked)) {
         handleInvalidField(errorMessage);
-        group.forEach(radio => radio.closest('label')?.classList.add('text-danger'));
+        group.forEach(input => input.closest('label')?.classList.add('text-danger'));
       } else {
         handleValidField();
-        group.forEach(radio => radio.closest('label')?.classList.remove('text-danger'));
+        group.forEach(input => input.closest('label')?.classList.remove('text-danger'));
       }
     } else if (typeof field.value === 'string') {
       if (!field.value.trim()) {
@@ -133,13 +133,13 @@ function validateFormFields(form) {
       }
     } else {
       // Cas où 'field' est un conteneur (ex: div pour ChoiceType étendu)
-      const radios = field.querySelectorAll('input[type="radio"]');
-      if (radios.length > 0) {
-        const groupName = radios[0].name;
+      const inputs = field.querySelectorAll('input[type="radio"], input[type="checkbox"]');
+      if (inputs.length > 0) {
+        const groupName = inputs[0].name;
         if (validatedRadioGroups.has(groupName)) return;
         validatedRadioGroups.add(groupName);
 
-        if (!Array.from(radios).some(radio => radio.checked)) {
+        if (!Array.from(inputs).some(input => input.checked)) {
           handleInvalidField(errorMessage);
           field.classList.add("border", "border-danger");
         } else {

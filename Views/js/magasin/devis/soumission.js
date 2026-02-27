@@ -36,47 +36,57 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 
+/**===================================================
+ * devis magasin - est validation PM
+ *===================================================*/
+document.addEventListener("DOMContentLoaded", function () {
+  const devisPMCheckboxOui = document.getElementById(
+    "devis_magasin_estValidationPm_0",
+  );
+  const devisPMCheckboxNon = document.getElementById(
+    "devis_magasin_estValidationPm_1",
+  );
+  const tacheValidateurInput = document.querySelectorAll(
+    "#devis_magasin_tacheValidateur input",
+  );
+  const labelTacheValidateur = document.querySelector(
+    "#devis_magasin_tacheValidateur",
+  );
+  const legendElement = labelTacheValidateur
+    .closest("fieldset")
+    .querySelector("legend");
+
+  function disableTacheValidateurInput(shouldEnable) {
+    tacheValidateurInput.forEach((input) => {
+      input.disabled = !shouldEnable;
+      input.required = shouldEnable;
+    });
+
+    if (shouldEnable) {
+      legendElement.classList.remove("text-secondary");
+    } else {
+      legendElement.classList.add("text-secondary");
+    }
+  }
+
+  devisPMCheckboxOui.addEventListener("change", function () {
+    if (this.checked) {
+      disableTacheValidateurInput(true);
+    } else {
+      disableTacheValidateurInput(false);
+    }
+  });
+
+  devisPMCheckboxNon.addEventListener("change", function () {
+    if (this.checked) {
+      disableTacheValidateurInput(false);
+    } else {
+      disableTacheValidateurInput(true);
+    }
+  });
+});
+
 /**==================================================
  * sweetalert pour le bouton Enregistrer
  *==================================================*/
 setupConfirmationButtons();
-
-/**===================================================
- * devis magasin - est validation PM
- *===================================================*/
-
-const devisPMCheckboxOui = document.getElementById(
-  "devis_magasin_estValidationPm_0",
-);
-const devisPMCheckboxNon = document.getElementById(
-  "devis_magasin_estValidationPm_1",
-);
-const tacheValidateurInput = document.querySelectorAll(
-  "#devis_magasin_tacheValidateur input",
-);
-
-function disableTacheValidateurInput(bool) {
-  tacheValidateurInput.forEach((input) => {
-    if (input.disabled && bool) {
-      return (input.disabled = false);
-    } else {
-      return (input.disabled = true);
-    }
-  });
-}
-
-devisPMCheckboxOui.addEventListener("change", function () {
-  if (this.checked) {
-    disableTacheValidateurInput(true);
-  } else {
-    disableTacheValidateurInput(false);
-  }
-});
-
-devisPMCheckboxNon.addEventListener("change", function () {
-  if (this.checked) {
-    disableTacheValidateurInput(false);
-  } else {
-    disableTacheValidateurInput(true);
-  }
-});
