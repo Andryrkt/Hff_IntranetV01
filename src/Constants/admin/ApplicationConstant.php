@@ -13,4 +13,5 @@ class ApplicationConstant
     public const CODE_DDP = 'DDP';
     public const CODE_DAP = 'DAP';
     public const CODE_INVENTAIRE = 'INV';
+    public const CODE_DVM = 'DVM';
 }
