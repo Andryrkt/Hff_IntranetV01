@@ -34,11 +34,6 @@ class DevisMagasinExportExcelController extends Controller
 
         $criteria = $this->getSessionService()->get('criteria_for_excel_liste_devis_magasin');
 
-        if ($criteria && $criteria["emetteur"]) {
-            $criteria["emetteur"]["agence"] = $criteria["emetteur"]["agence"] ? $this->getEntityManager()->getRepository(Agence::class)->find($criteria["emetteur"]["agence"]) : null;
-            $criteria["emetteur"]["service"] = $criteria["emetteur"]["service"] ? $this->getEntityManager()->getRepository(Service::class)->find($criteria["emetteur"]["service"]) : null;
-        }
-
         $listeDevisFactory = $this->recuperationDonner($criteria, $agenceServiceAutorises);
 
         $data = [];
@@ -210,19 +205,19 @@ class DevisMagasinExportExcelController extends Controller
         }
 
         // Filtre par agence émetteur
-        if (!empty($criteria['emetteur']['agence'])) {
+        if (!empty($criteria['agenceEmetteur'])) {
             // Récupérer les 2 premiers caractères de l'agence émetteur
             $agenceEmetteurCode = !empty($devisIp['emmeteur']) ? substr($devisIp['emmeteur'], 0, 2) : '';
-            if ($agenceEmetteurCode !== $criteria['emetteur']['agence']->getCodeAgence()) {
+            if ($agenceEmetteurCode !== $criteria['agenceEmetteur']) {
                 return false;
             }
         }
 
         // Filtre par service émetteur
-        if (!empty($criteria['emetteur']['service'])) {
+        if (!empty($criteria['serviceEmetteur'])) {
             // Récupérer les 3 derniers caractères du service émetteur
             $serviceEmetteurCode = !empty($devisIp['emmeteur']) ? substr($devisIp['emmeteur'], -3) : '';
-            if ($serviceEmetteurCode !== $criteria['emetteur']['service']->getCodeService()) {
+            if ($serviceEmetteurCode !== $criteria['serviceEmetteur']) {
                 return false;
             }
         }
