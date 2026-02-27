@@ -1,14 +1,16 @@
 <?php
+
 namespace App\Entity\inventaire;
 
-class InventaireSearch {
+class InventaireSearch
+{
     private $agence;
     private $dateDebut;
     private $dateFin;
     private $stock;
     /**
      * Get the value of agence
-     */ 
+     */
     public function getAgence()
     {
         return $this->agence;
@@ -18,7 +20,7 @@ class InventaireSearch {
      * Set the value of agence
      *
      * @return  self
-     */ 
+     */
     public function setAgence($agence)
     {
         $this->agence = $agence;
@@ -28,7 +30,7 @@ class InventaireSearch {
 
     /**
      * Get the value of dateDebut
-     */ 
+     */
     public function getDateDebut()
     {
         return $this->dateDebut;
@@ -38,7 +40,7 @@ class InventaireSearch {
      * Set the value of dateDebut
      *
      * @return  self
-     */ 
+     */
     public function setDateDebut($dateDebut)
     {
         $this->dateDebut = $dateDebut;
@@ -48,7 +50,7 @@ class InventaireSearch {
 
     /**
      * Get the value of dateFin
-     */ 
+     */
     public function getDateFin()
     {
         return $this->dateFin;
@@ -58,35 +60,17 @@ class InventaireSearch {
      * Set the value of dateFin
      *
      * @return  self
-     */ 
+     */
     public function setDateFin($dateFin)
     {
         $this->dateFin = $dateFin;
 
         return $this;
     }
-    public function toArray(): array
-    {
-        return [
-            'agence' => $this->agence,
-            'dateDebut' => $this->dateDebut,
-            'dateFin' => $this->dateFin,
-            'stock' => $this->stock,
-        ];
-    }
-    public function arrayToObjet(array $criteriaTab)
-    {
-        $this
-            ->setAgence($criteriaTab['agence'])
-            ->setDateDebut($criteriaTab['dateDebut'])
-            ->setDateFin($criteriaTab['dateFin'])
-            ->setStock($criteriaTab['stock'])
-        ;
-    }
 
     /**
      * Get the value of stock
-     */ 
+     */
     public function getStock()
     {
         return $this->stock;
@@ -96,11 +80,37 @@ class InventaireSearch {
      * Set the value of stock
      *
      * @return  self
-     */ 
+     */
     public function setStock($stock)
     {
         $this->stock = $stock;
 
         return $this;
+    }
+
+    /**
+     * Transforme l'objet en tableau
+     */
+    public function toArray(): array
+    {
+        return [
+            'agence' => $this->agence,
+            'dateDebut' => $this->dateDebut,
+            'dateFin' => $this->dateFin,
+            'stock' => $this->stock,
+        ];
+    }
+
+    /**
+     * Transforme un tableau en objet
+     */
+    public function arrayToObjet(array $criteriaTab)
+    {
+        $this
+            ->setAgence($criteriaTab['agence'])
+            ->setDateDebut($criteriaTab['dateDebut'])
+            ->setDateFin($criteriaTab['dateFin'])
+            ->setStock($criteriaTab['stock'])
+        ;
     }
 }

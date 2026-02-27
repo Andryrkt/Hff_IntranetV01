@@ -6,6 +6,7 @@ use Symfony\Component\Form\AbstractType;
 use App\Controller\Traits\Transformation;
 use App\Entity\inventaire\InventaireSearch;
 use App\Model\inventaire\InventaireModel;
+use App\Traits\PrepareAgenceServiceTrait;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -13,6 +14,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class InventaireSearchType extends AbstractType
 {
+    use PrepareAgenceServiceTrait;
     use Transformation;
     private $InventaireModel;
     private ?\DateTime $datefin = null;
@@ -21,6 +23,10 @@ class InventaireSearchType extends AbstractType
         'PRINCIPAL' => 'PRINCIPAL',
         'SECONDAIRE' => 'SECONDAIRE',
     ];
+
+    /**
+     * Constructeur
+     */
     public function __construct()
     {
         $this->InventaireModel = new InventaireModel;
@@ -28,35 +34,39 @@ class InventaireSearchType extends AbstractType
         $this->dateDebut = clone $this->datefin;
         $this->dateDebut->modify('first day of this month');
     }
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $agence = $this->transformEnSeulTableauAvecKey($this->InventaireModel->recuperationAgenceIrium());
+        $choices = $this->prepareAgenceServiceChoices($options['agenceServiceAutorises'], false);
+
+        $agenceChoices = $choices['agenceChoices'];
+
         $builder
             ->add('agence', ChoiceType::class, [
-                'label' => 'Agence',
+                'label'    => 'Agence',
                 'required' => false,
-                'choices' => $agence,
+                'choices'  => $agenceChoices,
                 'multiple' => true,
                 'expanded' => true,
             ])
             ->add('dateDebut', DateType::class, [
-                'widget' => 'single_text',
-                'label' => 'Date Début',
+                'widget'   => 'single_text',
+                'label'    => 'Date Début',
                 'required' => false,
-                'data' => $this->dateDebut
+                'data'     => $this->dateDebut
             ])
             ->add('dateFin', DateType::class, [
-                'widget' => 'single_text',
-                'label' => 'Date Fin',
+                'widget'   => 'single_text',
+                'label'    => 'Date Fin',
                 'required' => false,
-                'data' => $this->datefin
+                'data'     => $this->datefin
             ])
             ->add('stock', ChoiceType::class, [
-                'label' => 'stock',
+                'label'    => 'stock',
                 'required' => true,
-                'choices' => self::STOCK,
-                'attr' => ['class' => 'stock'],
-                'data' => 'PRINCIPAL'
+                'choices'  => self::STOCK,
+                'attr'     => ['class' => 'stock'],
+                'data'     => 'PRINCIPAL'
             ])
         ;
     }
@@ -65,6 +75,7 @@ class InventaireSearchType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => InventaireSearch::class,
+            'agenceServiceAutorises' => [],
         ]);
     }
 }
