@@ -97,6 +97,10 @@ class DevisMagasinVerificationPrixController extends Controller
         $devisMagasin->constructeur = trim($this->listeDevisMagasinModel->getConstructeur($numeroDevis));
         $devisMagasin->setTypeSoumission('VP');
 
+        // if ($devisMagasin->constructeur === 'TOUS NEST PAS CAT') {
+        //     $devisMagasin->setEstValidationPm(true);
+        // }
+
         //création du formulaire
         $form = $this->getFormFactory()->createBuilder(DevisMagasinType::class, $devisMagasin, [
             "fichier_initialise" => (bool)$remoteUrl["court"]
