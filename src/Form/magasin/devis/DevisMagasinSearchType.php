@@ -3,7 +3,6 @@
 namespace App\Form\magasin\devis;
 
 use App\Form\common\DateRangeType;
-use App\Form\common\AgenceServiceType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\AbstractType;
 use App\Traits\PrepareAgenceServiceTrait;
