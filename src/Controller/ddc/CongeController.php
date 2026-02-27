@@ -2,15 +2,16 @@
 
 namespace App\Controller\ddc;
 
+use App\Constants\admin\ApplicationConstant;
 use App\Controller\Controller;
 use App\Entity\ddc\DemandeConge;
-use App\Entity\admin\Application;
 use App\Form\ddc\DemandeCongeType;
 use App\Entity\admin\AgenceServiceIrium;
 use App\Controller\Traits\FormatageTrait;
 use App\Controller\Traits\ConversionTrait;
 use Symfony\Component\HttpFoundation\Request;
 use App\Controller\Traits\ddc\CongeListeTrait;
+use App\Repository\ddc\DemandeCongeRepository;
 use App\Service\ExcelService;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -30,6 +31,9 @@ class CongeController extends Controller
     public function listeConge(Request $request)
     {
         $congeSearch = new DemandeConge();
+
+        // Agences Services autorisés sur le Demande de congé
+        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DDC);
 
         // Vérifier s'il s'agit d'un accès direct à la route (sans paramètres de recherche)
         // Dans ce cas, nous réinitialisons tous les filtres
@@ -80,12 +84,6 @@ class CongeController extends Controller
 
         // Récupérer l'état du filtre "Groupe Direction" depuis la requête
         $groupeDirection = $request->query->get('groupeDirection');
-
-        // Options pour le repository
-        $options = [
-            'admin' => in_array(1, $this->getUser()->getRoleIds()),
-            //'idAgence' => $this->agenceIdAutoriser(self::$em)
-        ];
 
         // Si le formulaire est soumis et valide, mettre à jour les critères
         if ($form->isSubmitted() && $form->isValid()) {
@@ -199,14 +197,15 @@ class CongeController extends Controller
         // Si le champ n'est pas dans le tableau imbriqué, vérifier directement
         $groupeDirection = $groupeDirection ?: $request->query->get('groupeDirection');
 
+        /** @var DemandeCongeRepository $repository */
         $repository = $this->getEntityManager()->getRepository(DemandeConge::class);
 
         if ($groupeDirection) {
             // Si le filtre "Groupe Direction" est coché, ignorer tous les autres filtres
-            $paginationData = $repository->findCongesByGroupeDirection($page, $limit, $this->getUser());
+            $paginationData = $repository->findCongesByGroupeDirection($page, $limit);
         } else {
             // Sinon, utiliser la logique normale de recherche avec tous les filtres
-            $paginationData = $repository->findPaginatedAndFiltered($page, $limit, $congeSearch, $options, $this->getUser());
+            $paginationData = $repository->findPaginatedAndFiltered($page, $limit, $congeSearch, $options ?? [], $agenceServiceAutorises);
         }
 
         // Formatage des critères pour l'affichage
@@ -234,8 +233,7 @@ class CongeController extends Controller
         }
 
         // Récupérer les congés filtrés pour le calendrier
-        $repository = $this->getEntityManager()->getRepository(DemandeConge::class);
-        $rawCongesForCalendar = $repository->findAndFilteredExcel($congeSearch, $options, $this->getUser());
+        $rawCongesForCalendar = $repository->findAndFilteredExcel($congeSearch, $options ?? [], $agenceServiceAutorises);
 
         // Transformer les objets DemandeConge en tableaux simples pour la vue
         $conges = [];
@@ -376,6 +374,7 @@ class CongeController extends Controller
                 'employees' => $employees,
                 'viewMode' => 'list',
                 'selected_month' => $selectedMonth,
+                'accessGroupeDirection' => false, // TODO : autorisation sur le champ groupe direction
                 'title' => 'Liste des demandes de congé'
             ]
         );
@@ -387,6 +386,9 @@ class CongeController extends Controller
     public function calendrierConge()
     {
         $request = Request::createFromGlobals();
+
+        // Agences Services autorisés sur le Demande de congé
+        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DDC);
 
         // Récupérer toutes les demandes de congé pour les afficher dans le calendrier
         // On peut filtrer selon les critères enregistrés dans la session
@@ -464,11 +466,6 @@ class CongeController extends Controller
             $options = [];
         }
 
-        // Ajouter l'option admin si elle n'existe pas
-        if (!isset($options['admin'])) {
-            $options['admin'] = in_array(1, $this->getUser()->getRoleIds());
-        }
-
         // Récupérer l'état du filtre "Groupe Direction" depuis la requête (s'il est soumis)
         // Le champ groupeDirection est dans le formulaire imbriqué 'demande_conge'
         $groupeDirection = $request->query->get('demande_conge')['groupeDirection'] ?? null;
@@ -500,14 +497,15 @@ class CongeController extends Controller
             $groupeDirection = $this->getSessionService()->get('groupe_direction_filter', false);
         }
 
+        /** @var DemandeCongeRepository $repository */
         $repository = $this->getEntityManager()->getRepository(DemandeConge::class);
 
         if ($groupeDirection) {
             // Si le filtre "Groupe Direction" est activé, ignorer tous les autres filtres
-            $rawConges = $repository->findCongesByGroupeDirectionExcel($this->getUser());
+            $rawConges = $repository->findCongesByGroupeDirectionExcel();
         } else {
             // Sinon, utiliser la logique normale de recherche avec tous les filtres
-            $rawConges = $repository->findAndFilteredExcel($congeSearch, $options, $this->getUser());
+            $rawConges = $repository->findAndFilteredExcel($congeSearch, $options, $agenceServiceAutorises);
         }
 
         // Transformer les objets DemandeConge en tableaux simples pour la vue
@@ -645,6 +643,9 @@ class CongeController extends Controller
         // Récupère le paramètre format de la requête
         $format = $request->query->get('format', 'list'); // Valeur par défaut : 'list'
 
+        // Agences Services autorisés sur le Demande de congé
+        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DDC);
+
         // Récupère les critères dans la session
         $criteria = $this->getSessionService()->get('conge_search_criteria', []);
         $option = $this->getSessionService()->get('conge_search_option', []);
@@ -694,11 +695,6 @@ class CongeController extends Controller
         // S'assurer que $option est toujours un tableau
         if (!is_array($option)) {
             $option = [];
-        }
-
-        // Ajouter l'option admin si elle n'existe pas
-        if (!isset($option['admin'])) {
-            $option['admin'] = in_array(1, $this->getUser()->getRoleIds());
         }
 
         // Convertir les dates du format string au format DateTime si nécessaire
@@ -794,14 +790,14 @@ class CongeController extends Controller
         }
 
 
-        // Récupère les entités filtrées
+        /** @var DemandeCongeRepository $repository */
         $repository = $this->getEntityManager()->getRepository(DemandeConge::class);
         if ($groupeDirection) {
             // Si le filtre "Groupe Direction" est activé, ignorer tous les autres filtres
-            $entities = $repository->findCongesByGroupeDirectionExcel($this->getUser());
+            $entities = $repository->findCongesByGroupeDirectionExcel();
         } else {
             // Sinon, utiliser la logique normale de recherche avec tous les filtres
-            $entities = $repository->findAndFilteredExcel($congeSearch, $option, $this->getUser());
+            $entities = $repository->findAndFilteredExcel($congeSearch, $option, $agenceServiceAutorises);
         }
 
 

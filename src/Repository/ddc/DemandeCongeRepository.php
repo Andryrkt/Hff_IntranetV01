@@ -16,7 +16,7 @@ class DemandeCongeRepository extends EntityRepository
         int $limit,
         DemandeConge $conge,
         array $options,
-        ?User $user = null
+        array $agenceServiceAutorises
     ): array {
         $queryBuilder = $this->createQueryBuilder('d')
             ->leftJoin('d.agenceServiceirium', 'asi')
@@ -24,7 +24,7 @@ class DemandeCongeRepository extends EntityRepository
             ->leftJoin(Personnel::class, 'p', 'WITH', 'd.matricule = p.Matricule');
 
         $this->filtredParDate($queryBuilder, $conge, $options);
-        $this->filtredParAgenceService($queryBuilder, $options, $user);
+        $this->filtredParAgenceService($queryBuilder, $options, $agenceServiceAutorises);
         $this->filtredParInformationPrincipal($queryBuilder, $conge, $options);
 
 
@@ -60,7 +60,7 @@ class DemandeCongeRepository extends EntityRepository
         ];
     }
 
-    public function findAndFilteredExcel(DemandeConge $conge, array $options, User $user): array
+    public function findAndFilteredExcel(DemandeConge $conge, array $options, array $agenceServiceAutorises): array
     {
         $queryBuilder = $this->createQueryBuilder('d')
             ->leftJoin('d.agenceServiceirium', 'asi')
@@ -68,7 +68,7 @@ class DemandeCongeRepository extends EntityRepository
             ->leftJoin(Personnel::class, 'p', 'WITH', 'd.matricule = p.Matricule');
 
         $this->filtredParDate($queryBuilder, $conge, $options);
-        $this->filtredParAgenceService($queryBuilder, $options, $user);
+        $this->filtredParAgenceService($queryBuilder, $options, $agenceServiceAutorises);
         $this->filtredParInformationPrincipal($queryBuilder, $conge, $options);
 
         return $queryBuilder
@@ -126,17 +126,21 @@ class DemandeCongeRepository extends EntityRepository
         // Ne pas inclure ici pour éviter les conflits avec les autres filtres
     }
 
-    private function filtredParAgenceService(QueryBuilder $queryBuilder, array $options, User $user): void
+    private function filtredParAgenceService(QueryBuilder $queryBuilder, array $options, array $agenceServiceAutorises): void
     {
-        // Filtrer par agence et service autoriser si l'utilisateur n'a pas le role admin
-        if (!$options['admin']) {
-            $queryBuilder->andWhere('asi.agence_ips IN (:agencesAutorisees)')
-                ->andWhere('asi.service_ips IN (:servicesAutorises)')
-                ->setParameters([
-                    'agencesAutorisees' => $user->getAgenceAutoriserCode(),
-                    'servicesAutorises' => $user->getServiceAutoriserCode()
-                ]);
+        // Condition sur les couples agences-services
+        $orX = $queryBuilder->expr()->orX();
+        foreach ($agenceServiceAutorises as $i => $tab) {
+            $orX->add(
+                $queryBuilder->expr()->andX(
+                    $queryBuilder->expr()->eq('asi.agence_ips', ':agEmetteur_' . $i),
+                    $queryBuilder->expr()->eq('asi.service_ips', ':servEmetteur_' . $i)
+                )
+            );
+            $queryBuilder->setParameter('agEmetteur_' . $i, $tab['agence_code']);
+            $queryBuilder->setParameter('servEmetteur_' . $i, $tab['service_code']);
         }
+        $queryBuilder->andWhere($orX);
 
         // Filtrer par Agence_Service (code service_sage_paie)
         if (isset($options['agence']) && $options['agence']) {
@@ -263,7 +267,7 @@ class DemandeCongeRepository extends EntityRepository
         return [];
     }
 
-    public function findCongesByGroupeDirection(int $page, int $limit, ?User $user = null): array
+    public function findCongesByGroupeDirection(int $page, int $limit): array
     {
         $offset = ($page - 1) * $limit;
 
@@ -298,7 +302,7 @@ class DemandeCongeRepository extends EntityRepository
         ];
     }
 
-    public function findCongesByGroupeDirectionExcel(?User $user = null): array
+    public function findCongesByGroupeDirectionExcel(): array
     {
         $queryBuilder = $this->createQueryBuilder('d')
             ->leftJoin('d.agenceServiceirium', 'asi')

@@ -19,7 +19,8 @@
 						{{ form_widget(form.matricule, {'attr': {'id': 'demande_conge_matricule', 'class': 'd-none', 'value': congeSearch.matricule}}) }}
 
 						{# Le conteneur qui va ressembler à un input et contenir les tags + le champ de saisie #}
-						<div id="matricule-multi-select-container" class="form-control d-flex flex-wrap align-items-center p-1" style="min-height: 38px; height: auto;">
+						<div
+							id="matricule-multi-select-container" class="form-control d-flex flex-wrap align-items-center p-1" style="min-height: 38px; height: auto;">
 							{# L'input de recherche visible par l'utilisateur #}
 							<input type="text" id="matricule-search-input" class="flex-grow-1 border-0" style="outline: none; min-width: 150px;" autocomplete="off">
 						</div>
@@ -30,199 +31,273 @@
 					</div>
 					<script>
 						// Initialisation de l'autocomplete pour le champ matricule
-						document.addEventListener('DOMContentLoaded', function() {
-							// Attendre un court délai pour s'assurer que tous les éléments sont rendus
-							setTimeout(function() {
-								const hiddenMatriculeInput = document.querySelector("#demande_conge_matricule"); // Le champ caché
-								const searchInput = document.querySelector("#matricule-search-input");
-								const tagsContainer = document.querySelector("#matricule-multi-select-container");
-								const suggestionContainer = document.querySelector("#suggestion-matricule-nom-prenom");
-								const loaderElement = document.querySelector("#loader-matricule-nom-prenom");
+document.addEventListener( 'DOMContentLoaded', function () { // Attendre un court délai pour s'assurer que tous les éléments sont rendus
+setTimeout( function () {
 
-								// Vérifier que tous les éléments nécessaires existent
-								if (hiddenMatriculeInput && searchInput && tagsContainer && suggestionContainer) {
-									// Importer dynamiquement la classe MultiSelectAutoComplete
-									import('{{ App.base_path }}/Views/js/utils/AutoComplete.js').then(module => {
-										const MultiSelectAutoComplete = module.MultiSelectAutoComplete;
+const hiddenMatriculeInput = document.querySelector( "#demande_conge_matricule" ); // Le champ caché
+const searchInput = document.querySelector( "#matricule-search-input" );
+const tagsContainer = document.querySelector( "#matricule-multi-select-container" );
+const suggestionContainer = document.querySelector( "#suggestion-matricule-nom-prenom" );
+const loaderElement = document.querySelector( "#loader-matricule-nom-prenom" );
 
-										// Créer une instance de FetchManager
-										class FetchManager {
-											constructor() {
-												this.baseUrl = '{{ App.base_path }}';
-											}
+// Vérifier que tous les éléments nécessaires existent
+if ( hiddenMatriculeInput && searchInput && tagsContainer && suggestionContainer ) { // Importer dynamiquement la classe MultiSelectAutoComplete
+import ( '{{ App.base_path }}/Views/js/utils/AutoComplete.js' ).then( module => {
 
-											async get(endpoint, responseType = "json") {
-												try {
-													const response = await fetch(`${this.baseUrl}/${endpoint}`);
-													if (!response.ok) {
-														throw new Error(`Erreur HTTP: ${response.status}`);
-													}
+const MultiSelectAutoComplete = module.MultiSelectAutoComplete;
 
-													if (responseType === "json") {
-														const text = await response.text();
-														if (!text) throw new Error('Réponse vide');
-														return JSON.parse(text);
-													} else {
-														return await response.text();
-													}
-												} catch (error) {
-													console.error(`Échec de récupération des données depuis ${this.baseUrl}/${endpoint}:`, error);
-													throw error;
-												}
-											}
-										}
+// Créer une instance de FetchManager
+class FetchManager {
 
-										const fetchManager = new FetchManager();
+constructor() {
 
-										async function fetchClient() {
-											return await fetchManager.get("rh/demande-de-conge/api/matricule-nom-prenom");
-										}
+this.baseUrl = '{{ App.base_path }}';
 
-										function displayClient(item) {
-											return `${item.matricule} - ${item.nomPrenoms}`;
-										}
+}
 
-										// Créer une instance personnalisée de MultiSelectAutoComplete
-										class CustomMultiSelectAutoComplete extends module.MultiSelectAutoComplete {
-											constructor(options) {
-												super(options);
-											}
+async get( endpoint, responseType = "json" ) {
 
-											// Surcharge de la méthode addSelectedItem pour vider l'input après sélection
-											addSelectedItem(item) {
-												if (!this.selectedItems.some(selectedItem =>
-													this.itemToString(selectedItem) === this.itemToString(item))) {
-													this.selectedItems.push(item);
-													// Mettre à jour l'affichage
-													this.renderTags();
-													this.updateHiddenInputValue();
-												}
-												// Vider le champ de recherche après sélection
-												this.inputElement.value = '';
-												this.clearSuggestions();
-											}
+try {
 
-											// Surcharge de la méthode filterData pour chercher sur matricule et nom/prénom
-											filterData(searchValue) {
-												if (searchValue.trim() === "") {
-													this.clearSuggestions();
-													return;
-												}
+const response = await fetch( `${
+this.baseUrl
+}/${ endpoint }` );
+if ( ! response.ok ) {
 
-												const lowerCaseSearch = searchValue.toLowerCase();
+throw new Error( `Erreur HTTP: ${
+response.status
+}` );
 
-												// Exclure les éléments déjà sélectionnés et chercher sur plusieurs champs
-												this.filteredData = this.data.filter((item) => {
-													const itemMatricule = (item.matricule || '').toString().toLowerCase();
-													const itemNomPrenoms = (item.nomPrenoms || '').toLowerCase();
-													const isSelected = this.selectedItems.some(selected => this.itemToString(selected) === this.itemToString(item));
-													
-													return (
-														(itemMatricule.includes(lowerCaseSearch) || itemNomPrenoms.includes(lowerCaseSearch)) && !isSelected
-													);
-												});
+}
 
-												this.showSuggestions(this.filteredData);
-											}
+if ( responseType === "json" ) {
 
-											// Surcharge de la méthode renderTags pour n'afficher que le matricule dans le tag
-											renderTags() {
-												if (!this.tagsContainer) return;
+const text = await response.text();
+if ( ! text ) 
+throw new Error( 'Réponse vide' );
 
-												// Effacer les tags existants
-												this.tagsContainer.querySelectorAll('.tag').forEach(tag => tag.remove());
+return JSON.parse( text );
 
-												// Créer un tag pour chaque élément sélectionné
-												this.selectedItems.forEach((item, index) => {
-													const tag = document.createElement('span');
-													tag.className = 'tag badge bg-primary me-2';
-													// N'afficher que le matricule dans le tag
-													tag.textContent = this.itemToString(item);
+} else {
 
-													// Bouton de suppression
-													const removeBtn = document.createElement('button');
-													removeBtn.type = 'button';
-													removeBtn.className = 'btn-close btn-close-white ms-1';
-													removeBtn.onclick = (e) => {
-														e.stopPropagation();
-														this.removeSelectedItem(item);
-													};
+return await response.text();
 
-													tag.appendChild(removeBtn);
-													this.tagsContainer.insertBefore(tag, this.inputElement);
-												});
-											}
+}
 
-											// Méthode pour restaurer les sélections à partir du champ caché
-											restoreSelectionsFromHiddenInput() {
-												if (this.hiddenInputElement && this.hiddenInputElement.value) {
-													const selectedMatricules = this.hiddenInputElement.value.split(',').filter(m => m.trim() !== '');
+} catch ( error ) {
 
-													// Récupérer les données complètes pour chaque matricule sélectionné
-													fetchClient().then(allData => {
-														selectedMatricules.forEach(matricule => {
-															const item = allData.find(d => d.matricule === matricule.trim());
-															if (item) {
-																// Vérifier que l'élément n'est pas déjà dans la sélection
-																if (!this.selectedItems.some(selectedItem =>
-																	this.itemToString(selectedItem) === this.itemToString(item))) {
-																		this.selectedItems.push(item);
-																}
-															}
-														});
+console.error( `Échec de récupération des données depuis ${
+this.baseUrl
+}/${ endpoint }:`, error );
+throw error;
 
-														// Mettre à jour l'affichage
-														this.renderTags();
-														this.updateHiddenInputValue();
-													}).catch(error => {
-														console.error('Erreur lors de la récupération des données pour la restauration:', error);
-													});
-												}
-											}
-										}
+}
 
-										const customAutoComplete = new CustomMultiSelectAutoComplete({
-											// L'input visible pour la recherche
-											inputElement: searchInput,
-											// Le conteneur des suggestions
-											suggestionContainer: suggestionContainer,
-											// L'icône de chargement
-											loaderElement: loaderElement,
+}
 
-											// -- Options spécifiques à l'affichage par tags --
-											// Le conteneur où les tags seront affichés
-											tagsContainer: tagsContainer,
-											// Le champ caché qui stocke les valeurs pour la soumission du formulaire
-											hiddenInputElement: hiddenMatriculeInput,
-											// ---------------------------------------------
+}
 
-											debounceDelay: 300,
-											fetchDataCallback: fetchClient,
-											// Callback pour afficher l'item dans la liste de suggestion
-											displayItemCallback: (item) => displayClient(item),
-											// Callback pour convertir l'item en string (utilisé pour la valeur et l'unicité)
-											itemToStringCallback: (item) => `${item.matricule}`,
-										});
+const fetchManager = new FetchManager();
 
-										// Restaurer les sélections après le chargement complet
-										customAutoComplete.restoreSelectionsFromHiddenInput();
+async function fetchClient() {
 
-										// Empêcher la perte des sélections lors de la soumission du formulaire
-										const form = document.querySelector('form[name="demande_conge"]');
-										if (form) {
-											form.addEventListener('submit', function(e) {
-												// Assurer que les sélections sont mises à jour dans le champ caché avant la soumission
-												customAutoComplete.updateHiddenInputValue();
-											});
-										}
-									}).catch(error => {
-										console.error('Erreur lors du chargement du module AutoComplete:', error);
-									});
-								} else {
-									console.warn("Certains éléments nécessaires à l'autocomplete sont manquants");
-								}
-							}, 100); // Petit délai pour s'assurer que le DOM est complètement rendu
-						});
+return await fetchManager.get( "rh/demande-de-conge/api/matricule-nom-prenom" );
+
+}
+
+function displayClient( item ) {
+
+return `${
+item.matricule
+} - ${
+item.nomPrenoms
+}`;
+
+}
+
+// Créer une instance personnalisée de MultiSelectAutoComplete
+class CustomMultiSelectAutoComplete extends module.MultiSelectAutoComplete {
+
+constructor( options ) {
+
+super( options );
+
+}
+
+// Surcharge de la méthode addSelectedItem pour vider l'input après sélection
+addSelectedItem( item ) {
+
+if ( !this.selectedItems.some( selectedItem => this.itemToString( selectedItem ) === this.itemToString( item ) ) ) {
+
+this.selectedItems.push( item );
+// Mettre à jour l'affichage
+this.renderTags();
+this.updateHiddenInputValue();
+
+}
+// Vider le champ de recherche après sélection
+this.inputElement.value = '';
+this.clearSuggestions();
+
+}
+
+// Surcharge de la méthode filterData pour chercher sur matricule et nom/prénom
+filterData( searchValue ) {
+
+if ( searchValue.trim() === "" ) {
+
+this.clearSuggestions();
+return;
+
+}
+
+const lowerCaseSearch = searchValue.toLowerCase();
+
+// Exclure les éléments déjà sélectionnés et chercher sur plusieurs champs
+this.filteredData = this.data.filter( ( item ) => {
+
+const itemMatricule = ( item.matricule || '' ).toString().toLowerCase();
+const itemNomPrenoms = ( item.nomPrenoms || '' ).toLowerCase();
+const isSelected = this.selectedItems.some( selected => this.itemToString( selected ) === this.itemToString( item ) );
+
+return( ( itemMatricule.includes( lowerCaseSearch ) || itemNomPrenoms.includes( lowerCaseSearch ) ) && ! isSelected );
+
+} );
+
+this.showSuggestions( this.filteredData );
+
+}
+
+// Surcharge de la méthode renderTags pour n'afficher que le matricule dans le tag
+renderTags() {
+
+if ( !this.tagsContainer ) 
+return;
+
+
+// Effacer les tags existants
+this.tagsContainer.querySelectorAll( '.tag' ).forEach( tag => tag.remove() );
+
+// Créer un tag pour chaque élément sélectionné
+this.selectedItems.forEach( ( item, index ) => {
+
+const tag = document.createElement( 'span' );
+tag.className = 'tag badge bg-primary me-2';
+// N'afficher que le matricule dans le tag
+tag.textContent = this.itemToString( item );
+
+// Bouton de suppression
+const removeBtn = document.createElement( 'button' );
+removeBtn.type = 'button';
+removeBtn.className = 'btn-close btn-close-white ms-1';
+removeBtn.onclick = ( e ) => {
+
+e.stopPropagation();
+this.removeSelectedItem( item );
+
+};
+
+tag.appendChild( removeBtn );
+this.tagsContainer.insertBefore( tag, this.inputElement );
+
+} );
+
+}
+
+// Méthode pour restaurer les sélections à partir du champ caché
+restoreSelectionsFromHiddenInput() {
+
+if ( this.hiddenInputElement && this.hiddenInputElement.value ) {
+
+const selectedMatricules = this.hiddenInputElement.value.split( ',' ).filter( m => m.trim() !== '' );
+
+// Récupérer les données complètes pour chaque matricule sélectionné
+fetchClient().then( allData => {
+
+selectedMatricules.forEach( matricule => {
+
+const item = allData.find( d => d.matricule === matricule.trim() );
+if ( item ) { // Vérifier que l'élément n'est pas déjà dans la sélection
+if ( !this.selectedItems.some( selectedItem => this.itemToString( selectedItem ) === this.itemToString( item ) ) ) {
+
+this.selectedItems.push( item );
+
+} }
+
+} );
+
+// Mettre à jour l'affichage
+this.renderTags();
+this.updateHiddenInputValue();
+
+} ).catch( error => {
+
+console.error( 'Erreur lors de la récupération des données pour la restauration:', error );
+
+} );
+
+}
+
+}
+
+}
+
+const customAutoComplete = new CustomMultiSelectAutoComplete( {
+
+// L'input visible pour la recherche
+inputElement: searchInput,
+// Le conteneur des suggestions
+suggestionContainer: suggestionContainer,
+// L'icône de chargement
+loaderElement: loaderElement,
+
+// -- Options spécifiques à l'affichage par tags --
+// Le conteneur où les tags seront affichés
+tagsContainer: tagsContainer,
+// Le champ caché qui stocke les valeurs pour la soumission du formulaire
+hiddenInputElement: hiddenMatriculeInput,
+// ---------------------------------------------
+
+debounceDelay: 300,
+fetchDataCallback: fetchClient,
+// Callback pour afficher l'item dans la liste de suggestion
+displayItemCallback: ( item ) => displayClient( item ),
+// Callback pour convertir l'item en string (utilisé pour la valeur et l'unicité)
+itemToStringCallback: ( item ) => `${
+item.matricule
+}`
+
+} );
+
+// Restaurer les sélections après le chargement complet
+customAutoComplete.restoreSelectionsFromHiddenInput();
+
+// Empêcher la perte des sélections lors de la soumission du formulaire
+const form = document.querySelector( 'form[name="demande_conge"]' );
+if ( form ) {
+
+form.addEventListener( 'submit', function ( e ) { // Assurer que les sélections sont mises à jour dans le champ caché avant la soumission
+customAutoComplete.updateHiddenInputValue();
+
+} );
+
+}
+
+} ).catch( error => {
+
+console.error( 'Erreur lors du chargement du module AutoComplete:', error );
+
+} );
+
+} else {
+
+console.warn( "Certains éléments nécessaires à l'autocomplete sont manquants" );
+
+}
+
+}, 100 ); // Petit délai pour s'assurer que le DOM est complètement rendu
+
+} );
 					</script>
 					<div class="col-md-3">
 						{{ form_row(form.agence, {'attr': {'class': 'form-select-sm', 'data-default-agence': App.userConnecter.agenceIPS|default('') }}) }}
@@ -258,7 +333,7 @@
 					<div class="col-md-3">
 						{{ form_row(form.statutDemande, {'attr': {'class': 'form-select-sm'}}) }}
 					</div>
-					<div class="col-md-3 {{ App.userConnecter.isAdmin or App.userConnecter.isDirection ? '' : 'd-none' }}">
+					<div class="col-md-3 {{ accessGroupeDirection ? '' : 'd-none' }}">
 						{{ form_row(form.groupeDirection, {'attr': {'class': 'form-select-sm'}}) }}
 					</div>
 					<div class="col-12 text-end">
@@ -276,77 +351,102 @@
 
 
 <script>
-	document.addEventListener('DOMContentLoaded', function () { // Importer FetchManager (en utilisant un module inline)
+	document.addEventListener( 'DOMContentLoaded', function () { // Importer FetchManager (en utilisant un module inline)
 const baseUrl = '{{ App.base_path }}';
 
 // Classe FetchManager simplifiée (intégrée directement)
 class FetchManager {
+
 constructor() {
+
 this.baseUrl = baseUrl;
+
 }
 
-async get(endpoint, responseType = "json") {
+async get( endpoint, responseType = "json" ) {
+
 try {
-const response = await fetch(`${
+
+const response = await fetch( `${
 this.baseUrl
-}/${endpoint}`);
-console.log(response);
-if (! response.ok) {
-throw new Error(`Erreur HTTP: ${
+}/${ endpoint }` );
+console.log( response );
+if ( ! response.ok ) {
+
+throw new Error( `Erreur HTTP: ${
 response.status
-}`);
+}` );
+
 }
 
-if (responseType === "json") {
+if ( responseType === "json" ) {
+
 const text = await response.text();
-if (! text) 
-throw new Error('Réponse vide');
+if ( ! text ) 
+throw new Error( 'Réponse vide' );
 
 
 
-return JSON.parse(text);
+return JSON.parse( text );
+
 } else {
+
 return await response.text();
+
 }
-} catch (error) {
-console.error(`Échec de récupération des données depuis ${
+
+} catch ( error ) {
+
+console.error( `Échec de récupération des données depuis ${
 this.baseUrl
-}/${endpoint}:`, error);
+}/${ endpoint }:`, error );
 throw error;
+
 }
+
 }
+
 }
 
 // Instanciation de FetchManager
 const fetchManager = new FetchManager();
 
 // Gestion de la dépendance Agence -> Service
-const agenceSelect = document.querySelector('[name="demande_conge[agence]"]');
-const serviceSelect = document.querySelector('[name="demande_conge[service]"]');
-const serviceFieldContainer = document.getElementById('serviceFieldContainer');
-const serviceSpinner = document.getElementById('serviceSpinner');
+const agenceSelect = document.querySelector( '[name="demande_conge[agence]"]' );
+const serviceSelect = document.querySelector( '[name="demande_conge[service]"]' );
+const serviceFieldContainer = document.getElementById( 'serviceFieldContainer' );
+const serviceSpinner = document.getElementById( 'serviceSpinner' );
 
 
 // permet d'afficher ou masquer le champs service et afficher une spinner
-function toggleServiceLoading(isLoading) {
-if (! serviceFieldContainer || ! serviceSpinner) 
+function toggleServiceLoading( isLoading ) {
+
+if ( ! serviceFieldContainer || ! serviceSpinner ) 
 return;
 
 
 
-if (isLoading) {
-serviceFieldContainer.classList.add('d-none');
-serviceSpinner.classList.remove('d-none');
-if (serviceSelect) 
+if ( isLoading ) {
+
+serviceFieldContainer.classList.add( 'd-none' );
+serviceSpinner.classList.remove( 'd-none' );
+if ( serviceSelect ) 
 serviceSelect.disabled = true;
 
 
 
+
+
+
 } else {
-serviceSpinner.classList.add('d-none');
-serviceFieldContainer.classList.remove('d-none');
-if (serviceSelect) 
+
+serviceSpinner.classList.add( 'd-none' );
+serviceFieldContainer.classList.remove( 'd-none' );
+if ( serviceSelect ) 
 serviceSelect.disabled = false;
+
+
+
 
 
 
@@ -354,87 +454,105 @@ serviceSelect.disabled = false;
 }
 
 // Ajouter un champ caché pour le service
-const form = document.querySelector('form');
-const hiddenServiceInput = document.createElement('input');
+const form = document.querySelector( 'form' );
+const hiddenServiceInput = document.createElement( 'input' );
 hiddenServiceInput.type = 'hidden';
 hiddenServiceInput.name = 'service_hidden';
 hiddenServiceInput.id = 'service_hidden';
-form.appendChild(hiddenServiceInput);
+form.appendChild( hiddenServiceInput );
 
 // Restaurer la valeur du service si elle existe dans les critères
-const criteria = JSON.parse(`{{ (criteria|default({}))|json_encode|e("js") }}`);
+const criteria = JSON.parse( `{{ (criteria|default({}))|json_encode|e("js") }}` );
 let previouslySelectedService = null;
-if (criteria && criteria.selected_service) {
+if ( criteria && criteria.selected_service ) {
+
 previouslySelectedService = criteria.selected_service;
 hiddenServiceInput.value = criteria.selected_service;
+
 }
 
-if (agenceSelect && serviceSelect) { // Fonction pour charger les services en fonction de l'agence sélectionnée
-function loadServices(agenceCode, selectedService = null) {
-if (! agenceCode) { // Si aucune agence n'est sélectionnée, vider le select de service
+if ( agenceSelect && serviceSelect ) { // Fonction pour charger les services en fonction de l'agence sélectionnée
+function loadServices( agenceCode, selectedService = null ) {
+
+if ( ! agenceCode ) { // Si aucune agence n'est sélectionnée, vider le select de service
 serviceSelect.innerHTML = '<option value="">Tous les services</option>';
-toggleServiceLoading(false);
+toggleServiceLoading( false );
 return;
+
 }
 
 // Utiliser FetchManager pour récupérer les services
-toggleServiceLoading(true);
-fetchManager.get(`rh/demande-de-conge/api/services-by-agence/${agenceCode}`).then(data => { // Vider le select de service
+toggleServiceLoading( true );
+fetchManager.get( `rh/demande-de-conge/api/services-by-agence/${ agenceCode }` ).then( data => { // Vider le select de service
 serviceSelect.innerHTML = '<option value="">Tous les services</option>';
 
 // Ajouter les options de service
-data.forEach(service => {
-const option = document.createElement('option');
+data.forEach( service => {
+
+const option = document.createElement( 'option' );
 option.value = service.code;
 option.textContent = service.code + ' ' + service.nom;
-serviceSelect.appendChild(option);
-});
+serviceSelect.appendChild( option );
+
+} );
 
 // Si un service était sélectionné, le rétablir
-if (selectedService) {
+if ( selectedService ) {
+
 serviceSelect.value = selectedService;
 // Mettre à jour le champ caché également
 hiddenServiceInput.value = selectedService;
-}
-}).catch(error => {
-console.error('Erreur lors de la récupération des services:', error);
+
+} } ).catch( error => {
+
+console.error( 'Erreur lors de la récupération des services:', error );
 // Afficher un message d'erreur à l'utilisateur
 serviceSelect.innerHTML = '<option value="">Erreur de chargement des services</option>';
-}). finally(() => {
-toggleServiceLoading(false);
-});
+
+} ). finally( () => {
+
+toggleServiceLoading( false );
+
+} );
+
 }
 
 // Charger les services au chargement de la page
 // const defaultAgence = agenceSelect.dataset.defaultAgence;
 // const defaultService = serviceSelect.dataset.defaultService;
 
-if (agenceSelect.value && previouslySelectedService) { // Cas 1: L'utilisateur a effectué une recherche, on restaure l'état
-loadServices(agenceSelect.value, previouslySelectedService);
+if ( agenceSelect.value && previouslySelectedService ) { // Cas 1: L'utilisateur a effectué une recherche, on restaure l'état
+loadServices( agenceSelect.value, previouslySelectedService );
+
 }
 // else if (defaultAgence) { // Cas 2: Pas de recherche, mais des valeurs par défaut sont présentes via dataset
 // agenceSelect.value = defaultAgence;
 // loadServices(defaultAgence, defaultService);
+
 } else { // Cas 3: Comportement par défaut, pas de chargement initial
-toggleServiceLoading(false);
+toggleServiceLoading( false );
+
 }
 
 // Ajouter un écouteur d'événement pour le changement d'agence
-agenceSelect.addEventListener('change', function () { // Réinitialiser le service sélectionné quand l'agence change
+agenceSelect.addEventListener( 'change', function () { // Réinitialiser le service sélectionné quand l'agence change
 previouslySelectedService = null;
 hiddenServiceInput.value = '';
-toggleServiceLoading(true);
-loadServices(this.value);
-});
+toggleServiceLoading( true );
+loadServices( this.value );
+
+} );
 
 // Ajouter un écouteur d'événement pour le changement de service
-serviceSelect.addEventListener('change', function () { // Mettre à jour le champ caché quand le service change
+serviceSelect.addEventListener( 'change', function () { // Mettre à jour le champ caché quand le service change
 hiddenServiceInput.value = this.value;
-});
+
+} );
 
 
 // Ajouter l'écouteur d'événement de soumission du formulaire
-form.addEventListener('submit', function (e) {
+form.addEventListener( 'submit', function ( e ) {
+
 // if (agenceSelect && agenceSelect.disabled) {
 // agenceSelect.disabled = false;
 // }
@@ -444,9 +562,11 @@ form.addEventListener('submit', function (e) {
 // }
 // Récupérer la valeur du champ service
 const serviceValue = serviceSelect ? serviceSelect.value : '';
-console.log('Valeur du service avant soumission:', serviceValue);
+console.log( 'Valeur du service avant soumission:', serviceValue );
 // Mettre à jour le champ caché
-document.getElementById('service_hidden').value = serviceValue;
-});
-});
+document.getElementById( 'service_hidden' ).value = serviceValue;
+
+} );
+
+} );
 </script>
