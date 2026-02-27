@@ -77,7 +77,8 @@ class CongeController extends Controller
         // Création du formulaire avec l'EntityManager
         $form = $this->getFormFactory()->createBuilder(DemandeCongeType::class, $congeSearch, [
             'method' => 'GET',
-            'em' => $this->getEntityManager()
+            'em' => $this->getEntityManager(),
+            'agenceServiceAutorises' => $agenceServiceAutorises
         ])->getForm();
 
         $form->handleRequest($request);
@@ -456,7 +457,8 @@ class CongeController extends Controller
         // Création du formulaire avec l'EntityManager
         $form = $this->getFormFactory()->createBuilder(DemandeCongeType::class, $congeSearch, [
             'method' => 'GET',
-            'em' => $this->getEntityManager()
+            'em' => $this->getEntityManager(),
+            'agenceServiceAutorises' => $agenceServiceAutorises
         ])->getForm();
 
         $form->handleRequest($request);
@@ -996,6 +998,14 @@ class CongeController extends Controller
      */
     public function getServiceSelonAgence(string $codeAgence)
     {
+        // Agences Services autorisés sur le Demande de congé
+        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DDC);
+
+        $codesServicesAutorises = array_column(
+            array_filter($agenceServiceAutorises, fn($asa) => $asa['agence_code'] === $codeAgence),
+            'service_code'
+        );
+
         $agencesServices = $this->getEntityManager()->getRepository(AgenceServiceIrium::class)->findBy(["agence_ips" => $codeAgence]);
 
         $services = [];
@@ -1008,7 +1018,7 @@ class CongeController extends Controller
             // clé unique basée sur code+nom
             $key = $code . '|' . $nom;
 
-            if (!isset($seen[$key])) {
+            if (!isset($seen[$key]) && in_array($code, $codesServicesAutorises)) {
                 $services[] = [
                     'code' => $code,
                     'nom'  => $nom,

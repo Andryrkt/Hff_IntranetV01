@@ -34,6 +34,9 @@ class DemandeCongeType extends AbstractType
             throw new \InvalidArgumentException('EntityManager is required');
         }
 
+        $agenceServiceAutorises = $options['agenceServiceAutorises'];
+        $agenceAutorises = array_unique(array_column($agenceServiceAutorises, 'agence_code'));
+
         // Récupérer les agences et services depuis AgenceServiceIrium
         $agencesServices = $em->getRepository(AgenceServiceIrium::class)->findBy(["societe_ios" => 'HF'], ["agence_ips" => "ASC"]);
         $agences = [];
@@ -42,7 +45,10 @@ class DemandeCongeType extends AbstractType
         foreach ($agencesServices as $as) {
             // Utiliser agence_ips au lieu de agence_i100
             // Format: "Code - Nom" (ex: "80 - Administration")
-            $agences[$as->getAgenceips() . ' ' . $as->getNomagencei100()] = $as->getAgenceips();
+            $agenceCode = $as->getAgenceips();
+            if (in_array($agenceCode, $agenceAutorises)) {
+                $agences[$as->getAgenceips() . ' ' . strtoupper($as->getNomagencei100())] = $as->getAgenceips();
+            }
         }
 
         // Récupérer les statuts depuis la table Statut_demande
@@ -190,7 +196,7 @@ class DemandeCongeType extends AbstractType
         ]);
 
         // Définir l'option 'em' pour permettre de passer l'EntityManager
-        $resolver->setDefined(['em']);
+        $resolver->setDefined(['em', 'agenceServiceAutorises']);
         $resolver->setAllowedTypes('em', ['null', EntityManagerInterface::class]);
     }
 
