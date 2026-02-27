@@ -23,18 +23,8 @@
 					</div>
 
 					<div class="col-12 col-md-2">
-						<div class="spinner-container">
-							{{ form_row(form.emetteur.agence, {'attr': {'class': 'agenceEmetteur'}}) }}
-							{% include 'components/spinner.html.twig' with {
-								'id': 'spinner-service-emetteur',
-								'size': 'small',
-								'class': 'spinner-absolute'
-							} %}
-						</div>
-						<div id="service-container-emetteur" class="mb-3">
-							{{ form_label(form.emetteur.service) }}
-							{{ form_widget(form.emetteur.service, {'attr': {'class': 'serviceEmetteur'}}) }}
-						</div>
+						{{form_row(form.agenceEmetteur)}}
+						{{form_row(form.serviceEmetteur)}}
 					</div>
 					<div class="col-12 col-md-2">
 						{{ form_row(form.dateCreation) }}

@@ -91,21 +91,12 @@ class ListeDevisMagasinController extends Controller
         ])->getForm();
 
         /** @var array */
-        $criteria = $this->traitementFormulaireRecherche($request, $form);
+        $criteria = $this->traitementFormulaireRecherche($request, $form, $agenceServiceAutorises);
 
-        // Normalisation des critères avant de les stocker en session
-        $criteriaForSession = $criteria;
-        if (isset($criteriaForSession['emetteur']['agence']) && is_object($criteriaForSession['emetteur']['agence'])) {
-            $criteriaForSession['emetteur']['agence'] = $criteriaForSession['emetteur']['agence']->getId();
-        }
-        if (isset($criteriaForSession['emetteur']['service']) && is_object($criteriaForSession['emetteur']['service'])) {
-            $criteriaForSession['emetteur']['service'] = $criteriaForSession['emetteur']['service']->getId();
-        }
-        $this->getSessionService()->set('criteria_for_excel_liste_devis_magasin', $criteriaForSession);
+        $this->getSessionService()->set('criteria_for_excel_liste_devis_magasin', $criteria);
 
         $listeDevisFactory = $this->recuperationDonner($criteria, $agenceServiceAutorises);
         $preparedDatas     = $this->prepareDatasForView($listeDevisFactory, $this->styleStatutDw, $this->styleStatutBc, $this->statutIPS, $this->styleStatutPR);
-
 
         // affichage de la liste des devis magasin
         return $this->render('magasin/devis/listeDevisMagasin.html.twig', [
@@ -114,7 +105,7 @@ class ListeDevisMagasinController extends Controller
         ]);
     }
 
-    private function traitementFormulaireRecherche(Request $request, $form): array
+    private function traitementFormulaireRecherche(Request $request, $form, array $agenceServiceAutorises): array
     {
         $criteria = [];
 
@@ -124,6 +115,14 @@ class ListeDevisMagasinController extends Controller
             $criteriaDto = $form->getData();
             $criteria = $criteriaDto->toArrayFilter();
         }
+
+        if (isset($criteria['serviceEmetteur'])) {
+            $ligneId = $criteria['serviceEmetteur'];
+            if ($ligneId && isset($agenceServiceAutorises[$ligneId])) {
+                $criteria['serviceEmetteur'] = $agenceServiceAutorises[$ligneId]['service_code'];
+            }
+        }
+
         return $criteria;
     }
 
@@ -131,18 +130,6 @@ class ListeDevisMagasinController extends Controller
     {
         // recupération de la session pour le criteria
         $criteriaTab = $this->getSessionService()->get('criteria_for_excel_liste_devis_magasin');
-
-        // Dénormalisation : recharger les entités à partir des IDs
-        if (!empty($criteriaTab['emetteur']['agence'])) {
-            $agenceRepository = $this->getEntityManager()->getRepository(Agence::class);
-            $agence = $agenceRepository->find($criteriaTab['emetteur']['agence']);
-            $criteriaTab['emetteur']['agence'] = $agence;
-        }
-
-        if (!empty($criteriaTab['emetteur']['service'])) {
-            $service = $this->getEntityManager()->getRepository(Service::class)->find($criteriaTab['emetteur']['service']);
-            $criteriaTab['emetteur']['service'] = $service;
-        }
 
         // transforme en objet
         $ListeDevisSearchDto = new ListeDevisSearchDto();
@@ -289,19 +276,19 @@ class ListeDevisMagasinController extends Controller
         }
 
         // Filtre par agence émetteur
-        if (!empty($criteria['emetteur']['agence'])) {
+        if (!empty($criteria['agenceEmetteur'])) {
             // Récupérer les 2 premiers caractères de l'agence émetteur
             $agenceEmetteurCode = !empty($devisIp['emmeteur']) ? substr($devisIp['emmeteur'], 0, 2) : '';
-            if ($agenceEmetteurCode !== $criteria['emetteur']['agence']->getCodeAgence()) {
+            if ($agenceEmetteurCode !== $criteria['agenceEmetteur']) {
                 return false;
             }
         }
 
         // Filtre par service émetteur
-        if (!empty($criteria['emetteur']['service'])) {
+        if (!empty($criteria['serviceEmetteur'])) {
             // Récupérer les 3 derniers caractères du service émetteur
             $serviceEmetteurCode = !empty($devisIp['emmeteur']) ? substr($devisIp['emmeteur'], -3) : '';
-            if ($serviceEmetteurCode !== $criteria['emetteur']['service']->getCodeService()) {
+            if ($serviceEmetteurCode !== $criteria['serviceEmetteur']) {
                 return false;
             }
         }
