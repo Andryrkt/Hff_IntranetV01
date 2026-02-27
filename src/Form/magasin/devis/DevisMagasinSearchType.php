@@ -6,6 +6,7 @@ use App\Form\common\DateRangeType;
 use App\Form\common\AgenceServiceType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\AbstractType;
+use App\Traits\PrepareAgenceServiceTrait;
 use App\Entity\magasin\devis\DevisMagasin;
 use App\Factory\magasin\devis\ListeDevisSearchDto;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -15,6 +16,7 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 
 class DevisMagasinSearchType extends AbstractType
 {
+    use PrepareAgenceServiceTrait;
     private $statutsDw;
     private $statutsBc;
     private $em;
@@ -51,6 +53,12 @@ class DevisMagasinSearchType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+        $choices = $this->prepareAgenceServiceChoices($options['agenceServiceAutorises'], false);
+
+        $agenceChoices = $choices['agenceChoices'];
+        $serviceChoices = $choices['serviceChoices'];
+        $serviceAttr = $choices['serviceAttr'];
+
         $builder
             ->add('numeroPO', TextType::class, [
                 'label' => 'PO/BC client',
@@ -98,39 +106,44 @@ class DevisMagasinSearchType extends AbstractType
                 'required' => false,
                 'data' => $options['data']->getStatutIps(),
             ])
-            ->add('emetteur', AgenceServiceType::class, [
-                'label' => false,
-                'required' => false,
-                'agence_label' => 'Agence Emetteur',
-                'service_label' => 'Service Emetteur',
-                'agence_placeholder' => '-- Agence Emetteur --',
-                'service_placeholder' => '-- Service Emetteur --',
-                'em' => $options['em'] ?? null,
-                'data_agence' => $options['data']->getEmetteur()['agence'] ?? null,
-                'data_service' => $options['data']->getEmetteur()['service'] ?? null,
-            ])
-            // ->add('debitteur', AgenceServiceType::class, [
-            //     'label' => false,
-            //     'required' => false,
-            //     'agence_label' => 'Agence Debiteur',
-            //     'service_label' => 'Service Debiteur',
-            //     'agence_placeholder' => '-- Agence Debiteur --',
-            //     'service_placeholder' => '-- Service Debiteur --',
-            // ])
             ->add('dateCreation', DateRangeType::class, [
                 'label' => false,
                 'debut_label' => 'Date création (début)',
                 'fin_label' => 'Date création (fin)',
                 'data_date_debut' => $options['data']->getDateCreation()['debut'] ?? null,
                 'data_date_fin' => $options['data']->getDateCreation()['fin'] ?? null,
-            ]);
+            ])
+            // --- agenceDebiteur : ChoiceType ---
+            ->add('agenceEmetteur', ChoiceType::class, [
+                'label'       => 'Agence Emetteur',
+                'placeholder' => '-- Choisir une agence --',
+                'required'    => false,
+                'choices'     => $agenceChoices
+            ])
+            // --- serviceDebiteur : ChoiceType ---
+            ->add('serviceEmetteur', ChoiceType::class, [
+                'label'       => 'Service Emetteur',
+                'placeholder' => '-- Choisir une service --',
+                'required'    => false,
+                'choices'     => $serviceChoices,
+                'choice_label' => function ($value) use ($options) {
+                    // Retrouver le bon item et afficher service_code . ' ' . service_libelle
+                    $item = $options['agenceServiceAutorises'][$value];
+                    return $item['service_code'] . ' ' . $item['service_libelle'];
+                },
+                'choice_attr' => function ($val) use ($serviceAttr) {
+                    return $serviceAttr[$val] ?? [];
+                }
+            ])
+        ;
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => ListeDevisSearchDto::class,
             'em' => null,
+            'data_class' => ListeDevisSearchDto::class,
+            'agenceServiceAutorises' => []
         ]);
     }
 }

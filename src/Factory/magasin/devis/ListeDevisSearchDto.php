@@ -13,7 +13,8 @@ class ListeDevisSearchDto
     private ?string $Operateur = null;
     private ?string $statutDw = null; // statut devis
     private ?string $statutIps = null; // position IPS
-    private ?array $emetteur = [];
+    private ?string $agenceEmetteur = null;
+    private ?string $serviceEmetteur = null;
     private ?array $dateCreation = [];
     private ?string $statutBc = null;
     private ?string $creePar = null;
@@ -135,26 +136,6 @@ class ListeDevisSearchDto
     }
 
     /**
-     * Get the value of emetteur
-     */
-    public function getEmetteur()
-    {
-        return $this->emetteur;
-    }
-
-    /**
-     * Set the value of emetteur
-     *
-     * @return  self
-     */
-    public function setEmetteur($emetteur)
-    {
-        $this->emetteur = $emetteur;
-
-        return $this;
-    }
-
-    /**
      * Get the value of dateCreation
      */
     public function getDateCreation()
@@ -220,6 +201,42 @@ class ListeDevisSearchDto
     public function setNumeroPO(?string $numeroPO): self
     {
         $this->numeroPO = $numeroPO;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of agenceEmetteur
+     */
+    public function getAgenceEmetteur(): ?string
+    {
+        return $this->agenceEmetteur;
+    }
+
+    /**
+     * Set the value of agenceEmetteur
+     */
+    public function setAgenceEmetteur(?string $agenceEmetteur): self
+    {
+        $this->agenceEmetteur = $agenceEmetteur;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of serviceEmetteur
+     */
+    public function getServiceEmetteur(): ?string
+    {
+        return $this->serviceEmetteur;
+    }
+
+    /**
+     * Set the value of serviceEmetteur
+     */
+    public function setServiceEmetteur(?string $serviceEmetteur): self
+    {
+        $this->serviceEmetteur = $serviceEmetteur;
 
         return $this;
     }
