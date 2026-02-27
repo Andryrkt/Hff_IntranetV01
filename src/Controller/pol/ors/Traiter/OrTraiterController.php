@@ -5,15 +5,16 @@ namespace App\Controller\pol\ors\Traiter;
 
 // ini_set('max_execution_time', 10000);
 
-use App\Controller\Controller;
-use App\Service\TableauEnStringService;
-use App\Controller\Traits\Transformation;
-use Symfony\Component\Form\FormInterface;
 use App\Constants\admin\ApplicationConstant;
-use Symfony\Component\HttpFoundation\Request;
-use App\Model\magasin\MagasinListeOrATraiterModel;
-use App\Form\magasin\MagasinListeOrATraiterSearchType;
+use App\Controller\Controller;
 use App\Controller\Traits\magasin\ors\MagasinOrATraiterTrait;
+use App\Controller\Traits\Transformation;
+use App\Form\magasin\MagasinListeOrATraiterSearchType;
+use App\Model\magasin\MagasinListeOrATraiterModel;
+use App\Service\TableauEnStringService;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route("/pol/or-pol")

@@ -2,12 +2,13 @@
 
 namespace App\Controller\magasin\cis\Livrer;
 
-use App\Controller\Controller;
-use App\Service\TableauEnStringService;
-use App\Form\magasin\cis\ALivrerSearchtype;
 use App\Constants\admin\ApplicationConstant;
-use Symfony\Component\HttpFoundation\Request;
+use App\Controller\Controller;
 use App\Controller\Traits\magasin\cis\ALivrerTrait;
+use App\Form\magasin\cis\ALivrerSearchtype;
+use App\Service\TableauEnStringService;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route("/magasin/cis")

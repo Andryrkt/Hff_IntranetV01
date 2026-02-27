@@ -3,13 +3,14 @@
 
 namespace App\Controller\magasin\ors\Traiter;
 
-use App\Controller\Controller;
-use App\Service\TableauEnStringService;
-use App\Controller\Traits\Transformation;
 use App\Constants\admin\ApplicationConstant;
-use Symfony\Component\HttpFoundation\Request;
-use App\Form\magasin\MagasinListeOrATraiterSearchType;
+use App\Controller\Controller;
 use App\Controller\Traits\magasin\ors\MagasinOrATraiterTrait;
+use App\Controller\Traits\Transformation;
+use App\Form\magasin\MagasinListeOrATraiterSearchType;
+use App\Service\TableauEnStringService;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route("/magasin/or")

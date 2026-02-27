@@ -2,13 +2,14 @@
 
 namespace App\Controller\Pol\cis\Traiter;
 
-use App\Controller\Controller;
-use Symfony\Component\Form\FormInterface;
-use App\Form\magasin\cis\ATraiterSearchType;
 use App\Constants\admin\ApplicationConstant;
-use Symfony\Component\HttpFoundation\Request;
+use App\Controller\Controller;
 use App\Controller\Traits\magasin\cis\AtraiterTrait;
+use App\Form\magasin\cis\ATraiterSearchType;
 use App\Service\TableauEnStringService;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route("/pol/cis-pol")

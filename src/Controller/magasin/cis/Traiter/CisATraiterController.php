@@ -2,12 +2,13 @@
 
 namespace App\Controller\magasin\cis\Traiter;
 
-use App\Controller\Controller;
-use App\Service\TableauEnStringService;
 use App\Constants\admin\ApplicationConstant;
-use App\Form\magasin\cis\ATraiterSearchType;
-use Symfony\Component\HttpFoundation\Request;
+use App\Controller\Controller;
 use App\Controller\Traits\magasin\cis\AtraiterTrait;
+use App\Form\magasin\cis\ATraiterSearchType;
+use App\Service\TableauEnStringService;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route("/magasin/cis")

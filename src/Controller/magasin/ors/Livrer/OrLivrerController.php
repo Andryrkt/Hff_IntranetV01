@@ -8,11 +8,13 @@ ini_set('memory_limit', '1000M');
 
 use App\Constants\admin\ApplicationConstant;
 use App\Controller\Controller;
-use App\Service\TableauEnStringService;
-use App\Controller\Traits\Transformation;
-use Symfony\Component\HttpFoundation\Request;
-use App\Form\magasin\MagasinListeOrALivrerSearchType;
 use App\Controller\Traits\magasin\ors\MagasinOrALivrerTrait;
+use App\Controller\Traits\Transformation;
+use App\Form\magasin\MagasinListeOrALivrerSearchType;
+use App\Service\TableauEnStringService;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
+
 /**
  * @Route("/magasin/or")
  */
