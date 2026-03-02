@@ -44,7 +44,7 @@ class DaNewAchatController extends Controller
 
         return $this->render('da/new-da-achat.html.twig', [
             'form'        => $form->createView(),
-            'codeCentrale' => $this->hasRoles(Role::ROLE_ADMINISTRATEUR) || in_array($demandeApproParent->getAgenceEmetteur()->getCodeAgence(), ['90', '91', '92']),
+            'codeCentrale' => false, // TODO : autorisation sur centrale
         ]);
     }
 
