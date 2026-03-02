@@ -158,6 +158,14 @@ class SecurityService
             ?? $this->permissionsVides();
     }
 
+    /** 
+     * Vérifie l'accès à une route
+     */
+    public function hasAccesRoute(string $route): bool
+    {
+        return $this->dataService->peutVoir($route);
+    }
+
     /**
      * Retourne la liste des agences et services groupés par id pour une application donnée
      */
