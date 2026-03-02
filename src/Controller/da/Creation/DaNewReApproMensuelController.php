@@ -45,7 +45,7 @@ class DaNewReApproMensuelController extends Controller
 
         return $this->render('da/new-da-reappro-mensuel.html.twig', [
             'form'         => $form->createView(),
-            'codeCentrale' => $this->hasRoles(Role::ROLE_ADMINISTRATEUR) || in_array($demandeAppro->getAgenceEmetteur()->getCodeAgence(), ['90', '91', '92']),
+            'codeCentrale' => false, // TODO : autorisation sur centrale
         ]);
     }
 
