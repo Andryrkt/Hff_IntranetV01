@@ -47,7 +47,7 @@ class DemandeCongeType extends AbstractType
             // Format: "Code - Nom" (ex: "80 - Administration")
             $agenceCode = $as->getAgenceips();
             if (in_array($agenceCode, $agenceAutorises)) {
-                $agences[$as->getAgenceips() . ' ' . strtoupper($as->getNomagencei100())] = $as->getAgenceips();
+                $agences[$agenceCode . ' ' . strtoupper($as->getNomagencei100())] = $agenceCode;
             }
         }
 

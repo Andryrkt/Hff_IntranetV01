@@ -31,9 +31,4 @@ class BonDeCaisseDto
     public ?\DateTimeInterface $dateStatut = null;
     public ?string $pdfDemande = null;
     public ?string $nomValidateurFinal = null;
-
-    // public function toArray(): array
-    // {
-    //     return get_object_vars($this);
-    // }
 }
