@@ -63,6 +63,11 @@ class DitDevisSoumisAValidationType extends AbstractType
                 'choices' => self::TACHE_VALIDATEUR,
                 'expanded' => true,
                 'multiple' => false,
+                'required' => $options['data']->getType() === 'VP' ? true : false,
+                'attr' => [
+                    'data-field-name' => 'Tâche du validateur',
+                ]
+
             ])
             ->add(
                 'pieceJoint01',

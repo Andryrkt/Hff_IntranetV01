@@ -51,7 +51,8 @@
 								</div>
 							</div>
 							<div class="row {{type == 'VP' ? '' : 'd-none'}}">
-								{{form_row(form.tacheValidateur, {'required': type == 'VP'})}}
+								{{form_row(form.tacheValidateur)}}
+								{{ form_errors(form.tacheValidateur)}}
 							</div>
 						</div>
 

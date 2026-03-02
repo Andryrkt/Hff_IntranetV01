@@ -82,7 +82,7 @@ class DitDevisSoumisAValidationController extends Controller
         }
 
         //initialisation du formulaire
-        $ditDevisSoumisAValidation = $this->initialistaion($this->ditDevisSoumisAValidation, $numDit, $numDevis);
+        $ditDevisSoumisAValidation = $this->initialistaion($this->ditDevisSoumisAValidation, $numDit, $numDevis, $type);
         $form = $this->getFormFactory()->createBuilder(DitDevisSoumisAValidationType::class, $ditDevisSoumisAValidation)->getForm();
         $form->handleRequest($request);
 
@@ -603,12 +603,14 @@ class DitDevisSoumisAValidationController extends Controller
         }
     }
 
-    private function initialistaion(DitDevisSoumisAValidation $ditDevisSoumisAValidation, string $numDit, string $numDevis)
+    private function initialistaion(DitDevisSoumisAValidation $ditDevisSoumisAValidation, string $numDit, string $numDevis, string $type)
     {
         return $ditDevisSoumisAValidation
             ->setNumeroDit($numDit)
             ->setNumeroDevis($numDevis)
-            ->setDateHeureSoumission(new DateTime());
+            ->setType($type)
+            ->setDateHeureSoumission(new DateTime())
+        ;
     }
 
     /**
