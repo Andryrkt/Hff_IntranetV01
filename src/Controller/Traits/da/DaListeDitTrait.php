@@ -4,33 +4,10 @@ namespace App\Controller\Traits\da;
 
 use App\Model\dit\DitModel;
 use App\Entity\dit\DitSearch;
-use App\Entity\admin\utilisateur\Role;
 use Symfony\Component\HttpFoundation\Request;
 
 trait DaListeDitTrait
 {
-
-    /**
-     * Methode pour autorisation de l'admin
-     *
-     * @return boolean
-     */
-    private function autorisationRole(): bool
-    {
-        return $this->hasRoles(Role::ROLE_ADMINISTRATEUR, Role::ROLE_ATELIER);
-    }
-
-    /**
-     * Methode pour autorise le role energie
-     *
-     * @return boolean
-     */
-    private function autorisationRoleEnergie(): bool
-    {
-        return $this->hasRoles(Role::ROLE_ENERGIE);
-    }
-
-
     /**
      * Methode pour l'initialisation des donners dans les champs de formulaire
      */
