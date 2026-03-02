@@ -15,4 +15,5 @@ class ApplicationConstant
     public const CODE_INVENTAIRE = 'INV';
     public const CODE_DVM = 'DVM';
     public const CODE_DDC = 'DDC';
+    public const CODE_BON_DE_CAISSE = 'BCS';
 }
