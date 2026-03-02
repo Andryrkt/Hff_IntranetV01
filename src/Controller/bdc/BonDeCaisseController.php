@@ -2,10 +2,10 @@
 
 namespace App\Controller\bdc;
 
+use App\Constants\admin\ApplicationConstant;
 use App\Controller\Controller;
 use App\Dto\bdc\BonDeCaisseDto;
 use App\Entity\bdc\BonDeCaisse;
-use App\Entity\admin\Application;
 use App\Form\bdc\BonDeCaisseType;
 use App\Controller\Traits\FormatageTrait;
 use App\Controller\Traits\ConversionTrait;
@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\bdc\BonDeCaisseListeTrait;
 use App\Factory\bdc\BonDeCaisseFactory;
+use App\Repository\bdc\BonDeCaisseRepository;
 use App\Service\ExcelService;
 
 /**
@@ -33,9 +34,9 @@ class BonDeCaisseController extends Controller
 
         $hasGetParams = !empty($request->query->all());
         if (!$hasGetParams) {
-            $this->sessionService->remove('bon_caisse_search_criteria');
+            $this->getSessionService()->remove('bon_caisse_search_criteria');
         } else {
-            $sessionCriteria = $this->sessionService->get('bon_caisse_search_criteria', []);
+            $sessionCriteria = $this->getSessionService()->get('bon_caisse_search_criteria', []);
             if (!empty($sessionCriteria)) {
                 foreach ($sessionCriteria as $key => $value) {
                     if (property_exists($bonCaisseSearch, $key)) {
@@ -45,27 +46,19 @@ class BonDeCaisseController extends Controller
             }
         }
 
+        // Agences Services autorisés sur le Bon de Caisse
+        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_BON_DE_CAISSE);
+
         $form = $this->getFormFactory()->createBuilder(BonDeCaisseType::class, $bonCaisseSearch, [
             'method' => 'GET',
-            'em' => $this->getEntityManager()
+            'em' => $this->getEntityManager(),
+            'agenceServiceAutorises' => $agenceServiceAutorises
         ])->getForm();
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $bonCaisseSearch = $form->getData();
-
-            $emetteurData = $form->get('emetteur')->getData();
-            if ($emetteurData) {
-                $bonCaisseSearch->agenceEmetteur = isset($emetteurData['agence']) ? $emetteurData['agence']->getCodeAgence() : null;
-                $bonCaisseSearch->serviceEmetteur = isset($emetteurData['service']) ? $emetteurData['service']->getCodeService() : null;
-            }
-
-            $debiteurData = $form->get('debiteur')->getData();
-            if ($debiteurData) {
-                $bonCaisseSearch->agenceDebiteur = isset($debiteurData['agence']) ? $debiteurData['agence']->getCodeAgence() : null;
-                $bonCaisseSearch->serviceDebiteur = isset($debiteurData['service']) ? $debiteurData['service']->getCodeService() : null;
-            }
 
             $dateDemande = $form->get('dateDemande')->getData();
             if ($dateDemande) {
@@ -74,8 +67,10 @@ class BonDeCaisseController extends Controller
             }
         }
 
+        $this->gererAgenceService($bonCaisseSearch, $agenceServiceAutorises);
+
         $criteria = $bonCaisseSearch->toArray();
-        $this->sessionService->set('bon_caisse_search_criteria', $criteria);
+        $this->getSessionService()->set('bon_caisse_search_criteria', $criteria);
 
         $bonCaisseEntitySearch = new BonDeCaisse();
         $bonCaisseEntitySearch->setNumeroDemande($bonCaisseSearch->numeroDemande);
@@ -94,8 +89,9 @@ class BonDeCaisseController extends Controller
         $page = max(1, $request->query->getInt('page', 1));
         $limit = 10;
 
+        /** @var BonDeCaisseRepository $repository */
         $repository = $this->getEntityManager()->getRepository(BonDeCaisse::class);
-        $paginationData = $repository->findPaginatedAndFiltered($page, $limit, $bonCaisseEntitySearch, $this->getUser());
+        $paginationData = $repository->findPaginatedAndFiltered($page, $limit, $bonCaisseEntitySearch, $agenceServiceAutorises);
         $data = $paginationData['data'];
 
         // Récupère tous les chemins PDF en une seule requête
@@ -121,7 +117,7 @@ class BonDeCaisseController extends Controller
     public function exportExcel()
     {
         /** Récupère les critères dans la session @var array $criteira*/
-        $criteria = $this->sessionService->get('bon_caisse_search_criteria', []);
+        $criteria = $this->getSessionService()->get('bon_caisse_search_criteria', []);
 
         $bonCaisseSearch = new BonDeCaisseDto();
         $bonCaisseSearch->toObject($criteria);
@@ -140,8 +136,12 @@ class BonDeCaisseController extends Controller
         $bonCaisseEntitySearch->setRetraitLie($bonCaisseSearch->retraitLie);
         $bonCaisseEntitySearch->setNomValidateurFinal($bonCaisseSearch->nomValidateurFinal);
 
-        // Récupère les entités filtrées
-        $entities = $this->getEntityManager()->getRepository(BonDeCaisse::class)->findAndFilteredExcel($bonCaisseEntitySearch, $this->getUser());
+        // Agences Services autorisés sur le Bon de Caisse
+        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_BON_DE_CAISSE);
+
+        /** @var BonDeCaisseRepository $repository */
+        $repository = $this->getEntityManager()->getRepository(BonDeCaisse::class);
+        $entities = $repository->findAndFilteredExcel($bonCaisseEntitySearch, $agenceServiceAutorises);
 
         // Convertir les entités en tableau de données
         $data = [];
@@ -180,5 +180,24 @@ class BonDeCaisseController extends Controller
 
         // Crée le fichier Excel
         (new ExcelService())->createSpreadsheet($data);
+    }
+
+    private function gererAgenceService(BonDeCaisseDto $bonDeCaisseDto, array $agenceServiceAutorises): void
+    {
+        // Changer le serviceEmetteur
+        if ($bonDeCaisseDto->serviceEmetteur) {
+            $ligneId = $bonDeCaisseDto->serviceEmetteur;
+            if ($ligneId && isset($agenceServiceAutorises[$ligneId])) {
+                $bonDeCaisseDto->serviceEmetteur = $agenceServiceAutorises[$ligneId]['service_code'];
+            }
+        }
+
+        // Changer le serviceDebiteur
+        if ($bonDeCaisseDto->serviceDebiteur) {
+            $ligneId = $bonDeCaisseDto->serviceDebiteur;
+            if ($ligneId && isset($agenceServiceAutorises[$ligneId])) {
+                $bonDeCaisseDto->serviceDebiteur = $agenceServiceAutorises[$ligneId]['service_code'];
+            }
+        }
     }
 }

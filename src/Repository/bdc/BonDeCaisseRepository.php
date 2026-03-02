@@ -10,14 +10,32 @@ use Doctrine\ORM\Tools\Pagination\Paginator;
 
 class BonDeCaisseRepository extends EntityRepository
 {
-    public function filtres(QueryBuilder $queryBuilder, BonDeCaisse $bonDeCaisse, User $user): void
+    public function filtres(QueryBuilder $queryBuilder, BonDeCaisse $bonDeCaisse, array $agenceServiceAutorises): void
     {
-        if (!in_array(1, $user->getRoleIds())) {
-            $queryBuilder->andWhere('b.agenceEmetteur IN (:agencesAutorisees)')
-                ->setParameter('agencesAutorisees', $user->getAgenceAutoriserCode())
-                ->andWhere('b.serviceEmetteur IN (:servicesAutorises)')
-                ->setParameter('servicesAutorises', $user->getServiceAutoriserCode());
+        // Condition sur les couples agences-services
+        $orX1 = $queryBuilder->expr()->orX();
+        $orX2 = $queryBuilder->expr()->orX();
+        foreach ($agenceServiceAutorises as $i => $tab) {
+            $orX1->add(
+                $queryBuilder->expr()->andX(
+                    $queryBuilder->expr()->eq('b.agenceEmetteur', ':agEmetteur_' . $i),
+                    $queryBuilder->expr()->eq('b.serviceEmetteur', ':servEmetteur_' . $i)
+                )
+            );
+            $queryBuilder->setParameter('agEmetteur_' . $i, $tab['agence_code']);
+            $queryBuilder->setParameter('servEmetteur_' . $i, $tab['service_code']);
+            $orX2->add(
+                $queryBuilder->expr()->andX(
+                    $queryBuilder->expr()->eq('b.agenceDebiteur', ':agDebiteur_' . $i),
+                    $queryBuilder->expr()->eq('b.serviceDebiteur', ':servDebiteur_' . $i)
+                )
+            );
+            $queryBuilder->setParameter('agDebiteur_' . $i, $tab['agence_code']);
+            $queryBuilder->setParameter('servDebiteur_' . $i, $tab['service_code']);
         }
+        $queryBuilder
+            ->andWhere($orX1)
+            ->andWhere($orX2);
 
         if ($bonDeCaisse->getNumeroDemande()) {
             $queryBuilder->andWhere('b.numeroDemande = :numeroDemande')
@@ -94,7 +112,7 @@ class BonDeCaisseRepository extends EntityRepository
                 ->setParameter('nomValidateurFinal', '%' . $bonDeCaisse->getNomValidateurFinal() . '%git a');
         }
     }
-    
+
     /**
      * Recupération des données paginée
      *
@@ -108,11 +126,11 @@ class BonDeCaisseRepository extends EntityRepository
         int $page,
         int $limit,
         BonDeCaisse $bonDeCaisse,
-        ?User $user = null
+        array $agenceServiceAutorises
     ): array {
         $queryBuilder = $this->createQueryBuilder('b');
 
-        $this->filtres($queryBuilder, $bonDeCaisse, $user);
+        $this->filtres($queryBuilder, $bonDeCaisse, $agenceServiceAutorises);
 
         $query = $queryBuilder
             ->orderBy('b.id', 'DESC')
@@ -138,11 +156,11 @@ class BonDeCaisseRepository extends EntityRepository
      * @param BonDeCaisse $bonDeCaisse
      * @return array
      */
-    public function findAndFilteredExcel(BonDeCaisse $bonDeCaisse, ?User $user = null): array
+    public function findAndFilteredExcel(BonDeCaisse $bonDeCaisse, array $agenceServiceAutorises): array
     {
         $queryBuilder = $this->createQueryBuilder('b');
 
-        $this->filtres($queryBuilder, $bonDeCaisse, $user);
+        $this->filtres($queryBuilder, $bonDeCaisse, $agenceServiceAutorises);
 
         return $queryBuilder
             ->orderBy('b.id', 'DESC')
