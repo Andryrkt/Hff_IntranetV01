@@ -554,19 +554,6 @@ class Controller
     }
 
     /**
-     * Vérifie si l'utilisateur est dans la liste des noms
-     * 
-     * @param string ...$names
-     * @return bool
-     */
-    protected function hasName(string ...$names): bool
-    {
-        $userInfo = $this->getSessionService()->get('user_info');
-        if (!$userInfo) return false;
-        return in_array($userInfo['username'], $names);
-    }
-
-    /**
      * Vérifier si l'utilisateur est dans le service atelier
      */
     protected function estUserDansServiceAtelier(): bool
@@ -588,39 +575,6 @@ class Controller
         $userServiceIds = $userInfo['authorized_services']['ids'] ?? [];
 
         return in_array(DemandeAppro::ID_APPRO, $userServiceIds);
-    }
-
-    /**
-     * Obtenir le code agence par défaut (IPS) de l'utilisateur
-     */
-    protected function getCodeAgenceUser(): string
-    {
-        $userInfo = $this->getSessionService()->get('user_info');
-        if (!$userInfo) return "";
-        return $userInfo['default_agence_code'] ?? '';
-    }
-
-    /**
-     * Obtenir le code service par défaut (IPS) de l'utilisateur
-     */
-    protected function getCodeServiceUser(): string
-    {
-        $userInfo = $this->getSessionService()->get('user_info');
-        if (!$userInfo) return "";
-        return $userInfo['default_service_code'] ?? '';
-    }
-
-    /**
-     * Obtenir les ids des agence-service autorisés de l'utilisateur
-     */
-    protected function getAgServAutorisesUser(): array
-    {
-        $userInfo = $this->getSessionService()->get('user_info');
-        if (!$userInfo) return [];
-        return [
-            'agences'  => $userInfo['authorized_agences']['ids'] ?? [],
-            'services' => $userInfo['authorized_services']['ids'] ?? [],
-        ];
     }
 
     /**
