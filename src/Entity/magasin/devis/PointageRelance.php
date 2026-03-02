@@ -51,10 +51,26 @@ class PointageRelance
      * @ORM\Column(type="string", length=2, name="agence", nullable=true)
      */
     private ?string $agence = null;
+
     /**
      * @ORM\Column(type="integer", name="numero_relance", nullable=true)
      */
     private ?int $numeroRelance = null;
+
+    /**
+     * @ORM\Column(type="boolean", name="stop_progression_niveau", options={"default": false}, nullable=true)
+     */
+    private $stopProgressionNiveau;
+
+    /**
+     * @ORM\Column(type="datetime", name="date_stop_niveau", nullable=true)
+     */
+    private $dateStopNiveau;
+
+    /**
+     * @ORM\Column(type="string", length=255, name="motif_stop_niveau", nullable=true)
+     */
+    private $motifStopNiveau;
 
     /** =========================================
      * GETTERS & SETTERS
@@ -186,6 +202,60 @@ class PointageRelance
     public function setNumeroRelance(?int $numeroRelance): self
     {
         $this->numeroRelance = $numeroRelance;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of stopProgressionNiveau
+     */
+    public function getStopProgressionNiveau()
+    {
+        return $this->stopProgressionNiveau;
+    }
+
+    /**
+     * Set the value of stopProgressionNiveau
+     */
+    public function setStopProgressionNiveau($stopProgressionNiveau): self
+    {
+        $this->stopProgressionNiveau = $stopProgressionNiveau;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateStopNiveau
+     */
+    public function getDateStopNiveau()
+    {
+        return $this->dateStopNiveau;
+    }
+
+    /**
+     * Set the value of dateStopNiveau
+     */
+    public function setDateStopNiveau($dateStopNiveau): self
+    {
+        $this->dateStopNiveau = $dateStopNiveau;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of motifStopNiveau
+     */
+    public function getMotifStopNiveau()
+    {
+        return $this->motifStopNiveau;
+    }
+
+    /**
+     * Set the value of motifStopNiveau
+     */
+    public function setMotifStopNiveau($motifStopNiveau): self
+    {
+        $this->motifStopNiveau = $motifStopNiveau;
 
         return $this;
     }

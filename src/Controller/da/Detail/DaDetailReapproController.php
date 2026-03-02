@@ -46,18 +46,16 @@ class DaDetailReapproController extends Controller
 		$this->traitementFormulaire($formObservation, $request, $demandeAppro);
 
 		$fichiers = $this->docRattacheService->getAllAttachedFiles($demandeAppro);
-		$estAdmin = $this->hasRoles(Role::ROLE_ADMINISTRATEUR);
-		$timeLineData = $estAdmin ? $this->daTimelineService->getTimelineData($demandeAppro->getNumeroDemandeAppro()) : [];
+		$timeLineData = $this->daTimelineService->getTimelineData($demandeAppro->getNumeroDemandeAppro());
 
 		return $this->render('da/detail.html.twig', [
 			'detailTemplate'    => 'detail-reappro',
 			'formObservation'	=> $formObservation->createView(),
 			'demandeAppro'      => $demandeAppro,
 			'isMensuel'         => $demandeAppro->getDaTypeId() == DemandeAppro::TYPE_DA_REAPPRO_MENSUEL,
-			'codeCentrale'      => $estAdmin || in_array($demandeAppro->getAgenceEmetteur()->getCodeAgence(), ['90', '91', '92']),
+			'codeCentrale'      => false, // TODO : autorisation sur centrale
 			'observations'      => $observations,
 			'fichiers'          => $fichiers,
-			'timelineAccess'    => $estAdmin,
 			'timelineData'      => $timeLineData,
 			'connectedUser'     => $this->getUser(),
 		]);

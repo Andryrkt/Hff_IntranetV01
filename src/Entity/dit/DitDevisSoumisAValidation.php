@@ -146,6 +146,12 @@ class DitDevisSoumisAValidation
      * @var integer
      */
     private int $nombreLignePiece = 0;
+
+    /**
+     * @ORM\Column(type="string", length="200", name="tache_validateur")
+     */
+    private $tacheValidateur;
+
     /** ========================================================================================== 
      * GETTERS & SETTERS
      *==========================================================================================*/
@@ -745,6 +751,24 @@ class DitDevisSoumisAValidation
     public function setNombreLignePiece($nombreLignePiece)
     {
         $this->nombreLignePiece = $nombreLignePiece;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of tacheValidateur
+     */
+    public function getTacheValidateur()
+    {
+        return $this->tacheValidateur;
+    }
+
+    /**
+     * Set the value of tacheValidateur
+     */
+    public function setTacheValidateur($tacheValidateur): self
+    {
+        $this->tacheValidateur = $tacheValidateur;
 
         return $this;
     }

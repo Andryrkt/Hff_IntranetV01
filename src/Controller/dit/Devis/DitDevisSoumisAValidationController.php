@@ -79,7 +79,7 @@ class DitDevisSoumisAValidationController extends Controller
         }
 
         //initialisation du formulaire
-        $ditDevisSoumisAValidation = $this->initialistaion($this->ditDevisSoumisAValidation, $numDit, $numDevis);
+        $ditDevisSoumisAValidation = $this->initialistaion($this->ditDevisSoumisAValidation, $numDit, $numDevis, $type);
         $form = $this->getFormFactory()->createBuilder(DitDevisSoumisAValidationType::class, $ditDevisSoumisAValidation)->getForm();
         $form->handleRequest($request);
 
@@ -160,7 +160,7 @@ class DitDevisSoumisAValidationController extends Controller
             }
 
             // SI (devis est prix refusé ou prix a confirmer ou Demande refusée par le PM)     ET    nouvelle reference ajoutée
-            else if ((in_array("Prix à confirmer", $devisStatut) || in_array('Prix refusé magasin', $devisStatut) || in_array('Demande refusée par le PM', $devisStatut)) && (int)$nbrPieceInformix != (int)$nbrPieceSqlServ) {
+            else if ((in_array("Prix à confirmer", $devisStatut) || in_array('Prix refusé magasin', $devisStatut) || in_array('Demande refusée par le PM', $devisStatut)) && (int)$nbrPieceInformix > (int)$nbrPieceSqlServ) {
                 $message = " Merci de repasser la soumission du devis au magasin pour vérification ";
                 $this->historiqueOperation->sendNotificationSoumission($message, $numDevis, 'dit_index');
             }
@@ -188,15 +188,16 @@ class DitDevisSoumisAValidationController extends Controller
     /** ✅ Traite la soumission du devis */
     private function traiterSoumissionDevis($form, string $numDevis, string $numDit, string $type, array $devisSoumisValidataion, $request)
     {
+        $data = $form->getData();
+
         $originalName = $form->get("pieceJoint01")->getData()->getClientOriginalName();
         $numeroVersion = $devisSoumisValidataion[0]->getNumeroVersion();
 
         $blockages = $this->ConditionDeBlockage($numDevis, $numDit, $this->devisRepository, $originalName);
         if ($this->blockageSoumission($blockages, $numDevis)) {
-            // if (true) {
 
             /** ENVOIE des DONNEE dans BASE DE DONNEE */
-            $this->envoieDonnerDansBd($devisSoumisValidataion, $type);
+            $this->envoieDonnerDansBd($devisSoumisValidataion, $type, $data);
             $this->editDevisRattacherDit($numDit, $numDevis, $type); //ajout du numero devis dans la table demande_intervention
 
 
@@ -207,7 +208,7 @@ class DitDevisSoumisAValidationController extends Controller
 
             if ($type == 'VP') {
                 //generer le nom du fichier
-                $nomFichierGenerer = 'verificationprix_' . $numDevis . '-' . $numeroVersion . '#' . $suffix . '.pdf';
+                $nomFichierGenerer = 'verificationprix_' . $numDevis . '-' . $numeroVersion . '#' . $suffix . '~' . $data->getTacheValidateur() . '.pdf';
 
                 // telecharger le fichier en copiant sur son repertoire
                 $this->fileUploader->uploadFileSansName($file, $nomFichierGenerer);
@@ -489,7 +490,7 @@ class DitDevisSoumisAValidationController extends Controller
         return $statut;
     }
 
-    private function envoieDonnerDansBd(array $devisSoumisValidataion, string $type)
+    private function envoieDonnerDansBd(array $devisSoumisValidataion, string $type, DitDevisSoumisAValidation $data)
     {
         $statut = $this->statutSelonType($type);
 
@@ -497,10 +498,12 @@ class DitDevisSoumisAValidationController extends Controller
         if (count($devisSoumisValidataion) > 1) {
             foreach ($devisSoumisValidataion as $entity) {
                 $entity->setStatut($statut);
+                $entity->setTacheValidateur($data->getTacheValidateur());
                 $this->getEntityManager()->persist($entity); // Persister chaque entité individuellement
             }
         } elseif (count($devisSoumisValidataion) === 1) {
             $devisSoumisValidataion[0]->setStatut($statut);
+            $devisSoumisValidataion[0]->setTacheValidateur($data->getTacheValidateur());
             $this->getEntityManager()->persist($devisSoumisValidataion[0]);
         }
 
@@ -596,12 +599,14 @@ class DitDevisSoumisAValidationController extends Controller
         }
     }
 
-    private function initialistaion(DitDevisSoumisAValidation $ditDevisSoumisAValidation, string $numDit, string $numDevis)
+    private function initialistaion(DitDevisSoumisAValidation $ditDevisSoumisAValidation, string $numDit, string $numDevis, string $type)
     {
         return $ditDevisSoumisAValidation
             ->setNumeroDit($numDit)
             ->setNumeroDevis($numDevis)
-            ->setDateHeureSoumission(new DateTime());
+            ->setType($type)
+            ->setDateHeureSoumission(new DateTime())
+        ;
     }
 
     /**

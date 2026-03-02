@@ -61,9 +61,8 @@ class DaDetailAvecDitController extends Controller
 			'devPjPathObs' => $this->getDevisPjPathObservation($demandeAppro),
 		]);
 
-		$estAdmin = $this->hasRoles(Role::ROLE_ADMINISTRATEUR);
 		$demandeApproLPrepared = $this->prepareDataForDisplayDetail($demandeAppro->getDAL(), $demandeAppro->getStatutDal());
-		$timeLineData = $estAdmin ? $this->daTimelineService->getTimelineData($demandeAppro->getNumeroDemandeAppro()) : [];
+		$timeLineData = $this->daTimelineService->getTimelineData($demandeAppro->getNumeroDemandeAppro());
 
 		return $this->render('da/detail.html.twig', [
 			'detailTemplate'      		=> 'detail-avec-dit',
@@ -78,7 +77,6 @@ class DaDetailAvecDitController extends Controller
 			'statutAutoriserModifAte' 	=> $demandeAppro->getStatutDal() === DemandeAppro::STATUT_AUTORISER_EMETTEUR,
 			'estAte'            		=> $this->estUserDansServiceAtelier(),
 			'estAppro'          		=> $this->estUserDansServiceAppro(),
-			'timelineAccess'    		=> $estAdmin,
 			'timelineData'      		=> $timeLineData,
 		]);
 	}

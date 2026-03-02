@@ -29,13 +29,13 @@
 					</div>
 
 					<div class="row {{message == 'verification prix' ? '' : 'd-none'}}">
-						<div class="col-12 col-md-4">
-							{{ form_row(form.estValidationPm) }}
+						<div class="col-12 col-md-6">
+							{{ form_row(form.estValidationPm, {'label_attr': {'class': 'fw-bold'}}) }}
 						</div>
 					</div>
 					<div class="row {{message == 'verification prix' ? '' : 'd-none'}}">
 						<div class="col-12 col-md-4">
-							{{ form_row(form.tacheValidateur) }}
+							{{ form_row(form.tacheValidateur, {'label_attr': {'class': 'fw-bold text-secondary'}, 'attr': {'data-field-name': 'Tâche du validateur'}}) }}
 						</div>
 					</div>
 					<div class="row {{message == 'verification prix' ? '' : 'd-none'}}">

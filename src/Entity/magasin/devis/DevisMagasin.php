@@ -2,7 +2,7 @@
 
 namespace App\Entity\magasin\devis;
 
-use App\Constants\Magasin\Devis\PointageRelanceStatutConstant;
+
 use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\magasin\devis\DevisMagasinRepository;
@@ -205,6 +205,26 @@ class DevisMagasin
      * @var string|null
      */
     private ?string $statutRelance = null;
+
+    /**
+     * @ORM\Column(type="boolean", name="stop_progression_global", options={"default": false}, nullable=true)
+     */
+    private $stopProgressionGlobal;
+
+    /**
+     * @ORM\Column(type="datetime", name="date_stop_global", nullable=true)
+     */
+    private $dateStopGlobal;
+
+    /**
+     * @ORM\Column(type="string", length=100, name="motif_stop_global", nullable=true)
+     */
+    private $motifStopGlobal;
+
+    /**
+     * @ORM\Column(type="datetime", name="date_reprise_manuel", nullable=true)
+     */
+    private $dateRepriseManuel;
 
     /** =========================================
      * GETTERS & SETTERS
@@ -786,6 +806,78 @@ class DevisMagasin
     public function setStatutRelance(?string $statutRelance): self
     {
         $this->statutRelance = $statutRelance;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of stopProgressionGlobal
+     */
+    public function getStopProgressionGlobal()
+    {
+        return $this->stopProgressionGlobal;
+    }
+
+    /**
+     * Set the value of stopProgressionGlobal
+     */
+    public function setStopProgressionGlobal($stopProgressionGlobal): self
+    {
+        $this->stopProgressionGlobal = $stopProgressionGlobal;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateStopGlobal
+     */
+    public function getDateStopGlobal()
+    {
+        return $this->dateStopGlobal;
+    }
+
+    /**
+     * Set the value of dateStopGlobal
+     */
+    public function setDateStopGlobal($dateStopGlobal): self
+    {
+        $this->dateStopGlobal = $dateStopGlobal;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of motifStopGlobal
+     */
+    public function getMotifStopGlobal()
+    {
+        return $this->motifStopGlobal;
+    }
+
+    /**
+     * Set the value of motifStopGlobal
+     */
+    public function setMotifStopGlobal($motifStopGlobal): self
+    {
+        $this->motifStopGlobal = $motifStopGlobal;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateRepriseManuel
+     */
+    public function getDateRepriseManuel()
+    {
+        return $this->dateRepriseManuel;
+    }
+
+    /**
+     * Set the value of dateRepriseManuel
+     */
+    public function setDateRepriseManuel($dateRepriseManuel): self
+    {
+        $this->dateRepriseManuel = $dateRepriseManuel;
 
         return $this;
     }
