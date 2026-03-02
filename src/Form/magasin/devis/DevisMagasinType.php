@@ -46,7 +46,7 @@ class DevisMagasinType extends AbstractType
             'disabled' => $isDisabled,
             'required' => $isRequired,
             'attr' => [
-                'data-field-name' => 'Tâche du validateur',
+                'data-error-message' => 'Veuillez sélectionner les tâche à valider par le Parts Manager.', // Message d'erreur personnalisé pour le champ
                 'required' => $isRequired
             ],
         ];
@@ -88,7 +88,7 @@ class DevisMagasinType extends AbstractType
                         ])
                     ],
                     'attr'          => [
-                        'data-field-name' => 'Veuillez insérer le devis',
+                        'data-error-message' => 'veillez ajouter un fichier PDF.', // Message d'erreur personnalis
                     ],
                 ]
             )
@@ -140,7 +140,7 @@ class DevisMagasinType extends AbstractType
                 'required'      => $options['data']->getTypeSoumission() == 'VP' ? ($options['data']->constructeur == 'TOUS NEST PAS CAT' ? false : true) : false,
                 'attr'          => [
                     'required' => $options['data']->getTypeSoumission() == 'VP' ? ($options['data']->constructeur == 'TOUS NEST PAS CAT' ? false : true) : false,
-                    'data-field-name' => 'Envoyer à validation au PM'
+                    'data-error-message' => 'Veuillez sélectionner si le devis est envoyé à validation au Parts Manager ou NON.',
                 ],
             ])
             ->add(
