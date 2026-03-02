@@ -120,14 +120,14 @@ class BonDeCaisseType extends AbstractType
             ])
             // --- agenceDebiteur : ChoiceType ---
             ->add('agenceDebiteur', ChoiceType::class, [
-                'label'       => 'Agence Destinataire',
+                'label'       => 'Agence Débiteur',
                 'placeholder' => '-- Choisir une agence --',
                 'required'    => false,
                 'choices'     => $agenceChoices
             ])
             // --- serviceDebiteur : ChoiceType ---
             ->add('serviceDebiteur', ChoiceType::class, [
-                'label'       => 'Service Destinataire',
+                'label'       => 'Service Débiteur',
                 'placeholder' => '-- Choisir une service --',
                 'required'    => false,
                 'choices'     => $serviceChoices,
