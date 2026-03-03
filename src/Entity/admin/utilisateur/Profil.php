@@ -197,4 +197,30 @@ class Profil
 
         return $this;
     }
+
+    //=======================================================================
+    // HELPER POUR PROFIL
+    //=======================================================================
+
+    /**
+     * Récupérer toutes les routes déclarées pour un profil
+     * en naviguant dans les relations Doctrine (ApplicationProfil → ApplicationProfilPage → PageHff).
+     * Retourne un tableau de noms de routes dédupliqués.
+     */
+    public function getRoutes(): array
+    {
+        $routes = [];
+
+        foreach ($this->applicationProfils as $applicationProfil) {
+            /** @var ApplicationProfilPage $applicationProfilPage */
+            foreach ($applicationProfil->getLiaisonsPage() as $applicationProfilPage) {
+                $nomRoute = $applicationProfilPage->getPage()->getNomRoute();
+                if ($nomRoute) {
+                    $routes[] = $nomRoute;
+                }
+            }
+        }
+
+        return array_unique($routes);
+    }
 }
