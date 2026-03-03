@@ -35,18 +35,6 @@ class MenuService
         $this->cache           = $cache;
         $this->basePath        = $_ENV['BASE_PATH_FICHIER_COURT'];
     }
-    
-    // =========================================================================
-    //  VERSIONING MANUEL — remplace les tags Symfony
-    //
-    //  Principe : chaque profil possède une "version" stockée dans le pool.
-    //  Les clés de données incluent cette version. Invalider = changer la version.
-    //  Les anciennes clés deviennent orphelines (jamais relues) puis expirées
-    //  naturellement par le pool (LRU, TTL du pool, etc.).
-    //
-    //  Avantage vs tags Symfony : la version est une simple valeur scalaire lue
-    //  dans le même pool par CLI et web → zéro désynchronisation.
-    // =========================================================================
 
     /**
      * Retourne la version courante du profil.
@@ -182,9 +170,16 @@ class MenuService
      */
     public function warmupMenuProfil(int $profilId): void
     {
+        // 1. Supprimer physiquement avec l'ancienne version
+        $this->cache->delete($this->buildKey($profilId, self::SUFFIX_PRINCIPAL));
+        $this->cache->delete($this->buildKey($profilId, self::SUFFIX_ADMIN));
+
         $this->userDataService->setProfilId($profilId);
+
+        // 2. Changer la version
         $this->invaliderCacheProfil($profilId);
 
+        // 3. Reconstruire (buildKey utilisera maintenant la nouvelle version)
         $this->ecraserMenuStructure($profilId);
         $this->ecraserAdminMenuStructure($profilId);
     }

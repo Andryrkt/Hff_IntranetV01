@@ -568,10 +568,24 @@ class UserDataService
      */
     public function warmupSecurityProfil(Profil $profil): int
     {
-        $this->invaliderCacheProfil($profil->getId());
-        $this->ecraserPagesProfil($profil);
-
+        $profilId = $profil->getId();
         $routes = $profil->getRoutes();
+
+        // 1. Supprimer physiquement les anciennes clés (on connaît encore l'ancienne version)
+        // Pages
+        $this->cache->delete($this->buildKey($profilId, self::SUFFIX_PAGES));
+        // Permissions par route
+        foreach ($profil->getRoutes() as $nomRoute) {
+            $this->cache->delete($this->buildKey($profilId, self::SUFFIX_PERMISSIONS, md5($nomRoute)));
+        }
+
+        // 2. Changer la version → nouvelles clés pour les prochaines écritures
+        $this->invaliderCacheProfil($profilId);
+
+        // 3. Reconstruire (buildKey utilisera maintenant la nouvelle version)
+        // Pages
+        $this->ecraserPagesProfil($profil);
+        // Permissions par route
         foreach ($routes as $nomRoute) {
             $this->ecraserPermissions($nomRoute, $profil);
         }
@@ -585,7 +599,19 @@ class UserDataService
      */
     public function warmupAgServProfil(Profil $profil): int
     {
+        $profilId = $profil->getId();
         $codeApps = $profil->getApplicationCodes();
+
+        // 1. Supprimer physiquement les anciennes clés (on connaît encore l'ancienne version)
+        foreach ($codeApps as $codeApp) {
+            $this->cache->delete($this->buildKey($profilId, self::SUFFIX_AG_SERV_ID,   md5($codeApp)));
+            $this->cache->delete($this->buildKey($profilId, self::SUFFIX_AG_SERV_CODE, md5($codeApp)));
+        }
+
+        // 2. Changer la version → nouvelles clés pour les prochaines écritures
+        $this->invaliderCacheProfil($profilId);
+
+        // 3. Reconstruire (buildKey utilisera maintenant la nouvelle version)
         foreach ($codeApps as $codeApp) {
             $this->ecraserAgenceServiceGroupById($codeApp, $profil);
             $this->ecraserAgenceServiceGroupByCode($codeApp, $profil);
