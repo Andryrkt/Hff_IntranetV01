@@ -164,7 +164,7 @@ class DevisMagasinType extends AbstractType
                     'data' => isset($devisMagasin['tacheValidateur']) ? $devisMagasin['tacheValidateur'] : ['Vérification prix'],
                     'expanded' => true,
                     'multiple' => true,
-                    'disabled' => $isDisabled,
+                    // 'disabled' => $isDisabled,
                     'required' => $isRequired,
                 ];
 
