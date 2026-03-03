@@ -8,7 +8,7 @@ class AppProfilPageDTO
 {
     public ?PageHff $page = null;
     public bool $peutVoir = false;
-    public bool $peutAjouter = false;
+    public bool $peutVoirListeAvecDebiteur = false;
     public bool $peutModifier = false;
     public bool $peutSupprimer = false;
     public bool $peutExporter = false;

@@ -14,7 +14,7 @@ class AppProfilPageFactory
         $dto = new AppProfilPageDTO;
         $dto->page = $appProfilPage->getPage();
         $dto->peutVoir = $appProfilPage->isPeutVoir();
-        $dto->peutAjouter = $appProfilPage->isPeutAjouter();
+        $dto->peutVoirListeAvecDebiteur = $appProfilPage->isPeutVoirListeAvecDebiteur();
         $dto->peutModifier = $appProfilPage->isPeutModifier();
         $dto->peutSupprimer = $appProfilPage->isPeutSupprimer();
         $dto->peutExporter = $appProfilPage->isPeutExporter();
@@ -30,7 +30,7 @@ class AppProfilPageFactory
     {
         $entity = new ApplicationProfilPage($applicationProfil, $dto->page);
         $entity->setPeutVoir($dto->peutVoir);
-        $entity->setPeutAjouter($dto->peutAjouter);
+        $entity->setPeutVoirListeAvecDebiteur($dto->peutVoirListeAvecDebiteur);
         $entity->setPeutModifier($dto->peutModifier);
         $entity->setPeutSupprimer($dto->peutSupprimer);
         $entity->setPeutExporter($dto->peutExporter);
@@ -41,7 +41,7 @@ class AppProfilPageFactory
     public function updateFromDTO(AppProfilPageDTO $dto, ApplicationProfilPage $appProfilPage): ApplicationProfilPage
     {
         $appProfilPage->setPeutVoir($dto->peutVoir);
-        $appProfilPage->setPeutAjouter($dto->peutAjouter);
+        $appProfilPage->setPeutVoirListeAvecDebiteur($dto->peutVoirListeAvecDebiteur);
         $appProfilPage->setPeutModifier($dto->peutModifier);
         $appProfilPage->setPeutSupprimer($dto->peutSupprimer);
         $appProfilPage->setPeutExporter($dto->peutExporter);

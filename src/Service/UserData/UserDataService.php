@@ -452,7 +452,7 @@ class UserDataService
 
                 return [
                     SecurityService::PERMISSION_VOIR      => $applicationProfilPage->isPeutVoir(),
-                    SecurityService::PERMISSION_AJOUTER   => $applicationProfilPage->isPeutAjouter(),
+                    SecurityService::PERMISSION_AUTH_2    => $applicationProfilPage->isPeutVoirListeAvecDebiteur(),
                     SecurityService::PERMISSION_MODIFIER  => $applicationProfilPage->isPeutModifier(),
                     SecurityService::PERMISSION_SUPPRIMER => $applicationProfilPage->isPeutSupprimer(),
                     SecurityService::PERMISSION_EXPORTER  => $applicationProfilPage->isPeutExporter(),

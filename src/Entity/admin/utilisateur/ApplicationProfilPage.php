@@ -48,9 +48,9 @@ class ApplicationProfilPage
     private bool $peutVoir = true;
 
     /**
-     * @ORM\Column(type="boolean", name="peut_ajouter", options={"default": false})
+     * @ORM\Column(type="boolean", name="peut_voir_liste_avec_debiteur", options={"default": false})
      */
-    private bool $peutAjouter = false;
+    private bool $peutVoirListeAvecDebiteur = false;
 
     /**
      * @ORM\Column(type="boolean", name="peut_modifier", options={"default": false})
@@ -109,14 +109,15 @@ class ApplicationProfilPage
         return $this;
     }
 
-    public function isPeutAjouter(): bool
+    public function isPeutVoirListeAvecDebiteur(): bool
     {
-        return $this->peutAjouter;
+        return $this->peutVoirListeAvecDebiteur;
     }
 
-    public function setPeutAjouter(bool $peutAjouter): self
+    public function setPeutVoirListeAvecDebiteur(bool $peutVoirListeAvecDebiteur): self
     {
-        $this->peutAjouter = $peutAjouter;
+        $this->peutVoirListeAvecDebiteur = $peutVoirListeAvecDebiteur;
+
         return $this;
     }
 
@@ -160,11 +161,11 @@ class ApplicationProfilPage
     public function toArray(): array
     {
         return [
-            'peutVoir'      => $this->peutVoir,
-            'peutAjouter'   => $this->peutAjouter,
-            'peutModifier'  => $this->peutModifier,
-            'peutSupprimer' => $this->peutSupprimer,
-            'peutExporter'  => $this->peutExporter
+            'peutVoir'                   => $this->peutVoir,
+            'peutVoirListeAvecDebiteur'  => $this->peutVoirListeAvecDebiteur,
+            'peutModifier'               => $this->peutModifier,
+            'peutSupprimer'              => $this->peutSupprimer,
+            'peutExporter'               => $this->peutExporter
         ];
     }
 }

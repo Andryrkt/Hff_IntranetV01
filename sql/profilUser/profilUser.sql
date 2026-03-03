@@ -81,14 +81,14 @@ alter table users add code_service_user varchar(50) NULL;
 alter table users add code_sage varchar(50) NULL;
 
 CREATE TABLE application_profil_page (
-    id                    INT IDENTITY(1,1) NOT NULL,
-    application_profil_id INT               NOT NULL,
-    page_id               INT               NOT NULL,
-    peut_voir             bit               NOT NULL DEFAULT 1,
-    peut_ajouter          bit               NOT NULL DEFAULT 0,
-    peut_modifier         bit               NOT NULL DEFAULT 0,
-    peut_supprimer        bit               NOT NULL DEFAULT 0,
-    peut_exporter         bit               NOT NULL DEFAULT 0,
+    id                                     INT IDENTITY(1,1) NOT NULL,
+    application_profil_id                  INT               NOT NULL,
+    page_id                                INT               NOT NULL,
+    peut_voir                              bit               NOT NULL DEFAULT 1,
+    peut_voir_liste_avec_debiteur          bit               NOT NULL DEFAULT 0,
+    peut_modifier                          bit               NOT NULL DEFAULT 0,
+    peut_supprimer                         bit               NOT NULL DEFAULT 0,
+    peut_exporter                          bit               NOT NULL DEFAULT 0,
     PRIMARY KEY (id),
     UNIQUE (application_profil_id, page_id),
     CONSTRAINT fk_app_profil_page_ap FOREIGN KEY (application_profil_id) REFERENCES application_profil (id),

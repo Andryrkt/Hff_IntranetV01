@@ -8,6 +8,10 @@
 
 {% block breadCrumb %}{% endblock %}
 
+{% block stylesheets %}
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/admin/permissions/new.css?v=2025.10.22.08.00">
+{% endblock %}
+
 {% block overlay %}
 	{% include "/shared/_overlay.html.twig"  %}
 {% endblock %}
@@ -105,6 +109,13 @@
 										{% endfor %}
 									</tbody>
 								</table>
+								<div class="notice">
+									<span class="notice-icon">
+										<i class="fas fa-info-circle"></i>
+									</span>
+									<div class="notice-content">(**) : Afficher les demandes qui sont débités par les agences et services autorisés sur le profil.
+									</div>
+								</div>
 							</div>
 						{% endif %}
 					</div>
