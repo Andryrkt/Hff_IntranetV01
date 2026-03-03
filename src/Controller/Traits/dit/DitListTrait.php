@@ -15,6 +15,7 @@ use App\Entity\admin\dit\WorNiveauUrgence;
 use App\Entity\admin\utilisateur\Role;
 use App\Entity\dit\DitRiSoumisAValidation;
 use App\Entity\dit\DitOrsSoumisAValidation;
+use App\Repository\dit\DitRepository;
 
 trait DitListTrait
 {
@@ -440,9 +441,11 @@ trait DitListTrait
         return $ditSearch;
     }
 
-    private function DonnerAAjouterExcel(DitSearch $ditSearch, $agenceServiceAutorises, $codeAgenceUser, $em): array
+    private function DonnerAAjouterExcel(DitSearch $ditSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeAgenceUser, $peutVoirListeAvecDebiteur, $em): array
     {
-        $entities = $em->getrepository(DemandeIntervention::class)->findAndFilteredExcel($ditSearch, $agenceServiceAutorises, $codeAgenceUser);
+        /** @var DitRepository $repository */
+        $repository = $em->getrepository(DemandeIntervention::class);
+        $entities = $repository->findAndFilteredExcel($ditSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeAgenceUser, $peutVoirListeAvecDebiteur);
 
         $this->ajoutStatutAchatPiece($entities);
 
@@ -500,15 +503,16 @@ trait DitListTrait
         $this->redirectToRoute("dit_index");
     }
 
-    private function data($request, $ditListeModel, $ditSearch, $agenceServiceAutorises, $codeAgenceUser, $em)
+    private function data($request, $ditListeModel, $ditSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur, $codeAgenceUser, $em)
     {
         //recupère le numero de page
         $page = $request->query->getInt('page', 1);
         //nombre de ligne par page
         $limit = 20;
 
-        //recupération des données filtrée
-        $paginationData = $em->getRepository(DemandeIntervention::class)->findPaginatedAndFiltered($page, $limit, $ditSearch, $agenceServiceAutorises, $codeAgenceUser);
+        /** @var DitRepository $repository */
+        $repository = $em->getRepository(DemandeIntervention::class);
+        $paginationData = $repository->findPaginatedAndFiltered($page, $limit, $ditSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur, $codeAgenceUser);
 
         //ajout de donner du statut achat piece dans data
         $this->ajoutStatutAchatPiece($paginationData['data']);

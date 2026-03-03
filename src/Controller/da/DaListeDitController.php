@@ -25,6 +25,7 @@ use App\Repository\admin\StatutDemandeRepository;
 use App\Repository\admin\dit\CategorieAteAppRepository;
 use App\Repository\admin\dit\WorTypeDocumentRepository;
 use App\Repository\admin\dit\WorNiveauUrgenceRepository;
+use App\Service\security\SecurityService;
 
 class DaListeDitController extends Controller
 {
@@ -83,8 +84,16 @@ class DaListeDitController extends Controller
 
         $this->ajoutCriteredansSession($criteriaTab);
 
+        // Agence et service par défaut
+        $agenceIdUser = $this->getSecurityService()->getAgenceIdUser();
+        $serviceIdUser = $this->getSecurityService()->getServiceIdUser();
+        $codeAgenceUser = $this->getSecurityService()->getCodeAgenceUser();
+
+        // Vérifier le permission de voir liste avec débiteur sur la page courante
+        $peutVoirListeAvecDebiteur = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_AUTH_2);
+
         //recupération des donnée
-        $paginationData = $this->data($request, $ditSearch, $agenceServiceAutorises);
+        $paginationData = $this->data($request, $ditSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeAgenceUser, $peutVoirListeAvecDebiteur);
 
         return $this->render('da/list-dit.html.twig', [
             'data'            => $paginationData['data'] ?? null,

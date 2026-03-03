@@ -34,7 +34,7 @@ class DitRepository extends EntityRepository
      * @param array $options
      * @return void
      */
-    public function findPaginatedAndFiltered(int $page = 1, int $limit = 10, DitSearch $ditSearch, array $agenceServiceAutorises, $codeAgenceUser)
+    public function findPaginatedAndFiltered(int $page = 1, int $limit = 10, DitSearch $ditSearch, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, bool $peutVoirListeAvecDebiteur, string $codeAgenceUser)
     {
         $queryBuilder = $this->createQueryBuilder('d')
             ->leftJoin('d.typeDocument', 'td')
@@ -49,9 +49,10 @@ class DitRepository extends EntityRepository
         $this->applyCommonFilters($queryBuilder, $ditSearch);
         $this->applyniveauUrgenceFilters($queryBuilder, $ditSearch);
         $this->applySection($queryBuilder, $ditSearch); // section affect et support section
-        $this->applyAgencyServiceFilters($queryBuilder, $ditSearch, $agenceServiceAutorises);
-        $this->applyAgencyUserFilter($queryBuilder, $codeAgenceUser);
+        $this->applyAgencyServiceFilters($queryBuilder, $ditSearch);
 
+        // Condition sur les couples agences-services
+        $this->conditionAgenceService($queryBuilder, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeAgenceUser, $peutVoirListeAvecDebiteur, true);
 
         $queryBuilder->orderBy('d.dateDemande', 'DESC')
             ->addOrderBy('d.numeroDemandeIntervention', 'ASC');
@@ -65,7 +66,7 @@ class DitRepository extends EntityRepository
         $lastPage = ceil($totalItems / $limit);
 
         // Récupérer le nombre de lignes par statut
-        $statusCounts = $this->countByStatus($ditSearch, $agenceServiceAutorises);
+        $statusCounts = $this->countByStatus($ditSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeAgenceUser, $peutVoirListeAvecDebiteur, false);
 
         return [
             'data' => iterator_to_array($paginator->getIterator()), // Convertir en tableau si nécessaire
@@ -110,7 +111,7 @@ class DitRepository extends EntityRepository
      * @param array $options
      * @return void
      *======================================================*/
-    public function countByStatus(DitSearch $ditSearch, array $agenceServiceAutorises)
+    public function countByStatus(DitSearch $ditSearch, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeAgenceUser, bool $peutVoirListeAvecDebiteur, bool $avecAtelierRealisePar)
     {
         $queryBuilder = $this->createQueryBuilder('d')
             ->select('s.description AS statut, COUNT(d.id) AS count')
@@ -129,7 +130,9 @@ class DitRepository extends EntityRepository
         // section affect et support section
         $this->applySection($queryBuilder, $ditSearch);
 
-        $this->applyAgencyServiceFilters($queryBuilder, $ditSearch, $agenceServiceAutorises);
+        $this->applyAgencyServiceFilters($queryBuilder, $ditSearch);
+
+        $this->conditionAgenceService($queryBuilder, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeAgenceUser, $peutVoirListeAvecDebiteur, $avecAtelierRealisePar);
 
         return $queryBuilder->getQuery()->getResult();
     }
@@ -139,9 +142,9 @@ class DitRepository extends EntityRepository
      *
      * @param DitSearch $ditSearch
      * @param array $options
-     * @return void
+     * @return array
      */
-    public function findAndFilteredExcel(DitSearch $ditSearch, array $agenceServiceAutorises, $codeAgenceUser)
+    public function findAndFilteredExcel(DitSearch $ditSearch, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeAgenceUser, bool $peutVoirListeAvecDebiteur)
     {
         $queryBuilder = $this->createQueryBuilder('d')
             ->leftJoin('d.typeDocument', 'td')
@@ -152,8 +155,10 @@ class DitRepository extends EntityRepository
         $this->applyniveauUrgenceFilters($queryBuilder, $ditSearch);
         $this->applyCommonFilters($queryBuilder, $ditSearch);
         $this->applySection($queryBuilder, $ditSearch); // section affect et support section
-        $this->applyAgencyServiceFilters($queryBuilder, $ditSearch, $agenceServiceAutorises);
-        $this->applyAgencyUserFilter($queryBuilder, $codeAgenceUser);
+        $this->applyAgencyServiceFilters($queryBuilder, $ditSearch);
+
+        // Condition sur les couples agences-services
+        $this->conditionAgenceService($queryBuilder, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeAgenceUser, $peutVoirListeAvecDebiteur, true);
 
         $queryBuilder->orderBy('d.dateDemande', 'DESC')
             ->addOrderBy('d.numeroDemandeIntervention', 'ASC');
@@ -161,33 +166,8 @@ class DitRepository extends EntityRepository
         return $queryBuilder->getQuery()->getResult();
     }
 
-    private function applyAgencyServiceFilters($queryBuilder, DitSearch $ditSearch, array $agenceServiceAutorises)
+    private function applyAgencyServiceFilters($queryBuilder, DitSearch $ditSearch)
     {
-        // Condition sur les couples agences-services
-        $orX1 = $queryBuilder->expr()->orX();
-        $orX2 = $queryBuilder->expr()->orX();
-        foreach ($agenceServiceAutorises as $i => $tab) {
-            $orX1->add(
-                $queryBuilder->expr()->andX(
-                    $queryBuilder->expr()->eq('d.agenceEmetteurId', ':agEmetteur_' . $i),
-                    $queryBuilder->expr()->eq('d.serviceEmetteurId', ':servEmetteur_' . $i)
-                )
-            );
-            $queryBuilder->setParameter('agEmetteur_' . $i, $tab['agence_id']);
-            $queryBuilder->setParameter('servEmetteur_' . $i, $tab['service_id']);
-            $orX2->add(
-                $queryBuilder->expr()->andX(
-                    $queryBuilder->expr()->eq('d.agenceDebiteurId', ':agDebiteur_' . $i),
-                    $queryBuilder->expr()->eq('d.serviceDebiteurId', ':servDebiteur_' . $i)
-                )
-            );
-            $queryBuilder->setParameter('agDebiteur_' . $i, $tab['agence_id']);
-            $queryBuilder->setParameter('servDebiteur_' . $i, $tab['service_id']);
-        }
-        $queryBuilder
-            ->andWhere($orX1)
-            ->andWhere($orX2);
-
         if (!empty($ditSearch->getAgenceEmetteur())) {
             $queryBuilder->andWhere('d.agenceEmetteurId = :agEmet')
                 ->setParameter('agEmet', $ditSearch->getAgenceEmetteur());
@@ -652,7 +632,7 @@ class DitRepository extends EntityRepository
      * @param array $options
      * @return void
      */
-    public function findPaginatedAndFilteredDa(int $page = 1, int $limit = 10, DitSearch $ditSearch, array $agenceServiceAutorises)
+    public function findPaginatedAndFilteredDa(int $page = 1, int $limit = 10, DitSearch $ditSearch, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeAgenceUser, bool $peutVoirListeAvecDebiteur)
     {
 
         $queryBuilder = $this->createQueryBuilder('d')
@@ -674,7 +654,7 @@ class DitRepository extends EntityRepository
         // section affect et support section
         $this->applySection($queryBuilder, $ditSearch);
 
-        $this->applyAgencyServiceFilters($queryBuilder, $ditSearch, $agenceServiceAutorises);
+        $this->applyAgencyServiceFilters($queryBuilder, $ditSearch);
 
 
         $queryBuilder->orderBy('d.dateDemande', 'DESC')
@@ -702,7 +682,7 @@ class DitRepository extends EntityRepository
         //  echo $sql;
 
         // Récupérer le nombre de lignes par statut
-        $statusCounts = $this->countByStatus($ditSearch, $agenceServiceAutorises);
+        $statusCounts = $this->countByStatus($ditSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeAgenceUser, $peutVoirListeAvecDebiteur, false);
         //return $queryBuilder->getQuery()->getResult();
         return [
             'data' => iterator_to_array($paginator->getIterator()), // Convertir en tableau si nécessaire
@@ -793,5 +773,69 @@ class DitRepository extends EntityRepository
             ->setParameter('numDit', $numDit)
             ->getQuery()
             ->getSingleScalarResult();
+    }
+
+    private function conditionAgenceService($queryBuilder, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeAgenceUser, bool $peutVoirListeAvecDebiteur, bool $avecAtelierRealisePar)
+    {
+        $ORX = $queryBuilder->expr()->orX();
+
+        // 1- Emetteur du DOM : agence et service de l'utilisateur
+        $ORX->add(
+            $queryBuilder->expr()->andX(
+                $queryBuilder->expr()->eq('d.agenceEmetteurId', ':agEmetteur'),
+                $queryBuilder->expr()->eq('d.serviceEmetteurId', ':servEmetteur')
+            )
+        );
+        $queryBuilder->setParameter('agEmetteur', $agenceIdUser);
+        $queryBuilder->setParameter('servEmetteur', $serviceIdUser);
+
+        // 2- Debiteur du DOM : agence et service de l'utilisateur
+        $ORX->add(
+            $queryBuilder->expr()->andX(
+                $queryBuilder->expr()->eq('d.agenceDebiteurId', ':agDebiteur'),
+                $queryBuilder->expr()->eq('d.serviceDebiteurId', ':servDebiteur')
+            )
+        );
+        $queryBuilder->setParameter('agDebiteur', $agenceIdUser);
+        $queryBuilder->setParameter('servDebiteur', $serviceIdUser);
+
+        // 3- Emetteur et Débiteur : agence et service autorisés du profil
+        if (!empty($agenceServiceAutorises)) {
+            $orX1 = $queryBuilder->expr()->orX(); // Pour émetteur
+            $orX2 = $peutVoirListeAvecDebiteur ? $queryBuilder->expr()->orX() : null; // Pour débiteur : n'autoriser que si le profil peut voir la liste avec le débiteur
+            foreach ($agenceServiceAutorises as $i => $tab) {
+                $orX1->add(
+                    $queryBuilder->expr()->andX(
+                        $queryBuilder->expr()->eq('d.agenceEmetteurId', ':agEmetteur_' . $i),
+                        $queryBuilder->expr()->eq('d.serviceEmetteurId', ':servEmetteur_' . $i)
+                    )
+                );
+                $queryBuilder->setParameter('agEmetteur_' . $i, $tab['agence_id']);
+                $queryBuilder->setParameter('servEmetteur_' . $i, $tab['service_id']);
+                if ($orX2) {
+                    $orX2->add(
+                        $queryBuilder->expr()->andX(
+                            $queryBuilder->expr()->eq('d.agenceDebiteurId', ':agDebiteur_' . $i),
+                            $queryBuilder->expr()->eq('d.serviceDebiteurId', ':servDebiteur_' . $i)
+                        )
+                    );
+                    $queryBuilder->setParameter('agDebiteur_' . $i, $tab['agence_id']);
+                    $queryBuilder->setParameter('servDebiteur_' . $i, $tab['service_id']);
+                }
+            }
+
+            $ORX->add($orX1);
+            if ($orX2) $ORX->add($orX2);
+        }
+
+        // 4- Atelier réalisé par : agence de l'utilisateur est égale à l'agence dans la table atelier réalisé par
+        if ($avecAtelierRealisePar) {
+            $ORX->add(
+                $queryBuilder->expr()->eq('ar.codeAgence', ':codeAgenceUser')
+            );
+            $queryBuilder->setParameter('codeAgenceUser', $codeAgenceUser);
+        }
+
+        $queryBuilder->andWhere($ORX);
     }
 }

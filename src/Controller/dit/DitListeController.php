@@ -19,6 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
 use App\Service\docuware\CopyDocuwareService;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\historiqueOperation\HistoriqueOperationDITService;
+use App\Service\security\SecurityService;
 
 /**
  * @Route("/atelier/demande-intervention")
@@ -84,9 +85,16 @@ class DitListeController extends Controller
         //recupères les données du criteria dans une session nommé dit_serch_criteria
         $this->getSessionService()->set('dit_search_criteria', $criteria);
 
+        // Agence et service par défaut
+        $agenceIdUser = $this->getSecurityService()->getAgenceIdUser();
+        $serviceIdUser = $this->getSecurityService()->getServiceIdUser();
         $codeAgenceUser = $this->getSecurityService()->getCodeAgenceUser();
+
+        // Vérifier le permission de voir liste avec débiteur sur la page courante
+        $peutVoirListeAvecDebiteur = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_AUTH_2);
+
         //recupération des donnée
-        $paginationData = $this->data($request, $ditListeModel, $ditSearch, $agenceServiceAutorises, $codeAgenceUser, $this->getEntityManager());
+        $paginationData = $this->data($request, $ditListeModel, $ditSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur, $codeAgenceUser, $this->getEntityManager());
 
         /**  Docs à intégrer dans DW * */
         $formDocDansDW = $this->getFormFactory()->createBuilder(DocDansDwType::class, null, [
@@ -167,12 +175,17 @@ class DitListeController extends Controller
         $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DIT);
 
         // Code agence utilisateur
+        $agenceIdUser = $this->getSecurityService()->getAgenceIdUser();
+        $serviceIdUser = $this->getSecurityService()->getServiceIdUser();
         $codeAgenceUser = $this->getSecurityService()->getCodeAgenceUser();
+
+        // Vérifier le permission de voir liste avec débiteur sur la page courante
+        $peutVoirListeAvecDebiteur = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_AUTH_2, "dit_index");
 
         //crée une objet à partir du tableau critère reçu par la session
         $ditSearch = $this->transformationEnObjet($criteria);
 
-        $entities = $this->DonnerAAjouterExcel($ditSearch, $agenceServiceAutorises, $codeAgenceUser, $this->getEntityManager());
+        $entities = $this->DonnerAAjouterExcel($ditSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeAgenceUser, $peutVoirListeAvecDebiteur, $this->getEntityManager());
 
         // Convertir les entités en tableau de données
         $data = $this->transformationEnTableauAvecEntet($entities);
