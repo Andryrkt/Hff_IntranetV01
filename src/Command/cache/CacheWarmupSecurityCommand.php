@@ -170,45 +170,8 @@ class CacheWarmupSecurityCommand extends Command
         return empty($erreurs) ? Command::SUCCESS : Command::FAILURE;
     }
 
-    // =========================================================================
-    //  LOGIQUE DE PRÉCHAUFFAGE
-    // =========================================================================
-
-    /**
-     * Reconstruit les entrées de cache pour un profil donné.
-     * Retourne le nombre de routes mises en cache.
-     */
     private function warmupSecurityProfil(Profil $profil): int
     {
-        $this->userDataService->ecraserPagesProfil($profil);
-
-        $routes = $this->getRoutesForProfil($profil);
-        foreach ($routes as $nomRoute) {
-            $this->userDataService->ecraserPermissions($nomRoute, $profil);
-        }
-
-        return count($routes);
-    }
-
-    /**
-     * Récupère toutes les routes déclarées pour un profil
-     * en naviguant dans les relations Doctrine (ApplicationProfil → ApplicationProfilPage → PageHff).
-     * Retourne un tableau de noms de routes dédupliqués.
-     */
-    private function getRoutesForProfil(Profil $profil): array
-    {
-        $routes = [];
-
-        foreach ($profil->getApplicationProfils() as $applicationProfil) {
-            /** @var ApplicationProfilPage $applicationProfilPage */
-            foreach ($applicationProfil->getLiaisonsPage() as $applicationProfilPage) {
-                $nomRoute = $applicationProfilPage->getPage()->getNomRoute();
-                if ($nomRoute) {
-                    $routes[] = $nomRoute;
-                }
-            }
-        }
-
-        return array_unique($routes);
+        return $this->userDataService->warmupSecurityProfil($profil);
     }
 }

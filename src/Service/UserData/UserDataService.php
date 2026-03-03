@@ -557,6 +557,27 @@ class UserDataService
 
         return $agenceServices;
     }
+    
+    // =========================================================================
+    //  LOGIQUE DE PRÉCHAUFFAGE
+    // =========================================================================
+
+    /**
+     * Reconstruit les entrées de cache pour un profil donné.
+     * Retourne le nombre de routes mises en cache.
+     */
+    public function warmupSecurityProfil(Profil $profil): int
+    {
+        $this->invaliderCacheProfil($profil->getId());
+        $this->ecraserPagesProfil($profil);
+
+        $routes = $profil->getRoutes();
+        foreach ($routes as $nomRoute) {
+            $this->ecraserPermissions($nomRoute, $profil);
+        }
+
+        return count($routes);
+    }
 
     // =========================================================================
     //  HELPERS DE NAVIGATION

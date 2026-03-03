@@ -2,6 +2,7 @@
 
 namespace App\Service\security;
 
+use App\Entity\admin\utilisateur\Profil;
 use App\Service\UserData\UserDataService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -156,6 +157,16 @@ class SecurityService
     {
         return $this->dataService->getPermissions($nomRoute ?? $this->routeCourrante)
             ?? $this->permissionsVides();
+    }
+
+    /** 
+     * Préchauffe les caches concernant:
+     *   - Les pages visibles du profil
+     *   - Les permissions sur tous les pages associées au profil 
+     */
+    public function warmupSecurityProfil(Profil $profil): int
+    {
+        return $this->dataService->warmupSecurityProfil($profil);
     }
 
     /** 
