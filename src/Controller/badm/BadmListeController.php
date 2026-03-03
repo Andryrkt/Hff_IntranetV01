@@ -12,6 +12,7 @@ use App\Model\badm\BadmRechercheModel;
 use App\Repository\badm\BadmRepository;
 use App\Controller\Traits\BadmListTrait;
 use App\Constants\admin\ApplicationConstant;
+use App\Service\security\SecurityService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -54,11 +55,19 @@ class BadmListeController extends Controller
         //enregistre le critère dans la session
         $this->getSessionService()->set('badm_search_criteria', $criteria);
 
-        /** @var BadmRepository $repository */
-        $repository = $this->getEntityManager()->getRepository(Badm::class);
         $page = max(1, $request->query->getInt('page', 1));
         $limit = 10;
-        $paginationData = $repository->findPaginatedAndFiltered($page, $limit, $criteria, $agenceServiceAutorises);
+
+        // Agence et service par défaut
+        $agenceIdUser = $this->getSecurityService()->getAgenceIdUser();
+        $serviceIdUser = $this->getSecurityService()->getServiceIdUser();
+
+        // Vérifier le permission de voir liste avec débiteur sur la page courante
+        $peutVoirListeAvecDebiteur = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_AUTH_2);
+
+        /** @var BadmRepository $repository */
+        $repository = $this->getEntityManager()->getRepository(Badm::class);
+        $paginationData = $repository->findPaginatedAndFiltered($page, $limit, $criteria, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
 
         $this->ajoutNumSerieNumParc($paginationData);
 
@@ -89,8 +98,16 @@ class BadmListeController extends Controller
         // Agences Services autorisés sur le BADM
         $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_BADM);
 
-        // Récupère les entités filtrées
-        $entities = $this->getEntityManager()->getRepository(Badm::class)->findAndFilteredExcel($criteria, $agenceServiceAutorises);
+        // Agence et service par défaut
+        $agenceIdUser = $this->getSecurityService()->getAgenceIdUser();
+        $serviceIdUser = $this->getSecurityService()->getServiceIdUser();
+
+        // Vérifier le permission de voir liste avec débiteur sur la page courante
+        $peutVoirListeAvecDebiteur = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_AUTH_2, "badmListe_AffichageListeBadm");
+
+        /** @var BadmRepository $repository */
+        $repository = $this->getEntityManager()->getRepository(Badm::class);
+        $entities = $repository->findAndFilteredExcel($criteria, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
 
         // Convertir les entités en tableau de données
         $data = [];
@@ -167,9 +184,16 @@ class BadmListeController extends Controller
         //enregistre le critère dans la session
         $this->getSessionService()->set('badm_search_criteria', $criteria);
 
+        // Agence et service par défaut
+        $agenceIdUser = $this->getSecurityService()->getAgenceIdUser();
+        $serviceIdUser = $this->getSecurityService()->getServiceIdUser();
+
+        // Vérifier le permission de voir liste avec débiteur sur la page courante
+        $peutVoirListeAvecDebiteur = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_AUTH_2);
+
         /** @var BadmRepository $repository */
         $repository = $this->getEntityManager()->getRepository(Badm::class);
-        $paginationData = $repository->findPaginatedAndFilteredListAnnuler($page, $limit, $criteria, $agenceServiceAutorises);
+        $paginationData = $repository->findPaginatedAndFilteredListAnnuler($page, $limit, $criteria, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
 
         for ($i = 0; $i < count($paginationData['data']); $i++) {
             $badmRechercheModel = new BadmRechercheModel();
@@ -232,7 +256,6 @@ class BadmListeController extends Controller
                 } else {
                     $paginationData['data'][$i]->setNumParc($badms[0]['num_parc']);
                 }
-                
             }
         }
     }
