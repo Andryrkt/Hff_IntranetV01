@@ -7,7 +7,7 @@ use Doctrine\ORM\EntityRepository;
 
 class DomRepository extends EntityRepository
 {
-    public function findPaginatedAndFilteredAsDTO(int $page, int $limit, DomSearch $domSearch, array $agenceServiceAutorises, bool $listAnnuler = false): array
+    public function findPaginatedAndFilteredAsDTO(int $page, int $limit, DomSearch $domSearch, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, bool $peutVoirListeAvecDebiteur, bool $listAnnuler = false): array
     {
         $excludedStatuses = [9, 18, 22, 24, 26, 32, 33, 34, 35];
 
@@ -91,30 +91,9 @@ class DomRepository extends EntityRepository
         }
 
         // Condition sur les couples agences-services
-        $orX1 = $queryBuilder->expr()->orX();
-        $orX2 = $queryBuilder->expr()->orX();
-        foreach ($agenceServiceAutorises as $i => $tab) {
-            $orX1->add(
-                $queryBuilder->expr()->andX(
-                    $queryBuilder->expr()->eq('d.agenceEmetteurId', ':agEmetteur_' . $i),
-                    $queryBuilder->expr()->eq('d.serviceEmetteurId', ':servEmetteur_' . $i)
-                )
-            );
-            $queryBuilder->setParameter('agEmetteur_' . $i, $tab['agence_id']);
-            $queryBuilder->setParameter('servEmetteur_' . $i, $tab['service_id']);
-            $orX2->add(
-                $queryBuilder->expr()->andX(
-                    $queryBuilder->expr()->eq('d.agenceDebiteurId', ':agDebiteur_' . $i),
-                    $queryBuilder->expr()->eq('d.serviceDebiteurId', ':servDebiteur_' . $i)
-                )
-            );
-            $queryBuilder->setParameter('agDebiteur_' . $i, $tab['agence_id']);
-            $queryBuilder->setParameter('servDebiteur_' . $i, $tab['service_id']);
-        }
-        $queryBuilder
-            ->andWhere($orX1)
-            ->andWhere($orX2)
-            ->orderBy('d.numeroOrdreMission', 'DESC');
+        $this->conditionAgenceService($queryBuilder, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
+
+        $queryBuilder->orderBy('d.numeroOrdreMission', 'DESC');
 
         // --- COUNT séparé et optimisé (sans ORDER BY) ---
         $countQb = clone $queryBuilder;
@@ -139,7 +118,7 @@ class DomRepository extends EntityRepository
         ];
     }
 
-    public function findAndFilteredExcel($domSearch, array $agenceServiceAutorises)
+    public function findAndFilteredExcel($domSearch, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, bool $peutVoirListeAvecDebiteur)
     {
         $queryBuilder = $this->createQueryBuilder('d')
             ->leftJoin('d.sousTypeDocument', 'td')
@@ -198,30 +177,9 @@ class DomRepository extends EntityRepository
         }
 
         // Condition sur les couples agences-services
-        $orX1 = $queryBuilder->expr()->orX();
-        $orX2 = $queryBuilder->expr()->orX();
-        foreach ($agenceServiceAutorises as $i => $tab) {
-            $orX1->add(
-                $queryBuilder->expr()->andX(
-                    $queryBuilder->expr()->eq('d.agenceEmetteurId', ':agEmetteur_' . $i),
-                    $queryBuilder->expr()->eq('d.serviceEmetteurId', ':servEmetteur_' . $i)
-                )
-            );
-            $queryBuilder->setParameter('agEmetteur_' . $i, $tab['agence_id']);
-            $queryBuilder->setParameter('servEmetteur_' . $i, $tab['service_id']);
-            $orX2->add(
-                $queryBuilder->expr()->andX(
-                    $queryBuilder->expr()->eq('d.agenceDebiteurId', ':agDebiteur_' . $i),
-                    $queryBuilder->expr()->eq('d.serviceDebiteurId', ':servDebiteur_' . $i)
-                )
-            );
-            $queryBuilder->setParameter('agDebiteur_' . $i, $tab['agence_id']);
-            $queryBuilder->setParameter('servDebiteur_' . $i, $tab['service_id']);
-        }
-        $queryBuilder
-            ->andWhere($orX1)
-            ->andWhere($orX2)
-            ->orderBy('d.numeroOrdreMission', 'DESC');
+        $this->conditionAgenceService($queryBuilder, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
+
+        $queryBuilder->orderBy('d.numeroOrdreMission', 'DESC');
 
         return $queryBuilder->getQuery()->getResult();
     }
@@ -243,5 +201,61 @@ class DomRepository extends EntityRepository
         }
 
         return $numTel;
+    }
+
+    private function conditionAgenceService($queryBuilder, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, bool $peutVoirListeAvecDebiteur)
+    {
+        $ORX = $queryBuilder->expr()->orX();
+
+        // 1- Emetteur du DOM : agence et service de l'utilisateur
+        $ORX->add(
+            $queryBuilder->expr()->andX(
+                $queryBuilder->expr()->eq('d.agenceEmetteurId', ':agEmetteur'),
+                $queryBuilder->expr()->eq('d.serviceEmetteurId', ':servEmetteur')
+            )
+        );
+        $queryBuilder->setParameter('agEmetteur', $agenceIdUser);
+        $queryBuilder->setParameter('servEmetteur', $serviceIdUser);
+
+        // 2- Debiteur du DOM : agence et service de l'utilisateur
+        $ORX->add(
+            $queryBuilder->expr()->andX(
+                $queryBuilder->expr()->eq('d.agenceDebiteurId', ':agDebiteur'),
+                $queryBuilder->expr()->eq('d.serviceDebiteurId', ':servDebiteur')
+            )
+        );
+        $queryBuilder->setParameter('agDebiteur', $agenceIdUser);
+        $queryBuilder->setParameter('servDebiteur', $serviceIdUser);
+
+        // 3- Emetteur et Débiteur : agence et service autorisés du profil
+        if (!empty($agenceServiceAutorises)) {
+            $orX1 = $queryBuilder->expr()->orX(); // Pour émetteur
+            $orX2 = $peutVoirListeAvecDebiteur ? $queryBuilder->expr()->orX() : null; // Pour débiteur : n'autoriser que si le profil peut voir la liste avec le débiteur
+            foreach ($agenceServiceAutorises as $i => $tab) {
+                $orX1->add(
+                    $queryBuilder->expr()->andX(
+                        $queryBuilder->expr()->eq('d.agenceEmetteurId', ':agEmetteur_' . $i),
+                        $queryBuilder->expr()->eq('d.serviceEmetteurId', ':servEmetteur_' . $i)
+                    )
+                );
+                $queryBuilder->setParameter('agEmetteur_' . $i, $tab['agence_id']);
+                $queryBuilder->setParameter('servEmetteur_' . $i, $tab['service_id']);
+                if ($orX2) {
+                    $orX2->add(
+                        $queryBuilder->expr()->andX(
+                            $queryBuilder->expr()->eq('d.agenceDebiteurId', ':agDebiteur_' . $i),
+                            $queryBuilder->expr()->eq('d.serviceDebiteurId', ':servDebiteur_' . $i)
+                        )
+                    );
+                    $queryBuilder->setParameter('agDebiteur_' . $i, $tab['agence_id']);
+                    $queryBuilder->setParameter('servDebiteur_' . $i, $tab['service_id']);
+                }
+            }
+
+            $ORX->add($orX1);
+            if ($orX2) $ORX->add($orX2);
+        }
+
+        $queryBuilder->andWhere($ORX);
     }
 }

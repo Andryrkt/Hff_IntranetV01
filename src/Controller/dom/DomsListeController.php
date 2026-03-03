@@ -11,9 +11,11 @@ use App\Controller\Traits\FormatageTrait;
 use App\Controller\Traits\ConversionTrait;
 use App\Controller\Traits\dom\DomListeTrait;
 use App\Factory\Dom\DomListFactory;
+use App\Repository\dom\DomRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\ExcelService;
+use App\Service\security\SecurityService;
 
 /**
  * @Route("/rh/ordre-de-mission")
@@ -53,10 +55,19 @@ class DomsListeController extends Controller
         $page = max(1, $request->query->getInt('page', 1));
         $limit = 10;
 
+        // Agence et service par défaut
+        $agenceIdUser = $this->getSecurityService()->getAgenceIdUser();
+        $serviceIdUser = $this->getSecurityService()->getServiceIdUser();
+
         // Agences Services autorisés sur le DOM
         $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DOM);
 
-        $paginationData = $this->getEntityManager()->getRepository(Dom::class)->findPaginatedAndFilteredAsDTO($page, $limit, $domSearch, $agenceServiceAutorises);
+        // Vérifier le permission de voir liste avec débiteur sur la page courante
+        $peutVoirListeAvecDebiteur = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_AUTH_2);
+
+        /** @var DomRepository $repository */
+        $repository = $this->getEntityManager()->getRepository(Dom::class);
+        $paginationData = $repository->findPaginatedAndFilteredAsDTO($page, $limit, $domSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
 
         $items = (new DomListFactory())->buildDomDTOs($paginationData['rawRows']);
 
@@ -103,7 +114,15 @@ class DomsListeController extends Controller
         // Récupère les critères dans la session
         $criteria = $this->getSessionService()->get('dom_search_criteria', []);
 
-        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServiceIds(ApplicationConstant::CODE_DOM);
+        // Agence et service par défaut
+        $agenceIdUser = $this->getSecurityService()->getAgenceIdUser();
+        $serviceIdUser = $this->getSecurityService()->getServiceIdUser();
+
+        // Agences Services autorisés sur le DOM
+        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DOM);
+
+        // Vérifier le permission de voir liste avec débiteur sur la page 'doms_liste'
+        $peutVoirListeAvecDebiteur = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_AUTH_2, "doms_liste");
 
         $domSearch = new DomSearch();
         $domSearch->setSousTypeDocument($criteria['sousTypeDocument'])
@@ -120,7 +139,9 @@ class DomsListeController extends Controller
             ->setNumDom($criteria['numDom'])
         ;
         // Récupère les entités filtrées
-        $entities = $this->getEntityManager()->getRepository(Dom::class)->findAndFilteredExcel($domSearch, $agenceServiceAutorises);
+        /** @var DomRepository $repository */
+        $repository = $this->getEntityManager()->getRepository(Dom::class);
+        $entities = $repository->findAndFilteredExcel($domSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
 
         // Convertir les entités en tableau de données
         $data = [];
@@ -195,9 +216,19 @@ class DomsListeController extends Controller
         $page = max(1, $request->query->getInt('page', 1));
         $limit = 10;
 
-        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServiceIds(ApplicationConstant::CODE_DOM);
+        // Agence et service par défaut
+        $agenceIdUser = $this->getSecurityService()->getAgenceIdUser();
+        $serviceIdUser = $this->getSecurityService()->getServiceIdUser();
 
-        $paginationData = $this->getEntityManager()->getRepository(Dom::class)->findPaginatedAndFilteredAsDTO($page, $limit, $domSearch, $agenceServiceAutorises, true);
+        // Agences Services autorisés sur le DOM
+        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DOM);
+
+        // Vérifier le permission de voir liste avec débiteur sur la page courante
+        $peutVoirListeAvecDebiteur = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_AUTH_2);
+
+        /** @var DomRepository $repository */
+        $repository = $this->getEntityManager()->getRepository(Dom::class);
+        $paginationData = $repository->findPaginatedAndFilteredAsDTO($page, $limit, $domSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur, true);
 
         $items = (new DomListFactory())->buildDomDTOs($paginationData['rawRows']);
 
