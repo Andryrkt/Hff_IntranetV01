@@ -10,6 +10,7 @@ use App\Constants\admin\ApplicationConstant;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\ddp\DemandePaiementRepository;
+use App\Service\security\SecurityService;
 
 /**
  * @Route("/compta/demande-de-paiement")
@@ -47,7 +48,14 @@ class DdpListeController extends Controller
 
         $this->gererAgenceService($this->ddpSearch, $agenceServiceAutorises);
 
-        $data = $this->demandePaiementRepository->findDemandePaiement($this->ddpSearch, $agenceServiceAutorises);
+        // Agence et service par défaut
+        $codeAgence = $this->getSecurityService()->getCodeAgenceUser();
+        $codeService = $this->getSecurityService()->getCodeServiceUser();
+
+        // Vérifier le permission de voir liste avec débiteur sur la page courante
+        $peutVoirListeAvecDebiteur = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_AUTH_2);
+
+        $data = $this->demandePaiementRepository->findDemandePaiement($this->ddpSearch, $codeAgence, $codeService, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
         /** suppression de ssession page_loadede  */
         if ($this->getSessionService()->has('page_loaded')) {
             $this->getSessionService()->remove('page_loaded');

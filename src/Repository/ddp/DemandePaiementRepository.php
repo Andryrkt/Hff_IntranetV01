@@ -4,6 +4,7 @@ namespace App\Repository\ddp;
 
 use Doctrine\ORM\EntityRepository;
 use App\Entity\admin\ddp\DdpSearch;
+use App\Entity\admin\utilisateur\User;
 use App\Service\TableauEnStringService;
 
 class DemandePaiementRepository extends EntityRepository
@@ -60,9 +61,10 @@ class DemandePaiementRepository extends EntityRepository
         return $numeroVersionMax;
     }
 
-    public function findDemandePaiement(DdpSearch $ddpSearch, array $agenceServiceAutorises)
+    public function findDemandePaiement(DdpSearch $ddpSearch, string $codeAgence, string $codeService, array $agenceServiceAutorises, bool $peutVoirListeAvecDebiteur)
     {
-        $qb = $this->createQueryBuilder('d');
+        $qb = $this->createQueryBuilder('d')
+            ->join(User::class, 'u', 'WITH', 'd.demandeur = u.nom_utilisateur');
 
         // Sous-requête imbriquée dans la clause WHERE
         $qb->where(
@@ -126,21 +128,9 @@ class DemandePaiementRepository extends EntityRepository
         }
 
         // Condition sur les couples agences-services
-        $orX = $qb->expr()->orX();
-        foreach ($agenceServiceAutorises as $i => $tab) {
-            $orX->add(
-                $qb->expr()->andX(
-                    $qb->expr()->eq('d.agenceDebiter', ':ag_' . $i),
-                    $qb->expr()->eq('d.serviceDebiter', ':serv_' . $i)
-                )
-            );
-            $qb->setParameter('ag_' . $i, $tab['agence_code']);
-            $qb->setParameter('serv_' . $i, $tab['service_code']);
-        }
+        $this->conditionAgenceService($qb, $codeAgence, $codeService, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
 
-        $qb
-            ->andWhere($orX)
-            ->orderBy('d.dateCreation', 'DESC');
+        $qb->orderBy('d.dateCreation', 'DESC');
 
         return $qb->getQuery()->getResult();
     }
@@ -152,5 +142,61 @@ class DemandePaiementRepository extends EntityRepository
             ->getQuery()
             ->getSingleColumnResult()
         ;
+    }
+
+    private function conditionAgenceService($queryBuilder, string $codeAgence, string $codeService, array $agenceServiceAutorises, bool $peutVoirListeAvecDebiteur)
+    {
+        $ORX = $queryBuilder->expr()->orX();
+
+        // 1- Emetteur du DDP : agence et service de l'utilisateur
+        $ORX->add(
+            $queryBuilder->expr()->andX(
+                $queryBuilder->expr()->eq('u.codeAgenceUser', ':agEmetteur'),
+                $queryBuilder->expr()->eq('u.codeServiceUser', ':servEmetteur')
+            )
+        );
+        $queryBuilder->setParameter('agEmetteur', $codeAgence);
+        $queryBuilder->setParameter('servEmetteur', $codeService);
+
+        // 2- Debiteur du DDP : agence et service de l'utilisateur
+        $ORX->add(
+            $queryBuilder->expr()->andX(
+                $queryBuilder->expr()->eq('u.codeAgenceUser', ':agDebiteur'),
+                $queryBuilder->expr()->eq('u.codeServiceUser', ':servDebiteur')
+            )
+        );
+        $queryBuilder->setParameter('agDebiteur', $codeAgence);
+        $queryBuilder->setParameter('servDebiteur', $codeService);
+
+        // 3- Emetteur et Débiteur : agence et service autorisés du profil
+        if (!empty($agenceServiceAutorises)) {
+            $orX1 = $queryBuilder->expr()->orX(); // Pour émetteur
+            $orX2 = $peutVoirListeAvecDebiteur ? $queryBuilder->expr()->orX() : null; // Pour débiteur : n'autoriser que si le profil peut voir la liste avec le débiteur
+            foreach ($agenceServiceAutorises as $i => $tab) {
+                $orX1->add(
+                    $queryBuilder->expr()->andX(
+                        $queryBuilder->expr()->eq('u.codeAgenceUser', ':agEmetteur_' . $i),
+                        $queryBuilder->expr()->eq('u.codeServiceUser', ':servEmetteur_' . $i)
+                    )
+                );
+                $queryBuilder->setParameter('agEmetteur_' . $i, $tab['agence_code']);
+                $queryBuilder->setParameter('servEmetteur_' . $i, $tab['service_code']);
+                if ($orX2) {
+                    $orX2->add(
+                        $queryBuilder->expr()->andX(
+                            $queryBuilder->expr()->eq('d.agenceDebiter', ':agDebiteur_' . $i),
+                            $queryBuilder->expr()->eq('d.serviceDebiter', ':servDebiteur_' . $i)
+                        )
+                    );
+                    $queryBuilder->setParameter('agDebiteur_' . $i, $tab['agence_code']);
+                    $queryBuilder->setParameter('servDebiteur_' . $i, $tab['service_code']);
+                }
+            }
+
+            $ORX->add($orX1);
+            if ($orX2) $ORX->add($orX2);
+        }
+
+        $queryBuilder->andWhere($ORX);
     }
 }
