@@ -214,6 +214,9 @@ class DemandePaiementDaType extends AbstractType
                 [
                     'label' => '% à payer *',
                     'required' => true,
+                    'attr' => [
+                        'data-error-message' => '- Veuillez remplir le pourcentage à payer.',
+                    ]
                 ]
             )
         ;

@@ -29,10 +29,38 @@ export async function validateSpecificForm(form, formSelector) {
     case "paiement-form":
       return validatePaiementForm(form);
 
+    case "demande-paiement-da":
+    case "#demande-paiement-da-form":
+    case "demande-paiement-da-form":
+      return validateDemandePaiementDaForm(form);
+
     default:
       // Validation par défaut si le formulaire n'est pas reconnu
       return { isValid: true, message: "" };
   }
+}
+
+function validateDemandePaiementDaForm(form) {
+  const errors = [];
+  // Essayer plusieurs sélecteurs pour trouver le champ RIB
+  const ribField =
+    form.querySelector('[data-format-rib="true"]') ||
+    form.querySelector('[name="demande_paiement_da[ribFournisseur]"]');
+
+  if (ribField && ribField.value.trim() !== "") {
+    const ribValue = ribField.value.trim();
+    if (ribValue.length !== 26) {
+      errors.push(
+        `Le RIB doit contenir 26 caractères (actuellement ${ribValue.length}).`
+      );
+    }
+  }
+
+  return {
+    isValid: errors.length === 0,
+    message: errors.join("<br>"),
+    title: "Validation du RIB",
+  };
 }
 
 function validationDitForm(form) {
