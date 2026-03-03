@@ -131,6 +131,24 @@ class UserDataService
     }
 
     /**
+     * Récupérer l'agence id de l'utilisateur
+     */
+    public function getAgenceIdUser(): ?int
+    {
+        $userInfo = $this->getUserInfo();
+        return $userInfo['default_agence_id'] ?? null;
+    }
+
+    /**
+     * Récupérer le service id de l'utilisateur
+     */
+    public function getServiceIdUser(): ?int
+    {
+        $userInfo = $this->getUserInfo();
+        return $userInfo['default_service_id'] ?? null;
+    }
+
+    /**
      * Récupérer le profil id enregistré
      */
     public function getProfilId(): ?int

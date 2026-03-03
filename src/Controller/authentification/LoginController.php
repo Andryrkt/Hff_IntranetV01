@@ -71,6 +71,8 @@ class LoginController extends Controller
                         ],
                         "default_agence_code"  => $user->getCodeAgenceUser(),
                         "default_service_code" => $user->getCodeServiceUser(),
+                        "default_agence_id"    => $user->getIdAgenceUser(),
+                        "default_service_id"   => $user->getIdServiceUser(),
                         'password'             => $password,
                     ];
 

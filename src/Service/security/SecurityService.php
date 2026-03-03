@@ -223,6 +223,22 @@ class SecurityService
         return $this->dataService->getCodeServiceUser();
     }
 
+    /**
+     * Retourne l'id de l'agence de l'utilisateur
+     */
+    public function getAgenceIdUser(): ?int
+    {
+        return $this->dataService->getAgenceIdUser();
+    }
+
+    /**
+     * Retourne l'id du service de l'utilisateur
+     */
+    public function getServiceIdUser(): ?int
+    {
+        return $this->dataService->getServiceIdUser();
+    }
+
     // =========================================================================
     //  LOGIQUE INTERNE
     // =========================================================================
