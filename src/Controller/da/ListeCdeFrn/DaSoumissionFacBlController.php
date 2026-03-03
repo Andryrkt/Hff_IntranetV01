@@ -117,6 +117,7 @@ class DaSoumissionFacBlController extends Controller
 
             $numCde  = $dto->numeroCde;
             $numDa   = $dto->numeroDemandeAppro;
+            $numLiv = $dto->numLiv;
 
             if ($this->verifierConditionDeBlocage($dto)) {
                 // Traitement du fichier
@@ -234,17 +235,6 @@ class DaSoumissionFacBlController extends Controller
         $this->getEntityManager()->flush();
     }
 
-
-    private function genererNumeroBap(): string
-    {
-        //recupereation de l'application BAP pour generer le numero de bap
-        $application = $this->getEntityManager()->getRepository(Application::class)->findOneBy(['codeApp' => 'BAP']);
-        //generation du numero de bap
-        $numeroBap = AutoIncDecService::autoGenerateNumero('BAP', $application->getDerniereId(), true);
-        //mise a jour de la derniere id de l'application BAP
-        AutoIncDecService::mettreAJourDerniereIdApplication($application, $this->getEntityManager(), $numeroBap);
-        return $numeroBap;
-    }
 
     /**
      * Enregistrement des fichiers téléchagrer dans le dossier de destination

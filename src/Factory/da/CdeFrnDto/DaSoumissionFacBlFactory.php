@@ -110,10 +110,11 @@ class DaSoumissionFacBlFactory
         }
 
         $livraisonSoumis = $this->daSoumissionFacBlRepository->getAllLivraisonSoumis($numDa, $numCde);
-
+        
         foreach ($livraisonSoumis as $numLiv) {
             unset($infosLivraisons[$numLiv]); // exclure les livraisons déjà soumises
         }
+
 
         if (empty($infosLivraisons)) {
             $message = "La commande n° <b>$numCde</b> n'a plus de livraison à soumettre. Toutes les livraisons associées ont déjà été soumises.";

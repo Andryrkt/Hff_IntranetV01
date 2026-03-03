@@ -23,6 +23,7 @@ class DemandePaiementDto
     public $numeroFournisseur;
     public $ribFournisseur;
     public $ribFournisseurAncien;
+    public $cif;
     public $beneficiaire; // nom du fournisseur
     public $modePaiement;
     public ?string $devise = null;
