@@ -236,7 +236,7 @@ document.addEventListener("DOMContentLoaded", function () {
     ribField.parentNode.insertBefore(errorDiv, ribField.nextSibling);
 
     // Fonction de validation de la longueur du RIB
-    function validateRIBLenght(value) {
+    function validateRIBLength(value) {
       const numbersCaractere = value;
 
       if (numbersCaractere.length === 26 || numbersCaractere.length === 0) {
@@ -335,12 +335,12 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       // Valider la longueur après formatage
-      validateRIBLenght(e.target.value);
+      validateRIBLength(e.target.value);
     });
 
     // Validation lors de la perte de focus (blur)
     ribField.addEventListener("blur", function (e) {
-      validateRIBLenght(e.target.value);
+      validateRIBLength(e.target.value);
     });
 
     // Formater et valider la valeur initiale si elle existe
@@ -353,7 +353,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const form = ribField.closest("form");
     if (form) {
       form.addEventListener("submit", function (e) {
-        if (!validateRIBLenght(ribField.value)) {
+        if (!validateRIBLength(ribField.value)) {
           e.preventDefault(); // Empêcher la soumission du formulaire
           ribField.focus(); // Mettre le focus sur le champ RIB
 
@@ -368,4 +368,6 @@ document.addEventListener("DOMContentLoaded", function () {
 /**==================================================
  * sweetalert pour le bouton Enregistrer
  *==================================================*/
+console.log("Bouton");
+
 setupConfirmationButtons();

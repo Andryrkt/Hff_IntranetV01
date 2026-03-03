@@ -46,12 +46,15 @@ function validateDemandePaiementDaForm(form) {
   const ribField =
     form.querySelector('[data-format-rib="true"]') ||
     form.querySelector('[name="demande_paiement_da[ribFournisseur]"]');
+  console.log(ribField);
 
-  if (ribField && ribField.value.trim() !== "") {
+  if (ribField) {
     const ribValue = ribField.value.trim();
-    if (ribValue.length !== 26) {
+    if (ribValue === "" || ribValue === "-") {
+      errors.push("Le RIB est obligatoire.");
+    } else if (ribValue.length !== 26) {
       errors.push(
-        `Le RIB doit contenir 26 caractères (actuellement ${ribValue.length}).`
+        `Le RIB doit contenir 26 caractères (actuellement ${ribValue.length}).`,
       );
     }
   }
@@ -70,13 +73,13 @@ function validationDitForm(form) {
   //  type de document doit egale maintenace curative
   // et catégorie = REPARATION
   const reparationRealiseSelect = form.querySelector(
-    '[name="demande_intervention[reparationRealise]"]'
+    '[name="demande_intervention[reparationRealise]"]',
   );
   const typeDocumentSelect = form.querySelector(
-    '[name="demande_intervention[typeDocument]"]'
+    '[name="demande_intervention[typeDocument]"]',
   );
   const categorieSelect = form.querySelector(
-    '[name="demande_intervention[categorieDemande]"]'
+    '[name="demande_intervention[categorieDemande]"]',
   );
   const MAINTENANCE_CURATIVE = 6;
   const REPARATION = 7;
@@ -89,7 +92,7 @@ function validationDitForm(form) {
     parseInt(categorieSelect.value, 10) !== REPARATION
   ) {
     errors.push(
-      "Rectifiez le type de document en Maintenance curative et le catégorie de demande en REPARATION"
+      "Rectifiez le type de document en Maintenance curative et le catégorie de demande en REPARATION",
     );
   }
 

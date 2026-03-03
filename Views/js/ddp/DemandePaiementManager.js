@@ -161,6 +161,9 @@ export class DemandePaiementManager {
         ? item.rib
         : "-";
 
+    // Déclencher l'événement input pour formater et valider le RIB
+    this.elements.ribFrnInput.dispatchEvent(new Event("input", { bubbles: true }));
+
     if (this.typeId == 2) {
       this.listeFacture(item.num_fournisseur, this.typeId);
       this.listeCommande2(item.num_fournisseur, this.typeId);

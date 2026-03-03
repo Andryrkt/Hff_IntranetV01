@@ -24,20 +24,19 @@ class DemandePaiementModel extends Model
                         WHEN ffou_modp = 'VI' THEN 'VIREMENT'
                         ELSE ffou_modp
                     END) AS mode_paiement,
-                    TRIM(fbqe_bqcode) ||' '|| TRIM(fbqe_bqguich) ||' '|| TRIM(fbqe_bqcpte) ||' '|| TRIM(fbqe_bqrib) AS rib,
+                    TRIM(fbqe_bqcode) ||' '|| TRIM(fbqe_bqguich) ||' '|| TRIM(fbqe_bqcpte) ||' '|| TRIM(fbqe_bqrib) AS rib
                 FROM 
-                    FRN_BSE
+                    informix.FRN_BSE
                 JOIN 
-                    FRN_FOU ON FBSE_NUMFOU = FFOU_NUMFOU
+                    informix.FRN_FOU ON FBSE_NUMFOU = FFOU_NUMFOU
                 JOIN
-                    fou_bqe ON fbqe_numfou = fbse_numfou
+                    informix.fou_bqe ON fbqe_numfou = fbse_numfou
                 WHERE 
                     FFOU_SOC = 'HF'
                 GROUP BY 
                     FBSE_NUMFOU, rib
                 ORDER BY 
-                    nom_fournisseur;
-
+                    nom_fournisseur
         ";
 
         $result = $this->connect->executeQuery($statement);

@@ -2,6 +2,7 @@ export function setupConfirmationButtons() {
   document.querySelectorAll("[data-confirmation]").forEach((button) => {
     button.addEventListener("click", async (e) => {
       e.preventDefault();
+      console.log("tafiditra");
 
       const overlay = document.getElementById("loading-overlays");
       const formSelector = button.getAttribute("data-form");
@@ -31,6 +32,7 @@ export function setupConfirmationButtons() {
           form,
           formSelector,
         );
+        console.log(validateSpecificForm);
 
         if (!specificValidation.isValid) {
           Swal.fire({
