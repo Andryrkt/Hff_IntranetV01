@@ -2,8 +2,11 @@
 
 namespace App\Controller\magasin\inventaire;
 
+use TCPDF;
 use DateTime;
 use App\Controller\Controller;
+use App\Entity\admin\Application;
+use App\Entity\admin\utilisateur\Role;
 use App\Controller\Traits\FormatageTrait;
 use App\Controller\Traits\Transformation;
 use App\Entity\Bordereau\BordereauSearch;
@@ -12,7 +15,6 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use App\Entity\inventaire\InventaireSearch;
 use App\Form\bordereau\BordereauSearchType;
-use App\Constants\admin\ApplicationConstant;
 use App\Form\inventaire\InventaireSearchType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -52,14 +54,11 @@ class InventaireController extends Controller
      */
     public function listeInventaire(Request $request)
     {
-        // Agences Services autorisés sur le inventaire
-        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_INVENTAIRE);
         $form = $this->getFormFactory()->createBuilder(
             InventaireSearchType::class,
             $this->inventaireSearch,
             [
-                'method' => 'GET',
-                'agenceServiceAutorises' => $agenceServiceAutorises,
+                'method' => 'GET'
             ]
         )->getForm();
 
@@ -82,9 +81,10 @@ class InventaireController extends Controller
             $data = $this->recupDataList($listInvent, true);
         }
 
+        $userConnect = $this->getUserName();
         return $this->render('inventaire/inventaire.html.twig', [
             'form' => $form->createView(),
-            'estAcces' => false, // TODO : autorisation à uploader ou à supprimer le fichier excel
+            'estAcces' => $userConnect === 'Olivier.Carbon' || $userConnect === 'marie' || $userConnect === 'martin' || $userConnect === 'hasimanjaka',
             'data' => $data
         ]);
     }
