@@ -2,7 +2,6 @@
 
 namespace App\Command\cache;
 
-use App\Entity\admin\ApplicationProfil;
 use App\Entity\admin\utilisateur\Profil;
 use App\Service\UserData\UserDataService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -137,7 +136,7 @@ class CacheWarmupAgServCommand extends Command
 
         foreach ($profils as $profil) {
             try {
-                $nbRoutes = $this->warmupAgServProfil($profil);
+                $nbRoutes = $this->userDataService->warmupAgServProfil($profil);
                 $nbRoutesTotal += $nbRoutes;
                 $nbSucces++;
             } catch (\Throwable $e) {
@@ -168,41 +167,5 @@ class CacheWarmupAgServCommand extends Command
         }
 
         return empty($erreurs) ? Command::SUCCESS : Command::FAILURE;
-    }
-
-    // =========================================================================
-    //  LOGIQUE DE PRÉCHAUFFAGE
-    // =========================================================================
-
-    /**
-     * Reconstruit les entrées de cache pour un profil donné.
-     * Retourne le nombre de routes mises en cache.
-     */
-    private function warmupAgServProfil(Profil $profil): int
-    {
-        $codeApps = $this->getApplicationsForProfil($profil);
-        foreach ($codeApps as $codeApp) {
-            $this->userDataService->ecraserAgenceServiceGroupById($codeApp, $profil);
-            $this->userDataService->ecraserAgenceServiceGroupByCode($codeApp, $profil);
-        }
-
-        return 2 * count($codeApps);
-    }
-
-    /**
-     * Récupère toutes les applications pour un profil
-     * en naviguant dans les relations Doctrine (ApplicationProfil → Application).
-     * Retourne un tableau de noms de routes dédupliqués.
-     */
-    private function getApplicationsForProfil(Profil $profil): array
-    {
-        $applications = [];
-
-        /** @var ApplicationProfil $applicationProfil */
-        foreach ($profil->getApplicationProfils() as $applicationProfil) {
-            $applications[] = $applicationProfil->getApplication()->getCodeApp();
-        }
-
-        return $applications;
     }
 }

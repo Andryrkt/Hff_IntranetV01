@@ -579,6 +579,21 @@ class UserDataService
         return count($routes);
     }
 
+    /**
+     * Reconstruit les entrées de cache pour un profil donné.
+     * Retourne le nombre de routes mises en cache.
+     */
+    public function warmupAgServProfil(Profil $profil): int
+    {
+        $codeApps = $profil->getApplicationCodes();
+        foreach ($codeApps as $codeApp) {
+            $this->ecraserAgenceServiceGroupById($codeApp, $profil);
+            $this->ecraserAgenceServiceGroupByCode($codeApp, $profil);
+        }
+
+        return 2 * count($codeApps);
+    }
+
     // =========================================================================
     //  HELPERS DE NAVIGATION
     // =========================================================================
