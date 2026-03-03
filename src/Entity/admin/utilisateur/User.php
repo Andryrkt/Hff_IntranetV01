@@ -117,6 +117,20 @@ class User implements UserInterface
     private ?string $poste;
 
     /**
+     * @ORM\Column(type="integer", name="id_agence_user")
+     *
+     * @var int
+     */
+    private ?int $idAgenceUser;
+
+    /**
+     * @ORM\Column(type="integer", name="id_service_user")
+     *
+     * @var int
+     */
+    private ?int $idServiceUser;
+
+    /**
      * @ORM\Column(type="string", length=50, name="code_agence_user")
      *
      * @var string
@@ -345,6 +359,42 @@ class User implements UserInterface
     public function setCodeServiceUser(?string $codeServiceUser): self
     {
         $this->codeServiceUser = $codeServiceUser;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of idAgenceUser
+     */
+    public function getIdAgenceUser(): ?int
+    {
+        return $this->idAgenceUser;
+    }
+
+    /**
+     * Set the value of idAgenceUser
+     */
+    public function setIdAgenceUser(?int $idAgenceUser): self
+    {
+        $this->idAgenceUser = $idAgenceUser;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of idServiceUser
+     */
+    public function getIdServiceUser(): ?int
+    {
+        return $this->idServiceUser;
+    }
+
+    /**
+     * Set the value of idServiceUser
+     */
+    public function setIdServiceUser(?int $idServiceUser): self
+    {
+        $this->idServiceUser = $idServiceUser;
 
         return $this;
     }
