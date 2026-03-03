@@ -456,8 +456,11 @@ class DaAfficherRepository extends EntityRepository
         int $page,
         int $limit
     ): array {
+
+        $criteria = $criteria ?? [];
+
         // -------------------------------------
-        // 1. Sous-requête : versions maximales par DA
+        // 1. Sous-requête : récupérer TOUTES les versions max (SANS filtres métier)
         // -------------------------------------
         $subQb = $this->_em->createQueryBuilder();
         $subQb->select(
@@ -466,67 +469,90 @@ class DaAfficherRepository extends EntityRepository
             'MAX(d.numeroVersion) as maxVersion'
         )
             ->from(DaAfficher::class, 'd')
-            ->andWhere('d.deleted = 0')
             ->groupBy('d.numeroDemandeApproMere, d.numeroDemandeAppro');
 
-        // Appliquer les filtres sur la sous-requête (C'EST ICI QUE ÇA COMPTE)
-        $this->applyDynamicFilters($subQb, "d", $criteria);
-        $this->applyAgencyServiceFilters($subQb, "d", $criteria, $user, $idAgenceUser, $estAppro, $estAtelier, $estAdmin);
-        $this->applyDateFilters($subQb, "d", $criteria);
-        $this->applyFilterAppro($subQb, "d", $estAppro, $estAdmin);
-        $this->applyStatutsFilters($subQb, "d", $criteria);
+        $allLatestVersions = $subQb->getQuery()->getArrayResult();
 
-        // IMPORTANT : il faut faire une sous-requête pour filtrer sur la dernière version
-        // On crée une sous-sous-requête pour trouver les versions max par DA
-        $maxVersionSubQb = $this->_em->createQueryBuilder();
-        $maxVersionSubQb->select('MAX(d2.numeroVersion)')
-            ->from(DaAfficher::class, 'd2')
-            ->andWhere('d2.deleted = 0')
-            ->andWhere('d2.numeroDemandeApproMere = d.numeroDemandeApproMere')
-            ->andWhere('d2.numeroDemandeAppro = d.numeroDemandeAppro');
+        if (empty($allLatestVersions)) {
+            return [
+                'data'        => [],
+                'totalItems'  => 0,
+                'currentPage' => $page,
+                'lastPage'    => 0,
+            ];
+        }
 
-        // Ajouter la condition sur la version max
-        $subQb->andWhere('d.numeroVersion = (' . $maxVersionSubQb->getDQL() . ')');
+        // Mapping numeroDemandeAppro → maxVersion
+        $latestVersionsMap = [];
+        foreach ($allLatestVersions as $version) {
+            $latestVersionsMap[$version['numeroDemandeAppro']] = $version['maxVersion'];
+        }
 
-        // ---------------------------------
-        // 2. Compter distinctement les DA mères
-        // ---------------------------------
-        $countQb = clone $subQb;
+        // -------------------------------------
+        // 2. Requête de base AVEC filtres (réutilisée pour count et fetch)
+        // -------------------------------------
+        $qb = $this->_em->createQueryBuilder();
+        $qb->select('d')
+            ->from(DaAfficher::class, 'd')
+            ->andWhere('d.deleted = 0');
+
+        // Appliquer TOUS les filtres ici
+        $this->applyDynamicFilters($qb, "d", $criteria);
+        $this->applyAgencyServiceFilters($qb, "d", $criteria, $user, $idAgenceUser, $estAppro, $estAtelier, $estAdmin);
+        $this->applyDateFilters($qb, "d", $criteria);
+        $this->applyFilterAppro($qb, "d", $estAppro, $estAdmin);
+        $this->applyStatutsFilters($qb, "d", $criteria);
+
+        // -------------------------------------
+        // 3. Restriction aux dernières versions
+        // -------------------------------------
+        $orX = $qb->expr()->orX();
+        $paramIndex = 0;
+
+        foreach ($latestVersionsMap as $numeroDemandeAppro => $maxVersion) {
+            $orX->add(
+                $qb->expr()->andX(
+                    $qb->expr()->eq('d.numeroDemandeAppro', ':numDa' . $paramIndex),
+                    $qb->expr()->eq('d.numeroVersion', ':maxVer' . $paramIndex)
+                )
+            );
+
+            $qb->setParameter('numDa' . $paramIndex, $numeroDemandeAppro);
+            $qb->setParameter('maxVer' . $paramIndex, $maxVersion);
+
+            $paramIndex++;
+        }
+
+        $qb->andWhere($orX);
+
+        // -------------------------------------
+        // 4. Pagination par numeroDemandeApproMere distinct
+        // -------------------------------------
+
+        // Count total de mères distinctes (indépendant du motherQb)
+        $countQb = clone $qb;
         $countQb->resetDQLPart('select');
         $countQb->resetDQLPart('orderBy');
-        $countQb->resetDQLPart('groupBy');
         $countQb->select('COUNT(DISTINCT d.numeroDemandeApproMere)');
+        // Pas de groupBy ici → retourne bien une seule ligne
 
-        $totalItems = (int) $countQb->getQuery()
-            ->getSingleScalarResult();
+        $totalItems = (int) $countQb->getQuery()->getSingleScalarResult();
+        $lastPage   = (int) ceil($totalItems / $limit);
 
-        $lastPage = (int) ceil($totalItems / $limit);
-
-        // ---------------------------
-        // 3. Paginer par DA mère
-        // ---------------------------
-        // D'abord récupérer les DA mères paginées
-        $paginatedMeresQb = clone $subQb;
-        $paginatedMeresQb->resetDQLPart('select');
-        $paginatedMeresQb->resetDQLPart('groupBy');
-
-        // Sélectionner les colonnes nécessaires pour le ORDER BY
-        $paginatedMeresQb->select('d.numeroDemandeApproMere')
-            ->addSelect('MAX(d.dateDemande) as maxDateDemande')
-            ->groupBy('d.numeroDemandeApproMere');
-
-        $this->handleOrderBy($paginatedMeresQb, 'd', $criteria, true);
-        $paginatedMeresQb
-            ->addOrderBy('d.numeroDemandeApproMere', 'DESC')
-            ->setFirstResult(($page - 1) * $limit)
+        // Mères de la page courante
+        $motherQb = clone $qb;
+        $motherQb->resetDQLPart('select');
+        $motherQb->resetDQLPart('orderBy');
+        $motherQb->select('d.numeroDemandeApproMere');
+        $motherQb->groupBy('d.numeroDemandeApproMere');
+        $motherQb->addOrderBy('d.numeroDemandeApproMere', 'DESC');
+        $motherQb->setFirstResult(($page - 1) * $limit)
             ->setMaxResults($limit);
 
-        $paginatedMeres = array_column(
-            $paginatedMeresQb->getQuery()->getArrayResult(),
-            'numeroDemandeApproMere'
-        );
+        $motherResults = $motherQb->getQuery()->getArrayResult();
+        $motherIds = array_column($motherResults, 'numeroDemandeApproMere');
 
-        if (empty($paginatedMeres)) {
+        if (empty($motherIds)) {
             return [
                 'data'        => [],
                 'totalItems'  => $totalItems,
@@ -535,60 +561,21 @@ class DaAfficherRepository extends EntityRepository
             ];
         }
 
-        // Maintenant récupérer toutes les versions max pour ces DA mères
-        $versionsQb = clone $subQb;
-        $versionsQb->andWhere('d.numeroDemandeApproMere IN (:paginatedMeres)')
-            ->setParameter('paginatedMeres', $paginatedMeres);
+        // -------------------------------------
+        // 5. Fetch toutes les lignes pour ces mères + tri final
+        // -------------------------------------
+        $dataQb = clone $qb;
+        $dataQb->andWhere($dataQb->expr()->in('d.numeroDemandeApproMere', ':motherIds'))
+            ->setParameter('motherIds', $motherIds);
 
-        $this->handleOrderBy($versionsQb, 'd', $criteria, true);
-        $versionsQb
-            ->addOrderBy('d.numeroDemandeApproMere', 'DESC')
-            ->addOrderBy('d.numeroDemandeAppro', 'DESC');
-
-        $latestVersions = $versionsQb->getQuery()
-            ->getArrayResult();
-
-        // ------------------------------------
-        // 4. Construire la requête principale
-        // ------------------------------------
-        $qb = $this->_em->createQueryBuilder();
-        $qb->select('d')
-            ->from(DaAfficher::class, 'd')
-            ->andWhere('d.deleted = 0');
-
-        // Condition sur les DA mères paginées
-        $qb->andWhere('d.numeroDemandeApproMere IN (:paginatedMeres)')
-            ->setParameter('paginatedMeres', $paginatedMeres);
-
-        // IMPORTANT : Encore une fois, on s'assure qu'on prend la dernière version
-        $maxVersionSubQb2 = $this->_em->createQueryBuilder();
-        $maxVersionSubQb2->select('MAX(d2.numeroVersion)')
-            ->from(DaAfficher::class, 'd2')
-            ->andWhere('d2.deleted = 0')
-            ->andWhere('d2.numeroDemandeApproMere = d.numeroDemandeApproMere')
-            ->andWhere('d2.numeroDemandeAppro = d.numeroDemandeAppro');
-
-        $qb->andWhere('d.numeroVersion = (' . $maxVersionSubQb2->getDQL() . ')');
-
-        // Appliquer les mêmes filtres sur la requête principale
-        $this->applyDynamicFilters($qb, "d", $criteria);
-        $this->applyAgencyServiceFilters($qb, "d", $criteria, $user, $idAgenceUser, $estAppro, $estAtelier, $estAdmin);
-        $this->applyDateFilters($qb, "d", $criteria);
-        $this->applyFilterAppro($qb, "d", $estAppro, $estAdmin);
-        $this->applyStatutsFilters($qb, "d", $criteria);
-
-        // Ordre final
-        $this->handleOrderBy($qb, 'd', $criteria);
-        $qb->addOrderBy('d.numeroDemandeApproMere', 'DESC')
+        $this->handleOrderBy($dataQb, 'd', $criteria);
+        $dataQb->addOrderBy('d.numeroDemandeApproMere', 'DESC')
             ->addOrderBy('d.numeroDemandeAppro', 'DESC')
             ->addOrderBy('d.numeroFournisseur', 'DESC')
             ->addOrderBy('d.numeroCde', 'DESC');
 
-        // ----------------------
-        // 5. Retour
-        // ----------------------
         return [
-            'data'        => $qb->getQuery()->getResult(),
+            'data'        => $dataQb->getQuery()->getResult(),
             'totalItems'  => $totalItems,
             'currentPage' => $page,
             'lastPage'    => $lastPage,
