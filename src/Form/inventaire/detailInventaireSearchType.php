@@ -7,17 +7,14 @@ use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\AbstractType;
 use App\Controller\Traits\Transformation;
 use App\Model\inventaire\InventaireModel;
-use App\Traits\PrepareAgenceServiceTrait;
 use DateTime;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class detailInventaireSearchType extends AbstractType
 {
-    use PrepareAgenceServiceTrait;
     use Transformation;
     private $InventaireModel;
     // private ?\DateTime $datefin = null;
@@ -33,30 +30,32 @@ class detailInventaireSearchType extends AbstractType
     public function listeInventaireDispo(array $criteria): array
     {
         $listeInventaireDispo = $this->InventaireModel->recuperationListeInventaireDispo($criteria);
-        $tab = [];
-        foreach ($listeInventaireDispo as $keys => $listes) {
-            foreach ($listes as $key => $liste) {
-                $tab[trim($key)] =  $liste;
+            $tab = [];
+            foreach ($listeInventaireDispo as $keys => $listes) {
+                foreach ($listes as $key => $liste) {
+                    $tab[trim($key)]=  $liste;
+                }
             }
-        }
 
-        return $tab;
+            return $tab;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $choices = $this->prepareAgenceServiceChoices($options['agenceServiceAutorises'], false);
-
-        $agenceChoices = $choices['agenceChoices'];
+        
+        $agence = $this->transformEnSeulTableauAvecKey($this->InventaireModel->recuperationAgenceIrium());
+     
+            
 
         $builder
             ->add('agence', ChoiceType::class, [
                 'label' => 'Agence',
                 'required' => false,
-                'choices' => $agenceChoices,
+                'choices' => $agence,
                 'placeholder' => ' -- choisir agence --',
+                'data'=>$agence['01-ANTANANARIVO']
             ])
-
+            
             ->add('dateDebut', DateType::class, [
                 'widget' => 'single_text',
                 'label' => 'Date Début',
@@ -70,52 +69,49 @@ class detailInventaireSearchType extends AbstractType
                 'data' => $options['data']->getDateFin()
             ])
 
-            ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use ($options) {
-                $form = $event->getForm();
-
-                $criteria = [
-                    'agence' => $options['data']->getAgence(),
-                    'dateDebut' => $options['data']->getDateDebut(),
-                    'dateFin' => $options['data']->getDateFin()
-                ];
-                $listeInventaireDispo = $this->listeInventaireDispo($criteria);
-                $form->add('InventaireDispo', ChoiceType::class, [
-                    'label' => 'Inventaire Dispo',
-                    'multiple' => true,
-                    'choices' => $listeInventaireDispo,
-                    'placeholder' => " -- Choisir un inventaire--",
-                    'expanded' => true,
-                ]);
+            ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use($options) {
+                                $form = $event->getForm();
+                                $data = $event->getData();
+                
+                                   
+                                $criteria = [
+                                    'agence'=> $options['data']->getAgence(),
+                                    'dateDebut'=> $options['data']->getDateDebut(),
+                                    'dateFin'=>$options['data']->getDateFin()
+                                ];
+                                $listeInventaireDispo = $this->listeInventaireDispo($criteria);
+                                $form->add('InventaireDispo', ChoiceType::class,[
+                                    'label' =>'Inventaire Dispo',
+                                    'multiple' => true,
+                                    'choices' => $listeInventaireDispo,
+                                    'placeholder' => " -- Choisir un inventaire--",
+                                    'expanded' => true,
+                                ]);
+                                
             })
-            ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
+            ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event)  {
                 $form = $event->getForm();
                 $data = $event->getData();
 
-
+                
                 $criteria = [
-                    'agence' => $data['agence'],
-                    'dateDebut' => new DateTime($data['dateDebut']),
-                    'dateFin' => new DateTime($data['dateFin'])
+                    'agence'=> $data['agence'],
+                    'dateDebut'=> new DateTime($data['dateDebut']),
+                    'dateFin'=>new DateTime($data['dateFin'])
                 ];
 
                 $listeInventaireDispo = $this->listeInventaireDispo($criteria);
 
-                $form->add('InventaireDispo', ChoiceType::class, [
-                    'label' => 'Inventaire Dispo',
+                $form->add('InventaireDispo', ChoiceType::class,[
+                    'label' =>'Inventaire Dispo',
                     'multiple' => true,
                     'choices' => $listeInventaireDispo,
                     'placeholder' => " -- Choisir un inventaire--",
                     'expanded' => true,
-                    'data' => $data["InventaireDispo"] ?? []
+                    'data' =>$data["InventaireDispo"]??[]
                 ]);
+                
             })
-        ;
-    }
-
-    public function configureOptions(OptionsResolver $resolver)
-    {
-        $resolver->setDefaults([
-            'agenceServiceAutorises' => [],
-        ]);
+            ;
     }
 }
