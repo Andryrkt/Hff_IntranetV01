@@ -489,7 +489,7 @@ class DaAfficherRepository extends EntityRepository
         }
 
         // -------------------------------------
-        // 2. Requête principale AVEC filtres
+        // 2. Requête de base AVEC filtres (réutilisée pour count et fetch)
         // -------------------------------------
         $qb = $this->_em->createQueryBuilder();
         $qb->select('d')
@@ -526,34 +526,56 @@ class DaAfficherRepository extends EntityRepository
         $qb->andWhere($orX);
 
         // -------------------------------------
-        // 4. Count distinct par DA mère
+        // 4. Pagination par numeroDemandeApproMere distinct
         // -------------------------------------
+
+        // Count total de mères distinctes (indépendant du motherQb)
         $countQb = clone $qb;
         $countQb->resetDQLPart('select');
         $countQb->resetDQLPart('orderBy');
         $countQb->select('COUNT(DISTINCT d.numeroDemandeApproMere)');
+        // Pas de groupBy ici → retourne bien une seule ligne
 
         $totalItems = (int) $countQb->getQuery()->getSingleScalarResult();
         $lastPage   = (int) ceil($totalItems / $limit);
 
-        // -------------------------------------
-        // 5. Pagination + tri
-        // -------------------------------------
-        $this->handleOrderBy($qb, 'd', $criteria);
+        // Mères de la page courante
+        $motherQb = clone $qb;
+        $motherQb->resetDQLPart('select');
+        $motherQb->resetDQLPart('orderBy');
+        $motherQb->select('d.numeroDemandeApproMere');
+        $motherQb->groupBy('d.numeroDemandeApproMere');
+        $motherQb->addOrderBy('d.numeroDemandeApproMere', 'DESC');
+        $motherQb->setFirstResult(($page - 1) * $limit)
+            ->setMaxResults($limit);
 
-        $qb->addOrderBy('d.numeroDemandeApproMere', 'DESC')
+        $motherResults = $motherQb->getQuery()->getArrayResult();
+        $motherIds = array_column($motherResults, 'numeroDemandeApproMere');
+
+        if (empty($motherIds)) {
+            return [
+                'data'        => [],
+                'totalItems'  => $totalItems,
+                'currentPage' => $page,
+                'lastPage'    => $lastPage,
+            ];
+        }
+
+        // -------------------------------------
+        // 5. Fetch toutes les lignes pour ces mères + tri final
+        // -------------------------------------
+        $dataQb = clone $qb;
+        $dataQb->andWhere($dataQb->expr()->in('d.numeroDemandeApproMere', ':motherIds'))
+            ->setParameter('motherIds', $motherIds);
+
+        $this->handleOrderBy($dataQb, 'd', $criteria);
+        $dataQb->addOrderBy('d.numeroDemandeApproMere', 'DESC')
             ->addOrderBy('d.numeroDemandeAppro', 'DESC')
             ->addOrderBy('d.numeroFournisseur', 'DESC')
             ->addOrderBy('d.numeroCde', 'DESC');
 
-        $qb->setFirstResult(($page - 1) * $limit)
-            ->setMaxResults($limit);
-
-        // -------------------------------------
-        // 6. Retour
-        // -------------------------------------
         return [
-            'data'        => $qb->getQuery()->getResult(),
+            'data'        => $dataQb->getQuery()->getResult(),
             'totalItems'  => $totalItems,
             'currentPage' => $page,
             'lastPage'    => $lastPage,
