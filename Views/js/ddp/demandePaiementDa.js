@@ -1,5 +1,6 @@
 import { DemandePaiementManager } from "./DemandePaiementManager.js";
 import { formaterNombre } from "../utils/formatNumberUtils.js";
+import { setupConfirmationButtons } from "../utils/ui/boutonConfirmUtils.js";
 
 document.addEventListener("DOMContentLoaded", function () {
   const config = {
@@ -102,7 +103,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let montantAPayerValue = stringEnNumber(montantAPayer.value, " ");
     let montantTotalCdeValue = stringEnNumber(montantTotalCde.value, ".");
     let montantDejaPayerValue = stringEnNumber(montantDejaPayer.value, ".");
-    let montantRestantApayerValue = montantRestantApayer.value;
+    // let montantRestantApayerValue = montantRestantApayer.value;
     console.log(
       montantTotalCde.value,
       montantTotalCdeValue,
@@ -223,6 +224,34 @@ document.addEventListener("DOMContentLoaded", function () {
   const ribField = document.querySelector('[data-format-rib="true"]');
 
   if (ribField) {
+    // Créer dynamiquement l'élément pour le message d'erreur
+    const errorDiv = document.createElement("div");
+    errorDiv.className = "rib-error-message"; // Classe pour le style CSS
+    errorDiv.style.color = "#dc3545"; // Rouge Bootstrap
+    errorDiv.style.fontSize = "0.875em";
+    errorDiv.style.marginTop = "5px";
+    errorDiv.style.display = "none";
+
+    // Insérer le message d'erreur juste après le champ RIB
+    ribField.parentNode.insertBefore(errorDiv, ribField.nextSibling);
+
+    // Fonction de validation de la longueur du RIB
+    function validateRIBLenght(value) {
+      const numbersCaractere = value;
+
+      if (numbersCaractere.length === 26 || numbersCaractere.length === 0) {
+        // Pas d'erreur si le champ est vide ou si 26 caractères
+        errorDiv.style.display = "none";
+        ribField.setCustomValidity(""); // Valide pour le formulaire HTML5
+        return true;
+      } else {
+        errorDiv.textContent = `Le RIB doit contenir 26 caractères (actuellement ${numbersCaractere.length})`;
+        errorDiv.style.display = "block";
+        ribField.setCustomValidity("RIB incomplet"); // Invalide pour le formulaire HTML5
+        return false;
+      }
+    }
+
     // Restreindre la saisie aux chiffres et espaces uniquement
     ribField.addEventListener("keydown", function (e) {
       const allowedKeys = [
@@ -236,7 +265,7 @@ document.addEventListener("DOMContentLoaded", function () {
         "Home",
         "End",
       ];
-      
+
       if (allowedKeys.includes(e.key) || e.ctrlKey || e.metaKey) {
         return;
       }
@@ -259,41 +288,84 @@ document.addEventListener("DOMContentLoaded", function () {
       let cursorPosition = e.target.selectionStart;
       let value = e.target.value.replace(/[^0-9]/g, ""); // Garde uniquement les chiffres pour le formatage
 
+      // Limiter à 26 chiffres maximum
+      if (value.length > 26) {
+        value = value.substring(0, 26);
+        // Ajuster la position du curseur si nécessaire
+        cursorPosition = Math.min(cursorPosition, value.length);
+      }
+
       let formatted = "";
       if (value.length > 0) {
-        // 5 premiers chiffres
+        // 5 premiers chiffres (Banque)
         formatted += value.substring(0, Math.min(5, value.length));
 
-        // 5 chiffres suivants
+        // 5 chiffres suivants (Guichet)
         if (value.length > 5) {
           formatted += " " + value.substring(5, Math.min(10, value.length));
         }
 
-        // 11 chiffres suivants
+        // 11 chiffres suivants (Compte)
         if (value.length > 10) {
           formatted += " " + value.substring(10, Math.min(21, value.length));
         }
 
-        // 2 derniers chiffres
+        // 2 derniers chiffres (Clé)
         if (value.length > 21) {
           formatted += " " + value.substring(21, Math.min(23, value.length));
         }
 
-        // Gérer le décalage du curseur si un espace a été inséré
-        const parts = [5, 11, 23]; // Positions où des espaces sont insérés (index 5, 11, 23)
-        if (parts.includes(cursorPosition) && e.inputType !== "deleteContentBackward") {
-          cursorPosition++;
+        e.target.value = formatted;
+
+        // Ajuster la position du curseur
+        const spacePositions = [5, 11, 23]; // Positions où des espaces sont insérés
+        let spacesBeforeCursor = spacePositions.filter(
+          (pos) => pos < cursorPosition,
+        ).length;
+
+        if (e.inputType !== "deleteContentBackward") {
+          cursorPosition += spacesBeforeCursor;
         }
 
-        e.target.value = formatted;
+        // S'assurer que le curseur reste dans les limites
+        cursorPosition = Math.min(cursorPosition, formatted.length);
         e.target.setSelectionRange(cursorPosition, cursorPosition);
+      } else {
+        e.target.value = "";
       }
+
+      // Valider la longueur après formatage
+      validateRIBLenght(e.target.value);
     });
 
-    // Formater la valeur initiale si elle existe
+    // Validation lors de la perte de focus (blur)
+    ribField.addEventListener("blur", function (e) {
+      validateRIBLenght(e.target.value);
+    });
+
+    // Formater et valider la valeur initiale si elle existe
     if (ribField.value) {
       const event = new Event("input", { bubbles: true });
       ribField.dispatchEvent(event);
     }
+
+    // Validation supplémentaire avant soumission du formulaire
+    const form = ribField.closest("form");
+    if (form) {
+      form.addEventListener("submit", function (e) {
+        if (!validateRIBLenght(ribField.value)) {
+          e.preventDefault(); // Empêcher la soumission du formulaire
+          ribField.focus(); // Mettre le focus sur le champ RIB
+
+          // Optionnel : faire défiler la page jusqu'au champ
+          ribField.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      });
+    }
   }
 });
+
+/**==================================================
+ * sweetalert pour le bouton Enregistrer
+ *==================================================*/
+setupConfirmationButtons();

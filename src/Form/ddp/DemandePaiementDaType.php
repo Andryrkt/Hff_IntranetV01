@@ -350,10 +350,13 @@ class DemandePaiementDaType extends AbstractType
             FileUploadType::class,
             [
                 'label' => 'Pièce joint 01',
-                'required' => false,
+                'required' => true,
                 'allowed_mime_types' => ['application/pdf'],
                 'accept' => '.pdf',
-                'max_size' => '5M'
+                'max_size' => '5M',
+                'attr' => [
+                    'data-error-message' => '- Veuillez insérer le proforma facture fournisseur.',
+                ]
             ]
         )
             ->add(
