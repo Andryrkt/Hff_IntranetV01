@@ -24,10 +24,7 @@ class DemandePaiementModel extends Model
                         WHEN ffou_modp = 'VI' THEN 'VIREMENT'
                         ELSE ffou_modp
                     END) AS mode_paiement,
-                    MIN(CASE
-                        WHEN fbqe_ciban = '' OR fbqe_ciban = 'MG' THEN fbqe_bqcpte
-                        ELSE fbqe_ciban
-                    END) AS rib
+                    TRIM(fbqe_bqcode) ||' '|| TRIM(fbqe_bqguich) ||' '|| TRIM(fbqe_bqcpte) ||' '|| TRIM(fbqe_bqrib) AS rib,
                 FROM 
                     FRN_BSE
                 JOIN 
@@ -37,7 +34,7 @@ class DemandePaiementModel extends Model
                 WHERE 
                     FFOU_SOC = 'HF'
                 GROUP BY 
-                    FBSE_NUMFOU
+                    FBSE_NUMFOU, rib
                 ORDER BY 
                     nom_fournisseur;
 
@@ -292,10 +289,7 @@ class DemandePaiementModel extends Model
                         WHEN ffou_modp = 'VI' THEN 'VIREMENT'
                         ELSE ffou_modp
                     END)) AS mode_paiement,
-                    TRIM(MIN(CASE
-                        WHEN fbqe_ciban = '' OR fbqe_ciban = 'MG' THEN fbqe_bqcpte
-                        ELSE fbqe_ciban
-                    END)) AS rib_fournisseur,
+                    TRIM(fbqe_bqcode) ||' '|| TRIM(fbqe_bqguich) ||' '|| TRIM(fbqe_bqcpte) ||' '|| TRIM(fbqe_bqrib) AS rib_fournisseur,
                     fcde_succ as code_agence, 
                     fcde_serv as code_service,
                     fcde_numcde as numero_cde,
@@ -318,7 +312,7 @@ class DemandePaiementModel extends Model
                     AND fcde_numcde = '{$numCde}'
                     AND fbse_numfou = '{$numeroFournisseur}'
                 GROUP BY 
-                    FBSE_NUMFOU, code_agence, code_service, numero_cde, cif
+                    FBSE_NUMFOU, code_agence, code_service, numero_cde, cif, rib_fournisseur
                 ORDER BY 
                     nom_fournisseur
         ";
@@ -379,10 +373,7 @@ class DemandePaiementModel extends Model
                         WHEN ffou_modp = 'VI' THEN 'VIREMENT'
                         ELSE ffou_modp
                     END)) AS mode_paiement,
-                    TRIM(MIN(CASE
-                        WHEN fbqe_ciban = '' OR fbqe_ciban = 'MG' THEN fbqe_bqcpte
-                        ELSE fbqe_ciban
-                    END)) AS rib_fournisseur,
+                    TRIM(fbqe_bqcode) ||' '|| TRIM(fbqe_bqguich) ||' '|| TRIM(fbqe_bqcpte) ||' '|| TRIM(fbqe_bqrib) AS rib_fournisseur,
                     fcde_succ as code_agence, 
                     fcde_serv as code_service,
                     fcde_numcde as numero_cde,
@@ -400,7 +391,7 @@ class DemandePaiementModel extends Model
                     AND fcde_numcde = '{$numCde}'
                     AND fbse_numfou = '{$numeroFournisseur}'
                 GROUP BY 
-                    FBSE_NUMFOU, code_agence, code_service, numero_cde, montant_total_cde
+                    FBSE_NUMFOU, code_agence, code_service, numero_cde, montant_total_cde, rib_fournisseur
                 ORDER BY 
                     nom_fournisseur
         ";
