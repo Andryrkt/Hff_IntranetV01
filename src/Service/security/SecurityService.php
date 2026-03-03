@@ -170,6 +170,16 @@ class SecurityService
     }
 
     /** 
+     * Préchauffe les caches concernant:
+     *   - Les agences - services par application (avec comme clé l'ID du couple)
+     *   - Les agences - services par application (avec comme clé le code du couple)
+     */
+    public function warmupAgServProfil(Profil $profil): int
+    {
+        return $this->dataService->warmupAgServProfil($profil);
+    }
+
+    /** 
      * Vérifie l'accès à une route
      */
     public function hasAccesRoute(string $route): bool

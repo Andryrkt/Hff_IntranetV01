@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use App\Entity\admin\historisation\pageConsultation\PageHff;
 use App\Entity\admin\historisation\pageConsultation\UserLogger;
+use App\Entity\admin\utilisateur\Profil;
 use App\Entity\da\DemandeAppro;
 use App\Service\navigation\MenuService;
 use App\Service\security\SecurityService;
@@ -589,6 +590,21 @@ class Controller
     // =====================================
     // MÉTHODES HELPER DE BASECONTROLLER
     // =====================================
+
+    /** 
+     * Réinitialiser et écraser le cache pour le profil donnée
+     */
+    protected function resetAndPasteCache(Profil $profil)
+    {
+        // 1. Pages visibles et permissions
+        $this->getSecurityService()->warmupSecurityProfil($profil);
+
+        // 2. Menu principal + menu d'Admin
+        $this->getMenuService()->warmupMenuProfil($profil->getId());
+
+        // 3. Agences - Services pour une application
+        $this->getSecurityService()->warmupAgServProfil($profil);
+    }
 
     /**
      * Méthode helper pour la redirection vers une route avec Response

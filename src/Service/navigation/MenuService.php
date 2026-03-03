@@ -174,6 +174,12 @@ class MenuService
     // =========================================================================
     //  LOGIQUE DE PRÉCHAUFFAGE
     // =========================================================================
+
+    /** 
+     * Préchauffe les caches concernant:
+     *   - Les menus sur la page d'accueil (qui est utilisé dans le fil d'Ariane)
+     *   - Les menus d'administration
+     */
     public function warmupMenuProfil(int $profilId): void
     {
         $this->userDataService->setProfilId($profilId);
