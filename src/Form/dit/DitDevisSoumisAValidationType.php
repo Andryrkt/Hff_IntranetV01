@@ -65,7 +65,7 @@ class DitDevisSoumisAValidationType extends AbstractType
                 'multiple' => false,
                 'required' => $options['data']->getType() === 'VP' ? true : false,
                 'attr' => [
-                    'data-field-name' => 'Tâche du validateur',
+                    'data-error-message' => 'Veuillez sélectionner une tâche à faire par le Parts Manager.', // Message d'erreur personnalisé pour le champ
                 ]
 
             ])
@@ -88,6 +88,9 @@ class DitDevisSoumisAValidationType extends AbstractType
                             'mimeTypesMessage' => 'Veuillez télécharger un fichier PDF valide.',
                         ])
                     ],
+                    'attr' => [
+                        'data-error-message' => 'le pièce jointe est obligatoire, veillez ajouter un fichier PDF.', // Message d'erreur personnalisé pour le champ
+                    ]
                 ]
             )
         ;

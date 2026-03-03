@@ -26,10 +26,10 @@ class GeneratePdfDeviMagasinVp extends GeneratePdf
 
     public function genererPdf(User $user, DevisMagasin $devisMagasin, string $filePath)
     {
-        if ($devisMagasin->getEstValidationPm() == false) {
-            $tacheValidateur = 'AUTOVALIDATION';
-        } else {
+        if ($devisMagasin->getEstValidationPm() === true) {
             $tacheValidateur = TableauEnStringService::orEnString($devisMagasin->getTacheValidateur());
+        } else {
+            $tacheValidateur = 'AUTOVALIDATION';
         }
 
         $pdf = new HeaderPdf(null);
