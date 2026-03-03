@@ -128,11 +128,12 @@ class CacheWarmupMenuCommand extends Command
         $nbSucces = 0;
         $erreurs  = [];
 
+        /** @var Profil $profil */
         foreach ($profils as $profil) {
+            $profilId = $profil->getId();
             $io->progressAdvance();
             try {
-                $this->menuService->userDataService->setProfilId($profil->getId());
-                $this->warmupMenuProfil($profil);
+                $this->menuService->warmupMenuProfil($profilId);
                 $nbSucces++;
             } catch (\Throwable $e) {
                 $erreurs[] = sprintf('Profil "%s" (id: %d) : %s', $profil->getDesignation(), $profil->getId(), $e->getMessage());
@@ -159,17 +160,5 @@ class CacheWarmupMenuCommand extends Command
         }
 
         return empty($erreurs) ? Command::SUCCESS : Command::FAILURE;
-    }
-
-    // =========================================================================
-    //  LOGIQUE DE PRÉCHAUFFAGE
-    // =========================================================================
-
-    private function warmupMenuProfil(Profil $profil): void
-    {
-        $profilId = $profil->getId();
-
-        $this->menuService->ecraserMenuStructure($profilId);
-        $this->menuService->ecraserAdminMenuStructure($profilId);
     }
 }

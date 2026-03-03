@@ -2,7 +2,6 @@
 
 namespace App\Command\cache;
 
-use App\Entity\admin\utilisateur\ApplicationProfilPage;
 use App\Entity\admin\utilisateur\Profil;
 use App\Service\UserData\UserDataService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -137,7 +136,7 @@ class CacheWarmupSecurityCommand extends Command
 
         foreach ($profils as $profil) {
             try {
-                $nbRoutes = $this->warmupSecurityProfil($profil);
+                $nbRoutes = $this->userDataService->warmupSecurityProfil($profil);
                 $nbRoutesTotal += $nbRoutes;
                 $nbSucces++;
             } catch (\Throwable $e) {
@@ -168,10 +167,5 @@ class CacheWarmupSecurityCommand extends Command
         }
 
         return empty($erreurs) ? Command::SUCCESS : Command::FAILURE;
-    }
-
-    private function warmupSecurityProfil(Profil $profil): int
-    {
-        return $this->userDataService->warmupSecurityProfil($profil);
     }
 }

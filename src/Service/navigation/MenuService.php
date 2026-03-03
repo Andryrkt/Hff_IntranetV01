@@ -172,6 +172,18 @@ class MenuService
     }
 
     // =========================================================================
+    //  LOGIQUE DE PRÉCHAUFFAGE
+    // =========================================================================
+    public function warmupMenuProfil(int $profilId): void
+    {
+        $this->userDataService->setProfilId($profilId);
+        $this->invaliderCacheProfil($profilId);
+
+        $this->ecraserMenuStructure($profilId);
+        $this->ecraserAdminMenuStructure($profilId);
+    }
+
+    // =========================================================================
     //  DONNÉES STATIQUES — MENUS PRINCIPAUX
     //
     //  Structure d'un groupe :
