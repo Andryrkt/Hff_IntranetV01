@@ -15,6 +15,7 @@ use App\Controller\Traits\bdc\BonDeCaisseListeTrait;
 use App\Factory\bdc\BonDeCaisseFactory;
 use App\Repository\bdc\BonDeCaisseRepository;
 use App\Service\ExcelService;
+use App\Service\security\SecurityService;
 
 /**
  * @Route("/compta/demande-de-paiement")
@@ -89,9 +90,16 @@ class BonDeCaisseController extends Controller
         $page = max(1, $request->query->getInt('page', 1));
         $limit = 10;
 
+        // Agence et service par défaut
+        $agenceCodeUser = $this->getSecurityService()->getCodeAgenceUser();
+        $serviceCodeUser = $this->getSecurityService()->getCodeServiceUser();
+
+        // Vérifier le permission de voir liste avec débiteur sur la page courante
+        $peutVoirListeAvecDebiteur = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_AUTH_2);
+
         /** @var BonDeCaisseRepository $repository */
         $repository = $this->getEntityManager()->getRepository(BonDeCaisse::class);
-        $paginationData = $repository->findPaginatedAndFiltered($page, $limit, $bonCaisseEntitySearch, $agenceServiceAutorises);
+        $paginationData = $repository->findPaginatedAndFiltered($page, $limit, $bonCaisseEntitySearch, $agenceCodeUser, $serviceCodeUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
         $data = $paginationData['data'];
 
         // Récupère tous les chemins PDF en une seule requête
@@ -139,9 +147,16 @@ class BonDeCaisseController extends Controller
         // Agences Services autorisés sur le Bon de Caisse
         $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_BON_DE_CAISSE);
 
+        // Agence et service par défaut
+        $agenceCodeUser = $this->getSecurityService()->getCodeAgenceUser();
+        $serviceCodeUser = $this->getSecurityService()->getCodeServiceUser();
+
+        // Vérifier le permission de voir liste avec débiteur sur la page courante
+        $peutVoirListeAvecDebiteur = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_AUTH_2, "bon_caisse_liste");
+
         /** @var BonDeCaisseRepository $repository */
         $repository = $this->getEntityManager()->getRepository(BonDeCaisse::class);
-        $entities = $repository->findAndFilteredExcel($bonCaisseEntitySearch, $agenceServiceAutorises);
+        $entities = $repository->findAndFilteredExcel($bonCaisseEntitySearch, $agenceCodeUser, $serviceCodeUser,  $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
 
         // Convertir les entités en tableau de données
         $data = [];
