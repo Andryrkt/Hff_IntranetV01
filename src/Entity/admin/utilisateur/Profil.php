@@ -223,4 +223,20 @@ class Profil
 
         return array_unique($routes);
     }
+
+    /**
+     * Récupérer toutes les applications (code App) pour un profil
+     * en naviguant dans les relations Doctrine (ApplicationProfil → Application).
+     */
+    public function getApplicationCodes(): array
+    {
+        $applications = [];
+
+        /** @var ApplicationProfil $applicationProfil */
+        foreach ($this->applicationProfils as $applicationProfil) {
+            $applications[] = $applicationProfil->getApplication()->getCodeApp();
+        }
+
+        return $applications;
+    }
 }
