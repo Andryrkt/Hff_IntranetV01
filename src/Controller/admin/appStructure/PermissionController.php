@@ -51,6 +51,9 @@ class PermissionController extends Controller
             $this->permissionsService->synchroniserLiaisons($dto, $oldLinksAgServ, $oldLinksPage);
 
             $this->entityManager->flush();
+
+            $this->resetAndPasteCache($dto->applicationProfil->getProfil());
+
             $this->redirectToRoute("permission_index");
         }
 
