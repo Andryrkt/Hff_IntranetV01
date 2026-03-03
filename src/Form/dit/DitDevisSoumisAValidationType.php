@@ -21,7 +21,7 @@ class DitDevisSoumisAValidationType extends AbstractType
 {
     private const TACHE_VALIDATEUR = [
         'Vérif prix'                        => 'Vérif prix',
-        'Vérif prix & calcul DH' => 'Vérif prix & calcul DH'
+        'Vérif prix & calcul DHL' => 'Vérif prix & calcul DHL'
     ];
 
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -59,10 +59,15 @@ class DitDevisSoumisAValidationType extends AbstractType
                 ]
             )
             ->add('tacheValidateur', ChoiceType::class, [
-                'label' => 'Tâche du validateur *',
+                'label' => 'Tâche à faire par le Parts Manager *',
                 'choices' => self::TACHE_VALIDATEUR,
                 'expanded' => true,
                 'multiple' => false,
+                'required' => $options['data']->getType() === 'VP' ? true : false,
+                'attr' => [
+                    'data-field-name' => 'Tâche du validateur',
+                ]
+
             ])
             ->add(
                 'pieceJoint01',

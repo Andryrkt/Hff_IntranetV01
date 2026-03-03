@@ -19,10 +19,10 @@ class UserController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
         $user = new User();
-        if ($this->getUser()->getChefService()) {
-            $nomPrenomChefService = $this->getUser()->getChefService()->getNom() . ' ' . $this->getUser()->getChefService()->getPrenoms();
-            $user->setSuperieur($nomPrenomChefService);
-        }
+        // if ($this->getUser()->getChefService()) {
+        //     $nomPrenomChefService = $this->getUser()->getChefService()->getNom() . ' ' . $this->getUser()->getChefService()->getPrenoms();
+        //     $user->setSuperieur($nomPrenomChefService);
+        // }
 
         $form = $this->getFormFactory()->createBuilder(UserType::class, $user)->getForm();
 
@@ -69,10 +69,10 @@ class UserController extends Controller
         $this->verifierSessionUtilisateur();
 
         $user = $this->getEntityManager()->getRepository(User::class)->find($id);
-        if ($this->getUser()->getChefService()) {
-            $nomPrenomChefService = $this->getUser()->getChefService()->getNom() . ' ' . $this->getUser()->getChefService()->getPrenoms();
-            $user->setSuperieur($nomPrenomChefService);
-        }
+        // if ($this->getUser()->getChefService()) {
+        //     $nomPrenomChefService = $this->getUser()->getChefService()->getNom() . ' ' . $this->getUser()->getChefService()->getPrenoms();
+        //     $user->setSuperieur($nomPrenomChefService);
+        // }
 
 
         $form = $this->getFormFactory()->createBuilder(UserType::class, $user)->getForm();
