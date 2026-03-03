@@ -24,6 +24,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Model\dw\dossierInterventionAtelierModel;
 use App\Form\da\daCdeFrn\DaModalDateLivraisonType;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
+use App\Service\security\SecurityService;
 
 /**
  * @Route("/demande-appro")
@@ -69,6 +70,7 @@ class listeDaController extends Controller
 
         // Agences Services autorisés sur le DAP
         $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DAP);
+
         //formulaire de recherche
         $form = $this->getFormFactory()->createBuilder(DaSearchType::class, $daSearch, [
             'method' => 'GET',
@@ -98,8 +100,15 @@ class listeDaController extends Controller
         //nombre de ligne par page
         $limit = 20;
 
+        // Agence et service par défaut
+        $agenceIdUser = $this->getSecurityService()->getAgenceIdUser();
+        $serviceIdUser = $this->getSecurityService()->getServiceIdUser();
+
+        // Vérifier le permission de voir liste avec débiteur sur la page courante
+        $peutVoirListeAvecDebiteur = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_AUTH_2);
+
         // Donnée à envoyer à la vue
-        $paginationData = $this->getPaginationData($criteria, $agenceServiceAutorises, $page, $limit);
+        $paginationData = $this->getPaginationData($criteria, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur, $page, $limit);
         $dataPrepared = $this->prepareDataForDisplay($paginationData['data']);
 
         /** === Formulaire pour la date de livraison prevu === */

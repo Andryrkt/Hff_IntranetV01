@@ -8,6 +8,7 @@ use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use Doctrine\ORM\EntityRepository;
 use App\Constants\admin\ApplicationConstant;
+use App\Service\security\SecurityService;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -47,8 +48,15 @@ class ExportExcelController extends Controller
 
     public function getDataExcel(array $criteria, array $agenceServiceAutorises): array
     {
+        // Agence et service par défaut
+        $agenceIdUser = $this->getSecurityService()->getAgenceIdUser();
+        $serviceIdUser = $this->getSecurityService()->getServiceIdUser();
+
+        // Vérifier le permission de voir liste avec débiteur sur la page courante
+        $peutVoirListeAvecDebiteur = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_AUTH_2, "list_da");
+
         // Filtrage des DA en fonction des critères
-        $daAffichers = $this->daAfficherRepository->findDerniereVersionDesDA($criteria, $agenceServiceAutorises);
+        $daAffichers = $this->daAfficherRepository->findDerniereVersionDesDA($criteria, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
 
         // Retourne les DA filtrées
         return $daAffichers;

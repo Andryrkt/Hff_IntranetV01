@@ -84,9 +84,9 @@ trait DaListeTrait
         ];
     }
 
-    public function getPaginationData(array $criteria, array $agenceServiceAutorises, int $page, int $limit): array
+    public function getPaginationData(array $criteria, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, bool $peutVoirListeAvecDebiteur, int $page, int $limit): array
     {
-        $paginationData = $this->daAfficherRepository->findPaginatedAndFilteredDA($criteria, $agenceServiceAutorises, $page, $limit);
+        $paginationData = $this->daAfficherRepository->findPaginatedAndFilteredDA($page, $limit, $criteria, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
         /** @var array $daAffichers Filtrage des DA en fonction des critères */
         $daAffichers = $paginationData['data'];
 

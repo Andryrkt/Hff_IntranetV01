@@ -447,10 +447,13 @@ class DaAfficherRepository extends EntityRepository
      * Fonction publique : renvoie les DA paginés avec filtres appliqués uniquement sur les dernières versions
      */
     public function findPaginatedAndFilteredDA(
-        array $criteria,
-        array $agenceServiceAutorises,
         int $page,
-        int $limit
+        int $limit,
+        array $criteria,
+        int $agenceIdUser,
+        int $serviceIdUser,
+        array $agenceServiceAutorises,
+        bool $peutVoirListeAvecDebiteur
     ): array {
 
         $criteria = $criteria ?? [];
@@ -494,10 +497,11 @@ class DaAfficherRepository extends EntityRepository
 
         // Appliquer TOUS les filtres ici
         $this->applyDynamicFilters($qb, "d", $criteria);
-        $this->applyAgencyServiceFilters($qb, "d", $criteria, $agenceServiceAutorises);
+        $this->applyAgencyServiceFilters($qb, "d", $criteria);
         $this->applyDateFilters($qb, "d", $criteria);
         // $this->applyFilterAppro($qb, "d", $estAppro, $estAdmin);
         $this->applyStatutsFilters($qb, "d", $criteria);
+        $this->conditionAgenceService($qb, "d", $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
 
         // -------------------------------------
         // 3. Restriction aux dernières versions
@@ -783,33 +787,8 @@ class DaAfficherRepository extends EntityRepository
         }
     }
 
-    private function applyAgencyServiceFilters($qb, string $qbLabel, array $criteria, array $agenceServiceAutorises)
+    private function applyAgencyServiceFilters($qb, string $qbLabel, array $criteria)
     {
-        // Condition sur les couples agences-services
-        $orX1 = $qb->expr()->orX();
-        $orX2 = $qb->expr()->orX();
-        foreach ($agenceServiceAutorises as $i => $tab) {
-            $orX1->add(
-                $qb->expr()->andX(
-                    $qb->expr()->eq("$qbLabel.agenceEmetteur", ':agEmetteur_' . $i),
-                    $qb->expr()->eq("$qbLabel.serviceEmetteur", ':servEmetteur_' . $i)
-                )
-            );
-            $qb->setParameter('agEmetteur_' . $i, $tab['agence_id']);
-            $qb->setParameter('servEmetteur_' . $i, $tab['service_id']);
-            $orX2->add(
-                $qb->expr()->andX(
-                    $qb->expr()->eq("$qbLabel.agenceDebiteur", ':agDebiteur_' . $i),
-                    $qb->expr()->eq("$qbLabel.serviceDebiteur", ':servDebiteur_' . $i)
-                )
-            );
-            $qb->setParameter('agDebiteur_' . $i, $tab['agence_id']);
-            $qb->setParameter('servDebiteur_' . $i, $tab['service_id']);
-        }
-        $qb
-            ->andWhere($orX1)
-            ->andWhere($orX2);
-
         if (!empty($criteria['agenceEmetteur'])) {
             $qb->andWhere("$qbLabel.agenceEmetteur = :agEmet")
                 ->setParameter('agEmet', $criteria['agenceEmetteur']);
@@ -830,6 +809,62 @@ class DaAfficherRepository extends EntityRepository
             $qb->andWhere("$qbLabel.serviceDebiteur = :serviceDebiteur")
                 ->setParameter('serviceDebiteur', $criteria['serviceDebiteur']);
         }
+    }
+
+    private function conditionAgenceService($queryBuilder, string $queryLabel, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, bool $peutVoirListeAvecDebiteur)
+    {
+        $ORX = $queryBuilder->expr()->orX();
+
+        // 1- Emetteur du DOM : agence et service de l'utilisateur
+        $ORX->add(
+            $queryBuilder->expr()->andX(
+                $queryBuilder->expr()->eq("$queryLabel.agenceEmetteur", ':agEmetteur'),
+                $queryBuilder->expr()->eq("$queryLabel.serviceEmetteur", ':servEmetteur')
+            )
+        );
+        $queryBuilder->setParameter('agEmetteur', $agenceIdUser);
+        $queryBuilder->setParameter('servEmetteur', $serviceIdUser);
+
+        // 2- Debiteur du DOM : agence et service de l'utilisateur
+        $ORX->add(
+            $queryBuilder->expr()->andX(
+                $queryBuilder->expr()->eq("$queryLabel.agenceDebiteur", ':agDebiteur'),
+                $queryBuilder->expr()->eq("$queryLabel.serviceDebiteur", ':servDebiteur')
+            )
+        );
+        $queryBuilder->setParameter('agDebiteur', $agenceIdUser);
+        $queryBuilder->setParameter('servDebiteur', $serviceIdUser);
+
+        // 3- Emetteur et Débiteur : agence et service autorisés du profil
+        if (!empty($agenceServiceAutorises)) {
+            $orX1 = $queryBuilder->expr()->orX(); // Pour émetteur
+            $orX2 = $peutVoirListeAvecDebiteur ? $queryBuilder->expr()->orX() : null; // Pour débiteur : n'autoriser que si le profil peut voir la liste avec le débiteur
+            foreach ($agenceServiceAutorises as $i => $tab) {
+                $orX1->add(
+                    $queryBuilder->expr()->andX(
+                        $queryBuilder->expr()->eq("$queryLabel.agenceEmetteur", ':agEmetteur_' . $i),
+                        $queryBuilder->expr()->eq("$queryLabel.serviceEmetteur", ':servEmetteur_' . $i)
+                    )
+                );
+                $queryBuilder->setParameter('agEmetteur_' . $i, $tab['agence_id']);
+                $queryBuilder->setParameter('servEmetteur_' . $i, $tab['service_id']);
+                if ($orX2) {
+                    $orX2->add(
+                        $queryBuilder->expr()->andX(
+                            $queryBuilder->expr()->eq("$queryLabel.agenceDebiteur", ':agDebiteur_' . $i),
+                            $queryBuilder->expr()->eq("$queryLabel.serviceDebiteur", ':servDebiteur_' . $i)
+                        )
+                    );
+                    $queryBuilder->setParameter('agDebiteur_' . $i, $tab['agence_id']);
+                    $queryBuilder->setParameter('servDebiteur_' . $i, $tab['service_id']);
+                }
+            }
+
+            $ORX->add($orX1);
+            if ($orX2) $ORX->add($orX2);
+        }
+
+        $queryBuilder->andWhere($ORX);
     }
 
     public function getNbrDaAfficherValider(string $numeroOr): int
@@ -885,7 +920,7 @@ class DaAfficherRepository extends EntityRepository
     }
 
 
-    public function findDerniereVersionDesDA(array $criteria, array $agenceServiceAutorises): array //liste_da
+    public function findDerniereVersionDesDA(array $criteria, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, bool $peutVoirListeAvecDebiteur): array
     {
         $qb = $this->createQueryBuilder('d');
 
@@ -900,11 +935,11 @@ class DaAfficherRepository extends EntityRepository
             ->setParameter('deleted', 0);
 
         $this->applyDynamicFilters($qb, 'd', $criteria);
-        $this->applyAgencyServiceFilters($qb, 'd', $criteria, $agenceServiceAutorises);
+        $this->applyAgencyServiceFilters($qb, 'd', $criteria);
         $this->applyDateFilters($qb, 'd', $criteria);
-
         // $this->applyFilterAppro($qb, 'd', $estAppro, $estAdmin);
         $this->applyStatutsFilters($qb, 'd', $criteria);
+        $this->conditionAgenceService($qb, "d", $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
 
         $qb->orderBy('d.dateDemande', 'DESC')
             ->addOrderBy('d.numeroFournisseur', 'DESC')
