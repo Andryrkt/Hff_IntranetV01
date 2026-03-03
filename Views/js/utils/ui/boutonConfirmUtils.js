@@ -91,24 +91,28 @@ function validateFormFields(form) {
     const errorElement = document.querySelector(`#error-${field.id}`);
     const fieldName = field.dataset.fieldName || field.name || field.id;
 
+    // Récupération du message personnalisé s'il existe
+    let errorMessage =
+      field.dataset.errorMessage ||
+      `Le champ "<span class="text-warning text-decoration-underline fw-bold">${fieldName}</span>" est obligatoire.`;
+
     const handleInvalidField = (message) => {
       isValid = false;
       if (!errors.some((e) => e.includes(fieldName))) {
         errors.push(message);
       }
       if (errorElement) {
-        errorElement.textContent = message;
+        errorElement.innerHTML = message; // Utilisation de innerHTML pour conserver le HTML
         errorElement.classList.add("text-danger");
       }
     };
 
     const handleValidField = () => {
       if (errorElement) {
-        errorElement.textContent = "";
+        errorElement.innerHTML = "";
+        errorElement.classList.remove("text-danger");
       }
     };
-
-    const errorMessage = `Le champ "<span class="text-warning text-decoration-underline fw-bold">${fieldName}</span>" est obligatoire`;
 
     if (field.type === "radio" || field.type === "checkbox") {
       const groupName = field.name;
