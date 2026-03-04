@@ -2,7 +2,6 @@
 
 namespace App\Service\security;
 
-use App\Entity\admin\utilisateur\Profil;
 use App\Service\UserData\UserDataService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -173,6 +172,14 @@ class SecurityService
     public function hasAccesRoute(string $route): bool
     {
         return $this->dataService->peutVoir($route);
+    }
+
+    /** 
+     * Retourne la liste de tous les agences et services
+     */
+    public function getAllAgenceServices(): array
+    {
+        return $this->dataService->getAllAgenceService();
     }
 
     /**

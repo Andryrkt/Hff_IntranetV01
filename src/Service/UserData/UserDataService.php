@@ -2,6 +2,8 @@
 
 namespace App\Service\UserData;
 
+use App\Entity\admin\Agence;
+use App\Entity\admin\AgenceService;
 use App\Entity\admin\ApplicationProfil;
 use App\Entity\admin\utilisateur\ApplicationProfilAgenceService;
 use App\Entity\admin\utilisateur\User;
@@ -19,6 +21,7 @@ class UserDataService
     public const SUFFIX_PERMISSIONS  = 'permissions';
     public const SUFFIX_AG_SERV_ID   = 'agence_service_id';
     public const SUFFIX_AG_SERV_CODE = 'agence_service_code';
+    public const SUFFIX_AG_SERV_ALL  = 'all_agence_service';
     public const SUFFIX_VERSION      = 'version';
     public const CACHE_KEY_PREFIX    = 'security.profil_';
 
@@ -33,6 +36,7 @@ class UserDataService
     private ?array $cachePagesProfilDonnees = null;
     private ?array $cacheAgServDonneesId = null;
     private ?array $cacheAgServDonneesCode = null;
+    private ?array $cacheAllAgServDonnees = null;
     private ?array $cacheRoutesIndex = null;
     private ?int $profilId = null;
 
@@ -333,6 +337,25 @@ class UserDataService
     // =========================================================================
 
     /**
+     * Retourne toutes les agences et services du profil, groupées par ID.
+     */
+    public function getAllAgenceService(): ?array
+    {
+        // 1. Cache mémoire
+        if ($this->cacheAllAgServDonnees !== null) {
+            return $this->cacheAllAgServDonnees;
+        }
+
+        // 2. Cache applicatif
+        $cle = $this->buildKey(0, self::SUFFIX_AG_SERV_ALL);
+
+        return $this->cacheAllAgServDonnees = $this->cache->get($cle, function (ItemInterface $item): array {
+            $item->expiresAfter(null);
+            return $this->calculerAllAgenceService();
+        });
+    }
+
+    /**
      * Écrase et reconstruit les agences et services groupés par ID.
      */
     public function ecraserAgenceServiceGroupById(string $codeApp, Profil $profil): void
@@ -556,6 +579,41 @@ class UserDataService
         }
 
         return $agenceServices;
+    }
+
+    /**
+     * Calcule tous les agences et services depuis la BDD.
+     * Retourne des tableaux de scalaires (sérialisables en cache).
+     */
+    public function calculerAllAgenceService(): array
+    {
+        $agenceServicesDonnees = [];
+
+        $agences = $this->em->getRepository(Agence::class)->findAll();
+
+        /** @var Agence $agence */
+        foreach ($agences as $agence) {
+            $agenceServices = $agence->getAgenceServices();
+
+            /** @var AgenceService $agenceService */
+            foreach ($agenceServices as $agenceService) {
+                $service = $agenceService->getService();
+
+                $key = $agenceService->getId();
+
+                $agenceServicesDonnees[$key] = [
+                    'id'              => $agenceService->getId(),
+                    'agence_id'       => $agence->getId(),
+                    'service_id'      => $service->getId(),
+                    'agence_code'     => $agence->getCodeAgence(),
+                    'agence_libelle'  => $agence->getLibelleAgence(),
+                    'service_code'    => $service->getCodeService(),
+                    'service_libelle' => $service->getLibelleService(),
+                ];
+            }
+        }
+
+        return $agenceServicesDonnees;
     }
 
     // =========================================================================
