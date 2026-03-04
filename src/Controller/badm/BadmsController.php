@@ -7,7 +7,6 @@ use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Controller\Controller;
 use App\Form\badm\BadmForm1Type;
-use App\Entity\admin\Application;
 use App\Entity\admin\utilisateur\User;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;

@@ -27,7 +27,7 @@ class DomApi extends Controller
     public function categoriefetch(int $id)
     {
         try {
-            $userInfo = $this->session->get('user_info');
+            $userInfo = $this->getSessionService()->get('user_info');
 
             if (!$userInfo) throw new \Exception('Utilisateur non trouvé');
 
