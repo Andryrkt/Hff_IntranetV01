@@ -48,6 +48,14 @@ class SecurityService
         return $this->routeCourrante;
     }
 
+    /**
+     * Get the value of dataService
+     */
+    public function getDataService(): UserDataService
+    {
+        return $this->dataService;
+    }
+
     // =========================================================================
     //  POINT D'ENTRÉE — appelé dans index.php avant le contrôleur
     // =========================================================================
@@ -157,26 +165,6 @@ class SecurityService
     {
         return $this->dataService->getPermissions($nomRoute ?? $this->routeCourrante)
             ?? $this->permissionsVides();
-    }
-
-    /** 
-     * Préchauffe les caches concernant:
-     *   - Les pages visibles du profil
-     *   - Les permissions sur tous les pages associées au profil 
-     */
-    public function warmupSecurityProfil(Profil $profil): int
-    {
-        return $this->dataService->warmupSecurityProfil($profil);
-    }
-
-    /** 
-     * Préchauffe les caches concernant:
-     *   - Les agences - services par application (avec comme clé l'ID du couple)
-     *   - Les agences - services par application (avec comme clé le code du couple)
-     */
-    public function warmupAgServProfil(Profil $profil): int
-    {
-        return $this->dataService->warmupAgServProfil($profil);
     }
 
     /** 

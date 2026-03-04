@@ -224,7 +224,7 @@ class UserDataService
      * Change la version du profil → toutes les clés de données précédentes
      * ne seront plus jamais lues (leurs clés contiennent l'ancienne version).
      */
-    private function invaliderVersion(int $profilId): void
+    public function invaliderVersion(int $profilId): void
     {
         $cleVersion = self::CACHE_KEY_PREFIX . $profilId . '.' . self::SUFFIX_VERSION;
         $this->cache->delete($cleVersion);
@@ -557,10 +557,50 @@ class UserDataService
 
         return $agenceServices;
     }
-    
+
     // =========================================================================
     //  LOGIQUE DE PRÉCHAUFFAGE
     // =========================================================================
+
+    // Supprimer physiquement toutes les clés security d'un profil
+    public function supprimerClesPhysiques(int $profilId, Profil $profil): void
+    {
+        $this->cache->delete($this->buildKey($profilId, self::SUFFIX_PAGES));
+
+        foreach ($profil->getRoutes() as $nomRoute) {
+            $this->cache->delete($this->buildKey($profilId, self::SUFFIX_PERMISSIONS, md5($nomRoute)));
+        }
+
+        foreach ($profil->getApplicationCodes() as $codeApp) {
+            $this->cache->delete($this->buildKey($profilId, self::SUFFIX_AG_SERV_ID,   md5($codeApp)));
+            $this->cache->delete($this->buildKey($profilId, self::SUFFIX_AG_SERV_CODE, md5($codeApp)));
+        }
+    }
+
+    // Reconstruire security SANS invalider
+    public function reconstruireSecurityProfil(Profil $profil): int
+    {
+        $this->ecraserPagesProfil($profil);
+
+        $routes = $profil->getRoutes();
+        foreach ($routes as $nomRoute) {
+            $this->ecraserPermissions($nomRoute, $profil);
+        }
+
+        return count($routes);
+    }
+
+    // Reconstruire ag-serv SANS invalider
+    public function reconstruireAgServProfil(Profil $profil): int
+    {
+        $codeApps = $profil->getApplicationCodes();
+        foreach ($codeApps as $codeApp) {
+            $this->ecraserAgenceServiceGroupById($codeApp, $profil);
+            $this->ecraserAgenceServiceGroupByCode($codeApp, $profil);
+        }
+
+        return 2 * count($codeApps);
+    }
 
     /**
      * Reconstruit les entrées de cache pour un profil donné.
@@ -569,28 +609,9 @@ class UserDataService
     public function warmupSecurityProfil(Profil $profil): int
     {
         $profilId = $profil->getId();
-        $routes = $profil->getRoutes();
-
-        // 1. Supprimer physiquement les anciennes clés (on connaît encore l'ancienne version)
-        // Pages
-        $this->cache->delete($this->buildKey($profilId, self::SUFFIX_PAGES));
-        // Permissions par route
-        foreach ($profil->getRoutes() as $nomRoute) {
-            $this->cache->delete($this->buildKey($profilId, self::SUFFIX_PERMISSIONS, md5($nomRoute)));
-        }
-
-        // 2. Changer la version → nouvelles clés pour les prochaines écritures
-        $this->invaliderCacheProfil($profilId);
-
-        // 3. Reconstruire (buildKey utilisera maintenant la nouvelle version)
-        // Pages
-        $this->ecraserPagesProfil($profil);
-        // Permissions par route
-        foreach ($routes as $nomRoute) {
-            $this->ecraserPermissions($nomRoute, $profil);
-        }
-
-        return count($routes);
+        $this->supprimerClesPhysiques($profilId, $profil);
+        $this->invaliderCacheProfil($profilId); // une seule fois
+        return $this->reconstruireSecurityProfil($profil);
     }
 
     /**
@@ -600,24 +621,13 @@ class UserDataService
     public function warmupAgServProfil(Profil $profil): int
     {
         $profilId = $profil->getId();
-        $codeApps = $profil->getApplicationCodes();
 
-        // 1. Supprimer physiquement les anciennes clés (on connaît encore l'ancienne version)
-        foreach ($codeApps as $codeApp) {
+        foreach ($profil->getApplicationCodes() as $codeApp) {
             $this->cache->delete($this->buildKey($profilId, self::SUFFIX_AG_SERV_ID,   md5($codeApp)));
             $this->cache->delete($this->buildKey($profilId, self::SUFFIX_AG_SERV_CODE, md5($codeApp)));
         }
 
-        // 2. Changer la version → nouvelles clés pour les prochaines écritures
-        $this->invaliderCacheProfil($profilId);
-
-        // 3. Reconstruire (buildKey utilisera maintenant la nouvelle version)
-        foreach ($codeApps as $codeApp) {
-            $this->ecraserAgenceServiceGroupById($codeApp, $profil);
-            $this->ecraserAgenceServiceGroupByCode($codeApp, $profil);
-        }
-
-        return 2 * count($codeApps);
+        return $this->reconstruireAgServProfil($profil);
     }
 
     // =========================================================================

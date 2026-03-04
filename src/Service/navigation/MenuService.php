@@ -59,7 +59,7 @@ class MenuService
      * Change la version du profil → toutes les clés de données précédentes
      * ne seront plus jamais lues (leurs clés contiennent l'ancienne version).
      */
-    private function invaliderVersion(int $profilId): void
+    public function invaliderVersion(int $profilId): void
     {
         $cleVersion = self::CACHE_KEY_PREFIX . $profilId . '.' . self::SUFFIX_VERSION;
         $this->cache->delete($cleVersion);
@@ -163,6 +163,20 @@ class MenuService
     //  LOGIQUE DE PRÉCHAUFFAGE
     // =========================================================================
 
+    // Supprimer physiquement les clés menu
+    public function supprimerClesPhysiques(int $profilId): void
+    {
+        $this->cache->delete($this->buildKey($profilId, self::SUFFIX_PRINCIPAL));
+        $this->cache->delete($this->buildKey($profilId, self::SUFFIX_ADMIN));
+    }
+
+    // Reconstruire SANS invalider
+    public function reconstruireMenuProfil(int $profilId): void
+    {
+        $this->ecraserMenuStructure($profilId);
+        $this->ecraserAdminMenuStructure($profilId);
+    }
+
     /** 
      * Préchauffe les caches concernant:
      *   - Les menus sur la page d'accueil (qui est utilisé dans le fil d'Ariane)
@@ -170,18 +184,12 @@ class MenuService
      */
     public function warmupMenuProfil(int $profilId): void
     {
-        // 1. Supprimer physiquement avec l'ancienne version
-        $this->cache->delete($this->buildKey($profilId, self::SUFFIX_PRINCIPAL));
-        $this->cache->delete($this->buildKey($profilId, self::SUFFIX_ADMIN));
+        $this->supprimerClesPhysiques($profilId);
 
         $this->userDataService->setProfilId($profilId);
 
-        // 2. Changer la version
-        $this->invaliderCacheProfil($profilId);
-
-        // 3. Reconstruire (buildKey utilisera maintenant la nouvelle version)
-        $this->ecraserMenuStructure($profilId);
-        $this->ecraserAdminMenuStructure($profilId);
+        $this->invaliderVersion($profilId);
+        $this->reconstruireMenuProfil($profilId);
     }
 
     // =========================================================================

@@ -596,14 +596,20 @@ class Controller
      */
     protected function resetAndPasteCache(Profil $profil)
     {
-        // 1. Pages visibles et permissions
-        $this->getSecurityService()->warmupSecurityProfil($profil);
+        $profilId = $profil->getId();
 
-        // 2. Menu principal + menu d'Admin
-        $this->getMenuService()->warmupMenuProfil($profil->getId());
+        // 1. Suppression physique de tout avec les versions actuelles
+        $this->getSecurityService()->getDataService()->supprimerClesPhysiques($profilId, $profil);
+        $this->getMenuService()->supprimerClesPhysiques($profilId);
 
-        // 3. Agences - Services pour une application
-        $this->getSecurityService()->warmupAgServProfil($profil);
+        // 2. Invalider les deux versions — une seule fois chacune
+        $this->getSecurityService()->getDataService()->invaliderVersion($profilId);
+        $this->getMenuService()->invaliderVersion($profilId);
+
+        // 3. Reconstruire avec les nouvelles versions
+        $this->getSecurityService()->getDataService()->reconstruireSecurityProfil($profil);
+        $this->getMenuService()->reconstruireMenuProfil($profilId);
+        $this->getSecurityService()->getDataService()->reconstruireAgServProfil($profil);
     }
 
     /**
