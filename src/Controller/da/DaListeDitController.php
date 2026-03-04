@@ -68,16 +68,17 @@ class DaListeDitController extends Controller
 
         // Agences Services autorisés sur le DIT
         $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DIT);
+        $allAgenceServices = $this->getSecurityService()->getAllAgenceServices();
 
         //création et initialisation du formulaire de la recherche
         $form = $this->getFormFactory()->createBuilder(DitSearchType::class, $ditSearch, [
             'method' => 'GET',
-            'agenceServiceAutorises' => $agenceServiceAutorises
+            'allAgenceServices' => $allAgenceServices
         ])->getForm();
 
         $ditSearch = $this->recupDataFormulaireRecherhce($form, $request);
 
-        $this->gererAgenceService($ditSearch, $agenceServiceAutorises);
+        $this->gererAgenceService($ditSearch, $allAgenceServices);
 
         //transformer l'objet ditSearch en tableau
         $criteriaTab = $ditSearch->toArray();
@@ -107,21 +108,21 @@ class DaListeDitController extends Controller
         ]);
     }
 
-    private function gererAgenceService(DitSearch $ditSearch, array $agenceServiceAutorises): void
+    private function gererAgenceService(DitSearch $ditSearch, array $allAgenceServices): void
     {
         // Changer le serviceEmetteur
         if ($ditSearch->getServiceEmetteur()) {
             $ligneId = $ditSearch->getServiceEmetteur();
-            if ($ligneId && isset($agenceServiceAutorises[$ligneId])) {
-                $ditSearch->setServiceEmetteur($agenceServiceAutorises[$ligneId]['service_id']);
+            if ($ligneId && isset($allAgenceServices[$ligneId])) {
+                $ditSearch->setServiceEmetteur($allAgenceServices[$ligneId]['service_id']);
             }
         }
 
         // Changer le serviceDebiteur
         if ($ditSearch->getServiceDebiteur()) {
             $ligneId = $ditSearch->getServiceDebiteur();
-            if ($ligneId && isset($agenceServiceAutorises[$ligneId])) {
-                $ditSearch->setServiceDebiteur($agenceServiceAutorises[$ligneId]['service_id']);
+            if ($ligneId && isset($allAgenceServices[$ligneId])) {
+                $ditSearch->setServiceDebiteur($allAgenceServices[$ligneId]['service_id']);
             }
         }
     }
