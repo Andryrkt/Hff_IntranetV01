@@ -14,6 +14,7 @@ use App\Service\autres\AutoIncDecService;
 use App\Repository\da\DaAfficherRepository;
 use App\Repository\da\DemandeApproRepository;
 use App\Dto\Da\ListeCdeFrn\DaSoumissionFacBlDto;
+use App\Entity\ddp\DemandePaiement;
 use App\Model\da\DaSoumissionFacBlModel;
 use App\Repository\da\DaSoumissionFacBlRepository;
 use App\Service\historiqueOperation\HistoriqueOperationService;
@@ -110,16 +111,24 @@ class DaSoumissionFacBlFactory
         }
 
         $livraisonSoumis = $this->daSoumissionFacBlRepository->getAllLivraisonSoumis($numDa, $numCde);
-        
+
+        $statutBaps = $this->daSoumissionFacBlRepository->getStatutBap($numDa, $numCde);
+        $demandePaiementRepository = $this->em->getRepository(DemandePaiement::class);
+        $statutDdps  = $demandePaiementRepository->getStatutDdpSelonNumCde($numCde);
+        $nombreLivraisonSoumis = $this->daSoumissionFacBlRepository->getNombreLivraisonSoumis($numDa, $numCde);
+        if (!empty($livraisonSoumis) && !in_array('A transmettre', $statutBaps) && !in_array('Refusé', $statutDdps) && $nombreLivraisonSoumis === count($infosLivraisons)) {
+            $message = "Les BAP sont toutes transmise et validé ou en cours de validation.";
+            $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn');
+        }
+
         foreach ($livraisonSoumis as $numLiv) {
             unset($infosLivraisons[$numLiv]); // exclure les livraisons déjà soumises
         }
 
-
-        if (empty($infosLivraisons)) {
-            $message = "La commande n° <b>$numCde</b> n'a plus de livraison à soumettre. Toutes les livraisons associées ont déjà été soumises.";
-            $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn');
-        }
+        // if (empty($infosLivraisons)) {
+        //     $message = "La commande n° <b>$numCde</b> n'a plus de livraison à soumettre. Toutes les livraisons associées ont déjà été soumises.";
+        //     $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn');
+        // }
 
         return $infosLivraisons;
     }

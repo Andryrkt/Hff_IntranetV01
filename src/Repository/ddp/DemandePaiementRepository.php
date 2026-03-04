@@ -190,4 +190,18 @@ class DemandePaiementRepository extends EntityRepository
             ->getResult()
         ;
     }
+
+    public function getStatutDdpSelonNumCde(string $numCde): array 
+    {
+        $queryBuilder =  $this->createQueryBuilder('d')
+            ->select('d.statut')
+            ->where('d.numeroCommande LIKE :numero')
+            ->setParameter('numero', '%' . $numCde . '%')
+            ->orderBy('d.numeroDdp', 'ASC');
+        
+
+        return $queryBuilder->getQuery()
+            ->getSingleColumnResult()
+        ;
+    }
 }
