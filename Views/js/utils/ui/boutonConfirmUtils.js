@@ -43,6 +43,7 @@ export function setupConfirmationButtons() {
           return;
         }
       } catch (error) {
+        if (error === "CANCELLED") return;
         console.error(
           "Erreur lors du chargement des validations spécifiques:",
           error,

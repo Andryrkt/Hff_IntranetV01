@@ -26,6 +26,8 @@ use App\Controller\Traits\PdfConversionTrait;
 use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use App\Constants\da\ddp\BonApayerConstants;
 use App\Dto\Da\ListeCdeFrn\DaSoumissionFacBlDto;
 use App\Repository\da\DaSoumissionFacBlRepository;
 use App\Service\genererPdf\bap\GenererPdfBonAPayer;
@@ -97,6 +99,21 @@ class DaSoumissionFacBlController extends Controller
         ]);
     }
 
+    /**
+     * @Route("/check-num-liv-exists/{numLiv}", name="da_check_num_liv_exists")
+     */
+    public function checkNumLivExists(string $numLiv): JsonResponse
+    {
+        $this->verifierSessionUtilisateur();
+
+        $exists = $this->daSoumissionFacBlRepository->findOneBy([
+            'numLiv' => $numLiv,
+            'statutBap' => BonApayerConstants::STATUT_A_TRANSMETTERE
+        ]);
+
+        return new JsonResponse(['exists' => ($exists !== null)]);
+    }
+
 
     /**
      * permet de faire le rtraitement du formulaire
@@ -120,6 +137,17 @@ class DaSoumissionFacBlController extends Controller
             $numLiv = $dto->numLiv;
 
             if ($this->verifierConditionDeBlocage($dto)) {
+                // Suppression de l'ancienne soumission si elle existe déjà avec le statut 'A transmettre'
+                $oldSoumission = $this->daSoumissionFacBlRepository->findOneBy([
+                    'numLiv' => $numLiv,
+                    'statutBap' => BonApayerConstants::STATUT_A_TRANSMETTERE
+                ]);
+
+                if ($oldSoumission) {
+                    $this->getEntityManager()->remove($oldSoumission);
+                    $this->getEntityManager()->flush();
+                }
+
                 // Traitement du fichier
                 [$nomAvecCheminPdfFusionner, $nomPdfFusionner] = $this->traitementDeFichier($form, $dto);
 

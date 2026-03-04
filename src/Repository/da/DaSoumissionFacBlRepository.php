@@ -40,24 +40,34 @@ class DaSoumissionFacBlRepository extends EntityRepository
 
     public function getAllLivraisonSoumis(string $numDa, string $numCde)
     {
-        return array_filter($this->createQueryBuilder('dabc')
-            ->select('dabc.numLiv')
-            ->leftJoin(
-                DemandePaiement::class,
-                'ddp',
-                'WITH',
-                "JSON_VALUE(ddp.numeroCommande, '$[0]') = dabc.numeroCde"
-            )
-            ->where('dabc.numeroDemandeAppro = :numDa')
-            ->andWhere('dabc.numeroCde = :numCde')
-            ->andWhere('ddp.statut != :statutRefuse')
-            ->andWhere('dabc.statutBap != :statutBapATransmettre')
-            ->setParameter('numDa', $numDa)
-            ->setParameter('numCde', $numCde)
-            ->setParameter('statutRefuse', 'Refusé')
-            ->setParameter('statutBapATransmettre', 'A transmettre')
-            ->getQuery()
-            ->getSingleColumnResult());
+        $conn = $this->getEntityManager()->getConnection();
+
+        $sql = "
+            SELECT dabc.numero_livraison
+            FROM da_soumission_facture_bl dabc
+            LEFT JOIN demande_paiement ddp ON JSON_VALUE(ddp.numero_commande, '$[0]') = dabc.numero_cde
+            WHERE dabc.numero_demande_appro = :numDa
+              AND dabc.numero_cde = :numCde
+              AND (ddp.statut != :statutRefuse OR ddp.statut IS NULL)
+              AND dabc.statut_bap != :statutBapATransmettre
+        ";
+
+        $stmt = $conn->prepare($sql);
+        $result = $stmt->executeStatement([
+            'numDa' => $numDa,
+            'numCde' => $numCde,
+            'statutRefuse' => 'Refusé',
+            'statutBapATransmettre' => 'A transmettre'
+        ]);
+
+        $rows = $conn->fetchAllAssociative($sql, [
+            'numDa' => $numDa,
+            'numCde' => $numCde,
+            'statutRefuse' => 'Refusé',
+            'statutBapATransmettre' => 'A transmettre'
+        ]);
+
+        return array_filter(array_column($rows, 'numero_livraison'));
     }
 
     public function getNombreLivraisonSoumis(string $numDa, string $numCde): ?int

@@ -34,6 +34,9 @@ export async function validateSpecificForm(form, formSelector) {
     case "demande-paiement-da-form":
       return validateDemandePaiementDaForm(form);
 
+    case "da-soumission-fac-bl":
+      return validateDaSoumissionFacBlForm(form);
+
     default:
       // Validation par défaut si le formulaire n'est pas reconnu
       return { isValid: true, message: "" };
@@ -275,6 +278,46 @@ async function checkStock(produitId) {
     console.error("Erreur lors de la vérification du stock:", error);
     return 0;
   }
+}
+
+async function validateDaSoumissionFacBlForm(form) {
+  const numLivField =
+    form.querySelector("#da_soumission_fac_bl_numLiv") ||
+    form.querySelector('[name="da_soumission_fac_bl[numLiv]"]');
+
+  if (numLivField && numLivField.value) {
+    const numLiv = numLivField.value;
+    try {
+      const response = await fetch(
+        `/demande-appro/check-num-liv-exists/${numLiv}`,
+      );
+      const data = await response.json();
+      if (data.exists) {
+        const result = await Swal.fire({
+          title: "Livraison déjà soumise",
+          text: `Le numéro de livraison ${numLiv} existe déjà avec un BAP'. Voulez-vous quand même resoumettre ?`,
+          icon: "question",
+          showCancelButton: true,
+          confirmButtonColor: "#fbbb01",
+          cancelButtonColor: "#d33",
+          confirmButtonText: "Oui, resoumettre",
+          cancelButtonText: "Non, annuler",
+        });
+
+        if (!result.isConfirmed) {
+          // On jette une exception pour arrêter silencieusement le processus dans boutonConfirmUtils.js
+          throw "CANCELLED";
+        }
+      }
+    } catch (error) {
+      if (error === "CANCELLED") throw error;
+      console.error(
+        "Erreur lors de la vérification du numéro de livraison:",
+        error,
+      );
+    }
+  }
+  return { isValid: true, message: "" };
 }
 
 // Export des fonctions individuelles si besoin de les utiliser séparément
