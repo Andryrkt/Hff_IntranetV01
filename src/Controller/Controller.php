@@ -596,20 +596,31 @@ class Controller
      */
     protected function resetAndPasteCache(Profil $profil)
     {
-        $profilId = $profil->getId();
+        $profilId      = $profil->getId();
+        $dataService   = $this->getSecurityService()->getDataService();
+        $menuService   = $this->getMenuService();
 
-        // 1. Suppression physique de tout avec les versions actuelles
-        $this->getSecurityService()->getDataService()->supprimerClesPhysiques($profilId, $profil);
-        $this->getMenuService()->supprimerClesPhysiques($profilId);
+        // Sauvegarder le profilId de l'admin connecté
+        $profilIdAdmin = $dataService->getProfilId();
 
-        // 2. Invalider les deux versions — une seule fois chacune
-        $this->getSecurityService()->getDataService()->invaliderVersion($profilId);
-        $this->getMenuService()->invaliderVersion($profilId);
+        // 1. Suppression physique
+        $dataService->supprimerClesPhysiques($profilId, $profil);
+        $menuService->supprimerClesPhysiques($profilId);
 
-        // 3. Reconstruire avec les nouvelles versions
-        $this->getSecurityService()->getDataService()->reconstruireSecurityProfil($profil);
-        $this->getMenuService()->reconstruireMenuProfil($profilId);
-        $this->getSecurityService()->getDataService()->reconstruireAgServProfil($profil);
+        // 2. Invalider les deux versions
+        $dataService->invaliderVersion($profilId);
+        $menuService->invaliderVersion($profilId);
+
+        // 3. Basculer sur le profil à reconstruire
+        $dataService->setProfilId($profilId);
+
+        // 4. Reconstruire avec les nouvelles versions
+        $dataService->reconstruireSecurityProfil($profil);
+        $menuService->reconstruireMenuProfil($profilId);
+        $dataService->reconstruireAgServProfil($profil);
+
+        // 5. Restaurer le profilId de l'admin connecté
+        $dataService->setProfilId($profilIdAdmin);
     }
 
     /**
