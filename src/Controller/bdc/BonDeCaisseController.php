@@ -49,11 +49,12 @@ class BonDeCaisseController extends Controller
 
         // Agences Services autorisés sur le Bon de Caisse
         $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_BON_DE_CAISSE);
+        $allAgenceServices = $this->getSecurityService()->getAllAgenceServices();
 
         $form = $this->getFormFactory()->createBuilder(BonDeCaisseType::class, $bonCaisseSearch, [
             'method' => 'GET',
             'em' => $this->getEntityManager(),
-            'agenceServiceAutorises' => $agenceServiceAutorises
+            'allAgenceServices' => $allAgenceServices
         ])->getForm();
 
         $form->handleRequest($request);
@@ -68,7 +69,7 @@ class BonDeCaisseController extends Controller
             }
         }
 
-        $this->gererAgenceService($bonCaisseSearch, $agenceServiceAutorises);
+        $this->gererAgenceService($bonCaisseSearch, $allAgenceServices);
 
         $criteria = $bonCaisseSearch->toArray();
         $this->getSessionService()->set('bon_caisse_search_criteria', $criteria);
@@ -197,21 +198,21 @@ class BonDeCaisseController extends Controller
         (new ExcelService())->createSpreadsheet($data);
     }
 
-    private function gererAgenceService(BonDeCaisseDto $bonDeCaisseDto, array $agenceServiceAutorises): void
+    private function gererAgenceService(BonDeCaisseDto $bonDeCaisseDto, array $allAgenceServices): void
     {
         // Changer le serviceEmetteur
         if ($bonDeCaisseDto->serviceEmetteur) {
             $ligneId = $bonDeCaisseDto->serviceEmetteur;
-            if ($ligneId && isset($agenceServiceAutorises[$ligneId])) {
-                $bonDeCaisseDto->serviceEmetteur = $agenceServiceAutorises[$ligneId]['service_code'];
+            if ($ligneId && isset($allAgenceServices[$ligneId])) {
+                $bonDeCaisseDto->serviceEmetteur = $allAgenceServices[$ligneId]['service_code'];
             }
         }
 
         // Changer le serviceDebiteur
         if ($bonDeCaisseDto->serviceDebiteur) {
             $ligneId = $bonDeCaisseDto->serviceDebiteur;
-            if ($ligneId && isset($agenceServiceAutorises[$ligneId])) {
-                $bonDeCaisseDto->serviceDebiteur = $agenceServiceAutorises[$ligneId]['service_code'];
+            if ($ligneId && isset($allAgenceServices[$ligneId])) {
+                $bonDeCaisseDto->serviceDebiteur = $allAgenceServices[$ligneId]['service_code'];
             }
         }
     }

@@ -32,7 +32,7 @@ class BonDeCaisseType extends AbstractType
             throw new \InvalidArgumentException('EntityManager is required');
         }
 
-        $choices = $this->prepareAgenceServiceChoices($options['agenceServiceAutorises'], false);
+        $choices = $this->prepareAgenceServiceChoices($options['allAgenceServices'], false);
 
         $agenceChoices = $choices['agenceChoices'];
         $serviceChoices = $choices['serviceChoices'];
@@ -111,7 +111,7 @@ class BonDeCaisseType extends AbstractType
                 'choices'     => $serviceChoices,
                 'choice_label' => function ($value) use ($options) {
                     // Retrouver le bon item et afficher service_code . ' ' . service_libelle
-                    $item = $options['agenceServiceAutorises'][$value];
+                    $item = $options['allAgenceServices'][$value];
                     return $item['service_code'] . ' ' . $item['service_libelle'];
                 },
                 'choice_attr' => function ($val) use ($serviceAttr) {
@@ -133,7 +133,7 @@ class BonDeCaisseType extends AbstractType
                 'choices'     => $serviceChoices,
                 'choice_label' => function ($value) use ($options) {
                     // Retrouver le bon item et afficher service_code . ' ' . service_libelle
-                    $item = $options['agenceServiceAutorises'][$value];
+                    $item = $options['allAgenceServices'][$value];
                     return $item['service_code'] . ' ' . $item['service_libelle'];
                 },
                 'choice_attr' => function ($val) use ($serviceAttr) {
@@ -154,7 +154,7 @@ class BonDeCaisseType extends AbstractType
         ]);
 
         // Définir l'option 'em' pour permettre de passer l'EntityManager
-        $resolver->setDefined(['em', 'agenceServiceAutorises']);
+        $resolver->setDefined(['em', 'allAgenceServices']);
         $resolver->setAllowedTypes('em', ['null', EntityManagerInterface::class]);
     }
 
