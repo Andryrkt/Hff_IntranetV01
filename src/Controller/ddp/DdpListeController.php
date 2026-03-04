@@ -38,7 +38,7 @@ class DdpListeController extends Controller
 
         $form = $this->getFormFactory()->createBuilder(DdpSearchType::class, $this->ddpSearch, [
             'method' => 'GET',
-            'agenceServiceAutorises' => $agenceServiceAutorises
+            'allAgenceServices' => $this->getSecurityService()->getAllAgenceServices()
         ])->getForm();
         $form->handleRequest($request);
 

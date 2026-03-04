@@ -19,7 +19,7 @@ class DdpSearchType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $choices = $this->prepareAgenceServiceChoices($options['agenceServiceAutorises'], false);
+        $choices = $this->prepareAgenceServiceChoices($options['allAgenceServices'], false);
 
         $agenceChoices = $choices['agenceChoices'];
         $serviceChoices = $choices['serviceChoices'];
@@ -41,7 +41,7 @@ class DdpSearchType extends AbstractType
                 'choices'     => $serviceChoices,
                 'choice_label' => function ($value) use ($options) {
                     // Retrouver le bon item et afficher service_code . ' ' . service_libelle
-                    $item = $options['agenceServiceAutorises'][$value];
+                    $item = $options['allAgenceServices'][$value];
                     return $item['service_code'] . ' ' . $item['service_libelle'];
                 },
                 'choice_attr' => function ($val) use ($serviceAttr) {
@@ -112,7 +112,7 @@ class DdpSearchType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class'             => DdpSearch::class,
-            'agenceServiceAutorises' => [],
+            'allAgenceServices' => [],
         ]);
     }
 }
