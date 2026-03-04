@@ -52,6 +52,8 @@ class ProfilController extends Controller
             $this->getEntityManager()->persist($profil);
             $this->getEntityManager()->flush();
 
+            $this->resetAndPasteCache($profil);
+
             $this->redirectToRoute("profil_index");
         }
 
@@ -114,6 +116,8 @@ class ProfilController extends Controller
 
             $em->persist($profil);
             $em->flush();
+
+            $this->resetAndPasteCache($profil);
 
             $this->redirectToRoute("profil_index");
         }

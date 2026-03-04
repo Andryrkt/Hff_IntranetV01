@@ -36,12 +36,12 @@ class ApplicationProfil
     private $profil;
 
     /**
-     * @ORM\OneToMany(targetEntity=ApplicationProfilAgenceService::class, mappedBy="applicationProfil", cascade={"persist"})
+     * @ORM\OneToMany(targetEntity=ApplicationProfilAgenceService::class, mappedBy="applicationProfil", cascade={"persist", "remove"}, orphanRemoval=true)
      */
     private Collection $liaisonsAgenceService;
 
     /**
-     * @ORM\OneToMany(targetEntity=ApplicationProfilPage::class, mappedBy="applicationProfil", cascade={"persist"})
+     * @ORM\OneToMany(targetEntity=ApplicationProfilPage::class, mappedBy="applicationProfil", cascade={"persist", "remove"}, orphanRemoval=true)
      */
     private Collection $liaisonsPage;
 
