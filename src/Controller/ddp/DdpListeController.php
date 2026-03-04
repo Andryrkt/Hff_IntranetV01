@@ -35,10 +35,11 @@ class DdpListeController extends Controller
     {
         // Agences Services autorisés sur le DDP
         $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DDP);
+        $allAgenceServices = $this->getSecurityService()->getAllAgenceServices();
 
         $form = $this->getFormFactory()->createBuilder(DdpSearchType::class, $this->ddpSearch, [
             'method' => 'GET',
-            'allAgenceServices' => $this->getSecurityService()->getAllAgenceServices()
+            'allAgenceServices' => $allAgenceServices
         ])->getForm();
         $form->handleRequest($request);
 
@@ -46,7 +47,7 @@ class DdpListeController extends Controller
             $this->ddpSearch =  $form->getdata();
         }
 
-        $this->gererAgenceService($this->ddpSearch, $agenceServiceAutorises);
+        $this->gererAgenceService($this->ddpSearch, $allAgenceServices);
 
         // Agence et service par défaut
         $codeAgence = $this->getSecurityService()->getCodeAgenceUser();
@@ -68,13 +69,13 @@ class DdpListeController extends Controller
         ]);
     }
 
-    private function gererAgenceService(DdpSearch $ddpSearch, array $agenceServiceAutorises): void
+    private function gererAgenceService(DdpSearch $ddpSearch, array $allAgenceServices): void
     {
         // Changer le serviceDebiteur
         if ($ddpSearch->getService()) {
             $ligneId = $ddpSearch->getService();
-            if ($ligneId && isset($agenceServiceAutorises[$ligneId])) {
-                $ddpSearch->setService($agenceServiceAutorises[$ligneId]['service_code']);
+            if ($ligneId && isset($allAgenceServices[$ligneId])) {
+                $ddpSearch->setService($allAgenceServices[$ligneId]['service_code']);
             }
         }
     }
