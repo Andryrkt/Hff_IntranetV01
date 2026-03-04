@@ -44,14 +44,18 @@
 					</div>
 					<div class="mb-3">
 						{% if pagesVide %}
-							<div class="alert alert-warning">
-								<i class="fas fa-exclamation-triangle"></i>
-								Aucune page n'est encore liée à l'application
-								<b>{{ codeApp }}
-									-
-									{{ nomApp }}</b>.
-								<a href="{{ urlAppEdit }}" class="ms-2 btn btn-sm btn-warning">
-									<i class="fas fa-edit"></i>
+							<div class="alert alert-warning d-flex align-items-center">
+								<i class="fas fa-triangle-exclamation fs-4 me-3"></i>
+								<div>
+									<strong>Aucune page associée</strong><br>
+									L’application
+									<b>{{ codeApp }}
+										-
+										{{ nomApp }}</b>
+									ne possède actuellement aucune page liée.
+								</div>
+								<a href="{{ urlAppEdit }}" class="ms-auto btn btn-sm btn-warning">
+									<i class="fas fa-gear me-1"></i>
 									Configurer les pages
 								</a>
 							</div>
@@ -59,6 +63,21 @@
 								{{ form_row(form.lignes) }}
 							</div>
 						{% else %}
+							<div class="alert alert-info d-flex align-items-center">
+								<i class="fas fa-circle-info fs-4 me-3"></i>
+								<div>
+									<strong>Page manquante ?</strong><br>
+									Une page semble manquer pour l’application
+									<b>{{ codeApp }}
+										-
+										{{ nomApp }}</b>
+									?
+								</div>
+								<a href="{{ urlAppEdit }}" class="ms-auto btn btn-sm btn-info">
+									<i class="fas fa-gear me-1"></i>
+									Vérifier la configuration
+								</a>
+							</div>
 							<div class="table-responsive">
 								<table class="table table-hover table-bordered align-middle mb-0" id="tableau-permissions">
 									<thead class="table-dark align-middle">
