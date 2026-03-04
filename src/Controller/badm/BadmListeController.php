@@ -37,7 +37,7 @@ class BadmListeController extends Controller
 
         $form = $this->getFormFactory()->createBuilder(BadmSearchType::class, $badmSearch, [
             'method' => 'GET',
-            'agenceServiceAutorises' => $agenceServiceAutorises
+            'allAgenceServices' => $this->getSecurityService()->getAllAgenceServices()
         ])->getForm();
 
         $form->handleRequest($request);

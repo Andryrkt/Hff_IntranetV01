@@ -31,7 +31,7 @@ class BadmSearchType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $choices = $this->prepareAgenceServiceChoices($options['agenceServiceAutorises']);
+        $choices = $this->prepareAgenceServiceChoices($options['allAgenceServices']);
 
         $agenceChoices = $choices['agenceChoices'];
         $serviceChoices = $choices['serviceChoices'];
@@ -94,7 +94,7 @@ class BadmSearchType extends AbstractType
                 'choices'     => $serviceChoices,
                 'choice_label' => function ($value) use ($options) {
                     // Retrouver le bon item et afficher service_code . ' ' . service_libelle
-                    $item = $options['agenceServiceAutorises'][$value];
+                    $item = $options['allAgenceServices'][$value];
                     return $item['service_code'] . ' ' . $item['service_libelle'];
                 },
                 'choice_attr' => function ($val) use ($serviceAttr) {
@@ -116,7 +116,7 @@ class BadmSearchType extends AbstractType
                 'choices'     => $serviceChoices,
                 'choice_label' => function ($value) use ($options) {
                     // Retrouver le bon item et afficher service_code . ' ' . service_libelle
-                    $item = $options['agenceServiceAutorises'][$value];
+                    $item = $options['allAgenceServices'][$value];
                     return $item['service_code'] . ' ' . $item['service_libelle'];
                 },
                 'choice_attr' => function ($val) use ($serviceAttr) {
@@ -130,7 +130,7 @@ class BadmSearchType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class'             => BadmSearch::class,
-            'agenceServiceAutorises' => [],
+            'allAgenceServices' => [],
         ]);
     }
 }
