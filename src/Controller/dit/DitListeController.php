@@ -57,7 +57,7 @@ class DitListeController extends Controller
         //création et initialisation du formulaire de la recherche
         $form = $this->getFormFactory()->createBuilder(DitSearchType::class, $ditSearch, [
             'method' => 'GET',
-            'agenceServiceAutorises' => $agenceServiceAutorises
+            'allAgenceServices' => $this->getSecurityService()->getAllAgenceServices()
         ])->getForm();
 
         $form->handleRequest($request);
