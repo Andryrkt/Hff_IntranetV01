@@ -34,10 +34,11 @@ class BadmListeController extends Controller
 
         // Agences Services autorisés sur le BADM
         $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_BADM);
+        $allAgenceServices = $this->getSecurityService()->getAllAgenceServices();
 
         $form = $this->getFormFactory()->createBuilder(BadmSearchType::class, $badmSearch, [
             'method' => 'GET',
-            'allAgenceServices' => $this->getSecurityService()->getAllAgenceServices()
+            'allAgenceServices' => $allAgenceServices
         ])->getForm();
 
         $form->handleRequest($request);
@@ -47,7 +48,7 @@ class BadmListeController extends Controller
             $this->rechercherSurNumSerieParc($form, $badmSearch);
         }
 
-        $this->gererAgenceService($badmSearch, $agenceServiceAutorises);
+        $this->gererAgenceService($badmSearch, $allAgenceServices);
 
         $criteria = [];
         //transformer l'objet ditSearch en tableau
@@ -162,9 +163,11 @@ class BadmListeController extends Controller
         $this->initialisation($badmSearch, $this->getEntityManager());
 
         $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_BADM);
+        $allAgenceServices = $this->getSecurityService()->getAllAgenceServices();
+
         $form = $this->getFormFactory()->createBuilder(BadmSearchType::class, $badmSearch, [
             'method' => 'GET',
-            'agenceServiceAutorises' => $agenceServiceAutorises
+            'allAgenceServices' => $allAgenceServices
         ])->getForm();
 
         $form->handleRequest($request);
@@ -173,6 +176,8 @@ class BadmListeController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             $this->rechercherSurNumSerieParc($form, $badmSearch);
         }
+
+        $this->gererAgenceService($badmSearch, $allAgenceServices);
 
         $criteria = [];
         //transformer l'objet ditSearch en tableau
@@ -260,21 +265,21 @@ class BadmListeController extends Controller
         }
     }
 
-    private function gererAgenceService(BadmSearch $badmSearch, array $agenceServiceAutorises): void
+    private function gererAgenceService(BadmSearch $badmSearch, array $allAgenceServices): void
     {
         // Changer le serviceEmetteur
         if ($badmSearch->getServiceEmetteur()) {
             $ligneId = $badmSearch->getServiceEmetteur();
-            if ($ligneId && isset($agenceServiceAutorises[$ligneId])) {
-                $badmSearch->setServiceEmetteur($agenceServiceAutorises[$ligneId]['service_id']);
+            if ($ligneId && isset($allAgenceServices[$ligneId])) {
+                $badmSearch->setServiceEmetteur($allAgenceServices[$ligneId]['service_id']);
             }
         }
 
         // Changer le serviceDebiteur
         if ($badmSearch->getServiceDebiteur()) {
             $ligneId = $badmSearch->getServiceDebiteur();
-            if ($ligneId && isset($agenceServiceAutorises[$ligneId])) {
-                $badmSearch->setServiceDebiteur($agenceServiceAutorises[$ligneId]['service_id']);
+            if ($ligneId && isset($allAgenceServices[$ligneId])) {
+                $badmSearch->setServiceDebiteur($allAgenceServices[$ligneId]['service_id']);
             }
         }
     }
