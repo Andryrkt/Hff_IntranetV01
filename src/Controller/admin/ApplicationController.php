@@ -85,6 +85,7 @@ class ApplicationController extends Controller
             'admin/application/edit.html.twig',
             [
                 'form' => $form->createView(),
+                'urlAppNew' => $this->getUrlGenerator()->generate('application_new'),
             ]
         );
     }

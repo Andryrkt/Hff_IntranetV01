@@ -33,7 +33,9 @@ class ApplicationType extends AbstractType
             ->add('pages', EntityType::class, [
                 'label'    => 'Pages associées',
                 'class'    => PageHff::class,
-                'choice_label' => 'nom', // ou un autre champ de PageHff que tu veux afficher
+                'choice_label' => function (PageHff $page): string {
+                    return $page->getNomRoute() . ' : ' . $page->getNom();
+                },
                 'multiple' => true,       // permet de choisir plusieurs pages
                 'expanded' => false,      // false = select multiple, true = checkboxes
                 'by_reference' => false,
