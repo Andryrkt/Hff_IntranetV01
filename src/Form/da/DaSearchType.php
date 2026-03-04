@@ -85,7 +85,7 @@ class DaSearchType extends  AbstractType
             'Demande de réapprovisionnement ponctuel' => DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL
         ];
 
-        $choices = $this->prepareAgenceServiceChoices($options['agenceServiceAutorises']);
+        $choices = $this->prepareAgenceServiceChoices($options['allAgenceServices']);
 
         $agenceChoices = $choices['agenceChoices'];
         $serviceChoices = $choices['serviceChoices'];
@@ -209,7 +209,7 @@ class DaSearchType extends  AbstractType
                 'choices'     => $serviceChoices,
                 'choice_label' => function ($value) use ($options) {
                     // Retrouver le bon item et afficher service_code . ' ' . service_libelle
-                    $item = $options['agenceServiceAutorises'][$value];
+                    $item = $options['allAgenceServices'][$value];
                     return $item['service_code'] . ' ' . $item['service_libelle'];
                 },
                 'choice_attr' => function ($val) use ($serviceAttr) {
@@ -231,7 +231,7 @@ class DaSearchType extends  AbstractType
                 'choices'     => $serviceChoices,
                 'choice_label' => function ($value) use ($options) {
                     // Retrouver le bon item et afficher service_code . ' ' . service_libelle
-                    $item = $options['agenceServiceAutorises'][$value];
+                    $item = $options['allAgenceServices'][$value];
                     return $item['service_code'] . ' ' . $item['service_libelle'];
                 },
                 'choice_attr' => function ($val) use ($serviceAttr) {
@@ -245,7 +245,7 @@ class DaSearchType extends  AbstractType
     {
         $resolver->setDefaults([
             'data_class'             => DaSearch::class,
-            'agenceServiceAutorises' => [],
+            'allAgenceServices' => [],
         ]);
     }
 }

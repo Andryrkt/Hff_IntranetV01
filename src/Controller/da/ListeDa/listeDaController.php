@@ -70,11 +70,12 @@ class listeDaController extends Controller
 
         // Agences Services autorisés sur le DAP
         $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DAP);
+        $allAgenceServices = $this->getSecurityService()->getAllAgenceServices();
 
         //formulaire de recherche
         $form = $this->getFormFactory()->createBuilder(DaSearchType::class, $daSearch, [
             'method' => 'GET',
-            'agenceServiceAutorises' => $agenceServiceAutorises
+            'allAgenceServices' => $allAgenceServices
         ])->getForm();
 
         $form->handleRequest($request);
@@ -83,7 +84,7 @@ class listeDaController extends Controller
             $daSearch = $form->getData();
         }
 
-        $this->gererAgenceService($daSearch, $agenceServiceAutorises);
+        $this->gererAgenceService($daSearch, $allAgenceServices);
 
         $criteria = [];
         //transformer l'objet daSearch en tableau
@@ -153,21 +154,21 @@ class listeDaController extends Controller
         }
     }
 
-    private function gererAgenceService(DaSearch $daSearch, array $agenceServiceAutorises): void
+    private function gererAgenceService(DaSearch $daSearch, array $allAgenceServices): void
     {
         // Changer le serviceEmetteur
         if ($daSearch->getServiceEmetteur()) {
             $ligneId = $daSearch->getServiceEmetteur();
-            if ($ligneId && isset($agenceServiceAutorises[$ligneId])) {
-                $daSearch->setServiceEmetteur($agenceServiceAutorises[$ligneId]['service_id']);
+            if ($ligneId && isset($allAgenceServices[$ligneId])) {
+                $daSearch->setServiceEmetteur($allAgenceServices[$ligneId]['service_id']);
             }
         }
 
         // Changer le serviceDebiteur
         if ($daSearch->getServiceDebiteur()) {
             $ligneId = $daSearch->getServiceDebiteur();
-            if ($ligneId && isset($agenceServiceAutorises[$ligneId])) {
-                $daSearch->setServiceDebiteur($agenceServiceAutorises[$ligneId]['service_id']);
+            if ($ligneId && isset($allAgenceServices[$ligneId])) {
+                $daSearch->setServiceDebiteur($allAgenceServices[$ligneId]['service_id']);
             }
         }
     }
