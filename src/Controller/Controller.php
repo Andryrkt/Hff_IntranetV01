@@ -599,8 +599,6 @@ class Controller
         $profilId      = $profil->getId();
         $dataService   = $this->getSecurityService()->getDataService();
         $menuService   = $this->getMenuService();
-
-        // Sauvegarder le profilId de l'admin connecté
         $profilIdAdmin = $dataService->getProfilId();
 
         // 1. Suppression physique
@@ -611,15 +609,21 @@ class Controller
         $dataService->invaliderVersion($profilId);
         $menuService->invaliderVersion($profilId);
 
-        // 3. Basculer sur le profil à reconstruire
+        // 3. Vider le cache Doctrine → force la relecture depuis la BDD
+        $this->getEntityManager()->clear();
+
+        // 4. Recharger le profil depuis la BDD (entité fraîche)
+        $profil = $this->getEntityManager()->getRepository(Profil::class)->find($profilId);
+
+        // 5. Basculer sur le profil à reconstruire
         $dataService->setProfilId($profilId);
 
-        // 4. Reconstruire avec les nouvelles versions
+        // 6. Reconstruire
         $dataService->reconstruireSecurityProfil($profil);
         $menuService->reconstruireMenuProfil($profilId);
         $dataService->reconstruireAgServProfil($profil);
 
-        // 5. Restaurer le profilId de l'admin connecté
+        // 7. Restaurer le profilId admin
         $dataService->setProfilId($profilIdAdmin);
     }
 
