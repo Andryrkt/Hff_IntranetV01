@@ -10,7 +10,6 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\NumberType;
 
 
 class AgenceType extends AbstractType
@@ -19,7 +18,7 @@ class AgenceType extends AbstractType
     {
         $builder
 
-            ->add('codeAgence', NumberType::class, [
+            ->add('codeAgence', TextType::class, [
                 'label' => 'Code Agence',
             ])
             ->add('libelleAgence', TextType::class, [
