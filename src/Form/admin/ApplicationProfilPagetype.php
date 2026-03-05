@@ -47,11 +47,11 @@ class ApplicationProfilPagetype extends AbstractType
     public static function permissionsDisponibles(): array
     {
         return [
-            'peutVoir'                    => ['label' => 'Voir',      'icon' => 'fa-eye',          'couleur' => 'primary'],
-            'peutVoirListeAvecDebiteur'   => ['label' => 'AUTH2 (**)',   'icon' => 'fa-eye',          'couleur' => 'info'],
-            'peutModifier'                => ['label' => 'Modifier',  'icon' => 'fa-pencil',       'couleur' => 'warning'],
-            'peutSupprimer'               => ['label' => 'Supprimer', 'icon' => 'fa-trash',        'couleur' => 'danger'],
-            'peutExporter'                => ['label' => 'Exporter',  'icon' => 'fa-download',     'couleur' => 'success'],
+            'peutVoir'                    => ['label' => 'Voir',                  'icon' => 'fa-eye',      'couleur' => 'primary'],
+            'peutVoirListeAvecDebiteur'   => ['label' => 'AUTH2 (**)',            'icon' => 'fa-eye',      'couleur' => 'info'],
+            'peutModifier'                => ['label' => 'Multisuccursale (***)', 'icon' => 'fa-users',    'couleur' => 'warning'],
+            'peutSupprimer'               => ['label' => 'Supprimer',             'icon' => 'fa-trash',    'couleur' => 'danger'],
+            'peutExporter'                => ['label' => 'Exporter',              'icon' => 'fa-download', 'couleur' => 'success'],
         ];
     }
 }
