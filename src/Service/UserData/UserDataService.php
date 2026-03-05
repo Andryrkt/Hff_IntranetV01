@@ -492,11 +492,11 @@ class UserDataService
                 if ($applicationProfilPage->getPage()->getNomRoute() !== $nomRoute) continue;
 
                 return [
-                    SecurityService::PERMISSION_VOIR      => $applicationProfilPage->isPeutVoir(),
-                    SecurityService::PERMISSION_AUTH_2    => $applicationProfilPage->isPeutVoirListeAvecDebiteur(),
-                    SecurityService::PERMISSION_MODIFIER  => $applicationProfilPage->isPeutModifier(),
-                    SecurityService::PERMISSION_SUPPRIMER => $applicationProfilPage->isPeutSupprimer(),
-                    SecurityService::PERMISSION_EXPORTER  => $applicationProfilPage->isPeutExporter(),
+                    SecurityService::PERMISSION_VOIR              => $applicationProfilPage->isPeutVoir(),
+                    SecurityService::PERMISSION_AUTH_2            => $applicationProfilPage->isPeutVoirListeAvecDebiteur(),
+                    SecurityService::PERMISSION_MULTI_SUCCURSALE  => $applicationProfilPage->isPeutMultiSuccursale(),
+                    SecurityService::PERMISSION_SUPPRIMER         => $applicationProfilPage->isPeutSupprimer(),
+                    SecurityService::PERMISSION_EXPORTER          => $applicationProfilPage->isPeutExporter(),
                 ];
             }
         }

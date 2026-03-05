@@ -25,11 +25,11 @@ class SecurityService
     private const PREFIXES_API = ['api_'];
 
     // ─── Constantes de permissions (évite les fautes de frappe) ─────────────
-    public const PERMISSION_VOIR      = 'peutVoir';
-    public const PERMISSION_AUTH_2    = 'peutVoirListeAvecDebiteur'; // peut voir la liste des demandes qui sont débités par les agences et services autorisés
-    public const PERMISSION_MODIFIER  = 'peutModifier';
-    public const PERMISSION_SUPPRIMER = 'peutSupprimer';
-    public const PERMISSION_EXPORTER  = 'peutExporter';
+    public const PERMISSION_VOIR             = 'peutVoir';
+    public const PERMISSION_AUTH_2           = 'peutVoirListeAvecDebiteur'; // peut voir la liste des demandes qui sont débités par les agences et services autorisés
+    public const PERMISSION_MULTI_SUCCURSALE = 'peutMultiSuccursale'; // peut voir tous sur la liste sans restriction
+    public const PERMISSION_SUPPRIMER        = 'peutSupprimer';
+    public const PERMISSION_EXPORTER         = 'peutExporter';
 
     /**
      * Route courante mémorisée lors de controlerAcces().
@@ -290,11 +290,11 @@ class SecurityService
     private function permissionsVides(): array
     {
         return [
-            self::PERMISSION_VOIR      => false,
-            self::PERMISSION_AUTH_2    => false,
-            self::PERMISSION_MODIFIER  => false,
-            self::PERMISSION_SUPPRIMER => false,
-            self::PERMISSION_EXPORTER  => false,
+            self::PERMISSION_VOIR              => false,
+            self::PERMISSION_AUTH_2            => false,
+            self::PERMISSION_MULTI_SUCCURSALE  => false,
+            self::PERMISSION_SUPPRIMER         => false,
+            self::PERMISSION_EXPORTER          => false,
         ];
     }
 }

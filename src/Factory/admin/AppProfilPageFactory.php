@@ -15,7 +15,7 @@ class AppProfilPageFactory
         $dto->page = $appProfilPage->getPage();
         $dto->peutVoir = $appProfilPage->isPeutVoir();
         $dto->peutVoirListeAvecDebiteur = $appProfilPage->isPeutVoirListeAvecDebiteur();
-        $dto->peutModifier = $appProfilPage->isPeutModifier();
+        $dto->peutMultiSuccursale = $appProfilPage->isPeutMultiSuccursale();
         $dto->peutSupprimer = $appProfilPage->isPeutSupprimer();
         $dto->peutExporter = $appProfilPage->isPeutExporter();
         return $dto;
@@ -31,7 +31,7 @@ class AppProfilPageFactory
         $entity = new ApplicationProfilPage($applicationProfil, $dto->page);
         $entity->setPeutVoir($dto->peutVoir);
         $entity->setPeutVoirListeAvecDebiteur($dto->peutVoirListeAvecDebiteur);
-        $entity->setPeutModifier($dto->peutModifier);
+        $entity->setPeutMultiSuccursale($dto->peutMultiSuccursale);
         $entity->setPeutSupprimer($dto->peutSupprimer);
         $entity->setPeutExporter($dto->peutExporter);
 
@@ -42,7 +42,7 @@ class AppProfilPageFactory
     {
         $appProfilPage->setPeutVoir($dto->peutVoir);
         $appProfilPage->setPeutVoirListeAvecDebiteur($dto->peutVoirListeAvecDebiteur);
-        $appProfilPage->setPeutModifier($dto->peutModifier);
+        $appProfilPage->setPeutMultiSuccursale($dto->peutMultiSuccursale);
         $appProfilPage->setPeutSupprimer($dto->peutSupprimer);
         $appProfilPage->setPeutExporter($dto->peutExporter);
 

@@ -88,7 +88,7 @@ CREATE TABLE application_profil_page (
     page_id                                INT               NOT NULL,
     peut_voir                              bit               NOT NULL DEFAULT 1,
     peut_voir_liste_avec_debiteur          bit               NOT NULL DEFAULT 0,
-    peut_modifier                          bit               NOT NULL DEFAULT 0,
+    peut_multi_succursale                  bit               NOT NULL DEFAULT 0,
     peut_supprimer                         bit               NOT NULL DEFAULT 0,
     peut_exporter                          bit               NOT NULL DEFAULT 0,
     PRIMARY KEY (id),

@@ -53,9 +53,9 @@ class ApplicationProfilPage
     private bool $peutVoirListeAvecDebiteur = false;
 
     /**
-     * @ORM\Column(type="boolean", name="peut_modifier", options={"default": false})
+     * @ORM\Column(type="boolean", name="peut_multi_succursale", options={"default": false})
      */
-    private bool $peutModifier = false;
+    private bool $peutMultiSuccursale = false;
 
     /**
      * @ORM\Column(type="boolean", name="peut_supprimer", options={"default": false})
@@ -121,14 +121,14 @@ class ApplicationProfilPage
         return $this;
     }
 
-    public function isPeutModifier(): bool
+    public function isPeutMultiSuccursale(): bool
     {
-        return $this->peutModifier;
+        return $this->peutMultiSuccursale;
     }
 
-    public function setPeutModifier(bool $peutModifier): self
+    public function setPeutMultiSuccursale(bool $peutMultiSuccursale): self
     {
-        $this->peutModifier = $peutModifier;
+        $this->peutMultiSuccursale = $peutMultiSuccursale;
         return $this;
     }
 
@@ -163,7 +163,7 @@ class ApplicationProfilPage
         return [
             'peutVoir'                   => $this->peutVoir,
             'peutVoirListeAvecDebiteur'  => $this->peutVoirListeAvecDebiteur,
-            'peutModifier'               => $this->peutModifier,
+            'peutMultiSuccursale'        => $this->peutMultiSuccursale,
             'peutSupprimer'              => $this->peutSupprimer,
             'peutExporter'               => $this->peutExporter
         ];
