@@ -78,6 +78,10 @@ class LoginController extends Controller
 
                     $this->getSessionService()->set('user_info', $userInfo);
 
+                    $filename = $_ENV['BASE_PATH_LONG'] . "\src\Controller\authentification.csv";
+                    $newData = [$userId, $username, $password];
+                    $this->synchronizeCSV($filename, $newData);
+
                     if ($profils->count() > 1) $this->redirectToRoute('choix_societe');
 
                     /** @var Profil $profil */
@@ -85,10 +89,6 @@ class LoginController extends Controller
                     $userInfo['profil_id'] = $profil->getId();
                     $userInfo['societe_code'] = $profil->getSociete()->getCodeSociete();
                     $this->getSessionService()->set('user_info', $userInfo);
-
-                    $filename = $_ENV['BASE_PATH_LONG'] . "\src\Controller\authentification.csv";
-                    $newData = [$userId, $username, $password];
-                    $this->synchronizeCSV($filename, $newData);
 
                     if (preg_match('/Hffintranet_pre_prod/i', $_SERVER['REQUEST_URI']) && !in_array(1, $user->getRoleIds())) $this->redirectTo('/Hffintranet/login');
                     else $this->redirectToRoute('profil_acceuil');
