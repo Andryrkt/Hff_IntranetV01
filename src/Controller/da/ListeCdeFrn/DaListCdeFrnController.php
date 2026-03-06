@@ -95,7 +95,7 @@ class DaListCdeFrnController extends Controller
         $limit = 20;
 
         /** ==== récupération des données à afficher ==== */
-        $paginationData = $this->getPaginationData($criteriaTab, $page, $limit);
+        $paginationData = $this->daAfficherRepository->findValidatedPaginatedDas($criteriaTab, $page, $limit);
 
         /** mise à jour des donners daAfficher */
         // $this->quelqueMiseAjourDaAfficher($paginationData['data']);
@@ -162,28 +162,28 @@ class DaListCdeFrnController extends Controller
         return $cdeFrnSearchDto->toObject($criteriaTab);
     }
 
-    private function quelqueMiseAjourDaAfficher(array $daAfficherValides)
-    {
+    // private function quelqueMiseAjourDaAfficher(array $daAfficherValides)
+    // {
 
-        foreach ($daAfficherValides as $davalide) {
-            if ($davalide->getArtDesi() !== 'ECROU HEX. AC.GALVA A CHAUD CL.8 DI') {
-                $this->modificationStatutBC($davalide);
-            }
-        }
-        $this->getEntityManager()->flush();
-    }
+    //     foreach ($daAfficherValides as $davalide) {
+    //         if ($davalide->getArtDesi() !== 'ECROU HEX. AC.GALVA A CHAUD CL.8 DI') {
+    //             $this->modificationStatutBC($davalide);
+    //         }
+    //     }
+    //     $this->getEntityManager()->flush();
+    // }
 
     /**
      * Cette methode permet de modifier le statut du BC
      *
      * @return void
      */
-    private function modificationStatutBC(DaAfficher $data)
-    {
-        $statutBC = $this->statutBc($data);
-        $data->setStatutCde($statutBC);
-        $this->getEntityManager()->persist($data);
-    }
+    // private function modificationStatutBC(DaAfficher $data)
+    // {
+    //     $statutBC = $this->statutBc($data);
+    //     $data->setStatutCde($statutBC);
+    //     $this->getEntityManager()->persist($data);
+    // }
 
     // private function donnerAfficher(?array $criteria): array
     // {
@@ -202,10 +202,10 @@ class DaListCdeFrnController extends Controller
      * 
      * @return array{results:array,totalItems:int}
      */
-    private function getPaginationData(?array $criteria, int $page, int $limit): array
-    {
-        return $this->daAfficherRepository->findValidatedPaginatedDas($criteria, $page, $limit);
-    }
+    // private function getPaginationData(?array $criteria, int $page, int $limit): array
+    // {
+    //     return $this->daAfficherRepository->findValidatedPaginatedDas($criteria, $page, $limit);
+    // }
 
     private function traitementFormulaireSoumission(Request $request, $formSoumission): void
     {

@@ -278,56 +278,84 @@ class DaAfficherRepository extends EntityRepository
     {
         $criteria = $criteria ?? [];
 
-        // -------------------------------------
-        // 1. Sous-requête : versions maximales par DA (SANS FILTRES)
-        // -------------------------------------
-        $subQb = $this->_em->createQueryBuilder();
-        $subQb->select(
-            'd.numeroDemandeApproMere',
-            'd.numeroDemandeAppro',
-            'MAX(d.numeroVersion) as maxVersion'
-        )
-            ->from(DaAfficher::class, 'd')
-            ->groupBy('d.numeroDemandeApproMere, d.numeroDemandeAppro');
-
-        // Liste des statuts OR (statut depuis DW pour les DA directs)
+        // ------------------------------------------------------------------
+        // Constantes métier
+        // ------------------------------------------------------------------
         $statutOrs = [
             DitOrsSoumisAValidation::STATUT_VALIDE,
-            DemandeAppro::STATUT_DW_VALIDEE
+            DemandeAppro::STATUT_DW_VALIDEE,
         ];
-
-        // Liste des exceptions pour lesquelles statutOr n'est pas requis
-        $exceptions = [
-            'DAP25079981'
-        ];
-
-        // Condition générique sur statutOr avec exceptions
-        $orCondition = $subQb->expr()->orX(
-            $subQb->expr()->in('d.statutOr', ':statutOrs'),
-            $subQb->expr()->in('d.numeroDemandeAppro', ':exceptions')
-        );
-
-        $subQb->andWhere($orCondition);
-
-        // Paramètres communs
-        $subQb->setParameter('statutOrs', $statutOrs)
-            ->setParameter('exceptions', $exceptions);
 
         $statutDas = [
             DemandeAppro::STATUT_CLOTUREE,
-            DemandeAppro::STATUT_VALIDE
+            DemandeAppro::STATUT_VALIDE,
         ];
-        $subQb->andWhere('d.statutDal IN (:statutDal)')
-            ->setParameter('statutDal', $statutDas);
 
-        // NE PAS APPLIQUER LES FILTRES ICI - on veut TOUTES les dernières versions
+        $exceptions = ['DAP25079981'];
 
-        // ---------------------------------
-        // 2. Récupérer TOUTES les versions max
-        // ---------------------------------
-        $allLatestVersions = $subQb->getQuery()->getArrayResult();
+        // ------------------------------------------------------------------
+        // Sous-requête DQL : MAX(version) pour le même couple (mere, appro)
+        // corrélée à la requête principale via d.numeroDemandeAppro
+        // ------------------------------------------------------------------
+        $subDql = '
+        SELECT MAX(sub.numeroVersion)
+        FROM ' . DaAfficher::class . ' sub
+        WHERE sub.numeroDemandeApproMere = d.numeroDemandeApproMere
+          AND sub.numeroDemandeAppro     = d.numeroDemandeAppro
+          AND sub.statutDal             IN (:statutDal)
+          AND (
+              sub.statutOr              IN (:statutOrs)
+              OR sub.numeroDemandeAppro IN (:exceptions)
+          )
+    ';
 
-        if (empty($allLatestVersions)) {
+        // ------------------------------------------------------------------
+        // Requête principale
+        // ------------------------------------------------------------------
+        $qb = $this->_em->createQueryBuilder();
+        $qb->select('d')
+            ->from(DaAfficher::class, 'd')
+            // Filtre : ligne non supprimée
+            ->andWhere('d.deleted = 0')
+            // Filtre : statut CDE
+            ->andWhere(
+                $qb->expr()->orX(
+                    'd.statutCde != :statutPasDansOr',
+                    'd.statutCde IS NULL'
+                )
+            )
+            // Filtre : seulement la dernière version (sous-requête corrélée)
+            ->andWhere('d.numeroVersion = (' . $subDql . ')')
+            // Filtre : statuts DA
+            ->andWhere('d.statutDal IN (:statutDal)')
+            // Filtre : statut OR ou exception
+            ->andWhere(
+                $qb->expr()->orX(
+                    $qb->expr()->in('d.statutOr', ':statutOrs'),
+                    $qb->expr()->in('d.numeroDemandeAppro', ':exceptions')
+                )
+            )
+            ->setParameter('statutPasDansOr', DaSoumissionBc::STATUT_PAS_DANS_OR)
+            ->setParameter('statutDal', $statutDas)
+            ->setParameter('statutOrs', $statutOrs)
+            ->setParameter('exceptions', $exceptions);
+
+        // Filtres dynamiques utilisateur (inchangés)
+        $this->applyDynamicFilters($qb, 'd', $criteria, true);
+        $this->applyStatutsFilters($qb, 'd', $criteria, true);
+        $this->applyDateFilters($qb, 'd', $criteria, true);
+
+        // ------------------------------------------------------------------
+        // COUNT pour la pagination (clone avant ORDER BY / pagination)
+        // ------------------------------------------------------------------
+        $countQb = clone $qb;
+        $countQb->resetDQLPart('select');
+        $countQb->resetDQLPart('orderBy');
+        $countQb->select('COUNT(DISTINCT d.numeroDemandeApproMere)');
+
+        $totalItems = (int) $countQb->getQuery()->getSingleScalarResult();
+
+        if ($totalItems === 0) {
             return [
                 'data'        => [],
                 'totalItems'  => 0,
@@ -336,79 +364,14 @@ class DaAfficherRepository extends EntityRepository
             ];
         }
 
-        // Créer un mapping pour un accès facile
-        $latestVersionsMap = [];
-        foreach ($allLatestVersions as $version) {
-            $latestVersionsMap[$version['numeroDemandeAppro']] = $version['maxVersion'];
-        }
-
-        // ------------------------------------
-        // 3. Construire la requête principale avec filtres
-        // ------------------------------------
-        $qb = $this->_em->createQueryBuilder();
-        $qb->select('d')
-            ->from(DaAfficher::class, 'd')
-            ->where($qb->expr()->orX(
-                'd.statutCde != :statutPasDansOr',
-                'd.statutCde IS NULL'
-            )) // enlever les lignes qui ont le statut PAS DANS OR
-            ->andWhere('d.deleted = 0')
-            ->setParameter('statutPasDansOr', DaSoumissionBc::STATUT_PAS_DANS_OR);
-
-        // Appliquer les filtres sur les données principales
-        $this->applyDynamicFilters($qb, "d", $criteria, true);
-        $this->applyStatutsFilters($qb, "d", $criteria, true);
-        $this->applyDateFilters($qb, "d", $criteria, true);
-
-        // Condition pour ne garder que les dernières versions
-        $orX = $qb->expr()->orX();
-        $paramIndex = 0;
-        foreach ($latestVersionsMap as $numeroDemandeAppro => $maxVersion) {
-            $orX->add(
-                $qb->expr()->andX(
-                    $qb->expr()->eq('d.numeroDemandeAppro', ':numDa' . $paramIndex),
-                    $qb->expr()->eq('d.numeroVersion', ':maxVer' . $paramIndex)
-                )
-            );
-            $qb->setParameter('numDa' . $paramIndex, $numeroDemandeAppro);
-            $qb->setParameter('maxVer' . $paramIndex, $maxVersion);
-            $paramIndex++;
-        }
-        $qb->andWhere($orX);
-
-        // Condition sur les statuts
-        $qb->andWhere('d.statutDal IN (:statutDal)')
-            ->setParameter('statutDal', $statutDas);
-
-        $qb->andWhere(
-            $qb->expr()->orX(
-                $qb->expr()->in('d.statutOr', ':statutOrsValide'),
-                $qb->expr()->in('d.numeroDemandeAppro', ':exceptions')
-            )
-        )
-            ->setParameter('statutOrsValide', $statutOrs)
-            ->setParameter('exceptions', $exceptions);
-
-        // ---------------------------------
-        // 4. Compter les résultats filtrés
-        // ---------------------------------
-        $countQb = clone $qb;
-        $countQb->resetDQLPart('select');
-        $countQb->resetDQLPart('orderBy');
-        $countQb->select('COUNT(DISTINCT d.numeroDemandeApproMere)');
-
-        $totalItems = (int) $countQb->getQuery()->getSingleScalarResult();
         $lastPage = (int) ceil($totalItems / $limit);
 
-        // ---------------------------
-        // 5. Pagination et tri
-        // ---------------------------
-
-        // Triage selon le filtre choisi par l'utilisateur
+        // ------------------------------------------------------------------
+        // Tri
+        // ------------------------------------------------------------------
         if (!empty($criteria['sortNbJours'])) {
             $qb->orderBy('d.joursDispo', $criteria['sortNbJours']);
         } else {
-            // Ordre final
             $qb->orderBy('d.dateDemande', 'DESC')
                 ->addOrderBy('d.numeroFournisseur', 'DESC')
                 ->addOrderBy('d.numeroCde', 'DESC');
@@ -417,23 +380,15 @@ class DaAfficherRepository extends EntityRepository
         $qb->addOrderBy('d.numeroDemandeApproMere', 'DESC')
             ->addOrderBy('d.numeroDemandeAppro', 'DESC');
 
-        // Appliquer la pagination
+        // ------------------------------------------------------------------
+        // Pagination
+        // ------------------------------------------------------------------
         $qb->setFirstResult(($page - 1) * $limit)
             ->setMaxResults($limit);
 
-        // Pour le debug (optionnel)
-        // $query = $qb->getQuery();
-        // $sql = $query->getSQL();
-        // $params = $query->getParameters();
-        // dump("SQL : " . $sql . "\n");
-        // foreach ($params as $param) {
-        //     dump($param->getName());
-        //     dump($param->getValue());
-        // }
-
-        // ----------------------
-        // 6. Retour
-        // ----------------------
+        // ------------------------------------------------------------------
+        // Résultat
+        // ------------------------------------------------------------------
         return [
             'data'        => $qb->getQuery()->getResult(),
             'totalItems'  => $totalItems,
