@@ -377,8 +377,8 @@ trait StatutBcTrait
     private function doitEnvoyerBc(array $situationCde, ?string $statutBc, DaAfficher $DaAfficher, string $statutSoumissionBc, array $infoDaDirect, bool $daDirect, bool $daViaOR): bool
     {
         if ($infoDaDirect && $daDirect) {
-            return $infoDaDirect[0]['position_bc'] === DaSoumissionBc::POSITION_EDITER
-                && in_array($statutSoumissionBc, [DaSoumissionBc::STATUT_VALIDE, DaSoumissionBc::STATUT_CLOTURE])
+            return ($infoDaDirect[0]['position_bc'] === DaSoumissionBc::POSITION_EDITER
+                || in_array($statutSoumissionBc, [DaSoumissionBc::STATUT_VALIDE, DaSoumissionBc::STATUT_CLOTURE]))
                 && !$DaAfficher->getBcEnvoyerFournisseur();
         } elseif ($situationCde && $daViaOR) {
             // numero de commande existe && ... && position editer && BC n'est pas encore soumis
@@ -400,6 +400,7 @@ trait StatutBcTrait
             if (empty($infoDaDirect)) {
                 return [false, false, false, false];
             }
+
             $q = $infoDaDirect[0];
             $qteDem = (int)$q['qte_dem'];
             $qteALivrer = (int)$q['qte_dispo'];
@@ -413,6 +414,7 @@ trait StatutBcTrait
 
 
         $soumissionFait = ($DaAfficher->getEstFactureBlSoumis() || $DaAfficher->getEstBlReapproSoumis());
+
         $partiellementDispo = ($qteDem != $qteALivrer && $qteLivee == 0 && $qteALivrer > 0) && $soumissionFait;
         $completNonLivrer = (($qteDem == $qteALivrer && $qteLivee < $qteDem) || ($qteALivrer > 0 && $qteDem == ($qteALivrer + $qteLivee))) && $soumissionFait;
         $tousLivres = ($qteDem == $qteLivee && $qteDem != 0) && $soumissionFait;
