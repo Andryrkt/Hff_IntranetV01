@@ -88,15 +88,6 @@ class User implements UserInterface
     private $agenceServiceIrium;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Agence::class, inversedBy="usersAutorises")
-     * @ORM\JoinTable(name="agence_user", 
-     *      joinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")},
-     *      inverseJoinColumns={@ORM\JoinColumn(name="agence_id", referencedColumnName="id")}
-     * )
-     */
-    private $agencesAutorisees;
-
-    /**
      * @ORM\ManyToMany(targetEntity=Service::class, inversedBy="userServiceAutoriser")
      * @ORM\JoinTable(name="users_service")
      */
@@ -163,7 +154,6 @@ class User implements UserInterface
     {
         $this->applications = new ArrayCollection();
         $this->roles = new ArrayCollection();
-        $this->agencesAutorisees = new ArrayCollection();
         $this->serviceAutoriser = new ArrayCollection();
         $this->profils = new ArrayCollection();
     }
@@ -417,30 +407,6 @@ class User implements UserInterface
         return $this;
     }
 
-    public function getAgencesAutorisees(): Collection
-    {
-        return $this->agencesAutorisees;
-    }
-
-    public function addAgenceAutorise(Agence $agence): self
-    {
-        if (!$this->agencesAutorisees->contains($agence)) {
-            $this->agencesAutorisees[] = $agence;
-        }
-
-        return $this;
-    }
-
-    public function removeAgenceAutorise(Agence $agence): self
-    {
-        if ($this->agencesAutorisees->contains($agence)) {
-            $this->agencesAutorisees->removeElement($agence);
-        }
-
-        return $this;
-    }
-
-
     public function getServiceAutoriser(): Collection
     {
         return $this->serviceAutoriser;
@@ -484,18 +450,6 @@ class User implements UserInterface
         })->toArray();
     }
 
-
-    /**
-     * RECUPERE LES id de l'agence Autoriser
-     */
-    public function getAgenceAutoriserIds(): array
-    {
-        return $this->agencesAutorisees->map(function ($agenceAutorise) {
-            return $agenceAutorise->getId();
-        })->toArray();
-    }
-
-
     /**
      * RECUPERE LES id du service Autoriser
      */
@@ -505,28 +459,6 @@ class User implements UserInterface
             return $serviceAutorise->getId();
         })->toArray();
     }
-
-    /**
-     * RECUPERE LES codes de l'agence Autoriser
-     */
-    public function getAgenceAutoriserCode(): array
-    {
-        return $this->agencesAutorisees->map(function ($agenceAutorise) {
-            return $agenceAutorise->getCodeAgence();
-        })->toArray();
-    }
-
-
-    /**
-     * RECUPERE LES code du service Autoriser
-     */
-    public function getServiceAutoriserCode(): array
-    {
-        return $this->serviceAutoriser->map(function ($serviceAutorise) {
-            return $serviceAutorise->getCodeService();
-        })->toArray();
-    }
-
 
     /**
      * RECUPERE LES id de l'application
