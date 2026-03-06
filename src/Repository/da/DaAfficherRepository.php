@@ -385,6 +385,130 @@ class DaAfficherRepository extends EntityRepository
         ];
     }
 
+    /**
+     * pour le expor excel liste cde frn
+     *
+     * @param array $criteria
+     * @return array
+     */
+    public function findValidatedDas(array $criteria = []): array
+    {
+        // -------------------------------------
+        // 1. Sous-requête : versions maximales par DA
+        // -------------------------------------
+        $subQb = $this->_em->createQueryBuilder();
+        $subQb->select(
+            'd.numeroDemandeAppro',
+            'MAX(d.numeroVersion) as maxVersion'
+        )
+            ->from(DaAfficher::class, 'd')
+            ->groupBy('d.numeroDemandeAppro');
+
+        $statutOrs = [
+            DitOrsSoumisAValidation::STATUT_VALIDE,
+            DemandeAppro::STATUT_DW_VALIDEE
+        ];
+
+        $exceptions = [
+            'DAP25079981'
+        ];
+
+        $statutDas = [
+            DemandeAppro::STATUT_CLOTUREE,
+            DemandeAppro::STATUT_VALIDE
+        ];
+
+        $subQb->andWhere(
+            $subQb->expr()->orX(
+                $subQb->expr()->in('d.statutOr', ':statutOrs'),
+                $subQb->expr()->in('d.numeroDemandeAppro', ':exceptions')
+            )
+        );
+
+        $subQb->andWhere('d.statutDal IN (:statutDal)');
+
+        $subQb->setParameter('statutOrs', $statutOrs)
+            ->setParameter('exceptions', $exceptions)
+            ->setParameter('statutDal', $statutDas);
+
+        $latestVersions = $subQb->getQuery()->getArrayResult();
+
+        if (empty($latestVersions)) {
+            return [];
+        }
+
+        // Mapping numéro DA -> version max
+        $latestVersionsMap = [];
+        foreach ($latestVersions as $version) {
+            $latestVersionsMap[$version['numeroDemandeAppro']] = $version['maxVersion'];
+        }
+
+        // -------------------------------------
+        // 2. Requête principale
+        // -------------------------------------
+        $qb = $this->_em->createQueryBuilder();
+
+        $qb->select('d')
+            ->from(DaAfficher::class, 'd')
+            ->where($qb->expr()->orX(
+                'd.statutCde != :statutPasDansOr',
+                'd.statutCde IS NULL'
+            ))
+            ->andWhere('d.deleted = 0')
+            ->setParameter('statutPasDansOr', DaSoumissionBc::STATUT_PAS_DANS_OR);
+
+        // filtres dynamiques
+        $this->applyDynamicFilters($qb, "d", $criteria, true);
+        $this->applyStatutsFilters($qb, "d", $criteria, true);
+        $this->applyDateFilters($qb, "d", $criteria, true);
+
+        // garder uniquement les dernières versions
+        $orX = $qb->expr()->orX();
+        $paramIndex = 0;
+
+        foreach ($latestVersionsMap as $numeroDemandeAppro => $maxVersion) {
+            $orX->add(
+                $qb->expr()->andX(
+                    $qb->expr()->eq('d.numeroDemandeAppro', ':numDa' . $paramIndex),
+                    $qb->expr()->eq('d.numeroVersion', ':maxVer' . $paramIndex)
+                )
+            );
+
+            $qb->setParameter('numDa' . $paramIndex, $numeroDemandeAppro);
+            $qb->setParameter('maxVer' . $paramIndex, $maxVersion);
+
+            $paramIndex++;
+        }
+
+        $qb->andWhere($orX);
+
+        // statuts
+        $qb->andWhere('d.statutDal IN (:statutDal)')
+            ->setParameter('statutDal', $statutDas);
+
+        $qb->andWhere(
+            $qb->expr()->orX(
+                $qb->expr()->in('d.statutOr', ':statutOrsValide'),
+                $qb->expr()->in('d.numeroDemandeAppro', ':exceptions')
+            )
+        )
+            ->setParameter('statutOrsValide', $statutOrs)
+            ->setParameter('exceptions', $exceptions);
+
+        // tri
+        if (!empty($criteria['sortNbJours'])) {
+            $qb->orderBy('d.joursDispo', $criteria['sortNbJours']);
+        } else {
+            $qb->orderBy('d.dateDemande', 'DESC')
+                ->addOrderBy('d.numeroFournisseur', 'DESC')
+                ->addOrderBy('d.numeroCde', 'DESC');
+        }
+
+        $qb->addOrderBy('d.numeroDemandeApproMere', 'DESC')
+            ->addOrderBy('d.numeroDemandeAppro', 'DESC');
+
+        return $qb->getQuery()->getResult();
+    }
 
     /**
      * Fonction publique : renvoie les DA paginés avec filtres appliqués uniquement sur les dernières versions
@@ -444,7 +568,7 @@ class DaAfficherRepository extends EntityRepository
         $motherQb->resetDQLPart('orderBy');
         $motherQb->select('d.numeroDemandeApproMere');
         $motherQb->groupBy('d.numeroDemandeApproMere'); // Utilisation de GROUP BY pour SQL Server
-        
+
         $this->handleOrderBy($motherQb, 'd', $criteria, true);
         $motherQb->addOrderBy('d.numeroDemandeApproMere', 'DESC');
         $motherQb->setFirstResult(($page - 1) * $limit)
