@@ -131,14 +131,14 @@ class DevisMagasinSearchType extends AbstractType
                 'data_date_debut' => $options['data']->getDateCreation()['debut'] ?? null,
                 'data_date_fin' => $options['data']->getDateCreation()['fin'] ?? null,
             ])
-            // --- agenceDebiteur : ChoiceType ---
+            // --- agenceEmetteur : ChoiceType ---
             ->add('agenceEmetteur', ChoiceType::class, [
                 'label'       => 'Agence Emetteur',
                 'placeholder' => '-- Choisir une agence --',
                 'required'    => false,
                 'choices'     => $agenceChoices
             ])
-            // --- serviceDebiteur : ChoiceType ---
+            // --- serviceEmetteur : ChoiceType ---
             ->add('serviceEmetteur', ChoiceType::class, [
                 'label'       => 'Service Emetteur',
                 'placeholder' => '-- Choisir une service --',
