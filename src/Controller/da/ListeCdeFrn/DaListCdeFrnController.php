@@ -77,7 +77,7 @@ class DaListCdeFrnController extends Controller
         }
 
         $page = $request->query->getInt('page', 1);
-        $limit = 20;
+        $limit = 500;
 
         // Récupération et préparation des données
         $paginationData = $this->daAfficherRepository->findValidatedPaginatedDas($criteriaTab, $page, $limit);
