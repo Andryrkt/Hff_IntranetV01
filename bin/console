@@ -7,6 +7,7 @@ $entitymanager = require_once dirname(__DIR__) . "/doctrineBootstrap.php";
 
 use App\Command\AncienDitCommand;
 use App\Command\cache\CacheWarmupAgServCommand;
+use App\Command\cache\CacheWarmupAllCommand;
 use App\Command\cache\CacheWarmupSecurityCommand;
 use App\Command\cache\CacheWarmupMenuCommand;
 use App\Command\MigrationPdfCommand;
@@ -36,6 +37,8 @@ $application->add(new CacheWarmupAgServCommand($entityManager, $userDataService)
 $cacheMenu = new FilesystemTagAwareAdapter('menu', 0, dirname(__DIR__) . '/var/cache/pools');
 $menuService = new MenuService($userDataService, $cacheMenu);
 $application->add(new CacheWarmupMenuCommand($entityManager, $menuService));
+
+$application->add(new CacheWarmupAllCommand($entityManager, $userDataService, $menuService));
 
 // Exécuter la commande
 $application->run();
