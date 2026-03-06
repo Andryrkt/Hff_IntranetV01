@@ -63,11 +63,12 @@
 			</thead>
 			<tbody id="tableBody" class="align-middle">
 				{% for row in data %}
+					{% set clickableClass = row.styleClickableCell %}
 					<tr>
 						<td class="text-center fs-7 fw-bold" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ row.objet }}">
 							{{ row.numDaParent }}
 						</td>
-						<td class="">
+						<td>
 							<a href="{{ row.urlDetail }}" target="_blank">{{ row.numeroDemandeAppro }}</a>
 						</td>
 						<td class="text-center" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ row.numeroDemandeAppro }}">
@@ -84,19 +85,19 @@
 						</td>
 						<td class="text-center fw-bold {{ row.styleStatutDA }}">{{ row.statutDal }}</td>
 						<td class="text-center fw-bold {{ row.styleStatutBC }}">{{ row.statutCde }}</td>
-						<td class="text-center {{ row.styleClickableCell }}">
+						<td class="text-center {{ clickableClass }}">
 							{% if row.envoyeFrn %}
 								<input {% for attr, val in row.tdCheckboxAttributes %} {{ attr }}="{{ val }}" {% endfor %}>
 							{% endif %}
 						</td>
-						<td class="text-center {{ row.styleClickableCell }}">{{ row.dateFinSouhaite }}</td>
-						<td class="text-center {{ row.styleClickableCell }}">{{ row.artConstp }}</td>
-						<td class="text-center {{ row.styleClickableCell }}">{{ row.artRefp }}</td>
-						<td class="text-start {{ row.styleClickableCell }}">{{ row.artDesi }}</td>
-						<td class="text-center {{ row.styleClickableCell }}">{{ row.qteDem }}</td>
-						<td class="text-center {{ row.styleClickableCell }}">{{ row.qteEnAttent }}</td>
-						<td class="text-center {{ row.styleClickableCell }}">{{ row.qteDispo }}</td>
-						<td class="text-center {{ row.styleClickableCell }}">{{ row.qteLivrer }}</td>
+						<td class="text-center {{ clickableClass }}">{{ row.dateFinSouhaite }}</td>
+						<td class="text-center {{ clickableClass }}">{{ row.artConstp }}</td>
+						<td class="text-center {{ clickableClass }}">{{ row.artRefp }}</td>
+						<td class="text-start {{ clickableClass }}">{{ row.artDesi }}</td>
+						<td class="text-center {{ clickableClass }}">{{ row.qteDem }}</td>
+						<td class="text-center {{ clickableClass }}">{{ row.qteEnAttent }}</td>
+						<td class="text-center {{ clickableClass }}">{{ row.qteDispo }}</td>
+						<td class="text-center {{ clickableClass }}">{{ row.qteLivrer }}</td>
 						<td class="text-center">
 							{% if row.envoyeFrn %}
 								<a {% for attr, val in row.aDtLivPrevAttributes %} {{ attr }}="{{ val }}" {% endfor %}>
@@ -108,6 +109,10 @@
 						</td>
 						<td class="text-center {{ row.styleJoursDispo }}">{{ row.joursDispo }}</td>
 						<td class="text-center">{{ row.demandeur}}</td>
+					</tr>
+				{% else %}
+					<tr>
+						<td colspan="24" class="text-center py-4">Aucune donnée trouvée</td>
 					</tr>
 				{% endfor %}
 			</tbody>
