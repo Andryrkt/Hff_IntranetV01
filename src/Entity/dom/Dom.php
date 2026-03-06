@@ -362,11 +362,6 @@ class Dom
      */
     private  $categoryId = null;
 
-
-    private $codeAgenceAutoriser;
-
-    private $codeServiceAutoriser;
-
     private $rmq;
 
     private $statutTropPercuOk = false;
@@ -1241,29 +1236,6 @@ class Dom
     {
         $this->categoryId = $categoryId;
 
-        return $this;
-    }
-
-
-    public function getCodeAgenceAutoriser()
-    {
-        return $this->codeAgenceAutoriser;
-    }
-
-    public function setCodeAgenceAutoriser($codeAgenceAutoriser): self
-    {
-        $this->codeAgenceAutoriser = $codeAgenceAutoriser;
-        return $this;
-    }
-
-    public function getCodeSreviceAutoriser()
-    {
-        return $this->codeServiceAutoriser;
-    }
-
-    public function setCodeServiceAutoriser($codeServiceAutoriser): self
-    {
-        $this->codeServiceAutoriser = $codeServiceAutoriser;
         return $this;
     }
 

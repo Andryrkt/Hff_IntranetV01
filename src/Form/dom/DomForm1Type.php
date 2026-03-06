@@ -2,33 +2,24 @@
 
 namespace App\Form\dom;
 
-
 use App\Entity\dom\Dom;
-
-
-use App\Entity\admin\Agence;
-
 use App\Entity\admin\dom\Rmq;
-use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\admin\dom\Catg;
 use App\Entity\admin\Personnel;
 use Doctrine\ORM\EntityRepository;
 use App\Entity\admin\dom\Indemnite;
 use Symfony\Component\Form\FormEvent;
-use App\Entity\admin\utilisateur\User;
 use Symfony\Component\Form\FormEvents;
+use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\admin\AgenceServiceIrium;
 use Symfony\Component\Form\AbstractType;
 use App\Entity\admin\dom\SousTypeDocument;
-use App\Repository\admin\dom\CatgRepository;
-use App\Repository\admin\dom\SousTypeDocumentRepository;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use App\Repository\admin\dom\SousTypeDocumentRepository;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\NumberType;
-
 
 class DomForm1Type extends AbstractType
 {
@@ -43,9 +34,9 @@ class DomForm1Type extends AbstractType
     {
         $this->em = $em;
     }
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-
         $builder
             ->add(
                 'agenceEmetteur',
@@ -60,7 +51,6 @@ class DomForm1Type extends AbstractType
                     'data' => $options["data"]->getAgenceEmetteur() ?? null
                 ]
             )
-
             ->add(
                 'serviceEmetteur',
                 TextType::class,
@@ -219,14 +209,11 @@ class DomForm1Type extends AbstractType
                     'data' => 'PERMANENT'
                 ]
             )
-
             ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use ($options) {
                 $form = $event->getForm();
-                $data = $event->getData();
 
                 // Récupération de l'ID du service agence irium
-                $agenceServiceIriumId = $this->em->getRepository(AgenceServiceIrium::class)
-                    ->findId($data->getCodeAgenceAutoriser(), $data->getCodeSreviceAutoriser());
+                $agenceServiceIriumId = $this->em->getRepository(AgenceServiceIrium::class)->findByAgenceServices($options['agenceServiceAutorisees']);
 
                 // Ajout du champ 'matriculeNom'
                 $form->add(
@@ -250,7 +237,6 @@ class DomForm1Type extends AbstractType
                     ]
                 );
             })
-
             ->add(
                 'matricule',
                 TextType::class,
@@ -337,13 +323,11 @@ class DomForm1Type extends AbstractType
         });
     }
 
-
-
-
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
             'data_class' => Dom::class,
+            'agenceServiceAutorisees' => [],
         ]);
     }
 }

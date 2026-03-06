@@ -2,13 +2,11 @@
 
 namespace App\Controller\dom;
 
-
 use App\Entity\dom\Dom;
 use App\Controller\Controller;
 use App\Form\dom\DomForm1Type;
-use App\Entity\admin\Application;
-use App\Entity\admin\utilisateur\User;
 use App\Entity\admin\dom\SousTypeDocument;
+use App\Constants\admin\ApplicationConstant;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -22,18 +20,18 @@ class DomFirstController extends Controller
      */
     public function firstForm(Request $request)
     {
-        //récupération de l'utilisateur connecté
-        $user = $this->getUser();
-
         // Récupération de l'agence et du service de l'utilisateur connecté
         $agenceServiceIps = $this->agenceServiceIpsString();
 
         $dom = new Dom();
+
         //INITIALISATION 
-        $dom = $this->initialisationDom($dom, $agenceServiceIps, $user);
+        $dom = $this->initialisationDom($dom, $agenceServiceIps);
 
         //CREATION DU FORMULAIRE
-        $form = $this->getFormFactory()->createBuilder(DomForm1Type::class, $dom)->getForm();
+        $form = $this->getFormFactory()->createBuilder(DomForm1Type::class, $dom, [
+            'agenceServiceAutorisees' => $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DOM)
+        ])->getForm();
         //TRAITEMENT DU FORMULAIRE
         $this->traitemementForm($form, $request, $dom);
 
@@ -68,18 +66,16 @@ class DomFirstController extends Controller
      * Initialise le DOM
      * @param Dom $dom
      * @param array $agenceServiceIps
-     * @param User $user
+     * 
      * @return Dom
      */
-    private function initialisationDom(Dom $dom, array $agenceServiceIps, User $user): Dom
+    private function initialisationDom(Dom $dom, array $agenceServiceIps): Dom
     {
         return $dom
             ->setAgenceEmetteur($agenceServiceIps['agenceIps'])
             ->setServiceEmetteur($agenceServiceIps['serviceIps'])
             ->setSousTypeDocument($this->getEntityManager()->getRepository(SousTypeDocument::class)->find(2))
             ->setSalarier('PERMANENT')
-            ->setCodeAgenceAutoriser($user->getAgenceAutoriserCode())
-            ->setCodeServiceAutoriser($user->getServiceAutoriserCode())
         ;
     }
 
