@@ -2,16 +2,13 @@
 
 namespace App\Controller\magasin\devis;
 
-use App\Constants\admin\ApplicationConstant;
-use App\Constants\Magasin\Devis\PointageRelanceStatutConstant;
-use App\Entity\admin\Agence;
-use App\Entity\admin\Service;
 use App\Controller\Controller;
-use App\Entity\admin\Application;
 use App\Entity\dw\DwBcClientNegoce;
 use App\Entity\magasin\bc\BcMagasin;
+use App\Model\Traits\ConversionModel;
 use App\Service\TableauEnStringService;
 use App\Entity\magasin\devis\DevisMagasin;
+use App\Constants\admin\ApplicationConstant;
 use App\Entity\magasin\devis\PointageRelance;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -20,7 +17,9 @@ use App\Factory\magasin\devis\ListeDevisSearchDto;
 use App\Form\magasin\devis\DevisMagasinSearchType;
 use App\Model\magasin\devis\ListeDevisMagasinModel;
 use App\Factory\magasin\devis\ListeDevisMagasinFactory;
-use App\Model\Traits\ConversionModel;
+use App\Repository\magasin\devis\DevisMagasinRepository;
+use App\Repository\magasin\devis\PointageRelanceRepository;
+use App\Constants\Magasin\Devis\PointageRelanceStatutConstant;
 
 /**
  * @Route("/magasin/dematerialisation")
@@ -157,11 +156,13 @@ class ListeDevisMagasinController extends Controller
         $listeDevisFactory = [];
         $dejaVu = []; // Tableau pour mémoriser les numéros de devis déjà traités
 
+        /** @var DevisMagasinRepository $devisMagasinRepository */
         $devisMagasinRepository = $this->getEntityManager()->getRepository(DevisMagasin::class);
 
         /** @var DwBcClientNegoceRepository $dwBcClientNegoceRepository */
         $dwBcClientNegoceRepository = $this->getEntityManager()->getRepository(DwBcClientNegoce::class);
 
+        /** @var PointageRelanceRepository $pointageRelanceRepository */
         $pointageRelanceRepository = $this->getEntityManager()->getRepository(PointageRelance::class);
 
         foreach ($devisIps as $devisIp) {
@@ -183,8 +184,7 @@ class ListeDevisMagasinController extends Controller
             $devisIp['statut_dw']                  = $devisSoumi ? $devisSoumi->getStatutDw()                  : DevisMagasin::STATUT_A_TRAITER;
             $devisIp['operateur']                  = $devisSoumi ? $devisSoumi->getUtilisateur()               : '';
             $devisIp['date_envoi_devis_au_client'] = $devisSoumi ? ($devisSoumi->getDateEnvoiDevisAuClient() ? $devisSoumi->getDateEnvoiDevisAuClient() : '') : '';
-            $devisIp['utilisateur_createur_devis'] = $this->listeDevisMagasinModel
-                ->getUtilisateurCreateurDevis($numeroDevis) ?? '';
+            $devisIp['utilisateur_createur_devis'] = $this->listeDevisMagasinModel->getUtilisateurCreateurDevis($numeroDevis) ?? '';
             $devisIp['statut_bc']                  = $devisSoumi ? $devisSoumi->getStatutBc()                  : '';
             $devisIp['stop_relance']               = $devisSoumi ? ($devisSoumi->getStopProgressionGlobal() ?? false) : false;
             $devisIp['motif_stop']                 = $devisSoumi ? $devisSoumi->getMotifStopGlobal() : null;
