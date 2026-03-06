@@ -294,66 +294,54 @@ class DaAfficherRepository extends EntityRepository
         $exceptions = ['DAP25079981'];
 
         // ------------------------------------------------------------------
-        // Sous-requête DQL : MAX(version) pour le même couple (mere, appro)
-        // corrélée à la requête principale via d.numeroDemandeAppro
+        // Sous-requête DQL simplifiée : MAX(version)
         // ------------------------------------------------------------------
         $subDql = '
         SELECT MAX(sub.numeroVersion)
         FROM ' . DaAfficher::class . ' sub
-        WHERE sub.numeroDemandeApproMere = d.numeroDemandeApproMere
-          AND sub.numeroDemandeAppro     = d.numeroDemandeAppro
-          AND sub.statutDal             IN (:statutDal)
-          AND (
-              sub.statutOr              IN (:statutOrs)
-              OR sub.numeroDemandeAppro IN (:exceptions)
-          )
+        WHERE sub.numeroDemandeAppro = d.numeroDemandeAppro
+          AND sub.statutDal IN (:statutDal)
+          AND (sub.statutOr IN (:statutOrs) OR sub.numeroDemandeAppro IN (:exceptions))
     ';
 
         // ------------------------------------------------------------------
         // Requête principale
         // ------------------------------------------------------------------
         $qb = $this->_em->createQueryBuilder();
-        $qb->select('d')
+        $qb->select('d', 'da', 'dit')
             ->from(DaAfficher::class, 'd')
-            // Filtre : ligne non supprimée
+            ->leftJoin('d.demandeAppro', 'da')
+            ->leftJoin('d.dit', 'dit')
             ->andWhere('d.deleted = 0')
-            // Filtre : statut CDE
-            ->andWhere(
-                $qb->expr()->orX(
-                    'd.statutCde != :statutPasDansOr',
-                    'd.statutCde IS NULL'
-                )
-            )
-            // Filtre : seulement la dernière version (sous-requête corrélée)
+            ->andWhere('d.statutCde IS NULL OR d.statutCde != :statutPasDansOr')
             ->andWhere('d.numeroVersion = (' . $subDql . ')')
-            // Filtre : statuts DA
             ->andWhere('d.statutDal IN (:statutDal)')
-            // Filtre : statut OR ou exception
-            ->andWhere(
-                $qb->expr()->orX(
-                    $qb->expr()->in('d.statutOr', ':statutOrs'),
-                    $qb->expr()->in('d.numeroDemandeAppro', ':exceptions')
-                )
-            )
+            ->andWhere($qb->expr()->orX(
+                $qb->expr()->in('d.statutOr', ':statutOrs'),
+                $qb->expr()->in('d.numeroDemandeAppro', ':exceptions')
+            ))
             ->setParameter('statutPasDansOr', DaSoumissionBc::STATUT_PAS_DANS_OR)
             ->setParameter('statutDal', $statutDas)
             ->setParameter('statutOrs', $statutOrs)
             ->setParameter('exceptions', $exceptions);
 
-        // Filtres dynamiques utilisateur (inchangés)
+        // Filtres dynamiques
         $this->applyDynamicFilters($qb, 'd', $criteria, true);
         $this->applyStatutsFilters($qb, 'd', $criteria, true);
         $this->applyDateFilters($qb, 'd', $criteria, true);
 
         // ------------------------------------------------------------------
-        // COUNT pour la pagination (clone avant ORDER BY / pagination)
+        // COUNT optimisé (COUNT(d.id) est plus rapide que DISTINCT)
         // ------------------------------------------------------------------
         $countQb = clone $qb;
         $countQb->resetDQLPart('select');
         $countQb->resetDQLPart('orderBy');
-        $countQb->select('COUNT(DISTINCT d.numeroDemandeApproMere)');
+        $countQb->select('COUNT(d.id)');
 
-        $totalItems = (int) $countQb->getQuery()->getSingleScalarResult();
+        // On utilise un cache de 5 minutes pour le total afin d'accélérer la navigation
+        $totalItems = (int) $countQb->getQuery()
+            ->useResultCache(true, 300, 'da_cde_frn_count_' . md5(serialize($criteria)))
+            ->getSingleScalarResult();
 
         if ($totalItems === 0) {
             return [
@@ -626,8 +614,23 @@ class DaAfficherRepository extends EntityRepository
 
 
         if (empty($criteria['numDit']) && empty($criteria['numDa'])) {
-            $qb->leftJoin("$qbLabel.dit", 'dit')
-                ->leftJoin('dit.idStatutDemande', 'statut')
+            // Vérifier si la jointure sur 'dit' existe déjà pour éviter l'erreur "already defined"
+            $joins = $qb->getDQLPart('join');
+            $alreadyJoined = false;
+            foreach ($joins as $rootAlias => $joinList) {
+                foreach ($joinList as $join) {
+                    if ($join->getAlias() === 'dit') {
+                        $alreadyJoined = true;
+                        break 2;
+                    }
+                }
+            }
+
+            if (!$alreadyJoined) {
+                $qb->leftJoin("$qbLabel.dit", 'dit');
+            }
+
+            $qb->leftJoin('dit.idStatutDemande', 'statut')
                 ->andWhere("$qbLabel.dit IS NULL OR statut.id NOT IN (:clotureStatut)")
                 ->setParameter('clotureStatut', [
                     DemandeIntervention::STATUT_CLOTUREE_ANNULEE,
