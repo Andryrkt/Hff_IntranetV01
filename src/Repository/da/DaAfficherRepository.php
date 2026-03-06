@@ -545,6 +545,7 @@ class DaAfficherRepository extends EntityRepository
         $motherQb->resetDQLPart('orderBy');
         $motherQb->select('d.numeroDemandeApproMere');
         $motherQb->groupBy('d.numeroDemandeApproMere');
+        $this->handleOrderBy($motherQb, 'd', $criteria, true);
         $motherQb->addOrderBy('d.numeroDemandeApproMere', 'DESC');
         $motherQb->setFirstResult(($page - 1) * $limit)
             ->setMaxResults($limit);
