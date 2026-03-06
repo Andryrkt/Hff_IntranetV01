@@ -98,7 +98,7 @@ class DaListCdeFrnController extends Controller
         $paginationData = $this->getPaginationData($criteriaTab, $page, $limit);
 
         /** mise à jour des donners daAfficher */
-        $this->quelqueMiseAjourDaAfficher($paginationData['data']);
+        // $this->quelqueMiseAjourDaAfficher($paginationData['data']);
 
         /** Préparer les données à afficher dans twig */
         $dataPrepared = $this->prepareDataForDisplay($paginationData['data']);
