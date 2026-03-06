@@ -185,13 +185,13 @@ class SecurityService
     /**
      * Retourne la liste des agences et services groupés par id pour une application donnée
      */
-    public function getAgenceServices(string $codeApp): array
+    public function getAgenceServices(string $codeApp, bool $groupById = true): array
     {
-        return $this->dataService->getAgenceServiceGroupById($codeApp);
+        return $groupById ? $this->dataService->getAgenceServiceGroupById($codeApp) : $this->dataService->getAgenceServiceGroupByCode($codeApp);
     }
 
     /**
-     * Retourne la liste des agences et services groupés par id pour une application donnée
+     * Retourne la liste des id de couple agence-service pour une application donnée
      */
     public function getAgenceServiceIds(string $codeApp): array
     {
