@@ -88,6 +88,7 @@ class DevisMagasinValidationDevisController extends Controller
         //instancier le devis magasin
         $devisMagasin = new DevisMagasin();
         $devisMagasin->setNumeroDevis($numeroDevis);
+        $devisMagasin->setCodeSociete($codeSociete);
 
         //création du formulaire
         $form = $this->getFormFactory()->createBuilder(DevisMagasinType::class, $devisMagasin)->getForm();
