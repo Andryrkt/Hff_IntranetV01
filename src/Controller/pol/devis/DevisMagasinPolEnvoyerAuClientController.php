@@ -56,7 +56,7 @@ class DevisMagasinPolEnvoyerAuClientController extends Controller
         ])->getForm();
 
         /** Traitement du formulaire */
-        $this->traitementFormulaire($form, $request, $numeroDevis);
+        $this->traitementFormulaire($form, $request, $numeroDevis, $codeSociete);
 
         //affichage du formulaire
         return $this->render('magasin/devis/envoyerAuClient.html.twig', [
@@ -84,14 +84,14 @@ class DevisMagasinPolEnvoyerAuClientController extends Controller
         return new Response();
     }
 
-    private function traitementFormulaire(FormInterface $form, Request $request, string $numeroDevis)
+    private function traitementFormulaire(FormInterface $form, Request $request, string $numeroDevis, string $codeSociete)
     {
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
 
-            $numeroVersionMax = $this->getEntityManager()->getRepository(DevisMagasin::class)->getNumeroVersionMax($numeroDevis);
-            $devisMagasin = $this->getEntityManager()->getRepository(DevisMagasin::class)->findOneBy(['numeroDevis' => $numeroDevis, 'numeroVersion' => $numeroVersionMax]);
+            $numeroVersionMax = $this->getEntityManager()->getRepository(DevisMagasin::class)->getNumeroVersionMax($numeroDevis, $codeSociete);
+            $devisMagasin = $this->getEntityManager()->getRepository(DevisMagasin::class)->findOneBy(['numeroDevis' => $numeroDevis, 'numeroVersion' => $numeroVersionMax, 'codeSociete' => $codeSociete]);
             $devisMagasin->setDateEnvoiDevisAuClient($data['dateEnvoiDevisAuClient']);
             $devisMagasin->setStatutDw(DevisMagasin::STATUT_ENVOYER_CLIENT);
             $devisMagasin->setStatutBc(BcMagasin::STATUT_EN_ATTENTE_BC);
