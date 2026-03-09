@@ -2,22 +2,22 @@
 
 namespace App\Repository\magasin\devis;
 
-use App\Entity\magasin\devis\DevisMagasin;
-use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\EntityRepository;
-use App\Entity\magasin\devis\PointageRelance;
+use App\Entity\magasin\devis\DevisMagasin;
 use App\Repository\Interfaces\StatusRepositoryInterface;
 use App\Repository\Interfaces\LatestSumOfLinesRepositoryInterface;
 use App\Repository\Interfaces\LatestSumOfMontantRepositoryInterface;
 
 class DevisMagasinRepository extends EntityRepository implements StatusRepositoryInterface, LatestSumOfLinesRepositoryInterface, LatestSumOfMontantRepositoryInterface
 {
-    public function getNumeroVersionMax(string $numDevis)
+    public function getNumeroVersionMax(string $numDevis, string $codeSociete)
     {
         $numeroVersionMax = $this->createQueryBuilder('dsv')
             ->select('MAX(dsv.numeroVersion)')
             ->where('dsv.numeroDevis = :numDevis')
+            ->andWhere('dsv.codeSociete = :codeSociete')
             ->setParameter('numDevis', $numDevis)
+            ->setParameter('codeSociete', $codeSociete)
             ->getQuery()
             ->getSingleScalarResult();
 

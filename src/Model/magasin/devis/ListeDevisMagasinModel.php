@@ -11,7 +11,7 @@ class ListeDevisMagasinModel extends Model
 {
     use ConversionModel;
 
-    public function getDevis(array $criteria = [],  string $vignette = 'magasin', array $agenceServiceAutorises, $numDeviAExclureString): array
+    public function getDevis(array $criteria = [],  string $vignette = 'magasin', array $agenceServiceAutorises, $numDeviAExclureString, string $codeSociete): array
     {
         if (!empty($criteria) && array_key_exists('numeroDevis', $criteria) && !empty($criteria['numeroDevis'])) {
             $numeroDevis = $criteria['numeroDevis'];
@@ -34,7 +34,7 @@ class ListeDevisMagasinModel extends Model
             FROM informix.neg_ent
             left JOIN informix.neg_lig on nlig_numcde = nent_numcde
             WHERE nent_natop = 'DEV'
-            AND nent_soc = 'HF'
+            AND nent_soc = '$codeSociete'
             AND nent_servcrt <> 'ASS'
             $statementNumDevis
             AND (CAST(nent_numcli AS VARCHAR(20)) NOT LIKE '199%' and nent_numcli not in ('1101222', '1990000'))
@@ -250,8 +250,7 @@ class ListeDevisMagasinModel extends Model
      */
     public function getCodeLibelleClient()
     {
-        $statement = "SELECT DISTINCT nent_numcli as code_client, nent_nomcli as nom_client
-                        from neg_ent
+        $statement = "SELECT DISTINCT nent_numcli as code_client, nent_nomcli as nom_client from neg_ent
         ";
 
         $result = $this->connect->executeQuery($statement);
@@ -261,12 +260,12 @@ class ListeDevisMagasinModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function getUtilisateurCreateurDevis(string $numeroDevis): string
+    public function getUtilisateurCreateurDevis(string $numeroDevis, string $codeSociete): string
     {
         $statement = "SELECT TRIM(ausr_nom) as utilisateur_createur_devis
             FROM informix.neg_ent
             inner join informix.agr_usr on ausr_num = nent_usr and ausr_soc = nent_soc
-            WHERE nent_numcde = '$numeroDevis'";
+            WHERE nent_numcde = '$numeroDevis' and nent_soc='$codeSociete'";
 
         $result = $this->connect->executeQuery($statement);
 
@@ -421,7 +420,7 @@ class ListeDevisMagasinModel extends Model
     }
 
 
-    public function getStatutRelance(string $numeroDevis): ?array
+    public function getStatutRelance(string $numeroDevis, string $codeSociete): ?array
     {
         $sql = " SET NOCOUNT ON;
                 DECLARE @date_limite DATE = '2026-02-26';
@@ -461,7 +460,7 @@ class ListeDevisMagasinModel extends Model
                     FROM devis_soumis_a_validation_neg dsavn
                     LEFT JOIN pointage_relance pr 
                         ON pr.numero_devis = dsavn.numero_devis
-                    WHERE dsavn.numero_devis = '$numeroDevis'
+                    WHERE dsavn.numero_devis = '$numeroDevis' and dsvan.codeSociete = '$codeSociete'
                     GROUP BY 
                         dsavn.numero_devis,
                         dsavn.date_envoye_devis_client,
