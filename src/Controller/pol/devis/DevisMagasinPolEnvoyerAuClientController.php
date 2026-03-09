@@ -42,8 +42,11 @@ class DevisMagasinPolEnvoyerAuClientController extends Controller
      */
     public function envoyerAuClient(Request $request, string $numeroDevis)
     {
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+
         /** Gestion de blocage */
-        $this->gestionDeBlocage($numeroDevis);
+        $this->gestionDeBlocage($numeroDevis, $codeSociete);
 
         //formulaire de création
         $form = $this->getFormFactory()->createBuilder(DevisMagasinEnvoyerAuClientType::class, null, [
@@ -61,12 +64,12 @@ class DevisMagasinPolEnvoyerAuClientController extends Controller
         ]);
     }
 
-    private function gestionDeBlocage(string $numeroDevis): Response
+    private function gestionDeBlocage(string $numeroDevis, string $codeSociete): Response
     {
         $validateur = new DevisMagasinEnvoyerAuClientValidatorService();
 
         //recupération des informations utile dans IPS
-        $firstDevisIps = $this->getInfoDevisIps($numeroDevis);
+        $firstDevisIps = $this->getInfoDevisIps($numeroDevis, $codeSociete);
         [$newSumOfLines, $newSumOfMontant] = $this->newSumOfLinesAndAmount($firstDevisIps);
 
         $data = [

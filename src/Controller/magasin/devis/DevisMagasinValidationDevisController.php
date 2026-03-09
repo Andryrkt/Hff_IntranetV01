@@ -63,8 +63,11 @@ class DevisMagasinValidationDevisController extends Controller
      */
     public function soumission(?string $numeroDevis = null, string $codeAgenceService, Request $request)
     {
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+
         //recupération des informations utile dans IPS
-        $firstDevisIps = $this->getInfoDevisIps($numeroDevis);
+        $firstDevisIps = $this->getInfoDevisIps($numeroDevis, $codeSociete);
         [$newSumOfLines, $newSumOfMontant] = $this->newSumOfLinesAndAmount($firstDevisIps);
 
         //instanciation de l'orchestrateur de validation

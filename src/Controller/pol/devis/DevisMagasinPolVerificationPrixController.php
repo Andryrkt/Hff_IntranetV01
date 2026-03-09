@@ -64,11 +64,14 @@ class DevisMagasinPolVerificationPrixController extends Controller
     {
         $remoteUrl = $this->getLastEditedDevis($numeroDevis);
 
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+
         // Instantiation et validation de la présence du numéro de devis
         $orchestrator = new DevisMagasinValidationVpOrchestrator($numeroDevis ?? '', $remoteUrl["court"]);
 
         //recupération des informations utile dans IPS
-        $firstDevisIps = $this->getInfoDevisIps($numeroDevis);
+        $firstDevisIps = $this->getInfoDevisIps($numeroDevis, $codeSociete);
         [$newSumOfLines, $newSumOfMontant] = $this->newSumOfLinesAndAmount($firstDevisIps);
 
         /** @var DevisMagasinRepository */
