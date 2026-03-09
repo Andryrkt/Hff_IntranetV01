@@ -59,14 +59,14 @@ class PointageRelanceController extends Controller
             // Code Société de l'utilisateur
             $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
 
-            $pointageRelanceEntity = (new PointageRelanceFactory())->map($data, $this->getUserName(), $this->numeroRelance($data['numeroDevis']));
+            $pointageRelanceEntity = (new PointageRelanceFactory())->map($data, $this->getUserName(), $this->numeroRelance($data['numeroDevis'], $codeSociete));
             $pointageRelanceEntity->setCodeSociete($codeSociete);
 
             $this->getEntityManager()->persist($pointageRelanceEntity);
             $this->getEntityManager()->flush();
 
             // Mettre à jour le statut de relance du devis
-            $this->modifictionTableDevisSoumisAValidationNeg($pointageRelanceEntity);
+            $this->modifictionTableDevisSoumisAValidationNeg($pointageRelanceEntity, $codeSociete);
 
             return $this->jsonResponse(['success' => true, 'message' => 'Formulaire soumis avec succès.']);
         }
@@ -75,15 +75,15 @@ class PointageRelanceController extends Controller
         return $this->jsonResponse(['success' => false, 'message' => 'Erreurs de validation.', 'errors' => (string) $form->getErrors(true, false)], 400);
     }
 
-    public function numeroRelance(int $numeroDevis): int
+    public function numeroRelance(int $numeroDevis, string $codeSociete): int
     {
-        $numeroRelanceMax = $this->getEntityManager()->getRepository(PointageRelance::class)->getNumeroRelanceMax($numeroDevis);
+        $numeroRelanceMax = $this->getEntityManager()->getRepository(PointageRelance::class)->getNumeroRelanceMax($numeroDevis, $codeSociete);
         return AutoIncDecService::autoIncrement($numeroRelanceMax);
     }
 
-    private function modifictionTableDevisSoumisAValidationNeg(PointageRelance $pointageRelanceEntity): void
+    private function modifictionTableDevisSoumisAValidationNeg(PointageRelance $pointageRelanceEntity, string $codeSociete): void
     {
-        $devis = $this->getEntityManager()->getRepository(DevisMagasin::class)->getDevis($pointageRelanceEntity->getNumeroDevis());
+        $devis = $this->getEntityManager()->getRepository(DevisMagasin::class)->getDevis($pointageRelanceEntity->getNumeroDevis(), $codeSociete);
         if ($devis) {
             $devis->setStatutRelance('Relancé');
             $this->getEntityManager()->flush();
