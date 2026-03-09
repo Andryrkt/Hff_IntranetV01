@@ -77,98 +77,98 @@ trait StatutBcTrait
         //----------------------------------------------------------------------------------------------------
     }
 
-    private function statutBc(DaAfficher $DaAfficher): ?string
-    {
-        // 0. recupération de l'entity manager
-        $em = $this->getEntityManager();
+    // private function statutBc(DaAfficher $DaAfficher): ?string
+    // {
+    //     // 0. recupération de l'entity manager
+    //     $em = self::getEntity();
 
-        // 1. recupération des données necessaire dans DaAfficher
-        [$ref, $numDit, $numDa, $designation, $numeroOr, $statutOr, $statutBc, $statutDa] = $this->getVariableNecessaire($DaAfficher);
+    //     // 1. recupération des données necessaire dans DaAfficher
+    //     [$ref, $numDit, $numDa, $designation, $numeroOr, $statutOr, $statutBc, $statutDa] = $this->getVariableNecessaire($DaAfficher);
 
-        /** 2. recuperation type DA @var bool $daDirect @var bool $daViaOR @var bool $daReappro  */
-        [$daDirect, $daViaOR, $daReappro] = $this->getTypeDa($DaAfficher);
+    //     /** 2. recuperation type DA @var bool $daDirect @var bool $daViaOR @var bool $daReappro  */
+    //     [$daDirect, $daViaOR, $daReappro] = $this->getTypeDa($DaAfficher);
 
-        // 3. on met vide la statut bc selon le condition en survolant la fonction
-        if ($this->doitRetournerVide($statutDa, $statutOr, $daViaOR)) return '';
+    //     // 3. on met vide la statut bc selon le condition en survolant la fonction
+    //     if ($this->doitRetournerVide($statutDa, $statutOr, $daViaOR)) return '';
 
-        // 4. modification de l'information de l'or
-        if (!$daDirect) $this->updateInfoOR($DaAfficher, $daViaOR, $daReappro);
+    //     // 4. modification de l'information de l'or
+    //     if (!$daDirect) $this->updateInfoOR($DaAfficher, $daViaOR, $daReappro);
 
-        // 5. modification du statut de la DA
-        if ($statutOr === DemandeAppro::STATUT_DW_A_MODIFIER && $statutDa !== DemandeAppro::STATUT_EN_COURS_CREATION) $DaAfficher->setStatutDal(DemandeAppro::STATUT_EN_COURS_CREATION);
+    //     // 5. modification du statut de la DA
+    //     if ($statutOr === DemandeAppro::STATUT_DW_A_MODIFIER && $statutDa !== DemandeAppro::STATUT_EN_COURS_CREATION) $DaAfficher->setStatutDal(DemandeAppro::STATUT_EN_COURS_CREATION);
 
-        /** 6.recuperation des informations necessaire dans IPS  @var array $infoDaDirect @var array $situationCde*/
-        [$infoDaDirect, $situationCde] = $this->getInfoNecessaireIps($ref, $numDit, $numDa, $designation, $numeroOr, $statutBc);
+    //     /** 6.recuperation des informations necessaire dans IPS  @var array $infoDaDirect @var array $situationCde*/
+    //     [$infoDaDirect, $situationCde] = $this->getInfoNecessaireIps($ref, $numDit, $numDa, $designation, $numeroOr, $statutBc);
 
-        /** 7.Statut DA Clôturée || Non dispo || DA avec DIT et numéro OR null || numéro OR non vide et statut OR non vide || infoDaDirect ou situationCde est vide */
-        if ($statutDa === DemandeAppro::STATUT_CLOTUREE || $DaAfficher->getNonDispo() || ($numeroOr == null && $daViaOR) || ($numeroOr != null && empty($statutOr)) || $this->aSituationCde($situationCde, $daViaOR)) {
-            return $statutBc;
-        }
+    //     /** 7.Statut DA Clôturée || Non dispo || DA avec DIT et numéro OR null || numéro OR non vide et statut OR non vide || infoDaDirect ou situationCde est vide */
+    //     if ($statutDa === DemandeAppro::STATUT_CLOTUREE || $DaAfficher->getNonDispo() || ($numeroOr == null && $daViaOR) || ($numeroOr != null && empty($statutOr)) || $this->aSituationCde($situationCde, $daViaOR)) {
+    //         return $statutBc;
+    //     }
 
-        /** 8. recupération de numero commande dans IPS et  statut commande dans da_bc_soumission */
-        [$numCde, $statutSoumissionBc] = $this->getInfoCde($infoDaDirect, $situationCde, $daDirect, $daViaOR, $daReappro, $numeroOr, $em);
+    //     /** 8. recupération de numero commande dans IPS et  statut commande dans da_bc_soumission */
+    //     [$numCde, $statutSoumissionBc] = $this->getInfoCde($infoDaDirect, $situationCde, $daDirect, $daViaOR, $daReappro, $numeroOr, $em);
 
-        /** 9. recupération des qte necessaire dans IPS @var array $qte */
-        $qte = $this->getQte($ref, $numDit, $numDa, $designation, $numeroOr, $statutBc, $daDirect, $daViaOR, $daReappro, $numCde);
+    //     /** 9. recupération des qte necessaire dans IPS @var array $qte */
+    //     $qte = $this->getQte($ref, $numDit, $numDa, $designation, $numeroOr, $statutBc, $daDirect, $daViaOR, $daReappro, $numCde);
 
-        /** 10.  @var bool $partiellementDispo @var bool $completNonLivrer @var bool $toutLivres @var bool $partiellementLivrer */
-        [$partiellementDispo, $completNonLivrer, $tousLivres, $partiellementLivre] = $this->evaluerQuantites($qte,  $infoDaDirect, $daDirect, $DaAfficher);
+    //     /** 10.  @var bool $partiellementDispo @var bool $completNonLivrer @var bool $toutLivres @var bool $partiellementLivrer */
+    //     [$partiellementDispo, $completNonLivrer, $tousLivres, $partiellementLivre] = $this->evaluerQuantites($qte,  $infoDaDirect, $daDirect, $DaAfficher);
 
-        // 11. modification de situation commande dans DaAfficher
-        $this->updateSituationCdeDansDaAfficher($situationCde, $DaAfficher, $numCde, $infoDaDirect, $daDirect, $daViaOR, $daReappro, $qte);
+    //     // 11. modification de situation commande dans DaAfficher
+    //     $this->updateSituationCdeDansDaAfficher($situationCde, $DaAfficher, $numCde, $infoDaDirect, $daDirect, $daViaOR, $daReappro, $qte);
 
-        // 12. modification du Qte de commande dans DaAfficher
-        $this->updateQteCdeDansDaAfficher($qte, $DaAfficher, $infoDaDirect, $daDirect, $daViaOR);
+    //     // 12. modification du Qte de commande dans DaAfficher
+    //     $this->updateQteCdeDansDaAfficher($qte, $DaAfficher, $infoDaDirect, $daDirect, $daViaOR);
 
-        // 13. modification du date de creation et validation Bc
-        $this->updateDateBc($DaAfficher, $numCde, $em);
+    //     // 13. modification du date de creation et validation Bc
+    //     $this->updateDateBc($DaAfficher, $numCde, $em);
 
-        // DA DIRECT et DA REAPPRO
-        if ((empty($situationCde) && $daViaOR && $statutOr === DitOrsSoumisAValidation::STATUT_VALIDE) || ($daReappro && $statutOr ===  DemandeAppro::STATUT_DW_VALIDEE && $DaAfficher->getNumeroCde() === null)) {
-            return 'PAS DANS OR';
-        }
-        // DA Direct , DA Via OR
-        elseif (!$daReappro && $this->doitGenererBc($situationCde, $statutDa, $statutOr, $infoDaDirect, $daDirect, $daViaOR)) {
-            return 'A générer';
-        } elseif (!$daReappro && $this->doitEditerBc($situationCde, $infoDaDirect, $daDirect, $daViaOR)) {
-            return 'A éditer';
-        } elseif (!$daReappro && $this->doitSoumettreBc($situationCde, $numCde, $statutBc, $infoDaDirect, $daDirect, $daViaOR)) {
-            return 'A soumettre à validation';
-        } elseif (!$daReappro && $this->doitEnvoyerBc($situationCde, $statutBc, $DaAfficher, $statutSoumissionBc, $infoDaDirect, $daDirect, $daViaOR)) {
-            return 'A envoyer au fournisseur';
-        } elseif (!$daReappro && $DaAfficher->getBcEnvoyerFournisseur() && !$DaAfficher->getEstFactureBlSoumis()) {
-            return 'BC envoyé au fournisseur';
-        }
-        // DA Reappro
-        elseif ($daReappro && $numeroOr == null && $statutOr == DemandeAppro::STATUT_DW_VALIDEE) {
-            return DaSoumissionBc::STATUT_CESSION_A_GENERER;
-        } elseif ($daReappro && $numeroOr != null && $statutOr == DemandeAppro::STATUT_DW_VALIDEE && $DaAfficher->getEstBlReapproSoumis() == false) {
-            return DaSoumissionBc::STATUT_EN_COURS_DE_PREPARATION;
-        }
-        // DA Reappro, DA Direct , DA Via OR
-        elseif ($partiellementDispo) {
-            return 'Partiellement dispo';
-        } elseif ($completNonLivrer) {
-            return 'Complet non livré';
-        } elseif ($tousLivres) {
-            return 'Tous livrés';
-        } elseif ($partiellementLivre) {
-            return 'Partiellement livré';
-        } elseif ($DaAfficher->getEstFactureBlSoumis()) {
-            return 'BC envoyé au fournisseur';
-        }
-        // DA Direct , DA Via OR
-        elseif ($daDirect || $daViaOR) {
-            return $statutSoumissionBc;
-        }
-        // DA REAPPRO
-        elseif ($daReappro && $numeroOr != null && $statutOr == DemandeAppro::STATUT_DW_VALIDEE && $DaAfficher->getEstBlReapproSoumis() == true) {
-            return DaSoumissionBc::STATUT_EN_COURS_DE_PREPARATION;
-        }
+    //     // DA DIRECT et DA REAPPRO
+    //     if ((empty($situationCde) && $daViaOR && $statutOr === DitOrsSoumisAValidation::STATUT_VALIDE) || ($daReappro && $statutOr ===  DemandeAppro::STATUT_DW_VALIDEE && $DaAfficher->getNumeroCde() === null)) {
+    //         return 'PAS DANS OR';
+    //     }
+    //     // DA Direct , DA Via OR
+    //     elseif (!$daReappro && $this->doitGenererBc($situationCde, $statutDa, $statutOr, $infoDaDirect, $daDirect, $daViaOR)) {
+    //         return 'A générer';
+    //     } elseif (!$daReappro && $this->doitEditerBc($situationCde, $infoDaDirect, $daDirect, $daViaOR)) {
+    //         return 'A éditer';
+    //     } elseif (!$daReappro && $this->doitSoumettreBc($situationCde, $numCde, $statutBc, $infoDaDirect, $daDirect, $daViaOR)) {
+    //         return 'A soumettre à validation';
+    //     } elseif (!$daReappro && $this->doitEnvoyerBc($situationCde, $statutBc, $DaAfficher, $statutSoumissionBc, $infoDaDirect, $daDirect, $daViaOR)) {
+    //         return 'A envoyer au fournisseur';
+    //     } elseif (!$daReappro && $DaAfficher->getBcEnvoyerFournisseur() && !$DaAfficher->getEstFactureBlSoumis()) {
+    //         return 'BC envoyé au fournisseur';
+    //     }
+    //     // DA Reappro
+    //     elseif ($daReappro && $numeroOr == null && $statutOr == DemandeAppro::STATUT_DW_VALIDEE) {
+    //         return DaSoumissionBc::STATUT_CESSION_A_GENERER;
+    //     } elseif ($daReappro && $numeroOr != null && $statutOr == DemandeAppro::STATUT_DW_VALIDEE && $DaAfficher->getEstBlReapproSoumis() == false) {
+    //         return DaSoumissionBc::STATUT_EN_COURS_DE_PREPARATION;
+    //     }
+    //     // DA Reappro, DA Direct , DA Via OR
+    //     elseif ($partiellementDispo) {
+    //         return 'Partiellement dispo';
+    //     } elseif ($completNonLivrer) {
+    //         return 'Complet non livré';
+    //     } elseif ($tousLivres) {
+    //         return 'Tous livrés';
+    //     } elseif ($partiellementLivre) {
+    //         return 'Partiellement livré';
+    //     } elseif ($DaAfficher->getEstFactureBlSoumis()) {
+    //         return 'BC envoyé au fournisseur';
+    //     }
+    //     // DA Direct , DA Via OR
+    //     elseif ($daDirect || $daViaOR) {
+    //         return $statutSoumissionBc;
+    //     }
+    //     // DA REAPPRO
+    //     elseif ($daReappro && $numeroOr != null && $statutOr == DemandeAppro::STATUT_DW_VALIDEE && $DaAfficher->getEstBlReapproSoumis() == true) {
+    //         return DaSoumissionBc::STATUT_EN_COURS_DE_PREPARATION;
+    //     }
 
 
-        return '';
-    }
+    //     return '';
+    // }
 
     private function updateDateBc(DaAfficher $DaAfficher, ?string $numcde, $em)
     {
@@ -371,8 +371,8 @@ trait StatutBcTrait
     private function doitEnvoyerBc(array $situationCde, ?string $statutBc, DaAfficher $DaAfficher, string $statutSoumissionBc, array $infoDaDirect, bool $daDirect, bool $daViaOR): bool
     {
         if ($infoDaDirect && $daDirect) {
-            return $infoDaDirect[0]['position_bc'] === DaSoumissionBc::POSITION_EDITER
-                && in_array($statutSoumissionBc, [DaSoumissionBc::STATUT_VALIDE, DaSoumissionBc::STATUT_CLOTURE])
+            return ($infoDaDirect[0]['position_bc'] === DaSoumissionBc::POSITION_EDITER
+                || in_array($statutSoumissionBc, [DaSoumissionBc::STATUT_VALIDE, DaSoumissionBc::STATUT_CLOTURE]))
                 && !$DaAfficher->getBcEnvoyerFournisseur();
         } elseif ($situationCde && $daViaOR) {
             // numero de commande existe && ... && position editer && BC n'est pas encore soumis
@@ -394,6 +394,7 @@ trait StatutBcTrait
             if (empty($infoDaDirect)) {
                 return [false, false, false, false];
             }
+
             $q = $infoDaDirect[0];
             $qteDem = (int)$q['qte_dem'];
             $qteALivrer = (int)$q['qte_dispo'];
@@ -407,6 +408,7 @@ trait StatutBcTrait
 
 
         $soumissionFait = ($DaAfficher->getEstFactureBlSoumis() || $DaAfficher->getEstBlReapproSoumis());
+
         $partiellementDispo = ($qteDem != $qteALivrer && $qteLivee == 0 && $qteALivrer > 0) && $soumissionFait;
         $completNonLivrer = (($qteDem == $qteALivrer && $qteLivee < $qteDem) || ($qteALivrer > 0 && $qteDem == ($qteALivrer + $qteLivee))) && $soumissionFait;
         $tousLivres = ($qteDem == $qteLivee && $qteDem != 0) && $soumissionFait;

@@ -2,59 +2,38 @@
 
 namespace App\Controller\da\ListeDa;
 
-use App\Constants\admin\ApplicationConstant;
-use App\Model\da\DaModel;
 use App\Entity\da\DaSearch;
-use App\Entity\da\DaAfficher;
 use App\Form\da\DaSearchType;
+use App\Entity\da\DaAfficher;
 use App\Controller\Controller;
-use App\Entity\admin\Application;
-use App\Entity\da\DaSoumissionBc;
-use App\Entity\admin\utilisateur\Role;
+use App\Service\da\DaListePresenter;
+use App\Service\da\PermissionDaService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\FormInterface;
-use App\Controller\Traits\da\DaListeTrait;
-use App\Repository\admin\AgenceRepository;
-use App\Entity\dit\DitOrsSoumisAValidation;
-use App\Repository\da\DaAfficherRepository;
-use App\Entity\admin\Agence;
-use Symfony\Component\HttpFoundation\Request;
-use App\Repository\da\DaSoumissionBcRepository;
-use Symfony\Component\Routing\Annotation\Route;
-use App\Model\dw\dossierInterventionAtelierModel;
-use App\Form\da\daCdeFrn\DaModalDateLivraisonType;
-use App\Repository\dit\DitOrsSoumisAValidationRepository;
 use App\Service\security\SecurityService;
+use App\Repository\da\DaAfficherRepository;
+use App\Constants\admin\ApplicationConstant;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
+use App\Form\da\daCdeFrn\DaModalDateLivraisonType;
 
 /**
  * @Route("/demande-appro")
  */
 class listeDaController extends Controller
 {
-    use DaListeTrait;
     // Repository et model
-    private DaModel $daModel;
-    private dossierInterventionAtelierModel $dwModel;
-    private AgenceRepository $agenceRepository;
-    private DaSoumissionBcRepository $daSoumissionBcRepository;
-    private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
     private DaAfficherRepository $daAfficherRepository;
+    private DaListePresenter $presenter;
+    private PermissionDaService $permissionDaService;
 
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        DaModel $daModel,
-        dossierInterventionAtelierModel $dwModel
-    ) {
+    public function __construct(EntityManagerInterface $entityManager)
+    {
         parent::__construct();
 
-        $this->daModel                           = $daModel;
-        $this->dwModel                           = $dwModel;
-        $this->agenceRepository                  = $entityManager->getRepository(Agence::class);
-        $this->daSoumissionBcRepository          = $entityManager->getRepository(DaSoumissionBc::class);
-        $this->ditOrsSoumisAValidationRepository = $entityManager->getRepository(DitOrsSoumisAValidation::class);
         $this->daAfficherRepository              = $entityManager->getRepository(DaAfficher::class);
-
-        $this->initStatutBcTrait();
+        $this->presenter                         = new DaListePresenter($this->getUrlGenerator());
+        $this->permissionDaService               = new PermissionDaService();
     }
 
     /**
@@ -109,23 +88,32 @@ class listeDaController extends Controller
         $peutVoirListeAvecDebiteur = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_AUTH_2);
 
         // Donnée à envoyer à la vue
-        $paginationData = $this->getPaginationData($criteria, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur, $page, $limit);
-        $dataPrepared = $this->prepareDataForDisplay($paginationData['data']);
+        $paginationData = $this->daAfficherRepository->findPaginatedAndFilteredDA($page, $limit, $criteria, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
+
+        // Application du verrouillage (Logique purement applicative)
+        $this->appliquerVerrouillage($paginationData['data']);
+
+        // Préparation des données pour la vue (Via Presenter avec Cache)
+        $dataPrepared = $this->presenter->present($paginationData['data'], [
+            'estAdmin'   => false, // TODO: profil à faire
+            'estAppro'   => false, // TODO: profil à faire
+            'estAtelier' => false // TODO: profil à faire
+        ]);
 
         /** === Formulaire pour la date de livraison prevu === */
         $formDateLivraison = $this->getFormFactory()->createBuilder(DaModalDateLivraisonType::class)->getForm();
         $this->TraitementFormulaireDateLivraison($request, $formDateLivraison);
 
         return $this->render('da/list-da.html.twig', [
-            'data'           => $dataPrepared,
-            'form'           => $form->createView(),
-            'criteria'       => $criteria,
-            'codeCentrale'   => $codeCentrale,
-            'daTypeIcons'    => $this->getAllIcons(),
-            'sortJoursClass' => $sortJoursClass,
-            'currentPage'    => $paginationData['currentPage'],
-            'totalPages'     => $paginationData['lastPage'],
-            'resultat'       => $paginationData['totalItems'],
+            'data'              => $dataPrepared,
+            'form'              => $form->createView(),
+            'criteria'          => $criteria,
+            'codeCentrale'      => $codeCentrale,
+            'daTypeIcons'       => $this->presenter->getIcons(),
+            'sortJoursClass'    => $sortJoursClass,
+            'currentPage'       => $paginationData['currentPage'],
+            'totalPages'        => $paginationData['lastPage'],
+            'resultat'          => $paginationData['totalItems'],
             'formDateLivraison' => $formDateLivraison->createView()
         ]);
     }
@@ -170,6 +158,33 @@ class listeDaController extends Controller
             if ($ligneId && isset($allAgenceServices[$ligneId])) {
                 $daSearch->setServiceDebiteur($allAgenceServices[$ligneId]['service_id']);
             }
+        }
+    }
+
+    public function initialisationRechercheDa(DaSearch $daSearch)
+    {
+        $criteria = $this->getSessionService()->get('criteria_search_list_da', []) ?? [];
+
+        $daSearch->toObject($criteria);
+    }
+
+    private function appliquerVerrouillage(array $daAffichers): void
+    {
+        $estAdmin = false; // TODO: profil ou autre
+        $estAppro = false; // TODO: profil ou autre
+        $estAtelier = false; // TODO: profil ou autre
+        $estCreateur = false; // TODO: profil ou autre
+
+        foreach ($daAffichers as $daAfficher) {
+            $verrouille = $this->permissionDaService->estDaVerrouillee(
+                $daAfficher->getStatutDal(),
+                $daAfficher->getStatutOr(),
+                $estAdmin,
+                $estAppro,
+                $estAtelier,
+                $estCreateur
+            );
+            $daAfficher->setVerouille($verrouille);
         }
     }
 }
