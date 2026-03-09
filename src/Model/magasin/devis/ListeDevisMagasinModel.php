@@ -99,14 +99,14 @@ class ListeDevisMagasinModel extends Model
      * @param string $numeroDevis Le numéro de devis à vérifier
      * @return array Les informations du devis IPS
      */
-    public function getInfoDev(string $numeroDevis)
+    public function getInfoDev(string $numeroDevis, string $codeSociete)
     {
         $statement = "SELECT nent_devise as devise
-                        ,SUM(nlig_qtecde *nlig_pxnreel) as montant_total
+                        ,SUM(nlig_qtecde * nlig_pxnreel) as montant_total
                         ,SUM(nlig_nolign) as somme_numero_lignes 
                     from informix.neg_lig 
                     left JOIN informix.neg_ent on nent_numcde = nlig_numcde 
-                    where nlig_soc='HF' 
+                    where nlig_soc='$codeSociete' 
                     and nlig_natop='DEV' 
                     and nlig_constp <> 'Nmc'
                     and nlig_numcde = '$numeroDevis'
