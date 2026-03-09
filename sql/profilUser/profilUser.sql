@@ -118,3 +118,7 @@ alter table pointage_relance add code_societe varchar(2) null;
 update pointage_relance set code_societe='HF';
 
 alter table demande_intervention drop column societe;
+
+alter table devis_soumis_a_validation add code_societe varchar(2) null;
+
+update devis_soumis_a_validation set code_societe='HF';
