@@ -61,13 +61,19 @@ class DitController extends Controller
     {
         $demandeIntervention = new DemandeIntervention();
 
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+
         //INITIALISATION DU FORMULAIRE
         $agenceService = $this->agenceServiceIpsObjet();
-        $demandeIntervention->setAgenceEmetteur($agenceService['agenceIps']->getCodeAgence() . ' ' . $agenceService['agenceIps']->getLibelleAgence());
-        $demandeIntervention->setServiceEmetteur($agenceService['serviceIps']->getCodeService() . ' ' . $agenceService['serviceIps']->getLibelleService());
-        $demandeIntervention->setAgence($agenceService['agenceIps']);
-        $demandeIntervention->setService($agenceService['serviceIps']);
-        $demandeIntervention->setIdNiveauUrgence($this->getEntityManager()->getRepository(WorNiveauUrgence::class)->find(1));
+        $demandeIntervention
+            ->setAgenceEmetteur($agenceService['agenceIps']->getCodeAgence() . ' ' . $agenceService['agenceIps']->getLibelleAgence())
+            ->setServiceEmetteur($agenceService['serviceIps']->getCodeService() . ' ' . $agenceService['serviceIps']->getLibelleService())
+            ->setAgence($agenceService['agenceIps'])
+            ->setService($agenceService['serviceIps'])
+            ->setIdNiveauUrgence($this->getEntityManager()->getRepository(WorNiveauUrgence::class)->find(1))
+            ->setCodeSociete($codeSociete)
+        ;
 
         //AFFICHAGE ET TRAITEMENT DU FORMULAIRE
         $form = $this->getFormFactory()->createBuilder(demandeInterventionType::class, $demandeIntervention)->getForm();
@@ -111,9 +117,6 @@ class DitController extends Controller
             $dto->dateDemande = new \DateTime($this->getDatesystem());
             $dto->idStatutDemande = $em->getRepository(StatutDemande::class)->find(50);
             $dto->mailDemandeur = $user->getMail();
-
-            $profilId = $this->getProfilId();
-            $dto->societe = $user->getProfils()->filter(fn($profil) => $profil->getId() === $profilId)->first()->getSociete();
 
             /**   @var DemandeIntervention[] $demandeInterventions 3. Utiliser la factory pour créer l'entité complète*/
             $demandeInterventions = $this->createDemandeInterventionFromDto($dto);
@@ -217,7 +220,6 @@ class DitController extends Controller
         $nomEtCheminFichierConvertie = $this->ConvertirLesPdf($nomEtCheminFichiersEnregistrer);
         $traitementDeFichier->fusionFichers($nomEtCheminFichierConvertie, $nomAvecCheminFichier);
 
-
         return [$nomFichierEnregistrer, $nomFichier];
     }
 
@@ -246,11 +248,8 @@ class DitController extends Controller
             }
         ]);
 
-
         $nomFichier = $nameGenerator->generateDitNamePrincipal($numDit, $agServEmetteur);
         $nomAvecCheminFichier = $path . $nomFichier;
-
-
 
         return [$nomEtCheminFichiersEnregistrer, $nomFichierEnregistrer, $nomAvecCheminFichier, $nomFichier];
     }

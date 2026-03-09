@@ -5,14 +5,11 @@ namespace App\Factory\Dit;
 use App\Model\dit\DitModel;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
-use App\Entity\admin\Application;
 use App\Dto\Dit\DemandeInterventionDto;
 use App\Entity\dit\DemandeIntervention;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\admin\dit\CategorieAteApp;
 use App\Entity\admin\dit\WorTypeDocument;
-use App\Service\autres\AutoIncDecService;
-use App\Repository\admin\ApplicationRepository;
 use App\Service\historiqueOperation\HistoriqueOperationDITService;
 
 class DemandeInterventionFactory
@@ -124,7 +121,7 @@ class DemandeInterventionFactory
         $demandeIntervention->setUtilisateurDemandeur($dto->utilisateurDemandeur);
         $demandeIntervention->setDateDemande($dto->dateDemande);
         $demandeIntervention->setHeureDemande($dto->heureDemande);
-        $demandeIntervention->setSociete($dto->societe);
+        $demandeIntervention->setCodeSociete($dto->codeSociete);
 
         // Agence et service emetteur et debiteur ID
         $em = $this->entityManager;
