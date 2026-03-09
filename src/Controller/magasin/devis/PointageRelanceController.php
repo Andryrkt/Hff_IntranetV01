@@ -56,7 +56,12 @@ class PointageRelanceController extends Controller
         $form->submit($data);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Code Société de l'utilisateur
+            $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+
             $pointageRelanceEntity = (new PointageRelanceFactory())->map($data, $this->getUserName(), $this->numeroRelance($data['numeroDevis']));
+            $pointageRelanceEntity->setCodeSociete($codeSociete);
+
             $this->getEntityManager()->persist($pointageRelanceEntity);
             $this->getEntityManager()->flush();
 

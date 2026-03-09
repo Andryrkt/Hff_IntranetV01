@@ -23,7 +23,10 @@ class RelanceApi extends Controller
      */
     public function relance(int $numeroDevis)
     {
-        $relances = $this->getEntityManager()->getRepository(PointageRelance::class)->findBy(['numeroDevis' => $numeroDevis], ['dateDeRelance' => 'DESC']);
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+
+        $relances = $this->getEntityManager()->getRepository(PointageRelance::class)->findBy(['numeroDevis' => $numeroDevis, 'codeSociete' => $codeSociete], ['dateDeRelance' => 'DESC']);
         $response = [];
         foreach ($relances as $relance) {
             $response[] = [

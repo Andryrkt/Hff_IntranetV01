@@ -24,7 +24,6 @@ class PointageRelanceFactory
         $entity->setDateDeRelance(new \DateTime($data['dateDeRelance']));
         $entity->setUtilisateur($userName);
         $entity->setAgence('01');
-        $entity->setSociete('HF');
         $entity->setNumeroRelance($numeroRelance);
         return $entity;
     }

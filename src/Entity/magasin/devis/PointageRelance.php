@@ -43,11 +43,6 @@ class PointageRelance
     private ?string $utilisateur = null;
 
     /**
-     * @ORM\Column(type="string", length=5, name="societe", nullable=true)
-     */
-    private ?string $societe = null;
-
-    /**
      * @ORM\Column(type="string", length=2, name="agence", nullable=true)
      */
     private ?string $agence = null;
@@ -153,24 +148,6 @@ class PointageRelance
     public function setUtilisateur(?string $utilisateur): self
     {
         $this->utilisateur = $utilisateur;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of societe
-     */
-    public function getSociete(): ?string
-    {
-        return $this->societe;
-    }
-
-    /**
-     * Set the value of societe
-     */
-    public function setSociete(?string $societe): self
-    {
-        $this->societe = $societe;
 
         return $this;
     }
