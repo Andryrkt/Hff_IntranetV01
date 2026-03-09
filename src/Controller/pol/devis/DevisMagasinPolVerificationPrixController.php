@@ -89,6 +89,7 @@ class DevisMagasinPolVerificationPrixController extends Controller
         //instancier le devis magasin
         $devisMagasin = new DevisMagasin();
         $devisMagasin->setNumeroDevis($numeroDevis);
+        $devisMagasin->setCodeSociete($codeSociete);
         $devisMagasin->constructeur = trim($this->listeDevisMagasinModel->getConstructeur($numeroDevis));
 
         //création du formulaire
