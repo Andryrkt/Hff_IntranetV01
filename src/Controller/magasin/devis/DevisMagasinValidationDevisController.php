@@ -93,7 +93,7 @@ class DevisMagasinValidationDevisController extends Controller
         $form = $this->getFormFactory()->createBuilder(DevisMagasinType::class, $devisMagasin)->getForm();
 
         //traitement du formulaire
-        $this->traitementFormulaire($form, $request, $devisMagasin, $orchestrator, $firstDevisIps);
+        $this->traitementFormulaire($form, $request, $devisMagasin, $orchestrator, $firstDevisIps, $codeSociete);
 
         //affichage du formulaire
         return $this->render('magasin/devis/soumission.html.twig', [
@@ -103,7 +103,7 @@ class DevisMagasinValidationDevisController extends Controller
         ]);
     }
 
-    private function traitementFormulaire($form, Request $request, DevisMagasin $devisMagasin, DevisMagasinValidationOrchestrator $orchestrator, array $firstDevisIps)
+    private function traitementFormulaire($form, Request $request, DevisMagasin $devisMagasin, DevisMagasinValidationOrchestrator $orchestrator, array $firstDevisIps, string $codeSociete)
     {
 
         $form->handleRequest($request);
@@ -118,7 +118,7 @@ class DevisMagasinValidationDevisController extends Controller
             $suffixConstructeur = $this->listeDevisMagasinModel->constructeurPieceMagasin($devisMagasin->getNumeroDevis());
 
             /** @var int recupération de numero version max */
-            $numeroVersion = $this->devisMagasinRepository->getNumeroVersionMax($devisMagasin->getNumeroDevis());
+            $numeroVersion = $this->devisMagasinRepository->getNumeroVersionMax($devisMagasin->getNumeroDevis(), $codeSociete);
 
             // TODO: creation de pdf (à specifier par Antsa)
 
