@@ -126,6 +126,7 @@ class DitDuplicationController extends Controller
             ->setCasier($dit->getCasier())
             ->setKm($dit->getKm())
             ->setHeure($dit->getHeure())
+            ->setCodeSociete($dit->getCodeSociete())
         ;
 
         return $demandeInterventions;
@@ -188,7 +189,6 @@ class DitDuplicationController extends Controller
             $dto->dateDemande = new \DateTime($this->getDatesystem());
             $dto->idStatutDemande = $em->getRepository(StatutDemande::class)->find(50);
             $dto->mailDemandeur = $user->getMail();
-            $dto->societe = $user->getSociettes(); //TODO: rectifier pour la recupération de la société dans user
 
             /**   @var array $demandeInterventions 3. Utiliser la factory pour créer l'entité complète*/
             $demandeInterventions = $this->createDemandeInterventionFromDto($dto);
