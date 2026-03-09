@@ -59,6 +59,9 @@ class RelanceApi extends Controller
     public function stopRelance(Request $request, string $numeroDevis)
     {
         try {
+            // Code Société de l'utilisateur
+            $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+
             $body = json_decode($request->getContent(), true);
             $motif = $body['motif'] ?? null;
             $utilisateur = $this->getUserName();
@@ -69,7 +72,7 @@ class RelanceApi extends Controller
             $relanceClient = false;
 
             if ($success) {
-                $newStatuts = $listeDevisMagasinModel->getStatutRelance($numeroDevis);
+                $newStatuts = $listeDevisMagasinModel->getStatutRelance($numeroDevis, $codeSociete);
 
                 // On récupère les infos du devis pour recalculer les droits d'affichage
                 $sql = "SELECT statut_dw, statut_bc, stop_progression_global, motif_stop_global
