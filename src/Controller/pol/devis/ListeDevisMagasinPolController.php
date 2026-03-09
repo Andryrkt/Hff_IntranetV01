@@ -67,6 +67,9 @@ class ListeDevisMagasinPolController extends Controller
         // Agences Services autorisés sur le DVM
         $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DVM);
 
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+
         //formulaire de recherhce
         $form = $this->getFormFactory()->createBuilder(DevisMagasinSearchType::class, $this->initialisationCriteria(), [
             'em' => $this->getEntityManager(),
@@ -79,7 +82,7 @@ class ListeDevisMagasinPolController extends Controller
 
         $this->getSessionService()->set('criteria_for_excel_liste_devis_magasin', $criteria);
 
-        $listeDevisFactory = $this->recuperationDonner($criteria, $agenceServiceAutorises);
+        $listeDevisFactory = $this->recuperationDonner($criteria, $agenceServiceAutorises, $codeSociete);
 
         // affichage de la liste des devis magasin
         return $this->render('magasin/devis/listeDevisMagasin.html.twig', [
@@ -122,11 +125,11 @@ class ListeDevisMagasinPolController extends Controller
         return $ListeDevisSearchDto->toObject($criteriaTab);
     }
 
-    public function recuperationDonner(array $criteria = [], array $agenceServiceAutorises): array
+    public function recuperationDonner(array $criteria, array $agenceServiceAutorises, string $codeSociete): array
     {
         $vignette = 'pneumatique';
         $numDeviAExclure = TableauEnStringService::simpleNumeric(array_map('intval', $this->listeDevisMagasinModel->getNumeroDevisExclure()));
-        $devisIps = $this->listeDevisMagasinModel->getDevis($criteria, $vignette, $agenceServiceAutorises, $numDeviAExclure);
+        $devisIps = $this->listeDevisMagasinModel->getDevis($criteria, $vignette, $agenceServiceAutorises, $numDeviAExclure, $codeSociete);
 
         $listeDevisFactory = [];
         $dejaVu = []; // Tableau pour mémoriser les numéros de devis déjà traités
@@ -144,18 +147,18 @@ class ListeDevisMagasinPolController extends Controller
             $devisMagasinRepository = $this->getEntityManager()->getRepository(DevisMagasin::class);
 
             // Récupération de la version maximale
-            $numeroVersionMax = $devisMagasinRepository->getNumeroVersionMax($numeroDevis);
+            $numeroVersionMax = $devisMagasinRepository->getNumeroVersionMax($numeroDevis, $codeSociete);
             $devisSoumi       = $devisMagasinRepository->findOneBy([
                 'numeroDevis'    => $numeroDevis,
-                'numeroVersion'  => $numeroVersionMax
+                'numeroVersion'  => $numeroVersionMax,
+                'codeSociete'    => $codeSociete
             ]);
 
             // Ajout des informations complémentaires
             $devisIp['statut_dw']                  = $devisSoumi ? $devisSoumi->getStatutDw()                  : DevisMagasin::STATUT_A_TRAITER;
             $devisIp['operateur']                  = $devisSoumi ? $devisSoumi->getUtilisateur()               : '';
             $devisIp['date_envoi_devis_au_client'] = $devisSoumi ? ($devisSoumi->getDateEnvoiDevisAuClient() ? $devisSoumi->getDateEnvoiDevisAuClient() : '') : '';
-            $devisIp['utilisateur_createur_devis'] = $this->listeDevisMagasinModel
-                ->getUtilisateurCreateurDevis($numeroDevis) ?? '';
+            $devisIp['utilisateur_createur_devis'] = $this->listeDevisMagasinModel->getUtilisateurCreateurDevis($numeroDevis, $codeSociete) ?? '';
             $devisIp['statut_bc']                  = $devisSoumi ? $devisSoumi->getStatutBc()                  : '';
 
             // statut DW = A traiter et statut BC = TR
