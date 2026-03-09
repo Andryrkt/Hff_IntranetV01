@@ -107,3 +107,11 @@ from users u
 INNER JOIN Agence_Service_Irium asi on asi.id=u.agence_utilisateur
 inner join agences a on a.code_agence=asi.agence_ips
 inner join services s on s.code_service=asi.service_ips;
+
+alter table devis_soumis_a_validation_neg add code_societe varchar(2) null;
+
+update devis_soumis_a_validation_neg set code_societe='HF';
+
+alter table pointage_relance add code_societe varchar(2) null;
+
+update pointage_relance set code_societe='HF';
