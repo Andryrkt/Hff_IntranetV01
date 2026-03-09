@@ -48,6 +48,9 @@ class BcMagasinController extends Controller
      */
     public function index(?string $numeroDevis = null, Request $request): Response
     {
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+
         /** Gestion de blocage */
         $this->gestionDeBlocage($numeroDevis);
 
@@ -58,7 +61,7 @@ class BcMagasinController extends Controller
         $form = $this->getFormFactory()->createBuilder(BcMagasinType::class, $bcMagasinDto)->getForm();
 
         //tratiement formulaire
-        $this->tratitementFormulaire($form, $request, $numeroDevis);
+        $this->tratitementFormulaire($form, $request, $numeroDevis, $codeSociete);
 
         //affichage du formulaire
         return $this->render('magasin/bc/soumission.html.twig', [
@@ -80,7 +83,7 @@ class BcMagasinController extends Controller
         return new Response();
     }
 
-    public function tratitementFormulaire($form, Request $request, ?string $numeroDevis = null): void
+    public function tratitementFormulaire($form, Request $request, ?string $numeroDevis = null, string $codeSociete): void
     {
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
@@ -102,7 +105,7 @@ class BcMagasinController extends Controller
             $this->enregistrementDonnees($dto, (float) $montantDevis, $numeroVersion);
 
             //modification du statu bc dans la table devis_soumis_a_validation_neg
-            $this->modificationStatutBCDansDevisMagasin($numeroDevis, $dto->dateBc);
+            $this->modificationStatutBCDansDevisMagasin($numeroDevis, $dto->dateBc, $codeSociete);
 
             // historique du document
             $message = 'Le bon de commande a été soumis avec succès.';
@@ -192,11 +195,11 @@ class BcMagasinController extends Controller
         return [$nomEtCheminFichiersEnregistrer, $nomFichierEnregistrer, $nomAvecCheminFichier, $nomFichier];
     }
 
-    private function modificationStatutBCDansDevisMagasin(string $numeroDevis, DateTime $dateBc): void
+    private function modificationStatutBCDansDevisMagasin(string $numeroDevis, DateTime $dateBc, string $codeSociete): void
     {
         $devisRepository = $this->getEntityManager()->getRepository(DevisMagasin::class);
-        $numeroVersionMax = $devisRepository->getNumeroVersionMax($numeroDevis);
-        $devisMagasin = $devisRepository->findOneBy(['numeroDevis' => $numeroDevis, 'numeroVersion' => $numeroVersionMax]);
+        $numeroVersionMax = $devisRepository->getNumeroVersionMax($numeroDevis, $codeSociete);
+        $devisMagasin = $devisRepository->findOneBy(['numeroDevis' => $numeroDevis, 'numeroVersion' => $numeroVersionMax, 'codeSociete' => $codeSociete]);
 
         if ($devisMagasin) {
             $devisMagasin->setStatutBc(BcMagasin::STATUT_SOUMIS_VALIDATION);
