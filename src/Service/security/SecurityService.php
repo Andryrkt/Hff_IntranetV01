@@ -255,6 +255,14 @@ class SecurityService
         return $this->dataService->getServiceIdUser();
     }
 
+    /** 
+     * Retourne le code société de l'utilisateur
+     */
+    public function getCodeSocieteUser(): ?string
+    {
+        return $this->dataService->getCodeSociete();
+    }
+
     // =========================================================================
     //  LOGIQUE INTERNE
     // =========================================================================
