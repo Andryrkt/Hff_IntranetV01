@@ -2,16 +2,22 @@
 
 namespace App\Controller\da\ListeDa;
 
-use App\Entity\da\DaSearch;
-use App\Entity\da\DaAfficher;
-use App\Form\da\DaSearchType;
 use App\Controller\Controller;
-use App\Entity\admin\Application;
-use Symfony\Component\Form\FormInterface;
 use App\Controller\Traits\AutorisationTrait;
+use App\Controller\Traits\da\DaTrait;
+use App\Entity\admin\Agence;
+use App\Entity\admin\Application;
+use App\Entity\da\DaAfficher;
+use App\Entity\da\DaSearch;
+use App\Form\da\daCdeFrn\DaModalDateLivraisonType;
+use App\Form\da\DaSearchType;
+use App\Repository\admin\AgenceRepository;
+use App\Repository\da\DaAfficherRepository;
+use App\Service\da\DaListePresenter;
+use App\Service\da\PermissionDaService;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Form\da\daCdeFrn\DaModalDateLivraisonType;
 
 /**
  * @Route("/demande-appro")
@@ -19,21 +25,21 @@ use App\Form\da\daCdeFrn\DaModalDateLivraisonType;
 class listeDaController extends Controller
 {
     use AutorisationTrait;
-    use \App\Controller\Traits\da\DaTrait;
+    use DaTrait;
 
-    private \App\Repository\da\DaAfficherRepository $daAfficherRepository;
-    private \App\Repository\admin\AgenceRepository $agenceRepository;
-    private \App\Service\da\DaListePresenter $presenter;
-    private \App\Service\da\PermissionDaService $permissionDaService;
+    private DaAfficherRepository $daAfficherRepository;
+    private AgenceRepository $agenceRepository;
+    private DaListePresenter $presenter;
+    private PermissionDaService $permissionDaService;
 
     public function __construct()
     {
         parent::__construct();
         $em = $this->getEntityManager();
         $this->daAfficherRepository = $em->getRepository(DaAfficher::class);
-        $this->agenceRepository = $em->getRepository(\App\Entity\admin\Agence::class);
-        $this->presenter = new \App\Service\da\DaListePresenter($this->getUrlGenerator());
-        $this->permissionDaService = new \App\Service\da\PermissionDaService();
+        $this->agenceRepository = $em->getRepository(Agence::class);
+        $this->presenter = new DaListePresenter($this->getUrlGenerator());
+        $this->permissionDaService = new PermissionDaService();
         
         $this->initDaTrait();
     }
@@ -65,7 +71,7 @@ class listeDaController extends Controller
 
         // Pagination (Réduction de la limite de 500 à 20 pour la fluidité)
         $page = $request->query->getInt('page', 1);
-        $limit = 20;
+        $limit = 50;
 
         // Récupération des données
         $user = $this->getUser();
