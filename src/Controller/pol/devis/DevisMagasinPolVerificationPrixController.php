@@ -97,7 +97,7 @@ class DevisMagasinPolVerificationPrixController extends Controller
         ])->getForm();
 
         //traitement du formualire
-        $this->traitementFormualire($form, $request,  $devisMagasin, $firstDevisIps, $orchestrator, $devisMagasinRepository, $remoteUrl["long"]);
+        $this->traitementFormualire($form, $request,  $devisMagasin, $firstDevisIps, $orchestrator, $devisMagasinRepository, $remoteUrl["long"], $codeSociete);
 
         //affichage du formulaire
         return $this->render('magasin/devis/soumission.html.twig', [
@@ -108,7 +108,7 @@ class DevisMagasinPolVerificationPrixController extends Controller
         ]);
     }
 
-    private function traitementFormualire($form, Request $request,  DevisMagasin $devisMagasin, array $firstDevisIps, DevisMagasinValidationVpOrchestrator $orchestrator, DevisMagasinRepository $devisMagasinRepository, $remoteUrl)
+    private function traitementFormualire($form, Request $request,  DevisMagasin $devisMagasin, array $firstDevisIps, DevisMagasinValidationVpOrchestrator $orchestrator, DevisMagasinRepository $devisMagasinRepository, $remoteUrl, string $codeSociete)
     {
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
@@ -122,7 +122,7 @@ class DevisMagasinPolVerificationPrixController extends Controller
             $suffixConstructeur = $this->listeDevisMagasinModel->constructeurPieceMagasin($devisMagasin->getNumeroDevis());
 
             /** @var int recupération de numero version max */
-            $numeroVersion = $devisMagasinRepository->getNumeroVersionMax($devisMagasin->getNumeroDevis());
+            $numeroVersion = $devisMagasinRepository->getNumeroVersionMax($devisMagasin->getNumeroDevis(), $codeSociete);
 
             if ($devisMagasin->constructeur === 'TOUS NEST PAS CAT')  $devisMagasin->setEstValidationPm(true);
 
