@@ -5,7 +5,6 @@ namespace App\Entity\admin;
 use App\Entity\TypeReparation;
 use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
-use App\Entity\dit\DemandeIntervention;
 use App\Entity\admin\utilisateur\Profil;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use Doctrine\Common\Collections\Collection;
@@ -38,11 +37,6 @@ class Societte
      */
     private $codeSociete;
 
-
-    /**
-     * @ORM\OneToMany(targetEntity=DemandeIntervention::class, mappedBy="societe")
-     */
-    private $demandeInterventions;
     /**
      * @ORM\OneToMany(targetEntity=DitOrsSoumisAValidation::class, mappedBy="societe")
      */
@@ -55,7 +49,6 @@ class Societte
 
     public function __construct()
     {
-        $this->demandeInterventions = new ArrayCollection();
         $this->ditOrsSoumissionsAValidations = new ArrayCollection();
         $this->profils = new ArrayCollection();
     }
@@ -92,38 +85,6 @@ class Societte
 
         return $this;
     }
-
-    public function getDemandeInterventions()
-    {
-        return $this->demandeInterventions;
-    }
-
-    public function addDemandeIntervention(DemandeIntervention $demandeIntervention): self
-    {
-        if (!$this->demandeInterventions->contains($demandeIntervention)) {
-            $this->demandeInterventions[] = $demandeIntervention;
-            $demandeIntervention->setSociete($this);
-        }
-        return $this;
-    }
-
-    public function removeDemandeIntervention(DemandeIntervention $demandeIntervention): self
-    {
-        if ($this->demandeInterventions->contains($demandeIntervention)) {
-            $this->demandeInterventions->removeElement($demandeIntervention);
-            if ($demandeIntervention->getSociete() === $this) {
-                $demandeIntervention->setSociete(null);
-            }
-        }
-        return $this;
-    }
-
-    public function setDemandeIntervention($demandeIntervention): self
-    {
-        $this->demandeInterventions = $demandeIntervention;
-        return $this;
-    }
-
 
     public function getDitOrsSoumissionsAValidations()
     {

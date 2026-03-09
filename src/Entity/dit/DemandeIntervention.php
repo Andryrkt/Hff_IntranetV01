@@ -71,12 +71,6 @@ class DemandeIntervention
     private  $codeSociete = null;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Societte::class, inversedBy="demandeInterventions")
-     * @ORM\JoinColumn(name="societe", referencedColumnName="id")
-     */
-    private  $societe = null; // relation avec la table societe
-
-    /**
      * @ORM\Column(type="string", length=30, name="type_reparation",nullable=true)
      */
     private  $typeReparation = null;
@@ -628,19 +622,6 @@ class DemandeIntervention
     public function setCodeSociete($codeSociete): self
     {
         $this->codeSociete = $codeSociete;
-
-        return $this;
-    }
-
-    public function getSociete()
-    {
-        return $this->societe;
-    }
-
-
-    public function setSociete($societe): self
-    {
-        $this->societe = $societe;
 
         return $this;
     }
