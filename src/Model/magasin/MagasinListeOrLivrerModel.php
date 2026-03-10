@@ -35,13 +35,14 @@ class MagasinListeOrLivrerModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function recupDatePlanning1($numOr)
+    public function recupDatePlanning1($numOr, string $codeSociete)
     {
         $statement = " SELECT  
                             min(ska_d_start) as datePlanning1
                         from skw 
                         inner join ska on ska.skw_id = skw.skw_id 
-                        where ofh_id ='" . $numOr . "'
+                        where ofh_id ='$numOr'
+                        AND skw_soc ='$codeSociete'
                         group by ofh_id 
                     ";
 
