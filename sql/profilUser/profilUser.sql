@@ -150,3 +150,7 @@ update da_afficher set code_societe='HF';
 alter table bc_soumis add code_societe varchar(2) null;
 
 update bc_soumis set code_societe='HF';
+
+alter table Demande_Appro_P add code_societe varchar(2) null;
+
+update Demande_Appro_P set code_societe='HF';

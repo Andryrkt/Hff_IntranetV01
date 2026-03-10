@@ -122,6 +122,11 @@ class DemandeApproParent
 
     private $debiteur;
 
+    /** 
+     * @ORM\Column(type="string", length=2, name="code_societe", nullable=true)
+     */
+    private $codeSociete;
+
     public function __construct()
     {
         $this->demandeApproParentLines = new ArrayCollection();
@@ -501,6 +506,24 @@ class DemandeApproParent
     public function setObservation($observation): self
     {
         $this->observation = $observation;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of codeSociete
+     */
+    public function getCodeSociete()
+    {
+        return $this->codeSociete;
+    }
+
+    /**
+     * Set the value of codeSociete
+     */
+    public function setCodeSociete($codeSociete): self
+    {
+        $this->codeSociete = $codeSociete;
 
         return $this;
     }

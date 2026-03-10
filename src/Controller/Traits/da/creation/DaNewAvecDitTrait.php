@@ -49,7 +49,6 @@ trait DaNewAvecDitTrait
         $demandeAppro = new DemandeAppro;
 
         $agenceService = $this->agenceServiceIpsObjet();
-
         $agenceEmetteur = $agenceService['agenceIps'];
         $serviceEmetteur = $agenceService['serviceIps'];
 
