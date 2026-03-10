@@ -28,7 +28,7 @@ trait DaNewAchatTrait
      * 
      * @return DemandeApproParent la demande appro initialisée
      */
-    private function initialisationDemandeApproAchat(): DemandeApproParent
+    private function initialisationDemandeApproAchat(string $codeSociete): DemandeApproParent
     {
         $demandeApproParent = new DemandeApproParent();
 
@@ -43,6 +43,7 @@ trait DaNewAchatTrait
             ->setServiceEmetteur($service)
             ->setAgenceServiceDebiteur($agence->getCodeAgence() . '-' . $service->getCodeService())
             ->setAgenceServiceEmetteur($agence->getCodeAgence() . '-' . $service->getCodeService())
+            ->setCodeSociete($codeSociete)
             ->setUser($this->getUser())
             ->setDemandeur($this->getUser()->getNomUtilisateur())
             ->setDateFinSouhaite($this->ajouterJoursOuvrables(5)) // Définit la date de fin souhaitée automatiquement à 5 jours après la date actuelle

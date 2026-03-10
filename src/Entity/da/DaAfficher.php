@@ -2039,6 +2039,7 @@ class DaAfficher
             ->setServiceEmetteur($demandeApproParent->getServiceEmetteur()->getId())
             ->setAgenceDebiteur($demandeApproParent->getAgenceDebiteur()->getId())
             ->setServiceDebiteur($demandeApproParent->getServiceDebiteur()->getId())
+            ->setCodeSociete($demandeApproParent->getCodeSociete())
         ;
     }
 

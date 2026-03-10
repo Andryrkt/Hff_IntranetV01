@@ -35,9 +35,15 @@ class DaNewAchatController extends Controller
      */
     public function newDaAchat(int $id, Request $request)
     {
-        $demandeApproParentRepository = $this->getEntityManager()->getRepository(DemandeApproParent::class);
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
 
-        $demandeApproParent = $id === 0 ? $this->initialisationDemandeApproAchat() : $demandeApproParentRepository->find($id);
+        if ($id === 0) {
+            $demandeApproParent = $this->initialisationDemandeApproAchat($codeSociete);
+        } else {
+            $demandeApproParentRepository = $this->getEntityManager()->getRepository(DemandeApproParent::class);
+            $demandeApproParent = $demandeApproParentRepository->find($id);
+        }
 
         $form = $this->getFormFactory()->createBuilder(DemandeApproAchatFormType::class, $demandeApproParent)->getForm();
         $this->traitementFormAchat($form, $request);
