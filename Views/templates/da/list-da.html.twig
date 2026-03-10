@@ -5,10 +5,7 @@
 {% endblock %}
 
 {% block stylesheets %}
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/new.css?v=2025.10.22.08.00">
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.10.22.08.00">
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/list.css?v=2025.10.22.08.00">
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/style.css?v=2025.10.22.08.00">
+	<link rel="stylesheet" href="{{ webpack_asset('daList.css') }}">
 {% endblock %}
 
 {% block overlay %}
@@ -168,8 +165,7 @@
 {% endblock %}
 
 {% block javascript %}
-	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v=2025.10.22.08.00"></script>
-	<script src="{{ App.base_path }}/Views/js/da/listeDa/list.js?v=2025.10.22.08.00" type="module"></script>
+	<script src="{{ webpack_asset('daList.js') }}" defer></script>
 	<script>
 		// Optimisation : Délégation des tooltips pour ne pas surcharger le chargement initial
 		document.addEventListener('mouseover', function (e) {

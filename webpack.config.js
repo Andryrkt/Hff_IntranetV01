@@ -24,6 +24,14 @@ module.exports = (env, argv) => {
         './Views/js/utils/positionSticky.js',
         './Views/js/da/listeCdeFrn/listCdefrn.js',
         './Views/js/da/listeCdeFrn/daNonDispo.js'
+      ],
+      daList: [
+        './Views/css/new.css',
+        './Views/css/list.css',
+        './Views/css/da/list.css',
+        './Views/css/da/style.css',
+        './Views/js/utils/positionSticky.js',
+        './Views/js/da/listeDa/list.js'
       ]
     },
     output: {
