@@ -134,3 +134,7 @@ alter table ors_soumis_a_validation drop column societe;
 alter table ors_soumis_a_validation add code_societe varchar(2) null;
 
 update ors_soumis_a_validation set code_societe='HF';
+
+alter table ri_soumis_a_validation add code_societe varchar(2) null;
+
+update ri_soumis_a_validation set code_societe='HF';
