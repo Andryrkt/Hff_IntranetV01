@@ -293,9 +293,8 @@ class DitDevisSoumisAValidationController extends Controller
      *
      * @param array $blockages
      * @param string $numDevis
-     * @return boolean
      */
-    public function blockageSoumission(array $blockages, string $numDevis): bool
+    public function blockageSoumission(array $blockages, string $numDevis)
     {
         if ($blockages['numDevisNomFichier']) {
             $message = " Erreur lors de la soumission, Impossible de soumettre le devis . . . Veuillez vérifier le fichier uploadé car il ne correspond pas au numéro au devis N° { $numDevis} ";
