@@ -54,6 +54,7 @@ class DaAfficherMapper
         $dto->joursDispo = $data->getJoursDispo();
         $dto->styleJoursDispo = ($dto->joursDispo < 0) ? 'text-danger' : '';
         $dto->demandeur = $data->getDemandeur();
+        $dto->dateDemande = $data->getDateDemande()->format('d/m/Y');
         $dto->estDalr = $data->getEstDalr();
         $dto->verouille = $data->getVerouille();
         

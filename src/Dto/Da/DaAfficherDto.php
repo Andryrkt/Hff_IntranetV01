@@ -30,6 +30,7 @@ class DaAfficherDto
     public $joursDispo;
     public $styleJoursDispo;
     public $demandeur;
+    public $dateDemande;
     public $estDalr;
     public $verouille;
     public $estFicheTechnique;
