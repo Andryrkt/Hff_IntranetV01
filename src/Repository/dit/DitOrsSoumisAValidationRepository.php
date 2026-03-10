@@ -50,12 +50,14 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
         return $query;
     }
 
-    public function findNbrItv($numOr)
+    public function findNbrItv($numOr, $codeSociete)
     {
         $nbrItv = $this->createQueryBuilder('osv')
             ->select('COUNT(osv.numeroItv)')
             ->where('osv.numeroOR = :numOr')
+            ->andWhere('osv.codeSociete = :codeSociete')
             ->setParameter('numOr', $numOr)
+            ->setParameter('codeSociete', $codeSociete)
             ->getQuery()
             ->getSingleScalarResult();
 
@@ -92,13 +94,15 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
     }
 
 
-    public function findStatutByNumeroVersionMax($numOr, $numItv)
+    public function findStatutByNumeroVersionMax($numOr, $numItv, $codeSociete)
     {
         // Étape 1 : Récupérer le numeroVersion maximum
         $numeroVersionMax = $this->createQueryBuilder('osv')
             ->select('MAX(osv.numeroVersion)')
             ->where('osv.numeroOR = :numOr')
+            ->andWhere('osv.codeSociete = :codeSociete')
             ->setParameter('numOr', $numOr)
+            ->setParameter('codeSociete', $codeSociete)
             ->getQuery()
             ->getSingleScalarResult();
 
@@ -108,7 +112,9 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
             ->where('osv.numeroVersion = :numeroVersionMax')
             ->andWhere('osv.numeroOR = :numOr')
             ->andWhere('osv.numeroItv = :numItv')
+            ->andWhere('osv.codeSociete = :codeSociete')
             ->setParameters([
+                'codeSociete' => $codeSociete,
                 'numeroVersionMax' => $numeroVersionMax,
                 'numOr' => $numOr,
                 'numItv' => $numItv,
