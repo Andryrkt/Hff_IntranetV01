@@ -3,6 +3,7 @@
 namespace App\Dto\Da;
 
 use App\Constants\da\StatutConstant;
+use App\Entity\da\DemandeAppro;
 
 class DaAfficherDto
 {
@@ -12,6 +13,7 @@ class DaAfficherDto
     public $numDaParent;
     public $numeroDemandeAppro;
     public $datype;
+    public $daTypeIcon;
     public $niveauUrgence;
     public $numeroFournisseur;
     public $nomFournisseur;
@@ -28,13 +30,16 @@ class DaAfficherDto
     public $joursDispo;
     public $styleJoursDispo;
     public $demandeur;
+    public $estDalr;
+    public $verouille;
+    public $estFicheTechnique;
 
     // OR
     public $numeroOr;
     public $datePlannigOr;
     public $statutOr;
 
-    //Cde
+    // Cde
     public $statutCde;
     public $numeroCde;
     public $positionBc;
@@ -42,39 +47,43 @@ class DaAfficherDto
     // DAL
     public $statutDal;
 
-    //DIT
+    // DIT
     public $numeroDemandeDit;
 
-    // html
+    // Actions & URLs
+    public $urlCreation;
+    public $urlDelete;
+    public $urlDemandeDevis;
+    public $ajouterDA;
+    public $supprimable;
+    public $demandeDevis;
+    public $statutValide;
+    public $centrale;
+
+    // HTML Attributes
     public $tdNumCdeAttributes;
     public $styleClickableCell;
     public $tdCheckboxAttributes;
     public $aDtLivPrevAttributes;
+    public $aArtDesiAttributes;
 
     public function getStyleStatutDA(): string
     {
-        if (!$this->statutDal) {
-            return '';
-        }
-
-        return StatutConstant::getCssClassDa($this->statutDal);
+        return $this->statutDal ? StatutConstant::getCssClassDa($this->statutDal) : '';
     }
 
-    public function getStatutOrCssClass(): string
+    public function getStyleStatutOR(): string
     {
-        if (!$this->statutOr) {
-            return '';
-        }
-
-        return StatutConstant::getCssClassOr($this->statutOr);
+        return $this->statutOr ? StatutConstant::getCssClassOr($this->statutOr) : '';
     }
 
     public function getStyleStatutBC(): string
     {
-        if (!$this->statutCde) {
-            return '';
-        }
+        return $this->statutCde ? StatutConstant::getCssClassBc($this->statutCde) : '';
+    }
 
-        return StatutConstant::getCssClassBc($this->statutCde);
+    public function isStatutValide(): bool
+    {
+        return $this->statutDal === DemandeAppro::STATUT_VALIDE;
     }
 }
