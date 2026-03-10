@@ -398,12 +398,14 @@ class DitRepository extends EntityRepository
 
 
 
-    public function findAgSevDebiteur($numdit)
+    public function findAgSevDebiteur($numdit, $codeSociete)
     {
         $numeroVersionMax = $this->createQueryBuilder('d')
             ->select('d.agenceServiceDebiteur')
             ->where('d.numeroDemandeIntervention = :numdit')
+            ->andWhere('d.codeSociete = :codeSociete')
             ->setParameter('numdit', $numdit)
+            ->setParameter('codeSociete', $codeSociete)
             ->getQuery()
             ->getSingleScalarResult();
 
