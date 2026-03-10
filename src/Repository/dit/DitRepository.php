@@ -65,7 +65,7 @@ class DitRepository extends EntityRepository
         $lastPage = ceil($totalItems / $limit);
 
         // Récupérer le nombre de lignes par statut
-        $statusCounts = $this->countByStatus($ditSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeAgenceUser, $peutVoirListeAvecDebiteur, false);
+        $statusCounts = $this->countByStatus($ditSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeAgenceUser, $codeSociete, $peutVoirListeAvecDebiteur, false);
 
         return [
             'data' => iterator_to_array($paginator->getIterator()), // Convertir en tableau si nécessaire
@@ -112,12 +112,14 @@ class DitRepository extends EntityRepository
      * @param array $options
      * @return void
      *======================================================*/
-    public function countByStatus(DitSearch $ditSearch, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeAgenceUser, bool $peutVoirListeAvecDebiteur, bool $avecAtelierRealisePar)
+    public function countByStatus(DitSearch $ditSearch, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeAgenceUser, string $codeSociete, bool $peutVoirListeAvecDebiteur, bool $avecAtelierRealisePar)
     {
         $queryBuilder = $this->createQueryBuilder('d')
             ->select('s.description AS statut, COUNT(d.id) AS count')
             ->leftJoin('d.idStatutDemande', 's')
             ->leftJoin('d.typeDocument', 'td')
+            ->andWhere('d.codeSociete = :codeSociete')
+            ->setParameter('codeSociete', $codeSociete)
             ->groupBy('s.description');
 
         // Appliquer le filtre par statut ou exclure les statuts par défaut
@@ -690,7 +692,7 @@ class DitRepository extends EntityRepository
         //  echo $sql;
 
         // Récupérer le nombre de lignes par statut
-        $statusCounts = $this->countByStatus($ditSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeAgenceUser, $peutVoirListeAvecDebiteur, false);
+        $statusCounts = $this->countByStatus($ditSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeAgenceUser, $codeSociete, $peutVoirListeAvecDebiteur, false);
         //return $queryBuilder->getQuery()->getResult();
         return [
             'data' => iterator_to_array($paginator->getIterator()), // Convertir en tableau si nécessaire
