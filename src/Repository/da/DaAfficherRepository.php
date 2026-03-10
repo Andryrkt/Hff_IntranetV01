@@ -396,7 +396,7 @@ class DaAfficherRepository extends EntityRepository
      * @param array $criteria
      * @return array
      */
-    public function findValidatedDas(array $criteria = []): array
+    public function findValidatedDas(array $criteria = [], string $codeSociete): array
     {
         // -------------------------------------
         // 1. Sous-requête : versions maximales par DA
@@ -497,6 +497,8 @@ class DaAfficherRepository extends EntityRepository
                 $qb->expr()->in('d.numeroDemandeAppro', ':exceptions')
             )
         )
+            ->andWhere('d.codeSociete = :codeSociete')
+            ->setParameter('codeSociete', $codeSociete)
             ->setParameter('statutOrsValide', $statutOrs)
             ->setParameter('exceptions', $exceptions);
 

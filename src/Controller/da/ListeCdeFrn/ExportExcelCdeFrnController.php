@@ -28,10 +28,13 @@ class ExportExcelCdefrnController extends Controller
      */
     public function exportExcel()
     {
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+
         $criteria = $this->getSessionService()->get('criteria_for_excel_Da_Cde_frn');
 
         // recupération des données de la DA
-        $dasFiltered = $this->donnerAfficher($criteria);
+        $dasFiltered = $this->donnerAfficher($criteria, $codeSociete);
 
         $data = [];
         // En-tête du tableau d'excel
@@ -105,8 +108,8 @@ class ExportExcelCdefrnController extends Controller
         return $data;
     }
 
-    private function donnerAfficher(?array $criteria): array
+    private function donnerAfficher(?array $criteria, string $codeSociete): array
     {
-        return $this->daAfficherRepository->findValidatedDas($criteria ?? []);
+        return $this->daAfficherRepository->findValidatedDas($criteria ?? [], $codeSociete);
     }
 }
