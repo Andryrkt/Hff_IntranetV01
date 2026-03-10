@@ -43,8 +43,11 @@ class DitRiSoumisAValidationController extends Controller
      */
     public function riSoumisAValidation(Request $request, $numDit)
     {
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+
         $ditRiSoumisAValidationModel = new DitRiSoumisAValidationModel();
-        $numOrBaseDonner = $ditRiSoumisAValidationModel->recupNumeroOr($numDit);
+        $numOrBaseDonner = $ditRiSoumisAValidationModel->recupNumeroOr($numDit, $codeSociete);
         if (empty($numOrBaseDonner)) {
             $message = "Le DIT n'a pas encore de numéro OR";
 
@@ -54,10 +57,11 @@ class DitRiSoumisAValidationController extends Controller
         $ditRiSoumiAValidation = new DitRiSoumisAValidation();
         $ditRiSoumiAValidation
             ->setNumeroDit($numDit)
-            ->setNumeroOR($numOrBaseDonner[0]['numor']);
+            ->setNumeroOR($numOrBaseDonner[0]['numor'])
+            ->setCodeSociete($codeSociete);
 
-        $itvDejaSoumis = $ditRiSoumisAValidationModel->findItvDejaSoumis($numOr);
-        $itvAfficher = $ditRiSoumisAValidationModel->recupInterventionOr($numOr, $itvDejaSoumis);
+        $itvDejaSoumis = $ditRiSoumisAValidationModel->findItvDejaSoumis($numOr, $codeSociete);
+        $itvAfficher = $ditRiSoumisAValidationModel->recupInterventionOr($numOr, $itvDejaSoumis, $codeSociete);
 
         $form = $this->getFormFactory()->createBuilder(DitRiSoumisAValidationType::class, $ditRiSoumiAValidation, [
             'itvAfficher' => $itvAfficher
@@ -65,10 +69,7 @@ class DitRiSoumisAValidationController extends Controller
 
         $this->traitementDuFormulaire($form, $request, $ditRiSoumiAValidation, $numDit, $numOr, $itvAfficher, $ditRiSoumisAValidationModel, $itvDejaSoumis);
 
-
-        $this->logUserVisit('dit_insertion_ri', [
-            'numDit' => $numDit,
-        ]); // historisation du page visité par l'utilisateur
+        $this->logUserVisit('dit_insertion_ri', ['numDit' => $numDit,]); // historisation du page visité par l'utilisateur
 
         return $this->render('dit/DitRiSoumisAValidation.html.twig', [
             'form' => $form->createView(),
@@ -76,8 +77,9 @@ class DitRiSoumisAValidationController extends Controller
         ]);
     }
 
-    private function traitementDuFormulaire($form, Request $request, $ditRiSoumiAValidation, $numDit, $numOr, $itvAfficher, $ditRiSoumisAValidationModel, $itvDejaSoumis)
+    private function traitementDuFormulaire($form, Request $request, DitRiSoumisAValidation $ditRiSoumiAValidation, $numDit, $numOr, $itvAfficher, DitRiSoumisAValidationModel $ditRiSoumisAValidationModel, $itvDejaSoumis)
     {
+        $codeSociete = $ditRiSoumiAValidation->getCodeSociete();
         $form->handleRequest($request);
 
         if ($form->isSubmitted()) {
@@ -86,20 +88,18 @@ class DitRiSoumisAValidationController extends Controller
             // Récupérer les valeurs des cases cochées
             $itvCoches = $this->itvCocher($itvAfficher, $form);
 
-            $conditionDeBlocage = $this->conditionDeBlocageSoumission($ditRiSoumisAValidationModel, $ditRiSoumiAValidation, $numOr, $itvCoches, $itvDejaSoumis, $numDit);
+            $conditionDeBlocage = $this->conditionDeBlocageSoumission($ditRiSoumisAValidationModel, $ditRiSoumiAValidation, $numOr, $itvCoches, $itvDejaSoumis, $codeSociete);
 
             if ($this->blocage($conditionDeBlocage)) {
 
                 // ajout des informations utiles dans l'entité ditRiSoumiAValidation
-                $numeroSoumission = $ditRiSoumisAValidationModel->recupNumeroSoumission($dataForm->getNumeroOR());
+                $numeroSoumission = $ditRiSoumisAValidationModel->recupNumeroSoumission($dataForm->getNumeroOR(), $codeSociete);
                 $ditRiSoumiAValidation = $this->insertionInfoUtile($dataForm, $ditRiSoumiAValidation, $numeroSoumission, $numDit);
 
                 $genererPdfRi = new GenererPdfRiSoumisAValidataion();
 
-
                 // ENREGISTRE LE FICHIER
                 $this->traiterFichierJoint($form, $dataForm, $itvCoches);
-
 
                 foreach ($itvCoches as $itv) {
                     $riSoumisAValidation = new DitRiSoumisAValidation();
@@ -109,6 +109,7 @@ class DitRiSoumisAValidationController extends Controller
                         ->setHeureSoumission($this->getTime())
                         ->setDateSoumission(new \DateTime($this->getDatesystem()))
                         ->setNumeroSoumission($numeroSoumission)
+                        ->setCodeSociete($codeSociete)
                         ->setNumeroItv((int)$itv)
                     ;
                     // Persist les entités liées
@@ -243,10 +244,10 @@ class DitRiSoumisAValidationController extends Controller
         return $itvCoches;
     }
 
-    private function conditionDeBlocageSoumission($ditRiSoumisAValidationModel, $ditRiSoumiAValidation, $numOr, $itvCoches, $itvDejaSoumis, $numDit): array
+    private function conditionDeBlocageSoumission(DitRiSoumisAValidationModel $ditRiSoumisAValidationModel, $ditRiSoumiAValidation, $numOr, $itvCoches, $itvDejaSoumis, $codeSociete): array
     {
         //tous les numéros d'intervention pour cette OR
-        $toutNumeroItv = $ditRiSoumisAValidationModel->recupNumeroItv($numOr);
+        $toutNumeroItv = $ditRiSoumisAValidationModel->recupNumeroItv($numOr, $codeSociete);
 
         $existe = false;
         $estSoumis = false;
