@@ -1,94 +1,15 @@
 {% extends "baseTemplate.html.twig" %}
 
-{% block title %}{{ title }}{% endblock %}
+{% block title %}
+	{{ title }}
+{% endblock %}
 
 {% block stylesheets %}
-<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
-<link rel="stylesheet" href="{{ App.base_path }}/Views/css/ddc/listeConge.css">
-
-{% if viewMode == 'calendar' %}
-<style>
-/* Styles spécifiques au calendrier */
-.calendar-container {
-    max-height: 70vh;
-    overflow: auto;
-}
-
-.calendar-cell {
-    min-width: 40px;
-    max-width: 40px;
-    height: 32px;
-    border: 1px solid #dee2e6;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 11px;
-    box-sizing: border-box;
-}
-
-.employee-name {
-    background: #f8f9fa;
-    font-weight: bold;
-    position: sticky;
-    left: 0;
-    z-index: 3;
-    box-shadow: 2px 0 2px -2px rgba(0,0,0,0.1);
-}
-
-/* Week-end */
-.weekend {
-    background: #f3f3f3 !important;
-}
-
-/* Congé fusionné */
-.conge-bar {
-    background: #b9d7ff !important;
-    border: 1px solid #0067c9 !important;
-    position: relative;
-}
-
-/* Indicator */
-.day-indicator {
-    cursor: pointer;
-    font-size: 10px;
-    font-weight: bold;
-}
-
-/* Entête fixe */
-.calendar-header {
-    position: sticky;
-    top: 0;
-    z-index: 5;
-    background: white;
-    border-bottom: 2px solid #ccc;
-    display: flex;
-}
-</style>
-{% endif %}
+	<link rel="stylesheet" href="{{ webpack_asset('listConge.css') }}">
 {% endblock %}
 
 {% block content %}
 	<div class="container-spaced">
-		<div class="d-flex justify-content-between mb-3">
-			<h3 class="perso-titre">
-				{% if viewMode == 'calendar' %}
-					Calendrier des Demandes de Congé
-				{% else %}
-					Liste des Demandes de Congé
-				{% endif %}
-			</h3>
-			{% if viewMode == 'calendar' %}
-				<a href="#" class="btn btn-sm btn-warning switch-view" data-mode="list">
-					<i class="fas fa-list"></i>
-					Liste
-				</a>
-			{% else %}
-				<a href="#" class="btn btn-sm btn-info text-white switch-view" data-mode="calendar">
-					<i class="fas fa-calendar"></i>
-					Calendrier
-				</a>
-			{% endif %}
-		</div>
 
 		{% include "/ddc/shared/_formulaireRechercheConge.html.twig" with {'form': form} %}
 		{% include "/ddc/shared/_pagination_conge.html.twig" with {'viewMode': viewMode} %}
@@ -121,17 +42,26 @@
 
 {% block javascript %}
 	<script>
-		// Données pour les vues
-window.pageData = {{ data|json_encode|raw }};
-window.congesData = {{ conges|json_encode|raw }};
-window.employeesData = {{ employees|json_encode|raw }};
-document.body.dataset.viewMode = "{{ viewMode }}";
-{% if selected_month %}
-window.selectedMonth = {{ selected_month|date('Y-m-d')|json_encode|raw }};
-{% endif %}
+		// Injection forcée et sécurisée des données
+(function () {
+window.pageData = {{ (data|default([]))|json_encode|raw }};
+window.congesData = {{ (conges|default([]))|json_encode|raw }};
+window.employeesData = {{ (employees|default({}))|json_encode|raw }};
+window.forcedViewMode = "{{ viewMode|default('list') }}";{% if selected_month %}
+window.selectedMonth = "{{ selected_month|date('Y-m-d') }}";{% endif %}
+
+// Forçage immédiat du DOM
+document.body.setAttribute('data-view-mode', window.forcedViewMode);
+document.body.setAttribute('data-type-view', window.forcedViewMode);
+
+console.log("DDC Template: Données injectées", {
+mode: window.forcedViewMode,
+empCount: Object.keys(window.employeesData).length
+});
+})();
 	</script>
 
-	<!-- Templates pour le rendu côté client -->
+	<!-- Templates pour le rendu dynamique JS -->
 	<script type="text/template" id="list-template">
 		{% include "/ddc/_list_content.html.twig" %}
 	</script>
@@ -139,5 +69,5 @@ window.selectedMonth = {{ selected_month|date('Y-m-d')|json_encode|raw }};
 		{% include "/ddc/_calendar_content.html.twig" %}
 	</script>
 
-	<script src="{{ App.base_path }}/Views/js/ddc/listConge.js" type="module"></script>
+	<script src="{{ webpack_asset('listConge.js') }}" defer></script>
 {% endblock %}

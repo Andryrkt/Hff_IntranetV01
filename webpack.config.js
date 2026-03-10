@@ -32,6 +32,11 @@ module.exports = (env, argv) => {
         './Views/css/da/style.css',
         './Views/js/utils/positionSticky.js',
         './Views/js/da/listeDa/list.js'
+      ],
+      listConge: [
+        './Views/js/ddc/listConge.js',
+        './Views/css/list.css',
+        './Views/css/ddc/listeConge.css'
       ]
     },
     output: {

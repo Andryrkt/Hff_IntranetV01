@@ -255,17 +255,17 @@ class CongeController extends Controller
                 'numeroDemande' => $conge->getNumeroDemande(),
                 'matricule' => $conge->getMatricule(),
                 'nomPrenoms' => $conge->getNomPrenoms(),
-                'dateDemande' => $conge->getDateDemande(),
+                'dateDemande' => $conge->getDateDemande() ? $conge->getDateDemande()->format('Y-m-d') : null,
                 'agenceDebiteur' => $conge->getAgenceDebiteur(),
                 'adresseMailDemandeur' => $conge->getAdresseMailDemandeur(),
                 'sousTypeDocument' => $conge->getSousTypeDocument(),
                 'dureeConge' => $conge->getDureeConge(),
-                'dateDebut' => $conge->getDateDebut(),
-                'dateFin' => $conge->getDateFin(),
+                'dateDebut' => $conge->getDateDebut() ? $conge->getDateDebut()->format('Y-m-d') : null,
+                'dateFin' => $conge->getDateFin() ? $conge->getDateFin()->format('Y-m-d') : null,
                 'soldeConge' => $conge->getSoldeConge(),
                 'motifConge' => $conge->getMotifConge(),
                 'statutDemande' => $conge->getStatutDemande(),
-                'dateStatut' => $conge->getDateStatut(),
+                'dateStatut' => $conge->getDateStatut() ? $conge->getDateStatut()->format('Y-m-d') : null,
                 'pdfDemande' => $conge->getPdfDemande(),
             ];
         }
@@ -286,28 +286,17 @@ class CongeController extends Controller
             }
 
             $employees[$employeeKey][] = [
-                'id' => $conge->getId(),
-                'typeDemande' => $conge->getTypeDemande(),
-                'numeroDemande' => $conge->getNumeroDemande(),
-                'matricule' => $conge->getMatricule(),
-                'nomPrenoms' => $conge->getNomPrenoms(),
-                'dateDemande' => $conge->getDateDemande() ? $conge->getDateDemande()->format('Y-m-d H:i:s') : null,
-                'agenceDebiteur' => $conge->getAgenceDebiteur(),
-                'adresseMailDemandeur' => $conge->getAdresseMailDemandeur(),
-                'sousTypeDocument' => $conge->getSousTypeDocument(),
+                'id' => (int)$conge->getId(),
+                'numeroDemande' => (string)$conge->getNumeroDemande(),
+                'matricule' => (string)$conge->getMatricule(),
+                'nomPrenoms' => (string)$conge->getNomPrenoms(),
+                'sousTypeDocument' => (string)$conge->getSousTypeDocument(),
                 'dureeConge' => $conge->getDureeConge(),
-                'dateDebut' => $conge->getDateDebut() ? [
-                    'date' => $conge->getDateDebut()->format('Y-m-d H:i:s')
-                ] : null,
-                'dateFin' => $conge->getDateFin() ? [
-                    'date' => $conge->getDateFin()->format('Y-m-d H:i:s')
-                ] : null,
-                'soldeConge' => $conge->getSoldeConge(),
-                'motifConge' => $conge->getMotifConge(),
-                'statutDemande' => $conge->getStatutDemande(),
-                'dateStatut' => $conge->getDateStatut() ? $conge->getDateStatut()->format('Y-m-d H:i:s') : null,
-                'pdfDemande' => $conge->getPdfDemande(),
+                'dateDebut' => $conge->getDateDebut() ? $conge->getDateDebut()->format('Y-m-d') : null,
+                'dateFin' => $conge->getDateFin() ? $conge->getDateFin()->format('Y-m-d') : null,
+                'statutDemande' => (string)$conge->getStatutDemande(),
             ];
+
         }
 
         // Transformer les objets DemandeConge en tableaux simples pour la vue
@@ -566,28 +555,17 @@ class CongeController extends Controller
             }
 
             $employees[$employeeKey][] = [
-                'id' => $conge->getId(),
-                'typeDemande' => $conge->getTypeDemande(),
-                'numeroDemande' => $conge->getNumeroDemande(),
-                'matricule' => $conge->getMatricule(),
-                'nomPrenoms' => $conge->getNomPrenoms(),
-                'dateDemande' => $conge->getDateDemande() ? $conge->getDateDemande()->format('Y-m-d H:i:s') : null,
-                'agenceDebiteur' => $conge->getAgenceDebiteur(),
-                'adresseMailDemandeur' => $conge->getAdresseMailDemandeur(),
-                'sousTypeDocument' => $conge->getSousTypeDocument(),
+                'id' => (int)$conge->getId(),
+                'numeroDemande' => (string)$conge->getNumeroDemande(),
+                'matricule' => (string)$conge->getMatricule(),
+                'nomPrenoms' => (string)$conge->getNomPrenoms(),
+                'sousTypeDocument' => (string)$conge->getSousTypeDocument(),
                 'dureeConge' => $conge->getDureeConge(),
-                'dateDebut' => $conge->getDateDebut() ? [
-                    'date' => $conge->getDateDebut()->format('Y-m-d H:i:s')
-                ] : null,
-                'dateFin' => $conge->getDateFin() ? [
-                    'date' => $conge->getDateFin()->format('Y-m-d H:i:s')
-                ] : null,
-                'soldeConge' => $conge->getSoldeConge(),
-                'motifConge' => $conge->getMotifConge(),
-                'statutDemande' => $conge->getStatutDemande(),
-                'dateStatut' => $conge->getDateStatut() ? $conge->getDateStatut()->format('Y-m-d H:i:s') : null,
-                'pdfDemande' => $conge->getPdfDemande(),
+                'dateDebut' => $conge->getDateDebut() ? $conge->getDateDebut()->format('Y-m-d') : null,
+                'dateFin' => $conge->getDateFin() ? $conge->getDateFin()->format('Y-m-d') : null,
+                'statutDemande' => (string)$conge->getStatutDemande(),
             ];
+
         }
 
         // Déterminer le mois à afficher dans le calendrier
