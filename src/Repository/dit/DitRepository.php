@@ -562,13 +562,15 @@ class DitRepository extends EntityRepository
         return $queryBuilder->getQuery()->getResult();
     }
 
-    public function findAteRealiserPar($numDit)
+    public function findAteRealiserPar($numDit, $codeSociete)
     {
         try {
             return $this->createQueryBuilder('d')
                 ->select('d.reparationRealise')
                 ->where('d.numeroDemandeIntervention = :numDit')
+                ->andWhere('d.codeSociete = :codeSociete')
                 ->setParameter('numDit', $numDit)
+                ->setParameter('codeSociete', $codeSociete)
                 ->getQuery()
                 ->getSingleScalarResult();
         } catch (NoResultException | NonUniqueResultException $e) {
@@ -604,12 +606,14 @@ class DitRepository extends EntityRepository
         ;
     }
 
-    public function findNumClient(string $numDit)
+    public function findNumClient(string $numDit, string $codeSociete)
     {
         return $this->createQueryBuilder('d')
             ->select('d.numeroClient')
             ->where('d.numeroDemandeIntervention = :numDit')
+            ->andWhere('d.codeSociete = :codeSociete')
             ->setParameter('numDit', $numDit)
+            ->setParameter('codeSociete', $codeSociete)
             ->getQuery()
             ->getSingleScalarResult()
         ;
