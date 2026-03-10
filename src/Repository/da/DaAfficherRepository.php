@@ -1001,13 +1001,15 @@ class DaAfficherRepository extends EntityRepository
      * recupère le derière statut du DA afficher
      * @param string $numeroDemandeAppro
      */
-    public function getLastStatutDaAfficher(string $numeroDemandeAppro)
+    public function getLastStatutDaAfficher(string $numeroDemandeAppro, string $codeSociete)
     {
         //recupérer dabor le numéro de version max
         $numeroVersionMax = $this->createQueryBuilder('d')
             ->select('MAX(d.numeroVersion)')
             ->where('d.numeroDemandeAppro = :numeroDemandeAppro')
+            ->andWhere('d.codeSociete = :codeSociete')
             ->setParameter('numeroDemandeAppro', $numeroDemandeAppro)
+            ->setParameter('codeSociete', $codeSociete)
             ->getQuery()
             ->getSingleScalarResult();
 
@@ -1016,7 +1018,9 @@ class DaAfficherRepository extends EntityRepository
             ->select('d.statutDal')
             ->where('d.numeroDemandeAppro = :numeroDemandeAppro')
             ->andWhere('d.numeroVersion = :numeroVersionMax')
+            ->andWhere('d.codeSociete = :codeSociete')
             ->setParameters([
+                'codeSociete' => $codeSociete,
                 'numeroDemandeAppro' => $numeroDemandeAppro,
                 'numeroVersionMax' => $numeroVersionMax
             ])
