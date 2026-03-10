@@ -504,12 +504,12 @@ class DitModel extends Model
     return $this->convertirEnUtf8($data);
   }
 
-  public function recupAgenceServiceDebiteur($numOr)
+  public function recupAgenceServiceDebiteur($numOr, string $codeSociete)
   {
     $statement = " SELECT 
           slor_succdeb || '-' || slor_servdeb AS agServDebiteur
           FROM sav_lor
-          WHERE slor_numor = '" . $numOr . "'";
+          WHERE slor_numor = '$numOr' AND slor_soc = '$codeSociete'";
 
     $result = $this->connect->executeQuery($statement);
 
