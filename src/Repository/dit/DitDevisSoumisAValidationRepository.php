@@ -197,16 +197,20 @@ class DitDevisSoumisAValidationRepository extends EntityRepository
      * Methode qui recupère tous les information du dernière devis soumis 
      *
      * @param string $numDit
+     * @param string $codeSociete
+     * 
      * @return void
      */
-    public function findInfoDevis(string $numDit)
+    public function findInfoDevis(string $numDit, string $codeSociete)
     {
         // Étape 1 : Récupérer le numeroVersion maximum
         try {
             $numeroVersionMax = $this->createQueryBuilder('dsv')
                 ->select('MAX(dsv.numeroVersion)')
                 ->where('dsv.numeroDit = :numDit')
+                ->andWhere('dsv.codeSociete = :codeSociete')
                 ->setParameter('numDit', $numDit)
+                ->setParameter('codeSociete', $codeSociete)
                 ->getQuery()
                 ->getSingleScalarResult();
         } catch (\Doctrine\ORM\NoResultException $e) {
@@ -223,7 +227,9 @@ class DitDevisSoumisAValidationRepository extends EntityRepository
                 ->where('dsv.numeroDit = :numDit')
                 ->andWhere('dsv.numeroVersion = :numeroVersionMax')
                 ->andWhere('dsv.statut = :statut')
+                ->andWhere('dsv.codeSociete = :codeSociete')
                 ->setParameters([
+                    'codeSociete' => $codeSociete,
                     'numeroVersionMax' => $numeroVersionMax,
                     'numDit' => $numDit,
                     'statut' => 'Validé atelier'

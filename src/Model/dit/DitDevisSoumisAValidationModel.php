@@ -286,12 +286,13 @@ class DitDevisSoumisAValidationModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function recupNbrItvDev(string $numDevis): array
+    public function recupNbrItvDev(string $numDevis, string $codeSociete): array
     {
         $statement = " SELECT DISTINCT COUNT( slor_nogrp) as itv
                         FROM sav_lor 
                         WHERE slor_numor= '{$numDevis}' 
                         AND slor_nogrp != 100 
+                        AND slor_soc = '$codeSociete'
         ";
 
         $result = $this->connect->executeQuery($statement);

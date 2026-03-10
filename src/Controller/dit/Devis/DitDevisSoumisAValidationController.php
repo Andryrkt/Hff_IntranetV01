@@ -353,7 +353,7 @@ class DitDevisSoumisAValidationController extends Controller
     public function estCeVente(string $numDevis, string $codeSociete): bool
     {
         $recupConstRefPremDev = $this->ditDevisSoumisAValidationModel->recupConstRefPremDev($numDevis, $codeSociete);
-        $recupNbrItvDev = $this->ditDevisSoumisAValidationModel->recupNbrItvDev($numDevis);
+        $recupNbrItvDev = $this->ditDevisSoumisAValidationModel->recupNbrItvDev($numDevis, $codeSociete);
 
         if (
             !is_array($recupConstRefPremDev) || empty($recupConstRefPremDev)
