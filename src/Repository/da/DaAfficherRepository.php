@@ -972,12 +972,14 @@ class DaAfficherRepository extends EntityRepository
         $queryBuilder->andWhere($ORX);
     }
 
-    public function getNbrDaAfficherValider(string $numeroOr): int
+    public function getNbrDaAfficherValider(string $numeroOr, string $codeSociete): int
     {
         $numeroVersionMax = $this->createQueryBuilder('d')
             ->select('MAX(d.numeroVersion)')
             ->where('d.numeroOr = :numOr')
+            ->andWhere('d.codeSociete = :codeSociete')
             ->setParameter('numOr', $numeroOr)
+            ->setParameter('codeSociete', $codeSociete)
             ->getQuery()
             ->getSingleScalarResult();
         if ($numeroVersionMax === null) {
@@ -987,8 +989,10 @@ class DaAfficherRepository extends EntityRepository
             ->select('COUNT(d.id) AS nombreDaAfficherValider')
             ->where('d.numeroOr = :numOr')
             ->andWhere('d.statutDal = :statutValide')
+            ->andWhere('d.codeSociete = :codeSociete')
             ->andWhere('d.numeroVersion = :numVersion')
             ->setParameters([
+                'codeSociete' => $codeSociete,
                 'numOr' => $numeroOr,
                 'statutValide' => DemandeAppro::STATUT_VALIDE,
                 'numVersion' => $numeroVersionMax
