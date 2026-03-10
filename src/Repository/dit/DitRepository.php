@@ -590,12 +590,14 @@ class DitRepository extends EntityRepository
 
 
     /** RECUPERE interne exter pour facture */
-    public function findInterneExterne($numDit)
+    public function findInterneExterne($numDit, string $codeSociete)
     {
         return $this->createQueryBuilder('d')
             ->select('d.internetExterne')
             ->where('d.numeroDemandeIntervention = :numDit')
+            ->andWhere('d.codeSociete = :codeSociete')
             ->setParameter('numDit', $numDit)
+            ->setParameter('codeSociete', $codeSociete)
             ->getQuery()
             ->getSingleScalarResult()
         ;

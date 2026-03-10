@@ -10,12 +10,13 @@ class DitDevisSoumisAValidationModel extends Model
 {
     use ConversionModel;
 
-    public function recupNumeroClient(string $numDevis)
+    public function recupNumeroClient(string $numDevis, string $codeSociete)
     {
         $statement = " SELECT seor_numcli as numero_client
                         FROM sav_eor
                         WHERE seor_serv = 'DEV'
-                        AND seor_numor = '" . $numDevis . "'
+                        AND seor_soc = '$codeSociete'
+                        AND seor_numor = '$numDevis'
         ";
 
         $result = $this->connect->executeQuery($statement);
@@ -40,13 +41,13 @@ class DitDevisSoumisAValidationModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function recupNumeroDevis($numDit)
+    public function recupNumeroDevis($numDit, string $codeSociete)
     {
         $statement = "SELECT  seor_numor  as numDevis
                 from sav_eor
-                where seor_refdem = '" . $numDit . "'
-                AND seor_serv = 'DEV'
-                ";
+                where seor_serv = 'DEV'
+                AND seor_soc = '$codeSociete'
+                AND seor_refdem = '$numDit'";
 
         $result = $this->connect->executeQuery($statement);
 
@@ -72,16 +73,17 @@ class DitDevisSoumisAValidationModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function recupNbPieceMagasin(string $numDevis)
+    public function recupNbPieceMagasin(string $numDevis, string $codeSociete)
     {
         $statement = " SELECT
                     COUNT(slor.slor_constp) AS nbr_sortie_magasin
                 FROM sav_lor slor
                 INNER JOIN sav_eor seor ON slor.slor_numor = seor.seor_numor
-                WHERE slor.slor_constp IN (" . GlobalVariablesService::get('pieces_magasin') . ")
-                AND (slor_refp not like '%-L' and slor_refp not like '%-CTRL')
+                WHERE seor.seor_numor = '$numDevis'
                 AND slor.slor_typlig = 'P'
-                AND seor.seor_numor = '$numDevis'
+                AND (slor_refp not like '%-L' and slor_refp not like '%-CTRL')
+                AND seor.seor_soc = '$codeSociete'
+                AND slor.slor_constp IN (" . GlobalVariablesService::get('pieces_magasin') . ")
             ";
 
         $result = $this->connect->executeQuery($statement);
@@ -91,7 +93,7 @@ class DitDevisSoumisAValidationModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function constructeurPieceMagasin(string $numDevis)
+    public function constructeurPieceMagasin(string $numDevis, string $codeSociete)
     {
         $statement = " SELECT
             CASE
@@ -112,7 +114,8 @@ class DitDevisSoumisAValidationModel extends Model
                 THEN TRIM('P')
             END AS retour
         FROM sav_lor
-        WHERE slor_numor = '" . $numDevis . "'
+        WHERE slor_numor = '$numDevis'
+        AND slor_soc = '$codeSociete'
             ";
 
         $result = $this->connect->executeQuery($statement);
@@ -130,7 +133,7 @@ class DitDevisSoumisAValidationModel extends Model
      * @param boolean $estCeForfait
      * @return void
      */
-    public function recupDevisSoumisValidation(string $numDevis)
+    public function recupDevisSoumisValidation(string $numDevis, string $codeSociete)
     {
         $statement = " SELECT 
         sitv_succdeb as num_agence, 
@@ -244,7 +247,7 @@ class DitDevisSoumisAValidationModel extends Model
                 AND seor_serv = 'DEV'
                 AND sitv_numor = slor_numor
                 AND sitv_interv = slor_nogrp / 100
-                AND seor_soc = 'HF'
+                AND seor_soc = '$codeSociete'
                 AND slor_soc = seor_soc
                 AND sitv_soc = seor_soc
                 AND sitv_pos NOT IN ('FC', 'FE', 'CP', 'ST')
@@ -264,12 +267,13 @@ class DitDevisSoumisAValidationModel extends Model
 
 
 
-    public function recupConstRefPremDev(string $numDevis): array
+    public function recupConstRefPremDev(string $numDevis, string $codeSociete): array
     {
         $statement = " SELECT   TRIM(slor_constp||'-'|| slor_refp) as contructeur
                         FROM sav_lor
                         WHERE  slor_numor = '{$numDevis}' 
                         AND slor_nogrp = 100 
+                        AND slor_soc = '$codeSociete'
                         ORDER BY slor_nolign ASC
                         LIMIT 1
         ";
@@ -296,12 +300,13 @@ class DitDevisSoumisAValidationModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function recupNumDitIps($numDevis)
+    public function recupNumDitIps($numDevis, string $codeSociete)
     {
         $statement = " SELECT trim(seor_refdem) as num_dit
                     FROM sav_eor 
                     where seor_serv='DEV'
-                    AND seor_numor = '" . $numDevis . "' 
+                    AND seor_soc = '$codeSociete'
+                    AND seor_numor = '$numDevis' 
         ";
 
         $result = $this->connect->executeQuery($statement);
@@ -311,12 +316,13 @@ class DitDevisSoumisAValidationModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function recupServDebiteur($numDevis)
+    public function recupServDebiteur($numDevis, string $codeSociete)
     {
         $statement = " SELECT sitv_succdeb as serv_debiteur
                         FROM sav_itv sitv 
                         inner join sav_eor seor on sitv.sitv_numor = seor.seor_numor and seor.seor_serv ='DEV'
-                        WHERE seor.seor_numor = '" . $numDevis . "'
+                        WHERE seor.seor_numor = '$numDevis'
+                        AND seor.seor_soc = '$codeSociete'
         ";
 
         $result = $this->connect->executeQuery($statement);
@@ -326,7 +332,7 @@ class DitDevisSoumisAValidationModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function recupInfoPieceClient(string $numDevis)
+    public function recupInfoPieceClient(string $numDevis, string $codeSociete)
     {
         $statement = " SELECT 
                         trim(slor_refp) as ref_piece,
@@ -334,7 +340,8 @@ class DitDevisSoumisAValidationModel extends Model
                         slor_numcli as num_client,
                         slor_numor as num_devis
                         FROM sav_lor
-                        WHERE slor_numor = '" . $numDevis . "'
+                        WHERE slor_numor = '$numDevis'
+                        AND slor_soc = '$codeSociete'
         ";
 
         $result = $this->connect->executeQuery($statement);
@@ -350,7 +357,7 @@ class DitDevisSoumisAValidationModel extends Model
      * @param array $infoPieceClient
      * @return void
      */
-    public function recupInfoPourChaquePiece(array $infoPieceClient)
+    public function recupInfoPourChaquePiece(array $infoPieceClient, string $codeSociete)
     {
         $statement = " SELECT FIRST 3 
                     trim(slor_constp) as CST, 
@@ -361,7 +368,7 @@ class DitDevisSoumisAValidationModel extends Model
                     seor_serv 
                     FROM sav_lor
                     inner join sav_eor 
-                    on seor_soc= slor_soc and seor_succ = slor_succ and seor_numor = slor_numor and slor_soc ='HF'
+                    on seor_soc= slor_soc and seor_succ = slor_succ and seor_numor = slor_numor and slor_soc ='$codeSociete'
                     WHERE slor_refp = '" . $infoPieceClient['ref_piece'] . "'
                     and slor_constp in (" . GlobalVariablesService::get('pieces_magasin') . ")
                     AND (slor_refp not like '%-L' and slor_refp not like '%-CTRL')
@@ -378,13 +385,14 @@ class DitDevisSoumisAValidationModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function recupNbrPieceMagasin($numDevis)
+    public function recupNbrPieceMagasin($numDevis, string $codeSociete)
     {
         $statement = "SELECT SUM(slor_nolign)  as nbLigne
                         from sav_lor 
-                        where slor_numor='{$numDevis}' 
-                        and slor_constp in (" . GlobalVariablesService::get('pieces_magasin') . ")
+                        where slor_numor='{$numDevis}'
+                        AND slor_soc = '$codeSociete'
                         AND (slor_refp not like '%-L' and slor_refp not like '%-CTRL')
+                        AND slor_constp in (" . GlobalVariablesService::get('pieces_magasin') . ")
                     ";
 
         $result = $this->connect->executeQuery($statement);
@@ -394,7 +402,7 @@ class DitDevisSoumisAValidationModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function getMontantItv(string $numDevis)
+    public function getMontantItv(string $numDevis, string $codeSociete)
     {
         $statement = " SELECT 
                     Sum(
@@ -414,7 +422,7 @@ class DitDevisSoumisAValidationModel extends Model
                 AND seor_serv = 'DEV'
                 AND sitv_numor = slor_numor
                 AND sitv_interv = slor_nogrp / 100
-                AND seor_soc = 'HF'
+                AND seor_soc = '$codeSociete'
                 AND slor_soc = seor_soc
                 AND sitv_soc = seor_soc
                 AND sitv_pos NOT IN ('FC', 'FE', 'CP', 'ST')
