@@ -138,3 +138,11 @@ update ors_soumis_a_validation set code_societe='HF';
 alter table ri_soumis_a_validation add code_societe varchar(2) null;
 
 update ri_soumis_a_validation set code_societe='HF';
+
+alter table Demande_Appro add code_societe varchar(2) null;
+
+update Demande_Appro set code_societe='HF';
+
+alter table da_afficher add code_societe varchar(2) null;
+
+update da_afficher set code_societe='HF';
