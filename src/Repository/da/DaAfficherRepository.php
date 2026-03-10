@@ -521,6 +521,7 @@ class DaAfficherRepository extends EntityRepository
         array $criteria,
         int $agenceIdUser,
         int $serviceIdUser,
+        string $codeSociete,
         array $agenceServiceAutorises,
         bool $peutVoirListeAvecDebiteur
     ): array {
@@ -574,6 +575,8 @@ class DaAfficherRepository extends EntityRepository
             ->leftJoin('d.demandeApproParent', 'dap')
             ->leftJoin('d.dit', 'dit')
             ->andWhere('d.deleted = 0')
+            ->andWhere('d.codeSociete = :codeSociete')
+            ->setParameter('codeSociete', $codeSociete)
             ->andWhere('d.numeroVersion = (' . $subDql . ')');
 
         // 3. Appliquer les filtres métier
@@ -658,6 +661,8 @@ class DaAfficherRepository extends EntityRepository
             ->andWhere('d.deleted = 0')
             ->andWhere('d.numeroVersion = (' . $subDql . ')')
             ->andWhere('d.numeroDemandeApproMere IN (:motherIds)')
+            ->andWhere('d.codeSociete = :codeSociete')
+            ->setParameter('codeSociete', $codeSociete)
             ->setParameter('motherIds', $motherIds);
 
         $this->handleOrderBy($finalQb, 'd', $criteria);

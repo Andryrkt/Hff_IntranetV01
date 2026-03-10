@@ -41,6 +41,9 @@ class listeDaController extends Controller
      */
     public function index(Request $request)
     {
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+
         /** Initialisation DaSearch */
         $daSearch = new DaSearch;
         $this->initialisationRechercheDa($daSearch);
@@ -88,7 +91,7 @@ class listeDaController extends Controller
         $peutVoirListeAvecDebiteur = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_AUTH_2);
 
         // Donnée à envoyer à la vue
-        $paginationData = $this->daAfficherRepository->findPaginatedAndFilteredDA($page, $limit, $criteria, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
+        $paginationData = $this->daAfficherRepository->findPaginatedAndFilteredDA($page, $limit, $criteria, $agenceIdUser, $serviceIdUser, $codeSociete, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
 
         // Application du verrouillage (Logique purement applicative)
         $this->appliquerVerrouillage($paginationData['data']);
