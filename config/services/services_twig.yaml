@@ -19,3 +19,11 @@ services:
     App\Twig\DeleteWordExtension:
         tags: ['twig.extension']
 
+    App\Twig\WebpackAssetExtension:
+        tags: ['twig.extension']
+
+    App\Twig\HtmlMinifierExtension:
+        tags: ['twig.extension']
+
+
+

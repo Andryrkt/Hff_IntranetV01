@@ -1,0 +1,35 @@
+{
+  "name": "hffintranet_prod",
+  "version": "1.0.0",
+  "description": "- display_errors = Off\r - display_startup_errors = Off\r - log_errors = On\r - error_reporting = E_ALL & ~E_DEPRECATED & ~E_STRICT",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "test"
+  },
+  "scripts": {
+    "dev": "webpack --mode development --watch",
+    "build": "webpack --mode production",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Andryrkt/Hff_IntranetV01.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Andryrkt/Hff_IntranetV01/issues"
+  },
+  "homepage": "https://github.com/Andryrkt/Hff_IntranetV01#readme",
+  "devDependencies": {
+    "css-loader": "^7.1.4",
+    "css-minimizer-webpack-plugin": "^8.0.0",
+    "mini-css-extract-plugin": "^2.10.0",
+    "terser-webpack-plugin": "^5.3.17",
+    "webpack": "^5.105.4",
+    "webpack-cli": "^6.0.1",
+    "webpack-manifest-plugin": "^6.0.1"
+  }
+}

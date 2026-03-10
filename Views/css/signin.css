@@ -1,6 +1,7 @@
 #intro {
-  /* background-image: url('../assets/Hff.png'); */
+  background-image: url('../assets/Hff.jpg');
   height: 100vh;
+  background-size: cover;
 }
 
 #Logo {

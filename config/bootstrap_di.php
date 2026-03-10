@@ -119,6 +119,14 @@ $container->register('App\Twig\DeleteWordExtension', \App\Twig\DeleteWordExtensi
     ->setSynthetic(true)
     ->setPublic(true);
 
+$container->register('App\Twig\WebpackAssetExtension', \App\Twig\WebpackAssetExtension::class)
+    ->setSynthetic(true)
+    ->setPublic(true);
+
+$container->register('App\Twig\HtmlMinifierExtension', \App\Twig\HtmlMinifierExtension::class)
+    ->setSynthetic(true)
+    ->setPublic(true);
+
 // Charger les paramètres
 $loader->load('parameters.yaml');
 
@@ -190,6 +198,12 @@ $container->set('App\Twig\CarbonExtension', $carbonExtension);
 
 $deleteWordExtension = new \App\Twig\DeleteWordExtension();
 $container->set('App\Twig\DeleteWordExtension', $deleteWordExtension);
+
+$webpackAssetExtension = new \App\Twig\WebpackAssetExtension();
+$container->set('App\Twig\WebpackAssetExtension', $webpackAssetExtension);
+
+$htmlMinifierExtension = new \App\Twig\HtmlMinifierExtension();
+$container->set('App\Twig\HtmlMinifierExtension', $htmlMinifierExtension);
 
 // Créer la requête et la réponse
 $request = Request::createFromGlobals();
@@ -276,6 +290,8 @@ $twig->addExtension($container->get('App\Twig\AppExtension'));
 $twig->addExtension($container->get('App\Twig\BreadcrumbExtension'));
 $twig->addExtension($container->get('App\Twig\CarbonExtension'));
 $twig->addExtension($container->get('App\Twig\DeleteWordExtension'));
+$twig->addExtension($container->get('App\Twig\WebpackAssetExtension'));
+$twig->addExtension($container->get('App\Twig\HtmlMinifierExtension'));
 
 // Configurer l'extension Asset
 $publicPath = $_ENV['BASE_PATH_COURT'] . '/public';
