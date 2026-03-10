@@ -38,6 +38,9 @@ class DaNewAvecDitController extends Controller
      */
     public function new(int $daId, int $ditId, Request $request)
     {
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+
         /** 
          * @var DemandeIntervention $dit DIT correspondant à l'id $ditId
          */
@@ -46,6 +49,7 @@ class DaNewAvecDitController extends Controller
         $demandeAppro = $daId === 0 ? $this->initialisationDemandeApproAvecDit($dit) : $this->demandeApproRepository->find($daId);
         $demandeAppro
             ->setDit($dit)
+            ->setCodeSociete($codeSociete)
             ->setDateFinSouhaite($this->dateLivraisonPrevueDA($dit->getNumeroDemandeIntervention(), $dit->getIdNiveauUrgence()->getDescription()))
         ;
 

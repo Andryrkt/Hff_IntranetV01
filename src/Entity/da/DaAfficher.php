@@ -2089,6 +2089,7 @@ class DaAfficher
             ->setAgenceDebiteur($da->getAgenceDebiteur()->getId())
             ->setServiceDebiteur($da->getServiceDebiteur()->getId())
             ->setDateDemandeDevis($da->getDateDemandeDevis())
+            ->setCodeSociete($da->getCodeSociete())
         ;
     }
 
