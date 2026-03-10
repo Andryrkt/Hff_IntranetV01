@@ -16,8 +16,11 @@ class DaAffectationApi extends Controller
     public function allReference(): JsonResponse
     {
         try {
+            // Code Société de l'utilisateur
+            $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+
             $daModel = new DaModel;
-            $data = $daModel->getAllReferenceAutorisees();
+            $data = $daModel->getAllReferenceAutorisees($codeSociete);
 
             if (empty($data)) {
                 return new JsonResponse([
