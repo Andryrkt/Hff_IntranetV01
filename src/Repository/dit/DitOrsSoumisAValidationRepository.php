@@ -234,13 +234,15 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
     }
 
 
-    public function findOrSoumisValid($numOr)
+    public function findOrSoumisValid($numOr, string $codeSociete)
     {
         // Étape 1 : Récupérer le numeroVersion maximum
         $numeroVersionMax = $this->createQueryBuilder('osv')
             ->select('MAX(osv.numeroVersion)')
             ->where('osv.numeroOR = :numOr')
+            ->andWhere('osv.codeSociete = :codeSociete')
             ->setParameter('numOr', $numOr)
+            ->setParameter('codeSociete', $codeSociete)
             ->getQuery()
             ->getSingleScalarResult();
 
@@ -249,7 +251,9 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
             ->where('osv.numeroVersion = :numeroVersionMax')
             ->andWhere('osv.numeroOR = :numOr')
             ->andWhere('osv.statut IN (:statut)')
+            ->andWhere('osv.codeSociete = :codeSociete')
             ->setParameters([
+                'codeSociete' => $codeSociete,
                 'numeroVersionMax' => $numeroVersionMax,
                 'numOr' => $numOr,
                 'statut' => ['Validé', 'Livré', 'Livré partiellement'],
