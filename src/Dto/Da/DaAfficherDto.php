@@ -12,6 +12,7 @@ class DaAfficherDto
     public $numDaParent;
     public $numeroDemandeAppro;
     public $datype;
+    public $daTypeIcon;
     public $niveauUrgence;
     public $numeroFournisseur;
     public $nomFournisseur;

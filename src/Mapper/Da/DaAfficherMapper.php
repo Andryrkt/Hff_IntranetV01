@@ -3,12 +3,17 @@
 namespace App\Mapper\Da;
 
 use App\Constants\da\RouteConstant;
+use App\Controller\Traits\da\MarkupIconTrait;
 use App\Dto\Da\DaAfficherDto;
 use App\Entity\da\DaAfficher;
+use App\Entity\da\DemandeAppro;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Twig\Markup;
 
 class DaAfficherMapper
 {
+    use MarkupIconTrait;
+
     private UrlGeneratorInterface $router;
     public function __construct(UrlGeneratorInterface $router)
     {
@@ -23,6 +28,7 @@ class DaAfficherMapper
         $dto->numDaParent = $data->getNumeroDemandeApproMere() ?? null;
         $dto->numeroDemandeAppro = $data->getNumeroDemandeAppro() ?? null;
         $dto->datype = $data->getDatypeId() ?? null;
+        $dto->daTypeIcon = $this->getTypeDaIcon($dto);
         $dto->niveauUrgence = $data->getNiveauUrgence() ?? null;
         $dto->numeroFournisseur = $data->getNumeroFournisseur() ?? null;
         $dto->nomFournisseur = $data->getNomFournisseur() ?? null;
@@ -116,5 +122,18 @@ class DaAfficherMapper
             "data-numero-cde" => $dto->numeroCde,
             "data-date-actuelle" => $dto->dateLivraisonPrevue ?? '',
         ];
+    }
+
+    private function getTypeDaIcon(DaAfficherDto $dto): string
+    {
+        $daIcons = [
+            DemandeAppro::TYPE_DA_AVEC_DIT         => $this->getIconDaAvecDIT(),
+            DemandeAppro::TYPE_DA_DIRECT           => $this->getIconDaDirect(),
+            DemandeAppro::TYPE_DA_REAPPRO_MENSUEL  => $this->getIconDaReapproMensuel(),
+            DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL => $this->getIconDaReapproPonctuel(),
+        ];
+
+        $safeIconBan = new Markup('<i class="fas fa-ban text-muted"></i>', 'UTF-8');
+        return $daIcons[$dto->datype] ?? $safeIconBan;
     }
 }

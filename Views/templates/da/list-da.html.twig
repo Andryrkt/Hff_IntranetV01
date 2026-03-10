@@ -104,7 +104,7 @@
 						<td class="fs-7 fw-bold ps-3" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ row.objet }}">{{ row.numDaParent }}</td>
 						<td class="d-none">{{ row.numeroDemandeAppro }}</td>
 						<td class="text-center" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ row.numeroDemandeAppro }}">
-							<a href="{{ row.urlDetail }}" target="_blank">{{ row.datype }}</a>
+							<a href="{{ row.urlDetail }}" target="_blank">{{ row.daTypeIcon|raw }}</a>
 						</td>
 						<td>{{ row.numeroDemandeDit }}</td>
 						<td>{{ row.niveauUrgence }}</td>
