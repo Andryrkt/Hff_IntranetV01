@@ -2,11 +2,9 @@
 
 namespace App\Entity\admin;
 
-use App\Entity\TypeReparation;
 use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\utilisateur\Profil;
-use App\Entity\dit\DitOrsSoumisAValidation;
 use Doctrine\Common\Collections\Collection;
 use App\Repository\admin\SocietteRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -38,18 +36,12 @@ class Societte
     private $codeSociete;
 
     /**
-     * @ORM\OneToMany(targetEntity=DitOrsSoumisAValidation::class, mappedBy="societe")
-     */
-    private $ditOrsSoumissionsAValidations;
-
-    /**
      * @ORM\OneToMany(targetEntity=Profil::class, mappedBy="societe", cascade={"persist"})
      */
     private Collection $profils;
 
     public function __construct()
     {
-        $this->ditOrsSoumissionsAValidations = new ArrayCollection();
         $this->profils = new ArrayCollection();
     }
 
@@ -83,37 +75,6 @@ class Societte
     {
         $this->codeSociete = $codeSociete;
 
-        return $this;
-    }
-
-    public function getDitOrsSoumissionsAValidations()
-    {
-        return $this->ditOrsSoumissionsAValidations;
-    }
-
-    public function addDitOrsSoumisAValidation(DitOrsSoumisAValidation $ditOrsSoumisAValidation): self
-    {
-        if (!$this->ditOrsSoumissionsAValidations->contains($ditOrsSoumisAValidation)) {
-            $this->ditOrsSoumissionsAValidations[] = $ditOrsSoumisAValidation;
-            $ditOrsSoumisAValidation->setSociete($this);
-        }
-        return $this;
-    }
-
-    public function removeDitOrsSoumissionsAValidations(DitOrsSoumisAValidation $ditOrsSoumisAValidation): self
-    {
-        if ($this->ditOrsSoumissionsAValidations->contains($ditOrsSoumisAValidation)) {
-            $this->ditOrsSoumissionsAValidations->removeElement($ditOrsSoumisAValidation);
-            if ($ditOrsSoumisAValidation->getSociete() === $this) {
-                $ditOrsSoumisAValidation->setSociete(null);
-            }
-        }
-        return $this;
-    }
-
-    public function setDitOrsSoumissionsAValidations($ditOrsSoumissionsAValidations): self
-    {
-        $this->ditOrsSoumissionsAValidations = $ditOrsSoumissionsAValidations;
         return $this;
     }
 

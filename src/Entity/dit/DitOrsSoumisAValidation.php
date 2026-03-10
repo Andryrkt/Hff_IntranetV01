@@ -138,11 +138,10 @@ class DitOrsSoumisAValidation
      */
     private $pieceFaibleActiviteAchat;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Societte::class, inversedBy="ditOrsSoumissionsAValidations")
-     * @ORM\JoinColumn(name="societe", referencedColumnName="id")
+    /** 
+     * @ORM\Column(type="string", length=2, name="code_societe", nullable=true)
      */
-    private  $societe = null; // relation avec la table societe
+    private $codeSociete;
     //==========================================================================================
 
 
@@ -615,19 +614,19 @@ class DitOrsSoumisAValidation
     }
 
     /**
-     * Get the value of societe
+     * Get the value of codeSociete
      */
-    public function getSociete()
+    public function getCodeSociete()
     {
-        return $this->societe;
+        return $this->codeSociete;
     }
 
     /**
-     * Set the value of societe
+     * Set the value of codeSociete
      */
-    public function setSociete($societe): self
+    public function setCodeSociete($codeSociete): self
     {
-        $this->societe = $societe;
+        $this->codeSociete = $codeSociete;
 
         return $this;
     }
