@@ -35,7 +35,10 @@ class DaNewReApproMensuelController extends Controller
      */
     public function newDAReapproMensuel(int $id, Request $request)
     {
-        $demandeAppro     = $id === 0 ? $this->initialisationDemandeApproReapproMensuel() : $this->demandeApproRepository->find($id);
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+
+        $demandeAppro     = $id === 0 ? $this->initialisationDemandeApproReapproMensuel($codeSociete) : $this->demandeApproRepository->find($id);
         $this->generateDemandApproLinesFromReappros($demandeAppro);
 
         $form = $this->getFormFactory()->createBuilder(DemandeApproReapproMensuelFormType::class, $demandeAppro, [

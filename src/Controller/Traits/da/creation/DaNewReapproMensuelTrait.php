@@ -34,7 +34,7 @@ trait DaNewReapproMensuelTrait
      * 
      * @return DemandeAppro la demande appro initialisée
      */
-    private function initialisationDemandeApproReapproMensuel(): DemandeAppro
+    private function initialisationDemandeApproReapproMensuel(string $codeSociete): DemandeAppro
     {
         $demandeAppro     = new DemandeAppro;
 
@@ -53,6 +53,7 @@ trait DaNewReapproMensuelTrait
             ->setServiceEmetteur($service)
             ->setAgenceServiceDebiteur("$codeAgence-$codeService")
             ->setAgenceServiceEmetteur("$codeAgence-$codeService")
+            ->setCodeSociete($codeSociete)
             ->setUser($this->getUser())
             ->setDemandeur($this->getUser()->getNomUtilisateur())
             ->setDateFinSouhaite($this->ajouterJoursOuvrables(5)) // Définit la date de fin souhaitée automatiquement à 3 jours après la date actuelle
