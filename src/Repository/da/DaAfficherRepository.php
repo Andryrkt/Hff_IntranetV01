@@ -11,6 +11,7 @@ use Doctrine\DBAL\ArrayParameterType;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DemandeIntervention;
 use App\Entity\dit\DitOrsSoumisAValidation;
+use Doctrine\ORM\Query;
 
 class DaAfficherRepository extends EntityRepository
 {
@@ -530,7 +531,44 @@ class DaAfficherRepository extends EntityRepository
 
         // 2. Requête de base
         $qb = $this->_em->createQueryBuilder();
-        $qb->select('d', 'da', 'dap', 'dit')
+        $qb->select(
+            'd.id',
+            'd.objetDal',
+            'd.numeroDemandeAppro',
+            'd.numeroDemandeApproMere',
+            'd.numeroDemandeDit',
+            'd.niveauUrgence',
+            'd.numeroOr',
+            'd.datePlannigOr',
+            'd.numeroFournisseur',
+            'd.nomFournisseur',
+            'd.numeroCde',
+            'd.statutDal',
+            'd.statutCde',
+            'd.statutOr',
+            'd.statutOr',
+            'd.dateFinSouhaite',
+            'd.artConstp',
+            'd.artRefp',
+            'd.artDesi',
+            'd.qteDem',
+            'd.qteEnAttent',
+            'd.qteDispo',
+            'd.qteLivrer',
+            'd.dateLivraisonPrevue',
+            'd.joursDispo',
+            'd.demandeur',
+            'd.daTypeId',
+            'd.numeroLigne',
+            'd.positionBc',
+            'd.dateDemande',
+            'd.estDalr',
+            'd.estFicheTechnique',
+            'd.desiCentrale',
+            'da.id   AS demandeApproId',
+            'dap.id  AS demandeApproParentId',
+            'dit.id  AS ditId'
+        )
             ->from(DaAfficher::class, 'd')
             ->leftJoin('d.demandeAppro', 'da')
             ->leftJoin('d.demandeApproParent', 'dap')
@@ -539,13 +577,11 @@ class DaAfficherRepository extends EntityRepository
             ->andWhere('d.numeroVersion = (' . $subDql . ')');
 
         // 3. Appliquer les filtres métier
-        $this->applyDynamicFilters($qb, "d", $criteria);
-        $this->applyAgencyServiceFilters($qb, "d", $criteria);
-        $this->applyDateFilters($qb, "d", $criteria);
-        // $this->applyFilterAppro($qb, "d", $estAppro, $estAdmin);
-        $this->applyStatutsFilters($qb, "d", $criteria);
-        $this->conditionAgenceService($qb, "d", $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
-
+        $this->applyDynamicFilters($qb, 'd', $criteria);
+        $this->applyAgencyServiceFilters($qb, 'd', $criteria);
+        $this->applyDateFilters($qb, 'd', $criteria);
+        $this->applyStatutsFilters($qb, 'd', $criteria);
+        $this->conditionAgenceService($qb, 'd', $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
         // 4. Count total optimisé avec cache
         $countQb = clone $qb;
         $countQb->resetDQLPart('select');
@@ -578,7 +614,43 @@ class DaAfficherRepository extends EntityRepository
 
         // 6. Fetch final de toutes les lignes pour ces mères
         $finalQb = $this->_em->createQueryBuilder();
-        $finalQb->select('d', 'da', 'dap', 'dit')
+        $finalQb->select(
+            'd.id',
+            'd.objetDal',
+            'd.numeroDemandeAppro',
+            'd.numeroDemandeApproMere',
+            'd.numeroDemandeDit',
+            'd.niveauUrgence',
+            'd.numeroOr',
+            'd.datePlannigOr',
+            'd.numeroFournisseur',
+            'd.nomFournisseur',
+            'd.numeroCde',
+            'd.statutDal',
+            'd.statutCde',
+            'd.statutOr',
+            'd.dateFinSouhaite',
+            'd.artConstp',
+            'd.artRefp',
+            'd.artDesi',
+            'd.qteDem',
+            'd.qteEnAttent',
+            'd.qteDispo',
+            'd.qteLivrer',
+            'd.dateLivraisonPrevue',
+            'd.joursDispo',
+            'd.demandeur',
+            'd.daTypeId',
+            'd.numeroLigne',
+            'd.positionBc',
+            'd.dateDemande',
+            'd.estDalr',
+            'd.estFicheTechnique',
+            'd.desiCentrale',
+            'da.id   AS demandeApproId',
+            'dap.id  AS demandeApproParentId',
+            'dit.id  AS ditId'
+        )
             ->from(DaAfficher::class, 'd')
             ->leftJoin('d.demandeAppro', 'da')
             ->leftJoin('d.demandeApproParent', 'dap')
@@ -593,7 +665,7 @@ class DaAfficherRepository extends EntityRepository
             ->addOrderBy('d.numeroDemandeAppro', 'DESC');
 
         return [
-            'data'        => $finalQb->getQuery()->getResult(),
+            'data'        => $finalQb->getQuery()->getResult(Query::HYDRATE_ARRAY),
             'totalItems'  => $totalItems,
             'currentPage' => $page,
             'lastPage'    => $lastPage,

@@ -168,23 +168,24 @@ class listeDaController extends Controller
         $daSearch->toObject($criteria);
     }
 
-    private function appliquerVerrouillage(array $daAffichers): void
+    // Le verrouillage est maintenant calculé et injecté directement dans les tableaux
+    private function appliquerVerrouillage(array &$daAffichers): void
     {
-        $estAdmin = false; // TODO: profil ou autre
-        $estAppro = false; // TODO: profil ou autre
+        $estAdmin   = false; // TODO: profil ou autre
+        $estAppro   = false; // TODO: profil ou autre
         $estAtelier = false; // TODO: profil ou autre
         $estCreateur = false; // TODO: profil ou autre
 
-        foreach ($daAffichers as $daAfficher) {
-            $verrouille = $this->permissionDaService->estDaVerrouillee(
-                $daAfficher->getStatutDal(),
-                $daAfficher->getStatutOr(),
+        foreach ($daAffichers as &$daAfficher) {
+            $daAfficher['verouille'] = $this->permissionDaService->estDaVerrouillee(
+                $daAfficher['statutDal'],
+                $daAfficher['statutOr'],
                 $estAdmin,
                 $estAppro,
                 $estAtelier,
                 $estCreateur
             );
-            $daAfficher->setVerouille($verrouille);
         }
+        unset($daAfficher); // bonne pratique après foreach par référence
     }
 }
