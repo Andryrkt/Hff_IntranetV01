@@ -140,17 +140,20 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
         return $numeroVersionMax;
     }
 
-    public function findOrSoumiAvant($numOr)
+    public function findOrSoumiAvant($numOr, $codeSociete)
     {
         $qb = $this->createQueryBuilder('osv');
 
         $subquery = $this->createQueryBuilder('osv2')
             ->select('MAX(osv2.numeroVersion)')
             ->where('osv2.numeroOR = :numOr')
+            ->andWhere('osv2.codeSociete = :codeSociete')
             ->getDQL();
 
         $orSoumisAvant = $qb
             ->where('osv.numeroOR = :numOr')
+            ->andWhere('osv.codeSociete = :codeSociete')
+            ->setParameter('codeSociete', $codeSociete)
             ->setParameter('numOr', $numOr)
             ->andWhere($qb->expr()->eq('osv.numeroVersion', '(' . $subquery . ')'))
             ->getQuery()
@@ -159,12 +162,14 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
         return $orSoumisAvant;
     }
 
-    public function findOrSoumiAvantMax($numOr)
+    public function findOrSoumiAvantMax($numOr, $codeSociete)
     {
         // Étape 1: Récupérer la version maximale pour le numeroOR donné
         $qbMax = $this->createQueryBuilder('osv2')
             ->select('MAX(osv2.numeroVersion)')
             ->where('osv2.numeroOR = :numOr')
+            ->andWhere('osv2.codeSociete = :codeSociete')
+            ->setParameter('codeSociete', $codeSociete)
             ->setParameter('numOr', $numOr);
 
         $maxVersion = $qbMax->getQuery()->getSingleScalarResult();
@@ -178,6 +183,8 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
         $qb = $this->createQueryBuilder('osv')
             ->where('osv.numeroOR = :numOr')
             ->andWhere('osv.numeroVersion = :previousVersion')
+            ->andWhere('osv.codeSociete = :codeSociete')
+            ->setParameter('codeSociete', $codeSociete)
             ->setParameter('numOr', $numOr)
             ->setParameter('previousVersion', $maxVersion - 1)  // Juste avant la version max
             ->getQuery()

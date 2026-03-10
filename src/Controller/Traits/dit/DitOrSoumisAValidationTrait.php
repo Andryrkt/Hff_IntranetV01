@@ -7,6 +7,8 @@ use Exception;
 use App\Entity\admin\utilisateur\User;
 use Symfony\Component\Form\FormInterface;
 use App\Entity\dit\DitOrsSoumisAValidation;
+use App\Model\dit\DitOrSoumisAValidationModel;
+use App\Repository\dit\DitOrsSoumisAValidationRepository;
 
 trait DitOrSoumisAValidationTrait
 {
@@ -197,7 +199,7 @@ trait DitOrSoumisAValidationTrait
         return $totalRecapOr;
     }
 
-    private function recuperationAvantApres($OrSoumisAvantMax, $OrSoumisAvant)
+    private function recuperationAvantApres($OrSoumisAvantMax, $OrSoumisAvant, $codeSociete)
     {
 
         if (!empty($OrSoumisAvantMax)) {
@@ -229,7 +231,7 @@ trait DitOrSoumisAValidationTrait
             $recapAvantApres[] = [
                 'itv' => $itv,
                 'libelleItv' => $libelleItv,
-                'datePlanning' => $this->datePlanning($OrSoumisAvant[$i]->getNumeroOR(), $itv),
+                'datePlanning' => $this->datePlanning($OrSoumisAvant[$i]->getNumeroOR(), $itv, $codeSociete),
                 'nbLigAv' => $nbLigAv,
                 'nbLigAp' => $nbLigAp,
                 'mttTotalAv' => $mttTotalAv,
@@ -317,9 +319,9 @@ trait DitOrSoumisAValidationTrait
     }
 
 
-    private function montantpdf($orSoumisValidataion, $OrSoumisAvant, $OrSoumisAvantMax)
+    private function montantpdf($orSoumisValidataion, $OrSoumisAvant, $OrSoumisAvantMax, $codeSociete)
     {
-        $recapAvantApres = $this->recuperationAvantApres($OrSoumisAvantMax, $OrSoumisAvant);
+        $recapAvantApres = $this->recuperationAvantApres($OrSoumisAvantMax, $OrSoumisAvant, $codeSociete);
         return [
             'avantApres' => $this->affectationStatut($recapAvantApres)['recapAvantApres'],
             'totalAvantApres' => $this->calculeSommeAvantApres($recapAvantApres),
@@ -329,11 +331,12 @@ trait DitOrSoumisAValidationTrait
         ];
     }
 
-    private function orSoumisValidataion($orSoumisValidationModel, $numeroVersionMax, $ditInsertionOrSoumis, $numDit)
+    private function orSoumisValidataion($orSoumisValidationModel, $numeroVersionMax, DitOrsSoumisAValidation $ditInsertionOrSoumis, $numDit)
     {
+        $codeSociete = $ditInsertionOrSoumis->getCodeSociete();
+
         /** @var array */
         $pieceFaibleAchat = $this->preparationDesPiecesFaibleAchat($ditInsertionOrSoumis->getNumeroOR());
-
 
         $orSoumisValidataion = []; // Tableau pour stocker les objets
 
@@ -358,7 +361,7 @@ trait DitOrSoumisAValidationTrait
                 ->setStatut('Soumis à validation')
                 ->setNumeroDit($numDit)
                 ->setPieceFaibleActiviteAchat(empty($pieceFaibleAchat) ? false : true)
-                ->setSociete($this->getUser()->getSociettes()) //TODO: bien specifier la societe
+                ->setCodeSociete($codeSociete)
             ;
 
             $orSoumisValidataion[] = $ditInsertionOr; // Ajouter l'objet dans le tableau
@@ -400,10 +403,13 @@ trait DitOrSoumisAValidationTrait
         });
     }
 
-    private function verificationDatePlanning($ditInsertionOrSoumis, $ditOrsoumisAValidationModel): bool
+    private function verificationDatePlanning(DitOrsSoumisAValidation $ditInsertionOrSoumis, DitOrSoumisAValidationModel $ditOrsoumisAValidationModel): bool
     {
-        $datePlannig1 = $this->magasinListOrLivrerModel->recupDatePlanning1($ditInsertionOrSoumis->getNumeroOR());
-        $datePlannig2 = $ditOrsoumisAValidationModel->recupNbDatePlanningVide($ditInsertionOrSoumis->getNumeroOR());
+        $numOr = $ditInsertionOrSoumis->getNumeroOR();
+        $codeSociete = $ditInsertionOrSoumis->getCodeSociete();
+
+        $datePlannig1 = $this->magasinListOrLivrerModel->recupDatePlanning1($numOr, $codeSociete);
+        $datePlannig2 = $ditOrsoumisAValidationModel->recupNbDatePlanningVide($numOr, $codeSociete);
 
         $aBlocker = false;
         if (empty($datePlannig1)) {
@@ -437,18 +443,19 @@ trait DitOrSoumisAValidationTrait
             return false;
         }
     }
-    private function premierSoumissionDatePlanningInferieurDateDuJour($numOr): bool
+    private function premierSoumissionDatePlanningInferieurDateDuJour($numOr, string $codeSociete): bool
     {
+        /** @var DitOrsSoumisAValidationRepository $orRepository */
         $orRepository = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class);
-        $nbrOrSoumis = $orRepository->getNbrOrSoumis($numOr); //première soumission
-        $nbrPieceMagasin = $this->ditOrsoumisAValidationModel->recupNbPieceMagasin($numOr); //nombre de piece magasin
+        $nbrOrSoumis = $orRepository->getNbrOrSoumis($numOr, $codeSociete); //première soumission
+        $nbrPieceMagasin = $this->ditOrsoumisAValidationModel->recupNbPieceMagasin($numOr, $codeSociete); //nombre de piece magasin
 
         if ((int)$nbrOrSoumis <= 0 && (int)$nbrPieceMagasin <= 0) { // si pas encore soumis et pas de piece magasin
-            $numItvs = $this->ditOrsoumisAValidationModel->getNumItv($numOr);
+            $numItvs = $this->ditOrsoumisAValidationModel->getNumItv($numOr, $codeSociete);
             $dateDuJour = new DateTime('now');
             foreach ($numItvs as $numItv) {
-                $datePlannig1 = $this->magasinListOrLivrerModel->recupDatePlanningOR1($numOr, $numItv);
-                $datePlannig2 = $this->magasinListOrLivrerModel->recupDatePlanningOR2($numOr, $numItv);
+                $datePlannig1 = $this->magasinListOrLivrerModel->recupDatePlanningOR1($numOr, $numItv, $codeSociete);
+                $datePlannig2 = $this->magasinListOrLivrerModel->recupDatePlanningOR2($numOr, $numItv, $codeSociete);
                 $datePlanning = empty($datePlannig1) ? new DateTime($datePlannig2[0]['dateplanning2']) : new DateTime($datePlannig1[0]['dateplanning1']);
                 if ($datePlanning->format('Y-m-d') < $dateDuJour->format('Y-m-d')) { // date planning est inférieure à la date du jour
                     return true;
@@ -461,10 +468,10 @@ trait DitOrSoumisAValidationTrait
     }
 
 
-    private function datePlanning($numOr, $numItv)
+    private function datePlanning($numOr, $numItv, $codeSociete)
     {
-        $datePlannig1 = $this->magasinListOrLivrerModel->recupDatePlanningOR1($numOr, $numItv);
-        $datePlannig2 = $this->magasinListOrLivrerModel->recupDatePlanningOR2($numOr, $numItv);
+        $datePlannig1 = $this->magasinListOrLivrerModel->recupDatePlanningOR1($numOr, $numItv, $codeSociete);
+        $datePlannig2 = $this->magasinListOrLivrerModel->recupDatePlanningOR2($numOr, $numItv, $codeSociete);
 
         return empty($datePlannig1) ? $datePlannig2[0]['dateplanning2'] : $datePlannig1[0]['dateplanning1'];
     }
