@@ -117,7 +117,7 @@ alter table pointage_relance add code_societe varchar(2) null;
 
 update pointage_relance set code_societe='HF';
 
-alter table demande_intervention drop column societe;
+alter table demande_intervention drop column societe; /** à executer en TEST et PROD */
 
 update demande_intervention set code_societe='HF';
 
@@ -129,7 +129,7 @@ alter table facture_soumis_a_validation add code_societe varchar(2) null;
 
 update facture_soumis_a_validation set code_societe='HF';
 
-alter table ors_soumis_a_validation drop column societe;
+alter table ors_soumis_a_validation drop column societe; /** à executer en TEST et PROD */
 
 alter table ors_soumis_a_validation add code_societe varchar(2) null;
 
@@ -146,3 +146,7 @@ update Demande_Appro set code_societe='HF';
 alter table da_afficher add code_societe varchar(2) null;
 
 update da_afficher set code_societe='HF';
+
+alter table bc_soumis add code_societe varchar(2) null;
+
+update bc_soumis set code_societe='HF';
