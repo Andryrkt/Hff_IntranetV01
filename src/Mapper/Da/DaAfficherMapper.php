@@ -104,9 +104,9 @@ class DaAfficherMapper
 
     private function computeRightsAndUrls(DaAfficherDto $dto, DaAfficher $item, bool $estAdmin, bool $estAppro, bool $estAtelier): void
     {
-        $daTypeId = $dto->datype;
-        $daViaOR = $daTypeId == DemandeAppro::TYPE_DA_AVEC_DIT;
-        $daDirect = $daTypeId == DemandeAppro::TYPE_DA_DIRECT;
+        $daTypeId = (int) $dto->datype;
+        $daViaOR = $daTypeId === DemandeAppro::TYPE_DA_AVEC_DIT;
+        $daDirect = $daTypeId === DemandeAppro::TYPE_DA_DIRECT;
 
         $dto->ajouterDA = $daViaOR && ($estAtelier || $estAdmin);
         $statutDASupprimable = [DemandeAppro::STATUT_SOUMIS_APPRO, DemandeAppro::STATUT_SOUMIS_ATE, DemandeAppro::STATUT_VALIDE];
@@ -114,36 +114,46 @@ class DaAfficherMapper
         $dto->demandeDevis = ($estAppro || $estAdmin) && $dto->statutDal === DemandeAppro::STATUT_SOUMIS_APPRO && ($daViaOR || $daDirect);
         $dto->centrale = (!$daViaOR) ? $item->getDesiCentrale() : '';
 
-        // URLs
-        $paramsDa = $item->getDemandeAppro() ? ['id' => $item->getDemandeAppro()->getId()] : [];
-        $paramsDit = $item->getDit() ? ['daId' => 0, 'ditId' => $item->getDit()->getId()] : [];
+        // URLs optimisées : On ne génère que ce qui est nécessaire
+        $daEntity = $item->getDemandeAppro();
+        $paramsDa = $daEntity ? ['id' => $daEntity->getId()] : null;
         
         // URL Detail
-        $detailRoutes = [
-            DemandeAppro::TYPE_DA_AVEC_DIT         => 'da_detail_avec_dit',
-            DemandeAppro::TYPE_DA_DIRECT           => 'da_detail_direct',
-            DemandeAppro::TYPE_DA_REAPPRO_MENSUEL  => 'da_detail_reappro',
-            DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL => 'da_detail_reappro',
-        ];
-        $dto->urlDetail = isset($detailRoutes[$daTypeId]) ? $this->router->generate($detailRoutes[$daTypeId], $paramsDa) : '#';
+        if ($paramsDa) {
+            $detailRoutes = [
+                DemandeAppro::TYPE_DA_AVEC_DIT         => 'da_detail_avec_dit',
+                DemandeAppro::TYPE_DA_DIRECT           => 'da_detail_direct',
+                DemandeAppro::TYPE_DA_REAPPRO_MENSUEL  => 'da_detail_reappro',
+                DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL => 'da_detail_reappro',
+            ];
+            $dto->urlDetail = isset($detailRoutes[$daTypeId]) ? $this->router->generate($detailRoutes[$daTypeId], $paramsDa) : '#';
+        } else {
+            $dto->urlDetail = '#';
+        }
 
-        // URL Creation
-        $creationRoutes = [
-            DemandeAppro::TYPE_DA_AVEC_DIT        => 'da_new_avec_dit',
-            DemandeAppro::TYPE_DA_REAPPRO_MENSUEL => 'da_new_reappro_mensuel',
-            DemandeAppro::TYPE_DA_PARENT          => 'da_new_achat'
-        ];
-        $dto->urlCreation = ($dto->ajouterDA && isset($creationRoutes[$daTypeId])) ? $this->router->generate($creationRoutes[$daTypeId], $paramsDit) : '#';
+        // URL Creation (seulement si nécessaire)
+        if ($dto->ajouterDA) {
+            $ditEntity = $item->getDit();
+            $paramsDit = $ditEntity ? ['daId' => 0, 'ditId' => $ditEntity->getId()] : null;
+            $creationRoutes = [
+                DemandeAppro::TYPE_DA_AVEC_DIT        => 'da_new_avec_dit',
+                DemandeAppro::TYPE_DA_REAPPRO_MENSUEL => 'da_new_reappro_mensuel',
+                DemandeAppro::TYPE_DA_PARENT          => 'da_new_achat'
+            ];
+            $dto->urlCreation = ($paramsDit && isset($creationRoutes[$daTypeId])) ? $this->router->generate($creationRoutes[$daTypeId], $paramsDit) : '#';
+        } else {
+            $dto->urlCreation = '#';
+        }
 
-        // URL Delete
-        $deleteRoutes = [
-            DemandeAppro::TYPE_DA_AVEC_DIT  => 'da_delete_line_avec_dit',
-            DemandeAppro::TYPE_DA_DIRECT    => 'da_delete_line_direct',
-        ];
-        $dto->urlDelete = isset($deleteRoutes[$daTypeId]) ? $this->router->generate($deleteRoutes[$daTypeId], ['numDa' => $dto->numeroDemandeAppro, 'ligne' => $dto->positionBc]) : '#';
+        // URL Delete (seulement si nécessaire)
+        if ($dto->supprimable) {
+            $dto->urlDelete = $this->router->generate('da_delete_line_avec_dit', ['numDa' => $dto->numeroDemandeAppro, 'ligne' => $dto->positionBc]);
+        } else {
+            $dto->urlDelete = '#';
+        }
 
         // URL Demande Devis
-        $dto->urlDemandeDevis = $item->getDemandeAppro() ? $this->router->generate('da_demande_devis_en_cours', $paramsDa) : '#';
+        $dto->urlDemandeDevis = ($dto->demandeDevis && $paramsDa) ? $this->router->generate('da_demande_devis_en_cours', $paramsDa) : '#';
     }
 
     private function prepareTdNumCdeAttributes(DaAfficherDto $dto): array

@@ -35,23 +35,11 @@ class DaListCdeFrnController extends Controller
     use AutorisationTrait;
 
     private DaAfficherRepository $daAfficherRepository;
-    private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
-    private DaModel $daModel;
-    private DemandeApproRepository $demandeApproRepository;
-    private DaSoumissionBcRepository $daSoumissionBcRepository;
-    private CdeFrnPresenter $presenter;
-
 
     public function __construct()
     {
         parent::__construct();
-        $em = $this->getEntityManager();
-        $this->daAfficherRepository = $em->getRepository(DaAfficher::class);
-        $this->ditOrsSoumisAValidationRepository = $em->getRepository(DitOrsSoumisAValidation::class);
-        $this->daModel = new DaModel();
-        $this->demandeApproRepository = $em->getRepository(DemandeAppro::class);
-        $this->daSoumissionBcRepository = $em->getRepository(DaSoumissionBc::class);
-        $this->presenter = new CdeFrnPresenter($this->getUrlGenerator());
+        $this->daAfficherRepository = $this->getEntityManager()->getRepository(DaAfficher::class);
     }
 
     /**
@@ -78,11 +66,11 @@ class DaListCdeFrnController extends Controller
         }
 
         $page = $request->query->getInt('page', 1);
-        $limit = 250;
+        $limit = 100; // Réduit de 250 à 100 pour la performance
 
         // Récupération et préparation des données
         $paginationData = $this->daAfficherRepository->findValidatedPaginatedDas($criteriaTab, $page, $limit);
-        // $dataPrepared = $this->presenter->present($paginationData['data']);
+        
         $daAfficherMapper = new DaAfficherMapper($this->getUrlGenerator());
         $dataPrepared = $daAfficherMapper->mapList($paginationData['data']);
 
@@ -98,7 +86,7 @@ class DaListCdeFrnController extends Controller
             'formSoumission'    => $formSoumission->createView(),
             'form'              => $form->createView(),
             'criteria'          => $criteriaTab,
-            'daTypeIcons'       => $this->presenter->getIcons(),
+            'daTypeIcons'       => $daAfficherMapper->getIcons(),
             'currentPage'       => $page,
             'totalPages'        => $paginationData['lastPage'],
             'resultat'          => $paginationData['totalItems'],
