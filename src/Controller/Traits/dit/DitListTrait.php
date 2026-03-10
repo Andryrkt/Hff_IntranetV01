@@ -441,11 +441,11 @@ trait DitListTrait
         return $ditSearch;
     }
 
-    private function DonnerAAjouterExcel(DitSearch $ditSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeAgenceUser, $peutVoirListeAvecDebiteur, $em): array
+    private function DonnerAAjouterExcel(DitSearch $ditSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeAgenceUser, $codeSociete, $peutVoirListeAvecDebiteur, $em): array
     {
         /** @var DitRepository $repository */
         $repository = $em->getrepository(DemandeIntervention::class);
-        $entities = $repository->findAndFilteredExcel($ditSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeAgenceUser, $peutVoirListeAvecDebiteur);
+        $entities = $repository->findAndFilteredExcel($ditSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeAgenceUser, $codeSociete, $peutVoirListeAvecDebiteur);
 
         $this->ajoutStatutAchatPiece($entities);
 

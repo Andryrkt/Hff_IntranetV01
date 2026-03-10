@@ -147,12 +147,14 @@ class DitRepository extends EntityRepository
      * @param array $options
      * @return array
      */
-    public function findAndFilteredExcel(DitSearch $ditSearch, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeAgenceUser, bool $peutVoirListeAvecDebiteur)
+    public function findAndFilteredExcel(DitSearch $ditSearch, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeAgenceUser, $codeSociete, bool $peutVoirListeAvecDebiteur)
     {
         $queryBuilder = $this->createQueryBuilder('d')
             ->leftJoin('d.typeDocument', 'td')
             ->leftJoin('d.idNiveauUrgence', 'nu')
-            ->leftJoin('d.idStatutDemande', 's');
+            ->leftJoin('d.idStatutDemande', 's')
+            ->andWhere('d.codeSociete = :codeSociete')
+            ->setParameter('codeSociete', $codeSociete);
 
         $this->applyStatusFilter($queryBuilder, $ditSearch);
         $this->applyniveauUrgenceFilters($queryBuilder, $ditSearch);
