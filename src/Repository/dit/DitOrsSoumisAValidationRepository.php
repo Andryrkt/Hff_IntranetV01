@@ -126,12 +126,14 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
     }
 
 
-    public function findNumeroVersionMax($numOr)
+    public function findNumeroVersionMax($numOr, $codeSociete)
     {
         $numeroVersionMax = $this->createQueryBuilder('osv')
             ->select('MAX(osv.numeroVersion)')
             ->where('osv.numeroOR = :numOr')
+            ->andWhere('o.codeSociete = :codeSociete')
             ->setParameter('numOr', $numOr)
+            ->setParameter('codeSociete', $codeSociete)
             ->getQuery()
             ->getSingleScalarResult();
 
@@ -301,7 +303,7 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
      * @param string $numOr
      * @return void
      */
-    public function getblocageStatut(string $numOr, string $numDit): string
+    public function getblocageStatut(string $numOr, string $numDit, string $codeSociete): string
     {
         $qb = $this->createQueryBuilder('o');
 
@@ -310,7 +312,10 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
             ->select('COUNT(o.id)')
             ->where('o.numeroOR = :numOr')
             ->andWhere('o.numeroDit = :numDit')
+            ->andWhere('o.codeSociete = :codeSociete')
+            ->setParameter('codeSociete', $codeSociete)
             ->setParameters([
+                'codeSociete' => $codeSociete,
                 'numOr' => $numOr,
                 'numDit' => $numDit
             ])
@@ -325,6 +330,8 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
         $maxVersion = $this->createQueryBuilder('o')
             ->select('MAX(o.numeroVersion)')
             ->where('o.numeroOR = :numOr')
+            ->andWhere('o.codeSociete = :codeSociete')
+            ->setParameter('codeSociete', $codeSociete)
             ->setParameter('numOr', $numOr)
             ->getQuery()
             ->getSingleScalarResult();
@@ -336,6 +343,7 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
         $qb->select('COUNT(o.id)')
             ->where('o.numeroOR = :numOr')
             ->andWhere('o.numeroVersion = :maxVersion')
+            ->andWhere('o.codeSociete = :codeSociete')
             ->andWhere(
                 $expr->orX(
                     $expr->like('o.statut', ':valide'),
@@ -347,6 +355,7 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
                 )
             )
             ->setParameters([
+                'codeSociete' => $codeSociete,
                 'numOr' => $numOr,
                 'maxVersion' => $maxVersion,
                 'valide' => '%Validé%',
@@ -385,11 +394,13 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function getNbrOrSoumis(string $numOr)
+    public function getNbrOrSoumis(string $numOr, string $codeSociete)
     {
         return  $this->createQueryBuilder('o')
             ->select('COUNT(o.id)')
             ->where('o.numeroOR = :numOr')
+            ->andWhere('o.codeSociete = :codeSociete')
+            ->setParameter('codeSociete', $codeSociete)
             ->setParameter('numOr', $numOr)
             ->getQuery()
             ->getSingleScalarResult();

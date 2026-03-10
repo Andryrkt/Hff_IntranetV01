@@ -70,7 +70,7 @@ class MagasinListeOrLivrerModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function recupDatePlanningOR1($numOr, $numItv)
+    public function recupDatePlanningOR1($numOr, $numItv, $codeSociete)
     {
         $statement = " SELECT  
                             min(ska_d_start) as datePlanning1
@@ -78,6 +78,7 @@ class MagasinListeOrLivrerModel extends Model
                         inner join ska on ska.skw_id = skw.skw_id 
                         where ofh_id ='$numOr'
                         and ofs_id = '$numItv'
+                        and skw_soc ='$codeSociete'
                         group by ofh_id 
                     ";
 
@@ -88,14 +89,14 @@ class MagasinListeOrLivrerModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function recupDatePlanningOR2($numOr, $numItv)
+    public function recupDatePlanningOR2($numOr, $numItv, $codeSociete)
     {
         $statement = " SELECT
                             min(sitv_datepla) as datePlanning2 
-
                         from sav_itv 
                         where sitv_numor = '$numOr'
                         and sitv_interv = '$numItv'
+                        and sitv_soc = '$codeSociete'
                         group by sitv_numor
                     ";
 
