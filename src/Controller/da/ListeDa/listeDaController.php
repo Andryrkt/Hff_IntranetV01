@@ -29,8 +29,6 @@ class listeDaController extends Controller
 
     private DaAfficherRepository $daAfficherRepository;
     private AgenceRepository $agenceRepository;
-    private DaAfficherMapper $mapper;
-    private PermissionDaService $permissionDaService;
 
     public function __construct()
     {
@@ -38,8 +36,6 @@ class listeDaController extends Controller
         $em = $this->getEntityManager();
         $this->daAfficherRepository = $em->getRepository(DaAfficher::class);
         $this->agenceRepository = $em->getRepository(Agence::class);
-        $this->mapper = new DaAfficherMapper($this->getUrlGenerator());
-        $this->permissionDaService = new PermissionDaService();
         
         $this->initDaTrait();
     }
@@ -69,7 +65,7 @@ class listeDaController extends Controller
             $sortJoursClass = $criteria['sortNbJours'] === 'asc' ? 'fas fa-arrow-up-1-9' : 'fas fa-arrow-down-9-1';
         }
 
-        // Pagination (Réduction de la limite de 500 à 20 pour la fluidité)
+        // Pagination
         $page = $request->query->getInt('page', 1);
         $limit = 50;
 
@@ -83,19 +79,35 @@ class listeDaController extends Controller
             $page, $limit
         );
 
-        // Application du verrouillage (Logique purement applicative)
-        $this->appliquerVerrouillage($paginationData['data']);
+        // Droits pour le mapping et le verrouillage
+        $optionsMapping = [
+            'estAdmin'    => $this->estAdmin(),
+            'estAppro'    => $this->estUserDansServiceAppro(),
+            'estAtelier'  => $this->estUserDansServiceAtelier(),
+            'estCreateur' => $this->estCreateurDeDADirecte()
+        ];
 
-        // Préparation des données pour la vue (Via Mapper)
-        $dataPrepared = $this->mapper->mapList($paginationData['data'], [
-            'estAdmin'   => $this->estAdmin(),
-            'estAppro'   => $this->estUserDansServiceAppro(),
-            'estAtelier' => $this->estUserDansServiceAtelier()
-        ]);
+        // Application du verrouillage avant mapping pour éviter une double boucle
+        $permissionService = new PermissionDaService();
+        foreach ($paginationData['data'] as $daAfficher) {
+            $verrouille = $permissionService->estDaVerrouillee(
+                $daAfficher->getStatutDal(),
+                $daAfficher->getStatutOr(),
+                $optionsMapping['estAdmin'], 
+                $optionsMapping['estAppro'], 
+                $optionsMapping['estAtelier'], 
+                $optionsMapping['estCreateur']
+            );
+            $daAfficher->setVerouille($verrouille);
+        }
+
+        // Préparation des données pour la vue
+        $mapper = new DaAfficherMapper($this->getUrlGenerator());
+        $dataPrepared = $mapper->mapList($paginationData['data'], $optionsMapping);
 
         // Détection code centrale
         $agenceServiceIps = $this->agenceServiceIpsObjet();
-        $codeCentraleVisible = $this->estAdmin() || in_array($agenceServiceIps['agenceIps']->getCodeAgence(), ['90', '91', '92']);
+        $codeCentraleVisible = $optionsMapping['estAdmin'] || in_array($agenceServiceIps['agenceIps']->getCodeAgence(), ['90', '91', '92']);
 
         // Formulaire Date Livraison
         $formDateLivraison = $this->getFormFactory()->createBuilder(DaModalDateLivraisonType::class)->getForm();
@@ -106,7 +118,7 @@ class listeDaController extends Controller
             'form'              => $form->createView(),
             'criteria'          => $criteria,
             'codeCentrale'      => $codeCentraleVisible,
-            'daTypeIcons'       => $this->mapper->getIcons(),
+            'daTypeIcons'       => $mapper->getIcons(),
             'sortJoursClass'    => $sortJoursClass,
             'currentPage'       => $paginationData['currentPage'],
             'totalPages'        => $paginationData['lastPage'],
