@@ -29,6 +29,9 @@ class ExportExcelController extends Controller
      */
     public function exportExcel()
     {
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+
         $criteria = $this->getSessionService()->get('criteria_search_list_da');
 
         $codeCentrale     = false; // TODO : autorisation sur le code centrale
@@ -37,7 +40,7 @@ class ExportExcelController extends Controller
         $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DAP);
 
         // recupération des données de la DA
-        $dasFiltered = $this->getDataExcel($criteria, $agenceServiceAutorises);
+        $dasFiltered = $this->getDataExcel($criteria, $agenceServiceAutorises, $codeSociete);
 
         // Données généré des $dasFiltered
         $data = $this->generateTableData($dasFiltered, $codeCentrale);
@@ -46,7 +49,7 @@ class ExportExcelController extends Controller
         (new ExcelService())->createSpreadsheet($data, "donnees_" . date('Y-m-d_H-i-s'));
     }
 
-    public function getDataExcel(array $criteria, array $agenceServiceAutorises): array
+    public function getDataExcel(array $criteria, array $agenceServiceAutorises, string $codeSociete): array
     {
         // Agence et service par défaut
         $agenceIdUser = $this->getSecurityService()->getAgenceIdUser();
@@ -56,7 +59,7 @@ class ExportExcelController extends Controller
         $peutVoirListeAvecDebiteur = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_AUTH_2, "list_da");
 
         // Filtrage des DA en fonction des critères
-        $daAffichers = $this->daAfficherRepository->findDerniereVersionDesDA($criteria, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
+        $daAffichers = $this->daAfficherRepository->findDerniereVersionDesDA($criteria, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeSociete, $peutVoirListeAvecDebiteur);
 
         // Retourne les DA filtrées
         return $daAffichers;

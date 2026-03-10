@@ -1038,7 +1038,7 @@ class DaAfficherRepository extends EntityRepository
     }
 
 
-    public function findDerniereVersionDesDA(array $criteria, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, bool $peutVoirListeAvecDebiteur): array
+    public function findDerniereVersionDesDA(array $criteria, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeSociete, bool $peutVoirListeAvecDebiteur): array
     {
         $qb = $this->createQueryBuilder('d');
 
@@ -1050,6 +1050,8 @@ class DaAfficherRepository extends EntityRepository
                 )'
         )
             ->andWhere('d.deleted = :deleted')
+            ->andWhere('d.codeSociete = :codeSociete')
+            ->setParameter('codeSociete', $codeSociete)
             ->setParameter('deleted', 0);
 
         $this->applyDynamicFilters($qb, 'd', $criteria);
