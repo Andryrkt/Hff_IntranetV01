@@ -56,14 +56,15 @@ class DitDevisSoumisAValidationModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function recupNbAchatLocaux(string $numDevis)
+    public function recupNbAchatLocaux(string $numDevis, string $codeSociete)
     {
         $statement = " SELECT
             count(slor.slor_constp) as nbr_achat_locaux 
             from sav_lor slor
             INNER JOIN sav_eor seor ON slor.slor_numor = seor.seor_numor
-            where slor.slor_constp in (" . GlobalVariablesService::get('achat_locaux') . ")
-            and seor.seor_numor = '" . $numDevis . "'
+            where seor.seor_numor = '$numDevis'
+            and seor.seor_soc = '$codeSociete'
+            and slor.slor_constp in (" . GlobalVariablesService::get('achat_locaux') . ")
         ";
 
         $result = $this->connect->executeQuery($statement);

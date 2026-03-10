@@ -452,7 +452,7 @@ class DitDevisSoumisAValidationController extends Controller
         return [
             "numDevis" => $numDevis,
             "sortieMagasin" => $this->estCeSortieMagasin($numDevis, $codeSociete),
-            "achatLocaux" => $this->estCeAchatLocaux($numDevis)
+            "achatLocaux" => $this->estCeAchatLocaux($numDevis, $codeSociete)
         ];
     }
 
@@ -468,9 +468,9 @@ class DitDevisSoumisAValidationController extends Controller
         return $sortieMagasin;
     }
 
-    private function estCeAchatLocaux(string $numDevis): string
+    private function estCeAchatLocaux(string $numDevis, string $codeSociete): string
     {
-        $nbAchatLocaux = $this->ditDevisSoumisAValidationModel->recupNbAchatLocaux($numDevis);
+        $nbAchatLocaux = $this->ditDevisSoumisAValidationModel->recupNbAchatLocaux($numDevis, $codeSociete);
         if (!empty($nbAchatLocaux) && $nbAchatLocaux[0]['nbr_achat_locaux'] !== "0") {
             $achatLocaux = 'OUI';
         } else {
