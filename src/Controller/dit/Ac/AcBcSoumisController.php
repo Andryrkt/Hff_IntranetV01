@@ -17,6 +17,7 @@ use App\Service\genererPdf\GenererPdfAcSoumis;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\dit\DitDevisSoumisAValidationModel;
 use App\Entity\admin\utilisateur\ContactAgenceAte;
+use App\Repository\dit\DitDevisSoumisAValidationRepository;
 use App\Service\historiqueOperation\HistoriqueOperationBCService;
 
 /**
@@ -52,9 +53,9 @@ class AcBcSoumisController extends Controller
      */
     public function traitementFormulaire(Request $request, $numDit)
     {
-
-        // $devis = $this->filtredataDevis($numDit);
-        $devis = $this->getEntityManager()->getRepository(DitDevisSoumisAValidation::class)->findInfoDevis($numDit);
+        /** @var DitDevisSoumisAValidationRepository $repository */
+        $repository = $this->getEntityManager()->getRepository(DitDevisSoumisAValidation::class);
+        $devis = $repository->findInfoDevis($numDit);
 
         $ditInterneouExterne = $this->ditRepository->findInterneExterne($numDit);
         if ($ditInterneouExterne === 'INTERNE') {

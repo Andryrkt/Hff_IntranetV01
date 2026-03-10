@@ -491,11 +491,11 @@ class DitModel extends Model
     return $this->convertirEnUtf8($data);
   }
 
-  public function recupererNumdevis($numOr)
+  public function recupererNumdevis($numOr, $codeSociete)
   {
-    $statement = "SELECT  seor_numdev  
+    $statement = "SELECT seor_numdev 
                 from sav_eor
-                where seor_numor = '" . $numOr . "'";
+                where seor_numor = '$numOr' and seor_soc = '$codeSociete'";
 
     $result = $this->connect->executeQuery($statement);
 

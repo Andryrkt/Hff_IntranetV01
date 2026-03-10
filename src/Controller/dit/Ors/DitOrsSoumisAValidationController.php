@@ -519,7 +519,7 @@ class DitOrsSoumisAValidationController extends Controller
 
     private function quelqueAffichage($numOr)
     {
-        $numDevis = $this->ditModel->recupererNumdevis($numOr);
+        $numDevis = $this->ditModel->recupererNumdevis($numOr); // ajouter code société
         $nbSotrieMagasin = $this->ditOrsoumisAValidationModel->recupNbPieceMagasin($numOr);
         $nbAchatLocaux = $this->ditOrsoumisAValidationModel->recupNbAchatLocaux($numOr);
         $nbPol = $this->ditOrsoumisAValidationModel->recupNbPol($numOr);
