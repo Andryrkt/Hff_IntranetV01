@@ -13,7 +13,7 @@ use App\Form\da\daCdeFrn\DaModalDateLivraisonType;
 use App\Form\da\DaSearchType;
 use App\Repository\admin\AgenceRepository;
 use App\Repository\da\DaAfficherRepository;
-use App\Service\da\DaListePresenter;
+use App\Mapper\Da\DaAfficherMapper;
 use App\Service\da\PermissionDaService;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -29,7 +29,7 @@ class listeDaController extends Controller
 
     private DaAfficherRepository $daAfficherRepository;
     private AgenceRepository $agenceRepository;
-    private DaListePresenter $presenter;
+    private DaAfficherMapper $mapper;
     private PermissionDaService $permissionDaService;
 
     public function __construct()
@@ -38,7 +38,7 @@ class listeDaController extends Controller
         $em = $this->getEntityManager();
         $this->daAfficherRepository = $em->getRepository(DaAfficher::class);
         $this->agenceRepository = $em->getRepository(Agence::class);
-        $this->presenter = new DaListePresenter($this->getUrlGenerator());
+        $this->mapper = new DaAfficherMapper($this->getUrlGenerator());
         $this->permissionDaService = new PermissionDaService();
         
         $this->initDaTrait();
@@ -86,8 +86,8 @@ class listeDaController extends Controller
         // Application du verrouillage (Logique purement applicative)
         $this->appliquerVerrouillage($paginationData['data']);
 
-        // Préparation des données pour la vue (Via Presenter avec Cache)
-        $dataPrepared = $this->presenter->present($paginationData['data'], [
+        // Préparation des données pour la vue (Via Mapper)
+        $dataPrepared = $this->mapper->mapList($paginationData['data'], [
             'estAdmin'   => $this->estAdmin(),
             'estAppro'   => $this->estUserDansServiceAppro(),
             'estAtelier' => $this->estUserDansServiceAtelier()
@@ -106,7 +106,7 @@ class listeDaController extends Controller
             'form'              => $form->createView(),
             'criteria'          => $criteria,
             'codeCentrale'      => $codeCentraleVisible,
-            'daTypeIcons'       => $this->presenter->getIcons(),
+            'daTypeIcons'       => $this->mapper->getIcons(),
             'sortJoursClass'    => $sortJoursClass,
             'currentPage'       => $paginationData['currentPage'],
             'totalPages'        => $paginationData['lastPage'],
