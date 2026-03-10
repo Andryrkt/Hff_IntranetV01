@@ -77,7 +77,7 @@ class DitController extends Controller
 
         //AFFICHAGE ET TRAITEMENT DU FORMULAIRE
         $form = $this->getFormFactory()->createBuilder(demandeInterventionType::class, $demandeIntervention)->getForm();
-        $this->traitementFormulaire($form, $request, $demandeIntervention);
+        $this->traitementFormulaire($form, $request, $codeSociete);
 
         $this->logUserVisit('dit_new'); // historisation du page visité par l'utilisateur
 
@@ -86,7 +86,7 @@ class DitController extends Controller
         ]);
     }
 
-    private function traitementFormulaire($form, Request $request)
+    private function traitementFormulaire($form, Request $request, string $codeSociete)
     {
         $form->handleRequest($request);
 
@@ -149,9 +149,9 @@ class DitController extends Controller
         }
     }
 
-    private function modificationBdPourHitorisationDw($em, $demandeIntervention, bool $reponse): void
+    private function modificationBdPourHitorisationDw($em, DemandeIntervention $demandeIntervention, bool $reponse): void
     {
-        $dit = $this->demandeRepository->findOneBy(['numeroDemandeIntervention' => $demandeIntervention->getNumeroDemandeIntervention()]);
+        $dit = $this->demandeRepository->findOneBy(['numeroDemandeIntervention' => $demandeIntervention->getNumeroDemandeIntervention(), 'codeSociete' => $demandeIntervention->getCodeSociete()]);
         $dit->setPdfDeposerDw($reponse)
             ->setDateDepotPdfDw(new \DateTime());
         $em->persist($dit);

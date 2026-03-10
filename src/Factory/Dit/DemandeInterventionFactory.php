@@ -235,6 +235,7 @@ class DemandeInterventionFactory
         $demandeIntervention->setUtilisateurDemandeur($dto->utilisateurDemandeur);
         $demandeIntervention->setDateDemande($dto->dateDemande);
         $demandeIntervention->setHeureDemande($dto->heureDemande);
+        $demandeIntervention->setCodeSociete($dto->codeSociete);
 
         // Agence et service emetteur et debiteur ID
         $em = $this->entityManager;
