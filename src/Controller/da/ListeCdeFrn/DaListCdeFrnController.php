@@ -58,6 +58,9 @@ class DaListCdeFrnController extends Controller
      */
     public function index(Request $request)
     {
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+
         /** ===  Formulaire pour la recherche === */
         $searchDto = $this->initialisationCdeFrnSearchDto();
         $form = $this->getFormFactory()->createBuilder(CdeFrnListType::class, $searchDto, [
@@ -77,7 +80,7 @@ class DaListCdeFrnController extends Controller
         $limit = 500;
 
         // Récupération et préparation des données
-        $paginationData = $this->daAfficherRepository->findValidatedPaginatedDas($criteriaTab, $page, $limit);
+        $paginationData = $this->daAfficherRepository->findValidatedPaginatedDas($criteriaTab, $page, $limit, $codeSociete);
         $dataPrepared = $this->presenter->present($paginationData['data']);
 
         // Autres formulaires

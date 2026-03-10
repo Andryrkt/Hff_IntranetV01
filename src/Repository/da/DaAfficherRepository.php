@@ -273,9 +273,11 @@ class DaAfficherRepository extends EntityRepository
      * @param array $criteria
      * @param int $page
      * @param int $limit
+     * @param string $codeSociete
+     * 
      * @return array
      */
-    public function findValidatedPaginatedDas(?array $criteria = [], int $page, int $limit): array
+    public function findValidatedPaginatedDas(?array $criteria = [], int $page, int $limit, string $codeSociete): array
     {
         $criteria = $criteria ?? [];
 
@@ -317,11 +319,13 @@ class DaAfficherRepository extends EntityRepository
             ->andWhere('d.statutCde IS NULL OR d.statutCde != :statutPasDansOr')
             ->andWhere('d.numeroVersion = (' . $subDql . ')')
             ->andWhere('d.statutDal IN (:statutDal)')
+            ->andWhere('d.codeSociete = :codeSociete')
             ->andWhere($qb->expr()->orX(
                 $qb->expr()->in('d.statutOr', ':statutOrs'),
                 $qb->expr()->in('d.numeroDemandeAppro', ':exceptions')
             ))
             ->setParameter('statutPasDansOr', DaSoumissionBc::STATUT_PAS_DANS_OR)
+            ->setParameter('codeSociete', $codeSociete)
             ->setParameter('statutDal', $statutDas)
             ->setParameter('statutOrs', $statutOrs)
             ->setParameter('exceptions', $exceptions);
