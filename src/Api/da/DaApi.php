@@ -199,8 +199,11 @@ class DaApi extends Controller
     public function autocompleteAllFournisseur()
     {
         try {
+            // Code Société de l'utilisateur
+            $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+
             $daModel = new DaModel;
-            $data = $daModel->getAllFournisseur();
+            $data = $daModel->getAllFournisseur($codeSociete);
 
             // Vérifier que les données sont valides
             if (!is_array($data)) {

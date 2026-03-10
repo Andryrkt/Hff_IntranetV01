@@ -115,7 +115,6 @@ class DaNewAvecDitController extends Controller
                     $demandeApproL
                         ->setNumeroDemandeAppro($numDa)
                         ->setStatutDal(self::STATUT_DAL[$clickedButtonName])
-                        ->setPrixUnitaire($this->daModel->getPrixUnitaire($demandeApproL->getArtRefp())[0])
                         ->setNumeroDit($demandeAppro->getNumeroDemandeDit())
                         ->setJoursDispo($this->getJoursRestants($demandeApproL))
                         ->setFileNames($allFileNames)

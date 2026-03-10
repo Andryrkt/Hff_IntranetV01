@@ -93,7 +93,9 @@ trait DaNewAvecDitTrait
      */
     private function setAllFournisseurs()
     {
-        $fournisseurs = $this->daModel->getAllFournisseur();
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+        $fournisseurs = $this->daModel->getAllFournisseur($codeSociete);
         $this->fournisseurs = array_column($fournisseurs, 'numerofournisseur', 'nomfournisseur');
     }
 
