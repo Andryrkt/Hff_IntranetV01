@@ -46,6 +46,9 @@ class DitListeController extends Controller
      */
     public function index(Request $request)
     {
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+
         $ditListeModel = new DitListModel();
         $ditSearch = new DitSearch();
 
@@ -95,7 +98,7 @@ class DitListeController extends Controller
         $peutVoirListeAvecDebiteur = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_AUTH_2);
 
         //recupération des donnée
-        $paginationData = $this->data($request, $ditListeModel, $ditSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur, $codeAgenceUser, $this->getEntityManager());
+        $paginationData = $this->data($request, $ditListeModel, $ditSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur, $codeAgenceUser, $codeSociete, $this->getEntityManager());
 
         /**  Docs à intégrer dans DW * */
         $formDocDansDW = $this->getFormFactory()->createBuilder(DocDansDwType::class, null, [

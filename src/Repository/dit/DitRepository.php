@@ -34,16 +34,15 @@ class DitRepository extends EntityRepository
      * @param array $options
      * @return void
      */
-    public function findPaginatedAndFiltered(int $page = 1, int $limit = 10, DitSearch $ditSearch, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, bool $peutVoirListeAvecDebiteur, string $codeAgenceUser)
+    public function findPaginatedAndFiltered(int $page = 1, int $limit = 10, DitSearch $ditSearch, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, bool $peutVoirListeAvecDebiteur, string $codeAgenceUser, string $codeSociete)
     {
         $queryBuilder = $this->createQueryBuilder('d')
             ->leftJoin('d.typeDocument', 'td')
             ->leftJoin('d.idNiveauUrgence', 'nu')
             ->leftJoin('d.idStatutDemande', 's')
             ->leftJoin(AtelierRealise::class, 'ar', 'WITH', 'd.reparationRealise = ar.codeAtelier')
-            ->leftJoin('d.societe', 'soc')
-            ->andWhere('soc.codeSociete = :codeSociete')
-            ->setParameter('codeSociete', 'HF');
+            ->andWhere('d.codeSociete = :codeSociete')
+            ->setParameter('codeSociete', $codeSociete);
 
         $this->applyStatusFilter($queryBuilder, $ditSearch);
         $this->applyCommonFilters($queryBuilder, $ditSearch);
@@ -634,18 +633,17 @@ class DitRepository extends EntityRepository
      * @param array $options
      * @return void
      */
-    public function findPaginatedAndFilteredDa(int $page = 1, int $limit = 10, DitSearch $ditSearch, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeAgenceUser, bool $peutVoirListeAvecDebiteur)
+    public function findPaginatedAndFilteredDa(int $page = 1, int $limit = 10, DitSearch $ditSearch, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeAgenceUser, bool $peutVoirListeAvecDebiteur, string $codeSociete)
     {
 
         $queryBuilder = $this->createQueryBuilder('d')
             ->leftJoin('d.typeDocument', 'td')
             ->leftJoin('d.idNiveauUrgence', 'nu')
             ->leftJoin('d.idStatutDemande', 's')
-            ->innerJoin('d.societe', 'soc')
             ->where('d.sectionAffectee <> :sectionAffectee')
             ->setParameter('sectionAffectee', '')
-            ->andWhere('soc.codeSociete = :codeSociete')
-            ->setParameter('codeSociete', 'HF');
+            ->andWhere('d.codeSociete = :codeSociete')
+            ->setParameter('codeSociete', $codeSociete);
 
         $this->applyStatusFilterDa($queryBuilder, $ditSearch);
 

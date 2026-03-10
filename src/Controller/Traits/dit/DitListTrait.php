@@ -503,7 +503,7 @@ trait DitListTrait
         $this->redirectToRoute("dit_index");
     }
 
-    private function data($request, $ditListeModel, $ditSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur, $codeAgenceUser, $em)
+    private function data($request, $ditListeModel, $ditSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur, $codeAgenceUser, $codeSociete, $em)
     {
         //recupère le numero de page
         $page = $request->query->getInt('page', 1);
@@ -512,7 +512,7 @@ trait DitListTrait
 
         /** @var DitRepository $repository */
         $repository = $em->getRepository(DemandeIntervention::class);
-        $paginationData = $repository->findPaginatedAndFiltered($page, $limit, $ditSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur, $codeAgenceUser);
+        $paginationData = $repository->findPaginatedAndFiltered($page, $limit, $ditSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur, $codeAgenceUser, $codeSociete);
 
         //ajout de donner du statut achat piece dans data
         $this->ajoutStatutAchatPiece($paginationData['data']);

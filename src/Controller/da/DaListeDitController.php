@@ -63,6 +63,9 @@ class DaListeDitController extends Controller
      */
     public function listeDIT(Request $request)
     {
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+
         //initialisation du champ de recherche
         $ditSearch = $this->initialisationRechercheDit();
 
@@ -94,7 +97,7 @@ class DaListeDitController extends Controller
         $peutVoirListeAvecDebiteur = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_AUTH_2);
 
         //recupération des donnée
-        $paginationData = $this->data($request, $ditSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeAgenceUser, $peutVoirListeAvecDebiteur);
+        $paginationData = $this->data($request, $ditSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeAgenceUser, $peutVoirListeAvecDebiteur, $codeSociete);
 
         return $this->render('da/list-dit.html.twig', [
             'data'            => $paginationData['data'] ?? null,
