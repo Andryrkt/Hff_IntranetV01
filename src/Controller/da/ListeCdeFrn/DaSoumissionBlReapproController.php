@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Dto\Da\ListeCdeFrn\DaSoumisionBlReapproDto;
 use App\Form\da\daCdeFrn\DaSoumissionBlReapprotype;
+use App\Repository\da\DaAfficherRepository;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Service\historiqueOperation\HistoriqueOperationService;
 use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
@@ -39,12 +40,15 @@ class DaSoumissionBlReapproController extends Controller
      */
     public function index(string $numCde, string $numDa, string $numOr, Request $request)
     {
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+
         $dto = new DaSoumisionBlReapproDto();
         $dto->numCde = $numCde;
 
         $form = $this->getFormFactory()->createBuilder(DaSoumissionBlReapprotype::class, $dto)->getForm();
 
-        $this->traitementFormulaire($form, $request, $numCde, $numDa);
+        $this->traitementFormulaire($form, $request, $numCde, $numDa, $codeSociete);
 
         return $this->render('da/SoumissionBlReappro.html.twig', [
             'form' => $form->createView(),
@@ -52,7 +56,7 @@ class DaSoumissionBlReapproController extends Controller
         ]);
     }
 
-    private function traitementFormulaire($form,  Request $request, string $numCde, string $numDa)
+    private function traitementFormulaire($form,  Request $request, string $numCde, string $numDa, string $codeSociete)
     {
         $form->handleRequest($request);
 
@@ -71,7 +75,7 @@ class DaSoumissionBlReapproController extends Controller
             $this->generatePdf->copyToDWBLReappro($nomPdfFusionner, $numDa);
 
             /** modification du table da_valider */
-            $this->modificationDaAfficher($numDa, $numCde);
+            $this->modificationDaAfficher($numDa, $numCde, $codeSociete);
 
             /** HISTORISATION */
             $message = 'Le document est soumis pour validation';
@@ -82,11 +86,12 @@ class DaSoumissionBlReapproController extends Controller
         }
     }
 
-    private function modificationDaAfficher(string $numDa, string $numCde): void
+    private function modificationDaAfficher(string $numDa, string $numCde, string $codeSociete): void
     {
+        /** @var DaAfficherRepository $daAfficherRepository */
         $daAfficherRepository = $this->getEntityManager()->getRepository(DaAfficher::class);
-        $numeroVersionMaxCde = $daAfficherRepository->getNumeroVersionMax($numDa);
-        $daAffichers = $daAfficherRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMaxCde, 'numeroCde' => $numCde]);
+        $numeroVersionMaxCde = $daAfficherRepository->getNumeroVersionMax($numDa, $codeSociete);
+        $daAffichers = $daAfficherRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMaxCde, 'numeroCde' => $numCde, 'codeSociete' => $codeSociete]);
         if (!empty($daAffichers)) {
             foreach ($daAffichers as  $daAfficher) {
                 $daAfficher
