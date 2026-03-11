@@ -34,6 +34,9 @@ class ReportingIpsController extends Controller
      */
     public function index(Request $request)
     {
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+
         $form = $this->getFormFactory()->createBuilder(ReportingIpsSearchType::class, null, [
             'method' => 'GET',
             'em' => $this->getEntityManager()
@@ -51,7 +54,7 @@ class ReportingIpsController extends Controller
         $criterias = $this->traitementFormulaire($form, $request);
 
         /** recuperation des données @var array $results @var array $totals  */
-        ['results' => $results, 'totals' => $totals] = $this->getData($criterias);
+        ['results' => $results, 'totals' => $totals] = $this->getData($criterias, $codeSociete);
 
         return $this->render('da/reappro/reporting_ips/index.html.twig', [
             'results' => $results,
