@@ -494,11 +494,15 @@ a.choix:hover {
   color: #003d00 !important;
 }
 .bg-bc-refuse,
-.bg-bc-non-dispo,
-.bg-bc-pas-dans-or {
+.bg-bc-non-dispo {
   background-color: #c00000 !important;
   color: #fff !important;
 }
+
+.bg-bc-pas-dans-or {
+  color: red !important;
+}
+
 .bg-bc-envoye-au-fournisseur {
   background-color: #4f81bd !important;
   color: #fff !important;

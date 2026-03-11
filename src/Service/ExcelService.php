@@ -30,6 +30,7 @@ class ExcelService
         // $response->headers->set('Cache-Control', 'max-age=0');
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment; filename="' . $filename . '.xlsx"');
+        setcookie('fileDownload', 'true', 0, '/');
         $writer = new Xlsx($spreadsheet);
         $writer->save('php://output');
     }
@@ -80,6 +81,7 @@ class ExcelService
 
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment; filename="donnees.xlsx"');
+        setcookie('fileDownload', 'true', 0, '/');
         $writer = new Xlsx($spreadsheet);
         $writer->save('php://output');
     }

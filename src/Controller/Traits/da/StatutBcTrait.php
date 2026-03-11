@@ -50,6 +50,10 @@ trait StatutBcTrait
             DitOrsSoumisAValidation::STATUT_REFUSE_CLIENT              => 'bg-or-non-valide',
             DitOrsSoumisAValidation::STATUT_REFUSE_DT                  => 'bg-or-non-valide',
             DitOrsSoumisAValidation::STATUT_SOUMIS_A_VALIDATION        => 'bg-or-soumis-validation',
+            DemandeAppro::STATUT_DW_A_VALIDE                           => 'bg-or-soumis-validation',
+            DemandeAppro::STATUT_DW_VALIDEE                            => 'bg-or-valide',
+            DemandeAppro::STATUT_DW_A_MODIFIER                         => 'bg-modif-demande-client',
+            DemandeAppro::STATUT_DW_REFUSEE                            => 'bg-or-non-valide',
         ];
         $this->styleStatutBC = [
             DaSoumissionBc::STATUT_A_GENERER                => 'bg-bc-a-generer',
@@ -63,6 +67,9 @@ trait StatutBcTrait
             DaSoumissionBc::STATUT_CLOTURE                  => 'bg-bc-cloture',
             DaSoumissionBc::STATUT_REFUSE                   => 'bg-bc-refuse',
             DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR => 'bg-bc-envoye-au-fournisseur',
+            DaSoumissionBc::STATUT_PAS_DANS_OR              => 'bg-bc-pas-dans-or',
+            DaSoumissionBc::STATUT_PAS_DANS_BC              => 'bg-bc-pas-dans-or',
+            DaSoumissionBc::STATUT_PAS_DANS_OR_CESSION      => 'bg-bc-pas-dans-or',
             'Non validé'                                    => 'bg-bc-non-valide',
             //statut pour DA Reappro
             DaSoumissionBc::STATUT_CESSION_A_GENERER        => 'bg-bc-cession-a-generer',

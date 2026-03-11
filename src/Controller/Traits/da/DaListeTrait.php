@@ -72,6 +72,8 @@ trait DaListeTrait
             DaSoumissionBc::STATUT_REFUSE                   => 'bg-bc-refuse',
             DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR => 'bg-bc-envoye-au-fournisseur',
             DaSoumissionBc::STATUT_PAS_DANS_OR              => 'bg-bc-pas-dans-or',
+            DaSoumissionBc::STATUT_PAS_DANS_BC              => 'bg-bc-pas-dans-or',
+            DaSoumissionBc::STATUT_PAS_DANS_OR_CESSION      => 'bg-bc-pas-dans-or',
             'Non validé'                                    => 'bg-bc-non-valide',
             //statut pour DA Reappro
             DaSoumissionBc::STATUT_CESSION_A_GENERER        => 'bg-bc-cession-a-generer',

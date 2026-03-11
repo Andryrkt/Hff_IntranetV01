@@ -1,7 +1,7 @@
 import { baseUrl } from "./utils/config";
 import { FetchManager } from "./api/FetchManager";
 import { initSessionTimer } from "./utils/session/sessionTimer";
-import { displayOverlay } from "./utils/ui/overlay";
+import { displayOverlay, monitorDownloadCookie } from "./utils/ui/overlay";
 import { showNotification } from "./utils/notification/notification";
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -61,6 +61,14 @@ document.addEventListener("DOMContentLoaded", () => {
   allButtonAfficher.forEach((button) => {
     button.addEventListener("click", () => {
       displayOverlay(true);
+    });
+  });
+
+  const allDownloadButtons = document.querySelectorAll(".afficher-overlay");
+  allDownloadButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      displayOverlay(true);
+      monitorDownloadCookie();
     });
   });
 });
