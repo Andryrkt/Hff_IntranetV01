@@ -33,10 +33,19 @@ class ChangementStatutBCController extends Controller
     public function changementStatutEnvoyerFournisseur(string $numCde = '', string $datePrevue = '', bool $estEnvoyer = false)
     {
         if ($estEnvoyer) {
+            // Code Société de l'utilisateur
+            $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+
             //modification dans la table da_afficher
-            $numVersionMaxDaAfficher = $this->daAfficherRepository->getNumeroVersionMaxCde($numCde);
+            $numVersionMaxDaAfficher = $this->daAfficherRepository->getNumeroVersionMaxCde($numCde, $codeSociete);
             /** @var DaAfficher[] $daAffichers */
-            $daAffichers = $this->daAfficherRepository->findBy(['numeroCde' => $numCde, 'numeroVersion' => $numVersionMaxDaAfficher]);
+            $daAffichers = $this->daAfficherRepository->findBy(['numeroCde' => $numCde, 'numeroVersion' => $numVersionMaxDaAfficher, 'codeSociete' => $codeSociete]);
+
+            if (empty($daAffichers)) {
+                $this->getSessionService()->set('notification', ['type' => 'error', 'message' => 'Aucun enregistrement trouvé pour le numéro de commande : ' . $numCde . '.']);
+                $this->redirectToRoute("da_list_cde_frn");
+            }
+
             foreach ($daAffichers as $daAfficher) {
                 $daAfficher
                     ->setStatutCde(DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR)
@@ -51,7 +60,7 @@ class ChangementStatutBCController extends Controller
             $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'statut modifié avec succès.']);
             $this->redirectToRoute("da_list_cde_frn");
         } else {
-            $this->getSessionService()->set('notification', ['type' => 'error', 'message' => 'Erreur lors de la modification du statut... vous n\'avez pas cocher la cage à cocher.']);
+            $this->getSessionService()->set('notification', ['type' => 'error', 'message' => 'Erreur lors de la modification du statut... vous n\'avez pas cocher la case à cocher.']);
             $this->redirectToRoute("da_list_cde_frn");
         }
     }

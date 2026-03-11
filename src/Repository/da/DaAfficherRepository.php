@@ -163,14 +163,18 @@ class DaAfficherRepository extends EntityRepository
      *  Récupère le numéro de version maximum pour une numero commande (Cde) donnée.
      *
      * @param string $numeroCde
+     * @param string $codeSociete
+     * 
      * @return int
      */
-    public function getNumeroVersionMaxCde(string $numeroCde): int
+    public function getNumeroVersionMaxCde(string $numeroCde, string $codeSociete): int
     {
         $numeroVersionMax = $this->createQueryBuilder('d')
             ->select('DISTINCT MAX(d.numeroVersion)')
             ->where('d.numeroCde = :numCde')
+            ->andWhere('d.codeSociete = :codeSociete')
             ->setParameter('numCde', $numeroCde)
+            ->setParameter('codeSociete', $codeSociete)
             ->getQuery()
             ->getSingleScalarResult();
 
