@@ -157,6 +157,10 @@ class CdeFrnListType extends  AbstractType
                 'choices'       => self::TRI_NBR_JOURS,
                 'required'      => false
             ])
+            ->add('demandeur', TextType::class, [
+                'label'         => 'Demandeur',
+                'required'      => false
+            ])
         ;
     }
 

@@ -24,6 +24,7 @@ class CdeFrnSearchDto
     private ?DateTime $dateDebutfinSouhaite = null;
     private ?DateTime $dateFinFinSouhaite = null;
     private ?string $sortNbJours = null;
+    public $demandeur = null;
 
     /** ============================================================
      * fonction personnaliser
@@ -51,6 +52,7 @@ class CdeFrnSearchDto
             'dateDebutfinSouhaite' => $this->dateDebutfinSouhaite,
             'dateFinFinSouhaite' => $this->dateFinFinSouhaite,
             'sortNbJours' => $this->sortNbJours,
+            'demandeur' => $this->demandeur,
         ], fn($val) => $val !== null && $val !== '');
     }
 

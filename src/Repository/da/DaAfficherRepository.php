@@ -661,6 +661,7 @@ class DaAfficherRepository extends EntityRepository
                 'numFrn'        => "$qbLabel.numeroFournisseur",
                 'frn'           => "$qbLabel.nomFournisseur",
                 'niveauUrgence' => "$qbLabel.niveauUrgence",
+                'demandeur'     => "$qbLabel.demandeur",
             ];
         } else {
             $map = [
