@@ -627,11 +627,12 @@ class DaModel extends Model
         return $data;
     }
 
-    public function getMontantBcDaDirect(string $numCde)
+    public function getMontantBcDaDirect(string $numCde, string $codeSociete)
     {
         $statement = " SELECT fcde_mtn as montant_total 
                         from informix.frn_cde 
                         where fcde_numcde ='$numCde'
+                        and fcde_soc = '$codeSociete'
         ";
 
         $result = $this->connect->executeQuery($statement);
