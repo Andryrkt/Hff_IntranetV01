@@ -63,7 +63,7 @@ class DomSecondController extends Controller
 
             $this->enregistrementValeurdansDom($dom, $domForm, $form, $form1Data, $this->getEntityManager(), $user);
 
-            $verificationDateExistant = $this->verifierSiDateExistant($dom->getMatricule(),  $dom->getDateDebut(), $dom->getDateFin());
+            $verificationDateExistant = $this->verifierSiDateExistant($dom->getMatricule(),  $dom->getDateDebut(), $dom->getDateFin(), $dom->getCodeSociete());
 
             if ($codeSousTypeDoc !== 'COMPLEMENT' && $codeSousTypeDoc !== 'TROP PERCU') {
                 if ($verificationDateExistant) {

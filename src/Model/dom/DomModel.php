@@ -12,11 +12,12 @@ class DomModel extends Model
     /**
      * Chevauchement : recuperation la minimum de la date de mission et le maximum de la mission 
      */
-    public function getInfoDOMMatrSelet($matricule)
+    public function getInfoDOMMatrSelet($matricule, $codeSociete)
     {
         $SqlDate = "SELECT  Date_Debut, Date_Fin
         FROM Demande_ordre_mission
-        WHERE  Matricule = '" . $matricule . "'  
+        WHERE  Matricule = '$matricule'
+        AND code_societe = '$codeSociete'
         AND ID_Statut_Demande NOT IN (9, 33, 34, 35, 44)";
 
         $execSqlDate = $this->connexion->query($SqlDate);

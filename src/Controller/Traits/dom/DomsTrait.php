@@ -24,14 +24,16 @@ trait DomsTrait
 {
     use FormatageTrait;
 
-    public function initialisationSecondForm($form1Data, $em, $dom)
+    public function initialisationSecondForm($form1Data, $em, Dom $dom)
     {
         $agenceServiceEmetteur =  $this->agenceServiceIpsObjet();
-        $dom->setMatricule($form1Data['matricule']);
-        $dom->setSalarier($form1Data['salarier']);
-        $dom->setSousTypeDocument($form1Data['sousTypeDocument']);
-        $dom->setCategorie($form1Data['categoryId']);
-        $dom->setDateDemande(new \DateTime());
+        $dom->setMatricule($form1Data['matricule'])
+            ->setSalarier($form1Data['salarier'])
+            ->setSousTypeDocument($form1Data['sousTypeDocument'])
+            ->setCategorie($form1Data['categoryId'])
+            ->setCodeSociete($form1Data['codeSociete'])
+            ->setDateDemande(new \DateTime())
+        ;
         if ($form1Data['salarier'] === "TEMPORAIRE") {
             $dom->setNom($form1Data['nom']);
             $dom->setPrenom($form1Data['prenom']);
@@ -444,9 +446,9 @@ trait DomsTrait
         $genererPdfDom->copyInterneToDOCUWARE($dom->getNumeroOrdreMission(), $dom->getAgenceEmetteurId()->getCodeAgence() . '' . $dom->getServiceEmetteurId()->getCodeService());
     }
 
-    private function verifierSiDateExistant(string $matricule,  $dateDebutInput, $dateFinInput): bool
+    private function verifierSiDateExistant(string $matricule,  $dateDebutInput, $dateFinInput, $codeSociete): bool
     {
-        $Dates = $this->DomModel->getInfoDOMMatrSelet($matricule);
+        $Dates = $this->DomModel->getInfoDOMMatrSelet($matricule, $codeSociete);
 
         if (empty($Dates)) {
             return false; // Pas de périodes dans la base
