@@ -78,7 +78,7 @@ class DaSoumissionFacBlController extends Controller
             'numLivs' => array_keys($infosLivraison),
         ])->getForm();
 
-        $this->traitementFormulaire($request, $numCde, $form, $numDa, $numOr);
+        $this->traitementFormulaire($request, $form, $infosLivraison);
 
         return $this->render('da/soumissionFacBl.html.twig', [
             'form' => $form->createView(),
@@ -106,11 +106,12 @@ class DaSoumissionFacBlController extends Controller
      * permet de faire le rtraitement du formulaire
      *
      * @param Request $request
-     * @param string $numCde
-     * @param [type] $form
+     * @param FormInterface $form
+     * @param array $infosLivraison
+     * 
      * @return void
      */
-    private function traitementFormulaire(Request $request, string $numCde, $form, string $numDa, string $numOr): void
+    private function traitementFormulaire(Request $request, FormInterface $form, array $infosLivraison): void
     {
         $form->handleRequest($request);
 
