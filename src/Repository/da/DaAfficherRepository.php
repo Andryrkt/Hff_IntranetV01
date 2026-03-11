@@ -267,7 +267,7 @@ class DaAfficherRepository extends EntityRepository
     }
 
     /**
-     * Récupère le dernier version de DA pour la liste cde frn
+     * Récupère les dernières versions de DA pour la liste cde frn
      * Regroupé par DA mère pour la pagination
      * @param array $criteria
      * @param int $page
@@ -725,6 +725,13 @@ class DaAfficherRepository extends EntityRepository
 
     private function applyStatutsFilters(QueryBuilder $queryBuilder, string $qbLabel, array $criteria, bool $estCdeFrn = false)
     {
+        if (empty(array_filter($criteria, function ($value) {
+            return $value !== null;
+        }))) {
+            $queryBuilder->andWhere($qbLabel . '.statutDal NOT IN (:statutDa)')
+                ->setParameter('statutDa', [DemandeAppro::STATUT_TERMINER, DemandeAppro::STATUT_CLOTUREE], ArrayParameterType::STRING);
+        }
+
         if ($estCdeFrn) {
             if (!empty($criteria['statutBC'])) {
                 $queryBuilder->andWhere($qbLabel . '.statutCde = :statutBc')
@@ -734,17 +741,11 @@ class DaAfficherRepository extends EntityRepository
             if (!empty($criteria['statutDA'])) {
                 $queryBuilder->andWhere($qbLabel . '.statutDal = :statutDa')
                     ->setParameter('statutDa', $criteria['statutDA']);
-            } elseif (empty($criteria['numDa'])) {
-                $queryBuilder->andWhere($qbLabel . '.statutDal NOT IN (:statutDa)')
-                    ->setParameter('statutDa', [DemandeAppro::STATUT_TERMINER, DemandeAppro::STATUT_CLOTUREE], ArrayParameterType::STRING);
             }
         } else {
             if (!empty($criteria['statutDA'])) {
                 $queryBuilder->andWhere($qbLabel . '.statutDal = :statutDa')
                     ->setParameter('statutDa', $criteria['statutDA']);
-            } elseif (empty($criteria['numDa'])) {
-                $queryBuilder->andWhere($qbLabel . '.statutDal NOT IN (:statutDa)')
-                    ->setParameter('statutDa', [DemandeAppro::STATUT_TERMINER, DemandeAppro::STATUT_CLOTUREE], ArrayParameterType::STRING);
             }
 
             if (!empty($criteria['statutOR'])) {
