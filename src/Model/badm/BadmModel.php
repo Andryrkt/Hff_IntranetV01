@@ -148,33 +148,33 @@ class BadmModel extends Model
     /**
      * informix
      */
-    public function findAll($matricule = '',  $numParc = '', $numSerie = '')
+    public function findAll($matricule = '',  $numParc = '', $numSerie = '', $codeSociete = '')
     {
 
-        if($matricule === '' || $matricule === '0' || $matricule === null){
+        if ($matricule === '' || $matricule === '0' || $matricule === null) {
             $conditionNummat = "";
-           } else {
-             $conditionNummat = "and mmat_nummat = '" . $matricule."'";
-           }
-     
-     
-           if($numParc === '' || $numParc === '0' || $numParc === null){
-             $conditionNumParc = "";
-           } else {
-             $conditionNumParc = "and mmat_recalph = '" . $numParc ."'";
-           }
-     
-           if($numSerie === '' || $numSerie === '0' || $numSerie === null){
-             $conditionNumSerie = "";
-           } else {
-             $conditionNumSerie = "and TRIM(mmat_numserie) = '" . $numSerie . "'";
-           }
+        } else {
+            $conditionNummat = "and mmat_nummat = '" . $matricule . "'";
+        }
+
+
+        if ($numParc === '' || $numParc === '0' || $numParc === null) {
+            $conditionNumParc = "";
+        } else {
+            $conditionNumParc = "and mmat_recalph = '" . $numParc . "'";
+        }
+
+        if ($numSerie === '' || $numSerie === '0' || $numSerie === null) {
+            $conditionNumSerie = "";
+        } else {
+            $conditionNumSerie = "and TRIM(mmat_numserie) = '" . $numSerie . "'";
+        }
 
         $statement = "SELECT
         case  when mmat_succ in (select asuc_parc from agr_succ) then asuc_num else mmat_succ end as agence,
         trim(asuc_lib)||'-'||case (select sce.atab_lib from mmo_imm, agr_tab as sce where mimm_soc = mmat_soc and mimm_nummat = mmat_nummat and sce.atab_code = mimm_service and sce.atab_nom='SER') 
         when null then 'COMMERCIAL' 
-        else(select sce.atab_lib from mmo_imm, agr_tab as sce where mimm_soc = 'HF' and mimm_nummat = mmat_nummat and sce.atab_code = mimm_service and sce.atab_nom='SER')
+        else(select sce.atab_lib from mmo_imm, agr_tab as sce where mimm_soc = '$codeSociete' and mimm_nummat = mmat_nummat and sce.atab_code = mimm_service and sce.atab_nom='SER')
         end as service,
         
         case (select mimm_service  from mmo_imm where mimm_soc = mmat_soc and mimm_nummat = mmat_nummat) when null then 'LCD' 
@@ -216,14 +216,14 @@ class BadmModel extends Model
         
          and trim(MMAT_ETSTOCK) in ('ST','AT')
          and trim(MMAT_AFFECT) in ('IMM','VTE','LCD','SDO')
-        and mmat_soc = 'HF'
+        and mmat_soc = '$codeSociete'
         and (mmat_succ = asuc_num or mmat_succ = asuc_parc)
         and mmat_nummat = mbil_nummat
         and mbil_dateclot = '12/31/1899'
         and mmat_datedisp < '12/31/2999'
-        ".$conditionNummat."
-        ".$conditionNumParc."
-        ".$conditionNumSerie."
+        " . $conditionNummat . "
+        " . $conditionNumParc . "
+        " . $conditionNumSerie . "
         ";
 
         $result = $this->connect->executeQuery($statement);
@@ -406,7 +406,7 @@ class BadmModel extends Model
         return $tab;
     }
 
-    
+
 
     /**
      * recupérer l'agence et service destinataire selon l'id materiel
@@ -425,11 +425,11 @@ class BadmModel extends Model
         return $tab;
     }
 
-/**
- * recuperation id_statut_demande OUVERT
- *
- * @return void
- */
+    /**
+     * recuperation id_statut_demande OUVERT
+     *
+     * @return void
+     */
     public function idOuvertStatutDemande()
     {
         $statement = "SELECT ID_Statut_Demande from Statut_demande Where Description='OUVERT' AND Code_Application='BDM'";
@@ -438,7 +438,4 @@ class BadmModel extends Model
 
         return odbc_fetch_array($execTypeDoc);
     }
-
-
-    
 }

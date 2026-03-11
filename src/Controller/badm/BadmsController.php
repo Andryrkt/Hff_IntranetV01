@@ -33,6 +33,9 @@ class BadmsController extends Controller
      */
     public function newForm1(Request $request)
     {
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+
         /** INITIALISATION*/
         $badm = new Badm();
         $agenceServiceIps = $this->agenceServiceIpsString();
@@ -40,6 +43,7 @@ class BadmsController extends Controller
         $badm
             ->setAgenceEmetteur($agenceServiceIps['agenceIps'])
             ->setServiceEmetteur($agenceServiceIps['serviceIps'])
+            ->setCodeSociete($codeSociete)
         ;
 
         $form = $this->getFormFactory()->createBuilder(BadmForm1Type::class, $badm)->getForm();
@@ -63,7 +67,7 @@ class BadmsController extends Controller
                 $idTypeMouvement = $badm->getTypeMouvement()->getId();
 
                 //recuperation des information du materiel dans la base de donnée informix
-                $data = $this->badm->findAll($badm->getIdMateriel(),  $badm->getNumParc(), $badm->getNumSerie());
+                $data = $this->badm->findAll($badm->getIdMateriel(),  $badm->getNumParc(), $badm->getNumSerie(), $badm->getCodeSociete());
 
                 $codeAgenceMateriel = $data[0]["agence"];
                 $codeServiceMateriel = $data[0]["code_service"] === null || $data[0]["code_service"] === '' ? "COM" : $data[0]["code_service"];
@@ -74,7 +78,7 @@ class BadmsController extends Controller
                     $this->historiqueOperation->sendNotificationCreation($message, '-', 'badms_newForm1');
                 } else {
                     //recuperation du materiel dan sl abase de donner sqlserver
-                    $materiel = $this->getEntityManager()->getRepository(Badm::class)->findOneBy(['idMateriel' => $data[0]['num_matricule']], ['numBadm' => 'DESC']);
+                    $materiel = $this->getEntityManager()->getRepository(Badm::class)->findOneBy(['idMateriel' => $data[0]['num_matricule'], 'codeSociete' => $codeSociete], ['numBadm' => 'DESC']);
 
                     // si le materiel n'est pas encore dans la base de donnée on donne la valeur 0 pour l'idType de mouvementMateriel
                     $idTypeMouvementMateriel = $materiel === null ? 0 : $materiel->getTypeMouvement()->getId();
@@ -124,20 +128,20 @@ class BadmsController extends Controller
                     ->setNumParc($data[0]['num_parc'])
                     ->setNumSerie($data[0]['num_serie'])
                 ;
-
-                $formData = [
-                    'idMateriel' => $badm->getIdMateriel(),
-                    'numParc' => $badm->getNumParc(),
-                    'numSerie' => $badm->getNumSerie(),
-                    'typeMouvemnt' => $badm->getTypeMouvement()
-                ];
-                //envoie des donner dan la session
-                $this->getSessionService()->set('badmform1Data', $formData);
                 if ($conditionAgenceServiceAutoriser) {
                     $message = "Vous n'êtes pas autoriser à consulter ce matériel";
 
                     $this->historiqueOperation->sendNotificationCreation($message, '-', 'badms_newForm1');
                 } else {
+                    $formData = [
+                        'idMateriel' => $badm->getIdMateriel(),
+                        'numParc' => $badm->getNumParc(),
+                        'numSerie' => $badm->getNumSerie(),
+                        'typeMouvemnt' => $badm->getTypeMouvement(),
+                        'codeSociete' => $badm->getCodeSociete(),
+                    ];
+                    //envoie des donner dan la session
+                    $this->getSessionService()->set('badmform1Data', $formData);
                     $this->redirectToRoute("badms_newForm2");
                 }
             }
