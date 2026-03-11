@@ -50,12 +50,14 @@ class DaAfficherRepository extends EntityRepository
      * @param string $numeroDemandeAppro
      * @param string $numeroCde
      */
-    public function getDateLivraisonPrevue(string $numeroDemandeAppro, string $numeroCde)
+    public function getDateLivraisonPrevue(string $numeroDemandeAppro, string $numeroCde, string $codeSociete)
     {
         $maxVersion = $this->createQueryBuilder('d')
             ->select('MAX(d.numeroVersion)')
             ->where('d.numeroDemandeAppro = :num')
+            ->andWhere('d.codeSociete = :codeSociete')
             ->setParameter('num', $numeroDemandeAppro)
+            ->setParameter('codeSociete', $codeSociete)
             ->getQuery()
             ->getSingleScalarResult(); // Renvoie null si aucune ligne
 
@@ -66,12 +68,14 @@ class DaAfficherRepository extends EntityRepository
                 ->select('DISTINCT(d.dateLivraisonPrevue)')
                 ->where('d.numeroDemandeAppro = :num')
                 ->andWhere('d.numeroCde = :numCde')
+                ->andWhere('d.codeSociete = :codeSociete')
                 ->andWhere('d.numeroVersion = :version')
                 ->andWhere('d.dateLivraisonPrevue IS NOT NULL')
                 ->setParameters([
-                    'num'     => $numeroDemandeAppro,
-                    'numCde'  => $numeroCde,
-                    'version' => $maxVersion,
+                    'num'         => $numeroDemandeAppro,
+                    'numCde'      => $numeroCde,
+                    'codeSociete' => $codeSociete,
+                    'version'     => $maxVersion,
                 ])
                 ->getQuery()
                 ->getSingleScalarResult();
@@ -1227,11 +1231,13 @@ class DaAfficherRepository extends EntityRepository
         return $result ? new \DateTime($result) : null;
     }
 
-    public function getTypeDa(string $numDa)
+    public function getTypeDa(string $numDa, string $codeSociete)
     {
         return $this->createQueryBuilder('d')
             ->select('DISTINCT d.daTypeId')
             ->where('d.numeroDemandeAppro = :numDa')
+            ->andWhere('d.codeSociete = :codeSociete')
+            ->setParameter('codeSociete', $codeSociete)
             ->setParameter('numDa', $numDa)
             ->getQuery()
             ->getSingleScalarResult();

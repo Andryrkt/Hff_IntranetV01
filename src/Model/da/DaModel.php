@@ -652,7 +652,7 @@ class DaModel extends Model
         return $data;
     }
 
-    public function getInfoLivraison(string $numCde)
+    public function getInfoLivraison(string $numCde, string $codeSociete)
     {
         $statement = "SELECT distinct 
                         f.fllf_numliv AS num_liv, 
@@ -662,7 +662,7 @@ class DaModel extends Model
                         f2.fliv_mtn AS montant_fac_bl
                     from Informix.frn_llf f 
                     inner join Informix.frn_liv f2 on f.fllf_numliv = f2.fliv_numliv 
-                where f.fllf_numcde = '$numCde' and f2.fliv_soc ='HF'";
+                where f.fllf_numcde = '$numCde' and f2.fliv_soc ='$codeSociete'";
         $result = $this->connect->executeQuery($statement);
         $rows = $this->convertirEnUtf8($this->connect->fetchResults($result));
 
@@ -670,7 +670,7 @@ class DaModel extends Model
         return array_column($rows, null, 'num_liv');
     }
 
-    public function getInfoBC(string $numCde)
+    public function getInfoBC(string $numCde, string $codeSociete)
     {
         $statement = "SELECT 
                 TRIM(fbse_nomfou) as nom_fournisseur, 
@@ -693,7 +693,8 @@ class DaModel extends Model
                 TRIM(fcde_typcde) as type_cde 
             from frn_cde 
             inner join frn_bse on fbse_numfou = fcde_numfou
-            where fcde_numcde = '$numCde'";
+            where fcde_numcde = '$numCde'
+            and fcde_soc = '$codeSociete'";
         $result = $this->connect->executeQuery($statement);
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
         return $data ? $data[0] : [];
