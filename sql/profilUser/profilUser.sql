@@ -162,3 +162,7 @@ update da_soumission_bc set code_societe='HF';
 alter table da_soumission_facture_bl add code_societe varchar(2) null;
 
 update da_soumission_facture_bl set code_societe='HF';
+
+alter table Demande_ordre_mission add code_societe varchar(2) null;
+
+update Demande_ordre_mission set code_societe='HF';
