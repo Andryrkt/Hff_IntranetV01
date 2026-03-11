@@ -8,12 +8,14 @@ use Doctrine\ORM\EntityRepository;
 class DaSoumissionFacBlRepository extends EntityRepository
 {
 
-    public function getNumeroVersionMax(string $numeroCde): ?int
+    public function getNumeroVersionMax(string $numeroCde, string $codeSociete): ?int
     {
         $result = $this->createQueryBuilder('dabc')
             ->select('MAX(dabc.numeroVersion)')
             ->where('dabc.numeroCde = :numCde')
+            ->andWhere('dabc.codeSociete = :codeSociete')
             ->setParameter('numCde', $numeroCde)
+            ->setParameter('codeSociete', $codeSociete)
             ->getQuery()
             ->getOneOrNullResult(Query::HYDRATE_SINGLE_SCALAR);
 
@@ -49,14 +51,16 @@ class DaSoumissionFacBlRepository extends EntityRepository
         return $statut;
     }
 
-    public function getAllLivraisonSoumis(string $numDa, string $numCde)
+    public function getAllLivraisonSoumis(string $numDa, string $numCde, string $codeSociete)
     {
         return array_filter($this->createQueryBuilder('dabc')
             ->select('dabc.numLiv')
             ->where('dabc.numeroDemandeAppro = :numDa')
             ->andWhere('dabc.numeroCde = :numCde')
+            ->andWhere('dabc.codeSociete = :codeSociete')
             ->setParameter('numDa', $numDa)
             ->setParameter('numCde', $numCde)
+            ->setParameter('codeSociete', $codeSociete)
             ->getQuery()
             ->getSingleColumnResult());
     }
