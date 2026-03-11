@@ -55,7 +55,7 @@ trait BadmsForm2Trait
             //etat machine
             ->setHeureMachine((int)$data[0]['heure'])
             ->setKmMachine((int)$data[0]['km'])
-            //Agence - service - casier Emetteur
+            ->setCodeSociete($form1Data['codeSociete'])
         ;
         $idTypeMouvement = $badm->getTypeMouvement()->getId();
         $agenceEmetteur = $em->getRepository(Agence::class)->findOneBy(['codeAgence' => $data[0]["agence"]]);
