@@ -30,7 +30,7 @@ class DomModel extends Model
         return $DateM;
     }
 
-    public function verifierSiTropPercuBatch(array $numeroDoms): array
+    public function verifierSiTropPercuBatch(array $numeroDoms, string $codeSociete): array
     {
         if (empty($numeroDoms)) {
             return [];
@@ -48,7 +48,8 @@ class DomModel extends Model
                 LEFT JOIN Demande_ordre_mission_tp domtp
                     ON dom.Numero_Ordre_Mission = domtp.Numero_Ordre_Mission
                 WHERE dom.Numero_Ordre_Mission IN ($placeholders)
-                AND dom.Sous_Type_Document IN (2, 3)
+                    AND dom.Sous_Type_Document IN (2, 3)
+                    AND dom.code_societe='$codeSociete'
                 GROUP BY dom.Numero_Ordre_Mission, dom.Nombre_Jour";
 
         $result = [];

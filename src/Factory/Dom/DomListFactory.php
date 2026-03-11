@@ -33,7 +33,7 @@ class DomListFactory
         return $domListItemDTO;
     }
 
-    public function buildDomDTOs(array $rows): array
+    public function buildDomDTOs(array $rows, string $codeSociete): array
     {
         // Étape 1 : calculer statutTropPercuOk sur les données scalaires
         // (remplace statutTropPercuDomList — zéro lazy load, zéro requête)
@@ -59,7 +59,7 @@ class DomListFactory
         }
 
         // Étape 2 : 1 seule requête ODBC batch pour tous les éligibles
-        $tropPercuMap = (new DomModel())->verifierSiTropPercuBatch($eligibles);
+        $tropPercuMap = (new DomModel())->verifierSiTropPercuBatch($eligibles, $codeSociete);
 
         // Étape 3 : construire les DTOs
         $dtos = [];

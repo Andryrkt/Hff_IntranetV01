@@ -33,6 +33,9 @@ class DomsListeController extends Controller
      */
     public function listeDom(Request $request)
     {
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+
         $domSearch = new DomSearch();
 
         /** INITIALIASATION et REMPLISSAGE de RECHERCHE pendant la nag=vigation pagiantion */
@@ -67,9 +70,9 @@ class DomsListeController extends Controller
 
         /** @var DomRepository $repository */
         $repository = $this->getEntityManager()->getRepository(Dom::class);
-        $paginationData = $repository->findPaginatedAndFilteredAsDTO($page, $limit, $domSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
+        $paginationData = $repository->findPaginatedAndFilteredAsDTO($page, $limit, $domSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeSociete, $peutVoirListeAvecDebiteur);
 
-        $items = (new DomListFactory())->buildDomDTOs($paginationData['rawRows']);
+        $items = (new DomListFactory())->buildDomDTOs($paginationData['rawRows'], $codeSociete);
 
         //enregistre le critère dans la session
         $this->getSessionService()->set('dom_search_criteria', $criteria);
@@ -111,6 +114,9 @@ class DomsListeController extends Controller
      */
     public function exportExcel()
     {
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+
         // Récupère les critères dans la session
         $criteria = $this->getSessionService()->get('dom_search_criteria', []);
 
@@ -141,7 +147,7 @@ class DomsListeController extends Controller
         // Récupère les entités filtrées
         /** @var DomRepository $repository */
         $repository = $this->getEntityManager()->getRepository(Dom::class);
-        $entities = $repository->findAndFilteredExcel($domSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
+        $entities = $repository->findAndFilteredExcel($domSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeSociete, $peutVoirListeAvecDebiteur);
 
         // Convertir les entités en tableau de données
         $data = [];
@@ -194,6 +200,9 @@ class DomsListeController extends Controller
      */
     public function listAnnuler(Request $request)
     {
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+
         $domSearch = new DomSearch();
 
         /** INITIALIASATION et REMPLISSAGE de RECHERCHE pendant la nag=vigation pagiantion */
@@ -228,9 +237,9 @@ class DomsListeController extends Controller
 
         /** @var DomRepository $repository */
         $repository = $this->getEntityManager()->getRepository(Dom::class);
-        $paginationData = $repository->findPaginatedAndFilteredAsDTO($page, $limit, $domSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur, true);
+        $paginationData = $repository->findPaginatedAndFilteredAsDTO($page, $limit, $domSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeSociete, $peutVoirListeAvecDebiteur, true);
 
-        $items = (new DomListFactory())->buildDomDTOs($paginationData['rawRows']);
+        $items = (new DomListFactory())->buildDomDTOs($paginationData['rawRows'], $codeSociete);
 
         //enregistre le critère dans la session
         $this->getSessionService()->set('dom_search_criteria', $criteria);

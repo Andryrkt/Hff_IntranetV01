@@ -31,15 +31,4 @@ trait DomListeTrait
             ->setMatricule($criteria['matricule'] ?? null)
         ;
     }
-
-    /** 
-     * Fonction pour voir si le statut du dom peut être trop perçu ou non
-     */
-    private function statutTropPercuDomList(array $data)
-    {
-        /** @var Dom $dom chaque Dom dans $data */
-        foreach ($data as $dom) {
-            $this->statutTropPercu($dom);
-        }
-    }
 }

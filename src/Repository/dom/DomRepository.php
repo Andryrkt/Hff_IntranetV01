@@ -7,7 +7,7 @@ use Doctrine\ORM\EntityRepository;
 
 class DomRepository extends EntityRepository
 {
-    public function findPaginatedAndFilteredAsDTO(int $page, int $limit, DomSearch $domSearch, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, bool $peutVoirListeAvecDebiteur, bool $listAnnuler = false): array
+    public function findPaginatedAndFilteredAsDTO(int $page, int $limit, DomSearch $domSearch, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeSociete, bool $peutVoirListeAvecDebiteur, bool $listAnnuler = false): array
     {
         $excludedStatuses = [9, 18, 22, 24, 26, 32, 33, 34, 35];
 
@@ -34,7 +34,10 @@ class DomRepository extends EntityRepository
             ->leftJoin('d.sousTypeDocument', 'td')
             ->leftJoin('d.idStatutDemande', 's')
             ->andWhere($listAnnuler ? $queryBuilder->expr()->in('s.id', ':excludedStatuses') : $queryBuilder->expr()->notIn('s.id', ':excludedStatuses'))
-            ->setParameter('excludedStatuses', $excludedStatuses);
+            ->andWhere('d.codeSociete = :codeSociete')
+            ->setParameter('codeSociete', $codeSociete)
+            ->setParameter('excludedStatuses', $excludedStatuses)
+        ;
 
         // Filtre pour le statut        
         if (!empty($domSearch->getStatut())) {
@@ -118,7 +121,7 @@ class DomRepository extends EntityRepository
         ];
     }
 
-    public function findAndFilteredExcel($domSearch, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, bool $peutVoirListeAvecDebiteur)
+    public function findAndFilteredExcel($domSearch, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeSociete, bool $peutVoirListeAvecDebiteur)
     {
         $queryBuilder = $this->createQueryBuilder('d')
             ->leftJoin('d.sousTypeDocument', 'td')
@@ -126,6 +129,8 @@ class DomRepository extends EntityRepository
 
         $excludedStatuses = [9, 18, 22, 24, 26, 32, 33, 34, 35];
         $queryBuilder->andWhere($queryBuilder->expr()->notIn('s.id', ':excludedStatuses'))
+            ->andWhere('da.codeSociete = :codeSociete')
+            ->setParameter('codeSociete', $codeSociete)
             ->setParameter('excludedStatuses', $excludedStatuses);
 
         // Filtre pour le statut        
