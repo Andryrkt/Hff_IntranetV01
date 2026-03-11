@@ -1258,14 +1258,14 @@ class Dom
     public function toArray(): array
     {
         return [
-
             'sousTypeDocument' => $this->sousTypeDocument,
-            'salarier' => $this->salarier,
-            'categoryId' => $this->categoryId,
-            'matricule' => $this->matricule,
-            'nom' => $this->nom,
-            'prenom' => $this->prenom,
-            'cin' => $this->cin
+            'salarier'         => $this->salarier,
+            'categoryId'       => $this->categoryId,
+            'matricule'        => $this->matricule,
+            'nom'              => $this->nom,
+            'prenom'           => $this->prenom,
+            'codeSociete'      => $this->codeSociete,
+            'cin'              => $this->cin
         ];
     }
 

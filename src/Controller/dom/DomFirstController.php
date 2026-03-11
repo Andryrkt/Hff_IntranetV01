@@ -20,18 +20,22 @@ class DomFirstController extends Controller
      */
     public function firstForm(Request $request)
     {
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+
         // Récupération de l'agence et du service de l'utilisateur connecté
         $agenceServiceIps = $this->agenceServiceIpsString();
 
         $dom = new Dom();
 
         //INITIALISATION 
-        $dom = $this->initialisationDom($dom, $agenceServiceIps);
+        $dom = $this->initialisationDom($dom, $agenceServiceIps, $codeSociete);
 
         //CREATION DU FORMULAIRE
         $form = $this->getFormFactory()->createBuilder(DomForm1Type::class, $dom, [
             'agenceServiceAutorisees' => $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DOM)
         ])->getForm();
+
         //TRAITEMENT DU FORMULAIRE
         $this->traitemementForm($form, $request, $dom);
 
@@ -69,9 +73,10 @@ class DomFirstController extends Controller
      * 
      * @return Dom
      */
-    private function initialisationDom(Dom $dom, array $agenceServiceIps): Dom
+    private function initialisationDom(Dom $dom, array $agenceServiceIps, string $codeSociete): Dom
     {
         return $dom
+            ->setCodeSociete($codeSociete)
             ->setAgenceEmetteur($agenceServiceIps['agenceIps'])
             ->setServiceEmetteur($agenceServiceIps['serviceIps'])
             ->setSousTypeDocument($this->getEntityManager()->getRepository(SousTypeDocument::class)->find(2))
