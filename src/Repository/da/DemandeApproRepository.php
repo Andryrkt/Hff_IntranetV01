@@ -101,13 +101,15 @@ class DemandeApproRepository extends EntityRepository
         ;
     }
 
-    public function getNumDitDa(string $numDa)
+    public function getNumDitDa(string $numDa, string $codeSociete)
     {
         try {
             $numDit = $this->createQueryBuilder('da')
                 ->select('da.numeroDemandeDit')
                 ->where('da.numeroDemandeAppro = :numDa')
+                ->andWhere('da.codeSociete = :codeSociete')
                 ->setParameter('numDa', $numDa)
+                ->setParameter('codeSociete', $codeSociete)
                 ->getQuery()
                 ->getSingleScalarResult();
         } catch (NoResultException $e) {
