@@ -329,6 +329,7 @@ class DaAfficherRepository extends EntityRepository
         $this->applyDynamicFilters($qb, 'd', $criteria, true);
         $this->applyStatutsFilters($qb, 'd', $criteria, true);
         $this->applyDateFilters($qb, 'd', $criteria, true);
+        $this->applyAgencyServiceFilters($qb, 'd', $criteria, null, 0, true, true, true);
 
         // ------------------------------------------------------------------
         // COUNT optimisé (COUNT(d.id) est plus rapide que DISTINCT)
@@ -822,7 +823,7 @@ class DaAfficherRepository extends EntityRepository
         }
     }
 
-    private function applyAgencyServiceFilters($qb, string $qbLabel, array $criteria, User $user, int $idAgenceUser, bool $estAppro, bool $estAtelier, bool $estAdmin)
+    private function applyAgencyServiceFilters($qb, string $qbLabel, array $criteria, ?User $user = null, int $idAgenceUser = 0, bool $estAppro = false, bool $estAtelier = false, bool $estAdmin = false)
     {
         if (!$estAtelier && !$estAppro && !$estAdmin) {
             $qb

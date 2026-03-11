@@ -18,11 +18,13 @@
 						{{ form_label(form.niveauUrgence, '<a href="#" data-bs-toggle="modal"
 							data-bs-target="#niveauUrgence">Niveau d\'urgence</a>', { 'label_html': true }) }}
 						{{ form_widget(form.niveauUrgence, {'attr': {'class': 'mb-3'}}) }}
+						{{ macroForm.agence_service_change(form.agenceEmetteur, form.serviceEmetteur, 'spinner-service-emetteur', 'service-container-emetteur')}}
 					</div>
 					<div class="col-12 col-md-2">
 						{{ form_row(form.numOr) }}
 						{{ form_row(form.numCde) }}
 						{{ form_row(form.statutBc)}}
+						{{ macroForm.agence_service_change(form.agenceDebiteur, form.serviceDebiteur, 'spinner-service-debiteur', 'service-container-debiteur')}}
 					</div>
 					<div class="col-12 col-md-2">
 						{{ form_row(form.numFrn) }}
