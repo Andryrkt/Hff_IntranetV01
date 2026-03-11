@@ -78,7 +78,7 @@ class Badm
      *
      * @var ?string
      */
-    private ?string $casierEmetteur = ''; 
+    private ?string $casierEmetteur = '';
 
     /**
      * @ORM\Column(type="string", length=5, name="Agence_Service_Destinataire")
@@ -87,13 +87,11 @@ class Badm
      */
     private string $agenceServiceDestinataire;
 
-     /**
+    /**
      * @ORM\ManyToOne(targetEntity=CasierValider::class, inversedBy="badms")
      * @ORM\JoinColumn(name="Casier_Destinataire", referencedColumnName="id", nullable=true)
      */
     private  ?CasierValider $casierDestinataire = null;
-
-
 
     /**
      * @ORM\Column(type="string", length=100, name="motif_materiel", nullable=true)
@@ -142,14 +140,14 @@ class Badm
      *
      * @var ?string
      */
-    private ?string $nomClient= null;
+    private ?string $nomClient = null;
 
     /**
      * @ORM\Column(type="string", length=20, name="Modalite_Paiement", nullable=true)
      *
      * @var ?string
      */
-    private ?string $modalitePaiement=null;
+    private ?string $modalitePaiement = null;
 
     /**
      * @ORM\Column(type="float", scale="2", name="Prix_Vente_HT")
@@ -215,7 +213,7 @@ class Badm
     private $statutDemande;
 
 
-      /**
+    /**
      * @ORM\ManyToOne(targetEntity=Agence::class, inversedBy="badmAgenceEmetteur")
      * @ORM\JoinColumn(name="agence_emetteur_id", referencedColumnName="id")
      */
@@ -239,13 +237,17 @@ class Badm
      */
     private  $serviceDebiteurId;
 
+    /** 
+     * @ORM\Column(type="string", length=2, name="code_societe", nullable=true)
+     */
+    private $codeSociete;
 
     private $numSerie = null;
 
     private $constructeur = "";
 
     private $designation = "";
- 
+
     private $modele = "";
 
     private $groupe;
@@ -263,7 +265,7 @@ class Badm
         return $this->id;
     }
 
-   
+
     public function getNumBadm()
     {
         return $this->numBadm;
@@ -276,13 +278,13 @@ class Badm
         return $this;
     }
 
-    
+
     public function getIdMateriel()
     {
         return $this->idMateriel;
     }
 
-   
+
     public function setIdMateriel($idMateriel): self
     {
         $this->idMateriel = $idMateriel;
@@ -290,7 +292,7 @@ class Badm
         return $this;
     }
 
- 
+
     public function getNomUtilisateur()
     {
         return $this->nomUtilisateur;
@@ -303,13 +305,13 @@ class Badm
         return $this;
     }
 
-    
+
     public function getHeureDemande(): string
     {
         return $this->heureDemande;
     }
 
-   
+
     public function setHeureDemande(string $heureDemande): self
     {
         $this->heureDemande = $heureDemande;
@@ -321,7 +323,7 @@ class Badm
      * Get the value of agenceServiceEmetteur
      *
      * @return  string
-     */ 
+     */
     public function getAgenceServiceEmetteur()
     {
         return $this->agenceServiceEmetteur;
@@ -333,7 +335,7 @@ class Badm
      * @param  string  $agenceServiceEmetteur
      *
      * @return  self
-     */ 
+     */
     public function setAgenceServiceEmetteur(string $agenceServiceEmetteur)
     {
         $this->agenceServiceEmetteur = $agenceServiceEmetteur;
@@ -345,7 +347,7 @@ class Badm
      * Get the value of agenceServiceDestinataire
      *
      * @return  string
-     */ 
+     */
     public function getAgenceServiceDestinataire()
     {
         return $this->agenceServiceDestinataire;
@@ -357,7 +359,7 @@ class Badm
      * @param  string  $agenceServiceDestinataire
      *
      * @return  self
-     */ 
+     */
     public function setAgenceServiceDestinataire(string $agenceServiceDestinataire)
     {
         $this->agenceServiceDestinataire = $agenceServiceDestinataire;
@@ -365,27 +367,27 @@ class Badm
         return $this;
     }
 
-   
+
     public function getCasierDestinataire()
     {
         return $this->casierDestinataire;
     }
 
-   
-    public function setCasierDestinataire( $casierDestinataire): self
+
+    public function setCasierDestinataire($casierDestinataire): self
     {
         $this->casierDestinataire = $casierDestinataire;
 
         return $this;
     }
 
-    
+
     public function getMotifMateriel()
     {
         return $this->motifMateriel;
     }
 
-  
+
     public function setMotifMateriel($motifMateriel): self
     {
         $this->motifMateriel = $motifMateriel;
@@ -393,13 +395,13 @@ class Badm
         return $this;
     }
 
-   
+
     public function getEtatAchat()
     {
         return $this->etatAchat;
     }
 
-   
+
     public function setEtatAchat(?string $etatAchat): self
     {
         $this->etatAchat = $etatAchat;
@@ -407,27 +409,27 @@ class Badm
         return $this;
     }
 
-  
+
     public function getDateMiseLocation()
     {
         return $this->dateMiseLocation;
     }
 
-   
-    public function setDateMiseLocation( $dateMiseLocation): self
+
+    public function setDateMiseLocation($dateMiseLocation): self
     {
         $this->dateMiseLocation = $dateMiseLocation;
 
         return $this;
     }
 
-  
+
     public function getCoutAcquisition()
     {
         return $this->coutAcquisition;
     }
 
-    
+
     public function setCoutAcquisition(?float $coutAcquisition): self
     {
         $this->coutAcquisition = $coutAcquisition;
@@ -435,13 +437,13 @@ class Badm
         return $this;
     }
 
-  
+
     public function getAmortissement()
     {
         return $this->amortissement;
     }
 
-    
+
     public function setAmortissement(?float $amortissement): self
     {
         $this->amortissement = $amortissement;
@@ -449,13 +451,13 @@ class Badm
         return $this;
     }
 
-    
+
     public function getValeurNetComptable()
     {
         return $this->valeurNetComptable;
     }
 
- 
+
     public function setValeurNetComptable(?float $valeurNetComptable): self
     {
         $this->valeurNetComptable = $valeurNetComptable;
@@ -463,13 +465,13 @@ class Badm
         return $this;
     }
 
-    
+
     public function getNomClient()
     {
         return $this->nomClient;
     }
 
-    
+
     public function setNomClient(?string $nomClient): self
     {
         $this->nomClient = $nomClient;
@@ -477,13 +479,13 @@ class Badm
         return $this;
     }
 
-   
+
     public function getModalitePaiement()
     {
         return $this->modalitePaiement;
     }
 
-   
+
     public function setModalitePaiement(?string $modalitePaiement)
     {
         $this->modalitePaiement = $modalitePaiement;
@@ -491,21 +493,21 @@ class Badm
         return $this;
     }
 
-  
+
     public function getPrixVenteHt()
     {
         return $this->prixVenteHt;
     }
 
-    
-    public function setPrixVenteHt( $prixVenteHt): self
+
+    public function setPrixVenteHt($prixVenteHt): self
     {
         $this->prixVenteHt = $prixVenteHt;
 
         return $this;
     }
 
-    
+
     public function getMotifMiseRebut()
     {
         return $this->motifMiseRebut;
@@ -518,15 +520,15 @@ class Badm
         return $this;
     }
 
-   
 
-   
+
+
     public function getHeureMachine()
     {
         return $this->heureMachine;
     }
 
-   
+
     public function setHeureMachine($heureMachine): self
     {
         $this->heureMachine = $heureMachine;
@@ -534,13 +536,13 @@ class Badm
         return $this;
     }
 
-    
+
     public function getKmMachine()
     {
         return $this->kmMachine;
     }
 
-  
+
     public function setKmMachine($kmMachine): self
     {
         $this->kmMachine = $kmMachine;
@@ -548,7 +550,7 @@ class Badm
         return $this;
     }
 
-    
+
     public function getNumParc()
     {
         return $this->numParc;
@@ -565,7 +567,7 @@ class Badm
      * Get the value of nomImage
      *
      * @return  string
-     */ 
+     */
     public function getNomImage()
     {
         return $this->nomImage;
@@ -577,7 +579,7 @@ class Badm
      * @param  string  $nomImage
      *
      * @return  self
-     */ 
+     */
     public function setNomImage(string $nomImage)
     {
         $this->nomImage = $nomImage;
@@ -589,7 +591,7 @@ class Badm
      * Get the value of nomFichier
      *
      * @return  string
-     */ 
+     */
     public function getNomFichier()
     {
         return $this->nomFichier;
@@ -601,7 +603,7 @@ class Badm
      * @param  string  $nomFichier
      *
      * @return  self
-     */ 
+     */
     public function setNomFichier(string $nomFichier)
     {
         $this->nomFichier = $nomFichier;
@@ -613,7 +615,7 @@ class Badm
      * Get the value of typeMouvement
      *
      * @return  [type]
-     */ 
+     */
     public function getTypeMouvement()
     {
         return $this->typeMouvement;
@@ -625,29 +627,29 @@ class Badm
      * @param  [type]  $typeMouvement
      *
      * @return  self
-     */ 
-    public function setTypeMouvement( $typeMouvement)
+     */
+    public function setTypeMouvement($typeMouvement)
     {
         $this->typeMouvement = $typeMouvement;
 
         return $this;
     }
 
-    
+
     public function getStatutDemande()
     {
         return $this->statutDemande;
     }
 
-   
-    public function setStatutDemande( $statutDemande): self
+
+    public function setStatutDemande($statutDemande): self
     {
         $this->statutDemande = $statutDemande;
 
         return $this;
     }
 
- 
+
     public function getDateDemande()
     {
         return $this->dateDemande;
@@ -659,7 +661,7 @@ class Badm
      * @param  Datetime  $dateDemande
      *
      * @return  self
-     */ 
+     */
     public function setDateDemande(DateTime $dateDemande)
     {
         $this->dateDemande = $dateDemande;
@@ -667,13 +669,13 @@ class Badm
         return $this;
     }
 
-  
+
     public function getCasierEmetteur()
     {
         return $this->casierEmetteur;
     }
 
-   
+
     public function setCasierEmetteur(?string $casierEmetteur): self
     {
         $this->casierEmetteur = $casierEmetteur;
@@ -686,7 +688,7 @@ class Badm
         return $this->agenceEmetteurId;
     }
 
-    
+
     public function setAgenceEmetteurId($agenceEmetteurId): self
     {
         $this->agenceEmetteurId = $agenceEmetteurId;
@@ -694,13 +696,13 @@ class Badm
         return $this;
     }
 
-    
+
     public function getServiceEmetteurId()
     {
         return $this->serviceEmetteurId;
     }
 
-   
+
     public function setServiceEmetteurId($serviceEmetteurId): self
     {
         $this->serviceEmetteurId = $serviceEmetteurId;
@@ -708,13 +710,13 @@ class Badm
         return $this;
     }
 
-  
+
     public function getAgenceDebiteurId()
     {
         return $this->agenceDebiteurId;
     }
 
-    
+
     public function setAgenceDebiteurId($agenceDebiteurId): self
     {
         $this->agenceDebiteurId = $agenceDebiteurId;
@@ -722,13 +724,13 @@ class Badm
         return $this;
     }
 
-    
+
     public function getServiceDebiteurId()
     {
         return $this->serviceDebiteurId;
     }
 
-    
+
     public function setServiceDebiteurId($serviceDebiteurId): self
     {
         $this->serviceDebiteurId = $serviceDebiteurId;
@@ -741,7 +743,7 @@ class Badm
         return $this->numSerie;
     }
 
-   
+
     public function setNumSerie($numSerie): self
     {
         $this->numSerie = $numSerie;
@@ -751,7 +753,7 @@ class Badm
 
     /**
      * Get the value of groupe
-     */ 
+     */
     public function getGroupe()
     {
         return $this->groupe;
@@ -761,7 +763,7 @@ class Badm
      * Set the value of groupe
      *
      * @return  self
-     */ 
+     */
     public function setGroupe($groupe)
     {
         $this->groupe = $groupe;
@@ -769,11 +771,11 @@ class Badm
         return $this;
     }
 
-    
+
 
     /**
      * Get the value of anneeDuModele
-     */ 
+     */
     public function getAnneeDuModele()
     {
         return $this->anneeDuModele;
@@ -783,7 +785,7 @@ class Badm
      * Set the value of anneeDuModele
      *
      * @return  self
-     */ 
+     */
     public function setAnneeDuModele($anneeDuModele)
     {
         $this->anneeDuModele = $anneeDuModele;
@@ -793,13 +795,13 @@ class Badm
 
     /**
      * Get the value of affectation
-     */ 
+     */
     public function getAffectation()
     {
         return $this->affectation;
     }
 
-    
+
     public function setAffectation($affectation): self
     {
         $this->affectation = $affectation;
@@ -807,13 +809,13 @@ class Badm
         return $this;
     }
 
-  
+
     public function getDateAchat()
     {
         return $this->dateAchat;
     }
 
-   
+
     public function setDateAchat($dateAchat): self
     {
         $this->dateAchat = $dateAchat;
@@ -826,7 +828,7 @@ class Badm
         return $this->constructeur;
     }
 
-   
+
     public function setConstructeur($constructeur): self
     {
         $this->constructeur = $constructeur;
@@ -839,7 +841,7 @@ class Badm
         return $this->designation;
     }
 
-   
+
     public function setDesignation($designation): self
     {
         $this->designation = $designation;
@@ -853,7 +855,7 @@ class Badm
         return $this->modele;
     }
 
-   
+
     public function setModele($modele): self
     {
         $this->modele = $modele;
@@ -861,5 +863,21 @@ class Badm
         return $this;
     }
 
-    
+    /**
+     * Get the value of codeSociete
+     */
+    public function getCodeSociete()
+    {
+        return $this->codeSociete;
+    }
+
+    /**
+     * Set the value of codeSociete
+     */
+    public function setCodeSociete($codeSociete): self
+    {
+        $this->codeSociete = $codeSociete;
+
+        return $this;
+    }
 }
