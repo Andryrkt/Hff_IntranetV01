@@ -101,6 +101,11 @@ class DaSoumissionBc
      */
     private ?float $montantBc;
 
+    /**
+     * @ORM\Column(type="string", length=2, name="code_societe")
+     */
+    private $codeSociete;
+
     /**===========================================================================
      * GETTER & SETTER
      *
@@ -306,6 +311,24 @@ class DaSoumissionBc
     public function setMontantBc($montantBc)
     {
         $this->montantBc = $montantBc;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of codeSociete
+     */
+    public function getCodeSociete()
+    {
+        return $this->codeSociete;
+    }
+
+    /**
+     * Set the value of codeSociete
+     */
+    public function setCodeSociete($codeSociete): self
+    {
+        $this->codeSociete = $codeSociete;
 
         return $this;
     }
