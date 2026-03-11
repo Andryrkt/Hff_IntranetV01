@@ -158,3 +158,7 @@ update Demande_Appro_P set code_societe='HF';
 alter table da_soumission_bc add code_societe varchar(2) null;
 
 update da_soumission_bc set code_societe='HF';
+
+alter table da_soumission_facture_bl add code_societe varchar(2) null;
+
+update da_soumission_facture_bl set code_societe='HF';
