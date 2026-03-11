@@ -19,9 +19,12 @@ class ExportExcelController extends Controller
      */
     public function exportExcel()
     {
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+
         $criterias = $this->getSessionService()->get('criterias_reporting_ips');
 
-        $reportingIpsData = $this->getData($criterias);
+        $reportingIpsData = $this->getData($criterias, $codeSociete);
 
         $data = [];
         // En-tête du tableau d'excel
