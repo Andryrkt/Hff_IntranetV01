@@ -62,7 +62,7 @@ class CdeFrnListType extends  AbstractType
 
         $builder
             ->add('numDa', TextType::class, [
-                'label'    => 'n° DA',
+                'label'    => 'N° DA',
                 'required' => false
             ])
             ->add('typeAchat', ChoiceType::class, [
@@ -72,15 +72,15 @@ class CdeFrnListType extends  AbstractType
                 'required'    => false
             ])
             ->add('numDit', TextType::class, [
-                'label' => 'n° DIT',
+                'label' => 'N° DIT',
                 'required' => false
             ])
             ->add('numOr', TextType::class, [
-                'label' => 'n° OR',
+                'label' => 'N° OR',
                 'required' => false
             ])
             ->add('numFrn', TextType::class, [
-                'label' => 'n° Fournisseur',
+                'label' => 'N° Fournisseur',
                 'required' => false
             ])
             ->add('frn', TextType::class, [
@@ -88,7 +88,7 @@ class CdeFrnListType extends  AbstractType
                 'required' => false
             ])
             ->add('numCde', TextType::class, [
-                'label' => 'n° Commande',
+                'label' => 'N° Commande',
                 'required' => false
             ])
             ->add('ref', TextType::class, [
