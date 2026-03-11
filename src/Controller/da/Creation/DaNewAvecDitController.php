@@ -2,6 +2,7 @@
 
 namespace App\Controller\da\Creation;
 
+use App\Constants\admin\ApplicationConstant;
 use App\Entity\admin\Service;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
@@ -70,7 +71,7 @@ class DaNewAvecDitController extends Controller
             $demandeAppro = $form->getData();
 
             $firstCreation = $demandeAppro->getNumeroDemandeAppro() === null;
-            $numDa = $firstCreation ? $this->autoDecrement('DAP') : $demandeAppro->getNumeroDemandeAppro();
+            $numDa = $firstCreation ? $this->autoDecrement(ApplicationConstant::CODE_DAP) : $demandeAppro->getNumeroDemandeAppro();
             $demandeAppro->setNumeroDemandeAppro($numDa)->setNumeroDemandeApproMere($numDa);
             $formDAL = $form->get('DAL');
 

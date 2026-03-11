@@ -2,6 +2,7 @@
 
 namespace App\Controller\da\Creation;
 
+use App\Constants\admin\ApplicationConstant;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
@@ -66,7 +67,7 @@ class DaNewReApproMensuelController extends Controller
             /** @var DemandeAppro $demandeAppro */
             $demandeAppro = $form->getData();
             $firstCreation = $demandeAppro->getNumeroDemandeAppro() === null;
-            $numDa = $firstCreation ? $this->autoDecrement('DAP') : $demandeAppro->getNumeroDemandeAppro();
+            $numDa = $firstCreation ? $this->autoDecrement(ApplicationConstant::CODE_DAP) : $demandeAppro->getNumeroDemandeAppro();
 
             $this->gererAgenceServiceDebiteur($demandeAppro);
 

@@ -2,6 +2,7 @@
 
 namespace App\Controller\da\Creation;
 
+use App\Constants\admin\ApplicationConstant;
 use App\Controller\Controller;
 use App\Controller\Traits\da\creation\DaNewAchatTrait;
 use App\Entity\admin\utilisateur\Role;
@@ -72,7 +73,7 @@ class DaNewAchatController extends Controller
             $this->gererAgenceServiceDebiteur($demandeApproParent);
 
             $firstCreation = $demandeApproParent->getNumeroDemandeAppro() === null;
-            $numDa = $firstCreation ? $this->autoDecrement('DAP') : $demandeApproParent->getNumeroDemandeAppro();
+            $numDa = $firstCreation ? $this->autoDecrement(ApplicationConstant::CODE_DAP) : $demandeApproParent->getNumeroDemandeAppro();
             $demandeApproParent->setNumeroDemandeAppro($numDa);
             $formDemandeApproLines = $form->get('demandeApproParentLines');
 
