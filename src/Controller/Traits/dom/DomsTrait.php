@@ -496,6 +496,7 @@ trait DomsTrait
             ->setSousTypeDocument($sousTypeDocument)
             ->setDateDemande(new DateTime)
             ->setIdStatutDemande($statutOuvert)
+            ->setCodeSociete($oldDom->getCodeSociete())
             ->setCodeStatut($statutOuvert->getCodeStatut())
             ->setUtilisateurCreation($user->getNomUtilisateur())
             ->setNomSessionUtilisateur($user->getNomUtilisateur())

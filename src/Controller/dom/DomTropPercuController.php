@@ -51,7 +51,7 @@ class DomTropPercuController extends Controller
 
         $this->statutTropPercu($oldDom);
 
-        if (!$this->DomModel->verifierSiTropPercu($oldDom->getNumeroOrdreMission())) {
+        if (!$this->DomModel->verifierSiTropPercu($oldDom->getNumeroOrdreMission(), $oldDom->getCodeSociete())) {
             $this->getSessionService()->set('notification', ['type' => 'danger', 'message' => 'Erreur : On ne peut pas créer de DOM trop perçu à partir de ce DOM à cause des dates.']);
             $this->redirectToRoute("doms_liste");
         } elseif (!$oldDom->getStatutTropPercuOk()) {
@@ -85,6 +85,7 @@ class DomTropPercuController extends Controller
 
             $domTp = new Domtp;
             $domTp
+                ->setCodeSociete($oldDom->getCodeSociete())
                 ->setNumeroOrdreMission($oldDom->getNumeroOrdreMission())
                 ->setNumeroOrdreMissionTp($dom->getNumeroOrdreMission())
                 ->setNombreJourTp($dom->getNombreJour())
