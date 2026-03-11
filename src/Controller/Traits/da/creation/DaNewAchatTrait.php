@@ -82,7 +82,7 @@ trait DaNewAchatTrait
     public function ajouterDaDansTableAffichageParent(DemandeApproParent $demandeApproParent, bool $firstCreation): void
     {
         // Récupère le dernier numéro de version existant pour cette demande d'achat
-        $numeroVersionMax = $firstCreation ? 0 : $this->daAfficherRepository->getNumeroVersionMax($demandeApproParent->getNumeroDemandeAppro());
+        $numeroVersionMax = $firstCreation ? 0 : $this->daAfficherRepository->getNumeroVersionMax($demandeApproParent->getNumeroDemandeAppro(), $demandeApproParent->getCodeSociete());
         $numeroVersion = VersionService::autoIncrement($numeroVersionMax);
 
         // Parcours chaque ligne DAL de la demande d'achat
