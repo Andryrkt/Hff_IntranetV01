@@ -208,7 +208,7 @@ class DitModel extends Model
     return $this->convertirEnUtf8($data);
   }
 
-  public function recuperationIdMateriel($numParc = '', $numSerie = '')
+  public function recuperationIdMateriel($numParc = '', $numSerie = '', $codeSociete)
   {
     if ($numParc === '' || $numParc === '0' || $numParc === null) {
       $conditionNumParc = "";
@@ -227,6 +227,7 @@ class DitModel extends Model
         from mat_mat
         where  MMAT_ETSTOCK in ('ST','AT', '--')
         and trim(MMAT_AFFECT) in ('IMM','LCD', 'SDO', 'VTE', 'CAS')
+        and mmat_soc = '$codeSociete'
         " . $conditionNumParc . "
         " . $conditionNumSerie . "
         ";
