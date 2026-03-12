@@ -20,6 +20,7 @@ class DaSearch
     private ?string $idMateriel = null;
     private ?string $typeAchat = null;
     private ?string $codeCentrale = null;
+    private $afficherCloturees = false;
 
     private ?string $niveauUrgence = null;
 
@@ -435,6 +436,24 @@ class DaSearch
     }
 
     /**
+     * Get the value of afficherCloturees
+     */
+    public function getAfficherCloturees()
+    {
+        return $this->afficherCloturees;
+    }
+
+    /**
+     * Set the value of afficherCloturees
+     */
+    public function setAfficherCloturees($afficherCloturees): self
+    {
+        $this->afficherCloturees = $afficherCloturees;
+
+        return $this;
+    }
+
+    /**
      * Convertit l'objet en tableau associatif
      */
     public function toArray(): array
@@ -443,6 +462,7 @@ class DaSearch
             'numDit'               => $this->numDit,
             'numDa'                => $this->numDa,
             'numCde'               => $this->numCde,
+            'afficherCloturees'    => $this->afficherCloturees,
             'demandeur'            => $this->demandeur,
             'statutDA'             => $this->statutDA,
             'statutOR'             => $this->statutOR,

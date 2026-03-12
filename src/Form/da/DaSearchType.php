@@ -4,24 +4,25 @@ namespace App\Form\da;
 
 use App\Controller\Traits\da\MarkupIconTrait;
 use App\Entity\admin\Agence;
-use App\Entity\admin\Service;
-use App\Entity\da\DemandeAppro;
-use App\Entity\da\DaSoumissionBc;
-use Doctrine\ORM\EntityRepository;
-use Symfony\Component\Form\FormEvent;
-use Symfony\Component\Form\FormEvents;
-use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Form\AbstractType;
 use App\Entity\admin\dit\WorNiveauUrgence;
+use App\Entity\admin\Service;
 use App\Entity\da\DaSearch;
+use App\Entity\da\DaSoumissionBc;
+use App\Entity\da\DemandeAppro;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Repository\admin\ServiceRepository;
-use Symfony\Component\Form\FormBuilderInterface;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
-use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class DaSearchType extends  AbstractType
 {
@@ -100,6 +101,10 @@ class DaSearchType extends  AbstractType
         ];
 
         $builder
+            ->add('afficherCloturees', CheckboxType::class, [
+                'label'    => 'Afficher aussi les demandes d\'approvisionnement clôturées',
+                'required' => false
+            ])
             ->add('numDit', TextType::class, [
                 'label'         => 'N° OR/DIT',
                 'required'      => false
