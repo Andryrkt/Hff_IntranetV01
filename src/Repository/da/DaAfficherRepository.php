@@ -732,7 +732,7 @@ class DaAfficherRepository extends EntityRepository
     {
         if (empty(array_filter($criteria, function ($value) {
             return $value !== null;
-        }))) {
+        })) || !$criteria['afficherCloturees']) {
             $queryBuilder->andWhere($qbLabel . '.statutDal NOT IN (:statutDa)')
                 ->setParameter('statutDa', [DemandeAppro::STATUT_TERMINER, DemandeAppro::STATUT_CLOTUREE], ArrayParameterType::STRING);
         }

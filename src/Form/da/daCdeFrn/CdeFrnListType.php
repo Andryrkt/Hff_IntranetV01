@@ -15,6 +15,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -68,6 +69,10 @@ class CdeFrnListType extends  AbstractType
         ksort($statut_da);
 
         $builder
+            ->add('afficherCloturees', CheckboxType::class, [
+                'label'    => 'Afficher aussi les demandes d\'approvisionnement clôturées',
+                'required' => false
+            ])
             ->add('numDa', TextType::class, [
                 'label'    => 'N° DA',
                 'required' => false
