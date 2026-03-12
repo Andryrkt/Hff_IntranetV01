@@ -16,30 +16,29 @@
 						{{ form_row(form.numDa) }}
 						{{ form_row(form.numDit) }}
 						{{ form_row(form.numCde) }}
+					</div>
+					<div class="col-12 col-md-2">
+						{{ form_row(form.statutDA)}}
+						{{ form_row(form.statutOR)}}
 						{{ form_row(form.statutBC)}}
 					</div>
 					<div class="col-12 col-md-2">
 						{{ macroForm.agence_service_change(form.agenceEmetteur, form.serviceEmetteur, 'spinner-service-emetteur', 'service-container-emetteur')}}
-						{{ form_row(form.statutDA)}}
+						{{ form_row(form.demandeur) }}
 					</div>
 					<div class="col-12 col-md-2">
 						{{ macroForm.agence_service_change(form.agenceDebiteur, form.serviceDebiteur, 'spinner-service-debiteur', 'service-container-debiteur')}}
-						{{ form_row(form.statutOR)}}
+						{{ form_row(form.typeAchat)}}
 					</div>
 					<div class="col-12 col-md-2">
 						{{ form_row(form.dateDebutCreation) }}
 						{{ form_row(form.dateFinCreation) }}
-						{{ form_row(form.typeAchat)}}
+						{{ form_label(form.niveauUrgence, '<a href="#" data-bs-toggle="modal" data-bs-target="#niveauUrgence" >Niveau d\'urgence</a>', { 'label_html': true }) }}
+						{{ form_widget(form.niveauUrgence, {'attr': {'class': 'mb-3'}}) }}
 					</div>
 					<div class="col-12 col-md-2">
 						{{ form_row(form.dateDebutfinSouhaite) }}
 						{{ form_row(form.dateFinFinSouhaite) }}
-						{{ form_row(form.sortNbJours) }}
-					</div>
-					<div class="col-12 col-md-2">
-						{{ form_row(form.demandeur) }}
-						{{ form_label(form.niveauUrgence, '<a href="#" data-bs-toggle="modal" data-bs-target="#niveauUrgence" >Niveau d\'urgence</a>', { 'label_html': true }) }}
-						{{ form_widget(form.niveauUrgence, {'attr': {'class': 'mb-3'}}) }}
 						<div class="d-none">
 							{{ form_row(form.idMateriel) }}
 						</div>
@@ -61,10 +60,15 @@
 				</div>
 
 				<div class="d-flex justify-content-end mb-2">
+				
+				{{ form_row(form.sortNbJours) }}
+				<span class="m-4 d-flex align-items-center">
 					<button class="btn btn-warning fw-bold" type="submit">
 						<i class="fab fa-searchengin"></i>
 						Recherche
 					</button>
+				</span>
+				
 				</div>
 
 				{{ form_end(form) }}
