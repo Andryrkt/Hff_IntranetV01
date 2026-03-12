@@ -82,10 +82,6 @@ class CdeFrnListType extends  AbstractType
                 'label' => 'N° OR/DIT',
                 'required' => false
             ])
-            ->add('numOr', TextType::class, [
-                'label' => 'N° OR',
-                'required' => false
-            ])
             ->add('numFrn', TextType::class, [
                 'label' => 'N° Fournisseur',
                 'required' => false
@@ -95,7 +91,7 @@ class CdeFrnListType extends  AbstractType
                 'required' => false
             ])
             ->add('numCde', TextType::class, [
-                'label' => 'N° Commande',
+                'label' => 'N° BC',
                 'required' => false
             ])
             ->add('ref', TextType::class, [
