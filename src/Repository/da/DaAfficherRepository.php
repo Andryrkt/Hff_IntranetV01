@@ -656,7 +656,6 @@ class DaAfficherRepository extends EntityRepository
         if ($estCdeFrn) {
             $map = [
                 'numDa'         => "$qbLabel.numeroDemandeApproMere",
-                'numDit'        => "$qbLabel.numeroDemandeDit",
                 'numCde'        => "$qbLabel.numeroCde",
                 'numOr'         => "$qbLabel.numeroOr",
                 'numFrn'        => "$qbLabel.numeroFournisseur",
@@ -667,7 +666,6 @@ class DaAfficherRepository extends EntityRepository
         } else {
             $map = [
                 'numDa'         => "$qbLabel.numeroDemandeApproMere",
-                'numDit'        => "$qbLabel.numeroDemandeDit",
                 'numCde'        => "$qbLabel.numeroCde",
                 'demandeur'     => "$qbLabel.demandeur",
                 'codeCentrale'  => "$qbLabel.codeCentrale",
@@ -682,6 +680,11 @@ class DaAfficherRepository extends EntityRepository
                 $qb->andWhere("$field = :$key")
                     ->setParameter($key, $criteria);
             }
+        }
+
+        if (isset($criteria['numDit'])) {
+            $qb->andWhere("$qbLabel.numeroOr = :numDit OR $qbLabel.numeroDemandeDit = :numDit")
+                ->setParameter('numDit', $criteria['numDit']);
         }
 
         if (isset($criteria['typeAchat'])) {

@@ -79,7 +79,7 @@ class CdeFrnListType extends  AbstractType
                 'required'    => false
             ])
             ->add('numDit', TextType::class, [
-                'label' => 'N° DIT',
+                'label' => 'N° OR/DIT',
                 'required' => false
             ])
             ->add('numOr', TextType::class, [

@@ -101,7 +101,7 @@ class DaSearchType extends  AbstractType
 
         $builder
             ->add('numDit', TextType::class, [
-                'label'         => 'N° DIT',
+                'label'         => 'N° OR/DIT',
                 'required'      => false
             ])
             ->add('numDa', TextType::class, [
