@@ -13,17 +13,18 @@
 				{{ form_start(form, {'method': 'GET'}) }}
 				<div class="row">
 					<div class="col-12 col-md-2">
+						{{ form_row(form.numDa) }}
+						{{ form_row(form.numDit) }}
+						{{ form_row(form.numCde) }}
+						{{ form_row(form.statutBC)}}
+					</div>
+					<div class="col-12 col-md-2">
 						{{ macroForm.agence_service_change(form.agenceEmetteur, form.serviceEmetteur, 'spinner-service-emetteur', 'service-container-emetteur')}}
 						{{ form_row(form.statutDA)}}
 					</div>
 					<div class="col-12 col-md-2">
 						{{ macroForm.agence_service_change(form.agenceDebiteur, form.serviceDebiteur, 'spinner-service-debiteur', 'service-container-debiteur')}}
 						{{ form_row(form.statutOR)}}
-					</div>
-					<div class="col-12 col-md-2">
-						{{ form_row(form.numDit) }}
-						{{ form_row(form.numDa) }}
-						{{ form_row(form.statutBC)}}
 					</div>
 					<div class="col-12 col-md-2">
 						{{ form_row(form.dateDebutCreation) }}

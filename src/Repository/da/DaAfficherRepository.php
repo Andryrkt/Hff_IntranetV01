@@ -668,6 +668,7 @@ class DaAfficherRepository extends EntityRepository
             $map = [
                 'numDa'         => "$qbLabel.numeroDemandeApproMere",
                 'numDit'        => "$qbLabel.numeroDemandeDit",
+                'numCde'        => "$qbLabel.numeroCde",
                 'demandeur'     => "$qbLabel.demandeur",
                 'codeCentrale'  => "$qbLabel.codeCentrale",
                 'niveauUrgence' => "$qbLabel.niveauUrgence",

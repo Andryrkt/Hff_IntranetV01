@@ -108,6 +108,10 @@ class DaSearchType extends  AbstractType
                 'label'         => 'N° DAP',
                 'required'      => false
             ])
+            ->add('numCde', TextType::class, [
+                'label' => 'N° Commande',
+                'required' => false
+            ])
             ->add('demandeur', TextType::class, [
                 'label'         => 'Demandeur',
                 'required'      => false
