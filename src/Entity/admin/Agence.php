@@ -101,15 +101,6 @@ class Agence
     private $mutationAgenceDebiteur;
 
     /**
-     * @ORM\ManyToMany(targetEntity=User::class, mappedBy="agencesAutorisees")
-     * @ORM\JoinTable(name="agence_user", 
-     *      joinColumns={@ORM\JoinColumn(name="agence_id", referencedColumnName="id")},
-     *      inverseJoinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")}
-     * )
-     */
-    private $usersAutorises;
-
-    /**
      * @ORM\OneToMany(targetEntity=DemandeSupportInformatique::class, mappedBy="agenceEmetteurId")
      */
     private $tkiAgenceEmetteur;
@@ -137,7 +128,6 @@ class Agence
         $this->ditAgenceDebiteur = new ArrayCollection();
         $this->badmAgenceEmetteur = new ArrayCollection();
         $this->badmAgenceDebiteur = new ArrayCollection();
-        $this->usersAutorises = new ArrayCollection();
         $this->domAgenceEmetteur = new ArrayCollection();
         $this->domAgenceDebiteur = new ArrayCollection();
         $this->tkiAgenceEmetteur = new ArrayCollection();
@@ -398,37 +388,6 @@ class Agence
 
         return $this;
     }
-
-
-    public function getUsersAutorises(): Collection
-    {
-        return $this->usersAutorises;
-    }
-
-    public function addUserAutorise(User $user): self
-    {
-        if (!$this->usersAutorises->contains($user)) {
-            $this->usersAutorises[] = $user;
-            $user->addAgenceAutorise($this);
-        }
-
-        return $this;
-    }
-
-    public function removeUserAutorise(User $user): self
-    {
-        if ($this->usersAutorises->contains($user)) {
-            $this->usersAutorises->removeElement($user);
-            $user->removeAgenceAutorise($this);
-        }
-
-        return $this;
-    }
-
-
-
-
-
 
     /** DOM */
 
