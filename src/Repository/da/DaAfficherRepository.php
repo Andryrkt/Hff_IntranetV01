@@ -732,35 +732,60 @@ class DaAfficherRepository extends EntityRepository
     {
         if (empty(array_filter($criteria, function ($value) {
             return $value !== null;
-        })) || !$criteria['afficherCloturees']) {
-            $queryBuilder->andWhere($qbLabel . '.statutDal NOT IN (:statutDa)')
-                ->setParameter('statutDa', [DemandeAppro::STATUT_TERMINER, DemandeAppro::STATUT_CLOTUREE], ArrayParameterType::STRING);
+        })) || empty($criteria['afficherCloturees'])) {
+            $queryBuilder->andWhere($qbLabel . '.statutDal NOT IN (:statutDaFermer)')
+                ->setParameter('statutDaFermer', [DemandeAppro::STATUT_TERMINER, DemandeAppro::STATUT_CLOTUREE], ArrayParameterType::STRING);
         }
 
         if ($estCdeFrn) {
             if (!empty($criteria['statutBC'])) {
-                $queryBuilder->andWhere($qbLabel . '.statutCde = :statutBc')
-                    ->setParameter('statutBc', $criteria['statutBC']);
+                if (is_array($criteria['statutBC'])) {
+                    $queryBuilder->andWhere($qbLabel . '.statutCde IN (:statutBcParam)')
+                        ->setParameter('statutBcParam', $criteria['statutBC'], ArrayParameterType::STRING);
+                } else {
+                    $queryBuilder->andWhere($qbLabel . '.statutCde = :statutBcParam')
+                        ->setParameter('statutBcParam', $criteria['statutBC']);
+                }
             }
 
             if (!empty($criteria['statutDA'])) {
-                $queryBuilder->andWhere($qbLabel . '.statutDal = :statutDa')
-                    ->setParameter('statutDa', $criteria['statutDA']);
+                if (is_array($criteria['statutDA'])) {
+                    $queryBuilder->andWhere($qbLabel . '.statutDal IN (:statutDaParam)')
+                        ->setParameter('statutDaParam', $criteria['statutDA'], ArrayParameterType::STRING);
+                } else {
+                    $queryBuilder->andWhere($qbLabel . '.statutDal = :statutDaParam')
+                        ->setParameter('statutDaParam', $criteria['statutDA']);
+                }
             }
         } else {
             if (!empty($criteria['statutDA'])) {
-                $queryBuilder->andWhere($qbLabel . '.statutDal = :statutDa')
-                    ->setParameter('statutDa', $criteria['statutDA']);
+                if (is_array($criteria['statutDA'])) {
+                    $queryBuilder->andWhere($qbLabel . '.statutDal IN (:statutDaParam)')
+                        ->setParameter('statutDaParam', $criteria['statutDA'], ArrayParameterType::STRING);
+                } else {
+                    $queryBuilder->andWhere($qbLabel . '.statutDal = :statutDaParam')
+                        ->setParameter('statutDaParam', $criteria['statutDA']);
+                }
             }
 
             if (!empty($criteria['statutOR'])) {
-                $queryBuilder->andWhere($qbLabel . '.statutOr = :statutOr')
-                    ->setParameter('statutOr', $criteria['statutOR']);
+                if (is_array($criteria['statutOR'])) {
+                    $queryBuilder->andWhere($qbLabel . '.statutOr IN (:statutOrParam)')
+                        ->setParameter('statutOrParam', $criteria['statutOR'], ArrayParameterType::STRING);
+                } else {
+                    $queryBuilder->andWhere($qbLabel . '.statutOr = :statutOrParam')
+                        ->setParameter('statutOrParam', $criteria['statutOR']);
+                }
             }
 
             if (!empty($criteria['statutBC'])) {
-                $queryBuilder->andWhere($qbLabel . '.statutCde = :statutBc')
-                    ->setParameter('statutBc', $criteria['statutBC']);
+                if (is_array($criteria['statutBC'])) {
+                    $queryBuilder->andWhere($qbLabel . '.statutCde IN (:statutBcParam)')
+                        ->setParameter('statutBcParam', $criteria['statutBC'], ArrayParameterType::STRING);
+                } else {
+                    $queryBuilder->andWhere($qbLabel . '.statutCde = :statutBcParam')
+                        ->setParameter('statutBcParam', $criteria['statutBC']);
+                }
             }
         }
     }

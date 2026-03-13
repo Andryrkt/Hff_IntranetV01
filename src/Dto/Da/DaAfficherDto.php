@@ -14,6 +14,7 @@ class DaAfficherDto
     public $numeroDemandeAppro;
     public $datype;
     public $daTypeIcon;
+    public $allIcons;
     public $niveauUrgence;
     public $dateFinSouhaite;
     public $artConstp;

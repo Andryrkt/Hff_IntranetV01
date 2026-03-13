@@ -51,6 +51,7 @@ class DaAfficherMapper
 
         // Icônes
         $dto->daTypeIcon = $this->getTypeDaIcon($dto->datype);
+        $dto->allIcons = $this->getAllIcons();
         $safeIconSuccess = new Markup('<i class="fas fa-check text-success"></i>', 'UTF-8');
         $safeIconXmark   = new Markup('<i class="fas fa-xmark text-danger"></i>', 'UTF-8');
         $dto->estFicheTechnique = $data->getEstFicheTechnique() ? $safeIconSuccess : $safeIconXmark;
