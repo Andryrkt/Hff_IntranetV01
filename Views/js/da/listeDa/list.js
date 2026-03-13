@@ -219,3 +219,46 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 });
+/** ===================================================
+ * Bouton Mes DA à traiter
+ *==================================================*/
+document.addEventListener("DOMContentLoaded", function () {
+  const btnMesDaATraiter = document.getElementById("btnMesDaATraiter");
+  btnMesDaATraiter.addEventListener("click", async function () {
+    const codeAgenceUser = this.getAttribute("data-code-agence-user");
+    const codeServiceUser = this.getAttribute("data-code-service-user");
+    try {
+      displayOverlay(
+        true,
+        "Veuillez patienter"
+      );
+      const response = await fetchManager.post(
+        `api/da/mes-da-a-traiter`,
+        {
+          codeAgenceServiceUser: [codeAgenceUser, codeServiceUser],
+        }
+      );
+      displayOverlay(false);
+      if (response.success) {
+        window.location.reload();
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Erreur lors de l'affichage des DA à traiter",
+          text:
+            response.error || response.message ||
+            "Une erreur est survenue lors de l'affichage des DA à traiter.",
+        });
+      }
+    } catch (error) {
+      displayOverlay(false);
+      Swal.fire({
+        icon: "error",
+        title: "Erreur lors de l'affichage des DA à traiter",
+        text:
+          error.message ||
+          "Une erreur est survenue lors de l'affichage des DA à traiter.",
+      });
+    }
+  });
+});
