@@ -15,42 +15,43 @@ class DaAfficherDto
     public $datype;
     public $daTypeIcon;
     public $niveauUrgence;
-    public $numeroFournisseur;
-    public $nomFournisseur;
-    public $envoyeFrn;
     public $dateFinSouhaite;
     public $artConstp;
     public $artRefp;
     public $artDesi;
-    public $qteDem;
-    public $qteEnAttent;
-    public $qteDispo;
-    public $qteLivrer;
     public $dateLivraisonPrevue;
     public $joursDispo;
     public $styleJoursDispo;
-    public $demandeur;
     public $dateDemande;
     public $estDalr;
     public $verouille;
     public $estFicheTechnique;
-
+    // Demandeur
+    public $demandeur;
+    // Consultateur
+    public $codeAgenceUser; // code agence de l'utilisateur qui consulte la liste
+    public $codeServiceUser; // code service de l'utilisateur qui consuler la liste
+    // Qte
+    public $qteDem;
+    public $qteEnAttent;
+    public $qteDispo;
+    public $qteLivrer;
+    // Fournisseur
+    public $numeroFournisseur;
+    public $nomFournisseur;
+    public $envoyeFrn;
     // OR
     public $numeroOr;
     public $datePlannigOr;
     public $statutOr;
-
     // Cde
     public $statutCde;
     public $numeroCde;
     public $positionBc;
-
     // DAL
     public $statutDal;
-
     // DIT
     public $numeroDemandeDit;
-
     // Actions & URLs
     public $urlCreation;
     public $urlDelete;
@@ -61,7 +62,6 @@ class DaAfficherDto
     public $demandeDevis;
     public $statutValide;
     public $centrale;
-
     // HTML Attributes
     public $tdNumCdeAttributes;
     public $styleClickableCell;

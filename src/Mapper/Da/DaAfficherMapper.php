@@ -27,6 +27,8 @@ class DaAfficherMapper
         $estAdmin   = $options['estAdmin'] ?? false;
         $estAppro   = $options['estAppro'] ?? false;
         $estAtelier = $options['estAtelier'] ?? false;
+        $codeAgenceUser = $options['codeAgenceUser'] ?? null;
+        $codeServiceUser = $options['codeServiceUser'] ?? null;
 
         $dto = new DaAfficherDto();
         $dto->id = $data->getId();
@@ -34,22 +36,11 @@ class DaAfficherMapper
         $dto->numDaParent = $data->getNumeroDemandeApproMere();
         $dto->numeroDemandeAppro = $data->getNumeroDemandeAppro();
         $dto->datype = $data->getDatypeId();
-        
-        // Icônes
-        $dto->daTypeIcon = $this->getTypeDaIcon($dto->datype);
-        
         $dto->niveauUrgence = $data->getNiveauUrgence();
-        $dto->numeroFournisseur = $data->getNumeroFournisseur();
-        $dto->nomFournisseur = $data->getNomFournisseur();
-        $dto->envoyeFrn = $data->getStatutCde() === DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR;
         $dto->dateFinSouhaite = $data->getDateFinSouhaite() ? $data->getDateFinSouhaite()->format('d/m/Y') : null;
         $dto->artConstp = $data->getArtConstp();
         $dto->artRefp = $data->getArtRefp();
         $dto->artDesi = $data->getArtDesi();
-        $dto->qteDem = $data->getQteDem() ?: '-';
-        $dto->qteEnAttent = $data->getQteEnAttent() ?: '-';
-        $dto->qteDispo = $data->getQteDispo() ?: '-';
-        $dto->qteLivrer = $data->getQteLivrer() ?: '-';
         $dto->dateLivraisonPrevue = $data->getDateLivraisonPrevue() ? $data->getDateLivraisonPrevue()->format('d/m/Y') : 'N/A';
         $dto->joursDispo = $data->getJoursDispo();
         $dto->styleJoursDispo = ($dto->joursDispo < 0) ? 'text-danger' : '';
@@ -57,10 +48,27 @@ class DaAfficherMapper
         $dto->dateDemande = $data->getDateDemande()->format('d/m/Y');
         $dto->estDalr = $data->getEstDalr();
         $dto->verouille = $data->getVerouille();
-        
+
+        // Icônes
+        $dto->daTypeIcon = $this->getTypeDaIcon($dto->datype);
         $safeIconSuccess = new Markup('<i class="fas fa-check text-success"></i>', 'UTF-8');
         $safeIconXmark   = new Markup('<i class="fas fa-xmark text-danger"></i>', 'UTF-8');
         $dto->estFicheTechnique = $data->getEstFicheTechnique() ? $safeIconSuccess : $safeIconXmark;
+
+        // Consultateur
+        $dto->codeAgenceUser = $codeAgenceUser;
+        $dto->codeServiceUser = $codeServiceUser;
+
+        // QTE
+        $dto->qteDem = $data->getQteDem() ?: '-';
+        $dto->qteEnAttent = $data->getQteEnAttent() ?: '-';
+        $dto->qteDispo = $data->getQteDispo() ?: '-';
+        $dto->qteLivrer = $data->getQteLivrer() ?: '-';
+
+        // Fournisseur
+        $dto->numeroFournisseur = $data->getNumeroFournisseur();
+        $dto->nomFournisseur = $data->getNomFournisseur();
+        $dto->envoyeFrn = $data->getStatutCde() === DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR;
 
         // OR
         $dto->numeroOr = $data->getNumeroOr();
@@ -74,10 +82,10 @@ class DaAfficherMapper
         $dto->numeroCde = $data->getNumeroCde();
         $dto->positionBc = $data->getNumeroLigne();
         $dto->statutCde = $data->getStatutCde();
-        
+
         // DAL
         $dto->statutDal = $data->getStatutDal();
-        
+
         // DIT
         $dto->numeroDemandeDit = $data->getNumeroDemandeDit();
 
@@ -118,7 +126,7 @@ class DaAfficherMapper
         // URLs optimisées : On ne génère que ce qui est nécessaire
         $daEntity = $item->getDemandeAppro();
         $paramsDa = $daEntity ? ['id' => $daEntity->getId()] : null;
-        
+
         // URL Detail
         if ($paramsDa) {
             $detailRoutes = [

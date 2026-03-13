@@ -79,12 +79,16 @@ class DaListCdeFrnController extends Controller
         // Récupération et préparation des données
         $paginationData = $this->daAfficherRepository->findValidatedPaginatedDas($criteriaTab, $page, $limit);
         $daAfficherMapper = new DaAfficherMapper($this->getUrlGenerator());
-        $dataPrepared = $daAfficherMapper->mapList($paginationData['data']);
+        $dataPrepared = $daAfficherMapper->mapList($paginationData['data'], [
+            'codeAgenceUser' => $this->getUser()->getCodeAgenceUser(),
+            'codeServiceUser' => $this->getUser()->getCodeServiceUser(),
+        ]);
 
-        // Autres formulaires
+        // Formulaire de soumission BC, FAC + BL, BL Reappro
         $formSoumission = $this->getFormFactory()->createBuilder(DaSoumissionType::class, null, ['method' => 'GET'])->getForm();
         $this->traitementFormulaireSoumission($request, $formSoumission);
 
+        // Formulaire de date de livraison
         $formDateLivraison = $this->getFormFactory()->createBuilder(DaModalDateLivraisonType::class)->getForm();
         $this->TraitementFormulaireDateLivraison($request, $formDateLivraison);
 
