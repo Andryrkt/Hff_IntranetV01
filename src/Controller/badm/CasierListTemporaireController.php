@@ -9,6 +9,7 @@ use App\Entity\cas\CasierValider;
 use App\Form\cas\CasierSearchType;
 use App\Entity\admin\StatutDemande;
 use App\Controller\Traits\Transformation;
+use App\Repository\cas\CasierRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -24,6 +25,9 @@ class CasierListTemporaireController extends Controller
      */
     public function AffichageListeCasier(Request $request)
     {
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+
         $form = $this->getFormFactory()->createBuilder(CasierSearchType::class, null, [
             'method' => 'GET'
         ])->getForm();
@@ -39,8 +43,9 @@ class CasierListTemporaireController extends Controller
         $page = max(1, $request->query->getInt('page', 1));
         $limit = 10;
 
-        $paginationData = $this->getEntityManager()->getRepository(Casier::class)->findPaginatedAndFilteredTemporaire($page, $limit, $criteria);
-
+        /** @var CasierRepository $repository */
+        $repository = $this->getEntityManager()->getRepository(Casier::class);
+        $paginationData = $repository->findPaginatedAndFilteredTemporaire($page, $limit, $criteria, $codeSociete);
 
         if (empty($paginationData['data'])) {
             $empty = true;
