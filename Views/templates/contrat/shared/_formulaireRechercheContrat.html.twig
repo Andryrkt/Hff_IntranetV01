@@ -1,0 +1,512 @@
+<div class="accordion" id="accordionContrat">
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button enteteAccordion" type="button" data-bs-toggle="collapse" data-bs-target="#collapseContrat" aria-expanded="true" aria-controls="collapseContrat">
+                <i class="fas fa-search me-2"></i>
+                Recherche de contrat
+            </button>
+        </h2>
+        <div id="collapseContrat" class="accordion-collapse collapse" data-bs-parent="#accordionContrat">
+            <div class="accordion-body">
+                {{ form_start(form, {'attr': {'class': 'form-horizontal'}}) }}
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label for="contrat_referenceSearch" class="form-label">Référence</label>
+
+                        {# Le champ caché pour stocker les valeurs pour Symfony #}
+                        <input type="hidden" id="contrat_reference" name="contrat[referenceSearch]" value="{{ contratSearch.referenceSearch|default('') }}">
+
+                        {# Le conteneur qui va ressembler à un input et contenir les tags + le champ de saisie #}
+                        <div id="reference-multi-select-container" class="form-control d-flex flex-wrap align-items-center p-1" style="min-height: 38px; height: auto;">
+                            {# L'input de recherche visible par l'utilisateur #}
+                            <input type="text" id="reference-search-input" class="flex-grow-1 border-0" style="outline: none; min-width: 150px;" autocomplete="off">
+                        </div>
+
+                        <div id="suggestion-reference" class="suggestions-container"></div>
+                        <div id="loader-reference" class="spinner" style="display: none;">Chargement...</div>
+                    </div>
+                    <script>
+                        // Initialisation de l'autocomplete pour le champ référence
+                        document.addEventListener('DOMContentLoaded', function() {
+                            // Attendre que tout soit chargé
+                            setTimeout(function() {
+                                const hiddenReferenceInput = document.getElementById("contrat_reference");
+                                const searchInput = document.getElementById("reference-search-input");
+                                const tagsContainer = document.getElementById("reference-multi-select-container");
+                                const suggestionContainer = document.getElementById("suggestion-reference");
+                                const loaderElement = document.getElementById("loader-reference");
+
+                                // Debug: afficher les éléments trouvés
+                                console.log('Recherche autocomplete:', {
+                                    hiddenReferenceInput: hiddenReferenceInput ? 'OK' : 'MANQUANT',
+                                    searchInput: searchInput ? 'OK' : 'MANQUANT',
+                                    tagsContainer: tagsContainer ? 'OK' : 'MANQUANT',
+                                    suggestionContainer: suggestionContainer ? 'OK' : 'MANQUANT',
+                                    loaderElement: loaderElement ? 'OK' : 'MANQUANT'
+                                });
+
+                                // Vérifier que tous les éléments nécessaires existent
+                                if (hiddenReferenceInput && searchInput && tagsContainer && suggestionContainer && loaderElement) {
+                                    // Importer dynamiquement la classe MultiSelectAutoComplete
+                                    import('{{ App.base_path }}/Views/js/utils/AutoComplete.js').then(module => {
+                                        const MultiSelectAutoComplete = module.MultiSelectAutoComplete;
+
+                                        // Créer une instance de FetchManager
+                                        class FetchManager {
+                                            constructor() {
+                                                this.baseUrl = '{{ App.base_path }}';
+                                            }
+
+                                            async get(endpoint, responseType = "json") {
+                                                try {
+                                                    const response = await fetch(`${this.baseUrl}/${endpoint}`);
+                                                    if (!response.ok) {
+                                                        throw new Error(`Erreur HTTP: ${response.status}`);
+                                                    }
+
+                                                    if (responseType === "json") {
+                                                        const text = await response.text();
+                                                        if (!text) throw new Error('Réponse vide');
+                                                        return JSON.parse(text);
+                                                    } else {
+                                                        return await response.text();
+                                                    }
+                                                } catch (error) {
+                                                    console.error(`Échec de récupération des données depuis ${this.baseUrl}/${endpoint}:`, error);
+                                                    throw error;
+                                                }
+                                            }
+                                        }
+
+                                        const fetchManager = new FetchManager();
+
+                                        async function fetchReferences() {
+                                            console.log('Chargement des références...');
+                                            const data = await fetchManager.get("documentation/contrats/api/references");
+                                            console.log('Références chargées:', data.length, 'éléments');
+                                            return data;
+                                        }
+
+                                        function displayReference(item) {
+                                            return `${item.reference}${item.objet ? ' - ' + item.objet : ''}`;
+                                        }
+
+                                        // Créer une instance personnalisée de MultiSelectAutoComplete
+                                        class CustomMultiSelectAutoComplete extends module.MultiSelectAutoComplete {
+                                            constructor(options) {
+                                                super(options);
+                                            }
+
+                                            // Surcharge de la méthode addSelectedItem pour vider l'input après sélection
+                                            addSelectedItem(item) {
+                                                if (!this.selectedItems.some(selectedItem =>
+                                                    this.itemToString(selectedItem) === this.itemToString(item))) {
+                                                    this.selectedItems.push(item);
+                                                    // Mettre à jour l'affichage
+                                                    this.renderTags();
+                                                    this.updateHiddenInputValue();
+                                                }
+                                                // Vider le champ de recherche après sélection
+                                                this.inputElement.value = '';
+                                                this.clearSuggestions();
+                                            }
+
+                                            // Surcharge de la méthode filterData pour chercher sur référence et objet
+                                            filterData(searchValue) {
+                                                if (searchValue.trim() === "") {
+                                                    this.clearSuggestions();
+                                                    return;
+                                                }
+
+                                                const lowerCaseSearch = searchValue.toLowerCase();
+
+                                                // Exclure les éléments déjà sélectionnés et chercher sur plusieurs champs
+                                                this.filteredData = this.data.filter((item) => {
+                                                    const itemReference = (item.reference || '').toString().toLowerCase();
+                                                    const itemObjet = (item.objet || '').toLowerCase();
+                                                    const isSelected = this.selectedItems.some(selected => this.itemToString(selected) === this.itemToString(item));
+
+                                                    return (
+                                                        (itemReference.includes(lowerCaseSearch) || itemObjet.includes(lowerCaseSearch)) && !isSelected
+                                                    );
+                                                });
+
+                                                this.showSuggestions(this.filteredData);
+                                            }
+
+                                            // Surcharge de la méthode renderTags pour n'afficher que la référence dans le tag
+                                            renderTags() {
+                                                if (!this.tagsContainer) return;
+
+                                                // Effacer les tags existants
+                                                this.tagsContainer.querySelectorAll('.tag').forEach(tag => tag.remove());
+
+                                                // Créer un tag pour chaque élément sélectionné
+                                                this.selectedItems.forEach((item, index) => {
+                                                    const tag = document.createElement('span');
+                                                    tag.className = 'tag badge bg-primary me-2 mb-1';
+                                                    tag.style.cssText = 'display: inline-flex; align-items: center; padding: 0.35em 0.5em; font-size: 0.85em;';
+                                                    tag.dataset.value = this.itemToString(item); // IMPORTANT: pour que removeSelectedItem puisse le trouver
+                                                    // N'afficher que la référence dans le tag
+                                                    const tagText = document.createElement('span');
+                                                    tagText.textContent = this.itemToString(item);
+                                                    tag.appendChild(tagText);
+
+                                                    // Bouton de suppression
+                                                    const removeBtn = document.createElement('button');
+                                                    removeBtn.type = 'button';
+                                                    removeBtn.className = 'btn-close btn-close-white ms-2';
+                                                    removeBtn.style.cssText = 'font-size: 0.65rem; width: 0.65rem; height: 0.65rem; padding: 0; opacity: 1; filter: none;';
+                                                    removeBtn.setAttribute('aria-label', 'Supprimer');
+                                                    removeBtn.onclick = (e) => {
+                                                        e.preventDefault();
+                                                        e.stopPropagation();
+                                                        this.removeSelectedItem(item);
+                                                    };
+
+                                                    tag.appendChild(removeBtn);
+                                                    this.tagsContainer.insertBefore(tag, this.inputElement);
+                                                });
+                                            }
+
+                                            // Méthode pour restaurer les sélections à partir du champ caché
+                                            restoreSelectionsFromHiddenInput() {
+                                                if (this.hiddenInputElement && this.hiddenInputElement.value) {
+                                                    const selectedReferences = this.hiddenInputElement.value.split(',').filter(r => r.trim() !== '');
+
+                                                    // Récupérer les données complètes pour chaque référence sélectionnée
+                                                    fetchReferences().then(allData => {
+                                                        selectedReferences.forEach(reference => {
+                                                            const item = allData.find(d => d.reference === reference.trim());
+                                                            if (item) {
+                                                                // Vérifier que l'élément n'est pas déjà dans la sélection
+                                                                if (!this.selectedItems.some(selectedItem =>
+                                                                    this.itemToString(selectedItem) === this.itemToString(item))) {
+                                                                        this.selectedItems.push(item);
+                                                                }
+                                                            }
+                                                        });
+
+                                                        // Mettre à jour l'affichage
+                                                        this.renderTags();
+                                                        this.updateHiddenInputValue();
+                                                    }).catch(error => {
+                                                        console.error('Erreur lors de la récupération des données pour la restauration:', error);
+                                                    });
+                                                }
+                                            }
+                                        }
+
+                                        const customAutoComplete = new CustomMultiSelectAutoComplete({
+                                            // L'input visible pour la recherche
+                                            inputElement: searchInput,
+                                            // Le conteneur des suggestions
+                                            suggestionContainer: suggestionContainer,
+                                            // L'icône de chargement
+                                            loaderElement: loaderElement,
+
+                                            // -- Options spécifiques à l'affichage par tags --
+                                            // Le conteneur où les tags seront affichés
+                                            tagsContainer: tagsContainer,
+                                            // Le champ caché qui stocke les valeurs pour la soumission du formulaire
+                                            hiddenInputElement: hiddenReferenceInput,
+                                            // ---------------------------------------------
+
+                                            debounceDelay: 300,
+                                            fetchDataCallback: fetchReferences,
+                                            // Callback pour afficher l'item dans la liste de suggestion
+                                            displayItemCallback: (item) => displayReference(item),
+                                            // Callback pour convertir l'item en string (utilisé pour la valeur et l'unicité)
+                                            itemToStringCallback: (item) => `${item.reference}`,
+                                        });
+
+                                        console.log('Autocomplete initialisée avec succès');
+
+                                        // Restaurer les sélections après le chargement complet
+                                        customAutoComplete.restoreSelectionsFromHiddenInput();
+
+                                        // Empêcher la perte des sélections lors de la soumission du formulaire
+                                        const form = document.querySelector('form[name="contrat"]');
+                                        if (form) {
+                                            form.addEventListener('submit', function(e) {
+                                                // Assurer que les sélections sont mises à jour dans le champ caché avant la soumission
+                                                customAutoComplete.updateHiddenInputValue();
+                                            });
+                                        }
+                                    }).catch(error => {
+                                        console.error('Erreur lors du chargement du module AutoComplete:', error);
+                                    });
+                                } else {
+                                    console.warn("Certains éléments nécessaires à l'autocomplete sont manquants");
+                                }
+                            }, 500); // Augmenter le délai à 500ms
+                        });
+                    </script>
+                    <script>
+                        // Gestion du changement d'agence pour charger les services dynamiquement
+                        document.addEventListener('DOMContentLoaded', function() {
+                            const agenceSelect = document.getElementById('contrat_agenceSearch');
+                            const serviceSelect = document.getElementById('contrat_serviceSearch');
+
+                            // Récupérer les services déjà sélectionnés depuis la variable Twig
+                            const servicesFromServer = {{ servicesForSelectedAgence|json_encode|raw }};
+
+                            if (agenceSelect && serviceSelect) {
+                                // Fonction pour charger les services selon l'agence sélectionnée
+                                async function loadServicesForAgence(agenceCode, selectedServiceValue = null) {
+                                    try {
+                                        // Vider d'abord le select service
+                                        serviceSelect.innerHTML = '<option value="">Tous les services</option>';
+
+                                        // Si aucune agence n'est sélectionnée, on garde le select vide
+                                        if (!agenceCode || agenceCode.trim() === '') {
+                                            return;
+                                        }
+
+                                        // Utiliser le code texte pour appeler l'API spécifique au module contrat
+                                        const response = await fetch('{{ App.base_path }}/contrat-api/agence-fetch/' + encodeURIComponent(agenceCode));
+                                        if (!response.ok) {
+                                            throw new Error('Erreur lors du chargement des services');
+                                        }
+
+                                        const services = await response.json();
+
+                                        // Ajouter les options de services
+                                        services.forEach(service => {
+                                            const option = document.createElement('option');
+                                            option.value = service.value;
+                                            option.textContent = service.text;
+                                            // Sélectionner le service si c'est celui qui était sélectionné
+                                            if (selectedServiceValue && service.value === selectedServiceValue) {
+                                                option.selected = true;
+                                            }
+                                            serviceSelect.appendChild(option);
+                                        });
+
+                                        console.log('Services chargés:', services.length, 'éléments');
+                                    } catch (error) {
+                                        console.error('Erreur lors du chargement des services:', error);
+                                    }
+                                }
+
+                                // Fonction pour charger les services depuis le serveur (au chargement initial)
+                                function loadServicesFromServer(services) {
+                                    serviceSelect.innerHTML = '<option value="">Tous les services</option>';
+                                    services.forEach(service => {
+                                        const option = document.createElement('option');
+                                        option.value = service.value;
+                                        option.textContent = service.text;
+                                        serviceSelect.appendChild(option);
+                                    });
+                                }
+
+                                // Charger les services depuis le serveur si une agence est déjà sélectionnée
+                                if (agenceSelect.value && servicesFromServer && servicesFromServer.length > 0) {
+                                    loadServicesFromServer(servicesFromServer);
+
+                                    // Sélectionner le service qui était sélectionné
+                                    const currentServiceValue = '{{ contratSearch.serviceSearch|default("") }}';
+                                    if (currentServiceValue) {
+                                        serviceSelect.value = currentServiceValue;
+                                    }
+                                }
+
+                                // Écouter le changement d'agence
+                                agenceSelect.addEventListener('change', function() {
+                                    const selectedValue = this.value;
+
+                                    // Si aucune agence n'est sélectionnée, vider le select service
+                                    if (!selectedValue || selectedValue.trim() === '') {
+                                        serviceSelect.innerHTML = '<option value="">Tous les services</option>';
+                                        serviceSelect.value = '';
+                                    } else {
+                                        loadServicesForAgence(selectedValue);
+                                    }
+                                });
+                            }
+                        });
+                    </script>
+                    <div class="col-md-3">
+                        {{ form_row(form.agenceSearch, {'attr': {'class': 'form-select-sm', 'id': 'contrat_agenceSearch'}}) }}
+                    </div>
+                    <div class="col-md-3">
+                        {{ form_row(form.date_debut_contrat, {'attr': {'class': 'form-control-sm datepicker', 'type': 'date'}}) }}
+                    </div>
+                    <div class="col-md-3">
+                        {{ form_row(form.date_enregistrement_debut, {'attr': {'class': 'form-control-sm datepicker', 'type': 'date'}}) }}
+                    </div>                    
+                    <div class="col-md-3">
+                        <label for="contrat_nom_partenaireSearch" class="form-label">Partenaire</label>
+
+                        {# Le champ caché pour envoyer la valeur à Symfony #}
+                        <input type="hidden" id="contrat_nom_partenaireSearch" name="contrat[nom_partenaireSearch]" value="{{ contratSearch.nomPartenaireSearch|default('') }}">
+
+                        {# Le champ input pour l'autocomplete #}
+                        <input type="text" id="partenaire-search-input" class="form-control" placeholder="Nom du partenaire" autocomplete="off" value="{{ contratSearch.nomPartenaireSearch|default('') }}">
+
+                        <div id="suggestion-partenaire" class="suggestions-container"></div>
+                        <div id="loader-partenaire" class="spinner" style="display: none;">Chargement...</div>
+                    </div>
+                    <script>
+                        // Initialisation de l'autocomplete pour le champ partenaire
+                        document.addEventListener('DOMContentLoaded', function() {
+                            // Attendre que tout soit chargé
+                            setTimeout(function() {
+                                const hiddenInput = document.getElementById("contrat_nom_partenaireSearch");
+                                const searchInput = document.getElementById("partenaire-search-input");
+                                const suggestionContainer = document.getElementById("suggestion-partenaire");
+                                const loaderElement = document.getElementById("loader-partenaire");
+
+                                // Debug: afficher les éléments trouvés
+                                console.log('Recherche autocomplete partenaire:', {
+                                    hiddenInput: hiddenInput ? 'OK' : 'MANQUANT',
+                                    searchInput: searchInput ? 'OK' : 'MANQUANT',
+                                    suggestionContainer: suggestionContainer ? 'OK' : 'MANQUANT',
+                                    loaderElement: loaderElement ? 'OK' : 'MANQUANT'
+                                });
+
+                                // Vérifier que tous les éléments nécessaires existent
+                                if (hiddenInput && searchInput && suggestionContainer && loaderElement) {
+                                    // Importer dynamiquement la classe AutoComplete (version simple, pas multi-select)
+                                    import('{{ App.base_path }}/Views/js/utils/AutoComplete.js').then(module => {
+                                        const AutoComplete = module.AutoComplete;
+
+                                        // Créer une instance de FetchManager
+                                        class FetchManager {
+                                            constructor() {
+                                                this.baseUrl = '{{ App.base_path }}';
+                                            }
+
+                                            async get(endpoint, responseType = "json") {
+                                                try {
+                                                    const response = await fetch(`${this.baseUrl}/${endpoint}`);
+                                                    if (!response.ok) {
+                                                        throw new Error(`Erreur HTTP: ${response.status}`);
+                                                    }
+
+                                                    if (responseType === "json") {
+                                                        const text = await response.text();
+                                                        if (!text) throw new Error('Réponse vide');
+                                                        return JSON.parse(text);
+                                                    } else {
+                                                        return await response.text();
+                                                    }
+                                                } catch (error) {
+                                                    console.error(`Échec de récupération des données depuis ${this.baseUrl}/${endpoint}:`, error);
+                                                    throw error;
+                                                }
+                                            }
+                                        }
+
+                                        const fetchManager = new FetchManager();
+
+                                        async function fetchPartenaires() {
+                                            console.log('Chargement des partenaires...');
+                                            const data = await fetchManager.get("documentation/contrats/api/partenaires");
+                                            console.log('Partenaires chargés:', data.length, 'éléments');
+                                            return data;
+                                        }
+
+                                        function displayPartenaire(item) {
+                                            return item.nom;
+                                        }
+
+                                        // Créer une instance personnalisée de AutoComplete
+                                        class CustomAutoComplete extends module.AutoComplete {
+                                            constructor(options) {
+                                                super(options);
+                                            }
+
+                                            // Surcharge de la méthode filterData pour filtrer les partenaires
+                                            filterData(searchValue) {
+                                                if (searchValue.trim() === "") {
+                                                    this.clearSuggestions();
+                                                    return;
+                                                }
+
+                                                const lowerCaseSearch = searchValue.toLowerCase();
+
+                                                // Filtrer les partenaires qui correspondent
+                                                this.filteredData = this.data.filter((item) => {
+                                                    const itemNom = (item.nom || '').toString().toLowerCase();
+                                                    return itemNom.includes(lowerCaseSearch);
+                                                });
+
+                                                this.showSuggestions(this.filteredData);
+                                            }
+                                        }
+
+                                        const customAutoComplete = new CustomAutoComplete({
+                                            // L'input visible pour la recherche
+                                            inputElement: searchInput,
+                                            // Le conteneur des suggestions
+                                            suggestionContainer: suggestionContainer,
+                                            // L'icône de chargement
+                                            loaderElement: loaderElement,
+
+                                            debounceDelay: 300,
+                                            fetchDataCallback: fetchPartenaires,
+                                            // Callback pour afficher l'item dans la liste de suggestion
+                                            displayItemCallback: (item) => displayPartenaire(item),
+                                            // Callback pour convertir l'item en string (utilisé pour la valeur)
+                                            itemToStringCallback: (item) => item.nom,
+                                            // Callback pour la sélection d'un item
+                                            onSelectCallback: (item) => {
+                                                console.log('Partenaire sélectionné:', item.nom);
+                                                // Mettre la valeur complète dans l'input visible
+                                                searchInput.value = item.nom;
+                                                // Mettre à jour le champ caché pour l'envoi du formulaire
+                                                hiddenInput.value = item.nom;
+                                                // Effacer les suggestions
+                                                customAutoComplete.clearSuggestions();
+                                            },
+                                        });
+
+                                        console.log('Autocomplete partenaire initialisée avec succès');
+                                        
+                                        // Synchroniser le champ caché quand l'utilisateur tape dans l'input
+                                        searchInput.addEventListener('input', function() {
+                                            hiddenInput.value = searchInput.value;
+                                        });
+                                        
+                                        // Empêcher la perte des données lors de la soumission du formulaire
+                                        const form = document.querySelector('form[name="contrat"]');
+                                        if (form) {
+                                            form.addEventListener('submit', function(e) {
+                                                // Assurer que le champ caché est à jour avant la soumission
+                                                hiddenInput.value = searchInput.value;
+                                            });
+                                        }
+                                    }).catch(error => {
+                                        console.error('Erreur lors du chargement du module AutoComplete:', error);
+                                    });
+                                } else {
+                                    console.warn("Certains éléments nécessaires à l'autocomplete partenaire sont manquants");
+                                }
+                            }, 500);
+                        });</script>
+                    <div class="col-md-3">
+                        {{ form_row(form.serviceSearch, {'attr': {'class': 'form-select-sm', 'id': 'contrat_serviceSearch'}}) }}
+                    </div>
+                    <div class="col-md-3">
+                        {{ form_row(form.date_fin_contrat, {'attr': {'class': 'form-control-sm datepicker', 'type': 'date'}}) }}
+                    </div>
+                    <div class="col-md-3">
+                        {{ form_row(form.date_enregistrement_fin, {'attr': {'class': 'form-control-sm datepicker', 'type': 'date'}}) }}
+                    </div>
+                    
+                    <div class="col-md-3">
+                        {{ form_row(form.type_tiersSearch, {'attr': {'class': 'form-select-sm'}}) }}
+                    </div>
+                    <div class="col-12 text-end">
+                        <button type="submit" class="btn btn-sm btn-warning fw-bold">
+                            <i class="fas fa-search me-1"></i>
+                            Rechercher
+                        </button>
+                    </div>
+                </div>
+                {{ form_end(form, {'render_rest': false}) }}
+            </div>
+        </div>
+    </div>
+</div>

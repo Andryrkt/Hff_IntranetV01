@@ -272,7 +272,7 @@ class MenuService
                 'file-contract',
                 [
                     $this->createSubItem('Nouveau contrat', 'plus-circle', 'new_contrat', [], "_blank"),
-                    $this->createSubItem('Consultation', 'search', '#')
+                    $this->createSubItem('Consultation', 'search', 'contrat_liste')
                 ]
             );
         }
