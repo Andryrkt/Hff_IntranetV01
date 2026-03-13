@@ -39,19 +39,25 @@ class CasierController extends Controller
      */
     public function NouveauCasier(Request $request)
     {
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+
         $casier = new Casier();
 
         $agenceService = $this->agenceServiceIpsString();
 
-        $casier->setAgenceEmetteur($agenceService['agenceIps']);
-        $casier->setServiceEmetteur($agenceService['serviceIps']);
+        $casier
+            ->setAgenceEmetteur($agenceService['agenceIps'])
+            ->setServiceEmetteur($agenceService['serviceIps'])
+            ->setCodeSociete($codeSociete)
+        ;
 
         $form = $this->getFormFactory()->createBuilder(CasierForm1Type::class, $casier)->getForm();
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $casierModel = new CasierModel();
-            $data = $casierModel->findAll($casier->getIdMateriel(),  $casier->getNumParc(), $casier->getNumSerie());
+            $data = $casierModel->findAll($casier->getIdMateriel(),  $casier->getNumParc(), $casier->getNumSerie(), $casier->getCodeSociete());
             if ($casier->getIdMateriel() === null &&  $casier->getNumParc() === null && $casier->getNumSerie() === null) {
                 $message = " Renseigner l\'un des champs (Id Matériel, numéro Série et numéro Parc)";
                 $this->historiqueOperation->sendNotificationCreation($message, '-', 'casier_nouveau');
@@ -60,9 +66,10 @@ class CasierController extends Controller
                 $this->historiqueOperation->sendNotificationCreation($message, '-', 'casier_nouveau');
             } else {
                 $formData = [
-                    'idMateriel' => $casier->getIdMateriel(),
-                    'numParc' => $casier->getNumParc(),
-                    'numSerie' => $casier->getNumSerie()
+                    'idMateriel'  => $casier->getIdMateriel(),
+                    'numParc'     => $casier->getNumParc(),
+                    'numSerie'    => $casier->getNumSerie(),
+                    'codeSociete' => $casier->getCodeSociete()
                 ];
                 $this->getSessionService()->set('casierform1Data', $formData);
 
@@ -90,8 +97,7 @@ class CasierController extends Controller
 
         //Recupérations de tous les matériel
         $casierModel = new CasierModel();
-        $data = $casierModel->findAll($form1Data["idMateriel"],  $form1Data["numParc"], $form1Data["numSerie"]);
-
+        $data = $casierModel->findAll($form1Data["idMateriel"],  $form1Data["numParc"], $form1Data["numSerie"], $form1Data["codeSociete"]);
 
         $casier
             ->setGroupe($data[0]["famille"])
@@ -104,12 +110,11 @@ class CasierController extends Controller
             ->setIdMateriel($data[0]["num_matricule"])
             ->setAnneeDuModele($data[0]["annee"])
             ->setDateAchat($this->formatageDate($data[0]["date_achat"]))
+            ->setCodeSociete($form1Data["codeSociete"])
             ->setDateCreation(\DateTime::createFromFormat('Y-m-d', $this->getDatesystem()))
         ;
 
-
         $form = $this->getFormFactory()->createBuilder(CasierForm2Type::class, $casier)->getForm();
-
 
         $form->handleRequest($request);
 
