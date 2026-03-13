@@ -224,41 +224,13 @@ document.addEventListener("DOMContentLoaded", function () {
  *==================================================*/
 document.addEventListener("DOMContentLoaded", function () {
   const btnMesDaATraiter = document.getElementById("btnMesDaATraiter");
-  btnMesDaATraiter.addEventListener("click", async function () {
-    const codeAgenceUser = this.getAttribute("data-code-agence-user");
-    const codeServiceUser = this.getAttribute("data-code-service-user");
-    try {
-      displayOverlay(
-        true,
-        "Veuillez patienter"
-      );
-      const response = await fetchManager.post(
-        `api/da/mes-da-a-traiter`,
-        {
-          codeAgenceServiceUser: [codeAgenceUser, codeServiceUser],
-        }
-      );
-      displayOverlay(false);
-      if (response.success) {
-        window.location.reload();
-      } else {
-        Swal.fire({
-          icon: "error",
-          title: "Erreur lors de l'affichage des DA à traiter",
-          text:
-            response.error || response.message ||
-            "Une erreur est survenue lors de l'affichage des DA à traiter.",
-        });
-      }
-    } catch (error) {
-      displayOverlay(false);
-      Swal.fire({
-        icon: "error",
-        title: "Erreur lors de l'affichage des DA à traiter",
-        text:
-          error.message ||
-          "Une erreur est survenue lors de l'affichage des DA à traiter.",
-      });
-    }
-  });
+  if (btnMesDaATraiter) {
+    btnMesDaATraiter.addEventListener("click", function () {
+      displayOverlay(true, "Veuillez patienter");
+      let urlObjet = new URL(window.location.href);
+      urlObjet.searchParams.set("mes_da_a_traiter", "1");
+      urlObjet.searchParams.set("page", "1");
+      window.location.href = urlObjet.toString();
+    });
+  }
 });

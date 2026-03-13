@@ -9,12 +9,13 @@ use App\Entity\admin\Agence;
 use App\Entity\admin\Application;
 use App\Entity\da\DaAfficher;
 use App\Entity\da\DaSearch;
+use App\Entity\da\DaSoumissionBc;
+use App\Entity\da\DemandeAppro;
 use App\Form\da\daCdeFrn\DaModalDateLivraisonType;
 use App\Form\da\DaSearchType;
 use App\Mapper\Da\DaAfficherMapper;
 use App\Repository\admin\AgenceRepository;
 use App\Repository\da\DaAfficherRepository;
-use App\Service\da\DaListePresenter;
 use App\Service\da\PermissionDaService;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -62,7 +63,47 @@ class listeDaController extends Controller
         $form->handleRequest($request);
 
         $criteria = $daSearch->toArray();
-        $this->getSessionService()->set('criteria_search_list_da', $criteria);
+
+        // Gestion spécifique "Mes DA à traiter"
+        if ($request->query->get('mes_da_a_traiter') == 1) {
+            $user = $this->getUser();
+            // $codeAgenceUser = $user->getCodeAgenceUser();
+            // $codeServiceUser = $user->getCodeServiceUser();
+            $codeAgenceUser = '50';
+            $codeServiceUser = 'NEG';
+
+            // On ne garde que la persistance du flag et les filtres imposés
+            $criteria = [];
+
+            if ($codeAgenceUser == '80' && $codeServiceUser == 'APP') {
+                $criteria['statutDA'] = [
+                    DemandeAppro::STATUT_SOUMIS_APPRO,
+                    DemandeAppro::STATUT_DEMANDE_DEVIS,
+                    DemandeAppro::STATUT_DEVIS_A_RELANCER,
+                    DemandeAppro::STATUT_EN_COURS_PROPOSITION
+                ];
+                $criteria['statutBC'] = [
+                    DaSoumissionBc::STATUT_PAS_DANS_BC,
+                    DaSoumissionBc::STATUT_PAS_DANS_OR_CESSION,
+                    DaSoumissionBc::STATUT_A_GENERER,
+                    DaSoumissionBc::STATUT_CESSION_A_GENERER,
+                    DaSoumissionBc::STATUT_A_EDITER,
+                    DaSoumissionBc::STATUT_A_SOUMETTRE_A_VALIDATION,
+                    DaSoumissionBc::STATUT_A_ENVOYER_AU_FOURNISSEUR
+                ];
+            } else {
+                $criteria['statutDA'] = [
+                    DemandeAppro::STATUT_EN_COURS_CREATION,
+                    DemandeAppro::STATUT_AUTORISER_EMETTEUR,
+                    DemandeAppro::STATUT_SOUMIS_ATE
+                ];
+            }
+
+            $criteria['mes_da_a_traiter'] = 1;
+        } else {
+            // Sauvegarde classique des critères issus du formulaire
+            $this->getSessionService()->set('criteria_search_list_da', $criteria);
+        }
 
         // Visuel de tri
         $sortJoursClass = false;
@@ -72,7 +113,7 @@ class listeDaController extends Controller
 
         // Pagination (Réduction de la limite de 500 à 20 pour la fluidité)
         $page = $request->query->getInt('page', 1);
-        $limit = 50;
+        $limit = 100;
 
         // Récupération des données
         $user = $this->getUser();
@@ -114,7 +155,8 @@ class listeDaController extends Controller
             'currentPage'       => $paginationData['currentPage'],
             'totalPages'        => $paginationData['lastPage'],
             'resultat'          => $paginationData['totalItems'],
-            'formDateLivraison' => $formDateLivraison->createView()
+            'formDateLivraison' => $formDateLivraison->createView(),
+            'mesDaActif'        => $request->query->get('mes_da_a_traiter') == 1,
         ]);
     }
 
