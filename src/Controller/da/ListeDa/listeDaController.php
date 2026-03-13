@@ -67,10 +67,8 @@ class listeDaController extends Controller
         // Gestion spécifique "Mes DA à traiter"
         if ($request->query->get('mes_da_a_traiter') == 1) {
             $user = $this->getUser();
-            // $codeAgenceUser = $user->getCodeAgenceUser();
-            // $codeServiceUser = $user->getCodeServiceUser();
-            $codeAgenceUser = '50';
-            $codeServiceUser = 'NEG';
+            $codeAgenceUser = $user->getCodeAgenceUser();
+            $codeServiceUser = $user->getCodeServiceUser();
 
             // On ne garde que la persistance du flag et les filtres imposés
             $criteria = [];
