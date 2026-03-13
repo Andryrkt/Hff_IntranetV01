@@ -75,7 +75,6 @@ class CasierListTemporaireController extends Controller
     public function tratitementBtnValide($id)
     {
         $casierValide = new CasierValider();
-        //$CasierSeul = $this->caiserListTemporaire->recuperSeulCasier($id);
 
         $CasierSeul = $this->getEntityManager()->getRepository(Casier::class)->find($id);
         $CasierSeul->setIdStatutDemande($this->getEntityManager()->getRepository(StatutDemande::class)->find(56));
@@ -90,6 +89,7 @@ class CasierListTemporaireController extends Controller
             ->setNomSessionUtilisateur($CasierSeul->getNomSessionUtilisateur())
             ->setAgenceRattacher($CasierSeul->getAgenceRattacher())
             ->setIdStatutDemande($CasierSeul->getIdStatutDemande())
+            ->setCodeSociete($CasierSeul->getCodeSociete())
         ;
 
         $this->getEntityManager()->persist($casierValide);
