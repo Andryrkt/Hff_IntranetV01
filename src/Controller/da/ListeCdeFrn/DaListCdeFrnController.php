@@ -24,7 +24,6 @@ use App\Repository\dit\DitOrsSoumisAValidationRepository;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use Twig\Markup;
 
 /**
  * @Route("/demande-appro")
@@ -38,7 +37,6 @@ class DaListCdeFrnController extends Controller
     private DaModel $daModel;
     private DemandeApproRepository $demandeApproRepository;
     private DaSoumissionBcRepository $daSoumissionBcRepository;
-    private \App\Service\da\CdeFrnPresenter $presenter;
 
 
     public function __construct()
@@ -50,7 +48,6 @@ class DaListCdeFrnController extends Controller
         $this->daModel = new DaModel();
         $this->demandeApproRepository = $em->getRepository(DemandeAppro::class);
         $this->daSoumissionBcRepository = $em->getRepository(DaSoumissionBc::class);
-        $this->presenter = new \App\Service\da\CdeFrnPresenter($this->getUrlGenerator());
     }
 
     /**
@@ -96,7 +93,6 @@ class DaListCdeFrnController extends Controller
             'formSoumission'    => $formSoumission->createView(),
             'form'              => $form->createView(),
             'criteria'          => $criteriaTab,
-            'daTypeIcons'       => $this->presenter->getIcons(),
             'currentPage'       => $page,
             'totalPages'        => $paginationData['lastPage'],
             'resultat'          => $paginationData['totalItems'],
