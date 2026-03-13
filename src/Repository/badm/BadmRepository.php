@@ -30,11 +30,13 @@ class BadmRepository extends EntityRepository
         return $idMateriels;
     }
 
-    public function findPaginatedAndFiltered(int $page = 1, int $limit = 10, array $criteria = [], int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, bool $peutVoirListeAvecDebiteur)
+    public function findPaginatedAndFiltered(int $page = 1, int $limit = 10, array $criteria = [], int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeSociete, bool $peutVoirListeAvecDebiteur)
     {
         $queryBuilder = $this->createQueryBuilder('b')
             ->leftJoin('b.typeMouvement', 'tm')
-            ->leftJoin('b.statutDemande', 's');
+            ->leftJoin('b.statutDemande', 's')
+            ->andWhere('b.codeSociete = :codeSociete')
+            ->setParameter('codeSociete', $codeSociete);
 
         $this->filtredExcludeStatut($queryBuilder);
 
@@ -67,11 +69,13 @@ class BadmRepository extends EntityRepository
     }
 
 
-    public function findAndFilteredExcel(array $criteria = [], int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, bool $peutVoirListeAvecDebiteur)
+    public function findAndFilteredExcel(array $criteria = [], int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeSociete, bool $peutVoirListeAvecDebiteur)
     {
         $queryBuilder = $this->createQueryBuilder('b')
             ->leftJoin('b.typeMouvement', 'tm')
-            ->leftJoin('b.statutDemande', 's');
+            ->leftJoin('b.statutDemande', 's')
+            ->andWhere('b.codeSociete = :codeSociete')
+            ->setParameter('codeSociete', $codeSociete);
 
         $this->filtredExcludeStatut($queryBuilder);
 
@@ -91,11 +95,13 @@ class BadmRepository extends EntityRepository
     }
 
 
-    public function findPaginatedAndFilteredListAnnuler(int $page = 1, int $limit = 10, array $criteria = [], int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, bool $peutVoirListeAvecDebiteur)
+    public function findPaginatedAndFilteredListAnnuler(int $page = 1, int $limit = 10, array $criteria = [], int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeSociete, bool $peutVoirListeAvecDebiteur)
     {
         $queryBuilder = $this->createQueryBuilder('b')
             ->leftJoin('b.typeMouvement', 'tm')
-            ->leftJoin('b.statutDemande', 's');
+            ->leftJoin('b.statutDemande', 's')
+            ->andWhere('b.codeSociete = :codeSociete')
+            ->setParameter('codeSociete', $codeSociete);
 
         $this->filtredExcludeStatut($queryBuilder);
 

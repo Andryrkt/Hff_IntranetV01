@@ -27,6 +27,9 @@ class BadmListeController extends Controller
      */
     public function AffichageListeBadm(Request $request)
     {
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+
         $badmSearch = new BadmSearch();
 
         /** INITIALIASATION et REMPLISSAGE de RECHERCHE pendant la nag=vigation pagiantion */
@@ -45,7 +48,7 @@ class BadmListeController extends Controller
 
         $empty = false;
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->rechercherSurNumSerieParc($form, $badmSearch);
+            $this->rechercherSurNumSerieParc($form, $badmSearch, $codeSociete);
         }
 
         $this->gererAgenceService($badmSearch, $allAgenceServices);
@@ -68,9 +71,9 @@ class BadmListeController extends Controller
 
         /** @var BadmRepository $repository */
         $repository = $this->getEntityManager()->getRepository(Badm::class);
-        $paginationData = $repository->findPaginatedAndFiltered($page, $limit, $criteria, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
+        $paginationData = $repository->findPaginatedAndFiltered($page, $limit, $criteria, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeSociete, $peutVoirListeAvecDebiteur);
 
-        $this->ajoutNumSerieNumParc($paginationData);
+        $this->ajoutNumSerieNumParc($paginationData, $codeSociete);
 
         $this->logUserVisit('badmListe_AffichageListeBadm'); // historisation du page visité par l'utilisateur
 
@@ -93,6 +96,9 @@ class BadmListeController extends Controller
      */
     public function exportExcel()
     {
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+
         // Récupère les critères dans la session
         $criteria = $this->getSessionService()->get('badm_search_criteria', []);
 
@@ -108,7 +114,7 @@ class BadmListeController extends Controller
 
         /** @var BadmRepository $repository */
         $repository = $this->getEntityManager()->getRepository(Badm::class);
-        $entities = $repository->findAndFilteredExcel($criteria, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
+        $entities = $repository->findAndFilteredExcel($criteria, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeSociete, $peutVoirListeAvecDebiteur);
 
         // Convertir les entités en tableau de données
         $data = [];
@@ -157,6 +163,9 @@ class BadmListeController extends Controller
      */
     public function listAnnuler(Request $request)
     {
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+
         $badmSearch = new BadmSearch();
 
         /** INITIALIASATION et REMPLISSAGE de RECHERCHE pendant la nag=vigation pagiantion */
@@ -174,7 +183,7 @@ class BadmListeController extends Controller
 
         $empty = false;
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->rechercherSurNumSerieParc($form, $badmSearch);
+            $this->rechercherSurNumSerieParc($form, $badmSearch, $codeSociete);
         }
 
         $this->gererAgenceService($badmSearch, $allAgenceServices);
@@ -198,11 +207,11 @@ class BadmListeController extends Controller
 
         /** @var BadmRepository $repository */
         $repository = $this->getEntityManager()->getRepository(Badm::class);
-        $paginationData = $repository->findPaginatedAndFilteredListAnnuler($page, $limit, $criteria, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
+        $paginationData = $repository->findPaginatedAndFilteredListAnnuler($page, $limit, $criteria, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeSociete, $peutVoirListeAvecDebiteur);
 
         for ($i = 0; $i < count($paginationData['data']); $i++) {
             $badmRechercheModel = new BadmRechercheModel();
-            $badms = $badmRechercheModel->findDesiSerieParc($paginationData['data'][$i]->getIdMateriel());
+            $badms = $badmRechercheModel->findDesiSerieParc($paginationData['data'][$i]->getIdMateriel(), $codeSociete);
 
             $paginationData['data'][$i]->setDesignation($badms[0]['designation']);
             $paginationData['data'][$i]->setNumSerie($badms[0]['num_serie']);
@@ -226,14 +235,14 @@ class BadmListeController extends Controller
     }
 
 
-    public function rechercherSurNumSerieParc($form, $badmSearch)
+    public function rechercherSurNumSerieParc($form, $badmSearch, $codeSociete)
     {
         $numParc = $form->get('numParc')->getData() === null ? '' : $form->get('numParc')->getData();
         $numSerie = $form->get('numSerie')->getData() === null ? '' : $form->get('numSerie')->getData();
 
         if (!empty($numParc) || !empty($numSerie)) {
             $ditModel = new DitModel();
-            $idMateriel = $ditModel->recuperationIdMateriel($numParc, $numSerie);
+            $idMateriel = $ditModel->recuperationIdMateriel($numParc, $numSerie, $codeSociete);
 
             if (!empty($idMateriel)) {
                 $this->recuperationCriterie($badmSearch, $form);
@@ -248,11 +257,11 @@ class BadmListeController extends Controller
         }
     }
 
-    private function ajoutNumSerieNumParc($paginationData)
+    private function ajoutNumSerieNumParc($paginationData, string $codeSociete)
     {
         for ($i = 0; $i < count($paginationData['data']); $i++) {
             $badmRechercheModel = new BadmRechercheModel();
-            $badms = $badmRechercheModel->findDesiSerieParc($paginationData['data'][$i]->getIdMateriel());
+            $badms = $badmRechercheModel->findDesiSerieParc($paginationData['data'][$i]->getIdMateriel(), $codeSociete);
             if (!empty($badms)) {
                 $paginationData['data'][$i]->setDesignation($badms[0]['designation']);
                 $paginationData['data'][$i]->setNumSerie($badms[0]['num_serie']);
