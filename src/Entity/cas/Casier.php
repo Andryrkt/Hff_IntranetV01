@@ -11,8 +11,6 @@ use App\Repository\cas\CasierRepository;
 use App\Entity\Traits\AgenceServiceTrait;
 use App\Entity\Traits\AgenceServiceEmetteurTrait;
 
-
-
 /**
  * @ORM\Entity(repositoryClass=CasierRepository::class)
  * @ORM\Table(name="Casier_Materiels_Temporaire")
@@ -67,6 +65,10 @@ class Casier
      */
     private $idStatutDemande = null;
 
+    /** 
+     * @ORM\Column(type="string", length=2, name="code_societe", nullable=true)
+     */
+    private $codeSociete;
 
     private $idMateriel;
 
@@ -401,6 +403,24 @@ class Casier
     public function setMotif($motif)
     {
         $this->motif = $motif;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of codeSociete
+     */
+    public function getCodeSociete()
+    {
+        return $this->codeSociete;
+    }
+
+    /**
+     * Set the value of codeSociete
+     */
+    public function setCodeSociete($codeSociete): self
+    {
+        $this->codeSociete = $codeSociete;
 
         return $this;
     }

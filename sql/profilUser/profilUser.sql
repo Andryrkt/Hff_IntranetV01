@@ -174,3 +174,7 @@ update Demande_ordre_mission_tp set code_societe='HF';
 alter table Demande_Mouvement_Materiel add code_societe varchar(2) null;
 
 update Demande_Mouvement_Materiel set code_societe='HF';
+
+alter table Casier_Materiels_Temporaire add code_societe varchar(2) null;
+
+update Casier_Materiels_Temporaire set code_societe='HF';
