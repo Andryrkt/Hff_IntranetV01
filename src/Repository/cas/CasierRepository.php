@@ -7,7 +7,7 @@ use Doctrine\ORM\Tools\Pagination\Paginator as DoctrinePaginator;
 
 class CasierRepository extends EntityRepository
 {
-    public function findPaginatedAndFiltered(int $page = 1, int $limit = 10, array $criteria = [])
+    public function findPaginatedAndFiltered(int $page = 1, int $limit = 10, array $criteria = [], string $codeSociete)
     {
         $queryBuilder = $this->createQueryBuilder('c');
 
@@ -24,6 +24,8 @@ class CasierRepository extends EntityRepository
 
         $queryBuilder->orderBy('c.numeroCas', 'DESC');
         $queryBuilder->setFirstResult(($page - 1) * $limit)
+            ->andWhere('c.codeSociete = :codeSociete')
+            ->setParameter('codeSociete', $codeSociete)
             ->setMaxResults($limit)
         ;
 
