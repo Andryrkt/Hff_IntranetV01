@@ -11,6 +11,7 @@ use App\Entity\da\DaAfficher;
 use App\Entity\da\DaSearch;
 use App\Form\da\daCdeFrn\DaModalDateLivraisonType;
 use App\Form\da\DaSearchType;
+use App\Mapper\Da\DaAfficherMapper;
 use App\Repository\admin\AgenceRepository;
 use App\Repository\da\DaAfficherRepository;
 use App\Service\da\DaListePresenter;
@@ -29,7 +30,7 @@ class listeDaController extends Controller
 
     private DaAfficherRepository $daAfficherRepository;
     private AgenceRepository $agenceRepository;
-    private DaListePresenter $presenter;
+    private DaAfficherMapper $daAfficherMapper;
     private PermissionDaService $permissionDaService;
 
     public function __construct()
@@ -38,9 +39,9 @@ class listeDaController extends Controller
         $em = $this->getEntityManager();
         $this->daAfficherRepository = $em->getRepository(DaAfficher::class);
         $this->agenceRepository = $em->getRepository(Agence::class);
-        $this->presenter = new DaListePresenter($this->getUrlGenerator());
+        $this->daAfficherMapper = new DaAfficherMapper($this->getUrlGenerator());
         $this->permissionDaService = new PermissionDaService();
-        
+
         $this->initDaTrait();
     }
 
@@ -59,7 +60,7 @@ class listeDaController extends Controller
         // Formulaire de recherche
         $form = $this->getFormFactory()->createBuilder(DaSearchType::class, $daSearch, ['method' => 'GET'])->getForm();
         $form->handleRequest($request);
-        
+
         $criteria = $daSearch->toArray();
         $this->getSessionService()->set('criteria_search_list_da', $criteria);
 
@@ -76,21 +77,24 @@ class listeDaController extends Controller
         // Récupération des données
         $user = $this->getUser();
         $idAgenceUser = $this->agenceRepository->findIdByCodeAgence($user->getCodeAgenceUser());
-        
+
         $paginationData = $this->daAfficherRepository->findPaginatedAndFilteredDA(
-            $user, $criteria, $idAgenceUser, 
-            $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier(), $this->estAdmin(), 
-            $page, $limit
+            $user,
+            $criteria,
+            $idAgenceUser,
+            $this->estUserDansServiceAppro(),
+            $this->estUserDansServiceAtelier(),
+            $this->estAdmin(),
+            $page,
+            $limit
         );
 
-        // Application du verrouillage (Logique purement applicative)
-        $this->appliquerVerrouillage($paginationData['data']);
-
         // Préparation des données pour la vue (Via Presenter avec Cache)
-        $dataPrepared = $this->presenter->present($paginationData['data'], [
+        $dataPrepared = $this->daAfficherMapper->mapList($paginationData['data'], [
             'estAdmin'   => $this->estAdmin(),
             'estAppro'   => $this->estUserDansServiceAppro(),
-            'estAtelier' => $this->estUserDansServiceAtelier()
+            'estAtelier' => $this->estUserDansServiceAtelier(),
+            'estCreateur' => $this->estCreateurDeDADirecte()
         ]);
 
         // Détection code centrale
@@ -106,7 +110,6 @@ class listeDaController extends Controller
             'form'              => $form->createView(),
             'criteria'          => $criteria,
             'codeCentrale'      => $codeCentraleVisible,
-            'daTypeIcons'       => $this->presenter->getIcons(),
             'sortJoursClass'    => $sortJoursClass,
             'currentPage'       => $paginationData['currentPage'],
             'totalPages'        => $paginationData['lastPage'],
@@ -126,7 +129,10 @@ class listeDaController extends Controller
             $verrouille = $this->permissionDaService->estDaVerrouillee(
                 $daAfficher->getStatutDal(),
                 $daAfficher->getStatutOr(),
-                $estAdmin, $estAppro, $estAtelier, $estCreateur
+                $estAdmin,
+                $estAppro,
+                $estAtelier,
+                $estCreateur
             );
             $daAfficher->setVerouille($verrouille);
         }
@@ -154,7 +160,7 @@ class listeDaController extends Controller
     private function initialisationRechercheDa(DaSearch $daSearch)
     {
         $criteria = $this->getSessionService()->get('criteria_search_list_da', []) ?? [];
-        
+
         $agServ = [
             'agenceEmetteur'  => isset($criteria['agenceEmetteur']) ? $this->getEntityManager()->getRepository(\App\Entity\admin\Agence::class)->find($criteria['agenceEmetteur']) : null,
             'agenceDebiteur'  => isset($criteria['agenceDebiteur']) ? $this->getEntityManager()->getRepository(\App\Entity\admin\Agence::class)->find($criteria['agenceDebiteur']) : null,

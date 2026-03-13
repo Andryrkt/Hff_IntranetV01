@@ -81,7 +81,7 @@
 </div>
 <div class="my-3 d-flex align-items-center justify-content-between">
 	<div><small><b>Type de demande : </b></small></div>
-	{% for da in daTypeIcons %}
+	{% for da in data.0.allIcons %}
 		<div>
 			{{ da.icon }}
 			<small style="color: {{ da.color }};" class="px-2"> : {{ da.label }}</small>

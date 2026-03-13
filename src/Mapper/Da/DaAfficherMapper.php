@@ -6,8 +6,9 @@ use App\Constants\da\RouteConstant;
 use App\Controller\Traits\da\MarkupIconTrait;
 use App\Dto\Da\DaAfficherDto;
 use App\Entity\da\DaAfficher;
-use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaSoumissionBc;
+use App\Entity\da\DemandeAppro;
+use App\Service\da\PermissionDaService;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Twig\Markup;
 
@@ -16,16 +17,19 @@ class DaAfficherMapper
     use MarkupIconTrait;
 
     private UrlGeneratorInterface $router;
+    private PermissionDaService $permissionDaService;
 
     public function __construct(UrlGeneratorInterface $router)
     {
         $this->router = $router;
+        $this->permissionDaService = new PermissionDaService();
     }
 
     public function map(DaAfficher $data, array $options = []): DaAfficherDto
     {
         $estAdmin   = $options['estAdmin'] ?? false;
         $estAppro   = $options['estAppro'] ?? false;
+        $estCreateur = $options['estCreateur'] ?? false;
         $estAtelier = $options['estAtelier'] ?? false;
         $codeAgenceUser = $options['codeAgenceUser'] ?? null;
         $codeServiceUser = $options['codeServiceUser'] ?? null;
@@ -33,28 +37,39 @@ class DaAfficherMapper
         $dto = new DaAfficherDto();
         $dto->id = $data->getId();
         $dto->objet = $data->getObjetDal();
+        $dto->numeroLigne = $data->getNumeroLigne();
         $dto->numDaParent = $data->getNumeroDemandeApproMere();
         $dto->numeroDemandeAppro = $data->getNumeroDemandeAppro();
-        $dto->datype = $data->getDatypeId();
-        $dto->niveauUrgence = $data->getNiveauUrgence();
-        $dto->dateFinSouhaite = $data->getDateFinSouhaite() ? $data->getDateFinSouhaite()->format('d/m/Y') : null;
+        $dto->dateFinSouhaite = $data->getDateFinSouhaite() ? $data->getDateFinSouhaite()->format('d/m/Y') : 'N/A';
         $dto->artConstp = $data->getArtConstp();
         $dto->artRefp = $data->getArtRefp();
         $dto->artDesi = $data->getArtDesi();
         $dto->dateLivraisonPrevue = $data->getDateLivraisonPrevue() ? $data->getDateLivraisonPrevue()->format('d/m/Y') : 'N/A';
-        $dto->joursDispo = $data->getJoursDispo();
-        $dto->styleJoursDispo = ($dto->joursDispo < 0) ? 'text-danger' : '';
-        $dto->demandeur = $data->getDemandeur();
-        $dto->dateDemande = $data->getDateDemande()->format('d/m/Y');
         $dto->estDalr = $data->getEstDalr();
-        $dto->verouille = $data->getVerouille();
+
+
+        // type de DA
+        $dto->datype = $data->getDatypeId();
+        $dto->daViaOR = $dto->datype === DemandeAppro::TYPE_DA_AVEC_DIT;
+        $dto->daDirect = $dto->datype === DemandeAppro::TYPE_DA_DIRECT;
+        $dto->daReappro = $dto->datype === DemandeAppro::TYPE_DA_REAPPRO_MENSUEL;
+        $dto->daParent = $dto->datype === DemandeAppro::TYPE_DA_PARENT;
 
         // Icônes
         $dto->daTypeIcon = $this->getTypeDaIcon($dto->datype);
         $dto->allIcons = $this->getAllIcons();
         $safeIconSuccess = new Markup('<i class="fas fa-check text-success"></i>', 'UTF-8');
         $safeIconXmark   = new Markup('<i class="fas fa-xmark text-danger"></i>', 'UTF-8');
+        $safeIconBan     = new Markup('<i class="fas fa-ban text-muted"></i>', 'UTF-8');
         $dto->estFicheTechnique = $data->getEstFicheTechnique() ? $safeIconSuccess : $safeIconXmark;
+
+        // Jours dispo
+        $dto->joursDispo = $data->getJoursDispo();
+        $dto->styleJoursDispo = ($dto->joursDispo < 0) ? 'text-danger' : '';
+
+        // demandeur
+        $dto->demandeur = $data->getDemandeur();
+        $dto->dateDemande = $data->getDateDemande() ? $data->getDateDemande()->format('d/m/Y') : null;
 
         // Consultateur
         $dto->codeAgenceUser = $codeAgenceUser;
@@ -72,8 +87,8 @@ class DaAfficherMapper
         $dto->envoyeFrn = $data->getStatutCde() === DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR;
 
         // OR
-        $dto->numeroOr = $data->getNumeroOr();
-        $dto->datePlannigOr = $data->getDatePlannigOr() ? $data->getDatePlannigOr()->format('d/m/Y') : null;
+        $dto->numeroOr = $dto->daDirect || $dto->daParent ? $safeIconBan : $data->getNumeroOr();
+        $dto->datePlannigOr = $dto->daViaOR ? ($data->getDatePlannigOr() ? $data->getDatePlannigOr()->format('d/m/Y') : null) : $safeIconBan;
         $dto->statutOr = $data->getStatutOr();
         if ($dto->datype == DemandeAppro::TYPE_DA_AVEC_DIT && !empty($dto->statutOr)) {
             $dto->statutOr = "OR - " . $dto->statutOr;
@@ -86,12 +101,21 @@ class DaAfficherMapper
 
         // DAL
         $dto->statutDal = $data->getStatutDal();
+        $dto->verouille = $dto->datype === DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL ? true : $this->permissionDaService->estDaVerrouillee(
+            $dto->statutDal,
+            $dto->statutOr,
+            $estAdmin,
+            $estAppro,
+            $estAtelier,
+            $estCreateur
+        );
 
         // DIT
-        $dto->numeroDemandeDit = $data->getNumeroDemandeDit();
+        $dto->numeroDemandeDit = $dto->daViaOR ? $data->getNumeroDemandeDit() : $safeIconBan;
+        $dto->niveauUrgence = $dto->daReappro ? $safeIconBan : $data->getNiveauUrgence();
 
-        // Calculs de droits & URLs
-        $this->computeRightsAndUrls($dto, $data, $estAdmin, $estAppro, $estAtelier);
+        // Calculs de droits & URLs (Actions & URLs)
+        $this->computeRightsAndUrls($dto, $data, $safeIconBan, $estAdmin, $estAppro, $estAtelier);
 
         // HTML Attributes
         $dto->tdNumCdeAttributes = $this->prepareTdNumCdeAttributes($dto);
@@ -112,17 +136,22 @@ class DaAfficherMapper
         return $datasPrepared;
     }
 
-    private function computeRightsAndUrls(DaAfficherDto $dto, DaAfficher $item, bool $estAdmin, bool $estAppro, bool $estAtelier): void
+    private function computeRightsAndUrls(DaAfficherDto $dto, DaAfficher $item, Markup $safeIconBan,  bool $estAdmin, bool $estAppro, bool $estAtelier): void
     {
-        $daTypeId = (int) $dto->datype;
-        $daViaOR = $daTypeId === DemandeAppro::TYPE_DA_AVEC_DIT;
-        $daDirect = $daTypeId === DemandeAppro::TYPE_DA_DIRECT;
-
-        $dto->ajouterDA = $daViaOR && ($estAtelier || $estAdmin);
+        $dto->ajouterDA = $dto->daViaOR && ($estAtelier || $estAdmin);
         $statutDASupprimable = [DemandeAppro::STATUT_SOUMIS_APPRO, DemandeAppro::STATUT_SOUMIS_ATE, DemandeAppro::STATUT_VALIDE];
-        $dto->supprimable = ($estAppro || $estAtelier || $estAdmin) && in_array($dto->statutDal, $statutDASupprimable) && ($daViaOR || $daDirect);
-        $dto->demandeDevis = ($estAppro || $estAdmin) && $dto->statutDal === DemandeAppro::STATUT_SOUMIS_APPRO && ($daViaOR || $daDirect);
-        $dto->centrale = (!$daViaOR) ? $item->getDesiCentrale() : '';
+        $dto->supprimable = ($estAppro || $estAtelier || $estAdmin) && in_array($dto->statutDal, $statutDASupprimable) && ($dto->daViaOR || $dto->daDirect);
+        $dto->demandeDevis = ($estAppro || $estAdmin) && $dto->statutDal === DemandeAppro::STATUT_SOUMIS_APPRO && ($dto->daViaOR || $dto->daDirect);
+        $dto->centrale = (!$dto->daViaOR) ? $item->getDesiCentrale() : $safeIconBan;
+        $dto->statutValide = $item->getStatutDal() === DemandeAppro::STATUT_VALIDE;
+
+        $parametres = [
+            'daId'           => $item->getDemandeAppro() ? ['id' => $item->getDemandeAppro()->getId()] : [],
+            'daParentId'     => $item->getDemandeApproParent() ? ['id' => $item->getDemandeApproParent()->getId()] : [],
+            'daId-0-ditId'   => $item->getDit() ? ['daId' => 0, 'ditId' => $item->getDit()->getId()] : [],
+            'daId-ditId'     => $item->getDemandeAppro() && $item->getDit() ? ['daId' => $item->getDemandeAppro()->getId(), 'ditId' => $item->getDit()->getId()] : [],
+            'numDa-numLigne' => ['numDa' => $item->getNumeroDemandeAppro(), 'ligne' => $item->getNumeroLigne()],
+        ];
 
         // URLs optimisées : On ne génère que ce qui est nécessaire
         $daEntity = $item->getDemandeAppro();
@@ -136,7 +165,7 @@ class DaAfficherMapper
                 DemandeAppro::TYPE_DA_REAPPRO_MENSUEL  => 'da_detail_reappro',
                 DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL => 'da_detail_reappro',
             ];
-            $dto->urlDetail = isset($detailRoutes[$daTypeId]) ? $this->router->generate($detailRoutes[$daTypeId], $paramsDa) : '#';
+            $dto->urlDetail = isset($detailRoutes[$dto->datype]) ? $this->router->generate($detailRoutes[$dto->datype], $paramsDa) : '#';
         } else {
             $dto->urlDetail = '#';
         }
@@ -150,20 +179,41 @@ class DaAfficherMapper
                 DemandeAppro::TYPE_DA_REAPPRO_MENSUEL => 'da_new_reappro_mensuel',
                 DemandeAppro::TYPE_DA_PARENT          => 'da_new_achat'
             ];
-            $dto->urlCreation = ($paramsDit && isset($creationRoutes[$daTypeId])) ? $this->router->generate($creationRoutes[$daTypeId], $paramsDit) : '#';
+            $dto->urlCreation = ($paramsDit && isset($creationRoutes[$dto->datype])) ? $this->router->generate($creationRoutes[$dto->datype], $paramsDit) : '#';
         } else {
             $dto->urlCreation = '#';
         }
 
         // URL Delete (seulement si nécessaire)
         if ($dto->supprimable) {
-            $dto->urlDelete = $this->router->generate('da_delete_line_avec_dit', ['numDa' => $dto->numeroDemandeAppro, 'ligne' => $dto->positionBc]);
+            $deleteRoutes = [
+                DemandeAppro::TYPE_DA_AVEC_DIT  => 'da_delete_line_avec_dit',
+                DemandeAppro::TYPE_DA_DIRECT    => 'da_delete_line_direct',
+            ];
+            $dto->urlDelete = isset($deleteRoutes[$dto->datype]) ? $this->router->generate($deleteRoutes[$dto->datype], ['numDa' => $dto->numeroDemandeAppro, 'ligne' => $dto->positionBc]) : '#';
         } else {
             $dto->urlDelete = '#';
         }
 
+        // URL désignation (proprosition)
+        $propositionRoutes = [
+            DemandeAppro::TYPE_DA_AVEC_DIT        => 'da_proposition_ref_avec_dit',
+            DemandeAppro::TYPE_DA_DIRECT          => 'da_proposition_direct',
+            DemandeAppro::TYPE_DA_PARENT          => 'da_affectation_achat',
+            DemandeAppro::TYPE_DA_REAPPRO_MENSUEL => 'da_validate_reappro_mensuel',
+        ];
+
+        if ($dto->statutDal === DemandeAppro::STATUT_EN_COURS_CREATION && isset($creationRoutes[$dto->datype])) {
+            $params = ($dto->datype == DemandeAppro::TYPE_DA_AVEC_DIT) ? $parametres['daId-ditId']
+                : (($dto->datype == DemandeAppro::TYPE_DA_PARENT) ? $parametres['daParentId'] : $parametres['daId']);
+            $dto->urlProposition = $this->router->generate($creationRoutes[$dto->datype], $params);
+        } else {
+            $params = ($dto->datype == DemandeAppro::TYPE_DA_PARENT) ? $parametres['daParentId'] : $parametres['daId'];
+            $dto->urlProposition = isset($propositionRoutes[$dto->datype]) ? $this->router->generate($propositionRoutes[$dto->datype], $params) : '#';
+        }
+
         // URL Demande Devis
-        $dto->urlDemandeDevis = ($dto->demandeDevis && $paramsDa) ? $this->router->generate('da_demande_devis_en_cours', $paramsDa) : '#';
+        $dto->urlDemandeDevis = ($item->getDemandeAppro())  ? $this->router->generate('da_demande_devis_en_cours', $paramsDa) : '#';
     }
 
     private function prepareTdNumCdeAttributes(DaAfficherDto $dto): array
@@ -208,11 +258,11 @@ class DaAfficherMapper
     private function getAArtDesiAttributes(DaAfficherDto $dto): array
     {
         return [
-            'href'              => $dto->urlDetail,
+            'href'              => $dto->urlProposition,
             'class'             => 'designation-btn',
-            'data-numero-ligne' => $dto->positionBc,
+            'data-numero-ligne' => $dto->numeroLigne,
             'data-numero-da'    => $dto->numeroDemandeAppro,
-            'target'            => '_blank'
+            'target'            => $dto->urlProposition === '#' ? '_self' : '_blank'
         ];
     }
 
@@ -223,13 +273,9 @@ class DaAfficherMapper
             DemandeAppro::TYPE_DA_DIRECT           => $this->getIconDaDirect(),
             DemandeAppro::TYPE_DA_REAPPRO_MENSUEL  => $this->getIconDaReapproMensuel(),
             DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL => $this->getIconDaReapproPonctuel(),
+            DemandeAppro::TYPE_DA_PARENT           => ''
         ];
 
         return $daIcons[$typeId] ?? (string) new Markup('<i class="fas fa-ban text-muted"></i>', 'UTF-8');
-    }
-
-    public function getIcons(): array
-    {
-        return $this->getAllIcons();
     }
 }

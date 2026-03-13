@@ -9,10 +9,9 @@ class DaAfficherDto
 {
     public $id;
     public $objet;
-    public $urlDetail;
+    public $numeroLigne;
     public $numDaParent;
     public $numeroDemandeAppro;
-    public $datype;
     public $daTypeIcon;
     public $allIcons;
     public $niveauUrgence;
@@ -21,14 +20,22 @@ class DaAfficherDto
     public $artRefp;
     public $artDesi;
     public $dateLivraisonPrevue;
-    public $joursDispo;
-    public $styleJoursDispo;
-    public $dateDemande;
+
     public $estDalr;
     public $verouille;
     public $estFicheTechnique;
+    // jour dispo
+    public $joursDispo;
+    public $styleJoursDispo;
+    // type de DA
+    public $datype;
+    public $daViaOR;
+    public $daDirect;
+    public $daReappro;
+    public $daParent;
     // Demandeur
     public $demandeur;
+    public $dateDemande;
     // Consultateur
     public $codeAgenceUser; // code agence de l'utilisateur qui consulte la liste
     public $codeServiceUser; // code service de l'utilisateur qui consuler la liste
@@ -55,6 +62,7 @@ class DaAfficherDto
     public $numeroDemandeDit;
     // Actions & URLs
     public $urlCreation;
+    public $urlDetail;
     public $urlDelete;
     public $urlProposition;
     public $urlDemandeDevis;
