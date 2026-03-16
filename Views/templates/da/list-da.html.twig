@@ -104,7 +104,7 @@
 						<td class="fs-7 fw-bold ps-3" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ row.objet }}">{{ row.numDaParent }}</td>
 						<td class="d-none">{{ row.numeroDemandeAppro }}</td>
 						<td class="text-center" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ row.numeroDemandeAppro }}">
-							<a href="{{ row.urlDetail }}" target="_blank">{{ row.datype }}</a>
+							<a href="{{ row.urlDetail }}" target="_blank">{{ row.daTypeIcon|raw }}</a>
 						</td>
 						<td>{{ row.numeroDemandeDit }}</td>
 						<td>{{ row.niveauUrgence }}</td>
@@ -152,6 +152,10 @@
 							{% endif %}
 						</td>
 					</tr>
+				{% else %}
+					<tr>
+						<td colspan="26" class="text-center py-4">Aucune donnée trouvée</td>
+					</tr>
 				{% endfor %}
 			</tbody>
 		</table>
@@ -166,4 +170,19 @@
 {% block javascript %}
 	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v=2025.10.22.08.00"></script>
 	<script src="{{ App.base_path }}/Views/js/da/listeDa/list.js?v=2025.10.22.08.00" type="module"></script>
+	<script>
+		// Optimisation : Délégation des tooltips pour ne pas surcharger le chargement initial
+document.addEventListener('mouseover', function (e) {
+const target = e.target.closest('[data-bs-toggle="tooltip"]');
+if (target && !bootstrap.Tooltip.getInstance(target)) {
+const tooltip = new bootstrap.Tooltip(target);
+tooltip.show();
+
+// Correction : On force la fermeture quand on quitte l'élément
+target.addEventListener('mouseleave', () => {
+tooltip.hide();
+}, {once: true});
+}
+});
+	</script>
 {% endblock %}

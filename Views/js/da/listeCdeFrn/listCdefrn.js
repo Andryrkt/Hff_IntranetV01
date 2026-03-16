@@ -2,6 +2,8 @@ import { mergeCellsRecursiveTable } from "./tableHandler";
 import { AutoComplete } from "../../utils/AutoComplete.js";
 import { FetchManager } from "../../api/FetchManager.js";
 import { baseUrl } from "../../utils/config";
+import { configAgenceService } from "../../dit/config/listDitConfig.js";
+import { handleAgenceChange } from "../../dit/fonctionUtils/fonctionListDit.js";
 const fetchManager = new FetchManager();
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -15,6 +17,19 @@ document.addEventListener("DOMContentLoaded", function () {
     { pivotIndex: 9, columns: [9, 21], insertSeparator: true },
   ]);
 });
+
+/**===========================================================================
+ * Configuration des agences et services
+ *============================================================================*/
+
+// Attachement des événements pour les agences
+configAgenceService.emetteur.agenceInput.addEventListener("change", () =>
+  handleAgenceChange("emetteur"),
+);
+
+configAgenceService.debiteur.agenceInput.addEventListener("change", () =>
+  handleAgenceChange("debiteur"),
+);
 
 /** =========================================================*/
 async function fetchFournisseurs() {
@@ -302,9 +317,47 @@ document.addEventListener("contextmenu", function (event) {
     affichageStatutBcEnvoyerFournisseur();
     activeDesactiveFormulairePourStatutsBcEnvoyer();
   } else if (statutBc == "A envoyer au fournisseur") {
-    statutAffiche.style.display = "none";
-    AffichageEtTraitementFOrmAEnvoyerFournisseur(commandeId); // <<-- Passé commandeId
-    desactiveTousLesChampsDuFormulaire();
+    statutAffiche.style.display = "block";
+
+    const overlay = document.getElementById("loading-overlays");
+    overlay.classList.remove("hidden");
+    const url = "api/da-envoie-cde"; // L'URL de votre route Symfony
+    fetchManager
+      .get(url, "text")
+      .then((html) => {
+        statutAffiche.innerHTML = html + "<hr>";
+
+        // Ajouter un écouteur sur la soumission du formulaire
+        document
+          .getElementById("daCdeEnvoyer")
+          .addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            const formData = new FormData(this);
+
+            let jsonData = {};
+            formData.forEach((value, key) => {
+              // Supprimer le préfixe `form_type_demande[...]`
+              let cleanKey = key.replace(/^da_cde_envoyer\[(.*?)\]$/, "$1");
+              jsonData[cleanKey] = value;
+            });
+            console.log(jsonData);
+
+            // Génère le lien dynamiquement, avec une vraie URL (pas Twig)
+            const urlLien = `${baseUrl}/demande-appro/changement-statuts-envoyer-fournisseur/${commandeId}/${jsonData.dateLivraisonPrevue}/${jsonData.estEnvoyer}`;
+            window.location.href = urlLien;
+          });
+      })
+      .catch((error) =>
+        console.error("Erreur lors du chargement du formulaire:", error),
+      )
+      .finally(() => {
+        overlay.classList.add("hidden");
+      });
+
+    //desactive le formulaire
+    Array.from(form.elements).forEach((el) => (el.disabled = true)); // Désactive tous les champs du formulaire
+    form.querySelector("button[type='submit']").classList.add("disabled"); //changer l'apparence du bouton
   } else if (statutBc == "A soumettre à validation") {
     statutAffiche.style.display = "none";
     activeDesactiveFormualirePourSoumettreAValidation();

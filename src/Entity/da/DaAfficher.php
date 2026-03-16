@@ -9,7 +9,14 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=DaAfficherRepository::class)
- * @ORM\Table(name="da_afficher")
+ * @ORM\Table(name="da_afficher", indexes={
+ *     @ORM\Index(name="idx_da_version", columns={"numero_demande_appro", "numero_version"}),
+ *     @ORM\Index(name="idx_da_mere", columns={"numero_demande_appro_mere"}),
+ *     @ORM\Index(name="idx_da_statut_deleted", columns={"statut_dal", "deleted"}),
+ *     @ORM\Index(name="idx_da_cde", columns={"numero_cde"}),
+ *     @ORM\Index(name="idx_da_fournisseur", columns={"numero_fournisseur"}),
+ *     @ORM\Index(name="idx_da_date_demande", columns={"date_demande"})
+ * })
  * @ORM\HasLifecycleCallbacks
  */
 class DaAfficher

@@ -36,6 +36,30 @@ trait PrepareDataDAP
 
         return $datasPrepared;
     }
+    /** 
+     * Préparer les données des Dals à afficher dans le mail
+     * 
+     * @param iterable<DemandeApproL> $dals données des Dals à préparer
+     * 
+     * @return array données préparées
+     */
+    private function prepareDataForMailNonDipoFrnDa(iterable $daAffichers): array
+    {
+        $datasPrepared = [];
+
+        foreach ($daAffichers as $daAfficher) {
+            $cst  = $daAfficher->getArtConstp();
+            $ref  = $daAfficher->getArtRefp();
+            $desi = $daAfficher->getArtDesi();
+            $datasPrepared[] = [
+                'keyId'  => implode('_', array_map('trim', [$cst, $ref, $desi])),
+                'cst'    => $cst,
+                'ref'    => $ref,
+                'desi'   => $desi,
+            ];
+        }
+        return $datasPrepared;
+    }
 
     /**
      * Construit les lignes de données à partir d'une liste de Dals.

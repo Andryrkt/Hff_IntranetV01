@@ -24,6 +24,12 @@ class CdeFrnSearchDto
     private ?DateTime $dateDebutfinSouhaite = null;
     private ?DateTime $dateFinFinSouhaite = null;
     private ?string $sortNbJours = null;
+    private $demandeur = null;
+    private  $afficherCloturees = false;
+    private $agenceEmetteur = null;
+    private $serviceEmetteur = null;
+    private $agenceDebiteur = null;
+    private $serviceDebiteur = null;
 
     /** ============================================================
      * fonction personnaliser
@@ -51,6 +57,12 @@ class CdeFrnSearchDto
             'dateDebutfinSouhaite' => $this->dateDebutfinSouhaite,
             'dateFinFinSouhaite' => $this->dateFinFinSouhaite,
             'sortNbJours' => $this->sortNbJours,
+            'demandeur' => $this->demandeur,
+            'afficherCloturees' => $this->afficherCloturees,
+            'agenceEmetteur' => $this->agenceEmetteur,
+            'serviceEmetteur' => $this->serviceEmetteur,
+            'agenceDebiteur' => $this->agenceDebiteur,
+            'serviceDebiteur' => $this->serviceDebiteur,
         ], fn($val) => $val !== null && $val !== '');
     }
 
@@ -403,6 +415,114 @@ class CdeFrnSearchDto
     public function setStatutDA(?string $statutDA): self
     {
         $this->statutDA = $statutDA;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of agenceEmetteur
+     */
+    public function getAgenceEmetteur()
+    {
+        return $this->agenceEmetteur;
+    }
+
+    /**
+     * Set the value of agenceEmetteur
+     */
+    public function setAgenceEmetteur($agenceEmetteur): self
+    {
+        $this->agenceEmetteur = $agenceEmetteur;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of serviceEmetteur
+     */
+    public function getServiceEmetteur()
+    {
+        return $this->serviceEmetteur;
+    }
+
+    /**
+     * Set the value of serviceEmetteur
+     */
+    public function setServiceEmetteur($serviceEmetteur): self
+    {
+        $this->serviceEmetteur = $serviceEmetteur;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of agenceDebiteur
+     */
+    public function getAgenceDebiteur()
+    {
+        return $this->agenceDebiteur;
+    }
+
+    /**
+     * Set the value of agenceDebiteur
+     */
+    public function setAgenceDebiteur($agenceDebiteur): self
+    {
+        $this->agenceDebiteur = $agenceDebiteur;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of serviceDebiteur
+     */
+    public function getServiceDebiteur()
+    {
+        return $this->serviceDebiteur;
+    }
+
+    /**
+     * Set the value of serviceDebiteur
+     */
+    public function setServiceDebiteur($serviceDebiteur): self
+    {
+        $this->serviceDebiteur = $serviceDebiteur;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of demandeur
+     */
+    public function getDemandeur()
+    {
+        return $this->demandeur;
+    }
+
+    /**
+     * Set the value of demandeur
+     */
+    public function setDemandeur($demandeur): self
+    {
+        $this->demandeur = $demandeur;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of afficherCloturees
+     */
+    public function getAfficherCloturees()
+    {
+        return $this->afficherCloturees;
+    }
+
+    /**
+     * Set the value of afficherCloturees
+     */
+    public function setAfficherCloturees($afficherCloturees): self
+    {
+        $this->afficherCloturees = $afficherCloturees;
 
         return $this;
     }

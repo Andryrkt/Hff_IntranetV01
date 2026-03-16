@@ -11,6 +11,7 @@ class DaSearch
 {
     private ?string $numDit = null;
     private ?string $numDa = null;
+    private ?string $numCde = null;
     private ?string $demandeur = null;
     private ?string $statutDA = null;
     private ?string $statutOR = null;
@@ -19,6 +20,7 @@ class DaSearch
     private ?string $idMateriel = null;
     private ?string $typeAchat = null;
     private ?string $codeCentrale = null;
+    private $afficherCloturees = false;
 
     private ?string $niveauUrgence = null;
 
@@ -32,6 +34,8 @@ class DaSearch
 
     private ?Agence $agenceDebiteur = null;
     private ?Service $serviceDebiteur = null;
+
+
 
     /**
      * Get the value of numDit
@@ -414,6 +418,42 @@ class DaSearch
     }
 
     /**
+     * Get the value of numCde
+     */
+    public function getNumCde(): ?string
+    {
+        return $this->numCde;
+    }
+
+    /**
+     * Set the value of numCde
+     */
+    public function setNumCde(?string $numCde): self
+    {
+        $this->numCde = $numCde;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of afficherCloturees
+     */
+    public function getAfficherCloturees()
+    {
+        return $this->afficherCloturees;
+    }
+
+    /**
+     * Set the value of afficherCloturees
+     */
+    public function setAfficherCloturees($afficherCloturees): self
+    {
+        $this->afficherCloturees = $afficherCloturees;
+
+        return $this;
+    }
+
+    /**
      * Convertit l'objet en tableau associatif
      */
     public function toArray(): array
@@ -421,6 +461,8 @@ class DaSearch
         return [
             'numDit'               => $this->numDit,
             'numDa'                => $this->numDa,
+            'numCde'               => $this->numCde,
+            'afficherCloturees'    => $this->afficherCloturees,
             'demandeur'            => $this->demandeur,
             'statutDA'             => $this->statutDA,
             'statutOR'             => $this->statutOR,

@@ -2,12 +2,9 @@
 
 namespace App\Controller\da\ListeCdeFrn;
 
-use App\Constants\ddp\TypeDemandePaiementConstants;
-use App\Controller\Controller;
 
+use App\Controller\Controller;
 use App\Controller\Traits\AutorisationTrait;
-use App\Controller\Traits\da\MarkupIconTrait;
-use App\Controller\Traits\da\StatutBcTrait;
 use App\Entity\admin\Application;
 use App\Entity\admin\Service;
 use App\Entity\da\DaAfficher;
@@ -16,9 +13,9 @@ use App\Entity\da\DemandeAppro;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Factory\da\CdeFrnDto\CdeFrnSearchDto;
 use App\Form\da\daCdeFrn\CdeFrnListType;
-use App\Form\da\daCdeFrn\DaDdpType;
 use App\Form\da\daCdeFrn\DaModalDateLivraisonType;
 use App\Form\da\daCdeFrn\DaSoumissionType;
+use App\Mapper\Da\DaAfficherMapper;
 use App\Model\da\DaModel;
 use App\Repository\da\DaAfficherRepository;
 use App\Repository\da\DaSoumissionBcRepository;
@@ -27,16 +24,13 @@ use App\Repository\dit\DitOrsSoumisAValidationRepository;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use Twig\Markup;
 
 /**
  * @Route("/demande-appro")
  */
 class DaListCdeFrnController extends Controller
 {
-    use StatutBcTrait;
     use AutorisationTrait;
-    use MarkupIconTrait;
 
     private DaAfficherRepository $daAfficherRepository;
     private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
@@ -48,12 +42,12 @@ class DaListCdeFrnController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->daAfficherRepository = $this->getEntityManager()->getRepository(DaAfficher::class);
-        $this->ditOrsSoumisAValidationRepository = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class);
+        $em = $this->getEntityManager();
+        $this->daAfficherRepository = $em->getRepository(DaAfficher::class);
+        $this->ditOrsSoumisAValidationRepository = $em->getRepository(DitOrsSoumisAValidation::class);
         $this->daModel = new DaModel();
-        $this->demandeApproRepository = $this->getEntityManager()->getRepository(DemandeAppro::class);
-        $this->daSoumissionBcRepository = $this->getEntityManager()->getRepository(DaSoumissionBc::class);
-        $this->initStatutBcTrait();
+        $this->demandeApproRepository = $em->getRepository(DemandeAppro::class);
+        $this->daSoumissionBcRepository = $em->getRepository(DaSoumissionBc::class);
     }
 
     /**
@@ -62,52 +56,36 @@ class DaListCdeFrnController extends Controller
     public function index(Request $request)
     {
         $this->verifierSessionUtilisateur();
-
-        /** Autorisation accées */
         $this->autorisationAcces($this->getUser(), Application::ID_DAP, Service::ID_APPRO);
-        /** FIN AUtorisation acées */
 
-        /** ===  Formulaire pour la recherche === */
+        // Formulaire de recherche
         $searchDto = $this->initialisationCdeFrnSearchDto();
         $form = $this->getFormFactory()->createBuilder(CdeFrnListType::class, $searchDto, [
             'em' => $this->getEntityManager(),
             'method' => 'GET',
         ])->getForm();
 
-        // Traitement du formulaire de recherche
-        $newCriteria = $this->traitementFormulaireRecherche($request, $form);
+        $criteriaTab = $this->traitementFormulaireRecherche($request, $form) ?? $this->getSessionService()->get('criteria_for_excel_Da_Cde_frn') ?? [];
 
-        if ($newCriteria !== null) {
-            $criteriaTab = $newCriteria;
-        } else {
-            $criteriaTab = $this->getSessionService()->get('criteria_for_excel_Da_Cde_frn') ?? [];
-        }
-
-        // classe pour visuel de trie nombre de jour dispo
+        // Visuel de tri
         $sortJoursClass = false;
-
-        if ($criteriaTab &&  isset($criteriaTab['sortNbJours'])) {
+        if (isset($criteriaTab['sortNbJours'])) {
             $sortJoursClass = $criteriaTab['sortNbJours'] === 'asc' ? 'fas fa-arrow-up-1-9' : 'fas fa-arrow-down-9-1';
         }
 
-        //recupère le numero de page
         $page = $request->query->getInt('page', 1);
-        //nombre de ligne par page
-        $limit = 20;
+        $limit = 250;
 
-        /** ==== récupération des données à afficher ==== */
-        $paginationData = $this->getPaginationData($criteriaTab, $page, $limit);
+        // Récupération et préparation des données
+        $paginationData = $this->daAfficherRepository->findValidatedPaginatedDas($criteriaTab, $page, $limit);
+        $daAfficherMapper = new DaAfficherMapper($this->getUrlGenerator());
+        $dataPrepared = $daAfficherMapper->mapList($paginationData['data'], [
+            'codeAgenceUser' => $this->getUser()->getCodeAgenceUser(),
+            'codeServiceUser' => $this->getUser()->getCodeServiceUser(),
+        ]);
 
-        /** mise à jour des donners daAfficher */
-        $this->quelqueMiseAjourDaAfficher($paginationData['data']);
-
-        /** Préparer les données à afficher dans twig */
-        $dataPrepared = $this->prepareDataForDisplay($paginationData['data']);
-
-        /** === Formulaire pour l'envoie de BC et FAC + Bl === */
-        $formSoumission = $this->getFormFactory()->createBuilder(DaSoumissionType::class, null, [
-            'method' => 'GET',
-        ])->getForm();
+        // Formulaire de soumission BC, FAC + BL, BL Reappro
+        $formSoumission = $this->getFormFactory()->createBuilder(DaSoumissionType::class, null, ['method' => 'GET'])->getForm();
         $this->traitementFormulaireSoumission($request, $formSoumission);
 
         /** === Formulaire pour l'envoie de DDP === */
@@ -116,7 +94,7 @@ class DaListCdeFrnController extends Controller
         ])->getForm();
         $this->traitementFormulaireDdp($request, $formDdp);
 
-        /** === Formulaire pour la date de livraison prevu === */
+        // Formulaire de date de livraison
         $formDateLivraison = $this->getFormFactory()->createBuilder(DaModalDateLivraisonType::class)->getForm();
         $this->TraitementFormulaireDateLivraison($request, $formDateLivraison);
 
@@ -126,7 +104,6 @@ class DaListCdeFrnController extends Controller
             'formDdp'           => $formDdp->createView(),
             'form'              => $form->createView(),
             'criteria'          => $criteriaTab,
-            'daTypeIcons'       => $this->getAllIcons(),
             'currentPage'       => $page,
             'totalPages'        => $paginationData['lastPage'],
             'resultat'          => $paginationData['totalItems'],
@@ -140,78 +117,24 @@ class DaListCdeFrnController extends Controller
         $formDateLivraison->handleRequest($request);
 
         if ($formDateLivraison->isSubmitted() && $formDateLivraison->isValid()) {
-            //recupération des valeurs dans le formulaire
             $data = $formDateLivraison->getData();
+            $daAffichers = $this->daAfficherRepository->findBy(['numeroCde' => $data['numeroCde']]);
 
-            // recupération des lignes de commande dans le da_afficher
-            $daAffichers = $this->getEntityManager()->getRepository(DaAfficher::class)->findBy(['numeroCde' => $data['numeroCde']]);
-
-            //modification de la date livraison prevue sur chaque ligne
             foreach ($daAffichers as $daAfficher) {
                 $daAfficher->setDateLivraisonPrevue($data['dateLivraisonPrevue']);
                 $this->getEntityManager()->persist($daAfficher);
             }
 
             $this->getEntityManager()->flush();
-
-            $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'Date de livraison prévue modifier avec succèss']);
+            $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'Date de livraison prévue modifiée avec succès']);
             $this->redirectToRoute("da_list_cde_frn");
         }
     }
 
-
     private function initialisationCdeFrnSearchDto(): CdeFrnSearchDto
     {
-        // recupération de la session pour le criteria, en s'assurant que c'est toujours un tableau
         $criteriaTab = $this->getSessionService()->get('criteria_for_excel_Da_Cde_frn') ?? [];
-
-        // transforme en objet
-        $cdeFrnSearchDto = new CdeFrnSearchDto();
-        return $cdeFrnSearchDto->toObject($criteriaTab);
-    }
-
-    private function quelqueMiseAjourDaAfficher(array $daAfficherValides)
-    {
-        foreach ($daAfficherValides as $davalide) {
-            if ($davalide->getArtDesi() !== 'ECROU HEX. AC.GALVA A CHAUD CL.8 DI') {
-                $this->modificationStatutBC($davalide);
-            }
-        }
-        $this->getEntityManager()->flush();
-    }
-
-    /**
-     * Cette methode permet de modifier le statut du BC
-     *
-     * @return void
-     */
-    private function modificationStatutBC(DaAfficher $data)
-    {
-        $statutBC = $this->statutBc($data);
-        $data->setStatutCde($statutBC);
-        $this->getEntityManager()->persist($data);
-    }
-
-    // private function donnerAfficher(?array $criteria): array
-    // {
-    //     /** @var array récupération des lignes de daValider avec version max et or valider */
-    //     $daAfficherValiders =  $this->daAfficherRepository->getDaOrValider($criteria);
-
-    //     return $daAfficherValiders;
-    // }
-
-    /** 
-     * Fonction qui retourne les données avec pagination des lignes de DA validé et OR validés
-     * 
-     * @param null|array $criteria le criteria du formulaire de recherche
-     * @param int $page la page actuelle
-     * @param int $limit la limite par page
-     * 
-     * @return array{results:array,totalItems:int}
-     */
-    private function getPaginationData(?array $criteria, int $page, int $limit): array
-    {
-        return $this->daAfficherRepository->findValidatedPaginatedDas($criteria, $page, $limit);
+        return (new CdeFrnSearchDto())->toObject($criteriaTab);
     }
 
     private function traitementFormulaireSoumission(Request $request, $formSoumission): void
@@ -220,6 +143,7 @@ class DaListCdeFrnController extends Controller
 
         if ($formSoumission->isSubmitted() && $formSoumission->isValid()) {
             $soumission = $formSoumission->getData();
+            $params = ['numCde' => $soumission['commande_id'], 'numDa' => $soumission['da_id'], 'numOr' => $soumission['num_or']];
 
             if ($soumission['soumission'] === 'BC') {
                 $this->redirectToRoute("da_soumission_bc", ['numCde' => $soumission['commande_id'], 'numDa' => $soumission['da_id'], 'numOr' => (int)$soumission['num_or'], 'typeDa' => (int)$soumission['type_da']]);
@@ -231,7 +155,7 @@ class DaListCdeFrnController extends Controller
                     $this->redirectToRoute("da_soumission_facbl", ['numCde' => $soumission['commande_id'], 'numDa' => $soumission['da_id'], 'numOr' => $soumission['num_or']]);
                 }
             } elseif ($soumission['soumission'] === 'BL Reappro') {
-                $this->redirectToRoute("da_soumission_bl_reappro", ['numCde' => $soumission['commande_id'], 'numDa' => $soumission['da_id'], 'numOr' => $soumission['num_or']]);
+                $this->redirectToRoute("da_soumission_bl_reappro", $params);
             }
         }
     }
@@ -273,128 +197,5 @@ class DaListCdeFrnController extends Controller
         }
 
         return null;
-    }
-
-    /** 
-     * Fonction pour préparer les données à afficher dans Twig 
-     *  @param DaAfficher[] $data données avant préparation
-     **/
-    private function prepareDataForDisplay(array $data): array
-    {
-        $datasPrepared = [];
-
-        $daType = [
-            DemandeAppro::TYPE_DA_AVEC_DIT         => $this->getIconDaAvecDIT(),
-            DemandeAppro::TYPE_DA_DIRECT           => $this->getIconDaDirect(),
-            DemandeAppro::TYPE_DA_REAPPRO_MENSUEL  => $this->getIconDaReapproMensuel(),
-            DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL => $this->getIconDaReapproPonctuel(),
-        ];
-
-        $routeDetailName = [
-            DemandeAppro::TYPE_DA_DIRECT           => 'da_detail_direct',
-            DemandeAppro::TYPE_DA_AVEC_DIT         => 'da_detail_avec_dit',
-            DemandeAppro::TYPE_DA_REAPPRO_MENSUEL  => 'da_detail_reappro',
-            DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL => 'da_detail_reappro',
-        ];
-
-        $safeIconBan     = new Markup('<i class="fas fa-ban text-muted"></i>', 'UTF-8');
-
-        foreach ($data as $item) {
-            // Variables à employer
-            $daDirect = $item->getDaTypeId() == DemandeAppro::TYPE_DA_DIRECT;
-            $daViaOR = $item->getDaTypeId() == DemandeAppro::TYPE_DA_AVEC_DIT;
-            $envoyeFrn = $item->getStatutCde() === DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR;
-
-            // Si numeroCde est vide ou null, on met un '-'
-            $numeroCde = !empty($item->getNumeroCde()) ? $item->getNumeroCde() : '-';
-
-            // Préparer les classes et attributs pour le <td> du numéro cde
-            if (!empty($item->getNumeroCde())) {
-                $tdNumCdeAttributes = [
-                    'class'             => 'text-center commande-cellule commande',
-                    'data-commande-id'  => $item->getNumeroCde(),
-                    'data-num-da'       => $item->getNumeroDemandeAppro(),
-                    'data-num-or'       => $item->getNumeroOr(),
-                    'data-statut-bc'    => $item->getStatutCde(),
-                    'data-position-cde' => $item->getPositionBc(),
-                    'data-type-da'      => $item->getDaTypeId(),
-                ];
-            } else {
-                $tdNumCdeAttributes = [
-                    'class'             => 'text-center'
-                ];
-            }
-
-            // Préparer les classes et attributs pour le <td> du numéro cde
-            $tdCheckboxAttributes = [
-                'class'                     => 'modern-checkbox',
-                'type'                      => 'checkbox',
-                'value'                     => $item->getId(),
-                'data-numero-demande-appro' => $item->getNumeroDemandeAppro(),
-                'data-numero-ligne'         => $item->getNumeroLigne(),
-            ];
-
-            // Préparer attributs pour la balise <a> de la date de livraison prévue
-            $aDtLivPrevAttributes = [
-                'href'               => '#',
-                "data-bs-toggle"     => "modal",
-                "data-bs-target"     => "#dateLivraison",
-                "data-numero-cde"    => $item->getNumeroCde(),
-                "data-date-actuelle" => $item->getDateLivraisonPrevue() ? $item->getDateLivraisonPrevue()->format('Y-m-d') : '',
-            ];
-
-            // Pré-calculer les styles
-            $styleStatutDA = $this->styleStatutDA[$item->getStatutDal()] ?? '';
-            $styleStatutBC = $this->styleStatutBC[$item->getStatutCde()] ?? '';
-            $styleClickableCell = $envoyeFrn ? 'clickable-td' : '';
-
-            // Construction d'urls
-            $urlDetail = '';
-            if (!empty($routeDetailName[$item->getDaTypeId()])) {
-                $urlDetail = $this->getUrlGenerator()->generate(
-                    $routeDetailName[$item->getDaTypeId()],
-                    ['id' => $item->getDemandeAppro()->getId()]
-                );
-            }
-
-            // Tout regrouper
-            $datasPrepared[] = [
-                'objet'                => $item->getObjetDal(),
-                'urlDetail'            => $urlDetail,
-                'numDaParent'          => $item->getNumeroDemandeApproMere(),
-                'numeroDemandeAppro'   => $item->getNumeroDemandeAppro(),
-                'datype'               => $daType[$item->getDaTypeId()],
-                'numeroDemandeDit'     => $item->getNumeroDemandeDit() ?? $safeIconBan,
-                'niveauUrgence'        => $item->getNiveauUrgence(),
-                'numeroOr'             => $daDirect ? $safeIconBan : $item->getNumeroOr(),
-                'datePlannigOr'        => $daViaOR ? ($item->getDatePlannigOr() ? $item->getDatePlannigOr()->format('d/m/Y') : '') : $safeIconBan,
-                'numeroFournisseur'    => $item->getNumeroFournisseur(),
-                'nomFournisseur'       => $item->getNomFournisseur(),
-                'numeroCde'            => $numeroCde,
-                'tdNumCdeAttributes'   => $tdNumCdeAttributes,
-                'styleStatutDA'        => $styleStatutDA,
-                'styleStatutBC'        => $styleStatutBC,
-                'statutDal'            => $item->getStatutDal(),
-                'statutCde'            => $item->getStatutCde(),
-                'envoyeFrn'            => $envoyeFrn,
-                'styleClickableCell'   => $styleClickableCell,
-                'tdCheckboxAttributes' => $tdCheckboxAttributes,
-                'aDtLivPrevAttributes' => $aDtLivPrevAttributes,
-                'dateFinSouhaite'      => $item->getDateFinSouhaite() && $item->getDateFinSouhaite() != new \DateTime('1900-01-01') ? $item->getDateFinSouhaite()->format('d/m/Y') : 'N/A',
-                'artConstp'            => $item->getArtConstp(),
-                'artRefp'              => $item->getArtRefp(),
-                'artDesi'              => $item->getArtDesi(),
-                'qteDem'               => $item->getQteDem() == 0 ? '-' : $item->getQteDem(),
-                'qteEnAttent'          => $item->getQteEnAttent() == 0 ? '-' : $item->getQteEnAttent(),
-                'qteDispo'             => $item->getQteDispo() == 0 ? '-' : $item->getQteDispo(),
-                'qteLivrer'            => $item->getQteLivrer() == 0 ? '-' : $item->getQteLivrer(),
-                'dateLivraisonPrevue'  => $item->getDateLivraisonPrevue() && $item->getDateLivraisonPrevue() != new \DateTime('1900-01-01') ? $item->getDateLivraisonPrevue()->format('d/m/Y') : 'N/A',
-                'joursDispo'           => $item->getJoursDispo(),
-                'styleJoursDispo'      => $item->getJoursDispo() < 0 ? 'text-danger' : '',
-                'demandeur'            => $item->getDemandeur(),
-            ];
-        }
-
-        return $datasPrepared;
     }
 }

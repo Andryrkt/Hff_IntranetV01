@@ -134,4 +134,23 @@ ALTER TABLE da_afficher ADD numero_intervention_ips INT;
 ALTER TABLE da_afficher ADD mail_envoye bit DEFAULT 0;
 ALTER TABLE da_afficher ADD non_dispo bit DEFAULT 0;
 ALTER TABLE da_afficher ADD est_bl_reappro_soumis bit DEFAULT 0;
+
+
+ -- Index pour la gestion des versions (très important pour la sous-requête)
+     CREATE INDEX idx_da_version ON da_afficher (numero_demande_appro, numero_version);
+    
+     -- Index pour le regroupement par DA mère
+     CREATE INDEX idx_da_mere ON da_afficher (numero_demande_appro_mere);
+    
+     -- Index pour le filtrage par statut et suppression
+     CREATE INDEX idx_da_statut_deleted ON da_afficher (statut_dal, deleted);
+   
+    -- Index pour les recherches par Bon de Commande
+    CREATE INDEX idx_da_cde ON da_afficher (numero_cde);
+   
+    -- Index pour les recherches par Fournisseur
+    CREATE INDEX idx_da_fournisseur ON da_afficher (numero_fournisseur);
+   
+   -- Index pour le tri par date de demande
+    CREATE INDEX idx_da_date_demande ON da_afficher (date_demande);
 ALTER TABLE da_afficher ADD est_correction_statut_bc bit DEFAULT 0;
