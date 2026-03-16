@@ -555,30 +555,6 @@ class Controller
     }
 
     /**
-     * Vérifier si l'utilisateur est dans le service atelier
-     */
-    protected function estUserDansServiceAtelier(): bool
-    {
-        $userInfo = $this->getSessionService()->get('user_info');
-        if (!$userInfo) return false;
-        $userServiceIds = $userInfo['authorized_services']['ids'] ?? [];
-
-        return in_array(DemandeAppro::ID_ATELIER, $userServiceIds);
-    }
-
-    /**
-     * Vérifier si l'utilisateur est dans le service appro
-     */
-    protected function estUserDansServiceAppro(): bool
-    {
-        $userInfo = $this->getSessionService()->get('user_info');
-        if (!$userInfo) return false;
-        $userServiceIds = $userInfo['authorized_services']['ids'] ?? [];
-
-        return in_array(DemandeAppro::ID_APPRO, $userServiceIds);
-    }
-
-    /**
      * Rendre un template Twig
      */
     protected function render(string $template, array $parameters = []): Response
