@@ -96,7 +96,7 @@ trait DaListeTrait
         $this->quelqueModifictionDansDatabase($daAffichers);
 
         // Vérification du verrouillage des DA et Retourne les DA filtrées
-        $paginationData['data'] = $this->appliquerVerrouillageSelonProfil($daAffichers, $this->hasRoles(Role::ROLE_ADMINISTRATEUR), $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier(), $this->hasRoles(Role::ROLE_DA_DIRECTE));
+        $paginationData['data'] = $this->appliquerVerrouillageSelonProfil($daAffichers, $this->hasRoles(Role::ROLE_ADMINISTRATEUR), false, false, $this->hasRoles(Role::ROLE_DA_DIRECTE));
 
         return $paginationData;
     }
@@ -176,8 +176,8 @@ trait DaListeTrait
 
         // Roles
         $estAdmin   = $this->hasRoles(Role::ROLE_ADMINISTRATEUR);
-        $estAppro   = $this->estUserDansServiceAppro();
-        $estAtelier = $this->estUserDansServiceAtelier();
+        $estAppro   = false;
+        $estAtelier = false;
 
         // Initialiser le style pour les statuts
         $this->initStyleStatuts();

@@ -71,7 +71,7 @@ class DaDetailDirectController extends Controller
 			'connectedUser'     		=> $this->getUser(),
 			'statutAutoriserModifAte' 	=> $demandeAppro->getStatutDal() === DemandeAppro::STATUT_AUTORISER_EMETTEUR,
 			'estCreateurDaDirecte'      => $this->hasRoles(Role::ROLE_DA_DIRECTE),
-			'estAppro'          		=> $this->estUserDansServiceAppro(),
+			'estAppro'          		=> false, // TODO: booléen pour savoir si Appro
 			'timelineData'      		=> $timeLineData,
 		]);
 	}
@@ -89,7 +89,8 @@ class DaDetailDirectController extends Controller
 
 			$this->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $daObservation->getObservation(), $daObservation->getFileNames());
 
-			if ($this->estUserDansServiceAppro() && $daObservation->getStatutChange()) {
+			// TODO: booléen pour savoir si Appro
+			if (false && $daObservation->getStatutChange()) {
 				$this->appliquerChangementStatut($demandeAppro, DemandeAppro::STATUT_AUTORISER_EMETTEUR);
 
 				$this->ajouterDansTableAffichageParNumDa($demandeAppro->getNumeroDemandeAppro());
@@ -100,7 +101,7 @@ class DaDetailDirectController extends Controller
 				'message' => 'Votre observation a été enregistré avec succès.',
 			];
 
-			$this->emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->getUser(), $this->estUserDansServiceAppro());
+			$this->emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->getUser(), false);  // TODO: booléen pour savoir si Appro
 
 			$this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
 			return $this->redirectToRoute("list_da");
