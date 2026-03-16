@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DemandeApproLRepository;
 use App\Repository\da\DemandeApproLRRepository;
 use App\Service\application\ApplicationService;
+use App\Service\da\EmailDaService;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
@@ -26,6 +27,7 @@ class ActionSurNonDispoController extends Controller
     private DaAfficherRepository $daAfficherRepository;
     private DemandeApproLRepository $demandeApproLRepository;
     private DemandeApproLRRepository $demandeApproLRRepository;
+    private EmailDaService $emailDaService;
 
     public function __construct()
     {
@@ -35,6 +37,7 @@ class ActionSurNonDispoController extends Controller
         $this->daAfficherRepository     = $this->em->getRepository(DaAfficher::class);
         $this->demandeApproLRepository  = $this->em->getRepository(DemandeApproL::class);
         $this->demandeApproLRRepository = $this->em->getRepository(DemandeApproLR::class);
+        $this->emailDaService           = new EmailDaService($this->getTwig());
     }
 
     /**
@@ -101,15 +104,15 @@ class ActionSurNonDispoController extends Controller
 
             if (!$daAffichers) throw new Exception("aucun article correspondant dans la base de donnée.");
 
-            $demandeAppro = $daAffichers[0]->getDemandeAppro();
-            if (!$demandeAppro) throw new Exception("aucun demande appro ne correspond dans la base de donnée.");
+            $demandeApproAvant = $daAffichers[0]->getDemandeAppro();
+            if (!$demandeApproAvant) throw new Exception("aucun demande appro ne correspond dans la base de donnée.");
 
             /** 0. Nouveau numéro demande appro et statut */
             $numDa = $this->autoDecrement('DAP');
             $statutDa = DemandeAppro::STATUT_SOUMIS_APPRO;
 
             /** 1. Créer nouveau demande appro avec le nouveau numéro */
-            $demandeAppro = $this->nouveauDemandeAppro($demandeAppro, $numDa, $statutDa);
+            $demandeAppro = $this->nouveauDemandeAppro($demandeApproAvant, $numDa, $statutDa);
 
             foreach ($daAffichers as $daAfficher) {
                 /** 2. Créer DAL à partir de $daAfficher */
@@ -130,6 +133,9 @@ class ActionSurNonDispoController extends Controller
 
             $count = count($daAfficherIds);
             $label = $count > 1 ? 'articles ont été ajoutés' : 'article a été ajouté';
+
+            // Notification par email du demandeur sur les articles non dispo fournisseur
+            $this->emailDaService->envoyerMailPourNonDispoArticle($demandeApproAvant, $daAffichers, $this->getUser());
 
             return new JsonResponse([
                 'status'  => 'success',
