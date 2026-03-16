@@ -18,13 +18,8 @@
 						{{ form_row(form.dateFin) }}
 					</div>
 					<div class="col-12 col-md-2">
-						{% if App.userConnecter.isAdmin or App.userConnecter.isAtelier %}
-							{{form_row(form.agenceEmetteur)}}
-							{{form_row(form.serviceEmetteur)}}
-						{% else %}
-							{{ form_row(form.agenceEmetteur, {'attr': {'disabled': 'disabled'}}) }}
-							{{ form_row(form.serviceEmetteur)}}
-						{% endif %}
+						{{form_row(form.agenceEmetteur)}}
+						{{form_row(form.serviceEmetteur)}}
 					</div>
 					<div class="col-12 col-md-2">
 						{{form_row(form.agenceDebiteur)}}

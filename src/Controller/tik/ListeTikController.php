@@ -176,7 +176,7 @@ class ListeTikController extends Controller
      */
     private function hasRole(User $user, int $roleId): bool
     {
-        $roleIds = $user->getRoleIds();
+        $roleIds = []; // TODO : changer ceci plus tard : les roles de l'utilisateur
 
         // S'assurer que $roleIds est un tableau avant de continuer.
         if (!is_array($roleIds)) {

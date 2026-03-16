@@ -82,8 +82,7 @@ class LoginController extends Controller
                     $userInfo['societe_code'] = $profil->getSociete()->getCodeSociete();
                     $this->getSessionService()->set('user_info', $userInfo);
 
-                    if (preg_match('/Hffintranet_pre_prod/i', $_SERVER['REQUEST_URI']) && !in_array(1, $user->getRoleIds())) $this->redirectTo('/Hffintranet/login');
-                    else $this->redirectToRoute('profil_acceuil');
+                    $this->redirectToRoute('profil_acceuil');
                 }
             } catch (Exception $e) {
                 $this->logUserVisit('security_signin');
