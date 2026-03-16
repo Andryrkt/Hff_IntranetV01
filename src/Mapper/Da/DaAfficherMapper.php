@@ -87,7 +87,7 @@ class DaAfficherMapper
         $dto->envoyeFrn = $data->getStatutCde() === DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR;
 
         // OR
-        $dto->numeroOr = $dto->daDirect || $dto->daParent ? $safeIconBan : $data->getNumeroOr();
+        $dto->numeroOr = $dto->daDirect || $dto->daParent ? null : $data->getNumeroOr();
         $dto->datePlannigOr = $dto->daViaOR ? ($data->getDatePlannigOr() ? $data->getDatePlannigOr()->format('d/m/Y') : null) : $safeIconBan;
         $dto->statutOr = $data->getStatutOr();
         if ($dto->datype == DemandeAppro::TYPE_DA_AVEC_DIT && !empty($dto->statutOr)) {
@@ -225,11 +225,11 @@ class DaAfficherMapper
         return [
             'class'             => 'text-center commande-cellule commande',
             'data-commande-id'  => $dto->numeroCde,
-            'data-num-da'       => $dto->numeroDemandeAppro,
-            'data-num-or'       => $dto->numeroOr,
             'data-statut-bc'    => $dto->statutCde,
             'data-position-cde' => $dto->positionBc,
             'data-type-da'      => $dto->datype,
+            'data-num-da'       => $dto->numeroDemandeAppro,
+            'data-num-or'       => $dto->numeroOr,
         ];
     }
 
