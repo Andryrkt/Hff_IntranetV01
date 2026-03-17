@@ -53,7 +53,8 @@ class ApplicationController extends Controller
         return $this->render(
             'admin/application/new.html.twig',
             [
-                'form' => $form->createView()
+                'form' => $form->createView(),
+                'urlPageNew' => $this->getUrlGenerator()->generate('page_hff_new'),
             ]
         );
     }
