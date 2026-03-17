@@ -253,10 +253,11 @@ class EmailDaService
      *
      * @return void
      */
-    public function envoyerMailPourNonDispoArticle(DemandeAppro $demandeApproAvant, array $daAffichers, User $connectedUser)
+    public function envoyerMailPourNonDispoArticle(DemandeAppro $demandeApproAvant, array $daAffichers, string $numDa, User $connectedUser)
     {
         $this->envoyerEmail([
-            'to'        => $demandeApproAvant->getUser()->getMail(),
+            // 'to'        => $demandeApproAvant->getUser()->getMail(),
+            'to'        => 'hasina.andrianadison@hff.mg',
             'variables' => [
                 'templateName'  => "nonDispoFrnDa",
                 'header'        => "Duplicata {$demandeApproAvant->getNumeroDemandeAppro()} - Article(s) non disponible(s) chez le fournisseur",
@@ -264,6 +265,7 @@ class EmailDaService
                 'nomDemandeur'  => $demandeApproAvant->getUser()->getFullName(),
                 'preparedDatas' => $this->prepareDataForMailNonDipoFrnDa($daAffichers),
                 'demandeAppro' => $demandeApproAvant,
+                'numeroDemandeAppro' => $numDa,
                 'fullNameUser' => $connectedUser->getFullName(),
                 'service'      => 'appro',
                 'urlIntranet'  => "",

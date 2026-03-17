@@ -732,7 +732,7 @@ class DaAfficherRepository extends EntityRepository
     {
         if (empty(array_filter($criteria, function ($value) {
             return $value !== null;
-        })) || empty($criteria['afficherCloturees'])) {
+        })) || (array_key_exists('afficherCloturees', $criteria) && !$criteria['afficherCloturees'] === true)) {
             $queryBuilder->andWhere($qbLabel . '.statutDal NOT IN (:statutDaFermer)')
                 ->setParameter('statutDaFermer', [DemandeAppro::STATUT_TERMINER, DemandeAppro::STATUT_CLOTUREE], ArrayParameterType::STRING);
         }
@@ -780,7 +780,7 @@ class DaAfficherRepository extends EntityRepository
 
             if (!empty($criteria['statutBC'])) {
                 if (is_array($criteria['statutBC'])) {
-                    $queryBuilder->andWhere($qbLabel . '.statutCde IN (:statutBcParam)')
+                    $queryBuilder->orWhere($qbLabel . '.statutCde IN (:statutBcParam)')
                         ->setParameter('statutBcParam', $criteria['statutBC'], ArrayParameterType::STRING);
                 } else {
                     $queryBuilder->andWhere($qbLabel . '.statutCde = :statutBcParam')
