@@ -24,8 +24,8 @@ CONSTRAINT FK_pages_applications FOREIGN KEY (application_id) REFERENCES applica
 -- Table pour stocker les profils
 CREATE TABLE profil (
     id INT IDENTITY(1,1) NOT NULL,
-    ref_profil VARCHAR(10) NOT NULL,
-    designation_profil VARCHAR(100) NOT NULL,
+    ref_profil VARCHAR(255) NOT NULL,
+    designation_profil VARCHAR(255) NOT NULL,
     date_creation DATETIME2(0) NOT NULL,
     date_modification DATETIME2(0) NULL,
     societe_id INT NULL,

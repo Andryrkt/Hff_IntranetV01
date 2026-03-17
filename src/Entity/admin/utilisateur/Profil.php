@@ -26,12 +26,12 @@ class Profil
     private $id;
 
     /**
-     * @ORM\Column(type="string", name="ref_profil", length=10)
+     * @ORM\Column(type="string", name="ref_profil", length=255)
      */
     private $reference;
 
     /**
-     * @ORM\Column(type="string", name="designation_profil", length=100)
+     * @ORM\Column(type="string", name="designation_profil", length=255)
      */
     private $designation;
 
