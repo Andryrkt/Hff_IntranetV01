@@ -170,7 +170,7 @@ class MigrationProfilsCommand extends Command
 
         foreach ($donnees as $data) {
             $profilExistant = $this->profilRepository->findOneBy([
-                'refProfil' => $data['ref_profil'],
+                'reference' => $data['ref_profil'],
                 'societe'   => $data['societe_id'],
             ]);
 

@@ -1,0 +1,311 @@
+[
+  {
+    "ref_profil": "SUP-ADMIN",
+    "designation_profil": "SUPER ADMINISTRATEUR",
+    "societe_id": 1,
+    "applications": [
+      {
+        "code_app": "ADMIN",
+        "pages": [
+          {
+            "nom_route": "utilisateur_new",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "utilisateur_show",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "utilisateur_update",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "utilisateur_index",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "profil_new",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "profil_update",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "profil_index",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "permission_index",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "permission_handle",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "page_hff_new",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "page_hff_update",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "page_hff_index",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "vignette_new",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "vignette_update",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "vignette_index",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "societte_new",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "societte_update",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "societte_index",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "service_new",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "service_update",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "service_index",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "agence_new",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "agence_update",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "agence_index",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "personnel_new",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "personnel_show",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "personnel_update",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "personnel_index",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "contact_agence_ate_new",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "contact_agence_ate_update",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "contact_agence_ate_index",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "consultation_page_index",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "operation_document_index",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "tki_all_categorie_index",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "application_new",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "application_update",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "application_index",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          }
+        ],
+        "agences_services": []
+      }
+    ]
+  }
+]
