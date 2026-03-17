@@ -135,7 +135,7 @@ class ActionSurNonDispoController extends Controller
             $label = $count > 1 ? 'articles ont été ajoutés' : 'article a été ajouté';
 
             // Notification par email du demandeur sur les articles non dispo fournisseur
-            $this->emailDaService->envoyerMailPourNonDispoArticle($demandeApproAvant, $daAffichers, $this->getUser());
+            $this->emailDaService->envoyerMailPourNonDispoArticle($demandeApproAvant, $daAffichers, $numDa, $this->getUser());
 
             return new JsonResponse([
                 'status'  => 'success',

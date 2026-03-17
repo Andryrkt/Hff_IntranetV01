@@ -64,8 +64,14 @@ class listeDaController extends Controller
 
         $criteria = $daSearch->toArray();
 
+
         // Gestion spécifique "Mes DA à traiter"
-        if ($request->query->get('mes_da_a_traiter') == 1) {
+        if (
+            empty($request->query->get('mes_da_a_traiter')) &&
+            empty(array_filter($criteria, function ($value) {
+                return $value !== null && $value !== false;
+            }))
+        ) {
             $user = $this->getUser();
             $codeAgenceUser = $user->getCodeAgenceUser();
             $codeServiceUser = $user->getCodeServiceUser();
@@ -99,6 +105,7 @@ class listeDaController extends Controller
 
             $criteria['mes_da_a_traiter'] = 1;
         } else {
+            $request->query->set('mes_da_a_traiter', 1);
             // Sauvegarde classique des critères issus du formulaire
             $this->getSessionService()->set('criteria_search_list_da', $criteria);
         }
