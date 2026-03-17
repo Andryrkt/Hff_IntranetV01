@@ -136,7 +136,7 @@ class DaModel extends Model
         return $data;
     }
 
-    public function getAllDesignationZDI()
+    public function getAllDesignationZDI(string $codeSociete)
     {
         $statement = "SELECT
                     TRIM(a.abse_fams1) AS codefamille,
@@ -148,6 +148,10 @@ class DaModel extends Model
                 FROM art_bse a
                 LEFT JOIN frn_bse f
                     ON f.fbse_numfou = a.abse_numf
+                INNER JOIN art_soc asoc
+                    ON asoc.asoc_soc = '$codeSociete' 
+                    AND asoc.asoc_constp = a.abse_constp 
+                    AND asoc.asoc_refp = a.abse_refp
                 WHERE a.abse_constp = 'ZDI'
                 AND a.abse_numf <> '99'
                 ";
