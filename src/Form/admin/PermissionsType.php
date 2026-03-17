@@ -27,6 +27,7 @@ class PermissionsType extends AbstractType
             ])
             ->add('agenceServices', EntityType::class, [
                 'label'        => 'Agence(s) - Service(s) autorisée(s)',
+                'required'     => false,
                 'class'        => AgenceService::class,
                 'choice_label' => fn(AgenceService $as) =>
                 $as->getAgence()->getCodeAgence()

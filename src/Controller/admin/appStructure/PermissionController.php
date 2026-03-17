@@ -38,6 +38,7 @@ class PermissionController extends Controller
     /** @Route("/{id}", name="permission_handle") */
     public function handlePermission(int $id, Request $request)
     {
+        /** @var ApplicationProfil $appProfil */
         $appProfil = $this->entityManager->getRepository(ApplicationProfil::class)->find($id);
         $oldLinksAgServ = $appProfil->getLiaisonsAgenceService(); // collection de liaison (objet ApplicationProfilAgenceService)
         $oldLinksPage = $appProfil->getLiaisonsPage(); // collection de liaison (objet ApplicationProfilPage)
