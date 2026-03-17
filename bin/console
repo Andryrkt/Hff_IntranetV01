@@ -16,7 +16,7 @@ use App\Command\MigrationDevisCommand;
 use Symfony\Component\Console\Application;
 use App\Command\magasin\MigrationPdfDevisMagasinVdCommand;
 use App\Command\magasin\MigrationPdfDevisMagasinVpCommand;
-use App\Command\MigrationProfilsCommand;
+use App\Command\migration\MigrationProfilsCommand;
 use App\Service\navigation\MenuService;
 use App\Service\UserData\UserDataService;
 use Symfony\Component\Cache\Adapter\FilesystemTagAwareAdapter;

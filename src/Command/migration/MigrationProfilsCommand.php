@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Command;
+namespace App\Command\migration;
 
 use App\Entity\admin\AgenceService;
 use App\Entity\admin\Application;
@@ -22,10 +22,10 @@ class MigrationProfilsCommand extends Command
     protected static $defaultName = 'app:migration:profils';
 
     private EntityManagerInterface $entityManager;
-    private ProfilRepository $profilRepository;
-    private ApplicationRepository $applicationRepository;
-    private PageHffRepository $hffPageRepository;
-    private AgenceServiceRepository $agenceServiceRepository;
+    private $profilRepository;
+    private $applicationRepository;
+    private $hffPageRepository;
+    private $agenceServiceRepository;
 
     public function __construct(EntityManagerInterface $entityManager)
     {
