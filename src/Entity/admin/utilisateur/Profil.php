@@ -6,11 +6,12 @@ use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\ApplicationProfil;
 use App\Entity\admin\Societte;
+use App\Repository\admin\ProfilRepository;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 
 /**
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass=ProfilRepository::class)
  * @ORM\Table(name="profil")
  * @ORM\HasLifecycleCallbacks
  */
