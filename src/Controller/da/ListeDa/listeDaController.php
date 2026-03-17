@@ -64,11 +64,12 @@ class listeDaController extends Controller
 
         $criteria = $daSearch->toArray();
 
+
         // Gestion spécifique "Mes DA à traiter"
         if (
             empty($request->query->get('mes_da_a_traiter')) &&
             empty(array_filter($criteria, function ($value) {
-                return $value === null || $value === false;
+                return $value !== null && $value !== false;
             }))
         ) {
             $user = $this->getUser();
