@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Command\Migration;
+namespace App\Command;
 
 use App\Entity\admin\AgenceService;
 use App\Entity\admin\Application;
