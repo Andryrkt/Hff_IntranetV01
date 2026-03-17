@@ -5,9 +5,10 @@ namespace App\Entity\admin;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use App\Repository\admin\AgenceServiceRepository;
 
 /**
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass=AgenceServiceRepository::class)
  * @ORM\Table(name="agence_service")
  */
 class AgenceService
