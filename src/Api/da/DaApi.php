@@ -58,9 +58,12 @@ class DaApi extends Controller
     public function autocompleteAllDesignationDefault()
     {
         try {
+            // Code Société de l'utilisateur
+            $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+
             $daModel = new DaModel;
             // Utiliser des valeurs par défaut ou récupérer toutes les désignations
-            $data = $daModel->getAllDesignationZST('-', '-');
+            $data = $daModel->getAllDesignationZST('-', '-', $codeSociete);
 
             // Vérifier que les données sont valides
             if (!is_array($data)) {
@@ -92,6 +95,9 @@ class DaApi extends Controller
     public function autocompleteAllDesignationZST($famille, $sousfamille)
     {
         try {
+            // Code Société de l'utilisateur
+            $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+
             $daModel = new DaModel;
 
             // Gérer le cas spécial où les paramètres sont "-"
@@ -101,7 +107,7 @@ class DaApi extends Controller
                 return;
             }
 
-            $data = $daModel->getAllDesignationZST($famille, $sousfamille);
+            $data = $daModel->getAllDesignationZST($famille, $sousfamille, $codeSociete);
 
             // Vérifier que les données sont valides
             if (!is_array($data)) {

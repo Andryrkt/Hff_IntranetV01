@@ -92,7 +92,7 @@ class DaModel extends Model
         return $data[0]['libelle'] ?? ''; // Retourne '' si non trouvé
     }
 
-    public function getAllDesignationZST($codeFamille, $codeSousFamille)
+    public function getAllDesignationZST($codeFamille, $codeSousFamille, string $codeSociete = "")
     {
         $statement = "SELECT
                         TRIM(a.abse_fams1) AS codefamille,
@@ -116,6 +116,10 @@ class DaModel extends Model
                                 AND d.afrn_numf   = a.abse_numf
                                 AND d.afrn_constp = a.abse_constp
                         )
+                    INNER JOIN art_soc asoc
+                        ON asoc.asoc_soc = '$codeSociete' 
+                        AND asoc.asoc_constp = a.abse_constp 
+                        AND asoc.asoc_refp = a.abse_refp
                     WHERE a.abse_constp = 'ZST'
                     AND a.abse_refp <> 'ST'
                     AND a.abse_numf <> '99'
