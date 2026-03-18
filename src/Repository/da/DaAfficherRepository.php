@@ -547,6 +547,16 @@ class DaAfficherRepository extends EntityRepository
         $this->applyFilterAppro($qb, "d", $estAppro, $estAdmin);
         $this->applyStatutsFilters($qb, "d", $criteria);
 
+        // $query = $qb->getQuery();
+        // $sql = $query->getSQL();
+        // $params = $query->getParameters();
+
+        // dump("SQL : " . $sql . "\n");
+        // foreach ($params as $param) {
+        //     dump($param->getName());
+        //     dump($param->getValue());
+        // }
+
         // 4. Count total optimisé avec cache
         $countQb = clone $qb;
         $countQb->resetDQLPart('select');
@@ -758,7 +768,15 @@ class DaAfficherRepository extends EntityRepository
                 }
             }
         } else {
-            if (!empty($criteria['statutDA'])) {
+            if (!empty($criteria['statutDA']) && !empty($criteria['statutBC']) && is_array($criteria['statutDA']) && is_array($criteria['statutBC'])) {
+                $queryBuilder
+                    ->andWhere($queryBuilder->expr()->orX(
+                        $qbLabel . '.statutDal IN (:statutDaParam)',
+                        $qbLabel . '.statutCde IN (:statutBcParam)'
+                    ))
+                    ->setParameter('statutDaParam', $criteria['statutDA'], ArrayParameterType::STRING)
+                    ->setParameter('statutBcParam', $criteria['statutBC'], ArrayParameterType::STRING);
+            } elseif (!empty($criteria['statutDA'])) {
                 if (is_array($criteria['statutDA'])) {
                     $queryBuilder->andWhere($qbLabel . '.statutDal IN (:statutDaParam)')
                         ->setParameter('statutDaParam', $criteria['statutDA'], ArrayParameterType::STRING);
@@ -778,14 +796,9 @@ class DaAfficherRepository extends EntityRepository
                 }
             }
 
-            if (!empty($criteria['statutBC'])) {
-                if (is_array($criteria['statutBC'])) {
-                    $queryBuilder->orWhere($qbLabel . '.statutCde IN (:statutBcParam)')
-                        ->setParameter('statutBcParam', $criteria['statutBC'], ArrayParameterType::STRING);
-                } else {
-                    $queryBuilder->andWhere($qbLabel . '.statutCde = :statutBcParam')
-                        ->setParameter('statutBcParam', $criteria['statutBC']);
-                }
+            if (!empty($criteria['statutBC']) && !is_array($criteria['statutBC'])) {
+                $queryBuilder->andWhere($qbLabel . '.statutCde = :statutBcParam')
+                    ->setParameter('statutBcParam', $criteria['statutBC']);
             }
         }
     }
