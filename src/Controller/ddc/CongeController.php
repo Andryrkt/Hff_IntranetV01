@@ -103,7 +103,7 @@ class CongeController extends Controller
 
             // Gestion spéciale pour les matricules multiples
             // On divise la chaîne de matricules multiples pour éviter les problèmes de longueur de champ
-            $originalMatricule = $congeSearch->getMatricule();
+            $originalMatricule = $form->get('matricule')->getData();
             if ($originalMatricule && strpos($originalMatricule, ',') !== false) {
                 // Si plusieurs matricules sont fournis, on ne les stocke pas dans l'entité
                 // pour éviter les problèmes avec la longueur du champ (length=4)
