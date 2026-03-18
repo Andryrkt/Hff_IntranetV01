@@ -740,9 +740,12 @@ class DaAfficherRepository extends EntityRepository
 
     private function applyStatutsFilters(QueryBuilder $queryBuilder, string $qbLabel, array $criteria, bool $estCdeFrn = false)
     {
-        if (empty(array_filter($criteria, function ($value) {
-            return $value !== null;
-        })) || (array_key_exists('afficherCloturees', $criteria) && !$criteria['afficherCloturees'] === true)) {
+        if (
+            empty(array_filter($criteria, function ($value) {
+                return $value !== null && $value !== false;
+            })) &&
+            (array_key_exists('afficherCloturees', $criteria) && !$criteria['afficherCloturees'])
+        ) {
             $queryBuilder->andWhere($qbLabel . '.statutDal NOT IN (:statutDaFermer)')
                 ->setParameter('statutDaFermer', [DemandeAppro::STATUT_TERMINER, DemandeAppro::STATUT_CLOTUREE], ArrayParameterType::STRING);
         }
