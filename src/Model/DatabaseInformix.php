@@ -135,7 +135,20 @@ class DatabaseInformix implements DatabaseConnectionInterface
         } else {
             // Fallback si aucun logger n'est injecté (ancien mode)
             $formattedMessage = sprintf("[%s][%s] %s\n", date("Y-m-d H:i:s"), strtoupper($level), $message);
-            error_log($formattedMessage, 3, ($_ENV['BASE_PATH_LOG'] ?? 'var/log') . "/app_errors.log");
+            $logPath = $_ENV['BASE_PATH_LOG'] ?? 'var/log/app_errors.log';
+            
+            // Assure que le chemin finit par le fichier de log si ce n'est pas déjà le cas
+            if (strpos($logPath, '.log') === false) {
+                $logPath = rtrim($logPath, '/') . '/app_errors.log';
+            }
+
+            // Création du répertoire si nécessaire
+            $logDir = dirname($logPath);
+            if (!is_dir($logDir)) {
+                @mkdir($logDir, 0777, true);
+            }
+
+            @error_log($formattedMessage, 3, $logPath);
         }
     }
 }
