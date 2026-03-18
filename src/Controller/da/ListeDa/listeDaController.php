@@ -104,6 +104,7 @@ class listeDaController extends Controller
             }
 
             $criteria['mes_da_a_traiter'] = 1;
+            $this->getSessionService()->set('criteria_search_list_da', $criteria);
         } else {
             $request->query->set('mes_da_a_traiter', 1);
             // Sauvegarde classique des critères issus du formulaire
