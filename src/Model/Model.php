@@ -20,8 +20,21 @@ class Model
 
     public function __construct()
     {
+        global $container;
+        $logger = ($container && $container->has('logger')) ? $container->get('logger') : null;
+
         $this->connexion = new Connexion();
-        $this->connect = new DatabaseInformix();
+        $this->connect = new DatabaseInformix($logger);
+        
+        // On force la connexion pour ne pas casser les modèles enfants existants
+        try {
+            $this->connect->connect();
+        } catch (\Exception $e) {
+            // On laisse l'erreur se logguer dans DatabaseInformix, 
+            // mais on ne bloque pas forcément l'instanciation ici 
+            // pour rester proche de l'ancien comportement.
+        }
+
         $this->connexion04 = new ConnexionDote4();
         $this->connexion04Gcot = new connexionDote4Gcot();
     }
