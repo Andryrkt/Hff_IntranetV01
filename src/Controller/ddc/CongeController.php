@@ -120,6 +120,8 @@ class CongeController extends Controller
                     $options['matricules'] = $matricules;
                     // Ne pas modifier le matricule de l'entité pour conserver la structure existante
                 }
+            } elseif ($originalMatricule && !strpos($originalMatricule, ',')) {
+                $options['matricules'] = [$originalMatricule];
             }
 
             // Récupérer les dates de demande (mappées et non mappées)
