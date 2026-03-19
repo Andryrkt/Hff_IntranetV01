@@ -9,6 +9,7 @@ use App\Form\magasin\devis\DevisNegSearchType;
 use App\Mapper\Magasin\Devis\DevisNegMapper;
 use App\Model\magasin\devis\DevisNegModel;
 use App\Service\TableauEnStringService;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 
@@ -31,7 +32,7 @@ class ListeDevisNegController extends Controller
      *
      * @return void
      */
-    public function listeDevisNeg()
+    public function listeDevisNeg(Request $request)
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
@@ -39,11 +40,8 @@ class ListeDevisNegController extends Controller
         /** Autorisation accées */
         $this->autorisationAcces($this->getUser(), Application::ID_DVM);
 
-        // création du formulaire de recherhce
-        $form = $this->getFormFactory()->createBuilder(DevisNegSearchType::class, null, [
-            'em' => $this->getEntityManager(),
-            'method' => 'GET'
-        ])->getForm();
+        // création et traitement du formulaire de recherhce
+        [$form, $criteria] = $this->creationEtTraitementformulaireDeRecherche($request);
 
         /** Récupération des devis et le transform en DTO */
         $devisNeg = $this->getDataDevisNegEnDto();
@@ -54,7 +52,24 @@ class ListeDevisNegController extends Controller
         ]);
     }
 
-    public function getDataDevisNegEnDto()
+    private function creationEtTraitementformulaireDeRecherche($request): array
+    {
+        $form = $this->getFormFactory()->createBuilder(DevisNegSearchType::class, null, [
+            'em' => $this->getEntityManager(),
+            'method' => 'GET'
+        ])->getForm();
+
+        $form->handleRequest($request);
+        $criteria = [];
+        if ($form->isSubmitted() && $form->isValid()) {
+            $criteria = $form->getData();
+            dd($criteria);
+        }
+
+        return [$form, $criteria];
+    }
+
+    private function getDataDevisNegEnDto()
     {
         $criteria = [];
         $codeAgenceAutoriserString = TableauEnStringService::orEnString($this->getUser()->getAgenceAutoriserCode());

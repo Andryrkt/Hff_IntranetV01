@@ -23,10 +23,17 @@ class DevisNegDto
     public ?string $utilisateurCreateurDevis = null;
     public ?string $soumisPar = null;
 
+    // Url
+    public $url = [];
+
+    // Relance
     public ?string $statutRelance1 = null;
     public ?string $statutRelance2 = null;
     public ?string $statutRelance3 = null;
 
+    // blocage de soumission
+    public bool $pointagedevis = false;
+    public bool $relanceClient = false;
 
     public string $devise = '';
     public  $constructeur;

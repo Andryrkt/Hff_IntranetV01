@@ -3,8 +3,6 @@
 namespace App\Mapper\Magasin\Devis;
 
 use App\Dto\Magasin\Devis\DevisNegDto;
-use App\Entity\dw\DwBcClientNegoce;
-use App\Repository\dw\DwBcClientNegoceRepository;
 
 
 class DevisNegMapper
@@ -31,6 +29,20 @@ class DevisNegMapper
             // =====================================
             $dto->devise = $item['devise'] ?? '';
             $dto->constructeur = $item['constructeur'] ?? '';
+
+            // Url 
+            // $url = [
+            //     "verificationPrix" => $this->getUrlGenerator()->generate('devis_magasin_soumission_verification_prix', ['numeroDevis' => $numeroDevis]),
+            //     "validationDevis"  => $this->getUrlGenerator()->generate('devis_magasin_soumission_validation_devis', ['numeroDevis' => $numeroDevis, 'codeAgenceService' => $emetteur]),
+            //     "soumissionBC"     => $this->getUrlGenerator()->generate('bc_magasin_soumission', ['numeroDevis' => $numeroDevis]),
+            // ];
+            // $dto->url = $url;
+
+            // // Blocage
+            // $pointageDevis = in_array($dto->statutDw, [DevisMagasin::STATUT_PRIX_VALIDER_TANA, DevisMagasin::STATUT_PRIX_MODIFIER_TANA, DevisMagasin::STATUT_VALIDE_AGENCE]);
+            // $relanceClient = $dto->statutDw === DevisMagasin::STATUT_ENVOYER_CLIENT && $dto->statutBc ===  BcMagasin::STATUT_EN_ATTENTE_BC && in_array(PointageRelanceStatutConstant::POINTAGE_RELANCE_A_RELANCER, [$dto->statutRelance1, $dto->statutRelance2, $dto->statutRelance3]) && !$dto->getStopRelance();
+            // $dto->pointagedevis = $pointageDevis;
+            // $dto->relanceClient = $relanceClient;
 
             // $dto->numeroVersion =  0;
             // $dto->nombreLignes = $item['nombre_lignes'] ?? 0;
