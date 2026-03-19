@@ -7,6 +7,7 @@ use App\Controller\Traits\AutorisationTrait;
 use App\Entity\admin\Application;
 use App\Mapper\Magasin\Devis\DevisNegMapper;
 use App\Model\magasin\devis\DevisNegModel;
+use App\Service\TableauEnStringService;
 use Symfony\Component\Routing\Annotation\Route;
 
 
@@ -14,13 +15,13 @@ class ListeDevisNegController extends Controller
 {
     use AutorisationTrait;
 
-    private DevisNegModel $listeDevisMagasinModel;
+    private DevisNegModel $listeDevisNegModel;
     private DevisNegMapper $devisNegMapper;
 
     public function __construct()
     {
         parent::__construct();
-        $this->listeDevisMagasinModel = new DevisNegModel();
+        $this->listeDevisNegModel = new DevisNegModel();
         $this->devisNegMapper = new DevisNegMapper();
     }
 
@@ -37,11 +38,23 @@ class ListeDevisNegController extends Controller
         /** Autorisation accées */
         $this->autorisationAcces($this->getUser(), Application::ID_DVM);
 
-        $devisNeg = $this->listeDevisMagasinModel->getDevisNeg();
-        $devisNeg = $this->devisNegMapper->map($devisNeg);
+        /** Récupération des devis et le transform en DTO */
+        $devisNeg = $this->getDataDevisNegEnDto();
 
         return $this->render('magasin/devis/liste_devis_neg.html.twig', [
             'devisNeg' => $devisNeg
         ]);
+    }
+
+    public function getDataDevisNegEnDto()
+    {
+        $criteria = [];
+        $codeAgenceAutoriserString = TableauEnStringService::orEnString($this->getUser()->getAgenceAutoriserCode());
+        $vignette = 'magasin';
+        $adminMutli          = in_array(1, $this->getUser()->getRoleIds()) || in_array(6, $this->getUser()->getRoleIds());
+        $numDeviAExclure = TableauEnStringService::simpleNumeric(array_map('intval', $this->listeDevisNegModel->getNumeroDevisExclure()));
+        $devisNeg = $this->listeDevisNegModel->getDevisNeg($criteria, $vignette, $codeAgenceAutoriserString, $adminMutli, $numDeviAExclure);
+        $devisNeg = $this->devisNegMapper->map($devisNeg);
+        return $devisNeg;
     }
 }

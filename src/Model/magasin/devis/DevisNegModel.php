@@ -7,7 +7,7 @@ use App\Service\GlobalVariablesService;
 
 class DevisNegModel extends Model
 {
-    public function getDevisNeg()
+    public function getDevisNeg($criteria, $vignette, $codeAgenceAutoriserString, $adminMutli, $numDeviAExclure)
     {
         $this->connect->connect();
 
@@ -49,27 +49,27 @@ class DevisNegModel extends Model
                     AND nent.nent_soc = 'HF'
                     AND nent.nent_servcrt <> 'ASS'
                     AND (CAST(nent.nent_numcli AS VARCHAR(20)) NOT LIKE '199%' and nent.nent_numcli not in ('1990000'))
-                    -- AND nent_numcde not in (numDeviAExclureString)            
+                    AND nent_numcde not in ($numDeviAExclure)            
                     AND nent.nent_numcde not in ('19407989','19407991','19408971','19410383','19409906','19409996')
                     AND nent.nent_datecde >= MDY(9, 1, 2025)
                     and nlig_constp <> 'Nmc'
             ";
 
-            // if (array_key_exists('statutIps', $criteria) && ($criteria['statutIps'] == 'RE' || $criteria['statutIps'] == 'TR')) {
-            //             $statement .= " AND nent_posl in ('--','AC','DE', 'RE', 'TR')";
-            //         } else {
-            $statement .= " AND nent.nent_posl in ('--','AC','DE', 'TR')";
-            // }
+            if (array_key_exists('statutIps', $criteria) && ($criteria['statutIps'] == 'RE' || $criteria['statutIps'] == 'TR')) {
+                $statement .= " AND nent.nent_posl in ('--','AC','DE', 'RE', 'TR')";
+            } else {
+                $statement .= " AND nent.nent_posl in ('--','AC','DE', 'TR')";
+            }
 
-            // if ($vignette === 'pneumatique' && !$adminMulti) {
-            //     // entrer par le vignette POL - agence pneumatique
-            //     $piecesPneumatique = GlobalVariablesService::get('pneumatique');
-            //     $statement .= " AND nlig_constp IN ($piecesPneumatique) AND nent_succ in ($codeAgenceAutoriser) ";
-            // } else {
-            // entrer par le vignette MAGASIN - agence tana et autres agence
-            $piecesMagasin = GlobalVariablesService::get('pieces_magasin');
-            $statement .= " AND nlig.nlig_constp IN ($piecesMagasin) AND nent.nent_succ <> '60' ";
-            // }
+            if ($vignette === 'pneumatique' && !$adminMutli) {
+                // entrer par le vignette POL - agence pneumatique
+                $piecesPneumatique = GlobalVariablesService::get('pneumatique');
+                $statement .= " AND nlig.nlig_constp IN ($piecesPneumatique) AND nent_succ in ($codeAgenceAutoriserString) ";
+            } else {
+                // entrer par le vignette MAGASIN - agence tana et autres agence
+                $piecesMagasin = GlobalVariablesService::get('pieces_magasin');
+                $statement .= " AND nlig.nlig_constp IN ($piecesMagasin) AND nent.nent_succ <> '60' ";
+            }
 
             $statement .= " GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15 ";
             $statement .= " ORDER BY date_cde_brute DESC";
@@ -81,5 +81,20 @@ class DevisNegModel extends Model
         } finally {
             $this->connect->close();
         }
+    }
+
+    public function getNumeroDevisExclure()
+    {
+        $sql = " SELECT distinct Numero_Devis_ERP as numDevis
+                from GCOT_Devis
+                ";
+
+        $statement = $this->connexion04Gcot->query($sql);
+        $data = [];
+        while ($List = odbc_fetch_array($statement)) {
+            $data[] = $List;
+        }
+
+        return array_column($data, 'numDevis');
     }
 }

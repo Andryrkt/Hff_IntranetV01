@@ -3,6 +3,8 @@
 namespace App\Mapper\Magasin\Devis;
 
 use App\Dto\Magasin\Devis\DevisNegDto;
+use App\Entity\dw\DwBcClientNegoce;
+use App\Repository\dw\DwBcClientNegoceRepository;
 
 
 class DevisNegMapper
@@ -21,6 +23,8 @@ class DevisNegMapper
             $dto->montantDevis = (float)$item['montant_devis'] ?? 0.00;
             $dto->dateEnvoiDevisAuClient = $item['date_envoye_devis_au_client'] ?? null;
             $dto->positionIps = $item['position_ips'] ?? '';
+            $dto->numeroPo = null;
+            $dto->urlPo = null;
             $dto->utilisateurCreateurDevis = $item['utilisateur_createur_devis'] ?? '';
             $dto->soumisPar = $item['soumis_par'] ?? '';
 
