@@ -17,6 +17,20 @@ class StatutDevisNegContant
     public const CLOTURER_A_MODIFIER = 'Cloturé - A modifier';
     public const A_TRAITER = 'A traiter';
 
+    // Transformer le tableau en format de choix pour le formulaire (statut DW)
+    public const STATUTS_DW = [
+        self::A_TRAITER             => self::A_TRAITER,
+        self::PRIX_A_CONFIRMER      => self::PRIX_A_CONFIRMER,
+        self::PRIX_VALIDER_TANA     => self::PRIX_VALIDER_TANA,
+        self::PRIX_VALIDER_AGENCE   => self::PRIX_VALIDER_AGENCE,
+        self::PRIX_MODIFIER_TANA    => self::PRIX_MODIFIER_TANA,
+        self::PRIX_MODIFIER_AGENCE  => self::PRIX_MODIFIER_AGENCE,
+        self::DEMANDE_REFUSE_PAR_PM => self::DEMANDE_REFUSE_PAR_PM,
+        self::A_VALIDER_CHEF_AGENCE => self::A_VALIDER_CHEF_AGENCE,
+        self::VALIDE_AGENCE         => self::VALIDE_AGENCE,
+        self::ENVOYER_CLIENT        => self::ENVOYER_CLIENT,
+        self::CLOTURER_A_MODIFIER   => self::CLOTURER_A_MODIFIER,
+    ];
 
     public const statutIPS = [
         "--"  => "En cours",
