@@ -19740,8 +19740,8 @@
     ]
   },
   {
-    "ref_profil": "HFF_80-DIR_BADM+DIT+REP+DAP+DDC",
-    "designation_profil": "HFF_80-DIR_BADM+DIT+REP+DAP+DDC",
+    "ref_profil": "HFF_80-DIR_BDM+DIT+REP+DAP+DDC",
+    "designation_profil": "HFF_80-DIR_BDM+DIT+REP+DAP+DDC",
     "societe_id": 1,
     "applications": [
       {
@@ -19773,7 +19773,7 @@
         "agences_services": []
       },
       {
-        "code_app": "BADM",
+        "code_app": "BDM",
         "pages": [
           {
             "nom_route": "badms_newForm1",
@@ -21541,8 +21541,8 @@
     ]
   },
   {
-    "ref_profil": "HFF_80-PER_DOM+BADM+DIT+DDC",
-    "designation_profil": "HFF_80-PER_DOM+BADM+DIT+DDC",
+    "ref_profil": "HFF_80-PER_DOM+BDM+DIT+DDC",
+    "designation_profil": "HFF_80-PER_DOM+BDM+DIT+DDC",
     "societe_id": 1,
     "applications": [
       {
@@ -21636,7 +21636,7 @@
         "agences_services": []
       },
       {
-        "code_app": "BADM",
+        "code_app": "BDM",
         "pages": [
           {
             "nom_route": "badms_newForm1",
