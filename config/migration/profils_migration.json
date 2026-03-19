@@ -101,10 +101,22 @@
           }
         ],
         "agences_services": [
-          "01-ATE",
-          "01-CSP",
-          "01-MAS",
-          "20-ATE"
+          {
+            "code_agence": "01",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "CSP"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "MAS"
+          },
+          {
+            "code_agence": "20",
+            "code_service": "ATE"
+          }
         ]
       },
       {
@@ -1003,10 +1015,22 @@
           }
         ],
         "agences_services": [
-          "01-ATE",
-          "01-CSP",
-          "01-GAR",
-          "01-MAS"
+          {
+            "code_agence": "01",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "CSP"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "GAR"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "MAS"
+          }
         ]
       },
       {
@@ -1179,26 +1203,86 @@
           }
         ],
         "agences_services": [
-          "01-NEG",
-          "01-ATE",
-          "01-CSP",
-          "01-GAR",
-          "01-ASS",
-          "01-MAS",
-          "02-NEG",
-          "02-ATE",
-          "02-LCD",
-          "20-NEG",
-          "20-ATE",
-          "30-NEG",
-          "30-ATE",
-          "40-NEG",
-          "40-ATE",
-          "40-LCD",
-          "40-LEV",
-          "60-NEG",
-          "60-ATE",
-          "80-PER"
+          {
+            "code_agence": "01",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "CSP"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "GAR"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "ASS"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "MAS"
+          },
+          {
+            "code_agence": "02",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "02",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "02",
+            "code_service": "LCD"
+          },
+          {
+            "code_agence": "20",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "20",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "30",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "30",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "LCD"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "LEV"
+          },
+          {
+            "code_agence": "60",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "60",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "80",
+            "code_service": "PER"
+          }
         ]
       },
       {
@@ -1270,26 +1354,86 @@
           }
         ],
         "agences_services": [
-          "01-NEG",
-          "01-ATE",
-          "01-CSP",
-          "01-GAR",
-          "01-ASS",
-          "01-MAS",
-          "02-NEG",
-          "02-ATE",
-          "02-LCD",
-          "20-NEG",
-          "20-ATE",
-          "30-NEG",
-          "30-ATE",
-          "40-NEG",
-          "40-ATE",
-          "40-LCD",
-          "40-LEV",
-          "60-NEG",
-          "60-ATE",
-          "80-PER"
+          {
+            "code_agence": "01",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "CSP"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "GAR"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "ASS"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "MAS"
+          },
+          {
+            "code_agence": "02",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "02",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "02",
+            "code_service": "LCD"
+          },
+          {
+            "code_agence": "20",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "20",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "30",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "30",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "LCD"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "LEV"
+          },
+          {
+            "code_agence": "60",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "60",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "80",
+            "code_service": "PER"
+          }
         ]
       },
       {
@@ -1626,22 +1770,70 @@
           }
         ],
         "agences_services": [
-          "01-NEG",
-          "01-ATE",
-          "01-CSP",
-          "01-GAR",
-          "01-ASS",
-          "01-MAS",
-          "20-NEG",
-          "20-ATE",
-          "30-NEG",
-          "30-ATE",
-          "40-NEG",
-          "40-ATE",
-          "40-LCD",
-          "40-LEV",
-          "60-NEG",
-          "60-ATE"
+          {
+            "code_agence": "01",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "CSP"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "GAR"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "ASS"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "MAS"
+          },
+          {
+            "code_agence": "20",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "20",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "30",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "30",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "LCD"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "LEV"
+          },
+          {
+            "code_agence": "60",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "60",
+            "code_service": "ATE"
+          }
         ]
       },
       {
@@ -2215,34 +2407,118 @@
           }
         ],
         "agences_services": [
-          "01-NEG",
-          "01-COM",
-          "01-ATE",
-          "01-CSP",
-          "01-GAR",
-          "01-ASS",
-          "01-MAS",
-          "01-MAP",
-          "20-NEG",
-          "20-ATE",
-          "20-MAP",
-          "30-NEG",
-          "30-ATE",
-          "30-MAN",
-          "40-NEG",
-          "40-ATE",
-          "40-LCD",
-          "40-LEV",
-          "50-LCD",
-          "50-LTV",
-          "50-LFD",
-          "50-LBV",
-          "50-LR6",
-          "50-LST",
-          "50-LSC",
-          "60-NEG",
-          "60-ATE",
-          "60-MAP"
+          {
+            "code_agence": "01",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "COM"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "CSP"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "GAR"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "ASS"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "MAS"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "MAP"
+          },
+          {
+            "code_agence": "20",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "20",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "20",
+            "code_service": "MAP"
+          },
+          {
+            "code_agence": "30",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "30",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "30",
+            "code_service": "MAN"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "LCD"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "LEV"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LCD"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LTV"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LFD"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LBV"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LR6"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LST"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LSC"
+          },
+          {
+            "code_agence": "60",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "60",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "60",
+            "code_service": "MAP"
+          }
         ]
       },
       {
@@ -5636,16 +5912,46 @@
           }
         ],
         "agences_services": [
-          "01-ATE",
-          "01-CSP",
-          "01-GAR",
-          "01-ASS",
-          "01-MAS",
-          "20-ATE",
-          "30-ATE",
-          "40-ATE",
-          "40-LEV",
-          "60-ATE"
+          {
+            "code_agence": "01",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "CSP"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "GAR"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "ASS"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "MAS"
+          },
+          {
+            "code_agence": "20",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "30",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "LEV"
+          },
+          {
+            "code_agence": "60",
+            "code_service": "ATE"
+          }
         ]
       },
       {
@@ -5717,16 +6023,46 @@
           }
         ],
         "agences_services": [
-          "01-ATE",
-          "01-CSP",
-          "01-GAR",
-          "01-ASS",
-          "01-MAS",
-          "20-ATE",
-          "30-ATE",
-          "40-ATE",
-          "40-LEV",
-          "60-ATE"
+          {
+            "code_agence": "01",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "CSP"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "GAR"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "ASS"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "MAS"
+          },
+          {
+            "code_agence": "20",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "30",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "LEV"
+          },
+          {
+            "code_agence": "60",
+            "code_service": "ATE"
+          }
         ]
       },
       {
@@ -8724,13 +9060,34 @@
           }
         ],
         "agences_services": [
-          "01-NEG",
-          "01-FLE",
-          "20-NEG",
-          "30-NEG",
-          "30-FLE",
-          "40-NEG",
-          "40-FLE"
+          {
+            "code_agence": "01",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "FLE"
+          },
+          {
+            "code_agence": "20",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "30",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "30",
+            "code_service": "FLE"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "FLE"
+          }
         ]
       },
       {
@@ -8802,13 +9159,34 @@
           }
         ],
         "agences_services": [
-          "01-NEG",
-          "01-FLE",
-          "20-NEG",
-          "30-NEG",
-          "30-FLE",
-          "40-NEG",
-          "40-FLE"
+          {
+            "code_agence": "01",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "FLE"
+          },
+          {
+            "code_agence": "20",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "30",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "30",
+            "code_service": "FLE"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "FLE"
+          }
         ]
       },
       {
@@ -8966,13 +9344,34 @@
           }
         ],
         "agences_services": [
-          "01-NEG",
-          "01-FLE",
-          "20-NEG",
-          "30-NEG",
-          "30-FLE",
-          "40-NEG",
-          "40-FLE"
+          {
+            "code_agence": "01",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "FLE"
+          },
+          {
+            "code_agence": "20",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "30",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "30",
+            "code_service": "FLE"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "FLE"
+          }
         ]
       },
       {
@@ -9066,13 +9465,34 @@
           }
         ],
         "agences_services": [
-          "01-NEG",
-          "01-FLE",
-          "20-NEG",
-          "30-NEG",
-          "30-FLE",
-          "40-NEG",
-          "40-FLE"
+          {
+            "code_agence": "01",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "FLE"
+          },
+          {
+            "code_agence": "20",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "30",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "30",
+            "code_service": "FLE"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "FLE"
+          }
         ]
       },
       {
@@ -9126,13 +9546,34 @@
           }
         ],
         "agences_services": [
-          "01-NEG",
-          "01-FLE",
-          "20-NEG",
-          "30-NEG",
-          "30-FLE",
-          "40-NEG",
-          "40-FLE"
+          {
+            "code_agence": "01",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "FLE"
+          },
+          {
+            "code_agence": "20",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "30",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "30",
+            "code_service": "FLE"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "FLE"
+          }
         ]
       }
     ]
@@ -9606,9 +10047,18 @@
           }
         ],
         "agences_services": [
-          "02-NEG",
-          "02-ATE",
-          "02-LCD"
+          {
+            "code_agence": "02",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "02",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "02",
+            "code_service": "LCD"
+          }
         ]
       },
       {
@@ -9998,8 +10448,14 @@
           }
         ],
         "agences_services": [
-          "20-ATE",
-          "20-MAP"
+          {
+            "code_agence": "20",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "20",
+            "code_service": "MAP"
+          }
         ]
       },
       {
@@ -10071,8 +10527,14 @@
           }
         ],
         "agences_services": [
-          "20-ATE",
-          "20-MAP"
+          {
+            "code_agence": "20",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "20",
+            "code_service": "MAP"
+          }
         ]
       },
       {
@@ -10118,8 +10580,14 @@
           }
         ],
         "agences_services": [
-          "20-ATE",
-          "20-MAP"
+          {
+            "code_agence": "20",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "20",
+            "code_service": "MAP"
+          }
         ]
       }
     ]
@@ -10523,8 +10991,14 @@
           }
         ],
         "agences_services": [
-          "20-NEG",
-          "20-ATE"
+          {
+            "code_agence": "20",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "20",
+            "code_service": "ATE"
+          }
         ]
       },
       {
@@ -10548,8 +11022,14 @@
           }
         ],
         "agences_services": [
-          "20-NEG",
-          "20-ATE"
+          {
+            "code_agence": "20",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "20",
+            "code_service": "ATE"
+          }
         ]
       }
     ]
@@ -10656,10 +11136,22 @@
           }
         ],
         "agences_services": [
-          "30-ATE",
-          "30-MAN",
-          "40-ATE",
-          "50-LTV"
+          {
+            "code_agence": "30",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "30",
+            "code_service": "MAN"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LTV"
+          }
         ]
       },
       {
@@ -11076,8 +11568,14 @@
           }
         ],
         "agences_services": [
-          "30-ATE",
-          "30-MAN"
+          {
+            "code_agence": "30",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "30",
+            "code_service": "MAN"
+          }
         ]
       },
       {
@@ -11153,8 +11651,14 @@
           }
         ],
         "agences_services": [
-          "30-ATE",
-          "30-MAN"
+          {
+            "code_agence": "30",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "30",
+            "code_service": "MAN"
+          }
         ]
       }
     ]
@@ -12111,8 +12615,14 @@
           }
         ],
         "agences_services": [
-          "30-NEG",
-          "30-ATE"
+          {
+            "code_agence": "30",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "30",
+            "code_service": "ATE"
+          }
         ]
       },
       {
@@ -12184,8 +12694,14 @@
           }
         ],
         "agences_services": [
-          "30-NEG",
-          "30-ATE"
+          {
+            "code_agence": "30",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "30",
+            "code_service": "ATE"
+          }
         ]
       },
       {
@@ -12261,8 +12777,14 @@
           }
         ],
         "agences_services": [
-          "30-NEG",
-          "30-ATE"
+          {
+            "code_agence": "30",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "30",
+            "code_service": "ATE"
+          }
         ]
       }
     ]
@@ -12528,13 +13050,34 @@
           }
         ],
         "agences_services": [
-          "40-NEG",
-          "40-ATE",
-          "40-LCD",
-          "40-FLE",
-          "40-LEV",
-          "50-LCD",
-          "50-LTV"
+          {
+            "code_agence": "40",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "LCD"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "FLE"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "LEV"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LCD"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LTV"
+          }
         ]
       },
       {
@@ -12921,9 +13464,18 @@
           }
         ],
         "agences_services": [
-          "40-NEG",
-          "40-ATE",
-          "40-LEV"
+          {
+            "code_agence": "40",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "LEV"
+          }
         ]
       },
       {
@@ -12969,9 +13521,18 @@
           }
         ],
         "agences_services": [
-          "40-NEG",
-          "40-ATE",
-          "40-LEV"
+          {
+            "code_agence": "40",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "LEV"
+          }
         ]
       }
     ]
@@ -13070,8 +13631,14 @@
           }
         ],
         "agences_services": [
-          "40-ATE",
-          "40-LEV"
+          {
+            "code_agence": "40",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "LEV"
+          }
         ]
       },
       {
@@ -13143,8 +13710,14 @@
           }
         ],
         "agences_services": [
-          "40-ATE",
-          "40-LEV"
+          {
+            "code_agence": "40",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "LEV"
+          }
         ]
       },
       {
@@ -13302,8 +13875,14 @@
           }
         ],
         "agences_services": [
-          "40-ATE",
-          "40-LEV"
+          {
+            "code_agence": "40",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "LEV"
+          }
         ]
       },
       {
@@ -13432,11 +14011,26 @@
           }
         ],
         "agences_services": [
-          "40-ATE",
-          "40-LCD",
-          "40-LEV",
-          "50-LCD",
-          "50-LTV"
+          {
+            "code_agence": "40",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "LCD"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "LEV"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LCD"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LTV"
+          }
         ]
       },
       {
@@ -13713,8 +14307,14 @@
           }
         ],
         "agences_services": [
-          "40-ATE",
-          "40-LEV"
+          {
+            "code_agence": "40",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "LEV"
+          }
         ]
       },
       {
@@ -13786,8 +14386,14 @@
           }
         ],
         "agences_services": [
-          "40-ATE",
-          "40-LEV"
+          {
+            "code_agence": "40",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "LEV"
+          }
         ]
       },
       {
@@ -13945,8 +14551,14 @@
           }
         ],
         "agences_services": [
-          "40-ATE",
-          "40-LEV"
+          {
+            "code_agence": "40",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "LEV"
+          }
         ]
       },
       {
@@ -14107,8 +14719,14 @@
           }
         ],
         "agences_services": [
-          "40-NEG",
-          "40-ATE"
+          {
+            "code_agence": "40",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "ATE"
+          }
         ]
       },
       {
@@ -14180,8 +14798,14 @@
           }
         ],
         "agences_services": [
-          "40-NEG",
-          "40-ATE"
+          {
+            "code_agence": "40",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "ATE"
+          }
         ]
       },
       {
@@ -14227,8 +14851,14 @@
           }
         ],
         "agences_services": [
-          "40-NEG",
-          "40-ATE"
+          {
+            "code_agence": "40",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "ATE"
+          }
         ]
       }
     ]
@@ -14859,12 +15489,30 @@
           }
         ],
         "agences_services": [
-          "50-LCD",
-          "50-LTV",
-          "50-LFD",
-          "50-LBV",
-          "50-LR6",
-          "50-LST"
+          {
+            "code_agence": "50",
+            "code_service": "LCD"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LTV"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LFD"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LBV"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LR6"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LST"
+          }
         ]
       },
       {
@@ -15025,13 +15673,34 @@
           }
         ],
         "agences_services": [
-          "50-LCD",
-          "50-LTV",
-          "50-LFD",
-          "50-LBV",
-          "50-LR6",
-          "50-LST",
-          "50-LSC"
+          {
+            "code_agence": "50",
+            "code_service": "LCD"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LTV"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LFD"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LBV"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LR6"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LST"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LSC"
+          }
         ]
       },
       {
@@ -15189,13 +15858,34 @@
           }
         ],
         "agences_services": [
-          "50-LCD",
-          "50-LTV",
-          "50-LFD",
-          "50-LBV",
-          "50-LR6",
-          "50-LST",
-          "50-LSC"
+          {
+            "code_agence": "50",
+            "code_service": "LCD"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LTV"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LFD"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LBV"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LR6"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LST"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LSC"
+          }
         ]
       },
       {
@@ -15607,45 +16297,162 @@
           }
         ],
         "agences_services": [
-          "01-NEG",
-          "01-COM",
-          "01-ATE",
-          "01-CSP",
-          "01-GAR",
-          "01-ASS",
-          "01-FLE",
-          "01-MAS",
-          "01-MAP",
-          "02-NEG",
-          "02-ATE",
-          "02-LCD",
-          "20-NEG",
-          "20-ATE",
-          "20-MAP",
-          "30-NEG",
-          "30-ATE",
-          "30-MAN",
-          "30-FLE",
-          "40-NEG",
-          "40-ATE",
-          "40-LCD",
-          "40-FLE",
-          "40-LEV",
-          "50-LCD",
-          "50-LTV",
-          "50-LFD",
-          "50-LBV",
-          "60-NEG",
-          "60-ATE",
-          "60-MAP",
-          "80-DIR",
-          "80-FIN",
-          "80-PER",
-          "80-INF",
-          "80-IMM",
-          "80-TRA",
-          "80-APP",
-          "80-UMP"
+          {
+            "code_agence": "01",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "COM"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "CSP"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "GAR"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "ASS"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "FLE"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "MAS"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "MAP"
+          },
+          {
+            "code_agence": "02",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "02",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "02",
+            "code_service": "LCD"
+          },
+          {
+            "code_agence": "20",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "20",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "20",
+            "code_service": "MAP"
+          },
+          {
+            "code_agence": "30",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "30",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "30",
+            "code_service": "MAN"
+          },
+          {
+            "code_agence": "30",
+            "code_service": "FLE"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "LCD"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "FLE"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "LEV"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LCD"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LTV"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LFD"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LBV"
+          },
+          {
+            "code_agence": "60",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "60",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "60",
+            "code_service": "MAP"
+          },
+          {
+            "code_agence": "80",
+            "code_service": "DIR"
+          },
+          {
+            "code_agence": "80",
+            "code_service": "FIN"
+          },
+          {
+            "code_agence": "80",
+            "code_service": "PER"
+          },
+          {
+            "code_agence": "80",
+            "code_service": "INF"
+          },
+          {
+            "code_agence": "80",
+            "code_service": "IMM"
+          },
+          {
+            "code_agence": "80",
+            "code_service": "TRA"
+          },
+          {
+            "code_agence": "80",
+            "code_service": "APP"
+          },
+          {
+            "code_agence": "80",
+            "code_service": "UMP"
+          }
         ]
       },
       {
@@ -15803,45 +16610,162 @@
           }
         ],
         "agences_services": [
-          "01-NEG",
-          "01-COM",
-          "01-ATE",
-          "01-CSP",
-          "01-GAR",
-          "01-ASS",
-          "01-FLE",
-          "01-MAS",
-          "01-MAP",
-          "02-NEG",
-          "02-ATE",
-          "02-LCD",
-          "20-NEG",
-          "20-ATE",
-          "20-MAP",
-          "30-NEG",
-          "30-ATE",
-          "30-MAN",
-          "30-FLE",
-          "40-NEG",
-          "40-ATE",
-          "40-LCD",
-          "40-FLE",
-          "40-LEV",
-          "50-LCD",
-          "50-LTV",
-          "50-LFD",
-          "50-LBV",
-          "60-NEG",
-          "60-ATE",
-          "60-MAP",
-          "80-DIR",
-          "80-FIN",
-          "80-PER",
-          "80-INF",
-          "80-IMM",
-          "80-TRA",
-          "80-APP",
-          "80-UMP"
+          {
+            "code_agence": "01",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "COM"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "CSP"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "GAR"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "ASS"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "FLE"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "MAS"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "MAP"
+          },
+          {
+            "code_agence": "02",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "02",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "02",
+            "code_service": "LCD"
+          },
+          {
+            "code_agence": "20",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "20",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "20",
+            "code_service": "MAP"
+          },
+          {
+            "code_agence": "30",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "30",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "30",
+            "code_service": "MAN"
+          },
+          {
+            "code_agence": "30",
+            "code_service": "FLE"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "LCD"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "FLE"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "LEV"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LCD"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LTV"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LFD"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LBV"
+          },
+          {
+            "code_agence": "60",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "60",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "60",
+            "code_service": "MAP"
+          },
+          {
+            "code_agence": "80",
+            "code_service": "DIR"
+          },
+          {
+            "code_agence": "80",
+            "code_service": "FIN"
+          },
+          {
+            "code_agence": "80",
+            "code_service": "PER"
+          },
+          {
+            "code_agence": "80",
+            "code_service": "INF"
+          },
+          {
+            "code_agence": "80",
+            "code_service": "IMM"
+          },
+          {
+            "code_agence": "80",
+            "code_service": "TRA"
+          },
+          {
+            "code_agence": "80",
+            "code_service": "APP"
+          },
+          {
+            "code_agence": "80",
+            "code_service": "UMP"
+          }
         ]
       },
       {
@@ -15962,11 +16886,26 @@
           }
         ],
         "agences_services": [
-          "50-LCD",
-          "50-LBV",
-          "50-LR6",
-          "50-LST",
-          "50-LSC"
+          {
+            "code_agence": "50",
+            "code_service": "LCD"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LBV"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LR6"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LST"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LSC"
+          }
         ]
       },
       {
@@ -16038,11 +16977,26 @@
           }
         ],
         "agences_services": [
-          "50-LCD",
-          "50-LBV",
-          "50-LR6",
-          "50-LST",
-          "50-LSC"
+          {
+            "code_agence": "50",
+            "code_service": "LCD"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LBV"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LR6"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LST"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LSC"
+          }
         ]
       },
       {
@@ -16200,11 +17154,26 @@
           }
         ],
         "agences_services": [
-          "50-LCD",
-          "50-LBV",
-          "50-LR6",
-          "50-LST",
-          "50-LSC"
+          {
+            "code_agence": "50",
+            "code_service": "LCD"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LBV"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LR6"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LST"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LSC"
+          }
         ]
       },
       {
@@ -16363,9 +17332,18 @@
           }
         ],
         "agences_services": [
-          "20-NEG",
-          "50-LFD",
-          "50-LR6"
+          {
+            "code_agence": "20",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LFD"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LR6"
+          }
         ]
       },
       {
@@ -16593,9 +17571,18 @@
           }
         ],
         "agences_services": [
-          "20-NEG",
-          "50-LFD",
-          "50-LR6"
+          {
+            "code_agence": "20",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LFD"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LR6"
+          }
         ]
       },
       {
@@ -16641,9 +17628,18 @@
           }
         ],
         "agences_services": [
-          "20-NEG",
-          "50-LFD",
-          "50-LR6"
+          {
+            "code_agence": "20",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LFD"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LR6"
+          }
         ]
       },
       {
@@ -16667,9 +17663,18 @@
           }
         ],
         "agences_services": [
-          "20-NEG",
-          "50-LFD",
-          "50-LR6"
+          {
+            "code_agence": "20",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LFD"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LR6"
+          }
         ]
       }
     ]
@@ -17091,9 +18096,18 @@
           }
         ],
         "agences_services": [
-          "20-ATE",
-          "20-MAP",
-          "50-LFD"
+          {
+            "code_agence": "20",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "20",
+            "code_service": "MAP"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LFD"
+          }
         ]
       },
       {
@@ -17139,9 +18153,18 @@
           }
         ],
         "agences_services": [
-          "20-ATE",
-          "20-MAP",
-          "50-LFD"
+          {
+            "code_agence": "20",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "20",
+            "code_service": "MAP"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LFD"
+          }
         ]
       }
     ]
@@ -17558,13 +18581,34 @@
           }
         ],
         "agences_services": [
-          "01-NEG",
-          "01-ATE",
-          "01-MAS",
-          "01-MAP",
-          "60-NEG",
-          "60-ATE",
-          "60-MAP"
+          {
+            "code_agence": "01",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "MAS"
+          },
+          {
+            "code_agence": "01",
+            "code_service": "MAP"
+          },
+          {
+            "code_agence": "60",
+            "code_service": "NEG"
+          },
+          {
+            "code_agence": "60",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "60",
+            "code_service": "MAP"
+          }
         ]
       },
       {
@@ -19100,9 +20144,18 @@
           }
         ],
         "agences_services": [
-          "40-ATE",
-          "40-LEV",
-          "80-DIR"
+          {
+            "code_agence": "40",
+            "code_service": "ATE"
+          },
+          {
+            "code_agence": "40",
+            "code_service": "LEV"
+          },
+          {
+            "code_agence": "80",
+            "code_service": "DIR"
+          }
         ]
       },
       {
@@ -21388,11 +22441,26 @@
           }
         ],
         "agences_services": [
-          "90-COM",
-          "91-ENG",
-          "91-VAT",
-          "91-BLK",
-          "91-SLR"
+          {
+            "code_agence": "90",
+            "code_service": "COM"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "ENG"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "VAT"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "BLK"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "SLR"
+          }
         ]
       },
       {
@@ -22309,18 +23377,54 @@
           }
         ],
         "agences_services": [
-          "90-COM",
-          "90-LGR",
-          "91-ENG",
-          "91-VAT",
-          "91-BLK",
-          "91-SLR",
-          "92-TSI",
-          "92-MAH",
-          "92-NOS",
-          "92-TUL",
-          "92-AMB",
-          "92-LCJ"
+          {
+            "code_agence": "90",
+            "code_service": "COM"
+          },
+          {
+            "code_agence": "90",
+            "code_service": "LGR"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "ENG"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "VAT"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "BLK"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "SLR"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "TSI"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "MAH"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "NOS"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "TUL"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "AMB"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "LCJ"
+          }
         ]
       },
       {
@@ -22392,18 +23496,54 @@
           }
         ],
         "agences_services": [
-          "90-COM",
-          "90-LGR",
-          "91-ENG",
-          "91-VAT",
-          "91-BLK",
-          "91-SLR",
-          "92-TSI",
-          "92-MAH",
-          "92-NOS",
-          "92-TUL",
-          "92-AMB",
-          "92-LCJ"
+          {
+            "code_agence": "90",
+            "code_service": "COM"
+          },
+          {
+            "code_agence": "90",
+            "code_service": "LGR"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "ENG"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "VAT"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "BLK"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "SLR"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "TSI"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "MAH"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "NOS"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "TUL"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "AMB"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "LCJ"
+          }
         ]
       },
       {
@@ -22561,18 +23701,54 @@
           }
         ],
         "agences_services": [
-          "90-COM",
-          "90-LGR",
-          "91-ENG",
-          "91-VAT",
-          "91-BLK",
-          "91-SLR",
-          "92-TSI",
-          "92-MAH",
-          "92-NOS",
-          "92-TUL",
-          "92-AMB",
-          "92-LCJ"
+          {
+            "code_agence": "90",
+            "code_service": "COM"
+          },
+          {
+            "code_agence": "90",
+            "code_service": "LGR"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "ENG"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "VAT"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "BLK"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "SLR"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "TSI"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "MAH"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "NOS"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "TUL"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "AMB"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "LCJ"
+          }
         ]
       },
       {
@@ -22763,17 +23939,50 @@
           }
         ],
         "agences_services": [
-          "90-COM",
-          "90-LGR",
-          "91-ENG",
-          "91-VAT",
-          "91-BLK",
-          "91-SLR",
-          "92-TSI",
-          "92-MAH",
-          "92-NOS",
-          "92-AMB",
-          "92-LCJ"
+          {
+            "code_agence": "90",
+            "code_service": "COM"
+          },
+          {
+            "code_agence": "90",
+            "code_service": "LGR"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "ENG"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "VAT"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "BLK"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "SLR"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "TSI"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "MAH"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "NOS"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "AMB"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "LCJ"
+          }
         ]
       },
       {
@@ -22811,17 +24020,50 @@
           }
         ],
         "agences_services": [
-          "90-COM",
-          "90-LGR",
-          "91-ENG",
-          "91-VAT",
-          "91-BLK",
-          "91-SLR",
-          "92-TSI",
-          "92-MAH",
-          "92-NOS",
-          "92-AMB",
-          "92-LCJ"
+          {
+            "code_agence": "90",
+            "code_service": "COM"
+          },
+          {
+            "code_agence": "90",
+            "code_service": "LGR"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "ENG"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "VAT"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "BLK"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "SLR"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "TSI"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "MAH"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "NOS"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "AMB"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "LCJ"
+          }
         ]
       },
       {
@@ -22950,15 +24192,42 @@
           }
         ],
         "agences_services": [
-          "90-COM",
-          "91-ENG",
-          "91-BLK",
-          "92-TSI",
-          "92-MAH",
-          "92-NOS",
-          "92-TUL",
-          "92-AMB",
-          "92-LCJ"
+          {
+            "code_agence": "90",
+            "code_service": "COM"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "ENG"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "BLK"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "TSI"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "MAH"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "NOS"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "TUL"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "AMB"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "LCJ"
+          }
         ]
       },
       {
@@ -23030,15 +24299,42 @@
           }
         ],
         "agences_services": [
-          "90-COM",
-          "91-ENG",
-          "91-BLK",
-          "92-TSI",
-          "92-MAH",
-          "92-NOS",
-          "92-TUL",
-          "92-AMB",
-          "92-LCJ"
+          {
+            "code_agence": "90",
+            "code_service": "COM"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "ENG"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "BLK"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "TSI"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "MAH"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "NOS"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "TUL"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "AMB"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "LCJ"
+          }
         ]
       },
       {
@@ -23731,11 +25027,26 @@
           }
         ],
         "agences_services": [
-          "90-LGR",
-          "91-VAT",
-          "91-BLK",
-          "92-AMB",
-          "92-LCJ"
+          {
+            "code_agence": "90",
+            "code_service": "LGR"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "VAT"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "BLK"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "AMB"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "LCJ"
+          }
         ]
       },
       {
@@ -23807,11 +25118,26 @@
           }
         ],
         "agences_services": [
-          "90-LGR",
-          "91-VAT",
-          "91-BLK",
-          "92-AMB",
-          "92-LCJ"
+          {
+            "code_agence": "90",
+            "code_service": "LGR"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "VAT"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "BLK"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "AMB"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "LCJ"
+          }
         ]
       },
       {
@@ -23969,11 +25295,26 @@
           }
         ],
         "agences_services": [
-          "90-LGR",
-          "91-VAT",
-          "91-BLK",
-          "92-AMB",
-          "92-LCJ"
+          {
+            "code_agence": "90",
+            "code_service": "LGR"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "VAT"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "BLK"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "AMB"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "LCJ"
+          }
         ]
       },
       {
@@ -24035,11 +25376,26 @@
           }
         ],
         "agences_services": [
-          "90-LGR",
-          "91-VAT",
-          "91-BLK",
-          "92-AMB",
-          "92-LCJ"
+          {
+            "code_agence": "90",
+            "code_service": "LGR"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "VAT"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "BLK"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "AMB"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "LCJ"
+          }
         ]
       }
     ]
@@ -24138,17 +25494,50 @@
           }
         ],
         "agences_services": [
-          "90-COM",
-          "90-LGR",
-          "91-ENG",
-          "91-BLK",
-          "91-SLR",
-          "92-TSI",
-          "92-MAH",
-          "92-NOS",
-          "92-TUL",
-          "92-AMB",
-          "92-LCJ"
+          {
+            "code_agence": "90",
+            "code_service": "COM"
+          },
+          {
+            "code_agence": "90",
+            "code_service": "LGR"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "ENG"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "BLK"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "SLR"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "TSI"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "MAH"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "NOS"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "TUL"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "AMB"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "LCJ"
+          }
         ]
       },
       {
@@ -24220,17 +25609,50 @@
           }
         ],
         "agences_services": [
-          "90-COM",
-          "90-LGR",
-          "91-ENG",
-          "91-BLK",
-          "91-SLR",
-          "92-TSI",
-          "92-MAH",
-          "92-NOS",
-          "92-TUL",
-          "92-AMB",
-          "92-LCJ"
+          {
+            "code_agence": "90",
+            "code_service": "COM"
+          },
+          {
+            "code_agence": "90",
+            "code_service": "LGR"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "ENG"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "BLK"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "SLR"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "TSI"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "MAH"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "NOS"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "TUL"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "AMB"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "LCJ"
+          }
         ]
       },
       {
@@ -24448,17 +25870,50 @@
           }
         ],
         "agences_services": [
-          "90-COM",
-          "90-LGR",
-          "91-ENG",
-          "91-BLK",
-          "91-SLR",
-          "92-TSI",
-          "92-MAH",
-          "92-NOS",
-          "92-TUL",
-          "92-AMB",
-          "92-LCJ"
+          {
+            "code_agence": "90",
+            "code_service": "COM"
+          },
+          {
+            "code_agence": "90",
+            "code_service": "LGR"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "ENG"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "BLK"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "SLR"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "TSI"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "MAH"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "NOS"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "TUL"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "AMB"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "LCJ"
+          }
         ]
       },
       {
@@ -24587,16 +26042,46 @@
           }
         ],
         "agences_services": [
-          "90-COM",
-          "91-ENG",
-          "91-BLK",
-          "91-SLR",
-          "92-TSI",
-          "92-MAH",
-          "92-NOS",
-          "92-TUL",
-          "92-AMB",
-          "92-LCJ"
+          {
+            "code_agence": "90",
+            "code_service": "COM"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "ENG"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "BLK"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "SLR"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "TSI"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "MAH"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "NOS"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "TUL"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "AMB"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "LCJ"
+          }
         ]
       },
       {
@@ -24668,16 +26153,46 @@
           }
         ],
         "agences_services": [
-          "90-COM",
-          "91-ENG",
-          "91-BLK",
-          "91-SLR",
-          "92-TSI",
-          "92-MAH",
-          "92-NOS",
-          "92-TUL",
-          "92-AMB",
-          "92-LCJ"
+          {
+            "code_agence": "90",
+            "code_service": "COM"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "ENG"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "BLK"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "SLR"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "TSI"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "MAH"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "NOS"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "TUL"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "AMB"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "LCJ"
+          }
         ]
       },
       {
@@ -24835,16 +26350,46 @@
           }
         ],
         "agences_services": [
-          "90-COM",
-          "91-ENG",
-          "91-BLK",
-          "91-SLR",
-          "92-TSI",
-          "92-MAH",
-          "92-NOS",
-          "92-TUL",
-          "92-AMB",
-          "92-LCJ"
+          {
+            "code_agence": "90",
+            "code_service": "COM"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "ENG"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "BLK"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "SLR"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "TSI"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "MAH"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "NOS"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "TUL"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "AMB"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "LCJ"
+          }
         ]
       },
       {
@@ -24906,16 +26451,46 @@
           }
         ],
         "agences_services": [
-          "90-COM",
-          "91-ENG",
-          "91-BLK",
-          "91-SLR",
-          "92-TSI",
-          "92-MAH",
-          "92-NOS",
-          "92-TUL",
-          "92-AMB",
-          "92-LCJ"
+          {
+            "code_agence": "90",
+            "code_service": "COM"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "ENG"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "BLK"
+          },
+          {
+            "code_agence": "91",
+            "code_service": "SLR"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "TSI"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "MAH"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "NOS"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "TUL"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "AMB"
+          },
+          {
+            "code_agence": "92",
+            "code_service": "LCJ"
+          }
         ]
       },
       {
