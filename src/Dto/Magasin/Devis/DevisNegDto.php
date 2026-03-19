@@ -2,22 +2,30 @@
 
 namespace App\Dto\Magasin\Devis;
 
+use App\Constants\Magasin\Devis\PointageRelanceStatutConstant;
+use App\Constants\Magasin\Devis\StatutBcNegConstant;
+use App\Constants\Magasin\Devis\StatutDevisNegContant;
+
 class DevisNegDto
 {
-    public ?string $statutDw = '';
-    public ?string $statutBc = '';
+    public ?string $statutDw = null;
+    public ?string $statutBc = null;
     public string $numeroDevis;
     public string $dateCreation;
-    public ?string $emmeteur = '';
-    public ?string $client = '';
-    public ?string $referenceClient = '';
+    public ?string $emetteur = null;
+    public ?string $client = null;
+    public ?string $referenceClient = null;
     public ?float $montantDevis = 0.00;
     public $dateEnvoiDevisAuClient = null;
-    public ?string $positionIps = '';
-    public ?string $utilisateurCreateurDevis = '';
-    public ?string $soumisPar = '';
+    public ?string $positionIps = null;
+    public ?string $utilisateurCreateurDevis = null;
+    public ?string $soumisPar = null;
     public string $devise = '';
     public  $constructeur;
+
+    public ?string $statutRelance1 = null;
+    public ?string $statutRelance2 = null;
+    public ?string $statutRelance3 = null;
 
     public ?int $numeroVersion = 0;
     public int $nombreLignes = 0;
@@ -44,4 +52,29 @@ class DevisNegDto
     public $dateStopGlobal;
     public $motifStopGlobal;
     public $dateRepriseManuel;
+
+    public function styleStatutDw(): string
+    {
+        return $this->statutDw ? StatutDevisNegContant::getCssClassDW($this->statutDw) : '';
+    }
+
+    public function styleStatutBc(): string
+    {
+        return $this->statutBc ? StatutBcNegConstant::getCssClassBC($this->statutBc) : '';
+    }
+
+    public function styleStatutPR1(): string
+    {
+        return $this->statutRelance1 ? PointageRelanceStatutConstant::getCssClassPR1($this->statutRelance1) : '';
+    }
+
+    public function styleStatutPR2(): string
+    {
+        return $this->statutRelance2 ? PointageRelanceStatutConstant::getCssClassPR2($this->statutRelance2) : '';
+    }
+
+    public function styleStatutPR3(): string
+    {
+        return $this->statutRelance3 ? PointageRelanceStatutConstant::getCssClassPR3($this->statutRelance3) : '';
+    }
 }

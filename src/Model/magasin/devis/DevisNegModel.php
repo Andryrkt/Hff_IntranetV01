@@ -15,11 +15,12 @@ class DevisNegModel extends Model
 
             $statement = " SELECT
                     distinct
-                    dneg.statut_dw as statut_dw
+                    nent.nent_datecde as date_cde_brute
+                    ,dneg.statut_dw as statut_dw
                     ,dneg.statut_bc as statut_bc
                     ,nent.nent_numcde as numero_devis
                     ,TO_CHAR(nent.nent_datecde, '%d/%m/%Y') as date_creation
-                    ,nent.nent_succ || ' - ' || nent_servcrt as emmeteur
+                    ,nent.nent_succ || ' - ' || nent_servcrt as emetteur
                     ,nent.nent_numcli || ' - ' || nent_nomcli as client
                     ,TRIM(nent.nent_refcde) as reference_client
                     ,nent.nent_cdeht as montant_devis
@@ -38,6 +39,8 @@ class DevisNegModel extends Model
                     ,dneg.utilisateur as soumis_par
                     ,nent.nent_devise as devise
                     ,nlig.nlig_constp as constructeur
+                    ,SUM(nlig.nlig_qtecde *nlig.nlig_pxnreel) as montant_total
+                    ,SUM(nlig.nlig_nolign) as somme_numero_lignes
                 from ips_hffprod:informix.neg_ent nent
                 left JOIN ips_hffprod:informix.neg_lig nlig on nlig.nlig_numcde = nent.nent_numcde
                 left join ips_hffprod:informix.agr_usr ausr on ausr.ausr_num = nent.nent_usr and ausr.ausr_soc = nent.nent_soc
@@ -49,12 +52,13 @@ class DevisNegModel extends Model
                     -- AND nent_numcde not in (numDeviAExclureString)            
                     AND nent.nent_numcde not in ('19407989','19407991','19408971','19410383','19409906','19409996')
                     AND nent.nent_datecde >= MDY(9, 1, 2025)
+                    and nlig_constp <> 'Nmc'
             ";
 
             // if (array_key_exists('statutIps', $criteria) && ($criteria['statutIps'] == 'RE' || $criteria['statutIps'] == 'TR')) {
             //             $statement .= " AND nent_posl in ('--','AC','DE', 'RE', 'TR')";
             //         } else {
-            $statement .= " AND nent_posl in ('--','AC','DE', 'TR')";
+            $statement .= " AND nent.nent_posl in ('--','AC','DE', 'TR')";
             // }
 
             // if ($vignette === 'pneumatique' && !$adminMulti) {
@@ -64,10 +68,11 @@ class DevisNegModel extends Model
             // } else {
             // entrer par le vignette MAGASIN - agence tana et autres agence
             $piecesMagasin = GlobalVariablesService::get('pieces_magasin');
-            $statement .= " AND nlig_constp IN ($piecesMagasin) AND nent_succ <> '60' ";
+            $statement .= " AND nlig.nlig_constp IN ($piecesMagasin) AND nent.nent_succ <> '60' ";
             // }
 
-            $statement .= " ORDER BY nent_datecde DESC";
+            $statement .= " GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15 ";
+            $statement .= " ORDER BY date_cde_brute DESC";
 
             $result = $this->connect->executeQuery($statement);
             $rows = $this->connect->fetchResults($result);

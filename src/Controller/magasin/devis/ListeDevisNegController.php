@@ -5,6 +5,7 @@ namespace App\Controller\magasin\devis;
 use App\Controller\Controller;
 use App\Controller\Traits\AutorisationTrait;
 use App\Entity\admin\Application;
+use App\Mapper\Magasin\Devis\DevisNegMapper;
 use App\Model\magasin\devis\DevisNegModel;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -14,11 +15,13 @@ class ListeDevisNegController extends Controller
     use AutorisationTrait;
 
     private DevisNegModel $listeDevisMagasinModel;
+    private DevisNegMapper $devisNegMapper;
 
     public function __construct()
     {
         parent::__construct();
         $this->listeDevisMagasinModel = new DevisNegModel();
+        $this->devisNegMapper = new DevisNegMapper();
     }
 
     /**
@@ -35,7 +38,8 @@ class ListeDevisNegController extends Controller
         $this->autorisationAcces($this->getUser(), Application::ID_DVM);
 
         $devisNeg = $this->listeDevisMagasinModel->getDevisNeg();
-        dd($devisNeg);
+        $devisNeg = $this->devisNegMapper->map($devisNeg);
+
         return $this->render('magasin/devis/liste_devis_neg.html.twig', [
             'devisNeg' => $devisNeg
         ]);

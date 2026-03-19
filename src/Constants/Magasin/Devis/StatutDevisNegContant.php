@@ -16,4 +16,33 @@ class StatutDevisNegContant
     public const ENVOYER_CLIENT = 'Envoyé au client';
     public const CLOTURER_A_MODIFIER = 'Cloturé - A modifier';
     public const A_TRAITER = 'A traiter';
+
+
+    public const statutIPS = [
+        "--"  => "En cours",
+        "AC"  => "Accepté",
+        "DE"  => "Edité",
+        "RE"  => "Refusé",
+        "TR"  => "Transferé",
+    ];
+
+    public const CSS_CLASS_MAP_STATUT_DW = [
+        self::A_TRAITER             => 'bg-a-traiter',
+        self::PRIX_A_CONFIRMER      => 'bg-prix-a-confirmer',
+        self::PRIX_VALIDER_TANA     => 'bg-prix-valider-tana',
+        self::PRIX_VALIDER_AGENCE   => 'bg-prix-valider-agence',
+        self::PRIX_MODIFIER_TANA    => 'bg-prix-modifier-magasin',
+        self::PRIX_MODIFIER_AGENCE  => 'bg-prix-modifier-agence',
+        self::DEMANDE_REFUSE_PAR_PM => 'bg-demande-refuse-par-pm',
+        self::A_VALIDER_CHEF_AGENCE => 'bg-a-valider-chef-agence',
+        self::VALIDE_AGENCE         => 'bg-valide-agence',
+        self::ENVOYER_CLIENT        => 'bg-envoyer-client',
+        self::CLOTURER_A_MODIFIER   => 'bg-cloturer-a-modifier',
+    ];
+
+
+    public static function getCssClassDW(string $statut): string
+    {
+        return self::CSS_CLASS_MAP_STATUT_DW[$statut] ?? '';
+    }
 }

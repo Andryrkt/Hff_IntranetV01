@@ -15,7 +15,7 @@ class DevisNegMapper
             $dto->statutBc = $item['statut_bc'] ?? '';
             $dto->numeroDevis = $item['numero_devis'] ?? '';
             $dto->dateCreation = $item['date_creation'] ?? '';
-            $dto->emmeteur = $item['emmeteur'] ?? '';
+            $dto->emetteur = $item['emetteur'] ?? '';
             $dto->client = $item['client'] ?? '';
             $dto->referenceClient = $item['reference_client'] ?? '';
             $dto->montantDevis = (float)$item['montant_devis'] ?? 0.00;
@@ -28,20 +28,20 @@ class DevisNegMapper
             $dto->devise = $item['devise'] ?? '';
             $dto->constructeur = $item['constructeur'] ?? '';
 
-            $dto->numeroVersion =  0;
-            $dto->nombreLignes = $item['nombre_lignes'] ?? 0;
-            $dto->typeSoumission = $item['type_soumission'] ?? '';
-            $dto->dateMajStatut = $item['date_maj_statut'] ?? null;
-            $dto->cat = $item['cat'] ?? false;
-            $dto->nonCat = $item['nonCat'] ?? false;
-            $dto->nomFichier = $item['nomFichier'] ?? '';
-            $dto->sommeNumeroLignes = $item['somme_numero_lignes'] ?? 0;
-            $dto->datePointage = $item['date_pointage'] ?? null;
-            $dto->tacheValidateur = $item['tache_validateur'] ?? null;
-            $dto->estValidationPm = $item['est_validation_pm'] ?? false;
-            $dto->relance = $item['relance'] ?? '';
-            $dto->dateBc = $item['date_bc'] ?? null;
-            $dto->observation = $item['observation'] ?? null;
+            // $dto->numeroVersion =  0;
+            // $dto->nombreLignes = $item['nombre_lignes'] ?? 0;
+            // $dto->typeSoumission = $item['type_soumission'] ?? '';
+            // $dto->dateMajStatut = $item['date_maj_statut'] ?? null;
+            // $dto->cat = $item['cat'] ?? false;
+            // $dto->nonCat = $item['nonCat'] ?? false;
+            // $dto->nomFichier = $item['nomFichier'] ?? '';
+            // $dto->sommeNumeroLignes = $item['somme_numero_lignes'] ?? 0;
+            // $dto->datePointage = $item['date_pointage'] ?? null;
+            // $dto->tacheValidateur = $item['tache_validateur'] ?? null;
+            // $dto->estValidationPm = $item['est_validation_pm'] ?? false;
+            // $dto->relance = $item['relance'] ?? '';
+            // $dto->dateBc = $item['date_bc'] ?? null;
+            // $dto->observation = $item['observation'] ?? null;
 
             return $dto;
         }, $data);

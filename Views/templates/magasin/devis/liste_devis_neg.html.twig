@@ -1,0 +1,116 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block title %}
+	Liste devis magasin
+{% endblock %}
+
+{% block stylesheets %}
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.10.22.08.00">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/utils/autocomplete.css?v=2025.10.22.08.00">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/magasin/devis/listeDevisMagasin.css?v=2025.09.19.09.23">
+{% endblock %}
+
+{% block content %}
+
+	<div class="container-fluid">
+		<div class="sticky-header-titre">
+			<div class="container">
+				{% include "/partials/_notification.html.twig" %}
+				{# {% include "magasin/devis/shared/_formulaireDeRecherche.html.twig" with {'form': form} %} #}
+			</div>
+		</div>
+
+		<table class="table table-sticky">
+			<thead class="table-dark align-middle">
+				<tr>
+					<th>
+						<i class="fas fa-ellipsis-vertical"></i>
+					</th>
+					<th class="text-center">Statut devis</th>
+					<th class="text-center">Statut BC</th>
+					<th class="text-center">Numéro devis</th>
+					<th class="text-center">Date de création</th>
+					<th class="text-center">Emetteur</th>
+					<th>Client</th>
+					<th>Libellé</th>
+					<th class="text-end">Montant</th>
+					<th class="text-center">Date envoi au client</th>
+					<th class="text-center">Relance 1</th>
+					<th class="text-center">Relance 2</th>
+					<th class="text-center">Relance 3</th>
+					<th class="text-center">Stop relance</th>
+					<th class="text-center">Position IPS</th>
+					<th class="text-center">PO/BC client</th>
+					<th class="text-center">Crée par</th>
+					<th class="text-center">Soumis par</th>
+				</tr>
+			</thead>
+			<tbody id="tableBody">
+				{% for row in devisNeg %}
+					<tr>
+						<td class="align-middle" style="padding: 0px">
+							<div class="dropdown">
+								<button class="btn btn-sm me-1 dropdown-toggle trois-points-vertical" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+									<i class="fas fa-ellipsis-vertical"></i>
+								</button>
+								<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton">
+									<li>
+										<a class="dropdown-item fw-bold" href="{{ row.url.verificationPrix }}">Soumission devis pour verification prix</a>
+										<a class="dropdown-item fw-bold" href="{{ row.url.validationDevis }}">Soumission devis pour validation</a>
+										<a class="dropdown-item fw-bold js-link-relance-client {% if not row.relanceClient %}d-none{% endif %}" href="#" data-bs-toggle="modal" data-bs-target="#pointageRelanceModal" data-bs-numero-devis="{{ row.numeroDevis }}">Pointer relance devis client</a>
+										<a class="dropdown-item fw-bold js-link-pointage-devis {% if not row.pointageDevis %}d-none{% endif %}" href="{{ row.url.pointageDevis }}">Pointage envoye devis au client</a>
+										<a class="dropdown-item fw-bold" href="{{ row.url.soumissionBC }}">Soumission BC client pour validation</a>
+									</li>
+								</ul>
+							</div>
+						</td>
+						<td class="text-center fw-bold {{ row.styleStatutDw }}">{{ row.statutDw }}</td>
+						<td class="text-center fw-bold {{ row.styleStatutBc }}">{{ row.statutBc }}</td>
+						<td class="text-center">{{ row.numeroDevis }}</td>
+						<td class="text-center">{{ row.dateCreation }}</td>
+						<td class="text-center">{{ row.emetteur }}</td>
+						<td>{{ row.client }}</td>
+						<td>{{ row.referenceClient }}</td>
+						<td class="text-end">{{ row.montantDevis|number_format(2, ',', '.') }}</td>
+						<td class="text-center">{{ row.dateEnvoiDevisAuClient }}</td>
+						{% set statut1 = row.statutRelance1 == null ? '' : 'bg-warning' %}
+						{% set statut2 = row.statutRelance2 == null ? '' : 'bg-warning' %}
+						{% set statut3 = row.statutRelance3 == null ? '' : 'bg-warning' %}
+						<td class="text-center fw-bold {{ row.styleStatutPR1}} {{ statut1}} js-relance-1">{{ row.statutRelance1 }}</td>
+						<td class="text-center fw-bold {{ row.styleStatutPR2}} {{ statut2}} js-relance-2">{{ row.statutRelance2 }}</td>
+						<td class="text-center fw-bold {{ row.styleStatutPR3}} {{ statut3}} js-relance-3">{{ row.statutRelance3 }}</td>
+						<td class="text-center">
+							{% if row.statutRelance1 is not null %}
+								<div class="form-check form-switch d-flex justify-content-center" data-bs-toggle="tooltip" title="{{row.motifStop}}">
+									<input class="form-check-input js-checkbox-stop-relance bg-secondary-subtle" type="checkbox" role="switch" data-numero-devis="{{ row.numeroDevis }}" {% if row.stopRelance %} checked {% endif %} {% if row.statutRelance3 is not null and row.statutRelance3 != 'A relancer' %} disabled {% endif %}>
+								</div>
+							{% endif %}
+						</td>
+						<td class="text-center" data-bs-toggle="tooltip" title="{{ row.titreStatutIps }}">{{ row.positionIps }}</td>
+						<td class="text-center">
+							{% if row.numeroPO %}
+								<a href="{{ row.urlPO }}" target="_blank">{{ row.numeroPO }}</a>
+							{% else %}
+								{{ row.numeroPO }}
+							{% endif %}
+						</td>
+						<td class="text-center">{{ row.utilisateurCreateurDevis }}</td>
+						<td class="text-center">{{ row.soumisPar }}</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+
+		{% include "magasin/devis/shared/_modalRelance.html.twig" %}
+	</div>
+
+	{% include 'magasin/devis/pointage_relance/index.html.twig' %}
+{% endblock %}
+
+{% block javascript %}
+	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v=2025.10.22.08.00"></script>
+	<script type="module" src="{{ App.base_path }}/Views/js/magasin/devis/listeDevisMagasin.js?v=2025.10.22.08.00"></script>
+	<script src="{{ App.base_path }}/Views/js/magasin/devis/pointageRelanceModal.js" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/magasin/devis/relanceModalManager.js" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/magasin/devis/relance.js" type="module"></script>
+{% endblock %}

@@ -65,17 +65,17 @@ class ListeDevisMagasinController extends Controller
         ];
 
         $this->styleStatutPR1 = [
-            PointageRelanceStatutConstant::STATUT_POINTAGE_RELANCE_A_RELANCER => 'bg-danger text-white',
-            PointageRelanceStatutConstant::STATUT_POINTAGE_RELANCE_RELANCE => 'bg-warning'
+            PointageRelanceStatutConstant::POINTAGE_RELANCE_A_RELANCER => 'bg-danger text-white',
+            PointageRelanceStatutConstant::POINTAGE_RELANCE_RELANCE => 'bg-warning'
         ];
         $this->styleStatutPR2 = [
-            PointageRelanceStatutConstant::STATUT_POINTAGE_RELANCE_A_RELANCER => 'bg-danger text-white',
-            PointageRelanceStatutConstant::STATUT_POINTAGE_RELANCE_RELANCE => 'bg-warning'
+            PointageRelanceStatutConstant::POINTAGE_RELANCE_A_RELANCER => 'bg-danger text-white',
+            PointageRelanceStatutConstant::POINTAGE_RELANCE_RELANCE => 'bg-warning'
         ];
 
         $this->styleStatutPR3 = [
-            PointageRelanceStatutConstant::STATUT_POINTAGE_RELANCE_A_RELANCER => 'bg-danger text-white',
-            PointageRelanceStatutConstant::STATUT_POINTAGE_RELANCE_RELANCE => 'bg-warning'
+            PointageRelanceStatutConstant::POINTAGE_RELANCE_A_RELANCER => 'bg-danger text-white',
+            PointageRelanceStatutConstant::POINTAGE_RELANCE_RELANCE => 'bg-warning'
         ];
 
         $this->statutIPS = [
@@ -434,7 +434,7 @@ class ListeDevisMagasinController extends Controller
             $numeroDevis = $devis->getNumeroDevis();
 
             $pointageDevis = in_array($statutDw, [DevisMagasin::STATUT_PRIX_VALIDER_TANA, DevisMagasin::STATUT_PRIX_MODIFIER_TANA, DevisMagasin::STATUT_VALIDE_AGENCE]);
-            $relanceClient = $statutDw === DevisMagasin::STATUT_ENVOYER_CLIENT && $statutBc ===  BcMagasin::STATUT_EN_ATTENTE_BC && in_array(PointageRelanceStatutConstant::STATUT_POINTAGE_RELANCE_A_RELANCER, [$statutRelance1, $statutRelance2, $statutRelance3]) && !$devis->getStopRelance();
+            $relanceClient = $statutDw === DevisMagasin::STATUT_ENVOYER_CLIENT && $statutBc ===  BcMagasin::STATUT_EN_ATTENTE_BC && in_array(PointageRelanceStatutConstant::POINTAGE_RELANCE_A_RELANCER, [$statutRelance1, $statutRelance2, $statutRelance3]) && !$devis->getStopRelance();
 
             // Création d'url
             $url = [
