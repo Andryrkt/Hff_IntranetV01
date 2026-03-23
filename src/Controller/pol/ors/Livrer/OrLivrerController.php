@@ -31,14 +31,19 @@ class OrLivrerController extends Controller
      */
     public function listOrLivrer(Request $request)
     {
+        $agenceUser = "''";
+
         // Vérifier la permission de voir tous les données
         $multisuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE);
 
-        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_POL);
+        if (!$multisuccursale) {
+            $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_POL);
 
-        $codeAgence = array_column($agenceServiceAutorises, 'agence_code');
+            // Si l'utilisateur n'a pas d'agence et service autorisé, on prend son agence par défaut
+            $codeAgence = empty($agenceServiceAutorises) ? [$this->getSecurityService()->getCodeAgenceUser()] : array_column($agenceServiceAutorises, 'agence_code');
 
-        $agenceUser = $multisuccursale ? "''" : TableauEnStringService::TableauEnString(',', $codeAgence);
+            $agenceUser = TableauEnStringService::TableauEnString(',', $codeAgence);
+        }
 
         $form = $this->getFormFactory()->createBuilder(MagasinListeOrALivrerSearchType::class, ['agenceUser' => $agenceUser], [
             'method' => 'GET',
