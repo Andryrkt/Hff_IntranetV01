@@ -227,7 +227,7 @@ class MigrationAffectationProfilsCommand extends Command
 
             // ── Vérification de l'utilisateur ──────────────────────────────
             $utilisateur = $this->entityManager->getRepository(User::class)->findOneBy([
-                'username' => $item['username'],
+                'nom_utilisateur' => $item['username'],
             ]);
 
             if ($utilisateur === null) {
