@@ -121,7 +121,7 @@ trait DaListeDitTrait
      *
      * @return void
      */
-    private function data(Request $request, DitSearch $ditSearch, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeAgenceUser, bool $peutVoirListeAvecDebiteur, string $codeSociete): array
+    private function data(Request $request, DitSearch $ditSearch, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeAgenceUser, bool $peutVoirListeAvecDebiteur, string $codeSociete, bool $multisuccursale): array
     {
         //recupère le numero de page
         $page = $request->query->getInt('page', 1);
@@ -129,7 +129,7 @@ trait DaListeDitTrait
         $limit = 20;
 
         //recupération des données filtrée
-        $paginationData = $this->criteriaIsObjectEmpty($ditSearch) ? [] : $this->ditRepository->findPaginatedAndFilteredDa($page, $limit, $ditSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeAgenceUser, $peutVoirListeAvecDebiteur, $codeSociete);
+        $paginationData = $this->criteriaIsObjectEmpty($ditSearch) ? [] : $this->ditRepository->findPaginatedAndFilteredDa($page, $limit, $ditSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeAgenceUser, $peutVoirListeAvecDebiteur, $codeSociete, $multisuccursale);
 
         //recuperation de numero de serie et parc pour l'affichage
         $this->ajoutNumSerieNumParc($paginationData['data'] ?? []);

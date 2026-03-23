@@ -94,11 +94,14 @@ class DitListeController extends Controller
         $serviceIdUser = $this->getSecurityService()->getServiceIdUser();
         $codeAgenceUser = $this->getSecurityService()->getCodeAgenceUser();
 
+        // Vérifier la permission de voir tous les données
+        $multisuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE);
+
         // Vérifier le permission de voir liste avec débiteur sur la page courante
         $peutVoirListeAvecDebiteur = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_AUTH_2);
 
         //recupération des donnée
-        $paginationData = $this->data($request, $ditListeModel, $ditSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur, $codeAgenceUser, $codeSociete, $this->getEntityManager());
+        $paginationData = $this->data($request, $ditListeModel, $ditSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur, $codeAgenceUser, $codeSociete, $this->getEntityManager(), $multisuccursale);
 
         /**  Docs à intégrer dans DW * */
         $formDocDansDW = $this->getFormFactory()->createBuilder(DocDansDwType::class, null, [
@@ -186,13 +189,16 @@ class DitListeController extends Controller
         $serviceIdUser = $this->getSecurityService()->getServiceIdUser();
         $codeAgenceUser = $this->getSecurityService()->getCodeAgenceUser();
 
+        // Vérifier la permission de voir tous les données
+        $multisuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE);
+
         // Vérifier le permission de voir liste avec débiteur sur la page courante
         $peutVoirListeAvecDebiteur = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_AUTH_2, "dit_index");
 
         //crée une objet à partir du tableau critère reçu par la session
         $ditSearch = $this->transformationEnObjet($criteria);
 
-        $entities = $this->DonnerAAjouterExcel($ditSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeAgenceUser, $codeSociete, $peutVoirListeAvecDebiteur, $this->getEntityManager());
+        $entities = $this->DonnerAAjouterExcel($ditSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeAgenceUser, $codeSociete, $peutVoirListeAvecDebiteur, $this->getEntityManager(), $multisuccursale);
 
         // Convertir les entités en tableau de données
         $data = $this->transformationEnTableauAvecEntet($entities);

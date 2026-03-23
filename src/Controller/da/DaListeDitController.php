@@ -66,6 +66,9 @@ class DaListeDitController extends Controller
         // Code Société de l'utilisateur
         $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
 
+        // Vérifier la permission de voir tous les données
+        $multisuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE);
+
         //initialisation du champ de recherche
         $ditSearch = $this->initialisationRechercheDit();
 
@@ -97,7 +100,7 @@ class DaListeDitController extends Controller
         $peutVoirListeAvecDebiteur = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_AUTH_2);
 
         //recupération des donnée
-        $paginationData = $this->data($request, $ditSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeAgenceUser, $peutVoirListeAvecDebiteur, $codeSociete);
+        $paginationData = $this->data($request, $ditSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeAgenceUser, $peutVoirListeAvecDebiteur, $codeSociete, $multisuccursale);
 
         return $this->render('da/list-dit.html.twig', [
             'data'            => $paginationData['data'] ?? null,

@@ -34,7 +34,7 @@ class DitRepository extends EntityRepository
      * @param array $options
      * @return void
      */
-    public function findPaginatedAndFiltered(int $page = 1, int $limit = 10, DitSearch $ditSearch, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, bool $peutVoirListeAvecDebiteur, string $codeAgenceUser, string $codeSociete)
+    public function findPaginatedAndFiltered(int $page = 1, int $limit = 10, DitSearch $ditSearch, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, bool $peutVoirListeAvecDebiteur, string $codeAgenceUser, string $codeSociete, bool $multisuccursale)
     {
         $queryBuilder = $this->createQueryBuilder('d')
             ->leftJoin('d.typeDocument', 'td')
@@ -50,8 +50,10 @@ class DitRepository extends EntityRepository
         $this->applySection($queryBuilder, $ditSearch); // section affect et support section
         $this->applyAgencyServiceFilters($queryBuilder, $ditSearch);
 
-        // Condition sur les couples agences-services
-        $this->conditionAgenceService($queryBuilder, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeAgenceUser, $peutVoirListeAvecDebiteur, true);
+        if (!$multisuccursale) {
+            // Condition sur les couples agences-services
+            $this->conditionAgenceService($queryBuilder, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeAgenceUser, $peutVoirListeAvecDebiteur, true);
+        }
 
         $queryBuilder->orderBy('d.dateDemande', 'DESC')
             ->addOrderBy('d.numeroDemandeIntervention', 'ASC');
@@ -65,7 +67,7 @@ class DitRepository extends EntityRepository
         $lastPage = ceil($totalItems / $limit);
 
         // Récupérer le nombre de lignes par statut
-        $statusCounts = $this->countByStatus($ditSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeAgenceUser, $codeSociete, $peutVoirListeAvecDebiteur, false);
+        $statusCounts = $this->countByStatus($ditSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeAgenceUser, $codeSociete, $peutVoirListeAvecDebiteur, false, $multisuccursale);
 
         return [
             'data' => iterator_to_array($paginator->getIterator()), // Convertir en tableau si nécessaire
@@ -112,7 +114,7 @@ class DitRepository extends EntityRepository
      * @param array $options
      * @return void
      *======================================================*/
-    public function countByStatus(DitSearch $ditSearch, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeAgenceUser, string $codeSociete, bool $peutVoirListeAvecDebiteur, bool $avecAtelierRealisePar)
+    public function countByStatus(DitSearch $ditSearch, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeAgenceUser, string $codeSociete, bool $peutVoirListeAvecDebiteur, bool $avecAtelierRealisePar, bool $multisuccursale)
     {
         $queryBuilder = $this->createQueryBuilder('d')
             ->select('s.description AS statut, COUNT(d.id) AS count')
@@ -135,7 +137,10 @@ class DitRepository extends EntityRepository
 
         $this->applyAgencyServiceFilters($queryBuilder, $ditSearch);
 
-        $this->conditionAgenceService($queryBuilder, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeAgenceUser, $peutVoirListeAvecDebiteur, $avecAtelierRealisePar);
+        if (!$multisuccursale) {
+            // Condition sur les couples agences-services
+            $this->conditionAgenceService($queryBuilder, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeAgenceUser, $peutVoirListeAvecDebiteur, $avecAtelierRealisePar);
+        }
 
         return $queryBuilder->getQuery()->getResult();
     }
@@ -147,7 +152,7 @@ class DitRepository extends EntityRepository
      * @param array $options
      * @return array
      */
-    public function findAndFilteredExcel(DitSearch $ditSearch, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeAgenceUser, $codeSociete, bool $peutVoirListeAvecDebiteur)
+    public function findAndFilteredExcel(DitSearch $ditSearch, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeAgenceUser, $codeSociete, bool $peutVoirListeAvecDebiteur, bool $multisuccursale)
     {
         $queryBuilder = $this->createQueryBuilder('d')
             ->leftJoin('d.typeDocument', 'td')
@@ -162,8 +167,10 @@ class DitRepository extends EntityRepository
         $this->applySection($queryBuilder, $ditSearch); // section affect et support section
         $this->applyAgencyServiceFilters($queryBuilder, $ditSearch);
 
-        // Condition sur les couples agences-services
-        $this->conditionAgenceService($queryBuilder, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeAgenceUser, $peutVoirListeAvecDebiteur, true);
+        if (!$multisuccursale) {
+            // Condition sur les couples agences-services
+            $this->conditionAgenceService($queryBuilder, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeAgenceUser, $peutVoirListeAvecDebiteur, true);
+        }
 
         $queryBuilder->orderBy('d.dateDemande', 'DESC')
             ->addOrderBy('d.numeroDemandeIntervention', 'ASC');
@@ -645,7 +652,7 @@ class DitRepository extends EntityRepository
      * @param array $options
      * @return void
      */
-    public function findPaginatedAndFilteredDa(int $page = 1, int $limit = 10, DitSearch $ditSearch, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeAgenceUser, bool $peutVoirListeAvecDebiteur, string $codeSociete)
+    public function findPaginatedAndFilteredDa(int $page = 1, int $limit = 10, DitSearch $ditSearch, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeAgenceUser, bool $peutVoirListeAvecDebiteur, string $codeSociete, bool $multisuccursale)
     {
 
         $queryBuilder = $this->createQueryBuilder('d')
@@ -668,6 +675,10 @@ class DitRepository extends EntityRepository
 
         $this->applyAgencyServiceFilters($queryBuilder, $ditSearch);
 
+        if (!$multisuccursale) {
+            // Condition sur les couples agences-services
+            $this->conditionAgenceService($queryBuilder, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeAgenceUser, $peutVoirListeAvecDebiteur, true);
+        }
 
         $queryBuilder->orderBy('d.dateDemande', 'DESC')
             ->addOrderBy('d.numeroDemandeIntervention', 'ASC');
@@ -694,7 +705,7 @@ class DitRepository extends EntityRepository
         //  echo $sql;
 
         // Récupérer le nombre de lignes par statut
-        $statusCounts = $this->countByStatus($ditSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeAgenceUser, $codeSociete, $peutVoirListeAvecDebiteur, false);
+        $statusCounts = $this->countByStatus($ditSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeAgenceUser, $codeSociete, $peutVoirListeAvecDebiteur, false, $multisuccursale);
         //return $queryBuilder->getQuery()->getResult();
         return [
             'data' => iterator_to_array($paginator->getIterator()), // Convertir en tableau si nécessaire
