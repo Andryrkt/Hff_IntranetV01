@@ -4,8 +4,10 @@
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/admin/contactAgenceAte/new.css?v=2025.10.22.08.00">
 {% endblock %}
 
+{% block breadCrumb %}{% endblock %}
+
 {% block content %}
-	<div class=" container">
+	<div class=" container my-4">
 		<div class="card">
 			<div class="card-body">
 
@@ -14,7 +16,7 @@
 						Formulaire d'ajout contact agence ate
 					</h2>
 
-					<a href="{{path("contact_agence_ate_index")}}" class="btn btn-sm  text-white my-3 fw-bold" style="background-color: #FBBB01;">Liste</a>
+					<a href="{{path("contact_agence_ate_index")}}" class="btn btn-sm  text-white my-3 fw-bold" style="background-color: #FBBB01;">Liste des contacts agences ate</a>
 
 					{{ form_start(form) }}
 					{{ form_errors(form)}}

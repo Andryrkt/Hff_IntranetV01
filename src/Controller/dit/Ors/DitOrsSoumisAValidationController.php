@@ -83,18 +83,20 @@ class DitOrsSoumisAValidationController extends Controller
      */
     public function insertionOr(Request $request, $numDit)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
 
         // verification si l'OR est lié à un DA
         $lierAUnDa = false;
+
+        /** @var DemandeApproRepository $demandeApproRepository */
         $demandeApproRepository = $this->getEntityManager()->getRepository(DemandeAppro::class);
-        /** @var DaAfficherRepository */
+        /** @var DaAfficherRepository $daAfficherRepository */
         $daAfficherRepository = $this->getEntityManager()->getRepository(DaAfficher::class);
-        $numDas = $demandeApproRepository->getNumDa($numDit);
+        $numDas = $demandeApproRepository->getNumDa($numDit, $codeSociete);
         if ($numDas) {
             foreach ($numDas as $numDa) {
-                $statutDaAfficher = $daAfficherRepository->getLastStatutDaAfficher($numDa);
+                $statutDaAfficher = $daAfficherRepository->getLastStatutDaAfficher($numDa, $codeSociete);
 
                 if (
                     !empty($statutDaAfficher) &&
@@ -113,7 +115,7 @@ class DitOrsSoumisAValidationController extends Controller
             }
         }
 
-        $numOrBaseDonner = $this->ditOrsoumisAValidationModel->recupNumeroOr($numDit);
+        $numOrBaseDonner = $this->ditOrsoumisAValidationModel->recupNumeroOr($numDit, $codeSociete);
 
         if (empty($numOrBaseDonner)) {
             $message = "Le DIT n'a pas encore de numéro OR";
@@ -127,6 +129,7 @@ class DitOrsSoumisAValidationController extends Controller
         $ditInsertionOrSoumis
             ->setNumeroDit($numDit)
             ->setNumeroOR($numOr)
+            ->setCodeSociete($codeSociete)
         ;
 
         $form = $this->getFormFactory()->createBuilder(DitOrsSoumisAValidationType::class, $ditInsertionOrSoumis)->getForm();
@@ -137,7 +140,7 @@ class DitOrsSoumisAValidationController extends Controller
             'numDit' => $numDit,
         ]); // historisation du page visité par l'utilisateur
 
-        $cdtArticleDa = $this->conditionBlocageArticleDa($numOr, $daAfficherRepository);
+        $cdtArticleDa = $this->conditionBlocageArticleDa($numOr, $daAfficherRepository, $codeSociete);
         return $this->render('dit/DitInsertionOr.html.twig', [
             'form' => $form->createView(),
             'cdtArticleDa' => $cdtArticleDa,
@@ -147,7 +150,7 @@ class DitOrsSoumisAValidationController extends Controller
 
     private function traitementFormulaire(FormInterface $form, Request $request, string $numOr, string  $numDit, DitOrsSoumisAValidation $ditInsertionOrSoumis, DaAfficherRepository $daAfficherRepository)
     {
-
+        $codeSociete = $ditInsertionOrSoumis->getCodeSociete();
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -155,13 +158,14 @@ class DitOrsSoumisAValidationController extends Controller
             /** DEBUT CONDITION DE BLOCAGE */
             $originalName = $form->get("pieceJoint01")->getData()->getClientOriginalName();
             $observation = $form->get("observation")->getData();
-            $conditionBloquage = $this->conditionsDeBloquegeSoumissionOr($originalName, $numOr, $ditInsertionOrSoumis, $numDit);
-
+            $conditionBloquage = $this->conditionsDeBloquegeSoumissionOr($originalName, $numOr, $ditInsertionOrSoumis, $numDit, $codeSociete);
 
             /** FIN CONDITION DE BLOCAGE */
             if ($this->bloquageOrSoumsi($conditionBloquage, $originalName, $ditInsertionOrSoumis)) {
 
-                $numeroVersionMax = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class)->findNumeroVersionMax($ditInsertionOrSoumis->getNumeroOR());
+                /** @var DitOrsSoumisAValidationRepository $repository */
+                $repository = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class);
+                $numeroVersionMax = $repository->findNumeroVersionMax($ditInsertionOrSoumis->getNumeroOR(), $codeSociete);
 
                 $ditInsertionOrSoumis
                     ->setNumeroVersion($this->autoIncrement($numeroVersionMax))
@@ -170,21 +174,21 @@ class DitOrsSoumisAValidationController extends Controller
                     ->setObservation($observation)
                     ->setNumeroDit($numDit);
 
-                $orSoumisValidationModel = $this->ditModel->recupOrSoumisValidation($ditInsertionOrSoumis->getNumeroOR());
+                $orSoumisValidationModel = $this->ditModel->recupOrSoumisValidation($ditInsertionOrSoumis->getNumeroOR(), $codeSociete);
 
                 $orSoumisValidataion = $this->orSoumisValidataion($orSoumisValidationModel, $numeroVersionMax, $ditInsertionOrSoumis, $numDit);
 
                 /** Modification de la colonne statut_or dans la table demande_intervention */
-                $this->modificationStatutOr($numDit);
+                $this->modificationStatutOr($numDit, $codeSociete);
 
                 /** ENVOIE des DONNEE dans BASE DE DONNEE */
                 $this->envoieDonnerDansBd($orSoumisValidataion);
 
                 /** CREATION , FUSION, ENVOIE DW du PDF */
-                $this->traitementDeFichier($form, $ditInsertionOrSoumis, $orSoumisValidataion, $numOr);
+                $this->traitementDeFichier($form, $ditInsertionOrSoumis, $codeSociete, $orSoumisValidataion, $numOr);
 
                 /** modifier la colonne numero_or dans la table demande_intervention */
-                $this->modificationDuNumeroOrDansDit($numDit, $ditInsertionOrSoumis);
+                $this->modificationDuNumeroOrDansDit($numDit, $ditInsertionOrSoumis, $codeSociete);
 
                 /** modification da_valider */
                 $this->modificationDaAfficher($numDit, $ditInsertionOrSoumis->getNumeroOR(), $daAfficherRepository);
@@ -198,14 +202,14 @@ class DitOrsSoumisAValidationController extends Controller
         }
     }
 
-    private function preparationDesPiecesFaibleAchat(string $numOr): array
+    private function preparationDesPiecesFaibleAchat(string $numOr, string $codeSociete): array
     {
-        $infoOrs = $this->ditOrsoumisAValidationModel->getInformationOr($numOr);
+        $infoOrs = $this->ditOrsoumisAValidationModel->getInformationOr($numOr, $codeSociete);
 
         $infoPieceFaibleAchat = [];
         if (!empty($infoOrs)) {
             foreach ($infoOrs as $infoOr) {
-                $afficher = $this->ditOrsoumisAValidationModel->getPieceFaibleActiviteAchat($infoOr['constructeur'], $infoOr['reference'], $numOr);
+                $afficher = $this->ditOrsoumisAValidationModel->getPieceFaibleActiviteAchat($infoOr['constructeur'], $infoOr['reference'], $numOr, $codeSociete);
 
                 if (isset($afficher[0]) && $afficher[0]['retour'] === 'a afficher') {
 
@@ -224,7 +228,7 @@ class DitOrsSoumisAValidationController extends Controller
         return $infoPieceFaibleAchat;
     }
 
-    private function traitementDeFichier(FormInterface $form, DitOrsSoumisAValidation $ditInsertionOrSoumis, $orSoumisValidataion, string $numOr): void
+    private function traitementDeFichier(FormInterface $form, DitOrsSoumisAValidation $ditInsertionOrSoumis, $codeSociete, $orSoumisValidataion, string $numOr): void
     {
         $suffix = $this->ditOrsoumisAValidationModel->constructeurPieceMagasin($numOr)[0]['retour'];
 
@@ -240,7 +244,7 @@ class DitOrsSoumisAValidationController extends Controller
 
         // 2. creation de la page de garde
         $genererPdfOrSoumisAValidation = new GenererPdfOrSoumisAValidation();
-        $this->creationPdf($ditInsertionOrSoumis, $orSoumisValidataion, $suffix, $numOr, $nomAvecCheminFichier, $genererPdfOrSoumisAValidation);
+        $this->creationPdf($ditInsertionOrSoumis, $orSoumisValidataion, $suffix, $numOr, $nomAvecCheminFichier, $codeSociete, $genererPdfOrSoumisAValidation);
 
         // 3. ajout du page de garde à la premier position
         $traitementDeFichier = new TraitementDeFichier();
@@ -292,11 +296,11 @@ class DitOrsSoumisAValidationController extends Controller
         return [$nomEtCheminFichiersEnregistrer, $nomFichierEnregistrer, $nomAvecCheminFichier, $nomFichier];
     }
 
-    private function conditionBlocageArticleDa(string $numOr, DaAfficherRepository $daAfficherRepository): bool
+    private function conditionBlocageArticleDa(string $numOr, DaAfficherRepository $daAfficherRepository, string $codeSociete): bool
     {
-        $listeArticlesSavLorString = $this->ditOrsoumisAValidationModel->getListeArticlesSavLorString($numOr);
+        $listeArticlesSavLorString = $this->ditOrsoumisAValidationModel->getListeArticlesSavLorString($numOr, $codeSociete);
         $nbrArticlesComparet = $this->ditOrsoumisAValidationModel->getNbrComparaisonArticleDaValiderEtSavLor($listeArticlesSavLorString, $numOr);
-        $nombreArticleDansDaAfficheValider = $daAfficherRepository->getNbrDaAfficherValider($numOr);
+        $nombreArticleDansDaAfficheValider = $daAfficherRepository->getNbrDaAfficherValider($numOr, $codeSociete);
 
         return $nbrArticlesComparet !== $nombreArticleDansDaAfficheValider && $nbrArticlesComparet > 0 && $nombreArticleDansDaAfficheValider > 0;
     }
@@ -345,35 +349,35 @@ class DitOrsSoumisAValidationController extends Controller
         }
     }
 
-    private function conditionsDeBloquegeSoumissionOr(string $originalName, string $numOr, $ditInsertionOrSoumis, string $numDit): array
+    private function conditionsDeBloquegeSoumissionOr(string $originalName, string $numOr, $ditInsertionOrSoumis, string $numDit, string $codeSociete): array
     {
-        $numclient = $this->ditOrsoumisAValidationModel->getNumcli($numOr);
+        $numclient = $this->ditOrsoumisAValidationModel->getNumcli($numOr, $codeSociete);
         $numcli = empty($numclient) ? '' : $numclient[0];
-        $nbrNumcli = $this->ditOrsoumisAValidationModel->numcliExiste($numcli);
+        $nbrNumcli = $this->ditOrsoumisAValidationModel->numcliExiste($numcli, $codeSociete);
 
         $ditInsertionOrSoumis->setNumeroOR($numOr);
 
         $numOrNomFIchier = array_key_exists(1, explode('_', $originalName)) ? explode('_', $originalName)[1] : '';
 
-        $demandeIntervention = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
+        $demandeIntervention = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit, 'codeSociete' => $codeSociete]);
 
-        $idMateriel = $this->ditOrsoumisAValidationModel->recupNumeroMatricule($numDit, $ditInsertionOrSoumis->getNumeroOR());
+        $idMateriel = $this->ditOrsoumisAValidationModel->recupNumeroMatricule($numDit, $ditInsertionOrSoumis->getNumeroOR(), $codeSociete);
 
         $agServDebiteurBDSql = $demandeIntervention->getAgenceServiceDebiteur();
-        $agServInformix = $this->ditModel->recupAgenceServiceDebiteur($ditInsertionOrSoumis->getNumeroOR());
+        $agServInformix = $this->ditModel->recupAgenceServiceDebiteur($ditInsertionOrSoumis->getNumeroOR(), $codeSociete);
 
         $datePlanning = $this->verificationDatePlanning($ditInsertionOrSoumis, $this->ditOrsoumisAValidationModel);
 
-        $pos = $this->ditOrsoumisAValidationModel->recupPositonOr($ditInsertionOrSoumis->getNumeroOR());
+        $pos = $this->ditOrsoumisAValidationModel->recupPositonOr($ditInsertionOrSoumis->getNumeroOR(), $codeSociete);
         $invalidPositions = ['FC', 'FE', 'CP', 'ST'];
 
-        $refClient = $this->ditOrsoumisAValidationModel->recupRefClient($ditInsertionOrSoumis->getNumeroOR());
+        $refClient = $this->ditOrsoumisAValidationModel->recupRefClient($ditInsertionOrSoumis->getNumeroOR(), $codeSociete);
 
-        // $situationOrSoumis = $this->ditOrsoumisAValidationModel->recupBlockageStatut($numOr);
+        /** @var DitOrsSoumisAValidationRepository $orRepository */
         $orRepository = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class);
-        $situationOrSoumis = $orRepository->getblocageStatut($numOr, $numDit);
+        $situationOrSoumis = $orRepository->getblocageStatut($numOr, $numDit, $codeSociete);
 
-        $countAgServDeb = $this->ditOrsoumisAValidationModel->countAgServDebit($numOr);
+        $countAgServDeb = $this->ditOrsoumisAValidationModel->countAgServDebit($numOr, $codeSociete);
 
         return [
             'nomFichier'            => strpos($originalName, 'Ordre de réparation') !== 0,
@@ -386,10 +390,8 @@ class DitOrsSoumisAValidationController extends Controller
             'situationOrSoumis'     => $situationOrSoumis === 'bloquer',
             'countAgServDeb'        => (int)$countAgServDeb > 1,
             'numOrFichier'          => $numOrNomFIchier <> $numOr,
-            // 'datePlanningInferieureDateDuJour' => $this->datePlanningInferieurDateDuJour($numOr),
             'numcliExiste'          => $nbrNumcli[0] != 'existe_bdd',
-            // 'articleDas'            => !$this->compareTableaux($articleDas, $referenceDas) && !empty($referenceDas) && !empty($articleDas),
-            'premierSoumissionDatePlanningInferieurDateDuJour' => $this->premierSoumissionDatePlanningInferieurDateDuJour($numOr),
+            'premierSoumissionDatePlanningInferieurDateDuJour' => $this->premierSoumissionDatePlanningInferieurDateDuJour($numOr, $codeSociete),
         ];
     }
 
@@ -468,50 +470,46 @@ class DitOrsSoumisAValidationController extends Controller
         return $okey;
     }
 
-    private function creationPdf($ditInsertionOrSoumis, $orSoumisValidataion, string $suffix, string $numOr, string $nomAvecCheminFichier, GenererPdfOrSoumisAValidation $genererPdfOrSoumisAValidation)
+    private function creationPdf($ditInsertionOrSoumis, $orSoumisValidataion, string $suffix, string $numOr, string $nomAvecCheminFichier, string $codeSociete, GenererPdfOrSoumisAValidation $genererPdfOrSoumisAValidation)
     {
-        $OrSoumisAvant = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class)->findOrSoumiAvant($ditInsertionOrSoumis->getNumeroOR());
+        /** @var DitOrsSoumisAValidationRepository $repository */
+        $repository = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class);
+        $OrSoumisAvant = $repository->findOrSoumiAvant($ditInsertionOrSoumis->getNumeroOR(), $codeSociete);
         // dump($OrSoumisAvant);
-        $OrSoumisAvantMax = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class)->findOrSoumiAvantMax($ditInsertionOrSoumis->getNumeroOR());
+        $OrSoumisAvantMax = $repository->findOrSoumiAvantMax($ditInsertionOrSoumis->getNumeroOR(), $codeSociete);
         // dump($OrSoumisAvantMax);
-        $montantPdf = $this->montantpdf($orSoumisValidataion, $OrSoumisAvant, $OrSoumisAvantMax);
+        $montantPdf = $this->montantpdf($orSoumisValidataion, $OrSoumisAvant, $OrSoumisAvantMax, $codeSociete);
         // dd($montantPdf);
-        $quelqueaffichage = $this->quelqueAffichage($ditInsertionOrSoumis->getNumeroOR());
+        $quelqueaffichage = $this->quelqueAffichage($ditInsertionOrSoumis->getNumeroOR(), $codeSociete);
 
         // information sur les pièces à faible achat
-        $pieceFaibleAchat = $this->preparationDesPiecesFaibleAchat($numOr);
+        $pieceFaibleAchat = $this->preparationDesPiecesFaibleAchat($numOr, $codeSociete);
 
-        $genererPdfOrSoumisAValidation->GenererPdf($ditInsertionOrSoumis, $montantPdf, $quelqueaffichage, $this->nomUtilisateur($this->getEntityManager())['mailUtilisateur'], $suffix, $pieceFaibleAchat, $nomAvecCheminFichier);
+        $genererPdfOrSoumisAValidation->GenererPdf($ditInsertionOrSoumis, $montantPdf, $quelqueaffichage, $this->nomUtilisateur()['mailUtilisateur'], $suffix, $pieceFaibleAchat, $nomAvecCheminFichier);
     }
 
-    private function modificationStatutOr($numDit)
+    private function modificationStatutOr($numDit, $codeSociete)
     {
-        $demandeIntervention = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
-        $demandeIntervention->setStatutOr('Soumis à validation');
+        $demandeIntervention = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit, 'codeSociete' => $codeSociete]);
+        $demandeIntervention->setStatutOr(DitOrsSoumisAValidation::STATUT_SOUMIS_A_VALIDATION);
         $this->getEntityManager()->persist($demandeIntervention);
         $this->getEntityManager()->flush();
     }
 
     private function envoieDonnerDansBd($orSoumisValidataion)
     {
-        // Persist les entités liées
-        if (count($orSoumisValidataion) > 1) {
-            foreach ($orSoumisValidataion as $entity) {
-                // Persist l'entité et l'historique
-                $this->getEntityManager()->persist($entity); // Persister chaque entité individuellement
-            }
-        } elseif (count($orSoumisValidataion) === 1) {
-            $this->getEntityManager()->persist($orSoumisValidataion[0]);
+        foreach ($orSoumisValidataion as $entity) {
+            // Persist l'entité et l'historique
+            $this->getEntityManager()->persist($entity); // Persister chaque entité individuellement
         }
-
 
         // Flushe toutes les entités et l'historique
         $this->getEntityManager()->flush();
     }
 
-    private function modificationDuNumeroOrDansDit($numDit, $ditInsertionOrSoumis)
+    private function modificationDuNumeroOrDansDit($numDit, $ditInsertionOrSoumis, $codeSociete)
     {
-        $dit = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
+        $dit = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit, 'codeSociete' => $codeSociete]);
         $dit->setNumeroOR($ditInsertionOrSoumis->getNumeroOR());
         // recuperation du statut DIT CLOTUREE VALIDER
         $statutCloturerValider = $this->getEntityManager()->getRepository(StatutDemande::class)->find(DemandeIntervention::STATUT_CLOTUREE_VALIDER);
@@ -520,13 +518,12 @@ class DitOrsSoumisAValidationController extends Controller
         $this->getEntityManager()->flush();
     }
 
-    private function quelqueAffichage($numOr)
+    private function quelqueAffichage($numOr, $codeSociete)
     {
-        $numDevis = $this->ditModel->recupererNumdevis($numOr);
-        $nbSotrieMagasin = $this->ditOrsoumisAValidationModel->recupNbPieceMagasin($numOr);
-        $nbAchatLocaux = $this->ditOrsoumisAValidationModel->recupNbAchatLocaux($numOr);
-        $nbPol = $this->ditOrsoumisAValidationModel->recupNbPol($numOr);
-
+        $numDevis = $this->ditModel->recupererNumdevis($numOr, $codeSociete);
+        $nbSotrieMagasin = $this->ditOrsoumisAValidationModel->recupNbPieceMagasin($numOr, $codeSociete);
+        $nbAchatLocaux = $this->ditOrsoumisAValidationModel->recupNbAchatLocaux($numOr, $codeSociete);
+        $nbPol = $this->ditOrsoumisAValidationModel->recupNbPol($numOr, $codeSociete);
 
         if (!empty($nbSotrieMagasin) && $nbSotrieMagasin[0]['nbr_sortie_magasin'] !== "0") {
             $sortieMagasin = 'OUI';

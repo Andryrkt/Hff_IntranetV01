@@ -11,8 +11,10 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use App\Entity\admin\historisation\pageConsultation\PageHff;
 use App\Entity\admin\historisation\pageConsultation\UserLogger;
-use App\Entity\admin\utilisateur\Role;
+use App\Entity\admin\utilisateur\Profil;
 use App\Entity\da\DemandeAppro;
+use App\Service\navigation\MenuService;
+use App\Service\security\SecurityService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Form\FormFactoryInterface;
@@ -20,7 +22,6 @@ use Twig\Environment;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-use App\Service\SessionManagerService;
 
 /**
  * Classe Controller avec injection de dépendances
@@ -37,6 +38,8 @@ class Controller
     protected $tokenStorage;
     protected $authorizationChecker;
     protected $sessionService;
+    protected $securityService;
+    protected $menuService;
 
     // Propriétés publiques avec getters lazy pour les modèles et services
     public $request;
@@ -47,107 +50,6 @@ class Controller
         // Créer la requête et la réponse
         $this->request = Request::createFromGlobals();
         $this->response = new Response();
-    }
-
-    protected function getSessionService(): SessionManagerService
-    {
-        if ($this->sessionService === null) {
-            try {
-                $container = $this->getContainer();
-                if ($container && $container->has('App\\Service\\SessionManagerService')) {
-                    $this->sessionService = $container->get('App\\Service\\SessionManagerService');
-                } else {
-                    $this->sessionService = new \App\Service\SessionManagerService();
-                }
-            } catch (\Throwable $e) {
-                $this->sessionService = new \App\Service\SessionManagerService();
-            }
-        }
-        return $this->sessionService;
-    }
-
-    /**
-     * Récupérer l'EntityManager
-     */
-    public function getEntityManager(): EntityManagerInterface
-    {
-        $container = $this->getContainer();
-        if (!$container) {
-            throw new \RuntimeException('Le conteneur de services n\'est pas disponible');
-        }
-        return $container->get('doctrine.orm.default_entity_manager');
-    }
-
-    /**
-     * Récupérer le générateur d'URL
-     */
-    public function getUrlGenerator(): UrlGeneratorInterface
-    {
-        $container = $this->getContainer();
-        if (!$container) {
-            throw new \RuntimeException('Le conteneur de services n\'est pas disponible');
-        }
-        return $container->get('router');
-    }
-
-    /**
-     * Récupérer Twig
-     */
-    public function getTwig(): Environment
-    {
-        $container = $this->getContainer();
-        if (!$container) {
-            throw new \RuntimeException('Le conteneur de services n\'est pas disponible');
-        }
-        return $container->get('twig');
-    }
-
-    /**
-     * Récupérer la factory de formulaires
-     */
-    public function getFormFactory(): FormFactoryInterface
-    {
-        $container = $this->getContainer();
-        if (!$container) {
-            throw new \RuntimeException('Le conteneur de services n\'est pas disponible');
-        }
-        return $container->get('form.factory');
-    }
-
-    /**
-     * Récupérer la session
-     */
-    public function getSession(): SessionInterface
-    {
-        $container = $this->getContainer();
-        if (!$container) {
-            throw new \RuntimeException('Le conteneur de services n\'est pas disponible');
-        }
-        return $container->get('session');
-    }
-
-    /**
-     * Récupérer le stockage de tokens
-     */
-    public function getTokenStorage(): TokenStorageInterface
-    {
-        $container = $this->getContainer();
-        if (!$container) {
-            throw new \RuntimeException('Le conteneur de services n\'est pas disponible');
-        }
-        return $container->get('security.token_storage');
-    }
-
-    /**
-     * Récupérer le vérificateur d'autorisation
-     */
-    public function getAuthorizationChecker(): AuthorizationCheckerInterface
-    {
-        $container = $this->getContainer();
-        if (!$container) {
-            throw new \RuntimeException('Le conteneur de services n\'est pas disponible');
-        }
-        return $container->get('security.authorization_checker');
     }
 
     /**
@@ -165,31 +67,106 @@ class Controller
     protected function getService(string $serviceId)
     {
         $container = $this->getContainer();
-        if (!$container) {
-            throw new \RuntimeException('Le conteneur de services n\'est pas disponible');
-        }
+        if (!$container) throw new \RuntimeException('Le conteneur de services n\'est pas disponible');
+
         return $container->get($serviceId);
     }
 
-    /**
-     * Récupérer le service Excel
-     */
-    protected function getExcelService(): \App\Service\ExcelService
+    protected function getSessionService(): SessionInterface
     {
-        $container = $this->getContainer();
-        if (!$container) {
-            throw new \RuntimeException('Le conteneur de services n\'est pas disponible');
+        if ($this->sessionService === null) {
+            $this->sessionService = $this->getService('session');
         }
-
-        if ($container->has('App\\Service\\ExcelService')) {
-            return $container->get('App\\Service\\ExcelService');
-        }
-
-        // Fallback : créer une nouvelle instance si le service n'est pas enregistré
-        return new \App\Service\ExcelService();
+        return $this->sessionService;
     }
 
+    /**
+     * Récupérer l'EntityManager
+     */
+    public function getEntityManager(): EntityManagerInterface
+    {
+        if ($this->entityManager === null) {
+            $this->entityManager = $this->getService('doctrine.orm.default_entity_manager');
+        }
+        return $this->entityManager;
+    }
 
+    /**
+     * Récupérer le générateur d'URL
+     */
+    public function getUrlGenerator(): UrlGeneratorInterface
+    {
+        if ($this->urlGenerator === null) {
+            $this->urlGenerator = $this->getService('router');
+        }
+        return $this->urlGenerator;
+    }
+
+    /**
+     * Récupérer Twig
+     */
+    public function getTwig(): Environment
+    {
+        if ($this->twig === null) {
+            $this->twig = $this->getService('twig');
+        }
+        return $this->twig;
+    }
+
+    /**
+     * Récupérer la factory de formulaires
+     */
+    public function getFormFactory(): FormFactoryInterface
+    {
+        if ($this->formFactory === null) {
+            $this->formFactory = ($this->getService('form.factory.lazy'))();
+        }
+        return $this->formFactory;
+    }
+
+    /**
+     * Récupérer le stockage de tokens
+     */
+    public function getTokenStorage(): TokenStorageInterface
+    {
+        if ($this->tokenStorage === null) {
+            $this->tokenStorage = $this->getService('security.token_storage');
+        }
+        return $this->tokenStorage;
+    }
+
+    /**
+     * Récupérer le vérificateur d'autorisation
+     */
+    public function getAuthorizationChecker(): AuthorizationCheckerInterface
+    {
+        if ($this->authorizationChecker === null) {
+            $this->authorizationChecker = $this->getService('security.authorization_checker');
+        }
+        return $this->authorizationChecker;
+    }
+
+    /**
+     * Récupérer le service de sécurité
+     */
+    public function getSecurityService(): SecurityService
+    {
+        if ($this->securityService === null) {
+            $this->securityService = $this->getService('security.service');
+        }
+        return $this->securityService;
+    }
+
+    /** 
+     * Récupérer le service de menu
+     */
+    public function getMenuService(): MenuService
+    {
+        if ($this->menuService === null) {
+            $this->menuService = $this->getService('menu.service');
+        }
+        return $this->menuService;
+    }
 
     /**
      * Getter magique pour charger les services à la demande
@@ -211,28 +188,10 @@ class Controller
      */
     protected function SessionDestroy()
     {
-        // Commence la session si elle n'est pas déjà démarrée
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-
-        // Supprime l'utilisateur de la session
-        $this->getSessionService()->remove('user');
-
-        // Détruit la session
-        session_destroy();
-
-        // Réinitialise toutes les variables de session
-        session_unset();
+        $this->getSessionService()->invalidate();
 
         // Redirige vers la page d'accueil
         $this->redirectToRoute('security_signin');
-
-        // Ferme l'écriture de la session pour éviter les problèmes de verrouillage
-        session_write_close();
-
-        // Arrête l'exécution du script pour s'assurer que rien d'autre ne se passe après la redirection
-        exit();
     }
 
     /**
@@ -291,8 +250,8 @@ class Controller
     protected function redirectToRoute(string $routeName, array $params = [])
     {
         $url = $this->getUrlGenerator()->generate($routeName, $params);
-        header("Location: $url");
-        exit();
+        $this->redirectTo($url);
+        exit;
     }
 
     /**
@@ -447,39 +406,27 @@ class Controller
     protected function agenceServiceIpsObjet(): array
     {
         try {
-            $userId = $this->getSessionService()->get('user_id');
+            $userInfo = $this->getSessionService()->get('user_info');
 
-            if (!$userId) {
-                throw new \Exception("User ID not found in session");
-            }
+            if (!$userInfo) throw new \Exception("User info not found in session");
 
-            $user = $this->getEntityManager()->getRepository(User::class)->find($userId);
-
-            if (!$user) {
-                throw new \Exception("User not found with ID $userId");
-            }
-
-            $codeAgence = $user->getAgenceServiceIrium()->getAgenceIps();
+            $codeAgence = $userInfo["default_agence_code"];
             $agenceIps = $this->getEntityManager()->getRepository(Agence::class)->findOneBy(['codeAgence' => $codeAgence]);
 
-            if (!$agenceIps) {
-                throw new \Exception("Agence not found with code $codeAgence");
-            }
+            if (!$agenceIps) throw new \Exception("Agence not found with code $codeAgence");
 
-            $codeService = $user->getAgenceServiceIrium()->getServiceIps();
+            $codeService = $userInfo["default_service_code"];
             $serviceIps = $this->getEntityManager()->getRepository(Service::class)->findOneBy(['codeService' => $codeService]);
-            if (!$serviceIps) {
-                throw new \Exception("Service not found with code $codeService");
-            }
+            if (!$serviceIps) throw new \Exception("Service not found with code $codeService");
 
             return [
-                'agenceIps' => $agenceIps,
+                'agenceIps'  => $agenceIps,
                 'serviceIps' => $serviceIps
             ];
         } catch (\Exception $e) {
             error_log($e->getMessage());
             return [
-                'agenceIps' => null,
+                'agenceIps'  => null,
                 'serviceIps' => null
             ];
         }
@@ -491,23 +438,17 @@ class Controller
     protected function agenceServiceIpsString(): array
     {
         try {
-            $userId = $this->getSessionService()->get('user_id');
-            if (!$userId) {
-                throw new \Exception("User ID not found in session");
-            }
+            $userInfo = $this->getSessionService()->get('user_info');
 
-            $user = $this->getEntityManager()->getRepository(User::class)->find($userId);
-            if (!$user) {
-                throw new \Exception("User not found with ID $userId");
-            }
+            if (!$userInfo) throw new \Exception("User info not found in session");
 
-            $codeAgence = $user->getAgenceServiceIrium()->getAgenceips();
+            $codeAgence = $userInfo["default_agence_code"];
             $agenceIps = $this->getEntityManager()->getRepository(Agence::class)->findOneBy(['codeAgence' => $codeAgence]);
             if (!$agenceIps) {
                 throw new \Exception("Agence not found with code $codeAgence");
             }
 
-            $codeService = $user->getAgenceServiceIrium()->getServiceips();
+            $codeService = $userInfo["default_service_code"];
             $serviceIps = $this->getEntityManager()->getRepository(Service::class)->findOneBy(['codeService' => $codeService]);
             if (!$serviceIps) {
                 throw new \Exception("Service not found with code $codeService");
@@ -520,7 +461,7 @@ class Controller
         } catch (\Throwable $e) {
             error_log($e->getMessage());
             return [
-                'agenceIps' => '',
+                'agenceIps'  => '',
                 'serviceIps' => ''
             ];
         }
@@ -531,17 +472,18 @@ class Controller
      */
     protected function logUserVisit(string $nomRoute, ?array $params = null)
     {
-        $idUtilisateur = $this->getSessionService()->get('user_id');
-        $utilisateur = ($idUtilisateur && $idUtilisateur !== '-') ? $this->getEntityManager()->getRepository(User::class)->find($idUtilisateur) : null;
+        $userInfo = $this->getSessionService()->get('user_info');
+        $idUtilisateur = $userInfo['id'] ?? "-";
+        $utilisateur = $userInfo ? $this->getEntityManager()->getRepository(User::class)->find($idUtilisateur) : null;
         $utilisateurNom = $utilisateur ? $utilisateur->getNomUtilisateur() : null;
         $page = $this->getEntityManager()->getRepository(PageHff::class)->findPageByRouteName($nomRoute);
         $machine = gethostbyaddr($_SERVER['REMOTE_ADDR']) ?? $_SERVER['REMOTE_ADDR'];
 
         $log = new UserLogger();
 
-        $log->setUtilisateur($utilisateurNom ?: '-');
+        $log->setUtilisateur($utilisateurNom ?? '-');
         $log->setNom_page($page->getNom());
-        $log->setParams($params ?: null);
+        $log->setParams($params);
         $log->setUser($utilisateur);
         $log->setMachineUser($machine);
 
@@ -550,21 +492,12 @@ class Controller
     }
 
     /**
-     * Vérifier la session utilisateur
-     */
-    protected function verifierSessionUtilisateur()
-    {
-        if (!$this->isUserConnected()) {
-            $this->redirectToRoute("security_signin");
-        }
-    }
-
-    /**
      * Récupérer l'ID de l'utilisateur
      */
     protected function getUserId(): ?int
     {
-        return $this->getSessionService()->get('user_id');
+        $userInfo = $this->getSessionService()->get('user_info');
+        return $userInfo['id'] ?? null;
     }
 
     /**
@@ -579,10 +512,10 @@ class Controller
     /**
      * Récupérer l'email de l'utilisateur
      */
-    protected function getUserMail(): ?string
+    protected function getUserMail(): string
     {
-        $user = $this->getUser();
-        return $user ? $user->getMail() : null;
+        $userInfo = $this->getSessionService()->get('user_info');
+        return $userInfo['email'] ?? "";
     }
 
     /**
@@ -590,132 +523,36 @@ class Controller
      */
     protected function getUserName(): string
     {
-        $user = $this->getUser();
-        return $user ? $user->getNomUtilisateur() : 'unknown';
+        $userInfo = $this->getSessionService()->get('user_info');
+        return $userInfo['username'] ?? "";
     }
 
     /**
-     * Vérifier si l'utilisateur est dans le service atelier
+     * Récupérer le profil id enregistré
      */
-    protected function estUserDansServiceAtelier(): bool
+    protected function getProfilId(): string
     {
-        $user = $this->getUser();
-        if (!$user) return false;
-        $serviceIds = $user->getServiceAutoriserIds();
-        return in_array(DemandeAppro::ID_ATELIER, $serviceIds);
+        $userInfo = $this->getSessionService()->get('user_info');
+        return $userInfo['profil_id'] ?? "";
     }
 
     /**
-     * Vérifier si l'utilisateur est dans le service appro
+     * Vérifie si l'utilisateur a au moins un des rôles cités
+     * 
+     * @param int ...$roleIds
+     * @return bool
      */
-    protected function estUserDansServiceAppro(): bool
+    protected function hasRoles(int ...$roleIds): bool
     {
-        $user = $this->getUser();
-        if (!$user) return false;
-        $serviceIds = $user->getServiceAutoriserIds();
-        return in_array(DemandeAppro::ID_APPRO, $serviceIds);
+        $userInfo = $this->getSessionService()->get('user_info');
+        if (!$userInfo) return false;
+        $userRoleIds = $userInfo['roles'];
+
+        foreach ($roleIds as $role) {
+            if (in_array($role, $userRoleIds)) return true;
+        }
+        return false;
     }
-
-    /**
-     * Vérifier si l'utilisateur est un créateur de DA directe
-     */
-    protected function estCreateurDeDADirecte(): bool
-    {
-        $user = $this->getUser();
-        if (!$user) return false;
-        $roleIds = $user->getRoleIds();
-        return in_array(Role::ROLE_DA_DIRECTE, $roleIds);
-    }
-
-    /**
-     * Vérifier si l'utilisateur est admin
-     */
-    protected function estAdmin(): bool
-    {
-        $user = $this->getUser();
-        if (!$user) return false;
-        $roleIds = $user->getRoleIds();
-        return in_array(Role::ROLE_ADMINISTRATEUR, $roleIds);
-    }
-
-    /**
-     * Vérifier si l'utilisateur est super admin
-     */
-    protected function estSuperAdmin(): bool
-    {
-        $user = $this->getUser();
-        if (!$user) return false;
-        $roleIds = $user->getRoleIds();
-        return in_array(Role::ROLE_SUPER_ADMINISTRATEUR, $roleIds);
-    }
-
-    // =====================================
-    // MÉTHODES STATIQUES DE COMPATIBILITÉ
-    // (Temporaires - à supprimer après refactorisation complète)
-    // =====================================
-
-    /**
-     * @deprecated Utiliser l'injection de dépendances à la place
-     */
-    public static function getEntity()
-    {
-        global $container;
-        return $container ? $container->get('doctrine.orm.default_entity_manager') : null;
-    }
-
-    /**
-     * @deprecated Utiliser l'injection de dépendances à la place
-     */
-    public static function getTwigStatic()
-    {
-        global $container;
-        return $container ? $container->get('twig') : null;
-    }
-
-    /**
-     * @deprecated Utiliser l'injection de dépendances à la place
-     */
-    public static function getGeneratorStatic()
-    {
-        global $container;
-        return $container ? $container->get('router') : null;
-    }
-
-    /**
-     * @deprecated Utiliser l'injection de dépendances à la place
-     */
-    public static function getValidatorStatic()
-    {
-        global $container;
-        return $container ? $container->get('form.factory') : null;
-    }
-
-
-
-    /**
-     * @deprecated Ne pas utiliser - méthode obsolète
-     */
-    public static function setTwig($twig) {}
-
-    /**
-     * @deprecated Ne pas utiliser - méthode obsolète
-     */
-    public static function setValidator($validator) {}
-
-    /**
-     * @deprecated Ne pas utiliser - méthode obsolète
-     */
-    public static function setGenerator($generator) {}
-
-    /**
-     * @deprecated Ne pas utiliser - méthode obsolète
-     */
-    public static function setEntity($entity) {}
-
-    /**
-     * @deprecated Ne pas utiliser - méthode obsolète
-     */
-    public static function setPaginator($paginator) {}
 
     /**
      * Rendre un template Twig
@@ -729,6 +566,42 @@ class Controller
     // =====================================
     // MÉTHODES HELPER DE BASECONTROLLER
     // =====================================
+
+    /** 
+     * Réinitialiser et écraser le cache pour le profil donnée
+     */
+    protected function resetAndPasteCache(Profil $profil)
+    {
+        $profilId      = $profil->getId();
+        $dataService   = $this->getSecurityService()->getDataService();
+        $menuService   = $this->getMenuService();
+        $profilIdAdmin = $dataService->getProfilId();
+
+        // 1. Suppression physique
+        $dataService->supprimerClesPhysiques($profilId, $profil);
+        $menuService->supprimerClesPhysiques($profilId);
+
+        // 2. Invalider les deux versions
+        $dataService->invaliderVersion($profilId);
+        $menuService->invaliderVersion($profilId);
+
+        // 3. Vider le cache Doctrine → force la relecture depuis la BDD
+        $this->getEntityManager()->clear();
+
+        // 4. Recharger le profil depuis la BDD (entité fraîche)
+        $profil = $this->getEntityManager()->getRepository(Profil::class)->find($profilId);
+
+        // 5. Basculer sur le profil à reconstruire
+        $dataService->setProfilId($profilId);
+
+        // 6. Reconstruire
+        $dataService->reconstruireSecurityProfil($profil);
+        $menuService->reconstruireMenuProfil($profilId);
+        $dataService->reconstruireAgServProfil($profil);
+
+        // 7. Restaurer le profilId admin
+        $dataService->setProfilId($profilIdAdmin);
+    }
 
     /**
      * Méthode helper pour la redirection vers une route avec Response
@@ -757,29 +630,5 @@ class Controller
             $status,
             ['Content-Type' => 'application/json']
         );
-    }
-
-    /**
-     * Méthode helper pour vérifier si l'utilisateur est connecté
-     */
-    public function isUserConnected(): bool
-    {
-        return $this->getSessionService()->has('user_id');
-    }
-
-    /**
-     * Méthode helper pour obtenir l'ID de l'utilisateur connecté
-     */
-    protected function getCurrentUserId()
-    {
-        return $this->getSessionService()->get('user_id');
-    }
-
-    /**
-     * Méthode helper pour obtenir le nom de l'utilisateur connecté
-     */
-    protected function getCurrentUsername()
-    {
-        return $this->getSessionService()->get('user');
     }
 }

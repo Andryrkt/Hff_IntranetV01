@@ -2,10 +2,12 @@
 
 namespace App\Controller\da\Creation;
 
+use App\Constants\admin\ApplicationConstant;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
-use App\Controller\Traits\AutorisationTrait;
+use App\Entity\admin\utilisateur\Role;
+use App\Form\da\DemandeApproReapproFormType;
 use Symfony\Component\HttpFoundation\Request;
 use App\Service\application\ApplicationService;
 use Symfony\Component\Routing\Annotation\Route;
@@ -18,7 +20,6 @@ use App\Form\da\DemandeApproReapproMensuelFormType;
 class DaNewReApproMensuelController extends Controller
 {
     use DaNewReapproMensuelTrait;
-    use AutorisationTrait;
     const STATUT_DAL = [
         'enregistrerBrouillon' => DemandeAppro::STATUT_EN_COURS_CREATION,
         'soumissionAppro'      => DemandeAppro::STATUT_SOUMIS_APPRO,
@@ -35,14 +36,10 @@ class DaNewReApproMensuelController extends Controller
      */
     public function newDAReapproMensuel(int $id, Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
 
-        /** Autorisation accès */
-        $this->checkPageAccess($this->estAdmin() || $this->estCreateurDeDADirecte());
-        /** FIN AUtorisation accès */
-
-        $demandeAppro     = $id === 0 ? $this->initialisationDemandeApproReapproMensuel() : $this->demandeApproRepository->find($id);
+        $demandeAppro     = $id === 0 ? $this->initialisationDemandeApproReapproMensuel($codeSociete) : $this->demandeApproRepository->find($id);
         $this->generateDemandApproLinesFromReappros($demandeAppro);
 
         $form = $this->getFormFactory()->createBuilder(DemandeApproReapproMensuelFormType::class, $demandeAppro, [
@@ -52,7 +49,7 @@ class DaNewReApproMensuelController extends Controller
 
         return $this->render('da/new-da-reappro-mensuel.html.twig', [
             'form'         => $form->createView(),
-            'codeCentrale' => $this->estAdmin() || in_array($demandeAppro->getAgenceEmetteur()->getCodeAgence(), ['90', '91', '92']),
+            'codeCentrale' => false, // TODO : autorisation sur centrale
         ]);
     }
 
@@ -70,7 +67,7 @@ class DaNewReApproMensuelController extends Controller
             /** @var DemandeAppro $demandeAppro */
             $demandeAppro = $form->getData();
             $firstCreation = $demandeAppro->getNumeroDemandeAppro() === null;
-            $numDa = $firstCreation ? $this->autoDecrement('DAP') : $demandeAppro->getNumeroDemandeAppro();
+            $numDa = $firstCreation ? $this->autoDecrement(ApplicationConstant::CODE_DAP) : $demandeAppro->getNumeroDemandeAppro();
 
             $this->gererAgenceServiceDebiteur($demandeAppro);
 

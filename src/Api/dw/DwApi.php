@@ -12,7 +12,7 @@ use App\Repository\da\DemandeApproRepository;
 use App\Repository\da\DemandeApproLRepository;
 use App\Repository\da\DemandeApproLRRepository;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Model\dw\DossierInterventionAtelierModel;
+use App\Model\dw\dossierInterventionAtelierModel;
 
 class DwApi extends Controller
 {
@@ -32,14 +32,14 @@ class DwApi extends Controller
     }
 
     /**
-     * @Route("/dw-fetch/{numDit}", name="fetch_dw")
+     * @Route("/api/dw-fetch/{numDit}", name="api_fetch_dw")
      * 
      * Cette fonction permet d'envoier les donners Ordre de réparation, facture, rapport d'intervention, commande
      * qui correspond à un demande d'intervention
      */
     public function dwfetch($numDit)
     {
-        $dwModel = new DossierInterventionAtelierModel();
+        $dwModel = new dossierInterventionAtelierModel();
 
         // Récupération initiale : Demande d'intervention
         $dwDit = $this->fetchAndLabel($dwModel, 'findDwDit', $numDit, "Demande d'intervention");
@@ -73,11 +73,11 @@ class DwApi extends Controller
     }
 
     /**
-     *@Route("/dw-chemin-fetch/{numDoc}/{nomDoc}/{numVersion}", name="fetch_dw_chemin")
+     *@Route("/api/dw-chemin-fetch/{numDoc}/{nomDoc}/{numVersion}", name="api_fetch_dw_chemin")
      */
     public function dwCheminFichier($numDoc, $nomDoc, $numVersion)
     {
-        $dwModel = new DossierInterventionAtelierModel();
+        $dwModel = new dossierInterventionAtelierModel();
 
         switch ($nomDoc) {
             case 'Demande d\'intervention':

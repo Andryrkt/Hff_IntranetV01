@@ -416,6 +416,11 @@ class DaAfficher
      */
     private $dateReceptionArticle;
 
+    /** 
+     * @ORM\Column(type="string", length=2, name="code_societe", nullable=true)
+     */
+    private $codeSociete;
+
     /**==============================================================================
      * GETTERS & SETTERS
      *===============================================================================*/
@@ -1965,6 +1970,24 @@ class DaAfficher
     }
 
     /**
+     * Get the value of codeSociete
+     */
+    public function getCodeSociete()
+    {
+        return $this->codeSociete;
+    }
+
+    /**
+     * Set the value of codeSociete
+     */
+    public function setCodeSociete($codeSociete): self
+    {
+        $this->codeSociete = $codeSociete;
+
+        return $this;
+    }
+
+    /**
      * Copie les propriétés pertinentes d'un ancien DaAfficher vers l'objet courant.
      *
      * Cela permet de "mettre à jour" l'objet courant avec les valeurs de référence
@@ -2016,6 +2039,7 @@ class DaAfficher
             ->setServiceEmetteur($demandeApproParent->getServiceEmetteur()->getId())
             ->setAgenceDebiteur($demandeApproParent->getAgenceDebiteur()->getId())
             ->setServiceDebiteur($demandeApproParent->getServiceDebiteur()->getId())
+            ->setCodeSociete($demandeApproParent->getCodeSociete())
         ;
     }
 
@@ -2066,6 +2090,7 @@ class DaAfficher
             ->setAgenceDebiteur($da->getAgenceDebiteur()->getId())
             ->setServiceDebiteur($da->getServiceDebiteur()->getId())
             ->setDateDemandeDevis($da->getDateDemandeDevis())
+            ->setCodeSociete($da->getCodeSociete())
         ;
     }
 

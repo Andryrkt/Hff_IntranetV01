@@ -6,6 +6,7 @@ use DateTime;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Entity\admin\StatutDemande;
+use App\Entity\dit\DemandeIntervention;
 use App\Entity\admin\dit\WorNiveauUrgence;
 
 class DemandeInterventionDto
@@ -47,53 +48,52 @@ class DemandeInterventionDto
     public ?DateTime $dateDemande = null;
     public ?string $heureDemande = null;
     public ?string $utilisateurDemandeur = null;
-
+    public ?string $codeSociete = null;
     public bool $estDitAvoir = false;
     public bool $estDitRefacturation = false;
-
     public bool $estAtePolTana = false;
 
-
     // Cette méthode peut être utilisée pour hydrater le DTO depuis l'entité/formulaire
-    public static function createFromEntity($dits): self
+    public static function createFromEntity(DemandeIntervention $dit): self
     {
         $dto = new self();
-        $dto->objetDemande = $dits->getObjetDemande();
-        $dto->detailDemande = $dits->getDetailDemande();
-        $dto->typeDocument = $dits->getTypeDocument();
-        $dto->categorieDemande = $dits->getCategorieDemande();
-        $dto->livraisonPartiel = $dits->getLivraisonPartiel();
-        $dto->demandeDevis = $dits->getDemandeDevis();
-        $dto->avisRecouvrement = $dits->getAvisRecouvrement();
-        $dto->agenceEmetteur = $dits->getAgenceEmetteur();
-        $dto->serviceEmetteur = $dits->getServiceEmetteur();
-        $dto->agence = $dits->getAgence();
-        $dto->service = $dits->getService();
-        $dto->idNiveauUrgence = $dits->getIdNiveauUrgence();
-        $dto->datePrevueTravaux = $dits->getDatePrevueTravaux();
-        $dto->typeReparation = $dits->getTypeReparation();
-        $dto->reparationRealise = $dits->getReparationRealise();
-        $dto->internetExterne = $dits->getInternetExterne();
-        $dto->numeroClient = $dits->getNumeroClient();
-        $dto->nomClient = $dits->getNomClient();
-        $dto->numeroTel = $dits->getNumeroTel();
-        $dto->clientSousContrat = $dits->getClientSousContrat();
-        $dto->idMateriel = $dits->getIdMateriel();
-        $dto->numParc = $dits->getNumParc();
-        $dto->numSerie = $dits->getNumSerie();
-        $dto->pieceJoint01 = $dits->getPieceJoint01();
-        $dto->pieceJoint02 = $dits->getPieceJoint02();
-        $dto->pieceJoint03 = $dits->getPieceJoint03();
-        $dto->idStatutDemande = $dits->getIdStatutDemande();
-        $dto->numeroDemandeIntervention = $dits->getNumeroDemandeIntervention();
-        $dto->mailDemandeur = $dits->getMailDemandeur();
-        $dto->dateDemande = $dits->getDateDemande();
-        $dto->heureDemande = $dits->getHeureDemande();
-        $dto->utilisateurDemandeur = $dits->getUtilisateurDemandeur();
-        $dto->estDitAvoir = $dits->getEstDitAvoir();
-        $dto->estDitRefacturation = $dits->getEstDitRefacturation();
-        $dto->mailClient = $dits->getMailClient();
-        $dto->estAtePolTana = $dits->getEstAtePolTana();
+        $dto->objetDemande = $dit->getObjetDemande();
+        $dto->detailDemande = $dit->getDetailDemande();
+        $dto->typeDocument = $dit->getTypeDocument();
+        $dto->categorieDemande = $dit->getCategorieDemande();
+        $dto->livraisonPartiel = $dit->getLivraisonPartiel();
+        $dto->demandeDevis = $dit->getDemandeDevis();
+        $dto->avisRecouvrement = $dit->getAvisRecouvrement();
+        $dto->agenceEmetteur = $dit->getAgenceEmetteur();
+        $dto->serviceEmetteur = $dit->getServiceEmetteur();
+        $dto->agence = $dit->getAgence();
+        $dto->service = $dit->getService();
+        $dto->idNiveauUrgence = $dit->getIdNiveauUrgence();
+        $dto->datePrevueTravaux = $dit->getDatePrevueTravaux();
+        $dto->typeReparation = $dit->getTypeReparation();
+        $dto->reparationRealise = $dit->getReparationRealise();
+        $dto->internetExterne = $dit->getInternetExterne();
+        $dto->numeroClient = $dit->getNumeroClient();
+        $dto->nomClient = $dit->getNomClient();
+        $dto->numeroTel = $dit->getNumeroTel();
+        $dto->clientSousContrat = $dit->getClientSousContrat();
+        $dto->idMateriel = $dit->getIdMateriel();
+        $dto->numParc = $dit->getNumParc();
+        $dto->numSerie = $dit->getNumSerie();
+        $dto->pieceJoint01 = $dit->getPieceJoint01();
+        $dto->pieceJoint02 = $dit->getPieceJoint02();
+        $dto->pieceJoint03 = $dit->getPieceJoint03();
+        $dto->idStatutDemande = $dit->getIdStatutDemande();
+        $dto->numeroDemandeIntervention = $dit->getNumeroDemandeIntervention();
+        $dto->mailDemandeur = $dit->getMailDemandeur();
+        $dto->dateDemande = $dit->getDateDemande();
+        $dto->heureDemande = $dit->getHeureDemande();
+        $dto->utilisateurDemandeur = $dit->getUtilisateurDemandeur();
+        $dto->estDitAvoir = $dit->getEstDitAvoir();
+        $dto->estDitRefacturation = $dit->getEstDitRefacturation();
+        $dto->mailClient = $dit->getMailClient();
+        $dto->estAtePolTana = $dit->getEstAtePolTana();
+        $dto->codeSociete = $dit->getCodeSociete();
 
         return $dto;
     }

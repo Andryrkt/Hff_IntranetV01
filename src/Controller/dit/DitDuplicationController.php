@@ -17,7 +17,6 @@ use App\Form\dit\demandeInterventionType;
 use App\Service\autres\AutoIncDecService;
 use Symfony\Component\Form\FormInterface;
 use App\Service\fichier\UploderFileService;
-use App\Controller\Traits\AutorisationTrait;
 use App\Service\fichier\TraitementDeFichier;
 use App\Controller\Traits\PdfConversionTrait;
 use App\Service\genererPdf\dit\GenererPdfDit;
@@ -36,7 +35,6 @@ class DitDuplicationController extends Controller
 {
     use DitTrait;
     use FormatageTrait;
-    use AutorisationTrait;
     use PdfConversionTrait;
 
     private $historiqueOperation;
@@ -56,9 +54,6 @@ class DitDuplicationController extends Controller
      */
     public function Duplication($numDit, $id, Request $request)
     {
-        $this->verifierSessionUtilisateur();
-        $this->autorisationAcces($this->getUser(), Application::ID_DIT);
-
         $user = $this->getUser();
         $dit = $this->getEntityManager()->getRepository(DemandeIntervention::class)->find($id);
 
@@ -131,6 +126,7 @@ class DitDuplicationController extends Controller
             ->setCasier($dit->getCasier())
             ->setKm($dit->getKm())
             ->setHeure($dit->getHeure())
+            ->setCodeSociete($dit->getCodeSociete())
         ;
 
         return $demandeInterventions;

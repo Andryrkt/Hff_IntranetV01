@@ -15,9 +15,9 @@ trait DevisMagasinTrait
      * @param string $numeroDevis Le numéro de devis
      * @return array Les informations du devis
      */
-    public function getInfoDevisIps(string $numeroDevis): array
+    public function getInfoDevisIps(string $numeroDevis, string $codeSociete): array
     {
-        $devisIps = $this->listeDevisMagasinModel->getInfoDev($numeroDevis);
+        $devisIps = $this->listeDevisMagasinModel->getInfoDev($numeroDevis, $codeSociete);
 
         if (empty($devisIps)) {
             //message d'erreur

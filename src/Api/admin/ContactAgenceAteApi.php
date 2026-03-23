@@ -3,7 +3,6 @@
 namespace App\Api\admin;
 
 use App\Controller\Controller;
-use App\Entity\admin\Personnel;
 use App\Entity\admin\utilisateur\User;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -18,9 +17,6 @@ class ContactAgenceAteApi extends Controller
      */
     public function getMatriculeData($id)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $user = $this->getEntityManager()->getRepository(User::class)->findOneBy(['id' => $id]);
 
         $nomEmail = [

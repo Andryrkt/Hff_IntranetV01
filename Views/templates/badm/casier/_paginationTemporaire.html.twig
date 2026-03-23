@@ -1,10 +1,7 @@
 <div class="d-flex justify-content-between">
 	<div>
 		<a href="{{ path("casier_nouveau")}}" class="btn  fw-bold mb-3" style="background-color: #000; color: white">Nouveau Casier</a>
-		{# recupé&ration de l'id du role de l'utilisateur #}
-		{% set role_ids = App.user.roleIds %}
-		{# est-ce que l'id 1 est dans le tableaut id #}
-		{% if 1 in role_ids  %}
+		{% if App.userConnecter.isAdmin  %}
 			<a href="{{ path("liste_affichageListeCasier")}}" class="btn  fw-bold mb-3" style="background-color: #FBBB01;">Listes Définitives</a>
 		{% endif %}
 	</div>

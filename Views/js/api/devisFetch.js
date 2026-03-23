@@ -18,7 +18,7 @@ export function fetchDevis(
   selectContainer,
   selecteInput
 ) {
-  const url = `constraint-soumission/${numDit}`;
+  const url = `api/constraint-soumission/${numDit}`;
   toggleSpinner(spinnerSelect, selectContainer, true);
   fetchManager
     .get(url)

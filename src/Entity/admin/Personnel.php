@@ -99,7 +99,7 @@ class Personnel
      * @ORM\ManyToOne(targetEntity=AgenceServiceIrium::class, inversedBy="personnelId")
      * @ORM\JoinColumn(name="agence_service_irium_id", referencedColumnName="id")
      */
-    private $agenceServiceIriumId;
+    private ?AgenceServiceIrium $agenceServiceIriumId = null;
 
 
     /**
@@ -353,13 +353,13 @@ class Personnel
         return $this;
     }
 
-    public function getAgenceServiceIriumId()
+    public function getAgenceServiceIriumId(): ?AgenceServiceIrium
     {
         return $this->agenceServiceIriumId;
     }
 
 
-    public function setAgenceServiceIriumId($agenceServiceIriumId): self
+    public function setAgenceServiceIriumId(?AgenceServiceIrium $agenceServiceIriumId): self
     {
         $this->agenceServiceIriumId = $agenceServiceIriumId;
 

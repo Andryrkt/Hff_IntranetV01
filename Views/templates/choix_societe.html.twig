@@ -1,0 +1,45 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block title %}
+	Choix Société
+{% endblock %}
+
+{% block breadCrumb %}{% endblock %}
+
+{% block stylesheets %}
+	<link href="{{ App.base_path }}/Views/css/new.css?v=2025.10.22.08.00" rel="stylesheet"/>
+{% endblock %}
+
+{% block content %}
+	<div class="container w-25 mt-6 mb-4">
+		<div class="card">
+			<div class="card-body">
+				<div class="container">
+					{{ form_start(form)}}
+					{{ form_errors(form)}}
+					<div class="row d-flex justify-content-center mb-2">
+						<h3 class="perso-titre">Veuillez choisir une société</h3>
+						{{ form_row(form.societe)}}
+						{{ form_errors(form.societe)}}
+						<div class="d-none" id="choix-profil">
+							{{ form_row(form.profil)}}
+							{{ form_errors(form.profil)}}
+						</div>
+					</div>
+
+					<div class="d-flex justify-content-end">
+						<button type="submit" class="btn bouton">
+							Suivant
+							<i class="fas fa-arrow-right"></i>
+						</button>
+					</div>
+					{{ form_end(form)}}
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block javascript %}
+	<script src="{{ App.base_path }}/Views/js/societe/choixSociete.js?v=2025.10.22.08.00"></script>
+{% endblock %}

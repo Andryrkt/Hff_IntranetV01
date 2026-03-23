@@ -15,6 +15,7 @@ use App\Entity\admin\tik\TkiAutresCategorie;
 use Symfony\Component\HttpFoundation\Request;
 use App\Entity\tik\DemandeSupportInformatique;
 use Symfony\Component\Routing\Annotation\Route;
+
 /**
  * @Route("/it")
  */
@@ -25,13 +26,9 @@ class ListeTikController extends Controller
      */
     public function index(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $tikSearch = new TikSearch();
 
-        $userId = $this->getSessionService()->get('user_id');
-        $user = $this->getEntityManager()->getRepository(User::class)->find($userId);
+        $user = $this->getUser();
 
         /** CREATION D'AUTORISATION */
         $autoriser = $this->autorisationRole($user);
@@ -82,7 +79,7 @@ class ListeTikController extends Controller
         $ticketsWithReouverturePermission = [];
         foreach ($paginationData['data'] as $ticket) {
             $ticketsWithEditPermission[$ticket->getId()] = $this->canEdit($ticket->getNumeroTicket()); // Appel à la méthode canEdit
-            $ticketsWithCloturePermission[$ticket->getId()] = $this->conditionCloturerTicket($ticket); // Appel à la méthode conditionCloturerTicket
+            $ticketsWithCloturePermission[$ticket->getId()] = $this->conditionCloturerTicket($user, $ticket); // Appel à la méthode conditionCloturerTicket
             $ticketsWithReouverturePermission[$ticket->getId()] = $this->conditionReouvrirTicket($ticket); // Appel à la méthode conditionReouvrirTicket
         }
 
@@ -105,7 +102,7 @@ class ListeTikController extends Controller
     private function initialisationFormRecherche(array $autorisation, array $agenceServiceIps, TikSearch $tikSearch, User $user)
     {
         // Initialisation des critères depuis la session
-        $criteria = $this->getSessionService()->get('tik_search_criteria', []) ?? [];
+        $criteria = $this->getSessionService()->get('tik_search_criteria', []);
 
         // Définition des valeurs par défaut en fonction des autorisations
         $agenceIpsEmetteur  = $autorisation['autoriser'] ? null : $agenceServiceIps['agenceIps'];
@@ -179,7 +176,7 @@ class ListeTikController extends Controller
      */
     private function hasRole(User $user, int $roleId): bool
     {
-        $roleIds = $user->getRoleIds();
+        $roleIds = []; // TODO : changer ceci plus tard : les roles de l'utilisateur
 
         // S'assurer que $roleIds est un tableau avant de continuer.
         if (!is_array($roleIds)) {
@@ -200,11 +197,7 @@ class ListeTikController extends Controller
             'ouvert'    => in_array($ticket->getIdStatutDemande()->getId(), [58, 65]) ? 1 : 0, // le statut du ticket est ouvert ou en attente
         ];
 
-        $this->verifierSessionUtilisateur();
-
-        $idUtilisateur  = $this->getSessionService()->get('user_id');
-
-        $utilisateur    = $idUtilisateur !== '-' ? $this->getEntityManager()->getRepository(User::class)->find($idUtilisateur) : null;
+        $utilisateur    = $this->getUser();
 
         if (is_null($utilisateur)) {
             $this->SessionDestroy();
@@ -227,20 +220,14 @@ class ListeTikController extends Controller
     /** 
      * Méthode pour les conditions de cloture d'un ticket
      * 
+     * @param User $utilisateur l'utilisateur connecté
      * @param DemandeSupportInformatique $ticket le ticket à cloturer
      * 
      * @return array
      */
-    private function conditionCloturerTicket(DemandeSupportInformatique $ticket): array
+    private function conditionCloturerTicket(User $utilisateur, DemandeSupportInformatique $ticket): array
     {
         $result = [];
-
-        $idUtilisateur  = $this->getSessionService()->get('user_id');
-
-        /** 
-         * @var User $utilisateur l'utilisateur connecté
-         */
-        $utilisateur    = $this->getEntityManager()->getRepository(User::class)->find($idUtilisateur);
 
         if (in_array("VALIDATEUR", $utilisateur->getRoleNames())) {
             $result['profil'] = 2;
@@ -268,14 +255,10 @@ class ListeTikController extends Controller
     {
         $result = [];
 
-        $idUtilisateur  = $this->getSessionService()->get('user_id');
+        $userInfo = $this->getSessionService()->get('user_info');
+        $id = $userInfo['id'] ?? null;
 
-        /** 
-         * @var User $utilisateur l'utilisateur connecté
-         */
-        $utilisateur    = $this->getEntityManager()->getRepository(User::class)->find($idUtilisateur);
-
-        $result['profil'] = ($ticket->getUserId()->getId() === $utilisateur->getId()) ? 1 : 0;
+        $result['profil'] = ($ticket->getUserId()->getId() === $id) ? 1 : 0;
         $result['statut'] = $ticket->getIdStatutDemande()->getId();
 
         return $result;

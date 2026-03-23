@@ -1,4 +1,4 @@
-import { mergeCellsRecursiveTable } from "./tableHandler";
+import { mergeCellsRecursiveTable } from "../../utils/tableHandler.js";
 import { AutoComplete } from "../../utils/AutoComplete.js";
 import { FetchManager } from "../../api/FetchManager.js";
 import { baseUrl } from "../../utils/config";

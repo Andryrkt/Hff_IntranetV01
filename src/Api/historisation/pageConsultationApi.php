@@ -9,7 +9,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class pageConsultationApi extends Controller
 {
     /**
-     * @Route("/api/consultation-page-fetch-all", name="consultation_page_fetch_all")
+     * @Route("/api/consultation-page-fetch-all", name="api_consultation_page_fetch_all")
      *
      * @return void
      */

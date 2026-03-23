@@ -2,6 +2,7 @@
 
 namespace App\Controller\pol\devis;
 
+use App\Constants\admin\ApplicationConstant;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Controller\Controller;
@@ -11,6 +12,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Model\magasin\devis\ListeDevisMagasinModel;
 use App\Factory\magasin\devis\ListeDevisMagasinFactory;
 use App\Repository\magasin\devis\DevisMagasinRepository;
+use App\Service\ExcelService;
 
 /**
  * @Route("/pol")
@@ -31,16 +33,15 @@ class DevisMagasinPolExportExcelController extends Controller
      */
     public function exportExcel()
     {
-        $this->verifierSessionUtilisateur();
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+
+        // Agences Services autorisés sur le DVM
+        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DVM);
 
         $criteria = $this->getSessionService()->get('criteria_for_excel_liste_devis_magasin');
 
-        if ($criteria && $criteria["emetteur"]) {
-            $criteria["emetteur"]["agence"] = $criteria["emetteur"]["agence"] ? $this->getEntityManager()->getRepository(Agence::class)->find($criteria["emetteur"]["agence"]) : null;
-            $criteria["emetteur"]["service"] = $criteria["emetteur"]["service"] ? $this->getEntityManager()->getRepository(Service::class)->find($criteria["emetteur"]["service"]) : null;
-        }
-
-        $listeDevisFactory = $this->recuperationDonner($criteria);
+        $listeDevisFactory = $this->recuperationDonner($criteria, $agenceServiceAutorises, $codeSociete);
 
         $data = [];
         // En-tête du tableau d'excel
@@ -61,7 +62,7 @@ class DevisMagasinPolExportExcelController extends Controller
 
         $data = $this->convertirObjetEnTableau($listeDevisFactory, $data);
 
-        $this->getExcelService()->createSpreadsheet($data);
+        (new ExcelService())->createSpreadsheet($data);
     }
 
     /** 
@@ -95,26 +96,23 @@ class DevisMagasinPolExportExcelController extends Controller
         return $data;
     }
 
-    public function recuperationDonner(array $criteria = []): array
+    public function recuperationDonner(array $criteria = [], array $agenceServiceAutorises, $codeSociete): array
     {
-        $codeAgenceAutoriserString = TableauEnStringService::orEnString($this->getUser()->getAgenceAutoriserCode());
         $vignette = 'magasin';
-        $adminMutli          = in_array(1, $this->getUser()->getRoleIds()) || in_array(6, $this->getUser()->getRoleIds());
-        // recupération de la liste des devis magasin dans IPS
         $numDeviAExclure = TableauEnStringService::simpleNumeric(array_map('intval', $this->listeDevisMagasinModel->getNumeroDevisExclure()));
-        $devisIps = $this->listeDevisMagasinModel->getDevis($criteria, $vignette, $codeAgenceAutoriserString, $adminMutli, $numDeviAExclure);
+        $devisIps = $this->listeDevisMagasinModel->getDevis($criteria, $vignette, $agenceServiceAutorises, $numDeviAExclure, $codeSociete);
 
         $listeDevisFactory = [];
         foreach ($devisIps as  $devisIp) {
             $devisMagasinRepository = $this->getEntityManager()->getRepository(DevisMagasin::class);
             //recupération des information de devis soumission à validation neg
-            $numeroVersionMax = $devisMagasinRepository->getNumeroVersionMax($devisIp['numero_devis']);
-            $devisSoumi = $devisMagasinRepository->findOneBy(['numeroDevis' => $devisIp['numero_devis'], 'numeroVersion' => $numeroVersionMax]);
+            $numeroVersionMax = $devisMagasinRepository->getNumeroVersionMax($devisIp['numero_devis'], $codeSociete);
+            $devisSoumi = $devisMagasinRepository->findOneBy(['numeroDevis' => $devisIp['numero_devis'], 'numeroVersion' => $numeroVersionMax, 'codeSociete' => $codeSociete]);
             //ajout des informations manquantes
             $devisIp['statut_dw'] = $devisSoumi ? $devisSoumi->getStatutDw() : '';
             $devisIp['operateur'] = $devisSoumi ? $devisSoumi->getUtilisateur() : '';
             $devisIp['date_envoi_devis_au_client'] = $devisSoumi ? ($devisSoumi->getDateEnvoiDevisAuClient() ? $devisSoumi->getDateEnvoiDevisAuClient() : '') : '';
-            $devisIp['utilisateur_createur_devis'] = $this->listeDevisMagasinModel->getUtilisateurCreateurDevis($devisIp['numero_devis']) ?? '';
+            $devisIp['utilisateur_createur_devis'] = $this->listeDevisMagasinModel->getUtilisateurCreateurDevis($devisIp['numero_devis'], $codeSociete) ?? '';
             $devisIp['statut_bc'] = $devisSoumi ? $devisSoumi->getStatutBc() : '';
 
             // Appliquer les filtres si des critères sont fournis
@@ -188,19 +186,19 @@ class DevisMagasinPolExportExcelController extends Controller
         }
 
         // Filtre par agence émetteur
-        if (!empty($criteria['emetteur']['agence'])) {
+        if (!empty($criteria['agenceEmetteur'])) {
             // Récupérer les 2 premiers caractères de l'agence émetteur
             $agenceEmetteurCode = !empty($devisIp['emmeteur']) ? substr($devisIp['emmeteur'], 0, 2) : '';
-            if ($agenceEmetteurCode !== $criteria['emetteur']['agence']->getCodeAgence()) {
+            if ($agenceEmetteurCode !== $criteria['agenceEmetteur']) {
                 return false;
             }
         }
 
         // Filtre par service émetteur
-        if (!empty($criteria['emetteur']['service'])) {
+        if (!empty($criteria['serviceEmetteur'])) {
             // Récupérer les 3 derniers caractères du service émetteur
             $serviceEmetteurCode = !empty($devisIp['emmeteur']) ? substr($devisIp['emmeteur'], -3) : '';
-            if ($serviceEmetteurCode !== $criteria['emetteur']['service']->getCodeService()) {
+            if ($serviceEmetteurCode !== $criteria['serviceEmetteur']) {
                 return false;
             }
         }

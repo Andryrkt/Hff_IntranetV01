@@ -9,7 +9,6 @@ use App\Service\GlobalVariablesService;
 use App\Service\TableauEnStringService;
 use Symfony\Component\Form\FormInterface;
 use App\Service\Utils\RollingMonthsService;
-use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use App\Form\da\reappro\ReportingIpsSearchType;
 use Symfony\Component\Routing\Annotation\Route;
@@ -20,7 +19,6 @@ use App\Controller\Traits\da\reappro\ReportingIpsTrait;
  */
 class ReportingIpsController extends Controller
 {
-    use AutorisationTrait;
     use ReportingIpsTrait;
 
     private RollingMonthsService $rollingMonthsService;
@@ -36,12 +34,8 @@ class ReportingIpsController extends Controller
      */
     public function index(Request $request)
     {
-        // verification de la session utilisateur
-        $this->verifierSessionUtilisateur();
-
-        /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_DAP);
-        /** FIN AUtorisation acées */
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
 
         $form = $this->getFormFactory()->createBuilder(ReportingIpsSearchType::class, null, [
             'method' => 'GET',
@@ -60,7 +54,7 @@ class ReportingIpsController extends Controller
         $criterias = $this->traitementFormulaire($form, $request);
 
         /** recuperation des données @var array $results @var array $totals  */
-        ['results' => $results, 'totals' => $totals] = $this->getData($criterias);
+        ['results' => $results, 'totals' => $totals] = $this->getData($criterias, $codeSociete);
 
         return $this->render('da/reappro/reporting_ips/index.html.twig', [
             'results' => $results,

@@ -3,25 +3,19 @@
 namespace App\Controller\badm;
 
 use App\Entity\badm\Badm;
-use App\Entity\admin\Agence;
-use App\Entity\admin\Service;
+use App\Model\badm\BadmModel;
 use App\Controller\Controller;
 use App\Form\badm\BadmForm1Type;
-use App\Entity\admin\Application;
-use App\Entity\admin\utilisateur\User;
-use App\Controller\Traits\AutorisationTrait;
+use App\Constants\admin\ApplicationConstant;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\historiqueOperation\HistoriqueOperationBADMService;
-use App\Model\badm\BadmModel;
 
 /**
  * @Route("/materiel/mouvement-materiel")
  */
 class BadmsController extends Controller
 {
-    use AutorisationTrait;
-
     private $historiqueOperation;
     private $badm;
 
@@ -39,30 +33,22 @@ class BadmsController extends Controller
      */
     public function newForm1(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
 
-        /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_BADM);
-        /** FIN AUtorisation acées */
-
-        /** RECUPERATION ID USER CONNECTER */
-        $user = $this->getUser();
         /** INITIALISATION*/
         $badm = new Badm();
         $agenceServiceIps = $this->agenceServiceIpsString();
 
-
         $badm
             ->setAgenceEmetteur($agenceServiceIps['agenceIps'])
             ->setServiceEmetteur($agenceServiceIps['serviceIps'])
+            ->setCodeSociete($codeSociete)
         ;
 
         $form = $this->getFormFactory()->createBuilder(BadmForm1Type::class, $badm)->getForm();
 
-
         $form->handleRequest($request);
-
 
         if ($form->isSubmitted() && $form->isValid()) {
 
@@ -81,7 +67,10 @@ class BadmsController extends Controller
                 $idTypeMouvement = $badm->getTypeMouvement()->getId();
 
                 //recuperation des information du materiel dans la base de donnée informix
-                $data = $this->badm->findAll($badm->getIdMateriel(),  $badm->getNumParc(), $badm->getNumSerie());
+                $data = $this->badm->findAll($badm->getIdMateriel(),  $badm->getNumParc(), $badm->getNumSerie(), $badm->getCodeSociete());
+
+                $codeAgenceMateriel = $data[0]["agence"];
+                $codeServiceMateriel = $data[0]["code_service"] === null || $data[0]["code_service"] === '' ? "COM" : $data[0]["code_service"];
 
                 if (empty($data)) {
                     $message = "Matériel déjà vendu ou L'information saisie n'est pas correcte.";
@@ -89,21 +78,11 @@ class BadmsController extends Controller
                     $this->historiqueOperation->sendNotificationCreation($message, '-', 'badms_newForm1');
                 } else {
                     //recuperation du materiel dan sl abase de donner sqlserver
-                    $materiel = $this->getEntityManager()->getRepository(Badm::class)->findOneBy(['idMateriel' => $data[0]['num_matricule']], ['numBadm' => 'DESC']);
+                    $materiel = $this->getEntityManager()->getRepository(Badm::class)->findOneBy(['idMateriel' => $data[0]['num_matricule'], 'codeSociete' => $codeSociete], ['numBadm' => 'DESC']);
 
-                    //si le materiel n'est pas encore dans la base de donner on donne la valeur 0 pour l'idType ld emouvmentMateriel
+                    // si le materiel n'est pas encore dans la base de donnée on donne la valeur 0 pour l'idType de mouvementMateriel
                     $idTypeMouvementMateriel = $materiel === null ? 0 : $materiel->getTypeMouvement()->getId();
 
-
-                    $agenceMaterielId = $this->getEntityManager()->getRepository(Agence::class)->findOneBy(['codeAgence' => $data[0]["agence"]])->getId();
-
-
-                    if ($data[0]["code_service"] === null || $data[0]["code_service"] === '' || $data[0]["code_service"] === null) {
-                        $serviceMaterilId =  $this->getEntityManager()->getRepository(Service::class)->findOneBy(['codeService' => 'COM'])->getId();
-                    } else {
-                        $serviceMaterilId =  $this->getEntityManager()->getRepository(Service::class)->findOneBy(['codeService' => $data[0]["code_service"]])->getId();
-                    }
-                    // dd($agenceMaterielId, $serviceMaterilId);
                     //condition de blocage
                     $conditionTypeMouvStatut = $idTypeMouvement === $idTypeMouvementMateriel && in_array($materiel->getStatutDemande()->getId(), [15, 16, 21, 46, 23, 25, 29, 30]);
                     $conditionEntreeParc = $idTypeMouvement === 1 && $data[0]['code_affect'] !== 'VTE';
@@ -111,8 +90,10 @@ class BadmsController extends Controller
                     $conditionChangementAgServ_2 = $idTypeMouvement === 2 && $data[0]['code_affect'] !== 'LCD' && $data[0]['code_affect'] !== 'IMM';
                     $conditionCessionActif = $idTypeMouvement === 4 && $data[0]['code_affect'] !== 'LCD' && $data[0]['code_affect'] !== 'IMM';
                     $conditionMiseAuRebut = $idTypeMouvement === 5 && $data[0]['code_affect'] === 'CAS';
-                    $conditionRoleUtilisateur = in_array(1, $user->getRoleIds());
-                    $conditionAgenceServiceAutoriser = in_array($agenceMaterielId, $user->getAgenceAutoriserIds()) && in_array($serviceMaterilId, $user->getServiceAutoriserIds());
+
+                    // Le couple code Agence - code Service du matériel n'existe pas dans la liste des agences services autorisés de l'app BADM 
+                    $agenceServicesAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_BADM, false);
+                    $conditionAgenceServiceAutoriser = !isset($agenceServicesAutorises[$codeAgenceMateriel . "-" . $codeServiceMateriel]);
                 }
             }
 
@@ -137,7 +118,7 @@ class BadmsController extends Controller
 
                 $this->historiqueOperation->sendNotificationCreation($message, '-', 'badms_newForm1');
             } elseif ($conditionTypeMouvStatut) {
-                $message = 'ce matériel est encours de traitement pour ce type de mouvement ';
+                $message = 'Ce matériel est en cours de traitement pour ce type de mouvement ';
 
                 $this->historiqueOperation->sendNotificationCreation($message, '-', 'badms_newForm1');
             } else {
@@ -147,22 +128,20 @@ class BadmsController extends Controller
                     ->setNumParc($data[0]['num_parc'])
                     ->setNumSerie($data[0]['num_serie'])
                 ;
-
-                $formData = [
-                    'idMateriel' => $badm->getIdMateriel(),
-                    'numParc' => $badm->getNumParc(),
-                    'numSerie' => $badm->getNumSerie(),
-                    'typeMouvemnt' => $badm->getTypeMouvement()
-                ];
-                //envoie des donner dan la session
-                $this->getSessionService()->set('badmform1Data', $formData);
-                if ($conditionRoleUtilisateur) {
-                    $this->redirectToRoute("badms_newForm2");
-                } elseif (!$conditionAgenceServiceAutoriser) {
-                    $message = " vous n'êtes pas autoriser à consulter ce matériel";
+                if ($conditionAgenceServiceAutoriser) {
+                    $message = "Vous n'êtes pas autoriser à consulter ce matériel";
 
                     $this->historiqueOperation->sendNotificationCreation($message, '-', 'badms_newForm1');
                 } else {
+                    $formData = [
+                        'idMateriel' => $badm->getIdMateriel(),
+                        'numParc' => $badm->getNumParc(),
+                        'numSerie' => $badm->getNumSerie(),
+                        'typeMouvemnt' => $badm->getTypeMouvement(),
+                        'codeSociete' => $badm->getCodeSociete(),
+                    ];
+                    //envoie des donner dan la session
+                    $this->getSessionService()->set('badmform1Data', $formData);
                     $this->redirectToRoute("badms_newForm2");
                 }
             }

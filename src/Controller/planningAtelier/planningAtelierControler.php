@@ -11,6 +11,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Model\planningAtelier\planningAtelierModel;
 use App\Entity\planningAtelier\planningAtelierSearch;
 use App\Form\planningAtelier\planningAtelierSearchType;
+
 /**
  * @Route("/planningAte")
  */
@@ -31,8 +32,6 @@ class planningAtelierControler extends Controller
      */
     public function planningAtelierEncours(Request $request)
     {
-        $this->verifierSessionUtilisateur();
-
         $form = $this->getFormFactory()->createBuilder(
             PlanningAtelierSearchType::class,
             $this->planningAtelierSearch,
@@ -121,8 +120,6 @@ class planningAtelierControler extends Controller
      */
     public function exportExcel()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
         $data = $this->getSessionService()->get('data_export_planningAtelier_excel', []);
         $dates = $this->getSessionService()->get('dates_export_planningAtelier_excel', []);
 

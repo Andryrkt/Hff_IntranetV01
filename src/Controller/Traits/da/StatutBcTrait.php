@@ -10,7 +10,6 @@ use App\Entity\da\DaSoumissionFacBl;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Entity\dw\DwBcAppro;
 use App\Model\magasin\MagasinListeOrLivrerModel;
-use App\Model\da\DaModel;
 
 trait StatutBcTrait
 {
@@ -19,16 +18,11 @@ trait StatutBcTrait
     private $styleStatutOR = [];
     private $styleStatutBC = [];
 
-    // Repository / Model
-    private DaModel $daModel;
-
     /**
      * Initialise le trait StatutBcTrait
      */
     public function initStatutBcTrait()
     {
-        $this->daModel = new DaModel();
-
         //----------------------------------------------------------------------------------------------------
         $this->styleStatutDA = [
             DemandeAppro::STATUT_VALIDE               => 'bg-bon-achat-valide',

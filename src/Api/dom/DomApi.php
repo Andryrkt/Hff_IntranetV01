@@ -8,7 +8,6 @@ use App\Entity\admin\dom\Catg;
 use App\Entity\admin\dom\Site;
 use App\Entity\admin\Personnel;
 use App\Entity\admin\dom\Indemnite;
-use App\Entity\admin\utilisateur\User;
 use App\Controller\Traits\FormatageTrait;
 use App\Entity\admin\dom\SousTypeDocument;
 use Symfony\Component\Routing\Annotation\Route;
@@ -18,7 +17,7 @@ class DomApi extends Controller
     use FormatageTrait;
 
     /**
-     * @Route("/categorie-fetch/{id}", name="fetch_categorie", methods={"GET"})
+     * @Route("/api/categorie-fetch/{id}", name="api_fetch_categorie", methods={"GET"})
      * 
      * Cette fonction permet d'envoier les donner de categorie selon la sousType de document
      *
@@ -28,28 +27,17 @@ class DomApi extends Controller
     public function categoriefetch(int $id)
     {
         try {
-            $userId = $this->getSessionService()->get('user_id');
-            $user = $this->getEntityManager()->getRepository(User::class)->find($userId);
+            $userInfo = $this->getSessionService()->get('user_info');
 
-            if (!$user) {
-                throw new \Exception('Utilisateur non trouvé');
-            }
+            if (!$userInfo) throw new \Exception('Utilisateur non trouvé');
 
             $sousTypedocument = $this->getEntityManager()->getRepository(SousTypeDocument::class)->find($id);
 
-            if (!$sousTypedocument) {
-                throw new \Exception('Sous-type de document non trouvé');
-            }
+            if (!$sousTypedocument) throw new \Exception('Sous-type de document non trouvé');
 
-            if ($user->getAgenceServiceIrium()->getAgenceIps() === '50') {
-                $rmq = $this->getEntityManager()->getRepository(Rmq::class)->findOneBy(['description' => '50']);
-            } else {
-                $rmq = $this->getEntityManager()->getRepository(Rmq::class)->findOneBy(['description' => 'STD']);
-            }
+            $rmq = $this->getEntityManager()->getRepository(Rmq::class)->findOneBy(['description' => $userInfo["default_agence_code"] == '50' ? '50' : 'STD']);
 
-            if (!$rmq) {
-                throw new \Exception('Rmq non trouvé');
-            }
+            if (!$rmq) throw new \Exception('Rmq non trouvé');
 
             $criteria = [
                 'sousTypeDoc' => $sousTypedocument,
@@ -81,7 +69,7 @@ class DomApi extends Controller
 
 
     /**
-     * @Route("/form1Data-fetch", name="fetch_form1Data", methods={"GET"})
+     * @Route("/api/form1Data-fetch", name="api_fetch_form1Data", methods={"GET"})
      *permet d'envoyer les donnner du form1
      * @return void
      */
@@ -101,7 +89,7 @@ class DomApi extends Controller
 
 
     /**
-     * @Route("/site-idemnite-fetch/{siteId}/{docId}/{catgId}/{rmqId}", name="fetch_siteIdemnite", methods={"GET"})
+     * @Route("/api/site-idemnite-fetch/{siteId}/{docId}/{catgId}/{rmqId}", name="api_fetch_siteIdemnite", methods={"GET"})
      *
      * @return void
      */
@@ -143,7 +131,7 @@ class DomApi extends Controller
     }
 
     /**
-     * @Route("/personnel-fetch/{matricule}", name="fetch_personnel", methods={"GET"})
+     * @Route("/api/personnel-fetch/{matricule}", name="api_fetch_personnel", methods={"GET"})
      *
      * @param [type] $matricule
      * @return void

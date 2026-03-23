@@ -2,49 +2,17 @@
 
 namespace App\Controller\Traits\bdc;
 
-use App\Entity\admin\Agence;
 use App\Entity\admin\StatutDemande;
-use App\Entity\admin\utilisateur\User;
 use App\Entity\bdc\BonDeCaisse;
 use App\Entity\dw\DwBonDeCaisse;
 use App\Repository\dw\DwBonDeCaisseRepository;
 
 trait BonDeCaisseListeTrait
 {
-    private function autorisationRole($em): bool
-    {
-        /** CREATION D'AUTORISATION */
-        $userId = $this->getSessionService()->get('user_id');
-        $userConnecter = $em->getRepository(User::class)->find($userId);
-        $roleIds = $userConnecter->getRoleIds();
-        return in_array(1, $roleIds);
-        //FIN AUTORISATION
-    }
-
-    private function agenceIdAutoriser($em): array
-    {
-        /** CREATION D'AUTORISATION */
-        $userId = $this->getSessionService()->get('user_id');
-        $userConnecter = $em->getRepository(User::class)->find($userId);
-        $agenceIds = $userConnecter->getAgenceAutoriserIds();
-
-        // Get the agency codes instead of IDs
-        $agenceCodes = [];
-        foreach ($agenceIds as $agenceId) {
-            $agence = $em->getRepository(Agence::class)->find($agenceId);
-            if ($agence && $agence->getCodeAgence()) {
-                $agenceCodes[] = $agence->getCodeAgence();
-            }
-        }
-
-        return $agenceCodes;
-        //FIN AUTORISATION
-    }
-
     private function initialisation($bonCaisseSearch, $em)
     {
         $criteria = $this->getSessionService()->get('bon_caisse_search_criteria', []);
-        if ($criteria !== null) {
+        if (!empty($criteria)) {
             // Vérifier si statutDemande est un objet ou une chaîne
             if (isset($criteria['statutDemande']) && is_object($criteria['statutDemande'])) {
                 $statut = $criteria['statutDemande'] === null ? null : $em->getRepository(StatutDemande::class)->find($criteria['statutDemande']->getId());

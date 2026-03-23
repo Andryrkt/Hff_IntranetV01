@@ -17,9 +17,6 @@
 	{% include "/shared/_overlay.html.twig"  %}
 {% endblock %}
 
-{% set role_ids = App.user.roleIds %}
-{% set user_connecter = App.user.nom_utilisateur %}
-
 {% block content %}
 <div class="sticky-header-titre">
 	<div class="container">
@@ -70,6 +67,7 @@
 					{% else %}
 						{% set classeStatutDit = '' %}
 					{% endif %}
+					{% set mots_a_supprimer = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe'] %}
 					{# FIN LOGIQUE #}
 
 					<tr role="button">
@@ -93,7 +91,6 @@
 						<td>{{ item.agenceServiceDebiteur}}</td>
 						<td>
 							{{ item.objetDemande}}</td>
-						{% set mots_a_supprimer = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe'] %}
 						<td>
 							{{ item.sectionAffectee | remove_words(mots_a_supprimer)}}
 						</td>
@@ -134,4 +131,4 @@
 {% block javascript %}
 	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v=2025.10.22.08.00"></script>
 	<script src="{{ App.base_path }}/Views/js/da/listeDit/list.js?v=2025.10.22.08.00" type="module"></script>
-{% endblock %}   
+{% endblock %}

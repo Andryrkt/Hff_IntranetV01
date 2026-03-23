@@ -12,7 +12,7 @@ trait CongeListeTrait
     private function initialisation($congeSearch, $em)
     {
         $criteria = $this->getSessionService()->get('conge_search_criteria', []);
-        if ($criteria !== null) {
+        if (!empty($criteria)) {
             // Vérifier si sousTypeDocument est un objet ou une chaîne
             if (isset($criteria['sousTypeDocument']) && is_object($criteria['sousTypeDocument'])) {
                 $sousTypeDocument = $criteria['sousTypeDocument'] === null ? null : $em->getRepository(SousTypeDocument::class)->find($criteria['sousTypeDocument']->getId());

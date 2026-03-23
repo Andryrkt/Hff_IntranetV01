@@ -63,31 +63,32 @@ class DitDevisSoumisAValidationController extends Controller
      */
     public function insertionDevis(Request $request, $numDit, $type)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
 
-        $numDevis = $this->numeroDevis($numDit);
+        $numDevis = $this->numeroDevis($numDit, $codeSociete);
 
-        $devisSoumisAValidationInformix = $this->InformationDevisInformix($numDevis);
+        $devisSoumisAValidationInformix = $this->InformationDevisInformix($numDevis, $codeSociete);
 
-        $numeroVersionMax = $this->devisRepository->findNumeroVersionMax($numDevis); // recuperation du numero version max
+        $numeroVersionMax = $this->devisRepository->findNumeroVersionMax($numDevis, $codeSociete); // recuperation du numero version max
+
         //ajout des informations vient dans informix dans l'entité devisSoumisAValidation
-        $devisSoumisValidataion = $this->devisSoumisValidataion($devisSoumisAValidationInformix, $numeroVersionMax, $numDevis, $numDit, $this->estCeVente($numDevis), $type);
+        $devisSoumisValidataion = $this->devisSoumisValidataion($devisSoumisAValidationInformix, $numeroVersionMax, $numDevis, $numDit, $this->estCeVente($numDevis, $codeSociete), $type, $codeSociete);
 
         // Vérification si une version du devis est déjà validée
-        if ($this->verificationTypeDevis($numDevis, $type, $numDit)) {
+        if ($this->verificationTypeDevis($numDevis, $type, $numDit, $codeSociete)) {
             if ($request->query->get('continueDevis') == 1) {
                 $this->getSessionService()->set('devis_version_valide', 'KO');
             }
         }
 
         //initialisation du formulaire
-        $ditDevisSoumisAValidation = $this->initialistaion($this->ditDevisSoumisAValidation, $numDit, $numDevis, $type);
+        $ditDevisSoumisAValidation = $this->initialistaion($this->ditDevisSoumisAValidation, $numDit, $numDevis, $type, $codeSociete);
         $form = $this->getFormFactory()->createBuilder(DitDevisSoumisAValidationType::class, $ditDevisSoumisAValidation)->getForm();
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->traiterSoumissionDevis($form, $numDevis, $numDit, $type, $devisSoumisValidataion, $request);
+            $this->traiterSoumissionDevis($form, $numDevis, $numDit, $type, $devisSoumisValidataion, $codeSociete);
         }
 
         return $this->render('dit/DitDevisSoumisAValidation.html.twig', [
@@ -98,33 +99,33 @@ class DitDevisSoumisAValidationController extends Controller
         ]);
     }
 
-    private function verificationTypeDevis(string $numDevis, string $type, string $numDit)
+    private function verificationTypeDevis(string $numDevis, string $type, string $numDit, string $codeSociete)
     {
-        $nbSotrieMagasin = $this->ditDevisSoumisAValidationModel->recupNbPieceMagasin($numDevis);
+        $nbSotrieMagasin = $this->ditDevisSoumisAValidationModel->recupNbPieceMagasin($numDevis, $codeSociete);
 
-        $devisValide = $this->devisRepository->findDevisVpValide($numDevis);
-        $devisStatut = $this->devisRepository->findStatut($numDevis);
+        $devisValide = $this->devisRepository->findDevisVpValide($numDevis, $codeSociete);
+        $devisStatut = $this->devisRepository->findStatut($numDevis, $codeSociete);
         if ($devisStatut == 0) {
             $devisStatut = [''];
         }
 
-        $nbrPieceInformix = $this->ditDevisSoumisAValidationModel->recupNbrPieceMagasin($numDevis)[0]['nbligne'];
+        $nbrPieceInformix = $this->ditDevisSoumisAValidationModel->recupNbrPieceMagasin($numDevis, $codeSociete)[0]['nbligne'];
         $nbrPieceInformix === null ? $nbrPieceInformix = 0 : $nbrPieceInformix;
-        $nbrPieceSqlServ = $this->devisRepository->findNbrPieceMagasin($numDevis);
+        $nbrPieceSqlServ = $this->devisRepository->findNbrPieceMagasin($numDevis, $codeSociete);
 
-        $montantINformix = $this->ditDevisSoumisAValidationModel->getMontantItv($numDevis)[0]['montant_itv'];
+        $montantINformix = $this->ditDevisSoumisAValidationModel->getMontantItv($numDevis, $codeSociete)[0]['montant_itv'];
         $montantINformix === null ? $montantINformix = 0 : $montantINformix;
-        $montantSqlServer = $this->devisRepository->findMontantItv($numDevis);
+        $montantSqlServer = $this->devisRepository->findMontantItv($numDevis, $codeSociete);
 
-        $statutDevis = $this->devisRepository->findDernierStatutDevis($numDevis);
+        $statutDevis = $this->devisRepository->findDernierStatutDevis($numDevis, $codeSociete);
         $condition = [
             'conditionStatutDevisVp' => $statutDevis === 'Prix à confirmer', // le statut de la dernière version de devis est-il Soumis à validation 
             'conditionStatutDevisVa' => $statutDevis === 'A valider atelier' // le statut de la dernière version de devis est-il Soumis à validation 
         ];
 
-        $estCepremierSoumission = $this->devisRepository->findVerificationPrimeSoumission($numDevis);
+        $estCepremierSoumission = $this->devisRepository->findVerificationPrimeSoumission($numDevis, $codeSociete);
 
-        $ditInterneouExterne = $this->ditRepository->findInterneExterne($numDit);
+        $ditInterneouExterne = $this->ditRepository->findInterneExterne($numDit, $codeSociete);
 
         if ($ditInterneouExterne === 'INTERNE') {
             $message = "Erreur lors de la soumission, Impossible de soumettre le devis . . . le DIT est interne";
@@ -189,23 +190,23 @@ class DitDevisSoumisAValidationController extends Controller
     }
 
     /** ✅ Traite la soumission du devis */
-    private function traiterSoumissionDevis($form, string $numDevis, string $numDit, string $type, array $devisSoumisValidataion, $request)
+    private function traiterSoumissionDevis($form, string $numDevis, string $numDit, string $type, array $devisSoumisValidataion, string $codeSociete)
     {
         $data = $form->getData();
 
         $originalName = $form->get("pieceJoint01")->getData()->getClientOriginalName();
         $numeroVersion = $devisSoumisValidataion[0]->getNumeroVersion();
 
-        $blockages = $this->ConditionDeBlockage($numDevis, $numDit, $this->devisRepository, $originalName);
+        $blockages = $this->ConditionDeBlockage($numDevis, $numDit, $codeSociete, $this->devisRepository, $originalName);
         if ($this->blockageSoumission($blockages, $numDevis)) {
 
             /** ENVOIE des DONNEE dans BASE DE DONNEE */
             $this->envoieDonnerDansBd($devisSoumisValidataion, $type, $data);
-            $this->editDevisRattacherDit($numDit, $numDevis, $type); //ajout du numero devis dans la table demande_intervention
+            $this->editDevisRattacherDit($numDit, $numDevis, $type, $codeSociete); //ajout du numero devis dans la table demande_intervention
 
 
             /** CREATION , FUSION, ENVOIE DW du PDF */
-            $suffix = $this->ditDevisSoumisAValidationModel->constructeurPieceMagasin($numDevis)[0]['retour'];
+            $suffix = $this->ditDevisSoumisAValidationModel->constructeurPieceMagasin($numDevis, $codeSociete)[0]['retour'];
             //recuperation du fichier ajouter par l'utilisateur
             $file =  $form->get('pieceJoint01')->getData();
 
@@ -217,7 +218,7 @@ class DitDevisSoumisAValidationController extends Controller
                 $this->fileUploader->uploadFileSansName($file, $nomFichierGenerer);
 
                 //envoye des fichier dans le DW
-                if ($this->estCeVente($numDevis)) { // si vrai c'est une vente
+                if ($this->estCeVente($numDevis, $codeSociete)) { // si vrai c'est une vente
                     $this->generePdfDevis->copyToDWFichierDevisSoumisVp($nomFichierGenerer); // copier le fichier de devis dans docuware
                 } else {
                     $this->generePdfDevis->copyToDWFichierDevisSoumisVp($nomFichierGenerer); // copier le fichier de devis dans docuware
@@ -231,10 +232,10 @@ class DitDevisSoumisAValidationController extends Controller
                 $this->fileUploader->uploadFileSansName($file, $nomFichierGenerer);
 
                 //pour création du pdf
-                $this->creationPdf($devisSoumisValidataion, $this->generePdfDevis, $nomFichierCtrl);
+                $this->creationPdf($devisSoumisValidataion, $this->generePdfDevis, $nomFichierCtrl, $codeSociete);
 
                 // envoyer les fichiers dans DW
-                if ($this->estCeVente($numDevis)) { // si vrai c'est une vente
+                if ($this->estCeVente($numDevis, $codeSociete)) { // si vrai c'est une vente
                     $this->generePdfDevis->copyToDWDevisSoumis($nomFichierCtrl);
                     $this->generePdfDevis->copyToDWFichierDevisSoumis($nomFichierGenerer); // copier le fichier de devis dans docuware
                 } else {
@@ -255,24 +256,25 @@ class DitDevisSoumisAValidationController extends Controller
      *
      * @param string $numDevis
      * @param string $numDit
+     * @param string $codeSociete
      * @param DitDevisSoumisAValidationRepository $devisRepository
      * @return array
      */
-    public function ConditionDeBlockage(string $numDevis, string $numDit, DitDevisSoumisAValidationRepository $devisRepository, $originalName): array
+    public function ConditionDeBlockage(string $numDevis, string $numDit, string $codeSociete, DitDevisSoumisAValidationRepository $devisRepository, $originalName): array
     {
-        $TrouverDansDit = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
+        $TrouverDansDit = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit, 'codeSociete' => $codeSociete]);
 
         if ($TrouverDansDit === null) {
             $message = "Erreur avant la soumission, Impossible de soumettre le devis . . . l'information de la statut du n° DIT $numDit n'est pas récupérer";
             $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
         } else {
-            $numClientIps = $this->ditDevisSoumisAValidationModel->recupNumeroClient($numDevis)[0]['numero_client'];
+            $numClientIps = $this->ditDevisSoumisAValidationModel->recupNumeroClient($numDevis, $codeSociete)[0]['numero_client'];
             $numClientIntranet = $TrouverDansDit->getNumeroClient();
             $numDevisNomFichier = !preg_match("/$numDevis/", $originalName);
             $idStatutDit = $TrouverDansDit->getIdStatutDemande()->getId();
-            $statutDevis = $devisRepository->findDernierStatutDevis($numDevis);
-            $numDitIps = $this->ditDevisSoumisAValidationModel->recupNumDitIps($numDevis)[0]['num_dit'];
-            $servDebiteur = $this->ditDevisSoumisAValidationModel->recupServDebiteur($numDevis)[0]['serv_debiteur'];
+            $statutDevis = $devisRepository->findDernierStatutDevis($numDevis, $codeSociete);
+            $numDitIps = $this->ditDevisSoumisAValidationModel->recupNumDitIps($numDevis, $codeSociete)[0]['num_dit'];
+            $servDebiteur = $this->ditDevisSoumisAValidationModel->recupServDebiteur($numDevis, $codeSociete)[0]['serv_debiteur'];
         }
 
         return  [
@@ -291,9 +293,8 @@ class DitDevisSoumisAValidationController extends Controller
      *
      * @param array $blockages
      * @param string $numDevis
-     * @return boolean
      */
-    public function blockageSoumission(array $blockages, string $numDevis): bool
+    public function blockageSoumission(array $blockages, string $numDevis)
     {
         if ($blockages['numDevisNomFichier']) {
             $message = " Erreur lors de la soumission, Impossible de soumettre le devis . . . Veuillez vérifier le fichier uploadé car il ne correspond pas au numéro au devis N° { $numDevis} ";
@@ -329,11 +330,11 @@ class DitDevisSoumisAValidationController extends Controller
      * @param string $numDevis
      * @return array
      */
-    public function InformationDevisInformix(string $numDevis)
+    public function InformationDevisInformix(string $numDevis, string $codeSociete)
     {
-        $devisSoumisAValidationInformix = $this->ditDevisSoumisAValidationModel->recupDevisSoumisValidation($numDevis);
+        $devisSoumisAValidationInformix = $this->ditDevisSoumisAValidationModel->recupDevisSoumisValidation($numDevis, $codeSociete);
         if (empty($devisSoumisAValidationInformix)) {
-            $message = "Erreur lors de la soumission, Impossible de soumettre le devis . . . l'information de la devis n'est pas recupérer";
+            $message = "Erreur lors de la soumission, Impossible de soumettre le devis . . . les informations du devis ne sont pas récupérées.";
             $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
         } else {
             return $devisSoumisAValidationInformix;
@@ -349,10 +350,10 @@ class DitDevisSoumisAValidationController extends Controller
      * @param string $numDevis
      * @return boolean
      */
-    public function estCeVente(string $numDevis): bool
+    public function estCeVente(string $numDevis, string $codeSociete): bool
     {
-        $recupConstRefPremDev = $this->ditDevisSoumisAValidationModel->recupConstRefPremDev($numDevis);
-        $recupNbrItvDev = $this->ditDevisSoumisAValidationModel->recupNbrItvDev($numDevis);
+        $recupConstRefPremDev = $this->ditDevisSoumisAValidationModel->recupConstRefPremDev($numDevis, $codeSociete);
+        $recupNbrItvDev = $this->ditDevisSoumisAValidationModel->recupNbrItvDev($numDevis, $codeSociete);
 
         if (
             !is_array($recupConstRefPremDev) || empty($recupConstRefPremDev)
@@ -369,11 +370,13 @@ class DitDevisSoumisAValidationController extends Controller
 
 
 
-    private function variationPrixRefPiece(string $numDevis): array
+    private function variationPrixRefPiece(string $numDevis, string $codeSociete): array
     {
-        $infoPieceClients = $this->ditDevisSoumisAValidationModel->recupInfoPieceClient($numDevis);
+        $infoPieceClients = $this->ditDevisSoumisAValidationModel->recupInfoPieceClient($numDevis, $codeSociete);
 
-        $infoPieces = array_map([$this->ditDevisSoumisAValidationModel, 'recupInfoPourChaquePiece'], $infoPieceClients);
+        $infoPieces = array_map(function ($piece) use ($codeSociete) {
+            return $this->ditDevisSoumisAValidationModel->recupInfoPourChaquePiece($piece, $codeSociete);
+        }, $infoPieceClients);
         // $infoPieces = [];
         // foreach ($infoPieceClients as $value) {
         //     $infoPieces[] = $this->ditDevisSoumisAValidationModel->recupInfoPourChaquePiece($value);
@@ -408,51 +411,53 @@ class DitDevisSoumisAValidationController extends Controller
      * @param GenererPdfDevisSoumisAValidation $generePdfDevis
      * @return void
      */
-    private function creationPdf(array $devisSoumisValidataion, GenererPdfDevisSoumisAValidation $generePdfDevis, string $nomFichierCtrl)
+    private function creationPdf(array $devisSoumisValidataion, GenererPdfDevisSoumisAValidation $generePdfDevis, string $nomFichierCtrl, string $codeSociete)
     {
         $numDevis = $devisSoumisValidataion[0]->getNumeroDevis();
 
-        $devisSoumisAvant = $this->donnerDevisSoumisAvant($numDevis);
+        $devisSoumisAvant = $this->donnerDevisSoumisAvant($numDevis, $codeSociete);
 
         $montantPdf = $this->montantPdfService->montantpdf($devisSoumisAvant);
 
-        $quelqueaffichage = $this->quelqueAffichage($numDevis);
+        $quelqueaffichage = $this->quelqueAffichage($numDevis, $codeSociete);
 
-        $variationPrixRefPiece = $this->variationPrixRefPiece($numDevis);
+        $variationPrixRefPiece = $this->variationPrixRefPiece($numDevis, $codeSociete);
 
-        $mailUtilisateur = $this->nomUtilisateur($this->getEntityManager())['mailUtilisateur'];
+        $mailUtilisateur = $this->nomUtilisateur()['mailUtilisateur'];
 
         // dd($montantPdf, $quelqueaffichage);
-        if ($this->estCeVente($numDevis)) { // vente
+        if ($this->estCeVente($numDevis, $codeSociete)) { // vente
             $generePdfDevis->GenererPdfDevisVente($devisSoumisValidataion[0], $montantPdf, $quelqueaffichage, $variationPrixRefPiece, $mailUtilisateur, $nomFichierCtrl);
         } else { // sinom forfait
             $generePdfDevis->GenererPdfDevisForfait($devisSoumisValidataion[0], $montantPdf, $quelqueaffichage, $variationPrixRefPiece, $mailUtilisateur, $nomFichierCtrl);
         }
     }
 
-    private function donnerDevisSoumisAvant(string $numDevis): array
+    private function donnerDevisSoumisAvant(string $numDevis, string $codeSociete): array
     {
+        /** @var DitDevisSoumisAValidationRepository $devisRepository */
+        $devisRepository = $this->getEntityManager()->getRepository(DitDevisSoumisAValidation::class);
         return [
-            'devisSoumisAvantForfait' => $this->getEntityManager()->getRepository(DitDevisSoumisAValidation::class)->findDevisSoumiAvantForfait($numDevis),
-            'devisSoumisAvantMaxForfait' => $this->getEntityManager()->getRepository(DitDevisSoumisAValidation::class)->findDevisSoumiAvantMaxForfait($numDevis),
-            'devisSoumisAvantVte' => $this->getEntityManager()->getRepository(DitDevisSoumisAValidation::class)->findDevisSoumiAvant($numDevis),
-            'devisSoumisAvantMaxVte' => $this->getEntityManager()->getRepository(DitDevisSoumisAValidation::class)->findDevisSoumiAvantMax($numDevis),
+            'devisSoumisAvantForfait'    => $devisRepository->findDevisSoumiAvantForfait($numDevis, $codeSociete),
+            'devisSoumisAvantMaxForfait' => $devisRepository->findDevisSoumiAvantMaxForfait($numDevis, $codeSociete),
+            'devisSoumisAvantVte'        => $devisRepository->findDevisSoumiAvant($numDevis, $codeSociete),
+            'devisSoumisAvantMaxVte'     => $devisRepository->findDevisSoumiAvantMax($numDevis, $codeSociete),
         ];
     }
 
 
-    private function quelqueAffichage(string $numDevis): array
+    private function quelqueAffichage(string $numDevis, string $codeSociete): array
     {
         return [
             "numDevis" => $numDevis,
-            "sortieMagasin" => $this->estCeSortieMagasin($numDevis),
-            "achatLocaux" => $this->estCeAchatLocaux($numDevis)
+            "sortieMagasin" => $this->estCeSortieMagasin($numDevis, $codeSociete),
+            "achatLocaux" => $this->estCeAchatLocaux($numDevis, $codeSociete)
         ];
     }
 
-    private function estCeSortieMagasin(string $numDevis): string
+    private function estCeSortieMagasin(string $numDevis, string $codeSociete): string
     {
-        $nbSotrieMagasin = $this->ditDevisSoumisAValidationModel->recupNbPieceMagasin($numDevis);
+        $nbSotrieMagasin = $this->ditDevisSoumisAValidationModel->recupNbPieceMagasin($numDevis, $codeSociete);
         if (!empty($nbSotrieMagasin) && $nbSotrieMagasin[0]['nbr_sortie_magasin'] !== "0") {
             $sortieMagasin = 'OUI';
         } else {
@@ -462,9 +467,9 @@ class DitDevisSoumisAValidationController extends Controller
         return $sortieMagasin;
     }
 
-    private function estCeAchatLocaux(string $numDevis): string
+    private function estCeAchatLocaux(string $numDevis, string $codeSociete): string
     {
-        $nbAchatLocaux = $this->ditDevisSoumisAValidationModel->recupNbAchatLocaux($numDevis);
+        $nbAchatLocaux = $this->ditDevisSoumisAValidationModel->recupNbAchatLocaux($numDevis, $codeSociete);
         if (!empty($nbAchatLocaux) && $nbAchatLocaux[0]['nbr_achat_locaux'] !== "0") {
             $achatLocaux = 'OUI';
         } else {
@@ -474,13 +479,12 @@ class DitDevisSoumisAValidationController extends Controller
         return $achatLocaux;
     }
 
-    private function nomUtilisateur($em): array
+    private function nomUtilisateur(): array
     {
-        $userId = $this->getSessionService()->get('user_id', []);
-        $user = $em->getRepository(User::class)->find($userId);
+        $userInfo = $this->getSessionService()->get('user_info', []);
         return [
-            'nomUtilisateur' => $user->getNomUtilisateur(),
-            'mailUtilisateur' => $user->getMail()
+            'nomUtilisateur'  => $userInfo['username'],
+            'mailUtilisateur' => $userInfo['email']
         ];
     }
 
@@ -528,17 +532,17 @@ class DitDevisSoumisAValidationController extends Controller
      * @param boolean $estCeVenteOuForfait
      * @return array tableau d'objet devisSoumisAValidation
      */
-    private function devisSoumisValidataion(array $devisSoumisAValidationInformix, ?int $numeroVersionMax, string $numDevis, string $numDit, bool $estCeVenteOuForfait, string $type): array
+    private function devisSoumisValidataion(array $devisSoumisAValidationInformix, ?int $numeroVersionMax, string $numDevis, string $numDit, bool $estCeVenteOuForfait, string $type, string $codeSociete): array
     {
         $devisSoumisValidataion = []; // Tableau pour stocker les objets
-        $infoDit = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
+        $infoDit = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit, 'codeSociete' => $codeSociete]);
         if ($estCeVenteOuForfait) {
             $venteOuForfait = 'DEVIS VENTE';
         } else {
             $venteOuForfait = 'DEVIS FORFAIT';
         }
 
-        $nbrPieceInformix = $this->ditDevisSoumisAValidationModel->recupNbrPieceMagasin($numDevis)[0]['nbligne'];
+        $nbrPieceInformix = $this->ditDevisSoumisAValidationModel->recupNbrPieceMagasin($numDevis, $codeSociete)[0]['nbligne'];
 
         if ($nbrPieceInformix === null) {
             $nbrPieceInformix = 0;
@@ -569,7 +573,8 @@ class DitDevisSoumisAValidationController extends Controller
                 ->setObjetDit($infoDit->getObjetDemande())
                 ->setDevisVenteOuForfait($venteOuForfait)
                 ->setDevise($devisSoumis['devise'])
-                ->settype($type)
+                ->setType($type)
+                ->setCodeSociete($codeSociete)
                 ->setMontantVente($devisSoumis['montant_vente'])
                 ->setNombreLignePiece($nbrPieceInformix)
             ;
@@ -590,11 +595,10 @@ class DitDevisSoumisAValidationController extends Controller
         return $num + 1;
     }
 
-    private function numeroDevis(string $numDit): string
+    private function numeroDevis(string $numDit, string $codeSociete): string
     {
-        $numeroDevis = $this->ditDevisSoumisAValidationModel->recupNumeroDevis($numDit);
-        // dump($numeroDevis);
-        // dd(empty($numeroDevis));
+        $numeroDevis = $this->ditDevisSoumisAValidationModel->recupNumeroDevis($numDit, $codeSociete);
+
         if (empty($numeroDevis)) {
             $message = "Echec , ce DIT n'a pas de numéro devis";
             $this->historiqueOperation->sendNotificationCreation($message, $numDit, 'dit_index');
@@ -603,12 +607,13 @@ class DitDevisSoumisAValidationController extends Controller
         }
     }
 
-    private function initialistaion(DitDevisSoumisAValidation $ditDevisSoumisAValidation, string $numDit, string $numDevis, string $type)
+    private function initialistaion(DitDevisSoumisAValidation $ditDevisSoumisAValidation, string $numDit, string $numDevis, string $type, string $codeSociete)
     {
         return $ditDevisSoumisAValidation
             ->setNumeroDit($numDit)
             ->setNumeroDevis($numDevis)
             ->setType($type)
+            ->setCodeSociete($codeSociete)
             ->setDateHeureSoumission(new DateTime())
         ;
     }
@@ -620,11 +625,11 @@ class DitDevisSoumisAValidationController extends Controller
      * @param string $numDevis
      * @return void
      */
-    private function editDevisRattacherDit(string $numDit, string $numDevis, string $type)
+    private function editDevisRattacherDit(string $numDit, string $numDevis, string $type, string $codeSociete)
     {
         $statut = $this->statutSelonType($type);
 
-        $dit = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
+        $dit = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit, 'codeSociete' => $codeSociete]);
         $dit->setNumeroDevisRattache($numDevis);
         $dit->setStatutDevis($statut);
         $this->getEntityManager()->flush();

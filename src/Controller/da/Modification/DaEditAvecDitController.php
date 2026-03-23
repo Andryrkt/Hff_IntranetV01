@@ -8,7 +8,6 @@ use App\Entity\da\DemandeApproL;
 use App\Entity\admin\Application;
 use App\Entity\da\DemandeApproLR;
 use App\Form\da\DemandeApproFormType;
-use App\Controller\Traits\AutorisationTrait;
 use App\Controller\Traits\da\DaAfficherTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -21,8 +20,6 @@ class DaEditAvecDitController extends Controller
 {
     use DaAfficherTrait;
     use DaEditAvecDitTrait;
-    use AutorisationTrait;
-
     public function __construct()
     {
         parent::__construct();
@@ -35,13 +32,6 @@ class DaEditAvecDitController extends Controller
      */
     public function edit(int $id, Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
-        /** Autorisation accès */
-        $this->autorisationAcces($this->getUser(), Application::ID_DAP);
-        /** FIN AUtorisation accès */
-
         /** @var DemandeAppro $demandeAppro la demande appro correspondant à l'id $id */
         $demandeAppro = $this->demandeApproRepository->find($id); // recupération de la DA
         $numDa = $demandeAppro->getNumeroDemandeAppro();
@@ -57,7 +47,7 @@ class DaEditAvecDitController extends Controller
         return $this->render('da/edit-avec-dit.html.twig', [
             'form'         => $form->createView(),
             'observations' => $observations,
-            'peutModifier' => $this->peutModifier($demandeAppro->getStatutDal(), $this->estUserDansServiceAtelier()),
+            'peutModifier' => $this->peutModifier($demandeAppro->getStatutDal(), false), // TODO: booléen pour savoir si Atelier
             'numDa'        => $numDa,
         ]);
     }
@@ -67,8 +57,6 @@ class DaEditAvecDitController extends Controller
      */
     public function deleteLineDa(string $numDa, string $ligne)
     {
-        $this->verifierSessionUtilisateur();
-
         $demandeApproLs = $this->getEntityManager()->getRepository(DemandeApproL::class)->findBy([
             'numeroDemandeAppro' => $numDa,
             'numeroLigne'        => $ligne

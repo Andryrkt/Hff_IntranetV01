@@ -19,7 +19,7 @@ class DaTelechargeBcValiderApi extends Controller
     }
 
     /**
-     * @Route("/api/generer-bc-valider/{numBc}", name="da_telecharge_bc_valider", methods={"GET"})
+     * @Route("/api/generer-bc-valider/{numBc}", name="api_da_telecharge_bc_valider", methods={"GET"})
      */
     public function telechargeBcValider(string $numBc)
     {

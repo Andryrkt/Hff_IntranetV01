@@ -144,6 +144,10 @@ class DaSoumissionFacBl
      */
     private ?string $numeroFactureReappro = null;
 
+    /**
+     * @ORM\Column(type="string", length=100, name="code_societe")
+     */
+    private $codeSociete;
 
     private $pieceJoint2;
 
@@ -636,6 +640,24 @@ class DaSoumissionFacBl
     public function setPieceJoint2($pieceJoint2)
     {
         $this->pieceJoint2 = $pieceJoint2;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of codeSociete
+     */
+    public function getCodeSociete()
+    {
+        return $this->codeSociete;
+    }
+
+    /**
+     * Set the value of codeSociete
+     */
+    public function setCodeSociete($codeSociete): self
+    {
+        $this->codeSociete = $codeSociete;
 
         return $this;
     }

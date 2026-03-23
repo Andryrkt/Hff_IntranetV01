@@ -6,7 +6,7 @@ use App\Model\Model;
 
 class ReportingIpsModel extends Model
 {
-    public function getReportingData(array $criterias): array
+    public function getReportingData(array $criterias, string $codeSociete): array
     {
         if ($criterias['description']) {
             $description = " AND slor_desi LIKE '%{$criterias['description']}%'";
@@ -59,8 +59,8 @@ class ReportingIpsModel extends Model
             , slor_pxnreel as prix_unitaire_reel
             , slor_qterea * slor_pxnreel as montant
             FROM informix.sav_lor 
-            INNER JOIN informix.sav_eor on seor_soc = slor_soc and seor_succ = slor_succ and seor_numor = slor_numor and seor_soc = 'HF'
-            INNER JOIN informix.dpc_fcc on dfcc_numfcc = slor_numfac and dfcc_soc = 'HF'
+            INNER JOIN informix.sav_eor on seor_soc = slor_soc and seor_succ = slor_succ and seor_numor = slor_numor and seor_soc = '{$codeSociete}'
+            INNER JOIN informix.dpc_fcc on dfcc_numfcc = slor_numfac and dfcc_soc = '{$codeSociete}'
             WHERE slor_servcrt = 'APP'
             AND slor_typeor = 600
             $dateDebut

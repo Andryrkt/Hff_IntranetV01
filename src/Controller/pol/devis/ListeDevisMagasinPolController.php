@@ -2,30 +2,23 @@
 
 namespace App\Controller\pol\devis;
 
-use App\Entity\admin\Agence;
-use App\Entity\admin\Service;
+use App\Constants\admin\ApplicationConstant;
 use App\Controller\Controller;
-use App\Entity\admin\Application;
 use App\Entity\magasin\bc\BcMagasin;
 use App\Service\TableauEnStringService;
 use App\Entity\magasin\devis\DevisMagasin;
-use App\Repository\admin\AgenceRepository;
-use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Factory\magasin\devis\ListeDevisSearchDto;
 use App\Form\magasin\devis\DevisMagasinSearchType;
 use App\Model\magasin\devis\ListeDevisMagasinModel;
 use App\Factory\magasin\devis\ListeDevisMagasinFactory;
-use App\Repository\magasin\devis\DevisMagasinRepository;
 
 /**
  * @Route("/pol")
  */
 class ListeDevisMagasinPolController extends Controller
 {
-    use AutorisationTrait;
-
     private $styleStatutDw = [];
     private $styleStatutBc = [];
     private $statutIPS = [];
@@ -71,32 +64,25 @@ class ListeDevisMagasinPolController extends Controller
      */
     public function listeDevisMagasin(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
+        // Agences Services autorisés sur le DVM
+        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DVM);
 
-        /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_DVM);
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
 
         //formulaire de recherhce
         $form = $this->getFormFactory()->createBuilder(DevisMagasinSearchType::class, $this->initialisationCriteria(), [
             'em' => $this->getEntityManager(),
-            'method' => 'GET'
+            'method' => 'GET',
+            'agenceServiceAutorises' => $agenceServiceAutorises
         ])->getForm();
 
         /** @var array */
-        $criteria = $this->traitementFormulaireRecherche($request, $form);
+        $criteria = $this->traitementFormulaireRecherche($request, $form, $agenceServiceAutorises);
 
-        // Normalisation des critères avant de les stocker en session
-        $criteriaForSession = $criteria;
-        if (isset($criteriaForSession['emetteur']['agence']) && is_object($criteriaForSession['emetteur']['agence'])) {
-            $criteriaForSession['emetteur']['agence'] = $criteriaForSession['emetteur']['agence']->getId();
-        }
-        if (isset($criteriaForSession['emetteur']['service']) && is_object($criteriaForSession['emetteur']['service'])) {
-            $criteriaForSession['emetteur']['service'] = $criteriaForSession['emetteur']['service']->getId();
-        }
-        $this->getSessionService()->set('criteria_for_excel_liste_devis_magasin', $criteriaForSession);
+        $this->getSessionService()->set('criteria_for_excel_liste_devis_magasin', $criteria);
 
-        $listeDevisFactory = $this->recuperationDonner($criteria);
+        $listeDevisFactory = $this->recuperationDonner($criteria, $agenceServiceAutorises, $codeSociete);
 
         // affichage de la liste des devis magasin
         return $this->render('magasin/devis/listeDevisMagasin.html.twig', [
@@ -108,7 +94,7 @@ class ListeDevisMagasinPolController extends Controller
         ]);
     }
 
-    private function traitementFormulaireRecherche(Request $request, $form): array
+    private function traitementFormulaireRecherche(Request $request, $form, array $agenceServiceAutorises): array
     {
         $criteria = [];
 
@@ -118,6 +104,14 @@ class ListeDevisMagasinPolController extends Controller
             $criteriaDto = $form->getData();
             $criteria = $criteriaDto->toArrayFilter();
         }
+
+        if (isset($criteria['serviceEmetteur'])) {
+            $ligneId = $criteria['serviceEmetteur'];
+            if ($ligneId && isset($agenceServiceAutorises[$ligneId])) {
+                $criteria['serviceEmetteur'] = $agenceServiceAutorises[$ligneId]['service_code'];
+            }
+        }
+
         return $criteria;
     }
 
@@ -126,31 +120,16 @@ class ListeDevisMagasinPolController extends Controller
         // recupération de la session pour le criteria
         $criteriaTab = $this->getSessionService()->get('criteria_for_excel_liste_devis_magasin');
 
-        // Dénormalisation : recharger les entités à partir des IDs
-        if (!empty($criteriaTab['emetteur']['agence'])) {
-            $agenceRepository = $this->getEntityManager()->getRepository(Agence::class);
-            $agence = $agenceRepository->find($criteriaTab['emetteur']['agence']);
-            $criteriaTab['emetteur']['agence'] = $agence;
-        }
-
-        if (!empty($criteriaTab['emetteur']['service'])) {
-            $service = $this->getEntityManager()->getRepository(Service::class)->find($criteriaTab['emetteur']['service']);
-            $criteriaTab['emetteur']['service'] = $service;
-        }
-
         // transforme en objet
         $ListeDevisSearchDto = new ListeDevisSearchDto();
         return $ListeDevisSearchDto->toObject($criteriaTab);
     }
 
-    public function recuperationDonner(array $criteria = []): array
+    public function recuperationDonner(array $criteria, array $agenceServiceAutorises, string $codeSociete): array
     {
-        // $codeAgenceUser = $this->getUser()->getCodeAgenceUser();
-        $codeAgenceAutoriserString = TableauEnStringService::orEnString($this->getUser()->getAgenceAutoriserCode());
         $vignette = 'pneumatique';
-        $adminMutli = in_array(1, $this->getUser()->getRoleIds()) || in_array(6, $this->getUser()->getRoleIds());
         $numDeviAExclure = TableauEnStringService::simpleNumeric(array_map('intval', $this->listeDevisMagasinModel->getNumeroDevisExclure()));
-        $devisIps = $this->listeDevisMagasinModel->getDevis($criteria, $vignette, $codeAgenceAutoriserString, $adminMutli, $numDeviAExclure);
+        $devisIps = $this->listeDevisMagasinModel->getDevis($criteria, $vignette, $agenceServiceAutorises, $numDeviAExclure, $codeSociete);
 
         $listeDevisFactory = [];
         $dejaVu = []; // Tableau pour mémoriser les numéros de devis déjà traités
@@ -168,18 +147,18 @@ class ListeDevisMagasinPolController extends Controller
             $devisMagasinRepository = $this->getEntityManager()->getRepository(DevisMagasin::class);
 
             // Récupération de la version maximale
-            $numeroVersionMax = $devisMagasinRepository->getNumeroVersionMax($numeroDevis);
+            $numeroVersionMax = $devisMagasinRepository->getNumeroVersionMax($numeroDevis, $codeSociete);
             $devisSoumi       = $devisMagasinRepository->findOneBy([
                 'numeroDevis'    => $numeroDevis,
-                'numeroVersion'  => $numeroVersionMax
+                'numeroVersion'  => $numeroVersionMax,
+                'codeSociete'    => $codeSociete
             ]);
 
             // Ajout des informations complémentaires
             $devisIp['statut_dw']                  = $devisSoumi ? $devisSoumi->getStatutDw()                  : DevisMagasin::STATUT_A_TRAITER;
             $devisIp['operateur']                  = $devisSoumi ? $devisSoumi->getUtilisateur()               : '';
             $devisIp['date_envoi_devis_au_client'] = $devisSoumi ? ($devisSoumi->getDateEnvoiDevisAuClient() ? $devisSoumi->getDateEnvoiDevisAuClient() : '') : '';
-            $devisIp['utilisateur_createur_devis'] = $this->listeDevisMagasinModel
-                ->getUtilisateurCreateurDevis($numeroDevis) ?? '';
+            $devisIp['utilisateur_createur_devis'] = $this->listeDevisMagasinModel->getUtilisateurCreateurDevis($numeroDevis, $codeSociete) ?? '';
             $devisIp['statut_bc']                  = $devisSoumi ? $devisSoumi->getStatutBc()                  : '';
 
             // statut DW = A traiter et statut BC = TR
@@ -258,19 +237,19 @@ class ListeDevisMagasinPolController extends Controller
         }
 
         // Filtre par agence émetteur
-        if (!empty($criteria['emetteur']['agence'])) {
+        if (!empty($criteria['agenceEmetteur'])) {
             // Récupérer les 2 premiers caractères de l'agence émetteur
             $agenceEmetteurCode = !empty($devisIp['emmeteur']) ? substr($devisIp['emmeteur'], 0, 2) : '';
-            if ($agenceEmetteurCode !== $criteria['emetteur']['agence']->getCodeAgence()) {
+            if ($agenceEmetteurCode !== $criteria['agenceEmetteur']) {
                 return false;
             }
         }
 
         // Filtre par service émetteur
-        if (!empty($criteria['emetteur']['service'])) {
+        if (!empty($criteria['serviceEmetteur'])) {
             // Récupérer les 3 derniers caractères du service émetteur
             $serviceEmetteurCode = !empty($devisIp['emmeteur']) ? substr($devisIp['emmeteur'], -3) : '';
-            if ($serviceEmetteurCode !== $criteria['emetteur']['service']->getCodeService()) {
+            if ($serviceEmetteurCode !== $criteria['serviceEmetteur']) {
                 return false;
             }
         }

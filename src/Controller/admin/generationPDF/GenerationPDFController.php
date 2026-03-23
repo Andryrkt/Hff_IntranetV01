@@ -26,9 +26,6 @@ class GenerationPDFController extends Controller
      */
     public function genererPdfDa(string $numeroDemandeAppro)
     {
-        if (!$this->estAdmin()) {
-            $this->redirectToRoute('security_signin');
-        }
         $this->creationPDFAvecDit($numeroDemandeAppro);
     }
 
@@ -37,9 +34,6 @@ class GenerationPDFController extends Controller
      */
     public function genererPdfDaDirect(string $numeroDemandeAppro)
     {
-        if (!$this->estAdmin()) {
-            $this->redirectToRoute('security_signin');
-        }
         $this->creationPDFDirect($numeroDemandeAppro);
     }
 }

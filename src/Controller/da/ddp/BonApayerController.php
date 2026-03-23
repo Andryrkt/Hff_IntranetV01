@@ -5,6 +5,7 @@ namespace App\Controller\da\ddp;
 use App\Controller\Controller;
 use App\Form\da\ddp\BonApayerType;
 use App\Entity\da\DaSoumissionFacBl;
+use App\Repository\da\DaSoumissionFacBlRepository;
 use Illuminate\Support\Facades\File;
 use App\Service\da\FileCheckerService;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,7 +21,8 @@ class BonApayerController extends Controller
      */
     public function index(Request $request)
     {
-        $this->verifierSessionUtilisateur();
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
 
         // Création du formulaire de recherche
         $form = $this->getFormFactory()->createBuilder(BonApayerType::class, null, ['method' => 'GET'])->getForm();
@@ -33,8 +35,9 @@ class BonApayerController extends Controller
             $criteria = $form->getData();
         }
 
-        // Récupération des données à afficher
-        $daSoumissionFacBl = $this->getEntityManager()->getRepository(DaSoumissionFacBl::class)->getAll($criteria);
+        /** @var DaSoumissionFacBlRepository $repository */
+        $repository = $this->getEntityManager()->getRepository(DaSoumissionFacBl::class);
+        $daSoumissionFacBl = $repository->getAll($criteria, $codeSociete);
 
         // chemin fichier BAP
         $fileCheckerService = new FileCheckerService($_ENV['BASE_PATH_FICHIER']);

@@ -10,7 +10,6 @@ use App\Entity\admin\Application;
 use App\Entity\admin\utilisateur\User;
 use App\Controller\Traits\dom\DomsTrait;
 use App\Controller\Traits\FormatageTrait;
-use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\historiqueOperation\HistoriqueOperationDOMService;
@@ -24,8 +23,6 @@ class DomSecondController extends Controller
 {
     use FormatageTrait;
     use DomsTrait;
-    use AutorisationTrait;
-
     private $historiqueOperation;
     private $DomModel;
     private $fusionPdf;
@@ -42,13 +39,6 @@ class DomSecondController extends Controller
      */
     public function secondForm(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
-        /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_DOM);
-        /** FIN AUtorisation acées */
-
         //recuperation de l'utilisateur connecter
         $user = $this->getUser();
 
@@ -73,7 +63,7 @@ class DomSecondController extends Controller
 
             $this->enregistrementValeurdansDom($dom, $domForm, $form, $form1Data, $this->getEntityManager(), $user);
 
-            $verificationDateExistant = $this->verifierSiDateExistant($dom->getMatricule(),  $dom->getDateDebut(), $dom->getDateFin());
+            $verificationDateExistant = $this->verifierSiDateExistant($dom->getMatricule(),  $dom->getDateDebut(), $dom->getDateFin(), $dom->getCodeSociete());
 
             if ($codeSousTypeDoc !== 'COMPLEMENT' && $codeSousTypeDoc !== 'TROP PERCU') {
                 if ($verificationDateExistant) {

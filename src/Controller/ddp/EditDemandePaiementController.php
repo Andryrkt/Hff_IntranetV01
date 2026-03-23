@@ -64,8 +64,6 @@ class EditDemandePaiementController extends Controller
      */
     public function afficheEdit(Request $request, $numDdp, $numVersion)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
         $demandePaiement = $this->ddpRepository->findOneBy(['numeroDdp' => $numDdp, 'numeroVersion' => $numVersion]);
         $demandePaiement->setMontantAPayer($demandePaiement->getMontantAPayers());
         $demandePaiement = $demandePaiement->dupliquer();

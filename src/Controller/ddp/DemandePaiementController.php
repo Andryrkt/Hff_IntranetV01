@@ -17,7 +17,6 @@ use App\Service\TableauEnStringService;
 use App\Entity\ddp\DemandePaiementLigne;
 use App\Service\genererPdf\GeneratePdfDdp;
 use App\Entity\cde\CdefnrSoumisAValidation;
-use App\Controller\Traits\AutorisationTrait;
 use App\Entity\admin\ddp\DocDemandePaiement;
 use App\Service\fichier\TraitementDeFichier;
 use Symfony\Component\HttpFoundation\Request;
@@ -34,8 +33,6 @@ use App\Service\historiqueOperation\HistoriqueOperationDDPService;
 class DemandePaiementController extends Controller
 {
     use DdpTrait;
-    use AutorisationTrait;
-
     const STATUT_CREATION = 'Soumis à validation';
 
     private TypeDemandeRepository $typeDemandeRepository;
@@ -70,17 +67,10 @@ class DemandePaiementController extends Controller
     }
 
     /**
-     * @Route("/new/{id}", name="demande_paiement")
+     * @Route("/new/{id}", name="new_demande_paiement")
      */
     public function afficheForm(Request $request, $id)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
-        /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_DDP);
-        /** FIN AUtorisation acées */
-
         // creation du formulaire
         $form = $this->getFormFactory()->createBuilder(DemandePaiementType::class, null, ['id_type' => $id])->getForm();
 
@@ -399,7 +389,7 @@ class DemandePaiementController extends Controller
             if (file_exists($cheminDeFichier) && is_readable($cheminDeFichier)) {
                 $nomFichier = $this->nomFichier($cheminDeFichier);
                 $destinationFinal = $cheminDestination . '/' . $nomFichier;
-                
+
                 // Copier le fichier et vérifier le succès (le ! supprime l'avertissement en cas d'échec)
                 @copy($cheminDeFichier, $destinationFinal);
             }

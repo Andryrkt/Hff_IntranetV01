@@ -4,19 +4,40 @@ namespace App\Repository\dom;
 
 use App\Entity\dom\DomSearch;
 use Doctrine\ORM\EntityRepository;
-use Doctrine\ORM\Tools\Pagination\Paginator as DoctrinePaginator;
 
 class DomRepository extends EntityRepository
 {
-    public function findPaginatedAndFiltered(int $page = 1, int $limit = 10, DomSearch $domSearch, array $options)
+    public function findPaginatedAndFilteredAsDTO(int $page, int $limit, DomSearch $domSearch, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeSociete, bool $peutVoirListeAvecDebiteur, bool $listAnnuler = false): array
     {
-        $queryBuilder = $this->createQueryBuilder('d')
-            ->leftJoin('d.sousTypeDocument', 'td')
-            ->leftJoin('d.idStatutDemande', 's');
-
         $excludedStatuses = [9, 18, 22, 24, 26, 32, 33, 34, 35];
-        $queryBuilder->andWhere($queryBuilder->expr()->notIn('s.id', ':excludedStatuses'))
-            ->setParameter('excludedStatuses', $excludedStatuses);
+
+        // SELECT uniquement les champs utiles → hydratation scalaire, pas d'entités complètes
+        $queryBuilder = $this->createQueryBuilder('d');
+        $queryBuilder
+            ->select(
+                'd.id',
+                'd.numeroOrdreMission',
+                'd.dateDemande',
+                'd.motifDeplacement',
+                'd.matricule',
+                'd.libelleCodeAgenceService',
+                'd.dateDebut',
+                'd.dateFin',
+                'd.client',
+                'd.lieuIntervention',
+                'd.totalGeneralPayer',
+                'd.devis',
+                'd.modePayement',
+                's.description  AS statutDescription',
+                'td.codeSousType AS codeSousType',
+            )
+            ->leftJoin('d.sousTypeDocument', 'td')
+            ->leftJoin('d.idStatutDemande', 's')
+            ->andWhere($listAnnuler ? $queryBuilder->expr()->in('s.id', ':excludedStatuses') : $queryBuilder->expr()->notIn('s.id', ':excludedStatuses'))
+            ->andWhere('d.codeSociete = :codeSociete')
+            ->setParameter('codeSociete', $codeSociete)
+            ->setParameter('excludedStatuses', $excludedStatuses)
+        ;
 
         // Filtre pour le statut        
         if (!empty($domSearch->getStatut())) {
@@ -72,32 +93,35 @@ class DomRepository extends EntityRepository
                 ->setParameter('pieceJustificatif', $domSearch->getPieceJustificatif());
         }
 
-        if (!$options['boolean']) {
-            //ceci est figer pour les utilisateur autre que l'administrateur
-            $agenceIdAutoriser = is_array($options['idAgence']) ? $options['idAgence'] : [$options['idAgence']];
-            $queryBuilder->andWhere('d.agenceEmetteurId IN (:agenceIdAutoriser)')
-                ->setParameter('agenceIdAutoriser', $agenceIdAutoriser);
-        }
+        // Condition sur les couples agences-services
+        $this->conditionAgenceService($queryBuilder, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
 
-        // Ordre et pagination
-        $queryBuilder->orderBy('d.numeroOrdreMission', 'DESC')
+        $queryBuilder->orderBy('d.numeroOrdreMission', 'DESC');
+
+        // --- COUNT séparé et optimisé (sans ORDER BY) ---
+        $countQb = clone $queryBuilder;
+        $totalItems = (int) $countQb
+            ->select('COUNT(d.id)')
+            ->resetDQLPart('orderBy')   // inutile pour le count
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        // --- Requête paginée ---
+        $rows = $queryBuilder
             ->setFirstResult(($page - 1) * $limit)
-            ->setMaxResults($limit);
-
-        // Pagination
-        $paginator = new DoctrinePaginator($queryBuilder);
-        $totalItems = count($paginator);
-        $lastPage = ceil($totalItems / $limit);
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getScalarResult(); // tableau de scalaires, pas d'entités Doctrine
 
         return [
-            'data'        => iterator_to_array($paginator->getIterator()), // Convertir en tableau si nécessaire
+            'rawRows'     => $rows,
             'totalItems'  => $totalItems,
             'currentPage' => $page,
-            'lastPage'    => $lastPage,
+            'lastPage'    => (int) ceil($totalItems / $limit),
         ];
     }
 
-    public function findAndFilteredExcel($domSearch, array $options)
+    public function findAndFilteredExcel($domSearch, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeSociete, bool $peutVoirListeAvecDebiteur)
     {
         $queryBuilder = $this->createQueryBuilder('d')
             ->leftJoin('d.sousTypeDocument', 'td')
@@ -105,6 +129,8 @@ class DomRepository extends EntityRepository
 
         $excludedStatuses = [9, 18, 22, 24, 26, 32, 33, 34, 35];
         $queryBuilder->andWhere($queryBuilder->expr()->notIn('s.id', ':excludedStatuses'))
+            ->andWhere('da.codeSociete = :codeSociete')
+            ->setParameter('codeSociete', $codeSociete)
             ->setParameter('excludedStatuses', $excludedStatuses);
 
         // Filtre pour le statut        
@@ -155,107 +181,13 @@ class DomRepository extends EntityRepository
                 ->setParameter('dateMissionFin', $domSearch->getDateMissionFin());
         }
 
+        // Condition sur les couples agences-services
+        $this->conditionAgenceService($queryBuilder, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
 
-        if (!$options['boolean']) {
-            //ceci est figer pour les utilisateur autre que l'administrateur
-            $agenceIdAutoriser = is_array($options['idAgence']) ? $options['idAgence'] : [$options['idAgence']];
-            $queryBuilder->andWhere('d.agenceEmetteurId IN (:agenceIdAutoriser)')
-                ->setParameter('agenceIdAutoriser', $agenceIdAutoriser);
-        }
-
-        // Ordre et pagination
         $queryBuilder->orderBy('d.numeroOrdreMission', 'DESC');
-
 
         return $queryBuilder->getQuery()->getResult();
     }
-
-    public function findPaginatedAndFilteredAnnuler(int $page = 1, int $limit = 10, DomSearch $domSearch, array $options)
-    {
-        $queryBuilder = $this->createQueryBuilder('d')
-            ->leftJoin('d.sousTypeDocument', 'td')
-            ->leftJoin('d.idStatutDemande', 's');
-
-        $excludedStatuses = [9, 18, 22, 24, 26, 32, 33, 34, 35];
-        $queryBuilder->andWhere($queryBuilder->expr()->In('s.id', ':excludedStatuses'))
-            ->setParameter('excludedStatuses', $excludedStatuses);
-
-        // Filtre pour le statut        
-        if (!empty($domSearch->getStatut())) {
-            $queryBuilder->andWhere('s.description LIKE :statut')
-                ->setParameter('statut', '%' . $domSearch->getStatut() . '%');
-        }
-
-        // Filtre pour le type de document
-        if (!empty($domSearch->getSousTypeDocument())) {
-            $queryBuilder->andWhere('td.codeSousType LIKE :typeDocument')
-                ->setParameter('typeDocument', '%' . $domSearch->getSousTypeDocument() . '%');
-        }
-
-        // Filtrer selon le numero DOM
-        if (!empty($domSearch->getNumDom())) {
-            $queryBuilder->andWhere('d.numeroOrdreMission = :numDom')
-                ->setParameter('numDom', $domSearch->getNumDom());
-        }
-
-        // Filtre pour le numero matricule
-        if (!empty($domSearch->getMatricule())) {
-            $queryBuilder->andWhere('d.matricule = :matricule')
-                ->setParameter('matricule', $domSearch->getMatricule());
-        }
-
-        // Filtre pour la date de demande (début)
-        if (!empty($domSearch->getDateDebut())) {
-            $queryBuilder->andWhere('d.dateDemande >= :dateDemandeDebut')
-                ->setParameter('dateDemandeDebut', $domSearch->getDateDebut());
-        }
-
-        // Filtre pour la date de demande (fin)
-        if (!empty($domSearch->getDateFin())) {
-            $queryBuilder->andWhere('d.dateDemande <= :dateDemandeFin')
-                ->setParameter('dateDemandeFin', $domSearch->getDateFin());
-        }
-
-        // Filtre pour la date de mission (début)
-        if (!empty($domSearch->getDateMissionDebut())) {
-            $queryBuilder->andWhere('d.dateDebut >= :dateMissionDebut')
-                ->setParameter('dateMissionDebut', $domSearch->getDateMissionDebut());
-        }
-
-        // Filtre pour la date de mission (fin)
-        if (!empty($domSearch->getDateMissionFin())) {
-            $queryBuilder->andWhere('d.dateFin <= :dateMissionFin')
-                ->setParameter('dateMissionFin', $domSearch->getDateMissionFin());
-        }
-
-
-        if (!$options['boolean']) {
-            //ceci est figer pour les utilisateur autre que l'administrateur
-            $agenceIdAutoriser = is_array($options['idAgence']) ? $options['idAgence'] : [$options['idAgence']];
-            $queryBuilder->andWhere('d.agenceEmetteurId IN (:agenceIdAutoriser)')
-                ->setParameter('agenceIdAutoriser', $agenceIdAutoriser);
-        }
-
-
-
-        // Ordre et pagination
-        $queryBuilder->orderBy('d.numeroOrdreMission', 'DESC')
-            ->setFirstResult(($page - 1) * $limit)
-            ->setMaxResults($limit);
-
-        // Pagination
-        $paginator = new DoctrinePaginator($queryBuilder);
-        $totalItems = count($paginator);
-        $lastPage = ceil($totalItems / $limit);
-
-        return [
-            'data' => iterator_to_array($paginator->getIterator()), // Convertir en tableau si nécessaire
-            'totalItems' => $totalItems,
-            'currentPage' => $page,
-            'lastPage' => $lastPage,
-        ];
-    }
-
 
     public function findLastNumtel($matricule)
     {
@@ -274,5 +206,61 @@ class DomRepository extends EntityRepository
         }
 
         return $numTel;
+    }
+
+    private function conditionAgenceService($queryBuilder, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, bool $peutVoirListeAvecDebiteur)
+    {
+        $ORX = $queryBuilder->expr()->orX();
+
+        // 1- Emetteur du DOM : agence et service de l'utilisateur
+        $ORX->add(
+            $queryBuilder->expr()->andX(
+                $queryBuilder->expr()->eq('d.agenceEmetteurId', ':agEmetteur'),
+                $queryBuilder->expr()->eq('d.serviceEmetteurId', ':servEmetteur')
+            )
+        );
+        $queryBuilder->setParameter('agEmetteur', $agenceIdUser);
+        $queryBuilder->setParameter('servEmetteur', $serviceIdUser);
+
+        // 2- Debiteur du DOM : agence et service de l'utilisateur
+        $ORX->add(
+            $queryBuilder->expr()->andX(
+                $queryBuilder->expr()->eq('d.agenceDebiteurId', ':agDebiteur'),
+                $queryBuilder->expr()->eq('d.serviceDebiteurId', ':servDebiteur')
+            )
+        );
+        $queryBuilder->setParameter('agDebiteur', $agenceIdUser);
+        $queryBuilder->setParameter('servDebiteur', $serviceIdUser);
+
+        // 3- Emetteur et Débiteur : agence et service autorisés du profil
+        if (!empty($agenceServiceAutorises)) {
+            $orX1 = $queryBuilder->expr()->orX(); // Pour émetteur
+            $orX2 = $peutVoirListeAvecDebiteur ? $queryBuilder->expr()->orX() : null; // Pour débiteur : n'autoriser que si le profil peut voir la liste avec le débiteur
+            foreach ($agenceServiceAutorises as $i => $tab) {
+                $orX1->add(
+                    $queryBuilder->expr()->andX(
+                        $queryBuilder->expr()->eq('d.agenceEmetteurId', ':agEmetteur_' . $i),
+                        $queryBuilder->expr()->eq('d.serviceEmetteurId', ':servEmetteur_' . $i)
+                    )
+                );
+                $queryBuilder->setParameter('agEmetteur_' . $i, $tab['agence_id']);
+                $queryBuilder->setParameter('servEmetteur_' . $i, $tab['service_id']);
+                if ($orX2) {
+                    $orX2->add(
+                        $queryBuilder->expr()->andX(
+                            $queryBuilder->expr()->eq('d.agenceDebiteurId', ':agDebiteur_' . $i),
+                            $queryBuilder->expr()->eq('d.serviceDebiteurId', ':servDebiteur_' . $i)
+                        )
+                    );
+                    $queryBuilder->setParameter('agDebiteur_' . $i, $tab['agence_id']);
+                    $queryBuilder->setParameter('servDebiteur_' . $i, $tab['service_id']);
+                }
+            }
+
+            $ORX->add($orX1);
+            if ($orX2) $ORX->add($orX2);
+        }
+
+        $queryBuilder->andWhere($ORX);
     }
 }

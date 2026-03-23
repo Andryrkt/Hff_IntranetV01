@@ -2,12 +2,9 @@
 
 namespace App\Entity\admin;
 
-use App\Entity\badm\Badm;
-use App\Entity\TypeReparation;
 use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
-use App\Entity\admin\utilisateur\User;
-use App\Entity\dit\DemandeIntervention;
+use App\Entity\admin\utilisateur\Profil;
 use Doctrine\Common\Collections\Collection;
 use App\Repository\admin\SocietteRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -38,22 +35,14 @@ class Societte
      */
     private $codeSociete;
 
-
     /**
-     * @ORM\OneToMany(targetEntity=Badm::class, mappedBy="statutDemande")
+     * @ORM\OneToMany(targetEntity=Profil::class, mappedBy="societe", cascade={"persist"})
      */
-    private $demandeInterventions;
-
-    /**
-     * @ORM\OneToMany(targetEntity=User::class, mappedBy="societtes", orphanRemoval=true)
-     */
-    private $users;
+    private Collection $profils;
 
     public function __construct()
     {
-        $this->demandeInterventions = new ArrayCollection();
-        $this->users = new ArrayCollection();
-
+        $this->profils = new ArrayCollection();
     }
 
     public function getId(): int
@@ -68,7 +57,7 @@ class Societte
         return $this->nom;
     }
 
-  
+
     public function setNom($nom): self
     {
         $this->nom = $nom;
@@ -81,79 +70,37 @@ class Societte
         return $this->codeSociete;
     }
 
-    
+
     public function setCodeSociete($codeSociete): self
     {
         $this->codeSociete = $codeSociete;
 
         return $this;
     }
-    
-    public function getDemandeInterventions()
+
+    public function getProfils(): Collection
     {
-        return $this->demandeInterventions;
+        return $this->profils;
     }
 
-    public function addDemandeIntervention(DemandeIntervention $demandeIntervention): self
+    public function addProfil(Profil $profil): self
     {
-        if (!$this->demandeInterventions->contains($demandeIntervention)) {
-            $this->demandeInterventions[] = $demandeIntervention;
-            $demandeIntervention->setCodeSociete($this);
+        if (!$this->profils->contains($profil)) {
+            $this->profils[] = $profil;
+            $profil->setSociete($this);
         }
+
         return $this;
     }
 
-    public function removeDemandeIntervention(DemandeIntervention $demandeIntervention): self
+    public function removeProfil(Profil $profil): self
     {
-        if ($this->demandeInterventions->contains($demandeIntervention)) {
-            $this->demandeInterventions->removeElement($demandeIntervention);
-            if ($demandeIntervention->getCodeSociete() === $this) {
-                $demandeIntervention->setCodeSociete(null);
+        if ($this->profils->contains($profil)) {
+            $this->profils->removeElement($profil);
+            if ($profil->getSociete() === $this) {
+                $profil->setSociete(null);
             }
         }
-        return $this;
-    }
-
-    public function setBadms($demandeIntervention): self
-    {
-        $this->demandeInterventions = $demandeIntervention;
-        return $this;
-    }
-
-    
-     /**
-     * @return Collection|User[]
-     */ 
-    public function getUsers(): Collection
-    {
-        return $this->users;
-    }
-
-    public function addUser(User $user): self
-    {
-        if (!$this->users->contains($user)) {
-            $this->users[] = $user;
-            $user->setSociettes($this);
-        }
-
-        return $this;
-    }
-
-    public function removeUser(User $user): self
-    {
-        if ($this->users->contains($user)) {
-            $this->users->removeElement($user);
-            if ($user->getSociettes() === $this) {
-                $user->setSociettes(null);
-            }
-        }
-        
-        return $this;
-    }
-
-    public function setUsers($users): self
-    {
-        $this->users = $users;
 
         return $this;
     }

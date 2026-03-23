@@ -9,9 +9,11 @@
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/admin/historisation/operation-document/index.css?v=2025.10.22.08.00">
 {% endblock %}
 
+{% block breadCrumb %}{% endblock %}
+
 {% block content %}
 	<div class="position-sticky sticky-header">
-		<div class="container mt-4">
+		<div class="container my-4">
 			<h3 class="perso-titre">Historique des opérations sur les documents</h3>
 			{% include "/admin/historisation/operation-document/shared/_formulaireRecherche.html.twig" %}
 			<div class="container">

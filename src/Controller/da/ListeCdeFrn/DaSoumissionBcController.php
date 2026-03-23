@@ -61,8 +61,8 @@ class DaSoumissionBcController extends Controller
      */
     public function index(string $numCde, string $numDa, string $numOr, Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
 
         $this->daSoumissionBc->setNumeroCde($numCde);
 
@@ -70,7 +70,7 @@ class DaSoumissionBcController extends Controller
             'method' => 'POST',
         ])->getForm();
 
-        $this->traitementFormulaire($request, $numCde, $form, $numDa, $numOr);
+        $this->traitementFormulaire($request, $numCde, $form, $numDa, $numOr, $codeSociete);
 
         return $this->render('da/soumissionBc.html.twig', [
             'form' => $form->createView(),
@@ -86,18 +86,20 @@ class DaSoumissionBcController extends Controller
      * @param [type] $form
      * @return void
      */
-    private function traitementFormulaire(Request $request, string $numCde, $form, string $numDa, string $numOr): void
+    private function traitementFormulaire(Request $request, string $numCde, $form, string $numDa, string $numOr, string $codeSociete): void
     {
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            /** @var DaSoumissionBc $soumissionBc */
             $soumissionBc = $form->getData();
-            if ($this->verifierConditionDeBlocage($soumissionBc, $numCde, $numDa)) {
+
+            if ($this->verifierConditionDeBlocage($soumissionBc, $numCde, $numDa, $codeSociete)) {
                 /** ENREGISTREMENT DE FICHIER */
                 $nomDeFichiers = $this->enregistrementFichier($form, $numCde, $numDa);
 
                 //numeroversion max
-                $numeroVersionMax = $this->autoIncrement($this->daSoumissionBcRepository->getNumeroVersionMax($numCde));
+                $numeroVersionMax = $this->autoIncrement($this->daSoumissionBcRepository->getNumeroVersionMax($numCde, $codeSociete));
                 /** FUSION DES PDF */
                 $nomFichierAvecChemins = $this->addPrefixToElementArray($nomDeFichiers, $this->cheminDeBase . $numDa . '/');
                 $fichierConvertir = $this->ConvertirLesPdf($nomFichierAvecChemins);
@@ -106,7 +108,7 @@ class DaSoumissionBcController extends Controller
                 $this->traitementDeFichier->fusionFichers($fichierConvertir, $nomAvecCheminPdfFusionner);
 
                 /** AJOUT DES INFO NECESSAIRE */
-                $soumissionBc = $this->ajoutInfoNecesaireSoumissionBc($numCde, $numDa, $soumissionBc, $nomPdfFusionner, $numeroVersionMax, $numOr);
+                $soumissionBc = $this->ajoutInfoNecesaireSoumissionBc($numCde, $numDa, $soumissionBc, $nomPdfFusionner, $numeroVersionMax, $numOr, $codeSociete);
 
                 /** ENREGISTREMENT DANS LA BASE DE DONNEE */
                 $this->getEntityManager()->persist($soumissionBc);
@@ -114,9 +116,6 @@ class DaSoumissionBcController extends Controller
 
                 /** COPIER DANS DW */
                 $this->generatePdf->copyToDWBcDa($nomPdfFusionner, $numDa);
-
-                /** modification du table da_valider */
-                $this->modificationDaValider($numDa, $numCde);
 
                 /** HISTORISATION */
                 $message = 'Le document est soumis pour validation';
@@ -128,28 +127,12 @@ class DaSoumissionBcController extends Controller
         }
     }
 
-
-    private function modificationDaValider(string $numDa, string $numCde): void
+    private function ajoutInfoNecesaireSoumissionBc(string $numCde, string $numDa, DaSoumissionBc $soumissionBc, string $nomPdfFusionner, int $numeroVersionMax, string $numOr, string $codeSociete): DaSoumissionBc
     {
-        $numeroVersionMaxCde = $this->daValiderRepository->getNumeroVersionMax($numDa);
-        $daValiders = $this->daValiderRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMaxCde, 'numeroCde' => $numCde]);
-        if (!empty($daValiders)) {
-            foreach ($daValiders as $key => $daValider) {
-                $daValider
-                    ->setStatutCde(DaSoumissionBc::STATUT_SOUMISSION);
-                $this->getEntityManager()->persist($daValider);
-            }
-
-            $this->getEntityManager()->flush();
-        }
-    }
-
-    private function ajoutInfoNecesaireSoumissionBc(string $numCde, string $numDa, DaSoumissionBc $soumissionBc, string $nomPdfFusionner, int $numeroVersionMax, string $numOr): DaSoumissionBc
-    {
-        $numDit = $this->demandeApproRepository->getNumDitDa($numDa);
+        $numDit = $this->demandeApproRepository->getNumDitDa($numDa, $codeSociete);
         // $numOr = $this->ditRepository->getNumOr($numDit);
 
-        $montantBc = $this->getMontantBc($numCde);
+        $montantBc = $this->getMontantBc($numCde, $codeSociete);
 
         $soumissionBc->setNumeroCde($numCde)
             ->setUtilisateur($this->getUserName())
@@ -159,38 +142,39 @@ class DaSoumissionBcController extends Controller
             ->setNumeroDemandeAppro($numDa)
             ->setNumeroDemandeDit($numDit)
             ->setNumeroOR($numOr)
+            ->setCodeSociete($codeSociete)
             ->setMontantBc($montantBc)
         ;
         return $soumissionBc;
     }
 
-    private function getMontantBc(string $numCde): float
+    private function getMontantBc(string $numCde, string $codeSociete): float
     {
         $daModel = new DaModel();
-        return $daModel->getMontantBcDaDirect($numCde);
+        return $daModel->getMontantBcDaDirect($numCde, $codeSociete);
     }
 
-    private function conditionDeBlocage(DaSoumissionBc $soumissionBc, string $numCde, string $numDa): array
+    private function conditionDeBlocage(DaSoumissionBc $soumissionBc, string $numCde, string $numDa, string $codeSociete): array
     {
         $nomdeFichier = $soumissionBc->getPieceJoint1()->getClientOriginalName();
         $nomdeFichier = str_replace('BON_DE_COMMANDE', 'BON DE COMMANDE', $nomdeFichier);
-        $statut = $this->daSoumissionBcRepository->getStatut($numCde);
-        $montantBc = $this->daSoumissionBcRepository->getMontantBc($numCde);
+        $statut = $this->daSoumissionBcRepository->getStatut($numCde, $codeSociete);
+        $montantBc = $this->daSoumissionBcRepository->getMontantBc($numCde, $codeSociete);
 
         //recuperation du numDa dans Informix
-        $numDaInformix = $this->daSoumissionBcModel->getNumDa($numCde);
+        $numDaInformix = $this->daSoumissionBcModel->getNumDa($numCde, $codeSociete);
 
         return [
             'nomDeFichier' => explode('_', $nomdeFichier)[0] <> 'BON DE COMMANDE' || explode('_', $nomdeFichier)[1] <> $numCde,
             'statut' => $statut === DaSoumissionBc::STATUT_SOUMISSION || $statut === DaSoumissionBc::STATUT_A_VALIDER_DA,
             'numDaEgale' => $numDaInformix[0] !== $numDa,
-            'montantBcEgale' => $montantBc == $this->getMontantBc($numCde)
+            'montantBcEgale' => $montantBc == $this->getMontantBc($numCde, $codeSociete)
         ];
     }
 
-    private function verifierConditionDeBlocage(DaSoumissionBc $soumissionBc, string $numCde, string $numDa): bool
+    private function verifierConditionDeBlocage(DaSoumissionBc $soumissionBc, string $numCde, string $numDa, string $codeSociete): bool
     {
-        $conditions = $this->conditionDeBlocage($soumissionBc, $numCde, $numDa);
+        $conditions = $this->conditionDeBlocage($soumissionBc, $numCde, $numDa, $codeSociete);
         $nomdeFichier = $soumissionBc->getPieceJoint1()->getClientOriginalName();
         $okey = false;
 

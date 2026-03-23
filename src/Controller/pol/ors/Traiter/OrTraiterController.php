@@ -5,19 +5,16 @@ namespace App\Controller\pol\ors\Traiter;
 
 // ini_set('max_execution_time', 10000);
 
-use App\Model\dit\DitModel;
+use App\Constants\admin\ApplicationConstant;
 use App\Controller\Controller;
-use App\Entity\admin\Application;
-use App\Service\TableauEnStringService;
+use App\Controller\Traits\magasin\ors\MagasinOrATraiterTrait;
 use App\Controller\Traits\Transformation;
+use App\Form\magasin\MagasinListeOrATraiterSearchType;
+use App\Model\magasin\MagasinListeOrATraiterModel;
+use App\Service\TableauEnStringService;
 use Symfony\Component\Form\FormInterface;
-use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Model\magasin\MagasinListeOrATraiterModel;
-use App\Form\magasin\MagasinListeOrATraiterSearchType;
-use App\Controller\Traits\magasin\ors\MagasinOrATraiterTrait;
-use App\Controller\Traits\magasin\ors\MagasinTrait as OrsMagasinTrait;
 
 /**
  * @Route("/pol/or-pol")
@@ -25,10 +22,7 @@ use App\Controller\Traits\magasin\ors\MagasinTrait as OrsMagasinTrait;
 class OrTraiterController extends Controller
 {
     use Transformation;
-    use OrsMagasinTrait;
     use MagasinOrATraiterTrait;
-    use AutorisationTrait;
-
     /**
      * @Route("/listes-or-a-traiter", name="pol_or_liste_a_traiter")
      *
@@ -36,22 +30,13 @@ class OrTraiterController extends Controller
      */
     public function index(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
+        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_POL);
 
-        $codeAgence = $this->getUser()->getAgenceAutoriserCode();
+        $codeAgence = array_column($agenceServiceAutorises, 'agence_code');
 
-        /** CREATION D'AUTORISATION */
-        $autoriser = $this->autorisationRole($this->getEntityManager());
-        //FIN AUTORISATION
+        $agenceUser = TableauEnStringService::TableauEnString(',', $codeAgence);
 
-        if ($autoriser) {
-            $agenceUser = "''";
-        } else {
-            $agenceUser = TableauEnStringService::TableauEnString(',', $codeAgence);
-        }
-
-        $form = $this->getFormFactory()->createBuilder(MagasinListeOrATraiterSearchType::class, ['agenceUser' => $agenceUser, 'autoriser' => $autoriser], [
+        $form = $this->getFormFactory()->createBuilder(MagasinListeOrATraiterSearchType::class, ['agenceUser' => $agenceUser], [
             'method' => 'GET',
             'est_pneumatique' => true
         ])->getForm();

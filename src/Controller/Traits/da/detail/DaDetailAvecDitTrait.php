@@ -8,7 +8,7 @@ use App\Entity\da\DemandeApproL;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Entity\dw\DwBcAppro;
 use App\Entity\dw\DwFacBl;
-use App\Model\dw\DossierInterventionAtelierModel;
+use App\Model\dw\dossierInterventionAtelierModel;
 use App\Repository\da\DaObservationRepository;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
 use App\Repository\dw\DwBcApproRepository;
@@ -23,7 +23,7 @@ trait DaDetailAvecDitTrait
     private DaObservationRepository $daObservationRepository;
     private DwFactureBonLivraisonRepository $dwFacBlRepository;
     private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
-    private DossierInterventionAtelierModel $dossierInterventionAtelierModel;
+    private dossierInterventionAtelierModel $dossierInterventionAtelierModel;
 
     /**
      * Initialise les valeurs par défaut du trait
@@ -36,7 +36,7 @@ trait DaDetailAvecDitTrait
         $this->dwBcApproRepository = $em->getRepository(DwBcAppro::class);
         $this->daObservationRepository = $em->getRepository(DaObservation::class);
         $this->ditOrsSoumisAValidationRepository = $em->getRepository(DitOrsSoumisAValidation::class);
-        $this->dossierInterventionAtelierModel = new DossierInterventionAtelierModel;
+        $this->dossierInterventionAtelierModel = new dossierInterventionAtelierModel;
     }
     //==================================================================================================
 

@@ -4,6 +4,7 @@ namespace App\Entity\dom;
 
 use DateTime;
 use App\Entity\admin\Agence;
+use App\Entity\admin\AgenceService;
 use App\Entity\admin\Service;
 use App\Entity\admin\dom\Catg;
 use App\Entity\admin\dom\Site;
@@ -349,7 +350,6 @@ class Dom
      */
     private  $serviceDebiteurId;
 
-
     /**
      * @ORM\ManyToOne(targetEntity=Site::class, inversedBy="domSite")
      * @ORM\JoinColumn(name="site_id", referencedColumnName="id")
@@ -362,11 +362,6 @@ class Dom
      */
     private  $categoryId = null;
 
-
-    private $codeAgenceAutoriser;
-
-    private $codeServiceAutoriser;
-
     private $rmq;
 
     private $statutTropPercuOk = false;
@@ -375,6 +370,11 @@ class Dom
      * @ORM\Column(type="boolean", name="piece_justificatif")
      */
     private $pieceJustificatif = false;
+
+    /** 
+     * @ORM\Column(type="string", length=2, name="code_societe", nullable=true)
+     */
+    private $codeSociete;
 
     //======================================================================================================================================================
     public function getId()
@@ -1244,29 +1244,6 @@ class Dom
         return $this;
     }
 
-
-    public function getCodeAgenceAutoriser()
-    {
-        return $this->codeAgenceAutoriser;
-    }
-
-    public function setCodeAgenceAutoriser($codeAgenceAutoriser): self
-    {
-        $this->codeAgenceAutoriser = $codeAgenceAutoriser;
-        return $this;
-    }
-
-    public function getCodeSreviceAutoriser()
-    {
-        return $this->codeServiceAutoriser;
-    }
-
-    public function setCodeServiceAutoriser($codeServiceAutoriser): self
-    {
-        $this->codeServiceAutoriser = $codeServiceAutoriser;
-        return $this;
-    }
-
     public function getRmq()
     {
         return $this->rmq;
@@ -1281,14 +1258,14 @@ class Dom
     public function toArray(): array
     {
         return [
-
             'sousTypeDocument' => $this->sousTypeDocument,
-            'salarier' => $this->salarier,
-            'categoryId' => $this->categoryId,
-            'matricule' => $this->matricule,
-            'nom' => $this->nom,
-            'prenom' => $this->prenom,
-            'cin' => $this->cin
+            'salarier'         => $this->salarier,
+            'categoryId'       => $this->categoryId,
+            'matricule'        => $this->matricule,
+            'nom'              => $this->nom,
+            'prenom'           => $this->prenom,
+            'codeSociete'      => $this->codeSociete,
+            'cin'              => $this->cin
         ];
     }
 
@@ -1348,6 +1325,24 @@ class Dom
     public function setTotalDeplPlusAutres($totalDeplPlusAutres)
     {
         $this->totalDeplPlusAutres = $totalDeplPlusAutres;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of codeSociete
+     */
+    public function getCodeSociete()
+    {
+        return $this->codeSociete;
+    }
+
+    /**
+     * Set the value of codeSociete
+     */
+    public function setCodeSociete($codeSociete): self
+    {
+        $this->codeSociete = $codeSociete;
 
         return $this;
     }

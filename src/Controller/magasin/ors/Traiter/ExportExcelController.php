@@ -5,6 +5,7 @@ namespace App\Controller\magasin\ors\Traiter;
 use App\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\magasin\ors\MagasinOrATraiterTrait;
+use App\Service\ExcelService;
 
 /**
  * @Route("/magasin/or")
@@ -20,9 +21,6 @@ class ExportExcelController extends Controller
      */
     public function exportExcel()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         //recupères les critère dans la session 
         $criteria = $this->getSessionService()->get('magasin_liste_or_traiter_search_criteria', []);
 
@@ -32,7 +30,7 @@ class ExportExcelController extends Controller
         // Convertir les entités en tableau de données avec entête
         $data = $this->conversionEnTableauAvecEntete($entities);
 
-        $this->getExcelService()->createSpreadsheet($data);
+        (new ExcelService())->createSpreadsheet($data);
     }
 
     public function conversionEnTableauAvecEntete(array $entities): array

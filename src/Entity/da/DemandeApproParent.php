@@ -93,7 +93,7 @@ class DemandeApproParent
     private string $statutDal;
 
     /**
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="demandeApproParentUser")
+     * @ORM\ManyToOne(targetEntity=User::class)
      * @ORM\JoinColumn(nullable=true, name="user_id", referencedColumnName="id")
      */
     private ?User $user = null;
@@ -121,6 +121,11 @@ class DemandeApproParent
     private $observation;
 
     private $debiteur;
+
+    /** 
+     * @ORM\Column(type="string", length=2, name="code_societe", nullable=true)
+     */
+    private $codeSociete;
 
     public function __construct()
     {
@@ -501,6 +506,24 @@ class DemandeApproParent
     public function setObservation($observation): self
     {
         $this->observation = $observation;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of codeSociete
+     */
+    public function getCodeSociete()
+    {
+        return $this->codeSociete;
+    }
+
+    /**
+     * Set the value of codeSociete
+     */
+    public function setCodeSociete($codeSociete): self
+    {
+        $this->codeSociete = $codeSociete;
 
         return $this;
     }

@@ -7,17 +7,20 @@ use App\Model\da\DaModel;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
-/** @Route("/demande-appro/autocomplete") */
+/** @Route("/api/demande-appro/autocomplete") */
 class DaAffectationApi extends Controller
 {
     /**
-     * @Route("/all-reference", name="da_affectation_all_reference", methods={"GET"})
+     * @Route("/all-reference", name="api_da_affectation_all_reference", methods={"GET"})
      */
     public function allReference(): JsonResponse
     {
         try {
+            // Code Société de l'utilisateur
+            $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+
             $daModel = new DaModel;
-            $data = $daModel->getAllReferenceAutorisees();
+            $data = $daModel->getAllReferenceAutorisees($codeSociete);
 
             if (empty($data)) {
                 return new JsonResponse([

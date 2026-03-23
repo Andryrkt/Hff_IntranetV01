@@ -16,6 +16,8 @@ CREATE TABLE ors_soumis_a_validation
     heureSoumission VARCHAR(5) CONSTRAINT PK_ors_soumis_a_validation PRIMARY KEY (id)
 );
 
+ALTER TABLE ors_soumis_a_validation ADD societe INT
+
 ALTER TABLE ors_soumis_a_validation
 ADD numeroDIT VARCHAR(11);
 

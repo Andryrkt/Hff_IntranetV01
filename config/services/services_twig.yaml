@@ -1,21 +1,20 @@
 services:
-    # Services Twig
-    App\Twig\AppExtension:
-        arguments:
-            - '@session'
-            - '@request_stack'
-            - '@security.token_storage'
-            - '@security.authorization_checker'
-        tags: ['twig.extension']
+  # Services Twig
+  App\Twig\AppExtension:
+    arguments:
+      - "@session"
+      - "@request_stack"
+      - "@security.token_storage"
+      - "@security.authorization_checker"
+    tags: ["twig.extension"]
 
-    App\Twig\BreadcrumbExtension:
-        arguments:
-            - '@App\Service\navigation\BreadcrumbMenuService'
-        tags: ['twig.extension']
+  App\Twig\BreadcrumbExtension:
+    arguments:
+      - '@App\Service\navigation\MenuService'
+    tags: ["twig.extension"]
 
-    App\Twig\CarbonExtension:
-        tags: ['twig.extension']
+  App\Twig\CarbonExtension:
+    tags: ["twig.extension"]
 
-    App\Twig\DeleteWordExtension:
-        tags: ['twig.extension']
-
+  App\Twig\DeleteWordExtension:
+    tags: ["twig.extension"]

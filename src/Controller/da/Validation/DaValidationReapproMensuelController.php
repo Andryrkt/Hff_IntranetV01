@@ -7,13 +7,13 @@ use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\admin\Application;
 use App\Form\da\DaObservationType;
-use App\Controller\Traits\AutorisationTrait;
 use App\Form\da\DaObservationValidationType;
 use App\Controller\Traits\da\DaAfficherTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\da\detail\DaDetailReapproTrait;
 use App\Controller\Traits\da\validation\DaValidationReapproTrait;
+use App\Entity\admin\utilisateur\Role;
 
 /**
  * @Route("/demande-appro")
@@ -21,7 +21,6 @@ use App\Controller\Traits\da\validation\DaValidationReapproTrait;
 class DaValidationReapproMensuelController extends Controller
 {
     use DaAfficherTrait;
-    use AutorisationTrait;
     use DaValidationReapproTrait;
     use DaDetailReapproTrait;
 
@@ -38,13 +37,6 @@ class DaValidationReapproMensuelController extends Controller
      */
     public function validationDaReapproMensuel($id, Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
-        /** Autorisation accès */
-        $this->autorisationAcces($this->getUser(), Application::ID_DAP);
-        /** FIN AUtorisation accès */
-
         $da = $this->demandeApproRepository->find($id);
 
         $daObservation = new DaObservation();
@@ -71,7 +63,7 @@ class DaValidationReapproMensuelController extends Controller
             'demandeAppro'    => $da,
             'numDa'           => $da->getNumeroDemandeAppro(),
             'fichiers'        => $fichiers,
-            'codeCentrale'    => $this->estAdmin() || in_array($da->getAgenceEmetteur()->getCodeAgence(), ['90', '91', '92']),
+            'codeCentrale'    => $this->hasRoles(Role::ROLE_ADMINISTRATEUR) || in_array($da->getAgenceEmetteur()->getCodeAgence(), ['90', '91', '92']),
             'formReappro'     => $formReappro->createView(),
             'formObservation' => $formObservation->createView(),
             'observations'    => $observations,
@@ -132,7 +124,7 @@ class DaValidationReapproMensuelController extends Controller
     {
         $this->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $daObservation->getObservation(), $daObservation->getFileNames());
 
-        $this->emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->getUser(), $this->estUserDansServiceAppro());
+        $this->emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->getUser(), false);  // TODO: booléen pour savoir si Appro
 
         $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'Votre observation a été enregistré avec succès.']);
         return $this->redirectToRoute("list_da");

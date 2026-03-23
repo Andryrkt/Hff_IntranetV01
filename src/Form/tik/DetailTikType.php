@@ -26,7 +26,6 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 
 class DetailTikType extends AbstractType
 {
-    private User $connectedUser;
     private $sousCategorieRepository;
     private $categoriesRepository;
     const DAY_PART = [
@@ -36,8 +35,6 @@ class DetailTikType extends AbstractType
 
     public function __construct(EntityManagerInterface $em)
     {
-        $sessionService = new SessionManagerService;
-        $this->connectedUser = $em->getRepository(User::class)->find($sessionService->get('user_id'));
         $this->sousCategorieRepository = $em->getRepository(TkiSousCategorie::class);
         $this->categoriesRepository = $em->getRepository(TkiCategorie::class);
     }

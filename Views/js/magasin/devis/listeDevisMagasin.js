@@ -1,19 +1,19 @@
 import { AutoComplete } from "../../utils/AutoComplete.js";
 import { FetchManager } from "../../api/FetchManager.js";
-const fetchManager = new FetchManager();
-import { handleAgenceChange } from "../../dit/fonctionUtils/fonctionListDit.js";
+import { filterServiceByAgence } from "../../utils/agenceService/filterServiceByAgence.js";
 
-
-/**===================================================
- * Autocomplete champ code client
- *====================================================*/
-async function fetchCodeClient() {
+document.addEventListener("DOMContentLoaded", () => {
+  const fetchManager = new FetchManager();
+  /**===================================================
+   * Autocomplete champ code client
+   *====================================================*/
+  async function fetchCodeClient() {
     return await fetchManager.get("api/code-client-fetch");
-}
+  }
 
-function displayCodeClient(item) {
+  function displayCodeClient(item) {
     return `${item.code_client} - ${item.nom_client}`;
-}
+  }
 
 const codeClientInput = document.getElementById("devis_neg_search_codeClient") || document.getElementById("devis_magasin_search_codeClient");
 
@@ -32,7 +32,7 @@ if (codeClientInput) {
     });
 }
 
-/**===========================================================================
+  /**===========================================================================
    * Configuration des agences et services
    *============================================================================*/
 

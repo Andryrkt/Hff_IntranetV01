@@ -4,6 +4,7 @@ namespace App\Controller\da\Creation;
 
 use App\Controller\Controller;
 use App\Entity\da\DaArticleReappro;
+use App\Repository\da\DaArticleReapproRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -28,6 +29,7 @@ class DaNewDirectApiController extends Controller
         if (strlen($codeService) !== 3) return $this->errorMessage(self::ERROR_MESSAGES['codeServiceIncorrect']);
 
         try {
+            /** @var DaArticleReapproRepository $daArticleReapproRepository */
             $daArticleReapproRepository = $this->getEntityManager()->getRepository(DaArticleReappro::class);
             $articlesReappro = $daArticleReapproRepository->getArticlesList($codeAgence, $codeService);
 

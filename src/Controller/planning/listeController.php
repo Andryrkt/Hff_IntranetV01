@@ -14,7 +14,6 @@ use App\Form\planning\PlanningSearchType;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use App\Entity\dit\DitOrsSoumisAValidation;
-use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
@@ -27,8 +26,6 @@ class ListeController extends Controller
 {
     use Transformation;
     use PlanningTraits;
-    use AutorisationTrait;
-
     private PlanningSearch $planningSearch;
     private PlanningModel $planningModel;
     private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
@@ -51,12 +48,7 @@ class ListeController extends Controller
     {
         $resultat = 0;
         $pagesCount = 0;
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
 
-        /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_REP);
-        /** FIN AUtorisation acées */
         //initialisation
         $this->conditionFormulaireRecherche();
 
@@ -133,8 +125,6 @@ class ListeController extends Controller
      */
     public function exportExcel()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
         $data = $this->getSessionService()->get('data_planning_detail_excel');
         $header = [
             'agenceServiceTravaux' => 'Agence - Service',

@@ -17,6 +17,10 @@ use App\Service\genererPdf\GenererPdfAcSoumis;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\dit\DitDevisSoumisAValidationModel;
 use App\Entity\admin\utilisateur\ContactAgenceAte;
+use App\Repository\admin\utilisateur\ContactAgenceAteRepository;
+use App\Repository\dit\BcSoumisRepository;
+use App\Repository\dit\DitDevisSoumisAValidationRepository;
+use App\Repository\dit\DitRepository;
 use App\Service\historiqueOperation\HistoriqueOperationBCService;
 
 /**
@@ -26,11 +30,11 @@ class AcBcSoumisController extends Controller
 {
     private $acSoumis;
     private $bcSoumis;
-    private $bcRepository;
     private $genererPdfAc;
     private $historiqueOperation;
-    private $contactAgenceAteRepository;
-    private $ditRepository;
+    private ContactAgenceAteRepository $contactAgenceAteRepository;
+    private DitRepository $ditRepository;
+    private BcSoumisRepository $bcRepository;
     private $ditDevisSoumisAValidationModel;
 
     public function __construct()
@@ -52,14 +56,14 @@ class AcBcSoumisController extends Controller
      */
     public function traitementFormulaire(Request $request, $numDit)
     {
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
 
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
+        /** @var DitDevisSoumisAValidationRepository $repository */
+        $repository = $this->getEntityManager()->getRepository(DitDevisSoumisAValidation::class);
+        $devis = $repository->findInfoDevis($numDit, $codeSociete);
 
-        // $devis = $this->filtredataDevis($numDit);
-        $devis = $this->getEntityManager()->getRepository(DitDevisSoumisAValidation::class)->findInfoDevis($numDit);
-
-        $ditInterneouExterne = $this->ditRepository->findInterneExterne($numDit);
+        $ditInterneouExterne = $this->ditRepository->findInterneExterne($numDit, $codeSociete);
         if ($ditInterneouExterne === 'INTERNE') {
             $message = "Erreur lors de la soumission, Impossible de soumettre le BC . . . le DIT est interne";
             $this->historiqueOperation->sendNotificationCreation($message, $numDit, 'dit_index');
@@ -70,35 +74,25 @@ class AcBcSoumisController extends Controller
             $this->historiqueOperation->sendNotificationCreation($message, $numDit, 'dit_index');
         }
 
-        $acSoumis = $this->initialisation($devis, $numDit);
+        $acSoumis = $this->initialisation($devis, $numDit, $codeSociete);
 
         $form = $this->getFormFactory()->createBuilder(AcSoumisType::class, $acSoumis)->getForm();
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
-            $montantDevis = $form->getData()->getMontantDevis();
-
-            // if ($this->convertirMontantFrVersFloat($montantDevis) != $this->calculMontantDevis($devis)) {
-            //     $message = "Erreur lors de la soumission, Impossible de soumettre le BC . . . La montant du devis ne correspond pas au montant devis validée";
-            //     $this->historiqueOperation->sendNotificationCreation($message, $numDit, 'dit_index');
-            // }
-
-            // initialisation de l'entité acSoumis
-            $acSoumis = $this->initialisation($devis, $numDit);
             $numBc = $acSoumis->getNumeroBc(); // recupère le numero bon de commande
             $numDevis = $acSoumis->getNumeroDevis(); // recupère le numero devis
-            $numClient = $this->ditRepository->findNumClient($numDit); //recupère le numero cline
-            $numeroVersionMax = $this->bcRepository->findNumeroVersionMax($numBc); // récupération de la version maximal du numero version
+            $numClient = $this->ditRepository->findNumClient($numDit, $codeSociete); //recupère le numero cline
+            $numeroVersionMax = $this->bcRepository->findNumeroVersionMax($numBc, $codeSociete); // récupération de la version maximal du numero version
             // ajouter les données nécessaire pour l'enregistrement dans la table bc_soumis
             $bcSoumis = $this->ajoutDonneeBc($acSoumis, $numeroVersionMax);
 
             /** CREATION , FUSION, ENVOIE DW du PDF */
             $acSoumis->setNumeroVersion($bcSoumis->getNumVersion());
             $numClientBcDevis = $numClient . '_' . $numDevis;
-            $numeroVersionMaxDit = $this->bcRepository->findNumeroVersionMaxParDit($numDit) + 1;
-            $suffix = $this->ditDevisSoumisAValidationModel->constructeurPieceMagasin($numDevis)[0]['retour'];
+            $numeroVersionMaxDit = $this->bcRepository->findNumeroVersionMaxParDit($numDit, $codeSociete) + 1;
+            $suffix = $this->ditDevisSoumisAValidationModel->constructeurPieceMagasin($numDevis, $codeSociete)[0]['retour'];
             $nomFichier = 'bc_' . $numClientBcDevis . '-' . $numeroVersionMaxDit . '#' . $suffix . '.pdf';
 
             //crée le pdf
@@ -245,6 +239,7 @@ class AcBcSoumisController extends Controller
             ->setDateBc($acSoumis->getDateBc())
             ->setDateDevis($acSoumis->getDateDevis())
             ->setMontantDevis($acSoumis->getMontantDevis())
+            ->setCodeSociete($acSoumis->getCodeSociete())
             ->setDateHeureSoumission(new \DateTime())
             ->setNumVersion($this->autoIncrement($numeroVersionMax))
             ->setStatut('Soumis à validation')
@@ -260,9 +255,9 @@ class AcBcSoumisController extends Controller
         return $num + 1;
     }
 
-    private function initialisation(array $devis, string $numDit): AcSoumis
+    private function initialisation(array $devis, string $numDit, string $codeSociete): AcSoumis
     {
-        $reparationRealiser = $this->ditRepository->findAteRealiserPar($numDit);
+        $reparationRealiser = $this->ditRepository->findAteRealiserPar($numDit, $codeSociete);
         $atelier = $this->contactAgenceAteRepository->findContactSelonAtelier($reparationRealiser);
 
         $this->acSoumis
@@ -271,10 +266,11 @@ class AcBcSoumisController extends Controller
             ->setStatutDevis($devis[0]->getStatut())
             ->setNumeroDit($devis[0]->getNumeroDit())
             ->setDateDevis($devis[0]->getDateHeureSoumission())
-            ->setMontantDevis($this->calculMontantDevis($devis))
+            ->setMontantDevis($this->calculMontantDevis($devis, $codeSociete))
             ->setEmailContactHff($this->emailHff($atelier))
             ->setTelephoneContactHff($this->telephoneHff($atelier))
             ->setDevise($devis[0]->getDevise())
+            ->setCodeSociete($codeSociete)
             ->setDateExpirationDevis((clone $devis[0]->getDateHeureSoumission())->modify('+30 days'))
         ;
         return $this->acSoumis;
@@ -298,9 +294,9 @@ class AcBcSoumisController extends Controller
      * @param array $devis
      * @return void
      */
-    private function calculMontantDevis(array $devis): float
+    private function calculMontantDevis(array $devis, string $codeSociete): float
     {
-        if ($this->estCeVente($devis[0]->getNumeroDevis())) {
+        if ($this->estCeVente($devis[0]->getNumeroDevis(), $codeSociete)) {
             return $this->sommeMontantTousItv($devis);
         } else {
             return $this->sommeMontantPremierItv($devis);
@@ -327,10 +323,10 @@ class AcBcSoumisController extends Controller
      * @param string $numDevis
      * @return boolean
      */
-    public function estCeVente(string $numDevis): bool
+    public function estCeVente(string $numDevis, $codeSociete): bool
     {
-        $recupConstRefPremDev = $this->ditDevisSoumisAValidationModel->recupConstRefPremDev($numDevis);
-        $recupNbrItvDev = $this->ditDevisSoumisAValidationModel->recupNbrItvDev($numDevis);
+        $recupConstRefPremDev = $this->ditDevisSoumisAValidationModel->recupConstRefPremDev($numDevis, $codeSociete);
+        $recupNbrItvDev = $this->ditDevisSoumisAValidationModel->recupNbrItvDev($numDevis, $codeSociete);
 
         if ($recupConstRefPremDev[0]['contructeur'] === 'ZDI-FORFAIT' && (int)$recupNbrItvDev[0]['itv'] > 0) {
             return false; //Devis forfait

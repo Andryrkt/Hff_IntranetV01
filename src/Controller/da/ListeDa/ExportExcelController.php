@@ -2,11 +2,13 @@
 
 namespace App\Controller\da\ListeDa;
 
-use App\Entity\admin\Agence;
 use App\Entity\da\DaAfficher;
+use App\Service\ExcelService;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use Doctrine\ORM\EntityRepository;
+use App\Constants\admin\ApplicationConstant;
+use App\Service\security\SecurityService;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -15,13 +17,11 @@ use Symfony\Component\Routing\Annotation\Route;
 class ExportExcelController extends Controller
 {
     private EntityRepository $daAfficherRepository;
-    private EntityRepository $agenceRepository;
 
     public function __construct()
     {
         parent::__construct();
         $this->daAfficherRepository = $this->getEntityManager()->getRepository(DaAfficher::class);
-        $this->agenceRepository = $this->getEntityManager()->getRepository(Agence::class);
     }
 
     /** 
@@ -29,34 +29,37 @@ class ExportExcelController extends Controller
      */
     public function exportExcel()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
 
         $criteria = $this->getSessionService()->get('criteria_search_list_da');
 
-        $agenceServiceIps = $this->agenceServiceIpsObjet();
-        $agence           = $agenceServiceIps['agenceIps'];
-        $codeCentrale     = $this->estAdmin() || in_array($agence->getCodeAgence(), ['90', '91', '92']);
+        $codeCentrale     = false; // TODO : autorisation sur le code centrale
+
+        // Agences Services autorisés sur le DAP
+        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DAP);
 
         // recupération des données de la DA
-        $dasFiltered = $this->getDataExcel($criteria);
+        $dasFiltered = $this->getDataExcel($criteria, $agenceServiceAutorises, $codeSociete);
 
         // Données généré des $dasFiltered
         $data = $this->generateTableData($dasFiltered, $codeCentrale);
 
         // Crée le fichier Excel
-        $this->getExcelService()->createSpreadsheet($data, "donnees_" . date('Y-m-d_H-i-s'));
+        (new ExcelService())->createSpreadsheet($data, "donnees_" . date('Y-m-d_H-i-s'));
     }
 
-    public function getDataExcel(array $criteria): array
+    public function getDataExcel(array $criteria, array $agenceServiceAutorises, string $codeSociete): array
     {
-        //recuperation de l'id de l'agence de l'utilisateur connecter
-        $userConnecter = $this->getUser();
-        $codeAgence = $userConnecter->getCodeAgenceUser();
-        $idAgenceUser = $this->agenceRepository->findOneBy(['codeAgence' => $codeAgence])->getId();
+        // Agence et service par défaut
+        $agenceIdUser = $this->getSecurityService()->getAgenceIdUser();
+        $serviceIdUser = $this->getSecurityService()->getServiceIdUser();
+
+        // Vérifier le permission de voir liste avec débiteur sur la page courante
+        $peutVoirListeAvecDebiteur = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_AUTH_2, "list_da");
 
         // Filtrage des DA en fonction des critères
-        $daAffichers = $this->daAfficherRepository->findDerniereVersionDesDA($userConnecter, $criteria, $idAgenceUser, $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier(), $this->estAdmin());
+        $daAffichers = $this->daAfficherRepository->findDerniereVersionDesDA($criteria, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeSociete, $peutVoirListeAvecDebiteur);
 
         // Retourne les DA filtrées
         return $daAffichers;

@@ -18,7 +18,7 @@ class inventaireApi extends Controller
         $this->inventaireModel = new InventaireModel;
     }
     /**
-     * @Route("/Delete/fichier/{numInv}", name = "delete_fichier_inventaire")
+     * @Route("/api/delete/fichier/{numInv}", name = "api_delete_fichier_inventaire")
      * 
      * @return void
      */
@@ -46,7 +46,7 @@ class inventaireApi extends Controller
 
 
     /**
-     * @Route("/Upload/fichier/{numInv}", name = "upload_fichier_inventaire")
+     * @Route("/api/upload/fichier/{numInv}", name = "api_upload_fichier_inventaire")
      * 
      * @return void
      */
@@ -79,7 +79,7 @@ class inventaireApi extends Controller
     }
 
     /**
-     * @Route("/listeInventaireDispo-fetch/{agence}/{dateDeb}/{dateFin}")
+     * @Route("/api/listeInventaireDispo-fetch/{agence}/{dateDeb}/{dateFin}", name="api_listeInventaireDispo_fetch")
      */
     public function listeInventaireDispo($agence, $dateDeb, $dateFin)
     {

@@ -2,6 +2,7 @@
 
 namespace App\Controller\magasin\devis;
 
+use App\Constants\admin\ApplicationConstant;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Controller\Controller;
@@ -9,6 +10,7 @@ use App\Entity\magasin\devis\DevisMagasin;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\magasin\devis\ListeDevisMagasinModel;
 use App\Factory\magasin\devis\ListeDevisMagasinFactory;
+use App\Service\ExcelService;
 use App\Service\TableauEnStringService;
 
 class DevisMagasinExportExcelController extends Controller
@@ -27,16 +29,15 @@ class DevisMagasinExportExcelController extends Controller
      */
     public function exportExcel()
     {
-        $this->verifierSessionUtilisateur();
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+
+        // Agences Services autorisés sur le DVM
+        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DVM);
 
         $criteria = $this->getSessionService()->get('criteria_for_excel_liste_devis_magasin');
 
-        if ($criteria && $criteria["emetteur"]) {
-            $criteria["emetteur"]["agence"] = $criteria["emetteur"]["agence"] ? $this->getEntityManager()->getRepository(Agence::class)->find($criteria["emetteur"]["agence"]) : null;
-            $criteria["emetteur"]["service"] = $criteria["emetteur"]["service"] ? $this->getEntityManager()->getRepository(Service::class)->find($criteria["emetteur"]["service"]) : null;
-        }
-
-        $listeDevisFactory = $this->recuperationDonner($criteria);
+        $listeDevisFactory = $this->recuperationDonner($criteria, $agenceServiceAutorises, $codeSociete);
 
         $data = [];
         // En-tête du tableau d'excel
@@ -50,7 +51,9 @@ class DevisMagasinExportExcelController extends Controller
             "Libellé",
             "Montant",
             "Date d'envoi devis au client",
-            "Statut relance",
+            "Relance 1",
+            "Relance 2",
+            "Relance 3",
             "relancé le",
             "Position IPS",
             "Crée par",
@@ -59,7 +62,7 @@ class DevisMagasinExportExcelController extends Controller
 
         $data = $this->convertirObjetEnTableau($listeDevisFactory, $data);
 
-        $this->getExcelService()->createSpreadsheet($data);
+        (new ExcelService())->createSpreadsheet($data);
     }
 
     /** 
@@ -84,7 +87,9 @@ class DevisMagasinExportExcelController extends Controller
                 $devisFactory->getReferenceCLient(),
                 $devisFactory->getMontant(),
                 $devisFactory->getDateDenvoiDevisAuClient(),
-                $devisFactory->getStatutRelance(),
+                $devisFactory->statutRelance1,
+                $devisFactory->statutRelance2,
+                $devisFactory->statutRelance3,
                 $devisFactory->getDateDerniereRelance() . ' - ' . $devisFactory->getNombreDeRelance(),
                 $devisFactory->getStatutIps(),
                 $devisFactory->getCreePar(),
@@ -95,17 +100,11 @@ class DevisMagasinExportExcelController extends Controller
         return $data;
     }
 
-    public function recuperationDonner(array $criteria = []): array
+    public function recuperationDonner(array $criteria = [], array $agenceServiceAutorises, string $codeSociete): array
     {
-        // $codeAgenceUser = $this->getUser()->getCodeAgenceUser();
-        $codeAgenceAutoriserString = TableauEnStringService::orEnString($this->getUser()->getAgenceAutoriserCode());
-        // $vignette       = $codeAgenceUser === '01' ? 'magasin' : 'magasin_pol';
         $vignette = 'magasin';
-        $adminMutli          = in_array(1, $this->getUser()->getRoleIds()) || in_array(6, $this->getUser()->getRoleIds());
-
         $numDeviAExclure = TableauEnStringService::simpleNumeric(array_map('intval', $this->listeDevisMagasinModel->getNumeroDevisExclure()));
-
-        $devisIps = $this->listeDevisMagasinModel->getDevis($criteria, $vignette, $codeAgenceAutoriserString, $adminMutli, $numDeviAExclure);
+        $devisIps = $this->listeDevisMagasinModel->getDevis($criteria, $vignette, $agenceServiceAutorises, $numDeviAExclure, $codeSociete);
 
         $listeDevisFactory = [];
         $dejaVu = []; // Tableau pour mémoriser les numéros de devis déjà traités
@@ -123,18 +122,18 @@ class DevisMagasinExportExcelController extends Controller
             $devisMagasinRepository = $this->getEntityManager()->getRepository(DevisMagasin::class);
 
             // Récupération de la version maximale
-            $numeroVersionMax = $devisMagasinRepository->getNumeroVersionMax($numeroDevis);
+            $numeroVersionMax = $devisMagasinRepository->getNumeroVersionMax($numeroDevis, $codeSociete);
             $devisSoumi       = $devisMagasinRepository->findOneBy([
                 'numeroDevis'    => $numeroDevis,
-                'numeroVersion'  => $numeroVersionMax
+                'numeroVersion'  => $numeroVersionMax,
+                'codeSociete'    => $codeSociete
             ]);
 
             // Ajout des informations complémentaires
             $devisIp['statut_dw']                  = $devisSoumi ? $devisSoumi->getStatutDw()                  : DevisMagasin::STATUT_A_TRAITER;
             $devisIp['operateur']                  = $devisSoumi ? $devisSoumi->getUtilisateur()               : '';
             $devisIp['date_envoi_devis_au_client'] = $devisSoumi ? ($devisSoumi->getDateEnvoiDevisAuClient() ? $devisSoumi->getDateEnvoiDevisAuClient() : '') : '';
-            $devisIp['utilisateur_createur_devis'] = $this->listeDevisMagasinModel
-                ->getUtilisateurCreateurDevis($numeroDevis) ?? '';
+            $devisIp['utilisateur_createur_devis'] = $this->listeDevisMagasinModel->getUtilisateurCreateurDevis($numeroDevis, $codeSociete) ?? '';
             $devisIp['statut_bc']                  = $devisSoumi ? $devisSoumi->getStatutBc()                  : '';
 
             // statut DW = A traiter et statut BC = TR
@@ -213,19 +212,19 @@ class DevisMagasinExportExcelController extends Controller
         }
 
         // Filtre par agence émetteur
-        if (!empty($criteria['emetteur']['agence'])) {
+        if (!empty($criteria['agenceEmetteur'])) {
             // Récupérer les 2 premiers caractères de l'agence émetteur
             $agenceEmetteurCode = !empty($devisIp['emmeteur']) ? substr($devisIp['emmeteur'], 0, 2) : '';
-            if ($agenceEmetteurCode !== $criteria['emetteur']['agence']->getCodeAgence()) {
+            if ($agenceEmetteurCode !== $criteria['agenceEmetteur']) {
                 return false;
             }
         }
 
         // Filtre par service émetteur
-        if (!empty($criteria['emetteur']['service'])) {
+        if (!empty($criteria['serviceEmetteur'])) {
             // Récupérer les 3 derniers caractères du service émetteur
             $serviceEmetteurCode = !empty($devisIp['emmeteur']) ? substr($devisIp['emmeteur'], -3) : '';
-            if ($serviceEmetteurCode !== $criteria['emetteur']['service']->getCodeService()) {
+            if ($serviceEmetteurCode !== $criteria['serviceEmetteur']) {
                 return false;
             }
         }

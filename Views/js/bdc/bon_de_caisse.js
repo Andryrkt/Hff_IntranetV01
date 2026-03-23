@@ -1,14 +1,16 @@
-import { handleAgenceChange } from "../dit/fonctionUtils/fonctionListDit.js";
-/**===========================================================================
- * Configuration des agences et services
- *============================================================================*/
+import { filterServiceByAgence } from "../utils/agenceService/filterServiceByAgence.js";
 
-// Attachement des événements pour les agences emetteur
-document
-  .getElementById("bon_de_caisse_emetteur_agence")
-  .addEventListener("change", () => handleAgenceChange("emetteur"));
+document.addEventListener("DOMContentLoaded", () => {
+  /**===========================================================================
+   * Configuration des agences et services
+   *============================================================================*/
+  filterServiceByAgence({
+    agenceSelector: "#bon_de_caisse_agenceEmetteur",
+    serviceSelector: "#bon_de_caisse_serviceEmetteur",
+  });
 
-// Attachement des événements pour les agences debiteur
-document
-  .getElementById("bon_de_caisse_debiteur_agence")
-  .addEventListener("change", () => handleAgenceChange("debiteur"));
+  filterServiceByAgence({
+    agenceSelector: "#bon_de_caisse_agenceDebiteur",
+    serviceSelector: "#bon_de_caisse_serviceDebiteur",
+  });
+});

@@ -10,7 +10,6 @@ use App\Entity\admin\Application;
 use App\Entity\da\DemandeApproLR;
 use App\Form\da\DaObservationType;
 use App\Entity\da\DemandeApproLRCollection;
-use App\Controller\Traits\AutorisationTrait;
 use App\Form\da\DaPropositionValidationType;
 use App\Controller\Traits\da\DaAfficherTrait;
 use App\Form\da\DemandeApproLRCollectionType;
@@ -20,6 +19,7 @@ use App\Controller\Traits\da\detail\DaDetailDirectTrait;
 use App\Service\da\FileUploaderForDAService;
 use App\Controller\Traits\da\validation\DaValidationDirectTrait;
 use App\Controller\Traits\da\proposition\DaPropositionDirectTrait;
+use App\Entity\admin\utilisateur\Role;
 
 /**
  * @Route("/demande-appro")
@@ -30,8 +30,6 @@ class DaPropositionArticleDirectController extends Controller
     use DaValidationDirectTrait;
     use DaPropositionDirectTrait;
     use DaDetailDirectTrait;
-    use AutorisationTrait;
-
     private const EDIT = 0;
 
     public function __construct()
@@ -48,13 +46,6 @@ class DaPropositionArticleDirectController extends Controller
      */
     public function propositionDeReference($id, Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
-        /** Autorisation accès */
-        $this->autorisationAcces($this->getUser(), Application::ID_DAP);
-        /** FIN AUtorisation accès */
-
         $da = $this->demandeApproRepository->find($id);
         $numDa = $da->getNumeroDemandeAppro();
         $dals = $da->getDAL();
@@ -97,8 +88,8 @@ class DaPropositionArticleDirectController extends Controller
             'numDa'                   => $numDa,
             'connectedUser'           => $this->getUser(),
             'statutAutoriserModifAte' => $da->getStatutDal() === DemandeAppro::STATUT_AUTORISER_EMETTEUR,
-            'estCreateurDaDirecte'    => $this->estCreateurDeDADirecte(),
-            'estAppro'                => $this->estUserDansServiceAppro(),
+            'estCreateurDaDirecte'    => $this->hasRoles(Role::ROLE_DA_DIRECTE),
+            'estAppro'                => false,  // TODO: booléen pour savoir si Appro
             'nePeutPasModifier'       => $this->nePeutPasModifier($da),
             'propValTemplate'         => 'proposition-validation-direct',
             'dossierJS'               => 'propositionDirect',
@@ -107,7 +98,8 @@ class DaPropositionArticleDirectController extends Controller
 
     private function nePeutPasModifier(DemandeAppro $demandeAppro)
     {
-        return ($this->estUserDansServiceAtelier() && ($demandeAppro->getStatutDal() == DemandeAppro::STATUT_SOUMIS_APPRO || $demandeAppro->getStatutDal() == DemandeAppro::STATUT_VALIDE));
+        // TODO: booléen pour savoir si Atelier
+        return (false && ($demandeAppro->getStatutDal() == DemandeAppro::STATUT_SOUMIS_APPRO || $demandeAppro->getStatutDal() == DemandeAppro::STATUT_VALIDE));
     }
 
     private function traitementFormulaire($form, $formObservation, $dals, Request $request, string $numDa, DemandeAppro $da)
@@ -152,7 +144,8 @@ class DaPropositionArticleDirectController extends Controller
     {
         $this->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $daObservation->getObservation(), $daObservation->getFileNames());
 
-        if ($this->estUserDansServiceAppro() && $daObservation->getStatutChange()) {
+        // TODO: booléen pour savoir si Appro
+        if (false && $daObservation->getStatutChange()) {
             $this->modificationStatutDal($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_AUTORISER_EMETTEUR);
             $this->modificationStatutDa($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_AUTORISER_EMETTEUR);
 
@@ -164,7 +157,7 @@ class DaPropositionArticleDirectController extends Controller
             'message' => 'Votre observation a été enregistré avec succès.',
         ];
 
-        $this->emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->getUser(), $this->estUserDansServiceAppro());
+        $this->emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->getUser(), false);  // TODO: booléen pour savoir si Appro
 
         $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         return $this->redirectToRoute("list_da");
@@ -188,7 +181,7 @@ class DaPropositionArticleDirectController extends Controller
                 'message' => 'Votre observation a été enregistré avec succès.',
             ];
 
-            $this->emailDaService->envoyerMailObservationDa($demandeAppro, $observation, $this->getUser(), $this->estUserDansServiceAppro());
+            $this->emailDaService->envoyerMailObservationDa($demandeAppro, $observation, $this->getUser(), false);  // TODO: booléen pour savoir si Appro
         } else {
             $notification = [
                 'type' => 'danger',

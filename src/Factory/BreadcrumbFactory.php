@@ -2,92 +2,120 @@
 
 namespace App\Factory;
 
-use App\Service\navigation\BreadcrumbMenuService;
+use App\Service\navigation\MenuService;
 
 class BreadcrumbFactory
 {
     private string $baseUrl;
-    private array $menuConfig = [];
-    private BreadcrumbMenuService $breadcrumbMenuService;
+    private MenuService $menuService;
 
-    public function __construct(string $baseUrl = '/', BreadcrumbMenuService $breadcrumbMenuService)
+    public function __construct(string $baseUrl, MenuService $menuService)
     {
-        $this->baseUrl = rtrim($baseUrl, '/');
-        $this->breadcrumbMenuService = $breadcrumbMenuService;
+        $this->baseUrl      = rtrim($baseUrl, '/');
+        $this->menuService  = $menuService;
     }
 
-    private function getMenuConfig(): array
+    /**
+     * Construit le fil d'ariane pour la requête courante.
+     */
+    public function createFromCurrentUrl(?string $nomRoute): array
     {
-        if (empty($this->menuConfig)) {
-            $this->menuConfig = $this->breadcrumbMenuService->getFullMenuConfig();
-        }
-        return $this->menuConfig;
-    }
+        // ─── Item Accueil avec dropdown ───────────────────────────────────────
+        $modules  = $this->menuService->getMenuStructure();
+        $accueil  = [
+            'title'     => 'Accueil',
+            'link'      => $this->baseUrl ?: '/',
+            'icon'      => 'fas fa-home',
+            'is_active' => false,
+            'dropdown'  => $this->buildDropdownAccueil($modules),
+        ];
 
-    public function createFromCurrentUrl(): array
-    {
-        $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-        $segments = array_filter(explode('/', trim($path, '/')));
-        $breadcrumbs = [];
-
-        // Toujours ajouter l'accueil en premier
-        $homeItem = $this->createItem('Accueil', $this->baseUrl ?: '/', false, 'fas fa-home');
-
-        // Ajouter dropdown pour l'accueil si configuré
-        $config = $this->getMenuConfig();
-        if (isset($config['accueil'])) {
-            $homeItem['dropdown'] = $this->createSubItems($path, 'accueil');
+        // ─── Pas de route connue → breadcrumb minimal ────────────────────────
+        if ($nomRoute === null) {
+            return [$accueil];
         }
 
-        $breadcrumbs[] = $homeItem;
+        // ─── Cherche le chemin dans l'arbre MenuService ───────────────────────
+        $chemin = $this->menuService->findChemin($nomRoute);
 
-        // Traiter chaque segment de l'URL
-        foreach ($segments as $index => $segment) {
-            if ($index == 0 || is_numeric($segment) || preg_match('/\d$/', $segment)) {
-                continue;
-            }
-            $isLast = ($index === count($segments) - 1);
-            $label = $this->formatLabel($segment);
-            $icon = $this->getIconForSegment($segment);
+        if (empty($chemin)) {
+            return $this->createBreadcrumbFromPath($accueil);
+        }
 
-            $item = $this->createItem($label, $isLast ? null : '#', $isLast, $icon);
+        // ─── Construit les miettes depuis le chemin ───────────────────────────
+        $breadcrumbs = [$accueil];
+        $dernierIndex = count($chemin) - 1;
 
-            // Ajouter dropdown si configuré pour ce segment
-            $slug = strtolower($segment);
-            if (isset($config[$slug])) {
-                $item['dropdown'] = $this->createSubItems($path, $slug);
-            }
-
-            $breadcrumbs[] = $item;
+        foreach ($chemin as $index => $etape) {
+            $isLast        = ($index === $dernierIndex);
+            $breadcrumbs[] = [
+                'title'     => $etape['title'],
+                'icon'      => $etape['icon'],
+                'is_active' => $isLast,
+            ];
         }
 
         return $breadcrumbs;
     }
 
-    private function createItem(string $label, ?string $url, bool $isActive, string $icon): array
+    // =========================================================================
+    //  NAVIGATION ADMIN — menu latéral / dropdown Administrateur
+    // =========================================================================
+
+    /**
+     * Construit la navigation Admin pour la requête courante.
+     * Délègue à MenuService le filtrage des accès (peutVoir).
+     */
+    public function createAdminNavigation(): array
     {
-        return [
-            'title' => $label,
-            'link' => $url,
-            'icon' => $icon,
-            'is_active' => $isActive
-        ];
+        return $this->menuService->getAdminMenuStructure();
     }
 
-    private function createSubItems(string $currentPath, string $slug): array
+    // =========================================================================
+    //  DROPDOWN ACCUEIL — même structure que les vignettes de la page d'accueil
+    // =========================================================================
+
+    /**
+     * Construit le dropdown de l'item Accueil.
+     * Chaque entrée correspond à un module du menu avec ses items complets,
+     * pour que les modals fonctionnent exactement comme sur la page d'accueil.
+     */
+    private function buildDropdownAccueil(array $modules): array
     {
-        $config = $this->getMenuConfig();
-        return array_map(function ($sub) use ($currentPath) {
-            $subLink = isset($sub['link']) ? $sub['link'] : null;
-            return [
-                'id' => $sub['id'] ?? null,
-                'title' => $sub['title'],
-                'link' => $subLink,
-                'icon' => $sub['icon'] ?? '',
-                'is_active' => ($subLink === $currentPath),
-                'items' => $sub['items'] ?? [] // Ajouter les items pour le modal
+        return array_map(fn(array $module) => [
+            'id'    => $module['id'],
+            'title' => $module['title'],
+            'icon'  => $module['icon'],
+            'link'  => '#',
+            'items' => $module['items'],   // conservés pour les modals
+        ], $modules);
+    }
+
+    private function createBreadcrumbFromPath(array $accueil): array
+    {
+        $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+        $segments = array_filter(explode('/', trim($path, '/')));
+        $breadcrumbs = [$accueil];
+        $dernierIndex = count($segments) - 1;
+
+        for ($i = 1; $i <= $dernierIndex; $i++) {
+            $segment = $segments[$i];
+            $isNumeric = is_numeric($segment) || preg_match('/\d$/', $segment);
+            if ($isNumeric) {
+                if ($i === $dernierIndex) {
+                    $breadcrumbs[count($breadcrumbs) - 1]['is_active'] = true;
+                }
+                continue;
+            }
+
+            $breadcrumbs[] = [
+                'title'     => $this->formatLabel($segment),
+                'icon'      => $this->getIconForSegment($segment),
+                'is_active' => $i === $dernierIndex,
             ];
-        }, $config[$slug]);
+        }
+
+        return $breadcrumbs;
     }
 
     private function formatLabel(string $segment): string
@@ -106,6 +134,7 @@ class BreadcrumbFactory
             'cas-form2'                             => 'Création Casier - Étape 2',
             'dom-first-form'                        => 'Création DOM - Étape 1',
             'dom-second-form'                       => 'Création DOM - Étape 2',
+            'dom-list-annuler'                      => 'Consultation liste DOM annulés',
             'annulation-conges'                     => 'Annulation de congés validés',
             'annulation-conges-rh'                  => 'Annulation de congé dédiée RH',
             'list-dit'                              => 'Sélection de DIT',
@@ -161,6 +190,9 @@ class BreadcrumbFactory
     {
         $iconMapping = [
             'accueil'               => 'fas fa-home',
+            'rh'                    => 'fas fa-users',
+            'ordre-de-mission'      => 'fas fa-file-signature',
+            'dom-list-annuler'      => 'fas fa-search',
             'atelier'               => 'fas fa-tools',
             'demande-dintervention' => 'fas fa-clipboard-list',
             'demandes'              => 'fas fa-list-alt',

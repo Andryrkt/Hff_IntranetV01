@@ -2,9 +2,10 @@
 
 namespace App\Controller\da\Creation;
 
+use App\Constants\admin\ApplicationConstant;
 use App\Controller\Controller;
-use App\Controller\Traits\AutorisationTrait;
 use App\Controller\Traits\da\creation\DaNewAchatTrait;
+use App\Entity\admin\utilisateur\Role;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproParent;
 use App\Entity\da\DemandeApproParentLine;
@@ -18,7 +19,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /** @Route("/demande-appro") */
 class DaNewAchatController extends Controller
 {
-    use DaNewAchatTrait, AutorisationTrait;
+    use DaNewAchatTrait;
     const STATUT_DAL = [
         'enregistrerBrouillon' => DemandeAppro::STATUT_EN_COURS_CREATION,
         'soumissionAppro'      => DemandeAppro::STATUT_SOUMIS_APPRO,
@@ -35,23 +36,22 @@ class DaNewAchatController extends Controller
      */
     public function newDaAchat(int $id, Request $request)
     {
-        // verification si user connecter
-        $this->verifierSessionUtilisateur();
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
 
-        /** Autorisation accès */
-        $this->checkPageAccess($this->estAdmin() || $this->estCreateurDeDADirecte());
-        /** FIN AUtorisation accès */
-
-        $demandeApproParentRepository = $this->getEntityManager()->getRepository(DemandeApproParent::class);
-
-        $demandeApproParent = $id === 0 ? $this->initialisationDemandeApproAchat() : $demandeApproParentRepository->find($id);
+        if ($id === 0) {
+            $demandeApproParent = $this->initialisationDemandeApproAchat($codeSociete);
+        } else {
+            $demandeApproParentRepository = $this->getEntityManager()->getRepository(DemandeApproParent::class);
+            $demandeApproParent = $demandeApproParentRepository->find($id);
+        }
 
         $form = $this->getFormFactory()->createBuilder(DemandeApproAchatFormType::class, $demandeApproParent)->getForm();
         $this->traitementFormAchat($form, $request);
 
         return $this->render('da/new-da-achat.html.twig', [
             'form'        => $form->createView(),
-            'codeCentrale' => $this->estAdmin() || in_array($demandeApproParent->getAgenceEmetteur()->getCodeAgence(), ['90', '91', '92']),
+            'codeCentrale' => false, // TODO : autorisation sur centrale
         ]);
     }
 
@@ -73,7 +73,7 @@ class DaNewAchatController extends Controller
             $this->gererAgenceServiceDebiteur($demandeApproParent);
 
             $firstCreation = $demandeApproParent->getNumeroDemandeAppro() === null;
-            $numDa = $firstCreation ? $this->autoDecrement('DAP') : $demandeApproParent->getNumeroDemandeAppro();
+            $numDa = $firstCreation ? $this->autoDecrement(ApplicationConstant::CODE_DAP) : $demandeApproParent->getNumeroDemandeAppro();
             $demandeApproParent->setNumeroDemandeAppro($numDa);
             $formDemandeApproLines = $form->get('demandeApproParentLines');
 

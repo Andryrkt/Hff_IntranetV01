@@ -47,22 +47,12 @@ services:
       - "@doctrine.orm.default_entity_manager"
     public: true
 
-  App\Form\admin\utilisateur\UserType:
-    arguments:
-      - "@doctrine.orm.default_entity_manager"
-    public: true
-
   App\Form\dom\DomForm1Type:
     arguments:
       - "@doctrine.orm.default_entity_manager"
     public: true
 
   App\Form\dom\DomForm2Type:
-    arguments:
-      - "@doctrine.orm.default_entity_manager"
-    public: true
-
-  App\Form\dom\DomSearchType:
     arguments:
       - "@doctrine.orm.default_entity_manager"
     public: true
@@ -88,11 +78,6 @@ services:
     public: true
 
   App\Form\ddp\DemandePaiementType:
-    arguments:
-      - "@doctrine.orm.default_entity_manager"
-    public: true
-
-  App\Form\ddp\DdpSearchType:
     arguments:
       - "@doctrine.orm.default_entity_manager"
     public: true

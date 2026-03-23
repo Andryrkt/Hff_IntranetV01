@@ -7,6 +7,7 @@ use App\Entity\da\DaAfficher;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Repository\da\DaAfficherRepository;
+use App\Service\ExcelService;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -27,13 +28,13 @@ class ExportExcelCdefrnController extends Controller
      */
     public function exportExcel()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
 
         $criteria = $this->getSessionService()->get('criteria_for_excel_Da_Cde_frn');
 
         // recupération des données de la DA
-        $dasFiltered = $this->donnerAfficher($criteria);
+        $dasFiltered = $this->donnerAfficher($criteria, $codeSociete);
 
         $data = [];
         // En-tête du tableau d'excel
@@ -64,7 +65,7 @@ class ExportExcelCdefrnController extends Controller
         $data = $this->convertirObjetEnTableau($dasFiltered, $data);
 
         // Crée le fichier Excel
-        $this->getExcelService()->createSpreadsheet($data, "donnees_" . date('YmdHis'));
+        (new ExcelService())->createSpreadsheet($data, "donnees_" . date('YmdHis'));
     }
 
 
@@ -107,8 +108,8 @@ class ExportExcelCdefrnController extends Controller
         return $data;
     }
 
-    private function donnerAfficher(?array $criteria): array
+    private function donnerAfficher(?array $criteria, string $codeSociete): array
     {
-        return $this->daAfficherRepository->findValidatedDas($criteria ?? []);
+        return $this->daAfficherRepository->findValidatedDas($criteria ?? [], $codeSociete);
     }
 }

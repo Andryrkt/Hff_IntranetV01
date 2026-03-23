@@ -4,22 +4,19 @@ namespace App\Controller\ddp;
 
 use App\Controller\Controller;
 use App\Form\ddp\DdpSearchType;
-use App\Entity\admin\Application;
-use App\Entity\admin\ddp\ddpSearch;
+use App\Entity\admin\ddp\DdpSearch;
 use App\Entity\ddp\DemandePaiement;
-use App\Entity\ddp\DemandePaiementLigne;
-use App\Controller\Traits\AutorisationTrait;
+use App\Constants\admin\ApplicationConstant;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\ddp\DemandePaiementRepository;
-use App\Repository\ddp\DemandePaiementLigneRepository;
+use App\Service\security\SecurityService;
+
 /**
  * @Route("/compta/demande-de-paiement")
  */
 class DdpListeController extends Controller
 {
-    use AutorisationTrait;
-
     private DemandePaiementRepository $demandePaiementRepository;
     private DdpSearch $ddpSearch;
     public function __construct()
@@ -36,23 +33,30 @@ class DdpListeController extends Controller
      */
     public function ddpListe(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-        /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_DDP);
-        /** FIN AUtorisation acées */
+        // Agences Services autorisés sur le DDP
+        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DDP);
+        $allAgenceServices = $this->getSecurityService()->getAllAgenceServices();
 
         $form = $this->getFormFactory()->createBuilder(DdpSearchType::class, $this->ddpSearch, [
             'method' => 'GET',
+            'allAgenceServices' => $allAgenceServices
         ])->getForm();
         $form->handleRequest($request);
-        $criteria = $this->ddpSearch;
+
         if ($form->isSubmitted() && $form->isValid()) {
-            $criteria =  $form->getdata();
-            // dd($criteria);
+            $this->ddpSearch =  $form->getdata();
         }
-        // $data = $this->demandePaiementRepository->findBy([], ['dateCreation' => 'DESC']);
-        $data = $this->demandePaiementRepository->findDemandePaiement($criteria);
+
+        $this->gererAgenceService($this->ddpSearch, $allAgenceServices);
+
+        // Agence et service par défaut
+        $codeAgence = $this->getSecurityService()->getCodeAgenceUser();
+        $codeService = $this->getSecurityService()->getCodeServiceUser();
+
+        // Vérifier le permission de voir liste avec débiteur sur la page courante
+        $peutVoirListeAvecDebiteur = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_AUTH_2);
+
+        $data = $this->demandePaiementRepository->findDemandePaiement($this->ddpSearch, $codeAgence, $codeService, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
         /** suppression de ssession page_loadede  */
         if ($this->getSessionService()->has('page_loaded')) {
             $this->getSessionService()->remove('page_loaded');
@@ -63,5 +67,16 @@ class DdpListeController extends Controller
             'data' => $data,
             'form' => $form->createView(),
         ]);
+    }
+
+    private function gererAgenceService(DdpSearch $ddpSearch, array $allAgenceServices): void
+    {
+        // Changer le serviceDebiteur
+        if ($ddpSearch->getService()) {
+            $ligneId = $ddpSearch->getService();
+            if ($ligneId && isset($allAgenceServices[$ligneId])) {
+                $ddpSearch->setService($allAgenceServices[$ligneId]['service_code']);
+            }
+        }
     }
 }

@@ -24,53 +24,47 @@ class PersonnelControl extends Controller
      */
     public function index(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $form = $this->getFormFactory()->createBuilder()
-        ->add('firstName', TextType::class, array(
-            'constraints' => array(
-                new NotBlank(),
-                new Length(array('min' => 4)),
-            ),
-        ))
-        ->add('lastName', TextType::class, array(
-            'constraints' => array(
-                new NotBlank(),
-                new Length(array('min' => 4)),
-            ),
-        ))
-        ->add('gender', ChoiceType::class, array(
-            'choices' => array('m' => 'Male', 'f' => 'Female'),
-        ))
-        ->add('newsletter', CheckboxType::class, array(
-            'required' => false,
-        ))
-        ->add('submit', SubmitType::class, [
-            'label' => 'Submit'
-        ])
-        ->getForm();
+            ->add('firstName', TextType::class, array(
+                'constraints' => array(
+                    new NotBlank(),
+                    new Length(array('min' => 4)),
+                ),
+            ))
+            ->add('lastName', TextType::class, array(
+                'constraints' => array(
+                    new NotBlank(),
+                    new Length(array('min' => 4)),
+                ),
+            ))
+            ->add('gender', ChoiceType::class, array(
+                'choices' => array('m' => 'Male', 'f' => 'Female'),
+            ))
+            ->add('newsletter', CheckboxType::class, array(
+                'required' => false,
+            ))
+            ->add('submit', SubmitType::class, [
+                'label' => 'Submit'
+            ])
+            ->getForm();
 
         $form->handleRequest($request);
 
-         // Vérifier si le formulaire est soumis et valide
-         if ($form->isSubmitted() && $form->isValid()) {
+        // Vérifier si le formulaire est soumis et valide
+        if ($form->isSubmitted() && $form->isValid()) {
             // Traitement des données du formulaire
-           //dd( $form->getData());
-          
+            //dd( $form->getData());
+
         }
 
-       return $this->render('test.html.twig', [
+        return $this->render('test.html.twig', [
             'form' => $form->createView()
         ]);
-}
+    }
 
 
     public function showPersonnelForm()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             echo 'okey';
         } else {
@@ -92,9 +86,6 @@ class PersonnelControl extends Controller
 
     public function showListePersonnel()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $infoPersonnel = $this->Person->recupInfoPersonnel();
 
         // var_dump($infoPersonnel);
@@ -112,9 +103,6 @@ class PersonnelControl extends Controller
 
     public function updatePersonnel()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-        
         $codeSage = $this->transformEnSeulTableau($this->Person->recupAgenceServiceSage());
         $codeIrium = $this->transformEnSeulTableau($this->Person->recupAgenceServiceIrium());
 

@@ -1,7 +1,7 @@
 import { FetchManager } from "../../api/FetchManager";
 
 const fetchManager = new FetchManager();
-const BASE_URL_DA = "demande-appro/autocomplete";
+const BASE_URL_DA = "api/demande-appro/autocomplete";
 
 /**
  * Récupère la liste de tous les fournisseurs

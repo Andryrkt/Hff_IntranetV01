@@ -92,7 +92,7 @@ class DaModel extends Model
         return $data[0]['libelle'] ?? ''; // Retourne '' si non trouvé
     }
 
-    public function getAllDesignationZST($codeFamille, $codeSousFamille)
+    public function getAllDesignationZST($codeFamille, $codeSousFamille, string $codeSociete = "")
     {
         $statement = "SELECT
                         TRIM(a.abse_fams1) AS codefamille,
@@ -116,6 +116,10 @@ class DaModel extends Model
                                 AND d.afrn_numf   = a.abse_numf
                                 AND d.afrn_constp = a.abse_constp
                         )
+                    INNER JOIN art_soc asoc
+                        ON asoc.asoc_soc = '$codeSociete' 
+                        AND asoc.asoc_constp = a.abse_constp 
+                        AND asoc.asoc_refp = a.abse_refp
                     WHERE a.abse_constp = 'ZST'
                     AND a.abse_refp <> 'ST'
                     AND a.abse_numf <> '99'
@@ -132,7 +136,7 @@ class DaModel extends Model
         return $data;
     }
 
-    public function getAllDesignationZDI()
+    public function getAllDesignationZDI(string $codeSociete)
     {
         $statement = "SELECT
                     TRIM(a.abse_fams1) AS codefamille,
@@ -144,6 +148,10 @@ class DaModel extends Model
                 FROM art_bse a
                 LEFT JOIN frn_bse f
                     ON f.fbse_numfou = a.abse_numf
+                INNER JOIN art_soc asoc
+                    ON asoc.asoc_soc = '$codeSociete' 
+                    AND asoc.asoc_constp = a.abse_constp 
+                    AND asoc.asoc_refp = a.abse_refp
                 WHERE a.abse_constp = 'ZDI'
                 AND a.abse_numf <> '99'
                 ";
@@ -153,7 +161,7 @@ class DaModel extends Model
         return $data;
     }
 
-    public function getAllFournisseur()
+    public function getAllFournisseur(string $codeSociete)
     {
         $statement = "SELECT DISTINCT
             fbse_numfou as numerofournisseur,
@@ -161,7 +169,7 @@ class DaModel extends Model
             FROM art_frn
             INNER JOIN art_bse ON abse_refp = afrn_refp AND afrn_constp = abse_constp
             INNER JOIN frn_bse ON fbse_numfou = afrn_numf
-            INNER JOIN frn_fou ON ffou_numfou = afrn_numf and ffou_soc = 'HF' and ffou_solv = 'ST'
+            INNER JOIN frn_fou ON ffou_numfou = afrn_numf and ffou_soc = '$codeSociete' and ffou_solv = 'ST'
             WHERE abse_constp = 'ZST'
 
             UNION
@@ -170,7 +178,7 @@ class DaModel extends Model
             fbse_numfou as numerofournisseur,
             trim(fbse_nomfou) as nomfournisseur
             FROM frn_bse
-            INNER JOIN frn_fou ON ffou_numfou = fbse_numfou and ffou_soc = 'HF' and ffou_solv = 'ST'
+            INNER JOIN frn_fou ON ffou_numfou = fbse_numfou and ffou_soc = '$codeSociete' and ffou_solv = 'ST'
             WHERE fbse_categ = 'ALT'
 
             ORDER BY nomfournisseur
@@ -181,7 +189,7 @@ class DaModel extends Model
         return $data;
     }
 
-    public function getAllArticleStocke()
+    public function getAllArticleStocke(string $codeSociete)
     {
         $statement = "SELECT 
                         a.abse_constp AS constp,
@@ -195,7 +203,7 @@ class DaModel extends Model
                         ON afrn_constp = abse_constp 
                         AND afrn_refp = abse_refp
                     INNER JOIN art_soc 
-                        ON asoc_soc = 'HF' 
+                        ON asoc_soc = '$codeSociete' 
                         AND asoc_constp = a.abse_constp 
                         AND asoc_refp = a.abse_refp
                     LEFT JOIN frn_bse 
@@ -210,6 +218,45 @@ class DaModel extends Model
                             OR af.afrn_dated is null
                         )
                     ORDER BY designation";
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return $data;
+    }
+
+    /**
+     * Récupérer les références autorisées
+     */
+    public function getAllReferenceAutorisees(string $codeSociete): array
+    {
+        $statement = "SELECT 
+                        TRIM(abs.abse_refp) as reference, 
+                        TRIM(abs.abse_constp) as constp,
+                        TRIM(abs.abse_desi) as desi,
+                        af.afrn_numf as num_frn, 
+                        TRIM(fbse.fbse_nomfou) as nom_frn,
+                        af.afrn_pxach as prix_unitaire 
+                    FROM art_bse abs
+                    LEFT JOIN art_frn af 
+                        ON af.afrn_constp = abs.abse_constp 
+                        AND af.afrn_refp = abs.abse_refp
+                    INNER JOIN art_soc asoc 
+                        ON asoc.asoc_constp = abs.abse_constp 
+                        AND asoc.asoc_refp = abs.abse_refp
+                    LEFT JOIN frn_bse fbse 
+                        ON af.afrn_numf = fbse.fbse_numfou
+                    WHERE abs.abse_constp IN ('ALI','BOI','CEN','FBU','HAB','OUT','ZDI','INF','MIN')
+                        AND asoc.asoc_soc = '$codeSociete'
+                        AND (af.afrn_dated = (
+                                SELECT MAX(afrn_dated) 
+                                FROM art_frn 
+                                WHERE afrn_constp = abs.abse_constp 
+                                AND afrn_refp = abs.abse_refp
+                            )
+                            OR af.afrn_dated is null
+                        )
+        ";
+
         $result = $this->connect->executeQuery($statement);
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
 
@@ -534,45 +581,6 @@ class DaModel extends Model
     }
 
     /**
-     * Récupérer les références autorisées
-     */
-    public function getAllReferenceAutorisees(): array
-    {
-        $statement = "SELECT 
-                        TRIM(abs.abse_refp) as reference, 
-                        TRIM(abs.abse_constp) as constp,
-                        TRIM(abs.abse_desi) as desi,
-                        af.afrn_numf as num_frn, 
-                        TRIM(fbse.fbse_nomfou) as nom_frn,
-                        af.afrn_pxach as prix_unitaire 
-                    FROM art_bse abs
-                    LEFT JOIN art_frn af 
-                        ON af.afrn_constp = abs.abse_constp 
-                        AND af.afrn_refp = abs.abse_refp
-                    INNER JOIN art_soc asoc 
-                        ON asoc.asoc_constp = abs.abse_constp 
-                        AND asoc.asoc_refp = abs.abse_refp
-                    LEFT JOIN frn_bse fbse 
-                        ON af.afrn_numf = fbse.fbse_numfou
-                    WHERE abs.abse_constp IN ('ALI','BOI','CEN','FBU','HAB','OUT','ZDI','INF','MIN')
-                        AND asoc.asoc_soc = 'HF'
-                        AND (af.afrn_dated = (
-                                SELECT MAX(afrn_dated) 
-                                FROM art_frn 
-                                WHERE afrn_constp = abs.abse_constp 
-                                AND afrn_refp = abs.abse_refp
-                            )
-                            OR af.afrn_dated is null
-                        )
-        ";
-
-        $result = $this->connect->executeQuery($statement);
-        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
-
-        return $data;
-    }
-
-    /**
      * recupère le numéro et le nom du fournissuer
      * 
      * cette méthode utilise les tables frn_cdl et frn_bse pour recupérer le numéro et le nom du fournisseur
@@ -627,11 +635,12 @@ class DaModel extends Model
         return $data;
     }
 
-    public function getMontantBcDaDirect(string $numCde)
+    public function getMontantBcDaDirect(string $numCde, string $codeSociete)
     {
         $statement = " SELECT fcde_mtn as montant_total 
                         from informix.frn_cde 
                         where fcde_numcde ='$numCde'
+                        and fcde_soc = '$codeSociete'
         ";
 
         $result = $this->connect->executeQuery($statement);
@@ -651,7 +660,7 @@ class DaModel extends Model
         return $data;
     }
 
-    public function getInfoLivraison(string $numCde)
+    public function getInfoLivraison(string $numCde, string $codeSociete)
     {
         $statement = "SELECT distinct 
                         f.fllf_numliv AS num_liv, 
@@ -661,7 +670,7 @@ class DaModel extends Model
                         f2.fliv_mtn AS montant_fac_bl
                     from Informix.frn_llf f 
                     inner join Informix.frn_liv f2 on f.fllf_numliv = f2.fliv_numliv 
-                where f.fllf_numcde = '$numCde' and f2.fliv_soc ='HF'";
+                where f.fllf_numcde = '$numCde' and f2.fliv_soc ='$codeSociete'";
         $result = $this->connect->executeQuery($statement);
         $rows = $this->convertirEnUtf8($this->connect->fetchResults($result));
 
@@ -669,7 +678,7 @@ class DaModel extends Model
         return array_column($rows, null, 'num_liv');
     }
 
-    public function getInfoBC(string $numCde)
+    public function getInfoBC(string $numCde, string $codeSociete)
     {
         $statement = "SELECT 
                 TRIM(fbse_nomfou) as nom_fournisseur, 
@@ -692,7 +701,8 @@ class DaModel extends Model
                 TRIM(fcde_typcde) as type_cde 
             from frn_cde 
             inner join frn_bse on fbse_numfou = fcde_numfou
-            where fcde_numcde = '$numCde'";
+            where fcde_numcde = '$numCde'
+            and fcde_soc = '$codeSociete'";
         $result = $this->connect->executeQuery($statement);
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
         return $data ? $data[0] : [];

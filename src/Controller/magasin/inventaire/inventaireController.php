@@ -6,6 +6,7 @@ use TCPDF;
 use DateTime;
 use App\Controller\Controller;
 use App\Entity\admin\Application;
+use App\Entity\admin\utilisateur\Role;
 use App\Controller\Traits\FormatageTrait;
 use App\Controller\Traits\Transformation;
 use App\Entity\Bordereau\BordereauSearch;
@@ -14,7 +15,6 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use App\Entity\inventaire\InventaireSearch;
 use App\Form\bordereau\BordereauSearchType;
-use App\Controller\Traits\AutorisationTrait;
 use App\Form\inventaire\InventaireSearchType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -30,8 +30,6 @@ class InventaireController extends Controller
 {
     use FormatageTrait;
     use Transformation;
-    use AutorisationTrait;
-
     private InventaireModel $inventaireModel;
     private InventaireSearch $inventaireSearch;
     private BordereauSearch $bordereauSearch;
@@ -56,10 +54,6 @@ class InventaireController extends Controller
      */
     public function listeInventaire(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-        $this->autorisationAcces($this->getUser(), Application::ID_INV);
-
         $form = $this->getFormFactory()->createBuilder(
             InventaireSearchType::class,
             $this->inventaireSearch,
@@ -90,7 +84,7 @@ class InventaireController extends Controller
         $userConnect = $this->getUserName();
         return $this->render('inventaire/inventaire.html.twig', [
             'form' => $form->createView(),
-            'estAcces' => $userConnect==='Olivier.Carbon' || $userConnect==='marie' || $userConnect==='martin'|| $userConnect==='hasimanjaka',
+            'estAcces' => $userConnect === 'Olivier.Carbon' || $userConnect === 'marie' || $userConnect === 'martin' || $userConnect === 'hasimanjaka',
             'data' => $data
         ]);
     }
@@ -99,8 +93,6 @@ class InventaireController extends Controller
      */
     public function inventaireDetail($numinv, Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
         $form = $this->getFormFactory()->createBuilder(
             InventaireDetailSearchType::class,
             $this->inventaireDetailSearch,
@@ -135,8 +127,6 @@ class InventaireController extends Controller
      */
     public function exportExcelListe()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
         $criteriaTAb = $this->getSessionService()->get('inventaire_search_criteria');
         $this->inventaireSearch->arrayToObjet($criteriaTAb);
         $listInvent = $this->inventaireModel->listeInventaire($this->inventaireSearch);
@@ -173,8 +163,6 @@ class InventaireController extends Controller
      */
     public function exportExcelDetail($numinv)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
         $countSequence = $this->inventaireModel->countSequenceInvent($numinv);
         $dataExcel = $this->dataDetailExcel($countSequence, $numinv);
         $header = [
@@ -206,7 +194,6 @@ class InventaireController extends Controller
     public function exportPdfListe($numinv)
     {
         // Vérification si l'utilisateur est connecté
-        $this->verifierSessionUtilisateur();
         $countSequence = $this->inventaireModel->countSequenceInvent($numinv);
         $data = $this->dataDetail($countSequence, $numinv);
         // dd($data);
@@ -351,7 +338,7 @@ class InventaireController extends Controller
                 'nbre_ref_ecarts_positif' => $sumNbrPositif,
                 'nbre_ref_ecarts_negatifs' => $sumNbrNegatif,
                 'total_nbre_ref_ecarts' => $sumNbrRefsansEcart,
-                'pourcentage_ref_avec_ecart' =>$sumNbrecartavecEcart, //$sumNbrRefavecEcart,
+                'pourcentage_ref_avec_ecart' => $sumNbrecartavecEcart, //$sumNbrRefavecEcart,
                 'montant_ecart' => $sumNbrEcart,
                 'pourcentage_ecart' => $sumEcart, //$sumNbrPourcentEcart,
             ];
@@ -418,7 +405,7 @@ class InventaireController extends Controller
                 $countivent   += (int) $data['data'][$j]["montant_inventaire"];
                 $countMontEcart   += (int) $data['data'][$j]["montant_ajuste"];
             }
-            $MontEcartPourcent = ($countMontEcart / $countivent)*100;
+            $MontEcartPourcent = ($countMontEcart / $countivent) * 100;
             $data['sum'] = [
                 'cpt1' => $countQtee1,
                 'cpt2' => $countQtee2,
@@ -426,7 +413,7 @@ class InventaireController extends Controller
                 'countPmp' => $countPMP,
                 'countInvent' => $countivent,
                 'countMontEcart' => $countMontEcart,
-                'MontEcartPourcent'=>$MontEcartPourcent,
+                'MontEcartPourcent' => $MontEcartPourcent,
             ];
         }
         return $data;
@@ -543,8 +530,6 @@ class InventaireController extends Controller
      */
     public function bordereau_comptage($numInv, Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
         $this->bordereauSearch->setNumInv($numInv);
         $form = $this->getFormFactory()->createBuilder(
             BordereauSearchType::class,
@@ -576,7 +561,6 @@ class InventaireController extends Controller
     public function pdfExport($numInv)
     {
         // Vérification si l'utilisateur est connecté
-        $this->verifierSessionUtilisateur();
         $criteriaTab =  $this->getSessionService()->get('bordereau_search_criteria');
         $data = $this->recupDataBordereau($numInv, $criteriaTab);
         $this->generetePdfBordereau->genererPDF($data);

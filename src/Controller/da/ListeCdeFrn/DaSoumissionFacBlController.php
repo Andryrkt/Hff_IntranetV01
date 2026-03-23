@@ -70,12 +70,12 @@ class DaSoumissionFacBlController extends Controller
      */
     public function index(string $numCde, string $numDa, string $numOr, Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
 
-        $infosLivraison = $this->getInfoLivraison($numCde, $numDa);
+        $infosLivraison = $this->getInfoLivraison($numCde, $numDa, $codeSociete);
 
-        $daSoumissionFacBl = $this->initialisationFacBl($numCde, $numDa, $numOr);
+        $daSoumissionFacBl = $this->initialisationFacBl($numCde, $numDa, $numOr, $codeSociete);
         $form = $this->getFormFactory()->createBuilder(DaSoumissionFacBlType::class, $daSoumissionFacBl, [
             'method'  => 'POST',
             'numLivs' => array_keys($infosLivraison),
@@ -88,14 +88,14 @@ class DaSoumissionFacBlController extends Controller
         ]);
     }
 
-    private function initialisationFacBl(string $numCde, string $numDa, string $numOr): DaSoumissionFacBl
+    private function initialisationFacBl(string $numCde, string $numDa, string $numOr, string $codeSociete): DaSoumissionFacBl
     {
-        $numDit = $this->demandeApproRepository->getNumDitDa($numDa);
-        $dateLivraisonPrevue = $this->daAfficherRepository->getDateLivraisonPrevue($numDa, $numCde);
-
+        $numDit = $this->demandeApproRepository->getNumDitDa($numDa, $codeSociete);
+        $dateLivraisonPrevue = $this->daAfficherRepository->getDateLivraisonPrevue($numDa, $numCde, $codeSociete);
 
         return (new DaSoumissionFacBl)
             ->setNumeroCde($numCde)
+            ->setCodeSociete($codeSociete)
             ->setUtilisateur($this->getUserName())
             ->setStatut(self::STATUT_SOUMISSION)
             ->setNumeroDemandeAppro($numDa)
@@ -120,16 +120,17 @@ class DaSoumissionFacBlController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var DaSoumissionFacBl $soumissionFacBl */
-            $soumissionFacBl = $form->getData();
-            $numCde  = $soumissionFacBl->getNumeroCde();
-            $numDa   = $soumissionFacBl->getNumeroDemandeAppro();
-            $numOr   = $soumissionFacBl->getNumeroOR();
-            $numLiv  = $soumissionFacBl->getNumLiv();
-            $infoLiv = $infosLivraison[$numLiv];
+            $soumissionFacBl    = $form->getData();
+            $numCde             = $soumissionFacBl->getNumeroCde();
+            $numDa              = $soumissionFacBl->getNumeroDemandeAppro();
+            $numOr              = $soumissionFacBl->getNumeroOR();
+            $numLiv             = $soumissionFacBl->getNumLiv();
+            $codeSociete        = $soumissionFacBl->getCodeSociete();
+            $infoLiv            = $infosLivraison[$numLiv];
             $nomOriginalFichier = $soumissionFacBl->getPieceJoint1()->getClientOriginalName();
 
             if ($this->verifierConditionDeBlocage($soumissionFacBl, $infoLiv, $nomOriginalFichier)) {
-                $infoBC = $this->daModel->getInfoBC($numCde);
+                $infoBC = $this->daModel->getInfoBC($numCde, $codeSociete);
 
                 /** ENREGISTREMENT DE FICHIER */
                 $nomDeFichiers = $this->enregistrementFichier($form, $numCde, $numDa);
@@ -147,7 +148,7 @@ class DaSoumissionFacBlController extends Controller
                 $fichierConvertir = $this->ConvertirLesPdf($nomFichierAvecChemins);
 
                 /** GENERATION DU NOM DU FICHIER */
-                $numeroVersionMax          = VersionService::autoIncrement($this->daSoumissionFacBlRepository->getNumeroVersionMax($numCde));
+                $numeroVersionMax          = VersionService::autoIncrement($this->daSoumissionFacBlRepository->getNumeroVersionMax($numCde, $codeSociete));
                 $nomPdfFusionner           =  "FACBL$numCde#$numDa-{$numOr}_{$numeroVersionMax}~{$nomOriginalFichier}";
                 $nomAvecCheminPdfFusionner = $this->cheminDeBase . $numDa . '/' . $nomPdfFusionner;
 
@@ -165,7 +166,7 @@ class DaSoumissionFacBlController extends Controller
                 $this->generatePdf->copyToDWFacBlDa($nomPdfFusionner, $numDa);
 
                 /** MODIFICATION DA AFFICHER */
-                $this->modificationDaAfficher($numDa, $numCde, $numLiv);
+                $this->modificationDaAfficher($numDa, $numCde, $numLiv, $codeSociete);
 
                 /** HISTORISATION */
                 $message = 'Le document est soumis pour validation';
@@ -183,40 +184,41 @@ class DaSoumissionFacBlController extends Controller
      * @param string $numDa
      * @param int $numeroVersionMax
      */
-    private function modificationDaAfficher(string $numDa, string $numCde, $numLiv): void
+    private function modificationDaAfficher(string $numDa, string $numCde, string $numLiv, string $codeSociete): void
     {
+        /** @var DaAfficherRepository $daAfficherRepository */
         $daAfficherRepository = $this->getEntityManager()->getRepository(DaAfficher::class);
-        $numeroVersionMax = $daAfficherRepository->getNumeroVersionMax($numDa);
-        $typeDa = $daAfficherRepository->getTypeDa($numDa);
+        $numeroVersionMax = $daAfficherRepository->getNumeroVersionMax($numDa, $codeSociete);
+        $typeDa = $daAfficherRepository->getTypeDa($numDa, $codeSociete);
         $daAffichers = [];
 
         if (in_array((int)$typeDa, [DemandeAppro::TYPE_DA_AVEC_DIT, DemandeAppro::TYPE_DA_REAPPRO_MENSUEL, DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL])) {
-            $refDesiSavLors = $this->daSoumissionFacBlModel->getRefDesiSavLor($numLiv);
+            $refDesiSavLors = $this->daSoumissionFacBlModel->getRefDesiSavLor($numLiv, $codeSociete);
             foreach ($refDesiSavLors as  $refDesiSavLor) {
-                $daAffichers[] = $this->getEntityManager()->getRepository(DaAfficher::class)
-                    ->findOneBy(
-                        [
-                            'numeroDemandeAppro' => $numDa,
-                            'numeroVersion' => $numeroVersionMax,
-                            'numeroCde' => $numCde,
-                            'artRefp' => $refDesiSavLor['reference'],
-                            'artDesi' => $refDesiSavLor['designation']
-                        ]
-                    );
+                $daAffichers[] = $daAfficherRepository->findOneBy(
+                    [
+                        'numeroDemandeAppro' => $numDa,
+                        'numeroVersion' => $numeroVersionMax,
+                        'numeroCde' => $numCde,
+                        'codeSociete' => $codeSociete,
+                        'artRefp' => $refDesiSavLor['reference'],
+                        'artDesi' => $refDesiSavLor['designation']
+                    ]
+                );
             }
         } else {
-            $refDesiFrnCdls = $this->daSoumissionFacBlModel->getRefDesiFrnCdl($numLiv);
+            $refDesiFrnCdls = $this->daSoumissionFacBlModel->getRefDesiFrnCdl($numLiv, $codeSociete);
             foreach ($refDesiFrnCdls as  $refDesiFrnCdl) {
-                $daAffichers[] = $this->getEntityManager()->getRepository(DaAfficher::class)
-                    ->findOneBy(
-                        [
-                            'numeroDemandeAppro' => $numDa,
-                            'numeroVersion' => $numeroVersionMax,
-                            'numeroCde' => $numCde,
-                            'artRefp' => $refDesiFrnCdl['reference'],
-                            'artDesi' => $refDesiFrnCdl['designation']
-                        ]
-                    );
+                $daAffichers[] = $daAfficherRepository->findOneBy(
+                    [
+                        'numeroDemandeAppro' => $numDa,
+                        'numeroVersion' => $numeroVersionMax,
+                        'numeroCde' => $numCde,
+                        'codeSociete' => $codeSociete,
+                        'artRefp' => $refDesiFrnCdl['reference'],
+                        'artDesi' => $refDesiFrnCdl['designation']
+                    ]
+                );
             }
         }
 
@@ -240,7 +242,7 @@ class DaSoumissionFacBlController extends Controller
         //mise a jour de la derniere id de l'application BAP
         AutoIncDecService::mettreAJourDerniereIdApplication($application, $this->getEntityManager(), $numeroBap);
         // recupération du montant reception IPS
-        $montantReceptionIps = $this->daSoumissionFacBlModel->getMontantReceptionIpsEtNumFac($soumissionFacBl->getNumLiv());
+        $montantReceptionIps = $this->daSoumissionFacBlModel->getMontantReceptionIpsEtNumFac($soumissionFacBl->getNumLiv(), $soumissionFacBl->getCodeSociete());
 
         $soumissionFacBl
             ->setPieceJoint1($nomPdfFusionner)
@@ -363,16 +365,16 @@ class DaSoumissionFacBlController extends Controller
         return $filePath;
     }
 
-    private function getInfoLivraison(string $numCde, string $numDa): array
+    private function getInfoLivraison(string $numCde, string $numDa, string $codeSociete): array
     {
-        $infosLivraisons = (new DaModel)->getInfoLivraison($numCde);
+        $infosLivraisons = (new DaModel)->getInfoLivraison($numCde, $codeSociete);
 
         if (empty($infosLivraisons)) {
             $message = "La commande n° <b>$numCde</b> n'a pas de livraison associé dans IPS. Merci de bien vérifier le numéro de la commande.";
             $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn');
         }
 
-        $livraisonSoumis = $this->daSoumissionFacBlRepository->getAllLivraisonSoumis($numDa, $numCde);
+        $livraisonSoumis = $this->daSoumissionFacBlRepository->getAllLivraisonSoumis($numDa, $numCde, $codeSociete);
 
         foreach ($livraisonSoumis as $numLiv) {
             unset($infosLivraisons[$numLiv]); // exclure les livraisons déjà soumises
@@ -426,12 +428,12 @@ class DaSoumissionFacBlController extends Controller
 
         $numCde           = $soumissionFacBl->getNumeroCde();
         $numOr            = $soumissionFacBl->getNumeroOR();
-
+        $codeSociete      = $soumissionFacBl->getCodeSociete();
 
         $infoValidationBC = $this->dwBcApproRepository->getInfoValidationBC($numCde) ?? [];
-        $infoMateriel     = $ditModel->recupInfoMateriel($numOr);
-        $dataRecapOR      = $recapitulationOR->getData($numOr);
-        $demandeAppro     = $this->demandeApproRepository->findOneBy(['numeroDemandeAppro' => $soumissionFacBl->getNumeroDemandeAppro()]);
+        $infoMateriel     = $ditModel->recupInfoMateriel($numOr, $codeSociete);
+        $dataRecapOR      = $recapitulationOR->getData($numOr, $codeSociete);
+        $demandeAppro     = $this->demandeApproRepository->findOneBy(['numeroDemandeAppro' => $soumissionFacBl->getNumeroDemandeAppro(), 'codeSociete' => $codeSociete]);
         $infoFacBl        = [
             "refBlFac"   => $infoLivraison["ref_fac_bl"],
             "dateBlFac"  => $soumissionFacBl->getDateBlFac(),

@@ -2,6 +2,7 @@
 
 namespace App\Controller\da\Creation;
 
+use App\Constants\admin\ApplicationConstant;
 use App\Entity\admin\Service;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
@@ -9,11 +10,11 @@ use App\Entity\da\DemandeApproL;
 use App\Entity\admin\Application;
 use App\Form\da\DemandeApproFormType;
 use App\Entity\dit\DemandeIntervention;
-use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use App\Service\application\ApplicationService;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\da\creation\DaNewAvecDitTrait;
+use App\Entity\admin\utilisateur\Role;
 use App\Service\da\FileUploaderForDAService;
 
 /**
@@ -22,7 +23,6 @@ use App\Service\da\FileUploaderForDAService;
 class DaNewAvecDitController extends Controller
 {
     use DaNewAvecDitTrait;
-    use AutorisationTrait;
     const STATUT_DAL = [
         'enregistrerBrouillon' => DemandeAppro::STATUT_EN_COURS_CREATION,
         'soumissionAppro'      => DemandeAppro::STATUT_SOUMIS_APPRO,
@@ -39,12 +39,8 @@ class DaNewAvecDitController extends Controller
      */
     public function new(int $daId, int $ditId, Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
-        /** Autorisation accès */
-        $this->autorisationAcces($this->getUser(), Application::ID_DAP, Service::ID_ATELIER);
-        /** FIN AUtorisation accès */
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
 
         /** 
          * @var DemandeIntervention $dit DIT correspondant à l'id $ditId
@@ -54,6 +50,7 @@ class DaNewAvecDitController extends Controller
         $demandeAppro = $daId === 0 ? $this->initialisationDemandeApproAvecDit($dit) : $this->demandeApproRepository->find($daId);
         $demandeAppro
             ->setDit($dit)
+            ->setCodeSociete($codeSociete)
             ->setDateFinSouhaite($this->dateLivraisonPrevueDA($dit->getNumeroDemandeIntervention(), $dit->getIdNiveauUrgence()->getDescription()))
         ;
 
@@ -74,7 +71,7 @@ class DaNewAvecDitController extends Controller
             $demandeAppro = $form->getData();
 
             $firstCreation = $demandeAppro->getNumeroDemandeAppro() === null;
-            $numDa = $firstCreation ? $this->autoDecrement('DAP') : $demandeAppro->getNumeroDemandeAppro();
+            $numDa = $firstCreation ? $this->autoDecrement(ApplicationConstant::CODE_DAP) : $demandeAppro->getNumeroDemandeAppro();
             $demandeAppro->setNumeroDemandeAppro($numDa)->setNumeroDemandeApproMere($numDa);
             $formDAL = $form->get('DAL');
 
@@ -119,7 +116,6 @@ class DaNewAvecDitController extends Controller
                     $demandeApproL
                         ->setNumeroDemandeAppro($numDa)
                         ->setStatutDal(self::STATUT_DAL[$clickedButtonName])
-                        ->setPrixUnitaire($this->daModel->getPrixUnitaire($demandeApproL->getArtRefp())[0])
                         ->setNumeroDit($demandeAppro->getNumeroDemandeDit())
                         ->setJoursDispo($this->getJoursRestants($demandeApproL))
                         ->setFileNames($allFileNames)

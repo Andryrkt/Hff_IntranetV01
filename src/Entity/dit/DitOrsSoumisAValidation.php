@@ -3,6 +3,7 @@
 namespace App\Entity\dit;
 
 use DateTime;
+use App\Entity\admin\Societte;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -136,6 +137,11 @@ class DitOrsSoumisAValidation
      * @ORM\Column(type="boolean", name="piece_faible_activite_achat")
      */
     private $pieceFaibleActiviteAchat;
+
+    /** 
+     * @ORM\Column(type="string", length=2, name="code_societe", nullable=true)
+     */
+    private $codeSociete;
     //==========================================================================================
 
 
@@ -603,6 +609,24 @@ class DitOrsSoumisAValidation
     public function setPieceFaibleActiviteAchat($pieceFaibleActiviteAchat): self
     {
         $this->pieceFaibleActiviteAchat = $pieceFaibleActiviteAchat;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of codeSociete
+     */
+    public function getCodeSociete()
+    {
+        return $this->codeSociete;
+    }
+
+    /**
+     * Set the value of codeSociete
+     */
+    public function setCodeSociete($codeSociete): self
+    {
+        $this->codeSociete = $codeSociete;
 
         return $this;
     }

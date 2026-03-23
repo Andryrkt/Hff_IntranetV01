@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", function () {
       console.log(numeroDit);
 
       // Appelle l'API via AJAX pour récupérer les détails
-      const url = `dw-fetch/${numeroDit}`;
+      const url = `api/dw-fetch/${numeroDit}`;
       fetchManager
         .get(url)
         .then((data) => {

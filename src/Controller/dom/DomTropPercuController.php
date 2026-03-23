@@ -40,9 +40,6 @@ class DomTropPercuController extends Controller
      */
     public function secondForm(Request $request, $id)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         //recuperation de l'utilisateur connecter
         $user = $this->getUser();
 
@@ -54,7 +51,7 @@ class DomTropPercuController extends Controller
 
         $this->statutTropPercu($oldDom);
 
-        if (!$this->DomModel->verifierSiTropPercu($oldDom->getNumeroOrdreMission())) {
+        if (!$this->DomModel->verifierSiTropPercu($oldDom->getNumeroOrdreMission(), $oldDom->getCodeSociete())) {
             $this->getSessionService()->set('notification', ['type' => 'danger', 'message' => 'Erreur : On ne peut pas créer de DOM trop perçu à partir de ce DOM à cause des dates.']);
             $this->redirectToRoute("doms_liste");
         } elseif (!$oldDom->getStatutTropPercuOk()) {
@@ -62,7 +59,7 @@ class DomTropPercuController extends Controller
             $this->redirectToRoute("doms_liste");
         }
 
-        $this->initialisationFormTropPercu($this->getEntityManager(), $dom, $oldDom);
+        $this->initialisationFormTropPercu($this->getEntityManager(), $dom, $oldDom, $user);
         $categoryId = $dom->getCategoryId();
         $criteria = [
             'oldDateDebut' => $oldDom->getDateDebut()->format('m/d/Y'),  // formater en mois/jour/année pour faciliter le traitement en JS
@@ -88,6 +85,7 @@ class DomTropPercuController extends Controller
 
             $domTp = new Domtp;
             $domTp
+                ->setCodeSociete($oldDom->getCodeSociete())
                 ->setNumeroOrdreMission($oldDom->getNumeroOrdreMission())
                 ->setNumeroOrdreMissionTp($dom->getNumeroOrdreMission())
                 ->setNombreJourTp($dom->getNombreJour())

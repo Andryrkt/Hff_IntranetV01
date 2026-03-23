@@ -17,7 +17,7 @@ use Symfony\Component\Form\FormInterface;
 use App\Form\da\daCdeFrn\DaSoumissionType;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Repository\da\DaAfficherRepository;
-use App\Controller\Traits\AutorisationTrait;
+use App\Controller\Traits\da\MarkupIconTrait;
 use App\Factory\da\CdeFrnDto\CdeFrnSearchDto;
 use App\Form\da\daCdeFrn\DaModalDateLivraisonType;
 use App\Repository\da\DemandeApproRepository;
@@ -31,7 +31,7 @@ use App\Repository\dit\DitOrsSoumisAValidationRepository;
  */
 class DaListCdeFrnController extends Controller
 {
-    use AutorisationTrait;
+    use MarkupIconTrait;
 
     private DaAfficherRepository $daAfficherRepository;
     private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
@@ -58,10 +58,10 @@ class DaListCdeFrnController extends Controller
      */
     public function index(Request $request)
     {
-        $this->verifierSessionUtilisateur();
-        $this->autorisationAcces($this->getUser(), Application::ID_DAP, Service::ID_APPRO);
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
 
-        // Formulaire de recherche
+        /** ===  Formulaire pour la recherche === */
         $searchDto = $this->initialisationCdeFrnSearchDto();
         $form = $this->getFormFactory()->createBuilder(CdeFrnListType::class, $searchDto, [
             'em' => $this->getEntityManager(),
@@ -80,7 +80,7 @@ class DaListCdeFrnController extends Controller
         $limit = 250;
 
         // Récupération et préparation des données
-        $paginationData = $this->daAfficherRepository->findValidatedPaginatedDas($criteriaTab, $page, $limit);
+        $paginationData = $this->daAfficherRepository->findValidatedPaginatedDas($criteriaTab, $page, $limit, $codeSociete);
         $dataPrepared = $this->presenter->present($paginationData['data']);
 
         // Autres formulaires

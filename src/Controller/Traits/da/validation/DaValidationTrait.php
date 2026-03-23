@@ -6,6 +6,7 @@ use App\Controller\Traits\da\DaTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
+use App\Service\ExcelService;
 use DateTime;
 
 trait DaValidationTrait
@@ -116,7 +117,7 @@ trait DaValidationTrait
         // 4. Génération du fichier Excel
         $fileName = $this->genererNomFichierExcel($numDa);
         $filePath = $this->genererCheminFichierExcel($numDa, $fileName);
-        $this->getExcelService()->createSpreadsheetEnregistrer($donneesExcel, $filePath);
+        (new ExcelService())->createSpreadsheetEnregistrer($donneesExcel, $filePath);
 
         return [
             'fileName' => $fileName,

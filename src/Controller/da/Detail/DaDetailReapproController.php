@@ -9,7 +9,7 @@ use App\Entity\da\DaObservation;
 use App\Entity\admin\Application;
 use App\Service\da\EmailDaService;
 use App\Form\da\DaObservationType;
-use App\Controller\Traits\AutorisationTrait;
+use App\Entity\admin\utilisateur\Role;
 use App\Service\da\DaTimelineService;
 use App\Service\da\DocRattacheService;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,7 +20,6 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class DaDetailReapproController extends Controller
 {
-	use AutorisationTrait;
 
 	private DaService $daService;
 	private DocRattacheService $docRattacheService;
@@ -38,13 +37,6 @@ class DaDetailReapproController extends Controller
 	 */
 	public function detail(int $id, Request $request)
 	{
-		//verification si user connecter
-		$this->verifierSessionUtilisateur();
-
-		/** Autorisation accès */
-		$this->autorisationAcces($this->getUser(), Application::ID_DAP);
-		/** FIN AUtorisation accès */
-
 		$demandeAppro = $this->daService->getDemandeAppro($id); // recupération de la DA
 		$observations = $this->daService->getObservations($demandeAppro->getNumeroDemandeAppro());
 
@@ -61,7 +53,7 @@ class DaDetailReapproController extends Controller
 			'formObservation'	=> $formObservation->createView(),
 			'demandeAppro'      => $demandeAppro,
 			'isMensuel'         => $demandeAppro->getDaTypeId() == DemandeAppro::TYPE_DA_REAPPRO_MENSUEL,
-			'codeCentrale'      => $this->estAdmin() || in_array($demandeAppro->getAgenceEmetteur()->getCodeAgence(), ['90', '91', '92']),
+			'codeCentrale'      => false, // TODO : autorisation sur centrale
 			'observations'      => $observations,
 			'fichiers'          => $fichiers,
 			'timelineData'      => $timeLineData,
@@ -88,7 +80,7 @@ class DaDetailReapproController extends Controller
 			];
 
 			$emailDaService = new EmailDaService($this->getTwig());
-			$emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->getUser(), $this->estUserDansServiceAppro());
+			$emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->getUser(), false);  // TODO: booléen pour savoir si Appro
 
 			$this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
 			return $this->redirectToRoute("list_da");

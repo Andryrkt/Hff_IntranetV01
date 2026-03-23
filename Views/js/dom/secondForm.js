@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
   const matriculeInput = document.querySelector("#dom_form2_matricule");
 
   function form1Data() {
-    let url = `form1Data-fetch`;
+    let url = `api/form1Data-fetch`;
     fetchManager
       .get(url)
       .then((form1Data) => {
@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
   function selectAgence() {
     const agenceDebiteur = agenceDebiteurInput.value;
-    let url = `agence-fetch/${agenceDebiteur}`;
+    let url = `api/agence-fetch/${agenceDebiteur}`;
     fetchManager
       .get(url)
       .then((services) => {
@@ -132,7 +132,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
     const catgValue = categorieInput.value;
     const rmqValue = rmqInput.value;
-    let url = `site-idemnite-fetch/${siteValue}/${sousTypeDocValue}/${catgValue}/${rmqValue}`;
+    let url = `api/site-idemnite-fetch/${siteValue}/${sousTypeDocValue}/${catgValue}/${rmqValue}`;
     fetchManager
       .get(url)
       .then((indemnite) => {
@@ -379,7 +379,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
   });
   function infoPersonnel() {
     const matricule = matriculeInput_2.value;
-    let url = `personnel-fetch/${matricule}`;
+    let url = `api/personnel-fetch/${matricule}`;
     fetchManager
       .get(url)
       .then((personne) => {

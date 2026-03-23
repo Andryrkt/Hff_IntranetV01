@@ -2,13 +2,13 @@
 
 namespace App\Controller\magasin\cis\Traiter;
 
+use App\Constants\admin\ApplicationConstant;
 use App\Controller\Controller;
-use App\Entity\admin\Application;
-use App\Controller\Traits\AutorisationTrait;
+use App\Controller\Traits\magasin\cis\AtraiterTrait;
 use App\Form\magasin\cis\ATraiterSearchType;
+use App\Service\TableauEnStringService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\Traits\magasin\cis\AtraiterTrait;
 
 /**
  * @Route("/magasin/cis")
@@ -16,26 +16,19 @@ use App\Controller\Traits\magasin\cis\AtraiterTrait;
 class CisATraiterController extends Controller
 {
     use AtraiterTrait;
-    use AutorisationTrait;
 
     /**
      * @Route("/cis-liste-a-traiter", name="cis_liste_a_traiter")
      */
     public function listCisATraiter(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-        /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_MAG);
-        /** FIN AUtorisation acées */
+        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_MAGASIN);
 
-        /** CREATION D'AUTORISATION */
-        $autoriser = $this->autorisationRole($this->getEntityManager());
-        //FIN AUTORISATION
+        $codeAgence = array_column($agenceServiceAutorises, 'agence_code');
 
-        $agenceUser = $this->agenceUser($autoriser);
+        $agenceUser = TableauEnStringService::TableauEnString(',', $codeAgence);
 
-        $form = $this->getFormFactory()->createBuilder(ATraiterSearchType::class, ['agenceUser' => $agenceUser, 'autoriser' => $autoriser], [
+        $form = $this->getFormFactory()->createBuilder(ATraiterSearchType::class, ['agenceUser' => $agenceUser], [
             'method' => 'GET'
         ])->getForm();
 
@@ -60,5 +53,4 @@ class CisATraiterController extends Controller
             'form' => $form->createView()
         ]);
     }
-    
 }

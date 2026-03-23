@@ -2,6 +2,7 @@
 
 namespace App\Controller\da\ListeCdeFrn;
 
+use App\Constants\admin\ApplicationConstant;
 use Exception;
 use App\Entity\da\DaAfficher;
 use App\Controller\Controller;
@@ -105,7 +106,7 @@ class ActionSurNonDispoController extends Controller
             if (!$demandeAppro) throw new Exception("aucun demande appro ne correspond dans la base de donnée.");
 
             /** 0. Nouveau numéro demande appro et statut */
-            $numDa = $this->autoDecrement('DAP');
+            $numDa = $this->autoDecrement(ApplicationConstant::CODE_DAP);
             $statutDa = DemandeAppro::STATUT_SOUMIS_APPRO;
 
             /** 1. Créer nouveau demande appro avec le nouveau numéro */

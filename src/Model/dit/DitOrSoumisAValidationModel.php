@@ -130,14 +130,14 @@ class DitOrSoumisAValidationModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function recupNumeroOr($numDit)
+    public function recupNumeroOr($numDit, string $codeSociete)
     {
         $statement = " SELECT 
             seor_numor as numOr
             from sav_eor
-            where seor_refdem = '" . $numDit . "'
+            where seor_refdem = '$numDit'
             AND seor_serv = 'SAV'
-
+            AND seor_soc = '$codeSociete
         ";
         $result = $this->connect->executeQuery($statement);
 
@@ -146,15 +146,15 @@ class DitOrSoumisAValidationModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function recupNumeroMatricule($numDit, $numOr)
+    public function recupNumeroMatricule($numDit, $numOr, string $codeSociete)
     {
         $statement = " SELECT 
             seor_nummat as numMatricule
             from sav_eor
-            where seor_refdem = '" . $numDit . "'
-            AND seor_numor = '" . $numOr . "'
+            where seor_refdem = '$numDit'
+            AND seor_numor = '$numOr'
             AND seor_serv = 'SAV'
-
+            AND seor_soc = '$codeSociete'
         ";
         $result = $this->connect->executeQuery($statement);
 
@@ -163,11 +163,12 @@ class DitOrSoumisAValidationModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function recupNbDatePlanningVide($numOr)
+    public function recupNbDatePlanningVide($numOr, string $codeSociete)
     {
         $statement = "SELECT count(*) as nbPlanning
         from sav_itv 
-        where sitv_numor = '" . $numOr . "' 
+        where sitv_numor = '$numOr'
+        AND sitv_soc = '$codeSociete'
         and sitv_datepla is null";
 
         $result = $this->connect->executeQuery($statement);
@@ -177,9 +178,9 @@ class DitOrSoumisAValidationModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function recupPositonOr($numor)
+    public function recupPositonOr($numor, $codeSociete)
     {
-        $statement = " SELECT seor_pos as position from sav_eor where seor_numor = '" . $numor . "'";
+        $statement = " SELECT seor_pos as position from sav_eor where seor_numor = '$numor' and seor_soc = '$codeSociete'";
 
         $result = $this->connect->executeQuery($statement);
 
@@ -188,15 +189,16 @@ class DitOrSoumisAValidationModel extends Model
         return  $this->convertirEnUtf8($data);
     }
 
-    public function recupNbPieceMagasin($numOr)
+    public function recupNbPieceMagasin($numOr, string $codeSociete)
     {
         $statement = " SELECT
             count(slor_constp) as nbr_sortie_magasin 
             from sav_lor 
-            where slor_constp in (" . GlobalVariablesService::get('pieces_magasin') . ")
-            AND (slor_refp not like '%-L' and slor_refp not like '%-CTRL')
+            where (slor_refp not like '%-L' and slor_refp not like '%-CTRL')
             and slor_typlig = 'P' 
-            and slor_numor = '" . $numOr . "'
+            and slor_numor = '$numOr'
+            and slor_soc = '$codeSociete'
+            AND slor_constp in (" . GlobalVariablesService::get('pieces_magasin') . ")
             ";
 
         $result = $this->connect->executeQuery($statement);
@@ -206,13 +208,14 @@ class DitOrSoumisAValidationModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function recupNbAchatLocaux($numOr)
+    public function recupNbAchatLocaux($numOr, string $codeSociete)
     {
         $statement = " SELECT
             count(slor_constp) as nbr_achat_locaux 
             from sav_lor 
-            where slor_constp in (" . GlobalVariablesService::get('achat_locaux') . ")  
-            and slor_numor = '" . $numOr . "'
+            where slor_numor = '$numOr'
+            and slor_soc = '$codeSociete'
+            and slor_constp in (" . GlobalVariablesService::get('achat_locaux') . ")  
         ";
 
         $result = $this->connect->executeQuery($statement);
@@ -222,13 +225,14 @@ class DitOrSoumisAValidationModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function recupNbPol($numOr)
+    public function recupNbPol($numOr, string $codeSociete)
     {
         $statement = " SELECT
             count(slor_constp) as nbr_pol 
             from sav_lor 
-            where slor_constp in (" . GlobalVariablesService::get('lub') . ")  
-            and slor_numor = '" . $numOr . "'
+            where slor_numor = '$numOr'
+            and slor_soc = '$codeSociete'
+            and slor_constp in (" . GlobalVariablesService::get('lub') . ")  
         ";
 
         $result = $this->connect->executeQuery($statement);
@@ -238,11 +242,11 @@ class DitOrSoumisAValidationModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function recupRefClient($numOr)
+    public function recupRefClient($numOr, $codeSociete)
     {
         $statement = " SELECT seor_lib  
                     from sav_eor 
-                    where seor_numor='" . $numOr . "'
+                    where seor_numor='$numOr' AND seor_soc='$codeSociete'
                     ";
         $result = $this->connect->executeQuery($statement);
 
@@ -363,11 +367,11 @@ class DitOrSoumisAValidationModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function countAgServDebit($numOr)
+    public function countAgServDebit($numOr, $codeSociete)
     {
         $statement = " SELECT count(distinct sitv_servdeb) as retour
                     from sav_itv 
-                    where sitv_numor = '{$numOr}'
+                    where sitv_numor = '$numOr' AND sitv_soc = '$codeSociete'
         ";
 
         $result = $this->connect->executeQuery($statement);
@@ -377,11 +381,12 @@ class DitOrSoumisAValidationModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function getNumcli($numOr)
+    public function getNumcli($numOr, $codeSociete)
     {
         $statement = " SELECT seor_numcli as numcli
                     FROM sav_eor
                     WHERE seor_numor = '$numOr'
+                    AND seor_soc = '$codeSociete'
         ";
 
         $result = $this->connect->executeQuery($statement);
@@ -391,14 +396,14 @@ class DitOrSoumisAValidationModel extends Model
         return array_column($this->convertirEnUtf8($data), 'numcli');
     }
 
-    public function numcliExiste($numcli)
+    public function numcliExiste($numcli, string $codeSociete)
     {
         $statement = " SELECT  
         case
             when count(*) = 1 then 'existe_bdd' else ''
         end as numcli
         from cli_bse
-        INNER JOIN cli_soc on csoc_numcli = cbse_numcli and csoc_soc = 'HF' where cbse_numcli ='$numcli' and cbse_numcli > 0
+        INNER JOIN cli_soc on csoc_numcli = cbse_numcli and csoc_soc = '$codeSociete' where cbse_numcli ='$numcli' and cbse_numcli > 0
         ";
 
         $result = $this->connect->executeQuery($statement);
@@ -452,11 +457,11 @@ class DitOrSoumisAValidationModel extends Model
         return array_column($this->convertirEnUtf8($data), 'est_bloquer');
     }
 
-    public function getNumItv($numOr)
+    public function getNumItv($numOr, string $codeSociete)
     {
         $statement = " SELECT sitv_interv  as num_itv
                     from sav_itv
-                    where sitv_numor='$numOr'
+                    where sitv_numor='$numOr' and sitv_soc='$codeSociete'
         ";
         $result = $this->connect->executeQuery($statement);
 
@@ -487,10 +492,10 @@ class DitOrSoumisAValidationModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function getListeArticlesSavLorString(string $numOr): string
+    public function getListeArticlesSavLorString(string $numOr, string $codeSociete): string
     {
         $statement = " SELECT TRIM(slor_refp) || REPLACE(TRIM(slor_desi), \"'\", \"''\") as refp_desi
-            from sav_lor where slor_constp = 'ZST' and slor_numor = '$numOr'
+            from sav_lor where slor_constp = 'ZST' and slor_numor = '$numOr' and slor_soc = '$codeSociete'
             ";
 
         $result = $this->connect->executeQuery($statement);
@@ -511,7 +516,7 @@ class DitOrSoumisAValidationModel extends Model
         return (int) ($data[0]['count'] ?? 0);
     }
 
-    public function getPieceFaibleActiviteAchat(string $constructeur, ?string $reference, string $numOr): array
+    public function getPieceFaibleActiviteAchat(string $constructeur, ?string $reference, string $numOr, string $codeSociete): array
     {
 
         $statement = "SELECT
@@ -534,10 +539,10 @@ class DitOrSoumisAValidationModel extends Model
                 and fllf_refp = '$reference'
                 and fllf_succ = '01'
                 and ffac_serv = 'NEG'
-                and fllf_soc = 'HF'
-                and fcde_numfou not in (select asuc_num from informix.agr_succ where asuc_numsoc = 'HF')
+                and fllf_soc = '$codeSociete'
+                and fcde_numfou not in (select asuc_num from informix.agr_succ where asuc_numsoc = '$codeSociete')
                 and fllf_qtefac > 0
-                and fllf_constp in (".GlobalVariablesService::get('pieces_magasin').")
+                and fllf_constp in (" . GlobalVariablesService::get('pieces_magasin') . ")
                 order by ffac_numfac desc) as A
         ";
 
@@ -548,7 +553,7 @@ class DitOrSoumisAValidationModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function getInformationOr(string $numOr): array
+    public function getInformationOr(string $numOr, string $codeSociete): array
     {
         $statement = " SELECT
         slor_numor as numero_or,
@@ -560,17 +565,14 @@ class DitOrSoumisAValidationModel extends Model
         trim(slor_desi) as designation,
         slor_succ as code_agence, 
         slor_servcrt as code_service
-        
-
         from sav_eor, sav_lor, sav_itv
-        WHERE
-            seor_numor = slor_numor
+        WHERE seor_numor = slor_numor
             AND seor_serv <> 'DEV'
             AND sitv_numor = slor_numor
             AND sitv_interv = slor_nogrp / 100
-
-        AND seor_numor = '$numOr'
-        AND slor_constp in (".GlobalVariablesService::get('pieces_magasin').")
+            AND seor_soc = '$codeSociete'
+            AND seor_numor = '$numOr'
+            AND slor_constp in (" . GlobalVariablesService::get('pieces_magasin') . ")
         order by slor_numor, sitv_interv
         ";
         $result = $this->connect->executeQuery($statement);

@@ -1,10 +1,12 @@
 <?php
+
 namespace App\Controller\badm;
 
 use App\Entity\badm\Badm;
 use App\Controller\Controller;
 use App\Model\badm\BadmDetailModel;
 use Symfony\Component\Routing\Annotation\Route;
+
 /**
  * @Route("/materiel/mouvement-materiel")
  */
@@ -16,9 +18,6 @@ class BadmDetailController extends Controller
      */
     public function detailBadm($id)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $badm = $this->getEntityManager()->getRepository(Badm::class)->findOneBy(['id' => $id]);
 
         $badmDetailModel = new BadmDetailModel();

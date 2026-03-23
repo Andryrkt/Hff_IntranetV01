@@ -19,9 +19,6 @@ class OperationDocumentController extends Controller
      */
     public function index(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $historiqueOperationDocumentSearch = new HistoriqueOperationDocumentSearch;
 
         $this->initialisationFormRecherche($historiqueOperationDocumentSearch);
@@ -99,7 +96,7 @@ class OperationDocumentController extends Controller
     private function initialisationFormRecherche(HistoriqueOperationDocumentSearch $historiqueOperationDocumentSearch)
     {
         // Initialisation des critères depuis la session
-        $criteria = $this->getSessionService()->get('historique_operation_document_search_criteria', []) ?? [];
+        $criteria = $this->getSessionService()->get('historique_operation_document_search_criteria', []);
 
         // Si des critères existent, les utiliser pour définir les entités associées
         if (!empty($criteria)) {

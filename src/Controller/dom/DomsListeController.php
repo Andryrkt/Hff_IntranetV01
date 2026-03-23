@@ -2,19 +2,20 @@
 
 namespace App\Controller\dom;
 
+use App\Constants\admin\ApplicationConstant;
 use App\Entity\dom\Dom;
 use App\Entity\dom\DomSearch;
 use App\Controller\Controller;
 use App\Form\dom\DomSearchType;
-use App\Entity\admin\Application;
-use App\Entity\admin\utilisateur\User;
 use App\Controller\Traits\FormatageTrait;
 use App\Controller\Traits\ConversionTrait;
-use App\Controller\Traits\AutorisationTrait;
 use App\Controller\Traits\dom\DomListeTrait;
+use App\Factory\Dom\DomListFactory;
+use App\Repository\dom\DomRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Model\dom\DomListModel;
+use App\Service\ExcelService;
+use App\Service\security\SecurityService;
 
 /**
  * @Route("/rh/ordre-de-mission")
@@ -25,15 +26,6 @@ class DomsListeController extends Controller
     use ConversionTrait;
     use DomListeTrait;
     use FormatageTrait;
-    use AutorisationTrait;
-
-    private $domList;
-
-    public function __construct()
-    {
-        parent::__construct();
-        $this->domList = new DomListModel();
-    }
 
     /**
      * affichage de l'architecture de la liste du DOM
@@ -41,24 +33,16 @@ class DomsListeController extends Controller
      */
     public function listeDom(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
-        /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_DOM);
-        /** FIN AUtorisation acées */
-
-        $autoriser = $this->autorisationRole($this->getEntityManager());
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
 
         $domSearch = new DomSearch();
 
-        $agenceServiceIps = $this->agenceServiceIpsObjet();
         /** INITIALIASATION et REMPLISSAGE de RECHERCHE pendant la nag=vigation pagiantion */
-        $this->initialisation($domSearch, $this->getEntityManager(), $agenceServiceIps, $autoriser);
+        $this->initialisation($domSearch, $this->getEntityManager());
 
         $form = $this->getFormFactory()->createBuilder(DomSearchType::class, $domSearch, [
-            'method' => 'GET',
-            'idAgenceEmetteur' => $agenceServiceIps['agenceIps']->getId()
+            'method' => 'GET'
         ])->getForm();
 
         $form->handleRequest($request);
@@ -74,18 +58,24 @@ class DomsListeController extends Controller
         $page = max(1, $request->query->getInt('page', 1));
         $limit = 10;
 
-        $option = [
-            'boolean'  => $autoriser,
-            'idAgence' => $this->agenceIdAutoriser($this->getEntityManager())
-        ];
+        // Agence et service par défaut
+        $agenceIdUser = $this->getSecurityService()->getAgenceIdUser();
+        $serviceIdUser = $this->getSecurityService()->getServiceIdUser();
 
-        $paginationData = $this->getEntityManager()->getRepository(Dom::class)->findPaginatedAndFiltered($page, $limit, $domSearch, $option);
+        // Agences Services autorisés sur le DOM
+        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DOM);
 
-        $this->statutTropPercuDomList($paginationData['data']);
+        // Vérifier le permission de voir liste avec débiteur sur la page courante
+        $peutVoirListeAvecDebiteur = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_AUTH_2);
+
+        /** @var DomRepository $repository */
+        $repository = $this->getEntityManager()->getRepository(Dom::class);
+        $paginationData = $repository->findPaginatedAndFilteredAsDTO($page, $limit, $domSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeSociete, $peutVoirListeAvecDebiteur);
+
+        $items = (new DomListFactory())->buildDomDTOs($paginationData['rawRows'], $codeSociete);
 
         //enregistre le critère dans la session
         $this->getSessionService()->set('dom_search_criteria', $criteria);
-        $this->getSessionService()->set('dom_search_option', $option);
 
         $criteriaTab = $criteria;
 
@@ -109,7 +99,7 @@ class DomsListeController extends Controller
             'doms/list.html.twig',
             [
                 'form'        => $form->createView(),
-                'data'        => $paginationData['data'],
+                'data'        => $items,
                 'page'        => 'doms_liste',
                 'currentPage' => $paginationData['currentPage'],
                 'lastPage'    => $paginationData['lastPage'],
@@ -119,18 +109,26 @@ class DomsListeController extends Controller
         );
     }
 
-
     /**
      * @Route("/export-dom-excel", name="export_dom_excel")
      */
     public function exportExcel()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
 
         // Récupère les critères dans la session
         $criteria = $this->getSessionService()->get('dom_search_criteria', []);
-        $option = $this->getSessionService()->get('dom_search_option', []);
+
+        // Agence et service par défaut
+        $agenceIdUser = $this->getSecurityService()->getAgenceIdUser();
+        $serviceIdUser = $this->getSecurityService()->getServiceIdUser();
+
+        // Agences Services autorisés sur le DOM
+        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DOM);
+
+        // Vérifier le permission de voir liste avec débiteur sur la page 'doms_liste'
+        $peutVoirListeAvecDebiteur = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_AUTH_2, "doms_liste");
 
         $domSearch = new DomSearch();
         $domSearch->setSousTypeDocument($criteria['sousTypeDocument'])
@@ -147,7 +145,9 @@ class DomsListeController extends Controller
             ->setNumDom($criteria['numDom'])
         ;
         // Récupère les entités filtrées
-        $entities = $this->getEntityManager()->getRepository(Dom::class)->findAndFilteredExcel($domSearch, $option);
+        /** @var DomRepository $repository */
+        $repository = $this->getEntityManager()->getRepository(Dom::class);
+        $entities = $repository->findAndFilteredExcel($domSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeSociete, $peutVoirListeAvecDebiteur);
 
         // Convertir les entités en tableau de données
         $data = [];
@@ -187,7 +187,7 @@ class DomsListeController extends Controller
         }
 
         // Crée le fichier Excel
-        $this->getExcelService()->createSpreadsheet($data);
+        (new ExcelService())->createSpreadsheet($data);
     }
 
 
@@ -200,17 +200,16 @@ class DomsListeController extends Controller
      */
     public function listAnnuler(Request $request)
     {
-        $autoriser = $this->autorisationRole($this->getEntityManager());
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
 
         $domSearch = new DomSearch();
 
-        $agenceServiceIps = $this->agenceServiceIpsObjet();
         /** INITIALIASATION et REMPLISSAGE de RECHERCHE pendant la nag=vigation pagiantion */
-        $this->initialisation($domSearch, $this->getEntityManager(), $agenceServiceIps, $autoriser);
+        $this->initialisation($domSearch, $this->getEntityManager());
 
         $form = $this->getFormFactory()->createBuilder(DomSearchType::class, $domSearch, [
-            'method' => 'GET',
-            'idAgenceEmetteur' => $agenceServiceIps['agenceIps']->getId()
+            'method' => 'GET'
         ])->getForm();
 
         $form->handleRequest($request);
@@ -226,39 +225,38 @@ class DomsListeController extends Controller
         $page = max(1, $request->query->getInt('page', 1));
         $limit = 10;
 
-        $option = [
-            'boolean' => $autoriser,
-            'idAgence' => $this->agenceIdAutoriser($this->getEntityManager())
-        ];
-        $paginationData = $this->getEntityManager()->getRepository(Dom::class)->findPaginatedAndFilteredAnnuler($page, $limit, $domSearch, $option);
+        // Agence et service par défaut
+        $agenceIdUser = $this->getSecurityService()->getAgenceIdUser();
+        $serviceIdUser = $this->getSecurityService()->getServiceIdUser();
 
+        // Agences Services autorisés sur le DOM
+        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DOM);
+
+        // Vérifier le permission de voir liste avec débiteur sur la page courante
+        $peutVoirListeAvecDebiteur = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_AUTH_2);
+
+        /** @var DomRepository $repository */
+        $repository = $this->getEntityManager()->getRepository(Dom::class);
+        $paginationData = $repository->findPaginatedAndFilteredAsDTO($page, $limit, $domSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeSociete, $peutVoirListeAvecDebiteur, true);
+
+        $items = (new DomListFactory())->buildDomDTOs($paginationData['rawRows'], $codeSociete);
 
         //enregistre le critère dans la session
         $this->getSessionService()->set('dom_search_criteria', $criteria);
-        $this->getSessionService()->set('dom_search_option', $option);
 
         $this->logUserVisit('dom_list_annuler'); // historisation du page visité par l'utilisateur
 
         return $this->render(
             'doms/list.html.twig',
             [
-                'form' => $form->createView(),
-                'data' => $paginationData['data'],
-                'page' => 'dom_list_annuler',
+                'form'        => $form->createView(),
+                'data'        => $items,
+                'page'        => 'dom_list_annuler',
                 'currentPage' => $paginationData['currentPage'],
-                'lastPage' => $paginationData['lastPage'],
-                'resultat' => $paginationData['totalItems'],
-                'criteria' => $criteria,
+                'lastPage'    => $paginationData['lastPage'],
+                'resultat'    => $paginationData['totalItems'],
+                'criteria'    => $criteria,
             ]
         );
-    }
-
-    /**
-     * @Route("/annuler/{numDom}", name="domList_annulationStatut")
-     */
-    public function annulationStatutController($numDom)
-    {
-        $this->domList->annulationCodestatut($numDom);
-        $this->redirectToRoute("doms_liste");
     }
 }

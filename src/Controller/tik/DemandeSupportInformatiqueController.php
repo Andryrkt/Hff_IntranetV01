@@ -15,7 +15,6 @@ use Symfony\Component\HttpFoundation\Request;
 use App\Entity\tik\DemandeSupportInformatique;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Form\tik\DemandeSupportInformatiqueType;
-use App\Repository\admin\utilisateur\UserRepository;
 use App\Entity\admin\tik\TkiStatutTicketInformatique;
 use App\Service\historiqueOperation\HistoriqueOperationTIKService;
 
@@ -230,9 +229,6 @@ class DemandeSupportInformatiqueController extends Controller
      */
     private function conditionNouveauTicket($userId): bool
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         if ($this->tikRepository->countByStatutDemande('62', $userId) === 0) {
             return true;
         }

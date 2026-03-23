@@ -11,7 +11,7 @@ class ListeDevisMagasinModel extends Model
 {
     use ConversionModel;
 
-    public function getDevis(array $criteria = [],  string $vignette = 'magasin', string $codeAgenceAutoriser, bool $adminMulti = false, $numDeviAExclureString): array
+    public function getDevis(array $criteria = [],  string $vignette = 'magasin', array $agenceServiceAutorises, $numDeviAExclureString, string $codeSociete): array
     {
         if (!empty($criteria) && array_key_exists('numeroDevis', $criteria) && !empty($criteria['numeroDevis'])) {
             $numeroDevis = $criteria['numeroDevis'];
@@ -34,7 +34,7 @@ class ListeDevisMagasinModel extends Model
             FROM informix.neg_ent
             left JOIN informix.neg_lig on nlig_numcde = nent_numcde
             WHERE nent_natop = 'DEV'
-            AND nent_soc = 'HF'
+            AND nent_soc = '$codeSociete'
             AND nent_servcrt <> 'ASS'
             $statementNumDevis
             AND (CAST(nent_numcli AS VARCHAR(20)) NOT LIKE '199%' and nent_numcli not in ('1990000'))
@@ -64,15 +64,22 @@ class ListeDevisMagasinModel extends Model
         //     $statement .= " AND nlig_constp IN ($piecesPneumatique) AND nent_succ = '60' ";
         // }
 
-        if ($vignette === 'pneumatique' && !$adminMulti) {
+        if ($vignette === 'pneumatique') {
             // entrer par le vignette POL - agence pneumatique
             $piecesPneumatique = GlobalVariablesService::get('pneumatique');
-            $statement .= " AND nlig_constp IN ($piecesPneumatique) AND nent_succ in ($codeAgenceAutoriser) ";
+            $statement .= " AND nlig_constp IN ($piecesPneumatique)";
         } else {
             // entrer par le vignette MAGASIN - agence tana et autres agence
             $piecesMagasin = GlobalVariablesService::get('pieces_magasin');
-            $statement .= " AND nlig_constp IN ($piecesMagasin) AND nent_succ <> '60' ";
+            $statement .= " AND nlig_constp IN ($piecesMagasin)";
         }
+
+        // Filtre sur agence et service autorisés
+        $conditions = [];
+        foreach ($agenceServiceAutorises as $tab) {
+            $conditions[] = "(nent_succ = '{$tab['agence_code']}' AND nent_servcrt = '{$tab['service_code']}')";
+        }
+        $statement .= " AND (" . implode(' OR ', $conditions) . ")";
 
         $statement .= " ORDER BY nent_datecde DESC";
 
@@ -92,14 +99,14 @@ class ListeDevisMagasinModel extends Model
      * @param string $numeroDevis Le numéro de devis à vérifier
      * @return array Les informations du devis IPS
      */
-    public function getInfoDev(string $numeroDevis)
+    public function getInfoDev(string $numeroDevis, string $codeSociete)
     {
         $statement = "SELECT nent_devise as devise
-                        ,SUM(nlig_qtecde *nlig_pxnreel) as montant_total
+                        ,SUM(nlig_qtecde * nlig_pxnreel) as montant_total
                         ,SUM(nlig_nolign) as somme_numero_lignes 
                     from informix.neg_lig 
                     left JOIN informix.neg_ent on nent_numcde = nlig_numcde 
-                    where nlig_soc='HF' 
+                    where nlig_soc='$codeSociete' 
                     and nlig_natop='DEV' 
                     and nlig_constp <> 'Nmc'
                     and nlig_numcde = '$numeroDevis'
@@ -243,8 +250,7 @@ class ListeDevisMagasinModel extends Model
      */
     public function getCodeLibelleClient()
     {
-        $statement = "SELECT DISTINCT nent_numcli as code_client, nent_nomcli as nom_client
-                        from neg_ent
+        $statement = "SELECT DISTINCT nent_numcli as code_client, nent_nomcli as nom_client from neg_ent
         ";
 
         $result = $this->connect->executeQuery($statement);
@@ -254,12 +260,12 @@ class ListeDevisMagasinModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function getUtilisateurCreateurDevis(string $numeroDevis): string
+    public function getUtilisateurCreateurDevis(string $numeroDevis, string $codeSociete): string
     {
         $statement = "SELECT TRIM(ausr_nom) as utilisateur_createur_devis
             FROM informix.neg_ent
             inner join informix.agr_usr on ausr_num = nent_usr and ausr_soc = nent_soc
-            WHERE nent_numcde = '$numeroDevis'";
+            WHERE nent_numcde = '$numeroDevis' and nent_soc='$codeSociete'";
 
         $result = $this->connect->executeQuery($statement);
 
@@ -414,7 +420,7 @@ class ListeDevisMagasinModel extends Model
     }
 
 
-    public function getStatutRelance(string $numeroDevis): ?array
+    public function getStatutRelance(string $numeroDevis, string $codeSociete): ?array
     {
         $sql = " SET NOCOUNT ON;
                 DECLARE @date_limite DATE = '2026-02-26';
@@ -454,7 +460,7 @@ class ListeDevisMagasinModel extends Model
                     FROM devis_soumis_a_validation_neg dsavn
                     LEFT JOIN pointage_relance pr 
                         ON pr.numero_devis = dsavn.numero_devis
-                    WHERE dsavn.numero_devis = '$numeroDevis'
+                    WHERE dsavn.numero_devis = '$numeroDevis' and dsvan.codeSociete = '$codeSociete'
                     GROUP BY 
                         dsavn.numero_devis,
                         dsavn.date_envoye_devis_client,

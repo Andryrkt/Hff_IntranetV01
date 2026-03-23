@@ -18,13 +18,10 @@ class CasierApi extends Controller
     }
 
     /**
-     * @Route("/casierDestinataire", name="badm_casierDestinataire")
+     * @Route("/api/badm/casierDestinataire", name="api_badm_casierDestinataire")
      */
     public function casierDestinataire()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $casierDestinataireInformix = $this->badm->recupeCasierDestinataireInformix();
         //$casierDestinataireSqlServer = $this->badm->recupeCasierDestinataireSqlServer();
         $casierDestinataire = $this->getEntityManager()->getRepository(CasierValider::class)->findAll();

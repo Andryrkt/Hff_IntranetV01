@@ -83,7 +83,7 @@ class DevisMagasinVerificationPrixControllerRefactored extends Controller
 
         // Autorisation accès
         // Note: Cette méthode doit être implémentée dans le contrôleur parent
-        // $this->autorisationAcces($this->getUser(), Application::ID_DVM);
+        // $this->autorisationAcces(Application::ID_DVM);
 
         // ✅ SERVICE INJECTÉ
         $validationService = new DevisMagasinValidationVpService(

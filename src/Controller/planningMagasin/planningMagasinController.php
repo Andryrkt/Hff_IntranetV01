@@ -9,7 +9,6 @@ use App\Entity\admin\utilisateur\Role;
 use App\Entity\admin\utilisateur\User;
 use App\Service\TableauEnStringService;
 use App\Controller\Traits\PlanningTraits;
-use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\planningMagasin\PlanningMagasinModel;
@@ -21,8 +20,6 @@ use App\Form\planningMagasin\PlanningMagasinSearchType;
  */
 class planningMagasinController extends Controller
 {
-
-    use AutorisationTrait;
     use PlanningTraits;
 
 
@@ -42,13 +39,8 @@ class planningMagasinController extends Controller
      */
     public function headPlanning(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-        /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_REP);
-        // autorisation pour affichage
-        $autoriser = $this->estAutoriser($this->getUser());
-        $codeAgence = $autoriser ? "-0" : $this->getUser()->getCodeAgenceUser();
+        $autoriser = $this->estAutoriser();
+        $codeAgence = $autoriser ? "-0" : $this->getSecurityService()->getCodeAgenceUser();
         /** FIN AUtorisation acées */
         //initialisation
         $this->planningMagasinSearch
@@ -108,9 +100,8 @@ class planningMagasinController extends Controller
         return $numBc;
     }
 
-    private function estAutoriser(User $user)
+    private function estAutoriser()
     {
-        $roleIds = $user->getRoleIds();
-        return $this->estAdmin()  || in_array(Role::ROLE_MULTI_SUCURSALES, $roleIds);
+        return $this->hasRoles(Role::ROLE_ADMINISTRATEUR, Role::ROLE_MULTI_SUCURSALES);
     }
 }
