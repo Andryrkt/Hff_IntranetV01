@@ -96,7 +96,7 @@ trait DaAffectationTrait
         $this->daAfficherRepository->markAsDeletedByNumeroLigne($daParent->getNumeroDemandeAppro(), $linesToDelete, $this->getUserName(), true);
 
         // Ajouter les nouveaux données dans la table da_afficher
-        $this->ajouterDansTableAffichageParNumDa($numeroDemandeAppro, $validationDA, $statutDW);
+        $this->ajouterDansTableAffichageParNumDa($numeroDemandeAppro, $validationDA, $statutDW, $daParent->getDateCreation());
 
         if ($validationDA) {
             // création de PDF

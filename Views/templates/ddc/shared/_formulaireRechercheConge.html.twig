@@ -164,9 +164,18 @@ return( ( itemMatricule.includes( lowerCaseSearch ) || itemNomPrenoms.includes( 
 
 } );
 
-this.showSuggestions( this.filteredData );
+												this.showSuggestions(this.filteredData);
+											}
 
-}
+											// Surcharge pour s'assurer que le DOM est synchronisé après suppression
+											removeSelectedItem(itemToRemove) {
+												this.selectedItems = this.selectedItems.filter(
+													(item) => this.itemToString(item) !== this.itemToString(itemToRemove)
+												);
+												this.renderTags();
+												this.updateHiddenInputValue();
+												this.inputElement.focus();
+											}
 
 // Surcharge de la méthode renderTags pour n'afficher que le matricule dans le tag
 renderTags() {
@@ -178,24 +187,28 @@ return;
 // Effacer les tags existants
 this.tagsContainer.querySelectorAll( '.tag' ).forEach( tag => tag.remove() );
 
-// Créer un tag pour chaque élément sélectionné
-this.selectedItems.forEach( ( item, index ) => {
+												// Créer un tag pour chaque élément sélectionné
+												this.selectedItems.forEach((item, index) => {
+													const tag = document.createElement('span');
+													tag.className = 'tag badge bg-primary me-2 mb-1 d-flex align-items-center';
+													tag.dataset.value = this.itemToString(item);
+													tag.style.padding = '0.4em 0.6em';
 
-const tag = document.createElement( 'span' );
-tag.className = 'tag badge bg-primary me-2';
-// N'afficher que le matricule dans le tag
-tag.textContent = this.itemToString( item );
+													// Créer un span pour le texte
+													const tagText = document.createElement('span');
+													tagText.textContent = this.itemToString(item);
+													tag.appendChild(tagText);
 
-// Bouton de suppression
-const removeBtn = document.createElement( 'button' );
-removeBtn.type = 'button';
-removeBtn.className = 'btn-close btn-close-white ms-1';
-removeBtn.onclick = ( e ) => {
-
-e.stopPropagation();
-this.removeSelectedItem( item );
-
-};
+													// Bouton de suppression
+													const removeBtn = document.createElement('button');
+													removeBtn.type = 'button';
+													removeBtn.className = 'btn-close btn-close-white ms-2';
+													removeBtn.style.fontSize = '0.75rem';
+													removeBtn.addEventListener('click', (e) => {
+														e.preventDefault();
+														e.stopPropagation();
+														this.removeSelectedItem(item);
+													});
 
 tag.appendChild( removeBtn );
 this.tagsContainer.insertBefore( tag, this.inputElement );

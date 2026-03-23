@@ -29,10 +29,14 @@ trait PrixFournisseurTrait
                 foreach ($dalrs as $dalr) {
                     $frnDalr = $dalr->getNomFournisseur();
                     $prix    = $this->formatPrix($dalr->getPrixUnitaire());
-                    $fournisseurs[$frnDalr][$keyId] = [
-                        'prix'  => $prix,
-                        'choix' => $dalr->getChoix(),
-                    ];
+                    $choix   = $dalr->getChoix();
+
+                    if ($choix || !isset($fournisseurs[$frnDalr][$keyId])) {
+                        $fournisseurs[$frnDalr][$keyId] = [
+                            'prix'  => $prix,
+                            'choix' => $choix,
+                        ];
+                    }
                 }
             }
         }

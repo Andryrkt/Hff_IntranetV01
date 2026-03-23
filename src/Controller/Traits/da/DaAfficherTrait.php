@@ -22,13 +22,13 @@ trait DaAfficherTrait
      *     $this->getEntityManager()->flush();
      * Sans cela, les données risquent de ne pas être cohérentes ou correctement persistées.
      *
-     * @param string $numDa  le numéro de la Demande d'Achat à traiter
-     * @param bool $validationDA  indique si l'ajout est effectué dans le cadre d'une validation de la DA
-     * @param string $statutOr le statut depuis DW (statut OR pour une DA avec DIT)
+     * @param string $numDa         le numéro de la Demande d'Achat à traiter
+     * @param bool   $validationDA  indique si l'ajout est effectué dans le cadre d'une validation de la DA
+     * @param string $statut        le statut depuis DW (statut OR pour une DA avec DIT)
      * 
      * @return void
      */
-    public function ajouterDansTableAffichageParNumDa(string $numDa, bool $validationDA = false, string $statutOr = ''): void
+    public function ajouterDansTableAffichageParNumDa(string $numDa, bool $validationDA = false, string $statut = '', $dateDemande = null): void
     {
         $em = $this->getEntityManager();
 
@@ -67,8 +67,9 @@ trait DaAfficherTrait
             if ($newDaAfficher instanceof DemandeApproL) $daAfficher->duplicateDal($newDaAfficher); // enregistrement pour DAL
             else if ($newDaAfficher instanceof DemandeApproLR) $daAfficher->duplicateDalr($newDaAfficher); // enregistrement pour DALR
 
-            if ($validationDA) $daAfficher->setDateValidation($dateValidation);
-            if ($statutOr) $daAfficher->setStatutOr($statutOr);
+            if ($validationDA) $daAfficher->setDateValidation($dateValidation);  // Si validation DA
+            if ($statut)       $daAfficher->setStatutOr($statut);                // Si le statut OR ou DW est défini
+            if ($dateDemande)  $daAfficher->setDateDemande($dateDemande);        // Si la date Demande est défini, écraser celui défini dans `$daAfficher->duplicateDa($demandeAppro);`
 
             $em->persist($daAfficher);
         }

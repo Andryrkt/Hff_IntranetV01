@@ -2,7 +2,8 @@ import { mergeCellsRecursiveTable } from "../../utils/tableHandler.js";
 import { AutoComplete } from "../../utils/AutoComplete.js";
 import { FetchManager } from "../../api/FetchManager.js";
 import { baseUrl } from "../../utils/config";
-
+import { configAgenceService } from "../../dit/config/listDitConfig.js";
+import { handleAgenceChange } from "../../dit/fonctionUtils/fonctionListDit.js";
 const fetchManager = new FetchManager();
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -16,6 +17,19 @@ document.addEventListener("DOMContentLoaded", function () {
     { pivotIndex: 9, columns: [9, 21], insertSeparator: true },
   ]);
 });
+
+/**===========================================================================
+ * Configuration des agences et services
+ *============================================================================*/
+
+// Attachement des événements pour les agences
+configAgenceService.emetteur.agenceInput.addEventListener("change", () =>
+  handleAgenceChange("emetteur"),
+);
+
+configAgenceService.debiteur.agenceInput.addEventListener("change", () =>
+  handleAgenceChange("debiteur"),
+);
 
 /** =========================================================*/
 async function fetchFournisseurs() {
@@ -186,7 +200,7 @@ document.addEventListener("contextmenu", function (event) {
           });
       })
       .catch((error) =>
-        console.error("Erreur lors du chargement du formulaire:", error)
+        console.error("Erreur lors du chargement du formulaire:", error),
       )
       .finally(() => {
         overlay.classList.add("hidden");
@@ -263,7 +277,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // Pré-rempli le champ de date dans le formulaire du modal
       const dateInput = modalDateLivraison.querySelector(
-        "#da_modal_date_livraison_dateLivraisonPrevue"
+        "#da_modal_date_livraison_dateLivraisonPrevue",
       );
       if (dateInput) {
         dateInput.value = dateActuelle;
@@ -271,7 +285,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // remplir le champ cacher avec le numero commande
       const numeroCdeInput = modalDateLivraison.querySelector(
-        "#da_modal_date_livraison_numeroCde"
+        "#da_modal_date_livraison_numeroCde",
       );
       if (numeroCdeInput) {
         numeroCdeInput.value = numeroCde;

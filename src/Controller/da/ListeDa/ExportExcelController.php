@@ -132,7 +132,7 @@ class ExportExcelController extends Controller
             "Niveau urgence DIT"       => fn(DaAfficher $da) => $da->getNiveauUrgence() ?? '-',
             "N° OR"                    => fn(DaAfficher $da) => $da->getNumeroOR() ?? '-',
             "Demandeur"                => fn(DaAfficher $da) => $da->getDemandeur(),
-            "Date de demande"          => fn(DaAfficher $da) => $da->getDateCreation()->format('d/m/Y'),
+            "Date de demande"          => fn(DaAfficher $da) => $da->getDateDemande()->format('d/m/Y'),
             "Statut DA"                => fn(DaAfficher $da) => $da->getStatutDal(),
             "Statut OR"                => fn(DaAfficher $da) => $da->getStatutOr() ?? '-',
             "Statut BC"                => fn(DaAfficher $da) => $da->getStatutCde() ?? '-',
