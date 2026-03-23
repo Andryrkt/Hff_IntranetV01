@@ -48,4 +48,54 @@ class ContratApi extends Controller
             return new JsonResponse(['error' => 'Server error: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
+    /**
+     * Récupère toutes les références de contrats uniques
+     *
+     * @Route("/contrat-api/references", name="contrat_api_references", methods={"GET"})
+     *
+     * @return JsonResponse
+     */
+    public function getReferences(): JsonResponse
+    {
+        try {
+            $conn = $this->getEntityManager()->getConnection();
+
+            $sql = "SELECT DISTINCT c.reference, c.objet
+                    FROM contrat c
+                    WHERE c.reference IS NOT NULL AND c.reference != ''
+                    ORDER BY c.reference ASC";
+
+            $results = $conn->fetchAllAssociative($sql);
+
+            return new JsonResponse($results);
+        } catch (\Exception $e) {
+            return new JsonResponse(['error' => 'Server error: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Récupère tous les partenaires uniques
+     *
+     * @Route("/contrat-api/partenaires", name="contrat_api_partenaires", methods={"GET"})
+     *
+     * @return JsonResponse
+     */
+    public function getPartenaires(): JsonResponse
+    {
+        try {
+            $conn = $this->getEntityManager()->getConnection();
+
+            $sql = "SELECT DISTINCT c.nom_partenaire as nom
+                    FROM contrat c
+                    WHERE c.nom_partenaire IS NOT NULL AND c.nom_partenaire != ''
+                    ORDER BY c.nom_partenaire ASC";
+
+            $results = $conn->fetchAllAssociative($sql);
+
+            return new JsonResponse($results);
+        } catch (\Exception $e) {
+            return new JsonResponse(['error' => 'Server error: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
 }

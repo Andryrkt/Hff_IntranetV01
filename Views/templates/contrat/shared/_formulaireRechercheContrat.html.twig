@@ -82,7 +82,7 @@
 
                                         async function fetchReferences() {
                                             console.log('Chargement des références...');
-                                            const data = await fetchManager.get("documentation/contrats/api/references");
+                                            const data = await fetchManager.get("contrat-api/references");
                                             console.log('Références chargées:', data.length, 'éléments');
                                             return data;
                                         }
@@ -402,7 +402,7 @@
 
                                         async function fetchPartenaires() {
                                             console.log('Chargement des partenaires...');
-                                            const data = await fetchManager.get("documentation/contrats/api/partenaires");
+                                            const data = await fetchManager.get("contrat-api/partenaires");
                                             console.log('Partenaires chargés:', data.length, 'éléments');
                                             return data;
                                         }

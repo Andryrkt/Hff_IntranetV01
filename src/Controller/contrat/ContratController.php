@@ -3,19 +3,17 @@
 namespace App\Controller\contrat;
 
 use App\Controller\Controller;
-use App\Controller\Traits\AutorisationTrait;
-use App\Controller\Traits\contrat\ContratListeTrait;
 use App\Entity\contrat\Contrat;
 use App\Form\contrat\ContratType;
+use App\Controller\Traits\contrat\ContratListeTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route("/documentation")
+ * @Route("/documentation/contrats")
  */
 class ContratController extends Controller
 {
-    use AutorisationTrait;
     use ContratListeTrait;
 
     /**
@@ -27,7 +25,7 @@ class ContratController extends Controller
         $this->verifierSessionUtilisateur();
 
         /** Autorisation accès */
-        $this->checkPageAccess($this->estAdmin());
+        //$this->checkPageAccess($this->estAdmin());
 
         return $this->render("dwForm/dwForm.html.twig", [
             'url'       => "https://hffc.docuware.cloud/docuware/formsweb/enregistrement-contrats?orgID=5adf2517-2f77-4e19-8b42-9c3da43af7be",
@@ -36,7 +34,7 @@ class ContratController extends Controller
             'height'    => 1300,
         ]);
     }
-
+    
     /**
      * Affiche la liste des contrats
      * @Route("/consultation", name="contrat_liste")
@@ -271,9 +269,9 @@ class ContratController extends Controller
 
         $contrat = $this->getEntityManager()->getRepository(Contrat::class)->findWithDetails($id);
 
-        // if (!$contrat) {
-        //     throw $this->createNotFoundException('Contrat non trouvé');
-        // }
+        if (!$contrat) {
+            throw $this->createNotFoundException('Contrat non trouvé');
+        }
 
         return $this->render('contrat/contrat_show.html.twig', [
             'contrat' => $contrat,
