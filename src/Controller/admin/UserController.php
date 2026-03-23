@@ -54,7 +54,10 @@ class UserController extends Controller
     public function new(Request $request)
     {
         $dto = new UserDTO();
-        $form = $this->getFormFactory()->createBuilder(UserType::class, $dto)->getForm();
+
+        $profilIdAdmin = $this->getSecurityService()->getProfilId();
+
+        $form = $this->getFormFactory()->createBuilder(UserType::class, $dto, ['canSeeAll' => $profilIdAdmin === 98])->getForm();
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -79,8 +82,9 @@ class UserController extends Controller
     public function edit(Request $request, $id)
     {
         $user = $this->getEntityManager()->getRepository(User::class)->find($id);
+        $profilIdAdmin = $this->getSecurityService()->getProfilId();
         $dto = $this->userFactory->createDTOFromUser($user);
-        $form = $this->getFormFactory()->createBuilder(UserType::class, $dto)->getForm();
+        $form = $this->getFormFactory()->createBuilder(UserType::class, $dto, ['canSeeAll' => $profilIdAdmin === 98])->getForm();
         $form->handleRequest($request);
 
         // Vérifier si le formulaire est soumis et valide
