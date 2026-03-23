@@ -27306,7 +27306,7 @@
             "nom_route": "new_bon_caisse",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27314,7 +27314,7 @@
             "nom_route": "bon_caisse_liste",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           }
@@ -27328,7 +27328,7 @@
             "nom_route": "bl_soumission",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           }
@@ -27342,7 +27342,7 @@
             "nom_route": "badms_newForm1",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27350,7 +27350,7 @@
             "nom_route": "badms_newForm2",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27358,7 +27358,7 @@
             "nom_route": "badmListe_AffichageListeBadm",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27366,7 +27366,7 @@
             "nom_route": "badmListe_AffichageListeBadm_search",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27374,7 +27374,7 @@
             "nom_route": "BadmDetail_detailBadm",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27382,7 +27382,7 @@
             "nom_route": "BadmDupli_dupliBadm",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27390,7 +27390,7 @@
             "nom_route": "badm_list_annuler",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27398,7 +27398,7 @@
             "nom_route": "badm_list_annuler_search",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           }
@@ -27412,7 +27412,7 @@
             "nom_route": "casier_nouveau",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27420,7 +27420,7 @@
             "nom_route": "casiser_formulaireCasier",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27428,7 +27428,7 @@
             "nom_route": "listeTemporaire_affichageListeCasier",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27436,7 +27436,7 @@
             "nom_route": "listeTemporaire_affichageListeCasier_search",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27444,7 +27444,7 @@
             "nom_route": "liste_affichageListeCasier",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27452,7 +27452,7 @@
             "nom_route": "liste_affichageListeCasier_search",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           }
@@ -27466,7 +27466,7 @@
             "nom_route": "cde_fournisseur",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           }
@@ -27480,7 +27480,7 @@
             "nom_route": "da_first_form",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27488,7 +27488,7 @@
             "nom_route": "da_new_avec_dit",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27496,7 +27496,7 @@
             "nom_route": "da_new_achat",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27504,7 +27504,7 @@
             "nom_route": "da_new_reappro_mensuel",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27512,7 +27512,7 @@
             "nom_route": "list_da",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27520,7 +27520,7 @@
             "nom_route": "da_list_cde_frn",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27528,7 +27528,7 @@
             "nom_route": "da_bon_a_payer",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27536,7 +27536,7 @@
             "nom_route": "da_reporting_ips",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27544,7 +27544,7 @@
             "nom_route": "da_detail_direct",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           }
@@ -27558,7 +27558,7 @@
             "nom_route": "new_conge",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27566,7 +27566,7 @@
             "nom_route": "annulation_conge",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27574,7 +27574,7 @@
             "nom_route": "annulation_conge_rh",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27582,7 +27582,7 @@
             "nom_route": "conge_liste",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           }
@@ -27596,7 +27596,7 @@
             "nom_route": "ddp_liste",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           }
@@ -27610,7 +27610,7 @@
             "nom_route": "dit_insertion_facture",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27618,7 +27618,7 @@
             "nom_route": "dit_insertion_or",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27626,7 +27626,7 @@
             "nom_route": "dit_insertion_ri",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27634,7 +27634,7 @@
             "nom_route": "dit_validationDit",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27642,7 +27642,7 @@
             "nom_route": "dit_insertion_cde",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27650,7 +27650,7 @@
             "nom_route": "dit_new",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27658,7 +27658,7 @@
             "nom_route": "dit_index",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27666,7 +27666,7 @@
             "nom_route": "dit_index_search",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27674,7 +27674,7 @@
             "nom_route": "dit_duplication",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27682,7 +27682,7 @@
             "nom_route": "dw_interv_ate_avec_dit",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27690,7 +27690,7 @@
             "nom_route": "dit_dossier_intervention_atelier",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27698,7 +27698,7 @@
             "nom_route": "da_list_dit",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           }
@@ -27712,7 +27712,7 @@
             "nom_route": "documentation_interne",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           }
@@ -27726,7 +27726,7 @@
             "nom_route": "dom_list_annuler_search",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27734,7 +27734,7 @@
             "nom_route": "dom_first_form",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27742,7 +27742,7 @@
             "nom_route": "dom_second_form",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27750,7 +27750,7 @@
             "nom_route": "doms_liste",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27758,7 +27758,7 @@
             "nom_route": "doms_liste_search",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27766,7 +27766,7 @@
             "nom_route": "dom_list_annuler",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27774,7 +27774,7 @@
             "nom_route": "Dom_detail",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           }
@@ -27788,7 +27788,7 @@
             "nom_route": "interface_planningMag",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27796,7 +27796,7 @@
             "nom_route": "devis_magasin_liste",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           }
@@ -27810,7 +27810,7 @@
             "nom_route": "liste_detail_inventaire",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27818,7 +27818,7 @@
             "nom_route": "liste_inventaire",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27826,7 +27826,7 @@
             "nom_route": "detail_inventaire",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           }
@@ -27840,7 +27840,7 @@
             "nom_route": "liste_Cde_Frn_Non_Placer",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           }
@@ -27854,7 +27854,7 @@
             "nom_route": "new_logistique",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           }
@@ -27868,7 +27868,7 @@
             "nom_route": "magasinListe_index",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27876,7 +27876,7 @@
             "nom_route": "magasinListe_index_search",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27884,7 +27884,7 @@
             "nom_route": "magasinListe_or_Livrer",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27892,7 +27892,7 @@
             "nom_route": "magasinListe_or_Livrer_search",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27900,7 +27900,7 @@
             "nom_route": "cis_liste_a_traiter",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27908,7 +27908,7 @@
             "nom_route": "cis_liste_a_traiter_search",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27916,7 +27916,7 @@
             "nom_route": "cis_liste_a_livrer",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27924,7 +27924,7 @@
             "nom_route": "cis_liste_a_livrer_search",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           }
@@ -27938,7 +27938,7 @@
             "nom_route": "mutation_nouvelle_demande",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27946,7 +27946,7 @@
             "nom_route": "mutation_liste",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27954,7 +27954,7 @@
             "nom_route": "mutation_liste_search",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27962,7 +27962,7 @@
             "nom_route": "mutation_detail",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           }
@@ -27976,7 +27976,7 @@
             "nom_route": "liste_planning",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -27984,7 +27984,7 @@
             "nom_route": "planningAtelier_vue",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           }
@@ -27998,7 +27998,7 @@
             "nom_route": "devis_magasin_pol_liste",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -28006,7 +28006,7 @@
             "nom_route": "pol_cis_liste_a_traiter",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -28014,7 +28014,7 @@
             "nom_route": "pol_cis_liste_a_livrer",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -28022,7 +28022,7 @@
             "nom_route": "pol_or_liste_a_traiter",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -28030,7 +28030,7 @@
             "nom_route": "pol_or_liste_a_livrer",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           }
@@ -28044,7 +28044,7 @@
             "nom_route": "planning_vue",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -28052,7 +28052,7 @@
             "nom_route": "planning_vue_search",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           }
