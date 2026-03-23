@@ -14,6 +14,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Model\planningMagasin\PlanningMagasinModel;
 use App\Entity\planningMagasin\PlanningMagasinSearch;
 use App\Form\planningMagasin\PlanningMagasinSearchType;
+use App\Service\security\SecurityService;
 
 /**
  * @Route("/magasin")
@@ -39,8 +40,10 @@ class planningMagasinController extends Controller
      */
     public function headPlanning(Request $request)
     {
-        $autoriser = $this->estAutoriser();
-        $codeAgence = $autoriser ? "-0" : $this->getSecurityService()->getCodeAgenceUser();
+        // Vérifier la permission de voir tous les données
+        $multisuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE);
+
+        $codeAgence = $multisuccursale ? "-0" : $this->getSecurityService()->getCodeAgenceUser();
         /** FIN AUtorisation acées */
         //initialisation
         $this->planningMagasinSearch
@@ -98,10 +101,5 @@ class planningMagasinController extends Controller
         /** @var array */
         $numBc = $this->BcMagasinRepository->findnumBCAll();
         return $numBc;
-    }
-
-    private function estAutoriser()
-    {
-        return $this->hasRoles(Role::ROLE_ADMINISTRATEUR, Role::ROLE_MULTI_SUCURSALES);
     }
 }
