@@ -46,60 +46,21 @@
 				</tr>
 			</thead>
 			<tbody id="tableBody">
-				{% for row in devisNeg %}
+				{# Le contenu sera chargé dynamiquement par JavaScript #}
+			</tbody>
+			<tbody id="skeletonLoader" class="d-none">
+				{% for i in 1..20 %}
 					<tr>
-						<td class="align-middle" style="padding: 0px">
-							<div class="dropdown">
-								<button class="btn btn-sm me-1 dropdown-toggle trois-points-vertical" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-									<i class="fas fa-ellipsis-vertical"></i>
-								</button>
-								<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton">
-									<li>
-										<a class="dropdown-item fw-bold" href="{{ row.url.verificationPrix }}">Soumission devis pour verification prix</a>
-										<a class="dropdown-item fw-bold" href="{{ row.url.validationDevis }}">Soumission devis pour validation</a>
-										<a class="dropdown-item fw-bold js-link-relance-client {% if not row.relanceClient %}d-none{% endif %}" href="#" data-bs-toggle="modal" data-bs-target="#pointageRelanceModal" data-bs-numero-devis="{{ row.numeroDevis }}">Pointer relance devis client</a>
-										<a class="dropdown-item fw-bold js-link-pointage-devis {% if not row.pointageDevis %}d-none{% endif %}" href="{{ row.url.pointageDevis }}">Pointage envoye devis au client</a>
-										<a class="dropdown-item fw-bold" href="{{ row.url.soumissionBC }}">Soumission BC client pour validation</a>
-									</li>
-								</ul>
-							</div>
-						</td>
-						<td class="text-center fw-bold {{ row.styleStatutDw }}">{{ row.statutDw }}</td>
-						<td class="text-center fw-bold {{ row.styleStatutBc }}">{{ row.statutBc }}</td>
-						<td class="text-center">{{ row.numeroDevis }}</td>
-						<td class="text-center">{{ row.dateCreation }}</td>
-						<td class="text-center">{{ row.emetteur }}</td>
-						<td>{{ row.client }}</td>
-						<td>{{ row.referenceClient }}</td>
-						<td class="text-end">{{ row.montantDevis|number_format(2, ',', '.') }}</td>
-						<td class="text-center">{{ row.dateEnvoiDevisAuClient }}</td>
-						{% set statut1 = row.statutRelance1 == null ? '' : 'bg-warning' %}
-						{% set statut2 = row.statutRelance2 == null ? '' : 'bg-warning' %}
-						{% set statut3 = row.statutRelance3 == null ? '' : 'bg-warning' %}
-						<td class="text-center fw-bold {{ row.styleStatutPR1}} {{ statut1}} js-relance-1">{{ row.statutRelance1 }}</td>
-						<td class="text-center fw-bold {{ row.styleStatutPR2}} {{ statut2}} js-relance-2">{{ row.statutRelance2 }}</td>
-						<td class="text-center fw-bold {{ row.styleStatutPR3}} {{ statut3}} js-relance-3">{{ row.statutRelance3 }}</td>
-						<td class="text-center">
-							{% if row.statutRelance1 is not null %}
-								<div class="form-check form-switch d-flex justify-content-center" data-bs-toggle="tooltip" title="{{row.motifStop}}">
-									<input class="form-check-input js-checkbox-stop-relance bg-secondary-subtle" type="checkbox" role="switch" data-numero-devis="{{ row.numeroDevis }}" {% if row.stopRelance %} checked {% endif %} {% if row.statutRelance3 is not null and row.statutRelance3 != 'A relancer' %} disabled {% endif %}>
-								</div>
-							{% endif %}
-						</td>
-						<td class="text-center" data-bs-toggle="tooltip" title="{{ row.titreStatutIps }}">{{ row.positionIps }}</td>
-						<td class="text-center">
-							{% if row.numeroPO %}
-								<a href="{{ row.urlPO }}" target="_blank">{{ row.numeroPO }}</a>
-							{% else %}
-								{{ row.numeroPO }}
-							{% endif %}
-						</td>
-						<td class="text-center">{{ row.utilisateurCreateurDevis }}</td>
-						<td class="text-center">{{ row.soumisPar }}</td>
+						{% for j in 1..18 %}
+							<td class="placeholder-glow">
+								<span class="placeholder col-12" style="height: 35px;"></span>
+							</td>
+						{% endfor %}
 					</tr>
 				{% endfor %}
 			</tbody>
 		</table>
+		<div id="load-more-sentinel" style="height: 35px;"></div>
 
 		{% include "magasin/devis/shared/_modalRelance.html.twig" %}
 	</div>
@@ -113,4 +74,120 @@
 	<script src="{{ App.base_path }}/Views/js/magasin/devis/pointageRelanceModal.js" type="module"></script>
 	<script src="{{ App.base_path }}/Views/js/magasin/devis/relanceModalManager.js" type="module"></script>
 	<script src="{{ App.base_path }}/Views/js/magasin/devis/relance.js" type="module"></script>
+
+	<script>
+		document.addEventListener('DOMContentLoaded', () => {
+			const tableBody = document.getElementById('tableBody');
+			const sentinel = document.getElementById('load-more-sentinel');
+			const loader = document.getElementById('skeletonLoader');
+			const searchForm = document.querySelector('form[name="devis_neg_search"]') || document.querySelector('form');
+			let currentPage = 1;
+			let isLoading = false;
+			let hasMore = true;
+
+			const loadData = async () => {
+				if (isLoading || !hasMore) return;
+				
+				isLoading = true;
+				loader.classList.remove('d-none');
+
+				try {
+					const formData = new FormData(searchForm);
+					const params = new URLSearchParams(formData);
+					params.append('page', currentPage);
+					params.append('limit', 50);
+
+					const response = await fetch(`{{ path('api_devis_neg_data') }}?${params.toString()}`);
+					const result = await response.json();
+
+					if (!result.success || result.data.length === 0) {
+						hasMore = false;
+						if (currentPage === 1) {
+							tableBody.innerHTML = `<tr><td colspan="18" class="text-center py-4">${result.message || 'Aucune donnée trouvée'}</td></tr>`;
+						}
+					} else {
+						result.data.forEach(row => {
+							const tr = document.createElement('tr');
+							const montant = new Intl.NumberFormat('fr-FR', { minimumFractionDigits: 2 }).format(row.montantDevis);
+							
+							tr.innerHTML = `
+								<td class="align-middle" style="padding: 0px">
+									<div class="dropdown">
+										<button class="btn btn-sm me-1 dropdown-toggle trois-points-vertical" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+											<i class="fas fa-ellipsis-vertical"></i>
+										</button>
+										<ul class="dropdown-menu dropdown-menu-end">
+											<li>
+												<a class="dropdown-item fw-bold" href="${row.url.verificationPrix}">Soumission devis pour verification prix</a>
+												<a class="dropdown-item fw-bold" href="${row.url.validationDevis}">Soumission devis pour validation</a>
+												<a class="dropdown-item fw-bold js-link-relance-client ${row.relanceClient ? '' : 'd-none'}" href="#" data-bs-toggle="modal" data-bs-target="#pointageRelanceModal" data-bs-numero-devis="${row.numeroDevis}">Pointer relance devis client</a>
+												<a class="dropdown-item fw-bold js-link-pointage-devis ${row.pointagedevis ? '' : 'd-none'}" href="${row.url.pointageDevis || '#'}">Pointage envoye devis au client</a>
+												<a class="dropdown-item fw-bold" href="${row.url.soumissionBC}">Soumission BC client pour validation</a>
+											</li>
+										</ul>
+									</div>
+								</td>
+								<td class="text-center fw-bold ${row.styleStatutDw}">${row.statutDw || ''}</td>
+								<td class="text-center fw-bold ${row.styleStatutBc}">${row.statutBc || ''}</td>
+								<td class="text-center">${row.numeroDevis || ''}</td>
+								<td class="text-center">${row.dateCreation || ''}</td>
+								<td class="text-center">${row.emetteur || ''}</td>
+								<td>${row.client || ''}</td>
+								<td>${row.referenceClient || ''}</td>
+								<td class="text-end">${montant}</td>
+								<td class="text-center">${row.dateEnvoiDevisAuClient || ''}</td>
+								<td class="text-center fw-bold ${row.styleStatutPR1}">${row.statutRelance1 || ''}</td>
+								<td class="text-center fw-bold ${row.styleStatutPR2}">${row.statutRelance2 || ''}</td>
+								<td class="text-center fw-bold ${row.styleStatutPR3}">${row.statutRelance3 || ''}</td>
+								<td class="text-center">
+									${row.statutRelance1 ? `
+										<div class="form-check form-switch d-flex justify-content-center">
+											<input class="form-check-input js-checkbox-stop-relance" type="checkbox" role="switch" data-numero-devis="${row.numeroDevis}">
+										</div>
+									` : ''}
+								</td>
+								<td class="text-center">${row.positionIps || ''}</td>
+								<td class="text-center">BC-CLI</td>
+								<td class="text-center">${row.utilisateurCreateurDevis || ''}</td>
+								<td class="text-center">${row.soumisPar || ''}</td>
+							`;
+							tableBody.appendChild(tr);
+						});
+						currentPage++;
+					}
+				} catch (error) {
+					console.error('Erreur de chargement:', error);
+				} finally {
+					isLoading = false;
+					loader.classList.add('d-none');
+				}
+			};
+
+			if (searchForm) {
+				searchForm.addEventListener('submit', (e) => {
+					e.preventDefault();
+					currentPage = 1;
+					hasMore = true;
+					tableBody.innerHTML = '';
+					loadData();
+				});
+
+				searchForm.addEventListener('reset', (e) => {
+					// setTimeout pour laisser le navigateur réinitialiser les champs avant de lancer loadData
+					setTimeout(() => {
+						currentPage = 1;
+						hasMore = true;
+						tableBody.innerHTML = '';
+						loadData();
+					}, 10);
+				});
+			}
+
+			const observer = new IntersectionObserver((entries) => {
+				if (entries[0].isIntersecting) loadData();
+			}, { threshold: 0.1 });
+
+			observer.observe(sentinel);
+		});
+	</script>
 {% endblock %}

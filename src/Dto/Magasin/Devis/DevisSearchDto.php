@@ -12,7 +12,7 @@ class DevisSearchDto
     public ?array $emetteur = [];
     public ?array $dateCreation = [];
     public ?string $statutBc = null;
-    public ?string $creePar = null;
+    public ?string $CreePar = null;
     public ?string $numeroPO = null;
     public ?string $filterRelance = null;
 }

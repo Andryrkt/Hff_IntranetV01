@@ -15,26 +15,31 @@ function displayCodeClient(item) {
     return `${item.code_client} - ${item.nom_client}`;
 }
 
-const codeClientInput = document.getElementById("devis_magasin_search_codeClient");
+const codeClientInput = document.getElementById("devis_neg_search_codeClient") || document.getElementById("devis_magasin_search_codeClient");
 
-function onSelectCodeClient(item) {
-    codeClientInput.value = `${item.code_client}`;
+if (codeClientInput) {
+    function onSelectCodeClient(item) {
+        codeClientInput.value = `${item.code_client}`;
+    }
+
+    new AutoComplete({
+        inputElement: codeClientInput,
+        suggestionContainer: document.getElementById("suggestion-code-client"),
+        loaderElement: document.getElementById("loader-code-client"),
+        fetchDataCallback: fetchCodeClient,
+        displayItemCallback: displayCodeClient,
+        onSelectCallback: onSelectCodeClient,
+    });
 }
-
-new AutoComplete({
-    inputElement: codeClientInput,
-    suggestionContainer: document.getElementById("suggestion-code-client"),
-    loaderElement: document.getElementById("loader-code-client"),
-    fetchDataCallback: fetchCodeClient,
-    displayItemCallback: displayCodeClient,
-    onSelectCallback: onSelectCodeClient,
-});
 
 /**===========================================================================
    * Configuration des agences et services
    *============================================================================*/
 
-  // Attachement des événements pour les agences
-  document.getElementById("devis_magasin_search_emetteur_agence").addEventListener("change", () =>
-    handleAgenceChange("emetteur")
-  );
+// Attachement des événements pour les agences avec vérification d'existence
+const agenceEmetteurInput = document.getElementById("devis_neg_search_emetteur_agence") || document.getElementById("devis_magasin_search_emetteur_agence");
+if (agenceEmetteurInput) {
+    agenceEmetteurInput.addEventListener("change", () =>
+        handleAgenceChange("emetteur")
+    );
+}
