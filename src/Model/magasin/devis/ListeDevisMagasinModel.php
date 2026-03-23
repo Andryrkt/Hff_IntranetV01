@@ -11,7 +11,7 @@ class ListeDevisMagasinModel extends Model
 {
     use ConversionModel;
 
-    public function getDevis(array $criteria = [],  string $vignette = 'magasin', array $agenceServiceAutorises, $numDeviAExclureString, string $codeSociete): array
+    public function getDevis(array $criteria = [],  string $vignette = 'magasin', array $agenceServiceAutorises, string $codeAgenceUser, string $codeServiceUser, bool $multisuccursale, $numDeviAExclureString, string $codeSociete): array
     {
         if (!empty($criteria) && array_key_exists('numeroDevis', $criteria) && !empty($criteria['numeroDevis'])) {
             $numeroDevis = $criteria['numeroDevis'];
@@ -74,12 +74,19 @@ class ListeDevisMagasinModel extends Model
             $statement .= " AND nlig_constp IN ($piecesMagasin)";
         }
 
-        // Filtre sur agence et service autorisés
-        $conditions = [];
-        foreach ($agenceServiceAutorises as $tab) {
-            $conditions[] = "(nent_succ = '{$tab['agence_code']}' AND nent_servcrt = '{$tab['service_code']}')";
+        if (!$multisuccursale) {
+            // Filtre sur agence et service autorisés
+            $conditions = [];
+            foreach ($agenceServiceAutorises as $tab) {
+                $conditions[] = "(nent_succ = '{$tab['agence_code']}' AND nent_servcrt = '{$tab['service_code']}')";
+            }
+
+            if (empty($conditions)) {
+                $statement .= " AND nent_succ = '$codeAgenceUser' AND nent_servcrt = '$codeServiceUser'";
+            } else {
+                $statement .= " AND (" . implode(' OR ', $conditions) . ")";
+            }
         }
-        $statement .= !empty($conditions) ? " AND (" . implode(' OR ', $conditions) . ")" : "";
 
         $statement .= " ORDER BY nent_datecde DESC";
 
