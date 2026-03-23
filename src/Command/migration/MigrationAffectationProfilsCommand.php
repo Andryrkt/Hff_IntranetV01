@@ -210,7 +210,7 @@ class MigrationAffectationProfilsCommand extends Command
 
             // ── Vérification du profil ─────────────────────────────────────
             $profil = $this->profilRepository->findOneBy([
-                'ref_profil' => $item['ref_profil'],
+                'reference' => $item['ref_profil'],
                 'societe'    => $item['societe_id'],
             ]);
 
