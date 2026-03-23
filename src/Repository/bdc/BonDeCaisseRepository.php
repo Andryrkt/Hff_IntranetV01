@@ -10,7 +10,7 @@ use Doctrine\ORM\Tools\Pagination\Paginator;
 
 class BonDeCaisseRepository extends EntityRepository
 {
-    public function filtres(QueryBuilder $queryBuilder, BonDeCaisse $bonDeCaisse, string $agenceCodeUser, string $serviceCodeUser, array $agenceServiceAutorises, bool $peutVoirListeAvecDebiteur): void
+    public function filtres(QueryBuilder $queryBuilder, BonDeCaisse $bonDeCaisse, string $agenceCodeUser, string $serviceCodeUser, array $agenceServiceAutorises, bool $peutVoirListeAvecDebiteur, $multisuccursale): void
     {
         if ($bonDeCaisse->getNumeroDemande()) {
             $queryBuilder->andWhere('b.numeroDemande = :numeroDemande')
@@ -87,8 +87,10 @@ class BonDeCaisseRepository extends EntityRepository
                 ->setParameter('nomValidateurFinal', '%' . $bonDeCaisse->getNomValidateurFinal() . '%git a');
         }
 
-        // Condition sur les couples agences-services
-        $this->conditionAgenceService($queryBuilder, $agenceCodeUser, $serviceCodeUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
+        if (!$multisuccursale) {
+            // Condition sur les couples agences-services
+            $this->conditionAgenceService($queryBuilder, $agenceCodeUser, $serviceCodeUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
+        }
     }
 
     private function conditionAgenceService($queryBuilder, string $agenceCodeUser, string $serviceCodeUser, array $agenceServiceAutorises, bool $peutVoirListeAvecDebiteur)
@@ -163,11 +165,12 @@ class BonDeCaisseRepository extends EntityRepository
         string $agenceCodeUser,
         string $serviceCodeUser,
         array $agenceServiceAutorises,
-        bool $peutVoirListeAvecDebiteur
+        bool $peutVoirListeAvecDebiteur,
+        bool $multisuccursale
     ): array {
         $queryBuilder = $this->createQueryBuilder('b');
 
-        $this->filtres($queryBuilder, $bonDeCaisse, $agenceCodeUser, $serviceCodeUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
+        $this->filtres($queryBuilder, $bonDeCaisse, $agenceCodeUser, $serviceCodeUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur, $multisuccursale);
 
         $query = $queryBuilder
             ->orderBy('b.id', 'DESC')
@@ -198,11 +201,12 @@ class BonDeCaisseRepository extends EntityRepository
         string $agenceCodeUser,
         string $serviceCodeUser,
         array $agenceServiceAutorises,
-        bool $peutVoirListeAvecDebiteur
+        bool $peutVoirListeAvecDebiteur,
+        bool $multisuccursale
     ): array {
         $queryBuilder = $this->createQueryBuilder('b');
 
-        $this->filtres($queryBuilder, $bonDeCaisse, $agenceCodeUser, $serviceCodeUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
+        $this->filtres($queryBuilder, $bonDeCaisse, $agenceCodeUser, $serviceCodeUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur, $multisuccursale);
 
         return $queryBuilder
             ->orderBy('b.id', 'DESC')
