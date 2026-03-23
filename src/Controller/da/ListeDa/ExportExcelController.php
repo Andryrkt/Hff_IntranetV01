@@ -55,11 +55,14 @@ class ExportExcelController extends Controller
         $agenceIdUser = $this->getSecurityService()->getAgenceIdUser();
         $serviceIdUser = $this->getSecurityService()->getServiceIdUser();
 
+        // Vérifier la permission de voir tous les données
+        $multisuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE);
+
         // Vérifier le permission de voir liste avec débiteur sur la page courante
         $peutVoirListeAvecDebiteur = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_AUTH_2, "list_da");
 
         // Filtrage des DA en fonction des critères
-        $daAffichers = $this->daAfficherRepository->findDerniereVersionDesDA($criteria, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeSociete, $peutVoirListeAvecDebiteur);
+        $daAffichers = $this->daAfficherRepository->findDerniereVersionDesDA($criteria, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeSociete, $peutVoirListeAvecDebiteur, $multisuccursale);
 
         // Retourne les DA filtrées
         return $daAffichers;
