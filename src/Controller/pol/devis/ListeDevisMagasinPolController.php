@@ -13,6 +13,7 @@ use App\Factory\magasin\devis\ListeDevisSearchDto;
 use App\Form\magasin\devis\DevisMagasinSearchType;
 use App\Model\magasin\devis\ListeDevisMagasinModel;
 use App\Factory\magasin\devis\ListeDevisMagasinFactory;
+use App\Service\security\SecurityService;
 
 /**
  * @Route("/pol")
@@ -127,9 +128,18 @@ class ListeDevisMagasinPolController extends Controller
 
     public function recuperationDonner(array $criteria, array $agenceServiceAutorises, string $codeSociete): array
     {
+        // Vérifier la permission de voir tous les données
+        $multisuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE);
+
+        // Agence par défaut de l'utilisateur
+        $codeAgenceUser = $this->getSecurityService()->getCodeAgenceUser();
+
+        // Service par défaut de l'utilisateur
+        $codeServiceUser = $this->getSecurityService()->getCodeServiceUser();
+
         $vignette = 'pneumatique';
         $numDeviAExclure = TableauEnStringService::simpleNumeric(array_map('intval', $this->listeDevisMagasinModel->getNumeroDevisExclure()));
-        $devisIps = $this->listeDevisMagasinModel->getDevis($criteria, $vignette, $agenceServiceAutorises, $numDeviAExclure, $codeSociete);
+        $devisIps = $this->listeDevisMagasinModel->getDevis($criteria, $vignette, $agenceServiceAutorises, $codeAgenceUser, $codeServiceUser, $multisuccursale, $numDeviAExclure, $codeSociete);
 
         $listeDevisFactory = [];
         $dejaVu = []; // Tableau pour mémoriser les numéros de devis déjà traités

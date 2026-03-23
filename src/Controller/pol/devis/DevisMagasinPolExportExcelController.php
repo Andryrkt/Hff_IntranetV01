@@ -3,8 +3,6 @@
 namespace App\Controller\pol\devis;
 
 use App\Constants\admin\ApplicationConstant;
-use App\Entity\admin\Agence;
-use App\Entity\admin\Service;
 use App\Controller\Controller;
 use App\Service\TableauEnStringService;
 use App\Entity\magasin\devis\DevisMagasin;
@@ -13,6 +11,7 @@ use App\Model\magasin\devis\ListeDevisMagasinModel;
 use App\Factory\magasin\devis\ListeDevisMagasinFactory;
 use App\Repository\magasin\devis\DevisMagasinRepository;
 use App\Service\ExcelService;
+use App\Service\security\SecurityService;
 
 /**
  * @Route("/pol")
@@ -98,9 +97,18 @@ class DevisMagasinPolExportExcelController extends Controller
 
     public function recuperationDonner(array $criteria = [], array $agenceServiceAutorises, $codeSociete): array
     {
+        // Vérifier la permission de voir tous les données
+        $multisuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE);
+
+        // Agence par défaut de l'utilisateur
+        $codeAgenceUser = $this->getSecurityService()->getCodeAgenceUser();
+
+        // Service par défaut de l'utilisateur
+        $codeServiceUser = $this->getSecurityService()->getCodeServiceUser();
+
         $vignette = 'magasin';
         $numDeviAExclure = TableauEnStringService::simpleNumeric(array_map('intval', $this->listeDevisMagasinModel->getNumeroDevisExclure()));
-        $devisIps = $this->listeDevisMagasinModel->getDevis($criteria, $vignette, $agenceServiceAutorises, $numDeviAExclure, $codeSociete);
+        $devisIps = $this->listeDevisMagasinModel->getDevis($criteria, $vignette, $agenceServiceAutorises, $codeAgenceUser, $codeServiceUser, $multisuccursale, $numDeviAExclure, $codeSociete);
 
         $listeDevisFactory = [];
         foreach ($devisIps as  $devisIp) {
