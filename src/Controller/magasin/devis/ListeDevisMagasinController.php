@@ -20,6 +20,7 @@ use App\Factory\magasin\devis\ListeDevisMagasinFactory;
 use App\Repository\magasin\devis\DevisMagasinRepository;
 use App\Repository\magasin\devis\PointageRelanceRepository;
 use App\Constants\Magasin\Devis\PointageRelanceStatutConstant;
+use App\Service\security\SecurityService;
 
 /**
  * @Route("/magasin/dematerialisation")
@@ -90,6 +91,9 @@ class ListeDevisMagasinController extends Controller
      */
     public function listeDevisMagasin(Request $request)
     {
+        // Vérifier la permission de voir tous les données
+        $multisuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE);
+
         // Agences Services autorisés sur le DVM
         $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DVM);
 

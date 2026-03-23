@@ -79,10 +79,9 @@ class ListeDevisMagasinModel extends Model
         foreach ($agenceServiceAutorises as $tab) {
             $conditions[] = "(nent_succ = '{$tab['agence_code']}' AND nent_servcrt = '{$tab['service_code']}')";
         }
-        $statement .= " AND (" . implode(' OR ', $conditions) . ")";
+        $statement .= !empty($conditions) ? " AND (" . implode(' OR ', $conditions) . ")" : "";
 
         $statement .= " ORDER BY nent_datecde DESC";
-
 
         $result = $this->connect->executeQuery($statement);
 
@@ -460,7 +459,7 @@ class ListeDevisMagasinModel extends Model
                     FROM devis_soumis_a_validation_neg dsavn
                     LEFT JOIN pointage_relance pr 
                         ON pr.numero_devis = dsavn.numero_devis
-                    WHERE dsavn.numero_devis = '$numeroDevis' and dsvan.codeSociete = '$codeSociete'
+                    WHERE dsavn.numero_devis = '$numeroDevis' and dsavn.code_societe = '$codeSociete'
                     GROUP BY 
                         dsavn.numero_devis,
                         dsavn.date_envoye_devis_client,
