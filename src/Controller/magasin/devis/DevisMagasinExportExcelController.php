@@ -3,14 +3,13 @@
 namespace App\Controller\magasin\devis;
 
 use App\Constants\admin\ApplicationConstant;
-use App\Entity\admin\Agence;
-use App\Entity\admin\Service;
 use App\Controller\Controller;
 use App\Entity\magasin\devis\DevisMagasin;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\magasin\devis\ListeDevisMagasinModel;
 use App\Factory\magasin\devis\ListeDevisMagasinFactory;
 use App\Service\ExcelService;
+use App\Service\security\SecurityService;
 use App\Service\TableauEnStringService;
 
 class DevisMagasinExportExcelController extends Controller
@@ -102,9 +101,18 @@ class DevisMagasinExportExcelController extends Controller
 
     public function recuperationDonner(array $criteria = [], array $agenceServiceAutorises, string $codeSociete): array
     {
+        // Vérifier la permission de voir tous les données
+        $multisuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE);
+
+        // Agence par défaut de l'utilisateur
+        $codeAgenceUser = $this->getSecurityService()->getCodeAgenceUser();
+
+        // Service par défaut de l'utilisateur
+        $codeServiceUser = $this->getSecurityService()->getCodeServiceUser();
+
         $vignette = 'magasin';
         $numDeviAExclure = TableauEnStringService::simpleNumeric(array_map('intval', $this->listeDevisMagasinModel->getNumeroDevisExclure()));
-        $devisIps = $this->listeDevisMagasinModel->getDevis($criteria, $vignette, $agenceServiceAutorises, $numDeviAExclure, $codeSociete);
+        $devisIps = $this->listeDevisMagasinModel->getDevis($criteria, $vignette, $agenceServiceAutorises, $codeAgenceUser, $codeServiceUser, $multisuccursale, $numDeviAExclure, $codeSociete);
 
         $listeDevisFactory = [];
         $dejaVu = []; // Tableau pour mémoriser les numéros de devis déjà traités
