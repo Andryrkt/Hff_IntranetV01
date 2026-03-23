@@ -244,7 +244,7 @@ class MigrationAffectationProfilsCommand extends Command
             // ── Vérification de l'affectation existante ────────────────────
             $affectationExistante = $utilisateur->getProfils()->contains($profil);
 
-            if ($affectationExistante !== null) {
+            if ($affectationExistante) {
                 $stats['doublons']++;
 
                 if ($dryRun) {
@@ -291,11 +291,8 @@ class MigrationAffectationProfilsCommand extends Command
             $stats['crees']++;
             $io->text('  ✅  Affectation créée.');
 
-            // ── Flush périodique pour éviter les timeouts ───────────────────
-            if (($index + 1) % 50 === 0) {
-                $this->entityManager->flush();
-                $io->text(sprintf('  💾  %d affectation(s) enregistrée(s) en base...', $index + 1));
-            }
+            $this->entityManager->flush();
+            $io->text(sprintf('  💾  1 affectation enregistrée en base.'));
         }
 
         // ── Flush final ──────────────────────────────────────────────────
