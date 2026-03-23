@@ -36,10 +36,19 @@ if (codeClientInput) {
    * Configuration des agences et services
    *============================================================================*/
 
-// Attachement des événements pour les agences avec vérification d'existence
-const agenceEmetteurInput = document.getElementById("devis_neg_search_emetteur_agence") || document.getElementById("devis_magasin_search_emetteur_agence");
-if (agenceEmetteurInput) {
-    agenceEmetteurInput.addEventListener("change", () =>
-        handleAgenceChange("emetteur")
-    );
+// Configuration du filtrage des services par agence
+if (document.getElementById("devis_neg_search_emetteur_agence")) {
+    filterServiceByAgence({
+        agenceSelector: "#devis_neg_search_emetteur_agence",
+        serviceSelector: "#devis_neg_search_emetteur_service"
+    });
 }
+
+if (document.getElementById("devis_magasin_search_agenceEmetteur")) {
+    filterServiceByAgence({
+        agenceSelector: "#devis_magasin_search_agenceEmetteur",
+        serviceSelector: "#devis_magasin_search_serviceEmetteur"
+    });
+}
+
+});

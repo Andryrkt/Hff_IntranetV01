@@ -55,13 +55,28 @@ class AgenceServiceType extends AbstractType
 
     private function addServiceField(FormInterface $form, ?Agence $agence, array $options): void
     {
-        $services = $agence ? $agence->getServices() : (isset($options['data_agence']) ? $options['data_agence']->getServices() : []);
+        $services = $agence ? $agence->getServices() : (isset($options['data_agence']) && $options['data_agence'] ? $options['data_agence']->getServices() : null);
+
+        // Si on n'a toujours pas de liste de services (ex: chargement initial sans agence sélectionnée), 
+        // on charge tous les services pour permettre le filtrage JS côté client
+        if ($services === null) {
+            $em = $form->getConfig()->getOption('em') ?? EntityManagerHelper::getEntityManager();
+            if ($em) {
+                $services = $em->getRepository(Service::class)->findAll();
+            } else {
+                $services = [];
+            }
+        }
 
         $form->add('service', EntityType::class, [
             'label'               => $options['service_label'],
             'class'               => Service::class,
             'choice_label'        => function (Service $service): string {
                 return $service->getCodeService() . ' ' . $service->getLibelleService();
+            },
+            'choice_attr' => function (Service $service) {
+                $agence = $service->getAgences()->first();
+                return ['data-agence' => $agence ? $agence->getId() : ''];
             },
             'placeholder' => $options['service_placeholder'],
             'choices' => $services,

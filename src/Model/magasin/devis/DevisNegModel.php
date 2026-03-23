@@ -178,12 +178,53 @@ class DevisNegModel extends Model
 
             // Filtre par statut DW
             if (!empty($criteria['statutDw'])) {
-                $whereClauses[] = " dneg.statut_dw = '" . $criteria['statutDw'] . "' ";
+                $s = $criteria['statutDw'];
+                $const = \App\Constants\Magasin\Devis\StatutDevisNegContant::class;
+
+                if ($s === \App\Constants\Magasin\Devis\StatutDevisNegContant::A_TRAITER) {
+                    $whereClauses[] = " (TRIM(dneg.statut_dw) LIKE 'A %traiter' OR TRIM(dneg.statut_dw) IS NULL) ";
+                } elseif ($s === \App\Constants\Magasin\Devis\StatutDevisNegContant::PRIX_A_CONFIRMER) {
+                    $whereClauses[] = " TRIM(dneg.statut_dw) LIKE 'Prix % confirmer' ";
+                } elseif ($s === \App\Constants\Magasin\Devis\StatutDevisNegContant::PRIX_VALIDER_TANA) {
+                    $whereClauses[] = " TRIM(dneg.statut_dw) LIKE 'Prix valid% - devis % envoyer au client' ";
+                } elseif ($s === \App\Constants\Magasin\Devis\StatutDevisNegContant::PRIX_VALIDER_AGENCE) {
+                    $whereClauses[] = " TRIM(dneg.statut_dw) LIKE 'Prix valid% - devis % soumettre' ";
+                } elseif ($s === \App\Constants\Magasin\Devis\StatutDevisNegContant::PRIX_MODIFIER_TANA) {
+                    $whereClauses[] = " TRIM(dneg.statut_dw) LIKE 'Prix modifi% - devis % envoyer au client' ";
+                } elseif ($s === \App\Constants\Magasin\Devis\StatutDevisNegContant::PRIX_MODIFIER_AGENCE) {
+                    $whereClauses[] = " TRIM(dneg.statut_dw) LIKE 'Prix modifi% - devis % soumettre' ";
+                } elseif ($s === \App\Constants\Magasin\Devis\StatutDevisNegContant::DEMANDE_REFUSE_PAR_PM) {
+                    $whereClauses[] = " TRIM(dneg.statut_dw) LIKE 'Demande refus%e par le PM' ";
+                } elseif ($s === \App\Constants\Magasin\Devis\StatutDevisNegContant::A_VALIDER_CHEF_AGENCE) {
+                    $whereClauses[] = " TRIM(dneg.statut_dw) LIKE 'A valider chef d%agence' ";
+                } elseif ($s === \App\Constants\Magasin\Devis\StatutDevisNegContant::VALIDE_AGENCE) {
+                    $whereClauses[] = " TRIM(dneg.statut_dw) LIKE 'Valid% - % envoyer au client' ";
+                } elseif ($s === \App\Constants\Magasin\Devis\StatutDevisNegContant::ENVOYER_CLIENT) {
+                    $whereClauses[] = " TRIM(dneg.statut_dw) LIKE 'Envoy% au client' ";
+                } elseif ($s === \App\Constants\Magasin\Devis\StatutDevisNegContant::CLOTURER_A_MODIFIER) {
+                    $whereClauses[] = " TRIM(dneg.statut_dw) LIKE 'Clotur% - A modifier' ";
+                } else {
+                    $whereClauses[] = " TRIM(dneg.statut_dw) = '" . $s . "' ";
+                }
             }
 
             // Filtre par statut BC
             if (!empty($criteria['statutBc'])) {
-                $whereClauses[] = " dneg.statut_bc = '" . $criteria['statutBc'] . "' ";
+                $bc = $criteria['statutBc'];
+                if ($bc === \App\Constants\Magasin\Devis\StatutBcNegConstant::SOUMIS_VALIDATION) {
+                    $whereClauses[] = " TRIM(dneg.statut_bc) LIKE 'Soumis % validation' ";
+                } elseif ($bc === \App\Constants\Magasin\Devis\StatutBcNegConstant::VALIDER) {
+                    $whereClauses[] = " TRIM(dneg.statut_bc) LIKE 'Valid%' ";
+                } elseif ($bc === \App\Constants\Magasin\Devis\StatutBcNegConstant::EN_ATTENTE_BC) {
+                    $whereClauses[] = " TRIM(dneg.statut_bc) LIKE 'En attente bc' ";
+                } else {
+                    $whereClauses[] = " TRIM(dneg.statut_bc) = '" . $bc . "' ";
+                }
+            }
+
+            // Filtre par statut IPS (Position IPS)
+            if (!empty($criteria['statutIps'])) {
+                $whereClauses[] = " TRIM(nent.nent_posl) = '" . $criteria['statutIps'] . "' ";
             }
 
             // Filtre par agence émetteur
@@ -201,10 +242,12 @@ class DevisNegModel extends Model
             // Filtre par date de création (Plage de dates)
             if (!empty($criteria['dateCreation'])) {
                 if (!empty($criteria['dateCreation']['debut']) && $criteria['dateCreation']['debut'] instanceof \DateTime) {
-                    $whereClauses[] = " nent.nent_datecde >= '" . $criteria['dateCreation']['debut']->format('Y-m-d') . "' ";
+                    $d = $criteria['dateCreation']['debut'];
+                    $whereClauses[] = " DATE(nent.nent_datecde) >= MDY(" . $d->format('n') . "," . $d->format('j') . "," . $d->format('Y') . ") ";
                 }
                 if (!empty($criteria['dateCreation']['fin']) && $criteria['dateCreation']['fin'] instanceof \DateTime) {
-                    $whereClauses[] = " nent.nent_datecde <= '" . $criteria['dateCreation']['fin']->format('Y-m-d') . "' ";
+                    $f = $criteria['dateCreation']['fin'];
+                    $whereClauses[] = " DATE(nent.nent_datecde) <= MDY(" . $f->format('n') . "," . $f->format('j') . "," . $f->format('Y') . ") ";
                 }
             }
 
@@ -215,9 +258,9 @@ class DevisNegModel extends Model
                 switch ($filter) {
                     case 'A_RELANCER':
                         $whereClauses[] = " (
-                            (dneg.statut_bc = 'En attente bc' AND rl.nb_relances = 0 AND rl.delai_jours >= 7 AND (dneg.stop_progression_global = 0 OR dneg.stop_progression_global IS NULL) AND NVL(pr1.stop_progression_niveau, 0) = 0) OR
-                            (dneg.statut_bc = 'En attente bc' AND rl.nb_relances = 1 AND rl.delai_jours >= 7 AND (dneg.stop_progression_global = 0 OR dneg.stop_progression_global IS NULL) AND NVL(pr2.stop_progression_niveau, 0) = 0) OR
-                            (dneg.statut_bc = 'En attente bc' AND rl.nb_relances = 2 AND rl.delai_jours >= 7 AND (dneg.stop_progression_global = 0 OR dneg.stop_progression_global IS NULL) AND NVL(pr3.stop_progression_niveau, 0) = 0)
+                            (TRIM(dneg.statut_bc) LIKE 'En attente bc' AND rl.nb_relances = 0 AND rl.delai_jours >= 7 AND (dneg.stop_progression_global = 0 OR dneg.stop_progression_global IS NULL) AND NVL(pr1.stop_progression_niveau, 0) = 0) OR
+                            (TRIM(dneg.statut_bc) LIKE 'En attente bc' AND rl.nb_relances = 1 AND rl.delai_jours >= 7 AND (dneg.stop_progression_global = 0 OR dneg.stop_progression_global IS NULL) AND NVL(pr2.stop_progression_niveau, 0) = 0) OR
+                            (TRIM(dneg.statut_bc) LIKE 'En attente bc' AND rl.nb_relances = 2 AND rl.delai_jours >= 7 AND (dneg.stop_progression_global = 0 OR dneg.stop_progression_global IS NULL) AND NVL(pr3.stop_progression_niveau, 0) = 0)
                         )";
                         break;
                     case '3_RELANCES_OK':
@@ -248,8 +291,9 @@ class DevisNegModel extends Model
             }
 
             if (!empty($whereClauses)) {
-                // On insère les clauses WHERE avant le ORDER BY
-                $statement = str_replace(" ORDER BY date_cde_brute DESC", " AND " . implode(" AND ", $whereClauses) . " ORDER BY date_cde_brute DESC", $statement);
+                // On normalise les espaces pour str_replace
+                $statement = preg_replace('/\s+ORDER BY/', ' ORDER BY', $statement);
+                $statement = str_replace(" ORDER BY", " AND " . implode(" AND ", $whereClauses) . " ORDER BY", $statement);
             }
 
             $result = $this->connect->executeQuery($statement);

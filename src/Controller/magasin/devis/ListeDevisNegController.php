@@ -2,10 +2,9 @@
 
 namespace App\Controller\magasin\devis;
 
+use App\Constants\admin\ApplicationConstant;
 use App\Controller\Controller;
-use App\Controller\Traits\AutorisationTrait;
 use App\Dto\Magasin\Devis\DevisSearchDto;
-use App\Entity\admin\Application;
 use App\Entity\magasin\bc\BcMagasin;
 use App\Entity\magasin\devis\DevisMagasin;
 use App\Form\magasin\devis\DevisNegSearchType;
@@ -19,7 +18,6 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class ListeDevisNegController extends Controller
 {
-    use AutorisationTrait;
 
     private DevisNegModel $listeDevisNegModel;
     private DevisNegMapper $devisNegMapper;
@@ -96,7 +94,7 @@ class ListeDevisNegController extends Controller
             $criteria = (array) $criteria;
         }
 
-        $codeAgenceAutoriserString = TableauEnStringService::orEnString($this->getUser()->getAgenceAutoriserCode());
+        $codeAgenceAutoriserString = TableauEnStringService::orEnString(array_column($this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DVM), 'agence_code'));
         $vignette = 'magasin';
         $adminMutli = in_array(1, $this->getUser()->getRoleIds()) || in_array(6, $this->getUser()->getRoleIds());
 

@@ -24,8 +24,13 @@
 					</div>
 
 					<div class="col-12 col-md-2">
-						{{form_row(form.agenceEmetteur)}}
-						{{form_row(form.serviceEmetteur)}}
+						{% if form.emetteur is defined %}
+							{{form_row(form.emetteur.agence)}}
+							{{form_row(form.emetteur.service)}}
+						{% else %}
+							{{form_row(form.agenceEmetteur)}}
+							{{form_row(form.serviceEmetteur)}}
+						{% endif %}
 					</div>
 					<div class="col-12 col-md-2">
 						{{ form_row(form.dateCreation) }}
