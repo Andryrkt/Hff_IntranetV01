@@ -17,6 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Model\dw\dossierInterventionAtelierModel;
 use App\Form\dw\DossierInterventionAtelierSearchType;
 use App\Service\historiqueOperation\HistoriqueOperationDITService;
+use App\Service\security\SecurityService;
 
 /**
  * @Route("/atelier/demande-intervention")
@@ -122,7 +123,10 @@ class DossierInterventionAtelierController extends Controller
 
     public function ajoutNbDoc(dossierInterventionAtelierModel $dwModel, $criteria)
     {
-        $dwDits = $dwModel->findAllDwDit($criteria, $this->getSecurityService()->getCodeAgenceUser(), $this->hasRoles(Role::ROLE_ADMINISTRATEUR));
+        // Vérifier la permission de voir tous les données
+        $multisuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE);
+
+        $dwDits = $dwModel->findAllDwDit($criteria, $this->getSecurityService()->getCodeAgenceUser(), $multisuccursale);
 
         $dwfac = $dwRi = $dwCde = $dwBc = $dwDev = $dwBca = $dwFacBl = [];
 
