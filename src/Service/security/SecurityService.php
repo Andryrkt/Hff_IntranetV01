@@ -23,6 +23,7 @@ class SecurityService
     private const ROUTE_ACCUEIL = 'profil_acceuil';
     private const ROUTES_PUBLIQUES = ['security_signin', 'auth_deconnexion'];
     private const PREFIXES_API = ['api_'];
+    private const PREFIXES_EXPORT = ['export_'];
 
     // ─── Constantes de permissions (évite les fautes de frappe) ─────────────
     public const PERMISSION_VOIR             = 'peutVoir';
@@ -72,8 +73,8 @@ class SecurityService
         // Mémoriser la route pour les appels depuis les contrôleurs
         $this->routeCourrante = $nomRoute;
 
-        // Route publique ou Routes APi → laisse passer sans aucun contrôle
-        if ($this->estRoutePublique($nomRoute) || $this->estRouteApi($nomRoute)) {
+        // Route publique ou Routes APi ou Route Export → laisse passer sans aucun contrôle
+        if ($this->estRoutePublique($nomRoute) || $this->estRouteApi($nomRoute) || $this->estRouteExport($nomRoute)) {
             return null;
         }
 
@@ -282,6 +283,16 @@ class SecurityService
         if ($nomRoute === null) return false;
 
         foreach (self::PREFIXES_API as $prefix) {
+            if (str_starts_with($nomRoute, $prefix)) return true;
+        }
+        return false;
+    }
+
+    private function estRouteExport(?string $nomRoute): bool
+    {
+        if ($nomRoute === null) return false;
+
+        foreach (self::PREFIXES_EXPORT as $prefix) {
             if (str_starts_with($nomRoute, $prefix)) return true;
         }
         return false;
