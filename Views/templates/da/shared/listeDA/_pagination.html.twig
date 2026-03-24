@@ -1,9 +1,5 @@
 <div class="d-flex justify-content-between">
 	<div class="align-self-center">
-		<a href="{{ path("da_export_excel_list_da")}}" class="btn btn-sm bg-success text-white fw-bold me-3 afficher-overlay">
-			<i class="fas fa-table"></i>
-			Excel
-		</a>
 		{% if mesDaActif %}
 			<a href="{{ path('list_da') }}" class="btn btn-sm btn-warning fw-bold" data-bs-toggle="tooltip" title="Mes DA à traiter">
 				<i class="fas fa-list-check"></i>
@@ -15,6 +11,10 @@
 				Afficher Tous les DA
 			</button>
 		{% endif %}
+		<a href="{{ path("da_export_excel_list_da")}}" class="btn btn-sm bg-success text-white fw-bold me-3 afficher-overlay">
+			<i class="fas fa-table"></i>
+			Excel
+		</a>
 	</div>
 	<div class="align-self-center">
 		<p class="fw-bold m-0">{{ resultat }}

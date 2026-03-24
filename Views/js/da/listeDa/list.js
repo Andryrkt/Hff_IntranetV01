@@ -8,7 +8,7 @@ import { initCentraleCodeDesiInputs } from "../newReappro/event.js";
 document.addEventListener("DOMContentLoaded", function () {
   initCentraleCodeDesiInputs(
     "da_search_codeCentrale",
-    "da_search_desiCentrale"
+    "da_search_desiCentrale",
   );
   const designations = document.querySelectorAll(".designation-btn");
   designations.forEach((designation) => {
@@ -21,6 +21,7 @@ document.addEventListener("DOMContentLoaded", function () {
   mergeCellsRecursiveTable([
     { pivotIndex: 1, columns: [1], insertSeparator: true },
     { pivotIndex: 2, columns: [0, 2, 3, 4, 5, 6, 7, 8], insertSeparator: true },
+    { pivotIndex: 12, columns: [12], insertSeparator: true },
   ]);
 
   /**===========================================================================
@@ -29,11 +30,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Attachement des événements pour les agences
   configAgenceService.emetteur.agenceInput.addEventListener("change", () =>
-    handleAgenceChange("emetteur")
+    handleAgenceChange("emetteur"),
   );
 
   configAgenceService.debiteur.agenceInput.addEventListener("change", () =>
-    handleAgenceChange("debiteur")
+    handleAgenceChange("debiteur"),
   );
 
   /**==================================================
@@ -42,7 +43,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const idMaterielInput = document.querySelector("#da_search_idMateriel");
   idMaterielInput.addEventListener("input", () =>
-    allowOnlyNumbers(idMaterielInput)
+    allowOnlyNumbers(idMaterielInput),
   );
 
   /**
@@ -202,7 +203,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // Pré-rempli le champ de date dans le formulaire du modal
       const dateInput = modalDateLivraison.querySelector(
-        "#da_modal_date_livraison_dateLivraisonPrevue"
+        "#da_modal_date_livraison_dateLivraisonPrevue",
       );
 
       if (dateInput) {
@@ -211,7 +212,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // remplir le champ cacher avec le numero commande
       const numeroCdeInput = modalDateLivraison.querySelector(
-        "#da_modal_date_livraison_numeroCde"
+        "#da_modal_date_livraison_numeroCde",
       );
       if (numeroCdeInput) {
         numeroCdeInput.value = numeroCde;
