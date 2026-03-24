@@ -26,7 +26,7 @@ class DevisMagasinPolExportExcelController extends Controller
     }
 
     /**
-     * @Route("/devis-magasin-pol-export-excel", name="devis_magasin_pol_export_excel")
+     * @Route("/devis-magasin-pol-export-excel", name="export_excel_devis_magasin_pol")
      *
      * @return void
      */
