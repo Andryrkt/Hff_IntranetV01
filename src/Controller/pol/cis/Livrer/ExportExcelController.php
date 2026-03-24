@@ -16,7 +16,7 @@ class ExportExcelController extends Controller
 
 
     /**
-     * @Route("/export-excel-cis-a-livrer", name="pol_export_excel_cis_a_livrer")
+     * @Route("/export-excel-cis-a-livrer", name="export_excel_pol_cis_a_livrer")
      */
     public function exportExcel()
     {

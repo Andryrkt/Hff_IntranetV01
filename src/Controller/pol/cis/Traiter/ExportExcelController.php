@@ -15,7 +15,7 @@ class ExportExcelController extends Controller
     use AtraiterTrait;
 
     /**
-     * @Route("/export-excel-a-traiter-cis", name="pol_export_excel_a_traiter_cis")
+     * @Route("/export-excel-a-traiter-cis", name="export_excel_pol_a_traiter_cis")
      */
     public function exportExcel()
     {
