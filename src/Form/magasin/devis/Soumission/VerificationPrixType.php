@@ -139,9 +139,9 @@ class VerificationPrixType extends AbstractType
                 'label'         => 'Envoyer à validation au PM *',
                 'data'          => $options['data']->constructeur == 'TOUS NEST PAS CAT' ? true : null,
                 'disabled'      => $options['data']->constructeur == 'TOUS NEST PAS CAT' ? true : false,
-                'required'      => $options['data']->getTypeSoumission() == 'VP' ? ($options['data']->constructeur == 'TOUS NEST PAS CAT' ? false : true) : false,
+                'required'      => $options['data']->typeSoumission == 'VP' ? ($options['data']->constructeur == 'TOUS NEST PAS CAT' ? false : true) : false,
                 'attr'          => [
-                    'required' => $options['data']->getTypeSoumission() == 'VP' ? ($options['data']->constructeur == 'TOUS NEST PAS CAT' ? false : true) : false,
+                    'required' => $options['data']->typeSoumission == 'VP' ? ($options['data']->constructeur == 'TOUS NEST PAS CAT' ? false : true) : false,
                     'data-error-message' => 'Veuillez sélectionner si le devis est envoyé à validation au Parts Manager ou NON.',
                 ],
             ])

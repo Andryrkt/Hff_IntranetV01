@@ -27,7 +27,7 @@ class DevisNegVerificationPrixController extends Controller
             "fichier_initialise" => (bool)$dto->remoteUrlCourt, // Indique si un fichier existe déjà pour ce devis
         ])->getForm();
 
-        return $this->render('magasin/devis/soumissionVerificationPrix.html.twig', [
+        return $this->render('magasin/devis/soumission/verification_prix.html.twig', [
             'form'        => $form->createView(),
             'remoteUrl'   => $dto->remoteUrlCourt,
         ]);
