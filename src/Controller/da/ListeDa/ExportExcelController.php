@@ -34,6 +34,10 @@ class ExportExcelController extends Controller
 
         $criteria = $this->getSessionService()->get('criteria_search_list_da');
 
+        if (empty($criteria)) {
+            $criteria = $this->getSessionService()->get('criteria_search_list_da_80_app');
+        }
+
         $agenceServiceIps = $this->agenceServiceIpsObjet();
         $agence           = $agenceServiceIps['agenceIps'];
         $codeCentrale     = $this->estAdmin() || in_array($agence->getCodeAgence(), ['90', '91', '92']);
