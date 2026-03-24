@@ -55,7 +55,9 @@ class DatabaseInformix implements DatabaseConnectionInterface
                 $this->connect(); // Tentative de connexion si pas déjà établie
             }
 
-            $result = odbc_exec($this->conn, $query);
+            // Le @ supprime l'affichage du warning PHP d'odbc_exec()
+            // (qui corromprait une réponse JSON). L'erreur est gérée via odbc_errormsg().
+            $result = @odbc_exec($this->conn, $query);
             if (!$result) {
                 throw new \Exception("ODBC Query failed: " . odbc_errormsg($this->conn));
             }

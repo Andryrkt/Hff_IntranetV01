@@ -10,6 +10,7 @@ export class AutoComplete {
     itemToStringForBlur = null,
     onBlurCallback = null,
     debounceDelay = 300,
+    lazyLoad = false,
   }) {
     this.inputElement = inputElement;
     this.suggestionContainer = suggestionContainer;
@@ -21,23 +22,42 @@ export class AutoComplete {
     this.itemToStringForBlur = itemToStringForBlur;
     this.onBlurCallback = onBlurCallback;
     this.debounceDelay = debounceDelay;
+    this.lazyLoad = lazyLoad;
 
     this.data = [];
     this.filteredData = [];
     this.activeIndex = -1;
     this.typingTimeout = null;
+    this.dataLoaded = false;
+    this.isLoadingData = false;
 
     this.init();
   }
 
-  async init() {
+  async loadData() {
+    if (this.dataLoaded || this.isLoadingData) return;
+    this.isLoadingData = true;
     this.toggleLoader(true);
     try {
       this.data = await this.fetchDataCallback();
+      this.dataLoaded = true;
     } catch (error) {
       console.error("Erreur lors du chargement des données :", error);
     }
     this.toggleLoader(false);
+    this.isLoadingData = false;
+  }
+
+  async init() {
+    if (!this.lazyLoad) {
+      await this.loadData();
+    } else {
+      this.inputElement.addEventListener("focus", () => {
+        if (!this.dataLoaded && !this.isLoadingData) {
+          this.loadData();
+        }
+      });
+    }
 
     this.inputElement.addEventListener("input", () => this.onInput());
     this.inputElement.addEventListener("keydown", (e) => this.onKeyDown(e));
@@ -68,7 +88,10 @@ export class AutoComplete {
     });
   }
 
-  onInput() {
+  async onInput() {
+    if (this.lazyLoad && !this.dataLoaded && !this.isLoadingData) {
+      await this.loadData();
+    }
     clearTimeout(this.typingTimeout);
     this.typingTimeout = setTimeout(() => {
       this.filterData(this.inputElement.value.trim());

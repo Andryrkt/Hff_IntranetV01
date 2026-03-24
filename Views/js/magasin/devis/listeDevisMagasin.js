@@ -1,6 +1,6 @@
-import { AutoComplete } from "../../utils/AutoComplete.js";
-import { FetchManager } from "../../api/FetchManager.js";
-import { filterServiceByAgence } from "../../utils/agenceService/filterServiceByAgence.js";
+import { AutoComplete } from "../../utils/AutoComplete.js?v=2026.03.23.01";
+import { FetchManager } from "../../api/FetchManager.js?v=2026.03.23.01";
+import { filterServiceByAgence } from "../../utils/agenceService/filterServiceByAgence.js?v=2026.03.23.01";
 
 document.addEventListener("DOMContentLoaded", () => {
   const fetchManager = new FetchManager();
@@ -29,6 +29,7 @@ if (codeClientInput) {
         fetchDataCallback: fetchCodeClient,
         displayItemCallback: displayCodeClient,
         onSelectCallback: onSelectCodeClient,
+        lazyLoad: true
     });
 }
 

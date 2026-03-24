@@ -11,11 +11,14 @@ use App\Form\magasin\devis\DevisNegSearchType;
 use App\Mapper\Magasin\Devis\DevisNegMapper;
 use App\Model\magasin\devis\DevisNegModel;
 use App\Service\TableauEnStringService;
+use App\Utils\PerfLogger;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-
+/**
+ * Route("/magasin/dematerialisation")
+ */
 class ListeDevisNegController extends Controller
 {
 
@@ -37,9 +40,18 @@ class ListeDevisNegController extends Controller
         // Traitement du formulaire de recherche
         [$form, $criteria] = $this->creationEtTraitementformulaireDeRecherche($request);
 
-        return $this->render('magasin/devis/liste_devis_neg.html.twig', [
+
+        $response = $this->render('magasin/devis/liste_devis_neg.html.twig', [
             'form' => $form->createView(),
+            'urlBases' => [
+                'verificationPrix' => $this->getUrlGenerator()->generate('devis_magasin_soumission_verification_prix', ['numeroDevis' => 'PLACEHOLDER']),
+                'validationDevis'  => $this->getUrlGenerator()->generate('devis_magasin_soumission_validation_devis', ['numeroDevis' => 'PLACEHOLDER_NUM', 'codeAgenceService' => 'PLACEHOLDER_AG']),
+                'soumissionBC'     => $this->getUrlGenerator()->generate('bc_magasin_soumission', ['numeroDevis' => 'PLACEHOLDER']),
+                'pointageDevis'    => $this->getUrlGenerator()->generate('devis_magasin_envoyer_au_client', ['numeroDevis' => 'PLACEHOLDER']),
+            ]
         ]);
+
+        return $response;
     }
 
     /**
@@ -47,23 +59,25 @@ class ListeDevisNegController extends Controller
      */
     public function getApiData(Request $request)
     {
-        try {
-            $page = $request->query->getInt('page', 1);
-            $limit = $request->query->getInt('limit', 50);
+        // ob_start() capture TOUT output PHP (warnings, notices ODBC, etc.)
+        // pour éviter qu'un warning HTML ne corrompe la réponse JSON.
+        ob_start();
 
-            // On utilise la même méthode que pour l'affichage initial pour extraire les critères
+        try {
+
+            $page = $request->query->getInt('page', 1);
+            $limit = $request->query->getInt('limit', 25);
             [, $criteria] = $this->creationEtTraitementformulaireDeRecherche($request);
 
             $devisNeg = $this->getDataDevisNegEnDto($page, $limit, $criteria);
 
+            ob_end_clean(); // Supprime tout output parasite avant d'envoyer le JSON
             return new JsonResponse([
                 'success' => true,
                 'data' => $devisNeg,
             ]);
         } catch (\Throwable $e) {
-            if (ob_get_length() > 0) {
-                ob_clean();
-            }
+            ob_end_clean(); // Supprime tout output parasite (warnings HTML, etc.)
             return new JsonResponse([
                 'success' => false,
                 'message' => 'Une erreur est survenue lors de la récupération des données.',
@@ -84,7 +98,6 @@ class ListeDevisNegController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
         }
-
         return [$form, $criteria];
     }
 
@@ -96,7 +109,8 @@ class ListeDevisNegController extends Controller
 
         $codeAgenceAutoriserString = TableauEnStringService::orEnString(array_column($this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DVM), 'agence_code'));
         $vignette = 'magasin';
-        $adminMutli = in_array(1, $this->getUser()->getRoleIds()) || in_array(6, $this->getUser()->getRoleIds());
+        // $adminMutli = in_array(1, $this->getUser()->getRoleIds()) || in_array(6, $this->getUser()->getRoleIds());
+        $adminMutli = true;
 
         // Utilisation du cache de session pour la liste d'exclusion
         $session = $this->getSessionService();
@@ -111,24 +125,10 @@ class ListeDevisNegController extends Controller
         }
 
         $urlGenerator = function ($dto) {
-            $numeroDevis = $dto->numeroDevis;
-            $emetteur = $dto->emetteur;
-
-            $url = [
-                "verificationPrix" => $this->getUrlGenerator()->generate('devis_magasin_soumission_verification_prix', ['numeroDevis' => $numeroDevis]),
-                "validationDevis"  => $this->getUrlGenerator()->generate('devis_magasin_soumission_validation_devis', ['numeroDevis' => $numeroDevis, 'codeAgenceService' => $emetteur]),
-                "soumissionBC"     => $this->getUrlGenerator()->generate('bc_magasin_soumission', ['numeroDevis' => $numeroDevis]),
-            ];
-
-            $pointageDevis = in_array($dto->statutDw, [DevisMagasin::STATUT_PRIX_VALIDER_TANA, DevisMagasin::STATUT_PRIX_MODIFIER_TANA, DevisMagasin::STATUT_VALIDE_AGENCE]);
-            if ($pointageDevis) {
-                $url["pointageDevis"] = $this->getUrlGenerator()->generate("devis_magasin_envoyer_au_client", ["numeroDevis" => $numeroDevis]);
-            }
-
-            $dto->pointagedevis = $pointageDevis;
+            $dto->pointagedevis = in_array($dto->statutDw, [DevisMagasin::STATUT_PRIX_VALIDER_TANA, DevisMagasin::STATUT_PRIX_MODIFIER_TANA, DevisMagasin::STATUT_VALIDE_AGENCE]);
             $dto->relanceClient = ($dto->statutDw === DevisMagasin::STATUT_ENVOYER_CLIENT && $dto->statutBc === BcMagasin::STATUT_EN_ATTENTE_BC);
 
-            return $url;
+            return [];
         };
 
         $devisNeg = $this->listeDevisNegModel->getDevisNeg($criteria, $vignette, $codeAgenceAutoriserString, $adminMutli, $numDeviAExclure, $page, $limit);

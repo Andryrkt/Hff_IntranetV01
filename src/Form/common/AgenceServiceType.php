@@ -57,14 +57,90 @@ class AgenceServiceType extends AbstractType
     {
         $services = $agence ? $agence->getServices() : (isset($options['data_agence']) && $options['data_agence'] ? $options['data_agence']->getServices() : null);
 
-        // Si on n'a toujours pas de liste de services (ex: chargement initial sans agence sélectionnée), 
-        // on charge tous les services pour permettre le filtrage JS côté client
-        if ($services === null) {
-            $em = $form->getConfig()->getOption('em') ?? EntityManagerHelper::getEntityManager();
-            if ($em) {
-                $services = $em->getRepository(Service::class)->findAll();
-            } else {
-                $services = [];
+        $em = $form->getConfig()->getOption('em') ?? EntityManagerHelper::getEntityManager();
+
+        // Optimisation MASSIVE : Si on charge tout, on bypass complètement Doctrine EntityType
+        // On construit un ChoiceType plat et on transforme le retour en objet métier via DataTransformer
+        if ($services === null && $em) {
+            try {
+                $sql = "
+                    SELECT s.id, s.code_service, s.libelle_service, asrv.agence_id 
+                    FROM services s
+                    LEFT JOIN agence_service asrv ON s.id = asrv.service_id
+                ";
+                $results = $em->getConnection()->fetchAllAssociative($sql);
+
+                $choices = [];
+                $agenceMap = [];
+                foreach ($results as $row) {
+                    $label = $row['code_service'] . ' ' . $row['libelle_service'];
+                    $choices[$label] = clone (object)[]; // placeholder
+                    // on contourne array merge pour perf
+                    $id = $row['id'];
+                    $choices[$label] = $id;
+
+                    if (!isset($agenceMap[$id]) && $row['agence_id']) {
+                        $agenceMap[$id] = (string) $row['agence_id'];
+                    }
+                }
+
+                $serviceBuilder = $form->getConfig()->getFormFactory()->createNamedBuilder('service', \Symfony\Component\Form\Extension\Core\Type\ChoiceType::class, null, [
+                    'label'               => $options['service_label'],
+                    'choices'             => $choices,
+                    'choice_attr'         => function ($choice, $key, $value) use ($agenceMap) {
+                        return ['data-agence' => $agenceMap[$value] ?? ''];
+                    },
+                    'placeholder'         => $options['service_placeholder'],
+                    'required'            => $options['service_required'],
+                    'data'                => $options['data_service'] ?? null,
+                    'auto_initialize'     => false,
+                ]);
+
+                $serviceBuilder->addModelTransformer(new \Symfony\Component\Form\CallbackTransformer(
+                    // Model data (Service object) to Norm data (id integer/string matching choices array)
+                    function ($serviceAsObject) {
+                        return $serviceAsObject ? strval($serviceAsObject->getId()) : null;
+                    }, 
+                    // Norm data (id integer/string) to Model data (Service object)
+                    function ($serviceIdAsString) use ($em) {
+                        if (!$serviceIdAsString) return null;
+                        return $em->getRepository(Service::class)->find($serviceIdAsString);
+                    }
+                ));
+
+                $form->add($serviceBuilder->getForm());
+
+                return; // Terminé, on sort de la fonction
+            } catch (\Exception $e) {
+                // Fallback normal si erreur SQL
+            }
+        }
+
+        // --- Logique Fallback (quand l'agence est choisie ou erreur SQL) ---
+        if ($services === null && $em) {
+            $services = $em->getRepository(Service::class)->findAll();
+        } elseif ($services === null) {
+            $services = [];
+        }
+
+        // Cache des ID agences
+        $agenceMap = [];
+        if ($services !== null && $em) {
+            try {
+                $sql = "SELECT service_id, agence_id FROM agence_service";
+                $results = $em->getConnection()->fetchAllAssociative($sql);
+                foreach ($results as $row) {
+                    if (!isset($agenceMap[$row['service_id']])) {
+                        $agenceMap[$row['service_id']] = (string) $row['agence_id'];
+                    }
+                }
+            } catch (\Exception $e) {
+                if (is_iterable($services)) {
+                    foreach ($services as $srv) {
+                        $asrv = $srv->getAgenceServices()->first();
+                        $agenceMap[$srv->getId()] = $asrv && $asrv->getAgence() ? $asrv->getAgence()->getId() : '';
+                    }
+                }
             }
         }
 
@@ -74,9 +150,8 @@ class AgenceServiceType extends AbstractType
             'choice_label'        => function (Service $service): string {
                 return $service->getCodeService() . ' ' . $service->getLibelleService();
             },
-            'choice_attr' => function (Service $service) {
-                $agence = $service->getAgences()->first();
-                return ['data-agence' => $agence ? $agence->getId() : ''];
+            'choice_attr' => function (Service $service) use ($agenceMap) {
+                return ['data-agence' => $agenceMap[$service->getId()] ?? ''];
             },
             'placeholder' => $options['service_placeholder'],
             'choices' => $services,

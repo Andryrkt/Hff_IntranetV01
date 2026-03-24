@@ -18,20 +18,21 @@ export function filterServiceByAgence({
   );
 
   function clearService() {
-    while (serviceSelect.options.length > 1) {
-      serviceSelect.remove(1);
-    }
+    serviceSelect.options.length = 1;
     serviceSelect.value = "";
   }
 
   function filterServices(agenceId) {
     clearService();
     if (!agenceId) return;
+    
+    const fragment = document.createDocumentFragment();
     allServiceOptions.forEach((opt) => {
       if (opt.dataset.agence === String(agenceId)) {
-        serviceSelect.appendChild(opt.cloneNode(true));
+        fragment.appendChild(opt.cloneNode(true));
       }
     });
+    serviceSelect.appendChild(fragment);
   }
 
   // Init au chargement : filtrer selon la valeur déjà sélectionnée

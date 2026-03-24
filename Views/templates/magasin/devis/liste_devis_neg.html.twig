@@ -8,6 +8,16 @@
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.10.22.08.00">
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/utils/autocomplete.css?v=2025.10.22.08.00">
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/magasin/devis/listeDevisMagasin.css?v=2025.09.19.09.23">
+	<style>
+		.table-sticky {
+			width: 100%;
+		}
+		.table-sticky th,
+		.table-sticky td {
+			white-space: nowrap;
+			padding: 8px 12px;
+		}
+	</style>
 {% endblock %}
 
 {% block content %}
@@ -45,8 +55,8 @@
 					<th class="text-center">Soumis par</th>
 				</tr>
 			</thead>
-			<tbody id="tableBody">
-				{# Le contenu sera chargé dynamiquement par JavaScript #}
+			<tbody
+				id="tableBody">{# Le contenu sera chargé dynamiquement par JavaScript #}
 			</tbody>
 			<tbody id="skeletonLoader" class="d-none">
 				{% for i in 1..20 %}
@@ -77,117 +87,195 @@
 
 	<script>
 		document.addEventListener('DOMContentLoaded', () => {
-			const tableBody = document.getElementById('tableBody');
-			const sentinel = document.getElementById('load-more-sentinel');
-			const loader = document.getElementById('skeletonLoader');
-			const searchForm = document.querySelector('form[name="devis_neg_search"]') || document.querySelector('form');
-			let currentPage = 1;
-			let isLoading = false;
-			let hasMore = true;
+const tableBody = document.getElementById('tableBody');
+const sentinel = document.getElementById('load-more-sentinel');
+const loader = document.getElementById('skeletonLoader');
+const searchForm = document.querySelector('form[name="devis_neg_search"]') || document.querySelector('form');
+let currentPage = 1;
+let isLoading = false;
+let hasMore = true;
 
-			const loadData = async () => {
-				if (isLoading || !hasMore) return;
-				
-				isLoading = true;
-				loader.classList.remove('d-none');
+const loadData = async () => {
+if (isLoading || ! hasMore) 
+return;
 
-				try {
-					const formData = new FormData(searchForm);
-					const params = new URLSearchParams(formData);
-					params.append('page', currentPage);
-					params.append('limit', 50);
 
-					const response = await fetch(`{{ path('api_devis_neg_data') }}?${params.toString()}`);
-					const result = await response.json();
 
-					if (!result.success || result.data.length === 0) {
-						hasMore = false;
-						if (currentPage === 1) {
-							tableBody.innerHTML = `<tr><td colspan="18" class="text-center py-4">${result.message || 'Aucune donnée trouvée'}</td></tr>`;
-						}
-					} else {
-						result.data.forEach(row => {
-							const tr = document.createElement('tr');
-							const montant = new Intl.NumberFormat('fr-FR', { minimumFractionDigits: 2 }).format(row.montantDevis);
-							
-							tr.innerHTML = `
-								<td class="align-middle" style="padding: 0px">
-									<div class="dropdown">
-										<button class="btn btn-sm me-1 dropdown-toggle trois-points-vertical" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-											<i class="fas fa-ellipsis-vertical"></i>
-										</button>
-										<ul class="dropdown-menu dropdown-menu-end">
-											<li>
-												<a class="dropdown-item fw-bold" href="${row.url.verificationPrix}">Soumission devis pour verification prix</a>
-												<a class="dropdown-item fw-bold" href="${row.url.validationDevis}">Soumission devis pour validation</a>
-												<a class="dropdown-item fw-bold js-link-relance-client ${row.relanceClient ? '' : 'd-none'}" href="#" data-bs-toggle="modal" data-bs-target="#pointageRelanceModal" data-bs-numero-devis="${row.numeroDevis}">Pointer relance devis client</a>
-												<a class="dropdown-item fw-bold js-link-pointage-devis ${row.pointagedevis ? '' : 'd-none'}" href="${row.url.pointageDevis || '#'}">Pointage envoye devis au client</a>
-												<a class="dropdown-item fw-bold" href="${row.url.soumissionBC}">Soumission BC client pour validation</a>
-											</li>
-										</ul>
-									</div>
-								</td>
-								<td class="text-center fw-bold ${row.styleStatutDw}">${row.statutDw || ''}</td>
-								<td class="text-center fw-bold ${row.styleStatutBc}">${row.statutBc || ''}</td>
-								<td class="text-center">${row.numeroDevis || ''}</td>
-								<td class="text-center">${row.dateCreation || ''}</td>
-								<td class="text-center">${row.emetteur || ''}</td>
-								<td>${row.client || ''}</td>
-								<td>${row.referenceClient || ''}</td>
-								<td class="text-end">${montant}</td>
-								<td class="text-center">${row.dateEnvoiDevisAuClient || ''}</td>
-								<td class="text-center fw-bold ${row.styleStatutPR1}">${row.statutRelance1 || ''}</td>
-								<td class="text-center fw-bold ${row.styleStatutPR2}">${row.statutRelance2 || ''}</td>
-								<td class="text-center fw-bold ${row.styleStatutPR3}">${row.statutRelance3 || ''}</td>
-								<td class="text-center">
-									${row.statutRelance1 ? `
-										<div class="form-check form-switch d-flex justify-content-center">
-											<input class="form-check-input js-checkbox-stop-relance" type="checkbox" role="switch" data-numero-devis="${row.numeroDevis}">
+isLoading = true;
+loader.classList.remove('d-none');
+
+try {
+const formData = new FormData(searchForm);
+const params = new URLSearchParams(formData);
+params.append('page', currentPage);
+params.append('limit', 25);
+
+const response = await fetch (`{{ path('api_devis_neg_data') }}?${
+params.toString()
+}`);
+const result = await response.json();
+
+const urlBases = {{ urlBases|json_encode|raw }};
+const formatter = new Intl.NumberFormat('fr-FR', {minimumFractionDigits: 2});
+
+if (! result.success || result.data.length === 0) {
+hasMore = false;
+if (currentPage === 1) {
+tableBody.innerHTML = `<tr><td colspan="18" class="text-center py-4">${
+result.message || 'Aucune donnée trouvée'
+}</td></tr>`;
+}
+} else {
+let html = '';
+result.data.forEach(row => {
+const montant = formatter.format(row.montantDevis);
+
+const urlVerificationPrix = urlBases.verificationPrix.replace('PLACEHOLDER', row.numeroDevis);
+const urlValidationDevis = urlBases.validationDevis.replace('PLACEHOLDER_NUM', row.numeroDevis).replace('PLACEHOLDER_AG', encodeURIComponent(row.emetteur));
+const urlSoumissionBC = urlBases.soumissionBC.replace('PLACEHOLDER', row.numeroDevis);
+const urlPointageDevis = row.pointagedevis ? urlBases.pointageDevis.replace('PLACEHOLDER', row.numeroDevis) : '#';
+
+html += `
+								<tr>
+									<td class="align-middle" style="padding: 0px">
+										<div class="dropdown">
+											<button class="btn btn-sm me-1 dropdown-toggle trois-points-vertical" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+												<i class="fas fa-ellipsis-vertical"></i>
+											</button>
+											<ul class="dropdown-menu dropdown-menu-end">
+												<li>
+													<a class="dropdown-item fw-bold" href="${urlVerificationPrix}">Soumission devis pour verification prix</a>
+													<a class="dropdown-item fw-bold" href="${urlValidationDevis}">Soumission devis pour validation</a>
+													<a class="dropdown-item fw-bold js-link-relance-client ${
+row.relanceClient ? '' : 'd-none'
+}" href="#" data-bs-toggle="modal" data-bs-target="#pointageRelanceModal" data-bs-numero-devis="${
+row.numeroDevis
+}">Pointer relance devis client</a>
+													<a class="dropdown-item fw-bold js-link-pointage-devis ${
+row.pointagedevis ? '' : 'd-none'
+}" href="${urlPointageDevis}">Pointage envoye devis au client</a>
+													<a class="dropdown-item fw-bold" href="${urlSoumissionBC}">Soumission BC client pour validation</a>
+												</li>
+											</ul>
 										</div>
-									` : ''}
-								</td>
-								<td class="text-center">${row.positionIps || ''}</td>
-								<td class="text-center">BC-CLI</td>
-								<td class="text-center">${row.utilisateurCreateurDevis || ''}</td>
-								<td class="text-center">${row.soumisPar || ''}</td>
+									</td>
+									<td class="text-center fw-bold ${
+row.styleStatutDw
+}">${
+row.statutDw || ''
+}</td>
+									<td class="text-center fw-bold ${
+row.styleStatutBc
+}">${
+row.statutBc || ''
+}</td>
+									<td class="text-center">${
+row.numeroDevis || ''
+}</td>
+									<td class="text-center">${
+row.dateCreation || ''
+}</td>
+									<td class="text-center">${
+row.emetteur || ''
+}</td>
+									<td>${
+row.client || ''
+}</td>
+									<td>${
+row.referenceClient || ''
+}</td>
+									<td class="text-end">${montant}</td>
+									<td class="text-center">${
+row.dateEnvoiDevisAuClient || ''
+}</td>
+									<td class="text-center fw-bold ${
+row.styleStatutPR1
+}">${
+row.statutRelance1 || ''
+}</td>
+									<td class="text-center fw-bold ${
+row.styleStatutPR2
+}">${
+row.statutRelance2 || ''
+}</td>
+									<td class="text-center fw-bold ${
+row.styleStatutPR3
+}">${
+row.statutRelance3 || ''
+}</td>
+									<td class="text-center">
+										${
+row.statutRelance1 ? `
+											<div class="form-check form-switch d-flex justify-content-center">
+												<input class="form-check-input js-checkbox-stop-relance" type="checkbox" role="switch" data-numero-devis="${
+row.numeroDevis
+}">
+											</div>
+										` : ''
+}
+									</td>
+									<td class="text-center">${
+row.positionIps || ''
+}</td>
+									<td class="text-center">BC-CLI</td>
+									<td class="text-center">${
+row.utilisateurCreateurDevis || ''
+}</td>
+									<td class="text-center">${
+row.soumisPar || ''
+}</td>
+								</tr>
 							`;
-							tableBody.appendChild(tr);
-						});
-						currentPage++;
-					}
-				} catch (error) {
-					console.error('Erreur de chargement:', error);
-				} finally {
-					isLoading = false;
-					loader.classList.add('d-none');
-				}
-			};
+});
+tableBody.insertAdjacentHTML('beforeend', html);
+currentPage++;
+}
+} catch (error) {
+console.error('Erreur de chargement:', error);
+if (currentPage === 1) {
+tableBody.innerHTML = `<tr><td colspan="18" class="text-center py-4 text-danger fw-bold">
+							<i class="fas fa-exclamation-triangle me-2"></i>
+							Une erreur est survenue lors du chargement des données. Veuillez réessayer ou contacter le support.
+						</td></tr>`;
+} else { // Si c'est un "Charger plus", on affiche une ligne d'erreur temporaire ou un toast
+const errorRow = document.createElement('tr');
+errorRow.innerHTML = `<td colspan="18" class="text-center py-2 text-danger small">Erreur lors du chargement de la page suivante.</td>`;
+tableBody.appendChild(errorRow);
+} hasMore = false; // On arrête d'essayer de charger plus en cas d'erreur
+} finally {
+isLoading = false;
+loader.classList.add('d-none');
+}
+};
 
-			if (searchForm) {
-				searchForm.addEventListener('submit', (e) => {
-					e.preventDefault();
-					currentPage = 1;
-					hasMore = true;
-					tableBody.innerHTML = '';
-					loadData();
-				});
+if (searchForm) {
+searchForm.addEventListener('submit', (e) => {
+e.preventDefault();
+currentPage = 1;
+hasMore = true;
+tableBody.innerHTML = '';
+loadData();
+});
 
-				searchForm.addEventListener('reset', (e) => {
-					// setTimeout pour laisser le navigateur réinitialiser les champs avant de lancer loadData
-					setTimeout(() => {
-						currentPage = 1;
-						hasMore = true;
-						tableBody.innerHTML = '';
-						loadData();
-					}, 10);
-				});
-			}
+searchForm.addEventListener('reset', (e) => { // setTimeout pour laisser le navigateur réinitialiser les champs avant de lancer loadData
+setTimeout(() => {
+currentPage = 1;
+hasMore = true;
+tableBody.innerHTML = '';
+loadData();
+}, 10);
+});
+}
 
-			const observer = new IntersectionObserver((entries) => {
-				if (entries[0].isIntersecting) loadData();
-			}, { threshold: 0.1 });
+const observer = new IntersectionObserver((entries) => {
+if (entries[0].isIntersecting) 
+loadData();
 
-			observer.observe(sentinel);
-		});
+
+
+}, {threshold: 0.1});
+
+observer.observe(sentinel);
+});
 	</script>
 {% endblock %}
