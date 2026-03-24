@@ -131,7 +131,7 @@ class DomRepository extends EntityRepository
 
         $excludedStatuses = [9, 18, 22, 24, 26, 32, 33, 34, 35];
         $queryBuilder->andWhere($queryBuilder->expr()->notIn('s.id', ':excludedStatuses'))
-            ->andWhere('da.codeSociete = :codeSociete')
+            ->andWhere('d.codeSociete = :codeSociete')
             ->setParameter('codeSociete', $codeSociete)
             ->setParameter('excludedStatuses', $excludedStatuses);
 
