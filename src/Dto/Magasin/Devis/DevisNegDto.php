@@ -43,10 +43,8 @@ class DevisNegDto
     public bool $relanceClient = false;
 
     public string $devise = '';
-    public  $constructeur;
     public ?int $numeroVersion = 0;
     public int $nombreLignes = 0;
-    public string $typeSoumission = '';
     public $dateMajStatut;
     public string $utilisateur = '';
     public bool $cat = false;
@@ -54,11 +52,8 @@ class DevisNegDto
     public string $nomFichier = '';
     public int $sommeNumeroLignes;
     public $datePointage = null;
-    public ?string $tacheValidateur = null;
-    public $estValidationPm = false;
     public ?string $relance = '';
     public $dateBc = null;
-    public ?string $observation = null;
     public $pieceJoint01;
     public $pieceJoint2;
     public ?string $pieceJointExcel = null;
@@ -69,6 +64,8 @@ class DevisNegDto
     public $dateStopGlobal;
     public $motifStopGlobal;
     public $dateRepriseManuel;
+
+
 
     public function styleStatutDw(): string
     {
