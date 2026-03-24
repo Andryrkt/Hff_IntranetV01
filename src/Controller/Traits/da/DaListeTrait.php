@@ -356,7 +356,7 @@ trait DaListeTrait
 
         // URL demande de devis
         // Si c'est via OR ou direct
-        $urls['demandeDevis'] = isset($routeNames['delete'][$daTypeId]) ? $this->getUrlGenerator()->generate('da_demande_devis_en_cours', $parametres['daId']) : '#';
+        $urls['demandeDevis'] = isset($routeNames['delete'][$daTypeId]) ? $this->getUrlGenerator()->generate('api_da_demande_devis_en_cours', $parametres['daId']) : '#';
 
         return $urls;
     }

@@ -279,7 +279,7 @@ class DaListePresenter
 
         // URL demande de devis
         $urls['demandeDevis'] = !empty($item['demandeApproId'])
-            ? $this->router->generate('da_demande_devis_en_cours', $parametres['daId'])
+            ? $this->router->generate('api_da_demande_devis_en_cours', $parametres['daId'])
             : '#';
 
         return $urls;
