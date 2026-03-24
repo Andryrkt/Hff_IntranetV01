@@ -27,14 +27,14 @@ try {
     $currentRoute = $matcher->match($request->getPathInfo());
     $request->attributes->add($currentRoute);
 
-    // 2. Contrôler l'accès
+    /* // 2. Contrôler l'accès
     $securityResponse = $securityService->controlerAcces($request);
 
     if ($securityResponse !== null) {
         // L'utilisateur n'est pas connecté : on le redirige vers le login
         $securityResponse->send();
         exit;
-    }
+    } */
 
     // 3. Résoudre le contrôleur
     $controller = $controllerResolver->getController($request);

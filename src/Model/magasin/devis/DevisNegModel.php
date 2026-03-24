@@ -7,7 +7,7 @@ use App\Model\Model;
 
 class DevisNegModel extends Model
 {
-    public function getDevisNeg($criteria, $vignette, $codeAgenceAutoriserString, $adminMutli, $numDeviAExclure, $page = 1, $limit = 50)
+    public function getDevisNeg($criteria, $codeAgenceAutoriserString, $numDeviAExclure, $codeSociete, $page = 1, $limit = 50)
     {
         $this->connect->connect();
         $skip = ($page - 1) * $limit;
@@ -110,7 +110,9 @@ WHERE nent.nent_natop    = 'DEV'
     AND nent.nent_numcli   <> 1990000
     AND nent.nent_numcde   NOT IN (19407989,19407991,19408971,19410383,19409906,19409996)
     AND nent.nent_datecde  >= MDY(9, 1, 2025)
-    AND nent.nent_succ <> '60'";
+    AND nent.nent_succ <> '60'
+    AND nent.nent_soc = '$codeSociete'
+    ";
 
             $whereClauses = [];
 
@@ -119,9 +121,161 @@ WHERE nent.nent_natop    = 'DEV'
             }
 
             // Filtre par agences autorisées
-            if (!$adminMutli && !empty($codeAgenceAutoriserString)) {
-                $whereClauses[] = " nent.nent_succ IN ($codeAgenceAutoriserString) ";
+            // if (!empty($codeAgenceAutoriserString)) {
+            //     $whereClauses[] = " nent.nent_succ IN ($codeAgenceAutoriserString) ";
+            // }
+
+            if (array_key_exists('statutIps', $criteria) && ($criteria['statutIps'] == 'RE' || $criteria['statutIps'] == 'TR')) {
+                $whereClauses[] = " nent.nent_posl in ('--','AC','DE', 'RE', 'TR')";
+            } else {
+                $whereClauses[] = " nent.nent_posl in ('--','AC','DE', 'TR')";
             }
+
+            // Application des filtres dynamiques
+            $this->filtre($whereClauses, $criteria);
+
+            if (!empty($whereClauses)) {
+                $statement .= " AND " . implode(" AND ", $whereClauses);
+            }
+
+            $statement .= " ORDER BY date_cde_brute DESC";
+
+            $result = $this->connect->executeQuery($statement);
+            $rows = $this->connect->fetchResults($result);
+
+            return $rows;
+        } finally {
+            $this->connect->close();
+        }
+    }
+
+    /**
+     * Cette Methode permet de récupérer les données à exporter 
+     * pour une fichier Excel
+     * 
+     * @param array $criteria
+     * @param string $codeAgenceAutoriserString
+     * @param string $numDeviAExclure
+     * @param string $codeSociete
+     * 
+     * @return array
+     */
+    public function getDevisNegExportExcel($criteria, $codeAgenceAutoriserString, $numDeviAExclure, $codeSociete)
+    {
+        $this->connect->connect();
+
+        try {
+
+            $statement = "SELECT 
+    nent.nent_datecde                                           AS date_cde_brute
+    ,dneg.statut_dw                                             AS statut_dw
+    ,dneg.statut_bc                                             AS statut_bc
+    ,nent.nent_numcde                                           AS numero_devis
+    ,TO_CHAR(nent.nent_datecde, '%d/%m/%Y')                     AS date_creation
+    ,nent.nent_succ || ' - ' || nent_servcrt                    AS emetteur
+    ,nent.nent_numcli || ' - ' || nent_nomcli                   AS client
+    ,TRIM(nent.nent_refcde)                                     AS reference_client
+    ,nent.nent_cdeht                                            AS montant_devis
+    ,TO_CHAR(dneg.date_envoye_devis_client, '%d/%m/%Y')         AS date_envoye_devis_au_client
+
+    -- Pour statut_relance_1
+    ,CASE
+        WHEN rl.date_relance1 IS NOT NULL
+            THEN TO_CHAR(rl.date_relance1, '%d/%m/%Y')
+        WHEN dneg.statut_bc = 'En attente bc'
+            AND rl.nb_relances = 0
+            AND rl.delai_jours >= 7
+            AND (dneg.stop_progression_global = 0 OR dneg.stop_progression_global IS NULL)
+            THEN 'A relancer'
+        ELSE NULL
+    END AS statut_relance_1
+
+    -- Pour statut_relance_2
+    ,CASE
+        WHEN rl.date_relance2 IS NOT NULL
+            THEN TO_CHAR(rl.date_relance2, '%d/%m/%Y')
+        WHEN dneg.statut_bc = 'En attente bc'
+            AND rl.nb_relances = 1
+            AND rl.delai_jours >= 7
+            AND (dneg.stop_progression_global = 0 OR dneg.stop_progression_global IS NULL)
+            THEN 'A relancer'
+        WHEN dneg.statut_bc = 'En attente bc'
+            AND rl.nb_relances = 1
+            AND rl.delai_jours < 7
+            THEN NULL
+        WHEN dneg.statut_bc = 'En attente bc'
+            AND dneg.stop_progression_global = 1
+            THEN NULL
+        ELSE NVL(TO_CHAR(rl.date_relance2, '%d/%m/%Y'), TO_CHAR(rl.derniere_relance, '%d/%m/%Y'))
+    END AS statut_relance_2
+
+    -- Pour statut_relance_3
+    ,CASE
+        WHEN rl.date_relance3 IS NOT NULL
+            THEN TO_CHAR(rl.date_relance3, '%d/%m/%Y')
+        WHEN dneg.statut_bc = 'En attente bc'
+            AND rl.nb_relances = 2
+            AND rl.delai_jours >= 7
+            AND (dneg.stop_progression_global = 0 OR dneg.stop_progression_global IS NULL)
+            THEN 'A relancer'
+        WHEN dneg.statut_bc = 'En attente bc'
+            AND (rl.nb_relances < 2 OR (rl.nb_relances = 2 AND rl.delai_jours < 7))
+            THEN NULL
+        WHEN dneg.statut_bc = 'En attente bc'
+            AND dneg.stop_progression_global = 1
+            THEN NULL
+        ELSE TO_CHAR(rl.derniere_relance, '%d/%m/%Y')
+    END AS statut_relance_3
+
+    ,nent.nent_posl                                             AS position_ips
+    ,TRIM(ausr.ausr_nom)                                        AS utilisateur_createur_devis
+    ,dneg.utilisateur                                           AS soumis_par
+    ,nent.nent_devise                                           AS devise
+    ,(SELECT MAX(nlig_constp) FROM ips_hffprod:informix.neg_lig WHERE nlig_numcde = nent.nent_numcde) AS constructeur
+
+FROM ips_hffprod:informix.neg_ent nent
+
+LEFT JOIN ips_hffprod:informix.agr_usr ausr
+    ON ausr.ausr_num = nent.nent_usr
+    AND ausr.ausr_soc = nent.nent_soc
+
+LEFT JOIN ir_prod108:Informix.devis_soumis_a_validation_neg dneg
+    ON dneg.numero_devis = nent.nent_numcde
+
+LEFT JOIN (
+    SELECT
+        numero_devis
+        ,MAX(CASE WHEN numero_relance = 1 THEN date_de_relance ELSE NULL END) AS date_relance1
+        ,MAX(CASE WHEN numero_relance = 2 THEN date_de_relance ELSE NULL END) AS date_relance2
+        ,MAX(CASE WHEN numero_relance = 3 THEN date_de_relance ELSE NULL END) AS date_relance3
+        ,COUNT(*) AS nb_relances
+        ,MAX(date_de_relance) AS derniere_relance
+        ,(TODAY - DATE(MAX(date_de_relance))) AS delai_jours
+    FROM ir_prod108:Informix.pointage_relance
+    GROUP BY numero_devis
+) rl ON rl.numero_devis = nent.nent_numcde
+
+WHERE nent.nent_natop    = 'DEV'
+    AND nent.nent_soc      = 'HF'
+    AND nent.nent_servcrt  <> 'ASS'
+    AND nent.nent_numcli   NOT BETWEEN 1990000 AND 1999999
+    AND nent.nent_numcli   <> 1990000
+    AND nent.nent_numcde   NOT IN (19407989,19407991,19408971,19410383,19409906,19409996)
+    AND nent.nent_datecde  >= MDY(9, 1, 2025)
+    AND nent.nent_succ <> '60'
+    AND nent.nent_soc = '$codeSociete'
+    ";
+
+            $whereClauses = [];
+
+            if (!empty($numDeviAExclure)) {
+                $whereClauses[] = " nent.nent_numcde NOT IN ($numDeviAExclure) ";
+            }
+
+            // Filtre par agences autorisées
+            // if (!empty($codeAgenceAutoriserString)) {
+            //     $whereClauses[] = " nent.nent_succ IN ($codeAgenceAutoriserString) ";
+            // }
 
             if (array_key_exists('statutIps', $criteria) && ($criteria['statutIps'] == 'RE' || $criteria['statutIps'] == 'TR')) {
                 $whereClauses[] = " nent.nent_posl in ('--','AC','DE', 'RE', 'TR')";

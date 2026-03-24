@@ -107,10 +107,10 @@ class ListeDevisNegController extends Controller
             $criteria = (array) $criteria;
         }
 
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+        // code agence autoriser
         $codeAgenceAutoriserString = TableauEnStringService::orEnString(array_column($this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DVM), 'agence_code'));
-        $vignette = 'magasin';
-        // $adminMutli = in_array(1, $this->getUser()->getRoleIds()) || in_array(6, $this->getUser()->getRoleIds());
-        $adminMutli = true;
 
         // Utilisation du cache de session pour la liste d'exclusion
         $session = $this->getSessionService();
@@ -131,7 +131,7 @@ class ListeDevisNegController extends Controller
             return [];
         };
 
-        $devisNeg = $this->listeDevisNegModel->getDevisNeg($criteria, $vignette, $codeAgenceAutoriserString, $adminMutli, $numDeviAExclure, $page, $limit);
+        $devisNeg = $this->listeDevisNegModel->getDevisNeg($criteria, $codeAgenceAutoriserString, $numDeviAExclure, $codeSociete, $page, $limit);
         $devisNeg = $this->devisNegMapper->map($devisNeg, $urlGenerator);
 
         return $devisNeg;
