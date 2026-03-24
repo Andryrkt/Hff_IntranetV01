@@ -201,7 +201,7 @@ class InventaireController extends Controller
         $this->generetePdfInventaire->genererPDF($data['data']);
     }
     /**
-     * @Route("/downloadfile/{filename}", name = "download_file")
+     * @Route("/export/downloadfile/{filename}", name = "export_download_file")
      */
     public function downFile($filename)
     {
