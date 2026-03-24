@@ -58,6 +58,14 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
           }
         ],
         "agences_services": []
@@ -468,6 +476,14 @@
           },
           {
             "nom_route": "conge_liste",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -1005,6 +1021,14 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
           }
         ],
         "agences_services": []
@@ -1326,6 +1350,14 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
           }
         ],
         "agences_services": []
@@ -1510,6 +1542,14 @@
           },
           {
             "nom_route": "conge_liste",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -1738,6 +1778,14 @@
           },
           {
             "nom_route": "conge_liste",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -2390,6 +2438,14 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
           }
         ],
         "agences_services": []
@@ -2706,6 +2762,14 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
           }
         ],
         "agences_services": []
@@ -3014,6 +3078,14 @@
           },
           {
             "nom_route": "conge_liste",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -3445,6 +3517,14 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
           }
         ],
         "agences_services": []
@@ -3820,6 +3900,14 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
           }
         ],
         "agences_services": []
@@ -4103,6 +4191,14 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
           }
         ],
         "agences_services": []
@@ -4292,6 +4388,14 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
           }
         ],
         "agences_services": []
@@ -4422,6 +4526,14 @@
           },
           {
             "nom_route": "conge_liste",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -4811,6 +4923,14 @@
           },
           {
             "nom_route": "conge_liste",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -5304,6 +5424,14 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
           }
         ],
         "agences_services": []
@@ -5558,6 +5686,14 @@
           },
           {
             "nom_route": "conge_liste",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -5844,6 +5980,14 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
           }
         ],
         "agences_services": []
@@ -6033,6 +6177,14 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
           }
         ],
         "agences_services": []
@@ -6217,6 +6369,14 @@
           },
           {
             "nom_route": "conge_liste",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -6433,6 +6593,14 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
           }
         ],
         "agences_services": []
@@ -6639,6 +6807,14 @@
           },
           {
             "nom_route": "conge_liste",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -7123,6 +7299,14 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
           }
         ],
         "agences_services": []
@@ -7574,6 +7758,14 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
           }
         ],
         "agences_services": []
@@ -7901,6 +8093,14 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
           }
         ],
         "agences_services": []
@@ -8223,6 +8423,14 @@
           },
           {
             "nom_route": "conge_liste",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -8585,6 +8793,14 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
           }
         ],
         "agences_services": []
@@ -8898,6 +9114,14 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
           }
         ],
         "agences_services": []
@@ -9152,6 +9376,14 @@
           },
           {
             "nom_route": "conge_liste",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -9470,6 +9702,14 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
           }
         ],
         "agences_services": []
@@ -9708,6 +9948,14 @@
           },
           {
             "nom_route": "conge_liste",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -10005,6 +10253,14 @@
           },
           {
             "nom_route": "conge_liste",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -10625,6 +10881,14 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
           }
         ],
         "agences_services": []
@@ -11062,6 +11326,14 @@
           },
           {
             "nom_route": "conge_liste",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -12582,6 +12854,14 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
           }
         ],
         "agences_services": []
@@ -12845,6 +13125,14 @@
           },
           {
             "nom_route": "conge_liste",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -13167,6 +13455,14 @@
           },
           {
             "nom_route": "conge_liste",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -13574,6 +13870,14 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
           }
         ],
         "agences_services": []
@@ -13758,6 +14062,14 @@
           },
           {
             "nom_route": "conge_liste",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -14035,6 +14347,14 @@
           },
           {
             "nom_route": "conge_liste",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -16797,6 +17117,14 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
           }
         ],
         "agences_services": []
@@ -18640,6 +18968,14 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
           }
         ],
         "agences_services": []
@@ -20209,6 +20545,14 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
           }
         ],
         "agences_services": []
@@ -20618,6 +20962,14 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
           }
         ],
         "agences_services": []
@@ -20920,6 +21272,14 @@
           },
           {
             "nom_route": "conge_liste",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -21302,6 +21662,14 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
           }
         ],
         "agences_services": []
@@ -21604,6 +21972,14 @@
           },
           {
             "nom_route": "conge_liste",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -21916,6 +22292,14 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
           }
         ],
         "agences_services": []
@@ -22113,6 +22497,14 @@
           },
           {
             "nom_route": "conge_liste",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -22425,6 +22817,14 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
           }
         ],
         "agences_services": []
@@ -22609,6 +23009,14 @@
           },
           {
             "nom_route": "conge_liste",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -22921,6 +23329,14 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
           }
         ],
         "agences_services": []
@@ -23201,6 +23617,14 @@
           },
           {
             "nom_route": "conge_liste",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -23500,6 +23924,14 @@
           },
           {
             "nom_route": "conge_liste",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -23812,6 +24244,14 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
           }
         ],
         "agences_services": []
@@ -23996,6 +24436,14 @@
           },
           {
             "nom_route": "conge_liste",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -24348,6 +24796,14 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
           }
         ],
         "agences_services": []
@@ -24628,6 +25084,14 @@
           },
           {
             "nom_route": "conge_liste",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -24956,6 +25420,14 @@
           },
           {
             "nom_route": "conge_liste",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -25454,6 +25926,14 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
           }
         ],
         "agences_services": []
@@ -25824,6 +26304,14 @@
           },
           {
             "nom_route": "conge_liste",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -26351,6 +26839,14 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
           }
         ],
         "agences_services": []
@@ -26719,6 +27215,14 @@
           },
           {
             "nom_route": "conge_liste",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -27450,6 +27954,14 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
           }
         ],
         "agences_services": []
@@ -27634,6 +28146,14 @@
           },
           {
             "nom_route": "conge_liste",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -28814,6 +29334,14 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
           }
         ],
         "agences_services": []
@@ -29471,6 +29999,14 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
           }
         ],
         "agences_services": []
@@ -29872,6 +30408,14 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
           }
         ],
         "agences_services": []
@@ -30239,6 +30783,14 @@
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": true,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "conge_calendrier",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
           }
