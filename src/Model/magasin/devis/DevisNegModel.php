@@ -111,8 +111,12 @@ WHERE nent.nent_natop    = 'DEV'
     AND nent.nent_numcde   NOT IN (19407989,19407991,19408971,19410383,19409906,19409996)
     AND nent.nent_datecde  >= MDY(9, 1, 2025)
     AND nent.nent_succ <> '60'
-    AND nent.nent_soc = '$codeSociete'
+    --AND nent.nent_soc = '$codeSociete'
     ";
+
+            if (empty($criteria['statutDw']) && empty($criteria['statutBc'])) {
+                $statement .= " AND (dneg.statut_dw in ('A envoyer client', 'A soumettre') or  dneg.statut_dw is null) ";
+            }
 
             $whereClauses = [];
 
@@ -265,6 +269,10 @@ WHERE nent.nent_natop    = 'DEV'
     AND nent.nent_succ <> '60'
     AND nent.nent_soc = '$codeSociete'
     ";
+
+            if (empty($criteria['statutDw']) && empty($criteria['statutBc'])) {
+                $statement .= " AND (dneg.statut_dw in ('A envoyer client', 'A soumettre') or  dneg.statut_dw is null) ";
+            }
 
             $whereClauses = [];
 
