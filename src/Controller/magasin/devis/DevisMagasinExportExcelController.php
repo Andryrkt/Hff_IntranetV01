@@ -22,7 +22,7 @@ class DevisMagasinExportExcelController extends Controller
     }
 
     /**
-     * @Route("/devis-magasin-export-excel-list-devis-magasin", name="devis_magasin_export_excel_list_devis_magasin")
+     * @Route("/devis-magasin-export-excel-list-devis-magasin", name="export_excel_list_devis_magasin")
      *
      * @return void
      */
