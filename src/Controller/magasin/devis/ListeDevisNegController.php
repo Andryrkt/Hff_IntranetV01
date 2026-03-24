@@ -3,6 +3,7 @@
 namespace App\Controller\magasin\devis;
 
 use App\Constants\admin\ApplicationConstant;
+use App\Constants\Magasin\Devis\TypeSoumissionConstant;
 use App\Controller\Controller;
 use App\Dto\Magasin\Devis\DevisSearchDto;
 use App\Entity\magasin\bc\BcMagasin;
@@ -44,7 +45,7 @@ class ListeDevisNegController extends Controller
         $response = $this->render('magasin/devis/liste_devis_neg.html.twig', [
             'form' => $form->createView(),
             'urlBases' => [
-                'verificationPrix' => $this->getUrlGenerator()->generate('devis_magasin_soumission_verification_prix', ['numeroDevis' => 'PLACEHOLDER']),
+                'verificationPrix' => $this->getUrlGenerator()->generate('devis_neg_soumission_verification_prix', ['typeSoumission' => TypeSoumissionConstant::VERIFICATION_PRIX, 'numeroDevis' => 'PLACEHOLDER']),
                 'validationDevis'  => $this->getUrlGenerator()->generate('devis_magasin_soumission_validation_devis', ['numeroDevis' => 'PLACEHOLDER_NUM', 'codeAgenceService' => 'PLACEHOLDER_AG']),
                 'soumissionBC'     => $this->getUrlGenerator()->generate('bc_magasin_soumission', ['numeroDevis' => 'PLACEHOLDER']),
                 'pointageDevis'    => $this->getUrlGenerator()->generate('devis_magasin_envoyer_au_client', ['numeroDevis' => 'PLACEHOLDER']),

@@ -12,4 +12,8 @@ class SoumissionDto
     public ?string $typeSoumission = null;
     public $constructeur;
     public ?string $codeSociete = null;
+    public $pieceJointe01;
+    public $pieceJointe02;
+    public ?string $pieceJointeExcel = null;
+    public $remoteUrlCourt = null;
 }

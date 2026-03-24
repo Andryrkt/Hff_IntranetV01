@@ -3,6 +3,7 @@
 namespace App\Model\magasin\devis;
 
 use App\Model\Model;
+use App\Service\GlobalVariablesService;
 
 
 class DevisNegModel extends Model
@@ -111,7 +112,12 @@ WHERE nent.nent_natop    = 'DEV'
     AND nent.nent_numcde   NOT IN (19407989,19407991,19408971,19410383,19409906,19409996)
     AND nent.nent_datecde  >= MDY(9, 1, 2025)
     AND nent.nent_succ <> '60'
-    --AND nent.nent_soc = '$codeSociete'
+    AND nent.nent_soc = '$codeSociete'
+    AND EXISTS (
+                    SELECT 1 FROM ips_hffprod:informix.neg_lig nl
+                    WHERE nl.nlig_numcde = nent.nent_numcde
+                    AND nl.nlig_constp IN ('AGR','ATC','AUS','CAT','CGM','CMX','DNL','DYN','GRO','HYS','JDR','KIT','MAN','MNT','OLY','OOM','PAR','PDV','PER','PUB','REM','SHM','TBI','THO')
+                )
     ";
 
             if (empty($criteria['statutDw']) && empty($criteria['statutBc'])) {
@@ -268,6 +274,11 @@ WHERE nent.nent_natop    = 'DEV'
     AND nent.nent_datecde  >= MDY(9, 1, 2025)
     AND nent.nent_succ <> '60'
     AND nent.nent_soc = '$codeSociete'
+    AND EXISTS (
+                    SELECT 1 FROM ips_hffprod:informix.neg_lig nl
+                    WHERE nl.nlig_numcde = nent.nent_numcde
+                    AND nl.nlig_constp IN ('AGR','ATC','AUS','CAT','CGM','CMX','DNL','DYN','GRO','HYS','JDR','KIT','MAN','MNT','OLY','OOM','PAR','PDV','PER','PUB','REM','SHM','TBI','THO')
+                )
     ";
 
             if (empty($criteria['statutDw']) && empty($criteria['statutBc'])) {
@@ -460,5 +471,27 @@ WHERE nent.nent_natop    = 'DEV'
         }
 
         return array_column($data, 'numDevis');
+    }
+
+    public function getConstructeur(string $numeroDevis)
+    {
+        $cstMagasin = GlobalVariablesService::get('pieces_magasin');
+        $statement = " SELECT 
+                CASE 
+                    WHEN COUNT(*) = 0 THEN 'AUCUNE CONSTRUCTEUR'
+                    WHEN COUNT(CASE WHEN nlig_constp = 'CAT' THEN 1 END) = COUNT(*) THEN 'TOUT CAT'
+                    ELSE 'TOUS NEST PAS CAT'
+                END as resultat
+            FROM informix.neg_lig 
+            WHERE nlig_numcde = '$numeroDevis' 
+            AND nlig_constp NOT LIKE 'Nmc%'
+            AND nlig_constp IN ($cstMagasin)
+    ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return array_column($data, 'resultat')[0];
     }
 }

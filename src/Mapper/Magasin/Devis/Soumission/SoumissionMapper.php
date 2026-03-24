@@ -3,20 +3,76 @@
 namespace App\Mapper\Magasin\Devis\Soumission;
 
 use App\Dto\Magasin\Devis\Soumission\SoumissionDto;
+use App\Model\magasin\devis\DevisNegModel;
+use DirectoryIterator;
 
 class SoumissionMapper
 {
-    public static function toDto(array $data): SoumissionDto
+    public static function toDto(?string $typeSoumission = null, ?string $numeroDevis = null, $securityService): SoumissionDto
     {
-        // TODO: à rectifier il faut envoyer un parmamettre pour savoir le type de soumission 
         $dto = new SoumissionDto();
-        $dto->numeroDevis = $data['numeroDevis'];
-        $dto->estValidationPm = $data['estValidationPm'];
-        $dto->tacheValidateur = $data['tacheValidateur'];
-        $dto->observation = $data['observation'];
-        $dto->typeSoumission = $data['typeSoumission'];
-        $dto->constructeur = $data['constructeur'];
-        $dto->codeSociete = $data['codeSociete'];
+        $dto->typeSoumission = $typeSoumission;
+        $dto->numeroDevis = $numeroDevis;
+        $dto->constructeur = trim(self::getContructeur($dto));
+        $dto->estValidationPm = $dto->constructeur === 'TOUS NEST PAS CAT' ? TRUE : FALSE;
+        $dto->tacheValidateur = '';
+        $dto->codeSociete = $securityService->getCodeSocieteUser();
+        $dto->remoteUrlCourt = self::getLastEditedDevis($numeroDevis)["court"];
+
         return $dto;
+    }
+
+    /**
+     * Methode pour savoir si tous les constructeur du Devis 
+     * est CAT ou non ou partielement
+     *
+     * @param [type] $dto
+     * @return string 'TOUS NEST PAS CAT' ou 'TOUT CAT'
+     */
+    private static function getContructeur($dto): string
+    {
+        $devisNegModel = new DevisNegModel();
+        return trim($devisNegModel->getConstructeur($dto->numeroDevis));
+    }
+
+    private static function getLastEditedDevis(string $numeroDevis): array
+    {
+        $filePath = '';
+        $destination = '';
+        $dossier = "\\\\192.168.0.15\\hff_pdf\\VALIDATION VENTE NEGOCE\\";   // dossier contenant les fichiers
+        $dernierFichier = null;
+        $derniereDate = 0;
+
+        $it = new DirectoryIterator($dossier);
+
+        foreach ($it as $fichier) {
+            if ($fichier->isFile()) {
+                $nom = $fichier->getFilename();
+
+                if (preg_match('/DEVIS MAGASIN_' . $numeroDevis . '_(\d{14})_\d+\.pdf$/', $nom, $matches)) {
+                    $timestamp = $matches[1];
+
+                    if ($timestamp > $derniereDate) {
+                        $derniereDate = $timestamp;
+                        $dernierFichier = $nom;
+                    }
+                }
+            }
+        }
+
+        // Copier le fichier en local si existant
+        if ($dernierFichier) {
+            $remoteUrl = $dossier . $dernierFichier; // chemin du fichier dans le dossier partagé 192.168.0.15
+            $devisPath = $_ENV['BASE_PATH_FICHIER'] . '/magasin/devis/' . $numeroDevis . '/'; // chemin complet du dossier local
+            $destination = $devisPath . $dernierFichier; // chemin complet du fichier local
+            if (!is_dir($devisPath)) mkdir($devisPath, 0777, true); // creation du dossier local si n'existe pas
+            if (!file_exists($destination)) copy($remoteUrl, $destination); // copie du fichier local si n'existe pas
+            $filePath =  $_ENV['BASE_PATH_FICHIER_COURT'] . '/magasin/devis/' . "$numeroDevis/$dernierFichier"; // chemin court du fichier local
+        }
+
+        return [
+            "court" => $filePath,
+            "long"  => $destination
+        ];
     }
 }
