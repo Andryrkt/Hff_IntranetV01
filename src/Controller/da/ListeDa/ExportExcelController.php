@@ -25,7 +25,7 @@ class ExportExcelController extends Controller
     }
 
     /** 
-     * @Route("/export-excel/list-DA", name="da_export_excel_list_da")
+     * @Route("/export-excel/list-DA", name="export_excel_list_da")
      */
     public function exportExcel()
     {

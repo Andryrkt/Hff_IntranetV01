@@ -26,7 +26,7 @@ class ChangementStatutBCController extends Controller
         $this->daSoumissionBcRepository = $this->getEntityManager()->getRepository(DaSoumissionBc::class);
     }
     /**
-     * @Route(path="/changement-statuts-envoyer-fournisseur/{numCde}/{datePrevue}/{estEnvoyer}", name="changement_statut_envoyer_fournisseur")
+     * @Route(path="/changement-statuts-envoyer-fournisseur/{numCde}/{datePrevue}/{estEnvoyer}", name="api_changement_statut_envoyer_fournisseur")
      *
      * @return void
      */
