@@ -152,6 +152,18 @@ function setupAutocompleteField(articleStockeList) {
         fields.numFrn.value = item.num_frn;
         if (articleStocke) {
           fields.desi.classList.add("non-modifiable");
+          const prix = parseFloat(item.prix_unitaire);
+          if (!prix || prix <= 0) {
+            Swal.fire({
+              icon: "warning",
+              title: "Attention ! Prix unitaire non trouvé !",
+              html: `Merci de vérifier dans IPS car le PMP est à zéro pour cet article alors que ce dernier est géré en stock.`,
+              confirmButtonText: "OK",
+              customClass: {
+                htmlContainer: "swal-text-left",
+              },
+            });
+          }
         } else {
           fields.desi.classList.remove("non-modifiable");
         }
@@ -164,6 +176,38 @@ function confirmForm() {
   const form = document.querySelector('form[name="da_affectation"]');
   form.addEventListener("submit", (e) => {
     e.preventDefault();
+
+    // Validation des articles stockés : bloquer si prix_unitaire est nul ou 0
+    const rows = document.querySelectorAll("tbody tr");
+    let errorMsg = "";
+
+    for (const row of rows) {
+      const articleStocke = row.querySelector('[id$="_articleStocke"]');
+      const prixUnitaire = row.querySelector('[id$="_prixUnitaire"]');
+      const refp = row.querySelector(".da-art-refp");
+
+      if (articleStocke && articleStocke.checked && refp && refp.value.trim() !== "") {
+        const prix = parseFloat(prixUnitaire.value);
+        if (!prix || prix <= 0) {
+          errorMsg = `L'article <b>${refp.value}</b> est géré en stock mais son prix unitaire (PMP) est à zéro ou non trouvé.<br><br>L'enregistrement est bloqué. Merci de vérifier dans IPS s'il vous plaît.`;
+          break;
+        }
+      }
+    }
+
+    if (errorMsg) {
+      Swal.fire({
+        icon: "warning",
+        title: "Action bloquée !",
+        html: errorMsg,
+        confirmButtonText: "OK",
+        customClass: {
+          htmlContainer: "swal-text-left",
+        },
+      });
+      return;
+    }
+
     Swal.fire({
       icon: "warning",
       title: "Attention !",

@@ -300,8 +300,6 @@ class DaAfficherRepository extends EntityRepository
         SELECT MAX(sub.numeroVersion)
         FROM ' . DaAfficher::class . ' sub
         WHERE sub.numeroDemandeAppro = d.numeroDemandeAppro
-          AND sub.statutDal IN (:statutDal)
-          AND (sub.statutOr IN (:statutOrs) OR sub.numeroDemandeAppro IN (:exceptions))
     ';
 
         // ------------------------------------------------------------------
@@ -603,7 +601,7 @@ class DaAfficherRepository extends EntityRepository
         $finalQb->addOrderBy('d.numeroDemandeApproMere', 'DESC')
             ->addOrderBy('d.numeroDemandeAppro', 'DESC')
             ->addOrderBy('d.numeroCde', 'ASC')
-            ;
+        ;
 
         return [
             'data'        => $finalQb->getQuery()->getResult(),
