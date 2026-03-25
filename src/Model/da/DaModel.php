@@ -544,21 +544,21 @@ class DaModel extends Model
                         TRIM(abs.abse_desi) as desi,
                         af.afrn_numf as num_frn, 
                         TRIM(fbse.fbse_nomfou) as nom_frn,
-                        af.afrn_pxach as prix_unitaire 
-                    FROM art_bse abs
-                    LEFT JOIN art_frn af 
+                        abs.abse_pmp as prix_unitaire 
+                    FROM informix.art_bse abs
+                    LEFT JOIN informix.art_frn af 
                         ON af.afrn_constp = abs.abse_constp 
                         AND af.afrn_refp = abs.abse_refp
-                    INNER JOIN art_soc asoc 
+                    INNER JOIN informix.art_soc asoc 
                         ON asoc.asoc_constp = abs.abse_constp 
                         AND asoc.asoc_refp = abs.abse_refp
-                    LEFT JOIN frn_bse fbse 
+                    LEFT JOIN informix.frn_bse fbse 
                         ON af.afrn_numf = fbse.fbse_numfou
                     WHERE abs.abse_constp IN ('ALI','BOI','CEN','FBU','HAB','OUT','ZDI','INF','MIN')
                         AND asoc.asoc_soc = 'HF'
                         AND (af.afrn_dated = (
                                 SELECT MAX(afrn_dated) 
-                                FROM art_frn 
+                                FROM informix.art_frn 
                                 WHERE afrn_constp = abs.abse_constp 
                                 AND afrn_refp = abs.abse_refp
                             )

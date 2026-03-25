@@ -64,6 +64,7 @@ class DaAffectationAchatController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var DemandeApproParent $daParent */
             $daParent = $form->getData();
+
             $daParentLines = $daParent->getDemandeApproParentLines();
             $allDaDirect = $daParentLines->filter(function (DemandeApproParentLine $dapl) {
                 return !$dapl->getArticleStocke();
