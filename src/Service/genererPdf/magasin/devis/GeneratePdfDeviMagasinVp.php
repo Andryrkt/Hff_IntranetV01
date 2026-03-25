@@ -23,7 +23,7 @@ class GeneratePdfDeviMagasinVp extends GeneratePdf
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 
-    public function genererPdf(User $user, $dto, string $filePath)
+    public function genererPdf($dto, string $filePath)
     {
         $pdf = new HeaderPdf(null);
         // $font1 = "pdfatimesbi";
@@ -33,7 +33,7 @@ class GeneratePdfDeviMagasinVp extends GeneratePdf
         $pdf->SetFont($font2, 'B', 12);
         $pdf->Cell(30, 10, 'Commercial : ', 0, 0, 'L');
         $pdf->SetFont($font2, '', 10);
-        $pdf->Cell(0, 10, $dto->getNomUtilisateur() . ' - ' . $user->getMail(), 0, 1, 'L');
+        $pdf->Cell(0, 10, $dto->userName . ' - ' . $dto->userMail, 0, 1, 'L');
 
         $pdf->Ln(5, true);
 
@@ -47,7 +47,7 @@ class GeneratePdfDeviMagasinVp extends GeneratePdf
         $pdf->setFont($font2, 'B', 10);
         $pdf->Cell(30, 6, 'Observation', 0, 0, 'L', false, '', 0, false, 'T', 'M');
         $pdf->setFont($font2, '', 10);
-        $pdf->MultiCell(164, 100, ': ' . $dto->getObservation(), 0, '', 0, 0, '', '', true);
+        $pdf->MultiCell(164, 100, ': ' . $dto->observation, 0, '', 0, 0, '', '', true);
 
         $pdf->Output($filePath, 'F');
     }

@@ -32,7 +32,7 @@ class SoumissionMapper
             'somme_numero_lignes' => $infoDevis['somme_numero_lignes'],
             'est_validation_pm' => $dto->validationPm,
             'piece_joint_excel' => $nomFichierExcel,
-            'tache_validateur' => "$dto->tacheValidateur",
+            // 'tache_validateur' => $dto->tacheValidateur,
             'observation' => $dto->observation,
             'code_societe' => $dto->codeSociete,
         ];

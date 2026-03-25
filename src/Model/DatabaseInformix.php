@@ -32,9 +32,9 @@ class DatabaseInformix implements DatabaseConnectionInterface
                 throw new \Exception("Les variables d'environnement DB_DNS_INFORMIX, DB_USERNAME_INFORMIX ou DB_PASSWORD_INFORMIX ne sont pas définies.");
             }
 
-            if (!$this->conn) {
+            if (!is_resource($this->conn)) {
                 $this->conn = odbc_connect($this->dsn, $this->user, $this->password);
-                if (!$this->conn) {
+                if (!is_resource($this->conn)) {
                     throw new \Exception("ODBC Connection failed: " . odbc_errormsg());
                 }
             }
@@ -46,20 +46,51 @@ class DatabaseInformix implements DatabaseConnectionInterface
     }
 
     /** 
-     * Méthode pour exécuter une requête SQL
+     * Méthode pour exécuter une requête SQL avec support optionnel des paramètres
      * */
-    public function executeQuery(string $query)
+    public function executeQuery(string $query, array $params = [])
     {
         try {
-            if (!$this->conn) {
+            if (!is_resource($this->conn)) {
                 $this->connect(); // Tentative de connexion si pas déjà établie
             }
 
-            // Le @ supprime l'affichage du warning PHP d'odbc_exec()
-            // (qui corromprait une réponse JSON). L'erreur est gérée via odbc_errormsg().
-            $result = @odbc_exec($this->conn, $query);
+            if (empty($params)) {
+                // Le @ supprime l'affichage du warning PHP d'odbc_exec()
+                $result = @odbc_exec($this->conn, $query);
+            } else {
+                // Préparation de la requête pour les paramètres
+                // Note: ODBC utilise '?' comme placeholder. On doit convertir les ':name' en '?'
+                // et ordonner les paramètres en conséquence.
+                $orderedParams = [];
+                $queryWithPlaceholders = preg_replace_callback('/:([a-zA-Z0-9_]+)/', function($matches) use ($params, &$orderedParams) {
+                    $key = $matches[1];
+                    if (array_key_exists($key, $params)) {
+                        $value = $params[$key];
+                        // Conversion des booléens pour ODBC/Informix
+                        if (is_bool($value)) {
+                            $value = $value ? 1 : 0;
+                        }
+                        $orderedParams[] = $value;
+                        return '?';
+                    }
+                    return $matches[0]; // Laisser tel quel si pas dans les params
+                }, $query);
+
+                $stmt = odbc_prepare($this->conn, $queryWithPlaceholders);
+                if (!$stmt) {
+                    throw new \Exception("ODBC Prepare failed: " . odbc_errormsg());
+                }
+
+                $result = odbc_execute($stmt, $orderedParams);
+                if (!$result) {
+                    throw new \Exception("ODBC Execute failed: " . odbc_errormsg());
+                }
+                return $stmt;
+            }
+
             if (!$result) {
-                throw new \Exception("ODBC Query failed: " . odbc_errormsg($this->conn));
+                throw new \Exception("ODBC Query failed: " . odbc_errormsg());
             }
             return $result;
         } catch (\Exception $e) {

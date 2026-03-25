@@ -104,19 +104,21 @@ export function enableDropzone(id) {
  *====================================================================*/
 let fileStore = [];
 
-export function initializeFileHandlersMultiple(idSuffix, fileInpute) {
-  const fileInput = fileInpute;
+export function initializeFileHandlersMultiple(idSuffix, fileInput) {
+  if (!fileInput) return; // Si l'input n'existe pas, on ne fait rien
+
   const fileList = document.querySelector(`#file-list-${idSuffix}`);
   const uploadBtn = document.getElementById(`upload-btn-${idSuffix}`);
   const dropzone = document.getElementById(`dropzone-${idSuffix}`);
-  const fileSummary = document.getElementById(`file-summary-${idSuffix}`); // Get summary element
+  const fileSummary = document.getElementById(`file-summary-${idSuffix}`);
 
   if (!fileList || !uploadBtn || !dropzone || !fileSummary) {
-    console.error(
+    console.warn(
       "Missing elements for multiple file handler with suffix: " + idSuffix
     );
     return;
   }
+
 
   fileInput.multiple = true;
 

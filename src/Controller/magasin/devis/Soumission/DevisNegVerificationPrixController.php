@@ -55,13 +55,16 @@ class DevisNegVerificationPrixController extends Controller
             "fichier_initialise" => (bool)$dto->remoteUrlCourt, // Indique si un fichier existe déjà pour ce devis
         ])->getForm();
 
+        // traitement du formulaire
+        $this->traitementFormulaire($form, $request);
+
         return $this->render('magasin/devis/soumission/verification_prix.html.twig', [
             'form'        => $form->createView(),
             'remoteUrl'   => $dto->remoteUrlCourt,
         ]);
     }
 
-    private function traitementFormulaire(FormInterface $form, Request $request, SoumissionDto $dto): void
+    private function traitementFormulaire(FormInterface $form, Request $request): void
     {
         $form->handleRequest($request);
 
@@ -88,7 +91,7 @@ class DevisNegVerificationPrixController extends Controller
 
             // creation du page de garde 
             $generatePdfDevisMagasin = new GeneratePdfDeviMagasinVp();
-            $generatePdfDevisMagasin->genererPdf($this->getUser(), $dto, $nomAvecCheminFichier);
+            $generatePdfDevisMagasin->genererPdf($dto, $nomAvecCheminFichier);
             //insertion de la page de garde à la position 0
             $traitementDeFichier = new TraitementDeFichier();
             $nomEtCheminFichiersEnregistrer = $traitementDeFichier->insertFileAtPosition($nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, 0);
@@ -113,7 +116,7 @@ class DevisNegVerificationPrixController extends Controller
 
             //HISTORISATION DE L'OPERATION
             $message = "la vérification de prix du devis numero : " . $dto->numeroDevis . " a été envoyée avec succès .";
-            $criteria = $this->getSessionService()->get('criteria_for_excel_liste_devis_neg') ?? [];
+            $criteria = (array) ($this->getSessionService()->get('criteria_for_excel_liste_devis_neg') ?? []);
             $nomDeRoute = 'liste_devis_neg'; // route de redirection après soumission
             $nomInputSearch = 'devis_neg_search'; // initialistion de nom de chaque champ ou input
             $this->historiqueOperationDeviMagasinService->sendNotificationSoumission($message, $dto->numeroDevis, $nomDeRoute, true, $criteria, $nomInputSearch);
