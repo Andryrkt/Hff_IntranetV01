@@ -22,6 +22,7 @@ class DevisNegDto
     public $urlPo = null;
     public ?string $utilisateurCreateurDevis = null;
     public ?string $soumisPar = null;
+    public $constructeur = null;
 
     // Styles CSS calculés
     public string $styleStatutDw = '';
