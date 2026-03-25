@@ -601,7 +601,9 @@ class DaAfficherRepository extends EntityRepository
 
         $this->handleOrderBy($finalQb, 'd', $criteria);
         $finalQb->addOrderBy('d.numeroDemandeApproMere', 'DESC')
-            ->addOrderBy('d.numeroDemandeAppro', 'DESC');
+            ->addOrderBy('d.numeroDemandeAppro', 'DESC')
+            ->addOrderBy('d.numeroCde', 'ASC')
+        ;
 
         return [
             'data'        => $finalQb->getQuery()->getResult(),
