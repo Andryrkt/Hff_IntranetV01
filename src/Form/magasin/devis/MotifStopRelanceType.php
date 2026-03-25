@@ -14,7 +14,9 @@ class MotifStopRelanceType extends AbstractType
         "Achat direct en import du client" => "adic",
         "Juste pour comparaison mais pas d'achat" => "jpcma",
         "Hors budget" => "hb",
-        "Pièce non dispo" => "pnd"
+        "Pièce non dispo" => "pnd",
+        "Remplacé par un autre devis HFF" => "rpuadh",
+        "BC reçu partiel ou total sur autre devis HFF" => "brpotsadh"
     ];
 
     public function buildForm(FormBuilderInterface $builder, array $options)
