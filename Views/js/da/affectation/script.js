@@ -197,7 +197,7 @@ function confirmForm() {
 
     if (errorMsg) {
       Swal.fire({
-        icon: "error",
+        icon: "warning",
         title: "Action bloquée !",
         html: errorMsg,
         confirmButtonText: "OK",
