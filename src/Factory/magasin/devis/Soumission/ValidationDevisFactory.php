@@ -3,6 +3,8 @@
 namespace App\Factory\magasin\devis\Soumission;
 
 use App\Dto\Magasin\Devis\Soumission\SoumissionDto;
+use App\Model\magasin\devis\Soumission\SoumissionModel;
+use App\Service\autres\VersionService;
 use DirectoryIterator;
 
 class ValidationDevisFactory
@@ -18,6 +20,18 @@ class ValidationDevisFactory
         return $dto;
     }
 
+    public static function CreateBeforeSoumission(SoumissionDto $dto, $userName, $userMail): SoumissionDto
+    {
+        $devisNegModel = new SoumissionModel();
+
+        $dto->suffix = $devisNegModel->constructeurPieceMagasin($dto->numeroDevis);
+        $dto->numeroVersion = VersionService::autoIncrement($devisNegModel->getNumeroVersion($dto->numeroDevis));
+        $dto->userName = $userName;
+        $dto->userMail = $userMail;
+        $dto->dateCreation = date('Y-m-d H:i:s');
+
+        return $dto;
+    }
 
     private static function getLastEditedDevis(string $numeroDevis): array
     {

@@ -16,6 +16,7 @@ class StatutDevisNegContant
     public const ENVOYER_CLIENT = 'Envoyé au client';
     public const CLOTURER_A_MODIFIER = 'Cloturé - A modifier';
     public const A_TRAITER = 'A traiter';
+    public const STATUT_A_VALIDER_CHEF_AGENCE = "A valider chef d'agence";
 
     // Transformer le tableau en format de choix pour le formulaire (statut DW)
     public const STATUTS_DW = [

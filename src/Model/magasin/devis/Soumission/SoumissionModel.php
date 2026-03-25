@@ -220,4 +220,33 @@ class SoumissionModel extends Model
             $this->connect->close();
         }
     }
+    /**
+     * Methode pour enregistrer les données du formulaire Validation de devis
+     *  dans la base de donnée
+     *
+     * @param SoumissionDto $dto
+     * @param string $nomFichier
+     * @param string $nomFichierExcel
+     * @return void
+     */
+    public function enregistrerSoumissionValidationDevis(SoumissionDto $dto, string $nomFichier): void
+    {
+        // Convertir le DTO en tableau associatif pour l'insertion
+        $donnees = SoumissionMapper::toArrayValidationDevis($dto, $nomFichier);
+
+        // Construire la requête d'insertion et l'exécuter
+        $builder = new InsertQueryBuilder('ir_prod108:Informix.devis_soumis_a_validation_neg');
+        $builder->setData($donnees);
+        $result = $builder->build();
+
+        // Exécuter la requête d'insertion
+        // S'assurer que la connexion est ouverte
+        $this->connect->connect();
+        try {
+            $this->connect->executeQuery($result['sql'], $result['params']);
+        } finally {
+            // ne fermez ici que si vous êtes sûr que c'est la dernière opération
+            $this->connect->close();
+        }
+    }
 }
