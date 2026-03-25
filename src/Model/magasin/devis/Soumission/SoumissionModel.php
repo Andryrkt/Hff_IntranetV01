@@ -158,6 +158,40 @@ class SoumissionModel extends Model
     }
 
     /**
+     * Methode pour récupération des informations du devis 
+     * déjà enregistrer dans devis_soumis_a_validation_neg
+     *
+     * @param string $numeroDevis
+     * @param string $codeSociete
+     * @return array
+     */
+    public function getInfoDevisForValidate(string $numeroDevis, string $codeSociete): array
+    {
+        $this->connect->connect();
+
+        try {
+            $statement = "SELECT 
+                        dneg.numero_devis as numero_devis
+                        ,dneg.statut_dw as statut_devis
+                        ,dneg.montant_devis as montant_devis
+                        ,dneg.somme_numero_lignes as somme_numero_lignes
+
+                    from ir_prod108:Informix.devis_soumis_a_validation_neg dneg
+                    where dneg.code_societe = '$codeSociete'
+                    and dneg.numero_devis = '$numeroDevis'
+                    order by dneg.numero_version desc
+                    limit 1
+            ";
+
+            $result = $this->connect->executeQuery($statement);
+            $rows = $this->connect->fetchScalarResults($result);
+
+            return $rows;
+        } finally {
+            $this->connect->close();
+        }
+    }
+    /**
      * Methode pour enregistrer les données du formulaire Verification prix
      *  dans la base de donnée
      *

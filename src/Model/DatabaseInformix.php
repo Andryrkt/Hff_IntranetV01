@@ -56,14 +56,14 @@ class DatabaseInformix implements DatabaseConnectionInterface
             }
 
             if (empty($params)) {
+                $this->logMessage('info', "Executing Query: " . $query);
                 // Le @ supprime l'affichage du warning PHP d'odbc_exec()
                 $result = @odbc_exec($this->conn, $query);
             } else {
                 // Préparation de la requête pour les paramètres
-                // Note: ODBC utilise '?' comme placeholder. On doit convertir les ':name' en '?'
-                // et ordonner les paramètres en conséquence.
+                // Regex améliorée : ne matche les :nom que s'ils ne sont pas précédés d'un caractère de nom d'objet (ex: base:table)
                 $orderedParams = [];
-                $queryWithPlaceholders = preg_replace_callback('/:([a-zA-Z0-9_]+)/', function($matches) use ($params, &$orderedParams) {
+                $queryWithPlaceholders = preg_replace_callback('/(?<![a-zA-Z0-9_]):([a-zA-Z0-9_]+)/', function($matches) use ($params, &$orderedParams) {
                     $key = $matches[1];
                     if (array_key_exists($key, $params)) {
                         $value = $params[$key];
@@ -77,6 +77,8 @@ class DatabaseInformix implements DatabaseConnectionInterface
                     return $matches[0]; // Laisser tel quel si pas dans les params
                 }, $query);
 
+                $this->logMessage('info', "Executing Prepared Query: " . $queryWithPlaceholders . " with params: " . json_encode($orderedParams));
+
                 $stmt = odbc_prepare($this->conn, $queryWithPlaceholders);
                 if (!$stmt) {
                     throw new \Exception("ODBC Prepare failed: " . odbc_errormsg());
@@ -86,7 +88,9 @@ class DatabaseInformix implements DatabaseConnectionInterface
                 if (!$result) {
                     throw new \Exception("ODBC Execute failed: " . odbc_errormsg());
                 }
-                return $stmt;
+                
+                // Pour ODBC, odbc_execute retourne un booléen, mais on a besoin du statement pour fetcher
+                $result = $stmt;
             }
 
             if (!$result) {

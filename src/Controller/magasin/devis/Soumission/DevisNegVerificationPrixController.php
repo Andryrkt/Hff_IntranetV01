@@ -14,6 +14,7 @@ use App\Service\fichier\UploderFileService;
 use App\Service\genererPdf\magasin\devis\GeneratePdfDeviMagasinVp;
 use App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService;
 use App\Service\magasin\devis\Fichier\DevisMagasinGenererNameFileService;
+use App\Service\magasin\devis\Validation\ValidationSoumissionVerificationPrix;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
@@ -48,7 +49,13 @@ class DevisNegVerificationPrixController extends Controller
      */
     public function soumission(?string $typeSoumission = null, ?string $numeroDevis = null, Request $request)
     {
-        $dto = VerificationPrixFactory::create($typeSoumission, $numeroDevis, $this->getSecurityService());
+        $codeSociette = $this->getSecurityService()->getCodeSocieteUser();
+
+        if ((new ValidationSoumissionVerificationPrix())->validateSoumissionVerificationPrixAvantAffichageFormulaire($numeroDevis, $codeSociette)) return;
+
+        // Création du DTO à partir des paramètres de la requête
+        $dto = VerificationPrixFactory::create($typeSoumission, $numeroDevis, $codeSociette);
+
 
         //création du formulaire
         $form = $this->getFormFactory()->createBuilder(VerificationPrixType::class, $dto, [
@@ -72,6 +79,8 @@ class DevisNegVerificationPrixController extends Controller
             $dto = $form->getData();
 
             $dto = VerificationPrixFactory::CreateBeforeSoumission($dto, $this->getUserName(), $this->getUserMail());
+
+            if ((new ValidationSoumissionVerificationPrix())->validateSubmittedFile($form, $dto->remoteUrlCourt, $dto->numeroDevis)) return;
 
             /** 
              * Enregistrement de fichier excel

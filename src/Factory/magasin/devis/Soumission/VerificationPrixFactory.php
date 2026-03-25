@@ -10,14 +10,14 @@ use DirectoryIterator;
 
 class VerificationPrixFactory
 {
-    public static function create(?string $typeSoumission = null, ?string $numeroDevis = null, $securityService): SoumissionDto
+    public static function create(?string $typeSoumission = null, ?string $numeroDevis = null, $codeSociete = null): SoumissionDto
     {
         $dto = new SoumissionDto();
         $dto->typeSoumission = $typeSoumission;
         $dto->numeroDevis = $numeroDevis;
         $dto->constructeur = trim(self::getContructeur($dto));
         $dto->validationPm = $dto->constructeur === 'TOUS NEST PAS CAT' ? TRUE : FALSE;
-        $dto->codeSociete = $securityService->getCodeSocieteUser();
+        $dto->codeSociete = $codeSociete;
         $dto->remoteUrlCourt = self::getLastEditedDevis($numeroDevis)["court"];
 
         return $dto;
