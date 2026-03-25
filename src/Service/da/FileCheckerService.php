@@ -36,7 +36,8 @@ class FileCheckerService
 
     public function getBapFullPath(string $numeroDa, string $numeroCde): ?string
     {
-        $relativePath = "/da/$numeroDa/BAP_{$numeroDa}_{$numeroCde}.pdf";
+        // $relativePath = "/da/$numeroDa/BAP_{$numeroDa}_{$numeroCde}.pdf";
+        $relativePath = "/da/$numeroDa/BAP-$numeroCde#$numeroDa.pdf";
         $fullPath = $this->projectDir .  $relativePath;
 
         if ($this->filesystem->exists($fullPath)) {
