@@ -186,6 +186,10 @@ $menuService = $container->get('menu.service');
 
 /** @var SecurityService $securityService */
 $securityService = $container->get('security.service');
+
+/** @var \Symfony\Component\Cache\Adapter\TagAwareAdapterInterface $cacheMenu */
+$cacheMenu = $container->get('cache.menu');
+
 $twig->addExtension(new \Twig\Extension\DebugExtension());
 $twig->addExtension(new \Symfony\Bridge\Twig\Extension\TranslationExtension(
     new \Symfony\Component\Translation\Translator('fr_FR')
@@ -193,7 +197,7 @@ $twig->addExtension(new \Symfony\Bridge\Twig\Extension\TranslationExtension(
 $twig->addExtension(new \Symfony\Bridge\Twig\Extension\RoutingExtension($urlGenerator));
 $twig->addExtension(new \Symfony\Bridge\Twig\Extension\FormExtension());
 $twig->addExtension(new \App\Twig\AppExtension($session, $container->get('request_stack')));
-$twig->addExtension(new \App\Twig\BreadcrumbExtension($menuService, $securityService));
+$twig->addExtension(new \App\Twig\BreadcrumbExtension($menuService, $securityService, $cacheMenu));
 $twig->addExtension(new \App\Twig\CarbonExtension());
 $twig->addExtension(new \App\Twig\DeleteWordExtension());
 

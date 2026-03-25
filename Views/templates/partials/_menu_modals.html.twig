@@ -1,0 +1,46 @@
+{# Views/templates/partials/_menu_modals.html.twig #}
+{% import "partials/_menu_item.html.twig" as menu_item %}
+
+{# On récupère le fil d'ariane pour extraire l'accueil et ses dropdowns #}
+{% set items = breadcrumbs() %}
+{% set accueil = items|first %}
+
+{% if accueil and accueil.dropdown is defined %}
+	{% for module in accueil.dropdown %}
+		<div class="modal fade" id="{{ module.id }}" tabindex="-1" aria-labelledby="{{ module.id }}Label" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered modal-xl menu">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="{{ module.id }}Label">
+							{% if module.icon %}
+								<i class="{{ module.icon }} me-2"></i>
+							{% endif %}
+							{{ module.title }}
+						</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+						<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+							{% for modalItem in module.items %}
+								<div class="col">
+									<ul class="list-group list-group-flush h-100">
+										{% if modalItem.subitems is defined and modalItem.subitems|length > 0 %}
+											<!-- Groupe avec sous-éléments -->
+											{{ menu_item.render(modalItem) }}
+											{% for subsubitem in modalItem.subitems %}
+												{{ menu_item.render(subsubitem, true) }}
+											{% endfor %}
+										{% else %}
+											<!-- Élément simple -->
+											{{ menu_item.render(modalItem) }}
+										{% endif %}
+									</ul>
+								</div>
+							{% endfor %}
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endfor %}
+{% endif %}

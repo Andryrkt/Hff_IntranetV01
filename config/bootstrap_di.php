@@ -147,21 +147,23 @@ $translator = new \Symfony\Component\Translation\Translator('fr_FR');
 $translator->addLoader('xlf', new \Symfony\Component\Translation\Loader\XliffFileLoader());
 $container->set('translator', $translator);
 
-// Récupérer les services du conteneur
+// Créer le service de cache pour le menu
+$cacheMenu = new \Symfony\Component\Cache\Adapter\FilesystemTagAwareAdapter('menu', 0, dirname(__DIR__) . '/var/cache/pools');
+$container->set('cache.menu', $cacheMenu);
+
+// Récupérer les services nécessaires
 $session = $container->get('session');
 $requestStack = $container->get('request_stack');
+$securityService = $container->get(\App\Service\security\SecurityService::class);
 
 // Créer et assigner les services Twig APRÈS la compilation
 $appExtension = new \App\Twig\AppExtension($session, $requestStack);
 $container->set('App\Twig\AppExtension', $appExtension);
 
-$menuService = new \App\Service\navigation\MenuService($session);
+$menuService = new \App\Service\navigation\MenuService($container->get(\App\Service\UserData\UserDataService::class), $cacheMenu);
 $container->set('App\Service\navigation\MenuService', $menuService);
 
-$breadcrumbMenuService = new \App\Service\navigation\BreadcrumbMenuService($menuService);
-$container->set('App\Service\navigation\BreadcrumbMenuService', $breadcrumbMenuService);
-
-$breadcrumbExtension = new \App\Twig\BreadcrumbExtension($breadcrumbMenuService);
+$breadcrumbExtension = new \App\Twig\BreadcrumbExtension($menuService, $securityService, $cacheMenu);
 $container->set('App\Twig\BreadcrumbExtension', $breadcrumbExtension);
 
 $carbonExtension = new \App\Twig\CarbonExtension();
