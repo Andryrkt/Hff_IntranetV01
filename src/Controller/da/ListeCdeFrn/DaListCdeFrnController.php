@@ -3,28 +3,27 @@
 namespace App\Controller\da\ListeCdeFrn;
 
 
-use App\Model\da\DaModel;
-
-use Twig\Markup;
+use App\Controller\Controller;
+use App\Controller\Traits\AutorisationTrait;
+use App\Entity\admin\Application;
 use App\Entity\admin\Service;
 use App\Entity\da\DaAfficher;
-use App\Controller\Controller;
-use App\Entity\da\DemandeAppro;
-use App\Entity\admin\Application;
 use App\Entity\da\DaSoumissionBc;
-use App\Form\da\daCdeFrn\CdeFrnListType;
-use Symfony\Component\Form\FormInterface;
-use App\Form\da\daCdeFrn\DaSoumissionType;
+use App\Entity\da\DemandeAppro;
 use App\Entity\dit\DitOrsSoumisAValidation;
-use App\Repository\da\DaAfficherRepository;
-use App\Controller\Traits\AutorisationTrait;
 use App\Factory\da\CdeFrnDto\CdeFrnSearchDto;
+use App\Form\da\daCdeFrn\CdeFrnListType;
 use App\Form\da\daCdeFrn\DaModalDateLivraisonType;
-use App\Repository\da\DemandeApproRepository;
-use Symfony\Component\HttpFoundation\Request;
+use App\Form\da\daCdeFrn\DaSoumissionType;
+use App\Mapper\Da\DaAfficherMapper;
+use App\Model\da\DaModel;
+use App\Repository\da\DaAfficherRepository;
 use App\Repository\da\DaSoumissionBcRepository;
-use Symfony\Component\Routing\Annotation\Route;
+use App\Repository\da\DemandeApproRepository;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route("/demande-appro")
@@ -38,7 +37,6 @@ class DaListCdeFrnController extends Controller
     private DaModel $daModel;
     private DemandeApproRepository $demandeApproRepository;
     private DaSoumissionBcRepository $daSoumissionBcRepository;
-    private \App\Service\da\CdeFrnPresenter $presenter;
 
 
     public function __construct()
@@ -50,7 +48,6 @@ class DaListCdeFrnController extends Controller
         $this->daModel = new DaModel();
         $this->demandeApproRepository = $em->getRepository(DemandeAppro::class);
         $this->daSoumissionBcRepository = $em->getRepository(DaSoumissionBc::class);
-        $this->presenter = new \App\Service\da\CdeFrnPresenter($this->getUrlGenerator());
     }
 
     /**
@@ -81,12 +78,17 @@ class DaListCdeFrnController extends Controller
 
         // Récupération et préparation des données
         $paginationData = $this->daAfficherRepository->findValidatedPaginatedDas($criteriaTab, $page, $limit);
-        $dataPrepared = $this->presenter->present($paginationData['data']);
+        $daAfficherMapper = new DaAfficherMapper($this->getUrlGenerator());
+        $dataPrepared = $daAfficherMapper->mapList($paginationData['data'], [
+            'codeAgenceUser' => $this->getUser()->getCodeAgenceUser(),
+            'codeServiceUser' => $this->getUser()->getCodeServiceUser(),
+        ]);
 
-        // Autres formulaires
+        // Formulaire de soumission BC, FAC + BL, BL Reappro
         $formSoumission = $this->getFormFactory()->createBuilder(DaSoumissionType::class, null, ['method' => 'GET'])->getForm();
         $this->traitementFormulaireSoumission($request, $formSoumission);
 
+        // Formulaire de date de livraison
         $formDateLivraison = $this->getFormFactory()->createBuilder(DaModalDateLivraisonType::class)->getForm();
         $this->TraitementFormulaireDateLivraison($request, $formDateLivraison);
 
@@ -95,7 +97,6 @@ class DaListCdeFrnController extends Controller
             'formSoumission'    => $formSoumission->createView(),
             'form'              => $form->createView(),
             'criteria'          => $criteriaTab,
-            'daTypeIcons'       => $this->presenter->getIcons(),
             'currentPage'       => $page,
             'totalPages'        => $paginationData['lastPage'],
             'resultat'          => $paginationData['totalItems'],

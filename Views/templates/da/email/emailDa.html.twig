@@ -9,7 +9,7 @@
 		<div class="email-container">
 			<div class="email-header">{{ header|raw }}</div>
 			<div class="email-body">
-				<p>Bonjour,</p>
+				<p>Bonjour {{ nomDemandeur }},</p>
 				{{ include('da/email/shared/_body.' ~ templateName ~ '.html.twig') }}
 				{% if urlDetail %}
 					<p>

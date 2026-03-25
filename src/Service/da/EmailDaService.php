@@ -5,6 +5,7 @@ namespace App\Service\da;
 use App\Controller\Traits\da\PrixFournisseurTrait;
 use App\Controller\Traits\lienGenerique;
 use App\Entity\admin\utilisateur\User;
+use App\Entity\da\DaAfficher;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproParent;
 use App\Service\EmailService;
@@ -247,6 +248,32 @@ class EmailDaService
         ]);
     }
 
+    /**
+     * Méthode pour envoyer un email au demandeur des articles non diponible chez le fournisseur
+     *
+     * @return void
+     */
+    public function envoyerMailPourNonDispoArticle(DemandeAppro $demandeApproAvant, array $daAffichers, string $numDa, User $connectedUser)
+    {
+        $this->envoyerEmail([
+            // 'to'        => $demandeApproAvant->getUser()->getMail(),
+            'to'        => 'hasina.andrianadison@hff.mg',
+            'variables' => [
+                'templateName'  => "nonDispoFrnDa",
+                'header'        => "Duplicata {$demandeApproAvant->getNumeroDemandeAppro()} - Article(s) non disponible(s) chez le fournisseur",
+                'subject'       => "Duplicata {$demandeApproAvant->getNumeroDemandeAppro()} - Article(s) non disponible(s) chez le fournisseur",
+                'nomDemandeur'  => $demandeApproAvant->getUser()->getFullName(),
+                'preparedDatas' => $this->prepareDataForMailNonDipoFrnDa($daAffichers),
+                'demandeAppro' => $demandeApproAvant,
+                'numeroDemandeAppro' => $numDa,
+                'fullNameUser' => $connectedUser->getFullName(),
+                'service'      => 'appro',
+                'urlIntranet'  => "",
+                'urlDetail'    => "",
+                'dateYear'     => date('Y'),
+            ],
+        ]);
+    }
     /** 
      * Méthode pour envoyer un email
      */
