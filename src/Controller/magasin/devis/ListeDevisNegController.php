@@ -98,6 +98,8 @@ class ListeDevisNegController extends Controller
         $criteria = [];
         if ($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
+            // Stockage des critères de recherche dans la session pour les réutiliser lors de l'export Excel
+            $this->getSessionService()->set('criteria_for_excel_liste_devis_neg', $criteria);
         }
         return [$form, $criteria];
     }

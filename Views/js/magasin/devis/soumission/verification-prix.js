@@ -45,10 +45,10 @@ document.addEventListener("DOMContentLoaded", function () {
  *===================================================*/
 document.addEventListener("DOMContentLoaded", function () {
   const devisPMCheckboxOui = document.getElementById(
-    "verification_prix_estValidationPm_0",
+    "verification_prix_validationPm_0",
   );
   const devisPMCheckboxNon = document.getElementById(
-    "verification_prix_estValidationPm_1",
+    "verification_prix_validationPm_1",
   );
   const tacheValidateurInput = document.querySelectorAll(
     "#verification_prix_tacheValidateur input",

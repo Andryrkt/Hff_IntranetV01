@@ -473,25 +473,4 @@ WHERE nent.nent_natop    = 'DEV'
         return array_column($data, 'numDevis');
     }
 
-    public function getConstructeur(string $numeroDevis)
-    {
-        $cstMagasin = GlobalVariablesService::get('pieces_magasin');
-        $statement = " SELECT 
-                CASE 
-                    WHEN COUNT(*) = 0 THEN 'AUCUNE CONSTRUCTEUR'
-                    WHEN COUNT(CASE WHEN nlig_constp = 'CAT' THEN 1 END) = COUNT(*) THEN 'TOUT CAT'
-                    ELSE 'TOUS NEST PAS CAT'
-                END as resultat
-            FROM informix.neg_lig 
-            WHERE nlig_numcde = '$numeroDevis' 
-            AND nlig_constp NOT LIKE 'Nmc%'
-            AND nlig_constp IN ($cstMagasin)
-    ";
-
-        $result = $this->connect->executeQuery($statement);
-
-        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
-
-        return array_column($data, 'resultat')[0];
-    }
 }

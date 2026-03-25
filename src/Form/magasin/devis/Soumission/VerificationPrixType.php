@@ -128,7 +128,7 @@ class VerificationPrixType extends AbstractType
                 ]
             )
             ->add('tacheValidateur', ChoiceType::class, $formOptions)
-            ->add('estValidationPm', ChoiceType::class, [
+            ->add('validationPm', ChoiceType::class, [
                 'choices'       => [
                     'OUI - Envoyer le devis pour vérification au Parts Manager' => true,
                     'NON - Devis autovalidé, il ne passe pas au Parts Manager pour vérification' => false

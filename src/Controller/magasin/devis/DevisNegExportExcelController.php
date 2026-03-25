@@ -57,7 +57,7 @@ class DevisNegExportExcelController extends Controller
         // Agences Services autorisés sur le DVM
         $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DVM);
 
-        $criteria = $this->getSessionService()->get('criteria_for_excel_liste_devis_magasin') ?? [];
+        $criteria = $this->getSessionService()->get('criteria_for_excel_liste_devis_neg') ?? [];
 
         if ($criteria instanceof DevisSearchDto) {
             $criteria = (array) $criteria;
