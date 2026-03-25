@@ -48,7 +48,7 @@ class ListeDevisNegController extends Controller
                 'verificationPrix' => $this->getUrlGenerator()->generate('devis_neg_soumission_verification_prix', ['typeSoumission' => TypeSoumissionConstant::VERIFICATION_PRIX, 'numeroDevis' => 'PLACEHOLDER']),
                 'validationDevis'  => $this->getUrlGenerator()->generate('devis_neg_soumission_validation_devis', ['typeSoumission' => TypeSoumissionConstant::VALIDATION_DEVIS, 'numeroDevis' => 'PLACEHOLDER_NUM', 'codeAgenceService' => 'PLACEHOLDER_AG']),
                 'soumissionBC'     => $this->getUrlGenerator()->generate('bc_magasin_soumission', ['numeroDevis' => 'PLACEHOLDER']),
-                'pointageDevis'    => $this->getUrlGenerator()->generate('devis_magasin_envoyer_au_client', ['numeroDevis' => 'PLACEHOLDER']),
+                'pointageDevis'    => $this->getUrlGenerator()->generate('pointage_envoyer_au_client', ['numeroDevis' => 'PLACEHOLDER']),
             ]
         ]);
 
