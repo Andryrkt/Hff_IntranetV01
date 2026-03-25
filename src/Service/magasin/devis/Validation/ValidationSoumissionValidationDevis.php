@@ -7,14 +7,14 @@ use App\Traits\Validator\ValidatorNotificationTrait;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-class ValidationSoumissionVerificationPrix
+class ValidationSoumissionValidationDevis
 {
     use ValidatorNotificationTrait;
 
     private const FILE_FIELD_NAME = 'pieceJoint01';
     private const FILENAME_PATTERN = '/^(DEVIS MAGASIN|CONTROLE DEVIS)_(\d+)_(\d+)_(\d+)\\.pdf$/';
 
-    public function validateSoumissionVerificationPrixAvantAffichageFormulaire($numeroDevis, $codeSociete): bool
+    public function validateSoumissionValidationDevisAvantAffichageFormulaire($numeroDevis, $codeSociete): bool
     {
         $soumissionModel = new SoumissionModel();
         $ancienDevis = $soumissionModel->getInfoDevisForValidate($numeroDevis, $codeSociete);
@@ -27,64 +27,102 @@ class ValidationSoumissionVerificationPrix
             return true; // Validation failed
         }
 
-        // le statut devis est Prix à confirmer
+        // le statut du devis est "Prix à confirmer"
         if ($ancienDevis && $ancienDevis['statut'] === 'Prix à confirmer') {
             $message = 'Une confirmation de prix pour ce devis est déjà en cours au magasin.';
             $this->sendNotificationDevisMagasin($message, $numeroDevis, 'liste_devis_neg', false);
             return true; // Validation failed
         }
 
-        // le statut devis est Prix validé - devis à soumettre (si agence) et la somme des lignes du devis inchangé et montant devis inchangé
+        // le statut du devis est "Prix validé" et la somme de lignes et le montant sont inchangés
         if (
             $ancienDevis && $ancienDevis['statut'] === 'Prix validé - devis à soumettre (si agence)'
             && $ancienDevis['somme_numero_lignes'] === $nouveauDevis['somme_numero_lignes']
             && $ancienDevis['montant_devis'] === $nouveauDevis['montant_devis']
         ) {
-            $message = "Les prix ont déjà été validés par le parts manager,. Veuillez faire valider le devis au chef d'agence";
+            $message = 'Les prix ont déjà été validés par le parts manager. Veuillez envoyer le devis au client';
             $this->sendNotificationDevisMagasin($message, $numeroDevis, 'liste_devis_neg', false);
             return true; // Validation failed
         }
 
-        // le statut devis est Prix modifié - devis à soumettre (si agence) et lasomme des lignes du devis inchangée mais le montant devis change
+        // le statut du devis est "Prix modifié" et la somme de lignes inchangée mais le montant est changé
         if (
             $ancienDevis && $ancienDevis['statut'] === 'Prix modifié - devis à soumettre (si agence)'
             && $ancienDevis['somme_numero_lignes'] === $nouveauDevis['somme_numero_lignes']
             && $ancienDevis['montant_devis'] !== $nouveauDevis['montant_devis']
         ) {
-            $message =  "Les prix ont déjà été validés par le parts manager,. Veuillez faire valider le devis au chef d'agence";
+            $message = 'Les prix ont déjà été validés par le parts manager. Veuillez envoyer le devis au client';
             $this->sendNotificationDevisMagasin($message, $numeroDevis, 'liste_devis_neg', false);
             return true; // Validation failed
         }
 
-        // le statut devis est Validé - à envoyer au client et la somme des lignes du devis change et montant devis change
+        // le statut du devis est "Prix validé" et la somme de lignes change mais le montant reste inchangé
+        if (
+            $ancienDevis && $ancienDevis['statut'] === 'Prix validé - devis à soumettre (si agence)'
+            && $ancienDevis['somme_numero_lignes'] !== $nouveauDevis['somme_numero_lignes']
+            && $ancienDevis['montant_devis'] === $nouveauDevis['montant_devis']
+        ) {
+            $message =  'Une ligne a été ajoutée dans votre devis. Veuillez demander une confirmation des prix.';
+            $this->sendNotificationDevisMagasin($message, $numeroDevis, 'liste_devis_neg', false);
+            return true; // Validation failed
+        }
+
+        // le statut du devis est "Prix modifié - devis à envoyer au client (si Tana)" et la somme de lignes change mais le montant est inchangé
+        if (
+            $ancienDevis && $ancienDevis['statut'] === 'Prix modifié - devis à soumettre (si agence)'
+            && $ancienDevis['somme_numero_lignes'] !== $nouveauDevis['somme_numero_lignes']
+            && $ancienDevis['montant_devis'] === $nouveauDevis['montant_devis']
+        ) {
+            $message = "Une ligne a été ajoutée dans votre devis ou les prix n'ont pas été modifiés dans IPS. Veuillez demander une confirmation des prix.";
+            $this->sendNotificationDevisMagasin($message, $numeroDevis, 'liste_devis_neg', false);
+            return true; // Validation failed
+        }
+
+        // le statut du devis est "Demande refusée par le PM"
+        if (
+            $ancienDevis && $ancienDevis['statut'] === 'Demande refusée par le PM'
+        ) {
+            $message = 'Veuillez demander une confirmation des prix du devis.';
+            $this->sendNotificationDevisMagasin($message, $numeroDevis, 'liste_devis_neg', false);
+            return true; // Validation failed
+        }
+
+        // le statut du devis est bloquant pour la soumission générale
+        if (
+            $ancienDevis && $ancienDevis['statut'] === 'A valider chef d\'agence'
+        ) {
+            $message = "Un devis est en cours de validation chez le chef d'agence";
+            $this->sendNotificationDevisMagasin($message, $numeroDevis, 'liste_devis_neg', false);
+            return true; // Validation failed
+        }
+
+        // le montant total du devis IPS est inchangé
         if (
             $ancienDevis && $ancienDevis['statut'] === 'Validé - à envoyer au client'
-            && ($ancienDevis['somme_numero_lignes'] !== $nouveauDevis['somme_numero_lignes']
-                && $ancienDevis['montant_devis'] !== $nouveauDevis['montant_devis'])
+            && $ancienDevis['montant_devis'] === $nouveauDevis['montant_devis']
         ) {
-            $message =  "Le montant du devis validé ne correspond pas au montant du devis dans IPS. Veuillez refaire valider le devis.";
+            $message = "Le devis a déjà été validé. Veuillez l'envoyer au client";
             $this->sendNotificationDevisMagasin($message, $numeroDevis, 'liste_devis_neg', false);
             return true; // Validation failed
         }
 
-        // le statut devis est A valider chef d'agence
-        if ($ancienDevis && $ancienDevis['statut'] === 'A valider chef d\'agence') {
-            $message =  "Un devis est en cours de validation chez le chef d'agence";
-            $this->sendNotificationDevisMagasin($message, $numeroDevis, 'liste_devis_neg', false);
-            return true; // Validation failed
-        }
-
-        // Le statut devis est Validé - à envoyer au client et la somme des lignes du devis inchangée
+        // le nombre de lignes et le montant total du devis IPS sont inchangés
         if (
             $ancienDevis && $ancienDevis['statut'] === 'Validé - à envoyer au client'
             && $ancienDevis['somme_numero_lignes'] === $nouveauDevis['somme_numero_lignes']
+            && $ancienDevis['montant_devis'] === $nouveauDevis['montant_devis']
         ) {
-            $message =  "Le devis a déjà été validé. Veuillez l'envoyer au client";
+            $message = "Une ligne a été ajoutée au devis dans IPS. Veuillez demander une confirmation des prix";
             $this->sendNotificationDevisMagasin($message, $numeroDevis, 'liste_devis_neg', false);
             return true; // Validation failed
         }
 
-        return false;
+        // TODO: le nombre de lignes du devis IPS est inchangé
+        // TODO: l'agence emetteur du devis est 01 ou 50
+        // TODO: le statut du devis est "Envoyé au client"
+
+
+        return false; // Validation passed
     }
 
     /**

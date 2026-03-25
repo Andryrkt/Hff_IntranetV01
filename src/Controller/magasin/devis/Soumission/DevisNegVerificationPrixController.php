@@ -51,7 +51,7 @@ class DevisNegVerificationPrixController extends Controller
     {
         $codeSociette = $this->getSecurityService()->getCodeSocieteUser();
 
-        if ((new ValidationSoumissionVerificationPrix())->validateSoumissionVerificationPrixAvantAffichageFormulaire($numeroDevis, $codeSociette)) return;
+        if ((new ValidationSoumissionVerificationPrix())->validateSoumissionVerificationPrixAvantAffichageFormulaire($numeroDevis, $codeSociette)) return $this->redirectToRoute('liste_devis_neg');
 
         // Création du DTO à partir des paramètres de la requête
         $dto = VerificationPrixFactory::create($typeSoumission, $numeroDevis, $codeSociette);

@@ -9,6 +9,7 @@ use App\Model\magasin\devis\Soumission\SoumissionModel;
 use App\Service\fichier\UploderFileService;
 use App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService;
 use App\Service\magasin\devis\Fichier\DevisMagasinGenererNameFileService;
+use App\Service\magasin\devis\Validation\ValidationSoumissionValidationDevis;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
@@ -43,6 +44,10 @@ class DevisNegValidationDevisController extends Controller
     {
         $codeSociette = $this->getSecurityService()->getCodeSocieteUser();
 
+        if ((new ValidationSoumissionValidationDevis())->validateSoumissionValidationDevisAvantAffichageFormulaire($numeroDevis, $codeSociette)) {
+            return $this->redirectToRoute('liste_devis_neg');
+        }
+
         // Création du DTO à partir des paramètres de la requête
         $dto = ValidationDevisFactory::create($typeSoumission, $numeroDevis, $codeSociette);
 
@@ -68,6 +73,8 @@ class DevisNegValidationDevisController extends Controller
             $dto = $form->getData();
 
             $dto = ValidationDevisFactory::CreateBeforeSoumission($dto, $this->getUserName(), $this->getUserMail());
+
+            if ((new ValidationSoumissionValidationDevis())->validateSubmittedFile($form, $dto->remoteUrlCourt, $dto->numeroDevis)) return;
 
             /** 
              * Enregistrement de fichier uploder
