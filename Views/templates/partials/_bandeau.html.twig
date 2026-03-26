@@ -1,33 +1,54 @@
 <span class="vignette-bande">
 	{% for i in 0..4 %}
 		<span>
-			27/02/2026 - V20260227.7.1.1 :
+			25/03/2026 - V20260325.7.1.2 :
 			<div class="news-ticker">
 				<ul>
 					<li>
-						<b>ATELIER – Soumission devis pour vérification de prix :</b>
+						<b>APPRO – Clôture :</b>
 						<ul>
 							<li>
-								Rajout d’une tâche à effectuer par le Parts Manager :
-								<ul>
-									<li>
-										Vérif prix et calcul de fret DHL.
-									</li>
-								</ul>
+								Toute DA non traitée par le service Appro ou en proposition d’achat non validée par le service émetteur dans un délai de 90 jours sera automatiquement clôturée et statuée « Clôturée hors délai ».
+							</li>
+							<li>
+								Dans le cadre d’une recherche par numéro de DA, numéro d’OR ou numéro de commande, les demandes d’achats clôturées sont également incluses dans les résultats.
 							</li>
 						</ul>
 					</li>
 					<li>
-						<b>MAGASIN – Devis négoce :</b>
+						<b>APPRO – Article non disponible chez le fournisseur :</b>
 						<ul>
 							<li>
-								Identification des devis à relancer.
+								Un email est envoyé automatiquement au service émetteur informant de la création d’une DA duplicata et le numéro de la DA initiale est renseigné dans l’objet de la DA duplicata.
+							</li>
+						</ul>
+					</li>
+					<li>
+						<b>APPRO – Formulaire de recherche :</b>
+						<ul>
+							<li>
+								Il est possible d’effectuer une recherche de DA par numéro de commande.
 							</li>
 							<li>
-								Historisation des relances effectuées sur un devis.
+								Les statuts dans les filtres sont désormais réorganisés par ordre chronologique.
+							</li>
+						</ul>
+					</li>
+					<li>
+						<b>APPRO – Liste des demandes d’achats :</b>
+						<ul>
+							<li>
+								Lors de la première consultation de la liste des demandes d’achats, un filtrage est appliqué afin d’afficher uniquement les DA nécessitant une action des services concernés (Appro ou émetteur).
 							</li>
 							<li>
-								Rajout d’une option de refus d’un devis avec sélection obligatoire du motif.
+								Colonne numéro de commande rajoutée dans la liste des demandes d’achats.
+							</li>
+							<li>
+								Nouveaux statuts mis en place :
+								<ul>
+									<li>Pas dans BC</li>
+									<li>Pas dans OR cession</li>
+								</ul>
 							</li>
 						</ul>
 					</li>
