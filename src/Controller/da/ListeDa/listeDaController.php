@@ -64,7 +64,6 @@ class listeDaController extends Controller
 
         $criteria = $daSearch->toArray();
 
-
         // Gestion spécifique "Mes DA à traiter"
         if (
             empty($request->query->get('mes_da_a_traiter')) &&
@@ -103,10 +102,10 @@ class listeDaController extends Controller
                 ];
             }
 
-            $criteria['mes_da_a_traiter'] = 1;
+            $criteria['mes_da_a_traiter'] = 0;
             $this->getSessionService()->set('criteria_search_list_da_80_app', $criteria);
         } else {
-            $request->query->set('mes_da_a_traiter', 1);
+            $criteria['mes_da_a_traiter'] = 1;
             // Sauvegarde classique des critères issus du formulaire
             $this->getSessionService()->set('criteria_search_list_da', $criteria);
         }
