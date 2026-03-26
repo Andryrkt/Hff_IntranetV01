@@ -17,7 +17,7 @@ ALTER TABLE applications ALTER COLUMN code_app VARCHAR(10) NULL;
 -- Relation entre les pages et les applications
 ALTER TABLE Hff_pages 
 ADD application_id INT NULL,
-date_creation DATETIME2(0) NOT NULL,
+date_creation DATETIME2(0) NULL,
 date_modification DATETIME2(0) NULL,
 CONSTRAINT FK_pages_applications FOREIGN KEY (application_id) REFERENCES applications (id);
 
@@ -71,8 +71,12 @@ CREATE TABLE users_profils (
     CONSTRAINT FK_users_profils_profil_id FOREIGN KEY (profil_id) REFERENCES profil (id)
 );
 
+alter table users drop constraint FK_users_role_id;
 alter table users drop column role_id;
+
+alter table users drop constraint FK_users_agence_id;
 alter table users drop column agence_id;
+
 alter table users drop column superieurs;
 alter table users drop column fonction;
 
