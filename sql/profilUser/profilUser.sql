@@ -112,6 +112,16 @@ INNER JOIN Agence_Service_Irium asi on asi.id=u.agence_utilisateur
 inner join agences a on a.code_agence=asi.agence_ips
 inner join services s on s.code_service=asi.service_ips;
 
+-- remplir la table applications
+INSERT INTO applications
+(nom, code_app, date_creation, date_modification, derniere_id, vignette_id)
+VALUES
+(N'DOCUMENTATION INTERNE', N'DOC', '2025-12-29', '2026-03-17', NULL, NULL),
+(N'APPLICATION ADMIN', N'ADMIN', '2026-02-18', '2026-02-18', NULL, NULL),
+(N'PNEU OUTIL LUB', N'POL', '2026-02-26', '2026-02-26', NULL, NULL),
+(N'LOGISTIQUE (MATERIEL)', N'LOG', '2026-03-17', '2026-03-17', NULL, NULL),
+(N'CONTRAT (DOCUMENTATION)', N'CONTRAT', '2026-03-24', NULL, NULL, NULL);
+
 alter table devis_soumis_a_validation_neg add code_societe varchar(2) null;
 
 update devis_soumis_a_validation_neg set code_societe='HF';
