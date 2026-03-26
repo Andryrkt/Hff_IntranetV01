@@ -112,6 +112,21 @@ INNER JOIN Agence_Service_Irium asi on asi.id=u.agence_utilisateur
 inner join agences a on a.code_agence=asi.agence_ips
 inner join services s on s.code_service=asi.service_ips;
 
+-- Supprimer les relations avec users
+alter table agence_user drop constraint FK__agence_us__user___2057CCD0;
+alter table Demande_Appro drop constraint FK_User_Id;
+alter table Demande_Appro drop constraint FK_Validateur_id;
+alter table Log_utilisateur drop constraint FK_Log_users;
+alter table user_roles drop constraint FK__user_role__user___062DE679;
+alter table user_roles drop constraint FK__user_role__user___4924D839;
+alter table user_roles drop constraint FK__user_role__user___55F4C372;
+alter table user_superieurs drop constraint FK_users_superieurs_user_id;
+alter table user_superieurs drop constraint FK_users_superieurs_superieur_id;
+alter table users_agence_autoriser drop constraint FK_users_agence_autoriser_user_id;
+alter table users_applications drop constraint FK_users_application_user_id;
+alter table users_permission drop constraint FK_users_permission_user_id;
+alter table users_service drop constraint FK_users_service_user_id;
+
 -- remplir la table applications
 INSERT INTO applications
 (nom, code_app, date_creation, date_modification, derniere_id, vignette_id)
