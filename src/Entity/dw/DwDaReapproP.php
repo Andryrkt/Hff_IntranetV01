@@ -3,10 +3,10 @@
 namespace App\Entity\dw;
 
 use Doctrine\ORM\Mapping as ORM;
-use App\Repository\dw\DwDaReapproRepository;
+use App\Repository\dw\DwDaReapproPRepository;
 
 /**
- * @ORM\Entity(repositoryClass=DwDaReapproRepository::class)
+ * @ORM\Entity(repositoryClass=DwDaReapproPRepository::class)
  * @ORM\Table(name="DW_DA_Reappro_P")
  */
 class DwDaReapproP
