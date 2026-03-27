@@ -1960,6 +1960,10 @@
             "code_service": "LEV"
           },
           {
+            "code_agence": "50",
+            "code_service": "LFD"
+          },
+          {
             "code_agence": "60",
             "code_service": "NEG"
           },
@@ -2109,6 +2113,10 @@
           {
             "code_agence": "40",
             "code_service": "LEV"
+          },
+          {
+            "code_agence": "50",
+            "code_service": "LFD"
           },
           {
             "code_agence": "60",
