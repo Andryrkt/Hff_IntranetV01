@@ -10,6 +10,7 @@ use App\Entity\admin\StatutDemande;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use App\Entity\admin\badm\TypeMouvement;
+use App\Repository\admin\AgenceRepository;
 use Symfony\Component\Form\AbstractType;
 use App\Repository\admin\ServiceRepository;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -80,6 +81,16 @@ class BadmSearchType extends AbstractType
                     return $agence->getCodeAgence() . ' ' . $agence->getLibelleAgence();
                 },
                 'placeholder' => '-- Choisir une agence--',
+                'query_builder' => function (AgenceRepository $agenceRepository) use ($options) {
+                    $qb = $agenceRepository->createQueryBuilder('a');
+
+                    if (!$options['autoriser']) {
+                        $qb->where('a.id IN (:agenceAutoriser)')
+                            ->setParameter('agenceAutoriser', $options['agenceAutoriser']);
+                    }
+
+                    return $qb;
+                },
                 'required' => false,
                 'attr' => ['class' => 'agenceEmetteur'],
                 'data' => $options['idAgenceEmetteur']
@@ -211,5 +222,7 @@ class BadmSearchType extends AbstractType
             'data_class' => BadmSearch::class
         ]);
         $resolver->setDefined('idAgenceEmetteur');
+        $resolver->setDefined('autoriser');
+        $resolver->setDefined('agenceAutoriser');
     }
 }

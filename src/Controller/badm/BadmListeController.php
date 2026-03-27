@@ -42,13 +42,16 @@ class BadmListeController extends Controller
         $badmSearch = new BadmSearch();
 
         $agenceServiceIps = $this->agenceServiceIpsObjet();
+        $agenceAutorisesId = $userConnecter->getAgenceAutoriserIds();
 
         /** INITIALIASATION et REMPLISSAGE de RECHERCHE pendant la nag=vigation pagiantion */
         $this->initialisation($badmSearch, $this->getEntityManager(), $agenceServiceIps, $autoriser);
 
         $form = $this->getFormFactory()->createBuilder(BadmSearchType::class, $badmSearch, [
             'method' => 'GET',
-            'idAgenceEmetteur' => $agenceServiceIps['agenceIps']
+            'idAgenceEmetteur' => $agenceServiceIps['agenceIps'],
+            'autoriser' => $autoriser,
+            'agenceAutoriser' => $agenceAutorisesId
         ])->getForm();
 
         $form->handleRequest($request);
@@ -56,7 +59,6 @@ class BadmListeController extends Controller
         $empty = false;
         if ($form->isSubmitted() && $form->isValid()) {
             $this->rechercherSurNumSerieParc($form, $badmSearch);
-            $badmSearch->setAgenceEmetteur($agenceServiceIps['agenceIps']);
         }
 
         $criteria = [];
@@ -65,10 +67,7 @@ class BadmListeController extends Controller
         //enregistre le critère dans la session
         $this->getSessionService()->set('badm_search_criteria', $criteria);
 
-
-        //$agenceServiceEmetteur = $this->agenceServiceEmetteur($autoriser, $this->getEntityManager());
-        $criteria['agenceAutoriser'] = $userConnecter->getAgenceAutoriserIds();
-
+        $criteria['agenceAutoriser'] = $agenceAutorisesId;
 
         $repository = $this->getEntityManager()->getRepository(Badm::class);
         $page = max(1, $request->query->getInt('page', 1));
