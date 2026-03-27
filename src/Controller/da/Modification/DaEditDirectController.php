@@ -98,7 +98,7 @@ class DaEditDirectController extends Controller
             $notifMessage = "Echec de la suppression de la ligne: la ligne de DA n'existe pas.";
         }
         $this->getSessionService()->set('notification', ['type' => $notifType, 'message' => $notifMessage]);
-        $this->redirectToRoute("list_da");
+        $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 1, 'page' => 1]);
     }
 
     private function traitementForm($form, Request $request, iterable $ancienDals): void
@@ -121,7 +121,7 @@ class DaEditDirectController extends Controller
 
             //notification
             $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'Votre modification a été enregistrée']);
-            $this->redirectToRoute("list_da");
+            $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 1, 'page' => 1]);
         }
     }
 }
