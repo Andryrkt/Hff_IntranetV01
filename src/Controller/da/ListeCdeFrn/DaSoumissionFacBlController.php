@@ -211,7 +211,7 @@ class DaSoumissionFacBlController extends Controller
         $nomAvecCheminPdfSecond = $this->cheminDeBase . $numDa . '/' . $nomPdfSecond;
         /** FUSION DU DEUXIÈME FICHIER */
         $this->traitementDeFichier->fusionFichers($fichierConvertir, $nomAvecCheminPdfSecond);
-        
+
         return [$nomAvecCheminPdfFusionner, $nomPdfFusionner];
     }
 

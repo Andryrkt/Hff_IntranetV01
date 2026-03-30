@@ -2,17 +2,18 @@
 
 namespace App\Controller\da\Modification;
 
+use App\Constants\da\StatutDaConstant;
 use App\Controller\Controller;
-use App\Entity\da\DemandeAppro;
-use App\Entity\da\DemandeApproL;
-use App\Entity\admin\Application;
-use App\Entity\da\DemandeApproLR;
-use App\Form\da\DemandeApproDirectFormType;
 use App\Controller\Traits\AutorisationTrait;
 use App\Controller\Traits\da\DaAfficherTrait;
+use App\Controller\Traits\da\modification\DaEditDirectTrait;
+use App\Entity\admin\Application;
+use App\Entity\da\DemandeAppro;
+use App\Entity\da\DemandeApproL;
+use App\Entity\da\DemandeApproLR;
+use App\Form\da\DemandeApproDirectFormType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\Traits\da\modification\DaEditDirectTrait;
 
 /**
  * @Route("/demande-appro")
@@ -98,7 +99,7 @@ class DaEditDirectController extends Controller
             $notifMessage = "Echec de la suppression de la ligne: la ligne de DA n'existe pas.";
         }
         $this->getSessionService()->set('notification', ['type' => $notifType, 'message' => $notifMessage]);
-        $this->redirectToRoute("list_da");
+        $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 1, 'page' => 1]);
     }
 
     private function traitementForm($form, Request $request, iterable $ancienDals): void
@@ -109,7 +110,7 @@ class DaEditDirectController extends Controller
             $demandeAppro = $form->getData();
             $numDa = $demandeAppro->getNumeroDemandeAppro();
 
-            $this->modificationDa($demandeAppro, $form->get('DAL'), DemandeAppro::STATUT_SOUMIS_APPRO);
+            $this->modificationDa($demandeAppro, $form->get('DAL'), StatutDaConstant::STATUT_SOUMIS_APPRO);
             if ($demandeAppro->getObservation() !== null) {
                 $this->insertionObservation($numDa, $demandeAppro->getObservation());
             }
@@ -121,7 +122,7 @@ class DaEditDirectController extends Controller
 
             //notification
             $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'Votre modification a été enregistrée']);
-            $this->redirectToRoute("list_da");
+            $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 1, 'page' => 1]);
         }
     }
 }

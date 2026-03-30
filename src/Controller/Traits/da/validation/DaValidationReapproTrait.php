@@ -152,7 +152,7 @@ trait DaValidationReapproTrait
         /** @var DemandeApproL $demandeApproL */
         foreach ($demandeAppro->getDAL() as $demandeApproL) {
             $demandeApproL->setStatutDal($statut);
-            if ($statut === demandeAppro::STATUT_VALIDE) {
+            if ($statut === StatutDaConstant::STATUT_VALIDE) {
                 $demandeApproL->setEstValidee(true);
                 $demandeApproL->setValidePar($this->getUser()->getNomUtilisateur());
             }
@@ -202,7 +202,7 @@ trait DaValidationReapproTrait
         $daSoumisAValidation
             ->setNumeroDemandeAppro($demandeAppro->getNumeroDemandeAppro())
             ->setNumeroVersion($numeroVersion)
-            ->setStatut(DemandeAppro::STATUT_DW_A_VALIDE)
+            ->setStatut(StatutDaConstant::STATUT_DW_A_VALIDE)
             ->setUtilisateur($demandeAppro->getDemandeur())
         ;
 
@@ -212,13 +212,13 @@ trait DaValidationReapproTrait
 
     public function validerDemande(DemandeAppro $demandeAppro)
     {
-        $this->modifierStatut($demandeAppro, demandeAppro::STATUT_VALIDE);
-        $this->ajouterDansTableAffichageParNumDa($demandeAppro->getNumeroDemandeAppro(), true, DemandeAppro::STATUT_DW_A_VALIDE);
+        $this->modifierStatut($demandeAppro, StatutDaConstant::STATUT_VALIDE);
+        $this->ajouterDansTableAffichageParNumDa($demandeAppro->getNumeroDemandeAppro(), true, StatutDaConstant::STATUT_DW_A_VALIDE);
     }
 
     public function refuserDemande(DemandeAppro $demandeAppro)
     {
-        $this->modifierStatut($demandeAppro, demandeAppro::STATUT_REFUSE_APPRO);
+        $this->modifierStatut($demandeAppro, StatutDaConstant::STATUT_REFUSE_APPRO);
         $this->ajouterDansTableAffichageParNumDa($demandeAppro->getNumeroDemandeAppro());
     }
 }

@@ -8,7 +8,7 @@ import { initCentraleCodeDesiInputs } from "../newReappro/event.js";
 document.addEventListener("DOMContentLoaded", function () {
   initCentraleCodeDesiInputs(
     "da_search_codeCentrale",
-    "da_search_desiCentrale",
+    "da_search_desiCentrale"
   );
   const designations = document.querySelectorAll(".designation-btn");
   designations.forEach((designation) => {
@@ -30,11 +30,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Attachement des événements pour les agences
   configAgenceService.emetteur.agenceInput.addEventListener("change", () =>
-    handleAgenceChange("emetteur"),
+    handleAgenceChange("emetteur")
   );
 
   configAgenceService.debiteur.agenceInput.addEventListener("change", () =>
-    handleAgenceChange("debiteur"),
+    handleAgenceChange("debiteur")
   );
 
   /**==================================================
@@ -43,7 +43,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const idMaterielInput = document.querySelector("#da_search_idMateriel");
   idMaterielInput.addEventListener("input", () =>
-    allowOnlyNumbers(idMaterielInput),
+    allowOnlyNumbers(idMaterielInput)
   );
 
   /**
@@ -194,6 +194,19 @@ document.addEventListener("DOMContentLoaded", function () {
       const numeroCde = button.getAttribute("data-numero-cde");
       const dateActuelle = button.getAttribute("data-date-actuelle");
 
+      if (dateActuelle != "N/A") {
+        const [day, month, year] = dateActuelle.split("/");
+        const formatted = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+
+        // Pré-rempli le champ de date dans le formulaire du modal
+        const dateInput = modalDateLivraison.querySelector(
+          "#da_modal_date_livraison_dateLivraisonPrevue"
+        );
+        if (dateInput) {
+          dateInput.value = formatted;
+        }
+      }
+
       // Mise à jour du contenu du modal
       const modalTitle = modalDateLivraison.querySelector(".modal-title");
       if (modalTitle) {
@@ -201,18 +214,9 @@ document.addEventListener("DOMContentLoaded", function () {
           "Modifier la date de livraison pour la commande n° : " + numeroCde;
       }
 
-      // Pré-rempli le champ de date dans le formulaire du modal
-      const dateInput = modalDateLivraison.querySelector(
-        "#da_modal_date_livraison_dateLivraisonPrevue",
-      );
-
-      if (dateInput) {
-        dateInput.value = dateActuelle;
-      }
-
       // remplir le champ cacher avec le numero commande
       const numeroCdeInput = modalDateLivraison.querySelector(
-        "#da_modal_date_livraison_numeroCde",
+        "#da_modal_date_livraison_numeroCde"
       );
       if (numeroCdeInput) {
         numeroCdeInput.value = numeroCde;

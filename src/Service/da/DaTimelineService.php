@@ -2,11 +2,12 @@
 
 namespace App\Service\da;
 
+use App\Constants\da\StatutDaConstant;
 use App\Entity\da\DaAfficher;
 use App\Entity\da\DemandeAppro;
-use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\da\DaAfficherRepository;
 use App\Traits\JoursOuvrablesTrait;
+use Doctrine\ORM\EntityManagerInterface;
 
 class DaTimelineService
 {
@@ -22,18 +23,18 @@ class DaTimelineService
     public function initStyleStatuts()
     {
         $this->styleStatutDA = [
-            DemandeAppro::STATUT_VALIDE               => 'bg-bon-achat-valide',
-            DemandeAppro::STATUT_CLOTUREE             => 'bg-bon-achat-valide',
-            DemandeAppro::STATUT_TERMINER             => 'bg-primary text-white',
-            DemandeAppro::STATUT_SOUMIS_ATE           => 'bg-proposition-achat',
-            DemandeAppro::STATUT_DW_A_VALIDE          => 'bg-soumis-validation',
-            DemandeAppro::STATUT_SOUMIS_APPRO         => 'bg-demande-achat',
-            DemandeAppro::STATUT_REFUSE_APPRO         => 'bg-refuse-appro',
-            DemandeAppro::STATUT_DEMANDE_DEVIS        => 'bg-demande-devis',
-            DemandeAppro::STATUT_DEVIS_A_RELANCER     => 'bg-devis-a-relancer',
-            DemandeAppro::STATUT_EN_COURS_CREATION    => 'bg-en-cours-creation',
-            DemandeAppro::STATUT_AUTORISER_EMETTEUR   => 'bg-creation-demande-initiale',
-            DemandeAppro::STATUT_EN_COURS_PROPOSITION => 'bg-en-cours-proposition',
+            StatutDaConstant::STATUT_VALIDE               => 'bg-bon-achat-valide',
+            StatutDaConstant::STATUT_CLOTUREE             => 'bg-bon-achat-valide',
+            StatutDaConstant::STATUT_TERMINER             => 'bg-primary text-white',
+            StatutDaConstant::STATUT_SOUMIS_ATE           => 'bg-proposition-achat',
+            StatutDaConstant::STATUT_DW_A_VALIDE          => 'bg-soumis-validation',
+            StatutDaConstant::STATUT_SOUMIS_APPRO         => 'bg-demande-achat',
+            StatutDaConstant::STATUT_REFUSE_APPRO         => 'bg-refuse-appro',
+            StatutDaConstant::STATUT_DEMANDE_DEVIS        => 'bg-demande-devis',
+            StatutDaConstant::STATUT_DEVIS_A_RELANCER     => 'bg-devis-a-relancer',
+            StatutDaConstant::STATUT_EN_COURS_CREATION    => 'bg-en-cours-creation',
+            StatutDaConstant::STATUT_AUTORISER_EMETTEUR   => 'bg-creation-demande-initiale',
+            StatutDaConstant::STATUT_EN_COURS_PROPOSITION => 'bg-en-cours-proposition',
         ];
     }
 
@@ -71,9 +72,9 @@ class DaTimelineService
 
         foreach ($allDatas as $key => $data) {
             // Ajouter le statut initial si nécessaire
-            if ($key === 0 && $data['statutDal'] !== DemandeAppro::STATUT_SOUMIS_APPRO) {
+            if ($key === 0 && $data['statutDal'] !== StatutDaConstant::STATUT_SOUMIS_APPRO) {
                 $tabTemp[] = $this->createTimelineEntry(
-                    DemandeAppro::STATUT_SOUMIS_APPRO,
+                    StatutDaConstant::STATUT_SOUMIS_APPRO,
                     $data['dateDemande']
                 );
             }
@@ -184,11 +185,11 @@ class DaTimelineService
 
     private function getStatutFinal(?string $statutOr, string $statutDal): string
     {
-        $estDaValide = ($statutOr === DemandeAppro::STATUT_DW_A_MODIFIER &&
-            $statutDal === DemandeAppro::STATUT_EN_COURS_CREATION) ||
-            $statutDal === DemandeAppro::STATUT_CLOTUREE;
+        $estDaValide = ($statutOr === StatutDaConstant::STATUT_DW_A_MODIFIER &&
+            $statutDal === StatutDaConstant::STATUT_EN_COURS_CREATION) ||
+            $statutDal === StatutDaConstant::STATUT_CLOTUREE;
 
-        return $estDaValide ? DemandeAppro::STATUT_VALIDE : $statutDal;
+        return $estDaValide ? StatutDaConstant::STATUT_VALIDE : $statutDal;
     }
 
     private function createTimelineEntry(string $statut, \DateTime $date): array

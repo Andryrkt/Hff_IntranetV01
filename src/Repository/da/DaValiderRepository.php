@@ -144,7 +144,7 @@ class DaValiderRepository extends EntityRepository
             ->from(DaValider::class, 'dav')
             ->where('dav.statutDal = :statutValide')
             ->groupBy('dav.numeroOr', 'dav.numeroDemandeAppro')
-            ->setParameter('statutValide', DemandeAppro::STATUT_VALIDE);
+            ->setParameter('statutValide', StatutDaConstant::STATUT_VALIDE);
 
         $latestVersions = $subQb->getQuery()->getArrayResult();
 
@@ -157,7 +157,7 @@ class DaValiderRepository extends EntityRepository
         $qb->select('dav')
             ->from(DaValider::class, 'dav')
             ->where('dav.statutDal = :statutValide')
-            ->setParameter('statutValide', DemandeAppro::STATUT_VALIDE);
+            ->setParameter('statutValide', StatutDaConstant::STATUT_VALIDE);
 
         $orX = $qb->expr()->orX();
 
@@ -189,7 +189,7 @@ class DaValiderRepository extends EntityRepository
         $this->applyDynamicFilters($qb, $criteria);
 
         $qb->orderBy('dav.numeroDemandeAppro', 'ASC')
-        ->addOrderBy('dav.numeroFournisseur', 'ASC');
+            ->addOrderBy('dav.numeroFournisseur', 'ASC');
 
         // $query = $qb->getQuery();
         // $sql = $query->getSQL();

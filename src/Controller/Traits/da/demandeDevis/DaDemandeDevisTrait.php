@@ -28,6 +28,6 @@ trait DaDemandeDevisTrait
             ->setDevisDemandePar($username)
         ;
 
-        $this->appliquerChangementStatut($demandeAppro, DemandeAppro::STATUT_DEMANDE_DEVIS);
+        $this->appliquerChangementStatut($demandeAppro, StatutDaConstant::STATUT_DEMANDE_DEVIS);
     }
 }

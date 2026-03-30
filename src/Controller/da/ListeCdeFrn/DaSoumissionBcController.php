@@ -2,37 +2,27 @@
 
 namespace App\Controller\da\ListeCdeFrn;
 
-use Exception;
-use App\Model\da\DaModel;
-use App\Entity\da\DaValider;
-use App\Entity\da\DaAfficher;
+use App\Constants\da\StatutBcConstant;
 use App\Controller\Controller;
-use App\Entity\da\DemandeAppro;
-use App\Entity\admin\Application;
 use App\Entity\da\DaSoumissionBc;
-use App\Entity\ddp\DemandePaiement;
-use App\Entity\admin\ddp\TypeDemande;
-use App\Model\da\DaSoumissionBcModel;
-use App\Repository\dit\DitRepository;
+use App\Entity\da\DaValider;
+use App\Entity\da\DemandeAppro;
 use App\Entity\dit\DemandeIntervention;
-use App\Model\ddp\DemandePaiementModel;
-use App\Service\genererPdf\GeneratePdf;
-use App\Constants\da\ddp\StatutConstants;
-use App\Service\autres\AutoIncDecService;
-use App\Repository\da\DaAfficherRepository;
-use App\Service\fichier\TraitementDeFichier;
-use App\Controller\Traits\PdfConversionTrait;
-use App\Dto\Da\ListeCdeFrn\DaSoumissionBcDto;
-use App\Repository\da\DemandeApproRepository;
-use Symfony\Component\HttpFoundation\Request;
-use App\Repository\da\DaSoumissionBcRepository;
-use Symfony\Component\Routing\Annotation\Route;
 use App\Form\da\soumissionBC\DaSoumissionBcType;
-use App\Constants\ddp\TypeDemandePaiementConstants;
-use App\Factory\da\CdeFrnDto\DaSoumissionBcFactory;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
-use App\Service\historiqueOperation\HistoriqueOperationService;
+use App\Model\da\DaModel;
+use App\Model\da\DaSoumissionBcModel;
+use App\Repository\da\DaSoumissionBcRepository;
+use App\Repository\da\DaValiderRepository;
+use App\Repository\da\DemandeApproRepository;
+use App\Repository\dit\DitRepository;
+use App\Service\fichier\TraitementDeFichier;
+use App\Service\genererPdf\GeneratePdf;
 use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
+use App\Service\historiqueOperation\HistoriqueOperationService;
+use Exception;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route("/demande-appro")
@@ -185,7 +175,7 @@ class DaSoumissionBcController extends Controller
         if (!empty($daValiders)) {
             foreach ($daValiders as $key => $daValider) {
                 $daValider
-                    ->setStatutCde(DaSoumissionBc::STATUT_SOUMISSION);
+                    ->setStatutCde(StatutBcConstant::STATUT_SOUMISSION);
                 $this->getEntityManager()->persist($daValider);
             }
 
@@ -205,7 +195,7 @@ class DaSoumissionBcController extends Controller
         $daSoumissionBc->setNumeroCde($numCde)
             ->setUtilisateur($this->getUserName())
             ->setPieceJoint1($nomPdfFusionner)
-            ->setStatut(DaSoumissionBc::STATUT_SOUMISSION)
+            ->setStatut(StatutBcConstant::STATUT_SOUMISSION)
             ->setNumeroVersion($numeroVersionMax)
             ->setNumeroDemandeAppro($numDa)
             ->setNumeroDemandeDit($numDit)
@@ -234,7 +224,7 @@ class DaSoumissionBcController extends Controller
 
         return [
             'nomDeFichier' => explode('_', $nomdeFichier)[0] <> 'BON DE COMMANDE' || explode('_', $nomdeFichier)[1] <> $numCde,
-            'statut' => $statut === DaSoumissionBc::STATUT_SOUMISSION || $statut === DaSoumissionBc::STATUT_A_VALIDER_DA,
+            'statut' => $statut === StatutBcConstant::STATUT_SOUMISSION || $statut === StatutBcConstant::STATUT_A_VALIDER_DA,
             'numDaEgale' => $numDaInformix[0] !== $numDa,
             'montantBcEgale' => $montantBc == $this->getMontantBc($numCde)
         ];

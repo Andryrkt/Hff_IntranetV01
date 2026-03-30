@@ -2,10 +2,10 @@
 
 namespace App\Controller\da\Creation;
 
+use App\Constants\da\StatutDaConstant;
 use App\Controller\Controller;
 use App\Controller\Traits\AutorisationTrait;
 use App\Controller\Traits\da\creation\DaNewAchatTrait;
-use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproParent;
 use App\Entity\da\DemandeApproParentLine;
 use App\Form\da\DemandeApproAchatFormType;
@@ -19,10 +19,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class DaNewAchatController extends Controller
 {
     use DaNewAchatTrait, AutorisationTrait;
-    const STATUT_DAL = [
-        'enregistrerBrouillon' => DemandeAppro::STATUT_EN_COURS_CREATION,
-        'soumissionAppro'      => DemandeAppro::STATUT_SOUMIS_APPRO,
-    ];
+
 
     public function __construct()
     {
@@ -79,7 +76,7 @@ class DaNewAchatController extends Controller
 
             // Récupérer le nom du bouton cliqué
             $clickedButtonName = $this->getButtonName($request);
-            $demandeApproParent->setStatutDal(self::STATUT_DAL[$clickedButtonName]);
+            $demandeApproParent->setStatutDal(StatutDaConstant::STATUT_DAL[$clickedButtonName]);
 
             foreach ($formDemandeApproLines as $subFormDapL) {
                 /** @var DemandeApproParentLine $demandeApproParentLine */
@@ -111,7 +108,7 @@ class DaNewAchatController extends Controller
 
                     $demandeApproParentLine
                         ->setNumeroDemandeAppro($numDa)
-                        ->setStatutDal(self::STATUT_DAL[$clickedButtonName])
+                        ->setStatutDal(StatutDaConstant::STATUT_DAL[$clickedButtonName])
                         ->setJoursDispo($this->getJoursRestants($demandeApproParentLine))
                         ->setFileNames($allFileNames)
                     ;
@@ -140,7 +137,7 @@ class DaNewAchatController extends Controller
             if ($clickedButtonName === "soumissionAppro") $this->emailDaService->envoyerMailCreationDaParent($demandeApproParent, $this->getUser());
 
             $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'Votre demande a été enregistrée']);
-            $this->redirectToRoute("list_da");
+            $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 1, 'page' => 1]);
         }
     }
 }
