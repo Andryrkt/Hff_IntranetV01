@@ -218,7 +218,7 @@ class ActionSurNonDispoController extends Controller
             ->setNumeroDemandeApproMere($numDa)
             ->setNumeroDemandeDit($daAfficher->getNumeroDemandeDit())
             ->setStatutDal($statutDa)
-            ->setObjetDal($daAfficher->getObjetDal() . ' (Duplicata ' . $demandeAppro->getNumeroDemandeAppro() . ')')
+            ->setObjetDal($demandeAppro->getObjetDal())
             ->setDetailDal($daAfficher->getDetailDal())
             ->setNumeroLigne($daAfficher->getNumeroLigne())
             ->setQteDem($daAfficher->getQteDem())
