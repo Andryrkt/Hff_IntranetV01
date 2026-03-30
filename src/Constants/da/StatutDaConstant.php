@@ -36,6 +36,12 @@ class StatutDaConstant
         self::STATUT_CLOTUREE_HORS_DELAI  => self::STATUT_CLOTUREE_HORS_DELAI,
     ];
 
+    public const STATUT_TRAITEMENT_APPRO = [
+        self::STATUT_DEMANDE_DEVIS        => self::STATUT_DEMANDE_DEVIS,
+        self::STATUT_DEVIS_A_RELANCER     => self::STATUT_DEVIS_A_RELANCER,
+        self::STATUT_EN_COURS_PROPOSITION => self::STATUT_EN_COURS_PROPOSITION,
+    ];
+
     public const STATUT_DA_PAS_APPRO_NI_ADMIN = [
         self::STATUT_EN_COURS_CREATION    => self::STATUT_EN_COURS_CREATION,
         self::STATUT_SOUMIS_APPRO         => self::STATUT_SOUMIS_APPRO, // demande d'achat

@@ -759,6 +759,7 @@ class DaAfficherRepository extends EntityRepository
                     $queryBuilder->andWhere($qbLabel . '.statutCde IN (:statutBcParam)')
                         ->setParameter('statutBcParam', $criteria['statutBC'], ArrayParameterType::STRING);
                 } else {
+
                     $queryBuilder->andWhere($qbLabel . '.statutCde = :statutBcParam')
                         ->setParameter('statutBcParam', $criteria['statutBC']);
                 }
@@ -787,8 +788,13 @@ class DaAfficherRepository extends EntityRepository
                     $queryBuilder->andWhere($qbLabel . '.statutDal IN (:statutDaParam)')
                         ->setParameter('statutDaParam', $criteria['statutDA'], ArrayParameterType::STRING);
                 } else {
-                    $queryBuilder->andWhere($qbLabel . '.statutDal = :statutDaParam')
-                        ->setParameter('statutDaParam', $criteria['statutDA']);
+                    if ($criteria['statutDA'] === StatutBcConstant::BC_EN_COURS) {
+                        $queryBuilder->andWhere($qbLabel . '.statutDal IN (:statutDaParam)')
+                            ->setParameter('statutDaParam', StatutDaConstant::STATUT_TRAITEMENT_APPRO, ArrayParameterType::STRING);
+                    } else {
+                        $queryBuilder->andWhere($qbLabel . '.statutDal = :statutDaParam')
+                            ->setParameter('statutDaParam', $criteria['statutDA']);
+                    }
                 }
             }
 
@@ -803,8 +809,13 @@ class DaAfficherRepository extends EntityRepository
             }
 
             if (!empty($criteria['statutBC']) && !is_array($criteria['statutBC'])) {
-                $queryBuilder->andWhere($qbLabel . '.statutCde = :statutBcParam')
-                    ->setParameter('statutBcParam', $criteria['statutBC']);
+                if ($criteria['statutBC'] === StatutBcConstant::BC_EN_COURS) {
+                    $queryBuilder->andWhere($qbLabel . '.statutCde IN (:statutBcParam)')
+                        ->setParameter('statutBcParam', StatutBcConstant::STATUT_BC_EN_COURS, ArrayParameterType::STRING);
+                } else {
+                    $queryBuilder->andWhere($qbLabel . '.statutCde = :statutBcParam')
+                        ->setParameter('statutBcParam', $criteria['statutBC']);
+                }
             }
         }
     }

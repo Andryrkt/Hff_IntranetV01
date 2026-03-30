@@ -70,6 +70,12 @@ class StatutBcConstant
         self::STATUT_PAS_DANS_BC              => self::STATUT_PAS_DANS_BC,
     ];
 
+    public const STATUT_BC_EN_COURS = [
+        self::STATUT_A_GENERER,
+        self::STATUT_A_EDITER,
+        self::STATUT_A_SOUMETTRE_A_VALIDATION,
+    ];
+
     public const CSS_CLASS_MAP_STATUT_BC = [
         self::STATUT_A_EDITER                 => 'bg-bc-a-editer',
         self::STATUT_A_GENERER                => 'bg-bc-a-generer',
