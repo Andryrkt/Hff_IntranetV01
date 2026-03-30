@@ -46,10 +46,8 @@ class DaSearchType extends  AbstractType
         ksort($statut_or);
 
         $statut_bc = StatutBcConstant::STATUT_BC;
-        // ksort($statut_bc);
 
         $statut_da = StatutDaConstant::STATUT_DA;
-        // ksort($statut_da);
 
         $type_achat = [
             'Demande d’approvisionnement via OR'      => DemandeAppro::TYPE_DA_AVEC_DIT,

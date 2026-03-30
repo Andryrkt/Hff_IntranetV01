@@ -37,19 +37,6 @@ class CdeFrnListType extends  AbstractType
         $this->agenceRepository = $this->em->getRepository(Agence::class);
     }
 
-    private const STATUT_DA = [
-        StatutDaConstant::STATUT_EN_COURS_CREATION    => StatutDaConstant::STATUT_EN_COURS_CREATION,
-        StatutDaConstant::STATUT_SOUMIS_APPRO         => StatutDaConstant::STATUT_SOUMIS_APPRO, // demande d'achat
-        StatutDaConstant::STATUT_DEMANDE_DEVIS        => StatutDaConstant::STATUT_DEMANDE_DEVIS,
-        StatutDaConstant::STATUT_DEVIS_A_RELANCER     => StatutDaConstant::STATUT_DEVIS_A_RELANCER,
-        StatutDaConstant::STATUT_AUTORISER_EMETTEUR   => StatutDaConstant::STATUT_AUTORISER_EMETTEUR, // Création demande initiale
-        StatutDaConstant::STATUT_EN_COURS_PROPOSITION => StatutDaConstant::STATUT_EN_COURS_PROPOSITION,
-        StatutDaConstant::STATUT_SOUMIS_ATE           => StatutDaConstant::STATUT_SOUMIS_ATE, // proposition d'achat
-        StatutDaConstant::STATUT_VALIDE               => StatutDaConstant::STATUT_VALIDE, // Bon d'achats validé
-        StatutDaConstant::STATUT_CLOTUREE             => StatutDaConstant::STATUT_CLOTUREE,
-        StatutDaConstant::STATUT_CLOTUREE_HORS_DELAI  => StatutDaConstant::STATUT_CLOTUREE_HORS_DELAI,
-    ];
-
 
     private const TYPE_ACHAT = [
         'DA Avec DIT' => DemandeAppro::TYPE_DA_AVEC_DIT,
@@ -64,8 +51,7 @@ class CdeFrnListType extends  AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $statut_da = self::STATUT_DA;
-        // ksort($statut_da);
+        $statut_da = StatutDaConstant::STATUT_DA;
 
         $builder
             ->add('afficherCloturees', CheckboxType::class, [
