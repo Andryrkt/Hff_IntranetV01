@@ -191,10 +191,12 @@ class listeDaController extends Controller
 
         if ($formDateLivraison->isSubmitted() && $formDateLivraison->isValid()) {
             $data = $formDateLivraison->getData();
+            $dateLivraisonPrevue = $data['dateLivraisonPrevue'];
             $daAffichers = $this->daAfficherRepository->findBy(['numeroCde' => $data['numeroCde']]);
 
             foreach ($daAffichers as $daAfficher) {
-                $daAfficher->setDateLivraisonPrevue($data['dateLivraisonPrevue']);
+                $daAfficher->setDateLivraisonPrevue($dateLivraisonPrevue)
+                    ->setJoursDispo($dateLivraisonPrevue->diff(new \DateTime('now', new \DateTimeZone('Indian/Antananarivo')))->days);
                 $this->getEntityManager()->persist($daAfficher);
             }
 

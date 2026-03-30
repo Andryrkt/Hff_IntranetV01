@@ -39,10 +39,12 @@ class ChangementStatutBCController extends Controller
             $numVersionMaxDaAfficher = $this->daAfficherRepository->getNumeroVersionMaxCde($numCde);
             /** @var DaAfficher[] $daAffichers */
             $daAffichers = $this->daAfficherRepository->findBy(['numeroCde' => $numCde, 'numeroVersion' => $numVersionMaxDaAfficher]);
+            $dateLivraison = new \DateTime($datePrevue);
             foreach ($daAffichers as $daAfficher) {
                 $daAfficher
                     ->setStatutCde(DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR)
-                    ->setDateLivraisonPrevue(new \DateTime($datePrevue))
+                    ->setDateLivraisonPrevue($dateLivraison)
+                    ->setJoursDispo($dateLivraison->diff(new \DateTime('now', new \DateTimeZone('Indian/Antananarivo')))->days)
                     ->setBcEnvoyerFournisseur(true)
                     ->setDateEnvoiFournisseur(new \DateTime('now', new \DateTimeZone('Indian/Antananarivo')))
                 ;
