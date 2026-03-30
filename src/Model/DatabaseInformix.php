@@ -67,9 +67,11 @@ class DatabaseInformix implements DatabaseConnectionInterface
                     $key = $matches[1];
                     if (array_key_exists($key, $params)) {
                         $value = $params[$key];
-                        // Conversion des booléens pour ODBC/Informix
+                        // Conversion des booléens et des tableaux pour ODBC/Informix
                         if (is_bool($value)) {
                             $value = $value ? 1 : 0;
+                        } elseif (is_array($value)) {
+                            $value = "['" . implode("','", $value) . "']";
                         }
                         $orderedParams[] = $value;
                         return '?';

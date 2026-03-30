@@ -106,7 +106,7 @@ class ValidationSoumissionVerificationPrix
         if (!$remoteUrl && !$this->isFileSubmitted($form, self::FILE_FIELD_NAME)) {
             $message = "Aucun fichier n'a été soumis.";
             $this->sendNotificationDevisMagasin($message, '', 'liste_devis_neg', false);
-            return false;
+            return true;
         }
 
         $file = $form->get(self::FILE_FIELD_NAME)->getData();
@@ -122,17 +122,17 @@ class ValidationSoumissionVerificationPrix
         if (!$this->matchPattern($fileName, self::FILENAME_PATTERN)) {
             $message = "Le nom du fichier soumis n'est pas conforme au format attendu. Reçu: " . $fileName;
             $this->sendNotificationDevisMagasin($message, '', 'liste_devis_neg', false);
-            return false;
+            return true;
         }
 
         // Vérifie si le numéro de devis dans le nom du fichier correspond au numéro de devis attendu (S'assurer que le devis envoyé corresponde à la ligne de devis utilisé pour la soumission dans l'intranet)
         if (!$this->matchNumberAfterUnderscore($fileName, $expectedNumeroDevis)) {
             $message = "Le numéro de devis dans le nom du fichier ($fileName) ne correspond pas au devis du formulaire ( $expectedNumeroDevis )";
             $this->sendNotificationDevisMagasin($message, '', 'liste_devis_neg', false);
-            return false;
+            return true;
         }
 
-        return true;
+        return false;
     }
 
     /**

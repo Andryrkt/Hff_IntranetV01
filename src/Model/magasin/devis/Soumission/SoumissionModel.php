@@ -172,7 +172,7 @@ class SoumissionModel extends Model
         try {
             $statement = "SELECT 
                         dneg.numero_devis as numero_devis
-                        ,dneg.statut_dw as statut_devis
+                        ,dneg.statut_dw as statut
                         ,dneg.montant_devis as montant_devis
                         ,dneg.somme_numero_lignes as somme_numero_lignes
 
