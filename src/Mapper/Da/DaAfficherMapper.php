@@ -47,7 +47,7 @@ class DaAfficherMapper
         $dto->artDesi = $data->getArtDesi();
         $dto->dateLivraisonPrevue = $data->getDateLivraisonPrevue() ? $data->getDateLivraisonPrevue()->format('d/m/Y') : 'N/A';
         $dto->estDalr = $data->getEstDalr();
-
+        $dto->estAppro = $estAppro;
 
         // type de DA
         $dto->datype = $data->getDatypeId();

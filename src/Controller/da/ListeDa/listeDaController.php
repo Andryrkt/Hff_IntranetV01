@@ -12,8 +12,6 @@ use App\Entity\admin\Application;
 use App\Entity\admin\Service;
 use App\Entity\da\DaAfficher;
 use App\Entity\da\DaSearch;
-use App\Entity\da\DaSoumissionBc;
-use App\Entity\da\DemandeAppro;
 use App\Form\da\daCdeFrn\DaModalDateLivraisonType;
 use App\Form\da\DaSearchType;
 use App\Mapper\Da\DaAfficherMapper;
@@ -62,7 +60,10 @@ class listeDaController extends Controller
         $this->initialisationRechercheDa($daSearch);
 
         // Formulaire de recherche
-        $form = $this->getFormFactory()->createBuilder(DaSearchType::class, $daSearch, ['method' => 'GET'])->getForm();
+        $form = $this->getFormFactory()->createBuilder(DaSearchType::class, $daSearch, [
+            'method' => 'GET',
+            'estAppro' => $this->estUserDansServiceAppro()
+        ])->getForm();
         $form->handleRequest($request);
 
         $criteria = $daSearch->toArray();

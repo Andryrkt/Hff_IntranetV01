@@ -21,6 +21,8 @@ class StatutDaConstant
     public const STATUT_DW_VALIDEE           = 'DA validée';                /*_________ DA direct ________*/ /*__ statut_or _*/ // cliquable par Admin et Appro
     public const STATUT_DW_A_MODIFIER        = 'DA à modifier';
 
+    public const TRAITEMENT_APPRO           = 'Traitement appro';
+
     public const STATUT_DA = [
         self::STATUT_EN_COURS_CREATION    => self::STATUT_EN_COURS_CREATION,
         self::STATUT_SOUMIS_APPRO         => self::STATUT_SOUMIS_APPRO, // demande d'achat
@@ -28,6 +30,17 @@ class StatutDaConstant
         self::STATUT_DEVIS_A_RELANCER     => self::STATUT_DEVIS_A_RELANCER,
         self::STATUT_AUTORISER_EMETTEUR   => self::STATUT_AUTORISER_EMETTEUR, // Création demande initiale
         self::STATUT_EN_COURS_PROPOSITION => self::STATUT_EN_COURS_PROPOSITION,
+        self::STATUT_SOUMIS_ATE           => self::STATUT_SOUMIS_ATE, // proposition d'achat
+        self::STATUT_VALIDE               => self::STATUT_VALIDE, // Bon d'achats validé
+        self::STATUT_CLOTUREE             => self::STATUT_CLOTUREE,
+        self::STATUT_CLOTUREE_HORS_DELAI  => self::STATUT_CLOTUREE_HORS_DELAI,
+    ];
+
+    public const STATUT_DA_PAS_APPRO_NI_ADMIN = [
+        self::STATUT_EN_COURS_CREATION    => self::STATUT_EN_COURS_CREATION,
+        self::STATUT_SOUMIS_APPRO         => self::STATUT_SOUMIS_APPRO, // demande d'achat
+        self::TRAITEMENT_APPRO            => self::TRAITEMENT_APPRO,
+        self::STATUT_AUTORISER_EMETTEUR   => self::STATUT_AUTORISER_EMETTEUR, // Création demande initiale
         self::STATUT_SOUMIS_ATE           => self::STATUT_SOUMIS_ATE, // proposition d'achat
         self::STATUT_VALIDE               => self::STATUT_VALIDE, // Bon d'achats validé
         self::STATUT_CLOTUREE             => self::STATUT_CLOTUREE,

@@ -31,10 +31,30 @@ class StatutBcConstant
     public const STATUT_COMPLET_NON_LIVRE        = 'Complet non livré';
 
 
+    public const BC_EN_COURS = 'BC en cours';
+
+
     public const STATUT_BC = [
         self::STATUT_A_GENERER                => self::STATUT_A_GENERER,
         self::STATUT_A_EDITER                 => self::STATUT_A_EDITER,
         self::STATUT_A_SOUMETTRE_A_VALIDATION => self::STATUT_A_SOUMETTRE_A_VALIDATION,
+        self::STATUT_A_VALIDER_DA             => self::STATUT_A_VALIDER_DA,
+        self::STATUT_REFUSE                   => self::STATUT_REFUSE,
+        self::STATUT_A_ENVOYER_AU_FOURNISSEUR => self::STATUT_A_ENVOYER_AU_FOURNISSEUR,
+        self::STATUT_BC_ENVOYE_AU_FOURNISSEUR => self::STATUT_BC_ENVOYE_AU_FOURNISSEUR,
+        self::STATUT_NON_DISPO                => self::STATUT_NON_DISPO,
+        self::STATUT_EN_COURS_DE_PREPARATION  => self::STATUT_EN_COURS_DE_PREPARATION,
+        self::STATUT_PARTIELLEMENT_DISPO      => self::STATUT_PARTIELLEMENT_DISPO,
+        self::STATUT_COMPLET_NON_LIVRE        => self::STATUT_COMPLET_NON_LIVRE,
+        self::STATUT_PARTIELLEMENT_LIVRE      => self::STATUT_PARTIELLEMENT_LIVRE,
+        self::STATUT_TOUS_LIVRES              => self::STATUT_TOUS_LIVRES,
+        self::STATUT_PAS_DANS_OR              => self::STATUT_PAS_DANS_OR,
+        self::STATUT_PAS_DANS_OR_CESSION      => self::STATUT_PAS_DANS_OR_CESSION,
+        self::STATUT_PAS_DANS_BC              => self::STATUT_PAS_DANS_BC,
+    ];
+
+    public const STATUT_BC_PAS_APPRO_NI_ADMIN = [
+        self::BC_EN_COURS                      => self::BC_EN_COURS,
         self::STATUT_A_VALIDER_DA             => self::STATUT_A_VALIDER_DA,
         self::STATUT_REFUSE                   => self::STATUT_REFUSE,
         self::STATUT_A_ENVOYER_AU_FOURNISSEUR => self::STATUT_A_ENVOYER_AU_FOURNISSEUR,

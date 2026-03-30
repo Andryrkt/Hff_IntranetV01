@@ -11,7 +11,6 @@ use App\Entity\admin\dit\WorNiveauUrgence;
 use App\Entity\admin\Service;
 use App\Entity\da\DaSearch;
 use App\Entity\da\DemandeAppro;
-use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Repository\admin\ServiceRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
@@ -45,9 +44,14 @@ class DaSearchType extends  AbstractType
         $statut_or = StatutOrConstant::STATUT_OR;
         ksort($statut_or);
 
-        $statut_bc = StatutBcConstant::STATUT_BC;
+        if ($options['estAppro']) {
+            $statut_da = StatutDaConstant::STATUT_DA;
+            $statut_bc = StatutBcConstant::STATUT_BC;
+        } else {
+            $statut_da = StatutDaConstant::STATUT_DA_PAS_APPRO_NI_ADMIN;
+            $statut_bc = StatutBcConstant::STATUT_BC_PAS_APPRO_NI_ADMIN;
+        }
 
-        $statut_da = StatutDaConstant::STATUT_DA;
 
         $type_achat = [
             'Demande d’approvisionnement via OR'      => DemandeAppro::TYPE_DA_AVEC_DIT,
@@ -305,6 +309,7 @@ class DaSearchType extends  AbstractType
     {
         $resolver->setDefaults([
             'data_class' => DaSearch::class,
+            'estAppro'   => false,
         ]);
     }
 }

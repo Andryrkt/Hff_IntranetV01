@@ -3,10 +3,8 @@
 namespace App\Dto\Da;
 
 use App\Constants\da\StatutBcConstant;
-use App\Constants\da\StatutConstant;
 use App\Constants\da\StatutDaConstant;
 use App\Constants\da\StatutOrConstant;
-use App\Entity\da\DemandeAppro;
 
 class DaAfficherDto
 {
@@ -23,6 +21,7 @@ class DaAfficherDto
     public $artRefp;
     public $artDesi;
     public $dateLivraisonPrevue;
+    public $estAppro = false;
 
     public $estDalr;
     public $verouille;
