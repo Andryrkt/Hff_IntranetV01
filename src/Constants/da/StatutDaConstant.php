@@ -71,6 +71,7 @@ class StatutDaConstant
         self::STATUT_EN_COURS_CREATION    => 'bg-en-cours-creation',
         self::STATUT_AUTORISER_EMETTEUR   => 'bg-creation-demande-initiale',
         self::STATUT_EN_COURS_PROPOSITION => 'bg-en-cours-proposition',
+        self::TRAITEMENT_APPRO            => 'bg-en-cours-proposition',
         self::STATUT_CLOTUREE_HORS_DELAI  => 'bg-bc-pas-dans-or',
     ];
 

@@ -98,10 +98,10 @@ class DaAfficherMapper
         // Cde
         $dto->numeroCde = $data->getNumeroCde();
         $dto->positionBc = $data->getNumeroLigne();
-        $dto->statutCde = $data->getStatutCde();
+        $dto->statutCde = !$estAppro && in_array($data->getStatutCde(), StatutBcConstant::STATUT_BC_EN_COURS) ? StatutBcConstant::BC_EN_COURS : $data->getStatutCde();
 
         // DAL
-        $dto->statutDal = $data->getStatutDal();
+        $dto->statutDal = !$estAppro && in_array($data->getStatutDal(), StatutDaConstant::STATUT_TRAITEMENT_APPRO) ? StatutDaConstant::TRAITEMENT_APPRO : $data->getStatutDal();
         $dto->verouille = $dto->datype === DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL ? true : $this->permissionDaService->estDaVerrouillee(
             $dto->statutDal,
             $dto->statutOr,

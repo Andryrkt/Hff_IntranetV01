@@ -79,6 +79,7 @@ class StatutBcConstant
     public const CSS_CLASS_MAP_STATUT_BC = [
         self::STATUT_A_EDITER                 => 'bg-bc-a-editer',
         self::STATUT_A_GENERER                => 'bg-bc-a-generer',
+        self::BC_EN_COURS                     => 'bg-bc-a-generer',
         self::STATUT_A_SOUMETTRE_A_VALIDATION => 'bg-bc-a-soumettre-a-validation',
         self::STATUT_A_ENVOYER_AU_FOURNISSEUR => 'bg-bc-a-envoyer-au-fournisseur',
         self::STATUT_SOUMISSION               => 'bg-bc-soumission',
