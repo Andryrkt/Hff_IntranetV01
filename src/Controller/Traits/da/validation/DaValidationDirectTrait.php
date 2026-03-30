@@ -82,7 +82,7 @@ trait DaValidationDirectTrait
         $daSoumisAValidation
             ->setNumeroDemandeAppro($demandeAppro->getNumeroDemandeAppro())
             ->setNumeroVersion($numeroVersion)
-            ->setStatut(DemandeAppro::STATUT_DW_A_VALIDE)
+            ->setStatut(StatutDaConstant::STATUT_DW_A_VALIDE)
             ->setUtilisateur($demandeAppro->getDemandeur())
         ;
 

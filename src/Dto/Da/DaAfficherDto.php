@@ -2,8 +2,9 @@
 
 namespace App\Dto\Da;
 
-use App\Constants\da\StatutConstant;
-use App\Entity\da\DemandeAppro;
+use App\Constants\da\StatutBcConstant;
+use App\Constants\da\StatutDaConstant;
+use App\Constants\da\StatutOrConstant;
 
 class DaAfficherDto
 {
@@ -20,6 +21,7 @@ class DaAfficherDto
     public $artRefp;
     public $artDesi;
     public $dateLivraisonPrevue;
+    public $estAppro = false;
 
     public $estDalr;
     public $verouille;
@@ -80,21 +82,21 @@ class DaAfficherDto
 
     public function getStyleStatutDA(): string
     {
-        return $this->statutDal ? StatutConstant::getCssClassDa($this->statutDal) : '';
+        return $this->statutDal ? StatutDaConstant::getCssClassDa($this->statutDal) : '';
     }
 
     public function getStyleStatutOR(): string
     {
-        return $this->statutOr ? StatutConstant::getCssClassOr($this->statutOr) : '';
+        return $this->statutOr ? StatutOrConstant::getCssClassOr($this->statutOr) : '';
     }
 
     public function getStyleStatutBC(): string
     {
-        return $this->statutCde ? StatutConstant::getCssClassBc($this->statutCde) : '';
+        return $this->statutCde ? StatutBcConstant::getCssClassBc($this->statutCde) : '';
     }
 
     public function isStatutValide(): bool
     {
-        return $this->statutDal === DemandeAppro::STATUT_VALIDE;
+        return $this->statutDal === StatutDaConstant::STATUT_VALIDE;
     }
 }

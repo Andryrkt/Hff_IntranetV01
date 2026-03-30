@@ -38,7 +38,7 @@ class DemandeApproRepository extends EntityRepository
         if (empty(array_filter($criteria, fn($v) => !is_null($v)))) {
             // Par défaut, on n'affiche pas les demandes terminées
             $qb->andWhere("da.statutDal != :statut")
-                ->setParameter('statut', DemandeAppro::STATUT_TERMINER);
+                ->setParameter('statut', StatutDaConstant::STATUT_TERMINER);
         }
 
         //filtre sur le statut de DA
@@ -211,7 +211,7 @@ class DemandeApproRepository extends EntityRepository
         return $this->createQueryBuilder('da')
             ->select('da.numeroDemandeDit')
             ->where('da.statutDal IN (:statuts)')
-            ->setParameter('statuts', [DemandeAppro::STATUT_VALIDE, DemandeAppro::STATUT_TERMINER])
+            ->setParameter('statuts', [StatutDaConstant::STATUT_VALIDE, StatutDaConstant::STATUT_TERMINER])
             ->getQuery()
             ->getSingleColumnResult()
         ;
@@ -263,7 +263,7 @@ class DemandeApproRepository extends EntityRepository
             ->where('da.numeroDemandeDit = :numDit')
             ->andWhere('da.statutDal = :statutValide')
             ->setParameter('numDit', $numDit)
-            ->setParameter('statutValide', DemandeAppro::STATUT_VALIDE)
+            ->setParameter('statutValide', StatutDaConstant::STATUT_VALIDE)
             ->getQuery()
             ->getSingleColumnResult();
     }

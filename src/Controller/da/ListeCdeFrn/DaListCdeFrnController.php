@@ -74,6 +74,11 @@ class DaListCdeFrnController extends Controller
             $sortJoursClass = $criteriaTab['sortNbJours'] === 'asc' ? 'fas fa-arrow-up-1-9' : 'fas fa-arrow-down-9-1';
         }
 
+        // Si "afficherCloturees" n'est pas dans les critères, on l'ajoute avec la valeur false
+        if (!array_key_exists('afficherCloturees', $criteriaTab)) {
+            $criteriaTab['afficherCloturees'] = false;
+        }
+
         $page = $request->query->getInt('page', 1);
         $limit = 250;
 
@@ -119,10 +124,13 @@ class DaListCdeFrnController extends Controller
 
         if ($formDateLivraison->isSubmitted() && $formDateLivraison->isValid()) {
             $data = $formDateLivraison->getData();
+            $dateLivraisonPrevue = $data['dateLivraisonPrevue'];
             $daAffichers = $this->daAfficherRepository->findBy(['numeroCde' => $data['numeroCde']]);
 
+            /** @var DaAfficher $daAfficher */
             foreach ($daAffichers as $daAfficher) {
-                $daAfficher->setDateLivraisonPrevue($data['dateLivraisonPrevue']);
+                $daAfficher->setDateLivraisonPrevue($dateLivraisonPrevue)
+                    ->setJoursDispo($dateLivraisonPrevue->diff(new \DateTime('now', new \DateTimeZone('Indian/Antananarivo')))->days);
                 $this->getEntityManager()->persist($daAfficher);
             }
 

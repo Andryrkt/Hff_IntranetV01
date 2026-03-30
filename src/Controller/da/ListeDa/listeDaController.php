@@ -2,15 +2,16 @@
 
 namespace App\Controller\da\ListeDa;
 
+use App\Constants\da\StatutBcConstant;
+use App\Constants\da\StatutDaConstant;
 use App\Controller\Controller;
 use App\Controller\Traits\AutorisationTrait;
 use App\Controller\Traits\da\DaTrait;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Application;
+use App\Entity\admin\Service;
 use App\Entity\da\DaAfficher;
 use App\Entity\da\DaSearch;
-use App\Entity\da\DaSoumissionBc;
-use App\Entity\da\DemandeAppro;
 use App\Form\da\daCdeFrn\DaModalDateLivraisonType;
 use App\Form\da\DaSearchType;
 use App\Mapper\Da\DaAfficherMapper;
@@ -59,11 +60,13 @@ class listeDaController extends Controller
         $this->initialisationRechercheDa($daSearch);
 
         // Formulaire de recherche
-        $form = $this->getFormFactory()->createBuilder(DaSearchType::class, $daSearch, ['method' => 'GET'])->getForm();
+        $form = $this->getFormFactory()->createBuilder(DaSearchType::class, $daSearch, [
+            'method' => 'GET',
+            'estAppro' => $this->estUserDansServiceAppro()
+        ])->getForm();
         $form->handleRequest($request);
 
         $criteria = $daSearch->toArray();
-
 
         // Gestion spécifique "Mes DA à traiter"
         if (
@@ -81,32 +84,32 @@ class listeDaController extends Controller
 
             if ($codeAgenceUser == '80' && $codeServiceUser == 'APP') {
                 $criteria['statutDA'] = [
-                    DemandeAppro::STATUT_SOUMIS_APPRO,
-                    DemandeAppro::STATUT_DEMANDE_DEVIS,
-                    DemandeAppro::STATUT_DEVIS_A_RELANCER,
-                    DemandeAppro::STATUT_EN_COURS_PROPOSITION
+                    StatutDaConstant::STATUT_SOUMIS_APPRO,
+                    StatutDaConstant::STATUT_DEMANDE_DEVIS,
+                    StatutDaConstant::STATUT_DEVIS_A_RELANCER,
+                    StatutDaConstant::STATUT_EN_COURS_PROPOSITION
                 ];
                 $criteria['statutBC'] = [
-                    DaSoumissionBc::STATUT_PAS_DANS_BC,
-                    DaSoumissionBc::STATUT_PAS_DANS_OR_CESSION,
-                    DaSoumissionBc::STATUT_A_GENERER,
-                    DaSoumissionBc::STATUT_CESSION_A_GENERER,
-                    DaSoumissionBc::STATUT_A_EDITER,
-                    DaSoumissionBc::STATUT_A_SOUMETTRE_A_VALIDATION,
-                    DaSoumissionBc::STATUT_A_ENVOYER_AU_FOURNISSEUR
+                    StatutBcConstant::STATUT_PAS_DANS_BC,
+                    StatutBcConstant::STATUT_PAS_DANS_OR_CESSION,
+                    StatutBcConstant::STATUT_A_GENERER,
+                    StatutBcConstant::STATUT_CESSION_A_GENERER,
+                    StatutBcConstant::STATUT_A_EDITER,
+                    StatutBcConstant::STATUT_A_SOUMETTRE_A_VALIDATION,
+                    StatutBcConstant::STATUT_A_ENVOYER_AU_FOURNISSEUR
                 ];
             } else {
                 $criteria['statutDA'] = [
-                    DemandeAppro::STATUT_EN_COURS_CREATION,
-                    DemandeAppro::STATUT_AUTORISER_EMETTEUR,
-                    DemandeAppro::STATUT_SOUMIS_ATE
+                    StatutDaConstant::STATUT_EN_COURS_CREATION,
+                    StatutDaConstant::STATUT_AUTORISER_EMETTEUR,
+                    StatutDaConstant::STATUT_SOUMIS_ATE
                 ];
             }
 
-            $criteria['mes_da_a_traiter'] = 1;
+            $criteria['mes_da_a_traiter'] = 0;
             $this->getSessionService()->set('criteria_search_list_da_80_app', $criteria);
         } else {
-            $request->query->set('mes_da_a_traiter', 1);
+            $criteria['mes_da_a_traiter'] = 1;
             // Sauvegarde classique des critères issus du formulaire
             $this->getSessionService()->set('criteria_search_list_da', $criteria);
         }
@@ -192,16 +195,18 @@ class listeDaController extends Controller
 
         if ($formDateLivraison->isSubmitted() && $formDateLivraison->isValid()) {
             $data = $formDateLivraison->getData();
+            $dateLivraisonPrevue = $data['dateLivraisonPrevue'];
             $daAffichers = $this->daAfficherRepository->findBy(['numeroCde' => $data['numeroCde']]);
 
             foreach ($daAffichers as $daAfficher) {
-                $daAfficher->setDateLivraisonPrevue($data['dateLivraisonPrevue']);
+                $daAfficher->setDateLivraisonPrevue($dateLivraisonPrevue)
+                    ->setJoursDispo($dateLivraisonPrevue->diff(new \DateTime('now', new \DateTimeZone('Indian/Antananarivo')))->days);
                 $this->getEntityManager()->persist($daAfficher);
             }
 
             $this->getEntityManager()->flush();
             $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'Date de livraison prévue modifiée avec succès']);
-            $this->redirectToRoute("list_da");
+            $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 1, 'page' => 1]);
         }
     }
 
@@ -210,10 +215,10 @@ class listeDaController extends Controller
         $criteria = $this->getSessionService()->get('criteria_search_list_da', []) ?? [];
 
         $agServ = [
-            'agenceEmetteur'  => isset($criteria['agenceEmetteur']) ? $this->getEntityManager()->getRepository(\App\Entity\admin\Agence::class)->find($criteria['agenceEmetteur']) : null,
-            'agenceDebiteur'  => isset($criteria['agenceDebiteur']) ? $this->getEntityManager()->getRepository(\App\Entity\admin\Agence::class)->find($criteria['agenceDebiteur']) : null,
-            'serviceEmetteur' => isset($criteria['serviceEmetteur']) ? $this->getEntityManager()->getRepository(\App\Entity\admin\Service::class)->find($criteria['serviceEmetteur']) : null,
-            'serviceDebiteur' => isset($criteria['serviceDebiteur']) ? $this->getEntityManager()->getRepository(\App\Entity\admin\Service::class)->find($criteria['serviceDebiteur']) : null,
+            'agenceEmetteur'  => isset($criteria['agenceEmetteur']) ? $this->getEntityManager()->getRepository(Agence::class)->find($criteria['agenceEmetteur']) : null,
+            'agenceDebiteur'  => isset($criteria['agenceDebiteur']) ? $this->getEntityManager()->getRepository(Agence::class)->find($criteria['agenceDebiteur']) : null,
+            'serviceEmetteur' => isset($criteria['serviceEmetteur']) ? $this->getEntityManager()->getRepository(Service::class)->find($criteria['serviceEmetteur']) : null,
+            'serviceDebiteur' => isset($criteria['serviceDebiteur']) ? $this->getEntityManager()->getRepository(Service::class)->find($criteria['serviceDebiteur']) : null,
         ];
 
         $daSearch->toObject($criteria, $agServ);

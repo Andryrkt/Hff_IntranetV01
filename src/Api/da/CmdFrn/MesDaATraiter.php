@@ -2,7 +2,8 @@
 
 namespace App\Api\da\CmdFrn;
 
-use App\Entity\da\DaSoumissionBc;
+use App\Constants\da\StatutBcConstant;
+use App\Constants\da\StatutDaConstant;
 use App\Entity\da\DemandeAppro;
 use App\Mapper\Da\DaAfficherMapper;
 use App\Repository\da\DaAfficherRepository;
@@ -36,25 +37,25 @@ class MesDaATraiter
             $criteriaTab = [];
             if ($codeAgenceUser == '80' && $codeServiceUser == 'APP') {
                 $criteriaTab['statutDA'] = [
-                    DemandeAppro::STATUT_SOUMIS_APPRO,
-                    DemandeAppro::STATUT_DEMANDE_DEVIS,
-                    DemandeAppro::STATUT_DEVIS_A_RELANCER,
-                    DemandeAppro::STATUT_EN_COURS_PROPOSITION
+                    StatutDaConstant::STATUT_SOUMIS_APPRO,
+                    StatutDaConstant::STATUT_DEMANDE_DEVIS,
+                    StatutDaConstant::STATUT_DEVIS_A_RELANCER,
+                    StatutDaConstant::STATUT_EN_COURS_PROPOSITION
                 ];
                 $criteriaTab['statutBC'] = [
-                    DaSoumissionBc::STATUT_PAS_DANS_BC,
-                    DaSoumissionBc::STATUT_PAS_DANS_OR_CESSION,
-                    DaSoumissionBc::STATUT_A_GENERER,
-                    DaSoumissionBc::STATUT_CESSION_A_GENERER,
-                    DaSoumissionBc::STATUT_A_EDITER,
-                    DaSoumissionBc::STATUT_A_SOUMETTRE_A_VALIDATION,
-                    DaSoumissionBc::STATUT_A_ENVOYER_AU_FOURNISSEUR
+                    StatutBcConstant::STATUT_PAS_DANS_BC,
+                    StatutBcConstant::STATUT_PAS_DANS_OR_CESSION,
+                    StatutBcConstant::STATUT_A_GENERER,
+                    StatutBcConstant::STATUT_CESSION_A_GENERER,
+                    StatutBcConstant::STATUT_A_EDITER,
+                    StatutBcConstant::STATUT_A_SOUMETTRE_A_VALIDATION,
+                    StatutBcConstant::STATUT_A_ENVOYER_AU_FOURNISSEUR
                 ];
             } else {
                 $criteriaTab['statutDA'] = [
-                    DemandeAppro::STATUT_EN_COURS_CREATION,
-                    DemandeAppro::STATUT_AUTORISER_EMETTEUR,
-                    DemandeAppro::STATUT_SOUMIS_ATE
+                    StatutDaConstant::STATUT_EN_COURS_CREATION,
+                    StatutDaConstant::STATUT_AUTORISER_EMETTEUR,
+                    StatutDaConstant::STATUT_SOUMIS_ATE
                 ];
             }
 

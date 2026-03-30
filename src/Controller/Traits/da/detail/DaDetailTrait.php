@@ -104,7 +104,7 @@ trait DaDetailTrait
     private function getBaIntranetPath(DemandeAppro $demandeAppro): string
     {
         $numDa = $demandeAppro->getNumeroDemandeAppro();
-        if (in_array($demandeAppro->getStatutDal(), [DemandeAppro::STATUT_VALIDE, DemandeAppro::STATUT_TERMINER])) {
+        if (in_array($demandeAppro->getStatutDal(), [StatutDaConstant::STATUT_VALIDE, StatutDaConstant::STATUT_TERMINER])) {
             return $_ENV['BASE_PATH_FICHIER_COURT'] . "/da/$numDa/$numDa.pdf";
         }
         return "-";
@@ -123,6 +123,8 @@ trait DaDetailTrait
             $allDocs = $this->dwDaDirectRepository->getPathByNumDa($numDa);
         } elseif ($daTypeId === DemandeAppro::TYPE_DA_REAPPRO_MENSUEL) {
             $allDocs = $this->dwDaReapproRepository->getPathByNumDa($numDa);
+        } elseif ($daTypeId === DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL) {
+            $allDocs = $this->dwDaReapproPRepository->getPathByNumDa($numDa);
         }
 
         if (!empty($allDocs)) {

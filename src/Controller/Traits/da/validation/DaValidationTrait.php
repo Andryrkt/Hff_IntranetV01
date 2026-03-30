@@ -37,7 +37,7 @@ trait DaValidationTrait
             ->setEstValidee(true)
             ->setValidateur($user)
             ->setValidePar($nomutilisateur)
-            ->setStatutDal(DemandeAppro::STATUT_VALIDE);
+            ->setStatutDal(StatutDaConstant::STATUT_VALIDE);
         $em->persist($da);
 
         // 2. Mise à jour des lignes DAL
@@ -47,7 +47,7 @@ trait DaValidationTrait
             $dal
                 ->setEstValidee(true)
                 ->setValidePar($nomutilisateur)
-                ->setStatutDal(DemandeAppro::STATUT_VALIDE);
+                ->setStatutDal(StatutDaConstant::STATUT_VALIDE);
 
             if (isset($prixUnitaire[$dal->getNumeroLigne()])) {
                 $dal->setPrixUnitaire($prixUnitaire[$dal->getNumeroLigne()]);
@@ -63,7 +63,7 @@ trait DaValidationTrait
             $dalr
                 ->setEstValidee(true)
                 ->setValidePar($nomutilisateur)
-                ->setStatutDal(DemandeAppro::STATUT_VALIDE);
+                ->setStatutDal(StatutDaConstant::STATUT_VALIDE);
 
             $this->mettreAJourChoixDalr($dalr, $refsValide);
 
