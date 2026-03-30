@@ -2,11 +2,12 @@
 
 namespace App\Service\da;
 
+use App\Constants\da\StatutDaConstant;
 use App\Entity\da\DaAfficher;
 use App\Entity\da\DemandeAppro;
-use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\da\DaAfficherRepository;
 use App\Traits\JoursOuvrablesTrait;
+use Doctrine\ORM\EntityManagerInterface;
 
 class DaTimelineService
 {
