@@ -133,8 +133,7 @@ const montant = formatter.format(row.montantDevis);
 const urlVerificationPrix = urlBases.verificationPrix.replace('PLACEHOLDER', row.numeroDevis);
 const urlValidationDevis = urlBases.validationDevis.replace('PLACEHOLDER_NUM', row.numeroDevis).replace('PLACEHOLDER_AG', encodeURIComponent(row.emetteur));
 const urlSoumissionBC = urlBases.soumissionBC.replace('PLACEHOLDER', row.numeroDevis);
-// TODO: enlever le == false et l'autre dans le html aussi
-const urlPointageDevis = row.pointagedevis == false ? urlBases.pointageDevis.replace('PLACEHOLDER', row.numeroDevis) : '#';
+const urlPointageDevis = row.pointagedevis ? urlBases.pointageDevis.replace('PLACEHOLDER', row.numeroDevis) : '#';
 
 html += `
 								<tr>
@@ -153,7 +152,7 @@ row.relanceClient ? '' : 'd-none'
 row.numeroDevis
 }">Pointer relance devis client</a>
 													<a class="dropdown-item fw-bold js-link-pointage-devis ${
-row.pointagedevis == false ? '' : 'd-none'
+row.pointagedevis ? '' : 'd-none'
 }" href="${urlPointageDevis}">Pointage envoye devis au client</a>
 													<a class="dropdown-item fw-bold" href="${urlSoumissionBC}">Soumission BC client pour validation</a>
 												</li>

@@ -1,0 +1,18 @@
+<?php
+
+namespace App\Dto\Magasin\Devis\Soumission;
+
+class BcDto
+{
+    public $numeroDevis;
+    public $numeroBc;
+    public $montantDevis;
+    public $montantBc;
+    public $numeroVersion;
+    public $statutBc;
+    public $observation;
+    public $utilisateur;
+    public $dateCreation;
+    public $dateModification;
+    public $dateBc;
+}
