@@ -4,6 +4,7 @@ namespace App\Controller\da\ListeCdeFrn;
 
 use App\Constants\da\StatutBcConstant;
 use App\Controller\Controller;
+use App\Controller\Traits\PdfConversionTrait;
 use App\Entity\da\DaSoumissionBc;
 use App\Entity\da\DaValider;
 use App\Entity\da\DemandeAppro;
