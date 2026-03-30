@@ -8,14 +8,16 @@ class PointageMapper
 {
     public static function toArrayEnvoyerAuClient(EnvoyerAuClientDto $dto)
     {
-        // TODO: encore à ameliorer
         return [
             'statut_dw' => $dto->statutDw,
             'statut_bc' => $dto->statutBc,
             'code_societe' => $dto->codeSociete,
             'date_modification' => $dto->datePointage,
             'date_pointage' => $dto->datePointage,
-            'date_envoye_devis_client' => $dto->dateEnvoiDevisAuClient
+            'date_envoye_devis_client' => $dto->dateEnvoiDevisAuClient,
+            // AJOUTER CES LIGNES
+            'numero_devis' => $dto->numeroDevis,
+            'numero_version' => $dto->numeroVersion,
         ];
     }
 }

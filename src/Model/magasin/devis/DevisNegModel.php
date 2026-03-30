@@ -120,9 +120,9 @@ class DevisNegModel extends Model
                             )
                 ";
 
-            if (empty($criteria['statutDw']) && empty($criteria['statutBc']) && empty($criteria['filterRelance'])) {
-                $statement .= " AND (dneg.statut_dw in ('A envoyer client', 'A soumettre') or  dneg.statut_dw is null) ";
-            }
+            // if (empty($criteria['statutDw']) && empty($criteria['statutBc']) && empty($criteria['filterRelance'])) {
+            //     $statement .= " AND (dneg.statut_dw in ('A envoyer client', 'A soumettre') or  dneg.statut_dw is null) ";
+            // }
 
             $whereClauses = [];
 

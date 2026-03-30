@@ -6,6 +6,7 @@ use App\Controller\Controller;
 use App\Factory\magasin\devis\Pointage\EnvoyerAuClientFactory;
 use App\Form\magasin\devis\Pointage\EnvoyerAuClientType;
 use App\Model\magasin\devis\Pointage\PointageModel;
+use App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -15,10 +16,19 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class EnvoyerAuClientController extends Controller
 {
+    private HistoriqueOperationDevisMagasinService $historiqueOperationDeviMagasinService;
+
+    public function __construct()
+    {
+        parent::__construct();
+        global $container;
+        $this->historiqueOperationDeviMagasinService = $container->get(HistoriqueOperationDevisMagasinService::class);
+    }
+
     /**
      * @Route("/pointage/envoyer-au-client/{numeroDevis}", name="pointage_envoyer_au_client")
      */
-    public function index($numeroDevis)
+    public function index($numeroDevis, Request $request)
     {
         // Code Société de l'utilisateur
         $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
@@ -27,6 +37,8 @@ class EnvoyerAuClientController extends Controller
 
         //formulaire de création
         $form = $this->getFormFactory()->createBuilder(EnvoyerAuClientType::class, $dto)->getForm();
+
+        $this->traitementFormulaire($form, $request, $dto);
 
         //affichage du formulaire
         return $this->render('magasin/devis/pointage/EnvoyerAuClient/envoyer_au_client.html.twig', [
@@ -40,7 +52,7 @@ class EnvoyerAuClientController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             $dto = $form->getData();
 
-
+            $dto = (new EnvoyerAuClientFactory())->createFromDto($dto);
 
             // Enregistrement dans la base de données
             $pointageModel = new PointageModel();

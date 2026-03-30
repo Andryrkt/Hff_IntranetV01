@@ -65,14 +65,23 @@ class DatabaseInformix implements DatabaseConnectionInterface
                 $orderedParams = [];
                 $queryWithPlaceholders = preg_replace_callback('/(?<![a-zA-Z0-9_]):([a-zA-Z0-9_]+)/', function($matches) use ($params, &$orderedParams) {
                     $key = $matches[1];
-                    if (array_key_exists($key, $params)) {
-                        $value = $params[$key];
-                        // Conversion des booléens et des tableaux pour ODBC/Informix
+                    $fullKey = ':' . $key;
+                    
+                    // Vérifier si la clé existe avec ou sans le ":"
+                    if (array_key_exists($key, $params) || array_key_exists($fullKey, $params)) {
+                        $value = array_key_exists($key, $params) ? $params[$key] : $params[$fullKey];
+                        
+                        // Conversion des types pour ODBC/Informix
                         if (is_bool($value)) {
                             $value = $value ? 1 : 0;
                         } elseif (is_array($value)) {
                             $value = "['" . implode("','", $value) . "']";
+                        } elseif ($value instanceof \DateTimeInterface) {
+                            $value = $value->format('Y-m-d H:i:s');
+                        } elseif (is_string($value)) {
+                            $value = mb_convert_encoding($value, 'ISO-8859-1', 'UTF-8');
                         }
+                        
                         $orderedParams[] = $value;
                         return '?';
                     }
@@ -80,6 +89,9 @@ class DatabaseInformix implements DatabaseConnectionInterface
                 }, $query);
 
                 $this->logMessage('info', "Executing Prepared Query: " . $queryWithPlaceholders . " with params: " . json_encode($orderedParams));
+
+                // Conversion de la requête elle-même au cas où elle contient des accents
+                $queryWithPlaceholders = mb_convert_encoding($queryWithPlaceholders, 'ISO-8859-1', 'UTF-8');
 
                 $stmt = odbc_prepare($this->conn, $queryWithPlaceholders);
                 if (!$stmt) {
