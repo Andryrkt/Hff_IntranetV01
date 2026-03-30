@@ -2,15 +2,17 @@
 
 namespace App\Repository\da;
 
-use App\Entity\da\DaAfficher;
-use Doctrine\ORM\QueryBuilder;
-use App\Entity\da\DemandeAppro;
-use App\Entity\da\DaSoumissionBc;
-use Doctrine\ORM\EntityRepository;
-use Doctrine\DBAL\ArrayParameterType;
+use App\Constants\da\StatutBcConstant;
+use App\Constants\da\StatutOrConstant;
 use App\Entity\admin\utilisateur\User;
+use App\Entity\da\DaAfficher;
+use App\Entity\da\DaSoumissionBc;
+use App\Entity\da\DemandeAppro;
 use App\Entity\dit\DemandeIntervention;
 use App\Entity\dit\DitOrsSoumisAValidation;
+use Doctrine\DBAL\ArrayParameterType;
+use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\QueryBuilder;
 
 class DaAfficherRepository extends EntityRepository
 {
@@ -282,7 +284,7 @@ class DaAfficherRepository extends EntityRepository
         // Constantes métier
         // ------------------------------------------------------------------
         $statutOrs = [
-            DitOrsSoumisAValidation::STATUT_VALIDE,
+            StatutOrConstant::STATUT_VALIDE,
             DemandeAppro::STATUT_DW_VALIDEE,
         ];
 
@@ -318,7 +320,7 @@ class DaAfficherRepository extends EntityRepository
                 $qb->expr()->in('d.statutOr', ':statutOrs'),
                 $qb->expr()->in('d.numeroDemandeAppro', ':exceptions')
             ))
-            ->setParameter('statutPasDansOr', DaSoumissionBc::STATUT_PAS_DANS_OR)
+            ->setParameter('statutPasDansOr', StatutBcConstant::STATUT_PAS_DANS_OR)
             ->setParameter('statutDal', $statutDas)
             ->setParameter('statutOrs', $statutOrs)
             ->setParameter('exceptions', $exceptions);
@@ -404,7 +406,7 @@ class DaAfficherRepository extends EntityRepository
             ->groupBy('d.numeroDemandeAppro');
 
         $statutOrs = [
-            DitOrsSoumisAValidation::STATUT_VALIDE,
+            StatutOrConstant::STATUT_VALIDE,
             DemandeAppro::STATUT_DW_VALIDEE
         ];
 
@@ -454,7 +456,7 @@ class DaAfficherRepository extends EntityRepository
                 'd.statutCde IS NULL'
             ))
             ->andWhere('d.deleted = 0')
-            ->setParameter('statutPasDansOr', DaSoumissionBc::STATUT_PAS_DANS_OR);
+            ->setParameter('statutPasDansOr', StatutBcConstant::STATUT_PAS_DANS_OR);
 
         // filtres dynamiques
         $this->applyDynamicFilters($qb, "d", $criteria, true);

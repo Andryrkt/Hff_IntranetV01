@@ -2,6 +2,7 @@
 
 namespace App\Controller\da\ListeDa;
 
+use App\Constants\da\StatutBcConstant;
 use App\Controller\Controller;
 use App\Controller\Traits\AutorisationTrait;
 use App\Controller\Traits\da\DaTrait;
@@ -87,13 +88,13 @@ class listeDaController extends Controller
                     DemandeAppro::STATUT_EN_COURS_PROPOSITION
                 ];
                 $criteria['statutBC'] = [
-                    DaSoumissionBc::STATUT_PAS_DANS_BC,
-                    DaSoumissionBc::STATUT_PAS_DANS_OR_CESSION,
-                    DaSoumissionBc::STATUT_A_GENERER,
-                    DaSoumissionBc::STATUT_CESSION_A_GENERER,
-                    DaSoumissionBc::STATUT_A_EDITER,
-                    DaSoumissionBc::STATUT_A_SOUMETTRE_A_VALIDATION,
-                    DaSoumissionBc::STATUT_A_ENVOYER_AU_FOURNISSEUR
+                    StatutBcConstant::STATUT_PAS_DANS_BC,
+                    StatutBcConstant::STATUT_PAS_DANS_OR_CESSION,
+                    StatutBcConstant::STATUT_A_GENERER,
+                    StatutBcConstant::STATUT_CESSION_A_GENERER,
+                    StatutBcConstant::STATUT_A_EDITER,
+                    StatutBcConstant::STATUT_A_SOUMETTRE_A_VALIDATION,
+                    StatutBcConstant::STATUT_A_ENVOYER_AU_FOURNISSEUR
                 ];
             } else {
                 $criteria['statutDA'] = [

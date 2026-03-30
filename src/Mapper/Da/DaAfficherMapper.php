@@ -3,6 +3,7 @@
 namespace App\Mapper\Da;
 
 use App\Constants\da\RouteConstant;
+use App\Constants\da\StatutBcConstant;
 use App\Controller\Traits\da\MarkupIconTrait;
 use App\Dto\Da\DaAfficherDto;
 use App\Entity\da\DaAfficher;
@@ -84,7 +85,7 @@ class DaAfficherMapper
         // Fournisseur
         $dto->numeroFournisseur = $data->getNumeroFournisseur();
         $dto->nomFournisseur = $data->getNomFournisseur();
-        $dto->envoyeFrn = $data->getStatutCde() === DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR;
+        $dto->envoyeFrn = $data->getStatutCde() === StatutBcConstant::STATUT_BC_ENVOYE_AU_FOURNISSEUR;
 
         // OR
         $dto->numeroOr = $dto->daDirect || $dto->daParent ? null : $data->getNumeroOr();

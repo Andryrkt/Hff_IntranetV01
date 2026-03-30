@@ -2,7 +2,9 @@
 
 namespace App\Dto\Da;
 
+use App\Constants\da\StatutBcConstant;
 use App\Constants\da\StatutConstant;
+use App\Constants\da\StatutOrConstant;
 use App\Entity\da\DemandeAppro;
 
 class DaAfficherDto
@@ -85,12 +87,12 @@ class DaAfficherDto
 
     public function getStyleStatutOR(): string
     {
-        return $this->statutOr ? StatutConstant::getCssClassOr($this->statutOr) : '';
+        return $this->statutOr ? StatutOrConstant::getCssClassOr($this->statutOr) : '';
     }
 
     public function getStyleStatutBC(): string
     {
-        return $this->statutCde ? StatutConstant::getCssClassBc($this->statutCde) : '';
+        return $this->statutCde ? StatutBcConstant::getCssClassBc($this->statutCde) : '';
     }
 
     public function isStatutValide(): bool

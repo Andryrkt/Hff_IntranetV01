@@ -2,21 +2,21 @@
 
 namespace App\Controller\da\ListeCdeFrn;
 
-use Exception;
-use App\Entity\da\DaAfficher;
+use App\Constants\da\StatutBcConstant;
 use App\Controller\Controller;
-use App\Entity\da\DaSoumissionBc;
+use App\Entity\da\DaAfficher;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
 use App\Repository\da\DaAfficherRepository;
-use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DemandeApproLRepository;
 use App\Repository\da\DemandeApproLRRepository;
 use App\Service\application\ApplicationService;
 use App\Service\da\EmailDaService;
-use Symfony\Component\Routing\Annotation\Route;
+use Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route("/api/demande-appro")
@@ -255,7 +255,7 @@ class ActionSurNonDispoController extends Controller
     private function updateDaAfficher(DaAfficher $daAfficher): void
     {
         $daAfficher
-            ->setStatutCde(DaSoumissionBc::STATUT_NON_DISPO)
+            ->setStatutCde(StatutBcConstant::STATUT_NON_DISPO)
             ->setNonDispo(true)
         ;
         $this->em->persist($daAfficher);

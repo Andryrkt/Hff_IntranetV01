@@ -2,12 +2,13 @@
 
 namespace App\Form\da;
 
+use App\Constants\da\StatutBcConstant;
+use App\Constants\da\StatutOrConstant;
 use App\Controller\Traits\da\MarkupIconTrait;
 use App\Entity\admin\Agence;
 use App\Entity\admin\dit\WorNiveauUrgence;
 use App\Entity\admin\Service;
 use App\Entity\da\DaSearch;
-use App\Entity\da\DaSoumissionBc;
 use App\Entity\da\DemandeAppro;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Repository\admin\ServiceRepository;
@@ -41,39 +42,6 @@ class DaSearchType extends  AbstractType
         DemandeAppro::STATUT_CLOTUREE_HORS_DELAI  => DemandeAppro::STATUT_CLOTUREE_HORS_DELAI,
     ];
 
-    private const STATUT_BC = [
-        DaSoumissionBc::STATUT_A_GENERER                => DaSoumissionBc::STATUT_A_GENERER,
-        DaSoumissionBc::STATUT_A_EDITER                 => DaSoumissionBc::STATUT_A_EDITER,
-        DaSoumissionBc::STATUT_A_SOUMETTRE_A_VALIDATION => DaSoumissionBc::STATUT_A_SOUMETTRE_A_VALIDATION,
-        DaSoumissionBc::STATUT_A_VALIDER_DA             => DaSoumissionBc::STATUT_A_VALIDER_DA,
-        DaSoumissionBc::STATUT_REFUSE                   => DaSoumissionBc::STATUT_REFUSE,
-        DaSoumissionBc::STATUT_A_ENVOYER_AU_FOURNISSEUR => DaSoumissionBc::STATUT_A_ENVOYER_AU_FOURNISSEUR,
-        DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR => DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR,
-        DaSoumissionBc::STATUT_NON_DISPO                => DaSoumissionBc::STATUT_NON_DISPO,
-        DaSoumissionBc::STATUT_EN_COURS_DE_PREPARATION  => DaSoumissionBc::STATUT_EN_COURS_DE_PREPARATION,
-        DaSoumissionBc::STATUT_PARTIELLEMENT_DISPO      => DaSoumissionBc::STATUT_PARTIELLEMENT_DISPO,
-        DaSoumissionBc::STATUT_COMPLET_NON_LIVRE        => DaSoumissionBc::STATUT_COMPLET_NON_LIVRE,
-        DaSoumissionBc::STATUT_PARTIELLEMENT_LIVRE      => DaSoumissionBc::STATUT_PARTIELLEMENT_LIVRE,
-        DaSoumissionBc::STATUT_TOUS_LIVRES              => DaSoumissionBc::STATUT_TOUS_LIVRES,
-        DaSoumissionBc::STATUT_PAS_DANS_OR              => DaSoumissionBc::STATUT_PAS_DANS_OR,
-        DaSoumissionBc::STATUT_PAS_DANS_OR_CESSION      => DaSoumissionBc::STATUT_PAS_DANS_OR_CESSION,
-        DaSoumissionBc::STATUT_PAS_DANS_BC              => DaSoumissionBc::STATUT_PAS_DANS_BC,
-    ];
-
-    private const STATUT = [
-        'OR - ' . DitOrsSoumisAValidation::STATUT_VALIDE              => DitOrsSoumisAValidation::STATUT_VALIDE,
-        'OR - ' . DitOrsSoumisAValidation::STATUT_A_VALIDER_CA        => DitOrsSoumisAValidation::STATUT_A_VALIDER_CA,
-        'OR - ' . DitOrsSoumisAValidation::STATUT_A_VALIDER_CLIENT    => DitOrsSoumisAValidation::STATUT_A_VALIDER_CLIENT,
-        'OR - ' . DitOrsSoumisAValidation::STATUT_REFUSE_CA           => DitOrsSoumisAValidation::STATUT_REFUSE_CA,
-        'OR - ' . DitOrsSoumisAValidation::STATUT_REFUSE_CLIENT       => DitOrsSoumisAValidation::STATUT_REFUSE_CLIENT,
-        'OR - ' . DitOrsSoumisAValidation::STATUT_REFUSE_DT           => DitOrsSoumisAValidation::STATUT_REFUSE_DT,
-        'OR - ' . DitOrsSoumisAValidation::STATUT_SOUMIS_A_VALIDATION => DitOrsSoumisAValidation::STATUT_SOUMIS_A_VALIDATION,
-        DemandeAppro::STATUT_DW_A_VALIDE                              => DemandeAppro::STATUT_DW_A_VALIDE,
-        DemandeAppro::STATUT_DW_VALIDEE                               => DemandeAppro::STATUT_DW_VALIDEE,
-        DemandeAppro::STATUT_DW_A_MODIFIER                            => DemandeAppro::STATUT_DW_A_MODIFIER,
-        DemandeAppro::STATUT_DW_REFUSEE                               => DemandeAppro::STATUT_DW_REFUSEE,
-    ];
-
     private $agenceRepository;
 
     private $em;
@@ -86,10 +54,10 @@ class DaSearchType extends  AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $statut = self::STATUT;
-        ksort($statut);
+        $statut_or = StatutOrConstant::STATUT_OR;
+        ksort($statut_or);
 
-        $statut_bc = self::STATUT_BC;
+        $statut_bc = StatutBcConstant::STATUT_BC;
         // ksort($statut_bc);
 
         $statut_da = self::STATUT_DA;
@@ -132,7 +100,7 @@ class DaSearchType extends  AbstractType
             ->add('statutOR', ChoiceType::class, [
                 'placeholder'   => '-- Choisir un statut --',
                 'label'         => 'Statut',
-                'choices'       => $statut,
+                'choices'       => $statut_or,
                 'required'      => false
             ])
             ->add('statutBC', ChoiceType::class, [

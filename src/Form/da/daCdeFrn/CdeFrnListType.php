@@ -3,6 +3,7 @@
 namespace App\Form\da\daCdeFrn;
 
 
+use App\Constants\da\StatutBcConstant;
 use App\Entity\admin\Agence;
 use App\Entity\admin\dit\WorNiveauUrgence;
 use App\Entity\admin\Service;
@@ -48,29 +49,6 @@ class CdeFrnListType extends  AbstractType
         DemandeAppro::STATUT_CLOTUREE_HORS_DELAI  => DemandeAppro::STATUT_CLOTUREE_HORS_DELAI,
     ];
 
-    private const STATUT_BC = [
-        DaSoumissionBc::STATUT_A_GENERER                => DaSoumissionBc::STATUT_A_GENERER,
-        DaSoumissionBc::STATUT_A_EDITER                 => DaSoumissionBc::STATUT_A_EDITER,
-        DaSoumissionBc::STATUT_A_SOUMETTRE_A_VALIDATION => DaSoumissionBc::STATUT_A_SOUMETTRE_A_VALIDATION,
-        DaSoumissionBc::STATUT_A_VALIDER_DA             => DaSoumissionBc::STATUT_A_VALIDER_DA,
-        DaSoumissionBc::STATUT_REFUSE                   => DaSoumissionBc::STATUT_REFUSE,
-        DaSoumissionBc::STATUT_A_ENVOYER_AU_FOURNISSEUR => DaSoumissionBc::STATUT_A_ENVOYER_AU_FOURNISSEUR,
-        DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR => DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR,
-        DaSoumissionBc::STATUT_NON_DISPO                => DaSoumissionBc::STATUT_NON_DISPO,
-        DaSoumissionBc::STATUT_EN_COURS_DE_PREPARATION  => DaSoumissionBc::STATUT_EN_COURS_DE_PREPARATION,
-        DaSoumissionBc::STATUT_PARTIELLEMENT_DISPO      => DaSoumissionBc::STATUT_PARTIELLEMENT_DISPO,
-        DaSoumissionBc::STATUT_COMPLET_NON_LIVRE        => DaSoumissionBc::STATUT_COMPLET_NON_LIVRE,
-        DaSoumissionBc::STATUT_PARTIELLEMENT_LIVRE      => DaSoumissionBc::STATUT_PARTIELLEMENT_LIVRE,
-        DaSoumissionBc::STATUT_TOUS_LIVRES              => DaSoumissionBc::STATUT_TOUS_LIVRES,
-        DaSoumissionBc::STATUT_PAS_DANS_OR              => DaSoumissionBc::STATUT_PAS_DANS_OR,
-        DaSoumissionBc::STATUT_PAS_DANS_OR_CESSION      => DaSoumissionBc::STATUT_PAS_DANS_OR_CESSION,
-        DaSoumissionBc::STATUT_PAS_DANS_BC              => DaSoumissionBc::STATUT_PAS_DANS_BC,
-    ];
-
-    // private function statutBc()
-    // {
-    //     return $this->em->getRepository(DaAfficher::class)->getStatutsBc();
-    // }
 
     private const TYPE_ACHAT = [
         'DA Avec DIT' => DemandeAppro::TYPE_DA_AVEC_DIT,
@@ -148,7 +126,7 @@ class CdeFrnListType extends  AbstractType
                 ChoiceType::class,
                 [
                     'label' => "Statut BC",
-                    'choices' => self::STATUT_BC,
+                    'choices' => StatutBcConstant::STATUT_BC,
                     'placeholder' => '-- Choisir la statut --',
                     'required' => false,
                 ]

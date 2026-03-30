@@ -2,7 +2,7 @@
 
 namespace App\Api\da\CmdFrn;
 
-use App\Entity\da\DaSoumissionBc;
+use App\Constants\da\StatutBcConstant;
 use App\Entity\da\DemandeAppro;
 use App\Mapper\Da\DaAfficherMapper;
 use App\Repository\da\DaAfficherRepository;
@@ -42,13 +42,13 @@ class MesDaATraiter
                     DemandeAppro::STATUT_EN_COURS_PROPOSITION
                 ];
                 $criteriaTab['statutBC'] = [
-                    DaSoumissionBc::STATUT_PAS_DANS_BC,
-                    DaSoumissionBc::STATUT_PAS_DANS_OR_CESSION,
-                    DaSoumissionBc::STATUT_A_GENERER,
-                    DaSoumissionBc::STATUT_CESSION_A_GENERER,
-                    DaSoumissionBc::STATUT_A_EDITER,
-                    DaSoumissionBc::STATUT_A_SOUMETTRE_A_VALIDATION,
-                    DaSoumissionBc::STATUT_A_ENVOYER_AU_FOURNISSEUR
+                    StatutBcConstant::STATUT_PAS_DANS_BC,
+                    StatutBcConstant::STATUT_PAS_DANS_OR_CESSION,
+                    StatutBcConstant::STATUT_A_GENERER,
+                    StatutBcConstant::STATUT_CESSION_A_GENERER,
+                    StatutBcConstant::STATUT_A_EDITER,
+                    StatutBcConstant::STATUT_A_SOUMETTRE_A_VALIDATION,
+                    StatutBcConstant::STATUT_A_ENVOYER_AU_FOURNISSEUR
                 ];
             } else {
                 $criteriaTab['statutDA'] = [
