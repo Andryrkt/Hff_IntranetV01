@@ -788,7 +788,7 @@ class DaAfficherRepository extends EntityRepository
                     $queryBuilder->andWhere($qbLabel . '.statutDal IN (:statutDaParam)')
                         ->setParameter('statutDaParam', $criteria['statutDA'], ArrayParameterType::STRING);
                 } else {
-                    if ($criteria['statutDA'] === StatutBcConstant::BC_EN_COURS) {
+                    if ($criteria['statutDA'] === StatutDaConstant::TRAITEMENT_APPRO) {
                         $queryBuilder->andWhere($qbLabel . '.statutDal IN (:statutDaParam)')
                             ->setParameter('statutDaParam', StatutDaConstant::STATUT_TRAITEMENT_APPRO, ArrayParameterType::STRING);
                     } else {
