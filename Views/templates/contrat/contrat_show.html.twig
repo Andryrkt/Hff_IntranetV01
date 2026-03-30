@@ -1,0 +1,152 @@
+{# Views/templates/contrat/contrat_show.html.twig #}
+{% extends "baseTemplate.html.twig" %}
+
+{% block title %}Détail du contrat{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between mb-3">
+        <h3 class="perso-titre">Détail du contrat - {{ contrat.reference }}</h3>
+        <a href="{{ path('contrat_liste') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Retour
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-3">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0">Informations générales</h6>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered mb-0">
+                        <tr>
+                            <th width="30%">Référence</th>
+                            <td>{{ contrat.reference }}</td>
+                        </tr>
+                        <tr>
+                            <th>Objet</th>
+                            <td>{{ contrat.objet|default('-') }}</td>
+                        </tr>
+                        <tr>
+                            <th>Statut</th>
+                            <td>
+                                {% if contrat.statut == 'en_cours' %}
+                                    <span class="badge bg-success">{{ contrat.statut }}</span>
+                                {% elseif contrat.statut == 'en_attente' %}
+                                    <span class="badge bg-warning">{{ contrat.statut }}</span>
+                                {% elseif contrat.statut == 'expire' %}
+                                    <span class="badge bg-danger">{{ contrat.statut }}</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ contrat.statut }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Date d'enregistrement</th>
+                            <td>
+                                {% if contrat.date_enregistrement %}
+                                    {{ contrat.date_enregistrement|date('d/m/Y') }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card mb-3">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0">Partenaire</h6>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered mb-0">
+                        <tr>
+                            <th width="30%">Nom du partenaire</th>
+                            <td>{{ contrat.nom_partenaire|default('-') }}</td>
+                        </tr>
+                        <tr>
+                            <th>Type de tiers</th>
+                            <td>
+                                <span class="badge bg-info">{{ contrat.type_tiers|default('-') }}</span>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-3">
+                <div class="card-header bg-success text-white">
+                    <h6 class="mb-0">Agence & Service</h6>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered mb-0">
+                        <tr>
+                            <th width="30%">Agence</th>
+                            <td>{{ contrat.agence }}</td>
+                        </tr>
+                        <tr>
+                            <th>Service</th>
+                            <td>{{ contrat.service }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card mb-3">
+                <div class="card-header bg-warning">
+                    <h6 class="mb-0">Dates du contrat</h6>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered mb-0">
+                        <tr>
+                            <th width="30%">Date de début</th>
+                            <td>
+                                {% if contrat.date_debut_contrat %}
+                                    {{ contrat.date_debut_contrat|date('d/m/Y') }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Date de fin</th>
+                            <td>
+                                {% if contrat.date_fin_contrat %}
+                                    {{ contrat.date_fin_contrat|date('d/m/Y') }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header bg-secondary text-white">
+            <h6 class="mb-0">Pièce jointe</h6>
+        </div>
+        <div class="card-body">
+            {% if contrat.piece_jointe %}
+                <p class="mb-0">
+                    <strong>Fichier :</strong> {{ contrat.piece_jointe }}
+                </p>
+            {% else %}
+                <p class="text-muted mb-0">Aucune pièce jointe</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

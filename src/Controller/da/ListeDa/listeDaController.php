@@ -67,7 +67,6 @@ class listeDaController extends Controller
 
         $criteria = $daSearch->toArray();
 
-
         // Gestion spécifique "Mes DA à traiter"
         if (
             empty($request->query->get('mes_da_a_traiter')) &&
@@ -106,10 +105,10 @@ class listeDaController extends Controller
                 ];
             }
 
-            $criteria['mes_da_a_traiter'] = 1;
+            $criteria['mes_da_a_traiter'] = 0;
             $this->getSessionService()->set('criteria_search_list_da_80_app', $criteria);
         } else {
-            $request->query->set('mes_da_a_traiter', 1);
+            $criteria['mes_da_a_traiter'] = 1;
             // Sauvegarde classique des critères issus du formulaire
             $this->getSessionService()->set('criteria_search_list_da', $criteria);
         }
@@ -204,7 +203,7 @@ class listeDaController extends Controller
 
             $this->getEntityManager()->flush();
             $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'Date de livraison prévue modifiée avec succès']);
-            $this->redirectToRoute("list_da");
+            $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 1, 'page' => 1]);
         }
     }
 

@@ -123,6 +123,8 @@ trait DaDetailTrait
             $allDocs = $this->dwDaDirectRepository->getPathByNumDa($numDa);
         } elseif ($daTypeId === DemandeAppro::TYPE_DA_REAPPRO_MENSUEL) {
             $allDocs = $this->dwDaReapproRepository->getPathByNumDa($numDa);
+        } elseif ($daTypeId === DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL) {
+            $allDocs = $this->dwDaReapproPRepository->getPathByNumDa($numDa);
         }
 
         if (!empty($allDocs)) {

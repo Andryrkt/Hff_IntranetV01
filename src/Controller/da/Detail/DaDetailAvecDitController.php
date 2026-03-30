@@ -117,7 +117,7 @@ class DaDetailAvecDitController extends Controller
 			$this->emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->getUser(), $this->estUserDansServiceAppro());
 
 			$this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
-			return $this->redirectToRoute("list_da");
+			return $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 1, 'page' => 1]);
 		}
 	}
 }

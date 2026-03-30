@@ -155,18 +155,41 @@ class DaAfficherMapper
             'numDa-numLigne' => ['numDa' => $item->getNumeroDemandeAppro(), 'ligne' => $item->getNumeroLigne()],
         ];
 
+        // constante pour les routes de création
+        $creationRoutes = [
+            DemandeAppro::TYPE_DA_AVEC_DIT        => 'da_new_avec_dit',
+            DemandeAppro::TYPE_DA_REAPPRO_MENSUEL => 'da_new_reappro_mensuel',
+            DemandeAppro::TYPE_DA_PARENT          => 'da_new_achat'
+        ];
+
+        // constantes pour les routes de détails
+        $detailRoutes = [
+            DemandeAppro::TYPE_DA_AVEC_DIT         => 'da_detail_avec_dit',
+            DemandeAppro::TYPE_DA_DIRECT           => 'da_detail_direct',
+            DemandeAppro::TYPE_DA_REAPPRO_MENSUEL  => 'da_detail_reappro',
+            DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL => 'da_detail_reappro',
+        ];
+
+        // constantes pour les routes de suppression
+        $deleteRoutes = [
+            DemandeAppro::TYPE_DA_AVEC_DIT  => 'da_delete_line_avec_dit',
+            DemandeAppro::TYPE_DA_DIRECT    => 'da_delete_line_direct',
+        ];
+
+        // constantes pour les routes de propositions
+        $propositionRoutes = [
+            DemandeAppro::TYPE_DA_AVEC_DIT        => 'da_proposition_ref_avec_dit',
+            DemandeAppro::TYPE_DA_DIRECT          => 'da_proposition_direct',
+            DemandeAppro::TYPE_DA_PARENT          => 'da_affectation_achat',
+            DemandeAppro::TYPE_DA_REAPPRO_MENSUEL => 'da_validate_reappro_mensuel',
+        ];
+
         // URLs optimisées : On ne génère que ce qui est nécessaire
         $daEntity = $item->getDemandeAppro();
         $paramsDa = $daEntity ? ['id' => $daEntity->getId()] : null;
 
         // URL Detail
         if ($paramsDa) {
-            $detailRoutes = [
-                DemandeAppro::TYPE_DA_AVEC_DIT         => 'da_detail_avec_dit',
-                DemandeAppro::TYPE_DA_DIRECT           => 'da_detail_direct',
-                DemandeAppro::TYPE_DA_REAPPRO_MENSUEL  => 'da_detail_reappro',
-                DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL => 'da_detail_reappro',
-            ];
             $dto->urlDetail = isset($detailRoutes[$dto->datype]) ? $this->router->generate($detailRoutes[$dto->datype], $paramsDa) : '#';
         } else {
             $dto->urlDetail = '#';
@@ -176,11 +199,6 @@ class DaAfficherMapper
         if ($dto->ajouterDA) {
             $ditEntity = $item->getDit();
             $paramsDit = $ditEntity ? ['daId' => 0, 'ditId' => $ditEntity->getId()] : null;
-            $creationRoutes = [
-                DemandeAppro::TYPE_DA_AVEC_DIT        => 'da_new_avec_dit',
-                DemandeAppro::TYPE_DA_REAPPRO_MENSUEL => 'da_new_reappro_mensuel',
-                DemandeAppro::TYPE_DA_PARENT          => 'da_new_achat'
-            ];
             $dto->urlCreation = ($paramsDit && isset($creationRoutes[$dto->datype])) ? $this->router->generate($creationRoutes[$dto->datype], $paramsDit) : '#';
         } else {
             $dto->urlCreation = '#';
@@ -188,10 +206,6 @@ class DaAfficherMapper
 
         // URL Delete (seulement si nécessaire)
         if ($dto->supprimable) {
-            $deleteRoutes = [
-                DemandeAppro::TYPE_DA_AVEC_DIT  => 'da_delete_line_avec_dit',
-                DemandeAppro::TYPE_DA_DIRECT    => 'da_delete_line_direct',
-            ];
             $dto->urlDelete = isset($deleteRoutes[$dto->datype]) ? $this->router->generate($deleteRoutes[$dto->datype], ['numDa' => $dto->numeroDemandeAppro, 'ligne' => $dto->positionBc]) : '#';
         } else {
             $dto->urlDelete = '#';
@@ -205,7 +219,7 @@ class DaAfficherMapper
             DemandeAppro::TYPE_DA_REAPPRO_MENSUEL => 'da_validate_reappro_mensuel',
         ];
 
-        if ($dto->statutDal === StatutDaConstant::STATUT_EN_COURS_CREATION && isset($creationRoutes[$dto->datype])) {
+        if ($dto->statutDal === DemandeAppro::STATUT_EN_COURS_CREATION && isset($creationRoutes[$dto->datype])) {
             $params = ($dto->datype == DemandeAppro::TYPE_DA_AVEC_DIT) ? $parametres['daId-ditId']
                 : (($dto->datype == DemandeAppro::TYPE_DA_PARENT) ? $parametres['daParentId'] : $parametres['daId']);
             $dto->urlProposition = $this->router->generate($creationRoutes[$dto->datype], $params);
