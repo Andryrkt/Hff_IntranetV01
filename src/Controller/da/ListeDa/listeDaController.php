@@ -3,11 +3,13 @@
 namespace App\Controller\da\ListeDa;
 
 use App\Constants\da\StatutBcConstant;
+use App\Constants\da\StatutDaConstant;
 use App\Controller\Controller;
 use App\Controller\Traits\AutorisationTrait;
 use App\Controller\Traits\da\DaTrait;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Application;
+use App\Entity\admin\Service;
 use App\Entity\da\DaAfficher;
 use App\Entity\da\DaSearch;
 use App\Entity\da\DaSoumissionBc;
@@ -82,10 +84,10 @@ class listeDaController extends Controller
 
             if ($codeAgenceUser == '80' && $codeServiceUser == 'APP') {
                 $criteria['statutDA'] = [
-                    DemandeAppro::STATUT_SOUMIS_APPRO,
-                    DemandeAppro::STATUT_DEMANDE_DEVIS,
-                    DemandeAppro::STATUT_DEVIS_A_RELANCER,
-                    DemandeAppro::STATUT_EN_COURS_PROPOSITION
+                    StatutDaConstant::STATUT_SOUMIS_APPRO,
+                    StatutDaConstant::STATUT_DEMANDE_DEVIS,
+                    StatutDaConstant::STATUT_DEVIS_A_RELANCER,
+                    StatutDaConstant::STATUT_EN_COURS_PROPOSITION
                 ];
                 $criteria['statutBC'] = [
                     StatutBcConstant::STATUT_PAS_DANS_BC,
@@ -98,9 +100,9 @@ class listeDaController extends Controller
                 ];
             } else {
                 $criteria['statutDA'] = [
-                    DemandeAppro::STATUT_EN_COURS_CREATION,
-                    DemandeAppro::STATUT_AUTORISER_EMETTEUR,
-                    DemandeAppro::STATUT_SOUMIS_ATE
+                    StatutDaConstant::STATUT_EN_COURS_CREATION,
+                    StatutDaConstant::STATUT_AUTORISER_EMETTEUR,
+                    StatutDaConstant::STATUT_SOUMIS_ATE
                 ];
             }
 
@@ -211,10 +213,10 @@ class listeDaController extends Controller
         $criteria = $this->getSessionService()->get('criteria_search_list_da', []) ?? [];
 
         $agServ = [
-            'agenceEmetteur'  => isset($criteria['agenceEmetteur']) ? $this->getEntityManager()->getRepository(\App\Entity\admin\Agence::class)->find($criteria['agenceEmetteur']) : null,
-            'agenceDebiteur'  => isset($criteria['agenceDebiteur']) ? $this->getEntityManager()->getRepository(\App\Entity\admin\Agence::class)->find($criteria['agenceDebiteur']) : null,
-            'serviceEmetteur' => isset($criteria['serviceEmetteur']) ? $this->getEntityManager()->getRepository(\App\Entity\admin\Service::class)->find($criteria['serviceEmetteur']) : null,
-            'serviceDebiteur' => isset($criteria['serviceDebiteur']) ? $this->getEntityManager()->getRepository(\App\Entity\admin\Service::class)->find($criteria['serviceDebiteur']) : null,
+            'agenceEmetteur'  => isset($criteria['agenceEmetteur']) ? $this->getEntityManager()->getRepository(Agence::class)->find($criteria['agenceEmetteur']) : null,
+            'agenceDebiteur'  => isset($criteria['agenceDebiteur']) ? $this->getEntityManager()->getRepository(Agence::class)->find($criteria['agenceDebiteur']) : null,
+            'serviceEmetteur' => isset($criteria['serviceEmetteur']) ? $this->getEntityManager()->getRepository(Service::class)->find($criteria['serviceEmetteur']) : null,
+            'serviceDebiteur' => isset($criteria['serviceDebiteur']) ? $this->getEntityManager()->getRepository(Service::class)->find($criteria['serviceDebiteur']) : null,
         ];
 
         $daSearch->toObject($criteria, $agServ);

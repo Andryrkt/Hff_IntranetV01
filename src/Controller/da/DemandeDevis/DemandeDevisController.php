@@ -2,11 +2,12 @@
 
 namespace App\Controller\da\DemandeDevis;
 
+use App\Constants\da\StatutDaConstant;
 use App\Controller\Controller;
-use App\Entity\da\DemandeAppro;
 use App\Controller\Traits\AutorisationTrait;
 use App\Controller\Traits\da\DaAfficherTrait;
 use App\Controller\Traits\da\demandeDevis\DaDemandeDevisTrait;
+use App\Entity\da\DemandeAppro;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -42,7 +43,7 @@ class DemandeDevisController extends Controller
         }
 
         /** Autorisation accès */
-        $this->checkPageAccess(($this->estUserDansServiceAppro() || $this->estAdmin()) && $demandeAppro->getStatutDal() === DemandeAppro::STATUT_SOUMIS_APPRO);
+        $this->checkPageAccess(($this->estUserDansServiceAppro() || $this->estAdmin()) && $demandeAppro->getStatutDal() === StatutDaConstant::STATUT_SOUMIS_APPRO);
         /** FIN AUtorisation accès */
 
         $this->appliquerStatutDemandeDevisEnCours($demandeAppro, $this->getUserName());

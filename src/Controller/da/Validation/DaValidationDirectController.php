@@ -43,7 +43,7 @@ class DaValidationDirectController extends Controller
         /** Ajout nom fichier du bon d'achat (excel) */
         $da->setNomFichierBav($resultatExport['fileName']);
 
-        $this->ajouterDansTableAffichageParNumDa($da->getNumeroDemandeAppro(), true, DemandeAppro::STATUT_DW_A_VALIDE); // enregistrer dans la table Da Afficher
+        $this->ajouterDansTableAffichageParNumDa($da->getNumeroDemandeAppro(), true, StatutDaConstant::STATUT_DW_A_VALIDE); // enregistrer dans la table Da Afficher
 
         // ajout des données dans la table DaSoumisAValidation
         $this->ajouterDansDaSoumisAValidation($da);

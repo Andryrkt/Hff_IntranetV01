@@ -4,6 +4,7 @@ namespace App\Mapper\Da;
 
 use App\Constants\da\RouteConstant;
 use App\Constants\da\StatutBcConstant;
+use App\Constants\da\StatutDaConstant;
 use App\Controller\Traits\da\MarkupIconTrait;
 use App\Dto\Da\DaAfficherDto;
 use App\Entity\da\DaAfficher;
@@ -140,11 +141,11 @@ class DaAfficherMapper
     private function computeRightsAndUrls(DaAfficherDto $dto, DaAfficher $item, Markup $safeIconBan,  bool $estAdmin, bool $estAppro, bool $estAtelier): void
     {
         $dto->ajouterDA = $dto->daViaOR && ($estAtelier || $estAdmin);
-        $statutDASupprimable = [DemandeAppro::STATUT_SOUMIS_APPRO, DemandeAppro::STATUT_SOUMIS_ATE, DemandeAppro::STATUT_VALIDE];
+        $statutDASupprimable = [StatutDaConstant::STATUT_SOUMIS_APPRO, StatutDaConstant::STATUT_SOUMIS_ATE, StatutDaConstant::STATUT_VALIDE];
         $dto->supprimable = ($estAppro || $estAtelier || $estAdmin) && in_array($dto->statutDal, $statutDASupprimable) && ($dto->daViaOR || $dto->daDirect);
-        $dto->demandeDevis = ($estAppro || $estAdmin) && $dto->statutDal === DemandeAppro::STATUT_SOUMIS_APPRO && ($dto->daViaOR || $dto->daDirect);
+        $dto->demandeDevis = ($estAppro || $estAdmin) && $dto->statutDal === StatutDaConstant::STATUT_SOUMIS_APPRO && ($dto->daViaOR || $dto->daDirect);
         $dto->centrale = (!$dto->daViaOR) ? $item->getDesiCentrale() : $safeIconBan;
-        $dto->statutValide = $item->getStatutDal() === DemandeAppro::STATUT_VALIDE;
+        $dto->statutValide = $item->getStatutDal() === StatutDaConstant::STATUT_VALIDE;
 
         $parametres = [
             'daId'           => $item->getDemandeAppro() ? ['id' => $item->getDemandeAppro()->getId()] : [],
@@ -204,7 +205,7 @@ class DaAfficherMapper
             DemandeAppro::TYPE_DA_REAPPRO_MENSUEL => 'da_validate_reappro_mensuel',
         ];
 
-        if ($dto->statutDal === DemandeAppro::STATUT_EN_COURS_CREATION && isset($creationRoutes[$dto->datype])) {
+        if ($dto->statutDal === StatutDaConstant::STATUT_EN_COURS_CREATION && isset($creationRoutes[$dto->datype])) {
             $params = ($dto->datype == DemandeAppro::TYPE_DA_AVEC_DIT) ? $parametres['daId-ditId']
                 : (($dto->datype == DemandeAppro::TYPE_DA_PARENT) ? $parametres['daParentId'] : $parametres['daId']);
             $dto->urlProposition = $this->router->generate($creationRoutes[$dto->datype], $params);

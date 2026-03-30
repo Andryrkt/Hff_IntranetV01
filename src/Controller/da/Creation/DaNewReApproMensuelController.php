@@ -2,15 +2,16 @@
 
 namespace App\Controller\da\Creation;
 
+use App\Constants\da\StatutDaConstant;
 use App\Controller\Controller;
+use App\Controller\Traits\AutorisationTrait;
+use App\Controller\Traits\da\creation\DaNewReapproMensuelTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
-use App\Controller\Traits\AutorisationTrait;
-use Symfony\Component\HttpFoundation\Request;
-use App\Service\application\ApplicationService;
-use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\Traits\da\creation\DaNewReapproMensuelTrait;
 use App\Form\da\DemandeApproReapproMensuelFormType;
+use App\Service\application\ApplicationService;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route("/demande-appro")
@@ -19,10 +20,6 @@ class DaNewReApproMensuelController extends Controller
 {
     use DaNewReapproMensuelTrait;
     use AutorisationTrait;
-    const STATUT_DAL = [
-        'enregistrerBrouillon' => DemandeAppro::STATUT_EN_COURS_CREATION,
-        'soumissionAppro'      => DemandeAppro::STATUT_SOUMIS_APPRO,
-    ];
 
     public function __construct()
     {
@@ -76,7 +73,7 @@ class DaNewReApproMensuelController extends Controller
 
             // Récupérer le nom du bouton cliqué
             $clickedButtonName = $this->getButtonName($request);
-            $statutDa = self::STATUT_DAL[$clickedButtonName];
+            $statutDa = StatutDaConstant::STATUT_DAL[$clickedButtonName];
 
             $demandeAppro
                 ->setNumeroDemandeAppro($numDa)

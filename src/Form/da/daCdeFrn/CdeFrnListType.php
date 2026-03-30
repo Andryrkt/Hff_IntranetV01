@@ -4,6 +4,7 @@ namespace App\Form\da\daCdeFrn;
 
 
 use App\Constants\da\StatutBcConstant;
+use App\Constants\da\StatutDaConstant;
 use App\Entity\admin\Agence;
 use App\Entity\admin\dit\WorNiveauUrgence;
 use App\Entity\admin\Service;
@@ -37,16 +38,16 @@ class CdeFrnListType extends  AbstractType
     }
 
     private const STATUT_DA = [
-        DemandeAppro::STATUT_EN_COURS_CREATION    => DemandeAppro::STATUT_EN_COURS_CREATION,
-        DemandeAppro::STATUT_SOUMIS_APPRO         => DemandeAppro::STATUT_SOUMIS_APPRO, // demande d'achat
-        DemandeAppro::STATUT_DEMANDE_DEVIS        => DemandeAppro::STATUT_DEMANDE_DEVIS,
-        DemandeAppro::STATUT_DEVIS_A_RELANCER     => DemandeAppro::STATUT_DEVIS_A_RELANCER,
-        DemandeAppro::STATUT_AUTORISER_EMETTEUR   => DemandeAppro::STATUT_AUTORISER_EMETTEUR, // Création demande initiale
-        DemandeAppro::STATUT_EN_COURS_PROPOSITION => DemandeAppro::STATUT_EN_COURS_PROPOSITION,
-        DemandeAppro::STATUT_SOUMIS_ATE           => DemandeAppro::STATUT_SOUMIS_ATE, // proposition d'achat
-        DemandeAppro::STATUT_VALIDE               => DemandeAppro::STATUT_VALIDE, // Bon d'achats validé
-        DemandeAppro::STATUT_CLOTUREE             => DemandeAppro::STATUT_CLOTUREE,
-        DemandeAppro::STATUT_CLOTUREE_HORS_DELAI  => DemandeAppro::STATUT_CLOTUREE_HORS_DELAI,
+        StatutDaConstant::STATUT_EN_COURS_CREATION    => StatutDaConstant::STATUT_EN_COURS_CREATION,
+        StatutDaConstant::STATUT_SOUMIS_APPRO         => StatutDaConstant::STATUT_SOUMIS_APPRO, // demande d'achat
+        StatutDaConstant::STATUT_DEMANDE_DEVIS        => StatutDaConstant::STATUT_DEMANDE_DEVIS,
+        StatutDaConstant::STATUT_DEVIS_A_RELANCER     => StatutDaConstant::STATUT_DEVIS_A_RELANCER,
+        StatutDaConstant::STATUT_AUTORISER_EMETTEUR   => StatutDaConstant::STATUT_AUTORISER_EMETTEUR, // Création demande initiale
+        StatutDaConstant::STATUT_EN_COURS_PROPOSITION => StatutDaConstant::STATUT_EN_COURS_PROPOSITION,
+        StatutDaConstant::STATUT_SOUMIS_ATE           => StatutDaConstant::STATUT_SOUMIS_ATE, // proposition d'achat
+        StatutDaConstant::STATUT_VALIDE               => StatutDaConstant::STATUT_VALIDE, // Bon d'achats validé
+        StatutDaConstant::STATUT_CLOTUREE             => StatutDaConstant::STATUT_CLOTUREE,
+        StatutDaConstant::STATUT_CLOTUREE_HORS_DELAI  => StatutDaConstant::STATUT_CLOTUREE_HORS_DELAI,
     ];
 
 

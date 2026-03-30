@@ -3,6 +3,7 @@
 namespace App\Form\da;
 
 use App\Constants\da\StatutBcConstant;
+use App\Constants\da\StatutDaConstant;
 use App\Constants\da\StatutOrConstant;
 use App\Controller\Traits\da\MarkupIconTrait;
 use App\Entity\admin\Agence;
@@ -29,19 +30,6 @@ class DaSearchType extends  AbstractType
 {
     use MarkupIconTrait;
 
-    private const STATUT_DA = [
-        DemandeAppro::STATUT_EN_COURS_CREATION    => DemandeAppro::STATUT_EN_COURS_CREATION,
-        DemandeAppro::STATUT_SOUMIS_APPRO         => DemandeAppro::STATUT_SOUMIS_APPRO, // demande d'achat
-        DemandeAppro::STATUT_DEMANDE_DEVIS        => DemandeAppro::STATUT_DEMANDE_DEVIS,
-        DemandeAppro::STATUT_DEVIS_A_RELANCER     => DemandeAppro::STATUT_DEVIS_A_RELANCER,
-        DemandeAppro::STATUT_AUTORISER_EMETTEUR   => DemandeAppro::STATUT_AUTORISER_EMETTEUR, // Création demande initiale
-        DemandeAppro::STATUT_EN_COURS_PROPOSITION => DemandeAppro::STATUT_EN_COURS_PROPOSITION,
-        DemandeAppro::STATUT_SOUMIS_ATE           => DemandeAppro::STATUT_SOUMIS_ATE, // proposition d'achat
-        DemandeAppro::STATUT_VALIDE               => DemandeAppro::STATUT_VALIDE, // Bon d'achats validé
-        DemandeAppro::STATUT_CLOTUREE             => DemandeAppro::STATUT_CLOTUREE,
-        DemandeAppro::STATUT_CLOTUREE_HORS_DELAI  => DemandeAppro::STATUT_CLOTUREE_HORS_DELAI,
-    ];
-
     private $agenceRepository;
 
     private $em;
@@ -60,7 +48,7 @@ class DaSearchType extends  AbstractType
         $statut_bc = StatutBcConstant::STATUT_BC;
         // ksort($statut_bc);
 
-        $statut_da = self::STATUT_DA;
+        $statut_da = StatutDaConstant::STATUT_DA;
         // ksort($statut_da);
 
         $type_achat = [

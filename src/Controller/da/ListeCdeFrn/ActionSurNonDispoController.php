@@ -3,6 +3,7 @@
 namespace App\Controller\da\ListeCdeFrn;
 
 use App\Constants\da\StatutBcConstant;
+use App\Constants\da\StatutDaConstant;
 use App\Controller\Controller;
 use App\Entity\da\DaAfficher;
 use App\Entity\da\DemandeAppro;
@@ -109,7 +110,7 @@ class ActionSurNonDispoController extends Controller
 
             /** 0. Nouveau numéro demande appro et statut */
             $numDa = $this->autoDecrement('DAP');
-            $statutDa = DemandeAppro::STATUT_SOUMIS_APPRO;
+            $statutDa = StatutDaConstant::STATUT_SOUMIS_APPRO;
 
             /** 1. Créer nouveau demande appro avec le nouveau numéro */
             $demandeAppro = $this->nouveauDemandeAppro($demandeApproAvant, $numDa, $statutDa);
