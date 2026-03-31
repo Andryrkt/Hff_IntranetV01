@@ -54,7 +54,7 @@ class EnvoyerAuClientController extends Controller
 
             $dto = (new EnvoyerAuClientFactory())->createFromDto($dto);
 
-            // Enregistrement dans la base de données
+            // Modification dans la base de données
             $pointageModel = new PointageModel();
             $pointageModel->updatePointage($dto);
 
