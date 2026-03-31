@@ -87,6 +87,32 @@ class BcModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
+    public function getInfoDevisForValidateBc($numeroDevis, $codeSociete)
+    {
+        $this->connect->connect();
+
+        try {
+            $statement = "SELECT 
+                        dneg.numero_devis as numero_devis
+                        ,dneg.statut_dw as statut
+                        ,dneg.statut_bc as statut_bc
+
+                    from ir_prod108:Informix.devis_soumis_a_validation_neg dneg
+                    where dneg.code_societe = '$codeSociete'
+                    and dneg.numero_devis = '$numeroDevis'
+                    order by dneg.numero_version desc
+                    limit 1
+            ";
+
+            $result = $this->connect->executeQuery($statement);
+            $rows = $this->connect->fetchScalarResults($result);
+
+            return $rows;
+        } finally {
+            $this->connect->close();
+        }
+    }
+
     /**
      * Methode pour enregistrer les données du formulaire Bc
      *  dans la base de donnée
@@ -115,6 +141,13 @@ class BcModel extends Model
         }
     }
 
+    /**
+     * MOdification du statut BC dans la 
+     * table devis_soumis_a_validation_neg
+     *
+     * @param BcDto $dto
+     * @return void
+     */
     public function updateDevis(BcDto $dto)
     {
         $donnees = BcMapper::toArrayUpdateDevis($dto);

@@ -13,6 +13,7 @@ use App\Service\fichier\UploderFileService;
 use App\Service\genererPdf\magasin\devis\GeneratePdfBcNeg;
 use App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService;
 use App\Service\magasin\devis\Fichier\DevisMagasinGenererNameFileService;
+use App\Service\magasin\devis\Validation\ValidationBc;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
@@ -44,6 +45,11 @@ class DevisNegBcController extends Controller
         $codeSociette = $this->getSecurityService()->getCodeSocieteUser();
 
         $bcDto = $this->bcFactory->create($numeroDevis, $codeSociette);
+
+        $validationBc = new ValidationBc();
+        if ($validationBc->ValidateBcAvantAffichage($bcDto)) {
+            return;
+        }
 
         //création du formulaire
         $form = $this->getFormFactory()->createBuilder(BcType::class, $bcDto, [

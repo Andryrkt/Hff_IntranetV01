@@ -52,7 +52,7 @@ class BcMagasinController extends Controller
         $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
 
         /** Gestion de blocage */
-        // $this->gestionDeBlocage($numeroDevis);
+        $this->gestionDeBlocage($numeroDevis);
 
         $factory = new BcMagasinDtoFactory();
         $bcMagasinDto = $factory->create($numeroDevis);
