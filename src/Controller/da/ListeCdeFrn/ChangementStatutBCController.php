@@ -2,8 +2,9 @@
 
 namespace App\Controller\da\ListeCdeFrn;
 
-use App\Entity\da\DaAfficher;
+use App\Constants\da\StatutBcConstant;
 use App\Controller\Controller;
+use App\Entity\da\DaAfficher;
 use App\Entity\da\DaSoumissionBc;
 use App\Repository\da\DaAfficherRepository;
 use App\Repository\da\DaSoumissionBcRepository;
@@ -23,7 +24,7 @@ class ChangementStatutBCController extends Controller
     {
         parent::__construct();
         $this->daAfficherRepository = $this->getEntityManager()->getRepository(DaAfficher::class);
-        $this->daSoumissionBcRepository = $this->getEntityManager()->getRepository(DaSoumissionBc::class);
+        $this->daSoumissionBcRepository = $this->getEntityManager()->getRepository(StatutBcConstant::class);
     }
     /**
      * @Route(path="/changement-statuts-envoyer-fournisseur/{numCde}/{datePrevue}/{estEnvoyer}", name="changement_statut_envoyer_fournisseur")
@@ -39,10 +40,12 @@ class ChangementStatutBCController extends Controller
             $numVersionMaxDaAfficher = $this->daAfficherRepository->getNumeroVersionMaxCde($numCde);
             /** @var DaAfficher[] $daAffichers */
             $daAffichers = $this->daAfficherRepository->findBy(['numeroCde' => $numCde, 'numeroVersion' => $numVersionMaxDaAfficher]);
+            $dateLivraison = new \DateTime($datePrevue);
             foreach ($daAffichers as $daAfficher) {
                 $daAfficher
                     ->setStatutCde(DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR)
-                    ->setDateLivraisonPrevue(new \DateTime($datePrevue))
+                    ->setDateLivraisonPrevue($dateLivraison)
+                    ->setJoursDispo($dateLivraison->diff(new \DateTime('now', new \DateTimeZone('Indian/Antananarivo')))->days)
                     ->setBcEnvoyerFournisseur(true)
                     ->setDateEnvoiFournisseur(new \DateTime('now', new \DateTimeZone('Indian/Antananarivo')))
                 ;

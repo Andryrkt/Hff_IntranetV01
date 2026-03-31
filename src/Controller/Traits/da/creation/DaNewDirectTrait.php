@@ -41,7 +41,7 @@ trait DaNewDirectTrait
             ->setServiceEmetteur($service)
             ->setAgenceServiceDebiteur($agence->getCodeAgence() . '-' . $service->getCodeService())
             ->setAgenceServiceEmetteur($agence->getCodeAgence() . '-' . $service->getCodeService())
-            ->setStatutDal(DemandeAppro::STATUT_SOUMIS_APPRO)
+            ->setStatutDal(StatutDaConstant::STATUT_SOUMIS_APPRO)
             ->setUser($this->getUser())
             ->setDemandeur($this->getUser()->getNomUtilisateur())
             ->setDateFinSouhaite($this->ajouterJoursOuvrables(5)) // Définit la date de fin souhaitée automatiquement à 3 jours après la date actuelle

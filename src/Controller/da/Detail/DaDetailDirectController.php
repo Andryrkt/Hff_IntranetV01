@@ -2,19 +2,20 @@
 
 namespace App\Controller\da\Detail;
 
+use App\Constants\da\StatutDaConstant;
 use App\Controller\Controller;
-use App\Entity\da\DemandeAppro;
-use App\Entity\da\DaObservation;
-use App\Entity\da\DemandeApproL;
-use App\Entity\admin\Application;
-use App\Form\da\DaObservationType;
-use App\Controller\Traits\lienGenerique;
 use App\Controller\Traits\AutorisationTrait;
 use App\Controller\Traits\da\DaAfficherTrait;
+use App\Controller\Traits\da\detail\DaDetailDirectTrait;
+use App\Controller\Traits\lienGenerique;
+use App\Entity\admin\Application;
+use App\Entity\da\DaObservation;
+use App\Entity\da\DemandeAppro;
+use App\Entity\da\DemandeApproL;
+use App\Form\da\DaObservationType;
+use App\Service\da\DaTimelineService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\Traits\da\detail\DaDetailDirectTrait;
-use App\Service\da\DaTimelineService;
 
 /**
  * @Route("/demande-appro")
@@ -77,7 +78,7 @@ class DaDetailDirectController extends Controller
 			'observations'      		=> $observations,
 			'fichiers'            		=> $fichiers,
 			'connectedUser'     		=> $this->getUser(),
-			'statutAutoriserModifAte' 	=> $demandeAppro->getStatutDal() === DemandeAppro::STATUT_AUTORISER_EMETTEUR,
+			'statutAutoriserModifAte' 	=> $demandeAppro->getStatutDal() === StatutDaConstant::STATUT_AUTORISER_EMETTEUR,
 			'estCreateurDaDirecte'      => $this->estCreateurDeDADirecte(),
 			'estAppro'          		=> $this->estUserDansServiceAppro(),
 			'timelineData'      		=> $timeLineData,
@@ -98,7 +99,7 @@ class DaDetailDirectController extends Controller
 			$this->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $daObservation->getObservation(), $daObservation->getFileNames());
 
 			if ($this->estUserDansServiceAppro() && $daObservation->getStatutChange()) {
-				$this->appliquerChangementStatut($demandeAppro, DemandeAppro::STATUT_AUTORISER_EMETTEUR);
+				$this->appliquerChangementStatut($demandeAppro, StatutDaConstant::STATUT_AUTORISER_EMETTEUR);
 
 				$this->ajouterDansTableAffichageParNumDa($demandeAppro->getNumeroDemandeAppro());
 			}

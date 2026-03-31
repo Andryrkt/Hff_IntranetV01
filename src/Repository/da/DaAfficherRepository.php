@@ -2,15 +2,18 @@
 
 namespace App\Repository\da;
 
-use App\Entity\da\DaAfficher;
-use Doctrine\ORM\QueryBuilder;
-use App\Entity\da\DemandeAppro;
-use App\Entity\da\DaSoumissionBc;
-use Doctrine\ORM\EntityRepository;
-use Doctrine\DBAL\ArrayParameterType;
+use App\Constants\da\StatutBcConstant;
+use App\Constants\da\StatutDaConstant;
+use App\Constants\da\StatutOrConstant;
 use App\Entity\admin\utilisateur\User;
+use App\Entity\da\DaAfficher;
+use App\Entity\da\DaSoumissionBc;
+use App\Entity\da\DemandeAppro;
 use App\Entity\dit\DemandeIntervention;
 use App\Entity\dit\DitOrsSoumisAValidation;
+use Doctrine\DBAL\ArrayParameterType;
+use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\QueryBuilder;
 
 class DaAfficherRepository extends EntityRepository
 {
@@ -282,13 +285,13 @@ class DaAfficherRepository extends EntityRepository
         // Constantes métier
         // ------------------------------------------------------------------
         $statutOrs = [
-            DitOrsSoumisAValidation::STATUT_VALIDE,
-            DemandeAppro::STATUT_DW_VALIDEE,
+            StatutOrConstant::STATUT_VALIDE,
+            StatutDaConstant::STATUT_DW_VALIDEE,
         ];
 
         $statutDas = [
-            DemandeAppro::STATUT_CLOTUREE,
-            DemandeAppro::STATUT_VALIDE,
+            StatutDaConstant::STATUT_CLOTUREE,
+            StatutDaConstant::STATUT_VALIDE,
         ];
 
         $exceptions = ['DAP25079981'];
@@ -318,7 +321,7 @@ class DaAfficherRepository extends EntityRepository
                 $qb->expr()->in('d.statutOr', ':statutOrs'),
                 $qb->expr()->in('d.numeroDemandeAppro', ':exceptions')
             ))
-            ->setParameter('statutPasDansOr', DaSoumissionBc::STATUT_PAS_DANS_OR)
+            ->setParameter('statutPasDansOr', StatutBcConstant::STATUT_PAS_DANS_OR)
             ->setParameter('statutDal', $statutDas)
             ->setParameter('statutOrs', $statutOrs)
             ->setParameter('exceptions', $exceptions);
@@ -404,8 +407,8 @@ class DaAfficherRepository extends EntityRepository
             ->groupBy('d.numeroDemandeAppro');
 
         $statutOrs = [
-            DitOrsSoumisAValidation::STATUT_VALIDE,
-            DemandeAppro::STATUT_DW_VALIDEE
+            StatutOrConstant::STATUT_VALIDE,
+            StatutDaConstant::STATUT_DW_VALIDEE
         ];
 
         $exceptions = [
@@ -413,8 +416,8 @@ class DaAfficherRepository extends EntityRepository
         ];
 
         $statutDas = [
-            DemandeAppro::STATUT_CLOTUREE,
-            DemandeAppro::STATUT_VALIDE
+            StatutDaConstant::STATUT_CLOTUREE,
+            StatutDaConstant::STATUT_VALIDE
         ];
 
         $subQb->andWhere(
@@ -454,7 +457,7 @@ class DaAfficherRepository extends EntityRepository
                 'd.statutCde IS NULL'
             ))
             ->andWhere('d.deleted = 0')
-            ->setParameter('statutPasDansOr', DaSoumissionBc::STATUT_PAS_DANS_OR);
+            ->setParameter('statutPasDansOr', StatutBcConstant::STATUT_PAS_DANS_OR);
 
         // filtres dynamiques
         $this->applyDynamicFilters($qb, "d", $criteria, true);
@@ -637,15 +640,15 @@ class DaAfficherRepository extends EntityRepository
         if (!$estAdmin && $estAppro) {
             $qb->andWhere($qbLabel . '.statutDal IN (:authorizedStatuts)')
                 ->setParameter('authorizedStatuts', [
-                    DemandeAppro::STATUT_SOUMIS_APPRO,
-                    DemandeAppro::STATUT_SOUMIS_ATE,
-                    DemandeAppro::STATUT_DEMANDE_DEVIS,
-                    DemandeAppro::STATUT_DEVIS_A_RELANCER,
-                    DemandeAppro::STATUT_EN_COURS_PROPOSITION,
-                    DemandeAppro::STATUT_AUTORISER_EMETTEUR,
-                    DemandeAppro::STATUT_VALIDE,
-                    DemandeAppro::STATUT_REFUSE_APPRO,
-                    DemandeAppro::STATUT_TERMINER
+                    StatutDaConstant::STATUT_SOUMIS_APPRO,
+                    StatutDaConstant::STATUT_SOUMIS_ATE,
+                    StatutDaConstant::STATUT_DEMANDE_DEVIS,
+                    StatutDaConstant::STATUT_DEVIS_A_RELANCER,
+                    StatutDaConstant::STATUT_EN_COURS_PROPOSITION,
+                    StatutDaConstant::STATUT_AUTORISER_EMETTEUR,
+                    StatutDaConstant::STATUT_VALIDE,
+                    StatutDaConstant::STATUT_REFUSE_APPRO,
+                    StatutDaConstant::STATUT_TERMINER
                 ], ArrayParameterType::STRING);
         }
     }
@@ -747,7 +750,7 @@ class DaAfficherRepository extends EntityRepository
             (array_key_exists('afficherCloturees', $criteria) && !$criteria['afficherCloturees'])
         ) {
             $queryBuilder->andWhere($qbLabel . '.statutDal NOT IN (:statutDaFermer)')
-                ->setParameter('statutDaFermer', [DemandeAppro::STATUT_TERMINER, DemandeAppro::STATUT_CLOTUREE], ArrayParameterType::STRING);
+                ->setParameter('statutDaFermer', [StatutDaConstant::STATUT_TERMINER, StatutDaConstant::STATUT_CLOTUREE], ArrayParameterType::STRING);
         }
 
         if ($estCdeFrn) {
@@ -756,6 +759,7 @@ class DaAfficherRepository extends EntityRepository
                     $queryBuilder->andWhere($qbLabel . '.statutCde IN (:statutBcParam)')
                         ->setParameter('statutBcParam', $criteria['statutBC'], ArrayParameterType::STRING);
                 } else {
+
                     $queryBuilder->andWhere($qbLabel . '.statutCde = :statutBcParam')
                         ->setParameter('statutBcParam', $criteria['statutBC']);
                 }
@@ -784,8 +788,13 @@ class DaAfficherRepository extends EntityRepository
                     $queryBuilder->andWhere($qbLabel . '.statutDal IN (:statutDaParam)')
                         ->setParameter('statutDaParam', $criteria['statutDA'], ArrayParameterType::STRING);
                 } else {
-                    $queryBuilder->andWhere($qbLabel . '.statutDal = :statutDaParam')
-                        ->setParameter('statutDaParam', $criteria['statutDA']);
+                    if ($criteria['statutDA'] === StatutDaConstant::TRAITEMENT_APPRO) {
+                        $queryBuilder->andWhere($qbLabel . '.statutDal IN (:statutDaParam)')
+                            ->setParameter('statutDaParam', StatutDaConstant::STATUT_TRAITEMENT_APPRO, ArrayParameterType::STRING);
+                    } else {
+                        $queryBuilder->andWhere($qbLabel . '.statutDal = :statutDaParam')
+                            ->setParameter('statutDaParam', $criteria['statutDA']);
+                    }
                 }
             }
 
@@ -800,8 +809,13 @@ class DaAfficherRepository extends EntityRepository
             }
 
             if (!empty($criteria['statutBC']) && !is_array($criteria['statutBC'])) {
-                $queryBuilder->andWhere($qbLabel . '.statutCde = :statutBcParam')
-                    ->setParameter('statutBcParam', $criteria['statutBC']);
+                if ($criteria['statutBC'] === StatutBcConstant::BC_EN_COURS) {
+                    $queryBuilder->andWhere($qbLabel . '.statutCde IN (:statutBcParam)')
+                        ->setParameter('statutBcParam', StatutBcConstant::STATUT_BC_EN_COURS, ArrayParameterType::STRING);
+                } else {
+                    $queryBuilder->andWhere($qbLabel . '.statutCde = :statutBcParam')
+                        ->setParameter('statutBcParam', $criteria['statutBC']);
+                }
             }
         }
     }
@@ -928,7 +942,7 @@ class DaAfficherRepository extends EntityRepository
             ->andWhere('d.numeroVersion = :numVersion')
             ->setParameters([
                 'numOr' => $numeroOr,
-                'statutValide' => DemandeAppro::STATUT_VALIDE,
+                'statutValide' => StatutDaConstant::STATUT_VALIDE,
                 'numVersion' => $numeroVersionMax
             ])
             ->getQuery()

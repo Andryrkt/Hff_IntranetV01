@@ -101,9 +101,9 @@ class DitOrsSoumisAValidationController extends Controller
                     !in_array(
                         $statutDaAfficher[0],
                         [
-                            DemandeAppro::STATUT_VALIDE,
-                            DemandeAppro::STATUT_TERMINER,
-                            DemandeAppro::STATUT_EN_COURS_CREATION
+                            StatutDaConstant::STATUT_VALIDE,
+                            StatutDaConstant::STATUT_TERMINER,
+                            StatutDaConstant::STATUT_EN_COURS_CREATION
                         ]
                     )
                 ) {
@@ -305,7 +305,7 @@ class DitOrsSoumisAValidationController extends Controller
     private function modificationDaAfficher(string $numDit, string $numOr, DaAfficherRepository $daAfficherRepository): void
     {
         $numeroVersionMax = $daAfficherRepository->getNumeroVersionMaxDit($numDit);
-        $daAfficherValiders = $daAfficherRepository->findBy(['numeroVersion' => $numeroVersionMax, 'numeroDemandeDit' => $numDit, 'statutDal' => DemandeAppro::STATUT_VALIDE]);
+        $daAfficherValiders = $daAfficherRepository->findBy(['numeroVersion' => $numeroVersionMax, 'numeroDemandeDit' => $numDit, 'statutDal' => StatutDaConstant::STATUT_VALIDE]);
         if (!empty($daAfficherValiders)) {
 
             /** @var DaAfficher $daValider */
@@ -327,7 +327,7 @@ class DitOrsSoumisAValidationController extends Controller
     private function fusionPdfDaAvecORfusionner(string $numDit, string $mainPdf, DaAfficherRepository $daAfficherRepository): void
     {
         $numeroVersionMax = $daAfficherRepository->getNumeroVersionMaxDit($numDit);
-        $daAfficherValiders = $daAfficherRepository->findBy(['numeroVersion' => $numeroVersionMax, 'numeroDemandeDit' => $numDit, 'statutDal' => DemandeAppro::STATUT_VALIDE]);
+        $daAfficherValiders = $daAfficherRepository->findBy(['numeroVersion' => $numeroVersionMax, 'numeroDemandeDit' => $numDit, 'statutDal' => StatutDaConstant::STATUT_VALIDE]);
         if (!empty($daAfficherValiders)) {
             //recupération du nom et chemin du PDF DA
             $cheminNomFichierDa = sprintf(

@@ -103,7 +103,7 @@ trait DaDetailAvecDitTrait
     private function prepareDataForDisplayDetail(iterable $dals, string $statutDal): iterable
     {
         $datasPrepared = [];
-        $statutDASupprimable = [DemandeAppro::STATUT_SOUMIS_APPRO, DemandeAppro::STATUT_SOUMIS_ATE, DemandeAppro::STATUT_VALIDE];
+        $statutDASupprimable = [StatutDaConstant::STATUT_SOUMIS_APPRO, StatutDaConstant::STATUT_SOUMIS_ATE, StatutDaConstant::STATUT_VALIDE];
         $supprimable = in_array($statutDal, $statutDASupprimable);
 
         foreach ($dals as $dal) {
