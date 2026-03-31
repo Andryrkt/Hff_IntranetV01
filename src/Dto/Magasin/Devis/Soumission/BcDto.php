@@ -15,4 +15,8 @@ class BcDto
     public $dateCreation;
     public $dateModification;
     public $dateBc;
+
+    public $pieceJoint01;
+    public $pieceJoint2;
+    public $lignes;
 }
