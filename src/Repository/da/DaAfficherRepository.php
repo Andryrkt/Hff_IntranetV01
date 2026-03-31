@@ -1029,7 +1029,7 @@ class DaAfficherRepository extends EntityRepository
         ;
     }
 
-    public function getTypeDa(int $numCde)
+    public function getTypeDa($numCde)
     {
         return $this->createQueryBuilder('da')
             ->select('da.daTypeId')
