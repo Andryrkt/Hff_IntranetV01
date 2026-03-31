@@ -14,7 +14,7 @@ class DwContratRepository extends EntityRepository
     {
         return  $this->createQueryBuilder('d')
             ->select('d.path')
-            ->where('d.refContrat = :refContrat')
+            ->where('d.reference = :refContrat')
             ->setParameter('refContrat', $refContrat)
             ->orderBy('d.numeroVersion', 'ASC')
             ->getQuery()

@@ -6,6 +6,7 @@ use App\Controller\Controller;
 use App\Entity\contrat\Contrat;
 use App\Form\contrat\ContratType;
 use App\Controller\Traits\contrat\ContratListeTrait;
+use App\Entity\dw\DwContrat;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -34,7 +35,7 @@ class ContratController extends Controller
             'height'    => 1300,
         ]);
     }
-    
+
     /**
      * Affiche la liste des contrats
      * @Route("/consultation", name="contrat_liste")
@@ -204,6 +205,10 @@ class ContratController extends Controller
                 $serviceLibelleComplet = $serviceEntity->getCodeService() . '-' . $serviceEntity->getLibelleService();
             }
 
+            $path = $this->getEntityManager()
+                ->getRepository(DwContrat::class)
+                ->getPathByRefContrat($contrat->getReference());
+
             $data[] = [
                 'id' => $contrat->getId(),
                 'reference' => $contrat->getReference(),
@@ -218,7 +223,7 @@ class ContratController extends Controller
                 'type_tiers' => $contrat->getTypeTiers(),
                 'date_debut_contrat' => $contrat->getDateDebutContrat(),
                 'date_fin_contrat' => $contrat->getDateFinContrat(),
-                'piece_jointe' => $contrat->getPieceJointe(),
+                'piece_jointe' => $path,
             ];
         }
 
