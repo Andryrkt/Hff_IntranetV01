@@ -2,14 +2,15 @@
 
 namespace App\Controller\Traits\da\detail;
 
-use App\Entity\dw\DwFacBl;
-use App\Entity\dw\DwBcAppro;
+use App\Constants\da\StatutDaConstant;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
+use App\Entity\dw\DwBcAppro;
 use App\Entity\dw\DwDaDirect;
-use App\Repository\dw\DwBcApproRepository;
+use App\Entity\dw\DwFacBl;
 use App\Repository\da\DaObservationRepository;
+use App\Repository\dw\DwBcApproRepository;
 use App\Repository\dw\DwDaDirectRepository;
 use App\Repository\dw\DwFactureBonLivraisonRepository;
 

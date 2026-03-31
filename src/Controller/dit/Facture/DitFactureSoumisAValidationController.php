@@ -5,23 +5,23 @@ namespace App\Controller\dit\Facture;
 ini_set('upload_max_filesize', '5M');
 ini_set('post_max_size', '5M');
 
-use Exception;
-use App\Service\FusionPdf;
-use App\Model\dit\DitModel;
 use App\Controller\Controller;
+use App\Controller\Traits\dit\DitFactureSoumisAValidationtrait;
+use App\Controller\Traits\PdfConversionTrait;
 use App\Entity\dit\DemandeIntervention;
-use Symfony\Component\Form\FormInterface;
-use App\Entity\dit\DitRiSoumisAValidation;
-use App\Entity\dit\DitOrsSoumisAValidation;
-use App\Service\fichier\FileUploaderService;
-use Symfony\Component\HttpFoundation\Request;
 use App\Entity\dit\DitFactureSoumisAValidation;
-use Symfony\Component\Routing\Annotation\Route;
+use App\Entity\dit\DitOrsSoumisAValidation;
+use App\Entity\dit\DitRiSoumisAValidation;
 use App\Form\dit\DitFactureSoumisAValidationType;
 use App\Model\dit\DitFactureSoumisAValidationModel;
+use App\Model\dit\DitModel;
+use App\Service\fichier\FileUploaderService;
+use App\Service\FusionPdf;
 use App\Service\genererPdf\GenererPdfFactureAValidation;
-use App\Controller\Traits\dit\DitFactureSoumisAValidationtrait;
 use App\Service\historiqueOperation\HistoriqueOperationFACService;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route("/atelier/demande-intervention")
@@ -30,6 +30,8 @@ class DitFactureSoumisAValidationController extends Controller
 {
 
     use DitFactureSoumisAValidationtrait;
+    use PdfConversionTrait;
+
     private $historiqueOperation;
     private $ditFactureSoumiAValidationModel;
     private $genererPdfFacture;
@@ -81,9 +83,6 @@ class DitFactureSoumisAValidationController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            //$demandeIntervention = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
-
-
             $originalName = $form->get("pieceJoint01")->getData()->getClientOriginalName();
             $typeFacVente = [200, 201, 202, 203, 204, 205, 206, 207, 208, 209];
             $parts = explode('_', $originalName);
@@ -113,23 +112,6 @@ class DitFactureSoumisAValidationController extends Controller
 
             $nbFact = $this->nombreFact($this->ditFactureSoumiAValidationModel, $this->ditFactureSoumiAValidation);
 
-            // $numItv = $this->ditFactureSoumiAValidationModel->recupNumeroItv($numOrBaseDonner[0]['numor'], $numFac);
-            // $numItvValide = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class)->findNumItvValide($numOrBaseDonner[0]['numor']);
-
-            // if(in_array($numItv, $numItvValide)) {
-            //     echo "
-            //     <script>
-            //         if (confirm('⚠️  L'intervention n° $numItv n'a pas encore été validée. Voulez-vous tout de même soumettre la facture ? Cliquez sur OUI pour confirmer ou sur NON pour abandonner')) {
-            //             // Redirection ou soumission ici si l’utilisateur confirme
-            //             window.location.href = 'ton-lien-ou-action.php'; // à adapter
-            //         } else {
-            //             // Rien ou retour en arrière
-            //             history.back();
-            //         }
-            //     </script>
-            //     ";
-            //     exit;
-            // }
 
             $nbFactSqlServer = $this->getEntityManager()->getRepository(DitFactureSoumisAValidation::class)->findNbrFact($numFac);
 
@@ -155,7 +137,7 @@ class DitFactureSoumisAValidationController extends Controller
 
                 $factureSoumisAValidation = $this->ditFactureSoumisAValidation($numDit, $dataForm, $this->ditFactureSoumiAValidationModel, $numeroSoumission, $this->getEntityManager(), $this->ditFactureSoumiAValidation);
 
-                $estRi = $this->conditionSurInfoFacture($this->ditFactureSoumiAValidationModel, $dataForm, $this->ditFactureSoumiAValidation, $numDit);
+                $estRi = $this->conditionSurInfoFacture($this->ditFactureSoumiAValidationModel, $dataForm, $this->ditFactureSoumiAValidation, $this->getUser());
 
                 if ($estRi) {
                     $message = "La facture ne correspond pas ou correspond partiellement à un rapport d'intervention.";
@@ -193,50 +175,6 @@ class DitFactureSoumisAValidationController extends Controller
         return $this->render('dit/DitFactureSoumisAValidation.html.twig', [
             'form' => $form->createView(),
         ]);
-    }
-
-    private function ConvertirLesPdf(array $tousLesFichersAvecChemin): array
-    {
-        $tousLesFichiers = [];
-        foreach ($tousLesFichersAvecChemin as $filePath) {
-            $tousLesFichiers[] = $this->convertPdfWithGhostscript($filePath);
-        }
-
-        return $tousLesFichiers;
-    }
-
-
-    private function convertPdfWithGhostscript($filePath)
-    {
-        $gsPath = 'C:\Program Files\gs\gs10.05.0\bin\gswin64c.exe'; // Modifier selon l'OS
-        $tempFile = $filePath . "_temp.pdf";
-
-        // Vérifier si le fichier existe et est accessible
-        if (!file_exists($filePath)) {
-            throw new Exception("Fichier introuvable : $filePath");
-        }
-
-        if (!is_readable($filePath)) {
-            throw new Exception("Le fichier PDF ne peut pas être lu : $filePath");
-        }
-
-        // Commande Ghostscript
-        $command = "\"$gsPath\" -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -o \"$tempFile\" \"$filePath\"";
-        // echo "Commande exécutée : $command<br>";
-
-        exec($command, $output, $returnVar);
-
-        if ($returnVar !== 0) {
-            echo "Sortie Ghostscript : " . implode("\n", $output);
-            throw new Exception("Erreur lors de la conversion du PDF avec Ghostscript");
-        }
-
-        // Remplacement du fichier
-        if (!rename($tempFile, $filePath)) {
-            throw new Exception("Impossible de remplacer l'ancien fichier PDF.");
-        }
-
-        return $filePath;
     }
 
 
@@ -336,10 +274,14 @@ class DitFactureSoumisAValidationController extends Controller
         $this->getEntityManager()->flush();
     }
 
-    private function conditionSurInfoFacture($ditFactureSoumiAValidationModel, $dataForm, $ditFactureSoumiAValidation, $numDit)
+    private function conditionSurInfoFacture($ditFactureSoumiAValidationModel, $dataForm, $ditFactureSoumiAValidation, $user)
     {
+
         $infoFacture = $ditFactureSoumiAValidationModel->recupInfoFact($dataForm->getNumeroOR(), $ditFactureSoumiAValidation->getNumeroFact());
 
+        if ($infoFacture[0]['typeOr'] === 210 && $user->getCodeAgenceUser() === '60') {
+            return false;
+        }
 
         $estRi = false;
         $riSoumis = $this->getEntityManager()->getRepository(DitRiSoumisAValidation::class)->findRiSoumis($ditFactureSoumiAValidation->getNumeroOR());
@@ -347,7 +289,6 @@ class DitFactureSoumisAValidationController extends Controller
         if (empty($riSoumis)) {
             $estRi = true;
         } else {
-
             for ($i = 0; $i < count($infoFacture); $i++) {
                 if (!in_array($infoFacture[$i]['numeroitv'], $riSoumis)) {
                     $estRi = true;

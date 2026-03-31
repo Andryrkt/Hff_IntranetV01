@@ -2,6 +2,7 @@
 
 namespace App\Controller\Traits\da\detail;
 
+use App\Constants\da\StatutDaConstant;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
