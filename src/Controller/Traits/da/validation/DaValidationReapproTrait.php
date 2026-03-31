@@ -2,16 +2,17 @@
 
 namespace App\Controller\Traits\da\validation;
 
-use DateTime;
-use App\Entity\da\DemandeAppro;
+use App\Constants\da\StatutDaConstant;
 use App\Entity\da\DaObservation;
-use App\Model\da\DaReapproModel;
 use App\Entity\da\DaSoumisAValidation;
+use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
-use App\Service\autres\VersionService;
+use App\Model\da\DaReapproModel;
 use App\Repository\da\DaObservationRepository;
 use App\Repository\da\DaSoumisAValidationRepository;
+use App\Service\autres\VersionService;
 use App\Service\genererPdf\da\GenererPdfDaReappro;
+use DateTime;
 
 trait DaValidationReapproTrait
 {

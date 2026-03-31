@@ -2,15 +2,16 @@
 
 namespace App\Controller\Traits\da\validation;
 
-use DateTime;
-use Exception;
-use App\Entity\da\DemandeAppro;
+use App\Constants\da\StatutDaConstant;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DaSoumisAValidation;
+use App\Entity\da\DemandeAppro;
+use App\Repository\da\DaObservationRepository;
 use App\Service\autres\VersionService;
 use App\Service\fichier\TraitementDeFichier;
-use App\Repository\da\DaObservationRepository;
 use App\Service\genererPdf\da\GenererPdfDaDirect;
+use DateTime;
+use Exception;
 
 trait DaValidationDirectTrait
 {
