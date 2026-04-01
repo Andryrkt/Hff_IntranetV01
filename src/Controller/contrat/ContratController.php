@@ -7,6 +7,7 @@ use App\Entity\contrat\Contrat;
 use App\Form\contrat\ContratType;
 use App\Controller\Traits\contrat\ContratListeTrait;
 use App\Entity\dw\DwContrat;
+use Doctrine\ORM\EntityNotFoundException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -205,9 +206,10 @@ class ContratController extends Controller
                 $serviceLibelleComplet = $serviceEntity->getCodeService() . '-' . $serviceEntity->getLibelleService();
             }
 
-            $path = $this->getEntityManager()
+            $dataPath = $this->getEntityManager()
                 ->getRepository(DwContrat::class)
                 ->getPathByRefContrat($contrat->getReference());
+
 
             $data[] = [
                 'id' => $contrat->getId(),
@@ -223,7 +225,7 @@ class ContratController extends Controller
                 'type_tiers' => $contrat->getTypeTiers(),
                 'date_debut_contrat' => $contrat->getDateDebutContrat(),
                 'date_fin_contrat' => $contrat->getDateFinContrat(),
-                'piece_jointe' => $path ? $_ENV['BASE_PATH_FICHIER_COURT'] . $path : null,
+                'piece_jointe' => $dataPath ? $_ENV['BASE_PATH_FICHIER_COURT'] . '/' . $dataPath['path'] : null,
             ];
         }
 
@@ -275,7 +277,7 @@ class ContratController extends Controller
         $contrat = $this->getEntityManager()->getRepository(Contrat::class)->findWithDetails($id);
 
         if (!$contrat) {
-            throw $this->createNotFoundException('Contrat non trouvé');
+            throw new EntityNotFoundException('Contrat non trouvé');
         }
 
         return $this->render('contrat/contrat_show.html.twig', [

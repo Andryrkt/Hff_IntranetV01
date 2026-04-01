@@ -16,7 +16,6 @@ class DwContratRepository extends EntityRepository
             ->select('d.path')
             ->where('d.reference = :refContrat')
             ->setParameter('refContrat', $refContrat)
-            ->orderBy('d.numeroVersion', 'ASC')
             ->getQuery()
             ->getOneOrNullResult();
     }
