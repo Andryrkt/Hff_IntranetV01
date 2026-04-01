@@ -36,6 +36,11 @@ class Societte
     private $codeSociete;
 
     /**
+     * @ORM\OneToMany(targetEntity=Agence::class, mappedBy="societe", cascade={"persist"})
+     */
+    private Collection $agences;
+
+    /**
      * @ORM\OneToMany(targetEntity=Profil::class, mappedBy="societe", cascade={"persist"})
      */
     private Collection $profils;
@@ -43,6 +48,7 @@ class Societte
     public function __construct()
     {
         $this->profils = new ArrayCollection();
+        $this->agences = new ArrayCollection();
     }
 
     public function getId(): int
@@ -99,6 +105,33 @@ class Societte
             $this->profils->removeElement($profil);
             if ($profil->getSociete() === $this) {
                 $profil->setSociete(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getAgences(): Collection
+    {
+        return $this->agences;
+    }
+
+    public function addAgence(Agence $agence): self
+    {
+        if (!$this->agences->contains($agence)) {
+            $this->agences[] = $agence;
+            $agence->setSociete($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAgence(Agence $agence): self
+    {
+        if ($this->agences->contains($agence)) {
+            $this->agences->removeElement($agence);
+            if ($agence->getSociete() === $this) {
+                $agence->setSociete(null);
             }
         }
 

@@ -50,6 +50,19 @@ class Agence
     private string $libelleAgence;
 
     /**
+     * @ORM\Column(type="string", name="code_societe")
+     *
+     * @var string
+     */
+    private string $codeSociete;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Societte::class, inversedBy="agences")
+     * @ORM\JoinColumn(name="societe_id", referencedColumnName="id")
+     */
+    private ?Societte $societe;
+
+    /**
      * @ORM\OneToMany(targetEntity=AgenceService::class, mappedBy="agence", cascade={"persist", "remove"})
      */
     private Collection $agenceServices;
@@ -640,6 +653,42 @@ class Agence
     public function setDaAgenceDebiteur($daAgenceDebiteur): self
     {
         $this->daAgenceDebiteur = $daAgenceDebiteur;
+        return $this;
+    }
+
+    /**
+     * Get the value of codeSociete
+     */
+    public function getCodeSociete(): string
+    {
+        return $this->codeSociete;
+    }
+
+    /**
+     * Set the value of codeSociete
+     */
+    public function setCodeSociete(string $codeSociete): self
+    {
+        $this->codeSociete = $codeSociete;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of societe
+     */
+    public function getSociete(): ?Societte
+    {
+        return $this->societe;
+    }
+
+    /**
+     * Set the value of societe
+     */
+    public function setSociete(?Societte $societe): self
+    {
+        $this->societe = $societe;
+
         return $this;
     }
 }

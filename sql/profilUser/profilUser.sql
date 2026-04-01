@@ -211,3 +211,8 @@ update Casier_Materiels_Temporaire set code_societe='HF';
 alter table Casier_Materiels add code_societe varchar(2) null;
 
 update Casier_Materiels set code_societe='HF';
+
+-- Agence et service + Société --
+alter table agences add code_societe varchar(2) null;
+alter table agences add societe_id int null;
+
