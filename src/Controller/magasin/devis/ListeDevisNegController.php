@@ -111,7 +111,7 @@ class ListeDevisNegController extends Controller
         }
 
         // Code Société de l'utilisateur
-        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser() ?: 'HF';
         // code agence autoriser
         $codeAgenceAutoriserString = TableauEnStringService::orEnString(array_column($this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DVM), 'agence_code'));
 

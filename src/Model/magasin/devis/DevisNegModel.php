@@ -26,6 +26,8 @@ class DevisNegModel extends Model
                 ,TRIM(nent.nent_refcde)                                     AS reference_client
                 ,nent.nent_cdeht                                            AS montant_devis
                 ,TO_CHAR(dneg.date_envoye_devis_client, '%d/%m/%Y')         AS date_envoye_devis_au_client
+                ,dneg.stop_progression_global                               AS stop_progression_global
+                ,dneg.motif_stop_global                                     AS motif_stop_global
 
                 -- Pour statut_relance_1
                 ,CASE
@@ -48,14 +50,7 @@ class DevisNegModel extends Model
                         AND rl.delai_jours >= 7
                         AND (dneg.stop_progression_global = 0 OR dneg.stop_progression_global IS NULL)
                         THEN 'A relancer'
-                    WHEN dneg.statut_bc = 'En attente bc'
-                        AND rl.nb_relances = 1
-                        AND rl.delai_jours < 7
-                        THEN NULL
-                    WHEN dneg.statut_bc = 'En attente bc'
-                        AND dneg.stop_progression_global = 1
-                        THEN NULL
-                    ELSE NVL(TO_CHAR(rl.date_relance2, '%d/%m/%Y'), TO_CHAR(rl.derniere_relance, '%d/%m/%Y'))
+                    ELSE NULL
                 END AS statut_relance_2
 
                 -- Pour statut_relance_3
@@ -67,13 +62,7 @@ class DevisNegModel extends Model
                         AND rl.delai_jours >= 7
                         AND (dneg.stop_progression_global = 0 OR dneg.stop_progression_global IS NULL)
                         THEN 'A relancer'
-                    WHEN dneg.statut_bc = 'En attente bc'
-                        AND (rl.nb_relances < 2 OR (rl.nb_relances = 2 AND rl.delai_jours < 7))
-                        THEN NULL
-                    WHEN dneg.statut_bc = 'En attente bc'
-                        AND dneg.stop_progression_global = 1
-                        THEN NULL
-                    ELSE TO_CHAR(rl.derniere_relance, '%d/%m/%Y')
+                    ELSE NULL
                 END AS statut_relance_3
 
                 ,nent.nent_posl                                             AS position_ips
@@ -90,10 +79,11 @@ class DevisNegModel extends Model
 
             LEFT JOIN ir_prod108:Informix.devis_soumis_a_validation_neg dneg
                 ON dneg.numero_devis = nent.nent_numcde
+                AND dneg.numero_version = (SELECT MAX(numero_version) FROM ir_prod108:Informix.devis_soumis_a_validation_neg WHERE numero_devis = nent.nent_numcde)
 
             LEFT JOIN (
                 SELECT
-                    numero_devis
+                    numero_devis as num_dev
                     ,MAX(CASE WHEN numero_relance = 1 THEN date_de_relance ELSE NULL END) AS date_relance1
                     ,MAX(CASE WHEN numero_relance = 2 THEN date_de_relance ELSE NULL END) AS date_relance2
                     ,MAX(CASE WHEN numero_relance = 3 THEN date_de_relance ELSE NULL END) AS date_relance3
@@ -101,8 +91,8 @@ class DevisNegModel extends Model
                     ,MAX(date_de_relance) AS derniere_relance
                     ,(TODAY - DATE(MAX(date_de_relance))) AS delai_jours
                 FROM ir_prod108:Informix.pointage_relance
-                GROUP BY numero_devis
-            ) rl ON rl.numero_devis = nent.nent_numcde
+                GROUP BY 1
+            ) rl ON rl.num_dev = nent.nent_numcde
 
             WHERE nent.nent_natop    = 'DEV'
                 AND nent.nent_soc      = 'HF'
@@ -252,10 +242,13 @@ LEFT JOIN ips_hffprod:informix.agr_usr ausr
 
 LEFT JOIN ir_prod108:Informix.devis_soumis_a_validation_neg dneg
     ON dneg.numero_devis = nent.nent_numcde
+    AND dneg.code_societe = nent.nent_soc
+    AND dneg.numero_version = (SELECT MAX(numero_version) FROM ir_prod108:Informix.devis_soumis_a_validation_neg WHERE numero_devis = nent.nent_numcde AND code_societe = nent.nent_soc)
 
 LEFT JOIN (
     SELECT
         numero_devis
+        ,code_societe
         ,MAX(CASE WHEN numero_relance = 1 THEN date_de_relance ELSE NULL END) AS date_relance1
         ,MAX(CASE WHEN numero_relance = 2 THEN date_de_relance ELSE NULL END) AS date_relance2
         ,MAX(CASE WHEN numero_relance = 3 THEN date_de_relance ELSE NULL END) AS date_relance3
@@ -263,9 +256,8 @@ LEFT JOIN (
         ,MAX(date_de_relance) AS derniere_relance
         ,(TODAY - DATE(MAX(date_de_relance))) AS delai_jours
     FROM ir_prod108:Informix.pointage_relance
-    GROUP BY numero_devis
-) rl ON rl.numero_devis = nent.nent_numcde
-
+    GROUP BY 1,2
+) rl ON rl.numero_devis = nent.nent_numcde AND rl.code_societe = nent.nent_soc
 WHERE nent.nent_natop    = 'DEV'
     AND nent.nent_soc      = 'HF'
     AND nent.nent_servcrt  <> 'ASS'
@@ -478,4 +470,119 @@ WHERE nent.nent_natop    = 'DEV'
 
         return array_column($data, 'numDevis');
     }
+
+    public function stopRelance(string $numeroDevis, ?string $motif = null, string $utilisateur = 'inconnu'): bool
+    {
+        $this->connect->connect();
+        try {
+            // On récupère l'état actuel pour savoir si on stoppe ou si on réactive
+            $sqlCheck = "SELECT FIRST 1 stop_progression_global 
+                        FROM ir_prod108:Informix.devis_soumis_a_validation_neg dneg
+                        WHERE dneg.numero_devis = '$numeroDevis' 
+                        ORDER BY dneg.numero_version DESC";
+
+            $resultCheck = $this->connect->executeQuery($sqlCheck);
+            $row = $this->connect->fetchScalarResults($resultCheck);
+
+            $currentState = $row ? (int)$row['stop_progression_global'] : 0;
+            $newState = ($currentState === 1) ? 0 : 1;
+
+            $utilisateurSql = str_replace("'", "''", $utilisateur);
+
+            if ($newState === 1) {
+                // On stoppe
+                $motifStop = $motif ? $this->convertirEnUtf8(str_replace("'", "''", $motif)) : "";
+                $sql = "UPDATE ir_prod108:Informix.devis_soumis_a_validation_neg
+                        SET stop_progression_global = 1, 
+                            date_stop_global = CURRENT,
+                            motif_stop_global = '$motifStop',
+                            utilisateur_stop = '$utilisateurSql',
+                            date_reprise_manuel = NULL,
+                            utilisateur_reprise = NULL
+                        WHERE numero_devis = '$numeroDevis' 
+                        AND numero_version = (SELECT MAX(numero_version) FROM ir_prod108:Informix.devis_soumis_a_validation_neg WHERE numero_devis = '$numeroDevis')";
+            } else {
+                // On réactive : on efface le motif et on note l'utilisateur qui réactive
+                $sql = "UPDATE ir_prod108:Informix.devis_soumis_a_validation_neg
+                        SET stop_progression_global = 0, 
+                            motif_stop_global = NULL,
+                            date_reprise_manuel = CURRENT,
+                            utilisateur_reprise = '$utilisateurSql'
+                        WHERE numero_devis = '$numeroDevis' 
+                        AND numero_version = (SELECT MAX(numero_version) FROM ir_prod108:Informix.devis_soumis_a_validation_neg WHERE numero_devis = '$numeroDevis')";
+            }
+
+            $this->connect->executeQuery($sql);
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        } finally {
+            $this->connect->close();
+        }
+    }
+
+    public function getStatutRelance(string $numeroDevis, string $codeSociete): ?array
+    {
+        $this->connect->connect();
+        try {
+            $statement = "SELECT FIRST 1
+                        CASE 
+                            WHEN rs.date_relance_1 IS NOT NULL THEN TO_CHAR(rs.date_relance_1, '%d/%m/%Y')
+                            WHEN rs.statut_bc = 'En attente bc' AND rs.nb_relances = 0 AND rs.delai_jours >= 7
+                                 AND (rs.stop_progression_global = 0 OR rs.stop_progression_global IS NULL)
+                            THEN 'A relancer'
+                            ELSE NULL
+                        END AS statut_relance_1,
+                        
+                        CASE 
+                            WHEN rs.date_relance_2 IS NOT NULL THEN TO_CHAR(rs.date_relance_2, '%d/%m/%Y')
+                            WHEN rs.statut_bc = 'En attente bc' AND rs.nb_relances = 1 AND rs.delai_jours >= 7
+                                AND (rs.stop_progression_global = 0 OR rs.stop_progression_global IS NULL)
+                            THEN 'A relancer'
+                            WHEN rs.statut_bc = 'En attente bc' AND rs.stop_progression_global = 1 THEN NULL
+                            ELSE TO_CHAR(NVL(rs.date_relance_2, rs.derniere_relance), '%d/%m/%Y')
+                        END AS statut_relance_2,
+                        
+                        CASE 
+                            WHEN rs.date_relance_3 IS NOT NULL THEN TO_CHAR(rs.date_relance_3, '%d/%m/%Y')
+                            WHEN rs.statut_bc = 'En attente bc' AND rs.nb_relances = 2 AND rs.delai_jours >= 7
+                                AND (rs.stop_progression_global = 0 OR rs.stop_progression_global IS NULL)
+                            THEN 'A relancer'
+                            WHEN rs.statut_bc = 'En attente bc' AND rs.stop_progression_global = 1 THEN NULL
+                            ELSE TO_CHAR(rs.derniere_relance, '%d/%m/%Y')
+                        END AS statut_relance_3
+
+                    FROM (
+                        SELECT 
+                            nent.nent_numcde,
+                            dneg.date_envoye_devis_client,
+                            dneg.statut_bc,
+                            dneg.numero_version,
+                            dneg.stop_progression_global,
+                            COUNT(pr.numero_devis) AS nb_relances,
+                            MAX(pr.date_de_relance) AS derniere_relance,
+                            MAX(CASE WHEN pr.numero_relance = 1 THEN pr.date_de_relance END) AS date_relance_1,
+                            MAX(CASE WHEN pr.numero_relance = 2 THEN pr.date_de_relance END) AS date_relance_2,
+                            MAX(CASE WHEN pr.numero_relance = 3 THEN pr.date_de_relance END) AS date_relance_3,
+                            CASE 
+                                WHEN COUNT(pr.numero_devis) = 0 THEN (TODAY - DATE(NVL(dneg.date_envoye_devis_client, nent.nent_datecde)))
+                                ELSE (TODAY - DATE(MAX(pr.date_de_relance)))
+                            END AS delai_jours
+                        FROM ips_hffprod:informix.neg_ent nent
+                        LEFT JOIN ir_prod108:Informix.devis_soumis_a_validation_neg dneg ON dneg.numero_devis = nent.nent_numcde
+                        LEFT JOIN ir_prod108:Informix.pointage_relance pr ON pr.numero_devis = nent.nent_numcde
+                        WHERE nent.nent_numcde = '$numeroDevis' AND nent.nent_soc = '$codeSociete'
+                        GROUP BY nent.nent_numcde, dneg.date_envoye_devis_client, dneg.statut_bc, dneg.numero_version, dneg.stop_progression_global, nent.nent_datecde
+                    ) rs
+                    ORDER BY rs.numero_version DESC";
+
+            $result = $this->connect->executeQuery($statement);
+            return $this->connect->fetchScalarResults($result);
+        } catch (\Exception $e) {
+            return [];
+        } finally {
+            $this->connect->close();
+        }
+    }
+
 }

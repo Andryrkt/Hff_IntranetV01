@@ -21,6 +21,8 @@ class DevisNegMapper
             $dto->referenceClient = $item['reference_client'] ?? '';
             $dto->montantDevis = (float)($item['montant_devis'] ?? 0.00);
             $dto->dateEnvoiDevisAuClient = $item['date_envoye_devis_au_client'] ?? null;
+            $dto->stopProgressionGlobal = (int)($item['stop_progression_global'] ?? 0);
+            $dto->motifStopGlobal = $item['motif_stop_global'] ?? null;
             $dto->positionIps = $item['position_ips'] ?? '';
 
             $dto->statutRelance1 = $item['statut_relance_1'] ?? null;

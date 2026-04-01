@@ -134,7 +134,11 @@ const urlVerificationPrix = urlBases.verificationPrix.replace('PLACEHOLDER', row
 const urlValidationDevis = urlBases.validationDevis.replace('PLACEHOLDER_NUM', row.numeroDevis).replace('PLACEHOLDER_AG', encodeURIComponent(row.emetteur));
 const urlSoumissionBC = urlBases.soumissionBC.replace('PLACEHOLDER', row.numeroDevis);
 const urlPointageDevis = row.pointagedevis ? urlBases.pointageDevis.replace('PLACEHOLDER', row.numeroDevis) : '#';
-// TODO: effacer le false sur le relanceClient dans le html
+
+const isChecked = row.stopProgressionGlobal === 1;
+const isRelance3Done = row.statutRelance3 && row.statutRelance3 !== 'A relancer';
+const checkboxClass = isChecked ? 'bg-danger border border-danger' : 'bg-secondary-subtle';
+
 html += `
 								<tr>
 									<td class="align-middle" style="padding: 0px">
@@ -147,7 +151,7 @@ html += `
 													<a class="dropdown-item fw-bold" href="${urlVerificationPrix}">Soumission devis pour verification prix</a>
 													<a class="dropdown-item fw-bold" href="${urlValidationDevis}">Soumission devis pour validation</a>
 													<a class="dropdown-item fw-bold js-link-relance-client ${
-row.relanceClient === false ? '' : 'd-none'
+row.relanceClient ? '' : 'd-none'
 }" href="#" data-bs-toggle="modal" data-bs-target="#pointageRelanceModal" data-bs-numero-devis="${
 row.numeroDevis
 }">Pointer relance devis client</a>
@@ -188,31 +192,31 @@ row.referenceClient || ''
 									<td class="text-center">${
 row.dateEnvoiDevisAuClient || ''
 }</td>
-									<td class="text-center fw-bold ${
+									<td class="text-center fw-bold js-relance-1 ${
 row.styleStatutPR1
 }">${
 row.statutRelance1 || ''
 }</td>
-									<td class="text-center fw-bold ${
+									<td class="text-center fw-bold js-relance-2 ${
 row.styleStatutPR2
 }">${
 row.statutRelance2 || ''
 }</td>
-									<td class="text-center fw-bold ${
+									<td class="text-center fw-bold js-relance-3 ${
 row.styleStatutPR3
 }">${
 row.statutRelance3 || ''
 }</td>
 									<td class="text-center">
 										${
-row.statutRelance1 ? `
-											<div class="form-check form-switch d-flex justify-content-center">
-												<input class="form-check-input js-checkbox-stop-relance" type="checkbox" role="switch" data-numero-devis="${
-row.numeroDevis
-}">
+									row.statutRelance1 ? `
+											<div class="form-check form-switch d-flex justify-content-center" ${row.stopProgressionGlobal === 1 ? `title="${row.motifStopGlobal || ''}" data-bs-toggle="tooltip"` : ''}>
+												<input class="form-check-input js-checkbox-stop-relance ${checkboxClass}" type="checkbox" role="switch" data-numero-devis="${
+									row.numeroDevis
+									}" ${isChecked ? 'checked' : ''} ${isRelance3Done ? 'disabled' : ''}>
 											</div>
 										` : ''
-}
+									}
 									</td>
 									<td class="text-center">${
 row.positionIps || ''
@@ -228,6 +232,11 @@ row.soumisPar || ''
 							`;
 });
 tableBody.insertAdjacentHTML('beforeend', html);
+
+// Initialisation des tooltips pour les nouveaux éléments
+const tooltips = tableBody.querySelectorAll('[data-bs-toggle="tooltip"]');
+tooltips.forEach(el => new bootstrap.Tooltip(el));
+
 currentPage++;
 }
 } catch (error) {

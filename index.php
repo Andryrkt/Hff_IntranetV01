@@ -23,8 +23,8 @@ $response           = new Response();
 $request = Request::createFromGlobals();
 
 try {
-    // 1. Matcher la route
-    $currentRoute = $matcher->match($request->getPathInfo());
+    // 1. Matcher la route (utilise l'objet Request complet pour gérer les méthodes HTTP, etc.)
+    $currentRoute = $matcher->matchRequest($request);
     $request->attributes->add($currentRoute);
 
     // 2. Contrôler l'accès
@@ -54,6 +54,17 @@ try {
     $htmlContent = $twig->render('erreur/404.html.twig');
     $response->setContent($htmlContent);
     $response->setStatusCode(404);
+} catch (\Symfony\Component\Routing\Exception\MethodNotAllowedException $e) {
+    // Méthode HTTP non autorisée
+    $allowedMethods = $e->getAllowedMethods();
+    $response->setContent(json_encode([
+        'success' => false,
+        'message' => 'Méthode HTTP non autorisée. Méthodes autorisées : ' . implode(', ', $allowedMethods),
+        'method' => $request->getMethod(),
+        'allowed' => $allowedMethods
+    ]));
+    $response->headers->set('Content-Type', 'application/json');
+    $response->setStatusCode(405);
 } catch (AccessDeniedException $e) {
     // Accès refusé
     $htmlContent = $twig->render('erreur/403.html.twig');

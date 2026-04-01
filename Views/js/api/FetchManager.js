@@ -78,6 +78,17 @@ export class FetchManager {
       },
       body: JSON.stringify(data),
     });
+
+    if (!response.ok) {
+      // Tenter de lire le corps de la réponse si c'est du JSON
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        return await response.json();
+      }
+      // Sinon, lancer une erreur avec le statut
+      throw new Error(`HTTP Error: ${response.status} ${response.statusText}`);
+    }
+
     return await response.json();
   }
 

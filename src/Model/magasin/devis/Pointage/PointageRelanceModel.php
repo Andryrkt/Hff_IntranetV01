@@ -77,33 +77,66 @@ class PointageRelanceModel extends Model
         }
     }
 
+    /**
+     * Récupère le numéro version dans la table pointage_relance
+     *
+     * @param string $numeroDevis
+     * @param string $codeSociete
+     * @return integer
+     */
     public function getNumeroVersionPointageRelance(string $numeroDevis, string $codeSociete): int
     {
         $statement = "SELECT FIRST 1 MAX(numero_version) as version 
         FROM ir_prod108:Informix.pointage_relance pr 
-        WHERE pr.numero_devis = '$numeroDevis' 
-        --AND dneg.code_societe = '$codeSociete'
+        WHERE pr.numero_devis = '$numeroDevis'
         ";
 
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);
 
-        return array_column($this->convertirEnUtf8($data), 'version')[0];
+        return array_column($this->convertirEnUtf8($data), 'version')[0] ?? 0;
     }
 
+    /**
+     * Récupére le numéro vérsion dans la table devis_soumis_a_validation_neg
+     *
+     * @param string $numeroDevis
+     * @param string $codeSociete
+     * @return integer
+     */
     public function getNumeroVersionDevis(string $numeroDevis, string $codeSociete): int
     {
         $statement = "SELECT FIRST 1 MAX(numero_version) as version 
         FROM ir_prod108:Informix.devis_soumis_a_validation_neg dneg 
-        WHERE dneg.numero_devis = '$numeroDevis' 
-        --AND dneg.code_societe = '$codeSociete'
+        WHERE dneg.numero_devis = '$numeroDevis'
         ";
 
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);
 
-        return array_column($this->convertirEnUtf8($data), 'version')[0];
+        return array_column($this->convertirEnUtf8($data), 'version')[0] ?? 0;
+    }
+
+
+    public function getRelancePourStop(string $numeroDevis, string $codeSociete): array
+    {
+        $this->connect->connect();
+
+        try {
+            $statement = "SELECT statut_dw, statut_bc, stop_progression_global, motif_stop_global
+                    FROM ir_prod108:Informix.devis_soumis_a_validation_neg dneg
+                    WHERE dneg.numero_devis = '$numeroDevis' 
+                    AND dneg.numero_version = (SELECT MAX(numero_version) FROM ir_prod108:Informix.devis_soumis_a_validation_neg WHERE numero_devis = '$numeroDevis')
+            ";
+
+            $result = $this->connect->executeQuery($statement);
+            $rows = $this->connect->fetchScalarResults($result);
+
+            return $rows;
+        } finally {
+            $this->connect->close();
+        }
     }
 }
