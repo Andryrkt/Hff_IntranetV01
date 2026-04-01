@@ -225,3 +225,21 @@ VALUES
 (N'SOMAVA', N'SV', '2026-04-01', '2026-04-01'),
 (N'SOMECA', N'SO', '2026-04-01', '2026-04-01');
 
+INSERT INTO services
+(code_service, libelle_service, date_creation, date_modification)
+VALUES
+(N'C2', N'TRAVEL SERVICE', '2026-04-01', '2026-04-01'),
+(N'C3', N'SAMA', '2026-04-01', '2026-04-01'),
+(N'C4', N'SMR ET HR', '2026-04-01', '2026-04-01'),
+(N'C5', N'SOMAVA', '2026-04-01', '2026-04-01'),
+(N'C6', N'NATEMA', '2026-04-01', '2026-04-01');
+
+INSERT INTO agences
+(code_agence, libelle_agence, date_creation, date_modification)
+VALUES
+(N'C2', N'TRAVEL SERVICE', '2026-04-01', '2026-04-01'),
+(N'C3', N'SAMA', '2026-04-01', '2026-04-01'),
+(N'C4', N'SMR ET HR', '2026-04-01', '2026-04-01'),
+(N'C5', N'SOMAVA', '2026-04-01', '2026-04-01'),
+(N'C6', N'NATEMA', '2026-04-01', '2026-04-01'),
+(N'C7', N'SOMECA', '2026-04-01', '2026-04-01');
