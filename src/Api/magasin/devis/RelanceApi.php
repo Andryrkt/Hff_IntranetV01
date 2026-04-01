@@ -87,7 +87,7 @@ class RelanceApi extends Controller
                 $devisData = $res->fetchAssociative();
 
                 if ($devisData) {
-                    $hasARelancer = in_array(PointageRelanceStatutConstant::STATUT_POINTAGE_RELANCE_A_RELANCER, [
+                    $hasARelancer = in_array(PointageRelanceStatutConstant::POINTAGE_RELANCE_A_RELANCER, [
                         $newStatuts['statut_relance_1'] ?? null,
                         $newStatuts['statut_relance_2'] ?? null,
                         $newStatuts['statut_relance_3'] ?? null

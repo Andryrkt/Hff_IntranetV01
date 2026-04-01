@@ -134,7 +134,7 @@ const urlVerificationPrix = urlBases.verificationPrix.replace('PLACEHOLDER', row
 const urlValidationDevis = urlBases.validationDevis.replace('PLACEHOLDER_NUM', row.numeroDevis).replace('PLACEHOLDER_AG', encodeURIComponent(row.emetteur));
 const urlSoumissionBC = urlBases.soumissionBC.replace('PLACEHOLDER', row.numeroDevis);
 const urlPointageDevis = row.pointagedevis ? urlBases.pointageDevis.replace('PLACEHOLDER', row.numeroDevis) : '#';
-
+// TODO: effacer le false sur le relanceClient dans le html
 html += `
 								<tr>
 									<td class="align-middle" style="padding: 0px">
@@ -147,7 +147,7 @@ html += `
 													<a class="dropdown-item fw-bold" href="${urlVerificationPrix}">Soumission devis pour verification prix</a>
 													<a class="dropdown-item fw-bold" href="${urlValidationDevis}">Soumission devis pour validation</a>
 													<a class="dropdown-item fw-bold js-link-relance-client ${
-row.relanceClient ? '' : 'd-none'
+row.relanceClient === false ? '' : 'd-none'
 }" href="#" data-bs-toggle="modal" data-bs-target="#pointageRelanceModal" data-bs-numero-devis="${
 row.numeroDevis
 }">Pointer relance devis client</a>
