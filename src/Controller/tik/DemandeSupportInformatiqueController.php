@@ -78,7 +78,7 @@ class DemandeSupportInformatiqueController extends Controller
                 'numTik'        => $dataForm->getNumeroTicket(),
                 'objet'         => $dataForm->getObjetDemande(),
                 'detail'        => $dataForm->getDetailDemande(),
-                'userConnecter' => $user->getPersonnels()->getNom() . ' ' . $user->getPersonnels()->getPrenoms(),
+                'userConnecter' => '', // TODO: nom et prénoms de l'utilisateur connecté
             ]);
 
             $this->historiqueOperation->sendNotificationCreation('Votre demande a été enregistrée', $supportInfo->getNumeroTicket(), 'liste_tik_index', true);
