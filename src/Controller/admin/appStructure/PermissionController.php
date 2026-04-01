@@ -44,7 +44,7 @@ class PermissionController extends Controller
         $oldLinksPage = $appProfil->getLiaisonsPage(); // collection de liaison (objet ApplicationProfilPage)
 
         $dto = $this->permissionsFactory->createDTOFromAppProfil($appProfil, $oldLinksAgServ, $oldLinksPage);
-        $form = $this->getFormFactory()->createBuilder(PermissionsType::class, $dto)->getForm();
+        $form = $this->getFormFactory()->createBuilder(PermissionsType::class, $dto, ['societe' => $appProfil->getProfil()->getSociete()])->getForm();
 
         $form->handleRequest($request);
 
@@ -58,14 +58,20 @@ class PermissionController extends Controller
             $this->redirectToRoute("permission_index");
         }
 
+        $profil = $dto->applicationProfil->getProfil();
+        $societe = $profil->getSociete();
+        $application = $dto->applicationProfil->getApplication();
+
         return $this->render('admin/permissions/new.html.twig', [
-            'reference'  => $dto->applicationProfil->getProfil()->getReference(),
-            'nomProfil'  => $dto->applicationProfil->getProfil()->getDesignation(),
-            'codeApp'    => $dto->applicationProfil->getApplication()->getCodeApp(),
-            'nomApp'     => $dto->applicationProfil->getApplication()->getNom(),
+            'codeSociete' => $societe->getCodeSociete(),
+            'nomSociete' => $societe->getNom(),
+            'reference'  => $profil->getReference(),
+            'nomProfil'  => $profil->getDesignation(),
+            'codeApp'    => $application->getCodeApp(),
+            'nomApp'     => $application->getNom(),
             'colonnes'   => ApplicationProfilPagetype::permissionsDisponibles(),
             'pagesVide'  => $dto->lignes->isEmpty(),
-            'urlAppEdit' => $this->getUrlGenerator()->generate('application_update', ['id' => $dto->applicationProfil->getApplication()->getId()]),
+            'urlAppEdit' => $this->getUrlGenerator()->generate('application_update', ['id' => $application->getId()]),
             'form'       => $form->createView(),
         ]);
     }

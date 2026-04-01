@@ -27,6 +27,11 @@
 					{{ form_start(form) }}
 					{{ form_errors(form)}}
 
+					<div class="row">
+						<div class="col-3">
+							{{ macroForm.affichage2('Société', codeSociete ~ ' - ' ~ nomSociete, 'mb-2') }}
+						</div>
+					</div>
 					<div class="row mb-3">
 						<div class="col">
 							{{ macroForm.affichage2('Référence du profil', reference, 'mb-2') }}
