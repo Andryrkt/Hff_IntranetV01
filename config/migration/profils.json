@@ -31598,30 +31598,6 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "contact_agence_ate_new",
-            "peut_voir": true,
-            "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
-            "peut_supprimer": false,
-            "peut_exporter": false
-          },
-          {
-            "nom_route": "contact_agence_ate_update",
-            "peut_voir": true,
-            "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
-            "peut_supprimer": false,
-            "peut_exporter": false
-          },
-          {
-            "nom_route": "contact_agence_ate_index",
-            "peut_voir": true,
-            "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
-            "peut_supprimer": false,
-            "peut_exporter": false
-          },
-          {
             "nom_route": "consultation_page_index",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
