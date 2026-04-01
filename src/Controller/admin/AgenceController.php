@@ -43,6 +43,8 @@ class AgenceController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             $selectedService = $form->get('services')->getData();
+            $societe = $agence->getSociete();
+            $agence->setCodeSociete($societe->getCodeSociete());
 
             foreach ($selectedService as $service) {
                 $agenceService = new AgenceService($agence, $service);
@@ -86,6 +88,8 @@ class AgenceController extends Controller
         // Vérifier si le formulaire est soumis et valide
         if ($form->isSubmitted() && $form->isValid()) {
             $selectedServices = $form->get('services')->getData(); // Collection de services
+            $societe = $agence->getSociete();
+            $agence->setCodeSociete($societe->getCodeSociete());
 
             // Supprimer les liens qui ne sont plus sélectionnés
             foreach ($agence->getAgenceServices() as $ap) {
@@ -128,6 +132,7 @@ class AgenceController extends Controller
 
         /** @var Agence $agence */
         foreach ($data as $agence) {
+            $societe = $agence->getSociete();
             $baseData = [
                 'urlUpdate'      => $this->getUrlGenerator()->generate(
                     'agence_update',
@@ -135,6 +140,8 @@ class AgenceController extends Controller
                 ),
                 'codeAgence'     => $agence->getCodeAgence(),
                 'libelleAgence'  => $agence->getLibelleAgence(),
+                'codeSociete'    => $societe ? $societe->getCodeSociete() : '---',
+                'libelleSociete' => $societe ? $societe->getNom() : '---',
             ];
 
             $services = $agence->getServices();
