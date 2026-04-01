@@ -216,3 +216,12 @@ update Casier_Materiels set code_societe='HF';
 alter table agences add code_societe varchar(2) null;
 alter table agences add societe_id int null;
 
+INSERT INTO societe
+(nom, code_societe, date_creation, date_modification)
+VALUES
+(N'TRAVEL SERVICE', N'TS', '2026-04-01', '2026-04-01'),
+(N'SMR ET HR', N'SM', '2026-04-01', '2026-04-01'),
+(N'SAMA', N'SA', '2026-04-01', '2026-04-01'),
+(N'SOMAVA', N'SV', '2026-04-01', '2026-04-01'),
+(N'SOMECA', N'SO', '2026-04-01', '2026-04-01');
+
