@@ -253,6 +253,7 @@ create table agence_service_defaut_societe (
     code_service varchar(50) not null,
     id_agence int not null,
     id_service int not null,
+    constraint fk_agence_service_defaut_societe_user foreign key (id_user) references users(id),
     constraint fk_agence_service_defaut_societe_agence foreign key (id_agence) references agences(id),
     constraint fk_agence_service_defaut_societe_service foreign key (id_service) references services(id),
     constraint fk_agence_service_defaut_societe_societe foreign key (id_societe) references societe(id),
