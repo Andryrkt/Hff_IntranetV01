@@ -60,19 +60,6 @@ document.addEventListener("DOMContentLoaded", function () {
     .closest("fieldset")
     .querySelector("legend");
 
-  function disableTacheValidateurInput(shouldEnable) {
-    tacheValidateurInput.forEach((input) => {
-      input.disabled = !shouldEnable;
-      input.required = shouldEnable;
-    });
-
-    if (shouldEnable) {
-      legendElement.classList.remove("text-secondary");
-    } else {
-      legendElement.classList.add("text-secondary");
-    }
-  }
-
   devisPMCheckboxOui.addEventListener("change", function () {
     if (this.checked) {
       disableTacheValidateurInput(true);
@@ -88,6 +75,19 @@ document.addEventListener("DOMContentLoaded", function () {
       disableTacheValidateurInput(true);
     }
   });
+
+  function disableTacheValidateurInput(shouldEnable) {
+    tacheValidateurInput.forEach((input) => {
+      input.disabled = !shouldEnable;
+      input.required = shouldEnable;
+    });
+
+    if (shouldEnable) {
+      legendElement.classList.remove("text-secondary");
+    } else {
+      legendElement.classList.add("text-secondary");
+    }
+  }
 });
 
 /**==================================================

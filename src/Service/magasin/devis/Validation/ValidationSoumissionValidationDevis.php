@@ -23,14 +23,14 @@ class ValidationSoumissionValidationDevis
         // le numéro de devis n'existe pas ou est vide
         if (empty($numeroDevis)) {
             $message = "Le numero de devis est obligatoire pour la soumission.";
-            $this->sendNotificationDevisMagasin($message, '', 'liste_devis_neg', false);
+            $this->sendNotificationDevisMagasin($message, '-', false);
             return true; // Validation failed
         }
 
         // le statut du devis est "Prix à confirmer"
         if ($ancienDevis && $ancienDevis['statut'] === 'Prix à confirmer') {
             $message = 'Une confirmation de prix pour ce devis est déjà en cours au magasin.';
-            $this->sendNotificationDevisMagasin($message, $numeroDevis, 'liste_devis_neg', false);
+            $this->sendNotificationDevisMagasin($message, $numeroDevis, false);
             return true; // Validation failed
         }
 
@@ -41,7 +41,7 @@ class ValidationSoumissionValidationDevis
             && $ancienDevis['montant_devis'] === $nouveauDevis['montant_devis']
         ) {
             $message = 'Les prix ont déjà été validés par le parts manager. Veuillez envoyer le devis au client';
-            $this->sendNotificationDevisMagasin($message, $numeroDevis, 'liste_devis_neg', false);
+            $this->sendNotificationDevisMagasin($message, $numeroDevis, false);
             return true; // Validation failed
         }
 
@@ -52,7 +52,7 @@ class ValidationSoumissionValidationDevis
             && $ancienDevis['montant_devis'] !== $nouveauDevis['montant_devis']
         ) {
             $message = 'Les prix ont déjà été validés par le parts manager. Veuillez envoyer le devis au client';
-            $this->sendNotificationDevisMagasin($message, $numeroDevis, 'liste_devis_neg', false);
+            $this->sendNotificationDevisMagasin($message, $numeroDevis, false);
             return true; // Validation failed
         }
 
@@ -63,7 +63,7 @@ class ValidationSoumissionValidationDevis
             && $ancienDevis['montant_devis'] === $nouveauDevis['montant_devis']
         ) {
             $message =  'Une ligne a été ajoutée dans votre devis. Veuillez demander une confirmation des prix.';
-            $this->sendNotificationDevisMagasin($message, $numeroDevis, 'liste_devis_neg', false);
+            $this->sendNotificationDevisMagasin($message, $numeroDevis, false);
             return true; // Validation failed
         }
 
@@ -74,7 +74,7 @@ class ValidationSoumissionValidationDevis
             && $ancienDevis['montant_devis'] === $nouveauDevis['montant_devis']
         ) {
             $message = "Une ligne a été ajoutée dans votre devis ou les prix n'ont pas été modifiés dans IPS. Veuillez demander une confirmation des prix.";
-            $this->sendNotificationDevisMagasin($message, $numeroDevis, 'liste_devis_neg', false);
+            $this->sendNotificationDevisMagasin($message, $numeroDevis, false);
             return true; // Validation failed
         }
 
@@ -83,7 +83,7 @@ class ValidationSoumissionValidationDevis
             $ancienDevis && $ancienDevis['statut'] === 'Demande refusée par le PM'
         ) {
             $message = 'Veuillez demander une confirmation des prix du devis.';
-            $this->sendNotificationDevisMagasin($message, $numeroDevis, 'liste_devis_neg', false);
+            $this->sendNotificationDevisMagasin($message, $numeroDevis, false);
             return true; // Validation failed
         }
 
@@ -92,7 +92,7 @@ class ValidationSoumissionValidationDevis
             $ancienDevis && $ancienDevis['statut'] === 'A valider chef d\'agence'
         ) {
             $message = "Un devis est en cours de validation chez le chef d'agence";
-            $this->sendNotificationDevisMagasin($message, $numeroDevis, 'liste_devis_neg', false);
+            $this->sendNotificationDevisMagasin($message, $numeroDevis, false);
             return true; // Validation failed
         }
 
@@ -102,7 +102,7 @@ class ValidationSoumissionValidationDevis
             && $ancienDevis['montant_devis'] === $nouveauDevis['montant_devis']
         ) {
             $message = "Le devis a déjà été validé. Veuillez l'envoyer au client";
-            $this->sendNotificationDevisMagasin($message, $numeroDevis, 'liste_devis_neg', false);
+            $this->sendNotificationDevisMagasin($message, $numeroDevis, false);
             return true; // Validation failed
         }
 
@@ -113,7 +113,7 @@ class ValidationSoumissionValidationDevis
             && $ancienDevis['montant_devis'] === $nouveauDevis['montant_devis']
         ) {
             $message = "Une ligne a été ajoutée au devis dans IPS. Veuillez demander une confirmation des prix";
-            $this->sendNotificationDevisMagasin($message, $numeroDevis, 'liste_devis_neg', false);
+            $this->sendNotificationDevisMagasin($message, $numeroDevis, false);
             return true; // Validation failed
         }
 

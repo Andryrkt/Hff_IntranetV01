@@ -37,7 +37,7 @@ class VerificationPrixType extends AbstractType
         $PJ1constraints = [];
 
         $isDisabled = $options['data']->validationPm;
-        $isRequired = ($options['data']->typeSoumission === 'VP' && !$isDisabled);
+        $isRequired =  !$isDisabled;
 
         $formOptions = [
             'label' => 'Tâche du validateur *',
@@ -156,7 +156,7 @@ class VerificationPrixType extends AbstractType
                     ],
                 ]
             )
-            ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) use ($isRequired, $isDisabled) {
+            ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
                 $devisMagasin = $event->getData();
                 $form = $event->getForm();
 
@@ -165,16 +165,8 @@ class VerificationPrixType extends AbstractType
                     'choices' => self::TACHE_VALIDATEUR,
                     'data' => isset($devisMagasin['tacheValidateur']) ? $devisMagasin['tacheValidateur'] : ['Vérification prix'],
                     'expanded' => true,
-                    'multiple' => true,
-                    // 'disabled' => $isDisabled,
-                    'required' => $isRequired,
+                    'multiple' => true
                 ];
-
-                if ($isRequired) {
-                    $formOptions['constraints'] = [
-                        new NotBlank(['message' => 'Veuillez sélectionner une tâche validateur'])
-                    ];
-                }
 
                 $form->add('tacheValidateur', ChoiceType::class, $formOptions);
             })

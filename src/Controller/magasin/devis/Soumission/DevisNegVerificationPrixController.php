@@ -49,7 +49,7 @@ class DevisNegVerificationPrixController extends Controller
      */
     public function soumission(?string $typeSoumission = null, ?string $numeroDevis = null, Request $request)
     {
-        $codeSociette = $this->getSecurityService()->getCodeSocieteUser();
+        $codeSociette = $this->getSecurityService()->getCodeSocieteUser() ?? 'HF';
 
         if ((new ValidationSoumissionVerificationPrix())->validateSoumissionVerificationPrixAvantAffichageFormulaire($numeroDevis, $codeSociette)) return $this->redirectToRoute('liste_devis_neg');
 

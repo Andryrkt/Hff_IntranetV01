@@ -95,7 +95,7 @@ class DevisNegModel extends Model
             ) rl ON rl.num_dev = nent.nent_numcde
 
             WHERE nent.nent_natop    = 'DEV'
-                AND nent.nent_soc      = 'HF'
+                --AND nent.nent_soc      = 'HF'
                 AND nent.nent_servcrt  <> 'ASS'
                 AND nent.nent_numcli   NOT BETWEEN 1990000 AND 1999999
                 AND nent.nent_numcli   <> 1990000
@@ -533,25 +533,22 @@ WHERE nent.nent_natop    = 'DEV'
                             THEN 'A relancer'
                             ELSE NULL
                         END AS statut_relance_1,
-                        
+
                         CASE 
                             WHEN rs.date_relance_2 IS NOT NULL THEN TO_CHAR(rs.date_relance_2, '%d/%m/%Y')
                             WHEN rs.statut_bc = 'En attente bc' AND rs.nb_relances = 1 AND rs.delai_jours >= 7
-                                AND (rs.stop_progression_global = 0 OR rs.stop_progression_global IS NULL)
+                                 AND (rs.stop_progression_global = 0 OR rs.stop_progression_global IS NULL)
                             THEN 'A relancer'
-                            WHEN rs.statut_bc = 'En attente bc' AND rs.stop_progression_global = 1 THEN NULL
-                            ELSE TO_CHAR(NVL(rs.date_relance_2, rs.derniere_relance), '%d/%m/%Y')
+                            ELSE NULL
                         END AS statut_relance_2,
-                        
+
                         CASE 
                             WHEN rs.date_relance_3 IS NOT NULL THEN TO_CHAR(rs.date_relance_3, '%d/%m/%Y')
                             WHEN rs.statut_bc = 'En attente bc' AND rs.nb_relances = 2 AND rs.delai_jours >= 7
-                                AND (rs.stop_progression_global = 0 OR rs.stop_progression_global IS NULL)
+                                 AND (rs.stop_progression_global = 0 OR rs.stop_progression_global IS NULL)
                             THEN 'A relancer'
-                            WHEN rs.statut_bc = 'En attente bc' AND rs.stop_progression_global = 1 THEN NULL
-                            ELSE TO_CHAR(rs.derniere_relance, '%d/%m/%Y')
+                            ELSE NULL
                         END AS statut_relance_3
-
                     FROM (
                         SELECT 
                             nent.nent_numcde,
@@ -584,5 +581,4 @@ WHERE nent.nent_natop    = 'DEV'
             $this->connect->close();
         }
     }
-
 }
