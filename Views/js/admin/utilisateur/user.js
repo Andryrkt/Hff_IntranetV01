@@ -1,12 +1,16 @@
 import { initSelect2WithSelectAll } from "../../utils/select2SelectAll";
 
 document.addEventListener("DOMContentLoaded", function () {
-  initSelect2WithSelectAll(".selectUser", {
+  $(".selectUser").select2({
     placeholder: "-- Choisir nom d'utilisateur --",
+    allowClear: true,
+    theme: "bootstrap",
   });
 
-  initSelect2WithSelectAll(".selectPersonnel", {
+  $(".selectPersonnel").select2({
     placeholder: "-- Choisir matricule --",
+    allowClear: true,
+    theme: "bootstrap",
   });
 
   initSelect2WithSelectAll(".selectProfils", {
