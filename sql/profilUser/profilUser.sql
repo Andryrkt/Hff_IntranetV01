@@ -258,3 +258,20 @@ create table agence_service_defaut_societe (
     constraint fk_agence_service_defaut_societe_societe foreign key (id_societe) references societe(id),
     constraint pk_agence_service_defaut_societe primary key (id)
 );
+
+INSERT INTO agence_service_defaut_societe
+(id_user, code_sage, id_societe, code_agence, code_service, id_agence, id_service)
+SELECT
+    u.id                    AS id_user,
+    asi.service_sage_paie   AS code_sage,
+    soc.id                  AS id_societe,       
+    asi.agence_ips          AS code_agence,   
+    asi.service_ips         AS code_service,
+    a.id                    AS id_agence,
+    s.id                    AS id_service
+FROM users u
+LEFT JOIN Agence_Service_Irium asi ON asi.id = u.agence_utilisateur
+JOIN agences a on a.code_agence=asi.agence_ips 
+JOIN services s on s.code_service=asi.service_ips
+JOIN societe soc on soc.code_societe=asi.societe_ios
+;
