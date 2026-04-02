@@ -10,19 +10,21 @@ document.addEventListener("DOMContentLoaded", async function () {
   const dateFinSouhaiteeInput = document.getElementById(
     "demande_appro_achat_form_dateFinSouhaite"
   );
-  const dateFinSouhaiteevalue = dateFinSouhaiteeInput.value;
   const dateJour = new Date();
+  const tomorrow = new Date(); // Créer une date = aujourd’hui + 1 jour
+  tomorrow.setDate(tomorrow.getDate() + 1);
 
   // Ajouter un écouteur d'événement pour la validation de la date
   dateFinSouhaiteeInput.addEventListener("change", function (e) {
     const selectedDate = new Date(e.target.value);
+
     if (selectedDate < dateJour) {
       Swal.fire({
         icon: "warning",
         title: "Attention !",
         text: `La date fin souhaitée ne peut pas être antérieure à la date du jour.`,
       });
-      e.target.value = dateFinSouhaiteevalue; // réinitialiser à la valeur précédente
+      e.target.value = tomorrow.toISOString().split("T")[0]; // réinitialiser à la valeur précédente
     }
   });
 
