@@ -23,7 +23,7 @@ class AgenceServiceDefautSociete
     private $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity=User::class)
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="agenceServiceDefautSocietes")
      * @ORM\JoinColumn(name="id_user", nullable=false)
      */
     private $user;

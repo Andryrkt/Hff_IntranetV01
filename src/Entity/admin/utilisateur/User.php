@@ -148,6 +148,11 @@ class User implements UserInterface
      */
     private Collection $profils;
 
+    /**
+     * @ORM\OneToMany(targetEntity=AgenceServiceDefautSociete::class, mappedBy="user")
+     */
+    private Collection $agenceServiceDefautSocietes;
+
     //=================================================================================================================================
 
     public function __construct()
@@ -156,6 +161,7 @@ class User implements UserInterface
         $this->roles = new ArrayCollection();
         $this->serviceAutoriser = new ArrayCollection();
         $this->profils = new ArrayCollection();
+        $this->agenceServiceDefautSocietes = new ArrayCollection();
     }
 
 
@@ -260,6 +266,33 @@ class User implements UserInterface
             $this->profils->removeElement($profil);
             if ($profil->getUsers()->contains($this)) {
                 $profil->removeUser($this);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getAgenceServiceDefautSocietes(): Collection
+    {
+        return $this->agenceServiceDefautSocietes;
+    }
+
+    public function addAgenceServiceDefautSociete(AgenceServiceDefautSociete $agenceServiceDefautSociete): self
+    {
+        if (!$this->agenceServiceDefautSocietes->contains($agenceServiceDefautSociete)) {
+            $this->agenceServiceDefautSocietes[] = $agenceServiceDefautSociete;
+            $agenceServiceDefautSociete->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAgenceServiceDefautSociete(AgenceServiceDefautSociete $agenceServiceDefautSociete): self
+    {
+        if ($this->agenceServiceDefautSocietes->contains($agenceServiceDefautSociete)) {
+            $this->agenceServiceDefautSocietes->removeElement($agenceServiceDefautSociete);
+            if ($agenceServiceDefautSociete->getUser() === $this) {
+                $agenceServiceDefautSociete->setUser(null);
             }
         }
 
