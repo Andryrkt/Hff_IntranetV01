@@ -22,13 +22,13 @@ class PointageRelanceController extends Controller
 {
     /**
      * Affiche le formulaire de pointage relance dans un modal (appel AJAX)
-     * @Route("/pointage-relance-form/{numeroDevis}", name="devis_magasin_relance_client_form")
+     * @Route("/pointage-relance-form/{numeroDevis}", name="api_devis_magasin_relance_client_form")
      */
     public function pointageRelanceForm(?string $numeroDevis = null): Response
     {
         $dto = (new PointageRelanceFactory)->create($numeroDevis);
         $form = $this->getFormFactory()->createNamed('', PointageRelanceType::class, $dto, [
-            'action' => $this->getUrlGenerator()->generate('devis_magasin_relance_client_submit')
+            'action' => $this->getUrlGenerator()->generate('api_devis_magasin_relance_client_submit')
         ]);
 
         return $this->render('magasin/devis/pointage_relance/_form.html.twig', [
@@ -38,7 +38,7 @@ class PointageRelanceController extends Controller
 
     /**
      * Traite la soumission du formulaire de pointage relance
-     * @Route("/pointage-relance-submit", name="devis_magasin_relance_client_submit", methods={"POST"})
+     * @Route("/pointage-relance-submit", name="api_devis_magasin_relance_client_submit", methods={"POST"})
      */
     public function submitPointageRelanceForm(Request $request): Response
     {

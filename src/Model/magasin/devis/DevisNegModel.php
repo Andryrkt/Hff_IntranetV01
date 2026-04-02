@@ -259,7 +259,7 @@ LEFT JOIN (
     GROUP BY 1,2
 ) rl ON rl.numero_devis = nent.nent_numcde AND rl.code_societe = nent.nent_soc
 WHERE nent.nent_natop    = 'DEV'
-    AND nent.nent_soc      = 'HF'
+    --AND nent.nent_soc      = 'HF'
     AND nent.nent_servcrt  <> 'ASS'
     AND nent.nent_numcli   NOT BETWEEN 1990000 AND 1999999
     AND nent.nent_numcli   <> 1990000

@@ -41,7 +41,7 @@ class DemandeDevisController extends Controller
     }
 
     /**
-     * @Route("/demande-devis-en-cours/{id}", name="da_demande_devis_en_cours")
+     * @Route("/demande-devis-en-cours/{id}", name="api_da_demande_devis_en_cours")
      */
     public function demandeDevisEnCours(int $id)
     {

@@ -95,12 +95,15 @@ class BonDeCaisseController extends Controller
         $agenceCodeUser = $this->getSecurityService()->getCodeAgenceUser();
         $serviceCodeUser = $this->getSecurityService()->getCodeServiceUser();
 
+        // Vérifier la permission de voir tous les données
+        $multisuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE);
+
         // Vérifier le permission de voir liste avec débiteur sur la page courante
         $peutVoirListeAvecDebiteur = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_AUTH_2);
 
         /** @var BonDeCaisseRepository $repository */
         $repository = $this->getEntityManager()->getRepository(BonDeCaisse::class);
-        $paginationData = $repository->findPaginatedAndFiltered($page, $limit, $bonCaisseEntitySearch, $agenceCodeUser, $serviceCodeUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
+        $paginationData = $repository->findPaginatedAndFiltered($page, $limit, $bonCaisseEntitySearch, $agenceCodeUser, $serviceCodeUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur, $multisuccursale);
         $data = $paginationData['data'];
 
         // Récupère tous les chemins PDF en une seule requête
@@ -152,12 +155,15 @@ class BonDeCaisseController extends Controller
         $agenceCodeUser = $this->getSecurityService()->getCodeAgenceUser();
         $serviceCodeUser = $this->getSecurityService()->getCodeServiceUser();
 
+        // Vérifier la permission de voir tous les données
+        $multisuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE);
+
         // Vérifier le permission de voir liste avec débiteur sur la page courante
         $peutVoirListeAvecDebiteur = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_AUTH_2, "bon_caisse_liste");
 
         /** @var BonDeCaisseRepository $repository */
         $repository = $this->getEntityManager()->getRepository(BonDeCaisse::class);
-        $entities = $repository->findAndFilteredExcel($bonCaisseEntitySearch, $agenceCodeUser, $serviceCodeUser,  $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
+        $entities = $repository->findAndFilteredExcel($bonCaisseEntitySearch, $agenceCodeUser, $serviceCodeUser,  $agenceServiceAutorises, $peutVoirListeAvecDebiteur, $multisuccursale);
 
         // Convertir les entités en tableau de données
         $data = [];

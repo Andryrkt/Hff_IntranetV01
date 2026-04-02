@@ -7,7 +7,7 @@ use Doctrine\ORM\EntityRepository;
 
 class DomRepository extends EntityRepository
 {
-    public function findPaginatedAndFilteredAsDTO(int $page, int $limit, DomSearch $domSearch, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeSociete, bool $peutVoirListeAvecDebiteur, bool $listAnnuler = false): array
+    public function findPaginatedAndFilteredAsDTO(int $page, int $limit, DomSearch $domSearch, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeSociete, bool $peutVoirListeAvecDebiteur, bool $multiSuccursale, bool $listAnnuler = false): array
     {
         $excludedStatuses = [9, 18, 22, 24, 26, 32, 33, 34, 35];
 
@@ -93,8 +93,10 @@ class DomRepository extends EntityRepository
                 ->setParameter('pieceJustificatif', $domSearch->getPieceJustificatif());
         }
 
-        // Condition sur les couples agences-services
-        $this->conditionAgenceService($queryBuilder, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
+        if (!$multiSuccursale) {
+            // Condition sur les couples agences-services
+            $this->conditionAgenceService($queryBuilder, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
+        }
 
         $queryBuilder->orderBy('d.numeroOrdreMission', 'DESC');
 
@@ -121,7 +123,7 @@ class DomRepository extends EntityRepository
         ];
     }
 
-    public function findAndFilteredExcel($domSearch, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeSociete, bool $peutVoirListeAvecDebiteur)
+    public function findAndFilteredExcel($domSearch, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeSociete, bool $peutVoirListeAvecDebiteur, bool $multiSuccursale)
     {
         $queryBuilder = $this->createQueryBuilder('d')
             ->leftJoin('d.sousTypeDocument', 'td')
@@ -129,7 +131,7 @@ class DomRepository extends EntityRepository
 
         $excludedStatuses = [9, 18, 22, 24, 26, 32, 33, 34, 35];
         $queryBuilder->andWhere($queryBuilder->expr()->notIn('s.id', ':excludedStatuses'))
-            ->andWhere('da.codeSociete = :codeSociete')
+            ->andWhere('d.codeSociete = :codeSociete')
             ->setParameter('codeSociete', $codeSociete)
             ->setParameter('excludedStatuses', $excludedStatuses);
 
@@ -181,8 +183,10 @@ class DomRepository extends EntityRepository
                 ->setParameter('dateMissionFin', $domSearch->getDateMissionFin());
         }
 
-        // Condition sur les couples agences-services
-        $this->conditionAgenceService($queryBuilder, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
+        if (!$multiSuccursale) {
+            // Condition sur les couples agences-services
+            $this->conditionAgenceService($queryBuilder, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
+        }
 
         $queryBuilder->orderBy('d.numeroOrdreMission', 'DESC');
 

@@ -11,6 +11,7 @@ use App\Controller\Controller;
 use App\Controller\Traits\magasin\ors\MagasinOrALivrerTrait;
 use App\Controller\Traits\Transformation;
 use App\Form\magasin\MagasinListeOrALivrerSearchType;
+use App\Service\security\SecurityService;
 use App\Service\TableauEnStringService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -29,11 +30,19 @@ class OrLivrerController extends Controller
      */
     public function listOrLivrer(Request $request)
     {
-        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_MAGASIN);
+        $agenceUser = "''";
 
-        $codeAgence = array_column($agenceServiceAutorises, 'agence_code');
+        // Vérifier la permission de voir tous les données
+        $multisuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE);
 
-        $agenceUser = TableauEnStringService::TableauEnString(',', $codeAgence);
+        if (!$multisuccursale) {
+            $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_MAGASIN);
+
+            // Si l'utilisateur n'a pas d'agence et service autorisé, on prend son agence par défaut
+            $codeAgence = empty($agenceServiceAutorises) ? [$this->getSecurityService()->getCodeAgenceUser()] : array_column($agenceServiceAutorises, 'agence_code');
+
+            $agenceUser = TableauEnStringService::TableauEnString(',', $codeAgence);
+        }
 
         $form = $this->getFormFactory()->createBuilder(MagasinListeOrALivrerSearchType::class, ['agenceUser' => $agenceUser], [
             'method' => 'GET'

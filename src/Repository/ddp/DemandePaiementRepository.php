@@ -61,7 +61,7 @@ class DemandePaiementRepository extends EntityRepository
         return $numeroVersionMax;
     }
 
-    public function findDemandePaiement(DdpSearch $ddpSearch, string $codeAgence, string $codeService, array $agenceServiceAutorises, bool $peutVoirListeAvecDebiteur)
+    public function findDemandePaiement(DdpSearch $ddpSearch, string $codeAgence, string $codeService, array $agenceServiceAutorises, bool $peutVoirListeAvecDebiteur, bool $multisuccursale)
     {
         $qb = $this->createQueryBuilder('d')
             ->join(User::class, 'u', 'WITH', 'd.demandeur = u.nom_utilisateur');
@@ -127,8 +127,10 @@ class DemandePaiementRepository extends EntityRepository
                 ->setParameter('numFournisseur', explode('-', $ddpSearch->getFournisseur())[0]);
         }
 
-        // Condition sur les couples agences-services
-        $this->conditionAgenceService($qb, $codeAgence, $codeService, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
+        if (!$multisuccursale) {
+            // Condition sur les couples agences-services
+            $this->conditionAgenceService($qb, $codeAgence, $codeService, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
+        }
 
         $qb->orderBy('d.dateCreation', 'DESC');
 

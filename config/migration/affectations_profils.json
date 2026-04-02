@@ -1,0 +1,662 @@
+[
+  {
+    "ref_profil": "HFF_01-ASS_DIT+REP+DDC",
+    "societe_id": 1,
+    "username": "thierry.aro"
+  },
+  {
+    "ref_profil": "HFF_01-ATE_BDM+CAS+MAG+DIT+REP+DAP+PAT+DDC",
+    "societe_id": 1,
+    "username": "Nancy"
+  },
+  {
+    "ref_profil": "HFF_01-ATE_BDM+CAS+MAG+DIT+REP+DAP+PAT+DDC",
+    "societe_id": 1,
+    "username": "Thomas"
+  },
+  {
+    "ref_profil": "HFF_01-ATE_DIT+REP+DAP+PAT+DDC",
+    "societe_id": 1,
+    "username": "holy"
+  },
+  {
+    "ref_profil": "HFF_01-ATE_DIT+REP+DAP+PAT+DDC",
+    "societe_id": 1,
+    "username": "Maharo"
+  },
+  {
+    "ref_profil": "HFF_01-ATE_DIT+REP+DAP+PAT+DDC",
+    "societe_id": 1,
+    "username": "naina"
+  },
+  {
+    "ref_profil": "HFF_01-ATE_DIT+REP+DAP+PAT+DDC",
+    "societe_id": 1,
+    "username": "Fidinirina"
+  },
+  {
+    "ref_profil": "HFF_01-ATE_DIT+REP+DAP+PAT+DDC",
+    "societe_id": 1,
+    "username": "fano"
+  },
+  {
+    "ref_profil": "HFF_01-ATE_DIT+REP+DAP+PAT+DDC",
+    "societe_id": 1,
+    "username": "donat"
+  },
+  {
+    "ref_profil": "HFF_01-ATE_DIT+REP+DAP+PAT+DDC",
+    "societe_id": 1,
+    "username": "mihanta"
+  },
+  {
+    "ref_profil": "HFF_01-ATE_DIT+REP+DAP+PAT+DDC",
+    "societe_id": 1,
+    "username": "angelin"
+  },
+  {
+    "ref_profil": "HFF_01-ATE_DIT+REP+DDC",
+    "societe_id": 1,
+    "username": "jaona"
+  },
+  {
+    "ref_profil": "HFF_01-ATE_DIT+REP+DDC",
+    "societe_id": 1,
+    "username": "domoina"
+  },
+  {
+    "ref_profil": "HFF_01-ATE_DIT+REP+DDC",
+    "societe_id": 1,
+    "username": "sitraka"
+  },
+  {
+    "ref_profil": "HFF_01-ATE_DIT+REP+PAT+DDC",
+    "societe_id": 1,
+    "username": "tiavina.rakotomanga"
+  },
+  {
+    "ref_profil": "HFF_01-ATE_DOM+BDM+CAS+DIT+REP+DAP+DDC",
+    "societe_id": 1,
+    "username": "finaritra"
+  },
+  {
+    "ref_profil": "HFF_01-ATE_DOM+DIT+REP+DDC",
+    "societe_id": 1,
+    "username": "mamitiana"
+  },
+  {
+    "ref_profil": "HFF_01-COM_BDM+CAS+DIT+REP+DDC 1",
+    "societe_id": 1,
+    "username": "tsiry"
+  },
+  {
+    "ref_profil": "HFF_01-COM_BDM+CAS+DIT+REP+DDC 2",
+    "societe_id": 1,
+    "username": "cedric"
+  },
+  {
+    "ref_profil": "HFF_01-COM_DOM+BDM+CAS+DIT+REP+DDC",
+    "societe_id": 1,
+    "username": "aina"
+  },
+  {
+    "ref_profil": "HFF_01-COM_DOM+BDM+CAS+DIT+REP+DDC",
+    "societe_id": 1,
+    "username": "ambroise"
+  },
+  {
+    "ref_profil": "HFF_01-CSP_DIT+REP+DAP+DDC",
+    "societe_id": 1,
+    "username": "davida"
+  },
+  {
+    "ref_profil": "HFF_01-CSP_DIT+REP+DDC",
+    "societe_id": 1,
+    "username": "Tahiantsoa"
+  },
+  {
+    "ref_profil": "HFF_01-CSP_DIT+REP+DDC",
+    "societe_id": 1,
+    "username": "radomparany"
+  },
+  {
+    "ref_profil": "HFF_01-FLE_MAG+DDC+DVM",
+    "societe_id": 1,
+    "username": "parfait"
+  },
+  {
+    "ref_profil": "HFF_01-MAS_BDM+CAS+DIT+REP+PAT+DDC",
+    "societe_id": 1,
+    "username": "diana"
+  },
+  {
+    "ref_profil": "HFF_01-MAS_DIT+MAG+REP",
+    "societe_id": 1,
+    "username": "michael"
+  },
+  {
+    "ref_profil": "HFF_01-MAS_DIT+MAG+REP+DDC 1",
+    "societe_id": 1,
+    "username": "manuel"
+  },
+  {
+    "ref_profil": "HFF_01-MAS_DIT+MAG+REP+DDC 2",
+    "societe_id": 1,
+    "username": "Fitiavana"
+  },
+  {
+    "ref_profil": "HFF_01-MAS_DIT+MAG+REP+PAT+DDC",
+    "societe_id": 1,
+    "username": "rajohnson"
+  },
+  {
+    "ref_profil": "HFF_01-MAS_DIT+REP+DDC 1",
+    "societe_id": 1,
+    "username": "Yolande"
+  },
+  {
+    "ref_profil": "HFF_01-MAS_DIT+REP+DDC 2",
+    "societe_id": 1,
+    "username": "Herivola"
+  },
+  {
+    "ref_profil": "HFF_01-MAS_DIT+REP+PAT+DDC 1",
+    "societe_id": 1,
+    "username": "hoby"
+  },
+  {
+    "ref_profil": "HFF_01-MAS_DIT+REP+PAT+DDC 1",
+    "societe_id": 1,
+    "username": "mampionona"
+  },
+  {
+    "ref_profil": "HFF_01-MAS_DIT+REP+PAT+DDC 2",
+    "societe_id": 1,
+    "username": "sylvio"
+  },
+  {
+    "ref_profil": "HFF_01-MAS_BDM+CAS+DIT+REP+PAT+DDC",
+    "societe_id": 1,
+    "username": "nomentsoa"
+  },
+  {
+    "ref_profil": "HFF_01-NEG_BDM+CAS+MAG+DIT+REP+DDP+INV+DDC+DVM",
+    "societe_id": 1,
+    "username": "prisca"
+  },
+  {
+    "ref_profil": "HFF_01-NEG_DIT+MAG+REP+CFR+DDC+DVM 1",
+    "societe_id": 1,
+    "username": "onja"
+  },
+  {
+    "ref_profil": "HFF_01-NEG_DIT+MAG+REP+CFR+DDC+DVM 2",
+    "societe_id": 1,
+    "username": "naly"
+  },
+  {
+    "ref_profil": "HFF_01-NEG_DIT+MAG+REP+CFR+INV+DDC+DVM",
+    "societe_id": 1,
+    "username": "roussel"
+  },
+  {
+    "ref_profil": "HFF_01-NEG_DIT+MAG+REP+DDC",
+    "societe_id": 1,
+    "username": "nampoina"
+  },
+  {
+    "ref_profil": "HFF_01-NEG_DIT+MAG+REP+DDC+DVM 1",
+    "societe_id": 1,
+    "username": "angelo"
+  },
+  {
+    "ref_profil": "HFF_01-NEG_DIT+MAG+REP+DDC+DVM 2",
+    "societe_id": 1,
+    "username": "lolo"
+  },
+  {
+    "ref_profil": "HFF_01-NEG_DIT+MAG+REP+DDC+DVM 2",
+    "societe_id": 1,
+    "username": "Tani"
+  },
+  {
+    "ref_profil": "HFF_01-NEG_DIT+MAG+REP+DDC+DVM 2",
+    "societe_id": 1,
+    "username": "dimby"
+  },
+  {
+    "ref_profil": "HFF_01-NEG_DIT+MAG+REP+DDC+DVM 2",
+    "societe_id": 1,
+    "username": "ravaka"
+  },
+  {
+    "ref_profil": "HFF_01-NEG_DIT+MAG+REP+DDC+DVM 2",
+    "societe_id": 1,
+    "username": "njiva"
+  },
+  {
+    "ref_profil": "HFF_01-NEG_DIT+MAG+REP+DDC+DVM 2",
+    "societe_id": 1,
+    "username": "lucio"
+  },
+  {
+    "ref_profil": "HFF_01-NEG_DIT+REP+DDC",
+    "societe_id": 1,
+    "username": "Kiki"
+  },
+  {
+    "ref_profil": "HFF_01-NEG_DIT+REP+DDC",
+    "societe_id": 1,
+    "username": "rondro"
+  },
+  {
+    "ref_profil": "HFF_01-NEG_DIT+REP+MAG+DDP+DDC+DVM",
+    "societe_id": 1,
+    "username": "fabrice"
+  },
+  {
+    "ref_profil": "HFF_01-NEG_DOM+BDM+CAS+DIT+REP+MAG+DDC+DVM",
+    "societe_id": 1,
+    "username": "santatra"
+  },
+  {
+    "ref_profil": "HFF_01-NEG_DOM+DIT+MAG+REP+DDP+DDC",
+    "societe_id": 1,
+    "username": "rajaonera"
+  },
+  {
+    "ref_profil": "HFF_02-ATE_DIT+REP",
+    "societe_id": 1,
+    "username": "rdaniel"
+  },
+  { "ref_profil": "HFF_02-ATE_DIT+REP", "societe_id": 1, "username": "Sylvia" },
+  {
+    "ref_profil": "HFF_20-ATE_DIT+MAG+REP",
+    "societe_id": 1,
+    "username": "tojonirina"
+  },
+  {
+    "ref_profil": "HFF_20-ATE_DIT+MAG+REP+DVM",
+    "societe_id": 1,
+    "username": "mahery"
+  },
+  {
+    "ref_profil": "HFF_20-ATE_DIT+REP",
+    "societe_id": 1,
+    "username": "thomas.leloup"
+  },
+  {
+    "ref_profil": "HFF_20-ATE_DIT+REP",
+    "societe_id": 1,
+    "username": "stephanie"
+  },
+  {
+    "ref_profil": "HFF_20-ATE_DIT+REP",
+    "societe_id": 1,
+    "username": "andrytahina"
+  },
+  {
+    "ref_profil": "HFF_20-ATE_DIT+REP",
+    "societe_id": 1,
+    "username": "tokiniaina"
+  },
+  {
+    "ref_profil": "HFF_20-NEG_DIT+REP+MAG+BDL+DVM",
+    "societe_id": 1,
+    "username": "mamisoa"
+  },
+  {
+    "ref_profil": "HFF_20-NEG_DIT+REP+MAG+BDL+DVM",
+    "societe_id": 1,
+    "username": "l.tahiry"
+  },
+  {
+    "ref_profil": "HFF_30-ATE_BDM+CAS+DIT+REP+DDC",
+    "societe_id": 1,
+    "username": "onitiana"
+  },
+  {
+    "ref_profil": "HFF_30-ATE_DIT+MAG+REP+DDC+DVM 1",
+    "societe_id": 1,
+    "username": "njaraniaina"
+  },
+  {
+    "ref_profil": "HFF_30-ATE_DIT+MAG+REP+DDC+DVM 2",
+    "societe_id": 1,
+    "username": "Josoa"
+  },
+  {
+    "ref_profil": "HFF_30-ATE_DIT+REP",
+    "societe_id": 1,
+    "username": "anthony"
+  },
+  {
+    "ref_profil": "HFF_30-ATE_DIT+REP",
+    "societe_id": 1,
+    "username": "Salomon"
+  },
+  {
+    "ref_profil": "HFF_30-ATE_DIT+REP+DDC 1",
+    "societe_id": 1,
+    "username": "Malala"
+  },
+  {
+    "ref_profil": "HFF_30-ATE_DIT+REP+DDC 2",
+    "societe_id": 1,
+    "username": "Rino"
+  },
+  {
+    "ref_profil": "HFF_30-NEG_DIT+MAG+REP+DDC+DVM",
+    "societe_id": 1,
+    "username": "ranaivo"
+  },
+  { "ref_profil": "HFF_40_DIT+REP", "societe_id": 1, "username": "Gillot" },
+  { "ref_profil": "HFF_40_DIT+REP", "societe_id": 1, "username": "Estella" },
+  { "ref_profil": "HFF_40_DIT+REP", "societe_id": 1, "username": "Miora" },
+  {
+    "ref_profil": "HFF_40_DIT+REP",
+    "societe_id": 1,
+    "username": "eoghan.carter"
+  },
+  { "ref_profil": "HFF_40_DIT+REP", "societe_id": 1, "username": "falisoa" },
+  {
+    "ref_profil": "HFF_40-ATE_BDM+CAS+DIT+REP",
+    "societe_id": 1,
+    "username": "Omega"
+  },
+  {
+    "ref_profil": "HFF_40-ATE_DIT+MAG+REP+DVM",
+    "societe_id": 1,
+    "username": "avinass"
+  },
+  {
+    "ref_profil": "HFF_40-ATE_DOM+BDM+CAS+DIT+REP",
+    "societe_id": 1,
+    "username": "fanja"
+  },
+  {
+    "ref_profil": "HFF_40-LEV_BDM+CAS+DIT+REP",
+    "societe_id": 1,
+    "username": "nantenaina"
+  },
+  {
+    "ref_profil": "HFF_40-LEV_DOM+BDM+CAS+DIT+REP",
+    "societe_id": 1,
+    "username": "daniel.manalinoro"
+  },
+  {
+    "ref_profil": "HFF_40-NEG_DIT+MAG+REP+DVM",
+    "societe_id": 1,
+    "username": "fenonirina"
+  },
+  {
+    "ref_profil": "HFF_40-NEG_DOM+MAG+REP+DVM",
+    "societe_id": 1,
+    "username": "fanjatiana"
+  },
+  {
+    "ref_profil": "HFF_50-LBV_BDM+CAS+DIT+REP+DDC",
+    "societe_id": 1,
+    "username": "Rollio"
+  },
+  {
+    "ref_profil": "HFF_50-LCD_BDM+CAS",
+    "societe_id": 1,
+    "username": "sandratana"
+  },
+  { "ref_profil": "HFF_50-LCD_BDM+CAS", "societe_id": 1, "username": "tsanta" },
+  {
+    "ref_profil": "HFF_50-LCD_BDM+CAS+DIT+REP 1",
+    "societe_id": 1,
+    "username": "rojo"
+  },
+  {
+    "ref_profil": "HFF_50-LCD_BDM+CAS+DIT+REP 1",
+    "societe_id": 1,
+    "username": "victoria"
+  },
+  {
+    "ref_profil": "HFF_50-LCD_BDM+CAS+DIT+REP 2",
+    "societe_id": 1,
+    "username": "romain"
+  },
+  {
+    "ref_profil": "HFF_50-LCD_BDM+CAS+DIT+REP 3",
+    "societe_id": 1,
+    "username": "yann"
+  },
+  {
+    "ref_profil": "HFF_50-LCD_DOM+BDM+CAS+DIT+REP+DDC",
+    "societe_id": 1,
+    "username": "alan"
+  },
+  {
+    "ref_profil": "HFF_50-LFD_BDM+CAS+DIT+MAG+REP+DVM+BCS",
+    "societe_id": 1,
+    "username": "christophe"
+  },
+  {
+    "ref_profil": "HFF_50-LFD_BDM+CAS+DIT+REP",
+    "societe_id": 1,
+    "username": "andrihasina"
+  },
+  {
+    "ref_profil": "HFF_50-LFD_DIT+REP+BCS",
+    "societe_id": 1,
+    "username": "norolalao"
+  },
+  {
+    "ref_profil": "HFF_50-LR6_DIT+REP 1",
+    "societe_id": 1,
+    "username": "herimanda"
+  },
+  { "ref_profil": "HFF_50-LR6_DIT+REP 2", "societe_id": 1, "username": "sata" },
+  {
+    "ref_profil": "HFF_60-NEG_DOM+DIT+REP+DDC",
+    "societe_id": 1,
+    "username": "oliva"
+  },
+  {
+    "ref_profil": "HFF_80-APP_MAG+DIT+REP+DAP+DDC",
+    "societe_id": 1,
+    "username": "Vania"
+  },
+  {
+    "ref_profil": "HFF_80-APP_MAG+REP+DAP+DDC",
+    "societe_id": 1,
+    "username": "Livalalaina"
+  },
+  {
+    "ref_profil": "HFF_80-APP_MAG+REP+DAP+DDC",
+    "societe_id": 1,
+    "username": "narindra.veloniaina"
+  },
+  {
+    "ref_profil": "HFF_80-DIR_BDM+DIT+REP+DAP+DDC",
+    "societe_id": 1,
+    "username": "Hasina"
+  },
+  {
+    "ref_profil": "HFF_80-DIR_DIT+REP+DAP+DDC 1",
+    "societe_id": 1,
+    "username": "helimino"
+  },
+  {
+    "ref_profil": "HFF_80-DIR_DIT+REP+DAP+DDC 2",
+    "societe_id": 1,
+    "username": "zoary"
+  },
+  {
+    "ref_profil": "HFF_80-DIR_DIT+REP+DDC",
+    "societe_id": 1,
+    "username": "gjerome"
+  },
+  {
+    "ref_profil": "HFF_80-FIN_DIT+REP+DAP+DDC",
+    "societe_id": 1,
+    "username": "rachel"
+  },
+  {
+    "ref_profil": "HFF_80-FIN_DIT+REP+DDC",
+    "societe_id": 1,
+    "username": "patrick"
+  },
+  {
+    "ref_profil": "HFF_80-FIN_DIT+REP+DDC",
+    "societe_id": 1,
+    "username": "Vololonirina"
+  },
+  {
+    "ref_profil": "HFF_80-IMM_DIT+REP+DAP+DDC",
+    "societe_id": 1,
+    "username": "tiana"
+  },
+  { "ref_profil": "HFF_80-INF_DIT+DAP+DDC", "societe_id": 1, "username": "zo" },
+  {
+    "ref_profil": "HFF_80-INF_DIT+DAP+DDC",
+    "societe_id": 1,
+    "username": "hffadmhans#"
+  },
+  {
+    "ref_profil": "HFF_80-PER_DOM+BDM+DIT+DDC",
+    "societe_id": 1,
+    "username": "heriniaina"
+  },
+  {
+    "ref_profil": "HFF_80-TRA_DIT+REP+DAP+DDC",
+    "societe_id": 1,
+    "username": "lea"
+  },
+  {
+    "ref_profil": "HFF_80-UMP_DIT+REP+DDC",
+    "societe_id": 1,
+    "username": "Maholy"
+  },
+  {
+    "ref_profil": "HFF_80-UMP_DIT+REP+DDC",
+    "societe_id": 1,
+    "username": "nomena"
+  },
+  {
+    "ref_profil": "HFF_80-UMP_DOM+DIT+DAP+DDC",
+    "societe_id": 1,
+    "username": "narindrasoa"
+  },
+  {
+    "ref_profil": "HFF_90-COM_DIT+DAP+DDC",
+    "societe_id": 1,
+    "username": "tisbonne"
+  },
+  {
+    "ref_profil": "HFF_90-COM_DIT+REP+DAP+DDC",
+    "societe_id": 1,
+    "username": "fetra"
+  },
+  {
+    "ref_profil": "HFF_90-COM_DOM+BDM+CAS+DIT+REP+DAP+DDC",
+    "societe_id": 1,
+    "username": "faneva"
+  },
+  {
+    "ref_profil": "HFF_90-COM_DOM+BDM+CAS+DIT+REP+DDC 1",
+    "societe_id": 1,
+    "username": "lovasoa"
+  },
+  {
+    "ref_profil": "HFF_90-COM_DOM+BDM+CAS+DIT+REP+DDC 2",
+    "societe_id": 1,
+    "username": "radonirina"
+  },
+  {
+    "ref_profil": "HFF_91-ENG_DIT+REP+DAP+DDC",
+    "societe_id": 1,
+    "username": "Nambinintsoa"
+  },
+  {
+    "ref_profil": "HFF_92-AMB_DOM+BDM+CAS+DIT+REP",
+    "societe_id": 1,
+    "username": "Olaf"
+  },
+  {
+    "ref_profil": "HFF_92-LCJ_DIT+REP+DAP+DDC",
+    "societe_id": 1,
+    "username": "randry"
+  },
+  {
+    "ref_profil": "HFF_92-LCJ_DIT+REP+DDC",
+    "societe_id": 1,
+    "username": "onintsoa"
+  },
+  {
+    "ref_profil": "HFF_92-LCJ_DOM+BDM+CAS+DIT+REP+DAP",
+    "societe_id": 1,
+    "username": "david"
+  },
+  {
+    "ref_profil": "HFF_92-LCJ_DOM+BDM+CAS+DIT+REP+DAP+DDC 1",
+    "societe_id": 1,
+    "username": "fitia"
+  },
+  {
+    "ref_profil": "HFF_92-LCJ_DOM+BDM+CAS+DIT+REP+DAP+DDC 2",
+    "societe_id": 1,
+    "username": "Miora.energie"
+  },
+  {
+    "ref_profil": "HFF_92-LCJ_DOM+DIT+REP+DAP+DDC",
+    "societe_id": 1,
+    "username": "mbola"
+  },
+  { "ref_profil": "HFF-CONGE", "societe_id": 1, "username": "flavien" },
+  { "ref_profil": "HFF-CONGE", "societe_id": 1, "username": "rtahina" },
+  { "ref_profil": "HFF-CONGE", "societe_id": 1, "username": "volana" },
+  { "ref_profil": "HFF-CONGE", "societe_id": 1, "username": "vola" },
+  { "ref_profil": "HFF-CONGE", "societe_id": 1, "username": "dina" },
+  { "ref_profil": "HFF-CONGE", "societe_id": 1, "username": "judicael" },
+  { "ref_profil": "HFF-CONGE", "societe_id": 1, "username": "ando" },
+  { "ref_profil": "HFF-CONGE", "societe_id": 1, "username": "liantsoa" },
+  { "ref_profil": "HFF-CONGE", "societe_id": 1, "username": "yves" },
+  { "ref_profil": "HFF-CONGE", "societe_id": 1, "username": "colin" },
+  { "ref_profil": "HFF-CONGE", "societe_id": 1, "username": "michel" },
+  { "ref_profil": "HFF-CONGE", "societe_id": 1, "username": "nathalie" },
+  { "ref_profil": "HFF-CONGE", "societe_id": 1, "username": "manarivo" },
+  { "ref_profil": "HFF-CONGE", "societe_id": 1, "username": "Mandresy" },
+  { "ref_profil": "HFF-CONGE", "societe_id": 1, "username": "mireille" },
+  { "ref_profil": "HFF-CONGE", "societe_id": 1, "username": "miangaly" },
+  { "ref_profil": "HFF-CONGE", "societe_id": 1, "username": "nyaina" },
+  { "ref_profil": "HFF-CONGE", "societe_id": 1, "username": "mioranancy" },
+  { "ref_profil": "HFF-CONGE", "societe_id": 1, "username": "romario" },
+  { "ref_profil": "HFF-CONGE", "societe_id": 1, "username": "volatina" },
+  { "ref_profil": "HFF-CONGE", "societe_id": 1, "username": "hasimbola" },
+  { "ref_profil": "HFF-CONGE", "societe_id": 1, "username": "lovamahefa" },
+  { "ref_profil": "HFF-CONGE", "societe_id": 1, "username": "kenny" },
+  { "ref_profil": "HFF-CONGE", "societe_id": 1, "username": "lalaina.arthur" },
+  { "ref_profil": "HFF-CONGE", "societe_id": 1, "username": "narison" },
+  { "ref_profil": "HFF-CONGE", "societe_id": 1, "username": "marcellin" },
+  { "ref_profil": "HFF-CONGE", "societe_id": 1, "username": "Ramonjavelo" },
+  { "ref_profil": "HFF-CONGE", "societe_id": 1, "username": "tatamo" },
+  { "ref_profil": "HFF-CONGE", "societe_id": 1, "username": "andoniaina" },
+  { "ref_profil": "HFF-CONGE", "societe_id": 1, "username": "fanomezantsoa" },
+  { "ref_profil": "HFF-CONGE", "societe_id": 1, "username": "liva" },
+  { "ref_profil": "HFF-CONGE", "societe_id": 1, "username": "amamy" },
+  { "ref_profil": "HFF-CONGE", "societe_id": 1, "username": "kiady" },
+  { "ref_profil": "HFF-CONGE", "societe_id": 1, "username": "Jacky" },
+  { "ref_profil": "HFF-CONGE", "societe_id": 1, "username": "mialitiana" },
+  { "ref_profil": "HFF-CONGE", "societe_id": 1, "username": "kaleba" },
+  { "ref_profil": "HFF-DIT", "societe_id": 1, "username": "Sandrina" },
+  { "ref_profil": "HFF-DIT", "societe_id": 1, "username": "tsihoarana" },
+  {
+    "ref_profil": "HFF-DOM Ag-50",
+    "societe_id": 1,
+    "username": "henintsoa.ramarojaon"
+  },
+  { "ref_profil": "HFF-ADMIN", "societe_id": 1, "username": "martin" },
+  { "ref_profil": "HFF-ADMIN", "societe_id": 1, "username": "hobimalala" },
+  { "ref_profil": "HFF-ADMIN", "societe_id": 1, "username": "kaloina" },
+  { "ref_profil": "HFF-ADMIN", "societe_id": 1, "username": "lanto" },
+  { "ref_profil": "HFF-ADMIN", "societe_id": 1, "username": "Olivier.Carbon" },
+  { "ref_profil": "HFF-ADMIN", "societe_id": 1, "username": "marie" },
+  { "ref_profil": "HFF-ADMIN", "societe_id": 1, "username": "fidison" },
+  { "ref_profil": "HFF-ADMIN", "societe_id": 1, "username": "charles" },
+  { "ref_profil": "HFF-ADMIN", "societe_id": 1, "username": "hanitra" }
+]

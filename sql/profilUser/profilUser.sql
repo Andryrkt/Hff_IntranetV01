@@ -17,7 +17,7 @@ ALTER TABLE applications ALTER COLUMN code_app VARCHAR(10) NULL;
 -- Relation entre les pages et les applications
 ALTER TABLE Hff_pages 
 ADD application_id INT NULL,
-date_creation DATETIME2(0) NOT NULL,
+date_creation DATETIME2(0) NULL,
 date_modification DATETIME2(0) NULL,
 CONSTRAINT FK_pages_applications FOREIGN KEY (application_id) REFERENCES applications (id);
 
@@ -71,8 +71,12 @@ CREATE TABLE users_profils (
     CONSTRAINT FK_users_profils_profil_id FOREIGN KEY (profil_id) REFERENCES profil (id)
 );
 
+alter table users drop constraint FK_users_role_id;
 alter table users drop column role_id;
+
+alter table users drop constraint FK_users_agence_id;
 alter table users drop column agence_id;
+
 alter table users drop column superieurs;
 alter table users drop column fonction;
 
@@ -107,6 +111,31 @@ from users u
 INNER JOIN Agence_Service_Irium asi on asi.id=u.agence_utilisateur
 inner join agences a on a.code_agence=asi.agence_ips
 inner join services s on s.code_service=asi.service_ips;
+
+-- Supprimer les relations avec users
+alter table agence_user drop constraint FK__agence_us__user___2057CCD0;
+alter table Demande_Appro drop constraint FK_User_Id;
+alter table Demande_Appro drop constraint FK_Validateur_id;
+alter table Log_utilisateur drop constraint FK_Log_users;
+alter table user_roles drop constraint FK__user_role__user___062DE679;
+alter table user_roles drop constraint FK__user_role__user___4924D839;
+alter table user_roles drop constraint FK__user_role__user___55F4C372;
+alter table user_superieurs drop constraint FK_users_superieurs_user_id;
+alter table user_superieurs drop constraint FK_users_superieurs_superieur_id;
+alter table users_agence_autoriser drop constraint FK_users_agence_autoriser_user_id;
+alter table users_applications drop constraint FK_users_application_user_id;
+alter table users_permission drop constraint FK_users_permission_user_id;
+alter table users_service drop constraint FK_users_service_user_id;
+
+-- remplir la table applications
+INSERT INTO applications
+(nom, code_app, date_creation, date_modification, derniere_id, vignette_id)
+VALUES
+(N'DOCUMENTATION INTERNE', N'DOC', '2025-12-29', '2026-03-17', NULL, NULL),
+(N'APPLICATION ADMIN', N'ADMIN', '2026-02-18', '2026-02-18', NULL, NULL),
+(N'PNEU OUTIL LUB', N'POL', '2026-02-26', '2026-02-26', NULL, NULL),
+(N'LOGISTIQUE (MATERIEL)', N'LOG', '2026-03-17', '2026-03-17', NULL, NULL),
+(N'CONTRAT (DOCUMENTATION)', N'CONTRAT', '2026-03-24', NULL, NULL, NULL);
 
 alter table devis_soumis_a_validation_neg add code_societe varchar(2) null;
 
@@ -182,3 +211,50 @@ update Casier_Materiels_Temporaire set code_societe='HF';
 alter table Casier_Materiels add code_societe varchar(2) null;
 
 update Casier_Materiels set code_societe='HF';
+
+-- Agence et service + Société --
+alter table agences add code_societe varchar(2) null;
+alter table agences add societe_id int null;
+
+INSERT INTO societe
+(nom, code_societe, date_creation, date_modification)
+VALUES
+(N'TRAVEL SERVICE', N'TS', '2026-04-01', '2026-04-01'),
+(N'SMR ET HR', N'SM', '2026-04-01', '2026-04-01'),
+(N'SAMA', N'SA', '2026-04-01', '2026-04-01'),
+(N'SOMAVA', N'SV', '2026-04-01', '2026-04-01'),
+(N'SOMECA', N'SO', '2026-04-01', '2026-04-01');
+
+INSERT INTO services
+(code_service, libelle_service, date_creation, date_modification)
+VALUES
+(N'C2', N'TRAVEL SERVICE', '2026-04-01', '2026-04-01'),
+(N'C3', N'SAMA', '2026-04-01', '2026-04-01'),
+(N'C4', N'SMR ET HR', '2026-04-01', '2026-04-01'),
+(N'C5', N'SOMAVA', '2026-04-01', '2026-04-01'),
+(N'C6', N'NATEMA', '2026-04-01', '2026-04-01');
+
+INSERT INTO agences
+(code_agence, libelle_agence, date_creation, date_modification)
+VALUES
+(N'C2', N'TRAVEL SERVICE', '2026-04-01', '2026-04-01'),
+(N'C3', N'SAMA', '2026-04-01', '2026-04-01'),
+(N'C4', N'SMR ET HR', '2026-04-01', '2026-04-01'),
+(N'C5', N'SOMAVA', '2026-04-01', '2026-04-01'),
+(N'C6', N'NATEMA', '2026-04-01', '2026-04-01'),
+(N'C7', N'SOMECA', '2026-04-01', '2026-04-01');
+
+create table agence_service_defaut_societe (
+    id int identity(1,1) not null,
+    id_user int not null,
+    code_sage varchar(50) null,
+    id_societe int not null,
+    code_agence varchar(50) not null,
+    code_service varchar(50) not null,
+    id_agence int not null,
+    id_service int not null,
+    constraint fk_agence_service_defaut_societe_agence foreign key (id_agence) references agences(id),
+    constraint fk_agence_service_defaut_societe_service foreign key (id_service) references services(id),
+    constraint fk_agence_service_defaut_societe_societe foreign key (id_societe) references societe(id),
+    constraint pk_agence_service_defaut_societe primary key (id)
+);

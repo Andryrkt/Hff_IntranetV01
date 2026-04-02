@@ -30,7 +30,7 @@ class BadmRepository extends EntityRepository
         return $idMateriels;
     }
 
-    public function findPaginatedAndFiltered(int $page = 1, int $limit = 10, array $criteria = [], int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeSociete, bool $peutVoirListeAvecDebiteur)
+    public function findPaginatedAndFiltered(int $page = 1, int $limit = 10, array $criteria = [], int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeSociete, bool $peutVoirListeAvecDebiteur, bool $multisuccursale)
     {
         $queryBuilder = $this->createQueryBuilder('b')
             ->leftJoin('b.typeMouvement', 'tm')
@@ -46,8 +46,10 @@ class BadmRepository extends EntityRepository
 
         $this->filtredAgenceServiceDebiteur($queryBuilder, $criteria);
 
-        // Condition sur les couples agences-services
-        $this->conditionAgenceService($queryBuilder, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
+        if (!$multisuccursale) {
+            // Condition sur les couples agences-services
+            $this->conditionAgenceService($queryBuilder, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
+        }
 
         $queryBuilder
             ->orderBy('b.numBadm', 'DESC')
@@ -69,7 +71,7 @@ class BadmRepository extends EntityRepository
     }
 
 
-    public function findAndFilteredExcel(array $criteria = [], int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeSociete, bool $peutVoirListeAvecDebiteur)
+    public function findAndFilteredExcel(array $criteria = [], int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeSociete, bool $peutVoirListeAvecDebiteur, bool $multisuccursale)
     {
         $queryBuilder = $this->createQueryBuilder('b')
             ->leftJoin('b.typeMouvement', 'tm')
@@ -85,8 +87,10 @@ class BadmRepository extends EntityRepository
 
         $this->filtredAgenceServiceDebiteur($queryBuilder, $criteria);
 
-        // Condition sur les couples agences-services
-        $this->conditionAgenceService($queryBuilder, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
+        if (!$multisuccursale) {
+            // Condition sur les couples agences-services
+            $this->conditionAgenceService($queryBuilder, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
+        }
 
         $queryBuilder
             ->orderBy('b.numBadm', 'DESC');
@@ -95,7 +99,7 @@ class BadmRepository extends EntityRepository
     }
 
 
-    public function findPaginatedAndFilteredListAnnuler(int $page = 1, int $limit = 10, array $criteria = [], int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeSociete, bool $peutVoirListeAvecDebiteur)
+    public function findPaginatedAndFilteredListAnnuler(int $page = 1, int $limit = 10, array $criteria = [], int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeSociete, bool $peutVoirListeAvecDebiteur, bool $multisuccursale)
     {
         $queryBuilder = $this->createQueryBuilder('b')
             ->leftJoin('b.typeMouvement', 'tm')
@@ -112,8 +116,10 @@ class BadmRepository extends EntityRepository
 
         $this->filtredAgenceServiceDebiteur($queryBuilder, $criteria);
 
-        // Condition sur les couples agences-services
-        $this->conditionAgenceService($queryBuilder, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
+        if (!$multisuccursale) {
+            // Condition sur les couples agences-services
+            $this->conditionAgenceService($queryBuilder, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
+        }
 
         $queryBuilder
             ->setFirstResult(($page - 1) * $limit)

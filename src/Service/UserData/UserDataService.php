@@ -336,8 +336,22 @@ class UserDataService
     //  AGENCES & SERVICES
     // =========================================================================
 
+    /** 
+     * Écrase et reconstruit toutes les agences et services de la société.
+     */
+    public function ecraserAllAgenceService(string $codeSociete): void
+    {
+        $cle = sprintf('%s%s.%s', self::CACHE_KEY_PREFIX, $codeSociete, self::SUFFIX_AG_SERV_ALL);
+
+        $this->cache->delete($cle);
+        $this->cache->get($cle, function (ItemInterface $item) use ($codeSociete): array {
+            $item->expiresAfter(null);
+            return $this->calculerAllAgenceService($codeSociete);
+        });
+    }
+
     /**
-     * Retourne toutes les agences et services du profil, groupées par ID.
+     * Retourne toutes les agences et services de la société.
      */
     public function getAllAgenceService(): ?array
     {
@@ -347,11 +361,12 @@ class UserDataService
         }
 
         // 2. Cache applicatif
-        $cle = $this->buildKey(0, self::SUFFIX_AG_SERV_ALL);
+        $codeSociete = $this->getCodeSociete();
+        $cle = sprintf('%s%s.%s', self::CACHE_KEY_PREFIX, $codeSociete, self::SUFFIX_AG_SERV_ALL);
 
-        return $this->cacheAllAgServDonnees = $this->cache->get($cle, function (ItemInterface $item): array {
+        return $this->cacheAllAgServDonnees = $this->cache->get($cle, function (ItemInterface $item) use ($codeSociete): array {
             $item->expiresAfter(null);
-            return $this->calculerAllAgenceService();
+            return $this->calculerAllAgenceService($codeSociete);
         });
     }
 
@@ -585,11 +600,11 @@ class UserDataService
      * Calcule tous les agences et services depuis la BDD.
      * Retourne des tableaux de scalaires (sérialisables en cache).
      */
-    public function calculerAllAgenceService(): array
+    public function calculerAllAgenceService(string $codeSociete): array
     {
         $agenceServicesDonnees = [];
 
-        $agences = $this->em->getRepository(Agence::class)->findAll();
+        $agences = $this->em->getRepository(Agence::class)->findBy(['codeSociete' => $codeSociete]);
 
         /** @var Agence $agence */
         foreach ($agences as $agence) {

@@ -24,7 +24,7 @@ class ExportExcelCdefrnController extends Controller
     }
 
     /** 
-     * @Route("/export-excel/list-cde-frn", name="da_export_excel_list_cde_frn")
+     * @Route("/export-excel/list-cde-frn", name="export_excel_list_cde_frn")
      */
     public function exportExcel()
     {

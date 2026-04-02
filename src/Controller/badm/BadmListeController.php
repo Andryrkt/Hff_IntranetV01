@@ -66,12 +66,15 @@ class BadmListeController extends Controller
         $agenceIdUser = $this->getSecurityService()->getAgenceIdUser();
         $serviceIdUser = $this->getSecurityService()->getServiceIdUser();
 
+        // Vérifier la permission de voir tous les données
+        $multisuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE);
+
         // Vérifier le permission de voir liste avec débiteur sur la page courante
         $peutVoirListeAvecDebiteur = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_AUTH_2);
 
         /** @var BadmRepository $repository */
         $repository = $this->getEntityManager()->getRepository(Badm::class);
-        $paginationData = $repository->findPaginatedAndFiltered($page, $limit, $criteria, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeSociete, $peutVoirListeAvecDebiteur);
+        $paginationData = $repository->findPaginatedAndFiltered($page, $limit, $criteria, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeSociete, $peutVoirListeAvecDebiteur, $multisuccursale);
 
         $this->ajoutNumSerieNumParc($paginationData, $codeSociete);
 
@@ -109,12 +112,15 @@ class BadmListeController extends Controller
         $agenceIdUser = $this->getSecurityService()->getAgenceIdUser();
         $serviceIdUser = $this->getSecurityService()->getServiceIdUser();
 
+        // Vérifier la permission de voir tous les données
+        $multisuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE);
+
         // Vérifier le permission de voir liste avec débiteur sur la page courante
         $peutVoirListeAvecDebiteur = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_AUTH_2, "badmListe_AffichageListeBadm");
 
         /** @var BadmRepository $repository */
         $repository = $this->getEntityManager()->getRepository(Badm::class);
-        $entities = $repository->findAndFilteredExcel($criteria, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeSociete, $peutVoirListeAvecDebiteur);
+        $entities = $repository->findAndFilteredExcel($criteria, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeSociete, $peutVoirListeAvecDebiteur, $multisuccursale);
 
         // Convertir les entités en tableau de données
         $data = [];
@@ -202,12 +208,15 @@ class BadmListeController extends Controller
         $agenceIdUser = $this->getSecurityService()->getAgenceIdUser();
         $serviceIdUser = $this->getSecurityService()->getServiceIdUser();
 
+        // Vérifier la permission de voir tous les données
+        $multisuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE);
+
         // Vérifier le permission de voir liste avec débiteur sur la page courante
         $peutVoirListeAvecDebiteur = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_AUTH_2);
 
         /** @var BadmRepository $repository */
         $repository = $this->getEntityManager()->getRepository(Badm::class);
-        $paginationData = $repository->findPaginatedAndFilteredListAnnuler($page, $limit, $criteria, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeSociete, $peutVoirListeAvecDebiteur);
+        $paginationData = $repository->findPaginatedAndFilteredListAnnuler($page, $limit, $criteria, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeSociete, $peutVoirListeAvecDebiteur, $multisuccursale);
 
         for ($i = 0; $i < count($paginationData['data']); $i++) {
             $badmRechercheModel = new BadmRechercheModel();

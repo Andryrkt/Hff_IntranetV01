@@ -87,11 +87,14 @@ class listeDaController extends Controller
         $agenceIdUser = $this->getSecurityService()->getAgenceIdUser();
         $serviceIdUser = $this->getSecurityService()->getServiceIdUser();
 
+        // Vérifier la permission de voir tous les données
+        $multisuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE);
+
         // Vérifier le permission de voir liste avec débiteur sur la page courante
         $peutVoirListeAvecDebiteur = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_AUTH_2);
 
         // Donnée à envoyer à la vue
-        $paginationData = $this->daAfficherRepository->findPaginatedAndFilteredDA($page, $limit, $criteria, $agenceIdUser, $serviceIdUser, $codeSociete, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
+        $paginationData = $this->daAfficherRepository->findPaginatedAndFilteredDA($page, $limit, $criteria, $agenceIdUser, $serviceIdUser, $codeSociete, $agenceServiceAutorises, $peutVoirListeAvecDebiteur, $multisuccursale);
 
         // Application du verrouillage (Logique purement applicative)
         $this->appliquerVerrouillage($paginationData['data']);

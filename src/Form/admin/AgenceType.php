@@ -5,6 +5,7 @@ namespace App\Form\admin;
 
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
+use App\Entity\admin\Societte;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -23,6 +24,16 @@ class AgenceType extends AbstractType
             ])
             ->add('libelleAgence', TextType::class, [
                 'label' => 'Libelle Agence',
+            ])
+            ->add('societe', EntityType::class, [
+                'label'        => 'Société',
+                'placeholder'  => '-- Choisir société --',
+                'class'        => Societte::class,
+                'choice_label' => function (Societte $societe): string {
+                    return $societe->getCodeSociete() . ' ' . $societe->getNom();
+                },
+                'multiple'     => false,
+                'expanded'     => false,
             ])
             ->add('services', EntityType::class, [
                 'label'        => 'Services liées',

@@ -53,10 +53,13 @@ class DdpListeController extends Controller
         $codeAgence = $this->getSecurityService()->getCodeAgenceUser();
         $codeService = $this->getSecurityService()->getCodeServiceUser();
 
+        // Vérifier la permission de voir tous les données
+        $multisuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE);
+
         // Vérifier le permission de voir liste avec débiteur sur la page courante
         $peutVoirListeAvecDebiteur = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_AUTH_2);
 
-        $data = $this->demandePaiementRepository->findDemandePaiement($this->ddpSearch, $codeAgence, $codeService, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
+        $data = $this->demandePaiementRepository->findDemandePaiement($this->ddpSearch, $codeAgence, $codeService, $agenceServiceAutorises, $peutVoirListeAvecDebiteur, $multisuccursale);
         /** suppression de ssession page_loadede  */
         if ($this->getSessionService()->has('page_loaded')) {
             $this->getSessionService()->remove('page_loaded');

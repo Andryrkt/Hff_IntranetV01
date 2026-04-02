@@ -128,19 +128,21 @@ class DemandeCongeRepository extends EntityRepository
 
     private function filtredParAgenceService(QueryBuilder $queryBuilder, array $options, array $agenceServiceAutorises): void
     {
-        // Condition sur les couples agences-services
-        $orX = $queryBuilder->expr()->orX();
-        foreach ($agenceServiceAutorises as $i => $tab) {
-            $orX->add(
-                $queryBuilder->expr()->andX(
-                    $queryBuilder->expr()->eq('asi.agence_ips', ':agEmetteur_' . $i),
-                    $queryBuilder->expr()->eq('asi.service_ips', ':servEmetteur_' . $i)
-                )
-            );
-            $queryBuilder->setParameter('agEmetteur_' . $i, $tab['agence_code']);
-            $queryBuilder->setParameter('servEmetteur_' . $i, $tab['service_code']);
+        if (!empty($agenceServiceAutorises)) {
+            // Condition sur les couples agences-services
+            $orX = $queryBuilder->expr()->orX();
+            foreach ($agenceServiceAutorises as $i => $tab) {
+                $orX->add(
+                    $queryBuilder->expr()->andX(
+                        $queryBuilder->expr()->eq('asi.agence_ips', ':agEmetteur_' . $i),
+                        $queryBuilder->expr()->eq('asi.service_ips', ':servEmetteur_' . $i)
+                    )
+                );
+                $queryBuilder->setParameter('agEmetteur_' . $i, $tab['agence_code']);
+                $queryBuilder->setParameter('servEmetteur_' . $i, $tab['service_code']);
+            }
+            $queryBuilder->andWhere($orX);
         }
-        $queryBuilder->andWhere($orX);
 
         // Filtrer par Agence_Service (code service_sage_paie)
         if (isset($options['agence']) && $options['agence']) {

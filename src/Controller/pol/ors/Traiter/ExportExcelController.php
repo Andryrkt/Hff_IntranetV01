@@ -15,7 +15,7 @@ class ExportExcelController extends Controller
     use MagasinOrATraiterTrait;
 
     /**
-     * @Route("/pol-list-or-traiter-export-excel", name="pol_list_or_traiter_export_excel")
+     * @Route("/pol-list-or-traiter-export-excel", name="export_excel_pol_or_traiter")
      *
      * @return void
      */

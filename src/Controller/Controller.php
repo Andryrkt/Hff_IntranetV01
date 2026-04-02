@@ -12,7 +12,6 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use App\Entity\admin\historisation\pageConsultation\PageHff;
 use App\Entity\admin\historisation\pageConsultation\UserLogger;
 use App\Entity\admin\utilisateur\Profil;
-use App\Entity\da\DemandeAppro;
 use App\Service\navigation\MenuService;
 use App\Service\security\SecurityService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -329,37 +328,6 @@ class Controller
         }
 
         $Result_Num = $nomDemande . $AnneMoisOfcours . $this->CompleteChaineCaractere($vNumSequential, 4, "0", "G");
-        return $Result_Num;
-    }
-
-    /**
-     * Décrémentation automatique des numéros DIT
-     */
-    protected function autoDecrementDIT(string $nomDemande): string
-    {
-        $YearsOfcours = date('y');
-        $MonthOfcours = date('m');
-        $AnneMoisOfcours = $YearsOfcours . $MonthOfcours;
-
-        if ($nomDemande === 'DIT') {
-            $Max_Num = $this->getEntityManager()->getRepository(Application::class)->findOneBy(['codeApp' => 'DIT'])->getDerniereId();
-        } else {
-            $Max_Num = $nomDemande . $AnneMoisOfcours . '9999';
-        }
-
-        $vNumSequential = substr($Max_Num, -4);
-        $DateAnneemoisnum = substr($Max_Num, -8);
-        $DateYearsMonthOfMax = substr($DateAnneemoisnum, 0, 4);
-
-        if ($DateYearsMonthOfMax == $AnneMoisOfcours) {
-            $vNumSequential = $vNumSequential - 1;
-        } else {
-            if ($AnneMoisOfcours > $DateYearsMonthOfMax) {
-                $vNumSequential = 9999;
-            }
-        }
-
-        $Result_Num = $nomDemande . $AnneMoisOfcours . $vNumSequential;
         return $Result_Num;
     }
 

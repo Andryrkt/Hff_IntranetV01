@@ -15,7 +15,7 @@ class ExportExcelController extends Controller
     use ReportingIpsTrait;
 
     /**
-     * @Route("/reappro-export-excel", name = "reappro_export_excel")
+     * @Route("/reappro-export-excel", name = "export_reappro_excel")
      */
     public function exportExcel()
     {

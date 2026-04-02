@@ -7,6 +7,7 @@ use App\Model\LdapModel;
 use App\Entity\admin\Personnel;
 use Symfony\Component\Form\AbstractType;
 use App\Entity\admin\utilisateur\Profil;
+use App\Repository\admin\ProfilRepository;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -21,6 +22,7 @@ class UserType extends AbstractType
         $userInfo = $container->get('session')->get('user_info');
         $users = (new LdapModel())->infoUser($userInfo['username'], $userInfo['password']);
         $nom = array_keys($users);
+        $canSeeAll = $options['canSeeAll'];
 
         $builder
             ->add(
@@ -64,6 +66,17 @@ class UserType extends AbstractType
                     'multiple'     => true,
                     'expanded'     => false,
                     'required'     => true,
+                    'query_builder' => function (ProfilRepository $repo) use ($canSeeAll) {
+                        $qb = $repo->createQueryBuilder('p')
+                            ->orderBy('p.designation', 'ASC');
+
+                        if (!$canSeeAll) {
+                            $qb->where('p.reference != :sup_admin')
+                                ->setParameter('sup_admin', 'SUP-ADMIN');
+                        }
+
+                        return $qb;
+                    },
                 ]
             )
         ;
@@ -73,6 +86,7 @@ class UserType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => UserDTO::class,
+            'canSeeAll' => false,
         ]);
     }
 }

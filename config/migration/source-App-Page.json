@@ -247,6 +247,86 @@
         "peut_multi_succursale": false,
         "peut_supprimer": false,
         "peut_exporter": false
+      },
+      {
+        "nom_route": "da_detail_avec_dit",
+        "peut_voir": true,
+        "peut_voir_liste_avec_debiteur": false,
+        "peut_multi_succursale": false,
+        "peut_supprimer": false,
+        "peut_exporter": false
+      },
+      {
+        "nom_route": "da_detail_direct",
+        "peut_voir": true,
+        "peut_voir_liste_avec_debiteur": false,
+        "peut_multi_succursale": false,
+        "peut_supprimer": false,
+        "peut_exporter": false
+      },
+      {
+        "nom_route": "da_detail_reappro",
+        "peut_voir": true,
+        "peut_voir_liste_avec_debiteur": false,
+        "peut_multi_succursale": false,
+        "peut_supprimer": false,
+        "peut_exporter": false
+      },
+      {
+        "nom_route": "da_proposition_ref_avec_dit",
+        "peut_voir": true,
+        "peut_voir_liste_avec_debiteur": false,
+        "peut_multi_succursale": false,
+        "peut_supprimer": false,
+        "peut_exporter": false
+      },
+      {
+        "nom_route": "da_proposition_direct",
+        "peut_voir": true,
+        "peut_voir_liste_avec_debiteur": false,
+        "peut_multi_succursale": false,
+        "peut_supprimer": false,
+        "peut_exporter": false
+      },
+      {
+        "nom_route": "da_validate_avec_dit",
+        "peut_voir": true,
+        "peut_voir_liste_avec_debiteur": false,
+        "peut_multi_succursale": false,
+        "peut_supprimer": false,
+        "peut_exporter": false
+      },
+      {
+        "nom_route": "da_validate_direct",
+        "peut_voir": true,
+        "peut_voir_liste_avec_debiteur": false,
+        "peut_multi_succursale": false,
+        "peut_supprimer": false,
+        "peut_exporter": false
+      },
+      {
+        "nom_route": "da_validate_reappro_mensuel",
+        "peut_voir": true,
+        "peut_voir_liste_avec_debiteur": false,
+        "peut_multi_succursale": false,
+        "peut_supprimer": false,
+        "peut_exporter": false
+      },
+      {
+        "nom_route": "da_edit_avec_dit",
+        "peut_voir": true,
+        "peut_voir_liste_avec_debiteur": false,
+        "peut_multi_succursale": false,
+        "peut_supprimer": false,
+        "peut_exporter": false
+      },
+      {
+        "nom_route": "da_edit_direct",
+        "peut_voir": true,
+        "peut_voir_liste_avec_debiteur": false,
+        "peut_multi_succursale": false,
+        "peut_supprimer": false,
+        "peut_exporter": false
       }
     ],
     "agences_services": []
@@ -285,6 +365,14 @@
         "peut_multi_succursale": false,
         "peut_supprimer": false,
         "peut_exporter": false
+      },
+      {
+        "nom_route": "conge_calendrier",
+        "peut_voir": true,
+        "peut_voir_liste_avec_debiteur": false,
+        "peut_multi_succursale": false,
+        "peut_supprimer": false,
+        "peut_exporter": false
       }
     ],
     "agences_services": []
@@ -294,6 +382,30 @@
     "pages": [
       {
         "nom_route": "ddp_liste",
+        "peut_voir": true,
+        "peut_voir_liste_avec_debiteur": false,
+        "peut_multi_succursale": false,
+        "peut_supprimer": false,
+        "peut_exporter": false
+      },
+      {
+        "nom_route": "demande_regulation",
+        "peut_voir": true,
+        "peut_voir_liste_avec_debiteur": false,
+        "peut_multi_succursale": false,
+        "peut_supprimer": false,
+        "peut_exporter": false
+      },
+      {
+        "nom_route": "new_demande_paiement",
+        "peut_voir": true,
+        "peut_voir_liste_avec_debiteur": false,
+        "peut_multi_succursale": false,
+        "peut_supprimer": false,
+        "peut_exporter": false
+      },
+      {
+        "nom_route": "edit_demande_paiement",
         "peut_voir": true,
         "peut_voir_liste_avec_debiteur": false,
         "peut_multi_succursale": false,
@@ -420,6 +532,20 @@
     "agences_services": []
   },
   {
+    "code_app": "CONTRAT",
+    "pages": [
+      {
+        "nom_route": "new_contrat",
+        "peut_voir": true,
+        "peut_voir_liste_avec_debiteur": false,
+        "peut_multi_succursale": false,
+        "peut_supprimer": false,
+        "peut_exporter": false
+      }
+    ],
+    "agences_services": []
+  },
+  {
     "code_app": "DOM",
     "pages": [
       {
@@ -494,6 +620,38 @@
       },
       {
         "nom_route": "devis_magasin_liste",
+        "peut_voir": true,
+        "peut_voir_liste_avec_debiteur": false,
+        "peut_multi_succursale": false,
+        "peut_supprimer": false,
+        "peut_exporter": false
+      },
+      {
+        "nom_route": "bc_magasin_soumission",
+        "peut_voir": true,
+        "peut_voir_liste_avec_debiteur": false,
+        "peut_multi_succursale": false,
+        "peut_supprimer": false,
+        "peut_exporter": false
+      },
+      {
+        "nom_route": "devis_magasin_envoyer_au_client",
+        "peut_voir": true,
+        "peut_voir_liste_avec_debiteur": false,
+        "peut_multi_succursale": false,
+        "peut_supprimer": false,
+        "peut_exporter": false
+      },
+      {
+        "nom_route": "devis_magasin_soumission_validation_devis",
+        "peut_voir": true,
+        "peut_voir_liste_avec_debiteur": false,
+        "peut_multi_succursale": false,
+        "peut_supprimer": false,
+        "peut_exporter": false
+      },
+      {
+        "nom_route": "devis_magasin_soumission_verification_prix",
         "peut_voir": true,
         "peut_voir_liste_avec_debiteur": false,
         "peut_multi_succursale": false,
@@ -728,6 +886,38 @@
       },
       {
         "nom_route": "pol_or_liste_a_livrer",
+        "peut_voir": true,
+        "peut_voir_liste_avec_debiteur": false,
+        "peut_multi_succursale": false,
+        "peut_supprimer": false,
+        "peut_exporter": false
+      },
+      {
+        "nom_route": "bc_magasin_pol_soumission",
+        "peut_voir": true,
+        "peut_voir_liste_avec_debiteur": false,
+        "peut_multi_succursale": false,
+        "peut_supprimer": false,
+        "peut_exporter": false
+      },
+      {
+        "nom_route": "devis_magasin_pol_envoyer_au_client",
+        "peut_voir": true,
+        "peut_voir_liste_avec_debiteur": false,
+        "peut_multi_succursale": false,
+        "peut_supprimer": false,
+        "peut_exporter": false
+      },
+      {
+        "nom_route": "devis_magasin_pol_soumission_validation_devis",
+        "peut_voir": true,
+        "peut_voir_liste_avec_debiteur": false,
+        "peut_multi_succursale": false,
+        "peut_supprimer": false,
+        "peut_exporter": false
+      },
+      {
+        "nom_route": "devis_magasin_pol_soumission_verification_prix",
         "peut_voir": true,
         "peut_voir_liste_avec_debiteur": false,
         "peut_multi_succursale": false,
@@ -1026,30 +1216,6 @@
       },
       {
         "nom_route": "personnel_index",
-        "peut_voir": true,
-        "peut_voir_liste_avec_debiteur": false,
-        "peut_multi_succursale": false,
-        "peut_supprimer": false,
-        "peut_exporter": false
-      },
-      {
-        "nom_route": "contact_agence_ate_new",
-        "peut_voir": true,
-        "peut_voir_liste_avec_debiteur": false,
-        "peut_multi_succursale": false,
-        "peut_supprimer": false,
-        "peut_exporter": false
-      },
-      {
-        "nom_route": "contact_agence_ate_update",
-        "peut_voir": true,
-        "peut_voir_liste_avec_debiteur": false,
-        "peut_multi_succursale": false,
-        "peut_supprimer": false,
-        "peut_exporter": false
-      },
-      {
-        "nom_route": "contact_agence_ate_index",
         "peut_voir": true,
         "peut_voir_liste_avec_debiteur": false,
         "peut_multi_succursale": false,

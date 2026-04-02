@@ -344,7 +344,7 @@ class DaAfficherRepository extends EntityRepository
         $this->applyDynamicFilters($qb, 'd', $criteria, true);
         $this->applyStatutsFilters($qb, 'd', $criteria, true);
         $this->applyDateFilters($qb, 'd', $criteria, true);
-        $this->applyAgencyServiceFilters($qb, 'd', $criteria, null, 0, true, true, true);
+        $this->applyAgencyServiceFilters($qb, 'd', $criteria);
 
         // ------------------------------------------------------------------
         // COUNT optimisé (COUNT(d.id) est plus rapide que DISTINCT)
@@ -540,7 +540,8 @@ class DaAfficherRepository extends EntityRepository
         int $serviceIdUser,
         string $codeSociete,
         array $agenceServiceAutorises,
-        bool $peutVoirListeAvecDebiteur
+        bool $peutVoirListeAvecDebiteur,
+        bool $multisuccursale
     ): array {
         $criteria = $criteria ?? [];
 
@@ -601,7 +602,11 @@ class DaAfficherRepository extends EntityRepository
         $this->applyAgencyServiceFilters($qb, 'd', $criteria);
         $this->applyDateFilters($qb, 'd', $criteria);
         $this->applyStatutsFilters($qb, 'd', $criteria);
-        $this->conditionAgenceService($qb, 'd', $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
+
+        if (!$multisuccursale) {
+            $this->conditionAgenceService($qb, 'd', $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
+        }
+
         // 4. Count total optimisé avec cache
         $countQb = clone $qb;
         $countQb->resetDQLPart('select');
@@ -916,7 +921,7 @@ class DaAfficherRepository extends EntityRepository
         }
     }
 
-    private function applyAgencyServiceFilters($qb, string $qbLabel, array $criteria, ?User $user = null, int $idAgenceUser = 0, bool $estAppro = false, bool $estAtelier = false, bool $estAdmin = false)
+    private function applyAgencyServiceFilters($qb, string $qbLabel, array $criteria)
     {
         if (!empty($criteria['agenceEmetteur'])) {
             $qb->andWhere("$qbLabel.agenceEmetteur = :agEmet")
@@ -1057,7 +1062,7 @@ class DaAfficherRepository extends EntityRepository
     }
 
 
-    public function findDerniereVersionDesDA(array $criteria, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeSociete, bool $peutVoirListeAvecDebiteur): array
+    public function findDerniereVersionDesDA(array $criteria, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeSociete, bool $peutVoirListeAvecDebiteur, bool $multisuccursale): array
     {
         $qb = $this->createQueryBuilder('d');
 
@@ -1078,7 +1083,10 @@ class DaAfficherRepository extends EntityRepository
         $this->applyDateFilters($qb, 'd', $criteria);
         // $this->applyFilterAppro($qb, 'd', $estAppro, $estAdmin);
         $this->applyStatutsFilters($qb, 'd', $criteria);
-        $this->conditionAgenceService($qb, "d", $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
+
+        if (!$multisuccursale) {
+            $this->conditionAgenceService($qb, "d", $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
+        }
 
         $qb->orderBy('d.dateDemande', 'DESC')
             ->addOrderBy('d.numeroFournisseur', 'DESC')

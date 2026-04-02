@@ -411,7 +411,6 @@ class MenuGroupe
                     ['label' => 'Services',              'icon' => 'fa-briefcase',    'route' => 'service_index'],
                     ['label' => 'Agences ( ~ Services)', 'icon' => 'fa-city',         'route' => 'agence_index'],
                     ['label' => 'Personnels',            'icon' => 'fa-id-card',      'route' => 'personnel_index'],
-                    ['label' => "Contacts d'agence",     'icon' => 'fa-address-book', 'route' => 'contact_agence_ate_index'],
                 ],
             ],
             [
