@@ -6835,8 +6835,8 @@
     ]
   },
   {
-    "ref_profil": "HFF_01-MAS_DOM+BDM+CAS+DIT+REP+PAT+DDC",
-    "designation_profil": "HFF_01-MAS_DOM+BDM+CAS+DIT+REP+PAT+DDC",
+    "ref_profil": "HFF_01-MAS_BDM+CAS+DIT+REP+PAT+DDC",
+    "designation_profil": "HFF_01-MAS_BDM+CAS+DIT+REP+PAT+DDC",
     "societe_id": 1,
     "applications": [
       {
@@ -6866,109 +6866,6 @@
           }
         ],
         "agences_services": []
-      },
-      {
-        "code_app": "DOM",
-        "pages": [
-          {
-            "nom_route": "dom_list_annuler_search",
-            "peut_voir": true,
-            "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
-            "peut_supprimer": false,
-            "peut_exporter": false
-          },
-          {
-            "nom_route": "dom_first_form",
-            "peut_voir": true,
-            "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
-            "peut_supprimer": false,
-            "peut_exporter": false
-          },
-          {
-            "nom_route": "dom_second_form",
-            "peut_voir": true,
-            "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
-            "peut_supprimer": false,
-            "peut_exporter": false
-          },
-          {
-            "nom_route": "doms_liste",
-            "peut_voir": true,
-            "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
-            "peut_supprimer": false,
-            "peut_exporter": false
-          },
-          {
-            "nom_route": "doms_liste_search",
-            "peut_voir": true,
-            "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
-            "peut_supprimer": false,
-            "peut_exporter": false
-          },
-          {
-            "nom_route": "dom_list_annuler",
-            "peut_voir": true,
-            "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
-            "peut_supprimer": false,
-            "peut_exporter": false
-          },
-          {
-            "nom_route": "Dom_detail",
-            "peut_voir": true,
-            "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
-            "peut_supprimer": false,
-            "peut_exporter": false
-          }
-        ],
-        "agences_services": [
-          {
-            "code_agence": "01",
-            "code_service": "ATE"
-          },
-          {
-            "code_agence": "01",
-            "code_service": "CSP"
-          },
-          {
-            "code_agence": "01",
-            "code_service": "GAR"
-          },
-          {
-            "code_agence": "01",
-            "code_service": "ASS"
-          },
-          {
-            "code_agence": "01",
-            "code_service": "MAS"
-          },
-          {
-            "code_agence": "20",
-            "code_service": "ATE"
-          },
-          {
-            "code_agence": "30",
-            "code_service": "ATE"
-          },
-          {
-            "code_agence": "40",
-            "code_service": "ATE"
-          },
-          {
-            "code_agence": "40",
-            "code_service": "LEV"
-          },
-          {
-            "code_agence": "60",
-            "code_service": "ATE"
-          }
-        ]
       },
       {
         "code_app": "BDM",
