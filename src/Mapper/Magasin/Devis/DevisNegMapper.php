@@ -47,7 +47,7 @@ class DevisNegMapper
             }
 
             //Blockage de soumission
-            $dto->pointagedevis = in_array($dto->statutDw, [StatutDevisNegContant::PRIX_VALIDER_TANA, StatutDevisNegContant::PRIX_MODIFIER_TANA, StatutDevisNegContant::VALIDE_AGENCE]);
+            // $dto->pointagedevis = in_array($dto->statutDw, [StatutDevisNegContant::PRIX_VALIDER_TANA, StatutDevisNegContant::PRIX_MODIFIER_TANA, StatutDevisNegContant::VALIDE_AGENCE]);
 
             return $dto;
         }, $data);
