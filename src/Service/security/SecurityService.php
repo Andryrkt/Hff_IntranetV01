@@ -19,7 +19,7 @@ class SecurityService
     private UserDataService $dataService;
 
     // ─── Routes publiques (pas de contrôle d'accès) ──────────────────────────
-    private const ROUTES_SEMI_PRIVEES = ['choix_societe'];
+    private const ROUTES_SEMI_PRIVEES = ['choix_societe', 'sso_annuaire'];
     private const ROUTE_ACCUEIL = 'profil_acceuil';
     private const ROUTES_PUBLIQUES = ['security_signin', 'auth_deconnexion'];
     private const PREFIXES_API = ['api_'];
@@ -66,16 +66,37 @@ class SecurityService
      * @return RedirectResponse|null  null = OK, RedirectResponse = non connecté
      * @throws AccessDeniedException  si connecté mais peutVoir = false
      */
-    public function controlerAcces(Request $request): ?RedirectResponse
+    public function controlerAcces(Request $request): ?\Symfony\Component\HttpFoundation\Response
     {
         $nomRoute = $request->attributes->get('_route');
 
         // Mémoriser la route pour les appels depuis les contrôleurs
         $this->routeCourrante = $nomRoute;
 
-        // Route publique ou Routes APi ou Route Export → laisse passer sans aucun contrôle
-        if ($this->estRoutePublique($nomRoute) || $this->estRouteApi($nomRoute) || $this->estRouteExport($nomRoute)) {
+        // Route publique ou Route Export → laisse passer sans aucun contrôle
+        if ($this->estRoutePublique($nomRoute) || $this->estRouteExport($nomRoute)) {
             return null;
+        }
+
+        // Routes API : contrôle JWT
+        if ($this->estRouteApi($nomRoute)) {
+            if ($nomRoute === 'api_login') {
+                return null;
+            }
+
+            $authHeader = $request->headers->get('Authorization');
+            if (!$authHeader || !preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
+                return new \Symfony\Component\HttpFoundation\JsonResponse(['error' => 'Accès refusé. Token manquant ou mal formaté'], 401);
+            }
+
+            $jwtService = new \App\Service\security\JwtService();
+            $payload = $jwtService->decode($matches[1]);
+
+            if (!$payload) {
+                return new \Symfony\Component\HttpFoundation\JsonResponse(['error' => 'Token invalide ou expiré'], 401);
+            }
+
+            return null; // Token valide, on laisse passer
         }
 
         // Non connecté → redirection vers login (avec URL de retour)

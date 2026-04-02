@@ -156,4 +156,56 @@ class LoginController extends Controller
         // Rediriger vers la page de connexion
         return $this->redirectToRoute('security_signin');
     }
+
+    /**
+     * @Route("/api/login", name="api_login", methods={"POST"})
+     */
+    public function apiLogin(Request $request)
+    {
+        $data = json_decode($request->getContent(), true);
+
+        $username = $data['username'] ?? '';
+        $password = $data['password'] ?? '';
+
+        try {
+            /** @var User $user */
+            $user = $this->userRepository->findOneBy(['nom_utilisateur' => $username]);
+
+            if (!$user) {
+                throw new \Exception('Utilisateur non trouvé avec le nom d\'utilisateur : ' . $username);
+            }
+
+            if (!$this->ldapModel->userConnect($username, $password)) {
+                return new \Symfony\Component\HttpFoundation\JsonResponse(['error' => 'Identifiants invalides'], 401);
+            }
+
+            $profils = $user->getProfils();
+
+            if ($profils->isEmpty()) {
+                return new \Symfony\Component\HttpFoundation\JsonResponse(['error' => 'Aucun profil trouvé'], 403);
+            }
+
+            $payload = [
+                'id'                   => $user->getId(),
+                'username'             => $username,
+                'email'                => $user->getMail(),
+                'roles'                => $user->getRoleIds(),
+                'default_agence_code'  => $user->getCodeAgenceUser(),
+                'default_service_code' => $user->getCodeServiceUser()
+            ];
+
+            $jwtService = new \App\Service\security\JwtService();
+            // Création du Token valables pour 2 heures (7200 secondes)
+            $token = $jwtService->encode($payload, 7200);
+
+            return new \Symfony\Component\HttpFoundation\JsonResponse([
+                'success' => true,
+                'token'   => $token,
+                'user'    => $payload
+            ]);
+
+        } catch (\Exception $e) {
+            return new \Symfony\Component\HttpFoundation\JsonResponse(['error' => $e->getMessage()], 400);
+        }
+    }
 }
