@@ -80,7 +80,7 @@ class DevisNegBcController extends Controller
             $bcModel->enregistrerBc($dto);
 
             // Modification du table devis_soumis_a_validation_neg
-            // $bcModel->updateDevis($dto);
+            $bcModel->updateDevis($dto);
 
             //HISTORISATION DE L'OPERATION
             $message = 'Le bon de commande a été soumis avec succès.';

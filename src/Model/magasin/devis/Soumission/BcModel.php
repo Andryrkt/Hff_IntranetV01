@@ -162,7 +162,7 @@ class BcModel extends Model
         $updateBuilder->where('numero_version', $dto->numeroVersionDevis);
 
         // Changer l'opérateur des conditions (optionnel)
-        $updateBuilder->setConditionOperator('AND');
+        // $updateBuilder->setConditionOperator('AND');
 
         // Construire et exécuter la requête
         try {
