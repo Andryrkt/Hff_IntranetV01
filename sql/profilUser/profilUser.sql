@@ -249,6 +249,7 @@ create table agence_service_defaut_societe (
     id_user int not null,
     code_sage varchar(50) null,
     id_societe int not null,
+    code_societe varchar(2) not null,
     code_agence varchar(50) not null,
     code_service varchar(50) not null,
     id_agence int not null,
@@ -261,11 +262,12 @@ create table agence_service_defaut_societe (
 );
 
 INSERT INTO agence_service_defaut_societe
-(id_user, code_sage, id_societe, code_agence, code_service, id_agence, id_service)
+(id_user, code_sage, id_societe, code_societe, code_agence, code_service, id_agence, id_service)
 SELECT
     u.id                    AS id_user,
     asi.service_sage_paie   AS code_sage,
-    soc.id                  AS id_societe,       
+    soc.id                  AS id_societe,
+    soc.code_societe        AS code_societe,
     asi.agence_ips          AS code_agence,   
     asi.service_ips         AS code_service,
     a.id                    AS id_agence,
