@@ -67,7 +67,7 @@ class ListeDevisNegController extends Controller
         try {
 
             $page = $request->query->getInt('page', 1);
-            $limit = $request->query->getInt('limit', 25);
+            $limit = $request->query->getInt('limit', 500);
             [, $criteria] = $this->creationEtTraitementformulaireDeRecherche($request);
 
             $devisNeg = $this->getDataDevisNegEnDto($page, $limit, $criteria);
@@ -104,7 +104,7 @@ class ListeDevisNegController extends Controller
         return [$form, $criteria];
     }
 
-    private function getDataDevisNegEnDto(int $page = 1, int $limit = 50, $criteria = [])
+    private function getDataDevisNegEnDto(int $page = 1, int $limit = 100, $criteria = [])
     {
         if ($criteria instanceof DevisSearchDto) {
             $criteria = (array) $criteria;

@@ -108,7 +108,7 @@ try {
 const formData = new FormData(searchForm);
 const params = new URLSearchParams(formData);
 params.append('page', currentPage);
-params.append('limit', 25);
+params.append('limit', 500);
 
 const response = await fetch (`{{ path('api_devis_neg_data') }}?${
 params.toString()
@@ -209,14 +209,22 @@ row.statutRelance3 || ''
 }</td>
 									<td class="text-center">
 										${
-									row.statutRelance1 ? `
-											<div class="form-check form-switch d-flex justify-content-center" ${row.stopProgressionGlobal === 1 ? `title="${row.motifStopGlobal || ''}" data-bs-toggle="tooltip"` : ''}>
+row.statutRelance1 ? `
+											<div class="form-check form-switch d-flex justify-content-center" ${
+row.stopProgressionGlobal === 1 ? `title="${
+row.motifStopGlobal || ''
+}" data-bs-toggle="tooltip"` : ''
+}>
 												<input class="form-check-input js-checkbox-stop-relance ${checkboxClass}" type="checkbox" role="switch" data-numero-devis="${
-									row.numeroDevis
-									}" ${isChecked ? 'checked' : ''} ${isRelance3Done ? 'disabled' : ''}>
+row.numeroDevis
+}" ${
+isChecked ? 'checked' : ''
+} ${
+isRelance3Done ? 'disabled' : ''
+}>
 											</div>
 										` : ''
-									}
+}
 									</td>
 									<td class="text-center">${
 row.positionIps || ''

@@ -8,7 +8,7 @@ use App\Service\GlobalVariablesService;
 
 class DevisNegModel extends Model
 {
-    public function getDevisNeg($criteria, $codeAgenceAutoriserString, $numDeviAExclure, $codeSociete, $page = 1, $limit = 50)
+    public function getDevisNeg($criteria, $codeAgenceAutoriserString, $numDeviAExclure, $codeSociete, $page = 1, $limit = 100)
     {
         $this->connect->connect();
         $skip = ($page - 1) * $limit;

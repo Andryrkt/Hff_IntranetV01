@@ -9,7 +9,7 @@ use App\Service\autres\VersionService;
 
 class PointageRelanceFactory
 {
-    public function create(string $numeroDevis): PointageRelanceDto
+    public function create(?string $numeroDevis): PointageRelanceDto
     {
         $dto = new PointageRelanceDto();
         $dto->dateDeRelance = new \DateTimeImmutable();

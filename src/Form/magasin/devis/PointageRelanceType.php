@@ -22,6 +22,7 @@ class PointageRelanceType extends AbstractType
             ->add('dateDeRelance', DateType::class, [
                 'label' => 'Date de relance *',
                 'widget' => 'single_text',
+                'input'  => 'datetime_immutable',
                 'required' => true,
             ])
         ;

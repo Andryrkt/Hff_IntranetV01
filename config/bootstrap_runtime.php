@@ -44,8 +44,21 @@ if ($isDevMode) {
     // DEV : on garde le serialize() pour la détection de changements automatique
     $routeCacheFile = dirname(__DIR__) . '/var/cache/routes_dev.php';
 
-    // Vérification fraîcheur manuelle simplifiée
+    // Vérification fraîcheur : recompile si le cache est absent OU si un contrôleur est plus récent
     $needsRecompile = !file_exists($routeCacheFile);
+    if (!$needsRecompile) {
+        $cacheTime = filemtime($routeCacheFile);
+        foreach ([dirname(__DIR__) . '/src/Controller', dirname(__DIR__) . '/src/Api'] as $scanDir) {
+            if (!is_dir($scanDir)) continue;
+            $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($scanDir, RecursiveDirectoryIterator::SKIP_DOTS));
+            foreach ($iterator as $file) {
+                if ($file->getExtension() === 'php' && $file->getMTime() > $cacheTime) {
+                    $needsRecompile = true;
+                    break 2;
+                }
+            }
+        }
+    }
 
     // On pourrait ajouter ici la vérification des mtimes des controllers
     // mais en DEV un simple file_exists suffit pour le workflow quotidien
