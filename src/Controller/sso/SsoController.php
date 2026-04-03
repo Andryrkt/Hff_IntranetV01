@@ -26,9 +26,9 @@ class SsoController extends Controller
         // On peut appeler le security service (déjà disponible globalement via le container) pour récupérer les droits
         global $container;
         $securityService = $container->get('security.service');
-        
+
         // Obtenir toutes les permissions globales ou relatives à l'utilisateur ciblé si possible
-        $permissions = clone $securityService->getPermissions();
+        $permissions = $securityService->getPermissions();
 
         // 2. Préparer le payload du token JWT (tout ce que React doit savoir)
         $payload = [
@@ -50,13 +50,13 @@ class SsoController extends Controller
         // Le token est valable 1 heure (3600 secondes)
         // Le front React a 1 heure pour faire ses requêtes, s'il a besoin que ça dure, 
         // vous pourrez augmenter cette valeur à 8 heures (28800) par exemple.
-        $token = $jwtService->encode($payload, 3600); 
+        $token = $jwtService->encode($payload, 3600);
 
         // 4. Déterminer l'URL de votre application React
         // Idéalement à mettre dans dans votre fichier .env 
         // ex: REACT_ANNUAIRE_URL="http://votre-serveur-react.fr"
-        $reactAppUrl = $_ENV['REACT_ANNUAIRE_URL'] ?? 'http://localhost:3000';
-        
+        $reactAppUrl = $_ENV['REACT_ANNUAIRE_URL'] ?? 'http://172.20.11.236:5173';
+
         // 5. Ordre de redirection immédiate (Status 302 HTTP)
         $redirectUrl = $reactAppUrl . '?token=' . urlencode($token);
 
