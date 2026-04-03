@@ -44,8 +44,21 @@ if ($isDevMode) {
     // DEV : on garde le serialize() pour la détection de changements automatique
     $routeCacheFile = dirname(__DIR__) . '/var/cache/routes_dev.php';
 
-    // Vérification fraîcheur manuelle simplifiée
+    // Vérification fraîcheur : recompile si le cache est absent OU si un contrôleur est plus récent
     $needsRecompile = !file_exists($routeCacheFile);
+    if (!$needsRecompile) {
+        $cacheTime = filemtime($routeCacheFile);
+        foreach ([dirname(__DIR__) . '/src/Controller', dirname(__DIR__) . '/src/Api'] as $scanDir) {
+            if (!is_dir($scanDir)) continue;
+            $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($scanDir, RecursiveDirectoryIterator::SKIP_DOTS));
+            foreach ($iterator as $file) {
+                if ($file->getExtension() === 'php' && $file->getMTime() > $cacheTime) {
+                    $needsRecompile = true;
+                    break 2;
+                }
+            }
+        }
+    }
 
     // On pourrait ajouter ici la vérification des mtimes des controllers
     // mais en DEV un simple file_exists suffit pour le workflow quotidien
@@ -186,6 +199,10 @@ $menuService = $container->get('menu.service');
 
 /** @var SecurityService $securityService */
 $securityService = $container->get('security.service');
+
+/** @var \Symfony\Component\Cache\Adapter\TagAwareAdapterInterface $cacheMenu */
+$cacheMenu = $container->get('cache.menu');
+
 $twig->addExtension(new \Twig\Extension\DebugExtension());
 $twig->addExtension(new \Symfony\Bridge\Twig\Extension\TranslationExtension(
     new \Symfony\Component\Translation\Translator('fr_FR')
@@ -193,7 +210,7 @@ $twig->addExtension(new \Symfony\Bridge\Twig\Extension\TranslationExtension(
 $twig->addExtension(new \Symfony\Bridge\Twig\Extension\RoutingExtension($urlGenerator));
 $twig->addExtension(new \Symfony\Bridge\Twig\Extension\FormExtension());
 $twig->addExtension(new \App\Twig\AppExtension($session, $container->get('request_stack')));
-$twig->addExtension(new \App\Twig\BreadcrumbExtension($menuService, $securityService));
+$twig->addExtension(new \App\Twig\BreadcrumbExtension($menuService, $securityService, $cacheMenu));
 $twig->addExtension(new \App\Twig\CarbonExtension());
 $twig->addExtension(new \App\Twig\DeleteWordExtension());
 

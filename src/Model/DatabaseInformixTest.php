@@ -88,7 +88,17 @@ class DatabaseInformixTest
 
     private function logError($message)
     {
-        error_log($message, 3, $_ENV['BASE_PATH_LOG'] . "/log/app_errors.log");
+        $logPath = $_ENV['BASE_PATH_LOG'] ?? 'var/log/app_errors.log';
+        if (strpos($logPath, '.log') === false) {
+            $logPath = rtrim($logPath, '/') . '/app_errors.log';
+        }
+
+        $logDir = dirname($logPath);
+        if (!is_dir($logDir)) {
+            @mkdir($logDir, 0777, true);
+        }
+
+        @error_log("[" . date('Y-m-d H:i:s') . "] " . $message . "\n", 3, $logPath);
     }
 
     // Méthode pour rediriger vers la page d'erreur

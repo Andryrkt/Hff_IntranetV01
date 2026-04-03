@@ -11,6 +11,8 @@ services:
   App\Twig\BreadcrumbExtension:
     arguments:
       - '@App\Service\navigation\MenuService'
+      - '@App\Service\security\SecurityService'
+      - '@cache.app'
     tags: ["twig.extension"]
 
   App\Twig\CarbonExtension:

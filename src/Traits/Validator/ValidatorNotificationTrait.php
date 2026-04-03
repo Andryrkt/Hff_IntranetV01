@@ -3,7 +3,6 @@
 namespace App\Traits\Validator;
 
 use App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService;
-use App\Service\magasin\devis\Config\DevisMagasinValidationConfig;
 use App\Service\SessionManagerService;
 
 /**
@@ -43,12 +42,12 @@ trait ValidatorNotificationTrait
         bool $success
     ): void {
 
-        $criteria = $this->getSessionService()->get('criteria_for_excel_liste_devis_magasin');
-        $nomInputSearch = 'devis_magasin_search'; // initialistion de nom de chaque champ ou input
+        $criteria = (array)$this->getSessionService()->get('criteria_for_excel_liste_devis_neg');
+        $nomInputSearch = 'devis_neg_search'; // initialistion de nom de chaque champ ou input
         $this->getHistoriqueService()->sendNotificationSoumission(
             $message,
             $numeroDevis,
-            DevisMagasinValidationConfig::REDIRECT_ROUTE,
+            'liste_devis_neg',
             $success,
             $criteria,
             $nomInputSearch

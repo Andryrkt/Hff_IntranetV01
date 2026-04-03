@@ -1,0 +1,76 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block title %}
+	Poinage envoyer au client
+{% endblock %}
+
+{% block stylesheets %}
+	<link href="{{ App.base_path }}/Views/css/new.css?v=2025.10.22.08.00" rel="stylesheet"/>
+{% endblock %}
+
+{% block javascript %}
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+const dateInput = document.getElementById('envoyer_au_client_dateEnvoiDevisAuClient');
+
+if (dateInput) {
+dateInput.addEventListener('change', function () {
+if (!this.value) 
+return;
+
+
+
+const selectedDate = new Date(this.value);
+const today = new Date();
+
+// On remet l'heure à zéro pour ne comparer que les dates
+today.setHours(0, 0, 0, 0);
+selectedDate.setHours(0, 0, 0, 0);
+
+if (selectedDate > today) {
+Swal.fire({
+icon: 'warning',
+title: 'Date invalide',
+text: "La date d'envoi ne peut pas être supérieure à la date du jour.",
+confirmButtonColor: '#3085d6',
+confirmButtonText: 'OK'
+});
+this.value = ''; // On vide le champ pour bloquer la validation
+this.focus();
+}
+});
+}
+});
+	</script>
+{% endblock %}
+
+{% block content %}
+	<div class=" container mt-6 mb-4">
+		<div class="card">
+			<div class="card-body">
+
+				<div class="container">
+
+					{{ form_start(form, {'attr': {'enctype': 'multipart/form-data', 'id': 'upload-form'}}) }}
+					{{ form_errors(form)}}
+					<div class="row">
+						<div class="col-12 col-md-6">
+							{{ form_row(form.numeroDevis) }}
+						</div>
+						<div class="col-12 col-md-6">
+							{{ form_row(form.dateEnvoiDevisAuClient, {'attr': {'max': "now"|date('Y-m-d')}}) }}
+						</div>
+					</div>
+
+					<div class="d-flex justify-content-end">
+						<button type="submit" class="btn bouton mt-2" id="btn-enregistre-devis" data-confirmation data-form="#upload-form" data-confirmation-text="Vous êtes en train de soumettre le devis N° {{numDevis}} pour {{message}}">
+							<i class="fas fa-save"></i>
+							Enregistrer
+						</button>
+					</div>
+					{{ form_end(form) }}
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}
