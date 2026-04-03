@@ -4,6 +4,7 @@ namespace App\Controller\Traits\da\affectation;
 
 use DateTime;
 use App\Entity\da\DemandeAppro;
+use App\Constants\da\StatutDaConstant;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
 use App\Model\da\DaReapproModel;
@@ -90,7 +91,7 @@ trait DaAffectationTrait
         if ($daParent->getObservation()) $this->insertionObservation($numeroDemandeAppro, $daParent->getObservation()); // insertion d'observation du formulaire dans le nouveau DA
 
         $validationDA = $daType === DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL;
-        $statutDW = $validationDA ? DemandeAppro::STATUT_DW_A_VALIDE : '';
+        $statutDW = $validationDA ? StatutDaConstant::STATUT_DW_A_VALIDE : '';
 
         // Supprimer les lignes de DA Parent dans la table da_afficher
         $this->daAfficherRepository->markAsDeletedByNumeroLigne($daParent->getNumeroDemandeAppro(), $linesToDelete, $this->getUserName(), true);
@@ -136,8 +137,8 @@ trait DaAffectationTrait
         ];
 
         $statut = [
-            DemandeAppro::TYPE_DA_DIRECT           => DemandeAppro::STATUT_SOUMIS_APPRO,
-            DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL => DemandeAppro::STATUT_VALIDE,
+            DemandeAppro::TYPE_DA_DIRECT           => StatutDaConstant::STATUT_SOUMIS_APPRO,
+            DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL => StatutDaConstant::STATUT_VALIDE,
         ];
 
         $numDa = str_replace('DAP', $prefix[$daType], $daParent->getNumeroDemandeAppro());
@@ -176,7 +177,7 @@ trait DaAffectationTrait
         $daSoumisAValidation
             ->setNumeroDemandeAppro($numeroDemandeAppro)
             ->setNumeroVersion($numeroVersion)
-            ->setStatut(DemandeAppro::STATUT_DW_A_VALIDE)
+            ->setStatut(StatutDaConstant::STATUT_DW_A_VALIDE)
             ->setUtilisateur($demandeur)
         ;
 

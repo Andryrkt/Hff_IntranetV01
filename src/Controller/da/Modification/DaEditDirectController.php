@@ -2,17 +2,18 @@
 
 namespace App\Controller\da\Modification;
 
+use App\Constants\da\StatutDaConstant;
 use App\Controller\Controller;
-use App\Entity\da\DemandeAppro;
-use App\Entity\da\DemandeApproL;
-use App\Entity\admin\Application;
-use App\Entity\da\DemandeApproLR;
-use App\Form\da\DemandeApproDirectFormType;
 use App\Controller\Traits\AutorisationTrait;
 use App\Controller\Traits\da\DaAfficherTrait;
+use App\Controller\Traits\da\modification\DaEditDirectTrait;
+use App\Entity\admin\Application;
+use App\Entity\da\DemandeAppro;
+use App\Entity\da\DemandeApproL;
+use App\Entity\da\DemandeApproLR;
+use App\Form\da\DemandeApproDirectFormType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\Traits\da\modification\DaEditDirectTrait;
 
 /**
  * @Route("/demande-appro")
@@ -109,7 +110,7 @@ class DaEditDirectController extends Controller
             $demandeAppro = $form->getData();
             $numDa = $demandeAppro->getNumeroDemandeAppro();
 
-            $this->modificationDa($demandeAppro, $form->get('DAL'), DemandeAppro::STATUT_SOUMIS_APPRO);
+            $this->modificationDa($demandeAppro, $form->get('DAL'), StatutDaConstant::STATUT_SOUMIS_APPRO);
             if ($demandeAppro->getObservation() !== null) {
                 $this->insertionObservation($numDa, $demandeAppro->getObservation());
             }

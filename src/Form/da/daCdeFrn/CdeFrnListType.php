@@ -3,6 +3,8 @@
 namespace App\Form\da\daCdeFrn;
 
 
+use App\Constants\da\StatutBcConstant;
+use App\Constants\da\StatutDaConstant;
 use App\Entity\admin\Agence;
 use App\Entity\admin\dit\WorNiveauUrgence;
 use App\Entity\admin\Service;
@@ -35,42 +37,6 @@ class CdeFrnListType extends  AbstractType
         $this->agenceRepository = $this->em->getRepository(Agence::class);
     }
 
-    private const STATUT_DA = [
-        DemandeAppro::STATUT_EN_COURS_CREATION    => DemandeAppro::STATUT_EN_COURS_CREATION,
-        DemandeAppro::STATUT_SOUMIS_APPRO         => DemandeAppro::STATUT_SOUMIS_APPRO, // demande d'achat
-        DemandeAppro::STATUT_DEMANDE_DEVIS        => DemandeAppro::STATUT_DEMANDE_DEVIS,
-        DemandeAppro::STATUT_DEVIS_A_RELANCER     => DemandeAppro::STATUT_DEVIS_A_RELANCER,
-        DemandeAppro::STATUT_AUTORISER_EMETTEUR   => DemandeAppro::STATUT_AUTORISER_EMETTEUR, // Création demande initiale
-        DemandeAppro::STATUT_EN_COURS_PROPOSITION => DemandeAppro::STATUT_EN_COURS_PROPOSITION,
-        DemandeAppro::STATUT_SOUMIS_ATE           => DemandeAppro::STATUT_SOUMIS_ATE, // proposition d'achat
-        DemandeAppro::STATUT_VALIDE               => DemandeAppro::STATUT_VALIDE, // Bon d'achats validé
-        DemandeAppro::STATUT_CLOTUREE             => DemandeAppro::STATUT_CLOTUREE,
-        DemandeAppro::STATUT_CLOTUREE_HORS_DELAI  => DemandeAppro::STATUT_CLOTUREE_HORS_DELAI,
-    ];
-
-    private const STATUT_BC = [
-        DaSoumissionBc::STATUT_A_GENERER                => DaSoumissionBc::STATUT_A_GENERER,
-        DaSoumissionBc::STATUT_A_EDITER                 => DaSoumissionBc::STATUT_A_EDITER,
-        DaSoumissionBc::STATUT_A_SOUMETTRE_A_VALIDATION => DaSoumissionBc::STATUT_A_SOUMETTRE_A_VALIDATION,
-        DaSoumissionBc::STATUT_A_VALIDER_DA             => DaSoumissionBc::STATUT_A_VALIDER_DA,
-        DaSoumissionBc::STATUT_REFUSE                   => DaSoumissionBc::STATUT_REFUSE,
-        DaSoumissionBc::STATUT_A_ENVOYER_AU_FOURNISSEUR => DaSoumissionBc::STATUT_A_ENVOYER_AU_FOURNISSEUR,
-        DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR => DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR,
-        DaSoumissionBc::STATUT_NON_DISPO                => DaSoumissionBc::STATUT_NON_DISPO,
-        DaSoumissionBc::STATUT_EN_COURS_DE_PREPARATION  => DaSoumissionBc::STATUT_EN_COURS_DE_PREPARATION,
-        DaSoumissionBc::STATUT_PARTIELLEMENT_DISPO      => DaSoumissionBc::STATUT_PARTIELLEMENT_DISPO,
-        DaSoumissionBc::STATUT_COMPLET_NON_LIVRE        => DaSoumissionBc::STATUT_COMPLET_NON_LIVRE,
-        DaSoumissionBc::STATUT_PARTIELLEMENT_LIVRE      => DaSoumissionBc::STATUT_PARTIELLEMENT_LIVRE,
-        DaSoumissionBc::STATUT_TOUS_LIVRES              => DaSoumissionBc::STATUT_TOUS_LIVRES,
-        DaSoumissionBc::STATUT_PAS_DANS_OR              => DaSoumissionBc::STATUT_PAS_DANS_OR,
-        DaSoumissionBc::STATUT_PAS_DANS_OR_CESSION      => DaSoumissionBc::STATUT_PAS_DANS_OR_CESSION,
-        DaSoumissionBc::STATUT_PAS_DANS_BC              => DaSoumissionBc::STATUT_PAS_DANS_BC,
-    ];
-
-    // private function statutBc()
-    // {
-    //     return $this->em->getRepository(DaAfficher::class)->getStatutsBc();
-    // }
 
     private const TYPE_ACHAT = [
         'DA Avec DIT' => DemandeAppro::TYPE_DA_AVEC_DIT,
@@ -85,8 +51,7 @@ class CdeFrnListType extends  AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $statut_da = self::STATUT_DA;
-        // ksort($statut_da);
+        $statut_da = StatutDaConstant::STATUT_DA;
 
         $builder
             ->add('afficherCloturees', CheckboxType::class, [
@@ -148,7 +113,7 @@ class CdeFrnListType extends  AbstractType
                 ChoiceType::class,
                 [
                     'label' => "Statut BC",
-                    'choices' => self::STATUT_BC,
+                    'choices' => StatutBcConstant::STATUT_BC,
                     'placeholder' => '-- Choisir la statut --',
                     'required' => false,
                 ]

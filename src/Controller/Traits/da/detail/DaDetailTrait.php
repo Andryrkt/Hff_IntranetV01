@@ -2,6 +2,7 @@
 
 namespace App\Controller\Traits\da\detail;
 
+use App\Constants\da\StatutDaConstant;
 use App\Controller\Traits\da\DaTrait;
 use App\Entity\da\DemandeAppro;
 
@@ -104,7 +105,7 @@ trait DaDetailTrait
     private function getBaIntranetPath(DemandeAppro $demandeAppro): string
     {
         $numDa = $demandeAppro->getNumeroDemandeAppro();
-        if (in_array($demandeAppro->getStatutDal(), [DemandeAppro::STATUT_VALIDE, DemandeAppro::STATUT_TERMINER])) {
+        if (in_array($demandeAppro->getStatutDal(), [StatutDaConstant::STATUT_VALIDE, StatutDaConstant::STATUT_TERMINER])) {
             return $_ENV['BASE_PATH_FICHIER_COURT'] . "/da/$numDa/$numDa.pdf";
         }
         return "-";

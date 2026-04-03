@@ -85,6 +85,10 @@ class DaListCdeFrnController extends Controller
         $paginationData = $this->daAfficherRepository->findValidatedPaginatedDas($criteriaTab, $page, $limit);
         $daAfficherMapper = new DaAfficherMapper($this->getUrlGenerator());
         $dataPrepared = $daAfficherMapper->mapList($paginationData['data'], [
+            'estAdmin'   => $this->estAdmin(),
+            'estAppro'   => $this->estUserDansServiceAppro(),
+            'estAtelier' => $this->estUserDansServiceAtelier(),
+            'estCreateur' => $this->estCreateurDeDADirecte(),
             'codeAgenceUser' => $this->getUser()->getCodeAgenceUser(),
             'codeServiceUser' => $this->getUser()->getCodeServiceUser(),
         ]);
@@ -116,10 +120,13 @@ class DaListCdeFrnController extends Controller
 
         if ($formDateLivraison->isSubmitted() && $formDateLivraison->isValid()) {
             $data = $formDateLivraison->getData();
+            $dateLivraisonPrevue = $data['dateLivraisonPrevue'];
             $daAffichers = $this->daAfficherRepository->findBy(['numeroCde' => $data['numeroCde']]);
 
+            /** @var DaAfficher $daAfficher */
             foreach ($daAffichers as $daAfficher) {
-                $daAfficher->setDateLivraisonPrevue($data['dateLivraisonPrevue']);
+                $daAfficher->setDateLivraisonPrevue($dateLivraisonPrevue)
+                    ->setJoursDispo($dateLivraisonPrevue->diff(new \DateTime('now', new \DateTimeZone('Indian/Antananarivo')))->days);
                 $this->getEntityManager()->persist($daAfficher);
             }
 
