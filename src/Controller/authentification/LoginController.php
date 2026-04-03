@@ -5,6 +5,7 @@ namespace App\Controller\authentification;
 use Exception;
 use App\Model\LdapModel;
 use App\Controller\Controller;
+use App\Entity\admin\utilisateur\AgenceServiceDefautSociete;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\admin\utilisateur\Profil;
 use Doctrine\ORM\EntityManagerInterface;
@@ -54,18 +55,14 @@ class LoginController extends Controller
                     $firstname = $user->getFirstName();
                     $lastname = $user->getLastName();
                     $userInfo = [
-                        "id"                   => $userId,
-                        "username"             => $username,
-                        "firstname"            => $firstname,
-                        "lastname"             => $lastname,
-                        "fullname"             => "$lastname $firstname",
-                        "email"                => $user->getMail(),
-                        "roles"                => $user->getRoleIds(),
-                        "default_agence_code"  => $user->getCodeAgenceUser(),
-                        "default_service_code" => $user->getCodeServiceUser(),
-                        "default_agence_id"    => $user->getIdAgenceUser(),
-                        "default_service_id"   => $user->getIdServiceUser(),
-                        'password'             => $password,
+                        "id"        => $userId,
+                        "username"  => $username,
+                        "firstname" => $firstname,
+                        "lastname"  => $lastname,
+                        "fullname"  => "$lastname $firstname",
+                        "email"     => $user->getMail(),
+                        "roles"     => $user->getRoleIds(),
+                        'password'  => $password,
                     ];
 
                     $this->getSessionService()->set('user_info', $userInfo);
@@ -78,8 +75,16 @@ class LoginController extends Controller
 
                     /** @var Profil $profil */
                     $profil = $profils->first();
-                    $userInfo['profil_id'] = $profil->getId();
-                    $userInfo['societe_code'] = $profil->getSociete()->getCodeSociete();
+                    $codeSociete = $profil->getSociete()->getCodeSociete();
+
+                    $agenceServiceDefaut = $this->getEntityManager()->getRepository(AgenceServiceDefautSociete::class)->findOneBy(['user' => $userId, 'codeSociete' => $codeSociete]);
+
+                    $userInfo["default_agence_code"]  = $agenceServiceDefaut->getCodeAgence();
+                    $userInfo["default_service_code"] = $agenceServiceDefaut->getCodeService();
+                    $userInfo["default_agence_id"]    = $agenceServiceDefaut->getAgence()->getId();
+                    $userInfo["default_service_id"]   = $agenceServiceDefaut->getService()->getId();
+                    $userInfo['societe_code']         = $codeSociete;
+                    $userInfo['profil_id']            = $profil->getId();
                     $this->getSessionService()->set('user_info', $userInfo);
 
                     $this->redirectToRoute('profil_acceuil');
