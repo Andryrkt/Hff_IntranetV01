@@ -21,6 +21,9 @@ class PointageRelanceModel extends Model
     {
         // Convertir le DTO en tableau associatif pour l'insertion
         $donnees = PointageRelanceMapper::toArrayPointageRelance($pointageRelanceEntity);
+        
+        // Convertir vers l'encodage Informix (ISO-8859-1)
+        $donnees = $this->convertirVersInformix($donnees);
 
         // Construire la requête d'insertion et l'exécuter
         $builder = new InsertQueryBuilder('ir_prod108:Informix.pointage_relance');
@@ -48,6 +51,9 @@ class PointageRelanceModel extends Model
     public function updateDevis($pointageRelanceEntity, $numeroVersionDevis)
     {
         $donnees = PointageRelanceMapper::toArrayUpdatePointageRelance();
+
+        // Convertir vers l'encodage Informix (ISO-8859-1)
+        $donnees = $this->convertirVersInformix($donnees);
 
         $updateBuilder = new UpdateQueryBuilder('ir_prod108:Informix.devis_soumis_a_validation_neg');
 
