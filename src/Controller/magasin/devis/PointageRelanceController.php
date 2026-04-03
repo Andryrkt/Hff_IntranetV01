@@ -2,17 +2,18 @@
 
 namespace App\Controller\magasin\devis;
 
-use App\Controller\Controller;
 use App\Api\magasin\AutocompletionApi;
-use App\Service\autres\AutoIncDecService;
-use App\Entity\magasin\devis\DevisMagasin;
+use App\Controller\Controller;
 use App\Dto\Magasin\Devis\PointageRelanceDto;
+use App\Entity\magasin\devis\DevisMagasin;
 use App\Entity\magasin\devis\PointageRelance;
+use App\Factory\magasin\devis\PointageRelanceFactory;
+use App\Form\magasin\devis\PointageRelanceType;
+use App\Model\magasin\devis\Pointage\PointageRelanceModel;
+use App\Service\autres\AutoIncDecService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use App\Form\magasin\devis\PointageRelanceType;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Factory\magasin\devis\PointageRelanceFactory;
 
 /**
  * @Route("/magasin/dematerialisation")
@@ -59,14 +60,14 @@ class PointageRelanceController extends Controller
             // Code Société de l'utilisateur
             $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
 
-            $pointageRelanceEntity = (new PointageRelanceFactory())->map($data, $this->getUserName(), $this->numeroRelance($data['numeroDevis'], $codeSociete));
-            $pointageRelanceEntity->setCodeSociete($codeSociete);
-
-            $this->getEntityManager()->persist($pointageRelanceEntity);
-            $this->getEntityManager()->flush();
+            $pointageRelanceEntity = (new PointageRelanceFactory())->map($data, $this->getUserName(), $this->numeroRelance($data['numeroDevis'], $codeSociete), $codeSociete);
+            $pointageRelanceModel = new PointageRelanceModel();
+            $pointageRelanceModel->enregistrerPointageRelance($pointageRelanceEntity);
 
             // Mettre à jour le statut de relance du devis
-            $this->modifictionTableDevisSoumisAValidationNeg($pointageRelanceEntity, $codeSociete);
+            $numeroVersionDevis = $pointageRelanceModel->getNumeroVersionDevis($pointageRelanceEntity->getNumeroDevis(), $codeSociete);
+            $pointageRelanceModel->updateDevis($pointageRelanceEntity, $numeroVersionDevis);
+
 
             return $this->jsonResponse(['success' => true, 'message' => 'Formulaire soumis avec succès.']);
         }

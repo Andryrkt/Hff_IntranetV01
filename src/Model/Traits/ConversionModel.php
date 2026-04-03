@@ -35,6 +35,21 @@ trait ConversionModel
         return $element;
     }
 
+    public function convertirVersInformix($element)
+    {
+        if (is_array($element)) {
+            foreach ($element as $key => $value) {
+                $element[$key] = $this->convertirVersInformix($value);
+            }
+        } elseif (is_string($element)) {
+            // Convertir de UTF-8 vers ISO-8859-1 pour Informix
+            if (mb_check_encoding($element, 'UTF-8')) {
+                return mb_convert_encoding($element, 'ISO-8859-1', 'UTF-8');
+            }
+        }
+        return $element;
+    }
+
     public function clean_string($string)
     {
         return mb_convert_encoding($string, 'UTF-8', 'ISO-8859-1');

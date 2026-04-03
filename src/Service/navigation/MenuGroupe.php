@@ -247,7 +247,7 @@ class MenuGroupe
                 'label'    => 'DEMATERIALISATION',
                 'icon'     => 'cloud-arrow-up',
                 'subitems' => [
-                    ['label' => 'Devis',                        'icon' => 'file-invoice', 'route' => 'devis_magasin_liste'],
+                    ['label' => 'Devis',                        'icon' => 'file-invoice', 'route' => 'liste_devis_neg'],
                     ['label' => 'Planning de commande Magasin', 'icon' => 'calendar-alt', 'route' => 'interface_planningMag'],
                 ],
             ],
