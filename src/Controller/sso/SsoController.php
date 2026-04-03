@@ -3,13 +3,16 @@
 namespace App\Controller\sso;
 
 use App\Controller\Controller;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use App\Controller\Traits\lienGenerique;
 use App\Service\security\JwtService;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
 
 class SsoController extends Controller
 {
+    use lienGenerique;
+
     /**
      * @Route("/sso/annuaire", name="sso_annuaire", methods={"GET"})
      */
@@ -42,7 +45,8 @@ class SsoController extends Controller
             'default_agence_code'  => $userInfo['default_agence_code'] ?? null,
             'default_service_code' => $userInfo['default_service_code'] ?? null,
             // Les permissions existantes dans l'intranet:
-            'permissions'          => $permissions
+            'permissions'          => $permissions,
+            'url_logout' => $this->urlGenerique($_ENV['BASE_PATH_COURT'] . "/logout")
         ];
 
         // 3. Génération du JWT via notre JwtService nouvellement crée
@@ -54,7 +58,7 @@ class SsoController extends Controller
 
         // 4. Déterminer l'URL de votre application React
         // Idéalement à mettre dans dans votre fichier .env 
-        // ex: REACT_ANNUAIRE_URL="http://votre-serveur-react.fr"
+        // ex: REACT_ANNUAIRE_URL="http://votre-serveur-react.mg"
         $reactAppUrl = $_ENV['REACT_ANNUAIRE_URL'] ?? 'http://172.20.11.236:5173';
 
         // 5. Ordre de redirection immédiate (Status 302 HTTP)

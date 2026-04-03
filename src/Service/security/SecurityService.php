@@ -78,12 +78,18 @@ class SecurityService
             return null;
         }
 
-        // Routes API : contrôle JWT
+        // Routes API : contrôle JWT ou Session (Intranet)
         if ($this->estRouteApi($nomRoute)) {
             if ($nomRoute === 'api_login') {
                 return null;
             }
 
+            // Si l'utilisateur est déjà connecté par session PHP (appels internes JS), on autorise
+            if ($this->dataService->isUserConnected()) {
+                return null;
+            }
+
+            // Sinon, on exige un token JWT (appels externes, ex: React)
             $authHeader = $request->headers->get('Authorization');
             if (!$authHeader || !preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
                 return new \Symfony\Component\HttpFoundation\JsonResponse(['error' => 'Accès refusé. Token manquant ou mal formaté'], 401);
