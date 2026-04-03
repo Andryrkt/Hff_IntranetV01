@@ -11,14 +11,14 @@ use App\Entity\magasin\devis\DevisMagasin;
 use App\Form\magasin\devis\DevisNegSearchType;
 use App\Mapper\Magasin\Devis\DevisNegMapper;
 use App\Model\magasin\devis\DevisNegModel;
+use App\Service\security\SecurityService;
 use App\Service\TableauEnStringService;
-use App\Utils\PerfLogger;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * Route("/magasin/dematerialisation")
+ * @Route("/magasin/dematerialisation")
  */
 class ListeDevisNegController extends Controller
 {
@@ -112,8 +112,14 @@ class ListeDevisNegController extends Controller
 
         // Code Société de l'utilisateur
         $codeSociete = $this->getSecurityService()->getCodeSocieteUser() ?? 'HF';
+
+        // Code Agence par défaut
+        $codeAgenceDefaut = $this->getSecurityService()->getCodeAgenceUser();
+
         // code agence autoriser
         $codeAgenceAutoriserString = TableauEnStringService::orEnString(array_column($this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DVM), 'agence_code'));
+
+        $multiSuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE, 'liste_devis_neg');
 
         // Utilisation du cache de session pour la liste d'exclusion
         $session = $this->getSessionService();
@@ -134,7 +140,7 @@ class ListeDevisNegController extends Controller
             return [];
         };
 
-        $devisNeg = $this->listeDevisNegModel->getDevisNeg($criteria, $codeAgenceAutoriserString, $numDeviAExclure, $codeSociete, $page, $limit);
+        $devisNeg = $this->listeDevisNegModel->getDevisNeg($criteria, $codeAgenceAutoriserString, $multiSuccursale, $codeAgenceDefaut, $numDeviAExclure, $codeSociete, $page, $limit);
         $devisNeg = $this->devisNegMapper->map($devisNeg, $urlGenerator);
 
         return $devisNeg;

@@ -8,7 +8,7 @@ use App\Service\GlobalVariablesService;
 
 class DevisNegModel extends Model
 {
-    public function getDevisNeg($criteria, $codeAgenceAutoriserString, $numDeviAExclure, $codeSociete, $page = 1, $limit = 100)
+    public function getDevisNeg($criteria, $codeAgenceAutoriserString, $multiSuccursale, $codeAgenceDefaut, $numDeviAExclure, $codeSociete, $page = 1, $limit = 100)
     {
         $this->connect->connect();
         $skip = ($page - 1) * $limit;
@@ -95,7 +95,6 @@ class DevisNegModel extends Model
             ) rl ON rl.num_dev = nent.nent_numcde
 
             WHERE nent.nent_natop    = 'DEV'
-                --AND nent.nent_soc      = 'HF'
                 AND nent.nent_servcrt  <> 'ASS'
                 AND nent.nent_numcli   NOT BETWEEN 1990000 AND 1999999
                 AND nent.nent_numcli   <> 1990000
@@ -110,6 +109,15 @@ class DevisNegModel extends Model
                             )
                 ";
 
+            // Filtre par agences autorisées
+            if (!$multiSuccursale) {
+                if ($codeAgenceAutoriserString !== "''") {
+                    $statement .= " AND nent.nent_succ IN ($codeAgenceAutoriserString) ";
+                } else {
+                    $statement .= " AND nent.nent_succ = '$codeAgenceDefaut' ";
+                }
+            }
+
             // if (empty($criteria['statutDw']) && empty($criteria['statutBc']) && empty($criteria['filterRelance'])) {
             //     $statement .= " AND (dneg.statut_dw in ('A envoyer client', 'A soumettre') or  dneg.statut_dw is null) ";
             // }
@@ -119,11 +127,6 @@ class DevisNegModel extends Model
             if (!empty($numDeviAExclure)) {
                 $whereClauses[] = " nent.nent_numcde NOT IN ($numDeviAExclure) ";
             }
-
-            // Filtre par agences autorisées
-            // if (!empty($codeAgenceAutoriserString)) {
-            //     $whereClauses[] = " nent.nent_succ IN ($codeAgenceAutoriserString) ";
-            // }
 
             if (array_key_exists('statutIps', $criteria) && ($criteria['statutIps'] == 'RE' || $criteria['statutIps'] == 'TR')) {
                 $whereClauses[] = " nent.nent_posl in ('--','AC','DE', 'RE', 'TR')";
