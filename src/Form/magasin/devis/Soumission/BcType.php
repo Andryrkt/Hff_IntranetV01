@@ -30,10 +30,17 @@ class BcType extends AbstractType
             ->add('numeroBc', TextType::class, [
                 'label' => 'Numéro BC client * ',
                 'required' => true,
+                'attr' => [
+                    'data-field-name' => 'numéro BC client',
+                ],
+
             ])
             ->add('montantBc', TextType::class, [
                 'label' => 'Montant BC * ',
                 'required' => true,
+                'attr' => [
+                    'data-field-name' => 'montant BC',
+                ],
             ])
             ->add(
                 'dateBc',
@@ -42,7 +49,9 @@ class BcType extends AbstractType
                     'label' => 'Date BC *',
                     'widget' => 'single_text',
                     'html5' => true,
-                    //'format' => 'dd/MM/yyyy', 
+                    'attr' => [
+                        'data-field-name' => 'date BC',
+                    ],
                 ]
             )
             ->add(
@@ -62,6 +71,9 @@ class BcType extends AbstractType
                 [
                     'label' => 'Upload File',
                     'required' => true,
+                    'attr' => [
+                        'data-field-name' => 'soumission BC',
+                    ],
                     'constraints' => [
                         new NotBlank([
                             'message' => 'Veuiller sélectionner le devis.', // Message d'erreur si le champ est vide
