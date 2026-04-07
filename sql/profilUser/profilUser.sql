@@ -137,6 +137,42 @@ VALUES
 (N'LOGISTIQUE (MATERIEL)', N'LOG', '2026-03-17', '2026-03-17', NULL, NULL),
 (N'CONTRAT (DOCUMENTATION)', N'CONTRAT', '2026-03-24', NULL, NULL, NULL);
 
+-- Ajout de Accueil et authentification
+INSERT INTO Hff_pages
+(nom, nom_route, lien, application_id, date_creation, date_modification)
+VALUES(N'Accueil', N'profil_acceuil', N'/', NULL, NULL, NULL),
+(N'Authentification (identifiants incorrects)', N'security_signin', N'/login', NULL, NULL, NULL);
+
+-- Mise à jour de log_utilisateur pour les anciens Accueil et authentification
+UPDATE Log_utilisateur
+SET id_page = hp.id
+FROM Log_utilisateur lu
+JOIN Hff_Pages hp
+    ON (
+        (lu.id_page = 1 AND hp.nom_route = 'profil_acceuil' AND hp.id > 50) OR (lu.id_page = 2 AND hp.nom_route = 'security_signin' AND hp.id > 50)
+    )
+WHERE lu.id_page IN (1, 2);
+
+-- Suppression des anciens Accueil et authentification
+delete from Hff_pages where id in (1,2);
+
+-- Ajout de nouveaux pages depuis la BDD "HFF_INTRANET_TEST_TEST" ===> "HFF_INTRANET_TEST_2026"
+INSERT INTO HFF_INTRANET_TEST_2026.dbo.Hff_pages
+(nom, nom_route, lien, application_id, date_creation, date_modification)
+select hp.nom, hp.nom_route, hp.lien, a.id, hp.date_creation, hp.date_modification
+from HFF_INTRANET_TEST_TEST.dbo.Hff_pages hp
+inner join HFF_INTRANET_TEST_TEST.dbo.applications a2 on a2.id=hp.application_id
+inner join HFF_INTRANET_TEST_2026.dbo.applications a on a.code_app=a2.code_app 
+where hp.id > 58;
+
+update HFF_INTRANET_TEST_2026.dbo.Hff_pages
+set application_id=a.id
+from HFF_INTRANET_TEST_2026.dbo.Hff_pages hptarget
+inner JOIN HFF_INTRANET_TEST_TEST.dbo.Hff_pages hpsource on hptarget.nom_route=hpsource.nom_route
+inner join HFF_INTRANET_TEST_TEST.dbo.applications a2 on a2.id=hpsource.application_id
+inner join HFF_INTRANET_TEST_2026.dbo.applications a on a.code_app=a2.code_app 
+where hptarget.id < 57;
+
 alter table devis_soumis_a_validation_neg add code_societe varchar(2) null;
 
 update devis_soumis_a_validation_neg set code_societe='HF';
