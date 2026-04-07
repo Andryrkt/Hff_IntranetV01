@@ -1,7 +1,9 @@
 {# Views/templates/contrat/contrat_list_view.html.twig #}
 {% extends "baseTemplate.html.twig" %}
 
-{% block title %}{{ title }}{% endblock %}
+{% block title %}
+	{{ title }}
+{% endblock %}
 
 {% block stylesheets %}
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
@@ -10,9 +12,6 @@
 
 {% block content %}
 	<div class="container mt-6">
-		<h3 class="perso-titre">
-			Liste des contrats
-		</h3>
 		{% include "/contrat/shared/_formulaireRechercheContrat.html.twig" with {'form': form} %}
 		{% include "/contrat/shared/_pagination_contrat.html.twig" %}
 	</div>

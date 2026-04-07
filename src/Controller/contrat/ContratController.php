@@ -225,7 +225,7 @@ class ContratController extends Controller
                 'type_tiers' => $contrat->getTypeTiers(),
                 'date_debut_contrat' => $contrat->getDateDebutContrat(),
                 'date_fin_contrat' => $contrat->getDateFinContrat(),
-                'piece_jointe' => $dataPath ? $_ENV['BASE_PATH_FICHIER_COURT'] . '/' . $dataPath['path'] : null,
+                'piece_jointe' => $dataPath ? rtrim($_ENV['BASE_PATH_FICHIER_COURT'], '/') . '/' . $dataPath['path'] : null,
             ];
         }
 

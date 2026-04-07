@@ -21,7 +21,6 @@
 					<th>Type tiers</th>
 					<th>Début</th>
 					<th>Fin</th>
-					<th>PJ</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -42,7 +41,13 @@
 
 					<tr class="contrat-row" data-id="{{ item.id }}">
 						<td>
-							<strong>{{ item.reference }}</strong>
+							{% if item.piece_jointe %}
+								<a href="{{ item.piece_jointe }}" target="_blank" class="fw-bold">
+									{{ item.reference }}
+								</a>
+							{% else %}
+								<strong>{{ item.reference }}</strong>
+							{% endif %}
 						</td>
 						<td>{{ item.objet|default('-') }}</td>
 						<td>
@@ -82,15 +87,6 @@
 						<td>
 							{% if item.date_fin_contrat %}
 								{{ item.date_fin_contrat|date('d/m/Y') }}
-							{% else %}
-								<span class="text-muted">-</span>
-							{% endif %}
-						</td>
-						<td>
-							{% if item.piece_jointe %}
-								<a href="{{ item.piece_jointe }}" target="_blank" class="btn btn-sm btn-info">
-									<i class="fas fa-download"></i>
-								</a>
 							{% else %}
 								<span class="text-muted">-</span>
 							{% endif %}
