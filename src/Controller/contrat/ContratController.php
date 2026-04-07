@@ -26,9 +26,6 @@ class ContratController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        /** Autorisation accès */
-        //$this->checkPageAccess($this->estAdmin());
-
         return $this->render("dwForm/dwForm.html.twig", [
             'url'       => "https://hffc.docuware.cloud/docuware/formsweb/enregistrement-contrats?orgID=5adf2517-2f77-4e19-8b42-9c3da43af7be",
             'pageTitle' => "Nouveau contrat",
