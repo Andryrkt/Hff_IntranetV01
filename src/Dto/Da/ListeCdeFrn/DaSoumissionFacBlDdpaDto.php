@@ -64,6 +64,7 @@ class DaSoumissionFacBlDdpaDto
     public $nomAvecCheminFichierDistant;
     public $dateCreation;
     public $lesFichiers = [];
+    public $typeDdp;
 
 
     public function montantAPayer(): float

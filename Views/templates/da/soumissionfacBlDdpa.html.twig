@@ -50,6 +50,7 @@
 					</div>
 					{# ============================ #}
 					<hr>
+					{{ form_row(form.typeDdp)}}
 					<div class="row">
 						<div class="col-12 col-md-3">
 							<p>Veuillez insérer
@@ -60,6 +61,7 @@
 						<div class="col-12 col-md-3">
 							<p>Insérer
 								<strong>les autres fichiers ici</strong>
+								(RIB Fournisseur, CIF, etc ...)
 							</p>
 							{% include '/partials/_dropZoneFileMultiple.html.twig' with {'id': '2', 'form': form, 'fieldName': 'pieceJoint2'} %}
 						</div>

@@ -134,7 +134,6 @@ class DaSoumissionFacBlDdpaController extends Controller
         $this->traitementDeFichier->fusionFichers($fichierConvertir, $cheminEtNom);
 
         // enregisstrement dans la table demande de paiement
-
         $ddp = DemandePaiementMapper::map($dto);
         $this->getEntityManager()->persist($ddp);
         $this->getEntityManager()->flush();
