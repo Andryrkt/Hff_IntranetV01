@@ -31,7 +31,7 @@ class AnnulationCongeController extends Controller
             'url'       => DwConstant::LINK["annulation-conges-valide"],
             'pageTitle' => "Annulation congés validés",
             'bgColor'   => "bg-orange-cat",
-            'height'    => 980,
+            'height'    => 1050,
         ]);
     }
 
