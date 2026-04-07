@@ -136,7 +136,7 @@ class DemandeApproFormType extends AbstractType
                 ]
             )
             ->add(
-                'dit',
+                'numeroDit',
                 TextType::class,
                 [
                     'mapped' => false,

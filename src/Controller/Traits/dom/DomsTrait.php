@@ -548,14 +548,12 @@ trait DomsTrait
     {
         $codeSousType      = $dom->getSousTypeDocument()->getCodeSousType();
         $statutDescription = $dom->getIdStatutDemande()->getDescription();
-        $modePaiement      = explode(':', $dom->getModePayement())[0];
 
-        if (in_array($codeSousType, ['COMPLEMENT', 'MISSION'])) {
+        if (in_array($codeSousType, ['COMPLEMENT', 'MISSION', 'FRAIS EXCEPTIONNEL'])) {
             $isPaye           = $statutDescription === 'PAYE';
-            $isAttente        = $statutDescription === 'ATTENTE PAIEMENT';
-            $isNotMobileMoney = $modePaiement !== 'MOBILE MONEY';
+            $traiteParCompta  = $statutDescription === 'TRAITE PAR COMPTA';
 
-            if ($isPaye || ($isAttente && $isNotMobileMoney)) {
+            if ($isPaye || $traiteParCompta) {
                 $dom->setStatutTropPercuOk(true);
             }
         }

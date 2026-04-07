@@ -2017,6 +2017,7 @@ class DaAfficher
             ->setDateReceptionArticle($oldDaAfficher->getDateReceptionArticle())
             ->setDateLivraisonArticle($oldDaAfficher->getDateLivraisonArticle())
             ->setDateEnvoiFournisseur($oldDaAfficher->getDateEnvoiFournisseur())
+            ->setDateDemande($oldDaAfficher->getDateDemande())
         ;
     }
 
@@ -2082,7 +2083,6 @@ class DaAfficher
             ->setCodeCentrale($da->getCodeCentrale())
             ->setDesiCentrale($da->getDesiCentrale())
             ->setDaTypeId($da->getDaTypeId())
-            ->setDateDemande($da->getDateCreation())
             ->setNiveauUrgence($da->getNiveauUrgence())
             ->setAgenceEmetteur($da->getAgenceEmetteur()->getId())
             ->setServiceEmetteur($da->getServiceEmetteur()->getId())
