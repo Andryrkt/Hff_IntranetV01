@@ -31,7 +31,8 @@ class MenuGroupe
             [
                 'label'    => 'Annuaire',
                 'icon'     => 'address-book',
-                'link'     => '#',
+                'route'    => 'sso_annuaire',
+                'target'   => '_blank',
             ],
             [
                 'label'    => 'Plan analytique HFF',
