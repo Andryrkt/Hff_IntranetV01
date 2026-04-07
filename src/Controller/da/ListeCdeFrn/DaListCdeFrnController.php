@@ -161,12 +161,12 @@ class DaListCdeFrnController extends Controller
             if ($soumission['soumission'] === 'BC') {
                 $this->redirectToRoute("da_soumission_bc", ['numCde' => $soumission['commande_id'], 'numDa' => $soumission['da_id'], 'numOr' => (int)$soumission['num_or'], 'typeDa' => (int)$soumission['type_da']]);
             } elseif ($soumission['soumission'] === 'Facture + BL') {
-                $estDdpa = $this->daSoumissionBcRepository->getEstDdpAvance($soumission['commande_id']);
-                if ($estDdpa) {
-                    $this->redirectToRoute("da_soumission_facbl_ddpa", ['numCde' => $soumission['commande_id'], 'numDa' => $soumission['da_id'], 'numOr' => $soumission['num_or']]);
-                } else {
-                    $this->redirectToRoute("da_soumission_facbl", ['numCde' => $soumission['commande_id'], 'numDa' => $soumission['da_id'], 'numOr' => $soumission['num_or']]);
-                }
+                // $estDdpa = $this->daSoumissionBcRepository->getEstDdpAvance($soumission['commande_id']);
+                // if ($estDdpa) {
+                //     $this->redirectToRoute("da_soumission_facbl_ddpa", ['numCde' => $soumission['commande_id'], 'numDa' => $soumission['da_id'], 'numOr' => $soumission['num_or']]);
+                // } else {
+                $this->redirectToRoute("da_soumission_facbl", ['numCde' => $soumission['commande_id'], 'numDa' => $soumission['da_id'], 'numOr' => $soumission['num_or']]);
+                // }
             } elseif ($soumission['soumission'] === 'BL Reappro') {
                 $this->redirectToRoute("da_soumission_bl_reappro", $params);
             }

@@ -72,10 +72,10 @@ class DaSoumissionFacBlController extends Controller
         $this->demandeApproRepository      = $this->getEntityManager()->getRepository(DemandeAppro::class);
         $this->dwBcApproRepository         = $this->getEntityManager()->getRepository(DwBcAppro::class);
         $this->daAfficherRepository        = $this->getEntityManager()->getRepository(DaAfficher::class);
-        $this->daSoumissionFacBlModel        = new DaSoumissionFacBlModel();
+        $this->daSoumissionFacBlModel      = new DaSoumissionFacBlModel();
         $this->daModel                     = new DaModel();
-        $this->daSoumissionFacBlFactory = new DaSoumissionFacBlFactory($this->getEntityManager());
-        $this->daSoumissionfacBlMapper = new DaSoumissionFacBlMapper();
+        $this->daSoumissionFacBlFactory    = new DaSoumissionFacBlFactory($this->getEntityManager());
+        $this->daSoumissionfacBlMapper     = new DaSoumissionFacBlMapper();
     }
 
     /**
@@ -86,7 +86,7 @@ class DaSoumissionFacBlController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $dto = $this->daSoumissionFacBlFactory->initialisation($numCde, $numDa, $numOr, $this->getUserName());
+        $dto = $this->daSoumissionFacBlFactory->initialisation($numCde, $numDa, $numOr, $this->getUser());
 
         $form = $this->getFormFactory()->createBuilder(DaSoumissionFacBlType::class, $dto, [
             'method'  => 'POST'
@@ -96,6 +96,7 @@ class DaSoumissionFacBlController extends Controller
 
         return $this->render('da/soumissionFacBl.html.twig', [
             'form' => $form->createView(),
+            'dto' => $dto,
         ]);
     }
 
