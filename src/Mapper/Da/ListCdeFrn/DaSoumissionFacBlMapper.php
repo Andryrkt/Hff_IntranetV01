@@ -20,6 +20,27 @@ class DaSoumissionFacBlMapper
             ->setNumeroOR($dto->numeroOR)
             ->setNumeroCde($dto->numeroCde)
             ->setNumLiv($dto->numLiv)
+            ->setStatut($dto->statutFacBl)
+            ->setPieceJoint1($dto->pieceJoint1)
+            ->setUtilisateur($dto->utilisateur)
+            ->setNumeroVersion($dto->numeroVersionFacBl)
+            ->setMontantBlFacture($dto->montantBlFacture)
+            ->setNumeroFournisseur($dto->numeroFournisseur)
+            ->setNomFournisseur($dto->nomFournisseur)
+        ;
+
+        return $daSoumissionFacBl;
+    }
+
+    public static function mapBap(DaSoumissionFacBlDto $dto): DaSoumissionFacBl
+    {
+        $daSoumissionFacBl = new DaSoumissionFacBl();
+        $daSoumissionFacBl
+            ->setNumeroDemandeAppro($dto->numeroDemandeAppro)
+            ->setNumeroDemandeDit($dto->numeroDemandeDit)
+            ->setNumeroOR($dto->numeroOR)
+            ->setNumeroCde($dto->numeroCde)
+            ->setNumLiv($dto->numLiv)
             ->setRefBlFac($dto->refBlFac)
             ->setDateBlFac($dto->dateBlFac)
             ->setDateClotLiv($dto->dateClotLiv)

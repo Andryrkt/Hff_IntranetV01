@@ -1,14 +1,11 @@
 <?php
 
-namespace App\Controller\da\ListeCdeFrn;
+namespace App\Service\da\CdeFrn\FacBl;
 
-use App\Controller\Controller;
 use App\Controller\Traits\PdfConversionTrait;
-use App\Dto\Da\ListeCdeFrn\DaSoumissionFacBlDdpaDto;
+use App\Dto\Da\ListeCdeFrn\DaSoumissionFacBlDto;
 use App\Entity\da\DaAfficher;
-use App\Entity\ddp\DemandePaiement;
 use App\Factory\da\CdeFrnDto\DaSoumissionFacBlDdpaFactory;
-use App\Form\da\daCdeFrn\DaSoumissionFacBlDdpaType;
 use App\Mapper\Da\ListCdeFrn\DaSoumissionFacBlDdpaMapper;
 use App\Mapper\ddp\DemandePaiementMapper;
 use App\Repository\da\DaAfficherRepository;
@@ -16,17 +13,11 @@ use App\Service\fichier\TraitementDeFichier;
 use App\Service\genererPdf\GeneratePdf;
 use App\Service\genererPdf\GeneratePdfDdp;
 use App\Service\historiqueOperation\HistoriqueOperationDaFacBlService;
-use App\Service\historiqueOperation\HistoriqueOperationService;
+use Doctrine\ORM\EntityManagerInterface;
 use Exception;
-use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route("/demande-appro")
- */
-class DaSoumissionFacBlDdpaController extends Controller
+class TraitementSoumissionDDPLService
 {
     use PdfConversionTrait;
 
@@ -34,91 +25,58 @@ class DaSoumissionFacBlDdpaController extends Controller
     private TraitementDeFichier $traitementDeFichier;
     private string $cheminDeBase;
     private string $cheminDeBaseDdp;
-    private HistoriqueOperationService $historiqueOperation;
+    private HistoriqueOperationDaFacBlService $historiqueOperation;
     private DaAfficherRepository $daAfficherRepository;
     private DaSoumissionFacBlDdpaMapper $daSoumissionfacBlDdpaMapper;
     private GeneratePdfDdp $generatePdfDdp;
     private GeneratePdf $generatePdf;
+    private EntityManagerInterface $entityManager;
 
-    public function __construct()
-    {
-        $this->daSoumissionFacBlDdpaFactory = new DaSoumissionFacBlDdpaFactory($this->getEntityManager());
+    public function __construct(
+        EntityManagerInterface $entityManager
+    ) {
+        $this->entityManager = $entityManager;
+        $this->daSoumissionFacBlDdpaFactory = new DaSoumissionFacBlDdpaFactory($this->entityManager);
         $this->traitementDeFichier         = new TraitementDeFichier();
         $this->cheminDeBase                = $_ENV['BASE_PATH_FICHIER'] . '/da/';
         $this->cheminDeBaseDdp             = $_ENV['BASE_PATH_FICHIER'] . '/ddp';
-        $this->historiqueOperation = new HistoriqueOperationDaFacBlService($this->getEntityManager());
-        $this->daAfficherRepository        = $this->getEntityManager()->getRepository(DaAfficher::class);
+        $this->historiqueOperation         = new HistoriqueOperationDaFacBlService($this->entityManager);
+        $this->daAfficherRepository        = $this->entityManager->getRepository(DaAfficher::class);
         $this->daSoumissionfacBlDdpaMapper = new DaSoumissionFacBlDdpaMapper();
         $this->generatePdfDdp                 = new GeneratePdfDdp();
         $this->generatePdf = new GeneratePdf();
     }
 
-    /**
-     * @Route("/soumission-facbl-ddpa/{numCde}/{numDa}/{numOr}", name="da_soumission_facbl_ddpa", defaults={"numOr"=0})
-     */
-    public function index(int $numCde, ?string $numDa, ?int $numOr, Request $request)
+    public function traitementSoumissionDDPL($form, $dto)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
+        $sucess = false;
+        if ($this->verifierConditionDeBlocage($dto)) {
+            $numCde  = $dto->numeroCde;
+            $numDa   = $dto->numeroDemandeAppro;
 
-        //initialisation 
-        $dto = $this->daSoumissionFacBlDdpaFactory->initialisation($numCde, $numDa, $numOr, $this->getUser());
+            // Traitement du fichier
+            [$nomAvecCheminPdfFusionner, $nomPdfFusionner] = $this->traitementDeFichier($form, $dto);
 
-        // creation du formulaire
-        $form = $this->getFormFactory()->createBuilder(DaSoumissionFacBlDdpaType::class, $dto, [
-            'method'  => 'POST'
-        ])->getForm();
+            // enrichissement Dto
+            $dto  = $this->daSoumissionFacBlDdpaFactory->enrichissementDtoApresSoumission($dto, $nomPdfFusionner);
 
-        //traitement du formulaire
-        $this->TraitementFormualire($request, $form);
+            /** ENREGISTREMENT DANS LA BASE DE DONNEE */
+            $daSoumissionFacBl = $this->daSoumissionfacBlDdpaMapper->map($dto);
+            $this->entityManager->persist($daSoumissionFacBl);
+            $this->entityManager->flush();
 
+            /** COPIER DANS DW */
+            $this->generatePdf->copyToDWFacBlDa($nomPdfFusionner, $numDa);
 
-        return $this->render('da/soumissionFacBlDdpa.html.twig', [
-            'form' => $form->createView(),
-            'dto' => $dto
-        ]);
-    }
+            /** MODIFICATION DA AFFICHER */
+            $this->modificationDaAfficher($numDa, $numCde);
 
-    private function TraitementFormualire(Request $request, FormInterface $form)
-    {
-        $form->handleRequest($request);
+            // generation de demande de paiement
+            $this->traitementPourDdp($dto, $nomAvecCheminPdfFusionner);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            /** @var DaSoumissionFacBlDdpaDto $dto */
-            $dto = $form->getData();
-
-            if ($this->verifierConditionDeBlocage($dto)) {
-                $numCde  = $dto->numeroCde;
-                $numDa   = $dto->numeroDemandeAppro;
-
-                // Traitement du fichier
-                [$nomAvecCheminPdfFusionner, $nomPdfFusionner] = $this->traitementDeFichier($form, $dto);
-
-                // enrichissement Dto
-                $dto  = $this->daSoumissionFacBlDdpaFactory->enrichissementDtoApresSoumission($dto, $nomPdfFusionner);
-
-                /** ENREGISTREMENT DANS LA BASE DE DONNEE */
-                $daSoumissionFacBl = $this->daSoumissionfacBlDdpaMapper->map($dto);
-                $this->getEntityManager()->persist($daSoumissionFacBl);
-                $this->getEntityManager()->flush();
-
-                /** COPIER DANS DW */
-                $this->generatePdf->copyToDWFacBlDa($nomPdfFusionner, $numDa);
-
-                /** MODIFICATION DA AFFICHER */
-                $this->modificationDaAfficher($numDa, $numCde);
-
-                // generation de demande de paiement
-                $this->traitementPourDdp($dto, $nomAvecCheminPdfFusionner);
-
-                /** HISTORISATION */
-                $message = 'Le document est soumis pour validation';
-                $criteria = $this->getSessionService()->get('criteria_for_excel_Da_Cde_frn');
-                $nomDeRoute = 'da_list_cde_frn'; // route de redirection après soumission
-                $nomInputSearch = 'cde_frn_list'; // initialistion de nom de chaque champ ou input
-                $this->historiqueOperation->sendNotificationSoumission($message, $numCde, $nomDeRoute, true, $criteria, $nomInputSearch);
-            }
+            $sucess = true;
         }
+        return $sucess;
     }
 
     private function traitementPourDdp($dto, string $nomAvecCheminPdfFusionner)
@@ -135,8 +93,8 @@ class DaSoumissionFacBlDdpaController extends Controller
 
         // enregisstrement dans la table demande de paiement
         $ddp = DemandePaiementMapper::map($dto);
-        $this->getEntityManager()->persist($ddp);
-        $this->getEntityManager()->flush();
+        $this->entityManager->persist($ddp);
+        $this->entityManager->flush();
     }
 
     private function traitementDeFichier($form, $dto): array
@@ -241,20 +199,20 @@ class DaSoumissionFacBlDdpaController extends Controller
      */
     private function modificationDaAfficher(string $numDa, string $numCde): void
     {
-        $numeroVersionMax = $this->getEntityManager()->getRepository(DaAfficher::class)->getNumeroVersionMax($numDa);
-        $daAffichers = $this->getEntityManager()->getRepository(DaAfficher::class)->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax, 'numeroCde' => $numCde]);
+        $numeroVersionMax = $this->entityManager->getRepository(DaAfficher::class)->getNumeroVersionMax($numDa);
+        $daAffichers = $this->entityManager->getRepository(DaAfficher::class)->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax, 'numeroCde' => $numCde]);
 
         foreach ($daAffichers as  $daAfficher) {
             if (!$daAfficher instanceof DaAfficher) {
                 throw new Exception('Erreur: L\'objet DaAfficher est invalide.');
             }
             $daAfficher->setEstFactureBlSoumis(true);
-            $this->getEntityManager()->persist($daAfficher);
+            $this->entityManager->persist($daAfficher);
         }
-        $this->getEntityManager()->flush();
+        $this->entityManager->flush();
     }
 
-    private function verifierConditionDeBlocage(DaSoumissionFacBlDdpaDto $dto): bool
+    private function verifierConditionDeBlocage(DaSoumissionFacBlDto $dto): bool
     {
         $numCde = $dto->numeroCde;
         $nomOriginalFichier = $dto->pieceJoint1->getClientOriginalName();
