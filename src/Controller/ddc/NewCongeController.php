@@ -2,6 +2,7 @@
 
 namespace App\Controller\ddc;
 
+use App\Constants\dw\DwConstant;
 use App\Controller\Controller;
 use App\Entity\admin\Application;
 use App\Controller\Traits\AutorisationTrait;
@@ -27,7 +28,7 @@ class NewCongeController extends Controller
         /** FIN AUtorisation accès */
 
         return $this->render("dwForm/dwForm.html.twig", [
-            'url'       => "https://hffc.docuware.cloud/docuware/formsweb/demande-de-conges-new?orgID=5adf2517-2f77-4e19-8b42-9c3da43af7be",
+            'url'       => DwConstant::LINK["new-conge"],
             'pageTitle' => "Nouvelle demande de congé",
             'bgColor'   => "bg-orange-cat",
             'height'    => 1530,

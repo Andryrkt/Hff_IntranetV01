@@ -2,6 +2,7 @@
 
 namespace App\Controller\contrat;
 
+use App\Constants\dw\DwConstant;
 use App\Controller\Controller;
 use App\Entity\contrat\Contrat;
 use App\Form\contrat\ContratType;
@@ -27,7 +28,7 @@ class ContratController extends Controller
         $this->verifierSessionUtilisateur();
 
         return $this->render("dwForm/dwForm.html.twig", [
-            'url'       => "https://hffc.docuware.cloud/docuware/formsweb/enregistrement-contrats?orgID=5adf2517-2f77-4e19-8b42-9c3da43af7be",
+            'url'       => DwConstant::LINK["contrat"],
             'pageTitle' => "Nouveau contrat",
             'bgColor'   => "bg-bleu-hff",
             'height'    => 1300,
