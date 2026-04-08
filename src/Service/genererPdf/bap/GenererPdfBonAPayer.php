@@ -20,6 +20,7 @@ class GenererPdfBonAPayer extends GeneratePdf
     {
         $infoBC = $dto->infoBc;
         $pdf = $this->initPDF();
+        $this->renderHeader($pdf, $mail, $dto);
         $w100 = $this->getUsableWidth($pdf);
 
         $this->renderInfoBCAndValidation($pdf, $w100, $infoBC, $infoValidationBC);
@@ -37,11 +38,9 @@ class GenererPdfBonAPayer extends GeneratePdf
     private function initPDF(): TCPDF
     {
         $pdf = new TCPDF();
-        $pdf->setMargins(20, 15, 15);
-        $pdf->setPrintHeader(false);
+        $pdf->setMargins(20, 10, 15);
         $pdf->setPrintFooter(false);
         $pdf->AddPage();
-        $this->renderTitle($pdf, 'BAP APPRO');
         return $pdf;
     }
 
@@ -50,6 +49,34 @@ class GenererPdfBonAPayer extends GeneratePdf
         $pdf->setFont('helvetica', 'B', 20);
         $pdf->Cell(0, 6, $title, 0, 1, 'C');
         $pdf->Ln(5, true);
+    }
+
+    private function renderHeader(TCPDF $pdf, ?string $userMail, DaSoumissionFacBlDto $dto): void
+    {
+        $logoPath =  $_ENV['BASE_PATH_LONG'] . '/Views/assets/logoHff.jpg';
+        $pdf->setAbsY(11);
+        $pdf->Image($logoPath, '', '', 45, 12);
+        $pdf->setAbsX(60);
+        $pdf->setFont('helvetica', 'B', 22);
+        $pdf->Cell(110, 12, 'BAP APPRO', 0, 0, 'C', false, '', 0, false, 'T', 'M');
+
+        // entête email
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->SetFont('helvetica', 'BI', 10);
+        $pdf->SetY(4);
+        $pdf->Cell(0, 6, "email : $userMail", 0, 0, 'R');
+
+        $pdf->setAbsXY(170, 11);
+        $pdf->setFont('helvetica', 'B', 10);
+        $pdf->Cell(35, 6, $dto->numeroBap, 0, 0, 'L', false, '', 0, false, 'T', 'M');
+
+        $pdf->Ln(6);
+
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->setFont('helvetica', 'B', 10);
+        $pdf->setAbsX(170);
+        $pdf->cell(35, 6, 'Le : ' . $dto->dateCreation->format('d/m/Y'), 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->Ln(7);
     }
 
     private function renderInfoSection(TCPDF $pdf, string $title1, string $title2, callable $callback)
