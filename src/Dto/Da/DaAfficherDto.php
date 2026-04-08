@@ -79,6 +79,8 @@ class DaAfficherDto
     public $tdCheckboxAttributes;
     public $aDtLivPrevAttributes;
     public $aArtDesiAttributes;
+    // DDP
+    public $statutCompta; //?dernière statut du demande de paiement liée à la DA
 
     public function getStyleStatutDA(): string
     {

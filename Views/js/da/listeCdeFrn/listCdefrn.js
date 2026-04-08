@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", function () {
    */
   mergeCellsRecursiveTable([
     { pivotIndex: 0, columns: [0], insertSeparator: true },
-    { pivotIndex: 1, columns: [1, 2, 3, 4, 5, 6, 23], insertSeparator: true },
+    { pivotIndex: 1, columns: [1, 2, 3, 4, 5, 6, 24], insertSeparator: true },
     { pivotIndex: 7, columns: [7, 8], insertSeparator: true },
     { pivotIndex: 9, columns: [9, 21], insertSeparator: true },
   ]);
@@ -24,11 +24,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
 // Attachement des événements pour les agences
 configAgenceService.emetteur.agenceInput.addEventListener("change", () =>
-  handleAgenceChange("emetteur")
+  handleAgenceChange("emetteur"),
 );
 
 configAgenceService.debiteur.agenceInput.addEventListener("change", () =>
-  handleAgenceChange("debiteur")
+  handleAgenceChange("debiteur"),
 );
 
 /** =========================================================*/
@@ -349,7 +349,7 @@ document.addEventListener("contextmenu", function (event) {
           });
       })
       .catch((error) =>
-        console.error("Erreur lors du chargement du formulaire:", error)
+        console.error("Erreur lors du chargement du formulaire:", error),
       )
       .finally(() => {
         overlay.classList.add("hidden");
@@ -424,7 +424,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Pré-rempli le champ de date dans le formulaire du modal
         const dateInput = modalDateLivraison.querySelector(
-          "#da_modal_date_livraison_dateLivraisonPrevue"
+          "#da_modal_date_livraison_dateLivraisonPrevue",
         );
         if (dateInput) {
           dateInput.value = formatted;
@@ -440,7 +440,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // remplir le champ cacher avec le numero commande
       const numeroCdeInput = modalDateLivraison.querySelector(
-        "#da_modal_date_livraison_numeroCde"
+        "#da_modal_date_livraison_numeroCde",
       );
       if (numeroCdeInput) {
         numeroCdeInput.value = numeroCde;

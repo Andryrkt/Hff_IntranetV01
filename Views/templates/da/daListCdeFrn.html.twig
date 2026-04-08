@@ -54,6 +54,7 @@
 							</div>
 						</div>
 					</th>
+					<th class="text-center">Statut compta</th>
 					<th class="text-center">Demandeur</th>
 				</tr>
 			</thead>
@@ -104,6 +105,9 @@
 							{% endif %}
 						</td>
 						<td class="text-center {{ row.styleJoursDispo }}">{{ row.joursDispo }}</td>
+						<td>
+							-
+						</td>
 						<td class="text-center">{{ row.demandeur}}</td>
 					</tr>
 				{% else %}
