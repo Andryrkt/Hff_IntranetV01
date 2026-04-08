@@ -165,6 +165,7 @@ inner join HFF_INTRANET_TEST_TEST.dbo.applications a2 on a2.id=hp.application_id
 inner join HFF_INTRANET_TEST_2026.dbo.applications a on a.code_app=a2.code_app 
 where hp.id > 58;
 
+-- Mise à jour de application_id pour les anciens pages depuis la BDD "HFF_INTRANET_TEST_TEST" ===> "HFF_INTRANET_TEST_2026"
 update HFF_INTRANET_TEST_2026.dbo.Hff_pages
 set application_id=a.id
 from HFF_INTRANET_TEST_2026.dbo.Hff_pages hptarget
