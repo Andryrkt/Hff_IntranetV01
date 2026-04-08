@@ -112,6 +112,40 @@ Exemple:
 ]
 ```
 
+## Migration des données
+
+Après vérification minitueuse des données à migrer et ceux en PROD, éxecutez les commandes suivantes:
+
+### profils.json
+
+```Bash
+php bin/console app:migration:profils
+```
+
+Cette ligne de commande va importer en BDD les données de profils définis dans le fichier `/config/migration/profils.json`.
+
+Pour chaque profil, les opérations suivantes sont effectuées dans l'ordre :
+
+1. Vérification de l'existence du profil (ref_profil + societe_id)
+2. Création ou mise à jour du profil selon la stratégie choisie
+3. Résolution et liaison des applications par code_app
+4. Résolution et liaison des pages par nom_route + application
+5. Résolution et liaison des agences/services par code_agence + code_service
+
+### affectations_profils.json
+
+```Bash
+php bin/console app:migration:affectations-profils
+```
+
+Cette ligne de commande va importer en BDD les données d'affectations des profils aux utilisateurs définis dans le fichier `/config/migration/affectations_profils.json`.
+
+Pour chaque affectation, les opérations suivantes sont effectuées dans l'ordre :
+
+1. Vérification de l'existence du profil (ref_profil + societe_id)
+2. Vérification de l'existence de l'utilisateur (username)
+3. Création ou mise à jour de l'affectation selon la stratégie choisie
+
 ---
 
 # étape 5: Cache pour profil
