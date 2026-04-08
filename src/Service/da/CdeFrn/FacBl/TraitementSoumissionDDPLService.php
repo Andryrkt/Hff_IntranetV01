@@ -5,8 +5,8 @@ namespace App\Service\da\CdeFrn\FacBl;
 use App\Controller\Traits\PdfConversionTrait;
 use App\Dto\Da\ListeCdeFrn\DaSoumissionFacBlDto;
 use App\Entity\da\DaAfficher;
-use App\Factory\da\CdeFrnDto\DaSoumissionFacBlDdpaFactory;
-use App\Mapper\Da\ListCdeFrn\DaSoumissionFacBlDdpaMapper;
+use App\Factory\da\CdeFrnDto\DaSoumissionFacBlFactory;
+use App\Mapper\Da\ListCdeFrn\DaSoumissionFacBlMapper;
 use App\Mapper\ddp\DemandePaiementMapper;
 use App\Repository\da\DaAfficherRepository;
 use App\Service\fichier\TraitementDeFichier;
@@ -21,13 +21,13 @@ class TraitementSoumissionDDPLService
 {
     use PdfConversionTrait;
 
-    private DaSoumissionFacBlDdpaFactory $daSoumissionFacBlDdpaFactory;
+    private DaSoumissionFacBlFactory $daSoumissionFacBlFactory;
     private TraitementDeFichier $traitementDeFichier;
     private string $cheminDeBase;
     private string $cheminDeBaseDdp;
     private HistoriqueOperationDaFacBlService $historiqueOperation;
     private DaAfficherRepository $daAfficherRepository;
-    private DaSoumissionFacBlDdpaMapper $daSoumissionfacBlDdpaMapper;
+    private DaSoumissionFacBlMapper $daSoumissionfacBlMapper;
     private GeneratePdfDdp $generatePdfDdp;
     private GeneratePdf $generatePdf;
     private EntityManagerInterface $entityManager;
@@ -35,16 +35,16 @@ class TraitementSoumissionDDPLService
     public function __construct(
         EntityManagerInterface $entityManager
     ) {
-        $this->entityManager = $entityManager;
-        $this->daSoumissionFacBlDdpaFactory = new DaSoumissionFacBlDdpaFactory($this->entityManager);
-        $this->traitementDeFichier         = new TraitementDeFichier();
-        $this->cheminDeBase                = $_ENV['BASE_PATH_FICHIER'] . '/da/';
-        $this->cheminDeBaseDdp             = $_ENV['BASE_PATH_FICHIER'] . '/ddp';
-        $this->historiqueOperation         = new HistoriqueOperationDaFacBlService($this->entityManager);
-        $this->daAfficherRepository        = $this->entityManager->getRepository(DaAfficher::class);
-        $this->daSoumissionfacBlDdpaMapper = new DaSoumissionFacBlDdpaMapper();
+        $this->entityManager                  = $entityManager;
+        $this->daSoumissionFacBlFactory       = new DaSoumissionFacBlFactory($this->entityManager);
+        $this->traitementDeFichier            = new TraitementDeFichier();
+        $this->cheminDeBase                   = $_ENV['BASE_PATH_FICHIER'] . '/da/';
+        $this->cheminDeBaseDdp                = $_ENV['BASE_PATH_FICHIER'] . '/ddp';
+        $this->historiqueOperation            = new HistoriqueOperationDaFacBlService($this->entityManager);
+        $this->daAfficherRepository           = $this->entityManager->getRepository(DaAfficher::class);
+        $this->daSoumissionfacBlMapper        = new DaSoumissionFacBlMapper();
         $this->generatePdfDdp                 = new GeneratePdfDdp();
-        $this->generatePdf = new GeneratePdf();
+        $this->generatePdf                    = new GeneratePdf();
     }
 
     public function traitementSoumissionDDPL($form, $dto)
@@ -58,10 +58,10 @@ class TraitementSoumissionDDPLService
             [$nomAvecCheminPdfFusionner, $nomPdfFusionner] = $this->traitementDeFichier($form, $dto);
 
             // enrichissement Dto
-            $dto  = $this->daSoumissionFacBlDdpaFactory->enrichissementDtoApresSoumission($dto, $nomPdfFusionner);
+            $dto  = $this->daSoumissionFacBlFactory->enrichissementDtoApresSoumission($dto, $nomPdfFusionner);
 
             /** ENREGISTREMENT DANS LA BASE DE DONNEE */
-            $daSoumissionFacBl = $this->daSoumissionfacBlDdpaMapper->map($dto);
+            $daSoumissionFacBl = $this->daSoumissionfacBlMapper->map($dto);
             $this->entityManager->persist($daSoumissionFacBl);
             $this->entityManager->flush();
 

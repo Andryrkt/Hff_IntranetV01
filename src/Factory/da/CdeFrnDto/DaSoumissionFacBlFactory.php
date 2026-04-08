@@ -133,6 +133,8 @@ class DaSoumissionFacBlFactory
     private function getInfoLivraison(string $numCde, string $numDa): array
     {
         $infosLivraisons = (new DaModel)->getInfoLivraison($numCde);
+        //$daSoumissionBcRepository = $this->em->getRepository(DaSoumissionBc::class);
+        //$estDdpa = $daSoumissionBcRepository->getEstDdpAvance($numCde);
 
         if (empty($infosLivraisons)) {
             $message = "La commande n° <b>$numCde</b> n'a pas de livraison associé dans IPS. Merci de bien vérifier le numéro de la commande.";
