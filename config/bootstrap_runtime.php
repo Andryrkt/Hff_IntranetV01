@@ -281,6 +281,7 @@ if (!$isDevMode) {
                 file_put_contents($twigCompiledMarker, $error . PHP_EOL, FILE_APPEND);
             }
 
+            $errorCount = count($templateErrors);
             file_put_contents($twigCompiledMarker, "✅ Twig précompilé : {$compiledCount} templates, {$errorCount} erreurs (premier démarrage PROD)" . PHP_EOL, FILE_APPEND);
         } else {
             error_log("⚠️  Répertoire templates introuvable : {$templateDir}");
