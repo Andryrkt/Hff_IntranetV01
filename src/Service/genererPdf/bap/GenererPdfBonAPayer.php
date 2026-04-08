@@ -4,7 +4,6 @@ namespace App\Service\genererPdf\bap;
 
 use TCPDF;
 use App\Entity\da\DemandeAppro;
-use App\Entity\da\DaSoumissionFacBl;
 use App\Service\genererPdf\GeneratePdf;
 use App\Controller\Traits\FormatageTrait;
 use App\Dto\Da\ListeCdeFrn\DaSoumissionFacBlDto;
@@ -17,7 +16,7 @@ class GenererPdfBonAPayer extends GeneratePdf
     /**
      * Fonction pour générer le PDF du bon à payer
      */
-    public function genererPageDeGarde(array $infoValidationBC, array $infoMateriel, array $dataRecapOR, DemandeAppro $demandeAppro, DaSoumissionFacBlDto $dto, array $infoFacBl): string
+    public function genererPageDeGarde(array $infoValidationBC, array $infoMateriel, array $dataRecapOR, DemandeAppro $demandeAppro, DaSoumissionFacBlDto $dto, array $infoFacBl, ?string $mail): string
     {
         $infoBC = $dto->infoBc;
         $pdf = $this->initPDF();

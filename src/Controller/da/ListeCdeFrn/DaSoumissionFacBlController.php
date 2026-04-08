@@ -132,7 +132,7 @@ class DaSoumissionFacBlController extends Controller
                 $sucess = $traitementSoumissionDDPLService->traitementSoumissionDDPL($form, $dto);
             } elseif ($dto->typeDdp === 'bap') {
                 $traitementSoumissionBAPService = new TraitementSoumissionBAPService($this->getEntityManager());
-                $sucess = $traitementSoumissionBAPService->traitementSoumissionBAP($form, $dto);
+                $sucess = $traitementSoumissionBAPService->traitementSoumissionBAP($form, $dto, $this->getUserMail());
             } else {
                 $traitementSoumissionfacBlService = new TraitementSoumissionfacBlService($this->getEntityManager());
                 $sucess = $traitementSoumissionfacBlService->traitementSoumissionFacBl($form, $dto);
