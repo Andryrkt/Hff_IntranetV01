@@ -64,6 +64,7 @@ class DaSoumissionFacBlMapper
 
         return $daSoumissionFacBl;
     }
+    
     public static  function mapDdp(DaDdpaDto $ddpaDto, DemandePaiement $ddp): DaDdpaDto
     {
         $ddpaDto->numeroDdp = $ddp->getNumeroDdp();

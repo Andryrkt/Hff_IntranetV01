@@ -4,7 +4,6 @@ namespace App\Factory\ddp;
 
 use App\Constants\da\TypeDaConstants;
 use App\Dto\Da\ListeCdeFrn\DaDdpaDto;
-use App\Dto\Da\ListeCdeFrn\DaSoumissionFacBlDdpaDto;
 use App\Dto\ddp\DemandePaiementDto;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Application;
@@ -14,7 +13,7 @@ use App\Entity\admin\utilisateur\User;
 use App\Entity\da\DaAfficher;
 use App\Entity\da\DaSoumissionBc;
 use App\Entity\ddp\DemandePaiement;
-use App\Mapper\Da\ListCdeFrn\DaSoumissionFacBlDdpaMapper;
+use App\Mapper\Da\ListCdeFrn\DaSoumissionFacBlMapper;
 use App\Model\da\DaSoumissionFacBlDdpaModel;
 use App\Model\ddp\DemandePaiementModel;
 use App\Service\autres\AutoIncDecService;
@@ -45,7 +44,8 @@ class DemandePaiementFactory
 
 
         $infoDa = $DaAfficherRepository->getInfoDa($numCdeDa);
-
+        $demandePaiementRepository = $this->em->getRepository(DemandePaiement::class);
+        $numeroSoumissionDdpDa = AutoIncDecService::autoIncrement($demandePaiementRepository->getDernierNumeroSoumissionDdpDa($numCdeDa, $infoDa['numeroDemandeAppro']));
 
         $dto = new DemandePaiementDto();
         $dto->typeDemande = $typeDemandeRepository->find($typeDdp);
@@ -72,6 +72,8 @@ class DemandePaiementFactory
         $dto->montantAPayer = $dto->montantRestantApayer;
         $dto->pourcentageAPayer = (int)(($dto->montantAPayer / $dto->montantTotalCde) * 100);
         $dto->numeroDa = $infoDa['numeroDemandeAppro'];
+        $dto->numeroDemandeAppro = $dto->numeroDa;
+        $dto->numeroSoumissionDdpDa = $numeroSoumissionDdpDa;
         $dto->ddpaDa = $sessionService->get('demande_paiement_a_l_avance')['ddpa'] ?? false;
         $dto->numeroVersionBc = $numeroVersionBc ?? $daSoumissionBcRepository->getNumeroVersionMax($numCdeDa);
         $dto->nomPdfFusionnerBc = $sessionService->get('demande_paiement_a_l_avance')['nom_pdf'] ?? '';
@@ -128,7 +130,7 @@ class DemandePaiementFactory
             $ddpaDto->totalMontantCommande = $dto->totalMontantCommande;
 
             // Mappe l'entité vers le nouveau DTO (le mapper ne s'occupe plus du cumul)
-            DaSoumissionFacBlDdpaMapper::mapDdp($ddpaDto, $ddp);
+            DaSoumissionFacBlMapper::mapDdp($ddpaDto, $ddp);
 
             // Calcule et définit la valeur cumulative ici dans la logique du contrôleur
             $runningCumul += $ddpaDto->ratio;
@@ -150,7 +152,7 @@ class DemandePaiementFactory
         $montantAregulariser = $dto->totalMontantCommande - $totalMontantPayer;
         $ratioMontantARegul = ($montantAregulariser /  $dto->totalMontantCommande) * 100;
 
-        $dto = DaSoumissionFacBlDdpaMapper::mapTotalPayer($dto, $totalMontantPayer, $ratioTotalPayer, $montantAregulariser, $ratioMontantARegul);
+        $dto = DaSoumissionFacBlMapper::mapTotalPayer($dto, $totalMontantPayer, $ratioTotalPayer, $montantAregulariser, $ratioMontantARegul);
 
         return $dto;
     }

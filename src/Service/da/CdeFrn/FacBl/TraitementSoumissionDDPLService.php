@@ -61,7 +61,7 @@ class TraitementSoumissionDDPLService
             $dto  = $this->daSoumissionFacBlFactory->enrichissementDtoApresSoumission($dto, $nomPdfFusionner);
 
             /** ENREGISTREMENT DANS LA BASE DE DONNEE */
-            $daSoumissionFacBl = $this->daSoumissionfacBlMapper->map($dto);
+            $daSoumissionFacBl = $this->daSoumissionfacBlMapper->mapDaDdp($dto);
             $this->entityManager->persist($daSoumissionFacBl);
             $this->entityManager->flush();
 

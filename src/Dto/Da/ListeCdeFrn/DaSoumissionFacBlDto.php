@@ -89,6 +89,7 @@ class DaSoumissionFacBlDto
     public $dateCreation;
     public $lesFichiers = [];
     public $typeDdp;
+    public $numeroSoumissionDdpDa;
 
     public function montantAPayer(): float
     {

@@ -58,6 +58,8 @@ class DdpApiController extends Controller
                 // recup info ips pour la da
                 $demandePaiementModel = new DemandePaiementModel();
                 $infoIps = $demandePaiementModel->recupInfoPourDa($value->getNumeroFournisseur(), $value->getNumeroCde())[0] ?? [];
+                $demandePaiementRepository = $this->getEntityManager()->getRepository(DemandePaiement::class);
+                $numeroSoumissionDdpDa = AutoIncDecService::autoIncrement($demandePaiementRepository->getDernierNumeroSoumissionDdpDa($infoIps['numero_cde'], $value->getNumeroDemandeAppro()));
 
                 if (empty($infoIps)) {
                     return new JsonResponse([
@@ -93,6 +95,8 @@ class DdpApiController extends Controller
                     ->setNomCdeClientExterneDoc(Null)
                     ->setNumeroDossierDouane(Null)
                     ->setAppro(true)
+                    ->setNumeroDemandeAppro($value->getNumeroDemandeAppro() ?? null)
+                    ->setNumeroSoumissionDdpDa($numeroSoumissionDdpDa)
                 ;
                 $this->getEntityManager()->persist($ddp);
 

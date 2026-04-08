@@ -281,7 +281,8 @@ class DaSoumissionFacBlFactory
         $infoDa = $daAfficherRepository->getInfoDa($numCde);
         $typeApresLivraison = $typeDemandeRepository->find(TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE);
         $typeRegule = $typeDemandeRepository->find(TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_REGULE);
-
+        $demandePaiementRepository = $this->em->getRepository(DemandePaiement::class);
+        $numeroSoumissionDdpDa = AutoIncDecService::autoIncrement($demandePaiementRepository->getDernierNumeroSoumissionDdpDa($numCde, $infoDa['numeroDemandeAppro']));
 
         $infoFournisseur = $this->ddpModel->recupInfoPourDa($infoDa['numeroFournisseur'], $numCde);
 
@@ -305,6 +306,7 @@ class DaSoumissionFacBlFactory
         $dto->typeDa = $infoDa['daTypeId'];
         $dto->numeroVersionBc = $daSoumissionBcRepository->getNumeroVersionMax($numCde);
         $dto->dateCreation = new DateTime();
+        $dto->numeroSoumissionDdpDa = $numeroSoumissionDdpDa;
     }
 
     private function numeroDdp(): string

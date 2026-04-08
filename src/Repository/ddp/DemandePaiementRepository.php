@@ -184,24 +184,41 @@ class DemandePaiementRepository extends EntityRepository
             ->where('d.numeroCommande LIKE :numero')
             ->setParameter('numero', '%' . $numCde . '%')
             ->orderBy('d.numeroDdp', 'ASC');
-        
+
 
         return $queryBuilder->getQuery()
             ->getResult()
         ;
     }
 
-    public function getStatutDdpSelonNumCde(string $numCde): array 
+    public function getStatutDdpSelonNumCde(string $numCde): array
     {
         $queryBuilder =  $this->createQueryBuilder('d')
             ->select('d.statut')
             ->where('d.numeroCommande LIKE :numero')
             ->setParameter('numero', '%' . $numCde . '%')
             ->orderBy('d.numeroDdp', 'ASC');
-        
+
 
         return $queryBuilder->getQuery()
             ->getSingleColumnResult()
+        ;
+    }
+
+    public function getDernierNumeroSoumissionDdpDa(string $numCde, string $numeroDa): ?string
+    {
+        $queryBuilder =  $this->createQueryBuilder('d')
+            ->select('d.numeroSoumissionDdpDa')
+            ->where('d.numeroDemandeAppro = :numeroDa')
+            ->andWhere('d.numeroCommande LIKE :numero')
+            ->setParameter('numeroDa', $numeroDa)
+            ->setParameter('numero', '%' . $numCde . '%')
+            ->orderBy('d.numeroVersion', 'DESC')
+            ->setMaxResults(1);
+
+
+        return $queryBuilder->getQuery()
+            ->getSingleScalarResult()
         ;
     }
 }
