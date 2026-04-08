@@ -24,7 +24,7 @@ class ChangementStatutBCController extends Controller
     {
         parent::__construct();
         $this->daAfficherRepository = $this->getEntityManager()->getRepository(DaAfficher::class);
-        $this->daSoumissionBcRepository = $this->getEntityManager()->getRepository(StatutBcConstant::class);
+        $this->daSoumissionBcRepository = $this->getEntityManager()->getRepository(DaSoumissionBc::class);
     }
     /**
      * @Route(path="/changement-statuts-envoyer-fournisseur/{numCde}/{datePrevue}/{estEnvoyer}", name="changement_statut_envoyer_fournisseur")
@@ -43,7 +43,7 @@ class ChangementStatutBCController extends Controller
             $dateLivraison = new \DateTime($datePrevue);
             foreach ($daAffichers as $daAfficher) {
                 $daAfficher
-                    ->setStatutCde(DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR)
+                    ->setStatutCde(StatutBcConstant::STATUT_BC_ENVOYE_AU_FOURNISSEUR)
                     ->setDateLivraisonPrevue($dateLivraison)
                     ->setJoursDispo($dateLivraison->diff(new \DateTime('now', new \DateTimeZone('Indian/Antananarivo')))->days)
                     ->setBcEnvoyerFournisseur(true)
