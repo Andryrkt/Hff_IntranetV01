@@ -36,7 +36,7 @@ class ProfilController extends Controller
     public function new(Request $request)
     {
         $profil = new Profil();
-        $form = $this->getFormFactory()->createBuilder(ProfilType::class, $profil)->getForm();
+        $form = $this->getFormFactory()->createBuilder(ProfilType::class, $profil, ["type" => "creation"])->getForm();
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -80,7 +80,7 @@ class ProfilController extends Controller
         $profil = $em->getRepository(Profil::class)->find($id);
         $applicationsLinked = $profil->getApplications()->toArray();
 
-        $form = $this->getFormFactory()->createBuilder(ProfilType::class, $profil)->getForm();
+        $form = $this->getFormFactory()->createBuilder(ProfilType::class, $profil, ["type" => "modification"])->getForm();
 
         // Pré-remplir le champ 'applications'
         $form->get('applications')->setData($applicationsLinked);
