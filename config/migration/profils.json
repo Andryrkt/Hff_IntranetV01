@@ -31537,6 +31537,28 @@
           }
         ],
         "agences_services": []
+      },
+      {
+        "code_app": "CONTRAT",
+        "pages": [
+          {
+            "nom_route": "new_contrat",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": true,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "contrat_liste",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": true,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          }
+        ],
+        "agences_services": []
       }
     ]
   },
