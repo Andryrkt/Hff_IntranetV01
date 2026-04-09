@@ -2,6 +2,7 @@
 
 namespace App\Controller\bdc;
 
+use App\Constants\dw\DwConstant;
 use App\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -16,7 +17,7 @@ class NewBdcController extends Controller
     public function newBonCaisse()
     {
         return $this->render("dwForm/dwForm.html.twig", [
-            'url'       => "https://hffc.docuware.cloud/docuware/forms/bon-de-caisse?orgID=5adf2517-2f77-4e19-8b42-9c3da43af7be",
+            'url'       => DwConstant::LINK["bon-de-caisse"],
             'pageTitle' => "Nouveau bon de caisse",
             'bgColor'   => "bg-orange-cat",
             'height'    => 1300,

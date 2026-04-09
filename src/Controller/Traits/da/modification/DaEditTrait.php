@@ -2,9 +2,10 @@
 
 namespace App\Controller\Traits\da\modification;
 
+use App\Constants\da\StatutDaConstant;
+use App\Controller\Traits\da\DaTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
-use App\Controller\Traits\da\DaTrait;
 
 trait DaEditTrait
 {
@@ -39,7 +40,7 @@ trait DaEditTrait
 
     private function peutModifier(string $statutDa, bool $profil)
     {
-        $statutModifiable = in_array($statutDa, [DemandeAppro::STATUT_SOUMIS_APPRO, DemandeAppro::STATUT_VALIDE, DemandeAppro::STATUT_AUTORISER_EMETTEUR]);
+        $statutModifiable = in_array($statutDa, [StatutDaConstant::STATUT_SOUMIS_APPRO, StatutDaConstant::STATUT_VALIDE, StatutDaConstant::STATUT_AUTORISER_EMETTEUR]);
         return $statutModifiable && $profil;
     }
 }

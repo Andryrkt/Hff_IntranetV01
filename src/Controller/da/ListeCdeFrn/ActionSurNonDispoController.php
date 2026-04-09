@@ -3,20 +3,22 @@
 namespace App\Controller\da\ListeCdeFrn;
 
 use App\Constants\admin\ApplicationConstant;
-use Exception;
-use App\Entity\da\DaAfficher;
+use App\Constants\da\StatutBcConstant;
+use App\Constants\da\StatutDaConstant;
 use App\Controller\Controller;
-use App\Entity\da\DaSoumissionBc;
+use App\Entity\da\DaAfficher;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
 use App\Repository\da\DaAfficherRepository;
-use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DemandeApproLRepository;
 use App\Repository\da\DemandeApproLRRepository;
 use App\Service\application\ApplicationService;
-use Symfony\Component\Routing\Annotation\Route;
+use App\Service\da\EmailDaService;
+use Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route("/api/demande-appro")
@@ -27,6 +29,7 @@ class ActionSurNonDispoController extends Controller
     private DaAfficherRepository $daAfficherRepository;
     private DemandeApproLRepository $demandeApproLRepository;
     private DemandeApproLRRepository $demandeApproLRRepository;
+    private EmailDaService $emailDaService;
 
     public function __construct()
     {
@@ -36,6 +39,7 @@ class ActionSurNonDispoController extends Controller
         $this->daAfficherRepository     = $this->em->getRepository(DaAfficher::class);
         $this->demandeApproLRepository  = $this->em->getRepository(DemandeApproL::class);
         $this->demandeApproLRRepository = $this->em->getRepository(DemandeApproLR::class);
+        $this->emailDaService           = new EmailDaService($this->getTwig());
     }
 
     /**
@@ -102,15 +106,15 @@ class ActionSurNonDispoController extends Controller
 
             if (!$daAffichers) throw new Exception("aucun article correspondant dans la base de donnée.");
 
-            $demandeAppro = $daAffichers[0]->getDemandeAppro();
-            if (!$demandeAppro) throw new Exception("aucun demande appro ne correspond dans la base de donnée.");
+            $demandeApproAvant = $daAffichers[0]->getDemandeAppro();
+            if (!$demandeApproAvant) throw new Exception("aucun demande appro ne correspond dans la base de donnée.");
 
             /** 0. Nouveau numéro demande appro et statut */
             $numDa = $this->autoDecrement(ApplicationConstant::CODE_DAP);
-            $statutDa = DemandeAppro::STATUT_SOUMIS_APPRO;
+            $statutDa = StatutDaConstant::STATUT_SOUMIS_APPRO;
 
             /** 1. Créer nouveau demande appro avec le nouveau numéro */
-            $demandeAppro = $this->nouveauDemandeAppro($demandeAppro, $numDa, $statutDa);
+            $demandeAppro = $this->nouveauDemandeAppro($demandeApproAvant, $numDa, $statutDa);
 
             foreach ($daAffichers as $daAfficher) {
                 /** 2. Créer DAL à partir de $daAfficher */
@@ -131,6 +135,9 @@ class ActionSurNonDispoController extends Controller
 
             $count = count($daAfficherIds);
             $label = $count > 1 ? 'articles ont été ajoutés' : 'article a été ajouté';
+
+            // Notification par email du demandeur sur les articles non dispo fournisseur
+            $this->emailDaService->envoyerMailPourNonDispoArticle($demandeApproAvant, $daAffichers, $numDa, $this->getUser());
 
             return new JsonResponse([
                 'status'  => 'success',
@@ -154,7 +161,7 @@ class ActionSurNonDispoController extends Controller
             ->setNumeroDemandeApproMere($numDa)
             ->setDaTypeId($demandeAppro->getDaTypeId())
             ->setNumeroDemandeDit($demandeAppro->getNumeroDemandeDit())
-            ->setObjetDal($demandeAppro->getObjetDal())
+            ->setObjetDal($demandeAppro->getObjetDal() . ' (Duplicata ' . $demandeAppro->getNumeroDemandeAppro() . ')')
             ->setDetailDal($demandeAppro->getDetailDal())
             ->setAgenceServiceEmetteur($demandeAppro->getAgenceServiceEmetteur())
             ->setAgenceServiceDebiteur($demandeAppro->getAgenceServiceDebiteur())
@@ -212,7 +219,7 @@ class ActionSurNonDispoController extends Controller
             ->setNumeroDemandeApproMere($numDa)
             ->setNumeroDemandeDit($daAfficher->getNumeroDemandeDit())
             ->setStatutDal($statutDa)
-            ->setObjetDal($daAfficher->getObjetDal())
+            ->setObjetDal($demandeAppro->getObjetDal())
             ->setDetailDal($daAfficher->getDetailDal())
             ->setNumeroLigne($daAfficher->getNumeroLigne())
             ->setQteDem($daAfficher->getQteDem())
@@ -250,7 +257,7 @@ class ActionSurNonDispoController extends Controller
     private function updateDaAfficher(DaAfficher $daAfficher): void
     {
         $daAfficher
-            ->setStatutCde(DaSoumissionBc::STATUT_NON_DISPO)
+            ->setStatutCde(StatutBcConstant::STATUT_NON_DISPO)
             ->setNonDispo(true)
         ;
         $this->em->persist($daAfficher);

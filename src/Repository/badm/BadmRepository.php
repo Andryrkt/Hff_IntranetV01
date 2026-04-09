@@ -204,6 +204,7 @@ class BadmRepository extends EntityRepository
 
         //filtre selon le service debiteur
         if (!empty($criteria['serviceDebiteur'])) {
+        if (!empty($criteria['serviceDebiteur'])) {
             $queryBuilder->andWhere('b.serviceDebiteurId = :serviceDebiteur')
                 ->setParameter('serviceDebiteur', $criteria['serviceDebiteur']);
         }

@@ -1,0 +1,83 @@
+<div class="container d-flex justify-content-between">
+    <div>
+        <form method="GET" action="{{ path('contrat_export_excel') }}" style="display:inline;" class="excel-form" id="excel-export-form">
+            {# Reprendre tous les paramètres de recherche actuels #}
+            {% for key, value in app.request.query.all %}
+                {% if key != 'format' %}
+                    {% if key starts with 'contrat[' %}
+                        {% if value is iterable %}
+                            {% for subkey, subvalue in value %}
+                                <input type="hidden" name="contrat[{{ subkey }}]" value="{{ subvalue }}">
+                            {% endfor %}
+                        {% else %}
+                            <input type="hidden" name="{{ key }}" value="{{ value }}">
+                        {% endif %}
+                    {% else %}
+                        <input type="hidden" name="{{ key }}" value="{{ value }}">
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+
+            <button type="submit" class="btn btn-sm bg-success text-white my-3 fw-bold excel-button">
+                <i class="fas fa-table"></i>
+                <span class="btn-text">Excel</span>
+            </button>
+        </form>
+    </div>
+    <div>
+        <p class="fw-bold my-3" id="nombreResultat">
+            {{resultat}} Résultats
+        </p>
+    </div>
+    <div>
+        <p class="fw-bold my-3" id="nombreResultat">
+            {{currentPage ~' / '~ (lastPage)}} pages
+        </p>
+    </div>
+    <div class="navigation">
+        {% set queryParams = criteria %}
+
+        {% if currentPage > 1 %}
+            <a class="btn btn-dark my-3"
+               href="{{ path('contrat_liste', queryParams|merge({'page': currentPage - 1})) }}">
+                <i class="fas fa-angle-left text-warning"></i>
+            </a>
+        {% endif %}
+
+        {% if currentPage < lastPage %}
+            <a class="btn btn-dark my-3"
+               href="{{ path('contrat_liste', queryParams|merge({'page': currentPage + 1})) }}">
+                <i class="fas fa-angle-right text-warning"></i>
+            </a>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    // Gérer le spinner pendant l'export Excel
+    document.addEventListener('DOMContentLoaded', function() {
+        const excelForm = document.getElementById('excel-export-form');
+        if (excelForm) {
+            excelForm.addEventListener('submit', function(e) {
+                // Définir le flag pour indiquer que c'est un export Excel
+                window.isExcelExport = true;
+                
+                // Trouver le bouton Excel
+                const excelButton = this.querySelector('.excel-button');
+                if (excelButton) {
+                    // Ajouter un état de chargement
+                    excelButton.disabled = true;
+                    const originalContent = excelButton.innerHTML;
+                    excelButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span class="btn-text">Export en cours...</span>';
+                    
+                    // Réinitialiser le flag après 5 secondes (temps estimé pour le téléchargement)
+                    setTimeout(() => {
+                        window.isExcelExport = false;
+                        excelButton.disabled = false;
+                        excelButton.innerHTML = originalContent;
+                    }, 5000);
+                }
+            });
+        }
+    });
+</script>

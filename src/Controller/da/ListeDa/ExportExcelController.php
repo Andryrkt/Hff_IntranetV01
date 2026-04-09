@@ -34,9 +34,9 @@ class ExportExcelController extends Controller
 
         $criteria = $this->getSessionService()->get('criteria_search_list_da');
 
-        $codeCentrale     = false; // TODO : autorisation sur le code centrale
-
-        // Agences Services autorisés sur le DAP
+        $agenceServiceIps = $this->agenceServiceIpsObjet();
+        $agence           = $agenceServiceIps['agenceIps'];
+        $codeCentrale     = $this->estAdmin() || in_array($agence->getCodeAgence(), ['90', '91', '92']); // Agences Services autorisés sur le DAP
         $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DAP);
 
         // recupération des données de la DA

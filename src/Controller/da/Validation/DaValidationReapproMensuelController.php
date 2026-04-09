@@ -107,7 +107,7 @@ class DaValidationReapproMensuelController extends Controller
             }
 
             $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
-            $this->redirectToRoute("list_da");
+            $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 1, 'page' => 1]);
         }
 
         $formObservation->handleRequest($request);
@@ -127,6 +127,6 @@ class DaValidationReapproMensuelController extends Controller
         $this->emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->getUser(), false);  // TODO: booléen pour savoir si Appro
 
         $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'Votre observation a été enregistré avec succès.']);
-        return $this->redirectToRoute("list_da");
+        return $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 1, 'page' => 1]);
     }
 }

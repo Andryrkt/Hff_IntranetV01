@@ -73,7 +73,8 @@ class DitFactureSoumisAValidationModel extends Model
     {
         $statement = " SELECT
                     slor_numfac AS numeroFac, 
-                    slor_numor AS numeroOr, 
+                    slor_numor AS numeroOr,
+                    slor_typeor AS typeOr, 
                     ROUND(slor_nogrp / 100) AS numeroItv,
                     SUM(slor_pxnreel * slor_qterea) AS montantFactureItv,
                     slor_succdeb AS agenceDebiteur,
@@ -97,7 +98,7 @@ class DitFactureSoumisAValidationModel extends Model
                     AND slor_numfac = '" . $numFact . "'
                     --AND sitv_servcrt IN ('ATE', 'FOR', 'GAR', 'MAN', 'CSP', 'MAS', 'LR6', 'LST') 
                 GROUP BY
-                    slor_numfac, slor_numor, numeroItv, slor_succdeb, slor_servdeb, libelleItv
+                    slor_numfac, slor_numor, numeroItv, slor_succdeb, slor_servdeb, libelleItv, slor_typeor
                 ORDER BY
                     numeroItv;
             ";

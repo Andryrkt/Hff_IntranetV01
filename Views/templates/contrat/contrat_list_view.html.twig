@@ -1,0 +1,39 @@
+{# Views/templates/contrat/contrat_list_view.html.twig #}
+{% extends "baseTemplate.html.twig" %}
+
+{% block title %}
+	{{ title }}
+{% endblock %}
+
+{% block stylesheets %}
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/contrat/listeContrat.css">
+{% endblock %}
+
+{% block content %}
+	<div class="container mt-6">
+		{% include "/contrat/shared/_formulaireRechercheContrat.html.twig" with {'form': form} %}
+		{% include "/contrat/shared/_pagination_contrat.html.twig" %}
+	</div>
+
+	<div class="container">
+		{% include "/contrat/_list_content.html.twig" %}
+	</div>
+
+	{% include "/partials/_pagination.html.twig" %}
+{% endblock %}
+
+{% block javascript %}
+	<script>
+		// Données pour les vues
+window.pageData = {{ data|json_encode|raw }};
+document.body.dataset.viewMode = "list";
+	</script>
+
+	<!-- Templates pour le rendu côté client -->
+	<script type="text/template" id="list-template">
+		{% include "/contrat/_list_content.html.twig" %}
+	</script>
+
+	<script src="{{ App.base_path }}/Views/js/contrat/listContrat.js" type="module"></script>
+{% endblock %}

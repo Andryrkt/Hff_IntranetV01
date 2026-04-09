@@ -2,16 +2,19 @@
 
 namespace App\Controller\da\Modification;
 
+use App\Constants\da\StatutDaConstant;
 use App\Controller\Controller;
+use App\Controller\Traits\AutorisationTrait;
+use App\Controller\Traits\da\DaAfficherTrait;
+use App\Controller\Traits\da\modification\DaEditAvecDitTrait;
+use App\Entity\admin\Application;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
-use App\Entity\admin\Application;
 use App\Entity\da\DemandeApproLR;
 use App\Form\da\DemandeApproFormType;
 use App\Controller\Traits\da\DaAfficherTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\Traits\da\modification\DaEditAvecDitTrait;
 
 /**
  * @Route("/demande-appro")
@@ -86,7 +89,7 @@ class DaEditAvecDitController extends Controller
             $notifMessage = "Echec de la suppression de la ligne: la ligne de DA n'existe pas.";
         }
         $this->getSessionService()->set('notification', ['type' => $notifType, 'message' => $notifMessage]);
-        $this->redirectToRoute("list_da");
+        $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 1, 'page' => 1]);
     }
 
     private function traitementForm($form, Request $request, iterable $ancienDals): void
@@ -97,7 +100,7 @@ class DaEditAvecDitController extends Controller
             $demandeAppro = $form->getData();
             $numDa = $demandeAppro->getNumeroDemandeAppro();
 
-            $this->modificationDa($demandeAppro, $form->get('DAL'), DemandeAppro::STATUT_SOUMIS_APPRO);
+            $this->modificationDa($demandeAppro, $form->get('DAL'), StatutDaConstant::STATUT_SOUMIS_APPRO);
             if ($demandeAppro->getObservation() !== null) {
                 $this->insertionObservation($numDa, $demandeAppro->getObservation());
             }
@@ -108,7 +111,7 @@ class DaEditAvecDitController extends Controller
 
             //notification
             $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'Votre modification a été enregistrée']);
-            $this->redirectToRoute("list_da");
+            $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 1, 'page' => 1]);
         }
     }
 }

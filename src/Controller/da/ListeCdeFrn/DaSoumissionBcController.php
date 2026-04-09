@@ -2,26 +2,27 @@
 
 namespace App\Controller\da\ListeCdeFrn;
 
-use Exception;
-use App\Model\da\DaModel;
-use App\Entity\da\DaValider;
+use App\Constants\da\StatutBcConstant;
 use App\Controller\Controller;
-use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaSoumissionBc;
-use App\Model\da\DaSoumissionBcModel;
-use App\Repository\dit\DitRepository;
+use App\Entity\da\DaValider;
+use App\Entity\da\DemandeAppro;
 use App\Entity\dit\DemandeIntervention;
-use App\Service\genererPdf\GeneratePdf;
-use App\Repository\da\DaValiderRepository;
-use App\Service\fichier\TraitementDeFichier;
-use App\Repository\da\DemandeApproRepository;
-use Symfony\Component\HttpFoundation\Request;
-use App\Repository\da\DaSoumissionBcRepository;
-use Symfony\Component\Routing\Annotation\Route;
 use App\Form\da\soumissionBC\DaSoumissionBcType;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
-use App\Service\historiqueOperation\HistoriqueOperationService;
+use App\Model\da\DaModel;
+use App\Model\da\DaSoumissionBcModel;
+use App\Repository\da\DaSoumissionBcRepository;
+use App\Repository\da\DaValiderRepository;
+use App\Repository\da\DemandeApproRepository;
+use App\Repository\dit\DitRepository;
+use App\Service\fichier\TraitementDeFichier;
+use App\Service\genererPdf\GeneratePdf;
 use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
+use App\Service\historiqueOperation\HistoriqueOperationService;
+use Exception;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route("/demande-appro")
@@ -127,7 +128,23 @@ class DaSoumissionBcController extends Controller
         }
     }
 
-    private function ajoutInfoNecesaireSoumissionBc(string $numCde, string $numDa, DaSoumissionBc $soumissionBc, string $nomPdfFusionner, int $numeroVersionMax, string $numOr, string $codeSociete): DaSoumissionBc
+
+    private function modificationDaValider(string $numDa, string $numCde): void
+    {
+        $numeroVersionMaxCde = $this->daValiderRepository->getNumeroVersionMax($numDa);
+        $daValiders = $this->daValiderRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMaxCde, 'numeroCde' => $numCde]);
+        if (!empty($daValiders)) {
+            foreach ($daValiders as $key => $daValider) {
+                $daValider
+                    ->setStatutCde(StatutBcConstant::STATUT_SOUMISSION);
+                $this->getEntityManager()->persist($daValider);
+            }
+
+            $this->getEntityManager()->flush();
+        }
+    }
+
+    private function ajoutInfoNecesaireSoumissionBc(string $numCde, string $numDa, DaSoumissionBc $soumissionBc, string $nomPdfFusionner, int $numeroVersionMax, string $numOr): DaSoumissionBc
     {
         $numDit = $this->demandeApproRepository->getNumDitDa($numDa, $codeSociete);
         // $numOr = $this->ditRepository->getNumOr($numDit);
@@ -137,7 +154,7 @@ class DaSoumissionBcController extends Controller
         $soumissionBc->setNumeroCde($numCde)
             ->setUtilisateur($this->getUserName())
             ->setPieceJoint1($nomPdfFusionner)
-            ->setStatut(DaSoumissionBc::STATUT_SOUMISSION)
+            ->setStatut(StatutBcConstant::STATUT_SOUMISSION)
             ->setNumeroVersion($numeroVersionMax)
             ->setNumeroDemandeAppro($numDa)
             ->setNumeroDemandeDit($numDit)
@@ -166,7 +183,7 @@ class DaSoumissionBcController extends Controller
 
         return [
             'nomDeFichier' => explode('_', $nomdeFichier)[0] <> 'BON DE COMMANDE' || explode('_', $nomdeFichier)[1] <> $numCde,
-            'statut' => $statut === DaSoumissionBc::STATUT_SOUMISSION || $statut === DaSoumissionBc::STATUT_A_VALIDER_DA,
+            'statut' => $statut === StatutBcConstant::STATUT_SOUMISSION || $statut === StatutBcConstant::STATUT_A_VALIDER_DA,
             'numDaEgale' => $numDaInformix[0] !== $numDa,
             'montantBcEgale' => $montantBc == $this->getMontantBc($numCde, $codeSociete)
         ];

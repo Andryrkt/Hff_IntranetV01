@@ -429,9 +429,6 @@ class MenuService
         // Vide l'entrée du profil dans le cache mémoire indexé
         unset($this->cacheMenuStructure[$profilId]);
         unset($this->cacheAdminMenuStructure[$profilId]);
-
-        // Invalide le cache HTML rendu des modals pour ce profil spécifique
-        $this->cache->invalidateTags(['profil_' . $profilId]);
     }
 
     // =========================================================================

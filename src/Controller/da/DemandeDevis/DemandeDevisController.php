@@ -2,6 +2,7 @@
 
 namespace App\Controller\da\DemandeDevis;
 
+use App\Constants\da\StatutDaConstant;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\admin\utilisateur\Role;
@@ -50,7 +51,7 @@ class DemandeDevisController extends Controller
         if (!$demandeAppro) {
             /** NOTIFICATION */
             $this->getSessionService()->set('notification', ['type' => 'danger', 'message' => 'La demande d’achat que vous avez sélectionner n’existe pas.']);
-            $this->redirectToRoute("list_da");
+            $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 1, 'page' => 1]);
         }
 
         $this->appliquerStatutDemandeDevisEnCours($demandeAppro, $this->getUserName());
@@ -59,6 +60,6 @@ class DemandeDevisController extends Controller
 
         /** NOTIFICATION */
         $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'Le statut de la demande d’achat a été modifié avec succès.']);
-        $this->redirectToRoute("list_da");
+        $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 1, 'page' => 1]);
     }
 }

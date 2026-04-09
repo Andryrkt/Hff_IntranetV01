@@ -2,15 +2,18 @@
 
 namespace App\Repository\da;
 
-use App\Entity\da\DaAfficher;
-use Doctrine\ORM\QueryBuilder;
-use App\Entity\da\DemandeAppro;
-use App\Entity\da\DaSoumissionBc;
-use Doctrine\ORM\EntityRepository;
-use Doctrine\DBAL\ArrayParameterType;
+use App\Constants\da\StatutBcConstant;
+use App\Constants\da\StatutDaConstant;
+use App\Constants\da\StatutOrConstant;
 use App\Entity\admin\utilisateur\User;
+use App\Entity\da\DaAfficher;
+use App\Entity\da\DaSoumissionBc;
+use App\Entity\da\DemandeAppro;
 use App\Entity\dit\DemandeIntervention;
 use App\Entity\dit\DitOrsSoumisAValidation;
+use Doctrine\DBAL\ArrayParameterType;
+use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Query;
 
 class DaAfficherRepository extends EntityRepository
@@ -295,13 +298,13 @@ class DaAfficherRepository extends EntityRepository
         // Constantes métier
         // ------------------------------------------------------------------
         $statutOrs = [
-            DitOrsSoumisAValidation::STATUT_VALIDE,
-            DemandeAppro::STATUT_DW_VALIDEE,
+            StatutOrConstant::STATUT_VALIDE,
+            StatutDaConstant::STATUT_DW_VALIDEE,
         ];
 
         $statutDas = [
-            DemandeAppro::STATUT_CLOTUREE,
-            DemandeAppro::STATUT_VALIDE,
+            StatutDaConstant::STATUT_CLOTUREE,
+            StatutDaConstant::STATUT_VALIDE,
         ];
 
         $exceptions = ['DAP25079981'];
@@ -313,8 +316,6 @@ class DaAfficherRepository extends EntityRepository
         SELECT MAX(sub.numeroVersion)
         FROM ' . DaAfficher::class . ' sub
         WHERE sub.numeroDemandeAppro = d.numeroDemandeAppro
-          AND sub.statutDal IN (:statutDal)
-          AND (sub.statutOr IN (:statutOrs) OR sub.numeroDemandeAppro IN (:exceptions))
     ';
 
         // ------------------------------------------------------------------
@@ -334,7 +335,7 @@ class DaAfficherRepository extends EntityRepository
                 $qb->expr()->in('d.statutOr', ':statutOrs'),
                 $qb->expr()->in('d.numeroDemandeAppro', ':exceptions')
             ))
-            ->setParameter('statutPasDansOr', DaSoumissionBc::STATUT_PAS_DANS_OR)
+            ->setParameter('statutPasDansOr', StatutBcConstant::STATUT_PAS_DANS_OR)
             ->setParameter('codeSociete', $codeSociete)
             ->setParameter('statutDal', $statutDas)
             ->setParameter('statutOrs', $statutOrs)
@@ -421,8 +422,8 @@ class DaAfficherRepository extends EntityRepository
             ->groupBy('d.numeroDemandeAppro');
 
         $statutOrs = [
-            DitOrsSoumisAValidation::STATUT_VALIDE,
-            DemandeAppro::STATUT_DW_VALIDEE
+            StatutOrConstant::STATUT_VALIDE,
+            StatutDaConstant::STATUT_DW_VALIDEE
         ];
 
         $exceptions = [
@@ -430,8 +431,8 @@ class DaAfficherRepository extends EntityRepository
         ];
 
         $statutDas = [
-            DemandeAppro::STATUT_CLOTUREE,
-            DemandeAppro::STATUT_VALIDE
+            StatutDaConstant::STATUT_CLOTUREE,
+            StatutDaConstant::STATUT_VALIDE
         ];
 
         $subQb->andWhere(
@@ -471,7 +472,7 @@ class DaAfficherRepository extends EntityRepository
                 'd.statutCde IS NULL'
             ))
             ->andWhere('d.deleted = 0')
-            ->setParameter('statutPasDansOr', DaSoumissionBc::STATUT_PAS_DANS_OR);
+            ->setParameter('statutPasDansOr', StatutBcConstant::STATUT_PAS_DANS_OR);
 
         // filtres dynamiques
         $this->applyDynamicFilters($qb, "d", $criteria, true);
@@ -607,6 +608,16 @@ class DaAfficherRepository extends EntityRepository
             $this->conditionAgenceService($qb, 'd', $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
         }
 
+        // $query = $qb->getQuery();
+        // $sql = $query->getSQL();
+        // $params = $query->getParameters();
+
+        // dump("SQL : " . $sql . "\n");
+        // foreach ($params as $param) {
+        //     dump($param->getName());
+        //     dump($param->getValue());
+        // }
+
         // 4. Count total optimisé avec cache
         $countQb = clone $qb;
         $countQb->resetDQLPart('select');
@@ -689,7 +700,9 @@ class DaAfficherRepository extends EntityRepository
 
         $this->handleOrderBy($finalQb, 'd', $criteria);
         $finalQb->addOrderBy('d.numeroDemandeApproMere', 'DESC')
-            ->addOrderBy('d.numeroDemandeAppro', 'DESC');
+            ->addOrderBy('d.numeroDemandeAppro', 'DESC')
+            ->addOrderBy('d.numeroCde', 'ASC')
+        ;
 
         return [
             'data'        => $finalQb->getQuery()->getResult(Query::HYDRATE_ARRAY),
@@ -725,15 +738,15 @@ class DaAfficherRepository extends EntityRepository
         if (!$estAdmin && $estAppro) {
             $qb->andWhere($qbLabel . '.statutDal IN (:authorizedStatuts)')
                 ->setParameter('authorizedStatuts', [
-                    DemandeAppro::STATUT_SOUMIS_APPRO,
-                    DemandeAppro::STATUT_SOUMIS_ATE,
-                    DemandeAppro::STATUT_DEMANDE_DEVIS,
-                    DemandeAppro::STATUT_DEVIS_A_RELANCER,
-                    DemandeAppro::STATUT_EN_COURS_PROPOSITION,
-                    DemandeAppro::STATUT_AUTORISER_EMETTEUR,
-                    DemandeAppro::STATUT_VALIDE,
-                    DemandeAppro::STATUT_REFUSE_APPRO,
-                    DemandeAppro::STATUT_TERMINER
+                    StatutDaConstant::STATUT_SOUMIS_APPRO,
+                    StatutDaConstant::STATUT_SOUMIS_ATE,
+                    StatutDaConstant::STATUT_DEMANDE_DEVIS,
+                    StatutDaConstant::STATUT_DEVIS_A_RELANCER,
+                    StatutDaConstant::STATUT_EN_COURS_PROPOSITION,
+                    StatutDaConstant::STATUT_AUTORISER_EMETTEUR,
+                    StatutDaConstant::STATUT_VALIDE,
+                    StatutDaConstant::STATUT_REFUSE_APPRO,
+                    StatutDaConstant::STATUT_TERMINER
                 ], ArrayParameterType::STRING);
         }
     }
@@ -754,9 +767,7 @@ class DaAfficherRepository extends EntityRepository
         if ($estCdeFrn) {
             $map = [
                 'numDa'         => "$qbLabel.numeroDemandeApproMere",
-                'numDit'        => "$qbLabel.numeroDemandeDit",
                 'numCde'        => "$qbLabel.numeroCde",
-                'numOr'         => "$qbLabel.numeroOr",
                 'numFrn'        => "$qbLabel.numeroFournisseur",
                 'frn'           => "$qbLabel.nomFournisseur",
                 'niveauUrgence' => "$qbLabel.niveauUrgence",
@@ -765,7 +776,7 @@ class DaAfficherRepository extends EntityRepository
         } else {
             $map = [
                 'numDa'         => "$qbLabel.numeroDemandeApproMere",
-                'numDit'        => "$qbLabel.numeroDemandeDit",
+                'numCde'        => "$qbLabel.numeroCde",
                 'demandeur'     => "$qbLabel.demandeur",
                 'codeCentrale'  => "$qbLabel.codeCentrale",
                 'niveauUrgence' => "$qbLabel.niveauUrgence",
@@ -779,6 +790,11 @@ class DaAfficherRepository extends EntityRepository
                 $qb->andWhere("$field = :$key")
                     ->setParameter($key, $criteria);
             }
+        }
+
+        if (isset($criteria['numDit'])) {
+            $qb->andWhere("$qbLabel.numeroOr = :numDit OR $qbLabel.numeroDemandeDit = :numDit")
+                ->setParameter('numDit', $criteria['numDit']);
         }
 
         if (isset($criteria['typeAchat'])) {
@@ -825,37 +841,79 @@ class DaAfficherRepository extends EntityRepository
 
     private function applyStatutsFilters(QueryBuilder $queryBuilder, string $qbLabel, array $criteria, bool $estCdeFrn = false)
     {
-        if (empty(array_filter($criteria, function ($value) {
-            return $value !== null;
-        }))) {
-            $queryBuilder->andWhere($qbLabel . '.statutDal NOT IN (:statutDa)')
-                ->setParameter('statutDa', [DemandeAppro::STATUT_TERMINER, DemandeAppro::STATUT_CLOTUREE], ArrayParameterType::STRING);
+        if (
+            empty(array_filter($criteria, function ($value) {
+                return $value !== null && $value !== false;
+            })) &&
+            (array_key_exists('afficherCloturees', $criteria) && !$criteria['afficherCloturees'])
+        ) {
+            $queryBuilder->andWhere($qbLabel . '.statutDal NOT IN (:statutDaFermer)')
+                ->setParameter('statutDaFermer', [StatutDaConstant::STATUT_TERMINER, StatutDaConstant::STATUT_CLOTUREE], ArrayParameterType::STRING);
         }
 
         if ($estCdeFrn) {
             if (!empty($criteria['statutBC'])) {
-                $queryBuilder->andWhere($qbLabel . '.statutCde = :statutBc')
-                    ->setParameter('statutBc', $criteria['statutBC']);
+                if (is_array($criteria['statutBC'])) {
+                    $queryBuilder->andWhere($qbLabel . '.statutCde IN (:statutBcParam)')
+                        ->setParameter('statutBcParam', $criteria['statutBC'], ArrayParameterType::STRING);
+                } else {
+
+                    $queryBuilder->andWhere($qbLabel . '.statutCde = :statutBcParam')
+                        ->setParameter('statutBcParam', $criteria['statutBC']);
+                }
             }
 
             if (!empty($criteria['statutDA'])) {
-                $queryBuilder->andWhere($qbLabel . '.statutDal = :statutDa')
-                    ->setParameter('statutDa', $criteria['statutDA']);
+                if (is_array($criteria['statutDA'])) {
+                    $queryBuilder->andWhere($qbLabel . '.statutDal IN (:statutDaParam)')
+                        ->setParameter('statutDaParam', $criteria['statutDA'], ArrayParameterType::STRING);
+                } else {
+                    $queryBuilder->andWhere($qbLabel . '.statutDal = :statutDaParam')
+                        ->setParameter('statutDaParam', $criteria['statutDA']);
+                }
             }
         } else {
-            if (!empty($criteria['statutDA'])) {
-                $queryBuilder->andWhere($qbLabel . '.statutDal = :statutDa')
-                    ->setParameter('statutDa', $criteria['statutDA']);
+            if (!empty($criteria['statutDA']) && !empty($criteria['statutBC']) && is_array($criteria['statutDA']) && is_array($criteria['statutBC'])) {
+                $queryBuilder
+                    ->andWhere($queryBuilder->expr()->orX(
+                        $qbLabel . '.statutDal IN (:statutDaParam)',
+                        $qbLabel . '.statutCde IN (:statutBcParam)'
+                    ))
+                    ->setParameter('statutDaParam', $criteria['statutDA'], ArrayParameterType::STRING)
+                    ->setParameter('statutBcParam', $criteria['statutBC'], ArrayParameterType::STRING);
+            } elseif (!empty($criteria['statutDA'])) {
+                if (is_array($criteria['statutDA'])) {
+                    $queryBuilder->andWhere($qbLabel . '.statutDal IN (:statutDaParam)')
+                        ->setParameter('statutDaParam', $criteria['statutDA'], ArrayParameterType::STRING);
+                } else {
+                    if ($criteria['statutDA'] === StatutDaConstant::TRAITEMENT_APPRO) {
+                        $queryBuilder->andWhere($qbLabel . '.statutDal IN (:statutDaParam)')
+                            ->setParameter('statutDaParam', StatutDaConstant::STATUT_TRAITEMENT_APPRO, ArrayParameterType::STRING);
+                    } else {
+                        $queryBuilder->andWhere($qbLabel . '.statutDal = :statutDaParam')
+                            ->setParameter('statutDaParam', $criteria['statutDA']);
+                    }
+                }
             }
 
             if (!empty($criteria['statutOR'])) {
-                $queryBuilder->andWhere($qbLabel . '.statutOr = :statutOr')
-                    ->setParameter('statutOr', $criteria['statutOR']);
+                if (is_array($criteria['statutOR'])) {
+                    $queryBuilder->andWhere($qbLabel . '.statutOr IN (:statutOrParam)')
+                        ->setParameter('statutOrParam', $criteria['statutOR'], ArrayParameterType::STRING);
+                } else {
+                    $queryBuilder->andWhere($qbLabel . '.statutOr = :statutOrParam')
+                        ->setParameter('statutOrParam', $criteria['statutOR']);
+                }
             }
 
-            if (!empty($criteria['statutBC'])) {
-                $queryBuilder->andWhere($qbLabel . '.statutCde = :statutBc')
-                    ->setParameter('statutBc', $criteria['statutBC']);
+            if (!empty($criteria['statutBC']) && !is_array($criteria['statutBC'])) {
+                if ($criteria['statutBC'] === StatutBcConstant::BC_EN_COURS) {
+                    $queryBuilder->andWhere($qbLabel . '.statutCde IN (:statutBcParam)')
+                        ->setParameter('statutBcParam', StatutBcConstant::STATUT_BC_EN_COURS, ArrayParameterType::STRING);
+                } else {
+                    $queryBuilder->andWhere($qbLabel . '.statutCde = :statutBcParam')
+                        ->setParameter('statutBcParam', $criteria['statutBC']);
+                }
             }
         }
     }
@@ -1023,7 +1081,7 @@ class DaAfficherRepository extends EntityRepository
             ->setParameters([
                 'codeSociete' => $codeSociete,
                 'numOr' => $numeroOr,
-                'statutValide' => DemandeAppro::STATUT_VALIDE,
+                'statutValide' => StatutDaConstant::STATUT_VALIDE,
                 'numVersion' => $numeroVersionMax
             ])
             ->getQuery()
@@ -1107,6 +1165,42 @@ class DaAfficherRepository extends EntityRepository
             ->getSingleColumnResult();
 
         return array_combine($originalArray, $originalArray);
+    }
+
+    public function getInfoDa(int $numCde)
+    {
+        return  $this->createQueryBuilder('da')
+            ->select('da.agenceDebiteur, da.serviceDebiteur, da.numeroOr, da.numeroFournisseur, da.numeroDemandeAppro, da.daTypeId')
+            ->where('da.numeroCde = :numCde')
+            ->setParameter('numCde', $numCde)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
+    }
+
+    public function getNumFrnDa(int $numcde)
+    {
+        return $this->createQueryBuilder('da')
+            ->select('da.numeroFournisseur')
+            ->where('da.numeroCde = :numCde')
+            ->setParameter('numCde', $numcde)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
+    }
+
+    public function getTypeDa($numCde)
+    {
+        return $this->createQueryBuilder('da')
+            ->select('da.daTypeId')
+            ->where('da.numeroCde = :numCde')
+            ->setParameter('numCde', $numCde)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
     }
 
     public function getTimelineData(string $numDa)

@@ -2,81 +2,57 @@
 
 namespace App\Form\da;
 
+use App\Constants\da\StatutBcConstant;
+use App\Constants\da\StatutDaConstant;
+use App\Constants\da\StatutOrConstant;
+use App\Controller\Traits\da\MarkupIconTrait;
+use App\Entity\admin\Agence;
+use App\Entity\admin\dit\WorNiveauUrgence;
+use App\Entity\admin\Service;
 use App\Entity\da\DaSearch;
 use App\Entity\da\DemandeAppro;
-use App\Entity\da\DaSoumissionBc;
+use App\Repository\admin\ServiceRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
-use Symfony\Component\Form\AbstractType;
-use App\Traits\PrepareAgenceServiceTrait;
-use App\Entity\admin\dit\WorNiveauUrgence;
-use App\Entity\dit\DitOrsSoumisAValidation;
-use App\Controller\Traits\da\MarkupIconTrait;
-use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
-use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class DaSearchType extends  AbstractType
 {
     use PrepareAgenceServiceTrait;
     use MarkupIconTrait;
 
-    private const STATUT_DA = [
-        DemandeAppro::STATUT_VALIDE               => DemandeAppro::STATUT_VALIDE,
-        DemandeAppro::STATUT_CLOTUREE             => DemandeAppro::STATUT_CLOTUREE,
-        DemandeAppro::STATUT_SOUMIS_ATE           => DemandeAppro::STATUT_SOUMIS_ATE,
-        DemandeAppro::STATUT_SOUMIS_APPRO         => DemandeAppro::STATUT_SOUMIS_APPRO,
-        DemandeAppro::STATUT_DEMANDE_DEVIS        => DemandeAppro::STATUT_DEMANDE_DEVIS,
-        DemandeAppro::STATUT_DEVIS_A_RELANCER     => DemandeAppro::STATUT_DEVIS_A_RELANCER,
-        DemandeAppro::STATUT_EN_COURS_CREATION    => DemandeAppro::STATUT_EN_COURS_CREATION,
-        DemandeAppro::STATUT_AUTORISER_EMETTEUR   => DemandeAppro::STATUT_AUTORISER_EMETTEUR,
-        DemandeAppro::STATUT_EN_COURS_PROPOSITION => DemandeAppro::STATUT_EN_COURS_PROPOSITION,
-    ];
+    private $agenceRepository;
 
-    private const STATUT_BC = [
-        DaSoumissionBc::STATUT_A_GENERER                => DaSoumissionBc::STATUT_A_GENERER,
-        DaSoumissionBc::STATUT_A_EDITER                 => DaSoumissionBc::STATUT_A_EDITER,
-        DaSoumissionBc::STATUT_A_SOUMETTRE_A_VALIDATION => DaSoumissionBc::STATUT_A_SOUMETTRE_A_VALIDATION,
-        DaSoumissionBc::STATUT_A_VALIDER_DA             => DaSoumissionBc::STATUT_A_VALIDER_DA,
-        DaSoumissionBc::STATUT_A_ENVOYER_AU_FOURNISSEUR => DaSoumissionBc::STATUT_A_ENVOYER_AU_FOURNISSEUR,
-        DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR => DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR,
-        DaSoumissionBc::STATUT_NON_DISPO                => DaSoumissionBc::STATUT_NON_DISPO,
-        DaSoumissionBc::STATUT_SOUMISSION               => DaSoumissionBc::STATUT_SOUMISSION,
-        DaSoumissionBc::STATUT_VALIDE                   => DaSoumissionBc::STATUT_VALIDE,
-        DaSoumissionBc::STATUT_CLOTURE                  => DaSoumissionBc::STATUT_CLOTURE,
-        DaSoumissionBc::STATUT_REFUSE                   => DaSoumissionBc::STATUT_REFUSE,
-        DaSoumissionBc::STATUT_TOUS_LIVRES              => DaSoumissionBc::STATUT_TOUS_LIVRES,
-        DaSoumissionBc::STATUT_PARTIELLEMENT_LIVRE      => DaSoumissionBc::STATUT_PARTIELLEMENT_LIVRE,
-        DaSoumissionBc::STATUT_PARTIELLEMENT_DISPO      => DaSoumissionBc::STATUT_PARTIELLEMENT_DISPO,
-        DaSoumissionBc::STATUT_COMPLET_NON_LIVRE        => DaSoumissionBc::STATUT_COMPLET_NON_LIVRE,
-    ];
+    private $em;
 
-    private const STATUT = [
-        'OR - ' . DitOrsSoumisAValidation::STATUT_VALIDE              => DitOrsSoumisAValidation::STATUT_VALIDE,
-        'OR - ' . DitOrsSoumisAValidation::STATUT_A_VALIDER_CA        => DitOrsSoumisAValidation::STATUT_A_VALIDER_CA,
-        'OR - ' . DitOrsSoumisAValidation::STATUT_A_VALIDER_CLIENT    => DitOrsSoumisAValidation::STATUT_A_VALIDER_CLIENT,
-        'OR - ' . DitOrsSoumisAValidation::STATUT_REFUSE_CA           => DitOrsSoumisAValidation::STATUT_REFUSE_CA,
-        'OR - ' . DitOrsSoumisAValidation::STATUT_REFUSE_CLIENT       => DitOrsSoumisAValidation::STATUT_REFUSE_CLIENT,
-        'OR - ' . DitOrsSoumisAValidation::STATUT_REFUSE_DT           => DitOrsSoumisAValidation::STATUT_REFUSE_DT,
-        'OR - ' . DitOrsSoumisAValidation::STATUT_SOUMIS_A_VALIDATION => DitOrsSoumisAValidation::STATUT_SOUMIS_A_VALIDATION,
-        DemandeAppro::STATUT_DW_A_VALIDE                              => DemandeAppro::STATUT_DW_A_VALIDE,
-        DemandeAppro::STATUT_DW_VALIDEE                               => DemandeAppro::STATUT_DW_VALIDEE,
-        DemandeAppro::STATUT_DW_A_MODIFIER                            => DemandeAppro::STATUT_DW_A_MODIFIER,
-        DemandeAppro::STATUT_DW_REFUSEE                               => DemandeAppro::STATUT_DW_REFUSEE,
-    ];
+    public function __construct(EntityManagerInterface $em)
+    {
+        $this->em = $em;
+        $this->agenceRepository = $this->em->getRepository(Agence::class);
+    }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $statut = self::STATUT;
-        ksort($statut);
+        $statut_or = StatutOrConstant::STATUT_OR;
+        ksort($statut_or);
 
-        $statut_bc = self::STATUT_BC;
-        ksort($statut_bc);
+        if ($options['estAppro']) {
+            $statut_da = StatutDaConstant::STATUT_DA;
+            $statut_bc = StatutBcConstant::STATUT_BC;
+        } else {
+            $statut_da = StatutDaConstant::STATUT_DA_PAS_APPRO_NI_ADMIN;
+            $statut_bc = StatutBcConstant::STATUT_BC_PAS_APPRO_NI_ADMIN;
+        }
 
-        $statut_da = self::STATUT_DA;
-        ksort($statut_da);
 
         $type_achat = [
             'Demande d’approvisionnement via OR'      => DemandeAppro::TYPE_DA_AVEC_DIT,
@@ -92,13 +68,21 @@ class DaSearchType extends  AbstractType
         $serviceAttr = $choices['serviceAttr'];
 
         $builder
+            ->add('afficherCloturees', CheckboxType::class, [
+                'label'    => 'Afficher aussi les demandes d\'approvisionnement clôturées',
+                'required' => false
+            ])
             ->add('numDit', TextType::class, [
-                'label'         => 'N° DIT',
+                'label'         => 'N° OR/DIT',
                 'required'      => false
             ])
             ->add('numDa', TextType::class, [
                 'label'         => 'N° DAP',
                 'required'      => false
+            ])
+            ->add('numCde', TextType::class, [
+                'label' => 'N° Commande',
+                'required' => false
             ])
             ->add('demandeur', TextType::class, [
                 'label'         => 'Demandeur',
@@ -113,7 +97,7 @@ class DaSearchType extends  AbstractType
             ->add('statutOR', ChoiceType::class, [
                 'placeholder'   => '-- Choisir un statut --',
                 'label'         => 'Statut',
-                'choices'       => $statut,
+                'choices'       => $statut_or,
                 'required'      => false
             ])
             ->add('statutBC', ChoiceType::class, [
@@ -246,6 +230,7 @@ class DaSearchType extends  AbstractType
         $resolver->setDefaults([
             'data_class'             => DaSearch::class,
             'allAgenceServices' => [],
+            'estAppro'   => false,
         ]);
     }
 }

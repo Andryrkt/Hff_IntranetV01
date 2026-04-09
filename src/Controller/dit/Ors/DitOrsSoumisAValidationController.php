@@ -5,38 +5,37 @@ namespace App\Controller\dit\Ors;
 ini_set('upload_max_filesize', '5M');
 ini_set('post_max_size', '5M');
 
-use App\Service\FusionPdf;
-use App\Model\dit\DitModel;
-use App\Entity\da\DaAfficher;
+use App\Constants\da\StatutDaConstant;
 use App\Controller\Controller;
-use App\Entity\da\DemandeAppro;
-use App\Entity\da\DemandeApproL;
-use App\Entity\da\DemandeApproLR;
-use App\Entity\admin\StatutDemande;
 use App\Controller\Traits\da\DaTrait;
-use App\Repository\dit\DitRepository;
-use App\Entity\dit\DemandeIntervention;
+use App\Controller\Traits\dit\DitOrSoumisAValidationTrait;
 use App\Controller\Traits\FormatageTrait;
-use Symfony\Component\Form\FormInterface;
+use App\Entity\admin\StatutDemande;
+use App\Entity\da\DaAfficher;
+use App\Entity\da\DemandeAppro;
+use App\Entity\dit\DemandeIntervention;
 use App\Entity\dit\DitOrsSoumisAValidation;
-use App\Repository\da\DaAfficherRepository;
-use App\Service\fichier\UploderFileService;
-use App\Service\fichier\TraitementDeFichier;
 use App\Form\dit\DitOrsSoumisAValidationType;
-use App\Repository\da\DemandeApproRepository;
-use Symfony\Component\HttpFoundation\Request;
+use App\Model\dit\DitModel;
 use App\Model\dit\DitOrSoumisAValidationModel;
+use App\Model\magasin\MagasinListeOrLivrerModel;
+use App\Repository\da\DaAfficherRepository;
 use App\Repository\da\DemandeApproLRepository;
 use App\Repository\da\DemandeApproLRRepository;
-use App\Service\dit\ors\OrGeneratorNameService;
-use Symfony\Component\Routing\Annotation\Route;
-use App\Model\magasin\MagasinListeOrLivrerModel;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
+use App\Repository\da\DemandeApproRepository;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
-use App\Controller\Traits\dit\DitOrSoumisAValidationTrait;
-use App\Service\historiqueOperation\HistoriqueOperationService;
+use App\Repository\dit\DitRepository;
+use App\Service\dit\ors\OrGeneratorNameService;
+use App\Service\fichier\TraitementDeFichier;
+use App\Service\fichier\UploderFileService;
+use App\Service\FusionPdf;
 use App\Service\genererPdf\dit\ors\GenererPdfOrSoumisAValidation;
 use App\Service\historiqueOperation\HistoriqueOperationORService;
+use App\Service\historiqueOperation\HistoriqueOperationService;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route("/atelier/demande-intervention")
@@ -66,12 +65,6 @@ class DitOrsSoumisAValidationController extends Controller
         $this->magasinListOrLivrerModel = new MagasinListeOrLivrerModel();
         $this->historiqueOperation      = new HistoriqueOperationORService($this->getEntityManager());
         $this->ditOrsoumisAValidationModel = new DitOrSoumisAValidationModel();
-        // $this->ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class);
-        // $this->orRepository = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class);
-        // $this->demandeApproLRepository = $this->getEntityManager()->getRepository(DemandeApproL::class);
-        // $this->demandeApproLRRepository = $this->getEntityManager()->getRepository(DemandeApproLR::class);
-        // $this->demandeApproRepository = $this->getEntityManager()->getRepository(DemandeAppro::class);
-        // $this->daAfficherRepository = $this->getEntityManager()->getRepository(DaAfficher::class);
         $this->ditModel = new DitModel();
         $this->fusionPdf = new FusionPdf();
     }
@@ -103,9 +96,9 @@ class DitOrsSoumisAValidationController extends Controller
                     !in_array(
                         $statutDaAfficher[0],
                         [
-                            DemandeAppro::STATUT_VALIDE,
-                            DemandeAppro::STATUT_TERMINER,
-                            DemandeAppro::STATUT_EN_COURS_CREATION
+                            StatutDaConstant::STATUT_VALIDE,
+                            StatutDaConstant::STATUT_TERMINER,
+                            StatutDaConstant::STATUT_EN_COURS_CREATION
                         ]
                     )
                 ) {
@@ -309,7 +302,7 @@ class DitOrsSoumisAValidationController extends Controller
     private function modificationDaAfficher(string $numDit, string $numOr, DaAfficherRepository $daAfficherRepository): void
     {
         $numeroVersionMax = $daAfficherRepository->getNumeroVersionMaxDit($numDit);
-        $daAfficherValiders = $daAfficherRepository->findBy(['numeroVersion' => $numeroVersionMax, 'numeroDemandeDit' => $numDit, 'statutDal' => DemandeAppro::STATUT_VALIDE]);
+        $daAfficherValiders = $daAfficherRepository->findBy(['numeroVersion' => $numeroVersionMax, 'numeroDemandeDit' => $numDit, 'statutDal' => StatutDaConstant::STATUT_VALIDE]);
         if (!empty($daAfficherValiders)) {
 
             /** @var DaAfficher $daValider */
@@ -331,7 +324,7 @@ class DitOrsSoumisAValidationController extends Controller
     private function fusionPdfDaAvecORfusionner(string $numDit, string $mainPdf, DaAfficherRepository $daAfficherRepository): void
     {
         $numeroVersionMax = $daAfficherRepository->getNumeroVersionMaxDit($numDit);
-        $daAfficherValiders = $daAfficherRepository->findBy(['numeroVersion' => $numeroVersionMax, 'numeroDemandeDit' => $numDit, 'statutDal' => DemandeAppro::STATUT_VALIDE]);
+        $daAfficherValiders = $daAfficherRepository->findBy(['numeroVersion' => $numeroVersionMax, 'numeroDemandeDit' => $numDit, 'statutDal' => StatutDaConstant::STATUT_VALIDE]);
         if (!empty($daAfficherValiders)) {
             //recupération du nom et chemin du PDF DA
             $cheminNomFichierDa = sprintf(

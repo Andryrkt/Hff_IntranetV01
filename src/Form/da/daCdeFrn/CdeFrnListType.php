@@ -3,6 +3,8 @@
 namespace App\Form\da\daCdeFrn;
 
 
+use App\Constants\da\StatutBcConstant;
+use App\Constants\da\StatutDaConstant;
 use App\Entity\admin\Agence;
 use App\Entity\admin\dit\WorNiveauUrgence;
 use App\Entity\admin\Service;
@@ -15,6 +17,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -34,22 +37,6 @@ class CdeFrnListType extends  AbstractType
         $this->agenceRepository = $this->em->getRepository(Agence::class);
     }
 
-    private const STATUT_DA = [
-        DemandeAppro::STATUT_VALIDE               => DemandeAppro::STATUT_VALIDE,
-        DemandeAppro::STATUT_CLOTUREE             => DemandeAppro::STATUT_CLOTUREE,
-        DemandeAppro::STATUT_SOUMIS_ATE           => DemandeAppro::STATUT_SOUMIS_ATE,
-        DemandeAppro::STATUT_SOUMIS_APPRO         => DemandeAppro::STATUT_SOUMIS_APPRO,
-        DemandeAppro::STATUT_DEMANDE_DEVIS        => DemandeAppro::STATUT_DEMANDE_DEVIS,
-        DemandeAppro::STATUT_DEVIS_A_RELANCER     => DemandeAppro::STATUT_DEVIS_A_RELANCER,
-        DemandeAppro::STATUT_EN_COURS_CREATION    => DemandeAppro::STATUT_EN_COURS_CREATION,
-        DemandeAppro::STATUT_AUTORISER_EMETTEUR   => DemandeAppro::STATUT_AUTORISER_EMETTEUR,
-        DemandeAppro::STATUT_EN_COURS_PROPOSITION => DemandeAppro::STATUT_EN_COURS_PROPOSITION,
-    ];
-
-    private function statutBc()
-    {
-        return $this->em->getRepository(DaAfficher::class)->getStatutsBc();
-    }
 
     private const TYPE_ACHAT = [
         'DA Avec DIT' => DemandeAppro::TYPE_DA_AVEC_DIT,
@@ -64,10 +51,13 @@ class CdeFrnListType extends  AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $statut_da = self::STATUT_DA;
-        ksort($statut_da);
+        $statut_da = StatutDaConstant::STATUT_DA;
 
         $builder
+            ->add('afficherCloturees', CheckboxType::class, [
+                'label'    => 'Afficher aussi les demandes d\'approvisionnement clôturées',
+                'required' => false
+            ])
             ->add('numDa', TextType::class, [
                 'label'    => 'N° DA',
                 'required' => false
@@ -79,11 +69,7 @@ class CdeFrnListType extends  AbstractType
                 'required'    => false
             ])
             ->add('numDit', TextType::class, [
-                'label' => 'N° DIT',
-                'required' => false
-            ])
-            ->add('numOr', TextType::class, [
-                'label' => 'N° OR',
+                'label' => 'N° OR/DIT',
                 'required' => false
             ])
             ->add('numFrn', TextType::class, [
@@ -95,7 +81,7 @@ class CdeFrnListType extends  AbstractType
                 'required' => false
             ])
             ->add('numCde', TextType::class, [
-                'label' => 'N° Commande',
+                'label' => 'N° BC',
                 'required' => false
             ])
             ->add('ref', TextType::class, [
@@ -127,7 +113,7 @@ class CdeFrnListType extends  AbstractType
                 ChoiceType::class,
                 [
                     'label' => "Statut BC",
-                    'choices' => $this->statutBc(),
+                    'choices' => StatutBcConstant::STATUT_BC,
                     'placeholder' => '-- Choisir la statut --',
                     'required' => false,
                 ]

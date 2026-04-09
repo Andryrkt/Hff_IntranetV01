@@ -28,6 +28,9 @@
 							Formulaire Demande d'approvisionnement avec DIT
 						</h3>
 					</div>
+
+					{% include "/partials/_notification.html.twig" %}
+
 					<div class="row">
 						<div class="col-12 col-md-4">
 							{{ macroForm.sousTitre3('Information sur la demande') }}
@@ -69,7 +72,7 @@
 								</div>
 								<div class="col-md-6 col-6">
 									{{ form_row(form.parc) }}
-									{{ form_row(form.dit) }}
+									{{ form_row(form.numeroDit) }}
 								</div>
 								{{ form_row(form.objetDit) }}
 							</div>

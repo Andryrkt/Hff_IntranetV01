@@ -2,14 +2,18 @@
 
 namespace App\Controller\da\Detail;
 
+use App\Constants\da\StatutDaConstant;
 use App\Controller\Controller;
-use App\Entity\da\DemandeAppro;
-use App\Entity\da\DaObservation;
-use App\Entity\da\DemandeApproL;
-use App\Entity\admin\Application;
-use App\Form\da\DaObservationType;
-use App\Controller\Traits\lienGenerique;
+use App\Controller\Traits\AutorisationTrait;
 use App\Controller\Traits\da\DaAfficherTrait;
+use App\Controller\Traits\da\detail\DaDetailDirectTrait;
+use App\Controller\Traits\lienGenerique;
+use App\Entity\admin\Application;
+use App\Entity\da\DaObservation;
+use App\Entity\da\DemandeAppro;
+use App\Entity\da\DemandeApproL;
+use App\Form\da\DaObservationType;
+use App\Service\da\DaTimelineService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\da\detail\DaDetailDirectTrait;
@@ -69,7 +73,7 @@ class DaDetailDirectController extends Controller
 			'observations'      		=> $observations,
 			'fichiers'            		=> $fichiers,
 			'connectedUser'     		=> $this->getUser(),
-			'statutAutoriserModifAte' 	=> $demandeAppro->getStatutDal() === DemandeAppro::STATUT_AUTORISER_EMETTEUR,
+			'statutAutoriserModifAte' 	=> $demandeAppro->getStatutDal() === StatutDaConstant::STATUT_AUTORISER_EMETTEUR,
 			'estCreateurDaDirecte'      => $this->hasRoles(Role::ROLE_DA_DIRECTE),
 			'estAppro'          		=> false, // TODO: booléen pour savoir si Appro
 			'timelineData'      		=> $timeLineData,
@@ -91,7 +95,7 @@ class DaDetailDirectController extends Controller
 
 			// TODO: booléen pour savoir si Appro
 			if (false && $daObservation->getStatutChange()) {
-				$this->appliquerChangementStatut($demandeAppro, DemandeAppro::STATUT_AUTORISER_EMETTEUR);
+				$this->appliquerChangementStatut($demandeAppro, StatutDaConstant::STATUT_AUTORISER_EMETTEUR);
 
 				$this->ajouterDansTableAffichageParNumDa($demandeAppro->getNumeroDemandeAppro());
 			}
@@ -104,7 +108,7 @@ class DaDetailDirectController extends Controller
 			$this->emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->getUser(), false);  // TODO: booléen pour savoir si Appro
 
 			$this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
-			return $this->redirectToRoute("list_da");
+			return $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 1, 'page' => 1]);
 		}
 	}
 }
