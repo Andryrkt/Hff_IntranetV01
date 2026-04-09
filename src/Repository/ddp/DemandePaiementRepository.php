@@ -207,19 +207,22 @@ class DemandePaiementRepository extends EntityRepository
 
     public function getDernierNumeroSoumissionDdpDa(string $numCde, string $numeroDa): ?string
     {
-        $queryBuilder =  $this->createQueryBuilder('d')
-            ->select('d.numeroSoumissionDdpDa')
-            ->where('d.numeroDemandeAppro = :numeroDa')
-            ->andWhere('d.numeroCommande LIKE :numero')
-            ->setParameter('numeroDa', $numeroDa)
-            ->setParameter('numero', '%' . $numCde . '%')
-            ->orderBy('d.numeroSoumissionDdpDa', 'DESC')
-            ->setMaxResults(1);
-
-
-        return $queryBuilder->getQuery()
-            ->getSingleScalarResult()
-        ;
+        try {
+            return $this->createQueryBuilder('d')
+                ->select('d.numeroSoumissionDdpDa')
+                ->where('d.numeroDemandeAppro = :numeroDa')
+                ->andWhere('d.numeroCommande LIKE :numero')
+                ->setParameter('numeroDa', $numeroDa)
+                ->setParameter('numero', '%' . $numCde . '%')
+                ->orderBy('d.numeroSoumissionDdpDa', 'DESC')
+                ->setMaxResults(1)
+                ->getQuery()
+                ->getSingleScalarResult();
+        } catch (\Doctrine\ORM\NoResultException $e) {
+            return null;
+        } catch (\Doctrine\ORM\NonUniqueResultException $e) {
+            return null;
+        }
     }
 
     public function getDernierStatutDddp($numCde, $numeroDa)

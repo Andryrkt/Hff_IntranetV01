@@ -121,12 +121,6 @@ class TraitementSoumissionDDPLService
         /** FUSION DES PDF */
         $this->traitementDeFichier->fusionFichers($fichierConvertir, $nomAvecCheminPdfFusionner);
 
-        /** GENERATION DU DEUXIÈME NOM DU FICHIER  */
-        $nomPdfSecond           = "BAP-$numCde#$numDa.pdf";
-        $nomAvecCheminPdfSecond = $this->cheminDeBase . $numDa . '/' . $nomPdfSecond;
-        /** FUSION DU DEUXIÈME FICHIER */
-        $this->traitementDeFichier->fusionFichers($fichierConvertir, $nomAvecCheminPdfSecond);
-
         return [$nomAvecCheminPdfFusionner, $nomPdfFusionner];
     }
 
