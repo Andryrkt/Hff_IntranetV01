@@ -39,11 +39,11 @@ class SecurityService
      */
     private ?string $routeCourrante = null;
 
-    private ?bool $estAdmin;
-    private ?bool $estAtelier;
-    private ?bool $estCreateurDaDirecte;
-    private ?bool $estAppro;
-    private ?bool $estEnergie;
+    private ?bool $estAdmin = null;
+    private ?bool $estAtelier = null;
+    private ?bool $estCreateurDaDirecte = null;
+    private ?bool $estAppro = null;
+    private ?bool $estEnergie = null;
 
     public function __construct(UserDataService $dataService)
     {
