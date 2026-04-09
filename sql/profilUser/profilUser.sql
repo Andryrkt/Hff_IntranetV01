@@ -281,6 +281,26 @@ VALUES
 (N'C6', N'NATEMA', '2026-04-01', '2026-04-01'),
 (N'C7', N'SOMECA', '2026-04-01', '2026-04-01');
 
+-- Mettre à jour les nouveaux agences en ajoutant son code_societe et son societe_id ("HFF_INTRANET_TEST_TEST" ===> "HFF_INTRANET_TEST_2026")
+update HFF_INTRANET_TEST_2026.dbo.agences
+set code_societe=s2.code_societe, societe_id=s2.id
+from HFF_INTRANET_TEST_2026.dbo.agences a
+inner join HFF_INTRANET_TEST_TEST.dbo.agences a2 on a2.code_agence=a.code_agence and a2.libelle_agence=a.libelle_agence
+inner join HFF_INTRANET_TEST_TEST.dbo.societe s on s.id = a2.societe_id
+inner join HFF_INTRANET_TEST_2026.dbo.societe s2 on s2.code_societe = s.code_societe
+where a.id > 12;
+
+-- Ajout de nouveaux agence_service depuis la BDD "HFF_INTRANET_TEST_TEST" ===> "HFF_INTRANET_TEST_2026"
+INSERT INTO HFF_INTRANET_TEST_2026.dbo.agence_service
+(agence_id, service_id)
+select a2.id, s2.id 
+from HFF_INTRANET_TEST_TEST.dbo.agence_service t
+inner join HFF_INTRANET_TEST_TEST.dbo.agences a on t.agence_id = a.id
+inner join HFF_INTRANET_TEST_2026.dbo.agences a2 on a2.code_agence = a.code_agence and a2.code_societe = a.code_societe 
+inner join HFF_INTRANET_TEST_TEST.dbo.services s on t.service_id = s.id
+inner join HFF_INTRANET_TEST_2026.dbo.services s2 on s2.code_service = s.code_service
+where a.id>12;
+
 create table agence_service_defaut_societe (
     id int identity(1,1) not null,
     id_user int not null,
