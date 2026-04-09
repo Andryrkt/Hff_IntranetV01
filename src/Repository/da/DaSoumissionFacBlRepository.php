@@ -42,28 +42,19 @@ class DaSoumissionFacBlRepository extends EntityRepository
     {
         $conn = $this->getEntityManager()->getConnection();
 
-        $sql = "
-            SELECT dabc.numero_livraison
+        $sql = " SELECT 
+                dabc.numero_livraison
             FROM da_soumission_facture_bl dabc
-            LEFT JOIN demande_paiement ddp ON (CASE WHEN ISJSON(ddp.numero_commande) = 1 THEN JSON_VALUE(ddp.numero_commande, '$[0]') ELSE NULL END) = dabc.numero_cde
+            LEFT JOIN demande_paiement ddp ON ddp.numero_commande LIKE CONCAT('%\"', dabc.numero_cde, '\"%')
             WHERE dabc.numero_demande_appro = :numDa
-              AND dabc.numero_cde = :numCde
-              AND (ddp.statut != :statutRefuse OR ddp.statut IS NULL)
-              AND dabc.statut_bap != :statutBapATransmettre
-        ";
-
-        $stmt = $conn->prepare($sql);
-        $result = $stmt->executeStatement([
-            'numDa' => $numDa,
-            'numCde' => $numCde,
-            'statutRefuse' => 'Refusé',
-            'statutBapATransmettre' => 'A transmettre'
-        ]);
+            AND dabc.numero_cde = :numCde
+            AND (ddp.statut NOT LIKE :statutRefuse OR ddp.statut IS NULL)
+            AND dabc.statut_bap != :statutBapATransmettre";
 
         $rows = $conn->fetchAllAssociative($sql, [
             'numDa' => $numDa,
             'numCde' => $numCde,
-            'statutRefuse' => 'Refusé',
+            'statutRefuse' => '%Refusé%',
             'statutBapATransmettre' => 'A transmettre'
         ]);
 
