@@ -85,7 +85,7 @@ class DemandePaiementFactory
         // info generale =====================
         $dto->demandeur = $user->getNomUtilisateur();
         $dto->adresseMailDemandeur = $user->getMail();
-        $dto->statut = $typeDa !== null && $numeroVersionBc !== null ? 'En attente validation BC' : 'Soumis à validation';
+        $dto->statut = $typeDa !== null && $numeroVersionBc !== null ? 'En attente validation BC' : 'DDPA soumis à validation';
         $dto->numeroDdp = $this->numeroDdp();
         $dto->numeroVersion = 1;
         $dto->numeroDossierDouane = $this->docDemandePaiementService->recupNumDossierDouane($dto);
