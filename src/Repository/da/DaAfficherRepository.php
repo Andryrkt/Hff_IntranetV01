@@ -1335,16 +1335,4 @@ class DaAfficherRepository extends EntityRepository
 
         return $result ? new \DateTime($result) : null;
     }
-
-    public function getTypeDa(string $numDa, string $codeSociete)
-    {
-        return $this->createQueryBuilder('d')
-            ->select('DISTINCT d.daTypeId')
-            ->where('d.numeroDemandeAppro = :numDa')
-            ->andWhere('d.codeSociete = :codeSociete')
-            ->setParameter('codeSociete', $codeSociete)
-            ->setParameter('numDa', $numDa)
-            ->getQuery()
-            ->getSingleScalarResult();
-    }
 }

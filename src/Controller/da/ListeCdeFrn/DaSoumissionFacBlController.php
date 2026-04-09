@@ -189,7 +189,7 @@ class DaSoumissionFacBlController extends Controller
         /** @var DaAfficherRepository $daAfficherRepository */
         $daAfficherRepository = $this->getEntityManager()->getRepository(DaAfficher::class);
         $numeroVersionMax = $daAfficherRepository->getNumeroVersionMax($numDa, $codeSociete);
-        $typeDa = $daAfficherRepository->getTypeDa($numCde, $codeSociete);
+        $typeDa = $daAfficherRepository->getTypeDa($numCde);
         $daAffichers = [];
 
         if (in_array((int)$typeDa, [DemandeAppro::TYPE_DA_AVEC_DIT, DemandeAppro::TYPE_DA_REAPPRO_MENSUEL, DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL])) {
