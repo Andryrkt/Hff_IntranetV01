@@ -551,44 +551,7 @@ class DaAfficherRepository extends EntityRepository
 
         // 2. Requête de base
         $qb = $this->_em->createQueryBuilder();
-        $qb->select(
-            'd.id',
-            'd.objetDal',
-            'd.numeroDemandeAppro',
-            'd.numeroDemandeApproMere',
-            'd.numeroDemandeDit',
-            'd.niveauUrgence',
-            'd.numeroOr',
-            'd.datePlannigOr',
-            'd.numeroFournisseur',
-            'd.nomFournisseur',
-            'd.numeroCde',
-            'd.statutDal',
-            'd.statutCde',
-            'd.statutOr',
-            'd.statutOr',
-            'd.dateFinSouhaite',
-            'd.artConstp',
-            'd.artRefp',
-            'd.artDesi',
-            'd.qteDem',
-            'd.qteEnAttent',
-            'd.qteDispo',
-            'd.qteLivrer',
-            'd.dateLivraisonPrevue',
-            'd.joursDispo',
-            'd.demandeur',
-            'd.daTypeId',
-            'd.numeroLigne',
-            'd.positionBc',
-            'd.dateDemande',
-            'd.estDalr',
-            'd.estFicheTechnique',
-            'd.desiCentrale',
-            'da.id   AS demandeApproId',
-            'dap.id  AS demandeApproParentId',
-            'dit.id  AS ditId'
-        )
+        $qb->select('d', 'da', 'dap', 'dit')
             ->from(DaAfficher::class, 'd')
             ->leftJoin('d.demandeAppro', 'da')
             ->leftJoin('d.demandeApproParent', 'dap')
@@ -599,10 +562,10 @@ class DaAfficherRepository extends EntityRepository
             ->andWhere('d.numeroVersion = (' . $subDql . ')');
 
         // 3. Appliquer les filtres métier
-        $this->applyDynamicFilters($qb, 'd', $criteria);
-        $this->applyAgencyServiceFilters($qb, 'd', $criteria);
-        $this->applyDateFilters($qb, 'd', $criteria);
-        $this->applyStatutsFilters($qb, 'd', $criteria);
+        $this->applyDynamicFilters($qb, "d", $criteria);
+        $this->applyAgencyServiceFilters($qb, "d", $criteria);
+        $this->applyDateFilters($qb, "d", $criteria);
+        $this->applyStatutsFilters($qb, "d", $criteria);
 
         if (!$multisuccursale) {
             $this->conditionAgenceService($qb, 'd', $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
@@ -650,43 +613,7 @@ class DaAfficherRepository extends EntityRepository
 
         // 6. Fetch final de toutes les lignes pour ces mères
         $finalQb = $this->_em->createQueryBuilder();
-        $finalQb->select(
-            'd.id',
-            'd.objetDal',
-            'd.numeroDemandeAppro',
-            'd.numeroDemandeApproMere',
-            'd.numeroDemandeDit',
-            'd.niveauUrgence',
-            'd.numeroOr',
-            'd.datePlannigOr',
-            'd.numeroFournisseur',
-            'd.nomFournisseur',
-            'd.numeroCde',
-            'd.statutDal',
-            'd.statutCde',
-            'd.statutOr',
-            'd.dateFinSouhaite',
-            'd.artConstp',
-            'd.artRefp',
-            'd.artDesi',
-            'd.qteDem',
-            'd.qteEnAttent',
-            'd.qteDispo',
-            'd.qteLivrer',
-            'd.dateLivraisonPrevue',
-            'd.joursDispo',
-            'd.demandeur',
-            'd.daTypeId',
-            'd.numeroLigne',
-            'd.positionBc',
-            'd.dateDemande',
-            'd.estDalr',
-            'd.estFicheTechnique',
-            'd.desiCentrale',
-            'da.id   AS demandeApproId',
-            'dap.id  AS demandeApproParentId',
-            'dit.id  AS ditId'
-        )
+        $finalQb->select('d', 'da', 'dap', 'dit')
             ->from(DaAfficher::class, 'd')
             ->leftJoin('d.demandeAppro', 'da')
             ->leftJoin('d.demandeApproParent', 'dap')
@@ -694,8 +621,6 @@ class DaAfficherRepository extends EntityRepository
             ->andWhere('d.deleted = 0')
             ->andWhere('d.numeroVersion = (' . $subDql . ')')
             ->andWhere('d.numeroDemandeApproMere IN (:motherIds)')
-            ->andWhere('d.codeSociete = :codeSociete')
-            ->setParameter('codeSociete', $codeSociete)
             ->setParameter('motherIds', $motherIds);
 
         $this->handleOrderBy($finalQb, 'd', $criteria);
@@ -705,7 +630,7 @@ class DaAfficherRepository extends EntityRepository
         ;
 
         return [
-            'data'        => $finalQb->getQuery()->getResult(Query::HYDRATE_ARRAY),
+            'data'        => $finalQb->getQuery()->getResult(),
             'totalItems'  => $totalItems,
             'currentPage' => $page,
             'lastPage'    => $lastPage,

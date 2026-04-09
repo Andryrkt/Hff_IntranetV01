@@ -191,7 +191,7 @@ class DaAfficherMapper
         }
 
         // URL Demande Devis
-        $dto->urlDemandeDevis = ($item->getDemandeAppro())  ? $this->router->generate('da_demande_devis_en_cours', $paramsDa) : '#';
+        $dto->urlDemandeDevis = ($item->getDemandeAppro())  ? $this->router->generate('api_da_demande_devis_en_cours', $paramsDa) : '#';
     }
 
     private function prepareTdNumCdeAttributes(DaAfficherDto $dto): array

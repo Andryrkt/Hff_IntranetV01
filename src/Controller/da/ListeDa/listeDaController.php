@@ -5,12 +5,10 @@ namespace App\Controller\da\ListeDa;
 use App\Constants\da\StatutBcConstant;
 use App\Constants\da\StatutDaConstant;
 use App\Controller\Controller;
-use App\Entity\admin\Agence;
 use App\Entity\da\DaAfficher;
 use App\Entity\da\DaSearch;
 use App\Form\da\DaSearchType;
 use App\Mapper\Da\DaAfficherMapper;
-use App\Repository\admin\AgenceRepository;
 use App\Service\da\PermissionDaService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\FormInterface;
@@ -28,16 +26,13 @@ class listeDaController extends Controller
 {
     // Repository et model
     private DaAfficherRepository $daAfficherRepository;
-    private AgenceRepository $agenceRepository;
     private DaAfficherMapper $daAfficherMapper;
     private PermissionDaService $permissionDaService;
 
     public function __construct(EntityManagerInterface $entityManager)
     {
         parent::__construct();
-        $em = $this->getEntityManager();
-        $this->daAfficherRepository = $em->getRepository(DaAfficher::class);
-        $this->agenceRepository = $em->getRepository(Agence::class);
+        $this->daAfficherRepository = $entityManager->getRepository(DaAfficher::class);
         $this->daAfficherMapper = new DaAfficherMapper($this->getUrlGenerator());
         $this->permissionDaService = new PermissionDaService();
     }
@@ -63,6 +58,7 @@ class listeDaController extends Controller
         //formulaire de recherche
         $form = $this->getFormFactory()->createBuilder(DaSearchType::class, $daSearch, [
             'method' => 'GET',
+            'estAppro' => false, // TODO: profil ou autre
             'allAgenceServices' => $allAgenceServices
         ])->getForm();
 
@@ -88,6 +84,8 @@ class listeDaController extends Controller
             $user = $this->getUser();
             $codeAgenceUser = $user->getCodeAgenceUser();
             $codeServiceUser = $user->getCodeServiceUser();
+            $codeAgenceUser = "";
+            $codeServiceUser = "";
 
             // On ne garde que la persistance du flag et les filtres imposés
             $criteria = [];
@@ -126,7 +124,7 @@ class listeDaController extends Controller
 
         $sortJoursClass = false;
 
-        if ($criteria && $criteria['sortNbJours']) $sortJoursClass = $criteria['sortNbJours'] === 'asc' ? 'fas fa-arrow-up-1-9' : 'fas fa-arrow-down-9-1';
+        if ($criteria && !empty($criteria['sortNbJours'])) $sortJoursClass = $criteria['sortNbJours'] === 'asc' ? 'fas fa-arrow-up-1-9' : 'fas fa-arrow-down-9-1';
 
         //recupère le numero de page
         $page = $request->query->getInt('page', 1);
@@ -145,20 +143,17 @@ class listeDaController extends Controller
         // Donnée à envoyer à la vue
         $paginationData = $this->daAfficherRepository->findPaginatedAndFilteredDA($page, $limit, $criteria, $agenceIdUser, $serviceIdUser, $codeSociete, $agenceServiceAutorises, $peutVoirListeAvecDebiteur, $multisuccursale);
 
-        // Application du verrouillage (Logique purement applicative)
-        $this->appliquerVerrouillage($paginationData['data']);
-
         // Préparation des données pour la vue (Via Presenter avec Cache)
         $dataPrepared = $this->daAfficherMapper->mapList($paginationData['data'], [
-            'estAdmin'   => $this->estAdmin(),
-            'estAppro'   => $this->estUserDansServiceAppro(),
-            'estAtelier' => $this->estUserDansServiceAtelier(),
-            'estCreateur' => $this->estCreateurDeDADirecte()
+            'estAdmin'   => false, // TODO: profil de l'utilisateur ou autre
+            'estAppro'   => false, // TODO: profil de l'utilisateur ou autre
+            'estAtelier' => false, // TODO: profil de l'utilisateur ou autre
+            'estCreateur' => false // TODO: profil de l'utilisateur ou autre
         ]);
 
         // Détection code centrale
         $agenceServiceIps = $this->agenceServiceIpsObjet();
-        $codeCentraleVisible = $this->estAdmin() || in_array($agenceServiceIps['agenceIps']->getCodeAgence(), ['90', '91', '92']);
+        $codeCentraleVisible = in_array($agenceServiceIps['agenceIps']->getCodeAgence(), ['90', '91', '92']); // TODO: autorisation sur le code centrale
 
         /** === Formulaire pour la date de livraison prevu === */
         $formDateLivraison = $this->getFormFactory()->createBuilder(DaModalDateLivraisonType::class)->getForm();
@@ -168,8 +163,7 @@ class listeDaController extends Controller
             'data'              => $dataPrepared,
             'form'              => $form->createView(),
             'criteria'          => $criteria,
-            'codeCentrale'      => $codeCentrale,
-            'daTypeIcons'       => $this->presenter->getIcons(),
+            'codeCentrale'      => $codeCentraleVisible,
             'sortJoursClass'    => $sortJoursClass,
             'currentPage'       => $paginationData['currentPage'],
             'totalPages'        => $paginationData['lastPage'],
