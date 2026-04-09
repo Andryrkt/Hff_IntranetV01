@@ -45,7 +45,12 @@
 				</tr>
 			</thead>
 			<tbody>
-				{% for item in data %}
+				{% for resultat in data %}
+					{% set item = resultat.0 %}
+					{# ou resultat[0] #}
+					{% set numeroBap = resultat.numeroBap %}
+					{# ou resultat[1] #}
+
 					<tr>
 						{# Début Action #}
 						<td class="align-middle" style="padding: 0px">
@@ -87,7 +92,13 @@
 						{# Fin Actions #}
 						<td class="text-center" style="text-align: center;">{{ item.agencedebiter}}</td>
 						<td class="text-center" style="text-align: center;">{{ item.servicedebiter}}</td>
-						<td style="text-align: center;">{{ item.numeroDdp }}</td>
+						<td style="text-align: center;">
+							{% if numeroBap is defined and numeroBap %}
+								{{ numeroBap }}
+							{% else %}
+								{{ item.numeroDdp }}
+							{% endif %}
+						</td>
 						<td style="text-align: center;">{{ item.dateCreation|date('d/m/Y')}}</td>
 						<td style="text-align: center;">{{ item.numeroVersion }}</td>
 						<td style="text-align: center;">{{ item.typeDemandeId.libelle}}</td>

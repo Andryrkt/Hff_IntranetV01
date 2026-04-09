@@ -5,6 +5,7 @@ namespace App\Repository\ddp;
 use Doctrine\ORM\EntityRepository;
 use App\Constants\ddp\StatutConstants;
 use App\Entity\admin\utilisateur\User;
+use App\Entity\da\DaSoumissionFacBl;
 use App\Service\TableauEnStringService;
 
 class DemandePaiementRepository extends EntityRepository
@@ -63,8 +64,9 @@ class DemandePaiementRepository extends EntityRepository
 
     public function findDemandePaiement($criteria, User $user)
     {
-        $qb = $this->createQueryBuilder('d');
-
+        $qb = $this->createQueryBuilder('d')
+            ->leftJoin(DaSoumissionFacBl::class, 'bap', 'WITH',  'bap.numeroDemandePaiement = d.numeroDdp')
+            ->addSelect('bap.numeroBap');
         // Sous-requête imbriquée dans la clause WHERE
         $qb->where(
             'd.numeroVersion = (
