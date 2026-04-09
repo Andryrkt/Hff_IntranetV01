@@ -4563,7 +4563,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_liste",
+            "nom_route": "liste_devis_neg",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -7687,7 +7687,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_liste",
+            "nom_route": "liste_devis_neg",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": true,
@@ -8022,7 +8022,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_liste",
+            "nom_route": "liste_devis_neg",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -8357,7 +8357,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_liste",
+            "nom_route": "liste_devis_neg",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": true,
@@ -8722,7 +8722,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_liste",
+            "nom_route": "liste_devis_neg",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": true,
@@ -9310,7 +9310,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_liste",
+            "nom_route": "liste_devis_neg",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -9631,7 +9631,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_liste",
+            "nom_route": "liste_devis_neg",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": true,
@@ -10187,7 +10187,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_liste",
+            "nom_route": "liste_devis_neg",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": true,
@@ -10810,7 +10810,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_liste",
+            "nom_route": "liste_devis_neg",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -11908,7 +11908,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_liste",
+            "nom_route": "liste_devis_neg",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -12382,7 +12382,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_liste",
+            "nom_route": "liste_devis_neg",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -13059,7 +13059,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_liste",
+            "nom_route": "liste_devis_neg",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -13389,7 +13389,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_liste",
+            "nom_route": "liste_devis_neg",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -14281,7 +14281,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_liste",
+            "nom_route": "liste_devis_neg",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -15057,7 +15057,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_liste",
+            "nom_route": "liste_devis_neg",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -16419,7 +16419,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_liste",
+            "nom_route": "liste_devis_neg",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -16671,7 +16671,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_liste",
+            "nom_route": "liste_devis_neg",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -19276,7 +19276,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_liste",
+            "nom_route": "liste_devis_neg",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -31208,7 +31208,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_liste",
+            "nom_route": "liste_devis_neg",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": true,
