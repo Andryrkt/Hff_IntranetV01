@@ -97,6 +97,7 @@ class DemandePaiementDaController extends Controller
                 $ddpaDaService->modificationtableDaSoumissionBc($dto);
                 $ddpaDaService->copieDwDdpaDa($dto);
                 $ddpaDaService->modificationDaAfficher($dto);
+                $ddpaDaService->modificationDemandePaiement($dto);
             }
             /** HISTORISATION */
             $message = "Le document a été généré avec succès";

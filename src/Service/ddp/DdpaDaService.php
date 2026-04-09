@@ -2,9 +2,10 @@
 
 namespace App\Service\ddp;
 
+use App\Dto\ddp\DemandePaiementDto;
 use App\Entity\da\DaAfficher;
 use App\Entity\da\DaSoumissionBc;
-use App\Dto\ddp\DemandePaiementDto;
+use App\Entity\ddp\DemandePaiement;
 use App\Service\genererPdf\GeneratePdf;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -49,6 +50,20 @@ class DdpaDaService
                 $this->em->persist($daAfficher);
             }
 
+            $this->em->flush();
+        }
+    }
+
+    public function modificationDemandePaiement(DemandePaiementDto $dto)
+    {
+        $demandePaiementRepository = $this->em->getRepository(DemandePaiement::class);
+        $demandePaiement = $demandePaiementRepository->findOneBy(['numeroDdp' => $dto->numeroDdp]);
+        if ($demandePaiement) {
+            $demandePaiement->setDeposerDw(true)
+                ->setDateDeposerDw(new \DateTime())
+            ;
+
+            $this->em->persist($demandePaiement);
             $this->em->flush();
         }
     }

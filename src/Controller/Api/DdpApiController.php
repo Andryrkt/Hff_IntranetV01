@@ -2,6 +2,7 @@
 
 namespace App\Controller\Api;
 
+use App\Constants\da\ddp\BonApayerConstants;
 use App\Constants\ddp\StatutConstants;
 use App\Constants\ddp\TypeDemandePaiementConstants;
 use App\Controller\Controller;
@@ -104,7 +105,7 @@ class DdpApiController extends Controller
                  * le changement de statut BAP transmis à la compta 
                  * et la date de soumission compta */
                 $value->setNumeroDemandePaiement($numeroDdp)
-                    ->setStatutBap('Transmise')
+                    ->setStatutBap(BonApayerConstants::STATUT_TRANSMISE)
                     ->setDateSoumissionCompta(new DateTime())
                     ->setNumeroCla($numeroCla)
                 ;
