@@ -10,6 +10,7 @@ use App\Entity\admin\Service;
 use App\Entity\da\DaAfficher;
 use App\Entity\da\DaSoumissionBc;
 use App\Entity\da\DemandeAppro;
+use App\Entity\ddp\DemandePaiement;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Factory\da\CdeFrnDto\CdeFrnSearchDto;
 use App\Form\da\daCdeFrn\CdeFrnListType;
@@ -92,6 +93,7 @@ class DaListCdeFrnController extends Controller
             'estCreateur' => $this->estCreateurDeDADirecte(),
             'codeAgenceUser' => $this->getUser()->getCodeAgenceUser(),
             'codeServiceUser' => $this->getUser()->getCodeServiceUser(),
+            'demandePaiementRepository' => $this->getEntityManager()->getRepository(DemandePaiement::class),
         ]);
 
         // Formulaire de soumission BC, FAC + BL, BL Reappro

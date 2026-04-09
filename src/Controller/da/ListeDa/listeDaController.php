@@ -12,6 +12,7 @@ use App\Entity\admin\Application;
 use App\Entity\admin\Service;
 use App\Entity\da\DaAfficher;
 use App\Entity\da\DaSearch;
+use App\Entity\ddp\DemandePaiement;
 use App\Form\da\daCdeFrn\DaModalDateLivraisonType;
 use App\Form\da\DaSearchType;
 use App\Mapper\Da\DaAfficherMapper;
@@ -144,7 +145,8 @@ class listeDaController extends Controller
             'estAdmin'   => $this->estAdmin(),
             'estAppro'   => $this->estUserDansServiceAppro(),
             'estAtelier' => $this->estUserDansServiceAtelier(),
-            'estCreateur' => $this->estCreateurDeDADirecte()
+            'estCreateur' => $this->estCreateurDeDADirecte(),
+            'demandePaiementRepository' => $this->getEntityManager()->getRepository(DemandePaiement::class),
         ]);
 
         // Détection code centrale

@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", function () {
     { pivotIndex: 0, columns: [0], insertSeparator: true },
     { pivotIndex: 1, columns: [1, 2, 3, 4, 5, 6, 24], insertSeparator: true },
     { pivotIndex: 7, columns: [7, 8], insertSeparator: true },
-    { pivotIndex: 9, columns: [9, 21], insertSeparator: true },
+    { pivotIndex: 9, columns: [9, 21, 23], insertSeparator: true },
   ]);
 });
 
@@ -445,6 +445,52 @@ document.addEventListener("DOMContentLoaded", function () {
       if (numeroCdeInput) {
         numeroCdeInput.value = numeroCde;
       }
+    });
+  }
+});
+/** ===================================================
+ * MODAL de clôture de DDP
+ *==================================================*/
+// Attendre que le DOM soit entièrement chargé
+document.addEventListener("DOMContentLoaded", function () {
+  // Sélectionner le modal par son ID
+  const modalDdpCloture = document.getElementById("ddpCloture");
+
+  // Verifier si le modal existe sur la page
+  if (modalDdpCloture) {
+    //Ecouter l'événement 'show.bs.modal' qui est déclenché par Bootstrap
+    // juste avant que le modal se soit affiché.
+    modalDdpCloture.addEventListener("show.bs.modal", function (event) {
+      // event.relatedTarget est l'élément qui a déclenché le modal (notre lien <a>)
+      const button = event.relatedTarget;
+
+      // Récupérer les données depuis les attributs data-* du lien
+      const numeroCde = button.getAttribute("data-numero-cde");
+      const numeroDa = button.getAttribute("data-numero-da");
+
+      // Récupérer les données pour remplir le corps du tableau modal
+      const modalBody = modalDdpCloture.querySelector("#statutClotureBody");
+      modalBody.innerHTML = `
+        <tr>
+          <td colspan="3" class="text-center">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Chargement...</span>
+            </div>
+          </td>
+        </tr>`;
+
+      fetchManager
+        .get(`ddp/api/statut-cloture/${numeroDa}/${numeroCde}`)
+        .then((data) => {
+          console.log(data);
+
+          modalBody.innerHTML = data
+            .map(
+              (item) =>
+                `<tr><td>${item.numero}</td><td>${item.date_soumission}</td><td>${item.statut}</td></tr>`,
+            )
+            .join("");
+        });
     });
   }
 });

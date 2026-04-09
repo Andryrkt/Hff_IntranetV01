@@ -402,4 +402,37 @@ class DemandePaiementModel extends Model
 
         return $this->convertirEnUtf8($data);
     }
+
+    public function getInfoDdpDa(string $numeroDa, string $numeroCde)
+    {
+        $sql = " SELECT 
+            case 
+                when dsfb.numero_bap is null then dp.numero_demande_paiement
+                else dsfb.numero_bap
+            end as numero
+            ,dsfb.numero_demande_appro as numero_demande_appro
+            ,dsfb.numero_cde as numero_commande
+            ,dp.numero_demande_paiement as numero_demande_paiement
+            ,case 
+                when dsfb.numero_bap is null then '-'
+                else dsfb.numero_bap
+            end as numero_bap
+            ,case
+                when dsfb.numero_cla is null then '-'
+                else dsfb.numero_cla 
+            end as numero_cla
+            ,FORMAT(dp.date_creation, 'dd/MM/yyyy') as date_soumission
+            ,dp.statut as statut
+            from demande_paiement dp 
+            left join da_soumission_facture_bl dsfb ON dsfb.numero_demande_paiement = dp.numero_demande_paiement
+            where dsfb.numero_demande_appro = '$numeroDa'
+            and dsfb.numero_cde = '$numeroCde'
+        ";
+        $resultStmt = $this->connexion->query($sql);
+        $data = [];
+        while ($result = odbc_fetch_array($resultStmt)) {
+            $data[] = $this->convertirEnUtf8($result);
+        }
+        return $data;
+    }
 }
