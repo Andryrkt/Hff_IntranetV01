@@ -10,6 +10,7 @@ use App\Entity\admin\Service;
 use App\Entity\da\DaAfficher;
 use App\Entity\da\DaSoumissionBc;
 use App\Entity\da\DemandeAppro;
+use App\Entity\ddp\DemandePaiement;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Factory\da\CdeFrnDto\CdeFrnSearchDto;
 use App\Form\da\daCdeFrn\CdeFrnListType;
@@ -92,6 +93,7 @@ class DaListCdeFrnController extends Controller
             'estCreateur' => $this->estCreateurDeDADirecte(),
             'codeAgenceUser' => $this->getUser()->getCodeAgenceUser(),
             'codeServiceUser' => $this->getUser()->getCodeServiceUser(),
+            'demandePaiementRepository' => $this->getEntityManager()->getRepository(DemandePaiement::class),
         ]);
 
         // Formulaire de soumission BC, FAC + BL, BL Reappro
@@ -161,12 +163,12 @@ class DaListCdeFrnController extends Controller
             if ($soumission['soumission'] === 'BC') {
                 $this->redirectToRoute("da_soumission_bc", ['numCde' => $soumission['commande_id'], 'numDa' => $soumission['da_id'], 'numOr' => (int)$soumission['num_or'], 'typeDa' => (int)$soumission['type_da']]);
             } elseif ($soumission['soumission'] === 'Facture + BL') {
-                $estDdpa = $this->daSoumissionBcRepository->getEstDdpAvance($soumission['commande_id']);
-                if ($estDdpa) {
-                    $this->redirectToRoute("da_soumission_facbl_ddpa", ['numCde' => $soumission['commande_id'], 'numDa' => $soumission['da_id'], 'numOr' => $soumission['num_or']]);
-                } else {
-                    $this->redirectToRoute("da_soumission_facbl", ['numCde' => $soumission['commande_id'], 'numDa' => $soumission['da_id'], 'numOr' => $soumission['num_or']]);
-                }
+                // $estDdpa = $this->daSoumissionBcRepository->getEstDdpAvance($soumission['commande_id']);
+                // if ($estDdpa) {
+                //     $this->redirectToRoute("da_soumission_facbl_ddpa", ['numCde' => $soumission['commande_id'], 'numDa' => $soumission['da_id'], 'numOr' => $soumission['num_or']]);
+                // } else {
+                $this->redirectToRoute("da_soumission_facbl", ['numCde' => $soumission['commande_id'], 'numDa' => $soumission['da_id'], 'numOr' => $soumission['num_or']]);
+                // }
             } elseif ($soumission['soumission'] === 'BL Reappro') {
                 $this->redirectToRoute("da_soumission_bl_reappro", $params);
             }

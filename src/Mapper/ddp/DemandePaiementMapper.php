@@ -43,7 +43,10 @@ class DemandePaiementMapper
             ->setAppro($dto->appro)
             ->setTypeDa($dto->typeDa)
             ->setNumeroVersionBc($dto->numeroVersionBc)
-            ->setFicherDdpa($nomFichierAvecCheminDistant);
+            ->setFicherDdpa($nomFichierAvecCheminDistant)
+            ->setNumeroSoumissionDdpDa($dto->numeroSoumissionDdpDa ?? null)
+            ->setNumeroDemandeAppro($dto->numeroDemandeAppro ?? null)
+        ;
 
         return $ddp;
     }

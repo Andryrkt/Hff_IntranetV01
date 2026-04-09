@@ -47,8 +47,12 @@ class DaSoumissionFacBlDdpaFactory
         $this->ddpModel = new DemandePaiementModel();
     }
 
-    public function initialisation($numCde, $numDa, $numOR,  User $user): DaSoumissionFacBlDdpaDto
-    {
+    public function initialisation(
+        $numCde,
+        $numDa,
+        $numOR,
+        User $user
+    ): DaSoumissionFacBlDdpaDto {
         $dto = new DaSoumissionFacBlDdpaDto();
         $dto->numeroCde = $numCde;
         $dto->numeroDemandeAppro = $numDa;

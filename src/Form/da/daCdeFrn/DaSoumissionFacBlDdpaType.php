@@ -8,6 +8,7 @@ use App\Controller\Traits\FormatageTrait;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\File;
 use App\Dto\Da\ListeCdeFrn\DaSoumissionFacBlDdpaDto;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Validator\Constraints\Callback;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
@@ -21,6 +22,18 @@ class DaSoumissionFacBlDdpaType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
+            ->add('typeDdp', ChoiceType::class, [
+                'choices' => [
+                    'Ne pas générer une demande de paiement' => 'aucun',
+                    'BAP (Bon a Payer)' => 'bap',
+                    'DDPL (Demande De Paiement après Livraison)' => 'ddpl',
+                ],
+                'placeholder' => false,
+                'label' => "Veuillez choisir le type de traitement de <strong>paiement</strong> pour cette facture",
+                'label_html' => true,
+                'expanded' => true,
+                'multiple' => false,
+            ])
             ->add('numeroCde', TextType::class, [
                 'label' => 'Numéro Commande',
                 'attr'  => [

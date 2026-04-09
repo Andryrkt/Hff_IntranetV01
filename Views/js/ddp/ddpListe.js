@@ -76,3 +76,4 @@ new AutoComplete({
   displayItemCallback: displayFournisseur,
   onSelectCallback: onSelectFournisseur,
 });
+

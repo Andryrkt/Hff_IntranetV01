@@ -199,6 +199,20 @@ class DemandePaiement
      */
     private $ficherDdpa;
 
+    /**
+     * @ORM\Column(type="integer", name="numero_soumission_ddp_da")
+     *
+     * @var integer|null
+     */
+    private ?int $numeroSoumissionDdpDa = null;
+
+    /**
+     * @ORM\Column(type="string", length=12, name="numero_demande_appro")
+     *
+     * @var string|null
+     */
+    private ?string $numeroDemandeAppro = null;
+
     private string $montantAPayer = '0';
 
     private $pieceJoint01;
@@ -1031,6 +1045,42 @@ class DemandePaiement
     public function setFicherDdpa($ficherDdpa): self
     {
         $this->ficherDdpa = $ficherDdpa;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroSoumissionDdpDa
+     */
+    public function getNumeroSoumissionDdpDa(): ?int
+    {
+        return $this->numeroSoumissionDdpDa;
+    }
+
+    /**
+     * Set the value of numeroSoumissionDdpDa
+     */
+    public function setNumeroSoumissionDdpDa(?int $numeroSoumissionDdpDa): self
+    {
+        $this->numeroSoumissionDdpDa = $numeroSoumissionDdpDa;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroDemandeAppro
+     */
+    public function getNumeroDemandeAppro(): ?string
+    {
+        return $this->numeroDemandeAppro;
+    }
+
+    /**
+     * Set the value of numeroDemandeAppro
+     */
+    public function setNumeroDemandeAppro(?string $numeroDemandeAppro): self
+    {
+        $this->numeroDemandeAppro = $numeroDemandeAppro;
 
         return $this;
     }

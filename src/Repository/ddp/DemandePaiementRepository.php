@@ -184,24 +184,61 @@ class DemandePaiementRepository extends EntityRepository
             ->where('d.numeroCommande LIKE :numero')
             ->setParameter('numero', '%' . $numCde . '%')
             ->orderBy('d.numeroDdp', 'ASC');
-        
+
 
         return $queryBuilder->getQuery()
             ->getResult()
         ;
     }
 
-    public function getStatutDdpSelonNumCde(string $numCde): array 
+    public function getStatutDdpSelonNumCde(string $numCde): array
     {
         $queryBuilder =  $this->createQueryBuilder('d')
             ->select('d.statut')
             ->where('d.numeroCommande LIKE :numero')
             ->setParameter('numero', '%' . $numCde . '%')
             ->orderBy('d.numeroDdp', 'ASC');
-        
+
 
         return $queryBuilder->getQuery()
             ->getSingleColumnResult()
         ;
+    }
+
+    public function getDernierNumeroSoumissionDdpDa(string $numCde, string $numeroDa): ?string
+    {
+        try {
+            return $this->createQueryBuilder('d')
+                ->select('d.numeroSoumissionDdpDa')
+                ->where('d.numeroDemandeAppro = :numeroDa')
+                ->andWhere('d.numeroCommande LIKE :numero')
+                ->setParameter('numeroDa', $numeroDa)
+                ->setParameter('numero', '%' . $numCde . '%')
+                ->orderBy('d.numeroSoumissionDdpDa', 'DESC')
+                ->setMaxResults(1)
+                ->getQuery()
+                ->getSingleScalarResult();
+        } catch (\Doctrine\ORM\NoResultException $e) {
+            return null;
+        } catch (\Doctrine\ORM\NonUniqueResultException $e) {
+            return null;
+        }
+    }
+
+    public function getDernierStatutDddp($numCde, $numeroDa)
+    {
+        $queryBuilder =  $this->createQueryBuilder('d')
+            ->select('d.statut')
+            ->where('d.numeroDemandeAppro = :numeroDa')
+            ->andWhere('d.numeroCommande LIKE :numero')
+            ->setParameter('numeroDa', $numeroDa)
+            ->setParameter('numero', '%' . $numCde . '%')
+            ->orderBy('d.numeroSoumissionDdpDa', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+
+        return $queryBuilder ? $queryBuilder['statut'] : null;
     }
 }

@@ -124,6 +124,15 @@ class DaAfficherMapper
         $dto->tdCheckboxAttributes = $this->getCheckboxAttributes($dto);
         $dto->aDtLivPrevAttributes = $this->getADtLivPrevAttributes($dto);
         $dto->aArtDesiAttributes = $this->getAArtDesiAttributes($dto);
+        $dto->ddpCloture = $this->getDdpStatutCloture($dto);
+
+        // DDP
+        $demandePaiementRepository = $options['demandePaiementRepository'] ?? null;
+        if ($demandePaiementRepository && $dto->numeroDemandeAppro) {
+            $dto->statutCompta = $demandePaiementRepository->getDernierStatutDddp($dto->numeroCde, $dto->numeroDemandeAppro);
+        } else {
+            $dto->statutCompta = null;
+        }
 
         return $dto;
     }
@@ -255,5 +264,16 @@ class DaAfficherMapper
         ];
 
         return $daIcons[$typeId] ?? (string) new Markup('<i class="fas fa-ban text-muted"></i>', 'UTF-8');
+    }
+
+    private function getDdpStatutCloture(DaAfficherDto $dto): array
+    {
+        return [
+            'href' => '#',
+            "data-bs-toggle" => "modal",
+            "data-bs-target" => "#ddpCloture",
+            "data-numero-cde" => $dto->numeroCde,
+            "data-numero-da" => $dto->numeroDemandeAppro,
+        ];
     }
 }

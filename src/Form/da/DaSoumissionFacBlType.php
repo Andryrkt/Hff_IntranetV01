@@ -22,6 +22,22 @@ class DaSoumissionFacBlType extends AbstractType
         $numLivs = $options['data']->numLiv;
 
         $builder
+            ->add('typeDdp', ChoiceType::class, [
+                'choices' => [
+                    'Ne pas générer une demande de paiement' => 'aucun',
+                    'BAP (Bon a Payer)' => 'bap',
+                    'DDPL (Demande De Paiement après Livraison)' => 'ddpl',
+                ],
+                'placeholder' => false,
+                'label' => "Veuillez choisir le type de traitement de <strong>paiement</strong> pour cette facture",
+                'label_html' => true,
+                'expanded' => true,
+                'multiple' => false,
+                'required' => true,
+                'attr' => [
+                    'data-field-name' => 'Type de traitement de paiement',
+                ],
+            ])
             ->add('numeroCde', TextType::class, [
                 'label' => 'Numéro Commande',
                 'attr'  => [
@@ -46,13 +62,14 @@ class DaSoumissionFacBlType extends AbstractType
             ->add('montantBlFacture', TextType::class, [
                 'label' => 'Montant HT du BL facture fournisseur (*)',
                 'required' => true,
+                'attr' => ['data-field-name' => 'du Montant HT du BL facture fournisseur']
             ])
             ->add(
                 'pieceJoint1',
                 FileType::class,
                 [
                     'label' => 'FacBl à soumettre',
-                    'attr' => ['data-field-name' => 'Pièce Jointe Facture / BL'],
+                    'attr' => ['data-field-name' => 'pour soumettre la Facture / BL'],
                     'required' => true,
                     'constraints' => [
                         new File([

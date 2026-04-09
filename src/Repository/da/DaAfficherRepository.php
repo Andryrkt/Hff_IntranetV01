@@ -62,10 +62,10 @@ class DaAfficherRepository extends EntityRepository
             ->getSingleScalarResult(); // Renvoie null si aucune ligne
 
         if ($maxVersion === null) {
-            return [];
+            return null;
         } else {
-            return $this->createQueryBuilder('d')
-                ->select('DISTINCT(d.dateLivraisonPrevue)')
+            $result = $this->createQueryBuilder('d')
+                ->select('DISTINCT(d.dateLivraisonPrevue) as dateLivraisonPrevue')
                 ->where('d.numeroDemandeAppro = :num')
                 ->andWhere('d.numeroCde = :numCde')
                 ->andWhere('d.numeroVersion = :version')
@@ -76,7 +76,9 @@ class DaAfficherRepository extends EntityRepository
                     'version' => $maxVersion,
                 ])
                 ->getQuery()
-                ->getSingleScalarResult();
+                ->getOneOrNullResult();
+
+            return $result ? $result['dateLivraisonPrevue'] : null;
         }
     }
 
@@ -1190,11 +1192,13 @@ class DaAfficherRepository extends EntityRepository
 
     public function getTypeDaSelonNumDa(string $numDa)
     {
-        return $this->createQueryBuilder('d')
-            ->select('DISTINCT d.daTypeId')
+        $result = $this->createQueryBuilder('d')
+            ->select('DISTINCT d.daTypeId as daTypeId')
             ->where('d.numeroDemandeAppro = :numDa')
             ->setParameter('numDa', $numDa)
             ->getQuery()
-            ->getSingleScalarResult();
+            ->getOneOrNullResult();
+
+        return $result ? $result['daTypeId'] : null;
     }
 }

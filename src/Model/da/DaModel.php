@@ -661,7 +661,8 @@ class DaModel extends Model
                         f2.fliv_mtn AS montant_fac_bl
                     from Informix.frn_llf f 
                     inner join Informix.frn_liv f2 on f.fllf_numliv = f2.fliv_numliv 
-                where f.fllf_numcde = '$numCde' and f2.fliv_soc ='HF'";
+                where f.fllf_numcde = '$numCde' and f2.fliv_soc ='HF'
+        ";
         $result = $this->connect->executeQuery($statement);
         $rows = $this->convertirEnUtf8($this->connect->fetchResults($result));
 
