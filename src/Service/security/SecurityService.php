@@ -2,6 +2,7 @@
 
 namespace App\Service\security;
 
+use App\Entity\admin\utilisateur\Profil;
 use App\Service\UserData\UserDataService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -37,6 +38,12 @@ class SecurityService
      * Permet d'appeler verifierPermission() sans paramètre depuis les contrôleurs.
      */
     private ?string $routeCourrante = null;
+
+    private ?bool $estAdmin;
+    private ?bool $estAtelier;
+    private ?bool $estCreateurDaDirecte;
+    private ?bool $estAppro;
+    private ?bool $estEnergie;
 
     public function __construct(UserDataService $dataService)
     {
@@ -136,6 +143,61 @@ class SecurityService
     // =========================================================================
     //  API PUBLIQUE — utilisable dans les contrôleurs
     // =========================================================================
+
+    /** 
+     * Vérifie si l'utilisateur connecté est un administrateur par son profil
+     */
+    public function estAdmin(): bool
+    {
+        if ($this->estAdmin === null) {
+            $this->estAdmin = $this->dataService->getProfilId() === Profil::HFF_ADMIN;
+        }
+        return $this->estAdmin;
+    }
+
+    /** 
+     * Vérifie si l'utilisateur connecté est ATELIER par le fait qu'il peut créer un DIT (ie qui a accès à la page de création de DIT)
+     */
+    public function estAtelier(): bool
+    {
+        if ($this->estAtelier === null) {
+            $this->estAtelier = $this->verifierPermission(self::PERMISSION_VOIR, 'dit_new');
+        }
+        return $this->estAtelier;
+    }
+
+    /** 
+     * Vérifie si l'utilisateur connecté est CREATEUR DA DIRECTE par le fait qu'il peut créer un DA DIRECTE (ie qui a accès à la page de création de DA)
+     */
+    public function estCreateurDaDirecte(): bool
+    {
+        if ($this->estCreateurDaDirecte === null) {
+            $this->estCreateurDaDirecte = $this->verifierPermission(self::PERMISSION_VOIR, 'da_new_achat');
+        }
+        return $this->estCreateurDaDirecte;
+    }
+
+    /**
+     * Vérifie si l'utilisateur connecté est APPRO par le fait de son agence et service par défaut (80 - APP)
+     */
+    public function estAppro(): bool
+    {
+        if ($this->estAppro === null) {
+            $this->estAppro = $this->dataService->getCodeAgenceUser() === '80' && $this->dataService->getCodeServiceUser() === 'APP';
+        }
+        return $this->estAppro;
+    }
+
+    /**
+     * Vérifie si l'utilisateur connecté est ENERGIE par le fait de son agence par défaut (90/91/92)
+     */
+    public function estEnergie(): bool
+    {
+        if ($this->estEnergie === null) {
+            $this->estEnergie = in_array($this->dataService->getCodeAgenceUser(), ['90', '91', '92']);
+        }
+        return $this->estEnergie;
+    }
 
     /**
      * Vérifie une permission sans lancer d'exception.

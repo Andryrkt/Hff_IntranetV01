@@ -504,6 +504,46 @@ class Controller
         return $userInfo['profil_id'] ?? "";
     }
 
+    /** 
+     * Vérifie si l'utilisateur connecté est un administrateur par son profil
+     */
+    protected function estAdmin(): bool
+    {
+        return $this->getSecurityService()->estAdmin();
+    }
+
+    /** 
+     * Vérifie si l'utilisateur connecté est ATELIER par le fait qu'il peut créer un DIT (ie qui a accès à la page de création de DIT)
+     */
+    protected function estAtelier(): bool
+    {
+        return $this->getSecurityService()->estAtelier();
+    }
+
+    /** 
+     * Vérifie si l'utilisateur connecté est CREATEUR DA DIRECTE par le fait qu'il peut créer un DA DIRECTE (ie qui a accès à la page de création de DA)
+     */
+    protected function estCreateurDaDirecte(): bool
+    {
+        return $this->getSecurityService()->estCreateurDaDirecte();
+    }
+
+    /**
+     * Vérifie si l'utilisateur connecté est APPRO par le fait de son agence et service par défaut (80 - APP)
+     */
+    protected function estAppro(): bool
+    {
+        return $this->getSecurityService()->estAppro();
+    }
+
+    /**
+     * Vérifie si l'utilisateur connecté est ENERGIE par le fait de son agence par défaut (90/91/92)
+     */
+    protected function estEnergie(): bool
+    {
+        return $this->getSecurityService()->estEnergie();
+    }
+
     /**
      * Vérifie si l'utilisateur a au moins un des rôles cités
      * 

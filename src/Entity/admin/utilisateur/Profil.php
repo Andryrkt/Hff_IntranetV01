@@ -17,6 +17,7 @@ use Doctrine\Common\Collections\ArrayCollection;
  */
 class Profil
 {
+    public const HFF_ADMIN = 97;
     use DateTrait;
 
     /**
