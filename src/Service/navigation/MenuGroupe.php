@@ -51,7 +51,7 @@ class MenuGroupe
                 'icon'     => 'file-contract',
                 'subitems' => [
                     ['label' => 'Nouveau contrat', 'icon' => 'plus-circle', 'route' => 'new_contrat', 'target' => '_blank'],
-                    ['label' => 'Consultation',    'icon' => 'search',      'link' => '#'],
+                    ['label' => 'Consultation',    'icon' => 'search',      'route' => 'contrat_liste'],
                 ],
             ],
         ];
