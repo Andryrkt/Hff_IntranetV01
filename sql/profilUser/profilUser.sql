@@ -335,3 +335,20 @@ JOIN agences a on a.code_agence=asi.agence_ips
 JOIN services s on s.code_service=asi.service_ips
 JOIN societe soc on soc.code_societe=asi.societe_ios
 ;
+
+
+-- ! Suppression de profils
+delete from application_profil_agence_service;
+DBCC CHECKIDENT('application_profil_agence_service', RESEED, 0)
+
+delete from application_profil_page;
+DBCC CHECKIDENT('application_profil_page', RESEED, 0)
+
+delete from application_profil;
+DBCC CHECKIDENT('application_profil', RESEED, 0)
+
+delete from users_profils;
+DBCC CHECKIDENT('users_profils', RESEED, 0)
+
+delete from profil;
+DBCC CHECKIDENT('profil', RESEED, 0)
