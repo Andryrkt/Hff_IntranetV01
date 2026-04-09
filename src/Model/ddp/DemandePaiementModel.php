@@ -406,27 +406,34 @@ class DemandePaiementModel extends Model
     public function getInfoDdpDa(string $numeroDa, string $numeroCde)
     {
         $sql = " SELECT 
+            coalesce(dsfb.numero_demande_appro, dsb.numero_demande_appro) as numero_demande_appro,
+            coalesce(dsfb.numero_cde, dsb.numero_cde) as numero_commande,
+            dp.numero_demande_paiement,
+            case 
+                when dsfb.numero_bap is null then '-'
+                else dsfb.numero_bap
+            end as numero_bap,
+            case
+                when dsfb.numero_cla is null then '-'
+                else dsfb.numero_cla 
+            end as numero_cla,
             case 
                 when dsfb.numero_bap is null then dp.numero_demande_paiement
                 else dsfb.numero_bap
-            end as numero
-            ,dsfb.numero_demande_appro as numero_demande_appro
-            ,dsfb.numero_cde as numero_commande
-            ,dp.numero_demande_paiement as numero_demande_paiement
-            ,case 
-                when dsfb.numero_bap is null then '-'
-                else dsfb.numero_bap
-            end as numero_bap
-            ,case
-                when dsfb.numero_cla is null then '-'
-                else dsfb.numero_cla 
-            end as numero_cla
-            ,FORMAT(dp.date_creation, 'dd/MM/yyyy') as date_soumission
-            ,dp.statut as statut
-            from demande_paiement dp 
-            left join da_soumission_facture_bl dsfb ON dsfb.numero_demande_paiement = dp.numero_demande_paiement
-            where dsfb.numero_demande_appro = '$numeroDa'
+            end as numero,
+            FORMAT(dp.date_creation, 'dd/MM/yyyy') as date_soumission,
+            dp.statut
+        from demande_paiement dp 
+        left join da_soumission_facture_bl dsfb 
+            on dsfb.numero_demande_paiement = dp.numero_demande_paiement
+            and dsfb.numero_demande_appro = '$numeroDa'
             and dsfb.numero_cde = '$numeroCde'
+        left join da_soumission_bc dsb 
+            on dsb.numero_demande_paiement = dp.numero_demande_paiement
+            and dsb.numero_demande_appro = '$numeroDa'
+            and dsb.numero_cde = '$numeroCde'
+        where (dsfb.numero_demande_paiement is not null
+            or dsb.numero_demande_paiement is not null)
         ";
         $resultStmt = $this->connexion->query($sql);
         $data = [];
