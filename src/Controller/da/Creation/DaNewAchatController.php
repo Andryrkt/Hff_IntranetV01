@@ -52,7 +52,7 @@ class DaNewAchatController extends Controller
 
         return $this->render('da/new-da-achat.html.twig', [
             'form'        => $form->createView(),
-            'codeCentrale' => false, // TODO : autorisation sur centrale
+            'codeCentrale' => $this->estAdmin() || $this->estEnergie(),
         ]);
     }
 
@@ -78,14 +78,14 @@ class DaNewAchatController extends Controller
 
                 $this->gererAgenceServiceDebiteur($demandeApproParent);
 
-            $firstCreation = $demandeApproParent->getNumeroDemandeAppro() === null;
-            $numDa = $firstCreation ? $this->autoDecrement(ApplicationConstant::CODE_DAP) : $demandeApproParent->getNumeroDemandeAppro();
-            $demandeApproParent->setNumeroDemandeAppro($numDa);
-            $formDemandeApproLines = $form->get('demandeApproParentLines');
+                $firstCreation = $demandeApproParent->getNumeroDemandeAppro() === null;
+                $numDa = $firstCreation ? $this->autoDecrement(ApplicationConstant::CODE_DAP) : $demandeApproParent->getNumeroDemandeAppro();
+                $demandeApproParent->setNumeroDemandeAppro($numDa);
+                $formDemandeApproLines = $form->get('demandeApproParentLines');
 
-            // Récupérer le nom du bouton cliqué
-            $clickedButtonName = $this->getButtonName($request);
-            $demandeApproParent->setStatutDal(StatutDaConstant::STATUT_DAL[$clickedButtonName]);
+                // Récupérer le nom du bouton cliqué
+                $clickedButtonName = $this->getButtonName($request);
+                $demandeApproParent->setStatutDal(StatutDaConstant::STATUT_DAL[$clickedButtonName]);
 
                 foreach ($formDemandeApproLines as $subFormDapL) {
                     /** @var DemandeApproParentLine $demandeApproParentLine */
@@ -115,12 +115,12 @@ class DaNewAchatController extends Controller
                             FileUploaderForDAService::FILE_TYPE["DEVIS"]
                         );
 
-                    $demandeApproParentLine
-                        ->setNumeroDemandeAppro($numDa)
-                        ->setStatutDal(StatutDaConstant::STATUT_DAL[$clickedButtonName])
-                        ->setJoursDispo($this->getJoursRestants($demandeApproParentLine))
-                        ->setFileNames($allFileNames)
-                    ;
+                        $demandeApproParentLine
+                            ->setNumeroDemandeAppro($numDa)
+                            ->setStatutDal(StatutDaConstant::STATUT_DAL[$clickedButtonName])
+                            ->setJoursDispo($this->getJoursRestants($demandeApproParentLine))
+                            ->setFileNames($allFileNames)
+                        ;
 
                         $this->getEntityManager()->persist($demandeApproParentLine);
                     }

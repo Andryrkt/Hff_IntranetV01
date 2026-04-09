@@ -88,8 +88,8 @@ class DaPropositionArticleDirectController extends Controller
             'numDa'                   => $numDa,
             'connectedUser'           => $this->getUser(),
             'statutAutoriserModifAte' => $da->getStatutDal() === StatutDaConstant::STATUT_AUTORISER_EMETTEUR,
-            'estCreateurDaDirecte'    => $this->hasRoles(Role::ROLE_DA_DIRECTE),
-            'estAppro'                => false,  // TODO: booléen pour savoir si Appro
+            'estCreateurDaDirecte'    => $this->estCreateurDaDirecte(),
+            'estAppro'                => $this->estAppro(),
             'nePeutPasModifier'       => $this->nePeutPasModifier($da),
             'propValTemplate'         => 'proposition-validation-direct',
             'dossierJS'               => 'propositionDirect',
@@ -98,8 +98,7 @@ class DaPropositionArticleDirectController extends Controller
 
     private function nePeutPasModifier(DemandeAppro $demandeAppro)
     {
-        // TODO: booléen pour savoir si Atelier
-        return (false && ($demandeAppro->getStatutDal() == StatutDaConstant::STATUT_SOUMIS_APPRO || $demandeAppro->getStatutDal() == StatutDaConstant::STATUT_VALIDE));
+        return ($this->estCreateurDaDirecte() && ($demandeAppro->getStatutDal() == StatutDaConstant::STATUT_SOUMIS_APPRO || $demandeAppro->getStatutDal() == StatutDaConstant::STATUT_VALIDE));
     }
 
     private function traitementFormulaire($form, $formObservation, $dals, Request $request, string $numDa, DemandeAppro $da)
@@ -144,8 +143,7 @@ class DaPropositionArticleDirectController extends Controller
     {
         $this->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $daObservation->getObservation(), $daObservation->getFileNames());
 
-        // TODO: booléen pour savoir si Appro
-        if (false && $daObservation->getStatutChange()) {
+        if ($this->estAppro() && $daObservation->getStatutChange()) {
             $this->modificationStatutDal($demandeAppro->getNumeroDemandeAppro(), StatutDaConstant::STATUT_AUTORISER_EMETTEUR);
             $this->modificationStatutDa($demandeAppro->getNumeroDemandeAppro(), StatutDaConstant::STATUT_AUTORISER_EMETTEUR);
 
@@ -157,7 +155,7 @@ class DaPropositionArticleDirectController extends Controller
             'message' => 'Votre observation a été enregistré avec succès.',
         ];
 
-        $this->emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->getUser(), false);  // TODO: booléen pour savoir si Appro
+        $this->emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->getUser(), $this->estAppro());
 
         $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         return $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 1, 'page' => 1]);
@@ -181,7 +179,7 @@ class DaPropositionArticleDirectController extends Controller
                 'message' => 'Votre observation a été enregistré avec succès.',
             ];
 
-            $this->emailDaService->envoyerMailObservationDa($demandeAppro, $observation, $this->getUser(), false);  // TODO: booléen pour savoir si Appro
+            $this->emailDaService->envoyerMailObservationDa($demandeAppro, $observation, $this->getUser(), $this->estAppro());
         } else {
             $notification = [
                 'type' => 'danger',

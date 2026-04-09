@@ -44,7 +44,7 @@ class DaNewReApproMensuelController extends Controller
 
         return $this->render('da/new-da-reappro-mensuel.html.twig', [
             'form'         => $form->createView(),
-            'codeCentrale' => false, // TODO : autorisation sur centrale
+            'codeCentrale' => $this->estAdmin() || $this->estEnergie(),
         ]);
     }
 

@@ -83,10 +83,10 @@ class DaListCdeFrnController extends Controller
         $paginationData = $this->daAfficherRepository->findValidatedPaginatedDas($criteriaTab, $page, $limit, $codeSociete);
         $daAfficherMapper = new DaAfficherMapper($this->getUrlGenerator());
         $dataPrepared = $daAfficherMapper->mapList($paginationData['data'], [
-            'estAdmin'   => false, // TODO: profil de l'utilisateur
-            'estAppro'   => false, // TODO: profil de l'utilisateur
-            'estAtelier' => false, // TODO: profil de l'utilisateur
-            'estCreateur' => false, // TODO: profil de l'utilisateur
+            'estAdmin'   => $this->estAdmin(),
+            'estAppro'   => $this->estAppro(),
+            'estAtelier' => $this->estAtelier(),
+            'estCreateur' => $this->estCreateurDaDirecte(),
             'codeAgenceUser' => $this->getUser()->getCodeAgenceUser(),
             'codeServiceUser' => $this->getUser()->getCodeServiceUser(),
         ]);

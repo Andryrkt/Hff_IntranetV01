@@ -53,7 +53,7 @@ class DaDetailReapproController extends Controller
 			'formObservation'	=> $formObservation->createView(),
 			'demandeAppro'      => $demandeAppro,
 			'isMensuel'         => $demandeAppro->getDaTypeId() == DemandeAppro::TYPE_DA_REAPPRO_MENSUEL,
-			'codeCentrale'      => false, // TODO : autorisation sur centrale
+			'codeCentrale'      => $this->estAdmin() || $this->estEnergie(),
 			'observations'      => $observations,
 			'fichiers'          => $fichiers,
 			'timelineData'      => $timeLineData,
@@ -80,7 +80,7 @@ class DaDetailReapproController extends Controller
 			];
 
 			$emailDaService = new EmailDaService($this->getTwig());
-			$emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->getUser(), false);  // TODO: booléen pour savoir si Appro
+			$emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->getUser(), $this->estAppro());
 
 			$this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
 			return $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 1, 'page' => 1]);

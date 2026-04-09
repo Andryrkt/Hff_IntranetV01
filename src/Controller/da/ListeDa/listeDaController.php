@@ -49,8 +49,6 @@ class listeDaController extends Controller
         $daSearch = new DaSearch;
         $this->initialisationRechercheDa($daSearch);
 
-        $codeCentrale = false; // TODO : autorisation sur le code centrale
-
         // Agences Services autorisés sur le DAP
         $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DAP);
         $allAgenceServices = $this->getSecurityService()->getAllAgenceServices();
@@ -58,7 +56,7 @@ class listeDaController extends Controller
         //formulaire de recherche
         $form = $this->getFormFactory()->createBuilder(DaSearchType::class, $daSearch, [
             'method' => 'GET',
-            'estAppro' => false, // TODO: profil ou autre
+            'estAppro' => $this->estAppro(),
             'allAgenceServices' => $allAgenceServices
         ])->getForm();
 
@@ -145,15 +143,13 @@ class listeDaController extends Controller
 
         // Préparation des données pour la vue (Via Presenter avec Cache)
         $dataPrepared = $this->daAfficherMapper->mapList($paginationData['data'], [
-            'estAdmin'   => false, // TODO: profil de l'utilisateur ou autre
-            'estAppro'   => false, // TODO: profil de l'utilisateur ou autre
-            'estAtelier' => false, // TODO: profil de l'utilisateur ou autre
-            'estCreateur' => false // TODO: profil de l'utilisateur ou autre
+            'estAdmin'   => $this->estAdmin(),
+            'estAppro'   => $this->estAppro(),
+            'estAtelier' => $this->estAtelier(),
+            'estCreateur' => $this->estCreateurDaDirecte(),
+            'codeAgenceUser' => $this->getUser()->getCodeAgenceUser(),
+            'codeServiceUser' => $this->getUser()->getCodeServiceUser(),
         ]);
-
-        // Détection code centrale
-        $agenceServiceIps = $this->agenceServiceIpsObjet();
-        $codeCentraleVisible = in_array($agenceServiceIps['agenceIps']->getCodeAgence(), ['90', '91', '92']); // TODO: autorisation sur le code centrale
 
         /** === Formulaire pour la date de livraison prevu === */
         $formDateLivraison = $this->getFormFactory()->createBuilder(DaModalDateLivraisonType::class)->getForm();
@@ -163,7 +159,7 @@ class listeDaController extends Controller
             'data'              => $dataPrepared,
             'form'              => $form->createView(),
             'criteria'          => $criteria,
-            'codeCentrale'      => $codeCentraleVisible,
+            'codeCentrale'      => $this->estAdmin() || $this->estEnergie(),
             'sortJoursClass'    => $sortJoursClass,
             'currentPage'       => $paginationData['currentPage'],
             'totalPages'        => $paginationData['lastPage'],
@@ -220,26 +216,5 @@ class listeDaController extends Controller
         $criteria = $this->getSessionService()->get('criteria_search_list_da', []) ?? [];
 
         $daSearch->toObject($criteria);
-    }
-
-    // Le verrouillage est maintenant calculé et injecté directement dans les tableaux
-    private function appliquerVerrouillage(array &$daAffichers): void
-    {
-        $estAdmin   = false; // TODO: profil ou autre
-        $estAppro   = false; // TODO: profil ou autre
-        $estAtelier = false; // TODO: profil ou autre
-        $estCreateur = false; // TODO: profil ou autre
-
-        foreach ($daAffichers as &$daAfficher) {
-            $daAfficher['verouille'] = $this->permissionDaService->estDaVerrouillee(
-                $daAfficher['statutDal'],
-                $daAfficher['statutOr'],
-                $estAdmin,
-                $estAppro,
-                $estAtelier,
-                $estCreateur
-            );
-        }
-        unset($daAfficher); // bonne pratique après foreach par référence
     }
 }
