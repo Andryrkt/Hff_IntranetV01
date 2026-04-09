@@ -7,7 +7,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\badm\BadmSearch;
 use App\Entity\admin\StatutDemande;
 use App\Entity\admin\badm\TypeMouvement;
-use App\Repository\admin\AgenceRepository;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use App\Repository\admin\StatutDemandeRepository;
@@ -22,7 +21,6 @@ class BadmSearchType extends AbstractType
 {
     use PrepareAgenceServiceTrait;
     private $agenceRepository;
-    private $em;
     private $em;
 
     public function __construct(EntityManagerInterface $em)
@@ -131,7 +129,7 @@ class BadmSearchType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class'             => BadmSearch::class,
+            'data_class'        => BadmSearch::class,
             'allAgenceServices' => [],
         ]);
     }
