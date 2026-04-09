@@ -1,4 +1,4 @@
-<h5 class="fw-bold">{{dto.titreDaDdpa}}</h5>
+<h6 class="fw-bold fs-6">{{dto.titreDaDdpa}}</h6>
 <table class="table">
 	<thead class="table-dark align-middle">
 		<tr>
@@ -7,7 +7,8 @@
 			<th>Motif</th>
 			<th class="text-center">Montant</th>
 			<th class="text-center">%</th>
-			<th class="text-center">% cummul</th>
+			<th class="text-center">% Cumul</th>
+			<th class="text-center">Statut</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -19,11 +20,12 @@
 				<td class="text-end">{{item.montant|number_format(2,',','.')}}</td>
 				<td class="text-end">{{item.ratio|round(2)|number_format(2,',','.')}}%</td>
 				<td class="text-end">{{item.cumul|round(2)|number_format(2,',','.')}}%</td>
+				<td class="text-center">{{item.statut}}</td>
 			</tr>
-			{% else %}
-    <tr>
-        <td colspan="6" class="text-center">Aucune donnée disponible</td>
-    </tr>
+		{% else %}
+			<tr>
+				<td colspan="6" class="text-center">Aucune donnée disponible</td>
+			</tr>
 		{% endfor %}
 		<tr>
 			<td colspan="6"></td>

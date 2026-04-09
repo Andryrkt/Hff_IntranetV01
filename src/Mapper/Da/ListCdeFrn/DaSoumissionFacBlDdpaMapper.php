@@ -17,7 +17,7 @@ class DaSoumissionFacBlDdpaMapper
         $ddpaDto->motif = $ddp->getMotif();
         $ddpaDto->montant = $ddp->getMontantAPayers();
         $ddpaDto->ratio = $ddpaDto->getRatio();
-
+        $ddpaDto->statut = $ddp->getStatut();
 
         return $ddpaDto;
     }

@@ -11,6 +11,7 @@ class DaDdpaDto
     public $dateCreation;
     public $motif;
     public $montant = 0;
+    public $statut;
 
     public function getRatio()
     {
