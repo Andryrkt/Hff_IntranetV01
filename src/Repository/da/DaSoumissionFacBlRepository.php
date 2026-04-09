@@ -45,11 +45,11 @@ class DaSoumissionFacBlRepository extends EntityRepository
         $sql = " SELECT 
                 dabc.numero_livraison
             FROM da_soumission_facture_bl dabc
-            LEFT JOIN demande_paiement ddp ON ddp.numero_commande LIKE CONCAT('%\"', dabc.numero_cde, '\"%')
+            LEFT JOIN demande_paiement ddp ON ddp.numero_demande_paiement = dabc.numero_demande_paiement
             WHERE dabc.numero_demande_appro = :numDa
             AND dabc.numero_cde = :numCde
             AND (ddp.statut NOT LIKE :statutRefuse OR ddp.statut IS NULL)
-            AND dabc.statut_bap != :statutBapATransmettre";
+        ";
 
         $rows = $conn->fetchAllAssociative($sql, [
             'numDa' => $numDa,

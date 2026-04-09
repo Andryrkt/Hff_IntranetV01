@@ -142,19 +142,20 @@ class DaSoumissionFacBlFactory
 
         $livraisonSoumis = $this->daSoumissionFacBlRepository->getAllLivraisonSoumis($numDa, $numCde);
 
-        $statutBaps = $this->daSoumissionFacBlRepository->getStatutBap($numDa, $numCde);
-        $demandePaiementRepository = $this->em->getRepository(DemandePaiement::class);
-        $statutDdps  = $demandePaiementRepository->getStatutDdpSelonNumCde($numCde);
-        $nombreLivraisonSoumis = $this->daSoumissionFacBlRepository->getNombreLivraisonSoumis($numDa, $numCde);
-        if (!empty($livraisonSoumis) && !in_array('A transmettre', $statutBaps) && !in_array('Refusé', $statutDdps) && $nombreLivraisonSoumis === count($infosLivraisons)) {
-            $message = "Les BAP sont toutes transmise et validé ou en cours de validation.";
-            $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn');
-        }
+        // $statutBaps = $this->daSoumissionFacBlRepository->getStatutBap($numDa, $numCde);
+        // $demandePaiementRepository = $this->em->getRepository(DemandePaiement::class);
+        // $statutDdps  = $demandePaiementRepository->getStatutDdpSelonNumCde($numCde);
+        // $nombreLivraisonSoumis = $this->daSoumissionFacBlRepository->getNombreLivraisonSoumis($numDa, $numCde);
+
 
         foreach ($livraisonSoumis as $numLiv) {
             unset($infosLivraisons[$numLiv]); // exclure les livraisons déjà soumises
         }
 
+        if (empty($infosLivraisons)) {
+            $message = "Toutes les BAP sont en cours de validation ou déjà validées.";
+            $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn');
+        }
         // if (empty($infosLivraisons)) {
         //     $message = "La commande n° <b>$numCde</b> n'a plus de livraison à soumettre. Toutes les livraisons associées ont déjà été soumises.";
         //     $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn');
