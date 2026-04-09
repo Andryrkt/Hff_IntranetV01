@@ -5,7 +5,6 @@ namespace App\Controller\da\Validation;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
-use App\Entity\admin\Application;
 use App\Form\da\DaObservationType;
 use App\Form\da\DaObservationValidationType;
 use App\Controller\Traits\da\DaAfficherTrait;

@@ -4,16 +4,11 @@ namespace App\Controller\da\Detail;
 
 use App\Constants\da\StatutDaConstant;
 use App\Controller\Controller;
-use App\Controller\Traits\AutorisationTrait;
 use App\Controller\Traits\da\DaAfficherTrait;
-use App\Controller\Traits\da\detail\DaDetailDirectTrait;
 use App\Controller\Traits\lienGenerique;
-use App\Entity\admin\Application;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeAppro;
-use App\Entity\da\DemandeApproL;
 use App\Form\da\DaObservationType;
-use App\Service\da\DaTimelineService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\da\detail\DaDetailDirectTrait;

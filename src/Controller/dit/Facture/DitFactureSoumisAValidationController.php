@@ -6,7 +6,6 @@ ini_set('upload_max_filesize', '5M');
 ini_set('post_max_size', '5M');
 
 use App\Controller\Controller;
-use App\Controller\Traits\dit\DitFactureSoumisAValidationtrait;
 use App\Controller\Traits\PdfConversionTrait;
 use App\Entity\dit\DemandeIntervention;
 use App\Entity\dit\DitFactureSoumisAValidation;

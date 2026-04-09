@@ -5,17 +5,12 @@ namespace App\Controller\da\ListeDa;
 use App\Constants\da\StatutBcConstant;
 use App\Constants\da\StatutDaConstant;
 use App\Controller\Controller;
-use App\Controller\Traits\AutorisationTrait;
-use App\Controller\Traits\da\DaTrait;
 use App\Entity\admin\Agence;
-use App\Entity\admin\Application;
-use App\Entity\admin\Service;
 use App\Entity\da\DaAfficher;
 use App\Entity\da\DaSearch;
 use App\Form\da\DaSearchType;
 use App\Mapper\Da\DaAfficherMapper;
 use App\Repository\admin\AgenceRepository;
-use App\Repository\da\DaAfficherRepository;
 use App\Service\da\PermissionDaService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\FormInterface;
@@ -45,8 +40,6 @@ class listeDaController extends Controller
         $this->agenceRepository = $em->getRepository(Agence::class);
         $this->daAfficherMapper = new DaAfficherMapper($this->getUrlGenerator());
         $this->permissionDaService = new PermissionDaService();
-
-        $this->initDaTrait();
     }
 
     /**
@@ -184,26 +177,6 @@ class listeDaController extends Controller
             'formDateLivraison' => $formDateLivraison->createView(),
             'mesDaActif'        => $request->query->get('mes_da_a_traiter') == 1,
         ]);
-    }
-
-    private function appliquerVerrouillage(array $daAffichers): void
-    {
-        $estAdmin = $this->estAdmin();
-        $estAppro = $this->estUserDansServiceAppro();
-        $estAtelier = $this->estUserDansServiceAtelier();
-        $estCreateur = $this->estCreateurDeDADirecte();
-
-        foreach ($daAffichers as $daAfficher) {
-            $verrouille = $this->permissionDaService->estDaVerrouillee(
-                $daAfficher->getStatutDal(),
-                $daAfficher->getStatutOr(),
-                $estAdmin,
-                $estAppro,
-                $estAtelier,
-                $estCreateur
-            );
-            $daAfficher->setVerouille($verrouille);
-        }
     }
 
     private function TraitementFormulaireDateLivraison(Request $request, FormInterface $formDateLivraison)

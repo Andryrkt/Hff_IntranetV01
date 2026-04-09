@@ -4,9 +4,6 @@ namespace App\Controller\da\ListeCdeFrn;
 
 
 use App\Controller\Controller;
-use App\Controller\Traits\AutorisationTrait;
-use App\Entity\admin\Application;
-use App\Entity\admin\Service;
 use App\Entity\da\DaAfficher;
 use App\Entity\da\DaSoumissionBc;
 use App\Entity\da\DemandeAppro;
@@ -19,7 +16,6 @@ use App\Form\da\daCdeFrn\DaModalDateLivraisonType;
 use App\Form\da\daCdeFrn\DaSoumissionType;
 use App\Mapper\Da\DaAfficherMapper;
 use App\Model\da\DaModel;
-use App\Repository\da\DaAfficherRepository;
 use App\Repository\da\DaSoumissionBcRepository;
 use App\Repository\da\DemandeApproRepository;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;

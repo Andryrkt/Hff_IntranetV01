@@ -4,10 +4,7 @@ namespace App\Controller\da\Modification;
 
 use App\Constants\da\StatutDaConstant;
 use App\Controller\Controller;
-use App\Controller\Traits\AutorisationTrait;
-use App\Controller\Traits\da\DaAfficherTrait;
 use App\Controller\Traits\da\modification\DaEditAvecDitTrait;
-use App\Entity\admin\Application;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;

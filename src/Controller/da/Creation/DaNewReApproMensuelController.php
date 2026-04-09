@@ -5,15 +5,12 @@ namespace App\Controller\da\Creation;
 use App\Constants\da\StatutDaConstant;
 use App\Constants\admin\ApplicationConstant;
 use App\Controller\Controller;
-use App\Controller\Traits\AutorisationTrait;
 use App\Controller\Traits\da\creation\DaNewReapproMensuelTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
-use App\Entity\admin\utilisateur\Role;
-use App\Form\da\DemandeApproReapproFormType;
+use App\Form\da\DemandeApproReapproMensuelFormType;
 use Symfony\Component\HttpFoundation\Request;
 use App\Service\application\ApplicationService;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -73,9 +70,9 @@ class DaNewReApproMensuelController extends Controller
 
                 $this->gererAgenceServiceDebiteur($demandeAppro);
 
-            // Récupérer le nom du bouton cliqué
-            $clickedButtonName = $this->getButtonName($request);
-            $statutDa = StatutDaConstant::STATUT_DAL[$clickedButtonName];
+                // Récupérer le nom du bouton cliqué
+                $clickedButtonName = $this->getButtonName($request);
+                $statutDa = StatutDaConstant::STATUT_DAL[$clickedButtonName];
 
                 $demandeAppro
                     ->setNumeroDemandeAppro($numDa)

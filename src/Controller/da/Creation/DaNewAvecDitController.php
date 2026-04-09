@@ -5,20 +5,14 @@ namespace App\Controller\da\Creation;
 use App\Constants\admin\ApplicationConstant;
 use App\Constants\da\StatutDaConstant;
 use App\Controller\Controller;
-use App\Controller\Traits\AutorisationTrait;
-use App\Controller\Traits\da\creation\DaNewAvecDitTrait;
-use App\Entity\admin\Application;
-use App\Entity\admin\Service;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
 use App\Entity\dit\DemandeIntervention;
 use App\Form\da\DemandeApproFormType;
 use App\Service\application\ApplicationService;
-use App\Service\da\FileUploaderForDAService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\da\creation\DaNewAvecDitTrait;
-use App\Entity\admin\utilisateur\Role;
 use App\Service\da\FileUploaderForDAService;
 
 /**
@@ -83,9 +77,9 @@ class DaNewAvecDitController extends Controller
                 $demandeAppro->setNumeroDemandeAppro($numDa)->setNumeroDemandeApproMere($numDa);
                 $formDAL = $form->get('DAL');
 
-            // Récupérer le nom du bouton cliqué
-            $clickedButtonName = $this->getButtonName($request);
-            $demandeAppro->setStatutDal(StatutDaConstant::STATUT_DAL[$clickedButtonName]);
+                // Récupérer le nom du bouton cliqué
+                $clickedButtonName = $this->getButtonName($request);
+                $demandeAppro->setStatutDal(StatutDaConstant::STATUT_DAL[$clickedButtonName]);
 
                 foreach ($formDAL as $subFormDAL) {
                     /** 
@@ -118,17 +112,17 @@ class DaNewAvecDitController extends Controller
                             FileUploaderForDAService::FILE_TYPE["DEVIS"]
                         );
 
-                    /** 
-                     * @var DemandeApproL $demandeApproL
-                     */
-                    $demandeApproL
-                        ->setNumeroDemandeAppro($numDa)
-                        ->setStatutDal(StatutDaConstant::STATUT_DAL[$clickedButtonName])
-                        ->setPrixUnitaire($this->daModel->getPrixUnitaire($demandeApproL->getArtRefp())[0])
-                        ->setNumeroDit($demandeAppro->getNumeroDemandeDit())
-                        ->setJoursDispo($this->getJoursRestants($demandeApproL))
-                        ->setFileNames($allFileNames)
-                    ;
+                        /** 
+                         * @var DemandeApproL $demandeApproL
+                         */
+                        $demandeApproL
+                            ->setNumeroDemandeAppro($numDa)
+                            ->setStatutDal(StatutDaConstant::STATUT_DAL[$clickedButtonName])
+                            ->setPrixUnitaire($this->daModel->getPrixUnitaire($demandeApproL->getArtRefp())[0])
+                            ->setNumeroDit($demandeAppro->getNumeroDemandeDit())
+                            ->setJoursDispo($this->getJoursRestants($demandeApproL))
+                            ->setFileNames($allFileNames)
+                        ;
 
                         if ($demandeApproL->getNumeroFournisseur() == 0) {
                             $demandeApproL->setNumeroFournisseur($this->fournisseurs[$demandeApproL->getNomFournisseur()] ?? 0); // définir le numéro du fournisseur
