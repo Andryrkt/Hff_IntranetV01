@@ -8,6 +8,7 @@ use App\Entity\contrat\Contrat;
 use App\Form\contrat\ContratType;
 use App\Controller\Traits\contrat\ContratListeTrait;
 use App\Entity\dw\DwContrat;
+use App\Service\ExcelService;
 use Doctrine\ORM\EntityNotFoundException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -47,11 +48,11 @@ class ContratController extends Controller
         if ($isDirectAccess) {
             // Réinitialiser tous les filtres
             $contratSearch = new Contrat();
-            $this->sessionService->remove('contrat_search_criteria');
-            $this->sessionService->remove('contrat_search_option');
+            $this->getSessionService()->remove('contrat_search_criteria');
+            $this->getSessionService()->remove('contrat_search_option');
         } else {
             // Utiliser les critères de recherche stockés dans la session
-            $sessionCriteria = $this->sessionService->get('contrat_search_criteria', []);
+            $sessionCriteria = $this->getSessionService()->get('contrat_search_criteria', []);
 
             if (!empty($sessionCriteria)) {
                 $this->initialisationContrat($contratSearch, $this->getEntityManager());
@@ -143,11 +144,11 @@ class ContratController extends Controller
                 $criteria['reference'] = implode(', ', $options['references']);
             }
 
-            $this->sessionService->set('contrat_search_criteria', $criteria);
-            $this->sessionService->set('contrat_search_option', $options);
+            $this->getSessionService()->set('contrat_search_criteria', $criteria);
+            $this->getSessionService()->set('contrat_search_option', $options);
         } else {
             // Utiliser les options de recherche stockées dans la session
-            $sessionOptions = $this->sessionService->get('contrat_search_option', []);
+            $sessionOptions = $this->getSessionService()->get('contrat_search_option', []);
             if (!empty($sessionOptions)) {
                 $options = $sessionOptions;
             }
@@ -264,8 +265,6 @@ class ContratController extends Controller
      */
     public function showContrat(int $id)
     {
-        $this->verifierSessionUtilisateur();
-
         $contrat = $this->getEntityManager()->getRepository(Contrat::class)->findWithDetails($id);
 
         if (!$contrat) {
@@ -283,8 +282,6 @@ class ContratController extends Controller
      */
     public function exportExcel(Request $request)
     {
-        $this->verifierSessionUtilisateur();
-
         $contratSearch = new Contrat();
 
         // Récupérer les paramètres de recherche depuis la requête (comme dans le module congé)
@@ -332,7 +329,7 @@ class ContratController extends Controller
             $this->initialisationContrat($contratSearch, $this->getEntityManager());
         }
 
-        $options = $this->sessionService->get('contrat_search_option', []);
+        $options = $this->getSessionService()->get('contrat_search_option', []);
 
         // S'assurer que $options n'est pas null
         if ($options === null) {
@@ -349,7 +346,7 @@ class ContratController extends Controller
         $filename = "contrats_export_" . date('Y-m-d_His');
 
         // Crée le fichier Excel
-        $this->getExcelService()->createSpreadsheet($data, $filename);
+        (new ExcelService())->createSpreadsheet($data, $filename);
         exit();
     }
 
@@ -420,8 +417,6 @@ class ContratController extends Controller
      */
     public function getReferences()
     {
-        $this->verifierSessionUtilisateur();
-
         $repository = $this->getEntityManager()->getRepository(Contrat::class);
         $contrats = $repository->findAll();
 
@@ -442,8 +437,6 @@ class ContratController extends Controller
      */
     public function getPartenaires()
     {
-        $this->verifierSessionUtilisateur();
-
         $repository = $this->getEntityManager()->getRepository(Contrat::class);
         $contrats = $repository->findAll();
 
