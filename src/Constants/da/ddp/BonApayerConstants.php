@@ -4,8 +4,8 @@ namespace App\Constants\da\ddp;
 
 final class BonApayerConstants
 {
-    public const STATUT_A_TRANSMETTERE = 'A transmettre';
-    public const STATUT_TRANSMISE = 'Transmise';
+    public const STATUT_A_TRANSMETTERE = 'BAP à soumettre';
+    public const STATUT_TRANSMISE = 'BAP soumis à validation';
     public const STATUT_CLOTUREE = 'Clôturée';
     public const STATUT_REFUSEE = 'Refusée';
 

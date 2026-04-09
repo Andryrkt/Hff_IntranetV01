@@ -52,7 +52,7 @@
 				{% for row in daSoumissionFacBl %}
 					<tr>
 						<td class="text-center">
-							<input type="checkbox" name="{{ row.numeroBap }}" class="bap-checkbox" {{ row.statutBap != 'A transmettre' ? 'disabled' : '' }}>
+							<input type="checkbox" name="{{ row.numeroBap }}" class="bap-checkbox" {{ row.statutBap != 'BAP à soumettre' ? 'disabled' : '' }}>
 						</td>
 						<td class="text-center">{{ row.numeroCla}}</td>
 						<td class="text-center">{{ row.numeroDemandeAppro }}</td>
