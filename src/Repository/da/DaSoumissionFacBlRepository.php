@@ -45,7 +45,7 @@ class DaSoumissionFacBlRepository extends EntityRepository
         $sql = "
             SELECT dabc.numero_livraison
             FROM da_soumission_facture_bl dabc
-            LEFT JOIN demande_paiement ddp ON JSON_VALUE(ddp.numero_commande, '$[0]') = dabc.numero_cde
+            LEFT JOIN demande_paiement ddp ON (CASE WHEN ISJSON(ddp.numero_commande) = 1 THEN JSON_VALUE(ddp.numero_commande, '$[0]') ELSE NULL END) = dabc.numero_cde
             WHERE dabc.numero_demande_appro = :numDa
               AND dabc.numero_cde = :numCde
               AND (ddp.statut != :statutRefuse OR ddp.statut IS NULL)
