@@ -57,7 +57,7 @@ class TraitementSoumissionBAPService
         $this->dwBcApproRepository         = $this->entityManager->getRepository(DwBcAppro::class);
     }
 
-    public function traitementSoumissionBAP($form, $dto)
+    public function traitementSoumissionBAP($form, $dto, ?string $mail)
     {
         $sucess = false;
 
@@ -77,8 +77,10 @@ class TraitementSoumissionBAPService
                 $this->entityManager->flush();
             }
 
+            $dto->numeroBap = $this->daSoumissionFacBlFactory->genererNumeroBap();
+
             // Traitement du fichier
-            [$nomAvecCheminPdfFusionner, $nomPdfFusionner] = $this->traitementDeFichier($form, $dto);
+            [$nomAvecCheminPdfFusionner, $nomPdfFusionner] = $this->traitementDeFichier($form, $dto, $mail);
 
             // enrichissement Dto
             $dto  = $this->daSoumissionFacBlFactory->EnrichissementDtoApresSoumission($dto, $nomPdfFusionner);
@@ -195,7 +197,7 @@ class TraitementSoumissionBAPService
         $this->entityManager->flush();
     }
 
-    private function traitementDeFichier($form, $dto): array
+    private function traitementDeFichier($form, $dto, ?string $mail): array
     {
         $numCde  = $dto->numeroCde;
         $numDa   = $dto->numeroDemandeAppro;
@@ -211,7 +213,7 @@ class TraitementSoumissionBAPService
         $nomFichierAvecChemins = $this->addPrefixToElementArray($nomDeFichiers, $this->cheminDeBase . $numDa . '/');
 
         /** CREATION DE LA PAGE DE GARDE */
-        $pageDeGarde = $this->genererPageDeGarde($infoLiv, $dto);
+        $pageDeGarde = $this->genererPageDeGarde($infoLiv, $dto, $mail);
 
         /** AJOUT DE LA PAGE DE GARDE A LA PREMIERE POSITION */
         $nomFichierAvecChemins = $this->traitementDeFichier->insertFileAtPosition($nomFichierAvecChemins, $pageDeGarde, 0);
@@ -297,7 +299,7 @@ class TraitementSoumissionBAPService
         }, $files);
     }
 
-    private function genererPageDeGarde(array $infoLivraison, DaSoumissionFacBlDto $dto): string
+    private function genererPageDeGarde(array $infoLivraison, DaSoumissionFacBlDto $dto, ?string $mail): string
     {
         $ditModel         = new DitModel();
         $generatePdfBap   = new GenererPdfBonAPayer();
@@ -318,6 +320,6 @@ class TraitementSoumissionBAPService
             "dateLivIPS" => $infoLivraison["date_clot"],
         ];
 
-        return $generatePdfBap->genererPageDeGarde($infoValidationBC, $infoMateriel, $dataRecapOR, $demandeAppro, $dto, $infoFacBl);
+        return $generatePdfBap->genererPageDeGarde($infoValidationBC, $infoMateriel, $dataRecapOR, $demandeAppro, $dto, $infoFacBl, $mail);
     }
 }

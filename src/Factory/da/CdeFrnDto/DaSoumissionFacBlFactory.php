@@ -107,7 +107,6 @@ class DaSoumissionFacBlFactory
         $dto->numeroFactureFournisseur = $this->getNumFacEtMontant($dto->numLiv)[0]['numero_facture'];
 
         // Bon à payer (BAP) ===============================
-        $dto->numeroBap = $this->genererNumeroBap();
         $dto->statutBap = 'A transmettre';
         $dto->dateStatutBap = new DateTime();
         $dto->montantReceptionIps = $this->getNumFacEtMontant($dto->numLiv)[0]['montant_reception_ips'];
@@ -177,7 +176,7 @@ class DaSoumissionFacBlFactory
         return $bc->getDemandePaiementAvance();
     }
 
-    private function genererNumeroBap(): string
+    public function genererNumeroBap(): string
     {
         //recupereation de l'application BAP pour generer le numero de bap
         $application = $this->em->getRepository(Application::class)->findOneBy(['codeApp' => 'BAP']);
