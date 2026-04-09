@@ -213,6 +213,16 @@ class DemandePaiement
      */
     private ?string $numeroDemandeAppro = null;
 
+    /**
+     * @ORM\Column(type="boolean", name="deposer_dw")
+     */
+    private $deposerDw = false;
+
+    /**
+     * @ORM\Column(type="datetime", name="date_depot_dw")
+     */
+    private $dateDepotDw;
+
     private string $montantAPayer = '0';
 
     private $pieceJoint01;
@@ -1110,5 +1120,41 @@ class DemandePaiement
         $nouvelle->modePaiement = $this->modePaiement;
         $nouvelle->typeDemandeId  = $this->typeDemandeId;
         return $nouvelle;
+    }
+
+    /**
+     * Get the value of deposerDw
+     */
+    public function getDeposerDw()
+    {
+        return $this->deposerDw;
+    }
+
+    /**
+     * Set the value of deposerDw
+     */
+    public function setDeposerDw($deposerDw): self
+    {
+        $this->deposerDw = $deposerDw;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateDepotDw
+     */
+    public function getDateDepotDw()
+    {
+        return $this->dateDepotDw;
+    }
+
+    /**
+     * Set the value of dateDepotDw
+     */
+    public function setDateDepotDw($dateDepotDw): self
+    {
+        $this->dateDepotDw = $dateDepotDw;
+
+        return $this;
     }
 }
