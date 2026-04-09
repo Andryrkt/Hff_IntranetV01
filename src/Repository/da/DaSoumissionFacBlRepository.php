@@ -54,8 +54,7 @@ class DaSoumissionFacBlRepository extends EntityRepository
         $rows = $conn->fetchAllAssociative($sql, [
             'numDa' => $numDa,
             'numCde' => $numCde,
-            'statutRefuse' => '%Refusé%',
-            'statutBapATransmettre' => 'A transmettre'
+            'statutRefuse' => '%Refusé%'
         ]);
 
         return array_filter(array_column($rows, 'numero_livraison'));

@@ -66,7 +66,7 @@ class TraitementSoumissionBAPService
             $numDa   = $dto->numeroDemandeAppro;
             $numLiv = $dto->numLiv;
 
-            // Suppression de l'ancienne soumission si elle existe déjà avec le statut 'A transmettre'
+            // Suppression de l'ancienne soumission si elle existe déjà avec le statut 'BAP à soumettre'
             $oldSoumission = $this->daSoumissionFacBlRepository->findOneBy([
                 'numLiv' => $numLiv,
                 'statutBap' => BonApayerConstants::STATUT_A_TRANSMETTERE

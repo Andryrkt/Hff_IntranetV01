@@ -2,6 +2,7 @@
 
 namespace App\Factory\da\CdeFrnDto;
 
+use App\Constants\da\ddp\BonApayerConstants;
 use App\Constants\da\TypeDaConstants;
 use App\Constants\ddp\TypeDemandePaiementConstants;
 use App\Dto\Da\ListeCdeFrn\DaDdpaDto;
@@ -107,7 +108,7 @@ class DaSoumissionFacBlFactory
         $dto->numeroFactureFournisseur = $this->getNumFacEtMontant($dto->numLiv)[0]['numero_facture'];
 
         // Bon à payer (BAP) ===============================
-        $dto->statutBap = 'A transmettre';
+        $dto->statutBap = BonApayerConstants::STATUT_A_TRANSMETTERE;
         $dto->dateStatutBap = new DateTime();
         $dto->montantReceptionIps = $this->getNumFacEtMontant($dto->numLiv)[0]['montant_reception_ips'];
 

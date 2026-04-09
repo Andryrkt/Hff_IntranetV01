@@ -54,6 +54,7 @@ class DdpListeController extends Controller
         }
         // $data = $this->demandePaiementRepository->findBy([], ['dateCreation' => 'DESC']);
         $data = $this->demandePaiementRepository->findDemandePaiement($criteria, $this->getUser());
+
         /** suppression de ssession page_loadede  */
         if ($this->getSessionService()->has('page_loaded')) {
             $this->getSessionService()->remove('page_loaded');
