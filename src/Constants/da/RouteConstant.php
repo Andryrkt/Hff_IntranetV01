@@ -9,6 +9,7 @@ class RouteConstant
     // constante pour les routes de création
     public const CREATION = [
         DemandeAppro::TYPE_DA_AVEC_DIT        => 'da_new_avec_dit',
+        DemandeAppro::TYPE_DA_DIRECT          => 'da_edit_direct',
         DemandeAppro::TYPE_DA_REAPPRO_MENSUEL => 'da_new_reappro_mensuel',
         DemandeAppro::TYPE_DA_PARENT          => 'da_new_achat'
     ];
