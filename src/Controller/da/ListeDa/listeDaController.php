@@ -9,7 +9,6 @@ use App\Entity\da\DaAfficher;
 use App\Entity\da\DaSearch;
 use App\Form\da\DaSearchType;
 use App\Mapper\Da\DaAfficherMapper;
-use App\Service\da\PermissionDaService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\FormInterface;
 use App\Service\security\SecurityService;
@@ -27,14 +26,12 @@ class listeDaController extends Controller
     // Repository et model
     private DaAfficherRepository $daAfficherRepository;
     private DaAfficherMapper $daAfficherMapper;
-    private PermissionDaService $permissionDaService;
 
     public function __construct(EntityManagerInterface $entityManager)
     {
         parent::__construct();
         $this->daAfficherRepository = $entityManager->getRepository(DaAfficher::class);
         $this->daAfficherMapper = new DaAfficherMapper($this->getUrlGenerator());
-        $this->permissionDaService = new PermissionDaService();
     }
 
     /**

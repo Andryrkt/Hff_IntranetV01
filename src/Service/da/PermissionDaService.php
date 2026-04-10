@@ -84,21 +84,6 @@ class PermissionDaService
         if ($estAtelier) $roles[] = 'atelier';
         if ($estCreateurDaDirecte) $roles[] = 'createur_da_directe';
 
-        return $this->isDemandeVerrouillee($statutDa, $statut, $roles);
-    }
-
-    /**
-     * Détermine si une Demande d'Approvisionnement (DA) doit être verrouillée
-     * en fonction de son statut et des rôles de l'utilisateur.
-     *
-     * @param string        $statutDa Statut actuel de la DA
-     * @param string|null   $statut   Statut complémentaire (OR ou DW)
-     * @param string[]      $roles    Liste des rôles de l'utilisateur (ex: ['admin', 'appro'])
-     *
-     * @return bool True si la DA doit être verrouillée, False sinon
-     */
-    private function isDemandeVerrouillee(string $statutDa, ?string $statut, array $roles): bool
-    {
         foreach ($roles as $role) {
             if ($this->canRoleEditDa($role, $statutDa, $statut)) return false; // déverrouillage si au moins un rôle est autorisé
         }
