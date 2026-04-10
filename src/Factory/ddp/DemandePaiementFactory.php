@@ -156,6 +156,7 @@ class DemandePaiementFactory
 
         return $dto;
     }
+
     private function getTotalPayer(array $ddps): float
     {
         $montantpayer = 0;

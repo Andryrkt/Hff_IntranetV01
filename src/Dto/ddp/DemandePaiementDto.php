@@ -82,7 +82,7 @@ class DemandePaiementDto
 
     public function montantAPayer(): float
     {
-        return (float)str_replace(',', '.', str_replace('.', '', $this->montantAPayer));
+        return (float) $this->montantAPayer;
     }
 
     public function montantRestantApayer(): float

@@ -229,6 +229,9 @@ class TraitementSoumissionDDPLService
         } elseif (!empty($nonReceptionnes)) {
             $message = " il y des quantités non réceptionné sur la commande a fait objet d'une demande de paiement à l'avance (non refusé) ";
             $okey = false;
+        } elseif ($dto->typeDdp === 'regul' && $dto->totalMontantPayer > 0) {
+            $message = " Pour la régularisation, il faut que le montant à payer soit égal à 0 ";
+            $okey = false;
         }
 
         if (!$okey) $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn');

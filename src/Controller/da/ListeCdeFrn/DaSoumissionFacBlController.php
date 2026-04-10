@@ -79,7 +79,10 @@ class DaSoumissionFacBlController extends Controller
             /** @var DaSoumissionFacBlDto $dto */
             $dto = $form->getData();
 
-            if ($dto->montantAregulariser === 0 || $dto->typeDdp === 'ddpl') {
+            if ($dto->typeDdp === 'regul') {
+                $traitementSoumissionDDPLService = new TraitementSoumissionDDPLService($this->getEntityManager());
+                $sucess = $traitementSoumissionDDPLService->traitementSoumissionDDPL($form, $dto);
+            } elseif ($dto->typeDdp === 'ddpl') {
                 $traitementSoumissionDDPLService = new TraitementSoumissionDDPLService($this->getEntityManager());
                 $sucess = $traitementSoumissionDDPLService->traitementSoumissionDDPL($form, $dto);
             } elseif ($dto->typeDdp === 'bap') {
