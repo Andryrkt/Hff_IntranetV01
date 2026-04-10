@@ -42,10 +42,10 @@
 					<th class="text-center">Facture BL</th>
 					<th class="text-center">Statut</th>
 					<th class="text-center">Transmise le</th>
-					<th class="text-center">Date Statut</th>
-					<th class="text-center">Date réception IPS</th>
-					<th class="text-center">Montant des réceptions IPS</th>
-					<th class="text-center">Montant Facture bl</th>
+					{# <th class="text-center">Date Statut</th> #}
+					{# <th class="text-center">Date réception IPS</th> #}
+					{# <th class="text-center">Montant des réceptions IPS</th> #}
+						<th class="text-center"> Montant Facture bl</th>
 				</tr>
 			</thead>
 			<tbody id="tableBody" class="align-middle">
@@ -74,10 +74,10 @@
 						<td class="text-center">{{ row.refBlFac }}</td>
 						<td class="text-center fw-bold {{ row.statutCssClass }}">{{ row.statutBap }}</td>
 						<td class="text-center">{{ row.dateSoumissionCompta ? row.dateSoumissionCompta | date('d/m/Y'):null }}</td>
-						<td class="text-center">{{ row.dateStatutBap ? row.dateStatutBap | date('d/m/Y'):null }}</td>
-						<td class="text-center">{{ row.dateReceptionIPS ? row.dateReceptionIPS | date('d/m/Y'):null }}</td>
-						<td class="text-center">{{ row.montantReceptionIps|number_format(2,',', '.') }}</td>
-						<td class="text-center">{{ row.montantBlFacture|number_format(2,',', '.') }}</td>
+						{# <td class="text-center">{{ row.dateStatutBap ? row.dateStatutBap | date('d/m/Y'):null }}</td> #}
+						{# <td class="text-center">{{ row.dateReceptionIPS ? row.dateReceptionIPS | date('d/m/Y'):null }}</td> #}
+						{# <td class="text-center">{{ row.montantReceptionIps|number_format(2,',', '.') }}</td> #}
+							<td class="text-center"> {{ row.montantBlFacture|number_format(2,',', '.') }}</td>
 					</tr>
 				{% endfor %}
 			</tbody>

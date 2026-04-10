@@ -495,8 +495,6 @@ document.addEventListener("DOMContentLoaded", function () {
               <td>${item.type}</td>
               <td>${item.motif}</td>
               <td>${item.montant_ht}</td>
-              <td>-</td>
-              <td>-</td>
               <td>${item.statut}</td></tr>`,
             )
             .join("");
