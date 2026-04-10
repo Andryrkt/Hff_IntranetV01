@@ -9,6 +9,7 @@ use App\Controller\Traits\da\MarkupIconTrait;
 use App\Dto\Da\DaAfficherDto;
 use App\Entity\da\DaAfficher;
 use App\Entity\da\DemandeAppro;
+use App\Model\da\DaSoumissionFacBlModel;
 use App\Service\da\PermissionDaService;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Twig\Markup;
@@ -275,6 +276,17 @@ class DaAfficherMapper
             "data-bs-target" => "#ddpCloture",
             "data-numero-cde" => $dto->numeroCde,
             "data-numero-da" => $dto->numeroDemandeAppro,
+            "data-montant-commande" => $this->getTotalMontantCommande($dto->numeroCde),
         ];
+    }
+
+    /** DDPL */
+    private function getTotalMontantCommande($numCde): float
+    {
+        $daSoumissionFacBlModel = new DaSoumissionFacBlModel();
+        $totalMontantCommande = $daSoumissionFacBlModel->getTotalMontantCommande((int)$numCde);
+        if ($totalMontantCommande) return (float)$totalMontantCommande[0];
+
+        return 0;
     }
 }

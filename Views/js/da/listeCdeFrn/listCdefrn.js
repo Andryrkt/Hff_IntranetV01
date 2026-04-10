@@ -467,6 +467,9 @@ document.addEventListener("DOMContentLoaded", function () {
       // Récupérer les données depuis les attributs data-* du lien
       const numeroCde = button.getAttribute("data-numero-cde");
       const numeroDa = button.getAttribute("data-numero-da");
+      const montantCommande = button.getAttribute("data-montant-commande");
+      console.log(montantCommande);
+
 
       // Récupérer les données pour remplir le corps du tableau modal
       const modalBody = modalDdpCloture.querySelector("#statutClotureBody");
