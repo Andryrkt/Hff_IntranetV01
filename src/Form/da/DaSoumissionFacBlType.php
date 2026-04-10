@@ -27,6 +27,7 @@ class DaSoumissionFacBlType extends AbstractType
                     'Ne pas générer une demande de paiement' => 'aucun',
                     'BAP (Bon a Payer)' => 'bap',
                     'DDPL (Demande De Paiement après Livraison)' => 'ddpl',
+                    'Régularisation' => 'regul'
                 ],
                 'placeholder' => false,
                 'label' => "Veuillez choisir le type de traitement de <strong>paiement</strong> pour cette facture",
