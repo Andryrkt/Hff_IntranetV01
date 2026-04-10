@@ -257,7 +257,7 @@ class DaSoumissionFacBlFactory
         $ratioTotalPayer = ($totalMontantPayer / $dto->totalMontantCommande) * 100;
         $montantAregulariser = $dto->totalMontantCommande - $totalMontantPayer;
         $ratioMontantARegul = ($montantAregulariser /  $dto->totalMontantCommande) * 100;
-
+        $dto->totalMontantPayer = $totalMontantPayer;
         $dto = DaSoumissionFacBlMapper::mapTotalPayer($dto, $totalMontantPayer, $ratioTotalPayer, $montantAregulariser, $ratioMontantARegul);
 
         return $dto;
@@ -296,7 +296,7 @@ class DaSoumissionFacBlFactory
         }
 
         $dto->debiteur = $this->debiteur($infoDa['daTypeId'], $infoDa);
-        $dto->typeDemande = $dto->montantAregulariser === 0 ? $typeRegule : $typeApresLivraison;
+        $dto->typeDemande = $dto->totalMontantPayer <= 0 ? $typeRegule : $typeApresLivraison;
         $dto->statut = 'Soumis à validation';
         $dto->demandeur = $user->getNomUtilisateur();
         $dto->adresseMailDemandeur = $user->getMail();

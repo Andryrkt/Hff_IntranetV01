@@ -405,17 +405,23 @@ class DemandePaiementModel extends Model
 
     public function getInfoDdpDa(string $numeroDa, string $numeroCde)
     {
+        $numeroCde = "[$numeroCde]";
         $sql = " SELECT  
+            FORMAT(dp.date_creation, 'dd/MM/yyyy HH:mm:ss') as date_soumission,
             case 
                 when dsfb.numero_bap is null then dp.numero_demande_paiement
                 else dsfb.numero_bap
             end as numero,
-            FORMAT(dp.date_creation, 'dd/MM/yyyy HH:mm:ss') as date_soumission,
+            td.libelle_type_demande as type,
+            dp.motif,
+            dp.montant_a_payer as montant_ht,
             dp.statut 
             from demande_paiement dp 
             left join da_soumission_facture_bl dsfb 
             on dsfb.numero_demande_paiement = dp.numero_demande_paiement
+            left join type_demande td ON td.id = dp.type_demande_id 
             where dp.numero_demande_appro ='{$numeroDa}'
+            and dp.numero_commande = '{$numeroCde}'
             order by dp.date_creation  desc
         ";
         $resultStmt = $this->connexion->query($sql);

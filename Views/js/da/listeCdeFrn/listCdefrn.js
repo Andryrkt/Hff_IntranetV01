@@ -467,6 +467,9 @@ document.addEventListener("DOMContentLoaded", function () {
       // Récupérer les données depuis les attributs data-* du lien
       const numeroCde = button.getAttribute("data-numero-cde");
       const numeroDa = button.getAttribute("data-numero-da");
+      const montantCommande = button.getAttribute("data-montant-commande");
+      console.log(montantCommande);
+
 
       // Récupérer les données pour remplir le corps du tableau modal
       const modalBody = modalDdpCloture.querySelector("#statutClotureBody");
@@ -482,12 +485,17 @@ document.addEventListener("DOMContentLoaded", function () {
       fetchManager
         .get(`ddp/api/statut-cloture/${numeroDa}/${numeroCde}`)
         .then((data) => {
-          console.log(data);
 
           modalBody.innerHTML = data
             .map(
               (item) =>
-                `<tr><td>${item.numero}</td><td>${item.date_soumission}</td><td>${item.statut}</td></tr>`,
+                `<tr>
+              <td>${item.numero}</td>
+              <td>${item.date_soumission}</td>
+              <td>${item.type}</td>
+              <td>${item.motif}</td>
+              <td>${item.montant_ht}</td>
+              <td>${item.statut}</td></tr>`,
             )
             .join("");
         });

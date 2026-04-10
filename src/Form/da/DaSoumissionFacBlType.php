@@ -27,6 +27,7 @@ class DaSoumissionFacBlType extends AbstractType
                     'Ne pas générer une demande de paiement' => 'aucun',
                     'BAP (Bon a Payer)' => 'bap',
                     'DDPL (Demande De Paiement après Livraison)' => 'ddpl',
+                    'Régularisation' => 'regul'
                 ],
                 'placeholder' => false,
                 'label' => "Veuillez choisir le type de traitement de <strong>paiement</strong> pour cette facture",
@@ -61,8 +62,10 @@ class DaSoumissionFacBlType extends AbstractType
             ])
             ->add('montantBlFacture', TextType::class, [
                 'label' => 'Montant HT du BL facture fournisseur (*)',
-                'required' => true,
-                'attr' => ['data-field-name' => 'du Montant HT du BL facture fournisseur']
+                'required' => $options['data']->totalMontantPayer === 0 ? false : true,
+                'attr' => ['data-field-name' => 'du Montant HT du BL facture fournisseur'],
+                'data' => 0,
+                'disabled' => $options['data']->totalMontantPayer === 0 ? true : false,
             ])
             ->add(
                 'pieceJoint1',
