@@ -10,8 +10,8 @@ use App\Mapper\Da\ListCdeFrn\DaSoumissionFacBlMapper;
 use App\Mapper\ddp\DemandePaiementMapper;
 use App\Repository\da\DaAfficherRepository;
 use App\Service\fichier\TraitementDeFichier;
+use App\Service\genererPdf\ddp\GeneratePdfDdpDa;
 use App\Service\genererPdf\GeneratePdf;
-use App\Service\genererPdf\GeneratePdfDdp;
 use App\Service\historiqueOperation\HistoriqueOperationDaFacBlService;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
@@ -28,7 +28,7 @@ class TraitementSoumissionDDPLService
     private HistoriqueOperationDaFacBlService $historiqueOperation;
     private DaAfficherRepository $daAfficherRepository;
     private DaSoumissionFacBlMapper $daSoumissionfacBlMapper;
-    private GeneratePdfDdp $generatePdfDdp;
+    private GeneratePdfDdpDa $generatePdfDdp;
     private GeneratePdf $generatePdf;
     private EntityManagerInterface $entityManager;
 
@@ -43,7 +43,7 @@ class TraitementSoumissionDDPLService
         $this->historiqueOperation            = new HistoriqueOperationDaFacBlService($this->entityManager);
         $this->daAfficherRepository           = $this->entityManager->getRepository(DaAfficher::class);
         $this->daSoumissionfacBlMapper        = new DaSoumissionFacBlMapper();
-        $this->generatePdfDdp                 = new GeneratePdfDdp();
+        $this->generatePdfDdp                 = new GeneratePdfDdpDa();
         $this->generatePdf                    = new GeneratePdf();
     }
 
@@ -88,7 +88,7 @@ class TraitementSoumissionDDPLService
         // GENERATION DE PDF pour le demnade de paiement
         $nomPageDeGarde = $dto->numeroDdp . '.pdf';
         $cheminEtNom = $this->cheminDeBaseDdp . '/' . $dto->numeroDdp . '_New_1/' . $nomPageDeGarde;
-        $this->generatePdfDdp->genererPdfDto($dto, $cheminEtNom);
+        $this->generatePdfDdp->generer($dto, $cheminEtNom);
 
         // fusion du page de garde du demande de paiement et le facture Bl
         $pdfAFusionner = [$cheminEtNom, $nomAvecCheminPdfFusionner];
