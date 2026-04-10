@@ -101,7 +101,7 @@ class ContratController extends Controller
 
         // Options pour le repository (toujours initialiser avec une valeur par défaut)
         $options = [
-            'admin' => in_array(1, $this->getUser()->getRoleIds())
+            'admin' => $this->estAdmin()
         ];
 
         // Si le formulaire est soumis, traiter les données (tous les champs sont optionnels)
