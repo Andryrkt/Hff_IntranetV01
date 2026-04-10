@@ -76,7 +76,7 @@
 				<div class="row">
 					<div class="col-12 col-md-2">{{ form_row(form.devise)}}</div>
 
-					<div class="col-12 col-md-10">{{ form_row(form.motif)}}</div>
+					<div class="col-12 col-md-10">{{ form_row(form.motif, {'attr': {'oninput': 'this.value = this.value.toUpperCase()'}}) }}</div>
 				</div>
 				<div class="row">
 					<div class="col-12 col-md-4">
