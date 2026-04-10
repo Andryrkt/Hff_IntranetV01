@@ -11,6 +11,7 @@ use App\Entity\da\DemandeAppro;
 use App\Entity\dw\DwBcAppro;
 use App\Factory\da\CdeFrnDto\DaSoumissionFacBlFactory;
 use App\Mapper\Da\ListCdeFrn\DaSoumissionFacBlMapper;
+use App\Mapper\ddp\DemandePaiementMapper;
 use App\Model\da\DaSoumissionFacBlModel;
 use App\Model\dit\DitModel;
 use App\Repository\da\DaSoumissionFacBlRepository;
@@ -79,6 +80,10 @@ class TraitementSoumissionBAPService
 
             $dto->numeroBap = $this->daSoumissionFacBlFactory->genererNumeroBap();
 
+            if (empty($dto->numeroDdp)) {
+                $dto->numeroDdp = $this->daSoumissionFacBlFactory->genererNumeroDdp();
+            }
+
             // Traitement du fichier
             [$nomAvecCheminPdfFusionner, $nomPdfFusionner] = $this->traitementDeFichier($form, $dto, $mail);
 
@@ -94,6 +99,12 @@ class TraitementSoumissionBAPService
 
             /** MODIFICATION DA AFFICHER */
             $this->modificationDaAfficher($numDa, $numCde, $numLiv);
+
+            // enregisstrement dans la table demande de paiement
+            $ddp = DemandePaiementMapper::mapBap($dto);
+            $this->entityManager->persist($ddp);
+            $this->entityManager->flush();
+
 
             $sucess = true;
         }

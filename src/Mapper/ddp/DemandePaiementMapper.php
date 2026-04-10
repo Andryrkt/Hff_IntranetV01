@@ -2,6 +2,7 @@
 
 namespace App\Mapper\ddp;
 
+use App\Constants\da\ddp\BonApayerConstants;
 use App\Dto\ddp\DemandePaiementDto;
 use App\Entity\ddp\DemandePaiement;
 use App\Constants\ddp\StatutConstants;
@@ -50,6 +51,42 @@ class DemandePaiementMapper
 
         return $ddp;
     }
+
+    public static function mapBap($dto): DemandePaiement
+    {
+        $ddp = new DemandePaiement();
+        $ddp
+            ->setNumeroDdp($dto->numeroDdp)
+            ->setTypeDemandeId($dto->typeDemande)
+            ->setNumeroFournisseur($dto->numeroFournisseur)
+            ->setRibFournisseur($dto->ribFournisseur)
+            ->setBeneficiaire($dto->beneficiaire)
+            ->setMotif("Bon a payer {$dto->numeroFournisseur} - {$dto->numeroFactureFournisseur}")
+            ->setAgenceDebiter($dto->debiteur['agence']->getCodeAgence())
+            ->setServiceDebiter($dto->debiteur['service']->getCodeService())
+            ->setStatut(BonApayerConstants::STATUT_A_TRANSMETTERE)
+            ->setAdresseMailDemandeur($dto->adresseMailDemandeur)
+            ->setDemandeur($dto->demandeur)
+            ->setModePaiement($dto->modePaiement)
+            ->setMontantAPayers($dto->montantAPayer)
+            ->setContact(Null)
+            ->setNumeroCommande($dto->numeroCommande)
+            ->setNumeroFacture($dto->numeroFacture)
+            ->setStatutDossierRegul(Null)
+            ->setNumeroVersion(1)
+            ->setDevise($dto->devise)
+            ->setEstAutreDoc(false)
+            ->setNomAutreDoc(Null)
+            ->setEstCdeClientExterneDoc(false)
+            ->setNomCdeClientExterneDoc(Null)
+            ->setNumeroDossierDouane(Null)
+            ->setAppro(true)
+            ->setNumeroDemandeAppro($dto->numeroDemandeAppro ?? null)
+            ->setNumeroSoumissionDdpDa($dto->numeroSoumissionDdpDa ?? null)
+        ;
+        return $ddp;
+    }
+
 
     public static function mapUpdate(DemandePaiementDto $dto, DemandePaiement $ddp): DemandePaiement
     {

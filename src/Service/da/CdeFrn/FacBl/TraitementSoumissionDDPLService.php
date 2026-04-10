@@ -54,6 +54,10 @@ class TraitementSoumissionDDPLService
             $numCde  = $dto->numeroCde;
             $numDa   = $dto->numeroDemandeAppro;
 
+            if (empty($dto->numeroDdp)) {
+                $dto->numeroDdp = $this->daSoumissionFacBlFactory->genererNumeroDdp();
+            }
+
             // Traitement du fichier
             [$nomAvecCheminPdfFusionner, $nomPdfFusionner] = $this->traitementDeFichier($form, $dto);
 

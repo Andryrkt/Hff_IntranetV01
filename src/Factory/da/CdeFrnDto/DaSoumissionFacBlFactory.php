@@ -295,7 +295,6 @@ class DaSoumissionFacBlFactory
             $dto->devise = $infoFournisseur[0]['devise'];
         }
 
-        $dto->numeroDdp = $this->numeroDdp();
         $dto->debiteur = $this->debiteur($infoDa['daTypeId'], $infoDa);
         $dto->typeDemande = $dto->montantAregulariser === 0 ? $typeRegule : $typeApresLivraison;
         $dto->statut = 'Soumis à validation';
@@ -310,7 +309,7 @@ class DaSoumissionFacBlFactory
         $dto->numeroSoumissionDdpDa = $numeroSoumissionDdpDa;
     }
 
-    private function numeroDdp(): string
+    public function genererNumeroDdp(): string
     {
         //recupereation de l'application DDP pour generer le numero de ddp
         $application = $this->em->getRepository(Application::class)->findOneBy(['codeApp' => 'DDP']);
