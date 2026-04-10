@@ -147,6 +147,9 @@ class TraitementSoumissionBAPService
         elseif ($mttFacFormate !== (float) $infoLivraison['montant_fac_bl']) {
             $message = "Le montant de la facture <b>{$mttFac}</b> ne correspond pas au montant de la livraison dans IPS. Merci de vérifier le montant de la facture avant de le soumettre dans DocuWare.";
             $okey = false;
+        } elseif ($dto->typeDdp !== 'regul' && $dto->totalMontantPayer <= 0) {
+            $message = " le type de traitement de paiement doit être régularisation car le montant à payer est égal à 0 ";
+            $okey = false;
         }
 
         if (!$okey) $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn');
