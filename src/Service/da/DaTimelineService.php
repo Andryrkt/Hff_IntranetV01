@@ -57,7 +57,7 @@ class DaTimelineService
                 )
             );
             $timelineDa[array_key_last($timelineDa)]['nbrJours'] = $nbrJours;
-            $timelineDa[] = $this->createCurrentDateEntry(new \DateTime());
+            $timelineDa[] = $this->createCurrentDateEntry();
         }
 
         return [
@@ -75,6 +75,7 @@ class DaTimelineService
             if ($key === 0 && $data['statutDal'] !== StatutDaConstant::STATUT_SOUMIS_APPRO) {
                 $tabTemp[] = $this->createTimelineEntry(
                     StatutDaConstant::STATUT_SOUMIS_APPRO,
+                    null,
                     $data['dateDemande']
                 );
             }
@@ -85,7 +86,7 @@ class DaTimelineService
             // Ajouter ou mettre à jour le statut
             $lastIndex = count($tabTemp) - 1;
             if ($lastIndex < 0 || $tabTemp[$lastIndex]['statut'] !== $statutFinal) {
-                $tabTemp[] = $this->createTimelineEntry($statutFinal, $data['dateCreation']);
+                $tabTemp[] = $this->createTimelineEntry($statutFinal, $data['dateCreation'], $data['dateDemande']);
             } else {
                 // Mettre à jour avec la date la plus récente
                 $tabTemp[$lastIndex]['date'] = $data['dateCreation'];
@@ -192,17 +193,17 @@ class DaTimelineService
         return $estDaValide ? StatutDaConstant::STATUT_VALIDE : $statutDal;
     }
 
-    private function createTimelineEntry(string $statut, \DateTime $date): array
+    private function createTimelineEntry(string $statut, ?\DateTime $date, ?\DateTime $dateDemande): array
     {
         return [
             'statut'   => $statut,
             'dotClass' => $this->styleStatutDA[$statut],
-            'date'     => $date,
+            'date'     => $statut === DemandeAppro::STATUT_SOUMIS_APPRO ? $dateDemande : $date,
             'nbrJours' => 0,
         ];
     }
 
-    private function createCurrentDateEntry(\DateTime $today): array
+    private function createCurrentDateEntry(): array
     {
         return [
             'statut'   => '',

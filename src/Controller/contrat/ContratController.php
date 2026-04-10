@@ -2,10 +2,13 @@
 
 namespace App\Controller\contrat;
 
+use App\Constants\dw\DwConstant;
 use App\Controller\Controller;
 use App\Entity\contrat\Contrat;
 use App\Form\contrat\ContratType;
 use App\Controller\Traits\contrat\ContratListeTrait;
+use App\Entity\dw\DwContrat;
+use Doctrine\ORM\EntityNotFoundException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -24,17 +27,14 @@ class ContratController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        /** Autorisation accès */
-        //$this->checkPageAccess($this->estAdmin());
-
         return $this->render("dwForm/dwForm.html.twig", [
-            'url'       => "https://hffc.docuware.cloud/docuware/formsweb/enregistrement-contrats?orgID=5adf2517-2f77-4e19-8b42-9c3da43af7be",
+            'url'       => DwConstant::LINK["contrat"],
             'pageTitle' => "Nouveau contrat",
             'bgColor'   => "bg-bleu-hff",
             'height'    => 1300,
         ]);
     }
-    
+
     /**
      * Affiche la liste des contrats
      * @Route("/consultation", name="contrat_liste")
@@ -204,6 +204,11 @@ class ContratController extends Controller
                 $serviceLibelleComplet = $serviceEntity->getCodeService() . '-' . $serviceEntity->getLibelleService();
             }
 
+            $dataPath = $this->getEntityManager()
+                ->getRepository(DwContrat::class)
+                ->getPathByRefContrat($contrat->getReference());
+
+
             $data[] = [
                 'id' => $contrat->getId(),
                 'reference' => $contrat->getReference(),
@@ -218,7 +223,7 @@ class ContratController extends Controller
                 'type_tiers' => $contrat->getTypeTiers(),
                 'date_debut_contrat' => $contrat->getDateDebutContrat(),
                 'date_fin_contrat' => $contrat->getDateFinContrat(),
-                'piece_jointe' => $contrat->getPieceJointe(),
+                'piece_jointe' => $dataPath ? rtrim($_ENV['BASE_PATH_FICHIER_COURT'], '/') . '/' . $dataPath['path'] : null,
             ];
         }
 
@@ -270,7 +275,7 @@ class ContratController extends Controller
         $contrat = $this->getEntityManager()->getRepository(Contrat::class)->findWithDetails($id);
 
         if (!$contrat) {
-            throw $this->createNotFoundException('Contrat non trouvé');
+            throw new EntityNotFoundException('Contrat non trouvé');
         }
 
         return $this->render('contrat/contrat_show.html.twig', [

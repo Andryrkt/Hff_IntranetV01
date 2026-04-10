@@ -279,7 +279,7 @@ class DitFactureSoumisAValidationController extends Controller
 
         $infoFacture = $ditFactureSoumiAValidationModel->recupInfoFact($dataForm->getNumeroOR(), $ditFactureSoumiAValidation->getNumeroFact());
 
-        if ($infoFacture[0]['typeOr'] === 210 && $user->getCodeAgenceUser() === '60') {
+        if ($infoFacture[0]['typeor'] === 210 && $user->getCodeAgenceUser() === '60') {
             return false;
         }
 

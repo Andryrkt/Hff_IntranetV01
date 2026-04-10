@@ -1,104 +1,99 @@
 {# Views/templates/contrat/_list_content.html.twig #}
 
 <div class="container-fluid">
-    {% if data is empty %}
-        <div class="text-center py-5">
-            <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
-            <h5 class="text-muted">Aucun contrat trouvé</h5>
-            <p class="text-muted">Essayez de modifier vos critères de recherche</p>
-        </div>
-    {% else %}
-        <table class="table rounded table-plein-ecran">
-            <thead class="table-dark">
-                <tr>
-                    <th>Référence</th>
-                    <th>Objet</th>
-                    <th>Date d'enregistrement</th>
-                    <th>Statut</th>
-                    <th>Agence</th>
-                    <th>Service</th>
-                    <th>Partenaire</th>
-                    <th>Type tiers</th>
-                    <th>Début</th>
-                    <th>Fin</th>
-                    <th>PJ</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in data %}
-                {% set classeStatut = '' %}
+	{% if data is empty %}
+		<div class="text-center py-5">
+			<i class="fas fa-inbox fa-4x text-muted mb-3"></i>
+			<h5 class="text-muted">Aucun contrat trouvé</h5>
+			<p class="text-muted">Essayez de modifier vos critères de recherche</p>
+		</div>
+	{% else %}
+		<table class="table rounded table-plein-ecran">
+			<thead class="table-dark">
+				<tr>
+					<th>Référence</th>
+					<th>Objet</th>
+					<th>Date d'enregistrement</th>
+					<th>Statut</th>
+					<th>Agence</th>
+					<th>Service</th>
+					<th>Partenaire</th>
+					<th>Type tiers</th>
+					<th>Début</th>
+					<th>Fin</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for item in data %}
+					{% set classeStatut = '' %}
 
-                {% if item.statut == 'en_cours' %}
-                {% set classeStatut = 'bg-success' %}
-                {% elseif item.statut == 'en_attente' %}
-                {% set classeStatut = 'bg-warning' %}
-                {% elseif item.statut == 'expire' or item.statut == 'resilie' %}
-                {% set classeStatut = 'bg-danger' %}
-                {% elseif item.statut == 'archive' %}
-                {% set classeStatut = 'bg-info' %}
-                {% else %}
-                {% set classeStatut = 'bg-secondary' %}
-                {% endif %}
+					{% if item.statut == 'en_cours' %}
+						{% set classeStatut = 'bg-success' %}
+					{% elseif item.statut == 'en_attente' %}
+						{% set classeStatut = 'bg-warning' %}
+					{% elseif item.statut == 'expire' or item.statut == 'resilie' %}
+						{% set classeStatut = 'bg-danger' %}
+					{% elseif item.statut == 'archive' %}
+						{% set classeStatut = 'bg-info' %}
+					{% else %}
+						{% set classeStatut = 'bg-secondary' %}
+					{% endif %}
 
-                <tr class="contrat-row" data-id="{{ item.id }}">
-                    <td>
-                        <strong>{{ item.reference }}</strong>
-                    </td>
-                    <td>{{ item.objet|default('-') }}</td>
-                    <td>
-                        {% if item.date_enregistrement %}
-                            {{ item.date_enregistrement|date('d/m/Y') }}
-                        {% else %}
-                            <span class="text-muted">-</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if item.statut == 'en_cours' %}En cours
-                        {% elseif item.statut == 'en_attente' %}En attente
-                        {% elseif item.statut == 'expire' %}Expiré
-                        {% elseif item.statut == 'resilie' %}Résilié
-                        {% elseif item.statut == 'archive' %}Archivé
-                        {% else %}{{ item.statut|default('-') }}
-                        {% endif %}
-                    </td>
-                    <td>{{ item.agence }}</td>
-                    <td>{{ item.service }}</td>
-                    <td>{{ item.nom_partenaire|default('-') }}</td>
-                    <td>
-                        {% if item.type_tiers %}
-                            {{ item.type_tiers|upper }}
-                        {% else %}
-                            <span class="text-muted">-</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if item.date_debut_contrat %}
-                            {{ item.date_debut_contrat|date('d/m/Y') }}
-                        {% else %}
-                            <span class="text-muted">-</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if item.date_fin_contrat %}
-                            {{ item.date_fin_contrat|date('d/m/Y') }}
-                        {% else %}
-                            <span class="text-muted">-</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if item.piece_jointe %}
-                            <a href="{{ App.base_path_fichier }}/contrats/{{ item.piece_jointe }}"
-                               target="_blank"
-                               class="btn btn-sm btn-info">
-                                <i class="fas fa-download"></i>
-                            </a>
-                        {% else %}
-                            <span class="text-muted">-</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% endif %}
+					<tr class="contrat-row" data-id="{{ item.id }}">
+						<td>
+							{% if item.piece_jointe %}
+								<a href="{{ item.piece_jointe }}" target="_blank" class="fw-bold">
+									{{ item.reference }}
+								</a>
+							{% else %}
+								<strong>{{ item.reference }}</strong>
+							{% endif %}
+						</td>
+						<td>{{ item.objet|default('-') }}</td>
+						<td>
+							{% if item.date_enregistrement %}
+								{{ item.date_enregistrement|date('d/m/Y') }}
+							{% else %}
+								<span class="text-muted">-</span>
+							{% endif %}
+						</td>
+						<td>
+							{% if item.statut == 'en_cours' %}En cours
+								{% elseif item.statut == 'en_attente' %}En attente
+								{% elseif item.statut == 'expire' %}Expiré
+								{% elseif item.statut == 'resilie' %}Résilié
+								{% elseif item.statut == 'archive' %}Archivé
+							{% else %}
+								{{ item.statut|default('-') }}
+							{% endif %}
+						</td>
+						<td>{{ item.agence }}</td>
+						<td>{{ item.service }}</td>
+						<td>{{ item.nom_partenaire|default('-') }}</td>
+						<td>
+							{% if item.type_tiers %}
+								{{ item.type_tiers|upper }}
+							{% else %}
+								<span class="text-muted">-</span>
+							{% endif %}
+						</td>
+						<td>
+							{% if item.date_debut_contrat %}
+								{{ item.date_debut_contrat|date('d/m/Y') }}
+							{% else %}
+								<span class="text-muted">-</span>
+							{% endif %}
+						</td>
+						<td>
+							{% if item.date_fin_contrat %}
+								{{ item.date_fin_contrat|date('d/m/Y') }}
+							{% else %}
+								<span class="text-muted">-</span>
+							{% endif %}
+						</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	{% endif %}
 </div>
