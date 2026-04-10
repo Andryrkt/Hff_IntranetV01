@@ -405,6 +405,7 @@ class DemandePaiementModel extends Model
 
     public function getInfoDdpDa(string $numeroDa, string $numeroCde)
     {
+        $numeroCde = "[$numeroCde]";
         $sql = " SELECT  
             case 
                 when dsfb.numero_bap is null then dp.numero_demande_paiement
@@ -416,6 +417,7 @@ class DemandePaiementModel extends Model
             left join da_soumission_facture_bl dsfb 
             on dsfb.numero_demande_paiement = dp.numero_demande_paiement
             where dp.numero_demande_appro ='{$numeroDa}'
+            and dp.numero_commande = '{$numeroCde}'
             order by dp.date_creation  desc
         ";
         $resultStmt = $this->connexion->query($sql);
