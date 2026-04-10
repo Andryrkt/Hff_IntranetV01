@@ -53,18 +53,4 @@ class DdpaDaService
             $this->em->flush();
         }
     }
-
-    public function modificationDemandePaiement(DemandePaiementDto $dto)
-    {
-        $demandePaiementRepository = $this->em->getRepository(DemandePaiement::class);
-        $demandePaiement = $demandePaiementRepository->findOneBy(['numeroDdp' => $dto->numeroDdp]);
-        if ($demandePaiement) {
-            $demandePaiement->setDeposerDw(true)
-                ->setDateDeposerDw(new \DateTime())
-            ;
-
-            $this->em->persist($demandePaiement);
-            $this->em->flush();
-        }
-    }
 }

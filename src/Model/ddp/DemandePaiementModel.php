@@ -410,12 +410,12 @@ class DemandePaiementModel extends Model
                 when dsfb.numero_bap is null then dp.numero_demande_paiement
                 else dsfb.numero_bap
             end as numero,
-            FORMAT(dp.date_creation, 'dd/MM/yyyy') as date_soumission,
+            FORMAT(dp.date_creation, 'dd/MM/yyyy HH:mm:ss') as date_soumission,
             dp.statut 
             from demande_paiement dp 
             left join da_soumission_facture_bl dsfb 
             on dsfb.numero_demande_paiement = dp.numero_demande_paiement
-            where dp.numero_demande_appro ='DAPD26039984'
+            where dp.numero_demande_appro ='{$numeroDa}'
             order by dp.date_creation  desc
         ";
         $resultStmt = $this->connexion->query($sql);

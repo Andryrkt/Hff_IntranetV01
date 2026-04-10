@@ -2,31 +2,32 @@
 
 namespace App\Controller\ddp;
 
+use App\Constants\ddp\TypeDemandePaiementConstants;
 use App\Controller\Controller;
-use App\Entity\admin\Application;
-use App\Entity\da\DaSoumissionBc;
+use App\Controller\Traits\AutorisationTrait;
+use App\Controller\Traits\PdfConversionTrait;
 use App\Dto\ddp\DemandePaiementDto;
+use App\Entity\admin\Application;
+use App\Entity\da\DaAfficher;
+use App\Entity\da\DaSoumissionBc;
+use App\Entity\ddp\DemandePaiement;
+use App\Factory\ddp\DemandePaiementFactory;
 use App\Form\ddp\DemandePaiementDaType;
 use App\Model\ddp\DemandePaiementModel;
+use App\Service\ddp\DdpaDaService;
+use App\Service\ddp\DdpGeneratorNameService;
+use App\Service\ddp\DemandePaiementLigneService;
+use App\Service\ddp\DemandePaiementService;
+use App\Service\ddp\DocDemandePaiementService;
+use App\Service\fichier\TraitementDeFichier;
+use App\Service\fichier\UploderFileService;
+use App\Service\genererPdf\ddp\GeneratePdfDdpDa;
 use App\Service\genererPdf\GeneratePdf;
+use App\Service\historiqueOperation\HistoriqueOperationDDPService;
 use App\Service\TableauEnStringService;
 use Symfony\Component\Form\FormInterface;
-use App\Factory\ddp\DemandePaiementFactory;
-use App\Service\ddp\DemandePaiementService;
-use App\Service\fichier\UploderFileService;
-use App\Controller\Traits\AutorisationTrait;
-use App\Service\ddp\DdpGeneratorNameService;
-use App\Service\fichier\TraitementDeFichier;
-use App\Controller\Traits\PdfConversionTrait;
 use Symfony\Component\HttpFoundation\Request;
-use App\Service\ddp\DocDemandePaiementService;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Service\ddp\DemandePaiementLigneService;
-use App\Service\genererPdf\ddp\GeneratePdfDdpDa;
-use App\Constants\ddp\TypeDemandePaiementConstants;
-use App\Entity\da\DaAfficher;
-use App\Service\ddp\DdpaDaService;
-use App\Service\historiqueOperation\HistoriqueOperationDDPService;
 
 /**
  * @Route("/compta/demande-de-paiement")
@@ -97,7 +98,8 @@ class DemandePaiementDaController extends Controller
                 $ddpaDaService->modificationtableDaSoumissionBc($dto);
                 $ddpaDaService->copieDwDdpaDa($dto);
                 $ddpaDaService->modificationDaAfficher($dto);
-                $ddpaDaService->modificationDemandePaiement($dto);
+            } else {
+                $this->modificationDemandePaiement($dto);
             }
             /** HISTORISATION */
             $message = "Le document a été généré avec succès";
@@ -105,6 +107,25 @@ class DemandePaiementDaController extends Controller
             $nomDeRoute = 'da_list_cde_frn'; // route de redirection après soumission
             $nomInputSearch = 'cde_frn_list'; // initialistion de nom de chaque champ ou input
             $this->historiqueOperation->sendNotificationSoumission($message, $dto->numeroDdp, $nomDeRoute, true, $criteria, $nomInputSearch);
+        }
+    }
+
+    /**
+     * modification du colonne deposer_dw et date_deposer_dw dans
+     * la table demande_paiement
+     */
+    private function modificationDemandePaiement(DemandePaiementDto $dto)
+    {
+        $demandePaiementRepository = $this->getEntityManager()->getRepository(DemandePaiement::class);
+        $demandePaiement = $demandePaiementRepository->findOneBy(['numeroDdp' => $dto->numeroDdp]);
+
+        if ($demandePaiement) {
+            $demandePaiement->setDeposerDw(true)
+                ->setDateDepotDw(new \DateTime())
+            ;
+
+            $this->getEntityManager()->persist($demandePaiement);
+            $this->getEntityManager()->flush();
         }
     }
 
@@ -169,7 +190,9 @@ class DemandePaiementDaController extends Controller
         $this->docDemandePaiementService->copieFichierChoisi($dto);
         $this->fusionDesPdf($nomEtCheminFichiersEnregistrer, $fichierChoisiAvecChemins, $nomAvecCheminFichier);
         // COPIE VERS DOCUWARE
-        $generatePdf->copyToDw($nomAvecCheminFichier, $nomFichier);
+        if (!$dto->ddpaDa) {
+            $generatePdf->copyToDw($nomAvecCheminFichier, $nomFichier);
+        }
 
         return $nomFichier;
     }
