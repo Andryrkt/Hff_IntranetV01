@@ -200,7 +200,7 @@ $menuService = $container->get('menu.service');
 /** @var SecurityService $securityService */
 $securityService = $container->get('security.service');
 
-/** @var \Symfony\Component\Cache\Adapter\TagAwareAdapterInterface $cacheMenu */
+/** @var \Symfony\Contracts\Cache\TagAwareCacheInterface $cacheMenu */
 $cacheMenu = $container->get('cache.menu');
 
 $twig->addExtension(new \Twig\Extension\DebugExtension());
