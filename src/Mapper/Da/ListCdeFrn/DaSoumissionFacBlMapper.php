@@ -60,6 +60,7 @@ class DaSoumissionFacBlMapper
             ->setNumeroFactureFournisseur($dto->numeroFactureFournisseur)
             ->setEstFactureReappro($dto->estfactureReappro)
             ->setNumeroFactureReappro($dto->numerofactureReappro)
+            ->setNumeroDemandePaiement($dto->numeroDdp)
         ;
 
         return $daSoumissionFacBl;

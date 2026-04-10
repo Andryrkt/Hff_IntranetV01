@@ -91,6 +91,10 @@ class DaSoumissionFacBlDdpaController extends Controller
                 $numCde  = $dto->numeroCde;
                 $numDa   = $dto->numeroDemandeAppro;
 
+                if (empty($dto->numeroDdp)) {
+                    $dto->numeroDdp = $this->daSoumissionFacBlDdpaFactory->genererNumeroDdp();
+                }
+
                 // Traitement du fichier
                 [$nomAvecCheminPdfFusionner, $nomPdfFusionner] = $this->traitementDeFichier($form, $dto);
 
