@@ -276,12 +276,19 @@ document.addEventListener("DOMContentLoaded", function () {
       fetchManager
         .get(`ddp/api/statut-cloture/${numeroDa}/${numeroCde}`)
         .then((data) => {
-          console.log(data);
 
           modalBody.innerHTML = data
             .map(
               (item) =>
-                `<tr><td>${item.numero}</td><td>${item.date_soumission}</td><td>${item.statut}</td></tr>`,
+                `<tr>
+              <td>${item.numero}</td>
+              <td>${item.date_soumission}</td>
+              <td>${item.type}</td>
+              <td>${item.motif}</td>
+              <td>${item.montant_ht}</td>
+              <td>-</td>
+              <td>-</td>
+              <td>${item.statut}</td></tr>`,
             )
             .join("");
         });

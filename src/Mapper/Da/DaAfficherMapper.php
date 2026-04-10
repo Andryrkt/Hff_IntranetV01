@@ -128,7 +128,8 @@ class DaAfficherMapper
 
         // DDP
         $demandePaiementRepository = $options['demandePaiementRepository'] ?? null;
-        if ($demandePaiementRepository && $dto->numeroDemandeAppro) {
+
+        if ($demandePaiementRepository  && $dto->numeroDemandeAppro) {
             $dto->statutCompta = $demandePaiementRepository->getDernierStatutDddp($dto->numeroCde, $dto->numeroDemandeAppro);
         } else {
             $dto->statutCompta = null;
