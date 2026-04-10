@@ -2,7 +2,7 @@
 
 namespace App\Twig;
 
-use App\Entity\admin\utilisateur\Role;
+use App\Entity\admin\utilisateur\Profil;
 use Twig\Extension\GlobalsInterface;
 use Twig\Extension\AbstractExtension;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -27,7 +27,6 @@ class AppExtension extends AbstractExtension implements GlobalsInterface
         $this->session->remove('notification'); // Supprime la notification après l'affichage
 
         $userInfo = $this->session->get('user_info');
-        $roleIds = $userInfo['roles'] ?? [];
 
         return [
             'App' => [
@@ -37,8 +36,7 @@ class AppExtension extends AbstractExtension implements GlobalsInterface
                     'fullname'     => $userInfo['fullname'] ?? '',
                     'agenceIPS'    => $userInfo['default_agence_code'] ?? '',
                     'serviceIPS'   => $userInfo['default_service_code'] ?? '',
-                    'isAdmin'      => in_array(Role::ROLE_ADMINISTRATEUR, $roleIds),
-                    'isDirection'  => in_array(Role::ROLE_DIRECTION, $roleIds),
+                    'isAdmin'      => ($userInfo['profil_id'] ?? 0) === Profil::HFF_ADMIN,
                 ],
                 'base_path'         => $_ENV['BASE_PATH_COURT'],
                 'base_path_long'    => $_ENV['BASE_PATH_FICHIER'],
