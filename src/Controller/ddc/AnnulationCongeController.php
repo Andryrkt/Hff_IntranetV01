@@ -2,6 +2,7 @@
 
 namespace App\Controller\ddc;
 
+use App\Constants\dw\DwConstant;
 use App\Controller\Controller;
 use App\Entity\admin\Application;
 use App\Controller\Traits\AutorisationTrait;
@@ -27,10 +28,10 @@ class AnnulationCongeController extends Controller
         /** FIN AUtorisation accès */
 
         return $this->render("dwForm/dwForm.html.twig", [
-            'url'       => "https://hffc.docuware.cloud/DocuWare/Forms/annulation-conges?orgID=5adf2517-2f77-4e19-8b42-9c3da43af7be",
+            'url'       => DwConstant::LINK["annulation-conges-valide"],
             'pageTitle' => "Annulation congés validés",
             'bgColor'   => "bg-orange-cat",
-            'height'    => 980,
+            'height'    => 1050,
         ]);
     }
 
@@ -47,7 +48,7 @@ class AnnulationCongeController extends Controller
         /** FIN AUtorisation accès */
 
         return $this->render("dwForm/dwForm.html.twig", [
-            'url'       => "https://hffc.docuware.cloud/DocuWare/Forms/annulation-conges-rh?orgID=5adf2517-2f77-4e19-8b42-9c3da43af7be",
+            'url'       => DwConstant::LINK["annulation-conges-rh"],
             'pageTitle' => "Annulation de Congé dédiée RH",
             'bgColor'   => "bg-orange-cat",
             'height'    => 980,
