@@ -80,12 +80,6 @@ alter table users drop column agence_id;
 alter table users drop column superieurs;
 alter table users drop column fonction;
 
-alter table users add code_agence_user varchar(50) NULL;
-alter table users add code_service_user varchar(50) NULL;
-alter table users add id_agence_user int NULL;
-alter table users add id_service_user int NULL;
-alter table users add code_sage varchar(50) NULL;
-
 CREATE TABLE application_profil_page (
     id                                     INT IDENTITY(1,1) NOT NULL,
     application_profil_id                  INT               NOT NULL,
