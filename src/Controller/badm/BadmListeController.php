@@ -87,6 +87,7 @@ class BadmListeController extends Controller
                 'data'        => $paginationData['data'],
                 'empty'       => $empty,
                 'criteria'    => $criteria,
+                'annule'      => false,
                 'currentPage' => $paginationData['currentPage'],
                 'lastPage'    => $paginationData['lastPage'],
                 'resultat'    => $paginationData['totalItems'],
@@ -236,6 +237,7 @@ class BadmListeController extends Controller
                 'data'        => $paginationData['data'],
                 'empty'       => $empty,
                 'criteria'    => $criteria,
+                'annule'      => true,
                 'currentPage' => $paginationData['currentPage'],
                 'lastPage'    => $paginationData['lastPage'],
                 'resultat'    => $paginationData['totalItems']

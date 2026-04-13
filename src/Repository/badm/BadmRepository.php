@@ -38,7 +38,7 @@ class BadmRepository extends EntityRepository
             ->andWhere('b.codeSociete = :codeSociete')
             ->setParameter('codeSociete', $codeSociete);
 
-        $this->filtredExcludeStatut($queryBuilder);
+        $this->filtredStatut($queryBuilder);
 
         $this->filtredCondition($queryBuilder, $criteria);
 
@@ -79,7 +79,7 @@ class BadmRepository extends EntityRepository
             ->andWhere('b.codeSociete = :codeSociete')
             ->setParameter('codeSociete', $codeSociete);
 
-        $this->filtredExcludeStatut($queryBuilder);
+        $this->filtredStatut($queryBuilder);
 
         $this->filtredCondition($queryBuilder, $criteria);
 
@@ -107,7 +107,7 @@ class BadmRepository extends EntityRepository
             ->andWhere('b.codeSociete = :codeSociete')
             ->setParameter('codeSociete', $codeSociete);
 
-        $this->filtredExcludeStatut($queryBuilder);
+        $this->filtredStatut($queryBuilder, true);
 
         $this->filtredCondition($queryBuilder, $criteria);
 
@@ -159,11 +159,16 @@ class BadmRepository extends EntityRepository
         }
     }
 
-    private function filtredExcludeStatut($queryBuilder)
+    private function filtredStatut($queryBuilder, bool $annule = false)
     {
-        $excludedStatuses = [9, 18, 22, 24, 26, 32, 33, 34, 35];
-        $queryBuilder->andWhere($queryBuilder->expr()->notIn('s.id', ':excludedStatuses'))
-            ->setParameter('excludedStatuses', $excludedStatuses);
+        $operator = $annule ? '=' : '!=';
+
+        $queryBuilder
+            ->andWhere('s.codeApp = :codeApp')
+            ->andWhere("s.codeStatut $operator :codeStatut")
+            ->setParameter('codeApp', 'BDM')
+            ->setParameter('codeStatut', 'ANN')
+        ;
     }
 
     private function filtredCondition($queryBuilder, $criteria)
