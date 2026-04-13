@@ -6,7 +6,6 @@ use App\Constants\admin\ApplicationConstant;
 use App\Constants\da\StatutDaConstant;
 use App\Controller\Controller;
 use App\Controller\Traits\da\creation\DaNewAchatTrait;
-use App\Entity\admin\utilisateur\Role;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproParent;
 use App\Entity\da\DemandeApproParentLine;

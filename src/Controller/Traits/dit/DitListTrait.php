@@ -2,17 +2,12 @@
 
 namespace App\Controller\Traits\dit;
 
-
-use App\Entity\admin\Agence;
-use App\Entity\admin\Service;
 use App\Entity\dit\DitSearch;
 use App\Entity\admin\StatutDemande;
-use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DemandeIntervention;
 use App\Entity\admin\dit\CategorieAteApp;
 use App\Entity\admin\dit\WorTypeDocument;
 use App\Entity\admin\dit\WorNiveauUrgence;
-use App\Entity\admin\utilisateur\Role;
 use App\Entity\dit\DitRiSoumisAValidation;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Repository\dit\DitRepository;

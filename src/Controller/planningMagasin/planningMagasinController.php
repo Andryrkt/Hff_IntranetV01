@@ -3,10 +3,7 @@
 namespace App\Controller\planningMagasin;
 
 use App\Controller\Controller;
-use App\Entity\admin\Application;
 use App\Entity\magasin\bc\BcMagasin;
-use App\Entity\admin\utilisateur\Role;
-use App\Entity\admin\utilisateur\User;
 use App\Service\TableauEnStringService;
 use App\Controller\Traits\PlanningTraits;
 use Symfony\Component\HttpFoundation\Request;

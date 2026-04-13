@@ -545,24 +545,6 @@ class Controller
     }
 
     /**
-     * Vérifie si l'utilisateur a au moins un des rôles cités
-     * 
-     * @param int ...$roleIds
-     * @return bool
-     */
-    protected function hasRoles(int ...$roleIds): bool
-    {
-        $userInfo = $this->getSessionService()->get('user_info');
-        if (!$userInfo) return false;
-        $userRoleIds = $userInfo['roles'];
-
-        foreach ($roleIds as $role) {
-            if (in_array($role, $userRoleIds)) return true;
-        }
-        return false;
-    }
-
-    /**
      * Rendre un template Twig
      */
     protected function render(string $template, array $parameters = []): Response

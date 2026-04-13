@@ -19,7 +19,6 @@ use App\Controller\Traits\da\detail\DaDetailDirectTrait;
 use App\Service\da\FileUploaderForDAService;
 use App\Controller\Traits\da\validation\DaValidationDirectTrait;
 use App\Controller\Traits\da\proposition\DaPropositionDirectTrait;
-use App\Entity\admin\utilisateur\Role;
 
 /**
  * @Route("/demande-appro")

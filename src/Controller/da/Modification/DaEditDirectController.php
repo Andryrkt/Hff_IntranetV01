@@ -12,7 +12,6 @@ use App\Controller\Traits\da\DaAfficherTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\da\modification\DaEditDirectTrait;
-use App\Entity\admin\utilisateur\Role;
 
 /**
  * @Route("/demande-appro")

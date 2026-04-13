@@ -3,7 +3,6 @@
 namespace App\Controller\Traits\da\demandeDevis;
 
 use App\Constants\da\StatutDaConstant;
-use App\Controller\Traits\da\DaTrait;
 use App\Entity\da\DemandeAppro;
 use DateTime;
 use DateTimeZone;

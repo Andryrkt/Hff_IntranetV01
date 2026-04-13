@@ -12,7 +12,6 @@ use App\Form\da\DaObservationType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\da\detail\DaDetailDirectTrait;
-use App\Entity\admin\utilisateur\Role;
 use App\Service\da\DaTimelineService;
 
 /**

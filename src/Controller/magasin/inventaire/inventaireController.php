@@ -5,8 +5,6 @@ namespace App\Controller\magasin\inventaire;
 use TCPDF;
 use DateTime;
 use App\Controller\Controller;
-use App\Entity\admin\Application;
-use App\Entity\admin\utilisateur\Role;
 use App\Controller\Traits\FormatageTrait;
 use App\Controller\Traits\Transformation;
 use App\Entity\Bordereau\BordereauSearch;

@@ -464,26 +464,6 @@ class User implements UserInterface
     }
 
     /**
-     * RECUPERE LES id de role de l'User sous forme de tableau
-     */
-    public function getRoleIds(): array
-    {
-        return $this->roles->map(function ($role) {
-            return $role->getId();
-        })->toArray();
-    }
-
-    /**
-     * RECUPERE LES noms de role de l'User sous forme de tableau
-     */
-    public function getRoleNames(): array
-    {
-        return $this->roles->map(function ($role) {
-            return $role->getRoleName();
-        })->toArray();
-    }
-
-    /**
      * RECUPERE LES id du service Autoriser
      */
     public function getServiceAutoriserIds(): array
