@@ -61,7 +61,6 @@ class LoginController extends Controller
                         "lastname"  => $lastname,
                         "fullname"  => "$lastname $firstname",
                         "email"     => $user->getMail(),
-                        "roles"     => $user->getRoleIds(),
                         'password'  => $password,
                     ];
 
@@ -194,9 +193,6 @@ class LoginController extends Controller
                 'id'                   => $user->getId(),
                 'username'             => $username,
                 'email'                => $user->getMail(),
-                'roles'                => $user->getRoleIds(),
-                'default_agence_code'  => $user->getCodeAgenceUser(),
-                'default_service_code' => $user->getCodeServiceUser()
             ];
 
             $jwtService = new \App\Service\security\JwtService();
@@ -208,7 +204,6 @@ class LoginController extends Controller
                 'token'   => $token,
                 'user'    => $payload
             ]);
-
         } catch (\Exception $e) {
             return new \Symfony\Component\HttpFoundation\JsonResponse(['error' => $e->getMessage()], 400);
         }
