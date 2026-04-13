@@ -2,12 +2,9 @@
 
 namespace App\Entity\admin\utilisateur;
 
-use App\Entity\admin\Agence;
-use App\Entity\admin\Service;
 use App\Entity\admin\Personnel;
 use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
-use App\Entity\admin\Application;
 use App\Entity\admin\AgenceServiceIrium;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -54,12 +51,6 @@ class User implements UserInterface
     private $mail;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Application::class, inversedBy="users")
-     * @ORM\JoinTable(name="users_applications")
-     */
-    private $applications;
-
-    /**
      * @ORM\ManyToOne(targetEntity=Personnel::class, inversedBy="users")
      * @ORM\JoinColumn(name="personnel_id", referencedColumnName="id")
      */
@@ -70,12 +61,6 @@ class User implements UserInterface
      * @ORM\JoinColumn(name="agence_utilisateur", referencedColumnName="id")
      */
     private $agenceServiceIrium;
-
-    /**
-     * @ORM\ManyToMany(targetEntity=Service::class, inversedBy="userServiceAutoriser")
-     * @ORM\JoinTable(name="users_service")
-     */
-    private $serviceAutoriser;
 
     /**
      * @ORM\Column(type="string", length=10, name="num_tel")
@@ -106,8 +91,6 @@ class User implements UserInterface
 
     public function __construct()
     {
-        $this->applications = new ArrayCollection();
-        $this->serviceAutoriser = new ArrayCollection();
         $this->profils = new ArrayCollection();
         $this->agenceServiceDefautSocietes = new ArrayCollection();
     }
@@ -223,32 +206,6 @@ class User implements UserInterface
         return $this;
     }
 
-    /**
-     * @return Collection|Application[]
-     */
-    public function getApplications(): Collection
-    {
-        return $this->applications;
-    }
-
-    public function addApplication(Application $application): self
-    {
-        if (!$this->applications->contains($application)) {
-            $this->applications[] = $application;
-        }
-
-        return $this;
-    }
-
-    public function removeApplication(Application $application): self
-    {
-        if ($this->applications->contains($application)) {
-            $this->applications->removeElement($application);
-        }
-
-        return $this;
-    }
-
     public function getPersonnels()
     {
         return $this->personnels;
@@ -272,51 +229,6 @@ class User implements UserInterface
         $this->agenceServiceIrium = $agenceServiceIrium;
 
         return $this;
-    }
-
-    public function getServiceAutoriser(): Collection
-    {
-        return $this->serviceAutoriser;
-    }
-
-    public function addServiceAutoriser(Service $serviceAutoriser): self
-    {
-        if (!$this->serviceAutoriser->contains($serviceAutoriser)) {
-            $this->serviceAutoriser[] = $serviceAutoriser;
-        }
-
-        return $this;
-    }
-
-    public function removeServiceAutoriser(Service $serviceAutoriser): self
-    {
-        if ($this->serviceAutoriser->contains($serviceAutoriser)) {
-            $this->serviceAutoriser->removeElement($serviceAutoriser);
-        }
-
-        return $this;
-    }
-
-    /**
-     * RECUPERE LES id du service Autoriser
-     */
-    public function getServiceAutoriserIds(): array
-    {
-        return $this->serviceAutoriser->map(function ($serviceAutorise) {
-            return $serviceAutorise->getId();
-        })->toArray();
-    }
-
-    /**
-     * RECUPERE LES id de l'application
-     *
-     * @return array
-     */
-    public function getApplicationsIds(): array
-    {
-        return $this->applications->map(function ($app) {
-            return $app->getId();
-        })->toArray();
     }
 
     /**
