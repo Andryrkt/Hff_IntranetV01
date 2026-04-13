@@ -37,7 +37,7 @@ class DaEditDirectController extends Controller
         $demandeAppro = $this->demandeApproRepository->find($id); // recupération de la DA
         $numDa = $demandeAppro->getNumeroDemandeAppro();
 
-        $estCreateurDeDADirecte = $this->hasRoles(Role::ROLE_DA_DIRECTE);
+        $estCreateurDeDADirecte = $this->estCreateurDaDirecte();
         $ancienDals = $this->getAncienDAL($demandeAppro);
 
         $form = $this->getFormFactory()->createBuilder(DemandeApproDirectFormType::class, $demandeAppro)->getForm();
