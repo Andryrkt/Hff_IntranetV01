@@ -330,6 +330,42 @@ JOIN services s on s.code_service=asi.service_ips
 JOIN societe soc on soc.code_societe=asi.societe_ios
 ;
 
+-- ? Changer les donées de la table Hff_pages
+
+bc_magasin_soumission	
+/magasin/dematerialisation/soumission-bc-magasin/{numeroDevis}	
+
+devis_magasin_envoyer_au_client	
+/magasin/dematerialisation/devis-magasin-envoyer-au-client/{numeroDevis}	
+
+devis_magasin_soumission_validation_devis	
+/magasin/dematerialisation/soumission-devis-magasin-validation-devis/{numeroDevis}/{codeAgenceService}	
+
+devis_magasin_soumission_verification_prix	
+/magasin/dematerialisation/soumission-devis-magasin-verification-de-prix/{numeroDevis}
+
+
+update Hff_Pages
+set nom_route='bc_neg_soumission',
+lien='/magasin/dematerialisation/soumission-bc-neg/{numeroDevis}'
+where nom_route='bc_magasin_soumission'
+
+update Hff_Pages
+set nom_route='pointage_envoyer_au_client',
+lien='/magasin/dematerialisation/pointage/envoyer-au-client/{numeroDevis}'
+where nom_route='devis_magasin_envoyer_au_client'
+
+update Hff_Pages
+set nom_route='devis_neg_soumission_validation_devis',
+lien='/magasin/dematerialisation/soumission-devis-neg-validation-devis/{typeSoumission}/{numeroDevis}'
+where nom_route='devis_magasin_soumission_validation_devis'
+
+update Hff_Pages
+set nom_route='devis_neg_soumission_verification_prix',
+lien='/magasin/dematerialisation/soumission-devis-neg-verification-de-prix/{typeSoumission}/{numeroDevis}'
+where nom_route='devis_magasin_soumission_verification_prix'
+
+
 
 -- ! Suppression de profils
 delete from application_profil_agence_service;
