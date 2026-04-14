@@ -7,6 +7,8 @@ use App\Dto\Da\ListeCdeFrn\DaSoumissionFacBlDto;
 use App\Entity\da\DaAfficher;
 use App\Factory\da\CdeFrnDto\DaSoumissionFacBlFactory;
 use App\Mapper\Da\ListCdeFrn\DaSoumissionFacBlMapper;
+use App\Mapper\ddp\CommandeLivraisonMapper;
+use App\Mapper\ddp\DemandePaiementCommandeMapper;
 use App\Mapper\ddp\DemandePaiementMapper;
 use App\Repository\da\DaAfficherRepository;
 use App\Service\fichier\TraitementDeFichier;
@@ -65,9 +67,7 @@ class TraitementSoumissionDDPLService
             $dto  = $this->daSoumissionFacBlFactory->enrichissementDtoApresSoumission($dto, $nomPdfFusionner);
 
             /** ENREGISTREMENT DANS LA BASE DE DONNEE */
-            $daSoumissionFacBl = $this->daSoumissionfacBlMapper->mapDaDdp($dto);
-            $this->entityManager->persist($daSoumissionFacBl);
-            $this->entityManager->flush();
+            $this->enregistrementDansDB($dto);
 
             /** COPIER DANS DW */
             $this->generatePdf->copyToDWFacBlDa($nomPdfFusionner, $numDa);
@@ -83,6 +83,24 @@ class TraitementSoumissionDDPLService
         return $sucess;
     }
 
+    private function enregistrementDansDB($dto)
+    {
+        // enregistrement dans la table da_soumission_fac_bl
+        $daSoumissionFacBl = $this->daSoumissionfacBlMapper->mapDaDdp($dto);
+        $this->entityManager->persist($daSoumissionFacBl);
+        $this->entityManager->flush();
+
+        // enregistremenet dans la table demande_paiement_commande
+        $ddpCommande = DemandePaiementCommandeMapper::map($dto);
+        $this->entityManager->persist($ddpCommande);
+        $this->entityManager->flush();
+
+        // enregistremenet dans la table commande_livraison
+        $commande_livraison = CommandeLivraisonMapper::map($dto);
+        $this->entityManager->persist($commande_livraison);
+        $this->entityManager->flush();
+    }
+
     private function traitementPourDdp($dto, string $nomAvecCheminPdfFusionner)
     {
         // GENERATION DE PDF pour le demnade de paiement
@@ -95,7 +113,7 @@ class TraitementSoumissionDDPLService
         $fichierConvertir = $this->ConvertirLesPdf($pdfAFusionner);
         $this->traitementDeFichier->fusionFichers($fichierConvertir, $cheminEtNom);
 
-        // enregisstrement dans la table demande de paiement
+        // enregisstrement dans la table demande_paiement
         $ddp = DemandePaiementMapper::map($dto);
         $this->entityManager->persist($ddp);
         $this->entityManager->flush();

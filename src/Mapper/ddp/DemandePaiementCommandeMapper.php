@@ -10,7 +10,7 @@ class DemandePaiementCommandeMapper
     {
         $ddpCommande = new DemandePaiementCommande();
         $ddpCommande->setNumeroDdp($dto->numeroDdp)
-            ->setNumeroCommande($dto->numeroCommande)
+            ->setNumeroCommande(is_array($dto->numeroCommande) ? implode('', $dto->numeroCommande) : $dto->numeroCommande)
             ->setNumeroDemandeAppro($dto->numeroDemandeAppro ?? null)
         ;
 

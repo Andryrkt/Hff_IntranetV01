@@ -302,6 +302,7 @@ class DaSoumissionFacBlFactory
         $dto->adresseMailDemandeur = $user->getMail();
         $dto->montantAPayer = $dto->montantAregulariser;
         $dto->numeroCommande = [$numCde];
+        $dto->numeroFacture = $dto->numeroFactureFournisseur ? [$dto->numeroFactureFournisseur] : [];
         $dto->appro = true;
         $dto->typeDa = $infoDa['daTypeId'];
         $dto->numeroVersionBc = $daSoumissionBcRepository->getNumeroVersionMax($numCde);
