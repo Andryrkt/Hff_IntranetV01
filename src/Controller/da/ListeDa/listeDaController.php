@@ -42,6 +42,9 @@ class listeDaController extends Controller
         // Code Société de l'utilisateur
         $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
 
+        $codeAgenceUser = $this->getSecurityService()->getCodeAgenceUser();
+        $codeServiceUser = $this->getSecurityService()->getCodeServiceUser();
+
         /** Initialisation DaSearch */
         $daSearch = new DaSearch;
         $this->initialisationRechercheDa($daSearch);
@@ -76,16 +79,10 @@ class listeDaController extends Controller
                 return $value !== null && $value !== false;
             }))
         ) {
-            $user = $this->getUser();
-            $codeAgenceUser = $user->getCodeAgenceUser();
-            $codeServiceUser = $user->getCodeServiceUser();
-            $codeAgenceUser = "";
-            $codeServiceUser = "";
-
             // On ne garde que la persistance du flag et les filtres imposés
             $criteria = [];
 
-            if ($codeAgenceUser == '80' && $codeServiceUser == 'APP') {
+            if ($this->estAppro()) {
                 $criteria['statutDA'] = [
                     StatutDaConstant::STATUT_SOUMIS_APPRO,
                     StatutDaConstant::STATUT_DEMANDE_DEVIS,
@@ -144,8 +141,8 @@ class listeDaController extends Controller
             'estAppro'   => $this->estAppro(),
             'estAtelier' => $this->estAtelier(),
             'estCreateur' => $this->estCreateurDaDirecte(),
-            'codeAgenceUser' => $this->getUser()->getCodeAgenceUser(),
-            'codeServiceUser' => $this->getUser()->getCodeServiceUser(),
+            'codeAgenceUser' => $codeAgenceUser,
+            'codeServiceUser' => $codeServiceUser,
         ]);
 
         /** === Formulaire pour la date de livraison prevu === */

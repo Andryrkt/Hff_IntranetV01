@@ -87,8 +87,8 @@ class DaListCdeFrnController extends Controller
             'estAppro'   => $this->estAppro(),
             'estAtelier' => $this->estAtelier(),
             'estCreateur' => $this->estCreateurDaDirecte(),
-            'codeAgenceUser' => $this->getUser()->getCodeAgenceUser(),
-            'codeServiceUser' => $this->getUser()->getCodeServiceUser(),
+            'codeAgenceUser' => $this->getSecurityService()->getCodeAgenceUser(),
+            'codeServiceUser' => $this->getSecurityService()->getCodeServiceUser(),
         ]);
 
         // Formulaire de soumission BC, FAC + BL, BL Reappro
