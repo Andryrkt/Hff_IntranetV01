@@ -14,8 +14,10 @@ use App\Entity\ddp\DemandePaiement;
 use App\Factory\ddp\DemandePaiementFactory;
 use App\Form\ddp\DemandePaiementDaType;
 use App\Model\ddp\DemandePaiementModel;
+use App\Service\ddp\CommandeLivraisonService;
 use App\Service\ddp\DdpaDaService;
 use App\Service\ddp\DdpGeneratorNameService;
+use App\Service\ddp\DemandePaiementCommandeService;
 use App\Service\ddp\DemandePaiementLigneService;
 use App\Service\ddp\DemandePaiementService;
 use App\Service\ddp\DocDemandePaiementService;
@@ -154,6 +156,9 @@ class DemandePaiementDaController extends Controller
         $this->docDemandePaiementService->createDocDdp($dto);
         // enregistrement dans la table historique_statut_ddp
         $this->demandePaiementService->createHistoriqueStatut($dto);
+        // enregistrement dans la table demande_paiement_commande
+        $demandePaiementCommandeService = new DemandePaiementCommandeService($this->getEntityManager());
+        $demandePaiementCommandeService->createDdpCommande($dto);
     }
 
     private function traitementDeFichier(DemandePaiementDto $dto, FormInterface $form): string
