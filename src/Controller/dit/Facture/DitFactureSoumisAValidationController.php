@@ -134,7 +134,7 @@ class DitFactureSoumisAValidationController extends Controller
 
                 $factureSoumisAValidation = $this->ditFactureSoumisAValidation($numDit, $dataForm, $this->ditFactureSoumiAValidationModel, $numeroSoumission, $this->getEntityManager(), $this->ditFactureSoumiAValidation);
 
-                $estRi = $this->conditionSurInfoFacture($this->ditFactureSoumiAValidationModel, $dataForm, $this->ditFactureSoumiAValidation, $this->getUser(), $codeSociete);
+                $estRi = $this->conditionSurInfoFacture($this->ditFactureSoumiAValidationModel, $dataForm, $this->ditFactureSoumiAValidation, $this->getSecurityService()->getCodeAgenceUser(), $codeSociete);
 
                 if ($estRi) {
                     $message = "La facture ne correspond pas ou correspond partiellement à un rapport d'intervention.";
@@ -271,12 +271,12 @@ class DitFactureSoumisAValidationController extends Controller
         $this->getEntityManager()->flush();
     }
 
-    private function conditionSurInfoFacture(DitFactureSoumisAValidationModel $ditFactureSoumiAValidationModel, $dataForm, $ditFactureSoumiAValidation, $user, $codeSociete)
+    private function conditionSurInfoFacture(DitFactureSoumisAValidationModel $ditFactureSoumiAValidationModel, $dataForm, $ditFactureSoumiAValidation, $codeAgenceUser, $codeSociete)
     {
 
         $infoFacture = $ditFactureSoumiAValidationModel->recupInfoFact($dataForm->getNumeroOR(), $ditFactureSoumiAValidation->getNumeroFact(), $codeSociete);
 
-        if ($infoFacture[0]['typeor'] === 210 && $user->getCodeAgenceUser() === '60') {
+        if ($infoFacture[0]['typeor'] === 210 && $codeAgenceUser === '60') {
             return false;
         }
 
