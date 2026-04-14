@@ -2,7 +2,8 @@
 
 namespace App\Entity\ddp;
 
-use App\Entity\ddp\CommandeLivraisonRepository;
+
+use App\Repository\ddp\CommandeLivraisonRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**

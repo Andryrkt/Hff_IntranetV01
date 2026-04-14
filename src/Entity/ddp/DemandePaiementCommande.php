@@ -2,7 +2,8 @@
 
 namespace App\Entity\ddp;
 
-use App\Entity\ddp\DemandePaiementCommandeRepository;
+
+use App\Repository\ddp\DemandePaiementCommandeRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
