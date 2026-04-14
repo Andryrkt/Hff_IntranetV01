@@ -4,6 +4,7 @@ namespace App\Controller\admin;
 
 use App\Controller\Controller;
 use App\Dto\admin\UserDTO;
+use App\Entity\admin\utilisateur\AgenceServiceDefautSociete;
 use App\Entity\admin\utilisateur\User;
 use App\Factory\admin\UserFactory;
 use App\Form\admin\utilisateur\UserType;
@@ -113,16 +114,20 @@ class UserController extends Controller
         foreach ($dataUsers as $user) {
             $id = $user->getId();
             $profils = $user->getProfils();
+            $agServDefSoc = $user->getAgenceServiceDefautSocietes();
 
-            $rows[] = [
-                'username'   => $user->getNomUtilisateur(),
-                'matricule'  => $user->getMatricule(),
-                'email'      => $user->getMail(),
-                'codeSage'   => $user->getCodeSage(),
-                'profils'    => $profils,
-                'url_show'   => $urlGenerator->generate('utilisateur_show', ['id' => $id]),
-                'url_edit'   => $urlGenerator->generate('utilisateur_update', ['id' => $id]),
-            ];
+            /** @var AgenceServiceDefautSociete $entity */
+            foreach ($agServDefSoc as $entity) {
+                $rows[] = [
+                    'username'   => $user->getNomUtilisateur(),
+                    'matricule'  => $user->getMatricule(),
+                    'email'      => $user->getMail(),
+                    'codeSage'   => $entity->getCodeSage(),
+                    'profils'    => $profils,
+                    'url_show'   => $urlGenerator->generate('utilisateur_show', ['id' => $id]),
+                    'url_edit'   => $urlGenerator->generate('utilisateur_update', ['id' => $id]),
+                ];
+            }
         }
 
         return $rows;
