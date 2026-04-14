@@ -137,7 +137,7 @@ class DitOrSoumisAValidationModel extends Model
             from sav_eor
             where seor_refdem = '$numDit'
             AND seor_serv = 'SAV'
-            AND seor_soc = '$codeSociete
+            AND seor_soc = '$codeSociete'
         ";
         $result = $this->connect->executeQuery($statement);
 
