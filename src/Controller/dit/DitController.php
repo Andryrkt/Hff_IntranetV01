@@ -77,7 +77,7 @@ class DitController extends Controller
 
         //AFFICHAGE ET TRAITEMENT DU FORMULAIRE
         $form = $this->getFormFactory()->createBuilder(demandeInterventionType::class, $demandeIntervention)->getForm();
-        $this->traitementFormulaire($form, $request, $codeSociete);
+        $this->traitementFormulaire($form, $request);
 
         $this->logUserVisit('dit_new'); // historisation du page visité par l'utilisateur
 
@@ -86,7 +86,7 @@ class DitController extends Controller
         ]);
     }
 
-    private function traitementFormulaire($form, Request $request, string $codeSociete)
+    private function traitementFormulaire($form, Request $request)
     {
         $form->handleRequest($request);
 
@@ -110,13 +110,12 @@ class DitController extends Controller
             $dto = DemandeInterventionDto::createFromEntity($ditFromForm);
 
             // 2. Enrichir le DTO avec les informations système (initialisation ou ajout des info par defaut)
-            $user = $this->getUser();
             $em = $this->getEntityManager();
-            $dto->utilisateurDemandeur = $user->getNomUtilisateur();
+            $dto->utilisateurDemandeur = $this->getUserName();
             $dto->heureDemande = $this->getTime();
             $dto->dateDemande = new \DateTime($this->getDatesystem());
             $dto->idStatutDemande = $em->getRepository(StatutDemande::class)->find(50);
-            $dto->mailDemandeur = $user->getMail();
+            $dto->mailDemandeur = $this->getUserMail();
 
             /**   @var DemandeIntervention[] $demandeInterventions 3. Utiliser la factory pour créer l'entité complète*/
             $demandeInterventions = $this->createDemandeInterventionFromDto($dto);
