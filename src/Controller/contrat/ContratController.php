@@ -278,7 +278,7 @@ class ContratController extends Controller
 
     /**
      * Export Excel des contrats
-     * @Route("/export-excel", name="contrat_export_excel")
+     * @Route("/export-excel", name="export_excel_contrat")
      */
     public function exportExcel(Request $request)
     {

@@ -14,7 +14,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class DevisNegExportExcelController extends Controller
 {
     /** 
-     * @Route("/devis-neg-export-excel-list-devis-neg", name="devis_neg_export_excel_list_devis_neg")
+     * @Route("/devis-neg-export-excel-list-devis-neg", name="export_excel_liste_devis_neg")
      * 
      * @return void
      */
