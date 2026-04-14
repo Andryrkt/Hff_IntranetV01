@@ -189,6 +189,17 @@ class DitOrSoumisAValidationModel extends Model
         return  $this->convertirEnUtf8($data);
     }
 
+    public function recupTypeOr($numor)
+    {
+        $statement = " SELECT seor_typeor as type_or from informix.sav_eor where seor_numor = '" . $numor . "'";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return  $this->convertirEnUtf8($data);
+    }
+
     public function recupNbPieceMagasin($numOr, string $codeSociete)
     {
         $statement = " SELECT

@@ -112,11 +112,19 @@ class DitOrsSoumisAValidationController extends Controller
 
         if (empty($numOrBaseDonner)) {
             $message = "Le DIT n'a pas encore de numéro OR";
-
             $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
         }
-
         $numOr = $numOrBaseDonner[0]['numor'];
+
+        // vérifier si le catégorie de la DIT est DAILY CHECK et le type de l'OR est 930 sinon bloqué
+        $demandeIntervention = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
+        $typeOr = $this->ditOrsoumisAValidationModel->recupTypeOr($numOr);
+        $condition1 = $demandeIntervention->getCategorieDemande()->getId() === 10;
+        $condition2 = $typeOr !== 930;
+        if ($condition1 && $condition2) {
+            $message = "Merci de vérifier l'OR car le type de l'OR ne correspond pas à la DIT rattaché qui est un DAILY CHECK";
+            $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
+        }
 
         $ditInsertionOrSoumis = new DitOrsSoumisAValidation();
         $ditInsertionOrSoumis
@@ -359,6 +367,7 @@ class DitOrsSoumisAValidationController extends Controller
         $agServDebiteurBDSql = $demandeIntervention->getAgenceServiceDebiteur();
         $agServInformix = $this->ditModel->recupAgenceServiceDebiteur($ditInsertionOrSoumis->getNumeroOR(), $codeSociete);
 
+        // date planning
         $datePlanning = $this->verificationDatePlanning($ditInsertionOrSoumis, $this->ditOrsoumisAValidationModel);
 
         $pos = $this->ditOrsoumisAValidationModel->recupPositonOr($ditInsertionOrSoumis->getNumeroOR(), $codeSociete);
