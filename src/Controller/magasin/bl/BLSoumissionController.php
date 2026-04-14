@@ -79,7 +79,8 @@ class BLSoumissionController extends Controller
 
             // Création de l'entité
             $cheminEtNomFichier = $this->cheminDeBase . $nomFichiers[0];
-            $blSoumission = BLSoumissionFactory::createBLSoumission($this->getUser(), $cheminEtNomFichier, $typeBl);
+            $securityService = $this->getSecurityService();
+            $blSoumission = BLSoumissionFactory::createBLSoumission($securityService->getCodeAgenceUser(), $securityService->getCodeServiceUser(), $this->getUserName(), $cheminEtNomFichier, $typeBl);
 
             // Sauvegarde
             $this->getEntityManager()->persist($blSoumission);
