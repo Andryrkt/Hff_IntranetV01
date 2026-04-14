@@ -296,7 +296,7 @@ class DaSoumissionFacBlFactory
         }
 
         $dto->debiteur = $this->debiteur($infoDa['daTypeId'], $infoDa);
-        $dto->typeDemande = $dto->totalMontantPayer <= 0 ? $typeRegule : $typeApresLivraison;
+        $dto->typeDemande = $dto->totalMontantPayer <= 0.0 ? $typeRegule : $typeApresLivraison;
         $dto->statut = 'Soumis à validation';
         $dto->demandeur = $user->getNomUtilisateur();
         $dto->adresseMailDemandeur = $user->getMail();

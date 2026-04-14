@@ -147,7 +147,7 @@ class TraitementSoumissionBAPService
 
         $nomOriginalFichier = $dto->pieceJoint1->getClientOriginalName();
 
-        $mttFacFormate = (float)str_replace(',', '.', str_replace(' ', '', $mttFac));
+        $mttFacFormate = $mttFac ? (float)str_replace(',', '.', str_replace(' ', '', $mttFac)) : 0.0;
 
         $message = '';
         $okey = true;
@@ -163,10 +163,12 @@ class TraitementSoumissionBAPService
             $okey = false;
         }
         // Blocage si montant ne correspond pas au montant de la livraison dans IPS
-        elseif ($mttFacFormate !== (float) $infoLivraison['montant_fac_bl']) {
+        elseif ($dto->totalMontantPayer > 0.0 && $mttFacFormate !== (float) $infoLivraison['montant_fac_bl']) {
             $message = "Le montant de la facture <b>{$mttFac}</b> ne correspond pas au montant de la livraison dans IPS. Merci de vérifier le montant de la facture avant de le soumettre dans DocuWare.";
             $okey = false;
-        } elseif ($dto->typeDdp !== 'regul' && $dto->totalMontantPayer <= 0) {
+        }
+        // Blocage si le type de demande de paiement n'est pas régularisation mais le montant à payer est égal à 0
+        elseif ($dto->typeDdp !== 'regul' && $dto->totalMontantPayer <= 0.0) {
             $message = " le type de traitement de paiement doit être régularisation car le montant à payer est égal à 0 ";
             $okey = false;
         }

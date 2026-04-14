@@ -19,6 +19,7 @@ class DaSoumissionFacBlType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+        // dd($options['data']);
         $numLivs = $options['data']->numLiv;
 
         $builder
@@ -62,10 +63,12 @@ class DaSoumissionFacBlType extends AbstractType
             ])
             ->add('montantBlFacture', TextType::class, [
                 'label' => 'Montant HT du BL facture fournisseur (*)',
-                'required' => $options['data']->totalMontantPayer === 0 ? false : true,
-                'attr' => ['data-field-name' => 'du Montant HT du BL facture fournisseur'],
+                'required' => $options['data']->totalMontantPayer === 0.0 ? false : true,
                 'data' => 0,
-                'disabled' => $options['data']->totalMontantPayer === 0 ? true : false,
+                'attr' => [
+                    'data-field-name' => 'du Montant HT du BL facture fournisseur',
+                    'disabled' => $options['data']->totalMontantPayer === 0.0 ? true : false,
+                ],
             ])
             ->add(
                 'pieceJoint1',
