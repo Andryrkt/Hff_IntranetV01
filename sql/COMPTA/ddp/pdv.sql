@@ -124,10 +124,25 @@ ALTER TABLE demande_paiement_ligne
 ADD numeroVersion int,
 ratio_montant_payer DECIMAL(18, 2)
 
-
-
-
 ALTER TABLE demande_paiement
 ADD fichier_ddpa VARCHAR(255),
 deposer_dw BIT DEFAULT 0,
 date_depot_dw DATETIME2 (3)
+
+            CREATE TABLE demande_paiement_commande
+(
+    id INT IDENTITY (1, 1),
+    numero_ddp VARCHAR(50),
+    numero_commande VARCHAR(50),
+    numero_demande_appro VARCHAR(50),
+    CONSTRAINT PK_demande_paiement_commande PRIMARY KEY (id)
+);
+
+CREATE TABLE commande_livraison
+(
+    id INT IDENTITY (1, 1),
+    numero_commande VARCHAR(50),
+    numero_livraison VARCHAR(50),
+    numero_facture VARCHAR(50),
+    CONSTRAINT PK_commande_livraison PRIMARY KEY (id)
+);
