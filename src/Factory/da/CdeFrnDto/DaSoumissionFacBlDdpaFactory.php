@@ -242,7 +242,7 @@ class DaSoumissionFacBlDdpaFactory
         $basePathFichierCourt = $_ENV['BASE_PATH_FICHIER_COURT'];
         $numeroDdp = $dto->numeroDdp;
         $nomFichierDdp = $dto->numeroDdp . 'pdf';
-        $nomFichierAvecCheminDistant = "\\\\192.168.0.28\c$\wamp64\www{$basePathFichierCourt}ddp\\{$numeroDdp}_New_1\\{$nomFichierDdp}";
+        $nomFichierAvecCheminDistant = "\\\\192.168.0.28\c$\wamp64\www{$basePathFichierCourt}ddp\\{$numeroDdp}\\{$nomFichierDdp}";
 
         return $nomFichierAvecCheminDistant;
     }

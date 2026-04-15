@@ -94,7 +94,7 @@ class DocDemandePaiementService
     {
         $chemin = $_ENV['BASE_PATH_FICHIER'] . '/ddp';
         $cheminDeFichiers = $this->recupCheminFichierDistant($dto);
-        $cheminDestination = $chemin . '/' . $dto->numeroDdp . '_New_1';
+        $cheminDestination = $chemin . '/' . $dto->numeroDdp;
 
         // S'assurer que le répertoire de destination existe
         if (!is_dir($cheminDestination)) {
@@ -138,7 +138,7 @@ class DocDemandePaiementService
     public function copieFichierChoisi(DemandePaiementDto $dto)
     {
         $chemin = $_ENV['BASE_PATH_FICHIER'] . '/ddp';
-        $cheminDestination = $chemin . '/' . $dto->numeroDdp . '_New_1';
+        $cheminDestination = $chemin . '/' . $dto->numeroDdp;
 
         // S'assurer que le répertoire de destination existe
         if (!is_dir($cheminDestination)) {
@@ -190,7 +190,7 @@ class DocDemandePaiementService
 
                 $nomFichierInitial = basename($pathAndCde[0]['path']);
 
-                $cheminDufichierDestinataire = $_ENV['BASE_PATH_FICHIER'] . '/ddp/' . $dto->numeroDdp . '_New_' . $dto->numeroVersion . '/' . $nomFichierInitial;
+                $cheminDufichierDestinataire = $_ENV['BASE_PATH_FICHIER'] . '/ddp/' . $dto->numeroDdp . '/' . $nomFichierInitial;
 
                 $destinationDir = dirname($cheminDufichierDestinataire);
                 if (!is_dir($destinationDir)) {

@@ -3,6 +3,7 @@
 
 namespace App\Dto\Da\ListeCdeFrn;
 
+use App\Dto\ddp\DemandePaiementDto;
 
 class DaSoumissionFacBlDto
 {
@@ -61,6 +62,8 @@ class DaSoumissionFacBlDto
     public $receptions = [];
 
     // demande de paiement ===========================
+    public ?DemandePaiementDto $demandePaiementDto = null;
+
     public $numeroDdp;
     public $typeDemande;
     public $ribFournisseur;

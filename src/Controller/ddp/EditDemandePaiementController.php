@@ -429,7 +429,7 @@ class EditDemandePaiementController extends Controller
                                     $nomDeFichier = $singleFile->getClientOriginalName();
                                     $this->traitementDeFichier->upload(
                                         $singleFile,
-                                        $this->cheminDeBase . '/' . $numDdp . '_New_1',
+                                        $this->cheminDeBase . '/' . $numDdp,
                                         $nomDeFichier
                                     );
                                     $nomDesFichiers[] = $nomDeFichier;
@@ -443,7 +443,7 @@ class EditDemandePaiementController extends Controller
                         $nomDeFichier = $file->getClientOriginalName();
                         $this->traitementDeFichier->upload(
                             $file,
-                            $this->cheminDeBase . '/' . $numDdp . '_New_1',
+                            $this->cheminDeBase . '/' . $numDdp,
                             $nomDeFichier
                         );
                         $nomDesFichiers[] = $nomDeFichier;

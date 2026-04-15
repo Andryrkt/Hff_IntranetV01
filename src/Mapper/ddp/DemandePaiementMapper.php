@@ -15,7 +15,7 @@ class DemandePaiementMapper
         $basePathFichierCourt = $_ENV['BASE_PATH_FICHIER_COURT'];
         $numeroDdp = $dto->numeroDdp;
         $nomFichier = $numeroDdp . '.pdf';
-        $nomFichierAvecCheminDistant = "\\\\192.168.0.28\c$\wamp64\www{$basePathFichierCourt}ddp\\{$numeroDdp}_New_1\\{$nomFichier}";
+        $nomFichierAvecCheminDistant = "\\\\192.168.0.28\c$\wamp64\www{$basePathFichierCourt}ddp\\{$numeroDdp}\\{$nomFichier}";
         $ddp = new DemandePaiement();
         $ddp->setNumeroDdp($dto->numeroDdp)
             ->setTypeDemandeId($dto->typeDemande)

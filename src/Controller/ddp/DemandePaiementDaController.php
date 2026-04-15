@@ -209,7 +209,7 @@ class DemandePaiementDaController extends Controller
         $nameGenerator = new DdpGeneratorNameService();
         $cheminBaseUpload = $_ENV['BASE_PATH_FICHIER'] . '/ddp/';
         $uploader = new UploderFileService($cheminBaseUpload, $nameGenerator);
-        $path = $cheminBaseUpload . $dto->numeroDdp . '_New_1/';
+        $path = $cheminBaseUpload . $dto->numeroDdp . '/';
         if (!is_dir($path)) mkdir($path, 0777, true);
 
         [$nomEtCheminFichiersEnregistrer, $nomFichierTelecharger] = $uploader->getFichiers($form, [
