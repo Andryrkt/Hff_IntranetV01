@@ -11,7 +11,7 @@ class CommandeLivraisonMapper
         $commandeLivraison = new CommandeLivraison();
         $commandeLivraison
             ->setNumeroCommande(is_array($dto->numeroCommande) ? implode('', $dto->numeroCommande) : $dto->numeroCommande)
-            ->setNumeroLivraison($dto->numLiv ?? null)
+            ->setNumeroLivraison($dto->numeroLivraison ?? null)
             ->setNumeroFacture(is_array($dto->numeroFacture) ? implode('', $dto->numeroFacture) : $dto->numeroFacture)
 
         ;

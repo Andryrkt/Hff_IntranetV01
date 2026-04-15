@@ -109,7 +109,7 @@ class TraitementSoumissionDDPLService
         $this->traitementDeFichier->fusionFichers($fichierConvertir, $cheminEtNom);
 
         // enregisstrement dans la table demande_paiement
-        $ddp = DemandePaiementMapper::map($dto);
+        $ddp = DemandePaiementMapper::map($dto->demandePaiementDto);
         $this->entityManager->persist($ddp);
         $this->entityManager->flush();
     }

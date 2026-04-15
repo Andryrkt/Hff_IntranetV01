@@ -10,7 +10,7 @@ use App\Entity\ddp\HistoriqueStatutDdp;
 
 class DemandePaiementMapper
 {
-    public static function map($dto): DemandePaiement
+    public static function map(DemandePaiementDto $dto): DemandePaiement
     {
         $basePathFichierCourt = $_ENV['BASE_PATH_FICHIER_COURT'];
         $numeroDdp = $dto->numeroDdp;
@@ -52,7 +52,7 @@ class DemandePaiementMapper
         return $ddp;
     }
 
-    public static function mapBap($dto): DemandePaiement
+    public static function mapBap(DemandePaiementDto $dto): DemandePaiement
     {
         $ddp = new DemandePaiement();
         $ddp
@@ -61,7 +61,7 @@ class DemandePaiementMapper
             ->setNumeroFournisseur($dto->numeroFournisseur)
             ->setRibFournisseur($dto->ribFournisseur)
             ->setBeneficiaire($dto->beneficiaire)
-            ->setMotif("Bon a payer {$dto->numeroFournisseur} - {$dto->numeroFactureFournisseur}")
+            ->setMotif("Bon a payer {$dto->numeroFournisseur} - {$dto->numeroFacture}")
             ->setAgenceDebiter($dto->debiteur['agence']->getCodeAgence())
             ->setServiceDebiter($dto->debiteur['service']->getCodeService())
             ->setStatut(BonApayerConstants::STATUT_A_TRANSMETTERE)

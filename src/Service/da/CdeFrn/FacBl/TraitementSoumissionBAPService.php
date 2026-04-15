@@ -107,7 +107,7 @@ class TraitementSoumissionBAPService
         return $sucess;
     }
 
-    public function enregistrementDansBD($dto)
+    public function enregistrementDansBD(DaSoumissionFacBlDto $dto)
     {
         // enregistrement dans la table da_soumission_fac_bl
         $daSoumissionFacBl = DaSoumissionFacBlMapper::mapBap($dto);
@@ -115,17 +115,17 @@ class TraitementSoumissionBAPService
         $this->entityManager->flush();
 
         // enregistrement dans la table demande_paiement
-        $ddp = DemandePaiementMapper::mapBap($dto);
+        $ddp = DemandePaiementMapper::mapBap($dto->demandePaiementDto);
         $this->entityManager->persist($ddp);
         $this->entityManager->flush();
 
         // enregistremenet dans la table demande_paiement_commande
-        $ddpCommande = DemandePaiementCommandeMapper::map($dto);
+        $ddpCommande = DemandePaiementCommandeMapper::map($dto->demandePaiementDto);
         $this->entityManager->persist($ddpCommande);
         $this->entityManager->flush();
 
         // enregistremenet dans la table commande_livraison
-        $commande_livraison = CommandeLivraisonMapper::map($dto);
+        $commande_livraison = CommandeLivraisonMapper::map($dto->demandePaiementDto);
         $this->entityManager->persist($commande_livraison);
         $this->entityManager->flush();
     }

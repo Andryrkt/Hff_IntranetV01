@@ -289,6 +289,8 @@ class DaSoumissionFacBlFactory
         $ddpDto->numeroVersionBc = $daSoumissionBcRepository->getNumeroVersionMax($dto->numeroCde);
         $ddpDto->dateDemande = new DateTime();
         $ddpDto->numeroSoumissionDdpDa = $numeroSoumissionDdpDa;
+        $ddpDto->numeroDemandeAppro = $infoDa['numeroDemandeAppro'];
+        $ddpDto->numeroLivraison = $dto->numLiv;
 
         return $ddpDto;
     }
