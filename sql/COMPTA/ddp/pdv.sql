@@ -39,6 +39,8 @@ CREATE TABLE demande_paiement
     CONSTRAINT PK_demande_paiement PRIMARY KEY (id, numero_demande_paiement)
 );
 
+ALTER TABLE demande_paiement ADD numero_cla VARCHAR(50)
+ALTER TABLE demande_paiement ADD date_soumission_compta DATETIME2 (3)
 
 CREATE TABLE type_demande
 (

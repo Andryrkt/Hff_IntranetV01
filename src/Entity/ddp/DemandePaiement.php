@@ -223,6 +223,19 @@ class DemandePaiement
      */
     private $dateDepotDw;
 
+    /**
+     * @ORM\Column(type="string", length=50, name="numero_cla")
+     *
+     * @var string|null
+     */
+    private ?string $numeroCla = null;
+
+    /**
+     * @ORM\Column(type="datetime", name="date_soumission_compta")
+     */
+    private $dateSoumissionCompta;
+
+
     private string $montantAPayer = '0';
 
     private $pieceJoint01;
@@ -1154,6 +1167,42 @@ class DemandePaiement
     public function setDateDepotDw($dateDepotDw): self
     {
         $this->dateDepotDw = $dateDepotDw;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroCla
+     */
+    public function getNumeroCla(): ?string
+    {
+        return $this->numeroCla;
+    }
+
+    /**
+     * Set the value of numeroCla
+     */
+    public function setNumeroCla(?string $numeroCla): self
+    {
+        $this->numeroCla = $numeroCla;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateSoumissionCompta
+     */
+    public function getDateSoumissionCompta()
+    {
+        return $this->dateSoumissionCompta;
+    }
+
+    /**
+     * Set the value of dateSoumissionCompta
+     */
+    public function setDateSoumissionCompta($dateSoumissionCompta): self
+    {
+        $this->dateSoumissionCompta = $dateSoumissionCompta;
 
         return $this;
     }

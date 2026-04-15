@@ -246,4 +246,12 @@ class DemandePaiementRepository extends EntityRepository
 
         return $queryBuilder ? $queryBuilder['statut'] : null;
     }
+
+    public function findByConsultationFactureCriteria($criteria)
+    {
+        $qb = $this->createQueryBuilder('d')
+            ->orderBy('d.numeroDdp', 'DESC');
+
+        return $qb->getQuery()->getResult();
+    }
 }

@@ -15,15 +15,21 @@ class FileCheckerService
         $this->filesystem = new Filesystem();
     }
 
-    public function checkBapFileExists(string $numeroDa, ?string $numeroCde = ''): bool
+    public function checkBapFileExists(?string $numeroDa, ?string $numeroCde = ''): bool
     {
+        if (empty($numeroDa) || empty($numeroCde)) {
+            return false;
+        }
 
         $filePath = $this->projectDir . "/da/$numeroDa/BAP_{$numeroDa}_{$numeroCde}.pdf";
         return $this->filesystem->exists($filePath);
     }
 
-    public function getBapFilePath(string $numeroDa, string $numeroCde): ?string
+    public function getBapFilePath(?string $numeroDa, string $numeroCde): ?string
     {
+        if (empty($numeroDa) || empty($numeroCde)) {
+            return null;
+        }
         $relativePath = "/da/$numeroDa/BAP_{$numeroDa}_{$numeroCde}.pdf";
         $fullPath = $this->projectDir .  $relativePath;
 
@@ -34,8 +40,11 @@ class FileCheckerService
         return null;
     }
 
-    public function getBapFullPath(string $numeroDa, string $numeroCde): ?string
+    public function getBapFullPath(?string $numeroDa, string $numeroCde): ?string
     {
+        if (empty($numeroDa) || empty($numeroCde)) {
+            return null;
+        }
         // $relativePath = "/da/$numeroDa/BAP_{$numeroDa}_{$numeroCde}.pdf";
         $relativePath = "/da/$numeroDa/BAP-$numeroCde#$numeroDa.pdf";
         $fullPath = $this->projectDir .  $relativePath;

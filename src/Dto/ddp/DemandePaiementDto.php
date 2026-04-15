@@ -2,8 +2,9 @@
 
 namespace App\Dto\ddp;
 
-use App\Traits\ChaineCaractereTrait;
+use App\Constants\ddp\StatutConstants;
 use App\Entity\admin\ddp\TypeDemande;
+use App\Traits\ChaineCaractereTrait;
 
 class DemandePaiementDto
 {
@@ -18,6 +19,8 @@ class DemandePaiementDto
     public ?TypeDemande $typeDemande = null;
     public ?\DateTime $dateDemande = null;
     public bool $estChangementDeRib = false;
+    public ?string $numeroCla = null;
+    public ?\DateTime $dateSoumissionCompta = null;
 
     // fournisseur ======================
     public $numeroFournisseur;
@@ -32,8 +35,8 @@ class DemandePaiementDto
     // info sur Ddp =========================
     public $motif;
     public array $debiteur = [];
-    public array $numeroCommande;
-    public array $numeroFacture;
+    public array $numeroCommande = [];
+    public array $numeroFacture = [];
     public ?string $statutDossierRegul = null;
 
     public bool $estCdeClientExterneDoc = false;
@@ -134,5 +137,10 @@ class DemandePaiementDto
     public function ribFournisseurChanger(): bool
     {
         return $this->ribFournisseurAncien !== $this->ribFournisseur;
+    }
+
+    public function getStyleStatut(): string
+    {
+        return StatutConstants::getCssClass($this->statut);
     }
 }

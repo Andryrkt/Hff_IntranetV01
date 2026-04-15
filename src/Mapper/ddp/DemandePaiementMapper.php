@@ -52,41 +52,26 @@ class DemandePaiementMapper
         return $ddp;
     }
 
-    public static function mapInverse(array $ddps)
+    public static function mapInverse(array $ddps): array
     {
         $dtos = [];
         foreach ($ddps as $ddp) {
             $dto = new DemandePaiementDto();
             $dto->numeroDdp = $ddp->getNumeroDdp();
-            $dto->typeDemande = $ddp->getTypeDemandeId();
-            $dto->numeroFournisseur = $ddp->getNumeroFournisseur();
-            $dto->ribFournisseur = $ddp->getRibFournisseur();
-            $dto->beneficiaire = $ddp->getBeneficiaire();
-            $dto->motif = $ddp->getMotif();
-            $dto->debiteur['agence'] = $ddp->getAgenceDebiter();
-            $dto->debiteur['service'] = $ddp->getServiceDebiter();
-            $dto->statut = $ddp->getStatut();
-            $dto->adresseMailDemandeur = $ddp->getAdresseMailDemandeur();
-            $dto->demandeur = $ddp->getDemandeur();
-            $dto->modePaiement = $ddp->getModePaiement();
-            $dto->montantAPayer = $ddp->getMontantAPayers();
-            $dto->contact = $ddp->getContact();
-            $dto->numeroCommande = $ddp->getNumeroCommande();
-            $dto->numeroFacture = $ddp->getNumeroFacture();
-            $dto->devise = $ddp->getDevise();
-            $dto->statutDossierRegul = $ddp->getStatutDossierRegul();
-            $dto->numeroVersion = $ddp->getNumeroVersion();
-            $dto->nomAutreDoc = $ddp->getNomAutreDoc();
-            $dto->estCdeClientExterneDoc = $ddp->getEstCdeClientExterneDoc();
-            $dto->nomCdeClientExterneDoc = $ddp->getNomCdeClientExterneDoc();
-            $dto->numeroDossierDouane = $ddp->getNumeroDossierDouane();
-            $dto->appro = $ddp->getAppro();
-            $dto->typeDa = $ddp->getTypeDa();
-            $dto->numeroVersionBc = $ddp->getNumeroVersionBc();
-            $dto->numeroSoumissionDdpDa = $ddp->getNumeroSoumissionDdpDa();
+            $dto->numeroCla = $ddp->getNumeroCla();
             $dto->numeroDemandeAppro = $ddp->getNumeroDemandeAppro();
+            $dto->numeroFournisseur = $ddp->getNumeroFournisseur();
+            $dto->beneficiaire = $ddp->getBeneficiaire();
+            $dto->numeroCommande = is_array($ddp->getNumeroCommande()) ? $ddp->getNumeroCommande() : (array) json_decode($ddp->getNumeroCommande(), true);
+            $dto->numeroLivraison = null;
+            $dto->numeroFacture = is_array($ddp->getNumeroFacture()) ? $ddp->getNumeroFacture() : (array) json_decode($ddp->getNumeroFacture(), true);
+            $dto->statut = $ddp->getStatut();
+            $dto->montantAPayer = $ddp->getMontantAPayers();
+            $dto->dateSoumissionCompta = $ddp->getDateSoumissionCompta();
             $dtos[] = $dto;
         }
+
+        return $dtos;
     }
 
     public static function mapBap(DemandePaiementDto $dto): DemandePaiement
