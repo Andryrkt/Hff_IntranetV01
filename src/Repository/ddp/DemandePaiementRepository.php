@@ -254,4 +254,13 @@ class DemandePaiementRepository extends EntityRepository
 
         return $qb->getQuery()->getResult();
     }
+
+    public function findDdpByNumeroDdp(array $numeroDdp): array
+    {
+        return $this->createQueryBuilder('d')
+            ->where('d.numeroDdp IN (:numeroDdp)')
+            ->setParameter('numeroDdp', $numeroDdp)
+            ->getQuery()
+            ->getResult();
+    }
 }

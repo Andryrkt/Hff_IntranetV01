@@ -2,11 +2,10 @@
 
 namespace App\Controller\Api;
 
-use App\Constants\da\ddp\BonApayerConstants;
+
 use App\Constants\ddp\StatutConstants;
 use App\Controller\Controller;
 use App\Entity\admin\Application;
-use App\Entity\da\DaSoumissionFacBl;
 use App\Entity\ddp\DemandePaiement;
 use App\Service\autres\AutoIncDecService;
 use App\Service\da\FileCheckerService;
@@ -38,50 +37,23 @@ class DdpApiController extends Controller
             }
 
 
-            $daSoumissionFacBlRepository = $this->getEntityManager()->getRepository(DaSoumissionFacBl::class)->getAllSelonNumBap($bapNumbers);
+            $demandePaiementRepository = $this->getEntityManager()->getRepository(DemandePaiement::class);
+            $ddps = $demandePaiementRepository->findDdpByNumeroDdp($bapNumbers);
             $numeroCla = $this->genererNumeroCla();
 
-            foreach ($daSoumissionFacBlRepository as $value) {
-
-                if (null === $value->getNumeroFournisseur()) {
-                    throw new \Exception("Le numéro de fournisseur est manquant pour le BAP : " . $value->getNumeroBap());
-                }
-                if (null === $value->getNumeroCde()) {
-                    throw new \Exception("Le numéro de commande est manquant pour le BAP : " . $value->getNumeroBap());
-                }
-
-                $demandePaiementRepository = $this->getEntityManager()->getRepository(DemandePaiement::class);
-                $ddp = $demandePaiementRepository->findOneBy([
-                    'numeroDdp' => $value->getNumeroDemandePaiement(),
-                ]);
-
-                if (empty($ddp)) {
-                    return new JsonResponse([
-                        'success' => false,
-                        'message' => 'Demande paiement non récupérer pour le BAP : ' . $value->getNumeroBap(),
-                    ], 400);
-                }
-
+            foreach ($ddps as $ddp) {
 
                 // modification du statut de demande de paiement
                 $ddp
-                    ->setStatut(StatutConstants::STATUT_SOUMIS_A_VALIDATION);
-                $this->getEntityManager()->persist($ddp);
-
-                /** modification de la table da_soumission_fac_bl pour  le numéro de DDP créés, 
-                 * le changement de statut BAP transmis à la compta 
-                 * et la date de soumission compta */
-                $value
-                    ->setStatutBap(BonApayerConstants::STATUT_TRANSMISE)
+                    ->setStatut(StatutConstants::STATUT_SOUMIS_A_VALIDATION)
                     ->setDateSoumissionCompta(new DateTime())
-                    ->setNumeroCla($numeroCla)
-                ;
-                $this->getEntityManager()->persist($value);
+                    ->setNumeroCla($numeroCla);
+                $this->getEntityManager()->persist($ddp);
 
                 /** renomage et copie du fichier BAP dans DW */
                 $fileCheckerService = new FileCheckerService($_ENV['BASE_PATH_FICHIER']);
-                $bapFullpath = $fileCheckerService->getBapFullPath($value->getNumeroDemandeAppro(), $value->getNumeroCde());
-                $fileNameForDW = $value->getNumeroBap() . '#' . $value->getNumeroCla() . '.pdf';
+                $bapFullpath = $fileCheckerService->getBapFullPath($ddp->getNumeroDemandeAppro(), implode('', $ddp->getNumeroCommande()));
+                $fileNameForDW = $ddp->getNumeroDdp() . '#' . $numeroCla . '.pdf';
                 $generatePdf = new GeneratePdf();
                 $generatePdf->copyToDWBapDa($bapFullpath, $fileNameForDW);
             }
