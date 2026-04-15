@@ -29,7 +29,7 @@ class DemandeAppro
 
     public const ID_APPRO                    = 16;
     public const ID_ATELIER                  = 3;
-    
+
     public const STATUT_VALIDE               = 'Bon d’achats validé';       /*__ DA direct et DA via OR __*/ /*_ statut_dal _*/ // cliquable par Admin et Appro
     public const STATUT_CLOTUREE             = 'Clôturée';                  /*__ DA direct et DA via OR __*/ /*_ statut_dal _*/ // ! non cliquable par quiconque
     public const STATUT_CLOTUREE_HORS_DELAI  = 'Clôturée hors délai';                  /*__ DA direct et DA via OR __*/ /*_ statut_dal _*/ // ! non cliquable par quiconque
@@ -1095,6 +1095,7 @@ class DemandeAppro
             ->setStatutDal($daParent->getStatutDal())
             ->setUser($daParent->getUser())
             ->setNiveauUrgence($daParent->getNiveauUrgence())
+            ->setCodeSociete($daParent->getCodeSociete())
             ->setCodeCentrale($daParent->getCodeCentrale())
             ->setDesiCentrale($daParent->getDesiCentrale())
         ;

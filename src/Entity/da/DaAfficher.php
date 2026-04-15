@@ -2018,6 +2018,7 @@ class DaAfficher
             ->setDateLivraisonArticle($oldDaAfficher->getDateLivraisonArticle())
             ->setDateEnvoiFournisseur($oldDaAfficher->getDateEnvoiFournisseur())
             ->setDateDemande($oldDaAfficher->getDateDemande())
+            ->setCodeSociete($oldDaAfficher->getCodeSociete())
         ;
     }
 
