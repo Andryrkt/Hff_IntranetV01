@@ -100,7 +100,13 @@ class TraitementSoumissionDDPLService
         $numeroDdp = $dto->demandePaiementDto->numeroDdp;
         // GENERATION DE PDF pour le demnade de paiement
         $nomPageDeGarde = $numeroDdp . '.pdf';
-        $cheminEtNom = $this->cheminDeBaseDdp . '/' . $numeroDdp . '/' . $nomPageDeGarde;
+        $cheminDossier = $this->cheminDeBaseDdp . '/' . $numeroDdp;
+        $cheminEtNom = $cheminDossier . '/' . $nomPageDeGarde;
+
+        if (!file_exists($cheminDossier)) {
+            mkdir($cheminDossier, 0777, true);
+        }
+
         $this->generatePdfDdp->generer($dto->demandePaiementDto, $cheminEtNom);
 
         // fusion du page de garde du demande de paiement et le facture Bl

@@ -65,6 +65,7 @@ class DaSoumissionFacBlFactory
         $dto->numeroCde = $numCde;
         $dto->numeroDemandeAppro = $numDa;
         $dto->numeroOR = $numOr;
+        $dto->user = $user;
         $dto->numeroDemandeDit = $this->getNumeroDit($dto->numeroDemandeAppro);
         $dto->utilisateur = $user->getNomUtilisateur();
         $dto->numeroVersionFacBl = $this->getNumeroVersion($dto->numeroCde);
@@ -91,9 +92,6 @@ class DaSoumissionFacBlFactory
         // recupération des informations de commande
         $this->getReception($dto);
 
-        // recupération information de demande de paiement
-        $dto->demandePaiementDto = $this->getDemandePaiement($dto, $user);
-
         return $dto;
     }
 
@@ -113,6 +111,9 @@ class DaSoumissionFacBlFactory
         // livraison ===========================
         $dto->dateClotLiv = new DateTime($dto->infoLiv[$dto->numLiv]['date_clot']);
         $dto->refBlFac = $dto->infoLiv[$dto->numLiv]['ref_fac_bl'];
+
+        // recupération information de demande de paiement
+        $dto->demandePaiementDto = $this->getDemandePaiement($dto);
 
         return $dto;
     }
@@ -253,7 +254,7 @@ class DaSoumissionFacBlFactory
         return $montantpayer;
     }
 
-    private function getDemandePaiement(DaSoumissionFacBlDto $dto, User $user): DemandePaiementDto
+    private function getDemandePaiement(DaSoumissionFacBlDto $dto): DemandePaiementDto
     {
         $ddpDto = new DemandePaiementDto();
         $typeDemandeRepository = $this->em->getRepository(TypeDemande::class);
@@ -279,8 +280,8 @@ class DaSoumissionFacBlFactory
         $ddpDto->debiteur = $this->debiteur($infoDa['daTypeId'], $infoDa);
         $ddpDto->typeDemande = $dto->montantAregulariser <= 0.0 ? $typeRegule : $typeApresLivraison;
         $ddpDto->statut = 'Soumis à validation';
-        $ddpDto->demandeur = $user->getNomUtilisateur();
-        $ddpDto->adresseMailDemandeur = $user->getMail();
+        $ddpDto->demandeur = $dto->user->getNomUtilisateur();
+        $ddpDto->adresseMailDemandeur = $dto->user->getMail();
         $ddpDto->montantAPayer = $dto->montantAregulariser;
         $ddpDto->numeroCommande = [$dto->numeroCde];
         $ddpDto->numeroFacture = $dto->numeroFactureFournisseur ? [$dto->numeroFactureFournisseur] : [];

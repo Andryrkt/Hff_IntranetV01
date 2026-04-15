@@ -18,6 +18,7 @@ class DaSoumissionFacBlDto
     public $pieceJoint2;
     public $utilisateur;
     public $totalMontantPayer;
+    public $user;
 
     // livraison ========================
     public $numLiv;
