@@ -94,26 +94,31 @@ class BreadcrumbFactory
     private function createBreadcrumbFromPath(array $accueil): array
     {
         $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-        $segments = array_filter(explode('/', trim($path, '/')));
+
+        // 1. Découper + nettoyer
+        $segments = array_values(array_filter(explode('/', trim($path, '/'))));
+
+        // 2. Supprimer le premier élément
+        array_shift($segments);
+
+        // 3. Filtrer les segments non numériques
+        $segments = array_values(array_filter($segments, function ($segment) {
+            return !is_numeric($segment) && !preg_match('/\d$/', $segment);
+        }));
+
         $breadcrumbs = [$accueil];
-        $dernierIndex = count($segments) - 1;
 
-        for ($i = 1; $i <= $dernierIndex; $i++) {
-            $segment = $segments[$i];
-            $isNumeric = is_numeric($segment) || preg_match('/\d$/', $segment);
-            if ($isNumeric) {
-                if ($i === $dernierIndex) {
-                    $breadcrumbs[count($breadcrumbs) - 1]['is_active'] = true;
-                }
-                continue;
-            }
-
+        // 4. Construire les breadcrumbs
+        foreach ($segments as $segment) {
             $breadcrumbs[] = [
                 'title'     => $this->formatLabel($segment),
                 'icon'      => $this->getIconForSegment($segment),
-                'is_active' => $i === $dernierIndex,
+                'is_active' => false,
             ];
         }
+
+        // 5. Mettre le dernier en actif
+        if (count($breadcrumbs) > 0) $breadcrumbs[count($breadcrumbs) - 1]['is_active'] = true;
 
         return $breadcrumbs;
     }
