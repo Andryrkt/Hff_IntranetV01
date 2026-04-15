@@ -83,7 +83,7 @@ class MigrationProfilsCommand extends Command
                     "    php bin/console app:migration:profils\n\n" .
                     "  Migration d'un seul profil :\n" .
                     "    php bin/console app:migration:profils --profil=SUP-ADMIN\n\n" .
-                    "  Fichier JSON personnalisé :\n" .
+                    "  Fichier JSON personnalisé (par exemple pour modifier les autorisations d'un profil) :\n" .
                     "    php bin/console app:migration:profils --fichier=/chemin/vers/profils.json\n\n" .
                     "  Ignorer tous les doublons sans demander :\n" .
                     "    php bin/console app:migration:profils --doublon=ignorer\n\n" .

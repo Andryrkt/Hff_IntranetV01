@@ -80,25 +80,61 @@ class CacheWarmupAllCommand extends Command
 
         // ── Chargement des profils selon le choix ────────────────────────────
         if ($choix === 'un') {
-            $profilId = (int) $io->ask(
-                'Entrez l\'identifiant (ID) du profil à préchauffer',
-                null,
-                function (?string $valeur): int {
-                    if (!is_numeric($valeur) || (int) $valeur <= 0) {
-                        throw new \RuntimeException('L\'identifiant doit être un nombre entier positif.');
-                    }
-                    return (int) $valeur;
-                }
+
+            // ── Sous-choix : recherche par ID ou par désignation ─────────────
+            $critere = $io->choice(
+                'Comment souhaitez-vous identifier le profil ?',
+                [
+                    'id'          => 'Par identifiant   — recherche exacte sur l\'ID numérique',
+                    'designation' => 'Par désignation   — recherche par le nom du profil (insensible à la casse)',
+                ],
+                'id'
             );
 
-            $profil = $this->entityManager->getRepository(Profil::class)->find($profilId);
+            if ($critere === 'id') {
+                $profilId = (int) $io->ask(
+                    'Entrez l\'identifiant (ID) du profil à préchauffer',
+                    null,
+                    function (?string $valeur): int {
+                        if (!is_numeric($valeur) || (int) $valeur <= 0) {
+                            throw new \RuntimeException('L\'identifiant doit être un nombre entier positif.');
+                        }
+                        return (int) $valeur;
+                    }
+                );
 
-            if ($profil === null) {
-                $io->error(sprintf(
-                    'Aucun profil trouvé avec l\'identifiant %d. Vérifiez l\'ID et relancez la commande.',
-                    $profilId
-                ));
-                return Command::FAILURE;
+                $profil = $this->entityManager->getRepository(Profil::class)->find($profilId);
+
+                if ($profil === null) {
+                    $io->error(sprintf(
+                        'Aucun profil trouvé avec l\'identifiant %d. Vérifiez l\'ID et relancez la commande.',
+                        $profilId
+                    ));
+                    return Command::FAILURE;
+                }
+            } else {
+                $designation = $io->ask(
+                    'Entrez la désignation du profil à préchauffer',
+                    null,
+                    function (?string $valeur): string {
+                        $valeur = trim((string) $valeur);
+                        if ($valeur === '') {
+                            throw new \RuntimeException('La désignation ne peut pas être vide.');
+                        }
+                        return $valeur;
+                    }
+                );
+
+                $profil = $this->entityManager->getRepository(Profil::class)
+                    ->findOneBy(['designation' => $designation]);
+
+                if ($profil === null) {
+                    $io->error(sprintf(
+                        'Aucun profil trouvé avec la désignation "%s". Vérifiez le nom et relancez la commande.',
+                        $designation
+                    ));
+                    return Command::FAILURE;
+                }
             }
 
             $profils = [$profil];
@@ -106,7 +142,7 @@ class CacheWarmupAllCommand extends Command
             $io->text(sprintf(
                 'Profil sélectionné : <info>%s</info> (id: %d)',
                 $profil->getDesignation(),
-                $profilId
+                $profil->getId()
             ));
         } else {
             $profils = $this->entityManager->getRepository(Profil::class)->findAll();
