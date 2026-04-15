@@ -85,12 +85,12 @@ class TraitementSoumissionDDPLService
         $this->entityManager->flush();
 
         // enregistremenet dans la table demande_paiement_commande
-        $ddpCommande = DemandePaiementCommandeMapper::map($dto);
+        $ddpCommande = DemandePaiementCommandeMapper::map($dto->demandePaiementDto);
         $this->entityManager->persist($ddpCommande);
         $this->entityManager->flush();
 
         // enregistremenet dans la table commande_livraison
-        $commande_livraison = CommandeLivraisonMapper::map($dto);
+        $commande_livraison = CommandeLivraisonMapper::map($dto->demandePaiementDto);
         $this->entityManager->persist($commande_livraison);
         $this->entityManager->flush();
     }
@@ -131,7 +131,7 @@ class TraitementSoumissionDDPLService
         $fichierConvertir = $this->ConvertirLesPdf($nomFichierAvecChemins);
 
         /** GENERATION DU NOM DU FICHIER */
-        $numeroVersionMax          = $dto->numeroVersion;
+        $numeroVersionMax          = $dto->numeroVersionFacBl;
         $nomPdfFusionner           =  "FACBL$numCde#$numDa-{$numOr}_{$numeroVersionMax}~{$nomOriginalFichier}";
         $nomAvecCheminPdfFusionner = $this->cheminDeBase . $numDa . '/' . $nomPdfFusionner;
 
@@ -242,10 +242,10 @@ class TraitementSoumissionDDPLService
         } elseif (!empty($nonReceptionnes)) {
             $message = " il y des quantités non réceptionné sur la commande a fait objet d'une demande de paiement à l'avance (non refusé) ";
             $okey = false;
-        } elseif ($dto->typeDdp === 'regul' && $dto->totalMontantPayer > 0.0) {
+        } elseif ($dto->typeDdp === 'regul' && $dto->montantAregulariser > 0.0) {
             $message = " Pour la régularisation, il faut que le montant à payer soit égal à 0 ";
             $okey = false;
-        } elseif ($dto->typeDdp !== 'regul' && $dto->totalMontantPayer <= 0.0) {
+        } elseif ($dto->typeDdp !== 'regul' && $dto->montantAregulariser <= 0.0) {
             $message = " le type de traitement de paiement doit être régularisation car le montant à payer est égal à 0 ";
             $okey = false;
         }

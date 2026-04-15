@@ -277,7 +277,7 @@ class DaSoumissionFacBlFactory
 
         $ddpDto->numeroDdp = $this->genererNumeroDdp();
         $ddpDto->debiteur = $this->debiteur($infoDa['daTypeId'], $infoDa);
-        $ddpDto->typeDemande = $dto->totalMontantPayer <= 0.0 ? $typeRegule : $typeApresLivraison;
+        $ddpDto->typeDemande = $dto->montantAregulariser <= 0.0 ? $typeRegule : $typeApresLivraison;
         $ddpDto->statut = 'Soumis à validation';
         $ddpDto->demandeur = $user->getNomUtilisateur();
         $ddpDto->adresseMailDemandeur = $user->getMail();
