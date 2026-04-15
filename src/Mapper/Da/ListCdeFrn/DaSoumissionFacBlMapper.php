@@ -48,19 +48,16 @@ class DaSoumissionFacBlMapper
             ->setPieceJoint1($dto->pieceJoint1)
             ->setUtilisateur($dto->utilisateur)
             ->setNumeroVersion($dto->numeroVersionFacBl)
-            ->setNumeroBap($dto->numeroBap)
-            ->setStatutBap($dto->statutBap)
             ->setDateSoumissionCompta($dto->dateSoumissionCompta)
             ->setMontantBlFacture($dto->montantBlFacture)
             ->setMontantReceptionIps($dto->montantReceptionIps)
             ->setNumeroDemandePaiement($dto->numeroDemandePaiement)
-            ->setDateStatutBap($dto->dateStatutBap)
             ->setNumeroFournisseur($dto->numeroFournisseur)
             ->setNomFournisseur($dto->nomFournisseur)
             ->setNumeroFactureFournisseur($dto->numeroFactureFournisseur)
             ->setEstFactureReappro($dto->estfactureReappro)
             ->setNumeroFactureReappro($dto->numerofactureReappro)
-            ->setNumeroDemandePaiement($dto->numeroDdp)
+            ->setNumeroDemandePaiement($dto->demandePaiementDto->numeroDdp)
         ;
 
         return $daSoumissionFacBl;
