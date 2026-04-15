@@ -4571,7 +4571,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "bc_magasin_soumission",
+            "nom_route": "bc_neg_soumission",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -4579,7 +4579,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_envoyer_au_client",
+            "nom_route": "pointage_envoyer_au_client",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -4587,7 +4587,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_soumission_validation_devis",
+            "nom_route": "devis_neg_soumission_validation_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -4595,7 +4595,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_soumission_verification_prix",
+            "nom_route": "devis_neg_soumission_verification_prix",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -7695,7 +7695,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "bc_magasin_soumission",
+            "nom_route": "bc_neg_soumission",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -7703,7 +7703,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_envoyer_au_client",
+            "nom_route": "pointage_envoyer_au_client",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -7711,7 +7711,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_soumission_validation_devis",
+            "nom_route": "devis_neg_soumission_validation_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -7719,7 +7719,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_soumission_verification_prix",
+            "nom_route": "devis_neg_soumission_verification_prix",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -8030,7 +8030,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "bc_magasin_soumission",
+            "nom_route": "bc_neg_soumission",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -8038,7 +8038,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_envoyer_au_client",
+            "nom_route": "pointage_envoyer_au_client",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -8046,7 +8046,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_soumission_validation_devis",
+            "nom_route": "devis_neg_soumission_validation_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -8054,7 +8054,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_soumission_verification_prix",
+            "nom_route": "devis_neg_soumission_verification_prix",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -8365,7 +8365,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "bc_magasin_soumission",
+            "nom_route": "bc_neg_soumission",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -8373,7 +8373,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_envoyer_au_client",
+            "nom_route": "pointage_envoyer_au_client",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -8381,7 +8381,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_soumission_validation_devis",
+            "nom_route": "devis_neg_soumission_validation_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -8389,7 +8389,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_soumission_verification_prix",
+            "nom_route": "devis_neg_soumission_verification_prix",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -8730,7 +8730,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "bc_magasin_soumission",
+            "nom_route": "bc_neg_soumission",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -8738,7 +8738,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_envoyer_au_client",
+            "nom_route": "pointage_envoyer_au_client",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -8746,7 +8746,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_soumission_validation_devis",
+            "nom_route": "devis_neg_soumission_validation_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -8754,7 +8754,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_soumission_verification_prix",
+            "nom_route": "devis_neg_soumission_verification_prix",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -9318,7 +9318,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "bc_magasin_soumission",
+            "nom_route": "bc_neg_soumission",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -9326,7 +9326,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_envoyer_au_client",
+            "nom_route": "pointage_envoyer_au_client",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -9334,7 +9334,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_soumission_validation_devis",
+            "nom_route": "devis_neg_soumission_validation_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -9342,7 +9342,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_soumission_verification_prix",
+            "nom_route": "devis_neg_soumission_verification_prix",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -9639,7 +9639,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "bc_magasin_soumission",
+            "nom_route": "bc_neg_soumission",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -9647,7 +9647,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_envoyer_au_client",
+            "nom_route": "pointage_envoyer_au_client",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -9655,7 +9655,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_soumission_validation_devis",
+            "nom_route": "devis_neg_soumission_validation_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -9663,7 +9663,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_soumission_verification_prix",
+            "nom_route": "devis_neg_soumission_verification_prix",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -10195,7 +10195,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "bc_magasin_soumission",
+            "nom_route": "bc_neg_soumission",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -10203,7 +10203,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_envoyer_au_client",
+            "nom_route": "pointage_envoyer_au_client",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -10211,7 +10211,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_soumission_validation_devis",
+            "nom_route": "devis_neg_soumission_validation_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -10219,7 +10219,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_soumission_verification_prix",
+            "nom_route": "devis_neg_soumission_verification_prix",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -10818,7 +10818,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "bc_magasin_soumission",
+            "nom_route": "bc_neg_soumission",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -10826,7 +10826,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_envoyer_au_client",
+            "nom_route": "pointage_envoyer_au_client",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -10834,7 +10834,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_soumission_validation_devis",
+            "nom_route": "devis_neg_soumission_validation_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -10842,7 +10842,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_soumission_verification_prix",
+            "nom_route": "devis_neg_soumission_verification_prix",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -11916,7 +11916,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "bc_magasin_soumission",
+            "nom_route": "bc_neg_soumission",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -11924,7 +11924,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_envoyer_au_client",
+            "nom_route": "pointage_envoyer_au_client",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -11932,7 +11932,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_soumission_validation_devis",
+            "nom_route": "devis_neg_soumission_validation_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -11940,7 +11940,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_soumission_verification_prix",
+            "nom_route": "devis_neg_soumission_verification_prix",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -12390,7 +12390,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "bc_magasin_soumission",
+            "nom_route": "bc_neg_soumission",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -12398,7 +12398,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_envoyer_au_client",
+            "nom_route": "pointage_envoyer_au_client",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -12406,7 +12406,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_soumission_validation_devis",
+            "nom_route": "devis_neg_soumission_validation_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -12414,7 +12414,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_soumission_verification_prix",
+            "nom_route": "devis_neg_soumission_verification_prix",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -13067,7 +13067,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "bc_magasin_soumission",
+            "nom_route": "bc_neg_soumission",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -13075,7 +13075,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_envoyer_au_client",
+            "nom_route": "pointage_envoyer_au_client",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -13083,7 +13083,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_soumission_validation_devis",
+            "nom_route": "devis_neg_soumission_validation_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -13091,7 +13091,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_soumission_verification_prix",
+            "nom_route": "devis_neg_soumission_verification_prix",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -13397,7 +13397,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "bc_magasin_soumission",
+            "nom_route": "bc_neg_soumission",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -13405,7 +13405,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_envoyer_au_client",
+            "nom_route": "pointage_envoyer_au_client",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -13413,7 +13413,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_soumission_validation_devis",
+            "nom_route": "devis_neg_soumission_validation_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -13421,7 +13421,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_soumission_verification_prix",
+            "nom_route": "devis_neg_soumission_verification_prix",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -14289,7 +14289,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "bc_magasin_soumission",
+            "nom_route": "bc_neg_soumission",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -14297,7 +14297,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_envoyer_au_client",
+            "nom_route": "pointage_envoyer_au_client",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -14305,7 +14305,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_soumission_validation_devis",
+            "nom_route": "devis_neg_soumission_validation_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -14313,7 +14313,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_soumission_verification_prix",
+            "nom_route": "devis_neg_soumission_verification_prix",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -15065,7 +15065,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "bc_magasin_soumission",
+            "nom_route": "bc_neg_soumission",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -15073,7 +15073,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_envoyer_au_client",
+            "nom_route": "pointage_envoyer_au_client",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -15081,7 +15081,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_soumission_validation_devis",
+            "nom_route": "devis_neg_soumission_validation_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -15089,7 +15089,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_soumission_verification_prix",
+            "nom_route": "devis_neg_soumission_verification_prix",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -16427,7 +16427,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "bc_magasin_soumission",
+            "nom_route": "bc_neg_soumission",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -16435,7 +16435,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_envoyer_au_client",
+            "nom_route": "pointage_envoyer_au_client",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -16443,7 +16443,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_soumission_validation_devis",
+            "nom_route": "devis_neg_soumission_validation_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -16451,7 +16451,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_soumission_verification_prix",
+            "nom_route": "devis_neg_soumission_verification_prix",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -16679,7 +16679,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "bc_magasin_soumission",
+            "nom_route": "bc_neg_soumission",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -16687,7 +16687,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_envoyer_au_client",
+            "nom_route": "pointage_envoyer_au_client",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -16695,7 +16695,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_soumission_validation_devis",
+            "nom_route": "devis_neg_soumission_validation_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -16703,7 +16703,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_soumission_verification_prix",
+            "nom_route": "devis_neg_soumission_verification_prix",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -19284,7 +19284,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "bc_magasin_soumission",
+            "nom_route": "bc_neg_soumission",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -19292,7 +19292,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_envoyer_au_client",
+            "nom_route": "pointage_envoyer_au_client",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -19300,7 +19300,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_soumission_validation_devis",
+            "nom_route": "devis_neg_soumission_validation_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -19308,7 +19308,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_soumission_verification_prix",
+            "nom_route": "devis_neg_soumission_verification_prix",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -31096,7 +31096,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "bc_magasin_soumission",
+            "nom_route": "bc_neg_soumission",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -31104,7 +31104,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_envoyer_au_client",
+            "nom_route": "pointage_envoyer_au_client",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -31112,7 +31112,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_soumission_validation_devis",
+            "nom_route": "devis_neg_soumission_validation_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -31120,7 +31120,7 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "devis_magasin_soumission_verification_prix",
+            "nom_route": "devis_neg_soumission_verification_prix",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
