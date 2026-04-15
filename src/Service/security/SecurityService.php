@@ -161,7 +161,7 @@ class SecurityService
     public function estAtelier(): bool
     {
         if ($this->estAtelier === null) {
-            $this->estAtelier = $this->verifierPermission(self::PERMISSION_VOIR, 'dit_new');
+            $this->estAtelier = $this->dataService->getCodeServiceUser() === 'ATE';
         }
         return $this->estAtelier;
     }
