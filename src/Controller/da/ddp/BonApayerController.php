@@ -4,8 +4,7 @@ namespace App\Controller\da\ddp;
 
 use App\Controller\Controller;
 use App\Form\da\ddp\BonApayerType;
-use App\Entity\da\DaSoumissionFacBl;
-use Illuminate\Support\Facades\File;
+use App\Entity\ddp\DemandePaiement;
 use App\Service\da\FileCheckerService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -33,14 +32,15 @@ class BonApayerController extends Controller
             $criteria = $form->getData();
         }
 
-        // Récupération des données à afficher
-        $daSoumissionFacBl = $this->getEntityManager()->getRepository(DaSoumissionFacBl::class)->getAll($criteria);
+        // Récupération des données dans la table demande_paiement
+        $ddp = $this->getEntityManager()->getRepository(DemandePaiement::class)->findByCriteria($criteria);
+        // TODO: transformation en DTO (DemandePaiementDto)
 
         // chemin fichier BAP
         $fileCheckerService = new FileCheckerService($_ENV['BASE_PATH_FICHIER']);
 
         return $this->render('da/ddp/bon_a_payer.html.twig', [
-            'daSoumissionFacBl' => $daSoumissionFacBl,
+            'ddp'               => $ddp,
             'form'              => $form->createView(),
             'fileCheckerService' => $fileCheckerService,
         ]);

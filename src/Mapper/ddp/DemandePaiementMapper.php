@@ -52,6 +52,43 @@ class DemandePaiementMapper
         return $ddp;
     }
 
+    public static function mapInverse(array $ddps)
+    {
+        $dtos = [];
+        foreach ($ddps as $ddp) {
+            $dto = new DemandePaiementDto();
+            $dto->numeroDdp = $ddp->getNumeroDdp();
+            $dto->typeDemande = $ddp->getTypeDemandeId();
+            $dto->numeroFournisseur = $ddp->getNumeroFournisseur();
+            $dto->ribFournisseur = $ddp->getRibFournisseur();
+            $dto->beneficiaire = $ddp->getBeneficiaire();
+            $dto->motif = $ddp->getMotif();
+            $dto->debiteur['agence'] = $ddp->getAgenceDebiter();
+            $dto->debiteur['service'] = $ddp->getServiceDebiter();
+            $dto->statut = $ddp->getStatut();
+            $dto->adresseMailDemandeur = $ddp->getAdresseMailDemandeur();
+            $dto->demandeur = $ddp->getDemandeur();
+            $dto->modePaiement = $ddp->getModePaiement();
+            $dto->montantAPayer = $ddp->getMontantAPayers();
+            $dto->contact = $ddp->getContact();
+            $dto->numeroCommande = $ddp->getNumeroCommande();
+            $dto->numeroFacture = $ddp->getNumeroFacture();
+            $dto->devise = $ddp->getDevise();
+            $dto->statutDossierRegul = $ddp->getStatutDossierRegul();
+            $dto->numeroVersion = $ddp->getNumeroVersion();
+            $dto->nomAutreDoc = $ddp->getNomAutreDoc();
+            $dto->estCdeClientExterneDoc = $ddp->getEstCdeClientExterneDoc();
+            $dto->nomCdeClientExterneDoc = $ddp->getNomCdeClientExterneDoc();
+            $dto->numeroDossierDouane = $ddp->getNumeroDossierDouane();
+            $dto->appro = $ddp->getAppro();
+            $dto->typeDa = $ddp->getTypeDa();
+            $dto->numeroVersionBc = $ddp->getNumeroVersionBc();
+            $dto->numeroSoumissionDdpDa = $ddp->getNumeroSoumissionDdpDa();
+            $dto->numeroDemandeAppro = $ddp->getNumeroDemandeAppro();
+            $dtos[] = $dto;
+        }
+    }
+
     public static function mapBap(DemandePaiementDto $dto): DemandePaiement
     {
         $ddp = new DemandePaiement();
