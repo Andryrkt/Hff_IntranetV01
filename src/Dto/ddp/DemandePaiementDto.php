@@ -23,12 +23,12 @@ class DemandePaiementDto
     public ?\DateTime $dateSoumissionCompta = null;
 
     // fournisseur ======================
-    public string $numeroFournisseur;
-    public string $ribFournisseur;
-    public string $ribFournisseurAncien;
-    public string $cif;
-    public string $beneficiaire; // nom du fournisseur
-    public string $modePaiement;
+    public ?string $numeroFournisseur = null;
+    public ?string $ribFournisseur = null;
+    public ?string $ribFournisseurAncien = null;
+    public ?string $cif = null;
+    public ?string $beneficiaire = null; // nom du fournisseur
+    public ?string $modePaiement = null;
     public ?string $devise = null;
     public ?string $contact = null;
 

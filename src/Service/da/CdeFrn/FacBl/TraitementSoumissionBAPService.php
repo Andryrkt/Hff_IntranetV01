@@ -40,7 +40,7 @@ class TraitementSoumissionBAPService
     private GeneratePdf $generatePdf;
     private DaSoumissionFacBlModel $daSoumissionFacBlModel;
     private TraitementDeFichier $traitementDeFichier;
-    private string $cheminDeBase;
+    private string $cheminDeBaseDa;
     private DemandeApproRepository $demandeApproRepository;
     private DwBcApproRepository $dwBcApproRepository;
 
@@ -55,7 +55,7 @@ class TraitementSoumissionBAPService
         $this->generatePdf                 = new GeneratePdf();
         $this->daSoumissionFacBlModel      = new DaSoumissionFacBlModel();
         $this->traitementDeFichier         = new TraitementDeFichier();
-        $this->cheminDeBase                = $_ENV['BASE_PATH_FICHIER'] . '/da/';
+        $this->cheminDeBaseDa              = $_ENV['BASE_PATH_FICHIER'] . '/da/';
         $this->demandeApproRepository      = $this->entityManager->getRepository(DemandeAppro::class);
         $this->dwBcApproRepository         = $this->entityManager->getRepository(DwBcAppro::class);
     }
@@ -69,28 +69,12 @@ class TraitementSoumissionBAPService
             $numDa   = $dto->numeroDemandeAppro;
             $numLiv = $dto->numLiv;
 
-            // Suppression de l'ancienne soumission si elle existe déjà avec le statut 'BAP à soumettre'
-            $oldSoumission = $this->daSoumissionFacBlRepository->findOneBy([
-                'numLiv' => $numLiv,
-                'statutBap' => BonApayerConstants::STATUT_A_TRANSMETTERE
-            ]);
-
-            if ($oldSoumission) {
-                $this->entityManager->remove($oldSoumission);
-                $this->entityManager->flush();
-            }
-
-            $dto->numeroBap = $this->daSoumissionFacBlFactory->genererNumeroBap();
-
-            if (empty($dto->numeroDdp)) {
-                $dto->numeroDdp = $this->daSoumissionFacBlFactory->genererNumeroBap();
-            }
-
             // Traitement du fichier
             [$nomAvecCheminPdfFusionner, $nomPdfFusionner] = $this->traitementDeFichier($form, $dto, $mail);
 
             // enrichissement Dto
             $dto  = $this->daSoumissionFacBlFactory->EnrichissementDtoApresSoumission($dto, $nomPdfFusionner);
+
             /** ENREGISTREMENT DANS LA BASE DE DONNEE */
             $this->enregistrementDansBD($dto);
 
@@ -232,7 +216,7 @@ class TraitementSoumissionBAPService
         $this->entityManager->flush();
     }
 
-    private function traitementDeFichier($form, $dto, ?string $mail): array
+    private function traitementDeFichier($form, DaSoumissionFacBlDto $dto, ?string $mail): array
     {
         $numCde  = $dto->numeroCde;
         $numDa   = $dto->numeroDemandeAppro;
@@ -245,7 +229,7 @@ class TraitementSoumissionBAPService
         $nomDeFichiers = $this->enregistrementFichier($form, $numCde, $numDa);
 
         /** AJOUT DES CHEMINS DANS LE TABLEAU */
-        $nomFichierAvecChemins = $this->addPrefixToElementArray($nomDeFichiers, $this->cheminDeBase . $numDa . '/');
+        $nomFichierAvecChemins = $this->addPrefixToElementArray($nomDeFichiers, $this->cheminDeBaseDa . $numDa . '/');
 
         /** CREATION DE LA PAGE DE GARDE */
         $pageDeGarde = $this->genererPageDeGarde($infoLiv, $dto, $mail);
@@ -259,14 +243,15 @@ class TraitementSoumissionBAPService
         /** GENERATION DU NOM DU FICHIER */
         $numeroVersionMax          = $dto->numeroVersionFacBl;
         $nomPdfFusionner           =  "FACBL$numCde#$numDa-{$numOr}_{$numeroVersionMax}~{$nomOriginalFichier}";
-        $nomAvecCheminPdfFusionner = $this->cheminDeBase . $numDa . '/' . $nomPdfFusionner;
+        $nomAvecCheminPdfFusionner = $this->cheminDeBaseDa . $numDa . '/' . $nomPdfFusionner;
 
         /** FUSION DES PDF */
         $this->traitementDeFichier->fusionFichers($fichierConvertir, $nomAvecCheminPdfFusionner);
 
         /** GENERATION DU DEUXIÈME NOM DU FICHIER  */
         $nomPdfSecond           = "BAP-$numCde#$numDa.pdf";
-        $nomAvecCheminPdfSecond = $this->cheminDeBase . $numDa . '/' . $nomPdfSecond;
+        $nomAvecCheminPdfSecond = $this->cheminDeBaseDa . $numDa . '/' . $nomPdfSecond;
+
         /** FUSION DU DEUXIÈME FICHIER */
         $this->traitementDeFichier->fusionFichers($fichierConvertir, $nomAvecCheminPdfSecond);
 
@@ -305,7 +290,7 @@ class TraitementSoumissionBAPService
 
                             $this->traitementDeFichier->upload(
                                 $singleFile,
-                                $this->cheminDeBase . '/' . $numDa,
+                                $this->cheminDeBaseDa . '/' . $numDa,
                                 $nomDeFichier
                             );
 

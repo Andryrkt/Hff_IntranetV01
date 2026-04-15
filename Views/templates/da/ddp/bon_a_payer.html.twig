@@ -57,9 +57,9 @@
 						<td class="text-center">{{ row.numeroCla}}</td>
 						<td class="text-center">{{ row.numeroDemandeAppro }}</td>
 						<td class="text-center">
-							{% set fileExists = fileCheckerService.checkBapFileExists(row.numeroDemandeAppro, row.numeroCommande.0.0) %}
+							{% set fileExists = fileCheckerService.checkBapFileExists(row.numeroDemandeAppro, row.numeroCommande) %}
 							{% if fileExists %}
-								{% set filename = 'BAP_' ~ row.numeroDemandeAppro ~ '_' ~ row.numeroCommande.0.0 ~ '.pdf' %}
+								{% set filename = 'BAP_' ~ row.numeroDemandeAppro ~ '_' ~ row.numeroCommande ~ '.pdf' %}
 								<a href="#" class="show-pdf-modal" data-pdf-url="{{ path('bap_pdf_viewer', { numeroDa: row.numeroDemandeAppro, urlPdf: filename }) }}">
 									{{ row.numeroDdp }}
 									<i class="fas fa-file-pdf ml-1" style="color: red;"></i>
@@ -69,9 +69,9 @@
 							{% endif %}
 						</td>
 						<td class="text-center">{{ row.numeroFournisseur ~ '-' ~ row.beneficiaire }}</td>
-						<td class="text-center">{{ row.numeroCommande.0.0}}</td>
+						<td class="text-center">{{ row.numeroCommande}}</td>
 						<td class="text-center">{{ row.numeroLivraison }}</td>
-						<td class="text-center">{{ row.numerofacture.0.0 }}</td>
+						<td class="text-center">{{ row.numeroFacture }}</td>
 						<td class="text-center fw-bold {{ row.styleStatut }}">{{ row.statut }}</td>
 						<td class="text-center">{{ row.dateSoumissionCompta ? row.dateSoumissionCompta | date('d/m/Y'):null }}</td>
 						{# <td class="text-center">{{ row.dateStatutBap ? row.dateStatutBap | date('d/m/Y'):null }}</td> #}
