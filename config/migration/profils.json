@@ -20657,14 +20657,6 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },
-          {
-            "nom_route": "da_list_dit",
-            "peut_voir": true,
-            "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
-            "peut_supprimer": false,
-            "peut_exporter": false
           }
         ],
         "agences_services": []
@@ -21389,14 +21381,6 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },
-          {
-            "nom_route": "da_list_dit",
-            "peut_voir": true,
-            "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
-            "peut_supprimer": false,
-            "peut_exporter": false
           }
         ],
         "agences_services": []
@@ -21704,14 +21688,6 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },
-          {
-            "nom_route": "da_list_dit",
-            "peut_voir": true,
-            "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
-            "peut_supprimer": false,
-            "peut_exporter": false
           }
         ],
         "agences_services": []
@@ -22014,14 +21990,6 @@
           },
           {
             "nom_route": "dit_dossier_intervention_atelier",
-            "peut_voir": true,
-            "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": true,
-            "peut_supprimer": false,
-            "peut_exporter": false
-          },
-          {
-            "nom_route": "da_list_dit",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": true,
@@ -23048,14 +23016,6 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },
-          {
-            "nom_route": "da_list_dit",
-            "peut_voir": true,
-            "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
-            "peut_supprimer": false,
-            "peut_exporter": false
           }
         ],
         "agences_services": []
@@ -23358,14 +23318,6 @@
           },
           {
             "nom_route": "dit_dossier_intervention_atelier",
-            "peut_voir": true,
-            "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
-            "peut_supprimer": false,
-            "peut_exporter": false
-          },
-          {
-            "nom_route": "da_list_dit",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -23963,14 +23915,6 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },
-          {
-            "nom_route": "da_list_dit",
-            "peut_voir": true,
-            "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
-            "peut_supprimer": false,
-            "peut_exporter": false
           }
         ],
         "agences_services": []
@@ -24537,14 +24481,6 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },
-          {
-            "nom_route": "da_list_dit",
-            "peut_voir": true,
-            "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
-            "peut_supprimer": false,
-            "peut_exporter": false
           }
         ],
         "agences_services": []
@@ -24825,14 +24761,6 @@
           },
           {
             "nom_route": "dit_dossier_intervention_atelier",
-            "peut_voir": true,
-            "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
-            "peut_supprimer": false,
-            "peut_exporter": false
-          },
-          {
-            "nom_route": "da_list_dit",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -25640,14 +25568,6 @@
           },
           {
             "nom_route": "dit_dossier_intervention_atelier",
-            "peut_voir": true,
-            "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
-            "peut_supprimer": false,
-            "peut_exporter": false
-          },
-          {
-            "nom_route": "da_list_dit",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -26868,14 +26788,6 @@
           },
           {
             "nom_route": "dit_dossier_intervention_atelier",
-            "peut_voir": true,
-            "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
-            "peut_supprimer": false,
-            "peut_exporter": false
-          },
-          {
-            "nom_route": "da_list_dit",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -28413,14 +28325,6 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },
-          {
-            "nom_route": "da_list_dit",
-            "peut_voir": true,
-            "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
-            "peut_supprimer": false,
-            "peut_exporter": false
           }
         ],
         "agences_services": [
@@ -29003,14 +28907,6 @@
           },
           {
             "nom_route": "dit_dossier_intervention_atelier",
-            "peut_voir": true,
-            "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": true,
-            "peut_supprimer": false,
-            "peut_exporter": false
-          },
-          {
-            "nom_route": "da_list_dit",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": true,
@@ -29631,14 +29527,6 @@
           },
           {
             "nom_route": "dit_dossier_intervention_atelier",
-            "peut_voir": true,
-            "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
-            "peut_supprimer": false,
-            "peut_exporter": false
-          },
-          {
-            "nom_route": "da_list_dit",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
