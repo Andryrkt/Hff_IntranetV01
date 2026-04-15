@@ -52,7 +52,7 @@ class DemandePaiementDto
     public $commandeFichier;
     public $factureFournisseurFichier;
     public $titreDeTransportFichier;
-    public $lesFichiers;
+    public array $lesFichiers = [];
 
 
 
@@ -67,7 +67,7 @@ class DemandePaiementDto
     public $pourcentageAvance;
     public $ratioMontantpayer;
     public $numeroDa;
-    public $ddpaDa = false;
+    public bool $ddpaDa = false;
     public int $numeroVersionBc = 0;
     public string $nomPdfFusionnerBc = '';
     public $daDdpa = [];

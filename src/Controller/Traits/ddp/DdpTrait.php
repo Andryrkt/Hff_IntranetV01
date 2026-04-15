@@ -48,7 +48,7 @@ trait DdpTrait
 
                 $nomFichierInitial = basename($pathAndCde[0]['path']);
 
-                $cheminDufichierDestinataire = $this->cheminDeBase . '/' . $numDdp . '_New_' . $numVersion . '/' . $nomFichierInitial;
+                $cheminDufichierDestinataire = $this->cheminDeBase . '/' . $numDdp . '/' . $nomFichierInitial;
 
                 $destinationDir = dirname($cheminDufichierDestinataire);
                 if (!is_dir($destinationDir)) {
