@@ -12,9 +12,9 @@ class DemandePaiementDto
 
     // info generale =====================
     public string $numeroDdp;
-    public $statut;
-    public $adresseMailDemandeur;
-    public $demandeur;
+    public string $statut;
+    public string $adresseMailDemandeur;
+    public string $demandeur;
     public int $numeroVersion = 0;
     public ?TypeDemande $typeDemande = null;
     public ?\DateTime $dateDemande = null;
@@ -23,20 +23,20 @@ class DemandePaiementDto
     public ?\DateTime $dateSoumissionCompta = null;
 
     // fournisseur ======================
-    public $numeroFournisseur;
-    public $ribFournisseur;
-    public $ribFournisseurAncien;
-    public $cif;
-    public $beneficiaire; // nom du fournisseur
-    public $modePaiement;
+    public string $numeroFournisseur;
+    public string $ribFournisseur;
+    public string $ribFournisseurAncien;
+    public string $cif;
+    public string $beneficiaire; // nom du fournisseur
+    public string $modePaiement;
     public ?string $devise = null;
     public ?string $contact = null;
 
     // info sur Ddp =========================
     public $motif;
     public array $debiteur = [];
-    public array $numeroCommande = [];
-    public array $numeroFacture = [];
+    public ?string  $numeroCommande = null;
+    public ?string $numeroFacture = null;
     public ?string $statutDossierRegul = null;
 
     public bool $estCdeClientExterneDoc = false;
@@ -84,12 +84,12 @@ class DemandePaiementDto
     public $numeroDemandeAppro;
     public $numeroLivraison;
 
-    public function montantAPayer(): float
+    public function montantAPayer()
     {
-        return (float) $this->montantAPayer;
+        return $this->montantAPayer;
     }
 
-    public function montantRestantApayer(): float
+    public function montantRestantApayer()
     {
         return $this->montantTotalCde - $this->montantDejaPaye - $this->montantAPayer();
     }
@@ -106,12 +106,12 @@ class DemandePaiementDto
 
     public function numCdeString()
     {
-        return implode(';', $this->numeroCommande);
+        return is_array($this->numeroCommande) ? implode(';', $this->numeroCommande) : $this->numeroCommande;
     }
 
     public function numFacString()
     {
-        return implode(';', $this->numeroFacture);
+        return is_array($this->numeroFacture) ? implode(';', $this->numeroFacture) : $this->numeroFacture;
     }
 
     public function numeroDossierDouaneString()

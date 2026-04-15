@@ -124,14 +124,14 @@ class DemandePaiement
 
 
     /**
-     * @ORM\Column(type="json", name="numero_commande")
+     * @ORM\Column(type="string", name="numero_commande")
      */
-    private $numeroCommande = [];
+    private $numeroCommande;
 
     /**
-     * @ORM\Column(type="json", name="numero_facture")
+     * @ORM\Column(type="string", name="numero_facture")
      */
-    private $numeroFacture = [];
+    private $numeroFacture;
 
     /**
      * @ORM\Column(type="string", length=5, name="devise")

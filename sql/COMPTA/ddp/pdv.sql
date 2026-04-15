@@ -41,6 +41,8 @@ CREATE TABLE demande_paiement
 
 ALTER TABLE demande_paiement ADD numero_cla VARCHAR(50)
 ALTER TABLE demande_paiement ADD date_soumission_compta DATETIME2 (3)
+ALTER TABLE demande_paiement ALTER COLUMN numero_commande VARCHAR(50);
+ALTER TABLE demande_paiement ALTER COLUMN numero_facture VARCHAR(50);
 
 CREATE TABLE type_demande
 (

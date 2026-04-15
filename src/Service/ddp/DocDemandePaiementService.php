@@ -54,10 +54,8 @@ class DocDemandePaiementService
         $numCde = $dto->numeroCommande;
         $numFactures = $dto->numeroFacture;
 
-        $numCdesString = TableauEnStringService::TableauEnString(',', $numCde);
-        $numFactString = TableauEnStringService::TableauEnString(',', $numFactures);
 
-        $numDossiers = array_column($this->ddpModel->getNumDossierGcot($numFrs, $numCdesString, $numFactString), 'Numero_Dossier_Douane');
+        $numDossiers = array_column($this->ddpModel->getNumDossierGcot($numFrs, $numCde, $numFactures), 'Numero_Dossier_Douane');
 
         return $numDossiers;
     }
@@ -173,10 +171,7 @@ class DocDemandePaiementService
 
     private function recupCdeDw(DemandePaiementDto $dto): array
     {
-        $pathAndCdes = [];
-        foreach ($dto->numeroCommande as  $numcde) {
-            $pathAndCdes[] = $this->ddpModel->getPathDwCommande($numcde);
-        }
+        $pathAndCdes[] = $this->ddpModel->getPathDwCommande($dto->numeroCommande);
 
         $nomDufichierCde = [];
         foreach ($pathAndCdes as  $pathAndCde) {

@@ -70,6 +70,7 @@ class DaSoumissionFacBlFactory
         $dto->utilisateur = $user->getNomUtilisateur();
         $dto->numeroVersionFacBl = $this->getNumeroVersion($dto->numeroCde);
         $dto->dateBlFac = $this->getDateLivraisonPrevue($dto);
+        $dto->dateDemande = new DateTime();
 
         // livraison ===========================
         $dto->infoLiv = $this->getInfoLivraison($dto);
@@ -283,8 +284,8 @@ class DaSoumissionFacBlFactory
         $ddpDto->demandeur = $dto->user->getNomUtilisateur();
         $ddpDto->adresseMailDemandeur = $dto->user->getMail();
         $ddpDto->montantAPayer = $dto->montantAregulariser;
-        $ddpDto->numeroCommande = [$dto->numeroCde];
-        $ddpDto->numeroFacture = $dto->numeroFactureFournisseur ? [$dto->numeroFactureFournisseur] : [];
+        $ddpDto->numeroCommande = $dto->numeroCde;
+        $ddpDto->numeroFacture = $dto->numeroFactureFournisseur;
         $ddpDto->appro = true;
         $ddpDto->typeDa = $infoDa['daTypeId'];
         $ddpDto->numeroVersionBc = $daSoumissionBcRepository->getNumeroVersionMax($dto->numeroCde);

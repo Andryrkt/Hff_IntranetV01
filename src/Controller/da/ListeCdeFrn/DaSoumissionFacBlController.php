@@ -97,7 +97,7 @@ class DaSoumissionFacBlController extends Controller
                 /** HISTORISATION */
                 $message = 'Le document est soumis pour validation';
                 $criteria = $this->getSessionService()->get('criteria_for_excel_Da_Cde_frn');
-                $nomDeRoute = 'da_list_cde_frn'; // route de redirection après soumission
+                $nomDeRoute = $dto->typeDdp === 'aucun' ? 'da_list_cde_frn' : 'da_bon_a_payer'; // route de redirection après soumission
                 $nomInputSearch = 'cde_frn_list'; // initialistion de nom de chaque champ ou input
                 $historiqueOperation = new HistoriqueOperationDaBcService($this->getEntityManager());
                 $historiqueOperation->sendNotificationSoumission($message, $dto->numeroCde, $nomDeRoute, true, $criteria, $nomInputSearch);

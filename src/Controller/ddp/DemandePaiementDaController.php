@@ -8,13 +8,10 @@ use App\Controller\Traits\AutorisationTrait;
 use App\Controller\Traits\PdfConversionTrait;
 use App\Dto\ddp\DemandePaiementDto;
 use App\Entity\admin\Application;
-use App\Entity\da\DaAfficher;
-use App\Entity\da\DaSoumissionBc;
 use App\Entity\ddp\DemandePaiement;
 use App\Factory\ddp\DemandePaiementFactory;
 use App\Form\ddp\DemandePaiementDaType;
 use App\Model\ddp\DemandePaiementModel;
-use App\Service\ddp\CommandeLivraisonService;
 use App\Service\ddp\DdpaDaService;
 use App\Service\ddp\DdpGeneratorNameService;
 use App\Service\ddp\DemandePaiementCommandeService;
@@ -24,9 +21,7 @@ use App\Service\ddp\DocDemandePaiementService;
 use App\Service\fichier\TraitementDeFichier;
 use App\Service\fichier\UploderFileService;
 use App\Service\genererPdf\ddp\GeneratePdfDdpDa;
-use App\Service\genererPdf\GeneratePdf;
 use App\Service\historiqueOperation\HistoriqueOperationDDPService;
-use App\Service\TableauEnStringService;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -106,7 +101,7 @@ class DemandePaiementDaController extends Controller
             /** HISTORISATION */
             $message = "Le document a été généré avec succès";
             $criteria = $this->getSessionService()->get('criteria_for_excel_Da_Cde_frn');
-            $nomDeRoute = 'da_list_cde_frn'; // route de redirection après soumission
+            $nomDeRoute = 'da_bon_a_payer'; // route de redirection après soumission
             $nomInputSearch = 'cde_frn_list'; // initialistion de nom de chaque champ ou input
             $this->historiqueOperation->sendNotificationSoumission($message, $dto->numeroDdp, $nomDeRoute, true, $criteria, $nomInputSearch);
         }
@@ -164,8 +159,8 @@ class DemandePaiementDaController extends Controller
     private function traitementDeFichier(DemandePaiementDto $dto, FormInterface $form): string
     {
         $numCdes = $this->demandePaiementModel->getCommandeReceptionnee($dto->numeroFournisseur);
-        $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
-        $numFacString = TableauEnStringService::TableauEnString(',', $dto->numeroFacture);
+        $numCdesString = $numCdes;
+        $numFacString =  $dto->numeroFacture;
         $numeroCommandes = $this->demandePaiementModel->getNumCommande($dto->numeroFournisseur, $numCdesString, $numFacString);
 
         /** TRAITEMENT FICHIER  AUTRE DOCUMENT ET BC client externe / BC client magasin*/

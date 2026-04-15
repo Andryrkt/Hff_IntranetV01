@@ -117,8 +117,13 @@ class DemandePaiementModel extends Model
         return array_column($this->retournerResultGcot04($sql), 'Numero_Facture');
     }
 
-    public function getNumDossierGcot(string $numeroFournisseur, string  $numCdesString, string $numFactString): array
+    public function getNumDossierGcot(string $numeroFournisseur, string  $numCdesString, ?string $numFactString): array
     {
+        if (!empty($numFactString)) {
+            $numFac = " and TRZT_Facture.Numero_Facture in ({$numFactString})";
+        } else {
+            $numFac = '';
+        }
         $sql = " SELECT  DISTINCT
 
             TRZT_Dossier_Douane.Numero_Dossier_Douane
@@ -127,28 +132,37 @@ class DemandePaiementModel extends Model
             LEFT JOIN GCOT_Facture on TRZT_Facture.Numero_Facture = GCOT_Facture.Numero_Facture
             LEFT JOIN GCOT_Facture_Ligne on GCOT_Facture.ID_GCOT_Facture = GCOT_Facture_Ligne.ID_GCOT_Facture
             where TRZT_Dossier_Douane.Numero_Dossier_Douane like '%' 
-            and TRZT_Facture.Numero_Facture in ({$numFactString})
+            $numFac
             and TRZT_Dossier_Douane.Code_Fournisseur = '{$numeroFournisseur}'
             and GCOT_Facture_Ligne.Numero_PO in ({$numCdesString})
             ";
         return $this->retournerResultGcot04($sql);
     }
 
-    public function getNumCommande(string $numeroFournisseur, string  $numCdesString, string $numFactString): array
+    public function getNumCommande(string $numeroFournisseur, string $numCdesString, ?string $numFactString): string
     {
-        $sql = " SELECT DISTINCT
+        if (!empty($numFactString)) {
+            $numFac = "and TRZT_Facture.Numero_Facture in ({$numFactString})";
+        } else {
+            $numFac = '';
+        }
 
-            GCOT_Facture_Ligne.Numero_PO as numerocde
-            from TRZT_Dossier_Douane
-            LEFT JOIN TRZT_Facture on TRZT_Dossier_Douane.Numero_Dossier_Douane = TRZT_Facture.Numero_Dossier_Douane
-            LEFT JOIN GCOT_Facture on TRZT_Facture.Numero_Facture = GCOT_Facture.Numero_Facture
-            LEFT JOIN GCOT_Facture_Ligne on GCOT_Facture.ID_GCOT_Facture = GCOT_Facture_Ligne.ID_GCOT_Facture
-            where TRZT_Dossier_Douane.Numero_Dossier_Douane like '%' 
-            and TRZT_Facture.Numero_Facture in ({$numFactString})
-            and TRZT_Dossier_Douane.Code_Fournisseur = '{$numeroFournisseur}'
-            and GCOT_Facture_Ligne.Numero_PO in ({$numCdesString})
-            ";
-        return array_column($this->retournerResultGcot04($sql), 'numerocde');
+        $sql = " SELECT DISTINCT
+        GCOT_Facture_Ligne.Numero_PO as numerocde
+        from TRZT_Dossier_Douane
+        LEFT JOIN TRZT_Facture on TRZT_Dossier_Douane.Numero_Dossier_Douane = TRZT_Facture.Numero_Dossier_Douane
+        LEFT JOIN GCOT_Facture on TRZT_Facture.Numero_Facture = GCOT_Facture.Numero_Facture
+        LEFT JOIN GCOT_Facture_Ligne on GCOT_Facture.ID_GCOT_Facture = GCOT_Facture_Ligne.ID_GCOT_Facture
+        where TRZT_Dossier_Douane.Numero_Dossier_Douane like '%' 
+        $numFac
+        and TRZT_Dossier_Douane.Code_Fournisseur = '{$numeroFournisseur}'
+        and GCOT_Facture_Ligne.Numero_PO in ({$numCdesString})
+        ";
+
+        $result = array_column($this->retournerResultGcot04($sql), 'numerocde');
+
+        // Retourner la première valeur ou une chaîne vide
+        return !empty($result) ? (string) $result[0] : '';
     }
 
 
@@ -261,16 +275,23 @@ class DemandePaiementModel extends Model
         return array_column($this->convertirEnUtf8($data), 'facture_non_lettree');
     }
 
-    public function getCommandeReceptionnee(string $numeroFournisseur)
+    public function getCommandeReceptionnee(string $numeroFournisseur): string
     {
         $statement = " SELECT distinct fllf_numcde as commande_receptionnee from frn_llf
-                    inner join frn_liv on fliv_numliv = fllf_numliv and fliv_soc = fllf_soc and fliv_succ = fllf_succ and fliv_soc = 'HF'
-                    where fliv_numfou = '{$numeroFournisseur}'
-        ";
+                inner join frn_liv on fliv_numliv = fllf_numliv and fliv_soc = fllf_soc and fliv_succ = fllf_succ and fliv_soc = 'HF'
+                where fliv_numfou = '{$numeroFournisseur}'
+    ";
 
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
-        return array_column($this->convertirEnUtf8($data), 'commande_receptionnee');
+        $data = $this->convertirEnUtf8($data);
+
+        // Retourner le premier résultat comme string, ou une chaîne vide si aucun résultat
+        if (!empty($data) && isset($data[0]['commande_receptionnee'])) {
+            return (string) $data[0]['commande_receptionnee'];
+        }
+
+        return '';
     }
 
     public function recupInfoPourDa(string $numeroFournisseur, string $numCde)

@@ -62,9 +62,9 @@ class DemandePaiementMapper
             $dto->numeroDemandeAppro = $ddp->getNumeroDemandeAppro();
             $dto->numeroFournisseur = $ddp->getNumeroFournisseur();
             $dto->beneficiaire = $ddp->getBeneficiaire();
-            $dto->numeroCommande = is_array($ddp->getNumeroCommande()) ? $ddp->getNumeroCommande() : (array) json_decode($ddp->getNumeroCommande(), true);
+            $dto->numeroCommande =  $ddp->getNumeroCommande();
             $dto->numeroLivraison = null;
-            $dto->numeroFacture = is_array($ddp->getNumeroFacture()) ? $ddp->getNumeroFacture() : (array) json_decode($ddp->getNumeroFacture(), true);
+            $dto->numeroFacture =  $ddp->getNumeroFacture();
             $dto->statut = $ddp->getStatut();
             $dto->montantAPayer = $ddp->getMontantAPayers();
             $dto->dateSoumissionCompta = $ddp->getDateSoumissionCompta();
