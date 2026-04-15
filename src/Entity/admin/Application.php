@@ -4,7 +4,6 @@ namespace App\Entity\admin;
 
 use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
-use App\Entity\admin\utilisateur\User;
 use App\Entity\admin\ApplicationProfil;
 use App\Entity\admin\dit\CategorieAteApp;
 use Doctrine\Common\Collections\Collection;
@@ -45,12 +44,6 @@ class Application
     private ?string $derniereId = null;
 
     /**
-     * @ORM\ManyToMany(targetEntity=User::class, mappedBy="applications")
-     */
-    private $users;
-
-
-    /**
      * @ORM\ManyToMany(targetEntity=CategorieAteApp::class, mappedBy="applications")
      */
     private $categorieAtes;
@@ -74,7 +67,6 @@ class Application
     public function __construct()
     {
         $this->applicationProfils = new ArrayCollection();
-        $this->users = new ArrayCollection();
         $this->categorieAtes = new ArrayCollection();
         $this->pages = new ArrayCollection();
     }
@@ -131,33 +123,6 @@ class Application
 
         return $this;
     }
-
-    /**
-     * @return Collection|User[]
-     */
-    public function getUsers(): Collection
-    {
-        return $this->users;
-    }
-
-    public function addUser(User $user): self
-    {
-        if (!$this->users->contains($user)) {
-            $this->users[] = $user;
-            $user->addApplication($this);
-        }
-        return $this;
-    }
-
-    public function removeUser(User $user): self
-    {
-        if ($this->users->contains($user)) {
-            $this->users->removeElement($user);
-            $user->removeApplication($this);
-        }
-        return $this;
-    }
-
 
     public function getCategorieAtes(): Collection
     {
