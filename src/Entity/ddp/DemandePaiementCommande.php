@@ -42,6 +42,13 @@ class DemandePaiementCommande
     private ?string $numeroDemandeAppro = null;
 
     /**
+     * @ORM\Column(type="string", length=50, name="client", nullable=true)
+     *
+     * @var string|null
+     */
+    private ?string $client = null;
+
+    /**
      * @ORM\ManyToOne(targetEntity=DemandePaiement::class, inversedBy="demandePaiementCommandes")
      * @ORM\JoinColumn(name="demandePaiementId", referencedColumnName="id")
      */
@@ -111,6 +118,24 @@ class DemandePaiementCommande
     public function setNumeroDemandeAppro(?string $numeroDemandeAppro): self
     {
         $this->numeroDemandeAppro = $numeroDemandeAppro;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of client
+     */
+    public function getClient(): ?string
+    {
+        return $this->client;
+    }
+
+    /**
+     * Set the value of client
+     */
+    public function setClient(?string $client): self
+    {
+        $this->client = $client;
 
         return $this;
     }

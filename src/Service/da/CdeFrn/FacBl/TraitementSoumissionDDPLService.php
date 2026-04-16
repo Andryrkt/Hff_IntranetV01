@@ -84,13 +84,18 @@ class TraitementSoumissionDDPLService
         $this->entityManager->persist($daSoumissionFacBl);
         $this->entityManager->flush();
 
-        // enregistremenet dans la table demande_paiement_commande
-        $ddpCommande = DemandePaiementCommandeMapper::map($dto->demandePaiementDto);
+        // enregisstrement dans la table demande_paiement
+        $ddp = DemandePaiementMapper::map($dto->demandePaiementDto);
+        $this->entityManager->persist($ddp);
+        $this->entityManager->flush();
+
+        // enregistrement dans la table demande_paiement_commande
+        $ddpCommande = DemandePaiementCommandeMapper::map($dto->demandePaiementDto, $ddp);
         $this->entityManager->persist($ddpCommande);
         $this->entityManager->flush();
 
         // enregistremenet dans la table commande_livraison
-        $commande_livraison = CommandeLivraisonMapper::map($dto->demandePaiementDto);
+        $commande_livraison = CommandeLivraisonMapper::map($dto->demandePaiementDto, $ddp);
         $this->entityManager->persist($commande_livraison);
         $this->entityManager->flush();
     }
@@ -113,11 +118,6 @@ class TraitementSoumissionDDPLService
         $pdfAFusionner = [$cheminEtNom, $nomAvecCheminPdfFusionner];
         $fichierConvertir = $this->ConvertirLesPdf($pdfAFusionner);
         $this->traitementDeFichier->fusionFichers($fichierConvertir, $cheminEtNom);
-
-        // enregisstrement dans la table demande_paiement
-        $ddp = DemandePaiementMapper::map($dto->demandePaiementDto);
-        $this->entityManager->persist($ddp);
-        $this->entityManager->flush();
     }
 
     private function traitementDeFichier($form, $dto): array

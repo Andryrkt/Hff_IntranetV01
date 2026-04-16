@@ -104,12 +104,12 @@ class TraitementSoumissionBAPService
         $this->entityManager->flush();
 
         // enregistremenet dans la table demande_paiement_commande
-        $ddpCommande = DemandePaiementCommandeMapper::map($dto->demandePaiementDto);
+        $ddpCommande = DemandePaiementCommandeMapper::map($dto->demandePaiementDto, $ddp);
         $this->entityManager->persist($ddpCommande);
         $this->entityManager->flush();
 
         // enregistremenet dans la table commande_livraison
-        $commande_livraison = CommandeLivraisonMapper::map($dto->demandePaiementDto);
+        $commande_livraison = CommandeLivraisonMapper::map($dto->demandePaiementDto, $ddp);
         $this->entityManager->persist($commande_livraison);
         $this->entityManager->flush();
     }
