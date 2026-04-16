@@ -18,6 +18,7 @@ use App\Entity\da\DemandeApproLRCollection;
 use App\Form\da\DaObservationType;
 use App\Form\da\DaPropositionValidationType;
 use App\Form\da\DemandeApproLRCollectionType;
+use App\Service\da\DocRattacheService;
 use App\Service\da\FileUploaderForDAService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -34,10 +35,12 @@ class DaPropositionArticleDirectController extends Controller
     use AutorisationTrait;
 
     private const EDIT = 0;
+    private DocRattacheService $docRattacheService;
 
-    public function __construct()
+    public function __construct(DocRattacheService $docRattacheService)
     {
         parent::__construct();
+        $this->docRattacheService = $docRattacheService;
 
         $this->initDaPropositionDirectTrait();
         $this->initDaValidationDirectTrait();
