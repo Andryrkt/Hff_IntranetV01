@@ -91,5 +91,6 @@ services:
 
   App\Controller\da\Detail\DaDetailDirectController:
     arguments:
+      $docRattacheService: '@App\Service\da\DocRattacheService'
       $daTimelineService: '@App\Service\da\DaTimelineService'
     public: true
