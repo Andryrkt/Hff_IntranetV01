@@ -41,6 +41,12 @@ class DemandePaiementCommande
      */
     private ?string $numeroDemandeAppro = null;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=DemandePaiement::class, inversedBy="demandePaiementCommandes")
+     * @ORM\JoinColumn(name="demandePaiementId", referencedColumnName="id")
+     */
+    private $demandePaiement;
+
     /**===========================================================================
      * GETTER & SETTER
      *
@@ -105,6 +111,18 @@ class DemandePaiementCommande
     public function setNumeroDemandeAppro(?string $numeroDemandeAppro): self
     {
         $this->numeroDemandeAppro = $numeroDemandeAppro;
+
+        return $this;
+    }
+
+    public function getDemandePaiement(): ?DemandePaiement
+    {
+        return $this->demandePaiement;
+    }
+
+    public function setDemandePaiement(?DemandePaiement $demandePaiement): self
+    {
+        $this->demandePaiement = $demandePaiement;
 
         return $this;
     }
