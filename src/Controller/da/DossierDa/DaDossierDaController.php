@@ -35,7 +35,7 @@ class DaDossierDaController extends Controller
         $this->autorisationAcces($this->getUser(), Application::ID_DAP);
         /** FIN AUtorisation acées */
 
-        $demandeAppro = $this->getEntityManager()->getRepository(DemandeAppro::class)->findOneBy(['numDa' => $numDa]);
+        $demandeAppro = $this->getEntityManager()->getRepository(DemandeAppro::class)->findOneBy(['numeroDemandeAppro' => $numDa]);
 
         $fichiers = $this->docRattacheService->getAllAttachedFiles($demandeAppro);
 
