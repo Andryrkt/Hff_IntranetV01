@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\da\detail\DaDetailReapproTrait;
 use App\Controller\Traits\da\validation\DaValidationReapproTrait;
+use App\Service\da\DaConsumptionHistory;
 
 /**
  * @Route("/demande-appro")
@@ -52,9 +53,10 @@ class DaValidationReapproMensuelController extends Controller
         $formReappro = $this->getFormFactory()->createBuilder(DaObservationValidationType::class, $daObservation)->getForm();
         $formObservation = $this->getFormFactory()->createBuilder(DaObservationType::class, $daObservation, ['daTypeId' => $demandeAppro->getDaTypeId()])->getForm();
 
-        $dateRange = $this->getLast12MonthsRange();
-        $monthsList = $this->getMonthsList($dateRange['start'], $dateRange['end']);
-        $dataHistoriqueConsommation = $this->getHistoriqueConsommation($demandeAppro, $dateRange, $monthsList);
+        $daConsumptionHistory = new DaConsumptionHistory();
+        $dateRange = $daConsumptionHistory->getLast12MonthsRange();
+        $monthsList = $daConsumptionHistory->getMonthsList($dateRange['start'], $dateRange['end']);
+        $dataHistoriqueConsommation = $daConsumptionHistory->getHistoriqueConsommation($demandeAppro, $dateRange, $monthsList);
         $observations = $this->daObservationRepository->findBy(['numDa' => $demandeAppro->getNumeroDemandeAppro()], ['dateCreation' => 'ASC']);
 
         //========================================== Traitement du formulaire en général ===================================================//
