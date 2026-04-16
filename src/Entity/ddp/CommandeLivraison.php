@@ -41,6 +41,12 @@ class CommandeLivraison
      */
     private ?string $numero_facture = null;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=DemandePaiement::class, inversedBy="commandeLivraisons")
+     * @ORM\JoinColumn(name="demandePaiementId", referencedColumnName="id")
+     */
+    private $demandePaiement;
+
     /**===========================================================================
      * GETTER & SETTER
      *
@@ -114,6 +120,18 @@ class CommandeLivraison
     public function setNumeroFacture(?string $numero_facture): self
     {
         $this->numero_facture = $numero_facture;
+
+        return $this;
+    }
+
+    public function getDemandePaiement(): ?DemandePaiement
+    {
+        return $this->demandePaiement;
+    }
+
+    public function setDemandePaiement(?DemandePaiement $demandePaiement): self
+    {
+        $this->demandePaiement = $demandePaiement;
 
         return $this;
     }

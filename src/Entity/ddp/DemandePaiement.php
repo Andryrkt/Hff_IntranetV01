@@ -267,9 +267,15 @@ class DemandePaiement
      */
     private $demandePaiementCommandes;
 
+    /**
+     * @ORM\OneToMany(targetEntity=CommandeLivraison::class, mappedBy="demandePaiement", cascade={"persist", "remove"})
+     */
+    private $commandeLivraisons;
+
     public function __construct()
     {
         $this->demandePaiementCommandes = new ArrayCollection();
+        $this->commandeLivraisons = new ArrayCollection();
     }
 
     /**===========================================================================
@@ -1243,6 +1249,36 @@ class DemandePaiement
             // set the owning side to null (unless already changed)
             if ($demandePaiementCommande->getDemandePaiement() === $this) {
                 $demandePaiementCommande->setDemandePaiement(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CommandeLivraison>
+     */
+    public function getCommandeLivraisons(): Collection
+    {
+        return $this->commandeLivraisons;
+    }
+
+    public function addCommandeLivraison(CommandeLivraison $commandeLivraison): self
+    {
+        if (!$this->commandeLivraisons->contains($commandeLivraison)) {
+            $this->commandeLivraisons[] = $commandeLivraison;
+            $commandeLivraison->setDemandePaiement($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCommandeLivraison(CommandeLivraison $commandeLivraison): self
+    {
+        if ($this->commandeLivraisons->removeElement($commandeLivraison)) {
+            // set the owning side to null (unless already changed)
+            if ($commandeLivraison->getDemandePaiement() === $this) {
+                $commandeLivraison->setDemandePaiement(null);
             }
         }
 
