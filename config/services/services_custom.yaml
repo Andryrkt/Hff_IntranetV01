@@ -80,12 +80,12 @@ services:
 
   App\Controller\da\Validation\DaValidationReapproMensuelController:
     arguments:
-      $daService: '@App\Service\da\DaService'
       $docRattacheService: '@App\Service\da\DocRattacheService'
     public: true
 
   App\Controller\da\Detail\DaDetailAvecDitController:
     arguments:
+      $docRattacheService: '@App\Service\da\DocRattacheService'
       $daTimelineService: '@App\Service\da\DaTimelineService'
     public: true
 
