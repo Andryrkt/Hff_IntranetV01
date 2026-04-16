@@ -63,7 +63,13 @@ class DemandePaiementMapper
             $dto->numeroFournisseur = $ddp->getNumeroFournisseur();
             $dto->beneficiaire = $ddp->getBeneficiaire();
             $dto->numeroCommande =  $ddp->getNumeroCommande();
-            $dto->numeroLivraison = null;
+            $numsLivraisons = [];
+            foreach ($ddp->getCommandeLivraisons() as $livraison) {
+                if ($livraison->getNumeroLivraison()) {
+                    $numsLivraisons[] = $livraison->getNumeroLivraison();
+                }
+            }
+            $dto->numeroLivraison = empty($numsLivraisons) ? null : implode(';', $numsLivraisons);
             $dto->numeroFacture =  $ddp->getNumeroFacture();
             $dto->statut = $ddp->getStatut();
             $dto->montantAPayer = $ddp->getMontantAPayers();

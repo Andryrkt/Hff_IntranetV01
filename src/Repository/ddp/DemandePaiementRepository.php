@@ -250,9 +250,11 @@ class DemandePaiementRepository extends EntityRepository
     public function findByConsultationFactureCriteria($criteria)
     {
         $qb = $this->createQueryBuilder('d')
+            ->leftJoin('d.commandeLivraisons', 'cl')
+            ->addSelect('cl')
             ->where('d.appro = :appro')
             ->setParameter('appro', true)
-            ->orderBy('d.numeroDdp', 'DESC');
+            ->orderBy('d.dateCreation', 'DESC');
 
         return $qb->getQuery()->getResult();
     }
