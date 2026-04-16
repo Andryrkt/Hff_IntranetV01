@@ -770,7 +770,18 @@ class DemandePaiement
      */
     public function setMontantAPayers($montantAPayers)
     {
-        $this->montantAPayers = $montantAPayers;
+        if (is_string($montantAPayers)) {
+            if (strpos($montantAPayers, ',') !== false) {
+                // Format français: on enlève les espaces et points (séparateurs de milliers)
+                $montantAPayers = str_replace([' ', '.'], '', $montantAPayers);
+                // On remplace la virgule par un point (séparateur décimal)
+                $montantAPayers = str_replace(',', '.', $montantAPayers);
+            } else {
+                $montantAPayers = str_replace(' ', '', $montantAPayers);
+            }
+        }
+        
+        $this->montantAPayers = (float) $montantAPayers;
 
         return $this;
     }

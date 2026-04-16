@@ -84,9 +84,18 @@ class DemandePaiementDto
     public $numeroDemandeAppro;
     public $numeroLivraison;
 
-    public function montantAPayer()
+    public function montantAPayer(): float
     {
-        return $this->montantAPayer;
+        $montant = $this->montantAPayer;
+        if (is_string($montant)) {
+            if (strpos($montant, ',') !== false) {
+                $montant = str_replace([' ', '.'], '', $montant);
+                $montant = str_replace(',', '.', $montant);
+            } else {
+                $montant = str_replace(' ', '', $montant);
+            }
+        }
+        return (float) $montant;
     }
 
     public function montantRestantApayer()

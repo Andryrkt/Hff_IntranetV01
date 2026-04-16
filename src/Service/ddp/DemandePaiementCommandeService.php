@@ -14,9 +14,9 @@ class DemandePaiementCommandeService
         $this->em = $em;
     }
 
-    public function createDdpCommande($dto)
+    public function createDdpCommande($dto, $ddp)
     {
-        $ddpCommande = DemandePaiementCommandeMapper::map($dto);
+        $ddpCommande = DemandePaiementCommandeMapper::map($dto, $ddp);
 
         $this->em->persist($ddpCommande);
         $this->em->flush();
