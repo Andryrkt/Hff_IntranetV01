@@ -20,10 +20,10 @@ class EmailDaService
     private $mailAppro;
     private $emailTemplate;
 
-    public function __construct($twig)
+    public function __construct(\Twig\Environment $twig)
     {
         $this->twig = $twig;
-        $this->mailAppro = $_ENV['MAIL_TO_APPRO'];
+        $this->mailAppro = ($_ENV['MAIL_TO_APPRO'] ?? '');
         $this->emailTemplate = "da/email/emailDa.html.twig";
     }
 

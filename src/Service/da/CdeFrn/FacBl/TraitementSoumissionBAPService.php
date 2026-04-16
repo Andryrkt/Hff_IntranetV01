@@ -43,21 +43,36 @@ class TraitementSoumissionBAPService
     private string $cheminDeBaseDa;
     private DemandeApproRepository $demandeApproRepository;
     private DwBcApproRepository $dwBcApproRepository;
+    private DitModel $ditModel;
+    private GenererPdfBonAPayer $generatePdfBap;
+    private Recapitulation $recapitulationOR;
 
     public function __construct(
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
+        HistoriqueOperationDaBcService $historiqueOperation,
+        DaSoumissionFacBlFactory $daSoumissionFacBlFactory,
+        DaSoumissionFacBlMapper $daSoumissionfacBlMapper,
+        GeneratePdf $generatePdf,
+        DaSoumissionFacBlModel $daSoumissionFacBlModel,
+        TraitementDeFichier $traitementDeFichier,
+        DitModel $ditModel,
+        GenererPdfBonAPayer $generatePdfBap,
+        Recapitulation $recapitulationOR
     ) {
-        $this->entityManager = $entityManager;
-        $this->historiqueOperation         = new HistoriqueOperationDaBcService($this->entityManager);
+        $this->entityManager               = $entityManager;
+        $this->historiqueOperation         = $historiqueOperation;
         $this->daSoumissionFacBlRepository = $this->entityManager->getRepository(DaSoumissionFacBl::class);
-        $this->daSoumissionFacBlFactory    = new DaSoumissionFacBlFactory($this->entityManager);
-        $this->daSoumissionfacBlMapper     = new DaSoumissionFacBlMapper();
-        $this->generatePdf                 = new GeneratePdf();
-        $this->daSoumissionFacBlModel      = new DaSoumissionFacBlModel();
-        $this->traitementDeFichier         = new TraitementDeFichier();
-        $this->cheminDeBaseDa              = $_ENV['BASE_PATH_FICHIER'] . '/da/';
+        $this->daSoumissionFacBlFactory    = $daSoumissionFacBlFactory;
+        $this->daSoumissionfacBlMapper     = $daSoumissionfacBlMapper;
+        $this->generatePdf                 = $generatePdf;
+        $this->daSoumissionFacBlModel      = $daSoumissionFacBlModel;
+        $this->traitementDeFichier         = $traitementDeFichier;
+        $this->cheminDeBaseDa              = ($_ENV['BASE_PATH_FICHIER'] ?? '') . '/da/';
         $this->demandeApproRepository      = $this->entityManager->getRepository(DemandeAppro::class);
         $this->dwBcApproRepository         = $this->entityManager->getRepository(DwBcAppro::class);
+        $this->ditModel                    = $ditModel;
+        $this->generatePdfBap              = $generatePdfBap;
+        $this->recapitulationOR            = $recapitulationOR;
     }
 
     public function traitementSoumissionBAP($form, $dto, ?string $mail)
@@ -321,17 +336,13 @@ class TraitementSoumissionBAPService
 
     private function genererPageDeGarde(array $infoLivraison, DaSoumissionFacBlDto $dto, ?string $mail): string
     {
-        $ditModel         = new DitModel();
-        $generatePdfBap   = new GenererPdfBonAPayer();
-        $recapitulationOR = new Recapitulation();
-
         $numCde           = $dto->numeroCde;
         $numOr            = $dto->numeroOR;
 
 
         $infoValidationBC = $this->dwBcApproRepository->getInfoValidationBC($numCde) ?? [];
-        $infoMateriel     = $ditModel->recupInfoMateriel($numOr);
-        $dataRecapOR      = $recapitulationOR->getData($numOr);
+        $infoMateriel     = $this->ditModel->recupInfoMateriel($numOr);
+        $dataRecapOR      = $this->recapitulationOR->getData($numOr);
         $demandeAppro     = $this->demandeApproRepository->findOneBy(['numeroDemandeAppro' => $dto->numeroDemandeAppro]);
         $infoFacBl        = [
             "refBlFac"   => $infoLivraison["ref_fac_bl"],
@@ -340,6 +351,6 @@ class TraitementSoumissionBAPService
             "dateLivIPS" => $infoLivraison["date_clot"],
         ];
 
-        return $generatePdfBap->genererPageDeGarde($infoValidationBC, $infoMateriel, $dataRecapOR, $demandeAppro, $dto, $infoFacBl, $mail);
+        return $this->generatePdfBap->genererPageDeGarde($infoValidationBC, $infoMateriel, $dataRecapOR, $demandeAppro, $dto, $infoFacBl, $mail);
     }
 }

@@ -35,18 +35,24 @@ class TraitementSoumissionDDPLService
     private EntityManagerInterface $entityManager;
 
     public function __construct(
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
+        DaSoumissionFacBlFactory $daSoumissionFacBlFactory,
+        TraitementDeFichier $traitementDeFichier,
+        HistoriqueOperationDaFacBlService $historiqueOperation,
+        DaSoumissionFacBlMapper $daSoumissionfacBlMapper,
+        GeneratePdfDdpDa $generatePdfDdp,
+        GeneratePdf $generatePdf
     ) {
         $this->entityManager                  = $entityManager;
-        $this->daSoumissionFacBlFactory       = new DaSoumissionFacBlFactory($this->entityManager);
-        $this->traitementDeFichier            = new TraitementDeFichier();
-        $this->cheminDeBase                   = $_ENV['BASE_PATH_FICHIER'] . '/da/';
-        $this->cheminDeBaseDdp                = $_ENV['BASE_PATH_FICHIER'] . '/ddp';
-        $this->historiqueOperation            = new HistoriqueOperationDaFacBlService($this->entityManager);
+        $this->daSoumissionFacBlFactory       = $daSoumissionFacBlFactory;
+        $this->traitementDeFichier            = $traitementDeFichier;
+        $this->cheminDeBase                   = ($_ENV['BASE_PATH_FICHIER'] ?? '') . '/da/';
+        $this->cheminDeBaseDdp                = ($_ENV['BASE_PATH_FICHIER'] ?? '') . '/ddp';
+        $this->historiqueOperation            = $historiqueOperation;
         $this->daAfficherRepository           = $this->entityManager->getRepository(DaAfficher::class);
-        $this->daSoumissionfacBlMapper        = new DaSoumissionFacBlMapper();
-        $this->generatePdfDdp                 = new GeneratePdfDdpDa();
-        $this->generatePdf                    = new GeneratePdf();
+        $this->daSoumissionfacBlMapper        = $daSoumissionfacBlMapper;
+        $this->generatePdfDdp                 = $generatePdfDdp;
+        $this->generatePdf                    = $generatePdf;
     }
 
     public function traitementSoumissionDDPL($form, $dto)
