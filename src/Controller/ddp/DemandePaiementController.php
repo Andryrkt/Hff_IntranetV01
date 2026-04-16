@@ -2,7 +2,7 @@
 
 namespace App\Controller\ddp;
 
-use Exception;
+
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Controller\Controller;
@@ -483,8 +483,6 @@ class DemandePaiementController extends Controller
         return $demandePaiementLignes;
     }
 
-
-
     /**
      * methode qui permet d'enregestrer les données dans la table demande_paiement
      */
@@ -521,18 +519,4 @@ class DemandePaiementController extends Controller
         $typeDemande = $this->typeDemandeRepository->find($id);
         return  $data->setTypeDemandeid($typeDemande);
     }
-
-    // private function recupererNumCdeFournisseur($numeroFournisseur)
-    // {
-    //     $nbrLigne = $this->demandePaiementRepository->CompteNbrligne($numeroFournisseur);
-
-    //     if ($nbrLigne <= 0) {
-    //         $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur);
-    //         $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
-
-    //         $data = [
-    //             'numCdes' => $numCdes,
-    //         ];
-    //     } 
-    // }
 }

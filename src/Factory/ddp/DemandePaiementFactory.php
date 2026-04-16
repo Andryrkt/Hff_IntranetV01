@@ -93,7 +93,6 @@ class DemandePaiementFactory
 
         // fournisseur ======================
         $infoFournisseur = $this->ddpModel->recupInfoPourDa($infoDa['numeroFournisseur'], $numCdeDa);
-
         if (!empty($infoFournisseur)) {
             $dto->numeroFournisseur = $infoFournisseur[0]['num_fournisseur'];
             $dto->ribFournisseur = $infoFournisseur[0]['rib_fournisseur'];
