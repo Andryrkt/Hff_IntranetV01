@@ -104,3 +104,8 @@ services:
     arguments:
       $docRattacheService: '@App\Service\da\DocRattacheService'
     public: true
+
+  App\Controller\da\DossierDa\DaDossierDaController:
+    arguments:
+      $docRattacheService: '@App\Service\da\DocRattacheService'
+    public: true
