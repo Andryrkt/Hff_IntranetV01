@@ -78,6 +78,12 @@ services:
       $daTimelineService: '@App\Service\da\DaTimelineService'
     public: true
 
+  App\Controller\da\Validation\DaValidationReapproMensuelController:
+    arguments:
+      $daService: '@App\Service\da\DaService'
+      $docRattacheService: '@App\Service\da\DocRattacheService'
+    public: true
+
   App\Controller\da\Detail\DaDetailAvecDitController:
     arguments:
       $daTimelineService: '@App\Service\da\DaTimelineService'

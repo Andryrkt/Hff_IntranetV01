@@ -12,9 +12,9 @@ use App\Form\da\DaObservationValidationType;
 use App\Controller\Traits\da\DaAfficherTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\Traits\da\detail\DaDetailReapproTrait;
 use App\Controller\Traits\da\validation\DaValidationReapproTrait;
 use App\Service\da\DaConsumptionHistory;
+use App\Service\da\DocRattacheService;
 
 /**
  * @Route("/demande-appro")
@@ -24,14 +24,15 @@ class DaValidationReapproMensuelController extends Controller
     use DaAfficherTrait;
     use AutorisationTrait;
     use DaValidationReapproTrait;
-    use DaDetailReapproTrait;
 
-    public function __construct()
+    private DocRattacheService $docRattacheService;
+
+    public function __construct(DocRattacheService $docRattacheService)
     {
         parent::__construct();
 
         $this->initDaValidationReapproTrait();
-        $this->initDaDetailReapproTrait();
+        $this->docRattacheService = $docRattacheService;
     }
 
     /**
@@ -57,17 +58,14 @@ class DaValidationReapproMensuelController extends Controller
         $dateRange = $daConsumptionHistory->getLast12MonthsRange();
         $monthsList = $daConsumptionHistory->getMonthsList($dateRange['start'], $dateRange['end']);
         $dataHistoriqueConsommation = $daConsumptionHistory->getHistoriqueConsommation($demandeAppro, $dateRange, $monthsList);
+
         $observations = $this->daObservationRepository->findBy(['numDa' => $demandeAppro->getNumeroDemandeAppro()], ['dateCreation' => 'ASC']);
 
         //========================================== Traitement du formulaire en général ===================================================//
         $this->traitementFormulaire($formReappro, $formObservation, $request, $demandeAppro, $observations, $monthsList, $dataHistoriqueConsommation);
         //==================================================================================================================================//
 
-        $fichiers = $this->getAllDAFile([
-            'baiPath'      => $this->getBaIntranetPath($demandeAppro),
-            'badPath'      => $this->getBaDocuWarePath($demandeAppro),
-            'devPjPathObs' => $this->getDevisPjPathObservation($demandeAppro),
-        ]);
+        $fichiers = $this->docRattacheService->getAllAttachedFiles($demandeAppro);
 
         return $this->render("da/validation-reappro.html.twig", [
             'demandeAppro'    => $demandeAppro,
