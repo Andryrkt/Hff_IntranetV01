@@ -12,6 +12,7 @@ services:
         resource: '../../src/Service/*'
         exclude:
             - '../../src/Service/da/*'
+            - '../../src/Service/ddp/*'
             - '../../src/Service/dit/or/'
 
     # Services du module DA (SOLID avec autowiring)
@@ -25,6 +26,20 @@ services:
 
     App\Controller\da\:
         resource: '../../src/Controller/da/*'
+        autowire: true
+        tags: ['controller.service_arguments']
+
+    # Services du module DDP (SOLID avec autowiring)
+    App\Service\ddp\:
+        resource: '../../src/Service/ddp/*'
+        autowire: true
+
+    App\Factory\ddp\:
+        resource: '../../src/Factory/ddp/*'
+        autowire: true
+
+    App\Controller\ddp\:
+        resource: '../../src/Controller/ddp/*'
         autowire: true
         tags: ['controller.service_arguments']
 
@@ -50,9 +65,23 @@ services:
     App\Service\historiqueOperation\HistoriqueOperationDaFacBlService:
         autowire: true
 
-    # Modèles et Repositories sans autowiring (conventionnel)
+    App\Service\historiqueOperation\HistoriqueOperationDDPService:
+        autowire: true
+
+    # Modèles et Repositories
     App\Model\:
         resource: '../../src/Model/*'
+        exclude:
+            - '../../src/Model/da/*'
+            - '../../src/Model/ddp/*'
+
+    App\Model\da\:
+        resource: '../../src/Model/da/*'
+        autowire: true
+
+    App\Model\ddp\:
+        resource: '../../src/Model/ddp/*'
+        autowire: true
 
     App\Repository\:
         resource: '../../src/Repository/*'
