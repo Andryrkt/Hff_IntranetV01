@@ -26,8 +26,8 @@ use App\Model\ddp\DemandePaiementModel;
 use App\Repository\da\DaAfficherRepository;
 use App\Repository\da\DaSoumissionFacBlRepository;
 use App\Service\autres\AutoIncDecService;
+use App\Service\da\NumeroGenerateurService;
 use App\Service\historiqueOperation\HistoriqueOperationDaFacBlService;
-use App\Service\historiqueOperation\HistoriqueOperationService;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -38,20 +38,28 @@ class DaSoumissionFacBlFactory
     private EntityManagerInterface $em;
     private DaAfficherRepository $daAfficherRepository;
     private DaSoumissionFacBlRepository $daSoumissionFacBlRepository;
-    private HistoriqueOperationService $historiqueOperation;
+    private HistoriqueOperationDaFacBlService $historiqueOperation;
     private DaModel $daModel;
     private DaSoumissionFacBlModel $daSoumissionFacBlModel;
     private DemandePaiementModel $ddpModel;
+    private NumeroGenerateurService $numeroGenerateurService;
 
-    public function __construct(EntityManagerInterface $em)
-    {
+    public function __construct(
+        EntityManagerInterface $em,
+        HistoriqueOperationDaFacBlService $historiqueOperation,
+        DaModel $daModel,
+        DaSoumissionFacBlModel $daSoumissionFacBlModel,
+        DemandePaiementModel $ddpModel,
+        NumeroGenerateurService $numeroGenerateurService
+    ) {
         $this->em = $em;
         $this->daAfficherRepository = $em->getRepository(DaAfficher::class);
         $this->daSoumissionFacBlRepository = $em->getRepository(DaSoumissionFacBl::class);
-        $this->historiqueOperation = new HistoriqueOperationDaFacBlService($em);
-        $this->daModel = new DaModel();
-        $this->daSoumissionFacBlModel = new DaSoumissionFacBlModel();
-        $this->ddpModel = new DemandePaiementModel();
+        $this->historiqueOperation = $historiqueOperation;
+        $this->daModel = $daModel;
+        $this->daSoumissionFacBlModel = $daSoumissionFacBlModel;
+        $this->ddpModel = $ddpModel;
+        $this->numeroGenerateurService = $numeroGenerateurService;
     }
 
     public function initialisation(
@@ -136,7 +144,7 @@ class DaSoumissionFacBlFactory
 
     private function getInfoLivraison(DaSoumissionFacBlDto $dto): array
     {
-        $infosLivraisons = (new DaModel)->getInfoLivraison($dto->numeroCde);
+        $infosLivraisons = $this->daModel->getInfoLivraison($dto->numeroCde);
 
         if (empty($infosLivraisons)) {
             $message = "La commande n° <b>$dto->numeroCde</b> n'a pas de livraison associé dans IPS. Merci de bien vérifier le numéro de la commande.";
@@ -164,19 +172,12 @@ class DaSoumissionFacBlFactory
 
     public function genererNumeroBap(): string
     {
-        //recupereation de l'application BAP pour generer le numero de bap
-        $application = $this->em->getRepository(Application::class)->findOneBy(['codeApp' => 'BAP']);
-        //generation du numero de bap
-        $numeroBap = AutoIncDecService::autoGenerateNumero('BAP', $application->getDerniereId(), true);
-        //mise a jour de la derniere id de l'application BAP
-        AutoIncDecService::mettreAJourDerniereIdApplication($application, $this->em, $numeroBap);
-        return $numeroBap;
+        return $this->numeroGenerateurService->genererNumeroBap();
     }
 
     private function getNumFacEtMontant($numLiv): array
     {
-        $daSoumissionFacBlModel = new DaSoumissionFacBlModel();
-        return $daSoumissionFacBlModel->getMontantReceptionIpsEtNumFac($numLiv);
+        return $this->daSoumissionFacBlModel->getMontantReceptionIpsEtNumFac($numLiv);
     }
 
     private function getNumeroVersion($numCde): int
@@ -302,16 +303,7 @@ class DaSoumissionFacBlFactory
 
     public function genererNumeroDdp(): string
     {
-        //recupereation de l'application DDP pour generer le numero de ddp
-        $application = $this->em->getRepository(Application::class)->findOneBy(['codeApp' => 'DDP']);
-        if (!$application) {
-            throw new \Exception("L'application 'DDP' n'a pas été trouvée dans la configuration.");
-        }
-        //generation du numero de ddp
-        $numeroDdp = AutoIncDecService::autoGenerateNumero('DDP', $application->getDerniereId(), true);
-        //mise a jour de la derniere id de l'application DDP
-        AutoIncDecService::mettreAJourDerniereIdApplication($application, $this->em, $numeroDdp);
-        return $numeroDdp;
+        return $this->numeroGenerateurService->genererNumeroDdp();
     }
 
     private function debiteur(int $typeDa, array $infoDa): array
