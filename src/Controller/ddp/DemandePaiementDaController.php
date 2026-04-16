@@ -159,7 +159,7 @@ class DemandePaiementDaController extends Controller
     private function traitementDeFichier(DemandePaiementDto $dto, FormInterface $form): string
     {
         $numCdes = $this->demandePaiementModel->getCommandeReceptionnee($dto->numeroFournisseur);
-        $numCdesString = $numCdes;
+        $numCdesString = !empty($numCdes) ? (string) $numCdes[0] : '';
         $numFacString =  $dto->numeroFacture;
         $numeroCommandes = $this->demandePaiementModel->getNumCommande($dto->numeroFournisseur, $numCdesString, $numFacString);
 

@@ -18,8 +18,8 @@ use App\Entity\ddp\DemandePaiementLigne;
 use App\Service\genererPdf\GeneratePdfDdp;
 use App\Entity\cde\CdefnrSoumisAValidation;
 use App\Controller\Traits\AutorisationTrait;
+use App\Controller\Traits\PdfConversionTrait;
 use App\Entity\admin\ddp\DocDemandePaiement;
-use App\Factory\ddp\DemandePaiementFactory;
 use App\Service\fichier\TraitementDeFichier;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -36,6 +36,7 @@ class DemandePaiementController extends Controller
 {
     use DdpTrait;
     use AutorisationTrait;
+    use PdfConversionTrait;
 
     const STATUT_CREATION = 'Soumis à validation';
 
@@ -153,7 +154,7 @@ class DemandePaiementController extends Controller
             $this->generatePdfDdp->genererPDF($data, $cheminEtNom);
 
             /** FUSION DES PDF */
-            $nomFichierAvecChemin = $this->addPrefixToElementArray($data->getLesFichiers(), $this->cheminDeBase . '/' . $numDdp .'/');
+            $nomFichierAvecChemin = $this->addPrefixToElementArray($data->getLesFichiers(), $this->cheminDeBase . '/' . $numDdp . '/');
             $fichierConvertir = $this->ConvertirLesPdf($nomFichierAvecChemin);
             $tousLesFichersAvecChemin = $this->traitementDeFichier->insertFileAtPosition($fichierConvertir, $cheminEtNom, 0);
             $this->traitementDeFichier->fusionFichers($tousLesFichersAvecChemin, $cheminEtNom);
@@ -178,100 +179,6 @@ class DemandePaiementController extends Controller
 
         $this->getEntityManager()->persist($historiqueStatutDdp);
         $this->getEntityManager()->flush();
-    }
-
-
-    /**
-     * Decrementation de Numero_Applications (DOMAnnéeMoisNuméro)
-     *
-     * @param string $nomDemande
-     * @return string
-     */
-    protected function autoDecrementDDP(string $nomDemande): string
-    {
-        //NumDOM auto
-        $YearsOfcours = date('y'); //24
-        $MonthOfcours = date('m'); //01
-        //$MonthOfcours = "08"; //01
-        $AnneMoisOfcours = $YearsOfcours . $MonthOfcours; //2401
-        //var_dump($AnneMoisOfcours);
-        // dernier NumDOM dans la base
-
-        //$Max_Num = $this->casier->RecupereNumCAS()['numCas'];
-
-        if ($nomDemande === 'DDP') {
-            $Max_Num = $this->getEntityManager()->getRepository(Application::class)->findOneBy(['codeApp' => 'DDP'])->getDerniereId();
-        } else {
-            $Max_Num = $nomDemande . $AnneMoisOfcours . '9999';
-        }
-
-        //var_dump($Max_Num);
-        //$Max_Num = 'CAS24040000';
-        //num_sequentielless
-        $vNumSequential =  substr($Max_Num, -4); // lay 4chiffre msincrimente
-        //dump($vNumSequential);
-        $DateAnneemoisnum = substr($Max_Num, -8);
-        //dump($DateAnneemoisnum);
-        $DateYearsMonthOfMax = substr($DateAnneemoisnum, 0, 4);
-        //dump($DateYearsMonthOfMax);
-        if ($DateYearsMonthOfMax == $AnneMoisOfcours) {
-            $vNumSequential =  $vNumSequential - 1;
-        } else {
-            if ($AnneMoisOfcours > $DateYearsMonthOfMax) {
-                $vNumSequential = 9999;
-            }
-        }
-
-        //dump($vNumSequential);
-        //var_dump($vNumSequential);
-        $Result_Num = $nomDemande . $AnneMoisOfcours . $vNumSequential;
-        //var_dump($Result_Num);
-        //dd($Result_Num);
-        return $Result_Num;
-    }
-
-    private function ConvertirLesPdf(array $tousLesFichersAvecChemin)
-    {
-        $tousLesFichiers = [];
-        foreach ($tousLesFichersAvecChemin as $filePath) {
-            $tousLesFichiers[] = $this->convertPdfWithGhostscript($filePath);
-        }
-
-        return $tousLesFichiers;
-    }
-
-
-    private function convertPdfWithGhostscript($filePath)
-    {
-        $gsPath = 'C:\Program Files\gs\gs10.05.0\bin\gswin64c.exe'; // Modifier selon l'OS
-        $tempFile = $filePath . "_temp.pdf";
-
-        // Vérifier si le fichier existe et est accessible
-        if (!file_exists($filePath)) {
-            throw new Exception("Fichier introuvable : $filePath");
-        }
-
-        if (!is_readable($filePath)) {
-            throw new Exception("Le fichier PDF ne peut pas être lu : $filePath");
-        }
-
-        // Commande Ghostscript
-        $command = "\"$gsPath\" -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -o \"$tempFile\" \"$filePath\"";
-        // echo "Commande exécutée : $command<br>";
-
-        exec($command, $output, $returnVar);
-
-        if ($returnVar !== 0) {
-            echo "Sortie Ghostscript : " . implode("\n", $output);
-            throw new Exception("Erreur lors de la conversion du PDF avec Ghostscript");
-        }
-
-        // Remplacement du fichier
-        if (!rename($tempFile, $filePath)) {
-            throw new Exception("Impossible de remplacer l'ancien fichier PDF.");
-        }
-
-        return $filePath;
     }
 
 
@@ -330,7 +237,7 @@ class DemandePaiementController extends Controller
                                 $nomDeFichier = $singleFile->getClientOriginalName();
                                 $this->traitementDeFichier->upload(
                                     $singleFile,
-                                    $this->cheminDeBase . '/' . $numDdp, 
+                                    $this->cheminDeBase . '/' . $numDdp,
                                     $nomDeFichier
                                 );
                                 $nomDesFichiers[] = $nomDeFichier;
