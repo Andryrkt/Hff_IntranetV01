@@ -28,6 +28,7 @@ trait JoursOuvrablesTrait
                 $joursDeplaces++;
             }
         }
+        $date->setTime(0, 0, 0);
 
         return $date;
     }

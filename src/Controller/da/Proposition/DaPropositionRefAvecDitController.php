@@ -21,6 +21,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Service\da\FileUploaderForDAService;
 use App\Controller\Traits\da\validation\DaValidationAvecDitTrait;
 use App\Controller\Traits\da\proposition\DaPropositionAvecDitTrait;
+use App\Service\da\DocRattacheService;
 
 /**
  * @Route("/demande-appro")
@@ -34,10 +35,12 @@ class DaPropositionRefAvecDitController extends Controller
     use DaDetailAvecDitTrait;
 
     private const EDIT = 0;
+    private DocRattacheService $docRattacheService;
 
-    public function __construct()
+    public function __construct(DocRattacheService $docRattacheService)
     {
         parent::__construct();
+        $this->docRattacheService = $docRattacheService;
 
         $this->initDaPropositionAvecDitTrait();
         $this->initDaValidationAvecDitTrait();
@@ -78,14 +81,7 @@ class DaPropositionRefAvecDitController extends Controller
 
         $observations = $this->daObservationRepository->findBy(['numDa' => $numDa], ['dateCreation' => 'ASC']);
 
-        $fichiers = $this->getAllDAFile([
-            'baiPath'      => $this->getBaIntranetPath($da),
-            'orPath'       => $this->getOrPath($da),
-            'bcPath'       => $this->getBcPath($da),
-            'facblPath'    => $this->getFacBlPath($da),
-            'devPjPathDal' => $this->getDevisPjPathDal($da),
-            'devPjPathObs' => $this->getDevisPjPathObservation($da),
-        ]);
+        $fichiers = $this->docRattacheService->getAllAttachedFiles($da);
 
         return $this->render("da/proposition.html.twig", [
             'demandeAppro'            => $da,
