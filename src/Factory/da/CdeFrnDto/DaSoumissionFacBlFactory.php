@@ -183,7 +183,7 @@ class DaSoumissionFacBlFactory
             $ddpDto->devise = $infoFournisseur[0]['devise'];
         }
 
-        $ddpDto->numeroDdp = $dto->typeDdp !== 'BAP' ? $this->genererNumeroDdp() : $dto->numeroBap;
+        $ddpDto->numeroDdp = $dto->typeDdp !== 'bap' ? $this->genererNumeroDdp() : $dto->numeroBap;
         $ddpDto->debiteur = $this->dataService->resolveDebiteur($infoDa['daTypeId'], $infoDa);
         $ddpDto->typeDemande = $dto->montantAregulariser <= 0.0 ? $typeRegule : $typeApresLivraison;
         $ddpDto->statut = 'Soumis à validation';
