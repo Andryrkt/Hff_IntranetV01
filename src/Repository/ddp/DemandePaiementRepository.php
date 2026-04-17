@@ -2,11 +2,12 @@
 
 namespace App\Repository\ddp;
 
-use Doctrine\ORM\EntityRepository;
 use App\Constants\ddp\StatutConstants;
+use App\Dto\Da\ddp\BapSearchDto;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\da\DaSoumissionFacBl;
 use App\Service\TableauEnStringService;
+use Doctrine\ORM\EntityRepository;
 
 class DemandePaiementRepository extends EntityRepository
 {
@@ -245,5 +246,57 @@ class DemandePaiementRepository extends EntityRepository
 
 
         return $queryBuilder ? $queryBuilder['statut'] : null;
+    }
+
+    public function findByConsultationFactureCriteria(BapSearchDto $criteria)
+    {
+        $qb = $this->createQueryBuilder('d')
+            ->leftJoin('d.commandeLivraisons', 'cl')
+            ->addSelect('cl')
+            ->where('d.appro = :appro')
+            ->setParameter('appro', true);
+
+        if (!empty($criteria->numDa)) {
+            $qb->andWhere('d.numeroDemandeAppro = :numeroDa')
+                ->setParameter('numeroDa', $criteria->numDa);
+        }
+        if (!empty($criteria->numDdp)) {
+            $qb->andWhere('d.numeroDdp = :numeroDdp')
+                ->setParameter('numeroDdp', $criteria->numDdp);
+        }
+
+        if (!empty($criteria->numCde)) {
+            $qb->andWhere('d.numeroCommande = :numeroCommande')
+                ->setParameter('numeroCommande', $criteria->numCde);
+        }
+
+        if (!empty($criteria->FactureBl)) {
+            $qb->andWhere('d.numeroFacture = :numeroFacture')
+                ->setParameter('numeroFacture', $criteria->FactureBl);
+        }
+
+        if (!empty($criteria->numLivIps)) {
+            $qb->andWhere('cl.numeroLivraison = :numeroLivraisonIps')
+                ->setParameter('numeroLivraisonIps', $criteria->numLivIps);
+        }
+
+        if (!empty($criteria->fournisseur)) {
+            $qb->andWhere('CONCAT(d.numeroFournisseur, \' - \', d.beneficiaire) = :fournisseur')
+                ->setParameter('fournisseur', $criteria->fournisseur);
+        }
+
+
+        $qb->orderBy('d.dateCreation', 'DESC');
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function findDdpByNumeroDdp(array $numeroDdp): array
+    {
+        return $this->createQueryBuilder('d')
+            ->where('d.numeroDdp IN (:numeroDdp)')
+            ->setParameter('numeroDdp', $numeroDdp)
+            ->getQuery()
+            ->getResult();
     }
 }

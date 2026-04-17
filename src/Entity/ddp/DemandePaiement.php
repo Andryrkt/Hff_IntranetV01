@@ -7,6 +7,8 @@ use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\ddp\TypeDemande;
 use App\Entity\Traits\AgenceServiceTrait;
 use App\Repository\ddp\DemandePaiementRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 
 /**
  * @ORM\Entity(repositoryClass=DemandePaiementRepository::class)
@@ -124,14 +126,14 @@ class DemandePaiement
 
 
     /**
-     * @ORM\Column(type="json", name="numero_commande")
+     * @ORM\Column(type="string", name="numero_commande")
      */
-    private $numeroCommande = [];
+    private $numeroCommande;
 
     /**
-     * @ORM\Column(type="json", name="numero_facture")
+     * @ORM\Column(type="string", name="numero_facture")
      */
-    private $numeroFacture = [];
+    private $numeroFacture;
 
     /**
      * @ORM\Column(type="string", length=5, name="devise")
@@ -223,6 +225,19 @@ class DemandePaiement
      */
     private $dateDepotDw;
 
+    /**
+     * @ORM\Column(type="string", length=50, name="numero_cla")
+     *
+     * @var string|null
+     */
+    private ?string $numeroCla = null;
+
+    /**
+     * @ORM\Column(type="datetime", name="date_soumission_compta")
+     */
+    private $dateSoumissionCompta;
+
+
     private string $montantAPayer = '0';
 
     private $pieceJoint01;
@@ -246,6 +261,22 @@ class DemandePaiement
     private $montantDejaPaye;
     private $montantRestantApayer;
     private $poucentageAvance;
+
+    /**
+     * @ORM\OneToMany(targetEntity=DemandePaiementCommande::class, mappedBy="demandePaiement", cascade={"persist", "remove"})
+     */
+    private $demandePaiementCommandes;
+
+    /**
+     * @ORM\OneToMany(targetEntity=CommandeLivraison::class, mappedBy="demandePaiement", cascade={"persist", "remove"})
+     */
+    private $commandeLivraisons;
+
+    public function __construct()
+    {
+        $this->demandePaiementCommandes = new ArrayCollection();
+        $this->commandeLivraisons = new ArrayCollection();
+    }
 
     /**===========================================================================
      * GETTER & SETTER
@@ -739,7 +770,18 @@ class DemandePaiement
      */
     public function setMontantAPayers($montantAPayers)
     {
-        $this->montantAPayers = $montantAPayers;
+        if (is_string($montantAPayers)) {
+            if (strpos($montantAPayers, ',') !== false) {
+                // Format français: on enlève les espaces et points (séparateurs de milliers)
+                $montantAPayers = str_replace([' ', '.'], '', $montantAPayers);
+                // On remplace la virgule par un point (séparateur décimal)
+                $montantAPayers = str_replace(',', '.', $montantAPayers);
+            } else {
+                $montantAPayers = str_replace(' ', '', $montantAPayers);
+            }
+        }
+
+        $this->montantAPayers = (float) $montantAPayers;
 
         return $this;
     }
@@ -1154,6 +1196,102 @@ class DemandePaiement
     public function setDateDepotDw($dateDepotDw): self
     {
         $this->dateDepotDw = $dateDepotDw;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroCla
+     */
+    public function getNumeroCla(): ?string
+    {
+        return $this->numeroCla;
+    }
+
+    /**
+     * Set the value of numeroCla
+     */
+    public function setNumeroCla(?string $numeroCla): self
+    {
+        $this->numeroCla = $numeroCla;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateSoumissionCompta
+     */
+    public function getDateSoumissionCompta()
+    {
+        return $this->dateSoumissionCompta;
+    }
+
+    /**
+     * Set the value of dateSoumissionCompta
+     */
+    public function setDateSoumissionCompta($dateSoumissionCompta): self
+    {
+        $this->dateSoumissionCompta = $dateSoumissionCompta;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, DemandePaiementCommande>
+     */
+    public function getDemandePaiementCommandes(): Collection
+    {
+        return $this->demandePaiementCommandes;
+    }
+
+    public function addDemandePaiementCommande(DemandePaiementCommande $demandePaiementCommande): self
+    {
+        if (!$this->demandePaiementCommandes->contains($demandePaiementCommande)) {
+            $this->demandePaiementCommandes[] = $demandePaiementCommande;
+            $demandePaiementCommande->setDemandePaiement($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDemandePaiementCommande(DemandePaiementCommande $demandePaiementCommande): self
+    {
+        if ($this->demandePaiementCommandes->removeElement($demandePaiementCommande)) {
+            // set the owning side to null (unless already changed)
+            if ($demandePaiementCommande->getDemandePaiement() === $this) {
+                $demandePaiementCommande->setDemandePaiement(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CommandeLivraison>
+     */
+    public function getCommandeLivraisons(): Collection
+    {
+        return $this->commandeLivraisons;
+    }
+
+    public function addCommandeLivraison(CommandeLivraison $commandeLivraison): self
+    {
+        if (!$this->commandeLivraisons->contains($commandeLivraison)) {
+            $this->commandeLivraisons[] = $commandeLivraison;
+            $commandeLivraison->setDemandePaiement($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCommandeLivraison(CommandeLivraison $commandeLivraison): self
+    {
+        if ($this->commandeLivraisons->removeElement($commandeLivraison)) {
+            // set the owning side to null (unless already changed)
+            if ($commandeLivraison->getDemandePaiement() === $this) {
+                $commandeLivraison->setDemandePaiement(null);
+            }
+        }
 
         return $this;
     }

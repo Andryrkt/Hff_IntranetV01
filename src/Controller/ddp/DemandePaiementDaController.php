@@ -8,23 +8,20 @@ use App\Controller\Traits\AutorisationTrait;
 use App\Controller\Traits\PdfConversionTrait;
 use App\Dto\ddp\DemandePaiementDto;
 use App\Entity\admin\Application;
-use App\Entity\da\DaAfficher;
-use App\Entity\da\DaSoumissionBc;
 use App\Entity\ddp\DemandePaiement;
 use App\Factory\ddp\DemandePaiementFactory;
 use App\Form\ddp\DemandePaiementDaType;
 use App\Model\ddp\DemandePaiementModel;
 use App\Service\ddp\DdpaDaService;
 use App\Service\ddp\DdpGeneratorNameService;
+use App\Service\ddp\DemandePaiementCommandeService;
 use App\Service\ddp\DemandePaiementLigneService;
 use App\Service\ddp\DemandePaiementService;
 use App\Service\ddp\DocDemandePaiementService;
 use App\Service\fichier\TraitementDeFichier;
 use App\Service\fichier\UploderFileService;
 use App\Service\genererPdf\ddp\GeneratePdfDdpDa;
-use App\Service\genererPdf\GeneratePdf;
 use App\Service\historiqueOperation\HistoriqueOperationDDPService;
-use App\Service\TableauEnStringService;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -42,15 +39,23 @@ class DemandePaiementDaController extends Controller
     private DemandePaiementService $demandePaiementService;
     private DocDemandePaiementService $docDemandePaiementService;
     private HistoriqueOperationDDPService $historiqueOperation;
+    private DemandePaiementFactory $demandePaiementFactory;
 
-    public function __construct()
-    {
+    public function __construct(
+        DemandePaiementModel $demandePaiementModel,
+        DemandePaiementLigneService $demandePaiementLigneService,
+        DemandePaiementService $demandePaiementService,
+        DocDemandePaiementService $docDemandePaiementService,
+        HistoriqueOperationDDPService $historiqueOperation,
+        DemandePaiementFactory $demandePaiementFactory
+    ) {
         parent::__construct();
-        $this->demandePaiementModel = new DemandePaiementModel();
-        $this->demandePaiementLigneService = new DemandePaiementLigneService($this->getEntityManager());
-        $this->demandePaiementService = new DemandePaiementService($this->getEntityManager());
-        $this->docDemandePaiementService = new DocDemandePaiementService($this->getEntityManager());
-        $this->historiqueOperation = new HistoriqueOperationDDPService($this->getEntityManager());
+        $this->demandePaiementModel = $demandePaiementModel;
+        $this->demandePaiementLigneService = $demandePaiementLigneService;
+        $this->demandePaiementService = $demandePaiementService;
+        $this->docDemandePaiementService = $docDemandePaiementService;
+        $this->historiqueOperation = $historiqueOperation;
+        $this->demandePaiementFactory = $demandePaiementFactory;
     }
 
     /**
@@ -66,7 +71,7 @@ class DemandePaiementDaController extends Controller
         /** FIN AUtorisation acées */
 
         // creation du formulaire
-        $dto = (new DemandePaiementFactory($this->getEntityManager()))->load($typeDdp, $numCdeDa, $typeDa, $numeroVersionBc, $this->getUser(), $this->getSessionService());
+        $dto = $this->demandePaiementFactory->load($typeDdp, $numCdeDa, $typeDa, $numeroVersionBc, $this->getUser(), $this->getSessionService());
         $form = $this->getFormFactory()->createBuilder(DemandePaiementDaType::class, $dto, [
             'method' => 'POST',
             'em' => $this->getEntityManager()
@@ -104,7 +109,7 @@ class DemandePaiementDaController extends Controller
             /** HISTORISATION */
             $message = "Le document a été généré avec succès";
             $criteria = $this->getSessionService()->get('criteria_for_excel_Da_Cde_frn');
-            $nomDeRoute = 'da_list_cde_frn'; // route de redirection après soumission
+            $nomDeRoute = 'da_bon_a_payer'; // route de redirection après soumission
             $nomInputSearch = 'cde_frn_list'; // initialistion de nom de chaque champ ou input
             $this->historiqueOperation->sendNotificationSoumission($message, $dto->numeroDdp, $nomDeRoute, true, $criteria, $nomInputSearch);
         }
@@ -147,20 +152,23 @@ class DemandePaiementDaController extends Controller
     private function enregistrementSurBd(DemandePaiementDto $dto, string $nomFichier): void
     {
         // enregistrement dans la table deamnde_paiement
-        $this->demandePaiementService->createDdp($dto, $nomFichier);
+        $ddp = $this->demandePaiementService->createDdp($dto, $nomFichier);
         // enregistrement dans la table demande_paiement_ligne
         $this->demandePaiementLigneService->createLignesFromDto($dto);
         // enregistrement dans la table doc_demande_paiement
         $this->docDemandePaiementService->createDocDdp($dto);
         // enregistrement dans la table historique_statut_ddp
         $this->demandePaiementService->createHistoriqueStatut($dto);
+        // enregistrement dans la table demande_paiement_commande
+        $demandePaiementCommandeService = new DemandePaiementCommandeService($this->getEntityManager());
+        $demandePaiementCommandeService->createDdpCommande($dto, $ddp);
     }
 
     private function traitementDeFichier(DemandePaiementDto $dto, FormInterface $form): string
     {
         $numCdes = $this->demandePaiementModel->getCommandeReceptionnee($dto->numeroFournisseur);
-        $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
-        $numFacString = TableauEnStringService::TableauEnString(',', $dto->numeroFacture);
+        $numCdesString = !empty($numCdes) ? (string) $numCdes[0] : '';
+        $numFacString =  $dto->numeroFacture;
         $numeroCommandes = $this->demandePaiementModel->getNumCommande($dto->numeroFournisseur, $numCdesString, $numFacString);
 
         /** TRAITEMENT FICHIER  AUTRE DOCUMENT ET BC client externe / BC client magasin*/
@@ -204,7 +212,7 @@ class DemandePaiementDaController extends Controller
         $nameGenerator = new DdpGeneratorNameService();
         $cheminBaseUpload = $_ENV['BASE_PATH_FICHIER'] . '/ddp/';
         $uploader = new UploderFileService($cheminBaseUpload, $nameGenerator);
-        $path = $cheminBaseUpload . $dto->numeroDdp . '_New_1/';
+        $path = $cheminBaseUpload . $dto->numeroDdp . '/';
         if (!is_dir($path)) mkdir($path, 0777, true);
 
         [$nomEtCheminFichiersEnregistrer, $nomFichierTelecharger] = $uploader->getFichiers($form, [

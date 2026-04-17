@@ -4,7 +4,6 @@ namespace App\Controller\Traits\da\detail;
 
 use App\Constants\da\StatutDaConstant;
 use App\Entity\da\DaObservation;
-use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Entity\dw\DwBcAppro;
@@ -40,60 +39,6 @@ trait DaDetailAvecDitTrait
         $this->dossierInterventionAtelierModel = new DossierInterventionAtelierModel;
     }
     //==================================================================================================
-
-    /** 
-     * Obtenir tous les fichiers associés à la demande d'approvisionnement
-     * 
-     * @param array $tab
-     */
-    private function getAllDAFile($tab): array
-    {
-        return [
-            [
-                'labelType'  => 'BA',
-                'type'       => "Bon d'achat",
-                'icon'       => 'fa-solid fa-file-signature',
-                'colorClass' => 'border-left-bai',
-                'fichiers'   => $this->normalizePaths($tab['baiPath']),
-            ],
-            [
-                'labelType'  => 'OR',
-                'type'       => 'Ordre de réparation',
-                'icon'       => 'fa-solid fa-wrench',
-                'colorClass' => 'border-left-or',
-                'fichiers'   => $this->normalizePathsForOneFile($tab['orPath'], 'numeroOr'),
-            ],
-            [
-                'labelType'  => 'DEVPJ-DA',
-                'type'       => 'Devis / PJ (émis dans la demande / proposition)',
-                'icon'       => 'fa-solid fa-money-bill-wave',
-                'colorClass' => 'border-left-devpj',
-                'fichiers'   => $this->normalizePathsForManyFiles($tab['devPjPathDal'], 'nomPj'),
-            ],
-            [
-                'labelType'  => 'DEVPJ-OBS',
-                'type'       => 'Devis / PJ (émis dans l\'observation)',
-                'icon'       => 'fa-solid fa-money-bill-wave',
-                'colorClass' => 'border-left-devpj',
-                'fichiers'   => $this->normalizePathsForManyFiles($tab['devPjPathObs'], 'nomPj'),
-            ],
-            [
-                'labelType'  => 'BC',
-                'type'       => 'Bon de commande',
-                'icon'       => 'fa-solid fa-file-circle-check',
-                'colorClass' => 'border-left-bc',
-                'fichiers'   => $this->normalizePathsForManyFiles($tab['bcPath'], 'numeroBc'),
-            ],
-            [
-                'labelType'  => 'FACBL',
-                'type'       => 'Facture / Bon de livraison',
-                'icon'       => 'fa-solid fa-file-invoice',
-                'colorClass' => 'border-left-facbl',
-                'fichiers'   => $this->normalizePathsForFacBl($tab['facblPath'], 'nomFichierScannee', 'idFacBl'),
-            ],
-        ];
-    }
-
     /** 
      * Fonction pour préparer les données à afficher dans Twig 
      * @param iterable<DemandeApproL> $dals lignes demande appro avant affichage twig

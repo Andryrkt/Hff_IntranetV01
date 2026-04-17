@@ -6,6 +6,7 @@ namespace App\Controller\da\ListeCdeFrn;
 use App\Constants\da\ddp\BonApayerConstants;
 use App\Controller\Controller;
 use App\Dto\Da\ListeCdeFrn\DaSoumissionFacBlDto;
+use App\Entity\da\DaSoumissionFacBl;
 use App\Factory\da\CdeFrnDto\DaSoumissionFacBlFactory;
 use App\Form\da\DaSoumissionFacBlType;
 use App\Service\da\CdeFrn\FacBl\TraitementSoumissionBAPService;
@@ -23,16 +24,36 @@ use Symfony\Component\Routing\Annotation\Route;
 class DaSoumissionFacBlController extends Controller
 {
 
+    private DaSoumissionFacBlFactory $daSoumissionFacBlFactory;
+    private TraitementSoumissionDDPLService $traitementSoumissionDDPLService;
+    private TraitementSoumissionBAPService $traitementSoumissionBAPService;
+    private TraitementSoumissionfacBlService $traitementSoumissionfacBlService;
+
+    public function __construct(
+        DaSoumissionFacBlFactory $daSoumissionFacBlFactory,
+        TraitementSoumissionDDPLService $traitementSoumissionDDPLService,
+        TraitementSoumissionBAPService $traitementSoumissionBAPService,
+        TraitementSoumissionfacBlService $traitementSoumissionfacBlService
+    ) {
+        $this->daSoumissionFacBlFactory = $daSoumissionFacBlFactory;
+        $this->traitementSoumissionDDPLService = $traitementSoumissionDDPLService;
+        $this->traitementSoumissionBAPService = $traitementSoumissionBAPService;
+        $this->traitementSoumissionfacBlService = $traitementSoumissionfacBlService;
+    }
+
     /**
      * @Route("/soumission-facbl/{numCde}/{numDa}/{numOr}", name="da_soumission_facbl", defaults={"numOr"=0})
      */
-    public function index(string $numCde, string $numDa, string $numOr, Request $request)
-    {
+    public function index(
+        string $numCde,
+        string $numDa,
+        string $numOr,
+        Request $request
+    ) {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $daSoumissionFacBlFactory = new DaSoumissionFacBlFactory($this->getEntityManager());
-        $dto = $daSoumissionFacBlFactory->initialisation($numCde, $numDa, $numOr, $this->getUser());
+        $dto = $this->daSoumissionFacBlFactory->initialisation($numCde, $numDa, $numOr, $this->getUser());
 
         $form = $this->getFormFactory()->createBuilder(DaSoumissionFacBlType::class, $dto, [
             'method'  => 'POST'
@@ -53,7 +74,7 @@ class DaSoumissionFacBlController extends Controller
     {
         $this->verifierSessionUtilisateur();
 
-        $exists = $this->daSoumissionFacBlRepository->findOneBy([
+        $exists = $this->em->getRepository(DaSoumissionFacBl::class)->findOneBy([
             'numLiv' => $numLiv,
             'statutBap' => BonApayerConstants::STATUT_A_TRANSMETTERE
         ]);
@@ -64,41 +85,33 @@ class DaSoumissionFacBlController extends Controller
 
     /**
      * permet de faire le rtraitement du formulaire
-     *
-     * @param Request $request
-     * @param FormInterface $form
-     * @param array $infosLivraison
-     * 
-     * @return void
      */
-    private function traitementFormulaire(Request $request, FormInterface $form): void
-    {
+    private function traitementFormulaire(
+        Request $request,
+        FormInterface $form
+    ): void {
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var DaSoumissionFacBlDto $dto */
             $dto = $form->getData();
 
-            if ($dto->typeDdp === 'regul') {
-                $traitementSoumissionDDPLService = new TraitementSoumissionDDPLService($this->getEntityManager());
-                $sucess = $traitementSoumissionDDPLService->traitementSoumissionDDPL($form, $dto);
-            } elseif ($dto->typeDdp === 'ddpl') {
-                $traitementSoumissionDDPLService = new TraitementSoumissionDDPLService($this->getEntityManager());
-                $sucess = $traitementSoumissionDDPLService->traitementSoumissionDDPL($form, $dto);
+            if ($dto->typeDdp === 'regul' || $dto->typeDdp === 'ddpl') {
+                $sucess = $this->traitementSoumissionDDPLService->traitementSoumissionDDPL($form, $dto);
             } elseif ($dto->typeDdp === 'bap') {
-                $traitementSoumissionBAPService = new TraitementSoumissionBAPService($this->getEntityManager());
-                $sucess = $traitementSoumissionBAPService->traitementSoumissionBAP($form, $dto, $this->getUserMail());
+                $sucess = $this->traitementSoumissionBAPService->traitementSoumissionBAP($form, $dto, $this->getUserMail());
             } else {
-                $traitementSoumissionfacBlService = new TraitementSoumissionfacBlService($this->getEntityManager());
-                $sucess = $traitementSoumissionfacBlService->traitementSoumissionFacBl($form, $dto);
+                $sucess = $this->traitementSoumissionfacBlService->traitementSoumissionFacBl($form, $dto);
             }
 
             if ($sucess) {
                 /** HISTORISATION */
                 $message = 'Le document est soumis pour validation';
                 $criteria = $this->getSessionService()->get('criteria_for_excel_Da_Cde_frn');
-                $nomDeRoute = 'da_list_cde_frn'; // route de redirection après soumission
-                $nomInputSearch = 'cde_frn_list'; // initialistion de nom de chaque champ ou input
+                $nomDeRoute = $dto->typeDdp === 'aucun' ? 'da_list_cde_frn' : 'da_bon_a_payer';
+                $nomInputSearch = 'cde_frn_list';
+
+                // Ici aussi on pourrait injecter HistoriqueOperationDaBcService
                 $historiqueOperation = new HistoriqueOperationDaBcService($this->getEntityManager());
                 $historiqueOperation->sendNotificationSoumission($message, $dto->numeroCde, $nomDeRoute, true, $criteria, $nomInputSearch);
             }

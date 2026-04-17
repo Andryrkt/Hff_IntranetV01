@@ -39,6 +39,10 @@ CREATE TABLE demande_paiement
     CONSTRAINT PK_demande_paiement PRIMARY KEY (id, numero_demande_paiement)
 );
 
+ALTER TABLE demande_paiement ADD numero_cla VARCHAR(50)
+ALTER TABLE demande_paiement ADD date_soumission_compta DATETIME2 (3)
+ALTER TABLE demande_paiement ALTER COLUMN numero_commande VARCHAR(50);
+ALTER TABLE demande_paiement ALTER COLUMN numero_facture VARCHAR(50);
 
 CREATE TABLE type_demande
 (
@@ -124,10 +128,41 @@ ALTER TABLE demande_paiement_ligne
 ADD numeroVersion int,
 ratio_montant_payer DECIMAL(18, 2)
 
-
-
-
 ALTER TABLE demande_paiement
 ADD fichier_ddpa VARCHAR(255),
 deposer_dw BIT DEFAULT 0,
 date_depot_dw DATETIME2 (3)
+
+            CREATE TABLE demande_paiement_commande
+(
+    id INT IDENTITY (1, 1),
+    numero_ddp VARCHAR(50),
+    numero_commande VARCHAR(50),
+    numero_demande_appro VARCHAR(50),
+    CONSTRAINT PK_demande_paiement_commande PRIMARY KEY (id)
+);
+
+CREATE TABLE commande_livraison
+(
+    id INT IDENTITY (1, 1),
+    numero_commande VARCHAR(50),
+    numero_livraison VARCHAR(50),
+    numero_facture VARCHAR(50),
+    CONSTRAINT PK_commande_livraison PRIMARY KEY (id)
+);
+
+ALTER TABLE demande_paiement_commande
+ADD demandePaiementId INT NULL;
+
+ALTER TABLE demande_paiement_commande
+ADD client VARCHAR(50) NULL;
+
+-- Ajout de la contrainte de clé étrangère (si tu veux lier physiquement les deux tables en BDD)
+--ALTER TABLE demande_paiement_commande
+--ADD CONSTRAINT FK_DDP_COMMANDE_DDP FOREIGN KEY (demandePaiementId) REFERENCES demande_paiement(id);
+
+ALTER TABLE commande_livraison
+ADD demandePaiementId INT NULL;
+-- Ajout de la contrainte de clé étrangère (optionnelle mais très recommandée)
+--ALTER TABLE commande_livraison
+--ADD CONSTRAINT FK_COMMANDE_LIVRAISON_DDP FOREIGN KEY (demandePaiementId) REFERENCES demande_paiement(id);

@@ -3,6 +3,7 @@
 
 namespace App\Dto\Da\ListeCdeFrn;
 
+use App\Dto\ddp\DemandePaiementDto;
 
 class DaSoumissionFacBlDto
 {
@@ -17,6 +18,8 @@ class DaSoumissionFacBlDto
     public $pieceJoint2;
     public $utilisateur;
     public $totalMontantPayer;
+    public $user;
+    public $dateDemande;
 
     // livraison ========================
     public $numLiv;
@@ -61,36 +64,10 @@ class DaSoumissionFacBlDto
     public $receptions = [];
 
     // demande de paiement ===========================
-    public $numeroDdp;
-    public $typeDemande;
-    public $ribFournisseur;
-    public $beneficiaire;
-    public $motif = null;
-    public $debiteur = [];
-    public $statut;
-    public $adresseMailDemandeur;
-    public $demandeur;
-    public $modePaiement;
+    public ?DemandePaiementDto $demandePaiementDto = null;
     public $montantAPayer;
-    public $contact = null;
-    public $numeroCommande = [];
-    public $numeroFacture = [];
-    public $devise;
-    public $statutDossierRegul = null;
-    public $numeroVersion = 1;
-    public $estAutresDoc = false;
-    public $nomAutreDoc = null;
-    public $estCdeClientExterneDoc = false;
-    public $nomCdeClientExterneDoc = null;
-    public $numeroDossierDouane = [];
-    public $appro = false;
-    public $typeDa;
-    public $numeroVersionBc;
-    public $nomAvecCheminFichierDistant;
-    public $dateCreation;
-    public $lesFichiers = [];
     public $typeDdp;
-    public $numeroSoumissionDdpDa;
+
 
     public function montantAPayer(): float
     {

@@ -3,31 +3,24 @@
 namespace App\Factory\da\CdeFrnDto;
 
 use App\Constants\da\ddp\BonApayerConstants;
-use App\Constants\da\TypeDaConstants;
 use App\Constants\ddp\TypeDemandePaiementConstants;
 use App\Dto\Da\ListeCdeFrn\DaDdpaDto;
 use App\Dto\Da\ListeCdeFrn\DaSituationReceptionDto;
 use App\Dto\Da\ListeCdeFrn\DaSoumissionFacBlDto;
-use App\Entity\admin\Agence;
-use App\Entity\admin\Application;
+use App\Dto\ddp\DemandePaiementDto;
 use App\Entity\admin\ddp\TypeDemande;
-use App\Entity\admin\Service;
 use App\Entity\admin\utilisateur\User;
-use App\Entity\da\DaAfficher;
 use App\Entity\da\DaSoumissionBc;
-use App\Entity\da\DaSoumissionFacBl;
-use App\Entity\da\DemandeAppro;
 use App\Entity\ddp\DemandePaiement;
 use App\Mapper\Da\ListCdeFrn\DaSoumissionFacBlMapper;
 use App\Model\da\DaModel;
 use App\Model\da\DaSoumissionFacBlModel;
 use App\Model\ddp\DemandePaiementModel;
-use App\Repository\da\DaAfficherRepository;
-use App\Repository\da\DaSoumissionFacBlRepository;
-use App\Repository\da\DemandeApproRepository;
 use App\Service\autres\AutoIncDecService;
+use App\Service\da\DaSoumissionCalculService;
+use App\Service\da\DaSoumissionDataService;
+use App\Service\da\NumeroGenerateurService;
 use App\Service\historiqueOperation\HistoriqueOperationDaFacBlService;
-use App\Service\historiqueOperation\HistoriqueOperationService;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -36,24 +29,32 @@ class DaSoumissionFacBlFactory
     const STATUT_SOUMISSION = 'Soumis à validation';
 
     private EntityManagerInterface $em;
-    private DemandeApproRepository $demandeApproRepository;
-    private DaAfficherRepository $daAfficherRepository;
-    private DaSoumissionFacBlRepository $daSoumissionFacBlRepository;
-    private HistoriqueOperationService $historiqueOperation;
+    private HistoriqueOperationDaFacBlService $historiqueOperation;
     private DaModel $daModel;
     private DaSoumissionFacBlModel $daSoumissionFacBlModel;
     private DemandePaiementModel $ddpModel;
+    private NumeroGenerateurService $numeroGenerateurService;
+    private DaSoumissionCalculService $calculService;
+    private DaSoumissionDataService $dataService;
 
-    public function __construct(EntityManagerInterface $em)
-    {
+    public function __construct(
+        EntityManagerInterface $em,
+        HistoriqueOperationDaFacBlService $historiqueOperation,
+        DaModel $daModel,
+        DaSoumissionFacBlModel $daSoumissionFacBlModel,
+        DemandePaiementModel $ddpModel,
+        NumeroGenerateurService $numeroGenerateurService,
+        DaSoumissionCalculService $calculService,
+        DaSoumissionDataService $dataService
+    ) {
         $this->em = $em;
-        $this->demandeApproRepository = $em->getRepository(DemandeAppro::class);
-        $this->daAfficherRepository = $em->getRepository(DaAfficher::class);
-        $this->daSoumissionFacBlRepository = $em->getRepository(DaSoumissionFacBl::class);
-        $this->historiqueOperation = new HistoriqueOperationDaFacBlService($em);
-        $this->daModel = new DaModel();
-        $this->daSoumissionFacBlModel = new DaSoumissionFacBlModel();
-        $this->ddpModel = new DemandePaiementModel();
+        $this->historiqueOperation = $historiqueOperation;
+        $this->daModel = $daModel;
+        $this->daSoumissionFacBlModel = $daSoumissionFacBlModel;
+        $this->ddpModel = $ddpModel;
+        $this->numeroGenerateurService = $numeroGenerateurService;
+        $this->calculService = $calculService;
+        $this->dataService = $dataService;
     }
 
     public function initialisation(
@@ -65,36 +66,38 @@ class DaSoumissionFacBlFactory
         $dto = new DaSoumissionFacBlDto();
 
         $dto->numeroCde = $numCde;
-        $dto->utilisateur = $user->getNomUtilisateur();
-        $dto->numeroVersionFacBl = $this->getNumeroVersion($numCde);
         $dto->numeroDemandeAppro = $numDa;
-        $dto->numeroDemandeDit = $this->getNumeroDit($numDa);
         $dto->numeroOR = $numOr;
-        $dto->dateBlFac = $this->getDateLivraisonPrevue($numDa, $numCde);
+        $dto->user = $user;
+        $dto->numeroDemandeDit = $this->dataService->getNumeroDit($dto->numeroDemandeAppro);
+        $dto->utilisateur = $user->getNomUtilisateur();
+        $dto->numeroVersionFacBl = $this->dataService->getNumeroVersion($dto->numeroCde);
+        $dto->dateBlFac = $this->dataService->getDateLivraisonPrevue($dto->numeroDemandeAppro, $dto->numeroCde);
+        $dto->dateDemande = new DateTime();
 
         // livraison ===========================
-        $dto->infoLiv = $this->getInfoLivraison($numCde, $numDa);
+        $dto->infoLiv = $this->dataService->getInfoLivraison($dto->numeroCde, $dto->numeroDemandeAppro);
         $dto->numLiv = array_keys($dto->infoLiv);
 
         // info commande (BC) ==========================
-        $dto->infoBc = $this->getInfoBc($numCde);
+        $dto->infoBc = $this->dataService->getInfoBc($dto->numeroCde);
         $dto->numeroFournisseur = $dto->infoBc['num_fournisseur'];
         $dto->nomFournisseur = $dto->infoBc['nom_fournisseur'];
 
         // DDPL ==========================
         $dto->statutFacBl = self::STATUT_SOUMISSION;
-        $dto->totalMontantCommande = $this->getTotalMontantCommande($numCde);
+        $dto->totalMontantCommande = $this->calculService->getTotalMontantCommande($dto->numeroCde);
+
+        // BAP =======
+        $dto->numeroBap = $this->genererNumeroBap();
 
         // recuperation des demandes de paiement déjà payer
-        $this->getDdpa($numCde, $dto);
+        $this->getDdpa($dto);
 
-        $this->getMontant($numCde, $dto);
+        $this->calculService->calculerMontantEtRatios($dto);
 
         // recupération des informations de commande
-        $this->getReception($numCde, $dto);
-
-        // recupération information de demande de paiement
-        $this->getDemandePaiement($dto, $numCde, $user);
+        $this->getReception($dto);
 
         return $dto;
     }
@@ -116,104 +119,15 @@ class DaSoumissionFacBlFactory
         $dto->dateClotLiv = new DateTime($dto->infoLiv[$dto->numLiv]['date_clot']);
         $dto->refBlFac = $dto->infoLiv[$dto->numLiv]['ref_fac_bl'];
 
+        // recupération information de demande de paiement
+        $dto->demandePaiementDto = $this->getDemandePaiement($dto);
+
         return $dto;
     }
 
-    private function getNumeroDit(string $numDa): ?string
+    public function getReception(DaSoumissionFacBlDto $dto)
     {
-        return $this->demandeApproRepository->getNumDitDa($numDa);
-    }
-
-    private function getDateLivraisonPrevue(string $numDa, string $numCde): ?DateTime
-    {
-        $dateLivraisonPrevue = $this->daAfficherRepository->getDateLivraisonPrevue($numDa, $numCde);
-        return $dateLivraisonPrevue ? new DateTime($dateLivraisonPrevue) : null;
-    }
-
-    private function getInfoLivraison(string $numCde, string $numDa): array
-    {
-        $infosLivraisons = (new DaModel)->getInfoLivraison($numCde);
-        //$daSoumissionBcRepository = $this->em->getRepository(DaSoumissionBc::class);
-        //$estDdpa = $daSoumissionBcRepository->getEstDdpAvance($numCde);
-
-        if (empty($infosLivraisons)) {
-            $message = "La commande n° <b>$numCde</b> n'a pas de livraison associé dans IPS. Merci de bien vérifier le numéro de la commande.";
-            $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn');
-        }
-
-        $livraisonSoumis = $this->daSoumissionFacBlRepository->getAllLivraisonSoumis($numDa, $numCde);
-
-        // $statutBaps = $this->daSoumissionFacBlRepository->getStatutBap($numDa, $numCde);
-        // $demandePaiementRepository = $this->em->getRepository(DemandePaiement::class);
-        // $statutDdps  = $demandePaiementRepository->getStatutDdpSelonNumCde($numCde);
-        // $nombreLivraisonSoumis = $this->daSoumissionFacBlRepository->getNombreLivraisonSoumis($numDa, $numCde);
-
-
-        foreach ($livraisonSoumis as $numLiv) {
-            unset($infosLivraisons[$numLiv]); // exclure les livraisons déjà soumises
-        }
-
-        if (empty($infosLivraisons)) {
-            $message = "Toutes les BAP sont en cours de validation ou déjà validées.";
-            $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn');
-        }
-        // if (empty($infosLivraisons)) {
-        //     $message = "La commande n° <b>$numCde</b> n'a plus de livraison à soumettre. Toutes les livraisons associées ont déjà été soumises.";
-        //     $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn');
-        // }
-
-        return $infosLivraisons;
-    }
-
-    private function getInfoBc($numCde): array
-    {
-        return $this->daModel->getInfoBC($numCde);
-    }
-
-    private function EstDdpa($numCde): ?bool
-    {
-        $bcRepository = $this->em->getRepository(DaSoumissionBc::class);
-        $numeroVersionMax = $bcRepository->getNumeroVersionMax($numCde);
-        $bc =   $bcRepository->findOneBy(['numeroCde' => $numCde, 'numeroVersion' => $numeroVersionMax]);
-        return $bc->getDemandePaiementAvance();
-    }
-
-    public function genererNumeroBap(): string
-    {
-        //recupereation de l'application BAP pour generer le numero de bap
-        $application = $this->em->getRepository(Application::class)->findOneBy(['codeApp' => 'BAP']);
-        //generation du numero de bap
-        $numeroBap = AutoIncDecService::autoGenerateNumero('BAP', $application->getDerniereId(), true);
-        //mise a jour de la derniere id de l'application BAP
-        AutoIncDecService::mettreAJourDerniereIdApplication($application, $this->em, $numeroBap);
-        return $numeroBap;
-    }
-
-    private function getNumFacEtMontant($numLiv): array
-    {
-        $daSoumissionFacBlModel = new DaSoumissionFacBlModel();
-        return $daSoumissionFacBlModel->getMontantReceptionIpsEtNumFac($numLiv);
-    }
-
-    private function getNumeroVersion($numCde): int
-    {
-        $numeroVersionMax = $this->daSoumissionFacBlRepository->getNumeroVersionMax($numCde);
-
-        return AutoIncDecService::autoIncrement($numeroVersionMax);
-    }
-
-    /** DDPL */
-    private function getTotalMontantCommande($numCde): float
-    {
-        $totalMontantCommande = $this->daSoumissionFacBlModel->getTotalMontantCommande($numCde);
-        if ($totalMontantCommande) return (float)$totalMontantCommande[0];
-
-        return 0;
-    }
-
-    public function getReception(int $numCde, $dto)
-    {
-        $articleCdes = $this->daSoumissionFacBlModel->getArticleCde($numCde);
+        $articleCdes = $this->daSoumissionFacBlModel->getArticleCde($dto->numeroCde);
 
         foreach ($articleCdes as $articleCde) {
             $situRecepDto = new DaSituationReceptionDto();
@@ -221,12 +135,10 @@ class DaSoumissionFacBlFactory
         }
     }
 
-    public function getDdpa(int $numCde, DaSoumissionFacBlDto $dto)
+    public function getDdpa(DaSoumissionFacBlDto $dto)
     {
         $ddpRepository = $this->em->getRepository(DemandePaiement::class);
-        $ddps = $ddpRepository->getDdpSelonNumCde($numCde);
-
-        $runningCumul = 0; // Variable pour maintenir le total cumulé
+        $ddps = $ddpRepository->getDdpSelonNumCde($dto->numeroCde);
 
         foreach ($ddps as  $ddp) {
             // Crée un nouveau DTO pour chaque élément afin d'avoir des objets distincts
@@ -235,111 +147,74 @@ class DaSoumissionFacBlFactory
             // Copie les propriétés nécessaires du DTO initial qui sont communes à tous les éléments
             $ddpaDto->totalMontantCommande = $dto->totalMontantCommande;
 
-            // Mappe l'entité vers le nouveau DTO (le mapper ne s'occupe plus du cumul)
+            // Mappe l'entité vers le nouveau DTO
             DaSoumissionFacBlMapper::mapDdp($ddpaDto, $ddp);
-
-            // Calcule et définit la valeur cumulative ici dans la logique du contrôleur
-            $runningCumul += $ddpaDto->ratio;
-            $ddpaDto->cumul = $runningCumul;
 
             $dto->daDdpa[] = $ddpaDto;
         }
 
-        return $dto;
+        return $this->calculService->calculerCumulRatios($dto);
     }
 
-    public function getMontant(int $numCde, DaSoumissionFacBlDto $dto)
+
+
+    private function getDemandePaiement(DaSoumissionFacBlDto $dto): DemandePaiementDto
     {
-        $ddpRepository = $this->em->getRepository(DemandePaiement::class);
-        $ddps = $ddpRepository->getDdpSelonNumCde($numCde);
-
-        $totalMontantPayer = $this->getTotalPayer($ddps);
-        $ratioTotalPayer = ($totalMontantPayer / $dto->totalMontantCommande) * 100;
-        $montantAregulariser = $dto->totalMontantCommande - $totalMontantPayer;
-        $ratioMontantARegul = ($montantAregulariser /  $dto->totalMontantCommande) * 100;
-        $dto->totalMontantPayer = $totalMontantPayer;
-        $dto = DaSoumissionFacBlMapper::mapTotalPayer($dto, $totalMontantPayer, $ratioTotalPayer, $montantAregulariser, $ratioMontantARegul);
-
-        return $dto;
-    }
-
-    private function getTotalPayer(array $ddps): float
-    {
-        $montantpayer = 0;
-
-        foreach ($ddps as $item) {
-            $montantpayer = $montantpayer + $item->getMontantAPayers();
-        }
-
-        return $montantpayer;
-    }
-
-    private function getDemandePaiement(DaSoumissionFacBlDto $dto, int $numCde, User $user)
-    {
+        $ddpDto = new DemandePaiementDto();
         $typeDemandeRepository = $this->em->getRepository(TypeDemande::class);
         $daSoumissionBcRepository = $this->em->getRepository(DaSoumissionBc::class);
-        $daAfficherRepository = $this->em->getRepository(DaAfficher::class);
-        $infoDa = $daAfficherRepository->getInfoDa($numCde);
+
+        $infoDa = $this->dataService->getInfoDa($dto->numeroCde);
         $typeApresLivraison = $typeDemandeRepository->find(TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE);
         $typeRegule = $typeDemandeRepository->find(TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_REGULE);
         $demandePaiementRepository = $this->em->getRepository(DemandePaiement::class);
-        $numeroSoumissionDdpDa = AutoIncDecService::autoIncrement($demandePaiementRepository->getDernierNumeroSoumissionDdpDa($numCde, $infoDa['numeroDemandeAppro']));
 
-        $infoFournisseur = $this->ddpModel->recupInfoPourDa($infoDa['numeroFournisseur'], $numCde);
+        $numeroSoumissionDdpDa = AutoIncDecService::autoIncrement(
+            $demandePaiementRepository->getDernierNumeroSoumissionDdpDa($dto->numeroCde, $infoDa['numeroDemandeAppro'])
+        );
+
+        $infoFournisseur = $this->dataService->getInfoFournisseur($infoDa['numeroFournisseur'], $dto->numeroCde);
 
         if (!empty($infoFournisseur)) {
-            $dto->numeroFournisseur = $infoFournisseur[0]['num_fournisseur'];
-            $dto->ribFournisseur = $infoFournisseur[0]['rib_fournisseur'];
-            $dto->beneficiaire = $infoFournisseur[0]['nom_fournisseur']; // nom du fournisseur
-            $dto->modePaiement = $infoFournisseur[0]['mode_paiement'];
-            $dto->devise = $infoFournisseur[0]['devise'];
+            $ddpDto->numeroFournisseur = $infoFournisseur[0]['num_fournisseur'];
+            $ddpDto->ribFournisseur = $infoFournisseur[0]['rib_fournisseur'];
+            $ddpDto->beneficiaire = $infoFournisseur[0]['nom_fournisseur'];
+            $ddpDto->modePaiement = $infoFournisseur[0]['mode_paiement'];
+            $ddpDto->devise = $infoFournisseur[0]['devise'];
         }
 
-        $dto->debiteur = $this->debiteur($infoDa['daTypeId'], $infoDa);
-        $dto->typeDemande = $dto->totalMontantPayer <= 0 ? $typeRegule : $typeApresLivraison;
-        $dto->statut = 'Soumis à validation';
-        $dto->demandeur = $user->getNomUtilisateur();
-        $dto->adresseMailDemandeur = $user->getMail();
-        $dto->montantAPayer = $dto->montantAregulariser;
-        $dto->numeroCommande = [$numCde];
-        $dto->appro = true;
-        $dto->typeDa = $infoDa['daTypeId'];
-        $dto->numeroVersionBc = $daSoumissionBcRepository->getNumeroVersionMax($numCde);
-        $dto->dateCreation = new DateTime();
-        $dto->numeroSoumissionDdpDa = $numeroSoumissionDdpDa;
+        $ddpDto->numeroDdp = $dto->typeDdp !== 'bap' ? $this->genererNumeroDdp() : $dto->numeroBap;
+        $ddpDto->debiteur = $this->dataService->resolveDebiteur($infoDa['daTypeId'], $infoDa);
+        $ddpDto->typeDemande = $dto->montantAregulariser <= 0.0 ? $typeRegule : $typeApresLivraison;
+        $ddpDto->statut = 'Soumis à validation';
+        $ddpDto->demandeur = $dto->user->getNomUtilisateur();
+        $ddpDto->adresseMailDemandeur = $dto->user->getMail();
+        $ddpDto->montantAPayer = $dto->montantAregulariser;
+        $ddpDto->numeroCommande = $dto->numeroCde;
+        $ddpDto->numeroFacture = $dto->numeroFactureFournisseur;
+        $ddpDto->appro = true;
+        $ddpDto->typeDa = $infoDa['daTypeId'];
+        $ddpDto->numeroVersionBc = $daSoumissionBcRepository->getNumeroVersionMax($dto->numeroCde);
+        $ddpDto->dateDemande = new DateTime();
+        $ddpDto->numeroSoumissionDdpDa = $numeroSoumissionDdpDa;
+        $ddpDto->numeroDemandeAppro = $infoDa['numeroDemandeAppro'];
+        $ddpDto->numeroLivraison = $dto->numLiv;
+
+        return $ddpDto;
     }
 
     public function genererNumeroDdp(): string
     {
-        //recupereation de l'application DDP pour generer le numero de ddp
-        $application = $this->em->getRepository(Application::class)->findOneBy(['codeApp' => 'DDP']);
-        if (!$application) {
-            throw new \Exception("L'application 'DDP' n'a pas été trouvée dans la configuration.");
-        }
-        //generation du numero de ddp
-        $numeroDdp = AutoIncDecService::autoGenerateNumero('DDP', $application->getDerniereId(), true);
-        //mise a jour de la derniere id de l'application DDP
-        AutoIncDecService::mettreAJourDerniereIdApplication($application, $this->em, $numeroDdp);
-        return $numeroDdp;
+        return $this->numeroGenerateurService->genererNumeroDdp();
     }
 
-    private function debiteur(int $typeDa, array $infoDa): array
+    public function genererNumeroBap(): string
     {
-        $agenceRepository = $this->em->getRepository(Agence::class);
-        $serviceRepository = $this->em->getRepository(Service::class);
-        if ($typeDa === TypeDaConstants::TYPE_DA_AVEC_DIT) {
-            $codeAgenceServiceIps = $this->ddpModel->getCodeAgenceService($infoDa['numeroOr']);
-            $debiteur = [
-                'agence' => $agenceRepository->findOneBy(['codeAgence' => $codeAgenceServiceIps[0]['code_agence']]),
-                'service' => $serviceRepository->findOneBy(['codeService' => $codeAgenceServiceIps[0]['code_service']])
-            ];
-        } elseif ($typeDa === TypeDaConstants::TYPE_DA_DIRECT) {
-            $debiteur = [
-                'agence' => $agenceRepository->find($infoDa['agenceDebiteur']),
-                'service' => $serviceRepository->find($infoDa['serviceDebiteur'])
-            ];
-        }
+        return $this->numeroGenerateurService->genererNumeroBap();
+    }
 
-        return $debiteur;
+    private function getNumFacEtMontant($numLiv): array
+    {
+        return $this->daSoumissionFacBlModel->getMontantReceptionIpsEtNumFac($numLiv);
     }
 }

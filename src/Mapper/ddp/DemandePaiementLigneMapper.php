@@ -11,7 +11,13 @@ class DemandePaiementLigneMapper
     {
         $lignes = [];
 
-        for ($i = 0; $i < count($dto->numeroCommande); $i++) {
+        if (is_array($dto->numeroCommande)) {
+            $nb = count($dto->numeroCommande);
+        } else {
+            $nb = 1;
+        }
+
+        for ($i = 0; $i < $nb; $i++) {
             $ligne = new DemandePaiementLigne();
             $ligne->setNumeroDdp($dto->numeroDdp)
                 ->setNumeroLigne($i + 1)

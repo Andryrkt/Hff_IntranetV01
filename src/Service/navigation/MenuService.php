@@ -266,7 +266,7 @@ class MenuService
             $this->createSimpleItem('Plan analytique HFF', 'ruler-vertical', "{$this->basePath}/documentation/Structure%20analytique%20HFF.pdf", [], "_blank"),
             $this->createSimpleItem('Documentation interne', 'folder-tree', 'documentation_interne'),
         ];
-        if ($this->getEstAdmin()) {
+        if ($this->getEstAdmin() || in_array(Application::ID_CONTRAT, $this->getApplicationIds())) {
             $subitems[] = $this->createSubMenuItem(
                 'Contrat',
                 'file-contract',

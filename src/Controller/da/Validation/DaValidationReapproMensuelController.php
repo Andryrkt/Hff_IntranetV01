@@ -12,8 +12,9 @@ use App\Form\da\DaObservationValidationType;
 use App\Controller\Traits\da\DaAfficherTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\Traits\da\detail\DaDetailReapproTrait;
 use App\Controller\Traits\da\validation\DaValidationReapproTrait;
+use App\Service\da\DaConsumptionHistory;
+use App\Service\da\DocRattacheService;
 
 /**
  * @Route("/demande-appro")
@@ -23,14 +24,15 @@ class DaValidationReapproMensuelController extends Controller
     use DaAfficherTrait;
     use AutorisationTrait;
     use DaValidationReapproTrait;
-    use DaDetailReapproTrait;
 
-    public function __construct()
+    private DocRattacheService $docRattacheService;
+
+    public function __construct(DocRattacheService $docRattacheService)
     {
         parent::__construct();
 
         $this->initDaValidationReapproTrait();
-        $this->initDaDetailReapproTrait();
+        $this->docRattacheService = $docRattacheService;
     }
 
     /**
@@ -45,33 +47,31 @@ class DaValidationReapproMensuelController extends Controller
         $this->autorisationAcces($this->getUser(), Application::ID_DAP);
         /** FIN AUtorisation accès */
 
-        $da = $this->demandeApproRepository->find($id);
+        $demandeAppro = $this->demandeApproRepository->find($id);
 
         $daObservation = new DaObservation();
 
         $formReappro = $this->getFormFactory()->createBuilder(DaObservationValidationType::class, $daObservation)->getForm();
-        $formObservation = $this->getFormFactory()->createBuilder(DaObservationType::class, $daObservation, ['daTypeId' => $da->getDaTypeId()])->getForm();
+        $formObservation = $this->getFormFactory()->createBuilder(DaObservationType::class, $daObservation, ['daTypeId' => $demandeAppro->getDaTypeId()])->getForm();
 
-        $dateRange = $this->getLast12MonthsRange();
-        $monthsList = $this->getMonthsList($dateRange['start'], $dateRange['end']);
-        $dataHistoriqueConsommation = $this->getHistoriqueConsommation($da, $dateRange, $monthsList);
-        $observations = $this->daObservationRepository->findBy(['numDa' => $da->getNumeroDemandeAppro()], ['dateCreation' => 'ASC']);
+        $daConsumptionHistory = new DaConsumptionHistory();
+        $dateRange = $daConsumptionHistory->getLast12MonthsRange();
+        $monthsList = $daConsumptionHistory->getMonthsList($dateRange['start'], $dateRange['end']);
+        $dataHistoriqueConsommation = $daConsumptionHistory->getHistoriqueConsommation($demandeAppro, $dateRange, $monthsList);
+
+        $observations = $this->daObservationRepository->findBy(['numDa' => $demandeAppro->getNumeroDemandeAppro()], ['dateCreation' => 'ASC']);
 
         //========================================== Traitement du formulaire en général ===================================================//
-        $this->traitementFormulaire($formReappro, $formObservation, $request, $da, $observations, $monthsList, $dataHistoriqueConsommation);
+        $this->traitementFormulaire($formReappro, $formObservation, $request, $demandeAppro, $observations, $monthsList, $dataHistoriqueConsommation);
         //==================================================================================================================================//
 
-        $fichiers = $this->getAllDAFile([
-            'baiPath'      => $this->getBaIntranetPath($da),
-            'badPath'      => $this->getBaDocuWarePath($da),
-            'devPjPathObs' => $this->getDevisPjPathObservation($da),
-        ]);
+        $fichiers = $this->docRattacheService->getAllAttachedFiles($demandeAppro);
 
         return $this->render("da/validation-reappro.html.twig", [
-            'demandeAppro'    => $da,
-            'numDa'           => $da->getNumeroDemandeAppro(),
+            'demandeAppro'    => $demandeAppro,
+            'numDa'           => $demandeAppro->getNumeroDemandeAppro(),
             'fichiers'        => $fichiers,
-            'codeCentrale'    => $this->estAdmin() || in_array($da->getAgenceEmetteur()->getCodeAgence(), ['90', '91', '92']),
+            'codeCentrale'    => $this->estAdmin() || in_array($demandeAppro->getAgenceEmetteur()->getCodeAgence(), ['90', '91', '92']),
             'formReappro'     => $formReappro->createView(),
             'formObservation' => $formObservation->createView(),
             'observations'    => $observations,
@@ -81,7 +81,7 @@ class DaValidationReapproMensuelController extends Controller
         ]);
     }
 
-    private function traitementFormulaire($formReappro, $formObservation, Request $request, DemandeAppro $da, iterable $observations, array $monthsList, array $dataHistoriqueConsommation)
+    private function traitementFormulaire($formReappro, $formObservation, Request $request, DemandeAppro $demandeAppro, iterable $observations, array $monthsList, array $dataHistoriqueConsommation)
     {
         $formReappro->handleRequest($request);
 
@@ -89,24 +89,24 @@ class DaValidationReapproMensuelController extends Controller
             // ✅ Récupérer les valeurs des champs caché
             $observation = $formReappro->getData()->getObservation();
 
-            if ($observation) $this->insertionObservation($da->getNumeroDemandeAppro(), $observation);
+            if ($observation) $this->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $observation);
 
             if ($request->request->has('refuser')) {
-                $this->refuserDemande($da);
+                $this->refuserDemande($demandeAppro);
 
-                $this->emailDaService->envoyerMailValidationReappro($da, $observation ?? '-', $this->getUser(), false);
+                $this->emailDaService->envoyerMailValidationReappro($demandeAppro, $observation ?? '-', $this->getUser(), false);
 
                 $notification = [
                     'type'    => 'success',
                     'message' => 'La demande de réappro a été refusé avec succès.',
                 ];
             } elseif ($request->request->has('valider')) {
-                $this->validerDemande($da);
-                $this->creationPDFReappro($da, $observations, $monthsList, $dataHistoriqueConsommation);
-                $this->copyPDFToDW($da->getNumeroDemandeAppro());
-                $this->ajouterDansDaSoumisAValidation($da);
+                $this->validerDemande($demandeAppro);
+                $this->creationPDFReappro($demandeAppro, $observations, $monthsList, $dataHistoriqueConsommation);
+                $this->copyPDFToDW($demandeAppro->getNumeroDemandeAppro());
+                $this->ajouterDansDaSoumisAValidation($demandeAppro);
 
-                $this->emailDaService->envoyerMailValidationReappro($da, $observation ?? '-', $this->getUser());
+                $this->emailDaService->envoyerMailValidationReappro($demandeAppro, $observation ?? '-', $this->getUser());
 
                 $notification = [
                     'type'    => 'success',
@@ -124,7 +124,7 @@ class DaValidationReapproMensuelController extends Controller
             /** @var DaObservation $daObservation daObservation correspondant au donnée du formObservation */
             $daObservation = $formObservation->getData();
 
-            $this->traitementEnvoiObservation($daObservation, $da);
+            $this->traitementEnvoiObservation($daObservation, $demandeAppro);
         }
     }
 

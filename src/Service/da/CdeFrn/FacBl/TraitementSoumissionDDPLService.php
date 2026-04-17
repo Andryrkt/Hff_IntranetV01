@@ -7,6 +7,8 @@ use App\Dto\Da\ListeCdeFrn\DaSoumissionFacBlDto;
 use App\Entity\da\DaAfficher;
 use App\Factory\da\CdeFrnDto\DaSoumissionFacBlFactory;
 use App\Mapper\Da\ListCdeFrn\DaSoumissionFacBlMapper;
+use App\Mapper\ddp\CommandeLivraisonMapper;
+use App\Mapper\ddp\DemandePaiementCommandeMapper;
 use App\Mapper\ddp\DemandePaiementMapper;
 use App\Repository\da\DaAfficherRepository;
 use App\Service\fichier\TraitementDeFichier;
@@ -33,47 +35,45 @@ class TraitementSoumissionDDPLService
     private EntityManagerInterface $entityManager;
 
     public function __construct(
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
+        DaSoumissionFacBlFactory $daSoumissionFacBlFactory,
+        TraitementDeFichier $traitementDeFichier,
+        HistoriqueOperationDaFacBlService $historiqueOperation,
+        DaSoumissionFacBlMapper $daSoumissionfacBlMapper,
+        GeneratePdfDdpDa $generatePdfDdp,
+        GeneratePdf $generatePdf
     ) {
         $this->entityManager                  = $entityManager;
-        $this->daSoumissionFacBlFactory       = new DaSoumissionFacBlFactory($this->entityManager);
-        $this->traitementDeFichier            = new TraitementDeFichier();
-        $this->cheminDeBase                   = $_ENV['BASE_PATH_FICHIER'] . '/da/';
-        $this->cheminDeBaseDdp                = $_ENV['BASE_PATH_FICHIER'] . '/ddp';
-        $this->historiqueOperation            = new HistoriqueOperationDaFacBlService($this->entityManager);
+        $this->daSoumissionFacBlFactory       = $daSoumissionFacBlFactory;
+        $this->traitementDeFichier            = $traitementDeFichier;
+        $this->cheminDeBase                   = ($_ENV['BASE_PATH_FICHIER'] ?? '') . '/da/';
+        $this->cheminDeBaseDdp                = ($_ENV['BASE_PATH_FICHIER'] ?? '') . '/ddp';
+        $this->historiqueOperation            = $historiqueOperation;
         $this->daAfficherRepository           = $this->entityManager->getRepository(DaAfficher::class);
-        $this->daSoumissionfacBlMapper        = new DaSoumissionFacBlMapper();
-        $this->generatePdfDdp                 = new GeneratePdfDdpDa();
-        $this->generatePdf                    = new GeneratePdf();
+        $this->daSoumissionfacBlMapper        = $daSoumissionfacBlMapper;
+        $this->generatePdfDdp                 = $generatePdfDdp;
+        $this->generatePdf                    = $generatePdf;
     }
 
     public function traitementSoumissionDDPL($form, $dto)
     {
         $sucess = false;
         if ($this->verifierConditionDeBlocage($dto)) {
-            $numCde  = $dto->numeroCde;
-            $numDa   = $dto->numeroDemandeAppro;
 
-            if (empty($dto->numeroDdp)) {
-                $dto->numeroDdp = $this->daSoumissionFacBlFactory->genererNumeroDdp();
-            }
-
-            // Traitement du fichier
+            // Traitement du fichier (enregistrement et fusion)
             [$nomAvecCheminPdfFusionner, $nomPdfFusionner] = $this->traitementDeFichier($form, $dto);
 
             // enrichissement Dto
             $dto  = $this->daSoumissionFacBlFactory->enrichissementDtoApresSoumission($dto, $nomPdfFusionner);
 
-            /** ENREGISTREMENT DANS LA BASE DE DONNEE */
-            $daSoumissionFacBl = $this->daSoumissionfacBlMapper->mapDaDdp($dto);
-            $this->entityManager->persist($daSoumissionFacBl);
-            $this->entityManager->flush();
+            // enregistrement dans la base de données (table da_soumission_fac_bl, demande_paiement_commande, commande_livraison)
+            $this->enregistrementDansDB($dto);
 
-            /** COPIER DANS DW */
-            $this->generatePdf->copyToDWFacBlDa($nomPdfFusionner, $numDa);
+            // copie du fichier fusionné dans le dossier de DW (Facture_BL frns apppro)
+            $this->generatePdf->copyToDWFacBlDa($nomPdfFusionner, $dto->numeroDemandeAppro);
 
-            /** MODIFICATION DA AFFICHER */
-            $this->modificationDaAfficher($numDa, $numCde);
+            // modification du table da_afficher pour le champ est_facture_bl_soumis
+            $this->modificationDaAfficher($dto);
 
             // generation de demande de paiement
             $this->traitementPourDdp($dto, $nomAvecCheminPdfFusionner);
@@ -83,22 +83,47 @@ class TraitementSoumissionDDPLService
         return $sucess;
     }
 
-    private function traitementPourDdp($dto, string $nomAvecCheminPdfFusionner)
+    private function enregistrementDansDB($dto)
     {
+        // enregistrement dans la table da_soumission_fac_bl
+        $daSoumissionFacBl = $this->daSoumissionfacBlMapper->mapDaDdp($dto);
+        $this->entityManager->persist($daSoumissionFacBl);
+        $this->entityManager->flush();
+
+        // enregisstrement dans la table demande_paiement
+        $ddp = DemandePaiementMapper::map($dto->demandePaiementDto);
+        $this->entityManager->persist($ddp);
+        $this->entityManager->flush();
+
+        // enregistrement dans la table demande_paiement_commande
+        $ddpCommande = DemandePaiementCommandeMapper::map($dto->demandePaiementDto, $ddp);
+        $this->entityManager->persist($ddpCommande);
+        $this->entityManager->flush();
+
+        // enregistremenet dans la table commande_livraison
+        $commande_livraison = CommandeLivraisonMapper::map($dto->demandePaiementDto, $ddp);
+        $this->entityManager->persist($commande_livraison);
+        $this->entityManager->flush();
+    }
+
+    private function traitementPourDdp(DaSoumissionFacBlDto $dto, string $nomAvecCheminPdfFusionner)
+    {
+        $numeroDdp = $dto->demandePaiementDto->numeroDdp;
         // GENERATION DE PDF pour le demnade de paiement
-        $nomPageDeGarde = $dto->numeroDdp . '.pdf';
-        $cheminEtNom = $this->cheminDeBaseDdp . '/' . $dto->numeroDdp . '_New_1/' . $nomPageDeGarde;
-        $this->generatePdfDdp->generer($dto, $cheminEtNom);
+        $nomPageDeGarde = $numeroDdp . '.pdf';
+        $cheminDossier = $this->cheminDeBaseDdp . '/' . $numeroDdp;
+        $cheminEtNom = $cheminDossier . '/' . $nomPageDeGarde;
+
+        if (!file_exists($cheminDossier)) {
+            mkdir($cheminDossier, 0777, true);
+        }
+
+        $this->generatePdfDdp->generer($dto->demandePaiementDto, $cheminEtNom);
 
         // fusion du page de garde du demande de paiement et le facture Bl
         $pdfAFusionner = [$cheminEtNom, $nomAvecCheminPdfFusionner];
         $fichierConvertir = $this->ConvertirLesPdf($pdfAFusionner);
         $this->traitementDeFichier->fusionFichers($fichierConvertir, $cheminEtNom);
-
-        // enregisstrement dans la table demande de paiement
-        $ddp = DemandePaiementMapper::map($dto);
-        $this->entityManager->persist($ddp);
-        $this->entityManager->flush();
     }
 
     private function traitementDeFichier($form, $dto): array
@@ -118,7 +143,7 @@ class TraitementSoumissionDDPLService
         $fichierConvertir = $this->ConvertirLesPdf($nomFichierAvecChemins);
 
         /** GENERATION DU NOM DU FICHIER */
-        $numeroVersionMax          = $dto->numeroVersion;
+        $numeroVersionMax          = $dto->numeroVersionFacBl;
         $nomPdfFusionner           =  "FACBL$numCde#$numDa-{$numOr}_{$numeroVersionMax}~{$nomOriginalFichier}";
         $nomAvecCheminPdfFusionner = $this->cheminDeBase . $numDa . '/' . $nomPdfFusionner;
 
@@ -195,10 +220,10 @@ class TraitementSoumissionDDPLService
      * @param string $numDa
      * @param int $numeroVersionMax
      */
-    private function modificationDaAfficher(string $numDa, string $numCde): void
+    private function modificationDaAfficher(DaSoumissionFacBlDto $dto): void
     {
-        $numeroVersionMax = $this->entityManager->getRepository(DaAfficher::class)->getNumeroVersionMax($numDa);
-        $daAffichers = $this->entityManager->getRepository(DaAfficher::class)->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax, 'numeroCde' => $numCde]);
+        $numeroVersionMax = $this->entityManager->getRepository(DaAfficher::class)->getNumeroVersionMax($dto->numeroDemandeAppro);
+        $daAffichers = $this->entityManager->getRepository(DaAfficher::class)->findBy(['numeroDemandeAppro' => $dto->numeroDemandeAppro, 'numeroVersion' => $numeroVersionMax, 'numeroCde' => $dto->numeroCde]);
 
         foreach ($daAffichers as  $daAfficher) {
             if (!$daAfficher instanceof DaAfficher) {
@@ -229,10 +254,10 @@ class TraitementSoumissionDDPLService
         } elseif (!empty($nonReceptionnes)) {
             $message = " il y des quantités non réceptionné sur la commande a fait objet d'une demande de paiement à l'avance (non refusé) ";
             $okey = false;
-        } elseif ($dto->typeDdp === 'regul' && $dto->totalMontantPayer > 0) {
+        } elseif ($dto->typeDdp === 'regul' && $dto->montantAregulariser > 0.0) {
             $message = " Pour la régularisation, il faut que le montant à payer soit égal à 0 ";
             $okey = false;
-        } elseif ($dto->typeDdp !== 'regul' && $dto->totalMontantPayer <= 0) {
+        } elseif ($dto->typeDdp !== 'regul' && $dto->montantAregulariser <= 0.0) {
             $message = " le type de traitement de paiement doit être régularisation car le montant à payer est égal à 0 ";
             $okey = false;
         }

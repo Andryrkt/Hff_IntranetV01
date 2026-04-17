@@ -1,8 +1,8 @@
 imports:
+    - { resource: 'services/services_framework.yaml' }
     - { resource: 'services/services_app.yaml' }
     - { resource: 'services/services_form.yaml' }
     - { resource: 'services/services_twig.yaml' }
-    - { resource: 'services/services_framework.yaml' }
     - { resource: 'services/services_custom.yaml' }
 
 services:

@@ -65,7 +65,7 @@ class GeneratePdfDdpDa extends GeneratePdf
         $largeurRestante = $largeurTotale - $largeurUtilisee;
 
         $pdf->SetFont('helvetica', 'B', 12);
-        $pdf->Cell($largeurRestante, 10, $dto->numeroDa, 0, 1, 'R');  // ln=1 pour passer à la ligne suivante
+        $pdf->Cell($largeurRestante, 10, $dto->numeroDemandeAppro, 0, 1, 'R');  // ln=1 pour passer à la ligne suivante
 
         $pdf->Line($pdf->GetX() + 1, $pdf->GetY() - 2.5, $pdf->GetX() + $pdf->GetStringWidth('DATE') + 1, $pdf->GetY() - 2.5);
 

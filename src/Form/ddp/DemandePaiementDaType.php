@@ -266,7 +266,7 @@ class DemandePaiementDaType extends AbstractType
                 ChoiceType::class,
                 [
                     'label'     => 'N° Commande fournisseur *',
-                    'choices'   => $typeDa !== null ? (!empty($numCde) ? array_combine($numCde, $numCde) : []) : $this->numeroCmd($typeDemandeId),
+                    'choices'   => $typeDa !== null ? (!empty($numCde) ? [$numCde => $numCde] : []) : $this->numeroCmd($typeDemandeId),
                     'multiple'  => $isMultiple,
                     'expanded'  => false,
                     'required' => false,
@@ -280,7 +280,7 @@ class DemandePaiementDaType extends AbstractType
                 [
                     'label' => 'N° Facture fournisseur *',
                     'required' => false,
-                    'choices'   => $typeDa !== null ? (!empty($numFac) ? array_combine($numFac, $numFac) : []) : $this->numeroFac($numeroFournisseur, $typeDemandeId),
+                    'choices'   => $typeDa !== null ? (!empty($numFac) ? [$numFac => $numFac] : []) : $this->numeroFac($numeroFournisseur, $typeDemandeId),
                     'multiple'  => $isMultiple,
                     'expanded'  => false,
                     'required' => false,

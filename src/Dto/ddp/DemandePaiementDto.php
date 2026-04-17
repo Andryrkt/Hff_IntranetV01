@@ -2,8 +2,9 @@
 
 namespace App\Dto\ddp;
 
-use App\Traits\ChaineCaractereTrait;
+use App\Constants\ddp\StatutConstants;
 use App\Entity\admin\ddp\TypeDemande;
+use App\Traits\ChaineCaractereTrait;
 
 class DemandePaiementDto
 {
@@ -11,29 +12,31 @@ class DemandePaiementDto
 
     // info generale =====================
     public string $numeroDdp;
-    public $statut;
-    public $adresseMailDemandeur;
-    public $demandeur;
+    public string $statut;
+    public string $adresseMailDemandeur;
+    public string $demandeur;
     public int $numeroVersion = 0;
     public ?TypeDemande $typeDemande = null;
     public ?\DateTime $dateDemande = null;
     public bool $estChangementDeRib = false;
+    public ?string $numeroCla = null;
+    public ?\DateTime $dateSoumissionCompta = null;
 
     // fournisseur ======================
-    public $numeroFournisseur;
-    public $ribFournisseur;
-    public $ribFournisseurAncien;
-    public $cif;
-    public $beneficiaire; // nom du fournisseur
-    public $modePaiement;
+    public ?string $numeroFournisseur = null;
+    public ?string $ribFournisseur = null;
+    public ?string $ribFournisseurAncien = null;
+    public ?string $cif = null;
+    public ?string $beneficiaire = null; // nom du fournisseur
+    public ?string $modePaiement = null;
     public ?string $devise = null;
     public ?string $contact = null;
 
     // info sur Ddp =========================
     public $motif;
     public array $debiteur = [];
-    public array $numeroCommande;
-    public array $numeroFacture;
+    public ?string  $numeroCommande = null;
+    public ?string $numeroFacture = null;
     public ?string $statutDossierRegul = null;
 
     public bool $estCdeClientExterneDoc = false;
@@ -52,7 +55,7 @@ class DemandePaiementDto
     public $commandeFichier;
     public $factureFournisseurFichier;
     public $titreDeTransportFichier;
-    public $lesFichiers;
+    public array $lesFichiers = [];
 
 
 
@@ -67,7 +70,7 @@ class DemandePaiementDto
     public $pourcentageAvance;
     public $ratioMontantpayer;
     public $numeroDa;
-    public $ddpaDa = false;
+    public bool $ddpaDa = false;
     public int $numeroVersionBc = 0;
     public string $nomPdfFusionnerBc = '';
     public $daDdpa = [];
@@ -79,13 +82,23 @@ class DemandePaiementDto
     public $ratioMontantARegul;
     public $numeroSoumissionDdpDa;
     public $numeroDemandeAppro;
+    public $numeroLivraison;
 
     public function montantAPayer(): float
     {
-        return (float) $this->montantAPayer;
+        $montant = $this->montantAPayer;
+        if (is_string($montant)) {
+            if (strpos($montant, ',') !== false) {
+                $montant = str_replace([' ', '.'], '', $montant);
+                $montant = str_replace(',', '.', $montant);
+            } else {
+                $montant = str_replace(' ', '', $montant);
+            }
+        }
+        return (float) $montant;
     }
 
-    public function montantRestantApayer(): float
+    public function montantRestantApayer()
     {
         return $this->montantTotalCde - $this->montantDejaPaye - $this->montantAPayer();
     }
@@ -102,12 +115,12 @@ class DemandePaiementDto
 
     public function numCdeString()
     {
-        return implode(';', $this->numeroCommande);
+        return is_array($this->numeroCommande) ? implode(';', $this->numeroCommande) : $this->numeroCommande;
     }
 
     public function numFacString()
     {
-        return implode(';', $this->numeroFacture);
+        return is_array($this->numeroFacture) ? implode(';', $this->numeroFacture) : $this->numeroFacture;
     }
 
     public function numeroDossierDouaneString()
@@ -133,5 +146,10 @@ class DemandePaiementDto
     public function ribFournisseurChanger(): bool
     {
         return $this->ribFournisseurAncien !== $this->ribFournisseur;
+    }
+
+    public function getStyleStatut(): string
+    {
+        return StatutConstants::getCssClass($this->statut);
     }
 }

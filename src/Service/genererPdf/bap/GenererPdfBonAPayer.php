@@ -75,7 +75,7 @@ class GenererPdfBonAPayer extends GeneratePdf
         $pdf->SetTextColor(0, 0, 0);
         $pdf->setFont('helvetica', 'B', 10);
         $pdf->setAbsX(170);
-        $pdf->cell(35, 6, 'Le : ' . $dto->dateCreation->format('d/m/Y'), 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(35, 6, 'Le : ' . $dto->dateDemande->format('d/m/Y'), 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(7);
     }
 

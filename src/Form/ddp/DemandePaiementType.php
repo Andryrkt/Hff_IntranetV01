@@ -269,9 +269,9 @@ class DemandePaiementType extends AbstractType
                 TextType::class,
                 [
                     'label' => 'Montant à payer *',
-                    'attr' => [
-                        'readOnly' => true
-                    ]
+                    // 'attr' => [
+                    //     'readOnly' => true
+                    // ]
                 ]
             )
             ->add(
@@ -358,9 +358,6 @@ class DemandePaiementType extends AbstractType
                 if ($data instanceof DemandePaiement && $data->getAgence()) {
                     $services = $data->getAgence()->getServices();
                 }
-                //$services = $data->getAgence()->getServices();
-                // $agence = $event->getData()->getAgence() ?? null;
-                // $services = $agence->getServices();
 
                 $form->add(
                     'service',
@@ -385,35 +382,6 @@ class DemandePaiementType extends AbstractType
                     ]
                 );
             })
-            // ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
-            //     $form = $event->getForm();
-            //     $data = $event->getData();
-
-
-            //     $agenceId = $data['agence'];
-
-            //     $agence = $this->agenceRepository->find($agenceId);
-            //     if($agence === null){
-            //         $services = [];
-            //     } else {
-            //         $services = $agence->getServices();
-            //     }
-
-
-            //     $form->add('service', EntityType::class, [
-            //         'label' => 'Service Débiteur *',
-            //         'class' => Service::class,
-            //         'choice_label' => function (Service $service): string {
-            //             return $service->getCodeService() . ' ' . $service->getLibelleService();
-            //         },
-            //         'choices' => $services,
-            //         'required' => false,
-            //         'attr' => [
-            //             'class' => 'serviceDebiteur',
-            //             'disabled' => true,
-            //         ]
-            //     ]);
-            // })
             ->add(
                 'agence',
                 EntityType::class,

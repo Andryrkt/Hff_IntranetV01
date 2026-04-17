@@ -16,10 +16,10 @@ class DocDemandePaiementService
     private EntityManagerInterface $em;
     private DemandePaiementModel $ddpModel;
 
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(EntityManagerInterface $em, DemandePaiementModel $ddpModel)
     {
         $this->em = $em;
-        $this->ddpModel  = new DemandePaiementModel();
+        $this->ddpModel = $ddpModel;
     }
 
     /**
@@ -54,10 +54,8 @@ class DocDemandePaiementService
         $numCde = $dto->numeroCommande;
         $numFactures = $dto->numeroFacture;
 
-        $numCdesString = TableauEnStringService::TableauEnString(',', $numCde);
-        $numFactString = TableauEnStringService::TableauEnString(',', $numFactures);
 
-        $numDossiers = array_column($this->ddpModel->getNumDossierGcot($numFrs, $numCdesString, $numFactString), 'Numero_Dossier_Douane');
+        $numDossiers = array_column($this->ddpModel->getNumDossierGcot($numFrs, $numCde, $numFactures), 'Numero_Dossier_Douane');
 
         return $numDossiers;
     }
@@ -94,7 +92,7 @@ class DocDemandePaiementService
     {
         $chemin = $_ENV['BASE_PATH_FICHIER'] . '/ddp';
         $cheminDeFichiers = $this->recupCheminFichierDistant($dto);
-        $cheminDestination = $chemin . '/' . $dto->numeroDdp . '_New_1';
+        $cheminDestination = $chemin . '/' . $dto->numeroDdp;
 
         // S'assurer que le répertoire de destination existe
         if (!is_dir($cheminDestination)) {
@@ -138,7 +136,7 @@ class DocDemandePaiementService
     public function copieFichierChoisi(DemandePaiementDto $dto)
     {
         $chemin = $_ENV['BASE_PATH_FICHIER'] . '/ddp';
-        $cheminDestination = $chemin . '/' . $dto->numeroDdp . '_New_1';
+        $cheminDestination = $chemin . '/' . $dto->numeroDdp;
 
         // S'assurer que le répertoire de destination existe
         if (!is_dir($cheminDestination)) {
@@ -173,10 +171,7 @@ class DocDemandePaiementService
 
     private function recupCdeDw(DemandePaiementDto $dto): array
     {
-        $pathAndCdes = [];
-        foreach ($dto->numeroCommande as  $numcde) {
-            $pathAndCdes[] = $this->ddpModel->getPathDwCommande($numcde);
-        }
+        $pathAndCdes[] = $this->ddpModel->getPathDwCommande($dto->numeroCommande);
 
         $nomDufichierCde = [];
         foreach ($pathAndCdes as  $pathAndCde) {
@@ -190,7 +185,7 @@ class DocDemandePaiementService
 
                 $nomFichierInitial = basename($pathAndCde[0]['path']);
 
-                $cheminDufichierDestinataire = $_ENV['BASE_PATH_FICHIER'] . '/ddp/' . $dto->numeroDdp . '_New_' . $dto->numeroVersion . '/' . $nomFichierInitial;
+                $cheminDufichierDestinataire = $_ENV['BASE_PATH_FICHIER'] . '/ddp/' . $dto->numeroDdp . '/' . $nomFichierInitial;
 
                 $destinationDir = dirname($cheminDufichierDestinataire);
                 if (!is_dir($destinationDir)) {
@@ -212,5 +207,22 @@ class DocDemandePaiementService
         $desFichiers = $this->ajoutDesFichiers($dto, $nomFichiersTelecharger);
 
         return array_merge($nomDufichierCde, $desFichiers);
+    }
+
+    public function getFichiersDevisDa(int $numeroDa): array
+    {
+        $listeFichiersPJ = [];
+        $path = $_ENV['BASE_PATH_FICHIER'] . 'da/' . $numeroDa . '/';
+        
+        if (is_dir($path)) {
+            $files = scandir($path);
+            foreach ($files as $file) {
+                if (preg_match('/^(_pj_|PJ_|devis_pj_)/', $file)) {
+                    $listeFichiersPJ[] = $file;
+                }
+            }
+        }
+        
+        return $listeFichiersPJ;
     }
 }

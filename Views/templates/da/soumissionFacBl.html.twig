@@ -25,8 +25,8 @@
 							<a href="{{ path("list_da")}}" class="tablinks p-2 btn btn-outline-warning " style="text-decoration: none;color:black">Retour</a>
 						</div>
 					</div>
-					{% if dto.totalMontantPayer <= 0 %}
-						<h2>Le montant restant à payer est égal à 0, le type de demande de paiement doit être de type régularisation</h2>
+					{% if dto.montantAregulariser <= 0 %}
+						<h2 class="bg-warning p-2 fw-bold">Le montant restant à payer est égal à 0, le type de demande de paiement doit être de type régularisation</h2>
 					{% endif %}
 
 					{{ form_start(form, {'attr': {'enctype': 'multipart/form-data', 'id': 'myForm', 'data-form-type': 'da-soumission-fac-bl'}}) }}
