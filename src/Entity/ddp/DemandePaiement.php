@@ -780,7 +780,7 @@ class DemandePaiement
                 $montantAPayers = str_replace(' ', '', $montantAPayers);
             }
         }
-        
+
         $this->montantAPayers = (float) $montantAPayers;
 
         return $this;
