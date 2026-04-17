@@ -56,6 +56,8 @@ class Application
     public const ID_DVM = 18;
     /** Identifiant de l'application BCS (Bon de caisse) */
     public const ID_BCS = 19;
+    /** Identifiant de l'application Contrat */
+    public const ID_CONTRAT = 26;
 
     use DateTrait;
 

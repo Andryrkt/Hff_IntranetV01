@@ -83,12 +83,34 @@ services:
       $daTimelineService: '@App\Service\da\DaTimelineService'
     public: true
 
+  App\Controller\da\Validation\DaValidationReapproMensuelController:
+    arguments:
+      $docRattacheService: '@App\Service\da\DocRattacheService'
+    public: true
+
   App\Controller\da\Detail\DaDetailAvecDitController:
     arguments:
+      $docRattacheService: '@App\Service\da\DocRattacheService'
       $daTimelineService: '@App\Service\da\DaTimelineService'
     public: true
 
   App\Controller\da\Detail\DaDetailDirectController:
     arguments:
+      $docRattacheService: '@App\Service\da\DocRattacheService'
       $daTimelineService: '@App\Service\da\DaTimelineService'
+    public: true
+
+  App\Controller\da\Proposition\DaPropositionRefAvecDitController:
+    arguments:
+      $docRattacheService: '@App\Service\da\DocRattacheService'
+    public: true
+
+  App\Controller\da\Proposition\DaPropositionArticleDirectController:
+    arguments:
+      $docRattacheService: '@App\Service\da\DocRattacheService'
+    public: true
+
+  App\Controller\da\DossierDa\DaDossierDaController:
+    arguments:
+      $docRattacheService: '@App\Service\da\DocRattacheService'
     public: true

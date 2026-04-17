@@ -32,7 +32,7 @@ class ContratRepository extends EntityRepository
         // Pagination
         $offset = ($page - 1) * $limit;
         $qb->setFirstResult($offset)
-           ->setMaxResults($limit);
+            ->setMaxResults($limit);
 
         $query = $qb->getQuery();
         $results = $query->getResult();
@@ -127,6 +127,21 @@ class ContratRepository extends EntityRepository
         if ($contratSearch->getStatut()) {
             $where->add($qb->expr()->eq('c.statut', ':statut'));
             $qb->setParameter('statut', $contratSearch->getStatut());
+        }
+
+        // Appliquer filtre sur agence et service si non admin
+        if (!$options['admin']) {
+            // Filtre par agence autoriser
+            if (isset($options['agenceAutoriser']) && !empty($options['agenceAutoriser'])) {
+                $where->add($qb->expr()->in('c.agence', ':agenceAutoriser'));
+                $qb->setParameter('agenceAutoriser', $options['agenceAutoriser']);
+            }
+
+            // Filtre par service autoriser
+            if (isset($options['serviceAutoriser']) && !empty($options['serviceAutoriser'])) {
+                $where->add($qb->expr()->in('c.service', ':serviceAutoriser'));
+                $qb->setParameter('serviceAutoriser', $options['serviceAutoriser']);
+            }
         }
 
         // Vérifier si $where a des éléments avant de l'ajouter

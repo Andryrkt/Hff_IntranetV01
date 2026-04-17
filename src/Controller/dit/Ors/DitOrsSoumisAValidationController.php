@@ -106,15 +106,23 @@ class DitOrsSoumisAValidationController extends Controller
             }
         }
 
+        // vérifier si la DIT a une numéro OR sinon bloqué
         $numOrBaseDonner = $this->ditOrsoumisAValidationModel->recupNumeroOr($numDit);
-
         if (empty($numOrBaseDonner)) {
             $message = "Le DIT n'a pas encore de numéro OR";
-
             $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
         }
-
         $numOr = $numOrBaseDonner[0]['numor'];
+
+        // vérifier si le catégorie de la DIT est DAILY CHECK et le type de l'OR est 930 sinon bloqué
+        $demandeIntervention = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
+        $typeOr = $this->ditOrsoumisAValidationModel->recupTypeOr($numOr);
+        $condition1 = $demandeIntervention->getCategorieDemande()->getId() === 10;
+        $condition2 = $typeOr !== 930;
+        if ($condition1 && $condition2) {
+            $message = "Merci de vérifier l'OR car le type de l'OR ne correspond pas à la DIT rattaché qui est un DAILY CHECK";
+            $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
+        }
 
         $ditInsertionOrSoumis = new DitOrsSoumisAValidation();
         $ditInsertionOrSoumis
@@ -355,11 +363,14 @@ class DitOrsSoumisAValidationController extends Controller
         $agServDebiteurBDSql = $demandeIntervention->getAgenceServiceDebiteur();
         $agServInformix = $this->ditModel->recupAgenceServiceDebiteur($ditInsertionOrSoumis->getNumeroOR());
 
+        // date planning
         $datePlanning = $this->verificationDatePlanning($ditInsertionOrSoumis, $this->ditOrsoumisAValidationModel);
-
+        // position de l'OR
         $pos = $this->ditOrsoumisAValidationModel->recupPositonOr($ditInsertionOrSoumis->getNumeroOR());
         $invalidPositions = ['FC', 'FE', 'CP', 'ST'];
 
+
+        // référence client
         $refClient = $this->ditOrsoumisAValidationModel->recupRefClient($ditInsertionOrSoumis->getNumeroOR());
 
         // $situationOrSoumis = $this->ditOrsoumisAValidationModel->recupBlockageStatut($numOr);
