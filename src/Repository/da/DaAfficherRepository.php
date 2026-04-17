@@ -744,9 +744,8 @@ class DaAfficherRepository extends EntityRepository
     private function applyStatutsFilters(QueryBuilder $queryBuilder, string $qbLabel, array $criteria, bool $estCdeFrn = false)
     {
         if (
-            empty(array_filter($criteria, function ($value) {
-                return $value !== null && $value !== false;
-            })) &&
+            empty($criteria['numDit']) || empty($criteria['numDa']) || empty($criteria['numCde'])
+            ||
             (array_key_exists('afficherCloturees', $criteria) && !$criteria['afficherCloturees'])
         ) {
             $queryBuilder->andWhere($qbLabel . '.statutDal NOT IN (:statutDaFermer)')
@@ -759,7 +758,6 @@ class DaAfficherRepository extends EntityRepository
                     $queryBuilder->andWhere($qbLabel . '.statutCde IN (:statutBcParam)')
                         ->setParameter('statutBcParam', $criteria['statutBC'], ArrayParameterType::STRING);
                 } else {
-
                     $queryBuilder->andWhere($qbLabel . '.statutCde = :statutBcParam')
                         ->setParameter('statutBcParam', $criteria['statutBC']);
                 }

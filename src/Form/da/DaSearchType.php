@@ -62,8 +62,13 @@ class DaSearchType extends  AbstractType
 
         $builder
             ->add('afficherCloturees', CheckboxType::class, [
-                'label'    => 'Afficher aussi les demandes d\'approvisionnement clôturées',
+                'label'    => 'Inclure les DA clôturées',
                 'required' => false
+            ])
+            ->add('afficherDaTraiter', CheckboxType::class, [
+                'label'    => "N'afficher que les DA à traiter",
+                'required' => false,
+                'data'     => true
             ])
             ->add('numDit', TextType::class, [
                 'label'         => 'N° OR/DIT',
