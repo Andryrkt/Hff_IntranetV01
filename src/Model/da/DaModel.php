@@ -675,7 +675,7 @@ class DaModel extends Model
         $statement = "SELECT 
                         fllf_numliv as num_liv, 
                         (
-                            select fliv_livext from Informix.frn_liv 
+                            select TRIM(fliv_livext) from Informix.frn_liv 
                             where fliv_soc = fcde_soc and fliv_numliv = fllf_numliv
                         ) as ref_fac_bl,  
                         (
@@ -687,7 +687,7 @@ class DaModel extends Model
                     where fcde_numcde = '$numCde'
                     and fcde_soc = fllf_soc
                     and fcde_numcde = fllf_numcde
-                    group by 1,2,3,4,5
+                    group by 1,2,3
                     order by 1,3
         ";
         $result = $this->connect->executeQuery($statement);
