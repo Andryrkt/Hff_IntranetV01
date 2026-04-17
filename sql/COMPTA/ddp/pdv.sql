@@ -150,3 +150,19 @@ CREATE TABLE commande_livraison
     numero_facture VARCHAR(50),
     CONSTRAINT PK_commande_livraison PRIMARY KEY (id)
 );
+
+ALTER TABLE demande_paiement_commande
+ADD demandePaiementId INT NULL;
+
+ALTER TABLE demande_paiement_commande
+ADD client VARCHAR(50) NULL;
+
+-- Ajout de la contrainte de clé étrangère (si tu veux lier physiquement les deux tables en BDD)
+--ALTER TABLE demande_paiement_commande
+--ADD CONSTRAINT FK_DDP_COMMANDE_DDP FOREIGN KEY (demandePaiementId) REFERENCES demande_paiement(id);
+
+ALTER TABLE commande_livraison
+ADD demandePaiementId INT NULL;
+-- Ajout de la contrainte de clé étrangère (optionnelle mais très recommandée)
+--ALTER TABLE commande_livraison
+--ADD CONSTRAINT FK_COMMANDE_LIVRAISON_DDP FOREIGN KEY (demandePaiementId) REFERENCES demande_paiement(id);

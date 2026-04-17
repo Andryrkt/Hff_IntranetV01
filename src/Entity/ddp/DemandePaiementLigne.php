@@ -169,7 +169,18 @@ class DemandePaiementLigne
      */
     public function setMontantFacture($montantFacture)
     {
-        $this->montantFacture = $montantFacture;
+        if (is_string($montantFacture)) {
+            if (strpos($montantFacture, ',') !== false) {
+                // Format français: on enlève les espaces et points (séparateurs de milliers)
+                $montantFacture = str_replace([' ', '.'], '', $montantFacture);
+                // On remplace la virgule par un point (séparateur décimal)
+                $montantFacture = str_replace(',', '.', $montantFacture);
+            } else {
+                $montantFacture = str_replace(' ', '', $montantFacture);
+            }
+        }
+
+        $this->montantFacture = (float) $montantFacture;
 
         return $this;
     }

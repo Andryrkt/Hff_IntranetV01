@@ -52,7 +52,7 @@ class DdpApiController extends Controller
 
                 /** renomage et copie du fichier BAP dans DW */
                 $fileCheckerService = new FileCheckerService($_ENV['BASE_PATH_FICHIER']);
-                $bapFullpath = $fileCheckerService->getBapFullPath($ddp->getNumeroDemandeAppro(), implode('', $ddp->getNumeroCommande()));
+                $bapFullpath = $fileCheckerService->getBapFullPath($ddp->getNumeroDemandeAppro(), $ddp->getNumeroCommande());
                 $fileNameForDW = $ddp->getNumeroDdp() . '#' . $numeroCla . '.pdf';
                 $generatePdf = new GeneratePdf();
                 $generatePdf->copyToDWBapDa($bapFullpath, $fileNameForDW);

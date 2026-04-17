@@ -16,10 +16,10 @@ class DocDemandePaiementService
     private EntityManagerInterface $em;
     private DemandePaiementModel $ddpModel;
 
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(EntityManagerInterface $em, DemandePaiementModel $ddpModel)
     {
         $this->em = $em;
-        $this->ddpModel  = new DemandePaiementModel();
+        $this->ddpModel = $ddpModel;
     }
 
     /**
@@ -207,5 +207,22 @@ class DocDemandePaiementService
         $desFichiers = $this->ajoutDesFichiers($dto, $nomFichiersTelecharger);
 
         return array_merge($nomDufichierCde, $desFichiers);
+    }
+
+    public function getFichiersDevisDa(int $numeroDa): array
+    {
+        $listeFichiersPJ = [];
+        $path = $_ENV['BASE_PATH_FICHIER'] . 'da/' . $numeroDa . '/';
+        
+        if (is_dir($path)) {
+            $files = scandir($path);
+            foreach ($files as $file) {
+                if (preg_match('/^(_pj_|PJ_|devis_pj_)/', $file)) {
+                    $listeFichiersPJ[] = $file;
+                }
+            }
+        }
+        
+        return $listeFichiersPJ;
     }
 }

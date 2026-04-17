@@ -2,32 +2,34 @@
 
 namespace App\Controller\ddp;
 
-use Exception;
-use App\Entity\admin\Agence;
-use App\Entity\admin\Service;
+
 use App\Controller\Controller;
-use App\Entity\admin\Application;
-use App\Entity\ddp\DemandePaiement;
-use App\Entity\admin\ddp\TypeDemande;
-use App\Form\ddp\DemandePaiementType;
-use App\Controller\Traits\ddp\DdpTrait;
-use App\Entity\ddp\HistoriqueStatutDdp;
-use App\Model\ddp\DemandePaiementModel;
-use App\Service\TableauEnStringService;
-use App\Entity\ddp\DemandePaiementLigne;
-use App\Service\genererPdf\GeneratePdfDdp;
-use App\Entity\cde\CdefnrSoumisAValidation;
 use App\Controller\Traits\AutorisationTrait;
+use App\Controller\Traits\ddp\DdpTrait;
+use App\Controller\Traits\PdfConversionTrait;
+use App\Entity\admin\Agence;
+use App\Entity\admin\Application;
 use App\Entity\admin\ddp\DocDemandePaiement;
-use App\Factory\ddp\DemandePaiementFactory;
+use App\Entity\admin\ddp\TypeDemande;
+use App\Entity\admin\Service;
+use App\Entity\cde\CdefnrSoumisAValidation;
+use App\Entity\ddp\CommandeLivraison;
+use App\Entity\ddp\DemandePaiement;
+use App\Entity\ddp\DemandePaiementCommande;
+use App\Entity\ddp\DemandePaiementLigne;
+use App\Entity\ddp\HistoriqueStatutDdp;
+use App\Form\ddp\DemandePaiementType;
+use App\Model\ddp\DemandePaiementModel;
+use App\Repository\admin\ddp\TypeDemandeRepository;
+use App\Repository\cde\CdefnrSoumisAValidationRepository;
+use App\Repository\ddp\DemandePaiementRepository;
 use App\Service\fichier\TraitementDeFichier;
+use App\Service\genererPdf\GeneratePdfDdp;
+use App\Service\historiqueOperation\HistoriqueOperationDDPService;
+use App\Service\TableauEnStringService;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Repository\ddp\DemandePaiementRepository;
-use App\Repository\admin\ddp\TypeDemandeRepository;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
-use App\Repository\cde\CdefnrSoumisAValidationRepository;
-use App\Service\historiqueOperation\HistoriqueOperationDDPService;
 
 /**
  * @Route("/compta/demande-de-paiement")
@@ -36,6 +38,7 @@ class DemandePaiementController extends Controller
 {
     use DdpTrait;
     use AutorisationTrait;
+    use PdfConversionTrait;
 
     const STATUT_CREATION = 'Soumis à validation';
 
@@ -141,6 +144,8 @@ class DemandePaiementController extends Controller
             $this->EnregistrementBdDdpl($data); // enregistrement des données dans la table demande_paiement_ligne
             $this->enregisterDdpF($data); // enregistrement des données dans la table doc_demande_paiement
             $this->enregistrementBdHistoriqueStatut($data); // enregistrement des données dans la table historique_statut_ddp
+            $this->enregistrementDemandePaiementCommande($data); // enregistrement des données dans la table demande_paiement_commande
+            $this->enregistrementCommandeLivraison($data); // enregistrement des données dans la table commande_livraison
 
             /** COPIER LES FICHIERS DISTANT 192.168.0.15 vers uplode/ddp/... */
             if ($id == 2) {
@@ -153,7 +158,7 @@ class DemandePaiementController extends Controller
             $this->generatePdfDdp->genererPDF($data, $cheminEtNom);
 
             /** FUSION DES PDF */
-            $nomFichierAvecChemin = $this->addPrefixToElementArray($data->getLesFichiers(), $this->cheminDeBase . '/' . $numDdp .'/');
+            $nomFichierAvecChemin = $this->addPrefixToElementArray($data->getLesFichiers(), $this->cheminDeBase . '/' . $numDdp . '/');
             $fichierConvertir = $this->ConvertirLesPdf($nomFichierAvecChemin);
             $tousLesFichersAvecChemin = $this->traitementDeFichier->insertFileAtPosition($fichierConvertir, $cheminEtNom, 0);
             $this->traitementDeFichier->fusionFichers($tousLesFichersAvecChemin, $cheminEtNom);
@@ -180,103 +185,34 @@ class DemandePaiementController extends Controller
         $this->getEntityManager()->flush();
     }
 
-
-    /**
-     * Decrementation de Numero_Applications (DOMAnnéeMoisNuméro)
-     *
-     * @param string $nomDemande
-     * @return string
-     */
-    protected function autoDecrementDDP(string $nomDemande): string
+    private function enregistrementDemandePaiementCommande(DemandePaiement $datas): void
     {
-        //NumDOM auto
-        $YearsOfcours = date('y'); //24
-        $MonthOfcours = date('m'); //01
-        //$MonthOfcours = "08"; //01
-        $AnneMoisOfcours = $YearsOfcours . $MonthOfcours; //2401
-        //var_dump($AnneMoisOfcours);
-        // dernier NumDOM dans la base
-
-        //$Max_Num = $this->casier->RecupereNumCAS()['numCas'];
-
-        if ($nomDemande === 'DDP') {
-            $Max_Num = $this->getEntityManager()->getRepository(Application::class)->findOneBy(['codeApp' => 'DDP'])->getDerniereId();
-        } else {
-            $Max_Num = $nomDemande . $AnneMoisOfcours . '9999';
+        foreach ($datas->getNumeroCommande() as $data) {
+            $demandePaiementCommande = new DemandePaiementCommande();
+            $demandePaiementCommande
+                ->setNumeroDdp($datas->getNumeroDdp())
+                ->setNumeroCommande($data->getNumeroCommande())
+            ;
+            $this->getEntityManager()->persist($demandePaiementCommande);
         }
 
-        //var_dump($Max_Num);
-        //$Max_Num = 'CAS24040000';
-        //num_sequentielless
-        $vNumSequential =  substr($Max_Num, -4); // lay 4chiffre msincrimente
-        //dump($vNumSequential);
-        $DateAnneemoisnum = substr($Max_Num, -8);
-        //dump($DateAnneemoisnum);
-        $DateYearsMonthOfMax = substr($DateAnneemoisnum, 0, 4);
-        //dump($DateYearsMonthOfMax);
-        if ($DateYearsMonthOfMax == $AnneMoisOfcours) {
-            $vNumSequential =  $vNumSequential - 1;
-        } else {
-            if ($AnneMoisOfcours > $DateYearsMonthOfMax) {
-                $vNumSequential = 9999;
-            }
-        }
-
-        //dump($vNumSequential);
-        //var_dump($vNumSequential);
-        $Result_Num = $nomDemande . $AnneMoisOfcours . $vNumSequential;
-        //var_dump($Result_Num);
-        //dd($Result_Num);
-        return $Result_Num;
-    }
-
-    private function ConvertirLesPdf(array $tousLesFichersAvecChemin)
-    {
-        $tousLesFichiers = [];
-        foreach ($tousLesFichersAvecChemin as $filePath) {
-            $tousLesFichiers[] = $this->convertPdfWithGhostscript($filePath);
-        }
-
-        return $tousLesFichiers;
+        $this->getEntityManager()->flush();
     }
 
 
-    private function convertPdfWithGhostscript($filePath)
+    private function enregistrementCommandeLivraison(DemandePaiement $datas): void
     {
-        $gsPath = 'C:\Program Files\gs\gs10.05.0\bin\gswin64c.exe'; // Modifier selon l'OS
-        $tempFile = $filePath . "_temp.pdf";
-
-        // Vérifier si le fichier existe et est accessible
-        if (!file_exists($filePath)) {
-            throw new Exception("Fichier introuvable : $filePath");
+        foreach ($datas->getNumeroFacture() as $data) {
+            $commandeLivraison = new CommandeLivraison();
+            $commandeLivraison
+                ->setNumeroCommande($datas->getNumeroCommande())
+                ->setNumeroFacture($data->getNumeroFacture())
+            ;
+            $this->getEntityManager()->persist($commandeLivraison);
         }
 
-        if (!is_readable($filePath)) {
-            throw new Exception("Le fichier PDF ne peut pas être lu : $filePath");
-        }
-
-        // Commande Ghostscript
-        $command = "\"$gsPath\" -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -o \"$tempFile\" \"$filePath\"";
-        // echo "Commande exécutée : $command<br>";
-
-        exec($command, $output, $returnVar);
-
-        if ($returnVar !== 0) {
-            echo "Sortie Ghostscript : " . implode("\n", $output);
-            throw new Exception("Erreur lors de la conversion du PDF avec Ghostscript");
-        }
-
-        // Remplacement du fichier
-        if (!rename($tempFile, $filePath)) {
-            throw new Exception("Impossible de remplacer l'ancien fichier PDF.");
-        }
-
-        return $filePath;
+        $this->getEntityManager()->flush();
     }
-
-
-
-
 
     /**
      * Ajout de suffix pour chaque element du tableau files
@@ -330,7 +266,7 @@ class DemandePaiementController extends Controller
                                 $nomDeFichier = $singleFile->getClientOriginalName();
                                 $this->traitementDeFichier->upload(
                                     $singleFile,
-                                    $this->cheminDeBase . '/' . $numDdp, 
+                                    $this->cheminDeBase . '/' . $numDdp,
                                     $nomDeFichier
                                 );
                                 $nomDesFichiers[] = $nomDeFichier;
@@ -576,8 +512,6 @@ class DemandePaiementController extends Controller
         return $demandePaiementLignes;
     }
 
-
-
     /**
      * methode qui permet d'enregestrer les données dans la table demande_paiement
      */
@@ -614,18 +548,4 @@ class DemandePaiementController extends Controller
         $typeDemande = $this->typeDemandeRepository->find($id);
         return  $data->setTypeDemandeid($typeDemande);
     }
-
-    // private function recupererNumCdeFournisseur($numeroFournisseur)
-    // {
-    //     $nbrLigne = $this->demandePaiementRepository->CompteNbrligne($numeroFournisseur);
-
-    //     if ($nbrLigne <= 0) {
-    //         $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur);
-    //         $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
-
-    //         $data = [
-    //             'numCdes' => $numCdes,
-    //         ];
-    //     } 
-    // }
 }

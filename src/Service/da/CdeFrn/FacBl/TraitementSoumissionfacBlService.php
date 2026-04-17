@@ -38,17 +38,23 @@ class TraitementSoumissionfacBlService
     private DwBcApproRepository $dwBcApproRepository;
 
     public function __construct(
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
+        HistoriqueOperationDaBcService $historiqueOperation,
+        DaSoumissionFacBlFactory $daSoumissionFacBlFactory,
+        DaSoumissionFacBlMapper $daSoumissionfacBlMapper,
+        GeneratePdf $generatePdf,
+        DaSoumissionFacBlModel $daSoumissionFacBlModel,
+        TraitementDeFichier $traitementDeFichier
     ) {
-        $this->entityManager = $entityManager;
-        $this->historiqueOperation         = new HistoriqueOperationDaBcService($this->entityManager);
+        $this->entityManager               = $entityManager;
+        $this->historiqueOperation         = $historiqueOperation;
         $this->daSoumissionFacBlRepository = $this->entityManager->getRepository(DaSoumissionFacBl::class);
-        $this->daSoumissionFacBlFactory    = new DaSoumissionFacBlFactory($this->entityManager);
-        $this->daSoumissionfacBlMapper     = new DaSoumissionFacBlMapper();
-        $this->generatePdf                 = new GeneratePdf();
-        $this->daSoumissionFacBlModel      = new DaSoumissionFacBlModel();
-        $this->traitementDeFichier         = new TraitementDeFichier();
-        $this->cheminDeBase                = $_ENV['BASE_PATH_FICHIER'] . '/da/';
+        $this->daSoumissionFacBlFactory    = $daSoumissionFacBlFactory;
+        $this->daSoumissionfacBlMapper     = $daSoumissionfacBlMapper;
+        $this->generatePdf                 = $generatePdf;
+        $this->daSoumissionFacBlModel      = $daSoumissionFacBlModel;
+        $this->traitementDeFichier         = $traitementDeFichier;
+        $this->cheminDeBase                = ($_ENV['BASE_PATH_FICHIER'] ?? '') . '/da/';
         $this->demandeApproRepository      = $this->entityManager->getRepository(DemandeAppro::class);
         $this->dwBcApproRepository         = $this->entityManager->getRepository(DwBcAppro::class);
     }

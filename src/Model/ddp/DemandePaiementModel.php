@@ -125,7 +125,6 @@ class DemandePaiementModel extends Model
             $numFac = '';
         }
         $sql = " SELECT  DISTINCT
-
             TRZT_Dossier_Douane.Numero_Dossier_Douane
             from TRZT_Dossier_Douane
             LEFT JOIN TRZT_Facture on TRZT_Dossier_Douane.Numero_Dossier_Douane = TRZT_Facture.Numero_Dossier_Douane
@@ -275,23 +274,22 @@ class DemandePaiementModel extends Model
         return array_column($this->convertirEnUtf8($data), 'facture_non_lettree');
     }
 
-    public function getCommandeReceptionnee(string $numeroFournisseur): string
+    public function getCommandeReceptionnee(string $numeroFournisseur): array
     {
         $statement = " SELECT distinct fllf_numcde as commande_receptionnee from frn_llf
-                inner join frn_liv on fliv_numliv = fllf_numliv and fliv_soc = fllf_soc and fliv_succ = fllf_succ and fliv_soc = 'HF'
+                inner join frn_liv 
+                    on fliv_numliv = fllf_numliv 
+                    and fliv_soc = fllf_soc 
+                    and fliv_succ = fllf_succ 
+                    and fliv_soc = 'HF'
                 where fliv_numfou = '{$numeroFournisseur}'
-    ";
+        ";
 
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
         $data = $this->convertirEnUtf8($data);
 
-        // Retourner le premier résultat comme string, ou une chaîne vide si aucun résultat
-        if (!empty($data) && isset($data[0]['commande_receptionnee'])) {
-            return (string) $data[0]['commande_receptionnee'];
-        }
-
-        return '';
+        return array_column($data, 'commande_receptionnee');
     }
 
     public function recupInfoPourDa(string $numeroFournisseur, string $numCde)

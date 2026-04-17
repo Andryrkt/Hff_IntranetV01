@@ -39,15 +39,23 @@ class DemandePaiementDaController extends Controller
     private DemandePaiementService $demandePaiementService;
     private DocDemandePaiementService $docDemandePaiementService;
     private HistoriqueOperationDDPService $historiqueOperation;
+    private DemandePaiementFactory $demandePaiementFactory;
 
-    public function __construct()
-    {
+    public function __construct(
+        DemandePaiementModel $demandePaiementModel,
+        DemandePaiementLigneService $demandePaiementLigneService,
+        DemandePaiementService $demandePaiementService,
+        DocDemandePaiementService $docDemandePaiementService,
+        HistoriqueOperationDDPService $historiqueOperation,
+        DemandePaiementFactory $demandePaiementFactory
+    ) {
         parent::__construct();
-        $this->demandePaiementModel = new DemandePaiementModel();
-        $this->demandePaiementLigneService = new DemandePaiementLigneService($this->getEntityManager());
-        $this->demandePaiementService = new DemandePaiementService($this->getEntityManager());
-        $this->docDemandePaiementService = new DocDemandePaiementService($this->getEntityManager());
-        $this->historiqueOperation = new HistoriqueOperationDDPService($this->getEntityManager());
+        $this->demandePaiementModel = $demandePaiementModel;
+        $this->demandePaiementLigneService = $demandePaiementLigneService;
+        $this->demandePaiementService = $demandePaiementService;
+        $this->docDemandePaiementService = $docDemandePaiementService;
+        $this->historiqueOperation = $historiqueOperation;
+        $this->demandePaiementFactory = $demandePaiementFactory;
     }
 
     /**
@@ -63,7 +71,7 @@ class DemandePaiementDaController extends Controller
         /** FIN AUtorisation acées */
 
         // creation du formulaire
-        $dto = (new DemandePaiementFactory($this->getEntityManager()))->load($typeDdp, $numCdeDa, $typeDa, $numeroVersionBc, $this->getUser(), $this->getSessionService());
+        $dto = $this->demandePaiementFactory->load($typeDdp, $numCdeDa, $typeDa, $numeroVersionBc, $this->getUser(), $this->getSessionService());
         $form = $this->getFormFactory()->createBuilder(DemandePaiementDaType::class, $dto, [
             'method' => 'POST',
             'em' => $this->getEntityManager()
@@ -144,7 +152,7 @@ class DemandePaiementDaController extends Controller
     private function enregistrementSurBd(DemandePaiementDto $dto, string $nomFichier): void
     {
         // enregistrement dans la table deamnde_paiement
-        $this->demandePaiementService->createDdp($dto, $nomFichier);
+        $ddp = $this->demandePaiementService->createDdp($dto, $nomFichier);
         // enregistrement dans la table demande_paiement_ligne
         $this->demandePaiementLigneService->createLignesFromDto($dto);
         // enregistrement dans la table doc_demande_paiement
@@ -153,13 +161,13 @@ class DemandePaiementDaController extends Controller
         $this->demandePaiementService->createHistoriqueStatut($dto);
         // enregistrement dans la table demande_paiement_commande
         $demandePaiementCommandeService = new DemandePaiementCommandeService($this->getEntityManager());
-        $demandePaiementCommandeService->createDdpCommande($dto);
+        $demandePaiementCommandeService->createDdpCommande($dto, $ddp);
     }
 
     private function traitementDeFichier(DemandePaiementDto $dto, FormInterface $form): string
     {
         $numCdes = $this->demandePaiementModel->getCommandeReceptionnee($dto->numeroFournisseur);
-        $numCdesString = $numCdes;
+        $numCdesString = !empty($numCdes) ? (string) $numCdes[0] : '';
         $numFacString =  $dto->numeroFacture;
         $numeroCommandes = $this->demandePaiementModel->getNumCommande($dto->numeroFournisseur, $numCdesString, $numFacString);
 

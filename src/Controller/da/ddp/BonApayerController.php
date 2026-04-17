@@ -3,8 +3,9 @@
 namespace App\Controller\da\ddp;
 
 use App\Controller\Controller;
-use App\Form\da\ddp\BonApayerType;
+use App\Dto\Da\ddp\BapSearchDto;
 use App\Entity\ddp\DemandePaiement;
+use App\Form\da\ddp\BonApayerType;
 use App\Mapper\ddp\DemandePaiementMapper;
 use App\Service\da\FileCheckerService;
 use Symfony\Component\HttpFoundation\Request;
@@ -28,8 +29,9 @@ class BonApayerController extends Controller
         // Traitement du formulaire de recherche
         $form->handleRequest($request);
 
-        $criteria = [];
+        $criteria = new BapSearchDto();
         if ($form->isSubmitted() && $form->isValid()) {
+            /** @var BapSearchDto $criteria */
             $criteria = $form->getData();
         }
 

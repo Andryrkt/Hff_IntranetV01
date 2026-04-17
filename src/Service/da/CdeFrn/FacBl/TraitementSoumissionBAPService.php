@@ -2,7 +2,6 @@
 
 namespace App\Service\da\CdeFrn\FacBl;
 
-use App\Constants\da\ddp\BonApayerConstants;
 use App\Controller\Traits\PdfConversionTrait;
 use App\Dto\Da\ListeCdeFrn\DaSoumissionFacBlDto;
 use App\Entity\da\DaAfficher;
@@ -44,21 +43,39 @@ class TraitementSoumissionBAPService
     private string $cheminDeBaseDa;
     private DemandeApproRepository $demandeApproRepository;
     private DwBcApproRepository $dwBcApproRepository;
+    private DitModel $ditModel;
+    private DaModel $daModel;
+    private GenererPdfBonAPayer $generatePdfBap;
+    private Recapitulation $recapitulationOR;
 
     public function __construct(
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
+        HistoriqueOperationDaBcService $historiqueOperation,
+        DaSoumissionFacBlFactory $daSoumissionFacBlFactory,
+        DaSoumissionFacBlMapper $daSoumissionfacBlMapper,
+        GeneratePdf $generatePdf,
+        DaSoumissionFacBlModel $daSoumissionFacBlModel,
+        TraitementDeFichier $traitementDeFichier,
+        DitModel $ditModel,
+        DaModel $daModel,
+        GenererPdfBonAPayer $generatePdfBap,
+        Recapitulation $recapitulationOR
     ) {
-        $this->entityManager = $entityManager;
-        $this->historiqueOperation         = new HistoriqueOperationDaBcService($this->entityManager);
+        $this->entityManager               = $entityManager;
+        $this->historiqueOperation         = $historiqueOperation;
         $this->daSoumissionFacBlRepository = $this->entityManager->getRepository(DaSoumissionFacBl::class);
-        $this->daSoumissionFacBlFactory    = new DaSoumissionFacBlFactory($this->entityManager);
-        $this->daSoumissionfacBlMapper     = new DaSoumissionFacBlMapper();
-        $this->generatePdf                 = new GeneratePdf();
-        $this->daSoumissionFacBlModel      = new DaSoumissionFacBlModel();
-        $this->traitementDeFichier         = new TraitementDeFichier();
-        $this->cheminDeBaseDa              = $_ENV['BASE_PATH_FICHIER'] . '/da/';
+        $this->daSoumissionFacBlFactory    = $daSoumissionFacBlFactory;
+        $this->daSoumissionfacBlMapper     = $daSoumissionfacBlMapper;
+        $this->generatePdf                 = $generatePdf;
+        $this->daSoumissionFacBlModel      = $daSoumissionFacBlModel;
+        $this->traitementDeFichier         = $traitementDeFichier;
+        $this->cheminDeBaseDa              = ($_ENV['BASE_PATH_FICHIER'] ?? '') . '/da/';
         $this->demandeApproRepository      = $this->entityManager->getRepository(DemandeAppro::class);
         $this->dwBcApproRepository         = $this->entityManager->getRepository(DwBcAppro::class);
+        $this->ditModel                    = $ditModel;
+        $this->daModel                     = $daModel;
+        $this->generatePdfBap              = $generatePdfBap;
+        $this->recapitulationOR            = $recapitulationOR;
     }
 
     public function traitementSoumissionBAP($form, $dto, ?string $mail)
@@ -105,12 +122,12 @@ class TraitementSoumissionBAPService
         $this->entityManager->flush();
 
         // enregistremenet dans la table demande_paiement_commande
-        $ddpCommande = DemandePaiementCommandeMapper::map($dto->demandePaiementDto);
+        $ddpCommande = DemandePaiementCommandeMapper::map($dto->demandePaiementDto, $ddp);
         $this->entityManager->persist($ddpCommande);
         $this->entityManager->flush();
 
         // enregistremenet dans la table commande_livraison
-        $commande_livraison = CommandeLivraisonMapper::map($dto->demandePaiementDto);
+        $commande_livraison = CommandeLivraisonMapper::map($dto->demandePaiementDto, $ddp);
         $this->entityManager->persist($commande_livraison);
         $this->entityManager->flush();
     }
@@ -322,20 +339,14 @@ class TraitementSoumissionBAPService
 
     public function genererPageDeGarde(array $infoLivraison, DaSoumissionFacBlDto $dto, ?string $mail): string
     {
-        $ditModel            = new DitModel();
-        $daModel             = new DaModel();
-        $generatePdfBap      = new GenererPdfBonAPayer();
-        $recapitulationOR    = new Recapitulation();
-
         $numCde              = $dto->numeroCde;
         $numOr               = $dto->numeroOR;
 
-
         $infoValidationBC    = $this->dwBcApproRepository->getInfoValidationBC($numCde) ?? [];
-        $historiqueLivraison = $daModel->getHistoriqueLivraison($numCde) ?? [];
+        $historiqueLivraison = $this->daModel->getHistoriqueLivraison($numCde) ?? [];
 
-        $infoMateriel        = $ditModel->recupInfoMateriel($numOr);
-        $dataRecapOR         = $recapitulationOR->getData($numOr);
+        $infoMateriel        = $this->ditModel->recupInfoMateriel($numOr);
+        $dataRecapOR         = $this->recapitulationOR->getData($numOr);
         $demandeAppro        = $this->demandeApproRepository->findOneBy(['numeroDemandeAppro' => $dto->numeroDemandeAppro]);
         $infoFacBl           = [
             "refBlFac"   => $infoLivraison["ref_fac_bl"],
@@ -344,6 +355,6 @@ class TraitementSoumissionBAPService
             "dateLivIPS" => $infoLivraison["date_clot"],
         ];
 
-        return $generatePdfBap->genererPageDeGarde($infoValidationBC, $infoMateriel, $dataRecapOR, $historiqueLivraison, $demandeAppro, $dto, $infoFacBl, $mail);
+        return $this->generatePdfBap->genererPageDeGarde($infoValidationBC, $infoMateriel, $dataRecapOR, $historiqueLivraison, $demandeAppro, $dto, $infoFacBl, $mail);
     }
 }
