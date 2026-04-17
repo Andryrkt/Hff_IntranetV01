@@ -14,6 +14,7 @@ use App\Mapper\Da\ListCdeFrn\DaSoumissionFacBlMapper;
 use App\Mapper\ddp\CommandeLivraisonMapper;
 use App\Mapper\ddp\DemandePaiementCommandeMapper;
 use App\Mapper\ddp\DemandePaiementMapper;
+use App\Model\da\DaModel;
 use App\Model\da\DaSoumissionFacBlModel;
 use App\Model\dit\DitModel;
 use App\Repository\da\DaSoumissionFacBlRepository;
@@ -319,27 +320,30 @@ class TraitementSoumissionBAPService
         }, $files);
     }
 
-    private function genererPageDeGarde(array $infoLivraison, DaSoumissionFacBlDto $dto, ?string $mail): string
+    public function genererPageDeGarde(array $infoLivraison, DaSoumissionFacBlDto $dto, ?string $mail): string
     {
-        $ditModel         = new DitModel();
-        $generatePdfBap   = new GenererPdfBonAPayer();
-        $recapitulationOR = new Recapitulation();
+        $ditModel            = new DitModel();
+        $daModel             = new DaModel();
+        $generatePdfBap      = new GenererPdfBonAPayer();
+        $recapitulationOR    = new Recapitulation();
 
-        $numCde           = $dto->numeroCde;
-        $numOr            = $dto->numeroOR;
+        $numCde              = $dto->numeroCde;
+        $numOr               = $dto->numeroOR;
 
 
-        $infoValidationBC = $this->dwBcApproRepository->getInfoValidationBC($numCde) ?? [];
-        $infoMateriel     = $ditModel->recupInfoMateriel($numOr);
-        $dataRecapOR      = $recapitulationOR->getData($numOr);
-        $demandeAppro     = $this->demandeApproRepository->findOneBy(['numeroDemandeAppro' => $dto->numeroDemandeAppro]);
-        $infoFacBl        = [
+        $infoValidationBC    = $this->dwBcApproRepository->getInfoValidationBC($numCde) ?? [];
+        $historiqueLivraison = $daModel->getHistoriqueLivraison($numCde) ?? [];
+
+        $infoMateriel        = $ditModel->recupInfoMateriel($numOr);
+        $dataRecapOR         = $recapitulationOR->getData($numOr);
+        $demandeAppro        = $this->demandeApproRepository->findOneBy(['numeroDemandeAppro' => $dto->numeroDemandeAppro]);
+        $infoFacBl           = [
             "refBlFac"   => $infoLivraison["ref_fac_bl"],
             "dateBlFac"  => $dto->dateBlFac,
             "numLivIPS"  => $infoLivraison["num_liv"],
             "dateLivIPS" => $infoLivraison["date_clot"],
         ];
 
-        return $generatePdfBap->genererPageDeGarde($infoValidationBC, $infoMateriel, $dataRecapOR, $demandeAppro, $dto, $infoFacBl, $mail);
+        return $generatePdfBap->genererPageDeGarde($infoValidationBC, $infoMateriel, $dataRecapOR, $historiqueLivraison, $demandeAppro, $dto, $infoFacBl, $mail);
     }
 }
