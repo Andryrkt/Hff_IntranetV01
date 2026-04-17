@@ -69,9 +69,6 @@ function defineColumns(isTypeCis) {
     { key: "qteliv", label: "Qté LIV", align: "center" },
     { key: "statut", label: "Statut", align: "center" },
     { key: "datestatut", label: "Date Statut", align: "center" },
-    { key: "Eta_ivato", label: "ETA Ivato", align: "center" },
-    { key: "Eta_magasin", label: "ETA Magasin", align: "center" },
-    { key: "message", label: "Message", align: "left" },
   ];
 }
 
@@ -92,9 +89,6 @@ function formatDetailData(detail, isTypeCis) {
     qteliv: parseInt(detail.qteliv),
     statut: detail.statut,
     datestatut: formatDateOrEmpty(detail.datestatut),
-    Eta_ivato: formatDateOrEmpty(detail.Eta_ivato),
-    Eta_magasin: formatDateOrEmpty(detail.Eta_magasin),
-    message: detail.message,
     Ord: detail.Ord,
     qteSolde: parseInt(detail.qteSolde),
     qteQte: parseInt(detail.qteQte),

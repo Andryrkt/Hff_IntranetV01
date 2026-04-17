@@ -163,10 +163,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
                             <th>QTé LIV</th>
                             <th>Statut</th>
                             <th>Date Statut</th>
-                            <th>ETA Ivato</th>
-                            <th>ETA Magasin</th>
-                            <th>ESD </th>
-                            <th>Message</th>`;
+                            `;
             planningTableHead.innerHTML += rowHeader;
             planningTableHeadOR.innerHTML += rowHeader;
             planningTableHeadLign.innerHTML += rowHeader;
@@ -183,11 +180,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
                             <th>QTé RLQ</th>
                             <th>QTé LIV</th>
                             <th>Statut</th>
-                            <th>Date Statut</th>
-                            <th>ETA Ivato</th>
-                            <th>ETA Magasin</th>
-                            <th>ESD </th>
-                            <th>Message</th>`;
+                            <th>Date Statut</th>`;
             planningTableHead.innerHTML += rowHeader;
           }
           data.data.forEach((detail) => {
@@ -204,9 +197,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
               )}`;
             }
             // Formater la date
-            let dateEtaIvato;
             let Est_ship_date;
-            let dateMagasin;
             let dateStatut;
             let numCis;
             let numCde;
@@ -214,7 +205,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
             let statrmq;
             let StatutCtrmqCis;
             let statut;
-            let message;
             let cmdColorRmq = "";
             let numRef;
             if (
@@ -225,14 +215,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
             } else {
               dateStatut = formaterDate(detail.datestatut);
             }
-            if (
-              detail.Eta_ivato == "" ||
-              formaterDate(detail.Eta_ivato) === "01/01/1900"
-            ) {
-              dateEtaIvato = "";
-            } else {
-              dateEtaIvato = formaterDate(detail.Eta_ivato);
-            }
+
             if (
               detail.Est_ship_date == "" ||
               formaterDate(detail.Est_ship_date) === "01/01/1900"
@@ -241,14 +224,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
             } else {
               Est_ship_date = formaterDate(detail.Est_ship_date);
             }
-            if (
-              detail.Eta_magasin == "" ||
-              formaterDate(detail.Eta_magasin) === "01/01/1900"
-            ) {
-              dateMagasin = "";
-            } else {
-              dateMagasin = formaterDate(detail.Eta_magasin);
-            }
+
             if (detail.numerocmd == null) {
               numCde = "";
             } else {
@@ -270,11 +246,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
               statut = detail.statut;
             }
 
-            if (detail.message == null) {
-              message = "";
-            } else {
-              message = detail.message;
-            }
 
             if (detail.numcis == "0") {
               numCis = "";
@@ -348,10 +319,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
                         <td>${parseInt(detail.qtereliquat)}</td> 
                         <td>${parseInt(detail.qteliv)}</td> 
                         <td  >${statut} </td> 
-                        <td>${dateStatut}</td> 
-                        <td></td> 
-                        <td></td> 
-                        <td></td> 
+                        <td>${dateStatut}</td>  
                     </tr>`;
               // tableBody.innerHTML += row;
               tableBodyOR.innerHTML += row;
@@ -365,32 +333,24 @@ document.addEventListener("DOMContentLoaded", (event) => {
                         <td>${detail.cst}</td> 
                         <td>${numRef}</td> 
                         <td>${detail.desi}</td> 
-                        <td>${
-                          isNaN(detail.qteORlig) || detail.qteORlig === ""
-                            ? ""
-                            : parseInt(detail.qteORlig)
-                        }</td> 
-                        <td>${
-                          isNaN(detail.qtealllig) || detail.qtealllig === ""
-                            ? ""
-                            : parseInt(detail.qtealllig)
-                        }</td> 
-                        <td>${
-                          isNaN(detail.qterlqlig) || detail.qterlqlig === ""
-                            ? ""
-                            : parseInt(detail.qterlqlig)
-                        }</td> 
-                        <td>${
-                          isNaN(detail.qtelivlig) || detail.qtelivlig === ""
-                            ? ""
-                            : parseInt(detail.qtelivlig)
-                        }</td> 
+                        <td>${isNaN(detail.qteORlig) || detail.qteORlig === ""
+                    ? ""
+                    : parseInt(detail.qteORlig)
+                  }</td> 
+                        <td>${isNaN(detail.qtealllig) || detail.qtealllig === ""
+                    ? ""
+                    : parseInt(detail.qtealllig)
+                  }</td> 
+                        <td>${isNaN(detail.qterlqlig) || detail.qterlqlig === ""
+                    ? ""
+                    : parseInt(detail.qterlqlig)
+                  }</td> 
+                        <td>${isNaN(detail.qtelivlig) || detail.qtelivlig === ""
+                    ? ""
+                    : parseInt(detail.qtelivlig)
+                  }</td> 
                         <td >${statutCIS === null ? "" : statutCIS}</td> 
                         <td>${dateStatutCIS === null ? "" : dateStatutCIS}</td> 
-                        <td>${dateEtaIvato}</td> 
-                        <td>${dateMagasin}</td> 
-                        <td>${Est_ship_date}</td> 
-                        <td>${message}</td> 
                     </tr>`;
                 tableBodyLign.innerHTML += row1;
               }
@@ -410,10 +370,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
                       <td>${parseInt(detail.qteliv)}</td> 
                       <td >${statut}</td> 
                       <td>${dateStatut}</td> 
-                      <td>${dateEtaIvato}</td> 
-                      <td>${dateMagasin}</td> 
-                        <td>${Est_ship_date}</td> 
-                      <td>${message}</td> 
                   </tr>`;
               tableBody.innerHTML += row;
             }

@@ -8,7 +8,7 @@ use App\Service\GlobalVariablesService;
 
 class DevisNegModel extends Model
 {
-    public function getDevisNeg($criteria, $codeAgenceAutoriserString, $multiSuccursale, $codeAgenceDefaut, $numDeviAExclure, $codeSociete, $page = 1, $limit = 100)
+    public function getDevisNeg($criteria, $codeAgenceAutoriserString, $multiSuccursale, $codeAgenceDefaut, $codeSociete, $page = 1, $limit = 100)
     {
         $this->connect->connect();
         $skip = ($page - 1) * $limit;
@@ -123,10 +123,6 @@ class DevisNegModel extends Model
             // }
 
             $whereClauses = [];
-
-            if (!empty($numDeviAExclure)) {
-                $whereClauses[] = " nent.nent_numcde NOT IN ($numDeviAExclure) ";
-            }
 
             if (array_key_exists('statutIps', $criteria) && ($criteria['statutIps'] == 'RE' || $criteria['statutIps'] == 'TR')) {
                 $whereClauses[] = " nent.nent_posl in ('--','AC','DE', 'RE', 'TR')";
@@ -458,21 +454,6 @@ WHERE nent.nent_natop    = 'DEV'
         }
     }
 
-    public function getNumeroDevisExclure()
-    {
-        $sql = " SELECT distinct Numero_Devis_ERP as numDevis
-                from GCOT_Devis
-                WHERE (CASE WHEN Numero_Devis_ERP NOT LIKE '%[^0-9]%' AND Numero_Devis_ERP <> '' THEN CAST(Numero_Devis_ERP AS DECIMAL(38, 0)) ELSE 0 END) >= 19000000
-                ";
-
-        $statement = $this->connexion04Gcot->query($sql);
-        $data = [];
-        while ($List = odbc_fetch_array($statement)) {
-            $data[] = $List;
-        }
-
-        return array_column($data, 'numDevis');
-    }
 
     public function stopRelance(string $numeroDevis, ?string $motif = null, string $utilisateur = 'inconnu'): bool
     {

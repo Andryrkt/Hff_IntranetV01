@@ -156,10 +156,6 @@ class ListeController extends Controller
             'qtelivlig_cis' => 'Qte Livrée CIS',
             'statutCis' => 'Statut CIS',
             'datestatutCis' => 'Date Statut CIS',
-            'Eta_ivato' => 'État Ivato',
-            'Eta_magasin' => 'État Magasin',
-            'message' => 'Message',
-            'ord' => 'Commande Envoyé',
             'status_b' => 'Statut'
         ];
         array_unshift($data, $header);
@@ -241,39 +237,23 @@ class ListeController extends Controller
                 }
                 if (substr($result[$i]['numor'], 0, 1) == '5') {
                     if ($result[$i]['numcis'] !== "0" || $result[$i]['numerocdecis'] == "0") {
-                        $recupGcot = [];
+
                         $qteCis[] = $this->planningModel->recupeQteCISlig($result[$i]['numor'], $result[$i]['itv'], $result[$i]['ref']);
                         $dateLivLigCIS[] = $this->planningModel->dateLivraisonCIS($result[$i]['numcis'], $result[$i]['ref'], $result[$i]['cst']);
                         $dateAllLigCIS[] = $this->planningModel->dateAllocationCIS($result[$i]['numcis'], $result[$i]['ref'], $result[$i]['cst']);
-                        $recupGcot['ord'] = $this->planningModel->recuperationinfodGcot($result[$i]['numerocdecis']);
                     } else {
-                        $etatMag[] = $this->planningModel->recuperationEtaMag($result[$i]['numerocdecis'], $result[$i]['ref'], $result[$i]['cst']);
                         $qteCis[] = $this->planningModel->recupeQteCISlig($result[$i]['numor'], $result[$i]['itv'], $result[$i]['ref']);
                         $dateLivLigCIS[] = $this->planningModel->dateLivraisonCIS($result[$i]['numcis'], $result[$i]['ref'], $result[$i]['cst']);
                         $dateAllLigCIS[] = $this->planningModel->dateAllocationCIS($result[$i]['numcis'], $result[$i]['ref'], $result[$i]['cst']);
-                        $recupGcot['ord'] = $this->planningModel->recuperationinfodGcot($result[$i]['numerocdecis']);
+
                         $recupPartiel[] = $this->planningModel->recuperationPartiel($result[$i]['numerocdecis'], $result[$i]['ref']);
                     }
                 } else {
-                    if (empty($result[$i]['numerocmd']) || $result[$i]['numerocmd'] == '0') {
-                        $recupGcot = [];
-                    } else {
+                    if (!empty($result[$i]['numerocmd']) && $result[$i]['numerocmd'] !== '0') {
                         $recupPartiel[] = $this->planningModel->recuperationPartiel($result[$i]['numerocmd'], $result[$i]['ref']);
-                        $etatMag[] = $this->planningModel->recuperationEtaMag($result[$i]['numerocmd'], $result[$i]['ref'], $result[$i]['cst']);
-                        $recupGcot['ord'] = $this->planningModel->recuperationinfodGcot($result[$i]['numerocmd']);
                     }
                 }
 
-
-                if (!empty($etatMag[0])) {
-                    $result[$i]['Eta_ivato'] = $etatMag[0][0]['Eta_ivato'];
-                    $result[$i]['Eta_magasin'] =  $etatMag[0][0]['Eta_magasin'];
-                    $etatMag = [];
-                } else {
-                    $result[$i]['Eta_ivato'] = "";
-                    $result[$i]['Eta_magasin'] = "";
-                    $etatMag = [];
-                }
 
                 if (!empty($recupPartiel[$i])) {
                     $result[$i]['qteSlode'] = $recupPartiel[$i]['0']['solde'];
@@ -281,12 +261,6 @@ class ListeController extends Controller
                 } else {
                     $result[$i]['qteSlode'] = "";
                     $result[$i]['qte'] = "";
-                }
-
-                if (!empty($recupGcot)) {
-                    $result[$i]['Ord'] = $recupGcot['ord'] === false ? '' : ($sendCmd === false ? $recupGcot['ord']['Ord'] : "oui");
-                } else {
-                    $result[$i]['Ord'] = "";
                 }
 
                 if (!empty($dateLivLigCIS[$i][0])) {
@@ -364,16 +338,6 @@ class ListeController extends Controller
                 } else {
                     $datestatutCisDetail = (new DateTime($result[$i]['DateStatutCIS']))->format('d/m/Y');
                 }
-                if ($result[$i]['Eta_ivato'] == "" || $result[$i]['Eta_ivato'] == null) {
-                    $dateEtaIvato = "";
-                } else {
-                    $dateEtaIvato = (new DateTime($result[$i]['Eta_ivato']))->format('d/m/Y');
-                }
-                if ($result[$i]['Eta_magasin'] == "" || $result[$i]['Eta_magasin'] == null) {
-                    $dateEtaMag = "";
-                } else {
-                    $dateEtaMag = (new DateTime($result[$i]['Eta_magasin']))->format('d/m/Y');
-                }
                 $row = [
                     'agenceServiceTravaux' => $result[$i]['libsuc'] . ' - ' . $result[$i]['libserv'],
                     'Marque' => $result[$i]['markmat'],
@@ -404,10 +368,6 @@ class ListeController extends Controller
                     'qtelivlig_cis' => $result[$i]['qtelivlig'] == 0 ? '' : $result[$i]['qtelivlig'],
                     'statutCis' => $statutCisDetail,
                     'datestatutCis' => $datestatutCisDetail,
-                    'Eta_ivato' =>  $dateEtaIvato == '01/01/1900' ? '' : $dateEtaIvato,
-                    'Eta_magasin' => $dateEtaMag == '01/01/1900' ? '' : $dateEtaMag,
-                    'message' => $result[$i]['message'],
-                    'ord' => $result[$i]['Ord'], //*****
                     'status_b' => $result[$i]['status_b'],
                     'Qte_Solde' => $result[$i]['qteSlode'],
                     'qte' => $result[$i]['qte'],
@@ -416,7 +376,6 @@ class ListeController extends Controller
 
                 $row_excel = $row;
                 $row_excel['backorder'] = ''; // Supprimer la partie visuelle Excel
-                $row_excel['ord'] = $row_excel['ord'] !== '' ? 'oui' : ''; // Excel
 
                 $data[] = $row;
                 $data_excel[] = $row_excel;

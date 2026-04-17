@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Model\planning;
 
 
@@ -8,19 +9,20 @@ use App\Controller\Traits\FormatageTrait;
 
 class ModalPlanningModel extends Model
 {
-   use ConversionModel;
-   use FormatageTrait;
-   use PlanningModelTrait;
+  use ConversionModel;
+  use FormatageTrait;
+  use PlanningModelTrait;
 
-   public function recuperationDetailPieceInformix($numOrIntv,$criteria){
-    $vplan = "'".$criteria['plan']."'";
-    $vligneType = $this->typeLigne($criteria); 
+  public function recuperationDetailPieceInformix($numOrIntv, $criteria)
+  {
+    $vplan = "'" . $criteria['plan'] . "'";
+    $vligneType = $this->typeLigne($criteria);
     if (strpos($numOrIntv, '-') !== false) { //la chaine contient des tirer
-      $numOr = " AND slor_numor || '-' || sitv_interv = '".$numOrIntv."'";
+      $numOr = " AND slor_numor || '-' || sitv_interv = '" . $numOrIntv . "'";
     } else {
-      $numOr = " AND slor_numor = '".$numOrIntv."'";
+      $numOr = " AND slor_numor = '" . $numOrIntv . "'";
     }
-      $statement = " SELECT $vplan as plan,
+    $statement = " SELECT $vplan as plan,
                             slor_numor as numOr,
                             slor_numcf as numCis,
                             sitv_interv as Intv,
@@ -185,39 +187,18 @@ class ModalPlanningModel extends Model
                 $numOr
                 $vligneType
       ";
-        // dump($statement);
-        $result = $this->connect->executeQuery($statement);
-        $data = $this->connect->fetchResults($result);
-        $resultat = $this->convertirEnUtf8($data);
-      return $resultat;
+    // dump($statement);
+    $result = $this->connect->executeQuery($statement);
+    $data = $this->connect->fetchResults($result);
+    $resultat = $this->convertirEnUtf8($data);
+    return $resultat;
   }
-/**
- * eta mag
- */
-public function recuperationEtaMag($numcde, $refp,$cst){
-  if($cst == 'CAT'){
-    $cst = 'K230';
-  }else{
-    $cst = $cst;
-  }
-        $squery = " SELECT Eta_ivato,
-                    Eta_magasin
-                    FROM Ces_magasin
-                    WHERE Cust_ref = '" .$numcde."'
-                    AND Part_no = '".$refp."'
-                    AND custCode = '".$cst."'
-        ";
-        $sql = $this->connexion04->query($squery);
-        $data = array();
-        while ($tabType = odbc_fetch_array($sql)) {
-          $data[] = $tabType;
-      }
-      return $data;
-}
-/**
- * Etat partiel piece
- */
-public function recuperationPartiel($numcde, $refp){
+
+  /**
+   * Etat partiel piece
+   */
+  public function recuperationPartiel($numcde, $refp)
+  {
     $statement = " SELECT NVL(TRUNC(fcdl_solde), 0) as solde,
                           NVL(TRUNC(fcdl_solde), 0) as qte
                   FROM FRN_CDL 
@@ -227,25 +208,13 @@ public function recuperationPartiel($numcde, $refp){
     $result = $this->connect->executeQuery($statement);
     $data = $this->connect->fetchResults($result);
     $resultat = $this->convertirEnUtf8($data);
-  return $resultat;
-}
-  /**
-  * gcot ORD
-  */
-  public function recuperationinfodGcot ($numcde){
-      $statement = "SELECT Code_Statut  as Ord
-					FROM  GCOT_Statut_Dossier 
-					WHERE  Numero_Dossier = '$numcde'
-					AND Code_Statut = 'ORD' ";
-        $sql = $this->connexion04Gcot->query($statement);
-        $data = odbc_fetch_array($sql);
-        return $data;
+    return $resultat;
   }
 
 
   public function recupTechnicientIntervenant($numOr, $numItv)
   {
-      $statement = " SELECT distinct 
+    $statement = " SELECT distinct 
         --skr_id as numero_tech,
         ssal_numsal AS matricule, 
         ssal_nom AS matriculeNomPrenom
@@ -254,8 +223,8 @@ public function recuperationPartiel($numcde, $refp){
         from skw
         inner join ska on ska.skw_id = skw.skw_id
         inner join sav_sal on sav_sal.ssal_numsal = ska.skr_id
-        and ofs_id = '".$numItv."'
-        where skw.ofh_id ='".$numOr."'
+        and ofs_id = '" . $numItv . "'
+        where skw.ofh_id ='" . $numOr . "'
       ";
 
     $result = $this->connect->executeQuery($statement);
@@ -273,8 +242,8 @@ public function recuperationPartiel($numcde, $refp){
         --sitv_numor 
         from sav_itv
         inner join sav_sal on sav_sal.ssal_numsal = sitv_techn
-        where sitv_numor = '".$numOr."'
-        and sitv_interv = '".$numItv."' 
+        where sitv_numor = '" . $numOr . "'
+        and sitv_interv = '" . $numItv . "' 
         and ssal_numsal <> 9999
       ";
 

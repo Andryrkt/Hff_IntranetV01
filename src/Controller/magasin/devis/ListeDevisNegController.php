@@ -121,17 +121,6 @@ class ListeDevisNegController extends Controller
 
         $multiSuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE, 'liste_devis_neg');
 
-        // Utilisation du cache de session pour la liste d'exclusion
-        $session = $this->getSessionService();
-        $numDeviAExclure = $session->get('devis_neg_exclure_cache');
-
-        if (!$numDeviAExclure) {
-            $rawExclusions = $this->listeDevisNegModel->getNumeroDevisExclure();
-            $numDeviAExclure = TableauEnStringService::simpleNumeric(array_map('intval', $rawExclusions));
-            // Si la liste est vide, on met une valeur bidon pour éviter une erreur SQL
-            if (empty($numDeviAExclure)) $numDeviAExclure = "'0'";
-            $session->set('devis_neg_exclure_cache', $numDeviAExclure);
-        }
 
         $urlGenerator = function ($dto) {
             $dto->pointagedevis = in_array($dto->statutDw, [DevisMagasin::STATUT_PRIX_VALIDER_TANA, DevisMagasin::STATUT_PRIX_MODIFIER_TANA, DevisMagasin::STATUT_VALIDE_AGENCE]);
@@ -140,7 +129,7 @@ class ListeDevisNegController extends Controller
             return [];
         };
 
-        $devisNeg = $this->listeDevisNegModel->getDevisNeg($criteria, $codeAgenceAutoriserString, $multiSuccursale, $codeAgenceDefaut, $numDeviAExclure, $codeSociete, $page, $limit);
+        $devisNeg = $this->listeDevisNegModel->getDevisNeg($criteria, $codeAgenceAutoriserString, $multiSuccursale, $codeAgenceDefaut, $codeSociete, $page, $limit);
         $devisNeg = $this->devisNegMapper->map($devisNeg, $urlGenerator);
 
         return $devisNeg;

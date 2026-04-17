@@ -215,17 +215,7 @@ ORDER BY 6,2, A.NLIG_NOLIGN
     $resultat = $this->convertirEnUtf8($data);
     return $resultat;
   }
-  //
-  public function recupInfodGcot($numcde)
-  {
-    $statement = "SELECT Code_Statut  as Ord
-					FROM  GCOT_Statut_Dossier 
-					WHERE  Numero_Dossier = '$numcde'
-					AND Code_Statut = 'ORD' ";
-    $sql = $this->connexion04Gcot->query($statement);
-    $data = odbc_fetch_array($sql);
-    return $data;
-  }
+
   /**
    * Etat partiel piece
    */
@@ -243,10 +233,10 @@ ORDER BY 6,2, A.NLIG_NOLIGN
     return $resultat;
   }
 
-/**
- * qteCIS
- */
-public function recupeQteCISlig($numOr, $itv, $refp)
+  /**
+   * qteCIS
+   */
+  public function recupeQteCISlig($numOr, $itv, $refp)
   {
     $statement = "SELECT 
                   trunc(nvl(nlig_qtecde,0)) as qteorlig,
@@ -256,8 +246,8 @@ public function recupeQteCISlig($numOr, $itv, $refp)
                   
                   from neg_lig
                   where nlig_natop = 'CIS'
-                  and nlig_numcde ='".$numOr."'
-                  --AND  NLIG_NOLIGN  = '".$itv."'
+                  and nlig_numcde ='" . $numOr . "'
+                  --AND  NLIG_NOLIGN  = '" . $itv . "'
                   and nlig_refp ='" . $refp . "'
         ";
     // dump($statement);
@@ -269,7 +259,7 @@ public function recupeQteCISlig($numOr, $itv, $refp)
   /**
    * Date LIve ALL
    */
- public function dateLivraisonCIS($numCIS, $refp, $cst)
+  public function dateLivraisonCIS($numCIS, $refp, $cst)
   {
     $statement = "SELECT  max(nliv_datexp) as datelivlig
                   from neg_liv, neg_llf 
@@ -301,31 +291,7 @@ public function recupeQteCISlig($numOr, $itv, $refp)
     return $resultat;
   }
 
-  /**
-   * eta mag
-   */
-  public function recuperationEtaMag($numcde, $refp, $cst)
-  {
-    if ($cst == 'CAT') {
-      $cst = 'K230';
-    } else {
-      $cst = $cst;
-    }
-    $squery = " SELECT Eta_ivato,
-                    Eta_magasin
-                    FROM Ces_magasin
-                    WHERE Cust_ref = '" . $numcde . "'
-                    AND Part_no = '" . $refp . "'
-                    AND custCode = '" . $cst . "'
-        ";
 
-    $sql = $this->connexion04->query($squery);
-    $data = array();
-    while ($tabType = odbc_fetch_array($sql)) {
-      $data[] = $tabType;
-    }
-    return $data;
-  }
   /**
    * Etat partiel piece
    */
@@ -341,19 +307,6 @@ public function recupeQteCISlig($numOr, $itv, $refp)
     $data = $this->connect->fetchResults($result);
     $resultat = $this->convertirEnUtf8($data);
     return $resultat;
-  }
-  /**
-   * gcot ORD
-   */
-  public function recuperationinfodGcot($numcde)
-  {
-    $statement = "SELECT Code_Statut  as Ord
-					FROM  GCOT_Statut_Dossier 
-					WHERE  Numero_Dossier = '$numcde'
-					AND Code_Statut = 'ORD' ";
-    $sql = $this->connexion04Gcot->query($statement);
-    $data = odbc_fetch_array($sql);
-    return $data;
   }
 
 
@@ -398,7 +351,7 @@ public function recupeQteCISlig($numOr, $itv, $refp)
 
     return $this->convertirEnUtf8($data);
   }
-  
+
   public function recupClientPlanningMagasin()
   {
     $statement = "SELECT 

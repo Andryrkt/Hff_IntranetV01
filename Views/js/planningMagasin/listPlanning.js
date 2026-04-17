@@ -159,9 +159,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
                             <th>QTé LIV</th>
                             <th>Statut</th>
                             <th>Date Statut</th>
-                             <th>ETA Ivato</th>
-                            <th>ETA Magasin</th>
-                            <th>Message</th>`;
+                            `;
             planningTableHead.innerHTML += rowHeader;
             planningTableHeadOR.innerHTML += rowHeader;
             planningTableHeadLign.innerHTML += rowHeader;
@@ -178,10 +176,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
                             <th>QTé RLQ</th>
                             <th>QTé LIV</th>
                             <th>Statut</th>
-                            <th>Date Statut</th>
-                            <th>ETA Ivato</th>
-                            <th>ETA Magasin</th>
-                            <th>Message</th>`;
+                            <th>Date Statut</th>`;
             planningTableHead.innerHTML += rowHeader;
           }
           data.data.forEach((detail) => {
@@ -216,22 +211,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
               dateStatut = "";
             } else {
               dateStatut = formaterDate(detail.datestatut);
-            }
-            if (
-              detail.Eta_ivato == "" ||
-              formaterDate(detail.Eta_ivato) === "01/01/1900"
-            ) {
-              dateEtaIvato = "";
-            } else {
-              dateEtaIvato = formaterDate(detail.Eta_ivato);
-            }
-            if (
-              detail.Eta_magasin == "" ||
-              formaterDate(detail.Eta_magasin) === "01/01/1900"
-            ) {
-              dateMagasin = "";
-            } else {
-              dateMagasin = formaterDate(detail.Eta_magasin);
             }
             if (detail.numerocmd == null) {
               numCde = "";
@@ -340,10 +319,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
                         <td>${parseInt(detail.qtereliquat) === 0 ? "" : parseInt(detail.qtereliquat)}</td> 
                         <td>${parseInt(detail.qteliv) === 0 ? "" : parseInt(detail.qteliv)}</td> 
                         <td  >${statut} </td> 
-                        <td>${dateStatut}</td> 
-                        <td></td> 
-                        <td></td> 
-                        <td></td> 
+                        <td>${dateStatut}</td>
                     </tr>`;
               // tableBody.innerHTML += row;
               tableBodyOR.innerHTML += row;
@@ -357,39 +333,32 @@ document.addEventListener("DOMContentLoaded", (event) => {
                         <td>${detail.cst}</td> 
                         <td>${numRef}</td> 
                         <td>${detail.desi}</td> 
-                        <td>${
-                          isNaN(detail.qteORlig) ||
-                          detail.qteORlig === "" ||
-                          parseInt(detail.qteORlig) === 0
-                            ? ""
-                            : parseInt(detail.qteORlig)
-                        }</td> 
-                        <td>${
-                          isNaN(detail.qtealllig) ||
-                          detail.qtealllig === "" ||
-                          parseInt(detail.qtealllig) === 0
-                            ? ""
-                            : parseInt(detail.qtealllig)
-                        }</td> 
-                        <td>${
-                          isNaN(detail.qterlqlig) ||
-                          detail.qterlqlig === "" ||
-                          parseInt(detail.qterlqlig) === 0
-                            ? ""
-                            : parseInt(detail.qterlqlig)
-                        }</td> 
-                        <td>${
-                          isNaN(detail.qtelivlig) ||
-                          detail.qtelivlig === "" ||
-                          parseInt(detail.qtelivlig) === 0
-                            ? ""
-                            : parseInt(detail.qtelivlig)
-                        }</td> 
+                        <td>${isNaN(detail.qteORlig) ||
+                    detail.qteORlig === "" ||
+                    parseInt(detail.qteORlig) === 0
+                    ? ""
+                    : parseInt(detail.qteORlig)
+                  }</td> 
+                        <td>${isNaN(detail.qtealllig) ||
+                    detail.qtealllig === "" ||
+                    parseInt(detail.qtealllig) === 0
+                    ? ""
+                    : parseInt(detail.qtealllig)
+                  }</td> 
+                        <td>${isNaN(detail.qterlqlig) ||
+                    detail.qterlqlig === "" ||
+                    parseInt(detail.qterlqlig) === 0
+                    ? ""
+                    : parseInt(detail.qterlqlig)
+                  }</td> 
+                        <td>${isNaN(detail.qtelivlig) ||
+                    detail.qtelivlig === "" ||
+                    parseInt(detail.qtelivlig) === 0
+                    ? ""
+                    : parseInt(detail.qtelivlig)
+                  }</td> 
                         <td >${statutCIS === null ? "" : statutCIS}</td> 
                         <td>${dateStatutCIS}</td> 
-                        <td>${dateEtaIvato}</td> 
-                        <td>${dateMagasin}</td> 
-                        <td>${message}</td> 
                         
                     </tr>`;
                 tableBodyLign.innerHTML += row1;
@@ -410,9 +379,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
                       <td>${parseInt(detail.qteliv) === 0 ? "" : parseInt(detail.qteliv)}</td> 
                       <td >${statut}</td> 
                       <td>${dateStatut}</td> 
-                       <td>${dateEtaIvato}</td> 
-                      <td>${dateMagasin}</td> 
-                      <td>${message}</td> 
                   </tr>`;
               tableBody.innerHTML += row;
             }

@@ -68,7 +68,6 @@ class ModalPlanningApi extends Controller
         $migration = $ditRepositoryConditionner->getMigration();
 
         $recupPariel = [];
-        $recupGot = [];
 
         foreach ($details as $i => $detail) {
             // Déterminer la clé à utiliser (numerocdecis ou numerocmd)
@@ -76,23 +75,15 @@ class ModalPlanningApi extends Controller
             $numero = $detail[$numeroKey] ?? '';
 
             // Initialiser les données si le numéro est vide ou invalide
-            if (empty($numero) || $numero == "0") {
-                $recupGot = [];
-            } else {
-                $etaMag = $this->planningModel->recuperationEtaMag($numero, $detail['ref'], $detail['cst']);
+            if (!empty($numero) && $numero !== "0") {
                 $recupPariel[] = $this->planningModel->recuperationPartiel($numero, $detail['ref']);
-                $recupGot['ord'] = $this->planningModel->recuperationinfodGcot($numero);
             }
 
-            // Ajouter les données récupérées au détail actuel
-            $details[$i]['Eta_ivato'] = !empty($etaMag[0]['Eta_ivato']) ? $etaMag[0]['Eta_ivato'] : "";
-            $details[$i]['Eta_magasin'] = !empty($etaMag[0]['Eta_magasin']) ? $etaMag[0]['Eta_magasin'] : "";
 
             $recupParielCurrent = $recupPariel[$i] ?? null;
             $details[$i]['qteSlode'] = $recupParielCurrent['0']['solde'] ?? 0;
             $details[$i]['qte'] = $recupParielCurrent['0']['qte'] ?? 0;
 
-            $details[$i]['Ord'] = $recupGot['ord']['Ord'] ?? "";
 
             // Ajouter les informations supplémentaires
             $details[$i]['numDit'] = $numDit;

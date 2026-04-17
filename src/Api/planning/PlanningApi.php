@@ -55,53 +55,22 @@ class PlanningApi extends Controller
             $numDit = $ditRepositoryConditionner->getNumeroDemandeIntervention();
             $migration = $ditRepositoryConditionner->getMigration();
 
-            $detailes = [];
             //    dd($details);
             $qteCIS = [];
             $recupPariel = [];
-            $recupGot = [];
             $dateLivLig = [];
             $dateAllLig = [];
             for ($i = 0; $i < count($details); $i++) {
 
                 if ($numOr[0] == '5' || $numOr[0] == '3' || $numOr[0] == '4' || $numOr[0] == '2') {
-
-                    // if ($details[$i]['numcis'] !== "0"  || $details[$i]['numerocdecis'] == "0") {
-
-                    //     $recupGot = [];
-                    //     $qteCIS[] = $this->planningModel->recupeQteCISlig($details[$i]['numor'], $details[$i]['intv'], $details[$i]['ref']);
-                    //     $dateLivLig[] = $this->planningModel->dateLivraisonCIS($details[$i]['numcis'], $details[$i]['ref'], $details[$i]['cst']);
-                    //     $dateAllLig[] = $this->planningModel->dateAllocationCIS($details[$i]['numcis'], $details[$i]['ref'], $details[$i]['cst']);
-                    //     $recupGot['ord'] = $this->planningModel->recuperationinfodGcot($details[$i]['numerocdecis']);
-                    // } else {
-                    $detailes[] = $this->planningModel->recuperationEtaMag($details[$i]['numerocdecis'], $details[$i]['ref'], $details[$i]['cst']);
                     $recupPariel[] = $this->planningModel->recuperationPartiel($details[$i]['numerocdecis'], $details[$i]['ref']);
-                    $recupGot['ord'] = $this->planningModel->recuperationinfodGcot($details[$i]['numerocdecis']);
                     $qteCIS[] = $this->planningModel->recupeQteCISlig($details[$i]['numor'], $details[$i]['intv'], $details[$i]['ref']);
                     $dateLivLig[] = $this->planningModel->dateLivraisonCIS($details[$i]['numcis'], $details[$i]['ref'], $details[$i]['cst']);
                     $dateAllLig[] = $this->planningModel->dateAllocationCIS($details[$i]['numcis'], $details[$i]['ref'], $details[$i]['cst']);
-                    // }
                 } else {
-                    if (empty($details[$i]['numerocmd']) || $details[$i]['numerocmd'] == "0") {
-                        $recupGot = [];
-                    } else {
-                        $detailes[] = $this->planningModel->recuperationEtaMag($details[$i]['numerocmd'], $details[$i]['ref'], $details[$i]['cst']);
+                    if (!empty($details[$i]['numerocmd']) && $details[$i]['numerocmd'] !== "0") {
                         $recupPariel[] = $this->planningModel->recuperationPartiel($details[$i]['numerocmd'], $details[$i]['ref']);
-                        // $qteCIS[] = $this->planningModel->recupeQteCISlig($details[$i]['numor'],$details[$i]['intv'],$details[$i]['ref']);
-                        $recupGot['ord'] = $this->planningModel->recuperationinfodGcot($details[$i]['numerocmd']);
                     }
-                }
-
-                if (!empty($detailes[0])) {
-                    $details[$i]['Eta_ivato'] = $detailes[0][0]['Eta_ivato'];
-                    $details[$i]['Eta_magasin'] =  $detailes[0][0]['Eta_magasin'];
-                    $details[$i]['Est_ship_date'] =  $detailes[0][0]['Est_ship_date'];
-                    $detailes = [];
-                } else {
-                    $details[$i]['Eta_ivato'] = "";
-                    $details[$i]['Eta_magasin'] = "";
-                    $details[$i]['Est_ship_date'] = "";
-                    $detailes = [];
                 }
 
                 if (!empty($recupPariel[$i])) {
@@ -112,12 +81,6 @@ class PlanningApi extends Controller
                     $details[$i]['qte'] = "";
                 }
 
-
-                if (!empty($recupGot)) {
-                    $details[$i]['Ord'] = $recupGot['ord'] === false ? '' : $recupGot['ord']['Ord'];
-                } else {
-                    $details[$i]['Ord'] = "";
-                }
 
                 if (!empty($dateLivLig[0])) {
                     $details[$i]['dateLivLIg'] = $dateLivLig[$i]['0']['datelivlig'];
@@ -130,9 +93,6 @@ class PlanningApi extends Controller
                 } else {
                     $details[$i]['dateAllLIg'] = "";
                 }
-
-
-
 
                 $details[$i]['numDit'] = $numDit;
                 $details[$i]['migration'] = $migration;

@@ -632,31 +632,7 @@ class PlanningModel extends Model
     $resultat = $this->convertirEnUtf8($data);
     return $resultat;
   }
-  /**
-   * eta mag
-   */
-  public function recuperationEtaMag($numcde, $refp, $cst)
-  {
-    if ($cst == 'CAT') {
-      $cst = 'K230';
-    } else {
-      $cst = $cst;
-    }
-    $squery = " SELECT Eta_ivato,
-                    Eta_magasin,
-                    Est_ship_date
-                    FROM Ces_magasin
-                    WHERE Cust_ref = '" . $numcde . "'
-                    AND Part_no = '" . $refp . "'
-                    AND custCode = '" . $cst . "'
-        ";
-    $sql = $this->connexion04->query($squery);
-    $data = array();
-    while ($tabType = odbc_fetch_array($sql)) {
-      $data[] = $tabType;
-    }
-    return $data;
-  }
+
   /**
    * Etat partiel piece
    */
@@ -709,19 +685,6 @@ class PlanningModel extends Model
     $data = $this->connect->fetchResults($result);
     $resultat = $this->convertirEnUtf8($data);
     return $resultat;
-  }
-  /**
-   * gcot ORD
-   */
-  public function recuperationinfodGcot($numcde)
-  {
-    $statement = "SELECT Code_Statut  as Ord
-					FROM  GCOT_Statut_Dossier 
-					WHERE  Numero_Dossier = '$numcde'
-					AND Code_Statut = 'ORD' ";
-    $sql = $this->connexion04Gcot->query($statement);
-    $data = odbc_fetch_array($sql);
-    return $data;
   }
 
   /**
