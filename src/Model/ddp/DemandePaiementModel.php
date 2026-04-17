@@ -125,7 +125,6 @@ class DemandePaiementModel extends Model
             $numFac = '';
         }
         $sql = " SELECT  DISTINCT
-
             TRZT_Dossier_Douane.Numero_Dossier_Douane
             from TRZT_Dossier_Douane
             LEFT JOIN TRZT_Facture on TRZT_Dossier_Douane.Numero_Dossier_Douane = TRZT_Facture.Numero_Dossier_Douane

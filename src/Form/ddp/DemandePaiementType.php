@@ -269,9 +269,9 @@ class DemandePaiementType extends AbstractType
                 TextType::class,
                 [
                     'label' => 'Montant à payer *',
-                    'attr' => [
-                        'readOnly' => true
-                    ]
+                    // 'attr' => [
+                    //     'readOnly' => true
+                    // ]
                 ]
             )
             ->add(

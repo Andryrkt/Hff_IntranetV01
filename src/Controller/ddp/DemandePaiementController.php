@@ -3,31 +3,33 @@
 namespace App\Controller\ddp;
 
 
-use App\Entity\admin\Agence;
-use App\Entity\admin\Service;
 use App\Controller\Controller;
-use App\Entity\admin\Application;
-use App\Entity\ddp\DemandePaiement;
-use App\Entity\admin\ddp\TypeDemande;
-use App\Form\ddp\DemandePaiementType;
-use App\Controller\Traits\ddp\DdpTrait;
-use App\Entity\ddp\HistoriqueStatutDdp;
-use App\Model\ddp\DemandePaiementModel;
-use App\Service\TableauEnStringService;
-use App\Entity\ddp\DemandePaiementLigne;
-use App\Service\genererPdf\GeneratePdfDdp;
-use App\Entity\cde\CdefnrSoumisAValidation;
 use App\Controller\Traits\AutorisationTrait;
+use App\Controller\Traits\ddp\DdpTrait;
 use App\Controller\Traits\PdfConversionTrait;
+use App\Entity\admin\Agence;
+use App\Entity\admin\Application;
 use App\Entity\admin\ddp\DocDemandePaiement;
+use App\Entity\admin\ddp\TypeDemande;
+use App\Entity\admin\Service;
+use App\Entity\cde\CdefnrSoumisAValidation;
+use App\Entity\ddp\CommandeLivraison;
+use App\Entity\ddp\DemandePaiement;
+use App\Entity\ddp\DemandePaiementCommande;
+use App\Entity\ddp\DemandePaiementLigne;
+use App\Entity\ddp\HistoriqueStatutDdp;
+use App\Form\ddp\DemandePaiementType;
+use App\Model\ddp\DemandePaiementModel;
+use App\Repository\admin\ddp\TypeDemandeRepository;
+use App\Repository\cde\CdefnrSoumisAValidationRepository;
+use App\Repository\ddp\DemandePaiementRepository;
 use App\Service\fichier\TraitementDeFichier;
+use App\Service\genererPdf\GeneratePdfDdp;
+use App\Service\historiqueOperation\HistoriqueOperationDDPService;
+use App\Service\TableauEnStringService;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Repository\ddp\DemandePaiementRepository;
-use App\Repository\admin\ddp\TypeDemandeRepository;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
-use App\Repository\cde\CdefnrSoumisAValidationRepository;
-use App\Service\historiqueOperation\HistoriqueOperationDDPService;
 
 /**
  * @Route("/compta/demande-de-paiement")
@@ -142,6 +144,8 @@ class DemandePaiementController extends Controller
             $this->EnregistrementBdDdpl($data); // enregistrement des données dans la table demande_paiement_ligne
             $this->enregisterDdpF($data); // enregistrement des données dans la table doc_demande_paiement
             $this->enregistrementBdHistoriqueStatut($data); // enregistrement des données dans la table historique_statut_ddp
+            $this->enregistrementDemandePaiementCommande($data); // enregistrement des données dans la table demande_paiement_commande
+            $this->enregistrementCommandeLivraison($data); // enregistrement des données dans la table commande_livraison
 
             /** COPIER LES FICHIERS DISTANT 192.168.0.15 vers uplode/ddp/... */
             if ($id == 2) {
@@ -181,9 +185,34 @@ class DemandePaiementController extends Controller
         $this->getEntityManager()->flush();
     }
 
+    private function enregistrementDemandePaiementCommande(DemandePaiement $datas): void
+    {
+        foreach ($datas->getNumeroCommande() as $data) {
+            $demandePaiementCommande = new DemandePaiementCommande();
+            $demandePaiementCommande
+                ->setNumeroDdp($datas->getNumeroDdp())
+                ->setNumeroCommande($data->getNumeroCommande())
+            ;
+            $this->getEntityManager()->persist($demandePaiementCommande);
+        }
+
+        $this->getEntityManager()->flush();
+    }
 
 
+    private function enregistrementCommandeLivraison(DemandePaiement $datas): void
+    {
+        foreach ($datas->getNumeroFacture() as $data) {
+            $commandeLivraison = new CommandeLivraison();
+            $commandeLivraison
+                ->setNumeroCommande($datas->getNumeroCommande())
+                ->setNumeroFacture($data->getNumeroFacture())
+            ;
+            $this->getEntityManager()->persist($commandeLivraison);
+        }
 
+        $this->getEntityManager()->flush();
+    }
 
     /**
      * Ajout de suffix pour chaque element du tableau files
