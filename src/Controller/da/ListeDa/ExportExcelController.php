@@ -2,6 +2,9 @@
 
 namespace App\Controller\da\ListeDa;
 
+use App\Constants\da\StatutBcConstant;
+use App\Constants\da\StatutDaConstant;
+use App\Entity\admin\Agence;
 use App\Entity\da\DaAfficher;
 use App\Service\ExcelService;
 use App\Controller\Controller;
@@ -81,13 +84,14 @@ class ExportExcelController extends Controller
             "N° Demande"               => true,
             "Type de demande"          => true,
             "N° DIT"                   => true,
-            "Niveau urgence DIT"       => true,
+            "Niveau urgence"           => true,
             "N° OR"                    => true,
             "Demandeur"                => true,
             "Date de demande"          => true,
             "Statut DA"                => true,
-            "Statut OR"                => true,
+            "Statut DW"                => true,
             "Statut BC"                => true,
+            "N° Commande"              => true,
             "Centrale"                 => $codeCentrale,
             "Date Planning OR"         => true,
             "Fournisseur"              => true,
@@ -112,10 +116,11 @@ class ExportExcelController extends Controller
      * 
      * @param DaAfficher[] $dasFiltered  tableau d'objets DaAfficher à convertir
      * @param array        $headers      entête du tableau
+     * @param bool         $estAppro     true si l'utilisateur est dans le service appro
      * 
      * @return array
      */
-    private function bodyExcel(array $dasFiltered, array $headers): array
+    private function bodyExcel(array $dasFiltered, array $headers, bool $estAppro): array
     {
         $data = [];
 
@@ -132,13 +137,24 @@ class ExportExcelController extends Controller
             "N° Demande"               => fn(DaAfficher $da) => $da->getNumeroDemandeAppro(),
             "Type de demande"          => fn(DaAfficher $da) => $typeDemande[$da->getDaTypeId()],
             "N° DIT"                   => fn(DaAfficher $da) => $da->getNumeroDemandeDit() ?? '-',
-            "Niveau urgence DIT"       => fn(DaAfficher $da) => $da->getNiveauUrgence() ?? '-',
+            "Niveau urgence"           => fn(DaAfficher $da) => $da->getNiveauUrgence() ?? '-',
             "N° OR"                    => fn(DaAfficher $da) => $da->getNumeroOR() ?? '-',
             "Demandeur"                => fn(DaAfficher $da) => $da->getDemandeur(),
             "Date de demande"          => fn(DaAfficher $da) => $da->getDateDemande()->format('d/m/Y'),
-            "Statut DA"                => fn(DaAfficher $da) => $da->getStatutDal(),
-            "Statut OR"                => fn(DaAfficher $da) => $da->getStatutOr() ?? '-',
-            "Statut BC"                => fn(DaAfficher $da) => $da->getStatutCde() ?? '-',
+            "Statut DA"                => fn(DaAfficher $da) => !$estAppro && in_array($da->getStatutDal(), StatutDaConstant::STATUT_TRAITEMENT_APPRO)
+                ? StatutDaConstant::TRAITEMENT_APPRO
+                : $da->getStatutDal(),
+            "Statut DW"                => function (DaAfficher $da) {
+                $statutOr = $da->getStatutOr();
+                if ($da->getDaTypeId() === DemandeAppro::TYPE_DA_AVEC_DIT && !empty($statutOr)) {
+                    $statutOr = "OR - " . $statutOr;
+                }
+                return empty($statutOr) ? '-' : $statutOr;
+            },
+            "Statut BC"                => fn(DaAfficher $da) => !$estAppro && in_array($da->getStatutCde(), StatutBcConstant::STATUT_BC_EN_COURS)
+                ? StatutBcConstant::BC_EN_COURS
+                : $da->getStatutCde() ?? '-',
+            "N° Commande"              => fn(DaAfficher $da) => $da->getNumeroCde() ?? '-',
             "Centrale"                 => fn(DaAfficher $da) => $da->getDesiCentrale() ?? '-',
             "Date Planning OR"         => fn(DaAfficher $da) => $da->getDatePlannigOr() ?? '-',
             "Fournisseur"              => fn(DaAfficher $da) => $da->getNomFournisseur() ?? '-',
@@ -178,7 +194,7 @@ class ExportExcelController extends Controller
     {
         $headers = $this->headerExcel($codeCentrale);
 
-        $body = $this->bodyExcel($dasFiltered, $headers);
+        $body = $this->bodyExcel($dasFiltered, $headers, $this->estAppro());
 
         return array_merge([$headers], $body);
     }

@@ -94,7 +94,7 @@ trait DaAffectationTrait
         $statutDW = $validationDA ? StatutDaConstant::STATUT_DW_A_VALIDE : '';
 
         // Supprimer les lignes de DA Parent dans la table da_afficher
-        $this->daAfficherRepository->markAsDeletedByNumeroLigne($daParent->getNumeroDemandeAppro(), $linesToDelete, $this->getUserName(), true);
+        $this->daAfficherRepository->markAsDeletedByNumeroLigne($daParent->getNumeroDemandeAppro(), $linesToDelete, '__Subdivision-DA__', true);
 
         // Ajouter les nouveaux données dans la table da_afficher
         $this->ajouterDansTableAffichageParNumDa($numeroDemandeAppro, $validationDA, $statutDW, $daParent->getDateCreation());

@@ -2,6 +2,7 @@
 
 namespace App\Controller\contrat;
 
+use App\Constants\admin\ApplicationConstant;
 use App\Constants\dw\DwConstant;
 use App\Controller\Controller;
 use App\Entity\contrat\Contrat;
@@ -99,9 +100,23 @@ class ContratController extends Controller
 
         $form->handleRequest($request);
 
+        // Récupération des agences et services autorisés
+        $agenceServiceAutoriser = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_CONTRAT);
+
+        // Si pas d'agence autorisée, on met ce qui est par défaut
+        if (empty($agenceServiceAutoriser)) {
+            $agenceAutoriser = [$this->getSecurityService()->getCodeAgenceUser()];
+            $serviceAutoriser = [$this->getSecurityService()->getCodeServiceUser()];
+        } else {
+            $agenceAutoriser = array_column($agenceServiceAutoriser, 'agence_code');
+            $serviceAutoriser = array_column($agenceServiceAutoriser, 'service_code');
+        }
+
         // Options pour le repository (toujours initialiser avec une valeur par défaut)
         $options = [
-            'admin' => $this->estAdmin()
+            'admin' => $this->estAdmin(),
+            'agenceAutoriser' => $agenceAutoriser,
+            'serviceAutoriser' => $serviceAutoriser,
         ];
 
         // Si le formulaire est soumis, traiter les données (tous les champs sont optionnels)
