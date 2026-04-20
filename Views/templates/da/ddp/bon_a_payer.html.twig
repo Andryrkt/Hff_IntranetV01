@@ -60,10 +60,10 @@
 							</a>
 						</td>
 						<td class="text-center">
-							{% set fileExists = fileCheckerService.checkBapFileExists(row.numeroDemandeAppro, row.numeroCommande) %}
+							{% set fileExists = fileCheckerService.checkBapFileExists(row.numeroDdp) %}
 							{% if fileExists %}
-								{% set filename = 'BAP_' ~ row.numeroDemandeAppro ~ '_' ~ row.numeroCommande ~ '.pdf' %}
-								<a href="#" class="show-pdf-modal" data-pdf-url="{{ path('bap_pdf_viewer', { numeroDa: row.numeroDemandeAppro, urlPdf: filename }) }}">
+								{% set filename = row.numeroDdp ~ '.pdf' %}
+								<a href="#" class="show-pdf-modal" data-pdf-url="{{ path('bap_pdf_viewer', { numeroDdp: row.numeroDdp, urlPdf: filename }) }}">
 									{{ row.numeroDdp }}
 									<i class="fas fa-file-pdf ml-1" style="color: red;"></i>
 								</a>
@@ -90,7 +90,7 @@
 		<div class="modal-dialog modal-xl">
 			<div class="modal-content">
 				<div class="modal-header">
-					<h5 class="modal-title" id="pdfModalLabel">Bon à Payer - PDF</h5>
+					<h5 class="modal-title" id="pdfModalLabel">DDP/BAP - PDF</h5>
 					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
 				<div class="modal-body">

@@ -61,7 +61,7 @@ class DaSoumissionDataService
         }
 
         if (empty($infosLivraisons)) {
-            $message = "Toutes les livraisons sont en cours de validation ou déjà validées.";
+            $message = "Toutes les demandes de paiement sont en cours de validation ou déjà validées.";
             $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn');
         }
 

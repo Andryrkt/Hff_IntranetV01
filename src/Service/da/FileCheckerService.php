@@ -15,22 +15,22 @@ class FileCheckerService
         $this->filesystem = new Filesystem();
     }
 
-    public function checkBapFileExists(?string $numeroDa, ?string $numeroCde = ''): bool
+    public function checkBapFileExists(?string $numeroDdp): bool
     {
-        if (empty($numeroDa) || empty($numeroCde)) {
+        if (empty($numeroDdp)) {
             return false;
         }
 
-        $filePath = $this->projectDir . "/da/$numeroDa/BAP_{$numeroDa}_{$numeroCde}.pdf";
+        $filePath = $this->projectDir . "/ddp/$numeroDdp/$numeroDdp.pdf";
         return $this->filesystem->exists($filePath);
     }
 
-    public function getBapFilePath(?string $numeroDa, string $numeroCde): ?string
+    public function getBapFilePath(?string $numeroDdp): ?string
     {
-        if (empty($numeroDa) || empty($numeroCde)) {
+        if (empty($numeroDdp)) {
             return null;
         }
-        $relativePath = "/da/$numeroDa/BAP_{$numeroDa}_{$numeroCde}.pdf";
+        $relativePath = "/ddp/$numeroDdp/$numeroDdp.pdf";
         $fullPath = $this->projectDir .  $relativePath;
 
         if ($this->filesystem->exists($fullPath)) {
@@ -40,25 +40,9 @@ class FileCheckerService
         return null;
     }
 
-    public function getBapFullPath(?string $numeroDa, string $numeroCde): ?string
+
+    public function getFullPath(?string $numeroDdp): ?string
     {
-        if (empty($numeroDa) || empty($numeroCde)) {
-            return null;
-        }
-        // $relativePath = "/da/$numeroDa/BAP_{$numeroDa}_{$numeroCde}.pdf";
-        $relativePath = "/da/$numeroDa/BAP-$numeroCde#$numeroDa.pdf";
-        $fullPath = $this->projectDir .  $relativePath;
-
-        if ($this->filesystem->exists($fullPath)) {
-            return $fullPath;
-        }
-
-        return null;
-    }
-
-    public function getDdpFullPath(?string $numeroDdp): ?string
-    {
-
         $relativePath = "/ddp/$numeroDdp/$numeroDdp.pdf";
         $fullPath = $this->projectDir .  $relativePath;
 

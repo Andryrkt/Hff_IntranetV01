@@ -41,6 +41,7 @@ class TraitementSoumissionBAPService
     private DaSoumissionFacBlModel $daSoumissionFacBlModel;
     private TraitementDeFichier $traitementDeFichier;
     private string $cheminDeBaseDa;
+    private string $cheminDeBaseDdp;
     private DemandeApproRepository $demandeApproRepository;
     private DwBcApproRepository $dwBcApproRepository;
     private DitModel $ditModel;
@@ -70,6 +71,7 @@ class TraitementSoumissionBAPService
         $this->daSoumissionFacBlModel      = $daSoumissionFacBlModel;
         $this->traitementDeFichier         = $traitementDeFichier;
         $this->cheminDeBaseDa              = ($_ENV['BASE_PATH_FICHIER'] ?? '') . '/da/';
+        $this->cheminDeBaseDdp             = ($_ENV['BASE_PATH_FICHIER'] ?? '') . '/ddp/';
         $this->demandeApproRepository      = $this->entityManager->getRepository(DemandeAppro::class);
         $this->dwBcApproRepository         = $this->entityManager->getRepository(DwBcAppro::class);
         $this->ditModel                    = $ditModel;
@@ -101,8 +103,6 @@ class TraitementSoumissionBAPService
 
             /** MODIFICATION DA AFFICHER */
             $this->modificationDaAfficher($numDa, $numCde, $numLiv);
-
-
 
             $sucess = true;
         }
@@ -239,6 +239,7 @@ class TraitementSoumissionBAPService
         $numCde  = $dto->numeroCde;
         $numDa   = $dto->numeroDemandeAppro;
         $numOr   = $dto->numeroOR;
+        $numDdp  = $dto->demandePaiementDto ? $dto->demandePaiementDto->numeroDdp : $dto->numeroBap;
         $numLiv  = $dto->numLiv;
         $infoLiv = $dto->infoLiv[$numLiv];
         $nomOriginalFichier = $dto->pieceJoint1->getClientOriginalName();
@@ -267,8 +268,13 @@ class TraitementSoumissionBAPService
         $this->traitementDeFichier->fusionFichers($fichierConvertir, $nomAvecCheminPdfFusionner);
 
         /** GENERATION DU DEUXIÈME NOM DU FICHIER  */
-        $nomPdfSecond           = "BAP-$numCde#$numDa.pdf";
-        $nomAvecCheminPdfSecond = $this->cheminDeBaseDa . $numDa . '/' . $nomPdfSecond;
+        $nomPdfSecond           = "$numDdp.pdf";
+        $cheminDossierDdp       = $this->cheminDeBaseDdp . $numDdp;
+        $nomAvecCheminPdfSecond = $cheminDossierDdp . '/' . $nomPdfSecond;
+
+        if (!file_exists($cheminDossierDdp)) {
+            mkdir($cheminDossierDdp, 0777, true);
+        }
 
         /** FUSION DU DEUXIÈME FICHIER */
         $this->traitementDeFichier->fusionFichers($fichierConvertir, $nomAvecCheminPdfSecond);

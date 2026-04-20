@@ -13,14 +13,16 @@ class DdpFinancialService
     {
         $dto->montantTotalCde = (float)$dto->montantTotalCde;
         $dto->montantDejaPaye = $totalPayer;
+        
+        $montantAPayer = $dto->montantAPayer();
         $dto->montantRestantApayer = $dto->montantTotalCde - $dto->montantDejaPaye;
-        $dto->montantAPayer = $dto->montantRestantApayer;
+        $dto->montantAPayer = (string)$dto->montantRestantApayer;
         
         if ($dto->montantTotalCde > 0) {
-            $dto->pourcentageAvance = (($dto->montantDejaPaye + $dto->montantAPayer) / $dto->montantTotalCde) * 100 . ' %';
-            $dto->pourcentageAPayer = (int)(($dto->montantAPayer / $dto->montantTotalCde) * 100);
+            $dto->pourcentageAvance = (($dto->montantDejaPaye + $montantAPayer) / $dto->montantTotalCde) * 100;
+            $dto->pourcentageAPayer = (int)(($montantAPayer / $dto->montantTotalCde) * 100);
         } else {
-            $dto->pourcentageAvance = '0 %';
+            $dto->pourcentageAvance = 0.0;
             $dto->pourcentageAPayer = 0;
         }
     }
