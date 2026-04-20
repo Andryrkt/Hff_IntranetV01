@@ -67,7 +67,7 @@ class DemandePaiementDto
     public float $montantTotalCde;
     public float $montantDejaPaye;
     public float $montantRestantApayer;
-    public float $pourcentageAvance;
+    public string $pourcentageAvance;
     public float $ratioMontantpayer;
     public string $numeroDa;
     public bool $ddpaDa = false;
