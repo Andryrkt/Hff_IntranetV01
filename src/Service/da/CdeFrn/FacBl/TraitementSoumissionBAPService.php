@@ -2,7 +2,6 @@
 
 namespace App\Service\da\CdeFrn\FacBl;
 
-use App\Constants\da\ddp\BonApayerConstants;
 use App\Controller\Traits\PdfConversionTrait;
 use App\Dto\Da\ListeCdeFrn\DaSoumissionFacBlDto;
 use App\Entity\da\DaAfficher;
@@ -14,6 +13,7 @@ use App\Mapper\Da\ListCdeFrn\DaSoumissionFacBlMapper;
 use App\Mapper\ddp\CommandeLivraisonMapper;
 use App\Mapper\ddp\DemandePaiementCommandeMapper;
 use App\Mapper\ddp\DemandePaiementMapper;
+use App\Model\da\DaModel;
 use App\Model\da\DaSoumissionFacBlModel;
 use App\Model\dit\DitModel;
 use App\Repository\da\DaSoumissionFacBlRepository;
@@ -44,6 +44,7 @@ class TraitementSoumissionBAPService
     private DemandeApproRepository $demandeApproRepository;
     private DwBcApproRepository $dwBcApproRepository;
     private DitModel $ditModel;
+    private DaModel $daModel;
     private GenererPdfBonAPayer $generatePdfBap;
     private Recapitulation $recapitulationOR;
 
@@ -56,6 +57,7 @@ class TraitementSoumissionBAPService
         DaSoumissionFacBlModel $daSoumissionFacBlModel,
         TraitementDeFichier $traitementDeFichier,
         DitModel $ditModel,
+        DaModel $daModel,
         GenererPdfBonAPayer $generatePdfBap,
         Recapitulation $recapitulationOR
     ) {
@@ -71,6 +73,7 @@ class TraitementSoumissionBAPService
         $this->demandeApproRepository      = $this->entityManager->getRepository(DemandeAppro::class);
         $this->dwBcApproRepository         = $this->entityManager->getRepository(DwBcAppro::class);
         $this->ditModel                    = $ditModel;
+        $this->daModel                     = $daModel;
         $this->generatePdfBap              = $generatePdfBap;
         $this->recapitulationOR            = $recapitulationOR;
     }
@@ -334,23 +337,24 @@ class TraitementSoumissionBAPService
         }, $files);
     }
 
-    private function genererPageDeGarde(array $infoLivraison, DaSoumissionFacBlDto $dto, ?string $mail): string
+    public function genererPageDeGarde(array $infoLivraison, DaSoumissionFacBlDto $dto, ?string $mail): string
     {
-        $numCde           = $dto->numeroCde;
-        $numOr            = $dto->numeroOR;
+        $numCde              = $dto->numeroCde;
+        $numOr               = $dto->numeroOR;
 
+        $infoValidationBC    = $this->dwBcApproRepository->getInfoValidationBC($numCde) ?? [];
+        $historiqueLivraison = $this->daModel->getHistoriqueLivraison($numCde) ?? [];
 
-        $infoValidationBC = $this->dwBcApproRepository->getInfoValidationBC($numCde) ?? [];
-        $infoMateriel     = $this->ditModel->recupInfoMateriel($numOr);
-        $dataRecapOR      = $this->recapitulationOR->getData($numOr);
-        $demandeAppro     = $this->demandeApproRepository->findOneBy(['numeroDemandeAppro' => $dto->numeroDemandeAppro]);
-        $infoFacBl        = [
+        $infoMateriel        = $this->ditModel->recupInfoMateriel($numOr);
+        $dataRecapOR         = $this->recapitulationOR->getData($numOr);
+        $demandeAppro        = $this->demandeApproRepository->findOneBy(['numeroDemandeAppro' => $dto->numeroDemandeAppro]);
+        $infoFacBl           = [
             "refBlFac"   => $infoLivraison["ref_fac_bl"],
             "dateBlFac"  => $dto->dateBlFac,
             "numLivIPS"  => $infoLivraison["num_liv"],
             "dateLivIPS" => $infoLivraison["date_clot"],
         ];
 
-        return $this->generatePdfBap->genererPageDeGarde($infoValidationBC, $infoMateriel, $dataRecapOR, $demandeAppro, $dto, $infoFacBl, $mail);
+        return $this->generatePdfBap->genererPageDeGarde($infoValidationBC, $infoMateriel, $dataRecapOR, $historiqueLivraison, $demandeAppro, $dto, $infoFacBl, $mail);
     }
 }

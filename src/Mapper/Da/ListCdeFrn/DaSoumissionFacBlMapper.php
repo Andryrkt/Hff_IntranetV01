@@ -37,6 +37,7 @@ class DaSoumissionFacBlMapper
         $daSoumissionFacBl = new DaSoumissionFacBl();
         $daSoumissionFacBl
             ->setNumeroDemandeAppro($dto->numeroDemandeAppro)
+            ->setNumeroDemandePaiement($dto->demandePaiementDto->numeroDdp)
             ->setNumeroDemandeDit($dto->numeroDemandeDit)
             ->setNumeroOR($dto->numeroOR)
             ->setNumeroCde($dto->numeroCde)
@@ -57,7 +58,6 @@ class DaSoumissionFacBlMapper
             ->setNumeroFactureFournisseur($dto->numeroFactureFournisseur)
             ->setEstFactureReappro($dto->estfactureReappro)
             ->setNumeroFactureReappro($dto->numerofactureReappro)
-            ->setNumeroDemandePaiement($dto->demandePaiementDto->numeroDdp)
         ;
 
         return $daSoumissionFacBl;
@@ -130,6 +130,7 @@ class DaSoumissionFacBlMapper
         $daSoumissionFacBl = new DaSoumissionFacBl();
         $daSoumissionFacBl
             ->setNumeroDemandeAppro($dto->numeroDemandeAppro)
+            ->setNumeroDemandePaiement($dto->demandePaiementDto->numeroDdp)
             ->setNumeroDemandeDit(null)
             ->setNumeroOR($dto->numeroOR)
             ->setNumeroCde($dto->numeroCde)

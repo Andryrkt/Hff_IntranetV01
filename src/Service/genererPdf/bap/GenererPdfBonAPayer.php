@@ -7,6 +7,7 @@ use App\Entity\da\DemandeAppro;
 use App\Service\genererPdf\GeneratePdf;
 use App\Controller\Traits\FormatageTrait;
 use App\Dto\Da\ListeCdeFrn\DaSoumissionFacBlDto;
+use App\Service\genererPdf\da\PdfTableHistoriqueLivraisonBAP;
 use App\Service\genererPdf\PdfTableGeneratorFlexible;
 
 class GenererPdfBonAPayer extends GeneratePdf
@@ -16,8 +17,16 @@ class GenererPdfBonAPayer extends GeneratePdf
     /**
      * Fonction pour générer le PDF du bon à payer
      */
-    public function genererPageDeGarde(array $infoValidationBC, array $infoMateriel, array $dataRecapOR, DemandeAppro $demandeAppro, DaSoumissionFacBlDto $dto, array $infoFacBl, ?string $mail): string
-    {
+    public function genererPageDeGarde(
+        array $infoValidationBC,
+        array $infoMateriel,
+        array $dataRecapOR,
+        array $historiqueLivraison,
+        DemandeAppro $demandeAppro,
+        DaSoumissionFacBlDto $dto,
+        array $infoFacBl,
+        ?string $mail
+    ): string {
         $infoBC = $dto->infoBc;
         $pdf = $this->initPDF();
         $this->renderHeader($pdf, $mail, $dto);
@@ -30,6 +39,7 @@ class GenererPdfBonAPayer extends GeneratePdf
         }
         $this->renderRecapDA($pdf, $w100, $demandeAppro);
         $this->renderInfoFACBL($pdf, $w100, $infoFacBl);
+        $this->renderHistoriqueLivraison($pdf, $historiqueLivraison);
 
         // Sauvegarder le PDF
         return $this->savePDF($pdf, $demandeAppro->getNumeroDemandeAppro(), $infoBC["num_cde"]);
@@ -86,8 +96,8 @@ class GenererPdfBonAPayer extends GeneratePdf
 
         if ($title2) {
             $w100 = $this->getUsableWidth($pdf);
-            $pdf->Cell($w100 * 0.7, 5, $title1);
-            $pdf->Cell($w100 * 0.3, 5, $title2, 0, 1);
+            $pdf->Cell($w100 * 0.6, 5, $title1);
+            $pdf->Cell($w100 * 0.4, 5, $title2, 0, 1);
         } else {
             $pdf->Cell(0, 5, $title1, 0, 1);
         }
@@ -101,12 +111,12 @@ class GenererPdfBonAPayer extends GeneratePdf
     private function renderInfoBCAndValidation(TCPDF $pdf, int $w100, array $infoBC, array $infoValidationBC)
     {
         $this->renderInfoSection($pdf, 'RESUME DU BC', 'INFORMATION VALIDATION BC', function () use ($pdf, $w100, $infoBC, $infoValidationBC) {
-            $this->addInfoLine($pdf, 'Nom fournisseur', $infoBC["nom_fournisseur"] ?? "-", $w100 * 0.7 - 6, 35, 0, 0);
-            $this->addInfoLine($pdf, 'Nom Validateur', $infoValidationBC["validateur"] ?? "-", $w100 * 0.3, 25, 0);
+            $this->addInfoLine($pdf, 'Nom fournisseur', $infoBC["nom_fournisseur"] ?? "-", $w100 * 0.6 - 6, 35, 0, 0);
+            $this->addInfoLine($pdf, 'Nom Validateur', $infoValidationBC["validateur"] ?? "-", $w100 * 0.4, 25, 0);
 
-            $this->addInfoLine($pdf, 'N° fournisseur', $infoBC["num_fournisseur"] ?? "-", $w100 * 0.7 - 6, 35, 0, 0);
+            $this->addInfoLine($pdf, 'N° fournisseur', $infoBC["num_fournisseur"] ?? "-", $w100 * 0.6 - 6, 35, 0, 0);
             $dateValidation = $infoValidationBC["dateValidation"] ?? "-";
-            $this->addInfoLine($pdf, 'Date Validation', $dateValidation === "-" ? $dateValidation : $dateValidation->format("d/m/Y"), $w100 * 0.3, 25, 0);
+            $this->addInfoLine($pdf, 'Date Validation', $dateValidation === "-" ? $dateValidation : $dateValidation->format("d/m/Y"), $w100 * 0.4, 25, 0);
             $pdf->Ln(3);
 
             $this->addInfoLine($pdf, 'Téléphone', $infoBC["tel_fournisseur"] ?? "-", $w100, 35, 0);
@@ -200,6 +210,18 @@ class GenererPdfBonAPayer extends GeneratePdf
             $this->addInfoLine($pdf, 'N° livraison IPS', $infoFacBl["numLivIPS"] ?? "-", $w100 / 2, 27);
             $this->addInfoLine($pdf, 'Date', $infoFacBl["dateBlFac"] ? $infoFacBl["dateBlFac"]->format('d/m/Y') : "-", $w100 / 2, 8, 6, 0);
             $this->addInfoLine($pdf, 'Date livraison IPS', $infoFacBl["dateLivIPS"] ? date("d/m/Y", strtotime($infoFacBl["dateLivIPS"])) : "-", $w100 / 2, 27);
+        });
+    }
+
+    private function renderHistoriqueLivraison(TCPDF $pdf, array $historiqueLivraison)
+    {
+        $this->renderInfoSection($pdf, 'RECAPITULATIF DES LIVRAISONS', '', function () use ($pdf, $historiqueLivraison) {
+            if (empty($historiqueLivraison)) {
+                $pdf->Cell(0, 5, "Aucune livraison", 0, 1);
+            } else {
+                $tableGenerator = new PdfTableHistoriqueLivraisonBAP();
+                $pdf->writeHTML($tableGenerator->generateTable($historiqueLivraison));
+            }
         });
     }
 

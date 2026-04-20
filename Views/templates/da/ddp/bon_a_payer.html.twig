@@ -55,7 +55,11 @@
 							<input type="checkbox" name="{{ row.numeroDdp }}" class="bap-checkbox" {{ row.statut != 'BAP à soumettre' ? 'disabled' : '' }}>
 						</td>
 						<td class="text-center">{{ row.numeroCla}}</td>
-						<td class="text-center">{{ row.numeroDemandeAppro }}</td>
+						<td class="text-center">
+							<a href="{{ path('da_dossier_da', {numDa: row.numeroDemandeAppro}) }}" target="_blank">
+								{{ row.numeroDemandeAppro }}
+							</a>
+						</td>
 						<td class="text-center">
 							{% set fileExists = fileCheckerService.checkBapFileExists(row.numeroDemandeAppro, row.numeroCommande) %}
 							{% if fileExists %}
