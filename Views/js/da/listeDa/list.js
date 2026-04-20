@@ -301,3 +301,15 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 });
+function transformerPhrase(phrase) {
+  if (!phrase || typeof phrase !== 'string') {
+    return '';
+  }
+
+  // 1. Enlever les accents
+  const sansAccents = phrase.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+  // 2. Mettre en minuscules et remplacer les espaces par des tirets
+  return sansAccents.toLowerCase().trim().replace(/\s+/g, '-');
+
+}
