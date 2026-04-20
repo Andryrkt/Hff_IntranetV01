@@ -78,7 +78,7 @@ class DdpApiController extends Controller
 
             return new JsonResponse([
                 'success' => true,
-                'message' => count($bapNumbers) . " demande(s) BAP ont été transmises avec succès. ($bapNumberString)",
+                'message' => count($bapNumbers) . " demande(s) DDP/BAP ont été transmises avec succès. ($bapNumberString)",
             ]);
         } catch (\Throwable $e) {
             if (ob_get_length() > 0) {
