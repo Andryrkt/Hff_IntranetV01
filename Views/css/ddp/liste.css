@@ -3,19 +3,26 @@
 *=================*/
 .spinner {
   position: relative;
-  width: 10px; /* Taille totale du spinner */
+  width: 10px;
+  /* Taille totale du spinner */
   height: 10px;
   margin-left: 15px;
 }
 
 .spinner div {
   position: absolute;
-  width: 2px; /* Largeur des barres */
-  height: 5px; /* Hauteur des barres */
-  background: #000; /* Couleur par défaut */
-  border-radius: 3px; /* Coins arrondis pour les barres */
-  transform-origin: center 10px; /* Point autour duquel les barres tournent */
-  animation: fade 1.2s linear infinite; /* Animation de disparition et réapparition */
+  width: 2px;
+  /* Largeur des barres */
+  height: 5px;
+  /* Hauteur des barres */
+  background: #000;
+  /* Couleur par défaut */
+  border-radius: 3px;
+  /* Coins arrondis pour les barres */
+  transform-origin: center 10px;
+  /* Point autour duquel les barres tournent */
+  animation: fade 1.2s linear infinite;
+  /* Animation de disparition et réapparition */
 }
 
 /* Positionnement des barres autour du cercle */
@@ -81,12 +88,16 @@
 
 /* Animation de disparition progressive */
 @keyframes fade {
+
   0%,
   100% {
-    opacity: 0.2; /* Les barres commencent et terminent pâles */
+    opacity: 0.2;
+    /* Les barres commencent et terminent pâles */
   }
+
   50% {
-    opacity: 1; /* La barre devient complètement opaque */
+    opacity: 1;
+    /* La barre devient complètement opaque */
   }
 }
 
@@ -96,14 +107,19 @@
 /* Conteneur de la liste des suggestions */
 .suggestions-container {
   position: absolute;
-  background-color: rgba(0, 0, 0, 0.8); /* Noir transparent */
+  background-color: rgba(0, 0, 0, 0.8);
+  /* Noir transparent */
   /* border: 1px solid rgba(255, 255, 255, 0.3); Bordure blanche translucide */
   border-radius: 5px;
-  max-height: 200px; /* Limite la hauteur des suggestions */
-  overflow-y: auto; /* Active le défilement si nécessaire */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5); /* Ombre subtile */
+  max-height: 200px;
+  /* Limite la hauteur des suggestions */
+  overflow-y: auto;
+  /* Active le défilement si nécessaire */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+  /* Ombre subtile */
   z-index: 1000;
-  width: 40%; /* Assure que la liste occupe toute la largeur du champ */
+  width: 40%;
+  /* Assure que la liste occupe toute la largeur du champ */
   margin-top: 5px;
 }
 

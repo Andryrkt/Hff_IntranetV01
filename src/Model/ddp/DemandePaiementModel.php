@@ -424,7 +424,6 @@ class DemandePaiementModel extends Model
 
     public function getInfoDdpDa(string $numeroDa, string $numeroCde)
     {
-        $numeroCde = "[$numeroCde]";
         $sql = " SELECT  
             FORMAT(dp.date_creation, 'dd/MM/yyyy HH:mm:ss') as date_soumission,
             case 

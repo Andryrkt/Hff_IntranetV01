@@ -15,3 +15,20 @@
 .statut-refusee {
   background-color: #f8d7da !important;
 }
+
+.statut-ddpl-a-transférer,
+.statut-bap-a-transmettre,
+.statut-ddpr-a-transmettre,
+.statut-ddpa-a-transmettre {
+  background-color: #cf0c0c !important;
+  color: #ffffff !important;
+}
+
+.statut-soumis-a-validation {
+  background-color: #e4c229 !important;
+  color: #0a0a0a !important;
+}
+
+.statut-valide {
+  background-color: #4ef177 !important;
+}

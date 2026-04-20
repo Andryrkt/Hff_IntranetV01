@@ -32,7 +32,7 @@ class DdpApiController extends Controller
             if (empty($bapNumbers)) {
                 return new JsonResponse([
                     'success' => false,
-                    'message' => 'Aucun numéro BAP fourni.',
+                    'message' => 'Aucun numéro DDP/BAP fourni.',
                 ], 400);
             }
 
@@ -43,19 +43,34 @@ class DdpApiController extends Controller
 
             foreach ($ddps as $ddp) {
 
-                // modification du statut de demande de paiement
-                $ddp
-                    ->setStatut(StatutConstants::STATUT_SOUMIS_A_VALIDATION)
-                    ->setDateSoumissionCompta(new DateTime())
-                    ->setNumeroCla($numeroCla);
-                $this->getEntityManager()->persist($ddp);
+                if (strpos($ddp->getNumeroDdp(), "BAP") === 0) {
+                    // modification du statut de demande de paiement
+                    $ddp
+                        ->setStatut(StatutConstants::STATUT_SOUMIS_A_VALIDATION)
+                        ->setDateSoumissionCompta(new DateTime())
+                        ->setNumeroCla($numeroCla);
+                    $this->getEntityManager()->persist($ddp);
 
-                /** renomage et copie du fichier BAP dans DW */
-                $fileCheckerService = new FileCheckerService($_ENV['BASE_PATH_FICHIER']);
-                $bapFullpath = $fileCheckerService->getBapFullPath($ddp->getNumeroDemandeAppro(), $ddp->getNumeroCommande());
-                $fileNameForDW = $ddp->getNumeroDdp() . '#' . $numeroCla . '.pdf';
-                $generatePdf = new GeneratePdf();
-                $generatePdf->copyToDWBapDa($bapFullpath, $fileNameForDW);
+                    /** renomage et copie du fichier BAP dans DW */
+                    $fileCheckerService = new FileCheckerService($_ENV['BASE_PATH_FICHIER']);
+                    $bapFullpath = $fileCheckerService->getBapFullPath($ddp->getNumeroDemandeAppro(), $ddp->getNumeroCommande());
+                    $fileNameForDW = $ddp->getNumeroDdp() . '#' . $numeroCla . '.pdf';
+                    $generatePdf = new GeneratePdf();
+                    $generatePdf->copyToDWBapDa($bapFullpath, $fileNameForDW);
+                } else {
+                    // modification du statut de demande de paiement
+                    $ddp
+                        ->setStatut(StatutConstants::STATUT_SOUMIS_A_VALIDATION)
+                        ->setDateSoumissionCompta(new DateTime())
+                        ->setNumeroCla($numeroCla);
+                    $this->getEntityManager()->persist($ddp);
+
+                    /** copie du fichier DDP dans DW */
+                    $fileCheckerService = new FileCheckerService($_ENV['BASE_PATH_FICHIER']);
+                    $bapFullpath = $fileCheckerService->getDdpFullPath($ddp->getNumeroDdp());
+                    $generatePdf = new GeneratePdf();
+                    $generatePdf->copyToDWDdp($bapFullpath, $ddp->getNumeroDdp());
+                }
             }
 
             $this->getEntityManager()->flush();

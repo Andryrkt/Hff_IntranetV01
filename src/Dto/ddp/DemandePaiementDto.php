@@ -152,4 +152,9 @@ class DemandePaiementDto
     {
         return StatutConstants::getCssClass($this->statut);
     }
+
+    public function estStatutATransmettre(): bool
+    {
+        return in_array($this->statut, StatutConstants::STATUT_A_TRANSMETTRE);
+    }
 }
