@@ -494,7 +494,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             <td>${item.date_soumission}</td>
                             <td>${item.numero}</td>
                             <td>${item.type}</td>
-                            <td>${item.motif}</td>
+                            <td>${item.motif || '-'}</td>
                             <td class="text-end">${item.montant_ht}</td>
                             <td class="${styleStatut}">${item.statut}</td>
                         </tr>
