@@ -129,9 +129,14 @@ trait DaDetailTrait
         }
 
         if (!empty($allDocs)) {
-            return array_map(function ($doc) use ($numDa) {
-                $doc['num']  = "$numDa-" . ($doc['numeroVersion'] ?? '1');
+            $index = 1;
+
+            return array_map(function ($doc) use ($numDa, &$index) {
+                $doc['num']  = "$numDa - $index";
                 $doc['path'] = $_ENV['BASE_PATH_FICHIER_COURT'] . '/' . $doc['path'];
+
+                $index++;
+
                 return $doc;
             }, $allDocs);
         }
