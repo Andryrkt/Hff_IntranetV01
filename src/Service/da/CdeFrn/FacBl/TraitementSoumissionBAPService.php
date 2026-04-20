@@ -98,8 +98,8 @@ class TraitementSoumissionBAPService
             /** ENREGISTREMENT DANS LA BASE DE DONNEE */
             $this->enregistrementDansBD($dto);
 
-            /** COPIER DANS DW */
-            $this->generatePdf->copyToDWFacBlDa($nomPdfFusionner, $numDa);
+            // COPIER DANS DW
+            // $this->generatePdf->copyToDWFacBlDa($nomPdfFusionner, $numDa);
 
             /** MODIFICATION DA AFFICHER */
             $this->modificationDaAfficher($numDa, $numCde, $numLiv);

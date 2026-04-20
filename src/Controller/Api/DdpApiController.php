@@ -42,7 +42,6 @@ class DdpApiController extends Controller
             $numeroCla = $this->genererNumeroCla();
 
             foreach ($ddps as $ddp) {
-
                 // modification du statut de demande de paiement
                 $ddp
                     ->setStatut(StatutConstants::STATUT_SOUMIS_A_VALIDATION)
@@ -53,8 +52,14 @@ class DdpApiController extends Controller
                 /** copie du fichier DDP dans DW */
                 $fileCheckerService = new FileCheckerService($_ENV['BASE_PATH_FICHIER']);
                 $bapFullpath = $fileCheckerService->getFullPath($ddp->getNumeroDdp());
+                
+                if (empty($bapFullpath)) {
+                    throw new \Exception("Le fichier PDF pour la demande {$ddp->getNumeroDdp()} est introuvable sur le serveur.");
+                }
+
+                $fileNameForDW = $ddp->getNumeroDdp() . '#' . $numeroCla . '.pdf';
                 $generatePdf = new GeneratePdf();
-                $generatePdf->copyToDWDdp($bapFullpath, $ddp->getNumeroDdp());
+                $generatePdf->copyToDWBapDa($bapFullpath, $fileNameForDW);
             }
 
             $this->getEntityManager()->flush();
