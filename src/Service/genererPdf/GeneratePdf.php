@@ -23,6 +23,12 @@ class GeneratePdf
         // Fonction interne pour tenter la copie
         $attemptCopy = function ($attemptNumber) use ($sourcePath, $destinationPath) {
             try {
+                $destinationDir = dirname($destinationPath);
+
+                if (!is_dir($destinationDir)) {
+                    mkdir($destinationDir, 0777, true);
+                }
+
                 if (!file_exists($sourcePath) || !copy($sourcePath, $destinationPath)) {
                     return false;
                 }

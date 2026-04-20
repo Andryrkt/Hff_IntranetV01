@@ -125,6 +125,9 @@ class DitController extends Controller
             $demandeInterventions = $this->createDemandeInterventionFromDto($dto);
 
             foreach ($demandeInterventions as $demandeIntervention) {
+                // Type de DIT
+                $ditPneumatique = $demandeIntervention->getReparationRealise() === "ATE POL TANA";
+
                 // 4. recuperation du dernière numero demande d'intervention et generation du numero de demande 
                 $application = $em->getRepository(Application::class)->findOneBy(['codeApp' => DemandeIntervention::CODE_APP]);
                 $numeroDemandeIntervention = $this->genererNumeroDemandeIntervention($application);
@@ -135,13 +138,13 @@ class DitController extends Controller
 
                 /** 6. Traitement des fichiers (PDF, pièces jointes) @var array $nomFichierEnregistrer @var string $nomFichier  */
                 $genererPdfDit = new GenererPdfDit();
-                [$nomFichierEnregistrer, $nomFichier]  = $this->traitementDeFichier($form, $demandeIntervention, $genererPdfDit);
+                [$nomFichierEnregistrer, $nomFichier]  = $this->traitementDeFichier($form, $demandeIntervention, $genererPdfDit, $ditPneumatique);
 
                 // 7. Enregistrement dans la base de donnée
                 $this->enregistrementBd($demandeIntervention, $nomFichierEnregistrer);
 
                 // 8.Copier le PDF DANS DOXCUWARE
-                $reponse = $genererPdfDit->copyToDOCUWARE($nomFichier, $demandeIntervention->getNumeroDemandeIntervention());
+                $reponse = $genererPdfDit->copyToDOCUWARE($nomFichier, $demandeIntervention->getNumeroDemandeIntervention(), $ditPneumatique);
 
                 // 9. modification de la colonne pdf_deposer_dw et date_depot_pdf_dw
                 $this->modificationBdPourHitorisationDw($em, $demandeIntervention, $reponse);
@@ -194,7 +197,7 @@ class DitController extends Controller
         $this->getEntityManager()->flush();
     }
 
-    private function traitementDeFichier(FormInterface $form, DemandeIntervention $demandeIntervention, GenererPdfDit $genererPdfDit): array
+    private function traitementDeFichier(FormInterface $form, DemandeIntervention $demandeIntervention, GenererPdfDit $genererPdfDit, bool $ditPneumatique): array
     {
         /** 
          * gestion des pieces jointes et generer le nom du fichier PDF
@@ -204,7 +207,7 @@ class DitController extends Controller
          * @var string $nomAvecCheminFichier
          * @var string $nomFichier
          */
-        [$nomEtCheminFichiersEnregistrer, $nomFichierEnregistrer, $nomAvecCheminFichier, $nomFichier] = $this->enregistrementFichier($form, $demandeIntervention->getNumeroDemandeIntervention(), str_replace("-", "", $demandeIntervention->getAgenceServiceEmetteur()));
+        [$nomEtCheminFichiersEnregistrer, $nomFichierEnregistrer, $nomAvecCheminFichier, $nomFichier] = $this->enregistrementFichier($form, $demandeIntervention->getNumeroDemandeIntervention(), str_replace("-", "", $demandeIntervention->getAgenceServiceEmetteur()), $ditPneumatique);
 
         /** 1. CREATION DE LA PAGE DE GARDE*/
         $idMateriel = (int)$demandeIntervention->getIdMateriel();
@@ -227,7 +230,7 @@ class DitController extends Controller
         return [$nomFichierEnregistrer, $nomFichier];
     }
 
-    private function enregistrementFichier(FormInterface $form, string $numDit, string $agServEmetteur): array
+    private function enregistrementFichier(FormInterface $form, string $numDit, string $agServEmetteur, bool $ditPneumatique): array
     {
         $nameGenerator = new DitNameFileService();
         $cheminBaseUpload = $_ENV['BASE_PATH_FICHIER'] . '/dit/';
@@ -252,11 +255,8 @@ class DitController extends Controller
             }
         ]);
 
-
-        $nomFichier = $nameGenerator->generateDitNamePrincipal($numDit, $agServEmetteur);
+        $nomFichier = $nameGenerator->generateDitNamePrincipal($numDit, $agServEmetteur, $ditPneumatique);
         $nomAvecCheminFichier = $path . $nomFichier;
-
-
 
         return [$nomEtCheminFichiersEnregistrer, $nomFichierEnregistrer, $nomAvecCheminFichier, $nomFichier];
     }
