@@ -36,6 +36,7 @@
 					<th class="text-center">Numéro CLA</th>
 					<th class="text-center">Numéro DA</th>
 					<th class="text-center">Numéro DDP/BAP</th>
+					<th class="text-center">Type DDP</th>
 					<th class="text-center">Fournisseur</th>
 					<th class="text-center">Numéro cde</th>
 					<th class="text-center">Numéro livraison</th>
@@ -70,7 +71,8 @@
 								{{ row.numeroDdp }}
 							{% endif %}
 						</td>
-						<td class="text-center">{{ row.numeroFournisseur ~ '-' ~ row.beneficiaire }}</td>
+						<td class="text-start">{{ row.typeDemande.libelle }}</td>
+						<td class="text-start">{{ row.numeroFournisseur ~ '-' ~ row.beneficiaire }}</td>
 						<td class="text-center">{{ row.numeroCommande}}</td>
 						<td class="text-center">{{ row.numeroLivraison }}</td>
 						<td class="text-center">{{ row.numeroFacture }}</td>
