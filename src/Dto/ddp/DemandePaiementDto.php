@@ -64,25 +64,25 @@ class DemandePaiementDto
     public ?int $typeDa = null;
     public string $montantAPayer = '0';
     public int $pourcentageAPayer;
-    public $montantTotalCde;
-    public $montantDejaPaye;
-    public $montantRestantApayer;
-    public $pourcentageAvance;
-    public $ratioMontantpayer;
-    public $numeroDa;
+    public float $montantTotalCde;
+    public float $montantDejaPaye;
+    public float $montantRestantApayer;
+    public float $pourcentageAvance;
+    public float $ratioMontantpayer;
+    public string $numeroDa;
     public bool $ddpaDa = false;
     public int $numeroVersionBc = 0;
     public string $nomPdfFusionnerBc = '';
-    public $daDdpa = [];
-    public $titreDaDdpa = "historique des demandes de paiement à l'avance déjà effectuées dans le formulaire.";
-    public $totalMontantCommande = 0;
-    public $totalPayer = 0;
-    public $ratioTotalPayer = 0;
-    public $montantAregulariser;
-    public $ratioMontantARegul;
-    public $numeroSoumissionDdpDa;
-    public $numeroDemandeAppro;
-    public $numeroLivraison;
+    public array $daDdpa = [];
+    public string $titreDaDdpa = "historique des demandes de paiement à l'avance déjà effectuées dans le formulaire.";
+    public float $totalMontantCommande = 0;
+    public float $totalPayer = 0;
+    public float $ratioTotalPayer = 0;
+    public float $montantAregulariser;
+    public float $ratioMontantARegul;
+    public int $numeroSoumissionDdpDa;
+    public string $numeroDemandeAppro;
+    public string $numeroLivraison;
 
     public function montantAPayer(): float
     {

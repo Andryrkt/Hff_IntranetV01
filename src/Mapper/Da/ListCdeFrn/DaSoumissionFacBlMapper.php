@@ -132,6 +132,7 @@ class DaSoumissionFacBlMapper
             ->setNumeroDemandeAppro($dto->numeroDemandeAppro)
             ->setNumeroDemandePaiement($dto->demandePaiementDto->numeroDdp)
             ->setNumeroDemandeDit(null)
+            ->setNumLiv($dto->numLiv)
             ->setNumeroOR($dto->numeroOR)
             ->setNumeroCde($dto->numeroCde)
             ->setStatut($dto->statutFacBl)
