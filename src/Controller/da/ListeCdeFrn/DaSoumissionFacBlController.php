@@ -3,7 +3,7 @@
 namespace App\Controller\da\ListeCdeFrn;
 
 
-use App\Constants\da\ddp\BonApayerConstants;
+use App\Constants\ddp\StatutConstants;
 use App\Controller\Controller;
 use App\Dto\Da\ListeCdeFrn\DaSoumissionFacBlDto;
 use App\Entity\da\DaSoumissionFacBl;
@@ -76,7 +76,7 @@ class DaSoumissionFacBlController extends Controller
 
         $exists = $this->em->getRepository(DaSoumissionFacBl::class)->findOneBy([
             'numLiv' => $numLiv,
-            'statutBap' => BonApayerConstants::STATUT_A_TRANSMETTERE
+            'statutBap' => StatutConstants::BAP_A_TRANSMETTRE
         ]);
 
         return new JsonResponse(['exists' => ($exists !== null)]);

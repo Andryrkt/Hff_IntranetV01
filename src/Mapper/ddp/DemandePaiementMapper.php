@@ -2,7 +2,6 @@
 
 namespace App\Mapper\ddp;
 
-use App\Constants\da\ddp\BonApayerConstants;
 use App\Dto\ddp\DemandePaiementDto;
 use App\Entity\ddp\DemandePaiement;
 use App\Constants\ddp\StatutConstants;
@@ -92,7 +91,7 @@ class DemandePaiementMapper
             ->setMotif("Bon a payer {$dto->numeroFournisseur} - {$dto->numeroFacture}")
             ->setAgenceDebiter($dto->debiteur['agence']->getCodeAgence())
             ->setServiceDebiter($dto->debiteur['service']->getCodeService())
-            ->setStatut(BonApayerConstants::STATUT_A_TRANSMETTERE)
+            ->setStatut(StatutConstants::BAP_A_TRANSMETTRE)
             ->setAdresseMailDemandeur($dto->adresseMailDemandeur)
             ->setDemandeur($dto->demandeur)
             ->setModePaiement($dto->modePaiement)

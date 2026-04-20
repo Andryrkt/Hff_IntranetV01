@@ -15,3 +15,11 @@
 .statut-refusee {
   background-color: #f8d7da !important;
 }
+
+.statut-ddpl-a-transférer,
+.statut-bap-a-transmettre,
+.statut-ddpr-a-transmettre,
+.statut-ddpa-a-transmettre {
+  background-color: #cf0c0c !important;
+  color: #ffffff !important;
+}

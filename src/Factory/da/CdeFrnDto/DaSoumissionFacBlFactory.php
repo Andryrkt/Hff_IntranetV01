@@ -3,6 +3,7 @@
 namespace App\Factory\da\CdeFrnDto;
 
 use App\Constants\da\ddp\BonApayerConstants;
+use App\Constants\ddp\StatutConstants;
 use App\Constants\ddp\TypeDemandePaiementConstants;
 use App\Dto\Da\ListeCdeFrn\DaDdpaDto;
 use App\Dto\Da\ListeCdeFrn\DaSituationReceptionDto;
@@ -111,7 +112,7 @@ class DaSoumissionFacBlFactory
         $dto->numeroFactureFournisseur = $this->getNumFacEtMontant($dto->numLiv)[0]['numero_facture'];
 
         // Bon à payer (BAP) ===============================
-        $dto->statutBap = BonApayerConstants::STATUT_A_TRANSMETTERE;
+        $dto->statutBap = StatutConstants::BAP_A_TRANSMETTRE;
         $dto->dateStatutBap = new DateTime();
         $dto->montantReceptionIps = $this->getNumFacEtMontant($dto->numLiv)[0]['montant_reception_ips'];
 
@@ -186,7 +187,7 @@ class DaSoumissionFacBlFactory
         $ddpDto->numeroDdp = $dto->typeDdp !== 'bap' ? $this->genererNumeroDdp() : $dto->numeroBap;
         $ddpDto->debiteur = $this->dataService->resolveDebiteur($infoDa['daTypeId'], $infoDa);
         $ddpDto->typeDemande = $dto->montantAregulariser <= 0.0 ? $typeRegule : $typeApresLivraison;
-        $ddpDto->statut = 'Soumis à validation';
+        $ddpDto->statut = $dto->montantAregulariser <= 0.0 ? StatutConstants::DDPR_A_TRANSMETTRE : StatutConstants::DDPL_A_TRANSMETTRE;
         $ddpDto->demandeur = $dto->user->getNomUtilisateur();
         $ddpDto->adresseMailDemandeur = $dto->user->getMail();
         $ddpDto->montantAPayer = $dto->montantAregulariser;

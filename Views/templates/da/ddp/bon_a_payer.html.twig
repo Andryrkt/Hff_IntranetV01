@@ -22,7 +22,7 @@
 				{% include "/partials/_notification.html.twig" %}
 				{% include "/da/ddp/_formulaire_recherche.html.twig" %}
 				<div class="my-3 mx-3 d-flex justify-content-end">
-					<button type="button" class="btn btn-warning" id="transmettreBAP">Transmettre les BAP à validation.</button>
+					<button type="button" class="btn btn-warning" id="transmettreBAP">Transmettre les DDP/BAP à validation.</button>
 				</div>
 			</div>
 
@@ -42,17 +42,15 @@
 					<th class="text-center">Facture BL</th>
 					<th class="text-center">Statut</th>
 					<th class="text-center">Transmise le</th>
-					{# <th class="text-center">Date Statut</th> #}
-					{# <th class="text-center">Date réception IPS</th> #}
-					{# <th class="text-center">Montant des réceptions IPS</th> #}
-						<th class="text-center"> Montant Facture bl</th>
+					<th class="text-center">
+						Montant Facture bl</th>
 				</tr>
 			</thead>
 			<tbody id="tableBody" class="align-middle">
 				{% for row in dtos %}
 					<tr>
 						<td class="text-center">
-							<input type="checkbox" name="{{ row.numeroDdp }}" class="bap-checkbox" {{ row.statut != 'BAP à soumettre' ? 'disabled' : '' }}>
+							<input type="checkbox" name="{{ row.numeroDdp }}" class="bap-checkbox" {{ row.estStatutATransmettre() ? '' : 'disabled' }}>
 						</td>
 						<td class="text-center">{{ row.numeroCla}}</td>
 						<td class="text-center">
@@ -78,10 +76,8 @@
 						<td class="text-center">{{ row.numeroFacture }}</td>
 						<td class="text-center fw-bold {{ row.styleStatut }}">{{ row.statut }}</td>
 						<td class="text-center">{{ row.dateSoumissionCompta ? row.dateSoumissionCompta | date('d/m/Y'):null }}</td>
-						{# <td class="text-center">{{ row.dateStatutBap ? row.dateStatutBap | date('d/m/Y'):null }}</td> #}
-						{# <td class="text-center">{{ row.dateReceptionIPS ? row.dateReceptionIPS | date('d/m/Y'):null }}</td> #}
-						{# <td class="text-center">{{ row.montantReceptionIps|number_format(2,',', '.') }}</td> #}
-							<td class="text-end"> {{ row.montantAPayer|number_format(2,',', '.') }}</td>
+						<td class="text-end">
+							{{ row.montantAPayer|number_format(2,',', '.') }}</td>
 					</tr>
 				{% endfor %}
 			</tbody>

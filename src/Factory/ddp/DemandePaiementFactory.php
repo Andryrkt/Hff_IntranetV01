@@ -3,6 +3,7 @@
 namespace App\Factory\ddp;
 
 use App\Constants\da\TypeDaConstants;
+use App\Constants\ddp\StatutConstants;
 use App\Dto\Da\ListeCdeFrn\DaDdpaDto;
 use App\Dto\ddp\DemandePaiementDto;
 use App\Entity\admin\Agence;
@@ -91,7 +92,7 @@ class DemandePaiementFactory
     {
         $dto->demandeur = $user->getNomUtilisateur();
         $dto->adresseMailDemandeur = $user->getMail();
-        $dto->statut = ($typeDa !== null && $numeroVersionBc !== null) ? 'En attente validation BC' : 'DDPA soumis à validation';
+        $dto->statut = ($typeDa !== null && $numeroVersionBc !== null) ? StatutConstants::STATUT_EN_ATTENTE_VALIDATION_BC : StatutConstants::DDPA_A_TRANSMETTRE;
         $dto->numeroDdp = $this->numeroGenerateur->genererNumeroDdp();
         $dto->numeroVersion = 1;
         $dto->numeroDossierDouane = $this->docDemandePaiementService->recupNumDossierDouane($dto);
