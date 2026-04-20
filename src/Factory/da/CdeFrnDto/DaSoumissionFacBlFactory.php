@@ -104,7 +104,7 @@ class DaSoumissionFacBlFactory
 
     public function EnrichissementDtoApresSoumission(DaSoumissionFacBlDto $dto, $nomPdfFusionner = null)
     {
-        if (empty($nomPdfFusionner)) return;
+        if (empty($nomPdfFusionner)) return $dto;
 
         $dto->pieceJoint1 = $nomPdfFusionner;
         $dto->montantBlFacture = (float)str_replace(',', '.', str_replace(' ', '', $dto->montantBlFacture ?? '0'));
