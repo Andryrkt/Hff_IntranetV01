@@ -82,7 +82,7 @@ class DemandePaiementDto
     public float $ratioMontantARegul;
     public int $numeroSoumissionDdpDa;
     public string $numeroDemandeAppro;
-    public string $numeroLivraison;
+    public ?string $numeroLivraison = null;
 
     public function montantAPayer(): float
     {

@@ -223,7 +223,12 @@ class TraitementSoumissionDDPLService
     private function modificationDaAfficher(DaSoumissionFacBlDto $dto): void
     {
         $numeroVersionMax = $this->entityManager->getRepository(DaAfficher::class)->getNumeroVersionMax($dto->numeroDemandeAppro);
-        $daAffichers = $this->entityManager->getRepository(DaAfficher::class)->findBy(['numeroDemandeAppro' => $dto->numeroDemandeAppro, 'numeroVersion' => $numeroVersionMax, 'numeroCde' => $dto->numeroCde]);
+        $daAffichers = $this->entityManager->getRepository(DaAfficher::class)
+            ->findBy([
+                'numeroDemandeAppro' => $dto->numeroDemandeAppro,
+                'numeroVersion' => $numeroVersionMax,
+                'numeroCde' => $dto->numeroCde
+            ]);
 
         foreach ($daAffichers as  $daAfficher) {
             if (!$daAfficher instanceof DaAfficher) {
