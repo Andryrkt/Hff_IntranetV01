@@ -139,6 +139,7 @@ class DemandePaiementFactory
     private function populateDdpaList(int $numCde, DemandePaiementDto $dto): void
     {
         $ddps = $this->em->getRepository(DemandePaiement::class)->getDdpSelonNumCde($numCde);
+
         $runningCumul = 0;
 
         foreach ($ddps as $ddp) {

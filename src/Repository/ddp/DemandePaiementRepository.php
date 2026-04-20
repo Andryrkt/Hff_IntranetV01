@@ -185,9 +185,9 @@ class DemandePaiementRepository extends EntityRepository
     {
         $queryBuilder =  $this->createQueryBuilder('d')
             ->where('d.numeroCommande = :numero')
-            ->andWhere('d.statut LIKE :statut')
+            // ->andWhere('d.statut LIKE :statut')
             ->setParameter('numero', $numCde)
-            ->setParameter('statut', '%Validé%')
+            // ->setParameter('statut', '%Validé%')
             ->orderBy('d.numeroDdp', 'ASC');
 
 
