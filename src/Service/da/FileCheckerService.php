@@ -55,4 +55,17 @@ class FileCheckerService
 
         return null;
     }
+
+    public function getDdpFullPath(?string $numeroDdp): ?string
+    {
+
+        $relativePath = "/ddp/$numeroDdp/$numeroDdp.pdf";
+        $fullPath = $this->projectDir .  $relativePath;
+
+        if ($this->filesystem->exists($fullPath)) {
+            return $fullPath;
+        }
+
+        return null;
+    }
 }

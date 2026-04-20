@@ -23,3 +23,8 @@
   background-color: #cf0c0c !important;
   color: #ffffff !important;
 }
+
+.statut-soumis-a-validation {
+  background-color: #e4c229 !important;
+  color: #0a0a0a !important;
+}
