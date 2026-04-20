@@ -147,7 +147,7 @@
 							{% endif %}
 						</td>
 						<td class="text-center {{ row.styleJoursDispo }}">{{ row.joursDispo }}</td>
-						<td>
+						<td class="text-center fw-bold {{ row.styleStatutCompta }}">
 							{% if row.statutCompta %}
 								<a {% for attr, val in row.ddpCloture %} {{ attr }}="{{ val }}" {% endfor %}>
 									{{row.statutCompta}}

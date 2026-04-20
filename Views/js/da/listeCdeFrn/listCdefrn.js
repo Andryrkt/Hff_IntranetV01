@@ -485,20 +485,41 @@ document.addEventListener("DOMContentLoaded", function () {
       fetchManager
         .get(`ddp/api/statut-cloture/${numeroDa}/${numeroCde}`)
         .then((data) => {
-
           modalBody.innerHTML = data
             .map(
-              (item) =>
-                `<tr>
-              <td>${item.date_soumission}</td>
-              <td>${item.numero}</td>
-              <td>${item.type}</td>
-              <td>${item.motif}</td>
-              <td class="text-end">${item.montant_ht}</td>
-              <td>${item.statut}</td></tr>`,
+              (item) => {
+                let styleStatut = "statut-" + transformerPhrase(item.statut);
+                return `
+                        <tr>
+                            <td>${item.date_soumission}</td>
+                            <td>${item.numero}</td>
+                            <td>${item.type}</td>
+                            <td>${item.motif}</td>
+                            <td class="text-end">${item.montant_ht}</td>
+                            <td class="${styleStatut}">${item.statut}</td>
+                        </tr>
+                    `;
+              }
             )
             .join("");
+        })
+        .catch(error => {
+          console.error("Erreur:", error);
+          modalBody.innerHTML = `<tr><td colspan="6" class="text-center">Erreur de chargement</td></tr>`;
         });
     });
   }
 });
+function transformerPhrase(phrase) {
+  if (!phrase || typeof phrase !== 'string') {
+    return '';
+  }
+
+  // 1. Enlever les accents
+  const sansAccents = phrase.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+  // 2. Mettre en minuscules et remplacer les espaces par des tirets
+  return sansAccents.toLowerCase().trim().replace(/\s+/g, '-');
+
+}
+

@@ -2,7 +2,6 @@
 
 namespace App\Factory\da\CdeFrnDto;
 
-use App\Constants\da\ddp\BonApayerConstants;
 use App\Constants\ddp\StatutConstants;
 use App\Constants\ddp\TypeDemandePaiementConstants;
 use App\Dto\Da\ListeCdeFrn\DaDdpaDto;

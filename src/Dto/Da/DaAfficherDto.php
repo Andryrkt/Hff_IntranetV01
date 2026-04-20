@@ -5,6 +5,7 @@ namespace App\Dto\Da;
 use App\Constants\da\StatutBcConstant;
 use App\Constants\da\StatutDaConstant;
 use App\Constants\da\StatutOrConstant;
+use App\Constants\ddp\StatutConstants;
 
 class DaAfficherDto
 {
@@ -96,6 +97,11 @@ class DaAfficherDto
     public function getStyleStatutBC(): string
     {
         return $this->statutCde ? StatutBcConstant::getCssClassBc($this->statutCde) : '';
+    }
+
+    public function getStyleStatutCompta(): string
+    {
+        return $this->statutCompta ? StatutConstants::getCssClass($this->statutCompta) : '';
     }
 
     public function isStatutValide(): bool
