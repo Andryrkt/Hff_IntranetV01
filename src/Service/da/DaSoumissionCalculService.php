@@ -47,6 +47,7 @@ class DaSoumissionCalculService
     public function calculerMontantEtRatios(DaSoumissionFacBlDto $dto): DaSoumissionFacBlDto
     {
         $ddpRepository = $this->em->getRepository(DemandePaiement::class);
+
         $ddps = $ddpRepository->getDdpSelonNumCde($dto->numeroCde);
 
         $totalMontantPayer = $this->getTotalPayer($ddps);
@@ -58,10 +59,10 @@ class DaSoumissionCalculService
 
         // Utilisation du mapper pour les données de sortie spécifiques au DTO
         return DaSoumissionFacBlMapper::mapTotalPayer(
-            $dto, 
-            $totalMontantPayer, 
-            $ratioTotalPayer, 
-            $montantAregulariser, 
+            $dto,
+            $totalMontantPayer,
+            $ratioTotalPayer,
+            $montantAregulariser,
             $ratioMontantARegul
         );
     }

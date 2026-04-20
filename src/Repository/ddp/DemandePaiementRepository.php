@@ -184,10 +184,10 @@ class DemandePaiementRepository extends EntityRepository
     public function getDdpSelonNumCde($numCde)
     {
         $queryBuilder =  $this->createQueryBuilder('d')
-            ->where('d.numeroCommande LIKE :numero')
+            ->where('d.numeroCommande = :numero')
             ->andWhere('d.statut LIKE :statut')
-            ->setParameter('numero', '%' . $numCde . '%')
-            ->setParameter('statut', '%Valid%')
+            ->setParameter('numero', $numCde)
+            ->setParameter('statut', '%Validé%')
             ->orderBy('d.numeroDdp', 'ASC');
 
 
@@ -200,8 +200,8 @@ class DemandePaiementRepository extends EntityRepository
     {
         $queryBuilder =  $this->createQueryBuilder('d')
             ->select('d.statut')
-            ->where('d.numeroCommande LIKE :numero')
-            ->setParameter('numero', '%' . $numCde . '%')
+            ->where('d.numeroCommande = :numero')
+            ->setParameter('numero', $numCde)
             ->orderBy('d.numeroDdp', 'ASC');
 
 
