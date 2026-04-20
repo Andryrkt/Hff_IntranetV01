@@ -230,9 +230,8 @@ class DemandePaiementRepository extends EntityRepository
         }
     }
 
-    public function getDernierStatutDddp($numCde, $numeroDa)
+    public function getDernierStatutDddp($numeroCde, $numeroDa)
     {
-        $numeroCde = "[$numCde]";
         $queryBuilder =  $this->createQueryBuilder('d')
             ->select('d.statut')
             ->where('d.numeroDemandeAppro = :numeroDa')
