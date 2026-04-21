@@ -1,38 +1,45 @@
-.a_affecter {
-  background-color: red !important;
+.a_affecter,
+.affectee_section,
+.cloturee_annulee,
+.cloturee_validee,
+.terminee,
+.cloturee_hors_delai,
+.a_valider_resp_rental {
   font-weight: bold;
+  vertical-align: middle;
+}
+
+.a_affecter {
+  background-color: #d32f2f !important;
+  color: #ffffff !important;
 }
 
 .affectee_section {
   background-color: #ff8d00 !important;
-  font-weight: bold;
 }
 
 .cloturee_annulee {
   background-color: grey !important;
-  font-weight: bold;
   color: #fff !important;
 }
 
 .cloturee_validee {
   background-color: #00800099 !important;
-  font-weight: bold;
 }
 
 .terminee {
   background-color: blue !important;
-  font-weight: bold;
   color: #fff !important;
 }
 
 .cloturee_hors_delai {
   background-color: orange !important;
-  font-weight: bold;
 }
 
-/* .widthPerso{
-    background-color: #ff8d00;
-} */
+.a_valider_resp_rental {
+  background-color: #b71c1c !important;
+  color: #ffeb3b !important;
+}
 
 /* Augmenter la largeur de la modale */
 .modal-dialog.custom-width {
