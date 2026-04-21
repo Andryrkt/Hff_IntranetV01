@@ -29,6 +29,12 @@ class DaSoumissionFacBlType extends AbstractType
                     'DDPL (Demande De Paiement après Livraison)' => 'ddpl',
                     'Régularisation' => 'regul'
                 ],
+                'choice_attr' => function($choice, $key, $value) use ($options) {
+                    if (in_array($choice, ['bap', 'ddpl']) && $options['data']->montantAregulariser === 0.0) {
+                        return ['disabled' => 'disabled'];
+                    }
+                    return [];
+                },
                 'placeholder' => false,
                 'label' => "Veuillez choisir le type de traitement de <strong>paiement</strong> pour cette facture",
                 'label_html' => true,
