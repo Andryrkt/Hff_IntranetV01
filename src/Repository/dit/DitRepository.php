@@ -273,6 +273,7 @@ class DitRepository extends EntityRepository
     {
         $statusesDefault = [
             DemandeIntervention::STATUT_A_AFFECTER,
+            DemandeIntervention::STATUT_A_VALIDER_CHEF_RENTAL,
             DemandeIntervention::STATUT_AFFECTEE_SECTION,
             DemandeIntervention::STATUT_CLOTUREE_VALIDER
         ];
