@@ -14,7 +14,7 @@ class DaSearch
     private ?string $numCde = null;
     private ?string $demandeur = null;
     private $statutDA = null;
-    private ?string $statutOR = null;
+    private $statutOR = null;
     private $statutBC = null;
     private ?string $sortNbJours = null;
     private ?string $idMateriel = null;

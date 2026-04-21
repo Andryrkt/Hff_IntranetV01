@@ -7,10 +7,7 @@ use App\Constants\da\StatutDaConstant;
 use App\Constants\da\StatutOrConstant;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\da\DaAfficher;
-use App\Entity\da\DaSoumissionBc;
-use App\Entity\da\DemandeAppro;
 use App\Entity\dit\DemandeIntervention;
-use App\Entity\dit\DitOrsSoumisAValidation;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
@@ -744,9 +741,9 @@ class DaAfficherRepository extends EntityRepository
     private function applyStatutsFilters(QueryBuilder $queryBuilder, string $qbLabel, array $criteria, bool $estCdeFrn = false)
     {
         if (
-            empty($criteria['numDit']) || empty($criteria['numDa']) || empty($criteria['numCde'])
-            ||
-            (array_key_exists('afficherCloturees', $criteria) && !$criteria['afficherCloturees'])
+            empty($criteria['numDit']) && empty($criteria['numDa']) && empty($criteria['numCde'])
+            && empty($criteria['afficherCloturees'])
+            && (!is_array($criteria['statutDA']) && !in_array($criteria['statutDA'], [StatutDaConstant::STATUT_TERMINER, StatutDaConstant::STATUT_CLOTUREE]))
         ) {
             $queryBuilder->andWhere($qbLabel . '.statutDal NOT IN (:statutDaFermer)')
                 ->setParameter('statutDaFermer', [StatutDaConstant::STATUT_TERMINER, StatutDaConstant::STATUT_CLOTUREE], ArrayParameterType::STRING);
@@ -773,6 +770,7 @@ class DaAfficherRepository extends EntityRepository
                 }
             }
         } else {
+            // filtrer par le statutDA et le statutBC si les deux sont renseignés et sont des tableaux
             if (!empty($criteria['statutDA']) && !empty($criteria['statutBC']) && is_array($criteria['statutDA']) && is_array($criteria['statutBC'])) {
                 $queryBuilder
                     ->andWhere($queryBuilder->expr()->orX(
@@ -781,7 +779,9 @@ class DaAfficherRepository extends EntityRepository
                     ))
                     ->setParameter('statutDaParam', $criteria['statutDA'], ArrayParameterType::STRING)
                     ->setParameter('statutBcParam', $criteria['statutBC'], ArrayParameterType::STRING);
-            } elseif (!empty($criteria['statutDA'])) {
+            }
+            // filtrer par le statutDA s'il est renseigner et peut être un tableau 
+            elseif (!empty($criteria['statutDA'])) {
                 if (is_array($criteria['statutDA'])) {
                     $queryBuilder->andWhere($qbLabel . '.statutDal IN (:statutDaParam)')
                         ->setParameter('statutDaParam', $criteria['statutDA'], ArrayParameterType::STRING);
@@ -796,16 +796,7 @@ class DaAfficherRepository extends EntityRepository
                 }
             }
 
-            if (!empty($criteria['statutOR'])) {
-                if (is_array($criteria['statutOR'])) {
-                    $queryBuilder->andWhere($qbLabel . '.statutOr IN (:statutOrParam)')
-                        ->setParameter('statutOrParam', $criteria['statutOR'], ArrayParameterType::STRING);
-                } else {
-                    $queryBuilder->andWhere($qbLabel . '.statutOr = :statutOrParam')
-                        ->setParameter('statutOrParam', $criteria['statutOR']);
-                }
-            }
-
+            // filtrer par le statutBC s'il est renseigner et n'est pas un tableau 
             if (!empty($criteria['statutBC']) && !is_array($criteria['statutBC'])) {
                 if ($criteria['statutBC'] === StatutBcConstant::BC_EN_COURS) {
                     $queryBuilder->andWhere($qbLabel . '.statutCde IN (:statutBcParam)')
@@ -813,6 +804,17 @@ class DaAfficherRepository extends EntityRepository
                 } else {
                     $queryBuilder->andWhere($qbLabel . '.statutCde = :statutBcParam')
                         ->setParameter('statutBcParam', $criteria['statutBC']);
+                }
+            }
+
+            // filtrer par le statutOR s'il est renseigner et peut être un tableau 
+            if (!empty($criteria['statutOR'])) {
+                if (is_array($criteria['statutOR'])) {
+                    $queryBuilder->andWhere($qbLabel . '.statutOr IN (:statutOrParam)')
+                        ->setParameter('statutOrParam', $criteria['statutOR'], ArrayParameterType::STRING);
+                } else {
+                    $queryBuilder->andWhere($qbLabel . '.statutOr = :statutOrParam')
+                        ->setParameter('statutOrParam', $criteria['statutOR']);
                 }
             }
         }

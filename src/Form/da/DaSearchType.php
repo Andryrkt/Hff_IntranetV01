@@ -16,6 +16,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
@@ -60,6 +61,28 @@ class DaSearchType extends  AbstractType
             'Demande de réapprovisionnement ponctuel' => DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL
         ];
 
+        $isApproUser = $options['codeAgence'] == '80' && $options['codeService'] == 'APP';
+        $statutsDA_Traiter_Appro = [
+            StatutDaConstant::STATUT_SOUMIS_APPRO,
+            StatutDaConstant::STATUT_DEMANDE_DEVIS,
+            StatutDaConstant::STATUT_DEVIS_A_RELANCER,
+            StatutDaConstant::STATUT_EN_COURS_PROPOSITION
+        ];
+        $statutsBC_Traiter_Appro = [
+            StatutBcConstant::STATUT_PAS_DANS_BC,
+            StatutBcConstant::STATUT_PAS_DANS_OR_CESSION,
+            StatutBcConstant::STATUT_A_GENERER,
+            StatutBcConstant::STATUT_CESSION_A_GENERER,
+            StatutBcConstant::STATUT_A_EDITER,
+            StatutBcConstant::STATUT_A_SOUMETTRE_A_VALIDATION,
+            StatutBcConstant::STATUT_A_ENVOYER_AU_FOURNISSEUR
+        ];
+        $statutsDA_Traiter_PasAppro = [
+            StatutDaConstant::STATUT_EN_COURS_CREATION,
+            StatutDaConstant::STATUT_AUTORISER_EMETTEUR,
+            StatutDaConstant::STATUT_SOUMIS_ATE
+        ];
+
         $builder
             ->add('afficherCloturees', CheckboxType::class, [
                 'label'    => 'Inclure les DA clôturées',
@@ -68,7 +91,10 @@ class DaSearchType extends  AbstractType
             ->add('afficherDaTraiter', CheckboxType::class, [
                 'label'    => "N'afficher que les DA à traiter",
                 'required' => false,
-                'data'     => true
+                'data'     => true,
+                'attr'     => [
+                    'data-is-appro-user' => $isApproUser ? '1' : '0'
+                ]
             ])
             ->add('numDit', TextType::class, [
                 'label'         => 'N° OR/DIT',
@@ -90,7 +116,13 @@ class DaSearchType extends  AbstractType
                 'placeholder'   => '-- Choisir un statut --',
                 'label'         => 'Statut de la DA',
                 'choices'       => $statut_da,
-                'required'      => false
+                'required'      => false,
+                'choice_attr' => function ($choice, $key, $value) use ($statutsDA_Traiter_Appro, $statutsDA_Traiter_PasAppro) {
+                    $attr = [];
+                    if (in_array($value, $statutsDA_Traiter_Appro)) $attr['data-traiter-appro'] = '1';
+                    if (in_array($value, $statutsDA_Traiter_PasAppro)) $attr['data-traiter-pas-appro'] = '1';
+                    return $attr;
+                }
             ])
             ->add('statutOR', ChoiceType::class, [
                 'placeholder'   => '-- Choisir un statut --',
@@ -102,7 +134,12 @@ class DaSearchType extends  AbstractType
                 'placeholder'   => '-- Choisir un statut --',
                 'label'         => 'Statut du BC',
                 'choices'       => $statut_bc,
-                'required'      => false
+                'required'      => false,
+                'choice_attr' => function ($choice, $key, $value) use ($statutsBC_Traiter_Appro) {
+                    $attr = [];
+                    if (in_array($value, $statutsBC_Traiter_Appro)) $attr['data-traiter-appro'] = '1';
+                    return $attr;
+                }
             ])
             ->add('sortNbJours', ChoiceType::class, [
                 'placeholder'   => '-- Choisir un tri --',
@@ -308,6 +345,18 @@ class DaSearchType extends  AbstractType
                 ]);
             })
         ;
+        $transformer = new CallbackTransformer(
+            function ($value) {
+                return is_array($value) ? null : $value;
+            },
+            function ($value) {
+                return $value;
+            }
+        );
+
+        $builder->get('statutDA')->addModelTransformer($transformer);
+        $builder->get('statutOR')->addModelTransformer($transformer);
+        $builder->get('statutBC')->addModelTransformer($transformer);
     }
 
     public function configureOptions(OptionsResolver $resolver)
@@ -315,6 +364,8 @@ class DaSearchType extends  AbstractType
         $resolver->setDefaults([
             'data_class' => DaSearch::class,
             'estAppro'   => false,
+            'codeAgence' => null,
+            'codeService' => null,
         ]);
     }
 }
