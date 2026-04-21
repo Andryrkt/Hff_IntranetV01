@@ -170,27 +170,10 @@ class listeDaController extends Controller
         // $criteria = [];
 
         if ($codeAgenceUser == '80' && $codeServiceUser == 'APP') {
-            $criteria['statutDA'] = [
-                StatutDaConstant::STATUT_SOUMIS_APPRO,
-                StatutDaConstant::STATUT_DEMANDE_DEVIS,
-                StatutDaConstant::STATUT_DEVIS_A_RELANCER,
-                StatutDaConstant::STATUT_EN_COURS_PROPOSITION
-            ];
-            $criteria['statutBC'] = [
-                StatutBcConstant::STATUT_PAS_DANS_BC,
-                StatutBcConstant::STATUT_PAS_DANS_OR_CESSION,
-                StatutBcConstant::STATUT_A_GENERER,
-                StatutBcConstant::STATUT_CESSION_A_GENERER,
-                StatutBcConstant::STATUT_A_EDITER,
-                StatutBcConstant::STATUT_A_SOUMETTRE_A_VALIDATION,
-                StatutBcConstant::STATUT_A_ENVOYER_AU_FOURNISSEUR
-            ];
+            $criteria['statutDA'] = StatutDaConstant::TRAITER_APPRO_LIST;
+            $criteria['statutBC'] = StatutBcConstant::TRAITER_APPRO_LIST;
         } else {
-            $criteria['statutDA'] = [
-                StatutDaConstant::STATUT_EN_COURS_CREATION,
-                StatutDaConstant::STATUT_AUTORISER_EMETTEUR,
-                StatutDaConstant::STATUT_SOUMIS_ATE
-            ];
+            $criteria['statutDA'] = StatutDaConstant::TRAITER_AUTRES_LIST;
         }
 
         return $criteria;
