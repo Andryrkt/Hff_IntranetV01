@@ -128,7 +128,7 @@ class DocDemandePaiementService
     }
 
     /**
-     * copie des fichiers choisi dans le repertoir 'da' ver 'ddp' 
+     * copie des fichiers choisi dans le repertoir 'da' vers 'ddp' 
      *
      * @param DemandePaiementDto $dto
      * @return void
@@ -213,7 +213,7 @@ class DocDemandePaiementService
     {
         $listeFichiersPJ = [];
         $path = $_ENV['BASE_PATH_FICHIER'] . 'da/' . $numeroDa . '/';
-        
+
         if (is_dir($path)) {
             $files = scandir($path);
             foreach ($files as $file) {
@@ -222,7 +222,7 @@ class DocDemandePaiementService
                 }
             }
         }
-        
+
         return $listeFichiersPJ;
     }
 }

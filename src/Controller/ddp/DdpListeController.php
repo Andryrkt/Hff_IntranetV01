@@ -3,16 +3,16 @@
 namespace App\Controller\ddp;
 
 use App\Controller\Controller;
-use App\Form\ddp\DdpSearchType;
-use App\Entity\admin\Application;
-use App\Entity\admin\ddp\ddpSearch;
-use App\Entity\ddp\DemandePaiement;
-use App\Entity\ddp\DemandePaiementLigne;
 use App\Controller\Traits\AutorisationTrait;
+use App\Dto\ddp\DdpSearchDto;
+use App\Entity\admin\Application;
+use App\Entity\ddp\DemandePaiement;
+use App\Form\ddp\DdpSearchType;
+use App\Mapper\ddp\DemandePaiementMapper;
+use App\Repository\ddp\DemandePaiementRepository;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Repository\ddp\DemandePaiementRepository;
-use App\Repository\ddp\DemandePaiementLigneRepository;
 
 /**
  * @Route("/compta/demande-de-paiement")
@@ -22,12 +22,10 @@ class DdpListeController extends Controller
     use AutorisationTrait;
 
     private DemandePaiementRepository $demandePaiementRepository;
-    private DdpSearch $ddpSearch;
     public function __construct()
     {
         parent::__construct();
         $this->demandePaiementRepository = $this->getEntityManager()->getRepository(DemandePaiement::class);
-        $this->ddpSearch = new DdpSearch();
     }
 
     /**
@@ -43,17 +41,17 @@ class DdpListeController extends Controller
         $this->autorisationAcces($this->getUser(), Application::ID_DDP);
         /** FIN AUtorisation acées */
 
-        $form = $this->getFormFactory()->createBuilder(DdpSearchType::class, $this->ddpSearch, [
+        // creation et traitment de formulaire de recherche
+        $form = $this->getFormFactory()->createBuilder(DdpSearchType::class, new DdpSearchDto(), [
             'method' => 'GET',
         ])->getForm();
-        $form->handleRequest($request);
-        $criteria = $this->ddpSearch;
-        if ($form->isSubmitted() && $form->isValid()) {
-            $criteria =  $form->getdata();
-            // dd($criteria);
-        }
-        // $data = $this->demandePaiementRepository->findBy([], ['dateCreation' => 'DESC']);
-        $data = $this->demandePaiementRepository->findDemandePaiement($criteria, $this->getUser());
+        $criteria = $this->traitementFormulaire($form, $request);
+
+        // recupération des données dans la table demande_paiement
+        $ddps = $this->demandePaiementRepository->findDemandePaiement($criteria, $this->getUser());
+
+        // transforme en DTO
+        $dto = DemandePaiementMapper::mapInverse($ddps);
 
         /** suppression de ssession page_loadede  */
         if ($this->getSessionService()->has('page_loaded')) {
@@ -62,8 +60,19 @@ class DdpListeController extends Controller
 
 
         return $this->render('ddp/demandePaiementList.html.twig', [
-            'data' => $data,
+            'dto' => $dto,
             'form' => $form->createView(),
         ]);
+    }
+
+    public function traitementFormulaire(FormInterface $form, Request $request): DdpSearchDto
+    {
+        $form->handleRequest($request);
+        $criteria = new DdpSearchDto();
+        if ($form->isSubmitted() && $form->isValid()) {
+            $criteria =  $form->getdata();
+        }
+
+        return $criteria;
     }
 }

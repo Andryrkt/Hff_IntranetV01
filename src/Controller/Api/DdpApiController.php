@@ -44,15 +44,18 @@ class DdpApiController extends Controller
             foreach ($ddps as $ddp) {
                 // modification du statut de demande de paiement
                 $ddp
-                    ->setStatut(StatutConstants::STATUT_SOUMIS_A_VALIDATION)
+                    ->setStatut(StatutConstants::SOUMIS_A_VALIDATION)
                     ->setDateSoumissionCompta(new DateTime())
-                    ->setNumeroCla($numeroCla);
+                    ->setNumeroCla($numeroCla)
+                    ->setDeposerDw(true)
+                    ->setDateDepotDw(new \DateTime())
+                ;
                 $this->getEntityManager()->persist($ddp);
 
                 /** copie du fichier DDP dans DW */
                 $fileCheckerService = new FileCheckerService($_ENV['BASE_PATH_FICHIER']);
                 $bapFullpath = $fileCheckerService->getFullPath($ddp->getNumeroDdp());
-                
+
                 if (empty($bapFullpath)) {
                     throw new \Exception("Le fichier PDF pour la demande {$ddp->getNumeroDdp()} est introuvable sur le serveur.");
                 }

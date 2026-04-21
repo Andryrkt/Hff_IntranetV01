@@ -5,7 +5,6 @@ namespace App\Repository\ddp;
 use App\Constants\ddp\StatutConstants;
 use App\Dto\Da\ddp\BapSearchDto;
 use App\Entity\admin\utilisateur\User;
-use App\Entity\da\DaSoumissionFacBl;
 use App\Service\TableauEnStringService;
 use Doctrine\ORM\EntityRepository;
 
@@ -65,9 +64,8 @@ class DemandePaiementRepository extends EntityRepository
 
     public function findDemandePaiement($criteria, User $user)
     {
-        $qb = $this->createQueryBuilder('d')
-            ->leftJoin(DaSoumissionFacBl::class, 'bap', 'WITH',  'bap.numeroDemandePaiement = d.numeroDdp')
-            ->addSelect('bap.numeroBap');
+        $qb = $this->createQueryBuilder('d');
+
         // Sous-requête imbriquée dans la clause WHERE
         $qb->where(
             'd.numeroVersion = (
@@ -80,82 +78,70 @@ class DemandePaiementRepository extends EntityRepository
         );
         if ($user->getCodeAgenceUser() === '80' && $user->getCodeServiceUser() === 'FIN') {
             $qb->andWhere('d.statut NOT IN (:statutPourDA)')
-                ->setParameter('statutPourDa', [StatutConstants::STATUT_EN_ATTENTE_VALIDATION_BC, StatutConstants::STATUT_A_CONFIRMER])
-            ;
+                ->setParameter('statutPourDA', StatutConstants::STATUT_A_TRANSMETTRE);
         }
-        if (!empty($criteria->getAgence())) {
+
+        if (!empty($criteria->debiteur['agence'])) {
             $qb->andWhere('d.agenceDebiter = :agenceDebiter')
-                ->setParameter('agenceDebiter', $criteria->getAgence()->getCodeAgence());
+                ->setParameter('agenceDebiter', $criteria->debiteur['agence']->getCodeAgence());
         }
-        if (!empty($criteria->getService())) {
+
+        if (!empty($criteria->debiteur['service'])) {
             $qb->andWhere('d.serviceDebiter = :serviceDebiter')
-                ->setParameter('serviceDebiter', $criteria->getService()->getCodeService());
+                ->setParameter('serviceDebiter', $criteria->debiteur['service']->getCodeService());
         }
-        if (!empty($criteria->getTypeDemande())) {
+
+        if (!empty($criteria->typeDemande)) {
             $qb->andWhere('d.typeDemandeId = :typeDemandeId')
-                ->setParameter('typeDemandeId', $criteria->getTypeDemande()->getId());
+                ->setParameter('typeDemandeId', $criteria->typeDemande->getId());
         }
-        if (!empty($criteria->getNumDdp())) {
-            $qb->andWhere('d.numeroDdp = :numeroDdp')
-                ->setParameter('numeroDdp', $criteria->getNumDdp());
+
+        if (!empty($criteria->numDdp)) {
+            $qb->andWhere('d.numeroDdp = :numDdp')
+                ->setParameter('numDdp', $criteria->numDdp);
         }
-        if (!empty($criteria->getNumCommande())) {
+
+        if (!empty($criteria->numCommande)) {
             $qb->andWhere('d.numeroCommande LIKE :numeroCommande')
-                ->setParameter('numeroCommande', '%' . $criteria->getNumCommande() . '%');
+                ->setParameter('numeroCommande', '%' . $criteria->numCommande() . '%');
         }
-        if (!empty($criteria->getNumFacture())) {
+
+        if (!empty($criteria->numFacture)) {
             $qb->andWhere('d.numeroFacture LIKE :numeroFacture')
-                ->setParameter('numeroFacture', '%' . $criteria->getNumFacture() . '%');
+                ->setParameter('numeroFacture', '%' . $criteria->numFacture() . '%');
         }
 
-        if (!empty($criteria->getUtilisateur())) {
+        if (!empty($criteria->utilisateur)) {
             $qb->andWhere('d.demandeur = :demandeur')
-                ->setParameter('demandeur', $criteria->getUtilisateur());
+                ->setParameter('demandeur', $criteria->utilisateur);
         }
 
-        if (!empty($criteria->getStatut())) {
+        if (!empty($criteria->statut)) {
             $qb->andWhere('d.statut = :statut')
-                ->setParameter('statut', $criteria->getStatut());
+                ->setParameter('statut', $criteria->statut);
         }
 
-        if (!empty($criteria->getDateDebut())) {
-            $qb->andWhere('d.dateDemande >= :dateDebut')
-                ->setParameter('dateDebut', $criteria->getDateDebut());
+        if (!empty($criteria->dateCreation['debut'])) {
+            $qb->andWhere('d.dateCreation >= :dateDebut')
+                ->setParameter('dateDebut', $criteria->dateCreation['debut']);
         }
 
-        if (!empty($criteria->getDateFin())) {
-            $qb->andWhere('d.dateDemande <= :dateFin')
-                ->setParameter('dateFin', $criteria->getDateFin());
+        if (!empty($criteria->dateCreation['fin'])) {
+            $qb->andWhere('d.dateCreation <= :dateFin')
+                ->setParameter('dateFin', $criteria->dateCreation['fin']);
         }
 
-        if (!empty($criteria->getFournisseur())) {
+        if (!empty($criteria->fournisseur)) {
             $qb->andWhere('d.numeroFournisseur = :numFournisseur')
-                ->setParameter('numFournisseur', explode('-', $criteria->getFournisseur())[0]);
+                ->setParameter('numFournisseur', explode('-', $criteria->fournisseur)[0]);
         }
 
         // Tri
         $qb->orderBy('d.dateCreation', 'DESC');
-        // $query = $qb->getQuery();
-        //         $sql = $query->getSQL();
-        //         $params = $query->getParameters();
 
-        //         dump("SQL : " . $sql . "\n");
-        //         foreach ($params as $param) {
-        //             dump($param->getName());
-        //             dump($param->getValue());
-        //         }
-        //         die();
         return $qb->getQuery()->getResult();
     }
 
-    // public function getnumFacture()
-    // {
-    //     return  $this->createQueryBuilder('d')
-    //             ->select('d.numeroFacture')
-    //             ->getQuery()
-    //             ->getSingleColumnResult()
-    //             ;
-    // }
 
     public function getnumCde()
     {
@@ -238,7 +224,7 @@ class DemandePaiementRepository extends EntityRepository
             ->andWhere('d.numeroCommande = :numero')
             ->setParameter('numeroDa', $numeroDa)
             ->setParameter('numero', $numeroCde)
-            ->orderBy('d.numeroSoumissionDdpDa', 'DESC')
+            ->orderBy('d.dateModification', 'DESC')
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult();

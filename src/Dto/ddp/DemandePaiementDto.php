@@ -21,6 +21,8 @@ class DemandePaiementDto
     public bool $estChangementDeRib = false;
     public ?string $numeroCla = null;
     public ?\DateTime $dateSoumissionCompta = null;
+    public ?string $codeAgence = null;
+    public ?string $codeService = null;
 
     // fournisseur ======================
     public ?string $numeroFournisseur = null;
@@ -145,7 +147,10 @@ class DemandePaiementDto
 
     public function ribFournisseurChanger(): bool
     {
-        return $this->ribFournisseurAncien !== $this->ribFournisseur;
+        $ancien = str_replace(' ', '', (string)$this->ribFournisseurAncien);
+        $nouveau = str_replace(' ', '', (string)$this->ribFournisseur);
+
+        return $ancien !== $nouveau && !empty($nouveau);
     }
 
     public function getStyleStatut(): string

@@ -51,6 +51,10 @@ class DemandePaiementMapper
         return $ddp;
     }
 
+    /**
+     * @param DemandePaiement[] $ddps
+     * @return array
+     */
     public static function mapInverse(array $ddps): array
     {
         $dtos = [];
@@ -74,6 +78,19 @@ class DemandePaiementMapper
             $dto->statut = $ddp->getStatut();
             $dto->montantAPayer = $ddp->getMontantAPayers();
             $dto->dateSoumissionCompta = $ddp->getDateSoumissionCompta();
+            //============= pour la liste de ddp ===============
+            $dto->codeAgence = $ddp->getAgenceDebiter();
+            $dto->codeService = $ddp->getServiceDebiter();
+            $dto->dateDemande = $ddp->getDateCreation();
+            $dto->statutDossierRegul = $ddp->getStatutDossierRegul();
+            $dto->motif = $ddp->getMotif();
+            $dto->numeroDossierDouane = $ddp->getNumeroDossierDouane();
+            $dto->montantAPayer = $ddp->getMontantAPayers();
+            $dto->devise = $ddp->getDevise();
+            $dto->modePaiement = $ddp->getModePaiement();
+            $dto->demandeur = $ddp->getDemandeur();
+            $dto->appro = $ddp->getAppro();
+
             $dtos[] = $dto;
         }
 
@@ -118,7 +135,7 @@ class DemandePaiementMapper
 
     public static function mapUpdate(DemandePaiementDto $dto, DemandePaiement $ddp): DemandePaiement
     {
-        return $ddp->setStatut(StatutConstants::STATUT_SOUMIS_A_VALIDATION)
+        return $ddp->setStatut(StatutConstants::SOUMIS_A_VALIDATION)
             ->setMontantApayer($dto->montantAPayer)
             ->setRibFournisseur($dto->ribFournisseur)
             ->setEstAutreDoc($dto->estAutresDoc)

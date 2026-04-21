@@ -2,109 +2,38 @@
 
 namespace App\Form\ddp;
 
-use App\Entity\admin\Agence;
-use App\Entity\admin\Service;
-use Doctrine\ORM\EntityManagerInterface;
-use App\Entity\admin\ddp\DdpSearch;
-use App\Entity\ddp\DemandePaiement;
+use App\Dto\ddp\DdpSearchDto;
 use App\Entity\admin\ddp\TypeDemande;
-use Symfony\Component\Form\FormEvent;
-use Symfony\Component\Form\FormEvents;
-use App\Model\ddp\DemandePaiementModel;
-use App\Service\TableauEnStringService;
-use Symfony\Component\Form\AbstractType;
-use App\Repository\admin\AgenceRepository;
-use App\Entity\cde\CdefnrSoumisAValidation;
-use App\Repository\admin\ServiceRepository;
-use Symfony\Component\Form\FormBuilderInterface;
+use App\Form\common\AgenceServiceType;
+use App\Form\common\DateRangeType;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
-use Symfony\Component\Validator\Constraints\File;
-use App\Repository\admin\ddp\TypeDemandeRepository;
-use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Form\Extension\Core\Type\DateType;
-use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class DdpSearchType extends AbstractType
 {
-    private $agenceRepository;
-    private $serviceRepository;
+    private $em;
     public function __construct(EntityManagerInterface $em)
     {
-        $this->agenceRepository = $em->getRepository(Agence::class);
-        $this->serviceRepository = $em->getRepository(Service::class);
+        $this->em = $em;
     }
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('Agence', EntityType::class, [
-                'label' => "Agence débiteur",
-                'class' => Agence::class,
-                'choice_label' => function (Agence $agence): string {
-                    return $agence->getCodeAgence() . ' ' . $agence->getLibelleAgence();
-                },
-                'placeholder' => '-- Choisir une agence--',
+            ->add('debiteur', AgenceServiceType::class, [
+                'label' => false,
                 'required' => false,
-                'attr' => ['class' => 'agenceDebiteur']
+                'mapped' => false,
+                'agence_label' => 'Agence Debiteur',
+                'service_label' => 'Service Debiteur',
+                'agence_placeholder' => '-- Agence Debiteur --',
+                'service_placeholder' => '-- Service Debiteur --',
+                'em' => $this->em,
             ])
-            ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
-                $form = $event->getForm();
-                $data = $event->getData();
-
-                if ($data && $data->getAgence()) {
-                    $services = $data->getAgence()->getServices();
-                } else {
-                    $services = [];
-                }
-
-                $form->add('service', EntityType::class, [
-                    'label' => "Service débiteur",
-                    'class' => Service::class,
-                    'choice_label' => function (Service $service): string {
-                        return $service->getCodeService() . ' ' . $service->getLibelleService();
-                    },
-                    'placeholder' => '-- Choisir un service--',
-                    'choices' => $services,
-                    'required' => false,
-                    'query_builder' => function (ServiceRepository $serviceRepository) {
-                        return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
-                    },
-                    'attr' => ['class' => 'serviceDebiteur']
-                ]);
-            })
-            ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
-                $form = $event->getForm();
-                $data = $event->getData();
-
-                if (isset($data['Agence']) && $data['Agence']) {
-                    $agenceId = $data['Agence'];
-                    $agence = $this->agenceRepository->find($agenceId);
-
-                    if ($agence) {
-                        $services = $agence->getServices();
-                    } else {
-                        $services = [];
-                    }
-                } else {
-                    $services = [];
-                }
-
-                $form->add('service', EntityType::class, [
-                    'label' => "Service débiteur",
-                    'class' => Service::class,
-                    'choice_label' => function (Service $service): string {
-                        return $service->getCodeService() . ' ' . $service->getLibelleService();
-                    },
-                    'placeholder' => '-- Choisir un service--',
-                    'choices' => $services,
-                    'required' => false,
-                    'query_builder' => function (ServiceRepository $serviceRepository) {
-                        return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
-                    },
-                    'attr' => ['class' => 'serviceDebiteur']
-                ]);
-            })
             ->add('typeDemande', EntityType::class, [
                 'label' => 'Type de Document',
                 'class' => TypeDemande::class,
@@ -113,7 +42,7 @@ class DdpSearchType extends AbstractType
                 'required' => false,
             ])
             ->add(
-                'NumDdp',
+                'numDdp',
                 TextType::class,
                 [
                     'label' => 'N° demande',
@@ -144,15 +73,11 @@ class DdpSearchType extends AbstractType
                     'required' => false
                 ]
             )
-            ->add('dateDebut', DateType::class, [
-                'widget' => 'single_text',
-                'label' => 'Date début demande',
-                'required' => false,
-            ])
-            ->add('dateFin', DateType::class, [
-                'widget' => 'single_text',
-                'label' => 'Date fin demande',
-                'required' => false,
+            ->add('dateCreation', DateRangeType::class, [
+                'label' => false,
+                'debut_label' => 'Date création (début)',
+                'fin_label' => 'Date création (fin)',
+
             ])
             ->add('statut', TextType::class, [
                 'label' => 'Statut',
@@ -168,7 +93,7 @@ class DdpSearchType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => DdpSearch::class,
+            'data_class' => DdpSearchDto::class,
         ]);
     }
 }
