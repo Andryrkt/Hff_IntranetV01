@@ -109,6 +109,12 @@ class DitController extends Controller
                 return;
             }
 
+            if ($ditFromForm->getReparationRealise() === "ATE POL TANA" && ($ditFromForm->getCategorieDemande()->getLibelleCategorieAteApp() !== "REPARATION" || $ditFromForm->getTypeDocument()->getDescription() !== "Maintenance curative")) {
+                $message = 'Échec lors de la création de la DIT... Pour un DIT à réaliser à l\'ATE POL TANA le type de document doit être Maintenance curative et la catégorie de la demande en REPARATION.';
+                $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_index');
+                return;
+            }
+
             // 1. Créer le DTO à partir des données du formulaire
             $dto = DemandeInterventionDto::createFromEntity($ditFromForm);
 
@@ -118,8 +124,13 @@ class DitController extends Controller
             $dto->utilisateurDemandeur = $user->getNomUtilisateur();
             $dto->heureDemande = $this->getTime();
             $dto->dateDemande = new \DateTime($this->getDatesystem());
-            $dto->idStatutDemande = $em->getRepository(StatutDemande::class)->find(50);
             $dto->mailDemandeur = $user->getMail();
+
+            // Statut de la demande
+            $statutRepository = $em->getRepository(StatutDemande::class);
+            // Si le DIT est pour l'ATE POL TANA, le statut est "A VALIDER RESP RENTAL", sinon "A AFFECTER"
+            $idStatut = $dto->reparationRealise === "ATE POL TANA" ? DemandeIntervention::STATUT_A_VALIDER_CHEF_RENTAL : DemandeIntervention::STATUT_A_AFFECTER;
+            $dto->idStatutDemande = $statutRepository->find($idStatut);
 
             /**   @var DemandeIntervention[] $demandeInterventions 3. Utiliser la factory pour créer l'entité complète*/
             $demandeInterventions = $this->createDemandeInterventionFromDto($dto);
