@@ -153,6 +153,7 @@
   gap: 10px;
   padding: 6px 10px;
   border-radius: 10px;
+  box-shadow: 2px 2px 4px #6f6f6f;
 }
 
 .status-badge .count {
