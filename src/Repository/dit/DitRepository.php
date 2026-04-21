@@ -39,7 +39,7 @@ class DitRepository extends EntityRepository
         $queryBuilder = $this->createQueryBuilder('d')
             ->leftJoin('d.typeDocument', 'td')
             ->leftJoin('d.idNiveauUrgence', 'nu')
-            ->leftJoin('d.idStatutDemande', 's')
+            ->join('d.idStatutDemande', 's')
             ->leftJoin(AtelierRealise::class, 'ar', 'WITH', 'd.reparationRealise = ar.codeAtelier');
 
         $this->applyStatusFilter($queryBuilder, $ditSearch);
@@ -113,7 +113,7 @@ class DitRepository extends EntityRepository
     {
         $queryBuilder = $this->createQueryBuilder('d')
             ->select('s.description AS statut, COUNT(d.id) AS count')
-            ->leftJoin('d.idStatutDemande', 's')
+            ->join('d.idStatutDemande', 's')
             ->leftJoin('d.typeDocument', 'td')
             ->groupBy('s.description');
 
@@ -273,6 +273,7 @@ class DitRepository extends EntityRepository
     {
         $statusesDefault = [
             DemandeIntervention::STATUT_A_AFFECTER,
+            DemandeIntervention::STATUT_A_VALIDER_CHEF_RENTAL,
             DemandeIntervention::STATUT_AFFECTEE_SECTION,
             DemandeIntervention::STATUT_CLOTUREE_VALIDER
         ];
@@ -718,7 +719,7 @@ class DitRepository extends EntityRepository
         $queryBuilder = $this->createQueryBuilder('d')
             ->leftJoin('d.typeDocument', 'td')
             ->leftJoin('d.idNiveauUrgence', 'nu')
-            ->leftJoin('d.idStatutDemande', 's')
+            ->join('d.idStatutDemande', 's')
             ->where('d.sectionAffectee <> :sectionAffectee')
             ->setParameter('sectionAffectee', '');
 
