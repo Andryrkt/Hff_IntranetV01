@@ -124,8 +124,13 @@ class DitController extends Controller
             $dto->utilisateurDemandeur = $user->getNomUtilisateur();
             $dto->heureDemande = $this->getTime();
             $dto->dateDemande = new \DateTime($this->getDatesystem());
-            $dto->idStatutDemande = $em->getRepository(StatutDemande::class)->find(50);
             $dto->mailDemandeur = $user->getMail();
+
+            // Statut de la demande
+            $statutRepository = $em->getRepository(StatutDemande::class);
+            // Si le DIT est pour l'ATE POL TANA, le statut est "A VALIDER RESP RENTAL", sinon "A AFFECTER"
+            $idStatut = $dto->reparationRealise === "ATE POL TANA" ? DemandeIntervention::STATUT_A_VALIDER_CHEF_RENTAL : DemandeIntervention::STATUT_A_AFFECTER;
+            $dto->idStatutDemande = $statutRepository->find($idStatut);
 
             /**   @var DemandeIntervention[] $demandeInterventions 3. Utiliser la factory pour créer l'entité complète*/
             $demandeInterventions = $this->createDemandeInterventionFromDto($dto);
