@@ -12,35 +12,39 @@
 .a_affecter {
   background-color: #d32f2f !important;
   color: #ffffff !important;
+  font-weight: 700;
 }
 
 .affectee_section {
-  background-color: #ff8d00 !important;
-}
-
-.cloturee_annulee {
-  background-color: grey !important;
-  color: #fff !important;
-}
-
-.cloturee_validee {
-  background-color: #00800099 !important;
+  background-color: #f57c00 !important; /* orange maîtrisé */
+  color: #ffffff !important;
 }
 
 .terminee {
-  background-color: blue !important;
-  color: #fff !important;
+  background-color: #1976d2 !important; /* bleu propre */
+  color: #ffffff !important;
+}
+
+.cloturee_validee {
+  background-color: #2e7d32 !important; /* vert validé */
+  color: #ffffff !important;
+}
+
+.cloturee_annulee {
+  background-color: #616161 !important;
+  color: #ffffff !important;
 }
 
 .cloturee_hors_delai {
-  background-color: orange !important;
+  background-color: #ed6c02 !important; /* orange + punch */
+  color: #ffffff !important;
 }
 
 .a_valider_resp_rental {
-  background-color: #b71c1c !important;
-  color: #ffeb3b !important;
+  background-color: #4a148c !important; /* violet profond */
+  color: #ffeb3b !important; /* jaune alerte */
+  font-weight: 800;
 }
-
 /* Augmenter la largeur de la modale */
 .modal-dialog.custom-width {
   max-width: 60%; /* Ajustez le pourcentage selon vos besoins */
@@ -146,11 +150,9 @@
 .status-badge {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 10px;
   padding: 6px 10px;
-  border-radius: 20px;
-  background: #f3f4f6;
-  font-size: 12px;
+  border-radius: 10px;
 }
 
 .status-badge .count {
