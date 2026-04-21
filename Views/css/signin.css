@@ -3,11 +3,6 @@
   height: 100vh;
 }
 
-#Logo {
-  margin-left: 10%;
-  margin-bottom: 5%;
-}
-
 .notice {
   background-color: #fbbb01; /* Couleur de fond douce */
   border-left: 4px solid #000000; /* Bordure colorée sur le côté gauche */
