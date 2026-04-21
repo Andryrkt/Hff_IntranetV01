@@ -21,6 +21,8 @@ class DemandePaiementDto
     public bool $estChangementDeRib = false;
     public ?string $numeroCla = null;
     public ?\DateTime $dateSoumissionCompta = null;
+    public ?string $codeAgence = null;
+    public ?string $codeService = null;
 
     // fournisseur ======================
     public ?string $numeroFournisseur = null;

@@ -13,11 +13,11 @@
 				{{ form_start(form, {'method': 'GET'}) }}
 				<div class="row">
 					<div class="col-12 col-md-2">
-						{{ macroForm.agence_service_change(form.Agence, form.service, 'spinner-service', 'service-container')}}
+						{{ macroForm.agence_service_change(form.debiteur.agence, form.debiteur.service, 'spinner-service', 'service-container')}}
 					</div>
 					<div class="col-12 col-md-2">
 						{{ form_row(form.typeDemande) }}
-						{{ form_row(form.NumDdp) }}
+						{{ form_row(form.numDdp) }}
 					</div>
 					<div class="col-12 col-md-2">
 						{{ form_row(form.numFacture) }}
@@ -28,8 +28,8 @@
 						{{ form_row(form.statut) }}
 					</div>
 					<div class="col-12 col-md-2">
-						{{ form_row(form.dateDebut) }}
-						{{ form_row(form.dateFin) }}
+						{{ form_row(form.dateCreation.debut) }}
+						{{ form_row(form.dateCreation.fin) }}
 					</div>
 					<div class="col-12 col-md-2">
 						{{ form_row(form.fournisseur) }}

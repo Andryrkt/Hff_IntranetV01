@@ -151,3 +151,44 @@
   font-style: italic;
   padding: 10px;
 }
+
+
+.statut-ddpl-a-transmettre,
+.statut-bap-a-transmettre,
+.statut-ddpr-a-transmettre,
+.statut-ddpa-a-transmettre {
+  background-color: #cf0c0c !important;
+  color: #ffffff !important;
+}
+
+.statut-soumis-a-validation {
+  background-color: #e4c229 !important;
+  color: #0a0a0a !important;
+}
+
+.statut-valide {
+  background-color: #4ef177 !important;
+}
+
+.statut-bap-a-valider-dir-admin {
+  background-color: #29e4c5 !important;
+  color: #0a0a0a !important;
+}
+
+.statut-refuse-par-chef-de-service,
+.statut-refuse-compta {
+  background-color: #f8d7da !important;
+  color: #0a0a0a !important;
+}
+
+.statut-ddpl-a-transmettre a,
+.statut-bap-a-transmettre a,
+.statut-ddpr-a-transmettre a,
+.statut-ddpa-a-transmettre a,
+.statut-soumis-a-validation a,
+.statut-valide a,
+.statut-bap-a-valider-dir-admin a,
+.statut-refuse-par-chef-de-service a,
+.statut-refuse-compta a {
+  color: inherit !important;
+}
