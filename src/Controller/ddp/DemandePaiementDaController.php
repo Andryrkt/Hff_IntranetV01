@@ -72,6 +72,13 @@ class DemandePaiementDaController extends Controller
 
         // creation du formulaire
         $dto = $this->demandePaiementFactory->load($typeDdp, $numCdeDa, $typeDa, $numeroVersionBc, $this->getUser(), $this->getSessionService());
+        if ($dto->montantAregulariser <= 0.0) {
+            $message = "La soumission doit être de type régularisation";
+            $criteria = $this->getSessionService()->get('criteria_for_excel_Da_Cde_frn');
+            $nomDeRoute = 'da_bon_a_payer'; // route de redirection après soumission
+            $nomInputSearch = 'cde_frn_list'; // initialistion de nom de chaque champ ou input
+            $this->historiqueOperation->sendNotificationSoumission($message, $dto->numeroDdp, $nomDeRoute, false, $criteria, $nomInputSearch);
+        }
         $form = $this->getFormFactory()->createBuilder(DemandePaiementDaType::class, $dto, [
             'method' => 'POST',
             'em' => $this->getEntityManager()
@@ -95,6 +102,7 @@ class DemandePaiementDaController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             $dto = $form->getdata();
+
             $nomFichier = $this->traitementDeFichier($dto, $form);
             $this->enregistrementSurBd($dto, $nomFichier);
 
