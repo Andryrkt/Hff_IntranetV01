@@ -46,6 +46,7 @@ class DemandeIntervention
     public const STATUT_CLOTUREE_VALIDER = 53;
     public const STATUT_CLOTUREE_HORS_DELAI = 54;
     public const STATUT_TERMINER = 57;
+    public const STATUT_A_VALIDER_CHEF_RENTAL = 78;
 
     /**
      * @ORM\Id
