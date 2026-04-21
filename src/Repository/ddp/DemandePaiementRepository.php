@@ -80,7 +80,7 @@ class DemandePaiementRepository extends EntityRepository
         );
         if ($user->getCodeAgenceUser() === '80' && $user->getCodeServiceUser() === 'FIN') {
             $qb->andWhere('d.statut NOT IN (:statutPourDA)')
-                ->setParameter('statutPourDa', [StatutConstants::STATUT_EN_ATTENTE_VALIDATION_BC, StatutConstants::STATUT_A_CONFIRMER])
+                ->setParameter('statutPourDa', StatutConstants::STATUT_A_TRANSMETTRE)
             ;
         }
         if (!empty($criteria->getAgence())) {
@@ -238,7 +238,7 @@ class DemandePaiementRepository extends EntityRepository
             ->andWhere('d.numeroCommande = :numero')
             ->setParameter('numeroDa', $numeroDa)
             ->setParameter('numero', $numeroCde)
-            ->orderBy('d.numeroSoumissionDdpDa', 'DESC')
+            ->orderBy('d.dateModification', 'DESC')
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult();
