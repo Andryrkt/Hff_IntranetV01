@@ -22,7 +22,7 @@ class StatutConstants
     ];
 
     public const CSS_CLASS_MAP = [
-        self::DDPL_A_TRANSMETTRE => 'statut-ddpl-a-transférer',
+        self::DDPL_A_TRANSMETTRE => 'statut-ddpl-a-transmettre',
         self::BAP_A_TRANSMETTRE => 'statut-bap-a-transmettre',
         self::DDPR_A_TRANSMETTRE => 'statut-ddpr-a-transmettre',
         self::DDPA_A_TRANSMETTRE => 'statut-ddpa-a-transmettre',

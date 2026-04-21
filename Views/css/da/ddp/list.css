@@ -16,7 +16,7 @@
   background-color: #f8d7da !important;
 }
 
-.statut-ddpl-a-transférer,
+.statut-ddpl-a-transmettre,
 .statut-bap-a-transmettre,
 .statut-ddpr-a-transmettre,
 .statut-ddpa-a-transmettre {
@@ -42,4 +42,16 @@
 .statut-refuse-compta {
   background-color: #e46f0f !important;
   color: #ffffff !important;
+}
+
+.statut-ddpl-a-transmettre a,
+.statut-bap-a-transmettre a,
+.statut-ddpr-a-transmettre a,
+.statut-ddpa-a-transmettre a,
+.statut-soumis-a-validation a,
+.statut-valide a,
+.statut-bap-a-valider-dir-admin a,
+.statut-refuse-par-chef-de-service a,
+.statut-refuse-compta a {
+  color: inherit !important;
 }
