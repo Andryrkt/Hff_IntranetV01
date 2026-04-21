@@ -683,3 +683,14 @@ a.choix:hover {
 .statut-valide {
   background-color: #4ef177 !important;
 }
+
+.statut-bap-a-valider-dir-admin {
+  background-color: #29e4c5 !important;
+  color: #0a0a0a !important;
+}
+
+.statut-refuse-par-chef-de-service,
+.statut-refuse-compta {
+  background-color: #e46f0f !important;
+  color: #ffffff !important;
+}

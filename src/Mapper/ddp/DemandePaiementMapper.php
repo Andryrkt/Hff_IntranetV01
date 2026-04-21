@@ -118,7 +118,7 @@ class DemandePaiementMapper
 
     public static function mapUpdate(DemandePaiementDto $dto, DemandePaiement $ddp): DemandePaiement
     {
-        return $ddp->setStatut(StatutConstants::STATUT_SOUMIS_A_VALIDATION)
+        return $ddp->setStatut(StatutConstants::SOUMIS_A_VALIDATION)
             ->setMontantApayer($dto->montantAPayer)
             ->setRibFournisseur($dto->ribFournisseur)
             ->setEstAutreDoc($dto->estAutresDoc)
