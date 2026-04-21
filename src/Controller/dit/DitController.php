@@ -109,6 +109,12 @@ class DitController extends Controller
                 return;
             }
 
+            if ($ditFromForm->getReparationRealise() === "ATE POL TANA" && ($ditFromForm->getCategorieDemande()->getLibelleCategorieAteApp() !== "REPARATION" || $ditFromForm->getTypeDocument()->getDescription() !== "Maintenance curative")) {
+                $message = 'Échec lors de la création de la DIT... Pour un DIT à réaliser à l\'ATE POL TANA le type de document doit être Maintenance curative et la catégorie de la demande en REPARATION.';
+                $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_index');
+                return;
+            }
+
             // 1. Créer le DTO à partir des données du formulaire
             $dto = DemandeInterventionDto::createFromEntity($ditFromForm);
 
