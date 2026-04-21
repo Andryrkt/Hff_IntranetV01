@@ -70,15 +70,11 @@ class DemandePaiementDaController extends Controller
         $this->autorisationAcces($this->getUser(), Application::ID_DDP);
         /** FIN AUtorisation acées */
 
-        // creation du formulaire
+        // initialisation dto
         $dto = $this->demandePaiementFactory->load($typeDdp, $numCdeDa, $typeDa, $numeroVersionBc, $this->getUser(), $this->getSessionService());
-        if ($dto->montantAregulariser <= 0.0) {
-            $message = "La soumission doit être de type régularisation";
-            $criteria = $this->getSessionService()->get('criteria_for_excel_Da_Cde_frn');
-            $nomDeRoute = 'da_bon_a_payer'; // route de redirection après soumission
-            $nomInputSearch = 'cde_frn_list'; // initialistion de nom de chaque champ ou input
-            $this->historiqueOperation->sendNotificationSoumission($message, $dto->numeroDdp, $nomDeRoute, false, $criteria, $nomInputSearch);
-        }
+        // blocage soumission si montant a regulariser <= 0
+        $this->blocageSoumission($dto);
+        // creation du formulaire
         $form = $this->getFormFactory()->createBuilder(DemandePaiementDaType::class, $dto, [
             'method' => 'POST',
             'em' => $this->getEntityManager()
@@ -95,6 +91,16 @@ class DemandePaiementDaController extends Controller
         ]);
     }
 
+    private function blocageSoumission(DemandePaiementDto $dto)
+    {
+        if ($dto->montantAregulariser <= 0.0) {
+            $message = "La soumission doit être de type régularisation";
+            $criteria = $this->getSessionService()->get('criteria_for_excel_Da_Cde_frn');
+            $nomDeRoute = 'da_list_cde_frn'; // route de redirection après soumission
+            $nomInputSearch = 'cde_frn_list'; // initialistion de nom de chaque champ ou input
+            $this->historiqueOperation->sendNotificationSoumission($message, $dto->numeroDdp, $nomDeRoute, false, $criteria, $nomInputSearch);
+        }
+    }
 
     private function traitementDuFormulaire(Request $request, FormInterface $form)
     {
@@ -106,39 +112,21 @@ class DemandePaiementDaController extends Controller
             $nomFichier = $this->traitementDeFichier($dto, $form);
             $this->enregistrementSurBd($dto, $nomFichier);
 
+            // si on crée le demande de paiement avance avec la soumission BC
             if ($dto->ddpaDa) {
                 $ddpaDaService = new DdpaDaService($this->getEntityManager());
-                $ddpaDaService->modificationtableDaSoumissionBc($dto);
-                $ddpaDaService->copieDwDdpaDa($dto);
-                $ddpaDaService->modificationDaAfficher($dto);
-            } else {
-                $this->modificationDemandePaiement($dto);
+                $ddpaDaService
+                    ->modificationtableDaSoumissionBc($dto)
+                    ->copieBcDansDw($dto)
+                    ->modificationStatutBcDansDaAfficher($dto);
             }
+
             /** HISTORISATION */
             $message = "Le document a été généré avec succès";
             $criteria = $this->getSessionService()->get('criteria_for_excel_Da_Cde_frn');
             $nomDeRoute = 'da_bon_a_payer'; // route de redirection après soumission
             $nomInputSearch = 'cde_frn_list'; // initialistion de nom de chaque champ ou input
             $this->historiqueOperation->sendNotificationSoumission($message, $dto->numeroDdp, $nomDeRoute, true, $criteria, $nomInputSearch);
-        }
-    }
-
-    /**
-     * modification du colonne deposer_dw et date_deposer_dw dans
-     * la table demande_paiement
-     */
-    private function modificationDemandePaiement(DemandePaiementDto $dto)
-    {
-        $demandePaiementRepository = $this->getEntityManager()->getRepository(DemandePaiement::class);
-        $demandePaiement = $demandePaiementRepository->findOneBy(['numeroDdp' => $dto->numeroDdp]);
-
-        if ($demandePaiement) {
-            $demandePaiement->setDeposerDw(true)
-                ->setDateDepotDw(new \DateTime())
-            ;
-
-            $this->getEntityManager()->persist($demandePaiement);
-            $this->getEntityManager()->flush();
         }
     }
 
@@ -201,14 +189,12 @@ class DemandePaiementDaController extends Controller
             $dto->numeroCommande = $numeroCommandes;
         }
         $dto->lesFichiers = $this->docDemandePaiementService->fusionDesFichiersDansUnTableau($dto, $nomFichiersTelecharger);
-        $generatePdf = $this->pageDeGarde($dto, $nomAvecCheminFichier);
+        // generation de la page de garde DDP
+        $this->pageDeGarde($dto, $nomAvecCheminFichier);
         $fichierChoisiAvecChemins = $this->docDemandePaiementService->fichierChoisiAvecChemin($dto);
         $this->docDemandePaiementService->copieFichierChoisi($dto);
+        // fusion des PDF (page de garde DDP+ autres documents)
         $this->fusionDesPdf($nomEtCheminFichiersEnregistrer, $fichierChoisiAvecChemins, $nomAvecCheminFichier);
-        // COPIE VERS DOCUWARE
-        if (!$dto->ddpaDa) {
-            $generatePdf->copyToDw($nomAvecCheminFichier, $nomFichier);
-        }
 
         return $nomFichier;
     }

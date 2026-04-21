@@ -46,7 +46,10 @@ class DdpApiController extends Controller
                 $ddp
                     ->setStatut(StatutConstants::SOUMIS_A_VALIDATION)
                     ->setDateSoumissionCompta(new DateTime())
-                    ->setNumeroCla($numeroCla);
+                    ->setNumeroCla($numeroCla)
+                    ->setDeposerDw(true)
+                    ->setDateDepotDw(new \DateTime())
+                ;
                 $this->getEntityManager()->persist($ddp);
 
                 /** copie du fichier DDP dans DW */

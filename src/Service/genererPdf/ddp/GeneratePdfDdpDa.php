@@ -149,7 +149,7 @@ class GeneratePdfDdpDa extends GeneratePdf
         $pdf->Cell(70, 10, $dto->modePaiement, 1, 0);
 
         $pdf->SetFont('helvetica', '', 12);
-        $pdf->Cell($usable_width - 100, 10, number_format((float)$dto->montantAPayer, 2, ',', '.'), 1, 0); // valeur de "Montant à payer" (126.000,12)
+        $pdf->Cell($usable_width - 100, 10, is_string($dto->montantAPayer) ? $dto->montantAPayer : number_format((float)$dto->montantAPayer, 2, ',', '.'), 1, 0); // valeur de "Montant à payer" (126.000,12)
         $pdf->Cell(30, 10, $dto->devise, 1, 1); //  valeur de "Devise" (AR)
 
         $pdf->Ln(5);
