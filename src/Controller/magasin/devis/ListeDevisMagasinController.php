@@ -434,7 +434,8 @@ class ListeDevisMagasinController extends Controller
             $numeroDevis = $devis->getNumeroDevis();
 
             $pointageDevis = in_array($statutDw, [DevisMagasin::STATUT_PRIX_VALIDER_TANA, DevisMagasin::STATUT_PRIX_MODIFIER_TANA, DevisMagasin::STATUT_VALIDE_AGENCE]);
-            $relanceClient = $statutDw === DevisMagasin::STATUT_ENVOYER_CLIENT && $statutBc ===  BcMagasin::STATUT_EN_ATTENTE_BC && in_array(PointageRelanceStatutConstant::STATUT_POINTAGE_RELANCE_A_RELANCER, [$statutRelance1, $statutRelance2, $statutRelance3]) && !$devis->getStopRelance();
+            // $relanceClient = $statutDw === DevisMagasin::STATUT_ENVOYER_CLIENT && $statutBc ===  BcMagasin::STATUT_EN_ATTENTE_BC && in_array(PointageRelanceStatutConstant::STATUT_POINTAGE_RELANCE_A_RELANCER, [$statutRelance1, $statutRelance2, $statutRelance3]) && !$devis->getStopRelance();
+            $relanceClient = true;
 
             // Création d'url
             $url = [
