@@ -145,7 +145,10 @@ class DemandePaiementDto
 
     public function ribFournisseurChanger(): bool
     {
-        return $this->ribFournisseurAncien !== $this->ribFournisseur;
+        $ancien = str_replace(' ', '', (string)$this->ribFournisseurAncien);
+        $nouveau = str_replace(' ', '', (string)$this->ribFournisseur);
+
+        return $ancien !== $nouveau && !empty($nouveau);
     }
 
     public function getStyleStatut(): string

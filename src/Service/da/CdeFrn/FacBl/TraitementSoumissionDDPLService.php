@@ -70,7 +70,7 @@ class TraitementSoumissionDDPLService
             $this->enregistrementDansDB($dto);
 
             // copie du fichier fusionné dans le dossier de DW (Facture_BL frns apppro)
-            $this->generatePdf->copyToDWFacBlDa($nomPdfFusionner, $dto->numeroDemandeAppro);
+            // $this->generatePdf->copyToDWFacBlDa($nomPdfFusionner, $dto->numeroDemandeAppro);
 
             // modification du table da_afficher pour le champ est_facture_bl_soumis
             $this->modificationDaAfficher($dto);

@@ -92,7 +92,7 @@ class DemandePaiementFactory
     {
         $dto->demandeur = $user->getNomUtilisateur();
         $dto->adresseMailDemandeur = $user->getMail();
-        $dto->statut = ($typeDa !== null && $numeroVersionBc !== null) ? StatutConstants::STATUT_EN_ATTENTE_VALIDATION_BC : StatutConstants::DDPA_A_TRANSMETTRE;
+        $dto->statut = StatutConstants::DDPA_A_TRANSMETTRE;
         $dto->numeroDdp = $this->numeroGenerateur->genererNumeroDdp();
         $dto->numeroVersion = 1;
         $dto->numeroDossierDouane = $this->docDemandePaiementService->recupNumDossierDouane($dto);

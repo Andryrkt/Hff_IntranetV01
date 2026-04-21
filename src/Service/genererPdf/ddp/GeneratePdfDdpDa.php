@@ -49,7 +49,7 @@ class GeneratePdfDdpDa extends GeneratePdf
 
         $pdf->Line($pdf->GetX() + 1, $pdf->GetY() - 2.5, $pdf->GetX() + $pdf->GetStringWidth('TYPE DE DEMANDE') + 1, $pdf->GetY() - 2.5);
         $pdf->SetFont('helvetica', 'B', 12);
-        $pdf->Cell(0, 10, $dto->numeroDdp . '_' . $dto->numeroVersion, 0, 1, 'R');  // valeur de "NUMERO DOCUMENT" (changer 'DDP25019999'  + le version )
+        $pdf->Cell(0, 10, $dto->numeroDdp, 0, 1, 'R');  // valeur de "NUMERO DOCUMENT" (changer 'DDP25019999'  + le version )
 
         // Première ligne avec DATE et numeroDA côte à côte
         $pdf->SetFont('helvetica', 'B', 12);
@@ -149,7 +149,7 @@ class GeneratePdfDdpDa extends GeneratePdf
         $pdf->Cell(70, 10, $dto->modePaiement, 1, 0);
 
         $pdf->SetFont('helvetica', '', 12);
-        $pdf->Cell($usable_width - 100, 10, $dto->montantAPayer, 1, 0); // valeur de "Montant à payer" (126.000,12)
+        $pdf->Cell($usable_width - 100, 10, number_format((float)$dto->montantAPayer, 2, ',', '.'), 1, 0); // valeur de "Montant à payer" (126.000,12)
         $pdf->Cell(30, 10, $dto->devise, 1, 1); //  valeur de "Devise" (AR)
 
         $pdf->Ln(5);
