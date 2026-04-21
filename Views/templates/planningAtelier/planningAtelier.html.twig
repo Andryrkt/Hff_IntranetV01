@@ -27,7 +27,7 @@
 			</div>
 		</div>
 	</div>
-	<table class="table table-sticky">
+	<table class="table table-sticky planning-atelier-table">
 		<thead class="table-dark position-sticky align-middle">
 			<tr>
 				<th rowspan="2">Agence Travaux</th>
@@ -60,9 +60,26 @@
 					<td>{{ row.nbTotalJ }}</td>
 					{% for date in dates %}
 						{% set dateStr = date|date('Y-m-d') %}
-						<td {% if row.presence[dateStr].matin %} style="background:#fabb18;" {% endif %}></td>
-						<td {% if row.presence[dateStr].apm %} style="background:#fabb18;" {% endif %}></td>
+						{% set presence = row.presence[dateStr]|default({}) %}
+						{% set matin = presence.matin|default(false) %}
+						{% set apm = presence.apm|default(false) %}
+						{% set heurePointee = presence.heure|default(null) %}
+						<td
+							class="position-relative align-middle fw-bold"
+							colspan="2"
+							style="height: 50px;"
+						>
+							<span style="position: absolute; top: 0; left: 0; width: 50%; height: 50%;{% if matin %} background: #fabb18; {% endif %}"></span>
+							<span style="position: absolute; top: 0; right: 0; width: 50%; height: 50%;{% if apm %} background: #fabb18; {% endif %}"></span>
+							<span style="position: absolute; bottom: 0; left: 0; width: 100%; height: 50%; display: flex; align-items: center; justify-content: center; {% if (matin or apm) and heurePointee %} background: var(--bs-success); color: white; {% elseif matin or apm %} background: #fabb18; {% elseif not matin and not apm and heurePointee %} background: var(--bs-secondary); color: white; {% endif %}">
+								{{ heurePointee ? heurePointee ~ 'H' : '' }}
+							</span>
+						</td>
 					{% endfor %}
+				</tr>
+			{% else %}
+				<tr>
+					<td colspan="{{ 7 + (dates|length * 2) }}" class="text-center text-muted">Aucune donnée à afficher.</td>
 				</tr>
 			{% endfor %}
 		</tbody>
