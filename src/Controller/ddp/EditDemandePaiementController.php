@@ -131,10 +131,10 @@ class EditDemandePaiementController extends Controller
             }
             /** GENERATION DE PDF */
             $nomPageDeGarde = $numDdp . '.pdf';
-            $cheminEtNom = $this->cheminDeBase . '/' . $numDdp . '_New_' . $numeroversion . '/' . $nomPageDeGarde;
+            $cheminEtNom = $this->cheminDeBase . '/' . $numDdp . '/' . $nomPageDeGarde;
             $this->generatePdfDdp->genererPDF($data, $cheminEtNom);
             /** FUSION DES PDF */
-            $nomFichierAvecChemin = $this->addPrefixToElementArray($data->getLesFichiers(), $this->cheminDeBase . '/' . $numDdp . '_New_' . $numeroversion . '/');
+            $nomFichierAvecChemin = $this->addPrefixToElementArray($data->getLesFichiers(), $this->cheminDeBase . '/' . $numDdp . '/');
             $fichierConvertir = $this->ConvertirLesPdf($nomFichierAvecChemin);
             $tousLesFichersAvecChemin = $this->traitementDeFichier->insertFileAtPosition($fichierConvertir, $cheminEtNom, 0);
             $this->traitementDeFichier->fusionFichers($tousLesFichersAvecChemin, $cheminEtNom);
@@ -427,7 +427,7 @@ class EditDemandePaiementController extends Controller
                                     $nomDeFichier = $singleFile->getClientOriginalName();
                                     $this->traitementDeFichier->upload(
                                         $singleFile,
-                                        $this->cheminDeBase . '/' . $numDdp . '_New_1',
+                                        $this->cheminDeBase . '/' . $numDdp,
                                         $nomDeFichier
                                     );
                                     $nomDesFichiers[] = $nomDeFichier;
@@ -441,7 +441,7 @@ class EditDemandePaiementController extends Controller
                         $nomDeFichier = $file->getClientOriginalName();
                         $this->traitementDeFichier->upload(
                             $file,
-                            $this->cheminDeBase . '/' . $numDdp . '_New_1',
+                            $this->cheminDeBase . '/' . $numDdp,
                             $nomDeFichier
                         );
                         $nomDesFichiers[] = $nomDeFichier;
@@ -491,7 +491,7 @@ class EditDemandePaiementController extends Controller
     {
         $chemin = $_ENV['BASE_PATH_FICHIER'] . '/ddp';
         $cheminDeFichiers = $this->recupCheminFichierDistant($data);
-        $cheminDestination = $chemin . '/' . $numDdp . '_New_' . $numeroversion;
+        $cheminDestination = $chemin . '/' . $numDdp;
 
         foreach ($cheminDeFichiers as $cheminDeFichier) {
             $nomFichier = $this->nomFichier($cheminDeFichier);

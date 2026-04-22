@@ -10,6 +10,7 @@ use App\Entity\dit\DemandeIntervention;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\admin\dit\CategorieAteApp;
 use App\Entity\admin\dit\WorTypeDocument;
+use App\Entity\admin\StatutDemande;
 use App\Service\historiqueOperation\HistoriqueOperationDITService;
 
 class DemandeInterventionFactory
@@ -114,9 +115,8 @@ class DemandeInterventionFactory
         $demandeIntervention->setPieceJoint02($dto->pieceJoint02);
         $demandeIntervention->setPieceJoint03($dto->pieceJoint03);
 
-        // statut demande - numero DIT - email - non d'utilisateur - date - heure - societe
+        // statut demande - email - non d'utilisateur - date - heure
         $demandeIntervention->setIdStatutDemande($dto->idStatutDemande);
-        //$demandeIntervention->setNumeroDemandeIntervention($dto->numeroDemandeIntervention);
         $demandeIntervention->setMailDemandeur($dto->mailDemandeur);
         $demandeIntervention->setUtilisateurDemandeur($dto->utilisateurDemandeur);
         $demandeIntervention->setDateDemande($dto->dateDemande);
@@ -228,9 +228,9 @@ class DemandeInterventionFactory
         $demandeIntervention->setPieceJoint02($dto->pieceJoint02);
         $demandeIntervention->setPieceJoint03($dto->pieceJoint03);
 
-        // statut demande - numero DIT - email - non d'utilisateur - date - heure
-        $demandeIntervention->setIdStatutDemande($dto->idStatutDemande);
-        //$demandeIntervention->setNumeroDemandeIntervention(AutoIncDecService::autoGenerateNumero(DemandeIntervention::CODE_APP, $dto->numeroDemandeIntervention, false)); // !changé
+        $statutDemande = $this->entityManager->getRepository(StatutDemande::class)->find(DemandeIntervention::STATUT_A_VALIDER_CHEF_RENTAL);
+        // statut demande - email - non d'utilisateur - date - heure
+        $demandeIntervention->setIdStatutDemande($statutDemande);
         $demandeIntervention->setMailDemandeur($dto->mailDemandeur);
         $demandeIntervention->setUtilisateurDemandeur($dto->utilisateurDemandeur);
         $demandeIntervention->setDateDemande($dto->dateDemande);

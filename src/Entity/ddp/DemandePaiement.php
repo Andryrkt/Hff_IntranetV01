@@ -7,6 +7,8 @@ use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\ddp\TypeDemande;
 use App\Entity\Traits\AgenceServiceTrait;
 use App\Repository\ddp\DemandePaiementRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 
 /**
  * @ORM\Entity(repositoryClass=DemandePaiementRepository::class)
@@ -124,14 +126,14 @@ class DemandePaiement
 
 
     /**
-     * @ORM\Column(type="json", name="numero_commande")
+     * @ORM\Column(type="string", name="numero_commande")
      */
-    private $numeroCommande = [];
+    private $numeroCommande;
 
     /**
-     * @ORM\Column(type="json", name="numero_facture")
+     * @ORM\Column(type="string", name="numero_facture")
      */
-    private $numeroFacture = [];
+    private $numeroFacture;
 
     /**
      * @ORM\Column(type="string", length=5, name="devise")
@@ -177,6 +179,65 @@ class DemandePaiement
      */
     private $numeroDossierDouane = [];
 
+    /**
+     * @ORM\Column(type="boolean", name="appro")
+     */
+    private $appro = false;
+
+    /**
+     * @ORM\Column(type="integer", name="type_da")
+     */
+    private $typeDa;
+
+    /**
+     * @ORM\Column(type="integer", name="numero_version_bc")
+     *
+     * @var integer|null
+     */
+    private ?int $numeroVersionBc = null;
+
+    /**
+     * @ORM\Column(type="string", length="255",name="fichier_ddpa")
+     */
+    private $ficherDdpa;
+
+    /**
+     * @ORM\Column(type="integer", name="numero_soumission_ddp_da")
+     *
+     * @var integer|null
+     */
+    private ?int $numeroSoumissionDdpDa = null;
+
+    /**
+     * @ORM\Column(type="string", length=12, name="numero_demande_appro")
+     *
+     * @var string|null
+     */
+    private ?string $numeroDemandeAppro = null;
+
+    /**
+     * @ORM\Column(type="boolean", name="deposer_dw")
+     */
+    private $deposerDw = false;
+
+    /**
+     * @ORM\Column(type="datetime", name="date_depot_dw")
+     */
+    private $dateDepotDw;
+
+    /**
+     * @ORM\Column(type="string", length=50, name="numero_cla")
+     *
+     * @var string|null
+     */
+    private ?string $numeroCla = null;
+
+    /**
+     * @ORM\Column(type="datetime", name="date_soumission_compta")
+     */
+    private $dateSoumissionCompta;
+
+
     private string $montantAPayer = '0';
 
     private $pieceJoint01;
@@ -194,6 +255,28 @@ class DemandePaiement
     private $titreDeTransportFichier;
 
     private $lesFichiers;
+
+    // Pour le DA =====================================
+    private $montantTotalCde;
+    private $montantDejaPaye;
+    private $montantRestantApayer;
+    private $poucentageAvance;
+
+    /**
+     * @ORM\OneToMany(targetEntity=DemandePaiementCommande::class, mappedBy="demandePaiement", cascade={"persist", "remove"})
+     */
+    private $demandePaiementCommandes;
+
+    /**
+     * @ORM\OneToMany(targetEntity=CommandeLivraison::class, mappedBy="demandePaiement", cascade={"persist", "remove"})
+     */
+    private $commandeLivraisons;
+
+    public function __construct()
+    {
+        $this->demandePaiementCommandes = new ArrayCollection();
+        $this->commandeLivraisons = new ArrayCollection();
+    }
 
     /**===========================================================================
      * GETTER & SETTER
@@ -687,7 +770,18 @@ class DemandePaiement
      */
     public function setMontantAPayers($montantAPayers)
     {
-        $this->montantAPayers = $montantAPayers;
+        if (is_string($montantAPayers)) {
+            if (strpos($montantAPayers, ',') !== false) {
+                // Format français: on enlève les espaces et points (séparateurs de milliers)
+                $montantAPayers = str_replace([' ', '.'], '', $montantAPayers);
+                // On remplace la virgule par un point (séparateur décimal)
+                $montantAPayers = str_replace(',', '.', $montantAPayers);
+            } else {
+                $montantAPayers = str_replace(' ', '', $montantAPayers);
+            }
+        }
+
+        $this->montantAPayers = (float) $montantAPayers;
 
         return $this;
     }
@@ -899,7 +993,7 @@ class DemandePaiement
 
     /**
      * Get the value of numeroDossierDouane
-     */ 
+     */
     public function getNumeroDossierDouane()
     {
         return $this->numeroDossierDouane;
@@ -909,10 +1003,136 @@ class DemandePaiement
      * Set the value of numeroDossierDouane
      *
      * @return  self
-     */ 
+     */
     public function setNumeroDossierDouane($numeroDossierDouane)
     {
         $this->numeroDossierDouane = $numeroDossierDouane;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of appro
+     */
+    public function getAppro()
+    {
+        return $this->appro;
+    }
+
+    /**
+     * Set the value of appro
+     */
+    public function setAppro($appro): self
+    {
+        $this->appro = $appro;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of montantTotalCde
+     */
+    public function getMontantTotalCde()
+    {
+        return $this->montantTotalCde;
+    }
+
+    /**
+     * Set the value of montantTotalCde
+     */
+    public function setMontantTotalCde($montantTotalCde): self
+    {
+        $this->montantTotalCde = $montantTotalCde;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of typeDa
+     */
+    public function getTypeDa()
+    {
+        return $this->typeDa;
+    }
+
+    /**
+     * Set the value of typeDa
+     */
+    public function setTypeDa($typeDa): self
+    {
+        $this->typeDa = $typeDa;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroVersionBc
+     */
+    public function getNumeroVersionBc(): ?int
+    {
+        return $this->numeroVersionBc;
+    }
+
+    /**
+     * Set the value of numeroVersionBc
+     */
+    public function setNumeroVersionBc(?int $numeroVersionBc): self
+    {
+        $this->numeroVersionBc = $numeroVersionBc;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of ficherDdpa
+     */
+    public function getFicherDdpa()
+    {
+        return $this->ficherDdpa;
+    }
+
+    /**
+     * Set the value of ficherDdpa
+     */
+    public function setFicherDdpa($ficherDdpa): self
+    {
+        $this->ficherDdpa = $ficherDdpa;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroSoumissionDdpDa
+     */
+    public function getNumeroSoumissionDdpDa(): ?int
+    {
+        return $this->numeroSoumissionDdpDa;
+    }
+
+    /**
+     * Set the value of numeroSoumissionDdpDa
+     */
+    public function setNumeroSoumissionDdpDa(?int $numeroSoumissionDdpDa): self
+    {
+        $this->numeroSoumissionDdpDa = $numeroSoumissionDdpDa;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroDemandeAppro
+     */
+    public function getNumeroDemandeAppro(): ?string
+    {
+        return $this->numeroDemandeAppro;
+    }
+
+    /**
+     * Set the value of numeroDemandeAppro
+     */
+    public function setNumeroDemandeAppro(?string $numeroDemandeAppro): self
+    {
+        $this->numeroDemandeAppro = $numeroDemandeAppro;
 
         return $this;
     }
@@ -942,5 +1162,137 @@ class DemandePaiement
         $nouvelle->modePaiement = $this->modePaiement;
         $nouvelle->typeDemandeId  = $this->typeDemandeId;
         return $nouvelle;
+    }
+
+    /**
+     * Get the value of deposerDw
+     */
+    public function getDeposerDw()
+    {
+        return $this->deposerDw;
+    }
+
+    /**
+     * Set the value of deposerDw
+     */
+    public function setDeposerDw($deposerDw): self
+    {
+        $this->deposerDw = $deposerDw;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateDepotDw
+     */
+    public function getDateDepotDw()
+    {
+        return $this->dateDepotDw;
+    }
+
+    /**
+     * Set the value of dateDepotDw
+     */
+    public function setDateDepotDw($dateDepotDw): self
+    {
+        $this->dateDepotDw = $dateDepotDw;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroCla
+     */
+    public function getNumeroCla(): ?string
+    {
+        return $this->numeroCla;
+    }
+
+    /**
+     * Set the value of numeroCla
+     */
+    public function setNumeroCla(?string $numeroCla): self
+    {
+        $this->numeroCla = $numeroCla;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateSoumissionCompta
+     */
+    public function getDateSoumissionCompta()
+    {
+        return $this->dateSoumissionCompta;
+    }
+
+    /**
+     * Set the value of dateSoumissionCompta
+     */
+    public function setDateSoumissionCompta($dateSoumissionCompta): self
+    {
+        $this->dateSoumissionCompta = $dateSoumissionCompta;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, DemandePaiementCommande>
+     */
+    public function getDemandePaiementCommandes(): Collection
+    {
+        return $this->demandePaiementCommandes;
+    }
+
+    public function addDemandePaiementCommande(DemandePaiementCommande $demandePaiementCommande): self
+    {
+        if (!$this->demandePaiementCommandes->contains($demandePaiementCommande)) {
+            $this->demandePaiementCommandes[] = $demandePaiementCommande;
+            $demandePaiementCommande->setDemandePaiement($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDemandePaiementCommande(DemandePaiementCommande $demandePaiementCommande): self
+    {
+        if ($this->demandePaiementCommandes->removeElement($demandePaiementCommande)) {
+            // set the owning side to null (unless already changed)
+            if ($demandePaiementCommande->getDemandePaiement() === $this) {
+                $demandePaiementCommande->setDemandePaiement(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CommandeLivraison>
+     */
+    public function getCommandeLivraisons(): Collection
+    {
+        return $this->commandeLivraisons;
+    }
+
+    public function addCommandeLivraison(CommandeLivraison $commandeLivraison): self
+    {
+        if (!$this->commandeLivraisons->contains($commandeLivraison)) {
+            $this->commandeLivraisons[] = $commandeLivraison;
+            $commandeLivraison->setDemandePaiement($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCommandeLivraison(CommandeLivraison $commandeLivraison): self
+    {
+        if ($this->commandeLivraisons->removeElement($commandeLivraison)) {
+            // set the owning side to null (unless already changed)
+            if ($commandeLivraison->getDemandePaiement() === $this) {
+                $commandeLivraison->setDemandePaiement(null);
+            }
+        }
+
+        return $this;
     }
 }

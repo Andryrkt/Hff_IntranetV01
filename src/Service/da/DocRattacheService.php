@@ -74,7 +74,7 @@ class DocRattacheService
      * Fonctions utilitaires *
      *************************/
     /** Get the value of daDocumentMapping */
-    public function getDaDocumentMappingConfig(): array
+    private function getDaDocumentMappingConfig(): array
     {
         return [
             DemandeAppro::TYPE_DA_AVEC_DIT         => ['BAI', 'OR', 'DEV_PJ_DA', 'DEV_PJ_OBS', 'BC', 'FACBL'],
@@ -85,7 +85,7 @@ class DocRattacheService
     }
 
     /** Get the value of docTypes */
-    public function getDocTypesConfig(): array
+    private function getDocTypesConfig(): array
     {
         return [
             'BAI' => [
@@ -155,7 +155,7 @@ class DocRattacheService
                 'colorClass'      => 'border-left-facbl',
                 'service'         => 'dwDataService',
                 'method'          => 'getFacBlPath',
-                'normalizer'      => 'normalizePathsForFacBl',
+                'normalizer'      => 'normalizePathsFacBl',
                 'normalizerParam' => NULL,
             ],
         ];

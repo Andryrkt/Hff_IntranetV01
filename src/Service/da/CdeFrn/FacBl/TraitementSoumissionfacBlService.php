@@ -1,0 +1,277 @@
+<?php
+
+namespace App\Service\da\CdeFrn\FacBl;
+
+use App\Controller\Traits\PdfConversionTrait;
+use App\Dto\Da\ListeCdeFrn\DaSoumissionFacBlDto;
+use App\Entity\da\DaAfficher;
+use App\Entity\da\DaSoumissionFacBl;
+use App\Entity\da\DemandeAppro;
+use App\Entity\dw\DwBcAppro;
+use App\Factory\da\CdeFrnDto\DaSoumissionFacBlFactory;
+use App\Mapper\Da\ListCdeFrn\DaSoumissionFacBlMapper;
+use App\Model\da\DaSoumissionFacBlModel;
+use App\Repository\da\DaSoumissionFacBlRepository;
+use App\Repository\da\DemandeApproRepository;
+use App\Repository\dw\DwBcApproRepository;
+use App\Service\fichier\TraitementDeFichier;
+use App\Service\genererPdf\GeneratePdf;
+use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
+use Doctrine\ORM\EntityManagerInterface;
+use Exception;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+
+class TraitementSoumissionfacBlService
+{
+    use PdfConversionTrait;
+
+    private EntityManagerInterface $entityManager;
+    private HistoriqueOperationDaBcService $historiqueOperation;
+    private DaSoumissionFacBlRepository $daSoumissionFacBlRepository;
+    private DaSoumissionFacBlFactory $daSoumissionFacBlFactory;
+    private DaSoumissionFacBlMapper $daSoumissionfacBlMapper;
+    private GeneratePdf $generatePdf;
+    private DaSoumissionFacBlModel $daSoumissionFacBlModel;
+    private TraitementDeFichier $traitementDeFichier;
+    private string $cheminDeBase;
+    private DemandeApproRepository $demandeApproRepository;
+    private DwBcApproRepository $dwBcApproRepository;
+
+    public function __construct(
+        EntityManagerInterface $entityManager,
+        HistoriqueOperationDaBcService $historiqueOperation,
+        DaSoumissionFacBlFactory $daSoumissionFacBlFactory,
+        DaSoumissionFacBlMapper $daSoumissionfacBlMapper,
+        GeneratePdf $generatePdf,
+        DaSoumissionFacBlModel $daSoumissionFacBlModel,
+        TraitementDeFichier $traitementDeFichier
+    ) {
+        $this->entityManager               = $entityManager;
+        $this->historiqueOperation         = $historiqueOperation;
+        $this->daSoumissionFacBlRepository = $this->entityManager->getRepository(DaSoumissionFacBl::class);
+        $this->daSoumissionFacBlFactory    = $daSoumissionFacBlFactory;
+        $this->daSoumissionfacBlMapper     = $daSoumissionfacBlMapper;
+        $this->generatePdf                 = $generatePdf;
+        $this->daSoumissionFacBlModel      = $daSoumissionFacBlModel;
+        $this->traitementDeFichier         = $traitementDeFichier;
+        $this->cheminDeBase                = ($_ENV['BASE_PATH_FICHIER'] ?? '') . '/da/';
+        $this->demandeApproRepository      = $this->entityManager->getRepository(DemandeAppro::class);
+        $this->dwBcApproRepository         = $this->entityManager->getRepository(DwBcAppro::class);
+    }
+
+    public function traitementSoumissionFacBl($form, $dto)
+    {
+        $sucess = false;
+
+        if ($this->verifierConditionDeBlocage($dto)) {
+            $numCde  = $dto->numeroCde;
+            $numDa   = $dto->numeroDemandeAppro;
+            $numLiv = $dto->numLiv;
+
+            // Traitement du fichier
+            [$nomAvecCheminPdfFusionner, $nomPdfFusionner] = $this->traitementDeFichier($form, $dto);
+
+            // enrichissement Dto
+            $dto  = $this->daSoumissionFacBlFactory->EnrichissementDtoApresSoumission($dto, $nomPdfFusionner);
+            /** ENREGISTREMENT DANS LA BASE DE DONNEE */
+            $daSoumissionFacBl = $this->daSoumissionfacBlMapper->map($dto);
+            $this->entityManager->persist($daSoumissionFacBl);
+            $this->entityManager->flush();
+
+            /** COPIER DANS DW */
+            $this->generatePdf->copyToDWFacBlDa($nomPdfFusionner, $numDa);
+
+            /** MODIFICATION DA AFFICHER */
+            $this->modificationDaAfficher($numDa, $numCde, $numLiv);
+
+            $sucess = true;
+        }
+        return $sucess;
+    }
+
+    /**
+     * Vérifier les conditions de blocage avant la soumission du document 
+     * dans DocuWare pour le demande paiement avec de demande de 
+     * paiement à l'avance 100%
+     *
+     * @param DaSoumissionFacBlDto $dto
+     * @return boolean
+     */
+    private function verifierConditionDeBlocage(DaSoumissionFacBlDto $dto): bool
+    {
+        $numCde = $dto->numeroCde;
+        $numLiv = $dto->numLiv;
+        $mttFac = $dto->montantBlFacture;
+        $infoLivraison = $dto->infoLiv[$numLiv];
+
+        $nomOriginalFichier = $dto->pieceJoint1->getClientOriginalName();
+
+        $mttFacFormate = (float)str_replace(',', '.', str_replace(' ', '', $mttFac));
+
+        $message = '';
+        $okey = true;
+
+        // Blocage si la livraison n'est pas clôturée
+        if (!empty($infoLivraison) && isset($infoLivraison['date_clot']) && $infoLivraison['date_clot'] === null) {
+            $message = "La livraison n° '$numLiv' associée à la commande n° '$numCde' n'est pas encore clôturée. Merci de clôturer la livraison avant de soumettre le document dans DocuWare.";
+            $okey = false;
+        }
+        // Blocage si le nom de fichier contient des caractères spéciaux
+        elseif (preg_match('/[#\-_~]/', $nomOriginalFichier)) {
+            $message = "Le nom de fichier ('{$nomOriginalFichier}') n'est pas valide. Il ne doit pas contenir les caractères suivants : #, -, _ ou ~. Merci de renommer votre fichier avant de le soumettre dans DocuWare.";
+            $okey = false;
+        }
+        // Blocage si montant ne correspond pas au montant de la livraison dans IPS
+        elseif ($mttFacFormate !== (float) $infoLivraison['montant_fac_bl']) {
+            $message = "Le montant de la facture <b>{$mttFac}</b> ne correspond pas au montant de la livraison dans IPS. Merci de vérifier le montant de la facture avant de le soumettre dans DocuWare.";
+            $okey = false;
+        }
+
+        if (!$okey) $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn');
+
+        return $okey;
+    }
+
+    private function traitementDeFichier($form, $dto): array
+    {
+        $numCde  = $dto->numeroCde;
+        $numDa   = $dto->numeroDemandeAppro;
+        $numOr   = $dto->numeroOR;
+        $nomOriginalFichier = $dto->pieceJoint1->getClientOriginalName();
+
+        /** ENREGISTREMENT DE FICHIER */
+        $nomDeFichiers = $this->enregistrementFichier($form, $numCde, $numDa);
+
+        /** AJOUT DES CHEMINS DANS LE TABLEAU */
+        $nomFichierAvecChemins = $this->addPrefixToElementArray($nomDeFichiers, $this->cheminDeBase . $numDa . '/');
+
+        /** CONVERTIR LES PDF */
+        $fichierConvertir = $this->ConvertirLesPdf($nomFichierAvecChemins);
+
+        /** GENERATION DU NOM DU FICHIER */
+        $numeroVersionMax          = $dto->numeroVersionFacBl;
+        $nomPdfFusionner           =  "FACBL$numCde#$numDa-{$numOr}_{$numeroVersionMax}~{$nomOriginalFichier}";
+        $nomAvecCheminPdfFusionner = $this->cheminDeBase . $numDa . '/' . $nomPdfFusionner;
+
+        /** FUSION DES PDF */
+        $this->traitementDeFichier->fusionFichers($fichierConvertir, $nomAvecCheminPdfFusionner);
+
+
+        return [$nomAvecCheminPdfFusionner, $nomPdfFusionner];
+    }
+
+    /**
+     * Enregistrement des fichiers téléchagrer dans le dossier de destination
+     *
+     * @param [type] $form
+     * @return array
+     */
+    private function enregistrementFichier($form, $numCde, $numDa): array
+    {
+        $fieldPattern = '/^pieceJoint(\d{1})$/';
+        $nomDesFichiers = [];
+        $compteur = 1; // Pour l’indexation automatique
+
+        foreach ($form->all() as $fieldName => $field) {
+            if (preg_match($fieldPattern, $fieldName, $matches)) {
+                /** @var UploadedFile|UploadedFile[]|null $file */
+                $file = $field->getData();
+
+                if ($file !== null) {
+                    $fichiers = is_array($file) ? $file : [$file];
+
+                    foreach ($fichiers as $singleFile) {
+                        if ($singleFile !== null) {
+                            // Ensure $singleFile is an instance of Symfony's UploadedFile
+                            if (!$singleFile instanceof UploadedFile) {
+                                throw new \InvalidArgumentException('Expected instance of Symfony\Component\HttpFoundation\File\UploadedFile.');
+                            }
+
+                            $extension = $singleFile->guessExtension() ?? $singleFile->getClientOriginalExtension();
+                            $nomDeFichier = sprintf('FACBL_%s-%04d.%s', $numCde, $compteur, $extension);
+
+                            $this->traitementDeFichier->upload(
+                                $singleFile,
+                                $this->cheminDeBase . '/' . $numDa,
+                                $nomDeFichier
+                            );
+
+                            $nomDesFichiers[] = $nomDeFichier;
+                            $compteur++;
+                        }
+                    }
+                }
+            }
+        }
+
+        return $nomDesFichiers;
+    }
+
+    /**
+     * Ajout de prefix pour chaque element du tableau files
+     *
+     * @param array $files
+     * @param string $prefix
+     * @return array
+     */
+    private function addPrefixToElementArray(array $files, string $prefix): array
+    {
+        return array_map(function ($file) use ($prefix) {
+            return $prefix . $file;
+        }, $files);
+    }
+
+    /**
+     * Modification du colonne est_facture_bl_soumis dans la table da_afficher
+     *
+     * @param string $numDa
+     * @param int $numeroVersionMax
+     */
+    private function modificationDaAfficher(string $numDa, string $numCde, $numLiv): void
+    {
+        $daAfficherRepository = $this->entityManager->getRepository(DaAfficher::class);
+        $numeroVersionMax = $daAfficherRepository->getNumeroVersionMax($numDa);
+        $typeDa = $daAfficherRepository->getTypeDaSelonNumDa($numDa);
+        $daAffichers = [];
+
+        if (in_array((int)$typeDa, [DemandeAppro::TYPE_DA_AVEC_DIT, DemandeAppro::TYPE_DA_REAPPRO_MENSUEL, DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL])) {
+            $refDesiSavLors = $this->daSoumissionFacBlModel->getRefDesiSavLor($numLiv);
+            foreach ($refDesiSavLors as  $refDesiSavLor) {
+                $daAffichers[] = $this->entityManager->getRepository(DaAfficher::class)
+                    ->findOneBy(
+                        [
+                            'numeroDemandeAppro' => $numDa,
+                            'numeroVersion' => $numeroVersionMax,
+                            'numeroCde' => $numCde,
+                            'artRefp' => $refDesiSavLor['reference'],
+                            'artDesi' => $refDesiSavLor['designation']
+                        ]
+                    );
+            }
+        } else {
+            $refDesiFrnCdls = $this->daSoumissionFacBlModel->getRefDesiFrnCdl($numLiv);
+            foreach ($refDesiFrnCdls as  $refDesiFrnCdl) {
+                $daAffichers[] = $this->entityManager->getRepository(DaAfficher::class)
+                    ->findOneBy(
+                        [
+                            'numeroDemandeAppro' => $numDa,
+                            'numeroVersion' => $numeroVersionMax,
+                            'numeroCde' => $numCde,
+                            'artRefp' => $refDesiFrnCdl['reference'],
+                            'artDesi' => $refDesiFrnCdl['designation']
+                        ]
+                    );
+            }
+        }
+
+
+        foreach ($daAffichers as  $daAfficher) {
+            if (!$daAfficher instanceof DaAfficher) {
+                throw new Exception('Erreur: L\'objet DaAfficher est invalide.');
+            }
+            $daAfficher->setEstFactureBlSoumis(true);
+            $this->entityManager->persist($daAfficher);
+        }
+        $this->entityManager->flush();
+    }
+}

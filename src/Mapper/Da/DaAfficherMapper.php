@@ -9,6 +9,7 @@ use App\Controller\Traits\da\MarkupIconTrait;
 use App\Dto\Da\DaAfficherDto;
 use App\Entity\da\DaAfficher;
 use App\Entity\da\DemandeAppro;
+use App\Model\da\DaSoumissionFacBlModel;
 use App\Service\da\PermissionDaService;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Twig\Markup;
@@ -124,6 +125,16 @@ class DaAfficherMapper
         $dto->tdCheckboxAttributes = $this->getCheckboxAttributes($dto);
         $dto->aDtLivPrevAttributes = $this->getADtLivPrevAttributes($dto);
         $dto->aArtDesiAttributes = $this->getAArtDesiAttributes($dto);
+        $dto->ddpCloture = $this->getDdpStatutCloture($dto);
+
+        // DDP
+        $demandePaiementRepository = $options['demandePaiementRepository'] ?? null;
+
+        if ($demandePaiementRepository  && $dto->numeroDemandeAppro) {
+            $dto->statutCompta = $demandePaiementRepository->getDernierStatutDddp($dto->numeroCde, $dto->numeroDemandeAppro);
+        } else {
+            $dto->statutCompta = null;
+        }
 
         return $dto;
     }
@@ -255,5 +266,27 @@ class DaAfficherMapper
         ];
 
         return $daIcons[$typeId] ?? (string) new Markup('<i class="fas fa-ban text-muted"></i>', 'UTF-8');
+    }
+
+    private function getDdpStatutCloture(DaAfficherDto $dto): array
+    {
+        return [
+            'href' => '#',
+            "data-bs-toggle" => "modal",
+            "data-bs-target" => "#ddpCloture",
+            "data-numero-cde" => $dto->numeroCde,
+            "data-numero-da" => $dto->numeroDemandeAppro,
+            "data-montant-commande" => $this->getTotalMontantCommande($dto->numeroCde),
+        ];
+    }
+
+    /** DDPL */
+    private function getTotalMontantCommande($numCde): float
+    {
+        $daSoumissionFacBlModel = new DaSoumissionFacBlModel();
+        $totalMontantCommande = $daSoumissionFacBlModel->getTotalMontantCommande((int)$numCde);
+        if ($totalMontantCommande) return (float)$totalMontantCommande[0];
+
+        return 0;
     }
 }

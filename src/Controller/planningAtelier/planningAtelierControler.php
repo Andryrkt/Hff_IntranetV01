@@ -17,6 +17,7 @@ use App\Form\planningAtelier\planningAtelierSearchType;
  */
 class planningAtelierControler extends Controller
 {
+
     private planningAtelierSearch $planningAtelierSearch;
     private planningAtelierModel $planningAtelierModel;
     public function __construct()
@@ -33,7 +34,7 @@ class planningAtelierControler extends Controller
     public function planningAtelierEncours(Request $request)
     {
         $form = $this->getFormFactory()->createBuilder(
-            PlanningAtelierSearchType::class,
+            planningAtelierSearchType::class,
             $this->planningAtelierSearch,
             ['method' => 'GET']
         )->getForm();
@@ -43,25 +44,31 @@ class planningAtelierControler extends Controller
         $output = [];
         $filteredDates = [];
         $dates = [];
+        $paginationQuery = $request->query->all();
+        unset($paginationQuery['page']);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
             $start = $criteria->getDateDebut();
             $end = $criteria->getDateFin();
+            if (!$start) $start = new \DateTime();
+            if (!$end) $end = new \DateTime();
 
             $result = $this->planningAtelierModel->recupData($criteria);
             $interval = new \DateInterval('P1D');
-            $period = new \DatePeriod($start, $interval, (clone $end)->modify('+1 day'));
-
-            foreach ($period as $date) {
-                $dates[] = $date;
-                $filteredDates[] = $date->format('Y-m-d');
+            if ($start && $end) {
+                $period = new \DatePeriod($start, $interval, (clone $end)->modify('+1 day'));
+                foreach ($period as $date) {
+                    $dates[] = $date;
+                    $filteredDates[] = $date->format('Y-m-d');
+                }
             }
             $output = $this->recupdata($result, $dates, $output);
 
             $this->getSessionService()->set('data_export_planningAtelier_excel', $output);
             $this->getSessionService()->set('dates_export_planningAtelier_excel', $dates);
         }
+
         return $this->render('planningAtelier/planningAtelier.html.twig', [
             'form' => $form->createView(),
             'dates' => $dates,
@@ -73,7 +80,7 @@ class planningAtelierControler extends Controller
     public function recupdata($result, $dates, $output)
     {
         foreach ($result as $item) {
-            $key = $item['agenceem'] . '|' . $item['section'] . '|' . $item['intitule'] . '|' . $item['numor'] . '|' . $item['itv'] . '|' . $item['ressource'] . '|' . $item['nbjour'];
+            $key = $item['agenceem'] . '|' . $item['section'] . '|' . $item['intitule'] . '|' . $item['numor'] . '|' . $item['itv'] . '|' . $item['ressource'];
 
             if (!isset($output[$key])) {
                 $output[$key] = [
@@ -89,7 +96,6 @@ class planningAtelierControler extends Controller
                 ];
             }
             $output[$key]['nbTotalJ'] += $item["nbjour"];
-
             $debut = new \DateTime($item["datedebut"]);
             $fin = new \DateTime($item["datefin"]);
 
@@ -102,19 +108,22 @@ class planningAtelierControler extends Controller
                 $aprem_fin   = new \DateTime("$dateStr 17:30:00");
 
                 if (!isset($output[$key]['presence'][$dateStr])) {
-                    $output[$key]['presence'][$dateStr] = ['matin' => false, 'apm' => false];
+                    $output[$key]['presence'][$dateStr] = ['matin' => false, 'apm' => false, 'heure' => 0];
                 }
-
                 if ($fin >= $matin_debut && $debut < $matin_fin) {
                     $output[$key]['presence'][$dateStr]['matin'] = true;
                 }
                 if ($fin >= $aprem_debut && $debut < $aprem_fin) {
                     $output[$key]['presence'][$dateStr]['apm'] = true;
                 }
+                if (isset($item["hpointee"]) && $debut->format('Y-m-d') === $dateStr) {
+                    $output[$key]['presence'][$dateStr]['heure'] = (int)$item["hpointee"];
+                }
             }
         }
         return $output;
     }
+
     /**
      * @Route("/export_excel_planningAtelier", name= "export_planningAtelier")
      */

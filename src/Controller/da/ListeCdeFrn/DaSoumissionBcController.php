@@ -3,18 +3,21 @@
 namespace App\Controller\da\ListeCdeFrn;
 
 use App\Constants\da\StatutBcConstant;
+use App\Constants\ddp\TypeDemandePaiementConstants;
 use App\Controller\Controller;
+use App\Controller\Traits\PdfConversionTrait;
+use App\Dto\Da\ListeCdeFrn\DaSoumissionBcDto;
+use App\Entity\admin\ddp\TypeDemande;
+use App\Entity\da\DaAfficher;
 use App\Entity\da\DaSoumissionBc;
-use App\Entity\da\DaValider;
 use App\Entity\da\DemandeAppro;
-use App\Entity\dit\DemandeIntervention;
+use App\Factory\da\CdeFrnDto\DaSoumissionBcFactory;
 use App\Form\da\soumissionBC\DaSoumissionBcType;
 use App\Model\da\DaModel;
 use App\Model\da\DaSoumissionBcModel;
+use App\Repository\da\DaAfficherRepository;
 use App\Repository\da\DaSoumissionBcRepository;
-use App\Repository\da\DaValiderRepository;
 use App\Repository\da\DemandeApproRepository;
-use App\Repository\dit\DitRepository;
 use App\Service\fichier\TraitementDeFichier;
 use App\Service\genererPdf\GeneratePdf;
 use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
@@ -29,6 +32,7 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class DaSoumissionBcController extends Controller
 {
+    use PdfConversionTrait;
 
     private  DaSoumissionBc $daSoumissionBc;
     private TraitementDeFichier $traitementDeFichier;
@@ -37,8 +41,7 @@ class DaSoumissionBcController extends Controller
     private DaSoumissionBcRepository $daSoumissionBcRepository;
     private GeneratePdf $generatePdf;
     private DemandeApproRepository $demandeApproRepository;
-    private DitRepository $ditRepository;
-    private DaValiderRepository $daValiderRepository;
+    private DaAfficherRepository $daAfficherRepository;
     private DaSoumissionBcModel $daSoumissionBcModel;
 
     public function __construct()
@@ -52,26 +55,25 @@ class DaSoumissionBcController extends Controller
         $this->daSoumissionBcRepository = $this->getEntityManager()->getRepository(DaSoumissionBc::class);
         $this->generatePdf = new GeneratePdf();
         $this->demandeApproRepository = $this->getEntityManager()->getRepository(DemandeAppro::class);
-        $this->ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class);
-        $this->daValiderRepository = $this->getEntityManager()->getRepository(DaValider::class);
+        $this->daAfficherRepository = $this->getEntityManager()->getRepository(DaAfficher::class);
         $this->daSoumissionBcModel = new DaSoumissionBcModel();
     }
 
     /**
-     * @Route("/soumission-bc/{numCde}/{numDa}/{numOr}", name="da_soumission_bc", defaults={"numOr"=0})
+     * @Route("/soumission-bc/{numCde}/{numDa}/{numOr}/{typeDa}", name="da_soumission_bc", defaults={"numOr"=0, "typeDa" = null})
      */
-    public function index(string $numCde, string $numDa, string $numOr, Request $request)
+    public function index(string $numCde, string $numDa, string $numOr, ?string $typeDa, Request $request)
     {
         // Code Société de l'utilisateur
         $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
 
-        $this->daSoumissionBc->setNumeroCde($numCde);
+        $dto = DaSoumissionBcFactory::init((int)$numCde, (string) $numDa, (int)$numOr);
 
-        $form = $this->getFormFactory()->createBuilder(DaSoumissionBcType::class, $this->daSoumissionBc, [
+        $form = $this->getFormFactory()->createBuilder(DaSoumissionBcType::class, $dto, [
             'method' => 'POST',
         ])->getForm();
 
-        $this->traitementFormulaire($request, $numCde, $form, $numDa, $numOr, $codeSociete);
+        $this->traitementFormulaire($request, $numCde, $form, $numDa, $numOr, $typeDa, $codeSociete);
 
         return $this->render('da/soumissionBc.html.twig', [
             'form' => $form->createView(),
@@ -87,52 +89,94 @@ class DaSoumissionBcController extends Controller
      * @param [type] $form
      * @return void
      */
-    private function traitementFormulaire(Request $request, string $numCde, $form, string $numDa, string $numOr, string $codeSociete): void
+    private function traitementFormulaire(Request $request, string $numCde, $form, string $numDa, string $numOr, ?string $typeDa = null, string $codeSociete): void
     {
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var DaSoumissionBc $soumissionBc */
             $soumissionBc = $form->getData();
+            $soumissionBc->numeroCde = $numCde; // Set the numeroCde in the DTO
+            $bcStatut = $this->daSoumissionBcRepository->getStatut($numCde);
+            $condition_1 =  $soumissionBc->demandePaiementAvance && !$bcStatut;
+            $condition_2 = $soumissionBc->demandePaiementAvance && $bcStatut === 'Réfusé';
+            if ($condition_1 || $condition_2) {
+                if ($this->verifierConditionDeBlocage($soumissionBc, $numCde, $numDa)) {
+                    [$numeroVersionMax, $nomPdfFusionner] = $this->traitemnetBc($form, $numCde, $numDa, $numOr, $soumissionBc, false);
 
-            if ($this->verifierConditionDeBlocage($soumissionBc, $numCde, $numDa, $codeSociete)) {
-                /** ENREGISTREMENT DE FICHIER */
-                $nomDeFichiers = $this->enregistrementFichier($form, $numCde, $numDa);
+                    $this->getSessionService()->set('demande_paiement_a_l_avance', ['ddpa' => $soumissionBc->demandePaiementAvance, 'nom_pdf' => $nomPdfFusionner]);
+                    // redirection vers la page de creation de demande de paiement
+                    $this->redirectToRoute('demande_paiement_da', [
+                        'typeDdp' => 1,
+                        'numCdeDa' => $numCde,
+                        'typeDa' => $typeDa,
+                        'numeroVersionBc' => $numeroVersionMax,
+                    ]);
+                }
+            } else {
 
-                //numeroversion max
-                $numeroVersionMax = $this->autoIncrement($this->daSoumissionBcRepository->getNumeroVersionMax($numCde, $codeSociete));
-                /** FUSION DES PDF */
-                $nomFichierAvecChemins = $this->addPrefixToElementArray($nomDeFichiers, $this->cheminDeBase . $numDa . '/');
-                $fichierConvertir = $this->ConvertirLesPdf($nomFichierAvecChemins);
-                $nomPdfFusionner =  'BCAppro!' . $numCde . '#' . $numDa . '-' . $numOr . '_' . $numeroVersionMax . '.pdf';
-                $nomAvecCheminPdfFusionner = $this->cheminDeBase . $numDa . '/' . $nomPdfFusionner;
-                $this->traitementDeFichier->fusionFichers($fichierConvertir, $nomAvecCheminPdfFusionner);
+                if ($this->verifierConditionDeBlocage($soumissionBc, $numCde, $numDa, $codeSociete)) {
 
-                /** AJOUT DES INFO NECESSAIRE */
-                $soumissionBc = $this->ajoutInfoNecesaireSoumissionBc($numCde, $numDa, $soumissionBc, $nomPdfFusionner, $numeroVersionMax, $numOr, $codeSociete);
+                    $this->traitemnetBc($form, $numCde, $numDa, $numOr, $soumissionBc, true);
 
-                /** ENREGISTREMENT DANS LA BASE DE DONNEE */
-                $this->getEntityManager()->persist($soumissionBc);
-                $this->getEntityManager()->flush();
-
-                /** COPIER DANS DW */
-                $this->generatePdf->copyToDWBcDa($nomPdfFusionner, $numDa);
-
-                /** HISTORISATION */
-                $message = 'Le document est soumis pour validation';
-                $criteria = $this->getSessionService()->get('criteria_for_excel_Da_Cde_frn');
-                $nomDeRoute = 'da_list_cde_frn'; // route de redirection après soumission
-                $nomInputSearch = 'cde_frn_list'; // initialistion de nom de chaque champ ou input
-                $this->historiqueOperation->sendNotificationSoumission($message, $numCde, $nomDeRoute, true, $criteria, $nomInputSearch);
+                    /** HISTORISATION */
+                    $message = "Le document est soumis pour validation";
+                    $criteria = $this->getSessionService()->get('criteria_for_excel_Da_Cde_frn');
+                    $nomDeRoute = 'da_list_cde_frn'; // route de redirection après soumission
+                    $nomInputSearch = 'cde_frn_list'; // initialistion de nom de chaque champ ou input
+                    $this->historiqueOperation->sendNotificationSoumission($message, $numCde, $nomDeRoute, true, $criteria, $nomInputSearch);
+                }
             }
         }
     }
 
-
-    private function modificationDaValider(string $numDa, string $numCde): void
+    private function traitemnetBc($form, $numCde, $numDa, $numOr, DaSoumissionBcDto $soumissionBc, bool $copier): array
     {
-        $numeroVersionMaxCde = $this->daValiderRepository->getNumeroVersionMax($numDa);
-        $daValiders = $this->daValiderRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMaxCde, 'numeroCde' => $numCde]);
+        /** ENREGISTREMENT DE FICHIER */
+        $nomDeFichiers = $this->enregistrementFichier($form, $numCde, $numDa);
+
+        //numeroversion max
+        $numeroVersionMax = $this->autoIncrement($this->daSoumissionBcRepository->getNumeroVersionMax($numCde, $codeSociete));
+        /** FUSION DES PDF */
+        $nomFichierAvecChemins = $this->addPrefixToElementArray($nomDeFichiers, $this->cheminDeBase . $numDa . '/');
+        $fichierConvertir = $this->ConvertirLesPdf($nomFichierAvecChemins);
+        $nomPdfFusionner =  'BCAppro!' . $numCde . '#' . $numDa . '-' . $numOr . '_' . $numeroVersionMax . '.pdf';
+        $nomAvecCheminPdfFusionner = $this->cheminDeBase . $numDa . '/' . $nomPdfFusionner;
+        $this->traitementDeFichier->fusionFichers($fichierConvertir, $nomAvecCheminPdfFusionner);
+
+        /** AJOUT DES INFO NECESSAIRE */
+        $soumissionBc = $this->ajoutInfoNecesaireSoumissionBc($numCde, $numDa, $nomPdfFusionner, $numeroVersionMax, $numOr, $codeSociete);
+
+        /** ENREGISTREMENT DANS LA BASE DE DONNEE */
+        $this->getEntityManager()->persist($soumissionBc);
+        $this->getEntityManager()->flush();
+
+        if ($copier) {
+            /** COPIER DANS DW */
+            $this->generatePdf->copyToDWBcDa($nomPdfFusionner, $numDa);
+
+            /** modification du table da_afficher */
+            $this->modificationDaAfficher($numDa, $numCde);
+        }
+
+        return [$numeroVersionMax, $nomPdfFusionner];
+    }
+
+    private function getTypePayementAvantLivraison(): TypeDemande
+    {
+        // recupération du type de demande "DDP avant livraison"
+        $ddpAvantLivraison = $this->getEntityManager()->getRepository(TypeDemande::class)->find(TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE);
+        if (!$ddpAvantLivraison) {
+            throw new \Exception("Le type de demande 'DDP avant livraison' (ID 1) n'a pas été trouvé.");
+        }
+
+        return $ddpAvantLivraison;
+    }
+
+    private function modificationDaAfficher(string $numDa, string $numCde): void
+    {
+        $numeroVersionMaxCde = $this->daAfficherRepository->getNumeroVersionMax($numDa);
+        $daValiders = $this->daAfficherRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMaxCde, 'numeroCde' => $numCde]);
         if (!empty($daValiders)) {
             foreach ($daValiders as $key => $daValider) {
                 $daValider
@@ -144,7 +188,7 @@ class DaSoumissionBcController extends Controller
         }
     }
 
-    private function ajoutInfoNecesaireSoumissionBc(string $numCde, string $numDa, DaSoumissionBc $soumissionBc, string $nomPdfFusionner, int $numeroVersionMax, string $numOr): DaSoumissionBc
+    private function ajoutInfoNecesaireSoumissionBc(string $numCde, string $numDa, string $nomPdfFusionner, int $numeroVersionMax, string $numOr): DaSoumissionBc
     {
         $numDit = $this->demandeApproRepository->getNumDitDa($numDa, $codeSociete);
         // $numOr = $this->ditRepository->getNumOr($numDit);
@@ -162,7 +206,7 @@ class DaSoumissionBcController extends Controller
             ->setCodeSociete($codeSociete)
             ->setMontantBc($montantBc)
         ;
-        return $soumissionBc;
+        return $daSoumissionBc;
     }
 
     private function getMontantBc(string $numCde, string $codeSociete): float
@@ -171,9 +215,10 @@ class DaSoumissionBcController extends Controller
         return $daModel->getMontantBcDaDirect($numCde, $codeSociete);
     }
 
-    private function conditionDeBlocage(DaSoumissionBc $soumissionBc, string $numCde, string $numDa, string $codeSociete): array
+    private function conditionDeBlocage(DaSoumissionBcDto $soumissionBc, string $numCde, string $numDa, string $codeSociete): array
     {
-        $nomdeFichier = $soumissionBc->getPieceJoint1()->getClientOriginalName();
+        // Ensure pieceJoint1 is an UploadedFile before attempting to get its original name
+        $nomdeFichier = $soumissionBc->pieceJoint1 instanceof UploadedFile ? $soumissionBc->pieceJoint1->getClientOriginalName() : '';
         $nomdeFichier = str_replace('BON_DE_COMMANDE', 'BON DE COMMANDE', $nomdeFichier);
         $statut = $this->daSoumissionBcRepository->getStatut($numCde, $codeSociete);
         $montantBc = $this->daSoumissionBcRepository->getMontantBc($numCde, $codeSociete);
@@ -189,10 +234,11 @@ class DaSoumissionBcController extends Controller
         ];
     }
 
-    private function verifierConditionDeBlocage(DaSoumissionBc $soumissionBc, string $numCde, string $numDa, string $codeSociete): bool
+    private function verifierConditionDeBlocage(DaSoumissionBcDto $soumissionBc, string $numCde, string $numDa, string $codeSociete): bool
     {
         $conditions = $this->conditionDeBlocage($soumissionBc, $numCde, $numDa, $codeSociete);
-        $nomdeFichier = $soumissionBc->getPieceJoint1()->getClientOriginalName();
+        // Ensure pieceJoint1 is an UploadedFile before attempting to get its original name
+        $nomdeFichier = $soumissionBc->pieceJoint1 instanceof UploadedFile ? $soumissionBc->pieceJoint1->getClientOriginalName() : '';
         $okey = false;
 
         if ($conditions['nomDeFichier']) {
@@ -285,49 +331,5 @@ class DaSoumissionBcController extends Controller
             $num = 0;
         }
         return (int)$num + 1;
-    }
-
-    private function ConvertirLesPdf(array $tousLesFichersAvecChemin)
-    {
-        $tousLesFichiers = [];
-        foreach ($tousLesFichersAvecChemin as $filePath) {
-            $tousLesFichiers[] = $this->convertPdfWithGhostscript($filePath);
-        }
-
-        return $tousLesFichiers;
-    }
-
-
-    private function convertPdfWithGhostscript($filePath)
-    {
-        $gsPath = 'C:\Program Files\gs\gs10.05.0\bin\gswin64c.exe'; // Modifier selon l'OS
-        $tempFile = $filePath . "_temp.pdf";
-
-        // Vérifier si le fichier existe et est accessible
-        if (!file_exists($filePath)) {
-            throw new Exception("Fichier introuvable : $filePath");
-        }
-
-        if (!is_readable($filePath)) {
-            throw new Exception("Le fichier PDF ne peut pas être lu : $filePath");
-        }
-
-        // Commande Ghostscript
-        $command = "\"$gsPath\" -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -o \"$tempFile\" \"$filePath\"";
-        // echo "Commande exécutée : $command<br>";
-
-        exec($command, $output, $returnVar);
-
-        if ($returnVar !== 0) {
-            echo "Sortie Ghostscript : " . implode("\n", $output);
-            throw new Exception("Erreur lors de la conversion du PDF avec Ghostscript");
-        }
-
-        // Remplacement du fichier
-        if (!rename($tempFile, $filePath)) {
-            throw new Exception("Impossible de remplacer l'ancien fichier PDF.");
-        }
-
-        return $filePath;
     }
 }

@@ -76,6 +76,25 @@ class StatutBcConstant
         self::STATUT_A_SOUMETTRE_A_VALIDATION,
     ];
 
+    public const TRAITER_APPRO_LIST = [
+        self::STATUT_PAS_DANS_BC,
+        self::STATUT_PAS_DANS_OR_CESSION,
+        self::STATUT_A_GENERER,
+        self::STATUT_CESSION_A_GENERER,
+        self::STATUT_A_EDITER,
+        self::STATUT_A_SOUMETTRE_A_VALIDATION,
+        self::STATUT_A_ENVOYER_AU_FOURNISSEUR
+    ];
+
+    public const STATUT_BC_EN_COURS_CLOTURE = [
+        self::STATUT_A_GENERER,
+        self::STATUT_CESSION_A_GENERER,
+        self::STATUT_A_EDITER,
+        self::STATUT_A_SOUMETTRE_A_VALIDATION,
+        self::STATUT_A_ENVOYER_AU_FOURNISSEUR,
+        self::STATUT_TOUS_LIVRES
+    ];
+
     public const CSS_CLASS_MAP_STATUT_BC = [
         self::STATUT_A_EDITER                 => 'bg-bc-a-editer',
         self::STATUT_A_GENERER                => 'bg-bc-a-generer',

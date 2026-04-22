@@ -54,6 +54,7 @@
 							</div>
 						</div>
 					</th>
+					<th class="text-center">Statut compta</th>
 					<th class="text-center">Demandeur</th>
 				</tr>
 			</thead>
@@ -104,6 +105,15 @@
 							{% endif %}
 						</td>
 						<td class="text-center {{ row.styleJoursDispo }}">{{ row.joursDispo }}</td>
+						<td class="text-center fw-bold {{ row.styleStatutCompta }}">
+							{% if row.statutCompta %}
+								<a {% for attr, val in row.ddpCloture %} {{ attr }}="{{ val }}" {% endfor %}>
+									{{row.statutCompta}}
+								</a>
+							{% else %}
+								-
+							{% endif %}
+						</td>
 						<td class="text-center">{{ row.demandeur}}</td>
 					</tr>
 				{% else %}
@@ -121,6 +131,7 @@
 	{% include "/da/shared/cdeFrn/_menuContextuel.html.twig" %}
 	{% include "/dit/shared/_modalNiveauUrgence.html.twig" %}
 	{% include "/da/shared/cdeFrn/_modalDateLivraison.html.twig" %}
+	{% include "/da/shared/cdeFrn/_modalDdpCloture.html.twig" %}
 
 {% endblock %}
 

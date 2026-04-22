@@ -551,7 +551,7 @@ class DaModel extends Model
                 TRIM(fcdl_refp) as reference,
                 TRIM(fcdl_desi) as designation, 
                 ROUND(fcdl_qte) as qte_dem,
-                ROUND(fcdl_qteli) as qte_receptionnee,
+                ROUND(fcdl_qteli) as qte_dispo,
                 ROUND(fcdl_qtefa) as qte_livree
                     FROM frn_cdl c 
                 WHERE fcdl_constp ='ZDI' 
@@ -670,12 +670,65 @@ class DaModel extends Model
                         f2.fliv_mtn AS montant_fac_bl
                     from Informix.frn_llf f 
                     inner join Informix.frn_liv f2 on f.fllf_numliv = f2.fliv_numliv 
-                where f.fllf_numcde = '$numCde' and f2.fliv_soc ='$codeSociete'";
+                where f.fllf_numcde = '$numCde' and f2.fliv_soc ='$codeSociete'
+        ";
         $result = $this->connect->executeQuery($statement);
         $rows = $this->convertirEnUtf8($this->connect->fetchResults($result));
 
         // On réindexe directement par num_liv en une seule étape
         return array_column($rows, null, 'num_liv');
+    }
+
+    public function getHistoriqueLivraison(string $numCde)
+    {
+        $statement = "SELECT 
+                        fllf_numliv as num_liv, 
+                        (
+                            select TRIM(fliv_livext) from Informix.frn_liv 
+                            where fliv_soc = fcde_soc and fliv_numliv = fllf_numliv
+                        ) as ref_fac_bl,  
+                        (
+                            select fliv_dateclot from Informix.frn_liv 
+                            where fliv_soc = fcde_soc and fliv_numliv = fllf_numliv
+                        ) as date_clot, 
+                        sum(fllf_qteliv * fllf_pxach) as montant_fac_bl
+                    from Informix.frn_cde, Informix.frn_llf 
+                    where fcde_numcde = '$numCde'
+                    and fcde_soc = fllf_soc
+                    and fcde_numcde = fllf_numcde
+                    group by 1,2,3
+                    order by 1,3
+        ";
+        $result = $this->connect->executeQuery($statement);
+        $rows = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return $rows;
+    }
+
+    public function getHistoriqueLivraison(string $numCde)
+    {
+        $statement = "SELECT 
+                        fllf_numliv as num_liv, 
+                        (
+                            select TRIM(fliv_livext) from Informix.frn_liv 
+                            where fliv_soc = fcde_soc and fliv_numliv = fllf_numliv
+                        ) as ref_fac_bl,  
+                        (
+                            select fliv_dateclot from Informix.frn_liv 
+                            where fliv_soc = fcde_soc and fliv_numliv = fllf_numliv
+                        ) as date_clot, 
+                        sum(fllf_qteliv * fllf_pxach) as montant_fac_bl
+                    from Informix.frn_cde, Informix.frn_llf 
+                    where fcde_numcde = '$numCde'
+                    and fcde_soc = fllf_soc
+                    and fcde_numcde = fllf_numcde
+                    group by 1,2,3
+                    order by 1,3
+        ";
+        $result = $this->connect->executeQuery($statement);
+        $rows = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return $rows;
     }
 
     public function getInfoBC(string $numCde, string $codeSociete)

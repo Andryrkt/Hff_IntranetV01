@@ -39,6 +39,10 @@ CREATE TABLE demande_paiement
     CONSTRAINT PK_demande_paiement PRIMARY KEY (id, numero_demande_paiement)
 );
 
+ALTER TABLE demande_paiement ADD numero_cla VARCHAR(50)
+ALTER TABLE demande_paiement ADD date_soumission_compta DATETIME2 (3)
+ALTER TABLE demande_paiement ALTER COLUMN numero_commande VARCHAR(50);
+ALTER TABLE demande_paiement ALTER COLUMN numero_facture VARCHAR(50);
 
 CREATE TABLE type_demande
 (
@@ -64,6 +68,12 @@ VALUES
     ('DPA', 'Demande de paiement à l''avance', null),
     ('DPL', 'Demande de paiement après arrivage', null)
 
+INSERT INTO type_demande
+    (code_type_demande, libelle_type_demande, description)
+VALUES
+    ('DPR', 'Demande de paiement régul', null)
+
+
 CREATE TABLE demande_paiement_ligne
 (
     id INT IDENTITY (1, 1),
@@ -77,20 +87,6 @@ CREATE TABLE demande_paiement_ligne
     CONSTRAINT PK_demande_paiement_ligne PRIMARY KEY (id)
 );
 
-ALTER TABLE demande_paiement
-ADD mode_paiement VARCHAR(50)
-
-ALTER TABLE demande_paiement
-ADD montant_a_payer DECIMAL(18, 2)
-
-ALTER TABLE demande_paiement
-ADD contact VARCHAR(50)
-
-ALTER TABLE demande_paiement
-ADD numero_commande VARCHAR(max)
-
-ALTER TABLE demande_paiement
-ADD numero_facture VARCHAR(max)
 
 
 CREATE TABLE historique_statut_ddp
@@ -104,37 +100,69 @@ CREATE TABLE historique_statut_ddp
 
 
 ALTER TABLE document_demande_paiement
-ADD nom_dossier VARCHAR(255)
+ADD nom_dossier VARCHAR(255),
+num_ddr VARCHAR(11),
+numeroVersion int
 
-ALTER TABLE document_demande_paiement
-ADD num_ddr VARCHAR(11)
-
-ALTER TABLE demande_paiement
-ADD statut_dossier_regul VARCHAR(100)
 
 ALTER TABLE demande_paiement
-ADD numeroVersion int
+ADD statut_dossier_regul VARCHAR(100),
+numeroVersion int,
+devise varchar(5),
+est_autre_doc bit DEFAULT 0,
+nom_autre_doc VARCHAR(255),
+est_cde_client_externe_doc bit DEFAULT 0,
+nom_cde_client_externe_doc VARCHAR(max),
+numero_dossier_douane VARCHAR(max),
+numero_version_bc int,
+mode_paiement VARCHAR(50),
+montant_a_payer DECIMAL(18, 2),
+contact VARCHAR(50),
+numero_commande VARCHAR(max),
+numero_facture VARCHAR(max),
+appro bit DEFAULT 0,
+type_da INT DEFAULT NULL
+
 
 ALTER TABLE demande_paiement_ligne
-ADD numeroVersion int
-
-ALTER TABLE document_demande_paiement
-ADD numeroVersion int
+ADD numeroVersion int,
+ratio_montant_payer DECIMAL(18, 2)
 
 ALTER TABLE demande_paiement
-ADD devise varchar(5)
+ADD fichier_ddpa VARCHAR(255),
+deposer_dw BIT DEFAULT 0,
+date_depot_dw DATETIME2 (3)
 
-ALTER TABLE demande_paiement
-ADD est_autre_doc bit DEFAULT 0
+            CREATE TABLE demande_paiement_commande
+(
+    id INT IDENTITY (1, 1),
+    numero_ddp VARCHAR(50),
+    numero_commande VARCHAR(50),
+    numero_demande_appro VARCHAR(50),
+    CONSTRAINT PK_demande_paiement_commande PRIMARY KEY (id)
+);
 
-ALTER TABLE demande_paiement
-ADD nom_autre_doc VARCHAR(255)
+CREATE TABLE commande_livraison
+(
+    id INT IDENTITY (1, 1),
+    numero_commande VARCHAR(50),
+    numero_livraison VARCHAR(50),
+    numero_facture VARCHAR(50),
+    CONSTRAINT PK_commande_livraison PRIMARY KEY (id)
+);
 
-ALTER TABLE demande_paiement
-ADD est_cde_client_externe_doc bit DEFAULT 0
+ALTER TABLE demande_paiement_commande
+ADD demandePaiementId INT NULL;
 
-ALTER TABLE demande_paiement
-ADD nom_cde_client_externe_doc VARCHAR(max)
+ALTER TABLE demande_paiement_commande
+ADD client VARCHAR(50) NULL;
 
-ALTER TABLE demande_paiement
-ADD numero_dossier_douane VARCHAR(max)
+-- Ajout de la contrainte de clé étrangère (si tu veux lier physiquement les deux tables en BDD)
+--ALTER TABLE demande_paiement_commande
+--ADD CONSTRAINT FK_DDP_COMMANDE_DDP FOREIGN KEY (demandePaiementId) REFERENCES demande_paiement(id);
+
+ALTER TABLE commande_livraison
+ADD demandePaiementId INT NULL;
+-- Ajout de la contrainte de clé étrangère (optionnelle mais très recommandée)
+--ALTER TABLE commande_livraison
+--ADD CONSTRAINT FK_COMMANDE_LIVRAISON_DDP FOREIGN KEY (demandePaiementId) REFERENCES demande_paiement(id);

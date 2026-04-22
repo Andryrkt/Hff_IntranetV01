@@ -153,3 +153,4 @@ ALTER TABLE da_afficher ADD est_bl_reappro_soumis bit DEFAULT 0;
    
    -- Index pour le tri par date de demande
     CREATE INDEX idx_da_date_demande ON da_afficher (date_demande);
+ALTER TABLE da_afficher ADD est_correction_statut_bc bit DEFAULT 0;

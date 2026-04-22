@@ -105,6 +105,9 @@ export function enableDropzone(id) {
 let fileStore = [];
 
 export function initializeFileHandlersMultiple(idSuffix, fileInput) {
+  if (!fileInpute) {
+    return; // Silently fail if the input element doesn't exist
+  }
   if (!fileInput) return; // Si l'input n'existe pas, on ne fait rien
 
   const fileList = document.querySelector(`#file-list-${idSuffix}`);

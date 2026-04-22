@@ -24,23 +24,19 @@ class DemandePaiementModel extends Model
                         WHEN ffou_modp = 'VI' THEN 'VIREMENT'
                         ELSE ffou_modp
                     END) AS mode_paiement,
-                    MIN(CASE
-                        WHEN fbqe_ciban = '' OR fbqe_ciban = 'MG' THEN fbqe_bqcpte
-                        ELSE fbqe_ciban
-                    END) AS rib
+                    TRIM(fbqe_bqcode) ||' '|| TRIM(fbqe_bqguich) ||' '|| TRIM(fbqe_bqcpte) ||' '|| TRIM(fbqe_bqrib) AS rib
                 FROM 
-                    FRN_BSE
+                    informix.FRN_BSE
                 JOIN 
-                    FRN_FOU ON FBSE_NUMFOU = FFOU_NUMFOU
+                    informix.FRN_FOU ON FBSE_NUMFOU = FFOU_NUMFOU
                 JOIN
-                    fou_bqe ON fbqe_numfou = fbse_numfou
+                    informix.fou_bqe ON fbqe_numfou = fbse_numfou
                 WHERE 
                     FFOU_SOC = 'HF'
                 GROUP BY 
-                    FBSE_NUMFOU
+                    FBSE_NUMFOU, rib
                 ORDER BY 
-                    nom_fournisseur;
-
+                    nom_fournisseur
         ";
 
         $result = $this->connect->executeQuery($statement);
@@ -121,38 +117,51 @@ class DemandePaiementModel extends Model
         return array_column($this->retournerResultGcot04($sql), 'Numero_Facture');
     }
 
-    public function getNumDossierGcot(string $numeroFournisseur, string  $numCdesString, string $numFactString): array
+    public function getNumDossierGcot(string $numeroFournisseur, string  $numCdesString, ?string $numFactString): array
     {
+        if (!empty($numFactString)) {
+            $numFac = " and TRZT_Facture.Numero_Facture in ({$numFactString})";
+        } else {
+            $numFac = '';
+        }
         $sql = " SELECT  DISTINCT
-
             TRZT_Dossier_Douane.Numero_Dossier_Douane
             from TRZT_Dossier_Douane
             LEFT JOIN TRZT_Facture on TRZT_Dossier_Douane.Numero_Dossier_Douane = TRZT_Facture.Numero_Dossier_Douane
             LEFT JOIN GCOT_Facture on TRZT_Facture.Numero_Facture = GCOT_Facture.Numero_Facture
             LEFT JOIN GCOT_Facture_Ligne on GCOT_Facture.ID_GCOT_Facture = GCOT_Facture_Ligne.ID_GCOT_Facture
             where TRZT_Dossier_Douane.Numero_Dossier_Douane like '%' 
-            and TRZT_Facture.Numero_Facture in ({$numFactString})
+            $numFac
             and TRZT_Dossier_Douane.Code_Fournisseur = '{$numeroFournisseur}'
             and GCOT_Facture_Ligne.Numero_PO in ({$numCdesString})
             ";
         return $this->retournerResultGcot04($sql);
     }
 
-    public function getNumCommande(string $numeroFournisseur, string  $numCdesString, string $numFactString): array
+    public function getNumCommande(string $numeroFournisseur, string $numCdesString, ?string $numFactString): string
     {
-        $sql = " SELECT DISTINCT
+        if (!empty($numFactString)) {
+            $numFac = "and TRZT_Facture.Numero_Facture in ({$numFactString})";
+        } else {
+            $numFac = '';
+        }
 
-            GCOT_Facture_Ligne.Numero_PO as numerocde
-            from TRZT_Dossier_Douane
-            LEFT JOIN TRZT_Facture on TRZT_Dossier_Douane.Numero_Dossier_Douane = TRZT_Facture.Numero_Dossier_Douane
-            LEFT JOIN GCOT_Facture on TRZT_Facture.Numero_Facture = GCOT_Facture.Numero_Facture
-            LEFT JOIN GCOT_Facture_Ligne on GCOT_Facture.ID_GCOT_Facture = GCOT_Facture_Ligne.ID_GCOT_Facture
-            where TRZT_Dossier_Douane.Numero_Dossier_Douane like '%' 
-            and TRZT_Facture.Numero_Facture in ({$numFactString})
-            and TRZT_Dossier_Douane.Code_Fournisseur = '{$numeroFournisseur}'
-            and GCOT_Facture_Ligne.Numero_PO in ({$numCdesString})
-            ";
-        return array_column($this->retournerResultGcot04($sql), 'numerocde');
+        $sql = " SELECT DISTINCT
+        GCOT_Facture_Ligne.Numero_PO as numerocde
+        from TRZT_Dossier_Douane
+        LEFT JOIN TRZT_Facture on TRZT_Dossier_Douane.Numero_Dossier_Douane = TRZT_Facture.Numero_Dossier_Douane
+        LEFT JOIN GCOT_Facture on TRZT_Facture.Numero_Facture = GCOT_Facture.Numero_Facture
+        LEFT JOIN GCOT_Facture_Ligne on GCOT_Facture.ID_GCOT_Facture = GCOT_Facture_Ligne.ID_GCOT_Facture
+        where TRZT_Dossier_Douane.Numero_Dossier_Douane like '%' 
+        $numFac
+        and TRZT_Dossier_Douane.Code_Fournisseur = '{$numeroFournisseur}'
+        and GCOT_Facture_Ligne.Numero_PO in ({$numCdesString})
+        ";
+
+        $result = array_column($this->retournerResultGcot04($sql), 'numerocde');
+
+        // Retourner la première valeur ou une chaîne vide
+        return !empty($result) ? (string) $result[0] : '';
     }
 
 
@@ -265,16 +274,22 @@ class DemandePaiementModel extends Model
         return array_column($this->convertirEnUtf8($data), 'facture_non_lettree');
     }
 
-    public function getCommandeReceptionnee(string $numeroFournisseur)
+    public function getCommandeReceptionnee(string $numeroFournisseur): array
     {
         $statement = " SELECT distinct fllf_numcde as commande_receptionnee from frn_llf
-                    inner join frn_liv on fliv_numliv = fllf_numliv and fliv_soc = fllf_soc and fliv_succ = fllf_succ and fliv_soc = 'HF'
-                    where fliv_numfou = '{$numeroFournisseur}'
+                inner join frn_liv 
+                    on fliv_numliv = fllf_numliv 
+                    and fliv_soc = fllf_soc 
+                    and fliv_succ = fllf_succ 
+                    and fliv_soc = 'HF'
+                where fliv_numfou = '{$numeroFournisseur}'
         ";
 
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
-        return array_column($this->convertirEnUtf8($data), 'commande_receptionnee');
+        $data = $this->convertirEnUtf8($data);
+
+        return array_column($data, 'commande_receptionnee');
     }
 
     public function recupInfoPourDa(string $numeroFournisseur, string $numCde)
@@ -283,7 +298,7 @@ class DemandePaiementModel extends Model
                     FBSE_NUMFOU AS num_fournisseur,
                     UPPER(MIN(FBSE_NOMFOU)) AS nom_fournisseur,  -- Prend un seul nom fournisseur (Beneficiaire)
                     MIN(fbse_devise) AS devise,                  -- Prend une seule devise
-                    MIN(CASE
+                    TRIM(MIN(CASE
                         WHEN ffou_modp = 'CB' THEN 'CARTE BANCAIRE'
                         WHEN ffou_modp = 'CD' THEN 'CHEQUE DIFFERE'
                         WHEN ffou_modp = 'CH' THEN 'CHEQUE COMPTANT'
@@ -291,14 +306,17 @@ class DemandePaiementModel extends Model
                         WHEN ffou_modp = 'TA' THEN 'TRAITE'
                         WHEN ffou_modp = 'VI' THEN 'VIREMENT'
                         ELSE ffou_modp
-                    END) AS mode_paiement,
-                    MIN(CASE
-                        WHEN fbqe_ciban = '' OR fbqe_ciban = 'MG' THEN fbqe_bqcpte
-                        ELSE fbqe_ciban
-                    END) AS rib_fournisseur,
+                    END)) AS mode_paiement,
+                    TRIM(fbqe_bqcode) ||' '|| TRIM(fbqe_bqguich) ||' '|| TRIM(fbqe_bqcpte) ||' '|| TRIM(fbqe_bqrib) AS rib_fournisseur,
                     fcde_succ as code_agence, 
                     fcde_serv as code_service,
-                    fcde_numcde as numero_cde
+                    fcde_numcde as numero_cde,
+                    'N°TVA : '||TRIM(fbse_asstva)||' - SIRET : '||fbse_siret
+                    --case when ffou_modp = 'CD' or ffou_modp = 'CH'
+                        --then 'N°TVA : '||TRIM(fbse_asstva)||' - SIRET : '||fbse_siret
+                        --else null
+                    --END 
+                    as cif
                 FROM 
                     informix.FRN_BSE
                 JOIN 
@@ -312,10 +330,9 @@ class DemandePaiementModel extends Model
                     AND fcde_numcde = '{$numCde}'
                     AND fbse_numfou = '{$numeroFournisseur}'
                 GROUP BY 
-                    FBSE_NUMFOU, code_agence, code_service, numero_cde
+                    FBSE_NUMFOU, code_agence, code_service, numero_cde, cif, rib_fournisseur
                 ORDER BY 
-                    nom_fournisseur;
-
+                    nom_fournisseur
         ";
 
         $result = $this->connect->executeQuery($statement);
@@ -323,5 +340,113 @@ class DemandePaiementModel extends Model
         $data = $this->connect->fetchResults($result);
 
         return $this->convertirEnUtf8($data);
+    }
+
+    public function getCodeAgenceService(?int $numOr)
+    {
+        $statement = " SELECT 
+                    seor_succ as code_agence, 
+                    seor_servcrt as code_service 
+                    from informix.sav_eor 
+                    where seor_numor = '$numOr'
+        ";
+
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
+    public function getMontantTotalCde(int $numCde): array
+    {
+        $statement = " SELECT fcde_mtn as montant_total_cde
+                from informix.frn_cde 
+                where fcde_numcde ='$numCde'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+
+
+        return array_column($data, 'montant_total_cde');
+    }
+
+
+    public function recupInfoComamnde(string $numCde, string $numeroFournisseur)
+    {
+        $statement = " SELECT 
+                    FBSE_NUMFOU AS num_fournisseur,
+                    UPPER(MIN(FBSE_NOMFOU)) AS nom_fournisseur,  -- Prend un seul nom fournisseur (Beneficiaire)
+                    MIN(fbse_devise) AS devise,                  -- Prend une seule devise
+                    TRIM(MIN(CASE
+                        WHEN ffou_modp = 'CB' THEN 'CARTE BANCAIRE'
+                        WHEN ffou_modp = 'CD' THEN 'CHEQUE DIFFERE'
+                        WHEN ffou_modp = 'CH' THEN 'CHEQUE COMPTANT'
+                        WHEN ffou_modp = 'CO' THEN 'ESPECES COMPTANT'
+                        WHEN ffou_modp = 'TA' THEN 'TRAITE'
+                        WHEN ffou_modp = 'VI' THEN 'VIREMENT'
+                        ELSE ffou_modp
+                    END)) AS mode_paiement,
+                    TRIM(fbqe_bqcode) ||' '|| TRIM(fbqe_bqguich) ||' '|| TRIM(fbqe_bqcpte) ||' '|| TRIM(fbqe_bqrib) AS rib_fournisseur,
+                    fcde_succ as code_agence, 
+                    fcde_serv as code_service,
+                    fcde_numcde as numero_cde,
+                    fcde_mtn as montant_total_cde
+                FROM 
+                    informix.FRN_BSE
+                JOIN 
+                    informix.FRN_FOU ON FBSE_NUMFOU = FFOU_NUMFOU
+                JOIN
+                    informix.fou_bqe ON fbqe_numfou = fbse_numfou
+               	JOIN
+                    informix.frn_cde ON fcde_numfou = fbse_numfou
+                WHERE 
+                    FFOU_SOC = 'HF'
+                    AND fcde_numcde = '{$numCde}'
+                    AND fbse_numfou = '{$numeroFournisseur}'
+                GROUP BY 
+                    FBSE_NUMFOU, code_agence, code_service, numero_cde, montant_total_cde, rib_fournisseur
+                ORDER BY 
+                    nom_fournisseur
+        ";
+
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
+    public function getInfoDdpDa(string $numeroDa, string $numeroCde)
+    {
+        $sql = " SELECT  
+            FORMAT(dp.date_creation, 'dd/MM/yyyy HH:mm:ss') as date_soumission,
+            case 
+                when dsfb.numero_bap is null then dp.numero_demande_paiement
+                else dsfb.numero_bap
+            end as numero,
+            td.libelle_type_demande as type,
+            dp.motif,
+            FORMAT(dp.montant_a_payer, 'N2') as montant_ht,
+            dp.statut 
+            from demande_paiement dp 
+            left join da_soumission_facture_bl dsfb 
+            on dsfb.numero_demande_paiement = dp.numero_demande_paiement
+            left join type_demande td ON td.id = dp.type_demande_id 
+            where dp.numero_demande_appro ='{$numeroDa}'
+            and dp.numero_commande = '{$numeroCde}'
+            order by dp.date_creation  desc
+        ";
+        $resultStmt = $this->connexion->query($sql);
+        $data = [];
+        while ($result = odbc_fetch_array($resultStmt)) {
+            $data[] = $this->convertirEnUtf8($result);
+        }
+        return $data;
     }
 }

@@ -3,14 +3,16 @@
 namespace App\Controller\ddp;
 
 use App\Controller\Controller;
-use App\Form\ddp\DdpSearchType;
-use App\Entity\admin\ddp\DdpSearch;
+use App\Controller\Traits\AutorisationTrait;
+use App\Dto\ddp\DdpSearchDto;
+use App\Entity\admin\Application;
 use App\Entity\ddp\DemandePaiement;
-use App\Constants\admin\ApplicationConstant;
+use App\Form\ddp\DdpSearchType;
+use App\Mapper\ddp\DemandePaiementMapper;
+use App\Repository\ddp\DemandePaiementRepository;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Repository\ddp\DemandePaiementRepository;
-use App\Service\security\SecurityService;
 
 /**
  * @Route("/compta/demande-de-paiement")
@@ -18,12 +20,10 @@ use App\Service\security\SecurityService;
 class DdpListeController extends Controller
 {
     private DemandePaiementRepository $demandePaiementRepository;
-    private DdpSearch $ddpSearch;
     public function __construct()
     {
         parent::__construct();
         $this->demandePaiementRepository = $this->getEntityManager()->getRepository(DemandePaiement::class);
-        $this->ddpSearch = new DdpSearch();
     }
 
     /**
@@ -33,33 +33,25 @@ class DdpListeController extends Controller
      */
     public function ddpListe(Request $request)
     {
-        // Agences Services autorisés sur le DDP
-        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DDP);
-        $allAgenceServices = $this->getSecurityService()->getAllAgenceServices();
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+        /** Autorisation accées */
+        $this->autorisationAcces($this->getUser(), Application::ID_DDP);
+        /** FIN AUtorisation acées */
 
-        $form = $this->getFormFactory()->createBuilder(DdpSearchType::class, $this->ddpSearch, [
+        // creation et traitment de formulaire de recherche
+        $form = $this->getFormFactory()->createBuilder(DdpSearchType::class, new DdpSearchDto(), [
             'method' => 'GET',
             'allAgenceServices' => $allAgenceServices
         ])->getForm();
-        $form->handleRequest($request);
+        $criteria = $this->traitementFormulaire($form, $request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $this->ddpSearch =  $form->getdata();
-        }
+        // recupération des données dans la table demande_paiement
+        $ddps = $this->demandePaiementRepository->findDemandePaiement($criteria, $this->getUser());
 
-        $this->gererAgenceService($this->ddpSearch, $allAgenceServices);
+        // transforme en DTO
+        $dto = DemandePaiementMapper::mapInverse($ddps);
 
-        // Agence et service par défaut
-        $codeAgence = $this->getSecurityService()->getCodeAgenceUser();
-        $codeService = $this->getSecurityService()->getCodeServiceUser();
-
-        // Vérifier la permission de voir tous les données
-        $multisuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE);
-
-        // Vérifier le permission de voir liste avec débiteur sur la page courante
-        $peutVoirListeAvecDebiteur = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_AUTH_2);
-
-        $data = $this->demandePaiementRepository->findDemandePaiement($this->ddpSearch, $codeAgence, $codeService, $agenceServiceAutorises, $peutVoirListeAvecDebiteur, $multisuccursale);
         /** suppression de ssession page_loadede  */
         if ($this->getSessionService()->has('page_loaded')) {
             $this->getSessionService()->remove('page_loaded');
@@ -67,19 +59,19 @@ class DdpListeController extends Controller
 
 
         return $this->render('ddp/demandePaiementList.html.twig', [
-            'data' => $data,
+            'dto' => $dto,
             'form' => $form->createView(),
         ]);
     }
 
-    private function gererAgenceService(DdpSearch $ddpSearch, array $allAgenceServices): void
+    public function traitementFormulaire(FormInterface $form, Request $request): DdpSearchDto
     {
-        // Changer le serviceDebiteur
-        if ($ddpSearch->getService()) {
-            $ligneId = $ddpSearch->getService();
-            if ($ligneId && isset($allAgenceServices[$ligneId])) {
-                $ddpSearch->setService($allAgenceServices[$ligneId]['service_code']);
-            }
+        $form->handleRequest($request);
+        $criteria = new DdpSearchDto();
+        if ($form->isSubmitted() && $form->isValid()) {
+            $criteria =  $form->getdata();
         }
+
+        return $criteria;
     }
 }

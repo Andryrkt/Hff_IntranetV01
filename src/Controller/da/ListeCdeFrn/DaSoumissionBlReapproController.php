@@ -5,6 +5,7 @@ namespace App\Controller\da\ListeCdeFrn;
 use Exception;
 use App\Entity\da\DaAfficher;
 use App\Controller\Controller;
+use App\Entity\da\DaSoumissionFacBl;
 use App\Service\genererPdf\GeneratePdf;
 use App\Service\fichier\TraitementDeFichier;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,8 +14,10 @@ use App\Dto\Da\ListeCdeFrn\DaSoumisionBlReapproDto;
 use App\Form\da\daCdeFrn\DaSoumissionBlReapprotype;
 use App\Repository\da\DaAfficherRepository;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use App\Factory\da\CdeFrnDto\DaSoumissionBlReapproFactory;
 use App\Service\historiqueOperation\HistoriqueOperationService;
 use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
+use Symfony\Component\Form\FormInterface;
 
 /**
  * @Route("/demande-appro")
@@ -43,9 +46,7 @@ class DaSoumissionBlReapproController extends Controller
         // Code Société de l'utilisateur
         $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
 
-        $dto = new DaSoumisionBlReapproDto();
-        $dto->numCde = $numCde;
-
+        $dto = DaSoumissionBlReapproFactory::createFromDto($numCde, $numOr, $numDa);
         $form = $this->getFormFactory()->createBuilder(DaSoumissionBlReapprotype::class, $dto)->getForm();
 
         $this->traitementFormulaire($form, $request, $numCde, $numDa, $codeSociete);
@@ -61,13 +62,15 @@ class DaSoumissionBlReapproController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $dto = $form->getData();
+
             /** ENREGISTREMENT DE FICHIER */
             $nomDeFichiers = $this->enregistrementFichier($form, $numCde, $numDa);
 
             /** FUSION DES PDF */
             $nomFichierAvecChemins = $this->addPrefixToElementArray($nomDeFichiers, $this->cheminDeBase . $numDa . '/');
             $fichierConvertir = $this->ConvertirLesPdf($nomFichierAvecChemins);
-            $nomPdfFusionner =  'BlReappro_' . $numCde . '#' . $numDa . '_' . '.pdf';
+            $nomPdfFusionner =  'BlReappro_' . $numCde . '#' . $numDa . '_' . $dto->numeroFactureReappro . '.pdf';
             $nomAvecCheminPdfFusionner = $this->cheminDeBase . $numDa . '/' . $nomPdfFusionner;
             $this->traitementDeFichier->fusionFichers($fichierConvertir, $nomAvecCheminPdfFusionner);
 
@@ -77,6 +80,9 @@ class DaSoumissionBlReapproController extends Controller
             /** modification du table da_valider */
             $this->modificationDaAfficher($numDa, $numCde, $codeSociete);
 
+            /** creation de ligne dans le table da_soumission_facture_bl */
+            $this->creationFacBl($dto, $nomPdfFusionner);
+
             /** HISTORISATION */
             $message = 'Le document est soumis pour validation';
             $criteria = $this->getSessionService()->get('criteria_for_excel_Da_Cde_frn');
@@ -84,6 +90,93 @@ class DaSoumissionBlReapproController extends Controller
             $nomInputSearch = 'cde_frn_list'; // initialistion de nom de chaque champ ou input
             $this->historiqueOperation->sendNotificationSoumission($message, $numCde, $nomDeRoute, true, $criteria, $nomInputSearch);
         }
+    }
+
+    private function creationFacBl(DaSoumisionBlReapproDto $dto, string $nomPdfFusionner): void
+    {
+        $daSoumissionFactureBl = new DaSoumissionFacBl();
+
+        $daSoumissionFactureBl
+            ->setNumeroDemandeAppro($dto->numDa)
+            ->setNumeroDemandeDit(null)
+            ->setNumeroOR($dto->numOr)
+            ->setNumeroCde($dto->numCde)
+            ->setNumLiv(null)
+            ->setRefBlFac(null)
+            ->setDateBlFac(null)
+            ->setDateClotLiv(null)
+            ->setStatut('Soumis')
+            ->setPieceJoint1($nomPdfFusionner)
+            ->setUtilisateur($this->getUserName())
+            ->setNumeroVersion(1)
+            ->setNumeroBap(null)
+            ->setStatutBap(null)
+            ->setDateSoumissionCompta(null)
+            ->setMontantBlFacture(null)
+            ->setMontantReceptionIps(null)
+            ->setNumeroDemandePaiement(null)
+            ->setDateStatutBap(null)
+            ->setNumeroFournisseur(1)
+            ->setNomFournisseur('AGENCE PRINCIPAL HFF')
+            ->setNumeroFactureFournisseur(null)
+            ->setEstFactureReappro($dto->estFactureReappro)
+            ->setNumeroFactureReappro($dto->numeroFactureReappro)
+        ;
+
+        $this->getEntityManager()->persist($daSoumissionFactureBl);
+        $this->getEntityManager()->flush();
+    }
+
+    private function modificationDaAfficher(string $numDa, string $numCde, string $codeSociete): void
+    {
+        /** @var DaAfficherRepository $daAfficherRepository */
+        $daAfficherRepository = $this->getEntityManager()->getRepository(DaAfficher::class);
+        $numeroVersionMaxCde = $daAfficherRepository->getNumeroVersionMax($numDa, $codeSociete);
+        $daAffichers = $daAfficherRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMaxCde, 'numeroCde' => $numCde, 'codeSociete' => $codeSociete]);
+        if (!empty($daAffichers)) {
+            foreach ($daAffichers as  $daAfficher) {
+                $daAfficher
+                    ->setEstBlReapproSoumis(true);
+                $this->getEntityManager()->persist($daAfficher);
+            }
+
+            $this->getEntityManager()->flush();
+        }
+    }
+
+    private function creationFacBl(DaSoumisionBlReapproDto $dto, string $nomPdfFusionner): void
+    {
+        $daSoumissionFactureBl = new DaSoumissionFacBl();
+
+        $daSoumissionFactureBl
+            ->setNumeroDemandeAppro($dto->numDa)
+            ->setNumeroDemandeDit(null)
+            ->setNumeroOR($dto->numOr)
+            ->setNumeroCde($dto->numCde)
+            ->setNumLiv(null)
+            ->setRefBlFac(null)
+            ->setDateBlFac(null)
+            ->setDateClotLiv(null)
+            ->setStatut('Soumis')
+            ->setPieceJoint1($nomPdfFusionner)
+            ->setUtilisateur($this->getUserName())
+            ->setNumeroVersion(1)
+            ->setNumeroBap(null)
+            ->setStatutBap(null)
+            ->setDateSoumissionCompta(null)
+            ->setMontantBlFacture(null)
+            ->setMontantReceptionIps(null)
+            ->setNumeroDemandePaiement(null)
+            ->setDateStatutBap(null)
+            ->setNumeroFournisseur(1)
+            ->setNomFournisseur('AGENCE PRINCIPAL HFF')
+            ->setNumeroFactureFournisseur(null)
+            ->setEstFactureReappro($dto->estFactureReappro)
+            ->setNumeroFactureReappro($dto->numeroFactureReappro)
+        ;
+
+        $this->getEntityManager()->persist($daSoumissionFactureBl);
+        $this->getEntityManager()->flush();
     }
 
     private function modificationDaAfficher(string $numDa, string $numCde, string $codeSociete): void

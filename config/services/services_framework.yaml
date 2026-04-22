@@ -116,12 +116,23 @@ services:
   annotation_reader:
     class: Doctrine\Common\Annotations\AnnotationReader
 
-  # Services de base de données
-  doctrine:
-    class: core\SimpleManagerRegistry
-    arguments:
-      - "@doctrine.orm.default_entity_manager"
-    public: true
+    # Services de base de données
+    doctrine.orm.default_entity_manager:
+        synthetic: true
+        public: true
 
-  # Alias pour l'interface EntityManagerInterface
+    doctrine:
+        class: core\SimpleManagerRegistry
+        arguments:
+            - '@doctrine.orm.default_entity_manager'
+        public: true
+
+  # Alias pour l'autowiring par type
   Doctrine\ORM\EntityManagerInterface: "@doctrine.orm.default_entity_manager"
+    Twig\Environment: '@twig'
+    Symfony\Component\HttpFoundation\Session\SessionInterface: '@session'
+    Symfony\Component\HttpFoundation\RequestStack: '@request_stack'
+    Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface: '@security.token_storage'
+    Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface: '@security.authorization_checker'
+    Symfony\Component\Form\FormFactoryInterface: '@form.factory'
+    Symfony\Component\Routing\Generator\UrlGeneratorInterface: '@router'

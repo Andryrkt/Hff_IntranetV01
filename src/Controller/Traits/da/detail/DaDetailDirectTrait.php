@@ -4,7 +4,6 @@ namespace App\Controller\Traits\da\detail;
 
 use App\Constants\da\StatutDaConstant;
 use App\Entity\da\DaObservation;
-use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
 use App\Entity\dw\DwBcAppro;
 use App\Entity\dw\DwDaDirect;
@@ -37,60 +36,6 @@ trait DaDetailDirectTrait
         $this->daObservationRepository = $em->getRepository(DaObservation::class);
     }
     //==================================================================================================
-
-
-    /** 
-     * Obtenir tous les fichiers associés à la demande d'approvisionnement
-     * 
-     * @param array $tab
-     */
-    private function getAllDAFile($tab): array
-    {
-        return [
-            [
-                'labeltype'  => 'BAI',
-                'type'       => "Bon d'achat (Intranet)",
-                'icon'       => 'fa-solid fa-file-signature',
-                'colorClass' => 'border-left-bai',
-                'fichiers'   => $this->normalizePaths($tab['baiPath']),
-            ],
-            [
-                'labeltype'  => 'BAD',
-                'type'       => "Bon d'achat (DocuWare)",
-                'icon'       => 'fa-solid fa-file-signature',
-                'colorClass' => 'border-left-bad',
-                'fichiers'   => $this->normalizePathsForManyFiles($tab['badPath'], 'num'),
-            ],
-            [
-                'labelType'  => 'DEVPJ-DA',
-                'type'       => 'Devis / PJ (émis dans la demande / proposition)',
-                'icon'       => 'fa-solid fa-money-bill-wave',
-                'colorClass' => 'border-left-devpj',
-                'fichiers'   => $this->normalizePathsForManyFiles($tab['devPjPathDal'], 'nomPj'),
-            ],
-            [
-                'labelType'  => 'DEVPJ-OBS',
-                'type'       => 'Devis / PJ (émis dans l\'observation)',
-                'icon'       => 'fa-solid fa-money-bill-wave',
-                'colorClass' => 'border-left-devpj',
-                'fichiers'   => $this->normalizePathsForManyFiles($tab['devPjPathObs'], 'nomPj'),
-            ],
-            [
-                'labeltype'  => 'BC',
-                'type'       => 'Bon de commande',
-                'icon'       => 'fa-solid fa-file-circle-check',
-                'colorClass' => 'border-left-bc',
-                'fichiers'   => $this->normalizePathsForManyFiles($tab['bcPath'], 'numeroBc'),
-            ],
-            [
-                'labeltype'  => 'FACBL',
-                'type'       => 'Facture / Bon de livraison',
-                'icon'       => 'fa-solid fa-file-invoice',
-                'colorClass' => 'border-left-facbl',
-                'fichiers'   => $this->normalizePathsForFacBl($tab['facblPath']),
-            ],
-        ];
-    }
 
     /** 
      * Fonction pour préparer les données à afficher dans Twig 

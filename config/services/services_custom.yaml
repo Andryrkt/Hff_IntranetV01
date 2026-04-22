@@ -9,16 +9,30 @@ services:
   App\Service\SessionManagerService:
     public: true
 
+  # Services de navigation
+  App\Service\navigation\MenuService:
+    autowire: false
+    arguments:
+    - "@doctrine.orm.default_entity_manager"
+    public: true
+
+  App\Service\navigation\BreadcrumbMenuService:
+    autowire: false
+    arguments:
+    - '@App\Service\navigation\MenuService'
+    public: true
+
   # Historique d'opération
   App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService:
     arguments:
-      - "@doctrine.orm.default_entity_manager"
+    - "@doctrine.orm.default_entity_manager"
     public: true
 
   App\Service\historiqueOperation\magasin\bc\HistoriqueOperationBcMagasinService:
     arguments:
-      - "@doctrine.orm.default_entity_manager"
+    - "@doctrine.orm.default_entity_manager"
     public: true
+
 
   App\Service\fichier\UploderFileService:
     arguments:
@@ -57,6 +71,9 @@ services:
       $em: "@doctrine.orm.default_entity_manager"
     public: true
 
+  App\Service\da\DaFilterService:
+    public: true
+
   App\Service\da\DwDataService:
     arguments:
       $em: "@doctrine.orm.default_entity_manager"
@@ -80,14 +97,36 @@ services:
       $daTimelineService: '@App\Service\da\DaTimelineService'
     public: true
 
+  App\Controller\da\Validation\DaValidationReapproMensuelController:
+    arguments:
+      $docRattacheService: '@App\Service\da\DocRattacheService'
+    public: true
+
   App\Controller\da\Detail\DaDetailAvecDitController:
     arguments:
+      $docRattacheService: '@App\Service\da\DocRattacheService'
       $daTimelineService: '@App\Service\da\DaTimelineService'
     public: true
 
   App\Controller\da\Detail\DaDetailDirectController:
     arguments:
+      $docRattacheService: '@App\Service\da\DocRattacheService'
       $daTimelineService: '@App\Service\da\DaTimelineService'
+    public: true
+
+  App\Controller\da\Proposition\DaPropositionRefAvecDitController:
+    arguments:
+      $docRattacheService: '@App\Service\da\DocRattacheService'
+    public: true
+
+  App\Controller\da\Proposition\DaPropositionArticleDirectController:
+    arguments:
+      $docRattacheService: '@App\Service\da\DocRattacheService'
+    public: true
+
+  App\Controller\da\DossierDa\DaDossierDaController:
+    arguments:
+      $docRattacheService: '@App\Service\da\DocRattacheService'
     public: true
 
   App\Service\Admin\PermissionsService:

@@ -332,110 +332,165 @@ class MenuService
      */
     public function getAdminMenuStructure(): array
     {
-        $profilId = $this->getProfilId();
-
-        // Couche 1 : cache intra-requête, indexé par profilId
-        if (isset($this->cacheAdminMenuStructure[$profilId])) {
-            return $this->cacheAdminMenuStructure[$profilId];
+        $subitems = [];
+        /** =====================Magasin OR et CIS========================= */
+        if ($this->getEstAdmin() || in_array(Application::ID_MAG, $this->getApplicationIds())) { // MAG
+            $subitems[] = $this->createSubMenuItem(
+                'OR',
+                'warehouse',
+                [
+                    $this->createSubItem('Liste à traiter', 'tasks', 'magasinListe_index'),
+                    $this->createSubItem('Liste à livrer', 'truck-loading', 'magasinListe_or_Livrer')
+                ]
+            );
+            $subitems[] = $this->createSubMenuItem(
+                'CIS',
+                'pallet',
+                [
+                    $this->createSubItem('Liste à traiter', 'tasks', 'cis_liste_a_traiter'),
+                    $this->createSubItem('Liste à livrer', 'truck-loading', 'cis_liste_a_livrer')
+                ]
+            );
+        }
+        /** =====================Inventaire========================= */
+        if ($this->getEstAdmin() || in_array(Application::ID_INV, $this->getApplicationIds())) { // INV
+            $subitems[] = $this->createSubMenuItem(
+                'INVENTAIRE',
+                'file-alt',
+                [
+                    $this->createSubItem('Liste inventaire', 'file-alt', 'liste_inventaire', ['action' => 'oui']),
+                    $this->createSubItem('Inventaire détaillé', 'file-alt', 'liste_detail_inventaire'),
+                ]
+            );
+        }
+        /** =====================sortie de pieces / lubs========================= */
+        if ($this->getEstAdmin() || in_array(Application::ID_BDL, $this->getApplicationIds())) { // BDL
+            $subitems[] = $this->createSubMenuItem(
+                'SORTIE DE PIECES',
+                'arrow-left',
+                [
+                    $this->createSubItem('Nouvelle demande', 'plus-circle', 'bl_soumission'),
+                ]
+            );
+        }
+        /** =====================dematerialisation========================= */
+        if ($this->getEstAdmin() || in_array(Application::ID_DVM, $this->getApplicationIds())) {
+            $subitems[] = $this->createSubMenuItem(
+                'DEMATERIALISATION',
+                'cloud-arrow-up',
+                [
+                    $this->createSubItem('Devis', 'file-invoice', 'devis_magasin_liste'),
+                    // $this->createSubItem('Commandes clients', 'shopping-basket', '#'),
+                    $this->createSubItem('Planning de commande Magasin', 'calendar-alt', 'interface_planningMag'),
+                ]
+            );
+        }
+        /** =====================soumission commande fournisseur========================= */
+        if ($this->getEstAdmin() || in_array(Application::ID_CFR, $this->getApplicationIds())) { // CFR
+            $subitems[] = $this->createSimpleItem('Soumission commandes fournisseur', 'list-alt', 'cde_fournisseur');
+        }
+        /** =====================liste des commandes fournisseur non generer========================= */
+        if ($this->getEstAdmin() || in_array(Application::ID_LCF, $this->getApplicationIds())) { // LCF
+            $subitems[] = $this->createSimpleItem('Liste des cmds non placées', 'exclamation-circle', 'liste_Cde_Frn_Non_Placer');
         }
 
-        if ($profilId === null) {
-            return [];
-        }
-
-        // Couche 2 : cache persistant
-        $cle = $this->buildKey($profilId, self::SUFFIX_ADMIN);
-
-        return $this->cacheAdminMenuStructure[$profilId] = $this->cache->get($cle, function (ItemInterface $item): array {
-            $item->expiresAfter(null);
-            return $this->construireMenuAdmin();
-        });
+        return $this->createMenuItem(
+            'magasinModal',
+            'Magasin',
+            'dolly',
+            $subitems
+        );
     }
 
-    /**
-     * Construit le menu Admin sans mise en cache.
-     * Appelé uniquement par getAdminMenuStructure() via le cache persistant.
-     */
-    public function construireMenuAdmin(): array
+    public function menuAppro()
     {
-        $groupes  = MenuGroupe::adminMenuGroupes();
-        $resultat = [];
-
-        foreach ($groupes as $groupe) {
-            $linksAccessibles = array_values(array_filter(
-                $groupe['links'],
-                fn(array $link) => $this->hasAccesRoute($link['route'])
-            ));
-
-            if (!empty($linksAccessibles)) {
-                $resultat[] = [
-                    'header' => $groupe['header'],
-                    'icon'   => $groupe['icon'],
-                    'links'  => $linksAccessibles,
-                ];
-            }
+        $subitems = [];
+        if ($this->getEstAdmin() || $this->getEstAtelier() || $this->getEstCreateurDeDADirecte()) { // admin OU atelier OU créateur de DA directe
+            $subitems[] = $this->createSimpleItem('Nouvelle DA', 'file-alt', 'da_first_form');
         }
-
-        return $resultat;
-    }
-
-    // =========================================================================
-    //  NAVIGATION — recherche du chemin vers une route (breadcrumb)
-    // =========================================================================
-
-    public function findChemin(string $nomRoute): array
-    {
-        foreach ($this->getMenuStructure() as $module) {
-            foreach ($module['items'] as $item) {
-                if (($item['link'] ?? null) === $nomRoute) {
-                    return [
-                        ['title' => $module['title'], 'icon' => $module['icon']],
-                        ['title' => $item['title'],   'icon' => $item['icon'], 'route' => $nomRoute],
-                    ];
-                }
-
-                if (!empty($item['subitems'])) {
-                    foreach ($item['subitems'] as $subitem) {
-                        if (($subitem['link'] ?? null) === $nomRoute) {
-                            return [
-                                ['title' => $module['title'], 'icon' => $module['icon']],
-                                ['title' => $item['title'],   'icon' => $item['icon']],
-                                ['title' => $subitem['title'], 'icon' => $subitem['icon'], 'route' => $nomRoute],
-                            ];
-                        }
-                    }
-                }
-            }
+        $subitems[] = $this->createSimpleItem('Consultation des DA', 'search', 'list_da');
+        if ($this->getEstAdmin() || $this->getEstAppro()) {
+            $subitems[] = $this->createSimpleItem('Liste des commandes fournisseurs', 'list-ul', 'da_list_cde_frn');
         }
-
-        return [];
+        if ($this->getEstAdmin()) {
+            $subitems[] = $this->createSimpleItem('Reporting IPS DA reappro', 'chart-bar', 'da_reporting_ips');
+        }
+        return $this->createMenuItem(
+            'approModal',
+            'Appro',
+            'shopping-cart',
+            $subitems
+        );
     }
 
-    // =========================================================================
-    //  INVALIDATION DU CACHE PERSISTANT
-    // =========================================================================
-
-    /**
-     * Invalide les deux menus (principal + admin) d'un profil donné.
-     * À appeler après toute modification des droits/permissions d'un profil.
-     *
-     * Exemple depuis un contrôleur :
-     *   $menuService->invaliderCacheProfil($profilId);
-     */
-    public function invaliderCacheProfil(int $profilId): void
+    public function menuIT()
     {
-        $this->invaliderVersion($profilId);
-
-        // Vide l'entrée du profil dans le cache mémoire indexé
-        unset($this->cacheMenuStructure[$profilId]);
-        unset($this->cacheAdminMenuStructure[$profilId]);
+        return $this->createMenuItem(
+            'itModal',
+            'IT',
+            'laptop-code',
+            [
+                $this->createSimpleItem('Nouvelle Demande', 'plus-circle', 'demande_support_informatique'),
+                $this->createSimpleItem('Consultation', 'search', 'liste_tik_index'),
+                $this->createSimpleItem('Planning', 'file-alt', 'tik_calendar_planning'),
+            ]
+        );
     }
 
-    // =========================================================================
-    //  HELPERS DE VÉRIFICATION (via UserDataService — zéro BDD)
-    // =========================================================================
+    public function menuPOL()
+    {
+        $subitems = [];
+        $subitems[] = $this->createSimpleItem('Nouvelle DLUB', 'file-alt');
+        $subitems[] = $this->createSimpleItem('Consultation des DLUB', 'search');
+        $subitems[] = $this->createSimpleItem('Liste des commandes fournisseurs', 'list-ul');
 
-    private function getProfilId(): ?int
+        /** =====================POL OR et CIS========================= */
+        if ($this->getEstAdmin() || in_array('60', $this->getCodeAgenceAutorisers())) { // admin uniquement
+            $subitems[] = $this->createSubMenuItem(
+                'OR',
+                'warehouse',
+                [
+                    $this->createSubItem('Liste à traiter', 'tasks', 'pol_or_liste_a_traiter'),
+                    $this->createSubItem('Liste à livrer', 'truck-loading', 'pol_or_liste_a_livrer')
+                ]
+            );
+            $subitems[] = $this->createSubMenuItem(
+                'CIS',
+                'pallet',
+                [
+                    $this->createSubItem('Liste à traiter', 'tasks', 'pol_cis_liste_a_traiter'),
+                    $this->createSubItem('Liste à livrer', 'truck-loading', 'pol_cis_liste_a_livrer')
+                ]
+            );
+        }
+        /** =====================POL Devis magasin========================= */
+        $subitems[] = $this->createSimpleItem('Devis negoce pol', 'list-ul', 'devis_magasin_pol_liste');
+
+        $subitems[] = $this->createSimpleItem('Pneumatiques', 'ring');
+
+
+        return $this->createMenuItem(
+            'polModal',
+            'POL',
+            'ring rotate-90',
+            $subitems
+        );
+    }
+
+    public function menuEnergie()
+    {
+        return $this->createMenuItem(
+            'energieModal',
+            'Energie',
+            'bolt',
+            [
+                $this->createSimpleItem('Rapport de production centrale'),
+            ]
+        );
+    }
+
+
+    public function menuHSE()
     {
         return $this->userDataService->getProfilId();
     }

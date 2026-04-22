@@ -25,7 +25,11 @@
 							<a href="{{ path("list_da")}}" class="tablinks p-2 btn btn-outline-warning " style="text-decoration: none;color:black">Retour</a>
 						</div>
 					</div>
-					{{ form_start(form, {'attr': {'enctype': 'multipart/form-data', 'id': 'myForm'}}) }}
+					{% if dto.montantAregulariser <= 0 %}
+						<h6 class="text-danger fs-6 p-2 fw-bold">Le montant restant à payer est égal à 0, le type de demande de paiement doit être de type régularisation</h6>
+					{% endif %}
+
+					{{ form_start(form, {'attr': {'enctype': 'multipart/form-data', 'id': 'myForm', 'data-form-type': 'da-soumission-fac-bl'}}) }}
 					{{ form_errors(form)}}
 					<div class="row">
 						<div class="col-12 col-md-3">
@@ -46,6 +50,7 @@
 						</div>
 					</div>
 					<hr>
+					{{ form_row(form.typeDdp)}}
 					<div class="row">
 						<div class="col-12 col-md-3">
 							<p>Veuillez insérer
@@ -55,7 +60,8 @@
 						</div>
 						<div class="col-12 col-md-3">
 							<p>Insérer
-								<strong>les autres fichiers ici *</strong>
+								<strong>les autres fichiers ici</strong>
+								(RIB Fournisseur, CIF, etc ...)
 							</p>
 							{% include '/partials/_dropZoneFileMultiple.html.twig' with {'id': '2', 'form': form, 'fieldName': 'pieceJoint2'} %}
 						</div>
