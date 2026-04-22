@@ -705,31 +705,6 @@ class DaModel extends Model
         return $rows;
     }
 
-    public function getHistoriqueLivraison(string $numCde)
-    {
-        $statement = "SELECT 
-                        fllf_numliv as num_liv, 
-                        (
-                            select TRIM(fliv_livext) from Informix.frn_liv 
-                            where fliv_soc = fcde_soc and fliv_numliv = fllf_numliv
-                        ) as ref_fac_bl,  
-                        (
-                            select fliv_dateclot from Informix.frn_liv 
-                            where fliv_soc = fcde_soc and fliv_numliv = fllf_numliv
-                        ) as date_clot, 
-                        sum(fllf_qteliv * fllf_pxach) as montant_fac_bl
-                    from Informix.frn_cde, Informix.frn_llf 
-                    where fcde_numcde = '$numCde'
-                    and fcde_soc = fllf_soc
-                    and fcde_numcde = fllf_numcde
-                    group by 1,2,3
-                    order by 1,3
-        ";
-        $result = $this->connect->executeQuery($statement);
-        $rows = $this->convertirEnUtf8($this->connect->fetchResults($result));
-
-        return $rows;
-    }
 
     public function getInfoBC(string $numCde, string $codeSociete)
     {

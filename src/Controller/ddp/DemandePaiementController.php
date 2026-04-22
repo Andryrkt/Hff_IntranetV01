@@ -4,7 +4,6 @@ namespace App\Controller\ddp;
 
 
 use App\Controller\Controller;
-use App\Controller\Traits\AutorisationTrait;
 use App\Controller\Traits\ddp\DdpTrait;
 use App\Controller\Traits\PdfConversionTrait;
 use App\Entity\admin\Agence;
@@ -37,7 +36,6 @@ use Symfony\Component\Routing\Annotation\Route;
 class DemandePaiementController extends Controller
 {
     use DdpTrait;
-    use AutorisationTrait;
     use PdfConversionTrait;
 
     const STATUT_CREATION = 'Soumis à validation';

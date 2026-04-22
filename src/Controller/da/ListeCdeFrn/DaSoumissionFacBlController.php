@@ -72,8 +72,6 @@ class DaSoumissionFacBlController extends Controller
      */
     public function checkNumLivExists(string $numLiv): JsonResponse
     {
-        $this->verifierSessionUtilisateur();
-
         $exists = $this->em->getRepository(DaSoumissionFacBl::class)->findOneBy([
             'numLiv' => $numLiv,
             'statutBap' => StatutConstants::BAP_A_TRANSMETTRE

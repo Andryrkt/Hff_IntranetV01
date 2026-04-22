@@ -3,8 +3,6 @@
 namespace App\Controller\da\DossierDa;
 
 use App\Controller\Controller;
-use App\Controller\Traits\AutorisationTrait;
-use App\Entity\admin\Application;
 use App\Entity\da\DemandeAppro;
 use App\Service\da\DocRattacheService;
 use Symfony\Component\Routing\Annotation\Route;
@@ -14,8 +12,6 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class DaDossierDaController extends Controller
 {
-    use AutorisationTrait;
-
     private DocRattacheService $docRattacheService;
 
     public function __construct(DocRattacheService $docRattacheService)
@@ -28,12 +24,6 @@ class DaDossierDaController extends Controller
      */
     public function dossierDa($numDa)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
-        /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_DAP);
-        /** FIN AUtorisation acées */
 
         $demandeAppro = $this->getEntityManager()->getRepository(DemandeAppro::class)->findOneBy(['numeroDemandeAppro' => $numDa]);
 

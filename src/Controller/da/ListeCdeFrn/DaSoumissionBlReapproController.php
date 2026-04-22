@@ -144,58 +144,6 @@ class DaSoumissionBlReapproController extends Controller
         }
     }
 
-    private function creationFacBl(DaSoumisionBlReapproDto $dto, string $nomPdfFusionner): void
-    {
-        $daSoumissionFactureBl = new DaSoumissionFacBl();
-
-        $daSoumissionFactureBl
-            ->setNumeroDemandeAppro($dto->numDa)
-            ->setNumeroDemandeDit(null)
-            ->setNumeroOR($dto->numOr)
-            ->setNumeroCde($dto->numCde)
-            ->setNumLiv(null)
-            ->setRefBlFac(null)
-            ->setDateBlFac(null)
-            ->setDateClotLiv(null)
-            ->setStatut('Soumis')
-            ->setPieceJoint1($nomPdfFusionner)
-            ->setUtilisateur($this->getUserName())
-            ->setNumeroVersion(1)
-            ->setNumeroBap(null)
-            ->setStatutBap(null)
-            ->setDateSoumissionCompta(null)
-            ->setMontantBlFacture(null)
-            ->setMontantReceptionIps(null)
-            ->setNumeroDemandePaiement(null)
-            ->setDateStatutBap(null)
-            ->setNumeroFournisseur(1)
-            ->setNomFournisseur('AGENCE PRINCIPAL HFF')
-            ->setNumeroFactureFournisseur(null)
-            ->setEstFactureReappro($dto->estFactureReappro)
-            ->setNumeroFactureReappro($dto->numeroFactureReappro)
-        ;
-
-        $this->getEntityManager()->persist($daSoumissionFactureBl);
-        $this->getEntityManager()->flush();
-    }
-
-    private function modificationDaAfficher(string $numDa, string $numCde, string $codeSociete): void
-    {
-        /** @var DaAfficherRepository $daAfficherRepository */
-        $daAfficherRepository = $this->getEntityManager()->getRepository(DaAfficher::class);
-        $numeroVersionMaxCde = $daAfficherRepository->getNumeroVersionMax($numDa, $codeSociete);
-        $daAffichers = $daAfficherRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMaxCde, 'numeroCde' => $numCde, 'codeSociete' => $codeSociete]);
-        if (!empty($daAffichers)) {
-            foreach ($daAffichers as  $daAfficher) {
-                $daAfficher
-                    ->setEstBlReapproSoumis(true);
-                $this->getEntityManager()->persist($daAfficher);
-            }
-
-            $this->getEntityManager()->flush();
-        }
-    }
-
     /**
      * Enregistrement des fichiers téléchagrer dans le dossier de destination
      *

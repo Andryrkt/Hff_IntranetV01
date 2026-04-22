@@ -5,8 +5,6 @@ namespace App\Repository\ddp;
 use App\Constants\ddp\StatutConstants;
 use App\Dto\Da\ddp\BapSearchDto;
 use App\Entity\admin\utilisateur\User;
-use App\Entity\admin\ddp\DdpSearch;
-use App\Entity\admin\utilisateur\User;
 use App\Service\TableauEnStringService;
 use Doctrine\ORM\EntityRepository;
 

@@ -4,11 +4,8 @@ namespace App\Controller\ddp;
 
 use App\Constants\ddp\TypeDemandePaiementConstants;
 use App\Controller\Controller;
-use App\Controller\Traits\AutorisationTrait;
 use App\Controller\Traits\PdfConversionTrait;
 use App\Dto\ddp\DemandePaiementDto;
-use App\Entity\admin\Application;
-use App\Entity\ddp\DemandePaiement;
 use App\Factory\ddp\DemandePaiementFactory;
 use App\Form\ddp\DemandePaiementDaType;
 use App\Model\ddp\DemandePaiementModel;
@@ -31,7 +28,6 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class DemandePaiementDaController extends Controller
 {
-    use AutorisationTrait;
     use PdfConversionTrait;
 
     private DemandePaiementModel $demandePaiementModel;
@@ -63,13 +59,6 @@ class DemandePaiementDaController extends Controller
      */
     public function index(int $typeDdp, ?int $numCdeDa, ?int $typeDa, ?int $numeroVersionBc, Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
-        /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_DDP);
-        /** FIN AUtorisation acées */
-
         // initialisation dto
         $dto = $this->demandePaiementFactory->load($typeDdp, $numCdeDa, $typeDa, $numeroVersionBc, $this->getUser(), $this->getSessionService());
         // blocage soumission si montant a regulariser <= 0
