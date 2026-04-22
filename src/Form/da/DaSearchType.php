@@ -60,7 +60,6 @@ class DaSearchType extends AbstractType
             ->add('afficherDaTraiter', CheckboxType::class, [
                 'label'    => "N'afficher que les DA à traiter",
                 'required' => false,
-                'data'     => true,
                 'attr'     => ['data-is-appro-user' => $isApproUser ? '1' : '0']
             ])
 

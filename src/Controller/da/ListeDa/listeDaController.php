@@ -131,26 +131,12 @@ class listeDaController extends Controller
             $criteria = $form->getData();
             $criteria = $daSearch->toArray();
 
-            // On vérifie si d'autres critères de recherche sont remplis (hors 'afficherDaTraiter')
-            $hasOtherCriteria = false;
-            foreach ($criteria as $key => $value) {
-                if ($key !== 'afficherDaTraiter' && $value !== null && $value !== false && $value !== '') {
-                    $hasOtherCriteria = true;
-                    break;
-                }
-            }
-
-            if ($criteria['afficherDaTraiter']) {
-                $criteria = $this->statutDatraiter($criteria);
-            }
-
             // Sauvegarde classique des critères issus du formulaire
             $this->getSessionService()->set('criteria_search_list_da', $criteria);
         }
         // Gestion spécifique "Mes DA à traiter"
         else {
             $criteria = $daSearch->toArray();
-            $criteria = $this->statutDatraiter($criteria);
 
             $this->getSessionService()->set('criteria_search_list_da_80_app', $criteria);
         }
@@ -160,33 +146,6 @@ class listeDaController extends Controller
         return $criteria;
     }
 
-    private function statutDatraiter(array $criteria): array
-    {
-        $user = $this->getUser();
-        $codeAgenceUser = $user->getCodeAgenceUser();
-        $codeServiceUser = $user->getCodeServiceUser();
-
-        // On ne garde que la persistance du flag et les filtres imposés
-        // $criteria = [];
-
-        if ($codeAgenceUser == '80' && $codeServiceUser == 'APP') {
-            if ($criteria['afficherCloturees']) {
-                $criteria['statutDA'] = StatutDaConstant::TRAITER_APPRO_LIST_CLOTURE;
-                $criteria['statutBC'] = StatutBcConstant::TRAITER_APPRO_LIST;
-            } else {
-                $criteria['statutDA'] = StatutDaConstant::TRAITER_APPRO_LIST;
-                $criteria['statutBC'] = StatutBcConstant::TRAITER_APPRO_LIST;
-            }
-        } else {
-            if ($criteria['afficherCloturees']) {
-                $criteria['statutDA'] = StatutDaConstant::TRAITER_AUTRES_LIST_CLOTURE;
-            } else {
-                $criteria['statutDA'] = StatutDaConstant::TRAITER_AUTRES_LIST;
-            }
-        }
-
-        return $criteria;
-    }
 
     private function appliquerVerrouillage(array $daAffichers): void
     {
@@ -237,7 +196,10 @@ class listeDaController extends Controller
         if ($criteria instanceof DaSearch) {
             $criteria = $criteria->toArray();
         }
-        $criteria['afficherDaTraiter'] = true;
+        // On ne met à true que si la clé n'existe pas (première visite)
+        if (!isset($criteria['afficherDaTraiter'])) {
+            $criteria['afficherDaTraiter'] = true;
+        }
 
         $agServ = [
             'agenceEmetteur'  => isset($criteria['agenceEmetteur']) ? $this->getEntityManager()->getRepository(Agence::class)->find($criteria['agenceEmetteur']) : null,

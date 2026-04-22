@@ -542,7 +542,7 @@ class DaAfficherRepository extends EntityRepository
         $this->applyDynamicFilters($qb, "d", $criteria);
         $this->applyAgencyServiceFilters($qb, "d", $criteria, $user, $idAgenceUser, $estAppro, $estAtelier, $estAdmin);
         $this->applyDateFilters($qb, "d", $criteria);
-        $this->applyStatutsFilters($qb, "d", $criteria);
+        $this->applyStatutsFilters($qb, "d", $criteria, $user->getCodeAgenceUser(), $user->getCodeServiceUser());
 
         // $query = $qb->getQuery();
         // $sql = $query->getSQL();
@@ -720,8 +720,10 @@ class DaAfficherRepository extends EntityRepository
         }
     }
 
-    private function applyStatutsFilters(QueryBuilder $queryBuilder, string $qbLabel, array $criteria, bool $estCdeFrn = false)
+    private function applyStatutsFilters(QueryBuilder $queryBuilder, string $qbLabel, array &$criteria, string $codeAgence = '', string $codeService = '', bool $estCdeFrn = false)
     {
+
+
         // Définition de la condition "DA Clôturée" selon la règle :
         // statutDal = 'Clôturée' AND statutOr = 'Validé' AND statutCde = 'Tous livrés'
         $exprCloturee = $queryBuilder->expr()->andX(
@@ -766,6 +768,24 @@ class DaAfficherRepository extends EntityRepository
                 }
             }
         } else {
+            // Logique "DA à traiter" : on définit les statuts par défaut si l'option est cochée et qu'aucun statut n'est forcé
+            if (
+                !empty($criteria['afficherDaTraiter'])
+                && empty($criteria['statutDA'])
+                && empty($criteria['statutBC'])
+                && empty($criteria['statutOR'])
+                && empty($criteria['numDit'])
+                && empty($criteria['numDa'])
+                && empty($criteria['numCde'])
+            ) {
+                if ($codeAgence === '80' && $codeService === 'APP') {
+                    $criteria['statutDA'] = StatutDaConstant::TRAITER_APPRO_LIST;
+                    $criteria['statutBC'] = StatutBcConstant::TRAITER_APPRO_LIST;
+                } else {
+                    $criteria['statutDA'] = StatutDaConstant::TRAITER_AUTRES_LIST;
+                }
+            }
+
             // filtrer par le statutDA et le statutBC si les deux sont renseignés et sont des tableaux
             if (!empty($criteria['statutDA']) && !empty($criteria['statutBC']) && is_array($criteria['statutDA']) && is_array($criteria['statutBC'])) {
                 $condNormal = $queryBuilder->expr()->orX(
@@ -1044,7 +1064,7 @@ class DaAfficherRepository extends EntityRepository
         $this->applyAgencyServiceFilters($qb, 'd', $criteria, $user, $idAgenceUser, $estAppro, $estAtelier, $estAdmin);
         $this->applyDateFilters($qb, 'd', $criteria);
 
-        $this->applyStatutsFilters($qb, 'd', $criteria);
+        $this->applyStatutsFilters($qb, 'd', $criteria, $user->getCodeAgenceUser(), $user->getCodeServiceUser());
 
         $qb->orderBy('d.dateDemande', 'DESC')
             ->addOrderBy('d.numeroFournisseur', 'DESC')
