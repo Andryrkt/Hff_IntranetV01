@@ -14,13 +14,14 @@ class DaSearch
     private ?string $numCde = null;
     private ?string $demandeur = null;
     private $statutDA = null;
-    private ?string $statutOR = null;
+    private $statutOR = null;
     private $statutBC = null;
     private ?string $sortNbJours = null;
     private ?string $idMateriel = null;
     private ?string $typeAchat = null;
     private ?string $codeCentrale = null;
     private $afficherCloturees = false;
+    private $afficherDaTraiter = false;
 
     private ?string $niveauUrgence = null;
 
@@ -453,6 +454,25 @@ class DaSearch
         return $this;
     }
 
+
+    /**
+     * Get the value of afficherDaTraiter
+     */
+    public function getAfficherDaTraiter()
+    {
+        return $this->afficherDaTraiter;
+    }
+
+    /**
+     * Set the value of afficherDaTraiter
+     */
+    public function setAfficherDaTraiter($afficherDaTraiter): self
+    {
+        $this->afficherDaTraiter = $afficherDaTraiter;
+
+        return $this;
+    }
+
     /**
      * Convertit l'objet en tableau associatif
      */
@@ -463,6 +483,7 @@ class DaSearch
             'numDa'                => $this->numDa,
             'numCde'               => $this->numCde,
             'afficherCloturees'    => $this->afficherCloturees,
+            'afficherDaTraiter'    => $this->afficherDaTraiter,
             'demandeur'            => $this->demandeur,
             'statutDA'             => $this->statutDA,
             'statutOR'             => $this->statutOR,
