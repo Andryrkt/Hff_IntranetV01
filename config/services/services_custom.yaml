@@ -54,6 +54,9 @@ services:
       $em: "@doctrine.orm.default_entity_manager"
     public: true
 
+  App\Service\da\DaFilterService:
+    public: true
+
   App\Service\da\DwDataService:
     arguments:
       $em: "@doctrine.orm.default_entity_manager"
