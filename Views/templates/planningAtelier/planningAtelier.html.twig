@@ -63,17 +63,25 @@
 						{% set presence = row.presence[dateStr]|default({}) %}
 						{% set matin = presence.matin|default(false) %}
 						{% set apm = presence.apm|default(false) %}
-						{% set heurePointee = presence.heure|default(null) %}
-						<td
-							class="position-relative align-middle fw-bold"
-							colspan="2"
-							style="height: 50px;"
-						>
+						{% set hpointee = presence.heure|default(null) %}
+						{% set hmtn = presence.hmtn|default(null) %}
+						{% set hapm = presence.hapm|default(null) %}
+						<td class="position-relative align-middle fw-bold border-start border-end" colspan="2" style="height: 50px;">
 							<span style="position: absolute; top: 0; left: 0; width: 50%; height: 50%;{% if matin %} background: #fabb18; {% endif %}"></span>
 							<span style="position: absolute; top: 0; right: 0; width: 50%; height: 50%;{% if apm %} background: #fabb18; {% endif %}"></span>
-							<span style="position: absolute; bottom: 0; left: 0; width: 100%; height: 50%; display: flex; align-items: center; justify-content: center; {% if (matin or apm) and heurePointee %} background: var(--bs-success); color: white; {% elseif matin or apm %} background: #fabb18; {% elseif not matin and not apm and heurePointee %} background: var(--bs-secondary); color: white; {% endif %}">
-								{{ heurePointee ? heurePointee ~ 'H' : '' }}
-							</span>
+							{% if hpointee and not hmtn and not hapm %}
+								<span style="position: absolute; bottom: 0; left: 0; width: 100%; height: 50%; display: flex; align-items: center; justify-content: center; {% if (matin or apm) and hpointee %} background: var(--bs-success); color: white; {% elseif matin or apm %} background: #fabb18; {% elseif not matin and not apm and hpointee %} background: var(--bs-secondary); color: white; {% endif %}">
+									{{ hpointee ? hpointee ~ 'H' : '' }}
+								</span>
+							{% elseif hmtn or hapm or not hpointee %}
+								<span style="position: absolute; bottom: 0; left: 0; width: 50%; height: 50%; display: flex; align-items: center; justify-content: center; {% if hmtn and matin %} background:  var(--bs-success); color: white; {% elseif matin %} background: #fabb18; {% elseif not matin and hmtn %} background: var(--bs-secondary); color: white; {% endif %}">
+									{{ hmtn ? hmtn ~ 'H' : '' }}
+								</span>
+								<span style="position: absolute; bottom: 0; right: 0; width: 50%; height: 50%; display: flex; align-items: center; justify-content: center; {% if hapm and apm %} background:  var(--bs-success); color: white; {% elseif apm %} background: #fabb18; {% elseif not apm and hapm %} background: var(--bs-secondary); color: white; {% endif %}">
+									{{ hapm ? hapm ~ 'H' : '' }}
+								</span>
+							{% endif %}
+
 						</td>
 					{% endfor %}
 				</tr>
