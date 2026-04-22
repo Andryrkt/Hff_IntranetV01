@@ -63,57 +63,11 @@ class listeDaController extends Controller
         // Formulaire de recherche
         $form = $this->getFormFactory()->createBuilder(DaSearchType::class, $daSearch, [
             'method' => 'GET',
-            'estAppro' => $this->estUserDansServiceAppro()
+            'estAppro' => $this->estUserDansServiceAppro(),
+            'codeAgence'  => $this->getUser()->getCodeAgenceUser(),
+            'codeService' => $this->getUser()->getCodeServiceUser(),
         ])->getForm();
-        $form->handleRequest($request);
-
-        $criteria = $daSearch->toArray();
-
-        // Gestion spécifique "Mes DA à traiter"
-        if (
-            empty($request->query->get('mes_da_a_traiter')) &&
-            empty(array_filter($criteria, function ($value) {
-                return $value !== null && $value !== false;
-            }))
-        ) {
-            $user = $this->getUser();
-            $codeAgenceUser = $user->getCodeAgenceUser();
-            $codeServiceUser = $user->getCodeServiceUser();
-
-            // On ne garde que la persistance du flag et les filtres imposés
-            $criteria = [];
-
-            if ($codeAgenceUser == '80' && $codeServiceUser == 'APP') {
-                $criteria['statutDA'] = [
-                    StatutDaConstant::STATUT_SOUMIS_APPRO,
-                    StatutDaConstant::STATUT_DEMANDE_DEVIS,
-                    StatutDaConstant::STATUT_DEVIS_A_RELANCER,
-                    StatutDaConstant::STATUT_EN_COURS_PROPOSITION
-                ];
-                $criteria['statutBC'] = [
-                    StatutBcConstant::STATUT_PAS_DANS_BC,
-                    StatutBcConstant::STATUT_PAS_DANS_OR_CESSION,
-                    StatutBcConstant::STATUT_A_GENERER,
-                    StatutBcConstant::STATUT_CESSION_A_GENERER,
-                    StatutBcConstant::STATUT_A_EDITER,
-                    StatutBcConstant::STATUT_A_SOUMETTRE_A_VALIDATION,
-                    StatutBcConstant::STATUT_A_ENVOYER_AU_FOURNISSEUR
-                ];
-            } else {
-                $criteria['statutDA'] = [
-                    StatutDaConstant::STATUT_EN_COURS_CREATION,
-                    StatutDaConstant::STATUT_AUTORISER_EMETTEUR,
-                    StatutDaConstant::STATUT_SOUMIS_ATE
-                ];
-            }
-
-            $criteria['mes_da_a_traiter'] = 0;
-            $this->getSessionService()->set('criteria_search_list_da_80_app', $criteria);
-        } else {
-            $criteria['mes_da_a_traiter'] = 1;
-            // Sauvegarde classique des critères issus du formulaire
-            $this->getSessionService()->set('criteria_search_list_da', $criteria);
-        }
+        $criteria = $this->traitementFormualireRecherche($request, $form, $daSearch);
 
         // Visuel de tri
         $sortJoursClass = false;
@@ -171,6 +125,30 @@ class listeDaController extends Controller
         ]);
     }
 
+    private function traitementFormualireRecherche(Request $request, FormInterface $form, DaSearch $daSearch)
+    {
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $criteria = $form->getData();
+            $criteria = $daSearch->toArray();
+
+            // Sauvegarde classique des critères issus du formulaire
+            $this->getSessionService()->set('criteria_search_list_da', $criteria);
+        }
+        // Gestion spécifique "Mes DA à traiter"
+        else {
+            $criteria = $daSearch->toArray();
+
+            $this->getSessionService()->set('criteria_search_list_da_80_app', $criteria);
+        }
+
+
+
+        return $criteria;
+    }
+
+
     private function appliquerVerrouillage(array $daAffichers): void
     {
         $estAdmin = $this->estAdmin();
@@ -216,13 +194,21 @@ class listeDaController extends Controller
     {
         $criteria = $this->getSessionService()->get('criteria_search_list_da', []) ?? [];
 
+        // Sécurité : si c'est un objet, on le convertit en tableau
+        if ($criteria instanceof DaSearch) {
+            $criteria = $criteria->toArray();
+        }
+        // On ne met à true que si la clé n'existe pas (première visite)
+        if (!isset($criteria['afficherDaTraiter'])) {
+            $criteria['afficherDaTraiter'] = true;
+        }
+
         $agServ = [
             'agenceEmetteur'  => isset($criteria['agenceEmetteur']) ? $this->getEntityManager()->getRepository(Agence::class)->find($criteria['agenceEmetteur']) : null,
             'agenceDebiteur'  => isset($criteria['agenceDebiteur']) ? $this->getEntityManager()->getRepository(Agence::class)->find($criteria['agenceDebiteur']) : null,
             'serviceEmetteur' => isset($criteria['serviceEmetteur']) ? $this->getEntityManager()->getRepository(Service::class)->find($criteria['serviceEmetteur']) : null,
             'serviceDebiteur' => isset($criteria['serviceDebiteur']) ? $this->getEntityManager()->getRepository(Service::class)->find($criteria['serviceDebiteur']) : null,
         ];
-
         $daSearch->toObject($criteria, $agServ);
     }
 }
