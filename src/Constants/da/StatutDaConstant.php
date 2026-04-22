@@ -48,11 +48,26 @@ class StatutDaConstant
         self::STATUT_DEVIS_A_RELANCER,
         self::STATUT_EN_COURS_PROPOSITION
     ];
+    public const TRAITER_APPRO_LIST_CLOTURE = [
+        self::STATUT_SOUMIS_APPRO,
+        self::STATUT_DEMANDE_DEVIS,
+        self::STATUT_DEVIS_A_RELANCER,
+        self::STATUT_EN_COURS_PROPOSITION,
+        self::STATUT_CLOTUREE,
+        self::STATUT_CLOTUREE_HORS_DELAI
+    ];
 
     public const TRAITER_AUTRES_LIST = [
         self::STATUT_EN_COURS_CREATION,
         self::STATUT_AUTORISER_EMETTEUR,
         self::STATUT_SOUMIS_ATE
+    ];
+    public const TRAITER_AUTRES_LIST_CLOTURE = [
+        self::STATUT_EN_COURS_CREATION,
+        self::STATUT_AUTORISER_EMETTEUR,
+        self::STATUT_SOUMIS_ATE,
+        self::STATUT_CLOTUREE,
+        self::STATUT_CLOTUREE_HORS_DELAI
     ];
 
     public const STATUT_DA_PAS_APPRO_NI_ADMIN = [

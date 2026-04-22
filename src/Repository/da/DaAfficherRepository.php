@@ -542,7 +542,6 @@ class DaAfficherRepository extends EntityRepository
         $this->applyDynamicFilters($qb, "d", $criteria);
         $this->applyAgencyServiceFilters($qb, "d", $criteria, $user, $idAgenceUser, $estAppro, $estAtelier, $estAdmin);
         $this->applyDateFilters($qb, "d", $criteria);
-        $this->applyFilterAppro($qb, "d", $estAppro, $estAdmin);
         $this->applyStatutsFilters($qb, "d", $criteria);
 
         // $query = $qb->getQuery();
@@ -632,23 +631,6 @@ class DaAfficherRepository extends EntityRepository
         $qb->addOrderBy($dateDemandeExpr, 'DESC');
     }
 
-    private function applyFilterAppro(QueryBuilder $qb, string $qbLabel, bool $estAppro, bool $estAdmin): void
-    {
-        if (!$estAdmin && $estAppro) {
-            $qb->andWhere($qbLabel . '.statutDal IN (:authorizedStatuts)')
-                ->setParameter('authorizedStatuts', [
-                    StatutDaConstant::STATUT_SOUMIS_APPRO,
-                    StatutDaConstant::STATUT_SOUMIS_ATE,
-                    StatutDaConstant::STATUT_DEMANDE_DEVIS,
-                    StatutDaConstant::STATUT_DEVIS_A_RELANCER,
-                    StatutDaConstant::STATUT_EN_COURS_PROPOSITION,
-                    StatutDaConstant::STATUT_AUTORISER_EMETTEUR,
-                    StatutDaConstant::STATUT_VALIDE,
-                    StatutDaConstant::STATUT_REFUSE_APPRO,
-                    StatutDaConstant::STATUT_TERMINER
-                ], ArrayParameterType::STRING);
-        }
-    }
     private function supprimerQuatriemeLettrePD3($chaine)
     {
         if (strlen($chaine) > 11 && isset($chaine[3])) {
@@ -740,6 +722,20 @@ class DaAfficherRepository extends EntityRepository
 
     private function applyStatutsFilters(QueryBuilder $queryBuilder, string $qbLabel, array $criteria, bool $estCdeFrn = false)
     {
+        // Définition de la condition "DA Clôturée" selon la règle :
+        // statutDal = 'Clôturée' AND statutOr = 'Validé' AND statutCde = 'Tous livrés'
+        $exprCloturee = $queryBuilder->expr()->andX(
+            $queryBuilder->expr()->eq($qbLabel . '.statutDal', ':statutDaCloture'),
+            $queryBuilder->expr()->eq($qbLabel . '.statutOr', ':statutOrValide'),
+            $queryBuilder->expr()->eq($qbLabel . '.statutCde', ':statutBcTousLivres')
+        );
+
+        $fnSetClotureParams = function () use ($queryBuilder) {
+            $queryBuilder->setParameter('statutDaCloture', StatutDaConstant::STATUT_CLOTUREE);
+            $queryBuilder->setParameter('statutOrValide', StatutOrConstant::STATUT_VALIDE);
+            $queryBuilder->setParameter('statutBcTousLivres', StatutBcConstant::STATUT_TOUS_LIVRES);
+        };
+
         if (
             empty($criteria['numDit']) && empty($criteria['numDa']) && empty($criteria['numCde'])
             && empty($criteria['afficherCloturees'])
@@ -772,26 +768,57 @@ class DaAfficherRepository extends EntityRepository
         } else {
             // filtrer par le statutDA et le statutBC si les deux sont renseignés et sont des tableaux
             if (!empty($criteria['statutDA']) && !empty($criteria['statutBC']) && is_array($criteria['statutDA']) && is_array($criteria['statutBC'])) {
-                $queryBuilder
-                    ->andWhere($queryBuilder->expr()->orX(
-                        $qbLabel . '.statutDal IN (:statutDaParam)',
-                        $qbLabel . '.statutCde IN (:statutBcParam)'
-                    ))
-                    ->setParameter('statutDaParam', $criteria['statutDA'], ArrayParameterType::STRING)
+                $condNormal = $queryBuilder->expr()->orX(
+                    $qbLabel . '.statutDal IN (:statutDaParam)',
+                    $qbLabel . '.statutCde IN (:statutBcParam)'
+                );
+
+                if (!empty($criteria['afficherCloturees'])) {
+                    $queryBuilder->andWhere($queryBuilder->expr()->orX($condNormal, $exprCloturee));
+                    $fnSetClotureParams();
+                } else {
+                    $queryBuilder->andWhere($condNormal);
+                }
+
+                $queryBuilder->setParameter('statutDaParam', $criteria['statutDA'], ArrayParameterType::STRING)
                     ->setParameter('statutBcParam', $criteria['statutBC'], ArrayParameterType::STRING);
             }
             // filtrer par le statutDA s'il est renseigner et peut être un tableau 
             elseif (!empty($criteria['statutDA'])) {
                 if (is_array($criteria['statutDA'])) {
-                    $queryBuilder->andWhere($qbLabel . '.statutDal IN (:statutDaParam)')
-                        ->setParameter('statutDaParam', $criteria['statutDA'], ArrayParameterType::STRING);
+                    $condNormal = $qbLabel . '.statutDal IN (:statutDaParam)';
+                    if (!empty($criteria['afficherCloturees'])) {
+                        $queryBuilder->andWhere($queryBuilder->expr()->orX($condNormal, $exprCloturee));
+                        $fnSetClotureParams();
+                    } else {
+                        $queryBuilder->andWhere($condNormal);
+                    }
+                    $queryBuilder->setParameter('statutDaParam', $criteria['statutDA'], ArrayParameterType::STRING);
                 } else {
                     if ($criteria['statutDA'] === StatutDaConstant::TRAITEMENT_APPRO) {
-                        $queryBuilder->andWhere($qbLabel . '.statutDal IN (:statutDaParam)')
-                            ->setParameter('statutDaParam', StatutDaConstant::STATUT_TRAITEMENT_APPRO, ArrayParameterType::STRING);
+                        if (empty($criteria['afficherCloturees'])) {
+                            $queryBuilder->andWhere($qbLabel . '.statutDal IN (:statutDaParam)')
+                                ->setParameter('statutDaParam', StatutDaConstant::TRAITER_APPRO_LIST, ArrayParameterType::STRING);
+                        } else {
+                            $queryBuilder->andWhere($queryBuilder->expr()->orX(
+                                $qbLabel . '.statutDal IN (:statutDaParam)',
+                                $exprCloturee
+                            ))
+                                ->setParameter('statutDaParam', StatutDaConstant::TRAITER_APPRO_LIST_CLOTURE, ArrayParameterType::STRING);
+                            $fnSetClotureParams();
+                        }
                     } else {
-                        $queryBuilder->andWhere($qbLabel . '.statutDal = :statutDaParam')
-                            ->setParameter('statutDaParam', $criteria['statutDA']);
+                        if (empty($criteria['afficherCloturees'])) {
+                            $queryBuilder->andWhere($qbLabel . '.statutDal = :statutDaParam')
+                                ->setParameter('statutDaParam', $criteria['statutDA']);
+                        } else {
+                            $queryBuilder->andWhere($queryBuilder->expr()->orX(
+                                $qbLabel . '.statutDal = :statutDaParam',
+                                $exprCloturee
+                            ))
+                                ->setParameter('statutDaParam', $criteria['statutDA']);
+                            $fnSetClotureParams();
+                        }
                     }
                 }
             }
@@ -799,22 +826,44 @@ class DaAfficherRepository extends EntityRepository
             // filtrer par le statutBC s'il est renseigner et n'est pas un tableau 
             if (!empty($criteria['statutBC']) && !is_array($criteria['statutBC'])) {
                 if ($criteria['statutBC'] === StatutBcConstant::BC_EN_COURS) {
-                    $queryBuilder->andWhere($qbLabel . '.statutCde IN (:statutBcParam)')
-                        ->setParameter('statutBcParam', StatutBcConstant::STATUT_BC_EN_COURS, ArrayParameterType::STRING);
+                    if (empty($criteria['afficherCloturees'])) {
+                        $queryBuilder->andWhere($qbLabel . '.statutCde IN (:statutBcParam)')
+                            ->setParameter('statutBcParam', StatutBcConstant::STATUT_BC_EN_COURS, ArrayParameterType::STRING);
+                    } else {
+                        $queryBuilder->andWhere($queryBuilder->expr()->orX(
+                            $qbLabel . '.statutCde IN (:statutBcParam)',
+                            $exprCloturee
+                        ))
+                            ->setParameter('statutBcParam', StatutBcConstant::STATUT_BC_EN_COURS_CLOTURE, ArrayParameterType::STRING);
+                        $fnSetClotureParams();
+                    }
                 } else {
-                    $queryBuilder->andWhere($qbLabel . '.statutCde = :statutBcParam')
-                        ->setParameter('statutBcParam', $criteria['statutBC']);
+                    if (empty($criteria['afficherCloturees'])) {
+                        $queryBuilder->andWhere($qbLabel . '.statutCde = :statutBcParam')
+                            ->setParameter('statutBcParam', $criteria['statutBC']);
+                    } else {
+                        $queryBuilder->andWhere($queryBuilder->expr()->orX(
+                            $qbLabel . '.statutCde = :statutBcParam',
+                            $exprCloturee
+                        ))
+                            ->setParameter('statutBcParam', $criteria['statutBC']);
+                        $fnSetClotureParams();
+                    }
                 }
             }
 
             // filtrer par le statutOR s'il est renseigner et peut être un tableau 
-            if (!empty($criteria['statutOR'])) {
-                if (is_array($criteria['statutOR'])) {
-                    $queryBuilder->andWhere($qbLabel . '.statutOr IN (:statutOrParam)')
-                        ->setParameter('statutOrParam', $criteria['statutOR'], ArrayParameterType::STRING);
-                } else {
+            if (!empty($criteria['statutOR']) && !is_array($criteria['statutOR'])) {
+                if (empty($criteria['afficherCloturees'])) {
                     $queryBuilder->andWhere($qbLabel . '.statutOr = :statutOrParam')
                         ->setParameter('statutOrParam', $criteria['statutOR']);
+                } else {
+                    $queryBuilder->andWhere($queryBuilder->expr()->orX(
+                        $qbLabel . '.statutOr = :statutOrParam',
+                        $exprCloturee
+                    ))
+                        ->setParameter('statutOrParam', $criteria['statutOR']);
+                    $fnSetClotureParams();
                 }
             }
         }
@@ -995,7 +1044,6 @@ class DaAfficherRepository extends EntityRepository
         $this->applyAgencyServiceFilters($qb, 'd', $criteria, $user, $idAgenceUser, $estAppro, $estAtelier, $estAdmin);
         $this->applyDateFilters($qb, 'd', $criteria);
 
-        $this->applyFilterAppro($qb, 'd', $estAppro, $estAdmin);
         $this->applyStatutsFilters($qb, 'd', $criteria);
 
         $qb->orderBy('d.dateDemande', 'DESC')

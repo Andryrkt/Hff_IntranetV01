@@ -140,7 +140,7 @@ class listeDaController extends Controller
                 }
             }
 
-            if ($criteria['afficherDaTraiter'] && !$hasOtherCriteria) {
+            if ($criteria['afficherDaTraiter']) {
                 $criteria = $this->statutDatraiter($criteria);
             }
 
@@ -170,10 +170,19 @@ class listeDaController extends Controller
         // $criteria = [];
 
         if ($codeAgenceUser == '80' && $codeServiceUser == 'APP') {
-            $criteria['statutDA'] = StatutDaConstant::TRAITER_APPRO_LIST;
-            $criteria['statutBC'] = StatutBcConstant::TRAITER_APPRO_LIST;
+            if ($criteria['afficherCloturees']) {
+                $criteria['statutDA'] = StatutDaConstant::TRAITER_APPRO_LIST_CLOTURE;
+                $criteria['statutBC'] = StatutBcConstant::TRAITER_APPRO_LIST;
+            } else {
+                $criteria['statutDA'] = StatutDaConstant::TRAITER_APPRO_LIST;
+                $criteria['statutBC'] = StatutBcConstant::TRAITER_APPRO_LIST;
+            }
         } else {
-            $criteria['statutDA'] = StatutDaConstant::TRAITER_AUTRES_LIST;
+            if ($criteria['afficherCloturees']) {
+                $criteria['statutDA'] = StatutDaConstant::TRAITER_AUTRES_LIST_CLOTURE;
+            } else {
+                $criteria['statutDA'] = StatutDaConstant::TRAITER_AUTRES_LIST;
+            }
         }
 
         return $criteria;
