@@ -91,23 +91,20 @@ trait PlanningAtelierModelTrait
         $ressource = $this->ressource($criteria);
         $section = $this->section($criteria);
         $statement = "SELECT
-                        1							as bloc,
-                        trim(skg_name)				as section,
-                        trim(sitv_comment)			as intitule,
-                        sitv_numor					as numOR,
-                        sitv_interv					as itv,
-                        skr_name					as ressource,
-                        round(ska_duration / 8, 2)	as nbJour,
-                        s.ska_d_start				as dateDebut,
-                        s.ska_d_end					as dateFin,
-                        (select sum(h.shre_qtehre) from Informix.sav_hre h
-                        inner join Informix.sav_itv on sitv_numor = h.shre_numor and sitv_soc = h.shre_soc and sitv_succ = h.shre_succ and sitv_interv * 100 = h.shre_nogrp
-                        where h.shre_numor = w.ofh_id and h.shre_nogrp = w.ofs_id * 100
-                        and cast(h.shre_salarie as char(5)) = s.skr_id
-                        and h.shre_date = date(s.ska_d_start)
-                    ) as hpointee,
-                    (select asuc_num ||'-'||  trim(asuc_lib)
-                        from Informix.agr_succ where asuc_num = sav_itv.sitv_succ) as agenceEm
+                        1                           as bloc,
+                        trim(skg_name)              as section,
+                        trim(sitv_comment)          as intitule,
+                        sitv_numor                  as num_or,
+                        sitv_interv                 as itv,
+                        trim(skr_name)            as ressource,
+                        round(ska_duration / 8, 2)  as nb_jour,
+                        s.ska_d_start               as date_debut,
+                        s.ska_d_end                 as date_fin,
+                        shre.hpointee,
+                        shre.hpointee_debut,
+                        shre.hpointee_fin,
+                        (select asuc_num ||'-'|| trim(asuc_lib)
+                        from Informix.agr_succ where asuc_num = sav_itv.sitv_succ) as agence_em
                     from Informix.skw w
                     inner join Informix.ska s on s.skw_id = w.skw_id
                     inner join Informix.sav_itv sav_itv
@@ -120,6 +117,21 @@ trait PlanningAtelierModelTrait
                     inner join Informix.skr skr on skr.skr_id = skr_skg.skr_id
                     inner join Informix.skg skg on skg_succ = sitv_succ 
                         and skg.skg_id = skr_skg.skg_id
+                    left join (
+                        select 
+                            h.shre_numor, 
+                            h.shre_nogrp, 
+                            cast(h.shre_salarie as char(5)) as salarie_id,
+                            h.shre_date,
+                            sum(h.shre_qtehre) as hpointee,
+                            min(cast((extend(h.shre_date, year to minute) + (h.shre_debut * 60) units minute) as datetime year to second)) as hpointee_debut,
+                            max(cast((extend(h.shre_date, year to minute) + (h.shre_fin * 60) units minute) as datetime year to second)) as hpointee_fin
+                        from Informix.sav_hre h
+                        group by 1, 2, 3, 4
+                    ) shre on shre.shre_numor = w.ofh_id 
+                        and shre.shre_nogrp = w.ofs_id * 100
+                        and shre.salarie_id = s.skr_id
+                        and shre.shre_date = date(s.ska_d_start)
                     where sitv_soc = ska_soc
                     $agenceDeb
                     $serviceDeb
@@ -135,15 +147,17 @@ trait PlanningAtelierModelTrait
                         2															as bloc,
                         trim(skg_name)												as section,
                         trim(sitv_comment)											as intitule,
-                        sitv_numor                                                  as numOR,
+                        sitv_numor                                                  as num_or,
                         sitv_interv                                                 as itv,
-                        skr_name													as ressource,
-                        round(sh.shre_qtehre / 8, 2)								as nbJour,
-                        cast(sh.shre_date as datetime year to second)				as dateDebut,
-                        cast(sh.shre_date as datetime year to second)				as dateFin,
+                        trim(skr_name)												as ressource,
+                        round(sh.shre_qtehre / 8, 2)								as nb_jour,
+                        cast(sh.shre_date as datetime year to second)				as date_debut,
+                        cast(sh.shre_date as datetime year to second)				as date_fin,
                         sh.shre_qtehre												as hpointee,
+                        cast((extend(sh.shre_date, year to minute) + (sh.shre_debut * 60) units minute) as datetime year to second) as hpointee_debut,
+                        cast((extend(sh.shre_date, year to minute) + (sh.shre_fin * 60) units minute) as datetime year to second) as hpointee_fin,
                         (select asuc_num ||'-'||  trim(asuc_lib)
-                        from Informix.agr_succ where asuc_num = sav_itv.sitv_succ) as agenceEm
+                        from Informix.agr_succ where asuc_num = sav_itv.sitv_succ) as agence_em
                     from Informix.sav_hre sh
                     inner join Informix.skr skr
                         on skr.skr_id = cast(sh.shre_salarie as char(5))
@@ -151,12 +165,15 @@ trait PlanningAtelierModelTrait
                         on skr_skg.skr_id = skr.skr_id
                         and skr_skg.skr_skg_soc = sh.shre_soc
                         and skr_skg.skr_skg_succ = sh.shre_succ
-                    inner join Informix.skg skg
-                        on skg.skg_id = skr_skg.skg_id
-                    inner join Informix.sav_itv sav_itv
+                     inner join Informix.sav_itv sav_itv
                         on sav_itv.sitv_numor = sh.shre_numor
                         and sav_itv.sitv_succ = sh.shre_succ
                         and sav_itv.sitv_interv = trunc(sh.shre_nogrp / 100)
+                    inner join Informix.skg skg
+                        on skg.skg_id = skr_skg.skg_id
+                        and skg.skg_soc = sav_itv.sitv_soc
+                        and skg.skg_succ = sav_itv.sitv_succ
+                   
                     where sitv_soc = sh.shre_soc
                         and not exists (
                             select 1
@@ -178,8 +195,8 @@ trait PlanningAtelierModelTrait
                         $numOR
                         $ressource
                         $section
-                    group by 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
-                    order by section, numor, itv, ressource, dateDebut";
+                    group by 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13
+                    order by section, num_or, itv, ressource, date_debut, hpointee_debut asc";
         return $statement;
     }
 }
