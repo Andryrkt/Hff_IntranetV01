@@ -120,7 +120,7 @@ class DitController extends Controller
             $dto->utilisateurDemandeur = $this->getUserName();
             $dto->heureDemande = $this->getTime();
             $dto->dateDemande = new \DateTime($this->getDatesystem());
-            $dto->mailDemandeur = $user->getMail();
+            $dto->mailDemandeur = $this->getUserMail();
 
             // Statut de la demande
             $statutRepository = $em->getRepository(StatutDemande::class);
