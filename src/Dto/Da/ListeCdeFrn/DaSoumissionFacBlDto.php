@@ -20,6 +20,7 @@ class DaSoumissionFacBlDto
     public $totalMontantPayer;
     public $user;
     public $dateDemande;
+    public $codeSociete;
 
     // livraison ========================
     public $numLiv;

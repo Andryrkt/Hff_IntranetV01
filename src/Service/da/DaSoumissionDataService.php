@@ -34,27 +34,27 @@ class DaSoumissionDataService
         $this->historiqueOperation = $historiqueOperation;
     }
 
-    public function getNumeroDit(string $numDa): ?string
+    public function getNumeroDit(string $numDa, string $codeSociete): ?string
     {
-        return $this->em->getRepository(DemandeAppro::class)->getNumDitDa($numDa);
+        return $this->em->getRepository(DemandeAppro::class)->getNumDitDa($numDa, $codeSociete);
     }
 
-    public function getDateLivraisonPrevue(string $numDa, string $numCde): ?DateTime
+    public function getDateLivraisonPrevue(string $numDa, string $numCde, string $codeSociete): ?DateTime
     {
-        $date = $this->em->getRepository(DaAfficher::class)->getDateLivraisonPrevue($numDa, $numCde);
+        $date = $this->em->getRepository(DaAfficher::class)->getDateLivraisonPrevue($numDa, $numCde, $codeSociete);
         return $date ? new DateTime($date) : null;
     }
 
-    public function getInfoLivraison(string $numCde, string $numDa): array
+    public function getInfoLivraison(string $numCde, string $numDa, string $codeSociete): array
     {
-        $infosLivraisons = $this->daModel->getInfoLivraison($numCde);
+        $infosLivraisons = $this->daModel->getInfoLivraison($numCde, $codeSociete);
 
         if (empty($infosLivraisons)) {
             $message = "La commande n° <b>$numCde</b> n'a pas de livraison associé dans IPS. Merci de bien vérifier le numéro de la commande.";
             $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn');
         }
 
-        $livraisonSoumis = $this->em->getRepository(DaSoumissionFacBl::class)->getAllLivraisonSoumis($numDa, $numCde);
+        $livraisonSoumis = $this->em->getRepository(DaSoumissionFacBl::class)->getAllLivraisonSoumis($numDa, $numCde, $codeSociete);
 
         foreach ($livraisonSoumis as $numLiv) {
             unset($infosLivraisons[$numLiv]);
@@ -68,25 +68,25 @@ class DaSoumissionDataService
         return $infosLivraisons;
     }
 
-    public function getInfoDa(string $numCde): array
+    public function getInfoDa(string $numCde, string $codeSociete): array
     {
-        return $this->em->getRepository(DaAfficher::class)->getInfoDa($numCde);
+        return $this->em->getRepository(DaAfficher::class)->getInfoDa($numCde, $codeSociete);
     }
 
-    public function getInfoBc(string $numCde): array
+    public function getInfoBc(string $numCde, string $codeSociete): array
     {
-        return $this->daModel->getInfoBC($numCde);
+        return $this->daModel->getInfoBC($numCde, $codeSociete);
     }
 
-    public function getNumeroVersion(string $numCde): int
+    public function getNumeroVersion(string $numCde, string $codeSociete): int
     {
-        $numeroVersionMax = $this->em->getRepository(DaSoumissionFacBl::class)->getNumeroVersionMax($numCde);
+        $numeroVersionMax = $this->em->getRepository(DaSoumissionFacBl::class)->getNumeroVersionMax($numCde, $codeSociete);
         return AutoIncDecService::autoIncrement($numeroVersionMax);
     }
 
-    public function getInfoFournisseur(string $numFrn, string $numCde): array
+    public function getInfoFournisseur(string $numFrn, string $numCde, string $codeSociete): array
     {
-        return $this->ddpModel->recupInfoPourDa($numFrn, $numCde);
+        return $this->ddpModel->recupInfoPourDa($numFrn, $numCde, $codeSociete);
     }
 
     public function resolveDebiteur(int $typeDa, array $infoDa): array

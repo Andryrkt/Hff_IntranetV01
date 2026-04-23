@@ -61,6 +61,7 @@ class DaSoumissionFacBlFactory
         string $numCde,
         string $numDa,
         string $numOr,
+        string $codeSociete,
         User $user
     ): DaSoumissionFacBlDto {
         $dto = new DaSoumissionFacBlDto();
@@ -68,19 +69,20 @@ class DaSoumissionFacBlFactory
         $dto->numeroCde = $numCde;
         $dto->numeroDemandeAppro = $numDa;
         $dto->numeroOR = $numOr;
+        $dto->codeSociete = $codeSociete;
         $dto->user = $user;
-        $dto->numeroDemandeDit = $this->dataService->getNumeroDit($dto->numeroDemandeAppro);
+        $dto->numeroDemandeDit = $this->dataService->getNumeroDit($dto->numeroDemandeAppro, $dto->codeSociete);
         $dto->utilisateur = $user->getNomUtilisateur();
-        $dto->numeroVersionFacBl = $this->dataService->getNumeroVersion($dto->numeroCde);
-        $dto->dateBlFac = $this->dataService->getDateLivraisonPrevue($dto->numeroDemandeAppro, $dto->numeroCde);
+        $dto->numeroVersionFacBl = $this->dataService->getNumeroVersion($dto->numeroCde, $dto->codeSociete);
+        $dto->dateBlFac = $this->dataService->getDateLivraisonPrevue($dto->numeroDemandeAppro, $dto->numeroCde, $dto->codeSociete);
         $dto->dateDemande = new DateTime();
 
         // livraison ===========================
-        $dto->infoLiv = $this->dataService->getInfoLivraison($dto->numeroCde, $dto->numeroDemandeAppro);
+        $dto->infoLiv = $this->dataService->getInfoLivraison($dto->numeroCde, $dto->numeroDemandeAppro, $dto->codeSociete);
         $dto->numLiv = array_keys($dto->infoLiv);
 
         // info commande (BC) ==========================
-        $dto->infoBc = $this->dataService->getInfoBc($dto->numeroCde);
+        $dto->infoBc = $this->dataService->getInfoBc($dto->numeroCde, $dto->codeSociete);
         $dto->numeroFournisseur = $dto->infoBc['num_fournisseur'];
         $dto->nomFournisseur = $dto->infoBc['nom_fournisseur'];
 
@@ -108,12 +110,12 @@ class DaSoumissionFacBlFactory
 
         $dto->pieceJoint1 = $nomPdfFusionner;
         $dto->montantBlFacture = (float)str_replace(',', '.', str_replace(' ', '', $dto->montantBlFacture ?? '0'));
-        $dto->numeroFactureFournisseur = $this->getNumFacEtMontant($dto->numLiv)[0]['numero_facture'];
+        $dto->numeroFactureFournisseur = $this->getNumFacEtMontant($dto->numLiv, $dto->codeSociete)[0]['numero_facture'];
 
         // Bon à payer (BAP) ===============================
         $dto->statutBap = StatutConstants::BAP_A_TRANSMETTRE;
         $dto->dateStatutBap = new DateTime();
-        $dto->montantReceptionIps = $this->getNumFacEtMontant($dto->numLiv)[0]['montant_reception_ips'];
+        $dto->montantReceptionIps = $this->getNumFacEtMontant($dto->numLiv, $dto->codeSociete)[0]['montant_reception_ips'];
 
         // livraison ===========================
         $dto->dateClotLiv = new DateTime($dto->infoLiv[$dto->numLiv]['date_clot']);
@@ -164,16 +166,16 @@ class DaSoumissionFacBlFactory
         $typeDemandeRepository = $this->em->getRepository(TypeDemande::class);
         $daSoumissionBcRepository = $this->em->getRepository(DaSoumissionBc::class);
 
-        $infoDa = $this->dataService->getInfoDa($dto->numeroCde);
+        $infoDa = $this->dataService->getInfoDa($dto->numeroCde, $dto->codeSociete);
         $typeApresLivraison = $typeDemandeRepository->find(TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE);
         $typeRegule = $typeDemandeRepository->find(TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_REGULE);
         $demandePaiementRepository = $this->em->getRepository(DemandePaiement::class);
 
         $numeroSoumissionDdpDa = AutoIncDecService::autoIncrement(
-            $demandePaiementRepository->getDernierNumeroSoumissionDdpDa($dto->numeroCde, $infoDa['numeroDemandeAppro'])
+            $demandePaiementRepository->getDernierNumeroSoumissionDdpDa($dto->numeroCde, $infoDa['numeroDemandeAppro'], $dto->codeSociete)
         );
 
-        $infoFournisseur = $this->dataService->getInfoFournisseur($infoDa['numeroFournisseur'], $dto->numeroCde);
+        $infoFournisseur = $this->dataService->getInfoFournisseur($infoDa['numeroFournisseur'], $dto->numeroCde, $dto->codeSociete);
 
         if (!empty($infoFournisseur)) {
             $ddpDto->numeroFournisseur = $infoFournisseur[0]['num_fournisseur'];
@@ -195,7 +197,7 @@ class DaSoumissionFacBlFactory
         $ddpDto->numeroFacture = $dto->numeroFactureFournisseur;
         $ddpDto->appro = true;
         $ddpDto->typeDa = $infoDa['daTypeId'];
-        $ddpDto->numeroVersionBc = $daSoumissionBcRepository->getNumeroVersionMax($dto->numeroCde);
+        $ddpDto->numeroVersionBc = $daSoumissionBcRepository->getNumeroVersionMax($dto->numeroCde, $dto->codeSociete);
         $ddpDto->dateDemande = new DateTime();
         $ddpDto->numeroSoumissionDdpDa = $numeroSoumissionDdpDa;
         $ddpDto->numeroDemandeAppro = $infoDa['numeroDemandeAppro'];
@@ -214,8 +216,8 @@ class DaSoumissionFacBlFactory
         return $this->numeroGenerateurService->genererNumeroBap();
     }
 
-    private function getNumFacEtMontant($numLiv): array
+    private function getNumFacEtMontant($numLiv, $codeSociete): array
     {
-        return $this->daSoumissionFacBlModel->getMontantReceptionIpsEtNumFac($numLiv);
+        return $this->daSoumissionFacBlModel->getMontantReceptionIpsEtNumFac($numLiv, $codeSociete);
     }
 }

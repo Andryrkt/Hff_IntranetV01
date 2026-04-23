@@ -3,9 +3,6 @@
 namespace App\Repository\da;
 
 use App\Entity\da\DaAfficher;
-use App\Entity\da\DaSoumisAValidation;
-use App\Entity\da\DaSoumissionFacBl;
-use App\Entity\ddp\DemandePaiement;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\EntityRepository;
 
