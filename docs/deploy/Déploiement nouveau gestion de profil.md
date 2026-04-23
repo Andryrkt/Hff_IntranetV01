@@ -135,7 +135,7 @@ Pour chaque profil, les opérations suivantes sont effectuées dans l'ordre :
 ### affectations_profils.json
 
 ```Bash
-php bin/console app:migration:affectations-profils
+php bin/console app:migration:affectation-profils
 ```
 
 Cette ligne de commande va importer en BDD les données d'affectations des profils aux utilisateurs définis dans le fichier `/config/migration/affectations_profils.json`.
