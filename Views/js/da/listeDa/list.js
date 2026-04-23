@@ -327,7 +327,7 @@ document.addEventListener("DOMContentLoaded", function () {
         </tr>`;
 
       fetchManager
-        .get(`ddp/api/statut-cloture/${numeroDa}/${numeroCde}`)
+        .get(`api/statut-compta/${numeroDa}/${numeroCde}`)
         .then((data) => {
           modalBody.innerHTML = data
             .map(

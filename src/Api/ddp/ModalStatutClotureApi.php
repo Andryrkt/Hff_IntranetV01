@@ -10,11 +10,11 @@ use Symfony\Component\Routing\Annotation\Route;
 class ModalStatutClotureApi extends Controller
 {
     /**
-     * @Route("/ddp/api/statut-cloture/{numeroDa}/{numeroCde}", name="ddp_api_statut_cloture")
+     * @Route("/api/statut-compta/{numeroDa}/{numeroCde}", name="api_statut_compta")
      *
      * @return void
      */
-    public function statutCloture($numeroDa, $numeroCde)
+    public function statutCompta($numeroDa, $numeroCde)
     {
         $ddpModel = new DemandePaiementModel();
         $infoStatutCloture = $ddpModel->getInfoDdpDa($numeroDa, $numeroCde);

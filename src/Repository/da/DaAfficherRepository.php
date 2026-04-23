@@ -5,13 +5,8 @@ namespace App\Repository\da;
 use App\Constants\da\StatutBcConstant;
 use App\Constants\da\StatutDaConstant;
 use App\Constants\da\StatutOrConstant;
-use App\Entity\admin\utilisateur\User;
 use App\Entity\da\DaAfficher;
-use App\Entity\dit\DemandeIntervention;
-use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\ORM\EntityRepository;
-use Doctrine\ORM\QueryBuilder;
-use Doctrine\ORM\Query;
 
 class DaAfficherRepository extends EntityRepository
 {
@@ -32,18 +27,18 @@ class DaAfficherRepository extends EntityRepository
 
         if ($maxVersion === null) {
             return [];
-        } else {
-            // Étape 2 : récupérer tous les enregistrements correspondant
-            return $this->createQueryBuilder('d')
-                ->where('d.numeroDemandeAppro = :num')
-                ->andWhere('d.numeroVersion = :version')
-                ->setParameters([
-                    'num'     => $numeroDemandeAppro,
-                    'version' => $maxVersion,
-                ])
-                ->getQuery()
-                ->getResult();
         }
+
+        // Étape 2 : récupérer tous les enregistrements correspondant
+        return $this->createQueryBuilder('d')
+            ->where('d.numeroDemandeAppro = :num')
+            ->andWhere('d.numeroVersion = :version')
+            ->setParameters([
+                'num'     => $numeroDemandeAppro,
+                'version' => $maxVersion,
+            ])
+            ->getQuery()
+            ->getResult();
     }
 
     /**
@@ -63,25 +58,25 @@ class DaAfficherRepository extends EntityRepository
 
         if ($maxVersion === null) {
             return null;
-        } else {
-            $result = $this->createQueryBuilder('d')
-                ->select('DISTINCT(d.dateLivraisonPrevue) as dateLivraisonPrevue')
-                ->where('d.numeroDemandeAppro = :num')
-                ->andWhere('d.numeroCde = :numCde')
-                ->andWhere('d.codeSociete = :codeSociete')
-                ->andWhere('d.numeroVersion = :version')
-                ->andWhere('d.dateLivraisonPrevue IS NOT NULL')
-                ->setParameters([
-                    'num'         => $numeroDemandeAppro,
-                    'numCde'      => $numeroCde,
-                    'codeSociete' => $codeSociete,
-                    'version'     => $maxVersion,
-                ])
-                ->getQuery()
-                ->getOneOrNullResult();
-
-            return $result ? $result['dateLivraisonPrevue'] : null;
         }
+
+        $result = $this->createQueryBuilder('d')
+            ->select('DISTINCT(d.dateLivraisonPrevue) as dateLivraisonPrevue')
+            ->where('d.numeroDemandeAppro = :num')
+            ->andWhere('d.numeroCde = :numCde')
+            ->andWhere('d.codeSociete = :codeSociete')
+            ->andWhere('d.numeroVersion = :version')
+            ->andWhere('d.dateLivraisonPrevue IS NOT NULL')
+            ->setParameters([
+                'num'         => $numeroDemandeAppro,
+                'numCde'      => $numeroCde,
+                'codeSociete' => $codeSociete,
+                'version'     => $maxVersion,
+            ])
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        return $result ? $result['dateLivraisonPrevue'] : null;
     }
 
     public function markAsDeletedByNumeroLigne(string $numeroDemandeAppro, array $numeroLignes, string $userName, bool $allVersions = false): void

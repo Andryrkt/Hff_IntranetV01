@@ -20,7 +20,9 @@ class DaSoumissionBcType extends AbstractType
         $builder
             ->add('numeroCde', TextType::class, [
                 'label' => 'Numéro Commande',
-                'attr' => ['disabled' => true]
+                'attr'  => [
+                    'class' => 'div-disabled',
+                ]
             ])
             ->add('demandePaiementAvance', ChoiceType::class, [
                 'choices'       => [

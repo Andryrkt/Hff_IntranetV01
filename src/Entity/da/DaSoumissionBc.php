@@ -15,32 +15,6 @@ class DaSoumissionBc
 {
     use DateTrait;
 
-    public const STATUT_A_GENERER                = 'A générer';
-    public const STATUT_A_EDITER                 = 'A éditer';
-    public const STATUT_A_SOUMETTRE_A_VALIDATION = 'A soumettre à validation';
-    public const STATUT_A_ENVOYER_AU_FOURNISSEUR = 'A envoyer au fournisseur';
-    public const STATUT_SOUMISSION               = 'Soumis à validation';
-    public const STATUT_A_VALIDER_DA             = 'A valider DA';
-    public const STATUT_VALIDE                   = 'Validé';
-    public const STATUT_CLOTURE                  = 'Clôturé';
-    public const STATUT_REFUSE                   = 'Refusé';
-    public const STATUT_BC_ENVOYE_AU_FOURNISSEUR = 'BC envoyé au fournisseur';
-    public const STATUT_PAS_DANS_OR              = 'PAS DANS OR';
-    public const STATUT_PAS_DANS_BC              = 'Pas dans BC';
-    public const STATUT_PAS_DANS_OR_CESSION      = 'Pas dans OR cession';
-    public const STATUT_NON_DISPO                = 'Non Dispo Fournisseur';
-
-    // statut pour Da Reappro
-    public const STATUT_CESSION_A_GENERER = 'Cession à générer';
-    public const STATUT_EN_COURS_DE_PREPARATION = 'En cours de préparation';
-
-
-    // statut pour Da Reappro , Da Direct, Da Via OR
-    public const STATUT_TOUS_LIVRES              = 'Tous livrés';
-    public const STATUT_PARTIELLEMENT_LIVRE      = 'Partiellement livré';
-    public const STATUT_PARTIELLEMENT_DISPO      = 'Partiellement dispo';
-    public const STATUT_COMPLET_NON_LIVRE        = 'Complet non livré';
-
     public const POSITION_TERMINER = 'TE';
     public const POSITION_ENCOUR   = 'EC';
     public const POSITION_EDITER   = 'ED';

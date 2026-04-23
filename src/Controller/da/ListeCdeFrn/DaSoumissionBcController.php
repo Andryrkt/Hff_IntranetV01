@@ -13,7 +13,7 @@ use App\Entity\da\DaSoumissionBc;
 use App\Entity\da\DemandeAppro;
 use App\Factory\da\CdeFrnDto\DaSoumissionBcFactory;
 use App\Form\da\soumissionBC\DaSoumissionBcType;
-use App\Model\da\DaModel;
+use App\Mapper\Da\ListCdeFrn\Bc\DaSoumissionBcMapper;
 use App\Model\da\DaSoumissionBcModel;
 use App\Repository\da\DaAfficherRepository;
 use App\Repository\da\DaSoumissionBcRepository;
@@ -22,7 +22,7 @@ use App\Service\fichier\TraitementDeFichier;
 use App\Service\genererPdf\GeneratePdf;
 use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
 use App\Service\historiqueOperation\HistoriqueOperationService;
-use Exception;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -67,13 +67,13 @@ class DaSoumissionBcController extends Controller
         // Code Société de l'utilisateur
         $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
 
-        $dto = DaSoumissionBcFactory::init((int)$numCde, (string) $numDa, (int)$numOr);
+        $dto = (new DaSoumissionBcFactory($this->getEntityManager()))->init((int)$numCde, (string) $numDa, (int)$numOr, (int)$typeDa, $codeSociete);
 
         $form = $this->getFormFactory()->createBuilder(DaSoumissionBcType::class, $dto, [
             'method' => 'POST',
         ])->getForm();
 
-        $this->traitementFormulaire($request, $numCde, $form, $numDa, $numOr, $typeDa, $codeSociete);
+        $this->traitementFormulaire($request, $form);
 
         return $this->render('da/soumissionBc.html.twig', [
             'form' => $form->createView(),
@@ -89,22 +89,27 @@ class DaSoumissionBcController extends Controller
      * @param [type] $form
      * @return void
      */
-    private function traitementFormulaire(Request $request, string $numCde, $form, string $numDa, string $numOr, ?string $typeDa = null, string $codeSociete): void
+    private function traitementFormulaire(Request $request, FormInterface $form): void
     {
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var DaSoumissionBc $soumissionBc */
-            $soumissionBc = $form->getData();
-            $soumissionBc->numeroCde = $numCde; // Set the numeroCde in the DTO
-            $bcStatut = $this->daSoumissionBcRepository->getStatut($numCde);
-            $condition_1 =  $soumissionBc->demandePaiementAvance && !$bcStatut;
-            $condition_2 = $soumissionBc->demandePaiementAvance && $bcStatut === 'Réfusé';
-            if ($condition_1 || $condition_2) {
-                if ($this->verifierConditionDeBlocage($soumissionBc, $numCde, $numDa)) {
-                    [$numeroVersionMax, $nomPdfFusionner] = $this->traitemnetBc($form, $numCde, $numDa, $numOr, $soumissionBc, false);
+            /** @var DaSoumissionBcDto $dto */
+            $dto = $form->getData();
 
-                    $this->getSessionService()->set('demande_paiement_a_l_avance', ['ddpa' => $soumissionBc->demandePaiementAvance, 'nom_pdf' => $nomPdfFusionner]);
+            $numCde = $dto->numeroCde;
+            $numDa = $dto->numeroDemandeAppro;
+            $typeDa = $dto->typeDa;
+            $codeSociete = $dto->codeSociete;
+
+            $bcStatut = $this->daSoumissionBcRepository->getStatut($numCde, $codeSociete);
+            $condition_1 =  $dto->demandePaiementAvance && !$bcStatut;
+            $condition_2 = $dto->demandePaiementAvance && $bcStatut === StatutBcConstant::STATUT_REFUSE;
+            if ($condition_1 || $condition_2) {
+                if ($this->verifierConditionDeBlocage($dto, $numCde, $numDa, $codeSociete)) {
+                    [$numeroVersionMax, $nomPdfFusionner] = $this->traitemnetBc($form, $dto, false);
+
+                    $this->getSessionService()->set('demande_paiement_a_l_avance', ['ddpa' => $dto->demandePaiementAvance, 'nom_pdf' => $nomPdfFusionner]);
                     // redirection vers la page de creation de demande de paiement
                     $this->redirectToRoute('demande_paiement_da', [
                         'typeDdp' => 1,
@@ -115,9 +120,9 @@ class DaSoumissionBcController extends Controller
                 }
             } else {
 
-                if ($this->verifierConditionDeBlocage($soumissionBc, $numCde, $numDa, $codeSociete)) {
+                if ($this->verifierConditionDeBlocage($dto, $numCde, $numDa, $codeSociete)) {
 
-                    $this->traitemnetBc($form, $numCde, $numDa, $numOr, $soumissionBc, true);
+                    $this->traitemnetBc($form, $dto, true);
 
                     /** HISTORISATION */
                     $message = "Le document est soumis pour validation";
@@ -130,8 +135,14 @@ class DaSoumissionBcController extends Controller
         }
     }
 
-    private function traitemnetBc($form, $numCde, $numDa, $numOr, DaSoumissionBcDto $soumissionBc, bool $copier): array
+
+    private function traitemnetBc(FormInterface $form, DaSoumissionBcDto $dto, bool $copier): array
     {
+        $numCde = $dto->numeroCde;
+        $numDa = $dto->numeroDemandeAppro;
+        $numOr = $dto->numeroOr;
+        $codeSociete = $dto->codeSociete;
+
         /** ENREGISTREMENT DE FICHIER */
         $nomDeFichiers = $this->enregistrementFichier($form, $numCde, $numDa);
 
@@ -145,10 +156,11 @@ class DaSoumissionBcController extends Controller
         $this->traitementDeFichier->fusionFichers($fichierConvertir, $nomAvecCheminPdfFusionner);
 
         /** AJOUT DES INFO NECESSAIRE */
-        $soumissionBc = $this->ajoutInfoNecesaireSoumissionBc($numCde, $numDa, $nomPdfFusionner, $numeroVersionMax, $numOr, $codeSociete);
+        $dto = (new DaSoumissionBcFactory($this->getEntityManager()))->apresSoumission($dto, $this->getUserName(), $nomPdfFusionner);
+        $daSoumissionBc = DaSoumissionBcMapper::map($dto);
 
         /** ENREGISTREMENT DANS LA BASE DE DONNEE */
-        $this->getEntityManager()->persist($soumissionBc);
+        $this->getEntityManager()->persist($daSoumissionBc);
         $this->getEntityManager()->flush();
 
         if ($copier) {
@@ -156,7 +168,7 @@ class DaSoumissionBcController extends Controller
             $this->generatePdf->copyToDWBcDa($nomPdfFusionner, $numDa);
 
             /** modification du table da_afficher */
-            $this->modificationDaAfficher($numDa, $numCde);
+            $this->modificationDaAfficher($dto);
         }
 
         return [$numeroVersionMax, $nomPdfFusionner];
@@ -173,9 +185,13 @@ class DaSoumissionBcController extends Controller
         return $ddpAvantLivraison;
     }
 
-    private function modificationDaAfficher(string $numDa, string $numCde): void
+    private function modificationDaAfficher(DaSoumissionBcDto $dto): void
     {
-        $numeroVersionMaxCde = $this->daAfficherRepository->getNumeroVersionMax($numDa);
+        $numCde = $dto->numeroCde;
+        $numDa = $dto->numeroDemandeAppro;
+        $codeSociete = $dto->codeSociete;
+
+        $numeroVersionMaxCde = $this->daAfficherRepository->getNumeroVersionMax($numDa, $codeSociete);
         $daValiders = $this->daAfficherRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMaxCde, 'numeroCde' => $numCde]);
         if (!empty($daValiders)) {
             foreach ($daValiders as $key => $daValider) {
@@ -188,37 +204,16 @@ class DaSoumissionBcController extends Controller
         }
     }
 
-    private function ajoutInfoNecesaireSoumissionBc(string $numCde, string $numDa, string $nomPdfFusionner, int $numeroVersionMax, string $numOr): DaSoumissionBc
+
+    private function conditionDeBlocage(DaSoumissionBcDto $dto): array
     {
-        $numDit = $this->demandeApproRepository->getNumDitDa($numDa, $codeSociete);
-        // $numOr = $this->ditRepository->getNumOr($numDit);
+        $numCde = $dto->numeroCde;
+        $numDa = $dto->numeroDemandeAppro;
+        $codeSociete = $dto->codeSociete;
+        $montantBcDto = $dto->montantBc;
 
-        $montantBc = $this->getMontantBc($numCde, $codeSociete);
-
-        $soumissionBc->setNumeroCde($numCde)
-            ->setUtilisateur($this->getUserName())
-            ->setPieceJoint1($nomPdfFusionner)
-            ->setStatut(StatutBcConstant::STATUT_SOUMISSION)
-            ->setNumeroVersion($numeroVersionMax)
-            ->setNumeroDemandeAppro($numDa)
-            ->setNumeroDemandeDit($numDit)
-            ->setNumeroOR($numOr)
-            ->setCodeSociete($codeSociete)
-            ->setMontantBc($montantBc)
-        ;
-        return $daSoumissionBc;
-    }
-
-    private function getMontantBc(string $numCde, string $codeSociete): float
-    {
-        $daModel = new DaModel();
-        return $daModel->getMontantBcDaDirect($numCde, $codeSociete);
-    }
-
-    private function conditionDeBlocage(DaSoumissionBcDto $soumissionBc, string $numCde, string $numDa, string $codeSociete): array
-    {
         // Ensure pieceJoint1 is an UploadedFile before attempting to get its original name
-        $nomdeFichier = $soumissionBc->pieceJoint1 instanceof UploadedFile ? $soumissionBc->pieceJoint1->getClientOriginalName() : '';
+        $nomdeFichier = $dto->pieceJoint1 instanceof UploadedFile ? $dto->pieceJoint1->getClientOriginalName() : '';
         $nomdeFichier = str_replace('BON_DE_COMMANDE', 'BON DE COMMANDE', $nomdeFichier);
         $statut = $this->daSoumissionBcRepository->getStatut($numCde, $codeSociete);
         $montantBc = $this->daSoumissionBcRepository->getMontantBc($numCde, $codeSociete);
@@ -230,15 +225,19 @@ class DaSoumissionBcController extends Controller
             'nomDeFichier' => explode('_', $nomdeFichier)[0] <> 'BON DE COMMANDE' || explode('_', $nomdeFichier)[1] <> $numCde,
             'statut' => $statut === StatutBcConstant::STATUT_SOUMISSION || $statut === StatutBcConstant::STATUT_A_VALIDER_DA,
             'numDaEgale' => $numDaInformix[0] !== $numDa,
-            'montantBcEgale' => $montantBc == $this->getMontantBc($numCde, $codeSociete)
+            'montantBcEgale' => $montantBc == $montantBcDto
         ];
     }
 
-    private function verifierConditionDeBlocage(DaSoumissionBcDto $soumissionBc, string $numCde, string $numDa, string $codeSociete): bool
+    private function verifierConditionDeBlocage(DaSoumissionBcDto $dto): bool
     {
-        $conditions = $this->conditionDeBlocage($soumissionBc, $numCde, $numDa, $codeSociete);
+        $conditions = $this->conditionDeBlocage($dto);
+        $numCde = $dto->numeroCde;
+        $numDa = $dto->numeroDemandeAppro;
+        $pieceJoint1 = $dto->pieceJoint1;
+
         // Ensure pieceJoint1 is an UploadedFile before attempting to get its original name
-        $nomdeFichier = $soumissionBc->pieceJoint1 instanceof UploadedFile ? $soumissionBc->pieceJoint1->getClientOriginalName() : '';
+        $nomdeFichier = $pieceJoint1 instanceof UploadedFile ? $pieceJoint1->getClientOriginalName() : '';
         $okey = false;
 
         if ($conditions['nomDeFichier']) {
@@ -250,7 +249,7 @@ class DaSoumissionBcController extends Controller
             $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn');
             $okey = false;
         } elseif ($conditions['numDaEgale']) {
-            $message = "Le numéro de DA '$numDa' ne correspond pas pour le BC '$numCde'";
+            $message = "Le numéro de DA '{$numDa}' ne correspond pas pour le BC '$numCde'";
             $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn');
             $okey = false;
         } elseif ($conditions['montantBcEgale']) {
