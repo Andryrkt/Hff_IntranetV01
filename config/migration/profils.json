@@ -496,10 +496,32 @@
     ]
   },
   {
-    "ref_profil": "HFF_01-ATE_BDM+CAS+MAG+DIT+REP+DAP+PAT+DDC",
-    "designation_profil": "HFF_01-ATE_BDM+CAS+MAG+DIT+REP+DAP+PAT+DDC",
+    "ref_profil": "HFF_01-ATE_BDM+CAS+MAG+DIT+REP+DAP+PAT+DDC+CONTRAT",
+    "designation_profil": "HFF_01-ATE_BDM+CAS+MAG+DIT+REP+DAP+PAT+DDC+CONTRAT",
     "societe_id": 1,
     "applications": [
+      {
+        "code_app": "CONTRAT",
+        "pages": [
+          {
+            "nom_route": "new_contrat",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "contrat_liste",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          }
+        ],
+        "agences_services": []
+      },
       {
         "code_app": "DOC",
         "pages": [
