@@ -138,20 +138,28 @@ class planningAtelierControler extends Controller
         }
         if (!isset($item["hpointee"]))
             return $data;
-        $hpointee = (int)$item["hpointee"];
-        if ($data['heure'] === NULL) {
-            $data['heure'] = $hpointee;
-        }
-        if ($debut < $fin && $hfin < $fin && $hdebut < $hfin) {
-            $data['heure'] += $hpointee;
-        }
-        $isFullDay = $hdebut <= $matin_debut && $hfin >= $aprem_fin;
-        if ($hdebut <= $matin_fin && $hfin >= $matin_debut && !$isFullDay) {
-            $data['hmtn'] = $hpointee;
-        }
-        if ($hdebut <= $aprem_fin && $hfin >= $aprem_debut && !$isFullDay) {
-            $data['hapm'] = $hpointee;
-        }
+        $hpointee = (float)$item["hpointee"]; 
+
+if ($data['heure'] === NULL) {
+    $data['heure'] = $hpointee;
+}
+
+// 2. Attention ici, on utilise += donc on garde le type float
+if ($debut < $fin && $hfin < $fin && $hdebut < $hfin) {
+    $data['heure'] += $hpointee;
+}
+
+$isFullDay = $hdebut <= $matin_debut && $hfin >= $aprem_fin;
+
+if ($hdebut <= $matin_fin && $hfin >= $matin_debut && !$isFullDay) {
+    // 3. On garde aussi le float ici
+    $data['hmtn'] = (float)$hpointee; 
+}
+
+if ($hdebut <= $aprem_fin && $hfin >= $aprem_debut && !$isFullDay) {
+    // 4. Et ici
+    $data['hapm'] = (float)$hpointee; 
+}
 
         return $data;
 

@@ -165,12 +165,15 @@ trait PlanningAtelierModelTrait
                         on skr_skg.skr_id = skr.skr_id
                         and skr_skg.skr_skg_soc = sh.shre_soc
                         and skr_skg.skr_skg_succ = sh.shre_succ
-                    inner join Informix.skg skg
-                        on skg.skg_id = skr_skg.skg_id
-                    inner join Informix.sav_itv sav_itv
+                     inner join Informix.sav_itv sav_itv
                         on sav_itv.sitv_numor = sh.shre_numor
                         and sav_itv.sitv_succ = sh.shre_succ
                         and sav_itv.sitv_interv = trunc(sh.shre_nogrp / 100)
+                    inner join Informix.skg skg
+                        on skg.skg_id = skr_skg.skg_id
+                        and skg.skg_soc = sav_itv.sitv_soc
+                        and skg.skg_succ = sav_itv.sitv_succ
+                   
                     where sitv_soc = sh.shre_soc
                         and not exists (
                             select 1
