@@ -26,38 +26,46 @@ class DaSoumissionBcFactory
         $dto->numeroOr = $numOr;
         $dto->typeDa = $typeDa;
         $dto->codeSociete = $codeSociete;
+        $dto->montantBcIps = $this->getMontantBcIps($dto);
 
         return $dto;
     }
 
     public function apresSoumission(DaSoumissionBcDto $dto, string $utilisateur, string $nomPdfFusionner)
     {
-        $dto->numeroDemandeDit = $this->getNumeroDit($dto->numeroDemandeAppro, $dto->codeSociete);
-        $dto->montantBc = $this->getMontantBc($dto->numeroCde, $dto->codeSociete);
+        $dto->numeroDemandeDit = $this->getNumeroDit($dto);
+        $dto->montantBc = $this->getMontantBc($dto);
+
         $dto->statut = StatutBcConstant::STATUT_SOUMISSION;
         $dto->utilisateur = $utilisateur;
-        $dto->numeroVersion = $this->getNumeroVersion($dto->numeroCde, $dto->codeSociete);
+        $dto->numeroVersion = $this->getNumeroVersion($dto);
         $dto->pieceJoint1 = $nomPdfFusionner;
 
         return $dto;
     }
 
-    private function getNumeroDit($numDa, $codeSociete)
+    private function getNumeroDit(DaSoumissionBcDto $dto)
     {
         $demandeApproRepository = $this->entityManager->getRepository(DemandeAppro::class);
-        return $demandeApproRepository->getNumDitDa($numDa, $codeSociete);
+        return $demandeApproRepository->getNumDitDa($dto->numeroDemandeAppro, $dto->codeSociete);
     }
 
-    private function getMontantBc(string $numCde, string $codeSociete): float
+    private function getMontantBcIps(DaSoumissionBcDto $dto): float
     {
         $daModel = new DaModel();
-        return $daModel->getMontantBcDaDirect($numCde, $codeSociete);
+        return $daModel->getMontantBcDaDirect($dto->numeroCde, $dto->codeSociete);
     }
 
-    private function getNumeroVersion(string $numCde, string $codeSociete): int
+    private function getMontantBc(DaSoumissionBcDto $dto): ?float
     {
         $daSoumissionBcRepository = $this->entityManager->getRepository(DaSoumissionBc::class);
-        return $this->autoIncrement($daSoumissionBcRepository->getNumeroVersionMax($numCde, $codeSociete));;
+        return $daSoumissionBcRepository->getMontantBc($dto->numeroCde, $dto->codeSociete);
+    }
+
+    private function getNumeroVersion(DaSoumissionBcDto $dto): int
+    {
+        $daSoumissionBcRepository = $this->entityManager->getRepository(DaSoumissionBc::class);
+        return $this->autoIncrement($daSoumissionBcRepository->getNumeroVersionMax($dto->numeroCde, $dto->codeSociete));;
     }
 
     private function autoIncrement(?int $num): int

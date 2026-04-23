@@ -7,7 +7,7 @@ use App\Entity\da\DaSoumissionBc;
 
 class DaSoumissionBcMapper
 {
-    public function map(DaSoumissionBcDto $daSoumissionBcDto)
+    public static function map(DaSoumissionBcDto $daSoumissionBcDto)
     {
         $daSoumissionBc = new DaSoumissionBc();
         $daSoumissionBc

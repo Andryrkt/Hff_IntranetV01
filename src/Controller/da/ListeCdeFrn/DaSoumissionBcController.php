@@ -210,13 +210,14 @@ class DaSoumissionBcController extends Controller
         $numCde = $dto->numeroCde;
         $numDa = $dto->numeroDemandeAppro;
         $codeSociete = $dto->codeSociete;
-        $montantBcDto = $dto->montantBc;
+        $montantBc = $dto->montantBc;
+        $montantBcIps = $dto->montantBcIps;
+
 
         // Ensure pieceJoint1 is an UploadedFile before attempting to get its original name
         $nomdeFichier = $dto->pieceJoint1 instanceof UploadedFile ? $dto->pieceJoint1->getClientOriginalName() : '';
         $nomdeFichier = str_replace('BON_DE_COMMANDE', 'BON DE COMMANDE', $nomdeFichier);
         $statut = $this->daSoumissionBcRepository->getStatut($numCde, $codeSociete);
-        $montantBc = $this->daSoumissionBcRepository->getMontantBc($numCde, $codeSociete);
 
         //recuperation du numDa dans Informix
         $numDaInformix = $this->daSoumissionBcModel->getNumDa($numCde, $codeSociete);
@@ -225,7 +226,7 @@ class DaSoumissionBcController extends Controller
             'nomDeFichier' => explode('_', $nomdeFichier)[0] <> 'BON DE COMMANDE' || explode('_', $nomdeFichier)[1] <> $numCde,
             'statut' => $statut === StatutBcConstant::STATUT_SOUMISSION || $statut === StatutBcConstant::STATUT_A_VALIDER_DA,
             'numDaEgale' => $numDaInformix[0] !== $numDa,
-            'montantBcEgale' => $montantBc == $montantBcDto
+            'montantBcEgale' => $montantBc == $montantBcIps
         ];
     }
 

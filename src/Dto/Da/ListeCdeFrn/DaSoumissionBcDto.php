@@ -21,4 +21,5 @@ class DaSoumissionBcDto
 
     public ?array $pieceJoint2 = [];
     public ?int $typeDa = null;
+    public ?float $montantBcIps = null;
 }
