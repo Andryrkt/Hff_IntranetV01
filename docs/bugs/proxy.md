@@ -20,7 +20,7 @@ Un warning se produit lors de l'envoi de requête POST sur la première page aff
 
 1. Aller sur `/login`
 2. Entrer des identifiants valides
-3. Cliquer sur "Connexion"
+3. Cliquer sur "Se connecter"
 
 ---
 
@@ -29,7 +29,7 @@ Un warning se produit lors de l'envoi de requête POST sur la première page aff
 - Warning
 - Message :
 
-```bash
+```php
 Warning: require(C:\wamp64\www\Hffintranet\src\Doctrine/../../var/cache/proxies\__CG__AppEntityadminPersonnel.php): failed to open stream: No such file or directory in C:\wamp64\www\Hffintranet\vendor\doctrine\common\src\Proxy\AbstractProxyFactory.php on line 199
 ```
 
