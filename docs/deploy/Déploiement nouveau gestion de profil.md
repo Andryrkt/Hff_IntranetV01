@@ -34,7 +34,7 @@ Ce fichier est comme url_matcher.php et url_generator.php à la fois mais qui n'
 ### twig/
 
 Ce dossier sert à contenir les fichiers de cache des templates twig utilisés dans tous l'APP.
-Au premier démarrage en "PROD", tous les templates twig seront compilés et mis en cache dans ce dossier. (donc normale que ça prends du temps ~3s à 5s)
+Au premier démarrage en "PROD" (si la valeur de `APP_ENV` dans `.env` est `prod`), tous les templates twig seront compilés et mis en cache dans ce dossier. (donc normale que ça prends du temps ~3s à 5s)
 
 ---
 
