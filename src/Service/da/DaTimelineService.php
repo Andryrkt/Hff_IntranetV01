@@ -13,37 +13,16 @@ class DaTimelineService
 {
     use JoursOuvrablesTrait;
     private DaAfficherRepository $daAfficherRepository;
-    private $styleStatutDA = [];
 
     public function __construct(EntityManagerInterface $em)
     {
         $this->daAfficherRepository = $em->getRepository(DaAfficher::class);
     }
 
-    public function initStyleStatuts()
-    {
-        $this->styleStatutDA = [
-            StatutDaConstant::STATUT_VALIDE               => 'bg-bon-achat-valide',
-            StatutDaConstant::STATUT_CLOTUREE             => 'bg-bon-achat-valide',
-            StatutDaConstant::STATUT_TERMINER             => 'bg-primary text-white',
-            StatutDaConstant::STATUT_SOUMIS_ATE           => 'bg-proposition-achat',
-            StatutDaConstant::STATUT_DW_A_VALIDE          => 'bg-soumis-validation',
-            StatutDaConstant::STATUT_SOUMIS_APPRO         => 'bg-demande-achat',
-            StatutDaConstant::STATUT_REFUSE_APPRO         => 'bg-refuse-appro',
-            StatutDaConstant::STATUT_DEMANDE_DEVIS        => 'bg-demande-devis',
-            StatutDaConstant::STATUT_DEVIS_A_RELANCER     => 'bg-devis-a-relancer',
-            StatutDaConstant::STATUT_EN_COURS_CREATION    => 'bg-en-cours-creation',
-            StatutDaConstant::STATUT_AUTORISER_EMETTEUR   => 'bg-creation-demande-initiale',
-            StatutDaConstant::STATUT_EN_COURS_PROPOSITION => 'bg-en-cours-proposition',
-        ];
-    }
-
     public function getTimelineData(string $numeroDa): array
     {
         $allDatas = $this->daAfficherRepository->getTimelineData($numeroDa);
         if (empty($allDatas)) return ['DA' => [], 'BC' => []];
-
-        $this->initStyleStatuts();
 
         $timelineDa = $this->buildTimelineDA($allDatas);
         $timelineBc = $this->buildTimelineBC($numeroDa, end($allDatas));
@@ -119,7 +98,7 @@ class DaTimelineService
             $etapes = [
                 [
                     'statut'   => $lastDataDA['statutDal'],
-                    'dotClass' => $this->styleStatutDA[$lastDataDA['statutDal']],
+                    'dotClass' => StatutDaConstant::getCssClassDa($lastDataDA['statutDal']),
                     'date'     => $dateValidationDA
                 ],
                 [
@@ -197,7 +176,7 @@ class DaTimelineService
     {
         return [
             'statut'   => $statut,
-            'dotClass' => $this->styleStatutDA[$statut],
+            'dotClass' => StatutDaConstant::getCssClassDa($statut),
             'date'     => $statut === DemandeAppro::STATUT_SOUMIS_APPRO ? $dateDemande : $date,
             'nbrJours' => 0,
         ];
