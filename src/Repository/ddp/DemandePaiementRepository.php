@@ -62,7 +62,7 @@ class DemandePaiementRepository extends EntityRepository
         return $numeroVersionMax;
     }
 
-    public function findDemandePaiement($criteria, User $user)
+    public function findDemandePaiement($criteria, bool $estFinance)
     {
         $qb = $this->createQueryBuilder('d')
             ->join(User::class, 'u', 'WITH', 'd.demandeur = u.nom_utilisateur');
@@ -77,7 +77,7 @@ class DemandePaiementRepository extends EntityRepository
                 AND dp2.serviceDebiter = d.serviceDebiter
             )'
         );
-        if ($user->getCodeAgenceUser() === '80' && $user->getCodeServiceUser() === 'FIN') {
+        if ($estFinance) {
             $qb->andWhere('d.statut NOT IN (:statutPourDA)')
                 ->setParameter('statutPourDA', StatutConstants::STATUT_A_TRANSMETTRE);
         }
@@ -135,11 +135,6 @@ class DemandePaiementRepository extends EntityRepository
         if (!empty($criteria->fournisseur)) {
             $qb->andWhere('d.numeroFournisseur = :numFournisseur')
                 ->setParameter('numFournisseur', explode('-', $criteria->fournisseur)[0]);
-        }
-
-        if (!$multisuccursale) {
-            // Condition sur les couples agences-services
-            $this->conditionAgenceService($qb, $codeAgence, $codeService, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
         }
 
         $qb->orderBy('d.dateCreation', 'DESC');

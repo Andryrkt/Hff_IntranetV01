@@ -3,9 +3,7 @@
 namespace App\Controller\ddp;
 
 use App\Controller\Controller;
-use App\Controller\Traits\AutorisationTrait;
 use App\Dto\ddp\DdpSearchDto;
-use App\Entity\admin\Application;
 use App\Entity\ddp\DemandePaiement;
 use App\Form\ddp\DdpSearchType;
 use App\Mapper\ddp\DemandePaiementMapper;
@@ -33,11 +31,7 @@ class DdpListeController extends Controller
      */
     public function ddpListe(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-        /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_DDP);
-        /** FIN AUtorisation acées */
+        $allAgenceServices = $this->getSecurityService()->getAllAgenceServices();
 
         // creation et traitment de formulaire de recherche
         $form = $this->getFormFactory()->createBuilder(DdpSearchType::class, new DdpSearchDto(), [
@@ -47,7 +41,7 @@ class DdpListeController extends Controller
         $criteria = $this->traitementFormulaire($form, $request);
 
         // recupération des données dans la table demande_paiement
-        $ddps = $this->demandePaiementRepository->findDemandePaiement($criteria, $this->getUser());
+        $ddps = $this->demandePaiementRepository->findDemandePaiement($criteria, $this->getSecurityService()->estFinance());
 
         // transforme en DTO
         $dto = DemandePaiementMapper::mapInverse($ddps);

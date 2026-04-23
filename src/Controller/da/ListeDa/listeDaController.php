@@ -2,20 +2,21 @@
 
 namespace App\Controller\da\ListeDa;
 
-use App\Constants\da\StatutBcConstant;
-use App\Constants\da\StatutDaConstant;
+
+use App\Constants\admin\ApplicationConstant;
 use App\Controller\Controller;
+use App\Entity\admin\Agence;
+use App\Entity\admin\Service;
 use App\Entity\da\DaAfficher;
 use App\Entity\da\DaSearch;
 use App\Entity\ddp\DemandePaiement;
+use App\Form\da\daCdeFrn\DaModalDateLivraisonType;
 use App\Form\da\DaSearchType;
 use App\Mapper\Da\DaAfficherMapper;
+use App\Repository\da\DaAfficherRepository;
+use App\Service\security\SecurityService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\FormInterface;
-use App\Service\security\SecurityService;
-use App\Repository\da\DaAfficherRepository;
-use App\Constants\admin\ApplicationConstant;
-use App\Form\da\daCdeFrn\DaModalDateLivraisonType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -42,25 +43,23 @@ class listeDaController extends Controller
     {
         // Code Société de l'utilisateur
         $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
-
-        $codeAgenceUser = $this->getSecurityService()->getCodeAgenceUser();
-        $codeServiceUser = $this->getSecurityService()->getCodeServiceUser();
+        // Agences Services autorisés sur le DAP
+        $allAgenceServices = $this->getSecurityService()->getAllAgenceServices();
+        // Agence et service par défaut
+        $agenceIdUser = $this->getSecurityService()->getAgenceIdUser();
+        $serviceIdUser = $this->getSecurityService()->getServiceIdUser();
 
         /** Initialisation DaSearch */
         $daSearch = new DaSearch;
         $this->initialisationRechercheDa($daSearch);
-
-        // Agences Services autorisés sur le DAP
-        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DAP);
-        $allAgenceServices = $this->getSecurityService()->getAllAgenceServices();
 
         //formulaire de recherche
         $form = $this->getFormFactory()->createBuilder(DaSearchType::class, $daSearch, [
             'method' => 'GET',
             'estAppro' => $this->estAppro(),
             'allAgenceServices' => $allAgenceServices,
-            'codeAgence'  => $this->getUser()->getCodeAgenceUser(),
-            'codeService' => $this->getUser()->getCodeServiceUser(),
+            'codeAgence'  => $agenceIdUser,
+            'codeService' => $serviceIdUser,
         ])->getForm();
         $criteria = $this->traitementFormualireRecherche($request, $form, $daSearch);
 
@@ -72,25 +71,15 @@ class listeDaController extends Controller
         $page = $request->query->getInt('page', 1);
         $limit = 100;
 
-        // Agence et service par défaut
-        $agenceIdUser = $this->getSecurityService()->getAgenceIdUser();
-        $serviceIdUser = $this->getSecurityService()->getServiceIdUser();
-
-        // Vérifier la permission de voir tous les données
-        $multisuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE);
-
-        // Vérifier le permission de voir liste avec débiteur sur la page courante
-        $peutVoirListeAvecDebiteur = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_AUTH_2);
-
         // Donnée à envoyer à la vue
-        $paginationData = $this->daAfficherRepository->findPaginatedAndFilteredDA($page, $limit, $criteria, $agenceIdUser, $serviceIdUser, $codeSociete, $agenceServiceAutorises, $peutVoirListeAvecDebiteur, $multisuccursale);
+        $paginationData = $this->daAfficherRepository->findPaginatedAndFilteredDA($page, $limit, $criteria, $agenceIdUser, $serviceIdUser, $codeSociete);
 
         // Préparation des données pour la vue (Via Presenter avec Cache)
         $dataPrepared = $this->daAfficherMapper->mapList($paginationData['data'], [
             'estAdmin'   => $this->estAdmin(),
-            'estAppro'   => $this->estUserDansServiceAppro(),
-            'estAtelier' => $this->estUserDansServiceAtelier(),
-            'estCreateur' => $this->estCreateurDeDADirecte(),
+            'estAppro'   => $this->estAppro(),
+            'estAtelier' => $this->estAtelier(),
+            'estCreateur' => $this->estCreateurDaDirecte(),
             'demandePaiementRepository' => $this->getEntityManager()->getRepository(DemandePaiement::class),
         ]);
 
@@ -137,27 +126,6 @@ class listeDaController extends Controller
 
 
         return $criteria;
-    }
-
-
-    private function appliquerVerrouillage(array $daAffichers): void
-    {
-        $estAdmin = $this->estAdmin();
-        $estAppro = $this->estUserDansServiceAppro();
-        $estAtelier = $this->estUserDansServiceAtelier();
-        $estCreateur = $this->estCreateurDeDADirecte();
-
-        foreach ($daAffichers as $daAfficher) {
-            $verrouille = $this->permissionDaService->estDaVerrouillee(
-                $daAfficher->getStatutDal(),
-                $daAfficher->getStatutOr(),
-                $estAdmin,
-                $estAppro,
-                $estAtelier,
-                $estCreateur
-            );
-            $daAfficher->setVerouille($verrouille);
-        }
     }
 
     private function TraitementFormulaireDateLivraison(Request $request, FormInterface $formDateLivraison)
