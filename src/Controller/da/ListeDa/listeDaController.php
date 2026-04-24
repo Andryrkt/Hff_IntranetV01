@@ -2,19 +2,21 @@
 
 namespace App\Controller\da\ListeDa;
 
-use App\Constants\da\StatutBcConstant;
-use App\Constants\da\StatutDaConstant;
+
+use App\Constants\admin\ApplicationConstant;
 use App\Controller\Controller;
+use App\Entity\admin\Agence;
+use App\Entity\admin\Service;
 use App\Entity\da\DaAfficher;
 use App\Entity\da\DaSearch;
+use App\Entity\ddp\DemandePaiement;
+use App\Form\da\daCdeFrn\DaModalDateLivraisonType;
 use App\Form\da\DaSearchType;
 use App\Mapper\Da\DaAfficherMapper;
+use App\Repository\da\DaAfficherRepository;
+use App\Service\security\SecurityService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\FormInterface;
-use App\Service\security\SecurityService;
-use App\Repository\da\DaAfficherRepository;
-use App\Constants\admin\ApplicationConstant;
-use App\Form\da\daCdeFrn\DaModalDateLivraisonType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -41,78 +43,25 @@ class listeDaController extends Controller
     {
         // Code Société de l'utilisateur
         $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
-
-        $codeAgenceUser = $this->getSecurityService()->getCodeAgenceUser();
-        $codeServiceUser = $this->getSecurityService()->getCodeServiceUser();
+        // Agences Services autorisés sur le DAP
+        $allAgenceServices = $this->getSecurityService()->getAllAgenceServices();
+        // Agence et service par défaut
+        $agenceIdUser = $this->getSecurityService()->getAgenceIdUser();
+        $serviceIdUser = $this->getSecurityService()->getServiceIdUser();
 
         /** Initialisation DaSearch */
         $daSearch = new DaSearch;
         $this->initialisationRechercheDa($daSearch);
 
-        // Agences Services autorisés sur le DAP
-        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DAP);
-        $allAgenceServices = $this->getSecurityService()->getAllAgenceServices();
-
         //formulaire de recherche
         $form = $this->getFormFactory()->createBuilder(DaSearchType::class, $daSearch, [
             'method' => 'GET',
             'estAppro' => $this->estAppro(),
-            'allAgenceServices' => $allAgenceServices
+            'allAgenceServices' => $allAgenceServices,
+            'codeAgence'  => $agenceIdUser,
+            'codeService' => $serviceIdUser,
         ])->getForm();
-
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            /** @var DaSearch $daSearch */
-            $daSearch = $form->getData();
-        }
-
-        $this->gererAgenceService($daSearch, $allAgenceServices);
-
-        $criteria = [];
-        //transformer l'objet daSearch en tableau
-        $criteria = $daSearch->toArray();
-
-        // Gestion spécifique "Mes DA à traiter"
-        if (
-            empty($request->query->get('mes_da_a_traiter')) &&
-            empty(array_filter($criteria, function ($value) {
-                return $value !== null && $value !== false;
-            }))
-        ) {
-            // On ne garde que la persistance du flag et les filtres imposés
-            $criteria = [];
-
-            if ($this->estAppro()) {
-                $criteria['statutDA'] = [
-                    StatutDaConstant::STATUT_SOUMIS_APPRO,
-                    StatutDaConstant::STATUT_DEMANDE_DEVIS,
-                    StatutDaConstant::STATUT_DEVIS_A_RELANCER,
-                    StatutDaConstant::STATUT_EN_COURS_PROPOSITION
-                ];
-                $criteria['statutBC'] = [
-                    StatutBcConstant::STATUT_PAS_DANS_BC,
-                    StatutBcConstant::STATUT_PAS_DANS_OR_CESSION,
-                    StatutBcConstant::STATUT_A_GENERER,
-                    StatutBcConstant::STATUT_CESSION_A_GENERER,
-                    StatutBcConstant::STATUT_A_EDITER,
-                    StatutBcConstant::STATUT_A_SOUMETTRE_A_VALIDATION,
-                    StatutBcConstant::STATUT_A_ENVOYER_AU_FOURNISSEUR
-                ];
-            } else {
-                $criteria['statutDA'] = [
-                    StatutDaConstant::STATUT_EN_COURS_CREATION,
-                    StatutDaConstant::STATUT_AUTORISER_EMETTEUR,
-                    StatutDaConstant::STATUT_SOUMIS_ATE
-                ];
-            }
-
-            $criteria['mes_da_a_traiter'] = 0;
-            $this->getSessionService()->set('criteria_search_list_da_80_app', $criteria);
-        } else {
-            $criteria['mes_da_a_traiter'] = 1;
-            // Sauvegarde classique des critères issus du formulaire
-            $this->getSessionService()->set('criteria_search_list_da', $criteria);
-        }
+        $criteria = $this->traitementFormualireRecherche($request, $form, $daSearch);
 
         $sortJoursClass = false;
 
@@ -122,18 +71,8 @@ class listeDaController extends Controller
         $page = $request->query->getInt('page', 1);
         $limit = 100;
 
-        // Agence et service par défaut
-        $agenceIdUser = $this->getSecurityService()->getAgenceIdUser();
-        $serviceIdUser = $this->getSecurityService()->getServiceIdUser();
-
-        // Vérifier la permission de voir tous les données
-        $multisuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE);
-
-        // Vérifier le permission de voir liste avec débiteur sur la page courante
-        $peutVoirListeAvecDebiteur = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_AUTH_2);
-
         // Donnée à envoyer à la vue
-        $paginationData = $this->daAfficherRepository->findPaginatedAndFilteredDA($page, $limit, $criteria, $agenceIdUser, $serviceIdUser, $codeSociete, $agenceServiceAutorises, $peutVoirListeAvecDebiteur, $multisuccursale);
+        $paginationData = $this->daAfficherRepository->findPaginatedAndFilteredDA($page, $limit, $criteria, $agenceIdUser, $serviceIdUser, $codeSociete);
 
         // Préparation des données pour la vue (Via Presenter avec Cache)
         $dataPrepared = $this->daAfficherMapper->mapList($paginationData['data'], [
@@ -141,9 +80,12 @@ class listeDaController extends Controller
             'estAppro'   => $this->estAppro(),
             'estAtelier' => $this->estAtelier(),
             'estCreateur' => $this->estCreateurDaDirecte(),
-            'codeAgenceUser' => $codeAgenceUser,
-            'codeServiceUser' => $codeServiceUser,
+            'demandePaiementRepository' => $this->getEntityManager()->getRepository(DemandePaiement::class),
         ]);
+
+        // Détection code centrale
+        $agenceServiceIps = $this->agenceServiceIpsObjet();
+        $codeCentraleVisible = $this->estAdmin() || in_array($agenceServiceIps['agenceIps']->getCodeAgence(), ['90', '91', '92']);
 
         /** === Formulaire pour la date de livraison prevu === */
         $formDateLivraison = $this->getFormFactory()->createBuilder(DaModalDateLivraisonType::class)->getForm();
@@ -161,6 +103,29 @@ class listeDaController extends Controller
             'formDateLivraison' => $formDateLivraison->createView(),
             'mesDaActif'        => $request->query->get('mes_da_a_traiter') == 1,
         ]);
+    }
+
+    private function traitementFormualireRecherche(Request $request, FormInterface $form, DaSearch $daSearch)
+    {
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $criteria = $form->getData();
+            $criteria = $daSearch->toArray();
+
+            // Sauvegarde classique des critères issus du formulaire
+            $this->getSessionService()->set('criteria_search_list_da', $criteria);
+        }
+        // Gestion spécifique "Mes DA à traiter"
+        else {
+            $criteria = $daSearch->toArray();
+
+            $this->getSessionService()->set('criteria_search_list_da_80_app', $criteria);
+        }
+
+
+
+        return $criteria;
     }
 
     private function TraitementFormulaireDateLivraison(Request $request, FormInterface $formDateLivraison)
@@ -209,6 +174,21 @@ class listeDaController extends Controller
     {
         $criteria = $this->getSessionService()->get('criteria_search_list_da', []) ?? [];
 
-        $daSearch->toObject($criteria);
+        // Sécurité : si c'est un objet, on le convertit en tableau
+        if ($criteria instanceof DaSearch) {
+            $criteria = $criteria->toArray();
+        }
+        // On ne met à true que si la clé n'existe pas (première visite)
+        if (!isset($criteria['afficherDaTraiter'])) {
+            $criteria['afficherDaTraiter'] = true;
+        }
+
+        $agServ = [
+            'agenceEmetteur'  => isset($criteria['agenceEmetteur']) ? $this->getEntityManager()->getRepository(Agence::class)->find($criteria['agenceEmetteur']) : null,
+            'agenceDebiteur'  => isset($criteria['agenceDebiteur']) ? $this->getEntityManager()->getRepository(Agence::class)->find($criteria['agenceDebiteur']) : null,
+            'serviceEmetteur' => isset($criteria['serviceEmetteur']) ? $this->getEntityManager()->getRepository(Service::class)->find($criteria['serviceEmetteur']) : null,
+            'serviceDebiteur' => isset($criteria['serviceDebiteur']) ? $this->getEntityManager()->getRepository(Service::class)->find($criteria['serviceDebiteur']) : null,
+        ];
+        $daSearch->toObject($criteria, $agServ);
     }
 }

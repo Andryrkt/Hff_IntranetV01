@@ -172,6 +172,59 @@ document.addEventListener("DOMContentLoaded", function () {
       divContainer.classList.add("d-none");
     }
   });
+
+  /**
+   * Evenement sur "Afficher les DA à traiter" pour filtrer les statuts
+   **/
+  const checkboxAfficherTraiter = document.getElementById("da_search_afficherDaTraiter");
+  const selectStatutDA = document.getElementById("da_search_statutDA");
+  const selectStatutBC = document.getElementById("da_search_statutBC");
+
+  if (checkboxAfficherTraiter && selectStatutDA && selectStatutBC) {
+    const isApproUser = checkboxAfficherTraiter.dataset.isApproUser === "1";
+
+    const filterChoices = () => {
+      const isChecked = checkboxAfficherTraiter.checked;
+
+      [selectStatutDA, selectStatutBC].forEach((select) => {
+        Array.from(select.options).forEach((option) => {
+          if (option.value === "") return; // Garder le placeholder
+
+          if (isChecked) {
+            let keep = false;
+            if (isApproUser) {
+              keep = option.dataset.traiterAppro === "1";
+            } else {
+              if (select === selectStatutDA) {
+                keep = option.dataset.traiterPasAppro === "1";
+              } else {
+                keep = false;
+              }
+            }
+
+            if (!keep) {
+              option.style.display = "none";
+              option.disabled = true;
+            } else {
+              option.style.display = "";
+              option.disabled = false;
+            }
+          } else {
+            option.style.display = "";
+            option.disabled = false;
+          }
+        });
+
+        // Si l'option actuellement sélectionnée est maintenant cachée, on reset le select
+        if (select.selectedOptions[0] && select.selectedOptions[0].style.display === "none") {
+          select.value = "";
+        }
+      });
+    };
+
+    checkboxAfficherTraiter.addEventListener("change", filterChoices);
+    filterChoices(); // Appel initial au chargement
+  }
 });
 
 /** ===================================================
