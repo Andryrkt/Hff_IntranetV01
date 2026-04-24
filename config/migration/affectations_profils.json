@@ -658,5 +658,8 @@
   { "ref_profil": "HFF-ADMIN", "societe_id": 1, "username": "marie" },
   { "ref_profil": "HFF-ADMIN", "societe_id": 1, "username": "fidison" },
   { "ref_profil": "HFF-ADMIN", "societe_id": 1, "username": "charles" },
-  { "ref_profil": "HFF-ADMIN", "societe_id": 1, "username": "hanitra" }
+  { "ref_profil": "HFF-ADMIN", "societe_id": 1, "username": "hanitra" },
+  { "ref_profil": "HFF-ADMIN", "societe_id": 1, "username": "nekena" },
+  { "ref_profil": "HFF-ADMIN", "societe_id": 1, "username": "irina" },
+  { "ref_profil": "HFF-DAP", "societe_id": 1, "username": "stg.giano" }
 ]
