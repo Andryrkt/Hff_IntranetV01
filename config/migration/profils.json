@@ -202,6 +202,79 @@
     ]
   },
   {
+    "ref_profil": "HFF-DAP",
+    "designation_profil": "HFF DAP SEULEMENT",
+    "societe_id": 1,
+    "applications": [
+      {
+        "code_app": "DOC",
+        "pages": [
+          {
+            "nom_route": "documentation_interne",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          }
+        ],
+        "agences_services": []
+      },
+      {
+        "code_app": "LOG",
+        "pages": [
+          {
+            "nom_route": "new_logistique",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          }
+        ],
+        "agences_services": []
+      },
+      {
+        "code_app": "DAP",
+        "pages": [
+          {
+            "nom_route": "list_da",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "da_detail_avec_dit",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "da_detail_direct",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "da_detail_reappro",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          }
+        ],
+        "agences_services": []
+      }
+    ]
+  },
+  {
     "ref_profil": "HFF-DOM Ag-50",
     "designation_profil": "HFF DOM AGENCE 50 SEULEMENT",
     "societe_id": 1,
@@ -618,24 +691,7 @@
             "peut_exporter": false
           }
         ],
-        "agences_services": [
-          {
-            "code_agence": "01",
-            "code_service": "ATE"
-          },
-          {
-            "code_agence": "01",
-            "code_service": "CSP"
-          },
-          {
-            "code_agence": "01",
-            "code_service": "MAS"
-          },
-          {
-            "code_agence": "20",
-            "code_service": "ATE"
-          }
-        ]
+        "agences_services": []
       },
       {
         "code_app": "CAS",
@@ -21773,14 +21829,6 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "da_reporting_ips",
-            "peut_voir": true,
-            "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
-            "peut_supprimer": false,
-            "peut_exporter": false
-          },
-          {
             "nom_route": "da_affectation_achat",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -22081,14 +22129,6 @@
           },
           {
             "nom_route": "da_bon_a_payer",
-            "peut_voir": true,
-            "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
-            "peut_supprimer": false,
-            "peut_exporter": false
-          },
-          {
-            "nom_route": "da_reporting_ips",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -31779,14 +31819,6 @@
           },
           {
             "nom_route": "da_bon_a_payer",
-            "peut_voir": true,
-            "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": true,
-            "peut_supprimer": false,
-            "peut_exporter": false
-          },
-          {
-            "nom_route": "da_reporting_ips",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": true,
