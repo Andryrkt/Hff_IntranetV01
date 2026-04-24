@@ -99,7 +99,7 @@ class DevisNegModel extends Model
                 AND nent.nent_numcli   NOT BETWEEN 1990000 AND 1999999
                 AND nent.nent_numcli   <> 1990000
                 AND nent.nent_numcde   NOT IN (19407989,19407991,19408971,19410383,19409906,19409996)
-                AND nent.nent_datecde  >= MDY(9, 1, 2025)
+                AND (nent_datecde >= MDY(9, 1, 2025) OR nent_numcde IN ('54207000', '54206997'))
                 AND nent.nent_succ <> '60'
                 AND nent.nent_soc = '$codeSociete'
                 AND EXISTS (
