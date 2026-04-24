@@ -61,7 +61,7 @@ class RelanceApi extends Controller
     }
 
     /**
-     * @Route("/api/stop-relance/{numeroDevis}", name="devis_magasin_stop_relance", methods={"GET", "POST"})
+     * @Route("/api/stop-relance/{numeroDevis}", name="api_devis_magasin_stop_relance", methods={"GET", "POST"})
      */
     public function stopRelance(Request $request, string $numeroDevis)
     {
@@ -75,7 +75,7 @@ class RelanceApi extends Controller
         try {
             // Code Société de l'utilisateur (on force 'HF' si vide pour éviter les échecs de requêtes)
             $codeSociete = $this->getSecurityService()->getCodeSocieteUser() ?: 'HF';
-            
+
             $body = json_decode($request->getContent(), true);
             $motif = $body['motif'] ?? null;
             $utilisateur = $this->getUserName();
