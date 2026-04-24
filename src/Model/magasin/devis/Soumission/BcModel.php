@@ -126,7 +126,7 @@ class BcModel extends Model
         $donnees = BcMapper::toArrayBc($dto);
 
         // Construire la requête d'insertion et l'exécuter
-        $builder = new InsertQueryBuilder('{$this->dbIrium}:Informix.bc_client_soumis_neg');
+        $builder = new InsertQueryBuilder("{$this->dbIrium}:Informix.bc_client_soumis_neg");
         $builder->setData($donnees);
         $result = $builder->build();
 
@@ -152,7 +152,7 @@ class BcModel extends Model
     {
         $donnees = BcMapper::toArrayUpdateDevis($dto);
 
-        $updateBuilder = new UpdateQueryBuilder('{$this->dbIrium}:Informix.devis_soumis_a_validation_neg');
+        $updateBuilder = new UpdateQueryBuilder("{$this->dbIrium}:Informix.devis_soumis_a_validation_neg");
 
         // Définir les données à mettre à jour
         $updateBuilder->setData($donnees);

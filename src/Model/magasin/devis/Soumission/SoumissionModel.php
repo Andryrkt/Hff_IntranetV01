@@ -206,7 +206,7 @@ class SoumissionModel extends Model
         $donnees = SoumissionMapper::toArrayVerificationPrix($dto, $nomFichier, $nomFichierExcel);
 
         // Construire la requête d'insertion et l'exécuter
-        $builder = new InsertQueryBuilder('{$this->dbIrium}:Informix.devis_soumis_a_validation_neg');
+        $builder = new InsertQueryBuilder("{$this->dbIrium}:Informix.devis_soumis_a_validation_neg");
         $builder->setData($donnees);
         $result = $builder->build();
 
@@ -235,7 +235,7 @@ class SoumissionModel extends Model
         $donnees = SoumissionMapper::toArrayValidationDevis($dto, $nomFichier);
 
         // Construire la requête d'insertion et l'exécuter
-        $builder = new InsertQueryBuilder('{$this->dbIrium}:Informix.devis_soumis_a_validation_neg');
+        $builder = new InsertQueryBuilder("{$this->dbIrium}:Informix.devis_soumis_a_validation_neg");
         $builder->setData($donnees);
         $result = $builder->build();
 
