@@ -213,7 +213,6 @@
 			width: 0;
 			background: var(--yellow);
 			border-radius: 99px;
-			animation: fill-bar 2.5s 0.9s cubic-bezier(0.4,0,0.2,1) forwards;
 		}
 		@keyframes fill-bar {
 			to {
@@ -298,7 +297,6 @@
 			height: 4px;
 			background: linear-gradient(90deg, var(--yellow) 67%, var(--gray) 67%);
 			z-index: 10;
-			animation: fill-bar 2.5s 0.9s cubic-bezier(0.4,0,0.2,1) both;
 		}
 
 		@media(max-width: 500px) {
@@ -344,7 +342,7 @@
 		</div>
 
 		<!-- Progress -->
-		{# <div class="status-bar">
+		<div class="status-bar">
 			<div class="status-label">
 				<span>Avancement des travaux</span>
 				<span class="pct">67 %</span>
@@ -352,7 +350,7 @@
 			<div class="bar-track">
 				<div class="bar-fill"></div>
 			</div>
-		</div> #}
+		</div>
 
 		<!-- Cards -->
 		<div class="cards">
@@ -370,14 +368,38 @@
 			</div>
 		</div>
 
-		<!-- Contact -->
-		{# <p class="contact">
-			Pour toute urgence, contactez-nous à&nbsp;
-			<a href="mailto:contact@hff.mg">contact@hff.mg</a>
-		</p> #}
-
 	</div>
 
 	<div class="bottom-bar"></div>
-
-</body></html>
+<script>
+(function () {
+const startHour = 12;
+const endHour = 17;
+function updateProgress() {
+const now = new Date();
+const current = now.getHours() + now.getMinutes() / 60 + now.getSeconds() / 3600;
+let percent;
+if (current <= startHour) {
+percent = 0;
+} else if (current >= endHour) {
+percent = 100;
+} else {
+percent = ((current - startHour) / (endHour - startHour)) * 100;
+}
+percent = Math.round(percent);
+// Texte
+document.querySelector('.pct').textContent = percent + ' %';
+// Barre principale
+document.querySelector('.bar-fill').style.width = percent + '%';
+// Barre du bas
+document.querySelector('.bottom-bar').style.background =
+`linear-gradient(90deg, var(--yellow) ${percent}%, var(--gray) ${percent}%)`;
+}
+// Mise à jour immédiate
+updateProgress();
+// Mise à jour toutes les secondes
+setInterval(updateProgress, 1000);
+})();
+</script>
+</body>
+</html>
