@@ -117,6 +117,21 @@
             "peut_exporter": false
           },
           {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
             "nom_route": "dit_insertion_or",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -417,6 +432,21 @@
         "pages": [
           {
             "nom_route": "dit_insertion_facture",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -825,6 +855,21 @@
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": true,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -1299,6 +1344,21 @@
             "peut_exporter": false
           },
           {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
             "nom_route": "dit_insertion_or",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -1624,6 +1684,21 @@
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": true,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -1979,6 +2054,21 @@
             "peut_exporter": false
           },
           {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
             "nom_route": "dit_insertion_or",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -2308,6 +2398,21 @@
             "peut_exporter": false
           },
           {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
             "nom_route": "dit_insertion_or",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -2527,6 +2632,21 @@
             "peut_exporter": false
           },
           {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
             "nom_route": "dit_insertion_or",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -2717,6 +2837,21 @@
         "pages": [
           {
             "nom_route": "dit_insertion_facture",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -3316,6 +3451,21 @@
             "peut_exporter": false
           },
           {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
             "nom_route": "dit_insertion_or",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -3750,6 +3900,21 @@
             "peut_exporter": false
           },
           {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
             "nom_route": "dit_insertion_or",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -4064,6 +4229,21 @@
         "pages": [
           {
             "nom_route": "dit_insertion_facture",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -4505,6 +4685,21 @@
             "peut_exporter": false
           },
           {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
             "nom_route": "dit_insertion_or",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -4888,6 +5083,21 @@
             "peut_exporter": false
           },
           {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
             "nom_route": "dit_insertion_or",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -5081,6 +5291,21 @@
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": true,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -5372,6 +5597,21 @@
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": true,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -5894,6 +6134,21 @@
             "peut_exporter": false
           },
           {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
             "nom_route": "dit_insertion_or",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -6109,6 +6364,21 @@
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": true,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -6338,6 +6608,21 @@
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": true,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -6609,6 +6894,21 @@
             "peut_exporter": false
           },
           {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
             "nom_route": "dit_insertion_or",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -6872,6 +7172,21 @@
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": true,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -7165,6 +7480,21 @@
             "peut_exporter": false
           },
           {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
             "nom_route": "dit_insertion_or",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -7355,6 +7685,21 @@
         "pages": [
           {
             "nom_route": "dit_insertion_facture",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -7555,6 +7900,21 @@
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": true,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -7771,6 +8131,21 @@
         "pages": [
           {
             "nom_route": "dit_insertion_facture",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -8158,6 +8533,21 @@
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": true,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -8575,6 +8965,21 @@
             "peut_exporter": false
           },
           {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
             "nom_route": "dit_insertion_or",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -8887,6 +9292,21 @@
         "pages": [
           {
             "nom_route": "dit_insertion_facture",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -9229,6 +9649,21 @@
             "peut_exporter": false
           },
           {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
             "nom_route": "dit_insertion_or",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -9560,6 +9995,21 @@
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": true,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -9929,6 +10379,21 @@
             "peut_exporter": false
           },
           {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
             "nom_route": "dit_insertion_or",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -10189,6 +10654,21 @@
         "pages": [
           {
             "nom_route": "dit_insertion_facture",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -10517,6 +10997,21 @@
             "peut_exporter": false
           },
           {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
             "nom_route": "dit_insertion_or",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -10838,6 +11333,21 @@
             "peut_exporter": false
           },
           {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
             "nom_route": "dit_insertion_or",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -11031,6 +11541,21 @@
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": true,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -11638,6 +12163,21 @@
             "peut_exporter": false
           },
           {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
             "nom_route": "dit_insertion_or",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -12108,6 +12648,21 @@
             "peut_exporter": false
           },
           {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
             "nom_route": "dit_insertion_or",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -12413,6 +12968,21 @@
             "peut_exporter": false
           },
           {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
             "nom_route": "dit_insertion_or",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -12581,6 +13151,21 @@
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": true,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -12807,6 +13392,21 @@
         "pages": [
           {
             "nom_route": "dit_insertion_facture",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -13124,6 +13724,21 @@
             "peut_exporter": false
           },
           {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
             "nom_route": "dit_insertion_or",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -13276,6 +13891,21 @@
         "pages": [
           {
             "nom_route": "dit_insertion_facture",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -13739,6 +14369,21 @@
             "peut_exporter": false
           },
           {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
             "nom_route": "dit_insertion_or",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -13932,6 +14577,21 @@
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": true,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -14275,6 +14935,21 @@
             "peut_exporter": false
           },
           {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
             "nom_route": "dit_insertion_or",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -14596,6 +15271,21 @@
             "peut_exporter": false
           },
           {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
             "nom_route": "dit_insertion_or",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -14751,6 +15441,21 @@
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": true,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -14952,6 +15657,21 @@
             "peut_exporter": false
           },
           {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
             "nom_route": "dit_insertion_or",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -15142,6 +15862,21 @@
         "pages": [
           {
             "nom_route": "dit_insertion_facture",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -15497,6 +16232,21 @@
             "peut_exporter": false
           },
           {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
             "nom_route": "dit_insertion_or",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -15809,6 +16559,21 @@
             "peut_exporter": false
           },
           {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
             "nom_route": "dit_insertion_or",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -15964,6 +16729,21 @@
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": true,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -16481,6 +17261,21 @@
             "peut_exporter": false
           },
           {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
             "nom_route": "dit_insertion_or",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -16790,6 +17585,21 @@
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": true,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -17157,6 +17967,21 @@
             "peut_exporter": false
           },
           {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
             "nom_route": "dit_insertion_or",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -17318,6 +18143,21 @@
         "pages": [
           {
             "nom_route": "dit_insertion_facture",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -18002,6 +18842,21 @@
             "peut_exporter": false
           },
           {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
             "nom_route": "dit_insertion_or",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -18536,6 +19391,21 @@
             "peut_exporter": false
           },
           {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
             "nom_route": "dit_insertion_or",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -18841,6 +19711,21 @@
         "pages": [
           {
             "nom_route": "dit_insertion_facture",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -19281,6 +20166,21 @@
         "pages": [
           {
             "nom_route": "dit_insertion_facture",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -19832,6 +20732,21 @@
             "peut_exporter": false
           },
           {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
             "nom_route": "dit_insertion_or",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -20183,6 +21098,21 @@
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": true,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -20655,6 +21585,21 @@
             "peut_exporter": false
           },
           {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
             "nom_route": "dit_insertion_or",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -20807,6 +21752,21 @@
         "pages": [
           {
             "nom_route": "dit_insertion_facture",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -21021,6 +21981,21 @@
             "peut_exporter": false
           },
           {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
             "nom_route": "dit_insertion_or",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -21176,6 +22151,21 @@
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": true,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -21426,6 +22416,21 @@
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": true,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -21690,6 +22695,21 @@
         "pages": [
           {
             "nom_route": "dit_insertion_facture",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -22405,6 +23425,21 @@
             "peut_exporter": false
           },
           {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
             "nom_route": "dit_insertion_or",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -22705,6 +23740,21 @@
         "pages": [
           {
             "nom_route": "dit_insertion_facture",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -23019,6 +24069,21 @@
             "peut_exporter": false
           },
           {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
             "nom_route": "dit_insertion_or",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -23326,6 +24391,21 @@
             "peut_exporter": false
           },
           {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
             "nom_route": "dit_insertion_or",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -23529,6 +24609,21 @@
         "pages": [
           {
             "nom_route": "dit_insertion_facture",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -23843,6 +24938,21 @@
             "peut_exporter": false
           },
           {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
             "nom_route": "dit_insertion_or",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -24033,6 +25143,21 @@
         "pages": [
           {
             "nom_route": "dit_insertion_facture",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -24340,6 +25465,21 @@
         "pages": [
           {
             "nom_route": "dit_insertion_facture",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -24764,6 +25904,21 @@
             "peut_exporter": false
           },
           {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
             "nom_route": "dit_insertion_or",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -24932,6 +26087,21 @@
         "pages": [
           {
             "nom_route": "dit_insertion_facture",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -25246,6 +26416,21 @@
             "peut_exporter": false
           },
           {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
             "nom_route": "dit_insertion_or",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -25498,6 +26683,21 @@
         "pages": [
           {
             "nom_route": "dit_insertion_facture",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -25790,6 +26990,21 @@
             "peut_exporter": false
           },
           {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
             "nom_route": "dit_insertion_or",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -26071,6 +27286,21 @@
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": true,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -26597,6 +27827,21 @@
             "peut_exporter": false
           },
           {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
             "nom_route": "dit_insertion_or",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -27090,6 +28335,21 @@
             "peut_exporter": false
           },
           {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
             "nom_route": "dit_insertion_or",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -27571,6 +28831,21 @@
             "peut_exporter": false
           },
           {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
             "nom_route": "dit_insertion_or",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -27810,6 +29085,21 @@
         "pages": [
           {
             "nom_route": "dit_insertion_facture",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -28450,6 +29740,21 @@
             "peut_exporter": false
           },
           {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
             "nom_route": "dit_insertion_or",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -28605,6 +29910,21 @@
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": true,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -28917,6 +30237,21 @@
         "pages": [
           {
             "nom_route": "dit_insertion_facture",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -29342,6 +30677,21 @@
         "pages": [
           {
             "nom_route": "dit_insertion_facture",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": false,
@@ -29932,6 +31282,21 @@
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": true,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -30556,6 +31921,21 @@
             "peut_exporter": false
           },
           {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
             "nom_route": "dit_insertion_or",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -31003,6 +32383,21 @@
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": true,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -32000,6 +33395,21 @@
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
             "peut_multi_succursale": true,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "dit_ac_bc_soumis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },{
+            "nom_route": "dit_insertion_devis",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
           },
