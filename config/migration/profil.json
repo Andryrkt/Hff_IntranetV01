@@ -1,7 +1,7 @@
 [
   {
-    "ref_profil": "HFF_80-FIN_DIT+REP+DAP+DDC",
-    "designation_profil": "HFF_80-FIN_DIT+REP+DAP+DDC",
+    "ref_profil": "HFF_92-LCJ_DOM+DIT+REP+DAP+DDC",
+    "designation_profil": "HFF_92-LCJ_DOM+DIT+REP+DAP+DDC",
     "societe_id": 1,
     "applications": [
       {
@@ -33,13 +33,75 @@
         "agences_services": []
       },
       {
+        "code_app": "DOM",
+        "pages": [
+          {
+            "nom_route": "dom_list_annuler_search",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "dom_first_form",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "dom_second_form",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "doms_liste",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "doms_liste_search",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "dom_list_annuler",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "Dom_detail",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": false,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          }
+        ],
+        "agences_services": []
+      },
+      {
         "code_app": "DIT",
         "pages": [
           {
             "nom_route": "dit_insertion_facture",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -47,7 +109,7 @@
             "nom_route": "dit_insertion_or",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -55,7 +117,7 @@
             "nom_route": "dit_insertion_ri",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -63,7 +125,7 @@
             "nom_route": "dit_validationDit",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -71,7 +133,7 @@
             "nom_route": "dit_insertion_cde",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -79,7 +141,7 @@
             "nom_route": "dit_new",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -87,7 +149,7 @@
             "nom_route": "dit_index",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -95,7 +157,7 @@
             "nom_route": "dit_index_search",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -103,7 +165,7 @@
             "nom_route": "dit_duplication",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -111,7 +173,7 @@
             "nom_route": "dw_interv_ate_avec_dit",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           },
@@ -119,7 +181,15 @@
             "nom_route": "dit_dossier_intervention_atelier",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
+            "peut_multi_succursale": true,
+            "peut_supprimer": false,
+            "peut_exporter": false
+          },
+          {
+            "nom_route": "da_list_dit",
+            "peut_voir": true,
+            "peut_voir_liste_avec_debiteur": false,
+            "peut_multi_succursale": true,
             "peut_supprimer": false,
             "peut_exporter": false
           }

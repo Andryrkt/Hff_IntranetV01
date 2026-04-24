@@ -31155,38 +31155,6 @@
             "peut_exporter": false
           },
           {
-            "nom_route": "da_affectation_achat",
-            "peut_voir": true,
-            "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
-            "peut_supprimer": false,
-            "peut_exporter": false
-          },
-          {
-            "nom_route": "da_soumission_bc",
-            "peut_voir": true,
-            "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
-            "peut_supprimer": false,
-            "peut_exporter": false
-          },
-          {
-            "nom_route": "da_soumission_facbl",
-            "peut_voir": true,
-            "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
-            "peut_supprimer": false,
-            "peut_exporter": false
-          },
-          {
-            "nom_route": "da_soumission_bl_reappro",
-            "peut_voir": true,
-            "peut_voir_liste_avec_debiteur": false,
-            "peut_multi_succursale": false,
-            "peut_supprimer": false,
-            "peut_exporter": false
-          },
-          {
             "nom_route": "da_detail_avec_dit",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
