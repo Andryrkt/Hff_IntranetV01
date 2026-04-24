@@ -40,7 +40,7 @@ class ListeDevisMagasinModel extends Model
             AND (CAST(nent_numcli AS VARCHAR(20)) NOT LIKE '199%' and nent_numcli not in ('1990000'))
             AND nent_numcde not in ($numDeviAExclureString)
             AND nent_numcde not in ('19407989','19407991','19408971','19410383','19409906','19409996')
-            AND nent_datecde >= MDY(9, 1, 2025)
+            AND (nent_datecde >= MDY(9, 1, 2025) OR nent_numcde IN ('54207000', '54206997'))
             --AND year(Nent_datecde) = year(TODAY)
         ";
 
