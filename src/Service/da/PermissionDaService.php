@@ -52,11 +52,7 @@ class PermissionDaService
                 StatutDaConstant::STATUT_SOUMIS_APPRO         => true,
                 StatutDaConstant::STATUT_DEMANDE_DEVIS        => true,
                 StatutDaConstant::STATUT_DEVIS_A_RELANCER     => true,
-                StatutDaConstant::STATUT_EN_COURS_PROPOSITION => true,
-                StatutDaConstant::STATUT_VALIDE               => [
-                    StatutDaConstant::STATUT_DW_A_VALIDE => false,
-                    StatutDaConstant::STATUT_DW_REFUSEE  => false,
-                ],
+                StatutDaConstant::STATUT_EN_COURS_PROPOSITION => true
             ]
         ],
         'atelier' => [
@@ -66,7 +62,7 @@ class PermissionDaService
             'statuts' => [
                 StatutDaConstant::STATUT_SOUMIS_ATE          => true,
                 StatutDaConstant::STATUT_EN_COURS_CREATION   => true,
-                StatutDaConstant::STATUT_AUTORISER_EMETTEUR => true,
+                StatutDaConstant::STATUT_AUTORISER_EMETTEUR  => true,
             ]
         ],
         'createur_da_directe' => [
@@ -77,12 +73,7 @@ class PermissionDaService
             'statuts' => [
                 StatutDaConstant::STATUT_SOUMIS_ATE          => true,
                 StatutDaConstant::STATUT_EN_COURS_CREATION   => true,
-                StatutDaConstant::STATUT_AUTORISER_EMETTEUR => true,
-                StatutDaConstant::STATUT_VALIDE              => [
-                    StatutDaConstant::STATUT_DW_A_VALIDE => false,
-                    StatutDaConstant::STATUT_DW_REFUSEE  => false,
-                    StatutDaConstant::STATUT_DW_VALIDEE  => false,
-                ],
+                StatutDaConstant::STATUT_AUTORISER_EMETTEUR  => true,
             ]
         ],
     ];
