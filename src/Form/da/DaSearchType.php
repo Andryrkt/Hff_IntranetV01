@@ -8,8 +8,10 @@ use App\Constants\da\StatutOrConstant;
 use App\Controller\Traits\da\MarkupIconTrait;
 use App\Entity\admin\Agence;
 use App\Entity\admin\dit\WorNiveauUrgence;
+use App\Entity\admin\Service;
 use App\Entity\da\DaSearch;
 use App\Entity\da\DemandeAppro;
+use App\Repository\admin\ServiceRepository;
 use App\Traits\PrepareAgenceServiceTrait;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
@@ -21,6 +23,8 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class DaSearchType extends AbstractType
@@ -286,6 +290,7 @@ class DaSearchType extends AbstractType
             'estAppro'    => false,
             'codeAgence'  => null,
             'codeService' => null,
+            'allAgenceServices' => []
         ]);
     }
 }

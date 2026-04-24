@@ -5,13 +5,8 @@ namespace App\Repository\da;
 use App\Constants\da\StatutBcConstant;
 use App\Constants\da\StatutDaConstant;
 use App\Constants\da\StatutOrConstant;
-use App\Entity\admin\utilisateur\User;
 use App\Entity\da\DaAfficher;
-use App\Entity\dit\DemandeIntervention;
-use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\ORM\EntityRepository;
-use Doctrine\ORM\QueryBuilder;
-use Doctrine\ORM\Query;
 
 class DaAfficherRepository extends EntityRepository
 {
@@ -32,18 +27,18 @@ class DaAfficherRepository extends EntityRepository
 
         if ($maxVersion === null) {
             return [];
-        } else {
-            // Étape 2 : récupérer tous les enregistrements correspondant
-            return $this->createQueryBuilder('d')
-                ->where('d.numeroDemandeAppro = :num')
-                ->andWhere('d.numeroVersion = :version')
-                ->setParameters([
-                    'num'     => $numeroDemandeAppro,
-                    'version' => $maxVersion,
-                ])
-                ->getQuery()
-                ->getResult();
         }
+
+        // Étape 2 : récupérer tous les enregistrements correspondant
+        return $this->createQueryBuilder('d')
+            ->where('d.numeroDemandeAppro = :num')
+            ->andWhere('d.numeroVersion = :version')
+            ->setParameters([
+                'num'     => $numeroDemandeAppro,
+                'version' => $maxVersion,
+            ])
+            ->getQuery()
+            ->getResult();
     }
 
     /**
@@ -62,24 +57,26 @@ class DaAfficherRepository extends EntityRepository
             ->getSingleScalarResult(); // Renvoie null si aucune ligne
 
         if ($maxVersion === null) {
-            return [];
-        } else {
-            return $this->createQueryBuilder('d')
-                ->select('DISTINCT(d.dateLivraisonPrevue)')
-                ->where('d.numeroDemandeAppro = :num')
-                ->andWhere('d.numeroCde = :numCde')
-                ->andWhere('d.codeSociete = :codeSociete')
-                ->andWhere('d.numeroVersion = :version')
-                ->andWhere('d.dateLivraisonPrevue IS NOT NULL')
-                ->setParameters([
-                    'num'         => $numeroDemandeAppro,
-                    'numCde'      => $numeroCde,
-                    'codeSociete' => $codeSociete,
-                    'version'     => $maxVersion,
-                ])
-                ->getQuery()
-                ->getSingleScalarResult();
+            return null;
         }
+
+        $result = $this->createQueryBuilder('d')
+            ->select('DISTINCT(d.dateLivraisonPrevue) as dateLivraisonPrevue')
+            ->where('d.numeroDemandeAppro = :num')
+            ->andWhere('d.numeroCde = :numCde')
+            ->andWhere('d.codeSociete = :codeSociete')
+            ->andWhere('d.numeroVersion = :version')
+            ->andWhere('d.dateLivraisonPrevue IS NOT NULL')
+            ->setParameters([
+                'num'         => $numeroDemandeAppro,
+                'numCde'      => $numeroCde,
+                'codeSociete' => $codeSociete,
+                'version'     => $maxVersion,
+            ])
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        return $result ? $result['dateLivraisonPrevue'] : null;
     }
 
     public function markAsDeletedByNumeroLigne(string $numeroDemandeAppro, array $numeroLignes, string $userName, bool $allVersions = false): void
@@ -341,9 +338,9 @@ class DaAfficherRepository extends EntityRepository
         // Filtres dynamiques via le service
         $filterService = $this->getFilterService();
         $filterService->applyDynamicFilters($qb, 'd', $criteria, true);
-        $filterService->applyStatutsFilters($qb, 'd', $criteria, '', '', true);
+        $filterService->applyStatutsFilters($qb, 'd', $criteria, true);
         $filterService->applyDateFilters($qb, 'd', $criteria, true);
-        $filterService->applyAgencyServiceFilters($qb, 'd', $criteria, null, 0, true, true, true);
+        $filterService->applyAgencyServiceFilters($qb, 'd', $criteria);
 
         // ------------------------------------------------------------------
         // COUNT optimisé (COUNT(d.id) est plus rapide que DISTINCT)
@@ -475,7 +472,7 @@ class DaAfficherRepository extends EntityRepository
         // filtres dynamiques via le service
         $filterService = $this->getFilterService();
         $filterService->applyDynamicFilters($qb, "d", $criteria, true);
-        $filterService->applyStatutsFilters($qb, "d", $criteria, '', '', true);
+        $filterService->applyStatutsFilters($qb, "d", $criteria, true);
         $filterService->applyDateFilters($qb, "d", $criteria, true);
 
         // garder uniquement les dernières versions
@@ -538,10 +535,7 @@ class DaAfficherRepository extends EntityRepository
         array $criteria,
         int $agenceIdUser,
         int $serviceIdUser,
-        string $codeSociete,
-        array $agenceServiceAutorises,
-        bool $peutVoirListeAvecDebiteur,
-        bool $multisuccursale
+        string $codeSociete
     ): array {
         $criteria = $criteria ?? [];
 
@@ -563,9 +557,9 @@ class DaAfficherRepository extends EntityRepository
         // 3. Appliquer les filtres métier via le service
         $filterService = $this->getFilterService();
         $filterService->applyDynamicFilters($qb, "d", $criteria);
-        $filterService->applyAgencyServiceFilters($qb, "d", $criteria, $user, $idAgenceUser, $estAppro, $estAtelier, $estAdmin);
+        $filterService->applyAgencyServiceFilters($qb, "d", $criteria);
         $filterService->applyDateFilters($qb, "d", $criteria);
-        $filterService->applyStatutsFilters($qb, "d", $criteria, $user->getCodeAgenceUser(), $user->getCodeServiceUser());
+        $filterService->applyStatutsFilters($qb, "d", $criteria);
 
         // $query = $qb->getQuery();
         // $sql = $query->getSQL();
@@ -642,61 +636,6 @@ class DaAfficherRepository extends EntityRepository
         return $container->get(\App\Service\da\DaFilterService::class);
     }
 
-    private function conditionAgenceService($queryBuilder, string $queryLabel, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, bool $peutVoirListeAvecDebiteur)
-    {
-        $ORX = $queryBuilder->expr()->orX();
-
-        // 1- Emetteur du DOM : agence et service de l'utilisateur
-        $ORX->add(
-            $queryBuilder->expr()->andX(
-                $queryBuilder->expr()->eq("$queryLabel.agenceEmetteur", ':agEmetteur'),
-                $queryBuilder->expr()->eq("$queryLabel.serviceEmetteur", ':servEmetteur')
-            )
-        );
-        $queryBuilder->setParameter('agEmetteur', $agenceIdUser);
-        $queryBuilder->setParameter('servEmetteur', $serviceIdUser);
-
-        // 2- Debiteur du DOM : agence et service de l'utilisateur
-        $ORX->add(
-            $queryBuilder->expr()->andX(
-                $queryBuilder->expr()->eq("$queryLabel.agenceDebiteur", ':agDebiteur'),
-                $queryBuilder->expr()->eq("$queryLabel.serviceDebiteur", ':servDebiteur')
-            )
-        );
-        $queryBuilder->setParameter('agDebiteur', $agenceIdUser);
-        $queryBuilder->setParameter('servDebiteur', $serviceIdUser);
-
-        // 3- Emetteur et Débiteur : agence et service autorisés du profil
-        if (!empty($agenceServiceAutorises)) {
-            $orX1 = $queryBuilder->expr()->orX(); // Pour émetteur
-            $orX2 = $peutVoirListeAvecDebiteur ? $queryBuilder->expr()->orX() : null; // Pour débiteur : n'autoriser que si le profil peut voir la liste avec le débiteur
-            foreach ($agenceServiceAutorises as $i => $tab) {
-                $orX1->add(
-                    $queryBuilder->expr()->andX(
-                        $queryBuilder->expr()->eq("$queryLabel.agenceEmetteur", ':agEmetteur_' . $i),
-                        $queryBuilder->expr()->eq("$queryLabel.serviceEmetteur", ':servEmetteur_' . $i)
-                    )
-                );
-                $queryBuilder->setParameter('agEmetteur_' . $i, $tab['agence_id']);
-                $queryBuilder->setParameter('servEmetteur_' . $i, $tab['service_id']);
-                if ($orX2) {
-                    $orX2->add(
-                        $queryBuilder->expr()->andX(
-                            $queryBuilder->expr()->eq("$queryLabel.agenceDebiteur", ':agDebiteur_' . $i),
-                            $queryBuilder->expr()->eq("$queryLabel.serviceDebiteur", ':servDebiteur_' . $i)
-                        )
-                    );
-                    $queryBuilder->setParameter('agDebiteur_' . $i, $tab['agence_id']);
-                    $queryBuilder->setParameter('servDebiteur_' . $i, $tab['service_id']);
-                }
-            }
-
-            $ORX->add($orX1);
-            if ($orX2) $ORX->add($orX2);
-        }
-
-        $queryBuilder->andWhere($ORX);
-    }
 
     public function getNbrDaAfficherValider(string $numeroOr, string $codeSociete): int
     {
@@ -734,7 +673,14 @@ class DaAfficherRepository extends EntityRepository
     public function getLastStatutDaAfficher(string $numeroDemandeAppro, string $codeSociete)
     {
         //recupérer dabor le numéro de version max
-        $numeroVersionMax = $this->getNumeroVersionMax($numeroDemandeAppro);
+        $numeroVersionMax = $this->createQueryBuilder('d')
+            ->select('MAX(d.numeroVersion)')
+            ->where('d.numeroDemandeAppro = :numeroDemandeAppro')
+            ->andWhere('d.codeSociete = :codeSociete')
+            ->setParameter('numeroDemandeAppro', $numeroDemandeAppro)
+            ->setParameter('codeSociete', $codeSociete)
+            ->getQuery()
+            ->getSingleScalarResult();
 
         //recupérer le derière statut du DA afficher
         return $this->createQueryBuilder('d')
@@ -752,8 +698,10 @@ class DaAfficherRepository extends EntityRepository
     }
 
 
-    public function findDerniereVersionDesDA(array $criteria, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeSociete, bool $peutVoirListeAvecDebiteur, bool $multisuccursale): array
-    {
+    public function findDerniereVersionDesDA(
+        array $criteria,
+        string $codeSociete
+    ): array {
         $qb = $this->createQueryBuilder('d');
 
         $qb->where(
@@ -770,9 +718,9 @@ class DaAfficherRepository extends EntityRepository
 
         $filterService = $this->getFilterService();
         $filterService->applyDynamicFilters($qb, 'd', $criteria);
-        $filterService->applyAgencyServiceFilters($qb, 'd', $criteria, $user, $idAgenceUser, $estAppro, $estAtelier, $estAdmin);
+        $filterService->applyAgencyServiceFilters($qb, 'd', $criteria);
         $filterService->applyDateFilters($qb, 'd', $criteria);
-        $filterService->applyStatutsFilters($qb, 'd', $criteria, $user->getCodeAgenceUser(), $user->getCodeServiceUser());
+        $filterService->applyStatutsFilters($qb, 'd', $criteria);
 
         $qb->orderBy('d.dateDemande', 'DESC')
             ->addOrderBy('d.numeroFournisseur', 'DESC')
@@ -962,5 +910,17 @@ class DaAfficherRepository extends EntityRepository
             ->getSingleScalarResult();
 
         return $result ? new \DateTime($result) : null;
+    }
+
+    public function getTypeDaSelonNumDa(string $numDa)
+    {
+        $result = $this->createQueryBuilder('d')
+            ->select('DISTINCT d.daTypeId as daTypeId')
+            ->where('d.numeroDemandeAppro = :numDa')
+            ->setParameter('numDa', $numDa)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        return $result ? $result['daTypeId'] : null;
     }
 }
