@@ -60,8 +60,7 @@ class LoginController extends Controller
                         "firstname" => $firstname,
                         "lastname"  => $lastname,
                         "fullname"  => "$lastname $firstname",
-                        "email"     => $user->getMail(),
-                        'password'  => $password,
+                        "email"     => $user->getMail()
                     ];
 
                     $this->getSessionService()->set('user_info', $userInfo);
