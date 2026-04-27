@@ -333,10 +333,7 @@ class DevisNegModel extends Model
             $whereClauses[] = " dneg.utilisateur LIKE '%" . $criteria['Operateur'] . "%' ";
         }
 
-        // Filtre par numéro de PO
-        if (!empty($criteria['numeroPO'])) {
-            $whereClauses[] = " TRIM(nent.nent_refcde) LIKE '%" . $criteria['numeroPO'] . "%' ";
-        }
+
 
         // Filtre par utilisateur créateur
         if (!empty($criteria['CreePar'])) {
