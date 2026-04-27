@@ -225,10 +225,20 @@ isRelance3Done ? 'disabled' : ''
 										` : ''
 }
 									</td>
-									<td class="text-center">${
-row.positionIps || ''
-}</td>
-									<td class="text-center">BC-CLI</td>
+									<td class="text-center">
+								${
+row.positionIps ?? ''
+}
+								</td>
+									<td class="text-center">
+									${
+row.numeroPo ? `<a href="${
+row.urlPo
+}" target="_blank">${
+row.numeroPo
+}</a>` : ''
+}
+									</td>
 									<td class="text-center">${
 row.utilisateurCreateurDevis || ''
 }</td>
