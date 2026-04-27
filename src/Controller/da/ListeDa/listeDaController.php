@@ -57,9 +57,7 @@ class listeDaController extends Controller
         $form = $this->getFormFactory()->createBuilder(DaSearchType::class, $daSearch, [
             'method' => 'GET',
             'estAppro' => $this->estAppro(),
-            'allAgenceServices' => $allAgenceServices,
-            'codeAgence'  => $agenceIdUser,
-            'codeService' => $serviceIdUser,
+            'codeSociete' => $codeSociete
         ])->getForm();
         $criteria = $this->traitementFormualireRecherche($request, $form, $daSearch);
 
@@ -82,10 +80,6 @@ class listeDaController extends Controller
             'estCreateur' => $this->estCreateurDaDirecte(),
             'demandePaiementRepository' => $this->getEntityManager()->getRepository(DemandePaiement::class),
         ]);
-
-        // Détection code centrale
-        $agenceServiceIps = $this->agenceServiceIpsObjet();
-        $codeCentraleVisible = $this->estAdmin() || in_array($agenceServiceIps['agenceIps']->getCodeAgence(), ['90', '91', '92']);
 
         /** === Formulaire pour la date de livraison prevu === */
         $formDateLivraison = $this->getFormFactory()->createBuilder(DaModalDateLivraisonType::class)->getForm();
