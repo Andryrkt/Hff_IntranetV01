@@ -8,9 +8,9 @@ use App\Dto\Magasin\Devis\DevisNegDto;
 
 class DevisNegMapper
 {
-    public function map(array $data, ?callable $urlGenerator = null): array
+    public function map(array $data, ?callable $urlGenerator = null, $dwBcClientNegoceRepository = null): array
     {
-        return array_map(function ($item) use ($urlGenerator) {
+        return array_map(function ($item) use ($urlGenerator, $dwBcClientNegoceRepository) {
             $dto = new DevisNegDto();
             $dto->statutDw = $item['statut_dw'] ?? StatutDevisNegContant::A_TRAITER;
             $dto->statutBc = $item['statut_bc'] ?? '';
@@ -24,7 +24,17 @@ class DevisNegMapper
             $dto->stopProgressionGlobal = (int)($item['stop_progression_global'] ?? 0);
             $dto->motifStopGlobal = $item['motif_stop_global'] ?? null;
             $dto->positionIps = $item['position_ips'] ?? '';
+            if ($dwBcClientNegoceRepository) {
+                $bccInfo = $dwBcClientNegoceRepository->findLastValidatedBcc($dto->numeroDevis) ?? null;
 
+                if ($bccInfo) {
+                    $dto->numeroPo = $bccInfo['numeroBccNeg'];
+                    $dto->urlPo = $_ENV['BASE_PATH_FICHIER_COURT'] . '/' . $bccInfo['path'];
+                } else {
+                    $dto->numeroPo = '';
+                    $dto->urlPo = '';
+                }
+            }
             $dto->statutRelance1 = $item['statut_relance_1'] ?? null;
             $dto->statutRelance2 = $item['statut_relance_2'] ?? null;
             $dto->statutRelance3 = $item['statut_relance_3'] ?? null;

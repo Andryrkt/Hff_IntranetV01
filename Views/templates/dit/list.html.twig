@@ -111,7 +111,9 @@
 								</li>
 								{% if item.estAnnulable %}
 									<li>
-										<a class="dropdown-item fw-bold clotureDit" href="{{ path("cloturer_annuler_dit_liste", {id: item.id})}}" data-id="{{ item.id }}">Clôturer la DIT</a>
+										{% if item.estAnnulable %}
+											<a class="dropdown-item fw-bold clotureDit" href="{{ path("api_cloturer_annuler_dit_liste", {id: item.id})}}" data-id="{{ item.id }}">Clôturer la DIT</a>
+										{% endif %}
 									</li>
 								{% endif %}
 							</ul>

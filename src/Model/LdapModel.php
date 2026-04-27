@@ -9,6 +9,8 @@ class LdapModel
     private $ldapconn;
     private $Domain;
     private $ldap_dn;
+    private $user;
+    private $password;
 
     public function __construct()
     {
@@ -16,6 +18,8 @@ class LdapModel
         $this->ldapPort = $_ENV['LDAP_PORT'];
         $this->Domain = $_ENV['LDAP_DOMAIN'];
         $this->ldap_dn = $_ENV['LDAP_DN'];
+        $this->user = $_ENV['LDAP_USER'];
+        $this->password = $_ENV['LDAP_PASSWORD'];
 
         $this->ldapconn = ldap_connect("ldap://{$this->ldapHost}:{$this->ldapPort}");
 
@@ -48,9 +52,9 @@ class LdapModel
     }
 
 
-    public function infoUser($user, $password): array
+    public function infoUser(): array
     {
-        ldap_bind($this->ldapconn, $user . $this->Domain, $password);
+        ldap_bind($this->ldapconn, $this->user . $this->Domain, $this->password);
         // Recherche dans l'annuaire LDAP
         $search_filter = "(objectClass=*)";
         $search_result = ldap_search($this->ldapconn, $this->ldap_dn, $search_filter);
@@ -60,18 +64,13 @@ class LdapModel
             return [];
         }
 
-
         // Récupération des entrées
         $entries = ldap_get_entries($this->ldapconn, $search_result);
-
 
         $data = [];
         if ($entries["count"] > 0) {
 
             for ($i = 0; $i < $entries["count"]; $i++) {
-
-                // if(isset($entries[$i]["samaccountname"][0]) && isset($entries[$i]["description"][0]) && isset($entries[$i]["mail"][0]) && $entries[$i]['useraccountcontrol'][0] = '512' && $entries[$i]['accountexpires'][0] !== '0'){
-                //if(isset($entries[$i]["userprincipalname"][0]) && $entries[$i]['useraccountcontrol'][0] == '512' && $entries[$i]['accountexpires'][0] !== '0'){
                 if (isset($entries[$i]["userprincipalname"][0])) {
 
                     $data[$entries[$i]["samaccountname"][0]] = [
@@ -90,31 +89,6 @@ class LdapModel
             echo "Aucune entrée trouvée.\n";
         }
 
-
-        // Fermer la connexion LDAP
-        // ldap_unbind($this->ldapconn);
-
         return $data;
     }
-    // public function searchLdapUser()
-    // {
-    //     // Requête LDAP pour récupérer tous les utilisateurs
-    //     $search_base = "OU=HFF Users,DC=fraise,DC=hff,DC=mg"; // Remplacez par la base de recherche appropriée
-    //     $search_result = ldap_search($this->ldapconn, $search_base, "(objectClass=person)");
-    //     $info = ldap_get_entries($this->ldapconn, $search_result);
-
-    //     // Affichage des utilisateurs
-    //     foreach ($info as $user) {
-    //         if (isset($user['cn'][0])) {
-    //             echo "Nom complet: " . $user['cn'][0] . "<br>";
-    //         }
-    //         if (isset($user['uid'][0])) {
-    //             echo "Identifiant utilisateur: " . $user['uid'][0] . "<br>";
-    //         }
-    //         if (isset($user['mail'][0])) {
-    //             echo "Adresse e-mail: " . $user['mail'][0] . "<br>";
-    //         }
-    //         echo "<hr>";
-    //     }
-    // }
 }

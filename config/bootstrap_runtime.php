@@ -118,7 +118,7 @@ $twig = new \Twig\Environment(
     [
         'debug'       => $isDevMode,
         'cache'       => $twigCacheDir,
-        'auto_reload' => $isDevMode, // 🔥 EN DEV : vérifie les changements
+        'auto_reload' => true, // 🔥 EN DEV : vérifie les changements
     ]
 );
 $container->set('twig', $twig);

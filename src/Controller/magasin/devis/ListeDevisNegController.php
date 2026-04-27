@@ -6,7 +6,7 @@ use App\Constants\admin\ApplicationConstant;
 use App\Constants\Magasin\Devis\TypeSoumissionConstant;
 use App\Controller\Controller;
 use App\Dto\Magasin\Devis\DevisSearchDto;
-use App\Entity\magasin\bc\BcMagasin;
+use App\Entity\dw\DwBcClientNegoce;
 use App\Entity\magasin\devis\DevisMagasin;
 use App\Form\magasin\devis\DevisNegSearchType;
 use App\Mapper\Magasin\Devis\DevisNegMapper;
@@ -96,11 +96,13 @@ class ListeDevisNegController extends Controller
 
         $form->handleRequest($request);
         $criteria = [];
+
         if ($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
             // Stockage des critères de recherche dans la session pour les réutiliser lors de l'export Excel
             $this->getSessionService()->set('criteria_for_excel_liste_devis_neg', $criteria);
         }
+
         return [$form, $criteria];
     }
 
@@ -141,9 +143,22 @@ class ListeDevisNegController extends Controller
             return [];
         };
 
+        $dwBcClientNegoceRepository = $this->getEntityManager()->getRepository(DwBcClientNegoce::class);
+
         $devisNeg = $this->listeDevisNegModel->getDevisNeg($criteria, $codeAgenceAutoriserString, $multiSuccursale, $codeAgenceDefaut, $numDeviAExclure, $codeSociete, $page, $limit);
-        $devisNeg = $this->devisNegMapper->map($devisNeg, $urlGenerator);
+        $devisNeg = $this->devisNegMapper->map($devisNeg, $urlGenerator, $dwBcClientNegoceRepository);
+
+        if ($criteria['numeroPO']) {
+            $devisNeg = $this->filtrerParNumeroPo($devisNeg, $criteria['numeroPO']);
+        }
 
         return $devisNeg;
+    }
+
+    function filtrerParNumeroPo($tableau, $numeroPoRecherche)
+    {
+        return array_values(array_filter($tableau, function ($item) use ($numeroPoRecherche) {
+            return stripos($item->numeroPo ?? '', $numeroPoRecherche) !== false;
+        }));
     }
 }

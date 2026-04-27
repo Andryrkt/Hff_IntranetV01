@@ -16,7 +16,7 @@ class ContratApi extends Controller
     /**
      * Récupère les services d'une agence par son code texte
      *
-     * @Route("/contrat-api/agence-fetch/{code}", name="contrat_agence_fetch", methods={"GET"})
+     * @Route("/contrat-api/agence-fetch/{code}", name="api_contrat_agence_fetch", methods={"GET"})
      *
      * @param string $code Code court de l'agence (ex: '01', '02', '30')
      * @return JsonResponse
@@ -52,7 +52,7 @@ class ContratApi extends Controller
     /**
      * Récupère toutes les références de contrats uniques
      *
-     * @Route("/contrat-api/references", name="contrat_api_references", methods={"GET"})
+     * @Route("/contrat-api/references", name="api_contrat_references", methods={"GET"})
      *
      * @return JsonResponse
      */
@@ -77,7 +77,7 @@ class ContratApi extends Controller
     /**
      * Récupère tous les partenaires uniques
      *
-     * @Route("/contrat-api/partenaires", name="contrat_api_partenaires", methods={"GET"})
+     * @Route("/contrat-api/partenaires", name="api_contrat_partenaires", methods={"GET"})
      *
      * @return JsonResponse
      */

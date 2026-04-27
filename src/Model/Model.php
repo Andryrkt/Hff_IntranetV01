@@ -16,6 +16,8 @@ class Model
     protected $informix;
     protected $connexion04;
     protected $connexion04Gcot;
+    protected string $dbIrium;
+    protected string $dbIps;
 
 
     public function __construct()
@@ -37,6 +39,10 @@ class Model
 
         $this->connexion04 = new ConnexionDote4();
         $this->connexion04Gcot = new connexionDote4Gcot();
+
+        // Récupération dynamique des noms de bases
+        $this->dbIrium = $_ENV['DB_NAME_IRIUM'] ?? 'ir_prod108';
+        $this->dbIps = $_ENV['DB_NAME_IPS'] ?? 'ips_hffprod';
     }
 
 

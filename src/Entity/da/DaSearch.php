@@ -29,11 +29,11 @@ class DaSearch
     private ?DateTime $dateDebutfinSouhaite = null;
     private ?DateTime $dateFinFinSouhaite = null;
 
-    private ?int $agenceEmetteur = null;
-    private ?int $serviceEmetteur = null;
+    private ?Agence $agenceEmetteur = null;
+    private ?Service $serviceEmetteur = null;
 
-    private ?int $agenceDebiteur = null;
-    private ?int $serviceDebiteur = null;
+    private ?Agence $agenceDebiteur = null;
+    private ?Service $serviceDebiteur = null;
 
 
 
@@ -491,10 +491,10 @@ class DaSearch
             'idMateriel'           => $this->idMateriel,
             'codeCentrale'         => $this->codeCentrale,
             'typeAchat'            => $this->typeAchat,
-            'agenceEmetteur'       => $this->agenceEmetteur,
-            'serviceEmetteur'      => $this->serviceEmetteur,
-            'agenceDebiteur'       => $this->agenceDebiteur,
-            'serviceDebiteur'      => $this->serviceDebiteur,
+            'agenceEmetteur'       => $this->agenceEmetteur  ? $this->agenceEmetteur->getId()  : null,
+            'serviceEmetteur'      => $this->serviceEmetteur ? $this->serviceEmetteur->getId() : null,
+            'agenceDebiteur'       => $this->agenceDebiteur  ? $this->agenceDebiteur->getId()  : null,
+            'serviceDebiteur'      => $this->serviceDebiteur ? $this->serviceDebiteur->getId() : null,
             'niveauUrgence'        => $this->niveauUrgence        ? $this->niveauUrgence                         : null,
             'dateDebutCreation'    => $this->dateDebutCreation    ? $this->dateDebutCreation->format('Y-m-d')    : null,
             'dateFinCreation'      => $this->dateFinCreation      ? $this->dateFinCreation->format('Y-m-d')      : null,
@@ -504,19 +504,35 @@ class DaSearch
     }
 
     /**
-     * Hydrate l'objet à partir d'un tableau
+     * Hydrate l'objet à partir d'un tableau.
+     *
+     * @param array $data    Critères bruts (ex. issus de la session, IDs pour agences/services)
+     * @param array $agServ  Objets Agence/Service déjà résolus depuis la BDD :
+     *                       ['agenceEmetteur' => ?Agence, 'agenceDebiteur' => ?Agence,
+     *                        'serviceEmetteur' => ?Service, 'serviceDebiteur' => ?Service]
      */
-    public function toObject(array $data): self
+    public function toObject(array $data, array $agServ = []): self
     {
-        $allDateKeys = ['dateDebutCreation', 'dateFinCreation', 'dateDebutfinSouhaite', 'dateFinFinSouhaite',];
+        $allDateKeys    = ['dateDebutCreation', 'dateFinCreation', 'dateDebutfinSouhaite', 'dateFinFinSouhaite'];
+        $entityKeys     = ['agenceEmetteur', 'serviceEmetteur', 'agenceDebiteur', 'serviceDebiteur'];
+
         foreach ($data as $key => $value) {
             $method = 'set' . ucfirst($key);
 
-            if (method_exists($this, $method)) {
-                if ($value !== null && in_array($key, $allDateKeys)) $value = DateTime::createFromFormat('Y-m-d', $value);
-
-                $this->$method($value);
+            if (!method_exists($this, $method)) {
+                continue;
             }
+
+            if ($value !== null && in_array($key, $allDateKeys)) {
+                $value = DateTime::createFromFormat('Y-m-d', $value);
+            }
+
+            // Pour les champs entité, on utilise l'objet résolu plutôt que l'ID brut
+            if (in_array($key, $entityKeys)) {
+                $value = $agServ[$key] ?? null;
+            }
+
+            $this->$method($value);
         }
 
         return $this;

@@ -60,8 +60,7 @@ class LoginController extends Controller
                         "firstname" => $firstname,
                         "lastname"  => $lastname,
                         "fullname"  => "$lastname $firstname",
-                        "email"     => $user->getMail(),
-                        'password'  => $password,
+                        "email"     => $user->getMail()
                     ];
 
                     $this->getSessionService()->set('user_info', $userInfo);
@@ -84,6 +83,7 @@ class LoginController extends Controller
                     $userInfo["default_service_id"]   = $agenceServiceDefaut->getService()->getId();
                     $userInfo['societe_code']         = $codeSociete;
                     $userInfo['profil_id']            = $profil->getId();
+                    $userInfo['profil_name']          = $profil->getDesignation();
                     $this->getSessionService()->set('user_info', $userInfo);
 
                     $this->redirectToRoute('profil_acceuil');
