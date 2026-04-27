@@ -2,6 +2,7 @@
 
 namespace App\Model\magasin\devis;
 
+use App\Constants\Magasin\Devis\StatutDevisNegContant;
 use App\Model\Model;
 use App\Service\GlobalVariablesService;
 
@@ -12,12 +13,16 @@ class DevisNegModel extends Model
     {
         $this->connect->connect();
         $skip = ($page - 1) * $limit;
+        $statutDwATraiter = StatutDevisNegContant::A_TRAITER;
 
         try {
 
             $statement = "SELECT SKIP $skip FIRST $limit
                 nent.nent_datecde                                           AS date_cde_brute
-                ,dneg.statut_dw                                             AS statut_dw
+                , CASE 
+                    WHEN dneg.statut_dw = '' OR dneg.statut_dw IS NULL THEN '$statutDwATraiter'
+                    ELSE dneg.statut_dw
+                END                                                         AS statut_dw
                 ,dneg.statut_bc                                             AS statut_bc
                 ,nent.nent_numcde                                           AS numero_devis
                 ,TO_CHAR(nent.nent_datecde, '%d/%m/%Y')                     AS date_creation
@@ -107,6 +112,7 @@ class DevisNegModel extends Model
                                 WHERE nl.nlig_numcde = nent.nent_numcde
                                 AND nl.nlig_constp IN ('AGR','ATC','AUS','CAT','CGM','CMX','DNL','DYN','GRO','HYS','JDR','KIT','MAN','MNT','OLY','OOM','PAR','PDV','PER','PUB','REM','SHM','TBI','THO')
                             )
+                AND NOT (dneg.statut_dw = '$statutDwATraiter' AND nent.nent_posl = 'TR')
                 ";
 
             // Filtre par agences autorisées
