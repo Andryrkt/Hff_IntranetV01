@@ -1,8 +1,9 @@
 import { displayOverlay } from "../../utils/ui/overlay";
 import { mergeCellsRecursiveTable } from "../listeCdeFrn/tableHandler.js";
+import { configAgenceService } from "../../dit/config/listDitConfig.js";
+import { handleAgenceChange } from "../../dit/fonctionUtils/fonctionListDit.js";
 import { allowOnlyNumbers } from "../../magasin/utils/inputUtils.js";
 import { initCentraleCodeDesiInputs } from "../newReappro/event.js";
-import { filterServiceByAgence } from "../../utils/agenceService/filterServiceByAgence.js";
 
 document.addEventListener("DOMContentLoaded", function () {
   initCentraleCodeDesiInputs(
@@ -27,15 +28,14 @@ document.addEventListener("DOMContentLoaded", function () {
    * Configuration des agences et services
    *============================================================================*/
 
-  filterServiceByAgence({
-    agenceSelector: "#da_search_agenceEmetteur",
-    serviceSelector: "#da_search_serviceEmetteur",
-  });
+  // Attachement des événements pour les agences
+  configAgenceService.emetteur.agenceInput.addEventListener("change", () =>
+    handleAgenceChange("emetteur")
+  );
 
-  filterServiceByAgence({
-    agenceSelector: "#da_search_agenceDebiteur",
-    serviceSelector: "#da_search_serviceDebiteur",
-  });
+  configAgenceService.debiteur.agenceInput.addEventListener("change", () =>
+    handleAgenceChange("debiteur")
+  );
 
   /**==================================================
    * valider seulement les chiffres
