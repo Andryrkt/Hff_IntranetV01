@@ -151,24 +151,7 @@ class listeDaController extends Controller
         }
     }
 
-    private function gererAgenceService(DaSearch $daSearch, array $allAgenceServices): void
-    {
-        // Changer le serviceEmetteur
-        if ($daSearch->getServiceEmetteur()) {
-            $ligneId = $daSearch->getServiceEmetteur();
-            if ($ligneId && isset($allAgenceServices[$ligneId])) {
-                $daSearch->setServiceEmetteur($allAgenceServices[$ligneId]['service_id']);
-            }
-        }
 
-        // Changer le serviceDebiteur
-        if ($daSearch->getServiceDebiteur()) {
-            $ligneId = $daSearch->getServiceDebiteur();
-            if ($ligneId && isset($allAgenceServices[$ligneId])) {
-                $daSearch->setServiceDebiteur($allAgenceServices[$ligneId]['service_id']);
-            }
-        }
-    }
 
     public function initialisationRechercheDa(DaSearch $daSearch)
     {
