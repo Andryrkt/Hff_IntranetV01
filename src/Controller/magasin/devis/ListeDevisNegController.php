@@ -6,7 +6,7 @@ use App\Constants\admin\ApplicationConstant;
 use App\Constants\Magasin\Devis\TypeSoumissionConstant;
 use App\Controller\Controller;
 use App\Dto\Magasin\Devis\DevisSearchDto;
-use App\Entity\magasin\bc\BcMagasin;
+use App\Entity\dw\DwBcClientNegoce;
 use App\Entity\magasin\devis\DevisMagasin;
 use App\Form\magasin\devis\DevisNegSearchType;
 use App\Mapper\Magasin\Devis\DevisNegMapper;
@@ -141,8 +141,10 @@ class ListeDevisNegController extends Controller
             return [];
         };
 
+        $dwBcClientNegoceRepository = $this->getEntityManager()->getRepository(DwBcClientNegoce::class);
+
         $devisNeg = $this->listeDevisNegModel->getDevisNeg($criteria, $codeAgenceAutoriserString, $multiSuccursale, $codeAgenceDefaut, $numDeviAExclure, $codeSociete, $page, $limit);
-        $devisNeg = $this->devisNegMapper->map($devisNeg, $urlGenerator);
+        $devisNeg = $this->devisNegMapper->map($devisNeg, $urlGenerator, $dwBcClientNegoceRepository);
 
         return $devisNeg;
     }

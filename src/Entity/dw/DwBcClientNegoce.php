@@ -32,7 +32,7 @@ class DwBcClientNegoce
      * @ORM\Column(type="string", name="numero_devis", length=50, nullable=true)
      */
     private $numeroDevis;
-    
+
     /**
      * @ORM\Column(type="string", name="statut_bcc_neg", nullable=true)
      */
