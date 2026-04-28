@@ -27,8 +27,6 @@ class planningAtelierControler extends Controller
     }
     /**
      * @route("/planningAtelier", name = "planningAtelier_vue")
-     * 
-     * @return void
      */
     public function planningAtelierEncours(Request $request)
     {
@@ -50,15 +48,21 @@ class planningAtelierControler extends Controller
             $end = $criteria->getDateFin();
 
             $result = $this->planningAtelierModel->recupData($criteria);
+            if (!$start || !$end) {
+                [$startD, $endD] = $this->extractMinMaxDateFromResult($result);
+                $start = $start ?? $startD;
+                $end = $end ?? $endD;
+            }
             $interval = new \DateInterval('P1D');
-            $period = new \DatePeriod($start, $interval, (clone $end)->modify('+1 day'));
-
-            foreach ($period as $date) {
-                $dates[] = $date;
-                $filteredDates[] = $date->format('Y-m-d');
+            if ($start && $end) {
+                $period = new \DatePeriod($start, $interval, (clone $end)->modify('+1 day'));
+                foreach ($period as $date) {
+                    $dates[] = $date;
+                    $filteredDates[] = $date->format("Y-m-d");
+                }
             }
             $output = $this->recupdata($result, $dates, $output);
-
+            
             $this->getSessionService()->set('data_export_planningAtelier_excel', $output);
             $this->getSessionService()->set('dates_export_planningAtelier_excel', $dates);
         }
@@ -73,7 +77,7 @@ class planningAtelierControler extends Controller
     public function recupdata($result, $dates, $output)
     {
         foreach ($result as $item) {
-            $key = $item['agenceem'] . '|' . $item['section'] . '|' . $item['intitule'] . '|' . $item['numor'] . '|' . $item['itv'] . '|' . $item['ressource'] . '|' . $item['nbjour'];
+            $key = $item['agenceem'] . '|' . $item['section'] . '|' . $item['intitule'] . '|' . $item['numor'] . '|' . $item['itv'] . '|' . $item['ressource'];
 
             if (!isset($output[$key])) {
                 $output[$key] = [
@@ -89,31 +93,92 @@ class planningAtelierControler extends Controller
                 ];
             }
             $output[$key]['nbTotalJ'] += $item["nbjour"];
-
-            $debut = new \DateTime($item["datedebut"]);
-            $fin = new \DateTime($item["datefin"]);
-
-            foreach ($dates as $date) {
-                $dateStr = $date->format('Y-m-d');
-
-                $matin_debut = new \DateTime("$dateStr 08:00:00");
-                $matin_fin   = new \DateTime("$dateStr 12:00:00");
-                $aprem_debut = new \DateTime("$dateStr 13:30:00");
-                $aprem_fin   = new \DateTime("$dateStr 17:30:00");
-
-                if (!isset($output[$key]['presence'][$dateStr])) {
-                    $output[$key]['presence'][$dateStr] = ['matin' => false, 'apm' => false];
-                }
-
-                if ($fin >= $matin_debut && $debut < $matin_fin) {
-                    $output[$key]['presence'][$dateStr]['matin'] = true;
-                }
-                if ($fin >= $aprem_debut && $debut < $aprem_fin) {
-                    $output[$key]['presence'][$dateStr]['apm'] = true;
-                }
+            $debut = new \DateTime($item["date_debut"]);
+            $dateStr = $debut->format('Y-m-d');
+            //? Initialisation de la présence pour cette date si elle n'existe pas encore
+            if (!isset($output[$key]['presence'][$dateStr])) {
+                $output[$key]['presence'][$dateStr] = [
+                    'matin' => false,
+                    'apm' => false,
+                    'heure' => NULL,
+                    'hmtn' => NULL,
+                    'hapm' => NULL
+                ];
             }
+            $output[$key]['presence'][$dateStr] = $this->calculatePresence($output[$key]['presence'][$dateStr], $item);
         }
         return $output;
+    }
+
+    private function calculatePresence($presenceData, $item)
+    {
+        $data = $presenceData;
+        $debut = new \DateTime($item["date_debut"]);
+        $fin = new \DateTime($item["date_fin"]);
+        $hdebut = new \Datetime($item["hpointee_debut"]);
+        $hfin = new \Datetime($item["hpointee_fin"]);
+        $dateStr = $debut->format('Y-m-d');
+        $matin_debut = new \DateTime("$dateStr 08:00:00");
+        $matin_fin   = new \DateTime("$dateStr 12:00:00");
+        $aprem_debut = new \DateTime("$dateStr 13:30:00");
+        $aprem_fin   = new \DateTime("$dateStr 17:30:00");
+
+        //? Calcul de la planning pour la matinée
+        if ($fin >= $matin_debut && $debut < $matin_fin) {
+            $data['matin'] = true;
+        }
+        //? Calcul de la planning pour l'après-midi
+        if ($fin >= $aprem_debut && $debut < $aprem_fin) {
+            $data['apm'] = true;
+        }
+        if (!isset($item["hpointee"]))
+            return $data;
+        $hpointee = (float)$item["hpointee"];
+
+        if ($data['heure'] === NULL) {
+            $data['heure'] = $hpointee;
+        }
+
+        if ($debut < $fin && $hfin < $fin && $hdebut < $hfin) {
+            $data['heure'] += $hpointee;
+        }
+
+        $isFullDay = $hdebut <= $matin_debut && $hfin >= $aprem_fin;
+
+        if ($hdebut <= $matin_fin && $hfin >= $matin_debut && !$isFullDay) {
+            $data['hmtn'] = (float)$hpointee;
+        }
+
+        if ($hdebut <= $aprem_fin && $hfin >= $aprem_debut && !$isFullDay) {
+            $data['hapm'] = (float)$hpointee;
+        }
+
+        return $data;
+
+    }
+
+    private function extractMinMaxDateFromResult(array $result): array
+    {
+        $minDate = null;
+        $maxDate = null;
+
+        foreach ($result as $item) {
+            try {
+                if (empty($item['date_debut']) || empty($item['date_fin'])) {
+                    continue;
+                }
+                $debut = new \DateTime($item['date_debut']);
+                $fin = new \DateTime($item['date_fin']);
+                if ($minDate === null || $debut < $minDate) {
+                    $minDate = $debut;
+                }
+                if ($maxDate === null || $fin > $maxDate) {
+                    $maxDate = $fin;
+                }
+            } catch (\Exception $e) {}
+        }
+
+        return [$minDate, $maxDate];
     }
     /**
      * @Route("/export_excel_planningAtelier", name= "export_planningAtelier")
