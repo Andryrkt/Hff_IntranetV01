@@ -15,9 +15,10 @@ class DaFilterService
 {
     private SecurityService $securityService;
 
-    public function __construct(SecurityService $securityService)
+    public function __construct()
     {
-        $this->securityService = $securityService;
+        global $container;
+        $this->securityService = $container->get('security.service');
     }
 
     /**
