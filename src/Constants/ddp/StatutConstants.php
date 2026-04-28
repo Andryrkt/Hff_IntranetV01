@@ -8,6 +8,7 @@ class StatutConstants
     public const BAP_A_TRANSMETTRE = 'BAP à transmettre';
     public const DDPR_A_TRANSMETTRE = 'DDPR à transmettre';
     public const DDPA_A_TRANSMETTRE = 'DDPA à transmettre';
+    public const DDPA_EN_ATTENTE_DE_VALIDATION_BC = 'DDPA en attente de validation BC';
     public const SOUMIS_A_VALIDATION = 'Soumis à validation';
     public const BAP_A_VALIDER_DIR_ADMIN = 'BAP à valider par Dir Admin';
     public const REFUSE_PAR_CHEF_DE_SERVICE = 'Refusé par Chef de Service';
@@ -26,6 +27,7 @@ class StatutConstants
         self::BAP_A_TRANSMETTRE => 'statut-bap-a-transmettre',
         self::DDPR_A_TRANSMETTRE => 'statut-ddpr-a-transmettre',
         self::DDPA_A_TRANSMETTRE => 'statut-ddpa-a-transmettre',
+        self::DDPA_EN_ATTENTE_DE_VALIDATION_BC => 'statut-ddpa-en-attente-de-validation-bc',
         self::SOUMIS_A_VALIDATION => 'statut-soumis-a-validation',
         self::BAP_A_VALIDER_DIR_ADMIN => 'statut-bap-a-valider-dir-admin',
         self::REFUSE_PAR_CHEF_DE_SERVICE => 'statut-refuse-par-chef-de-service',
