@@ -58,10 +58,10 @@ class DemandePaiementFactory
             throw new \Exception("Aucune information trouvée pour le numero commande $numCdeDa");
         }
         $this->hydrateBaseInfo($dto, $typeDdp, $numCdeDa, $typeDa, $infoDa);
-        $this->hydrateDaInfo($dto, $numCdeDa, $typeDa, $numeroVersionBc, $sessionService, $infoDa);
+        $this->hydrateDaInfo($dto, $typeDa, $numeroVersionBc, $sessionService, $infoDa);
         $this->hydrateGeneralInfo($dto);
-        $this->hydrateFournisseurInfo($dto, $numCdeDa, $infoDa);
-        $this->hydrateFinancialData($dto, $numCdeDa);
+        $this->hydrateFournisseurInfo($dto, $infoDa);
+        $this->hydrateFinancialData($dto);
 
         return $dto;
     }
@@ -75,7 +75,7 @@ class DemandePaiementFactory
         $dto->codeSociete = $this->securityService->getCodeSocieteUser();
     }
 
-    private function hydrateDaInfo(DemandePaiementDto $dto, ?int $numCdeDa, ?int $typeDa, int $numeroVersionBc = 0, $sessionService, array $infoDa): void
+    private function hydrateDaInfo(DemandePaiementDto $dto, ?int $typeDa, int $numeroVersionBc = 0, $sessionService, array $infoDa): void
     {
         $dto->typeDa = $typeDa;
         $dto->numeroDa = $infoDa['numeroDemandeAppro'] ?? null;
@@ -83,11 +83,11 @@ class DemandePaiementFactory
 
         $demandePaiementRepository = $this->em->getRepository(DemandePaiement::class);
         $dto->numeroSoumissionDdpDa = AutoIncDecService::autoIncrement(
-            $demandePaiementRepository->getDernierNumeroSoumissionDdpDa($numCdeDa, $dto->numeroDa)
+            $demandePaiementRepository->getDernierNumeroSoumissionDdpDa($dto->numeroCommande, $dto->numeroDa)
         );
 
         $dto->ddpaDa = $sessionService->get('demande_paiement_a_l_avance')['ddpa'] ?? false;
-        $dto->numeroVersionBc = $numeroVersionBc ?? $this->em->getRepository(DaSoumissionBc::class)->getNumeroVersionMax($numCdeDa, $dto->codeSociete);
+        $dto->numeroVersionBc = $numeroVersionBc ?? $this->em->getRepository(DaSoumissionBc::class)->getNumeroVersionMax($dto->numeroCommande, $dto->codeSociete);
         $dto->nomPdfFusionnerBc = $sessionService->get('demande_paiement_a_l_avance')['nom_pdf'] ?? '';
 
         $dto->fichiersChoisis = $this->docDemandePaiementService->getFichiersDevisDa((int)$dto->numeroDa);
@@ -105,9 +105,9 @@ class DemandePaiementFactory
         $dto->dateDemande = new \DateTime();
     }
 
-    private function hydrateFournisseurInfo(DemandePaiementDto $dto, ?int $numCdeDa, array $infoDa): void
+    private function hydrateFournisseurInfo(DemandePaiementDto $dto, array $infoDa): void
     {
-        $infoFournisseur = $this->ddpModel->recupInfoPourDa($infoDa['numeroFournisseur'], $numCdeDa);
+        $infoFournisseur = $this->ddpModel->recupInfoPourDa($infoDa['numeroFournisseur'], $dto->numeroCommande);
         if (!empty($infoFournisseur)) {
             $data = $infoFournisseur[0];
             $dto->numeroFournisseur = $data['num_fournisseur'];
@@ -120,18 +120,18 @@ class DemandePaiementFactory
         }
     }
 
-    private function hydrateFinancialData(DemandePaiementDto $dto, ?int $numCdeDa): void
+    private function hydrateFinancialData(DemandePaiementDto $dto): void
     {
-        $recupMontantTotal = $this->ddpModel->getMontantTotalCde($numCdeDa);
+        $recupMontantTotal = $this->ddpModel->getMontantTotalCde($dto->numeroCommande);
         if (empty($recupMontantTotal)) {
-            throw new \Exception("Montant total introuvable pour le numero commande $numCdeDa");
+            throw new \Exception("Montant total introuvable pour le numero commande $dto->numeroCommande");
         }
 
         $dto->montantTotalCde = (float)$recupMontantTotal[0];
-        $dto->totalMontantCommande = $this->getTotalMontantCommandeValue($numCdeDa);
+        $dto->totalMontantCommande = $this->getTotalMontantCommandeValue($dto->numeroCommande);
 
-        $this->populateDdpaList($numCdeDa, $dto);
-        $this->populateMontants($numCdeDa, $dto);
+        $this->populateDdpaList($dto->numeroCommande, $dto);
+        $this->populateMontants($dto->numeroCommande, $dto);
 
         $this->financialService->calculateGlobalFinancials($dto, $dto->totalPayer);
     }
