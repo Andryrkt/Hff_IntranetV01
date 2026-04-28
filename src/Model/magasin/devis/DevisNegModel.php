@@ -9,15 +9,14 @@ use App\Service\GlobalVariablesService;
 
 class DevisNegModel extends Model
 {
-    public function getDevisNeg($criteria, $codeAgenceAutoriserString, $multiSuccursale, $codeAgenceDefaut, $numDeviAExclure, $codeSociete, $page = 1, $limit = 100)
+    public function getDevisNeg($criteria, $codeAgenceAutoriserString, $multiSuccursale, $codeAgenceDefaut, $numDeviAExclure, $codeSociete)
     {
         $this->connect->connect();
-        $skip = ($page - 1) * $limit;
         $statutDwATraiter = StatutDevisNegContant::A_TRAITER;
 
         try {
 
-            $statement = "SELECT SKIP $skip FIRST $limit
+            $statement = "SELECT 
                 nent.nent_datecde                                           AS date_cde_brute
                 , CASE 
                     WHEN dneg.statut_dw = '' OR dneg.statut_dw IS NULL THEN '$statutDwATraiter'
