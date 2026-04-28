@@ -42,12 +42,14 @@ class StatutDaConstant
         self::STATUT_EN_COURS_PROPOSITION => self::STATUT_EN_COURS_PROPOSITION,
     ];
 
+    // statut de la DA qui sont à traiter par le profil appro
     public const TRAITER_APPRO_LIST = [
         self::STATUT_SOUMIS_APPRO,
         self::STATUT_DEMANDE_DEVIS,
         self::STATUT_DEVIS_A_RELANCER,
         self::STATUT_EN_COURS_PROPOSITION
     ];
+    // statut de la DA qui sont à traiter par le profil appro avec les statuts cloturees
     public const TRAITER_APPRO_LIST_CLOTURE = [
         self::STATUT_SOUMIS_APPRO,
         self::STATUT_DEMANDE_DEVIS,
@@ -57,11 +59,13 @@ class StatutDaConstant
         self::STATUT_CLOTUREE_HORS_DELAI
     ];
 
+    // statut de la DA qui sont à traiter par les autres profil autre que appro
     public const TRAITER_AUTRES_LIST = [
         self::STATUT_EN_COURS_CREATION,
         self::STATUT_AUTORISER_EMETTEUR,
         self::STATUT_SOUMIS_ATE
     ];
+    // statut de la DA qui sont à traiter par les autres profil autre que appro avec les statuts cloturees
     public const TRAITER_AUTRES_LIST_CLOTURE = [
         self::STATUT_EN_COURS_CREATION,
         self::STATUT_AUTORISER_EMETTEUR,
@@ -69,7 +73,7 @@ class StatutDaConstant
         self::STATUT_CLOTUREE,
         self::STATUT_CLOTUREE_HORS_DELAI
     ];
-
+    // statut de la DA qui sont à traiter par les autres profil autre que appro et admin
     public const STATUT_DA_PAS_APPRO_NI_ADMIN = [
         self::STATUT_EN_COURS_CREATION    => self::STATUT_EN_COURS_CREATION,
         self::STATUT_SOUMIS_APPRO         => self::STATUT_SOUMIS_APPRO, // demande d'achat
