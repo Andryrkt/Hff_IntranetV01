@@ -59,8 +59,17 @@ class DemandePaiementDaController extends Controller
      */
     public function index(int $typeDdp, ?int $numCdeDa, ?int $typeDa, ?int $numeroVersionBc, Request $request)
     {
-        // initialisation dto
-        $dto = $this->demandePaiementFactory->load($typeDdp, $numCdeDa, $typeDa, $numeroVersionBc, $this->getUser(), $this->getSessionService());
+        try {
+            // initialisation dto
+            $dto = $this->demandePaiementFactory->load($typeDdp, $numCdeDa, $typeDa, $numeroVersionBc, $this->getSessionService());
+        } catch (\Throwable $th) {
+            $message = $th->getMessage();
+            $criteria = $this->getSessionService()->get('criteria_for_excel_Da_Cde_frn');
+            $nomDeRoute = 'da_list_cde_frn'; // route de redirection après soumission
+            $nomInputSearch = 'cde_frn_list'; // initialistion de nom de chaque champ ou input
+            $this->historiqueOperation->sendNotificationSoumission($message, $numCdeDa, $nomDeRoute, false, $criteria, $nomInputSearch);
+        }
+
         // blocage soumission si montant a regulariser <= 0
         $this->blocageSoumission($dto);
         // creation du formulaire

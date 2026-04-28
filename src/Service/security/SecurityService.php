@@ -365,6 +365,22 @@ class SecurityService
         return $this->dataService->getCodeSociete();
     }
 
+    /** 
+     * Retourne le nom de l'utilisateur
+     */
+    public function getUserName(): ?string
+    {
+        return $this->dataService->getUserName();
+    }
+
+    /** 
+     * Retourne le mail de l'utilisateur
+     */
+    public function getUserEmail(): ?string
+    {
+        return $this->dataService->getUserMail();
+    }
+
     // =========================================================================
     //  LOGIQUE INTERNE
     // =========================================================================
