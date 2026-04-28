@@ -3,6 +3,7 @@
 namespace App\Controller\magasin\devis;
 
 use App\Constants\admin\ApplicationConstant;
+use App\Constants\Magasin\Devis\StatutDevisNegContant;
 use App\Constants\Magasin\Devis\TypeSoumissionConstant;
 use App\Controller\Controller;
 use App\Dto\Magasin\Devis\DevisSearchDto;
@@ -147,6 +148,7 @@ class ListeDevisNegController extends Controller
 
         $devisNeg = $this->listeDevisNegModel->getDevisNeg($criteria, $codeAgenceAutoriserString, $multiSuccursale, $codeAgenceDefaut, $numDeviAExclure, $codeSociete, $page, $limit);
         $devisNeg = $this->devisNegMapper->map($devisNeg, $urlGenerator, $dwBcClientNegoceRepository);
+
 
         if ($criteria['numeroPO']) {
             $devisNeg = $this->filtrerParNumeroPo($devisNeg, $criteria['numeroPO']);
