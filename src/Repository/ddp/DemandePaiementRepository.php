@@ -172,7 +172,7 @@ class DemandePaiementRepository extends EntityRepository
         $queryBuilder =  $this->createQueryBuilder('d')
             ->where('d.numeroCommande = :numero')
             // ->andWhere('d.statut LIKE :statut')
-            ->setParameter('numero', $numCde)
+            ->setParameter('numero', (string) $numCde)
             // ->setParameter('statut', '%Validé%')
             ->orderBy('d.numeroDdp', 'ASC');
 
@@ -187,7 +187,7 @@ class DemandePaiementRepository extends EntityRepository
         $queryBuilder =  $this->createQueryBuilder('d')
             ->select('d.statut')
             ->where('d.numeroCommande = :numero')
-            ->setParameter('numero', $numCde)
+            ->setParameter('numero', (string) $numCde)
             ->orderBy('d.numeroDdp', 'ASC');
 
 
@@ -223,7 +223,7 @@ class DemandePaiementRepository extends EntityRepository
             ->where('d.numeroDemandeAppro = :numeroDa')
             ->andWhere('d.numeroCommande = :numero')
             ->setParameter('numeroDa', $numeroDa)
-            ->setParameter('numero', $numeroCde)
+            ->setParameter('numero', (string) $numeroCde)
             ->orderBy('d.dateModification', 'DESC')
             ->setMaxResults(1)
             ->getQuery()
@@ -252,7 +252,7 @@ class DemandePaiementRepository extends EntityRepository
 
         if (!empty($criteria->numCde)) {
             $qb->andWhere('d.numeroCommande = :numeroCommande')
-                ->setParameter('numeroCommande', $criteria->numCde);
+                ->setParameter('numeroCommande', (string) $criteria->numCde);
         }
 
         if (!empty($criteria->FactureBl)) {

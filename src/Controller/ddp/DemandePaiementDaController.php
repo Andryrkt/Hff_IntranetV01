@@ -162,10 +162,15 @@ class DemandePaiementDaController extends Controller
 
     private function traitementDeFichier(DemandePaiementDto $dto, FormInterface $form): string
     {
-        $numCdes = $this->demandePaiementModel->getCommandeReceptionnee($dto->numeroFournisseur);
-        $numCdesString = !empty($numCdes) ? (string) $numCdes[0] : '';
-        $numFacString =  $dto->numeroFacture;
-        $numeroCommandes = $this->demandePaiementModel->getNumCommande($dto->numeroFournisseur, $numCdesString, $numFacString);
+        $numCdes = [];
+        $numeroCommandes = '';
+
+        if (!empty($dto->numeroFournisseur) && $dto->numeroFournisseur !== '-') {
+            $numCdes = $this->demandePaiementModel->getCommandeReceptionnee($dto->numeroFournisseur);
+            $numCdesString = !empty($numCdes) ? (string) $numCdes[0] : '';
+            $numFacString =  $dto->numeroFacture;
+            $numeroCommandes = $this->demandePaiementModel->getNumCommande($dto->numeroFournisseur, $numCdesString, $numFacString);
+        }
 
         /** TRAITEMENT FICHIER  AUTRE DOCUMENT ET BC client externe / BC client magasin*/
         if ($dto->pieceJoint04 !== null) {

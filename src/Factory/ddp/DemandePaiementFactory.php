@@ -107,7 +107,12 @@ class DemandePaiementFactory
 
     private function hydrateFournisseurInfo(DemandePaiementDto $dto, array $infoDa): void
     {
-        $infoFournisseur = $this->ddpModel->recupInfoPourDa($infoDa['numeroFournisseur'], $dto->numeroCommande);
+        $numeroFournisseur = $infoDa['numeroFournisseur'] ?? null;
+        if (empty($numeroFournisseur) || $numeroFournisseur === '-') {
+            return;
+        }
+
+        $infoFournisseur = $this->ddpModel->recupInfoPourDa($numeroFournisseur, $dto->numeroCommande);
         if (!empty($infoFournisseur)) {
             $data = $infoFournisseur[0];
             $dto->numeroFournisseur = $data['num_fournisseur'];
