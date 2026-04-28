@@ -8,7 +8,7 @@ use App\Service\fichier\JsonFileService;
 
 try {
 
-    $chemin = 'C:\wamp64\www\Upload\variable_global/liste_constructeur.json';
+    $chemin = 'D:/Upload/variable_global/liste_constructeur.json';
     $jsonService = new JsonFileService($chemin);
 
     /**===================
