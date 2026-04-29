@@ -255,6 +255,11 @@ class DemandePaiementRepository extends EntityRepository
                 ->setParameter('numeroCommande', $criteria->numCde);
         }
 
+        if (!empty($criteria->numCla)) {
+            $qb->andWhere('d.numeroCla = :numeroCla')
+                ->setParameter('numeroCla', $criteria->numCla);
+        }
+
         if (!empty($criteria->FactureBl)) {
             $qb->andWhere('d.numeroFacture = :numeroFacture')
                 ->setParameter('numeroFacture', $criteria->FactureBl);

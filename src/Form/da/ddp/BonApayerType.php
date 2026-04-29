@@ -39,6 +39,10 @@ class BonApayerType extends AbstractType
                 'label'         => 'Fournisseur',
                 'required'      => false
             ])
+            ->add('numCla', TextType::class, [
+                'label'         => 'Numéro CLA',
+                'required'      => false
+            ])
         ;
     }
 
