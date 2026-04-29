@@ -8,9 +8,11 @@ use App\Constants\da\StatutDaConstant;
 use App\Controller\Traits\da\MarkupIconTrait;
 use App\Dto\Da\DaAfficherDto;
 use App\Entity\da\DaAfficher;
+use App\Entity\da\DaSoumissionBc;
 use App\Entity\da\DemandeAppro;
 use App\Model\da\DaSoumissionFacBlModel;
 use App\Service\da\PermissionDaService;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Twig\Markup;
 
@@ -20,9 +22,14 @@ class DaAfficherMapper
 
     private UrlGeneratorInterface $router;
     private PermissionDaService $permissionDaService;
+    private EntityManagerInterface $em;
 
-    public function __construct(UrlGeneratorInterface $router)
+    public function __construct(
+        UrlGeneratorInterface $router,
+        EntityManagerInterface $em
+        )
     {
+        $this->em = $em;
         $this->router = $router;
         $this->permissionDaService = new PermissionDaService();
     }
@@ -100,6 +107,7 @@ class DaAfficherMapper
         $dto->numeroCde = $data->getNumeroCde();
         $dto->positionBc = $data->getNumeroLigne();
         $dto->statutCde = !$estAppro && in_array($data->getStatutCde(), StatutBcConstant::STATUT_BC_EN_COURS) ? StatutBcConstant::BC_EN_COURS : $data->getStatutCde();
+        $dto->statutDaSoumissionBc = $this->getStatutDaSoumissionBc($dto->numeroCde);
 
         // DAL
         $dto->statutDal = !$estAppro && in_array($data->getStatutDal(), StatutDaConstant::STATUT_TRAITEMENT_APPRO) ? StatutDaConstant::TRAITEMENT_APPRO : $data->getStatutDal();
@@ -219,6 +227,7 @@ class DaAfficherMapper
             'data-type-da'      => $dto->datype,
             'data-num-da'       => $dto->numeroDemandeAppro,
             'data-num-or'       => $dto->numeroOr,
+            'data-statut-cde'   => $dto->statutDaSoumissionBc,
         ];
     }
 
@@ -288,5 +297,11 @@ class DaAfficherMapper
         if ($totalMontantCommande) return (float)$totalMontantCommande[0];
 
         return 0;
+    }
+
+    private function getStatutDaSoumissionBc($numCde): ?string
+    {
+        $daSoumissionBcRepository = $this->em->getRepository(DaSoumissionBc::class);
+        return $daSoumissionBcRepository->getStatut($numCde);
     }
 }

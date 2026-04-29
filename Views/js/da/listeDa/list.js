@@ -279,21 +279,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 });
-/** ===================================================
- * Bouton Mes DA à traiter
- *==================================================*/
-document.addEventListener("DOMContentLoaded", function () {
-  const btnMesDaATraiter = document.getElementById("btnMesDaATraiter");
-  if (btnMesDaATraiter) {
-    btnMesDaATraiter.addEventListener("click", function () {
-      displayOverlay(true, "Veuillez patienter");
-      let urlObjet = new URL(window.location.href);
-      urlObjet.searchParams.set("mes_da_a_traiter", "1");
-      urlObjet.searchParams.set("page", "1");
-      window.location.href = urlObjet.toString();
-    });
-  }
-});
+
 
 /** ===================================================
  * MODAL de clôture de DDP

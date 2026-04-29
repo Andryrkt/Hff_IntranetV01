@@ -93,10 +93,33 @@ const hiddenInputTypeDaDdp = document.getElementById("da_ddp_type_da");
 const statutAffiche = document.getElementById("statut-affiche");
 const bcValideTelecharger = document.getElementById("bcValideTelecharger"); // Déplacé ici
 const form = document.forms["da_soumission"];
+const formDdp = document.forms["da_ddp"]
 const DA_REAPPRO = "2";
 const DAO = "0";
 const DAD = "1";
 
+// active le champs du formulaire da_ddp
+function activeLeChampDuFormulaireDdp() {
+  Array.from(formDdp.elements).forEach((el) => (el.disabled = false)); // active tous les champs du formulaire
+  formDdp.querySelector("button[type='submit']").classList.remove("disabled"); //changer l'apparence du bouton
+}
+
+// desactive le champs du formulaire da_ddp
+function desactiveLeChampDuFormulaireDdp() {
+  //desactive le formulaire
+  Array.from(formDdp.elements).forEach((el) => {
+    el.disabled = true; // Désactive tous les champs du formulaire
+    // Si c'est un bouton radio ou une case à cocher, le décocher
+    if (el.type === "radio" || el.type === "checkbox") {
+      el.checked = false;
+    }
+  });
+  formDdp.querySelector("button[type='submit']").classList.add("disabled"); //changer l'apparence du bouton
+}
+
+
+
+// desactive tous les champs du forulaire da_soumission
 function desactiveTousLesChampsDuFormulaire() {
   //desactive le formulaire
   Array.from(form.elements).forEach((el) => {
@@ -109,6 +132,7 @@ function desactiveTousLesChampsDuFormulaire() {
   form.querySelector("button[type='submit']").classList.add("disabled"); //changer l'apparence du bouton
 }
 
+// active tous les champs du formulaire da_soumission
 function activeTousLesChampsDuFormulaire() {
   Array.from(form.elements).forEach((el) => (el.disabled = false)); // active tous les champs du formulaire
   form.querySelector("button[type='submit']").classList.remove("disabled"); //changer l'apparence du bouton
@@ -274,6 +298,7 @@ document.addEventListener("contextmenu", function (event) {
   hiddenInputTypeDaDdp.value = typeDa;
 
   const statutBc = targetCell.dataset.statutBc;
+  const statutDaSoumissionBc = targetCell.dataset.statutCde;
 
   const positionCde = targetCell.dataset.positionCde;
   const positionCdeFacturer = ["FC", "FA", "CP"].includes(positionCde);
@@ -364,6 +389,13 @@ document.addEventListener("contextmenu", function (event) {
   } else {
     statutAffiche.style.display = "none";
     desactiveTousLesChampsDuFormulaire();
+  }
+
+  // pour le DDP à l'avance ==================================
+  if(statutDaSoumissionBc != 'Validé' && statutDaSoumissionBc != 'Clôturé') {
+    desactiveLeChampDuFormulaireDdp();
+  } else {
+    activeLeChampDuFormulaireDdp()
   }
 
   menu.style.top = event.pageY + "px";

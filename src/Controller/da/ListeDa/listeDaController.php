@@ -42,7 +42,7 @@ class listeDaController extends Controller
         $em = $this->getEntityManager();
         $this->daAfficherRepository = $em->getRepository(DaAfficher::class);
         $this->agenceRepository = $em->getRepository(Agence::class);
-        $this->daAfficherMapper = new DaAfficherMapper($this->getUrlGenerator());
+        $this->daAfficherMapper = new DaAfficherMapper($this->getUrlGenerator(), $this->getEntityManager());
         $this->permissionDaService = new PermissionDaService();
 
         $this->initDaTrait();
