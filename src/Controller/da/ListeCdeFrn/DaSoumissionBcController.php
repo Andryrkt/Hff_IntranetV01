@@ -225,7 +225,7 @@ class DaSoumissionBcController extends Controller
         return [
             'nomDeFichier' => explode('_', $nomdeFichier)[0] <> 'BON DE COMMANDE' || explode('_', $nomdeFichier)[1] <> $numCde,
             'statut' => $statut === StatutBcConstant::STATUT_SOUMISSION || $statut === StatutBcConstant::STATUT_A_VALIDER_DA,
-            'numDaEgale' => $numDaInformix[0] !== $numDa,
+            'numDaEgale' => $numDaInformix !== $numDa,
             'montantBcEgale' => $montantBc == $montantBcIps
         ];
     }

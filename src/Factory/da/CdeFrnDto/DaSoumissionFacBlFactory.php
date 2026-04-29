@@ -29,29 +29,21 @@ class DaSoumissionFacBlFactory
     const STATUT_SOUMISSION = 'Soumis à validation';
 
     private EntityManagerInterface $em;
-    private HistoriqueOperationDaFacBlService $historiqueOperation;
-    private DaModel $daModel;
     private DaSoumissionFacBlModel $daSoumissionFacBlModel;
-    private DemandePaiementModel $ddpModel;
+
     private NumeroGenerateurService $numeroGenerateurService;
     private DaSoumissionCalculService $calculService;
     private DaSoumissionDataService $dataService;
 
     public function __construct(
         EntityManagerInterface $em,
-        HistoriqueOperationDaFacBlService $historiqueOperation,
-        DaModel $daModel,
         DaSoumissionFacBlModel $daSoumissionFacBlModel,
-        DemandePaiementModel $ddpModel,
         NumeroGenerateurService $numeroGenerateurService,
         DaSoumissionCalculService $calculService,
         DaSoumissionDataService $dataService
     ) {
         $this->em = $em;
-        $this->historiqueOperation = $historiqueOperation;
-        $this->daModel = $daModel;
         $this->daSoumissionFacBlModel = $daSoumissionFacBlModel;
-        $this->ddpModel = $ddpModel;
         $this->numeroGenerateurService = $numeroGenerateurService;
         $this->calculService = $calculService;
         $this->dataService = $dataService;

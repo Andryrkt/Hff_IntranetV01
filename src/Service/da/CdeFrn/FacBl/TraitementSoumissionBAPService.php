@@ -102,7 +102,7 @@ class TraitementSoumissionBAPService
             // $this->generatePdf->copyToDWFacBlDa($nomPdfFusionner, $numDa);
 
             /** MODIFICATION DA AFFICHER */
-            $this->modificationDaAfficher($numDa, $numCde, $numLiv);
+            $this->modificationDaAfficher($dto);
 
             $sucess = true;
         }
@@ -186,15 +186,19 @@ class TraitementSoumissionBAPService
      * @param string $numDa
      * @param int $numeroVersionMax
      */
-    private function modificationDaAfficher(string $numDa, string $numCde, $numLiv): void
+    private function modificationDaAfficher(DaSoumissionFacBlDto $dto): void
     {
+        $numDa = $dto->numeroDemandeAppro;
+        $numCde = $dto->numeroCde;
+        $numLiv = $dto->numLiv;
+        $codeSociete = $dto->codeSociete;
         $daAfficherRepository = $this->entityManager->getRepository(DaAfficher::class);
-        $numeroVersionMax = $daAfficherRepository->getNumeroVersionMax($numDa);
+        $numeroVersionMax = $daAfficherRepository->getNumeroVersionMax($numDa, $codeSociete);
         $typeDa = $daAfficherRepository->getTypeDaSelonNumDa($numDa);
         $daAffichers = [];
 
         if (in_array((int)$typeDa, [DemandeAppro::TYPE_DA_AVEC_DIT, DemandeAppro::TYPE_DA_REAPPRO_MENSUEL, DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL])) {
-            $refDesiSavLors = $this->daSoumissionFacBlModel->getRefDesiSavLor($numLiv);
+            $refDesiSavLors = $this->daSoumissionFacBlModel->getRefDesiSavLor($numLiv, $codeSociete);
             foreach ($refDesiSavLors as  $refDesiSavLor) {
                 $daAffichers[] = $this->entityManager->getRepository(DaAfficher::class)
                     ->findOneBy(
@@ -208,7 +212,7 @@ class TraitementSoumissionBAPService
                     );
             }
         } else {
-            $refDesiFrnCdls = $this->daSoumissionFacBlModel->getRefDesiFrnCdl($numLiv);
+            $refDesiFrnCdls = $this->daSoumissionFacBlModel->getRefDesiFrnCdl($numLiv, $codeSociete);
             foreach ($refDesiFrnCdls as  $refDesiFrnCdl) {
                 $daAffichers[] = $this->entityManager->getRepository(DaAfficher::class)
                     ->findOneBy(
@@ -347,12 +351,13 @@ class TraitementSoumissionBAPService
     {
         $numCde              = $dto->numeroCde;
         $numOr               = $dto->numeroOR;
+        $codeSociete         = $dto->codeSociete;
 
         $infoValidationBC    = $this->dwBcApproRepository->getInfoValidationBC($numCde) ?? [];
         $historiqueLivraison = $this->daModel->getHistoriqueLivraison($numCde) ?? [];
 
-        $infoMateriel        = $this->ditModel->recupInfoMateriel($numOr);
-        $dataRecapOR         = $this->recapitulationOR->getData($numOr);
+        $infoMateriel        = $this->ditModel->recupInfoMateriel($numOr, $codeSociete);
+        $dataRecapOR         = $this->recapitulationOR->getData($numOr, $codeSociete);
         $demandeAppro        = $this->demandeApproRepository->findOneBy(['numeroDemandeAppro' => $dto->numeroDemandeAppro]);
         $infoFacBl           = [
             "refBlFac"   => $infoLivraison["ref_fac_bl"],
