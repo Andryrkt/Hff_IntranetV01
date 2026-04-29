@@ -10,4 +10,5 @@ class BapSearchDto
     public ?string $numDdp = null;
     public ?string $FactureBl = null;
     public ?string $fournisseur = null;
+    public ?string $numCla = null;
 }

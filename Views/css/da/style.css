@@ -685,7 +685,8 @@ a.choix:hover {
   color: #0a0a0a !important;
 }
 
-.statut-bap-a-valider-dir-admin {
+.statut-bap-a-valider-dir-admin,
+.statut-a-valider-comptabilite {
   background-color: #29e4c5 !important;
   color: #0a0a0a !important;
 }
@@ -693,6 +694,11 @@ a.choix:hover {
 .statut-refuse-par-chef-de-service,
 .statut-refuse-compta {
   background-color: #f8d7da !important;
+  color: #0a0a0a !important;
+}
+
+.statut-ddpa-en-attente-de-validation-bc {
+  background-color: #4ed9f1 !important;
   color: #0a0a0a !important;
 }
 

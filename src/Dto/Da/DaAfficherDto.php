@@ -57,6 +57,7 @@ class DaAfficherDto
     public $statutOr;
     // Cde
     public $statutCde;
+    public $statutDaSoumissionBc;
     public $numeroCde;
     public $positionBc;
     // DAL

@@ -46,6 +46,7 @@ class DemandePaiementMapper
             ->setFicherDdpa($nomFichierAvecCheminDistant)
             ->setNumeroSoumissionDdpDa($dto->numeroSoumissionDdpDa ?? null)
             ->setNumeroDemandeAppro($dto->numeroDemandeAppro ?? null)
+            ->setDdpSoumissioncde($dto->ddpSoumissioncde)
         ;
 
         return $ddp;
