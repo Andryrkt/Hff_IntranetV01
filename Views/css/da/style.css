@@ -685,7 +685,8 @@ a.choix:hover {
   color: #0a0a0a !important;
 }
 
-.statut-bap-a-valider-dir-admin {
+.statut-bap-a-valider-dir-admin,
+.statut-a-valider-comptabilite {
   background-color: #29e4c5 !important;
   color: #0a0a0a !important;
 }
