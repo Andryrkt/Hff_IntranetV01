@@ -34,7 +34,7 @@ Ce fichier est comme url_matcher.php et url_generator.php à la fois mais qui n'
 ### twig/
 
 Ce dossier sert à contenir les fichiers de cache des templates twig utilisés dans tous l'APP.
-Au premier démarrage en "PROD", tous les templates twig seront compilés et mis en cache dans ce dossier. (donc normale que ça prends du temps ~3s à 5s)
+Au premier démarrage en "PROD" (si la valeur de `APP_ENV` dans `.env` est `prod`), tous les templates twig seront compilés et mis en cache dans ce dossier. (donc normale que ça prends du temps ~3s à 5s)
 
 ---
 
@@ -135,7 +135,7 @@ Pour chaque profil, les opérations suivantes sont effectuées dans l'ordre :
 ### affectations_profils.json
 
 ```Bash
-php bin/console app:migration:affectations-profils
+php bin/console app:migration:affectation-profils
 ```
 
 Cette ligne de commande va importer en BDD les données d'affectations des profils aux utilisateurs définis dans le fichier `/config/migration/affectations_profils.json`.

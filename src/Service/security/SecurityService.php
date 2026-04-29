@@ -150,7 +150,7 @@ class SecurityService
     public function estAdmin(): bool
     {
         if ($this->estAdmin === null) {
-            $this->estAdmin = $this->dataService->getProfilId() === Profil::HFF_ADMIN;
+            $this->estAdmin = $this->dataService->getProfilName() === Profil::HFF_ADMIN;
         }
         return $this->estAdmin;
     }

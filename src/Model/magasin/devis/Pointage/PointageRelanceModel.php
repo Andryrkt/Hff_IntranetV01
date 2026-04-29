@@ -21,12 +21,12 @@ class PointageRelanceModel extends Model
     {
         // Convertir le DTO en tableau associatif pour l'insertion
         $donnees = PointageRelanceMapper::toArrayPointageRelance($pointageRelanceEntity);
-        
+
         // Convertir vers l'encodage Informix (ISO-8859-1)
         $donnees = $this->convertirVersInformix($donnees);
 
         // Construire la requête d'insertion et l'exécuter
-        $builder = new InsertQueryBuilder('ir_prod108:Informix.pointage_relance');
+        $builder = new InsertQueryBuilder("{$this->dbIrium}:Informix.pointage_relance");
         $builder->setData($donnees);
         $result = $builder->build();
 
@@ -55,7 +55,7 @@ class PointageRelanceModel extends Model
         // Convertir vers l'encodage Informix (ISO-8859-1)
         $donnees = $this->convertirVersInformix($donnees);
 
-        $updateBuilder = new UpdateQueryBuilder('ir_prod108:Informix.devis_soumis_a_validation_neg');
+        $updateBuilder = new UpdateQueryBuilder("{$this->dbIrium}:Informix.devis_soumis_a_validation_neg");
 
         // Définir les données à mettre à jour
         $updateBuilder->setData($donnees);
@@ -93,7 +93,7 @@ class PointageRelanceModel extends Model
     public function getNumeroVersionPointageRelance(string $numeroDevis, string $codeSociete): int
     {
         $statement = "SELECT FIRST 1 MAX(numero_version) as version 
-        FROM ir_prod108:Informix.pointage_relance pr 
+        FROM {$this->dbIrium}:Informix.pointage_relance pr 
         WHERE pr.numero_devis = '$numeroDevis'
         ";
 
@@ -114,7 +114,7 @@ class PointageRelanceModel extends Model
     public function getNumeroVersionDevis(string $numeroDevis, string $codeSociete): int
     {
         $statement = "SELECT FIRST 1 MAX(numero_version) as version 
-        FROM ir_prod108:Informix.devis_soumis_a_validation_neg dneg 
+        FROM {$this->dbIrium}:Informix.devis_soumis_a_validation_neg dneg 
         WHERE dneg.numero_devis = '$numeroDevis'
         ";
 
@@ -132,9 +132,9 @@ class PointageRelanceModel extends Model
 
         try {
             $statement = "SELECT statut_dw, statut_bc, stop_progression_global, motif_stop_global
-                    FROM ir_prod108:Informix.devis_soumis_a_validation_neg dneg
+                    FROM {$this->dbIrium}:Informix.devis_soumis_a_validation_neg dneg
                     WHERE dneg.numero_devis = '$numeroDevis' 
-                    AND dneg.numero_version = (SELECT MAX(numero_version) FROM ir_prod108:Informix.devis_soumis_a_validation_neg WHERE numero_devis = '$numeroDevis')
+                    AND dneg.numero_version = (SELECT MAX(numero_version) FROM {$this->dbIrium}:Informix.devis_soumis_a_validation_neg WHERE numero_devis = '$numeroDevis')
             ";
 
             $result = $this->connect->executeQuery($statement);

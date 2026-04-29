@@ -199,11 +199,11 @@
 								{# DEBUT PIECE JOINTE#}
 								{{ macroForm.sousTitre('Pièces Jointes', {class: 'sousTitre'})}}
 
-								{{ macroForm.affichageFile('Pièce jointe 01', dit.pieceJoint01, "/Upload/dit/fichier")}}
+								{{ macroForm.affichageFile('Pièce jointe 01', dit.pieceJoint01, "/Upload/dit/" ~ dit.numeroDemandeIntervention)}}
 
-								{{ macroForm.affichageFile('Pièce jointe 02', dit.pieceJoint02, "/Upload/dit/fichier")}}
+								{{ macroForm.affichageFile('Pièce jointe 02', dit.pieceJoint02, "/Upload/dit/" ~ dit.numeroDemandeIntervention)}}
 
-								{{ macroForm.affichageFile('Pièce jointe 03', dit.pieceJoint03, "/Upload/dit/fichier")}}
+								{{ macroForm.affichageFile('Pièce jointe 03', dit.pieceJoint03, "/Upload/dit/" ~ dit.numeroDemandeIntervention)}}
 								{# FIN PIECE JOINTE #}
 
 

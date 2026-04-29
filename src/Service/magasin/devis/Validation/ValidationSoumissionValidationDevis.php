@@ -19,6 +19,7 @@ class ValidationSoumissionValidationDevis
         $soumissionModel = new SoumissionModel();
         $ancienDevis = $soumissionModel->getInfoDevisForValidate($numeroDevis, $codeSociete);
         $nouveauDevis = $soumissionModel->getInfoDevis($numeroDevis, $codeSociete);
+
         // Bloqué si :
         // le numéro de devis n'existe pas ou est vide
         if (empty($numeroDevis)) {
@@ -78,9 +79,11 @@ class ValidationSoumissionValidationDevis
             return true; // Validation failed
         }
 
-        // le statut du devis est "Demande refusée par le PM"
+        // le statut du devis est "Demande refusée par le PM" ou "A traiter"
         if (
-            $ancienDevis && $ancienDevis['statut'] === 'Demande refusée par le PM'
+            empty($ancienDevis)
+            || ($ancienDevis
+                && $ancienDevis['statut'] === 'Demande refusée par le PM')
         ) {
             $message = 'Veuillez demander une confirmation des prix du devis.';
             $this->sendNotificationDevisMagasin($message, $numeroDevis, false);

@@ -208,7 +208,7 @@ class DitListeController extends Controller
 
 
     /**
-     * @Route("/cloturer-annuler/{id}", name="cloturer_annuler_dit_liste")
+     * @Route("/cloturer-annuler/{id}", name="api_cloturer_annuler_dit_liste")
      */
     public function clotureStatut($id)
     {

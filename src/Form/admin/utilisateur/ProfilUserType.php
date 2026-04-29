@@ -12,23 +12,19 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
-use App\Service\SessionManagerService;
 
 class ProfilUserType extends AbstractType
 {
     private $ldap;
-    private SessionManagerService $sessionService;
 
-    public function __construct(SessionManagerService $sessionService)
+    public function __construct()
     {
         $this->ldap = new LdapModel();
-        $this->sessionService = $sessionService;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $userInfo = $this->sessionService->get('user_info');
-        $users = $this->ldap->infoUser($userInfo['username'], $userInfo['password']);
+        $users = $this->ldap->infoUser();
 
         $nom = [];
         foreach ($users as $key => $value) {

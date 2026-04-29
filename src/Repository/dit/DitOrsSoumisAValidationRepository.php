@@ -131,7 +131,7 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
         $numeroVersionMax = $this->createQueryBuilder('osv')
             ->select('MAX(osv.numeroVersion)')
             ->where('osv.numeroOR = :numOr')
-            ->andWhere('o.codeSociete = :codeSociete')
+            ->andWhere('osv.codeSociete = :codeSociete')
             ->setParameter('numOr', $numOr)
             ->setParameter('codeSociete', $codeSociete)
             ->getQuery()

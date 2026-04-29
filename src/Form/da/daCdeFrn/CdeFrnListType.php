@@ -55,7 +55,7 @@ class CdeFrnListType extends  AbstractType
 
         $builder
             ->add('afficherCloturees', CheckboxType::class, [
-                'label'    => 'Afficher aussi les demandes d\'approvisionnement clôturées',
+                'label'    => 'Inclure les DA clôturées',
                 'required' => false
             ])
             ->add('numDa', TextType::class, [

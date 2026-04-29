@@ -21,7 +21,7 @@ class BcModel extends Model
     public function getNumeroVersion(string $numeroDevis, string $codeSociete): int
     {
         $statement = "SELECT FIRST 1 MAX(numero_version) as version 
-        FROM ir_prod108:Informix.bc_client_soumis_neg  bneg 
+        FROM {$this->dbIrium}:Informix.bc_client_soumis_neg  bneg 
         WHERE bneg.numero_devis = '$numeroDevis' AND bneg.code_societe = '$codeSociete'
         ";
 
@@ -97,7 +97,7 @@ class BcModel extends Model
                         ,dneg.statut_dw as statut
                         ,dneg.statut_bc as statut_bc
 
-                    from ir_prod108:Informix.devis_soumis_a_validation_neg dneg
+                    from {$this->dbIrium}:Informix.devis_soumis_a_validation_neg dneg
                     where dneg.code_societe = '$codeSociete'
                     and dneg.numero_devis = '$numeroDevis'
                     order by dneg.numero_version desc
@@ -126,7 +126,7 @@ class BcModel extends Model
         $donnees = BcMapper::toArrayBc($dto);
 
         // Construire la requête d'insertion et l'exécuter
-        $builder = new InsertQueryBuilder('ir_prod108:Informix.bc_client_soumis_neg');
+        $builder = new InsertQueryBuilder("{$this->dbIrium}:Informix.bc_client_soumis_neg");
         $builder->setData($donnees);
         $result = $builder->build();
 
@@ -152,7 +152,7 @@ class BcModel extends Model
     {
         $donnees = BcMapper::toArrayUpdateDevis($dto);
 
-        $updateBuilder = new UpdateQueryBuilder('ir_prod108:Informix.devis_soumis_a_validation_neg');
+        $updateBuilder = new UpdateQueryBuilder("{$this->dbIrium}:Informix.devis_soumis_a_validation_neg");
 
         // Définir les données à mettre à jour
         $updateBuilder->setData($donnees);

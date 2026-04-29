@@ -81,6 +81,7 @@ class AcBcSoumisController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $acSoumis = $this->initialisation($devis, $numDit, $codeSociete);
             $numBc = $acSoumis->getNumeroBc(); // recupère le numero bon de commande
             $numDevis = $acSoumis->getNumeroDevis(); // recupère le numero devis
             $numClient = $this->ditRepository->findNumClient($numDit, $codeSociete); //recupère le numero cline

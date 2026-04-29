@@ -1,16 +1,5 @@
 <div class="d-flex justify-content-between">
 	<div class="align-self-center">
-		{% if mesDaActif %}
-			<a href="{{ path('list_da') }}" class="btn btn-sm btn-warning fw-bold" data-bs-toggle="tooltip" title="Mes DA à traiter">
-				<i class="fas fa-list-check"></i>
-				Mes DA à traiter
-			</a>
-		{% else %}
-			<button class="btn btn-sm btn-outline-secondary fw-bold" data-bs-toggle="tooltip" title="Retour à la liste complète" id="btnMesDaATraiter" data-code-agence-user="{{ data.0.codeAgenceUser }}" data-code-service-user="{{ data.0.codeServiceUser }}">
-				<i class="fas fa-arrow-left"></i>
-				Afficher Tous les DA
-			</button>
-		{% endif %}
 		<a href="{{ path("export_excel_list_da")}}" class="btn btn-sm bg-success text-white fw-bold me-3 afficher-overlay">
 			<i class="fas fa-table"></i>
 			Excel

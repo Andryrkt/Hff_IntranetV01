@@ -15,8 +15,7 @@ class DwBcClientNegoceRepository extends EntityRepository
      */
     public function findLastValidatedBcc(string $numeroDevis): ?array
     {
-        return $this->createQueryBuilder('d')
-            ->select('d.numeroBccNeg', 'd.path')
+        $result = $this->createQueryBuilder('d')
             ->where('d.numeroDevis = :numeroDevis')
             ->andWhere('d.statutBccNeg = :statut')
             ->setParameter('numeroDevis', $numeroDevis)
@@ -25,5 +24,15 @@ class DwBcClientNegoceRepository extends EntityRepository
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult();
+
+        // Si $result est une entité, faites :
+        if ($result) {
+            return [
+                'numeroBccNeg' => $result->getNumeroBccNeg(),
+                'path' => $result->getPath()
+            ];
+        }
+
+        return null;
     }
 }
