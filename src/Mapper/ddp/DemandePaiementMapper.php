@@ -85,7 +85,7 @@ class DemandePaiementMapper
             $dto->dateDemande = $ddp->getDateCreation();
             $dto->statutDossierRegul = $ddp->getStatutDossierRegul();
             $dto->motif = $ddp->getMotif();
-            $dto->numeroDossierDouane = $ddp->getNumeroDossierDouane();
+            $dto->numeroDossierDouane = [];
             $dto->montantAPayer = $ddp->getMontantAPayers();
             $dto->devise = $ddp->getDevise();
             $dto->modePaiement = $ddp->getModePaiement();

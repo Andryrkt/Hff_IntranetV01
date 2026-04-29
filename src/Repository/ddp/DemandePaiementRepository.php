@@ -275,6 +275,11 @@ class DemandePaiementRepository extends EntityRepository
                 ->setParameter('fournisseur', $criteria->fournisseur);
         }
 
+        if (!empty($criteria->aTraiter)) {
+            $qb->andWhere('d.statut IN (:statut)')
+                ->setParameter('statut', StatutConstants::STATUT_A_TRANSMETTRE);
+        }
+
 
         $qb->orderBy('d.dateCreation', 'DESC');
 
