@@ -272,6 +272,11 @@ class DemandePaiement
      */
     private $commandeLivraisons;
 
+    /**
+     * @ORM\Column(type="boolean", name="ddp_soumission_cde")
+     */
+    private $ddpSoumissioncde = false;
+
     public function __construct()
     {
         $this->demandePaiementCommandes = new ArrayCollection();
@@ -1292,6 +1297,24 @@ class DemandePaiement
                 $commandeLivraison->setDemandePaiement(null);
             }
         }
+
+        return $this;
+    }
+
+    /**
+     * Get the value of ddpSoumissioncde
+     */
+    public function getDdpSoumissioncde()
+    {
+        return $this->ddpSoumissioncde;
+    }
+
+    /**
+     * Set the value of ddpSoumissioncde
+     */
+    public function setDdpSoumissioncde($ddpSoumissioncde): self
+    {
+        $this->ddpSoumissioncde = $ddpSoumissioncde;
 
         return $this;
     }

@@ -23,6 +23,7 @@ class DemandePaiementDto
     public ?\DateTime $dateSoumissionCompta = null;
     public ?string $codeAgence = null;
     public ?string $codeService = null;
+    public bool $ddpSoumissioncde = false;
 
     // fournisseur ======================
     public ?string $numeroFournisseur = null;
