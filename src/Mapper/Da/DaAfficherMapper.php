@@ -27,8 +27,7 @@ class DaAfficherMapper
     public function __construct(
         UrlGeneratorInterface $router,
         EntityManagerInterface $em
-        )
-    {
+    ) {
         $this->em = $em;
         $this->router = $router;
         $this->permissionDaService = new PermissionDaService();
@@ -107,7 +106,7 @@ class DaAfficherMapper
         $dto->numeroCde = $data->getNumeroCde();
         $dto->positionBc = $data->getNumeroLigne();
         $dto->statutCde = !$estAppro && in_array($data->getStatutCde(), StatutBcConstant::STATUT_BC_EN_COURS) ? StatutBcConstant::BC_EN_COURS : $data->getStatutCde();
-        $dto->statutDaSoumissionBc = $this->getStatutDaSoumissionBc($dto->numeroCde);
+        $dto->statutDaSoumissionBc = $this->getStatutDaSoumissionBc($dto->numeroCde, $data->getCodeSociete());
 
         // DAL
         $dto->statutDal = !$estAppro && in_array($data->getStatutDal(), StatutDaConstant::STATUT_TRAITEMENT_APPRO) ? StatutDaConstant::TRAITEMENT_APPRO : $data->getStatutDal();
@@ -300,9 +299,9 @@ class DaAfficherMapper
         return 0;
     }
 
-    private function getStatutDaSoumissionBc($numCde): ?string
+    private function getStatutDaSoumissionBc(?string $numCde, ?string $codeSociete): ?string
     {
         $daSoumissionBcRepository = $this->em->getRepository(DaSoumissionBc::class);
-        return $daSoumissionBcRepository->getStatut($numCde);
+        return $daSoumissionBcRepository->getStatut($numCde, $codeSociete);
     }
 }

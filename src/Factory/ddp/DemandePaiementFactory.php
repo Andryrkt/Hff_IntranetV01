@@ -96,8 +96,8 @@ class DemandePaiementFactory
 
     private function hydrateGeneralInfo(DemandePaiementDto $dto): void
     {
-        $dto->demandeur = $user->getNomUtilisateur();
-        $dto->adresseMailDemandeur = $user->getMail();
+        $dto->demandeur = $this->securityService->getUserName();
+        $dto->adresseMailDemandeur = $this->securityService->getUserEmail();
         $dto->ddpSoumissioncde = $dto->ddpaDa;
         $dto->statut = $dto->ddpSoumissioncde ? StatutConstants::DDPA_EN_ATTENTE_DE_VALIDATION_BC : StatutConstants::DDPA_A_TRANSMETTRE;
         $dto->numeroDdp = $this->numeroGenerateur->genererNumeroDdp();
