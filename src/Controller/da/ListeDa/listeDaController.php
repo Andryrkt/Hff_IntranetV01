@@ -2,8 +2,6 @@
 
 namespace App\Controller\da\ListeDa;
 
-
-use App\Constants\admin\ApplicationConstant;
 use App\Controller\Controller;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
@@ -14,7 +12,6 @@ use App\Form\da\daCdeFrn\DaModalDateLivraisonType;
 use App\Form\da\DaSearchType;
 use App\Mapper\Da\DaAfficherMapper;
 use App\Repository\da\DaAfficherRepository;
-use App\Service\security\SecurityService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -43,8 +40,6 @@ class listeDaController extends Controller
     {
         // Code Société de l'utilisateur
         $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
-        // Agences Services autorisés sur le DAP
-        $allAgenceServices = $this->getSecurityService()->getAllAgenceServices();
         // Agence et service par défaut
         $agenceIdUser = $this->getSecurityService()->getAgenceIdUser();
         $serviceIdUser = $this->getSecurityService()->getServiceIdUser();
