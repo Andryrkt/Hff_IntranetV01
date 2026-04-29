@@ -4,18 +4,18 @@ namespace App\Dto\Magasin\Devis\Soumission;
 
 class BcDto
 {
-    public $numeroDevis;
-    public $numeroBc;
-    public $montantDevis;
+    public ?string $numeroDevis;
+    public ?string $numeroBc;
+    public ?float $montantDevis;
     public $montantBc;
-    public $numeroVersion;
-    public $statutBc;
-    public $observation;
-    public $utilisateur;
-    public $dateCreation;
-    public $dateModification;
-    public $dateBc;
-    public $codeSociete;
+    public ?int $numeroVersion;
+    public ?string $statutBc;
+    public ?string $observation;
+    public ?string $utilisateur;
+    public ?\DateTime $dateCreation;
+    public ?\DateTime $dateModification;
+    public ?\DateTime $dateBc;
+    public ?string $codeSociete;
 
     public $pieceJoint01;
     public $pieceJoint2;
