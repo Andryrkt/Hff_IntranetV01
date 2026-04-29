@@ -92,18 +92,10 @@
 						<td class="text-center">{{ item.statutDossierRegul }}</td>
 						<td>{{item.motif}}</td>
 						<td>
-							<ul>
-								{% for numFac in item.numeroFacture %}
-									<li>{{numFac}}</li>
-								{% endfor %}
-							</ul>
+							{{item.numeroFacture}}
 						</td>
 						<td>
-							<ul>
-								{% for numCde in item.numeroCommande %}
-									<li>{{numCde}}</li>
-								{% endfor %}
-							</ul>
+							{{item.numeroCommande}}
 						</td>
 						<td>
 							<ul>
