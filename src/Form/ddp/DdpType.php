@@ -68,8 +68,9 @@ class DdpType extends AbstractType
         ;
 
         $this->addNumeroCommande($builder, $options);
+        $this->addNumeroFacture($builder, $options);
         $this->addFournisseur($builder);
-        $this->addAgenceServiceDebiteur($builder);
+        $this->addAgenceServiceDebiteur($builder, $options);
         $this->addFile($builder);
     }
 
@@ -172,16 +173,24 @@ class DdpType extends AbstractType
         ;
     }
 
-    public function addAgenceServiceDebiteur(FormBuilderInterface $builder)
+    public function addAgenceServiceDebiteur(FormBuilderInterface $builder, array $options)
     {
+        $dto = $options['data'] ?? null;
+        $agence = $dto && isset($dto->debiteur['agence']) ? $dto->debiteur['agence'] : null;
+        $service = $dto && isset($dto->debiteur['service']) ? $dto->debiteur['service'] : null;
+
         $builder->add('debiteur', AgenceServiceType::class, [
             'agence_label' => 'Agence Debiteur *',
             'service_label' => 'Service Débiteur *',
+            'data_agence' => $agence,
+            'data_service' => $service,
             'agence_attr' => [
-                'disabled' => true
+                'disabled' => true,
+                'class' => 'agenceDebiteur'
             ],
             'service_attr' => [
-                'disabled' => true
+                'disabled' => true,
+                'class' => 'serviceDebiteur'
             ]
         ]);
     }
@@ -219,5 +228,10 @@ class DdpType extends AbstractType
         $resolver->setDefaults([
             'data_class' => DdpDto::class
         ]);
+    }
+
+    public function getBlockPrefix()
+    {
+        return 'demande_paiement';
     }
 }
