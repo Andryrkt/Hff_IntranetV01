@@ -10,7 +10,7 @@ use App\Service\autres\VersionService;
 
 class BcFactory
 {
-    public function create($numeroDevis, $codeSociete): BcDto
+    public function create(?string $numeroDevis, ?string $codeSociete): BcDto
     {
         $bcDto = new BcDto();
         $bcDto->numeroDevis = $numeroDevis;
