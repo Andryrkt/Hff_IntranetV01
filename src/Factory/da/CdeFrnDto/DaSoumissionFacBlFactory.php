@@ -13,14 +13,12 @@ use App\Entity\admin\utilisateur\User;
 use App\Entity\da\DaSoumissionBc;
 use App\Entity\ddp\DemandePaiement;
 use App\Mapper\Da\ListCdeFrn\DaSoumissionFacBlMapper;
-use App\Model\da\DaModel;
 use App\Model\da\DaSoumissionFacBlModel;
-use App\Model\ddp\DemandePaiementModel;
 use App\Service\autres\AutoIncDecService;
 use App\Service\da\DaSoumissionCalculService;
 use App\Service\da\DaSoumissionDataService;
 use App\Service\da\NumeroGenerateurService;
-use App\Service\historiqueOperation\HistoriqueOperationDaFacBlService;
+
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 
