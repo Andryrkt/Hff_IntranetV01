@@ -2,6 +2,7 @@
 
 namespace App\Form\ddp;
 
+use App\Constants\ddp\TypeDemandePaiementConstants;
 use App\Dto\ddp\DdpDto;
 use App\Form\common\AgenceServiceType;
 use App\Form\Common\FileUploadType;
@@ -10,6 +11,8 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class DdpType extends AbstractType
@@ -64,9 +67,81 @@ class DdpType extends AbstractType
             )
         ;
 
+        $this->addNumeroCommande($builder, $options);
         $this->addFournisseur($builder);
         $this->addAgenceServiceDebiteur($builder);
         $this->addFile($builder);
+    }
+
+    public function addNumeroFacture(FormBuilderInterface $builder, array $options)
+    {
+        $builder->add(
+            'numeroFacture',
+            ChoiceType::class,
+            [
+                'label' => 'N° Facture fournisseur *',
+                'required' => false,
+                'choices'   => $options['data']->numeroFacture,
+                'multiple'  => true,
+                'expanded'  => false,
+                'attr'      => [
+                    'disabled' => $options['data']->typeDdp->getId() === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE,
+                    'data-typeId' => $options['data']->typeDdp->getId()
+                ]
+            ]
+        )
+            ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) use ($options) {
+                $form = $event->getForm();
+                $data = $event->getData();
+
+                $form->add(
+                    'numeroFacture',
+                    ChoiceType::class,
+                    [
+                        'label' => 'N° Facture *',
+                        'choices'   => $data['numeroFacture'] ?? [],
+                        'multiple'  => true,
+                        'expanded'  => false,
+                        'required' => false
+                    ]
+                );
+            });
+    }
+    public function addNumeroCommande(FormBuilderInterface $builder, array $options)
+    {
+        $builder->add(
+            'numeroCommande',
+            ChoiceType::class,
+            [
+                'label'     => 'N° Commande fournisseur *',
+                'choices'   =>  $options['data']->numeroCommande,
+                'multiple'  => true,
+                'expanded'  => false,
+                'attr'      => [
+                    'disabled' => $options['data']->typeDdp->getId() === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE,
+                ]
+            ]
+        )
+            ->addEventListener(
+                FormEvents::PRE_SUBMIT,
+                function (FormEvent $event) use ($options) {
+                    $form = $event->getForm();
+                    $data = $event->getData();
+
+                    if ($options['data']->typeDdp->getId() === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE) {
+                        $form->add(
+                            'numeroCommande',
+                            ChoiceType::class,
+                            [
+                                'label'     => 'N° Commande *',
+                                'choices'   => $data['numeroCommande'],
+                                'multiple'  => true,
+                                'expanded'  => false,
+                            ]
+                        );
+                    }
+                }
+            );
     }
 
     public function addFournisseur(FormBuilderInterface $builder)
@@ -100,9 +175,14 @@ class DdpType extends AbstractType
     public function addAgenceServiceDebiteur(FormBuilderInterface $builder)
     {
         $builder->add('debiteur', AgenceServiceType::class, [
-            'inherit_data' => true,
             'agence_label' => 'Agence Debiteur *',
             'service_label' => 'Service Débiteur *',
+            'agence_attr' => [
+                'disabled' => true
+            ],
+            'service_attr' => [
+                'disabled' => true
+            ]
         ]);
     }
 

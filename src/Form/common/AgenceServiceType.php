@@ -35,6 +35,7 @@ class AgenceServiceType extends AbstractType
                 'placeholder' => $options['agence_placeholder'],
                 'required' => $options['agence_required'],
                 'data' => $options['data_agence'] ?? null,
+                'attr' => $options['agence_attr'],
             ]);
 
         // Pré-set data
@@ -94,6 +95,7 @@ class AgenceServiceType extends AbstractType
                     'required'            => $options['service_required'],
                     'data'                => $options['data_service'] ?? null,
                     'auto_initialize'     => false,
+                    'attr'                => $options['service_attr'],
                 ]);
 
                 $serviceBuilder->addModelTransformer(new \Symfony\Component\Form\CallbackTransformer(
@@ -157,6 +159,7 @@ class AgenceServiceType extends AbstractType
             'choices' => $services,
             'required' => $options['service_required'],
             'data' => $options['data_service'] ?? null,
+            'attr' => $options['service_attr'],
         ]);
     }
 
@@ -202,6 +205,8 @@ class AgenceServiceType extends AbstractType
             'agence_codes' => [],
             'data_agence' => null,
             'data_service' => null,
+            'agence_attr' => [],
+            'service_attr' => [],
         ]);
     }
 }

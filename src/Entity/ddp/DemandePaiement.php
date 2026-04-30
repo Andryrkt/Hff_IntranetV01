@@ -39,7 +39,7 @@ class DemandePaiement
      * @ORM\ManyToOne(targetEntity=TypeDemande::class, inversedBy="demandePaiement")
      * @ORM\JoinColumn(name="type_demande_id", referencedColumnName="id")
      */
-    private $typeDemandeId;
+    private ?TypeDemande $typeDemandeId;
 
     /**
      * @ORM\Column(type="string", length=7, name="numero_fournisseur")

@@ -16,7 +16,7 @@
 				<div class="row">
 					<div class="col-12 col-md-11">
 						<h3 class="perso-titre">
-							{% if type_ddp == 1 %}
+							{% if id_type == 1 %}
 								Formulaire Demande de paiement à l’avance
 							{% else %}
 								Formulaire Demande de paiement après arrivage
@@ -46,7 +46,8 @@
 
 					</div>
 					<div class="col-12 col-md-3">
-						{{ macroForm.agence_service_change(form.agence, form.service, 'spinner-service', 'service-container')}}
+						{{ form_row(form.debiteur.agence) }}
+						{{ form_row(form.debiteur.service) }}
 					</div>
 					<div class="col-12 col-md-3">
 						{{ form_row(form.contact)}}

@@ -22,13 +22,14 @@ class DdpController extends Controller
     }
 
     /**
-     * @Route("/new/{type_ddp}", name="new_ddp_avance")
+     * @Route("/new/{typeDdp}", name="new_ddp")
      */
     public function new(int $typeDdp)
     {
         $dto = $this->ddpFactory->initialisation($typeDdp);
         $form = $this->getFormFactory()->createBuilder(DdpType::class, $dto)->getForm();
-        return $this->render('ddp/new.html.twig', [
+        return $this->render('ddp/magasin/new.html.twig', [
+            'form' => $form->createView(),
             'type_ddp' => $typeDdp
         ]);
     }
