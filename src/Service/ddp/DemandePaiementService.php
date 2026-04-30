@@ -24,9 +24,9 @@ class DemandePaiementService
      * crée une nouvelle demande de paiement
      *
      * @param DemandePaiementDto $dto
-     * @return void
+     * @return DemandePaiement
      */
-    public function createDdp(DemandePaiementDto $dto, string $nomFichier): DemandePaiement
+    public function createDdp(DemandePaiementDto $dto): DemandePaiement
     {
         $ddp = DemandePaiementMapper::map($dto);
 

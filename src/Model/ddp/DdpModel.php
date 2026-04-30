@@ -72,4 +72,51 @@ class DdpModel extends Model
 
         return array_column($this->retournerResultGcot04($sql), 'Numero_Facture');
     }
+
+    public function getNumCommande(
+        string $numeroFournisseur,
+        string $numCdesString,
+        ?string $numFactString
+    ): string {
+        if (!empty($numFactString)) {
+            $numFac = "and TRZT_Facture.Numero_Facture in ({$numFactString})";
+        } else {
+            $numFac = '';
+        }
+
+        $sql = " SELECT DISTINCT
+        GCOT_Facture_Ligne.Numero_PO as numerocde
+        from TRZT_Dossier_Douane
+        LEFT JOIN TRZT_Facture on TRZT_Dossier_Douane.Numero_Dossier_Douane = TRZT_Facture.Numero_Dossier_Douane
+        LEFT JOIN GCOT_Facture on TRZT_Facture.Numero_Facture = GCOT_Facture.Numero_Facture
+        LEFT JOIN GCOT_Facture_Ligne on GCOT_Facture.ID_GCOT_Facture = GCOT_Facture_Ligne.ID_GCOT_Facture
+        where TRZT_Dossier_Douane.Numero_Dossier_Douane like '%' 
+        $numFac
+        and TRZT_Dossier_Douane.Code_Fournisseur = '{$numeroFournisseur}'
+        and GCOT_Facture_Ligne.Numero_PO in ({$numCdesString})
+        ";
+
+        $result = array_column($this->retournerResultGcot04($sql), 'numerocde');
+
+        // Retourner la première valeur ou une chaîne vide
+        return !empty($result) ? (string) $result[0] : '';
+    }
+
+    public function getCommandeReceptionnee(string $numeroFournisseur): array
+    {
+        $statement = " SELECT distinct fllf_numcde as commande_receptionnee from frn_llf
+                inner join frn_liv 
+                    on fliv_numliv = fllf_numliv 
+                    and fliv_soc = fllf_soc 
+                    and fliv_succ = fllf_succ 
+                    and fliv_soc = 'HF'
+                where fliv_numfou = '{$numeroFournisseur}'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->connect->fetchResults($result);
+        $data = $this->convertirEnUtf8($data);
+
+        return array_column($data, 'commande_receptionnee');
+    }
 }

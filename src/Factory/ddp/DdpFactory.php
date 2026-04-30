@@ -4,12 +4,13 @@ namespace App\Factory\ddp;
 
 use App\Constants\ddp\TypeDemandePaiementConstants;
 use App\Dto\ddp\DdpDto;
-use App\Entity\admin\ddp\TypeDemande;
 use App\Entity\admin\Agence;
+use App\Entity\admin\ddp\TypeDemande;
 use App\Entity\admin\Service;
 use App\Entity\dw\DwCommande;
 use App\Model\ddp\DdpModel;
 use App\Repository\dw\DwCommandeRepository;
+use App\Service\da\NumeroGenerateurService;
 use App\Service\TableauEnStringService;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -17,13 +18,16 @@ class DdpFactory
 {
     private DdpModel $ddpModel;
     private EntityManagerInterface $em;
+    private NumeroGenerateurService $numeroGenerateur;
 
     public function __construct(
         DdpModel $ddpModel,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        NumeroGenerateurService $numeroGenerateur
     ) {
         $this->ddpModel = $ddpModel;
         $this->em = $em;
+        $this->numeroGenerateur = $numeroGenerateur;
     }
 
     public function initialisation(int $idTypeDdp): DdpDto
@@ -44,9 +48,65 @@ class DdpFactory
             'service' => $this->em->getRepository(Service::class)->find(1)
         ];
 
+        return $dto;
+    }
+
+    public function apresSoumission(DdpDto $dto): DdpDto
+    {
+        $dto->numeroDdp = $this->numeroGenerateur->genererNumeroDdp();
+
+        // Récupération des numéros de commande pour le type DDP après arrivage
+        if ($dto->typeDdp->getId() == TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE) {
+            $numeroCommandes = $this->recuperationNumCommande($dto->numeroFournisseur, $dto->numeroFacture);
+            $dto->numeroCommande = [$numeroCommandes];
+        }
+
+        // Autres DOC -------
+        //Piece joint 04
+        if ($dto->pieceJoint04 != null) {
+            $dto->estAutreDoc = true;
+            $dto->nomAutreDoc = $dto->pieceJoint04->getClientOriginalName();
+        }
+
+        // Piece Joint 03
+        if (!empty($dto->pieceJoint03)) {
+            $dto->estCdeClientExterneDoc = true;
+            $dto->nomCdeClientExterneDoc = $this->recuperationNomOriginalPieceJointe03($dto);
+        }
 
 
         return $dto;
+    }
+
+    /**
+     * Récupération des numéros de commande
+     * 
+     * @param string $numeroFournisseur
+     * @param array $numeroFacture
+     * @return array
+     */
+    private function recuperationNumCommande(string $numeroFournisseur, array $numeroFacture): string
+    {
+        $numCdes = $this->ddpModel->getCommandeReceptionnee($numeroFournisseur);
+        $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
+        $numFacString = TableauEnStringService::TableauEnString(',', $numeroFacture);
+        $numeroCommandes = $this->ddpModel->getNumCommande($numeroFournisseur, $numCdesString, $numFacString);
+        return $numeroCommandes;
+    }
+
+    /**
+     * Récupération du nom original des pièces jointes 03
+     * 
+     * @param DdpDto $dto
+     * @return array
+     */
+    private function recuperationNomOriginalPieceJointe03(DdpDto $dto): array
+    {
+        $nomFichierBCs = [];
+        foreach ($dto->pieceJoint03 as $value) {
+            $nomFichierBCs[] = $value->getClientOriginalName();
+        }
+        return $nomFichierBCs;
     }
 
     /**
@@ -88,7 +148,7 @@ class DdpFactory
      */
     private function recuperationCdeFacEtNonFac(int $typeId): array
     {
-        /** @var ?DwCommandeRepository $dwCommandeRepo  */
+        /** @var DwCommandeRepository $dwCommandeRepo  */
         $dwCommandeRepo = $this->em->getRepository(DwCommande::class);
         $numCdeDws = $dwCommandeRepo->findNumCdeDw();
         $numCdes1 = [];

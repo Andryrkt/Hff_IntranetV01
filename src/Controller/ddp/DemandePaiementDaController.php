@@ -148,7 +148,7 @@ class DemandePaiementDaController extends Controller
     private function enregistrementSurBd(DemandePaiementDto $dto, string $nomFichier): void
     {
         // enregistrement dans la table deamnde_paiement
-        $ddp = $this->demandePaiementService->createDdp($dto, $nomFichier);
+        $ddp = $this->demandePaiementService->createDdp($dto);
         // enregistrement dans la table demande_paiement_ligne
         $this->demandePaiementLigneService->createLignesFromDto($dto);
         // enregistrement dans la table doc_demande_paiement

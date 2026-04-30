@@ -3,6 +3,7 @@
 namespace App\Dto\ddp;
 
 use App\Entity\admin\ddp\TypeDemande;
+use App\Service\TableauEnStringService;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class DdpDto
@@ -35,4 +36,26 @@ class DdpDto
     public ?UploadedFile $pieceJoint02 = null;
     public ?UploadedFile $pieceJoint03 = null;
     public ?UploadedFile $pieceJoint04 = null;
+
+    // proprieter à assigner apres soumission =========================
+    public ?string $numeroDdp = null;
+
+    // autre doc--------
+    // pour pieceJoint04
+    public bool $estAutreDoc = false;
+    public ?string $nomAutreDoc = null;
+    // pour pieceJoint03
+    public bool $estCdeClientExterneDoc = false;
+    public array $nomCdeClientExterneDoc = [];
+
+
+    public function getNumeroCommandeString(): string
+    {
+        return TableauEnStringService::TableauEnString(',', $this->numeroCommande);
+    }
+
+    public function getNumeroFactureString(): string
+    {
+        return TableauEnStringService::TableauEnString(',', $this->numeroFacture);
+    }
 }
