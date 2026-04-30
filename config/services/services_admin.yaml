@@ -1,0 +1,38 @@
+services:
+  # Authentification et LDAP
+  App\Model\LdapModel:
+    public: true
+
+  App\Controller\authentification\LoginController:
+    autowire: true
+    autoconfigure: true
+    arguments:
+      - "@doctrine.orm.default_entity_manager"
+      - '@App\Model\LdapModel'
+    public: true
+
+  # Services Admin
+  App\Service\Admin\PermissionsService:
+    arguments:
+      $entityManager: "@doctrine.orm.default_entity_manager"
+    public: true
+
+  # Factories Admin
+  App\Factory\admin\UserFactory:
+    public: true
+
+  App\Factory\admin\PermissionsFactory:
+    public: true
+
+  # Contrôleurs Admin
+  App\Controller\admin\UserController:
+    arguments:
+      - '@App\Factory\admin\UserFactory'
+    public: true
+
+  App\Controller\admin\appStructure\PermissionController:
+    arguments:
+      $entityManager: "@doctrine.orm.default_entity_manager"
+      $permissionsService: '@App\Service\Admin\PermissionsService'
+      $permissionsFactory: '@App\Factory\admin\PermissionsFactory'
+    public: true

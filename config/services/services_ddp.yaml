@@ -1,0 +1,16 @@
+services:
+  # Modèles DDP
+  App\Model\ddp\DdpModel:
+    public: true
+
+  # Factories DDP
+  App\Factory\ddp\DdpFactory:
+    arguments:
+      - '@App\Model\ddp\DdpModel'
+    public: true
+
+  # Contrôleurs DDP
+  App\Controller\ddp\DdpController:
+    arguments:
+      $ddpFactory: '@App\Factory\ddp\DdpFactory'
+    public: true

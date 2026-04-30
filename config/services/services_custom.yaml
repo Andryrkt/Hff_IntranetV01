@@ -1,5 +1,5 @@
 services:
-  # Services spécifiques
+  # Services utilitaires
   App\Service\ExcelService:
     public: true
 
@@ -9,145 +9,19 @@ services:
   App\Service\SessionManagerService:
     public: true
 
-  # Services de navigation
-  App\Service\navigation\MenuService:
-    autowire: false
-    arguments:
-    - "@doctrine.orm.default_entity_manager"
-    public: true
-
-  App\Service\navigation\BreadcrumbMenuService:
-    autowire: false
-    arguments:
-    - '@App\Service\navigation\MenuService'
-    public: true
-
   # Historique d'opération
   App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService:
     arguments:
-    - "@doctrine.orm.default_entity_manager"
+      - "@doctrine.orm.default_entity_manager"
     public: true
 
   App\Service\historiqueOperation\magasin\bc\HistoriqueOperationBcMagasinService:
     arguments:
-    - "@doctrine.orm.default_entity_manager"
+      - "@doctrine.orm.default_entity_manager"
     public: true
 
-
+  # Services de fichiers
   App\Service\fichier\UploderFileService:
     arguments:
       $cheminDeBase: "%env(BASE_PATH_FICHIER)%/magasin/devis/"
-    public: true
-
-  App\Model\LdapModel:
-    public: true
-
-  App\Controller\da\ListeDa\listeDaController:
-    autowire: true
-    autoconfigure: true
-    arguments:
-      - "@doctrine.orm.default_entity_manager"
-    public: true
-
-  App\Controller\authentification\LoginController:
-    autowire: true
-    autoconfigure: true
-    arguments:
-      - "@doctrine.orm.default_entity_manager"
-      - '@App\Model\LdapModel'
-    public: true
-
-  App\Service\da\FileUploaderForDAService:
-    public: true
-
-  App\Service\da\DaService:
-    arguments:
-      $em: "@doctrine.orm.default_entity_manager"
-      $daFileUploader: '@App\Service\da\FileUploaderForDAService'
-    public: true
-
-  App\Service\da\DaAfficherService:
-    arguments:
-      $em: "@doctrine.orm.default_entity_manager"
-    public: true
-
-
-
-  App\Service\da\DwDataService:
-    arguments:
-      $em: "@doctrine.orm.default_entity_manager"
-    public: true
-
-  App\Service\da\DaTimelineService:
-    arguments:
-      $em: "@doctrine.orm.default_entity_manager"
-    public: true
-
-  App\Service\da\DocRattacheService:
-    arguments:
-      $daService: '@App\Service\da\DaService'
-      $dwDataService: '@App\Service\da\DwDataService'
-    public: true
-
-  App\Controller\da\Detail\DaDetailReapproController:
-    arguments:
-      $daService: '@App\Service\da\DaService'
-      $docRattacheService: '@App\Service\da\DocRattacheService'
-      $daTimelineService: '@App\Service\da\DaTimelineService'
-    public: true
-
-  App\Controller\da\Validation\DaValidationReapproMensuelController:
-    arguments:
-      $docRattacheService: '@App\Service\da\DocRattacheService'
-    public: true
-
-  App\Controller\da\Detail\DaDetailAvecDitController:
-    arguments:
-      $docRattacheService: '@App\Service\da\DocRattacheService'
-      $daTimelineService: '@App\Service\da\DaTimelineService'
-    public: true
-
-  App\Controller\da\Detail\DaDetailDirectController:
-    arguments:
-      $docRattacheService: '@App\Service\da\DocRattacheService'
-      $daTimelineService: '@App\Service\da\DaTimelineService'
-    public: true
-
-  App\Controller\da\Proposition\DaPropositionRefAvecDitController:
-    arguments:
-      $docRattacheService: '@App\Service\da\DocRattacheService'
-    public: true
-
-  App\Controller\da\Proposition\DaPropositionArticleDirectController:
-    arguments:
-      $docRattacheService: '@App\Service\da\DocRattacheService'
-    public: true
-
-  App\Controller\da\DossierDa\DaDossierDaController:
-    arguments:
-      $docRattacheService: '@App\Service\da\DocRattacheService'
-    public: true
-
-  App\Service\Admin\PermissionsService:
-    arguments:
-      $entityManager: "@doctrine.orm.default_entity_manager"
-    public: true
-
-  # Utilisateur et Profil
-  App\Factory\admin\UserFactory:
-    public: true
-
-  App\Factory\admin\PermissionsFactory:
-    public: true
-
-  App\Controller\admin\UserController:
-    arguments:
-      - '@App\Factory\admin\UserFactory'
-    public: true
-
-  App\Controller\admin\appStructure\PermissionController:
-    arguments:
-      $entityManager: "@doctrine.orm.default_entity_manager"
-      $permissionsService: '@App\Service\Admin\PermissionsService'
-      $permissionsFactory: '@App\Factory\admin\PermissionsFactory'
     public: true
