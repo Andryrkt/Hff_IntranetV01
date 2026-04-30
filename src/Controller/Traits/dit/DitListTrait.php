@@ -2,19 +2,15 @@
 
 namespace App\Controller\Traits\dit;
 
-
-use App\Entity\admin\Agence;
-use App\Entity\admin\Service;
 use App\Entity\dit\DitSearch;
 use App\Entity\admin\StatutDemande;
-use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DemandeIntervention;
 use App\Entity\admin\dit\CategorieAteApp;
 use App\Entity\admin\dit\WorTypeDocument;
 use App\Entity\admin\dit\WorNiveauUrgence;
-use App\Entity\admin\utilisateur\Role;
 use App\Entity\dit\DitRiSoumisAValidation;
 use App\Entity\dit\DitOrsSoumisAValidation;
+use App\Repository\dit\DitRepository;
 
 trait DitListTrait
 {
@@ -90,46 +86,21 @@ trait DitListTrait
      *
      * @param [type] $ditSearch
      * @param [type] $em
-     * @param [type] $request
-     * @param [type] $agence
-     * @param [type] $service
      * @return void
      */
-    private function initialisationRechercheDit($ditSearch, $em, $agenceServiceIps, $autoriser)
+    private function initialisationRechercheDit($ditSearch, $em)
     {
 
         $criteria = $this->getSessionService()->get('dit_search_criteria', []);
-        if ($criteria !== null) {
-            // if ($autoriser) {
-            $agenceIpsEmetteur = null;
-            $serviceIpsEmetteur = null;
-            // } else {
-            //     $agenceIpsEmetteur = $agenceServiceIps['agenceIps'];
-            //     $serviceIpsEmetteur = $agenceServiceIps['serviceIps'];
-            // }
+        if (!empty($criteria)) {
             $typeDocument = $criteria['typeDocument'] === null ? null : $em->getRepository(WorTypeDocument::class)->find($criteria['typeDocument']->getId());
             $niveauUrgence = $criteria['niveauUrgence'] === null ? null : $em->getRepository(WorNiveauUrgence::class)->find($criteria['niveauUrgence']->getId());
             $statut = $criteria['statut'] === null ? null : $em->getRepository(StatutDemande::class)->find($criteria['statut']->getId());
-            $serviceEmetteur = $criteria['serviceEmetteur'] === null ? $serviceIpsEmetteur : $em->getRepository(Service::class)->find($criteria['serviceEmetteur']->getId());
-            $serviceDebiteur = $criteria['serviceDebiteur'] === null ? null : $em->getRepository(Service::class)->find($criteria['serviceDebiteur']->getId());
-            $agenceEmetteur = $criteria['agenceEmetteur'] === null ? $agenceIpsEmetteur : $em->getRepository(Agence::class)->find($criteria['agenceEmetteur']->getId());
-            $agenceDebiteur = $criteria['agenceDebiteur'] === null ? null : $em->getRepository(Agence::class)->find($criteria['agenceDebiteur']->getId());
             $categorie = $criteria['categorie'] === null ? null : $em->getRepository(CategorieAteApp::class)->find($criteria['categorie']);
         } else {
-            // if ($autoriser) {
-            $agenceIpsEmetteur = null;
-            $serviceIpsEmetteur = null;
-            // } else {
-            //     $agenceIpsEmetteur = $agenceServiceIps['agenceIps'];
-            //     $serviceIpsEmetteur = $agenceServiceIps['serviceIps'];
-            // }
             $typeDocument = null;
             $niveauUrgence = null;
             $statut = null;
-            $agenceEmetteur = $agenceIpsEmetteur;
-            $serviceEmetteur = $serviceIpsEmetteur;
-            $serviceDebiteur = null;
-            $agenceDebiteur = null;
             $categorie = null;
         }
 
@@ -143,10 +114,10 @@ trait DitListTrait
             ->setIdMateriel($criteria['idMateriel'] ?? null)
             ->setNumParc($criteria['numParc'] ?? null)
             ->setNumSerie($criteria['numSerie'] ?? null)
-            ->setAgenceEmetteur($agenceEmetteur)
-            ->setServiceEmetteur($serviceEmetteur)
-            ->setAgenceDebiteur($agenceDebiteur)
-            ->setServiceDebiteur($serviceDebiteur)
+            ->setAgenceEmetteur($criteria['agenceEmetteur'] ?? null)
+            ->setServiceEmetteur($criteria['serviceEmetteur'] ?? null)
+            ->setAgenceDebiteur($criteria['agenceDebiteur'] ?? null)
+            ->setServiceDebiteur($criteria['serviceDebiteur'] ?? null)
             ->setNumDit($criteria['numDit'] ?? null)
             ->setNumOr($criteria['numOr'] ?? null)
             ->setStatutOr($criteria['statutOr'] ?? null)
@@ -276,26 +247,6 @@ trait DitListTrait
             $data[$i]->setNbrPj($nbrJr);
         }
     }
-
-
-    private function autorisationRole($em): bool
-    {
-        /** CREATION D'AUTORISATION */
-        $userId = $this->getSessionService()->get('user_id');
-        $userConnecter = $em->getRepository(User::class)->find($userId);
-        $roleIds = $userConnecter->getRoleIds();
-        return $this->estAdmin() || in_array(Role::ROLE_ATELIER, $roleIds) || in_array(Role::ROLE_MULTI_SUCURSALES, $roleIds) || $userId == 1157;
-    }
-
-    private function autorisationRoleEnergie($em): bool
-    {
-        /** CREATION D'AUTORISATION */
-        $userId = $this->getSessionService()->get('user_id');
-        $userConnecter = $em->getRepository(User::class)->find($userId);
-        $roleIds = $userConnecter->getRoleIds();
-        return in_array(5, $roleIds);
-    }
-
 
     private function ajoutQuatreStatutOr($data)
     {
@@ -443,17 +394,11 @@ trait DitListTrait
     //     } 
     // }
 
-    private function Option($autoriser, $autorisationRoleEnergie, $agenceServiceEmetteur, $agenceIds, $serviceIds): array
+    private function Option($autoriser): array
     {
         return  [
             'boolean' => $autoriser,
-            'autorisationRoleEnergie' => $autorisationRoleEnergie,
-            'codeAgence' => $agenceServiceEmetteur['agence'] === null ? null : $agenceServiceEmetteur['agence']->getId(),
-            'agenceAutoriserIds' => $agenceIds,
-            'serviceAutoriserIds' => $serviceIds,
-            'user_agency' => $this->getUser()->getCodeAgenceUser(),
-            // 'InternetExterne' => 
-            //'codeService' =>$agenceServiceEmetteur['service'] === null ? null : $agenceServiceEmetteur['service']->getCodeService()
+            'user_agency' => $this->getSecurityService()->getCodeAgenceUser(),
         ];
     }
 
@@ -491,9 +436,11 @@ trait DitListTrait
         return $ditSearch;
     }
 
-    private function DonnerAAjouterExcel(DitSearch $ditSearch, $options, $em): array
+    private function DonnerAAjouterExcel(DitSearch $ditSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeAgenceUser, $codeSociete, $peutVoirListeAvecDebiteur, $em, $multisuccursale): array
     {
-        $entities = $em->getrepository(DemandeIntervention::class)->findAndFilteredExcel($ditSearch, $options);
+        /** @var DitRepository $repository */
+        $repository = $em->getrepository(DemandeIntervention::class);
+        $entities = $repository->findAndFilteredExcel($ditSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeAgenceUser, $codeSociete, $peutVoirListeAvecDebiteur, $multisuccursale);
 
         $this->ajoutStatutAchatPiece($entities);
 
@@ -551,15 +498,17 @@ trait DitListTrait
         $this->redirectToRoute("dit_index");
     }
 
-    private function data($request, $ditListeModel, $ditSearch, $option, $em)
+    private function data($request, $ditListeModel, $ditSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur, $codeAgenceUser, $codeSociete, $em, $multisuccursale)
     {
         //recupère le numero de page
         $page = $request->query->getInt('page', 1);
         //nombre de ligne par page
         $limit = 20;
 
-        //recupération des données filtrée
-        $paginationData = $em->getRepository(DemandeIntervention::class)->findPaginatedAndFiltered($page, $limit, $ditSearch, $option);
+        /** @var DitRepository $repository */
+        $repository = $em->getRepository(DemandeIntervention::class);
+        $paginationData = $repository->findPaginatedAndFiltered($page, $limit, $ditSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur, $codeAgenceUser, $codeSociete, $multisuccursale);
+
         //ajout de donner du statut achat piece dans data
         $this->ajoutStatutAchatPiece($paginationData['data']);
 
@@ -603,10 +552,13 @@ trait DitListTrait
     {
         $estAnnulable = false; //cacher le boutton Annuler
 
+        $utilisateurConnecte = $this->getUserName();
+        $profilChefAtelier = $utilisateurConnecte === 'rajohnson';
+
         //si le statut dit est A_AFFECTER
         $condition1 = $data->getIdStatutDemande()->getId() === DemandeIntervention::STATUT_A_AFFECTER;
         //si le statut dit est AFFECTER_SECTION et l'utilisateur demandeur est l'utilisateur connecté ou profil de l'utilisateur connecté est CHEF_ATELIER
-        $condition2 = $data->getIdStatutDemande()->getId() === DemandeIntervention::STATUT_AFFECTEE_SECTION && (strtolower($data->getUtilisateurDemandeur()) === strtolower($this->getUser()->getNomUtilisateur()) || in_array(User::PROFIL_CHEF_ATELIER, $this->getUser()->getRoleIds()));
+        $condition2 = $data->getIdStatutDemande()->getId() === DemandeIntervention::STATUT_AFFECTEE_SECTION && (strtolower($data->getUtilisateurDemandeur()) === strtolower($utilisateurConnecte) || $profilChefAtelier);
         //si le statut dit est CLOTUREE_VALIDER et il n'y a pas de numero OR soumi
         $condition3 = $data->getIdStatutDemande()->getId() === DemandeIntervention::STATUT_CLOTUREE_VALIDER && $ditListeModel->getNbNumor($data->getNumeroDemandeIntervention()) == 0;
 

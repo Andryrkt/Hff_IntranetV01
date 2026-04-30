@@ -4,12 +4,7 @@ namespace App\Controller\da\Proposition;
 
 use App\Constants\da\StatutDaConstant;
 use App\Controller\Controller;
-use App\Controller\Traits\AutorisationTrait;
 use App\Controller\Traits\da\DaAfficherTrait;
-use App\Controller\Traits\da\detail\DaDetailDirectTrait;
-use App\Controller\Traits\da\proposition\DaPropositionDirectTrait;
-use App\Controller\Traits\da\validation\DaValidationDirectTrait;
-use App\Entity\admin\Application;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
@@ -18,9 +13,12 @@ use App\Entity\da\DemandeApproLRCollection;
 use App\Form\da\DaObservationType;
 use App\Form\da\DaPropositionValidationType;
 use App\Form\da\DemandeApproLRCollectionType;
-use App\Service\da\FileUploaderForDAService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Controller\Traits\da\detail\DaDetailDirectTrait;
+use App\Service\da\FileUploaderForDAService;
+use App\Controller\Traits\da\validation\DaValidationDirectTrait;
+use App\Controller\Traits\da\proposition\DaPropositionDirectTrait;
 
 /**
  * @Route("/demande-appro")
@@ -31,8 +29,6 @@ class DaPropositionArticleDirectController extends Controller
     use DaValidationDirectTrait;
     use DaPropositionDirectTrait;
     use DaDetailDirectTrait;
-    use AutorisationTrait;
-
     private const EDIT = 0;
 
     public function __construct()
@@ -49,13 +45,6 @@ class DaPropositionArticleDirectController extends Controller
      */
     public function propositionDeReference($id, Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
-        /** Autorisation accès */
-        $this->autorisationAcces($this->getUser(), Application::ID_DAP);
-        /** FIN AUtorisation accès */
-
         $da = $this->demandeApproRepository->find($id);
         $numDa = $da->getNumeroDemandeAppro();
         $dals = $da->getDAL();
@@ -98,8 +87,8 @@ class DaPropositionArticleDirectController extends Controller
             'numDa'                   => $numDa,
             'connectedUser'           => $this->getUser(),
             'statutAutoriserModifAte' => $da->getStatutDal() === StatutDaConstant::STATUT_AUTORISER_EMETTEUR,
-            'estCreateurDaDirecte'    => $this->estCreateurDeDADirecte(),
-            'estAppro'                => $this->estUserDansServiceAppro(),
+            'estCreateurDaDirecte'    => $this->estCreateurDaDirecte(),
+            'estAppro'                => $this->estAppro(),
             'nePeutPasModifier'       => $this->nePeutPasModifier($da),
             'propValTemplate'         => 'proposition-validation-direct',
             'dossierJS'               => 'propositionDirect',
@@ -108,7 +97,7 @@ class DaPropositionArticleDirectController extends Controller
 
     private function nePeutPasModifier(DemandeAppro $demandeAppro)
     {
-        return ($this->estUserDansServiceAtelier() && ($demandeAppro->getStatutDal() == StatutDaConstant::STATUT_SOUMIS_APPRO || $demandeAppro->getStatutDal() == StatutDaConstant::STATUT_VALIDE));
+        return ($this->estCreateurDaDirecte() && ($demandeAppro->getStatutDal() == StatutDaConstant::STATUT_SOUMIS_APPRO || $demandeAppro->getStatutDal() == StatutDaConstant::STATUT_VALIDE));
     }
 
     private function traitementFormulaire($form, $formObservation, $dals, Request $request, string $numDa, DemandeAppro $da)
@@ -153,7 +142,7 @@ class DaPropositionArticleDirectController extends Controller
     {
         $this->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $daObservation->getObservation(), $daObservation->getFileNames());
 
-        if ($this->estUserDansServiceAppro() && $daObservation->getStatutChange()) {
+        if ($this->estAppro() && $daObservation->getStatutChange()) {
             $this->modificationStatutDal($demandeAppro->getNumeroDemandeAppro(), StatutDaConstant::STATUT_AUTORISER_EMETTEUR);
             $this->modificationStatutDa($demandeAppro->getNumeroDemandeAppro(), StatutDaConstant::STATUT_AUTORISER_EMETTEUR);
 
@@ -165,7 +154,7 @@ class DaPropositionArticleDirectController extends Controller
             'message' => 'Votre observation a été enregistré avec succès.',
         ];
 
-        $this->emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->getUser(), $this->estUserDansServiceAppro());
+        $this->emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->getUser(), $this->estAppro());
 
         $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         return $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 1, 'page' => 1]);
@@ -189,7 +178,7 @@ class DaPropositionArticleDirectController extends Controller
                 'message' => 'Votre observation a été enregistré avec succès.',
             ];
 
-            $this->emailDaService->envoyerMailObservationDa($demandeAppro, $observation, $this->getUser(), $this->estUserDansServiceAppro());
+            $this->emailDaService->envoyerMailObservationDa($demandeAppro, $observation, $this->getUser(), $this->estAppro());
         } else {
             $notification = [
                 'type' => 'danger',

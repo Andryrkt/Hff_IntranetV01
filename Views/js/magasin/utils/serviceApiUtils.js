@@ -1,6 +1,6 @@
-import { toggleSpinner } from './spinnerUtils.js';
-import { populateServiceOptions } from './uiUtils.js';
-import { FetchManager } from '../../api/FetchManager.js';
+import { toggleSpinner } from "./spinnerUtils.js";
+import { populateServiceOptions } from "./uiUtils.js";
+import { FetchManager } from "../../api/FetchManager.js";
 
 // Instanciation de FetchManager avec la base URL
 const fetchManager = new FetchManager();
@@ -11,7 +11,7 @@ export function fetchServicesForAgence(
   spinnerService,
   serviceContainer
 ) {
-  const url = `service-informix-fetch/${agence}`;
+  const url = `api/service-informix-fetch/${agence}`;
   toggleSpinner(spinnerService, serviceContainer, true);
 
   fetchManager
@@ -19,6 +19,6 @@ export function fetchServicesForAgence(
     .then((services) => {
       populateServiceOptions(services, serviceInput);
     })
-    .catch((error) => console.error('Erreur :', error))
+    .catch((error) => console.error("Erreur :", error))
     .finally(() => toggleSpinner(spinnerService, serviceContainer, false));
 }

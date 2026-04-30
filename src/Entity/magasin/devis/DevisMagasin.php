@@ -226,6 +226,11 @@ class DevisMagasin
      */
     private $dateRepriseManuel;
 
+    /** 
+     * @ORM\Column(type="string", length=2, name="code_societe", nullable=true)
+     */
+    private $codeSociete;
+
     /** =========================================
      * GETTERS & SETTERS
      *============================================*/
@@ -878,6 +883,24 @@ class DevisMagasin
     public function setDateRepriseManuel($dateRepriseManuel): self
     {
         $this->dateRepriseManuel = $dateRepriseManuel;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of codeSociete
+     */
+    public function getCodeSociete()
+    {
+        return $this->codeSociete;
+    }
+
+    /**
+     * Set the value of codeSociete
+     */
+    public function setCodeSociete($codeSociete): self
+    {
+        $this->codeSociete = $codeSociete;
 
         return $this;
     }

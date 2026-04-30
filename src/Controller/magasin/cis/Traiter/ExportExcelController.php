@@ -5,6 +5,7 @@ namespace App\Controller\magasin\cis\Traiter;
 use App\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\magasin\cis\AtraiterTrait;
+use App\Service\ExcelService;
 
 /**
  * @Route("/magasin/cis")
@@ -18,9 +19,6 @@ class ExportExcelController extends Controller
      */
     public function exportExcel()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         //recupères les critère dans la session 
         $criteria = $this->getSessionService()->get('cis_a_traiter_search_criteria', []);
 
@@ -51,6 +49,6 @@ class ExportExcelController extends Controller
             ];
         }
 
-        $this->getExcelService()->createSpreadsheet($data);
+        (new ExcelService())->createSpreadsheet($data);
     }
 }

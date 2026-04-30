@@ -16,14 +16,33 @@ class Model
     protected $informix;
     protected $connexion04;
     protected $connexion04Gcot;
+    protected string $dbIrium;
+    protected string $dbIps;
 
 
     public function __construct()
     {
+        global $container;
+        $logger = ($container && $container->has('logger')) ? $container->get('logger') : null;
+
         $this->connexion = new Connexion();
-        $this->connect = new DatabaseInformix();
+        $this->connect = new DatabaseInformix($logger);
+        
+        // On force la connexion pour ne pas casser les modèles enfants existants
+        try {
+            $this->connect->connect();
+        } catch (\Exception $e) {
+            // On laisse l'erreur se logguer dans DatabaseInformix, 
+            // mais on ne bloque pas forcément l'instanciation ici 
+            // pour rester proche de l'ancien comportement.
+        }
+
         $this->connexion04 = new ConnexionDote4();
         $this->connexion04Gcot = new connexionDote4Gcot();
+
+        // Récupération dynamique des noms de bases
+        $this->dbIrium = $_ENV['DB_NAME_IRIUM'] ?? 'ir_prod108';
+        $this->dbIps = $_ENV['DB_NAME_IPS'] ?? 'ips_hffprod';
     }
 
 

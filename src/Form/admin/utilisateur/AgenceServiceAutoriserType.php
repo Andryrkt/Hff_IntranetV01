@@ -10,23 +10,19 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use App\Entity\admin\utilisateur\AgenceServiceAutoriser;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use App\Service\SessionManagerService;
 
 class AgenceServiceAutoriserType extends AbstractType
 {
     private $ldap;
-    private SessionManagerService $sessionService;
 
-    public function __construct(SessionManagerService $sessionService)
+    public function __construct()
     {
         $this->ldap = new LdapModel();
-        $this->sessionService = $sessionService;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-
-        $users = $this->ldap->infoUser($this->sessionService->get('user'), $this->sessionService->get('password'));
+        $users = $this->ldap->infoUser();
 
         $nom = [];
         foreach ($users as $key => $value) {

@@ -4,16 +4,14 @@ namespace App\Controller\da\Modification;
 
 use App\Constants\da\StatutDaConstant;
 use App\Controller\Controller;
-use App\Controller\Traits\AutorisationTrait;
-use App\Controller\Traits\da\DaAfficherTrait;
-use App\Controller\Traits\da\modification\DaEditDirectTrait;
-use App\Entity\admin\Application;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
 use App\Form\da\DemandeApproDirectFormType;
+use App\Controller\Traits\da\DaAfficherTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Controller\Traits\da\modification\DaEditDirectTrait;
 
 /**
  * @Route("/demande-appro")
@@ -22,8 +20,6 @@ class DaEditDirectController extends Controller
 {
     use DaAfficherTrait;
     use DaEditDirectTrait;
-    use AutorisationTrait;
-
     public function __construct()
     {
         parent::__construct();
@@ -36,17 +32,11 @@ class DaEditDirectController extends Controller
      */
     public function edit(int $id, Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
-        /** Autorisation accès */
-        $this->autorisationAcces($this->getUser(), Application::ID_DAP);
-        /** FIN AUtorisation accès */
-
         /** @var DemandeAppro $demandeAppro la demande appro correspondant à l'id $id */
         $demandeAppro = $this->demandeApproRepository->find($id); // recupération de la DA
         $numDa = $demandeAppro->getNumeroDemandeAppro();
 
+        $estCreateurDeDADirecte = $this->estCreateurDaDirecte();
         $ancienDals = $this->getAncienDAL($demandeAppro);
 
         $form = $this->getFormFactory()->createBuilder(DemandeApproDirectFormType::class, $demandeAppro)->getForm();
@@ -58,7 +48,7 @@ class DaEditDirectController extends Controller
         return $this->render('da/edit-da-direct.html.twig', [
             'form'              => $form->createView(),
             'observations'      => $observations,
-            'peutModifier'      => $this->peutModifier($demandeAppro->getStatutDal(), $this->estCreateurDeDADirecte()),
+            'peutModifier'      => $this->peutModifier($demandeAppro->getStatutDal(), $estCreateurDeDADirecte),
             'numDa'             => $numDa,
         ]);
     }
@@ -68,8 +58,6 @@ class DaEditDirectController extends Controller
      */
     public function deleteLineDa(string $numDa, string $ligne)
     {
-        $this->verifierSessionUtilisateur();
-
         $demandeApproLs = $this->getEntityManager()->getRepository(DemandeApproL::class)->findBy([
             'numeroDemandeAppro' => $numDa,
             'numeroLigne'        => $ligne

@@ -18,7 +18,7 @@ class CdeFnrSoumisAValidationApi extends Controller
     }
 
     /**
-     * @Route("/api/liste-fournisseur", name="api-liste-fournisseur")
+     * @Route("/api/cde/liste-fournisseur", name="api_cde_liste_fournisseur")
      */
     public function listeFournisseur()
     {
@@ -39,7 +39,7 @@ class CdeFnrSoumisAValidationApi extends Controller
     }
 
     /**
-     * @Route("/api/cde-fnr-non-receptionner", name="api-cdefnr-non-receptionner")
+     * @Route("/api/cde/frn-non-receptionner", name="api_cde_cde_frn_non_receptionner")
      */
     public function cdeFnrNonReceptionner()
     {
@@ -53,7 +53,7 @@ class CdeFnrSoumisAValidationApi extends Controller
 
 
     /**
-     * @Route("/api/commande-fournisseur", name="api_commande-fournisseur")
+     * @Route("/api/cde/commande-fournisseur", name="api_cde_commande_fournisseur")
      */
     public function numCdeFnr()
     {
@@ -69,5 +69,4 @@ class CdeFnrSoumisAValidationApi extends Controller
         $cde04 = $this->cdeFnrModel->findsCde04();
         return TableauEnStringService::TableauEnString(',', $cde04);
     }
-
 }

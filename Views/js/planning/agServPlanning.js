@@ -3,20 +3,20 @@
  */
 // Configuration centralisée
 
-import { FetchManager } from '../api/FetchManager';
+import { FetchManager } from "../api/FetchManager";
 // Instanciation de FetchManager avec la base URL
 const fetchManager = new FetchManager();
 
 const config = {
   elements: {
-    agenceDebiteurInput: '#planning_search_agenceDebite',
-    serviceDebiteurInput: '#planning_search_serviceDebite',
-    selectAllCheckbox: '#planning_search_selectAll',
-    searchForm: '#planning_search_form', // Ajout de l'ID du formulaire de recherche
+    agenceDebiteurInput: "#planning_search_agenceDebite",
+    serviceDebiteurInput: "#planning_search_serviceDebite",
+    selectAllCheckbox: "#planning_search_selectAll",
+    searchForm: "#planning_search_form", // Ajout de l'ID du formulaire de recherche
   },
   urls: {
     serviceFetch: (agenceDebiteur) =>
-      `serviceDebiteurPlanning-fetch/${agenceDebiteur}`,
+      `api/serviceDebiteurPlanning-fetch/${agenceDebiteur}`,
   },
 };
 
@@ -30,13 +30,13 @@ const serviceDebiteurInput = document.querySelector(
 const searchForm = document.querySelector(config.elements.searchForm);
 
 // Initialisation des checkbox au chargement de la page
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
   ensureSelectAllCheckbox();
   attachCheckboxEventListeners();
   selectAllCheckboxByDefault();
 
   // Ajout d'un écouteur pour recalculer après la soumission du formulaire
-  searchForm.addEventListener('submit', () => {
+  searchForm.addEventListener("submit", () => {
     setTimeout(() => {
       ensureSelectAllCheckbox();
       attachCheckboxEventListeners();
@@ -46,13 +46,13 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Gestionnaire principal pour le changement de l'agence
-agenceDebiteurInput.addEventListener('change', handleAgenceChange);
+agenceDebiteurInput.addEventListener("change", handleAgenceChange);
 
 function handleAgenceChange() {
   serviceDebiteurInput.disabled = false;
   // Récupération de l'agence sélectionnée
   const agenceDebiteur =
-    agenceDebiteurInput.value === '' ? null : agenceDebiteurInput.value;
+    agenceDebiteurInput.value === "" ? null : agenceDebiteurInput.value;
 
   clearServiceCheckboxes();
   removeSelectAllCheckbox();
@@ -77,7 +77,7 @@ function handleAgenceChange() {
       attachCheckboxEventListeners();
       selectAllCheckboxByDefault(); // Ensure default selection after updating checkboxes
     })
-    .catch((error) => console.error('Error:', error))
+    .catch((error) => console.error("Error:", error))
     .finally(() => {
       // Suppression du spinner
       spinner.remove();
@@ -97,34 +97,34 @@ function removeSelectAllCheckbox() {
 /// Fonction pour créer le spinner HTML avec CSS intégré
 function createSpinner() {
   // Conteneur du spinner
-  const spinnerContainer = document.createElement('div');
-  spinnerContainer.id = 'serviceSpinner';
-  spinnerContainer.style.display = 'flex';
-  spinnerContainer.style.justifyContent = 'center';
-  spinnerContainer.style.alignItems = 'center';
-  spinnerContainer.style.margin = '20px 0';
+  const spinnerContainer = document.createElement("div");
+  spinnerContainer.id = "serviceSpinner";
+  spinnerContainer.style.display = "flex";
+  spinnerContainer.style.justifyContent = "center";
+  spinnerContainer.style.alignItems = "center";
+  spinnerContainer.style.margin = "20px 0";
 
   // Spinner
-  const spinner = document.createElement('div');
-  spinner.className = 'spinner-border';
-  spinner.role = 'status';
-  spinner.style.width = '3rem';
-  spinner.style.height = '3rem';
-  spinner.style.border = '0.25em solid #ccc';
-  spinner.style.borderTop = '0.25em solid #000';
-  spinner.style.borderRadius = '50%';
-  spinner.style.animation = 'spin 0.8s linear infinite';
+  const spinner = document.createElement("div");
+  spinner.className = "spinner-border";
+  spinner.role = "status";
+  spinner.style.width = "3rem";
+  spinner.style.height = "3rem";
+  spinner.style.border = "0.25em solid #ccc";
+  spinner.style.borderTop = "0.25em solid #000";
+  spinner.style.borderRadius = "50%";
+  spinner.style.animation = "spin 0.8s linear infinite";
 
   // Texte pour les lecteurs d'écran (optionnel)
-  const spinnerText = document.createElement('span');
-  spinnerText.className = 'sr-only';
-  spinnerText.textContent = 'Chargement...';
+  const spinnerText = document.createElement("span");
+  spinnerText.className = "sr-only";
+  spinnerText.textContent = "Chargement...";
 
   spinner.appendChild(spinnerText);
   spinnerContainer.appendChild(spinner);
 
   // Ajout des styles d'animation au document (si nécessaire)
-  const style = document.createElement('style');
+  const style = document.createElement("style");
   style.textContent = `
       @keyframes spin {
         0% { transform: rotate(0deg); }
@@ -154,18 +154,18 @@ function ensureSelectAllCheckbox() {
   );
 
   if (!selectAllCheckbox) {
-    const selectAllDiv = document.createElement('div');
-    selectAllDiv.className = 'form-check';
+    const selectAllDiv = document.createElement("div");
+    selectAllDiv.className = "form-check";
 
-    selectAllCheckbox = document.createElement('input');
-    selectAllCheckbox.type = 'checkbox';
-    selectAllCheckbox.id = 'planning_search_selectAll';
-    selectAllCheckbox.className = 'form-check-input';
+    selectAllCheckbox = document.createElement("input");
+    selectAllCheckbox.type = "checkbox";
+    selectAllCheckbox.id = "planning_search_selectAll";
+    selectAllCheckbox.className = "form-check-input";
 
-    const selectAllLabel = document.createElement('label');
+    const selectAllLabel = document.createElement("label");
     selectAllLabel.htmlFor = selectAllCheckbox.id;
-    selectAllLabel.textContent = 'Tout sélectionner';
-    selectAllLabel.className = 'form-check-label';
+    selectAllLabel.textContent = "Tout sélectionner";
+    selectAllLabel.className = "form-check-label";
 
     selectAllDiv.appendChild(selectAllCheckbox);
     selectAllDiv.appendChild(selectAllLabel);
@@ -174,7 +174,7 @@ function ensureSelectAllCheckbox() {
       serviceDebiteurInput.firstChild
     );
 
-    selectAllCheckbox.addEventListener('change', handleSelectAllChange);
+    selectAllCheckbox.addEventListener("change", handleSelectAllChange);
   }
 }
 
@@ -189,21 +189,21 @@ function handleSelectAllChange(event) {
 
 function addServiceCheckboxes(services) {
   services.forEach((service, index) => {
-    const div = document.createElement('div');
-    div.className = 'form-check';
+    const div = document.createElement("div");
+    div.className = "form-check";
 
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    checkbox.name = 'planning_search[serviceDebite][]';
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.name = "planning_search[serviceDebite][]";
     checkbox.value = service.value;
     checkbox.id = `service_${index}`;
-    checkbox.className = 'form-check-input';
+    checkbox.className = "form-check-input";
     checkbox.checked = true; // Set all checkboxes to checked by default
 
-    const label = document.createElement('label');
+    const label = document.createElement("label");
     label.htmlFor = checkbox.id;
     label.textContent = service.text;
-    label.className = 'form-check-label';
+    label.className = "form-check-label";
 
     div.appendChild(checkbox);
     div.appendChild(label);
@@ -216,8 +216,8 @@ function attachCheckboxEventListeners() {
     'input[name="planning_search[serviceDebite][]"]'
   );
   serviceCheckboxes.forEach((checkbox) => {
-    checkbox.removeEventListener('change', handleServiceCheckboxChange);
-    checkbox.addEventListener('change', handleServiceCheckboxChange);
+    checkbox.removeEventListener("change", handleServiceCheckboxChange);
+    checkbox.addEventListener("change", handleServiceCheckboxChange);
   });
 }
 

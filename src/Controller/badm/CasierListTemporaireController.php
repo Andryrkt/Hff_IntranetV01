@@ -9,28 +9,24 @@ use App\Entity\cas\CasierValider;
 use App\Form\cas\CasierSearchType;
 use App\Entity\admin\StatutDemande;
 use App\Controller\Traits\Transformation;
-use App\Controller\Traits\AutorisationTrait;
+use App\Repository\cas\CasierRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+
 /**
  * @Route("/materiel/casier")
  */
 class CasierListTemporaireController extends Controller
 {
     use Transformation;
-    use AutorisationTrait;
-
 
     /**
      * @Route("/listTemporaireCasier", name="listeTemporaire_affichageListeCasier")
      */
     public function AffichageListeCasier(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-        /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_CAS);
-        /** FIN AUtorisation acées */
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
 
         $form = $this->getFormFactory()->createBuilder(CasierSearchType::class, null, [
             'method' => 'GET'
@@ -47,8 +43,9 @@ class CasierListTemporaireController extends Controller
         $page = max(1, $request->query->getInt('page', 1));
         $limit = 10;
 
-        $paginationData = $this->getEntityManager()->getRepository(Casier::class)->findPaginatedAndFilteredTemporaire($page, $limit, $criteria);
-
+        /** @var CasierRepository $repository */
+        $repository = $this->getEntityManager()->getRepository(Casier::class);
+        $paginationData = $repository->findPaginatedAndFilteredTemporaire($page, $limit, $criteria, $codeSociete);
 
         if (empty($paginationData['data'])) {
             $empty = true;
@@ -77,11 +74,7 @@ class CasierListTemporaireController extends Controller
      */
     public function tratitementBtnValide($id)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $casierValide = new CasierValider();
-        //$CasierSeul = $this->caiserListTemporaire->recuperSeulCasier($id);
 
         $CasierSeul = $this->getEntityManager()->getRepository(Casier::class)->find($id);
         $CasierSeul->setIdStatutDemande($this->getEntityManager()->getRepository(StatutDemande::class)->find(56));
@@ -96,6 +89,7 @@ class CasierListTemporaireController extends Controller
             ->setNomSessionUtilisateur($CasierSeul->getNomSessionUtilisateur())
             ->setAgenceRattacher($CasierSeul->getAgenceRattacher())
             ->setIdStatutDemande($CasierSeul->getIdStatutDemande())
+            ->setCodeSociete($CasierSeul->getCodeSociete())
         ;
 
         $this->getEntityManager()->persist($casierValide);

@@ -5,6 +5,7 @@ namespace App\Controller\pol\ors\Livrer;
 use App\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\magasin\ors\MagasinOrALivrerTrait;
+use App\Service\ExcelService;
 
 /**
  * @Route("/pol/or")
@@ -14,15 +15,12 @@ class ExportExcelController extends Controller
     use MagasinOrALivrerTrait;
 
     /**
-     * @Route("/list-or-livrer-export-excel", name="pol_list_or_livrer")
+     * @Route("/list-or-livrer-export-excel", name="export_excel_pol_or_livrer")
      *
      * @return void
      */
     public function exportExcel()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         //recupères les critère dans la session 
         $criteria = $this->getSessionService()->get('magasin_liste_or_livrer_search_criteria', []);
 
@@ -56,6 +54,6 @@ class ExportExcelController extends Controller
             ];
         }
 
-        $this->getExcelService()->createSpreadsheet($data);
+        (new ExcelService())->createSpreadsheet($data);
     }
 }

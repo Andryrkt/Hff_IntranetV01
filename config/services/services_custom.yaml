@@ -9,19 +9,6 @@ services:
   App\Service\SessionManagerService:
     public: true
 
-  # Services de navigation
-  App\Service\navigation\MenuService:
-    autowire: false
-    arguments:
-      - "@doctrine.orm.default_entity_manager"
-    public: true
-
-  App\Service\navigation\BreadcrumbMenuService:
-    autowire: false
-    arguments:
-      - '@App\Service\navigation\MenuService'
-    public: true
-
   # Historique d'opération
   App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService:
     arguments:
@@ -33,16 +20,32 @@ services:
       - "@doctrine.orm.default_entity_manager"
     public: true
 
-  # Upload de fichier
   App\Service\fichier\UploderFileService:
     arguments:
       $cheminDeBase: "%env(BASE_PATH_FICHIER)%/magasin/devis/"
     public: true
 
+  App\Model\LdapModel:
+    public: true
+
+  App\Controller\da\ListeDa\listeDaController:
+    autowire: true
+    autoconfigure: true
+    arguments:
+      - "@doctrine.orm.default_entity_manager"
+    public: true
+
+  App\Controller\authentification\LoginController:
+    autowire: true
+    autoconfigure: true
+    arguments:
+      - "@doctrine.orm.default_entity_manager"
+      - '@App\Model\LdapModel'
+    public: true
+
   App\Service\da\FileUploaderForDAService:
     public: true
 
-  # Service DA
   App\Service\da\DaService:
     arguments:
       $em: "@doctrine.orm.default_entity_manager"
@@ -52,6 +55,9 @@ services:
   App\Service\da\DaAfficherService:
     arguments:
       $em: "@doctrine.orm.default_entity_manager"
+    public: true
+
+  App\Service\da\DaFilterService:
     public: true
 
   App\Service\da\DwDataService:
@@ -70,7 +76,6 @@ services:
       $dwDataService: '@App\Service\da\DwDataService'
     public: true
 
-  # Controleur
   App\Controller\da\Detail\DaDetailReapproController:
     arguments:
       $daService: '@App\Service\da\DaService'
@@ -86,4 +91,28 @@ services:
   App\Controller\da\Detail\DaDetailDirectController:
     arguments:
       $daTimelineService: '@App\Service\da\DaTimelineService'
+    public: true
+
+  App\Service\Admin\PermissionsService:
+    arguments:
+      $entityManager: "@doctrine.orm.default_entity_manager"
+    public: true
+
+  # Utilisateur et Profil
+  App\Factory\admin\UserFactory:
+    public: true
+
+  App\Factory\admin\PermissionsFactory:
+    public: true
+
+  App\Controller\admin\UserController:
+    arguments:
+      - '@App\Factory\admin\UserFactory'
+    public: true
+
+  App\Controller\admin\appStructure\PermissionController:
+    arguments:
+      $entityManager: "@doctrine.orm.default_entity_manager"
+      $permissionsService: '@App\Service\Admin\PermissionsService'
+      $permissionsFactory: '@App\Factory\admin\PermissionsFactory'
     public: true

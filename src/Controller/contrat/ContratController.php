@@ -2,12 +2,14 @@
 
 namespace App\Controller\contrat;
 
+use App\Constants\admin\ApplicationConstant;
 use App\Constants\dw\DwConstant;
 use App\Controller\Controller;
 use App\Entity\contrat\Contrat;
 use App\Form\contrat\ContratType;
 use App\Controller\Traits\contrat\ContratListeTrait;
 use App\Entity\dw\DwContrat;
+use App\Service\ExcelService;
 use Doctrine\ORM\EntityNotFoundException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -24,9 +26,6 @@ class ContratController extends Controller
      */
     public function nouveauContrat()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         return $this->render("dwForm/dwForm.html.twig", [
             'url'       => DwConstant::LINK["contrat"],
             'pageTitle' => "Nouveau contrat",
@@ -41,10 +40,9 @@ class ContratController extends Controller
      */
     public function listeContrat(Request $request)
     {
-        // Vérification si utilisateur connecté
-        $this->verifierSessionUtilisateur();
-
         $contratSearch = new Contrat();
+
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
 
         // Vérifier s'il s'agit d'un accès direct à la route (sans paramètres de recherche)
         $isDirectAccess = empty($request->query->all()) ||
@@ -53,11 +51,11 @@ class ContratController extends Controller
         if ($isDirectAccess) {
             // Réinitialiser tous les filtres
             $contratSearch = new Contrat();
-            $this->sessionService->remove('contrat_search_criteria');
-            $this->sessionService->remove('contrat_search_option');
+            $this->getSessionService()->remove('contrat_search_criteria');
+            $this->getSessionService()->remove('contrat_search_option');
         } else {
             // Utiliser les critères de recherche stockés dans la session
-            $sessionCriteria = $this->sessionService->get('contrat_search_criteria', []);
+            $sessionCriteria = $this->getSessionService()->get('contrat_search_criteria', []);
 
             if (!empty($sessionCriteria)) {
                 $this->initialisationContrat($contratSearch, $this->getEntityManager());
@@ -68,7 +66,7 @@ class ContratController extends Controller
         // Pour le formulaire : Label = code+libellé, Value = code court (ex: '01')
         $agences = $this->getEntityManager()
             ->getRepository(\App\Entity\admin\Agence::class)
-            ->findAll();
+            ->findby(['codeSociete' => $codeSociete]);
 
         $agenceChoices = [];
         foreach ($agences as $agence) {
@@ -104,11 +102,23 @@ class ContratController extends Controller
 
         $form->handleRequest($request);
 
+        // Récupération des agences et services autorisés
+        $agenceServiceAutoriser = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_CONTRAT);
+
+        // Si pas d'agence autorisée, on met ce qui est par défaut
+        if (empty($agenceServiceAutoriser)) {
+            $agenceAutoriser = [$this->getSecurityService()->getCodeAgenceUser()];
+            $serviceAutoriser = [$this->getSecurityService()->getCodeServiceUser()];
+        } else {
+            $agenceAutoriser = array_column($agenceServiceAutoriser, 'agence_code');
+            $serviceAutoriser = array_column($agenceServiceAutoriser, 'service_code');
+        }
+
         // Options pour le repository (toujours initialiser avec une valeur par défaut)
         $options = [
-            'admin' => in_array(1, $this->getUser()->getRoleIds()),
-            'agenceAutoriser' => $this->getUser()->getAgenceAutoriserCode(),
-            'serviceAutoriser' => $this->getUser()->getServiceAutoriserCode(),
+            'admin' => $this->estAdmin(),
+            'agenceAutoriser' => $agenceAutoriser,
+            'serviceAutoriser' => $serviceAutoriser,
         ];
 
         // Si le formulaire est soumis, traiter les données (tous les champs sont optionnels)
@@ -151,11 +161,11 @@ class ContratController extends Controller
                 $criteria['reference'] = implode(', ', $options['references']);
             }
 
-            $this->sessionService->set('contrat_search_criteria', $criteria);
-            $this->sessionService->set('contrat_search_option', $options);
+            $this->getSessionService()->set('contrat_search_criteria', $criteria);
+            $this->getSessionService()->set('contrat_search_option', $options);
         } else {
             // Utiliser les options de recherche stockées dans la session
-            $sessionOptions = $this->sessionService->get('contrat_search_option', []);
+            $sessionOptions = $this->getSessionService()->get('contrat_search_option', []);
             if (!empty($sessionOptions)) {
                 $options = $sessionOptions;
             }
@@ -272,8 +282,6 @@ class ContratController extends Controller
      */
     public function showContrat(int $id)
     {
-        $this->verifierSessionUtilisateur();
-
         $contrat = $this->getEntityManager()->getRepository(Contrat::class)->findWithDetails($id);
 
         if (!$contrat) {
@@ -287,12 +295,10 @@ class ContratController extends Controller
 
     /**
      * Export Excel des contrats
-     * @Route("/export-excel", name="contrat_export_excel")
+     * @Route("/export-excel", name="export_excel_contrat")
      */
     public function exportExcel(Request $request)
     {
-        $this->verifierSessionUtilisateur();
-
         $contratSearch = new Contrat();
 
         // Récupérer les paramètres de recherche depuis la requête (comme dans le module congé)
@@ -340,7 +346,7 @@ class ContratController extends Controller
             $this->initialisationContrat($contratSearch, $this->getEntityManager());
         }
 
-        $options = $this->sessionService->get('contrat_search_option', []);
+        $options = $this->getSessionService()->get('contrat_search_option', []);
 
         // S'assurer que $options n'est pas null
         if ($options === null) {
@@ -357,7 +363,7 @@ class ContratController extends Controller
         $filename = "contrats_export_" . date('Y-m-d_His');
 
         // Crée le fichier Excel
-        $this->getExcelService()->createSpreadsheet($data, $filename);
+        (new ExcelService())->createSpreadsheet($data, $filename);
         exit();
     }
 
@@ -428,8 +434,6 @@ class ContratController extends Controller
      */
     public function getReferences()
     {
-        $this->verifierSessionUtilisateur();
-
         $repository = $this->getEntityManager()->getRepository(Contrat::class);
         $contrats = $repository->findAll();
 
@@ -450,8 +454,6 @@ class ContratController extends Controller
      */
     public function getPartenaires()
     {
-        $this->verifierSessionUtilisateur();
-
         $repository = $this->getEntityManager()->getRepository(Contrat::class);
         $contrats = $repository->findAll();
 

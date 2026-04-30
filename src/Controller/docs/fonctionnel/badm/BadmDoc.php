@@ -9,12 +9,20 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class BadmDoc extends Controller
 {
+    private $parsedown;
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->parsedown = new Parsedown();
+    }
+
     /**
      * @Route("/doc/badm", name="badm_index")
      */
     public function index()
     {
-
         // Chemin vers votre fichier Markdown
         $markdownFile = dirname(dirname(dirname(dirname(dirname(__DIR__))))) . DIRECTORY_SEPARATOR . 'docs/fonctionnel/badm/formulaire2.md';
 

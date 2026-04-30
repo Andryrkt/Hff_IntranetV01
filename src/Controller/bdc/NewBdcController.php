@@ -4,8 +4,6 @@ namespace App\Controller\bdc;
 
 use App\Constants\dw\DwConstant;
 use App\Controller\Controller;
-use App\Entity\admin\Application;
-use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -13,20 +11,11 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class NewBdcController extends Controller
 {
-    use AutorisationTrait;
-
     /**
      * @Route("/bon-de-caisse", name="new_bon_caisse")
      */
     public function newBonCaisse()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
-        /** Autorisation accès */
-        $this->autorisationAcces($this->getUser(), Application::ID_BCS);
-        /** FIN AUtorisation accès */
-
         return $this->render("dwForm/dwForm.html.twig", [
             'url'       => DwConstant::LINK["bon-de-caisse"],
             'pageTitle' => "Nouveau bon de caisse",

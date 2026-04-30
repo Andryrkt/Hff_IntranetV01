@@ -110,7 +110,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
   function fetchDetailModal(id, signal) {
     // Fetch request to get the data
-    fetch(`${baseUrl}/detail_plannigMagasin-modal/${id}`, { signal })
+    fetch(`${baseUrl}/api/detail-plannigMagasin-modal/${id}`, { signal })
       .then((response) => {
         if (!response.ok) {
           throw new Error("Network response was not ok");
@@ -118,7 +118,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
         return response.json();
       })
       .then((data) => {
-
         displayOnglet(data.avecOnglet);
         const Ornum = document.getElementById("orIntv");
         const tableBody = document.getElementById("commandesTableBody");
@@ -132,8 +131,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
           "planningTableHeadLign"
         );
         tableBody.innerHTML = ""; // Clear previous data
-        tableBodyOR.innerHTML="";
-        tableBodyLign.innerHTML="";
+        tableBodyOR.innerHTML = "";
+        tableBodyLign.innerHTML = "";
         Ornum.innerHTML = "";
         planningTableHead.innerHTML = "";
         planningTableHeadOR.innerHTML = "";
@@ -186,8 +185,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
             planningTableHead.innerHTML += rowHeader;
           }
           data.data.forEach((detail) => {
-            
-
             Ornum.innerHTML = `${detail.numor} | intitulé : ${detail.commentaire} | `;
             if (detail.plan == "PLANIFIE") {
               Ornum.innerHTML += `délai client  : ${formaterDate(
@@ -278,7 +275,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
             } else {
               StatutCtrmqCis = detail.statut_ctrmq_cis;
             }
-            
+
             //reception partiel
             let qteSolde = parseInt(detail.qteSlode);
             let qteQte = parseInt(detail.qte);
@@ -306,11 +303,17 @@ document.addEventListener("DOMContentLoaded", (event) => {
             ) {
               statutCIS = "LIVRE";
               console.log(detail.datelivlig);
-              
-              dateStatutCIS = detail.datelivlig === null ? "" :formaterDate(detail.datelivlig);
+
+              dateStatutCIS =
+                detail.datelivlig === null
+                  ? ""
+                  : formaterDate(detail.datelivlig);
             } else if (parseInt(detail.qtealllig) > 0) {
               statutCIS = "A LIVRER";
-              dateStatutCIS = detail.dateAllLIg === null ? "" :formaterDate(detail.dateAllLIg);
+              dateStatutCIS =
+                detail.dateAllLIg === null
+                  ? ""
+                  : formaterDate(detail.dateAllLIg);
             } else {
               statutCIS = detail.statut;
               dateStatutCIS = "";
@@ -332,8 +335,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
                         <td>${detail.cst}</td> 
                         <td>${numRef}</td> 
                         <td>${detail.desi}</td> 
-                        <td>${parseInt(detail.qteres_or) === 0 ? "" : parseInt(detail.qteres_or) }</td> 
-                        <td>${parseInt(detail.qteall) === 0 ? "" :parseInt(detail.qteall) }</td> 
+                        <td>${parseInt(detail.qteres_or) === 0 ? "" : parseInt(detail.qteres_or)}</td> 
+                        <td>${parseInt(detail.qteall) === 0 ? "" : parseInt(detail.qteall)}</td> 
                         <td>${parseInt(detail.qtereliquat) === 0 ? "" : parseInt(detail.qtereliquat)}</td> 
                         <td>${parseInt(detail.qteliv) === 0 ? "" : parseInt(detail.qteliv)}</td> 
                         <td  >${statut} </td> 
@@ -355,22 +358,30 @@ document.addEventListener("DOMContentLoaded", (event) => {
                         <td>${numRef}</td> 
                         <td>${detail.desi}</td> 
                         <td>${
-                          isNaN(detail.qteORlig) || detail.qteORlig === "" || parseInt(detail.qteORlig) === 0
+                          isNaN(detail.qteORlig) ||
+                          detail.qteORlig === "" ||
+                          parseInt(detail.qteORlig) === 0
                             ? ""
                             : parseInt(detail.qteORlig)
                         }</td> 
                         <td>${
-                          isNaN(detail.qtealllig) || detail.qtealllig === "" || parseInt(detail.qtealllig) === 0
+                          isNaN(detail.qtealllig) ||
+                          detail.qtealllig === "" ||
+                          parseInt(detail.qtealllig) === 0
                             ? ""
                             : parseInt(detail.qtealllig)
                         }</td> 
                         <td>${
-                          isNaN(detail.qterlqlig) || detail.qterlqlig === "" || parseInt(detail.qterlqlig) === 0
+                          isNaN(detail.qterlqlig) ||
+                          detail.qterlqlig === "" ||
+                          parseInt(detail.qterlqlig) === 0
                             ? ""
                             : parseInt(detail.qterlqlig)
                         }</td> 
                         <td>${
-                          isNaN(detail.qtelivlig) || detail.qtelivlig === "" || parseInt(detail.qtelivlig) === 0
+                          isNaN(detail.qtelivlig) ||
+                          detail.qtelivlig === "" ||
+                          parseInt(detail.qtelivlig) === 0
                             ? ""
                             : parseInt(detail.qtelivlig)
                         }</td> 
@@ -394,9 +405,9 @@ document.addEventListener("DOMContentLoaded", (event) => {
                       <td>${numRef}</td> 
                       <td>${detail.desi}</td> 
                       <td>${parseInt(detail.qteres_or) === 0 ? "" : parseInt(detail.qteres_or)}</td> 
-                      <td>${parseInt(detail.qteall)  === 0 ? "" : parseInt(detail.qteall)}</td> 
-                      <td>${parseInt(detail.qtereliquat)  === 0 ? "" : parseInt(detail.qtereliquat)}</td> 
-                      <td>${parseInt(detail.qteliv)  === 0 ? "" : parseInt(detail.qteliv)}</td> 
+                      <td>${parseInt(detail.qteall) === 0 ? "" : parseInt(detail.qteall)}</td> 
+                      <td>${parseInt(detail.qtereliquat) === 0 ? "" : parseInt(detail.qtereliquat)}</td> 
+                      <td>${parseInt(detail.qteliv) === 0 ? "" : parseInt(detail.qteliv)}</td> 
                       <td >${statut}</td> 
                       <td>${dateStatut}</td> 
                        <td>${dateEtaIvato}</td> 

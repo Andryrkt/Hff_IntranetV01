@@ -7,12 +7,13 @@ use App\Entity\dom\Dom;
 use App\Entity\badm\Badm;
 use App\Entity\cas\Casier;
 use App\Entity\admin\Service;
+use App\Entity\da\DemandeAppro;
 use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\cas\CasierValider;
 use App\Entity\mutation\Mutation;
+use App\Entity\admin\AgenceService;
 use App\Entity\admin\utilisateur\User;
-use App\Entity\da\DemandeAppro;
 use App\Entity\dit\DemandeIntervention;
 use App\Repository\admin\AgenceRepository;
 use Doctrine\Common\Collections\Collection;
@@ -48,13 +49,23 @@ class Agence
      */
     private string $libelleAgence;
 
+    /**
+     * @ORM\Column(type="string", name="code_societe")
+     *
+     * @var string
+     */
+    private string $codeSociete;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Service::class, inversedBy="agences", fetch="EAGER")
-     * @ORM\JoinTable(name="agence_service")
+     * @ORM\ManyToOne(targetEntity=Societte::class, inversedBy="agences")
+     * @ORM\JoinColumn(name="societe_id", referencedColumnName="id")
      */
-    private Collection $services;
+    private ?Societte $societe;
 
+    /**
+     * @ORM\OneToMany(targetEntity=AgenceService::class, mappedBy="agence", cascade={"persist", "remove"})
+     */
+    private Collection $agenceServices;
 
     /**
      * @ORM\OneToMany(targetEntity=CasierValider::class, mappedBy="agenceRattacher")
@@ -103,15 +114,6 @@ class Agence
     private $mutationAgenceDebiteur;
 
     /**
-     * @ORM\ManyToMany(targetEntity=User::class, mappedBy="agencesAutorisees")
-     * @ORM\JoinTable(name="agence_user", 
-     *      joinColumns={@ORM\JoinColumn(name="agence_id", referencedColumnName="id")},
-     *      inverseJoinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")}
-     * )
-     */
-    private $usersAutorises;
-
-    /**
      * @ORM\OneToMany(targetEntity=DemandeSupportInformatique::class, mappedBy="agenceEmetteurId")
      */
     private $tkiAgenceEmetteur;
@@ -133,13 +135,12 @@ class Agence
 
     public function __construct()
     {
-        $this->services = new ArrayCollection();
+        $this->agenceServices = new ArrayCollection();
         $this->casiers = new ArrayCollection();
         $this->ditAgenceEmetteur = new ArrayCollection();
         $this->ditAgenceDebiteur = new ArrayCollection();
         $this->badmAgenceEmetteur = new ArrayCollection();
         $this->badmAgenceDebiteur = new ArrayCollection();
-        $this->usersAutorises = new ArrayCollection();
         $this->domAgenceEmetteur = new ArrayCollection();
         $this->domAgenceDebiteur = new ArrayCollection();
         $this->tkiAgenceEmetteur = new ArrayCollection();
@@ -181,30 +182,32 @@ class Agence
         return $this;
     }
 
-
     public function getServices(): Collection
     {
-        return $this->services;
+        return $this->agenceServices->map(fn(AgenceService $as) => $as->getService());
     }
 
-    public function addService(Service $service): self
+    /**
+     * @return Collection<int, AgenceService>
+     */
+    public function getAgenceServices(): Collection
     {
-        if (!$this->services->contains($service)) {
-            $this->services[] = $service;
-        }
+        return $this->agenceServices;
+    }
+
+    public function addAgenceService(AgenceService $agenceService): self
+    {
+        $this->agenceServices[] = $agenceService;
 
         return $this;
     }
 
-    public function removeService(Service $service): self
+    public function removeAgenceService(AgenceService $agenceService): self
     {
-        if ($this->services->contains($service)) {
-            $this->services->removeElement($service);
-        }
+        $this->agenceServices->removeElement($agenceService);
 
         return $this;
     }
-
 
     /**
      * Get the value of demandeInterventions
@@ -398,37 +401,6 @@ class Agence
 
         return $this;
     }
-
-
-    public function getUsersAutorises(): Collection
-    {
-        return $this->usersAutorises;
-    }
-
-    public function addUserAutorise(User $user): self
-    {
-        if (!$this->usersAutorises->contains($user)) {
-            $this->usersAutorises[] = $user;
-            $user->addAgenceAutorise($this);
-        }
-
-        return $this;
-    }
-
-    public function removeUserAutorise(User $user): self
-    {
-        if ($this->usersAutorises->contains($user)) {
-            $this->usersAutorises->removeElement($user);
-            $user->removeAgenceAutorise($this);
-        }
-
-        return $this;
-    }
-
-
-
-
-
 
     /** DOM */
 
@@ -681,6 +653,42 @@ class Agence
     public function setDaAgenceDebiteur($daAgenceDebiteur): self
     {
         $this->daAgenceDebiteur = $daAgenceDebiteur;
+        return $this;
+    }
+
+    /**
+     * Get the value of codeSociete
+     */
+    public function getCodeSociete(): string
+    {
+        return $this->codeSociete;
+    }
+
+    /**
+     * Set the value of codeSociete
+     */
+    public function setCodeSociete(string $codeSociete): self
+    {
+        $this->codeSociete = $codeSociete;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of societe
+     */
+    public function getSociete(): ?Societte
+    {
+        return $this->societe;
+    }
+
+    /**
+     * Set the value of societe
+     */
+    public function setSociete(?Societte $societe): self
+    {
+        $this->societe = $societe;
+
         return $this;
     }
 }

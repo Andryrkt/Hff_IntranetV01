@@ -5,6 +5,7 @@ namespace App\Controller\da\reappro;
 use App\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\da\reappro\ReportingIpsTrait;
+use App\Service\ExcelService;
 
 /**
  * @Route("/demande-appro")
@@ -14,15 +15,16 @@ class ExportExcelController extends Controller
     use ReportingIpsTrait;
 
     /**
-     * @Route("/reappro-export-excel", name = "reappro_export_excel")
+     * @Route("/reappro-export-excel", name = "export_reappro_excel")
      */
     public function exportExcel()
     {
-        $this->verifierSessionUtilisateur();
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
 
         $criterias = $this->getSessionService()->get('criterias_reporting_ips');
 
-        $reportingIpsData = $this->getData($criterias);
+        $reportingIpsData = $this->getData($criterias, $codeSociete);
 
         $data = [];
         // En-tête du tableau d'excel
@@ -52,7 +54,7 @@ class ExportExcelController extends Controller
         $totalRow[10] = number_format($reportingIpsData['montantTotal'], 2, ',', ' '); // Ajoute le montant total formaté dans la 11ème colonne
         $data[] = $totalRow;
 
-        $this->getExcelService()->createSpreadsheet($data);
+        (new ExcelService())->createSpreadsheet($data);
     }
 
     private function convertirObjetEnTableau(array $reportingIpsData, array $data): array

@@ -5,9 +5,7 @@ namespace App\Controller\da\Validation;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
-use App\Entity\admin\Application;
 use App\Form\da\DaObservationType;
-use App\Controller\Traits\AutorisationTrait;
 use App\Form\da\DaObservationValidationType;
 use App\Controller\Traits\da\DaAfficherTrait;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,7 +19,6 @@ use App\Controller\Traits\da\validation\DaValidationReapproTrait;
 class DaValidationReapproMensuelController extends Controller
 {
     use DaAfficherTrait;
-    use AutorisationTrait;
     use DaValidationReapproTrait;
     use DaDetailReapproTrait;
 
@@ -38,13 +35,6 @@ class DaValidationReapproMensuelController extends Controller
      */
     public function validationDaReapproMensuel($id, Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
-        /** Autorisation accès */
-        $this->autorisationAcces($this->getUser(), Application::ID_DAP);
-        /** FIN AUtorisation accès */
-
         $da = $this->demandeApproRepository->find($id);
 
         $daObservation = new DaObservation();
@@ -71,7 +61,7 @@ class DaValidationReapproMensuelController extends Controller
             'demandeAppro'    => $da,
             'numDa'           => $da->getNumeroDemandeAppro(),
             'fichiers'        => $fichiers,
-            'codeCentrale'    => $this->estAdmin() || in_array($da->getAgenceEmetteur()->getCodeAgence(), ['90', '91', '92']),
+            'codeCentrale'    => in_array($da->getAgenceEmetteur()->getCodeAgence(), ['90', '91', '92']),
             'formReappro'     => $formReappro->createView(),
             'formObservation' => $formObservation->createView(),
             'observations'    => $observations,
@@ -132,7 +122,7 @@ class DaValidationReapproMensuelController extends Controller
     {
         $this->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $daObservation->getObservation(), $daObservation->getFileNames());
 
-        $this->emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->getUser(), $this->estUserDansServiceAppro());
+        $this->emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->getUser(), $this->estAppro());
 
         $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'Votre observation a été enregistré avec succès.']);
         return $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 1, 'page' => 1]);

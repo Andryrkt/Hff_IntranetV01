@@ -1,0 +1,244 @@
+<?php
+
+namespace App\Entity\admin\utilisateur;
+
+use App\Entity\Traits\DateTrait;
+use Doctrine\ORM\Mapping as ORM;
+use App\Entity\admin\ApplicationProfil;
+use App\Entity\admin\Societte;
+use App\Repository\admin\ProfilRepository;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
+
+/**
+ * @ORM\Entity(repositoryClass=ProfilRepository::class)
+ * @ORM\Table(name="profil")
+ * @ORM\HasLifecycleCallbacks
+ */
+class Profil
+{
+    public const HFF_ADMIN = 'HFF-ADMIN';
+    use DateTrait;
+
+    /**
+     * @ORM\Id
+     * @ORM\GeneratedValue
+     * @ORM\Column(type="integer")
+     */
+    private $id;
+
+    /**
+     * @ORM\Column(type="string", name="ref_profil", length=255)
+     */
+    private $reference;
+
+    /**
+     * @ORM\Column(type="string", name="designation_profil", length=255)
+     */
+    private $designation;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Societte::class, inversedBy="profils")
+     * @ORM\JoinColumn(name="societe_id", referencedColumnName="id", nullable=true)
+     */
+    private ?Societte $societe = null;
+
+    /**
+     * @ORM\ManyToMany(targetEntity=User::class, mappedBy="profils")
+     */
+    private Collection $users;
+
+    /**
+     * @ORM\OneToMany(targetEntity=ApplicationProfil::class, mappedBy="profil", cascade={"persist", "remove"})
+     */
+    private Collection $applicationProfils;
+
+    public function __construct()
+    {
+        $this->users = new ArrayCollection();
+        $this->applicationProfils = new ArrayCollection();
+    }
+
+    /**
+     * Get the value of id
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Set the value of id
+     */
+    public function setId($id): self
+    {
+        $this->id = $id;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of reference
+     */
+    public function getReference()
+    {
+        return $this->reference;
+    }
+
+    /**
+     * Set the value of reference
+     */
+    public function setReference($reference): self
+    {
+        $this->reference = $reference;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of designation
+     */
+    public function getDesignation()
+    {
+        return $this->designation;
+    }
+
+    /**
+     * Set the value of designation
+     */
+    public function setDesignation($designation): self
+    {
+        $this->designation = $designation;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of users
+     */
+    public function getUsers(): Collection
+    {
+        return $this->users;
+    }
+
+    /**
+     * Add User
+     */
+    public function addUser(User $user): self
+    {
+        if (!$this->users->contains($user)) {
+            $this->users[] = $user;
+            $user->addProfil($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Remove User
+     */
+    public function removeUser(User $user): self
+    {
+        if ($this->users->contains($user)) {
+            $this->users->removeElement($user);
+            if ($user->getProfils()->contains($this)) {
+                $user->removeProfil($this);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Get the value of applications
+     */
+    public function getApplications(): ?Collection
+    {
+        return $this->applicationProfils->map(fn(ApplicationProfil $applicationProfil) => $applicationProfil->getApplication());
+    }
+
+    /**
+     * Get the value of applicationProfils
+     */
+    public function getApplicationProfils(): Collection
+    {
+        return $this->applicationProfils;
+    }
+
+    /**
+     * Set the value of applicationProfils
+     */
+    public function addApplicationProfil(ApplicationProfil $applicationProfil): self
+    {
+        $this->applicationProfils[] = $applicationProfil;
+
+        return $this;
+    }
+
+    public function removeApplicationProfil(ApplicationProfil $applicationProfil): self
+    {
+        $this->applicationProfils->removeElement($applicationProfil);
+
+        return $this;
+    }
+
+    /**
+     * Get the value of societe
+     */
+    public function getSociete(): ?Societte
+    {
+        return $this->societe;
+    }
+
+    /**
+     * Set the value of societe
+     */
+    public function setSociete(?Societte $societe): self
+    {
+        $this->societe = $societe;
+
+        return $this;
+    }
+
+    //=======================================================================
+    // HELPER POUR PROFIL
+    //=======================================================================
+
+    /**
+     * Récupérer toutes les routes déclarées pour un profil
+     * en naviguant dans les relations Doctrine (ApplicationProfil → ApplicationProfilPage → PageHff).
+     * Retourne un tableau de noms de routes dédupliqués.
+     */
+    public function getRoutes(): array
+    {
+        $routes = [];
+
+        foreach ($this->applicationProfils as $applicationProfil) {
+            /** @var ApplicationProfilPage $applicationProfilPage */
+            foreach ($applicationProfil->getLiaisonsPage() as $applicationProfilPage) {
+                $nomRoute = $applicationProfilPage->getPage()->getNomRoute();
+                if ($nomRoute) {
+                    $routes[] = $nomRoute;
+                }
+            }
+        }
+
+        return array_unique($routes);
+    }
+
+    /**
+     * Récupérer toutes les applications (code App) pour un profil
+     * en naviguant dans les relations Doctrine (ApplicationProfil → Application).
+     */
+    public function getApplicationCodes(): array
+    {
+        $applications = [];
+
+        /** @var ApplicationProfil $applicationProfil */
+        foreach ($this->applicationProfils as $applicationProfil) {
+            $applications[] = $applicationProfil->getApplication()->getCodeApp();
+        }
+
+        return $applications;
+    }
+}

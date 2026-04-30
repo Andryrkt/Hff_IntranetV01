@@ -19,7 +19,7 @@ class PlanningApi extends Controller
     }
 
     /**
-     * @Route("/serviceDebiteurPlanning-fetch/{agenceId}")
+     * @Route("/api/serviceDebiteurPlanning-fetch/{agenceId}", name="api_serviceDebiteurPlanning_fetch")
      */
     public function serviceDebiteur($agenceId)
     {
@@ -35,7 +35,7 @@ class PlanningApi extends Controller
     }
 
     /**
-     * @Route("/detail-modal/{numOr}", name="liste_detailModal")
+     * @Route("/api/detail-modal/{numOr}", name="api_liste_detailModal")
      *
      * @return void
      */
@@ -171,21 +171,5 @@ class PlanningApi extends Controller
             'avecOnglet' => $avecOnglet,
             'data' => $details,
         ]);
-    }
-
-    /**
-     * @Route("/api/technicien-intervenant/{numOr}/{numItv}", name="")
-     */
-    public function TechnicienIntervenant($numOr, $numItv)
-    {
-        $matriculeNom = $this->planningModel->recupTechnicientIntervenant($numOr, $numItv);
-
-        if (empty($matriculeNom)) {
-            $matriculeNom = $this->planningModel->recupTechnicien2($numOr, $numItv);
-        }
-
-        header("Content-type:application/json");
-
-        echo json_encode($matriculeNom);
     }
 }

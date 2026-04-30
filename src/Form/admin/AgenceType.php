@@ -5,12 +5,12 @@ namespace App\Form\admin;
 
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
+use App\Entity\admin\Societte;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\NumberType;
 
 
 class AgenceType extends AbstractType
@@ -19,33 +19,32 @@ class AgenceType extends AbstractType
     {
         $builder
 
-            ->add(
-                'codeAgence',
-                NumberType::class,
-                [
-                    'label' => 'Code Agence',
-                ]
-            )
-            ->add(
-                'libelleAgence',
-                TextType::class,
-                [
-                    'label' => 'Libelle Agence',
-                ]
-            )
-            ->add(
-                'services',
-                EntityType::class,
-                [
-                    'label' => 'Service',
-                    'class' => Service::class,
-                    'choice_label' => function (Service $service): string {
-                        return $service->getCodeService() . ' ' . $service->getLibelleService();
-                    },
-                    'multiple' => true,
-                    'expanded' => true
-                ]
-            )
+            ->add('codeAgence', TextType::class, [
+                'label' => 'Code Agence',
+            ])
+            ->add('libelleAgence', TextType::class, [
+                'label' => 'Libelle Agence',
+            ])
+            ->add('societe', EntityType::class, [
+                'label'        => 'Société',
+                'placeholder'  => '-- Choisir société --',
+                'class'        => Societte::class,
+                'choice_label' => function (Societte $societe): string {
+                    return $societe->getCodeSociete() . ' ' . $societe->getNom();
+                },
+                'multiple'     => false,
+                'expanded'     => false,
+            ])
+            ->add('services', EntityType::class, [
+                'label'        => 'Services liées',
+                'class'        => Service::class,
+                'choice_label' => function (Service $service): string {
+                    return $service->getCodeService() . ' ' . $service->getLibelleService();
+                },
+                'multiple'     => true,
+                'expanded'     => false,
+                'mapped'       => false,
+            ])
         ;
     }
 

@@ -3,14 +3,14 @@
 namespace App\Controller\da\Creation;
 
 use App\Constants\da\StatutDaConstant;
+use App\Constants\admin\ApplicationConstant;
 use App\Controller\Controller;
-use App\Controller\Traits\AutorisationTrait;
 use App\Controller\Traits\da\creation\DaNewReapproMensuelTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
 use App\Form\da\DemandeApproReapproMensuelFormType;
-use App\Service\application\ApplicationService;
 use Symfony\Component\HttpFoundation\Request;
+use App\Service\application\ApplicationService;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -19,7 +19,6 @@ use Symfony\Component\Routing\Annotation\Route;
 class DaNewReApproMensuelController extends Controller
 {
     use DaNewReapproMensuelTrait;
-    use AutorisationTrait;
 
     public function __construct()
     {
@@ -32,14 +31,10 @@ class DaNewReApproMensuelController extends Controller
      */
     public function newDAReapproMensuel(int $id, Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
 
-        /** Autorisation accès */
-        $this->checkPageAccess($this->estAdmin() || $this->estCreateurDeDADirecte());
-        /** FIN AUtorisation accès */
-
-        $demandeAppro     = $id === 0 ? $this->initialisationDemandeApproReapproMensuel() : $this->demandeApproRepository->find($id);
+        $demandeAppro     = $id === 0 ? $this->initialisationDemandeApproReapproMensuel($codeSociete) : $this->demandeApproRepository->find($id);
         $this->generateDemandApproLinesFromReappros($demandeAppro);
 
         $form = $this->getFormFactory()->createBuilder(DemandeApproReapproMensuelFormType::class, $demandeAppro, [
@@ -49,7 +44,7 @@ class DaNewReApproMensuelController extends Controller
 
         return $this->render('da/new-da-reappro-mensuel.html.twig', [
             'form'         => $form->createView(),
-            'codeCentrale' => $this->estAdmin() || in_array($demandeAppro->getAgenceEmetteur()->getCodeAgence(), ['90', '91', '92']),
+            'codeCentrale' => $this->estAdmin() || $this->estEnergie(),
         ]);
     }
 
@@ -71,13 +66,13 @@ class DaNewReApproMensuelController extends Controller
                 $this->getSessionService()->set('notification', ['type' => 'error', 'message' => 'La date fin souhaitée ne peut pas être antérieure à la date du jour.']);
             } else {
                 $firstCreation = $demandeAppro->getNumeroDemandeAppro() === null;
-                $numDa = $firstCreation ? $this->autoDecrement('DAP') : $demandeAppro->getNumeroDemandeAppro();
+                $numDa = $firstCreation ? $this->autoDecrement(ApplicationConstant::CODE_DAP) : $demandeAppro->getNumeroDemandeAppro();
 
                 $this->gererAgenceServiceDebiteur($demandeAppro);
 
-            // Récupérer le nom du bouton cliqué
-            $clickedButtonName = $this->getButtonName($request);
-            $statutDa = StatutDaConstant::STATUT_DAL[$clickedButtonName];
+                // Récupérer le nom du bouton cliqué
+                $clickedButtonName = $this->getButtonName($request);
+                $statutDa = StatutDaConstant::STATUT_DAL[$clickedButtonName];
 
                 $demandeAppro
                     ->setNumeroDemandeAppro($numDa)

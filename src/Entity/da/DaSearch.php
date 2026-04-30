@@ -5,7 +5,6 @@ namespace App\Entity\da;
 use DateTime;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
-use App\Entity\admin\dit\WorNiveauUrgence;
 
 class DaSearch
 {
@@ -14,13 +13,14 @@ class DaSearch
     private ?string $numCde = null;
     private ?string $demandeur = null;
     private $statutDA = null;
-    private ?string $statutOR = null;
+    private $statutOR = null;
     private $statutBC = null;
     private ?string $sortNbJours = null;
     private ?string $idMateriel = null;
     private ?string $typeAchat = null;
     private ?string $codeCentrale = null;
     private $afficherCloturees = false;
+    private $afficherDaTraiter = false;
 
     private ?string $niveauUrgence = null;
 
@@ -453,6 +453,25 @@ class DaSearch
         return $this;
     }
 
+
+    /**
+     * Get the value of afficherDaTraiter
+     */
+    public function getAfficherDaTraiter()
+    {
+        return $this->afficherDaTraiter;
+    }
+
+    /**
+     * Set the value of afficherDaTraiter
+     */
+    public function setAfficherDaTraiter($afficherDaTraiter): self
+    {
+        $this->afficherDaTraiter = $afficherDaTraiter;
+
+        return $this;
+    }
+
     /**
      * Convertit l'objet en tableau associatif
      */
@@ -463,6 +482,7 @@ class DaSearch
             'numDa'                => $this->numDa,
             'numCde'               => $this->numCde,
             'afficherCloturees'    => $this->afficherCloturees,
+            'afficherDaTraiter'    => $this->afficherDaTraiter,
             'demandeur'            => $this->demandeur,
             'statutDA'             => $this->statutDA,
             'statutOR'             => $this->statutOR,
@@ -471,34 +491,48 @@ class DaSearch
             'idMateriel'           => $this->idMateriel,
             'codeCentrale'         => $this->codeCentrale,
             'typeAchat'            => $this->typeAchat,
+            'agenceEmetteur'       => $this->agenceEmetteur  ? $this->agenceEmetteur->getId()  : null,
+            'serviceEmetteur'      => $this->serviceEmetteur ? $this->serviceEmetteur->getId() : null,
+            'agenceDebiteur'       => $this->agenceDebiteur  ? $this->agenceDebiteur->getId()  : null,
+            'serviceDebiteur'      => $this->serviceDebiteur ? $this->serviceDebiteur->getId() : null,
             'niveauUrgence'        => $this->niveauUrgence        ? $this->niveauUrgence                         : null,
             'dateDebutCreation'    => $this->dateDebutCreation    ? $this->dateDebutCreation->format('Y-m-d')    : null,
             'dateFinCreation'      => $this->dateFinCreation      ? $this->dateFinCreation->format('Y-m-d')      : null,
             'dateDebutfinSouhaite' => $this->dateDebutfinSouhaite ? $this->dateDebutfinSouhaite->format('Y-m-d') : null,
             'dateFinFinSouhaite'   => $this->dateFinFinSouhaite   ? $this->dateFinFinSouhaite->format('Y-m-d')   : null,
-            'agenceEmetteur'       => $this->agenceEmetteur       ? $this->agenceEmetteur->getId()               : null,
-            'serviceEmetteur'      => $this->serviceEmetteur      ? $this->serviceEmetteur->getId()              : null,
-            'agenceDebiteur'       => $this->agenceDebiteur       ? $this->agenceDebiteur->getId()               : null,
-            'serviceDebiteur'      => $this->serviceDebiteur      ? $this->serviceDebiteur->getId()              : null,
         ];
     }
 
     /**
-     * Hydrate l'objet à partir d'un tableau
+     * Hydrate l'objet à partir d'un tableau.
+     *
+     * @param array $data    Critères bruts (ex. issus de la session, IDs pour agences/services)
+     * @param array $agServ  Objets Agence/Service déjà résolus depuis la BDD :
+     *                       ['agenceEmetteur' => ?Agence, 'agenceDebiteur' => ?Agence,
+     *                        'serviceEmetteur' => ?Service, 'serviceDebiteur' => ?Service]
      */
-    public function toObject(array $data, array $agServ): self
+    public function toObject(array $data, array $agServ = []): self
     {
-        $allDateKeys = ['dateDebutCreation', 'dateFinCreation', 'dateDebutfinSouhaite', 'dateFinFinSouhaite',];
-        $allAgServKeys = ['agenceEmetteur', 'agenceDebiteur', 'serviceEmetteur', 'serviceDebiteur'];
+        $allDateKeys    = ['dateDebutCreation', 'dateFinCreation', 'dateDebutfinSouhaite', 'dateFinFinSouhaite'];
+        $entityKeys     = ['agenceEmetteur', 'serviceEmetteur', 'agenceDebiteur', 'serviceDebiteur'];
+
         foreach ($data as $key => $value) {
             $method = 'set' . ucfirst($key);
 
-            if (method_exists($this, $method)) {
-                if ($value !== null && in_array($key, $allDateKeys)) $value = DateTime::createFromFormat('Y-m-d', $value);
-                elseif ($value !== null && in_array($key, $allAgServKeys)) $value = $agServ[$key];
-
-                $this->$method($value);
+            if (!method_exists($this, $method)) {
+                continue;
             }
+
+            if ($value !== null && in_array($key, $allDateKeys)) {
+                $value = DateTime::createFromFormat('Y-m-d', $value);
+            }
+
+            // Pour les champs entité, on utilise l'objet résolu plutôt que l'ID brut
+            if (in_array($key, $entityKeys)) {
+                $value = $agServ[$key] ?? null;
+            }
+
+            $this->$method($value);
         }
 
         return $this;

@@ -7,6 +7,7 @@ use App\Entity\dit\DitOrsSoumisAValidation;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\magasin\lcfng\ListeCdeFrnNonGenererModel;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
+use App\Service\ExcelService;
 
 /**
  * @Route("/magasin")
@@ -25,15 +26,12 @@ class ListeCdeFrnNonGenererExportExcelController extends Controller
     }
 
     /**
-     * @Route("/lcfng/liste_cde_frs_non_generer_export_excel", name="liste_Cde_Frn_Non_Generer_Export_Excel")
+     * @Route("/lcfng/liste_cde_frs_non_generer_export_excel", name="export_excel_liste_cde_frs_non_generer")
      *
      * @return void
      */
     public function exportExcel()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $criteria = $this->getSessionService()->get('lcfng_liste_cde_frs_non_generer');
 
         // récupération des OR valide dans Ors_soumis_a_validation
@@ -45,7 +43,7 @@ class ListeCdeFrnNonGenererExportExcelController extends Controller
         $entities = $this->transformationEnTableauAvecEntiter($data);
 
         //creation du fichier excel
-        $this->getExcelService()->createSpreadsheet($entities);
+        (new ExcelService())->createSpreadsheet($entities);
     }
 
     private function transformationEnTableauAvecEntiter(array $data): array

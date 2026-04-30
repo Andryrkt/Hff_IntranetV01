@@ -7,11 +7,9 @@ use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
-use App\Entity\admin\Application;
 use App\Entity\da\DemandeApproLR;
 use App\Form\da\DaObservationType;
 use App\Entity\da\DemandeApproLRCollection;
-use App\Controller\Traits\AutorisationTrait;
 use App\Form\da\DaPropositionValidationType;
 use App\Controller\Traits\da\DaAfficherTrait;
 use App\Controller\Traits\da\detail\DaDetailAvecDitTrait;
@@ -28,7 +26,6 @@ use App\Controller\Traits\da\proposition\DaPropositionAvecDitTrait;
 class DaPropositionRefAvecDitController extends Controller
 {
     use DaAfficherTrait;
-    use AutorisationTrait;
     use DaValidationAvecDitTrait;
     use DaPropositionAvecDitTrait;
     use DaDetailAvecDitTrait;
@@ -49,13 +46,6 @@ class DaPropositionRefAvecDitController extends Controller
      */
     public function propositionDeReference($id, Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
-        /** Autorisation accès */
-        $this->autorisationAcces($this->getUser(), Application::ID_DAP);
-        /** FIN AUtorisation accès */
-
         $da = $this->demandeApproRepository->find($id);
         $numDa = $da->getNumeroDemandeAppro();
         $dals = $da->getDAL();
@@ -98,8 +88,8 @@ class DaPropositionRefAvecDitController extends Controller
             'fichiers'                => $fichiers,
             'connectedUser'           => $this->getUser(),
             'statutAutoriserModifAte' => $da->getStatutDal() === StatutDaConstant::STATUT_AUTORISER_EMETTEUR,
-            'estAte'                  => $this->estUserDansServiceAtelier(),
-            'estAppro'                => $this->estUserDansServiceAppro(),
+            'estAte'                  => $this->estAtelier(),
+            'estAppro'                => $this->estAppro(),
             'nePeutPasModifier'       => $this->nePeutPasModifier($da),
             'propValTemplate'         => 'proposition-validation-avec-dit',
             'dossierJS'               => 'propositionAvecDit',
@@ -108,7 +98,7 @@ class DaPropositionRefAvecDitController extends Controller
 
     private function nePeutPasModifier(DemandeAppro $demandeAppro)
     {
-        return ($this->estUserDansServiceAtelier() && ($demandeAppro->getStatutDal() == StatutDaConstant::STATUT_SOUMIS_APPRO || $demandeAppro->getStatutDal() == StatutDaConstant::STATUT_VALIDE));
+        return ($this->estAtelier() && ($demandeAppro->getStatutDal() == StatutDaConstant::STATUT_SOUMIS_APPRO || $demandeAppro->getStatutDal() == StatutDaConstant::STATUT_VALIDE));
     }
 
     private function traitementFormulaire($form, $formObservation, $dals, Request $request, string $numDa, DemandeAppro $da)
@@ -153,7 +143,7 @@ class DaPropositionRefAvecDitController extends Controller
     {
         $this->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $daObservation->getObservation(), $daObservation->getFileNames());
 
-        if ($this->estUserDansServiceAppro() && $daObservation->getStatutChange()) {
+        if ($this->estAppro() && $daObservation->getStatutChange()) {
             $this->modificationStatutDal($demandeAppro->getNumeroDemandeAppro(), StatutDaConstant::STATUT_AUTORISER_EMETTEUR);
             $this->modificationStatutDa($demandeAppro->getNumeroDemandeAppro(), StatutDaConstant::STATUT_AUTORISER_EMETTEUR);
 
@@ -165,7 +155,7 @@ class DaPropositionRefAvecDitController extends Controller
             'message' => 'Votre observation a été enregistré avec succès.',
         ];
 
-        $this->emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->getUser(), $this->estUserDansServiceAppro());
+        $this->emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->getUser(), $this->estAppro());
 
         $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         return $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 1, 'page' => 1]);
@@ -189,7 +179,7 @@ class DaPropositionRefAvecDitController extends Controller
                 'message' => 'Votre observation a été enregistré avec succès.',
             ];
 
-            $this->emailDaService->envoyerMailObservationDa($demandeAppro, $observation, $this->getUser(), $this->estUserDansServiceAppro());
+            $this->emailDaService->envoyerMailObservationDa($demandeAppro, $observation, $this->getUser(), $this->estAppro());
         } else {
             $notification = [
                 'type' => 'danger',

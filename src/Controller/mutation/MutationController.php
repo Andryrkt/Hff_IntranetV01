@@ -11,7 +11,6 @@ use App\Entity\mutation\MutationSearch;
 use App\Form\mutation\MutationFormType;
 use App\Controller\Traits\MutationTrait;
 use App\Form\mutation\MutationSearchType;
-use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use App\Service\genererPdf\GeneratePdfMutation;
 use Symfony\Component\Routing\Annotation\Route;
@@ -24,8 +23,6 @@ use App\Service\FusionPdf;
 class MutationController extends Controller
 {
     use MutationTrait;
-    use AutorisationTrait;
-
     private $historiqueOperation;
     private $fusionPdf;
 
@@ -41,17 +38,6 @@ class MutationController extends Controller
      */
     public function nouveau(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
-        /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_MUT);
-        /** FIN AUtorisation acées */
-
-        //recuperation de l'utilisateur connecter
-        $userId = $this->getSessionService()->get('user_id');
-        $user = $this->getEntityManager()->getRepository(User::class)->find($userId);
-
         $mutation = new Mutation;
         $this->initialisationMutation($mutation, $this->getEntityManager());
 
@@ -73,9 +59,9 @@ class MutationController extends Controller
             } else if ((int) $mutationModel->getNombreDM($dateDebut, $dateFin, $matricule) > 0) {
                 $this->historiqueOperation->sendNotificationCreation("La demande de mutation a échoué car le matricule '$matricule' est déjà rattaché à une demande de mutation entre les plages de dates.", '-', 'mutation_liste', false);
             } else {
-                $mutation = $this->enregistrementValeurDansMutation($form, $this->getEntityManager(), $user);
+                $mutation = $this->enregistrementValeurDansMutation($form, $this->getEntityManager());
                 $generatePdf = new GeneratePdfMutation;
-                $generatePdf->genererPDF($this->donneePourPdf($form, $user));
+                $generatePdf->genererPDF($this->donneePourPdf($form));
                 $this->envoyerPieceJointes($form, $this->fusionPdf);
                 $generatePdf->copyInterneToDOCUWARE($mutation->getNumeroMutation(), $mutation->getAgenceEmetteur()->getCodeAgence() . $mutation->getServiceEmetteur()->getCodeService());
                 $this->historiqueOperation->sendNotificationCreation('La demande de mutation a été enregistrée avec succès', $mutation->getNumeroMutation(), 'mutation_liste', true);
@@ -92,13 +78,6 @@ class MutationController extends Controller
      */
     public function listeMutation(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
-        /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_MUT);
-        /** FIN AUtorisation acées */
-
         $mutationSearch = new MutationSearch();
 
         $form = $this->getFormFactory()->createBuilder(MutationSearchType::class, $mutationSearch, [
@@ -142,9 +121,6 @@ class MutationController extends Controller
      */
     public function detailMutation($id)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         /** 
          * @var Mutation entité correspondant à l'id $id
          */

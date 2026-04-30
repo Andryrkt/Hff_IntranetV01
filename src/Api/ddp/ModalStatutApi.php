@@ -19,7 +19,7 @@ class ModalStatutApi extends Controller
     }
 
     /**
-     * @Route("/ddp/api/historique-statut/{numDdp}", name="ddp_api_historique_statut", methods={"GET"})
+     * @Route("/ddp/api/historique-statut/{numDdp}", name="api_ddp_historique_statut", methods={"GET"})
      *
      * @return void
      */

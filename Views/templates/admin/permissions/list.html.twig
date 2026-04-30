@@ -1,0 +1,75 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block title %}
+	Profil-Application Agence-Service
+{% endblock %}
+
+{% block breadCrumb %}{% endblock %}
+
+{% block content %}
+	<div class="container-spaced my-4">
+		<div class="card">
+			<div class="card-body">
+				<h3 class="perso-titre">
+					Liste de tous les permissions
+				</h3>
+				<a href="{{ path("application_index")}}" class="btn btn-primary fw-bold my-3 ms-2">
+					Liste des applications
+				</a>
+				<a href="{{ path("profil_index")}}" class="btn btn-primary fw-bold my-3 ms-2">
+					Liste des profils
+				</a>
+				<a href="{{ path("agence_index")}}" class="btn btn-primary fw-bold my-3 ms-2">
+					Liste des agences
+				</a>
+				<table class="table">
+					<thead class="table-dark align-middle">
+						<tr>
+							<th class="d-none">Id profil</th>
+							<th>Actions</th>
+							<th>Référence profil</th>
+							<th>Nom profil</th>
+							<th class="text-center">Code application</th>
+							<th>Nom application</th>
+							<th class="text-center">Code agence</th>
+							<th>Libelle agence</th>
+							<th class="text-center">Code service</th>
+							<th>Libelle service</th>
+						</tr>
+					</thead>
+					<tbody id="tableBody" class="align-middle">
+						{% for row in data %}
+							<tr>
+								<td class="d-none">{{ row.appProfilId }}</td>
+								<td>
+									<div class="dropdown">
+										<button class="btn btn-warning dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" style="text-decoration: none; color: #000; font-weight: 700">
+											Actions
+										</button>
+										<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
+											<li>
+												<a class="dropdown-item fw-bold" href="{{ row.urlPermission }}">Gérer permission</a>
+											</li>
+										</ul>
+									</div>
+								</td>
+								<td>{{ row.reference }}</td>
+								<td>{{ row.nomProfil }}</td>
+								<td class="text-center">{{ row.codeApp }}</td>
+								<td>{{ row.nomApp }}</td>
+								<td class="text-center">{{ row.codeAgence }}</td>
+								<td>{{ row.libelleAgence }}</td>
+								<td class="text-center">{{ row.codeService }}</td>
+								<td>{{ row.libelleService }}</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block javascript %}
+	<script src="{{ App.base_path }}/Views/js/admin/permissions/list.js?v=2025.10.22.08.00" type="module"></script>
+{% endblock %}

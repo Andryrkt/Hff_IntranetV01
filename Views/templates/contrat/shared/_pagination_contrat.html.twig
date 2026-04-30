@@ -1,6 +1,6 @@
 <div class="container d-flex justify-content-between">
     <div>
-        <form method="GET" action="{{ path('contrat_export_excel') }}" style="display:inline;" class="excel-form" id="excel-export-form">
+        <form method="GET" action="{{ path('export_excel_contrat') }}" style="display:inline;" class="excel-form" id="excel-export-form">
             {# Reprendre tous les paramètres de recherche actuels #}
             {% for key, value in app.request.query.all %}
                 {% if key != 'format' %}

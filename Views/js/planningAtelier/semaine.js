@@ -1,7 +1,9 @@
-import { mergeCellsTable } from "./tableHandler";
+// import { mergeCellsTable } from "./tableHandler";
+
+import { mergeCellsTable } from "../utils/tableHandler";
 
 document.addEventListener("DOMContentLoaded", function () {
-  mergeCellsTable(1);
+  mergeCellsTable("#tableBody", [0, 1], 1);
   const semaineInput = document.getElementById(
     "planning_atelier_search_numeroSemaine"
   );

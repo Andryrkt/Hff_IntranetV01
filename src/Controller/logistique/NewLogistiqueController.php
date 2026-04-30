@@ -16,9 +16,6 @@ class NewLogistiqueController extends Controller
      */
     public function newLogistique()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         return $this->render("dwForm/dwForm.html.twig", [
             'url'       => DwConstant::LINK["new-logistique"],
             'pageTitle' => "Nouvelle demande logistique",

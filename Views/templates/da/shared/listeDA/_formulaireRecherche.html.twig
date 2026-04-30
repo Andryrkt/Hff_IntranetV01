@@ -1,6 +1,6 @@
 {% import "macroForm.html.twig" as macroForm %}
+
 <!-- DEBUT recherche -->
-{% set role_ids = App.user.roleIds %}
 <div class="accordion mb-2" id="formAccordion">
 	<div class="accordion-item">
 		<h2 class="accordion-header">
@@ -16,6 +16,8 @@
 						{{ form_row(form.numDa) }}
 						{{ form_row(form.numDit) }}
 						{{ form_row(form.numCde) }}
+						{{ form_row(form.afficherCloturees) }}
+						{{ form_row(form.afficherDaTraiter) }}
 					</div>
 					<div class="col-12 col-md-2">
 						{{ form_row(form.statutDA)}}
@@ -60,9 +62,6 @@
 				</div>
 
 				<div class="d-flex justify-content-end align-items-center gap-2 mb-2">
-					<div>
-						{{ form_row(form.afficherCloturees) }}
-					</div>
 					<div>
 						{{ form_row(form.sortNbJours) }}
 					</div>

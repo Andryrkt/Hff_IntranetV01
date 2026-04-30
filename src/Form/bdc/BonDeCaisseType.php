@@ -5,21 +5,17 @@ namespace App\Form\bdc;
 use App\Dto\bdc\BonDeCaisseDto;
 use App\Entity\bdc\BonDeCaisse;
 use App\Form\common\DateRangeType;
-use App\Entity\admin\StatutDemande;
-use Symfony\Component\Form\FormEvent;
-use App\Form\common\AgenceServiceType;
-use Symfony\Component\Form\FormEvents;
-use App\Entity\admin\AgenceServiceIrium;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\AbstractType;
+use App\Traits\PrepareAgenceServiceTrait;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 
 class BonDeCaisseType extends AbstractType
 {
+    use PrepareAgenceServiceTrait;
     private $em;
 
     public function __construct(?EntityManagerInterface $em = null)
@@ -36,16 +32,11 @@ class BonDeCaisseType extends AbstractType
             throw new \InvalidArgumentException('EntityManager is required');
         }
 
-        // Récupérer les agences et services depuis AgenceServiceIrium
-        $agencesServices = $em->getRepository(AgenceServiceIrium::class)->findBy(["societe_ios" => 'HF'], ["agence_ips" => "ASC"]);
-        $agences = [];
+        $choices = $this->prepareAgenceServiceChoices($options['allAgenceServices'], false);
 
-        // Créer un tableau associatif pour les agences (libellé => code)
-        foreach ($agencesServices as $as) {
-            // Utiliser agence_ips au lieu de agence_i100
-            // Format: "Code - Nom" (ex: "80 - Administration")
-            $agences[$as->getAgenceips() . ' ' . $as->getNomagencei100()] = $as->getAgenceips();
-        }
+        $agenceChoices = $choices['agenceChoices'];
+        $serviceChoices = $choices['serviceChoices'];
+        $serviceAttr = $choices['serviceAttr'];
 
         // Récupérer les statuts depuis la table Statut_demande
         $statuts = $this->getStatutChoicesFromDatabase($em);
@@ -59,26 +50,6 @@ class BonDeCaisseType extends AbstractType
                 'label' => false,
                 'debut_label' => 'Date demande (début)',
                 'fin_label' => 'Date demande (fin)',
-            ])
-            ->add('emetteur', AgenceServiceType::class, [
-                'label' => false,
-                'required' => false,
-                'mapped' => false,
-                'agence_label' => 'Agence Emetteur',
-                'service_label' => 'Service Emetteur',
-                'agence_placeholder' => '-- Agence Emetteur --',
-                'service_placeholder' => '-- Service Emetteur --',
-                'em' => $options['em'] ?? null,
-            ])
-            ->add('debiteur', AgenceServiceType::class, [
-                'label' => false,
-                'required' => false,
-                'mapped' => false,
-                'agence_label' => 'Agence Debiteur',
-                'service_label' => 'Service Debiteur',
-                'agence_placeholder' => '-- Agence Debiteur --',
-                'service_placeholder' => '-- Service Debiteur --',
-                'em' => $options['em'] ?? null,
             ])
             ->add('statutDemande', ChoiceType::class, [
                 'required' => false,
@@ -125,7 +96,51 @@ class BonDeCaisseType extends AbstractType
                 'label' => 'Nom Validateur Final',
                 'required' => false,
             ])
-            ;
+            // --- agenceEmetteur : ChoiceType ---
+            ->add('agenceEmetteur', ChoiceType::class, [
+                'label'       => 'Agence émetteur',
+                'placeholder' => '-- Choisir une agence --',
+                'required'    => false,
+                'choices'     => $agenceChoices
+            ])
+            // --- serviceEmetteur : ChoiceType ---
+            ->add('serviceEmetteur', ChoiceType::class, [
+                'label'       => 'Service émetteur',
+                'placeholder' => '-- Choisir une service --',
+                'required'    => false,
+                'choices'     => $serviceChoices,
+                'choice_label' => function ($value) use ($options) {
+                    // Retrouver le bon item et afficher service_code . ' ' . service_libelle
+                    $item = $options['allAgenceServices'][$value];
+                    return $item['service_code'] . ' ' . $item['service_libelle'];
+                },
+                'choice_attr' => function ($val) use ($serviceAttr) {
+                    return $serviceAttr[$val] ?? [];
+                }
+            ])
+            // --- agenceDebiteur : ChoiceType ---
+            ->add('agenceDebiteur', ChoiceType::class, [
+                'label'       => 'Agence Débiteur',
+                'placeholder' => '-- Choisir une agence --',
+                'required'    => false,
+                'choices'     => $agenceChoices
+            ])
+            // --- serviceDebiteur : ChoiceType ---
+            ->add('serviceDebiteur', ChoiceType::class, [
+                'label'       => 'Service Débiteur',
+                'placeholder' => '-- Choisir une service --',
+                'required'    => false,
+                'choices'     => $serviceChoices,
+                'choice_label' => function ($value) use ($options) {
+                    // Retrouver le bon item et afficher service_code . ' ' . service_libelle
+                    $item = $options['allAgenceServices'][$value];
+                    return $item['service_code'] . ' ' . $item['service_libelle'];
+                },
+                'choice_attr' => function ($val) use ($serviceAttr) {
+                    return $serviceAttr[$val] ?? [];
+                }
+            ])
+        ;
     }
 
 
@@ -139,7 +154,7 @@ class BonDeCaisseType extends AbstractType
         ]);
 
         // Définir l'option 'em' pour permettre de passer l'EntityManager
-        $resolver->setDefined(['em']);
+        $resolver->setDefined(['em', 'allAgenceServices']);
         $resolver->setAllowedTypes('em', ['null', EntityManagerInterface::class]);
     }
 

@@ -8,7 +8,6 @@ use App\Service\autres\VersionService;
 use Symfony\Component\Form\FormInterface;
 use App\Entity\magasin\devis\DevisMagasin;
 use App\Service\fichier\UploderFileService;
-use App\Controller\Traits\AutorisationTrait;
 use App\Form\magasin\devis\DevisMagasinType;
 use App\Service\fichier\TraitementDeFichier;
 use App\Controller\Traits\PdfConversionTrait;
@@ -28,7 +27,6 @@ use App\Service\magasin\devis\Validator\DevisMagasinValidationOrchestrator;
  */
 class DevisMagasinPolValidationDevisController extends Controller
 {
-    use AutorisationTrait;
     use DevisMagasinTrait;
     use PdfConversionTrait;
 
@@ -65,14 +63,11 @@ class DevisMagasinPolValidationDevisController extends Controller
      */
     public function soumission(?string $numeroDevis = null, string $codeAgenceService, Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
-        /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_DVM);
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
 
         //recupération des informations utile dans IPS
-        $firstDevisIps = $this->getInfoDevisIps($numeroDevis);
+        $firstDevisIps = $this->getInfoDevisIps($numeroDevis, $codeSociete);
         [$newSumOfLines, $newSumOfMontant] = $this->newSumOfLinesAndAmount($firstDevisIps);
 
         //instanciation de l'orchestrateur de validation
@@ -93,12 +88,13 @@ class DevisMagasinPolValidationDevisController extends Controller
         //instancier le devis magasin
         $devisMagasin = new DevisMagasin();
         $devisMagasin->setNumeroDevis($numeroDevis);
+        $devisMagasin->setCodeSociete($codeSociete);
 
         //création du formulaire
         $form = $this->getFormFactory()->createBuilder(DevisMagasinType::class, $devisMagasin)->getForm();
 
         //traitement du formulaire
-        $this->traitementFormulaire($form, $request, $devisMagasin, $orchestrator, $firstDevisIps);
+        $this->traitementFormulaire($form, $request, $devisMagasin, $orchestrator, $firstDevisIps, $codeSociete);
 
         //affichage du formulaire
         return $this->render('magasin/devis/soumission.html.twig', [
@@ -108,7 +104,7 @@ class DevisMagasinPolValidationDevisController extends Controller
         ]);
     }
 
-    private function traitementFormulaire($form, Request $request, DevisMagasin $devisMagasin, DevisMagasinValidationOrchestrator $orchestrator, array $firstDevisIps)
+    private function traitementFormulaire($form, Request $request, DevisMagasin $devisMagasin, DevisMagasinValidationOrchestrator $orchestrator, array $firstDevisIps, string $codeSociete)
     {
 
         $form->handleRequest($request);
@@ -123,7 +119,7 @@ class DevisMagasinPolValidationDevisController extends Controller
             $suffixConstructeur = $this->listeDevisMagasinModel->constructeurPieceMagasin($devisMagasin->getNumeroDevis());
 
             /** @var int recupération de numero version max */
-            $numeroVersion = $this->devisMagasinRepository->getNumeroVersionMax($devisMagasin->getNumeroDevis());
+            $numeroVersion = $this->devisMagasinRepository->getNumeroVersionMax($devisMagasin->getNumeroDevis(), $codeSociete);
 
             // TODO: creation de pdf (à specifier par Antsa)
 

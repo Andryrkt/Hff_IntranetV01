@@ -9,6 +9,7 @@ use App\Entity\dit\DitOrsSoumisAValidation;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\magasin\lcfnp\ListeCdeFrnNonplacerModel;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
+use App\Service\ExcelService;
 
 /**
  * @Route("/magasin")
@@ -26,14 +27,13 @@ class ListeCdeFrnNonPlaceEXportExcelController extends Controller
     }
 
     /**
-     * @Route("/lcfng/liste_cde_frs_non_placer_export_excel", name="liste_Cde_Frn_Non_placer_Export_Excel")
+     * @Route("/lcfng/liste_cde_frs_non_placer_export_excel", name="export_liste_Cde_Frn_Non_placer")
      *
      * @return void
      */
     public function exportExcel()
     {
 
-        $this->verifierSessionUtilisateur();
         $today = new DateTime('now', new DateTimeZone('Indian/Antananarivo'));
         $vheure = $today->format("H:i:s");
         $vinstant = str_replace(":", "", $vheure);
@@ -46,7 +46,7 @@ class ListeCdeFrnNonPlaceEXportExcelController extends Controller
 
         $entities = $this->transformationEnTableauAvecEntiter($data);
         //creation du fichier excel
-        $this->getExcelService()->createSpreadsheet($entities);
+        (new ExcelService())->createSpreadsheet($entities);
     }
 
     private function transformationEnTableauAvecEntiter(array $data): array

@@ -75,7 +75,7 @@ class DaAfficherService
     public function generateDaAfficherOnCreationDa(DemandeAppro $demandeAppro, bool $firstCreation, ?DemandeIntervention $dit = null): void
     {
         // Récupère le dernier numéro de version existant pour cette demande d'achat
-        $numeroVersionMax = $firstCreation ? 0 : $this->daAfficherRepository->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
+        $numeroVersionMax = $firstCreation ? 0 : $this->daAfficherRepository->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro(), $demandeAppro->getCodeSociete());
         $numeroVersion = VersionService::autoIncrement($numeroVersionMax);
 
         // Parcours chaque ligne DAL de la demande d'achat
@@ -106,7 +106,7 @@ class DaAfficherService
     public function generateDaAfficherOnCreationDaParent(DemandeApproParent $demandeApproParent, bool $firstCreation): void
     {
         // Récupère le dernier numéro de version existant pour cette demande d'achat
-        $numeroVersionMax = $firstCreation ? 0 : $this->daAfficherRepository->getNumeroVersionMax($demandeApproParent->getNumeroDemandeAppro());
+        $numeroVersionMax = $firstCreation ? 0 : $this->daAfficherRepository->getNumeroVersionMax($demandeApproParent->getNumeroDemandeAppro(), $demandeApproParent->getCodeSociete());
         $numeroVersion = VersionService::autoIncrement($numeroVersionMax);
 
         // Parcours chaque ligne DAL de la demande d'achat

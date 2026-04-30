@@ -1,0 +1,49 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block title %}
+	Nouveau profil
+{% endblock %}
+
+{% block breadCrumb %}{% endblock %}
+
+{% block content %}
+	<div class="container my-4">
+		<div class="card">
+			<div class="card-body">
+				<div class="container">
+					<h3 class="perso-titre">
+						Formulaire Création Profil
+					</h3>
+
+					<a href="{{path("profil_index")}}" class="btn btn-sm  text-white my-3 fw-bold" style="background-color: #FBBB01;">Liste des profils</a>
+
+					{{ form_start(form) }}
+					{{ form_errors(form)}}
+
+					<div class="row">
+						<div class="col-12 col-md-4">
+							{{ form_row(form.reference) }}
+						</div>
+						<div class="col-12 col-md-4">
+							{{ form_row(form.designation) }}
+						</div>
+						<div class="col-12 col-md-4">
+							{{ form_row(form.societe) }}
+						</div>
+						{{ form_row(form.applications) }}
+					</div>
+
+					<button type="submit" class="btn btn-primary">
+						<i class="fas fa-save"></i>
+						Enregistrer
+					</button>
+					{{ form_end(form) }}
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block javascript %}
+	<script src="{{ App.base_path }}/Views/js/admin/profil/profil.js?v=2025.10.22.08.00" type="module"></script>
+{% endblock %}

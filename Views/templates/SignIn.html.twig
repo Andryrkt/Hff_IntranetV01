@@ -1,7 +1,7 @@
 {% extends "baseTemplate.html.twig"%}
 
 {% block stylesheets %}
-	<link href="{{ App.base_path }}/Views/css/signin.css?v=2025.10.22.08.00" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/signin.css?v=2026.04.24.08.00" rel="stylesheet"/>
 {% endblock %}
 
 {% block title %}
@@ -12,46 +12,42 @@
 
 {% block content %}
 	{% block nav %}{% endblock %}
-	<div id="intro" class="bg-image shadow-2-strong">
-		<div class="mask d-flex align-items-center h-100">
-			<div class="container">
-				<div class="row justify-content-center ">
-					<div class="col-xl-5 col-md-8">
-						<form class="bg-white rounded p-5 shadow" style="opacity: 85%" method="POST" action="">
-							<img src="Views/assets/logoHFF.jpg" class="img-rounded" id="Logo"/>
-							{% if error_msg %}
-								<div class="alert alert-danger">
-									{{ error_msg }}
-								</div>
-							{% endif %}
-
-							<div class="form-outline mb-4" data-mdb-input-init>
-								<label class="form-label" for="username">Utilisateur</label>
-								<div class="input-group">
-									<input type="text" id="username" class="form-control" name="Username" required/>
-								</div>
-							</div>
-
-							<div class="form-outline mb-4" data-mdb-input-init>
-								<label class="form-label" for="password">Mot de passe</label>
-								<div class="input-group">
-									<input type="password" id="password" class="form-control" name="Pswd" required/>
-									<span class="input-group-text" id="toggleIconContainer" data-bs-toggle="tooltip" data-bs-original-title='Afficher le mot de passe'>
-										<i class="fa fa-eye-slash cursor-pointer" id="toggleIcon" style="font-size: 0.7875rem; color: #6c757d;" aria-hidden="true"></i>
-									</span>
-								</div>
-							</div>
-							<button type="submit" class="btn" style="background-color: black; color: white">
-								Se connecter
-							</button>
-						</form>
-						<div class="notice">
-							<span class="notice-icon">
-								<i class="fas fa-info-circle"></i>
-							</span>
-							<div class="notice-content">L'identifiant et le mot de passe sont le nom d'utilisateur et le mot de passe que vous utilisez pour vous connecter à votre ordinateur.
-							</div>
+	<div id="intro">
+		<div class="d-flex align-items-center w-100 h-100 justify-content-center" style="backdrop-filter: blur(4px) saturate(1.2);">
+			<div style="width:450px;">
+				<form class="bg-white rounded p-5 shadow" style="opacity: 85%" method="POST" action="">
+					<img src="Views/assets/logoHFF.jpg" class="ms-4 mb-4"/>
+					{% if error_msg %}
+						<div class="alert alert-danger">
+							{{ error_msg }}
 						</div>
+					{% endif %}
+
+					<div class="form-outline mb-4" data-mdb-input-init>
+						<label class="form-label" for="username">Utilisateur</label>
+						<div class="input-group">
+							<input type="text" id="username" class="form-control" name="username" required/>
+						</div>
+					</div>
+
+					<div class="form-outline mb-4" data-mdb-input-init>
+						<label class="form-label" for="password">Mot de passe</label>
+						<div class="input-group">
+							<input type="password" id="password" class="form-control" name="password" required/>
+							<span class="input-group-text" id="toggleIconContainer" data-bs-toggle="tooltip" data-bs-original-title='Afficher le mot de passe'>
+								<i class="fa fa-eye-slash cursor-pointer" id="toggleIcon" style="font-size: 0.7875rem; color: #6c757d;" aria-hidden="true"></i>
+							</span>
+						</div>
+					</div>
+					<button type="submit" class="btn" style="background-color: black; color: white">
+						Se connecter
+					</button>
+				</form>
+				<div class="notice">
+					<span class="notice-icon">
+						<i class="fas fa-info-circle"></i>
+					</span>
+					<div class="notice-content">L'identifiant et le mot de passe sont le nom d'utilisateur et le mot de passe que vous utilisez pour vous connecter à votre ordinateur.
 					</div>
 				</div>
 			</div>

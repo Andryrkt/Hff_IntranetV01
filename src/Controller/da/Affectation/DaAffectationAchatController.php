@@ -3,7 +3,6 @@
 namespace App\Controller\da\Affectation;
 
 use App\Controller\Controller;
-use App\Controller\Traits\AutorisationTrait;
 use App\Controller\Traits\da\affectation\DaAffectationTrait;
 use App\Entity\admin\Application;
 use App\Entity\da\DemandeAppro;
@@ -16,8 +15,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /** @Route("/demande-appro") */
 class DaAffectationAchatController extends Controller
 {
-    use AutorisationTrait, DaAffectationTrait;
-
+    use DaAffectationTrait;
 
     public function __construct()
     {
@@ -31,13 +29,6 @@ class DaAffectationAchatController extends Controller
      */
     public function affectationDaAchat($id, Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
-        /** Autorisation accès */
-        $this->autorisationAcces($this->getUser(), Application::ID_DAP);
-        /** FIN AUtorisation accès */
-
         /** @var DemandeApproParent $daParent */
         $daParent = $this->demandeApproParentRepository->find($id);
 

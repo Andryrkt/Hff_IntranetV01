@@ -21,16 +21,10 @@
 			<div></div>
 		</div>
 		<div class="notfound">
-			<div class="notfound-404">
-				<h1>403</h1>
-			</div>
-			<h2>Accès interdit</h2>
-			<p>Vous n’avez pas les droits nécessaires pour accéder à cette page.
-				<br>
-				Veuillez contacter un administrateur.</p>
-			<a href="{{ path("profil_acceuil") }}">
+			<p class="text-danger fs-4">Vous n’êtes pas un utilisateur autorisé.</p>
+			<a href="javascript:history.back()">
 				<i class="fas fa-arrow-left-long pe-2"></i>
-				Accueil
+				Retour
 			</a>
 		</div>
 	</div>

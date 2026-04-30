@@ -21,10 +21,10 @@ trait ReportingIpsTrait
         return $result;
     }
 
-    private function getData(array $criterias): array
+    private function getData(array $criterias, string $codeSociete): array
     {
         $reportingIpsModel = new ReportingIpsModel();
-        $reportingIps = $reportingIpsModel->getReportingData($criterias);
+        $reportingIps = $reportingIpsModel->getReportingData($criterias, $codeSociete);
 
         // 3. Agréger les données
         $processedData = [];

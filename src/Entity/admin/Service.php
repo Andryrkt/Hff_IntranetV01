@@ -9,7 +9,7 @@ use App\Entity\admin\Agence;
 use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\mutation\Mutation;
-use App\Entity\admin\utilisateur\User;
+use App\Entity\admin\AgenceService;
 use App\Entity\dit\DemandeIntervention;
 use App\Repository\admin\ServiceRepository;
 use Doctrine\Common\Collections\Collection;
@@ -52,10 +52,9 @@ class Service
     private string $libelleService;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Agence::class, mappedBy="services")
+     * @ORM\OneToMany(targetEntity=AgenceService::class, mappedBy="service", cascade={"persist", "remove"})
      */
-    private Collection $agences;
-
+    private Collection $agenceServices;
 
     /**
      * @ORM\OneToMany(targetEntity=DemandeIntervention::class, mappedBy="serviceEmetteurId")
@@ -88,11 +87,6 @@ class Service
     private $domServiceDebiteur;
 
     /**
-     * @ORM\ManyToMany(targetEntity=User::class, mappedBy="serviceAutoriser")
-     */
-    private $userServiceAutoriser;
-
-    /**
      * @ORM\OneToMany(targetEntity=DemandeSupportInformatique::class, mappedBy="serviceEmetteurId")
      */
     private Collection $tkiServiceEmetteur;
@@ -120,18 +114,17 @@ class Service
 
     public function __construct()
     {
-        $this->agences = new ArrayCollection();
         $this->ditServiceEmetteur = new ArrayCollection();
         $this->ditServiceDebiteur = new ArrayCollection();
         $this->badmServiceEmetteur = new ArrayCollection();
         $this->badmServiceDebiteur = new ArrayCollection();
-        $this->userServiceAutoriser = new ArrayCollection();
         $this->domServiceEmetteur = new ArrayCollection();
         $this->domServiceDebiteur = new ArrayCollection();
         $this->tkiServiceEmetteur = new ArrayCollection();
         $this->tkiServiceDebiteur = new ArrayCollection();
         $this->mutationServiceEmetteur = new ArrayCollection();
         $this->mutationServiceDebiteur = new ArrayCollection();
+        $this->agenceServices = new ArrayCollection();
     }
 
     public function getId()
@@ -171,29 +164,30 @@ class Service
 
     public function getAgences(): Collection
     {
-        return $this->agences;
+        return $this->agenceServices->map(fn(AgenceService $as) => $as->getAgence());
     }
 
-    public function addAgence(Agence $agence): self
+    /**
+     * @return Collection<int, AgenceService>
+     */
+    public function getAgenceServices(): Collection
     {
-        if (!$this->agences->contains($agence)) {
-            $this->agences[] = $agence;
-            $agence->addService($this);
-        }
+        return $this->agenceServices;
+    }
+
+    public function addAgenceService(AgenceService $agenceService): self
+    {
+        $this->agenceServices[] = $agenceService;
+
         return $this;
     }
 
-    public function removeAgence(Agence $agence): self
+    public function removeAgenceService(AgenceService $agenceService): self
     {
-        if ($this->agences->contains($agence)) {
-            $this->agences->removeElement($agence);
-            $agence->removeService($this);
-        }
+        $this->agenceServices->removeElement($agenceService);
+
         return $this;
     }
-
-
-
 
     /** DIT */
 
@@ -348,32 +342,6 @@ class Service
 
         return $this;
     }
-
-
-
-    public function getUserServiceAutoriser(): Collection
-    {
-        return $this->userServiceAutoriser;
-    }
-
-    public function addUserServiceAutoriser(User $userServiceAutoriser): self
-    {
-        if (!$this->userServiceAutoriser->contains($userServiceAutoriser)) {
-            $this->userServiceAutoriser[] = $userServiceAutoriser;
-            $userServiceAutoriser->addServiceAutoriser($this);
-        }
-        return $this;
-    }
-
-    public function removeUserServiceAutoriser(User $userServiceAutoriser): self
-    {
-        if ($this->userServiceAutoriser->contains($userServiceAutoriser)) {
-            $this->userServiceAutoriser->removeElement($userServiceAutoriser);
-            $userServiceAutoriser->removeServiceAutoriser($this);
-        }
-        return $this;
-    }
-
 
     /** DOM */
 

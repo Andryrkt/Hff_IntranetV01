@@ -4,32 +4,42 @@
 	Nouvelle application
 {% endblock %}
 
+{% block breadCrumb %}{% endblock %}
+
 {% block content %}
-	<div class="container mt-6 mb-4">
+	<div class="container my-4">
 		<div class="card">
 			<div class="card-body">
-
 				<div class="container">
 					<h3 class="perso-titre">
-						Formulaire Application
+						Formulaire Création Application
 					</h3>
 
-					<a href="{{path("role_index")}}" class="btn btn-sm  text-white my-3 fw-bold" style="background-color: #FBBB01;">Liste</a>
+					<a href="{{path("application_index")}}" class="btn btn-sm  text-white my-3 fw-bold" style="background-color: #FBBB01;">Liste des applications</a>
 
 					{{ form_start(form) }}
 					{{ form_errors(form)}}
 
 					<div class="row">
 						<div class="col-12 col-md-6">
-
-							{{ form_row(form.nom) }}
-
-						</div>
-						<div class="col-12 col-md-6">
 							{{ form_row(form.codeApp) }}
 						</div>
+						<div class="col-12 col-md-6">
+							{{ form_row(form.nom) }}
+						</div>
+						{{ form_row(form.pages) }}
 					</div>
-
+					<div class="alert alert-info d-flex align-items-center">
+						<i class="fas fa-circle-info fs-4 me-3"></i>
+						<div>
+							<strong>Page inexistante</strong><br>
+							Une page semble ne pas exister ?
+						</div>
+						<a href="{{ urlPageNew }}" class="ms-auto btn btn-sm btn-info">
+							<i class="fas fa-plus me-1"></i>
+							Créer la page
+						</a>
+					</div>
 
 					<button type="submit" class="btn btn-primary">
 						<i class="fas fa-save"></i>
@@ -37,7 +47,11 @@
 					</button>
 					{{ form_end(form) }}
 				</div>
-
 			</div>
 		</div>
-	{% endblock %}
+	</div>
+{% endblock %}
+
+{% block javascript %}
+	<script src="{{ App.base_path }}/Views/js/admin/application/application.js?v=2025.10.22.08.00" type="module"></script>
+{% endblock %}

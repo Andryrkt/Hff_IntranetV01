@@ -43,11 +43,6 @@ class PointageRelance
     private ?string $utilisateur = null;
 
     /**
-     * @ORM\Column(type="string", length=5, name="societe", nullable=true)
-     */
-    private ?string $societe = null;
-
-    /**
      * @ORM\Column(type="string", length=2, name="agence", nullable=true)
      */
     private ?string $agence = null;
@@ -71,6 +66,11 @@ class PointageRelance
      * @ORM\Column(type="string", length=255, name="motif_stop_niveau", nullable=true)
      */
     private $motifStopNiveau;
+
+    /** 
+     * @ORM\Column(type="string", length=2, name="code_societe", nullable=true)
+     */
+    private $codeSociete;
 
     /** =========================================
      * GETTERS & SETTERS
@@ -148,24 +148,6 @@ class PointageRelance
     public function setUtilisateur(?string $utilisateur): self
     {
         $this->utilisateur = $utilisateur;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of societe
-     */
-    public function getSociete(): ?string
-    {
-        return $this->societe;
-    }
-
-    /**
-     * Set the value of societe
-     */
-    public function setSociete(?string $societe): self
-    {
-        $this->societe = $societe;
 
         return $this;
     }
@@ -256,6 +238,24 @@ class PointageRelance
     public function setMotifStopNiveau($motifStopNiveau): self
     {
         $this->motifStopNiveau = $motifStopNiveau;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of codeSociete
+     */
+    public function getCodeSociete()
+    {
+        return $this->codeSociete;
+    }
+
+    /**
+     * Set the value of codeSociete
+     */
+    public function setCodeSociete($codeSociete): self
+    {
+        $this->codeSociete = $codeSociete;
 
         return $this;
     }

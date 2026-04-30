@@ -11,13 +11,13 @@ class DitFactureSoumisAValidationModel extends Model
     use ConversionTrait;
 
 
-    public function recupTypeFacture($numFac)
+    public function recupTypeFacture($numFac, string $codeSociete)
     {
         $statement = "SELECT slor_typeor  
                     FROM sav_lor 
-                    WHERE slor_numfac = '" . $numFac . "'
+                    WHERE slor_numfac = '$numFac'
+                    AND slor_soc = '$codeSociete'
         ";
-
 
         $result = $this->connect->executeQuery($statement);
 
@@ -26,11 +26,12 @@ class DitFactureSoumisAValidationModel extends Model
         return array_column($this->convertirEnUtf8($data), 'slor_typeor');
     }
 
-    public function recupQterea($numFac)
+    public function recupQterea($numFac, string $codeSociete)
     {
         $statement = "SELECT  slor_qterea 
                     FROM sav_lor 
-                    WHERE slor_numfac = '" . $numFac . "'
+                    WHERE slor_numfac = '$numFac'
+                    AND slor_soc = '$codeSociete'
         ";
 
         $result = $this->connect->executeQuery($statement);
@@ -40,11 +41,12 @@ class DitFactureSoumisAValidationModel extends Model
         return array_column($this->convertirEnUtf8($data), 'slor_qterea');
     }
 
-    public function recupNumeroSoumission($numOr)
+    public function recupNumeroSoumission($numOr, $codeSociete)
     {
         $sql = "SELECT COALESCE(MAX(numero_soumission)+1, 1) AS numSoumissionEncours
                 FROM facture_soumis_a_validation
-                WHERE numero_or = '" . $numOr . "'";
+                WHERE numero_or = '$numOr'
+                AND code_societe = '$codeSociete'";
 
         $exec = $this->connexion->query($sql);
         $result = odbc_fetch_array($exec);
@@ -67,7 +69,7 @@ class DitFactureSoumisAValidationModel extends Model
         return $result['statut'];
     }
 */
-    public function recupInfoFact($numOR, $numFact)
+    public function recupInfoFact($numOR, $numFact, $codeSociete)
     {
         $statement = " SELECT
                     slor_numfac AS numeroFac, 
@@ -91,8 +93,8 @@ class DitFactureSoumisAValidationModel extends Model
                 JOIN
                     sav_itv ON sitv_numor = slor_numor
                         AND sitv_interv = slor_nogrp / 100
-                WHERE
-                slor_numor = '" . $numOR . "'
+                WHERE slor_soc = '$codeSociete'
+                AND slor_numor = '" . $numOR . "'
                     AND slor_numfac = '" . $numFact . "'
                     --AND sitv_servcrt IN ('ATE', 'FOR', 'GAR', 'MAN', 'CSP', 'MAS', 'LR6', 'LST') 
                 GROUP BY
@@ -108,7 +110,7 @@ class DitFactureSoumisAValidationModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function recupEtatOr($numOr)
+    public function recupEtatOr($numOr, string $codeSociete)
     {
         $statement = " SELECT 
                 CASE 
@@ -116,7 +118,8 @@ class DitFactureSoumisAValidationModel extends Model
                     ELSE 'CF'
                 END AS etat_facturation_or
             FROM sav_lor
-            WHERE slor_numor = '" . $numOr . "' 
+            WHERE slor_numor = '$numOr' 
+            AND slor_soc = '$codeSociete'
             AND NVL(slor_numfac, 0) = 0 ";
 
         $result = $this->connect->executeQuery($statement);
@@ -126,7 +129,7 @@ class DitFactureSoumisAValidationModel extends Model
         return array_column($this->convertirEnUtf8($data), 'etat_facturation_or');
     }
 
-    public function recupOrSoumisValidation($numOr, $numFact)
+    public function recupOrSoumisValidation($numOr, $numFact, $codeSociete)
     {
         $statement = "SELECT
         slor_numor,
@@ -206,6 +209,7 @@ class DitFactureSoumisAValidationModel extends Model
         from sav_eor, sav_lor, sav_itv
         WHERE
             seor_numor = slor_numor
+            AND slor_soc = '$codeSociete'
             AND seor_serv <> 'DEV'
             AND sitv_numor = slor_numor
             AND sitv_interv = slor_nogrp / 100
@@ -226,11 +230,12 @@ class DitFactureSoumisAValidationModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function recupNombreFacture($numOr, $numFact)
+    public function recupNombreFacture($numOr, $numFact, $codeSociete)
     {
         $statement = "SELECT count(slor_numfac) as nbFact 
-                    FROM sav_lor where slor_numor = '" . $numOr . "'
-                    AND slor_numfac = '" . $numFact . "'
+                    FROM sav_lor where slor_numor = '$numOr'
+                    AND slor_numfac = '$numFact'
+                    AND slor_soc = '$codeSociete'
                     ";
 
         $result = $this->connect->executeQuery($statement);
@@ -265,14 +270,14 @@ class DitFactureSoumisAValidationModel extends Model
         return array_column($data, 'numeroItv');
     }
 
-    public function recupNumeroOr($numDit)
+    public function recupNumeroOr($numDit, string $codeSociete)
     {
         $statement = " SELECT 
             seor_numor as numOr
             from sav_eor
-            where seor_refdem = '" . $numDit . "'
+            where seor_refdem = '$numDit'
             AND seor_serv = 'SAV'
-
+            AND seor_soc = '$codeSociete'
         ";
         $result = $this->connect->executeQuery($statement);
 
@@ -281,7 +286,7 @@ class DitFactureSoumisAValidationModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function recuperationStatutItv($numOr, $numItv)
+    public function recuperationStatutItv($numOr, $numItv, $codeSociete)
     {
         // $statement = " SELECT 
         //         trim(seor_refdem) as referenceDIT,
@@ -340,8 +345,7 @@ class DitFactureSoumisAValidationModel extends Model
                     AND sliv_succ = slor_succ 
                     AND sliv_numor = seor_numor 
                     AND slor_nolign = sliv_nolign
-                WHERE 
-                    slor_soc = 'HF'
+                WHERE slor_soc = '$codeSociete'
                     AND seor_serv = 'SAV'
                     --AND slor_constp IN (" . GlobalVariablesService::get('tous') . ")
                     AND slor_numor = '" . $numOr . "'

@@ -1,0 +1,15 @@
+<?php
+
+namespace App\Dto\admin;
+
+use App\Entity\admin\historisation\pageConsultation\PageHff;
+
+class AppProfilPageDTO
+{
+    public ?PageHff $page = null;
+    public bool $peutVoir = false;
+    public bool $peutVoirListeAvecDebiteur = false;
+    public bool $peutMultiSuccursale = false;
+    public bool $peutSupprimer = false;
+    public bool $peutExporter = false;
+}

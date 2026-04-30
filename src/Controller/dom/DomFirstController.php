@@ -2,16 +2,11 @@
 
 namespace App\Controller\dom;
 
-
 use App\Entity\dom\Dom;
-use App\Entity\admin\Agence;
-use App\Entity\admin\Service;
 use App\Controller\Controller;
 use App\Form\dom\DomForm1Type;
-use App\Entity\admin\Application;
-use App\Entity\admin\utilisateur\User;
 use App\Entity\admin\dom\SousTypeDocument;
-use App\Controller\Traits\AutorisationTrait;
+use App\Constants\admin\ApplicationConstant;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -20,39 +15,35 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class DomFirstController extends Controller
 {
-    use AutorisationTrait;
-
     /**
      * @Route("/dom-first-form", name="dom_first_form")
      */
     public function firstForm(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
-        /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_DOM);
-        /** FIN AUtorisation acées */
-
-        //récupération de l'utilisateur connecté
-        $user = $this->getUser();
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
 
         // Récupération de l'agence et du service de l'utilisateur connecté
         $agenceServiceIps = $this->agenceServiceIpsString();
 
         $dom = new Dom();
+
         //INITIALISATION 
-        $dom = $this->initialisationDom($dom, $agenceServiceIps, $user);
+        $dom = $this->initialisationDom($dom, $agenceServiceIps, $codeSociete);
 
         //CREATION DU FORMULAIRE
-        $form = $this->getFormFactory()->createBuilder(DomForm1Type::class, $dom)->getForm();
+        $form = $this->getFormFactory()->createBuilder(DomForm1Type::class, $dom, [
+            'agenceCodeUser' => $this->getSecurityService()->getCodeAgenceUser(),
+            'serviceCodeUser' => $this->getSecurityService()->getCodeServiceUser(),
+            'agenceServiceAutorisees' => $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DOM)
+        ])->getForm();
+
         //TRAITEMENT DU FORMULAIRE
         $this->traitemementForm($form, $request, $dom);
 
         //HISTORISATION DE LA PAGE
         $this->logUserVisit('dom_first_form'); // historisation du page visité par l'utilisateur
-        
-        
+
         //RENDU DE LA VUE
         return $this->render('doms/firstForm.html.twig', [
             'form' => $form->createView(),
@@ -81,27 +72,18 @@ class DomFirstController extends Controller
      * Initialise le DOM
      * @param Dom $dom
      * @param array $agenceServiceIps
-     * @param User $user
+     * 
      * @return Dom
      */
-    private function initialisationDom(Dom $dom, array $agenceServiceIps, User $user): Dom
+    private function initialisationDom(Dom $dom, array $agenceServiceIps, string $codeSociete): Dom
     {
         return $dom
+            ->setCodeSociete($codeSociete)
             ->setAgenceEmetteur($agenceServiceIps['agenceIps'])
             ->setServiceEmetteur($agenceServiceIps['serviceIps'])
             ->setSousTypeDocument($this->getEntityManager()->getRepository(SousTypeDocument::class)->find(2))
             ->setSalarier('PERMANENT')
-            ->setCodeAgenceAutoriser($user->getAgenceAutoriserCode())
-            ->setCodeServiceAutoriser($user->getServiceAutoriserCode())
         ;
-    }
-    private function autorisationRole($em): bool
-    {
-        /** CREATION D'AUTORISATION */
-        $userId = $this->getSessionService()->get('user_id');
-        $userConnecter = $em->getRepository(User::class)->find($userId);
-        $roleIds = $userConnecter->getRoleIds();
-        return in_array(1, $roleIds) || in_array(4, $roleIds);
     }
 
     private function notification($message)

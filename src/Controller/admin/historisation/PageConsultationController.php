@@ -17,9 +17,6 @@ class PageConsultationController extends Controller
      */
     public function index(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $pageConsultationSearch = new PageConsultationSearch;
 
         $this->initialisationFormRecherche($pageConsultationSearch);
@@ -79,7 +76,7 @@ class PageConsultationController extends Controller
     private function initialisationFormRecherche(PageConsultationSearch $pageConsultationSearch)
     {
         // Initialisation des critères depuis la session
-        $criteria = $this->getSessionService()->get('page_consultation_search_criteria', []) ?? [];
+        $criteria = $this->getSessionService()->get('page_consultation_search_criteria', []);
 
         // Si des critères existent, les utiliser pour définir les entités associées
         if (!empty($criteria)) {

@@ -9,7 +9,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class Form2Api extends Controller
 {
     /**
-     * @Route("/service-fetch/{id}", name="fetch_service", methods={"GET"})
+     * @Route("/api/badm/service-fetch/{id}", name="api_badm_fetch_service", methods={"GET"})
      * cette fonction permet d'envoyer les donner du service destinataire et casier destiantaireselon l'agence debiteur en ajax
      * @return void
      */
@@ -34,7 +34,7 @@ class Form2Api extends Controller
     }
 
     /**
-     * @Route("/casier-fetch/{id}", name="fetch_casier", methods={"GET"})
+     * @Route("/api/badm/casier-fetch/{id}", name="api_badm_fetch_casier", methods={"GET"})
      * cette fonction permet d'envoyer les donner du service destinataire l'agence debiteur en ajax
      * @return void
      */

@@ -2,13 +2,14 @@
 
 namespace App\Controller\magasin\cis\Traiter;
 
+use App\Constants\admin\ApplicationConstant;
 use App\Controller\Controller;
-use App\Entity\admin\Application;
-use App\Controller\Traits\AutorisationTrait;
+use App\Controller\Traits\magasin\cis\AtraiterTrait;
 use App\Form\magasin\cis\ATraiterSearchType;
+use App\Service\security\SecurityService;
+use App\Service\TableauEnStringService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\Traits\magasin\cis\AtraiterTrait;
 
 /**
  * @Route("/magasin/cis")
@@ -16,26 +17,27 @@ use App\Controller\Traits\magasin\cis\AtraiterTrait;
 class CisATraiterController extends Controller
 {
     use AtraiterTrait;
-    use AutorisationTrait;
 
     /**
      * @Route("/cis-liste-a-traiter", name="cis_liste_a_traiter")
      */
     public function listCisATraiter(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-        /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_MAG);
-        /** FIN AUtorisation acées */
+        $agenceUser = "''";
 
-        /** CREATION D'AUTORISATION */
-        $autoriser = $this->autorisationRole($this->getEntityManager());
-        //FIN AUTORISATION
+        // Vérifier la permission de voir tous les données
+        $multisuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE);
 
-        $agenceUser = $this->agenceUser($autoriser);
+        if (!$multisuccursale) {
+            $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_MAGASIN);
 
-        $form = $this->getFormFactory()->createBuilder(ATraiterSearchType::class, ['agenceUser' => $agenceUser, 'autoriser' => $autoriser], [
+            // Si l'utilisateur n'a pas d'agence et service autorisé, on prend son agence par défaut
+            $codeAgence = empty($agenceServiceAutorises) ? [$this->getSecurityService()->getCodeAgenceUser()] : array_column($agenceServiceAutorises, 'agence_code');
+
+            $agenceUser = TableauEnStringService::TableauEnString(',', $codeAgence);
+        }
+
+        $form = $this->getFormFactory()->createBuilder(ATraiterSearchType::class, ['agenceUser' => $agenceUser], [
             'method' => 'GET'
         ])->getForm();
 
@@ -60,5 +62,4 @@ class CisATraiterController extends Controller
             'form' => $form->createView()
         ]);
     }
-    
 }

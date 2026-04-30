@@ -42,18 +42,12 @@ class DetailTikController extends Controller
      */
     public function detail($id, Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         /** 
          * @var DemandeSupportInformatique $supportInfo l'entité du DemandeSupportInformatique correspondant à l'id $id
          */
         $supportInfo = $this->getEntityManager()->getRepository(DemandeSupportInformatique::class)->find($id);
 
-        /** 
-         * @var User $connectedUser l'utilisateur connecté
-         */
-        $connectedUser = $this->getEntityManager()->getRepository(User::class)->find($this->getSessionService()->get('user_id'));
+        $connectedUser = $this->getUser();
 
         $handleRequestService = new HandleRequestService($this->getEntityManager(), $this->getTwig(), $connectedUser, $supportInfo);
 

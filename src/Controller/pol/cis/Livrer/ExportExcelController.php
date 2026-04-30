@@ -5,6 +5,7 @@ namespace App\Controller\pol\cis\Livrer;
 use App\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\magasin\cis\ALivrerTrait;
+use App\Service\ExcelService;
 
 /**
  * @Route("/pol/cis")
@@ -15,13 +16,10 @@ class ExportExcelController extends Controller
 
 
     /**
-     * @Route("/export-excel-cis-a-livrer", name="pol_export_excel_cis_a_livrer")
+     * @Route("/export-excel-cis-a-livrer", name="export_excel_pol_cis_a_livrer")
      */
     public function exportExcel()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         //recupères les critère dans la session 
         $criteria = $this->getSessionService()->get('cis_a_Livrer_search_criteria', []);
 
@@ -50,6 +48,6 @@ class ExportExcelController extends Controller
             ];
         }
 
-        $this->getExcelService()->createSpreadsheet($data);
+        (new ExcelService())->createSpreadsheet($data);
     }
 }

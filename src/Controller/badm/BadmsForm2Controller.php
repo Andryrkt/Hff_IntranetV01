@@ -12,7 +12,6 @@ use App\Entity\admin\badm\TypeMouvement;
 use App\Controller\Traits\FormatageTrait;
 use App\Controller\Traits\BadmsForm2Trait;
 use App\Service\genererPdf\GenererPdfBadm;
-use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\historiqueOperation\HistoriqueOperationBADMService;
@@ -26,8 +25,6 @@ class BadmsForm2Controller extends Controller
 {
     use FormatageTrait;
     use BadmsForm2Trait;
-    use AutorisationTrait;
-
     private $historiqueOperation;
     private $fusionPdf;
     private $badm;
@@ -47,19 +44,14 @@ class BadmsForm2Controller extends Controller
      */
     public function newForm1(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
-        /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_BADM);
-        /** FIN AUtorisation acées */
-
         $badm = new Badm();
 
         //recupération des donnée qui vient du formulaire 1
         $form1Data = $this->getSessionService()->get('badmform1Data', []);
+        $codeSociete = $form1Data['codeSociete'];
+
         // recuperation des information du matériel entrer par l'utilisateur dans le formulaire 1
-        $data = $this->badm->findAll($form1Data['idMateriel'],  $form1Data['numParc'], $form1Data['numSerie']);
+        $data = $this->badm->findAll($form1Data['idMateriel'],  $form1Data['numParc'], $form1Data['numSerie'], $codeSociete);
 
         /** INITIALISATION du formulaire 2*/
         $badm = $this->initialisation($badm, $form1Data, $data, $this->getEntityManager());
@@ -80,8 +72,8 @@ class BadmsForm2Controller extends Controller
             $coditionAgenceService = $badm->getAgenceEmetteur() === $badm->getAgence() && $badm->getServiceEmetteur() === $badm->getService();
             $conditionAgenceServices = $badm->getAgence() === null && $badm->getService() === null || $coditionAgenceService;
             $conditionVide = $badm->getAgence() === null && $badm->getService() === null && $badm->getCasierDestinataire() === null && $badm->getDateMiseLocation() === null;
-            $idMateriel = (int)$data[0]['num_matricule'];
-            $idMateriels = $this->getEntityManager()->getRepository(Badm::class)->findIdMateriel();
+            // $idMateriel = (int)$data[0]['num_matricule'];
+            // $idMateriels = $this->getEntityManager()->getRepository(Badm::class)->findIdMateriel();
 
 
 

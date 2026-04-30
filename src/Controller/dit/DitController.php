@@ -16,7 +16,6 @@ use App\Service\autres\AutoIncDecService;
 use Symfony\Component\Form\FormInterface;
 use App\Entity\admin\dit\WorNiveauUrgence;
 use App\Service\fichier\UploderFileService;
-use App\Controller\Traits\AutorisationTrait;
 use App\Service\fichier\TraitementDeFichier;
 use App\Controller\Traits\PdfConversionTrait;
 use App\Service\genererPdf\dit\GenererPdfDit;
@@ -35,7 +34,6 @@ class DitController extends Controller
 {
     use DitTrait;
     use FormatageTrait;
-    use AutorisationTrait;
     use PdfConversionTrait;
 
 
@@ -61,26 +59,25 @@ class DitController extends Controller
      */
     public function new(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
-        /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_DIT);
-        /** FIN AUtorisation acées */
-
         $demandeIntervention = new DemandeIntervention();
+
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
 
         //INITIALISATION DU FORMULAIRE
         $agenceService = $this->agenceServiceIpsObjet();
-        $demandeIntervention->setAgenceEmetteur($agenceService['agenceIps']->getCodeAgence() . ' ' . $agenceService['agenceIps']->getLibelleAgence());
-        $demandeIntervention->setServiceEmetteur($agenceService['serviceIps']->getCodeService() . ' ' . $agenceService['serviceIps']->getLibelleService());
-        $demandeIntervention->setAgence($agenceService['agenceIps']);
-        $demandeIntervention->setService($agenceService['serviceIps']);
-        $demandeIntervention->setIdNiveauUrgence($this->getEntityManager()->getRepository(WorNiveauUrgence::class)->find(1));
+        $demandeIntervention
+            ->setAgenceEmetteur($agenceService['agenceIps']->getCodeAgence() . ' ' . $agenceService['agenceIps']->getLibelleAgence())
+            ->setServiceEmetteur($agenceService['serviceIps']->getCodeService() . ' ' . $agenceService['serviceIps']->getLibelleService())
+            ->setAgence($agenceService['agenceIps'])
+            ->setService($agenceService['serviceIps'])
+            ->setIdNiveauUrgence($this->getEntityManager()->getRepository(WorNiveauUrgence::class)->find(1))
+            ->setCodeSociete($codeSociete)
+        ;
 
         //AFFICHAGE ET TRAITEMENT DU FORMULAIRE
         $form = $this->getFormFactory()->createBuilder(demandeInterventionType::class, $demandeIntervention)->getForm();
-        $this->traitementFormulaire($form, $request, $demandeIntervention);
+        $this->traitementFormulaire($form, $request);
 
         $this->logUserVisit('dit_new'); // historisation du page visité par l'utilisateur
 
@@ -119,12 +116,11 @@ class DitController extends Controller
             $dto = DemandeInterventionDto::createFromEntity($ditFromForm);
 
             // 2. Enrichir le DTO avec les informations système (initialisation ou ajout des info par defaut)
-            $user = $this->getUser();
             $em = $this->getEntityManager();
-            $dto->utilisateurDemandeur = $user->getNomUtilisateur();
+            $dto->utilisateurDemandeur = $this->getUserName();
             $dto->heureDemande = $this->getTime();
             $dto->dateDemande = new \DateTime($this->getDatesystem());
-            $dto->mailDemandeur = $user->getMail();
+            $dto->mailDemandeur = $this->getUserMail();
 
             // Statut de la demande
             $statutRepository = $em->getRepository(StatutDemande::class);
@@ -166,9 +162,9 @@ class DitController extends Controller
         }
     }
 
-    private function modificationBdPourHitorisationDw($em, $demandeIntervention, bool $reponse): void
+    private function modificationBdPourHitorisationDw($em, DemandeIntervention $demandeIntervention, bool $reponse): void
     {
-        $dit = $this->demandeRepository->findOneBy(['numeroDemandeIntervention' => $demandeIntervention->getNumeroDemandeIntervention()]);
+        $dit = $this->demandeRepository->findOneBy(['numeroDemandeIntervention' => $demandeIntervention->getNumeroDemandeIntervention(), 'codeSociete' => $demandeIntervention->getCodeSociete()]);
         $dit->setPdfDeposerDw($reponse)
             ->setDateDepotPdfDw(new \DateTime());
         $em->persist($dit);
@@ -236,7 +232,6 @@ class DitController extends Controller
         // 3. fusion du page de garde et des pieces jointes (conversion avant la fusion)
         $nomEtCheminFichierConvertie = $this->ConvertirLesPdf($nomEtCheminFichiersEnregistrer);
         $traitementDeFichier->fusionFichers($nomEtCheminFichierConvertie, $nomAvecCheminFichier);
-
 
         return [$nomFichierEnregistrer, $nomFichier];
     }

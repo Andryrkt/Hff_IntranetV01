@@ -103,6 +103,7 @@ class DaAfficherMapper
         // DAL
         $dto->statutDal = !$estAppro && in_array($data->getStatutDal(), StatutDaConstant::STATUT_TRAITEMENT_APPRO) ? StatutDaConstant::TRAITEMENT_APPRO : $data->getStatutDal();
         $dto->verouille = $dto->datype === DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL ? true : $this->permissionDaService->estDaVerrouillee(
+            $dto->datype,
             $dto->statutDal,
             $dto->statutOr,
             $estAdmin,
@@ -191,7 +192,7 @@ class DaAfficherMapper
         }
 
         // URL Demande Devis
-        $dto->urlDemandeDevis = ($item->getDemandeAppro())  ? $this->router->generate('da_demande_devis_en_cours', $paramsDa) : '#';
+        $dto->urlDemandeDevis = ($item->getDemandeAppro())  ? $this->router->generate('api_da_demande_devis_en_cours', $paramsDa) : '#';
     }
 
     private function prepareTdNumCdeAttributes(DaAfficherDto $dto): array

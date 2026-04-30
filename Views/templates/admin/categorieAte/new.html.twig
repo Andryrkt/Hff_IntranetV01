@@ -4,8 +4,10 @@
 	Nouvelle catégorie
 {% endblock %}
 
+{% block breadCrumb %}{% endblock %}
+
 {% block content %}
-	<div class="container mt-6 mb-4">
+	<div class="container my-4">
 		<div class="card">
 			<div class="card-body">
 
@@ -14,7 +16,7 @@
 						Formulaire Categorie ATE
 					</h2>
 
-					<a href="{{path("role_index")}}" class="btn btn-sm  text-white my-3 fw-bold" style="background-color: #FBBB01;">Liste</a>
+					<a href="{{path("role_index")}}" class="btn btn-sm  text-white my-3 fw-bold" style="background-color: #FBBB01;">Liste des catégories ATE</a>
 
 					{{ form_start(form) }}
 					{{ form_errors(form)}}

@@ -2,15 +2,15 @@
 
 namespace App\Controller\pol\cis\Livrer;
 
-
+use App\Constants\admin\ApplicationConstant;
 use App\Controller\Controller;
-use App\Entity\admin\Application;
-use Symfony\Component\Form\FormInterface;
+use App\Controller\Traits\magasin\cis\ALivrerTrait;
 use App\Form\magasin\cis\ALivrerSearchtype;
-use App\Controller\Traits\AutorisationTrait;
+use App\Service\security\SecurityService;
+use App\Service\TableauEnStringService;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\Traits\magasin\cis\ALivrerTrait;
 
 /**
  * @Route("/pol/cis-pol")
@@ -18,23 +18,26 @@ use App\Controller\Traits\magasin\cis\ALivrerTrait;
 class PolCisALivrerController extends Controller
 {
     use ALivrerTrait;
-    use AutorisationTrait;
-
     /**
      * @Route("/cis-liste-a-livrer", name="pol_cis_liste_a_livrer")
      */
     public function listCisALivrer(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
+        $agenceUser = "''";
 
-        /** CREATION D'AUTORISATION */
-        $autoriser = $this->autorisationRole($this->getEntityManager());
-        //FIN AUTORISATION
+        // Vérifier la permission de voir tous les données
+        $multisuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE);
 
-        $agenceUser = $this->agenceUser($autoriser);
+        if (!$multisuccursale) {
+            $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_POL);
 
-        $form = $this->getFormFactory()->createBuilder(ALivrerSearchtype::class, ['agenceUser' => $agenceUser, 'autoriser' => $autoriser], [
+            // Si l'utilisateur n'a pas d'agence et service autorisé, on prend son agence par défaut
+            $codeAgence = empty($agenceServiceAutorises) ? [$this->getSecurityService()->getCodeAgenceUser()] : array_column($agenceServiceAutorises, 'agence_code');
+
+            $agenceUser = TableauEnStringService::TableauEnString(',', $codeAgence);
+        }
+
+        $form = $this->getFormFactory()->createBuilder(ALivrerSearchtype::class, ['agenceUser' => $agenceUser], [
             'method' => 'GET',
             'est_pneumatique' => true
         ])->getForm();
@@ -70,5 +73,4 @@ class PolCisALivrerController extends Controller
         //recupération des données
         return $this->recupData($criteria);
     }
-
 }

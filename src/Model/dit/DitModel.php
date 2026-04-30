@@ -208,7 +208,7 @@ class DitModel extends Model
     return $this->convertirEnUtf8($data);
   }
 
-  public function recuperationIdMateriel($numParc = '', $numSerie = '')
+  public function recuperationIdMateriel($numParc = '', $numSerie = '', $codeSociete)
   {
     if ($numParc === '' || $numParc === '0' || $numParc === null) {
       $conditionNumParc = "";
@@ -227,6 +227,7 @@ class DitModel extends Model
         from mat_mat
         where  MMAT_ETSTOCK in ('ST','AT', '--')
         and trim(MMAT_AFFECT) in ('IMM','LCD', 'SDO', 'VTE', 'CAS')
+        and mmat_soc = '$codeSociete'
         " . $conditionNumParc . "
         " . $conditionNumSerie . "
         ";
@@ -387,7 +388,7 @@ class DitModel extends Model
     return $this->convertirEnUtf8($data);
   }
 
-  public function recupOrSoumisValidation($numOr)
+  public function recupOrSoumisValidation($numOr, $codeSociete)
   {
     $statement = "SELECT
           slor_numor,
@@ -473,12 +474,12 @@ class DitModel extends Model
               AND seor_serv <> 'DEV'
               AND sitv_numor = slor_numor
               AND sitv_interv = slor_nogrp / 100
-              AND seor_soc = 'HF'
+              AND seor_soc = '$codeSociete'
               AND slor_soc=seor_soc
               AND sitv_soc=seor_soc
           --AND sitv_pos NOT IN('FC', 'FE', 'CP', 'ST')
           --AND sitv_servcrt IN ('ATE','FOR','GAR','MAN','CSP','MAS','LR6','LST')
-          AND seor_numor = '" . $numOr . "'
+          AND seor_numor = '$numOr'
           --AND SEOR_SUCC = '01'
           group by 1, 2, 3, 4, 5
           order by slor_numor, sitv_interv
@@ -491,11 +492,11 @@ class DitModel extends Model
     return $this->convertirEnUtf8($data);
   }
 
-  public function recupererNumdevis($numOr)
+  public function recupererNumdevis($numOr, $codeSociete)
   {
-    $statement = "SELECT  seor_numdev  
+    $statement = "SELECT seor_numdev 
                 from sav_eor
-                where seor_numor = '" . $numOr . "'";
+                where seor_numor = '$numOr' and seor_soc = '$codeSociete'";
 
     $result = $this->connect->executeQuery($statement);
 
@@ -504,12 +505,12 @@ class DitModel extends Model
     return $this->convertirEnUtf8($data);
   }
 
-  public function recupAgenceServiceDebiteur($numOr)
+  public function recupAgenceServiceDebiteur($numOr, string $codeSociete)
   {
     $statement = " SELECT 
           slor_succdeb || '-' || slor_servdeb AS agServDebiteur
           FROM sav_lor
-          WHERE slor_numor = '" . $numOr . "'";
+          WHERE slor_numor = '$numOr' AND slor_soc = '$codeSociete'";
 
     $result = $this->connect->executeQuery($statement);
 
@@ -557,14 +558,14 @@ class DitModel extends Model
     return $this->convertirEnUtf8($data);
   }
 
-  public function recupInfoMateriel(string $numOr)
+  public function recupInfoMateriel(string $numOr, string $codeSociete)
   {
     $statement = "SELECT 
         TRIM(mmat_desi) AS designation, 
         TRIM(mmat_numserie) AS numserie,
         mmat_nummat AS identite
       FROM sav_eor
-      INNER JOIN mat_mat on mmat_nummat = seor_nummat and seor_soc = 'HF'
+      INNER JOIN mat_mat on mmat_nummat = seor_nummat and seor_soc = '$codeSociete'
       WHERE seor_numor = '$numOr'";
 
     $result = $this->connect->executeQuery($statement);

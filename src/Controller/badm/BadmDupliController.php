@@ -37,9 +37,6 @@ class BadmDupliController extends Controller
      */
     public function dupliBadm($numBadm, $id, Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $badm = new Badm();
 
         $dataDb = $this->getEntityManager()->getRepository(Badm::class)->find($id);

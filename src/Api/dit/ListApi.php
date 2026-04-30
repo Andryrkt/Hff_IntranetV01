@@ -12,7 +12,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class ListApi extends Controller
 {
     /**
-     * @Route("/command-modal/{numOr}", name="liste_commandModal")
+     * @Route("/api/command-modal/{numOr}", name="api_liste_commandModal")
      *
      * @return void
      */
@@ -31,7 +31,7 @@ class ListApi extends Controller
     }
 
     /**
-     * @Route("/section-affectee-modal-fetch/{id}", name="section_affectee_modal")
+     * @Route("/section-affectee-modal-fetch/{id}", name="api_section_affectee_modal")
      *
      * @return void
      */
@@ -60,7 +60,7 @@ class ListApi extends Controller
 
     /** 
      * RECUPERATION numero intervention, numero facture et statut du facture
-     * @Route("/facturation-fetch/{numOr}", name="facturation_fetch") 
+     * @Route("/facturation-fetch/{numOr}", name="api_facturation_fetch") 
      * */
     public function facturation($numOr)
     {
@@ -96,7 +96,7 @@ class ListApi extends Controller
 
     /** 
      * RECUPERATION numero intervention, numero facture et statut du facture
-     * @Route("/ri-fetch/{numOr}", name="ri_fetch") 
+     * @Route("/ri-fetch/{numOr}", name="api_ri_fetch") 
      * */
     public function ri($numOr)
     {
@@ -122,7 +122,7 @@ class ListApi extends Controller
 
     /** 
      * 
-     * @Route("/niveau-urgence-fetch/{numDit}", name="niveau_urgnece_fetch") 
+     * @Route("/niveau-urgence-fetch/{numDit}", name="api_niveau_urgnece_fetch") 
      * */
     public function niveauUrgence($numDit)
     {

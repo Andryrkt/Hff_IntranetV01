@@ -6,21 +6,16 @@ namespace App\Controller\pol\ors\Livrer;
 ini_set('max_execution_time', 10000);
 ini_set('memory_limit', '1000M');
 
-
-use App\Model\dit\DitModel;
+use App\Constants\admin\ApplicationConstant;
 use App\Controller\Controller;
-use App\Entity\admin\Application;
-use App\Entity\dit\DemandeIntervention;
-use App\Service\TableauEnStringService;
+use App\Controller\Traits\magasin\ors\MagasinOrALivrerTrait;
 use App\Controller\Traits\Transformation;
+use App\Form\magasin\MagasinListeOrALivrerSearchType;
+use App\Service\security\SecurityService;
+use App\Service\TableauEnStringService;
 use Symfony\Component\Form\FormInterface;
-use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Model\magasin\MagasinListeOrLivrerModel;
-use App\Form\magasin\MagasinListeOrALivrerSearchType;
-use App\Controller\Traits\magasin\ors\MagasinOrALivrerTrait;
-use App\Controller\Traits\magasin\ors\MagasinTrait as OrsMagasinTrait;
 
 /**
  * @Route("/pol/ors-pol")
@@ -28,10 +23,7 @@ use App\Controller\Traits\magasin\ors\MagasinTrait as OrsMagasinTrait;
 class OrLivrerController extends Controller
 {
     use Transformation;
-    use OrsMagasinTrait;
     use MagasinOrALivrerTrait;
-    use AutorisationTrait;
-
     /**
      * @Route("/liste-or-livrer", name="pol_or_liste_a_livrer")
      *
@@ -39,22 +31,21 @@ class OrLivrerController extends Controller
      */
     public function listOrLivrer(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
+        $agenceUser = "''";
 
-        $codeAgence = $this->getUser()->getAgenceAutoriserCode();
+        // Vérifier la permission de voir tous les données
+        $multisuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE);
 
-        /** CREATION D'AUTORISATION */
-        $autoriser = $this->autorisationRole($this->getEntityManager());
-        //FIN AUTORISATION
+        if (!$multisuccursale) {
+            $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_POL);
 
-        if ($autoriser) {
-            $agenceUser = "''";
-        } else {
+            // Si l'utilisateur n'a pas d'agence et service autorisé, on prend son agence par défaut
+            $codeAgence = empty($agenceServiceAutorises) ? [$this->getSecurityService()->getCodeAgenceUser()] : array_column($agenceServiceAutorises, 'agence_code');
+
             $agenceUser = TableauEnStringService::TableauEnString(',', $codeAgence);
         }
 
-        $form = $this->getFormFactory()->createBuilder(MagasinListeOrALivrerSearchType::class, ['agenceUser' => $agenceUser, 'autoriser' => $autoriser], [
+        $form = $this->getFormFactory()->createBuilder(MagasinListeOrALivrerSearchType::class, ['agenceUser' => $agenceUser], [
             'method' => 'GET',
             'est_pneumatique' => true
         ])->getForm();
@@ -91,5 +82,4 @@ class OrLivrerController extends Controller
         //recupération des données
         return $this->recupData($criteria);
     }
-    
 }

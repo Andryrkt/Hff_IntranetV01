@@ -3,20 +3,19 @@
 namespace App\Controller\dw;
 
 use App\Controller\Controller;
-use App\Entity\admin\Application;
-use App\Controller\Traits\AutorisationTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
+use App\Traits\FileUtilityTrait;
 use App\Entity\da\DemandeApproLR;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
-use App\Model\dw\DossierInterventionAtelierModel;
-use App\Form\dw\DossierInterventionAtelierSearchType;
 use App\Repository\da\DemandeApproRepository;
+use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DemandeApproLRepository;
 use App\Repository\da\DemandeApproLRRepository;
+use Symfony\Component\Routing\Annotation\Route;
+use App\Model\dw\dossierInterventionAtelierModel;
+use App\Form\dw\DossierInterventionAtelierSearchType;
 use App\Service\historiqueOperation\HistoriqueOperationDITService;
-use App\Traits\FileUtilityTrait;
+use App\Service\security\SecurityService;
 
 /**
  * @Route("/atelier/demande-intervention")
@@ -24,8 +23,6 @@ use App\Traits\FileUtilityTrait;
 class DossierInterventionAtelierController extends Controller
 {
     use FileUtilityTrait;
-    use AutorisationTrait;
-
     private $historiqueOperation;
     private DemandeApproRepository $demandeApproRepository;
     private DemandeApproLRepository $demandeApproLRepository;
@@ -47,16 +44,9 @@ class DossierInterventionAtelierController extends Controller
      */
     public function dossierInterventionAtelier(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
-        /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_DIT);
-        /** FIN AUtorisation acées */
-
         $form = $this->getFormFactory()->createBuilder(DossierInterventionAtelierSearchType::class, null, ['method' => 'GET'])->getForm();
 
-        $dwModel = new DossierInterventionAtelierModel();
+        $dwModel = new dossierInterventionAtelierModel();
 
         $dwDits = []; // Initialisation du tableau pour les demandes d'intervention
         $criteria = [
@@ -91,14 +81,7 @@ class DossierInterventionAtelierController extends Controller
      */
     public function dwintervAteAvecDit($numDit)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
-        /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_DIT);
-        /** FIN AUtorisation acées */
-
-        $dwModel = new DossierInterventionAtelierModel();
+        $dwModel = new dossierInterventionAtelierModel();
 
         // Récupération initiale : Demande d'intervention
         $dwDit = $this->fetchAndLabel($dwModel, 'findDwDit', $numDit, "Demande d'intervention");
@@ -136,9 +119,12 @@ class DossierInterventionAtelierController extends Controller
         ]);
     }
 
-    public function ajoutNbDoc(DossierInterventionAtelierModel $dwModel, $criteria)
+    public function ajoutNbDoc(dossierInterventionAtelierModel $dwModel, $criteria)
     {
-        $dwDits = $dwModel->findAllDwDit($criteria, $this->getUser()->getCodeAgenceUser(), $this->estAdmin(), $this->getUserName());
+        // Vérifier la permission de voir tous les données
+        $multisuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE);
+
+        $dwDits = $dwModel->findAllDwDit($criteria, $this->getSecurityService()->getCodeAgenceUser(), $multisuccursale);
 
         $dwfac = $dwRi = $dwCde = $dwBc = $dwDev = $dwBca = $dwFacBl = [];
 

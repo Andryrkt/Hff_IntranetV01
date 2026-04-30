@@ -3,19 +3,15 @@
 
 namespace App\Controller\magasin\ors\Traiter;
 
+use App\Constants\admin\ApplicationConstant;
 use App\Controller\Controller;
-use App\Entity\admin\Application;
-use App\Entity\dit\DemandeIntervention;
-use App\Service\TableauEnStringService;
+use App\Controller\Traits\magasin\ors\MagasinOrATraiterTrait;
 use App\Controller\Traits\Transformation;
-use App\Controller\Traits\AutorisationTrait;
+use App\Form\magasin\MagasinListeOrATraiterSearchType;
+use App\Service\security\SecurityService;
+use App\Service\TableauEnStringService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Model\magasin\MagasinListeOrATraiterModel;
-use App\Form\magasin\MagasinListeOrATraiterSearchType;
-use App\Controller\Traits\magasin\ors\MagasinOrATraiterTrait;
-use App\Controller\Traits\magasin\ors\MagasinTrait as OrsMagasinTrait;
-use App\Model\dit\DitModel;
 
 /**
  * @Route("/magasin/or")
@@ -23,10 +19,7 @@ use App\Model\dit\DitModel;
 class OrTraiterController extends Controller
 {
     use Transformation;
-    use OrsMagasinTrait;
     use MagasinOrATraiterTrait;
-    use AutorisationTrait;
-
     /**
      * @Route("/liste-magasin", name="magasinListe_index")
      *
@@ -34,26 +27,21 @@ class OrTraiterController extends Controller
      */
     public function index(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-        /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_MAG);
-        /** FIN AUtorisation acées */
+        $agenceUser = "''";
 
-        
-        $codeAgence = $this->getUser()->getAgenceAutoriserCode();
+        // Vérifier la permission de voir tous les données
+        $multisuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE);
 
-        /** CREATION D'AUTORISATION */
-        $autoriser = $this->autorisationRole($this->getEntityManager());
-        //FIN AUTORISATION
+        if (!$multisuccursale) {
+            $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_MAGASIN);
 
-        if ($autoriser) {
-            $agenceUser = "''";
-        } else {
+            // Si l'utilisateur n'a pas d'agence et service autorisé, on prend son agence par défaut
+            $codeAgence = empty($agenceServiceAutorises) ? [$this->getSecurityService()->getCodeAgenceUser()] : array_column($agenceServiceAutorises, 'agence_code');
+
             $agenceUser = TableauEnStringService::TableauEnString(',', $codeAgence);
         }
 
-        $form = $this->getFormFactory()->createBuilder(MagasinListeOrATraiterSearchType::class, ['agenceUser' => $agenceUser, 'autoriser' => $autoriser], [
+        $form = $this->getFormFactory()->createBuilder(MagasinListeOrATraiterSearchType::class, ['agenceUser' => $agenceUser], [
             'method' => 'GET'
         ])->getForm();
 

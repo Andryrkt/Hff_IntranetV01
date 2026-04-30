@@ -12,10 +12,10 @@ use App\Controller\Traits\PlanningTraits;
 use App\Controller\Traits\Transformation;
 use App\Form\planning\PlanningSearchType;
 use App\Entity\dit\DitOrsSoumisAValidation;
-use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
+use App\Service\ExcelService;
 use App\Service\historiqueOperation\HistoriqueOperationDITService;
 use Symfony\Component\Form\FormInterface;
 
@@ -26,8 +26,6 @@ class PlanningController extends Controller
 {
     use Transformation;
     use PlanningTraits;
-    use AutorisationTrait;
-
     private PlanningModel $planningModel;
     private PlanningSearch $planningSearch;
     private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
@@ -49,12 +47,6 @@ class PlanningController extends Controller
      */
     public function listePlanning(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-        /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_REP);
-        /** FIN AUtorisation acées */
-
         //initialisation
         $this->planningSearch
             ->setAnnee(date('Y'))
@@ -89,13 +81,13 @@ class PlanningController extends Controller
 
         if ($request->query->get('action') !== 'oui') {
             /** @var string $orAvecItv @var string $orSansItv */
-            ['orAvecItv' => $orAvecItv,'orSansItv' => $orSansItv] = $this->recupNumOrValider($criteria);
+            ['orAvecItv' => $orAvecItv, 'orSansItv' => $orSansItv] = $this->recupNumOrValider($criteria);
             $tousLesOrSoumis = $this->allOrs();
             $touslesOrItvSoumis = $this->allOrsItv();
 
             $back = $this->planningModel->backOrderPlanning($orSansItv, $criteria, $tousLesOrSoumis);
             $backString = is_array($back) ? TableauEnStringService::orEnString($back) : '';
-            
+
             $data = $this->planningModel->recuperationMaterielplanifier($criteria, $orAvecItv, $backString, $touslesOrItvSoumis);
         } else {
             $data = [];
@@ -152,9 +144,6 @@ class PlanningController extends Controller
      */
     public function exportExcel()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $criteria = $this->getSessionService()->get('planning_search_criteria');
 
         $planningSearch = $this->creationObjetCriteria($criteria);
@@ -204,7 +193,7 @@ class PlanningController extends Controller
             $data[] = array_merge($row, $moisData);
         }
 
-        $this->getExcelService()->createSpreadsheet($data);
+        (new ExcelService())->createSpreadsheet($data);
     }
 
 
@@ -215,9 +204,6 @@ class PlanningController extends Controller
      */
     public function exportExcel01()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $criteria = $this->getSessionService()->get('planning_search_criteria');
 
         $planningSearch = $this->creationObjetCriteria($criteria);
@@ -253,6 +239,6 @@ class PlanningController extends Controller
             ];
         }
 
-        $this->getExcelService()->createSpreadsheet($data);
+        (new ExcelService())->createSpreadsheet($data);
     }
 }

@@ -19,7 +19,7 @@ class ModalPlanningApi extends Controller
 
 
     /**
-     * @Route("/detail-modal/{numOr}", name="liste_detailModal")
+     * @Route("/api/detail-modal/{numOr}", name="api_liste_detailModal")
      *
      * @return void
      */
@@ -41,7 +41,7 @@ class ModalPlanningApi extends Controller
     }
 
     /**
-     * @Route("/api/technicien-intervenant/{numOr}/{numItv}", name="")
+     * @Route("/api/technicien-intervenant/{numOr}/{numItv}", name="api_technicien_intervenant")
      */
     public function TechnicienIntervenant($numOr, $numItv)
     {

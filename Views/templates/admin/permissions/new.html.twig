@@ -1,0 +1,171 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% import "macroForm.html.twig" as macroForm %}
+
+{% block title %}
+	Gestion permission
+{% endblock %}
+
+{% block breadCrumb %}{% endblock %}
+
+{% block stylesheets %}
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/admin/permissions/new.css?v=2025.10.22.08.00">
+{% endblock %}
+
+{% block overlay %}
+	{% include "/shared/_overlay.html.twig"  %}
+{% endblock %}
+
+{% block content %}
+	<div class="container my-4">
+		<div class="card">
+			<div class="card-body">
+				<div class="container">
+					<h3 class="perso-titre">
+						<i class="fa fa-lock me-2 "></i>Gestion des permissions</h3>
+					<a href="{{ path("permission_index") }}" class="btn btn-sm  text-white my-3 fw-bold" style="background-color: #FBBB01;">Liste de tous les liaisons</a>
+					{{ form_start(form) }}
+					{{ form_errors(form)}}
+
+					<div class="row">
+						<div class="col-3">
+							{{ macroForm.affichage2('Société', codeSociete ~ ' - ' ~ nomSociete, 'mb-2') }}
+						</div>
+					</div>
+					<div class="row mb-3">
+						<div class="col">
+							{{ macroForm.affichage2('Référence du profil', reference, 'mb-2') }}
+						</div>
+						<div class="col">
+							{{ macroForm.affichage2('Nom du profil', nomProfil, 'mb-2') }}
+						</div>
+						<div class="col">
+							{{ macroForm.affichage2('Code de l’application', codeApp, 'mb-2') }}
+						</div>
+						<div class="col">
+							{{ macroForm.affichage2('Nom de l’application', nomApp, 'mb-2') }}
+						</div>
+						{{ form_row(form.agenceServices) }}
+					</div>
+					<div class="mb-3">
+						{% if pagesVide %}
+							<div class="alert alert-warning d-flex align-items-center">
+								<i class="fas fa-triangle-exclamation fs-4 me-3"></i>
+								<div>
+									<strong>Aucune page associée</strong><br>
+									L’application
+									<b>{{ codeApp }}
+										-
+										{{ nomApp }}</b>
+									ne possède actuellement aucune page liée.
+								</div>
+								<a href="{{ urlAppEdit }}" class="ms-auto btn btn-sm btn-warning">
+									<i class="fas fa-gear me-1"></i>
+									Configurer les pages
+								</a>
+							</div>
+							<div class="d-none">
+								{{ form_row(form.lignes) }}
+							</div>
+						{% else %}
+							<div class="alert alert-info d-flex align-items-center">
+								<i class="fas fa-circle-info fs-4 me-3"></i>
+								<div>
+									Une page semble manquer pour l’application
+									<b>{{ codeApp }}
+										-
+										{{ nomApp }}</b>
+									?
+								</div>
+								<a href="{{ urlAppEdit }}" class="ms-auto btn btn-sm btn-info">
+									<i class="fas fa-gear me-1"></i>
+									Vérifier la configuration
+								</a>
+							</div>
+							<div class="table-responsive">
+								<table class="table table-hover table-bordered align-middle mb-0" id="tableau-permissions">
+									<thead class="table-dark align-middle">
+										<tr>
+											<th class="ps-3 fw-bold">
+												Page
+											</th>
+											{# En-têtes permissions avec case "tout cocher" #}
+											{% for cle, col in colonnes %}
+												<th class="text-center" style="width: 120px">
+													<div class="d-flex flex-column align-items-center gap-1">
+														<span class="badge border-{{ col.couleur }} border border-2">
+															<i class="fa {{ col.icon }} me-1"></i>
+															{{ col.label }}
+														</span>
+														<div class="form-check mb-0" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Tout cocher / décocher">
+															<input class="form-check-input toggle-colonne" type="checkbox" id="toggle-{{ cle }}" data-colonne="{{ cle }}" style="cursor: pointer;">
+															<label class="form-check-label small text-white-50" for="toggle-{{ cle }}" style="cursor: pointer;">
+																tous
+															</label>
+														</div>
+													</div>
+												</th>
+											{% endfor %}
+										</tr>
+									</thead>
+									<tbody>
+										{% for formLigne in form.lignes %}
+											<tr class="ligne-page">
+												<td class="text-muted small font-monospace">
+													{{ form_widget(formLigne.page) }}
+												</td>
+												{# Cases à cocher — une par permission #}
+												{% for cle, col in colonnes %}
+													<td class="text-center">
+														<div class="form-check d-flex justify-content-center mb-0">
+															{{- form_widget(attribute(formLigne, cle), {
+																'attr': {
+																	'class': 'form-check-input case-permission fs-5',
+																	'data-colonne': cle,
+																	'data-depend-voir': cle != 'peutVoir' ? 'true' : false,
+																}
+															}) -}}
+														</div>
+													</td>
+												{% endfor %}
+											</tr>
+										{% endfor %}
+									</tbody>
+								</table>
+								<div class="notice">
+									<span class="notice-icon fs-4">
+										<i class="fas fa-info-circle"></i>
+									</span>
+									<div class="notice-content fs-7">
+										<ul class="mb-0">
+											<li>
+												(**) : Afficher les demandes qui sont débités par les agences et services autorisés sur le profil.
+											</li>
+											<li>
+												(***) : Afficher tous les demandes sans restriction d'agences et services
+											</li>
+										</ul>
+									</div>
+								</div>
+							</div>
+						{% endif %}
+					</div>
+					<div class="d-none">
+						{{ form_row(form.applicationProfil) }}
+					</div>
+					<div class="d-flex justify-content-end">
+						<button type="submit" class="btn btn-primary">
+							<i class="fas fa-save"></i>
+							Enregistrer
+						</button>
+					</div>
+					{{ form_end(form) }}
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block javascript %}
+	<script src="{{ App.base_path }}/Views/js/admin/permissions/new.js?v=2025.10.22.08.00" type="module"></script>
+{% endblock %}

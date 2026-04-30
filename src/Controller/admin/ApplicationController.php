@@ -6,6 +6,8 @@ namespace App\Controller\admin;
 
 use App\Controller\Controller;
 use App\Entity\admin\Application;
+use App\Entity\admin\historisation\pageConsultation\PageHff;
+use App\Entity\admin\utilisateur\Profil;
 use App\Form\admin\ApplicationType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -18,16 +20,14 @@ class ApplicationController extends Controller
      * @return void
      */
     public function index()
-    {    //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
+    {
         $data = $this->getEntityManager()->getRepository(Application::class)->findAll();
+        $preparedData = $this->prepareForDisplay($data);
 
-        //  dd($data[0]->getDerniereId());
         return $this->render(
             'admin/application/list.html.twig',
             [
-                'data' => $data
+                'data' => $preparedData
             ]
         );
     }
@@ -43,15 +43,18 @@ class ApplicationController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             $application = $form->getData();
+
             $this->getEntityManager()->persist($application);
             $this->getEntityManager()->flush();
+
             $this->redirectToRoute("application_index");
         }
 
         return $this->render(
             'admin/application/new.html.twig',
             [
-                'form' => $form->createView()
+                'form' => $form->createView(),
+                'urlPageNew' => $this->getUrlGenerator()->generate('page_hff_new'),
             ]
         );
     }
@@ -63,15 +66,19 @@ class ApplicationController extends Controller
      */
     public function edit(Request $request, $id)
     {
-        $user = $this->getEntityManager()->getRepository(Application::class)->find($id);
+        $application = $this->getEntityManager()->getRepository(Application::class)->find($id);
 
-        $form = $this->getFormFactory()->createBuilder(ApplicationType::class, $user)->getForm();
+        $form = $this->getFormFactory()->createBuilder(ApplicationType::class, $application)->getForm();
 
         $form->handleRequest($request);
 
         // Vérifier si le formulaire est soumis et valide
         if ($form->isSubmitted() && $form->isValid()) {
+            $application = $form->getData();
+
+            $this->getEntityManager()->persist($application);
             $this->getEntityManager()->flush();
+
             $this->redirectToRoute("application_index");
         }
 
@@ -79,6 +86,7 @@ class ApplicationController extends Controller
             'admin/application/edit.html.twig',
             [
                 'form' => $form->createView(),
+                'urlPageNew' => $this->getUrlGenerator()->generate('page_hff_new'),
             ]
         );
     }
@@ -90,25 +98,56 @@ class ApplicationController extends Controller
      */
     public function delete($id)
     {
+        /** @var Application $application */
         $application = $this->getEntityManager()->getRepository(Application::class)->find($id);
 
         if ($application) {
-            $roles = $application->getUsers();
-            foreach ($roles as $role) {
-                $application->removeUser($role);
-                $this->getEntityManager()->persist($role); // Persist the permission to register the removal
+            /** @var PageHff[] $pages */
+            $pages = $application->getPages();
+            // Détacher les pages
+            foreach ($pages as $page) {
+                $page->setApplication(null);
             }
-
-            // Clear the collection to ensure Doctrine updates the join table
-            $application->getUsers()->clear();
-
-            // Flush the entity manager to ensure the removal of the join table entries
-            $this->getEntityManager()->flush();
 
             $this->getEntityManager()->remove($application);
             $this->getEntityManager()->flush();
         }
 
         $this->redirectToRoute("application_index");
+    }
+
+    private function prepareForDisplay(array $data)
+    {
+        $preparedData = [];
+        /** @var Application $application */
+        foreach ($data as $application) {
+            $vignette = $application->getVignette();
+            $baseData = [
+                'nom'        => $application->getNom(),
+                'codeApp'    => $application->getCodeApp(),
+                'vignette'   => $vignette ? $vignette->getNom() : '-',
+                'derniereId' => $application->getDerniereId() ?? '-',
+                'urlUpdate'  => $this->getUrlGenerator()->generate(
+                    'application_update',
+                    ['id' => $application->getId()]
+                ),
+                'urlDelete'  => $this->getUrlGenerator()->generate(
+                    'application_delete',
+                    ['id' => $application->getId()]
+                ),
+            ];
+
+            $pages = $application->getPages();
+
+            /** @var PageHff[] $pagesArray */
+            $pagesArray = $pages->isEmpty() ? [null] : $pages->toArray();
+
+            for ($i = 0; $i < count($pagesArray); $i++) {
+                $preparedData[] = $baseData + [
+                    'pageName'   => isset($pagesArray[$i]) ? $pagesArray[$i]->getNom() : '-',
+                ];
+            }
+        }
+        return $preparedData;
     }
 }

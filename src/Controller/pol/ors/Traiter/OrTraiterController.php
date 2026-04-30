@@ -5,19 +5,17 @@ namespace App\Controller\pol\ors\Traiter;
 
 // ini_set('max_execution_time', 10000);
 
-use App\Model\dit\DitModel;
+use App\Constants\admin\ApplicationConstant;
 use App\Controller\Controller;
-use App\Entity\admin\Application;
-use App\Service\TableauEnStringService;
+use App\Controller\Traits\magasin\ors\MagasinOrATraiterTrait;
 use App\Controller\Traits\Transformation;
+use App\Form\magasin\MagasinListeOrATraiterSearchType;
+use App\Model\magasin\MagasinListeOrATraiterModel;
+use App\Service\security\SecurityService;
+use App\Service\TableauEnStringService;
 use Symfony\Component\Form\FormInterface;
-use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Model\magasin\MagasinListeOrATraiterModel;
-use App\Form\magasin\MagasinListeOrATraiterSearchType;
-use App\Controller\Traits\magasin\ors\MagasinOrATraiterTrait;
-use App\Controller\Traits\magasin\ors\MagasinTrait as OrsMagasinTrait;
 
 /**
  * @Route("/pol/or-pol")
@@ -25,10 +23,7 @@ use App\Controller\Traits\magasin\ors\MagasinTrait as OrsMagasinTrait;
 class OrTraiterController extends Controller
 {
     use Transformation;
-    use OrsMagasinTrait;
     use MagasinOrATraiterTrait;
-    use AutorisationTrait;
-
     /**
      * @Route("/listes-or-a-traiter", name="pol_or_liste_a_traiter")
      *
@@ -36,22 +31,21 @@ class OrTraiterController extends Controller
      */
     public function index(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
+        $agenceUser = "''";
 
-        $codeAgence = $this->getUser()->getAgenceAutoriserCode();
+        // Vérifier la permission de voir tous les données
+        $multisuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE);
 
-        /** CREATION D'AUTORISATION */
-        $autoriser = $this->autorisationRole($this->getEntityManager());
-        //FIN AUTORISATION
+        if (!$multisuccursale) {
+            $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_POL);
 
-        if ($autoriser) {
-            $agenceUser = "''";
-        } else {
+            // Si l'utilisateur n'a pas d'agence et service autorisé, on prend son agence par défaut
+            $codeAgence = empty($agenceServiceAutorises) ? [$this->getSecurityService()->getCodeAgenceUser()] : array_column($agenceServiceAutorises, 'agence_code');
+
             $agenceUser = TableauEnStringService::TableauEnString(',', $codeAgence);
         }
 
-        $form = $this->getFormFactory()->createBuilder(MagasinListeOrATraiterSearchType::class, ['agenceUser' => $agenceUser, 'autoriser' => $autoriser], [
+        $form = $this->getFormFactory()->createBuilder(MagasinListeOrATraiterSearchType::class, ['agenceUser' => $agenceUser], [
             'method' => 'GET',
             'est_pneumatique' => true
         ])->getForm();

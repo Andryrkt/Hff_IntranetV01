@@ -19,6 +19,7 @@ public function __construct()
 ```
 
 **Problèmes :**
+
 - ❌ Impossible de mocker les dépendances
 - ❌ Couplage fort avec l'environnement global
 - ❌ Tests difficiles à isoler
@@ -36,6 +37,7 @@ private function traitementFormualire($form, Request $request, DevisMagasin $dev
 ```
 
 **Problèmes :**
+
 - ❌ Impossible de tester la logique métier isolément
 - ❌ Tests d'intégration uniquement
 - ❌ Couverture de code limitée
@@ -95,7 +97,7 @@ class DevisMagasinVerificationPrixController extends Controller
         string $cheminBaseUpload
     ) {
         parent::__construct();
-        
+
         // ✅ DÉPENDANCES INJECTÉES
         $this->listeDevisMagasinModel = $listeDevisMagasinModel;
         $this->historiqueOperationDeviMagasinService = $historiqueOperationDeviMagasinService;
@@ -115,11 +117,11 @@ class DevisMagasinVerificationPrixController extends Controller
         $this->verifierSessionUtilisateur();
 
         // Autorisation accès
-        $this->autorisationAcces($this->getUser(), Application::ID_DVM);
+        $this->autorisationAcces(Application::ID_DVM);
 
         // ✅ SERVICE INJECTÉ
         $this->validationService = new DevisMagasinValidationVpService(
-            $this->historiqueOperationDeviMagasinService, 
+            $this->historiqueOperationDeviMagasinService,
             $numeroDevis ?? ''
         );
 
@@ -182,7 +184,7 @@ class DevisMagasinVerificationPrixController extends Controller
                 // Récupération de l'utilisateur
                 $utilisateur = $this->getUser();
                 $email = method_exists($utilisateur, 'getMail') ? $utilisateur->getMail() : (method_exists($utilisateur, 'getNomUtilisateur') ? $utilisateur->getNomUtilisateur() : '');
-                
+
                 // Enregistrement du fichier
                 $fichiersEnregistrer = $this->enregistrementFichier($form, $devisMagasin->getNumeroDevis(), $this->versionService->autoIncrement($numeroVersion), $suffixConstructeur, explode('@', $email)[0]);
                 $nomFichier = !empty($fichiersEnregistrer) ? $fichiersEnregistrer[0] : '';
@@ -246,33 +248,33 @@ class DevisMagasinVerificationPrixController extends Controller
 ```yaml
 # config/services.yaml
 services:
-    # Configuration du contrôleur avec injection de dépendances
-    App\Controller\magasin\devis\DevisMagasinVerificationPrixController:
-        arguments:
-            $listeDevisMagasinModel: '@App\Model\magasin\devis\ListeDevisMagasinModel'
-            $historiqueOperationDeviMagasinService: '@App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService'
-            $generatePdfDevisMagasin: '@App\Service\genererPdf\GeneratePdfDevisMagasin'
-            $devisMagasinRepository: '@App\Repository\magasin\devis\DevisMagasinRepository'
-            $uploderFileService: '@App\Service\fichier\UploderFileService'
-            $versionService: '@App\Service\autres\VersionService'
-            $cheminBaseUpload: '%env(BASE_PATH_FICHIER)%/magasin/devis/'
+  # Configuration du contrôleur avec injection de dépendances
+  App\Controller\magasin\devis\DevisMagasinVerificationPrixController:
+    arguments:
+      $listeDevisMagasinModel: '@App\Model\magasin\devis\ListeDevisMagasinModel'
+      $historiqueOperationDeviMagasinService: '@App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService'
+      $generatePdfDevisMagasin: '@App\Service\genererPdf\GeneratePdfDevisMagasin'
+      $devisMagasinRepository: '@App\Repository\magasin\devis\DevisMagasinRepository'
+      $uploderFileService: '@App\Service\fichier\UploderFileService'
+      $versionService: '@App\Service\autres\VersionService'
+      $cheminBaseUpload: "%env(BASE_PATH_FICHIER)%/magasin/devis/"
 
-    # Configuration des services
-    App\Model\magasin\devis\ListeDevisMagasinModel:
-        arguments:
-            $connection: '@database_connection'
+  # Configuration des services
+  App\Model\magasin\devis\ListeDevisMagasinModel:
+    arguments:
+      $connection: "@database_connection"
 
-    App\Service\genererPdf\GeneratePdfDevisMagasin:
-        arguments:
-            $twig: '@twig'
-            $entityManager: '@doctrine.orm.entity_manager'
+  App\Service\genererPdf\GeneratePdfDevisMagasin:
+    arguments:
+      $twig: "@twig"
+      $entityManager: "@doctrine.orm.entity_manager"
 
-    App\Service\fichier\UploderFileService:
-        arguments:
-            $uploadPath: '%env(BASE_PATH_FICHIER)%/magasin/devis/'
+  App\Service\fichier\UploderFileService:
+    arguments:
+      $uploadPath: "%env(BASE_PATH_FICHIER)%/magasin/devis/"
 
-    App\Service\autres\VersionService:
-        # Pas d'arguments nécessaires
+  App\Service\autres\VersionService:
+    # Pas d'arguments nécessaires
 ```
 
 ### 3. **Tests unitaires complets**
@@ -311,7 +313,7 @@ class DevisMagasinVerificationPrixControllerRefactoredTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // ✅ MOCKS DES DÉPENDANCES INJECTÉES
         $this->mockListeDevisMagasinModel = $this->createMock(ListeDevisMagasinModel::class);
         $this->mockHistoriqueService = $this->createMock(HistoriqueOperationDevisMagasinService::class);
@@ -341,7 +343,7 @@ class DevisMagasinVerificationPrixControllerRefactoredTest extends TestCase
         $numeroDevis = 'DEV123456';
         $request = new Request();
         $request->setMethod('POST');
-        
+
         $devisMagasin = new DevisMagasin();
         $devisMagasin->setNumeroDevis($numeroDevis);
 
@@ -353,7 +355,7 @@ class DevisMagasinVerificationPrixControllerRefactoredTest extends TestCase
         // Mock du fichier uploadé
         $mockFile = $this->createMock(UploadedFile::class);
         $mockFile->method('getClientOriginalName')->willReturn('DEVIS MAGASIN_123456_001_001.pdf');
-        
+
         $mockFormField = $this->createMock(FormInterface::class);
         $mockFormField->method('getData')->willReturn($mockFile);
         $mockForm->method('get')->willReturn($mockFormField);
@@ -432,11 +434,11 @@ class DevisMagasinVerificationPrixControllerRefactoredTest extends TestCase
         $numeroVersion = 2;
         $suffix = 'C';
         $mail = 'test@example.com';
-        
+
         $mockForm = $this->createMock(FormInterface::class);
-        
+
         $expectedResult = ['verificationprix_DEV123456-2#C!test.pdf'];
-        
+
         $this->mockUploderService
             ->expects($this->once())
             ->method('getNomsFichiers')
@@ -468,7 +470,7 @@ class DevisMagasinVerificationPrixControllerRefactoredTest extends TestCase
         $numeroDevis = 'DEV123456';
         $request = new Request();
         $request->setMethod('POST');
-        
+
         $devisMagasin = new DevisMagasin();
         $devisMagasin->setNumeroDevis($numeroDevis);
 
@@ -478,7 +480,7 @@ class DevisMagasinVerificationPrixControllerRefactoredTest extends TestCase
 
         $mockFile = $this->createMock(UploadedFile::class);
         $mockFile->method('getClientOriginalName')->willReturn('DEVIS MAGASIN_123456_001_001.pdf');
-        
+
         $mockFormField = $this->createMock(FormInterface::class);
         $mockFormField->method('getData')->willReturn($mockFile);
         $mockForm->method('get')->willReturn($mockFormField);
@@ -521,7 +523,7 @@ class DevisMagasinVerificationPrixControllerRefactoredTest extends TestCase
         $numeroDevis = 'DEV123456';
         $request = new Request();
         $request->setMethod('POST');
-        
+
         $devisMagasin = new DevisMagasin();
         $devisMagasin->setNumeroDevis($numeroDevis);
 
@@ -532,7 +534,7 @@ class DevisMagasinVerificationPrixControllerRefactoredTest extends TestCase
         // Mock du fichier invalide
         $mockFile = $this->createMock(UploadedFile::class);
         $mockFile->method('getClientOriginalName')->willReturn('fichier_invalide.txt'); // Mauvais format
-        
+
         $mockFormField = $this->createMock(FormInterface::class);
         $mockFormField->method('getData')->willReturn($mockFile);
         $mockForm->method('get')->willReturn($mockFormField);
@@ -557,24 +559,28 @@ class DevisMagasinVerificationPrixControllerRefactoredTest extends TestCase
 ## Avantages de la refactorisation
 
 ### 1. **Testabilité améliorée**
+
 - ✅ **Tests unitaires complets** : Chaque méthode peut être testée isolément
 - ✅ **Mocks faciles** : Toutes les dépendances peuvent être mockées
 - ✅ **Couverture de code élevée** : Tests de tous les cas d'usage
 - ✅ **Tests rapides** : Pas de dépendances externes
 
 ### 2. **Maintenabilité**
+
 - ✅ **Couplage faible** : Dépendances explicites
 - ✅ **Responsabilité unique** : Chaque classe a une responsabilité claire
 - ✅ **Code réutilisable** : Services injectés réutilisables
 - ✅ **Évolutivité** : Facile d'ajouter de nouvelles fonctionnalités
 
 ### 3. **Qualité du code**
+
 - ✅ **SOLID principles** : Respect des principes SOLID
 - ✅ **Dependency Inversion** : Dépendance sur des abstractions
 - ✅ **Interface Segregation** : Interfaces spécifiques
 - ✅ **Open/Closed** : Ouvert à l'extension, fermé à la modification
 
 ### 4. **Débogage facilité**
+
 - ✅ **Isolation des erreurs** : Plus facile de localiser les problèmes
 - ✅ **Tests de régression** : Détection rapide des régressions
 - ✅ **Documentation vivante** : Les tests documentent le comportement
@@ -582,6 +588,7 @@ class DevisMagasinVerificationPrixControllerRefactoredTest extends TestCase
 ## Migration progressive
 
 ### Étape 1 : Créer le contrôleur refactorisé
+
 ```bash
 # Créer une nouvelle version du contrôleur
 cp src/Controller/magasin/devis/DevisMagasinVerificationPrixController.php \
@@ -589,14 +596,16 @@ cp src/Controller/magasin/devis/DevisMagasinVerificationPrixController.php \
 ```
 
 ### Étape 2 : Configurer les services
+
 ```yaml
 # Ajouter dans config/services.yaml
 services:
-    App\Controller\magasin\devis\DevisMagasinVerificationPrixControllerRefactored:
-        # Configuration des dépendances
+  App\Controller\magasin\devis\DevisMagasinVerificationPrixControllerRefactored:
+    # Configuration des dépendances
 ```
 
 ### Étape 3 : Créer les tests
+
 ```bash
 # Créer les tests pour la version refactorisée
 cp test/DevisMagasinVerificationPrixControllerTest.php \
@@ -604,12 +613,14 @@ cp test/DevisMagasinVerificationPrixControllerTest.php \
 ```
 
 ### Étape 4 : Tests de régression
+
 ```bash
 # Tester que la nouvelle version fonctionne comme l'ancienne
 php test/test_devis_magasin_verification_prix_controller_refactored.php
 ```
 
 ### Étape 5 : Remplacement progressif
+
 ```php
 // Remplacer progressivement les appels
 // Ancien

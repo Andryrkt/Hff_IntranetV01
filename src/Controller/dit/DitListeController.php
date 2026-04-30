@@ -3,24 +3,23 @@
 
 namespace App\Controller\dit;
 
-
 use DateTime;
+use App\Model\dit\DitModel;
 use App\Entity\dit\DitSearch;
+use App\Service\ExcelService;
 use App\Controller\Controller;
 use App\Form\dit\DitSearchType;
 use App\Form\dit\DocDansDwType;
 use App\Model\dit\DitListModel;
-use App\Entity\admin\Application;
 use App\Entity\admin\StatutDemande;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\dit\DitListTrait;
-use App\Controller\Traits\AutorisationTrait;
-use App\Model\dit\DitModel;
-use App\Service\docuware\CopyDocuwareService;
+use App\Constants\admin\ApplicationConstant;
 use Symfony\Component\HttpFoundation\Request;
+use App\Service\docuware\CopyDocuwareService;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Model\dw\DossierInterventionAtelierModel;
 use App\Service\historiqueOperation\HistoriqueOperationDITService;
+use App\Service\security\SecurityService;
 
 /**
  * @Route("/atelier/demande-intervention")
@@ -28,8 +27,6 @@ use App\Service\historiqueOperation\HistoriqueOperationDITService;
 class DitListeController extends Controller
 {
     use DitListTrait;
-    use AutorisationTrait;
-
     private $historiqueOperation;
     private $excelService;
     private DitModel $ditModel;
@@ -49,30 +46,22 @@ class DitListeController extends Controller
      */
     public function index(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
-        //recuperation agence et service autoriser
-        $agenceIds = $this->getUser()->getAgenceAutoriserIds();
-        $serviceIds = $this->getUser()->getServiceAutoriserIds();
-
-        /** CREATION D'AUTORISATION */
-        $this->autorisationAcces($this->getUser(), Application::ID_DIT);
-        $autoriser = $this->autorisationRole($this->getEntityManager());
-        $autorisationRoleEnergie = $this->autorisationRoleEnergie($this->getEntityManager());
-        //FIN AUTORISATION
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
 
         $ditListeModel = new DitListModel();
         $ditSearch = new DitSearch();
-        $agenceServiceIps = $this->agenceServiceIpsObjet();
 
-        $this->initialisationRechercheDit($ditSearch, $this->getEntityManager(), $agenceServiceIps, $autoriser);
+        $this->initialisationRechercheDit($ditSearch, $this->getEntityManager());
+
+        // Agences Services autorisés sur le DIT
+        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DIT);
+        $allAgenceServices = $this->getSecurityService()->getAllAgenceServices();
 
         //création et initialisation du formulaire de la recherche
         $form = $this->getFormFactory()->createBuilder(DitSearchType::class, $ditSearch, [
             'method' => 'GET',
-            //'idAgenceEmetteur' => $agenceServiceIps['agenceIps']->getId(),
-            'autorisationRoleEnergie' => $autorisationRoleEnergie
+            'allAgenceServices' => $allAgenceServices
         ])->getForm();
 
         $form->handleRequest($request);
@@ -81,7 +70,7 @@ class DitListeController extends Controller
             $numParc = $form->get('numParc')->getData() === null ? '' : $form->get('numParc')->getData();
             $numSerie = $form->get('numSerie')->getData() === null ? '' : $form->get('numSerie')->getData();
             if (!empty($numParc) || !empty($numSerie)) {
-                $idMateriel = $this->ditModel->recuperationIdMateriel($numParc, strtoupper($numSerie));
+                $idMateriel = $this->ditModel->recuperationIdMateriel($numParc, strtoupper($numSerie), $codeSociete);
                 if (!empty($idMateriel)) {
                     $this->ajoutDonnerRecherche($form, $ditSearch);
                     $ditSearch->setIdMateriel($idMateriel[0]['num_matricule']);
@@ -92,6 +81,7 @@ class DitListeController extends Controller
             }
         }
 
+        $this->gererAgenceService($ditSearch, $allAgenceServices);
 
         $criteria = [];
         //transformer l'objet ditSearch en tableau
@@ -99,13 +89,19 @@ class DitListeController extends Controller
         //recupères les données du criteria dans une session nommé dit_serch_criteria
         $this->getSessionService()->set('dit_search_criteria', $criteria);
 
+        // Agence et service par défaut
+        $agenceIdUser = $this->getSecurityService()->getAgenceIdUser();
+        $serviceIdUser = $this->getSecurityService()->getServiceIdUser();
+        $codeAgenceUser = $this->getSecurityService()->getCodeAgenceUser();
 
-        $agenceServiceEmetteur = $this->agenceServiceEmetteur($agenceServiceIps, $autoriser);
-        $option = $this->Option($autoriser, $autorisationRoleEnergie, $agenceServiceEmetteur, $agenceIds, $serviceIds);
-        $this->getSessionService()->set('dit_search_option', $option);
+        // Vérifier la permission de voir tous les données
+        $multisuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE);
+
+        // Vérifier le permission de voir liste avec débiteur sur la page courante
+        $peutVoirListeAvecDebiteur = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_AUTH_2);
 
         //recupération des donnée
-        $paginationData = $this->data($request, $ditListeModel, $ditSearch, $option, $this->getEntityManager());
+        $paginationData = $this->data($request, $ditListeModel, $ditSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur, $codeAgenceUser, $codeSociete, $this->getEntityManager(), $multisuccursale);
 
         /**  Docs à intégrer dans DW * */
         $formDocDansDW = $this->getFormFactory()->createBuilder(DocDansDwType::class, null, [
@@ -179,34 +175,43 @@ class DitListeController extends Controller
      */
     public function exportExcel()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
 
         //recupères les critère dans la session 
         $criteria = $this->getSessionService()->get('dit_search_criteria', []);
-        //recupère les critères dans la session 
-        $options = $this->getSessionService()->get('dit_search_option', []);
+
+        // Agences Services autorisés sur le DIT
+        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DIT);
+
+        // Code agence utilisateur
+        $agenceIdUser = $this->getSecurityService()->getAgenceIdUser();
+        $serviceIdUser = $this->getSecurityService()->getServiceIdUser();
+        $codeAgenceUser = $this->getSecurityService()->getCodeAgenceUser();
+
+        // Vérifier la permission de voir tous les données
+        $multisuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE);
+
+        // Vérifier le permission de voir liste avec débiteur sur la page courante
+        $peutVoirListeAvecDebiteur = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_AUTH_2, "dit_index");
 
         //crée une objet à partir du tableau critère reçu par la session
         $ditSearch = $this->transformationEnObjet($criteria);
 
-        $entities = $this->DonnerAAjouterExcel($ditSearch, $options, $this->getEntityManager());
+        $entities = $this->DonnerAAjouterExcel($ditSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeAgenceUser, $codeSociete, $peutVoirListeAvecDebiteur, $this->getEntityManager(), $multisuccursale);
 
         // Convertir les entités en tableau de données
         $data = $this->transformationEnTableauAvecEntet($entities);
         //creation du fichier excel
-        $this->getExcelService()->createSpreadsheet($data);
+        (new ExcelService())->createSpreadsheet($data);
     }
 
 
     /**
-     * @Route("/cloturer-annuler/{id}", name="cloturer_annuler_dit_liste")
+     * @Route("/cloturer-annuler/{id}", name="api_cloturer_annuler_dit_liste")
      */
     public function clotureStatut($id)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class);
 
         $dit = $ditRepository->find($id); // recupération de l'information du DIT à annuler
@@ -297,13 +302,32 @@ class DitListeController extends Controller
         $criteriaTab['statut']          = $criteria['statut'] ? $criteria['statut']->getDescription() : $criteria['statut'];
         $criteriaTab['dateDebut']       = $criteria['dateDebut'] ? $criteria['dateDebut']->format('d-m-Y') : $criteria['dateDebut'];
         $criteriaTab['dateFin']         = $criteria['dateFin'] ? $criteria['dateFin']->format('d-m-Y') : $criteria['dateFin'];
-        $criteriaTab['agenceEmetteur']  = $criteria['agenceEmetteur'] ? $criteria['agenceEmetteur']->getLibelleAgence() : $criteria['agenceEmetteur'];
-        $criteriaTab['serviceEmetteur'] = $criteria['serviceEmetteur'] ? $criteria['serviceEmetteur']->getLibelleService() : $criteria['serviceEmetteur'];
-        $criteriaTab['agenceDebiteur']  = $criteria['agenceDebiteur'] ? $criteria['agenceDebiteur']->getLibelleAgence() : $criteria['agenceDebiteur'];
-        $criteriaTab['serviceDebiteur'] = $criteria['serviceDebiteur'] ? $criteria['serviceDebiteur']->getLibelleService() : $criteria['serviceDebiteur'];
+        $criteriaTab['agenceEmetteur']  = $criteria['agenceEmetteur'] ?? "";
+        $criteriaTab['serviceEmetteur'] = $criteria['serviceEmetteur'] ?? "";
+        $criteriaTab['agenceDebiteur']  = $criteria['agenceDebiteur'] ?? "";
+        $criteriaTab['serviceDebiteur'] = $criteria['serviceDebiteur'] ?? "";
         $criteriaTab['categorie']       = $criteria['categorie'] ? $criteria['categorie']->getLibelleCategorieAteApp() : $criteria['categorie'];
 
         // Filtrer les critères pour supprimer les valeurs "falsy"
         return  array_filter($criteriaTab);
+    }
+
+    private function gererAgenceService(DitSearch $ditSearch, array $allAgenceServices): void
+    {
+        // Changer le serviceEmetteur
+        if ($ditSearch->getServiceEmetteur()) {
+            $ligneId = $ditSearch->getServiceEmetteur();
+            if ($ligneId && isset($allAgenceServices[$ligneId])) {
+                $ditSearch->setServiceEmetteur($allAgenceServices[$ligneId]['service_id']);
+            }
+        }
+
+        // Changer le serviceDebiteur
+        if ($ditSearch->getServiceDebiteur()) {
+            $ligneId = $ditSearch->getServiceDebiteur();
+            if ($ligneId && isset($allAgenceServices[$ligneId])) {
+                $ditSearch->setServiceDebiteur($allAgenceServices[$ligneId]['service_id']);
+            }
+        }
     }
 }

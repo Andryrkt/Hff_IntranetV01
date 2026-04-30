@@ -4,65 +4,26 @@ namespace App\Controller\Traits\da;
 
 use App\Model\dit\DitModel;
 use App\Entity\dit\DitSearch;
-use App\Entity\admin\utilisateur\Role;
 use Symfony\Component\HttpFoundation\Request;
 
 trait DaListeDitTrait
 {
-
-    /**
-     * Methode pour autorisation de l'admin
-     *
-     * @return boolean
-     */
-    private function autorisationRole(): bool
-    {
-        $userConnecter = $this->getUser();
-        $roleIds = $userConnecter->getRoleIds();
-        return $this->estAdmin() || in_array(Role::ROLE_ATELIER, $roleIds);
-    }
-
-    /**
-     * Methode pour autorise le role atelier
-     *
-     * @return boolean
-     */
-    private function autorisationRoleEnergie(): bool
-    {
-        $userConnecter = $this->getUser();
-        $roleIds = $userConnecter->getRoleIds();
-        return in_array(5, $roleIds);
-    }
-
-
     /**
      * Methode pour l'initialisation des donners dans les champs de formulaire
      */
     private function initialisationRechercheDit(): DitSearch
     {
 
-        $criteria = $this->getSessionService()->get('list_dit_da_search_criteria', []);
-        if ($criteria !== null) {
-            $agenceIpsEmetteur = null;
-            $serviceIpsEmetteur = null;
+        $criteria = $this->getSessionService()->get('list_dit_da_search_criteria');
+        if (!empty($criteria)) {
             $typeDocument = $criteria['typeDocument'] === null ? null : $this->worTypeDocumentRepository->find($criteria['typeDocument']->getId());
             $niveauUrgence = $criteria['niveauUrgence'] === null ? null : $this->worNiveauUrgenceRepository->find($criteria['niveauUrgence']->getId());
             $statut = $criteria['statut'] === null ? null : $this->statutDemandeRepository->find($criteria['statut']->getId());
-            $serviceEmetteur = $criteria['serviceEmetteur'] === null ? $serviceIpsEmetteur : $this->serviceRepository->find($criteria['serviceEmetteur']->getId());
-            $serviceDebiteur = $criteria['serviceDebiteur'] === null ? null : $this->serviceRepository->find($criteria['serviceDebiteur']->getId());
-            $agenceEmetteur = $criteria['agenceEmetteur'] === null ? $agenceIpsEmetteur : $this->agenceRepository->find($criteria['agenceEmetteur']->getId());
-            $agenceDebiteur = $criteria['agenceDebiteur'] === null ? null : $this->agenceRepository->find($criteria['agenceDebiteur']->getId());
             $categorie = $criteria['categorie'] === null ? null : $this->categorieAteAppRepository->find($criteria['categorie']);
         } else {
-            $agenceIpsEmetteur = null;
-            $serviceIpsEmetteur = null;
             $typeDocument = null;
             $niveauUrgence = null;
             $statut = null;
-            $agenceEmetteur = $agenceIpsEmetteur;
-            $serviceEmetteur = $serviceIpsEmetteur;
-            $serviceDebiteur = null;
-            $agenceDebiteur = null;
             $categorie = null;
         }
 
@@ -76,10 +37,10 @@ trait DaListeDitTrait
             ->setIdMateriel($criteria['idMateriel'] ?? null)
             ->setNumParc($criteria['numParc'] ?? null)
             ->setNumSerie($criteria['numSerie'] ?? null)
-            ->setAgenceEmetteur($agenceEmetteur)
-            ->setServiceEmetteur($serviceEmetteur)
-            ->setAgenceDebiteur($agenceDebiteur)
-            ->setServiceDebiteur($serviceDebiteur)
+            ->setAgenceEmetteur($criteria['agenceEmetteur'] ?? null)
+            ->setServiceEmetteur($criteria['serviceEmetteur'] ?? null)
+            ->setAgenceDebiteur($criteria['agenceDebiteur'] ?? null)
+            ->setServiceDebiteur($criteria['serviceDebiteur'] ?? null)
             ->setNumDit($criteria['numDit'] ?? null)
             ->setNumOr($criteria['numOr'] ?? null)
             ->setStatutOr($criteria['statutOr'] ?? null)
@@ -158,22 +119,17 @@ trait DaListeDitTrait
     /**
      * Methode pour recupérer tous les données à afficher
      *
-     * @param Request $request
-     * @param array $option
      * @return void
      */
-    private function data(Request $request, array $option, DitSearch $criteria): array
+    private function data(Request $request, DitSearch $ditSearch, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeAgenceUser, bool $peutVoirListeAvecDebiteur, string $codeSociete, bool $multisuccursale): array
     {
         //recupère le numero de page
         $page = $request->query->getInt('page', 1);
         //nombre de ligne par page
         $limit = 20;
 
-        $numDits = $this->demandeApproRepository->getAllNumDit(); // Filtre pour tous les DIT de la DA
-        // $numDits = [];
-
         //recupération des données filtrée
-        $paginationData = $this->criteriaIsObjectEmpty($criteria) ? [] : $this->ditRepository->findPaginatedAndFilteredDa($page, $limit, $criteria, $option);
+        $paginationData = $this->criteriaIsObjectEmpty($ditSearch) ? [] : $this->ditRepository->findPaginatedAndFilteredDa($page, $limit, $ditSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeAgenceUser, $peutVoirListeAvecDebiteur, $codeSociete, $multisuccursale);
 
         //recuperation de numero de serie et parc pour l'affichage
         $this->ajoutNumSerieNumParc($paginationData['data'] ?? []);

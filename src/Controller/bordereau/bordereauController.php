@@ -11,6 +11,7 @@ use App\Form\bordereau\BordereauSearchType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\genererPdf\GeneretePdfBordereau;
+
 /**
  * @Route("/bordereau")
  */
@@ -36,8 +37,6 @@ class bordereauController extends Controller
      */
     public function bordereauListe(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
         $form = $this->getFormFactory()->createBuilder(
             BordereauSearchType::class,
             $this->bordereauSearch,
@@ -73,7 +72,6 @@ class bordereauController extends Controller
     public function pdfExport()
     {
         // Vérification si l'utilisateur est connecté
-        $this->verifierSessionUtilisateur();
         $criteriaTab =  $this->getSessionService()->get('bordereau_search_criteria');
         $data = $this->recupData($criteriaTab['numInv']);
         // dd($data);

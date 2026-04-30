@@ -16,9 +16,6 @@
 {% block overlay %}
 	{% include "/shared/_overlay.html.twig"  %}
 {% endblock %}
-
-{% set role_ids = App.user.roleIds %}
-{% set user_connecter = App.user.nom_utilisateur %}
 {% set mots_a_supprimer = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe'] %}
 
 {% block content %}

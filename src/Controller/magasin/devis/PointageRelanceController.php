@@ -2,17 +2,18 @@
 
 namespace App\Controller\magasin\devis;
 
-use App\Controller\Controller;
 use App\Api\magasin\AutocompletionApi;
-use App\Service\autres\AutoIncDecService;
-use App\Entity\magasin\devis\DevisMagasin;
+use App\Controller\Controller;
 use App\Dto\Magasin\Devis\PointageRelanceDto;
+use App\Entity\magasin\devis\DevisMagasin;
 use App\Entity\magasin\devis\PointageRelance;
+use App\Factory\magasin\devis\PointageRelanceFactory;
+use App\Form\magasin\devis\PointageRelanceType;
+use App\Model\magasin\devis\Pointage\PointageRelanceModel;
+use App\Service\autres\AutoIncDecService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use App\Form\magasin\devis\PointageRelanceType;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Factory\magasin\devis\PointageRelanceFactory;
 
 /**
  * @Route("/magasin/dematerialisation")
@@ -21,13 +22,13 @@ class PointageRelanceController extends Controller
 {
     /**
      * Affiche le formulaire de pointage relance dans un modal (appel AJAX)
-     * @Route("/pointage-relance-form/{numeroDevis}", name="devis_magasin_relance_client_form")
+     * @Route("/pointage-relance-form/{numeroDevis}", name="api_devis_magasin_relance_client_form")
      */
     public function pointageRelanceForm(?string $numeroDevis = null): Response
     {
         $dto = (new PointageRelanceFactory)->create($numeroDevis);
         $form = $this->getFormFactory()->createNamed('', PointageRelanceType::class, $dto, [
-            'action' => $this->getUrlGenerator()->generate('devis_magasin_relance_client_submit')
+            'action' => $this->getUrlGenerator()->generate('api_devis_magasin_relance_client_submit')
         ]);
 
         return $this->render('magasin/devis/pointage_relance/_form.html.twig', [
@@ -37,7 +38,7 @@ class PointageRelanceController extends Controller
 
     /**
      * Traite la soumission du formulaire de pointage relance
-     * @Route("/pointage-relance-submit", name="devis_magasin_relance_client_submit", methods={"POST"})
+     * @Route("/pointage-relance-submit", name="api_devis_magasin_relance_client_submit", methods={"POST"})
      */
     public function submitPointageRelanceForm(Request $request): Response
     {
@@ -56,12 +57,17 @@ class PointageRelanceController extends Controller
         $form->submit($data);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $pointageRelanceEntity = (new PointageRelanceFactory())->map($data, $this->getUserName(), $this->numeroRelance($data['numeroDevis']));
-            $this->getEntityManager()->persist($pointageRelanceEntity);
-            $this->getEntityManager()->flush();
+            // Code Société de l'utilisateur
+            $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+
+            $pointageRelanceEntity = (new PointageRelanceFactory())->map($data, $this->getUserName(), $this->numeroRelance($data['numeroDevis'], $codeSociete), $codeSociete);
+            $pointageRelanceModel = new PointageRelanceModel();
+            $pointageRelanceModel->enregistrerPointageRelance($pointageRelanceEntity);
 
             // Mettre à jour le statut de relance du devis
-            $this->modifictionTableDevisSoumisAValidationNeg($pointageRelanceEntity);
+            $numeroVersionDevis = $pointageRelanceModel->getNumeroVersionDevis($pointageRelanceEntity->getNumeroDevis(), $codeSociete);
+            $pointageRelanceModel->updateDevis($pointageRelanceEntity, $numeroVersionDevis);
+
 
             return $this->jsonResponse(['success' => true, 'message' => 'Formulaire soumis avec succès.']);
         }
@@ -70,15 +76,15 @@ class PointageRelanceController extends Controller
         return $this->jsonResponse(['success' => false, 'message' => 'Erreurs de validation.', 'errors' => (string) $form->getErrors(true, false)], 400);
     }
 
-    public function numeroRelance(int $numeroDevis): int
+    public function numeroRelance(int $numeroDevis, string $codeSociete): int
     {
-        $numeroRelanceMax = $this->getEntityManager()->getRepository(PointageRelance::class)->getNumeroRelanceMax($numeroDevis);
+        $numeroRelanceMax = $this->getEntityManager()->getRepository(PointageRelance::class)->getNumeroRelanceMax($numeroDevis, $codeSociete);
         return AutoIncDecService::autoIncrement($numeroRelanceMax);
     }
 
-    private function modifictionTableDevisSoumisAValidationNeg(PointageRelance $pointageRelanceEntity): void
+    private function modifictionTableDevisSoumisAValidationNeg(PointageRelance $pointageRelanceEntity, string $codeSociete): void
     {
-        $devis = $this->getEntityManager()->getRepository(DevisMagasin::class)->getDevis($pointageRelanceEntity->getNumeroDevis());
+        $devis = $this->getEntityManager()->getRepository(DevisMagasin::class)->getDevis($pointageRelanceEntity->getNumeroDevis(), $codeSociete);
         if ($devis) {
             $devis->setStatutRelance('Relancé');
             $this->getEntityManager()->flush();

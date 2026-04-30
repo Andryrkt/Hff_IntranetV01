@@ -5,7 +5,6 @@ namespace App\Factory\Dit;
 use App\Model\dit\DitModel;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
-use App\Entity\admin\Application;
 use App\Dto\Dit\DemandeInterventionDto;
 use App\Entity\dit\DemandeIntervention;
 use Doctrine\ORM\EntityManagerInterface;
@@ -118,12 +117,13 @@ class DemandeInterventionFactory
         $demandeIntervention->setPieceJoint02($dto->pieceJoint02);
         $demandeIntervention->setPieceJoint03($dto->pieceJoint03);
 
-        // statut demande - email - non d'utilisateur - date - heure
+        // statut demande - numero DIT - email - non d'utilisateur - date - heure - societe
         $demandeIntervention->setIdStatutDemande($dto->idStatutDemande);
         $demandeIntervention->setMailDemandeur($dto->mailDemandeur);
         $demandeIntervention->setUtilisateurDemandeur($dto->utilisateurDemandeur);
         $demandeIntervention->setDateDemande($dto->dateDemande);
         $demandeIntervention->setHeureDemande($dto->heureDemande);
+        $demandeIntervention->setCodeSociete($dto->codeSociete);
 
         // Agence et service emetteur et debiteur ID
         $em = $this->entityManager;
@@ -237,6 +237,7 @@ class DemandeInterventionFactory
         $demandeIntervention->setUtilisateurDemandeur($dto->utilisateurDemandeur);
         $demandeIntervention->setDateDemande($dto->dateDemande);
         $demandeIntervention->setHeureDemande($dto->heureDemande);
+        $demandeIntervention->setCodeSociete($dto->codeSociete);
 
         // Agence et service emetteur et debiteur ID
         $em = $this->entityManager;

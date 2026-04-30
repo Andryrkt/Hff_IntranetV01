@@ -2,7 +2,6 @@
 
 namespace App\Entity\da;
 
-use App\Controller\Traits\da\DaTrait;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DemandeIntervention;
@@ -21,7 +20,6 @@ use App\Repository\da\DemandeApproRepository;
 class DemandeAppro
 {
     use DateTrait;
-    use DaTrait;
 
     public const TYPE_DA_AVEC_DIT            = 0; // id du type de DA avec DIT 
     public const TYPE_DA_DIRECT              = 1; // id du type de DA direct
@@ -31,7 +29,7 @@ class DemandeAppro
 
     public const ID_APPRO                    = 16;
     public const ID_ATELIER                  = 3;
-    
+
     public const STATUT_VALIDE               = 'Bon d’achats validé';       /*__ DA direct et DA via OR __*/ /*_ statut_dal _*/ // cliquable par Admin et Appro
     public const STATUT_CLOTUREE             = 'Clôturée';                  /*__ DA direct et DA via OR __*/ /*_ statut_dal _*/ // ! non cliquable par quiconque
     public const STATUT_CLOTUREE_HORS_DELAI  = 'Clôturée hors délai';                  /*__ DA direct et DA via OR __*/ /*_ statut_dal _*/ // ! non cliquable par quiconque
@@ -210,13 +208,13 @@ class DemandeAppro
     private ?DemandeIntervention $dit = null;
 
     /**
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="demandeApproUser")
+     * @ORM\ManyToOne(targetEntity=User::class)
      * @ORM\JoinColumn(nullable=true, name="user_id", referencedColumnName="id")
      */
     private ?User $user = null;
 
     /**
-     * @ORM\OneToOne(targetEntity=User::class, inversedBy="demandeApproValidateur")
+     * @ORM\ManyToOne(targetEntity=User::class)
      * @ORM\JoinColumn(nullable=true, name="validateur_id", referencedColumnName="id")
      */
     private ?User $validateur = null;
@@ -235,6 +233,11 @@ class DemandeAppro
     private string $niveauUrgence = '';
 
     private $debiteur;
+
+    /** 
+     * @ORM\Column(type="string", length=2, name="code_societe", nullable=true)
+     */
+    private $codeSociete;
 
     /**===========================================================================
      * GETTER & SETTER
@@ -1057,6 +1060,24 @@ class DemandeAppro
         return $this;
     }
 
+    /**
+     * Get the value of codeSociete
+     */
+    public function getCodeSociete()
+    {
+        return $this->codeSociete;
+    }
+
+    /**
+     * Set the value of codeSociete
+     */
+    public function setCodeSociete($codeSociete): self
+    {
+        $this->codeSociete = $codeSociete;
+
+        return $this;
+    }
+
     public function duplicateDaParent(DemandeApproParent $daParent): self
     {
         $this
@@ -1074,6 +1095,7 @@ class DemandeAppro
             ->setStatutDal($daParent->getStatutDal())
             ->setUser($daParent->getUser())
             ->setNiveauUrgence($daParent->getNiveauUrgence())
+            ->setCodeSociete($daParent->getCodeSociete())
             ->setCodeCentrale($daParent->getCodeCentrale())
             ->setDesiCentrale($daParent->getDesiCentrale())
         ;

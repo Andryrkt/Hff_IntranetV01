@@ -82,31 +82,35 @@ class DitFactureSoumisAValidation
      */
     private ?string $statut = "";
 
+    /** 
+     * @ORM\Column(type="string", length=2, name="code_societe", nullable=true)
+     */
+    private $codeSociete;
 
     private $statutItv;
-    
+
     private $mttItv = 0.00;
 
     private $libelleItv = "";
 
     private $agServDebDit = "";
-    
+
     private $pieceJoint01;
 
     private $pieceJoint02;
-    
+
     private $pieceJoint03;
-    
+
     private $pieceJoint04;
 
-/** ===========================================================================
- * getteur and setteur
- *
- * ================================================================================
- */
+    /** ===========================================================================
+     * getteur and setteur
+     *
+     * ================================================================================
+     */
     /**
      * Get the value of id
-     */ 
+     */
     public function getId()
     {
         return $this->id;
@@ -114,7 +118,7 @@ class DitFactureSoumisAValidation
 
     /**
      * Get the value of numeroFact
-     */ 
+     */
     public function getNumeroFact()
     {
         return $this->numeroFact;
@@ -124,7 +128,7 @@ class DitFactureSoumisAValidation
      * Set the value of numeroFact
      *
      * @return  self
-     */ 
+     */
     public function setNumeroFact($numeroFact)
     {
         $this->numeroFact = $numeroFact;
@@ -134,7 +138,7 @@ class DitFactureSoumisAValidation
 
     /**
      * Get the value of numeroDit
-     */ 
+     */
     public function getNumeroDit()
     {
         return $this->numeroDit;
@@ -144,7 +148,7 @@ class DitFactureSoumisAValidation
      * Set the value of numeroDit
      *
      * @return  self
-     */ 
+     */
     public function setNumeroDit($numeroDit)
     {
         $this->numeroDit = $numeroDit;
@@ -154,7 +158,7 @@ class DitFactureSoumisAValidation
 
     /**
      * Get the value of numeroOR
-     */ 
+     */
     public function getNumeroOR()
     {
         return $this->numeroOR;
@@ -164,7 +168,7 @@ class DitFactureSoumisAValidation
      * Set the value of numeroOR
      *
      * @return  self
-     */ 
+     */
     public function setNumeroOR($numeroOR)
     {
         $this->numeroOR = $numeroOR;
@@ -174,7 +178,7 @@ class DitFactureSoumisAValidation
 
     /**
      * Get the value of dateSoumission
-     */ 
+     */
     public function getDateSoumission()
     {
         return $this->dateSoumission;
@@ -184,7 +188,7 @@ class DitFactureSoumisAValidation
      * Set the value of dateSoumission
      *
      * @return  self
-     */ 
+     */
     public function setDateSoumission($dateSoumission)
     {
         $this->dateSoumission = $dateSoumission;
@@ -194,7 +198,7 @@ class DitFactureSoumisAValidation
 
     /**
      * Get the value of heureSoumission
-     */ 
+     */
     public function getHeureSoumission()
     {
         return $this->heureSoumission;
@@ -204,7 +208,7 @@ class DitFactureSoumisAValidation
      * Set the value of heureSoumission
      *
      * @return  self
-     */ 
+     */
     public function setHeureSoumission($heureSoumission)
     {
         $this->heureSoumission = $heureSoumission;
@@ -214,7 +218,7 @@ class DitFactureSoumisAValidation
 
     /**
      * Get the value of numeroSoumission
-     */ 
+     */
     public function getNumeroSoumission()
     {
         return $this->numeroSoumission;
@@ -224,7 +228,7 @@ class DitFactureSoumisAValidation
      * Set the value of numeroSoumission
      *
      * @return  self
-     */ 
+     */
     public function setNumeroSoumission($numeroSoumission)
     {
         $this->numeroSoumission = $numeroSoumission;
@@ -234,7 +238,7 @@ class DitFactureSoumisAValidation
 
     /**
      * Get the value of numeroItv
-     */ 
+     */
     public function getNumeroItv()
     {
         return $this->numeroItv;
@@ -244,7 +248,7 @@ class DitFactureSoumisAValidation
      * Set the value of numeroItv
      *
      * @return  self
-     */ 
+     */
     public function setNumeroItv($numeroItv)
     {
         $this->numeroItv = $numeroItv;
@@ -256,7 +260,7 @@ class DitFactureSoumisAValidation
      * Get the value of montantFactureitv
      *
      * @return  float
-     */ 
+     */
     public function getMontantFactureitv()
     {
         return $this->montantFactureitv;
@@ -268,7 +272,7 @@ class DitFactureSoumisAValidation
      * @param  float  $montantFactureitv
      *
      * @return  self
-     */ 
+     */
     public function setMontantFactureitv(float $montantFactureitv)
     {
         $this->montantFactureitv = $montantFactureitv;
@@ -280,7 +284,7 @@ class DitFactureSoumisAValidation
      * Get the value of agenceDebiteur
      *
      * @return  string
-     */ 
+     */
     public function getAgenceDebiteur()
     {
         return $this->agenceDebiteur;
@@ -292,7 +296,7 @@ class DitFactureSoumisAValidation
      * @param  string  $agenceDebiteur
      *
      * @return  self
-     */ 
+     */
     public function setAgenceDebiteur($agenceDebiteur)
     {
         $this->agenceDebiteur = $agenceDebiteur;
@@ -304,7 +308,7 @@ class DitFactureSoumisAValidation
      * Get the value of serviceDebiteur
      *
      * @return  string
-     */ 
+     */
     public function getServiceDebiteur()
     {
         return $this->serviceDebiteur;
@@ -316,7 +320,7 @@ class DitFactureSoumisAValidation
      * @param  string  $serviceDebiteur
      *
      * @return  self
-     */ 
+     */
     public function setServiceDebiteur($serviceDebiteur)
     {
         $this->serviceDebiteur = $serviceDebiteur;
@@ -326,7 +330,7 @@ class DitFactureSoumisAValidation
 
     /**
      * Get the value of statut
-     */ 
+     */
     public function getStatut()
     {
         return $this->statut;
@@ -334,7 +338,7 @@ class DitFactureSoumisAValidation
 
     /**
      * Set the value of statut
-     */ 
+     */
     public function setStatut($statut): self
     {
         $this->statut = $statut;
@@ -342,10 +346,10 @@ class DitFactureSoumisAValidation
         return $this;
     }
 
-    
+
     /**
      * Get the value of statutItv
-     */ 
+     */
     public function getStatutItv()
     {
         return $this->statutItv;
@@ -355,7 +359,7 @@ class DitFactureSoumisAValidation
      * Set the value of statutItv
      *
      * @return  self
-     */ 
+     */
     public function setStatutItv($statutItv)
     {
         $this->statutItv = $statutItv;
@@ -363,10 +367,10 @@ class DitFactureSoumisAValidation
         return $this;
     }
 
-    
+
     /**
      * Get the value of mttItv
-     */ 
+     */
     public function getMttItv()
     {
         return $this->mttItv;
@@ -376,7 +380,7 @@ class DitFactureSoumisAValidation
      * Set the value of mttItv
      *
      * @return  self
-     */ 
+     */
     public function setMttItv($mttItv)
     {
         $this->mttItv = $mttItv;
@@ -384,9 +388,9 @@ class DitFactureSoumisAValidation
         return $this;
     }
 
-     /**
+    /**
      * Get the value of libelleItv
-     */ 
+     */
     public function getLibelleItv()
     {
         return $this->libelleItv;
@@ -396,7 +400,7 @@ class DitFactureSoumisAValidation
      * Set the value of libelleItv
      *
      * @return  self
-     */ 
+     */
     public function setLibelleItv($libelleItv)
     {
         $this->libelleItv = $libelleItv;
@@ -404,9 +408,9 @@ class DitFactureSoumisAValidation
         return $this;
     }
 
-        /**
+    /**
      * Get the value of agServDebDit
-     */ 
+     */
     public function getAgServDebDit()
     {
         return $this->agServDebDit;
@@ -416,7 +420,7 @@ class DitFactureSoumisAValidation
      * Set the value of agServDebDit
      *
      * @return  self
-     */ 
+     */
     public function setAgServDebDit($agServDebDit)
     {
         $this->agServDebDit = $agServDebDit;
@@ -424,9 +428,9 @@ class DitFactureSoumisAValidation
         return $this;
     }
 
-        /**
+    /**
      * Get the value of file
-     */ 
+     */
     public function getPieceJoint01()
     {
         return $this->pieceJoint01;
@@ -436,7 +440,7 @@ class DitFactureSoumisAValidation
      * Set the value of file
      *
      * @return  self
-     */ 
+     */
     public function setPieceJoint01($pieceJoint01)
     {
         $this->pieceJoint01 = $pieceJoint01;
@@ -448,7 +452,7 @@ class DitFactureSoumisAValidation
 
     /**
      * Get the value of pieceJoint02
-     */ 
+     */
     public function getPieceJoint02()
     {
         return $this->pieceJoint02;
@@ -458,7 +462,7 @@ class DitFactureSoumisAValidation
      * Set the value of pieceJoint02
      *
      * @return  self
-     */ 
+     */
     public function setPieceJoint02($pieceJoint02)
     {
         $this->pieceJoint02 = $pieceJoint02;
@@ -468,7 +472,7 @@ class DitFactureSoumisAValidation
 
     /**
      * Get the value of pieceJoint03
-     */ 
+     */
     public function getPieceJoint03()
     {
         return $this->pieceJoint03;
@@ -478,7 +482,7 @@ class DitFactureSoumisAValidation
      * Set the value of pieceJoint03
      *
      * @return  self
-     */ 
+     */
     public function setPieceJoint03($pieceJoint03)
     {
         $this->pieceJoint03 = $pieceJoint03;
@@ -488,7 +492,7 @@ class DitFactureSoumisAValidation
 
     /**
      * Get the value of pieceJoint04
-     */ 
+     */
     public function getPieceJoint04()
     {
         return $this->pieceJoint04;
@@ -498,7 +502,7 @@ class DitFactureSoumisAValidation
      * Set the value of pieceJoint04
      *
      * @return  self
-     */ 
+     */
     public function setPieceJoint04($pieceJoint04)
     {
         $this->pieceJoint04 = $pieceJoint04;
@@ -506,9 +510,21 @@ class DitFactureSoumisAValidation
         return $this;
     }
 
+    /**
+     * Get the value of codeSociete
+     */
+    public function getCodeSociete()
+    {
+        return $this->codeSociete;
+    }
 
-   
+    /**
+     * Set the value of codeSociete
+     */
+    public function setCodeSociete($codeSociete): self
+    {
+        $this->codeSociete = $codeSociete;
 
-
-
+        return $this;
+    }
 }

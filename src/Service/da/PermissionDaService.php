@@ -3,9 +3,18 @@
 namespace App\Service\da;
 
 use App\Constants\da\StatutDaConstant;
+use App\Entity\da\DemandeAppro;
 
 class PermissionDaService
 {
+    private const ALL_DA_TYPES = [
+        DemandeAppro::TYPE_DA_AVEC_DIT,
+        DemandeAppro::TYPE_DA_DIRECT,
+        DemandeAppro::TYPE_DA_REAPPRO_MENSUEL,
+        DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL,
+        DemandeAppro::TYPE_DA_PARENT,
+    ];
+
     /**
      * Règles de déverrouillage par rôle utilisateur.
      *
@@ -21,43 +30,51 @@ class PermissionDaService
      */
     private const PERMISSIONS = [
         'admin' => [
-            StatutDaConstant::STATUT_SOUMIS_ATE           => true,
-            StatutDaConstant::STATUT_SOUMIS_APPRO         => true,
-            StatutDaConstant::STATUT_EN_COURS_CREATION    => true,
-            StatutDaConstant::STATUT_DEMANDE_DEVIS        => true,
-            StatutDaConstant::STATUT_DEVIS_A_RELANCER     => true,
-            StatutDaConstant::STATUT_AUTORISER_EMETTEUR   => true,
-            StatutDaConstant::STATUT_EN_COURS_PROPOSITION => true,
-            StatutDaConstant::STATUT_VALIDE               => [
-                StatutDaConstant::STATUT_DW_A_VALIDE => false,
-                StatutDaConstant::STATUT_DW_REFUSEE  => false,
-            ],
+            'daType' => self::ALL_DA_TYPES,
+            'statuts' => [
+                StatutDaConstant::STATUT_SOUMIS_ATE           => true,
+                StatutDaConstant::STATUT_SOUMIS_APPRO         => true,
+                StatutDaConstant::STATUT_EN_COURS_CREATION    => true,
+                StatutDaConstant::STATUT_DEMANDE_DEVIS        => true,
+                StatutDaConstant::STATUT_DEVIS_A_RELANCER     => true,
+                StatutDaConstant::STATUT_AUTORISER_EMETTEUR   => true,
+                StatutDaConstant::STATUT_EN_COURS_PROPOSITION => true,
+                StatutDaConstant::STATUT_VALIDE               => [
+                    StatutDaConstant::STATUT_DW_A_VALIDE => false,
+                    StatutDaConstant::STATUT_DW_REFUSEE  => false,
+                ],
+            ]
         ],
         'appro' => [
-            StatutDaConstant::STATUT_SOUMIS_ATE           => true,
-            StatutDaConstant::STATUT_SOUMIS_APPRO         => true,
-            StatutDaConstant::STATUT_DEMANDE_DEVIS        => true,
-            StatutDaConstant::STATUT_DEVIS_A_RELANCER     => true,
-            StatutDaConstant::STATUT_EN_COURS_PROPOSITION => true,
-            StatutDaConstant::STATUT_VALIDE               => [
-                StatutDaConstant::STATUT_DW_A_VALIDE => false,
-                StatutDaConstant::STATUT_DW_REFUSEE  => false,
-            ],
+            'daType' => self::ALL_DA_TYPES,
+            'statuts' => [
+                StatutDaConstant::STATUT_SOUMIS_ATE           => true,
+                StatutDaConstant::STATUT_SOUMIS_APPRO         => true,
+                StatutDaConstant::STATUT_DEMANDE_DEVIS        => true,
+                StatutDaConstant::STATUT_DEVIS_A_RELANCER     => true,
+                StatutDaConstant::STATUT_EN_COURS_PROPOSITION => true
+            ]
         ],
         'atelier' => [
-            StatutDaConstant::STATUT_SOUMIS_ATE          => true,
-            StatutDaConstant::STATUT_EN_COURS_CREATION   => true,
-            StatutDaConstant::STATUT_AUTORISER_EMETTEUR => true,
+            'daType' => [
+                DemandeAppro::TYPE_DA_AVEC_DIT
+            ],
+            'statuts' => [
+                StatutDaConstant::STATUT_SOUMIS_ATE          => true,
+                StatutDaConstant::STATUT_EN_COURS_CREATION   => true,
+                StatutDaConstant::STATUT_AUTORISER_EMETTEUR  => true,
+            ]
         ],
         'createur_da_directe' => [
-            StatutDaConstant::STATUT_SOUMIS_ATE          => true,
-            StatutDaConstant::STATUT_EN_COURS_CREATION   => true,
-            StatutDaConstant::STATUT_AUTORISER_EMETTEUR => true,
-            StatutDaConstant::STATUT_VALIDE              => [
-                StatutDaConstant::STATUT_DW_A_VALIDE => false,
-                StatutDaConstant::STATUT_DW_REFUSEE  => false,
-                StatutDaConstant::STATUT_DW_VALIDEE  => false,
+            'daType' => [
+                DemandeAppro::TYPE_DA_DIRECT,
+                DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL,
             ],
+            'statuts' => [
+                StatutDaConstant::STATUT_SOUMIS_ATE          => true,
+                StatutDaConstant::STATUT_EN_COURS_CREATION   => true,
+                StatutDaConstant::STATUT_AUTORISER_EMETTEUR  => true,
+            ]
         ],
     ];
 
@@ -66,6 +83,7 @@ class PermissionDaService
      * Détermine si une Demande d'Approvisionnement (DA) doit être verrouillée
      * en fonction de son statut et du profil utilisateur.
      *
+     * @param int         $daType    Type de la DA
      * @param string      $statutDa  Statut actuel de la DA
      * @param string|null $statut    Statut complémentaire (OR ou DW)
      * @param bool        $estAdmin  Vrai si l'utilisateur est administrateur
@@ -75,7 +93,7 @@ class PermissionDaService
      *
      * @return bool True si la DA doit être verrouillée, False sinon
      */
-    public function estDaVerrouillee(string $statutDa, ?string $statut, bool $estAdmin, bool $estAppro, bool $estAtelier, bool $estCreateurDaDirecte): bool
+    public function estDaVerrouillee(int $daType, string $statutDa, ?string $statut, bool $estAdmin, bool $estAppro, bool $estAtelier, bool $estCreateurDaDirecte): bool
     {
         $roles = [];
 
@@ -84,23 +102,8 @@ class PermissionDaService
         if ($estAtelier) $roles[] = 'atelier';
         if ($estCreateurDaDirecte) $roles[] = 'createur_da_directe';
 
-        return $this->isDemandeVerrouillee($statutDa, $statut, $roles);
-    }
-
-    /**
-     * Détermine si une Demande d'Approvisionnement (DA) doit être verrouillée
-     * en fonction de son statut et des rôles de l'utilisateur.
-     *
-     * @param string        $statutDa Statut actuel de la DA
-     * @param string|null   $statut   Statut complémentaire (OR ou DW)
-     * @param string[]      $roles    Liste des rôles de l'utilisateur (ex: ['admin', 'appro'])
-     *
-     * @return bool True si la DA doit être verrouillée, False sinon
-     */
-    private function isDemandeVerrouillee(string $statutDa, ?string $statut, array $roles): bool
-    {
         foreach ($roles as $role) {
-            if ($this->canRoleEditDa($role, $statutDa, $statut)) return false; // déverrouillage si au moins un rôle est autorisé
+            if ($this->canRoleEditDa($role, $daType, $statutDa, $statut)) return false; // déverrouillage si au moins un rôle est autorisé
         }
 
         return true; // verrouillé par défaut
@@ -110,27 +113,31 @@ class PermissionDaService
      * Vérifie si un rôle donné peut modifier une DA selon son statut.
      *
      * @param string      $role     Rôle utilisateur
+     * @param int         $daType   Type de la DA
      * @param string      $statutDa Statut de la DA
      * @param string|null $statut   Statut complémentaire (OR ou DW)
      *
      * @return bool
      */
-    private function canRoleEditDa(string $role, string $statutDa, ?string $statut): bool
+    private function canRoleEditDa(string $role, int $daType, string $statutDa, ?string $statut): bool
     {
-        // rôle non défini
+        // Rôle non défini
         if (!isset(self::PERMISSIONS[$role])) return false;
 
         $roleRules = self::PERMISSIONS[$role];
 
-        // statut DA non autorisé
-        if (!isset($roleRules[$statutDa])) return false;
+        // ✅ Vérification du type de DA autorisé pour ce rôle
+        if (!in_array($daType, $roleRules['daType'], true)) return false;
 
-        $allowed = $roleRules[$statutDa];
+        // ✅ Vérification du statut DA
+        if (!isset($roleRules['statuts'][$statutDa])) return false;
 
-        // Cas où la valeur est booléenne (true ou false)
+        $allowed = $roleRules['statuts'][$statutDa];
+
+        // Cas booléen direct
         if (is_bool($allowed)) return $allowed;
 
-        // Cas où la valeur est un tableau de statuts complémentaires
-        return isset($allowed[$statut]) ? $allowed[$statut] : true;
+        // Cas avec sous-statut complémentaire (DW / OR)
+        return $allowed[$statut] ?? true;
     }
 }

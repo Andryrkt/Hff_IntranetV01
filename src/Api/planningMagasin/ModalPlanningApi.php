@@ -18,7 +18,7 @@ class ModalPlanningApi extends Controller
 
 
     /**
-     * @Route("/detail_plannigMagasin-modal/{numOr}", name="liste_detailPlanningMagasin")
+     * @Route("/api/detail-plannigMagasin-modal/{numOr}", name="api_liste_detailPlanningMagasin")
      *
      * @return void
      */

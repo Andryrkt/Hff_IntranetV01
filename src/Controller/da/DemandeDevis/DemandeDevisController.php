@@ -4,10 +4,16 @@ namespace App\Controller\da\DemandeDevis;
 
 use App\Constants\da\StatutDaConstant;
 use App\Controller\Controller;
-use App\Controller\Traits\AutorisationTrait;
+use App\Entity\da\DemandeAppro;
 use App\Controller\Traits\da\DaAfficherTrait;
 use App\Controller\Traits\da\demandeDevis\DaDemandeDevisTrait;
-use App\Entity\da\DemandeAppro;
+use App\Entity\da\DaAfficher;
+use App\Entity\da\DemandeApproL;
+use App\Entity\da\DemandeApproLR;
+use App\Repository\da\DaAfficherRepository;
+use App\Repository\da\DemandeApproRepository;
+use App\Repository\da\DemandeApproLRepository;
+use App\Repository\da\DemandeApproLRRepository;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -16,24 +22,29 @@ use Symfony\Component\Routing\Annotation\Route;
 class DemandeDevisController extends Controller
 {
     use DaAfficherTrait;
-    use AutorisationTrait;
     use DaDemandeDevisTrait;
+
+    private DaAfficherRepository $daAfficherRepository;
+    private DemandeApproRepository $demandeApproRepository;
+    private DemandeApproLRepository $demandeApproLRepository;
+    private DemandeApproLRRepository $demandeApproLRRepository;
 
     public function __construct()
     {
         parent::__construct();
 
-        $this->initDaDemandeDevisTrait();
+        $em = $this->getEntityManager();
+        $this->daAfficherRepository     = $em->getRepository(DaAfficher::class);
+        $this->demandeApproRepository   = $em->getRepository(DemandeAppro::class);
+        $this->demandeApproLRepository  = $em->getRepository(DemandeApproL::class);
+        $this->demandeApproLRRepository = $em->getRepository(DemandeApproLR::class);
     }
 
     /**
-     * @Route("/demande-devis-en-cours/{id}", name="da_demande_devis_en_cours")
+     * @Route("/demande-devis-en-cours/{id}", name="api_da_demande_devis_en_cours")
      */
     public function demandeDevisEnCours(int $id)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $demandeAppro = $this->demandeApproRepository->find($id);
 
         if (!$demandeAppro) {
@@ -41,10 +52,6 @@ class DemandeDevisController extends Controller
             $this->getSessionService()->set('notification', ['type' => 'danger', 'message' => 'La demande d’achat que vous avez sélectionner n’existe pas.']);
             $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 1, 'page' => 1]);
         }
-
-        /** Autorisation accès */
-        $this->checkPageAccess(($this->estUserDansServiceAppro() || $this->estAdmin()) && $demandeAppro->getStatutDal() === StatutDaConstant::STATUT_SOUMIS_APPRO);
-        /** FIN AUtorisation accès */
 
         $this->appliquerStatutDemandeDevisEnCours($demandeAppro, $this->getUserName());
 

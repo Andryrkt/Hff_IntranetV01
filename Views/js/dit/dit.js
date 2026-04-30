@@ -40,7 +40,7 @@ const fetchManager = new FetchManager();
 let lastSelectedItem = null;
 
 async function fetchMateriels() {
-  return await fetchManager.get(`api/fetch-materiel`);
+  return await fetchManager.get(`api/fetch-all-materiel`);
 }
 
 function displayMateriel(item) {
@@ -266,7 +266,7 @@ agenceDebiteurInput.addEventListener("change", selectAgence);
 
 function selectAgence() {
   const agenceDebiteur = agenceDebiteurInput.value;
-  let url = `agence-fetch/${agenceDebiteur}`;
+  let url = `api/agence-fetch/${agenceDebiteur}`;
   toggleSpinner(true);
   fetchManager
     .get(url)

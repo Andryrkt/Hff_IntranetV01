@@ -3,6 +3,8 @@
 namespace App\Repository\ddp;
 
 use Doctrine\ORM\EntityRepository;
+use App\Entity\admin\ddp\DdpSearch;
+use App\Entity\admin\utilisateur\User;
 use App\Service\TableauEnStringService;
 
 class DemandePaiementRepository extends EntityRepository
@@ -59,9 +61,10 @@ class DemandePaiementRepository extends EntityRepository
         return $numeroVersionMax;
     }
 
-    public function findDemandePaiement($criteria)
+    public function findDemandePaiement(DdpSearch $ddpSearch, string $codeAgence, string $codeService, array $agenceServiceAutorises, bool $peutVoirListeAvecDebiteur, bool $multisuccursale)
     {
-        $qb = $this->createQueryBuilder('d');
+        $qb = $this->createQueryBuilder('d')
+            ->join(User::class, 'u', 'WITH', 'd.demandeur = u.nom_utilisateur');
 
         // Sous-requête imbriquée dans la clause WHERE
         $qb->where(
@@ -73,79 +76,66 @@ class DemandePaiementRepository extends EntityRepository
                 AND dp2.serviceDebiter = d.serviceDebiter
             )'
         );
-        if (!empty($criteria->getAgence())) {
+
+        if (!empty($ddpSearch->getAgence())) {
             $qb->andWhere('d.agenceDebiter = :agenceDebiter')
-                ->setParameter('agenceDebiter', $criteria->getAgence()->getCodeAgence());
+                ->setParameter('agenceDebiter', $ddpSearch->getAgence());
         }
-        if (!empty($criteria->getService())) {
+        if (!empty($ddpSearch->getService())) {
             $qb->andWhere('d.serviceDebiter = :serviceDebiter')
-                ->setParameter('serviceDebiter', $criteria->getService()->getCodeService());
+                ->setParameter('serviceDebiter', $ddpSearch->getService());
         }
-        if (!empty($criteria->getTypeDemande())) {
+        if (!empty($ddpSearch->getTypeDemande())) {
             $qb->andWhere('d.typeDemandeId = :typeDemandeId')
-                ->setParameter('typeDemandeId', $criteria->getTypeDemande()->getId());
+                ->setParameter('typeDemandeId', $ddpSearch->getTypeDemande()->getId());
         }
-        if (!empty($criteria->getNumDdp())) {
+        if (!empty($ddpSearch->getNumDdp())) {
             $qb->andWhere('d.numeroDdp = :numeroDdp')
-                ->setParameter('numeroDdp', $criteria->getNumDdp());
+                ->setParameter('numeroDdp', $ddpSearch->getNumDdp());
         }
-        if (!empty($criteria->getNumCommande())) {
+        if (!empty($ddpSearch->getNumCommande())) {
             $qb->andWhere('d.numeroCommande LIKE :numeroCommande')
-                ->setParameter('numeroCommande', '%' . $criteria->getNumCommande() . '%');
+                ->setParameter('numeroCommande', '%' . $ddpSearch->getNumCommande() . '%');
         }
-        if (!empty($criteria->getNumFacture())) {
+        if (!empty($ddpSearch->getNumFacture())) {
             $qb->andWhere('d.numeroFacture LIKE :numeroFacture')
-                ->setParameter('numeroFacture', '%' . $criteria->getNumFacture() . '%');
+                ->setParameter('numeroFacture', '%' . $ddpSearch->getNumFacture() . '%');
         }
 
-        if (!empty($criteria->getUtilisateur())) {
+        if (!empty($ddpSearch->getUtilisateur())) {
             $qb->andWhere('d.demandeur = :demandeur')
-                ->setParameter('demandeur', $criteria->getUtilisateur());
+                ->setParameter('demandeur', $ddpSearch->getUtilisateur());
         }
 
-        if (!empty($criteria->getStatut())) {
+        if (!empty($ddpSearch->getStatut())) {
             $qb->andWhere('d.statut = :statut')
-                ->setParameter('statut', $criteria->getStatut());
+                ->setParameter('statut', $ddpSearch->getStatut());
         }
 
-        if (!empty($criteria->getDateDebut())) {
+        if (!empty($ddpSearch->getDateDebut())) {
             $qb->andWhere('d.dateDemande >= :dateDebut')
-                ->setParameter('dateDebut', $criteria->getDateDebut());
+                ->setParameter('dateDebut', $ddpSearch->getDateDebut());
         }
 
-        if (!empty($criteria->getDateFin())) {
+        if (!empty($ddpSearch->getDateFin())) {
             $qb->andWhere('d.dateDemande <= :dateFin')
-                ->setParameter('dateFin', $criteria->getDateFin());
+                ->setParameter('dateFin', $ddpSearch->getDateFin());
         }
 
-        if (!empty($criteria->getFournisseur())) {
+        if (!empty($ddpSearch->getFournisseur())) {
             $qb->andWhere('d.numeroFournisseur = :numFournisseur')
-                ->setParameter('numFournisseur', explode('-', $criteria->getFournisseur())[0]);
+                ->setParameter('numFournisseur', explode('-', $ddpSearch->getFournisseur())[0]);
         }
 
-        // Tri
-        $qb->orderBy('d.dateCreation', 'DESC');
-        // $query = $qb->getQuery();
-        //         $sql = $query->getSQL();
-        //         $params = $query->getParameters();
+        if (!$multisuccursale) {
+            // Condition sur les couples agences-services
+            $this->conditionAgenceService($qb, $codeAgence, $codeService, $agenceServiceAutorises, $peutVoirListeAvecDebiteur);
+        }
 
-        //         dump("SQL : " . $sql . "\n");
-        //         foreach ($params as $param) {
-        //             dump($param->getName());
-        //             dump($param->getValue());
-        //         }
-        //         die();
+        $qb->orderBy('d.dateCreation', 'DESC');
+
         return $qb->getQuery()->getResult();
     }
-
-    // public function getnumFacture()
-    // {
-    //     return  $this->createQueryBuilder('d')
-    //             ->select('d.numeroFacture')
-    //             ->getQuery()
-    //             ->getSingleColumnResult()
-    //             ;
-    // }
 
     public function getnumCde()
     {
@@ -154,5 +144,61 @@ class DemandePaiementRepository extends EntityRepository
             ->getQuery()
             ->getSingleColumnResult()
         ;
+    }
+
+    private function conditionAgenceService($queryBuilder, string $codeAgence, string $codeService, array $agenceServiceAutorises, bool $peutVoirListeAvecDebiteur)
+    {
+        $ORX = $queryBuilder->expr()->orX();
+
+        // 1- Emetteur du DDP : agence et service de l'utilisateur
+        $ORX->add(
+            $queryBuilder->expr()->andX(
+                $queryBuilder->expr()->eq('u.codeAgenceUser', ':agEmetteur'),
+                $queryBuilder->expr()->eq('u.codeServiceUser', ':servEmetteur')
+            )
+        );
+        $queryBuilder->setParameter('agEmetteur', $codeAgence);
+        $queryBuilder->setParameter('servEmetteur', $codeService);
+
+        // 2- Debiteur du DDP : agence et service de l'utilisateur
+        $ORX->add(
+            $queryBuilder->expr()->andX(
+                $queryBuilder->expr()->eq('u.codeAgenceUser', ':agDebiteur'),
+                $queryBuilder->expr()->eq('u.codeServiceUser', ':servDebiteur')
+            )
+        );
+        $queryBuilder->setParameter('agDebiteur', $codeAgence);
+        $queryBuilder->setParameter('servDebiteur', $codeService);
+
+        // 3- Emetteur et Débiteur : agence et service autorisés du profil
+        if (!empty($agenceServiceAutorises)) {
+            $orX1 = $queryBuilder->expr()->orX(); // Pour émetteur
+            $orX2 = $peutVoirListeAvecDebiteur ? $queryBuilder->expr()->orX() : null; // Pour débiteur : n'autoriser que si le profil peut voir la liste avec le débiteur
+            foreach ($agenceServiceAutorises as $i => $tab) {
+                $orX1->add(
+                    $queryBuilder->expr()->andX(
+                        $queryBuilder->expr()->eq('u.codeAgenceUser', ':agEmetteur_' . $i),
+                        $queryBuilder->expr()->eq('u.codeServiceUser', ':servEmetteur_' . $i)
+                    )
+                );
+                $queryBuilder->setParameter('agEmetteur_' . $i, $tab['agence_code']);
+                $queryBuilder->setParameter('servEmetteur_' . $i, $tab['service_code']);
+                if ($orX2) {
+                    $orX2->add(
+                        $queryBuilder->expr()->andX(
+                            $queryBuilder->expr()->eq('d.agenceDebiter', ':agDebiteur_' . $i),
+                            $queryBuilder->expr()->eq('d.serviceDebiter', ':servDebiteur_' . $i)
+                        )
+                    );
+                    $queryBuilder->setParameter('agDebiteur_' . $i, $tab['agence_code']);
+                    $queryBuilder->setParameter('servDebiteur_' . $i, $tab['service_code']);
+                }
+            }
+
+            $ORX->add($orX1);
+            if ($orX2) $ORX->add($orX2);
+        }
+
+        $queryBuilder->andWhere($ORX);
     }
 }

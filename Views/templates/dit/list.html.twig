@@ -10,9 +10,6 @@
 {% endblock %}
 
 {% import "macroForm.html.twig" as macroForm %}
-
-{% set role_ids = App.user.roleIds %}
-{% set user_connecter = App.user.nom_utilisateur %}
 {% set mots_a_supprimer = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe'] %}
 
 {% block content %}
@@ -114,7 +111,7 @@
 								</li>
 								{% if item.estAnnulable %}
 									<li>
-										<a class="dropdown-item fw-bold clotureDit" href="{{ path("cloturer_annuler_dit_liste", {id: item.id})}}" data-id="{{ item.id }}">Clôturer la DIT</a>
+										<a class="dropdown-item fw-bold clotureDit" href="{{ path("api_cloturer_annuler_dit_liste", {id: item.id})}}" data-id="{{ item.id }}">Clôturer la DIT</a>
 									</li>
 								{% endif %}
 							</ul>

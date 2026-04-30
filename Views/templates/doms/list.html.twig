@@ -43,69 +43,44 @@
 			</thead>
 			<tbody>
 				{% for item in data %}
-
-					{% set classeStatutDom = '' %}
-					{% set styleStatutDom = '' %}
-					{% set styleStatutDom = '' %}
-
-					{% if item.idStatutDemande.description | trim == 'OUVERT' %}
-						{% set classeStatutDom ='bg-warning bg-gradient text-center' %}
-					{% elseif item.idStatutDemande.description | trim == 'PAYE'  %}
-						{% set classeStatutDom ='bg-success bg-gradient' %}
-					{% elseif  item.idStatutDemande.description | trim == 'ATTENTE PAIEMENT' %}
-						{% set classeStatutDom ='bg-success' %}
-						{% set styleStatutDom = '--bs-bg-opacity: .5;' %}
-					{% elseif item.idStatutDemande.description | trim == 'CONTROLE SERVICE' %}
-						{% set classeStatutDom ='bg-info' %}
-					{% elseif item.idStatutDemande.description | trim == 'A VALIDER SERVICE EMETTEUR' %}
-						{% set classeStatutDom ='bg-primary' %}
-						{% set styleStatutDom = '--bs-bg-opacity: .5;' %}
-					{% elseif item.idStatutDemande.description | trim == 'VALIDE' or item.idStatutDemande.description | trim == 'VALIDE COMPTABILITE' or item.idStatutDemande.description | trim == 'VALIDATION RH' or item.idStatutDemande.description | trim == 'VALIDATION DG' %}
-						{% set classeStatutDom ='bg-success' %}
-					{% elseif item.idStatutDemande.description | trim == 'ANNULE CHEF DE SERVICE' or item.idStatutDemande.description | trim == 'ANNULE COMPTABILITE' or item.idStatutDemande.description | trim == 'ANNULE SECRETARIAT RH' or item.idStatutDemande.description | trim == 'ANNULE' %}
-						{% set classeStatutDom ='bg-danger' %}
-					{% else %}
-						{% set classeStatutDom = '' %}
-					{% endif %}
-
-
 					<tr>
-						{# Début Action #}
+						{# Actions #}
 						<td style="padding: 0px;" class="align-middle">
 							<div class="dropdown">
-								<button class="btn  dropdown-toggle trois-points-vertical" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+								<button class="btn dropdown-toggle trois-points-vertical" type="button" data-bs-toggle="dropdown" aria-expanded="false">
 									<i class="fas fa-ellipsis-vertical"></i>
 								</button>
-								{% if trop_percu(item.numeroOrdreMission) and item.statutTropPercuOk %}
-									<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
+								{% if item.showTropPercuAction %}
+									<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
 										<li>
-											<a class="dropdown-item fw-bold" href="{{ path("dom_trop_percu_form", {id:item.id}) }}">Trop perçu</a>
+											<a class="dropdown-item fw-bold" href="{{ path('dom_trop_percu_form', {id: item.id}) }}">Trop perçu</a>
 										</li>
 									</ul>
 								{% endif %}
 							</div>
 						</td>
-						{# Fin Actions #}
 
-						{# DEBUT Statut #}
-						<td class="{{ classeStatutDom }}" style="{{ styleStatutDom }}">{{ item.idStatutDemande.description }}</td>
-						{# FIN Statut #}
-						<td>{{ item.sousTypeDocument.codeSousType }}</td>
+						{# Statut — classe calculée en PHP, plus de if/elseif en Twig #}
+						<td class="{{ item.classeStatut }}" style="{{ item.styleStatut }}">
+							{{ item.statutDescription }}
+						</td>
+
+						<td>{{ item.codeSousType }}</td>
 						<td>
-							<a href="{{ path("Dom_detail", {id:item.id})}}" target="_blank">
+							<a href="{{ path('Dom_detail', {id: item.id}) }}" target="_blank">
 								{{ item.numeroOrdreMission }}
 							</a>
 						</td>
-						<td class="text-center">{{ item.dateDemande | date('d/m/Y')}}</td>
-						<td>{{ item.motifDeplacement}}</td>
+						<td class="text-center">{{ item.dateDemande | date('d/m/Y') }}</td>
+						<td>{{ item.motifDeplacement }}</td>
 						<td class="text-center">{{ item.matricule }}</td>
-						<td>{{ item.libelleCodeAgenceService}}</td>
-						<td class="text-center">{{ item.dateDebut | date('d/m/Y')}}</td>
+						<td>{{ item.libelleCodeAgenceService }}</td>
+						<td class="text-center">{{ item.dateDebut | date('d/m/Y') }}</td>
 						<td class="text-center">{{ item.dateFin | date('d/m/Y') }}</td>
-						<td>{{ item.client}}</td>
-						<td>{{ item.lieuIntervention}}</td>
-						<td class="text-end">{{ item.totalGeneralPayer}}</td>
-						<td>{{ item.devis}}</td>
+						<td>{{ item.client }}</td>
+						<td>{{ item.lieuIntervention }}</td>
+						<td class="text-end">{{ item.totalGeneralPayer }}</td>
+						<td>{{ item.devis }}</td>
 					</tr>
 				{% endfor %}
 			</tbody>

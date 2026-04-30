@@ -1,0 +1,207 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block title %}
+	Liste devis magasin
+{% endblock %}
+
+{% block stylesheets %}
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.10.22.08.00">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/utils/autocomplete.css?v=2025.10.22.08.00">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/magasin/devis/listeDevisMagasin.css?v=2025.09.19.09.23">
+	<style>
+		.table-sticky {
+			width: 100%;
+		}
+		.table-sticky th,
+		.table-sticky td {
+			padding: 8px 12px;
+		}
+	</style>
+{% endblock %}
+
+{% block content %}
+
+	<div class="container-fluid">
+		<div class="sticky-header-titre">
+			<div class="container">
+				{% include "/partials/_notification.html.twig" %}
+				{% include "magasin/devis/shared/_formulaireDeRecherche.html.twig" with {'form': form} %}
+			</div>
+		</div>
+
+		<table class="table table-sticky">
+			<thead class="table-dark align-middle">
+				<tr>
+					<th>
+						<i class="fas fa-ellipsis-vertical"></i>
+					</th>
+					<th class="text-center">Statut devis</th>
+					<th class="text-center">Statut BC</th>
+					<th class="text-center">Numéro devis</th>
+					<th class="text-center">Date de création</th>
+					<th class="text-center">Emetteur</th>
+					<th>Client</th>
+					<th>Libellé</th>
+					<th class="text-end">Montant</th>
+					<th class="text-center">Date envoi au client</th>
+					<th class="text-center">Relance 1</th>
+					<th class="text-center">Relance 2</th>
+					<th class="text-center">Relance 3</th>
+					<th class="text-center">Stop relance</th>
+					<th class="text-center">Position IPS</th>
+					<th class="text-center">PO/BC client</th>
+					<th class="text-center">Crée par</th>
+					<th class="text-center">Soumis par</th>
+				</tr>
+			</thead>
+			<tbody
+				id="tableBody">{# Le contenu sera chargé dynamiquement par JavaScript #}
+			</tbody>
+			<tbody id="skeletonLoader" class="d-none">
+				{% for i in 1..20 %}
+					<tr>
+						{% for j in 1..18 %}
+							<td class="placeholder-glow">
+								<span class="placeholder col-12" style="height: 35px;"></span>
+							</td>
+						{% endfor %}
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+
+
+		{% include "magasin/devis/shared/_modalRelance.html.twig" %}
+	</div>
+
+	{% include 'magasin/devis/pointage_relance/index.html.twig' %}
+{% endblock %}
+
+{% block javascript %}
+	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v=2025.10.22.08.00"></script>
+	<script type="module" src="{{ App.base_path }}/Views/js/magasin/devis/listeDevisMagasin.js?v=2025.10.22.08.00"></script>
+	<script src="{{ App.base_path }}/Views/js/magasin/devis/pointageRelanceModal.js" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/magasin/devis/relanceModalManager.js" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/magasin/devis/relance.js" type="module"></script>
+
+	<script>
+		document.addEventListener('DOMContentLoaded', () => {
+			const tableBody = document.getElementById('tableBody');
+			const loader = document.getElementById('skeletonLoader');
+			const searchForm = document.querySelector('form[name="devis_neg_search"]') || document.querySelector('form');
+			let isLoading = false;
+
+			const loadData = async () => {
+				if (isLoading) return;
+
+				isLoading = true;
+				loader.classList.remove('d-none');
+				tableBody.innerHTML = '';
+
+				try {
+					const formData = new FormData(searchForm);
+					const params = new URLSearchParams(formData);
+
+					const response = await fetch (`{{ path('api_devis_neg_data') }}?${params.toString()}`);
+					const result = await response.json();
+
+					const urlBases = {{ urlBases|json_encode|raw }};
+					const formatter = new Intl.NumberFormat('fr-FR', {minimumFractionDigits: 2});
+
+					if (! result.success || result.data.length === 0) {
+						tableBody.innerHTML = `<tr><td colspan="18" class="text-center py-4">${result.message || 'Aucune donnée trouvée'}</td></tr>`;
+					} else {
+						let html = '';
+						result.data.forEach(row => {
+							const montant = formatter.format(row.montantDevis);
+
+							const urlVerificationPrix = urlBases.verificationPrix.replace('PLACEHOLDER', row.numeroDevis);
+							const urlValidationDevis = urlBases.validationDevis.replace('PLACEHOLDER_NUM', row.numeroDevis).replace('PLACEHOLDER_AG', encodeURIComponent(row.emetteur));
+							const urlSoumissionBC = urlBases.soumissionBC.replace('PLACEHOLDER', row.numeroDevis);
+							const urlPointageDevis = row.pointagedevis ? urlBases.pointageDevis.replace('PLACEHOLDER', row.numeroDevis) : '#';
+
+							const isChecked = row.stopProgressionGlobal === 1;
+							const isRelance3Done = row.statutRelance3 && row.statutRelance3 !== 'A relancer';
+							const checkboxClass = isChecked ? 'bg-danger border border-danger' : 'bg-secondary-subtle';
+
+							html += `
+								<tr>
+									<td class="align-middle" style="padding: 0px">
+										<div class="dropdown">
+											<button class="btn btn-sm me-1 dropdown-toggle trois-points-vertical" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+												<i class="fas fa-ellipsis-vertical"></i>
+											</button>
+											<ul class="dropdown-menu dropdown-menu-end">
+												<li>
+													<a class="dropdown-item fw-bold" href="${urlVerificationPrix}">Soumission devis pour verification prix</a>
+													<a class="dropdown-item fw-bold" href="${urlValidationDevis}">Soumission devis pour validation</a>
+													<a class="dropdown-item fw-bold js-link-relance-client ${row.relanceClient ? '' : 'd-none'}" href="#" data-bs-toggle="modal" data-bs-target="#pointageRelanceModal" data-bs-numero-devis="${row.numeroDevis}">Pointer relance devis client</a>
+													<a class="dropdown-item fw-bold js-link-pointage-devis ${row.pointagedevis ? '' : 'd-none'}" href="${urlPointageDevis}">Pointage envoye devis au client</a>
+													<a class="dropdown-item fw-bold" href="${urlSoumissionBC}">Soumission BC client pour validation</a>
+												</li>
+											</ul>
+										</div>
+									</td>
+									<td class="text-center fw-bold ${row.styleStatutDw}">${row.statutDw || ''}</td>
+									<td class="text-center fw-bold ${row.styleStatutBc}">${row.statutBc || ''}</td>
+									<td class="text-center">${row.numeroDevis || ''}</td>
+									<td class="text-center">${row.dateCreation || ''}</td>
+									<td class="text-center">${row.emetteur || ''}</td>
+									<td>${row.client || ''}</td>
+									<td>${row.referenceClient || ''}</td>
+									<td class="text-end">${montant}</td>
+									<td class="text-center">${row.dateEnvoiDevisAuClient || ''}</td>
+									<td class="text-center fw-bold js-relance-1 ${row.styleStatutPR1}">${row.statutRelance1 || ''}</td>
+									<td class="text-center fw-bold js-relance-2 ${row.styleStatutPR2}">${row.statutRelance2 || ''}</td>
+									<td class="text-center fw-bold js-relance-3 ${row.styleStatutPR3}">${row.statutRelance3 || ''}</td>
+									<td class="text-center">
+										${row.statutRelance1 ? `
+											<div class="form-check form-switch d-flex justify-content-center" ${row.stopProgressionGlobal === 1 ? `title="${row.motifStopGlobal || ''}" data-bs-toggle="tooltip"` : ''}>
+												<input class="form-check-input js-checkbox-stop-relance ${checkboxClass}" type="checkbox" role="switch" data-numero-devis="${row.numeroDevis}" ${isChecked ? 'checked' : ''} ${isRelance3Done ? 'disabled' : ''}>
+											</div>
+										` : ''}
+									</td>
+									<td class="text-center">${row.positionIps ?? ''}</td>
+									<td class="text-center">
+										${row.numeroPo ? `<a href="${row.urlPo}" target="_blank">${row.numeroPo}</a>` : ''}
+									</td>
+									<td class="text-center">${row.utilisateurCreateurDevis || ''}</td>
+									<td class="text-center">${row.soumisPar || ''}</td>
+								</tr>
+							`;
+						});
+						tableBody.innerHTML = html;
+
+						// Initialisation des tooltips pour les nouveaux éléments
+						const tooltips = tableBody.querySelectorAll('[data-bs-toggle="tooltip"]');
+						tooltips.forEach(el => new bootstrap.Tooltip(el));
+					}
+				} catch (error) {
+					console.error('Erreur de chargement:', error);
+					tableBody.innerHTML = `<tr><td colspan="18" class="text-center py-4 text-danger fw-bold">
+						<i class="fas fa-exclamation-triangle me-2"></i>
+						Une erreur est survenue lors du chargement des données. Veuillez réessayer ou contacter le support.
+					</td></tr>`;
+				} finally {
+					isLoading = false;
+					loader.classList.add('d-none');
+				}
+			};
+
+			if (searchForm) {
+				searchForm.addEventListener('submit', (e) => {
+					e.preventDefault();
+					loadData();
+				});
+
+				searchForm.addEventListener('reset', () => {
+					setTimeout(() => {
+						loadData();
+					}, 10);
+				});
+			}
+
+			loadData();
+		});
+	</script>
+{% endblock %}

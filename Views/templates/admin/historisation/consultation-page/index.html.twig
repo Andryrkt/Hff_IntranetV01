@@ -11,9 +11,11 @@
 
 {% import "macroForm.html.twig" as macroForm %}
 
+{% block breadCrumb %}{% endblock %}
+
 {% block content %}
 	<div class="position-sticky sticky-header">
-		<div class="container mt-4">
+		<div class="container my-4">
 			<h3 class="perso-titre">Historique des consultations de page</h3>
 
 			{% include "/admin/historisation/consultation-page/shared/_formulaireRecherche.html.twig" %}

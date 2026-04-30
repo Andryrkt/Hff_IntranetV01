@@ -1,47 +1,43 @@
 {% extends "baseTemplate.html.twig" %}
 
+{% block title %}
+	Nouveau Utilisateur
+{% endblock %}
+
 {% block stylesheets %}
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/admin/utilisateur/new.css?v=2025.10.22.08.00">
 {% endblock %}
 
+{% block breadCrumb %}{% endblock %}
+
 {% block content %}
-	<div class=" container">
+	<div class="container my-4">
 		<div class="card">
 			<div class="card-body">
-
 				<div class="container">
-					<h2 class="text-center fw-bold bg-black py-2" style="color: #FBBB01">
+					<h2 class="perso-titre">
 						Formulaire d'ajout Utilisateur
 					</h2>
 
-					<a href="{{path("utilisateur_index")}}" class="btn btn-sm  text-white my-3 fw-bold" style="background-color: #FBBB01;">Liste</a>
+					<a href="{{path("utilisateur_index")}}" class="btn btn-sm  text-white my-3 fw-bold" style="background-color: #FBBB01;">Liste des utilisateurs</a>
 
 					{{ form_start(form) }}
 					{{ form_errors(form)}}
 
 					<div class="row">
-						<div class="col-12 col-md-6">
-							{{ form_row(form.nom_utilisateur, {'attr': {'class': 'selectUser form-control'}}) }}
-							{{ form_row(form.matricule) }}
-							{{ form_row(form.mail) }}
-							{{ form_row(form.numTel) }}
-							{{ form_row(form.permissions)}}
-							{{ form_row(form.roles)}}
-							<div class="row">
-								<div class="col-12 col-md-6">
-									{{ form_row(form.applications)}}
-								</div>
-								<div class="col-12 col-md-6">
-									{{ form_row(form.societtes)}}
-								</div>
-							</div>
+						<div class="col-4 col-md-4">
+							{{ form_row(form.personnel, {'attr': {'class': 'selectPersonnel form-control'}}) }}
 						</div>
-						<div class="col-12 col-md-6">
-							{{ form_row(form.agenceServiceIrium, {'attr': {'class': 'selectUser form-control'}})}}
-							{{ form_row(form.personnels, {'attr': {'class': 'selectUser form-control'}})}}
-							{{ form_row(form.fonction)}}
-							{{ form_row(form.agencesAutorisees, {'attr': {'class': 'superieurs'}})}}
-							{{ form_row(form.serviceAutoriser, {'attr': {'class': 'superieurs'}})}}
+						<div class="col-4 col-md-4">
+							{{ form_row(form.username, {'attr': {'class': 'selectUser form-control'}}) }}
+						</div>
+						<div class="col-4 col-md-4">
+							{{ form_row(form.email) }}
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-12 col-md-12">
+							{{ form_row(form.profils, {'attr': {'class': 'selectProfils form-control'}}) }}
 						</div>
 					</div>
 
@@ -51,12 +47,12 @@
 					</button>
 					{{ form_end(form) }}
 				</div>
-
 			</div>
 		</div>
+	</div>
 
-	{% endblock %}
+{% endblock %}
 
-	{% block javascript %}
-		<script src="{{ App.base_path }}/Views/js/admin/utilisateur/user.js?v=2025.10.22.08.00"></script>
-	{% endblock %}
+{% block javascript %}
+	<script src="{{ App.base_path }}/Views/js/admin/utilisateur/user.js?v=2025.10.22.08.00" type="module"></script>
+{% endblock %}

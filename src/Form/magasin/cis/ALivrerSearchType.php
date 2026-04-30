@@ -38,12 +38,13 @@ class ALivrerSearchtype extends AbstractType
         $this->magasinModel = new MagasinListeOrLivrerModel();
     }
 
-     private function recupConstructeur(bool $estPneumatique = false): array
+    private function recupConstructeur(bool $estPneumatique = false): array
     {
         return $estPneumatique ? $this->createAssociativeArray(GlobalVariablesService::get('pneumatique')) : $this->magasinModel->recuperationConstructeur();
     }
 
-    private function agence(){
+    private function agence()
+    {
         return array_combine($this->magasinModel->agence(), $this->magasinModel->agence());
     }
 
@@ -51,7 +52,7 @@ class ALivrerSearchtype extends AbstractType
     {
         return array_combine($this->magasinModel->agenceUser($codeAgence), $this->magasinModel->agenceUser($codeAgence));
     }
-    
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
@@ -75,7 +76,7 @@ class ALivrerSearchtype extends AbstractType
                 'label' => 'Désignation',
                 'required' => false
             ])
-            
+
             ->add('constructeur', ChoiceType::class, [
                 'label' =>  'Constructeur',
                 'required' => false,
@@ -102,63 +103,68 @@ class ALivrerSearchtype extends AbstractType
                 'label' => 'Date de création OR (fin)',
                 'required' => false,
             ])
-            ->add('agence',
-            ChoiceType::class,
-            [
-                'label' => 'Agence débiteur',
-                'required' => false,
-                'choices' => $this->agence() ?? [],
-                'placeholder' => ' -- choisir agence --'
-            ])
-            ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event) {
-                $form = $event->getForm();
-                $data = $event->getData();
-                $form->add('service',
+            ->add(
+                'agence',
                 ChoiceType::class,
                 [
-                    'label' => 'Service débiteur',
+                    'label' => 'Agence débiteur',
                     'required' => false,
-                    'choices' => [],
-                    'placeholder' => ' -- choisir service --'
-                ]);
-            })
-            ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) {
+                    'choices' => $this->agence() ?? [],
+                    'placeholder' => ' -- choisir agence --'
+                ]
+            )
+            ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
                 $form = $event->getForm();
                 $data = $event->getData();
-                
-                $service = [];
-            if($data['agence'] !== ""){
-                $services = $this->magasinModel->service($data['agence']);
-                
-                foreach ($services as $value) {
-                    $service[$value['text']] = $value['text'];
-                }
-            } else {
-                $service = [];
-            }
-            
-            $form->add('service',
-            ChoiceType::class,
-            [
-                'label' => 'Service débiteur',
-                'required' => false,
-                'choices' => $service,
-                'placeholder' => ' -- choisir service --'
-            ]);
-            
+                $form->add(
+                    'service',
+                    ChoiceType::class,
+                    [
+                        'label' => 'Service débiteur',
+                        'required' => false,
+                        'choices' => [],
+                        'placeholder' => ' -- choisir service --'
+                    ]
+                );
             })
-    
+            ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
+                $form = $event->getForm();
+                $data = $event->getData();
+
+                $service = [];
+                if ($data['agence'] !== "") {
+                    $services = $this->magasinModel->service($data['agence']);
+
+                    foreach ($services as $value) {
+                        $service[$value['text']] = $value['text'];
+                    }
+                } else {
+                    $service = [];
+                }
+
+                $form->add(
+                    'service',
+                    ChoiceType::class,
+                    [
+                        'label' => 'Service débiteur',
+                        'required' => false,
+                        'choices' => $service,
+                        'placeholder' => ' -- choisir service --'
+                    ]
+                );
+            })
+
             ->add('agenceUser', ChoiceType::class, [
                 'label' => 'Agence Emetteur',
                 'required' => false,
                 'choices' => $this->agenceAutoriserUser($options['data']['agenceUser']) ?? [],
                 'placeholder' => ' -- Choisir une agence --',
             ])
-            
+
             ->add('agenceUserHidden', HiddenType::class, [
                 'data' => $options['data']['agenceUser'] ?? null,
             ])
-            
+
             ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) use ($options) {
                 $data = $event->getData();
 
@@ -166,31 +172,37 @@ class ALivrerSearchtype extends AbstractType
                 $event->setData($data);
             })
 
-            ->add('orCompletNon',
-            ChoiceType::class,
-            [
-                'label' => 'Etat OR',
-                'required' => false,
-                'choices' => self::OR_COMPLET_OU_NON,
-                'placeholder' => ' -- choisir une mode affichage --',
-                'data' => 'ORs COMPLET'
-            ])
-            ->add('pieces',
-            ChoiceType::class,
-            [
-                'label' => 'Pièces',
-                'required' => false,
-                'choices' => self::PIECE_MAGASIN_ACHATS_LOCAUX,
-                'placeholder' => ' -- choisir une mode affichage --',
-                'data' => 'PIECES MAGASIN'
-            ])
-            ->add('orValide', 
-            CheckboxType::class,
-            [
-                'label' => 'OR validé',
-                'required' => false,
-                'data' => true // Définit la case comme cochée par défaut
-            ])
+            ->add(
+                'orCompletNon',
+                ChoiceType::class,
+                [
+                    'label' => 'Etat OR',
+                    'required' => false,
+                    'choices' => self::OR_COMPLET_OU_NON,
+                    'placeholder' => ' -- choisir une mode affichage --',
+                    'data' => 'ORs COMPLET'
+                ]
+            )
+            ->add(
+                'pieces',
+                ChoiceType::class,
+                [
+                    'label' => 'Pièces',
+                    'required' => false,
+                    'choices' => self::PIECE_MAGASIN_ACHATS_LOCAUX,
+                    'placeholder' => ' -- choisir une mode affichage --',
+                    'data' => 'PIECES MAGASIN'
+                ]
+            )
+            ->add(
+                'orValide',
+                CheckboxType::class,
+                [
+                    'label' => 'OR validé',
+                    'required' => false,
+                    'data' => true // Définit la case comme cochée par défaut
+                ]
+            )
         ;
     }
 

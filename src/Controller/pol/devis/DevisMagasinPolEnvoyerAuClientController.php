@@ -7,7 +7,6 @@ use App\Entity\admin\Application;
 use App\Entity\magasin\bc\BcMagasin;
 use Symfony\Component\Form\FormInterface;
 use App\Entity\magasin\devis\DevisMagasin;
-use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -23,7 +22,6 @@ use App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService;
  */
 class DevisMagasinPolEnvoyerAuClientController extends Controller
 {
-    use AutorisationTrait;
     use DevisMagasinTrait;
 
     private HistoriqueOperationDevisMagasinService $historiqueOperationDeviMagasinService;
@@ -44,15 +42,11 @@ class DevisMagasinPolEnvoyerAuClientController extends Controller
      */
     public function envoyerAuClient(Request $request, string $numeroDevis)
     {
-
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
-        /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_DVM);
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
 
         /** Gestion de blocage */
-        $this->gestionDeBlocage($numeroDevis);
+        $this->gestionDeBlocage($numeroDevis, $codeSociete);
 
         //formulaire de création
         $form = $this->getFormFactory()->createBuilder(DevisMagasinEnvoyerAuClientType::class, null, [
@@ -62,7 +56,7 @@ class DevisMagasinPolEnvoyerAuClientController extends Controller
         ])->getForm();
 
         /** Traitement du formulaire */
-        $this->traitementFormulaire($form, $request, $numeroDevis);
+        $this->traitementFormulaire($form, $request, $numeroDevis, $codeSociete);
 
         //affichage du formulaire
         return $this->render('magasin/devis/envoyerAuClient.html.twig', [
@@ -70,12 +64,12 @@ class DevisMagasinPolEnvoyerAuClientController extends Controller
         ]);
     }
 
-    private function gestionDeBlocage(string $numeroDevis): Response
+    private function gestionDeBlocage(string $numeroDevis, string $codeSociete): Response
     {
         $validateur = new DevisMagasinEnvoyerAuClientValidatorService();
 
         //recupération des informations utile dans IPS
-        $firstDevisIps = $this->getInfoDevisIps($numeroDevis);
+        $firstDevisIps = $this->getInfoDevisIps($numeroDevis, $codeSociete);
         [$newSumOfLines, $newSumOfMontant] = $this->newSumOfLinesAndAmount($firstDevisIps);
 
         $data = [
@@ -90,14 +84,14 @@ class DevisMagasinPolEnvoyerAuClientController extends Controller
         return new Response();
     }
 
-    private function traitementFormulaire(FormInterface $form, Request $request, string $numeroDevis)
+    private function traitementFormulaire(FormInterface $form, Request $request, string $numeroDevis, string $codeSociete)
     {
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
 
-            $numeroVersionMax = $this->getEntityManager()->getRepository(DevisMagasin::class)->getNumeroVersionMax($numeroDevis);
-            $devisMagasin = $this->getEntityManager()->getRepository(DevisMagasin::class)->findOneBy(['numeroDevis' => $numeroDevis, 'numeroVersion' => $numeroVersionMax]);
+            $numeroVersionMax = $this->getEntityManager()->getRepository(DevisMagasin::class)->getNumeroVersionMax($numeroDevis, $codeSociete);
+            $devisMagasin = $this->getEntityManager()->getRepository(DevisMagasin::class)->findOneBy(['numeroDevis' => $numeroDevis, 'numeroVersion' => $numeroVersionMax, 'codeSociete' => $codeSociete]);
             $devisMagasin->setDateEnvoiDevisAuClient($data['dateEnvoiDevisAuClient']);
             $devisMagasin->setStatutDw(DevisMagasin::STATUT_ENVOYER_CLIENT);
             $devisMagasin->setStatutBc(BcMagasin::STATUT_EN_ATTENTE_BC);

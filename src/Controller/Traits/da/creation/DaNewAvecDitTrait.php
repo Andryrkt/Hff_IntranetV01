@@ -48,18 +48,22 @@ trait DaNewAvecDitTrait
     {
         $demandeAppro = new DemandeAppro;
 
+        $agenceService = $this->agenceServiceIpsObjet();
+        $agenceEmetteur = $agenceService['agenceIps'];
+        $serviceEmetteur = $agenceService['serviceIps'];
+
         $demandeAppro
             ->setDaTypeId(DemandeAppro::TYPE_DA_AVEC_DIT)
             ->setNiveauUrgence($dit->getIdNiveauUrgence()->getDescription())
             ->setObjetDal($dit->getObjetDemande())
             ->setDetailDal($dit->getDetailDemande())
             ->setNumeroDemandeDit($dit->getNumeroDemandeIntervention())
+            ->setAgenceEmetteur($agenceEmetteur)
+            ->setServiceEmetteur($serviceEmetteur)
             ->setAgenceDebiteur($dit->getAgenceDebiteurId())
             ->setServiceDebiteur($dit->getServiceDebiteurId())
-            ->setAgenceEmetteur($dit->getAgenceEmetteurId())
-            ->setServiceEmetteur($dit->getServiceEmetteurId())
+            ->setAgenceServiceEmetteur($agenceEmetteur->getCodeAgence() . '-' . $serviceEmetteur->getCodeService())
             ->setAgenceServiceDebiteur($dit->getAgenceDebiteurId()->getCodeAgence() . '-' . $dit->getServiceDebiteurId()->getCodeService())
-            ->setAgenceServiceEmetteur($dit->getAgenceEmetteurId()->getCodeAgence() . '-' . $dit->getServiceEmetteurId()->getCodeService())
             ->setUser($this->getUser())
             ->setDemandeur($this->getUser()->getNomUtilisateur())
         ;
@@ -88,7 +92,9 @@ trait DaNewAvecDitTrait
      */
     private function setAllFournisseurs()
     {
-        $fournisseurs = $this->daModel->getAllFournisseur();
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+        $fournisseurs = $this->daModel->getAllFournisseur($codeSociete);
         $this->fournisseurs = array_column($fournisseurs, 'numerofournisseur', 'nomfournisseur');
     }
 

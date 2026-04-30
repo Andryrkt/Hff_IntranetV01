@@ -1,21 +1,22 @@
 import { FetchManager } from "../../api/FetchManager.js";
+
 document.addEventListener("DOMContentLoaded", function () {
-  const checkboxesStopRelance = document.querySelectorAll(
-    ".js-checkbox-stop-relance",
-  );
   const fetchManager = new FetchManager();
 
-  // Initialisation : appliquer le style visuel selon l'état initial (après rechargement de page)
-  checkboxesStopRelance.forEach((checkbox) => {
+  // Utilisation de la délégation d'événements sur le document
+  document.addEventListener("change", function (event) {
+    if (event.target && event.target.classList.contains("js-checkbox-stop-relance")) {
+      stopOuRelance(event);
+    }
+  });
+
+  // Pour les éléments déjà présents (si existants)
+  document.querySelectorAll(".js-checkbox-stop-relance").forEach((checkbox) => {
     updateCheckbox(checkbox, checkbox.checked);
   });
 
-  checkboxesStopRelance.forEach((checkbox) => {
-    checkbox.addEventListener("change", stopOuRelance);
-  });
-
   function stopOuRelance(event) {
-    const checkbox = event.currentTarget;
+    const checkbox = event.target;
     const numeroDevis = checkbox.dataset.numeroDevis;
     const isNowChecked = checkbox.checked;
 
@@ -128,7 +129,11 @@ document.addEventListener("DOMContentLoaded", function () {
             const row = checkbox.closest("tr");
             const parentCheckbox = checkbox.closest(".form-check");
             updateTooltip(parentCheckbox, data.motifStop, isNowChecked);
-            updateRelanceColumns(row, data.statuts, data.relanceClient);
+            
+            // On ne met à jour les colonnes que si c'est une réactivation (isNowChecked === false)
+            if (!isNowChecked) {
+              updateRelanceColumns(row, data.statuts, data.relanceClient);
+            }
           }
 
           Swal.fire({
@@ -181,6 +186,8 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function updateRelanceColumns(row, statuts, relanceClient) {
+    if (!row || !statuts || Array.isArray(statuts)) return;
+
     const relance1 = row.querySelector(".js-relance-1");
     const relance2 = row.querySelector(".js-relance-2");
     const relance3 = row.querySelector(".js-relance-3");
@@ -207,7 +214,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function updateColumn(element, value) {
-    if (!element) return;
+    if (!element || value === undefined) return;
 
     element.textContent = value || "";
 

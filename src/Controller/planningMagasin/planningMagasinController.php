@@ -3,26 +3,21 @@
 namespace App\Controller\planningMagasin;
 
 use App\Controller\Controller;
-use App\Entity\admin\Application;
 use App\Entity\magasin\bc\BcMagasin;
-use App\Entity\admin\utilisateur\Role;
-use App\Entity\admin\utilisateur\User;
 use App\Service\TableauEnStringService;
 use App\Controller\Traits\PlanningTraits;
-use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\planningMagasin\PlanningMagasinModel;
 use App\Entity\planningMagasin\PlanningMagasinSearch;
 use App\Form\planningMagasin\PlanningMagasinSearchType;
+use App\Service\security\SecurityService;
 
 /**
  * @Route("/magasin")
  */
 class planningMagasinController extends Controller
 {
-
-    use AutorisationTrait;
     use PlanningTraits;
 
 
@@ -42,13 +37,10 @@ class planningMagasinController extends Controller
      */
     public function headPlanning(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-        /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_REP);
-        // autorisation pour affichage
-        $autoriser = $this->estAutoriser($this->getUser());
-        $codeAgence = $autoriser ? "-0" : $this->getUser()->getCodeAgenceUser();
+        // Vérifier la permission de voir tous les données
+        $multisuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE);
+
+        $codeAgence = $multisuccursale ? "-0" : $this->getSecurityService()->getCodeAgenceUser();
         /** FIN AUtorisation acées */
         //initialisation
         $this->planningMagasinSearch
@@ -106,11 +98,5 @@ class planningMagasinController extends Controller
         /** @var array */
         $numBc = $this->BcMagasinRepository->findnumBCAll();
         return $numBc;
-    }
-
-    private function estAutoriser(User $user)
-    {
-        $roleIds = $user->getRoleIds();
-        return $this->estAdmin()  || in_array(Role::ROLE_MULTI_SUCURSALES, $roleIds);
     }
 }
