@@ -36,6 +36,8 @@ class StatutDaConstant
         self::STATUT_CLOTUREE_HORS_DELAI  => self::STATUT_CLOTUREE_HORS_DELAI,
     ];
 
+    // statut de la DA qui sont à traiter par le profil appro
+    // pour les autres qui n'est pas appro c'est "Traitement appro" qui s'affiche
     public const STATUT_TRAITEMENT_APPRO = [
         self::STATUT_DEMANDE_DEVIS        => self::STATUT_DEMANDE_DEVIS,
         self::STATUT_DEVIS_A_RELANCER     => self::STATUT_DEVIS_A_RELANCER,
