@@ -21,7 +21,7 @@ class BcModel extends Model
     public function getNumeroVersion(string $numeroDevis, string $codeSociete): int
     {
         $statement = "SELECT FIRST 1 MAX(numero_version) as version 
-        FROM ir_prod108:Informix.bc_client_soumis_neg  bneg 
+        FROM {$this->dbIrium}:Informix.bc_client_soumis_neg  bneg 
         WHERE bneg.numero_devis = '$numeroDevis' AND bneg.code_societe = '$codeSociete'
         ";
 
@@ -45,14 +45,18 @@ class BcModel extends Model
 
         $statement = " SELECT ROUND(SUM((COALESCE(nlig_pxvteht,0)*COALESCE(nlig_qtecde,0)) * (1-(COALESCE(nlig_rem1,0)/100))), 2) as montant 
                     FROM informix.neg_lig
-                    inner join informix.neg_ent on nent_soc = nlig_soc and nent_succ = nlig_succ and nent_numcde = nlig_numcde and nlig_soc = 'HF' and nent_soc = 'HF'
+                    inner join informix.neg_ent 
+                        on nent_soc = nlig_soc 
+                        and nent_succ = nlig_succ 
+                        and nent_numcde = nlig_numcde 
+                        and nlig_soc = '$codeSociete'
+                        and nent_soc = '$codeSociete'
                     where nent_natop = 'DEV'
-                    --year(nlig_datecde) = '2025' and month(nlig_datecde) = '10'
-                    and nent_posl <> 'TR'
+                    and nent_posl <> 'TR' 
                     and nent_servcrt = 'NEG'
                     and nlig_numcde = '$numeroDevis'
                     and nlig_soc = '$codeSociete'
-                    and nlig_constp in (" . $constructeurPieceMagasin . ") -- ne recuperer que les pièces gérées par le magasin
+                    and nlig_constp in (" . $constructeurPieceMagasin . ")
         ";
 
         $result = $this->connect->executeQuery($statement);
@@ -97,7 +101,7 @@ class BcModel extends Model
                         ,dneg.statut_dw as statut
                         ,dneg.statut_bc as statut_bc
 
-                    from ir_prod108:Informix.devis_soumis_a_validation_neg dneg
+                    from {$this->dbIrium}:Informix.devis_soumis_a_validation_neg dneg
                     where dneg.code_societe = '$codeSociete'
                     and dneg.numero_devis = '$numeroDevis'
                     order by dneg.numero_version desc
@@ -126,7 +130,7 @@ class BcModel extends Model
         $donnees = BcMapper::toArrayBc($dto);
 
         // Construire la requête d'insertion et l'exécuter
-        $builder = new InsertQueryBuilder('ir_prod108:Informix.bc_client_soumis_neg');
+        $builder = new InsertQueryBuilder("{$this->dbIrium}:Informix.bc_client_soumis_neg");
         $builder->setData($donnees);
         $result = $builder->build();
 
@@ -152,7 +156,7 @@ class BcModel extends Model
     {
         $donnees = BcMapper::toArrayUpdateDevis($dto);
 
-        $updateBuilder = new UpdateQueryBuilder('ir_prod108:Informix.devis_soumis_a_validation_neg');
+        $updateBuilder = new UpdateQueryBuilder("{$this->dbIrium}:Informix.devis_soumis_a_validation_neg");
 
         // Définir les données à mettre à jour
         $updateBuilder->setData($donnees);

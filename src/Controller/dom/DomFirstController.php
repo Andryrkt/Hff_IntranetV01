@@ -33,6 +33,8 @@ class DomFirstController extends Controller
 
         //CREATION DU FORMULAIRE
         $form = $this->getFormFactory()->createBuilder(DomForm1Type::class, $dom, [
+            'agenceCodeUser' => $this->getSecurityService()->getCodeAgenceUser(),
+            'serviceCodeUser' => $this->getSecurityService()->getCodeServiceUser(),
             'agenceServiceAutorisees' => $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DOM)
         ])->getForm();
 

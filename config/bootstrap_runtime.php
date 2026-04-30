@@ -118,7 +118,7 @@ $twig = new \Twig\Environment(
     [
         'debug'       => $isDevMode,
         'cache'       => $twigCacheDir,
-        'auto_reload' => $isDevMode, // 🔥 EN DEV : vérifie les changements
+        'auto_reload' => true, // 🔥 EN DEV : vérifie les changements
     ]
 );
 $container->set('twig', $twig);
@@ -200,7 +200,7 @@ $menuService = $container->get('menu.service');
 /** @var SecurityService $securityService */
 $securityService = $container->get('security.service');
 
-/** @var \Symfony\Component\Cache\Adapter\TagAwareAdapterInterface $cacheMenu */
+/** @var \Symfony\Contracts\Cache\TagAwareCacheInterface $cacheMenu */
 $cacheMenu = $container->get('cache.menu');
 
 $twig->addExtension(new \Twig\Extension\DebugExtension());
@@ -281,6 +281,7 @@ if (!$isDevMode) {
                 file_put_contents($twigCompiledMarker, $error . PHP_EOL, FILE_APPEND);
             }
 
+            $errorCount = count($templateErrors);
             file_put_contents($twigCompiledMarker, "✅ Twig précompilé : {$compiledCount} templates, {$errorCount} erreurs (premier démarrage PROD)" . PHP_EOL, FILE_APPEND);
         } else {
             error_log("⚠️  Répertoire templates introuvable : {$templateDir}");

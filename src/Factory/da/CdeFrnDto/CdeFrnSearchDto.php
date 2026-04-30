@@ -24,7 +24,8 @@ class CdeFrnSearchDto
     private ?DateTime $dateDebutfinSouhaite = null;
     private ?DateTime $dateFinFinSouhaite = null;
     private ?string $sortNbJours = null;
-    public $demandeur = null;
+    private $demandeur = null;
+    private  $afficherCloturees = false;
     private $agenceEmetteur = null;
     private $serviceEmetteur = null;
     private $agenceDebiteur = null;
@@ -57,6 +58,7 @@ class CdeFrnSearchDto
             'dateFinFinSouhaite' => $this->dateFinFinSouhaite,
             'sortNbJours' => $this->sortNbJours,
             'demandeur' => $this->demandeur,
+            'afficherCloturees' => $this->afficherCloturees,
             'agenceEmetteur' => $this->agenceEmetteur,
             'serviceEmetteur' => $this->serviceEmetteur,
             'agenceDebiteur' => $this->agenceDebiteur,
@@ -485,6 +487,42 @@ class CdeFrnSearchDto
     public function setServiceDebiteur($serviceDebiteur): self
     {
         $this->serviceDebiteur = $serviceDebiteur;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of demandeur
+     */
+    public function getDemandeur()
+    {
+        return $this->demandeur;
+    }
+
+    /**
+     * Set the value of demandeur
+     */
+    public function setDemandeur($demandeur): self
+    {
+        $this->demandeur = $demandeur;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of afficherCloturees
+     */
+    public function getAfficherCloturees()
+    {
+        return $this->afficherCloturees;
+    }
+
+    /**
+     * Set the value of afficherCloturees
+     */
+    public function setAfficherCloturees($afficherCloturees): self
+    {
+        $this->afficherCloturees = $afficherCloturees;
 
         return $this;
     }

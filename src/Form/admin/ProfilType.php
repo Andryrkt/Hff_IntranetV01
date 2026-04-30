@@ -24,6 +24,7 @@ class ProfilType extends AbstractType
             ])
             ->add('societe', EntityType::class, [
                 'label'        => 'Société associée *',
+                'disabled'     => $options['type'] === 'modification',
                 'placeholder'  => '-- Sélectionner une société --',
                 'class'        => Societte::class,
                 'choice_label' => fn(Societte $s) => $s->getCodeSociete() . ' — ' . $s->getNom(), // ou refVignette, ou un champ visible
@@ -45,6 +46,7 @@ class ProfilType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Profil::class,
+            'type'       => 'creation',
         ]);
     }
 }

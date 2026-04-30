@@ -181,7 +181,7 @@ class DitDevisSoumisAValidationRepository extends EntityRepository
                 ->select('dsv.statut')
                 ->where('dsv.numeroDit = :numDit')
                 ->andWhere('dsv.numeroVersion = :numeroVersionMax')
-                ->andWhere('da.codeSociete = :codeSociete')
+                ->andWhere('dsv.codeSociete = :codeSociete')
                 ->setParameters([
                     'codeSociete' => $codeSociete,
                     'numeroVersionMax' => $numeroVersionMax,

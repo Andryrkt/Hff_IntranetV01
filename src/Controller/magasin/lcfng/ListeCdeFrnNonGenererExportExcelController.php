@@ -26,7 +26,7 @@ class ListeCdeFrnNonGenererExportExcelController extends Controller
     }
 
     /**
-     * @Route("/lcfng/liste_cde_frs_non_generer_export_excel", name="liste_Cde_Frn_Non_Generer_Export_Excel")
+     * @Route("/lcfng/liste_cde_frs_non_generer_export_excel", name="export_excel_liste_cde_frs_non_generer")
      *
      * @return void
      */

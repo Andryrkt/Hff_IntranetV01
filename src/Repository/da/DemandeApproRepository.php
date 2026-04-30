@@ -2,7 +2,7 @@
 
 namespace App\Repository\da;
 
-use App\Entity\admin\utilisateur\User;
+use App\Constants\da\StatutDaConstant;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
 use Doctrine\ORM\EntityRepository;
@@ -92,7 +92,7 @@ class DemandeApproRepository extends EntityRepository
         return $this->createQueryBuilder('da')
             ->select('da.numeroDemandeDit')
             ->where('da.statutDal IN (:statuts)')
-            ->setParameter('statuts', [DemandeAppro::STATUT_VALIDE, DemandeAppro::STATUT_TERMINER])
+            ->setParameter('statuts', [StatutDaConstant::STATUT_VALIDE, StatutDaConstant::STATUT_TERMINER])
             ->getQuery()
             ->getSingleColumnResult()
         ;
@@ -148,7 +148,7 @@ class DemandeApproRepository extends EntityRepository
             ->where('da.numeroDemandeDit = :numDit')
             ->andWhere('da.statutDal = :statutValide')
             ->setParameter('numDit', $numDit)
-            ->setParameter('statutValide', DemandeAppro::STATUT_VALIDE)
+            ->setParameter('statutValide', StatutDaConstant::STATUT_VALIDE)
             ->getQuery()
             ->getSingleColumnResult();
     }

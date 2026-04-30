@@ -2,18 +2,18 @@
 
 namespace App\Controller\da\ListeDa;
 
-use App\Entity\da\DaSearch;
-use App\Form\da\DaSearchType;
-use App\Entity\da\DaAfficher;
 use App\Controller\Controller;
-use App\Service\da\DaListePresenter;
-use App\Service\da\PermissionDaService;
+use App\Entity\admin\Agence;
+use App\Entity\admin\Service;
+use App\Entity\da\DaAfficher;
+use App\Entity\da\DaSearch;
+use App\Entity\ddp\DemandePaiement;
+use App\Form\da\daCdeFrn\DaModalDateLivraisonType;
+use App\Form\da\DaSearchType;
+use App\Mapper\Da\DaAfficherMapper;
+use App\Repository\da\DaAfficherRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\FormInterface;
-use App\Service\security\SecurityService;
-use App\Repository\da\DaAfficherRepository;
-use App\Constants\admin\ApplicationConstant;
-use App\Form\da\daCdeFrn\DaModalDateLivraisonType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -24,16 +24,13 @@ class listeDaController extends Controller
 {
     // Repository et model
     private DaAfficherRepository $daAfficherRepository;
-    private DaListePresenter $presenter;
-    private PermissionDaService $permissionDaService;
+    private DaAfficherMapper $daAfficherMapper;
 
     public function __construct(EntityManagerInterface $entityManager)
     {
         parent::__construct();
-
-        $this->daAfficherRepository              = $entityManager->getRepository(DaAfficher::class);
-        $this->presenter                         = new DaListePresenter($this->getUrlGenerator());
-        $this->permissionDaService               = new PermissionDaService();
+        $this->daAfficherRepository = $entityManager->getRepository(DaAfficher::class);
+        $this->daAfficherMapper = new DaAfficherMapper($this->getUrlGenerator());
     }
 
     /**
@@ -43,67 +40,40 @@ class listeDaController extends Controller
     {
         // Code Société de l'utilisateur
         $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+        // Agence et service par défaut
+        $agenceIdUser = $this->getSecurityService()->getAgenceIdUser();
+        $serviceIdUser = $this->getSecurityService()->getServiceIdUser();
 
         /** Initialisation DaSearch */
         $daSearch = new DaSearch;
         $this->initialisationRechercheDa($daSearch);
 
-        $codeCentrale = false; // TODO : autorisation sur le code centrale
-
-        // Agences Services autorisés sur le DAP
-        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DAP);
-        $allAgenceServices = $this->getSecurityService()->getAllAgenceServices();
-
         //formulaire de recherche
         $form = $this->getFormFactory()->createBuilder(DaSearchType::class, $daSearch, [
             'method' => 'GET',
-            'allAgenceServices' => $allAgenceServices
+            'estAppro' => $this->estAppro(),
+            'codeSociete' => $codeSociete
         ])->getForm();
-
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            /** @var DaSearch $daSearch */
-            $daSearch = $form->getData();
-        }
-
-        $this->gererAgenceService($daSearch, $allAgenceServices);
-
-        $criteria = [];
-        //transformer l'objet daSearch en tableau
-        $criteria = $daSearch->toArray();
-        //recupères les données du criteria dans une session nommé criteria_search_list_da
-        $this->getSessionService()->set('criteria_search_list_da', $criteria);
+        $criteria = $this->traitementFormualireRecherche($request, $form, $daSearch);
 
         $sortJoursClass = false;
 
-        if ($criteria && $criteria['sortNbJours']) $sortJoursClass = $criteria['sortNbJours'] === 'asc' ? 'fas fa-arrow-up-1-9' : 'fas fa-arrow-down-9-1';
+        if ($criteria && !empty($criteria['sortNbJours'])) $sortJoursClass = $criteria['sortNbJours'] === 'asc' ? 'fas fa-arrow-up-1-9' : 'fas fa-arrow-down-9-1';
 
         //recupère le numero de page
         $page = $request->query->getInt('page', 1);
-        //nombre de ligne par page
-        $limit = 20;
-
-        // Agence et service par défaut
-        $agenceIdUser = $this->getSecurityService()->getAgenceIdUser();
-        $serviceIdUser = $this->getSecurityService()->getServiceIdUser();
-
-        // Vérifier la permission de voir tous les données
-        $multisuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE);
-
-        // Vérifier le permission de voir liste avec débiteur sur la page courante
-        $peutVoirListeAvecDebiteur = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_AUTH_2);
+        $limit = 100;
 
         // Donnée à envoyer à la vue
-        $paginationData = $this->daAfficherRepository->findPaginatedAndFilteredDA($page, $limit, $criteria, $agenceIdUser, $serviceIdUser, $codeSociete, $agenceServiceAutorises, $peutVoirListeAvecDebiteur, $multisuccursale);
-
-        // Application du verrouillage (Logique purement applicative)
-        $this->appliquerVerrouillage($paginationData['data']);
+        $paginationData = $this->daAfficherRepository->findPaginatedAndFilteredDA($page, $limit, $criteria, $agenceIdUser, $serviceIdUser, $codeSociete);
 
         // Préparation des données pour la vue (Via Presenter avec Cache)
-        $dataPrepared = $this->presenter->present($paginationData['data'], [
-            'estAdmin'   => false, // TODO: profil à faire
-            'estAppro'   => false, // TODO: profil à faire
-            'estAtelier' => false // TODO: profil à faire
+        $dataPrepared = $this->daAfficherMapper->mapList($paginationData['data'], [
+            'estAdmin'   => $this->estAdmin(),
+            'estAppro'   => $this->estAppro(),
+            'estAtelier' => $this->estAtelier(),
+            'estCreateur' => $this->estCreateurDaDirecte(),
+            'demandePaiementRepository' => $this->getEntityManager()->getRepository(DemandePaiement::class),
         ]);
 
         /** === Formulaire pour la date de livraison prevu === */
@@ -114,14 +84,37 @@ class listeDaController extends Controller
             'data'              => $dataPrepared,
             'form'              => $form->createView(),
             'criteria'          => $criteria,
-            'codeCentrale'      => $codeCentrale,
-            'daTypeIcons'       => $this->presenter->getIcons(),
+            'codeCentrale'      => $this->estAdmin() || $this->estEnergie(),
             'sortJoursClass'    => $sortJoursClass,
             'currentPage'       => $paginationData['currentPage'],
             'totalPages'        => $paginationData['lastPage'],
             'resultat'          => $paginationData['totalItems'],
-            'formDateLivraison' => $formDateLivraison->createView()
+            'formDateLivraison' => $formDateLivraison->createView(),
+            'mesDaActif'        => $request->query->get('mes_da_a_traiter') == 1,
         ]);
+    }
+
+    private function traitementFormualireRecherche(Request $request, FormInterface $form, DaSearch $daSearch)
+    {
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $criteria = $form->getData();
+            $criteria = $daSearch->toArray();
+
+            // Sauvegarde classique des critères issus du formulaire
+            $this->getSessionService()->set('criteria_search_list_da', $criteria);
+        }
+        // Gestion spécifique "Mes DA à traiter"
+        else {
+            $criteria = $daSearch->toArray();
+
+            $this->getSessionService()->set('criteria_search_list_da_80_app', $criteria);
+        }
+
+
+
+        return $criteria;
     }
 
     private function TraitementFormulaireDateLivraison(Request $request, FormInterface $formDateLivraison)
@@ -131,67 +124,43 @@ class listeDaController extends Controller
         if ($formDateLivraison->isSubmitted() && $formDateLivraison->isValid()) {
             //recupération des valeurs dans le formulaire
             $data = $formDateLivraison->getData();
-
-            // recupération des lignes de commande dans le da_afficher
-            $daAffichers = $this->getEntityManager()->getRepository(DaAfficher::class)->findBy(['numeroCde' => $data['numeroCde']]);
+            $dateLivraisonPrevue = $data['dateLivraisonPrevue'];
+            $daAffichers = $this->daAfficherRepository->findBy(['numeroCde' => $data['numeroCde']]);
 
             //modification de la date livraison prevue sur chaque ligne
             foreach ($daAffichers as $daAfficher) {
-                $daAfficher->setDateLivraisonPrevue($data['dateLivraisonPrevue']);
+                $daAfficher->setDateLivraisonPrevue($dateLivraisonPrevue)
+                    ->setJoursDispo($dateLivraisonPrevue->diff(new \DateTime('now', new \DateTimeZone('Indian/Antananarivo')))->days);
                 $this->getEntityManager()->persist($daAfficher);
             }
 
             $this->getEntityManager()->flush();
-
-            $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'Date de livraison prévue modifier avec succèss']);
-            $this->redirectToRoute("da_list_cde_frn");
+            $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'Date de livraison prévue modifiée avec succès']);
+            $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 1, 'page' => 1]);
         }
     }
 
-    private function gererAgenceService(DaSearch $daSearch, array $allAgenceServices): void
-    {
-        // Changer le serviceEmetteur
-        if ($daSearch->getServiceEmetteur()) {
-            $ligneId = $daSearch->getServiceEmetteur();
-            if ($ligneId && isset($allAgenceServices[$ligneId])) {
-                $daSearch->setServiceEmetteur($allAgenceServices[$ligneId]['service_id']);
-            }
-        }
 
-        // Changer le serviceDebiteur
-        if ($daSearch->getServiceDebiteur()) {
-            $ligneId = $daSearch->getServiceDebiteur();
-            if ($ligneId && isset($allAgenceServices[$ligneId])) {
-                $daSearch->setServiceDebiteur($allAgenceServices[$ligneId]['service_id']);
-            }
-        }
-    }
 
     public function initialisationRechercheDa(DaSearch $daSearch)
     {
         $criteria = $this->getSessionService()->get('criteria_search_list_da', []) ?? [];
 
-        $daSearch->toObject($criteria);
-    }
-
-    // Le verrouillage est maintenant calculé et injecté directement dans les tableaux
-    private function appliquerVerrouillage(array &$daAffichers): void
-    {
-        $estAdmin   = false; // TODO: profil ou autre
-        $estAppro   = false; // TODO: profil ou autre
-        $estAtelier = false; // TODO: profil ou autre
-        $estCreateur = false; // TODO: profil ou autre
-
-        foreach ($daAffichers as &$daAfficher) {
-            $daAfficher['verouille'] = $this->permissionDaService->estDaVerrouillee(
-                $daAfficher['statutDal'],
-                $daAfficher['statutOr'],
-                $estAdmin,
-                $estAppro,
-                $estAtelier,
-                $estCreateur
-            );
+        // Sécurité : si c'est un objet, on le convertit en tableau
+        if ($criteria instanceof DaSearch) {
+            $criteria = $criteria->toArray();
         }
-        unset($daAfficher); // bonne pratique après foreach par référence
+        // On ne met à true que si la clé n'existe pas (première visite)
+        if (!isset($criteria['afficherDaTraiter'])) {
+            $criteria['afficherDaTraiter'] = true;
+        }
+
+        $agServ = [
+            'agenceEmetteur'  => isset($criteria['agenceEmetteur']) ? $this->getEntityManager()->getRepository(Agence::class)->find($criteria['agenceEmetteur']) : null,
+            'agenceDebiteur'  => isset($criteria['agenceDebiteur']) ? $this->getEntityManager()->getRepository(Agence::class)->find($criteria['agenceDebiteur']) : null,
+            'serviceEmetteur' => isset($criteria['serviceEmetteur']) ? $this->getEntityManager()->getRepository(Service::class)->find($criteria['serviceEmetteur']) : null,
+            'serviceDebiteur' => isset($criteria['serviceDebiteur']) ? $this->getEntityManager()->getRepository(Service::class)->find($criteria['serviceDebiteur']) : null,
+        ];
+        $daSearch->toObject($criteria, $agServ);
     }
 }

@@ -57,7 +57,7 @@ class DaReapproModel extends Model
                         AND EXTEND(dfcc_datefac, YEAR TO DAY) BETWEEN '{$date['start']}' AND '{$date['end']}'
                         AND seor_numcli = 1
                         AND seor_servcrt = 'APP'
-                        AND seor_pos = 'CP'
+                        AND slor_pos = 'CP'
                         AND seor_succ = '80'
                         AND seor_natop = 'CES'
                         AND seor_typeor IN ('600','601','602','603','604','605','606','607','608','609')

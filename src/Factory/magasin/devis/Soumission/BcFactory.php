@@ -30,7 +30,8 @@ class BcFactory
         $bcDto->statutBc = StatutBcNegConstant::SOUMIS_VALIDATION;
         $bcDto->utilisateur = $userName;
         $bcDto->userMail = $userMail;
-        $bcDto->montantDevis = (float) $bcModel->getMontantDevis($bcDto->numeroDevis, $bcDto->codeSociete);
+        $bcDto->montantDevis = (float) $bcModel->getMontantDevis($bcDto->numeroDevis, $bcDto->codeSociete)[0];
+        $bcDto->montantBc = (float) str_replace(',', '.', str_replace(' ', '', $bcDto->montantBc));
 
         $infoClient = $bcModel->getClientAndModePaiement($bcDto->numeroDevis, $bcDto->codeSociete);
         $bcDto->codeClient = $infoClient[0]['code_client'] ?? '';

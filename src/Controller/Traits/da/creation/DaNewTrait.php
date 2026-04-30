@@ -39,6 +39,7 @@ trait DaNewTrait
             if ($dit) $daAfficher->setDit($dit);
             $daAfficher->duplicateDa($demandeAppro);
             $daAfficher->duplicateDal($dal);
+            $daAfficher->setDateDemande($demandeAppro->getDateCreation());
             $daAfficher->setNumeroVersion($numeroVersion);
 
             $this->getEntityManager()->persist($daAfficher);

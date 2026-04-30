@@ -2,9 +2,10 @@
 
 namespace App\Controller\Traits\da\demandeDevis;
 
+use App\Constants\da\StatutDaConstant;
+use App\Entity\da\DemandeAppro;
 use DateTime;
 use DateTimeZone;
-use App\Entity\da\DemandeAppro;
 
 trait DaDemandeDevisTrait
 {
@@ -16,6 +17,6 @@ trait DaDemandeDevisTrait
             ->setDevisDemandePar($username)
         ;
 
-        $this->appliquerChangementStatut($demandeAppro, DemandeAppro::STATUT_DEMANDE_DEVIS);
+        $this->appliquerChangementStatut($demandeAppro, StatutDaConstant::STATUT_DEMANDE_DEVIS);
     }
 }

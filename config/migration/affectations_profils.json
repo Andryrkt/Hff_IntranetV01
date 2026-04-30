@@ -5,12 +5,12 @@
     "username": "thierry.aro"
   },
   {
-    "ref_profil": "HFF_01-ATE_BDM+CAS+MAG+DIT+REP+DAP+PAT+DDC",
+    "ref_profil": "HFF_01-ATE_BDM+CAS+DIT+REP+DAP+PAT+DDC",
     "societe_id": 1,
     "username": "Nancy"
   },
   {
-    "ref_profil": "HFF_01-ATE_BDM+CAS+MAG+DIT+REP+DAP+PAT+DDC",
+    "ref_profil": "HFF_01-ATE_BDM+CAS+MAG+DIT+REP+DAP+PAT+DDC+CONTRAT",
     "societe_id": 1,
     "username": "Thomas"
   },
@@ -30,7 +30,7 @@
     "username": "naina"
   },
   {
-    "ref_profil": "HFF_01-ATE_DIT+REP+DAP+PAT+DDC",
+    "ref_profil": "HFF_01-ATE_DIT+REP+DAP+PAT+DDC+CONTRAT",
     "societe_id": 1,
     "username": "Fidinirina"
   },
@@ -45,7 +45,7 @@
     "username": "donat"
   },
   {
-    "ref_profil": "HFF_01-ATE_DIT+REP+DAP+PAT+DDC",
+    "ref_profil": "HFF_01-ATE_DIT+REP+DAP+PAT+DDC+CONTRAT",
     "societe_id": 1,
     "username": "mihanta"
   },
@@ -55,7 +55,7 @@
     "username": "angelin"
   },
   {
-    "ref_profil": "HFF_01-ATE_DIT+REP+DDC",
+    "ref_profil": "HFF_01-ATE_DIT+REP+DDC+CONTRAT",
     "societe_id": 1,
     "username": "jaona"
   },
@@ -658,5 +658,8 @@
   { "ref_profil": "HFF-ADMIN", "societe_id": 1, "username": "marie" },
   { "ref_profil": "HFF-ADMIN", "societe_id": 1, "username": "fidison" },
   { "ref_profil": "HFF-ADMIN", "societe_id": 1, "username": "charles" },
-  { "ref_profil": "HFF-ADMIN", "societe_id": 1, "username": "hanitra" }
+  { "ref_profil": "HFF-ADMIN", "societe_id": 1, "username": "hanitra" },
+  { "ref_profil": "HFF-ADMIN", "societe_id": 1, "username": "nekena" },
+  { "ref_profil": "HFF-ADMIN", "societe_id": 1, "username": "irina" },
+  { "ref_profil": "HFF-DAP", "societe_id": 1, "username": "stg.giano" }
 ]

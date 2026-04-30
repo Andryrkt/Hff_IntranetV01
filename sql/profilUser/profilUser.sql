@@ -80,12 +80,6 @@ alter table users drop column agence_id;
 alter table users drop column superieurs;
 alter table users drop column fonction;
 
-alter table users add code_agence_user varchar(50) NULL;
-alter table users add code_service_user varchar(50) NULL;
-alter table users add id_agence_user int NULL;
-alter table users add id_service_user int NULL;
-alter table users add code_sage varchar(50) NULL;
-
 CREATE TABLE application_profil_page (
     id                                     INT IDENTITY(1,1) NOT NULL,
     application_profil_id                  INT               NOT NULL,
@@ -100,17 +94,6 @@ CREATE TABLE application_profil_page (
     CONSTRAINT fk_app_profil_page_ap FOREIGN KEY (application_profil_id) REFERENCES application_profil (id),
     CONSTRAINT fk_app_profil_page_page FOREIGN KEY (page_id) REFERENCES Hff_pages (id)
 );
-
-UPDATE users set 
-    code_agence_user=asi.agence_ips, 
-    code_service_user=asi.service_ips,
-    code_sage=asi.service_sage_paie,
-    id_agence_user=a.id,
-    id_service_user=s.id
-from users u
-INNER JOIN Agence_Service_Irium asi on asi.id=u.agence_utilisateur
-inner join agences a on a.code_agence=asi.agence_ips
-inner join services s on s.code_service=asi.service_ips;
 
 -- Supprimer les relations avec users
 alter table agence_user drop constraint FK__agence_us__user___2057CCD0;
@@ -136,6 +119,43 @@ VALUES
 (N'PNEU OUTIL LUB', N'POL', '2026-02-26', '2026-02-26', NULL, NULL),
 (N'LOGISTIQUE (MATERIEL)', N'LOG', '2026-03-17', '2026-03-17', NULL, NULL),
 (N'CONTRAT (DOCUMENTATION)', N'CONTRAT', '2026-03-24', NULL, NULL, NULL);
+
+-- Ajout de Accueil et authentification
+INSERT INTO Hff_pages
+(nom, nom_route, lien, application_id, date_creation, date_modification)
+VALUES(N'Accueil', N'profil_acceuil', N'/', NULL, NULL, NULL),
+(N'Authentification (identifiants incorrects)', N'security_signin', N'/login', NULL, NULL, NULL);
+
+-- Mise à jour de log_utilisateur pour les anciens Accueil et authentification
+UPDATE Log_utilisateur
+SET id_page = hp.id
+FROM Log_utilisateur lu
+JOIN Hff_Pages hp
+    ON (
+        (lu.id_page = 1 AND hp.nom_route = 'profil_acceuil' AND hp.id > 50) OR (lu.id_page = 2 AND hp.nom_route = 'security_signin' AND hp.id > 50)
+    )
+WHERE lu.id_page IN (1, 2);
+
+-- Suppression des anciens Accueil et authentification
+delete from Hff_pages where id in (1,2);
+
+-- Ajout de nouveaux pages depuis la BDD "HFF_INTRANET_TEST_TEST" ===> "HFF_INTRANET_TEST_2026"
+INSERT INTO HFF_INTRANET_TEST_2026.dbo.Hff_pages
+(nom, nom_route, lien, application_id, date_creation, date_modification)
+select hp.nom, hp.nom_route, hp.lien, a.id, hp.date_creation, hp.date_modification
+from HFF_INTRANET_TEST_TEST.dbo.Hff_pages hp
+inner join HFF_INTRANET_TEST_TEST.dbo.applications a2 on a2.id=hp.application_id
+inner join HFF_INTRANET_TEST_2026.dbo.applications a on a.code_app=a2.code_app 
+where hp.id > 58;
+
+-- Mettre à jour les anciens pages en ajoutant son application_id ("HFF_INTRANET_TEST_TEST" ===> "HFF_INTRANET_TEST_2026")
+update HFF_INTRANET_TEST_2026.dbo.Hff_pages
+set application_id=a.id
+from HFF_INTRANET_TEST_2026.dbo.Hff_pages hptarget
+inner JOIN HFF_INTRANET_TEST_TEST.dbo.Hff_pages hpsource on hptarget.nom_route=hpsource.nom_route
+inner join HFF_INTRANET_TEST_TEST.dbo.applications a2 on a2.id=hpsource.application_id
+inner join HFF_INTRANET_TEST_2026.dbo.applications a on a.code_app=a2.code_app 
+where hptarget.id < 57;
 
 alter table devis_soumis_a_validation_neg add code_societe varchar(2) null;
 
@@ -244,17 +264,110 @@ VALUES
 (N'C6', N'NATEMA', '2026-04-01', '2026-04-01'),
 (N'C7', N'SOMECA', '2026-04-01', '2026-04-01');
 
+-- Mettre à jour les nouveaux agences en ajoutant son code_societe et son societe_id ("HFF_INTRANET_TEST_TEST" ===> "HFF_INTRANET_TEST_2026")
+update HFF_INTRANET_TEST_2026.dbo.agences
+set code_societe=s2.code_societe, societe_id=s2.id
+from HFF_INTRANET_TEST_2026.dbo.agences a
+inner join HFF_INTRANET_TEST_TEST.dbo.agences a2 on a2.code_agence=a.code_agence and a2.libelle_agence=a.libelle_agence
+inner join HFF_INTRANET_TEST_TEST.dbo.societe s on s.id = a2.societe_id
+inner join HFF_INTRANET_TEST_2026.dbo.societe s2 on s2.code_societe = s.code_societe
+where a.id > 12;
+
+-- Ajout de nouveaux agence_service depuis la BDD "HFF_INTRANET_TEST_TEST" ===> "HFF_INTRANET_TEST_2026"
+INSERT INTO HFF_INTRANET_TEST_2026.dbo.agence_service
+(agence_id, service_id)
+select a2.id, s2.id 
+from HFF_INTRANET_TEST_TEST.dbo.agence_service t
+inner join HFF_INTRANET_TEST_TEST.dbo.agences a on t.agence_id = a.id
+inner join HFF_INTRANET_TEST_2026.dbo.agences a2 on a2.code_agence = a.code_agence and a2.code_societe = a.code_societe 
+inner join HFF_INTRANET_TEST_TEST.dbo.services s on t.service_id = s.id
+inner join HFF_INTRANET_TEST_2026.dbo.services s2 on s2.code_service = s.code_service
+where a.id>12;
+
 create table agence_service_defaut_societe (
     id int identity(1,1) not null,
     id_user int not null,
     code_sage varchar(50) null,
     id_societe int not null,
+    code_societe varchar(2) not null,
     code_agence varchar(50) not null,
     code_service varchar(50) not null,
     id_agence int not null,
     id_service int not null,
+    constraint fk_agence_service_defaut_societe_user foreign key (id_user) references users(id),
     constraint fk_agence_service_defaut_societe_agence foreign key (id_agence) references agences(id),
     constraint fk_agence_service_defaut_societe_service foreign key (id_service) references services(id),
     constraint fk_agence_service_defaut_societe_societe foreign key (id_societe) references societe(id),
     constraint pk_agence_service_defaut_societe primary key (id)
 );
+
+INSERT INTO agence_service_defaut_societe
+(id_user, code_sage, id_societe, code_societe, code_agence, code_service, id_agence, id_service)
+SELECT
+    u.id                    AS id_user,
+    asi.service_sage_paie   AS code_sage,
+    soc.id                  AS id_societe,
+    soc.code_societe        AS code_societe,
+    asi.agence_ips          AS code_agence,   
+    asi.service_ips         AS code_service,
+    a.id                    AS id_agence,
+    s.id                    AS id_service
+FROM users u
+LEFT JOIN Agence_Service_Irium asi ON asi.id = u.agence_utilisateur
+JOIN agences a on a.code_agence=asi.agence_ips 
+JOIN services s on s.code_service=asi.service_ips
+JOIN societe soc on soc.code_societe=asi.societe_ios
+;
+
+-- ? Changer les donées de la table Hff_pages
+
+bc_magasin_soumission	
+/magasin/dematerialisation/soumission-bc-magasin/{numeroDevis}	
+
+devis_magasin_envoyer_au_client	
+/magasin/dematerialisation/devis-magasin-envoyer-au-client/{numeroDevis}	
+
+devis_magasin_soumission_validation_devis	
+/magasin/dematerialisation/soumission-devis-magasin-validation-devis/{numeroDevis}/{codeAgenceService}	
+
+devis_magasin_soumission_verification_prix	
+/magasin/dematerialisation/soumission-devis-magasin-verification-de-prix/{numeroDevis}
+
+
+update Hff_Pages
+set nom_route='bc_neg_soumission',
+lien='/magasin/dematerialisation/soumission-bc-neg/{numeroDevis}'
+where nom_route='bc_magasin_soumission'
+
+update Hff_Pages
+set nom_route='pointage_envoyer_au_client',
+lien='/magasin/dematerialisation/pointage/envoyer-au-client/{numeroDevis}'
+where nom_route='devis_magasin_envoyer_au_client'
+
+update Hff_Pages
+set nom_route='devis_neg_soumission_validation_devis',
+lien='/magasin/dematerialisation/soumission-devis-neg-validation-devis/{typeSoumission}/{numeroDevis}'
+where nom_route='devis_magasin_soumission_validation_devis'
+
+update Hff_Pages
+set nom_route='devis_neg_soumission_verification_prix',
+lien='/magasin/dematerialisation/soumission-devis-neg-verification-de-prix/{typeSoumission}/{numeroDevis}'
+where nom_route='devis_magasin_soumission_verification_prix'
+
+
+
+-- ! Suppression de profils
+delete from application_profil_agence_service;
+DBCC CHECKIDENT('application_profil_agence_service', RESEED, 0)
+
+delete from application_profil_page;
+DBCC CHECKIDENT('application_profil_page', RESEED, 0)
+
+delete from application_profil;
+DBCC CHECKIDENT('application_profil', RESEED, 0)
+
+delete from users_profils;
+DBCC CHECKIDENT('users_profils', RESEED, 0)
+
+delete from profil;
+DBCC CHECKIDENT('profil', RESEED, 0)

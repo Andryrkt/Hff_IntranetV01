@@ -2,27 +2,14 @@
 
 namespace App\Entity\admin\utilisateur;
 
-use App\Entity\cas\Casier;
-use App\Entity\admin\Agence;
-use App\Entity\admin\Service;
-use App\Entity\da\DemandeAppro;
-use App\Entity\tik\TkiPlanning;
+use App\Entity\admin\Personnel;
 use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
-use App\Entity\admin\Application;
-use App\Entity\dit\CommentaireDitOr;
-use App\Entity\da\DemandeApproParent;
-use App\Entity\admin\utilisateur\Role;
-use Doctrine\Common\Collections\Collection;
-use App\Entity\admin\utilisateur\Permission;
-use Doctrine\Common\Collections\ArrayCollection;
-use Symfony\Component\Security\Core\User\UserInterface;
-use App\Entity\admin\historisation\pageConsultation\UserLogger;
-use App\Entity\admin\Personnel;
-use App\Entity\tik\TkiReplannification;
 use App\Entity\admin\AgenceServiceIrium;
-use App\Entity\admin\utilisateur\Fonction;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
 use App\Repository\admin\utilisateur\UserRepository;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
@@ -64,18 +51,6 @@ class User implements UserInterface
     private $mail;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Role::class, inversedBy="users")
-     * @ORM\JoinTable(name="user_roles")
-     */
-    private $roles;
-
-    /**
-     * @ORM\ManyToMany(targetEntity=Application::class, inversedBy="users")
-     * @ORM\JoinTable(name="users_applications")
-     */
-    private $applications;
-
-    /**
      * @ORM\ManyToOne(targetEntity=Personnel::class, inversedBy="users")
      * @ORM\JoinColumn(name="personnel_id", referencedColumnName="id")
      */
@@ -86,12 +61,6 @@ class User implements UserInterface
      * @ORM\JoinColumn(name="agence_utilisateur", referencedColumnName="id")
      */
     private $agenceServiceIrium;
-
-    /**
-     * @ORM\ManyToMany(targetEntity=Service::class, inversedBy="userServiceAutoriser")
-     * @ORM\JoinTable(name="users_service")
-     */
-    private $serviceAutoriser;
 
     /**
      * @ORM\Column(type="string", length=10, name="num_tel")
@@ -108,41 +77,6 @@ class User implements UserInterface
     private ?string $poste;
 
     /**
-     * @ORM\Column(type="integer", name="id_agence_user")
-     *
-     * @var int
-     */
-    private ?int $idAgenceUser;
-
-    /**
-     * @ORM\Column(type="integer", name="id_service_user")
-     *
-     * @var int
-     */
-    private ?int $idServiceUser;
-
-    /**
-     * @ORM\Column(type="string", length=50, name="code_agence_user")
-     *
-     * @var string
-     */
-    private ?string $codeAgenceUser;
-
-    /**
-     * @ORM\Column(type="string", length=50, name="code_service_user")
-     *
-     * @var string
-     */
-    private ?string $codeServiceUser;
-
-    /**
-     * @ORM\Column(type="string", length=50, name="code_sage")
-     *
-     * @var string
-     */
-    private ?string $codeSage;
-
-    /**
      * @ORM\ManyToMany(targetEntity=Profil::class, inversedBy="users")
      * @ORM\JoinTable(name="users_profils")
      */
@@ -157,9 +91,6 @@ class User implements UserInterface
 
     public function __construct()
     {
-        $this->applications = new ArrayCollection();
-        $this->roles = new ArrayCollection();
-        $this->serviceAutoriser = new ArrayCollection();
         $this->profils = new ArrayCollection();
         $this->agenceServiceDefautSocietes = new ArrayCollection();
     }
@@ -179,30 +110,6 @@ class User implements UserInterface
 
         return $this;
     }
-
-    public function getRoles(): Collection
-    {
-        return $this->roles;
-    }
-
-    public function addRole(Role $role): self
-    {
-        if (!$this->roles->contains($role)) {
-            $this->roles[] = $role;
-        }
-
-        return $this;
-    }
-
-    public function removeRole(Role $role): self
-    {
-        if ($this->roles->removeElement($role)) {
-            $role->removeUser($this);
-        }
-
-        return $this;
-    }
-
 
     public function getNomUtilisateur(): string
     {
@@ -299,32 +206,6 @@ class User implements UserInterface
         return $this;
     }
 
-    /**
-     * @return Collection|Application[]
-     */
-    public function getApplications(): Collection
-    {
-        return $this->applications;
-    }
-
-    public function addApplication(Application $application): self
-    {
-        if (!$this->applications->contains($application)) {
-            $this->applications[] = $application;
-        }
-
-        return $this;
-    }
-
-    public function removeApplication(Application $application): self
-    {
-        if ($this->applications->contains($application)) {
-            $this->applications->removeElement($application);
-        }
-
-        return $this;
-    }
-
     public function getPersonnels()
     {
         return $this->personnels;
@@ -349,174 +230,6 @@ class User implements UserInterface
 
         return $this;
     }
-
-    /**
-     * Get the value of codeAgenceUser
-     */
-    public function getCodeAgenceUser(): ?string
-    {
-        return $this->codeAgenceUser;
-    }
-
-    /**
-     * Set the value of codeAgenceUser
-     */
-    public function setCodeAgenceUser(?string $codeAgenceUser): self
-    {
-        $this->codeAgenceUser = $codeAgenceUser;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of codeServiceUser
-     */
-    public function getCodeServiceUser(): ?string
-    {
-        return $this->codeServiceUser;
-    }
-
-    /**
-     * Set the value of codeServiceUser
-     */
-    public function setCodeServiceUser(?string $codeServiceUser): self
-    {
-        $this->codeServiceUser = $codeServiceUser;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of idAgenceUser
-     */
-    public function getIdAgenceUser(): ?int
-    {
-        return $this->idAgenceUser;
-    }
-
-    /**
-     * Set the value of idAgenceUser
-     */
-    public function setIdAgenceUser(?int $idAgenceUser): self
-    {
-        $this->idAgenceUser = $idAgenceUser;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of idServiceUser
-     */
-    public function getIdServiceUser(): ?int
-    {
-        return $this->idServiceUser;
-    }
-
-    /**
-     * Set the value of idServiceUser
-     */
-    public function setIdServiceUser(?int $idServiceUser): self
-    {
-        $this->idServiceUser = $idServiceUser;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of codeSage
-     */
-    public function getCodeSage(): ?string
-    {
-        return $this->codeSage;
-    }
-
-    /**
-     * Set the value of codeSage
-     */
-    public function setCodeSage(?string $codeSage): self
-    {
-        $this->codeSage = $codeSage;
-
-        return $this;
-    }
-
-    public function getServiceAutoriser(): Collection
-    {
-        return $this->serviceAutoriser;
-    }
-
-    public function addServiceAutoriser(Service $serviceAutoriser): self
-    {
-        if (!$this->serviceAutoriser->contains($serviceAutoriser)) {
-            $this->serviceAutoriser[] = $serviceAutoriser;
-        }
-
-        return $this;
-    }
-
-    public function removeServiceAutoriser(Service $serviceAutoriser): self
-    {
-        if ($this->serviceAutoriser->contains($serviceAutoriser)) {
-            $this->serviceAutoriser->removeElement($serviceAutoriser);
-        }
-
-        return $this;
-    }
-
-    /**
-     * RECUPERE LES id de role de l'User sous forme de tableau
-     */
-    public function getRoleIds(): array
-    {
-        return $this->roles->map(function ($role) {
-            return $role->getId();
-        })->toArray();
-    }
-
-    /**
-     * RECUPERE LES noms de role de l'User sous forme de tableau
-     */
-    public function getRoleNames(): array
-    {
-        return $this->roles->map(function ($role) {
-            return $role->getRoleName();
-        })->toArray();
-    }
-
-    /**
-     * RECUPERE LES id du service Autoriser
-     */
-    public function getServiceAutoriserIds(): array
-    {
-        return $this->serviceAutoriser->map(function ($serviceAutorise) {
-            return $serviceAutorise->getId();
-        })->toArray();
-    }
-
-    /**
-     * RECUPERE LES id de l'application
-     *
-     * @return array
-     */
-    public function getApplicationsIds(): array
-    {
-        return $this->applications->map(function ($app) {
-            return $app->getId();
-        })->toArray();
-    }
-
-    public function getPassword() {}
-
-
-    public function getSalt() {}
-
-
-    public function eraseCredentials() {}
-
-
-    public function getUsername() {}
-
-    public function getUserIdentifier() {}
 
     /**
      * Get the value of numTel
@@ -585,4 +298,11 @@ class User implements UserInterface
     {
         return $this->getLastName() . ' ' . $this->getFirstName();
     }
+
+    public function getRoles() {}
+    public function getPassword() {}
+    public function getSalt() {}
+    public function eraseCredentials() {}
+    public function getUsername() {}
+    public function getUserIdentifier() {}
 }

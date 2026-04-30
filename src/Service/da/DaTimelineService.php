@@ -2,47 +2,27 @@
 
 namespace App\Service\da;
 
+use App\Constants\da\StatutDaConstant;
 use App\Entity\da\DaAfficher;
 use App\Entity\da\DemandeAppro;
-use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\da\DaAfficherRepository;
 use App\Traits\JoursOuvrablesTrait;
+use Doctrine\ORM\EntityManagerInterface;
 
 class DaTimelineService
 {
     use JoursOuvrablesTrait;
     private DaAfficherRepository $daAfficherRepository;
-    private $styleStatutDA = [];
 
     public function __construct(EntityManagerInterface $em)
     {
         $this->daAfficherRepository = $em->getRepository(DaAfficher::class);
     }
 
-    public function initStyleStatuts()
-    {
-        $this->styleStatutDA = [
-            DemandeAppro::STATUT_VALIDE               => 'bg-bon-achat-valide',
-            DemandeAppro::STATUT_CLOTUREE             => 'bg-bon-achat-valide',
-            DemandeAppro::STATUT_TERMINER             => 'bg-primary text-white',
-            DemandeAppro::STATUT_SOUMIS_ATE           => 'bg-proposition-achat',
-            DemandeAppro::STATUT_DW_A_VALIDE          => 'bg-soumis-validation',
-            DemandeAppro::STATUT_SOUMIS_APPRO         => 'bg-demande-achat',
-            DemandeAppro::STATUT_REFUSE_APPRO         => 'bg-refuse-appro',
-            DemandeAppro::STATUT_DEMANDE_DEVIS        => 'bg-demande-devis',
-            DemandeAppro::STATUT_DEVIS_A_RELANCER     => 'bg-devis-a-relancer',
-            DemandeAppro::STATUT_EN_COURS_CREATION    => 'bg-en-cours-creation',
-            DemandeAppro::STATUT_AUTORISER_EMETTEUR   => 'bg-creation-demande-initiale',
-            DemandeAppro::STATUT_EN_COURS_PROPOSITION => 'bg-en-cours-proposition',
-        ];
-    }
-
     public function getTimelineData(string $numeroDa): array
     {
         $allDatas = $this->daAfficherRepository->getTimelineData($numeroDa);
         if (empty($allDatas)) return ['DA' => [], 'BC' => []];
-
-        $this->initStyleStatuts();
 
         $timelineDa = $this->buildTimelineDA($allDatas);
         $timelineBc = $this->buildTimelineBC($numeroDa, end($allDatas));
@@ -56,7 +36,7 @@ class DaTimelineService
                 )
             );
             $timelineDa[array_key_last($timelineDa)]['nbrJours'] = $nbrJours;
-            $timelineDa[] = $this->createCurrentDateEntry(new \DateTime());
+            $timelineDa[] = $this->createCurrentDateEntry();
         }
 
         return [
@@ -71,9 +51,10 @@ class DaTimelineService
 
         foreach ($allDatas as $key => $data) {
             // Ajouter le statut initial si nécessaire
-            if ($key === 0 && $data['statutDal'] !== DemandeAppro::STATUT_SOUMIS_APPRO) {
+            if ($key === 0 && $data['statutDal'] !== StatutDaConstant::STATUT_SOUMIS_APPRO) {
                 $tabTemp[] = $this->createTimelineEntry(
-                    DemandeAppro::STATUT_SOUMIS_APPRO,
+                    StatutDaConstant::STATUT_SOUMIS_APPRO,
+                    null,
                     $data['dateDemande']
                 );
             }
@@ -84,7 +65,7 @@ class DaTimelineService
             // Ajouter ou mettre à jour le statut
             $lastIndex = count($tabTemp) - 1;
             if ($lastIndex < 0 || $tabTemp[$lastIndex]['statut'] !== $statutFinal) {
-                $tabTemp[] = $this->createTimelineEntry($statutFinal, $data['dateCreation']);
+                $tabTemp[] = $this->createTimelineEntry($statutFinal, $data['dateCreation'], $data['dateDemande']);
             } else {
                 // Mettre à jour avec la date la plus récente
                 $tabTemp[$lastIndex]['date'] = $data['dateCreation'];
@@ -117,7 +98,7 @@ class DaTimelineService
             $etapes = [
                 [
                     'statut'   => $lastDataDA['statutDal'],
-                    'dotClass' => $this->styleStatutDA[$lastDataDA['statutDal']],
+                    'dotClass' => StatutDaConstant::getCssClassDa($lastDataDA['statutDal']),
                     'date'     => $dateValidationDA
                 ],
                 [
@@ -184,24 +165,24 @@ class DaTimelineService
 
     private function getStatutFinal(?string $statutOr, string $statutDal): string
     {
-        $estDaValide = ($statutOr === DemandeAppro::STATUT_DW_A_MODIFIER &&
-            $statutDal === DemandeAppro::STATUT_EN_COURS_CREATION) ||
-            $statutDal === DemandeAppro::STATUT_CLOTUREE;
+        $estDaValide = ($statutOr === StatutDaConstant::STATUT_DW_A_MODIFIER &&
+            $statutDal === StatutDaConstant::STATUT_EN_COURS_CREATION) ||
+            $statutDal === StatutDaConstant::STATUT_CLOTUREE;
 
-        return $estDaValide ? DemandeAppro::STATUT_VALIDE : $statutDal;
+        return $estDaValide ? StatutDaConstant::STATUT_VALIDE : $statutDal;
     }
 
-    private function createTimelineEntry(string $statut, \DateTime $date): array
+    private function createTimelineEntry(string $statut, ?\DateTime $date, ?\DateTime $dateDemande): array
     {
         return [
             'statut'   => $statut,
-            'dotClass' => $this->styleStatutDA[$statut],
-            'date'     => $date,
+            'dotClass' => StatutDaConstant::getCssClassDa($statut),
+            'date'     => $statut === DemandeAppro::STATUT_SOUMIS_APPRO ? $dateDemande : $date,
             'nbrJours' => 0,
         ];
     }
 
-    private function createCurrentDateEntry(\DateTime $today): array
+    private function createCurrentDateEntry(): array
     {
         return [
             'statut'   => '',

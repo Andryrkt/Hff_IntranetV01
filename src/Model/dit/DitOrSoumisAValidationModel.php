@@ -137,7 +137,7 @@ class DitOrSoumisAValidationModel extends Model
             from sav_eor
             where seor_refdem = '$numDit'
             AND seor_serv = 'SAV'
-            AND seor_soc = '$codeSociete
+            AND seor_soc = '$codeSociete'
         ";
         $result = $this->connect->executeQuery($statement);
 
@@ -181,6 +181,17 @@ class DitOrSoumisAValidationModel extends Model
     public function recupPositonOr($numor, $codeSociete)
     {
         $statement = " SELECT seor_pos as position from sav_eor where seor_numor = '$numor' and seor_soc = '$codeSociete'";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return  $this->convertirEnUtf8($data);
+    }
+
+    public function recupTypeOr($numor)
+    {
+        $statement = " SELECT seor_typeor as type_or from informix.sav_eor where seor_numor = '" . $numor . "'";
 
         $result = $this->connect->executeQuery($statement);
 

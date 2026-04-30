@@ -7,9 +7,11 @@ use App\Entity\dw\DwBcAppro;
 use App\Entity\dw\DwDaDirect;
 use App\Entity\dw\DwDaReappro;
 use App\Entity\da\DemandeAppro;
+use App\Entity\dw\DwDaReapproP;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\dw\DwBcApproRepository;
 use App\Repository\dw\DwDaDirectRepository;
+use App\Repository\dw\DwDaReapproPRepository;
 use App\Repository\dw\DwDaReapproRepository;
 use App\Repository\dw\DwFactureBonLivraisonRepository;
 
@@ -18,6 +20,7 @@ class DwDataService
     private DwBcApproRepository $dwBcApproRepository;
     private DwDaDirectRepository $dwDaDirectRepository;
     private DwDaReapproRepository $dwDaReapproRepository;
+    private DwDaReapproPRepository $dwDaReapproPRepository;
     private DwFactureBonLivraisonRepository $dwFacBlRepository;
 
     public function __construct(EntityManagerInterface $em)
@@ -26,6 +29,7 @@ class DwDataService
         $this->dwBcApproRepository   = $em->getRepository(DwBcAppro::class);
         $this->dwDaDirectRepository  = $em->getRepository(DwDaDirect::class);
         $this->dwDaReapproRepository = $em->getRepository(DwDaReappro::class);
+        $this->dwDaReapproPRepository = $em->getRepository(DwDaReapproP::class);
     }
 
     /** 
@@ -40,14 +44,21 @@ class DwDataService
 
         if ($daTypeId === DemandeAppro::TYPE_DA_DIRECT) {
             $allDocs = $this->dwDaDirectRepository->getPathByNumDa($numDa);
-        } elseif ($daTypeId === DemandeAppro::TYPE_DA_REAPPRO_MENSUEL || $daTypeId === DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL) {
+        } elseif ($daTypeId === DemandeAppro::TYPE_DA_REAPPRO_MENSUEL) {
             $allDocs = $this->dwDaReapproRepository->getPathByNumDa($numDa);
+        } elseif ($daTypeId === DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL) {
+            $allDocs = $this->dwDaReapproPRepository->getPathByNumDa($numDa);
         }
 
         if (!empty($allDocs)) {
-            $result = array_map(function ($doc) use ($numDa) {
-                $doc['num']  = "$numDa-" . ($doc['numeroVersion'] ?? '1');
+            $index = 1;
+
+            return array_map(function ($doc) use ($numDa, &$index) {
+                $doc['num']  = "$numDa - $index";
                 $doc['path'] = $_ENV['BASE_PATH_FICHIER_COURT'] . '/' . $doc['path'];
+
+                $index++;
+
                 return $doc;
             }, $allDocs);
         }

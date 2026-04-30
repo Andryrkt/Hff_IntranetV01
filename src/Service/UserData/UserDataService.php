@@ -153,6 +153,15 @@ class UserDataService
     }
 
     /**
+     * Récupérer le nom du profil
+     */
+    public function getProfilName(): ?string
+    {
+        $userInfo = $this->getUserInfo();
+        return $userInfo['profil_name'] ?? null;
+    }
+
+    /**
      * Récupérer le profil id enregistré
      */
     public function getProfilId(): ?int

@@ -2,18 +2,16 @@
 
 namespace App\Controller\da\Detail;
 
+use App\Constants\da\StatutDaConstant;
 use App\Controller\Controller;
-use App\Entity\da\DemandeAppro;
-use App\Entity\da\DaObservation;
-use App\Entity\da\DemandeApproL;
-use App\Entity\admin\Application;
-use App\Form\da\DaObservationType;
-use App\Controller\Traits\lienGenerique;
 use App\Controller\Traits\da\DaAfficherTrait;
+use App\Controller\Traits\lienGenerique;
+use App\Entity\da\DaObservation;
+use App\Entity\da\DemandeAppro;
+use App\Form\da\DaObservationType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\da\detail\DaDetailDirectTrait;
-use App\Entity\admin\utilisateur\Role;
 use App\Service\da\DaTimelineService;
 
 /**
@@ -69,9 +67,9 @@ class DaDetailDirectController extends Controller
 			'observations'      		=> $observations,
 			'fichiers'            		=> $fichiers,
 			'connectedUser'     		=> $this->getUser(),
-			'statutAutoriserModifAte' 	=> $demandeAppro->getStatutDal() === DemandeAppro::STATUT_AUTORISER_EMETTEUR,
-			'estCreateurDaDirecte'      => $this->hasRoles(Role::ROLE_DA_DIRECTE),
-			'estAppro'          		=> false, // TODO: booléen pour savoir si Appro
+			'statutAutoriserModifAte' 	=> $demandeAppro->getStatutDal() === StatutDaConstant::STATUT_AUTORISER_EMETTEUR,
+			'estCreateurDaDirecte'      => $this->estCreateurDaDirecte(),
+			'estAppro'          		=> $this->estAppro(),
 			'timelineData'      		=> $timeLineData,
 		]);
 	}
@@ -89,9 +87,8 @@ class DaDetailDirectController extends Controller
 
 			$this->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $daObservation->getObservation(), $daObservation->getFileNames());
 
-			// TODO: booléen pour savoir si Appro
-			if (false && $daObservation->getStatutChange()) {
-				$this->appliquerChangementStatut($demandeAppro, DemandeAppro::STATUT_AUTORISER_EMETTEUR);
+			if ($this->estAppro() && $daObservation->getStatutChange()) {
+				$this->appliquerChangementStatut($demandeAppro, StatutDaConstant::STATUT_AUTORISER_EMETTEUR);
 
 				$this->ajouterDansTableAffichageParNumDa($demandeAppro->getNumeroDemandeAppro());
 			}
@@ -101,10 +98,10 @@ class DaDetailDirectController extends Controller
 				'message' => 'Votre observation a été enregistré avec succès.',
 			];
 
-			$this->emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->getUser(), false);  // TODO: booléen pour savoir si Appro
+			$this->emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->getUser(), $this->estAppro());
 
 			$this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
-			return $this->redirectToRoute("list_da");
+			return $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 1, 'page' => 1]);
 		}
 	}
 }

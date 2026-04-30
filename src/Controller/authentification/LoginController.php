@@ -5,6 +5,7 @@ namespace App\Controller\authentification;
 use Exception;
 use App\Model\LdapModel;
 use App\Controller\Controller;
+use App\Entity\admin\utilisateur\AgenceServiceDefautSociete;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\admin\utilisateur\Profil;
 use Doctrine\ORM\EntityManagerInterface;
@@ -54,18 +55,12 @@ class LoginController extends Controller
                     $firstname = $user->getFirstName();
                     $lastname = $user->getLastName();
                     $userInfo = [
-                        "id"                   => $userId,
-                        "username"             => $username,
-                        "firstname"            => $firstname,
-                        "lastname"             => $lastname,
-                        "fullname"             => "$lastname $firstname",
-                        "email"                => $user->getMail(),
-                        "roles"                => $user->getRoleIds(),
-                        "default_agence_code"  => $user->getCodeAgenceUser(),
-                        "default_service_code" => $user->getCodeServiceUser(),
-                        "default_agence_id"    => $user->getIdAgenceUser(),
-                        "default_service_id"   => $user->getIdServiceUser(),
-                        'password'             => $password,
+                        "id"        => $userId,
+                        "username"  => $username,
+                        "firstname" => $firstname,
+                        "lastname"  => $lastname,
+                        "fullname"  => "$lastname $firstname",
+                        "email"     => $user->getMail()
                     ];
 
                     $this->getSessionService()->set('user_info', $userInfo);
@@ -78,8 +73,17 @@ class LoginController extends Controller
 
                     /** @var Profil $profil */
                     $profil = $profils->first();
-                    $userInfo['profil_id'] = $profil->getId();
-                    $userInfo['societe_code'] = $profil->getSociete()->getCodeSociete();
+                    $codeSociete = $profil->getSociete()->getCodeSociete();
+
+                    $agenceServiceDefaut = $this->getEntityManager()->getRepository(AgenceServiceDefautSociete::class)->findOneBy(['user' => $userId, 'codeSociete' => $codeSociete]);
+
+                    $userInfo["default_agence_code"]  = $agenceServiceDefaut->getCodeAgence();
+                    $userInfo["default_service_code"] = $agenceServiceDefaut->getCodeService();
+                    $userInfo["default_agence_id"]    = $agenceServiceDefaut->getAgence()->getId();
+                    $userInfo["default_service_id"]   = $agenceServiceDefaut->getService()->getId();
+                    $userInfo['societe_code']         = $codeSociete;
+                    $userInfo['profil_id']            = $profil->getId();
+                    $userInfo['profil_name']          = $profil->getDesignation();
                     $this->getSessionService()->set('user_info', $userInfo);
 
                     $this->redirectToRoute('profil_acceuil');
@@ -155,5 +159,53 @@ class LoginController extends Controller
 
         // Rediriger vers la page de connexion
         return $this->redirectToRoute('security_signin');
+    }
+
+    /**
+     * @Route("/api/login", name="api_login", methods={"POST"})
+     */
+    public function apiLogin(Request $request)
+    {
+        $data = json_decode($request->getContent(), true);
+
+        $username = $data['username'] ?? '';
+        $password = $data['password'] ?? '';
+
+        try {
+            /** @var User $user */
+            $user = $this->userRepository->findOneBy(['nom_utilisateur' => $username]);
+
+            if (!$user) {
+                throw new \Exception('Utilisateur non trouvé avec le nom d\'utilisateur : ' . $username);
+            }
+
+            if (!$this->ldapModel->userConnect($username, $password)) {
+                return new \Symfony\Component\HttpFoundation\JsonResponse(['error' => 'Identifiants invalides'], 401);
+            }
+
+            $profils = $user->getProfils();
+
+            if ($profils->isEmpty()) {
+                return new \Symfony\Component\HttpFoundation\JsonResponse(['error' => 'Aucun profil trouvé'], 403);
+            }
+
+            $payload = [
+                'id'                   => $user->getId(),
+                'username'             => $username,
+                'email'                => $user->getMail(),
+            ];
+
+            $jwtService = new \App\Service\security\JwtService();
+            // Création du Token valables pour 2 heures (7200 secondes)
+            $token = $jwtService->encode($payload, 7200);
+
+            return new \Symfony\Component\HttpFoundation\JsonResponse([
+                'success' => true,
+                'token'   => $token,
+                'user'    => $payload
+            ]);
+        } catch (\Exception $e) {
+            return new \Symfony\Component\HttpFoundation\JsonResponse(['error' => $e->getMessage()], 400);
+        }
     }
 }

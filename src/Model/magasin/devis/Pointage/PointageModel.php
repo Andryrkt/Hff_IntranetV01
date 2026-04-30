@@ -14,7 +14,7 @@ class PointageModel extends Model
     {
         $donnees = PointageMapper::toArrayEnvoyerAuClient($dto);
 
-        $updateBuilder = new UpdateQueryBuilder('ir_prod108:Informix.devis_soumis_a_validation_neg');
+        $updateBuilder = new UpdateQueryBuilder("{$this->dbIrium}:Informix.devis_soumis_a_validation_neg");
 
         // Définir les données à mettre à jour
         $updateBuilder->setData($donnees);

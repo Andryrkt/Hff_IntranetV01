@@ -40,6 +40,11 @@ class AgenceServiceDefautSociete
     private $societe;
 
     /**
+     * @ORM\Column(type="string", name="code_societe", nullable=false)
+     */
+    private $codeSociete;
+
+    /**
      * @ORM\Column(type="string", name="code_agence", nullable=true)
      */
     private $codeAgence;
@@ -158,6 +163,24 @@ class AgenceServiceDefautSociete
     public function setCodeService($codeService): self
     {
         $this->codeService = $codeService;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of codeSociete
+     */
+    public function getCodeSociete()
+    {
+        return $this->codeSociete;
+    }
+
+    /**
+     * Set the value of codeSociete
+     */
+    public function setCodeSociete($codeSociete): self
+    {
+        $this->codeSociete = $codeSociete;
 
         return $this;
     }

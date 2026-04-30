@@ -104,6 +104,21 @@ abstract class GenererPdfDa extends GeneratePdf
         $generator = new PdfTableMatriceGenerator();
         $this->renderTextWithLine($pdf, 'Articles validés');
 
+        // Légende "Fournisseurs validés"
+        $x = $pdf->GetX() + 145;
+        $y = $pdf->GetY();
+
+        // Rectangle jaune avec bordure
+        $pdf->SetFillColor(251, 187, 1);   // jaune
+        $pdf->SetDrawColor(120, 70, 0);   // bordure dorée
+        $pdf->Rect($x, $y, 12, 5, 'FD');  // largeur 10, hauteur 5
+
+        // Texte à droite du rectangle
+        $pdf->SetXY($x + 12, $y);
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->setFont('helvetica', 'B', 8);
+        $pdf->Cell(50, 5, ': Fournisseurs validés', 0, 1, 'L');
+
         $pdf->Ln(3);
 
         $pdf->SetTextColor(0, 0, 0);

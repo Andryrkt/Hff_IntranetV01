@@ -213,7 +213,7 @@ class DomForm1Type extends AbstractType
                 $form = $event->getForm();
 
                 // Récupération de l'ID du service agence irium
-                $agenceServiceIriumId = $this->em->getRepository(AgenceServiceIrium::class)->findByAgenceServices($options['agenceServiceAutorisees']);
+                $agenceServiceIriumId = $this->em->getRepository(AgenceServiceIrium::class)->findByAgenceServices($options['agenceServiceAutorisees'], $options['agenceCodeUser'], $options['serviceCodeUser']);
 
                 // Ajout du champ 'matriculeNom'
                 $form->add(
@@ -327,6 +327,8 @@ class DomForm1Type extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Dom::class,
+            'agenceCodeUser' => '',
+            'serviceCodeUser' => '',
             'agenceServiceAutorisees' => [],
         ]);
     }

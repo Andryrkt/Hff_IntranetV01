@@ -1,8 +1,9 @@
 import { displayOverlay } from "../../utils/ui/overlay";
 import { mergeCellsRecursiveTable } from "../listeCdeFrn/tableHandler.js";
+import { configAgenceService } from "../../dit/config/listDitConfig.js";
+import { handleAgenceChange } from "../../dit/fonctionUtils/fonctionListDit.js";
 import { allowOnlyNumbers } from "../../magasin/utils/inputUtils.js";
 import { initCentraleCodeDesiInputs } from "../newReappro/event.js";
-import { filterServiceByAgence } from "../../utils/agenceService/filterServiceByAgence.js";
 
 document.addEventListener("DOMContentLoaded", function () {
   initCentraleCodeDesiInputs(
@@ -20,21 +21,21 @@ document.addEventListener("DOMContentLoaded", function () {
   mergeCellsRecursiveTable([
     { pivotIndex: 1, columns: [1], insertSeparator: true },
     { pivotIndex: 2, columns: [0, 2, 3, 4, 5, 6, 7, 8], insertSeparator: true },
+    { pivotIndex: 12, columns: [12], insertSeparator: true },
   ]);
 
   /**===========================================================================
    * Configuration des agences et services
    *============================================================================*/
 
-  filterServiceByAgence({
-    agenceSelector: "#da_search_agenceEmetteur",
-    serviceSelector: "#da_search_serviceEmetteur",
-  });
+  // Attachement des événements pour les agences
+  configAgenceService.emetteur.agenceInput.addEventListener("change", () =>
+    handleAgenceChange("emetteur")
+  );
 
-  filterServiceByAgence({
-    agenceSelector: "#da_search_agenceDebiteur",
-    serviceSelector: "#da_search_serviceDebiteur",
-  });
+  configAgenceService.debiteur.agenceInput.addEventListener("change", () =>
+    handleAgenceChange("debiteur")
+  );
 
   /**==================================================
    * valider seulement les chiffres
@@ -171,6 +172,59 @@ document.addEventListener("DOMContentLoaded", function () {
       divContainer.classList.add("d-none");
     }
   });
+
+  /**
+   * Evenement sur "Afficher les DA à traiter" pour filtrer les statuts
+   **/
+  const checkboxAfficherTraiter = document.getElementById("da_search_afficherDaTraiter");
+  const selectStatutDA = document.getElementById("da_search_statutDA");
+  const selectStatutBC = document.getElementById("da_search_statutBC");
+
+  if (checkboxAfficherTraiter && selectStatutDA && selectStatutBC) {
+    const isApproUser = checkboxAfficherTraiter.dataset.isApproUser === "1";
+
+    const filterChoices = () => {
+      const isChecked = checkboxAfficherTraiter.checked;
+
+      [selectStatutDA, selectStatutBC].forEach((select) => {
+        Array.from(select.options).forEach((option) => {
+          if (option.value === "") return; // Garder le placeholder
+
+          if (isChecked) {
+            let keep = false;
+            if (isApproUser) {
+              keep = option.dataset.traiterAppro === "1";
+            } else {
+              if (select === selectStatutDA) {
+                keep = option.dataset.traiterPasAppro === "1";
+              } else {
+                keep = false;
+              }
+            }
+
+            if (!keep) {
+              option.style.display = "none";
+              option.disabled = true;
+            } else {
+              option.style.display = "";
+              option.disabled = false;
+            }
+          } else {
+            option.style.display = "";
+            option.disabled = false;
+          }
+        });
+
+        // Si l'option actuellement sélectionnée est maintenant cachée, on reset le select
+        if (select.selectedOptions[0] && select.selectedOptions[0].style.display === "none") {
+          select.value = "";
+        }
+      });
+    };
+
+    checkboxAfficherTraiter.addEventListener("change", filterChoices);
+    filterChoices(); // Appel initial au chargement
+  }
 });
 
 /** ===================================================
@@ -193,20 +247,24 @@ document.addEventListener("DOMContentLoaded", function () {
       const numeroCde = button.getAttribute("data-numero-cde");
       const dateActuelle = button.getAttribute("data-date-actuelle");
 
+      if (dateActuelle != "N/A") {
+        const [day, month, year] = dateActuelle.split("/");
+        const formatted = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+
+        // Pré-rempli le champ de date dans le formulaire du modal
+        const dateInput = modalDateLivraison.querySelector(
+          "#da_modal_date_livraison_dateLivraisonPrevue"
+        );
+        if (dateInput) {
+          dateInput.value = formatted;
+        }
+      }
+
       // Mise à jour du contenu du modal
       const modalTitle = modalDateLivraison.querySelector(".modal-title");
       if (modalTitle) {
         modalTitle.textContent =
           "Modifier la date de livraison pour la commande n° : " + numeroCde;
-      }
-
-      // Pré-rempli le champ de date dans le formulaire du modal
-      const dateInput = modalDateLivraison.querySelector(
-        "#da_modal_date_livraison_dateLivraisonPrevue"
-      );
-
-      if (dateInput) {
-        dateInput.value = dateActuelle;
       }
 
       // remplir le champ cacher avec le numero commande
@@ -216,6 +274,21 @@ document.addEventListener("DOMContentLoaded", function () {
       if (numeroCdeInput) {
         numeroCdeInput.value = numeroCde;
       }
+    });
+  }
+});
+/** ===================================================
+ * Bouton Mes DA à traiter
+ *==================================================*/
+document.addEventListener("DOMContentLoaded", function () {
+  const btnMesDaATraiter = document.getElementById("btnMesDaATraiter");
+  if (btnMesDaATraiter) {
+    btnMesDaATraiter.addEventListener("click", function () {
+      displayOverlay(true, "Veuillez patienter");
+      let urlObjet = new URL(window.location.href);
+      urlObjet.searchParams.set("mes_da_a_traiter", "1");
+      urlObjet.searchParams.set("page", "1");
+      window.location.href = urlObjet.toString();
     });
   }
 });

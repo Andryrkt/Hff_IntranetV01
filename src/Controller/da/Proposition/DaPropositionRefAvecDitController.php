@@ -2,11 +2,11 @@
 
 namespace App\Controller\da\Proposition;
 
+use App\Constants\da\StatutDaConstant;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
-use App\Entity\admin\Application;
 use App\Entity\da\DemandeApproLR;
 use App\Form\da\DaObservationType;
 use App\Entity\da\DemandeApproLRCollection;
@@ -87,9 +87,9 @@ class DaPropositionRefAvecDitController extends Controller
             'numDa'                   => $numDa,
             'fichiers'                => $fichiers,
             'connectedUser'           => $this->getUser(),
-            'statutAutoriserModifAte' => $da->getStatutDal() === DemandeAppro::STATUT_AUTORISER_EMETTEUR,
-            'estAte'                  => false, // TODO: booléen pour savoir si Atelier
-            'estAppro'                => false, // TODO: booléen pour savoir si Appro
+            'statutAutoriserModifAte' => $da->getStatutDal() === StatutDaConstant::STATUT_AUTORISER_EMETTEUR,
+            'estAte'                  => $this->estAtelier(),
+            'estAppro'                => $this->estAppro(),
             'nePeutPasModifier'       => $this->nePeutPasModifier($da),
             'propValTemplate'         => 'proposition-validation-avec-dit',
             'dossierJS'               => 'propositionAvecDit',
@@ -98,8 +98,7 @@ class DaPropositionRefAvecDitController extends Controller
 
     private function nePeutPasModifier(DemandeAppro $demandeAppro)
     {
-        // TODO: booléen pour savoir si Atelier
-        return (false && ($demandeAppro->getStatutDal() == DemandeAppro::STATUT_SOUMIS_APPRO || $demandeAppro->getStatutDal() == DemandeAppro::STATUT_VALIDE));
+        return ($this->estAtelier() && ($demandeAppro->getStatutDal() == StatutDaConstant::STATUT_SOUMIS_APPRO || $demandeAppro->getStatutDal() == StatutDaConstant::STATUT_VALIDE));
     }
 
     private function traitementFormulaire($form, $formObservation, $dals, Request $request, string $numDa, DemandeAppro $da)
@@ -144,10 +143,9 @@ class DaPropositionRefAvecDitController extends Controller
     {
         $this->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $daObservation->getObservation(), $daObservation->getFileNames());
 
-        // TODO: booléen pour savoir si Appro
-        if (false && $daObservation->getStatutChange()) {
-            $this->modificationStatutDal($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_AUTORISER_EMETTEUR);
-            $this->modificationStatutDa($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_AUTORISER_EMETTEUR);
+        if ($this->estAppro() && $daObservation->getStatutChange()) {
+            $this->modificationStatutDal($demandeAppro->getNumeroDemandeAppro(), StatutDaConstant::STATUT_AUTORISER_EMETTEUR);
+            $this->modificationStatutDa($demandeAppro->getNumeroDemandeAppro(), StatutDaConstant::STATUT_AUTORISER_EMETTEUR);
 
             $this->ajouterDansTableAffichageParNumDa($demandeAppro->getNumeroDemandeAppro()); // ajout dans la table DaAfficher si le statut a changé
         }
@@ -157,10 +155,10 @@ class DaPropositionRefAvecDitController extends Controller
             'message' => 'Votre observation a été enregistré avec succès.',
         ];
 
-        $this->emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->getUser(), false);  // TODO: booléen pour savoir si Appro
+        $this->emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->getUser(), $this->estAppro());
 
         $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
-        return $this->redirectToRoute("list_da");
+        return $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 1, 'page' => 1]);
     }
 
     /** 
@@ -171,8 +169,8 @@ class DaPropositionRefAvecDitController extends Controller
         if ($observation !== null) {
             $this->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $observation);
             if ($statutChange) {
-                $this->modificationStatutDal($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_SOUMIS_APPRO);
-                $this->modificationStatutDa($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_SOUMIS_APPRO);
+                $this->modificationStatutDal($demandeAppro->getNumeroDemandeAppro(), StatutDaConstant::STATUT_SOUMIS_APPRO);
+                $this->modificationStatutDa($demandeAppro->getNumeroDemandeAppro(), StatutDaConstant::STATUT_SOUMIS_APPRO);
 
                 $this->ajouterDansTableAffichageParNumDa($demandeAppro->getNumeroDemandeAppro()); // ajout dans la table DaAfficher si le statut a changé
             }
@@ -181,7 +179,7 @@ class DaPropositionRefAvecDitController extends Controller
                 'message' => 'Votre observation a été enregistré avec succès.',
             ];
 
-            $this->emailDaService->envoyerMailObservationDa($demandeAppro, $observation, $this->getUser(), false);  // TODO: booléen pour savoir si Appro
+            $this->emailDaService->envoyerMailObservationDa($demandeAppro, $observation, $this->getUser(), $this->estAppro());
         } else {
             $notification = [
                 'type' => 'danger',
@@ -190,7 +188,7 @@ class DaPropositionRefAvecDitController extends Controller
         }
 
         $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
-        $this->redirectToRoute("list_da");
+        $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 1, 'page' => 1]);
     }
 
     /** 
@@ -209,7 +207,7 @@ class DaPropositionRefAvecDitController extends Controller
             $refs,
             "Les articles ont été validés avec succès",
             true,
-            DemandeAppro::STATUT_VALIDE
+            StatutDaConstant::STATUT_VALIDE
         );
 
         $this->modificationChoixEtligneDal($refs, $dals);
@@ -220,7 +218,7 @@ class DaPropositionRefAvecDitController extends Controller
         $this->emailDaService->envoyerMailValidationDa($da, $this->getUser(), $nomEtChemin);
 
         $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
-        $this->redirectToRoute("list_da");
+        $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 1, 'page' => 1]);
     }
 
     /** 
@@ -245,7 +243,7 @@ class DaPropositionRefAvecDitController extends Controller
         $this->emailDaService->envoyerMailValidationDa($da, $this->getUser(), $nomEtChemin);
 
         $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
-        $this->redirectToRoute("list_da");
+        $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 1, 'page' => 1]);
     }
 
     private function modificationChoixDeRef(
@@ -310,7 +308,7 @@ class DaPropositionRefAvecDitController extends Controller
         $this->emailDaService->envoyerMailPropositionDa($da, $this->getUser());
 
         $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
-        $this->redirectToRoute("list_da");
+        $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 1, 'page' => 1]);
     }
 
     private function traitementPourBtnBrouillon($dalrList, Request $request, $dals, ?string $observation, string $numDa, DemandeAppro $da): void
@@ -326,7 +324,7 @@ class DaPropositionRefAvecDitController extends Controller
             $refs,
             "La proposition a été enregistré avec succès",
             true,
-            DemandeAppro::STATUT_EN_COURS_PROPOSITION
+            StatutDaConstant::STATUT_EN_COURS_PROPOSITION
         );
 
         $this->modificationChoixEtligneDal($refs, $dals);
@@ -334,10 +332,10 @@ class DaPropositionRefAvecDitController extends Controller
         $this->ajouterDansTableAffichageParNumDa($numDa);
 
         $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
-        $this->redirectToRoute("list_da");
+        $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 1, 'page' => 1]);
     }
 
-    private function traiterProposition($dals, $dalrList, ?string $observation, DemandeAppro $demandeAppro, array $refs, string $messageSuccess, bool $doSaveDb = false, $statut = DemandeAppro::STATUT_SOUMIS_ATE): array
+    private function traiterProposition($dals, $dalrList, ?string $observation, DemandeAppro $demandeAppro, array $refs, string $messageSuccess, bool $doSaveDb = false, $statut = StatutDaConstant::STATUT_SOUMIS_ATE): array
     {
         $numDa = $demandeAppro->getNumeroDemandeAppro();
 

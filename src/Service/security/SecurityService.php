@@ -2,6 +2,7 @@
 
 namespace App\Service\security;
 
+use App\Entity\admin\utilisateur\Profil;
 use App\Service\UserData\UserDataService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -19,7 +20,7 @@ class SecurityService
     private UserDataService $dataService;
 
     // ─── Routes publiques (pas de contrôle d'accès) ──────────────────────────
-    private const ROUTES_SEMI_PRIVEES = ['choix_societe'];
+    private const ROUTES_SEMI_PRIVEES = ['choix_societe', 'sso_annuaire'];
     private const ROUTE_ACCUEIL = 'profil_acceuil';
     private const ROUTES_PUBLIQUES = ['security_signin', 'auth_deconnexion'];
     private const PREFIXES_API = ['api_'];
@@ -37,6 +38,12 @@ class SecurityService
      * Permet d'appeler verifierPermission() sans paramètre depuis les contrôleurs.
      */
     private ?string $routeCourrante = null;
+
+    private ?bool $estAdmin = null;
+    private ?bool $estAtelier = null;
+    private ?bool $estCreateurDaDirecte = null;
+    private ?bool $estAppro = null;
+    private ?bool $estEnergie = null;
 
     public function __construct(UserDataService $dataService)
     {
@@ -66,16 +73,43 @@ class SecurityService
      * @return RedirectResponse|null  null = OK, RedirectResponse = non connecté
      * @throws AccessDeniedException  si connecté mais peutVoir = false
      */
-    public function controlerAcces(Request $request): ?RedirectResponse
+    public function controlerAcces(Request $request): ?\Symfony\Component\HttpFoundation\Response
     {
         $nomRoute = $request->attributes->get('_route');
 
         // Mémoriser la route pour les appels depuis les contrôleurs
         $this->routeCourrante = $nomRoute;
 
-        // Route publique ou Routes APi ou Route Export → laisse passer sans aucun contrôle
-        if ($this->estRoutePublique($nomRoute) || $this->estRouteApi($nomRoute) || $this->estRouteExport($nomRoute)) {
+        // Route publique ou Route Export → laisse passer sans aucun contrôle
+        if ($this->estRoutePublique($nomRoute) || $this->estRouteExport($nomRoute)) {
             return null;
+        }
+
+        // Routes API : contrôle JWT ou Session (Intranet)
+        if ($this->estRouteApi($nomRoute)) {
+            if ($nomRoute === 'api_login') {
+                return null;
+            }
+
+            // Si l'utilisateur est déjà connecté par session PHP (appels internes JS), on autorise
+            if ($this->dataService->isUserConnected()) {
+                return null;
+            }
+
+            // Sinon, on exige un token JWT (appels externes, ex: React)
+            $authHeader = $request->headers->get('Authorization');
+            if (!$authHeader || !preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
+                return new \Symfony\Component\HttpFoundation\JsonResponse(['error' => 'Accès refusé. Token manquant ou mal formaté'], 401);
+            }
+
+            $jwtService = new \App\Service\security\JwtService();
+            $payload = $jwtService->decode($matches[1]);
+
+            if (!$payload) {
+                return new \Symfony\Component\HttpFoundation\JsonResponse(['error' => 'Token invalide ou expiré'], 401);
+            }
+
+            return null; // Token valide, on laisse passer
         }
 
         // Non connecté → redirection vers login (avec URL de retour)
@@ -109,6 +143,61 @@ class SecurityService
     // =========================================================================
     //  API PUBLIQUE — utilisable dans les contrôleurs
     // =========================================================================
+
+    /** 
+     * Vérifie si l'utilisateur connecté est un administrateur par son profil
+     */
+    public function estAdmin(): bool
+    {
+        if ($this->estAdmin === null) {
+            $this->estAdmin = $this->dataService->getProfilName() === Profil::HFF_ADMIN;
+        }
+        return $this->estAdmin;
+    }
+
+    /** 
+     * Vérifie si l'utilisateur connecté est ATELIER par le fait qu'il peut créer un DIT (ie qui a accès à la page de création de DIT)
+     */
+    public function estAtelier(): bool
+    {
+        if ($this->estAtelier === null) {
+            $this->estAtelier = $this->dataService->getCodeServiceUser() === 'ATE';
+        }
+        return $this->estAtelier;
+    }
+
+    /** 
+     * Vérifie si l'utilisateur connecté est CREATEUR DA DIRECTE par le fait qu'il peut créer un DA DIRECTE (ie qui a accès à la page de création de DA)
+     */
+    public function estCreateurDaDirecte(): bool
+    {
+        if ($this->estCreateurDaDirecte === null) {
+            $this->estCreateurDaDirecte = $this->verifierPermission(self::PERMISSION_VOIR, 'da_new_achat');
+        }
+        return $this->estCreateurDaDirecte;
+    }
+
+    /**
+     * Vérifie si l'utilisateur connecté est APPRO par le fait de son agence et service par défaut (80 - APP)
+     */
+    public function estAppro(): bool
+    {
+        if ($this->estAppro === null) {
+            $this->estAppro = $this->dataService->getCodeAgenceUser() === '80' && $this->dataService->getCodeServiceUser() === 'APP';
+        }
+        return $this->estAppro;
+    }
+
+    /**
+     * Vérifie si l'utilisateur connecté est ENERGIE par le fait de son agence par défaut (90/91/92)
+     */
+    public function estEnergie(): bool
+    {
+        if ($this->estEnergie === null) {
+            $this->estEnergie = in_array($this->dataService->getCodeAgenceUser(), ['90', '91', '92']);
+        }
+        return $this->estEnergie;
+    }
 
     /**
      * Vérifie une permission sans lancer d'exception.

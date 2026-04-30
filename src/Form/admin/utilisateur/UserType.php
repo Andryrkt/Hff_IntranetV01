@@ -18,9 +18,7 @@ class UserType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        global $container;
-        $userInfo = $container->get('session')->get('user_info');
-        $users = (new LdapModel())->infoUser($userInfo['username'], $userInfo['password']);
+        $users = (new LdapModel())->infoUser();
         $nom = array_keys($users);
         $canSeeAll = $options['canSeeAll'];
 

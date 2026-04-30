@@ -4,7 +4,9 @@ document.addEventListener("DOMContentLoaded", function () {
   initSelect2WithSelectAll("#agence_services", {
     placeholder: "-- Choisir service(s) liée(s) --",
   });
-  initSelect2WithSelectAll("#agence_societe", {
+  $("#agence_societe").select2({
     placeholder: "-- Choisir société --",
+    allowClear: true,
+    theme: "bootstrap",
   });
 });

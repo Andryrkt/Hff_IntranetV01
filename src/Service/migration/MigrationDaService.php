@@ -27,10 +27,7 @@ class MigrationDaService
         $this->demandeApproRepository = $em->getRepository(DemandeAppro::class);
     }
 
-    public function migrationDa($output)
-    {
-
-    }
+    public function migrationDa($output) {}
 
     public function recuperationDonnee()
     {

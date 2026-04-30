@@ -4,7 +4,9 @@ namespace App\Controller\Traits\da\detail;
 
 use App\Entity\da\DaObservation;
 use App\Entity\dw\DwDaReappro;
+use App\Entity\dw\DwDaReapproP;
 use App\Repository\da\DaObservationRepository;
+use App\Repository\dw\DwDaReapproPRepository;
 use App\Repository\dw\DwDaReapproRepository;
 
 trait DaDetailReapproTrait
@@ -13,6 +15,7 @@ trait DaDetailReapproTrait
 
     //==================================================================================================
     private DwDaReapproRepository $dwDaReapproRepository;
+    private DwDaReapproPRepository $dwDaReapproPRepository;
     private DaObservationRepository $daObservationRepository;
 
     /**
@@ -23,6 +26,7 @@ trait DaDetailReapproTrait
         $em = $this->getEntityManager();
         $this->initDaTrait();
         $this->dwDaReapproRepository   = $em->getRepository(DwDaReappro::class);
+        $this->dwDaReapproPRepository  = $em->getRepository(DwDaReapproP::class);
         $this->daObservationRepository = $em->getRepository(DaObservation::class);
     }
     //==================================================================================================
