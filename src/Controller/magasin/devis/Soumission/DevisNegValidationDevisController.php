@@ -101,7 +101,7 @@ class DevisNegValidationDevisController extends Controller
 
             // copier des fichiers uploder dans DOCUWARE
             $generatePdfDevisMagasin = new GeneratePdfDeviMagasinVp();
-            $this->generatePdfDevisMagasin->copyToDWDevisMagasin($nomFichier, $dto->numeroDevis);
+            $generatePdfDevisMagasin->copyToDWDevisMagasin($nomFichier, $dto->numeroDevis);
 
             //HISTORISATION DE L'OPERATION
             $message = "la validation du devis numero : " . $dto->numeroDevis . " a été envoyée avec succès .";
