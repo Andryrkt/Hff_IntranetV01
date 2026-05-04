@@ -86,7 +86,17 @@
 						{# Fin Actions #}
 						<td class="text-center">{{ item.codeAgence}}</td>
 						<td class="text-center">{{ item.codeService}}</td>
-						<td class="text-center">{{ item.numeroDdp }}</td>
+						<td class="text-center">
+							{% if item.numeroDdp and fileCheckerService.checkBapFileExists(item.numeroDdp) %}
+								{% set filename = item.numeroDdp ~ '.pdf' %}
+								<a href="#" class="show-pdf-modal" data-pdf-url="{{ path('bap_pdf_viewer', { numeroDdp: item.numeroDdp, urlPdf: filename }) }}">
+									{{ item.numeroDdp }}
+									<i class="fas fa-file-pdf ml-1" style="color: red;"></i>
+								</a>
+							{% else %}
+								{{ item.numeroDdp }}
+							{% endif %}
+						</td>
 						<td class="text-center">{{ item.dateDemande|date('d/m/Y')}}</td>
 						<td class="text-start">{{ item.typeDemande.libelle}}</td>
 						<td class="text-center {{ item.styleStatut}}">{{ item.statut }}</td>
@@ -113,6 +123,25 @@
 		</table>
 	</div>
 	<!-- FIN tableau -->
+	<!-- PDF Modal -->
+	<div class="modal fade" id="pdfModal" tabindex="-1" aria-labelledby="pdfModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-xl">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="pdfModalLabel">DDP/BAP - PDF</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<div class="pdf-spinner" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: none;">
+						<div class="spinner-border text-primary" role="status">
+							<span class="visually-hidden">Loading...</span>
+						</div>
+					</div>
+					<iframe src="" style="width:100%; height:75vh;" frameborder="0"></iframe>
+				</div>
+			</div>
+		</div>
+	</div>
 
 	{% include "/ddp/shared/_modal_statut.html.twig"  %}
 {% endblock %}
