@@ -21,6 +21,7 @@ jobs:
         shell: powershell
         run: |
           Set-Location "C:\wamp64\www\Hffintranet_new_profil"
+          if (-Not (Test-Path "var/cache/proxies")) { New-Item -ItemType Directory -Path "var/cache/proxies" -Force }
           composer install --no-dev --optimize-autoloader --no-interaction
 
       - name: Clear Cache
@@ -30,16 +31,20 @@ jobs:
             Remove-Item -Path "C:\wamp64\www\Hffintranet_new_profil\var\cache\*" -Recurse -Force
           }
 
-      # - name: Send Discord Notification
-      #   if: success()
-      #   shell: powershell
-      #   run: |
-      #     $webhookUrl = "${{ secrets.DISCORD_WEBHOOK }}"
-      #     if ($webhookUrl) {
-      #       $payload = @{
-      #         content = "✅ **Déploiement réussi** sur HffIntranet PreProd (Branche: `${{ github.ref_name }}`) par `${{ github.actor }}` ! :rocket:"
-      #       } | ConvertTo-Json -Depth 3
-      #       Invoke-RestMethod -Uri $webhookUrl -Method Post -Body $payload -ContentType 'application/json'
-      #     } else {
-      #       Write-Host "Aucun webhook Discord configuré."
-      #     }
+      - name: Send Discord Notification
+        if: always()
+        shell: powershell
+        run: |
+          $webhookUrl = "${{ secrets.DISCORD_WEBHOOK }}"
+          if ($webhookUrl) {
+            $status = "${{ job.status }}"
+            if ($status -eq "success") {
+              $msg = "✅ **Déploiement réussi** sur HffIntranet PreProd (Branche: `${{ github.ref_name }}`) par `${{ github.actor }}` ! :rocket:"
+            } else {
+              $msg = "❌ **ÉCHEC du déploiement** sur HffIntranet PreProd (Branche: `${{ github.ref_name }}`) ! ⚠️"
+            }
+            $payload = @{ content = $msg } | ConvertTo-Json -Depth 3
+            Invoke-RestMethod -Uri $webhookUrl -Method Post -Body $payload -ContentType 'application/json'
+          } else {
+            Write-Host "Aucun webhook Discord configuré."
+          }
