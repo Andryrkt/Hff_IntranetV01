@@ -13,7 +13,9 @@ jobs:
 
       - name: Stop App Pool
         shell: powershell
-        run: Stop-WebAppPool -Name "Hffintranet_new_profil" -ErrorAction SilentlyContinue
+        run: |
+          Import-Module WebAdministration
+          Stop-WebAppPool -Name "Hffintranet_new_profil" -ErrorAction SilentlyContinue
 
       - name: Deploy files
         shell: powershell
@@ -35,4 +37,6 @@ jobs:
 
       - name: Start App Pool
         shell: powershell
-        run: Start-WebAppPool -Name "Hffintranet_new_profil"
+        run: |
+          Import-Module WebAdministration
+          Start-WebAppPool -Name "Hffintranet_new_profil"
