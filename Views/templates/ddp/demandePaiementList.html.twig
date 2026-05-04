@@ -91,7 +91,6 @@
 								{% set filename = item.numeroDdp ~ '.pdf' %}
 								<a href="#" class="show-pdf-modal" data-pdf-url="{{ path('bap_pdf_viewer', { numeroDdp: item.numeroDdp, urlPdf: filename }) }}">
 									{{ item.numeroDdp }}
-									<i class="fas fa-file-pdf ml-1" style="color: red;"></i>
 								</a>
 							{% else %}
 								{{ item.numeroDdp }}

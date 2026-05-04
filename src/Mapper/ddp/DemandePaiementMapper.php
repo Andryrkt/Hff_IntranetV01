@@ -100,7 +100,7 @@ class DemandePaiementMapper
         return $dtos;
     }
 
-    private static function getNumeroFactureIps(DemandePaiementDto $dto): string
+    private static function getNumeroFactureIps(DemandePaiementDto $dto): ?string
     {
         $demandePaiementModel = new DemandePaiementModel();
 

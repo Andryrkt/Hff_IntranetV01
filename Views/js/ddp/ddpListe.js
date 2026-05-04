@@ -4,8 +4,8 @@ const fetchManager = new FetchManager();
 /** ========================================================================
  * recuperer l'agence debiteur et changer le service debiteur selon l'agence
  *============================================================================*/
-const agenceDebiteurInput = document.querySelector(".agenceDebiteur");
-const serviceDebiteurInput = document.querySelector(".serviceDebiteur");
+const agenceDebiteurInput = document.querySelector("#ddp_search_debiteur_agence");
+const serviceDebiteurInput = document.querySelector("#ddp_search_debiteur_service");
 const spinnerService = document.getElementById("spinner-service");
 const serviceContainer = document.getElementById("service-container");
 agenceDebiteurInput.addEventListener("change", selectAgence);
@@ -77,3 +77,44 @@ new AutoComplete({
   onSelectCallback: onSelectFournisseur,
 });
 
+
+/**============================================
+   * Modal affichage PDF DDP/BAP
+   *============================================*/
+const pdfModalElement = document.getElementById("pdfModal");
+if (pdfModalElement) {
+  const pdfModal = new bootstrap.Modal(pdfModalElement);
+  const iframe = pdfModalElement.querySelector("iframe");
+  const spinner = pdfModalElement.querySelector(".pdf-spinner");
+
+  if (iframe) {
+    iframe.addEventListener("load", () => {
+      if (spinner) spinner.style.display = "none";
+      iframe.style.visibility = "visible";
+    });
+  }
+
+  document.querySelectorAll(".show-pdf-modal").forEach((button) => {
+    button.addEventListener("click", (e) => {
+      e.preventDefault();
+      const pdfUrl = button.dataset.pdfUrl;
+      if (pdfUrl && iframe) {
+        if (spinner) spinner.style.display = "block";
+        iframe.style.visibility = "hidden";
+        // Ajout d'un paramètre pour forcer le rafraîchissement (cache busting)
+        iframe.src = pdfUrl + "?v=" + new Date().getTime();
+        pdfModal.show();
+      }
+    });
+  });
+
+  pdfModalElement.addEventListener("hidden.bs.modal", () => {
+    if (iframe) {
+      iframe.src = "";
+      iframe.style.visibility = "hidden";
+    }
+    if (spinner) {
+      spinner.style.display = "none";
+    }
+  });
+}
