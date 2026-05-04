@@ -3,7 +3,6 @@
 namespace App\Controller\magasin\devis;
 
 use App\Constants\admin\ApplicationConstant;
-use App\Constants\Magasin\Devis\StatutDevisNegContant;
 use App\Constants\Magasin\Devis\TypeSoumissionConstant;
 use App\Controller\Controller;
 use App\Dto\Magasin\Devis\DevisSearchDto;
@@ -67,11 +66,11 @@ class ListeDevisNegController extends Controller
 
         try {
 
-            $page = $request->query->getInt('page', 1);
-            $limit = $request->query->getInt('limit', 500);
+            // $page = $request->query->getInt('page', 1);
+            // $limit = $request->query->getInt('limit', 500);
             [, $criteria] = $this->creationEtTraitementformulaireDeRecherche($request);
 
-            $devisNeg = $this->getDataDevisNegEnDto($page, $limit, $criteria);
+            $devisNeg = $this->getDataDevisNegEnDto($criteria);
 
             ob_end_clean(); // Supprime tout output parasite avant d'envoyer le JSON
             return new JsonResponse([
@@ -107,7 +106,7 @@ class ListeDevisNegController extends Controller
         return [$form, $criteria];
     }
 
-    private function getDataDevisNegEnDto(int $page = 1, int $limit = 100, $criteria = [])
+    private function getDataDevisNegEnDto($criteria = [])
     {
         if ($criteria instanceof DevisSearchDto) {
             $criteria = (array) $criteria;
@@ -146,7 +145,7 @@ class ListeDevisNegController extends Controller
 
         $dwBcClientNegoceRepository = $this->getEntityManager()->getRepository(DwBcClientNegoce::class);
 
-        $devisNeg = $this->listeDevisNegModel->getDevisNeg($criteria, $codeAgenceAutoriserString, $multiSuccursale, $codeAgenceDefaut, $numDeviAExclure, $codeSociete, $page, $limit);
+        $devisNeg = $this->listeDevisNegModel->getDevisNeg($criteria, $codeAgenceAutoriserString, $multiSuccursale, $codeAgenceDefaut, $numDeviAExclure, $codeSociete);
         $devisNeg = $this->devisNegMapper->map($devisNeg, $urlGenerator, $dwBcClientNegoceRepository);
 
 
@@ -160,7 +159,7 @@ class ListeDevisNegController extends Controller
     function filtrerParNumeroPo($tableau, $numeroPoRecherche)
     {
         return array_values(array_filter($tableau, function ($item) use ($numeroPoRecherche) {
-            return stripos($item->numeroPo ?? '', $numeroPoRecherche) !== false;
+            return strpos($item->numeroPo ?? '', $numeroPoRecherche) !== false;
         }));
     }
 }

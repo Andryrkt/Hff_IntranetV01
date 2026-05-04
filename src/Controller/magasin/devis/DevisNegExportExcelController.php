@@ -5,9 +5,11 @@ namespace App\Controller\magasin\devis;
 use App\Constants\admin\ApplicationConstant;
 use App\Controller\Controller;
 use App\Dto\Magasin\Devis\DevisSearchDto;
+use App\Entity\dw\DwBcClientNegoce;
 use App\Mapper\Magasin\Devis\DevisNegMapper;
 use App\Model\magasin\devis\DevisNegModel;
 use App\Service\ExcelService;
+use App\Service\security\SecurityService;
 use App\Service\TableauEnStringService;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -53,17 +55,20 @@ class DevisNegExportExcelController extends Controller
     {
         // Code Société de l'utilisateur
         $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
-
+        // Code Agence par défaut
+        $codeAgenceDefaut = $this->getSecurityService()->getCodeAgenceUser();
+        // multisuccursale
+        $multiSuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE, 'liste_devis_neg');
         // Agences Services autorisés sur le DVM
         $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DVM);
+        // code agence autoriser
+        $codeAgenceAutoriserString = TableauEnStringService::orEnString(array_column($agenceServiceAutorises, 'agence_code'));
 
+        // les filtres du formulaire de recherhce
         $criteria = $this->getSessionService()->get('criteria_for_excel_liste_devis_neg') ?? [];
-
         if ($criteria instanceof DevisSearchDto) {
             $criteria = (array) $criteria;
         }
-
-        $codeAgenceAutoriserString = TableauEnStringService::orEnString(array_column($agenceServiceAutorises, 'agence_code'));
 
         // Utilisation du cache de session pour la liste d'exclusion
         $session = $this->getSessionService();
@@ -78,8 +83,9 @@ class DevisNegExportExcelController extends Controller
             $session->set('devis_neg_exclure_cache', $numDeviAExclure);
         }
 
-        $devisNeg = $listeDevisNegModel->getDevisNegExportExcel($criteria, $codeAgenceAutoriserString, $numDeviAExclure, $codeSociete);
-        $devisNeg = (new DevisNegMapper())->map($devisNeg);
+        $dwBcClientNegoceRepository = $this->getEntityManager()->getRepository(DwBcClientNegoce::class);
+        $devisNeg = $listeDevisNegModel->getDevisNegExportExcel($criteria, $codeAgenceAutoriserString, $multiSuccursale, $codeAgenceDefaut, $numDeviAExclure, $codeSociete);
+        $devisNeg = (new DevisNegMapper())->map($devisNeg, null, $dwBcClientNegoceRepository);
 
         return $devisNeg;
     }
