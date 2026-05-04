@@ -336,7 +336,7 @@ trait DitOrSoumisAValidationTrait
         $codeSociete = $ditInsertionOrSoumis->getCodeSociete();
 
         /** @var array */
-        $pieceFaibleAchat = $this->preparationDesPiecesFaibleAchat($ditInsertionOrSoumis->getNumeroOR());
+        $pieceFaibleAchat = $this->preparationDesPiecesFaibleAchat($ditInsertionOrSoumis->getNumeroOR(), $codeSociete);
 
         $orSoumisValidataion = []; // Tableau pour stocker les objets
 

@@ -51,6 +51,8 @@ class ChoixSocieteController extends Controller
                 if (empty($agenceServiceDefaut)) {
                     $this->getSessionService()->set('notification', ['type' => 'error', 'message' => "Impossible de se connecter au compte affilié à la société \"$libelleSociete\". Aucun agence et service par défaut n’est défini pour la société \"$libelleSociete\"."]);
                 } else {
+                    $profil = $profils->filter(fn($p) => $p->getId() == $data['profil'])->first();
+
                     $userInfo = $this->getSessionService()->get('user_info');
                     $userInfo["default_agence_code"]  = $agenceServiceDefaut->getCodeAgence();
                     $userInfo["default_service_code"] = $agenceServiceDefaut->getCodeService();
@@ -58,6 +60,7 @@ class ChoixSocieteController extends Controller
                     $userInfo["default_service_id"]   = $agenceServiceDefaut->getService()->getId();
                     $userInfo['societe_code']         = $data['societe'];
                     $userInfo['profil_id']            = $data['profil'];
+                    $userInfo['profil_name']          = $profil->getDesignation();
                     $this->getSessionService()->set('user_info', $userInfo);
                     return $this->redirectToRoute('profil_acceuil');
                 }

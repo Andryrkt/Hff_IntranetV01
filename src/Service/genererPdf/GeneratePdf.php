@@ -6,8 +6,8 @@ use TCPDF;
 
 class GeneratePdf
 {
-    protected $baseCheminDuFichier;
-    protected $baseCheminDocuware;
+    protected ?string $baseCheminDuFichier;
+    protected ?string $baseCheminDocuware;
 
     public function __construct(
         ?string $baseCheminDuFichier = null,

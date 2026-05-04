@@ -68,92 +68,108 @@ class CacheWarmupAllCommand extends Command
         ]);
         $io->newLine();
 
-        // ── Choix : tous les profils ou un seul ──────────────────────────────
+        // ── Choix principal ───────────────────────────────────────────────────
         $choix = $io->choice(
-            'Voulez-vous préchauffer le cache pour tous les profils ou pour un profil spécifique ?',
+            'Que souhaitez-vous faire ?',
             [
-                'tous' => 'Tous les profils    — reconstruit le cache de chaque profil enregistré en base',
-                'un'   => 'Un seul profil      — reconstruit le cache d\'un profil précis via son identifiant',
+                'un'        => 'Un seul profil',
+                'plusieurs' => 'Plusieurs profils',
+                'tous'      => 'Tous les profils',
             ],
-            'tous'
+            'un'
         );
 
-        // ── Chargement des profils selon le choix ────────────────────────────
+        // ── CAS 1 : Un seul profil ────────────────────────────────────────────
         if ($choix === 'un') {
 
-            // ── Sous-choix : recherche par ID ou par désignation ─────────────
             $critere = $io->choice(
                 'Comment souhaitez-vous identifier le profil ?',
                 [
-                    'id'          => 'Par identifiant   — recherche exacte sur l\'ID numérique',
-                    'designation' => 'Par désignation   — recherche par le nom du profil (insensible à la casse)',
+                    'id'          => 'Par identifiant',
+                    'designation' => 'Par désignation',
                 ],
                 'id'
             );
 
             if ($critere === 'id') {
                 $profilId = (int) $io->ask(
-                    'Entrez l\'identifiant (ID) du profil à préchauffer',
+                    'Entrez l\'identifiant (ID)',
                     null,
                     function (?string $valeur): int {
                         if (!is_numeric($valeur) || (int) $valeur <= 0) {
-                            throw new \RuntimeException('L\'identifiant doit être un nombre entier positif.');
+                            throw new \RuntimeException('ID invalide.');
                         }
                         return (int) $valeur;
                     }
                 );
 
                 $profil = $this->entityManager->getRepository(Profil::class)->find($profilId);
-
-                if ($profil === null) {
-                    $io->error(sprintf(
-                        'Aucun profil trouvé avec l\'identifiant %d. Vérifiez l\'ID et relancez la commande.',
-                        $profilId
-                    ));
-                    return Command::FAILURE;
-                }
             } else {
-                $designation = $io->ask(
-                    'Entrez la désignation du profil à préchauffer',
-                    null,
-                    function (?string $valeur): string {
-                        $valeur = trim((string) $valeur);
-                        if ($valeur === '') {
-                            throw new \RuntimeException('La désignation ne peut pas être vide.');
-                        }
-                        return $valeur;
-                    }
-                );
+                $designation = trim((string) $io->ask('Entrez la désignation'));
+
+                if ($designation === '') {
+                    throw new \RuntimeException('Désignation vide.');
+                }
 
                 $profil = $this->entityManager->getRepository(Profil::class)
                     ->findOneBy(['designation' => $designation]);
+            }
 
-                if ($profil === null) {
-                    $io->error(sprintf(
-                        'Aucun profil trouvé avec la désignation "%s". Vérifiez le nom et relancez la commande.',
-                        $designation
-                    ));
-                    return Command::FAILURE;
-                }
+            if ($profil === null) {
+                $io->error('Profil introuvable.');
+                return Command::FAILURE;
             }
 
             $profils = [$profil];
-            $io->newLine();
-            $io->text(sprintf(
-                'Profil sélectionné : <info>%s</info> (id: %d)',
-                $profil->getDesignation(),
-                $profil->getId()
-            ));
-        } else {
-            $profils = $this->entityManager->getRepository(Profil::class)->findAll();
+        }
+
+        // ── CAS 2 : Plusieurs profils ─────────────────────────────────────────
+        elseif ($choix === 'plusieurs') {
+
+            $ids = $io->ask(
+                'Entrez les IDs des profils (séparés par des virgules, ex: 1,2,3)',
+                null,
+                function (?string $valeur): array {
+                    $ids = array_filter(array_map('trim', explode(',', (string) $valeur)));
+
+                    if (empty($ids)) {
+                        throw new \RuntimeException('Aucun ID fourni.');
+                    }
+
+                    foreach ($ids as $id) {
+                        if (!ctype_digit($id) || (int)$id <= 0) {
+                            throw new \RuntimeException(sprintf('ID invalide : %s', $id));
+                        }
+                    }
+
+                    return array_map('intval', $ids);
+                }
+            );
+
+            $profils = $this->entityManager
+                ->getRepository(Profil::class)
+                ->findBy(['id' => $ids]);
 
             if (empty($profils)) {
-                $io->warning('Aucun profil trouvé en base de données. Rien à préchauffer.');
+                $io->error('Aucun profil trouvé pour ces IDs.');
+                return Command::FAILURE;
+            }
+
+            $io->text(sprintf('%d profil(s) sélectionné(s).', count($profils)));
+        }
+
+        // ── CAS 3 : Tous les profils ──────────────────────────────────────────
+        else {
+            $profils = $this->entityManager
+                ->getRepository(Profil::class)
+                ->findAll();
+
+            if (empty($profils)) {
+                $io->warning('Aucun profil trouvé.');
                 return Command::SUCCESS;
             }
 
-            $io->newLine();
-            $io->text(sprintf('%d profil(s) trouvé(s) en base. Démarrage du préchauffage...', count($profils)));
+            $io->text(sprintf('%d profil(s) trouvé(s).', count($profils)));
         }
 
         $io->newLine();

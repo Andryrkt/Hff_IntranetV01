@@ -6,7 +6,6 @@ use App\Entity\admin\Personnel;
 use Doctrine\ORM\QueryBuilder;
 use App\Entity\ddc\DemandeConge;
 use Doctrine\ORM\EntityRepository;
-use App\Entity\admin\utilisateur\User;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 
 class DemandeCongeRepository extends EntityRepository
@@ -16,6 +15,9 @@ class DemandeCongeRepository extends EntityRepository
         int $limit,
         DemandeConge $conge,
         array $options,
+        string $agenceCodeUser,
+        string $serviceCodeUser,
+        bool $multisuccursale,
         array $agenceServiceAutorises
     ): array {
         $queryBuilder = $this->createQueryBuilder('d')
@@ -24,7 +26,7 @@ class DemandeCongeRepository extends EntityRepository
             ->leftJoin(Personnel::class, 'p', 'WITH', 'd.matricule = p.Matricule');
 
         $this->filtredParDate($queryBuilder, $conge, $options);
-        $this->filtredParAgenceService($queryBuilder, $options, $agenceServiceAutorises);
+        $this->filtredParAgenceService($queryBuilder, $options, $agenceCodeUser, $serviceCodeUser, $multisuccursale, $agenceServiceAutorises);
         $this->filtredParInformationPrincipal($queryBuilder, $conge, $options);
 
 
@@ -60,7 +62,7 @@ class DemandeCongeRepository extends EntityRepository
         ];
     }
 
-    public function findAndFilteredExcel(DemandeConge $conge, array $options, array $agenceServiceAutorises): array
+    public function findAndFilteredExcel(DemandeConge $conge, array $options, string $agenceCodeUser, string $serviceCodeUser, bool $multisuccursale, array $agenceServiceAutorises): array
     {
         $queryBuilder = $this->createQueryBuilder('d')
             ->leftJoin('d.agenceServiceirium', 'asi')
@@ -68,7 +70,7 @@ class DemandeCongeRepository extends EntityRepository
             ->leftJoin(Personnel::class, 'p', 'WITH', 'd.matricule = p.Matricule');
 
         $this->filtredParDate($queryBuilder, $conge, $options);
-        $this->filtredParAgenceService($queryBuilder, $options, $agenceServiceAutorises);
+        $this->filtredParAgenceService($queryBuilder, $options, $agenceCodeUser, $serviceCodeUser, $multisuccursale, $agenceServiceAutorises);
         $this->filtredParInformationPrincipal($queryBuilder, $conge, $options);
 
         return $queryBuilder
@@ -126,22 +128,29 @@ class DemandeCongeRepository extends EntityRepository
         // Ne pas inclure ici pour éviter les conflits avec les autres filtres
     }
 
-    private function filtredParAgenceService(QueryBuilder $queryBuilder, array $options, array $agenceServiceAutorises): void
+    private function filtredParAgenceService(QueryBuilder $queryBuilder, array $options, string $agenceCodeUser, string $serviceCodeUser, bool $multisuccursale, array $agenceServiceAutorises): void
     {
-        if (!empty($agenceServiceAutorises)) {
-            // Condition sur les couples agences-services
-            $orX = $queryBuilder->expr()->orX();
-            foreach ($agenceServiceAutorises as $i => $tab) {
-                $orX->add(
-                    $queryBuilder->expr()->andX(
-                        $queryBuilder->expr()->eq('asi.agence_ips', ':agEmetteur_' . $i),
-                        $queryBuilder->expr()->eq('asi.service_ips', ':servEmetteur_' . $i)
-                    )
-                );
-                $queryBuilder->setParameter('agEmetteur_' . $i, $tab['agence_code']);
-                $queryBuilder->setParameter('servEmetteur_' . $i, $tab['service_code']);
+        if (!$multisuccursale) {
+            if (!empty($agenceServiceAutorises)) {
+                // Condition sur les couples agences-services
+                $orX = $queryBuilder->expr()->orX();
+                foreach ($agenceServiceAutorises as $i => $tab) {
+                    $orX->add(
+                        $queryBuilder->expr()->andX(
+                            $queryBuilder->expr()->eq('asi.agence_ips', ':agEmetteur_' . $i),
+                            $queryBuilder->expr()->eq('asi.service_ips', ':servEmetteur_' . $i)
+                        )
+                    );
+                    $queryBuilder->setParameter('agEmetteur_' . $i, $tab['agence_code']);
+                    $queryBuilder->setParameter('servEmetteur_' . $i, $tab['service_code']);
+                }
+                $queryBuilder->andWhere($orX);
+            } else {
+                $queryBuilder->andWhere('asi.agence_ips = :agenceCode')
+                    ->setParameter('agenceCode', $agenceCodeUser)
+                    ->andWhere('asi.service_ips = :serviceCode')
+                    ->setParameter('serviceCode', $serviceCodeUser);
             }
-            $queryBuilder->andWhere($orX);
         }
 
         // Filtrer par Agence_Service (code service_sage_paie)

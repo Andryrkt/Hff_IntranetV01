@@ -95,17 +95,6 @@ CREATE TABLE application_profil_page (
     CONSTRAINT fk_app_profil_page_page FOREIGN KEY (page_id) REFERENCES Hff_pages (id)
 );
 
-UPDATE users set 
-    code_agence_user=asi.agence_ips, 
-    code_service_user=asi.service_ips,
-    code_sage=asi.service_sage_paie,
-    id_agence_user=a.id,
-    id_service_user=s.id
-from users u
-INNER JOIN Agence_Service_Irium asi on asi.id=u.agence_utilisateur
-inner join agences a on a.code_agence=asi.agence_ips
-inner join services s on s.code_service=asi.service_ips;
-
 -- Supprimer les relations avec users
 alter table agence_user drop constraint FK__agence_us__user___2057CCD0;
 alter table Demande_Appro drop constraint FK_User_Id;

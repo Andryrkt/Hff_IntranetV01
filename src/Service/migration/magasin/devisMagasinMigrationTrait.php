@@ -115,7 +115,6 @@ trait devisMagasinMigrationTrait
     private function getDataExcel()
     {
         try {
-            $fichier = 'C:\wamp64\www\Upload\magasin\migrations\DEVIS A MIGRER DEMAT VENTE NEGOCE.xlsx';
             $donnees = $this->recuperationDonnerExcel();
 
             $devisVp = [];

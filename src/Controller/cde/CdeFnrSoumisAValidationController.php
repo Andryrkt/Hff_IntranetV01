@@ -11,7 +11,6 @@ use App\Service\fichier\TraitementDeFichier;
 use App\Service\genererPdf\GenererPdfCdeFnr;
 use App\Form\cde\CdeFnrSoumisAValidationType;
 use Symfony\Component\HttpFoundation\Request;
-use App\Model\cde\CdefnrSoumisAValidationModel;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Repository\cde\CdefnrSoumisAValidationRepository;
@@ -49,7 +48,7 @@ class CdefnrSoumisAValidationController extends Controller
         ]);
     }
 
-    private function traitementFormulaire(Request $request, $form): void
+    private function traitementFormulaire(Request $request, FormInterface $form): void
     {
 
         $form->handleRequest($request);
@@ -105,7 +104,7 @@ class CdefnrSoumisAValidationController extends Controller
         ];
     }
 
-    private function blockageSoumissionCdeFnr($blockages, $numCdeFournisseur, $originalName): bool
+    private function blockageSoumissionCdeFnr(array $blockages, string $numCdeFournisseur, string $originalName): bool
     {
         if ($blockages['conditionStatut']) {
             $message = " Erreur lors de la soumission, Impossible de soumettre le cde fournisseur . . . La commande {$numCdeFournisseur} est déjà en cours de validation ou valié par DG";
@@ -122,7 +121,7 @@ class CdefnrSoumisAValidationController extends Controller
      * permet de vérifier le format du nom du fichier
      *
      * @param string $nomFichier
-     * @return void
+     * @return bool
      */
     private function verifierFormatFichier(string $nomFichier): bool
     {
@@ -134,24 +133,7 @@ class CdefnrSoumisAValidationController extends Controller
         return preg_match('/^[a-zA-Z0-9]+_[a-zA-Z0-9]+\.pdf$/i', $nomFichier) === 1;
     }
 
-    /**
-     * permet de vérifier si une chaîne de caractères contient tous les mots donnés
-     *
-     * @param string $chaine
-     * @param [type] ...$mots
-     * @return bool
-     */
-    private function contientTousLesMots(string $chaine, ...$mots): bool
-    {
-        foreach ($mots as $mot) {
-            if (strpos($chaine, $mot) === false) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private function autoIncrement($num)
+    private function autoIncrement(?int $num)
     {
         if ($num === null) {
             $num = 0;
@@ -173,7 +155,7 @@ class CdefnrSoumisAValidationController extends Controller
         ;
     }
 
-    private function ajoutDonnerDansDb($cdeFournisseur)
+    private function ajoutDonnerDansDb(CdefnrSoumisAValidation $cdeFournisseur): void
     {
         $this->getEntityManager()->persist($cdeFournisseur);
         $this->getEntityManager()->flush();
@@ -201,10 +183,10 @@ class CdefnrSoumisAValidationController extends Controller
     /**
      * Enregistrement des fichiers téléchagrer dans le dossier de destination
      *
-     * @param [type] $form
+     * @param FormInterface $form
      * @return array
      */
-    private function enregistreFichierJoint($form): array
+    private function enregistreFichierJoint(FormInterface $form): array
     {
         $nomDesFichiers = [];
         $chemin = $_ENV['BASE_PATH_FICHIER'] . '/cde_fournisseur/';
@@ -243,7 +225,7 @@ class CdefnrSoumisAValidationController extends Controller
     }
 
 
-    private function convertPdfWithGhostscript($filePath)
+    private function convertPdfWithGhostscript(string $filePath): string
     {
         $gsPath = 'C:\Program Files\gs\gs10.05.0\bin\gswin64c.exe'; // Modifier selon l'OS
         $tempFile = $filePath . "_temp.pdf";

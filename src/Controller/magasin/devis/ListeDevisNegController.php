@@ -6,7 +6,7 @@ use App\Constants\admin\ApplicationConstant;
 use App\Constants\Magasin\Devis\TypeSoumissionConstant;
 use App\Controller\Controller;
 use App\Dto\Magasin\Devis\DevisSearchDto;
-use App\Entity\magasin\bc\BcMagasin;
+use App\Entity\dw\DwBcClientNegoce;
 use App\Entity\magasin\devis\DevisMagasin;
 use App\Form\magasin\devis\DevisNegSearchType;
 use App\Mapper\Magasin\Devis\DevisNegMapper;
@@ -66,11 +66,11 @@ class ListeDevisNegController extends Controller
 
         try {
 
-            $page = $request->query->getInt('page', 1);
-            $limit = $request->query->getInt('limit', 500);
+            // $page = $request->query->getInt('page', 1);
+            // $limit = $request->query->getInt('limit', 500);
             [, $criteria] = $this->creationEtTraitementformulaireDeRecherche($request);
 
-            $devisNeg = $this->getDataDevisNegEnDto($page, $limit, $criteria);
+            $devisNeg = $this->getDataDevisNegEnDto($criteria);
 
             ob_end_clean(); // Supprime tout output parasite avant d'envoyer le JSON
             return new JsonResponse([
@@ -96,15 +96,17 @@ class ListeDevisNegController extends Controller
 
         $form->handleRequest($request);
         $criteria = [];
+
         if ($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
             // Stockage des critères de recherche dans la session pour les réutiliser lors de l'export Excel
             $this->getSessionService()->set('criteria_for_excel_liste_devis_neg', $criteria);
         }
+
         return [$form, $criteria];
     }
 
-    private function getDataDevisNegEnDto(int $page = 1, int $limit = 100, $criteria = [])
+    private function getDataDevisNegEnDto($criteria = [])
     {
         if ($criteria instanceof DevisSearchDto) {
             $criteria = (array) $criteria;
@@ -124,14 +126,29 @@ class ListeDevisNegController extends Controller
 
         $urlGenerator = function ($dto) {
             $dto->pointagedevis = in_array($dto->statutDw, [DevisMagasin::STATUT_PRIX_VALIDER_TANA, DevisMagasin::STATUT_PRIX_MODIFIER_TANA, DevisMagasin::STATUT_VALIDE_AGENCE]);
-            $dto->relanceClient = ($dto->statutDw === DevisMagasin::STATUT_ENVOYER_CLIENT && $dto->statutBc === BcMagasin::STATUT_EN_ATTENTE_BC);
+            // $dto->relanceClient = ($dto->statutDw === DevisMagasin::STATUT_ENVOYER_CLIENT && $dto->statutBc === BcMagasin::STATUT_EN_ATTENTE_BC);
+            $dto->relanceClient = true; // ! toujours autoriser la relance
 
             return [];
         };
 
-        $devisNeg = $this->listeDevisNegModel->getDevisNeg($criteria, $codeAgenceAutoriserString, $multiSuccursale, $codeAgenceDefaut, $codeSociete, $page, $limit);
-        $devisNeg = $this->devisNegMapper->map($devisNeg, $urlGenerator);
+        $dwBcClientNegoceRepository = $this->getEntityManager()->getRepository(DwBcClientNegoce::class);
+
+        $devisNeg = $this->listeDevisNegModel->getDevisNeg($criteria, $codeAgenceAutoriserString, $multiSuccursale, $codeAgenceDefaut, $numDeviAExclure, $codeSociete);
+        $devisNeg = $this->devisNegMapper->map($devisNeg, $urlGenerator, $dwBcClientNegoceRepository);
+
+
+        if ($criteria['numeroPO']) {
+            $devisNeg = $this->filtrerParNumeroPo($devisNeg, $criteria['numeroPO']);
+        }
 
         return $devisNeg;
+    }
+
+    function filtrerParNumeroPo($tableau, $numeroPoRecherche)
+    {
+        return array_values(array_filter($tableau, function ($item) use ($numeroPoRecherche) {
+            return strpos($item->numeroPo ?? '', $numeroPoRecherche) !== false;
+        }));
     }
 }

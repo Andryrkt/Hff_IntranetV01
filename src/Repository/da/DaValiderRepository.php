@@ -14,9 +14,9 @@ class DaValiderRepository extends EntityRepository
      *  Récupère le numéro de version maximum pour une demande d'approvisionnement (DA) donnée.
      *
      * @param string $numeroDemandeAppro
-     * @return void
+     * @return int|null
      */
-    public function getNumeroVersionMax(string $numeroDemandeAppro)
+    public function getNumeroVersionMax(string $numeroDemandeAppro): ?int
     {
         $numeroVersionMax = $this->createQueryBuilder('dav')
             ->select('MAX(dav.numeroVersion)')
@@ -70,7 +70,7 @@ class DaValiderRepository extends EntityRepository
         return $numeroVersionMax;
     }
 
-    public function getDaValider($numeroVersion, $numeroDemandeDit, $reference, $designation, $criteria = [])
+    public function getDaValider(int $numeroVersion, string $numeroDemandeDit, string $reference, string $designation, array $criteria = [])
     {
         $davalider =  $this->createQueryBuilder('d')
             ->where('d.numeroVersion = :version')

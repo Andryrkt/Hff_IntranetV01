@@ -42,6 +42,8 @@ class ContratController extends Controller
     {
         $contratSearch = new Contrat();
 
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+
         // Vérifier s'il s'agit d'un accès direct à la route (sans paramètres de recherche)
         $isDirectAccess = empty($request->query->all()) ||
             (count($request->query->all()) == 1 && $request->query->has('page'));
@@ -64,7 +66,7 @@ class ContratController extends Controller
         // Pour le formulaire : Label = code+libellé, Value = code court (ex: '01')
         $agences = $this->getEntityManager()
             ->getRepository(\App\Entity\admin\Agence::class)
-            ->findAll();
+            ->findby(['codeSociete' => $codeSociete]);
 
         $agenceChoices = [];
         foreach ($agences as $agence) {

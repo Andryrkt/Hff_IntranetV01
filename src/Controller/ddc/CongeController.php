@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 use App\Controller\Traits\ddc\CongeListeTrait;
 use App\Repository\ddc\DemandeCongeRepository;
 use App\Service\ExcelService;
+use App\Service\security\SecurityService;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
@@ -32,8 +33,18 @@ class CongeController extends Controller
     {
         try {
             $congeSearch = new DemandeConge();
+            // Agence et service par défaut
+            $agenceCodeUser = $this->getSecurityService()->getCodeAgenceUser();
+            $serviceCodeUser = $this->getSecurityService()->getCodeServiceUser();
+
+            // Vérifier la permission de voir tous les données
+            $multisuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE);
+
             // Agences Services autorisés sur le Demande de congé
             $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DDC);
+
+            // Tous agences services
+            $allAgenceServices = $this->getSecurityService()->getAllAgenceServices();
 
             // Vérifier s'il s'agit d'un accès direct à la route (sans paramètres de recherche)
             // Dans ce cas, nous réinitialisons tous les filtres
@@ -78,7 +89,7 @@ class CongeController extends Controller
             $form = $this->getFormFactory()->createBuilder(DemandeCongeType::class, $congeSearch, [
                 'method' => 'GET',
                 'em' => $this->getEntityManager(),
-                'agenceServiceAutorises' => $agenceServiceAutorises
+                'agenceServiceAutorises' => $allAgenceServices
             ])->getForm();
 
             $form->handleRequest($request);
@@ -212,7 +223,7 @@ class CongeController extends Controller
                 $paginationData = $repository->findCongesByGroupeDirection($page, $limit);
             } else {
                 // Sinon, utiliser la logique normale de recherche avec tous les filtres
-                $paginationData = $repository->findPaginatedAndFiltered($page, $limit, $congeSearch, $options ?? [], $agenceServiceAutorises);
+                $paginationData = $repository->findPaginatedAndFiltered($page, $limit, $congeSearch, $options ?? [], $agenceCodeUser, $serviceCodeUser, $multisuccursale, $agenceServiceAutorises);
             }
 
             // Formatage des critères pour l'affichage
@@ -243,7 +254,7 @@ class CongeController extends Controller
             }
 
             // Récupérer les congés filtrés pour le calendrier
-            $rawCongesForCalendar = $repository->findAndFilteredExcel($congeSearch, $options ?? [], $agenceServiceAutorises);
+            $rawCongesForCalendar = $repository->findAndFilteredExcel($congeSearch, $options ?? [], $agenceCodeUser, $serviceCodeUser, $multisuccursale, $agenceServiceAutorises);
 
             // Transformer les objets DemandeConge en tableaux simples pour la vue
             $conges = [];
@@ -384,7 +395,7 @@ class CongeController extends Controller
                     'employees' => $employees,
                     'viewMode' => 'list',
                     'selected_month' => $selectedMonth,
-                    'accessGroupeDirection' => false, // TODO : autorisation sur le champ groupe direction
+                    'accessGroupeDirection' => $this->estAdmin(),
                     'title' => 'Liste des demandes de congé'
                 ]
             );
@@ -405,6 +416,13 @@ class CongeController extends Controller
     public function calendrierConge()
     {
         $request = Request::createFromGlobals();
+
+        // Agence et service par défaut
+        $agenceCodeUser = $this->getSecurityService()->getCodeAgenceUser();
+        $serviceCodeUser = $this->getSecurityService()->getCodeServiceUser();
+
+        // Vérifier la permission de voir tous les données
+        $multisuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE);
 
         // Agences Services autorisés sur le Demande de congé
         $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DDC);
@@ -525,7 +543,7 @@ class CongeController extends Controller
             $rawConges = $repository->findCongesByGroupeDirectionExcel();
         } else {
             // Sinon, utiliser la logique normale de recherche avec tous les filtres
-            $rawConges = $repository->findAndFilteredExcel($congeSearch, $options, $agenceServiceAutorises);
+            $rawConges = $repository->findAndFilteredExcel($congeSearch, $options, $agenceCodeUser, $serviceCodeUser, $multisuccursale, $agenceServiceAutorises);
         }
 
         // Transformer les objets DemandeConge en tableaux simples pour la vue
@@ -662,6 +680,13 @@ class CongeController extends Controller
     {
         // Récupère le paramètre format de la requête
         $format = $request->query->get('format', 'list'); // Valeur par défaut : 'list'
+
+        // Agence et service par défaut
+        $agenceCodeUser = $this->getSecurityService()->getCodeAgenceUser();
+        $serviceCodeUser = $this->getSecurityService()->getCodeServiceUser();
+
+        // Vérifier la permission de voir tous les données
+        $multisuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE);
 
         // Agences Services autorisés sur le Demande de congé
         $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DDC);
@@ -817,7 +842,7 @@ class CongeController extends Controller
             $entities = $repository->findCongesByGroupeDirectionExcel();
         } else {
             // Sinon, utiliser la logique normale de recherche avec tous les filtres
-            $entities = $repository->findAndFilteredExcel($congeSearch, $option, $agenceServiceAutorises);
+            $entities = $repository->findAndFilteredExcel($congeSearch, $option, $agenceCodeUser, $serviceCodeUser, $multisuccursale, $agenceServiceAutorises);
         }
 
 
@@ -1016,11 +1041,11 @@ class CongeController extends Controller
      */
     public function getServiceSelonAgence(string $codeAgence)
     {
-        // Agences Services autorisés sur le Demande de congé
-        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DDC);
+        // Tous agences services
+        $allAgenceServices = $this->getSecurityService()->getAllAgenceServices();
 
         $codesServicesAutorises = array_column(
-            array_filter($agenceServiceAutorises, fn($asa) => $asa['agence_code'] === $codeAgence),
+            array_filter($allAgenceServices, fn($asa) => $asa['agence_code'] === $codeAgence),
             'service_code'
         );
 

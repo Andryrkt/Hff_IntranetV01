@@ -27,12 +27,10 @@ class VerificationPrixFactory
     {
         $devisNegModel = new SoumissionModel();
 
-        if ($dto->validationPm && empty($dto->tacheValidateur)) {
-            $dto->tacheValidateur = ['Vérification prix'];
-        } else {
-            $dto->tacheValidateur = ['AUTOVALIDATION'];
+        if (empty($dto->tacheValidateur)) {
+            $dto->tacheValidateur = $dto->validationPm ? ['Vérification prix'] : ['AUTOVALIDATION'];
         }
-        
+
         $dto->suffix = $devisNegModel->constructeurPieceMagasin($dto->numeroDevis);
         $dto->numeroVersion = VersionService::autoIncrement($devisNegModel->getNumeroVersion($dto->numeroDevis));
         $dto->userName = $userName;

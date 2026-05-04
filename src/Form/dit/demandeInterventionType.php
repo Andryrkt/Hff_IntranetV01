@@ -71,6 +71,9 @@ class demandeInterventionType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+
+        $codeSociete = $options['data']->getCodeSociete();
+
         $builder
             ->add('estAtePolTana', CheckboxType::class, [
                 'required' => false, // obligatoire false
@@ -233,8 +236,12 @@ class demandeInterventionType extends AbstractType
                     },
                     'required' => false,
                     //'data' => $options["data"]->getAgence() ?? null,
-                    'query_builder' => function (AgenceRepository $agenceRepository) {
-                        return $agenceRepository->createQueryBuilder('a')->orderBy('a.codeAgence', 'ASC');
+                    'query_builder' => function (AgenceRepository $agenceRepository) use ($codeSociete) {
+                        $qb = $agenceRepository->createQueryBuilder('a')
+                            ->where('a.codeSociete = :codeSociete')
+                            ->setParameter('codeSociete', $codeSociete)
+                            ->orderBy('a.codeAgence', 'ASC');
+                        return $qb;
                     },
                     'attr' => ['class' => 'agenceDebiteur']
                 ]

@@ -36,7 +36,7 @@ class AppExtension extends AbstractExtension implements GlobalsInterface
                     'fullname'     => $userInfo['fullname'] ?? '',
                     'agenceIPS'    => $userInfo['default_agence_code'] ?? '',
                     'serviceIPS'   => $userInfo['default_service_code'] ?? '',
-                    'isAdmin'      => ($userInfo['profil_id'] ?? 0) === Profil::HFF_ADMIN,
+                    'isAdmin'      => ($userInfo['profil_name'] ?? 0) === Profil::HFF_ADMIN,
                 ],
                 'base_path'         => $_ENV['BASE_PATH_COURT'],
                 'base_path_long'    => $_ENV['BASE_PATH_FICHIER'],

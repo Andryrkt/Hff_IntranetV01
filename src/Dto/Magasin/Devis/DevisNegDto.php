@@ -18,8 +18,8 @@ class DevisNegDto
     public ?float $montantDevis = 0.00;
     public $dateEnvoiDevisAuClient = null;
     public ?string $positionIps = null;
-    public $numeroPo = null;
-    public $urlPo = null;
+    public ?string $numeroPo = null;
+    public ?string $urlPo = null;
     public ?string $utilisateurCreateurDevis = null;
     public ?string $soumisPar = null;
     public $constructeur = null;

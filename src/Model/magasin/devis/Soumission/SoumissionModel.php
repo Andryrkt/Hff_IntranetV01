@@ -26,7 +26,7 @@ class SoumissionModel extends Model
                     WHEN COUNT(CASE WHEN nlig_constp = 'CAT' THEN 1 END) = COUNT(*) THEN 'TOUT CAT'
                     ELSE 'TOUS NEST PAS CAT'
                 END as resultat
-            FROM ips_hffprod:informix.neg_lig 
+            FROM {$this->dbIps}:informix.neg_lig 
             WHERE nlig_numcde = '$numeroDevis' 
             AND nlig_constp NOT LIKE 'Nmc%'
             AND nlig_constp IN ($cstMagasin)
@@ -96,7 +96,7 @@ class SoumissionModel extends Model
                         ELSE 'N'
                     END AS retour
 
-                    from ips_hffprod:informix.neg_lig 
+                    from {$this->dbIps}:informix.neg_lig 
                     where nlig_soc='HF' 
                     and nlig_natop='DEV'
                     and nlig_constp <> 'Nmc' 
@@ -112,7 +112,7 @@ class SoumissionModel extends Model
 
     public function getNumeroVersion(string $numeroDevis)
     {
-        $statement = "SELECT FIRST 1 MAX(numero_version) as version FROM ir_prod108:Informix.devis_soumis_a_validation_neg dneg WHERE dneg.numero_devis = '$numeroDevis'";
+        $statement = "SELECT FIRST 1 MAX(numero_version) as version FROM {$this->dbIrium}:Informix.devis_soumis_a_validation_neg dneg WHERE dneg.numero_devis = '$numeroDevis'";
 
         $result = $this->connect->executeQuery($statement);
 
@@ -139,8 +139,8 @@ class SoumissionModel extends Model
                         nent_devise as devise
                         ,nent_cdeht as montant_devis
                         ,SUM(nlig_nolign) as somme_numero_lignes 
-                    from ips_hffprod:informix.neg_lig 
-                    left JOIN ips_hffprod:informix.neg_ent on nent_numcde = nlig_numcde 
+                    from {$this->dbIps}:informix.neg_lig 
+                    left JOIN {$this->dbIps}:informix.neg_ent on nent_numcde = nlig_numcde 
                     where nlig_soc='$codeSociete' 
                     and nlig_natop='DEV' 
                     and nlig_constp <> 'Nmc'
@@ -176,7 +176,7 @@ class SoumissionModel extends Model
                         ,dneg.montant_devis as montant_devis
                         ,dneg.somme_numero_lignes as somme_numero_lignes
 
-                    from ir_prod108:Informix.devis_soumis_a_validation_neg dneg
+                    from {$this->dbIrium}:Informix.devis_soumis_a_validation_neg dneg
                     where dneg.code_societe = '$codeSociete'
                     and dneg.numero_devis = '$numeroDevis'
                     order by dneg.numero_version desc
@@ -206,7 +206,7 @@ class SoumissionModel extends Model
         $donnees = SoumissionMapper::toArrayVerificationPrix($dto, $nomFichier, $nomFichierExcel);
 
         // Construire la requête d'insertion et l'exécuter
-        $builder = new InsertQueryBuilder('ir_prod108:Informix.devis_soumis_a_validation_neg');
+        $builder = new InsertQueryBuilder("{$this->dbIrium}:Informix.devis_soumis_a_validation_neg");
         $builder->setData($donnees);
         $result = $builder->build();
 
@@ -235,7 +235,7 @@ class SoumissionModel extends Model
         $donnees = SoumissionMapper::toArrayValidationDevis($dto, $nomFichier);
 
         // Construire la requête d'insertion et l'exécuter
-        $builder = new InsertQueryBuilder('ir_prod108:Informix.devis_soumis_a_validation_neg');
+        $builder = new InsertQueryBuilder("{$this->dbIrium}:Informix.devis_soumis_a_validation_neg");
         $builder->setData($donnees);
         $result = $builder->build();
 
