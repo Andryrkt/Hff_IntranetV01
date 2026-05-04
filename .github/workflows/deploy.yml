@@ -47,8 +47,8 @@ jobs:
               description = $desc
               color = $color
               fields = @(
-                @{ name = "Branche"; value = "`${{ github.ref_name }}`"; inline = $true }
-                @{ name = "Auteur"; value = "`${{ github.actor }}`"; inline = $true }
+                @{ name = "Branche"; value = "**${{ github.ref_name }}**"; inline = $true }
+                @{ name = "Auteur"; value = "**${{ github.actor }}**"; inline = $true }
                 @{ name = "Logs"; value = "[Voir le détail du job](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"; inline = $false }
               )
               footer = @{ text = "HffIntranet CI/CD" }
