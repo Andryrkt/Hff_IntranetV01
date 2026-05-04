@@ -40,6 +40,8 @@ class GeneratePdfDeviMagasinVp extends GeneratePdf
         $pdf->SetFont($font2, 'B', 12);
         $pdf->Cell(63, 10, 'Opération à faire sur le devis : ', 0, 0, 'L');
         $pdf->SetFont($font2, '', 10);
+        $y = $pdf->GetY();
+        $pdf->setAbsY($y + 3);
         $pdf->MultiCell(0, 10, TableauEnStringService::orEnString($dto->tacheValidateur), 0, 'L');
 
         $pdf->Ln(5, true);
