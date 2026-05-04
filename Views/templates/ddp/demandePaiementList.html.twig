@@ -26,6 +26,7 @@
 					</th>
 					<th class="text-center">Agence débité</th>
 					<th class="text-center">Service débité</th>
+					<th class="text-center">N° CLA</th>
 					<th class="text-center">N° demande</th>
 					<th class="text-center">Date DDP</th>
 					<th class="text-center">Type</th>
@@ -86,6 +87,7 @@
 						{# Fin Actions #}
 						<td class="text-center">{{ item.codeAgence}}</td>
 						<td class="text-center">{{ item.codeService}}</td>
+						<td class="text-center">{{ item.numeroCla}}</td>
 						<td class="text-center">
 							{% if item.numeroDdp and fileCheckerService.checkBapFileExists(item.numeroDdp) %}
 								{% set filename = item.numeroDdp ~ '.pdf' %}
