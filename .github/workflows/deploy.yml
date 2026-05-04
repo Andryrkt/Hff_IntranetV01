@@ -14,10 +14,8 @@ jobs:
       - name: Deploy files
         shell: powershell
         run: |
-          if (-Not (Test-Path "C:\wamp64\www\Hffintranet_new_profil")) {
-              New-Item -ItemType Directory -Force -Path "C:\wamp64\www\Hffintranet_new_profil"
-          }
-          Copy-Item -Path ".\*" -Destination "C:\wamp64\www\Hffintranet_new_profil" -Recurse -Force -Exclude ".git*",".github", "var/cache/*",".env"
+          robocopy .\ "C:\wamp64\www\Hffintranet_new_profil" /E /XD .git .github var /XF .env
+          if ($LASTEXITCODE -lt 8) { exit 0 } else { exit 1 }
 
       - name: Composer Install
         shell: powershell
