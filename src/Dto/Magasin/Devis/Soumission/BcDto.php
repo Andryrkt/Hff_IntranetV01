@@ -6,11 +6,11 @@ class BcDto
 {
     public ?string $numeroDevis;
     public ?string $numeroBc;
-    public ?float $montantDevis;
+    public ?float $montantDevis = 0.0;
     public $montantBc;
     public ?int $numeroVersion;
     public ?string $statutBc;
-    public ?string $observation;
+    public ?string $observation = null;
     public ?string $utilisateur;
     public ?\DateTime $dateCreation;
     public ?\DateTime $dateModification;

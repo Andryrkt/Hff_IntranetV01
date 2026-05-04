@@ -181,10 +181,7 @@ class DaAfficherRepository extends EntityRepository
             ->getQuery()
             ->getSingleScalarResult();
 
-        if ($numeroVersionMax === null) {
-            return 0;
-        }
-        return $numeroVersionMax;
+        return (int) ($numeroVersionMax ?? 0);
     }
 
     /**
@@ -561,15 +558,14 @@ class DaAfficherRepository extends EntityRepository
         $filterService->applyDateFilters($qb, "d", $criteria);
         $filterService->applyStatutsFilters($qb, "d", $criteria);
 
+        //*pour debogage du premier sous requête de version max
         // $query = $qb->getQuery();
-        // $sql = $query->getSQL();
-        // $params = $query->getParameters();
-
-        // dump("SQL : " . $sql . "\n");
-        // foreach ($params as $param) {
-        //     dump($param->getName());
-        //     dump($param->getValue());
-        // }
+        // dump([
+        //     'SQL' => $query->getSQL(),
+        //     'Parameters' => array_map(function ($p) {
+        //         return [$p->getName() => $p->getValue()];
+        //     }, $query->getParameters()->toArray())
+        // ]);
 
         // 4. Count total optimisé avec cache
         $countQb = clone $qb;
@@ -616,9 +612,16 @@ class DaAfficherRepository extends EntityRepository
         $this->getFilterService()->handleOrderBy($finalQb, 'd', $criteria);
         $finalQb->addOrderBy('d.numeroDemandeApproMere', 'DESC')
             ->addOrderBy('d.numeroDemandeAppro', 'DESC')
-            ->addOrderBy('d.numeroCde', 'ASC')
-        ;
+            ->addOrderBy('d.numeroCde', 'ASC');
 
+        //*pour faire le debogage
+        // $query = $finalQb->getQuery();
+        // dump([
+        //     'SQL' => $query->getSQL(),
+        //     'Parameters' => array_map(function ($p) {
+        //         return [$p->getName() => $p->getValue()];
+        //     }, $query->getParameters()->toArray())
+        // ]);
         return [
             'data'        => $finalQb->getQuery()->getResult(),
             'totalItems'  => $totalItems,
