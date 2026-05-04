@@ -85,8 +85,7 @@ class DaSoumissionBcController extends Controller
      * permet de faire le rtraitement du formulaire
      *
      * @param Request $request
-     * @param string $numCde
-     * @param [type] $form
+     * @param FormInterface $form
      * @return void
      */
     private function traitementFormulaire(Request $request, FormInterface $form): void
@@ -267,10 +266,12 @@ class DaSoumissionBcController extends Controller
     /**
      * Enregistrement des fichiers téléchagrer dans le dossier de destination
      *
-     * @param [type] $form
+     * @param FormInterface $form
+     * @param string $numCde
+     * @param string $numDa
      * @return array
      */
-    private function enregistrementFichier($form, $numCde, $numDa): array
+    private function enregistrementFichier(FormInterface $form, string $numCde, string $numDa): array
     {
         $fieldPattern = '/^pieceJoint(\d{1})$/';
         $nomDesFichiers = [];
