@@ -29,4 +29,17 @@ jobs:
           if (Test-Path "C:\wamp64\www\Hffintranet_new_profil\var\cache") {
             Remove-Item -Path "C:\wamp64\www\Hffintranet_new_profil\var\cache\*" -Recurse -Force
           }
-
+
+      # - name: Send Discord Notification
+      #   if: success()
+      #   shell: powershell
+      #   run: |
+      #     $webhookUrl = "${{ secrets.DISCORD_WEBHOOK }}"
+      #     if ($webhookUrl) {
+      #       $payload = @{
+      #         content = "✅ **Déploiement réussi** sur HffIntranet PreProd (Branche: `${{ github.ref_name }}`) par `${{ github.actor }}` ! :rocket:"
+      #       } | ConvertTo-Json -Depth 3
+      #       Invoke-RestMethod -Uri $webhookUrl -Method Post -Body $payload -ContentType 'application/json'
+      #     } else {
+      #       Write-Host "Aucun webhook Discord configuré."
+      #     }
