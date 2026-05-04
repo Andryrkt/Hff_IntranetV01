@@ -33,30 +33,36 @@ jobs:
 
       - name: Send Discord Notification
         if: always()
-        shell: powershell
+        shell: bash
         run: |
-          $webhookUrl = "${{ secrets.DISCORD_WEBHOOK }}"
-          if ($webhookUrl) {
-            $status = "${{ job.status }}"
-            $color = if ($status -eq "success") { 3066993 } else { 15158332 }
-            $title = if ($status -eq "success") { "🚀 Déploiement Réussi" } else { "❌ Échec du Déploiement" }
-            $desc = if ($status -eq "success") { "Le déploiement sur **HffIntranet PreProd** est terminé avec succès." } else { "Une erreur est survenue lors du déploiement sur **HffIntranet PreProd**." }
-
-            $embed = @{
-              title = $title
-              description = $desc
-              color = $color
-              fields = @(
-                @{ name = "Branche"; value = "**${{ github.ref_name }}**"; inline = $true }
-                @{ name = "Auteur"; value = "**${{ github.actor }}**"; inline = $true }
-                @{ name = "Logs"; value = "[Voir le détail du job](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"; inline = $false }
-              )
-              footer = @{ text = "HffIntranet CI/CD" }
-              timestamp = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
-            }
-
-            $payload = @{ embeds = @($embed) } | ConvertTo-Json -Depth 5 -Compress
-            Invoke-RestMethod -Uri $webhookUrl -Method Post -Body ([System.Text.Encoding]::UTF8.GetBytes($payload)) -ContentType 'application/json'
-          } else {
-            Write-Host "Aucun webhook Discord configuré."
+          WEBHOOK_URL="${{ secrets.DISCORD_WEBHOOK }}"
+          if [ -z "$WEBHOOK_URL" ]; then exit 0; fi
+          
+          if [ "${{ job.status }}" == "success" ]; then
+            COLOR=3066993
+            TITLE="🚀 Déploiement Réussi"
+            DESC="Le déploiement sur **HffIntranet PreProd** est terminé avec succès."
+          else
+            COLOR=15158332
+            TITLE="❌ Échec du Déploiement"
+            DESC="Une erreur est survenue lors du déploiement sur **HffIntranet PreProd**."
+          fi
+          
+          PAYLOAD=$(cat <<EOF
+          {
+            "embeds": [{
+              "title": "$TITLE",
+              "description": "$DESC",
+              "color": $COLOR,
+              "fields": [
+                { "name": "Branche", "value": "**${{ github.ref_name }}**", "inline": true },
+                { "name": "Auteur", "value": "**${{ github.actor }}**", "inline": true },
+                { "name": "Logs", "value": "[Voir le détail du job](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})", "inline": false }
+              ],
+              "footer": { "text": "HffIntranet CI/CD" }
+            }]
           }
+          EOF
+          )
+          
+          curl -s -H "Content-Type: application/json" -d "$PAYLOAD" "$WEBHOOK_URL" > /dev/null
