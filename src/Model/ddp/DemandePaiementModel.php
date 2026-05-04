@@ -449,4 +449,18 @@ class DemandePaiementModel extends Model
         }
         return $data;
     }
+
+    public function getNumeroFactureIps(string $numeroCommande): ?string
+    {
+        $statement = "  SELECT FIRST 1 fllf_numfac 
+                        from informix.frn_llf
+                        where fllf_numcde ='$numeroCommande'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return array_column($data, 'fllf_numfac')[0] ?? null;
+    }
 }

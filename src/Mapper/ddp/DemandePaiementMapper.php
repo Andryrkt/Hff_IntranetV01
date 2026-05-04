@@ -6,6 +6,7 @@ use App\Dto\ddp\DemandePaiementDto;
 use App\Entity\ddp\DemandePaiement;
 use App\Constants\ddp\StatutConstants;
 use App\Entity\ddp\HistoriqueStatutDdp;
+use App\Model\ddp\DemandePaiementModel;
 
 class DemandePaiementMapper
 {
@@ -91,11 +92,19 @@ class DemandePaiementMapper
             $dto->modePaiement = $ddp->getModePaiement();
             $dto->demandeur = $ddp->getDemandeur();
             $dto->appro = $ddp->getAppro();
+            $dto->numeroFactureIps = self::getNumeroFactureIps($dto);
 
             $dtos[] = $dto;
         }
 
         return $dtos;
+    }
+
+    private static function getNumeroFactureIps(DemandePaiementDto $dto): string
+    {
+        $demandePaiementModel = new DemandePaiementModel();
+
+        return $demandePaiementModel->getNumeroFactureIps($dto->numeroCommande);
     }
 
     public static function mapBap(DemandePaiementDto $dto): DemandePaiement

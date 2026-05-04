@@ -25,6 +25,8 @@ class DemandePaiementDto
     public ?string $codeService = null;
     public bool $ddpSoumissioncde = false;
 
+    public ?string $numeroFactureIps = null;
+
     // fournisseur ======================
     public ?string $numeroFournisseur = null;
     public ?string $ribFournisseur = null;

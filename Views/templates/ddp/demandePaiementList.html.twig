@@ -32,6 +32,7 @@
 					<th class="text-center">Statut DDP</th>
 					<th class="text-center">Statut dossier de régul</th>
 					<th class="text-center">Motif</th>
+					<th class="text-center">N° facture IPS</th>
 					<th class="text-center">N° facture</th>
 					<th class="text-center">N° Commande</th>
 					<th class="text-center">N° Dossier</th>
@@ -91,12 +92,9 @@
 						<td class="text-center {{ item.styleStatut}}">{{ item.statut }}</td>
 						<td class="text-center">{{ item.statutDossierRegul }}</td>
 						<td>{{item.motif}}</td>
-						<td>
-							{{item.numeroFacture}}
-						</td>
-						<td>
-							{{item.numeroCommande}}
-						</td>
+						<td>{{item.numeroFactureIps}}</td>
+						<td>{{item.numeroFacture}}</td>
+						<td>{{item.numeroCommande}}</td>
 						<td>
 							<ul>
 								{% for numCde in item.numeroDossierDouane %}
