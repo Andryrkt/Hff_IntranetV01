@@ -9,7 +9,7 @@ use Symfony\Component\Finder\Glob;
 
 try {
 
-    $chemin = 'C:\wamp64\www\Upload\variable_global/liste_constructeur.json';
+    $chemin = 'E:/Upload/variable_global/liste_constructeur.json';
     $jsonService = new JsonFileService($chemin);
 
     /**===================

@@ -161,12 +161,9 @@ class DaSoumissionFacBlFactory
     private function getDemandePaiement(DaSoumissionFacBlDto $dto): DemandePaiementDto
     {
         $ddpDto = new DemandePaiementDto();
-        $typeDemandeRepository = $this->em->getRepository(TypeDemande::class);
+       
         $daSoumissionBcRepository = $this->em->getRepository(DaSoumissionBc::class);
-
         $infoDa = $this->dataService->getInfoDa($dto->numeroCde);
-        $typeApresLivraison = $typeDemandeRepository->find(TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE);
-        $typeRegule = $typeDemandeRepository->find(TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_REGULE);
         $demandePaiementRepository = $this->em->getRepository(DemandePaiement::class);
 
         $numeroSoumissionDdpDa = AutoIncDecService::autoIncrement(
@@ -186,7 +183,7 @@ class DaSoumissionFacBlFactory
 
         $ddpDto->numeroDdp = $dto->typeDdp !== 'bap' ? $this->genererNumeroDdp() : $dto->numeroBap;
         $ddpDto->debiteur = $this->dataService->resolveDebiteur($infoDa['daTypeId'], $infoDa);
-        $ddpDto->typeDemande = $dto->montantAregulariser <= 0.0 ? $typeRegule : $typeApresLivraison;
+        $ddpDto->typeDemande = $this->getTypeDdp($dto);
         $ddpDto->statut = $dto->montantAregulariser <= 0.0 ? StatutConstants::DDPR_A_TRANSMETTRE : StatutConstants::DDPL_A_TRANSMETTRE;
         $ddpDto->demandeur = $dto->user->getNomUtilisateur();
         $ddpDto->adresseMailDemandeur = $dto->user->getMail();
@@ -202,6 +199,22 @@ class DaSoumissionFacBlFactory
         $ddpDto->numeroLivraison = $dto->numLiv;
 
         return $ddpDto;
+    }
+
+    private function getTypeDdp(DaSoumissionFacBlDto $dto): ?TypeDemande
+    {
+        $typeDemandeRepository = $this->em->getRepository(TypeDemande::class);
+        $typeApresLivraison = $typeDemandeRepository->find(TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE);
+        $typeRegule = $typeDemandeRepository->find(TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_REGULE);
+        $typeBonAPayer = $typeDemandeRepository->find(TypeDemandePaiementConstants::ID_BON_A_PAYER);
+        
+        if($dto->montantAregulariser <= 0.0 ){
+            return $typeRegule ;
+        } elseif($dto->typeDdp === 'bap') {
+            return $typeBonAPayer;
+        }
+        return $typeApresLivraison;
+    
     }
 
     public function genererNumeroDdp(): string
