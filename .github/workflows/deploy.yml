@@ -11,12 +11,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Stop App Pool
-        shell: powershell
-        run: |
-          Import-Module WebAdministration
-          Stop-WebAppPool -Name "Hffintranet_new_profil" -ErrorAction SilentlyContinue
-
       - name: Deploy files
         shell: powershell
         run: |
@@ -34,9 +28,4 @@ jobs:
           if (Test-Path "C:\wamp64\www\Hffintranet_new_profil\var\cache") {
             Remove-Item -Path "C:\wamp64\www\Hffintranet_new_profil\var\cache\*" -Recurse -Force
           }
-
-      - name: Start App Pool
-        shell: powershell
-        run: |
-          Import-Module WebAdministration
-          Start-WebAppPool -Name "Hffintranet_new_profil"
+
