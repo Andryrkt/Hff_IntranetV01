@@ -11,7 +11,7 @@ class GeneratePdfDeviMagasinVp extends GeneratePdf
 {
     /**
      * copie la page de garde fusionner du devis magasin dans docuware
-     *
+     * pour verification prix
      * @param string $fileName
      * @param string $numeroDevis
      * @return void
@@ -19,6 +19,20 @@ class GeneratePdfDeviMagasinVp extends GeneratePdf
     public function copyToDWDevisVpMagasin(string $fileName, string $numeroDevis): void
     {
         $cheminFichierDistant = $this->baseCheminDocuware . 'VERIFICATION_PRIX_MAGASIN/' . $fileName;
+        $cheminDestinationLocal = $this->baseCheminDuFichier . 'magasin/devis/' . $numeroDevis . '/' . $fileName;
+        $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
+    }
+
+    /**
+     * copie des fichiers uploder fusionner du devis magasin dans docuware
+     * pour soumission devis
+     * @param string $fileName
+     * @param string $numeroDevis
+     * @return void
+     */
+    public function copyToDWDevisMagasin(string $fileName, string $numeroDevis)
+    {
+        $cheminFichierDistant = $this->baseCheminDocuware . 'DEVIS MAGASIN/' . $fileName;
         $cheminDestinationLocal = $this->baseCheminDuFichier . 'magasin/devis/' . $numeroDevis . '/' . $fileName;
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
