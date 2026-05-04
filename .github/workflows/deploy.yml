@@ -43,8 +43,8 @@ jobs:
             } else {
               $msg = "❌ **ÉCHEC du déploiement** sur HffIntranet PreProd (Branche: `${{ github.ref_name }}`) ! ⚠️"
             }
-            $payload = @{ content = $msg } | ConvertTo-Json -Depth 3
-            Invoke-RestMethod -Uri $webhookUrl -Method Post -Body $payload -ContentType 'application/json'
+            $payload = @{ content = $msg } | ConvertTo-Json -Compress
+            Invoke-RestMethod -Uri $webhookUrl -Method Post -Body ([System.Text.Encoding]::UTF8.GetBytes($payload)) -ContentType 'application/json'
           } else {
             Write-Host "Aucun webhook Discord configuré."
           }
