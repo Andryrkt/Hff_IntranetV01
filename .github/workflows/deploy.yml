@@ -1,0 +1,38 @@
+name: Deploy PHP Application HffIntranet PreProd
+
+on:
+  push:
+    branches: [ feature/profilUser ]
+
+jobs:
+  deploy:
+    runs-on: BD-DEV-PHP
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Stop App Pool
+        shell: powershell
+        run: Stop-WebAppPool -Name "Hffintranet_new_profil" -ErrorAction SilentlyContinue
+
+      - name: Deploy files
+        shell: powershell
+        run: |
+          Copy-Item -Path ".\*" -Destination "C:\wamp64\www\Hffintranet_new_profil" -Recurse -Force -Exclude ".git*",".github", "var/cache/*",".env"
+
+      - name: Composer Install
+        shell: powershell
+        run: |
+          Set-Location "C:\wamp64\www\Hffintranet_new_profil"
+          composer install --no-dev --optimize-autoloader --no-interaction
+
+      - name: Clear Cache
+        shell: powershell
+        run: |
+          if (Test-Path "C:\wamp64\www\Hffintranet_new_profil\var\cache") {
+            Remove-Item -Path "C:\wamp64\www\Hffintranet_new_profil\var\cache\*" -Recurse -Force
+          }
+
+      - name: Start App Pool
+        shell: powershell
+        run: Start-WebAppPool -Name "Hffintranet_new_profil"
