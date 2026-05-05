@@ -8,8 +8,8 @@ document.addEventListener("DOMContentLoaded", function () {
    * Evènement sur agence et service
    *============================================================================*/
   filterServiceByAgence({
-    agenceSelector: "#ddp_search_Agence",
-    serviceSelector: "#ddp_search_service",
+    agenceSelector: "#ddp_search_debiteur_agence",
+    serviceSelector: "#ddp_search_debiteur_service",
   });
 
   /**===================================================
@@ -39,4 +39,3 @@ document.addEventListener("DOMContentLoaded", function () {
     onSelectCallback: onSelectFournisseur,
   });
 });
-
