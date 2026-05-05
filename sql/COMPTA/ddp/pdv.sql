@@ -66,12 +66,12 @@ INSERT INTO type_demande
     (code_type_demande, libelle_type_demande, description)
 VALUES
     ('DPA', 'Demande de paiement à l''avance', null),
-    ('DPL', 'Demande de paiement après arrivage', null)
+    ('DPL', 'Demande de paiement après arrivage', null),
+    ('DPR', 'Régularisation DDP', null)
+    ('BAP', 'Bon à payer', null
 
-INSERT INTO type_demande
-    (code_type_demande, libelle_type_demande, description)
-VALUES
-    ('DPR', 'Demande de paiement régul', null)
+
+    
 
 
 CREATE TABLE demande_paiement_ligne

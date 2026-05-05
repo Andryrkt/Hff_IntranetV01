@@ -43,8 +43,8 @@ class DemandePaiementDaType extends AbstractType
                 'motif',
                 TextType::class,
                 [
-                    'label' => 'Motif',
-                    'required' => false
+                    'label' => 'Motif *',
+                    'required' => true
                 ]
             )
             ->add(
