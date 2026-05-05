@@ -161,7 +161,7 @@ class GeneratePdfDdpDa extends GeneratePdf
         $pdf->Cell(50, 10, 'CIF ', 1, 0);
 
         $pdf->SetFont('helvetica', '', 12);
-        $pdf->Cell($usable_width - 50, 10, $dto->cif, 1, 1); //  valeur de "CIF" 
+        $pdf->Cell($usable_width - 50, 10, $this->txt($dto->cif), 1, 1); //  valeur de "CIF" 
 
         $pdf->SetFont('helvetica', 'B', 12);
         $pdf->Cell(50, 10, 'Contact ', 1, 0);
@@ -184,14 +184,21 @@ class GeneratePdfDdpDa extends GeneratePdf
         $pdf->Cell($usable_width - 100, 10, 'Montant à payer', 1, 0, 'C');
         $pdf->Cell(30, 10, 'Devise', 1, 1, 'C');
 
-        $pdf->Line($pdf->GetX() + 16.5, $pdf->GetY() - 2.5, $pdf->GetX() + $pdf->GetStringWidth('Mode de paiement') + 16.5, $pdf->GetY() - 2.5);
-        $pdf->Line($pdf->GetX() + 98.5, $pdf->GetY() - 2.5, $pdf->GetX() + $pdf->GetStringWidth('Montant à payer') + 98.5, $pdf->GetY() - 2.5);
-        $pdf->Line($pdf->GetX() + 168.2, $pdf->GetY() - 2.5, $pdf->GetX() + $pdf->GetStringWidth('Devise') + 168.2, $pdf->GetY() - 2.5);
-
         $pdf->Cell(70, 10, $dto->modePaiement, 1, 0);
 
         $pdf->SetFont('helvetica', '', 12);
-        $pdf->Cell($usable_width - 100, 10, is_string($dto->montantAPayer) ? $dto->montantAPayer : number_format((float)$dto->montantAPayer, 2, ',', '.'), 1, 0); // valeur de "Montant à payer" (126.000,12)
+        $montantAPayer = is_string($dto->montantAPayer) ? $dto->montantAPayer : number_format((float)$dto->montantAPayer, 2, ',', '.');
+        $pourcentageApayer = '(' . $dto->pourcentageAPayer . ' %) ';
+        $cellWidth = $usable_width - 100;
+        $montantWidth = $pdf->GetStringWidth($montantAPayer) + 2; 
+
+        // Pourcentage en rouge — bordures gauche + haut + bas - Aligné à droite pour coller au montant
+        $pdf->SetTextColor(255, 0, 0);
+        $pdf->Cell($cellWidth - $montantWidth, 10, $pourcentageApayer, 'LTB', 0, 'R');
+
+        // Montant en noir aligné à droite — bordures droite + haut + bas
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->Cell($montantWidth, 10, $montantAPayer, 'RTB', 0, 'R'); // valeur de "Montant à payer" (126.000,12)
         $pdf->Cell(30, 10, $dto->devise, 1, 1); //  valeur de "Devise" (AR)
 
         $pdf->Ln(5);
@@ -212,7 +219,7 @@ class GeneratePdfDdpDa extends GeneratePdf
         $pdf->SetFont('helvetica', '', 12);
         $pdf->MultiCell(0, 10, $dto->numeroDossierDouaneString(), 0, 'L', 0, 1);
 
-        //  génération de fichier: à changer plus tard
-        $pdf->Output($cheminEtNomDeFichier, 'F');
+        //  TODO: génération de fichier: à changer plus tard
+        $pdf->Output($cheminEtNomDeFichier, 'I');
     }
 }
