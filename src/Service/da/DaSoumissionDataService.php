@@ -70,7 +70,14 @@ class DaSoumissionDataService
 
     public function getInfoDa(string $numCde, string $codeSociete): array
     {
-        return $this->em->getRepository(DaAfficher::class)->getInfoDa($numCde, $codeSociete);
+        $infoDa = $this->em->getRepository(DaAfficher::class)->getInfoDa($numCde, $codeSociete);
+
+        if (empty($infoDa)) {
+            $message = "Aucune demande d'approvisionnement n'est associé à la commande n° <b>$numCde</b>.";
+            $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn');
+        }
+
+        return $infoDa;
     }
 
     public function getInfoBc(string $numCde, string $codeSociete): array
@@ -86,7 +93,14 @@ class DaSoumissionDataService
 
     public function getInfoFournisseur(string $numFrn, string $numCde, string $codeSociete): array
     {
-        return $this->ddpModel->recupInfoPourDa($numFrn, $numCde, $codeSociete);
+        $infoFournisseur = $this->ddpModel->recupInfoPourDa($numFrn, $numCde);
+
+        if (empty($infoFournisseur)) {
+            $message = "Le fournisseur <b>$numFrn</b> n'est pas associé à la commande n° <b>$numCde</b>.";
+            $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn');
+        }
+
+        return $infoFournisseur;
     }
 
     public function resolveDebiteur(int $typeDa, array $infoDa): array

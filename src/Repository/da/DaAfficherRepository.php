@@ -746,7 +746,7 @@ class DaAfficherRepository extends EntityRepository
     public function getInfoDa(int $numCde)
     {
         return  $this->createQueryBuilder('da')
-            ->select('da.agenceDebiteur, da.serviceDebiteur, da.numeroOr, da.numeroFournisseur, da.numeroDemandeAppro, da.daTypeId')
+            ->select('da.agenceDebiteur, da.serviceDebiteur, da.numeroOr, da.numeroFournisseur, da.numeroDemandeAppro, da.daTypeId, da.objetDal')
             ->where('da.numeroCde = :numCde')
             ->setParameter('numCde', $numCde)
             ->setMaxResults(1)

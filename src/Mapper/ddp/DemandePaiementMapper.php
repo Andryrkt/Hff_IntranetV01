@@ -127,7 +127,7 @@ class DemandePaiementMapper
             ->setNumeroFournisseur($dto->numeroFournisseur)
             ->setRibFournisseur($dto->ribFournisseur)
             ->setBeneficiaire($dto->beneficiaire)
-            ->setMotif("Bon a payer {$dto->numeroFournisseur} - {$dto->numeroFacture}")
+            ->setMotif($dto->motif)
             ->setAgenceDebiter($dto->debiteur['agence']->getCodeAgence())
             ->setServiceDebiter($dto->debiteur['service']->getCodeService())
             ->setStatut(StatutConstants::BAP_A_TRANSMETTRE)

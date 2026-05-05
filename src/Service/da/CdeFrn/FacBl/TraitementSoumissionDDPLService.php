@@ -17,6 +17,7 @@ use App\Service\genererPdf\GeneratePdf;
 use App\Service\historiqueOperation\HistoriqueOperationDaFacBlService;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class TraitementSoumissionDDPLService
@@ -55,7 +56,7 @@ class TraitementSoumissionDDPLService
         $this->generatePdf                    = $generatePdf;
     }
 
-    public function traitementSoumissionDDPL($form, $dto)
+    public function traitementSoumissionDDPL(FormInterface $form, DaSoumissionFacBlDto $dto): bool
     {
         $sucess = false;
         if ($this->verifierConditionDeBlocage($dto)) {
@@ -83,7 +84,7 @@ class TraitementSoumissionDDPLService
         return $sucess;
     }
 
-    private function enregistrementDansDB($dto)
+    private function enregistrementDansDB(DaSoumissionFacBlDto $dto)
     {
         // enregistrement dans la table da_soumission_fac_bl
         $daSoumissionFacBl = $this->daSoumissionfacBlMapper->mapDaDdp($dto);

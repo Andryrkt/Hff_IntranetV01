@@ -155,8 +155,8 @@ class DaSoumissionFacBlFactory
         $ddpDto = new DemandePaiementDto();
 
         $daSoumissionBcRepository = $this->em->getRepository(DaSoumissionBc::class);
-        $infoDa = $this->dataService->getInfoDa($dto->numeroCde, $dto->codeSociete);
         $demandePaiementRepository = $this->em->getRepository(DemandePaiement::class);
+        $infoDa = $this->dataService->getInfoDa($dto->numeroCde, $dto->codeSociete);
 
         $numeroSoumissionDdpDa = AutoIncDecService::autoIncrement(
             $demandePaiementRepository->getDernierNumeroSoumissionDdpDa($dto->numeroCde, $infoDa['numeroDemandeAppro'], $dto->codeSociete)
@@ -189,6 +189,7 @@ class DaSoumissionFacBlFactory
         $ddpDto->numeroSoumissionDdpDa = $numeroSoumissionDdpDa;
         $ddpDto->numeroDemandeAppro = $infoDa['numeroDemandeAppro'];
         $ddpDto->numeroLivraison = $dto->numLiv;
+        $ddpDto->motif = $infoDa['objetDal'];
 
         return $ddpDto;
     }
@@ -218,7 +219,7 @@ class DaSoumissionFacBlFactory
         return $this->numeroGenerateurService->genererNumeroBap();
     }
 
-    private function getNumFacEtMontant($numLiv, $codeSociete): array
+    private function getNumFacEtMontant(string $numLiv, string $codeSociete): array
     {
         return $this->daSoumissionFacBlModel->getMontantReceptionIpsEtNumFac($numLiv, $codeSociete);
     }
