@@ -119,4 +119,40 @@ class DdpModel extends Model
 
         return array_column($data, 'commande_receptionnee');
     }
+
+    /**
+     * Récupération des numéro de Dossier de Douane dans GCOT
+     * Base de donnée 192.168.0.4 (sqlServeur)
+     */
+    public function getNumDossierGcot(string $numeroFournisseur, string  $numCdesString, ?string $numFactString): array
+    {
+        if (!empty($numFactString)) {
+            $numFac = " and TRZT_Facture.Numero_Facture in ({$numFactString})";
+        } else {
+            $numFac = '';
+        }
+        $sql = " SELECT  DISTINCT
+            TRZT_Dossier_Douane.Numero_Dossier_Douane
+            from TRZT_Dossier_Douane
+            LEFT JOIN TRZT_Facture on TRZT_Dossier_Douane.Numero_Dossier_Douane = TRZT_Facture.Numero_Dossier_Douane
+            LEFT JOIN GCOT_Facture on TRZT_Facture.Numero_Facture = GCOT_Facture.Numero_Facture
+            LEFT JOIN GCOT_Facture_Ligne on GCOT_Facture.ID_GCOT_Facture = GCOT_Facture_Ligne.ID_GCOT_Facture
+            where TRZT_Dossier_Douane.Numero_Dossier_Douane like '%' 
+            $numFac
+            and TRZT_Dossier_Douane.Code_Fournisseur = '{$numeroFournisseur}'
+            and GCOT_Facture_Ligne.Numero_PO in ({$numCdesString})
+            ";
+        return $this->retournerResultGcot04($sql);
+    }
+
+    public function findListeDoc(string $numeroDossier)
+    {
+        $sql = " SELECT  Nom_Fichier, Date_Fichier, Numero_PO
+            from GCOT_Gestion_Document
+            where Numero_PO='{$numeroDossier}'
+            and (Nom_Fichier like '%\PDV%' or Nom_Fichier like '%\LTA%' or Nom_Fichier like '%\HAWB%')
+        ";
+
+        return $this->retournerResultGcot04($sql);
+    }
 }

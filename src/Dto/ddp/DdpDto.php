@@ -47,13 +47,51 @@ class DdpDto
     // pour pieceJoint03
     public bool $estCdeClientExterneDoc = false;
     public array $nomCdeClientExterneDoc = [];
+    // pour le chemin, nom des fichier uploder
+    public array $nomEtCheminFichiersEnregistrer = [];
+    public array $nomFichierTelecharger = [];
+    public ?string $nomAvecCheminFichier = null;
+    public ?string $nomFichier = null;
+    // pour les nom de fichiers dans DW
+    public array $nomDesFichiersDwCommande = [];
+    // pour les nom des fichiers distant dans 192.168.0.15
+    public array $nomDesFichiersDistant = [];
 
 
+    // info sur l'utilisateur --------------------
+    public ?string $adresseMailDemandeur = null;
+    public ?string $demandeur = null;
+
+    // info utile -------------
+    public ?string $statut = null;
+    public int $numeroVersion = 0;
+    public array $numeroDossierDouane = [];
+    public array $lesFichiersFusionner = [];
+
+
+    /**
+     * Récupération de tous les noms des fichiers
+     * dans une seul tableau
+     *
+     * @return array
+     */
+    public function getToutesLesNomFichiers(): array
+    {
+        return array_merge($this->nomDesFichiersDistant, $this->nomFichierTelecharger, $this->nomDesFichiersDwCommande);
+    }
+
+
+    /**
+     * Transformation du numero commande en chaine de caractère séparer par une virgule
+     */
     public function getNumeroCommandeString(): string
     {
         return TableauEnStringService::TableauEnString(',', $this->numeroCommande);
     }
 
+    /**
+     * Transformation du numero facture en chaine de caractère séparer par une virgule
+     */
     public function getNumeroFactureString(): string
     {
         return TableauEnStringService::TableauEnString(',', $this->numeroFacture);
