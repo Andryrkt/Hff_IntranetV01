@@ -15,18 +15,18 @@
 		</a>
 	</div>
 	<div>
-		<p class="fw-bold mt-2" id="nombreResultat">{{resultat}}
+		<p class="fw-bold my-2" id="nombreResultat">{{resultat}}
 			Résultats</p>
 	</div>
 	<div>
-		<p class="fw-bold mt-2" id="nombreResultat">{{currentPage ~' / '~ (lastPage)}}
+		<p class="fw-bold my-2" id="nombreResultat">{{currentPage ~' / '~ (lastPage)}}
 			pages</p>
 	</div>
 	<div class="navigation mt-2">
 		{% set queryParams = criteria  %}
 
 		{% if currentPage > 1 %}
-			<a class="btn btn-dark mt-2" href="{{ path(listPathActuel, queryParams|merge({'page': currentPage - 1})) }}">
+			<a class="btn btn-dark" href="{{ path(listPathActuel, queryParams|merge({'page': currentPage - 1})) }}">
 				<i class="fas fa-angle-left text-warning"></i>
 			</a>
 		{% endif %}
