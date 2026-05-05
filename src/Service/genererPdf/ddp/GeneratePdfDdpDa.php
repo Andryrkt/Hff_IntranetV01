@@ -35,12 +35,23 @@ class GeneratePdfDdpDa extends GeneratePdf
         $pdf->setPrintHeader(false); // Supprime l'en-tête
         $pdf->AddPage();
 
-        // tête de page 
-        $pdf->setY(5);
-        $pdf->SetFont('helvetica', '', 12);
-        $pdf->Cell(0, 8, 'Emetteur : ' . $dto->adresseMailDemandeur, 0, 1, 'R');
+        // tête de page : Logo | N° DDP | Emetteur sur la même ligne
+        $pdf->Image($logoPath, 5, 1, 40, 0, 'jpg'); // logo absolu X=5, Y=1, W=40
 
-        $pdf->Image($logoPath, 5, 1, 40, 0, 'jpg');
+        // Positionner le curseur texte juste après le logo, à la même hauteur
+        $pdf->SetXY(45, 5);
+        $pdf->SetFont('helvetica', '', 12);
+
+        // Largeur utilisable après le logo (jusqu'à la marge droite)
+        $wApresLogo = $pdf->GetPageWidth() - 45 - $margins['right'];
+        $wNumeroDdp = $pdf->GetStringWidth($dto->numeroDdp);
+
+        // N° DDP à gauche (juste après le logo)
+        $pdf->SetFont('helvetica', 'B', 12);
+        $pdf->Cell($wNumeroDdp + 2, 8, $dto->numeroDdp, 0, 0);
+
+        // Emetteur aligné à droite (largeur restante)
+        $pdf->Cell($wApresLogo - $wNumeroDdp - 2, 8, 'Emetteur : ' . $dto->adresseMailDemandeur, 0, 1, 'R');
 
         // Grand titre du pdf
         $pdf->SetFont('helvetica', 'B', 12);
@@ -49,29 +60,54 @@ class GeneratePdfDdpDa extends GeneratePdf
         $pdf->Cell(0, 8, 'Service comptabilité – DEMANDE DE PAIEMENT ', 0, 1, 'C');
 
         $pdf->setY(28);
-        $pdf->Cell($pdf->GetStringWidth('TYPE DE DEMANDE : '), 10, 'TYPE DE DEMANDE : ', 0, 0);
+
+        // --- Calcul des largeurs pour la ligne TYPE DE DEMANDE / N° DA ---
+        $pdf->SetFont('helvetica', 'B', 12);
+        $wLabelType = $pdf->GetStringWidth('TYPE DE DEMANDE : ');
+        $wLabelNda  = $pdf->GetStringWidth('N° DA : ');
+        $wValeurNda = $pdf->GetStringWidth($dto->numeroDemandeAppro);
+        // La valeur du type de demande prend l'espace restant (moins une petite marge)
+        $wValeurType = $usable_width - $wLabelType - $wLabelNda - $wValeurNda - 2;
+
+        // Label "TYPE DE DEMANDE : " en gras
+        $pdf->Cell($wLabelType, 10, 'TYPE DE DEMANDE : ', 0, 0);
+
+        // Valeur du type de demande en normal
         $pdf->SetFont('helvetica', '', 12);
-        $pdf->Cell(0, 10, $dto->typeDemande->getLibelle(), 0, 0); // valeur de "TYPE DE DEMANDE" (changer 'DEMANDE DE PAIEMENT A L’AVANCE')
+        $pdf->Cell($wValeurType, 10, $dto->typeDemande->getLibelle(), 0, 0);
 
-        $pdf->Line($pdf->GetX() + 1, $pdf->GetY() - 2.5, $pdf->GetX() + $pdf->GetStringWidth('TYPE DE DEMANDE') + 1, $pdf->GetY() - 2.5);
+
+        // Label "N° DA : " en gras
+        $pdf->Cell($wLabelNda, 10, 'N° DA : ', 0, 0);
         $pdf->SetFont('helvetica', 'B', 12);
-        $pdf->Cell(0, 10, $dto->numeroDdp, 0, 1, 'R');  // valeur de "NUMERO DOCUMENT" (changer 'DDP25019999'  + le version )
 
-        // Première ligne avec DATE et numeroDA côte à côte
+        // Valeur N° DA en gras, alignée à droite
+        $pdf->Cell($wValeurNda + 2, 10, $dto->numeroDemandeAppro, 0, 1, 'R'); // valeur de "NUMERO DOCUMENT" (changer 'DDP25019999'  + le version )
+
+        // --- Calcul des largeurs pour la ligne DATE / Emetteur ---
         $pdf->SetFont('helvetica', 'B', 12);
-        $pdf->Cell($pdf->GetStringWidth('DATE : '), 10, 'DATE : ', 0, 0);
-
+        $wLabelDate       = $pdf->GetStringWidth('DATE : ');
         $pdf->SetFont('helvetica', '', 12);
-        $largeurDate = $pdf->GetStringWidth($dto->dateDemande->format('d/m/Y'));
-        $pdf->Cell($largeurDate, 10, $dto->dateDemande->format('d/m/Y'), 0, 0);
+        $wValeurDate      = $pdf->GetStringWidth($dto->dateDemande->format('d/m/Y'));
+        $wLabelEmetteur   = $pdf->GetStringWidth('Emetteur : ');
+        $wValeurDemandeur = $pdf->GetStringWidth($dto->demandeur);
+        // La valeur de la date prend l'espace restant (moins une petite marge)
+        $wValeurDateCellule = $usable_width - $wLabelDate - $wValeurDate - $wLabelEmetteur - $wValeurDemandeur - 2;
 
-        // Calcul de l'espace restant pour le numeroDA aligné à droite
-        $largeurTotale = $pdf->GetPageWidth() - $pdf->getMargins()['left'] - $pdf->getMargins()['right'];
-        $largeurUtilisee = $pdf->GetStringWidth('DATE : ') + $largeurDate;
-        $largeurRestante = $largeurTotale - $largeurUtilisee;
-
+        // Label "DATE : " en gras
         $pdf->SetFont('helvetica', 'B', 12);
-        $pdf->Cell($largeurRestante, 10, $dto->numeroDemandeAppro, 0, 1, 'R');  // ln=1 pour passer à la ligne suivante
+        $pdf->Cell($wLabelDate, 10, 'DATE : ', 0, 0);
+
+        // Valeur de la date en normal
+        $pdf->SetFont('helvetica', '', 12);
+        $pdf->Cell($wValeurDate + $wValeurDateCellule, 10, $dto->dateDemande->format('d/m/Y'), 0, 0);
+
+        // Label "Emetteur : " en normal
+        $pdf->Cell($wLabelEmetteur, 10, 'Emetteur : ', 0, 0);
+
+        // Valeur demandeur en gras, alignée à droite
+        $pdf->SetFont('helvetica', 'B', 12);
+        $pdf->Cell($wValeurDemandeur + 2, 10, $dto->demandeur, 0, 1, 'R');
 
         $pdf->Line($pdf->GetX() + 1, $pdf->GetY() - 2.5, $pdf->GetX() + $pdf->GetStringWidth('DATE') + 1, $pdf->GetY() - 2.5);
 
@@ -176,7 +212,7 @@ class GeneratePdfDdpDa extends GeneratePdf
         $pdf->SetFont('helvetica', '', 12);
         $pdf->MultiCell(0, 10, $dto->numeroDossierDouaneString(), 0, 'L', 0, 1);
 
-        // génération de fichier: à changer plus tard
+        //  génération de fichier: à changer plus tard
         $pdf->Output($cheminEtNomDeFichier, 'F');
     }
 }

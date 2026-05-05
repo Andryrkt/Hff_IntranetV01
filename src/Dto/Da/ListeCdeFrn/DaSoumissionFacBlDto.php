@@ -19,8 +19,7 @@ class DaSoumissionFacBlDto
     public $pieceJoint2;
     public ?string $utilisateur = null;
     public $totalMontantPayer;
-    public $user;
-    public $dateDemande;
+    public DateTime $dateDemande;
     public ?string $codeSociete = null;
 
     // livraison ========================

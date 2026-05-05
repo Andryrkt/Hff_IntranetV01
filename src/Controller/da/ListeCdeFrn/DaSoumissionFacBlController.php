@@ -53,7 +53,7 @@ class DaSoumissionFacBlController extends Controller
         // Code Société de l'utilisateur
         $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
 
-        $dto = $this->daSoumissionFacBlFactory->initialisation($numCde, $numDa, $numOr, $codeSociete, $this->getUser());
+        $dto = $this->daSoumissionFacBlFactory->initialisation($numCde, $numDa, $numOr, $codeSociete);
 
         $form = $this->getFormFactory()->createBuilder(DaSoumissionFacBlType::class, $dto, [
             'method'  => 'POST'
