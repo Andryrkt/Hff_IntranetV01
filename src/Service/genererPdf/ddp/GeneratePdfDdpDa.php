@@ -2,6 +2,7 @@
 
 namespace App\Service\genererPdf\ddp;
 
+use App\Dto\ddp\DdpDto;
 use App\Dto\ddp\DemandePaiementDto;
 use App\Service\genererPdf\GeneratePdf;
 use TCPDF;
@@ -15,7 +16,12 @@ class GeneratePdfDdpDa extends GeneratePdf
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 
-    public function generer(DemandePaiementDto $dto, string $cheminEtNomDeFichier)
+    /**
+     * Génération page de garde de la demande de paiement
+     * @param DemandePaiementDto|DdpDto $dto 
+     * @param string $cheminEtNomDeFichier 
+     */
+    public function generer($dto, string $cheminEtNomDeFichier)
     {
         $pdf = new TCPDF();
 
