@@ -277,6 +277,13 @@ class DemandePaiement
      */
     private $ddpSoumissioncde = false;
 
+    /**
+     * @ORM\Column(type="string", length=50, name="code_societe")
+     *
+     * @var string|null
+     */
+    private ?string $codeSociete;
+
     public function __construct()
     {
         $this->demandePaiementCommandes = new ArrayCollection();
@@ -1315,6 +1322,24 @@ class DemandePaiement
     public function setDdpSoumissioncde($ddpSoumissioncde): self
     {
         $this->ddpSoumissioncde = $ddpSoumissioncde;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of codeSociete
+     */
+    public function getCodeSociete(): ?string
+    {
+        return $this->codeSociete;
+    }
+
+    /**
+     * Set the value of codeSociete
+     */
+    public function setCodeSociete(?string $codeSociete): self
+    {
+        $this->codeSociete = $codeSociete;
 
         return $this;
     }

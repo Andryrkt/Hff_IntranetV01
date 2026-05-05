@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class DdpDto
 {
-    public ?TypeDemande $typeDdp = null;
+
     // pour le forulaire =====================
     public ?string $contact = null;
     public ?string $motif = null;
@@ -67,7 +67,37 @@ class DdpDto
     public int $numeroVersion = 0;
     public array $numeroDossierDouane = [];
     public array $lesFichiersFusionner = [];
+    public ?TypeDemande $typeDdp = null;
+    public ?string $codeSociete = 'HF';
 
+
+    // Demande Appro -------------------------------
+    public ?string $numeroSoumissionDdpDa = null;
+    public ?string $numeroDemandeAppro = null;
+    public ?string $numeroVersionBc = null;
+    public bool $estAppro = false;
+    public ?string $typeDa = null;
+    // utile seulement pour le demande de paiement à l'avance d'une DA avec soumission BC
+    public bool $ddpSoumissioncde = false;
+
+
+
+    /**
+     * Transformation du montant à payer en float
+     */
+    public function montantAPayer(): float
+    {
+        $montant = $this->montantAPayer;
+        if (is_string($montant)) {
+            if (strpos($montant, ',') !== false) {
+                $montant = str_replace([' ', '.'], '', $montant);
+                $montant = str_replace(',', '.', $montant);
+            } else {
+                $montant = str_replace(' ', '', $montant);
+            }
+        }
+        return (float) $montant;
+    }
 
     /**
      * Récupération de tous les noms des fichiers
@@ -82,18 +112,18 @@ class DdpDto
 
 
     /**
-     * Transformation du numero commande en chaine de caractère séparer par une virgule
+     * Transformation du numero commande en chaine de caractère séparer par une point virgule
      */
     public function getNumeroCommandeString(): string
     {
-        return TableauEnStringService::TableauEnString(',', $this->numeroCommande);
+        return is_array($this->numeroCommande) ? TableauEnStringService::TableauEnString(';', $this->numeroCommande) : $this->numeroCommande;
     }
 
     /**
-     * Transformation du numero facture en chaine de caractère séparer par une virgule
+     * Transformation du numero facture en chaine de caractère séparer par une point virgule
      */
     public function getNumeroFactureString(): string
     {
-        return TableauEnStringService::TableauEnString(',', $this->numeroFacture);
+        return is_array($this->numeroFacture) ? TableauEnStringService::TableauEnString(';', $this->numeroFacture) : $this->numeroFacture;
     }
 }

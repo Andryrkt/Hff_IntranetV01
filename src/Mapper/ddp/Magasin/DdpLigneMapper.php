@@ -1,25 +1,19 @@
 <?php
 
-namespace App\Mapper\ddp;
+namespace App\Mapper\ddp\Magasin;
 
 use App\Dto\ddp\DdpDto;
-use App\Dto\ddp\DemandePaiementDto;
 use App\Entity\ddp\DemandePaiementLigne;
 
-class DemandePaiementLigneMapper
+class DdpLigneMapper
 {
     /**
-     * @param DemandePaiementDto|DdpDto $dto
+     * @param DdpDto $dto
      */
-    public static function map($dto): array
+    public static function map(DdpDto $dto): array
     {
         $lignes = [];
-
-        if (is_array($dto->numeroCommande)) {
-            $nb = count($dto->numeroCommande);
-        } else {
-            $nb = 1;
-        }
+        $nb = is_array($dto->numeroCommande) ? count($dto->numeroCommande) : 1;
 
         for ($i = 0; $i < $nb; $i++) {
             $ligne = new DemandePaiementLigne();
@@ -29,7 +23,7 @@ class DemandePaiementLigneMapper
                 ->setNumeroFacture(self::numeroFacture($dto, $i))
                 ->setMontantFacture($dto->montantAPayer())
                 ->setNumeroVersion(1)
-                ->setRatioMontantPayer($dto->ratioMontantpayer());
+                ->setRatioMontantPayer(0); // TODO: montant total à rechercher pour le magasin
 
             $lignes[] = $ligne;
         }
@@ -38,9 +32,9 @@ class DemandePaiementLigneMapper
     }
 
     /**
-     * @param DemandePaiementDto|DdpDto $dto
+     * @param DdpDto $dto
      */
-    private static function numeroFacture($dto, int $i): string
+    private static function numeroFacture(DdpDto $dto, int $i): string
     {
         return is_array($dto->numeroFacture) && array_key_exists($i, $dto->numeroFacture)
             ? $dto->numeroFacture[$i]

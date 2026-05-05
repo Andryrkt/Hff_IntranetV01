@@ -2,12 +2,12 @@
 
 namespace App\Service\ddp;
 
-use App\Constants\ddp\StatutConstants;
+use App\Dto\ddp\DdpDto;
 use App\Dto\ddp\DemandePaiementDto;
 use App\Entity\ddp\DemandePaiement;
-use Doctrine\ORM\EntityManagerInterface;
 use App\Mapper\ddp\DemandePaiementMapper;
 use App\Repository\ddp\DemandePaiementRepository;
+use Doctrine\ORM\EntityManagerInterface;
 
 class DemandePaiementService
 {
@@ -23,10 +23,10 @@ class DemandePaiementService
     /**
      * crée une nouvelle demande de paiement
      *
-     * @param DemandePaiementDto $dto
+     * @param DemandePaiementDto|DdpDto $dto
      * @return DemandePaiement
      */
-    public function createDdp(DemandePaiementDto $dto): DemandePaiement
+    public function createDdp($dto): DemandePaiement
     {
         $ddp = DemandePaiementMapper::map($dto);
 
@@ -39,10 +39,10 @@ class DemandePaiementService
     /**
      * Modifier une demande de paiement existant
      *
-     * @param DemandePaiementDto $dto
+     * @param DemandePaiementDto|DdpDto $dto
      * @return void
      */
-    public function updateDdp(DemandePaiementDto $dto)
+    public function updateDdp($dto)
     {
         $ddp = $this->ddpRepository->findOneBy(['numeroDdp' => $dto->numeroDdp]);
         $ddp = DemandePaiementMapper::mapUpdate($dto, $ddp);
@@ -51,7 +51,10 @@ class DemandePaiementService
         $this->em->flush();
     }
 
-    public function createHistoriqueStatut(DemandePaiementDto $dto)
+    /**
+     * @param DemandePaiementDto|DdpDto $dto
+     */
+    public function createHistoriqueStatut($dto): void
     {
         $hitoriqueStatut = DemandePaiementMapper::mapStatut($dto);
 

@@ -3,11 +3,12 @@
 namespace App\Service\ddp;
 
 use App\Controller\Traits\ddp\DocDdpTrait;
+use App\Dto\ddp\DdpDto;
 use App\Dto\ddp\DemandePaiementDto;
+use App\Mapper\ddp\DocDemandePaiementMapper;
 use App\Model\ddp\DemandePaiementModel;
 use App\Service\TableauEnStringService;
 use Doctrine\ORM\EntityManagerInterface;
-use App\Mapper\ddp\DocDemandePaiementMapper;
 
 class DocDemandePaiementService
 {
@@ -25,10 +26,10 @@ class DocDemandePaiementService
     /**
      * Undocumented function
      *
-     * @param DemandePaiementDto $dto
+     * @param DemandePaiementDto|DdpDto $dto
      * @return void
      */
-    public function createDocDdp(DemandePaiementDto $dto)
+    public function createDocDdp($dto)
     {
         $cheminDeFichiers = $this->recupCheminFichierDistant($dto);
         $documents = DocDemandePaiementMapper::map($dto, $cheminDeFichiers);

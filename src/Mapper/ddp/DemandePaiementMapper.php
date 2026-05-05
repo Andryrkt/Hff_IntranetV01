@@ -2,15 +2,20 @@
 
 namespace App\Mapper\ddp;
 
+use App\Constants\ddp\StatutConstants;
+use App\Dto\ddp\DdpDto;
 use App\Dto\ddp\DemandePaiementDto;
 use App\Entity\ddp\DemandePaiement;
-use App\Constants\ddp\StatutConstants;
 use App\Entity\ddp\HistoriqueStatutDdp;
 use App\Model\ddp\DemandePaiementModel;
 
 class DemandePaiementMapper
 {
-    public static function map(DemandePaiementDto $dto): DemandePaiement
+    /**
+     * @param DemandePaiementDto|DdpDto $dto
+     * @return DemandePaiement
+     */
+    public static function map($dto): DemandePaiement
     {
         $basePathFichierCourt = $_ENV['BASE_PATH_FICHIER_COURT'];
         $numeroDdp = $dto->numeroDdp;
@@ -69,12 +74,7 @@ class DemandePaiementMapper
             $dto->numeroFournisseur = $ddp->getNumeroFournisseur();
             $dto->beneficiaire = $ddp->getBeneficiaire();
             $dto->numeroCommande =  $ddp->getNumeroCommande();
-            $numsLivraisons = [];
-            foreach ($ddp->getCommandeLivraisons() as $livraison) {
-                if ($livraison->getNumeroLivraison()) {
-                    $numsLivraisons[] = $livraison->getNumeroLivraison();
-                }
-            }
+            $numsLivraisons = self::getNumeroLivraisons($ddp);
             $dto->numeroLivraison = empty($numsLivraisons) ? null : implode(';', $numsLivraisons);
             $dto->numeroFacture =  $ddp->getNumeroFacture();
             $dto->statut = $ddp->getStatut();
@@ -98,6 +98,17 @@ class DemandePaiementMapper
         }
 
         return $dtos;
+    }
+
+    private static function getNumeroLivraisons(DemandePaiement $ddp): array
+    {
+        $numsLivraisons = [];
+        foreach ($ddp->getCommandeLivraisons() as $livraison) {
+            if ($livraison->getNumeroLivraison()) {
+                $numsLivraisons[] = $livraison->getNumeroLivraison();
+            }
+        }
+        return $numsLivraisons;
     }
 
     private static function getNumeroFactureIps(DemandePaiementDto $dto): ?string
@@ -142,8 +153,10 @@ class DemandePaiementMapper
         return $ddp;
     }
 
-
-    public static function mapUpdate(DemandePaiementDto $dto, DemandePaiement $ddp): DemandePaiement
+    /**
+     * @param DemandePaiementDto|DdpDto $dto
+     */
+    public static function mapUpdate($dto, DemandePaiement $ddp): DemandePaiement
     {
         return $ddp->setStatut(StatutConstants::SOUMIS_A_VALIDATION)
             ->setMontantApayer($dto->montantAPayer)
@@ -158,7 +171,10 @@ class DemandePaiementMapper
         ;
     }
 
-    public static function mapStatut(DemandePaiementDto $dto): HistoriqueStatutDdp
+    /**
+     * @param DemandePaiementDto|DdpDto $dto
+     */
+    public static function mapStatut($dto): HistoriqueStatutDdp
     {
         $historiqueStatutDdp = new HistoriqueStatutDdp();
         return $historiqueStatutDdp

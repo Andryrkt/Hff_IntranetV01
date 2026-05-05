@@ -133,6 +133,9 @@ ADD fichier_ddpa VARCHAR(255),
 deposer_dw BIT DEFAULT 0,
 date_depot_dw DATETIME2 (3)
 
+ALTER TABLE demande_paiement
+ADD code_societe VARCHAR(50)
+
             CREATE TABLE demande_paiement_commande
 (
     id INT IDENTITY (1, 1),

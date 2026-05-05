@@ -1,13 +1,12 @@
 <?php
 
-namespace App\Service\ddp;
+namespace App\Service\ddp\Magasin;
 
 use App\Dto\ddp\DdpDto;
-use App\Dto\ddp\DemandePaiementDto;
-use App\Mapper\ddp\DemandePaiementLigneMapper;
+use App\Mapper\ddp\Magasin\DdpLigneMapper;
 use Doctrine\ORM\EntityManagerInterface;
 
-class DemandePaiementLigneService
+class DdpLigneService
 {
     private EntityManagerInterface $em;
 
@@ -17,11 +16,11 @@ class DemandePaiementLigneService
     }
 
     /**
-     * @param DemandePaiementDto|DdpDto $dto
+     * @param DdpDto $dto
      */
-    public function createLignesFromDto($dto): int
+    public function createLignesFromDto(DdpDto $dto): int
     {
-        $lignes = DemandePaiementLigneMapper::map($dto);
+        $lignes = DdpLigneMapper::map($dto);
 
         foreach ($lignes as $ligne) {
 
