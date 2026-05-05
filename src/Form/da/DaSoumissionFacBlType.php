@@ -29,11 +29,13 @@ class DaSoumissionFacBlType extends AbstractType
                     'DDPL (Demande De Paiement après Livraison)' => 'ddpl',
                     'Régularisation' => 'regul'
                 ],
-                'choice_attr' => function($choice, $key, $value) use ($options) {
+                'choice_attr' => function ($choice, $key, $value) use ($options) {
+                    $attr = [];
                     if (in_array($choice, ['bap', 'ddpl']) && $options['data']->montantAregulariser === 0.0) {
-                        return ['disabled' => 'disabled'];
+                        $attr['disabled'] = 'disabled';
                     }
-                    return [];
+                    $attr['data-field-name'] = 'Type de traitement de paiement';
+                    return $attr;
                 },
                 'placeholder' => false,
                 'label' => "Veuillez choisir le type de traitement de <strong>paiement</strong> pour cette facture",
@@ -41,9 +43,6 @@ class DaSoumissionFacBlType extends AbstractType
                 'expanded' => true,
                 'multiple' => false,
                 'required' => true,
-                'attr' => [
-                    'data-field-name' => 'Type de traitement de paiement',
-                ],
             ])
             ->add('numeroCde', TextType::class, [
                 'label' => 'Numéro Commande',

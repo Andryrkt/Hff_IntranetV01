@@ -711,11 +711,11 @@ class DaModel extends Model
         $statement = "SELECT 
                 TRIM(fbse_nomfou) as nom_fournisseur, 
                 fbse_numfou as num_fournisseur,
-                TRIM(fbse_tel) as tel_fournisseur, 
-                TRIM(fbse_adr1) as adr1_fournisseur, 
-                TRIM(fbse_adr2) as adr2_fournisseur, 
-                TRIM(fbse_ptt) as ptt_fournisseur, 
-                TRIM(fbse_adr4) as adr4_fournisseur, 
+                -- TRIM(fbse_tel) as tel_fournisseur,        -- champ à ne pas afficher dans le PDF       
+                -- TRIM(fbse_adr1) as adr1_fournisseur,      -- champ à ne pas afficher dans le PDF
+                -- TRIM(fbse_adr2) as adr2_fournisseur,      -- champ à ne pas afficher dans le PDF
+                -- TRIM(fbse_ptt) as ptt_fournisseur,        -- champ à ne pas afficher dans le PDF
+                -- TRIM(fbse_adr4) as adr4_fournisseur,      -- champ à ne pas afficher dans le PDF      
                 fcde_numcde as num_cde,
                 fcde_date as date_cde,
                 TRIM(fcde_succ) as succ_cde, 
