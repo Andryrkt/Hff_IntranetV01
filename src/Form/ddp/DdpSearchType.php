@@ -23,12 +23,6 @@ class DdpSearchType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $choices = $this->prepareAgenceServiceChoices($options['allAgenceServices'], false);
-
-        $agenceChoices = $choices['agenceChoices'];
-        $serviceChoices = $choices['serviceChoices'];
-        $serviceAttr = $choices['serviceAttr'];
-
         $builder
             ->add('debiteur', AgenceServiceType::class, [
                 'label' => false,
