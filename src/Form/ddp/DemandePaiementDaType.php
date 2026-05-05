@@ -110,10 +110,14 @@ class DemandePaiementDaType extends AbstractType
                 ChoiceType::class,
                 [
                     'label'     => 'Mode de paiement *',
-                    'choices'   =>  $this->mode_paiement(),
+                    'choices'   =>  [
+                        'Virement' => 'VIREMENT',
+                        'Chèque' => 'CHEQUE',
+                        'Espèces' => 'ESPECES'
+                    ],
                     'multiple'  => false,
                     'expanded'  => false,
-                    'data' => 'VIREMENT'
+                    'data' => 'CHEQUE'
                 ]
             )
             ->add(

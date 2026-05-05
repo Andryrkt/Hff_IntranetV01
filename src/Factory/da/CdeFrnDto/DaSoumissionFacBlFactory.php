@@ -169,7 +169,7 @@ class DaSoumissionFacBlFactory
             $ddpDto->ribFournisseur = $infoFournisseur[0]['rib_fournisseur'];
             $ddpDto->ribFournisseurAncien = $infoFournisseur[0]['rib_fournisseur'];
             $ddpDto->beneficiaire = $infoFournisseur[0]['nom_fournisseur'];
-            $ddpDto->modePaiement = $infoFournisseur[0]['mode_paiement'];
+            $ddpDto->modePaiement = 'CHEQUE';
             $ddpDto->devise = $infoFournisseur[0]['devise'];
         }
 
