@@ -60,7 +60,7 @@ class BadmListeController extends Controller
         $this->getSessionService()->set('badm_search_criteria', $criteria);
 
         $page = max(1, $request->query->getInt('page', 1));
-        $limit = 10;
+        $limit = 50;
 
         // Agence et service par défaut
         $agenceIdUser = $this->getSecurityService()->getAgenceIdUser();

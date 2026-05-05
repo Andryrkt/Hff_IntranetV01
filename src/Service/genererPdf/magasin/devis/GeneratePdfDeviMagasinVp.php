@@ -11,7 +11,7 @@ class GeneratePdfDeviMagasinVp extends GeneratePdf
 {
     /**
      * copie la page de garde fusionner du devis magasin dans docuware
-     *
+     * pour verification prix
      * @param string $fileName
      * @param string $numeroDevis
      * @return void
