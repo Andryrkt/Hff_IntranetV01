@@ -19,6 +19,7 @@ use App\Service\genererPdf\GeneratePdf;
 use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class TraitementSoumissionfacBlService
@@ -59,7 +60,7 @@ class TraitementSoumissionfacBlService
         $this->dwBcApproRepository         = $this->entityManager->getRepository(DwBcAppro::class);
     }
 
-    public function traitementSoumissionFacBl($form, $dto)
+    public function traitementSoumissionFacBl(FormInterface $form, DaSoumissionFacBlDto $dto)
     {
         $sucess = false;
 
@@ -82,7 +83,7 @@ class TraitementSoumissionfacBlService
             $this->generatePdf->copyToDWFacBlDa($nomPdfFusionner, $numDa);
 
             /** MODIFICATION DA AFFICHER */
-            $this->modificationDaAfficher($numDa, $numCde, $numLiv);
+            $this->modificationDaAfficher($dto);
 
             $sucess = true;
         }
@@ -132,20 +133,20 @@ class TraitementSoumissionfacBlService
         return $okey;
     }
 
-    private function traitementDeFichier($form, $dto): array
+    private function traitementDeFichier(FormInterface $form, DaSoumissionFacBlDto $dto): array
     {
         $numCde  = $dto->numeroCde;
         $numDa   = $dto->numeroDemandeAppro;
         $numOr   = $dto->numeroOR;
         $nomOriginalFichier = $dto->pieceJoint1->getClientOriginalName();
 
-        /** ENREGISTREMENT DE FICHIER */
-        $nomDeFichiers = $this->enregistrementFichier($form, $numCde, $numDa);
+        /** @var array $nomDeFichiers ENREGISTREMENT DE FICHIER */
+        $nomDeFichiers = $this->enregistrementFichier($form, $dto);
 
-        /** AJOUT DES CHEMINS DANS LE TABLEAU */
+        /** @var array $nomFichierAvecChemins AJOUT DES CHEMINS DANS LE TABLEAU */
         $nomFichierAvecChemins = $this->addPrefixToElementArray($nomDeFichiers, $this->cheminDeBase . $numDa . '/');
 
-        /** CONVERTIR LES PDF */
+        /** @var array $fichierConvertir  CONVERTIR LES PDF */
         $fichierConvertir = $this->ConvertirLesPdf($nomFichierAvecChemins);
 
         /** GENERATION DU NOM DU FICHIER */
@@ -163,11 +164,15 @@ class TraitementSoumissionfacBlService
     /**
      * Enregistrement des fichiers téléchagrer dans le dossier de destination
      *
-     * @param [type] $form
+     * @param FormInterface $form
+     * @param DaSoumissionFacBlDto $dto
      * @return array
      */
-    private function enregistrementFichier($form, $numCde, $numDa): array
+    private function enregistrementFichier(FormInterface $form, DaSoumissionFacBlDto $dto): array
     {
+        $numCde  = $dto->numeroCde;
+        $numDa   = $dto->numeroDemandeAppro;
+
         $fieldPattern = '/^pieceJoint(\d{1})$/';
         $nomDesFichiers = [];
         $compteur = 1; // Pour l’indexation automatique
@@ -224,18 +229,22 @@ class TraitementSoumissionfacBlService
     /**
      * Modification du colonne est_facture_bl_soumis dans la table da_afficher
      *
-     * @param string $numDa
-     * @param int $numeroVersionMax
+     * @param DaSoumissionFacBlDto $dto
      */
-    private function modificationDaAfficher(string $numDa, string $numCde, $numLiv): void
+    private function modificationDaAfficher(DaSoumissionFacBlDto $dto): void
     {
+        $numCde  = $dto->numeroCde;
+        $numDa   = $dto->numeroDemandeAppro;
+        $numLiv = $dto->numLiv;
+        $codeSociete = $dto->codeSociete;
+
         $daAfficherRepository = $this->entityManager->getRepository(DaAfficher::class);
         $numeroVersionMax = $daAfficherRepository->getNumeroVersionMax($numDa);
         $typeDa = $daAfficherRepository->getTypeDaSelonNumDa($numDa);
         $daAffichers = [];
 
         if (in_array((int)$typeDa, [DemandeAppro::TYPE_DA_AVEC_DIT, DemandeAppro::TYPE_DA_REAPPRO_MENSUEL, DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL])) {
-            $refDesiSavLors = $this->daSoumissionFacBlModel->getRefDesiSavLor($numLiv);
+            $refDesiSavLors = $this->daSoumissionFacBlModel->getRefDesiSavLor($numLiv, $codeSociete);
             foreach ($refDesiSavLors as  $refDesiSavLor) {
                 $daAffichers[] = $this->entityManager->getRepository(DaAfficher::class)
                     ->findOneBy(
@@ -249,7 +258,7 @@ class TraitementSoumissionfacBlService
                     );
             }
         } else {
-            $refDesiFrnCdls = $this->daSoumissionFacBlModel->getRefDesiFrnCdl($numLiv);
+            $refDesiFrnCdls = $this->daSoumissionFacBlModel->getRefDesiFrnCdl($numLiv, $codeSociete);
             foreach ($refDesiFrnCdls as  $refDesiFrnCdl) {
                 $daAffichers[] = $this->entityManager->getRepository(DaAfficher::class)
                     ->findOneBy(

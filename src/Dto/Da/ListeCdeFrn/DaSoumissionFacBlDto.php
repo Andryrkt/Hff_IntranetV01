@@ -7,32 +7,32 @@ use App\Dto\ddp\DemandePaiementDto;
 
 class DaSoumissionFacBlDto
 {
-    public $numeroDemandeAppro;
-    public $numeroDemandeDit;
-    public $numeroOR;
-    public $numeroCde;
-    public $refBlFac;
-    public $dateBlFac;
+    public ?string $numeroDemandeAppro = null;
+    public ?string $numeroDemandeDit = null;
+    public ?string $numeroOR = null;
+    public ?string $numeroCde = null;
+    public ?string $refBlFac = null;
+    public ?string $dateBlFac = null;
     public $dateClotLiv;
     public $pieceJoint1;
     public $pieceJoint2;
-    public $utilisateur;
+    public ?string $utilisateur = null;
     public $totalMontantPayer;
     public $user;
     public $dateDemande;
-    public $codeSociete;
+    public ?string $codeSociete = null;
 
     // livraison ========================
     public $numLiv;
     public $infoLiv;
 
     // Bon à payer (BAP) ====================
-    public $numeroBap = null;
-    public $statutBap = null;
+    public ?string $numeroBap = null;
+    public ?string $statutBap = null;
     public $dateSoumissionCompta;
     public $montantBlFacture;
     public $montantReceptionIps;
-    public $numeroDemandePaiement;
+    public ?string $numeroDemandePaiement;
     public $dateStatutBap = null;
 
     // info commande (BC) =================
@@ -46,15 +46,15 @@ class DaSoumissionFacBlDto
     public $numerofactureReappro = null;
 
     // CLA =========================
-    public $numeroCla = null;
+    public ?string $numeroCla = null;
 
     // DDPL =========================
-    public $statutFacBl;
-    public $numeroVersionFacBl;
+    public ?string $statutFacBl = null;
+    public ?string $numeroVersionFacBl = null;
 
     // si DA qui a une Demande de paiement à l'avance
-    public $daDdpa = [];
-    public $titreDaDdpa = "Liste des demandes de paiement à l'avance";
+    public array $daDdpa = [];
+    public string $titreDaDdpa = "Liste des demandes de paiement à l'avance";
     public $totalMontantCommande;
     public $totalPayer = 0;
     public $ratioTotalPayer = 0;
@@ -62,7 +62,7 @@ class DaSoumissionFacBlDto
     public $ratioMontantARegul;
 
     // situation reception 
-    public $receptions = [];
+    public array $receptions = [];
 
     // demande de paiement ===========================
     public ?DemandePaiementDto $demandePaiementDto = null;
