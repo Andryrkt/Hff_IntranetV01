@@ -26,6 +26,7 @@ use App\Service\genererPdf\GeneratePdf;
 use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class TraitementSoumissionBAPService
@@ -85,9 +86,6 @@ class TraitementSoumissionBAPService
         $sucess = false;
 
         if ($this->verifierConditionDeBlocage($dto)) {
-            $numCde  = $dto->numeroCde;
-            $numDa   = $dto->numeroDemandeAppro;
-            $numLiv = $dto->numLiv;
 
             // Traitement du fichier
             [$nomAvecCheminPdfFusionner, $nomPdfFusionner] = $this->traitementDeFichier($form, $dto, $mail);
@@ -183,8 +181,7 @@ class TraitementSoumissionBAPService
     /**
      * Modification du colonne est_facture_bl_soumis dans la table da_afficher
      *
-     * @param string $numDa
-     * @param int $numeroVersionMax
+     * @param DaSoumissionFacBlDto $dto
      */
     private function modificationDaAfficher(DaSoumissionFacBlDto $dto): void
     {
@@ -238,7 +235,7 @@ class TraitementSoumissionBAPService
         $this->entityManager->flush();
     }
 
-    private function traitementDeFichier($form, DaSoumissionFacBlDto $dto, ?string $mail): array
+    private function traitementDeFichier(FormInterface $form, DaSoumissionFacBlDto $dto, ?string $mail): array
     {
         $numCde  = $dto->numeroCde;
         $numDa   = $dto->numeroDemandeAppro;
@@ -249,7 +246,7 @@ class TraitementSoumissionBAPService
         $nomOriginalFichier = $dto->pieceJoint1->getClientOriginalName();
 
         /** ENREGISTREMENT DE FICHIER */
-        $nomDeFichiers = $this->enregistrementFichier($form, $numCde, $numDa);
+        $nomDeFichiers = $this->enregistrementFichier($form, $dto);
 
         /** AJOUT DES CHEMINS DANS LE TABLEAU */
         $nomFichierAvecChemins = $this->addPrefixToElementArray($nomDeFichiers, $this->cheminDeBaseDa . $numDa . '/');
@@ -289,11 +286,14 @@ class TraitementSoumissionBAPService
     /**
      * Enregistrement des fichiers téléchagrer dans le dossier de destination
      *
-     * @param [type] $form
+     * @param FormInterface $form
      * @return array
      */
-    private function enregistrementFichier($form, $numCde, $numDa): array
+    private function enregistrementFichier(FormInterface $form, DaSoumissionFacBlDto $dto): array
     {
+        $numDa = $dto->numeroDemandeAppro;
+        $numCde = $dto->numeroCde;
+
         $fieldPattern = '/^pieceJoint(\d{1})$/';
         $nomDesFichiers = [];
         $compteur = 1; // Pour l’indexation automatique

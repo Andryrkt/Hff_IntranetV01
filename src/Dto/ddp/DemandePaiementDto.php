@@ -39,7 +39,7 @@ class DemandePaiementDto
     public ?string $contact = null;
 
     // info sur Ddp =========================
-    public $motif;
+    public ?string $motif = null;
     public array $debiteur = [];
     public ?string  $numeroCommande = null;
     public ?string $numeroFacture = null;
