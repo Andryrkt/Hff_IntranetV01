@@ -54,13 +54,6 @@ class GenererPdfBonAPayer extends GeneratePdf
         return $pdf;
     }
 
-    private function renderTitle(TCPDF $pdf, string $title)
-    {
-        $pdf->setFont('helvetica', 'B', 20);
-        $pdf->Cell(0, 6, $title, 0, 1, 'C');
-        $pdf->Ln(5, true);
-    }
-
     private function renderHeader(TCPDF $pdf, ?string $userMail, DaSoumissionFacBlDto $dto): void
     {
         $logoPath =  $_ENV['BASE_PATH_LONG'] . '/Views/assets/logoHff.jpg';
@@ -117,12 +110,6 @@ class GenererPdfBonAPayer extends GeneratePdf
             $this->addInfoLine($pdf, 'N° fournisseur', $infoBC["num_fournisseur"] ?? "-", $w100 * 0.6 - 6, 35, 0, 0);
             $dateValidation = $infoValidationBC["dateValidation"] ?? "-";
             $this->addInfoLine($pdf, 'Date Validation', $dateValidation === "-" ? $dateValidation : $dateValidation->format("d/m/Y"), $w100 * 0.4, 25, 0);
-            $pdf->Ln(3);
-
-            $this->addInfoLine($pdf, 'Téléphone', $infoBC["tel_fournisseur"] ?? "-", $w100, 35, 0);
-
-            // Adresse
-            $this->renderAdresseFournisseur($pdf, $w100, $infoBC);
 
             $fields = [
                 'N° commande'        => $infoBC["num_cde"] ?? "-",
@@ -142,22 +129,6 @@ class GenererPdfBonAPayer extends GeneratePdf
                 if ($label === 'Date commande') $pdf->Ln(3);
             }
         });
-    }
-
-    private function renderAdresseFournisseur(TCPDF $pdf, $w100, array $infoBC)
-    {
-        $this->addInfoLine($pdf, 'Adresse fournisseur', '', $w100, 35, 0, 1);
-
-        $adresse = [
-            $infoBC["adr1_fournisseur"] ?? "-",
-            $infoBC["adr2_fournisseur"] ?? "-",
-            ($infoBC["ptt_fournisseur"] ?? "-") . " " . ($infoBC["adr4_fournisseur"] ?? "-")
-        ];
-
-        foreach ($adresse as $line) {
-            $pdf->Cell(15, 5);
-            $pdf->Cell($w100 - 15, 5, $line, 0, 1);
-        }
     }
 
     private function renderInfoMateriel(TCPDF $pdf, $w100, array $infoMateriel)
