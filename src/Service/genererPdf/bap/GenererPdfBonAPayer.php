@@ -84,18 +84,18 @@ class GenererPdfBonAPayer extends GeneratePdf
 
     private function renderInfoSection(TCPDF $pdf, string $title1, string $title2, callable $callback)
     {
-        $pdf->Ln(3);
+        $pdf->Ln(2);
         $pdf->setFont('helvetica', 'B', 9);
 
         if ($title2) {
             $w100 = $this->getUsableWidth($pdf);
-            $pdf->Cell($w100 * 0.6, 5, $title1);
-            $pdf->Cell($w100 * 0.4, 5, $title2, 0, 1);
+            $pdf->Cell($w100 * 0.65, 5, $title1);
+            $pdf->Cell($w100 * 0.35, 5, $title2, 0, 1);
         } else {
             $pdf->Cell(0, 5, $title1, 0, 1);
         }
 
-        $pdf->Ln(3);
+        $pdf->Ln(2);
 
         $pdf->setFont('helvetica', '', 9);
         $callback();
@@ -104,12 +104,12 @@ class GenererPdfBonAPayer extends GeneratePdf
     private function renderInfoBCAndValidation(TCPDF $pdf, int $w100, array $infoBC, array $infoValidationBC)
     {
         $this->renderInfoSection($pdf, 'RESUME DU BC', 'INFORMATION VALIDATION BC', function () use ($pdf, $w100, $infoBC, $infoValidationBC) {
-            $this->addInfoLine($pdf, 'Nom fournisseur', $infoBC["nom_fournisseur"] ?? "-", $w100 * 0.6 - 6, 35, 0, 0);
-            $this->addInfoLine($pdf, 'Nom Validateur', $infoValidationBC["validateur"] ?? "-", $w100 * 0.4, 25, 0);
+            $this->addInfoLine($pdf, 'Nom fournisseur', $infoBC["nom_fournisseur"] ?? "-", $w100 * 0.65 - 6, 35, 0, 0);
+            $this->addInfoLine($pdf, 'Nom Validateur', $infoValidationBC["validateur"] ?? "-", $w100 * 0.35, 25, 0);
 
-            $this->addInfoLine($pdf, 'N° fournisseur', $infoBC["num_fournisseur"] ?? "-", $w100 * 0.6 - 6, 35, 0, 0);
+            $this->addInfoLine($pdf, 'N° fournisseur', $infoBC["num_fournisseur"] ?? "-", $w100 * 0.65 - 6, 35, 0, 0);
             $dateValidation = $infoValidationBC["dateValidation"] ?? "-";
-            $this->addInfoLine($pdf, 'Date Validation', $dateValidation === "-" ? $dateValidation : $dateValidation->format("d/m/Y"), $w100 * 0.4, 25, 0);
+            $this->addInfoLine($pdf, 'Date Validation', $dateValidation === "-" ? $dateValidation : $dateValidation->format("d/m/Y"), $w100 * 0.35, 25, 0);
 
             $fields = [
                 'N° commande'        => $infoBC["num_cde"] ?? "-",
@@ -124,9 +124,11 @@ class GenererPdfBonAPayer extends GeneratePdf
                 'Nature de l’achat'  => $infoBC["type_cde"] ?? "-"
             ];
 
+            $pdf->Ln(2);
+
             foreach ($fields as $label => $value) {
                 $this->addInfoLine($pdf, $label, $value, $w100, 35, 0);
-                if ($label === 'Date commande') $pdf->Ln(3);
+                if ($label === 'Date commande') $pdf->Ln(2);
             }
         });
     }
@@ -135,8 +137,8 @@ class GenererPdfBonAPayer extends GeneratePdf
     {
         $this->renderInfoSection($pdf, 'LA COMMANDE CONCERNE LE MATÉRIEL SUIVANT :', '', function () use ($pdf, $w100, $infoMateriel) {
             $this->addInfoLine($pdf, '', $infoMateriel["designation"] ?? "-", $w100, '');
-            $this->addInfoLine($pdf, 'N° série', $infoMateriel["numserie"] ?? "-", $w100, 13);
-            $this->addInfoLine($pdf, 'Identité', $infoMateriel["identite"] ?? "-", $w100, 13);
+            $this->addInfoLine($pdf, 'N° série', $infoMateriel["numserie"] ?? "-", $w100, 28);
+            $this->addInfoLine($pdf, 'Identité', $infoMateriel["identite"] ?? "-", $w100, 28);
         });
     }
 
@@ -146,6 +148,8 @@ class GenererPdfBonAPayer extends GeneratePdf
         $numDIT = $dto->numeroDemandeDit;
         $numDIT = $numDIT ? "- $numDIT" : "";
         $this->renderInfoSection($pdf, "RECAPITULATIF DE L’OR $numOR $numDIT", '', function () use ($pdf, $dataRecapOR) {
+            $this->addInfoLine($pdf, 'Utilisateur Créateur', $dataRecapOR["createur_or"] ?? "-", 120, 30);
+            $pdf->Ln(2);
             $tableGenerator = new PdfTableGeneratorFlexible();
             $tableGenerator->setOptions([
                 'table_attributes' => 'border="0" cellpadding="0" cellspacing="0" align="center" style="font-size: 8px;"',
@@ -169,17 +173,18 @@ class GenererPdfBonAPayer extends GeneratePdf
             $this->addInfoLine($pdf, 'N° DA', $demandeAppro->getNumeroDemandeAppro(), $w100, 25);
             $this->addInfoLine($pdf, 'Date de création', $demandeAppro->getDateCreation()->format('d/m/Y'), $w100, 25);
             $this->addInfoLine($pdf, 'Objet', $demandeAppro->getObjetDal(), $w100, 25);
+            $this->addInfoLine($pdf, "Utilisateur demandeur", $demandeAppro->getDemandeur(), $w100, 39);
             $this->addInfoLine($pdf, 'Agence – service émetteur', $demandeAppro->getAgenceServiceEmetteur(), $w100, 39);
-            $this->addInfoLine($pdf, 'Agence et service débiteur', $demandeAppro->getAgenceServiceDebiteur(), $w100, 39);
+            $this->addInfoLine($pdf, 'Agence – service débiteur', $demandeAppro->getAgenceServiceDebiteur(), $w100, 39);
         });
     }
 
     private function renderInfoFacBl(TCPDF $pdf, $w100, array $infoFacBl)
     {
         $this->renderInfoSection($pdf, 'INFO BL / FAC FOURNISSEUR', '', function () use ($pdf, $w100, $infoFacBl) {
-            $this->addInfoLine($pdf, 'Réf', $infoFacBl["refBlFac"] ?? "-", $w100 / 2, 8, 6, 0);
+            $this->addInfoLine($pdf, 'Réf', $infoFacBl["refBlFac"] ?? "-", $w100 / 2, 15, 6, 0);
             $this->addInfoLine($pdf, 'N° livraison IPS', $infoFacBl["numLivIPS"] ?? "-", $w100 / 2, 27);
-            $this->addInfoLine($pdf, 'Date', $infoFacBl["dateBlFac"] ? $infoFacBl["dateBlFac"]->format('d/m/Y') : "-", $w100 / 2, 8, 6, 0);
+            $this->addInfoLine($pdf, 'Date', $infoFacBl["dateBlFac"] ? $infoFacBl["dateBlFac"]->format('d/m/Y') : "-", $w100 / 2, 15, 6, 0);
             $this->addInfoLine($pdf, 'Date livraison IPS', $infoFacBl["dateLivIPS"] ? date("d/m/Y", strtotime($infoFacBl["dateLivIPS"])) : "-", $w100 / 2, 27);
         });
     }

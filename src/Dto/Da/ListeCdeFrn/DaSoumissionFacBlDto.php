@@ -4,6 +4,7 @@
 namespace App\Dto\Da\ListeCdeFrn;
 
 use App\Dto\ddp\DemandePaiementDto;
+use DateTime;
 
 class DaSoumissionFacBlDto
 {
@@ -12,7 +13,7 @@ class DaSoumissionFacBlDto
     public ?string $numeroOR = null;
     public ?string $numeroCde = null;
     public ?string $refBlFac = null;
-    public ?string $dateBlFac = null;
+    public ?DateTime $dateBlFac = null;
     public $dateClotLiv;
     public $pieceJoint1;
     public $pieceJoint2;
