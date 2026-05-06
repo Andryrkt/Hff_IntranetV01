@@ -8,7 +8,6 @@ use App\Entity\ddp\DemandePaiement;
 use App\Form\ddp\DdpSearchType;
 use App\Mapper\ddp\DemandePaiementMapper;
 use App\Repository\ddp\DemandePaiementRepository;
-use App\Service\da\FileCheckerService;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -49,13 +48,9 @@ class DdpListeController extends Controller
             $this->getSessionService()->remove('page_loaded');
         }
 
-        // chemin fichier BAP
-        $fileCheckerService = new FileCheckerService($_ENV['BASE_PATH_FICHIER']);
-
         return $this->render('ddp/demandePaiementList.html.twig', [
             'dto' => $dto,
-            'form' => $form->createView(),
-            'fileCheckerService' => $fileCheckerService,
+            'form' => $form->createView()
         ]);
     }
 

@@ -1,5 +1,9 @@
 {% extends "baseTemplate.html.twig" %}
 
+{% block title %}
+	Consultation des demandes de paiement
+{% endblock %}
+
 {% block stylesheets %}
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.10.22.08.00">
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/ddp/liste.css?v=2025.10.22.08.00">
@@ -88,14 +92,9 @@
 						<td class="text-center">{{ item.codeService}}</td>
 						<td class="text-center">{{ item.numeroCla}}</td>
 						<td class="text-center">
-							{% if item.numeroDdp and fileCheckerService.checkBapFileExists(item.numeroDdp) %}
-								{% set filename = item.numeroDdp ~ '.pdf' %}
-								<a href="#" class="show-pdf-modal" data-pdf-url="{{ path('bap_pdf_viewer', { numeroDdp: item.numeroDdp, urlPdf: filename }) }}">
-									{{ item.numeroDdp }}
-								</a>
-							{% else %}
+							<a href="{{path("ddp_detail", {numeroDdp:item.numeroDdp})}}">
 								{{ item.numeroDdp }}
-							{% endif %}
+							</a>
 						</td>
 						<td class="text-center">{{ item.dateDemande|date('d/m/Y')}}</td>
 						<td class="text-start">{{ item.typeDemande.libelle}}</td>
