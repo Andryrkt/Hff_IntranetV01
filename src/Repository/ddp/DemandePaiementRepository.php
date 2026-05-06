@@ -294,4 +294,14 @@ class DemandePaiementRepository extends EntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function findAllDdpByDa(string $numeroDa): array
+    {
+        return $this->createQueryBuilder('d')
+            ->select('d.numeroDdp')
+            ->where('d.numeroDemandeAppro = :numeroDa')
+            ->setParameter('numeroDa', $numeroDa)
+            ->getQuery()
+            ->getSingleColumnResult();
+    }
 }

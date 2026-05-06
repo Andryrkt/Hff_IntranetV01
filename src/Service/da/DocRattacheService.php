@@ -77,8 +77,8 @@ class DocRattacheService
     private function getDaDocumentMappingConfig(): array
     {
         return [
-            DemandeAppro::TYPE_DA_AVEC_DIT         => ['BAI', 'OR', 'DEV_PJ_DA', 'DEV_PJ_OBS', 'BC', 'FACBL'],
-            DemandeAppro::TYPE_DA_DIRECT           => ['BAI', 'BAD', 'DEV_PJ_DA', 'DEV_PJ_OBS', 'BC', 'FACBL'],
+            DemandeAppro::TYPE_DA_AVEC_DIT         => ['BAI', 'OR', 'DEV_PJ_DA', 'DEV_PJ_OBS', 'BC', 'FACBL', 'DDP'],
+            DemandeAppro::TYPE_DA_DIRECT           => ['BAI', 'BAD', 'DEV_PJ_DA', 'DEV_PJ_OBS', 'BC', 'FACBL', 'DDP'],
             DemandeAppro::TYPE_DA_REAPPRO_MENSUEL  => ['BAI', 'BAD', 'DEV_PJ_OBS'],
             DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL => ['BAI', 'BAD', 'DEV_PJ_OBS'],
         ];
@@ -157,6 +157,16 @@ class DocRattacheService
                 'method'          => 'getFacBlPath',
                 'normalizer'      => 'normalizePathsFacBl',
                 'normalizerParam' => NULL,
+            ],
+            'DDP' => [
+                'labelType'       => 'DDP',
+                'type'            => 'Demande de paiement',
+                'icon'            => 'fa-solid fa-file-invoice',
+                'colorClass'      => 'border-left-facbl',
+                'service'         => 'daService',
+                'method'          => 'getAllDdpPath',
+                'normalizer'      => 'normalizePathsMultipleFiles',
+                'normalizerParam' => 'numeroDdp',
             ],
         ];
     }
