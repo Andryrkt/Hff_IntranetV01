@@ -5,8 +5,10 @@ namespace App\Controller\ddp;
 use App\Controller\Controller;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
+use App\Entity\da\DemandeAppro;
 use App\Entity\ddp\DemandePaiement;
 use App\Repository\ddp\DemandePaiementRepository;
+use App\Service\da\DocRattacheService;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -15,11 +17,13 @@ use Symfony\Component\Routing\Annotation\Route;
 class DdpDetailController extends Controller
 {
     private DemandePaiementRepository $demandePaiementRepository;
+    private DocRattacheService $docRattacheService;
 
-    public function __construct()
+    public function __construct(DocRattacheService $docRattacheService)
     {
         parent::__construct();
         $this->demandePaiementRepository = $this->getEntityManager()->getRepository(DemandePaiement::class);
+        $this->docRattacheService = $docRattacheService;
     }
 
     /**
@@ -30,17 +34,17 @@ class DdpDetailController extends Controller
     public function ddpDetail(string $numeroDdp)
     {
         $demandePaiement = $this->demandePaiementRepository->findOneBy(['numeroDdp' => $numeroDdp]);
+        $numDa = $demandePaiement->getNumeroDemandeAppro();
+        $demandeAppro = $this->getEntityManager()->getRepository(DemandeAppro::class)->findOneBy(['numeroDemandeAppro' => $numDa]);
 
         return $this->render('ddp/detail.html.twig', [
             'data' => $this->prepareForDisplay($demandePaiement),
-            'fichiers' => [],
+            'fichiers' => $this->docRattacheService->getAllAttachedFiles($demandeAppro),
         ]);
     }
 
     private function prepareForDisplay(DemandePaiement $demandePaiement): array
     {
-        $data = [];
-
         /** @var Agence|null  */
         $agenceDebiteur = $this->getEntityManager()->getRepository(Agence::class)->findOneBy(['codeAgence' => $demandePaiement->getAgenceDebiter()]);
 
