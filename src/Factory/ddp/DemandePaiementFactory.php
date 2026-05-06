@@ -24,7 +24,7 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class DemandePaiementFactory
 {
-    private $em;
+    private EntityManagerInterface $em;
     private DemandePaiementModel $ddpModel;
     private DocDemandePaiementService $docDemandePaiementService;
     private DaSoumissionFacBlDdpaModel $daSoumissionFacBlDdpaModel;
@@ -50,12 +50,17 @@ class DemandePaiementFactory
         $this->numeroGenerateur = $numeroGenerateur;
     }
 
-    public function load(int $typeDdp, ?int $numCdeDa, ?int $typeDa, int $numeroVersionBc = 0, $sessionService): DemandePaiementDto
-    {
+    public function load(
+        int $typeDdp,
+        ?int $numCdeDa,
+        ?int $typeDa,
+        int $numeroVersionBc = 0,
+        $sessionService
+    ): DemandePaiementDto {
         $dto = new DemandePaiementDto();
         $infoDa = $this->em->getRepository(DaAfficher::class)->getInfoDa($numCdeDa);
         if (empty($infoDa)) {
-            throw new \Exception("Aucune information trouvée pour le numero commande $numCdeDa");
+            throw new \Exception("Aucune information de demande d'approvisionnement trouvée pour le numero commande $numCdeDa");
         }
         $this->hydrateBaseInfo($dto, $typeDdp, $numCdeDa, $typeDa, $infoDa);
         $this->hydrateDaInfo($dto, $typeDa, $numeroVersionBc, $sessionService, $infoDa);
@@ -136,10 +141,10 @@ class DemandePaiementFactory
         $dto->montantTotalCde = (float)$recupMontantTotal[0];
         $dto->totalMontantCommande = $this->getTotalMontantCommandeValue($dto->numeroCommande);
 
-        $this->populateDdpaList($dto->numeroCommande, $dto);
-        $this->populateMontants($dto->numeroCommande, $dto);
+        $this->populateDdpaList($dto);
+        $this->populateMontants($dto);
 
-        $this->financialService->calculateGlobalFinancials($dto, $dto->totalPayer);
+        $this->financialService->calculateGlobalFinancials($dto);
     }
 
     private function getTotalMontantCommandeValue(int $numCde): float
@@ -148,9 +153,9 @@ class DemandePaiementFactory
         return $totalMontantCommande ? (float)$totalMontantCommande[0] : 0;
     }
 
-    private function populateDdpaList(int $numCde, DemandePaiementDto $dto): void
+    private function populateDdpaList(DemandePaiementDto $dto): void
     {
-        $ddps = $this->em->getRepository(DemandePaiement::class)->getDdpSelonNumCde($numCde);
+        $ddps = $this->em->getRepository(DemandePaiement::class)->getDdpSelonNumCde($dto->numeroCommande);
 
         $runningCumul = 0;
 
@@ -166,18 +171,15 @@ class DemandePaiementFactory
         }
     }
 
-    private function populateMontants(int $numCde, DemandePaiementDto $dto): void
+    private function populateMontants(DemandePaiementDto $dto): void
     {
-        $ddps = $this->em->getRepository(DemandePaiement::class)->getDdpSelonNumCde($numCde);
+        $ddps = $this->em->getRepository(DemandePaiement::class)->getDdpSelonNumCde($dto->numeroCommande);
         $totalPayer = 0;
         foreach ($ddps as $item) {
             $totalPayer += $item->getMontantAPayers();
         }
 
-        [$ratioTotalPayer, $montantAregulariser, $ratioMontantARegul] = $this->financialService->calculatePaymentRatios(
-            $totalPayer,
-            $dto->totalMontantCommande
-        );
+        [$ratioTotalPayer, $montantAregulariser, $ratioMontantARegul] = $this->financialService->calculatePaymentRatios($dto);
 
         DaSoumissionFacBlMapper::mapTotalPayer($dto, $totalPayer, $ratioTotalPayer, $montantAregulariser, $ratioMontantARegul);
     }

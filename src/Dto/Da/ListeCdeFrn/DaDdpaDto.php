@@ -9,9 +9,9 @@ class DaDdpaDto
     public $cumul = 0;
     public $numeroDdp;
     public $dateCreation;
-    public $motif;
+    public ?string $motif = null;
     public $montant = 0;
-    public $statut;
+    public ?string $statut = null;
 
     public function getRatio()
     {

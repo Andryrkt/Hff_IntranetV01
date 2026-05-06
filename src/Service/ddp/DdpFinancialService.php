@@ -9,10 +9,10 @@ class DdpFinancialService
     /**
      * Calcule les montants et pourcentages globaux pour le DTO.
      */
-    public function calculateGlobalFinancials(DemandePaiementDto $dto, float $totalPayer): void
+    public function calculateGlobalFinancials(DemandePaiementDto $dto): void
     {
         $dto->montantTotalCde = (float)$dto->montantTotalCde;
-        $dto->montantDejaPaye = $totalPayer;
+        $dto->montantDejaPaye = $dto->totalPayer;
         $dto->montantRestantApayer = $dto->montantTotalCde - $dto->montantDejaPaye;
         $dto->montantAPayer = $dto->montantRestantApayer;
 
@@ -30,8 +30,10 @@ class DdpFinancialService
      * 
      * @return array [ratioTotalPayer, montantAregulariser, ratioMontantARegul]
      */
-    public function calculatePaymentRatios(float $totalPayer, float $totalMontantCommande): array
+    public function calculatePaymentRatios(DemandePaiementDto $dto): array
     {
+        $totalMontantCommande = $dto->totalMontantCommande;
+        $totalPayer = $dto->totalPayer;
         if ($totalMontantCommande <= 0) {
             return [0, 0, 0];
         }
