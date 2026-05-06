@@ -48,6 +48,8 @@ class DemandePaiementDto
     public bool $estCdeClientExterneDoc = false;
     public array $nomCdeClientExterneDoc = [];
 
+    public array $ddpRecap = [];
+
     // piece joint ================================
     public array $numeroDossierDouane = [];
     public ?string $nomAutreDoc = null;

@@ -53,7 +53,7 @@ class DemandePaiementMapper
             ->setNumeroSoumissionDdpDa($dto->numeroSoumissionDdpDa ?? null)
             ->setNumeroDemandeAppro($dto->numeroDemandeAppro ?? null)
             ->setDdpSoumissioncde($dto->ddpSoumissioncde)
-        ;
+            ->setCodeSociete($dto->codeSociete);
 
         return $ddp;
     }

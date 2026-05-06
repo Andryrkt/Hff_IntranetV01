@@ -5,6 +5,7 @@ namespace App\Service\genererPdf\ddp;
 use App\Dto\ddp\DdpDto;
 use App\Dto\ddp\DemandePaiementDto;
 use App\Service\genererPdf\GeneratePdf;
+use App\Service\genererPdf\PdfTableGeneratorFlexible;
 use TCPDF;
 
 class GeneratePdfDdpDa extends GeneratePdf
@@ -190,7 +191,7 @@ class GeneratePdfDdpDa extends GeneratePdf
         $montantAPayer = is_string($dto->montantAPayer) ? $dto->montantAPayer : number_format((float)$dto->montantAPayer, 2, ',', '.');
         $pourcentageApayer = '(' . $dto->pourcentageAPayer . ' %) ';
         $cellWidth = $usable_width - 100;
-        $montantWidth = $pdf->GetStringWidth($montantAPayer) + 2; 
+        $montantWidth = $pdf->GetStringWidth($montantAPayer) + 2;
 
         // Pourcentage en rouge — bordures gauche + haut + bas - Aligné à droite pour coller au montant
         $pdf->SetTextColor(255, 0, 0);
@@ -201,6 +202,16 @@ class GeneratePdfDdpDa extends GeneratePdf
         $pdf->Cell($montantWidth, 10, $montantAPayer, 'RTB', 0, 'R'); // valeur de "Montant à payer" (126.000,12)
         $pdf->Cell(30, 10, $dto->devise, 1, 1); //  valeur de "Devise" (AR)
 
+        $pdf->Ln(5);
+        // tableau de recapitulation des historique de demande de paiement
+        $pdf->setFont('helvetica', 'B', 10);
+        $this->addTitle($pdf, 'Tableau récapitulatif des demandes de paiement effectué sur la commande');
+        $header = $this->headerTableau();
+        $pdf->setFont('helvetica', '', 10);
+        $generatorFlexible = new PdfTableGeneratorFlexible();
+        // dd($dto->ddpRecap);
+        $html1 = $generatorFlexible->generateTable($header, $dto->ddpRecap, []);
+        $pdf->writeHTML($html1, true, false, true, false, '');
         $pdf->Ln(5);
 
         $pdf->SetFont('helvetica', 'B', 12);
@@ -219,7 +230,81 @@ class GeneratePdfDdpDa extends GeneratePdf
         $pdf->SetFont('helvetica', '', 12);
         $pdf->MultiCell(0, 10, $dto->numeroDossierDouaneString(), 0, 'L', 0, 1);
 
-        //  TODO: génération de fichier: à changer plus tard
-        $pdf->Output($cheminEtNomDeFichier, 'I');
+        // génération de fichier: à changer plus tard
+        $pdf->Output($cheminEtNomDeFichier, 'F');
+    }
+
+    private function headerTableau(): array
+    {
+        // $formatterBooleenIcone = function ($value) {
+        //     return $value ? 'OUI' : '';
+        // };
+
+        // $formatterPourcentage = function ($value) {
+        //     return $value . '%';
+        // };
+
+        $formatterNull = function ($value) {
+            return ($value !== null && $value !== '') ? $value : '—';
+        };
+
+        $styleBoldCenter = 'font-weight: bold; text-align: center;';
+        $styleBoldLeft = 'font-weight: bold; text-align: left;';
+        $styleBoldRight = 'font-weight: bold; text-align: right;';
+
+        return [
+            [
+                'key' => 'dateCreation',
+                'label' => 'Date',
+                'width' => 50,
+                'style' => $styleBoldCenter,
+                'type' => 'date',
+            ],
+            [
+                'key' => 'numeroDdp',
+                'label' => 'N°',
+                'width' => 55,
+                'style' => $styleBoldCenter,
+            ],
+            [
+                'key' => 'typeDemande',
+                'label' => 'Type',
+                'width' => 120,
+                'style' => $styleBoldLeft,
+            ],
+            [
+                'key' => 'numeroFacture',
+                'label' => 'N° Facture',
+                'width' => 60,
+                'style' => $styleBoldCenter,
+                'formatter' => $formatterNull
+            ],
+            [
+                'key' => 'numeroFactureIps',
+                'label' => 'N° Facture IPS',
+                'width' => 50,
+                'style' => $styleBoldCenter,
+                'formatter' => $formatterNull
+            ],
+            [
+                'key' => 'montant',
+                'label' => 'Montant',
+                'width' => 50,
+                'style' => $styleBoldRight,
+                'type' => 'number',
+            ],
+            [
+                'key' => 'statut',
+                'label' => 'Statut',
+                'width' => 90,
+                'style' => $styleBoldCenter,
+            ],
+            [
+                'key' => 'emetteur',
+                'label' => 'Emetteur',
+                'width' => 50,
+                'style' => $styleBoldCenter,
+            ]
+        ];
     }
 }

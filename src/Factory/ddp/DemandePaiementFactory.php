@@ -13,6 +13,8 @@ use App\Entity\da\DaAfficher;
 use App\Entity\da\DaSoumissionBc;
 use App\Entity\ddp\DemandePaiement;
 use App\Mapper\Da\ListCdeFrn\DaSoumissionFacBlMapper;
+use App\Mapper\ddp\DdpRecapMapper;
+use App\Mapper\ddp\DemandePaiementMapper;
 use App\Model\da\DaSoumissionFacBlDdpaModel;
 use App\Model\ddp\DemandePaiementModel;
 use App\Service\autres\AutoIncDecService;
@@ -67,14 +69,31 @@ class DemandePaiementFactory
         $this->hydrateGeneralInfo($dto);
         $this->hydrateFournisseurInfo($dto, $infoDa);
         $this->hydrateFinancialData($dto);
+        $this->ddpRecap($dto);
 
         return $dto;
+    }
+
+    private function ddpRecap(DemandePaiementDto $dto)
+    {
+        $ddpRepository = $this->em->getRepository(DemandePaiement::class);
+        $ddpList = $ddpRepository->findBy([
+            'numeroCommande' => $dto->numeroCommande,
+            'numeroDemandeAppro' => $dto->numeroDemandeAppro,
+            'codeSociete' => $dto->codeSociete,
+        ]);
+
+        /** @var DemandePaiementDto[] $demandePaiementDto */
+        $demandePaiementDto = DemandePaiementMapper::mapInverse($ddpList);
+
+        $dto->ddpRecap = DdpRecapMapper::map($demandePaiementDto);
     }
 
     private function hydrateBaseInfo(DemandePaiementDto $dto, int $typeDdp, ?int $numCdeDa, ?int $typeDa, array $infoDa): void
     {
         $dto->typeDemande = $this->em->getRepository(TypeDemande::class)->find($typeDdp);
         $dto->numeroFacture = null;
+        $dto->numeroFactureIps = null;
         $dto->numeroCommande = $numCdeDa;
         $dto->debiteur = $this->getDebiteur($typeDa, $infoDa);
         $dto->codeSociete = $this->securityService->getCodeSocieteUser();
