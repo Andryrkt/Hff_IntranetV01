@@ -5,6 +5,7 @@ namespace App\Service\genererPdf\ddp;
 use App\Dto\ddp\DdpDto;
 use App\Dto\ddp\DemandePaiementDto;
 use App\Service\genererPdf\GeneratePdf;
+use App\Service\genererPdf\PdfTableGeneratorFlexible;
 use TCPDF;
 
 class GeneratePdfDdpDa extends GeneratePdf
@@ -35,12 +36,23 @@ class GeneratePdfDdpDa extends GeneratePdf
         $pdf->setPrintHeader(false); // Supprime l'en-tête
         $pdf->AddPage();
 
-        // tête de page 
-        $pdf->setY(5);
-        $pdf->SetFont('helvetica', '', 12);
-        $pdf->Cell(0, 8, 'Emetteur : ' . $dto->adresseMailDemandeur, 0, 1, 'R');
+        // tête de page : Logo | N° DDP | Emetteur sur la même ligne
+        $pdf->Image($logoPath, 5, 1, 40, 0, 'jpg'); // logo absolu X=5, Y=1, W=40
 
-        $pdf->Image($logoPath, 5, 1, 40, 0, 'jpg');
+        // Positionner le curseur texte juste après le logo, à la même hauteur
+        $pdf->SetXY(45, 5);
+        $pdf->SetFont('helvetica', '', 12);
+
+        // Largeur utilisable après le logo (jusqu'à la marge droite)
+        $wApresLogo = $pdf->GetPageWidth() - 45 - $margins['right'];
+        $wNumeroDdp = $pdf->GetStringWidth($dto->numeroDdp);
+
+        // N° DDP à gauche (juste après le logo)
+        $pdf->SetFont('helvetica', 'B', 12);
+        $pdf->Cell($wNumeroDdp + 2, 8, $dto->numeroDdp, 0, 0);
+
+        // Emetteur aligné à droite (largeur restante)
+        $pdf->Cell($wApresLogo - $wNumeroDdp - 2, 8, 'Emetteur : ' . $dto->adresseMailDemandeur, 0, 1, 'R');
 
         // Grand titre du pdf
         $pdf->SetFont('helvetica', 'B', 12);
@@ -49,29 +61,54 @@ class GeneratePdfDdpDa extends GeneratePdf
         $pdf->Cell(0, 8, 'Service comptabilité – DEMANDE DE PAIEMENT ', 0, 1, 'C');
 
         $pdf->setY(28);
-        $pdf->Cell($pdf->GetStringWidth('TYPE DE DEMANDE : '), 10, 'TYPE DE DEMANDE : ', 0, 0);
+
+        // --- Calcul des largeurs pour la ligne TYPE DE DEMANDE / N° DA ---
+        $pdf->SetFont('helvetica', 'B', 12);
+        $wLabelType = $pdf->GetStringWidth('TYPE DE DEMANDE : ');
+        $wLabelNda  = $pdf->GetStringWidth('N° DA : ');
+        $wValeurNda = $pdf->GetStringWidth($dto->numeroDemandeAppro);
+        // La valeur du type de demande prend l'espace restant (moins une petite marge)
+        $wValeurType = $usable_width - $wLabelType - $wLabelNda - $wValeurNda - 2;
+
+        // Label "TYPE DE DEMANDE : " en gras
+        $pdf->Cell($wLabelType, 10, 'TYPE DE DEMANDE : ', 0, 0);
+
+        // Valeur du type de demande en normal
         $pdf->SetFont('helvetica', '', 12);
-        $pdf->Cell(0, 10, $dto->typeDemande->getLibelle(), 0, 0); // valeur de "TYPE DE DEMANDE" (changer 'DEMANDE DE PAIEMENT A L’AVANCE')
+        $pdf->Cell($wValeurType, 10, $dto->typeDemande->getLibelle(), 0, 0);
 
-        $pdf->Line($pdf->GetX() + 1, $pdf->GetY() - 2.5, $pdf->GetX() + $pdf->GetStringWidth('TYPE DE DEMANDE') + 1, $pdf->GetY() - 2.5);
+
+        // Label "N° DA : " en gras
+        $pdf->Cell($wLabelNda, 10, 'N° DA : ', 0, 0);
         $pdf->SetFont('helvetica', 'B', 12);
-        $pdf->Cell(0, 10, $dto->numeroDdp, 0, 1, 'R');  // valeur de "NUMERO DOCUMENT" (changer 'DDP25019999'  + le version )
 
-        // Première ligne avec DATE et numeroDA côte à côte
+        // Valeur N° DA en gras, alignée à droite
+        $pdf->Cell($wValeurNda + 2, 10, $dto->numeroDemandeAppro, 0, 1, 'R'); // valeur de "NUMERO DOCUMENT" (changer 'DDP25019999'  + le version )
+
+        // --- Calcul des largeurs pour la ligne DATE / Emetteur ---
         $pdf->SetFont('helvetica', 'B', 12);
-        $pdf->Cell($pdf->GetStringWidth('DATE : '), 10, 'DATE : ', 0, 0);
-
+        $wLabelDate       = $pdf->GetStringWidth('DATE : ');
         $pdf->SetFont('helvetica', '', 12);
-        $largeurDate = $pdf->GetStringWidth($dto->dateDemande->format('d/m/Y'));
-        $pdf->Cell($largeurDate, 10, $dto->dateDemande->format('d/m/Y'), 0, 0);
+        $wValeurDate      = $pdf->GetStringWidth($dto->dateDemande->format('d/m/Y'));
+        $wLabelEmetteur   = $pdf->GetStringWidth('Emetteur : ');
+        $wValeurDemandeur = $pdf->GetStringWidth($dto->demandeur);
+        // La valeur de la date prend l'espace restant (moins une petite marge)
+        $wValeurDateCellule = $usable_width - $wLabelDate - $wValeurDate - $wLabelEmetteur - $wValeurDemandeur - 2;
 
-        // Calcul de l'espace restant pour le numeroDA aligné à droite
-        $largeurTotale = $pdf->GetPageWidth() - $pdf->getMargins()['left'] - $pdf->getMargins()['right'];
-        $largeurUtilisee = $pdf->GetStringWidth('DATE : ') + $largeurDate;
-        $largeurRestante = $largeurTotale - $largeurUtilisee;
-
+        // Label "DATE : " en gras
         $pdf->SetFont('helvetica', 'B', 12);
-        $pdf->Cell($largeurRestante, 10, $dto->numeroDemandeAppro, 0, 1, 'R');  // ln=1 pour passer à la ligne suivante
+        $pdf->Cell($wLabelDate, 10, 'DATE : ', 0, 0);
+
+        // Valeur de la date en normal
+        $pdf->SetFont('helvetica', '', 12);
+        $pdf->Cell($wValeurDate + $wValeurDateCellule, 10, $dto->dateDemande->format('d/m/Y'), 0, 0);
+
+        // Label "Emetteur : " en normal
+        $pdf->Cell($wLabelEmetteur, 10, 'Emetteur : ', 0, 0);
+
+        // Valeur demandeur en gras, alignée à droite
+        $pdf->SetFont('helvetica', 'B', 12);
+        $pdf->Cell($wValeurDemandeur + 2, 10, $dto->demandeur, 0, 1, 'R');
 
         $pdf->Line($pdf->GetX() + 1, $pdf->GetY() - 2.5, $pdf->GetX() + $pdf->GetStringWidth('DATE') + 1, $pdf->GetY() - 2.5);
 
@@ -125,7 +162,7 @@ class GeneratePdfDdpDa extends GeneratePdf
         $pdf->Cell(50, 10, 'CIF ', 1, 0);
 
         $pdf->SetFont('helvetica', '', 12);
-        $pdf->Cell($usable_width - 50, 10, $dto->cif, 1, 1); //  valeur de "CIF" 
+        $pdf->Cell($usable_width - 50, 10, $this->txt($dto->cif), 1, 1); //  valeur de "CIF" 
 
         $pdf->SetFont('helvetica', 'B', 12);
         $pdf->Cell(50, 10, 'Contact ', 1, 0);
@@ -148,16 +185,33 @@ class GeneratePdfDdpDa extends GeneratePdf
         $pdf->Cell($usable_width - 100, 10, 'Montant à payer', 1, 0, 'C');
         $pdf->Cell(30, 10, 'Devise', 1, 1, 'C');
 
-        $pdf->Line($pdf->GetX() + 16.5, $pdf->GetY() - 2.5, $pdf->GetX() + $pdf->GetStringWidth('Mode de paiement') + 16.5, $pdf->GetY() - 2.5);
-        $pdf->Line($pdf->GetX() + 98.5, $pdf->GetY() - 2.5, $pdf->GetX() + $pdf->GetStringWidth('Montant à payer') + 98.5, $pdf->GetY() - 2.5);
-        $pdf->Line($pdf->GetX() + 168.2, $pdf->GetY() - 2.5, $pdf->GetX() + $pdf->GetStringWidth('Devise') + 168.2, $pdf->GetY() - 2.5);
-
         $pdf->Cell(70, 10, $dto->modePaiement, 1, 0);
 
         $pdf->SetFont('helvetica', '', 12);
-        $pdf->Cell($usable_width - 100, 10, is_string($dto->montantAPayer) ? $dto->montantAPayer : number_format((float)$dto->montantAPayer, 2, ',', '.'), 1, 0); // valeur de "Montant à payer" (126.000,12)
+        $montantAPayer = is_string($dto->montantAPayer) ? $dto->montantAPayer : number_format((float)$dto->montantAPayer, 2, ',', '.');
+        $pourcentageApayer = '(' . $dto->pourcentageAPayer . ' %) ';
+        $cellWidth = $usable_width - 100;
+        $montantWidth = $pdf->GetStringWidth($montantAPayer) + 2;
+
+        // Pourcentage en rouge — bordures gauche + haut + bas - Aligné à droite pour coller au montant
+        $pdf->SetTextColor(255, 0, 0);
+        $pdf->Cell($cellWidth - $montantWidth, 10, $pourcentageApayer, 'LTB', 0, 'R');
+
+        // Montant en noir aligné à droite — bordures droite + haut + bas
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->Cell($montantWidth, 10, $montantAPayer, 'RTB', 0, 'R'); // valeur de "Montant à payer" (126.000,12)
         $pdf->Cell(30, 10, $dto->devise, 1, 1); //  valeur de "Devise" (AR)
 
+        $pdf->Ln(5);
+        // tableau de recapitulation des historique de demande de paiement
+        $pdf->setFont('helvetica', 'B', 10);
+        $this->addTitle($pdf, 'Tableau récapitulatif des demandes de paiement effectué sur la commande');
+        $header = $this->headerTableau();
+        $pdf->setFont('helvetica', '', 10);
+        $generatorFlexible = new PdfTableGeneratorFlexible();
+        // dd($dto->ddpRecap);
+        $html1 = $generatorFlexible->generateTable($header, $dto->ddpRecap, []);
+        $pdf->writeHTML($html1, true, false, true, false, '');
         $pdf->Ln(5);
 
         $pdf->SetFont('helvetica', 'B', 12);
@@ -178,5 +232,79 @@ class GeneratePdfDdpDa extends GeneratePdf
 
         // génération de fichier: à changer plus tard
         $pdf->Output($cheminEtNomDeFichier, 'F');
+    }
+
+    private function headerTableau(): array
+    {
+        // $formatterBooleenIcone = function ($value) {
+        //     return $value ? 'OUI' : '';
+        // };
+
+        // $formatterPourcentage = function ($value) {
+        //     return $value . '%';
+        // };
+
+        $formatterNull = function ($value) {
+            return ($value !== null && $value !== '') ? $value : '—';
+        };
+
+        $styleBoldCenter = 'font-weight: bold; text-align: center;';
+        $styleBoldLeft = 'font-weight: bold; text-align: left;';
+        $styleBoldRight = 'font-weight: bold; text-align: right;';
+
+        return [
+            [
+                'key' => 'dateCreation',
+                'label' => 'Date',
+                'width' => 50,
+                'style' => $styleBoldCenter,
+                'type' => 'date',
+            ],
+            [
+                'key' => 'numeroDdp',
+                'label' => 'N°',
+                'width' => 55,
+                'style' => $styleBoldCenter,
+            ],
+            [
+                'key' => 'typeDemande',
+                'label' => 'Type',
+                'width' => 120,
+                'style' => $styleBoldLeft,
+            ],
+            [
+                'key' => 'numeroFacture',
+                'label' => 'N° Facture',
+                'width' => 60,
+                'style' => $styleBoldCenter,
+                'formatter' => $formatterNull
+            ],
+            [
+                'key' => 'numeroFactureIps',
+                'label' => 'N° Facture IPS',
+                'width' => 50,
+                'style' => $styleBoldCenter,
+                'formatter' => $formatterNull
+            ],
+            [
+                'key' => 'montant',
+                'label' => 'Montant',
+                'width' => 50,
+                'style' => $styleBoldRight,
+                'type' => 'number',
+            ],
+            [
+                'key' => 'statut',
+                'label' => 'Statut',
+                'width' => 90,
+                'style' => $styleBoldCenter,
+            ],
+            [
+                'key' => 'emetteur',
+                'label' => 'Emetteur',
+                'width' => 50,
+                'style' => $styleBoldCenter,
+            ]
+        ];
     }
 }

@@ -34,7 +34,7 @@ class PdfTableGeneratorFlexible
      * Définit les options pour la génération du tableau.
      *
      * @param array $options
-     * @return $this
+     * @return self
      */
     public function setOptions(array $options): self
     {
@@ -96,16 +96,14 @@ class PdfTableGeneratorFlexible
             $html .= '<tr>';
             foreach ($headerConfig as $config) {
                 $key = $config['key'];
-                $value = '';
+                $value = null;
 
                 if (is_array($row) || $row instanceof \ArrayAccess) {
-                    $value = $row[$key] ?? '';
+                    $value = isset($row[$key]) || array_key_exists($key, (array)$row) ? $row[$key] : null;
                 } elseif (is_object($row)) {
-                    // Tenter de lire la propriété publique
-                    if (isset($row->{$key})) {
+                    if (property_exists($row, $key)) {
                         $value = $row->{$key};
                     } else {
-                        // Sinon, tenter d'appeler un getter
                         $getter = 'get' . ucfirst($key);
                         if (method_exists($row, $getter)) {
                             $value = $row->{$getter}();
@@ -215,6 +213,16 @@ class PdfTableGeneratorFlexible
 
         if ($isDate) {
             $defaultDateValue = $config['default_value'] ?? $this->options['default_date_value'] ?? '-';
+
+            if ($value instanceof \DateTimeInterface) {
+                return $value->format('d/m/Y');
+            }
+
+            // Si la chaîne est déjà au format d/m/Y, on la retourne directement
+            if (is_string($value) && preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $value)) {
+                return $value;
+            }
+
             // Vérifier si la valeur est une chaîne et non égale à la valeur par défaut pour éviter une mauvaise interprétation
             if (is_string($value) && !empty($value) && $value !== $defaultDateValue) {
                 try {

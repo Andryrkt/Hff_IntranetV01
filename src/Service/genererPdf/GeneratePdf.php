@@ -385,4 +385,20 @@ class GeneratePdf
         // Move to the next line
         $pdf->Ln(6, true);
     }
+
+    /**
+     * Convertit une chaîne UTF-8 en Windows-1252 pour les polices core TCPDF (Helvetica, Times, Courier).
+     * Sans cette conversion, les caractères spéciaux (°, é, à, etc.) s'affichent en "Â°", "Ã©", etc.
+     *
+     * @param string|null $text
+     * @return string
+     */
+    protected function txt(?string $text): string
+    {
+        if ($text === null || $text === '') {
+            return '';
+        }
+        return iconv('UTF-8', 'windows-1252//TRANSLIT//IGNORE', $text) ?: $text;
+    }
 }
+

@@ -9,7 +9,6 @@ use App\Dto\Da\ListeCdeFrn\DaSituationReceptionDto;
 use App\Dto\Da\ListeCdeFrn\DaSoumissionFacBlDto;
 use App\Dto\ddp\DemandePaiementDto;
 use App\Entity\admin\ddp\TypeDemande;
-use App\Entity\admin\utilisateur\User;
 use App\Entity\da\DaSoumissionBc;
 use App\Entity\ddp\DemandePaiement;
 use App\Mapper\Da\ListCdeFrn\DaSoumissionFacBlMapper;
@@ -18,7 +17,7 @@ use App\Service\autres\AutoIncDecService;
 use App\Service\da\DaSoumissionCalculService;
 use App\Service\da\DaSoumissionDataService;
 use App\Service\da\NumeroGenerateurService;
-
+use App\Service\security\SecurityService;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -32,27 +31,29 @@ class DaSoumissionFacBlFactory
     private NumeroGenerateurService $numeroGenerateurService;
     private DaSoumissionCalculService $calculService;
     private DaSoumissionDataService $dataService;
+    private SecurityService $securityService;
 
     public function __construct(
         EntityManagerInterface $em,
         DaSoumissionFacBlModel $daSoumissionFacBlModel,
         NumeroGenerateurService $numeroGenerateurService,
         DaSoumissionCalculService $calculService,
-        DaSoumissionDataService $dataService
+        DaSoumissionDataService $dataService,
+        SecurityService $securityService
     ) {
         $this->em = $em;
         $this->daSoumissionFacBlModel = $daSoumissionFacBlModel;
         $this->numeroGenerateurService = $numeroGenerateurService;
         $this->calculService = $calculService;
         $this->dataService = $dataService;
+        $this->securityService = $securityService;
     }
 
     public function initialisation(
         string $numCde,
         string $numDa,
         string $numOr,
-        string $codeSociete,
-        User $user
+        string $codeSociete
     ): DaSoumissionFacBlDto {
         $dto = new DaSoumissionFacBlDto();
 
@@ -60,9 +61,8 @@ class DaSoumissionFacBlFactory
         $dto->numeroDemandeAppro = $numDa;
         $dto->numeroOR = $numOr;
         $dto->codeSociete = $codeSociete;
-        $dto->user = $user;
         $dto->numeroDemandeDit = $this->dataService->getNumeroDit($dto->numeroDemandeAppro, $dto->codeSociete);
-        $dto->utilisateur = $user->getNomUtilisateur();
+        $dto->utilisateur = $this->securityService->getUserName();
         $dto->numeroVersionFacBl = $this->dataService->getNumeroVersion($dto->numeroCde, $dto->codeSociete);
         $dto->dateBlFac = $this->dataService->getDateLivraisonPrevue($dto->numeroDemandeAppro, $dto->numeroCde, $dto->codeSociete);
         $dto->dateDemande = new DateTime();
@@ -94,7 +94,7 @@ class DaSoumissionFacBlFactory
         return $dto;
     }
 
-    public function EnrichissementDtoApresSoumission(DaSoumissionFacBlDto $dto, $nomPdfFusionner = null)
+    public function EnrichissementDtoApresSoumission(DaSoumissionFacBlDto $dto, ?string $nomPdfFusionner = null)
     {
         if (empty($nomPdfFusionner)) return $dto;
 
@@ -169,7 +169,7 @@ class DaSoumissionFacBlFactory
             $ddpDto->ribFournisseur = $infoFournisseur[0]['rib_fournisseur'];
             $ddpDto->ribFournisseurAncien = $infoFournisseur[0]['rib_fournisseur'];
             $ddpDto->beneficiaire = $infoFournisseur[0]['nom_fournisseur'];
-            $ddpDto->modePaiement = $infoFournisseur[0]['mode_paiement'];
+            $ddpDto->modePaiement = 'CHEQUE';
             $ddpDto->devise = $infoFournisseur[0]['devise'];
         }
 
@@ -177,8 +177,8 @@ class DaSoumissionFacBlFactory
         $ddpDto->debiteur = $this->dataService->resolveDebiteur($infoDa['daTypeId'], $infoDa);
         $ddpDto->typeDemande = $this->getTypeDdp($dto);
         $ddpDto->statut = $dto->montantAregulariser <= 0.0 ? StatutConstants::DDPR_A_TRANSMETTRE : StatutConstants::DDPL_A_TRANSMETTRE;
-        $ddpDto->demandeur = $dto->user->getNomUtilisateur();
-        $ddpDto->adresseMailDemandeur = $dto->user->getMail();
+        $ddpDto->demandeur = $this->securityService->getUserName();
+        $ddpDto->adresseMailDemandeur = $this->securityService->getUserEmail();
         $ddpDto->montantAPayer = $dto->montantAregulariser;
         $ddpDto->numeroCommande = $dto->numeroCde;
         $ddpDto->numeroFacture = $dto->numeroFactureFournisseur;
