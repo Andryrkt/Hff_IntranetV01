@@ -15,7 +15,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\da\DemandeApproParentLine;
 use App\Controller\Traits\da\DaAfficherTrait;
 use App\Repository\da\DaObservationRepository;
-use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use App\Repository\da\DemandeApproParentRepository;
 use App\Repository\da\DaSoumisAValidationRepository;
 use App\Service\genererPdf\da\GenererPdfDaReappro;
@@ -47,11 +47,11 @@ trait DaAffectationTrait
     /**
      * Traite les lignes d'une demande parent
      *
-     * @param ArrayCollection    $daParentLines  Collection des lignes de la demande parent
+     * @param Collection         $daParentLines  Collection des lignes de la demande parent
      * @param DemandeApproParent $daParent       Objet de la demande parent
      * @param int                $daType         Type de la demande
      */
-    private function traitementDaParentLines(ArrayCollection $daParentLines, DemandeApproParent $daParent, int $daType)
+    private function traitementDaParentLines(Collection $daParentLines, DemandeApproParent $daParent, int $daType)
     {
         $demandeAppro = $this->createDemandeAppro($daParent, $daType);
         $numeroDemandeAppro = $demandeAppro->getNumeroDemandeAppro();
