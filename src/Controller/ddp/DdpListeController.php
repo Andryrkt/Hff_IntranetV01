@@ -32,12 +32,9 @@ class DdpListeController extends Controller
      */
     public function ddpListe(Request $request)
     {
-        $allAgenceServices = $this->getSecurityService()->getAllAgenceServices();
-
         // creation et traitment de formulaire de recherche
         $form = $this->getFormFactory()->createBuilder(DdpSearchType::class, new DdpSearchDto(), [
-            'method' => 'GET',
-            'allAgenceServices' => $allAgenceServices
+            'method' => 'GET'
         ])->getForm();
         $criteria = $this->traitementFormulaire($form, $request);
 
