@@ -4,6 +4,10 @@ namespace App\Controller\admin;
 
 use App\Controller\Controller;
 use App\Dto\admin\UserDTO;
+use App\Entity\admin\Agence;
+use App\Entity\admin\AgenceServiceIrium;
+use App\Entity\admin\Service;
+use App\Entity\admin\Societte;
 use App\Entity\admin\utilisateur\AgenceServiceDefautSociete;
 use App\Entity\admin\utilisateur\User;
 use App\Factory\admin\UserFactory;
@@ -64,7 +68,10 @@ class UserController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             $utilisateur = $this->userFactory->createFromDto($dto);
 
+            $agServDefSoc = $this->createAgenceServiceDefautSociete($utilisateur);
+
             $this->getEntityManager()->persist($utilisateur);
+            $this->getEntityManager()->persist($agServDefSoc);
             $this->getEntityManager()->flush();
 
             $this->redirectToRoute("utilisateur_index");
@@ -131,5 +138,32 @@ class UserController extends Controller
         }
 
         return $rows;
+    }
+
+    private function createAgenceServiceDefautSociete(User $user): AgenceServiceDefautSociete
+    {
+        $agenceServiceDefautSociete = new AgenceServiceDefautSociete();
+        /** @var AgenceServiceIrium $agServIrium */
+        $agServIrium = $user->getAgenceServiceIrium();
+
+        $codeAgence = $agServIrium->getAgenceips();
+        $codeService = $agServIrium->getServiceips();
+        $codeSociete = $agServIrium->getSocieteios();
+
+        $agence = $this->getEntityManager()->getRepository(Agence::class)->findOneBy(['codeAgence' => $codeAgence]);
+        $service = $this->getEntityManager()->getRepository(Service::class)->findOneBy(['codeService' => $codeService]);
+        $societe = $this->getEntityManager()->getRepository(Societte::class)->findOneBy(['codeSociete' => $codeSociete]);
+
+        $agenceServiceDefautSociete
+            ->setUser($user)
+            ->setCodeSage($agServIrium->getServicesagepaie())
+            ->setCodeAgence($codeAgence)
+            ->setCodeService($codeService)
+            ->setCodeSociete($codeSociete)
+            ->setAgence($agence)
+            ->setService($service)
+            ->setSociete($societe);
+
+        return $agenceServiceDefautSociete;
     }
 }
