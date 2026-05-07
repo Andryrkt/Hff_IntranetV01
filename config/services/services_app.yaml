@@ -3,22 +3,89 @@ services:
     _defaults:
         autowire: false
         autoconfigure: false
-        public: false
+        public: true
+        bind:
+            $projectDir: '%kernel.project_dir%'
 
-    # Services de base
+    # Anciens services (sans autowiring)
     App\Service\:
         resource: '../../src/Service/*'
         exclude:
+            - '../../src/Service/da/*'
+            - '../../src/Service/ddp/*'
             - '../../src/Service/dit/or/'
-        tags: ['app.service']
-        public: true
 
+    # Services du module DA (SOLID avec autowiring)
+    App\Service\da\:
+        resource: '../../src/Service/da/*'
+        autowire: true
+
+    App\Factory\da\:
+        resource: '../../src/Factory/da/*'
+        autowire: true
+
+    App\Controller\da\:
+        resource: '../../src/Controller/da/*'
+        autowire: true
+        tags: ['controller.service_arguments']
+
+    # Services du module DDP (SOLID avec autowiring)
+    App\Service\ddp\:
+        resource: '../../src/Service/ddp/*'
+        autowire: true
+
+    App\Factory\ddp\:
+        resource: '../../src/Factory/ddp/*'
+        autowire: true
+
+    App\Controller\ddp\:
+        resource: '../../src/Controller/ddp/*'
+        autowire: true
+        tags: ['controller.service_arguments']
+
+    # Services transversaux (activés unitairement car nécessaires au module DA)
+    App\Service\fichier\TraitementDeFichier:
+        autowire: true
+
+    App\Service\genererPdf\GeneratePdf:
+        autowire: true
+
+    App\Service\genererPdf\bap\GenererPdfBonAPayer:
+        autowire: true
+
+    App\Service\genererPdf\ddp\GeneratePdfDdpDa:
+        autowire: true
+
+    App\Service\dataPdf\ordreReparation\Recapitulation:
+        autowire: true
+
+    App\Service\historiqueOperation\HistoriqueOperationDaBcService:
+        autowire: true
+
+    App\Service\historiqueOperation\HistoriqueOperationDaFacBlService:
+        autowire: true
+
+    App\Service\historiqueOperation\HistoriqueOperationDDPService:
+        autowire: true
+
+    # Modèles et Repositories
     App\Model\:
         resource: '../../src/Model/*'
-        tags: ['app.model']
-        public: true
+        exclude:
+            - '../../src/Model/da/*'
+            - '../../src/Model/ddp/*'
+
+    App\Model\da\:
+        resource: '../../src/Model/da/*'
+        autowire: true
+
+    App\Model\ddp\:
+        resource: '../../src/Model/ddp/*'
+        autowire: true
 
     App\Repository\:
         resource: '../../src/Repository/*'
-        tags: ['app.repository']
-        public: true
+
+    App\Mapper\:
+        resource: '../../src/Mapper/*'
+        autowire: true

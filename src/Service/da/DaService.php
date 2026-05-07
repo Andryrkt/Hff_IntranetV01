@@ -6,6 +6,7 @@ use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
+use App\Entity\ddp\DemandePaiement;
 use App\Model\dw\DossierInterventionAtelierModel;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\da\DemandeApproRepository;
@@ -212,7 +213,7 @@ class DaService
     /** 
      * Obtenir l'url de la dernière ordre de réparation validé liée à la DA
      */
-    public function getOrPath(DemandeAppro $demandeAppro)
+    public function getOrPath(DemandeAppro $demandeAppro): array
     {
         $result = [];
         $dataOR = (new DossierInterventionAtelierModel)->findCheminOrDernierValide($demandeAppro->getNumeroDemandeDit(), $demandeAppro->getNumeroDemandeAppro());
@@ -225,5 +226,20 @@ class DaService
         }
 
         return $result;
+    }
+
+    public function getAllDdpPath(DemandeAppro $demandeAppro): array
+    {
+        $items = [];
+        $numDa = $demandeAppro->getNumeroDemandeAppro();
+        $ddps = $this->em->getRepository(DemandePaiement::class)->findAllDdpByDa($numDa);
+
+        foreach ($ddps as $numeroDdp) {
+            $items[] = [
+                'numeroDdp' => $numeroDdp,
+                'path'      => "{$_ENV['BASE_PATH_FICHIER_COURT']}/ddp/$numeroDdp/$numeroDdp.pdf",
+            ];
+        }
+        return $items;
     }
 }

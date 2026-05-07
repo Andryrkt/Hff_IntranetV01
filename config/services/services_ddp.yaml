@@ -1,0 +1,27 @@
+services:
+  # Modèles DDP
+  App\Model\ddp\DdpModel:
+    public: true
+
+  # Factories DDP
+  App\Factory\ddp\DdpFactory:
+    arguments:
+      - '@App\Model\ddp\DdpModel'
+      - "@doctrine.orm.default_entity_manager"
+      - '@App\Service\da\NumeroGenerateurService'
+      - '@App\Service\security\SecurityService'
+    public: true
+
+  # Contrôleurs DDP
+  App\Controller\ddp\DdpController:
+    arguments:
+      $ddpFactory: '@App\Factory\ddp\DdpFactory'
+      $ddpService: '@App\Service\ddp\Magasin\DdpService'
+      $ddpLigneService: '@App\Service\ddp\Magasin\DdpLigneService'
+      $ddpDocService: '@App\Service\ddp\Magasin\DdpDocService'
+    public: true
+
+  App\Controller\ddp\DdpDetailController:
+    arguments:
+      $docRattacheService: '@App\Service\da\DocRattacheService'
+    public: true

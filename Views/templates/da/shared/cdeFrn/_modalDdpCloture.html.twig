@@ -1,0 +1,41 @@
+<div class="modal fade" id="ddpCloture" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title fw-bold">
+					Historique demande de paiement
+				</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<div class="table-responsive">
+					<table class="table table-sm table-hover" id="tableStatutCloture">
+						<thead>
+							<tr>
+								<th>Date soumission</th>
+								<th>Numéro</th>
+								<th>Type</th>
+								<th>Motif</th>
+								<th class="text-center">Montant HT</th>
+								{# <th class="text-center">%</th> #}
+								{# <th class="text-center">% Cumul</th> #}
+								<th>Statut</th>
+							</tr>
+						</thead>
+						<tbody
+							id="statutClotureBody">
+							<!-- Rempli par JS -->
+							<tr>
+								<td colspan="3" class="text-center">
+									<div class="spinner-border text-primary" role="status">
+										<span class="visually-hidden">Chargement...</span>
+									</div>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

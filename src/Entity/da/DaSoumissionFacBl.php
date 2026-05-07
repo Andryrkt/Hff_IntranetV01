@@ -2,7 +2,6 @@
 
 namespace App\Entity\da;
 
-use App\Constants\da\ddp\BonApayerConstants;
 use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\da\DaSoumissionFacBlRepository;
@@ -143,6 +142,13 @@ class DaSoumissionFacBl
      * @ORM\Column(type="string", length=8, name="numero_facture_reappro", nullable=true)
      */
     private ?string $numeroFactureReappro = null;
+
+    /**
+     * @ORM\Column(type="string", length=11, name="numero_cla", nullable=true)
+     *
+     * @var string|null
+     */
+    private ?string $numeroCla = null;
 
     /**
      * @ORM\Column(type="string", length=100, name="code_societe")
@@ -571,23 +577,6 @@ class DaSoumissionFacBl
         return $this;
     }
 
-
-
-    /**
-     * Retourne la classe CSS appropriée pour le statut de la demande
-     * Utilise StatutDomConstants pour centraliser la logique
-     * 
-     * @return string
-     */
-    public function getStatutCssClass(): string
-    {
-        if (!$this->statutBap) {
-            return '';
-        }
-
-        return BonApayerConstants::getCssClass($this->statutBap);
-    }
-
     /**
      * Get the value of estFactureReappro
      */
@@ -620,6 +609,24 @@ class DaSoumissionFacBl
     public function setNumeroFactureReappro(?string $numeroFactureReappro): self
     {
         $this->numeroFactureReappro = $numeroFactureReappro;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroCla
+     */
+    public function getNumeroCla(): ?string
+    {
+        return $this->numeroCla;
+    }
+
+    /**
+     * Set the value of numeroCla
+     */
+    public function setNumeroCla(?string $numeroCla): self
+    {
+        $this->numeroCla = $numeroCla;
 
         return $this;
     }

@@ -15,32 +15,6 @@ class DaSoumissionBc
 {
     use DateTrait;
 
-    public const STATUT_A_GENERER                = 'A générer';
-    public const STATUT_A_EDITER                 = 'A éditer';
-    public const STATUT_A_SOUMETTRE_A_VALIDATION = 'A soumettre à validation';
-    public const STATUT_A_ENVOYER_AU_FOURNISSEUR = 'A envoyer au fournisseur';
-    public const STATUT_SOUMISSION               = 'Soumis à validation';
-    public const STATUT_A_VALIDER_DA             = 'A valider DA';
-    public const STATUT_VALIDE                   = 'Validé';
-    public const STATUT_CLOTURE                  = 'Clôturé';
-    public const STATUT_REFUSE                   = 'Refusé';
-    public const STATUT_BC_ENVOYE_AU_FOURNISSEUR = 'BC envoyé au fournisseur';
-    public const STATUT_PAS_DANS_OR              = 'PAS DANS OR';
-    public const STATUT_PAS_DANS_BC              = 'Pas dans BC';
-    public const STATUT_PAS_DANS_OR_CESSION      = 'Pas dans OR cession';
-    public const STATUT_NON_DISPO                = 'Non Dispo Fournisseur';
-
-    // statut pour Da Reappro
-    public const STATUT_CESSION_A_GENERER = 'Cession à générer';
-    public const STATUT_EN_COURS_DE_PREPARATION = 'En cours de préparation';
-
-
-    // statut pour Da Reappro , Da Direct, Da Via OR
-    public const STATUT_TOUS_LIVRES              = 'Tous livrés';
-    public const STATUT_PARTIELLEMENT_LIVRE      = 'Partiellement livré';
-    public const STATUT_PARTIELLEMENT_DISPO      = 'Partiellement dispo';
-    public const STATUT_COMPLET_NON_LIVRE        = 'Complet non livré';
-
     public const POSITION_TERMINER = 'TE';
     public const POSITION_ENCOUR   = 'EC';
     public const POSITION_EDITER   = 'ED';
@@ -100,6 +74,16 @@ class DaSoumissionBc
      * @var float|null
      */
     private ?float $montantBc;
+
+    /**
+     * @ORM\Column(type="boolean", name="est_demande_paiement_a_l_avance")
+     */
+    private $DemandePaiementAvance;
+
+    /**
+     * @ORM\Column(type="string", length="12", name="numero_demande_paiement ")
+     */
+    private $numeroDemandePaiement;
 
     /**
      * @ORM\Column(type="string", length=2, name="code_societe")
@@ -311,6 +295,42 @@ class DaSoumissionBc
     public function setMontantBc($montantBc)
     {
         $this->montantBc = $montantBc;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of DemandePaiementAvance
+     */
+    public function getDemandePaiementAvance()
+    {
+        return $this->DemandePaiementAvance;
+    }
+
+    /**
+     * Set the value of DemandePaiementAvance
+     */
+    public function setDemandePaiementAvance($DemandePaiementAvance): self
+    {
+        $this->DemandePaiementAvance = $DemandePaiementAvance;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroDemandePaiement
+     */
+    public function getNumeroDemandePaiement()
+    {
+        return $this->numeroDemandePaiement;
+    }
+
+    /**
+     * Set the value of numeroDemandePaiement
+     */
+    public function setNumeroDemandePaiement($numeroDemandePaiement): self
+    {
+        $this->numeroDemandePaiement = $numeroDemandePaiement;
 
         return $this;
     }

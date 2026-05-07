@@ -6,7 +6,7 @@ use App\Model\Model;
 
 class DaSoumissionBcModel extends Model
 {
-    public function getNumDa(string $numCde, string $codeSociete)
+    public function getNumDa(string $numCde, string $codeSociete): ?string
     {
         $statement = " SELECT TRIM(fc.fcde_cdeext) as num_da 
                         from informix.frn_cde fc
@@ -17,6 +17,6 @@ class DaSoumissionBcModel extends Model
         $result = $this->connect->executeQuery($statement);
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
 
-        return array_column($data, 'num_da');
+        return array_column($data, 'num_da')[0] ?? null;
     }
 }

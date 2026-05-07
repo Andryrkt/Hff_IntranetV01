@@ -2,6 +2,7 @@
 
 namespace App\Form\ddp;
 
+use App\Constants\ddp\TypeDemandePaiementConstants;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use Doctrine\ORM\EntityManagerInterface;
@@ -25,6 +26,7 @@ use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 class DemandePaiementType extends AbstractType
 {
@@ -48,10 +50,6 @@ class DemandePaiementType extends AbstractType
 
     private function numeroFac($numeroFournisseur, $typeId)
     {
-        //   $numComandes = $this->demandePaiementRepository->getnumCde();
-        //     $excludedCommands = $this->changeStringToArray($numComandes);
-        // $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur, $typeId, $excludedCommands);
-
         $numCdes = $this->recuperationCdeFacEtNonFac($typeId);
         $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
 
@@ -59,11 +57,8 @@ class DemandePaiementType extends AbstractType
         return array_combine($listeGcot, $listeGcot);
     }
 
-    private function numeroCmd($numeroFournisseur, $typeId)
+    private function numeroCmd($typeId)
     {
-        //  $numComandes = $this->demandePaiementRepository->getnumCde();
-        //     $excludedCommands = $this->changeStringToArray($numComandes);
-        // $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur, $typeId, $excludedCommands);
         $numCdes = $this->recuperationCdeFacEtNonFac($typeId);
         return array_combine($numCdes, $numCdes);
     }
@@ -105,6 +100,7 @@ class DemandePaiementType extends AbstractType
         return $devises;
     }
 
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
@@ -124,7 +120,7 @@ class DemandePaiementType extends AbstractType
                 ChoiceType::class,
                 [
                     'label'     => 'N° Commande fournisseur *',
-                    'choices'   =>  array_key_exists('data', $options) ? $this->numeroCmd($options['data']->getNumeroFournisseur(), $options['id_type']) : [],
+                    'choices'   =>  array_key_exists('data', $options) ? $this->numeroCmd($options['id_type']) : [],
                     'multiple'  => true,
                     'expanded'  => false,
                     'attr'      => [
@@ -142,8 +138,9 @@ class DemandePaiementType extends AbstractType
                     'multiple'  => true,
                     'expanded'  => false,
                     'attr'      => [
-                        'disabled' => $options['id_type'] == 1,
-                        'data-typeId' => $options['id_type']
+                        'disabled' => $options['id_type'] == TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE,
+                        'data-typeId' => $options['id_type'],
+                        'data-typeDa' => null
                     ]
                 ]
             )
@@ -151,7 +148,7 @@ class DemandePaiementType extends AbstractType
                 $form = $event->getForm();
                 $data = $event->getData();
 
-                if ($options['id_type'] == 1) {
+                if ($options['id_type'] == TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE) {
                     $form->add(
                         'numeroCommande',
                         ChoiceType::class,
@@ -201,9 +198,41 @@ class DemandePaiementType extends AbstractType
                 TextType::class,
                 [
                     'label' => 'RIB *',
+                    'constraints' => [
+                        new Assert\NotBlank(),
+                        new Assert\Regex([
+                            'pattern' => '/^[0-9][0-9 ]*$/',
+                            'message' => 'Le RIB doit commencer par un chiffre et ne contenir que des chiffres et des espaces.',
+                        ]),
+                        new Assert\Length([
+                            'min' => 26, // 23 chiffres + 3 espaces = 26 caractères
+                            'max' => 26,
+                            'exactMessage' => 'Le RIB doit contenir exactement 23 chiffres et 3 espaces.',
+                        ]),
+                        new Assert\Callback(function ($value, $context) {
+                            // Vérification supplémentaire pour s'assurer qu'il y a exactement 23 chiffres et 3 espaces
+                            if ($value) {
+                                $digits = preg_replace('/[^0-9]/', '', $value);
+                                $spaces = substr_count($value, ' ');
+
+                                if (strlen($digits) !== 23) {
+                                    $context->buildViolation('Le RIB doit contenir exactement 23 chiffres.')
+                                        ->addViolation();
+                                }
+
+                                if ($spaces !== 3) {
+                                    $context->buildViolation('Le RIB doit contenir exactement 3 espaces.')
+                                        ->addViolation();
+                                }
+                            }
+                        }),
+                    ],
                     'attr' => [
-                        'readOnly' => true
-                    ]
+                        'placeholder' => '00005 ***** ********* 45',
+                        'class' => 'rib-field',
+                        'maxlength' => 26,
+                        'data-format-rib' => 'true', // Pour le JavaScript
+                    ],
                 ]
             )
             ->add(
@@ -240,9 +269,9 @@ class DemandePaiementType extends AbstractType
                 TextType::class,
                 [
                     'label' => 'Montant à payer *',
-                    'attr' => [
-                        'readOnly' => true
-                    ]
+                    // 'attr' => [
+                    //     'readOnly' => true
+                    // ]
                 ]
             )
             ->add(
@@ -329,9 +358,6 @@ class DemandePaiementType extends AbstractType
                 if ($data instanceof DemandePaiement && $data->getAgence()) {
                     $services = $data->getAgence()->getServices();
                 }
-                //$services = $data->getAgence()->getServices();
-                // $agence = $event->getData()->getAgence() ?? null;
-                // $services = $agence->getServices();
 
                 $form->add(
                     'service',
@@ -356,35 +382,6 @@ class DemandePaiementType extends AbstractType
                     ]
                 );
             })
-            // ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
-            //     $form = $event->getForm();
-            //     $data = $event->getData();
-
-
-            //     $agenceId = $data['agence'];
-
-            //     $agence = $this->agenceRepository->find($agenceId);
-            //     if($agence === null){
-            //         $services = [];
-            //     } else {
-            //         $services = $agence->getServices();
-            //     }
-
-
-            //     $form->add('service', EntityType::class, [
-            //         'label' => 'Service Débiteur *',
-            //         'class' => Service::class,
-            //         'choice_label' => function (Service $service): string {
-            //             return $service->getCodeService() . ' ' . $service->getLibelleService();
-            //         },
-            //         'choices' => $services,
-            //         'required' => false,
-            //         'attr' => [
-            //             'class' => 'serviceDebiteur',
-            //             'disabled' => true,
-            //         ]
-            //     ]);
-            // })
             ->add(
                 'agence',
                 EntityType::class,
@@ -454,5 +451,6 @@ class DemandePaiementType extends AbstractType
 
         // Ajoutez l'option 'id_type' pour éviter l'erreur
         $resolver->setDefined('id_type');
+        $resolver->setDefined('numcdeDa');
     }
 }

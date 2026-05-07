@@ -1,0 +1,253 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block stylesheets %}
+	<link href="{{ App.base_path }}/Views/css/new.css?v=2025.10.22.08.00" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/dit/ditInsertionOr.css?v=2025.10.22.08.00" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/ddp/demandePaiement.css?v=2025.10.22.08.00" rel="stylesheet"/>
+
+{% endblock %}
+
+{% import "macroForm.html.twig" as macroForm %}
+
+{% set typeDemande = dto.typeDemande.getId  %}
+
+{% block content %}
+	<div class="container-fluid mt-6">
+		<div class="row">
+			<div class="col-12 col-md-6">
+				<div class="row">
+					<div class="col-12 col-md-11">
+						<h3 class="perso-titre">
+							{% if typeDemande == 1 %}
+								Formulaire Demande de paiement à l’avance
+							{% else %}
+								Formulaire Demande de paiement après arrivage
+							{% endif %}
+						</h3>
+					</div>
+
+					<div class=" col-12 col-md-1">
+						<a href="{{ path("profil_acceuil")}}" class="tablinks p-2 btn btn-outline-warning" style="text-decoration: none;color:black">Retour</a>
+					</div>
+				</div>
+				<hr>
+				<div class="row">
+					<div class="col-12 col-md-12 bg-Light shadow-lg rounded">
+						{% include "/da/shared/cdeFrn/_tableauDdpa.html.twig" %}
+					</div>
+				</div>
+				<hr>
+				{{ form_start(form, {'attr': {'id': 'demande-paiement-da-form', 'data-form-type': 'demande-paiement-da'}}) }}
+				{{ form_errors(form)}}
+				<div class="row">
+					<div class="col-12 col-md-2">
+						{{ form_row(form.numeroFournisseur) }}
+						<div id="suggestion-num-fournisseur" class="suggestions-container"></div>
+						<div id="loader-num-fournisseur" class="spinner" style="display: none;">Chargement...</div>
+						{{ form_row(form.modePaiement)}}
+
+					</div>
+					<div class="col-12 col-md-4">
+						{{ form_row(form.beneficiaire)}}
+						<div id="suggestion-nom-fournisseur" class="suggestions-container"></div>
+						<div id="loader-nom-fournisseur" class="spinner" style="display: none;">Chargement...</div>
+						{{ form_row(form.ribFournisseur) }}
+						{{ form_row(form.cif) }}
+
+					</div>
+					<div class="col-12 col-md-3">
+						<div class="spinner-container">
+							{{ form_row(form.debiteur.agence, {'attr': {'class': 'agenceDebiteur'}}) }}
+							{% include 'components/spinner.html.twig' with {
+								'id': 'spinner-service-debiteur',
+								'size': 'small',
+								'class': 'spinner-absolute'
+							} %}
+						</div>
+						<div id="service-container-debiteur" class="mb-3">
+							{{ form_label(form.debiteur.service) }}
+							{{ form_widget(form.debiteur.service, {'attr': {'class': 'serviceDebiteur'}}) }}
+						</div>
+					</div>
+					<div class="col-12 col-md-3">
+						{{ form_row(form.contact)}}
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-12 col-md-2">{{ form_row(form.devise)}}</div>
+
+					<div class="col-12 col-md-10">{{ form_row(form.motif, {'attr': {'oninput': 'this.value = this.value.toUpperCase()'}}) }}</div>
+				</div>
+				<div class="row">
+					<div class="col-12 col-md-4">
+						{{ form_row(form.numeroFacture)}}
+					</div>
+					<div class="col-12 col-md-4">
+						{{ form_row(form.numeroCommande)}}
+						<div id="suggestion-num-commande" class="suggestions-container"></div>
+						<div id="loader" style="display: none;">Chargement...</div>
+					</div>
+
+					<div class="col-12 col-md-4"></div>
+				</div>
+				<div class="row">
+					<div class="col-12 col-md-2">{{ form_row(form.montantTotalCde)}}</div>
+					<div class="col-12 col-md-2">{{ form_row(form.montantDejaPaye)}}</div>
+					<div class="col-12 col-md-2">{{ form_row(form.montantRestantApayer)}}</div>
+					<div class="col-12 col-md-2">{{ form_row(form.montantAPayer)}}</div>
+					<div class="col-12 col-md-2">{{ form_row(form.pourcentageAPayer)}}</div>
+					<div class="col-12 col-md-2">{{ form_row(form.pourcentageAvance)}}</div>
+					<div class="col-12 col-md-2"></div>
+				</div>
+				<div class="row">
+					<div class="col-12 col-md-4">
+						{% if typeDemande == 1 %}
+							<p>Veuillez insérer
+								<strong>le proforma facture fournisseur *</strong>
+							</p>
+						{% else %}
+							<p>Veuillez insérer
+								<strong>le contrôle livraison *</strong>
+							</p>
+						{% endif %}
+						{% include '/partials/_dropZoneFile.html.twig' with {'id': '1', 'form': form, 'fieldName': 'pieceJoint01'} %}
+					</div>
+					<div class="col-12 col-md-4">
+						<p>
+							Veuillez insérer
+							<strong>
+								rib fournisseur
+							</strong>
+						</p>
+						{% include '/partials/_dropZoneFile.html.twig' with {'id': '2', 'form': form, 'fieldName': 'pieceJoint02'} %}
+					</div>
+					<div class="col-12 col-md-4 {{ dto.typeDa is not null ? 'd-none' : ''}}">
+						<p>
+							<strong>
+								BC client externe / BC client magasin
+							</strong>
+						</p>
+						{% include '/partials/_dropZoneFileMultiple.html.twig' with {'id': '3', 'form': form, 'fieldName': 'pieceJoint03'} %}
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-12 col-md-4">
+						<p>
+							<strong>
+								Autres documents
+							</strong>
+						</p>
+						{% include '/partials/_dropZoneFile.html.twig' with {'id': '4', 'form': form, 'fieldName': 'pieceJoint04'} %}
+					</div>
+
+					<div class="col-12 col-md-4">
+						{% if form.fichiersChoisis is defined %}
+							<p>
+								<b>Pièces jointes de la DA :</b>
+							</p>
+							<ul id="liste_fichiers" class="list-unstyled d-flex flex-wrap">
+								{% for file_input in form.fichiersChoisis %}
+									<li class="d-flex justify-content-between align-items-center mb-2 me-2 p-2 border rounded file-item-pj flex-grow-0 flex-shrink-1">
+										<div class="d-flex align-items-center me-2">
+											<i class="fas fa-file-pdf me-2 text-danger"></i>
+											<a href="#" class="view-file-link" data-url="{{ baseUrlFichier ~ file_input.vars.value }}">{{ file_input.vars.value }}</a>
+											{{ form_widget(file_input) }}
+										</div>
+										<button type="button" class="btn btn-sm btn-outline-danger remove-pj-file" title="Supprimer ce fichier">
+											<i class="fas fa-trash-alt"></i>
+										</button>
+									</li>
+								{% endfor %}
+							</ul>
+						{% endif %}
+					</div>
+				</div>
+				<div
+					class="row">
+					<!-- Debut affichage du tableau liste des factures-->
+					<div class="row d-none" id="tableau_facture"></div>
+					<div class="row d-none" id="tableau_dossier"></div>
+
+					<div class="d-flex justify-content-end">
+						<button type="submit" class="btn bouton mt-2" data-confirmation data-form="#demande-paiement-da-form" data-confirmation-message="Confirmez-vous l'envoi ?" data-confirmation-text="Vous êtes en train de soumettre une demande de paiement à validation dans DocuWare" data-warning-message="Merci de ne pas fermer la page pendant le traitement.">
+							<i class="fas fa-save"></i>
+							Enregistrer
+						</button>
+					</div>
+					{{ form_end(form) }}
+				</div>
+
+			</div>
+			<div class="col-12 col-md-6">
+				<div
+					id="file-viewer" class="mt-3">
+					<!-- Onglets -->
+					<ul class="nav nav-tabs" id="pdfTabs" role="tablist">
+						<li class="nav-item" role="presentation">
+							<button class="nav-link active" id="tab1-tab" data-bs-toggle="tab" data-bs-target="#tab1" type="button" role="tab">
+								{% if typeDemande == 1 %}
+									Proforma facture fournisseur
+								{% else %}
+									Contrôle livraison
+								{% endif %}
+							</button>
+						</li>
+						<li class="nav-item" role="presentation">
+							<button class="nav-link" id="tab2-tab" data-bs-toggle="tab" data-bs-target="#tab2" type="button" role="tab">
+								RIB fournisseur
+							</button>
+						</li>
+						<li class="nav-item {{dto.typeDa is not null ? 'd-none' : ''}}" role="presentation">
+							<button class="nav-link" id="tab3-tab" data-bs-toggle="tab" data-bs-target="#tab3" type="button" role="tab">
+								BC client externe / BC client magasin</button>
+						</li>
+						<li class="nav-item" role="presentation">
+							<button class="nav-link" id="tab4-tab" data-bs-toggle="tab" data-bs-target="#tab4" type="button" role="tab">
+								Autres documents
+							</button>
+						</li>
+						<li class="nav-item d-none" role="presentation" id="pj-preview-tab-item">
+							<button class="nav-link" id="pj-preview-tab" data-bs-toggle="tab" data-bs-target="#pj-preview-pane" type="button" role="tab">
+								Aperçu PJ
+							</button>
+						</li>
+					</ul>
+
+					<!-- Contenu des onglets -->
+					<div
+						class="tab-content border border-top-0 p-3" id="pdfTabContent">
+						<!-- Tab 1 -->
+						<div class="tab-pane fade show active" id="tab1" role="tabpanel" aria-labelledby="tab1-tab">
+							<div id="file-list-1" class="mt-3"></div>
+						</div>
+
+						<!-- Tab 2 -->
+						<div class="tab-pane fade" id="tab2" role="tabpanel" aria-labelledby="tab2-tab">
+							<div id="file-list-2" class="mt-3"></div>
+						</div>
+
+						<!-- Tab 3 -->
+						<div class="tab-pane fade" id="tab3" role="tabpanel" aria-labelledby="tab3-tab">
+							<div id="file-list-3" class="mt-3"></div>
+						</div>
+
+						<!-- Tab 4 -->
+						<div class="tab-pane fade" id="tab4" role="tabpanel" aria-labelledby="tab4-tab">
+							<div id="file-list-4" class="mt-3"></div>
+						</div>
+
+						<!-- PJ Preview Tab -->
+						<div
+							class="tab-pane fade" id="pj-preview-pane" role="tabpanel" aria-labelledby="pj-preview-tab"><!-- Iframe will be injected here -->
+						</div>
+					</div>
+				</div>
+
+			</div>
+
+
+		{% endblock %}
+
+		{% block javascript %}
+			<script type="module" src="{{ App.base_path }}/Views/js/ddp/demandePaiementDa.js?v=2025.10.22.08.00"></script>
+		{% endblock %}

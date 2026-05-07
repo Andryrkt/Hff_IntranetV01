@@ -46,6 +46,7 @@ class DemandeIntervention
     public const STATUT_CLOTUREE_VALIDER = 53;
     public const STATUT_CLOTUREE_HORS_DELAI = 54;
     public const STATUT_TERMINER = 57;
+    public const STATUT_A_VALIDER_CHEF_RENTAL = 78;
 
     /**
      * @ORM\Id
@@ -1844,31 +1845,6 @@ class DemandeIntervention
     }
 
     /**
-     * Get the value of DemandeAppro
-     */
-    public function getDemandeAppro(): Collection
-    {
-        return $this->demandeAppro;
-    }
-
-    public function addDemandeAppro(DemandeAppro $demandeAppro): void
-    {
-        if (!$this->demandeAppro->contains($demandeAppro)) {
-            $this->demandeAppro[] = $demandeAppro;
-            $demandeAppro->setDit($this);
-        }
-    }
-
-    public function removeDemandeAppro(DemandeAppro $demandeAppro): void
-    {
-        if ($this->demandeAppro->removeElement($demandeAppro)) {
-            if ($demandeAppro->getDit() === $this) {
-                $demandeAppro->setDit(null);
-            }
-        }
-    }
-
-    /**
      * Get the value of pdfDeposerDw
      */
     public function getPdfDeposerDw()
@@ -1902,5 +1878,30 @@ class DemandeIntervention
         $this->dateDepotPdfDw = $dateDepotPdfDw;
 
         return $this;
+    }
+
+    /**
+     * Get the value of DemandeAppro
+     */
+    public function getDemandeAppro(): Collection
+    {
+        return $this->demandeAppro;
+    }
+
+    public function addDemandeAppro(DemandeAppro $demandeAppro): void
+    {
+        if (!$this->demandeAppro->contains($demandeAppro)) {
+            $this->demandeAppro[] = $demandeAppro;
+            $demandeAppro->setDit($this);
+        }
+    }
+
+    public function removeDemandeAppro(DemandeAppro $demandeAppro): void
+    {
+        if ($this->demandeAppro->removeElement($demandeAppro)) {
+            if ($demandeAppro->getDit() === $this) {
+                $demandeAppro->setDit(null);
+            }
+        }
     }
 }

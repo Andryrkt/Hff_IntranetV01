@@ -17,6 +17,7 @@ use App\Form\planningAtelier\planningAtelierSearchType;
  */
 class planningAtelierControler extends Controller
 {
+
     private planningAtelierSearch $planningAtelierSearch;
     private planningAtelierModel $planningAtelierModel;
     public function __construct()
@@ -33,7 +34,7 @@ class planningAtelierControler extends Controller
     public function planningAtelierEncours(Request $request)
     {
         $form = $this->getFormFactory()->createBuilder(
-            PlanningAtelierSearchType::class,
+            planningAtelierSearchType::class,
             $this->planningAtelierSearch,
             ['method' => 'GET']
         )->getForm();
@@ -43,6 +44,8 @@ class planningAtelierControler extends Controller
         $output = [];
         $filteredDates = [];
         $dates = [];
+        $paginationQuery = $request->query->all();
+        unset($paginationQuery['page']);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
@@ -50,18 +53,24 @@ class planningAtelierControler extends Controller
             $end = $criteria->getDateFin();
 
             $result = $this->planningAtelierModel->recupData($criteria);
-            $interval = new \DateInterval('P1D');
-            $period = new \DatePeriod($start, $interval, (clone $end)->modify('+1 day'));
+            if (!$start && !$end) {
+                [$start, $end] = $this->extractMinMaxDateFromResult($result);
+            }
 
-            foreach ($period as $date) {
-                $dates[] = $date;
-                $filteredDates[] = $date->format('Y-m-d');
+            $interval = new \DateInterval('P1D');
+            if ($start && $end) {
+                $period = new \DatePeriod($start, $interval, (clone $end)->modify('+1 day'));
+                foreach ($period as $date) {
+                    $dates[] = $date;
+                    $filteredDates[] = $date->format('Y-m-d');
+                }
             }
             $output = $this->recupdata($result, $dates, $output);
 
             $this->getSessionService()->set('data_export_planningAtelier_excel', $output);
             $this->getSessionService()->set('dates_export_planningAtelier_excel', $dates);
         }
+
         return $this->render('planningAtelier/planningAtelier.html.twig', [
             'form' => $form->createView(),
             'dates' => $dates,
@@ -73,48 +82,113 @@ class planningAtelierControler extends Controller
     public function recupdata($result, $dates, $output)
     {
         foreach ($result as $item) {
-            $key = $item['agenceem'] . '|' . $item['section'] . '|' . $item['intitule'] . '|' . $item['numor'] . '|' . $item['itv'] . '|' . $item['ressource'] . '|' . $item['nbjour'];
+            $key = $item['agence_em'] . '|' . $item['section'] . '|' . $item['intitule'] . '|' . $item['num_or'] . '|' . $item['itv'] . '|' . $item['ressource'];
 
             if (!isset($output[$key])) {
                 $output[$key] = [
-                    "agenceem" => $item["agenceem"],
+                    "agenceem" => $item["agence_em"],
                     "section" => $item["section"],
                     "intitule" => $item["intitule"],
-                    "numor" => $item["numor"],
+                    "numor" => $item["num_or"],
                     "itv" => $item["itv"],
                     "ressource" => $item["ressource"],
-                    "nbjour" => $item["nbjour"],
+                    "nbjour" => $item["nb_jour"],
                     "nbTotalJ" => 0,
                     "presence" => [] // clef: 'Y-m-d', valeur: ['matin' => bool, 'apm' => bool]
                 ];
             }
-            $output[$key]['nbTotalJ'] += $item["nbjour"];
-
-            $debut = new \DateTime($item["datedebut"]);
-            $fin = new \DateTime($item["datefin"]);
-
-            foreach ($dates as $date) {
-                $dateStr = $date->format('Y-m-d');
-
-                $matin_debut = new \DateTime("$dateStr 08:00:00");
-                $matin_fin   = new \DateTime("$dateStr 12:00:00");
-                $aprem_debut = new \DateTime("$dateStr 13:30:00");
-                $aprem_fin   = new \DateTime("$dateStr 17:30:00");
-
-                if (!isset($output[$key]['presence'][$dateStr])) {
-                    $output[$key]['presence'][$dateStr] = ['matin' => false, 'apm' => false];
-                }
-
-                if ($fin >= $matin_debut && $debut < $matin_fin) {
-                    $output[$key]['presence'][$dateStr]['matin'] = true;
-                }
-                if ($fin >= $aprem_debut && $debut < $aprem_fin) {
-                    $output[$key]['presence'][$dateStr]['apm'] = true;
-                }
+            $output[$key]['nbTotalJ'] += $item["nb_jour"];
+            $debut = new \DateTime($item["date_debut"]);
+            $dateStr = $debut->format('Y-m-d');
+            //? Initialisation de la présence pour cette date si elle n'existe pas encore
+            if (!isset($output[$key]['presence'][$dateStr])) {
+                $output[$key]['presence'][$dateStr] = [
+                    'matin' => false,
+                    'apm' => false,
+                    'heure' => NULL,
+                    'hmtn' => NULL,
+                    'hapm' => NULL
+                ];
             }
+            $output[$key]['presence'][$dateStr] = $this->calculatePresence($output[$key]['presence'][$dateStr], $item);
         }
         return $output;
     }
+
+    private function calculatePresence($presenceData, $item)
+    {
+        $data = $presenceData;
+        $debut = new \DateTime($item["date_debut"]);
+        $fin = new \DateTime($item["date_fin"]);
+        $hdebut = new \Datetime($item["hpointee_debut"]);
+        $hfin = new \Datetime($item["hpointee_fin"]);
+        $dateStr = $debut->format('Y-m-d');
+        $matin_debut = new \DateTime("$dateStr 08:00:00");
+        $matin_fin   = new \DateTime("$dateStr 12:00:00");
+        $aprem_debut = new \DateTime("$dateStr 13:30:00");
+        $aprem_fin   = new \DateTime("$dateStr 17:30:00");
+
+        //? Calcul de la planning pour la matinée
+        if ($fin >= $matin_debut && $debut < $matin_fin) {
+            $data['matin'] = true;
+        }
+        //? Calcul de la planning pour l'après-midi
+        if ($fin >= $aprem_debut && $debut < $aprem_fin) {
+            $data['apm'] = true;
+        }
+        if (!isset($item["hpointee"]))
+            return $data;
+        $hpointee = (float)$item["hpointee"]; 
+
+if ($data['heure'] === NULL) {
+    $data['heure'] = $hpointee;
+}
+
+// 2. Attention ici, on utilise += donc on garde le type float
+if ($debut < $fin && $hfin < $fin && $hdebut < $hfin) {
+    $data['heure'] += $hpointee;
+}
+
+$isFullDay = $hdebut <= $matin_debut && $hfin >= $aprem_fin;
+
+if ($hdebut <= $matin_fin && $hfin >= $matin_debut && !$isFullDay) {
+    // 3. On garde aussi le float ici
+    $data['hmtn'] = (float)$hpointee; 
+}
+
+if ($hdebut <= $aprem_fin && $hfin >= $aprem_debut && !$isFullDay) {
+    // 4. Et ici
+    $data['hapm'] = (float)$hpointee; 
+}
+
+        return $data;
+
+    }
+
+    private function extractMinMaxDateFromResult(array $result): array
+    {
+        $minDate = null;
+        $maxDate = null;
+
+        foreach ($result as $item) {
+            if (empty($item['date_debut']) || empty($item['date_fin'])) {
+                continue;
+            }
+
+            $debut = new \DateTime($item['date_debut']);
+            $fin = new \DateTime($item['date_fin']);
+
+            if ($minDate === null || $debut < $minDate) {
+                $minDate = $debut;
+            }
+            if ($maxDate === null || $fin > $maxDate) {
+                $maxDate = $fin;
+            }
+        }
+
+        return [$minDate, $maxDate];
+    }
+
     /**
      * @Route("/export_excel_planningAtelier", name= "export_planningAtelier")
      */
@@ -140,10 +214,10 @@ class planningAtelierControler extends Controller
 
         foreach ($data as $ligne) {
             $row = [
-                $ligne['agenceem'],
+                $ligne['agence_em'],
                 $ligne['section'],
                 $ligne['intitule'],
-                $ligne['numor'],
+                $ligne['num_or'],
                 $ligne['itv'],
                 $ligne['ressource'],
                 $ligne['nbTotalJ']

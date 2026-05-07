@@ -23,6 +23,12 @@ class GeneratePdf
         // Fonction interne pour tenter la copie
         $attemptCopy = function ($attemptNumber) use ($sourcePath, $destinationPath) {
             try {
+                $destinationDir = dirname($destinationPath);
+
+                if (!is_dir($destinationDir)) {
+                    mkdir($destinationDir, 0777, true);
+                }
+
                 if (!file_exists($sourcePath) || !copy($sourcePath, $destinationPath)) {
                     return false;
                 }
@@ -152,9 +158,9 @@ class GeneratePdf
 
 
     /** DEMANDE DE PAIEMENT */
-    public function copyToDwDdp(string $fileName, $numDdp, $numeroversion)
+    public function copyToDwDdp(string $fileName, $numDdp)
     {
-        $cheminDestinationLocal = $this->baseCheminDuFichier . 'ddp/' . $numDdp . '_New_' . $numeroversion . '/' . $fileName;
+        $cheminDestinationLocal = $this->baseCheminDuFichier . 'ddp/' . $numDdp . '/' . $fileName;
         $cheminFichierDistant = $this->baseCheminDocuware . 'DEMANDE_DE_PAIEMENT/' . $fileName;
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
@@ -197,6 +203,14 @@ class GeneratePdf
     {
         $cheminFichierDistant = $this->baseCheminDocuware . 'Facture_BL frns apppro/' . $fileName;
         $cheminDestinationLocal = $this->baseCheminDuFichier . 'da/' . $numDa . '/' . $fileName;
+        $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
+    }
+
+    //BAP de demande appro
+    public function copyToDWBapDa($fileNamePathBap, $fileNameForDw)
+    {
+        $cheminFichierDistant = $this->baseCheminDocuware . 'DEMANDE_DE_PAIEMENT/' . $fileNameForDw;
+        $cheminDestinationLocal = $fileNamePathBap;
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 
@@ -371,4 +385,20 @@ class GeneratePdf
         // Move to the next line
         $pdf->Ln(6, true);
     }
+
+    /**
+     * Convertit une chaîne UTF-8 en Windows-1252 pour les polices core TCPDF (Helvetica, Times, Courier).
+     * Sans cette conversion, les caractères spéciaux (°, é, à, etc.) s'affichent en "Â°", "Ã©", etc.
+     *
+     * @param string|null $text
+     * @return string
+     */
+    protected function txt(?string $text): string
+    {
+        if ($text === null || $text === '') {
+            return '';
+        }
+        return iconv('UTF-8', 'windows-1252//TRANSLIT//IGNORE', $text) ?: $text;
+    }
 }
+

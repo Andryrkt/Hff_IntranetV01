@@ -29,10 +29,44 @@ export async function validateSpecificForm(form, formSelector) {
     case "paiement-form":
       return validatePaiementForm(form);
 
+    case "demande-paiement-da":
+    case "#demande-paiement-da-form":
+    case "demande-paiement-da-form":
+      return validateDemandePaiementDaForm(form);
+
+    case "da-soumission-fac-bl":
+      return validateDaSoumissionFacBlForm(form);
+
     default:
       // Validation par défaut si le formulaire n'est pas reconnu
       return { isValid: true, message: "" };
   }
+}
+
+function validateDemandePaiementDaForm(form) {
+  const errors = [];
+  // Essayer plusieurs sélecteurs pour trouver le champ RIB
+  const ribField =
+    form.querySelector('[data-format-rib="true"]') ||
+    form.querySelector('[name="demande_paiement_da[ribFournisseur]"]');
+  console.log(ribField);
+
+  if (ribField) {
+    const ribValue = ribField.value.trim();
+    if (ribValue === "" || ribValue === "-") {
+      errors.push("Le RIB est obligatoire.");
+    } else if (ribValue.length !== 26) {
+      errors.push(
+        `Le RIB doit contenir 26 caractères (actuellement ${ribValue.length}).`,
+      );
+    }
+  }
+
+  return {
+    isValid: errors.length === 0,
+    message: errors.join("<br>"),
+    title: "Validation du RIB",
+  };
 }
 
 function validationDitForm(form) {
@@ -42,13 +76,13 @@ function validationDitForm(form) {
   //  type de document doit egale maintenace curative
   // et catégorie = REPARATION
   const reparationRealiseSelect = form.querySelector(
-    '[name="demande_intervention[reparationRealise]"]'
+    '[name="demande_intervention[reparationRealise]"]',
   );
   const typeDocumentSelect = form.querySelector(
-    '[name="demande_intervention[typeDocument]"]'
+    '[name="demande_intervention[typeDocument]"]',
   );
   const categorieSelect = form.querySelector(
-    '[name="demande_intervention[categorieDemande]"]'
+    '[name="demande_intervention[categorieDemande]"]',
   );
   const MAINTENANCE_CURATIVE = 6;
   const REPARATION = 7;
@@ -61,7 +95,7 @@ function validationDitForm(form) {
     parseInt(categorieSelect.value, 10) !== REPARATION
   ) {
     errors.push(
-      "Rectifiez le type de document en Maintenance curative et le catégorie de demande en REPARATION"
+      "Rectifiez le type de document en Maintenance curative et le catégorie de demande en REPARATION",
     );
   }
 
@@ -244,6 +278,46 @@ async function checkStock(produitId) {
     console.error("Erreur lors de la vérification du stock:", error);
     return 0;
   }
+}
+
+async function validateDaSoumissionFacBlForm(form) {
+  const numLivField =
+    form.querySelector("#da_soumission_fac_bl_numLiv") ||
+    form.querySelector('[name="da_soumission_fac_bl[numLiv]"]');
+
+  if (numLivField && numLivField.value) {
+    const numLiv = numLivField.value;
+    try {
+      const response = await fetch(
+        `/demande-appro/check-num-liv-exists/${numLiv}`,
+      );
+      const data = await response.json();
+      if (data.exists) {
+        const result = await Swal.fire({
+          title: "Livraison déjà soumise",
+          text: `Le numéro de livraison ${numLiv} existe déjà avec un BAP'. Voulez-vous quand même resoumettre ?`,
+          icon: "question",
+          showCancelButton: true,
+          confirmButtonColor: "#fbbb01",
+          cancelButtonColor: "#d33",
+          confirmButtonText: "Oui, resoumettre",
+          cancelButtonText: "Non, annuler",
+        });
+
+        if (!result.isConfirmed) {
+          // On jette une exception pour arrêter silencieusement le processus dans boutonConfirmUtils.js
+          throw "CANCELLED";
+        }
+      }
+    } catch (error) {
+      if (error === "CANCELLED") throw error;
+      console.error(
+        "Erreur lors de la vérification du numéro de livraison:",
+        error,
+      );
+    }
+  }
+  return { isValid: true, message: "" };
 }
 
 // Export des fonctions individuelles si besoin de les utiliser séparément

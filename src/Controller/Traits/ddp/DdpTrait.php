@@ -2,6 +2,8 @@
 
 namespace App\Controller\Traits\ddp;
 
+use App\Constants\ddp\TypeDemandePaiementConstants;
+
 trait DdpTrait
 {
     private function recuperationCdeFacEtNonFac(int $typeId): array
@@ -19,7 +21,7 @@ trait DdpTrait
         }
         $numCdes = [];
 
-        if ($typeId == 2) {
+        if ($typeId == TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE) {
             $numCdes = $numCdes2;
         } else {
             $numCdes = $numCdes1;
@@ -46,8 +48,8 @@ trait DdpTrait
 
                 $nomFichierInitial = basename($pathAndCde[0]['path']);
 
-                $cheminDufichierDestinataire = $this->cheminDeBase . '/' . $numDdp . '_New_' . $numVersion . '/' . $nomFichierInitial;
-                
+                $cheminDufichierDestinataire = $this->cheminDeBase . '/' . $numDdp . '/' . $nomFichierInitial;
+
                 $destinationDir = dirname($cheminDufichierDestinataire);
                 if (!is_dir($destinationDir)) {
                     mkdir($destinationDir, 0777, true);

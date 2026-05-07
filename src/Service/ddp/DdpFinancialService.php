@@ -1,0 +1,47 @@
+<?php
+
+namespace App\Service\ddp;
+
+use App\Dto\ddp\DemandePaiementDto;
+
+class DdpFinancialService
+{
+    /**
+     * Calcule les montants et pourcentages globaux pour le DTO.
+     */
+    public function calculateGlobalFinancials(DemandePaiementDto $dto): void
+    {
+        $dto->montantTotalCde = (float)$dto->montantTotalCde;
+        $dto->montantDejaPaye = $dto->totalPayer;
+        $dto->montantRestantApayer = $dto->montantTotalCde - $dto->montantDejaPaye;
+        $dto->montantAPayer = $dto->montantRestantApayer;
+
+        if ($dto->montantTotalCde > 0) {
+            $dto->pourcentageAvance = (($dto->montantDejaPaye + $dto->montantAPayer) / $dto->montantTotalCde) * 100 . ' %';
+            $dto->pourcentageAPayer = (int)(($dto->montantAPayer / $dto->montantTotalCde) * 100);
+        } else {
+            $dto->pourcentageAvance = '0 %';
+            $dto->pourcentageAPayer = 0;
+        }
+    }
+
+    /**
+     * Calcule les ratios de paiement pour une commande.
+     * 
+     * @return array [ratioTotalPayer, montantAregulariser, ratioMontantARegul]
+     */
+    public function calculatePaymentRatios(DemandePaiementDto $dto): array
+    {
+        $totalMontantCommande = $dto->totalMontantCommande;
+        $totalPayer = $dto->totalPayer;
+        if ($totalMontantCommande <= 0) {
+            return [0, 0, 0];
+        }
+
+        $ratioTotalPayer = ($totalPayer / $totalMontantCommande) * 100;
+        $montantAregulariser = $totalMontantCommande - $totalPayer;
+        $ratioMontantARegul = ($montantAregulariser / $totalMontantCommande) * 100;
+
+        return [$ratioTotalPayer, $montantAregulariser, $ratioMontantARegul];
+    }
+}

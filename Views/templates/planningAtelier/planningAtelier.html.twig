@@ -27,7 +27,7 @@
 			</div>
 		</div>
 	</div>
-	<table class="table table-sticky">
+	<table class="table table-sticky planning-atelier-table">
 		<thead class="table-dark position-sticky align-middle">
 			<tr>
 				<th rowspan="2">Agence Travaux</th>
@@ -59,10 +59,45 @@
 					<td>{{ row.ressource }}</td>
 					<td>{{ row.nbTotalJ }}</td>
 					{% for date in dates %}
-						{% set dateStr = date|date('Y-m-d') %}
-						<td {% if row.presence[dateStr].matin %} style="background:#fabb18;" {% endif %}></td>
-						<td {% if row.presence[dateStr].apm %} style="background:#fabb18;" {% endif %}></td>
-					{% endfor %}
+    {% set dateStr = date|date('Y-m-d') %}
+    {% set presence = row.presence[dateStr]|default({}) %}
+    {% set matin = presence.matin|default(false) %}
+    {% set apm = presence.apm|default(false) %}
+    
+    {# Correction ici : On utilise hpointee qui vient du SQL #}
+    {% set val_h = presence.hpointee|default(null) %}
+    {% set hmtn = presence.hmtn|default(null) %}
+    {% set hapm = presence.hapm|default(null) %}
+
+                    <td class="position-relative align-middle fw-bold border-start border-end" colspan="2" style="height: 60px; padding: 0; min-width: 80px;">
+    
+                    {# PARTIE HAUTE : PLANNING (JAUNE AU CAS OU PLANIFIEE) #}
+                    <span style="position: absolute; top: 0; left: 0; width: 50%; height: 50%;{% if matin %} background: #fabb18; {% endif %}"></span>
+                    <span style="position: absolute; top: 0; right: 0; width: 50%; height: 50%;{% if apm %} background: #fabb18; {% endif %}"></span>
+
+                        {#  PARTIE BASSE : POINTAGE  #}
+                        {% if val_h and not hmtn and not hapm %}
+                            {# Séparation horizontale grise #}
+                            <span style="position: absolute; bottom: 0; left: 0; width: 100%; height: 50%; display: flex; align-items: center; justify-content: center; border-top: 1px solid #dee2e6; z-index: 2; {% if (matin or apm) and val_h %} background: var(--bs-success); color: white; {% elseif matin or apm %} background: #fabb18; {% elseif val_h %} background: var(--bs-secondary); color: white; {% endif %}">
+                                {{ val_h|number_format(1, ',', '') }}
+                            </span>
+                        {% elseif hmtn or hapm or not val_h %}
+                            {# Bloc Matin Bas : border-top grise et border-right grise pour la séparation verticale #}
+                            <span style="position: absolute; bottom: 0; left: 0; width: 50%; height: 50%; display: flex; align-items: center; justify-content: center; border-top: 1px solid #dee2e6; border-right: 1px solid #dee2e6; z-index: 2; {% if hmtn and matin %} background: var(--bs-success); color: white; {% elseif matin %} background: #fabb18; {% elseif hmtn %} background: var(--bs-secondary); color: white; {% endif %}">
+                                {{ hmtn ? hmtn|number_format(1, ',', '') : '' }}
+                            </span>
+                            
+                            {# Bloc APM Bas : border-top grise #}
+                            <span style="position: absolute; bottom: 0; right: 0; width: 50%; height: 50%; display: flex; align-items: center; justify-content: center; border-top: 1px solid #dee2e6; z-index: 2; {% if hapm and apm %} background: var(--bs-success); color: white; {% elseif apm %} background: #fabb18; {% elseif hapm %} background: var(--bs-secondary); color: white; {% endif %}">
+                                {{ hapm ? hapm|number_format(1, ',', '') : '' }}
+                            </span>
+                        {% endif %}
+                    </td>
+{% endfor %}
+				</tr>
+			{% else %}
+				<tr>
+					<td colspan="{{ 7 + (dates|length * 2) }}" class="text-center text-muted">Aucune donnée à afficher.</td>
 				</tr>
 			{% endfor %}
 		</tbody>
