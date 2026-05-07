@@ -16,6 +16,7 @@ src/Controller/authentification.csv
 Dossiers ORs
 react-app
 .vscode
+.idea
 composer.lock
 var
 Views/js/utils/config.js

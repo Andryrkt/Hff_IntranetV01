@@ -15,19 +15,17 @@
 {% endblock %}
 
 {% block content %}
-
-	<div class="container-fluid mt-6 mb-4">
-		<div class="sticky-header-titre">
-			<div class="container">
-				{% include "/partials/_notification.html.twig" %}
-				{% include "/da/ddp/_formulaire_recherche.html.twig" %}
-				<div class="my-3 mx-3 d-flex justify-content-end">
-					<button type="button" class="btn btn-warning" id="transmettreBAP">Transmettre les DDP/BAP à validation.</button>
-				</div>
+	<div class="sticky-header-titre">
+		<div class="container">
+			{% include "/partials/_notification.html.twig" %}
+			{% include "/da/ddp/_formulaire_recherche.html.twig" %}
+			<div class="my-2 d-flex justify-content-end">
+				<button type="button" class="btn btn-warning" id="transmettreBAP">Transmettre les DDP/BAP à validation.</button>
 			</div>
-
 		</div>
+	</div>
 
+	<div class="container-fluid mb-4">
 		<table class="table table-sticky">
 			<thead class="table-dark align-middle">
 				<tr>
