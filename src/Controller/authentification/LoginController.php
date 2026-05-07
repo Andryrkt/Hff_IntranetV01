@@ -75,7 +75,8 @@ class LoginController extends Controller
                     $profil = $profils->first();
                     $codeSociete = $profil->getSociete()->getCodeSociete();
 
-                    $agenceServiceDefaut = $this->getEntityManager()->getRepository(AgenceServiceDefautSociete::class)->findOneBy(['user' => $userId, 'codeSociete' => $codeSociete]);
+                    /** @var AgenceServiceDefautSociete $agenceServiceDefaut */
+                    $agenceServiceDefaut = $user->getAgenceServiceDefautSocietes()->filter(fn(AgenceServiceDefautSociete $ags) => $ags->getCodeSociete() === $codeSociete)->first();
 
                     $userInfo["default_agence_code"]  = $agenceServiceDefaut->getCodeAgence();
                     $userInfo["default_service_code"] = $agenceServiceDefaut->getCodeService();
