@@ -52,12 +52,12 @@ class DaSoumissionFacBlMapper
             ->setDateSoumissionCompta($dto->dateSoumissionCompta)
             ->setMontantBlFacture($dto->montantBlFacture)
             ->setMontantReceptionIps($dto->montantReceptionIps)
-            ->setNumeroDemandePaiement($dto->numeroDemandePaiement)
             ->setNumeroFournisseur($dto->numeroFournisseur)
             ->setNomFournisseur($dto->nomFournisseur)
             ->setNumeroFactureFournisseur($dto->numeroFactureFournisseur)
             ->setEstFactureReappro($dto->estfactureReappro)
             ->setNumeroFactureReappro($dto->numerofactureReappro)
+            ->setCodeSociete($dto->codeSociete)
         ;
 
         return $daSoumissionFacBl;
