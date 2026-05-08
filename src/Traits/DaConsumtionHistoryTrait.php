@@ -1,0 +1,117 @@
+<?php
+
+namespace App\Traits;
+
+use App\Entity\da\DemandeAppro;
+use App\Model\da\DaReapproModel;
+use DateTime;
+
+trait DaConsumtionHistoryTrait
+{
+    /**
+     * Calcule la période allant du premier jour du mois il y a 12 mois
+     * jusqu'au dernier jour du mois en cours, pour un SQL BETWEEN.
+     *
+     * Exemple : si aujourd'hui = 28/10/2025
+     *   start = 2024-10-01
+     *   end   = 2025-10-31
+     *
+     * @return array ['start' => 'YYYY-MM-DD', 'end' => 'YYYY-MM-DD']
+     */
+    private function getLast13MonthsDateRange(): array
+    {
+        $startDate = new DateTime('first day of -12 months');
+        $endDate = new DateTime('last day of this month');
+        return [
+            'start' => $startDate->format('Y-m-d'),
+            'end'   => $endDate->format('Y-m-d')
+        ];
+    }
+
+    /**
+     * Génère une liste de tous les mois entre deux dates.
+     * Chaque mois est formaté en 'MM-YYYY'.
+     *
+     * @param string $startDate Date de début au format 'Y-m-d' (ex: 2024-10-01)
+     * @param string $endDate   Date de fin au format 'Y-m-d' (ex: 2025-10-31)
+     * @return array            Tableau de mois ['10-2024','11-2024', ...,'10-2025']
+     */
+    private function getMonthsList(string $startDate, string $endDate): array
+    {
+        $months = [];
+        $monthsLabel = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
+
+        // Convertir les chaînes en objets DateTime
+        $start = new DateTime($startDate);
+        $end = new DateTime($endDate);
+
+        // S'assurer que l'on prend le premier jour du mois de fin
+        $end->modify('first day of this month');
+
+        // Boucle sur chaque mois
+        while ($start <= $end) {
+            $month = $start->format('m-Y'); // ex: 10-2024
+            [$mois, $annee] = explode('-', $month);
+            $months[] = $monthsLabel[$mois - 1]  . '-' . $annee;
+            $start->modify('+1 month');
+        }
+
+        return $months;
+    }
+
+    public function getHistoriqueConsommation(DemandeAppro $demandeAppro, array $dateRange, array $monthsList)
+    {
+        $result = [];
+        $montantTotal = array_fill_keys($monthsList, 0.0); // initialiser à 0.0 tous les montants totals
+
+        $datas = (new DaReapproModel)->getHistoriqueConsommation($dateRange, $demandeAppro);
+
+        foreach ($datas as $row) {
+            // Clé unique par produit
+            $key = md5("{$row['cst']}|{$row['refp']}|{$row['desi']}");
+
+            // Initialiser si pas déjà existant
+            if (!isset($result[$key])) {
+                $result[$key] = [
+                    'cst'          => $row['cst'],
+                    'refp'         => $row['refp'],
+                    'desi'         => $row['desi'],
+                    'qteTotalTemp' => 0.0,
+                    'qteTemp'      => array_fill_keys($monthsList, 0.0),
+                ];
+            }
+
+            $mois = $row['mois_annee'];
+
+            // Ajouter la quantité pour le mois correspondant
+            $qte  = (float)($row['qte_fac'] ?? 0);
+            $result[$key]['qteTotalTemp'] += $qte;
+            $result[$key]['qteTemp'][$mois] += $qte;
+
+            // Ajouter le montant pour le mois correspondant
+            $mttTotal  = (float)($row['mtt_total'] ?? 0);
+            $montantTotal[$mois] += $mttTotal;
+        }
+
+        // ✅ Formattage final
+        foreach ($result as $key => $row) {
+            $row['qteTotal'] = number_format($row['qteTotalTemp'], 2, ',', '');
+            $row['qte'] = [];
+            foreach ($monthsList as $mois) {
+                $row['qte'][$mois] = $row['qteTemp'][$mois] != 0 ? number_format($row['qteTemp'][$mois], 2, ',', '') : '-';
+            }
+            unset($row['qteTemp'], $row['qteTotalTemp']);
+            $result[$key] = $row;
+        }
+
+        // ✅ Formatage des montants
+        foreach ($montantTotal as $mois => $value) {
+            $montantTotal[$mois] = $value != 0 ? number_format($value, 2, ',', ' ') : '-';
+        }
+
+        return [
+            'data'     => $result,
+            'montants' => $montantTotal
+        ];
+    }
+}
