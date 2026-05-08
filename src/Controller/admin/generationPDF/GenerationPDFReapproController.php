@@ -6,10 +6,12 @@ use App\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\da\validation\DaValidationReapproTrait;
 use App\Service\genererPdf\da\GenererPdfDaReappro;
+use App\Traits\DaConsumtionHistoryTrait;
 
 /** @Route(path="/admin/generation-PDF") */
 class GenerationPDFReapproController extends Controller
 {
+    use DaConsumtionHistoryTrait;
     use DaValidationReapproTrait;
 
     public function __construct()
@@ -30,7 +32,7 @@ class GenerationPDFReapproController extends Controller
         $demandeAppro = $this->demandeApproRepository->findAvecDernieresDALetLRParNumero($numeroDemandeAppro);
         // création de PDF
         $genererPdfReappro = new GenererPdfDaReappro();
-        $dateRange = $this->getLast12MonthsRange();
+        $dateRange = $this->getLast13MonthsDateRange();
         $monthsList = $this->getMonthsList($dateRange['start'], $dateRange['end']);
         $dataHistoriqueConsommation = $this->getHistoriqueConsommation($demandeAppro, $dateRange, $monthsList);
         $observations = $this->daObservationRepository->findBy(
