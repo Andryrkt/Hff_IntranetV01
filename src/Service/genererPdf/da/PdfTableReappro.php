@@ -25,7 +25,7 @@ class PdfTableReappro
             $this->createTableCell('center', '10%', 'Qté demandé'),
         ];
 
-        if (!$isPonctuel) $columns[] = $this->createTableCell('center', '10%', 'Qté Validée');
+        if (!$isPonctuel) $columns[] = $this->createTableCell('center', '10%', 'Quota maxi');
 
         $columns[] = $this->createTableCell('right', '13%', 'Montant');
 
@@ -86,7 +86,7 @@ class PdfTableReappro
             "cst"   => 4,
             "ref"   => 5,
             "desi"  => 10,
-            "mois"  => 76 / 12,
+            "mois"  => 76 / count($monthsList),
             "total" => 5,
         ];
         $html = '<table border="1" cellpadding="4" cellspacing="0" style="border-collapse: collapse; font-size: 8px;">';
@@ -105,7 +105,7 @@ class PdfTableReappro
         $html .= '<th rowspan="2" align="center" style="width:' . $widthConfig['cst'] . '%;">Const</th>';
         $html .= '<th rowspan="2" align="center" style="width:' . $widthConfig['ref'] . '%;">Ref</th>';
         $html .= '<th rowspan="2" align="center" style="width:' . $widthConfig['desi'] . '%;">Désignation</th>';
-        $html .= '<th colspan="13" align="center" style="width:' . ($widthConfig['total'] + 12 * $widthConfig['mois'])  . '%;">Quantités facturées sur les 12 derniers mois</th>';
+        $html .= '<th colspan="' . (count($monthsList) + 1) . '" align="center" style="width:' . ($widthConfig['total'] + count($monthsList) * $widthConfig['mois'])  . '%;">Quantités facturées sur les 12 derniers mois jusqu\'à aujourd\'hui</th>';
         $html .= '</tr>';
 
         // Deuxième ligne avec les mois et le total
