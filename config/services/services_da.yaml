@@ -30,6 +30,17 @@ services:
       $dwDataService: '@App\Service\da\DwDataService'
     public: true
 
+  # Factories DA
+  App\Factory\da\CdeFrnDto\DaSoumissionFacBlFactory:
+    arguments:
+      $em: "@doctrine.orm.default_entity_manager"
+      $daSoumissionFacBlModel: '@App\Model\da\DaSoumissionFacBlModel'
+      $numeroGenerateurService: '@App\Service\da\NumeroGenerateurService'
+      $calculService: '@App\Service\da\DaSoumissionCalculService'
+      $dataService: '@App\Service\da\DaSoumissionDataService'
+      $securityService: '@App\Service\security\SecurityService'
+    public: true
+
   # Contrôleurs DA
   App\Controller\da\ListeDa\listeDaController:
     autowire: true

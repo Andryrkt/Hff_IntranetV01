@@ -32,7 +32,7 @@ class DaSoumissionFacBlDto
     public $dateSoumissionCompta;
     public $montantBlFacture;
     public $montantReceptionIps;
-    public ?string $numeroDemandePaiement;
+    public ?string $numeroDemandePaiement = null;
     public $dateStatutBap = null;
 
     // info commande (BC) =================
