@@ -50,7 +50,7 @@ document.addEventListener("DOMContentLoaded", function () {
   manager.init();
 
   const montantTotalCde = document.querySelector(
-    "#demande_paiement_da_montantTotalCde",
+    "#demande_paiement_da_totalMontantCommande",
   );
   const montantDejaPayer = document.querySelector(
     "#demande_paiement_da_montantDejaPaye",
@@ -143,8 +143,8 @@ document.addEventListener("DOMContentLoaded", function () {
   ) {
     montantRestantApayer.value = formaterNombre(
       montantTotalCdeValue -
-        montantDejaPayerValue -
-        montantAPayerCalc(pourcentageAPayerValue, montantTotalCdeValue),
+      montantDejaPayerValue -
+      montantAPayerCalc(pourcentageAPayerValue, montantTotalCdeValue),
     );
   }
 

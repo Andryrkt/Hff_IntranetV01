@@ -256,11 +256,6 @@ class DemandePaiement
 
     private $lesFichiers;
 
-    // Pour le DA =====================================
-    private $montantTotalCde;
-    private $montantDejaPaye;
-    private $montantRestantApayer;
-    private $poucentageAvance;
 
     /**
      * @ORM\OneToMany(targetEntity=DemandePaiementCommande::class, mappedBy="demandePaiement", cascade={"persist", "remove"})
@@ -1037,24 +1032,6 @@ class DemandePaiement
     public function setAppro($appro): self
     {
         $this->appro = $appro;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of montantTotalCde
-     */
-    public function getMontantTotalCde()
-    {
-        return $this->montantTotalCde;
-    }
-
-    /**
-     * Set the value of montantTotalCde
-     */
-    public function setMontantTotalCde($montantTotalCde): self
-    {
-        $this->montantTotalCde = $montantTotalCde;
 
         return $this;
     }

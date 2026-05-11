@@ -76,17 +76,17 @@ class DaSoumissionFacBlMapper
         return $ddpaDto;
     }
 
-    public static function mapTotalPayer($dto, $montantPayer, $ratioTotalPayer, $montantAregulariser, $ratioMontantARegul)
+    public static function mapTotalPayer($dto, float $montantTotalDejaPayer, float $ratioTotalPayer, float $montantAregulariser, float $ratioMontantARegul)
     {
-        $dto->totalPayer = $montantPayer;
-        $dto->ratioTotalPayer = $ratioTotalPayer;
+        $dto->montantDejaPaye = $montantTotalDejaPayer;
+        $dto->ratioMontantDejaPaye = $ratioTotalPayer;
         $dto->montantAregulariser = $montantAregulariser;
         $dto->ratioMontantARegul = $ratioMontantARegul;
 
         return $dto;
     }
 
-    public static function mapReception(DaSituationReceptionDto $situRecepDto, $reception)
+    public static function mapReception(DaSituationReceptionDto $situRecepDto, array $reception)
     {
         $situRecepDto->const = $reception['constructeur'];
         $situRecepDto->ref = $reception['reference'];

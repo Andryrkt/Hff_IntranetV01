@@ -2,15 +2,17 @@
 
 namespace App\Dto\Da\ListeCdeFrn;
 
+use DateTime;
+
 class DaDdpaDto
 {
-    public $totalMontantCommande;
-    public $ratio = 0;
-    public $cumul = 0;
-    public $numeroDdp;
-    public $dateCreation;
+    public ?float $totalMontantCommande = 0.00;
+    public float $ratio = 0.00;
+    public float $cumul = 0.00;
+    public ?string $numeroDdp = null;
+    public ?DateTime $dateCreation = null;
     public ?string $motif = null;
-    public $montant = 0;
+    public float $montant = 0.00;
     public ?string $statut = null;
 
     public function getRatio()

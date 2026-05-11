@@ -3,7 +3,6 @@
 namespace App\Form\ddp;
 
 use App\Dto\ddp\DemandePaiementDto;
-use App\Entity\ddp\DemandePaiement;
 use App\Form\Common\FileUploadType;
 use App\Constants\da\TypeDaConstants;
 use Symfony\Component\Form\FormEvent;
@@ -14,9 +13,7 @@ use App\Service\TableauEnStringService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\AbstractType;
 use App\Controller\Traits\FormatageTrait;
-use App\Entity\cde\CdefnrSoumisAValidation;
 use Symfony\Component\Form\FormBuilderInterface;
-use App\Repository\ddp\DemandePaiementRepository;
 use App\Constants\ddp\TypeDemandePaiementConstants;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -29,7 +26,7 @@ class DemandePaiementDaType extends AbstractType
 {
     use FormatageTrait;
 
-    private $demandePaiementModel;
+    private DemandePaiementModel $demandePaiementModel;
 
     public function __construct()
     {
@@ -174,13 +171,13 @@ class DemandePaiementDaType extends AbstractType
     {
         $builder
             ->add(
-                'montantTotalCde',
+                'totalMontantCommande',
                 TextType::class,
                 [
                     'label' => 'Montant total cmde',
                     'required' => false,
                     'disabled' => true,
-                    'data' => $this->formatNumberGeneral($options['data']->montantTotalCde)
+                    'data' => $this->formatNumberGeneral($options['data']->totalMontantCommande)
                 ]
             )
             ->add(
