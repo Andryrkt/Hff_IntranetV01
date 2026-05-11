@@ -69,9 +69,17 @@ class DemandePaiementFactory
         $this->hydrateGeneralInfo($dto);
         $this->hydrateFournisseurInfo($dto, $infoDa);
         $this->hydrateFinancialData($dto);
+        $dto->dernierStatutDdp = $this->recupDernierStatutDdp($dto);
+        $dto->estRegule = $dto->montantAregulariser <= 0.0 && !in_array($dto->dernierStatutDdp, StatutConstants::REFUSES_DDP);
         $this->ddpRecap($dto);
 
         return $dto;
+    }
+
+    public function recupDernierStatutDdp(DemandePaiementDto $dto): ?string
+    {
+        $ddpRepository = $this->em->getRepository(DemandePaiement::class);
+        return  $ddpRepository->getDernierStatutDddp($dto->numeroCommande, $dto->numeroDemandeAppro);
     }
 
     private function ddpRecap(DemandePaiementDto $dto)

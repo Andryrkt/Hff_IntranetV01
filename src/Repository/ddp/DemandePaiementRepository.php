@@ -167,13 +167,13 @@ class DemandePaiementRepository extends EntityRepository
         return $resultat ?? 0;
     }
 
-    public function getDdpSelonNumCde($numCde)
+    public function getDdpSelonNumCde(string $numCde)
     {
         $queryBuilder =  $this->createQueryBuilder('d')
             ->where('d.numeroCommande = :numero')
-            // ->andWhere('d.statut LIKE :statut')
+            ->andWhere('d.statut NOT IN (:statut)')
             ->setParameter('numero', (string) $numCde)
-            // ->setParameter('statut', '%Validé%')
+            ->setParameter('statut', StatutConstants::REFUSES_DDP)
             ->orderBy('d.numeroDdp', 'ASC');
 
 
@@ -188,7 +188,8 @@ class DemandePaiementRepository extends EntityRepository
             ->select('d.statut')
             ->where('d.numeroCommande = :numero')
             ->setParameter('numero', (string) $numCde)
-            ->orderBy('d.numeroDdp', 'ASC');
+            ->setMaxResults(1)
+            ->orderBy('d.numeroDdp', 'DESC');
 
 
         return $queryBuilder->getQuery()
@@ -216,7 +217,7 @@ class DemandePaiementRepository extends EntityRepository
         }
     }
 
-    public function getDernierStatutDddp($numeroCde, $numeroDa)
+    public function getDernierStatutDddp(string $numeroCde, string $numeroDa)
     {
         $queryBuilder =  $this->createQueryBuilder('d')
             ->select('d.statut')

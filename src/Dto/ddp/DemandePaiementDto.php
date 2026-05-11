@@ -27,6 +27,8 @@ class DemandePaiementDto
     public ?string $codeSociete = null;
 
     public ?string $numeroFactureIps = null;
+    public bool $estRegule = false;
+    public ?string $dernierStatutDdp = null;
 
     // fournisseur ======================
     public ?string $numeroFournisseur = null;
