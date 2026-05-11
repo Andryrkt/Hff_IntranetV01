@@ -168,7 +168,7 @@ class TraitementSoumissionBAPService
             $okey = false;
         }
         // Blocage si le type de demande de paiement n'est pas régularisation mais le montant à payer est égal à 0
-        elseif ($dto->typeDdp !== 'regul' && $dto->montantAregulariser <= 0.0) {
+        elseif ($dto->typeDdp !== 'regul' && $dto->estRegule) {
             $message = " le type de traitement de paiement doit être régularisation car le montant à payer est égal à 0 ";
             $okey = false;
         }

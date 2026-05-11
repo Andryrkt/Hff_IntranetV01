@@ -14,36 +14,38 @@ class DaSoumissionFacBlDto
     public ?string $numeroCde = null;
     public ?string $refBlFac = null;
     public ?DateTime $dateBlFac = null;
-    public $dateClotLiv;
-    public $pieceJoint1;
-    public $pieceJoint2;
+    public ?DateTime $dateClotLiv = null;
+    public  $pieceJoint1 = null; // type: fichier et string
+    public  $pieceJoint2 = null; // type: fichier et string
     public ?string $utilisateur = null;
-    public $totalMontantPayer;
+    public float $totalMontantPayer = 0.0;
     public DateTime $dateDemande;
     public ?string $codeSociete = null;
+    public bool $estRegule = false;
+    public ?string $dernierStatutDdp = null;
 
     // livraison ========================
-    public $numLiv;
-    public $infoLiv;
+    public $numLiv; // type : tableau et string
+    public array $infoLiv = [];
 
     // Bon à payer (BAP) ====================
     public ?string $numeroBap = null;
     public ?string $statutBap = null;
-    public $dateSoumissionCompta;
-    public $montantBlFacture;
-    public $montantReceptionIps;
+    public ?DateTime $dateSoumissionCompta = null;
+    public float $montantBlFacture = 0.0;
+    public float $montantReceptionIps = 0.0;
     public ?string $numeroDemandePaiement = null;
-    public $dateStatutBap = null;
+    public ?DateTime $dateStatutBap = null;
 
     // info commande (BC) =================
-    public $numeroFournisseur;
-    public $nomFournisseur;
-    public $numeroFactureFournisseur;
-    public $infoBc;
+    public ?string $numeroFournisseur = null;
+    public ?string $nomFournisseur = null;
+    public ?string $numeroFactureFournisseur = null;
+    public array $infoBc = [];
 
     // Reappro =====================
-    public $estfactureReappro = false;
-    public $numerofactureReappro = null;
+    public bool $estfactureReappro = false;
+    public ?string $numerofactureReappro = null;
 
     // CLA =========================
     public ?string $numeroCla = null;
@@ -55,19 +57,20 @@ class DaSoumissionFacBlDto
     // si DA qui a une Demande de paiement à l'avance
     public array $daDdpa = [];
     public string $titreDaDdpa = "Liste des demandes de paiement à l'avance";
-    public $totalMontantCommande;
-    public $totalPayer = 0;
-    public $ratioTotalPayer = 0;
-    public $montantAregulariser;
-    public $ratioMontantARegul;
+    public float $totalMontantCommande = 0.0;
+    public float $totalPayer = 0.0;
+    public float $ratioTotalPayer = 0.0;
+    public float $montantAregulariser = 0.0;
+    public float $ratioMontantARegul = 0.0;
 
     // situation reception 
     public array $receptions = [];
 
     // demande de paiement ===========================
     public ?DemandePaiementDto $demandePaiementDto = null;
-    public $montantAPayer;
-    public $typeDdp;
+    public float $montantAPayer = 0.0;
+    public ?string $typeDdp = null; // valeur possible 'bap', 'ddpl', 'regule', 'aucune'
+
 
 
     public function montantAPayer(): float

@@ -25,7 +25,7 @@
 							<a href="{{ path("list_da")}}" class="tablinks p-2 btn btn-outline-warning " style="text-decoration: none;color:black">Retour</a>
 						</div>
 					</div>
-					{% if dto.montantAregulariser <= 0 %}
+					{% if dto.estRegule == true %}
 						<h6 class="text-danger fs-6 p-2 fw-bold">Le montant restant à payer est égal à 0, le type de demande de paiement doit être de type régularisation</h6>
 					{% endif %}
 

@@ -66,6 +66,7 @@ class DaSoumissionFacBlFactory
         $dto->numeroVersionFacBl = $this->dataService->getNumeroVersion($dto->numeroCde, $dto->codeSociete);
         $dto->dateBlFac = $this->dataService->getDateLivraisonPrevue($dto->numeroDemandeAppro, $dto->numeroCde, $dto->codeSociete);
         $dto->dateDemande = new DateTime();
+        $dto->dernierStatutDdp = $this->recupDernierStatutDdp($dto);
 
         // livraison ===========================
         $dto->infoLiv = $this->dataService->getInfoLivraison($dto->numeroCde, $dto->numeroDemandeAppro, $dto->codeSociete);
@@ -87,11 +88,18 @@ class DaSoumissionFacBlFactory
         $this->getDdpa($dto);
 
         $this->calculService->calculerMontantEtRatios($dto);
+        $dto->estRegule = $dto->montantAregulariser <= 0.0 && !in_array($dto->dernierStatutDdp, StatutConstants::REFUSES_DDP);
 
         // recupération des informations de commande
         $this->getReception($dto);
 
         return $dto;
+    }
+
+    public function recupDernierStatutDdp(DaSoumissionFacBlDto $dto): ?string
+    {
+        $ddpRepository = $this->em->getRepository(DemandePaiement::class);
+        return  $ddpRepository->getDernierStatutDddp($dto->numeroCde, $dto->numeroDemandeAppro);
     }
 
     public function EnrichissementDtoApresSoumission(DaSoumissionFacBlDto $dto, ?string $nomPdfFusionner = null)
@@ -176,7 +184,7 @@ class DaSoumissionFacBlFactory
         $ddpDto->numeroDdp = $dto->typeDdp !== 'bap' ? $this->genererNumeroDdp() : $dto->numeroBap;
         $ddpDto->debiteur = $this->dataService->resolveDebiteur($infoDa['daTypeId'], $infoDa);
         $ddpDto->typeDemande = $this->getTypeDdp($dto);
-        $ddpDto->statut = $dto->montantAregulariser <= 0.0 ? StatutConstants::DDPR_A_TRANSMETTRE : StatutConstants::DDPL_A_TRANSMETTRE;
+        $ddpDto->statut = $dto->estRegule ? StatutConstants::DDPR_A_TRANSMETTRE : StatutConstants::DDPL_A_TRANSMETTRE;
         $ddpDto->demandeur = $this->securityService->getUserName();
         $ddpDto->adresseMailDemandeur = $this->securityService->getUserEmail();
         $ddpDto->montantAPayer = $dto->montantAregulariser;
@@ -201,7 +209,7 @@ class DaSoumissionFacBlFactory
         $typeRegule = $typeDemandeRepository->find(TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_REGULE);
         $typeBonAPayer = $typeDemandeRepository->find(TypeDemandePaiementConstants::ID_BON_A_PAYER);
 
-        if ($dto->montantAregulariser <= 0.0) {
+        if ($dto->estRegule) {
             return $typeRegule;
         } elseif ($dto->typeDdp === 'bap') {
             return $typeBonAPayer;

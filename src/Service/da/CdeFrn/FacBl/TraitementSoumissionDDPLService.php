@@ -264,7 +264,7 @@ class TraitementSoumissionDDPLService
         } elseif ($dto->typeDdp === 'regul' && $dto->montantAregulariser > 0.0) {
             $message = " Pour la régularisation, il faut que le montant à payer soit égal à 0 ";
             $okey = false;
-        } elseif ($dto->typeDdp !== 'regul' && $dto->montantAregulariser <= 0.0) {
+        } elseif ($dto->typeDdp !== 'regul' && $dto->estRegule) {
             $message = " le type de traitement de paiement doit être régularisation car le montant à payer est égal à 0 ";
             $okey = false;
         }

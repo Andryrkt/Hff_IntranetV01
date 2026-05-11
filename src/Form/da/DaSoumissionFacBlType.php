@@ -31,7 +31,7 @@ class DaSoumissionFacBlType extends AbstractType
                 ],
                 'choice_attr' => function ($choice, $key, $value) use ($options) {
                     $attr = [];
-                    if (in_array($choice, ['bap', 'ddpl']) && $options['data']->montantAregulariser === 0.0) {
+                    if (in_array($choice, ['bap', 'ddpl']) && $options['data']->estRegule) {
                         $attr['disabled'] = 'disabled';
                     }
                     $attr['data-field-name'] = 'Type de traitement de paiement';
@@ -67,11 +67,11 @@ class DaSoumissionFacBlType extends AbstractType
             ])
             ->add('montantBlFacture', TextType::class, [
                 'label' => 'Montant HT du BL facture fournisseur (*)',
-                'required' => $options['data']->montantAregulariser === 0.0 ? false : true,
+                'required' => $options['data']->estRegule ? false : true,
                 'data' => 0,
                 'attr' => [
                     'data-field-name' => 'du Montant HT du BL facture fournisseur',
-                    'disabled' => $options['data']->montantAregulariser === 0.0 ? true : false,
+                    'disabled' => $options['data']->estRegule ? true : false,
                 ],
             ])
             ->add(

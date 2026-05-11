@@ -93,7 +93,7 @@ class DemandePaiementDaController extends Controller
 
     private function blocageSoumission(DemandePaiementDto $dto)
     {
-        if ($dto->montantAregulariser <= 0.0) {
+        if ($dto->estRegule) {
             $message = "La soumission doit être de type régularisation";
             $criteria = $this->getSessionService()->get('criteria_for_excel_Da_Cde_frn');
             $nomDeRoute = 'da_list_cde_frn'; // route de redirection après soumission

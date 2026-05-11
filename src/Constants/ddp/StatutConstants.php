@@ -15,12 +15,19 @@ class StatutConstants
     public const REFUSE_COMPTA = 'Réfusé Compta';
     public const A_VALIDER_COMPTABILITE = 'A valider comptabilité';
     public const VALIDE = 'Validé';
+    public const REFUSE = 'Refusé';
 
     public const STATUT_A_TRANSMETTRE = [
         self::DDPL_A_TRANSMETTRE,
         self::BAP_A_TRANSMETTRE,
         self::DDPR_A_TRANSMETTRE,
         self::DDPA_A_TRANSMETTRE
+    ];
+
+    public const REFUSES_DDP = [
+        self::REFUSE_PAR_CHEF_DE_SERVICE,
+        self::REFUSE_COMPTA,
+        self::REFUSE
     ];
 
     public const CSS_CLASS_MAP = [

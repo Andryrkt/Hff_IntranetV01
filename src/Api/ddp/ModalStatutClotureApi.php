@@ -14,7 +14,7 @@ class ModalStatutClotureApi extends Controller
      *
      * @return void
      */
-    public function statutCompta($numeroDa, $numeroCde)
+    public function statutCompta(string $numeroDa, string $numeroCde)
     {
         $ddpModel = new DemandePaiementModel();
         $infoStatutCloture = $ddpModel->getInfoDdpDa($numeroDa, $numeroCde);
