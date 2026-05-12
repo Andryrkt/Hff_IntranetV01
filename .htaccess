@@ -2,6 +2,8 @@ RewriteEngine On
 
 RewriteRule ^annuaire/?$ /HffintranetMigr/annuaire [L,QSA]
 RewriteRule ^annuaire/(.*)$ /HffintranetMigr/annuaire [L,QSA]
+RewriteRule ^taux-de-change/?$ /HffintranetMigr/taux-de-change [L,QSA]
+RewriteRule ^taux-de-change/(.*)$ /HffintranetMigr/taux-de-change [L,QSA]
 # Rediriger toutes les requêtes non fichiers vers index.php pour un traitement ultérieur
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
