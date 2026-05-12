@@ -13,6 +13,7 @@ use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
+use Symfony\Component\Form\CallbackTransformer;
 
 class DaSoumissionFacBlType extends AbstractType
 {
@@ -110,6 +111,23 @@ class DaSoumissionFacBlType extends AbstractType
                 ]
             )
         ;
+
+        $builder->get('montantBlFacture')
+            ->addModelTransformer(new CallbackTransformer(
+                function ($montantAsFloat) {
+                    if ($montantAsFloat === null) {
+                        return '';
+                    }
+                    return number_format((float) $montantAsFloat, 2, ',', ' ');
+                },
+                function ($montantAsString) {
+                    if ($montantAsString === null || $montantAsString === '') {
+                        return 0.0;
+                    }
+                    $montantClean = str_replace([' ', ','], ['', '.'], (string) $montantAsString);
+                    return (float) $montantClean;
+                }
+            ));
     }
 
     public function validateFiles($files, ExecutionContextInterface $context)

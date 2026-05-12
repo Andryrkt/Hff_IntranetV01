@@ -69,11 +69,14 @@ class TraitementSoumissionfacBlService
             $numDa   = $dto->numeroDemandeAppro;
             $numLiv = $dto->numLiv;
 
+            // enrichissement DTO
+            $dto  = $this->daSoumissionFacBlFactory->EnrichissementDtoApresSoumission($dto);
+
             // Traitement du fichier
             [$nomAvecCheminPdfFusionner, $nomPdfFusionner] = $this->traitementDeFichier($form, $dto);
+            $dto->pieceJoint1 = $nomPdfFusionner;
 
             // enrichissement Dto
-            $dto  = $this->daSoumissionFacBlFactory->EnrichissementDtoApresSoumission($dto, $nomPdfFusionner);
             /** ENREGISTREMENT DANS LA BASE DE DONNEE */
             $daSoumissionFacBl = $this->daSoumissionfacBlMapper->map($dto);
             $this->entityManager->persist($daSoumissionFacBl);

@@ -87,11 +87,12 @@ class TraitementSoumissionBAPService
 
         if ($this->verifierConditionDeBlocage($dto)) {
 
+            // enrichissement Dto
+            $dto  = $this->daSoumissionFacBlFactory->EnrichissementDtoApresSoumission($dto);
+
             // Traitement du fichier
             [$nomAvecCheminPdfFusionner, $nomPdfFusionner] = $this->traitementDeFichier($form, $dto, $mail);
-
-            // enrichissement Dto
-            $dto  = $this->daSoumissionFacBlFactory->EnrichissementDtoApresSoumission($dto, $nomPdfFusionner);
+            $dto->pieceJoint1 = $nomPdfFusionner;
 
             /** ENREGISTREMENT DANS LA BASE DE DONNEE */
             $this->enregistrementDansBD($dto);
