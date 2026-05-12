@@ -2,13 +2,14 @@
 
 namespace App\Service\genererPdf\bap;
 
-use TCPDF;
-use App\Entity\da\DemandeAppro;
-use App\Service\genererPdf\GeneratePdf;
 use App\Controller\Traits\FormatageTrait;
 use App\Dto\Da\ListeCdeFrn\DaSoumissionFacBlDto;
+use App\Entity\da\DemandeAppro;
 use App\Service\genererPdf\da\PdfTableHistoriqueLivraisonBAP;
+use App\Service\genererPdf\ddp\PdfTableHistoriqueDdpBAP;
+use App\Service\genererPdf\GeneratePdf;
 use App\Service\genererPdf\PdfTableGeneratorFlexible;
+use TCPDF;
 
 class GenererPdfBonAPayer extends GeneratePdf
 {
@@ -40,6 +41,8 @@ class GenererPdfBonAPayer extends GeneratePdf
         $this->renderRecapDA($pdf, $w100, $demandeAppro);
         $this->renderInfoFACBL($pdf, $w100, $infoFacBl);
         $this->renderHistoriqueLivraison($pdf, $historiqueLivraison);
+
+        $this->renderHistoriqueDdp($pdf, $dto->demandePaiementDto->ddpRecap);
 
         // Sauvegarder le PDF
         return $this->savePDF($pdf, $demandeAppro->getNumeroDemandeAppro(), $infoBC["num_cde"]);
@@ -197,6 +200,18 @@ class GenererPdfBonAPayer extends GeneratePdf
             } else {
                 $tableGenerator = new PdfTableHistoriqueLivraisonBAP();
                 $pdf->writeHTML($tableGenerator->generateTable($historiqueLivraison));
+            }
+        });
+    }
+
+    private function renderHistoriqueDdp(TCPDF $pdf, array $historiqueDdp)
+    {
+        $this->renderInfoSection($pdf, 'RECAPITULATIF DES DEMANDES DE PAIEMENT', '', function () use ($pdf, $historiqueDdp) {
+            if (empty($historiqueDdp)) {
+                $pdf->Cell(0, 5, "Aucune demande de paiement", 0, 1);
+            } else {
+                $tableGenerator = new PdfTableHistoriqueDdpBAP();
+                $pdf->writeHTML($tableGenerator->generateTable($historiqueDdp));
             }
         });
     }

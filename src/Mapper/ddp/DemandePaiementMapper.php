@@ -78,7 +78,6 @@ class DemandePaiementMapper
             $dto->numeroLivraison = empty($numsLivraisons) ? null : implode(';', $numsLivraisons);
             $dto->numeroFacture =  $ddp->getNumeroFacture();
             $dto->statut = $ddp->getStatut();
-            $dto->montantAPayer = $ddp->getMontantAPayers();
             $dto->dateSoumissionCompta = $ddp->getDateSoumissionCompta();
             //============= pour la liste de ddp ===============
             $dto->codeAgence = $ddp->getAgenceDebiter();

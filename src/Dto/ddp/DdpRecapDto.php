@@ -12,4 +12,5 @@ class DdpRecapDto
     public float $montant = 0.00;
     public ?string $statut = null;
     public ?string $emetteur = null;
+    public float $ratio = 0.00;
 }

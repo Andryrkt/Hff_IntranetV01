@@ -90,7 +90,7 @@ class GeneratePdfDdpDa extends GeneratePdf
         $wLabelDate       = $pdf->GetStringWidth('DATE : ');
         $pdf->SetFont('helvetica', '', 12);
         $wValeurDate      = $pdf->GetStringWidth($dto->dateDemande->format('d/m/Y'));
-        $wLabelEmetteur   = $pdf->GetStringWidth('Emetteur : ');
+        $wLabelEmetteur   = $pdf->GetStringWidth('Emetteur :   ');
         $wValeurDemandeur = $pdf->GetStringWidth($dto->demandeur);
         // La valeur de la date prend l'espace restant (moins une petite marge)
         $wValeurDateCellule = $usable_width - $wLabelDate - $wValeurDate - $wLabelEmetteur - $wValeurDemandeur - 2;
@@ -104,7 +104,7 @@ class GeneratePdfDdpDa extends GeneratePdf
         $pdf->Cell($wValeurDate + $wValeurDateCellule, 10, $dto->dateDemande->format('d/m/Y'), 0, 0);
 
         // Label "Emetteur : " en normal
-        $pdf->Cell($wLabelEmetteur, 10, 'Emetteur : ', 0, 0);
+        $pdf->Cell($wLabelEmetteur + 2, 10, 'Emetteur :   ', 0, 0);
 
         // Valeur demandeur en gras, alignée à droite
         $pdf->SetFont('helvetica', 'B', 12);
@@ -240,9 +240,9 @@ class GeneratePdfDdpDa extends GeneratePdf
         //     return $value ? 'OUI' : '';
         // };
 
-        // $formatterPourcentage = function ($value) {
-        //     return $value . '%';
-        // };
+        $formatterPourcentage = function ($value) {
+            return $value . '%';
+        };
 
         $formatterNull = function ($value) {
             return ($value !== null && $value !== '') ? $value : '—';
@@ -269,13 +269,13 @@ class GeneratePdfDdpDa extends GeneratePdf
             [
                 'key' => 'typeDemande',
                 'label' => 'Type',
-                'width' => 120,
+                'width' => 100,
                 'style' => $styleBoldLeft,
             ],
             [
                 'key' => 'numeroFacture',
                 'label' => 'N° Facture',
-                'width' => 60,
+                'width' => 80,
                 'style' => $styleBoldCenter,
                 'formatter' => $formatterNull
             ],
@@ -287,6 +287,14 @@ class GeneratePdfDdpDa extends GeneratePdf
                 'formatter' => $formatterNull
             ],
             [
+                'key' => 'ratio',
+                'label' => '%',
+                'width' => 30,
+                'style' => $styleBoldCenter,
+                'type' => 'number',
+                'formatter' => $formatterPourcentage
+            ],
+            [
                 'key' => 'montant',
                 'label' => 'Montant',
                 'width' => 50,
@@ -296,7 +304,7 @@ class GeneratePdfDdpDa extends GeneratePdf
             [
                 'key' => 'statut',
                 'label' => 'Statut',
-                'width' => 90,
+                'width' => 70,
                 'style' => $styleBoldCenter,
             ],
             [

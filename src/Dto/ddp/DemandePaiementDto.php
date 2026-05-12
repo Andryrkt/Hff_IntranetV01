@@ -72,27 +72,28 @@ class DemandePaiementDto
     // Pour le DA et les montants =====================================
     public bool $appro = false;
     public ?int $typeDa = null;
-    public string $montantAPayer = '0';
-    public int $pourcentageAPayer;
-    public float $montantTotalCde;
-    public float $montantDejaPaye;
-    public float $montantRestantApayer;
-    public string $pourcentageAvance;
-    public float $ratioMontantpayer;
+    public int $numeroSoumissionDdpDa;
+    public string $numeroDemandeAppro;
+    public ?string $numeroLivraison = null;
     public string $numeroDa;
     public bool $ddpaDa = false;
     public int $numeroVersionBc = 0;
     public string $nomPdfFusionnerBc = '';
     public array $daDdpa = [];
     public string $titreDaDdpa = "historique des demandes de paiement à l'avance déjà effectuées dans le formulaire.";
+
+
     public float $totalMontantCommande = 0;
-    public float $totalPayer = 0;
-    public float $ratioTotalPayer = 0;
+    public float $montantDejaPaye = 0; // montant total des payement déjà effectuer
+    public float $ratioMontantDejaPaye = 0.0; // pourcentage total des payements déjà effectuer
+    public float $montantRestantApayer = 0; // montant total de la commande - montant déjà payé
+    public string $pourcentageAvance; // pourcentage de montant déjà payer + pourcentage de montant à regulariser (ou à payer)
+
+    // ** les variables suivants sont les mêmes seule le  nom qui le différencie
+    public string $montantAPayer = '0'; // c'est le montant qu'on va payer ou à regulariser
     public float $montantAregulariser;
     public float $ratioMontantARegul;
-    public int $numeroSoumissionDdpDa;
-    public string $numeroDemandeAppro;
-    public ?string $numeroLivraison = null;
+    public float $pourcentageAPayer = 0.0;
 
     public function montantAPayer(): float
     {
@@ -108,20 +109,6 @@ class DemandePaiementDto
         return (float) $montant;
     }
 
-    public function montantRestantApayer()
-    {
-        return $this->montantTotalCde - $this->montantDejaPaye - $this->montantAPayer();
-    }
-
-    public function pourcentageAvance(): string
-    {
-        return ((($this->montantDejaPaye + $this->montantAPayer()) / $this->montantTotalCde) * 100) . ' %';
-    }
-
-    public function ratioMontantpayer()
-    {
-        return $this->montantAPayer() / $this->montantTotalCde;
-    }
 
     public function numCdeString()
     {

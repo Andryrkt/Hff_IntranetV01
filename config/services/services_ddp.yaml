@@ -25,3 +25,8 @@ services:
     arguments:
       $docRattacheService: '@App\Service\da\DocRattacheService'
     public: true
+
+  App\Service\ddp\DdpFinancialService:
+    arguments:
+      $em: '@doctrine.orm.default_entity_manager'
+    public: true

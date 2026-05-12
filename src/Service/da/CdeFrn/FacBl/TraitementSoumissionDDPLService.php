@@ -61,11 +61,13 @@ class TraitementSoumissionDDPLService
         $sucess = false;
         if ($this->verifierConditionDeBlocage($dto)) {
 
+            // enrichissement Dto
+            $dto  = $this->daSoumissionFacBlFactory->enrichissementDtoApresSoumission($dto);
+
             // Traitement du fichier (enregistrement et fusion)
             [$nomAvecCheminPdfFusionner, $nomPdfFusionner] = $this->traitementDeFichier($form, $dto);
+            $dto->pieceJoint1 = $nomPdfFusionner;
 
-            // enrichissement Dto
-            $dto  = $this->daSoumissionFacBlFactory->enrichissementDtoApresSoumission($dto, $nomPdfFusionner);
 
             // enregistrement dans la base de données (table da_soumission_fac_bl, demande_paiement_commande, commande_livraison)
             $this->enregistrementDansDB($dto);

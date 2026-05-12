@@ -91,10 +91,10 @@ class DemandePaiementFactory
             'codeSociete' => $dto->codeSociete,
         ]);
 
+        $totalMontantCommande = $this->financialService->recuperationMontantTotalCommande($dto->numeroCommande, $dto->codeSociete);
         /** @var DemandePaiementDto[] $demandePaiementDto */
         $demandePaiementDto = DemandePaiementMapper::mapInverse($ddpList);
-
-        $dto->ddpRecap = DdpRecapMapper::map($demandePaiementDto);
+        $dto->ddpRecap = DdpRecapMapper::map($demandePaiementDto, $totalMontantCommande);
     }
 
     private function hydrateBaseInfo(DemandePaiementDto $dto, int $typeDdp, ?int $numCdeDa, ?int $typeDa, array $infoDa): void
@@ -142,11 +142,13 @@ class DemandePaiementFactory
     {
         $numeroFournisseur = $infoDa['numeroFournisseur'] ?? null;
         if (empty($numeroFournisseur) || $numeroFournisseur === '-') {
-            return;
+            throw new \Exception("Aucun numéro fournisseur trouvé pour le numéro commande " . $dto->numeroCommande);
         }
 
         $infoFournisseur = $this->ddpModel->recupInfoPourDa($numeroFournisseur, $dto->numeroCommande);
-        if (!empty($infoFournisseur)) {
+        if (empty($infoFournisseur)) {
+            throw new \Exception("Aucune information fournisseur trouvée pour le numéro commande " . $dto->numeroCommande);
+        } else {
             $data = $infoFournisseur[0];
             $dto->numeroFournisseur = $data['num_fournisseur'];
             $dto->ribFournisseur = $data['rib_fournisseur'];
@@ -160,25 +162,21 @@ class DemandePaiementFactory
 
     private function hydrateFinancialData(DemandePaiementDto $dto): void
     {
-        $recupMontantTotal = $this->ddpModel->getMontantTotalCde($dto->numeroCommande);
-        if (empty($recupMontantTotal)) {
-            throw new \Exception("Montant total introuvable pour le numero commande $dto->numeroCommande");
-        }
+        $dto->totalMontantCommande = $this->financialService->recuperationMontantTotalCommande($dto->numeroCommande, $dto->codeSociete);
 
-        $dto->montantTotalCde = (float)$recupMontantTotal[0];
-        $dto->totalMontantCommande = $this->getTotalMontantCommandeValue($dto->numeroCommande);
+        [$montantDejaPaye, $ratioMontantDejaPaye, $montantAregulariser, $ratioMontantARegul] = $this->financialService->calculatePaymentRatios($dto);
+        $dto->montantDejaPaye = $montantDejaPaye;
+        $dto->ratioMontantDejaPaye = $ratioMontantDejaPaye;
+        $dto->montantAregulariser = $montantAregulariser;
+        $dto->ratioMontantARegul = $ratioMontantARegul;
+
+        [$pourcentageAvance, $pourcentageAPayer] = $this->financialService->calculateGlobalFinancials($dto);
+        $dto->pourcentageAvance = $pourcentageAvance;
+        $dto->pourcentageAPayer = $pourcentageAPayer;
 
         $this->populateDdpaList($dto);
-        $this->populateMontants($dto);
-
-        $this->financialService->calculateGlobalFinancials($dto);
     }
 
-    private function getTotalMontantCommandeValue(int $numCde): float
-    {
-        $totalMontantCommande = $this->daSoumissionFacBlDdpaModel->getTotalMontantCommande($numCde);
-        return $totalMontantCommande ? (float)$totalMontantCommande[0] : 0;
-    }
 
     private function populateDdpaList(DemandePaiementDto $dto): void
     {
@@ -198,18 +196,6 @@ class DemandePaiementFactory
         }
     }
 
-    private function populateMontants(DemandePaiementDto $dto): void
-    {
-        $ddps = $this->em->getRepository(DemandePaiement::class)->getDdpSelonNumCde($dto->numeroCommande);
-        $totalPayer = 0;
-        foreach ($ddps as $item) {
-            $totalPayer += $item->getMontantAPayers();
-        }
-
-        [$ratioTotalPayer, $montantAregulariser, $ratioMontantARegul] = $this->financialService->calculatePaymentRatios($dto);
-
-        DaSoumissionFacBlMapper::mapTotalPayer($dto, $totalPayer, $ratioTotalPayer, $montantAregulariser, $ratioMontantARegul);
-    }
 
     private function getDebiteur(int $typeDa, array $infoDa): array
     {

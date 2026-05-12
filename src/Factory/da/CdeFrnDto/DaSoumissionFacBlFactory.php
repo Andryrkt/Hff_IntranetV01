@@ -12,6 +12,8 @@ use App\Entity\admin\ddp\TypeDemande;
 use App\Entity\da\DaSoumissionBc;
 use App\Entity\ddp\DemandePaiement;
 use App\Mapper\Da\ListCdeFrn\DaSoumissionFacBlMapper;
+use App\Mapper\ddp\DdpRecapMapper;
+use App\Mapper\ddp\DemandePaiementMapper;
 use App\Model\da\DaSoumissionFacBlModel;
 use App\Service\autres\AutoIncDecService;
 use App\Service\da\DaSoumissionCalculService;
@@ -20,6 +22,8 @@ use App\Service\da\NumeroGenerateurService;
 use App\Service\security\SecurityService;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Service\ddp\DdpFinancialService;
+
 
 class DaSoumissionFacBlFactory
 {
@@ -102,11 +106,9 @@ class DaSoumissionFacBlFactory
         return  $ddpRepository->getDernierStatutDddp($dto->numeroCde, $dto->numeroDemandeAppro);
     }
 
-    public function EnrichissementDtoApresSoumission(DaSoumissionFacBlDto $dto, ?string $nomPdfFusionner = null)
+    public function EnrichissementDtoApresSoumission(DaSoumissionFacBlDto $dto)
     {
-        if (empty($nomPdfFusionner)) return $dto;
 
-        $dto->pieceJoint1 = $nomPdfFusionner;
         $dto->montantBlFacture = (float)str_replace(',', '.', str_replace(' ', '', $dto->montantBlFacture ?? '0'));
         $dto->numeroFactureFournisseur = $this->getNumFacEtMontant($dto->numLiv, $dto->codeSociete)[0]['numero_facture'];
 
@@ -198,8 +200,26 @@ class DaSoumissionFacBlFactory
         $ddpDto->numeroDemandeAppro = $infoDa['numeroDemandeAppro'];
         $ddpDto->numeroLivraison = $dto->numLiv;
         $ddpDto->motif = $infoDa['objetDal'];
+        $ddpDto->codeSociete = $dto->codeSociete;
+        $this->ddpRecap($ddpDto);
 
         return $ddpDto;
+    }
+
+    private function ddpRecap(DemandePaiementDto $dto)
+    {
+        $ddpRepository = $this->em->getRepository(DemandePaiement::class);
+        $ddpList = $ddpRepository->findBy([
+            'numeroCommande' => $dto->numeroCommande,
+            'numeroDemandeAppro' => $dto->numeroDemandeAppro,
+            'codeSociete' => $dto->codeSociete,
+        ]);
+
+        $financialService = new DdpFinancialService($this->em);
+        $totalMontantCommande = $financialService->recuperationMontantTotalCommande($dto->numeroCommande, $dto->codeSociete);
+        /** @var DemandePaiementDto[] $demandePaiementDto */
+        $demandePaiementDto = DemandePaiementMapper::mapInverse($ddpList);
+        $dto->ddpRecap = DdpRecapMapper::map($demandePaiementDto, $totalMontantCommande);
     }
 
     private function getTypeDdp(DaSoumissionFacBlDto $dto): ?TypeDemande

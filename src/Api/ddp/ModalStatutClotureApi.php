@@ -17,9 +17,32 @@ class ModalStatutClotureApi extends Controller
     public function statutCompta(string $numeroDa, string $numeroCde)
     {
         $ddpModel = new DemandePaiementModel();
-        $infoStatutCloture = $ddpModel->getInfoDdpDa($numeroDa, $numeroCde);
+        $infoStatutClotures = $ddpModel->getInfoDdpDa($numeroDa, $numeroCde);
+
+        $infoStatutClotures = $this->ajoutMontantTotalCommande($infoStatutClotures, $numeroCde);
 
         header("Content-type:application/json");
-        echo json_encode($infoStatutCloture);
+        echo json_encode($infoStatutClotures);
+    }
+
+    /**
+     * Ajout du montant total de la commande dans le tableau des informations de statut de clôture.
+     *
+     * @param array $infoStatutClotures
+     * @return array
+     */
+    private function ajoutMontantTotalCommande(array $infoStatutClotures, string $numeroCde): array
+    {
+        $ddpModel = new DemandePaiementModel();
+        foreach ($infoStatutClotures as &$infoStatutCloture) {
+            $montantTotalCommande = $ddpModel->getMontantTotalCde($numeroCde, $infoStatutCloture['code_societe']);
+            $infoStatutCloture['montant_total_commande'] = $montantTotalCommande;
+            
+            $montantHtFloat = (float) str_replace([' ', "\xc2\xa0", ','], ['', '', '.'], (string) $infoStatutCloture['montant_ht']);
+            $infoStatutCloture['ratio_deja_paye'] = $montantTotalCommande != 0 
+                ? round(($montantHtFloat / $montantTotalCommande) * 100, 2) 
+                : 0;
+        }
+        return $infoStatutClotures;
     }
 }
