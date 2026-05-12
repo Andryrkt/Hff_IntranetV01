@@ -90,7 +90,6 @@ class listeDaController extends Controller
             'totalPages'        => $paginationData['lastPage'],
             'resultat'          => $paginationData['totalItems'],
             'formDateLivraison' => $formDateLivraison->createView(),
-            'mesDaActif'        => $request->query->get('mes_da_a_traiter') == 1,
         ]);
     }
 

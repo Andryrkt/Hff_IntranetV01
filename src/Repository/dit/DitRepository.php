@@ -40,7 +40,9 @@ class DitRepository extends EntityRepository
             ->leftJoin('d.typeDocument', 'td')
             ->leftJoin('d.idNiveauUrgence', 'nu')
             ->join('d.idStatutDemande', 's')
-            ->leftJoin(AtelierRealise::class, 'ar', 'WITH', 'd.reparationRealise = ar.codeAtelier');
+            ->leftJoin(AtelierRealise::class, 'ar', 'WITH', 'd.reparationRealise = ar.codeAtelier')
+            ->andWhere('d.codeSociete = :codeSociete')
+            ->setParameter('codeSociete', $codeSociete);
 
         $this->applyStatusFilter($queryBuilder, $ditSearch);
         $this->applyCommonFilters($queryBuilder, $ditSearch);
@@ -658,7 +660,7 @@ class DitRepository extends EntityRepository
         $queryBuilder = $this->createQueryBuilder('d')
             ->leftJoin('d.typeDocument', 'td')
             ->leftJoin('d.idNiveauUrgence', 'nu')
-            ->leftJoin('d.idStatutDemande', 's')
+            ->join('d.idStatutDemande', 's')
             ->leftJoin(AtelierRealise::class, 'ar', 'WITH', 'd.reparationRealise = ar.codeAtelier')
             ->where('d.sectionAffectee <> :sectionAffectee')
             ->setParameter('sectionAffectee', '')

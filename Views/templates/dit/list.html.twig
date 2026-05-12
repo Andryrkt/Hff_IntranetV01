@@ -5,8 +5,8 @@
 {% endblock %}
 
 {% block stylesheets %}
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/dit/liste.css">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.09.15.08.00">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/dit/liste.css?v=2025.09.15.08.00">
 {% endblock %}
 
 {% import "macroForm.html.twig" as macroForm %}
@@ -111,9 +111,7 @@
 								</li>
 								{% if item.estAnnulable %}
 									<li>
-										{% if item.estAnnulable %}
-											<a class="dropdown-item fw-bold clotureDit" href="{{ path("api_cloturer_annuler_dit_liste", {id: item.id})}}" data-id="{{ item.id }}">Clôturer la DIT</a>
-										{% endif %}
+										<a class="dropdown-item fw-bold clotureDit" href="{{ path("api_cloturer_annuler_dit_liste", {id: item.id})}}" data-id="{{ item.id }}">Clôturer la DIT</a>
 									</li>
 								{% endif %}
 							</ul>
