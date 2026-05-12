@@ -82,12 +82,4 @@ class PointageRelanceController extends Controller
         return AutoIncDecService::autoIncrement($numeroRelanceMax);
     }
 
-    private function modifictionTableDevisSoumisAValidationNeg(PointageRelance $pointageRelanceEntity, string $codeSociete): void
-    {
-        $devis = $this->getEntityManager()->getRepository(DevisMagasin::class)->getDevis($pointageRelanceEntity->getNumeroDevis(), $codeSociete);
-        if ($devis) {
-            $devis->setStatutRelance('Relancé');
-            $this->getEntityManager()->flush();
-        }
-    }
 }

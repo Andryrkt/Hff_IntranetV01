@@ -44,10 +44,10 @@ class VerificationPrixFactory
      * Methode pour savoir si tous les constructeur du Devis 
      * est CAT ou non ou partielement
      *
-     * @param [type] $dto
+     * @param SoumissionDto $dto
      * @return string 'TOUS NEST PAS CAT' ou 'TOUT CAT'
      */
-    private static function getContructeur($dto): string
+    private static function getContructeur(SoumissionDto $dto): string
     {
         $devisNegModel = new SoumissionModel();
         return trim($devisNegModel->getConstructeur($dto->numeroDevis) ?? '');
