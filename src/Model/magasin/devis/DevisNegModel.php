@@ -581,4 +581,24 @@ class DevisNegModel extends Model
             $this->connect->close();
         }
     }
+
+    /**
+     * Récupère le code et le libellé du client
+     * 
+     * cette méthode utilise la table neg_ent pour récupérer le code et le libellé du client
+     * 
+     * @return array Les informations du client
+     */
+    public function getCodeLibelleClient()
+    {
+        $statement = "SELECT DISTINCT nent_numcli as code_client, nent_nomcli as nom_client
+                        from neg_ent
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
 }
