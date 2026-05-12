@@ -326,6 +326,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             <td>${item.numero}</td>
                             <td>${item.type}</td>
                             <td>${item.motif || '-'}</td>
+                            <td>${item.ratio_deja_paye}%</td>
                             <td class="text-end">${item.montant_ht}</td>
                             <td class="${styleStatut}">${item.statut}</td>
                         </tr>

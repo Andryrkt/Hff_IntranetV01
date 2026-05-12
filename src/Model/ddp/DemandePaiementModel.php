@@ -434,7 +434,8 @@ class DemandePaiementModel extends Model
             td.libelle_type_demande as type,
             dp.motif,
             FORMAT(dp.montant_a_payer, 'N2') as montant_ht,
-            dp.statut 
+            dp.statut,
+            dp.code_societe 
             from demande_paiement dp 
             left join da_soumission_facture_bl dsfb 
             on dsfb.numero_demande_paiement = dp.numero_demande_paiement

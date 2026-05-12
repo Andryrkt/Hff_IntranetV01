@@ -40,6 +40,8 @@ class GenererPdfBonAPayer extends GeneratePdf
         $this->renderRecapDA($pdf, $w100, $demandeAppro);
         $this->renderInfoFACBL($pdf, $w100, $infoFacBl);
         $this->renderHistoriqueLivraison($pdf, $historiqueLivraison);
+        // TODO: Ajouter l'historique des DDP
+        // $this->renderHistoriqueDdp($pdf, $historiqueDdp);
 
         // Sauvegarder le PDF
         return $this->savePDF($pdf, $demandeAppro->getNumeroDemandeAppro(), $infoBC["num_cde"]);
