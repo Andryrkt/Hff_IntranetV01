@@ -93,7 +93,7 @@ class DemandePaiementDto
     public string $montantAPayer = '0'; // c'est le montant qu'on va payer ou à regulariser
     public float $montantAregulariser;
     public float $ratioMontantARegul;
-    public int $pourcentageAPayer;
+    public float $pourcentageAPayer = 0.0;
 
     public function montantAPayer(): float
     {
