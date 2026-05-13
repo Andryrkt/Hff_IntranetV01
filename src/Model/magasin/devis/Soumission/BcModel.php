@@ -45,14 +45,18 @@ class BcModel extends Model
 
         $statement = " SELECT ROUND(SUM((COALESCE(nlig_pxvteht,0)*COALESCE(nlig_qtecde,0)) * (1-(COALESCE(nlig_rem1,0)/100))), 2) as montant 
                     FROM informix.neg_lig
-                    inner join informix.neg_ent on nent_soc = nlig_soc and nent_succ = nlig_succ and nent_numcde = nlig_numcde and nlig_soc = 'HF' and nent_soc = 'HF'
+                    inner join informix.neg_ent 
+                        on nent_soc = nlig_soc 
+                        and nent_succ = nlig_succ 
+                        and nent_numcde = nlig_numcde 
+                        and nlig_soc = '$codeSociete'
+                        and nent_soc = '$codeSociete'
                     where nent_natop = 'DEV'
-                    --year(nlig_datecde) = '2025' and month(nlig_datecde) = '10'
-                    and nent_posl <> 'TR'
+                    and nent_posl <> 'TR' 
                     and nent_servcrt = 'NEG'
                     and nlig_numcde = '$numeroDevis'
                     and nlig_soc = '$codeSociete'
-                    and nlig_constp in (" . $constructeurPieceMagasin . ") -- ne recuperer que les pièces gérées par le magasin
+                    and nlig_constp in (" . $constructeurPieceMagasin . ")
         ";
 
         $result = $this->connect->executeQuery($statement);

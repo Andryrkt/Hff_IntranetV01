@@ -197,7 +197,11 @@ class DaModel extends Model
                         TRIM(a.abse_desi) AS designation,
                         af.afrn_numf AS numero_fournisseur,
                         TRIM(fbse_nomfou) AS nom_fournisseur,
-                        af.afrn_pxach AS prix_unitaire 
+                        CASE 
+	                        WHEN a.abse_pmp > 0 THEN a.abse_pmp
+	                        WHEN af.afrn_pxach > 0 THEN af.afrn_pxach
+    	                    ELSE 0
+                        END AS prix_unitaire
                     FROM art_bse a 
                     LEFT JOIN art_frn af 
                         ON afrn_constp = abse_constp 
@@ -235,7 +239,19 @@ class DaModel extends Model
                         TRIM(abs.abse_desi) as desi,
                         af.afrn_numf as num_frn, 
                         TRIM(fbse.fbse_nomfou) as nom_frn,
-                        af.afrn_pxach as prix_unitaire 
+                        CASE 
+                            WHEN TRIM(abs.abse_constp) = 'ZDI' THEN 
+                                CASE 
+                                    WHEN af.afrn_pxach > 0 THEN af.afrn_pxach
+                                    ELSE NULL
+                                END
+                            ELSE
+                                CASE
+                                    WHEN abs.abse_pmp > 0 THEN abs.abse_pmp
+                                    WHEN af.afrn_pxach > 0 THEN af.afrn_pxach
+                                    ELSE 0
+                                END
+                        END AS prix_unitaire
                     FROM art_bse abs
                     LEFT JOIN art_frn af 
                         ON af.afrn_constp = abs.abse_constp 

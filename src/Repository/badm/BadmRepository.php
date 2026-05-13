@@ -183,7 +183,7 @@ class BadmRepository extends EntityRepository
                 ->setParameter('typeMouvement', '%' . $criteria['typeMouvement'] . '%');
         }
 
-        if (!empty($criteria['idMateriel'])) {
+        if (!empty($criteria['idMateriel']) || $criteria['idMateriel'] == '0') {
             $queryBuilder->andWhere('b.idMateriel = :idMateriel')
                 ->setParameter('idMateriel',  $criteria['idMateriel']);
         }
