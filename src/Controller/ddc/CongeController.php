@@ -653,6 +653,7 @@ class CongeController extends Controller
             'form' => $form->createView(),
             'viewMode' => 'calendar',
             'selected_month' => $selectedMonth,
+            'accessGroupeDirection' => $this->estAdmin(),
             'title' => 'Liste des demandes de congé',
         ]);
     }
