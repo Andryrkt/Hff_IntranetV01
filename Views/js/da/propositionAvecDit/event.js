@@ -167,14 +167,14 @@ export function handleFormSubmit() {
     },
     valider: {
       title: "Confirmer la validation",
-      html: `Êtes-vous sûr de vouloir <strong class="text-success"">valider</strong> cette demande ?<br><small class="text-success""><strong><u>NB</u>: </strong>Après validation de la demande, le statut de la Da sera <strong class="text-success">'Bon d’achats validé'</strong>.</small>`,
+      html: `Êtes-vous sûr de vouloir <strong class="text-success"">valider</strong> cette demande ?<br><small class="text-success""><strong><u>NB</u>: </strong>Après validation de la demande, le statut de la Da sera <strong class="text-success">"Bon d'achats validé"</strong>.</small>`,
       icon: "warning",
       confirmButtonText: "Oui, Valider",
       canceledText: "La validation de la demande a été annulée.",
     },
     changement: {
       title: "Confirmer la validation",
-      html: `Êtes-vous sûr de vouloir <strong class="text-success"">valider</strong> cette demande ?<br><small class="text-success""><strong><u>NB</u>: </strong>Après validation de la demande, le statut de la DA sera <strong class="text-success">'Bon d’achats validé'</strong>.</small>`,
+      html: `Êtes-vous sûr de vouloir <strong class="text-success"">valider</strong> cette demande ?<br><small class="text-success""><strong><u>NB</u>: </strong>Après validation de la demande, le statut de la DA sera <strong class="text-success">"Bon d'achats validé"</strong>.</small>`,
       icon: "warning",
       confirmButtonText: "Oui, Valider",
       canceledText: "La validation de la demande a été annulée.",
