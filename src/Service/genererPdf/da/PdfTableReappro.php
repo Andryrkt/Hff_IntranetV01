@@ -44,18 +44,26 @@ class PdfTableReappro
     private function generateBodyArticleDemandeReappro(iterable $dals, bool $isPonctuel): string
     {
         $rows = [];
-        $hasRows = false;
 
+        if (empty($dals)) {
+            return '<tbody><tr><td colspan="' . ($isPonctuel ? 6 : 7) . '" align="center">Aucun article demandé</td></tr></tbody>';
+        }
+
+        $total = 0;
+        /** @var DemandeApproL $dal */
         foreach ($dals as $dal) {
-            $hasRows = true;
             $rows[] = $this->createArticleRow($dal, $isPonctuel);
+            $total += $dal->getMontantTwig();
         }
 
-        if (!$hasRows) {
-            return '<tbody><tr><td colspan="7" align="center">Aucun article demandé</td></tr></tbody>';
-        }
+        $html = '<tbody>' . implode('', $rows) . '</tbody>';
+        $html .= '<tfoot>';
+        $html .= '<tr style="font-weight:bold;"><td colspan="' . ($isPonctuel ? 5 : 6) . '" align="right"> MONTANT TOTAL </td>';
+        $html .= '<td align="center">' . number_format($total, 2, ',', '.') . '</td>';
+        $html .= '</tr>';
+        $html .= '</tfoot>';
 
-        return '<tbody>' . implode('', $rows) . '</tbody>';
+        return $html;
     }
 
     private function createArticleRow(DemandeApproL $dal, bool $isPonctuel): string
