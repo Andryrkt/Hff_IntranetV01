@@ -3,10 +3,10 @@
 namespace App\Api\magasin;
 
 use App\Controller\Controller;
-use Symfony\Component\Routing\Annotation\Route;
-use App\Model\magasin\MagasinListeOrATraiterModel;
-use App\Model\magasin\devis\ListeDevisMagasinModel;
+use App\Model\magasin\devis\DevisNegModel;
 use App\Model\magasin\lcfnp\ListeCdeFrnNonPlacerModel;
+use App\Model\magasin\MagasinListeOrATraiterModel;
+use Symfony\Component\Routing\Annotation\Route;
 
 
 class AutocompletionApi extends Controller
@@ -71,8 +71,8 @@ class AutocompletionApi extends Controller
     public function autocompletionCodeClient()
     {
         try {
-            $listeDevisMagasinModel = new ListeDevisMagasinModel();
-            $data = $listeDevisMagasinModel->getCodeLibelleClient();
+            $devisNegModel = new DevisNegModel();
+            $data = $devisNegModel->getCodeLibelleClient();
 
             // Vérifier que les données sont valides
             if (!is_array($data)) {

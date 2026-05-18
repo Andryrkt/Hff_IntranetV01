@@ -177,7 +177,7 @@ class DaTimelineService
         return [
             'statut'   => $statut,
             'dotClass' => StatutDaConstant::getCssClassDa($statut),
-            'date'     => $statut === DemandeAppro::STATUT_SOUMIS_APPRO ? $dateDemande : $date,
+            'date'     => $statut === StatutDaConstant::STATUT_SOUMIS_APPRO ? $dateDemande : $date,
             'nbrJours' => 0,
         ];
     }
