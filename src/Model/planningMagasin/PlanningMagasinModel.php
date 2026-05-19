@@ -88,7 +88,7 @@ class PlanningMagasinModel extends Model
     }
 
 
-    public function recuperationCommadeplanifier(PlanningMagasinSearch $criteria, string $back, string $condition, array $tousLesBCSoumis, string $codeAgence)
+    public function recuperationCommadeplanifier(PlanningMagasinSearch $criteria, string $back, string $condition, array $tousLesBCSoumisValider, array $tousLesBCSoumisNonValider, string $codeAgence)
     {
         if ($criteria->getOrBackOrder() == true) {
             $numCmd = "AND nent_numcde in (" . $back . ")";
@@ -96,10 +96,11 @@ class PlanningMagasinModel extends Model
             $numCmd = $this->numcommande($criteria);
         }
         if ($criteria->getOrNonValiderDw() == true) {
-            $value = TableauEnStringService::like($tousLesBCSoumis, 'nent_libcde');
+            $value = TableauEnStringService::like($tousLesBCSoumisNonValider, 'nent_libcde');
             $numDevis = " AND  ($value) ";
         } else {
-            $numDevis = "";
+            $value = TableauEnStringService::like($tousLesBCSoumisValider, 'nent_libcde');
+            $numDevis = " AND  ($value) ";
         }
 
         switch ($condition) {
@@ -192,7 +193,7 @@ class PlanningMagasinModel extends Model
                         AND not nent_numcli between 1800000 and 1999999
                         AND trim(nent_succ) in ('01', '20', '30', '40')
                         AND trim(nent_servcrt) <> 'ASS'
-                        AND nlig_constp IN ($piecesMagasin)
+                        -- AND nlig_constp IN ($piecesMagasin)
                 
                         $numDevis
                         $numCmd
@@ -204,7 +205,7 @@ class PlanningMagasinModel extends Model
                         $numeroDevis
                         group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
                         order by 12 desc, 13 desc";
-        // dump($statement);
+
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
         $resultat = $this->convertirEnUtf8($data);

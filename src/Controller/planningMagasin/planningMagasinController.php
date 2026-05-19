@@ -68,12 +68,14 @@ class planningMagasinController extends Controller
             $criteria =  $form->getdata();
         }
         /** @var array $touLesBCSoumis ce qui est valider DW*/
-        $tousLesBCSoumis = $this->allBCs();
+        $tousLesBCSoumisValider = $this->BcMagasinRepository->findnumBCAll();
+        /** @var array $touLesBCSoumis ce qui est non valider DW*/
+        $tousLesBCSoumisNonValider = $this->BcMagasinRepository->findnumBCNonValiderAll();
 
         //recupère le condition clicsur la légende
         $condition = $request->query->get('condition', "1");
         // dd($condition);
-        $back = $this->planningMagasinModel->backOrderplanningMagasin($criteria, $tousLesBCSoumis);
+        $back = $this->planningMagasinModel->backOrderplanningMagasin($criteria);
 
         if (is_array($back)) {
             $backString = TableauEnStringService::orEnString($back);
@@ -82,7 +84,7 @@ class planningMagasinController extends Controller
         }
 
 
-        $data = $this->planningMagasinModel->recuperationCommadeplanifier($criteria, $backString, $condition, $tousLesBCSoumis, $codeAgence);
+        $data = $this->planningMagasinModel->recuperationCommadeplanifier($criteria, $backString, $condition, $tousLesBCSoumisValider, $tousLesBCSoumisNonValider, $codeAgence);
         $tabObjetPlanning = $this->creationTableauObjetPlanningMagasin($data, $back);
         $fusionResult = $this->ajoutMoiDetailMagasin($tabObjetPlanning);
         $forDisplay = $this->prepareDataForDisplay($fusionResult, $criteria->getMonths() == null ? 3 : $criteria->getMonths());
@@ -93,12 +95,5 @@ class planningMagasinController extends Controller
             'uniqueMonths'   => $forDisplay['uniqueMonths'],
             'preparedData'   => $forDisplay['preparedData'],
         ]);
-    }
-
-    private function allBCs(): array
-    {
-        /** @var array */
-        $numBc = $this->BcMagasinRepository->findnumBCAll();
-        return $numBc;
     }
 }

@@ -48,4 +48,15 @@ class BcMagasinRepository extends EntityRepository implements StatusRepositoryIn
 
         return $query;
     }
+    public function findnumBCNonValiderAll()
+    {
+        $query = $this->createQueryBuilder('b')
+            ->select("DISTINCT b.numeroDevis")
+            ->where('b.statutBc <> :statutBc')
+            ->setParameter('statutBc', StatutBcNegConstant::VALIDER)
+            ->getQuery()
+            ->getSingleColumnResult();
+
+        return $query;
+    }
 }
