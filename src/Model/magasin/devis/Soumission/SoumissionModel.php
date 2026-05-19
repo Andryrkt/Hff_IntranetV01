@@ -15,9 +15,9 @@ class SoumissionModel extends Model
      * si 100% TOUT CAT sion TOUT N'EST PAS CAT
      *
      * @param string $numeroDevis
-     * @return void
+     * @return string
      */
-    public function getConstructeur(string $numeroDevis)
+    public function getConstructeur(string $numeroDevis): string
     {
         $cstMagasin = GlobalVariablesService::get('pieces_magasin');
         $statement = " SELECT 
