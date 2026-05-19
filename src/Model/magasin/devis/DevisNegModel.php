@@ -388,7 +388,7 @@ class DevisNegModel extends Model
         }
 
         // Filtre par statut IPS (Position IPS) - on l'ajoute seulement s'il n'a pas déjà été traité dans getDevisNeg
-        if (!empty($criteria['statutIps']) && !in_array($criteria['statutIps'], ['RE', 'TR'])) {
+        if (!empty($criteria['statutIps'])) {
             $whereClauses[] = " TRIM(nent.nent_posl) = '" . $criteria['statutIps'] . "' ";
         }
 

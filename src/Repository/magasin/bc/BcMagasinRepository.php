@@ -35,7 +35,7 @@ class BcMagasinRepository extends EntityRepository implements StatusRepositoryIn
     }
 
     /**
-     * recupère tous les numéros BC Distincts
+     * recupère tous les numéros BC Distincts Validé
      */
     public function findnumBCAll()
     {
@@ -48,6 +48,10 @@ class BcMagasinRepository extends EntityRepository implements StatusRepositoryIn
 
         return $query;
     }
+
+    /**
+     * recupère tous les numéros BC Distincts Non Valider
+     */
     public function findnumBCNonValiderAll()
     {
         $query = $this->createQueryBuilder('b')
