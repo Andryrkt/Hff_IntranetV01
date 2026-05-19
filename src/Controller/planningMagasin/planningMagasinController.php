@@ -69,6 +69,7 @@ class planningMagasinController extends Controller
         }
         /** @var array $touLesBCSoumis ce qui est valider DW*/
         $tousLesBCSoumis = $this->allBCs();
+
         //recupère le condition clicsur la légende
         $condition = $request->query->get('condition', "1");
         // dd($condition);
@@ -85,6 +86,7 @@ class planningMagasinController extends Controller
         $tabObjetPlanning = $this->creationTableauObjetPlanningMagasin($data, $back);
         $fusionResult = $this->ajoutMoiDetailMagasin($tabObjetPlanning);
         $forDisplay = $this->prepareDataForDisplay($fusionResult, $criteria->getMonths() == null ? 3 : $criteria->getMonths());
+
         return $this->render('planningMagasin/planning.html.twig', [
             'form'           => $form->createView(),
             'criteria'       => $criteria->toArray(),

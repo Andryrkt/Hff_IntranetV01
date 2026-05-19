@@ -2,6 +2,7 @@
 
 namespace App\Repository\magasin\bc;
 
+use App\Constants\Magasin\Devis\StatutBcNegConstant;
 use App\Repository\Interfaces\StatusRepositoryInterface;
 use Doctrine\ORM\EntityRepository;
 
@@ -41,7 +42,7 @@ class BcMagasinRepository extends EntityRepository implements StatusRepositoryIn
         $query = $this->createQueryBuilder('b')
             ->select("DISTINCT b.numeroDevis")
             ->where('b.statutBc = :statutBc')
-            ->setParameter('statutBc', 'Validé - Devis à transferer')
+            ->setParameter('statutBc', StatutBcNegConstant::VALIDER)
             ->getQuery()
             ->getSingleColumnResult();
 
