@@ -375,7 +375,7 @@ class DitOrsSoumisAValidationController extends Controller
 
         $refClient = $this->ditOrsoumisAValidationModel->recupRefClient($ditInsertionOrSoumis->getNumeroOR(), $codeSociete);
 
-        /** @var DitOrsSoumisAValidationRepository $orRepository */
+
         $orRepository = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class);
         $situationOrSoumis = $orRepository->getblocageStatut($numOr, $numDit, $codeSociete);
 

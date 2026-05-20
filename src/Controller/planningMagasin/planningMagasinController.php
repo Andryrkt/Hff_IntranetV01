@@ -37,6 +37,8 @@ class planningMagasinController extends Controller
      */
     public function headPlanning(Request $request)
     {
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+
         // Vérifier la permission de voir tous les données
         $multisuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE);
 
@@ -67,10 +69,6 @@ class planningMagasinController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             $criteria =  $form->getdata();
         }
-        /** @var array $touLesBCSoumis ce qui est valider DW*/
-        $tousLesBCSoumisValider = $this->BcMagasinRepository->findnumBCAll();
-        /** @var array $touLesBCSoumis ce qui est non valider DW*/
-        $tousLesBCSoumisNonValider = $this->BcMagasinRepository->findnumBCNonValiderAll();
 
         //recupère le condition clicsur la légende
         $condition = $request->query->get('condition', "1");
@@ -84,7 +82,7 @@ class planningMagasinController extends Controller
         }
 
 
-        $data = $this->planningMagasinModel->recuperationCommadeplanifier($criteria, $backString, $condition, $tousLesBCSoumisValider, $tousLesBCSoumisNonValider, $codeAgence);
+        $data = $this->planningMagasinModel->recuperationCommadeplanifier($criteria, $backString, $condition, $codeAgence, $codeSociete);
         $tabObjetPlanning = $this->creationTableauObjetPlanningMagasin($data, $back);
         $fusionResult = $this->ajoutMoiDetailMagasin($tabObjetPlanning);
         $forDisplay = $this->prepareDataForDisplay($fusionResult, $criteria->getMonths() == null ? 3 : $criteria->getMonths());
