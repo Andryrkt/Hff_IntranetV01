@@ -74,4 +74,33 @@ trait planningMagasinModelTrait
         }
         return $condNumeroDevis;
     }
+
+    /**
+     * pour le magasin ce n'est pas une OR mais une BC 
+     * BC => table bc_client_soumis_neg
+     */
+    private function orNonValiderDW($criteria)
+    {
+        if (!empty($criteria->getOrNonValiderDw()) && $criteria->getOrNonValiderDw()) {
+            $orNonValiderDW = " AND nent_numcde not in (SELECT distinct nent_numcde
+                                FROM 
+                                    {$this->dbIrium}:informix.bc_client_soumis_neg bcsn 
+                                INNER JOIN 
+                                    {$this->dbIps}:informix.neg_ent 
+                                    ON nent_libcde LIKE '%' || bcsn.numero_devis || '%'
+                                WHERE  
+                                    bcsn.statut_bc = 'Validé')";
+        } else {
+            $orNonValiderDW = " AND nent_numcde in (SELECT distinct nent_numcde
+                                FROM 
+                                    {$this->dbIrium}:informix.bc_client_soumis_neg bcsn 
+                                INNER JOIN 
+                                    {$this->dbIps}:informix.neg_ent 
+                                    ON nent_libcde LIKE '%' || bcsn.numero_devis || '%'
+                                WHERE  
+                                    bcsn.statut_bc = 'Validé')";
+        }
+
+        return $orNonValiderDW;
+    }
 }
