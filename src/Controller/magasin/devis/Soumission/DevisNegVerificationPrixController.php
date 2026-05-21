@@ -191,6 +191,7 @@ class DevisNegVerificationPrixController extends Controller
     {
         $this->envoyerEmail([
             'to'          => $_ENV['MAIL_TO_NEG'],
+            'cc'          => [$_ENV['MAIL_CC_NEG']],
             'variables'   => ['numDevis' => $numDevis],
             'attachments' => [
                 $resultatExport['filePath'] => $resultatExport['fileName'],
