@@ -90,7 +90,7 @@ class PlanningMagasinModel extends Model
 
     public function getNumeroDevisValideBcClient()
     {
-        $statement = " SELECT bcsn.numero_devis from {$this->dbIrium}:informix.bc_client_soumis_neg bcsn where bcsn.statut_bc like 'Valid%'";
+        $statement = " SELECT DISTINCT bcsn.numero_devis from {$this->dbIrium}:informix.bc_client_soumis_neg bcsn where bcsn.statut_bc like 'Valid%'";
 
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
