@@ -88,8 +88,25 @@ class PlanningMagasinModel extends Model
     }
 
 
-    public function recuperationCommadeplanifier(PlanningMagasinSearch $criteria, string $back, string $condition, string $codeAgence, string $codeSociete)
+    public function getNumeroDevisValideBcClient()
     {
+        $statement = " SELECT bcsn.numero_devis from {$this->dbIrium}:informix.bc_client_soumis_neg bcsn where bcsn.statut_bc like 'Valid%'";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->connect->fetchResults($result);
+        $resultat = $this->convertirEnUtf8($data);
+
+        return array_column($resultat, 'numero_devis');
+    }
+
+    public function recuperationCommadeplanifier(
+        PlanningMagasinSearch $criteria,
+        string $back,
+        string $condition,
+        string $codeAgence,
+        string $codeSociete,
+        array $numeroDevisValideBcClient
+    ) {
         if ($criteria->getOrBackOrder() == true) {
             $numCmd = "AND nent_numcde in (" . $back . ")";
         } else {
@@ -138,7 +155,7 @@ class PlanningMagasinModel extends Model
         $commercial = $this->commercial($criteria);
         $refClient = $this->refClient($criteria);
         $numeroDevis = $this->numeroDevis($criteria);
-        $orNonValideDW = $this->orNonValiderDW($criteria);
+        $orNonValideDW = $this->orNonValiderDW($criteria, $numeroDevisValideBcClient);
         $piecesMagasin = GlobalVariablesService::get('pieces_magasin');
         $statement = "SELECT 
                         trim(nent_succ)                          AS codeSuc,

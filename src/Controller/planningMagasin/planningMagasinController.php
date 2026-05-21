@@ -81,8 +81,9 @@ class planningMagasinController extends Controller
             $backString = '';
         }
 
+        $numeroDevisValideBcClient = $this->planningMagasinModel->getNumeroDevisValideBcClient();
 
-        $data = $this->planningMagasinModel->recuperationCommadeplanifier($criteria, $backString, $condition, $codeAgence, $codeSociete);
+        $data = $this->planningMagasinModel->recuperationCommadeplanifier($criteria, $backString, $condition, $codeAgence, $codeSociete, $numeroDevisValideBcClient);
         $tabObjetPlanning = $this->creationTableauObjetPlanningMagasin($data, $back);
         $fusionResult = $this->ajoutMoiDetailMagasin($tabObjetPlanning);
         $forDisplay = $this->prepareDataForDisplay($fusionResult, $criteria->getMonths() == null ? 3 : $criteria->getMonths());

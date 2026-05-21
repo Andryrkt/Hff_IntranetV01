@@ -13,6 +13,7 @@ use App\Controller\Traits\FormatageTrait;
 use App\Entity\admin\StatutDemande;
 use App\Entity\da\DaAfficher;
 use App\Entity\da\DemandeAppro;
+use App\Entity\dit\BcSoumis;
 use App\Entity\dit\DemandeIntervention;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Form\dit\DitOrsSoumisAValidationType;
@@ -20,11 +21,8 @@ use App\Model\dit\DitModel;
 use App\Model\dit\DitOrSoumisAValidationModel;
 use App\Model\magasin\MagasinListeOrLivrerModel;
 use App\Repository\da\DaAfficherRepository;
-use App\Repository\da\DemandeApproLRepository;
-use App\Repository\da\DemandeApproLRRepository;
 use App\Repository\da\DemandeApproRepository;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
-use App\Repository\dit\DitRepository;
 use App\Service\dit\ors\OrGeneratorNameService;
 use App\Service\fichier\TraitementDeFichier;
 use App\Service\fichier\UploderFileService;
@@ -49,14 +47,8 @@ class DitOrsSoumisAValidationController extends Controller
     private MagasinListeOrLivrerModel $magasinListOrLivrerModel;
     private HistoriqueOperationService $historiqueOperation;
     private DitOrSoumisAValidationModel $ditOrsoumisAValidationModel;
-    private DitRepository $ditRepository;
-    private DitOrsSoumisAValidationRepository $orRepository;
-    private DemandeApproLRepository $demandeApproLRepository;
-    private DemandeApproLRRepository $demandeApproLRRepository;
-    private DemandeApproRepository $demandeApproRepository;
-    private DaAfficherRepository $daAfficherRepository;
-    private $ditModel;
-    private $fusionPdf;
+    private DitModel $ditModel;
+    private FusionPdf $fusionPdf;
 
 
     public function __construct()
@@ -74,7 +66,7 @@ class DitOrsSoumisAValidationController extends Controller
      *
      * @return void
      */
-    public function insertionOr(Request $request, $numDit)
+    public function insertionOr(Request $request, string $numDit)
     {
         // Code Société de l'utilisateur
         $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
@@ -82,9 +74,7 @@ class DitOrsSoumisAValidationController extends Controller
         // verification si l'OR est lié à un DA
         $lierAUnDa = false;
 
-        /** @var DemandeApproRepository $demandeApproRepository */
         $demandeApproRepository = $this->getEntityManager()->getRepository(DemandeAppro::class);
-        /** @var DaAfficherRepository $daAfficherRepository */
         $daAfficherRepository = $this->getEntityManager()->getRepository(DaAfficher::class);
         $numDas = $demandeApproRepository->getNumDa($numDit, $codeSociete);
         if ($numDas) {
@@ -381,6 +371,12 @@ class DitOrsSoumisAValidationController extends Controller
 
         $countAgServDeb = $this->ditOrsoumisAValidationModel->countAgServDebit($numOr, $codeSociete);
 
+
+        $numeroDevis = $demandeIntervention->getNumeroDevisRattache();
+        $internetExterne = $demandeIntervention->getInternetExterne();
+        $bcSoumisRepository = $this->getEntityManager()->getRepository(BcSoumis::class);
+        $statutBc = $bcSoumisRepository->getStatut($numDit, $numeroDevis, $codeSociete);
+
         return [
             'nomFichier'            => strpos($originalName, 'Ordre de réparation') !== 0,
             'numeroOrDifferent'     => $numOr !== $ditInsertionOrSoumis->getNumeroOR(),
@@ -394,6 +390,7 @@ class DitOrsSoumisAValidationController extends Controller
             'numOrFichier'          => $numOrNomFIchier <> $numOr,
             'numcliExiste'          => $nbrNumcli[0] != 'existe_bdd',
             'premierSoumissionDatePlanningInferieurDateDuJour' => $this->premierSoumissionDatePlanningInferieurDateDuJour($numOr, $codeSociete),
+            'statutBcNonValide'           => $statutBc !== 'Validé atelier' && $internetExterne === 'Externe',
         ];
     }
 
@@ -464,6 +461,10 @@ class DitOrsSoumisAValidationController extends Controller
             $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
         } elseif ($conditionBloquage['premierSoumissionDatePlanningInferieurDateDuJour']) {
             $message = " Impossible de soumettre l’OR, la date de planning est déjà dépassée";
+            $okey = false;
+            $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
+        } elseif ($conditionBloquage['statutBcNonValide']) {
+            $message = "Echec de la soumission de l'OR . . . le bon de commande n'est pas validé";
             $okey = false;
             $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
         } else {
