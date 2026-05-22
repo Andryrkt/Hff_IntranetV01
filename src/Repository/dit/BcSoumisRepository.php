@@ -33,4 +33,26 @@ class BcSoumisRepository extends EntityRepository
 
         return $numeroVersionMax;
     }
+
+    public function getStatut(string $numDit, ?string $numeroDevis = null, string $codeSociete): ?string
+    {
+        if ($numeroDevis === null) {
+            return null;
+        }
+
+        $result = $this->createQueryBuilder('bc')
+            ->select('bc.statut')
+            ->where('bc.numDit = :numDit')
+            ->andWhere('bc.numDevis = :numDevis')
+            ->andWhere('bc.codeSociete = :codeSociete')
+            ->setParameter('numDit', $numDit)
+            ->setParameter('numDevis', $numeroDevis)
+            ->setParameter('codeSociete', $codeSociete)
+            ->setMaxResults(1)
+            ->orderBy('bc.numVersion', 'DESC')
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        return $result ? $result['statut'] : null;
+    }
 }

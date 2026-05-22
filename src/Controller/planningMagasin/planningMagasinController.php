@@ -37,6 +37,8 @@ class planningMagasinController extends Controller
      */
     public function headPlanning(Request $request)
     {
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+
         // Vérifier la permission de voir tous les données
         $multisuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE);
 
@@ -67,12 +69,11 @@ class planningMagasinController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             $criteria =  $form->getdata();
         }
-        /** @var array $touLesBCSoumis ce qui est valider DW*/
-        $tousLesBCSoumis = $this->allBCs();
+
         //recupère le condition clicsur la légende
         $condition = $request->query->get('condition', "1");
         // dd($condition);
-        $back = $this->planningMagasinModel->backOrderplanningMagasin($criteria, $tousLesBCSoumis);
+        $back = $this->planningMagasinModel->backOrderplanningMagasin($criteria);
 
         if (is_array($back)) {
             $backString = TableauEnStringService::orEnString($back);
@@ -80,23 +81,18 @@ class planningMagasinController extends Controller
             $backString = '';
         }
 
+        $numeroDevisValideBcClient = $this->planningMagasinModel->getNumeroDevisValideBcClient();
 
-        $data = $this->planningMagasinModel->recuperationCommadeplanifier($criteria, $backString, $condition, $tousLesBCSoumis, $codeAgence);
+        $data = $this->planningMagasinModel->recuperationCommadeplanifier($criteria, $backString, $condition, $codeAgence, $codeSociete, $numeroDevisValideBcClient);
         $tabObjetPlanning = $this->creationTableauObjetPlanningMagasin($data, $back);
         $fusionResult = $this->ajoutMoiDetailMagasin($tabObjetPlanning);
         $forDisplay = $this->prepareDataForDisplay($fusionResult, $criteria->getMonths() == null ? 3 : $criteria->getMonths());
+
         return $this->render('planningMagasin/planning.html.twig', [
             'form'           => $form->createView(),
             'criteria'       => $criteria->toArray(),
             'uniqueMonths'   => $forDisplay['uniqueMonths'],
             'preparedData'   => $forDisplay['preparedData'],
         ]);
-    }
-
-    private function allBCs(): array
-    {
-        /** @var array */
-        $numBc = $this->BcMagasinRepository->findnumBCAll();
-        return $numBc;
     }
 }

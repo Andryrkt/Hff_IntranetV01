@@ -4,13 +4,13 @@ namespace App\Constants\da;
 
 class StatutDaConstant
 {
-    public const STATUT_VALIDE               = "Bon d'achats validé";       /*__ DA direct et DA via OR __*/ /*_ statut_dal _*/ // cliquable par Admin et Appro
+    public const STATUT_VALIDE               = 'Bon d’achats validé';       /*__ DA direct et DA via OR __*/ /*_ statut_dal _*/ // cliquable par Admin et Appro
     public const STATUT_CLOTUREE             = 'Clôturée';                  /*__ DA direct et DA via OR __*/ /*_ statut_dal _*/ // ! non cliquable par quiconque
     public const STATUT_CLOTUREE_HORS_DELAI  = 'Clôturée hors délai';                  /*__ DA direct et DA via OR __*/ /*_ statut_dal _*/ // ! non cliquable par quiconque
     public const STATUT_REFUSE_APPRO         = 'Refusé appro';              /*__ DA direct et DA via OR __*/ /*_ statut_dal _*/ // ! non cliquable par quiconque
     public const STATUT_TERMINER             = 'TERMINER';                  /*__ DA direct et DA via OR __*/ /*_ statut_dal _*/ // ! non cliquable par quiconque
     public const STATUT_EN_COURS_CREATION    = 'En cours de création';      /*_________ DA via OR ________*/ /*_ statut_dal _*/ // cliquable par Admin et Atelier
-    public const STATUT_SOUMIS_APPRO         = "Demande d'achats";          /*__ DA direct et DA via OR __*/ /*_ statut_dal _*/ // cliquable par Admin et Appro
+    public const STATUT_SOUMIS_APPRO         = 'Demande d’achats';          /*__ DA direct et DA via OR __*/ /*_ statut_dal _*/ // cliquable par Admin et Appro
     public const STATUT_DEMANDE_DEVIS        = 'Demande de devis en cours'; /*__ DA direct et DA via OR __*/ /*_ statut_dal _*/ // cliquable par Admin et Appro
     public const STATUT_DEVIS_A_RELANCER     = 'Devis à relancer APP';      /*__ DA direct et DA via OR __*/ /*_ statut_dal _*/ // cliquable par Admin et Appro
     public const STATUT_AUTORISER_EMETTEUR   = 'Demande initiale à modifier'; /*_________ DA via OR ________*/ /*_ statut_dal _*/ // cliquable par Admin et Atelier
