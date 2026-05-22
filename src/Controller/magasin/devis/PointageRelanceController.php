@@ -76,9 +76,17 @@ class PointageRelanceController extends Controller
         return $this->jsonResponse(['success' => false, 'message' => 'Erreurs de validation.', 'errors' => (string) $form->getErrors(true, false)], 400);
     }
 
-    public function numeroRelance(int $numeroDevis, string $codeSociete): int
+    /**
+     * Génére le numéro de relance
+     *
+     * @param int $numeroDevis
+     * @param string $codeSociete
+     * @return int
+     */
+    private function numeroRelance(int $numeroDevis, string $codeSociete): int
     {
-        $numeroRelanceMax = $this->getEntityManager()->getRepository(PointageRelance::class)->getNumeroRelanceMax($numeroDevis, $codeSociete);
+        $pointageRelanceModel = new PointageRelanceModel();
+        $numeroRelanceMax = $pointageRelanceModel->getDernierNumeroRelance($numeroDevis, $codeSociete);
         return AutoIncDecService::autoIncrement($numeroRelanceMax);
     }
 

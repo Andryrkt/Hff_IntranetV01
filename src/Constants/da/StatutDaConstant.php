@@ -16,6 +16,7 @@ class StatutDaConstant
     public const STATUT_AUTORISER_EMETTEUR   = 'Demande initiale à modifier'; /*_________ DA via OR ________*/ /*_ statut_dal _*/ // cliquable par Admin et Atelier
     public const STATUT_EN_COURS_PROPOSITION = 'En cours de proposition';   /*__ DA direct et DA via OR __*/ /*_ statut_dal _*/ // cliquable par Admin et Appro
     public const STATUT_SOUMIS_ATE           = 'Proposition achats';        /*__ DA direct et DA via OR __*/ /*_ statut_dal _*/ // cliquable par Admin et (Atelier ou service emetteur) et Appro
+
     public const STATUT_DW_A_VALIDE          = 'A valider chef de service'; /*_________ DA direct ________*/ /*__ statut_or _*/ // ! non cliquable par quiconque
     public const STATUT_DW_REFUSEE           = 'DA refusée';                /*_________ DA direct ________*/ /*__ statut_or _*/ // ! non cliquable par quiconque
     public const STATUT_DW_VALIDEE           = 'DA validée';                /*_________ DA direct ________*/ /*__ statut_or _*/ // cliquable par Admin et Appro

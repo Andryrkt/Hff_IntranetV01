@@ -388,7 +388,7 @@ class DevisNegModel extends Model
         }
 
         // Filtre par statut IPS (Position IPS) - on l'ajoute seulement s'il n'a pas déjà été traité dans getDevisNeg
-        if (!empty($criteria['statutIps']) && !in_array($criteria['statutIps'], ['RE', 'TR'])) {
+        if (!empty($criteria['statutIps'])) {
             $whereClauses[] = " TRIM(nent.nent_posl) = '" . $criteria['statutIps'] . "' ";
         }
 
@@ -478,41 +478,51 @@ class DevisNegModel extends Model
             // On récupère l'état actuel pour savoir si on stoppe ou si on réactive
             $sqlCheck = "SELECT FIRST 1 stop_progression_global 
                         FROM {$this->dbIrium}:Informix.devis_soumis_a_validation_neg dneg
-                        WHERE dneg.numero_devis = '$numeroDevis' 
+                        WHERE dneg.numero_devis = :numeroDevis 
                         ORDER BY dneg.numero_version DESC";
 
-            $resultCheck = $this->connect->executeQuery($sqlCheck);
+            $resultCheck = $this->connect->executeQuery($sqlCheck, ['numeroDevis' => $numeroDevis]);
             $row = $this->connect->fetchScalarResults($resultCheck);
 
             $currentState = $row ? (int)$row['stop_progression_global'] : 0;
             $newState = ($currentState === 1) ? 0 : 1;
 
-            $utilisateurSql = str_replace("'", "''", $utilisateur);
-
             if ($newState === 1) {
                 // On stoppe
-                $motifStop = $motif ? $this->convertirEnUtf8(str_replace("'", "''", $motif)) : "";
                 $sql = "UPDATE {$this->dbIrium}:Informix.devis_soumis_a_validation_neg
                         SET stop_progression_global = 1, 
                             date_stop_global = CURRENT,
-                            motif_stop_global = '$motifStop',
-                            utilisateur_stop = '$utilisateurSql',
+                            motif_stop_global = :motif,
+                            utilisateur_stop = :utilisateur,
                             date_reprise_manuel = NULL,
                             utilisateur_reprise = NULL
-                        WHERE numero_devis = '$numeroDevis' 
-                        AND numero_version = (SELECT MAX(numero_version) FROM {$this->dbIrium}:Informix.devis_soumis_a_validation_neg WHERE numero_devis = '$numeroDevis')";
+                        WHERE numero_devis = :numeroDevis 
+                        AND numero_version = (SELECT MAX(numero_version) FROM {$this->dbIrium}:Informix.devis_soumis_a_validation_neg WHERE numero_devis = :numeroDevis2)";
+
+                $params = [
+                    'motif' => $motif ?: "",
+                    'utilisateur' => $utilisateur,
+                    'numeroDevis' => $numeroDevis,
+                    'numeroDevis2' => $numeroDevis
+                ];
             } else {
                 // On réactive : on efface le motif et on note l'utilisateur qui réactive
                 $sql = "UPDATE {$this->dbIrium}:Informix.devis_soumis_a_validation_neg
                         SET stop_progression_global = 0, 
                             motif_stop_global = NULL,
                             date_reprise_manuel = CURRENT,
-                            utilisateur_reprise = '$utilisateurSql'
-                        WHERE numero_devis = '$numeroDevis' 
-                        AND numero_version = (SELECT MAX(numero_version) FROM {$this->dbIrium}:Informix.devis_soumis_a_validation_neg WHERE numero_devis = '$numeroDevis')";
+                            utilisateur_reprise = :utilisateur
+                        WHERE numero_devis = :numeroDevis 
+                        AND numero_version = (SELECT MAX(numero_version) FROM {$this->dbIrium}:Informix.devis_soumis_a_validation_neg WHERE numero_devis = :numeroDevis2)";
+
+                $params = [
+                    'utilisateur' => $utilisateur,
+                    'numeroDevis' => $numeroDevis,
+                    'numeroDevis2' => $numeroDevis
+                ];
             }
 
-            $this->connect->executeQuery($sql);
+            $this->connect->executeQuery($sql, $params);
             return true;
         } catch (\Exception $e) {
             return false;
@@ -568,17 +578,41 @@ class DevisNegModel extends Model
                         FROM {$this->dbIps}:informix.neg_ent nent
                         LEFT JOIN {$this->dbIrium}:Informix.devis_soumis_a_validation_neg dneg ON dneg.numero_devis = nent.nent_numcde
                         LEFT JOIN {$this->dbIrium}:Informix.pointage_relance pr ON pr.numero_devis = nent.nent_numcde
-                        WHERE nent.nent_numcde = '$numeroDevis' AND nent.nent_soc = '$codeSociete'
-                        GROUP BY nent.nent_numcde, dneg.date_envoye_devis_client, dneg.statut_bc, dneg.numero_version, dneg.stop_progression_global, nent.nent_datecde
+                        WHERE nent.nent_numcde = :numeroDevis AND nent.nent_soc = :codeSociete
+                        GROUP BY 1, 2, 3, 4, 5, nent.nent_datecde
                     ) rs
                     ORDER BY rs.numero_version DESC";
 
-            $result = $this->connect->executeQuery($statement);
+            $result = $this->connect->executeQuery($statement, [
+                'numeroDevis' => $numeroDevis,
+                'codeSociete' => $codeSociete
+            ]);
             return $this->connect->fetchScalarResults($result);
         } catch (\Exception $e) {
             return [];
         } finally {
             $this->connect->close();
         }
+    }
+
+
+    /**
+     * Récupère le code et le libellé du client
+     * 
+     * cette méthode utilise la table neg_ent pour récupérer le code et le libellé du client
+     * 
+     * @return array Les informations du client
+     */
+    public function getCodeLibelleClient()
+    {
+        $statement = "SELECT DISTINCT nent_numcli as code_client, nent_nomcli as nom_client
+                        from neg_ent
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
     }
 }
