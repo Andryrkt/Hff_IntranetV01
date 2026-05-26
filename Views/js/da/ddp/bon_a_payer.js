@@ -66,7 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
           displayOverlay(
             true,
-            "Transmission des demandes BAP en cours, merci de patienter ..."
+            "Transmission des demandes DDP/BAP en cours, merci de patienter ..."
           );
           const response = await fetchManager.post(
             `api/transmettre-bap-compta`,
@@ -82,7 +82,7 @@ document.addEventListener("DOMContentLoaded", () => {
               title: "Transmission réussie",
               text:
                 response.message ||
-                "Les demandes BAP ont été transmises avec succès.",
+                "Les demandes DDP/BAP ont été transmises avec succès.",
             }).then(() => {
               window.location.reload();
             });
@@ -92,13 +92,15 @@ document.addEventListener("DOMContentLoaded", () => {
               title: "Erreur lors de la transmission",
               text:
                 response.error || response.message ||
-                "Une erreur est survenue lors de la transmission des demandes BAP.",
+                "Une erreur est survenue lors de la transmission des demandes DDP/BAP.",
             });
           }
+          /** décocher les cases après traitement */
+          checkboxes.forEach((cb) => (cb.checked = false));
         } catch (error) {
           displayOverlay(false);
           console.error(
-            "Erreur lors de la transmission des demandes BAP :",
+            "Erreur lors de la transmission des demandes DDP/BAP :",
             error
           );
           Swal.fire({
@@ -112,7 +114,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /**============================================
-   * Modal affichage PDF BAP
+   * Modal affichage PDF DDP/BAP
    *============================================*/
   const pdfModalElement = document.getElementById("pdfModal");
   if (pdfModalElement) {

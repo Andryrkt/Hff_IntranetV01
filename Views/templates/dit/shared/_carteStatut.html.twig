@@ -1,5 +1,8 @@
-{% for statut in statusCounts %}
-	<small class="nbrStatut {{ statut.statut | lower | replace({' ': '_'}) }}">{{statut.count}}</small>
-	<small>{{statut.statut}}
-		|</small>
-{% endfor %}
+<div class="status-list">
+	{% for statut in statusCounts %}
+		<span class="status-badge {{ statut.statut | lower | replace({' ': '_'}) }}">
+			<span class="count">{{ statut.count }}</span>
+			<span class="label">{{ statut.statut }}</span>
+		</span>
+	{% endfor %}
+</div>

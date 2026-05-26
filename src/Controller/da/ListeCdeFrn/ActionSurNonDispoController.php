@@ -174,6 +174,7 @@ class ActionSurNonDispoController extends Controller
             ->setDemandeur($demandeAppro->getDemandeur())
             ->setIdMateriel($demandeAppro->getIdMateriel())
             ->setUser($demandeAppro->getUser())
+            ->setCodeSociete($demandeAppro->getCodeSociete())
             ->setNiveauUrgence($demandeAppro->getNiveauUrgence())
         ;
         $this->em->persist($da);
@@ -249,6 +250,7 @@ class ActionSurNonDispoController extends Controller
             ->setServiceEmetteur($daAfficher->getServiceEmetteur())
             ->setDemandeAppro($demandeAppro)
             ->setDit($daAfficher->getDit())
+            ->setCodeSociete($daAfficher->getCodeSociete())
         ;
 
         $this->em->persist($newDaAfficher);

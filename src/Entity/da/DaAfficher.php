@@ -416,6 +416,11 @@ class DaAfficher
      */
     private $dateReceptionArticle;
 
+    /**
+     * @ORM\Column(type="boolean", name="est_correction_statut_bc")
+     */
+    private $estCorrectionStatutBc = false;
+
     /** 
      * @ORM\Column(type="string", length=2, name="code_societe", nullable=true)
      */
@@ -1965,6 +1970,24 @@ class DaAfficher
     public function setDateReceptionArticle($dateReceptionArticle): self
     {
         $this->dateReceptionArticle = $dateReceptionArticle;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of estCorrectionStatutBc
+     */
+    public function getEstCorrectionStatutBc()
+    {
+        return $this->estCorrectionStatutBc;
+    }
+
+    /**
+     * Set the value of estCorrectionStatutBc
+     */
+    public function setEstCorrectionStatutBc($estCorrectionStatutBc): self
+    {
+        $this->estCorrectionStatutBc = $estCorrectionStatutBc;
 
         return $this;
     }

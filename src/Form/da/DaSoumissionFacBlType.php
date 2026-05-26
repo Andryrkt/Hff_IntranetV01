@@ -2,7 +2,7 @@
 
 namespace App\Form\da;
 
-use App\Entity\da\DaSoumissionFacBl;
+use App\Dto\Da\ListeCdeFrn\DaSoumissionFacBlDto;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\File;
@@ -13,14 +13,38 @@ use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
+use Symfony\Component\Form\CallbackTransformer;
 
 class DaSoumissionFacBlType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $numLivs = $options['numLivs'];
+        // dd($options['data']);
+        $numLivs = $options['data']->numLiv;
 
         $builder
+            ->add('typeDdp', ChoiceType::class, [
+                'choices' => [
+                    'Ne pas générer une demande de paiement' => 'aucun',
+                    'BAP (Bon a Payer)' => 'bap',
+                    'DDPL (Demande De Paiement après Livraison)' => 'ddpl',
+                    'Régularisation' => 'regul'
+                ],
+                'choice_attr' => function ($choice, $key, $value) use ($options) {
+                    $attr = [];
+                    if (in_array($choice, ['bap', 'ddpl']) && $options['data']->estRegule) {
+                        $attr['disabled'] = 'disabled';
+                    }
+                    $attr['data-field-name'] = 'Type de traitement de paiement';
+                    return $attr;
+                },
+                'placeholder' => false,
+                'label' => "Veuillez choisir le type de traitement de <strong>paiement</strong> pour cette facture",
+                'label_html' => true,
+                'expanded' => true,
+                'multiple' => false,
+                'required' => true,
+            ])
             ->add('numeroCde', TextType::class, [
                 'label' => 'Numéro Commande',
                 'attr'  => [
@@ -43,15 +67,20 @@ class DaSoumissionFacBlType extends AbstractType
                 'attr'   => ['data-field-name' => 'Date BL facture fournisseur']
             ])
             ->add('montantBlFacture', TextType::class, [
-                'label' => 'Montant BL facture fournisseur (*)',
-                'required' => true,
+                'label' => 'Montant HT du BL facture fournisseur (*)',
+                'required' => $options['data']->estRegule ? false : true,
+                'data' => 0,
+                'attr' => [
+                    'data-field-name' => 'du Montant HT du BL facture fournisseur',
+                    'disabled' => $options['data']->estRegule ? true : false,
+                ],
             ])
             ->add(
                 'pieceJoint1',
                 FileType::class,
                 [
                     'label' => 'FacBl à soumettre',
-                    'attr' => ['data-field-name' => 'Pièce Jointe Facture / BL'],
+                    'attr' => ['data-field-name' => 'pour soumettre la Facture / BL'],
                     'required' => true,
                     'constraints' => [
                         new File([
@@ -82,6 +111,23 @@ class DaSoumissionFacBlType extends AbstractType
                 ]
             )
         ;
+
+        $builder->get('montantBlFacture')
+            ->addModelTransformer(new CallbackTransformer(
+                function ($montantAsFloat) {
+                    if ($montantAsFloat === null) {
+                        return '';
+                    }
+                    return number_format((float) $montantAsFloat, 2, ',', ' ');
+                },
+                function ($montantAsString) {
+                    if ($montantAsString === null || $montantAsString === '') {
+                        return 0.0;
+                    }
+                    $montantClean = str_replace([' ', ','], ['', '.'], (string) $montantAsString);
+                    return (float) $montantClean;
+                }
+            ));
     }
 
     public function validateFiles($files, ExecutionContextInterface $context)
@@ -121,9 +167,7 @@ class DaSoumissionFacBlType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => DaSoumissionFacBl::class,
+            'data_class' => DaSoumissionFacBlDto::class,
         ]);
-        // Ajoutez l'option 'id_type' pour éviter l'erreur
-        $resolver->setDefined('numLivs');
     }
 }

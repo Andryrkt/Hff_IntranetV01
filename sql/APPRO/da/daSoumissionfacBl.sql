@@ -29,13 +29,14 @@ alter table da_soumission_facture_bl add
     date_statut_bap DATETIME2(0) NULL,
     numero_fournisseur INT NULL,
     nom_fournisseur VARCHAR(255) NULL,
-    numero_facture_fournisseur VARCHAR(255) NULL
+    numero_facture_fournisseur VARCHAR(255) NULL,
+    est_facture_reappro BIT NULL DEFAULT 0,
+    numero_facture_reappro VARCHAR(8) NULL
     ;
 
 
 ALTER TABLE da_soumission_facture_bl ADD
-    est_facture_reappro BIT NULL DEFAULT 0,
-    numero_facture_reappro VARCHAR(8) NULL
+    numero_cla VARCHAR(11) NULL
     ;
 
 UPDATE da_soumission_facture_bl

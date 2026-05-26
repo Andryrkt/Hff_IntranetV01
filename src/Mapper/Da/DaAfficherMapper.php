@@ -8,8 +8,11 @@ use App\Constants\da\StatutDaConstant;
 use App\Controller\Traits\da\MarkupIconTrait;
 use App\Dto\Da\DaAfficherDto;
 use App\Entity\da\DaAfficher;
+use App\Entity\da\DaSoumissionBc;
 use App\Entity\da\DemandeAppro;
+use App\Model\da\DaSoumissionFacBlModel;
 use App\Service\da\PermissionDaService;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Twig\Markup;
 
@@ -19,9 +22,13 @@ class DaAfficherMapper
 
     private UrlGeneratorInterface $router;
     private PermissionDaService $permissionDaService;
+    private EntityManagerInterface $em;
 
-    public function __construct(UrlGeneratorInterface $router)
-    {
+    public function __construct(
+        UrlGeneratorInterface $router,
+        EntityManagerInterface $em
+    ) {
+        $this->em = $em;
         $this->router = $router;
         $this->permissionDaService = new PermissionDaService();
     }
@@ -99,6 +106,7 @@ class DaAfficherMapper
         $dto->numeroCde = $data->getNumeroCde();
         $dto->positionBc = $data->getNumeroLigne();
         $dto->statutCde = !$estAppro && in_array($data->getStatutCde(), StatutBcConstant::STATUT_BC_EN_COURS) ? StatutBcConstant::BC_EN_COURS : $data->getStatutCde();
+        $dto->statutDaSoumissionBc = $this->getStatutDaSoumissionBc($dto->numeroCde, $data->getCodeSociete());
 
         // DAL
         $dto->statutDal = !$estAppro && in_array($data->getStatutDal(), StatutDaConstant::STATUT_TRAITEMENT_APPRO) ? StatutDaConstant::TRAITEMENT_APPRO : $data->getStatutDal();
@@ -125,6 +133,16 @@ class DaAfficherMapper
         $dto->tdCheckboxAttributes = $this->getCheckboxAttributes($dto);
         $dto->aDtLivPrevAttributes = $this->getADtLivPrevAttributes($dto);
         $dto->aArtDesiAttributes = $this->getAArtDesiAttributes($dto);
+        $dto->ddpCloture = $this->getDdpStatutCloture($dto);
+
+        // DDP
+        $demandePaiementRepository = $options['demandePaiementRepository'] ?? null;
+
+        if ($demandePaiementRepository  && $dto->numeroDemandeAppro) {
+            $dto->statutCompta = $demandePaiementRepository->getDernierStatutDddp($dto->numeroCde, $dto->numeroDemandeAppro);
+        } else {
+            $dto->statutCompta = null;
+        }
 
         return $dto;
     }
@@ -209,6 +227,7 @@ class DaAfficherMapper
             'data-type-da'      => $dto->datype,
             'data-num-da'       => $dto->numeroDemandeAppro,
             'data-num-or'       => $dto->numeroOr,
+            'data-statut-cde'   => $dto->statutDaSoumissionBc,
         ];
     }
 
@@ -256,5 +275,33 @@ class DaAfficherMapper
         ];
 
         return $daIcons[$typeId] ?? (string) new Markup('<i class="fas fa-ban text-muted"></i>', 'UTF-8');
+    }
+
+    private function getDdpStatutCloture(DaAfficherDto $dto): array
+    {
+        return [
+            'href' => '#',
+            "data-bs-toggle" => "modal",
+            "data-bs-target" => "#ddpCloture",
+            "data-numero-cde" => $dto->numeroCde,
+            "data-numero-da" => $dto->numeroDemandeAppro,
+            "data-montant-commande" => $this->getTotalMontantCommande($dto->numeroCde),
+        ];
+    }
+
+    /** DDPL */
+    private function getTotalMontantCommande($numCde): float
+    {
+        $daSoumissionFacBlModel = new DaSoumissionFacBlModel();
+        $totalMontantCommande = $daSoumissionFacBlModel->getTotalMontantCommande((int)$numCde);
+        if ($totalMontantCommande) return (float)$totalMontantCommande[0];
+
+        return 0;
+    }
+
+    private function getStatutDaSoumissionBc(?string $numCde, ?string $codeSociete): ?string
+    {
+        $daSoumissionBcRepository = $this->em->getRepository(DaSoumissionBc::class);
+        return $daSoumissionBcRepository->getStatut($numCde, $codeSociete);
     }
 }

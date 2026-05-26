@@ -2,8 +2,6 @@
 
 namespace App\Controller\da\ListeDa;
 
-
-use App\Constants\admin\ApplicationConstant;
 use App\Controller\Controller;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
@@ -14,7 +12,6 @@ use App\Form\da\daCdeFrn\DaModalDateLivraisonType;
 use App\Form\da\DaSearchType;
 use App\Mapper\Da\DaAfficherMapper;
 use App\Repository\da\DaAfficherRepository;
-use App\Service\security\SecurityService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -33,7 +30,7 @@ class listeDaController extends Controller
     {
         parent::__construct();
         $this->daAfficherRepository = $entityManager->getRepository(DaAfficher::class);
-        $this->daAfficherMapper = new DaAfficherMapper($this->getUrlGenerator());
+        $this->daAfficherMapper = new DaAfficherMapper($this->getUrlGenerator(), $this->getEntityManager());
     }
 
     /**
@@ -43,8 +40,6 @@ class listeDaController extends Controller
     {
         // Code Société de l'utilisateur
         $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
-        // Agences Services autorisés sur le DAP
-        $allAgenceServices = $this->getSecurityService()->getAllAgenceServices();
         // Agence et service par défaut
         $agenceIdUser = $this->getSecurityService()->getAgenceIdUser();
         $serviceIdUser = $this->getSecurityService()->getServiceIdUser();
@@ -57,9 +52,7 @@ class listeDaController extends Controller
         $form = $this->getFormFactory()->createBuilder(DaSearchType::class, $daSearch, [
             'method' => 'GET',
             'estAppro' => $this->estAppro(),
-            'allAgenceServices' => $allAgenceServices,
-            'codeAgence'  => $agenceIdUser,
-            'codeService' => $serviceIdUser,
+            'codeSociete' => $codeSociete
         ])->getForm();
         $criteria = $this->traitementFormualireRecherche($request, $form, $daSearch);
 
@@ -83,10 +76,6 @@ class listeDaController extends Controller
             'demandePaiementRepository' => $this->getEntityManager()->getRepository(DemandePaiement::class),
         ]);
 
-        // Détection code centrale
-        $agenceServiceIps = $this->agenceServiceIpsObjet();
-        $codeCentraleVisible = $this->estAdmin() || in_array($agenceServiceIps['agenceIps']->getCodeAgence(), ['90', '91', '92']);
-
         /** === Formulaire pour la date de livraison prevu === */
         $formDateLivraison = $this->getFormFactory()->createBuilder(DaModalDateLivraisonType::class)->getForm();
         $this->TraitementFormulaireDateLivraison($request, $formDateLivraison);
@@ -101,7 +90,6 @@ class listeDaController extends Controller
             'totalPages'        => $paginationData['lastPage'],
             'resultat'          => $paginationData['totalItems'],
             'formDateLivraison' => $formDateLivraison->createView(),
-            'mesDaActif'        => $request->query->get('mes_da_a_traiter') == 1,
         ]);
     }
 

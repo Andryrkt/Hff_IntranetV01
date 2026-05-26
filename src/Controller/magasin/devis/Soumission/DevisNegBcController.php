@@ -40,7 +40,7 @@ class DevisNegBcController extends Controller
     /**
      * @Route("/soumission-bc-neg/{numeroDevis}", name="bc_neg_soumission", defaults={"numeroDevis"=null})
      */
-    public function index($numeroDevis, Request $request)
+    public function index(?string $numeroDevis, Request $request)
     {
         $codeSociette = $this->getSecurityService()->getCodeSocieteUser();
 
@@ -64,10 +64,11 @@ class DevisNegBcController extends Controller
         ]);
     }
 
-    public function tratitementFormulaire($form, Request $request)
+    public function tratitementFormulaire(FormInterface $form, Request $request)
     {
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
+            /** @var BcDto $dto */
             $dto = $form->getData();
 
             $dto = $this->bcFactory->createApresSoumission($dto, $this->getUserName(), $this->getUserMail());

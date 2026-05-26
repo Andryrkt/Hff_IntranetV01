@@ -2,6 +2,8 @@
 
 namespace App\Model\planningMagasin;
 
+use App\Service\TableauEnStringService;
+
 trait planningMagasinModelTrait
 {
     private function numcommande($criteria)
@@ -73,5 +75,22 @@ trait planningMagasinModelTrait
             $condNumeroDevis = "";
         }
         return $condNumeroDevis;
+    }
+
+    /**
+     * pour le magasin ce n'est pas une OR mais une BC 
+     * BC => table bc_client_soumis_neg
+     */
+    private function orNonValiderDW($criteria, array $numeroDevisValideBcClient)
+    {
+        if (!empty($criteria->getOrNonValiderDw()) && $criteria->getOrNonValiderDw()) {
+            $value = TableauEnStringService::notLike($numeroDevisValideBcClient, 'nent_libcde');
+            $orNonValiderDW = " AND  ($value) ";
+        } else {
+            $value = TableauEnStringService::like($numeroDevisValideBcClient, 'nent_libcde');
+            $orNonValiderDW = " AND  ($value) ";
+        }
+
+        return $orNonValiderDW;
     }
 }

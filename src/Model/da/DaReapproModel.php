@@ -79,4 +79,29 @@ class DaReapproModel extends Model
 
         return $rows;
     }
+
+
+    public function getNumeroFactureReappro(string $numeroOR, string $numeroFactureDansFacBl): array
+    {
+        if (!empty($numeroFactureDansFacBl)) {
+            $numeroFacture = " AND slor_numfac NOT IN ($numeroFactureDansFacBl) ";
+        } else {
+            $numeroFacture = '';
+        }
+        
+        $statement = " SELECT distinct slor_numfac as numero_facture
+                    from informix.sav_lor 
+                    where slor_numor =  '$numeroOR'
+                    $numeroFacture
+                    ORDER BY slor_numfac DESC
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+        $rows = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        $numeros = array_column($rows, 'numero_facture');
+
+        // Créer un tableau associatif où clé = valeur
+        return array_combine($numeros, $numeros);
+    }
 }

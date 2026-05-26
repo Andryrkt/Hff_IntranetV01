@@ -22,8 +22,8 @@ class DaNewAvecDitController extends Controller
 {
     use DaNewAvecDitTrait;
     const STATUT_DAL = [
-        'enregistrerBrouillon' => DemandeAppro::STATUT_EN_COURS_CREATION,
-        'soumissionAppro'      => DemandeAppro::STATUT_SOUMIS_APPRO,
+        'enregistrerBrouillon' => StatutDaConstant::STATUT_EN_COURS_CREATION,
+        'soumissionAppro'      => StatutDaConstant::STATUT_SOUMIS_APPRO,
     ];
 
     public function __construct()

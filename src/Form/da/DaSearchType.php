@@ -43,8 +43,9 @@ class DaSearchType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $isApproUser = $options['codeAgence'] == '80' && $options['codeService'] == 'APP';
-        $choices = $this->getChoicesData($options['estAppro']);
+        $isApproUser = $options['estAppro'];
+        $codeSociete = $options['codeSociete'];
+        $choices = $this->getChoicesData($isApproUser);
         $traiterLists = $this->getTraiterLists();
 
         $builder
@@ -134,8 +135,8 @@ class DaSearchType extends AbstractType
         $this->addDateFields($builder);
 
         // --- Agences & Services ---
-        $this->addAgenceServiceGroup($builder, 'Emetteur');
-        $this->addAgenceServiceGroup($builder, 'Debiteur');
+        $this->addAgenceServiceGroup($builder, $codeSociete, 'Emetteur');
+        $this->addAgenceServiceGroup($builder, $codeSociete, 'Debiteur');
 
         // --- Transformers ---
         $this->addTransformers($builder);
@@ -198,7 +199,7 @@ class DaSearchType extends AbstractType
     /**
      * Gestion groupée des agences et de leurs services dépendants
      */
-    private function addAgenceServiceGroup(FormBuilderInterface $builder, string $type)
+    private function addAgenceServiceGroup(FormBuilderInterface $builder, string $codeSociete, string $type)
     {
         $agenceField = 'agence' . $type;
         $serviceField = 'service' . $type;
@@ -209,6 +210,11 @@ class DaSearchType extends AbstractType
             'class'        => Agence::class,
             'choice_label' => function (Agence $agence): string {
                 return $agence->getCodeAgence() . ' ' . $agence->getLibelleAgence();
+            },
+            'query_builder' => function (EntityRepository $er) use ($codeSociete) {
+                return $er->createQueryBuilder('a')
+                    ->where('a.codeSociete = :codeSociete')
+                    ->setParameter('codeSociete', $codeSociete);
             },
             'placeholder'  => '-- Choisir une agence --',
             'required'     => false,
@@ -288,9 +294,7 @@ class DaSearchType extends AbstractType
         $resolver->setDefaults([
             'data_class'  => DaSearch::class,
             'estAppro'    => false,
-            'codeAgence'  => null,
-            'codeService' => null,
-            'allAgenceServices' => []
+            'codeSociete' => ''
         ]);
     }
 }

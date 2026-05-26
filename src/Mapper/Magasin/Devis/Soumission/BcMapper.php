@@ -8,7 +8,6 @@ class BcMapper
 {
     public static function toArrayBc(BcDto $dto)
     {
-
         return [
             'numero_devis' => $dto->numeroDevis,
             'numero_bc' => $dto->numeroBc,

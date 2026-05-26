@@ -6,7 +6,6 @@ use App\Constants\admin\ApplicationConstant;
 use App\Constants\da\StatutDaConstant;
 use App\Controller\Controller;
 use App\Controller\Traits\da\creation\DaNewAchatTrait;
-use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproParent;
 use App\Entity\da\DemandeApproParentLine;
 use App\Form\da\DemandeApproAchatFormType;
@@ -21,8 +20,8 @@ class DaNewAchatController extends Controller
 {
     use DaNewAchatTrait;
     const STATUT_DAL = [
-        'enregistrerBrouillon' => DemandeAppro::STATUT_EN_COURS_CREATION,
-        'soumissionAppro'      => DemandeAppro::STATUT_SOUMIS_APPRO,
+        'enregistrerBrouillon' => StatutDaConstant::STATUT_EN_COURS_CREATION,
+        'soumissionAppro'      => StatutDaConstant::STATUT_SOUMIS_APPRO,
     ];
 
     public function __construct()

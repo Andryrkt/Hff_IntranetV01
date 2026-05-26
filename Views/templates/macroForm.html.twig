@@ -146,6 +146,11 @@
 	</div>
 {% endmacro %}
 
+{% macro affichageTextarea(label, value = "", class = "") %}
+	<label for="" class="mt-2">{{label}}</label>
+	<textarea class="d-flex align-items-center {{ class }} div-disabled w-100" style="pointer-events: auto;" rows="7" readonly>{{value}}</textarea>
+{% endmacro %}
+
 {% macro affichageSimple(value = "", class = "", attributes = {}) %}
     <div class="{{ class }} div-disabled"
         {% for name, val in attributes %}

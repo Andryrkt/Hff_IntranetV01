@@ -24,11 +24,7 @@ class UserFactory
             ->setMatricule($matricule)
             ->setPersonnels($personnel)
             ->setAgenceServiceIrium($agenceServiceIrium)
-            ->setCodeSage($agenceServiceIrium->getServicesagepaie())
-            ->setCodeAgenceUser($agenceServiceIrium->getAgenceips())
-            ->setCodeServiceUser($agenceServiceIrium->getServiceips())
         ;
-
 
         $profils = $dto->profils;
         foreach ($profils as $profil) {
@@ -64,9 +60,6 @@ class UserFactory
             ->setMatricule($matricule)
             ->setPersonnels($personnel)
             ->setAgenceServiceIrium($agenceServiceIrium)
-            ->setCodeSage($agenceServiceIrium->getServicesagepaie())
-            ->setCodeAgenceUser($agenceServiceIrium->getAgenceips())
-            ->setCodeServiceUser($agenceServiceIrium->getServiceips())
         ;
 
         foreach ($user->getProfils() as $existing) {

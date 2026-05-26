@@ -13,7 +13,7 @@
 		<div class="col-12 col-md-6">
 			{{ macroForm.sousTitre('Information sur la demande') }}
 			{{ macroForm.affichage2('Objet de la demande', demandeAppro.objetDal, 'mb-2') }}
-			{{ macroForm.affichage2('Détail de la demande', demandeAppro.detailDal, 'h-90 mb-2') }}
+			{{ macroForm.affichageTextarea('Détail de la demande', demandeAppro.detailDal, 'mb-2') }}
 			{{ macroForm.affichage2('Date fin souhaitée', demandeAppro.dateFinSouhaite|date('d/m/Y'), 'mb-2') }}
 		</div>
 		<div class="col-12 col-md-6">

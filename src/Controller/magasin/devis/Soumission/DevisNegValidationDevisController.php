@@ -14,17 +14,23 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Controller\Traits\PdfConversionTrait;
+use App\Service\fichier\TraitementDeFichier;
+use App\Service\genererPdf\magasin\devis\GeneratePdfDeviMagasinVp;
 
 /**
  * @Route("/magasin/dematerialisation")
  */
 class DevisNegValidationDevisController extends Controller
 {
+    use PdfConversionTrait;
+
     private HistoriqueOperationDevisMagasinService $historiqueOperationDeviMagasinService;
     private string $cheminBaseUpload;
     private string $cheminCourtUpload;
     private DevisMagasinGenererNameFileService $nameGenerator;
     private UploderFileService $uploader;
+    private TraitementDeFichier $traitementDeFichier;
 
     public function __construct()
     {
@@ -35,6 +41,7 @@ class DevisNegValidationDevisController extends Controller
         $this->cheminCourtUpload = $_ENV['BASE_PATH_FICHIER_COURT'] . '/magasin/devis/';
         $this->nameGenerator = new DevisMagasinGenererNameFileService();
         $this->uploader = new UploderFileService($this->cheminBaseUpload, $this->nameGenerator);
+        $this->traitementDeFichier = new TraitementDeFichier();
     }
 
     /**
@@ -84,11 +91,17 @@ class DevisNegValidationDevisController extends Controller
              */
             [$nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, $nomFichier] = $this->enregistrementFichier($form, $dto->numeroDevis, $dto->numeroVersion, $dto->suffix, explode('@', $dto->userMail)[0], $dto->remoteUrlCourt);
 
+            /** @var array $nomEtCheminFichierConvertie fusions des fichiers */
+            $nomEtCheminFichierConvertie = $this->ConvertirLesPdf($nomEtCheminFichiersEnregistrer);
+            $this->traitementDeFichier->fusionFichers($nomEtCheminFichierConvertie, $nomAvecCheminFichier);
 
             // Enregistrement de la soumission en base de données
             $soumissionModel = new SoumissionModel();
             $soumissionModel->enregistrerSoumissionValidationDevis($dto, $nomFichier);
 
+            // copier des fichiers uploder dans DOCUWARE
+            $generatePdfDevisMagasin = new GeneratePdfDeviMagasinVp();
+            $generatePdfDevisMagasin->copyToDWDevisMagasin($nomFichier, $dto->numeroDevis);
 
             //HISTORISATION DE L'OPERATION
             $message = "la validation du devis numero : " . $dto->numeroDevis . " a été envoyée avec succès .";

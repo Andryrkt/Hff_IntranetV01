@@ -2,6 +2,7 @@
 
 namespace App\Model\magasin\devis\Pointage;
 
+use App\Entity\magasin\devis\PointageRelance;
 use App\Mapper\Magasin\Devis\Pointage\PointageRelanceMapper;
 use App\Model\Informix\InsertQueryBuilder;
 use App\Model\Informix\UpdateQueryBuilder;
@@ -14,10 +15,10 @@ class PointageRelanceModel extends Model
      * de pointage relance dans la table pointage_relance 
      *  dans la base de donnée
      *
-     * @param array $data
+     * @param PointageRelance $pointageRelanceEntity
      * @return void
      */
-    public function enregistrerPointageRelance($pointageRelanceEntity): void
+    public function enregistrerPointageRelance(PointageRelance $pointageRelanceEntity): void
     {
         // Convertir le DTO en tableau associatif pour l'insertion
         $donnees = PointageRelanceMapper::toArrayPointageRelance($pointageRelanceEntity);
@@ -45,12 +46,12 @@ class PointageRelanceModel extends Model
      * MOdification du statut relance dans la 
      * table devis_soumis_a_validation_neg
      *
-     * @param array $data
+     * @param PointageRelance $pointageRelanceEntity
      * @return void
      */
-    public function updateDevis($pointageRelanceEntity, $numeroVersionDevis)
+    public function updateDevis(PointageRelance $pointageRelanceEntity, int $numeroVersionDevis): void
     {
-        $donnees = PointageRelanceMapper::toArrayUpdatePointageRelance();
+        $donnees = PointageRelanceMapper::toArrayUpdatePointageRelance($pointageRelanceEntity);
 
         // Convertir vers l'encodage Informix (ISO-8859-1)
         $donnees = $this->convertirVersInformix($donnees);
@@ -126,6 +127,13 @@ class PointageRelanceModel extends Model
     }
 
 
+    /**
+     * Récupére les informations de relance pour un devis donné
+     *
+     * @param string $numeroDevis
+     * @param string $codeSociete
+     * @return array
+     */
     public function getRelancePourStop(string $numeroDevis, string $codeSociete): array
     {
         $this->connect->connect();
@@ -144,5 +152,28 @@ class PointageRelanceModel extends Model
         } finally {
             $this->connect->close();
         }
+    }
+
+    /**
+     * Récupére le dernier numéro de relance pour un devis donné
+     *
+     * @param string $numeroDevis
+     * @param string $codeSociete
+     * @return integer
+     */
+    public function getDernierNumeroRelance(string $numeroDevis, string $codeSociete): int
+    {
+        $statement = "SELECT FIRST 1 pr.numero_relance as numeroRelance 
+        FROM {$this->dbIrium}:Informix.pointage_relance pr 
+        WHERE pr.numero_devis = '$numeroDevis'
+        AND pr.code_societe = '$codeSociete'
+        ORDER BY pr.numero_relance DESC
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return array_column($this->convertirEnUtf8($data), 'numero_relance')[0] ?? 0;
     }
 }

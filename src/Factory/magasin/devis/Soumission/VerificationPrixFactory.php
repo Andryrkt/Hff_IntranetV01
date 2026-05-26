@@ -27,12 +27,10 @@ class VerificationPrixFactory
     {
         $devisNegModel = new SoumissionModel();
 
-        if ($dto->validationPm && empty($dto->tacheValidateur)) {
-            $dto->tacheValidateur = ['Vérification prix'];
-        } else {
-            $dto->tacheValidateur = ['AUTOVALIDATION'];
+        if (empty($dto->tacheValidateur)) {
+            $dto->tacheValidateur = $dto->validationPm ? ['Vérification prix'] : ['AUTOVALIDATION'];
         }
-        
+
         $dto->suffix = $devisNegModel->constructeurPieceMagasin($dto->numeroDevis);
         $dto->numeroVersion = VersionService::autoIncrement($devisNegModel->getNumeroVersion($dto->numeroDevis));
         $dto->userName = $userName;
@@ -46,10 +44,10 @@ class VerificationPrixFactory
      * Methode pour savoir si tous les constructeur du Devis 
      * est CAT ou non ou partielement
      *
-     * @param [type] $dto
+     * @param SoumissionDto $dto
      * @return string 'TOUS NEST PAS CAT' ou 'TOUT CAT'
      */
-    private static function getContructeur($dto): string
+    private static function getContructeur(SoumissionDto $dto): string
     {
         $devisNegModel = new SoumissionModel();
         return trim($devisNegModel->getConstructeur($dto->numeroDevis) ?? '');

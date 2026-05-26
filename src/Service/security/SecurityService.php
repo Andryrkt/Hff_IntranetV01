@@ -43,6 +43,7 @@ class SecurityService
     private ?bool $estAtelier = null;
     private ?bool $estCreateurDaDirecte = null;
     private ?bool $estAppro = null;
+    private ?bool $estFinance = null;
     private ?bool $estEnergie = null;
 
     public function __construct(UserDataService $dataService)
@@ -186,6 +187,17 @@ class SecurityService
             $this->estAppro = $this->dataService->getCodeAgenceUser() === '80' && $this->dataService->getCodeServiceUser() === 'APP';
         }
         return $this->estAppro;
+    }
+
+    /**
+     * Vérifie si l'utilisateur connecté est dans le service FINANCE par le fait de son agence et service par défaut (80 - FIN)
+     */
+    public function estFinance(): bool
+    {
+        if ($this->estFinance === null) {
+            $this->estFinance = $this->dataService->getCodeAgenceUser() === '80' && $this->dataService->getCodeServiceUser() === 'FIN';
+        }
+        return $this->estFinance;
     }
 
     /**
@@ -351,6 +363,22 @@ class SecurityService
     public function getCodeSocieteUser(): ?string
     {
         return $this->dataService->getCodeSociete();
+    }
+
+    /** 
+     * Retourne le nom de l'utilisateur
+     */
+    public function getUserName(): ?string
+    {
+        return $this->dataService->getUserName();
+    }
+
+    /** 
+     * Retourne le mail de l'utilisateur
+     */
+    public function getUserEmail(): ?string
+    {
+        return $this->dataService->getUserMail();
     }
 
     // =========================================================================

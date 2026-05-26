@@ -63,6 +63,7 @@ class DaFilterService
                 ->setParameter('typeAchat', $criteria['typeAchat']);
         }
 
+        // seulement pour les DA type demande d'approvisionnement via OR
         if (empty($criteria['numDit']) && empty($criteria['numDa'])) {
             $joins = $qb->getDQLPart('join');
             $alreadyJoined = false;
@@ -357,7 +358,7 @@ class DaFilterService
         }
     }
 
-    public function applyAgencyServiceFilters($qb, string $qbLabel, array $criteria)
+    public function applyAgencyServiceFilters(QueryBuilder $qb, string $qbLabel, array $criteria)
     {
         if (!empty($criteria['agenceEmetteur'])) {
             $qb->andWhere("$qbLabel.agenceEmetteur = :agEmet")
@@ -387,7 +388,7 @@ class DaFilterService
         }
     }
 
-    private function conditionAgenceService($queryBuilder, string $queryLabel)
+    private function conditionAgenceService(QueryBuilder $queryBuilder, string $queryLabel)
     {
         $ORX = $queryBuilder->expr()->orX();
 

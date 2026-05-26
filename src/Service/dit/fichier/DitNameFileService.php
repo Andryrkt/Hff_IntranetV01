@@ -31,13 +31,15 @@ class DitNameFileService extends AbstractFileNameGeneratorService
      *
      * @param string $numDit
      * @param string $agServEmetteur
-     * @param integer $index
+     * @param bool   $ditPneumatique
      * @return string
      */
     public function generateDitNamePrincipal(
         string $numDit,
-        string $agServEmetteur
+        string $agServEmetteur,
+        bool $ditPneumatique
     ): string {
-        return $numDit . '_' . $agServEmetteur . '.pdf';
+        $suffix = $ditPneumatique ? "#POL" : "";
+        return $numDit . '_' . $agServEmetteur . $suffix . '.pdf';
     }
 }

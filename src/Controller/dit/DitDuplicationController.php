@@ -195,6 +195,9 @@ class DitDuplicationController extends Controller
 
 
             foreach ($demandeInterventions as $demandeIntervention) {
+                // Type de DIT
+                $ditPneumatique = $demandeIntervention->getReparationRealise() === "ATE POL TANA";
+
                 // 4. recuperation du dernière numero demande d'intervention et generation du numero de demande 
                 $application = $em->getRepository(Application::class)->findOneBy(['codeApp' => DemandeIntervention::CODE_APP]);
                 $numeroDemandeIntervention = $this->genererNumeroDemandeIntervention($application);
@@ -205,13 +208,13 @@ class DitDuplicationController extends Controller
 
                 /** 6. Traitement des fichiers (PDF, pièces jointes) @var array $nomFichierEnregistrer @var string $nomFichier  */
                 $genererPdfDit = new GenererPdfDit();
-                [$nomFichierEnregistrer, $nomFichier]  = $this->traitementDeFichier($form, $demandeIntervention, $genererPdfDit);
+                [$nomFichierEnregistrer, $nomFichier]  = $this->traitementDeFichier($form, $demandeIntervention, $genererPdfDit, $ditPneumatique);
 
                 // 7. Enregistrement dans le persiste
                 $this->enregistrementBd($demandeIntervention, $nomFichierEnregistrer);
 
                 // 8.Copier le PDF DANS DOXCUWARE
-                $genererPdfDit->copyToDOCUWARE($nomFichier, $demandeIntervention->getNumeroDemandeIntervention());
+                $genererPdfDit->copyToDOCUWARE($nomFichier, $demandeIntervention->getNumeroDemandeIntervention(), $ditPneumatique);
             }
 
             // 10. enregistrement dans l'historisation de la sucès de la demande
@@ -253,7 +256,7 @@ class DitDuplicationController extends Controller
         $this->getEntityManager()->flush();
     }
 
-    private function traitementDeFichier(FormInterface $form, DemandeIntervention $demandeIntervention, GenererPdfDit $genererPdfDit): array
+    private function traitementDeFichier(FormInterface $form, DemandeIntervention $demandeIntervention, GenererPdfDit $genererPdfDit, bool $ditPneumatique): array
     {
         /** 
          * gestion des pieces jointes et generer le nom du fichier PDF
@@ -263,7 +266,7 @@ class DitDuplicationController extends Controller
          * @var string $nomAvecCheminFichier
          * @var string $nomFichier
          */
-        [$nomEtCheminFichiersEnregistrer, $nomFichierEnregistrer, $nomAvecCheminFichier, $nomFichier] = $this->enregistrementFichier($form, $demandeIntervention->getNumeroDemandeIntervention(), str_replace("-", "", $demandeIntervention->getAgenceServiceEmetteur()));
+        [$nomEtCheminFichiersEnregistrer, $nomFichierEnregistrer, $nomAvecCheminFichier, $nomFichier] = $this->enregistrementFichier($form, $demandeIntervention->getNumeroDemandeIntervention(), str_replace("-", "", $demandeIntervention->getAgenceServiceEmetteur()), $ditPneumatique);
 
         /** 1. CREATION DE LA PAGE DE GARDE*/
         $idMateriel = (int)$demandeIntervention->getIdMateriel();
@@ -286,7 +289,7 @@ class DitDuplicationController extends Controller
         return [$nomFichierEnregistrer, $nomFichier];
     }
 
-    private function enregistrementFichier(FormInterface $form, string $numDit, string $agServEmetteur): array
+    private function enregistrementFichier(FormInterface $form, string $numDit, string $agServEmetteur, bool $ditPneumatique): array
     {
         $nameGenerator = new DitNameFileService();
         $cheminBaseUpload = $_ENV['BASE_PATH_FICHIER'] . '/dit/';
@@ -311,11 +314,8 @@ class DitDuplicationController extends Controller
             }
         ]);
 
-
-        $nomFichier = $nameGenerator->generateDitNamePrincipal($numDit, $agServEmetteur);
+        $nomFichier = $nameGenerator->generateDitNamePrincipal($numDit, $agServEmetteur, $ditPneumatique);
         $nomAvecCheminFichier = $path . $nomFichier;
-
-
 
         return [$nomEtCheminFichiersEnregistrer, $nomFichierEnregistrer, $nomAvecCheminFichier, $nomFichier];
     }

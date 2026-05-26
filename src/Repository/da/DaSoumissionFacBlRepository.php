@@ -2,6 +2,7 @@
 
 namespace App\Repository\da;
 
+use App\Entity\da\DaAfficher;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\EntityRepository;
 
@@ -24,37 +25,46 @@ class DaSoumissionFacBlRepository extends EntityRepository
 
     public function getStatut(?string $numCde): ?string
     {
-        // Étape 1 : Récupérer le numeroVersion maximum
-        $numeroVersionMax = $this->createQueryBuilder('dabc')
-            ->select('MAX(dabc.numeroVersion)')
-            ->where('dabc.numeroCde = :numCde')
-            ->setParameter('numCde', $numCde)
-            ->getQuery()
-            ->getOneOrNullResult(Query::HYDRATE_SINGLE_SCALAR);
-
-        if ($numeroVersionMax === null) {
-            return null; // ou une valeur par défaut, selon vos besoins
-        }
-
-        // Étape 2 : Récupérer le statut correspondant
+        // Récupérer le statut correspondant
         $statut = $this->createQueryBuilder('dabc')
             ->select('dabc.statut')
             ->where('dabc.numeroCde = :numCde')
-            ->andWhere('dabc.numeroVersion = :numVersion')
-            ->setParameters([
-                'numCde' => $numCde,
-                'numVersion' => $numeroVersionMax
-            ])
-            ->getQuery()
-            ->getOneOrNullResult(Query::HYDRATE_SINGLE_SCALAR);
+            ->setParameter('numCde', $numCde)
+            ->orderBy('dabc.numeroVersion', 'DESC')
+            ->setMaxResults(1);
 
-        return $statut;
+        return $statut->getQuery()
+            ->getOneOrNullResult(Query::HYDRATE_SINGLE_SCALAR);
     }
 
     public function getAllLivraisonSoumis(string $numDa, string $numCde, string $codeSociete)
     {
-        return array_filter($this->createQueryBuilder('dabc')
-            ->select('dabc.numLiv')
+        $conn = $this->getEntityManager()->getConnection();
+
+        $sql = " SELECT 
+                dabc.numero_livraison
+            FROM da_soumission_facture_bl dabc
+            LEFT JOIN demande_paiement ddp ON ddp.numero_demande_paiement = dabc.numero_demande_paiement
+            WHERE dabc.numero_demande_appro = :numDa
+            AND dabc.numero_cde = :numCde
+            AND dabc.code_societe = :codeSociete
+            AND (ddp.statut NOT LIKE :statutRefuse OR ddp.statut IS NULL)
+        ";
+
+        $rows = $conn->fetchAllAssociative($sql, [
+            'numDa' => $numDa,
+            'numCde' => $numCde,
+            'codeSociete' => $codeSociete,
+            'statutRefuse' => '%Refusé%'
+        ]);
+
+        return array_filter(array_column($rows, 'numero_livraison'));
+    }
+
+    public function getNombreLivraisonSoumis(string $numDa, string $numCde, string $codeSociete): ?int
+    {
+        return  $this->createQueryBuilder('dabc')
+            ->select('COUNT(dabc.numLiv)')
             ->where('dabc.numeroDemandeAppro = :numDa')
             ->andWhere('dabc.numeroCde = :numCde')
             ->andWhere('dabc.codeSociete = :codeSociete')
@@ -62,12 +72,13 @@ class DaSoumissionFacBlRepository extends EntityRepository
             ->setParameter('numCde', $numCde)
             ->setParameter('codeSociete', $codeSociete)
             ->getQuery()
-            ->getSingleColumnResult());
+            ->getOneOrNullResult(Query::HYDRATE_SINGLE_SCALAR);
     }
 
     public function getAll(array $criteria = [], string $codeSociete)
     {
         $qb = $this->createQueryBuilder('dabc')
+            ->where('dabc.numeroBap IS NOT NULL')
             ->andWhere('dabc.codeSociete = :codeSociete')
             ->setParameter('codeSociete', $codeSociete);
 
@@ -139,5 +150,44 @@ class DaSoumissionFacBlRepository extends EntityRepository
             ->getOneOrNullResult(Query::HYDRATE_SINGLE_SCALAR);
 
         return $result ? new \DateTime($result) : null;
+    }
+
+    public function getNumeroFactureDansFacBl(string $numeroCde): array
+    {
+        $result = $this->createQueryBuilder('dabc')
+            ->select('dabc.numeroFactureReappro')
+            ->where('dabc.numeroCde = :numCde')
+            ->andWhere('dabc.refBlFac IS NOT NULL')
+            ->setParameter('numCde', $numeroCde)
+            ->getQuery()
+            ->getSingleColumnResult();
+
+        return $result;
+    }
+
+    public function getInfoDa(int $numCde)
+    {
+        return  $this->createQueryBuilder('dabc')
+            ->select('da.agenceDebiteur, da.serviceDebiteur, dabc.numeroOR, dabc.NumeroFactureFournisseur, da.numeroFournisseur')
+            ->join(DaAfficher::class, 'da', 'WITH', 'da.numeroCde = dabc.numeroCde')
+            ->where('dabc.numeroCde = :numCde')
+            ->setParameter('numCde', $numCde)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
+    }
+
+    public function getStatutBap(string $numeroDa, string $numCde): ?array
+    {
+        return $this
+            ->createQueryBuilder('dabc')
+            ->select('dabc.statutBap')
+            ->where('dabc.numeroDemandeAppro = :numDa')
+            ->andWhere('dabc.numeroCde = :numCde')
+            ->setParameter('numDa', $numeroDa)
+            ->setParameter('numCde', $numCde)
+            ->getQuery()
+            ->getSingleColumnResult();
     }
 }

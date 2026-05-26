@@ -20,7 +20,7 @@ trait PrixFournisseurTrait
             $dalrs       = $dal->getDemandeApproLR();
             if ($dalrs->isEmpty()) {
                 $fournisseur = $dal->getNomFournisseur();
-                $prix        = $this->formatPrix($dal->getPrixUnitaire());
+                $prix        = $dal->getPrixUnitaire() ? $this->formatPrix($dal->getPrixUnitaire()) : "-";
                 $fournisseurs[$fournisseur][$keyId] = [
                     'prix'  => $prix,
                     'choix' => true,
@@ -28,7 +28,7 @@ trait PrixFournisseurTrait
             } else {
                 foreach ($dalrs as $dalr) {
                     $frnDalr = $dalr->getNomFournisseur();
-                    $prix    = $this->formatPrix($dalr->getPrixUnitaire());
+                    $prix    = $dalr->getPrixUnitaire() ? $this->formatPrix($dalr->getPrixUnitaire()) : "-";
                     $choix   = $dalr->getChoix();
 
                     if ($choix || !isset($fournisseurs[$frnDalr][$keyId])) {

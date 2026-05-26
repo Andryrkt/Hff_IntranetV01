@@ -197,7 +197,11 @@ class DaModel extends Model
                         TRIM(a.abse_desi) AS designation,
                         af.afrn_numf AS numero_fournisseur,
                         TRIM(fbse_nomfou) AS nom_fournisseur,
-                        af.afrn_pxach AS prix_unitaire 
+                        CASE 
+	                        WHEN a.abse_pmp > 0 THEN a.abse_pmp
+	                        WHEN af.afrn_pxach > 0 THEN af.afrn_pxach
+    	                    ELSE 0
+                        END AS prix_unitaire
                     FROM art_bse a 
                     LEFT JOIN art_frn af 
                         ON afrn_constp = abse_constp 
@@ -235,7 +239,19 @@ class DaModel extends Model
                         TRIM(abs.abse_desi) as desi,
                         af.afrn_numf as num_frn, 
                         TRIM(fbse.fbse_nomfou) as nom_frn,
-                        af.afrn_pxach as prix_unitaire 
+                        CASE 
+                            WHEN TRIM(abs.abse_constp) = 'ZDI' THEN 
+                                CASE 
+                                    WHEN af.afrn_pxach > 0 THEN af.afrn_pxach
+                                    ELSE NULL
+                                END
+                            ELSE
+                                CASE
+                                    WHEN abs.abse_pmp > 0 THEN abs.abse_pmp
+                                    WHEN af.afrn_pxach > 0 THEN af.afrn_pxach
+                                    ELSE 0
+                                END
+                        END AS prix_unitaire
                     FROM art_bse abs
                     LEFT JOIN art_frn af 
                         ON af.afrn_constp = abs.abse_constp 
@@ -551,7 +567,7 @@ class DaModel extends Model
                 TRIM(fcdl_refp) as reference,
                 TRIM(fcdl_desi) as designation, 
                 ROUND(fcdl_qte) as qte_dem,
-                ROUND(fcdl_qteli) as qte_receptionnee,
+                ROUND(fcdl_qteli) as qte_dispo,
                 ROUND(fcdl_qtefa) as qte_livree
                     FROM frn_cdl c 
                 WHERE fcdl_constp ='ZDI' 
@@ -670,7 +686,8 @@ class DaModel extends Model
                         f2.fliv_mtn AS montant_fac_bl
                     from Informix.frn_llf f 
                     inner join Informix.frn_liv f2 on f.fllf_numliv = f2.fliv_numliv 
-                where f.fllf_numcde = '$numCde' and f2.fliv_soc ='$codeSociete'";
+                where f.fllf_numcde = '$numCde' and f2.fliv_soc ='$codeSociete'
+        ";
         $result = $this->connect->executeQuery($statement);
         $rows = $this->convertirEnUtf8($this->connect->fetchResults($result));
 
@@ -678,16 +695,44 @@ class DaModel extends Model
         return array_column($rows, null, 'num_liv');
     }
 
+    public function getHistoriqueLivraison(string $numCde)
+    {
+        $statement = "SELECT 
+                        fllf_numliv as num_liv, 
+                        (
+                            select TRIM(fliv_livext) from Informix.frn_liv 
+                            where fliv_soc = fcde_soc and fliv_numliv = fllf_numliv
+                        ) as ref_fac_bl,  
+                        (
+                            select fliv_dateclot from Informix.frn_liv 
+                            where fliv_soc = fcde_soc and fliv_numliv = fllf_numliv
+                        ) as date_clot,
+                        fllf_numfac as numero_facture_ips, 
+                        sum(fllf_qteliv * fllf_pxach) as montant_fac_bl
+                    from Informix.frn_cde, Informix.frn_llf 
+                    where fcde_numcde = '$numCde'
+                    and fcde_soc = fllf_soc
+                    and fcde_numcde = fllf_numcde
+                    group by 1,2,3,4
+                    order by 1,3
+        ";
+        $result = $this->connect->executeQuery($statement);
+        $rows = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return $rows;
+    }
+
+
     public function getInfoBC(string $numCde, string $codeSociete)
     {
         $statement = "SELECT 
                 TRIM(fbse_nomfou) as nom_fournisseur, 
                 fbse_numfou as num_fournisseur,
-                TRIM(fbse_tel) as tel_fournisseur, 
-                TRIM(fbse_adr1) as adr1_fournisseur, 
-                TRIM(fbse_adr2) as adr2_fournisseur, 
-                TRIM(fbse_ptt) as ptt_fournisseur, 
-                TRIM(fbse_adr4) as adr4_fournisseur, 
+                -- TRIM(fbse_tel) as tel_fournisseur,        -- champ à ne pas afficher dans le PDF       
+                -- TRIM(fbse_adr1) as adr1_fournisseur,      -- champ à ne pas afficher dans le PDF
+                -- TRIM(fbse_adr2) as adr2_fournisseur,      -- champ à ne pas afficher dans le PDF
+                -- TRIM(fbse_ptt) as ptt_fournisseur,        -- champ à ne pas afficher dans le PDF
+                -- TRIM(fbse_adr4) as adr4_fournisseur,      -- champ à ne pas afficher dans le PDF      
                 fcde_numcde as num_cde,
                 fcde_date as date_cde,
                 TRIM(fcde_succ) as succ_cde, 

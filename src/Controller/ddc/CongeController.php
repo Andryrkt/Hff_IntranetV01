@@ -43,6 +43,9 @@ class CongeController extends Controller
             // Agences Services autorisés sur le Demande de congé
             $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DDC);
 
+            // Tous agences services
+            $allAgenceServices = $this->getSecurityService()->getAllAgenceServices();
+
             // Vérifier s'il s'agit d'un accès direct à la route (sans paramètres de recherche)
             // Dans ce cas, nous réinitialisons tous les filtres
             $isDirectAccess = empty($request->query->all()) ||
@@ -86,7 +89,7 @@ class CongeController extends Controller
             $form = $this->getFormFactory()->createBuilder(DemandeCongeType::class, $congeSearch, [
                 'method' => 'GET',
                 'em' => $this->getEntityManager(),
-                'agenceServiceAutorises' => $agenceServiceAutorises
+                'agenceServiceAutorises' => $allAgenceServices
             ])->getForm();
 
             $form->handleRequest($request);
@@ -650,6 +653,7 @@ class CongeController extends Controller
             'form' => $form->createView(),
             'viewMode' => 'calendar',
             'selected_month' => $selectedMonth,
+            'accessGroupeDirection' => $this->estAdmin(),
             'title' => 'Liste des demandes de congé',
         ]);
     }
@@ -1038,11 +1042,11 @@ class CongeController extends Controller
      */
     public function getServiceSelonAgence(string $codeAgence)
     {
-        // Agences Services autorisés sur le Demande de congé
-        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DDC);
+        // Tous agences services
+        $allAgenceServices = $this->getSecurityService()->getAllAgenceServices();
 
         $codesServicesAutorises = array_column(
-            array_filter($agenceServiceAutorises, fn($asa) => $asa['agence_code'] === $codeAgence),
+            array_filter($allAgenceServices, fn($asa) => $asa['agence_code'] === $codeAgence),
             'service_code'
         );
 
