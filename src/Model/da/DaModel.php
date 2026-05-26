@@ -706,13 +706,14 @@ class DaModel extends Model
                         (
                             select fliv_dateclot from Informix.frn_liv 
                             where fliv_soc = fcde_soc and fliv_numliv = fllf_numliv
-                        ) as date_clot, 
+                        ) as date_clot,
+                        fllf_numfac as numero_facture_ips, 
                         sum(fllf_qteliv * fllf_pxach) as montant_fac_bl
                     from Informix.frn_cde, Informix.frn_llf 
                     where fcde_numcde = '$numCde'
                     and fcde_soc = fllf_soc
                     and fcde_numcde = fllf_numcde
-                    group by 1,2,3
+                    group by 1,2,3,4
                     order by 1,3
         ";
         $result = $this->connect->executeQuery($statement);

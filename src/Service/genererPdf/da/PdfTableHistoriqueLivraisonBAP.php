@@ -21,6 +21,7 @@ class PdfTableHistoriqueLivraisonBAP
     {
         $columns = [
             $this->createTableCell('center', '20%', 'N° Livraison IPS'),
+            $this->createTableCell('center', '20%', 'N° Facture IPS'),
             $this->createTableCell('left', '25%', 'Référence'),
             $this->createTableCell('center', '20%', 'Date livraison IPS'),
             $this->createTableCell('right', '20%', 'Montant'),
@@ -55,6 +56,7 @@ class PdfTableHistoriqueLivraisonBAP
         $montant = $this->formaterPrix($historique["montant_fac_bl"] ?? 0);
         $cells = [
             $this->createTableCell('center', '20%', $historique['num_liv'], "", false),
+            $this->createTableCell('center', '20%', $historique['numero_facture_ips'], "", false),
             $this->createTableCell('left', '25%', $historique['ref_fac_bl'], "", false),
             $this->createTableCell('center', '20%', $date, "", false),
             $this->createTableCell('right', '20%', $montant, "", false),

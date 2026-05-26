@@ -216,6 +216,15 @@ class GenererPdfBonAPayer extends GeneratePdf
         });
     }
 
+    /**
+     * 
+     *
+     * @param TCPDF $pdf
+     * @param string $numDa
+     * @param string|null $numCde
+     * @param string $dest
+     * @return string
+     */
     private function savePDF(TCPDF $pdf, string $numDa, ?string $numCde = null, string $dest = "F"): string
     {
         // Obtention du chemin absolu du répertoire de travail
