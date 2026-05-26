@@ -73,7 +73,7 @@ class DemandePaiementDto
     public bool $appro = false;
     public ?int $typeDa = null;
     public int $numeroSoumissionDdpDa;
-    public string $numeroDemandeAppro;
+    public ?string $numeroDemandeAppro = null;
     public ?string $numeroLivraison = null;
     public string $numeroDa;
     public bool $ddpaDa = false;

@@ -90,7 +90,7 @@ class DemandePaiementMapper
             $dto->devise = $ddp->getDevise();
             $dto->modePaiement = $ddp->getModePaiement();
             $dto->demandeur = $ddp->getDemandeur();
-            $dto->appro = $ddp->getAppro();
+            $dto->appro = $ddp->getAppro() ?? false;
             $dto->numeroFactureIps = self::getNumeroFactureIps($dto);
 
             $dtos[] = $dto;
