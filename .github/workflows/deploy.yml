@@ -1,0 +1,74 @@
+name: Deploy PHP Application HffIntranet PreProd
+
+on:
+  push:
+    branches: [ feature/profilUser ]
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy files
+        shell: powershell
+        run: |
+          robocopy .\ "C:\wamp64\www\Hffintranet_new_profil" /E /XD .git .github var /XF .env
+          if ($LASTEXITCODE -lt 8) { exit 0 } else { exit 1 }
+
+      - name: Clear Cache
+        shell: powershell
+        run: |
+          if (Test-Path "C:\wamp64\www\Hffintranet_new_profil\var\cache") {
+            Remove-Item -Path "C:\wamp64\www\Hffintranet_new_profil\var\cache\*" -Recurse -Force
+          }
+
+      - name: Composer Install and Build
+        shell: powershell
+        run: |
+          Set-Location "C:\wamp64\www\Hffintranet_new_profil"
+          if (-Not (Test-Path "var/cache/proxies")) { New-Item -ItemType Directory -Path "var/cache/proxies" -Force }
+          composer install --no-dev --optimize-autoloader --no-interaction
+          php config/bootstrap_build.php
+          php vendor/bin/doctrine orm:generate-proxies
+
+      - name: Send Discord Notification
+        if: always()
+        shell: powershell
+        run: |
+          chcp 65001 | Out-Null
+          [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+          $OutputEncoding = [System.Text.Encoding]::UTF8
+
+          $webhookUrl = "${{ secrets.DISCORD_WEBHOOK }}"
+          if (-not $webhookUrl) { exit 0 }
+
+          $status = "${{ job.status }}"
+          if ($status -eq "success") {
+            $color = 3066993
+            $title = "Deploiement Reussi"
+            $desc  = "Le deploiement sur **HffIntranet PreProd** est termine avec succes. :white_check_mark:"
+          } else {
+            $color = 15158332
+            $title = "Echec du Deploiement"
+            $desc  = "Une erreur est survenue lors du deploiement sur **HffIntranet PreProd**. :x:"
+          }
+
+          $body = [ordered]@{
+            embeds = @(@{
+              title       = $title
+              description = $desc
+              color       = $color
+              fields      = @(
+                @{ name = "Branche"; value = "**${{ github.ref_name }}**"; inline = $true }
+                @{ name = "Auteur";  value = "**${{ github.actor }}**";    inline = $true }
+                @{ name = "Logs";    value = "[Voir le job](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"; inline = $false }
+              )
+              footer = @{ text = "HffIntranet CI/CD" }
+            })
+          }
+
+          $json  = $body | ConvertTo-Json -Depth 6 -Compress
+          $bytes = [System.Text.Encoding]::UTF8.GetBytes($json)
+          Invoke-RestMethod -Uri $webhookUrl -Method Post -Body $bytes -ContentType 'application/json; charset=utf-8'

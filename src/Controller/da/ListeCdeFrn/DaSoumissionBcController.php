@@ -90,7 +90,7 @@ class DaSoumissionBcController extends Controller
      * @param FormInterface $form
      * @return void
      */
-    private function traitementFormulaire(Request $request, string $numCde, FormInterface $form, string $numDa, string $numOr, string $codeSociete): void
+    private function traitementFormulaire(Request $request, FormInterface $form): void
     {
         $form->handleRequest($request);
 
@@ -186,12 +186,14 @@ class DaSoumissionBcController extends Controller
         return $ddpAvantLivraison;
     }
 
-    private function modificationDaValider(string $numDa, string $numCde): void
+    private function modificationDaAfficher(DaSoumissionBcDto $dto): void
     {
-        $numeroVersionMaxCde = $this->daValiderRepository->getNumeroVersionMax($numDa);
-        $numeroVersionMaxCde === null ? $numeroVersionMaxCde = 0 : $numeroVersionMaxCde;
+        $numCde = $dto->numeroCde;
+        $numDa = $dto->numeroDemandeAppro;
+        $codeSociete = $dto->codeSociete;
 
-        $daValiders = $this->daValiderRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMaxCde, 'numeroCde' => $numCde]);
+        $numeroVersionMaxCde = $this->daAfficherRepository->getNumeroVersionMax($numDa, $codeSociete);
+        $daValiders = $this->daAfficherRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMaxCde, 'numeroCde' => $numCde]);
         if (!empty($daValiders)) {
             foreach ($daValiders as $key => $daValider) {
                 $daValider
@@ -203,7 +205,8 @@ class DaSoumissionBcController extends Controller
         }
     }
 
-    private function ajoutInfoNecesaireSoumissionBc(string $numCde, string $numDa, DaSoumissionBc $soumissionBc, string $nomPdfFusionner, int $numeroVersionMax, string $numOr, string $codeSociete): DaSoumissionBc
+
+    private function conditionDeBlocage(DaSoumissionBcDto $dto): array
     {
         $numCde = $dto->numeroCde;
         $numDa = $dto->numeroDemandeAppro;

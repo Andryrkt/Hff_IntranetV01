@@ -89,4 +89,5 @@ class PointageRelanceController extends Controller
         $numeroRelanceMax = $pointageRelanceModel->getDernierNumeroRelance($numeroDevis, $codeSociete);
         return AutoIncDecService::autoIncrement($numeroRelanceMax);
     }
+
 }

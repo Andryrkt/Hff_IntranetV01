@@ -388,7 +388,7 @@ class DevisNegModel extends Model
         }
 
         // Filtre par statut IPS (Position IPS) - on l'ajoute seulement s'il n'a pas déjà été traité dans getDevisNeg
-        if (!empty($criteria['statutIps']) && !in_array($criteria['statutIps'], ['RE', 'TR'])) {
+        if (!empty($criteria['statutIps'])) {
             $whereClauses[] = " TRIM(nent.nent_posl) = '" . $criteria['statutIps'] . "' ";
         }
 
@@ -578,12 +578,15 @@ class DevisNegModel extends Model
                         FROM {$this->dbIps}:informix.neg_ent nent
                         LEFT JOIN {$this->dbIrium}:Informix.devis_soumis_a_validation_neg dneg ON dneg.numero_devis = nent.nent_numcde
                         LEFT JOIN {$this->dbIrium}:Informix.pointage_relance pr ON pr.numero_devis = nent.nent_numcde
-                        WHERE nent.nent_numcde = '$numeroDevis' AND nent.nent_soc = '$codeSociete'
-                        GROUP BY nent.nent_numcde, dneg.date_envoye_devis_client, dneg.statut_bc, dneg.numero_version, dneg.stop_progression_global, nent.nent_datecde
+                        WHERE nent.nent_numcde = :numeroDevis AND nent.nent_soc = :codeSociete
+                        GROUP BY 1, 2, 3, 4, 5, nent.nent_datecde
                     ) rs
                     ORDER BY rs.numero_version DESC";
 
-            $result = $this->connect->executeQuery($statement);
+            $result = $this->connect->executeQuery($statement, [
+                'numeroDevis' => $numeroDevis,
+                'codeSociete' => $codeSociete
+            ]);
             return $this->connect->fetchScalarResults($result);
         } catch (\Exception $e) {
             return [];
@@ -591,6 +594,7 @@ class DevisNegModel extends Model
             $this->connect->close();
         }
     }
+
 
     /**
      * Récupère le code et le libellé du client

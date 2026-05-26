@@ -2,6 +2,7 @@
 
 namespace App\Repository\magasin\bc;
 
+use App\Constants\Magasin\Devis\StatutBcNegConstant;
 use App\Repository\Interfaces\StatusRepositoryInterface;
 use Doctrine\ORM\EntityRepository;
 
@@ -34,14 +35,29 @@ class BcMagasinRepository extends EntityRepository implements StatusRepositoryIn
     }
 
     /**
-     * recupère tous les numéros BC Distincts
+     * recupère tous les numéros BC Distincts Validé
      */
     public function findnumBCAll()
     {
         $query = $this->createQueryBuilder('b')
             ->select("DISTINCT b.numeroDevis")
             ->where('b.statutBc = :statutBc')
-            ->setParameter('statutBc', 'Validé - Devis à transferer')
+            ->setParameter('statutBc', StatutBcNegConstant::VALIDER)
+            ->getQuery()
+            ->getSingleColumnResult();
+
+        return $query;
+    }
+
+    /**
+     * recupère tous les numéros BC Distincts Non Valider
+     */
+    public function findnumBCNonValiderAll()
+    {
+        $query = $this->createQueryBuilder('b')
+            ->select("DISTINCT b.numeroDevis")
+            ->where('b.statutBc <> :statutBc')
+            ->setParameter('statutBc', StatutBcNegConstant::VALIDER)
             ->getQuery()
             ->getSingleColumnResult();
 

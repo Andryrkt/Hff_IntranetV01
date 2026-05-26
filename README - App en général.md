@@ -50,3 +50,5 @@ Ref nikitika JS na CSS de ampiakarina ny version ny CSS sy JS
 
 Mila ovaina daholo ny version.
 ===> Ctrl + Shift + H (raccourci pour remplacer tout) - mot à chercher = 2025.08.29.16.20 - remplacer par = <YYYY>.<MM>.<dd>.<HH>.<mm>
+
+.......
