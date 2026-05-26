@@ -61,6 +61,7 @@ class DitModel extends Model
       FROM MAT_MAT
       LEFT JOIN mat_bil on mbil_nummat = mmat_nummat and mbil_dateclot <= '01/01/1900' and mbil_dateclot = '12/31/1899'
       WHERE MMAT_ETSTOCK in ('ST','AT', '--')
+      AND MMAT_AFFECT <> 'CAS'
       " . $conditionNummat . "
       " . $conditionNumParc . "
       " . $conditionNumSerie . "
