@@ -413,51 +413,6 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
             ->getSingleScalarResult();
     }
 
-    public function getStatut(string $numDit)
-    {
-        // Étape 1 : Récupérer le numeroVersion maximum
-        $numeroVersionMax = $this->createQueryBuilder('osv')
-            ->select('MAX(osv.numeroVersion)')
-            ->where('osv.numeroDit = :numDit')
-            ->setParameter('numDit', $numDit)
-            ->getQuery()
-            ->getSingleScalarResult();
-
-        if ($numeroVersionMax === null) {
-            return null;
-        }
-
-        // Étape 2 : Récupérer le statut
-        $result = $this->createQueryBuilder('osv')
-            ->select('DISTINCT osv.statut')
-            ->where('osv.numeroDit = :numDit')
-            ->andWhere('osv.numeroVersion = :numeroVersionMax')
-            ->setParameters([
-                'numDit' => $numDit,
-                'numeroVersionMax' => $numeroVersionMax
-            ])
-            ->getQuery()
-            ->getOneOrNullResult(); // retourne un tableau associatif ou null
-
-        return $result['statut'] ?? null;
-    }
-
-    public function findDerniereVersionByNumeroDit(string $numeroDit)
-    {
-        $qb = $this->createQueryBuilder('osav');
-
-        $subQb = $this->createQueryBuilder('sub')
-            ->select('MAX(sub.numeroVersion)')
-            ->where('sub.numeroDit = :numeroDit')
-            ->getDQL();
-
-        $qb->where('osav.numeroDit = :numeroDit')
-            ->andWhere('osav.numeroVersion = (' . $subQb . ')')
-            ->setParameter('numeroDit', $numeroDit);
-
-        return $qb->getQuery()->getResult();
-    }
-
     public function getNumeroEtStatutOr(string $numDit): array
     {
         // Étape 1 : Récupérer le numeroVersion maximum
