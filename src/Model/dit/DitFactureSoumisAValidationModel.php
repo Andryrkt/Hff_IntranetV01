@@ -54,21 +54,6 @@ class DitFactureSoumisAValidationModel extends Model
         return $result['numSoumissionEncours'];
     }
 
-    /*
-    public function recupStatut($numOr, $numItv)
-    {
-        $sql = "SELECT statut 
-        FROM ors_soumis_a_validation 
-        WHERE numeroVersion IN (SELECT MAX(numeroVersion) FROM ors_soumis_a_validation WHERE numeroOR = '".$numOr."') 
-        AND numeroOR = '".$numOr."'
-        AND numeroItv = '".$numItv."'";
-            
-        $exec = $this->connexion->query($sql);
-        $result = odbc_fetch_array($exec);
-
-        return $result['statut'];
-    }
-*/
     public function recupInfoFact($numOR, $numFact, $codeSociete)
     {
         $statement = " SELECT
@@ -256,7 +241,7 @@ class DitFactureSoumisAValidationModel extends Model
                             AND sitv_interv = slor_nogrp / 100
                 WHERE
                     --sitv_servcrt IN ('ATE', 'FOR', 'GAR', 'MAN', 'CSP', 'MAS', 'LR6', 'LST')
-                     slor_numor = '" . $numOr . "'
+                    slor_numor = '" . $numOr . "'
                     AND slor_numfac = '" . $numFact . "'
                 GROUP BY
                 numeroOr, numeroItv
@@ -288,33 +273,6 @@ class DitFactureSoumisAValidationModel extends Model
 
     public function recuperationStatutItv($numOr, $numItv, $codeSociete)
     {
-        // $statement = " SELECT 
-        //         trim(seor_refdem) as referenceDIT,
-        //         seor_numor as numeroOr,
-        //         TRUNC(sum(CASE WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) 
-        //                         WHEN slor_typlig IN ('F','M','U','C') THEN slor_qterea 
-        //                 END)) AS quantiteDemander,
-        //         TRUNC(sum(slor_qteres)) as quantiteReserver,
-        //         CASE 
-        //             WHEN slor_typlig  IN ('F','M','U','C') THEN TRUNC(sum(slor_qterea)) ELSE TRUNC(sum(sliv_qteliv)) END 
-        //         as quantiteLivree,
-        //         TRUNC(sum(slor_qterel)) as quantiteReliquat
-        //         from sav_lor 
-        //         inner join sav_eor on seor_soc = slor_soc and seor_succ = slor_succ 
-        //         and seor_numor = slor_numor
-        //         left join sav_liv on sliv_soc = slor_soc and sliv_succ = slor_succ and sliv_numor = seor_numor and slor_nolign = sliv_nolign
-
-        //         where 
-        //         slor_soc = 'HF'
-        //         --and slor_succ = '01'
-        //         --and slor_typlig = 'P'
-        //         and seor_serv ='SAV'
-        //         and slor_constp in (".GlobalVariablesService::get('tous').")
-        //         and slor_numor = '".$numOr."'
-        //         and TRUNC(slor_nogrp/100) in (".$numItv.")
-        //         group by 1,2
-        // ";
-
         $statement = " SELECT 
                     TRIM(seor_refdem) AS referenceDIT,
                     seor_numor AS numeroOr,
@@ -359,23 +317,5 @@ class DitFactureSoumisAValidationModel extends Model
         $data = $this->connect->fetchResults($result);
 
         return $this->convertirEnUtf8($data);
-    }
-
-    public function orStatutEstValide($numOr, $numItv)
-    {
-        $sql = " SELECT 
-                case when statut = 'Validé' then 'Validé'else 'Non validé' end as Statut
-                from ors_soumis_a_validation
-                where numeroOR = '$numOr' 
-                and numeroItv = '$numItv' 
-                and numeroVersion = (select max(numeroversion) from ors_soumis_a_validation where numeroOR = '$numOr' and numeroItv = '$numItv')
-        ";
-
-        $exec = $this->connexion->query($sql);
-        $tab = [];
-        while ($result = odbc_fetch_array($exec)) {
-            $tab[] = $result;
-        }
-        return array_column($tab, 'Statut');
     }
 }
