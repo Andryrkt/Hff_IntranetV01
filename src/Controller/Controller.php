@@ -537,6 +537,14 @@ class Controller
     }
 
     /**
+     * Vérifie si l'utilisateur connecté est dans RH par le fait de son agence et service par défaut (80 - PER)
+     */
+    protected function estRH(): bool
+    {
+        return $this->getSecurityService()->estRH();
+    }
+
+    /**
      * Vérifie si l'utilisateur connecté est ENERGIE par le fait de son agence par défaut (90/91/92)
      */
     protected function estEnergie(): bool
