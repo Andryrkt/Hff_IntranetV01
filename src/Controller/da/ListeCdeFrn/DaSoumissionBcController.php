@@ -150,7 +150,6 @@ class DaSoumissionBcController extends Controller
     private function ajoutInfoNecesaireSoumissionBc(string $numCde, string $numDa, DaSoumissionBc $soumissionBc, string $nomPdfFusionner, int $numeroVersionMax, string $numOr, string $codeSociete): DaSoumissionBc
     {
         $numDit = $this->demandeApproRepository->getNumDitDa($numDa, $codeSociete);
-        // $numOr = $this->ditRepository->getNumOr($numDit);
 
         $montantBc = $this->getMontantBc($numCde, $codeSociete);
 

@@ -27,12 +27,6 @@ class DitRepository extends EntityRepository
     /** LISTE DIT */
     /**
      * FONCTION Pour récupérer les donnée filtrer
-     *
-     * @param integer $page
-     * @param integer $limit
-     * @param DitSearch $ditSearch
-     * @param array $options
-     * @return void
      */
     public function findPaginatedAndFiltered(int $page = 1, int $limit = 10, DitSearch $ditSearch, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, bool $peutVoirListeAvecDebiteur, string $codeAgenceUser, string $codeSociete, bool $multisuccursale)
     {
@@ -76,21 +70,6 @@ class DitRepository extends EntityRepository
             'lastPage' => $lastPage,
             'statusCounts' => $statusCounts,
         ];
-    }
-
-    /**
-     * Applique le filtre par agence de l'utilisateur connecté
-     *
-     * @param QueryBuilder $queryBuilder
-     * @return void
-     */
-    private function applyAgencyUserFilter(QueryBuilder $queryBuilder, $codeAgenceUser): void
-    {
-        if (in_array($codeAgenceUser, ['01', '20', '30', '40', '60'])) {
-            $queryBuilder
-                ->andWhere('ar.codeAgence = :userAgency')
-                ->setParameter('userAgency', $codeAgenceUser);
-        }
     }
 
     public function recupConstraitSoumission($numDit, $codeSociete)
@@ -328,23 +307,6 @@ class DitRepository extends EntityRepository
         }
     }
 
-
-    // private function applyAgencyRoleFilter($queryBuilder, DitSearch $ditSearch, array $agencyIds)
-    // {
-    //     if (!empty($ditSearch->getAgenceEmetteur())) {
-    //         $queryBuilder->andWhere('d.agenceEmetteurId = :agEmet')
-    //             ->setParameter('agEmet', $ditSearch->getAgenceEmetteur()->getId());
-    //     } else {
-    //         $queryBuilder->andWhere(
-    //             $queryBuilder->expr()->orX(
-    //                 'd.agenceEmetteurId IN (:agencesRattachees)',
-    //                 'd.agenceDebiteurId IN (:agencesRattachees)'
-    //             )
-    //         )
-    //         ->setParameter('agencesRattachees', $agencyIds);
-    //     }
-    // }
-
     private function applySection($queryBuilder, DitSearch $ditSearch)
     {
         // Filtrer selon la section affectée
@@ -410,8 +372,6 @@ class DitRepository extends EntityRepository
             $queryBuilder->andWhere($orX);
         }
     }
-
-
 
     public function findAgSevDebiteur($numdit, $codeSociete)
     {
@@ -540,43 +500,6 @@ class DitRepository extends EntityRepository
         return array_column($result, 'numeroDemandeIntervention');
     }
 
-    /** MAGASIN  */
-    public function findNumOr($criteria = [])
-    {
-        $queryBuilder = $this->createQueryBuilder('d');
-        $queryBuilder
-            ->select('d.numeroOR')
-            ->Where('d.dateValidationOr IS NOT NULL')
-            ->andWhere('d.dateValidationOr != :empty')
-            ->setParameter('empty', '')
-        ;
-
-        if (!empty($criteria['niveauUrgence'])) {
-            $queryBuilder->andWhere('d.idNiveauUrgence = :idniveau')
-                ->setParameter('idniveau', $criteria['niveauUrgence']->getId());
-        }
-
-        $results = $queryBuilder->getQuery()->getArrayResult();
-
-        // Extraire les resultats dans un tableau simple
-        $numOr = array_column($results, 'numeroOR');
-
-        return $numOr;
-    }
-
-    public function findNumDit($numOr)
-    {
-        $queryBuilder = $this->createQueryBuilder('d')
-            ->leftJoin('d.idNiveauUrgence', 'nu');
-        $queryBuilder
-            ->select('d.numeroDemandeIntervention, nu.description')
-            ->Where('d.numeroOR = :numOR')
-            ->setParameter('numOR', $numOr)
-        ;
-
-        return $queryBuilder->getQuery()->getResult();
-    }
-
     public function findAteRealiserPar($numDit, $codeSociete)
     {
         try {
@@ -629,17 +552,6 @@ class DitRepository extends EntityRepository
             ->andWhere('d.codeSociete = :codeSociete')
             ->setParameter('numDit', $numDit)
             ->setParameter('codeSociete', $codeSociete)
-            ->getQuery()
-            ->getSingleScalarResult()
-        ;
-    }
-
-    public function findNumeroOrDit(string $numDit)
-    {
-        return $this->createQueryBuilder('d')
-            ->select('d.numeroOR')
-            ->where('d.numeroDemandeIntervention = :numDit')
-            ->setParameter('numDit', $numDit)
             ->getQuery()
             ->getSingleScalarResult()
         ;
@@ -736,69 +648,6 @@ class DitRepository extends EntityRepository
             ->getQuery()
             ->getSingleColumnResult()
         ;
-    }
-
-    public function getNumclient($numOr)
-    {
-        try {
-            $numcli =  $this->createQueryBuilder('d')
-                ->select('d.numeroClient')
-                ->where('d.numeroOR = :numOr')
-                ->setParameter('numOr', $numOr)
-                ->getQuery()
-                ->getSingleScalarResult();
-        } catch (\Doctrine\ORM\NoResultException $e) {
-            $numcli = null; // ou une valeur par défaut
-        }
-        return $numcli;
-    }
-
-    public function getInterneExterne($numOr)
-    {
-        try {
-            $intExt =  $this->createQueryBuilder('d')
-                ->select('d.internetExterne')
-                ->where('d.numeroOR = :numOr')
-                ->setParameter('numOr', $numOr)
-                ->getQuery()
-                ->getSingleScalarResult();
-        } catch (\Doctrine\ORM\NoResultException $e) {
-            $intExt = null; // ou une valeur par défaut
-        }
-        return $intExt;
-    }
-
-    public function getStatutIdDit(string $numDit)
-    {
-        return $this->createQueryBuilder('d')
-            ->select('s.id') // <-- un champ scalaire
-            ->join('d.idStatutDemande', 's') // <-- jointure obligatoire
-            ->where('d.numeroDemandeIntervention = :numDit')
-            ->setParameter('numDit', $numDit)
-            ->getQuery()
-            ->getSingleScalarResult();
-    }
-
-    public function getNiveauUrgence(string $numDit)
-    {
-        $queryBuilder =  $this->createQueryBuilder('d')
-            ->select('nu.description') // <-- un champ scalaire
-            ->join('d.idNiveauUrgence', 'nu') // <-- jointure obligatoire
-            ->where('d.numeroDemandeIntervention = :numDit')
-            ->setParameter('numDit', $numDit);
-
-        return $queryBuilder->getQuery()
-            ->getSingleScalarResult();
-    }
-
-    public function getNumOr(string $numDit)
-    {
-        return $this->createQueryBuilder('d')
-            ->select('d.numeroOR')
-            ->where('d.numeroDemandeIntervention = :numDit')
-            ->setParameter('numDit', $numDit)
-            ->getQuery()
-            ->getSingleScalarResult();
     }
 
     private function conditionAgenceService($queryBuilder, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeAgenceUser, bool $peutVoirListeAvecDebiteur, bool $avecAtelierRealisePar)

@@ -350,50 +350,6 @@ trait DitListTrait
         return $tab;
     }
 
-
-    private function donnerAAfficher($ditListeModel, $ditSearch, $option, $page, $limit, $em)
-    {
-        $paginationData = $em->getRepository(DemandeIntervention::class)->findPaginatedAndFiltered($page, $limit, $ditSearch, $option);
-
-        //ajout de donner du statut achat piece dans data
-        $this->ajoutStatutAchatPiece($paginationData['data']);
-
-        //ajout de donner du statut achat locaux dans data
-        $this->ajoutStatutAchatLocaux($paginationData['data']);
-
-        //ajout nombre de pièce joint
-        $this->ajoutNbrPj($paginationData['data'], $em);
-
-        //recuperation de numero de serie et parc pour l'affichage
-        $this->ajoutNumSerieNumParc($paginationData['data']);
-
-        $this->ajoutQuatreStatutOr($paginationData['data']);
-
-        $this->ajoutConditionOrEqDit($paginationData['data']);
-
-        $this->ajoutri($paginationData['data'], $ditListeModel, $em);
-
-        $this->ajoutMarqueCasierMateriel($paginationData['data']);
-
-        return $paginationData;
-    }
-
-    // private function dossierDit($request, $formDocDansDW)
-    // {
-
-    //     $formDocDansDW->handleRequest($request);
-
-    //     if($formDocDansDW->isSubmitted() && $formDocDansDW->isValid()) {
-    //         if($formDocDansDW->getData()['docDansDW'] === 'OR'){
-    //             $this->redirectToRoute("dit_insertion_or", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
-    //         } else if($formDocDansDW->getData()['docDansDW'] === 'FACTURE'){
-    //             $this->redirectToRoute("dit_insertion_facture", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
-    //         } elseif ($formDocDansDW->getData()['docDansDW'] === 'RI') {
-    //             $this->redirectToRoute("dit_insertion_ri", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
-    //         }
-    //     } 
-    // }
-
     private function Option($autoriser): array
     {
         return  [

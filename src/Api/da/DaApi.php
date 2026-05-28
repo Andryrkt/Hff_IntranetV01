@@ -240,36 +240,6 @@ class DaApi extends Controller
     }
 
     /**
-     * @Route("/api/recup-statut-da", name="api_recup_statut_da")
-     *
-     * @return void
-     */
-    public function recupStatutDaPourDitSelectionner(Request $request)
-    {
-        if ($request->isMethod('POST')) {
-            $data = json_decode($request->getContent(), true);
-
-            $em = $this->getEntityManager();
-            $dit = $em->getRepository(DemandeIntervention::class)->find($data['id']);
-            if (!$dit) {
-                echo json_encode(['error' => 'DemandeIntervention non trouvée']);
-                exit;
-            }
-
-            $statut = $em->getRepository(DemandeAppro::class)
-                ->getStatut($dit->getNumeroDemandeIntervention());
-
-            if ($statut === null) {
-                echo json_encode(['statut' => null, 'message' => 'Aucun statut trouvé']);
-            } else {
-                echo json_encode(['statut' => $statut]);
-            }
-
-            exit;
-        }
-    }
-
-    /**
      * @Route("/api/recup-all-code-centrale", name="api_recup_all_code_centrale")
      *
      * @return void
