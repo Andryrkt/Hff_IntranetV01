@@ -2,51 +2,37 @@
 
 namespace App\Form\ddp;
 
-use App\Entity\admin\ddp\DdpSearch;
+use App\Dto\ddp\DdpSearchDto;
 use App\Entity\admin\ddp\TypeDemande;
-use Symfony\Component\Form\AbstractType;
-use App\Traits\PrepareAgenceServiceTrait;
-use Symfony\Component\Form\FormBuilderInterface;
+use App\Form\common\AgenceServiceType;
+use App\Form\common\DateRangeType;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
-use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class DdpSearchType extends AbstractType
 {
-    use PrepareAgenceServiceTrait;
+    private $em;
+    public function __construct(EntityManagerInterface $em)
+    {
+        $this->em = $em;
+    }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $choices = $this->prepareAgenceServiceChoices($options['allAgenceServices'], false);
-
-        $agenceChoices = $choices['agenceChoices'];
-        $serviceChoices = $choices['serviceChoices'];
-        $serviceAttr = $choices['serviceAttr'];
-
         $builder
-            // --- agenceDebiteur : ChoiceType ---
-            ->add('Agence', ChoiceType::class, [
-                'label'       => 'Agence débiteur',
-                'placeholder' => '-- Choisir une agence --',
-                'required'    => false,
-                'choices'     => $agenceChoices
-            ])
-            // --- serviceDebiteur : ChoiceType ---
-            ->add('service', ChoiceType::class, [
-                'label'       => 'Service débiteur',
-                'placeholder' => '-- Choisir une service --',
-                'required'    => false,
-                'choices'     => $serviceChoices,
-                'choice_label' => function ($value) use ($options) {
-                    // Retrouver le bon item et afficher service_code . ' ' . service_libelle
-                    $item = $options['allAgenceServices'][$value];
-                    return $item['service_code'] . ' ' . $item['service_libelle'];
-                },
-                'choice_attr' => function ($val) use ($serviceAttr) {
-                    return $serviceAttr[$val] ?? [];
-                }
+            ->add('debiteur', AgenceServiceType::class, [
+                'label' => false,
+                'required' => false,
+                'mapped' => false,
+                'agence_label' => 'Agence Debiteur',
+                'service_label' => 'Service Debiteur',
+                'agence_placeholder' => '-- Agence Debiteur --',
+                'service_placeholder' => '-- Service Debiteur --',
+                'em' => $this->em,
             ])
             ->add('typeDemande', EntityType::class, [
                 'label' => 'Type de Document',
@@ -56,7 +42,7 @@ class DdpSearchType extends AbstractType
                 'required' => false,
             ])
             ->add(
-                'NumDdp',
+                'numDdp',
                 TextType::class,
                 [
                     'label' => 'N° demande',
@@ -87,15 +73,11 @@ class DdpSearchType extends AbstractType
                     'required' => false
                 ]
             )
-            ->add('dateDebut', DateType::class, [
-                'widget' => 'single_text',
-                'label' => 'Date début demande',
-                'required' => false,
-            ])
-            ->add('dateFin', DateType::class, [
-                'widget' => 'single_text',
-                'label' => 'Date fin demande',
-                'required' => false,
+            ->add('dateCreation', DateRangeType::class, [
+                'label' => false,
+                'debut_label' => 'Date création (début)',
+                'fin_label' => 'Date création (fin)',
+
             ])
             ->add('statut', TextType::class, [
                 'label' => 'Statut',
@@ -111,8 +93,7 @@ class DdpSearchType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class'             => DdpSearch::class,
-            'allAgenceServices' => [],
+            'data_class' => DdpSearchDto::class,
         ]);
     }
 }

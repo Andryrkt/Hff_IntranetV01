@@ -2,7 +2,7 @@
 
 namespace App\Form\da\soumissionBC;
 
-use App\Entity\da\DaSoumissionBc;
+use App\Dto\Da\ListeCdeFrn\DaSoumissionBcDto;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\File;
@@ -10,6 +10,7 @@ use Symfony\Component\Validator\Constraints\Callback;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class DaSoumissionBcType extends AbstractType
@@ -19,7 +20,21 @@ class DaSoumissionBcType extends AbstractType
         $builder
             ->add('numeroCde', TextType::class, [
                 'label' => 'Numéro Commande',
-                'attr' => ['disabled' => true]
+                'attr'  => [
+                    'class' => 'div-disabled',
+                ]
+            ])
+            ->add('demandePaiementAvance', ChoiceType::class, [
+                'choices'       => [
+                    'OUI' => true,
+                    'NON' => false
+                ],
+                'expanded'      => true,
+                'multiple'      => false,
+                'label'         => 'Demande paiement à l\'avance *',
+                'attr' => [
+                    'required' => true
+                ]
             ])
             ->add(
                 'pieceJoint1',
@@ -95,7 +110,7 @@ class DaSoumissionBcType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => DaSoumissionBc::class,
+            'data_class' => DaSoumissionBcDto::class,
         ]);
     }
 }

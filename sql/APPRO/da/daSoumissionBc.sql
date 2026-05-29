@@ -15,4 +15,8 @@ CREATE TABLE da_soumission_bc
 );
 
 ALTER TABLE da_soumission_bc 
-ADD montant_bc decimal(15,2) DEFAULT 0.00;
+ADD montant_bc decimal(15,2) DEFAULT 0.00,
+est_demande_paiement_a_l_avance BIT DEFAULT 0;
+
+ALTER TABLE da_soumission_bc 
+ADD numero_demande_paiement VARCHAR(12);

@@ -5,6 +5,7 @@ namespace App\Dto\Da;
 use App\Constants\da\StatutBcConstant;
 use App\Constants\da\StatutDaConstant;
 use App\Constants\da\StatutOrConstant;
+use App\Constants\ddp\StatutConstants;
 
 class DaAfficherDto
 {
@@ -56,6 +57,7 @@ class DaAfficherDto
     public $statutOr;
     // Cde
     public $statutCde;
+    public $statutDaSoumissionBc;
     public $numeroCde;
     public $positionBc;
     // DAL
@@ -79,6 +81,9 @@ class DaAfficherDto
     public $tdCheckboxAttributes;
     public $aDtLivPrevAttributes;
     public $aArtDesiAttributes;
+    public $ddpCloture;
+    // DDP
+    public $statutCompta; //?dernière statut du demande de paiement liée à la DA
 
     public function getStyleStatutDA(): string
     {
@@ -93,6 +98,11 @@ class DaAfficherDto
     public function getStyleStatutBC(): string
     {
         return $this->statutCde ? StatutBcConstant::getCssClassBc($this->statutCde) : '';
+    }
+
+    public function getStyleStatutCompta(): string
+    {
+        return $this->statutCompta ? StatutConstants::getCssClass($this->statutCompta) : '';
     }
 
     public function isStatutValide(): bool

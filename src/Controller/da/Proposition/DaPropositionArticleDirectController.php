@@ -13,6 +13,7 @@ use App\Entity\da\DemandeApproLRCollection;
 use App\Form\da\DaObservationType;
 use App\Form\da\DaPropositionValidationType;
 use App\Form\da\DemandeApproLRCollectionType;
+use App\Service\da\DocRattacheService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\da\detail\DaDetailDirectTrait;
@@ -30,10 +31,12 @@ class DaPropositionArticleDirectController extends Controller
     use DaPropositionDirectTrait;
     use DaDetailDirectTrait;
     private const EDIT = 0;
+    private DocRattacheService $docRattacheService;
 
-    public function __construct()
+    public function __construct(DocRattacheService $docRattacheService)
     {
         parent::__construct();
+        $this->docRattacheService = $docRattacheService;
 
         $this->initDaPropositionDirectTrait();
         $this->initDaValidationDirectTrait();
@@ -67,14 +70,7 @@ class DaPropositionArticleDirectController extends Controller
 
         $observations = $this->daObservationRepository->findBy(['numDa' => $numDa], ['dateCreation' => 'ASC']);
 
-        $fichiers = $this->getAllDAFile([
-            'baiPath'      => $this->getBaIntranetPath($da),
-            'badPath'      => $this->getBaDocuWarePath($da),
-            'bcPath'       => $this->getBcPath($da),
-            'facblPath'    => $this->getFacBlPath($da),
-            'devPjPathDal' => $this->getDevisPjPathDal($da),
-            'devPjPathObs' => $this->getDevisPjPathObservation($da),
-        ]);
+        $fichiers = $this->docRattacheService->getAllAttachedFiles($da);
 
         return $this->render("da/proposition.html.twig", [
             'demandeAppro'            => $da,

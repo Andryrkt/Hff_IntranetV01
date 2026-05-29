@@ -13,6 +13,7 @@ use App\Controller\Traits\da\DaAfficherTrait;
 use App\Controller\Traits\da\detail\DaDetailAvecDitTrait;
 use App\Model\dit\DitModel;
 use App\Service\da\DaTimelineService;
+use App\Service\da\DocRattacheService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -24,13 +25,16 @@ class DaDetailAvecDitController extends Controller
 	use lienGenerique;
 	use DaAfficherTrait;
 	use DaDetailAvecDitTrait;
+
+	private DocRattacheService $docRattacheService;
 	private DaTimelineService $daTimelineService;
 
-	public function __construct(DaTimelineService $daTimelineService)
+	public function __construct(DocRattacheService $docRattacheService, DaTimelineService $daTimelineService)
 	{
 		parent::__construct();
 
 		$this->initDaDetailAvecDitTrait();
+		$this->docRattacheService = $docRattacheService;
 		$this->daTimelineService = $daTimelineService;
 	}
 
@@ -51,14 +55,7 @@ class DaDetailAvecDitController extends Controller
 
 		$observations = $this->daObservationRepository->findBy(['numDa' => $demandeAppro->getNumeroDemandeAppro()], ['dateCreation' => 'ASC']);
 
-		$fichiers = $this->getAllDAFile([
-			'baiPath'      => $this->getBaIntranetPath($demandeAppro),
-			'orPath'       => $this->getOrPath($demandeAppro),
-			'bcPath'       => $this->getBcPath($demandeAppro),
-			'facblPath'    => $this->getFacBlPath($demandeAppro),
-			'devPjPathDal' => $this->getDevisPjPathDal($demandeAppro),
-			'devPjPathObs' => $this->getDevisPjPathObservation($demandeAppro),
-		]);
+		$fichiers = $this->docRattacheService->getAllAttachedFiles($demandeAppro);
 
 		$demandeApproLPrepared = $this->prepareDataForDisplayDetail($demandeAppro->getDAL(), $demandeAppro->getStatutDal());
 		$timeLineData = $this->daTimelineService->getTimelineData($demandeAppro->getNumeroDemandeAppro());

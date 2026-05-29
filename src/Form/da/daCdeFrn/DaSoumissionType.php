@@ -16,9 +16,9 @@ class DaSoumissionType extends  AbstractType
         $builder
             ->add('soumission', ChoiceType::class, [
                 'choices'  => [
-                    'BC' => 'BC',
-                    'Facture + BL' => 'Facture + BL',
-                    'BL Reappro' => 'BL Reappro'
+                        'Soumission BC à validation' => 'BC',
+                        'Soumission Facture + BL' => 'Facture + BL',
+                        'Soumettre BL Reappro' => 'BL Reappro',
                 ],
                 'expanded' => true, // pour afficher des boutons radio
                 'multiple' => false, // un seul choix possible
@@ -28,7 +28,9 @@ class DaSoumissionType extends  AbstractType
             ])
             ->add('commande_id', HiddenType::class)
             ->add('da_id', HiddenType::class)
-            ->add('num_or', HiddenType::class);
+            ->add('num_or', HiddenType::class)
+            ->add('type_da', HiddenType::class)
+        ;
     }
 
     public function configureOptions(OptionsResolver $resolver)

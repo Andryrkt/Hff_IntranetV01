@@ -17,7 +17,9 @@ Dossiers ORs
 react-app
 .idea/
 .vscode
+.idea
 composer.lock
 var
 Views/js/utils/config.js
 *.code-workspace
+.idea/

@@ -9,6 +9,7 @@ use App\Controller\Traits\lienGenerique;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeAppro;
 use App\Form\da\DaObservationType;
+use App\Service\da\DocRattacheService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\da\detail\DaDetailDirectTrait;
@@ -22,13 +23,16 @@ class DaDetailDirectController extends Controller
 	use lienGenerique;
 	use DaAfficherTrait;
 	use DaDetailDirectTrait;
+
+	private DocRattacheService $docRattacheService;
 	private DaTimelineService $daTimelineService;
 
-	public function __construct(DaTimelineService $daTimelineService)
+	public function __construct(DocRattacheService $docRattacheService, DaTimelineService $daTimelineService)
 	{
 		parent::__construct();
 
 		$this->initDaDetailDirectTrait();
+		$this->docRattacheService = $docRattacheService;
 		$this->daTimelineService = $daTimelineService;
 	}
 
@@ -49,14 +53,7 @@ class DaDetailDirectController extends Controller
 
 		$demandeApproLPrepared = $this->prepareDataForDisplayDetail($demandeAppro->getDAL(), $demandeAppro->getStatutDal());
 
-		$fichiers = $this->getAllDAFile([
-			'baiPath'      => $this->getBaIntranetPath($demandeAppro),
-			'badPath'      => $this->getBaDocuWarePath($demandeAppro),
-			'bcPath'       => $this->getBcPath($demandeAppro),
-			'facblPath'    => $this->getFacBlPath($demandeAppro),
-			'devPjPathDal' => $this->getDevisPjPathDal($demandeAppro),
-			'devPjPathObs' => $this->getDevisPjPathObservation($demandeAppro),
-		]);
+		$fichiers = $this->docRattacheService->getAllAttachedFiles($demandeAppro);
 		$timeLineData = $this->daTimelineService->getTimelineData($demandeAppro->getNumeroDemandeAppro());
 
 		return $this->render('da/detail.html.twig', [

@@ -284,6 +284,11 @@ class MenuGroupe
                 'icon'  => 'list-ul',
             ],
             [
+                'route' => 'da_bon_a_payer',
+                'label' => 'Consultation facture',
+                'icon'  => 'list-ul',
+            ],
+            [
                 'route' => 'da_reporting_ips',
                 'label' => 'Reporting IPS DA reappro',
                 'icon'  => 'chart-bar',
