@@ -61,7 +61,8 @@ class DdpApiController extends Controller
 
                 $fileNameForDW = $ddp->getNumeroDdp() . '#' . $numeroCla . '.pdf';
                 $generatePdf = new GeneratePdf();
-                $generatePdf->copyToDWBapDa($bapFullpath, $fileNameForDW);
+
+                $generatePdf->copyToDWBapDa($bapFullpath, $fileNameForDW, $ddp->getTypeDemandeId()->getCode());
             }
 
             $this->getEntityManager()->flush();
