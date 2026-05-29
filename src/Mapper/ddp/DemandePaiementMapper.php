@@ -137,9 +137,9 @@ class DemandePaiementMapper
             ->setContact(Null)
             ->setNumeroCommande($dto->numeroCommande)
             ->setNumeroFacture($dto->numeroFacture)
+            ->setDevise($dto->devise)
             ->setStatutDossierRegul(Null)
             ->setNumeroVersion(1)
-            ->setDevise($dto->devise)
             ->setEstAutreDoc(false)
             ->setNomAutreDoc(Null)
             ->setEstCdeClientExterneDoc(false)
@@ -148,6 +148,7 @@ class DemandePaiementMapper
             ->setAppro(true)
             ->setNumeroDemandeAppro($dto->numeroDemandeAppro ?? null)
             ->setNumeroSoumissionDdpDa($dto->numeroSoumissionDdpDa ?? null)
+            ->setCodeSociete($dto->codeSociete)
         ;
         return $ddp;
     }
