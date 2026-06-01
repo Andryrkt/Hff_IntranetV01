@@ -3,10 +3,10 @@
 namespace App\Controller\da\ddp;
 
 use App\Controller\Controller;
+use App\Dto\Da\ddp\BapSearchDto;
+use App\Entity\ddp\DemandePaiement;
 use App\Form\da\ddp\BonApayerType;
-use App\Entity\da\DaSoumissionFacBl;
-use App\Repository\da\DaSoumissionFacBlRepository;
-use Illuminate\Support\Facades\File;
+use App\Mapper\ddp\DemandePaiementMapper;
 use App\Service\da\FileCheckerService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -30,20 +30,22 @@ class BonApayerController extends Controller
         // Traitement du formulaire de recherche
         $form->handleRequest($request);
 
-        $criteria = [];
+        $criteria = new BapSearchDto();
         if ($form->isSubmitted() && $form->isValid()) {
+            /** @var BapSearchDto $criteria */
             $criteria = $form->getData();
         }
 
-        /** @var DaSoumissionFacBlRepository $repository */
-        $repository = $this->getEntityManager()->getRepository(DaSoumissionFacBl::class);
-        $daSoumissionFacBl = $repository->getAll($criteria, $codeSociete);
+        // Récupération des données dans la table demande_paiement
+        $ddp = $this->getEntityManager()->getRepository(DemandePaiement::class)->findByConsultationFactureCriteria($criteria);
+        // transformation en DTO (DemandePaiementDto)
+        $dtos = DemandePaiementMapper::mapInverse($ddp);
 
         // chemin fichier BAP
         $fileCheckerService = new FileCheckerService($_ENV['BASE_PATH_FICHIER']);
 
         return $this->render('da/ddp/bon_a_payer.html.twig', [
-            'daSoumissionFacBl' => $daSoumissionFacBl,
+            'dtos'               => $dtos,
             'form'              => $form->createView(),
             'fileCheckerService' => $fileCheckerService,
         ]);

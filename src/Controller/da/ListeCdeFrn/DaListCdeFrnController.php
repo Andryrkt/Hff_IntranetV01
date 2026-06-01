@@ -7,11 +7,13 @@ use App\Controller\Controller;
 use App\Entity\da\DaAfficher;
 use App\Entity\da\DaSoumissionBc;
 use App\Entity\da\DemandeAppro;
+use App\Entity\ddp\DemandePaiement;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Repository\da\DaAfficherRepository;
 use App\Controller\Traits\da\MarkupIconTrait;
 use App\Factory\da\CdeFrnDto\CdeFrnSearchDto;
 use App\Form\da\daCdeFrn\CdeFrnListType;
+use App\Form\da\daCdeFrn\DaDdpType;
 use App\Form\da\daCdeFrn\DaModalDateLivraisonType;
 use App\Form\da\daCdeFrn\DaSoumissionType;
 use App\Mapper\Da\DaAfficherMapper;
@@ -81,19 +83,28 @@ class DaListCdeFrnController extends Controller
 
         // Récupération et préparation des données
         $paginationData = $this->daAfficherRepository->findValidatedPaginatedDas($criteriaTab, $page, $limit, $codeSociete);
-        $daAfficherMapper = new DaAfficherMapper($this->getUrlGenerator());
+        $daAfficherMapper = new DaAfficherMapper($this->getUrlGenerator(), $this->getEntityManager());
         $dataPrepared = $daAfficherMapper->mapList($paginationData['data'], [
-            'estAdmin'   => $this->estAdmin(),
-            'estAppro'   => $this->estAppro(),
+            // TODO: à decommenter 'estAdmin'   => $this->estAdmin(),
+            'estAdmin'   => false,
+            // TODO: à decommenter 'estAppro'   => $this->estAppro(),
+            'estAppro'   => true,
             'estAtelier' => $this->estAtelier(),
             'estCreateur' => $this->estCreateurDaDirecte(),
             'codeAgenceUser' => $this->getSecurityService()->getCodeAgenceUser(),
             'codeServiceUser' => $this->getSecurityService()->getCodeServiceUser(),
+            'demandePaiementRepository' => $this->getEntityManager()->getRepository(DemandePaiement::class),
         ]);
 
         // Formulaire de soumission BC, FAC + BL, BL Reappro
         $formSoumission = $this->getFormFactory()->createBuilder(DaSoumissionType::class, null, ['method' => 'GET'])->getForm();
         $this->traitementFormulaireSoumission($request, $formSoumission);
+
+        /** === Formulaire pour l'envoie de DDP === */
+        $formDdp = $this->getFormFactory()->createBuilder(DaDdpType::class, null, [
+            'method' => 'GET',
+        ])->getForm();
+        $this->traitementFormulaireDdp($request, $formDdp);
 
         // Formulaire de date de livraison
         $formDateLivraison = $this->getFormFactory()->createBuilder(DaModalDateLivraisonType::class)->getForm();
@@ -102,6 +113,7 @@ class DaListCdeFrnController extends Controller
         return $this->render('da/daListCdeFrn.html.twig', [
             'data'              => $dataPrepared,
             'formSoumission'    => $formSoumission->createView(),
+            'formDdp'           => $formDdp->createView(),
             'form'              => $form->createView(),
             'criteria'          => $criteriaTab,
             'currentPage'       => $page,
@@ -149,11 +161,42 @@ class DaListCdeFrnController extends Controller
             $params = ['numCde' => $soumission['commande_id'], 'numDa' => $soumission['da_id'], 'numOr' => $soumission['num_or']];
 
             if ($soumission['soumission'] === 'BC') {
-                $this->redirectToRoute("da_soumission_bc", $params);
+                $this->redirectToRoute("da_soumission_bc", ['numCde' => $soumission['commande_id'], 'numDa' => $soumission['da_id'], 'numOr' => (int)$soumission['num_or'], 'typeDa' => (int)$soumission['type_da']]);
             } elseif ($soumission['soumission'] === 'Facture + BL') {
-                $this->redirectToRoute("da_soumission_facbl", $params);
+                // $estDdpa = $this->daSoumissionBcRepository->getEstDdpAvance($soumission['commande_id']);
+                // if ($estDdpa) {
+                //     $this->redirectToRoute("da_soumission_facbl_ddpa", ['numCde' => $soumission['commande_id'], 'numDa' => $soumission['da_id'], 'numOr' => $soumission['num_or']]);
+                // } else {
+                $this->redirectToRoute("da_soumission_facbl", ['numCde' => $soumission['commande_id'], 'numDa' => $soumission['da_id'], 'numOr' => $soumission['num_or']]);
+                // }
             } elseif ($soumission['soumission'] === 'BL Reappro') {
                 $this->redirectToRoute("da_soumission_bl_reappro", $params);
+            }
+        }
+    }
+
+    private function traitementFormulaireDdp(Request $request, $formDdp): void
+    {
+        $formDdp->handleRequest($request);
+
+        if ($formDdp->isSubmitted() && $formDdp->isValid()) {
+            $ddp = $formDdp->getData();
+
+            if ($ddp['ddp'] === 'avance') {
+                // redirection vers la page de creation de demande de paiement
+                $this->redirectToRoute('demande_paiement_da', [
+                    'typeDdp' => 1,
+                    'numCdeDa' => $ddp['commande_id'],
+                    'typeDa' => (int)$ddp['type_da'],
+                    'numeroVersionBc' => null,
+                ]);
+            } elseif ($ddp['ddp'] === 'regule') {
+                $estDdpa = $this->daSoumissionBcRepository->getEstDdpAvance($ddp['commande_id']);
+                if ($estDdpa) {
+                    $this->redirectToRoute("da_soumission_facbl_ddpa", ['numCde' => $ddp['commande_id'], 'numDa' => $ddp['da_id'], 'numOr' => $ddp['num_or']]);
+                } else {
+                    $this->redirectToRoute("da_soumission_facbl", ['numCde' => $ddp['commande_id'], 'numDa' => $ddp['da_id'], 'numOr' => $ddp['num_or']]);
+                }
             }
         }
     }

@@ -16,14 +16,16 @@ trait planningMagasinModelTrait
         return $numCommande;
     }
 
-    private function agenceDebite($criteria, string $codeAgence)
+    private function agenceDebite($criteria, bool $multisuccursale, array $agenceAutorises, string $codeAgenceDefaut)
     {
-        if ($codeAgence !== "-0") {
-            $agenceDebite = " AND nent_succ = '$codeAgence' ";
-        } elseif (!empty($criteria->getAgenceDebite())) {
+        if (!empty($criteria->getAgenceDebite())) {
             $agenceDebite = " AND nent_succ = '" . $criteria->getAgenceDebite() . "' ";
-        } else {
+        } elseif ($multisuccursale) {
             $agenceDebite = "";
+        } elseif (!empty($agenceAutorises)) {
+            $agenceDebite = " AND nent_succ IN ('" . implode("', '", $agenceAutorises) . "')";
+        } else {
+            $agenceDebite = " AND nent_succ = '$codeAgenceDefaut' ";
         }
 
         return $agenceDebite;

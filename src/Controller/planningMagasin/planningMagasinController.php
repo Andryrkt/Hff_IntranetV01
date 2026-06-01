@@ -2,8 +2,8 @@
 
 namespace App\Controller\planningMagasin;
 
+use App\Constants\admin\ApplicationConstant;
 use App\Controller\Controller;
-use App\Entity\magasin\bc\BcMagasin;
 use App\Service\TableauEnStringService;
 use App\Controller\Traits\PlanningTraits;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,17 +20,14 @@ class planningMagasinController extends Controller
 {
     use PlanningTraits;
 
-
     private PlanningMagasinModel $planningMagasinModel;
     private PlanningMagasinSearch $planningMagasinSearch;
-    private $BcMagasinRepository;
 
     public function __construct()
     {
         parent::__construct();
         $this->planningMagasinModel = new PlanningMagasinModel();
         $this->planningMagasinSearch = new PlanningMagasinSearch();
-        $this->BcMagasinRepository = $this->getEntityManager()->getRepository(BcMagasin::class);
     }
     /**
      * @Route("/Planning", name = "interface_planningMag")
@@ -41,8 +38,10 @@ class planningMagasinController extends Controller
 
         // Vérifier la permission de voir tous les données
         $multisuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE);
+        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_MAGASIN);
+        $agenceAutorises = array_unique(array_column($agenceServiceAutorises, "agence_code"));
+        $codeAgenceDefaut = $this->getSecurityService()->getCodeAgenceUser();
 
-        $codeAgence = $multisuccursale ? "-0" : $this->getSecurityService()->getCodeAgenceUser();
         /** FIN AUtorisation acées */
         //initialisation
         $this->planningMagasinSearch
@@ -52,14 +51,16 @@ class planningMagasinController extends Controller
             ->setInterneExterne('TOUS')
             ->setTypeLigne('TOUETS')
             ->setMonths(3)
-            ->setAgence($codeAgence)
         ;
 
         $form = $this->getFormFactory()->createBuilder(
             PlanningMagasinSearchType::class,
             $this->planningMagasinSearch,
             [
-                'method' => 'GET'
+                'method' => 'GET',
+                'multisuccursale' => $multisuccursale,
+                'codeAgenceDefaut' => $codeAgenceDefaut,
+                'agencesAutorises' => $agenceAutorises
             ]
         )->getForm();
 
@@ -83,7 +84,7 @@ class planningMagasinController extends Controller
 
         $numeroDevisValideBcClient = $this->planningMagasinModel->getNumeroDevisValideBcClient();
 
-        $data = $this->planningMagasinModel->recuperationCommadeplanifier($criteria, $backString, $condition, $codeAgence, $codeSociete, $numeroDevisValideBcClient);
+        $data = $this->planningMagasinModel->recuperationCommadeplanifier($criteria, $backString, $condition, $multisuccursale, $agenceAutorises, $codeAgenceDefaut, $codeSociete, $numeroDevisValideBcClient);
         $tabObjetPlanning = $this->creationTableauObjetPlanningMagasin($data, $back);
         $fusionResult = $this->ajoutMoiDetailMagasin($tabObjetPlanning);
         $forDisplay = $this->prepareDataForDisplay($fusionResult, $criteria->getMonths() == null ? 3 : $criteria->getMonths());

@@ -1,8 +1,6 @@
 <?php
 
-
 namespace App\Form\planningMagasin;
-
 
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
@@ -75,13 +73,15 @@ class PlanningMagasinSearchType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        //$serviceDebite = $planningModel->recuperationServiceDebite();
-        // $agence = $this->transformEnSeulTableauAvecKey($this->planningMagasinModel->recuperationAgenceIrium());
-        //$commercial = $this->planningMagasinModel->recupCommercial();
-        $agenceDebite = $this->planningMagasinModel->recuperationAgenceDebite();
-        $codeAgence = $options['data']->getAgence();
+        $multisuccursale = $options['multisuccursale'];
+        $agenceAutorises = $options['agencesAutorises'];
+        $codeAgenceDefaut = $options['codeAgenceDefaut'];
 
-        // $section = $this->planningMagasinModel->recuperationSection();
+        $agenceDebite = $this->planningMagasinModel->recuperationAgenceDebite($multisuccursale, $agenceAutorises, $codeAgenceDefaut);
+
+        $codeAgence = $options['data']->getAgence() ?? $codeAgenceDefaut;
+        $serviceDebite = $this->serviceDebiteur($codeAgence);
+
         $builder
             ->add('numeroDevis', TextType::class, [
                 'label' => 'N° Devis',
@@ -106,12 +106,12 @@ class PlanningMagasinSearchType extends AbstractType
             ])
 
             ->add('agenceDebite', ChoiceType::class, [
-                'label' => 'Agence',
-                'required' => false,
-                'choices' => $agenceDebite,
+                'label'       => 'Agence',
+                'required'    => false,
+                'choices'     => $agenceDebite,
                 'placeholder' => " -- Choisir une agence --",
-                'data' => $codeAgence,
-                'disabled' => $codeAgence === "-0" ? false : true
+                'data'        => $codeAgenceDefaut,
+                'disabled'    => !$multisuccursale && (empty($agenceAutorises) || count($agenceAutorises) == 1)
             ])
             ->add(
                 'orBackOrder',
@@ -122,25 +122,25 @@ class PlanningMagasinSearchType extends AbstractType
                 ]
             )
             ->add('serviceDebite', ChoiceType::class, [
-                'label' => 'Service ',
-                'multiple' => true,
-                'choices' => $this->serviceDebiteur($codeAgence),
+                'label'       => 'Service ',
+                'multiple'    => true,
+                'choices'     => $serviceDebite,
                 'placeholder' => " -- Choisir un service--",
-                'expanded' => true,
-                'data' => array_values($this->serviceDebiteur($codeAgence))
+                'expanded'    => true,
+                'data'        => array_values($serviceDebite)
             ])
-            ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) use ($codeAgence) {
+            ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
                 $form = $event->getForm();
                 $data = $event->getData();
-                $codeAgenceDebite = $codeAgence === "-0" ? $data['agenceDebite'] : $codeAgence;
-                $serviceDebite = $this->transformEnSeulTableauAvecKeyService($this->planningMagasinModel->recuperationServiceDebite($codeAgenceDebite));
+                $codeAgenceDebite = $data['agenceDebite'];
+                $serviceDebite = $this->serviceDebiteur($codeAgenceDebite);
 
                 $form->add('serviceDebite', ChoiceType::class, [
-                    'label' => 'Service: ',
-                    'multiple' => true,
-                    'choices' => $serviceDebite,
+                    'label'       => 'Service: ',
+                    'multiple'    => true,
+                    'choices'     => $serviceDebite,
                     'placeholder' => " -- choisir service--",
-                    'expanded' => true,
+                    'expanded'    => true,
                 ]);
             })
             ->add('months', ChoiceType::class, [
@@ -172,8 +172,11 @@ class PlanningMagasinSearchType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => PlanningMagasinSearch::class,
+            'data_class'       => PlanningMagasinSearch::class,
             'planningDetaille' => false,
+            'multisuccursale'  => false,
+            'codeAgenceDefaut' => '',
+            'agencesAutorises' => [],
         ]);
     }
 }

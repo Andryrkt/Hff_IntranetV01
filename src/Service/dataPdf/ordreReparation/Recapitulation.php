@@ -13,16 +13,6 @@ class Recapitulation
         $this->ditModel = new DitModel;
     }
 
-    public function getData(string $numOr, string $codeSociete): array
-    {
-        $data = $this->getAllData($numOr, $codeSociete);
-        return [
-            'header' => $this->getHeaderConfig(),
-            'body'   => $data["body"],
-            'footer' => $data["footer"],
-        ];
-    }
-
     private function getHeaderConfig(): array
     {
         return [
@@ -107,10 +97,12 @@ class Recapitulation
         ];
     }
 
-    private function getAllData(string $numOr, string $codeSociete): array
+    public function getData(string $numOr, string $codeSociete): array
     {
-        $data = ["body" => [], "footer" => ['itv' => 'TOTAL', 'mttTotal' => 0, 'mttPieces' => 0, 'mttMo' => 0, 'mttSt' => 0, 'mttLub' => 0, 'mttAutres' => 0,]];
+        $data = ["header" => $this->getHeaderConfig(), "body" => [], "footer" => ['itv' => 'TOTAL', 'mttTotal' => 0, 'mttPieces' => 0, 'mttMo' => 0, 'mttSt' => 0, 'mttLub' => 0, 'mttAutres' => 0,]];
         $orSoumisAValidation = $this->ditModel->recupOrSoumisValidation($numOr, $codeSociete);
+
+        $data["createur_or"] = $orSoumisAValidation[0]["createur_or"] ?? "-";
 
         foreach ($orSoumisAValidation as $orSoumis) {
             $data["body"][] = [

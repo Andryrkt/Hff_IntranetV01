@@ -3,31 +3,8 @@
     "autoload": {
         "psr-4": {
             "App\\": "src/",
-            "App\\Controller\\": "src/Controller/",
-            "App\\Controller\\dom\\": "src/Controller/dom",
-            "App\\Controler\\badm\\": "src/Controller/badm",
-            "App\\Controller\\admin\\": "src/Controller/admin",
-            "App\\Controller\\admin\\personnel\\": "src/Controller/admin/personnel",
-            "App\\Controller\\dit\\": "src/Controller/dit",
-            "App\\Controller\\Traits\\": "src/Controller/Traits",
-            "App\\security\\": "src/security",
-            "App\\Controller\\admin\\user\\": "src/Controller/admin/user",
-            "App\\Controller\\doc\\fonctionnel\\": "src/Controller/doc/fonctionnel",
-            "App\\Controller\\doc\\fonctionnel\\badm\\": "src/Controller/doc/fonctionnel/badm",
-            "App\\Controller\\badms\\": "src/Controller/badms",
-            "App\\Model\\": "src/Model/",
-            "App\\Model\\dom\\": "src/Model/dom",
-            "App\\Model\\badm\\" : "src/Model/badm",
-            "App\\Model\\dit\\" : "src/Model/dit",          
-            "App\\Model\\admin\\personnel\\": "src/Model/admin/personnel",            
-            "App\\Model\\Traits\\": "src/Model/Traits",
-            "App\\Model\\admin\\user\\": "src/Model/admin/user",
-            "App\\Service\\": "src/Service/",
             "Config\\": "config/",
-            "App\\Loader\\": "src/Loader",
-            "App\\Traits\\": "src/Traits",
             "core\\": "core"
-            
         },
         "classmap": ["var/cache/proxies/"]
     },

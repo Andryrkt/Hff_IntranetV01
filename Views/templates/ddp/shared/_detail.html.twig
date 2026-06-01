@@ -1,0 +1,38 @@
+{% import "macroForm.html.twig" as macroForm %}
+
+<div class="row">
+	<h3 class="perso-titre">
+		Détails Demande de paiement, n°
+		{{ data.numDdp }}
+	</h3>
+</div>
+
+<div class="row">
+	<div class="col-12 col-md-4">
+		{{ macroForm.sousTitre('Information sur la demande') }}
+		{{ macroForm.affichage2('Type de la demande', data.typeDemande, 'mb-2') }}
+		{{ macroForm.affichage2('Numéro de la demande', data.numDdp, 'mb-2') }}
+		{{ macroForm.affichage2('Demandeur', data.demandeur, 'mb-2') }}
+		{{ macroForm.affichage2('Adresse Mail demandeur', data.mailDemandeur, 'mb-2') }}
+		{{ macroForm.affichage2('Motif de la demande', data. motif, 'mb-2') }}
+		{{ macroForm.affichage2('Numéro de la DA rattachée', data.numDemandeAppro, 'mb-2') }}
+		{{ macroForm.affichage2('Contact', data.contact, 'mb-2') }}
+	</div>
+	<div class="col-12 col-md-4">
+		{{ macroForm.sousTitre('Agence et service') }}
+		{{ macroForm.affichage2('Agence Débiteur', data.agenceDebiteur, 'mb-2') }}
+		{{ macroForm.affichage2('Service Débiteur', data.serviceDebiteur, 'mb-2') }}
+
+		{{ macroForm.sousTitre('Information sur le fournisseur') }}
+		{{ macroForm.affichage2('Numéro du fournisseur', data.numFournisseur, 'mb-2') }}
+		{{ macroForm.affichage2('Nom du fournisseur', data.nomFournisseur, 'mb-2') }}
+		{{ macroForm.affichage2('RIB du fournisseur', data.ribFournisseur, 'mb-2') }}
+	</div>
+	<div class="col-12 col-md-4">
+		{{ macroForm.sousTitre('Information sur le paiement') }}
+		{{ macroForm.affichage2('Mode de paiement', data.modePaiement, 'mb-2') }}
+		{{ macroForm.affichage2('Montant à payer', data.montant, 'mb-2') }}
+		{{ macroForm.affichage2('N° Commande', data.numCommande, 'mb-2') }}
+		{{ macroForm.affichage2('N° Facture', data.numFacture, 'mb-2') }}
+	</div>
+</div>

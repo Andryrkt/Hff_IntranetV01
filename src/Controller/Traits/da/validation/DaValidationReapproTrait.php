@@ -11,7 +11,6 @@ use App\Repository\da\DaObservationRepository;
 use App\Repository\da\DaSoumisAValidationRepository;
 use App\Service\autres\VersionService;
 use App\Service\genererPdf\da\GenererPdfDaReappro;
-use DateTime;
 
 trait DaValidationReapproTrait
 {

@@ -1,64 +1,13 @@
 <?php
 
-namespace App\Traits;
+namespace App\Service\da;
 
 use App\Entity\da\DemandeAppro;
 use App\Model\da\DaReapproModel;
 use DateTime;
 
-trait DaConsumtionHistoryTrait
+class DaConsumptionHistory
 {
-    /**
-     * Calcule la période allant du premier jour du mois il y a 12 mois
-     * jusqu'au dernier jour du mois en cours, pour un SQL BETWEEN.
-     *
-     * Exemple : si aujourd'hui = 28/10/2025
-     *   start = 2024-10-01
-     *   end   = 2025-10-31
-     *
-     * @return array ['start' => 'YYYY-MM-DD', 'end' => 'YYYY-MM-DD']
-     */
-    private function getLast13MonthsDateRange(): array
-    {
-        $startDate = new DateTime('first day of -12 months');
-        $endDate = new DateTime('last day of this month');
-        return [
-            'start' => $startDate->format('Y-m-d'),
-            'end'   => $endDate->format('Y-m-d')
-        ];
-    }
-
-    /**
-     * Génère une liste de tous les mois entre deux dates.
-     * Chaque mois est formaté en 'MM-YYYY'.
-     *
-     * @param string $startDate Date de début au format 'Y-m-d' (ex: 2024-10-01)
-     * @param string $endDate   Date de fin au format 'Y-m-d' (ex: 2025-10-31)
-     * @return array            Tableau de mois ['10-2024','11-2024', ...,'10-2025']
-     */
-    private function getMonthsList(string $startDate, string $endDate): array
-    {
-        $months = [];
-        $monthsLabel = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
-
-        // Convertir les chaînes en objets DateTime
-        $start = new DateTime($startDate);
-        $end = new DateTime($endDate);
-
-        // S'assurer que l'on prend le premier jour du mois de fin
-        $end->modify('first day of this month');
-
-        // Boucle sur chaque mois
-        while ($start <= $end) {
-            $month = $start->format('m-Y'); // ex: 10-2024
-            [$mois, $annee] = explode('-', $month);
-            $months[] = $monthsLabel[$mois - 1]  . '-' . $annee;
-            $start->modify('+1 month');
-        }
-
-        return $months;
-    }
-
     public function getHistoriqueConsommation(DemandeAppro $demandeAppro, array $dateRange, array $monthsList)
     {
         $result = [];
@@ -113,5 +62,56 @@ trait DaConsumtionHistoryTrait
             'data'     => $result,
             'montants' => $montantTotal
         ];
+    }
+
+    /**
+     * Calcule la période allant du premier jour du mois il y a 12 mois
+     * jusqu'au dernier jour du mois en cours, pour un SQL BETWEEN.
+     *
+     * Exemple : si aujourd'hui = 28/10/2025
+     *   start = 2024-10-01
+     *   end   = 2025-10-31
+     *
+     * @return array ['start' => 'YYYY-MM-DD', 'end' => 'YYYY-MM-DD']
+     */
+    public function getLast13MonthsDateRange(): array
+    {
+        $startDate = new DateTime('first day of -12 months');
+        $endDate = new DateTime('last day of this month');
+        return [
+            'start' => $startDate->format('Y-m-d'),
+            'end'   => $endDate->format('Y-m-d')
+        ];
+    }
+
+    /**
+     * Génère une liste de tous les mois entre deux dates.
+     * Chaque mois est formaté en 'MM-YYYY'.
+     *
+     * @param string $startDate Date de début au format 'Y-m-d' (ex: 2024-10-01)
+     * @param string $endDate   Date de fin au format 'Y-m-d' (ex: 2025-09-30)
+     * @return array            Tableau de mois ['10-2024','11-2024', ...]
+     */
+    public function getMonthsList(string $startDate, string $endDate): array
+    {
+        $months = [];
+        $monthsLabel = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
+
+        // Convertir les chaînes en objets DateTime
+        $start = new DateTime($startDate);
+        $end = new DateTime($endDate);
+
+        // S'assurer que l'on prend le premier jour du mois de fin
+        $end->modify('first day of this month');
+
+        // Boucle sur chaque mois
+        while ($start <= $end) {
+            $month = $start->format('m-Y'); // ex: 10-2024
+            [$mois, $annee] = explode('-', $month);
+            $months[] = $monthsLabel[$mois - 1]  . '-' . $annee;
+            $start->modify('+1 month');
+        }
+
+        return $months;
     }
 }

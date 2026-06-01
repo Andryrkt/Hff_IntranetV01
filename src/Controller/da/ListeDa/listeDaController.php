@@ -30,7 +30,7 @@ class listeDaController extends Controller
     {
         parent::__construct();
         $this->daAfficherRepository = $entityManager->getRepository(DaAfficher::class);
-        $this->daAfficherMapper = new DaAfficherMapper($this->getUrlGenerator());
+        $this->daAfficherMapper = new DaAfficherMapper($this->getUrlGenerator(), $this->getEntityManager());
     }
 
     /**

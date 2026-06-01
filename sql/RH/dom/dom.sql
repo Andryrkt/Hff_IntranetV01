@@ -616,3 +616,7 @@ where
 
     
 ALTER TABLE Demande_ordre_mission ADD piece_justificatif bit DEFAULT 0;
+
+
+ALTER TABLE Demande_ordre_mission
+ADD CONSTRAINT UQ_demande_order_mission_numero_ordre_mission UNIQUE (Numero_Ordre_Mission);

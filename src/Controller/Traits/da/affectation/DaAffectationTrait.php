@@ -2,12 +2,10 @@
 
 namespace App\Controller\Traits\da\affectation;
 
-use DateTime;
 use App\Entity\da\DemandeAppro;
 use App\Constants\da\StatutDaConstant;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
-use App\Model\da\DaReapproModel;
 use App\Entity\da\DemandeApproParent;
 use App\Entity\da\DaSoumisAValidation;
 use App\Service\autres\VersionService;
@@ -18,13 +16,12 @@ use App\Repository\da\DaObservationRepository;
 use Doctrine\Common\Collections\Collection;
 use App\Repository\da\DemandeApproParentRepository;
 use App\Repository\da\DaSoumisAValidationRepository;
+use App\Service\da\DaConsumptionHistory;
 use App\Service\genererPdf\da\GenererPdfDaReappro;
-use App\Traits\DaConsumtionHistoryTrait;
 
 trait DaAffectationTrait
 {
     use DaAfficherTrait;
-    use DaConsumtionHistoryTrait;
     private ?array $oldObservations = null;
 
     //=====================================================================================
@@ -103,14 +100,16 @@ trait DaAffectationTrait
 
         if ($validationDA) {
             // création de PDF
-            $genererPdfReappro = new GenererPdfDaReappro();
-            $dateRange = $this->getLast13MonthsDateRange();
-            $monthsList = $this->getMonthsList($dateRange['start'], $dateRange['end']);
-            $dataHistoriqueConsommation = $this->getHistoriqueConsommation($demandeAppro, $dateRange, $monthsList);
+            $daConsumptionHistory = new DaConsumptionHistory();
+            $dateRange = $daConsumptionHistory->getLast13MonthsDateRange();
+            $monthsList = $daConsumptionHistory->getMonthsList($dateRange['start'], $dateRange['end']);
+            $dataHistoriqueConsommation = $daConsumptionHistory->getHistoriqueConsommation($demandeAppro, $dateRange, $monthsList);
             $observations = $this->daObservationRepository->findBy(
                 ['numDa' => $numeroDemandeAppro],
                 ['dateCreation' => 'ASC']
             );
+
+            $genererPdfReappro = new GenererPdfDaReappro();
             $genererPdfReappro->genererPdfBonAchatValide($demandeAppro, $observations, $monthsList, $dataHistoriqueConsommation);
 
             // Dépôt du document dans DocuWare

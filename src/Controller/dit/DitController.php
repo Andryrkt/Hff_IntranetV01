@@ -94,11 +94,13 @@ class DitController extends Controller
             /** @var DemandeIntervention $ditFromForm */
             $ditFromForm = $form->getData();
 
+            //bloquer l'enregistrement du DIT si le materiel est mise au rebut (mmat_afect = 'CAS') ou si 
             if (empty($ditFromForm->getIdMateriel())) {
-                $message = 'Échec lors de la création de la DIT... Impossible de récupérer les informations du matériel.';
+                $message = 'Échec lors de la création de la DIT... Impossible de récupérer les informations du matériel. il peut être mis au rebut.';
                 $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_index');
                 return;
             }
+
 
             if ($ditFromForm->getInternetExterne() === "EXTERNE" && empty($ditFromForm->getNomClient()) && empty($ditFromForm->getNumeroClient())) {
                 $message = 'Échec lors de la création de la DIT... Impossible de récupérer les informations du client.';

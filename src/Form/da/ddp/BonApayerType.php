@@ -2,10 +2,14 @@
 
 namespace App\Form\da\ddp;
 
+
+
+use App\Dto\Da\ddp\BapSearchDto;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 
 class BonApayerType extends AbstractType
 {
@@ -36,11 +40,21 @@ class BonApayerType extends AbstractType
                 'label'         => 'Fournisseur',
                 'required'      => false
             ])
+            ->add('numCla', TextType::class, [
+                'label'         => 'Numéro CLA',
+                'required'      => false
+            ])
+            ->add('aTraiter',  CheckboxType::class, [
+                'label'    => 'A traiter',
+                'required' => false
+            ])
         ;
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setDefaults([]);
+        $resolver->setDefaults([
+            'data_class' => BapSearchDto::class,
+        ]);
     }
 }
