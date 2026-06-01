@@ -94,7 +94,7 @@ class DemandeSupportInformatiqueController extends Controller
     /**
      * INITIALISER LA VALEUR DE LA FORMULAIRE
      *
-     * @param DemandeIntervention $demandeIntervention
+     * @param DemandeSupportInformatique $supportInfo
      * @param User $user
      * @return void
      */
@@ -149,7 +149,7 @@ class DemandeSupportInformatiqueController extends Controller
 
     private function rectificationDernierIdApplication($supportInfo)
     {
-        //RECUPERATION de la dernière NumeroDemandeIntervention 
+        //RECUPERATION de la dernière Numero ticket
         $application = $this->getEntityManager()->getRepository(Application::class)->findOneBy(['codeApp' => 'TIK']);
         $application->setDerniereId($supportInfo->getNumeroTicket());
         // Persister l'entité Application (modifie la colonne derniere_id dans le table applications)
