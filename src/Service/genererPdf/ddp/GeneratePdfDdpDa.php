@@ -25,6 +25,7 @@ class GeneratePdfDdpDa extends GeneratePdf
     public function generer($dto, string $cheminEtNomDeFichier)
     {
         $pdf = new TCPDF();
+        $isRegul = $dto->typeDemande->getCode() === "DPR";
 
         $logoPath = $_ENV['BASE_PATH_LONG'] . '/Views/assets/henriFraise.jpg'; // chemin du logo
 
@@ -58,7 +59,9 @@ class GeneratePdfDdpDa extends GeneratePdf
         $pdf->SetFont('helvetica', 'B', 12);
         $pdf->setY(19);
         $pdf->Rect($pdf->GetX() + 20, $pdf->GetY(), $w50 * 2 - 40, 8);
-        $pdf->Cell(0, 8, 'Service comptabilité – DEMANDE DE PAIEMENT ', 0, 1, 'C');
+        $titre = $isRegul ? 'Service comptabilité – REGULARISATION ' : 'Service comptabilité – DEMANDE DE PAIEMENT ';
+
+        $pdf->Cell(0, 8, $titre, 0, 1, 'C');
 
         $pdf->setY(28);
 
@@ -71,11 +74,11 @@ class GeneratePdfDdpDa extends GeneratePdf
         $wValeurType = $usable_width - $wLabelType - $wLabelNda - $wValeurNda - 2;
 
         // Label "TYPE DE DEMANDE : " en gras
-        $pdf->Cell($wLabelType, 10, 'TYPE DE DEMANDE : ', 0, 0);
+        $pdf->Cell($wLabelType, 10, $isRegul ? '' : 'TYPE DE DEMANDE : ', 0, 0);
 
         // Valeur du type de demande en normal
         $pdf->SetFont('helvetica', '', 12);
-        $pdf->Cell($wValeurType, 10, $dto->typeDemande->getLibelle(), 0, 0);
+        $pdf->Cell($wValeurType, 10, $isRegul ? '' : $dto->typeDemande->getLibelle(), 0, 0);
 
 
         // Label "N° DA : " en gras

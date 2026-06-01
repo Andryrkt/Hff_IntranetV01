@@ -25,7 +25,7 @@ class DaSoumissionFacBlType extends AbstractType
         $builder
             ->add('typeDdp', ChoiceType::class, [
                 'choices' => [
-                    'Ne pas générer une demande de paiement' => 'aucun',
+                    // 'Ne pas générer une demande de paiement' => 'aucun', // ! enlever ce choix selon Hoby le 29/05/2026 
                     'BAP (Bon a Payer)' => 'bap',
                     'DDPL (Demande De Paiement après Livraison)' => 'ddpl',
                     'Régularisation' => 'regul'

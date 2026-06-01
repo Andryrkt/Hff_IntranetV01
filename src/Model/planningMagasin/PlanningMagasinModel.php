@@ -33,16 +33,26 @@ class PlanningMagasinModel extends Model
             }, $dataUtf8);
     }
 
-    public function recuperationAgenceDebite()
+    public function recuperationAgenceDebite(bool $multisuccursale, array $agenceAutorises, string $codeAgenceDefaut)
     {
-        $statement = "SELECT  trim(asuc_lib) as asuc_lib,
-                            trim(asuc_num) as asuc_num
+        $agenceAutorises = array_intersect($agenceAutorises, ['01', '20', '30', '40']);
+
+        if ($multisuccursale) {
+            $agenceDebite = " AND asuc_num in ('01', '20', '30', '40')";
+        } elseif (!empty($agenceAutorises)) {
+            $agenceDebite = " AND asuc_num IN ('" . implode("', '", $agenceAutorises) . "')";
+        } else {
+            $agenceDebite = " AND asuc_num = '$codeAgenceDefaut' ";
+        }
+
+
+        $statement = "SELECT  
+                        trim(asuc_lib) as asuc_lib,
+                        trim(asuc_num) as asuc_num
                     FROM  agr_succ , sav_itv 
                     WHERE asuc_num = sitv_succdeb 
                     AND asuc_codsoc = 'HF'
-                    --AND asuc_lib <> 'ANTALAHA'
-                    AND asuc_num in ('01', '20', '30', '40')
-                    --group by 1,2
+                    $agenceDebite
                     order by asuc_num";
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
@@ -103,7 +113,9 @@ class PlanningMagasinModel extends Model
         PlanningMagasinSearch $criteria,
         string $back,
         string $condition,
-        string $codeAgence,
+        bool $multisuccursale,
+        array $agenceAutorises,
+        string $codeAgenceDefaut,
         string $codeSociete,
         array $numeroDevisValideBcClient
     ) {
@@ -149,7 +161,7 @@ class PlanningMagasinModel extends Model
                 $numCmd = $this->numcommande($criteria);
                 break;
         }
-        $agDebit = $this->agenceDebite($criteria, $codeAgence);
+        $agDebit = $this->agenceDebite($criteria, $multisuccursale, $agenceAutorises, $codeAgenceDefaut);
         $servDebit = $this->serviceDebite($criteria);
         $codeClient  = $this->codeClient($criteria);
         $commercial = $this->commercial($criteria);

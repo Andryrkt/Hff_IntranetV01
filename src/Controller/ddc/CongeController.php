@@ -395,7 +395,7 @@ class CongeController extends Controller
                     'employees' => $employees,
                     'viewMode' => 'list',
                     'selected_month' => $selectedMonth,
-                    'accessGroupeDirection' => $this->estAdmin(),
+                    'accessGroupeDirection' => $this->hasAccessGroupeDirection(),
                     'title' => 'Liste des demandes de congé'
                 ]
             );
@@ -653,7 +653,7 @@ class CongeController extends Controller
             'form' => $form->createView(),
             'viewMode' => 'calendar',
             'selected_month' => $selectedMonth,
-            'accessGroupeDirection' => $this->estAdmin(),
+            'accessGroupeDirection' => $this->hasAccessGroupeDirection(),
             'title' => 'Liste des demandes de congé',
         ]);
     }
@@ -1152,5 +1152,14 @@ class CongeController extends Controller
 
         // Pour tout autre type, on retourne null
         return null;
+    }
+
+    /** 
+     * Vérifie l'accès au groupe direction
+     */
+    private function hasAccessGroupeDirection(): bool
+    {
+        /** est Administrateur ou RH ou "Zoary" */
+        return $this->estAdmin() || $this->estRH() || $this->getUserName() === "zoary";
     }
 }

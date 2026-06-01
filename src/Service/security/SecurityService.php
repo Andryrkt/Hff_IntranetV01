@@ -44,6 +44,7 @@ class SecurityService
     private ?bool $estCreateurDaDirecte = null;
     private ?bool $estAppro = null;
     private ?bool $estFinance = null;
+    private ?bool $estRH = null;
     private ?bool $estEnergie = null;
 
     public function __construct(UserDataService $dataService)
@@ -198,6 +199,17 @@ class SecurityService
             $this->estFinance = $this->dataService->getCodeAgenceUser() === '80' && $this->dataService->getCodeServiceUser() === 'FIN';
         }
         return $this->estFinance;
+    }
+
+    /**
+     * Vérifie si l'utilisateur connecté est APPRO par le fait de son agence et service par défaut (80 - APP)
+     */
+    public function estRH(): bool
+    {
+        if ($this->estRH === null) {
+            $this->estRH = $this->dataService->getCodeAgenceUser() === '80' && $this->dataService->getCodeServiceUser() === 'PER';
+        }
+        return $this->estRH;
     }
 
     /**
