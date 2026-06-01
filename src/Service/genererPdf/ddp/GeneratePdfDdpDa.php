@@ -2,14 +2,20 @@
 
 namespace App\Service\genererPdf\ddp;
 
+use App\Controller\Traits\FormatageTrait;
+use App\Dto\Da\ListeCdeFrn\DaSoumissionFacBlDto;
 use App\Dto\ddp\DdpDto;
 use App\Dto\ddp\DemandePaiementDto;
+use App\Entity\da\DemandeAppro;
+use App\Service\genererPdf\da\PdfTableHistoriqueLivraisonBAP;
 use App\Service\genererPdf\GeneratePdf;
 use App\Service\genererPdf\PdfTableGeneratorFlexible;
 use TCPDF;
 
 class GeneratePdfDdpDa extends GeneratePdf
 {
+    use FormatageTrait;
+
     public function copyToDw(string $nomAvecCheminFichier, string $nomFichier): void
     {
         $cheminDestinationLocal = $nomAvecCheminFichier;
@@ -22,8 +28,17 @@ class GeneratePdfDdpDa extends GeneratePdf
      * @param DemandePaiementDto|DdpDto $dto 
      * @param string $cheminEtNomDeFichier 
      */
-    public function generer($dto, string $cheminEtNomDeFichier)
-    {
+    public function generer(
+        $infoValidationBC,
+        $infoMateriel,
+        $dataRecapOR,
+        $historiqueLivraison,
+        $demandeAppro,
+        $infoFacBl,
+        $dtoFacBl,
+        $dto,
+        string $cheminEtNomDeFichier
+    ) {
         $pdf = new TCPDF();
         $isRegul = $dto->typeDemande->getCode() === "DPR";
 
@@ -233,8 +248,216 @@ class GeneratePdfDdpDa extends GeneratePdf
         $pdf->SetFont('helvetica', '', 12);
         $pdf->MultiCell(0, 10, $dto->numeroDossierDouaneString(), 0, 'L', 0, 1);
 
+        $this->pageRecap($pdf, $historiqueLivraison, $demandeAppro, $infoFacBl, $dtoFacBl, $infoValidationBC, $infoMateriel, $dataRecapOR);
+
         // génération de fichier: à changer plus tard
         $pdf->Output($cheminEtNomDeFichier, 'F');
+    }
+
+    private function pageRecap(
+        TCPDF $pdf,
+        array $historiqueLivraison,
+        DemandeAppro $demandeAppro,
+        array $infoFacBl,
+        DaSoumissionFacBlDto $dto,
+        array $infoValidationBC,
+        array $infoMateriel,
+        array $dataRecapOR
+    ) {
+
+        $infoBC = $dto->infoBc;
+        $pdf = $this->initPDF($pdf);
+        $this->renderHeader($pdf, $dto);
+        $w100 = $this->getUsableWidth($pdf);
+
+        $this->renderInfoBCAndValidation($pdf, $w100, $infoBC, $infoValidationBC);
+        if ($demandeAppro->getDaTypeId() === DemandeAppro::TYPE_DA_AVEC_DIT) {
+            $this->renderInfoMateriel($pdf, $w100, $infoMateriel);
+            $this->renderRecapOR($pdf, $dataRecapOR, $dto);
+        }
+        $this->renderRecapDA($pdf, $w100, $demandeAppro);
+        $this->renderInfoFACBL($pdf, $w100, $infoFacBl);
+        $this->renderHistoriqueLivraison($pdf, $historiqueLivraison);
+
+        $this->renderHistoriqueDdp($pdf, $dto->demandePaiementDto->ddpRecap);
+    }
+
+    private function initPDF(TCPDF $pdf): TCPDF
+    {
+        $pdf->setMargins(20, 10, 15);
+        $pdf->setPrintFooter(false);
+        $pdf->AddPage();
+        return $pdf;
+    }
+
+    private function renderHeader(TCPDF $pdf, DaSoumissionFacBlDto $dto): void
+    {
+        $pdf->setAbsX(60);
+        $pdf->setFont('helvetica', 'B', 22);
+        $pdf->Cell(110, 12, 'RECAP', 0, 0, 'C', false, '', 0, false, 'T', 'M');
+        $pdf->Ln(6);
+
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->setFont('helvetica', 'B', 10);
+        $pdf->setAbsX(170);
+        $pdf->cell(35, 6, 'Le : ' . $dto->dateDemande->format('d/m/Y'), 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->Ln(7);
+    }
+
+    private function renderInfoSection(TCPDF $pdf, string $title1, string $title2, callable $callback)
+    {
+        $pdf->Ln(2);
+        $pdf->setFont('helvetica', 'B', 9);
+
+        if ($title2) {
+            $w100 = $this->getUsableWidth($pdf);
+            $pdf->Cell($w100 * 0.65, 5, $title1);
+            $pdf->Cell($w100 * 0.35, 5, $title2, 0, 1);
+        } else {
+            $pdf->Cell(0, 5, $title1, 0, 1);
+        }
+
+        $pdf->Ln(2);
+
+        $pdf->setFont('helvetica', '', 9);
+        $callback();
+    }
+
+    private function renderInfoBCAndValidation(
+        TCPDF $pdf,
+        int $w100,
+        array $infoBC,
+        array $infoValidationBC
+    ) {
+        $this->renderInfoSection($pdf, 'RESUME DU BC', 'INFORMATION VALIDATION BC', function () use ($pdf, $w100, $infoBC, $infoValidationBC) {
+            $this->addInfoLine($pdf, 'Nom fournisseur', $infoBC["nom_fournisseur"] ?? "-", $w100 * 0.65 - 6, 35, 0, 0);
+            $this->addInfoLine($pdf, 'Nom Validateur', $infoValidationBC["validateur"] ?? "-", $w100 * 0.35, 25, 0);
+
+            $this->addInfoLine($pdf, 'N° fournisseur', $infoBC["num_fournisseur"] ?? "-", $w100 * 0.65 - 6, 35, 0, 0);
+            $dateValidation = $infoValidationBC["dateValidation"] ?? "-";
+            $this->addInfoLine($pdf, 'Date Validation', $dateValidation === "-" ? $dateValidation : $dateValidation->format("d/m/Y"), $w100 * 0.35, 25, 0);
+
+            $fields = [
+                'N° commande'        => $infoBC["num_cde"] ?? "-",
+                'N° demande appro'   => $infoBC["num_cde_ext"] ?? "-",
+                'Référence commande' => $infoBC["libelle_cde"] ?? "-",
+                'Date commande'      => $infoBC["date_cde"] ? date("d/m/Y", strtotime($infoBC["date_cde"])) : "-",
+                'Succursale'         => $infoBC["succ_cde"] ?? "-",
+                'Service'            => $infoBC["serv_cde"] ?? "-",
+                'Opérateur'          => $infoBC["nom_ope"] ?? "-",
+                'Montant HT'         => $this->formaterPrix($infoBC["mtn_cde"] ?? 0) . " " . ($infoBC["devise"] ?? ""),
+                'Montant TTC'        => $this->formaterPrix($infoBC["ttc_cde"] ?? 0) . " " . ($infoBC["devise"] ?? ""),
+                'Nature de l’achat'  => $infoBC["type_cde"] ?? "-"
+            ];
+
+            $pdf->Ln(2);
+
+            foreach ($fields as $label => $value) {
+                $this->addInfoLine($pdf, $label, $value, $w100, 35, 0);
+                if ($label === 'Date commande') $pdf->Ln(2);
+            }
+        });
+    }
+
+    private function renderInfoMateriel(TCPDF $pdf, int $w100, array $infoMateriel)
+    {
+        $this->renderInfoSection($pdf, 'LA COMMANDE CONCERNE LE MATÉRIEL SUIVANT :', '', function () use ($pdf, $w100, $infoMateriel) {
+            $this->addInfoLine($pdf, '', $infoMateriel["designation"] ?? "-", $w100, '');
+            $this->addInfoLine($pdf, 'N° série', $infoMateriel["numserie"] ?? "-", $w100, 28);
+            $this->addInfoLine($pdf, 'Identité', $infoMateriel["identite"] ?? "-", $w100, 28);
+        });
+    }
+
+    private function renderRecapOR(TCPDF $pdf, array $dataRecapOR, DaSoumissionFacBlDto $dto)
+    {
+        $numOR = $dto->numeroOR;
+        $numDIT = $dto->numeroDemandeDit;
+        $numDIT = $numDIT ? "- $numDIT" : "";
+        $this->renderInfoSection($pdf, "RECAPITULATIF DE L’OR $numOR $numDIT", '', function () use ($pdf, $dataRecapOR) {
+            $this->addInfoLine($pdf, 'Utilisateur Créateur', $dataRecapOR["createur_or"] ?? "-", 120, 30);
+            $pdf->Ln(2);
+            $tableGenerator = new PdfTableGeneratorFlexible();
+            $tableGenerator->setOptions([
+                'table_attributes' => 'border="0" cellpadding="0" cellspacing="0" align="center" style="font-size: 8px;"',
+                'header_row_style' => 'background-color: #D3D3D3;',
+                'footer_row_style' => 'background-color: #D3D3D3;'
+            ]);
+
+            $pdf->writeHTML(
+                $tableGenerator->generateTable(
+                    $dataRecapOR["header"],
+                    $dataRecapOR["body"],
+                    $dataRecapOR["footer"]
+                )
+            );
+        });
+    }
+
+    private function renderRecapDA(TCPDF $pdf, int $w100, DemandeAppro $demandeAppro)
+    {
+        $this->renderInfoSection($pdf, 'RECAPITULATIF DE LA DA', '', function () use ($pdf, $w100, $demandeAppro) {
+            $this->addInfoLine($pdf, 'N° DA', $demandeAppro->getNumeroDemandeAppro(), $w100, 25);
+            $this->addInfoLine($pdf, 'Date de création', $demandeAppro->getDateCreation()->format('d/m/Y'), $w100, 25);
+            $this->addInfoLine($pdf, 'Objet', $demandeAppro->getObjetDal(), $w100, 25);
+            $this->addInfoLine($pdf, "Utilisateur demandeur", $demandeAppro->getDemandeur(), $w100, 39);
+            $this->addInfoLine($pdf, 'Agence – service émetteur', $demandeAppro->getAgenceServiceEmetteur(), $w100, 39);
+            $this->addInfoLine($pdf, 'Agence – service débiteur', $demandeAppro->getAgenceServiceDebiteur(), $w100, 39);
+        });
+    }
+
+    private function renderInfoFacBl(TCPDF $pdf, int $w100, array $infoFacBl)
+    {
+        $this->renderInfoSection($pdf, 'INFO BL / FAC FOURNISSEUR', '', function () use ($pdf, $w100, $infoFacBl) {
+            $this->addInfoLine($pdf, 'Réf', $infoFacBl["refBlFac"] ?? "-", $w100 / 2, 15, 6, 0);
+            $this->addInfoLine($pdf, 'N° livraison IPS', $infoFacBl["numLivIPS"] ?? "-", $w100 / 2, 27);
+            $this->addInfoLine($pdf, 'Date', $infoFacBl["dateBlFac"] ? $infoFacBl["dateBlFac"]->format('d/m/Y') : "-", $w100 / 2, 15, 6, 0);
+            $this->addInfoLine($pdf, 'Date livraison IPS', $infoFacBl["dateLivIPS"] ? date("d/m/Y", strtotime($infoFacBl["dateLivIPS"])) : "-", $w100 / 2, 27);
+        });
+    }
+
+    private function renderHistoriqueLivraison(TCPDF $pdf, array $historiqueLivraison)
+    {
+        $this->renderInfoSection($pdf, 'RECAPITULATIF DES LIVRAISONS', '', function () use ($pdf, $historiqueLivraison) {
+            if (empty($historiqueLivraison)) {
+                $pdf->Cell(0, 5, "Aucune livraison", 0, 1);
+            } else {
+                $tableGenerator = new PdfTableHistoriqueLivraisonBAP();
+                $pdf->writeHTML($tableGenerator->generateTable($historiqueLivraison));
+            }
+        });
+    }
+
+    private function renderHistoriqueDdp(TCPDF $pdf, array $historiqueDdp)
+    {
+        $this->renderInfoSection($pdf, 'RECAPITULATIF DES DEMANDES DE PAIEMENT', '', function () use ($pdf, $historiqueDdp) {
+            if (empty($historiqueDdp)) {
+                $pdf->Cell(0, 5, "Aucune demande de paiement", 0, 1);
+            } else {
+                $tableGenerator = new PdfTableHistoriqueDdpBAP();
+                $pdf->writeHTML($tableGenerator->generateTable($historiqueDdp));
+            }
+        });
+    }
+
+
+    private function getUsableWidth(TCPDF $pdf)
+    {
+        $w_total = $pdf->GetPageWidth();  // Largeur totale du PDF
+        $margins = $pdf->GetMargins();    // Tableau des marges (left, top, right)
+        return $w_total - $margins['left'] - $margins['right'];
+    }
+
+    private function addInfoLine(TCPDF $pdf, string $label, string $value, $wTotal, $labelWidth = 35, $indent = 6, $endLine = 1)
+    {
+        if ($indent > 0) $pdf->Cell($indent, 5, '', 0, 0);
+        $pdf->Cell(6, 5, '-', 0, 0);
+
+        if ($label !== '') {
+            $pdf->Cell($labelWidth, 5, $label, 0, 0);
+            $pdf->Cell($wTotal - $labelWidth - $indent, 5, ": $value", 0, $endLine);
+        } else {
+            $pdf->Cell($wTotal - $indent, 5, $value, 0, $endLine);
+        }
     }
 
     private function headerTableau(): array

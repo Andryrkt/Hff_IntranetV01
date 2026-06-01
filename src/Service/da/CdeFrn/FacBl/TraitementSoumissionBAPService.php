@@ -22,6 +22,7 @@ use App\Repository\dw\DwBcApproRepository;
 use App\Service\dataPdf\ordreReparation\Recapitulation;
 use App\Service\fichier\TraitementDeFichier;
 use App\Service\genererPdf\bap\GenererPdfBonAPayer;
+use App\Service\genererPdf\bap\GenererPdfRecap;
 use App\Service\genererPdf\GeneratePdf;
 use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
 use Doctrine\ORM\EntityManagerInterface;
