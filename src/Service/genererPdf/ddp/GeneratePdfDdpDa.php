@@ -59,9 +59,9 @@ class GeneratePdfDdpDa extends GeneratePdf
         $pdf->SetFont('helvetica', 'B', 12);
         $pdf->setY(19);
         $pdf->Rect($pdf->GetX() + 20, $pdf->GetY(), $w50 * 2 - 40, 8);
-        $titre = $isRegul ? 'Service comptabilité – REGULARISATION ' : 'Service comptabilité – DEMANDE DE PAIEMENT ';
+        $titre = $isRegul ? 'REGULARISATION ' : 'PAIEMENT ';
 
-        $pdf->Cell(0, 8, $titre, 0, 1, 'C');
+        $pdf->Cell(0, 8, "Service comptabilité – DEMANDE DE $titre", 0, 1, 'C');
 
         $pdf->setY(28);
 
