@@ -18,6 +18,7 @@ use App\Mapper\ddp\DemandePaiementMapper;
 use App\Model\da\DaSoumissionFacBlDdpaModel;
 use App\Model\ddp\DemandePaiementModel;
 use App\Service\autres\AutoIncDecService;
+use App\Service\da\DaSoumissionDataService;
 use App\Service\da\NumeroGenerateurService;
 use App\Service\ddp\DdpFinancialService;
 use App\Service\ddp\DocDemandePaiementService;
@@ -33,6 +34,7 @@ class DemandePaiementFactory
     private DdpFinancialService $financialService;
     private NumeroGenerateurService $numeroGenerateur;
     private SecurityService $securityService;
+    private DaSoumissionDataService $dataService;
 
     public function __construct(
         EntityManagerInterface $em,
@@ -40,7 +42,8 @@ class DemandePaiementFactory
         DocDemandePaiementService $docDemandePaiementService,
         DaSoumissionFacBlDdpaModel $daSoumissionFacBlDdpaModel,
         DdpFinancialService $financialService,
-        NumeroGenerateurService $numeroGenerateur
+        NumeroGenerateurService $numeroGenerateur,
+        DaSoumissionDataService $dataService
     ) {
         global $container;
         $this->securityService = $container->get('security.service');
@@ -50,6 +53,7 @@ class DemandePaiementFactory
         $this->daSoumissionFacBlDdpaModel = $daSoumissionFacBlDdpaModel;
         $this->financialService = $financialService;
         $this->numeroGenerateur = $numeroGenerateur;
+        $this->dataService = $dataService;
     }
 
     public function load(
@@ -57,6 +61,7 @@ class DemandePaiementFactory
         ?int $numCdeDa,
         ?int $typeDa,
         int $numeroVersionBc = 0,
+        ?string $numOr = null,
         $sessionService
     ): DemandePaiementDto {
         $dto = new DemandePaiementDto();
@@ -64,7 +69,7 @@ class DemandePaiementFactory
         if (empty($infoDa)) {
             throw new \Exception("Aucune information de demande d'approvisionnement trouvée pour le numero commande $numCdeDa");
         }
-        $this->hydrateBaseInfo($dto, $typeDdp, $numCdeDa, $typeDa, $infoDa);
+        $this->hydrateBaseInfo($dto, $typeDdp, $numCdeDa, $typeDa, $infoDa, $numOr);
         $this->hydrateDaInfo($dto, $typeDa, $numeroVersionBc, $sessionService, $infoDa);
         $this->hydrateGeneralInfo($dto);
         $this->hydrateFournisseurInfo($dto, $infoDa);
@@ -97,7 +102,7 @@ class DemandePaiementFactory
         $dto->ddpRecap = DdpRecapMapper::map($demandePaiementDto, $totalMontantCommande);
     }
 
-    private function hydrateBaseInfo(DemandePaiementDto $dto, int $typeDdp, ?int $numCdeDa, ?int $typeDa, array $infoDa): void
+    private function hydrateBaseInfo(DemandePaiementDto $dto, int $typeDdp, int $numCdeDa, ?int $typeDa, array $infoDa, ?string $numOr): void
     {
         $dto->typeDemande = $this->em->getRepository(TypeDemande::class)->find($typeDdp);
         $dto->numeroFacture = null;
@@ -105,6 +110,8 @@ class DemandePaiementFactory
         $dto->numeroCommande = $numCdeDa;
         $dto->debiteur = $this->getDebiteur($typeDa, $infoDa);
         $dto->codeSociete = $this->securityService->getCodeSocieteUser();
+        $dto->numeroOr = $numOr;
+        $dto->infoBc = $this->dataService->getInfoBc($dto->numeroCommande, $dto->codeSociete);
     }
 
     private function hydrateDaInfo(DemandePaiementDto $dto, ?int $typeDa, int $numeroVersionBc = 0, $sessionService, array $infoDa): void

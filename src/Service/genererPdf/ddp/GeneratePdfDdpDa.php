@@ -3,8 +3,6 @@
 namespace App\Service\genererPdf\ddp;
 
 use App\Controller\Traits\FormatageTrait;
-use App\Dto\Da\ListeCdeFrn\DaSoumissionFacBlDto;
-use App\Dto\ddp\DdpDto;
 use App\Dto\ddp\DemandePaiementDto;
 use App\Entity\da\DemandeAppro;
 use App\Service\genererPdf\da\PdfTableHistoriqueLivraisonBAP;
@@ -25,18 +23,18 @@ class GeneratePdfDdpDa extends GeneratePdf
 
     /**
      * Génération page de garde de la demande de paiement
-     * @param DemandePaiementDto|DdpDto $dto 
+     * @param DemandePaiementDto $dto 
      * @param string $cheminEtNomDeFichier 
      */
     public function generer(
-        $infoValidationBC,
-        $infoMateriel,
-        $dataRecapOR,
-        $historiqueLivraison,
-        $demandeAppro,
-        $infoFacBl,
+        array $infoValidationBC,
+        array $infoMateriel,
+        array $dataRecapOR,
+        array $historiqueLivraison,
+        DemandeAppro $demandeAppro,
+        array $infoFacBl,
         $dtoFacBl,
-        $dto,
+        DemandePaiementDto $dto,
         string $cheminEtNomDeFichier
     ) {
         $pdf = new TCPDF();
@@ -259,7 +257,7 @@ class GeneratePdfDdpDa extends GeneratePdf
         array $historiqueLivraison,
         DemandeAppro $demandeAppro,
         array $infoFacBl,
-        DaSoumissionFacBlDto $dto,
+        $dto,
         array $infoValidationBC,
         array $infoMateriel,
         array $dataRecapOR
@@ -276,10 +274,12 @@ class GeneratePdfDdpDa extends GeneratePdf
             $this->renderRecapOR($pdf, $dataRecapOR, $dto);
         }
         $this->renderRecapDA($pdf, $w100, $demandeAppro);
-        $this->renderInfoFACBL($pdf, $w100, $infoFacBl);
-        $this->renderHistoriqueLivraison($pdf, $historiqueLivraison);
-
-        $this->renderHistoriqueDdp($pdf, $dto->demandePaiementDto->ddpRecap);
+        if (!empty($infoFacBl)) {
+            $this->renderInfoFACBL($pdf, $w100, $infoFacBl);
+        }
+        if (!empty($historiqueLivraison)) {
+            $this->renderHistoriqueLivraison($pdf, $historiqueLivraison);
+        }
     }
 
     private function initPDF(TCPDF $pdf): TCPDF
@@ -290,7 +290,7 @@ class GeneratePdfDdpDa extends GeneratePdf
         return $pdf;
     }
 
-    private function renderHeader(TCPDF $pdf, DaSoumissionFacBlDto $dto): void
+    private function renderHeader(TCPDF $pdf, $dto): void
     {
         $pdf->setAbsX(60);
         $pdf->setFont('helvetica', 'B', 22);
@@ -368,7 +368,7 @@ class GeneratePdfDdpDa extends GeneratePdf
         });
     }
 
-    private function renderRecapOR(TCPDF $pdf, array $dataRecapOR, DaSoumissionFacBlDto $dto)
+    private function renderRecapOR(TCPDF $pdf, array $dataRecapOR, $dto)
     {
         $numOR = $dto->numeroOR;
         $numDIT = $dto->numeroDemandeDit;

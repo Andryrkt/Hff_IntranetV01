@@ -6,9 +6,15 @@ use App\Constants\ddp\TypeDemandePaiementConstants;
 use App\Controller\Controller;
 use App\Controller\Traits\PdfConversionTrait;
 use App\Dto\ddp\DemandePaiementDto;
+use App\Entity\da\DemandeAppro;
+use App\Entity\dw\DwBcAppro;
 use App\Factory\ddp\DemandePaiementFactory;
 use App\Form\ddp\DemandePaiementDaType;
 use App\Model\ddp\DemandePaiementModel;
+use App\Model\dit\DitModel;
+use App\Repository\da\DemandeApproRepository;
+use App\Repository\dw\DwBcApproRepository;
+use App\Service\dataPdf\ordreReparation\Recapitulation;
 use App\Service\ddp\DdpaDaService;
 use App\Service\ddp\DdpGeneratorNameService;
 use App\Service\ddp\DemandePaiementCommandeService;
@@ -36,6 +42,10 @@ class DemandePaiementDaController extends Controller
     private DocDemandePaiementService $docDemandePaiementService;
     private HistoriqueOperationDDPService $historiqueOperation;
     private DemandePaiementFactory $demandePaiementFactory;
+    private DemandeApproRepository $demandeApproRepository;
+    private DwBcApproRepository $dwBcApproRepository;
+    private DitModel $ditModel;
+    private Recapitulation $recapitulationOR;
 
     public function __construct(
         DemandePaiementModel $demandePaiementModel,
@@ -43,7 +53,10 @@ class DemandePaiementDaController extends Controller
         DemandePaiementService $demandePaiementService,
         DocDemandePaiementService $docDemandePaiementService,
         HistoriqueOperationDDPService $historiqueOperation,
-        DemandePaiementFactory $demandePaiementFactory
+        DemandePaiementFactory $demandePaiementFactory,
+        DitModel $ditModel,
+        Recapitulation $recapitulationOR
+
     ) {
         parent::__construct();
         $this->demandePaiementModel = $demandePaiementModel;
@@ -52,18 +65,36 @@ class DemandePaiementDaController extends Controller
         $this->docDemandePaiementService = $docDemandePaiementService;
         $this->historiqueOperation = $historiqueOperation;
         $this->demandePaiementFactory = $demandePaiementFactory;
+        $this->demandeApproRepository      = $this->getEntityManager()->getRepository(DemandeAppro::class);
+        $this->dwBcApproRepository         = $this->getEntityManager()->getRepository(DwBcAppro::class);
+        $this->ditModel                    = $ditModel;
+        $this->recapitulationOR            = $recapitulationOR;
     }
 
     /**
-     * @Route("/newDdpa/{typeDdp}/{numCdeDa}/{typeDa}/{numeroVersionBc}", name="demande_paiement_da", defaults={"numCdeDa"=null, "typeDa"=null, "numeroVersionBc"=null}, methods={"GET","POST"})
+     * @Route("/newDdpa/{typeDdp}/{numCdeDa}/{typeDa}/{numeroVersionBc}/{numOr}", name="demande_paiement_da", defaults={"numCdeDa"=null, "typeDa"=null, "numeroVersionBc"=null, "numOr"=null}, methods={"GET","POST"})
      */
-    public function index(int $typeDdp, ?int $numCdeDa, ?int $typeDa, ?int $numeroVersionBc, Request $request)
-    {
+    public function index(
+        int $typeDdp,
+        ?int $numCdeDa,
+        ?int $typeDa,
+        ?int $numeroVersionBc,
+        ?string $numOr,
+        Request $request
+    ) {
         // try {
         // initialisation dto
         $numeroVersionBc = $numeroVersionBc ?? 0;
 
-        $dto = $this->demandePaiementFactory->load($typeDdp, $numCdeDa, $typeDa, $numeroVersionBc, $this->getSessionService());
+        $dto = $this->demandePaiementFactory
+            ->load(
+                $typeDdp,
+                $numCdeDa,
+                $typeDa,
+                $numeroVersionBc,
+                $numOr,
+                $this->getSessionService()
+            );
         // } catch (\Throwable $th) {
         //     $message = $th->getMessage();
         //     $criteria = $this->getSessionService()->get('criteria_for_excel_Da_Cde_frn');
@@ -132,8 +163,22 @@ class DemandePaiementDaController extends Controller
 
     private function pageDeGarde(DemandePaiementDto $dto, string $cheminEtNom): GeneratePdfDdpDa
     {
+        // =============
+        $numCde              = $dto->numeroCommande;
+        $numOr               = $dto->numeroOr;
+        $codeSociete         = $dto->codeSociete;
+
+        $infoValidationBC    = $this->dwBcApproRepository->getInfoValidationBC($numCde) ?? [];
+        $historiqueLivraison = [];
+
+        $infoMateriel        = $this->ditModel->recupInfoMateriel($numOr, $codeSociete);
+        $dataRecapOR         = $this->recapitulationOR->getData($numOr, $codeSociete);
+        $demandeAppro        = $this->demandeApproRepository->findOneBy(['numeroDemandeAppro' => $dto->numeroDemandeAppro]);
+        $infoFacBl           = [];
+        //=============
+
         $generatePdfDdp = new GeneratePdfDdpDa();
-        $generatePdfDdp->generer($dto, $cheminEtNom);
+        $generatePdfDdp->generer($infoValidationBC, $infoMateriel, $dataRecapOR, $historiqueLivraison, $demandeAppro, $infoFacBl, $dto, $dto, $cheminEtNom);
 
         return $generatePdfDdp;
     }

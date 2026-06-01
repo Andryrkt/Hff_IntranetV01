@@ -70,6 +70,8 @@ class DemandePaiementDto
 
 
     // Pour le DA et les montants =====================================
+    public ?string $numeroOr = null;
+    public array $infoBc = [];
     public bool $appro = false;
     public ?int $typeDa = null;
     public int $numeroSoumissionDdpDa;

@@ -97,7 +97,7 @@ class Recapitulation
         ];
     }
 
-    public function getData(string $numOr, string $codeSociete): array
+    public function getData(?string $numOr = null, string $codeSociete): array
     {
         $data = ["header" => $this->getHeaderConfig(), "body" => [], "footer" => ['itv' => 'TOTAL', 'mttTotal' => 0, 'mttPieces' => 0, 'mttMo' => 0, 'mttSt' => 0, 'mttLub' => 0, 'mttAutres' => 0,]];
         $orSoumisAValidation = $this->ditModel->recupOrSoumisValidation($numOr, $codeSociete);

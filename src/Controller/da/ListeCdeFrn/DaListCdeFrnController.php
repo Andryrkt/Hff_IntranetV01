@@ -189,6 +189,7 @@ class DaListCdeFrnController extends Controller
                     'numCdeDa' => $ddp['commande_id'],
                     'typeDa' => (int)$ddp['type_da'],
                     'numeroVersionBc' => null,
+                    'numOr' => $ddp['num_or'],
                 ]);
             } elseif ($ddp['ddp'] === 'regule') {
                 $estDdpa = $this->daSoumissionBcRepository->getEstDdpAvance($ddp['commande_id']);
