@@ -98,6 +98,9 @@ class BadmRepository extends EntityRepository
         $queryBuilder
             ->orderBy('b.numBadm', 'DESC');
 
+        // Pour déboguer et récupérer la requête SQL
+        // dd($queryBuilder->getQuery()->getSQL(), $queryBuilder->getQuery()->getParameters());
+
         return $queryBuilder->getQuery()->getResult();
     }
 
@@ -147,7 +150,7 @@ class BadmRepository extends EntityRepository
     }
 
 
-    private function filtredAgenceServiceEmetteur($queryBuilder, $criteria)
+    private function filtredAgenceServiceEmetteur($queryBuilder, array $criteria)
     {
         //filtre selon l'agence emettteur
         if (!empty($criteria['agenceEmetteur'])) {
@@ -174,7 +177,7 @@ class BadmRepository extends EntityRepository
         ;
     }
 
-    private function filtredCondition($queryBuilder, $criteria)
+    private function filtredCondition($queryBuilder, array $criteria)
     {
         if (!empty($criteria['statut'])) {
             $queryBuilder->andWhere('s.description LIKE :statut')
