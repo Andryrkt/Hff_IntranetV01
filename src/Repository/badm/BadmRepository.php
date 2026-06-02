@@ -74,7 +74,7 @@ class BadmRepository extends EntityRepository
     }
 
 
-    public function findAndFilteredExcel(array $criteria = [], int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeSociete, bool $peutVoirListeAvecDebiteur, bool $multisuccursale)
+    public function findAndFilteredExcel(array $criteria, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeSociete, bool $peutVoirListeAvecDebiteur, bool $multisuccursale)
     {
         $queryBuilder = $this->createQueryBuilder('b')
             ->leftJoin('b.typeMouvement', 'tm')
@@ -102,7 +102,7 @@ class BadmRepository extends EntityRepository
     }
 
 
-    public function findPaginatedAndFilteredListAnnuler(int $page = 1, int $limit = 10, array $criteria = [], int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeSociete, bool $peutVoirListeAvecDebiteur, bool $multisuccursale)
+    public function findPaginatedAndFilteredListAnnuler(int $page = 1, int $limit = 10, array $criteria, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeSociete, bool $peutVoirListeAvecDebiteur, bool $multisuccursale)
     {
         $queryBuilder = $this->createQueryBuilder('b')
             ->leftJoin('b.typeMouvement', 'tm')
@@ -189,6 +189,11 @@ class BadmRepository extends EntityRepository
         if (!empty($criteria['idMateriel']) || $criteria['idMateriel'] == '0') {
             $queryBuilder->andWhere('b.idMateriel = :idMateriel')
                 ->setParameter('idMateriel',  $criteria['idMateriel']);
+        }
+
+        if (!empty($criteria['numBadm'])) {
+            $queryBuilder->andWhere('b.numBadm = :numBadm')
+                ->setParameter('numBadm', $criteria['numBadm']);
         }
 
         if (!empty($criteria['dateDebut'])) {
