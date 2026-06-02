@@ -57,6 +57,9 @@ class BadmRepository extends EntityRepository
             ->setMaxResults($limit)
         ;
 
+        // Pour déboguer et récupérer la requête SQL
+        //dd($queryBuilder->getQuery()->getSQL(), $queryBuilder->getQuery()->getParameters());
+
         $paginator = new DoctrinePaginator($queryBuilder->getQuery());
 
         $totalItems = count($paginator);
