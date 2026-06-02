@@ -389,8 +389,12 @@ class DitModel extends Model
     return $this->convertirEnUtf8($data);
   }
 
-  public function recupOrSoumisValidation($numOr, $codeSociete)
+  public function recupOrSoumisValidation(?string $numOr = null, $codeSociete)
   {
+    if (empty($numOr)) {
+      return [];
+    }
+
     $statement = "SELECT
           slor_numor,
           sitv_datdeb,
@@ -554,8 +558,12 @@ class DitModel extends Model
     return $this->convertirEnUtf8($data);
   }
 
-  public function recupInfoMateriel(string $numOr, string $codeSociete)
+  public function recupInfoMateriel(?string $numOr = null, string $codeSociete)
   {
+    if (empty($numOr)) {
+      return [];
+    }
+
     $statement = "SELECT 
         TRIM(mmat_desi) AS designation, 
         TRIM(mmat_numserie) AS numserie,

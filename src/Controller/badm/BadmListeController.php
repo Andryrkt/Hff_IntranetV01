@@ -2,17 +2,18 @@
 
 namespace App\Controller\badm;
 
-use App\Entity\badm\Badm;
-use App\Model\dit\DitModel;
-use App\Service\ExcelService;
+use App\Constants\admin\ApplicationConstant;
 use App\Controller\Controller;
+use App\Controller\Traits\BadmListTrait;
+use App\Entity\badm\Badm;
 use App\Entity\badm\BadmSearch;
 use App\Form\badm\BadmSearchType;
 use App\Model\badm\BadmRechercheModel;
+use App\Model\dit\DitModel;
 use App\Repository\badm\BadmRepository;
-use App\Controller\Traits\BadmListTrait;
-use App\Constants\admin\ApplicationConstant;
+use App\Service\ExcelService;
 use App\Service\security\SecurityService;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -114,7 +115,7 @@ class BadmListeController extends Controller
         $serviceIdUser = $this->getSecurityService()->getServiceIdUser();
 
         // Vérifier la permission de voir tous les données
-        $multisuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE);
+        $multisuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE, "badmListe_AffichageListeBadm");
 
         // Vérifier le permission de voir liste avec débiteur sur la page courante
         $peutVoirListeAvecDebiteur = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_AUTH_2, "badmListe_AffichageListeBadm");
@@ -122,7 +123,6 @@ class BadmListeController extends Controller
         /** @var BadmRepository $repository */
         $repository = $this->getEntityManager()->getRepository(Badm::class);
         $entities = $repository->findAndFilteredExcel($criteria, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeSociete, $peutVoirListeAvecDebiteur, $multisuccursale);
-
         // Convertir les entités en tableau de données
         $data = [];
         $data[] = [
@@ -246,7 +246,7 @@ class BadmListeController extends Controller
     }
 
 
-    public function rechercherSurNumSerieParc($form, $badmSearch, $codeSociete)
+    public function rechercherSurNumSerieParc(FormInterface $form, BadmSearch $badmSearch, string $codeSociete)
     {
         $numParc = $form->get('numParc')->getData() === null ? '' : $form->get('numParc')->getData();
         $numSerie = $form->get('numSerie')->getData() === null ? '' : $form->get('numSerie')->getData();
@@ -268,7 +268,7 @@ class BadmListeController extends Controller
         }
     }
 
-    private function ajoutNumSerieNumParc($paginationData, string $codeSociete)
+    private function ajoutNumSerieNumParc(array $paginationData, string $codeSociete)
     {
         for ($i = 0; $i < count($paginationData['data']); $i++) {
             $badmRechercheModel = new BadmRechercheModel();

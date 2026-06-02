@@ -86,7 +86,6 @@ class DaSoumissionBcController extends Controller
      * permet de faire le rtraitement du formulaire
      *
      * @param Request $request
-     * @param string $numCde
      * @param FormInterface $form
      * @return void
      */
@@ -117,6 +116,7 @@ class DaSoumissionBcController extends Controller
                         'numCdeDa' => $numCde,
                         'typeDa' => $typeDa,
                         'numeroVersionBc' => $numeroVersionMax,
+                        'numOr' => $dto->numeroOr,
                     ]);
                 }
             } else {
