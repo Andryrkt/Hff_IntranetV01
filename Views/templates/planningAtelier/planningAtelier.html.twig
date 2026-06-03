@@ -17,20 +17,22 @@
 	<div class="sticky-header-titre">
 		<div class="container">
 			{% include "/planningAtelier/_formulaire.html.twig" %}
+			<div class="row">
+				<div class="col-12 col-md-6 my-2">
+					<i class="fa-solid fa-circle" style="color: #fabb18;"></i>
+					<small style="color: #fabb18;">Planifié non pointé |</small>
+					<i class="fa-solid fa-circle text-success"></i>
+					<small  class="text-success">Planifié pointé |</small>
+					<i class="fa-solid fa-circle text-secondary"></i>
+					<small  class="text-secondary">Pointé non planifié</small>
+				</div>
+			</div>
 			<div class="d-flex justify-content-between">
 				<div>
-					<a href="{{ path('export_planningAtelier') }}" id="" name="" class="btn btn bg-success text-white my-3 fw-bold" data-bs-toggle="tooltip" title="Exporter en Excel">
+					<a href="{{ path('export_planningAtelier') }}" id="" name="" class="btn btn bg-success text-white my-2 fw-bold" data-bs-toggle="tooltip" title="Exporter en Excel">
 						<i class="fas fa-table"></i>
 						Excel
 					</a>
-				</div>
-				<div class="d-flex align-items-center gap-1">
-					<i class="fa-solid fa-circle" style="color: #fabb18;"></i>
-					<small class="mt-1" style="color: #fabb18;">Planifié non pointé |</small>
-					<i class="fa-solid fa-circle text-success"></i>
-					<small  class="text-success mt-1">Planifié pointé |</small>
-					<i class="fa-solid fa-circle text-secondary"></i>
-					<small  class="text-secondary mt-1">Pointé non planifié</small>
 				</div>
 			</div>
 		</div>
