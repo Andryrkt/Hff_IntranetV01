@@ -465,4 +465,13 @@ class DemandePaiementModel extends Model
 
         return array_column($data, 'fllf_numfac')[0] ?? null;
     }
+
+    public function getFilePathDdp(string $numeroDdp, string $table, string $columnName): string
+    {
+        $sql = " SELECT top 1 d.path from $table d where d.$columnName = '$numeroDdp' ORDER BY d.numero_version desc";
+
+        $result = odbc_fetch_array($this->connexion->query($sql));
+
+        return $result['path'] ?? '';
+    }
 }

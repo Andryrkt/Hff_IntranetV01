@@ -8,6 +8,7 @@ use App\Dto\ddp\DemandePaiementDto;
 use App\Entity\ddp\DemandePaiement;
 use App\Entity\ddp\HistoriqueStatutDdp;
 use App\Model\ddp\DemandePaiementModel;
+use App\Service\da\FileCheckerService;
 
 class DemandePaiementMapper
 {
@@ -92,6 +93,7 @@ class DemandePaiementMapper
             $dto->demandeur = $ddp->getDemandeur();
             $dto->appro = $ddp->getAppro() ?? false;
             $dto->numeroFactureIps = self::getNumeroFactureIps($dto);
+            $dto->fileExists = self::fileExists($dto->numeroDdp, $dto->typeDemande->getCode());
 
             $dtos[] = $dto;
         }
@@ -108,6 +110,26 @@ class DemandePaiementMapper
             }
         }
         return $numsLivraisons;
+    }
+
+    private static function fileExists(string $numeroDdp, string $codeTypeDemande): bool
+    {
+        $fileExist = false;
+
+        $tableMap = ['DPR' => 'DW_regularisation_ddp', 'BAP' => 'DW_bon_a_payer'];
+        $columnNameMap = ['DPR' => 'numero_ddr', 'BAP' => 'numero_bap'];
+
+        $demandePaiementModel = new DemandePaiementModel();
+        $fullPath = $demandePaiementModel->getFilePathDdp($numeroDdp, $tableMap[$codeTypeDemande] ?? 'DW_demande_de_paiement', $columnNameMap[$codeTypeDemande] ?? 'numero_ddp'); // par défaut c'est "DW_demande_de_paiement", "numero_ddp"
+
+        if ($fullPath) {
+            $fullPath = $_ENV['BASE_PATH_FICHIER'] . '/' . $fullPath;
+            if ((new FileCheckerService())->checkFileExists($fullPath)) {
+                $fileExist = true;
+            }
+        }
+
+        return $fileExist;
     }
 
     private static function getNumeroFactureIps(DemandePaiementDto $dto): ?string
