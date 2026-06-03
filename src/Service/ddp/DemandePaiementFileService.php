@@ -26,6 +26,14 @@ class DemandePaiementFileService
         $this->fileCheckerService = new FileCheckerService();
     }
 
+    /**
+     * Retourne les informations du fichier associé à une demande.
+     *
+     * @param string $numeroDdp
+     * @param string $codeTypeDemande
+     * 
+     * @return array{exists:bool,path:string}
+     */
     public function getFileInfo(string $numeroDdp, string $codeTypeDemande): array
     {
         $table = self::TABLE_MAP[$codeTypeDemande] ?? 'DW_demande_de_paiement';

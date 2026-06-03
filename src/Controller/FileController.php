@@ -3,8 +3,7 @@
 namespace App\Controller;
 
 use App\Controller\Controller;
-use App\Model\ddp\DemandePaiementModel;
-use App\Service\da\FileCheckerService;
+use App\Service\ddp\DemandePaiementFileService;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -18,21 +17,11 @@ class FileController extends Controller
      */
     public function showBapPdf(string $numeroDdp, string $code): Response
     {
-        $tableMap = ['DPR' => 'DW_regularisation_ddp', 'BAP' => 'DW_bon_a_payer'];
-        $columnNameMap = ['DPR' => 'numero_ddr', 'BAP' => 'numero_bap'];
+        $fileInfo = (new DemandePaiementFileService())->getFileInfo($numeroDdp, $code);
 
-        $demandePaiementModel = new DemandePaiementModel();
-        $fullPath = $demandePaiementModel->getFilePathDdp($numeroDdp, $tableMap[$code] ?? 'DW_demande_de_paiement', $columnNameMap[$code] ?? 'numero_ddp'); // par défaut c'est "DW_demande_de_paiement", "numero_ddp"
+        if (!$fileInfo['exists']) throw new NotFoundHttpException('Le fichier DDP/BAP est introuvable.');
 
-        if ($fullPath) {
-            $fullPath = $_ENV['BASE_PATH_FICHIER'] . '/' . $fullPath;
-            if ((new FileCheckerService())->checkFileExists($fullPath)) {
-            }
-        } else {
-            throw new NotFoundHttpException('Le fichier DDP/BAP est introuvable.');
-        }
-
-        $response = new BinaryFileResponse($fullPath);
+        $response = new BinaryFileResponse($fileInfo['path']);
         $response->headers->set('Content-Type', 'application/pdf');
         $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_INLINE, "$numeroDdp.pdf");
         return $response;
