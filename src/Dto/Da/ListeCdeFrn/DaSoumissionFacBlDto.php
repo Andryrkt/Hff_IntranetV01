@@ -72,6 +72,11 @@ class DaSoumissionFacBlDto
     public ?string $typeDdp = null; // valeur possible 'bap', 'ddpl', 'regule', 'aucune'
 
 
+    public float $sommeMontantDdpaValider = 0.0;
+    public float $sommeMontantFactureDejaPayer = 0.0;
+    public float $soldeAvance = 0.0;
+    public bool $soumissionDdpAFaire = false;
+
 
     public function montantAPayer(): float
     {

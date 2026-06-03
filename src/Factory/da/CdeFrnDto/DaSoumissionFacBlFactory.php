@@ -97,6 +97,12 @@ class DaSoumissionFacBlFactory
         // recupération des informations de commande
         $this->getReception($dto);
 
+        //
+        $dto->sommeMontantFactureDejaPayer = $this->daSoumissionFacBlModel->getSommeMontantFactureDejaPayer($dto->numeroCde, $dto->codeSociete)[0] ?? 0.0;
+        $dto->sommeMontantDdpaValider = $this->em->getRepository(DemandePaiement::class)->getSommeMontantDdpaValide($dto->numeroCde, $dto->codeSociete)[0] ?? 0.0;
+        $dto->soldeAvance = max(0.0, $dto->sommeMontantDdpaValider - $dto->sommeMontantFactureDejaPayer);
+        $dto->soumissionDdpAFaire = $dto->sommeMontantDdpaValider > 0 && $dto->soldeAvance < $dto->montantAregulariser;
+
         return $dto;
     }
 
@@ -189,7 +195,7 @@ class DaSoumissionFacBlFactory
         $ddpDto->statut = $dto->estRegule ? StatutConstants::DDPR_A_TRANSMETTRE : StatutConstants::DDPL_A_TRANSMETTRE;
         $ddpDto->demandeur = $this->securityService->getUserName();
         $ddpDto->adresseMailDemandeur = $this->securityService->getUserEmail();
-        $ddpDto->montantAPayer = $dto->montantAregulariser;
+        $ddpDto->montantAPayer = $dto->soumissionDdpAFaire ? $dto->montantAregulariser - $dto->soldeAvance : $dto->montantAregulariser;
         $ddpDto->numeroCommande = $dto->numeroCde;
         $ddpDto->numeroFacture = $dto->numeroFactureFournisseur;
         $ddpDto->appro = true;
