@@ -6,7 +6,7 @@ use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
-use App\Entity\ddp\DemandePaiement;
+use App\Model\ddp\DemandePaiementModel;
 use App\Model\dw\DossierInterventionAtelierModel;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Doctrine\ORM\EntityManagerInterface;
@@ -233,14 +233,12 @@ class DaService
     {
         $items = [];
         $numDa = $demandeAppro->getNumeroDemandeAppro();
-        $ddps = $this->em->getRepository(DemandePaiement::class)->findAllDdpByDa($numDa);
+        $ddps = (new DemandePaiementModel())->getAllDdpByDa($numDa);
 
-
-        foreach ($ddps as $numeroDdp) {
-
+        foreach ($ddps as $ddp) {
             $items[] = [
-                'numeroDdp' => $numeroDdp,
-                'path'      => "{$_ENV['BASE_PATH_FICHIER_COURT']}/ddp/$numeroDdp/$numeroDdp.pdf",
+                'numeroDdp' => $ddp['numero_ddp'],
+                'path'      => "{$_ENV['BASE_PATH_FICHIER_COURT']}/{$ddp['path']}",
             ];
         }
         return $items;

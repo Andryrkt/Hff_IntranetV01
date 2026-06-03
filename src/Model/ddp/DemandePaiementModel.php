@@ -474,4 +474,54 @@ class DemandePaiementModel extends Model
 
         return $result['path'] ?? '';
     }
+
+    public function getAllDdpByDa(string $numeroDa): array
+    {
+        $sql = "SELECT * FROM 
+            (
+                SELECT
+                    dp.numero_demande_paiement AS numero_ddp,
+                    dp.date_creation,
+                    td.code_type_demande AS code_type,
+                    CASE td.code_type_demande
+                        WHEN 'BAP' THEN (
+                            SELECT TOP 1 t1.path
+                                FROM DW_bon_a_payer t1
+                                WHERE t1.numero_bap = dp.numero_demande_paiement
+                                ORDER BY t1.numero_version DESC
+                        )
+                        WHEN 'DPR' THEN (
+                            SELECT TOP 1 t2.path
+                                FROM DW_regularisation_ddp t2
+                                WHERE t2.numero_ddr = dp.numero_demande_paiement
+                                ORDER BY t2.numero_version DESC
+                        )
+                        WHEN 'DPA' THEN (
+                            SELECT TOP 1 t3.path
+                                FROM DW_demande_de_paiement t3
+                                WHERE t3.numero_ddp = dp.numero_demande_paiement
+                                ORDER BY t3.numero_version DESC
+                        )
+                    END AS path
+                FROM demande_paiement dp
+                INNER JOIN type_demande td
+                    ON dp.type_demande_id = td.id
+                WHERE dp.numero_demande_appro = '$numeroDa'
+            ) AS sub
+            WHERE sub.path IS NOT NULL
+            ORDER BY sub.date_creation ASC;";
+
+        $resultStmt = $this->connexion->query($sql);
+        $data = [];
+
+        while ($result = odbc_fetch_array($resultStmt)) {
+            $data[] = [
+                'numero_ddp' => $result['numero_ddp'],
+                'code_type'  => $result['code_type'],
+                'path'       => $result['path'],
+            ];
+        }
+
+        return $data;
+    }
 }
