@@ -230,6 +230,11 @@ class GeneratePdfDdpDa extends GeneratePdf
         $pdf->writeHTML($html1, true, false, true, false, '');
         $pdf->Ln(5);
 
+        $pdf->SetFont('helvetica', '', 12);
+        $soldeAvance = $dtoFacBl ? number_format($dtoFacBl->soldeAvance, 2, ',', '.') : $dto->soldeAvance;
+        $pdf->Cell(0, 10, 'Solde avance : ' . $soldeAvance, 0, 1);
+
+        // liste des pièces jointes et des dossiers de douane
         $pdf->SetFont('helvetica', 'B', 12);
         $pdf->Cell(0, 10, 'Liste des pièces jointes :', 0, 1);
         $pdf->Line($pdf->GetX() + 1, $pdf->GetY() - 2.5, $pdf->GetX() + $pdf->GetStringWidth('Liste des pièces jointes') + 1, $pdf->GetY() - 2.5);

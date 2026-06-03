@@ -16,6 +16,7 @@ use App\Mapper\Da\ListCdeFrn\DaSoumissionFacBlMapper;
 use App\Mapper\ddp\DdpRecapMapper;
 use App\Mapper\ddp\DemandePaiementMapper;
 use App\Model\da\DaSoumissionFacBlDdpaModel;
+use App\Model\da\DaSoumissionFacBlModel;
 use App\Model\ddp\DemandePaiementModel;
 use App\Service\autres\AutoIncDecService;
 use App\Service\da\DaSoumissionDataService;
@@ -30,7 +31,7 @@ class DemandePaiementFactory
     private EntityManagerInterface $em;
     private DemandePaiementModel $ddpModel;
     private DocDemandePaiementService $docDemandePaiementService;
-    private DaSoumissionFacBlDdpaModel $daSoumissionFacBlDdpaModel;
+    private DaSoumissionFacBlModel $daSoumissionFacBlModel;
     private DdpFinancialService $financialService;
     private NumeroGenerateurService $numeroGenerateur;
     private SecurityService $securityService;
@@ -40,7 +41,7 @@ class DemandePaiementFactory
         EntityManagerInterface $em,
         DemandePaiementModel $ddpModel,
         DocDemandePaiementService $docDemandePaiementService,
-        DaSoumissionFacBlDdpaModel $daSoumissionFacBlDdpaModel,
+        DaSoumissionFacBlModel $daSoumissionFacBlModel,
         DdpFinancialService $financialService,
         NumeroGenerateurService $numeroGenerateur,
         DaSoumissionDataService $dataService
@@ -50,7 +51,7 @@ class DemandePaiementFactory
         $this->em = $em;
         $this->ddpModel = $ddpModel;
         $this->docDemandePaiementService = $docDemandePaiementService;
-        $this->daSoumissionFacBlDdpaModel = $daSoumissionFacBlDdpaModel;
+        $this->daSoumissionFacBlModel = $daSoumissionFacBlModel;
         $this->financialService = $financialService;
         $this->numeroGenerateur = $numeroGenerateur;
         $this->dataService = $dataService;
@@ -77,6 +78,8 @@ class DemandePaiementFactory
         $dto->dernierStatutDdp = $this->recupDernierStatutDdp($dto);
         $dto->estRegule = $dto->montantAregulariser <= 0.0 && !in_array($dto->dernierStatutDdp, StatutConstants::REFUSES_DDP);
         $this->ddpRecap($dto);
+
+
 
         return $dto;
     }
@@ -112,6 +115,10 @@ class DemandePaiementFactory
         $dto->codeSociete = $this->securityService->getCodeSocieteUser();
         $dto->numeroOr = $numOr;
         $dto->infoBc = $this->dataService->getInfoBc($dto->numeroCommande, $dto->codeSociete);
+
+        $dto->sommeMontantFactureDejaPayer = $this->daSoumissionFacBlModel->getSommeMontantFactureDejaPayer($dto->numeroCommande, $dto->codeSociete)[0] ?? 0.0;
+        $dto->sommeMontantDdpaValider = $this->em->getRepository(DemandePaiement::class)->getSommeMontantDdpaValide($dto->numeroCommande, $dto->codeSociete)[0] ?? 0.0;
+        $dto->soldeAvance = max(0.0, $dto->sommeMontantDdpaValider - $dto->sommeMontantFactureDejaPayer);
     }
 
     private function hydrateDaInfo(DemandePaiementDto $dto, ?int $typeDa, int $numeroVersionBc = 0, $sessionService, array $infoDa): void

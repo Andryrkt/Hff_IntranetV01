@@ -97,6 +97,11 @@ class DemandePaiementDto
     public float $ratioMontantARegul;
     public float $pourcentageAPayer = 0.0;
 
+
+    public float $sommeMontantDdpaValider = 0.0;
+    public float $sommeMontantFactureDejaPayer = 0.0;
+    public float $soldeAvance = 0.0; // montant de l'avance qui n'a pas encore été régularisé
+
     public function montantAPayer(): float
     {
         $montant = $this->montantAPayer;
