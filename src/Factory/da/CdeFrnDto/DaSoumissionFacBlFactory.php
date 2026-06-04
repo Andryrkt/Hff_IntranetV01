@@ -101,7 +101,7 @@ class DaSoumissionFacBlFactory
         $dto->sommeMontantFactureDejaPayer = $this->daSoumissionFacBlModel->getSommeMontantFactureDejaPayer($dto->numeroCde, $dto->codeSociete)[0] ?? 0.0;
         $dto->sommeMontantDdpaValider = $this->em->getRepository(DemandePaiement::class)->getSommeMontantDdpaValide($dto->numeroCde, $dto->codeSociete)[0] ?? 0.0;
         $dto->soldeAvance = max(0.0, $dto->sommeMontantDdpaValider - $dto->sommeMontantFactureDejaPayer);
-        $dto->soumissionDdpAFaire = $dto->sommeMontantDdpaValider > 0 && $dto->soldeAvance < $dto->montantAregulariser;
+        $dto->soumissionDdpAFaire = $dto->sommeMontantDdpaValider > 0.0 && $dto->soldeAvance < $dto->montantAregulariser;
 
         return $dto;
     }
