@@ -72,7 +72,7 @@ class DaSoumissionFacBlType extends AbstractType
                 'data' => 0,
                 'attr' => [
                     'data-field-name' => 'du Montant HT du BL facture fournisseur',
-                    'disabled' => $options['data']->estRegule ? true : false,
+                    // 'disabled' => $options['data']->estRegule ? true : false,
                 ],
             ])
             ->add(

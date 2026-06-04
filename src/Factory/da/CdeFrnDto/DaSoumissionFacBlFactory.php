@@ -118,7 +118,6 @@ class DaSoumissionFacBlFactory
 
     public function EnrichissementDtoApresSoumission(DaSoumissionFacBlDto $dto)
     {
-
         $dto->sommeMontantFactureDejaPayer = $this->em->getRepository(DaSoumissionFacBl::class)->getMontantFactureDejaSoumis($dto->numeroCde, $dto->codeSociete) ?? 0.0;
         $dto->sommeMontantDdpaValider = $this->em->getRepository(DemandePaiement::class)->getSommeMontantDdpaValide($dto->numeroCde, $dto->codeSociete)[1] ?? 0.0;
         $dto->soldeAvance = max(0.0, $dto->sommeMontantDdpaValider - $dto->sommeMontantFactureDejaPayer);

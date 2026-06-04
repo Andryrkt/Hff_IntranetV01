@@ -58,8 +58,8 @@ class DaSoumissionCalculService
         if ($demandePaiementAvance > 0) {
 
             // echo "misy demande de paiement à l'avance";
-            // calcul solde
-            $totalMontantPayer = ($demandePaiementAvance - $TotalMontantFactureSoumise) - $MontantFactureEnCours; // 200 000 AR
+            // calcul solde      
+            $totalMontantPayer = abs(($demandePaiementAvance - $TotalMontantFactureSoumise) - $MontantFactureEnCours); // 200 000 AR
             if ($totalCommande > 0) {
                 $ratio = ($totalMontantPayer / $totalCommande) * 100;
             }
@@ -81,8 +81,8 @@ class DaSoumissionCalculService
             }
         }
 
-        
-        $dto->ratioMontantARegul = $ratio; // ratio du montant à régulariser par rapport au montant total de la commande
+
+        $dto->ratioMontantARegul = round($ratio, 2); // ratio du montant à régulariser par rapport au montant total de la commande
         $dto->ratioMontantDejaPaye = $ratioDejaPayer; // ratio du montant déjà payé par rapport au montant total de la commande
         $dto->totalMontantPayer = $TotalMontantFactureSoumise; // montant total à payer (somme du montant de la facture en cours et des montants des factures déjà soumises)
         $dto->montantAregulariser = $totalMontantPayer; // montant à régulariser (différence entre le montant total à payer et le montant déjà payé)
