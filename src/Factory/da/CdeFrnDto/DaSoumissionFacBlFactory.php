@@ -180,6 +180,11 @@ class DaSoumissionFacBlFactory
 
         $infoFournisseur = $this->dataService->getInfoFournisseur($infoDa['numeroFournisseur'], $dto->numeroCde, $dto->codeSociete);
 
+        $financialService = new DdpFinancialService($this->em);
+        [$pourcentageAvance, $pourcentageAPayer] = $financialService->calculateGlobalFinancials($ddpDto);
+        $ddpDto->pourcentageAvance = $pourcentageAvance;
+        $ddpDto->pourcentageAPayer = $pourcentageAPayer;
+
         if (!empty($infoFournisseur)) {
             $ddpDto->numeroFournisseur = $infoFournisseur[0]['num_fournisseur'];
             $ddpDto->ribFournisseur = $infoFournisseur[0]['rib_fournisseur'];
