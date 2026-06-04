@@ -44,14 +44,19 @@ class GenererPdfBonAPayer extends GeneratePdf
 
         $this->renderHistoriqueDdp($pdf, $dto->demandePaiementDto->ddpRecap);
 
-        // Afficher le montant de la DDP
+        // Afficher le montant de la BAP avec le pourcentage à payer en rouge
         $pdf->Ln(5);
         $pdf->SetTextColor(0, 0, 0);
         $pdf->setFont('helvetica', 'B', 10);
         $pdf->Cell(35, 6, 'MONTANT BAP : ', 0, 0, 'L', false, '', 0, false, 'T', 'M');
-        $pdf->setFont('helvetica', '', 10);
-        $pdf->Cell(35, 6, number_format($dto->montantAregulariser, 2, ',', '.') . ' ' . $dto->devise, 0, 0, 'L', false, '', 0, false, 'T', 'M');
 
+        $pdf->setFont('helvetica', '', 10);
+        $pdf->SetTextColor(255, 0, 0); // Rouge pour le pourcentage
+        $pdf->Cell(15, 6, '(' . $dto->demandePaiementDto->pourcentageAPayer . ') ', 0, 0, 'L', false, '', 0, false, 'T', 'M');
+
+        $pdf->SetTextColor(0, 0, 0); // Noir pour le reste
+        $pdf->Cell(0, 6, number_format($dto->montantAregulariser, 2, ',', '.') . ' ' . $dto->devise, 0, 0, 'L', false, '', 0, false, 'T', 'M');
+        
         // Sauvegarder le PDF
         return $this->savePDF($pdf, $demandeAppro->getNumeroDemandeAppro(), $infoBC["num_cde"]);
     }
