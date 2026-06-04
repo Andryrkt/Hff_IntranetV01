@@ -11,6 +11,7 @@ use App\Entity\admin\ddp\TypeDemande;
 use App\Entity\admin\Service;
 use App\Entity\da\DaAfficher;
 use App\Entity\da\DaSoumissionBc;
+use App\Entity\da\DaSoumissionFacBl;
 use App\Entity\ddp\DemandePaiement;
 use App\Mapper\Da\ListCdeFrn\DaSoumissionFacBlMapper;
 use App\Mapper\ddp\DdpRecapMapper;
@@ -116,7 +117,7 @@ class DemandePaiementFactory
         $dto->numeroOr = $numOr;
         $dto->infoBc = $this->dataService->getInfoBc($dto->numeroCommande, $dto->codeSociete);
 
-        $dto->sommeMontantFactureDejaPayer = $this->daSoumissionFacBlModel->getSommeMontantFactureDejaPayer($dto->numeroCommande, $dto->codeSociete)[0] ?? 0.0;
+        $dto->sommeMontantFactureDejaPayer = $this->em->getRepository(DaSoumissionFacBl::class)->getMontantFactureDejaSoumis($dto->numeroCommande, $dto->codeSociete) ?? 0.0;
         $dto->sommeMontantDdpaValider = $this->em->getRepository(DemandePaiement::class)->getSommeMontantDdpaValide($dto->numeroCommande, $dto->codeSociete)[0] ?? 0.0;
         $dto->soldeAvance = max(0.0, $dto->sommeMontantDdpaValider - $dto->sommeMontantFactureDejaPayer);
     }

@@ -215,7 +215,7 @@ class GeneratePdfDdpDa extends GeneratePdf
 
         // Montant en noir aligné à droite — bordures droite + haut + bas
         $pdf->SetTextColor(0, 0, 0);
-        $pdf->Cell($montantWidth, 10, $montantAPayer, 'RTB', 0, 'R'); // valeur de "Montant à payer" (126.000,12)
+        $pdf->Cell($montantWidth, 10, number_format($montantAPayer, 2, ',', '.'), 'RTB', 0, 'R'); // valeur de "Montant à payer" (126.000,12)
         $pdf->Cell(30, 10, $dto->devise, 1, 1); //  valeur de "Devise" (AR)
 
         $pdf->Ln(5);
@@ -232,7 +232,7 @@ class GeneratePdfDdpDa extends GeneratePdf
 
         $pdf->SetFont('helvetica', '', 12);
         $soldeAvance = $dtoFacBl ? number_format($dtoFacBl->soldeAvance, 2, ',', '.') : $dto->soldeAvance;
-        $pdf->Cell(0, 10, 'Solde avance : ' . $soldeAvance, 0, 1);
+        $pdf->Cell(0, 10, 'Solde avance : ' . $soldeAvance . ' ' . $dto->devise, 0, 1);
 
         // liste des pièces jointes et des dossiers de douane
         $pdf->SetFont('helvetica', 'B', 12);

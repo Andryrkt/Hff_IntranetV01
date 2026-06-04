@@ -48,9 +48,9 @@ class GenererPdfBonAPayer extends GeneratePdf
         $pdf->Ln(5);
         $pdf->SetTextColor(0, 0, 0);
         $pdf->setFont('helvetica', 'B', 10);
-        $pdf->Cell(35, 6, 'Montant DAP : ', 0, 0, 'L', false, '', 0, false, 'T', 'M');
+        $pdf->Cell(35, 6, 'MONTANT BAP : ', 0, 0, 'L', false, '', 0, false, 'T', 'M');
         $pdf->setFont('helvetica', '', 10);
-        $pdf->Cell(35, 6, number_format($dto->montantAregulariser, 2, ',', '.').' ' . $dto->devise, 0, 0, 'L', false, '', 0, false, 'T', 'M');
+        $pdf->Cell(35, 6, number_format($dto->montantAregulariser, 2, ',', '.') . ' ' . $dto->devise, 0, 0, 'L', false, '', 0, false, 'T', 'M');
 
         // Sauvegarder le PDF
         return $this->savePDF($pdf, $demandeAppro->getNumeroDemandeAppro(), $infoBC["num_cde"]);

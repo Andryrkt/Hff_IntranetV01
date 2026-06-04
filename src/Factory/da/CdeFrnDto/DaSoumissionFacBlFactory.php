@@ -186,10 +186,9 @@ class DaSoumissionFacBlFactory
 
         $infoFournisseur = $this->dataService->getInfoFournisseur($infoDa['numeroFournisseur'], $dto->numeroCde, $dto->codeSociete);
 
-        $financialService = new DdpFinancialService($this->em);
-        [$pourcentageAvance, $pourcentageAPayer] = $financialService->calculateGlobalFinancials($ddpDto);
-        $ddpDto->pourcentageAvance = $pourcentageAvance;
-        $ddpDto->pourcentageAPayer = $pourcentageAPayer;
+
+
+
 
         if (!empty($infoFournisseur)) {
             $ddpDto->numeroFournisseur = $infoFournisseur[0]['num_fournisseur'];
@@ -220,7 +219,26 @@ class DaSoumissionFacBlFactory
         $ddpDto->codeSociete = $dto->codeSociete;
         $this->ddpRecap($ddpDto);
 
+        $this->hydrateFinancialData($ddpDto);
+
         return $ddpDto;
+    }
+
+    private function hydrateFinancialData(DemandePaiementDto $dto): void
+    {
+        $financialService = new DdpFinancialService($this->em);
+
+        $dto->totalMontantCommande = $financialService->recuperationMontantTotalCommande($dto->numeroCommande, $dto->codeSociete);
+
+        [$montantDejaPaye, $ratioMontantDejaPaye, $montantAregulariser, $ratioMontantARegul] = $financialService->calculatePaymentRatios($dto);
+        $dto->montantDejaPaye = $montantDejaPaye;
+        $dto->ratioMontantDejaPaye = $ratioMontantDejaPaye;
+        $dto->montantAregulariser = $montantAregulariser;
+        $dto->ratioMontantARegul = $ratioMontantARegul;
+
+        [$pourcentageAvance, $pourcentageAPayer] = $financialService->calculateGlobalFinancials($dto);
+        $dto->pourcentageAvance = $pourcentageAvance;
+        $dto->pourcentageAPayer = $pourcentageAPayer;
     }
 
     private function ddpRecap(DemandePaiementDto $dto)
