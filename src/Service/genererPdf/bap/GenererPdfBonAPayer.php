@@ -42,7 +42,7 @@ class GenererPdfBonAPayer extends GeneratePdf
         $this->renderInfoFACBL($pdf, $w100, $infoFacBl);
         $this->renderHistoriqueLivraison($pdf, $historiqueLivraison);
 
-        $this->renderHistoriqueDdp($pdf, $dto->demandePaiementDto->ddpRecap);git 
+        $this->renderHistoriqueDdp($pdf, $dto->demandePaiementDto->ddpRecap);
 
         // Afficher le montant de la DDP
         $pdf->Ln(5);
