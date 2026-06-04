@@ -94,6 +94,19 @@ const statutAffiche = document.getElementById("statut-affiche");
 const bcValideTelecharger = document.getElementById("bcValideTelecharger"); // Déplacé ici
 const form = document.forms["da_soumission"];
 const formDdp = document.forms["da_ddp"]
+
+// Gestion de l'ouverture dans un nouvel onglet pour 'Facture + BL'
+if (form) {
+  form.addEventListener("submit", function () {
+    const selectedSoumission = form.querySelector('input[name="da_soumission[soumission]"]:checked')?.value;
+    if (selectedSoumission === "Facture + BL") {
+      this.target = "_blank";
+    } else {
+      this.target = "_self";
+    }
+  });
+}
+
 const DA_REAPPRO = "2";
 const DAO = "0";
 const DAD = "1";
