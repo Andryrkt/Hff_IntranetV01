@@ -52,10 +52,10 @@ class GenererPdfBonAPayer extends GeneratePdf
 
         $pdf->setFont('helvetica', '', 10);
         $pdf->SetTextColor(255, 0, 0); // Rouge pour le pourcentage
-        $pdf->Cell(10, 6, '(' . $dto->demandePaiementDto->pourcentageAPayer . '%) ', 0, 0, 'L', false, '', 0, false, 'T', 'M');
+        $pdf->Cell(12, 6, '(' . $dto->demandePaiementDto->pourcentageAPayer . '%) ', 0, 0, 'L', false, '', 0, false, 'T', 'M');
 
         $pdf->SetTextColor(0, 0, 0); // Noir pour le reste
-        $pdf->Cell(0, 6, number_format($dto->montantAregulariser, 2, ',', '.') . ' ' . $dto->devise, 0, 0, 'L', false, '', 0, false, 'T', 'M');
+        $pdf->Cell(0, 6, number_format($dto->demandePaiementDto->montantAPayer, 2, ',', '.') . ' ' . $dto->devise, 0, 0, 'L', false, '', 0, false, 'T', 'M');
 
         // Sauvegarder le PDF
         return $this->savePDF($pdf, $demandeAppro->getNumeroDemandeAppro(), $infoBC["num_cde"]);

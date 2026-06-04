@@ -93,21 +93,17 @@ class DaSoumissionFacBlFactory
         // recuperation des demandes de paiement déjà payer
         $this->getDdpa($dto);
 
-        $this->calculService->calculerMontantEtRatios($dto);
-        $dto->estRegule = $dto->montantAregulariser <= 0.0 && !in_array($dto->dernierStatutDdp, StatutConstants::REFUSES_DDP);
+
 
         // recupération des informations de commande
         $this->getReception($dto);
 
         //
-        $dto->sommeMontantFactureDejaPayer = $this->em->getRepository(DaSoumissionFacBl::class)->getMontantFactureDejaSoumis($dto->numeroCde, $dto->codeSociete) ?? 0.0;
-        $dto->sommeMontantDdpaValider = $this->em->getRepository(DemandePaiement::class)->getSommeMontantDdpaValide($dto->numeroCde, $dto->codeSociete)[1] ?? 0.0;
-        $dto->soldeAvance = max(0.0, $dto->sommeMontantDdpaValider - $dto->sommeMontantFactureDejaPayer);
-        $dto->soumissionDdpAFaire = $dto->sommeMontantDdpaValider > 0.0 && $dto->soldeAvance < $dto->montantAregulariser;
-        //dd($dto->sommeMontantFactureDejaPayer, $dto->sommeMontantDdpaValider, $dto->soldeAvance, $dto->montantAregulariser, $dto->soumissionDdpAFaire);
+
 
         $dto->posl = $this->daSoumissionFacBlModel->getPosl($dto->numeroCde, $dto->codeSociete);
         $dto->devise = $this->daSoumissionFacBlModel->getDevise($dto->numeroCde, $dto->codeSociete);
+
 
         return $dto;
     }
@@ -120,6 +116,15 @@ class DaSoumissionFacBlFactory
 
     public function EnrichissementDtoApresSoumission(DaSoumissionFacBlDto $dto)
     {
+
+        $dto->sommeMontantFactureDejaPayer = $this->em->getRepository(DaSoumissionFacBl::class)->getMontantFactureDejaSoumis($dto->numeroCde, $dto->codeSociete) ?? 0.0;
+        $dto->sommeMontantDdpaValider = $this->em->getRepository(DemandePaiement::class)->getSommeMontantDdpaValide($dto->numeroCde, $dto->codeSociete)[1] ?? 0.0;
+        $dto->soldeAvance = max(0.0, $dto->sommeMontantDdpaValider - $dto->sommeMontantFactureDejaPayer);
+        //dd($dto->sommeMontantFactureDejaPayer, $dto->sommeMontantDdpaValider, $dto->soldeAvance, $dto->montantAregulariser, $dto->soumissionDdpAFaire);
+
+        $this->calculService->calculerMontantEtRatios($dto);
+        
+
 
         $dto->montantBlFacture = (float)str_replace(',', '.', str_replace(' ', '', $dto->montantBlFacture ?? '0'));
         $dto->numeroFactureFournisseur = $this->getNumFacEtMontant($dto->numLiv, $dto->codeSociete)[0]['numero_facture'];
@@ -186,10 +191,6 @@ class DaSoumissionFacBlFactory
 
         $infoFournisseur = $this->dataService->getInfoFournisseur($infoDa['numeroFournisseur'], $dto->numeroCde, $dto->codeSociete);
 
-
-
-
-
         if (!empty($infoFournisseur)) {
             $ddpDto->numeroFournisseur = $infoFournisseur[0]['num_fournisseur'];
             $ddpDto->ribFournisseur = $infoFournisseur[0]['rib_fournisseur'];
@@ -205,7 +206,7 @@ class DaSoumissionFacBlFactory
         $ddpDto->statut = $dto->estRegule ? StatutConstants::DDPR_A_TRANSMETTRE : StatutConstants::DDPL_A_TRANSMETTRE;
         $ddpDto->demandeur = $this->securityService->getUserName();
         $ddpDto->adresseMailDemandeur = $this->securityService->getUserEmail();
-        $ddpDto->montantAPayer = $dto->soumissionDdpAFaire ? $dto->montantAregulariser - $dto->soldeAvance : $dto->montantAregulariser;
+        $ddpDto->montantAPayer =  $dto->montantAregulariser;
         $ddpDto->numeroCommande = $dto->numeroCde;
         $ddpDto->numeroFacture = $dto->numeroFactureFournisseur;
         $ddpDto->appro = true;
@@ -218,27 +219,9 @@ class DaSoumissionFacBlFactory
         $ddpDto->motif = $infoDa['objetDal'];
         $ddpDto->codeSociete = $dto->codeSociete;
         $this->ddpRecap($ddpDto);
-
-        $this->hydrateFinancialData($ddpDto);
+        $ddpDto->pourcentageAPayer = $dto->ratioMontantARegul;
 
         return $ddpDto;
-    }
-
-    private function hydrateFinancialData(DemandePaiementDto $dto): void
-    {
-        $financialService = new DdpFinancialService($this->em);
-
-        $dto->totalMontantCommande = $financialService->recuperationMontantTotalCommande($dto->numeroCommande, $dto->codeSociete);
-
-        [$montantDejaPaye, $ratioMontantDejaPaye, $montantAregulariser, $ratioMontantARegul] = $financialService->calculatePaymentRatios($dto);
-        $dto->montantDejaPaye = $montantDejaPaye;
-        $dto->ratioMontantDejaPaye = $ratioMontantDejaPaye;
-        $dto->montantAregulariser = $montantAregulariser;
-        $dto->ratioMontantARegul = $ratioMontantARegul;
-
-        [$pourcentageAvance, $pourcentageAPayer] = $financialService->calculateGlobalFinancials($dto);
-        $dto->pourcentageAvance = $pourcentageAvance;
-        $dto->pourcentageAPayer = $pourcentageAPayer;
     }
 
     private function ddpRecap(DemandePaiementDto $dto)

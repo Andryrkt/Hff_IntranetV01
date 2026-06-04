@@ -2,6 +2,7 @@
 
 namespace App\Service\da;
 
+use App\Constants\ddp\StatutConstants;
 use App\Dto\Da\ListeCdeFrn\DaSoumissionFacBlDto;
 use App\Entity\ddp\DemandePaiement;
 use App\Mapper\Da\ListCdeFrn\DaSoumissionFacBlMapper;
@@ -46,24 +47,51 @@ class DaSoumissionCalculService
      */
     public function calculerMontantEtRatios(DaSoumissionFacBlDto $dto): DaSoumissionFacBlDto
     {
-        $ddpRepository = $this->em->getRepository(DemandePaiement::class);
+        $demandePaiementAvance = $dto->sommeMontantDdpaValider;
+        $MontantFactureEnCours = $dto->montantBlFacture; // numero facture que l'utilisateur est entrain de soumettre
+        $ratio = 0.0;
+        $totalCommande = $dto->totalMontantCommande;
+        $TotalMontantFactureSoumise = $dto->sommeMontantFactureDejaPayer;
+        $ratioDejaPayer = ($totalCommande > 0) ? ($TotalMontantFactureSoumise / $totalCommande) * 100 : 0;
+        // si il y une demande de paiement à l'avance  : appliquer le solde avance
+        if ($demandePaiementAvance > 0) {
 
-        $ddps = $ddpRepository->getDdpSelonNumCde($dto->numeroCde);
+            // echo "misy demande de paiement à l'avance";
+            // calcul solde
+            $totalMontantPayer = ($demandePaiementAvance - $TotalMontantFactureSoumise) - $MontantFactureEnCours; // 200 000 AR
+            if ($totalCommande > 0) {
+                $ratio = ($totalMontantPayer / $totalCommande) * 100;
+            }
 
-        $totalMontantPayer = $this->getTotalPayer($ddps);
-        $ratioTotalPayer = ($dto->totalMontantCommande > 0) ? ($totalMontantPayer / $dto->totalMontantCommande) * 100 : 0;
-        $montantAregulariser = $dto->totalMontantCommande - $totalMontantPayer;
-        $ratioMontantARegul = ($dto->totalMontantCommande > 0) ? ($montantAregulariser /  $dto->totalMontantCommande) * 100 : 0;
+            if ($totalMontantPayer > 0) {
+                // création demande demande de paiement.
+                $dto->soumissionDdpAFaire = false;
+            } else {
+                // regul si = 0 / bloquer si < 0
+                $dto->estRegule = $totalMontantPayer == 0.0 && !in_array($dto->dernierStatutDdp, StatutConstants::REFUSES_DDP);
+                $dto->soumissionDdpAFaire = $totalMontantPayer < 0 ? true : false;
+            }
+        } else {
+            // si pas de demande de paiement à l'avance : ne pas appliquer le solde avance
+            // echo "tsy misy demande de paiement à l'avance";
+            $totalMontantPayer = $MontantFactureEnCours;
+            if ($totalCommande > 0) {
+                $ratio = ($totalMontantPayer / $totalCommande) * 100;
+            }
+        }
 
-        $dto->totalMontantPayer = $totalMontantPayer;
+        $dto->ratioMontantARegul = $ratio; // ratio du montant à régulariser par rapport au montant total de la commande
+        $dto->ratioMontantDejaPaye = $ratioDejaPayer; // ratio du montant déjà payé par rapport au montant total de la commande
+        $dto->totalMontantPayer = $TotalMontantFactureSoumise; // montant total à payer (somme du montant de la facture en cours et des montants des factures déjà soumises)
+        $dto->montantAregulariser = $totalMontantPayer; // montant à régulariser (différence entre le montant total à payer et le montant déjà payé)
 
         // Utilisation du mapper pour les données de sortie spécifiques au DTO
         return DaSoumissionFacBlMapper::mapTotalPayer(
             $dto,
+            $TotalMontantFactureSoumise,
+            $ratioDejaPayer,
             $totalMontantPayer,
-            $ratioTotalPayer,
-            $montantAregulariser,
-            $ratioMontantARegul
+            $ratio
         );
     }
 

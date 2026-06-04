@@ -56,6 +56,8 @@ class DaSoumissionDataService
 
         $livraisonSoumis = $this->em->getRepository(DaSoumissionFacBl::class)->getAllLivraisonSoumis($numDa, $numCde, $codeSociete);
 
+
+
         foreach ($livraisonSoumis as $numLiv) {
             unset($infosLivraisons[$numLiv]);
         }
@@ -64,6 +66,8 @@ class DaSoumissionDataService
             $message = "Toutes les demandes de paiement sont en cours de validation ou déjà validées.";
             $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn');
         }
+
+
 
         return $infosLivraisons;
     }

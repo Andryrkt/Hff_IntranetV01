@@ -113,4 +113,17 @@ class DaSoumissionFacBlModel extends Model
 
         return array_column($data, 'devise')[0] ?? null;
     }
+
+    public function getMontantLivraison(string $numeroLivraison, string $codeSociete)
+    {
+        $statement = " SELECT SUM(fllf_qteliv * fllf_achnet) as montant_livraison 
+                        from informix.frn_llf 
+                        WHERE fllf_numliv='$numeroLivraison' and fllf_soc='$codeSociete'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return array_column($data, 'montant_livraison')[0] ?? 0.0;
+    }
 }

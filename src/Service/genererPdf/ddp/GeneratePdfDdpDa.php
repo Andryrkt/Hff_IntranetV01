@@ -207,7 +207,7 @@ class GeneratePdfDdpDa extends GeneratePdf
         $montantAPayer = is_string($dto->montantAPayer) ? $dto->montantAPayer : number_format((float)$dto->montantAPayer, 2, ',', '.');
         $pourcentageApayer = '(' . $dto->pourcentageAPayer . ' %) ';
         $cellWidth = $usable_width - 100;
-        $montantWidth = $pdf->GetStringWidth($montantAPayer) + 2;
+        $montantWidth = $pdf->GetStringWidth(number_format($montantAPayer, 2, ',', '.')) + 2;
 
         // Pourcentage en rouge — bordures gauche + haut + bas - Aligné à droite pour coller au montant
         $pdf->SetTextColor(255, 0, 0);

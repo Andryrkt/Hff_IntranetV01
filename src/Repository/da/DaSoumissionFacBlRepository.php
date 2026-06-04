@@ -51,6 +51,8 @@ class DaSoumissionFacBlRepository extends EntityRepository
             AND (ddp.statut NOT LIKE :statutRefuse OR ddp.statut IS NULL)
         ";
 
+
+
         $rows = $conn->fetchAllAssociative($sql, [
             'numDa' => $numDa,
             'numCde' => $numCde,
