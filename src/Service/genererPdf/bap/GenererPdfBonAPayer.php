@@ -44,6 +44,14 @@ class GenererPdfBonAPayer extends GeneratePdf
 
         $this->renderHistoriqueDdp($pdf, $dto->demandePaiementDto->ddpRecap);
 
+        // Afficher le montant de la DDP
+        $pdf->Ln(5);
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->setFont('helvetica', 'B', 10);
+        $pdf->Cell(35, 6, 'Montant DDP : ', 0, 0, 'L', false, '', 0, false, 'T', 'M');
+        $pdf->setFont('helvetica', '', 10);
+        $pdf->Cell(35, 6, $dto->montantAregulariser, 0, 0, 'L', false, '', 0, false, 'T', 'M');
+
         // Sauvegarder le PDF
         return $this->savePDF($pdf, $demandeAppro->getNumeroDemandeAppro(), $infoBC["num_cde"]);
     }
