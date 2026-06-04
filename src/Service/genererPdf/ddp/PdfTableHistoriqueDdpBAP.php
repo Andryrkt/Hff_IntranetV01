@@ -27,7 +27,7 @@ class PdfTableHistoriqueDdpBAP
             $this->createTableCell('left', '10%', 'N° facture'),
             $this->createTableCell('left', '15%', 'N° facture IPS'),
             $this->createTableCell('center', '5%', '%'),
-            $this->createTableCell('right', '15%', 'Montant HT'),
+            $this->createTableCell('right', '15%', 'Montant HT (AR)'),
             $this->createTableCell('left', '10%', 'Statut'),
             $this->createTableCell('left', '10%', 'Emetteur'),
         ];

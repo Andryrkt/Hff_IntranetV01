@@ -48,7 +48,7 @@ class GenererPdfBonAPayer extends GeneratePdf
         $pdf->Ln(5);
         $pdf->SetTextColor(0, 0, 0);
         $pdf->setFont('helvetica', 'B', 10);
-        $pdf->Cell(35, 6, 'MONTANT BAP : ', 0, 0, 'L', false, '', 0, false, 'T', 'M');
+        $pdf->Cell(30, 6, 'MONTANT BAP : ', 0, 0, 'L', false, '', 0, false, 'T', 'M');
 
         $pdf->setFont('helvetica', '', 10);
         $pdf->SetTextColor(255, 0, 0); // Rouge pour le pourcentage

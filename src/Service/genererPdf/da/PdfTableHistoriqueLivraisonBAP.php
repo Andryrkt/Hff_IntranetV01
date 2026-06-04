@@ -24,7 +24,7 @@ class PdfTableHistoriqueLivraisonBAP
             $this->createTableCell('center', '20%', 'N° Facture IPS'),
             $this->createTableCell('left', '25%', 'Référence'),
             $this->createTableCell('center', '20%', 'Date livraison IPS'),
-            $this->createTableCell('right', '20%', 'Montant'),
+            $this->createTableCell('right', '20%', 'Montant (AR)'),
         ];
 
         return sprintf(
