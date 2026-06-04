@@ -7,6 +7,7 @@ use App\Dto\Da\ddp\BapSearchDto;
 use App\Entity\admin\utilisateur\User;
 use App\Service\TableauEnStringService;
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\Query;
 
 class DemandePaiementRepository extends EntityRepository
 {
@@ -324,5 +325,24 @@ class DemandePaiementRepository extends EntityRepository
         return $queryBuilder->getQuery()
             ->getOneOrNullResult()
         ;
+    }
+
+    public function getSommeMontantValide(string $numeroCde, string $codeSociete)
+    {
+        $queryBuilder = $this->createQueryBuilder('d')
+            ->select('SUM(d.montantAPayers)')
+            ->andWhere('d.numeroCommande = :numCde')
+            ->andWhere('d.statut =  :statut')
+            ->andWhere('d.codeSociete = :codeSociete')
+            ->setParameters([
+                'numCde' => $numeroCde,
+                'statut' => StatutConstants::VALIDE,
+                'codeSociete' => $codeSociete
+            ]);
+
+        $result = $queryBuilder->getQuery()
+            ->getOneOrNullResult(Query::HYDRATE_SINGLE_SCALAR);;
+
+        return $result !== null ? (float) $result : null;
     }
 }

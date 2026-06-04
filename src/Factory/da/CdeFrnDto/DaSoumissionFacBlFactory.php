@@ -99,7 +99,9 @@ class DaSoumissionFacBlFactory
         $this->getReception($dto);
 
         //
+        $dto->totalMontantDdpValid = $this->em->getRepository(DemandePaiement::class)->getSommeMontantValide($dto->numeroCde, $dto->codeSociete) ?? 0.0;
 
+        $dto->estRegule = $dto->totalMontantCommande == $dto->totalMontantDdpValid && !in_array($dto->dernierStatutDdp, StatutConstants::REFUSES_DDP);
 
         $dto->posl = $this->daSoumissionFacBlModel->getPosl($dto->numeroCde, $dto->codeSociete);
         $dto->devise = $this->daSoumissionFacBlModel->getDevise($dto->numeroCde, $dto->codeSociete);
@@ -123,7 +125,6 @@ class DaSoumissionFacBlFactory
         //dd($dto->sommeMontantFactureDejaPayer, $dto->sommeMontantDdpaValider, $dto->soldeAvance, $dto->montantAregulariser, $dto->soumissionDdpAFaire);
 
         $this->calculService->calculerMontantEtRatios($dto);
-        
 
 
         $dto->montantBlFacture = (float)str_replace(',', '.', str_replace(' ', '', $dto->montantBlFacture ?? '0'));
