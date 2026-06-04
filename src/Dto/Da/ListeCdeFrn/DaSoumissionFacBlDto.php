@@ -77,6 +77,7 @@ class DaSoumissionFacBlDto
     public float $soldeAvance = 0.0;
     public bool $soumissionDdpAFaire = false;
     public  ?string $posl = null; // valeur possible : 'TL' ou autre chose
+    public ?string $devise = null;
 
     public function montantAPayer(): float
     {

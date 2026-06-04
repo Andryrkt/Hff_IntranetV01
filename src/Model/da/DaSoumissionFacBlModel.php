@@ -99,4 +99,18 @@ class DaSoumissionFacBlModel extends Model
 
         return array_column($data, 'posl')[0] ?? null;
     }
+
+    public function getDevise(int $numCde, string $codeSociete)
+    {
+        $statement = " SELECT TRIM(fcde_devise) as devise
+            from informix.frn_cde 
+            where fcde_numcde = $numCde
+            AND fcde_soc = '$codeSociete'
+            ";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return array_column($data, 'devise')[0] ?? null;
+    }
 }

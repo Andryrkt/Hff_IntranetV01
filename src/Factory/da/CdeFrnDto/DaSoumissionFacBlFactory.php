@@ -107,6 +107,7 @@ class DaSoumissionFacBlFactory
         //dd($dto->sommeMontantFactureDejaPayer, $dto->sommeMontantDdpaValider, $dto->soldeAvance, $dto->montantAregulariser, $dto->soumissionDdpAFaire);
 
         $dto->posl = $this->daSoumissionFacBlModel->getPosl($dto->numeroCde, $dto->codeSociete);
+        $dto->devise = $this->daSoumissionFacBlModel->getDevise($dto->numeroCde, $dto->codeSociete);
 
         return $dto;
     }
