@@ -157,7 +157,7 @@ class DemandePaiementDaController extends Controller
             $criteria = $this->getSessionService()->get('criteria_for_excel_Da_Cde_frn');
             $nomDeRoute = 'da_bon_a_payer'; // route de redirection après soumission
             $nomInputSearch = 'cde_frn_list'; // initialistion de nom de chaque champ ou input
-            $this->historiqueOperation->sendNotificationSoumission($message, $dto->numeroDdp, $nomDeRoute, true, $criteria, $nomInputSearch);
+            $this->historiqueOperation->sendNotificationSoumission($message, $dto->numeroDdp, $nomDeRoute, true, $criteria, $nomInputSearch, [], null, true);
         }
     }
 

@@ -85,4 +85,17 @@ class DaSoumissionFacBlModel extends Model
 
         return $data;
     }
+
+
+    public function getSommeMontantFactureDejaPayer(string $numCde, string $codeSociete)
+    {
+        $statement = " SELECT SUM(fllf_qteliv * fllf_achnet) as montant_facture_deja_soumis 
+        from informix.frn_llf where fllf_numcde ='$numCde' and fllf_soc='$codeSociete'
+            ";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return array_column($data, 'montant_facture_deja_soumis');
+    }
 }
