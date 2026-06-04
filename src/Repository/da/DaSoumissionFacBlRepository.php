@@ -190,4 +190,18 @@ class DaSoumissionFacBlRepository extends EntityRepository
             ->getQuery()
             ->getSingleColumnResult();
     }
+
+    public function getMontantFactureDejaSoumis(string $numCde, string $codeSociete): ?float
+    {
+        $result = $this->createQueryBuilder('dabc')
+            ->select('SUM(dabc.montantBlFacture)')
+            ->where('dabc.numeroCde = :numCde')
+            ->andWhere('dabc.codeSociete = :codeSociete')
+            ->setParameter('numCde', $numCde)
+            ->setParameter('codeSociete', $codeSociete)
+            ->getQuery()
+            ->getOneOrNullResult(Query::HYDRATE_SINGLE_SCALAR);
+
+        return $result !== null ? (float) $result : null;
+    }
 }

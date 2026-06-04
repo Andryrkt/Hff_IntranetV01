@@ -10,19 +10,21 @@ use App\Dto\Da\ListeCdeFrn\DaSoumissionFacBlDto;
 use App\Dto\ddp\DemandePaiementDto;
 use App\Entity\admin\ddp\TypeDemande;
 use App\Entity\da\DaSoumissionBc;
+use App\Entity\da\DaSoumissionFacBl;
 use App\Entity\ddp\DemandePaiement;
 use App\Mapper\Da\ListCdeFrn\DaSoumissionFacBlMapper;
 use App\Mapper\ddp\DdpRecapMapper;
 use App\Mapper\ddp\DemandePaiementMapper;
 use App\Model\da\DaSoumissionFacBlModel;
+use App\Repository\da\DaSoumissionFacBlRepository;
 use App\Service\autres\AutoIncDecService;
 use App\Service\da\DaSoumissionCalculService;
 use App\Service\da\DaSoumissionDataService;
 use App\Service\da\NumeroGenerateurService;
+use App\Service\ddp\DdpFinancialService;
 use App\Service\security\SecurityService;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
-use App\Service\ddp\DdpFinancialService;
 
 
 class DaSoumissionFacBlFactory
@@ -98,10 +100,11 @@ class DaSoumissionFacBlFactory
         $this->getReception($dto);
 
         //
-        $dto->sommeMontantFactureDejaPayer = $this->daSoumissionFacBlModel->getSommeMontantFactureDejaPayer($dto->numeroCde, $dto->codeSociete)[0] ?? 0.0;
-        $dto->sommeMontantDdpaValider = $this->em->getRepository(DemandePaiement::class)->getSommeMontantDdpaValide($dto->numeroCde, $dto->codeSociete)[0] ?? 0.0;
+        $dto->sommeMontantFactureDejaPayer = $this->em->getRepository(DaSoumissionFacBl::class)->getMontantFactureDejaSoumis($dto->numeroCde, $dto->codeSociete) ?? 0.0;
+        $dto->sommeMontantDdpaValider = $this->em->getRepository(DemandePaiement::class)->getSommeMontantDdpaValide($dto->numeroCde, $dto->codeSociete)[1] ?? 0.0;
         $dto->soldeAvance = max(0.0, $dto->sommeMontantDdpaValider - $dto->sommeMontantFactureDejaPayer);
         $dto->soumissionDdpAFaire = $dto->sommeMontantDdpaValider > 0.0 && $dto->soldeAvance < $dto->montantAregulariser;
+        //dd($dto->sommeMontantFactureDejaPayer, $dto->sommeMontantDdpaValider, $dto->soldeAvance, $dto->montantAregulariser, $dto->soumissionDdpAFaire);
 
         return $dto;
     }

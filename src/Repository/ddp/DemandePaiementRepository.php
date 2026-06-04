@@ -308,7 +308,7 @@ class DemandePaiementRepository extends EntityRepository
 
     public function getSommeMontantDdpaValide(string $numeroCde, string $codeSociete)
     {
-        return $this->createQueryBuilder('d')
+        $queryBuilder = $this->createQueryBuilder('d')
             ->select('SUM(d.montantAPayers)')
             ->where('d.typeDemandeId = :typeDdp')
             ->andWhere('d.numeroCommande = :numCde')
@@ -319,8 +319,9 @@ class DemandePaiementRepository extends EntityRepository
                 'numCde' => $numeroCde,
                 'statut' => StatutConstants::VALIDE,
                 'codeSociete' => $codeSociete
-            ])
-            ->getQuery()
+            ]);
+
+        return $queryBuilder->getQuery()
             ->getOneOrNullResult()
         ;
     }
