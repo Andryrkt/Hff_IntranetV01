@@ -85,4 +85,18 @@ class DaSoumissionFacBlModel extends Model
 
         return $data;
     }
+
+    public function getPosl(int $numCde, string $codeSociete)
+    {
+        $statement = " SELECT TRIM(fcde_posl) as posl
+            from informix.frn_cde 
+            where fcde_numcde = $numCde
+            AND fcde_soc = '$codeSociete'
+            ";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return array_column($data, 'posl')[0] ?? null;
+    }
 }

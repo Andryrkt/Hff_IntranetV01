@@ -55,6 +55,11 @@ class DaSoumissionFacBlController extends Controller
 
         $dto = $this->daSoumissionFacBlFactory->initialisation($numCde, $numDa, $numOr, $codeSociete);
 
+        if ($dto->sommeMontantDdpaValider > 0 && $dto->posl <> 'TL') {
+            $message = " posl <> TL";
+            $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn');
+        }
+
         $form = $this->getFormFactory()->createBuilder(DaSoumissionFacBlType::class, $dto, [
             'method'  => 'POST'
         ])->getForm();

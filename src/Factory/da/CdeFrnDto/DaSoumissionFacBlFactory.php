@@ -106,6 +106,8 @@ class DaSoumissionFacBlFactory
         $dto->soumissionDdpAFaire = $dto->sommeMontantDdpaValider > 0.0 && $dto->soldeAvance < $dto->montantAregulariser;
         //dd($dto->sommeMontantFactureDejaPayer, $dto->sommeMontantDdpaValider, $dto->soldeAvance, $dto->montantAregulariser, $dto->soumissionDdpAFaire);
 
+        $dto->posl = $this->daSoumissionFacBlModel->getPosl($dto->numeroCde, $dto->codeSociete);
+
         return $dto;
     }
 
