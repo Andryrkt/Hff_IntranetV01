@@ -85,4 +85,45 @@ class DaSoumissionFacBlModel extends Model
 
         return $data;
     }
+
+    public function getPosl(int $numCde, string $codeSociete)
+    {
+        $statement = " SELECT TRIM(fcde_posl) as posl
+            from informix.frn_cde 
+            where fcde_numcde = $numCde
+            AND fcde_soc = '$codeSociete'
+            ";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return array_column($data, 'posl')[0] ?? null;
+    }
+
+    public function getDevise(int $numCde, string $codeSociete)
+    {
+        $statement = " SELECT TRIM(fcde_devise) as devise
+            from informix.frn_cde 
+            where fcde_numcde = $numCde
+            AND fcde_soc = '$codeSociete'
+            ";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return array_column($data, 'devise')[0] ?? null;
+    }
+
+    public function getMontantLivraison(string $numeroLivraison, string $codeSociete)
+    {
+        $statement = " SELECT SUM(fllf_qteliv * fllf_achnet) as montant_livraison 
+                        from informix.frn_llf 
+                        WHERE fllf_numliv='$numeroLivraison' and fllf_soc='$codeSociete'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return array_column($data, 'montant_livraison')[0] ?? 0.0;
+    }
 }

@@ -136,8 +136,15 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
         string $paramPrefix = 'devis_magasin_search',
         array $routeParams = [],
         ?array $queryParams = null,
-        int $filterFlags = self::FILTER_NULL // Flags pour le filtrage
+        int $filterFlags = self::FILTER_NULL, // Flags pour le filtrage
+        bool $newTab = false
     ) {
+        // Empêcher la boucle infinie via une variable de session temporaire
+        if ($newTab && $this->sessionService->get('new_tab_redirected')) {
+            $this->sessionService->remove('new_tab_redirected');
+            return;
+        }
+
         $this->enregistrerDansSession($message, $success);
         $this->sendNotificationCore($message, $numeroDocument, $typeOperationId, $success);
 
@@ -168,8 +175,37 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
             }
         }
 
-        header("Location: " . $url);
-        exit();
+        if ($newTab) {
+            $this->sessionService->set('new_tab_redirected', true);
+            // Solution 1: Générer un formulaire auto-soumis (évite le pop-up bloqué)
+            echo '<!DOCTYPE html>
+        <html>
+        <head>
+            <title>Redirection...</title>
+        </head>
+        <body>
+            <form id="redirectForm" action="' . htmlspecialchars($url) . '" method="POST" target="_blank">
+                <noscript>
+                    <p>JavaScript est désactivé. <a href="' . htmlspecialchars($url) . '" target="_blank">Cliquez ici</a> pour ouvrir la page.</p>
+                </noscript>
+            </form>
+            <script>
+                // On soumet le formulaire pour ouvrir le nouvel onglet
+                document.getElementById("redirectForm").submit();
+                
+                // On recharge la page actuelle. La garde en session empêchera la boucle.
+                // Le timeout permet de s\'assurer que le submit a bien été initié
+                setTimeout(function() {
+                    window.location.href = window.location.href;
+                }, 300);
+            </script>
+        </body>
+        </html>';
+            exit();
+        } else {
+            header("Location: " . $url);
+            exit();
+        }
     }
 
     /**
@@ -260,9 +296,11 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
         ?array $structuredParams = null, // tableau structuré des paramètres de recherche (session)
         string $paramPrefix = 'devis_magasin_search', // name de l'input de recherche
         array $routeParams = [],
-        ?array $queryParams = null
+        ?array $queryParams = null,
+        bool $newTab = false,
+        int $filterFlags = self::FILTER_NULL
     ) {
-        $this->sendNotification($message, $numeroDocument, $routeName, 1, $success, $structuredParams, $paramPrefix, $routeParams, $queryParams);
+        $this->sendNotification($message, $numeroDocument, $routeName, 1, $success, $structuredParams, $paramPrefix, $routeParams, $queryParams, $filterFlags, $newTab);
     }
 
     /** 

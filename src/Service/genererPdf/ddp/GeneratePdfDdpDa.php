@@ -207,7 +207,7 @@ class GeneratePdfDdpDa extends GeneratePdf
         $montantAPayer = is_string($dto->montantAPayer) ? $dto->montantAPayer : number_format((float)$dto->montantAPayer, 2, ',', '.');
         $pourcentageApayer = '(' . $dto->pourcentageAPayer . ' %) ';
         $cellWidth = $usable_width - 100;
-        $montantWidth = $pdf->GetStringWidth($montantAPayer) + 2;
+        $montantWidth = $pdf->GetStringWidth(number_format($montantAPayer, 2, ',', '.')) + 2;
 
         // Pourcentage en rouge — bordures gauche + haut + bas - Aligné à droite pour coller au montant
         $pdf->SetTextColor(255, 0, 0);
@@ -215,7 +215,7 @@ class GeneratePdfDdpDa extends GeneratePdf
 
         // Montant en noir aligné à droite — bordures droite + haut + bas
         $pdf->SetTextColor(0, 0, 0);
-        $pdf->Cell($montantWidth, 10, $montantAPayer, 'RTB', 0, 'R'); // valeur de "Montant à payer" (126.000,12)
+        $pdf->Cell($montantWidth, 10, number_format($montantAPayer, 2, ',', '.'), 'RTB', 0, 'R'); // valeur de "Montant à payer" (126.000,12)
         $pdf->Cell(30, 10, $dto->devise, 1, 1); //  valeur de "Devise" (AR)
 
         $pdf->Ln(5);
@@ -230,6 +230,11 @@ class GeneratePdfDdpDa extends GeneratePdf
         $pdf->writeHTML($html1, true, false, true, false, '');
         $pdf->Ln(5);
 
+        $pdf->SetFont('helvetica', '', 12);
+        $soldeAvance = $dtoFacBl ? number_format($dtoFacBl->soldeAvance, 2, ',', '.') : $dto->soldeAvance;
+        $pdf->Cell(0, 10, 'Solde avance : ' . $soldeAvance . ' ' . $dto->devise, 0, 1);
+
+        // liste des pièces jointes et des dossiers de douane
         $pdf->SetFont('helvetica', 'B', 12);
         $pdf->Cell(0, 10, 'Liste des pièces jointes :', 0, 1);
         $pdf->Line($pdf->GetX() + 1, $pdf->GetY() - 2.5, $pdf->GetX() + $pdf->GetStringWidth('Liste des pièces jointes') + 1, $pdf->GetY() - 2.5);
@@ -278,7 +283,7 @@ class GeneratePdfDdpDa extends GeneratePdf
             $this->renderInfoFACBL($pdf, $w100, $infoFacBl);
         }
         if (!empty($historiqueLivraison)) {
-            $this->renderHistoriqueLivraison($pdf, $historiqueLivraison);
+            $this->renderHistoriqueLivraison($pdf, $historiqueLivraison, $dto->devise);
         }
     }
 
@@ -415,26 +420,26 @@ class GeneratePdfDdpDa extends GeneratePdf
         });
     }
 
-    private function renderHistoriqueLivraison(TCPDF $pdf, array $historiqueLivraison)
+    private function renderHistoriqueLivraison(TCPDF $pdf, array $historiqueLivraison, string $devise)
     {
-        $this->renderInfoSection($pdf, 'RECAPITULATIF DES LIVRAISONS', '', function () use ($pdf, $historiqueLivraison) {
+        $this->renderInfoSection($pdf, 'RECAPITULATIF DES LIVRAISONS', '', function () use ($pdf, $historiqueLivraison, $devise) {
             if (empty($historiqueLivraison)) {
                 $pdf->Cell(0, 5, "Aucune livraison", 0, 1);
             } else {
                 $tableGenerator = new PdfTableHistoriqueLivraisonBAP();
-                $pdf->writeHTML($tableGenerator->generateTable($historiqueLivraison));
+                $pdf->writeHTML($tableGenerator->generateTable($historiqueLivraison, $devise));
             }
         });
     }
 
-    private function renderHistoriqueDdp(TCPDF $pdf, array $historiqueDdp)
+    private function renderHistoriqueDdp(TCPDF $pdf, array $historiqueDdp, string $devise)
     {
-        $this->renderInfoSection($pdf, 'RECAPITULATIF DES DEMANDES DE PAIEMENT', '', function () use ($pdf, $historiqueDdp) {
+        $this->renderInfoSection($pdf, 'RECAPITULATIF DES DEMANDES DE PAIEMENT', '', function () use ($pdf, $historiqueDdp, $devise) {
             if (empty($historiqueDdp)) {
                 $pdf->Cell(0, 5, "Aucune demande de paiement", 0, 1);
             } else {
                 $tableGenerator = new PdfTableHistoriqueDdpBAP();
-                $pdf->writeHTML($tableGenerator->generateTable($historiqueDdp));
+                $pdf->writeHTML($tableGenerator->generateTable($historiqueDdp, $devise));
             }
         });
     }

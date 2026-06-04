@@ -93,7 +93,28 @@ const hiddenInputTypeDaDdp = document.getElementById("da_ddp_type_da");
 const statutAffiche = document.getElementById("statut-affiche");
 const bcValideTelecharger = document.getElementById("bcValideTelecharger"); // Déplacé ici
 const form = document.forms["da_soumission"];
-const formDdp = document.forms["da_ddp"]
+const formDdp = document.forms["da_ddp"];
+
+// Gestion de l'ouverture dans un nouvel onglet pour 'Facture + BL'
+if (form) {
+  form.addEventListener("submit", function () {
+    const selectedSoumission = form.querySelector(
+      'input[name="da_soumission[soumission]"]:checked',
+    )?.value;
+    if (selectedSoumission === "Facture + BL") {
+      this.target = "_blank";
+    } else {
+      this.target = "_self";
+    }
+  });
+}
+
+if (formDdp) {
+  formDdp.addEventListener("submit", function () {
+    this.target = "_blank";
+  });
+}
+
 const DA_REAPPRO = "2";
 const DAO = "0";
 const DAD = "1";
@@ -116,8 +137,6 @@ function desactiveLeChampDuFormulaireDdp() {
   });
   formDdp.querySelector("button[type='submit']").classList.add("disabled"); //changer l'apparence du bouton
 }
-
-
 
 // desactive tous les champs du forulaire da_soumission
 function desactiveTousLesChampsDuFormulaire() {
@@ -392,10 +411,10 @@ document.addEventListener("contextmenu", function (event) {
   }
 
   // pour le DDP à l'avance ==================================
-  if (statutDaSoumissionBc != 'Validé' && statutDaSoumissionBc != 'Clôturé') {
+  if (statutDaSoumissionBc != "Validé" && statutDaSoumissionBc != "Clôturé") {
     desactiveLeChampDuFormulaireDdp();
   } else {
-    activeLeChampDuFormulaireDdp()
+    activeLeChampDuFormulaireDdp();
   }
 
   menu.style.top = event.pageY + "px";
@@ -502,7 +521,6 @@ document.addEventListener("DOMContentLoaded", function () {
       const montantCommande = button.getAttribute("data-montant-commande");
       console.log(montantCommande);
 
-
       // Récupérer les données pour remplir le corps du tableau modal
       const modalBody = modalDdpCloture.querySelector("#statutClotureBody");
       modalBody.innerHTML = `
@@ -518,25 +536,23 @@ document.addEventListener("DOMContentLoaded", function () {
         .get(`api/statut-compta/${numeroDa}/${numeroCde}`)
         .then((data) => {
           modalBody.innerHTML = data
-            .map(
-              (item) => {
-                let styleStatut = "statut-" + transformerPhrase(item.statut);
-                return `
+            .map((item) => {
+              let styleStatut = "statut-" + transformerPhrase(item.statut);
+              return `
                         <tr>
                             <td>${item.date_soumission}</td>
                             <td>${item.numero}</td>
                             <td>${item.type}</td>
-                            <td>${item.motif || '-'}</td>
+                            <td>${item.motif || "-"}</td>
                             <td>${item.ratio_deja_paye}%</td>
                             <td class="text-end">${item.montant_ht}</td>
                             <td class="${styleStatut}">${item.statut}</td>
                         </tr>
                     `;
-              }
-            )
+            })
             .join("");
         })
-        .catch(error => {
+        .catch((error) => {
           console.error("Erreur:", error);
           modalBody.innerHTML = `<tr><td colspan="6" class="text-center">Erreur de chargement</td></tr>`;
         });
@@ -544,15 +560,13 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 function transformerPhrase(phrase) {
-  if (!phrase || typeof phrase !== 'string') {
-    return '';
+  if (!phrase || typeof phrase !== "string") {
+    return "";
   }
 
   // 1. Enlever les accents
-  const sansAccents = phrase.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const sansAccents = phrase.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
   // 2. Mettre en minuscules et remplacer les espaces par des tirets
-  return sansAccents.toLowerCase().trim().replace(/\s+/g, '-');
-
+  return sansAccents.toLowerCase().trim().replace(/\s+/g, "-");
 }
-
