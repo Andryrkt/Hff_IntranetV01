@@ -9,16 +9,16 @@ class PdfTableHistoriqueDdpBAP
 {
     use FormatageTrait;
 
-    public function generateTable(array $data)
+    public function generateTable(array $data, string $devise)
     {
         $html = '<table border="0" cellpadding="2" cellspacing="0" style="font-size: 9px;">';
-        $html .= $this->generateHeader();
+        $html .= $this->generateHeader($devise);
         $html .= $this->generateBody($data);
         $html .= '</table>';
         return $html;
     }
 
-    private function generateHeader(): string
+    private function generateHeader(string $devise): string
     {
         $columns = [
             $this->createTableCell('center', '10%', 'Date'),
@@ -27,7 +27,7 @@ class PdfTableHistoriqueDdpBAP
             $this->createTableCell('left', '10%', 'N° facture'),
             $this->createTableCell('left', '15%', 'N° facture IPS'),
             $this->createTableCell('center', '5%', '%'),
-            $this->createTableCell('right', '15%', 'Montant HT (AR)'),
+            $this->createTableCell('right', '15%', 'Montant HT (' . $devise . ')'),
             $this->createTableCell('left', '10%', 'Statut'),
             $this->createTableCell('left', '10%', 'Emetteur'),
         ];

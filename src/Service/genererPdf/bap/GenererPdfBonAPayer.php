@@ -40,9 +40,9 @@ class GenererPdfBonAPayer extends GeneratePdf
         }
         $this->renderRecapDA($pdf, $w100, $demandeAppro);
         $this->renderInfoFACBL($pdf, $w100, $infoFacBl);
-        $this->renderHistoriqueLivraison($pdf, $historiqueLivraison);
+        $this->renderHistoriqueLivraison($pdf, $historiqueLivraison, $dto->devise);
 
-        $this->renderHistoriqueDdp($pdf, $dto->demandePaiementDto->ddpRecap);
+        $this->renderHistoriqueDdp($pdf, $dto->demandePaiementDto->ddpRecap, $dto->devise);
 
         // Afficher le montant de la BAP avec le pourcentage à payer en rouge
         $pdf->Ln(5);
@@ -205,26 +205,26 @@ class GenererPdfBonAPayer extends GeneratePdf
         });
     }
 
-    private function renderHistoriqueLivraison(TCPDF $pdf, array $historiqueLivraison)
+    private function renderHistoriqueLivraison(TCPDF $pdf, array $historiqueLivraison, string $devise)
     {
-        $this->renderInfoSection($pdf, 'RECAPITULATIF DES LIVRAISONS', '', function () use ($pdf, $historiqueLivraison) {
+        $this->renderInfoSection($pdf, 'RECAPITULATIF DES LIVRAISONS', '', function () use ($pdf, $historiqueLivraison, $devise) {
             if (empty($historiqueLivraison)) {
                 $pdf->Cell(0, 5, "Aucune livraison", 0, 1);
             } else {
                 $tableGenerator = new PdfTableHistoriqueLivraisonBAP();
-                $pdf->writeHTML($tableGenerator->generateTable($historiqueLivraison));
+                $pdf->writeHTML($tableGenerator->generateTable($historiqueLivraison, $devise));
             }
         });
     }
 
-    private function renderHistoriqueDdp(TCPDF $pdf, array $historiqueDdp)
+    private function renderHistoriqueDdp(TCPDF $pdf, array $historiqueDdp, string $devise)
     {
-        $this->renderInfoSection($pdf, 'RECAPITULATIF DES DEMANDES DE PAIEMENT', '', function () use ($pdf, $historiqueDdp) {
+        $this->renderInfoSection($pdf, 'RECAPITULATIF DES DEMANDES DE PAIEMENT', '', function () use ($pdf, $historiqueDdp, $devise) {
             if (empty($historiqueDdp)) {
                 $pdf->Cell(0, 5, "Aucune demande de paiement", 0, 1);
             } else {
                 $tableGenerator = new PdfTableHistoriqueDdpBAP();
-                $pdf->writeHTML($tableGenerator->generateTable($historiqueDdp));
+                $pdf->writeHTML($tableGenerator->generateTable($historiqueDdp, $devise));
             }
         });
     }
