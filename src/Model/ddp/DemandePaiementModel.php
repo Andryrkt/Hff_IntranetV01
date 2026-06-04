@@ -319,11 +319,11 @@ class DemandePaiementModel extends Model
                     as cif
                 FROM 
                     informix.FRN_BSE
-                JOIN 
+                LEFT JOIN 
                     informix.FRN_FOU ON FBSE_NUMFOU = FFOU_NUMFOU
-                JOIN
+                LEFT JOIN
                     informix.fou_bqe ON fbqe_numfou = fbse_numfou
-               	JOIN
+               	LEFT JOIN
                     informix.frn_cde ON fcde_numfou = fbse_numfou
                 WHERE 
                     FFOU_SOC = 'HF'
