@@ -317,7 +317,7 @@ class TraitementSoumissionDDPLService
             $message = " le type de traitement de paiement doit être régularisation car le montant à payer est égal à 0 ";
             $okey = false;
         } // Blocage si montant ne correspond pas au montant de la livraison dans IPS
-        elseif ($dto->montantAregulariser > 0.0 && $mttFacFormate !== (float) $infoLivraison['montant_fac_bl']) {
+        elseif ($mttFacFormate !== (float) $infoLivraison['montant_fac_bl']) {
             $message = "Le montant de la facture <b>{$mttFac}</b> ne correspond pas au montant de la livraison dans IPS. Merci de vérifier le montant de la facture avant de le soumettre dans DocuWare.";
             $okey = false;
         }
