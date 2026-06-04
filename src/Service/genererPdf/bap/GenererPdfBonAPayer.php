@@ -120,7 +120,7 @@ class GenererPdfBonAPayer extends GeneratePdf
     private function renderInfoBCAndValidation(TCPDF $pdf, int $w100, array $infoBC, array $infoValidationBC)
     {
         $this->renderInfoSection($pdf, 'RESUME DU BC', 'INFORMATION VALIDATION BC', function () use ($pdf, $w100, $infoBC, $infoValidationBC) {
-            $this->addInfoLine($pdf, 'Nom fournisseur', $infoBC["nom_fournisseur"] ?? "-", $w100 * 0.65 - 6, 35, 0, 0);
+            $this->addInfoLine($pdf, 'Nom fournisseur', substr($infoBC["nom_fournisseur"] ?? "-", 0, 33), $w100 * 0.65 - 6, 35, 0, 0);
             $this->addInfoLine($pdf, 'Nom Validateur', $infoValidationBC["validateur"] ?? "-", $w100 * 0.35, 25, 0);
 
             $this->addInfoLine($pdf, 'N° fournisseur', $infoBC["num_fournisseur"] ?? "-", $w100 * 0.65 - 6, 35, 0, 0);
