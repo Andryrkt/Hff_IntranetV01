@@ -24,11 +24,13 @@ class DaService
     private DemandeApproLRepository $demandeApproLRepository;
     private DemandeApproLRRepository $demandeApproLRRepository;
     private FileUploaderForDAService $daFileUploader;
+    private FileCheckerService $fileCheckerService;
 
     public function __construct(EntityManagerInterface $em, FileUploaderForDAService $daFileUploader)
     {
         $this->em                       = $em;
         $this->daFileUploader           = $daFileUploader;
+        $this->fileCheckerService       = new FileCheckerService();
         $this->demandeApproRepository   = $em->getRepository(DemandeAppro::class);
         $this->daObservationRepository  = $em->getRepository(DaObservation::class);
         $this->demandeApproLRepository  = $em->getRepository(DemandeApproL::class);
@@ -234,12 +236,19 @@ class DaService
         $items = [];
         $numDa = $demandeAppro->getNumeroDemandeAppro();
         $ddps = (new DemandePaiementModel())->getAllDdpByDa($numDa);
+        $basePathFichier = rtrim($_ENV['BASE_PATH_FICHIER'], '/');
+        $shortBasePathFichier = rtrim($_ENV['BASE_PATH_FICHIER_COURT'], '/');
 
         foreach ($ddps as $ddp) {
-            $items[] = [
-                'numeroDdp' => $ddp['numero_ddp'],
-                'path'      => "{$_ENV['BASE_PATH_FICHIER_COURT']}/{$ddp['path']}",
-            ];
+            $numeroDdp = $ddp['numero_ddp'];
+            $path = $ddp['path'] ?? "ddp/$numeroDdp/$numeroDdp.pdf";
+
+            if ($this->fileCheckerService->checkFileExists("$basePathFichier/$path")) {
+                $items[] = [
+                    'numeroDdp' => $numeroDdp,
+                    'path'      => "{$shortBasePathFichier}/{$path}",
+                ];
+            }
         }
         return $items;
     }
