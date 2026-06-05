@@ -40,14 +40,16 @@ class DemandePaiementFileService
         $column = self::COLUMN_MAP[$codeTypeDemande] ?? 'numero_ddp';
 
         $relativePath = $this->demandePaiementModel->getFilePathDdp($numeroDdp, $table, $column);
+        $baseBathFichier = rtrim($_ENV['BASE_PATH_FICHIER'], '/');
 
-        $fullPath = $relativePath ? $_ENV['BASE_PATH_FICHIER'] . '/' . $relativePath : '';
+        // Si le fichier n'est pas trouvé dans la base de données, on cherche dans le dossier
+        $fullPath = $relativePath ? "$baseBathFichier/$relativePath" : "$baseBathFichier/ddp/$numeroDdp/$numeroDdp.pdf";
 
         $exists = $fullPath && $this->fileCheckerService->checkFileExists($fullPath);
 
         return [
             'exists' => $exists,
-            'path' => $fullPath,
+            'path'   => $fullPath,
         ];
     }
 }

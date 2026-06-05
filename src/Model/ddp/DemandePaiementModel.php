@@ -470,16 +470,18 @@ class DemandePaiementModel extends Model
     {
         $sql = " SELECT top 1 d.path from $table d where d.$columnName = '$numeroDdp' ORDER BY d.numero_version desc";
 
-        $result = odbc_fetch_array($this->connexion->query($sql));
+        $queryResult = $this->connexion->query($sql);
+
+        if (!$queryResult) throw new \RuntimeException("Échec de la requête pour le DDP : $numeroDdp");
+
+        $result = odbc_fetch_array($queryResult);
 
         return $result['path'] ?? '';
     }
 
     public function getAllDdpByDa(string $numeroDa): array
     {
-        $sql = "SELECT * FROM 
-            (
-                SELECT
+        $sql = "SELECT
                     dp.numero_demande_paiement AS numero_ddp,
                     dp.date_creation,
                     td.code_type_demande AS code_type,
@@ -507,9 +509,7 @@ class DemandePaiementModel extends Model
                 INNER JOIN type_demande td
                     ON dp.type_demande_id = td.id
                 WHERE dp.numero_demande_appro = '$numeroDa'
-            ) AS sub
-            WHERE sub.path IS NOT NULL
-            ORDER BY sub.date_creation ASC;";
+                ORDER BY dp.date_creation ASC;";
 
         $resultStmt = $this->connexion->query($sql);
         $data = [];
