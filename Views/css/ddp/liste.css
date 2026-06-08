@@ -88,7 +88,6 @@
 
 /* Animation de disparition progressive */
 @keyframes fade {
-
   0%,
   100% {
     opacity: 0.2;
@@ -129,7 +128,9 @@
   font-size: 14px;
   color: #ffc107;
   cursor: pointer;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 
 /* Effet hover sur une suggestion */
@@ -152,7 +153,6 @@
   padding: 10px;
 }
 
-
 .statut-ddpl-a-transmettre,
 .statut-bap-a-transmettre,
 .statut-ddpr-a-transmettre,
@@ -166,7 +166,8 @@
   color: #0a0a0a !important;
 }
 
-.statut-valide {
+.statut-valide,
+.statut-transmis-compta {
   background-color: #4ef177 !important;
 }
 
