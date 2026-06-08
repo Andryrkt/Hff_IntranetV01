@@ -178,7 +178,7 @@ class DemandePaiementFactory
     private function hydrateFinancialData(DemandePaiementDto $dto): void
     {
         $montantCommande = $this->financialService->recuperationMontantTotalCommande($dto->numeroCommande, $dto->codeSociete);
-        $dto->totalMontantCommande = $montantCommande['montant_total_cde_ht'];
+        $dto->totalMontantCommande = $montantCommande['montant_total_cde_ttc'];
 
         [$montantDejaPaye, $ratioMontantDejaPaye, $montantAregulariser, $ratioMontantARegul] = $this->financialService->calculatePaymentRatios($dto);
         $dto->montantDejaPaye = $montantDejaPaye;
