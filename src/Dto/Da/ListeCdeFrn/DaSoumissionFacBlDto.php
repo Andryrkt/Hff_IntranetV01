@@ -58,6 +58,7 @@ class DaSoumissionFacBlDto
     public array $daDdpa = [];
     public string $titreDaDdpa = "Liste des demandes de paiement à l'avance";
     public float $totalMontantCommande = 0.0;
+    public float $totalMontantCommandeTTC = 0.0;
     public float $montantDejaPaye = 0.0;
     public float $ratioMontantDejaPaye = 0.0;
     public float $montantAregulariser = 0.0;

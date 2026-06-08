@@ -57,6 +57,7 @@ class DaSoumissionCalculService
         $MontantFactureEnCours = $dto->montantBlFacture; // numero facture que l'utilisateur est entrain de soumettre
         $ratio = 0.0;
         $totalCommande = $dto->totalMontantCommande;
+        $totalCommandeTTC = $dto->totalMontantCommandeTTC;
         $TotalMontantFactureSoumise = $dto->sommeMontantFactureDejaPayer;
         $ratioDejaPayer = ($totalCommande > 0) ? ($TotalMontantFactureSoumise / $totalCommande) * 100 : 0;
 
@@ -91,7 +92,10 @@ class DaSoumissionCalculService
         $dto->ratioMontantARegul = round($ratio, 2); // ratio du montant à régulariser par rapport au montant total de la commande
         $dto->ratioMontantDejaPaye = $ratioDejaPayer; // ratio du montant déjà payé par rapport au montant total de la commande
         $dto->totalMontantPayer = $TotalMontantFactureSoumise; // montant total à payer (somme du montant de la facture en cours et des montants des factures déjà soumises)
-        //si $totalCommande <> $totalcommandeTTC
+
+        // Si mtt HT < mtt TTC, on ajoute le taxe (20%)
+        if ($totalCommande < $totalCommandeTTC) $totalMontantPayer *= 1.2;
+
         $dto->montantAregulariser = $totalMontantPayer; // montant à régulariser (différence entre le montant total à payer et le montant déjà payé)
 
 
