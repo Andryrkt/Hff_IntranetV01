@@ -43,6 +43,7 @@ class StatutConstants
         self::REFUSE_COMPTA => 'statut-refuse-compta',
         self::A_VALIDER_COMPTABILITE => 'statut-a-valider-comptabilite',
         self::VALIDE => 'statut-valide',
+        self::TRANSMIS_COMPTA => 'statut-transmis-compta',
     ];
 
     public static function getCssClass(string $statut): string
