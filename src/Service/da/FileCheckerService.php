@@ -6,40 +6,21 @@ use Symfony\Component\Filesystem\Filesystem;
 
 class FileCheckerService
 {
-    private $projectDir;
-    private $filesystem;
+    private string $projectDir;
+    private Filesystem $filesystem;
 
-    public function __construct(string $projectDir)
+    public function __construct()
     {
-        $this->projectDir = $projectDir;
+        $this->projectDir = $_ENV['BASE_PATH_FICHIER'];
         $this->filesystem = new Filesystem();
     }
 
-    public function checkBapFileExists(?string $numeroDdp): bool
+    public function checkFileExists(?string $filePath): bool
     {
-        if (empty($numeroDdp)) {
-            return false;
-        }
+        if (!$filePath) return false;
 
-        $filePath = $this->projectDir . "/ddp/$numeroDdp/$numeroDdp.pdf";
         return $this->filesystem->exists($filePath);
     }
-
-    public function getBapFilePath(?string $numeroDdp): ?string
-    {
-        if (empty($numeroDdp)) {
-            return null;
-        }
-        $relativePath = "/ddp/$numeroDdp/$numeroDdp.pdf";
-        $fullPath = $this->projectDir .  $relativePath;
-
-        if ($this->filesystem->exists($fullPath)) {
-            return $relativePath;
-        }
-
-        return null;
-    }
-
 
     public function getFullPath(?string $numeroDdp): ?string
     {

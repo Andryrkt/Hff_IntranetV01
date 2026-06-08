@@ -67,13 +67,15 @@ class DemandePaiementDto
     public $titreDeTransportFichier;
     public array $lesFichiers = [];
 
-
+    public bool $fileExists = false;
 
     // Pour le DA et les montants =====================================
+    public ?string $numeroOr = null;
+    public array $infoBc = [];
     public bool $appro = false;
     public ?int $typeDa = null;
     public int $numeroSoumissionDdpDa;
-    public string $numeroDemandeAppro;
+    public ?string $numeroDemandeAppro = null;
     public ?string $numeroLivraison = null;
     public string $numeroDa;
     public bool $ddpaDa = false;
@@ -94,6 +96,11 @@ class DemandePaiementDto
     public float $montantAregulariser;
     public float $ratioMontantARegul;
     public float $pourcentageAPayer = 0.0;
+
+
+    public float $sommeMontantDdpaValider = 0.0;
+    public float $sommeMontantFactureDejaPayer = 0.0;
+    public float $soldeAvance = 0.0; // montant de l'avance qui n'a pas encore été régularisé
 
     public function montantAPayer(): float
     {

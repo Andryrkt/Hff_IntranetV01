@@ -8,22 +8,23 @@ class PdfTableHistoriqueLivraisonBAP
 {
     use FormatageTrait;
 
-    public function generateTable(array $data)
+    public function generateTable(array $data, string $devise)
     {
         $html = '<table border="0" cellpadding="2" cellspacing="0" style="font-size: 9px;">';
-        $html .= $this->generateHeader();
+        $html .= $this->generateHeader($devise);
         $html .= $this->generateBody($data);
         $html .= '</table>';
         return $html;
     }
 
-    private function generateHeader(): string
+    private function generateHeader(string $devise): string
     {
         $columns = [
             $this->createTableCell('center', '20%', 'N° Livraison IPS'),
+            $this->createTableCell('center', '20%', 'N° Facture IPS'),
             $this->createTableCell('left', '25%', 'Référence'),
             $this->createTableCell('center', '20%', 'Date livraison IPS'),
-            $this->createTableCell('right', '20%', 'Montant'),
+            $this->createTableCell('right', '20%', 'Montant (' . $devise . ')'),
         ];
 
         return sprintf(
@@ -55,6 +56,7 @@ class PdfTableHistoriqueLivraisonBAP
         $montant = $this->formaterPrix($historique["montant_fac_bl"] ?? 0);
         $cells = [
             $this->createTableCell('center', '20%', $historique['num_liv'], "", false),
+            $this->createTableCell('center', '20%', $historique['numero_facture_ips'], "", false),
             $this->createTableCell('left', '25%', $historique['ref_fac_bl'], "", false),
             $this->createTableCell('center', '20%', $date, "", false),
             $this->createTableCell('right', '20%', $montant, "", false),

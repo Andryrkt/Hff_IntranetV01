@@ -42,7 +42,7 @@
 					<th class="text-center">Statut</th>
 					<th class="text-center">Transmise le</th>
 					<th class="text-center">
-						Montant Facture bl</th>
+						Montant DDP</th>
 				</tr>
 			</thead>
 			<tbody id="tableBody" class="align-middle">
@@ -58,10 +58,8 @@
 							</a>
 						</td>
 						<td class="text-center">
-							{% set fileExists = fileCheckerService.checkBapFileExists(row.numeroDdp) %}
-							{% if fileExists %}
-								{% set filename = row.numeroDdp ~ '.pdf' %}
-								<a href="#" class="show-pdf-modal" data-pdf-url="{{ path('bap_pdf_viewer', { numeroDdp: row.numeroDdp, urlPdf: filename }) }}">
+							{% if row.fileExists %}
+								<a href="#" class="show-pdf-modal" data-pdf-url="{{ path('bap_pdf_viewer', { numeroDdp: row.numeroDdp, code: row.typeDemande.code }) }}">
 									{{ row.numeroDdp }}
 									<i class="fas fa-file-pdf ml-1" style="color: red;"></i>
 								</a>

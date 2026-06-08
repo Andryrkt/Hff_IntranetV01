@@ -319,11 +319,11 @@ class DemandePaiementModel extends Model
                     as cif
                 FROM 
                     informix.FRN_BSE
-                JOIN 
+                LEFT JOIN 
                     informix.FRN_FOU ON FBSE_NUMFOU = FFOU_NUMFOU
-                JOIN
+                LEFT JOIN
                     informix.fou_bqe ON fbqe_numfou = fbse_numfou
-               	JOIN
+               	LEFT JOIN
                     informix.frn_cde ON fcde_numfou = fbse_numfou
                 WHERE 
                     FFOU_SOC = 'HF'
@@ -359,9 +359,22 @@ class DemandePaiementModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function getMontantTotalCde(string $numCde, string $codeSociete): float
+    /**
+     * Retourne les montants HT et TTC d'une commande.
+     *
+     * @param string $numCde
+     * @param string $codeSociete
+     *
+     * @return array{
+     *     montant_total_cde_ht: float,
+     *     montant_total_cde_ttc: float
+     * }
+     */
+    public function getMontantCde(string $numCde, string $codeSociete): array
     {
-        $statement = " SELECT fcde_mtn as montant_total_cde
+        $statement = " SELECT 
+                    fcde_mtn as montant_total_cde_ht,
+                    fcde_ttc as montant_total_cde_ttc
                 from informix.frn_cde 
                 where fcde_numcde ='$numCde'
                 and fcde_soc = '$codeSociete'
@@ -371,9 +384,17 @@ class DemandePaiementModel extends Model
 
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
 
+        if (empty($data)) {
+            return [
+                'montant_total_cde_ht'  => 0.00,
+                'montant_total_cde_ttc' => 0.00,
+            ];
+        }
 
-
-        return (float) array_column($data, 'montant_total_cde')[0] ?? 0.00;
+        return [
+            'montant_total_cde_ht'  => (float) $data[0]['montant_total_cde_ht'],
+            'montant_total_cde_ttc' => (float) $data[0]['montant_total_cde_ttc'],
+        ];
     }
 
 
@@ -464,5 +485,64 @@ class DemandePaiementModel extends Model
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
 
         return array_column($data, 'fllf_numfac')[0] ?? null;
+    }
+
+    public function getFilePathDdp(string $numeroDdp, string $table, string $columnName): string
+    {
+        $sql = " SELECT top 1 d.path from $table d where d.$columnName = '$numeroDdp' ORDER BY d.numero_version desc";
+
+        $queryResult = $this->connexion->query($sql);
+
+        if (!$queryResult) throw new \RuntimeException("Échec de la requête pour le DDP : $numeroDdp");
+
+        $result = odbc_fetch_array($queryResult);
+
+        return $result['path'] ?? '';
+    }
+
+    public function getAllDdpByDa(string $numeroDa): array
+    {
+        $sql = "SELECT
+                    dp.numero_demande_paiement AS numero_ddp,
+                    dp.date_creation,
+                    td.code_type_demande AS code_type,
+                    CASE td.code_type_demande
+                        WHEN 'BAP' THEN (
+                            SELECT TOP 1 t1.path
+                                FROM DW_bon_a_payer t1
+                                WHERE t1.numero_bap = dp.numero_demande_paiement
+                                ORDER BY t1.numero_version DESC
+                        )
+                        WHEN 'DPR' THEN (
+                            SELECT TOP 1 t2.path
+                                FROM DW_regularisation_ddp t2
+                                WHERE t2.numero_ddr = dp.numero_demande_paiement
+                                ORDER BY t2.numero_version DESC
+                        )
+                        WHEN 'DPA' THEN (
+                            SELECT TOP 1 t3.path
+                                FROM DW_demande_de_paiement t3
+                                WHERE t3.numero_ddp = dp.numero_demande_paiement
+                                ORDER BY t3.numero_version DESC
+                        )
+                    END AS path
+                FROM demande_paiement dp
+                INNER JOIN type_demande td
+                    ON dp.type_demande_id = td.id
+                WHERE dp.numero_demande_appro = '$numeroDa'
+                ORDER BY dp.date_creation ASC;";
+
+        $resultStmt = $this->connexion->query($sql);
+        $data = [];
+
+        while ($result = odbc_fetch_array($resultStmt)) {
+            $data[] = [
+                'numero_ddp' => $result['numero_ddp'],
+                'code_type'  => $result['code_type'],
+                'path'       => $result['path'],
+            ];
+        }
+
+        return $data;
     }
 }

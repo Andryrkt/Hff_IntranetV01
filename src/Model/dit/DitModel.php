@@ -61,6 +61,7 @@ class DitModel extends Model
       FROM MAT_MAT
       LEFT JOIN mat_bil on mbil_nummat = mmat_nummat and mbil_dateclot <= '01/01/1900' and mbil_dateclot = '12/31/1899'
       WHERE MMAT_ETSTOCK in ('ST','AT', '--')
+      AND MMAT_AFFECT <> 'CAS'
       " . $conditionNummat . "
       " . $conditionNumParc . "
       " . $conditionNumSerie . "
@@ -388,8 +389,12 @@ class DitModel extends Model
     return $this->convertirEnUtf8($data);
   }
 
-  public function recupOrSoumisValidation($numOr, $codeSociete)
+  public function recupOrSoumisValidation(?string $numOr = null, $codeSociete)
   {
+    if (empty($numOr)) {
+      return [];
+    }
+
     $statement = "SELECT
           slor_numor,
           sitv_datdeb,
@@ -553,8 +558,12 @@ class DitModel extends Model
     return $this->convertirEnUtf8($data);
   }
 
-  public function recupInfoMateriel(string $numOr, string $codeSociete)
+  public function recupInfoMateriel(?string $numOr = null, string $codeSociete)
   {
+    if (empty($numOr)) {
+      return [];
+    }
+
     $statement = "SELECT 
         TRIM(mmat_desi) AS designation, 
         TRIM(mmat_numserie) AS numserie,

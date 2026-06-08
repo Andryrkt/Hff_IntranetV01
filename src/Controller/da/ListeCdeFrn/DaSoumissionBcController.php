@@ -86,7 +86,6 @@ class DaSoumissionBcController extends Controller
      * permet de faire le rtraitement du formulaire
      *
      * @param Request $request
-     * @param string $numCde
      * @param FormInterface $form
      * @return void
      */
@@ -107,7 +106,7 @@ class DaSoumissionBcController extends Controller
             $condition_1 =  $dto->demandePaiementAvance && !$bcStatut;
             $condition_2 = $dto->demandePaiementAvance && $bcStatut === StatutBcConstant::STATUT_REFUSE;
             if ($condition_1 || $condition_2) {
-                if ($this->verifierConditionDeBlocage($dto, $numCde, $numDa, $codeSociete)) {
+                if ($this->verifierConditionDeBlocage($dto)) {
                     [$numeroVersionMax, $nomPdfFusionner] = $this->traitemnetBc($form, $dto, false);
 
                     $this->getSessionService()->set('demande_paiement_a_l_avance', ['ddpa' => $dto->demandePaiementAvance, 'nom_pdf' => $nomPdfFusionner]);
@@ -117,11 +116,12 @@ class DaSoumissionBcController extends Controller
                         'numCdeDa' => $numCde,
                         'typeDa' => $typeDa,
                         'numeroVersionBc' => $numeroVersionMax,
+                        'numOr' => $dto->numeroOr,
                     ]);
                 }
             } else {
 
-                if ($this->verifierConditionDeBlocage($dto, $numCde, $numDa, $codeSociete)) {
+                if ($this->verifierConditionDeBlocage($dto)) {
 
                     $this->traitemnetBc($form, $dto, true);
 

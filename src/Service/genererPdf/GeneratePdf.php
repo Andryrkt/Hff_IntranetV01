@@ -207,9 +207,14 @@ class GeneratePdf
     }
 
     //BAP de demande appro
-    public function copyToDWBapDa($fileNamePathBap, $fileNameForDw)
+    public function copyToDWBapDa($fileNamePathBap, $fileNameForDw, string $typeDemande)
     {
-        $cheminFichierDistant = $this->baseCheminDocuware . 'DEMANDE_DE_PAIEMENT/' . $fileNameForDw;
+        $dirTabs = [
+            'BAP' => "BON A PAYER",
+            'DPR' => "DEMANDE_DE_REGULARISATION"
+        ];
+        $dir = $dirTabs[$typeDemande] ?? "DEMANDE_DE_PAIEMENT";
+        $cheminFichierDistant = $this->baseCheminDocuware . "$dir/$fileNameForDw";
         $cheminDestinationLocal = $fileNamePathBap;
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
@@ -401,4 +406,3 @@ class GeneratePdf
         return iconv('UTF-8', 'windows-1252//TRANSLIT//IGNORE', $text) ?: $text;
     }
 }
-

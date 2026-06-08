@@ -242,7 +242,7 @@ class TraitementSoumissionfacBlService
         $codeSociete = $dto->codeSociete;
 
         $daAfficherRepository = $this->entityManager->getRepository(DaAfficher::class);
-        $numeroVersionMax = $daAfficherRepository->getNumeroVersionMax($numDa);
+        $numeroVersionMax = $daAfficherRepository->getNumeroVersionMax($numDa, $codeSociete);
         $typeDa = $daAfficherRepository->getTypeDaSelonNumDa($numDa);
         $daAffichers = [];
 

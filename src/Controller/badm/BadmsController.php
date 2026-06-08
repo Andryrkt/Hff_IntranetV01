@@ -69,8 +69,8 @@ class BadmsController extends Controller
                 //recuperation des information du materiel dans la base de donnée informix
                 $data = $this->badm->findAll($badm->getIdMateriel(),  $badm->getNumParc(), $badm->getNumSerie(), $badm->getCodeSociete());
 
-                $codeAgenceMateriel = $data[0]["agence"];
-                $codeServiceMateriel = $data[0]["code_service"] === null || $data[0]["code_service"] === '' ? "COM" : $data[0]["code_service"];
+                $codeAgenceMateriel =  $data[0]["agence"];
+                $codeServiceMateriel = $data[0]["code_service"] === null || $data[0]["code_service"] === '' || $idTypeMouvement == 1 ? 'COM' : $data[0]["code_service"];
 
                 if (empty($data)) {
                     $message = "Matériel déjà vendu ou L'information saisie n'est pas correcte.";

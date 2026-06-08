@@ -40,9 +40,22 @@ class GenererPdfBonAPayer extends GeneratePdf
         }
         $this->renderRecapDA($pdf, $w100, $demandeAppro);
         $this->renderInfoFACBL($pdf, $w100, $infoFacBl);
-        $this->renderHistoriqueLivraison($pdf, $historiqueLivraison);
+        $this->renderHistoriqueLivraison($pdf, $historiqueLivraison, $dto->devise);
 
-        $this->renderHistoriqueDdp($pdf, $dto->demandePaiementDto->ddpRecap);
+        $this->renderHistoriqueDdp($pdf, $dto->demandePaiementDto->ddpRecap, $dto->devise);
+
+        // Afficher le montant de la BAP avec le pourcentage à payer en rouge
+        $pdf->Ln(5);
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->setFont('helvetica', 'B', 10);
+        $pdf->Cell(30, 6, 'MONTANT BAP : ', 0, 0, 'L', false, '', 0, false, 'T', 'M');
+
+        $pdf->setFont('helvetica', '', 10);
+        $pdf->SetTextColor(255, 0, 0); // Rouge pour le pourcentage
+        $pdf->Cell(15, 6, '(' . number_format($dto->demandePaiementDto->pourcentageAPayer, 2, ',', '') . '%) ', 0, 0, 'L', false, '', 0, false, 'T', 'M');
+
+        $pdf->SetTextColor(0, 0, 0); // Noir pour le reste
+        $pdf->Cell(0, 6, number_format($dto->demandePaiementDto->montantAPayer, 2, ',', '.') . ' ' . $dto->devise, 0, 0, 'L', false, '', 0, false, 'T', 'M');
 
         // Sauvegarder le PDF
         return $this->savePDF($pdf, $demandeAppro->getNumeroDemandeAppro(), $infoBC["num_cde"]);
@@ -107,7 +120,7 @@ class GenererPdfBonAPayer extends GeneratePdf
     private function renderInfoBCAndValidation(TCPDF $pdf, int $w100, array $infoBC, array $infoValidationBC)
     {
         $this->renderInfoSection($pdf, 'RESUME DU BC', 'INFORMATION VALIDATION BC', function () use ($pdf, $w100, $infoBC, $infoValidationBC) {
-            $this->addInfoLine($pdf, 'Nom fournisseur', $infoBC["nom_fournisseur"] ?? "-", $w100 * 0.65 - 6, 35, 0, 0);
+            $this->addInfoLine($pdf, 'Nom fournisseur', substr($infoBC["nom_fournisseur"] ?? "-", 0, 33), $w100 * 0.65 - 6, 35, 0, 0);
             $this->addInfoLine($pdf, 'Nom Validateur', $infoValidationBC["validateur"] ?? "-", $w100 * 0.35, 25, 0);
 
             $this->addInfoLine($pdf, 'N° fournisseur', $infoBC["num_fournisseur"] ?? "-", $w100 * 0.65 - 6, 35, 0, 0);
@@ -192,30 +205,39 @@ class GenererPdfBonAPayer extends GeneratePdf
         });
     }
 
-    private function renderHistoriqueLivraison(TCPDF $pdf, array $historiqueLivraison)
+    private function renderHistoriqueLivraison(TCPDF $pdf, array $historiqueLivraison, string $devise)
     {
-        $this->renderInfoSection($pdf, 'RECAPITULATIF DES LIVRAISONS', '', function () use ($pdf, $historiqueLivraison) {
+        $this->renderInfoSection($pdf, 'RECAPITULATIF DES LIVRAISONS', '', function () use ($pdf, $historiqueLivraison, $devise) {
             if (empty($historiqueLivraison)) {
                 $pdf->Cell(0, 5, "Aucune livraison", 0, 1);
             } else {
                 $tableGenerator = new PdfTableHistoriqueLivraisonBAP();
-                $pdf->writeHTML($tableGenerator->generateTable($historiqueLivraison));
+                $pdf->writeHTML($tableGenerator->generateTable($historiqueLivraison, $devise));
             }
         });
     }
 
-    private function renderHistoriqueDdp(TCPDF $pdf, array $historiqueDdp)
+    private function renderHistoriqueDdp(TCPDF $pdf, array $historiqueDdp, string $devise)
     {
-        $this->renderInfoSection($pdf, 'RECAPITULATIF DES DEMANDES DE PAIEMENT', '', function () use ($pdf, $historiqueDdp) {
+        $this->renderInfoSection($pdf, 'RECAPITULATIF DES DEMANDES DE PAIEMENT', '', function () use ($pdf, $historiqueDdp, $devise) {
             if (empty($historiqueDdp)) {
                 $pdf->Cell(0, 5, "Aucune demande de paiement", 0, 1);
             } else {
                 $tableGenerator = new PdfTableHistoriqueDdpBAP();
-                $pdf->writeHTML($tableGenerator->generateTable($historiqueDdp));
+                $pdf->writeHTML($tableGenerator->generateTable($historiqueDdp, $devise));
             }
         });
     }
 
+    /**
+     * 
+     *
+     * @param TCPDF $pdf
+     * @param string $numDa
+     * @param string|null $numCde
+     * @param string $dest
+     * @return string
+     */
     private function savePDF(TCPDF $pdf, string $numDa, ?string $numCde = null, string $dest = "F"): string
     {
         // Obtention du chemin absolu du répertoire de travail

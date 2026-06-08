@@ -10,19 +10,21 @@ use App\Dto\Da\ListeCdeFrn\DaSoumissionFacBlDto;
 use App\Dto\ddp\DemandePaiementDto;
 use App\Entity\admin\ddp\TypeDemande;
 use App\Entity\da\DaSoumissionBc;
+use App\Entity\da\DaSoumissionFacBl;
 use App\Entity\ddp\DemandePaiement;
 use App\Mapper\Da\ListCdeFrn\DaSoumissionFacBlMapper;
 use App\Mapper\ddp\DdpRecapMapper;
 use App\Mapper\ddp\DemandePaiementMapper;
 use App\Model\da\DaSoumissionFacBlModel;
+use App\Repository\da\DaSoumissionFacBlRepository;
 use App\Service\autres\AutoIncDecService;
 use App\Service\da\DaSoumissionCalculService;
 use App\Service\da\DaSoumissionDataService;
 use App\Service\da\NumeroGenerateurService;
+use App\Service\ddp\DdpFinancialService;
 use App\Service\security\SecurityService;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
-use App\Service\ddp\DdpFinancialService;
 
 
 class DaSoumissionFacBlFactory
@@ -83,7 +85,9 @@ class DaSoumissionFacBlFactory
 
         // DDPL ==========================
         $dto->statutFacBl = self::STATUT_SOUMISSION;
-        $dto->totalMontantCommande = $this->calculService->getTotalMontantCommande($dto->numeroCde);
+        $montantCommande = $this->calculService->getMontantCommande($dto->numeroCde);
+        $dto->totalMontantCommande = $montantCommande['montant_total_cde_ht'];
+        $dto->totalMontantCommandeTTC = $montantCommande['montant_total_cde_ttc'];
 
         // BAP =======
         $dto->numeroBap = $this->genererNumeroBap();
@@ -91,11 +95,19 @@ class DaSoumissionFacBlFactory
         // recuperation des demandes de paiement déjà payer
         $this->getDdpa($dto);
 
-        $this->calculService->calculerMontantEtRatios($dto);
-        $dto->estRegule = $dto->montantAregulariser <= 0.0 && !in_array($dto->dernierStatutDdp, StatutConstants::REFUSES_DDP);
+
 
         // recupération des informations de commande
         $this->getReception($dto);
+
+        //
+        $dto->totalMontantDdpValid = $this->em->getRepository(DemandePaiement::class)->getSommeMontantValide($dto->numeroCde, $dto->codeSociete) ?? 0.0;
+
+        $dto->estRegule = $dto->totalMontantCommande == $dto->totalMontantDdpValid && !in_array($dto->dernierStatutDdp, StatutConstants::REFUSES_DDP);
+
+        $dto->posl = $this->daSoumissionFacBlModel->getPosl($dto->numeroCde, $dto->codeSociete);
+        $dto->devise = $this->daSoumissionFacBlModel->getDevise($dto->numeroCde, $dto->codeSociete);
+
 
         return $dto;
     }
@@ -108,6 +120,13 @@ class DaSoumissionFacBlFactory
 
     public function EnrichissementDtoApresSoumission(DaSoumissionFacBlDto $dto)
     {
+        $dto->sommeMontantFactureDejaPayer = $this->em->getRepository(DaSoumissionFacBl::class)->getMontantFactureDejaSoumis($dto->numeroCde, $dto->codeSociete) ?? 0.0;
+        $dto->sommeMontantDdpaValider = $this->em->getRepository(DemandePaiement::class)->getSommeMontantDdpaValide($dto->numeroCde, $dto->codeSociete)[1] ?? 0.0;
+        $dto->soldeAvance = max(0.0, $dto->sommeMontantDdpaValider - $dto->sommeMontantFactureDejaPayer);
+        //dd($dto->sommeMontantFactureDejaPayer, $dto->sommeMontantDdpaValider, $dto->soldeAvance, $dto->montantAregulariser, $dto->soumissionDdpAFaire);
+
+        $this->calculService->calculerMontantEtRatios($dto);
+
 
         $dto->montantBlFacture = (float)str_replace(',', '.', str_replace(' ', '', $dto->montantBlFacture ?? '0'));
         $dto->numeroFactureFournisseur = $this->getNumFacEtMontant($dto->numLiv, $dto->codeSociete)[0]['numero_facture'];
@@ -174,6 +193,11 @@ class DaSoumissionFacBlFactory
 
         $infoFournisseur = $this->dataService->getInfoFournisseur($infoDa['numeroFournisseur'], $dto->numeroCde, $dto->codeSociete);
 
+        $financialService = new DdpFinancialService($this->em);
+        [$pourcentageAvance, $pourcentageAPayer] = $financialService->calculateGlobalFinancials($ddpDto);
+        $ddpDto->pourcentageAvance = $pourcentageAvance;
+        $ddpDto->pourcentageAPayer = $pourcentageAPayer;
+
         if (!empty($infoFournisseur)) {
             $ddpDto->numeroFournisseur = $infoFournisseur[0]['num_fournisseur'];
             $ddpDto->ribFournisseur = $infoFournisseur[0]['rib_fournisseur'];
@@ -189,7 +213,7 @@ class DaSoumissionFacBlFactory
         $ddpDto->statut = $dto->estRegule ? StatutConstants::DDPR_A_TRANSMETTRE : StatutConstants::DDPL_A_TRANSMETTRE;
         $ddpDto->demandeur = $this->securityService->getUserName();
         $ddpDto->adresseMailDemandeur = $this->securityService->getUserEmail();
-        $ddpDto->montantAPayer = $dto->montantAregulariser;
+        $ddpDto->montantAPayer =  $dto->montantAregulariser;
         $ddpDto->numeroCommande = $dto->numeroCde;
         $ddpDto->numeroFacture = $dto->numeroFactureFournisseur;
         $ddpDto->appro = true;
@@ -202,6 +226,7 @@ class DaSoumissionFacBlFactory
         $ddpDto->motif = $infoDa['objetDal'];
         $ddpDto->codeSociete = $dto->codeSociete;
         $this->ddpRecap($ddpDto);
+        $ddpDto->pourcentageAPayer = $dto->ratioMontantARegul;
 
         return $ddpDto;
     }
@@ -216,7 +241,8 @@ class DaSoumissionFacBlFactory
         ]);
 
         $financialService = new DdpFinancialService($this->em);
-        $totalMontantCommande = $financialService->recuperationMontantTotalCommande($dto->numeroCommande, $dto->codeSociete);
+        $montantCommande = $financialService->recuperationMontantTotalCommande($dto->numeroCommande, $dto->codeSociete);
+        $totalMontantCommande = $montantCommande['montant_total_cde_ht'];
         /** @var DemandePaiementDto[] $demandePaiementDto */
         $demandePaiementDto = DemandePaiementMapper::mapInverse($ddpList);
         $dto->ddpRecap = DdpRecapMapper::map($demandePaiementDto, $totalMontantCommande);

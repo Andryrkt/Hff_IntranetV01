@@ -8,6 +8,7 @@ use App\Dto\ddp\DemandePaiementDto;
 use App\Entity\ddp\DemandePaiement;
 use App\Entity\ddp\HistoriqueStatutDdp;
 use App\Model\ddp\DemandePaiementModel;
+use App\Service\ddp\DemandePaiementFileService;
 
 class DemandePaiementMapper
 {
@@ -65,6 +66,8 @@ class DemandePaiementMapper
     public static function mapInverse(array $ddps): array
     {
         $dtos = [];
+        $demandePaiementFileService = new DemandePaiementFileService();
+
         foreach ($ddps as $ddp) {
             $dto = new DemandePaiementDto();
             $dto->numeroDdp = $ddp->getNumeroDdp();
@@ -90,8 +93,9 @@ class DemandePaiementMapper
             $dto->devise = $ddp->getDevise();
             $dto->modePaiement = $ddp->getModePaiement();
             $dto->demandeur = $ddp->getDemandeur();
-            $dto->appro = $ddp->getAppro();
+            $dto->appro = $ddp->getAppro() ?? false;
             $dto->numeroFactureIps = self::getNumeroFactureIps($dto);
+            $dto->fileExists = $demandePaiementFileService->getFileInfo($dto->numeroDdp, $dto->typeDemande->getCode())['exists'];
 
             $dtos[] = $dto;
         }
@@ -137,9 +141,9 @@ class DemandePaiementMapper
             ->setContact(Null)
             ->setNumeroCommande($dto->numeroCommande)
             ->setNumeroFacture($dto->numeroFacture)
+            ->setDevise($dto->devise)
             ->setStatutDossierRegul(Null)
             ->setNumeroVersion(1)
-            ->setDevise($dto->devise)
             ->setEstAutreDoc(false)
             ->setNomAutreDoc(Null)
             ->setEstCdeClientExterneDoc(false)
@@ -148,6 +152,7 @@ class DemandePaiementMapper
             ->setAppro(true)
             ->setNumeroDemandeAppro($dto->numeroDemandeAppro ?? null)
             ->setNumeroSoumissionDdpDa($dto->numeroSoumissionDdpDa ?? null)
+            ->setCodeSociete($dto->codeSociete)
         ;
         return $ddp;
     }

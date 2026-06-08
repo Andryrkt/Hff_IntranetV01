@@ -52,7 +52,7 @@ class DdpApiController extends Controller
                 $this->getEntityManager()->persist($ddp);
 
                 /** copie du fichier DDP dans DW */
-                $fileCheckerService = new FileCheckerService($_ENV['BASE_PATH_FICHIER']);
+                $fileCheckerService = new FileCheckerService();
                 $bapFullpath = $fileCheckerService->getFullPath($ddp->getNumeroDdp());
 
                 if (empty($bapFullpath)) {
@@ -61,7 +61,8 @@ class DdpApiController extends Controller
 
                 $fileNameForDW = $ddp->getNumeroDdp() . '#' . $numeroCla . '.pdf';
                 $generatePdf = new GeneratePdf();
-                $generatePdf->copyToDWBapDa($bapFullpath, $fileNameForDW);
+
+                $generatePdf->copyToDWBapDa($bapFullpath, $fileNameForDW, $ddp->getTypeDemandeId()->getCode());
             }
 
             $this->getEntityManager()->flush();

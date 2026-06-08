@@ -38,6 +38,10 @@ class BadmSearchType extends AbstractType
         $serviceAttr = $choices['serviceAttr'];
 
         $builder
+            ->add('numBadm', TextType::class, [
+                'label' => 'N° BADM',
+                'required' => false,
+            ])
             ->add('statut', EntityType::class, [
                 'label' => 'Statut',
                 'class' => StatutDemande::class,

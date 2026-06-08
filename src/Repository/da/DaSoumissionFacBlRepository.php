@@ -51,6 +51,8 @@ class DaSoumissionFacBlRepository extends EntityRepository
             AND (ddp.statut NOT LIKE :statutRefuse OR ddp.statut IS NULL)
         ";
 
+
+
         $rows = $conn->fetchAllAssociative($sql, [
             'numDa' => $numDa,
             'numCde' => $numCde,
@@ -189,5 +191,19 @@ class DaSoumissionFacBlRepository extends EntityRepository
             ->setParameter('numCde', $numCde)
             ->getQuery()
             ->getSingleColumnResult();
+    }
+
+    public function getMontantFactureDejaSoumis(string $numCde, string $codeSociete): ?float
+    {
+        $result = $this->createQueryBuilder('dabc')
+            ->select('SUM(dabc.montantBlFacture)')
+            ->where('dabc.numeroCde = :numCde')
+            ->andWhere('dabc.codeSociete = :codeSociete')
+            ->setParameter('numCde', $numCde)
+            ->setParameter('codeSociete', $codeSociete)
+            ->getQuery()
+            ->getOneOrNullResult(Query::HYDRATE_SINGLE_SCALAR);
+
+        return $result !== null ? (float) $result : null;
     }
 }

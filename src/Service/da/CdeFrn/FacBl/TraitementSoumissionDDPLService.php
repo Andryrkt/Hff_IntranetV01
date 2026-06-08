@@ -5,13 +5,21 @@ namespace App\Service\da\CdeFrn\FacBl;
 use App\Controller\Traits\PdfConversionTrait;
 use App\Dto\Da\ListeCdeFrn\DaSoumissionFacBlDto;
 use App\Entity\da\DaAfficher;
+use App\Entity\da\DemandeAppro;
+use App\Entity\dw\DwBcAppro;
 use App\Factory\da\CdeFrnDto\DaSoumissionFacBlFactory;
 use App\Mapper\Da\ListCdeFrn\DaSoumissionFacBlMapper;
 use App\Mapper\ddp\CommandeLivraisonMapper;
 use App\Mapper\ddp\DemandePaiementCommandeMapper;
 use App\Mapper\ddp\DemandePaiementMapper;
+use App\Model\da\DaModel;
+use App\Model\dit\DitModel;
 use App\Repository\da\DaAfficherRepository;
+use App\Repository\da\DemandeApproRepository;
+use App\Repository\dw\DwBcApproRepository;
+use App\Service\dataPdf\ordreReparation\Recapitulation;
 use App\Service\fichier\TraitementDeFichier;
+use App\Service\genererPdf\bap\GenererPdfRecap;
 use App\Service\genererPdf\ddp\GeneratePdfDdpDa;
 use App\Service\genererPdf\GeneratePdf;
 use App\Service\historiqueOperation\HistoriqueOperationDaFacBlService;
@@ -34,6 +42,11 @@ class TraitementSoumissionDDPLService
     private GeneratePdfDdpDa $generatePdfDdp;
     private GeneratePdf $generatePdf;
     private EntityManagerInterface $entityManager;
+    private DemandeApproRepository $demandeApproRepository;
+    private DwBcApproRepository $dwBcApproRepository;
+    private DitModel $ditModel;
+    private DaModel $daModel;
+    private Recapitulation $recapitulationOR;
 
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -42,7 +55,10 @@ class TraitementSoumissionDDPLService
         HistoriqueOperationDaFacBlService $historiqueOperation,
         DaSoumissionFacBlMapper $daSoumissionfacBlMapper,
         GeneratePdfDdpDa $generatePdfDdp,
-        GeneratePdf $generatePdf
+        GeneratePdf $generatePdf,
+        DitModel $ditModel,
+        DaModel $daModel,
+        Recapitulation $recapitulationOR
     ) {
         $this->entityManager                  = $entityManager;
         $this->daSoumissionFacBlFactory       = $daSoumissionFacBlFactory;
@@ -54,6 +70,11 @@ class TraitementSoumissionDDPLService
         $this->daSoumissionfacBlMapper        = $daSoumissionfacBlMapper;
         $this->generatePdfDdp                 = $generatePdfDdp;
         $this->generatePdf                    = $generatePdf;
+        $this->demandeApproRepository      = $this->entityManager->getRepository(DemandeAppro::class);
+        $this->dwBcApproRepository         = $this->entityManager->getRepository(DwBcAppro::class);
+        $this->ditModel                    = $ditModel;
+        $this->daModel                     = $daModel;
+        $this->recapitulationOR            = $recapitulationOR;
     }
 
     public function traitementSoumissionDDPL(FormInterface $form, DaSoumissionFacBlDto $dto): bool
@@ -120,8 +141,27 @@ class TraitementSoumissionDDPLService
         if (!file_exists($cheminDossier)) {
             mkdir($cheminDossier, 0777, true);
         }
+        // =============
+        $numCde              = $dto->numeroCde;
+        $numOr               = $dto->numeroOR;
+        $codeSociete         = $dto->codeSociete;
+        $numLiv              = $dto->numLiv;
+        $infoLiv             = $dto->infoLiv[$numLiv];
 
-        $this->generatePdfDdp->generer($dto->demandePaiementDto, $cheminEtNom);
+        $infoValidationBC    = $this->dwBcApproRepository->getInfoValidationBC($numCde) ?? [];
+        $historiqueLivraison = $this->daModel->getHistoriqueLivraison($numCde) ?? [];
+
+        $infoMateriel        = $this->ditModel->recupInfoMateriel($numOr, $codeSociete);
+        $dataRecapOR         = $this->recapitulationOR->getData($numOr, $codeSociete);
+        $demandeAppro        = $this->demandeApproRepository->findOneBy(['numeroDemandeAppro' => $dto->numeroDemandeAppro]);
+        $infoFacBl           = [
+            "refBlFac"   => $infoLiv["ref_fac_bl"],
+            "dateBlFac"  => $dto->dateBlFac,
+            "numLivIPS"  => $infoLiv["num_liv"],
+            "dateLivIPS" => $infoLiv["date_clot"],
+        ];
+        //=============
+        $this->generatePdfDdp->generer($infoValidationBC, $infoMateriel, $dataRecapOR, $historiqueLivraison, $demandeAppro, $infoFacBl, $dto, $dto->demandePaiementDto, $cheminEtNom);
 
         // fusion du page de garde du demande de paiement et le facture Bl
         $pdfAFusionner = [$cheminEtNom, $nomAvecCheminPdfFusionner];
@@ -249,6 +289,13 @@ class TraitementSoumissionDDPLService
         $numCde = $dto->numeroCde;
         $nomOriginalFichier = $dto->pieceJoint1->getClientOriginalName();
 
+        $numLiv = $dto->numLiv;
+        $mttFac = $dto->montantBlFacture;
+        $infoLivraison = $dto->infoLiv[$numLiv];
+
+
+        $mttFacFormate = $mttFac ? (float)str_replace(',', '.', str_replace(' ', '', $mttFac)) : 0.0;
+
         $nonReceptionnes = array_filter($dto->receptions, function ($item) {
             return $item->statutRecep === 'Non receptionnee';
         });
@@ -268,6 +315,10 @@ class TraitementSoumissionDDPLService
             $okey = false;
         } elseif ($dto->typeDdp !== 'regul' && $dto->estRegule) {
             $message = " le type de traitement de paiement doit être régularisation car le montant à payer est égal à 0 ";
+            $okey = false;
+        } // Blocage si montant ne correspond pas au montant de la livraison dans IPS
+        elseif ($mttFacFormate !== (float) $infoLivraison['montant_fac_bl']) {
+            $message = "Le montant de la facture <b>{$mttFac}</b> ne correspond pas au montant de la livraison dans IPS. Merci de vérifier le montant de la facture avant de le soumettre dans DocuWare.";
             $okey = false;
         }
 
