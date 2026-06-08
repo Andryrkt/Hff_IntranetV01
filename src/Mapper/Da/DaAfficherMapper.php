@@ -293,8 +293,8 @@ class DaAfficherMapper
     private function getTotalMontantCommande($numCde): float
     {
         $daSoumissionFacBlModel = new DaSoumissionFacBlModel();
-        $totalMontantCommande = $daSoumissionFacBlModel->getTotalMontantCommande((int)$numCde);
-        if ($totalMontantCommande) return (float)$totalMontantCommande[0];
+        $totalMontantCommande = $daSoumissionFacBlModel->getMontantCde((int)$numCde);
+        if ($totalMontantCommande) return (float)$totalMontantCommande['montant_total_cde_ht'];
 
         return 0;
     }
