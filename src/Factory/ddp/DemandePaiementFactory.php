@@ -99,7 +99,8 @@ class DemandePaiementFactory
             'codeSociete' => $dto->codeSociete,
         ]);
 
-        $totalMontantCommande = $this->financialService->recuperationMontantTotalCommande($dto->numeroCommande, $dto->codeSociete);
+        $montantCommande = $this->financialService->recuperationMontantTotalCommande($dto->numeroCommande, $dto->codeSociete);
+        $totalMontantCommande = $montantCommande['montant_total_cde_ht'];
         /** @var DemandePaiementDto[] $demandePaiementDto */
         $demandePaiementDto = DemandePaiementMapper::mapInverse($ddpList);
         $dto->ddpRecap = DdpRecapMapper::map($demandePaiementDto, $totalMontantCommande);
@@ -176,7 +177,8 @@ class DemandePaiementFactory
 
     private function hydrateFinancialData(DemandePaiementDto $dto): void
     {
-        $dto->totalMontantCommande = $this->financialService->recuperationMontantTotalCommande($dto->numeroCommande, $dto->codeSociete);
+        $montantCommande = $this->financialService->recuperationMontantTotalCommande($dto->numeroCommande, $dto->codeSociete);
+        $dto->totalMontantCommande = $montantCommande['montant_total_cde_ht'];
 
         [$montantDejaPaye, $ratioMontantDejaPaye, $montantAregulariser, $ratioMontantARegul] = $this->financialService->calculatePaymentRatios($dto);
         $dto->montantDejaPaye = $montantDejaPaye;

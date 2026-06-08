@@ -58,14 +58,19 @@ class DdpFinancialService
      * 
      * @param string $numeroCommande
      * @param string $codeSociete
-     * @return float
+     * 
+     * @return array{
+     *     montant_total_cde_ht: float,
+     *     montant_total_cde_ttc: float
+     * }
+     * 
      * @throws \Exception
      */
     public function recuperationMontantTotalCommande(string $numeroCommande, string $codeSociete)
     {
         $demandePaiementModel = new DemandePaiementModel();
-        $montantTotalCommande = (float) $demandePaiementModel->getMontantTotalCde($numeroCommande, $codeSociete);
-        if ($montantTotalCommande <= 0) throw new \Exception("Le montant total de la commande est nul");
+        $montantTotalCommande = $demandePaiementModel->getMontantCde($numeroCommande, $codeSociete);
+        if ($montantTotalCommande['montant_total_cde_ht'] <= 0) throw new \Exception("Le montant total de la commande est nul");
         return $montantTotalCommande;
     }
 

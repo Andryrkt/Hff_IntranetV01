@@ -21,12 +21,18 @@ class DaSoumissionCalculService
     }
 
     /**
-     * Calcule le montant total d'une commande
+     * Retourne les montants HT et TTC d'une commande.
+     *
+     * @param string $numCde
+     *
+     * @return array{
+     *     montant_total_cde_ht: float,
+     *     montant_total_cde_ttc: float
+     * }
      */
-    public function getTotalMontantCommande(string $numCde): float
+    public function getMontantCommande(string $numCde): array
     {
-        $totalMontantCommande = $this->daSoumissionFacBlModel->getTotalMontantCommande($numCde);
-        return $totalMontantCommande ? (float)$totalMontantCommande[0] : 0.0;
+        return $this->daSoumissionFacBlModel->getMontantCde((int)$numCde);
     }
 
     /**
@@ -85,6 +91,7 @@ class DaSoumissionCalculService
         $dto->ratioMontantARegul = round($ratio, 2); // ratio du montant à régulariser par rapport au montant total de la commande
         $dto->ratioMontantDejaPaye = $ratioDejaPayer; // ratio du montant déjà payé par rapport au montant total de la commande
         $dto->totalMontantPayer = $TotalMontantFactureSoumise; // montant total à payer (somme du montant de la facture en cours et des montants des factures déjà soumises)
+        //si $totalCommande <> $totalcommandeTTC
         $dto->montantAregulariser = $totalMontantPayer; // montant à régulariser (différence entre le montant total à payer et le montant déjà payé)
 
 
