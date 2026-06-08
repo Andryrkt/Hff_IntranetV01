@@ -35,12 +35,13 @@ class ModalStatutClotureApi extends Controller
     {
         $ddpModel = new DemandePaiementModel();
         foreach ($infoStatutClotures as &$infoStatutCloture) {
-            $montantTotalCommande = $ddpModel->getMontantTotalCde($numeroCde, $infoStatutCloture['code_societe']);
-            $infoStatutCloture['montant_total_commande'] = $montantTotalCommande;
-            
+            $montantTotalCommande = $ddpModel->getMontantCde($numeroCde, $infoStatutCloture['code_societe']);
+            $mttCdeHt = $montantTotalCommande['montant_total_cde_ht']; // montant total commande Hors Taxe
+            $infoStatutCloture['montant_total_commande'] = $mttCdeHt;
+
             $montantHtFloat = (float) str_replace([' ', "\xc2\xa0", ','], ['', '', '.'], (string) $infoStatutCloture['montant_ht']);
-            $infoStatutCloture['ratio_deja_paye'] = $montantTotalCommande != 0 
-                ? round(($montantHtFloat / $montantTotalCommande) * 100, 2) 
+            $infoStatutCloture['ratio_deja_paye'] = $mttCdeHt != 0
+                ? round(($montantHtFloat / $mttCdeHt) * 100, 2)
                 : 0;
         }
         return $infoStatutClotures;

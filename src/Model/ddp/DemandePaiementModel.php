@@ -359,9 +359,22 @@ class DemandePaiementModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function getMontantTotalCde(string $numCde, string $codeSociete): float
+    /**
+     * Retourne les montants HT et TTC d'une commande.
+     *
+     * @param string $numCde
+     * @param string $codeSociete
+     *
+     * @return array{
+     *     montant_total_cde_ht: float,
+     *     montant_total_cde_ttc: float
+     * }
+     */
+    public function getMontantCde(string $numCde, string $codeSociete): array
     {
-        $statement = " SELECT fcde_mtn as montant_total_cde
+        $statement = " SELECT 
+                    fcde_mtn as montant_total_cde_ht,
+                    fcde_ttc as montant_total_cde_ttc
                 from informix.frn_cde 
                 where fcde_numcde ='$numCde'
                 and fcde_soc = '$codeSociete'
@@ -371,9 +384,17 @@ class DemandePaiementModel extends Model
 
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
 
+        if (empty($data)) {
+            return [
+                'montant_total_cde_ht'  => 0.00,
+                'montant_total_cde_ttc' => 0.00,
+            ];
+        }
 
-
-        return (float) array_column($data, 'montant_total_cde')[0] ?? 0.00;
+        return [
+            'montant_total_cde_ht'  => (float) $data[0]['montant_total_cde_ht'],
+            'montant_total_cde_ttc' => (float) $data[0]['montant_total_cde_ttc'],
+        ];
     }
 
 
