@@ -242,10 +242,10 @@ class DaSoumissionFacBlFactory
 
         $financialService = new DdpFinancialService($this->em);
         $montantCommande = $financialService->recuperationMontantTotalCommande($dto->numeroCommande, $dto->codeSociete);
-        $totalMontantCommande = $montantCommande['montant_total_cde_ht'];
+        $totalMontantCommandeTTC = $montantCommande['montant_total_cde_ttc'];
         /** @var DemandePaiementDto[] $demandePaiementDto */
         $demandePaiementDto = DemandePaiementMapper::mapInverse($ddpList);
-        $dto->ddpRecap = DdpRecapMapper::map($demandePaiementDto, $totalMontantCommande);
+        $dto->ddpRecap = DdpRecapMapper::map($demandePaiementDto, $totalMontantCommandeTTC);
     }
 
     private function getTypeDdp(DaSoumissionFacBlDto $dto): ?TypeDemande

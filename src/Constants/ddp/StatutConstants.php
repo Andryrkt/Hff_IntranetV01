@@ -14,6 +14,7 @@ class StatutConstants
     public const REFUSE_PAR_CHEF_DE_SERVICE = 'Réfusé par Chef de Service';
     public const REFUSE_COMPTA = 'Réfusé Compta';
     public const A_VALIDER_COMPTABILITE = 'A valider comptabilité';
+    public const TRANSMIS_COMPTA = 'Transmis compta';
     public const VALIDE = 'Validé';
     public const REFUSE = 'Refusé';
 
