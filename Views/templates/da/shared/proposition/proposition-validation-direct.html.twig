@@ -40,7 +40,7 @@
 				</button>
 			</div>
 			<div>
-				<a href="{{ path("da_edit_direct", {id: demandeAppro.id})}}" class="btn bouton mb-2 {{ estCreateurDaDirecte and not nePeutPasModifier ? '' : 'd-none'}}" target="_blank">
+				<a href="{{ path("da_edit_direct", {id: demandeAppro.id})}}" class="btn bouton mb-2 {{ estCreateurDaDirecte and not estAppro and not nePeutPasModifier ? '' : 'd-none'}}" target="_blank">
 					Modifier la demande
 				</a>
 				<button type="submit" class="btn bouton mb-2 d-none" name="observation">
@@ -57,7 +57,7 @@
 		</div>
 		<div id="validationButtons" class="{{ estAppro ? 'd-none' : '' }}">
 			<div>
-				<button type="submit" class="btn bouton mb-2 {{ estCreateurDaDirecte and not nePeutPasModifier ? '' : 'd-none'}}" id="envoyerSelections" name="changement">
+				<button type="submit" class="btn bouton mb-2 {{ estCreateurDaDirecte and not estAppro and not nePeutPasModifier ? '' : 'd-none'}}" id="envoyerSelections" name="changement">
 					Soumettre à validation
 					<i class="fa-solid fa-square-arrow-up-right"></i>
 				</button>

@@ -121,7 +121,7 @@ class CasierController extends Controller
         if ($form->isSubmitted()) {
 
             $casier->setNumeroCas($this->autoINcriment('CAS'));
-            //RECUPERATION de la dernière NumeroDemandeIntervention 
+            //RECUPERATION de la dernière Numéro casier
             $application = $this->getEntityManager()->getRepository(Application::class)->findOneBy(['codeApp' => 'CAS']);
             $application->setDerniereId($casier->getNumeroCas());
             // Persister l'entité Application (modifie la colonne derniere_id dans le table applications)

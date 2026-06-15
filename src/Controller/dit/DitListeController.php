@@ -149,26 +149,26 @@ class DitListeController extends Controller
         ]);
     }
 
-    private function updateNumeroDevis(array $paginationData, DitListModel $ditListModel): array
-    {
-        foreach ($paginationData['data'] as $item) {
-            if ($item->getInternetExterne() === 'EXTERNE' && (is_null($item->getNumeroDevisRattache()) || empty($item->getNumeroDevisRattache()))) {
-                // Récupération du numéro de devis
-                $numeroDevisModel = $ditListModel->recupNumeroDevis($item->getNumeroDemandeIntervention());
+    // private function updateNumeroDevis(array $paginationData, DitListModel $ditListModel): array
+    // {
+    //     foreach ($paginationData['data'] as $item) {
+    //         if ($item->getInternetExterne() === 'EXTERNE' && (is_null($item->getNumeroDevisRattache()) || empty($item->getNumeroDevisRattache()))) {
+    //             // Récupération du numéro de devis
+    //             $numeroDevisModel = $ditListModel->recupNumeroDevis($item->getNumeroDemandeIntervention());
 
-                // Vérification de la récupération du numéro de devis
-                $numeroDevis = !empty($numeroDevisModel) ? $numeroDevisModel[0]['numdevis'] : null;
+    //             // Vérification de la récupération du numéro de devis
+    //             $numeroDevis = !empty($numeroDevisModel) ? $numeroDevisModel[0]['numdevis'] : null;
 
-                // Mise à jour de l'élément avec le numéro de devis
-                $item->setNumeroDevisRattache($numeroDevis);
+    //             // Mise à jour de l'élément avec le numéro de devis
+    //             $item->setNumeroDevisRattache($numeroDevis);
 
-                $this->getEntityManager()->persist($item);
-            }
-        }
-        $this->getEntityManager()->flush();
+    //             $this->getEntityManager()->persist($item);
+    //         }
+    //     }
+    //     $this->getEntityManager()->flush();
 
-        return $paginationData;
-    }
+    //     return $paginationData;
+    // }
 
     /**
      * @Route("/export-excel", name="export_excel")

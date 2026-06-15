@@ -2,7 +2,9 @@
 
 namespace App\Repository\da;
 
+use App\Constants\ddp\StatutConstants;
 use App\Entity\da\DaAfficher;
+use App\Entity\ddp\DemandePaiement;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\EntityRepository;
 
@@ -50,6 +52,8 @@ class DaSoumissionFacBlRepository extends EntityRepository
             AND dabc.code_societe = :codeSociete
             AND (ddp.statut NOT LIKE :statutRefuse OR ddp.statut IS NULL)
         ";
+
+
 
         $rows = $conn->fetchAllAssociative($sql, [
             'numDa' => $numDa,
@@ -189,5 +193,22 @@ class DaSoumissionFacBlRepository extends EntityRepository
             ->setParameter('numCde', $numCde)
             ->getQuery()
             ->getSingleColumnResult();
+    }
+
+    public function getMontantFactureDejaSoumis(string $numCde, string $codeSociete): ?float
+    {
+        $result = $this->createQueryBuilder('dabc')
+            ->select('SUM(dabc.montantBlFacture)')
+            ->join(DemandePaiement::class, 'ddp', 'WITH', 'ddp.numeroDdp = dabc.numeroDemandePaiement')
+            ->where('dabc.numeroCde = :numCde')
+            ->andWhere('dabc.codeSociete = :codeSociete')
+            ->andWhere('ddp.statut in (:statut)')
+            ->setParameter('numCde', $numCde)
+            ->setParameter('codeSociete', $codeSociete)
+            ->setParameter('statut', [StatutConstants::VALIDE, StatutConstants::TRANSMIS_COMPTA])
+            ->getQuery()
+            ->getOneOrNullResult(Query::HYDRATE_SINGLE_SCALAR);
+
+        return $result !== null ? (float) $result : null;
     }
 }

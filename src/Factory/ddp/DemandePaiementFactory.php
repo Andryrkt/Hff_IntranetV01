@@ -11,13 +11,15 @@ use App\Entity\admin\ddp\TypeDemande;
 use App\Entity\admin\Service;
 use App\Entity\da\DaAfficher;
 use App\Entity\da\DaSoumissionBc;
+use App\Entity\da\DaSoumissionFacBl;
 use App\Entity\ddp\DemandePaiement;
 use App\Mapper\Da\ListCdeFrn\DaSoumissionFacBlMapper;
 use App\Mapper\ddp\DdpRecapMapper;
 use App\Mapper\ddp\DemandePaiementMapper;
-use App\Model\da\DaSoumissionFacBlDdpaModel;
+use App\Model\da\DaSoumissionFacBlModel;
 use App\Model\ddp\DemandePaiementModel;
 use App\Service\autres\AutoIncDecService;
+use App\Service\da\DaSoumissionDataService;
 use App\Service\da\NumeroGenerateurService;
 use App\Service\ddp\DdpFinancialService;
 use App\Service\ddp\DocDemandePaiementService;
@@ -29,27 +31,30 @@ class DemandePaiementFactory
     private EntityManagerInterface $em;
     private DemandePaiementModel $ddpModel;
     private DocDemandePaiementService $docDemandePaiementService;
-    private DaSoumissionFacBlDdpaModel $daSoumissionFacBlDdpaModel;
+    private DaSoumissionFacBlModel $daSoumissionFacBlModel;
     private DdpFinancialService $financialService;
     private NumeroGenerateurService $numeroGenerateur;
     private SecurityService $securityService;
+    private DaSoumissionDataService $dataService;
 
     public function __construct(
         EntityManagerInterface $em,
         DemandePaiementModel $ddpModel,
         DocDemandePaiementService $docDemandePaiementService,
-        DaSoumissionFacBlDdpaModel $daSoumissionFacBlDdpaModel,
+        DaSoumissionFacBlModel $daSoumissionFacBlModel,
         DdpFinancialService $financialService,
-        NumeroGenerateurService $numeroGenerateur
+        NumeroGenerateurService $numeroGenerateur,
+        DaSoumissionDataService $dataService
     ) {
         global $container;
         $this->securityService = $container->get('security.service');
         $this->em = $em;
         $this->ddpModel = $ddpModel;
         $this->docDemandePaiementService = $docDemandePaiementService;
-        $this->daSoumissionFacBlDdpaModel = $daSoumissionFacBlDdpaModel;
+        $this->daSoumissionFacBlModel = $daSoumissionFacBlModel;
         $this->financialService = $financialService;
         $this->numeroGenerateur = $numeroGenerateur;
+        $this->dataService = $dataService;
     }
 
     public function load(
@@ -57,6 +62,7 @@ class DemandePaiementFactory
         ?int $numCdeDa,
         ?int $typeDa,
         int $numeroVersionBc = 0,
+        ?string $numOr = null,
         $sessionService
     ): DemandePaiementDto {
         $dto = new DemandePaiementDto();
@@ -64,7 +70,7 @@ class DemandePaiementFactory
         if (empty($infoDa)) {
             throw new \Exception("Aucune information de demande d'approvisionnement trouvée pour le numero commande $numCdeDa");
         }
-        $this->hydrateBaseInfo($dto, $typeDdp, $numCdeDa, $typeDa, $infoDa);
+        $this->hydrateBaseInfo($dto, $typeDdp, $numCdeDa, $typeDa, $infoDa, $numOr);
         $this->hydrateDaInfo($dto, $typeDa, $numeroVersionBc, $sessionService, $infoDa);
         $this->hydrateGeneralInfo($dto);
         $this->hydrateFournisseurInfo($dto, $infoDa);
@@ -72,6 +78,8 @@ class DemandePaiementFactory
         $dto->dernierStatutDdp = $this->recupDernierStatutDdp($dto);
         $dto->estRegule = $dto->montantAregulariser <= 0.0 && !in_array($dto->dernierStatutDdp, StatutConstants::REFUSES_DDP);
         $this->ddpRecap($dto);
+
+
 
         return $dto;
     }
@@ -91,13 +99,14 @@ class DemandePaiementFactory
             'codeSociete' => $dto->codeSociete,
         ]);
 
-        $totalMontantCommande = $this->financialService->recuperationMontantTotalCommande($dto->numeroCommande, $dto->codeSociete);
+        $montantCommande = $this->financialService->recuperationMontantTotalCommande($dto->numeroCommande, $dto->codeSociete);
+        $totalMontantCommande = $montantCommande['montant_total_cde_ttc'];
         /** @var DemandePaiementDto[] $demandePaiementDto */
         $demandePaiementDto = DemandePaiementMapper::mapInverse($ddpList);
         $dto->ddpRecap = DdpRecapMapper::map($demandePaiementDto, $totalMontantCommande);
     }
 
-    private function hydrateBaseInfo(DemandePaiementDto $dto, int $typeDdp, ?int $numCdeDa, ?int $typeDa, array $infoDa): void
+    private function hydrateBaseInfo(DemandePaiementDto $dto, int $typeDdp, int $numCdeDa, ?int $typeDa, array $infoDa, ?string $numOr): void
     {
         $dto->typeDemande = $this->em->getRepository(TypeDemande::class)->find($typeDdp);
         $dto->numeroFacture = null;
@@ -105,6 +114,12 @@ class DemandePaiementFactory
         $dto->numeroCommande = $numCdeDa;
         $dto->debiteur = $this->getDebiteur($typeDa, $infoDa);
         $dto->codeSociete = $this->securityService->getCodeSocieteUser();
+        $dto->numeroOr = $numOr;
+        $dto->infoBc = $this->dataService->getInfoBc($dto->numeroCommande, $dto->codeSociete);
+
+        $dto->sommeMontantFactureDejaPayer = $this->em->getRepository(DaSoumissionFacBl::class)->getMontantFactureDejaSoumis($dto->numeroCommande, $dto->codeSociete) ?? 0.0;
+        $dto->sommeMontantDdpaValider = $this->em->getRepository(DemandePaiement::class)->getSommeMontantDdpaValide($dto->numeroCommande, $dto->codeSociete) ?? 0.0;
+        $dto->soldeAvance = max(0.0, $dto->sommeMontantDdpaValider - $dto->sommeMontantFactureDejaPayer);
     }
 
     private function hydrateDaInfo(DemandePaiementDto $dto, ?int $typeDa, int $numeroVersionBc = 0, $sessionService, array $infoDa): void
@@ -162,7 +177,8 @@ class DemandePaiementFactory
 
     private function hydrateFinancialData(DemandePaiementDto $dto): void
     {
-        $dto->totalMontantCommande = $this->financialService->recuperationMontantTotalCommande($dto->numeroCommande, $dto->codeSociete);
+        $montantCommande = $this->financialService->recuperationMontantTotalCommande($dto->numeroCommande, $dto->codeSociete);
+        $dto->totalMontantCommande = $montantCommande['montant_total_cde_ttc'];
 
         [$montantDejaPaye, $ratioMontantDejaPaye, $montantAregulariser, $ratioMontantARegul] = $this->financialService->calculatePaymentRatios($dto);
         $dto->montantDejaPaye = $montantDejaPaye;

@@ -99,7 +99,7 @@ class BadmsForm2Controller extends Controller
 
                 $this->ajoutDesDonnnerFormulaire($data, $this->getEntityManager(), $badm, $form, $idTypeMouvement);
 
-                //RECUPERATION de la dernière NumeroDemandeIntervention 
+                //RECUPERATION de la dernière Numéro de mouvement materiel pour l'application BDM et l'enregistrer dans la table application
                 $application = $this->getEntityManager()->getRepository(Application::class)->findOneBy(['codeApp' => 'BDM']);
                 $application->setDerniereId($badm->getNumBadm());
                 // Persister l'entité Application (modifie la colonne derniere_id dans le table applications)

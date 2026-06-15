@@ -55,6 +55,11 @@ class DaSoumissionFacBlController extends Controller
 
         $dto = $this->daSoumissionFacBlFactory->initialisation($numCde, $numDa, $numOr, $codeSociete);
 
+        if ($dto->sommeMontantDdpaValider > 0 && $dto->posl <> 'TL') {
+            $message = " posl <> TL";
+            $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn');
+        }
+
         $form = $this->getFormFactory()->createBuilder(DaSoumissionFacBlType::class, $dto, [
             'method'  => 'POST'
         ])->getForm();
@@ -94,9 +99,9 @@ class DaSoumissionFacBlController extends Controller
             /** @var DaSoumissionFacBlDto $dto */
             $dto = $form->getData();
 
-            if ($dto->typeDdp === 'regul' || $dto->typeDdp === 'ddpl') {
+            if (!$dto->soumissionDdpAFaire && ($dto->typeDdp === 'regul' || $dto->typeDdp === 'ddpl')) {
                 $sucess = $this->traitementSoumissionDDPLService->traitementSoumissionDDPL($form, $dto);
-            } elseif ($dto->typeDdp === 'bap') {
+            } elseif (!$dto->soumissionDdpAFaire && $dto->typeDdp === 'bap') {
                 $sucess = $this->traitementSoumissionBAPService->traitementSoumissionBAP($form, $dto, $this->getUserMail());
             } else {
                 $sucess = $this->traitementSoumissionfacBlService->traitementSoumissionFacBl($form, $dto);
@@ -111,7 +116,7 @@ class DaSoumissionFacBlController extends Controller
 
                 // Ici aussi on pourrait injecter HistoriqueOperationDaBcService
                 $historiqueOperation = new HistoriqueOperationDaBcService($this->getEntityManager());
-                $historiqueOperation->sendNotificationSoumission($message, $dto->numeroCde, $nomDeRoute, true, $criteria, $nomInputSearch);
+                $historiqueOperation->sendNotificationSoumission($message, $dto->numeroCde, $nomDeRoute, true, $criteria, $nomInputSearch, [], null);
             }
         }
     }

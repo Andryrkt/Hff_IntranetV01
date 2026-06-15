@@ -8,23 +8,23 @@ class PdfTableHistoriqueLivraisonBAP
 {
     use FormatageTrait;
 
-    public function generateTable(array $data)
+    public function generateTable(array $data, string $devise)
     {
         $html = '<table border="0" cellpadding="2" cellspacing="0" style="font-size: 9px;">';
-        $html .= $this->generateHeader();
+        $html .= $this->generateHeader($devise);
         $html .= $this->generateBody($data);
         $html .= '</table>';
         return $html;
     }
 
-    private function generateHeader(): string
+    private function generateHeader(string $devise): string
     {
         $columns = [
             $this->createTableCell('center', '20%', 'N° Livraison IPS'),
             $this->createTableCell('center', '20%', 'N° Facture IPS'),
             $this->createTableCell('left', '25%', 'Référence'),
             $this->createTableCell('center', '20%', 'Date livraison IPS'),
-            $this->createTableCell('right', '20%', 'Montant'),
+            $this->createTableCell('right', '20%', 'Montant (' . $devise . ')'),
         ];
 
         return sprintf(

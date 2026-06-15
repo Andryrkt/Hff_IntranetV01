@@ -160,7 +160,7 @@ class DocRattacheService
             ],
             'DDP' => [
                 'labelType'       => 'DDP',
-                'type'            => 'Demande de paiement',
+                'type'            => 'Demande de paiement / Bon à payer',
                 'icon'            => 'fa-solid fa-file-invoice',
                 'colorClass'      => 'border-left-facbl',
                 'service'         => 'daService',

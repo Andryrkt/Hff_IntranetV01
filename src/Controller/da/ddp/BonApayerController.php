@@ -41,13 +41,9 @@ class BonApayerController extends Controller
         // transformation en DTO (DemandePaiementDto)
         $dtos = DemandePaiementMapper::mapInverse($ddp);
 
-        // chemin fichier BAP
-        $fileCheckerService = new FileCheckerService($_ENV['BASE_PATH_FICHIER']);
-
         return $this->render('da/ddp/bon_a_payer.html.twig', [
-            'dtos'               => $dtos,
-            'form'              => $form->createView(),
-            'fileCheckerService' => $fileCheckerService,
+            'dtos' => $dtos,
+            'form' => $form->createView()
         ]);
     }
 }

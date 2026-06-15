@@ -113,7 +113,7 @@ class BadmDupliController extends Controller
                 $createPdf->genererPdfBadm($generPdfBadm, $orDb);
                 $createPdf->copyInterneToDOCUWARE($badm->getNumBadm(), substr($badm->getAgenceEmetteur(), 0, 2) . substr($badm->getServiceEmetteur(), 0, 3));
 
-                //RECUPERATION de la dernière NumeroDemandeIntervention 
+                //RECUPERATION de la dernière Numeéro de mouvement materiel pour l'application BDM et l'enregistrer dans la table application 
                 $application = $this->getEntityManager()->getRepository(Application::class)->findOneBy(['codeApp' => 'BDM']);
                 $application->setDerniereId($badm->getNumBadm());
                 // Persister l'entité Application (modifie la colonne derniere_id dans le table applications)

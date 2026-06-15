@@ -22,6 +22,7 @@ use App\Repository\dw\DwBcApproRepository;
 use App\Service\dataPdf\ordreReparation\Recapitulation;
 use App\Service\fichier\TraitementDeFichier;
 use App\Service\genererPdf\bap\GenererPdfBonAPayer;
+use App\Service\genererPdf\bap\GenererPdfRecap;
 use App\Service\genererPdf\GeneratePdf;
 use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -164,7 +165,7 @@ class TraitementSoumissionBAPService
             $okey = false;
         }
         // Blocage si montant ne correspond pas au montant de la livraison dans IPS
-        elseif ($dto->montantAregulariser > 0.0 && $mttFacFormate !== (float) $infoLivraison['montant_fac_bl']) {
+        elseif ($mttFacFormate !== (float) $infoLivraison['montant_fac_bl']) {
             $message = "Le montant de la facture <b>{$mttFac}</b> ne correspond pas au montant de la livraison dans IPS. Merci de vérifier le montant de la facture avant de le soumettre dans DocuWare.";
             $okey = false;
         }

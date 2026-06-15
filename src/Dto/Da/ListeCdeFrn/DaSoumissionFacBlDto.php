@@ -58,6 +58,7 @@ class DaSoumissionFacBlDto
     public array $daDdpa = [];
     public string $titreDaDdpa = "Liste des demandes de paiement à l'avance";
     public float $totalMontantCommande = 0.0;
+    public float $totalMontantCommandeTTC = 0.0;
     public float $montantDejaPaye = 0.0;
     public float $ratioMontantDejaPaye = 0.0;
     public float $montantAregulariser = 0.0;
@@ -72,6 +73,13 @@ class DaSoumissionFacBlDto
     public ?string $typeDdp = null; // valeur possible 'bap', 'ddpl', 'regule', 'aucune'
 
 
+    public float $sommeMontantDdpaValider = 0.0;
+    public float $sommeMontantFactureDejaPayer = 0.0;
+    public float $soldeAvance = 0.0;
+    public bool $soumissionDdpAFaire = false;
+    public  ?string $posl = null; // valeur possible : 'TL' ou autre chose
+    public ?string $devise = null;
+    public float $totalMontantDdpValid = 0.0;
 
     public function montantAPayer(): float
     {

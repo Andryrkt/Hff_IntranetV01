@@ -57,6 +57,9 @@ class BadmRepository extends EntityRepository
             ->setMaxResults($limit)
         ;
 
+        // Pour déboguer et récupérer la requête SQL
+        //dd($queryBuilder->getQuery()->getSQL(), $queryBuilder->getQuery()->getParameters());
+
         $paginator = new DoctrinePaginator($queryBuilder->getQuery());
 
         $totalItems = count($paginator);
@@ -71,7 +74,7 @@ class BadmRepository extends EntityRepository
     }
 
 
-    public function findAndFilteredExcel(array $criteria = [], int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeSociete, bool $peutVoirListeAvecDebiteur, bool $multisuccursale)
+    public function findAndFilteredExcel(array $criteria, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeSociete, bool $peutVoirListeAvecDebiteur, bool $multisuccursale)
     {
         $queryBuilder = $this->createQueryBuilder('b')
             ->leftJoin('b.typeMouvement', 'tm')
@@ -95,11 +98,14 @@ class BadmRepository extends EntityRepository
         $queryBuilder
             ->orderBy('b.numBadm', 'DESC');
 
+        // Pour déboguer et récupérer la requête SQL
+        // dd($queryBuilder->getQuery()->getSQL(), $queryBuilder->getQuery()->getParameters());
+
         return $queryBuilder->getQuery()->getResult();
     }
 
 
-    public function findPaginatedAndFilteredListAnnuler(int $page = 1, int $limit = 10, array $criteria = [], int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeSociete, bool $peutVoirListeAvecDebiteur, bool $multisuccursale)
+    public function findPaginatedAndFilteredListAnnuler(int $page = 1, int $limit = 10, array $criteria, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeSociete, bool $peutVoirListeAvecDebiteur, bool $multisuccursale)
     {
         $queryBuilder = $this->createQueryBuilder('b')
             ->leftJoin('b.typeMouvement', 'tm')
@@ -144,7 +150,7 @@ class BadmRepository extends EntityRepository
     }
 
 
-    private function filtredAgenceServiceEmetteur($queryBuilder, $criteria)
+    private function filtredAgenceServiceEmetteur($queryBuilder, array $criteria)
     {
         //filtre selon l'agence emettteur
         if (!empty($criteria['agenceEmetteur'])) {
@@ -171,7 +177,7 @@ class BadmRepository extends EntityRepository
         ;
     }
 
-    private function filtredCondition($queryBuilder, $criteria)
+    private function filtredCondition($queryBuilder, array $criteria)
     {
         if (!empty($criteria['statut'])) {
             $queryBuilder->andWhere('s.description LIKE :statut')
@@ -186,6 +192,11 @@ class BadmRepository extends EntityRepository
         if (!empty($criteria['idMateriel']) || $criteria['idMateriel'] == '0') {
             $queryBuilder->andWhere('b.idMateriel = :idMateriel')
                 ->setParameter('idMateriel',  $criteria['idMateriel']);
+        }
+
+        if (!empty($criteria['numBadm'])) {
+            $queryBuilder->andWhere('b.numBadm = :numBadm')
+                ->setParameter('numBadm', $criteria['numBadm']);
         }
 
         if (!empty($criteria['dateDebut'])) {

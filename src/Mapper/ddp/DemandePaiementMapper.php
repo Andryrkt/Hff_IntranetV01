@@ -8,6 +8,7 @@ use App\Dto\ddp\DemandePaiementDto;
 use App\Entity\ddp\DemandePaiement;
 use App\Entity\ddp\HistoriqueStatutDdp;
 use App\Model\ddp\DemandePaiementModel;
+use App\Service\ddp\DemandePaiementFileService;
 
 class DemandePaiementMapper
 {
@@ -65,6 +66,8 @@ class DemandePaiementMapper
     public static function mapInverse(array $ddps): array
     {
         $dtos = [];
+        $demandePaiementFileService = new DemandePaiementFileService();
+
         foreach ($ddps as $ddp) {
             $dto = new DemandePaiementDto();
             $dto->numeroDdp = $ddp->getNumeroDdp();
@@ -92,6 +95,7 @@ class DemandePaiementMapper
             $dto->demandeur = $ddp->getDemandeur();
             $dto->appro = $ddp->getAppro() ?? false;
             $dto->numeroFactureIps = self::getNumeroFactureIps($dto);
+            $dto->fileExists = $demandePaiementFileService->getFileInfo($dto->numeroDdp, $dto->typeDemande->getCode())['exists'];
 
             $dtos[] = $dto;
         }
