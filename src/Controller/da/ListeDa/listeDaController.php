@@ -62,7 +62,7 @@ class listeDaController extends Controller
 
         //recupère le numero de page
         $page = $request->query->getInt('page', 1);
-        $limit = 100;
+        $limit = 50;
 
         // Donnée à envoyer à la vue
         $paginationData = $this->daAfficherRepository->findPaginatedAndFilteredDA($page, $limit, $criteria, $agenceIdUser, $serviceIdUser, $codeSociete);
