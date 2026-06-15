@@ -147,10 +147,10 @@ function setupAutocompleteField(articleStockeList) {
         fields.articleStocke.checked = articleStocke;
         fields.constp.value = item.constp;
         fields.desi.value = item.desi;
-        fields.nomFrn.value = item.nom_frn;
         fields.prix.value = item.prix_unitaire;
-        fields.numFrn.value = item.num_frn;
         if (articleStocke) {
+          fields.nomFrn.value = item.nom_frn; // changer le fournisseur si article stocké
+          fields.numFrn.value = item.num_frn; // changer le fournisseur si article stocké
           fields.desi.classList.add("non-modifiable");
           const prix = parseFloat(item.prix_unitaire);
           if (!prix || prix <= 0) {
@@ -186,7 +186,12 @@ function confirmForm() {
       const prixUnitaire = row.querySelector('[id$="_prixUnitaire"]');
       const refp = row.querySelector(".da-art-refp");
 
-      if (articleStocke && articleStocke.checked && refp && refp.value.trim() !== "") {
+      if (
+        articleStocke &&
+        articleStocke.checked &&
+        refp &&
+        refp.value.trim() !== ""
+      ) {
         const prix = parseFloat(prixUnitaire.value);
         if (!prix || prix <= 0) {
           errorMsg = `L'article <b>${refp.value}</b> est géré en stock mais son prix unitaire (PMP) est à zéro ou non trouvé.<br><br>L'enregistrement est bloqué. Merci de vérifier dans IPS s'il vous plaît.`;
