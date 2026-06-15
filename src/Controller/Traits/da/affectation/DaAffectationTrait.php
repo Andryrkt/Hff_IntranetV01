@@ -101,7 +101,7 @@ trait DaAffectationTrait
         if ($validationDA) {
             // création de PDF
             $daConsumptionHistory = new DaConsumptionHistory();
-            $dateRange = $daConsumptionHistory->getLast12MonthsRange();
+            $dateRange = $daConsumptionHistory->getLast13MonthsDateRange();
             $monthsList = $daConsumptionHistory->getMonthsList($dateRange['start'], $dateRange['end']);
             $dataHistoriqueConsommation = $daConsumptionHistory->getHistoriqueConsommation($demandeAppro, $dateRange, $monthsList);
             $observations = $this->daObservationRepository->findBy(
