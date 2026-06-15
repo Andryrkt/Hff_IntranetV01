@@ -367,8 +367,7 @@ class DitModel extends Model
             sum(slor_qterel) as quantiteReliquat,
             sum(slor_qterea) as qteLiv
             from sav_lor 
-            inner join sav_eor on seor_soc = slor_soc and seor_succ = slor_succ 
-            and seor_numor = slor_numor
+            inner join sav_eor on seor_soc = slor_soc and seor_succ = slor_succ and seor_numor = slor_numor
             left join sav_liv on sliv_soc = slor_soc and sliv_succ = slor_succ and sliv_numor = seor_numor and slor_nolign = sliv_nolign
             
             where 

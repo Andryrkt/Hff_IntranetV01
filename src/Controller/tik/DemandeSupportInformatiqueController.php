@@ -106,7 +106,7 @@ class DemandeSupportInformatiqueController extends Controller
         $supportInfo->setAgence($this->getEntityManager()->getRepository(Agence::class)->find('08'));    // agence Administration
         $supportInfo->setService($this->getEntityManager()->getRepository(Service::class)->find('13'));   // service Informatique
         $supportInfo->setDateFinSouhaiteeAutomatique();
-        $supportInfo->setCodeSociete($user->getSociettes()->getCodeSociete());
+        $supportInfo->setCodeSociete('HF');
     }
 
     private function ajoutDonnerDansEntity($dataForm, DemandeSupportInformatique $supportInfo, User $user)
@@ -129,7 +129,7 @@ class DemandeSupportInformatiqueController extends Controller
             ->setAgenceServiceDebiteur($dataForm->getAgence()->getCodeAgence() . '-' . $dataForm->getService()->getCodeService())
             ->setNumeroTicket($this->autoINcriment('TIK'))
             ->setIdStatutDemande($statut)
-            ->setCodeSociete($user->getSociettes()->getCodeSociete())
+            ->setCodeSociete('HF')
         ;
 
         $this->historiqueStatut($supportInfo, $statut);

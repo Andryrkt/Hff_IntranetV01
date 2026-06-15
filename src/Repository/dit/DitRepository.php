@@ -66,16 +66,6 @@ class DitRepository extends EntityRepository
         $totalItems = count($paginator);
         $lastPage = ceil($totalItems / $limit);
 
-        $query = $queryBuilder->getQuery();
-        $sql = $query->getSQL();
-        $params = $query->getParameters();
-
-        dump("SQL : " . $sql . "\n");
-        foreach ($params as $param) {
-            dump($param->getName());
-            dump($param->getValue());
-        }
-
         // Récupérer le nombre de lignes par statut
         $statusCounts = $this->countByStatus($ditSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeAgenceUser, $codeSociete, $peutVoirListeAvecDebiteur, false, $multisuccursale);
 
