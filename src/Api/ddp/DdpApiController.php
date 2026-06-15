@@ -52,7 +52,7 @@ class DdpApiController extends Controller
                 $this->getEntityManager()->persist($ddp);
 
                 /** copie du fichier DDP dans DW */
-                $fileCheckerService = new FileCheckerService($_ENV['BASE_PATH_FICHIER']);
+                $fileCheckerService = new FileCheckerService();
                 $bapFullpath = $fileCheckerService->getFullPath($ddp->getNumeroDdp());
 
                 if (empty($bapFullpath)) {

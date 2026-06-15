@@ -85,7 +85,9 @@ class DaSoumissionFacBlFactory
 
         // DDPL ==========================
         $dto->statutFacBl = self::STATUT_SOUMISSION;
-        $dto->totalMontantCommande = $this->calculService->getTotalMontantCommande($dto->numeroCde);
+        $montantCommande = $this->calculService->getMontantCommande($dto->numeroCde);
+        $dto->totalMontantCommande = $montantCommande['montant_total_cde_ht'];
+        $dto->totalMontantCommandeTTC = $montantCommande['montant_total_cde_ttc'];
 
         // BAP =======
         $dto->numeroBap = $this->genererNumeroBap();
@@ -191,6 +193,11 @@ class DaSoumissionFacBlFactory
 
         $infoFournisseur = $this->dataService->getInfoFournisseur($infoDa['numeroFournisseur'], $dto->numeroCde, $dto->codeSociete);
 
+        $financialService = new DdpFinancialService($this->em);
+        [$pourcentageAvance, $pourcentageAPayer] = $financialService->calculateGlobalFinancials($ddpDto);
+        $ddpDto->pourcentageAvance = $pourcentageAvance;
+        $ddpDto->pourcentageAPayer = $pourcentageAPayer;
+
         if (!empty($infoFournisseur)) {
             $ddpDto->numeroFournisseur = $infoFournisseur[0]['num_fournisseur'];
             $ddpDto->ribFournisseur = $infoFournisseur[0]['rib_fournisseur'];
@@ -234,10 +241,11 @@ class DaSoumissionFacBlFactory
         ]);
 
         $financialService = new DdpFinancialService($this->em);
-        $totalMontantCommande = $financialService->recuperationMontantTotalCommande($dto->numeroCommande, $dto->codeSociete);
+        $montantCommande = $financialService->recuperationMontantTotalCommande($dto->numeroCommande, $dto->codeSociete);
+        $totalMontantCommandeTTC = $montantCommande['montant_total_cde_ttc'];
         /** @var DemandePaiementDto[] $demandePaiementDto */
         $demandePaiementDto = DemandePaiementMapper::mapInverse($ddpList);
-        $dto->ddpRecap = DdpRecapMapper::map($demandePaiementDto, $totalMontantCommande);
+        $dto->ddpRecap = DdpRecapMapper::map($demandePaiementDto, $totalMontantCommandeTTC);
     }
 
     private function getTypeDdp(DaSoumissionFacBlDto $dto): ?TypeDemande

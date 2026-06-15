@@ -14,6 +14,7 @@ class StatutConstants
     public const REFUSE_PAR_CHEF_DE_SERVICE = 'Réfusé par Chef de Service';
     public const REFUSE_COMPTA = 'Réfusé Compta';
     public const A_VALIDER_COMPTABILITE = 'A valider comptabilité';
+    public const TRANSMIS_COMPTA = 'Transmis compta';
     public const VALIDE = 'Validé';
     public const REFUSE = 'Refusé';
 
@@ -42,6 +43,7 @@ class StatutConstants
         self::REFUSE_COMPTA => 'statut-refuse-compta',
         self::A_VALIDER_COMPTABILITE => 'statut-a-valider-comptabilite',
         self::VALIDE => 'statut-valide',
+        self::TRANSMIS_COMPTA => 'statut-transmis-compta',
     ];
 
     public static function getCssClass(string $statut): string

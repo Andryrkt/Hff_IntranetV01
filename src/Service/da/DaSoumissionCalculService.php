@@ -21,12 +21,18 @@ class DaSoumissionCalculService
     }
 
     /**
-     * Calcule le montant total d'une commande
+     * Retourne les montants HT et TTC d'une commande.
+     *
+     * @param string $numCde
+     *
+     * @return array{
+     *     montant_total_cde_ht: float,
+     *     montant_total_cde_ttc: float
+     * }
      */
-    public function getTotalMontantCommande(string $numCde): float
+    public function getMontantCommande(string $numCde): array
     {
-        $totalMontantCommande = $this->daSoumissionFacBlModel->getTotalMontantCommande($numCde);
-        return $totalMontantCommande ? (float)$totalMontantCommande[0] : 0.0;
+        return $this->daSoumissionFacBlModel->getMontantCde((int)$numCde);
     }
 
     /**
@@ -48,11 +54,23 @@ class DaSoumissionCalculService
     public function calculerMontantEtRatios(DaSoumissionFacBlDto $dto): DaSoumissionFacBlDto
     {
         $demandePaiementAvance = $dto->sommeMontantDdpaValider;
-        $MontantFactureEnCours = $dto->montantBlFacture; // numero facture que l'utilisateur est entrain de soumettre
+        $MontantFactureEnCours = $dto->montantBlFacture; // Montant HT de la facture que l'utilisateur est entrain de soumettre
         $ratio = 0.0;
+
+        // Si mtt HT < mtt TTC, on ajoute le taxe (20%)
         $totalCommande = $dto->totalMontantCommande;
+        $totalCommandeTTC = $dto->totalMontantCommandeTTC;
+
+
         $TotalMontantFactureSoumise = $dto->sommeMontantFactureDejaPayer;
-        $ratioDejaPayer = ($totalCommande > 0) ? ($TotalMontantFactureSoumise / $totalCommande) * 100 : 0;
+        // si le fournisseur est assujéti  à la TVA ==> montant HT < Montant TTC 
+        if ($totalCommande < $totalCommandeTTC) {
+            $MontantFactureEnCours *= 1.2;
+            $TotalMontantFactureSoumise *= 1.2;
+        }
+
+        $ratioDejaPayer = ($totalCommandeTTC > 0) ? ($TotalMontantFactureSoumise / $totalCommandeTTC) * 100 : 0;
+
 
         // si il y une demande de paiement à l'avance  : appliquer le solde avance
         if ($demandePaiementAvance > 0) {
@@ -60,8 +78,8 @@ class DaSoumissionCalculService
             // echo "misy demande de paiement à l'avance";
             // calcul solde      
             $totalMontantPayer = abs(($demandePaiementAvance - $TotalMontantFactureSoumise) - $MontantFactureEnCours); // 200 000 AR
-            if ($totalCommande > 0) {
-                $ratio = ($totalMontantPayer / $totalCommande) * 100;
+            if ($totalCommandeTTC > 0) {
+                $ratio = ($totalMontantPayer / $totalCommandeTTC) * 100;
             }
 
             if ($totalMontantPayer > 0) {
@@ -69,18 +87,14 @@ class DaSoumissionCalculService
                 $dto->soumissionDdpAFaire = false;
             } else {
                 // regul si = 0 / bloquer si < 0
-
                 $dto->soumissionDdpAFaire = $totalMontantPayer < 0 ? true : false;
             }
         } else {
             // si pas de demande de paiement à l'avance : ne pas appliquer le solde avance
             // echo "tsy misy demande de paiement à l'avance";
             $totalMontantPayer = $MontantFactureEnCours;
-            if ($totalCommande > 0) {
-                $ratio = ($totalMontantPayer / $totalCommande) * 100;
-            }
+            if ($totalCommandeTTC > 0)  $ratio = ($totalMontantPayer / $totalCommandeTTC) * 100;
         }
-
 
         $dto->ratioMontantARegul = round($ratio, 2); // ratio du montant à régulariser par rapport au montant total de la commande
         $dto->ratioMontantDejaPaye = $ratioDejaPayer; // ratio du montant déjà payé par rapport au montant total de la commande

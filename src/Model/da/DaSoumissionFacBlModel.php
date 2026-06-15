@@ -54,17 +54,39 @@ class DaSoumissionFacBlModel extends Model
     }
 
     /** ================ DDPL ==========================*/
-    public function getTotalMontantCommande(int $numCde)
+    /**
+     * Retourne les montants HT et TTC d'une commande.
+     *
+     * @param int $numCde
+     *
+     * @return array{
+     *     montant_total_cde_ht: float,
+     *     montant_total_cde_ttc: float
+     * }
+     */
+    public function getMontantCde(int $numCde): array
     {
-        $statement = " SELECT fcde_mtn as montant_total
-            from informix.frn_cde 
-            where fcde_numcde = $numCde
+        $statement = "SELECT 
+                    fcde_mtn as montant_total_cde_ht,
+                    fcde_ttc as montant_total_cde_ttc
+                from informix.frn_cde 
+                where fcde_numcde ='$numCde'
             ";
 
         $result = $this->connect->executeQuery($statement);
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
 
-        return array_column($data, 'montant_total');
+        if (empty($data)) {
+            return [
+                'montant_total_cde_ht'  => 0.00,
+                'montant_total_cde_ttc' => 0.00,
+            ];
+        }
+
+        return [
+            'montant_total_cde_ht'  => (float) $data[0]['montant_total_cde_ht'],
+            'montant_total_cde_ttc' => (float) $data[0]['montant_total_cde_ttc'],
+        ];
     }
 
     public function getArticleCde(int $numCde)

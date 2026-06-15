@@ -297,28 +297,18 @@ class DemandePaiementRepository extends EntityRepository
             ->getResult();
     }
 
-    public function findAllDdpByDa(string $numeroDa): array
-    {
-        return $this->createQueryBuilder('d')
-            ->select('d.numeroDdp')
-            ->where('d.numeroDemandeAppro = :numeroDa')
-            ->setParameter('numeroDa', $numeroDa)
-            ->getQuery()
-            ->getSingleColumnResult();
-    }
-
     public function getSommeMontantDdpaValide(string $numeroCde, string $codeSociete)
     {
         $queryBuilder = $this->createQueryBuilder('d')
             ->select('SUM(d.montantAPayers)')
             ->where('d.typeDemandeId = :typeDdp')
             ->andWhere('d.numeroCommande = :numCde')
-            ->andWhere('d.statut =  :statut')
+            ->andWhere('d.statut in (:statut)')
             ->andWhere('d.codeSociete = :codeSociete')
             ->setParameters([
                 'typeDdp' => 1,
                 'numCde' => $numeroCde,
-                'statut' => StatutConstants::VALIDE,
+                'statut' => [StatutConstants::VALIDE, StatutConstants::TRANSMIS_COMPTA],
                 'codeSociete' => $codeSociete
             ]);
 

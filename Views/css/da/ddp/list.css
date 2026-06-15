@@ -29,7 +29,8 @@
   color: #0a0a0a !important;
 }
 
-.statut-valide {
+.statut-valide,
+.statut-transmis-compta {
   background-color: #4ef177 !important;
 }
 

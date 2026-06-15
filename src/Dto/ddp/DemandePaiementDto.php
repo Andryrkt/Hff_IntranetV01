@@ -67,7 +67,7 @@ class DemandePaiementDto
     public $titreDeTransportFichier;
     public array $lesFichiers = [];
 
-
+    public bool $fileExists = false;
 
     // Pour le DA et les montants =====================================
     public ?string $numeroOr = null;
