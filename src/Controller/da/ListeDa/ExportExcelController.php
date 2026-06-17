@@ -8,7 +8,7 @@ use App\Entity\da\DaAfficher;
 use App\Service\ExcelService;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
-use Doctrine\ORM\EntityRepository;
+use App\Repository\da\DaAfficherRepository;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -16,7 +16,7 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class ExportExcelController extends Controller
 {
-    private EntityRepository $daAfficherRepository;
+    private DaAfficherRepository $daAfficherRepository;
 
     public function __construct()
     {

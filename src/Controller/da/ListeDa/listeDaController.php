@@ -56,7 +56,12 @@ class listeDaController extends Controller
             'estAppro' => $this->estAppro(),
             'codeSociete' => $codeSociete
         ])->getForm();
-        $criteria = $this->traitementFormualireRecherche($request, $form, $daSearch);
+
+        $form->handleRequest($request);
+
+        $criteria = $daSearch->toArray();
+
+        $this->getSessionService()->set('criteria_search_list_da', $criteria);
 
         $sortJoursClass = false;
 
@@ -93,29 +98,6 @@ class listeDaController extends Controller
             'resultat'          => $paginationData['totalItems'],
             'formDateLivraison' => $formDateLivraison->createView(),
         ]);
-    }
-
-    private function traitementFormualireRecherche(Request $request, FormInterface $form, DaSearch $daSearch)
-    {
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $criteria = $form->getData();
-            $criteria = $daSearch->toArray();
-
-            // Sauvegarde classique des critères issus du formulaire
-            $this->getSessionService()->set('criteria_search_list_da', $criteria);
-        }
-        // Gestion spécifique "Mes DA à traiter"
-        else {
-            $criteria = $daSearch->toArray();
-
-            $this->getSessionService()->set('criteria_search_list_da_80_app', $criteria);
-        }
-
-
-
-        return $criteria;
     }
 
     private function TraitementFormulaireDateLivraison(Request $request, FormInterface $formDateLivraison)
