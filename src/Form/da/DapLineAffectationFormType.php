@@ -61,7 +61,7 @@ class DapLineAffectationFormType extends AbstractType
                 'required' => false,
                 'label'    => false,
                 'attr' => [
-                    'class' => 'fs-4',
+                    'class' => 'fs-4 da-art-rejected',
                 ],
             ])
         ;
