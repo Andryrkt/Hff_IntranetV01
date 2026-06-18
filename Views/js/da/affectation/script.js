@@ -5,6 +5,7 @@ import { getAllFournisseurs, getAllReferences } from "../data/fetchData";
 document.addEventListener("DOMContentLoaded", async function () {
   const { data } = await getAllReferences();
 
+  setupRejectedCheckbox();
   setupInputFormatters();
   setupAutocompleteField(data);
   confirmForm();
@@ -24,18 +25,30 @@ function setupInputFormatter(selector, maxLength) {
   });
 }
 
-function getRelatedFields(refp) {
+function setupRejectedCheckbox() {
+  document.querySelectorAll(".da-art-rejected").forEach((checkBox) => {
+    let fields = getRelatedFields(checkBox, true);
+    checkBox.addEventListener("change", function () {
+      fields.refp.required = !this.checked;
+    });
+  });
+}
+
+function getRelatedFields(element, checkForm = false) {
   return {
-    articleStocke: getInputLine(refp, '[id$="_articleStocke"]'),
-    desi: getInputLine(refp, '[id$="_artDesi"]'),
-    constp: getInputLine(refp, '[id$="_artConstp"]'),
-    prix: getInputLine(refp, '[id$="_prixUnitaire"]'),
-    numFrn: getInputLine(refp, '[id$="_numeroFournisseur"]'),
-    nomFrn: getInputLine(refp, '[id$="_nomFournisseur"]'),
+    refp: getInputLine(element, '[id$="_artRefp"]', checkForm),
+    articleStocke: getInputLine(element, '[id$="_articleStocke"]', checkForm),
+    desi: getInputLine(element, '[id$="_artDesi"]', checkForm),
+    constp: getInputLine(element, '[id$="_artConstp"]', checkForm),
+    prix: getInputLine(element, '[id$="_prixUnitaire"]', checkForm),
+    numFrn: getInputLine(element, '[id$="_numeroFournisseur"]', checkForm),
+    nomFrn: getInputLine(element, '[id$="_nomFournisseur"]', checkForm),
   };
 }
 
-function getInputLine(el, selector) {
+function getInputLine(el, selector, checkForm) {
+  if (checkForm)
+    return el.parentElement.parentElement.parentElement.querySelector(selector);
   return el.parentElement.parentElement.querySelector(selector);
 }
 
@@ -50,7 +63,6 @@ async function showReferenceNotFoundError() {
 function resetArticleFields(fields) {
   fields.articleStocke.checked = false;
   fields.refp.value = "";
-  fields.desi.value = "";
   fields.nomFrn.value = "";
   fields.prix.value = "0";
   fields.numFrn.value = "-";

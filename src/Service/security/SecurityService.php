@@ -163,7 +163,7 @@ class SecurityService
     public function estAtelier(): bool
     {
         if ($this->estAtelier === null) {
-            $this->estAtelier = $this->dataService->getCodeServiceUser() === 'ATE';
+            $this->estAtelier = in_array($this->dataService->getCodeServiceUser(), ['ATE', 'MAS']);
         }
         return $this->estAtelier;
     }

@@ -4,7 +4,6 @@ namespace App\Controller\da\Affectation;
 
 use App\Controller\Controller;
 use App\Controller\Traits\da\affectation\DaAffectationTrait;
-use App\Entity\admin\Application;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproParent;
 use App\Entity\da\DemandeApproParentLine;

@@ -1066,6 +1066,7 @@ class DemandeApproL
             ->setNomFicheTechnique($daParentLine->getNomFicheTechnique())
             ->setJoursDispo($daParentLine->getJoursDispo())
             ->setFileNames($daParentLine->getFileNames())
+            ->setDeleted($daParentLine->isDeleted())
         ;
 
         return $this;
