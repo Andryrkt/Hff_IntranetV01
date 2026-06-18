@@ -65,6 +65,7 @@
 								<th width="4%">Qté demandée</th>
 								<th>Commentaire</th>
 								<th>Pièces jointes</th>
+								<th>Rejeter l'article</th>
 								<th width="4%">Fiche technique</th>
 							</tr>
 						</thead>
@@ -99,6 +100,9 @@
 										{% else %}
 											Pas de pièces jointes
 										{% endif %}
+									</td>
+									<td style="justify-items:center;">
+										{{ form_widget(dalForm.deleted) }}
 									</td>
 									<td>
 										{% if dal.estFicheTechnique %}
