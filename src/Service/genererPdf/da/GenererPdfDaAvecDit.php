@@ -46,7 +46,7 @@ class GenererPdfDaAvecDit extends GenererPdfDa
         $pdf->cell(0, 6, $dit->getIdNiveauUrgence()->getDescription(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(6);
 
-        $this->renderAgenceServicePdfDA($pdf, $dit->getAgenceServiceEmetteur(), $dit->getAgenceServiceDebiteur());
+        $this->renderAgenceServicePdfDA($pdf, $da);
 
         /**REPARATION */
         $this->renderTextWithLine($pdf, 'Réparation');
