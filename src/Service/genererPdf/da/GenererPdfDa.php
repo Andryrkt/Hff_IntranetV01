@@ -13,7 +13,7 @@ abstract class GenererPdfDa extends GeneratePdf
     /** 
      * Fonction pour générer l'entête du PDF de la DA
      */
-    protected function renderHeaderPdfDA(TCPDF $pdf, string $userMail, DemandeAppro $demandeAppro, ?DemandeIntervention $dit = null): void
+    protected function renderHeaderPdfDA(TCPDF $pdf, DemandeAppro $demandeAppro, ?DemandeIntervention $dit = null): void
     {
         $titre = [
             DemandeAppro::TYPE_DA_AVEC_DIT          => "DEMANDE D’APPROVISIONNEMENT",
@@ -33,7 +33,7 @@ abstract class GenererPdfDa extends GeneratePdf
         $pdf->SetTextColor(0, 0, 0);
         $pdf->SetFont('helvetica', 'BI', 10);
         $pdf->SetY(2);
-        $pdf->Cell(0, 6, "email : $userMail", 0, 0, 'R');
+        $pdf->Cell(0, 6, "email : {$demandeAppro->getUser()->getMail()}", 0, 0, 'R');
 
         $pdf->setAbsXY(170, 11);
         $pdf->setFont('helvetica', 'B', 10);

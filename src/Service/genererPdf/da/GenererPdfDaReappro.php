@@ -25,7 +25,7 @@ class GenererPdfDaReappro extends GenererPdfDa
 
         $pdf->AddPage();
 
-        $this->renderHeaderPdfDA($pdf, $da->getUser()->getMail(), $da);
+        $this->renderHeaderPdfDA($pdf, $da);
 
         $this->renderObjetDetailPdfDA($pdf, $da->getObjetDal(), $da->getDetailDal());
 

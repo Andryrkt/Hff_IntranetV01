@@ -13,11 +13,10 @@ class GenererPdfDaAvecDit extends GenererPdfDa
      * 
      * @param DemandeIntervention $dit la DIT correspondante
      * @param DemandeAppro $da la DA correspondante
-     * @param string $userMail l'email de l'utilisateur (optionnel)
      * 
      * @return void
      */
-    public function genererPdfBonAchatValide(DemandeIntervention $dit, DemandeAppro $da, string $userMail = ''): void
+    public function genererPdfBonAchatValide(DemandeIntervention $dit, DemandeAppro $da): void
     {
         $pdf = new TCPDF();
         $dals = $da->getDAL();
@@ -25,7 +24,7 @@ class GenererPdfDaAvecDit extends GenererPdfDa
 
         $pdf->AddPage();
 
-        $this->renderHeaderPdfDA($pdf, $userMail, $da, $dit);
+        $this->renderHeaderPdfDA($pdf, $da, $dit);
 
         $this->renderObjetDetailPdfDA($pdf, $da->getObjetDal(), $da->getDetailDal());
 
