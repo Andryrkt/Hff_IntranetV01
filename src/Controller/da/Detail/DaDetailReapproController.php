@@ -81,7 +81,7 @@ class DaDetailReapproController extends Controller
 			$emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->getUser(), $this->estAppro());
 
 			$this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
-			return $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 1, 'page' => 1]);
+			return $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 0, 'page' => 1]);
 		}
 	}
 }

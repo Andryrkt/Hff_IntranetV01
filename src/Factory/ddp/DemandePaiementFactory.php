@@ -100,7 +100,7 @@ class DemandePaiementFactory
         ]);
 
         $montantCommande = $this->financialService->recuperationMontantTotalCommande($dto->numeroCommande, $dto->codeSociete);
-        $totalMontantCommande = $montantCommande['montant_total_cde_ht'];
+        $totalMontantCommande = $montantCommande['montant_total_cde_ttc'];
         /** @var DemandePaiementDto[] $demandePaiementDto */
         $demandePaiementDto = DemandePaiementMapper::mapInverse($ddpList);
         $dto->ddpRecap = DdpRecapMapper::map($demandePaiementDto, $totalMontantCommande);
@@ -118,7 +118,7 @@ class DemandePaiementFactory
         $dto->infoBc = $this->dataService->getInfoBc($dto->numeroCommande, $dto->codeSociete);
 
         $dto->sommeMontantFactureDejaPayer = $this->em->getRepository(DaSoumissionFacBl::class)->getMontantFactureDejaSoumis($dto->numeroCommande, $dto->codeSociete) ?? 0.0;
-        $dto->sommeMontantDdpaValider = $this->em->getRepository(DemandePaiement::class)->getSommeMontantDdpaValide($dto->numeroCommande, $dto->codeSociete)[0] ?? 0.0;
+        $dto->sommeMontantDdpaValider = $this->em->getRepository(DemandePaiement::class)->getSommeMontantDdpaValide($dto->numeroCommande, $dto->codeSociete) ?? 0.0;
         $dto->soldeAvance = max(0.0, $dto->sommeMontantDdpaValider - $dto->sommeMontantFactureDejaPayer);
     }
 

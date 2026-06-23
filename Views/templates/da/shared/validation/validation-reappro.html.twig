@@ -45,7 +45,7 @@
 				<th>Désignation</th>
 				<th width="10%" class="text-end pe-3">PU</th>
 				<th width="10%">Qté demandée</th>
-				<th width="10%">Qté validée</th>
+				<th width="10%">Quota maxi</th>
 				<th width="10%" class="text-end pe-3">Montant</th>
 			</tr>
 		</thead>
@@ -71,7 +71,7 @@
 				<th rowspan="2">Constructeur</th>
 				<th rowspan="2">Référence</th>
 				<th rowspan="2">Désignation</th>
-				<th colspan="13">Quantités facturées sur les 12 derniers mois</th>
+				<th colspan="14">Quantités facturées sur les 12 derniers mois jusqu'à aujourd'hui</th>
 			</tr>
 			<tr>
 				{% for month in monthsList %}
@@ -83,7 +83,7 @@
 		<tbody>
 			{% if dataHistorique.data is empty %}
 				<tr>
-					<td colspan="16">Aucun historique de consommation disponible</td>
+					<td colspan="17">Aucun historique de consommation disponible</td>
 				</tr>
 			{% endif %}
 			{% for data in dataHistorique.data %}
@@ -101,7 +101,7 @@
 		{% if dataHistorique.data is not empty %}
 			<tfoot>
 				<tr>
-					<td colspan="16"></td>
+					<td colspan="17"></td>
 				</tr>
 				<tr>
 					<td colspan="3" class="fw-bold">MONTANT en AR</td>

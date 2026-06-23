@@ -57,6 +57,13 @@ class DapLineAffectationFormType extends AbstractType
                 'label' => false,
                 'required' => true,
             ])
+            ->add('deleted', CheckboxType::class, [
+                'required' => false,
+                'label'    => false,
+                'attr' => [
+                    'class' => 'fs-4 da-art-rejected',
+                ],
+            ])
         ;
     }
 

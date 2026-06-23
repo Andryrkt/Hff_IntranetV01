@@ -103,7 +103,7 @@ class DaSoumissionFacBlFactory
         //
         $dto->totalMontantDdpValid = $this->em->getRepository(DemandePaiement::class)->getSommeMontantValide($dto->numeroCde, $dto->codeSociete) ?? 0.0;
 
-        $dto->estRegule = $dto->totalMontantCommande == $dto->totalMontantDdpValid && !in_array($dto->dernierStatutDdp, StatutConstants::REFUSES_DDP);
+        $dto->estRegule = $dto->totalMontantCommandeTTC == $dto->totalMontantDdpValid && !in_array($dto->dernierStatutDdp, StatutConstants::REFUSES_DDP);
 
         $dto->posl = $this->daSoumissionFacBlModel->getPosl($dto->numeroCde, $dto->codeSociete);
         $dto->devise = $this->daSoumissionFacBlModel->getDevise($dto->numeroCde, $dto->codeSociete);
@@ -121,9 +121,9 @@ class DaSoumissionFacBlFactory
     public function EnrichissementDtoApresSoumission(DaSoumissionFacBlDto $dto)
     {
         $dto->sommeMontantFactureDejaPayer = $this->em->getRepository(DaSoumissionFacBl::class)->getMontantFactureDejaSoumis($dto->numeroCde, $dto->codeSociete) ?? 0.0;
-        $dto->sommeMontantDdpaValider = $this->em->getRepository(DemandePaiement::class)->getSommeMontantDdpaValide($dto->numeroCde, $dto->codeSociete)[1] ?? 0.0;
+        $dto->sommeMontantDdpaValider = $this->em->getRepository(DemandePaiement::class)->getSommeMontantDdpaValide($dto->numeroCde, $dto->codeSociete) ?? 0.0;
         $dto->soldeAvance = max(0.0, $dto->sommeMontantDdpaValider - $dto->sommeMontantFactureDejaPayer);
-        //dd($dto->sommeMontantFactureDejaPayer, $dto->sommeMontantDdpaValider, $dto->soldeAvance, $dto->montantAregulariser, $dto->soumissionDdpAFaire);
+        // dd($dto->sommeMontantFactureDejaPayer, $dto->sommeMontantDdpaValider, $dto->soldeAvance, $dto->montantAregulariser, $dto->soumissionDdpAFaire);
 
         $this->calculService->calculerMontantEtRatios($dto);
 

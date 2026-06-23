@@ -57,7 +57,8 @@ trait DaAffectationTrait
 
         $numLigne = 0;
 
-        $linesToDelete = []; // lignes à supprimer pour les lignes de DA parent dans da_afficher
+        $rejectedLines = [];
+        $notRejectedLines = [];
 
         /** @var DemandeApproParentLine $daParentLine */
         foreach ($daParentLines as $daParentLine) {
@@ -80,7 +81,8 @@ trait DaAffectationTrait
             $this->em->persist($demandeApproLine);
 
             // ajout de ligne à supprimer pour les lignes de DA parent dans da_afficher
-            $linesToDelete[] = $daParentLine->getNumeroLigne();
+            if ($daParentLine->isDeleted()) $rejectedLines[] = $daParentLine->getNumeroLigne();
+            else $notRejectedLines[] = $daParentLine->getNumeroLigne();
         }
         $this->em->persist($demandeAppro);
         $this->em->flush();
@@ -93,7 +95,8 @@ trait DaAffectationTrait
         $statutDW = $validationDA ? StatutDaConstant::STATUT_DW_A_VALIDE : '';
 
         // Supprimer les lignes de DA Parent dans la table da_afficher
-        $this->daAfficherRepository->markAsDeletedByNumeroLigne($daParent->getNumeroDemandeAppro(), $linesToDelete, '__Subdivision-DA__', true);
+        $this->daAfficherRepository->markAsDeletedByNumeroLigne($daParent->getNumeroDemandeAppro(), $notRejectedLines, '__Subdivision-DA__', true);
+        $this->daAfficherRepository->markAsDeletedByNumeroLigne($daParent->getNumeroDemandeAppro(), $rejectedLines, '__Rejected-DA__', true);
 
         // Ajouter les nouveaux données dans la table da_afficher
         $this->ajouterDansTableAffichageParNumDa($numeroDemandeAppro, $validationDA, $statutDW, $daParent->getDateCreation());
@@ -101,7 +104,7 @@ trait DaAffectationTrait
         if ($validationDA) {
             // création de PDF
             $daConsumptionHistory = new DaConsumptionHistory();
-            $dateRange = $daConsumptionHistory->getLast12MonthsRange();
+            $dateRange = $daConsumptionHistory->getLast13MonthsDateRange();
             $monthsList = $daConsumptionHistory->getMonthsList($dateRange['start'], $dateRange['end']);
             $dataHistoriqueConsommation = $daConsumptionHistory->getHistoriqueConsommation($demandeAppro, $dateRange, $monthsList);
             $observations = $this->daObservationRepository->findBy(

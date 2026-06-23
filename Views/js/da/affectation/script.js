@@ -5,6 +5,7 @@ import { getAllFournisseurs, getAllReferences } from "../data/fetchData";
 document.addEventListener("DOMContentLoaded", async function () {
   const { data } = await getAllReferences();
 
+  setupRejectedCheckbox();
   setupInputFormatters();
   setupAutocompleteField(data);
   confirmForm();
@@ -24,18 +25,30 @@ function setupInputFormatter(selector, maxLength) {
   });
 }
 
-function getRelatedFields(refp) {
+function setupRejectedCheckbox() {
+  document.querySelectorAll(".da-art-rejected").forEach((checkBox) => {
+    let fields = getRelatedFields(checkBox, true);
+    checkBox.addEventListener("change", function () {
+      fields.refp.required = !this.checked;
+    });
+  });
+}
+
+function getRelatedFields(element, checkForm = false) {
   return {
-    articleStocke: getInputLine(refp, '[id$="_articleStocke"]'),
-    desi: getInputLine(refp, '[id$="_artDesi"]'),
-    constp: getInputLine(refp, '[id$="_artConstp"]'),
-    prix: getInputLine(refp, '[id$="_prixUnitaire"]'),
-    numFrn: getInputLine(refp, '[id$="_numeroFournisseur"]'),
-    nomFrn: getInputLine(refp, '[id$="_nomFournisseur"]'),
+    refp: getInputLine(element, '[id$="_artRefp"]', checkForm),
+    articleStocke: getInputLine(element, '[id$="_articleStocke"]', checkForm),
+    desi: getInputLine(element, '[id$="_artDesi"]', checkForm),
+    constp: getInputLine(element, '[id$="_artConstp"]', checkForm),
+    prix: getInputLine(element, '[id$="_prixUnitaire"]', checkForm),
+    numFrn: getInputLine(element, '[id$="_numeroFournisseur"]', checkForm),
+    nomFrn: getInputLine(element, '[id$="_nomFournisseur"]', checkForm),
   };
 }
 
-function getInputLine(el, selector) {
+function getInputLine(el, selector, checkForm) {
+  if (checkForm)
+    return el.parentElement.parentElement.parentElement.querySelector(selector);
   return el.parentElement.parentElement.querySelector(selector);
 }
 
@@ -50,7 +63,6 @@ async function showReferenceNotFoundError() {
 function resetArticleFields(fields) {
   fields.articleStocke.checked = false;
   fields.refp.value = "";
-  fields.desi.value = "";
   fields.nomFrn.value = "";
   fields.prix.value = "0";
   fields.numFrn.value = "-";
@@ -147,10 +159,10 @@ function setupAutocompleteField(articleStockeList) {
         fields.articleStocke.checked = articleStocke;
         fields.constp.value = item.constp;
         fields.desi.value = item.desi;
-        fields.nomFrn.value = item.nom_frn;
         fields.prix.value = item.prix_unitaire;
-        fields.numFrn.value = item.num_frn;
         if (articleStocke) {
+          fields.nomFrn.value = item.nom_frn; // changer le fournisseur si article stocké
+          fields.numFrn.value = item.num_frn; // changer le fournisseur si article stocké
           fields.desi.classList.add("non-modifiable");
           const prix = parseFloat(item.prix_unitaire);
           if (!prix || prix <= 0) {
@@ -186,7 +198,12 @@ function confirmForm() {
       const prixUnitaire = row.querySelector('[id$="_prixUnitaire"]');
       const refp = row.querySelector(".da-art-refp");
 
-      if (articleStocke && articleStocke.checked && refp && refp.value.trim() !== "") {
+      if (
+        articleStocke &&
+        articleStocke.checked &&
+        refp &&
+        refp.value.trim() !== ""
+      ) {
         const prix = parseFloat(prixUnitaire.value);
         if (!prix || prix <= 0) {
           errorMsg = `L'article <b>${refp.value}</b> est géré en stock mais son prix unitaire (PMP) est à zéro ou non trouvé.<br><br>L'enregistrement est bloqué. Merci de vérifier dans IPS s'il vous plaît.`;

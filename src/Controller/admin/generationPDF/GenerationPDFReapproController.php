@@ -5,6 +5,7 @@ namespace App\Controller\admin\generationPDF;
 use App\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\da\validation\DaValidationReapproTrait;
+use App\Service\da\DaConsumptionHistory;
 use App\Service\genererPdf\da\GenererPdfDaReappro;
 
 /** @Route(path="/admin/generation-PDF") */
@@ -29,14 +30,16 @@ class GenerationPDFReapproController extends Controller
         }
         $demandeAppro = $this->demandeApproRepository->findAvecDernieresDALetLRParNumero($numeroDemandeAppro);
         // création de PDF
-        $genererPdfReappro = new GenererPdfDaReappro();
-        $dateRange = $this->getLast12MonthsRange();
-        $monthsList = $this->getMonthsList($dateRange['start'], $dateRange['end']);
-        $dataHistoriqueConsommation = $this->getHistoriqueConsommation($demandeAppro, $dateRange, $monthsList);
+        $daConsumptionHistory = new DaConsumptionHistory();
+        $dateRange = $daConsumptionHistory->getLast13MonthsDateRange();
+        $monthsList = $daConsumptionHistory->getMonthsList($dateRange['start'], $dateRange['end']);
+        $dataHistoriqueConsommation = $daConsumptionHistory->getHistoriqueConsommation($demandeAppro, $dateRange, $monthsList);
         $observations = $this->daObservationRepository->findBy(
             ['numDa' => $numeroDemandeAppro],
             ['dateCreation' => 'ASC']
         );
+
+        $genererPdfReappro = new GenererPdfDaReappro();
         $genererPdfReappro->genererPdfBonAchatValide($demandeAppro, $observations, $monthsList, $dataHistoriqueConsommation);
 
         // Dépôt du document dans DocuWare
