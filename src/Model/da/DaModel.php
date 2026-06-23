@@ -261,7 +261,7 @@ class DaModel extends Model
                         AND asoc.asoc_refp = abs.abse_refp
                     LEFT JOIN frn_bse fbse 
                         ON af.afrn_numf = fbse.fbse_numfou
-                    WHERE abs.abse_constp IN ('ALI','BOI','CEN','FBU','HAB','OUT','ZDI','INF','MIN')
+                    WHERE abs.abse_constp IN ('ALI','BOI','CEN','FBU','HAB','OUT','ZDI','CAR','INF','MIN')
                         AND asoc.asoc_soc = '$codeSociete'
                         AND (af.afrn_dated = (
                                 SELECT MAX(afrn_dated) 

@@ -154,7 +154,7 @@ function setupAutocompleteField(articleStockeList) {
         }
       },
       onSelectCallback: (item) => {
-        let articleStocke = item.constp !== "ZDI";
+        let articleStocke = item.constp !== "ZDI" && item.constp !== "CAR";
         refp.value = item.reference;
         fields.articleStocke.checked = articleStocke;
         fields.constp.value = item.constp;
