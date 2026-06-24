@@ -25,8 +25,8 @@ class DaNewDirectApiController extends Controller
     public function listeArticle(string $codeAgence, string $codeService)
     {
         if (!$codeAgence || !$codeService) return $this->errorMessage(self::ERROR_MESSAGES['codeAgenceServiceManquant']);
-        if (strlen($codeAgence) !== 2) return $this->errorMessage(self::ERROR_MESSAGES['codeAgenceIncorrect']);
-        if (strlen($codeService) !== 3) return $this->errorMessage(self::ERROR_MESSAGES['codeServiceIncorrect']);
+        if (strlen($codeAgence) !== 2)     return $this->errorMessage(self::ERROR_MESSAGES['codeAgenceIncorrect']);
+        if (strlen($codeService) !== 3)    return $this->errorMessage(self::ERROR_MESSAGES['codeServiceIncorrect']);
 
         try {
             /** @var DaArticleReapproRepository $daArticleReapproRepository */

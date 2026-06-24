@@ -46,7 +46,7 @@ class DaModel extends Model
         return array_combine(array_column($data, 'libelle'), array_column($data, 'code'));
     }
 
-    public function getTheSousFamille($codeFamille)
+    public function getTheSousFamille(string $codeFamille)
     {
         $statement = "SELECT DISTINCT 
                     trim(abse_fams2) as code, 
@@ -60,7 +60,7 @@ class DaModel extends Model
         return $data;
     }
 
-    public function getLibelleFamille($codeFamille)
+    public function getLibelleFamille(string $codeFamille)
     {
         $statement = "SELECT DISTINCT TRIM(t.atab_lib) AS libelle
                 FROM agr_tab t
@@ -76,7 +76,7 @@ class DaModel extends Model
         return $data[0]['libelle'] ?? ''; // Retourne '' si non trouvé
     }
 
-    public function getLibelleSousFamille($codeSousFamille, $codeFamille)
+    public function getLibelleSousFamille(string $codeSousFamille, string $codeFamille)
     {
         $statement = "SELECT DISTINCT TRIM(t.atab_lib) AS libelle
                 FROM art_bse a

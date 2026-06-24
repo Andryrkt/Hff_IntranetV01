@@ -4,8 +4,6 @@ namespace App\Api\da;
 
 use App\Model\da\DaModel;
 use App\Controller\Controller;
-use App\Entity\da\DemandeAppro;
-use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\FormatageTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -19,7 +17,7 @@ class DaApi extends Controller
      *
      * @return void
      */
-    public function fetchSousFamille($code)
+    public function fetchSousFamille(string $code)
     {
         try {
             $daModel = new DaModel;
@@ -236,36 +234,6 @@ class DaApi extends Controller
                 'message' => 'Erreur lors du chargement des données: ' . $e->getMessage(),
                 'data' => []
             ], JSON_UNESCAPED_UNICODE);
-        }
-    }
-
-    /**
-     * @Route("/api/recup-statut-da", name="api_recup_statut_da")
-     *
-     * @return void
-     */
-    public function recupStatutDaPourDitSelectionner(Request $request)
-    {
-        if ($request->isMethod('POST')) {
-            $data = json_decode($request->getContent(), true);
-
-            $em = $this->getEntityManager();
-            $dit = $em->getRepository(DemandeIntervention::class)->find($data['id']);
-            if (!$dit) {
-                echo json_encode(['error' => 'DemandeIntervention non trouvée']);
-                exit;
-            }
-
-            $statut = $em->getRepository(DemandeAppro::class)
-                ->getStatut($dit->getNumeroDemandeIntervention());
-
-            if ($statut === null) {
-                echo json_encode(['statut' => null, 'message' => 'Aucun statut trouvé']);
-            } else {
-                echo json_encode(['statut' => $statut]);
-            }
-
-            exit;
         }
     }
 
