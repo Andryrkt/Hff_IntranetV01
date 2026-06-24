@@ -49,19 +49,16 @@ class DaApi extends Controller
     }
 
     /**
-     * @Route("/api/demande-appro/autocomplete/all-designation", name="api_autocomplete_all_designation_default")
+     * @Route("/api/demande-appro/autocomplete/all-designation-da-via-or/{famille}/{sousfamille}", name="api_autocomplete_all_designation_da_via_or")
      *
      * @return void
      */
-    public function autocompleteAllDesignationDefault()
+    public function autocompleteAllDesignationViaOr(string $codeFamille, string $codeSousfamille)
     {
         try {
             // Code Société de l'utilisateur
             $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
-
-            $daModel = new DaModel;
-            // Utiliser des valeurs par défaut ou récupérer toutes les désignations
-            $data = $daModel->getAllDesignationZST('-', '-', $codeSociete);
+            $data = (new DaModel)->getAllDesignationDaViaOR($codeFamille, $codeSousfamille, $codeSociete);
 
             // Vérifier que les données sont valides
             if (!is_array($data)) {
@@ -86,51 +83,7 @@ class DaApi extends Controller
     }
 
     /**
-     * @Route("/api/demande-appro/autocomplete/all-designation-zst/{famille}/{sousfamille}", name="api_autocomplete_all_designation_zst")
-     *
-     * @return void
-     */
-    public function autocompleteAllDesignationZST($famille, $sousfamille)
-    {
-        try {
-            // Code Société de l'utilisateur
-            $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
-
-            $daModel = new DaModel;
-
-            // Gérer le cas spécial où les paramètres sont "-"
-            if ($famille === '-' && $sousfamille === '-') {
-                // Rediriger vers la route par défaut ou gérer différemment
-                $this->autocompleteAllDesignationDefault();
-                return;
-            }
-
-            $data = $daModel->getAllDesignationZST($famille, $sousfamille, $codeSociete);
-
-            // Vérifier que les données sont valides
-            if (!is_array($data)) {
-                throw new \Exception("Les données retournées ne sont pas un tableau valide");
-            }
-
-            // Nettoyer les données avant l'encodage JSON
-            $cleanedData = $this->cleanDataForJson($data);
-
-            header("Content-type:application/json; charset=utf-8");
-            echo json_encode($cleanedData, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_IGNORE);
-        } catch (\Exception $e) {
-            // En cas d'erreur, retourner un tableau vide avec un message d'erreur
-            header("Content-type:application/json; charset=utf-8");
-            http_response_code(500);
-            echo json_encode([
-                'error' => true,
-                'message' => 'Erreur lors du chargement des données: ' . $e->getMessage(),
-                'data' => []
-            ], JSON_UNESCAPED_UNICODE);
-        }
-    }
-
-    /**
-     * @Route("/api/demande-appro/autocomplete/all-designation-zdi", name="api_autocomplete_all_designation_zdi")
+     * @Route("/api/demande-appro/autocomplete/all-designation-da-direct", name="api_autocomplete_all_designation_da_direct")
      *
      * @return void
      */

@@ -92,7 +92,7 @@ class DaModel extends Model
         return $data[0]['libelle'] ?? ''; // Retourne '' si non trouvé
     }
 
-    public function getAllDesignationZST($codeFamille, $codeSousFamille, string $codeSociete = "")
+    public function getAllDesignationDaViaOR(string $codeFamille, string $codeSousFamille, string $codeSociete = "")
     {
         $statement = "SELECT
                         TRIM(a.abse_fams1) AS codefamille,
