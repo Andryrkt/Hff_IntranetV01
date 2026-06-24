@@ -87,14 +87,12 @@ class DaApi extends Controller
      *
      * @return void
      */
-    public function autocompleteAllDesignationZDI()
+    public function autocompleteAllDesignationDaDirect()
     {
         try {
             // Code Société de l'utilisateur
             $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
-
-            $daModel = new DaModel;
-            $data = $daModel->getAllDesignationZDI($codeSociete);
+            $data = (new DaModel)->fetchDesignationDaDirect($codeSociete);
 
             // Vérifier que les données sont valides
             if (!is_array($data)) {

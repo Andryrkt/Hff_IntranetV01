@@ -136,7 +136,7 @@ class DaModel extends Model
         return $data;
     }
 
-    public function getAllDesignationZDI(string $codeSociete)
+    public function fetchDesignationDaDirect(string $codeSociete)
     {
         $statement = "SELECT
                     TRIM(a.abse_fams1) AS codefamille,
@@ -152,7 +152,12 @@ class DaModel extends Model
                     ON asoc.asoc_soc = '$codeSociete' 
                     AND asoc.asoc_constp = a.abse_constp 
                     AND asoc.asoc_refp = a.abse_refp
-                WHERE a.abse_constp = 'ZDI'
+                WHERE (
+                    a.abse_constp = 'ZDI' 
+                    OR (
+                        a.abse_constp='CAR' AND a.abse_refp in ('GO','SP95')
+                        )
+                    )
                 AND a.abse_numf <> '99'
                 ";
         $result = $this->connect->executeQuery($statement);
@@ -261,13 +266,18 @@ class DaModel extends Model
                         AND asoc.asoc_refp = abs.abse_refp
                     LEFT JOIN frn_bse fbse 
                         ON af.afrn_numf = fbse.fbse_numfou
-                    WHERE abs.abse_constp IN ('ALI','BOI','CEN','FBU','HAB','OUT','ZDI','CAR','INF','MIN')
+                    WHERE (
+                            abs.abse_constp IN ('ALI','BOI','CEN','FBU','HAB','OUT','ZDI','INF','MIN')
+                            OR (
+                                abs.abse_constp='CAR' AND abs.abse_refp in ('GO','SP95')
+                            )
+                        )
                         AND asoc.asoc_soc = '$codeSociete'
                         AND (af.afrn_dated = (
-                                SELECT MAX(afrn_dated) 
-                                FROM art_frn 
-                                WHERE afrn_constp = abs.abse_constp 
-                                AND afrn_refp = abs.abse_refp
+                            SELECT MAX(afrn_dated) 
+                            FROM art_frn 
+                            WHERE afrn_constp = abs.abse_constp 
+                            AND afrn_refp = abs.abse_refp
                             )
                             OR af.afrn_dated is null
                         )
