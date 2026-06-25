@@ -184,7 +184,6 @@ class DaModel extends Model
             trim(fbse_nomfou) as nomfournisseur
             FROM frn_bse
             INNER JOIN frn_fou ON ffou_numfou = fbse_numfou and ffou_soc = '$codeSociete' and ffou_solv = 'ST'
-            WHERE fbse_categ = 'ALT'
 
             ORDER BY nomfournisseur
             ";
