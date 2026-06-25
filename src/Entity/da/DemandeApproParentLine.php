@@ -36,7 +36,7 @@ class DemandeApproParentLine
     /**
      * @ORM\Column(type="integer", name="qte_dem")
      */
-    private $qteDem;
+    private int $qteDem;
 
     /**
      * @ORM\Column(type="string", length=3, name="art_constp")
@@ -46,12 +46,12 @@ class DemandeApproParentLine
     /**
      * @ORM\Column(type="string", length=50, name="art_refp")
      */
-    private string $artRefp = '';
+    private ?string $artRefp = '';
 
     /**
      * @ORM\Column(type="string", length=100, name="art_desi")
      */
-    private string $artDesi;
+    private ?string $artDesi = '';
 
     /**
      * @ORM\Column(type="string", length=50, name="art_fams1")
@@ -234,7 +234,7 @@ class DemandeApproParentLine
     /**
      * Get the value of artRefp
      */
-    public function getArtRefp(): string
+    public function getArtRefp(): ?string
     {
         return $this->artRefp;
     }
@@ -242,7 +242,7 @@ class DemandeApproParentLine
     /**
      * Set the value of artRefp
      */
-    public function setArtRefp(string $artRefp): self
+    public function setArtRefp(?string $artRefp): self
     {
         $this->artRefp = $artRefp;
 
@@ -252,7 +252,7 @@ class DemandeApproParentLine
     /**
      * Get the value of artDesi
      */
-    public function getArtDesi(): string
+    public function getArtDesi(): ?string
     {
         return $this->artDesi;
     }
@@ -260,7 +260,7 @@ class DemandeApproParentLine
     /**
      * Set the value of artDesi
      */
-    public function setArtDesi(string $artDesi): self
+    public function setArtDesi(?string $artDesi): self
     {
         $this->artDesi = $artDesi;
 
