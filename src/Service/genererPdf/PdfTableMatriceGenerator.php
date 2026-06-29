@@ -72,7 +72,7 @@ class PdfTableMatriceGenerator
             $desi = $dal->getArtDesi();
             $qte  = $dal->getQteDem();
             $keyId = implode('_', array_map('trim', [$cst, $ref, $desi, $qte]));
-            if ($cst === "ZDI" && !$dal->getDemandeApproLR()->isEmpty()) {
+            if (in_array($cst, ["ZDI", "CAR"]) && !$dal->getDemandeApproLR()->isEmpty()) {
                 $ref = $dal->getDemandeApproLR()->first()->getArtRefp();
             }
             $html .= '<tr>';

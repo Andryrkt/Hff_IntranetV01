@@ -56,9 +56,7 @@ class PermissionDaService
             ]
         ],
         'atelier' => [
-            'daType' => [
-                DemandeAppro::TYPE_DA_AVEC_DIT
-            ],
+            'daType' => self::ALL_DA_TYPES,
             'statuts' => [
                 StatutDaConstant::STATUT_SOUMIS_ATE          => true,
                 StatutDaConstant::STATUT_EN_COURS_CREATION   => true,

@@ -609,7 +609,7 @@ class DaPropositionArticleDirectController extends Controller
                 ->setDemandeApproL($DAL)
                 ->setNumeroDemandeAppro($numeroDemandeAppro)
                 ->setQteDem($DAL->getQteDem())
-                ->setArtConstp('ZDI') // TODO: changer cette ligne plus tard
+                ->setArtConstp($DAL->getArtConstp())
                 ->setDateFinSouhaite($DAL->getDateFinSouhaite())
                 ->setStatutDal($statut)
                 ->setNumeroDemandeDit($DAL->getNumeroDit())

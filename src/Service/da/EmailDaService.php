@@ -198,7 +198,7 @@ class EmailDaService
         $avecDIT   = $demandeAppro->getDaTypeId() === DemandeAppro::TYPE_DA_AVEC_DIT;
         $daLabel   = $this->getDaLabelForMail($demandeAppro->getDaTypeId());
         $service   = $avecDIT ? 'atelier' : $demandeAppro->getServiceEmetteur()->getLibelleService();
-        $constp    = $avecDIT ? 'ZST' : 'ZDI';
+        $constp    = $avecDIT ? 'ZST' : 'ZDI / CAR';
         $variables = [
             'templateName'  => "validationDa",
             'header'        => "{$demandeAppro->getNumeroDemandeAppro()} - PROPOSITION(S) <span class=\"validationDa\"> VALIDÉE(S) PAR LE SERVICE " . strtoupper($service) . " </span>",

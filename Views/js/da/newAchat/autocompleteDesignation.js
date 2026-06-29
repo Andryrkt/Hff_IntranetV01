@@ -48,8 +48,8 @@ async function handleValueOfTheFields(item, designation, fields) {
   let nomFournisseur = fields.nomFournisseur;
   let prixUnitaire = fields.prixUnitaire;
 
-  constp.value = item.constp;
-  refp.value = item.refp;
+  constp.value = item.constp || "-";
+  refp.value = item.refp || "-";
   numeroFournisseur.value = item.numero_fournisseur;
   nomFournisseur.value = item.nom_fournisseur;
   prixUnitaire.value = item.prix_unitaire;

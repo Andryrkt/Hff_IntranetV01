@@ -50,6 +50,6 @@ trait DaValidationAvecDitTrait
     {
         $da = $this->demandeApproRepository->findAvecDernieresDALetLRParNumero($numDa);
         $dit = $da->getDit() ?? $this->getEntityManager()->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $da->getNumeroDemandeDit()]);
-        $this->genererPdfDaAvecDit->genererPdfBonAchatValide($dit, $da, $this->getUserMail());
+        $this->genererPdfDaAvecDit->genererPdfBonAchatValide($dit, $da);
     }
 }
