@@ -93,6 +93,7 @@ class ListeController extends Controller
                 $backString = '';
             }
             $result = $this->planningModel->recupMatListeTous($criteria, $lesOrvalides['orAvecItv'], $backString, $tousLesOrSoumis);
+
             $data = $this->recupData($result, $back);
             //    dump($data);
             $count = $this->planningModel->recupMatListeTousCount($criteria, $lesOrvalides['orAvecItv'], $backString, $tousLesOrSoumis);
@@ -226,7 +227,6 @@ class ListeController extends Controller
     {
         $data = [];
         $data_excel = [];
-
         if (!empty($result)) {
             // dump($result);
             $qteCis = [];
@@ -239,31 +239,47 @@ class ListeController extends Controller
                 } else {
                     $result[$i]['backOrder'] = $excelBack === false ? 'not' : '';
                 }
-                if (substr($result[$i]['numor'], 0, 1) == '5') {
-                    if ($result[$i]['numcis'] !== "0" || $result[$i]['numerocdecis'] == "0") {
-                        $recupGcot = [];
-                        $qteCis[] = $this->planningModel->recupeQteCISlig($result[$i]['numor'], $result[$i]['itv'], $result[$i]['ref']);
-                        $dateLivLigCIS[] = $this->planningModel->dateLivraisonCIS($result[$i]['numcis'], $result[$i]['ref'], $result[$i]['cst']);
-                        $dateAllLigCIS[] = $this->planningModel->dateAllocationCIS($result[$i]['numcis'], $result[$i]['ref'], $result[$i]['cst']);
-                        $recupGcot['ord'] = $this->planningModel->recuperationinfodGcot($result[$i]['numerocdecis']);
-                    } else {
-                        $etatMag[] = $this->planningModel->recuperationEtaMag($result[$i]['numerocdecis'], $result[$i]['ref'], $result[$i]['cst']);
-                        $qteCis[] = $this->planningModel->recupeQteCISlig($result[$i]['numor'], $result[$i]['itv'], $result[$i]['ref']);
-                        $dateLivLigCIS[] = $this->planningModel->dateLivraisonCIS($result[$i]['numcis'], $result[$i]['ref'], $result[$i]['cst']);
-                        $dateAllLigCIS[] = $this->planningModel->dateAllocationCIS($result[$i]['numcis'], $result[$i]['ref'], $result[$i]['cst']);
-                        $recupGcot['ord'] = $this->planningModel->recuperationinfodGcot($result[$i]['numerocdecis']);
-                        $recupPartiel[] = $this->planningModel->recuperationPartiel($result[$i]['numerocdecis'], $result[$i]['ref']);
-                    }
-                } else {
-                    if (empty($result[$i]['numerocmd']) || $result[$i]['numerocmd'] == '0') {
-                        $recupGcot = [];
-                    } else {
-                        $recupPartiel[] = $this->planningModel->recuperationPartiel($result[$i]['numerocmd'], $result[$i]['ref']);
-                        $etatMag[] = $this->planningModel->recuperationEtaMag($result[$i]['numerocmd'], $result[$i]['ref'], $result[$i]['cst']);
-                        $recupGcot['ord'] = $this->planningModel->recuperationinfodGcot($result[$i]['numerocmd']);
-                    }
-                }
 
+                // numero commande cis nlig_numcf !== 0 then maka gcot
+                // numero commande slor_numcf ==> dans frn_cdl ==> maka gcot 
+
+                // if (substr($result[$i]['numor'], 0, 1) == '5') { // pour le cas de la LR6 -- 
+                //     if ($result[$i]['numcis'] !== "0" || $result[$i]['numerocdecis'] == "0") {
+
+                //         $recupGcot = [];
+                //         $qteCis[] = $this->planningModel->recupeQteCISlig($result[$i]['numor'], $result[$i]['itv'], $result[$i]['ref']);
+                //         $dateLivLigCIS[] = $this->planningModel->dateLivraisonCIS($result[$i]['numcis'], $result[$i]['ref'], $result[$i]['cst']);
+                //         $dateAllLigCIS[] = $this->planningModel->dateAllocationCIS($result[$i]['numcis'], $result[$i]['ref'], $result[$i]['cst']);
+                //         if ($result[$i]['numerocdecis'] !== "0"){
+                //             $recupGcot['ord'] = $this->planningModel->recuperationinfodGcot($result[$i]['numerocdecis']);
+                //         } 
+                //     } else {
+                //         $etatMag[] = $this->planningModel->recuperationEtaMag($result[$i]['numerocdecis'], $result[$i]['ref'], $result[$i]['cst']);
+                //         $qteCis[] = $this->planningModel->recupeQteCISlig($result[$i]['numor'], $result[$i]['itv'], $result[$i]['ref']);
+                //         $dateLivLigCIS[] = $this->planningModel->dateLivraisonCIS($result[$i]['numcis'], $result[$i]['ref'], $result[$i]['cst']);
+                //         $dateAllLigCIS[] = $this->planningModel->dateAllocationCIS($result[$i]['numcis'], $result[$i]['ref'], $result[$i]['cst']);
+                //         $recupGcot['ord'] = $this->planningModel->recuperationinfodGcot($result[$i]['numerocdecis']);
+                //         $recupPartiel[] = $this->planningModel->recuperationPartiel($result[$i]['numerocdecis'], $result[$i]['ref']);
+                //     }
+                // } else {
+                //     if (empty($result[$i]['numerocmd']) || $result[$i]['numerocmd'] == '0') {
+                //         $recupGcot = [];
+                //     } else {
+                //         $recupPartiel[] = $this->planningModel->recuperationPartiel($result[$i]['numerocmd'], $result[$i]['ref']);
+                //         $etatMag[] = $this->planningModel->recuperationEtaMag($result[$i]['numerocmd'], $result[$i]['ref'], $result[$i]['cst']);
+                //         $recupGcot['ord'] = $this->planningModel->recuperationinfodGcot($result[$i]['numerocmd']);
+                //     }
+                // }
+
+
+                $qteCis[] = $this->planningModel->recupeQteCISlig($result[$i]['numor'], $result[$i]['itv'], $result[$i]['ref']);
+                $dateLivLigCIS[] = $this->planningModel->dateLivraisonCIS($result[$i]['numcis'], $result[$i]['ref'], $result[$i]['cst']);
+                $dateAllLigCIS[] = $this->planningModel->dateAllocationCIS($result[$i]['numcis'], $result[$i]['ref'], $result[$i]['cst']);
+                if ($result[$i]['numerocdecis'] !== "0") {
+                    $etatMag[] = $this->planningModel->recuperationEtaMag($result[$i]['numerocdecis'], $result[$i]['ref'], $result[$i]['cst']);
+                    $recupGcot['ord'] = $this->planningModel->recuperationinfodGcot($result[$i]['numerocdecis']);
+                    $recupPartiel[] = $this->planningModel->recuperationPartiel($result[$i]['numerocdecis'], $result[$i]['ref']);
+                }
 
                 if (!empty($etatMag[0])) {
                     $result[$i]['Eta_ivato'] = $etatMag[0][0]['Eta_ivato'];
