@@ -2,7 +2,7 @@
 
 namespace App\Command\cache;
 
-use App\Entity\admin\societe\Societe;
+use App\Entity\admin\Societte;
 use App\Service\UserData\UserDataService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
@@ -72,7 +72,7 @@ class CacheWarmupAgServSocieteCommand extends Command
                 }
             );
 
-            $societe = $this->entityManager->getRepository(Societe::class)->findOneBy(['code' => $codeSociete]);
+            $societe = $this->entityManager->getRepository(Societte::class)->findOneBy(['codeSociete' => $codeSociete]);
 
             if ($societe === null) {
                 $io->error(sprintf(
@@ -90,7 +90,7 @@ class CacheWarmupAgServSocieteCommand extends Command
                 $codeSociete
             ));
         } else {
-            $societes = $this->entityManager->getRepository(Societe::class)->findAll();
+            $societes = $this->entityManager->getRepository(Societte::class)->findAll();
 
             if (empty($societes)) {
                 $io->warning('Aucune société trouvée en base de données. Rien à préchauffer.');
@@ -124,14 +124,15 @@ class CacheWarmupAgServSocieteCommand extends Command
         $nbSucces = 0;
         $erreurs  = [];
 
+        /** @var Societte[] $societes */
         foreach ($societes as $societe) {
-            $codeSociete = $societe->getCode();
+            $codeSociete = $societe->getCodeSociete();
 
             try {
                 $this->userDataService->ecraserAllAgenceService($codeSociete);
                 $nbSucces++;
             } catch (\Throwable $e) {
-                $erreurs[] = sprintf('Société "%s" (code: %s) : %s', $societe->getLibelle(), $codeSociete, $e->getMessage());
+                $erreurs[] = sprintf('Société "%s" (code: %s) : %s', $societe->getNom(), $codeSociete, $e->getMessage());
             }
 
             $io->progressAdvance();
