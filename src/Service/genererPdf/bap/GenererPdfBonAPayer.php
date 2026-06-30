@@ -39,7 +39,6 @@ class GenererPdfBonAPayer extends GeneratePdf
         $dataRecapOR  = $daViaOr ? $dataRecapOR : [];  // Récapitulatif OR (pour plus de clarté, on met vide pour da sans dit)
 
         $this->renderInfoBCAndValidation($pdf, $w100, $infoBC, $infoValidationBC, $infoMateriel);
-        $this->renderInfoMateriel($pdf, $w100, $infoMateriel);
         $this->renderRecapOR($pdf, $dataRecapOR, $dto);
         $this->renderRecapDA($pdf, $w100, $demandeAppro);
         $this->renderInfoFACBL($pdf, $w100, $infoFacBl);
@@ -88,34 +87,16 @@ class GenererPdfBonAPayer extends GeneratePdf
         $pdf->Ln(7);
     }
 
-    private function renderInfoSection(TCPDF $pdf, string $title1, string $title2, callable $callback)
-    {
-        $pdf->Ln(2);
-        $pdf->setFont('helvetica', 'B', 9);
-
-        if ($title2) {
-            $w100 = $this->getUsableWidth($pdf);
-            $pdf->Cell($w100 * 0.65, 5, $title1);
-            $pdf->Cell($w100 * 0.35, 5, $title2, 0, 1);
-        } else {
-            $pdf->Cell(0, 5, $title1, 0, 1);
-        }
-
-        $pdf->Ln(2);
-
-        $pdf->setFont('helvetica', '', 9);
-        $callback();
-    }
-
     private function renderInfoBCAndValidation(TCPDF $pdf, int $w100, array $infoBC, array $infoValidationBC, array $infoMateriel)
     {
-        $this->renderInfoSection($pdf, 'RESUME DU BC', 'INFORMATION VALIDATION BC', function () use ($pdf, $w100, $infoBC, $infoValidationBC) {
-            $this->addInfoLine($pdf, 'Nom fournisseur', substr($infoBC["nom_fournisseur"] ?? "-", 0, 33), $w100 * 0.65 - 6, 35, 0, 0);
-            $this->addInfoLine($pdf, 'Nom Validateur', $infoValidationBC["validateur"] ?? "-", $w100 * 0.35, 25, 0);
+        $this->renderInfoSection($pdf, ['value' => 'RESUME DU BC', 'isBold' => true], ['value' => 'INFORMATION VALIDATION BC', 'isBold' => true], function () use ($pdf, $w100, $infoBC, $infoValidationBC) {
 
-            $this->addInfoLine($pdf, 'N° fournisseur', $infoBC["num_fournisseur"] ?? "-", $w100 * 0.65 - 6, 35, 0, 0);
+            $this->addInfoLine($pdf, 'Nom fournisseur', substr($infoBC["nom_fournisseur"] ?? "-", 0, 33), $w100 * 0.65 - 6, 35, 0);
+            $this->addInfoLine($pdf, 'Nom Validateur', $infoValidationBC["validateur"] ?? "-", $w100 * 0.35, 25, 1);
+
+            $this->addInfoLine($pdf, 'N° fournisseur', $infoBC["num_fournisseur"] ?? "-", $w100 * 0.65 - 6, 35, 0);
             $dateValidation = isset($infoValidationBC["dateValidation"]) ? $infoValidationBC["dateValidation"]->format("d/m/Y") : "-";
-            $this->addInfoLine($pdf, 'Date Validation', $dateValidation, $w100 * 0.35, 25, 0);
+            $this->addInfoLine($pdf, 'Date Validation', $dateValidation, $w100 * 0.35, 25, 1);
 
             $fields = [
                 'N° commande'        => $infoBC["num_cde"] ?? "-",
@@ -131,14 +112,14 @@ class GenererPdfBonAPayer extends GeneratePdf
             ];
 
             foreach ($fields as $label => $value) {
-                $this->addInfoLine($pdf, $label, $value, $w100, 35, 0);
+                $this->addInfoLine($pdf, $label, $value, $w100, 35, 1);
             }
         });
     }
 
     private function renderInfoMateriel(TCPDF $pdf, int $w100, array $infoMateriel)
     {
-        $this->renderInfoSection($pdf, 'LA COMMANDE CONCERNE LE MATÉRIEL SUIVANT :', '', function () use ($pdf, $w100, $infoMateriel) {
+        $this->renderInfoSection($pdf, ['value' => 'LA COMMANDE CONCERNE LE MATÉRIEL SUIVANT :', 'isBold' => true], null, function () use ($pdf, $w100, $infoMateriel) {
             $this->addInfoLine($pdf, '', $infoMateriel["designation"] ?? "-", $w100);
             $this->addInfoLine($pdf, 'N° série', $infoMateriel["numserie"] ?? "-", $w100, 28);
             $this->addInfoLine($pdf, 'Identité', $infoMateriel["identite"] ?? "-", $w100, 28);
@@ -152,7 +133,7 @@ class GenererPdfBonAPayer extends GeneratePdf
         $numOR = $dto->numeroOR;
         $numDIT = $dto->numeroDemandeDit;
         $numDIT = $numDIT ? "- $numDIT" : "";
-        $this->renderInfoSection($pdf, "RECAPITULATIF DE L’OR $numOR $numDIT", '', function () use ($pdf, $dataRecapOR) {
+        $this->renderInfoSection($pdf, ['value' => "RECAPITULATIF DE L’OR $numOR $numDIT", 'isBold' => true], null, function () use ($pdf, $dataRecapOR) {
             $this->addInfoLine($pdf, 'Utilisateur Créateur', $dataRecapOR["createur_or"] ?? "-", 120, 30);
             $pdf->Ln(2);
             $tableGenerator = new PdfTableGeneratorFlexible();
@@ -172,9 +153,9 @@ class GenererPdfBonAPayer extends GeneratePdf
         });
     }
 
-    private function renderRecapDA(TCPDF $pdf, $w100, DemandeAppro $demandeAppro)
+    private function renderRecapDA(TCPDF $pdf, int $w100, DemandeAppro $demandeAppro)
     {
-        $this->renderInfoSection($pdf, 'RECAPITULATIF DE LA DA', '', function () use ($pdf, $w100, $demandeAppro) {
+        $this->renderInfoSection($pdf, ['value' => 'RECAPITULATIF DE LA DA', 'isBold' => true], null, function () use ($pdf, $w100, $demandeAppro) {
             $this->addInfoLine($pdf, 'N° DA', $demandeAppro->getNumeroDemandeAppro(), $w100, 25);
             $this->addInfoLine($pdf, 'Date de création', $demandeAppro->getDateCreation()->format('d/m/Y'), $w100, 25);
             $this->addInfoLine($pdf, 'Objet', $demandeAppro->getObjetDal(), $w100, 25);
@@ -184,19 +165,19 @@ class GenererPdfBonAPayer extends GeneratePdf
         });
     }
 
-    private function renderInfoFacBl(TCPDF $pdf, $w100, array $infoFacBl)
+    private function renderInfoFacBl(TCPDF $pdf, int $w100, array $infoFacBl)
     {
-        $this->renderInfoSection($pdf, 'INFO BL / FAC FOURNISSEUR', '', function () use ($pdf, $w100, $infoFacBl) {
-            $this->addInfoLine($pdf, 'Réf', $infoFacBl["refBlFac"] ?? "-", $w100 / 2, 15, 6, 0);
-            $this->addInfoLine($pdf, 'N° livraison IPS', $infoFacBl["numLivIPS"] ?? "-", $w100 / 2, 27);
-            $this->addInfoLine($pdf, 'Date', $infoFacBl["dateBlFac"] ? $infoFacBl["dateBlFac"]->format('d/m/Y') : "-", $w100 / 2, 15, 6, 0);
-            $this->addInfoLine($pdf, 'Date livraison IPS', $infoFacBl["dateLivIPS"] ? date("d/m/Y", strtotime($infoFacBl["dateLivIPS"])) : "-", $w100 / 2, 27);
+        $this->renderInfoSection($pdf, ['value' => 'INFO BL / FAC FOURNISSEUR', 'isBold' => true], null, function () use ($pdf, $w100, $infoFacBl) {
+            $this->addInfoLine($pdf, 'Réf', $infoFacBl["refBlFac"] ?? "-", $w100 / 2, 15, 0);
+            $this->addInfoLine($pdf, 'N° livraison IPS', $infoFacBl["numLivIPS"] ?? "-", $w100 / 2, 27, 1);
+            $this->addInfoLine($pdf, 'Date', $infoFacBl["dateBlFac"] ? $infoFacBl["dateBlFac"]->format('d/m/Y') : "-", $w100 / 2, 15, 0);
+            $this->addInfoLine($pdf, 'Date livraison IPS', $infoFacBl["dateLivIPS"] ? date("d/m/Y", strtotime($infoFacBl["dateLivIPS"])) : "-", $w100 / 2, 27, 1);
         });
     }
 
     private function renderHistoriqueLivraison(TCPDF $pdf, array $historiqueLivraison, string $devise)
     {
-        $this->renderInfoSection($pdf, 'RECAPITULATIF DES LIVRAISONS', '', function () use ($pdf, $historiqueLivraison, $devise) {
+        $this->renderInfoSection($pdf, ['value' => 'RECAPITULATIF DES LIVRAISONS', 'isBold' => true], null, function () use ($pdf, $historiqueLivraison, $devise) {
             if (empty($historiqueLivraison)) {
                 $pdf->Cell(0, 5, "Aucune livraison", 0, 1);
                 $pdf->Ln(2);
@@ -209,7 +190,7 @@ class GenererPdfBonAPayer extends GeneratePdf
 
     private function renderHistoriqueDdp(TCPDF $pdf, array $historiqueDdp, string $devise)
     {
-        $this->renderInfoSection($pdf, 'RECAPITULATIF DES DEMANDES DE PAIEMENT', '', function () use ($pdf, $historiqueDdp, $devise) {
+        $this->renderInfoSection($pdf, ['value' => 'RECAPITULATIF DES DEMANDES DE PAIEMENT', 'isBold' => true], null, function () use ($pdf, $historiqueDdp, $devise) {
             if (empty($historiqueDdp)) {
                 $pdf->Cell(0, 5, "Aucune demande de paiement", 0, 1);
                 $pdf->Ln(2);
@@ -270,16 +251,66 @@ class GenererPdfBonAPayer extends GeneratePdf
         return $w_total - $margins['left'] - $margins['right'];
     }
 
-    private function addInfoLine(TCPDF $pdf, string $label, string $value, int $wTotal, int $labelWidth = 35, int $indent = 6, int $endLine = 1)
+    private function addInfoLine(TCPDF $pdf, string $label, string $value, int $wTotal, int $labelWidth = 35, int $endLine = 1)
     {
-        if ($indent > 0) $pdf->Cell($indent, 5, '', 0, 0);
         $pdf->Cell(6, 5, '-', 0, 0);
 
         if ($label !== '') {
             $pdf->Cell($labelWidth, 5, $label, 0, 0);
-            $pdf->Cell($wTotal - $labelWidth - $indent, 5, ": $value", 0, $endLine);
+            $pdf->Cell($wTotal - $labelWidth, 5, ": $value", 0, $endLine);
         } else {
-            $pdf->Cell($wTotal - $indent, 5, $value, 0, $endLine);
+            $pdf->Cell($wTotal, 5, $value, 0, $endLine);
         }
+    }
+
+    /**
+     * Rendu de l'en-tête d'une section d'information dans le PDF.
+     *
+     * Affiche un ou deux blocs de texte (titre ou simple texte) sur une même ligne,
+     * suivis du contenu de la section généré par le callback fourni.
+     *
+     * @param TCPDF                                $pdf      Instance TCPDF en cours d'utilisation
+     * @param array{value:string,isBold:bool}      $title1   Premier bloc de texte (obligatoire).
+     * @param array{value:string,isBold:bool}|null $title2   Second bloc de texte (optionnel).
+     * @param callable                             $callback  Fonction de rendu du contenu de la section (appelée sans argument)
+     *
+     * @return void
+     */
+    private function renderInfoSection(TCPDF $pdf, array $title1, ?array $title2, callable $callback): void
+    {
+        $pdf->Ln(2);
+
+        $hasSecondTitle = $title2 !== null && trim($title2['value'] ?? '') !== '';
+
+        if ($hasSecondTitle) {
+            $usableWidth = $this->getUsableWidth($pdf);
+
+            $this->setTitleFont($pdf, $title1);
+            $pdf->Cell($usableWidth * 0.65, 5, $title1['value']);
+
+            $this->setTitleFont($pdf, $title2);
+            $pdf->Cell($usableWidth * 0.35, 5, $title2['value'], 0, 1);
+        } else {
+            $this->setTitleFont($pdf, $title1);
+            $pdf->Cell(0, 5, $title1['value'], 0, 1);
+        }
+
+        $pdf->Ln(2);
+
+        $pdf->setFont('helvetica', '', 9);
+        $callback();
+    }
+
+    /**
+     * Applique la police adaptée (gras ou normal) selon le bloc de titre fourni.
+     *
+     * @param TCPDF                           $pdf   Instance TCPDF en cours d'utilisation
+     * @param array{value:string,isBold:bool} $title Bloc de titre dont on lit la propriété isBold
+     *
+     * @return void
+     */
+    private function setTitleFont(TCPDF $pdf, array $title): void
+    {
+        $pdf->setFont('helvetica', !empty($title['isBold']) ? 'B' : '', 9);
     }
 }
