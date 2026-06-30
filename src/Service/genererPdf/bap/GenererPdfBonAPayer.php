@@ -30,14 +30,17 @@ class GenererPdfBonAPayer extends GeneratePdf
     ): string {
         $infoBC = $dto->infoBc;
         $pdf = $this->initPDF();
+        $daViaOr = $demandeAppro->getDaTypeId() === DemandeAppro::TYPE_DA_AVEC_DIT;
+
         $this->renderHeader($pdf, $mail, $dto);
         $w100 = $this->getUsableWidth($pdf);
 
-        $this->renderInfoBCAndValidation($pdf, $w100, $infoBC, $infoValidationBC);
-        if ($demandeAppro->getDaTypeId() === DemandeAppro::TYPE_DA_AVEC_DIT) {
-            $this->renderInfoMateriel($pdf, $w100, $infoMateriel);
-            $this->renderRecapOR($pdf, $dataRecapOR, $dto);
-        }
+        $infoMateriel = $daViaOr ? $infoMateriel : []; // Info matériel (pour plus de clarté, on met vide pour da sans dit)
+        $dataRecapOR  = $daViaOr ? $dataRecapOR : [];  // Récapitulatif OR (pour plus de clarté, on met vide pour da sans dit)
+
+        $this->renderInfoBCAndValidation($pdf, $w100, $infoBC, $infoValidationBC, $infoMateriel);
+        $this->renderInfoMateriel($pdf, $w100, $infoMateriel);
+        $this->renderRecapOR($pdf, $dataRecapOR, $dto);
         $this->renderRecapDA($pdf, $w100, $demandeAppro);
         $this->renderInfoFACBL($pdf, $w100, $infoFacBl);
         $this->renderHistoriqueLivraison($pdf, $historiqueLivraison, $dto->devise);
@@ -45,7 +48,7 @@ class GenererPdfBonAPayer extends GeneratePdf
         $this->renderMontantBap($pdf, $dto);
 
         // Sauvegarder le PDF
-        return $this->savePDF($pdf, $demandeAppro->getNumeroDemandeAppro(), $infoBC["num_cde"]);
+        return $this->savePDF($pdf, $demandeAppro->getNumeroDemandeAppro(), $infoBC["num_cde"], "I");
     }
 
     private function initPDF(): TCPDF
@@ -104,15 +107,15 @@ class GenererPdfBonAPayer extends GeneratePdf
         $callback();
     }
 
-    private function renderInfoBCAndValidation(TCPDF $pdf, int $w100, array $infoBC, array $infoValidationBC)
+    private function renderInfoBCAndValidation(TCPDF $pdf, int $w100, array $infoBC, array $infoValidationBC, array $infoMateriel)
     {
         $this->renderInfoSection($pdf, 'RESUME DU BC', 'INFORMATION VALIDATION BC', function () use ($pdf, $w100, $infoBC, $infoValidationBC) {
             $this->addInfoLine($pdf, 'Nom fournisseur', substr($infoBC["nom_fournisseur"] ?? "-", 0, 33), $w100 * 0.65 - 6, 35, 0, 0);
             $this->addInfoLine($pdf, 'Nom Validateur', $infoValidationBC["validateur"] ?? "-", $w100 * 0.35, 25, 0);
 
             $this->addInfoLine($pdf, 'N° fournisseur', $infoBC["num_fournisseur"] ?? "-", $w100 * 0.65 - 6, 35, 0, 0);
-            $dateValidation = $infoValidationBC["dateValidation"] ?? "-";
-            $this->addInfoLine($pdf, 'Date Validation', $dateValidation === "-" ? $dateValidation : $dateValidation->format("d/m/Y"), $w100 * 0.35, 25, 0);
+            $dateValidation = isset($infoValidationBC["dateValidation"]) ? $infoValidationBC["dateValidation"]->format("d/m/Y") : "-";
+            $this->addInfoLine($pdf, 'Date Validation', $dateValidation, $w100 * 0.35, 25, 0);
 
             $fields = [
                 'N° commande'        => $infoBC["num_cde"] ?? "-",
@@ -127,19 +130,16 @@ class GenererPdfBonAPayer extends GeneratePdf
                 'Nature de l’achat'  => $infoBC["type_cde"] ?? "-"
             ];
 
-            $pdf->Ln(2);
-
             foreach ($fields as $label => $value) {
                 $this->addInfoLine($pdf, $label, $value, $w100, 35, 0);
-                if ($label === 'Date commande') $pdf->Ln(2);
             }
         });
     }
 
-    private function renderInfoMateriel(TCPDF $pdf, $w100, array $infoMateriel)
+    private function renderInfoMateriel(TCPDF $pdf, int $w100, array $infoMateriel)
     {
         $this->renderInfoSection($pdf, 'LA COMMANDE CONCERNE LE MATÉRIEL SUIVANT :', '', function () use ($pdf, $w100, $infoMateriel) {
-            $this->addInfoLine($pdf, '', $infoMateriel["designation"] ?? "-", $w100, '');
+            $this->addInfoLine($pdf, '', $infoMateriel["designation"] ?? "-", $w100);
             $this->addInfoLine($pdf, 'N° série', $infoMateriel["numserie"] ?? "-", $w100, 28);
             $this->addInfoLine($pdf, 'Identité', $infoMateriel["identite"] ?? "-", $w100, 28);
         });
@@ -147,6 +147,8 @@ class GenererPdfBonAPayer extends GeneratePdf
 
     private function renderRecapOR(TCPDF $pdf, array $dataRecapOR, DaSoumissionFacBlDto $dto)
     {
+        if (empty($dataRecapOR)) return;
+
         $numOR = $dto->numeroOR;
         $numDIT = $dto->numeroDemandeDit;
         $numDIT = $numDIT ? "- $numDIT" : "";
@@ -197,6 +199,7 @@ class GenererPdfBonAPayer extends GeneratePdf
         $this->renderInfoSection($pdf, 'RECAPITULATIF DES LIVRAISONS', '', function () use ($pdf, $historiqueLivraison, $devise) {
             if (empty($historiqueLivraison)) {
                 $pdf->Cell(0, 5, "Aucune livraison", 0, 1);
+                $pdf->Ln(2);
             } else {
                 $tableGenerator = new PdfTableHistoriqueLivraisonBAP();
                 $pdf->writeHTML($tableGenerator->generateTable($historiqueLivraison, $devise));
@@ -209,6 +212,7 @@ class GenererPdfBonAPayer extends GeneratePdf
         $this->renderInfoSection($pdf, 'RECAPITULATIF DES DEMANDES DE PAIEMENT', '', function () use ($pdf, $historiqueDdp, $devise) {
             if (empty($historiqueDdp)) {
                 $pdf->Cell(0, 5, "Aucune demande de paiement", 0, 1);
+                $pdf->Ln(2);
             } else {
                 $tableGenerator = new PdfTableHistoriqueDdpBAP();
                 $pdf->writeHTML($tableGenerator->generateTable($historiqueDdp, $devise));
@@ -219,7 +223,6 @@ class GenererPdfBonAPayer extends GeneratePdf
     private function renderMontantBap(TCPDF $pdf, DaSoumissionFacBlDto $dto): void
     {
         // Afficher le montant de la BAP avec le pourcentage à payer en rouge
-        $pdf->Ln(2);
         $pdf->SetTextColor(0, 0, 0);
         $pdf->setFont('helvetica', 'B', 10);
         $pdf->Cell(30, 6, 'MONTANT BAP : ', 0, 0, 'L', false, '', 0, false, 'T', 'M');
@@ -267,7 +270,7 @@ class GenererPdfBonAPayer extends GeneratePdf
         return $w_total - $margins['left'] - $margins['right'];
     }
 
-    private function addInfoLine(TCPDF $pdf, string $label, string $value, $wTotal, $labelWidth = 35, $indent = 6, $endLine = 1)
+    private function addInfoLine(TCPDF $pdf, string $label, string $value, int $wTotal, int $labelWidth = 35, int $indent = 6, int $endLine = 1)
     {
         if ($indent > 0) $pdf->Cell($indent, 5, '', 0, 0);
         $pdf->Cell(6, 5, '-', 0, 0);
