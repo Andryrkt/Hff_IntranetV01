@@ -53,11 +53,9 @@ function validateDemandePaiementDaForm(form) {
 
   if (ribField) {
     const ribValue = ribField.value.trim();
-    if (ribValue === "" || ribValue === "-") {
-      errors.push("Le RIB est obligatoire.");
-    } else if (ribValue.length !== 26) {
+    if (ribValue !== "-" && ribValue.length !== 26) {
       errors.push(
-        `Le RIB doit contenir 26 caractères (actuellement ${ribValue.length}).`,
+        `Le RIB doit contenir 26 caractères (actuellement ${ribValue.length}).`
       );
     }
   }
@@ -76,13 +74,13 @@ function validationDitForm(form) {
   //  type de document doit egale maintenace curative
   // et catégorie = REPARATION
   const reparationRealiseSelect = form.querySelector(
-    '[name="demande_intervention[reparationRealise]"]',
+    '[name="demande_intervention[reparationRealise]"]'
   );
   const typeDocumentSelect = form.querySelector(
-    '[name="demande_intervention[typeDocument]"]',
+    '[name="demande_intervention[typeDocument]"]'
   );
   const categorieSelect = form.querySelector(
-    '[name="demande_intervention[categorieDemande]"]',
+    '[name="demande_intervention[categorieDemande]"]'
   );
   const MAINTENANCE_CURATIVE = 6;
   const REPARATION = 7;
@@ -95,7 +93,7 @@ function validationDitForm(form) {
     parseInt(categorieSelect.value, 10) !== REPARATION
   ) {
     errors.push(
-      "Rectifiez le type de document en Maintenance curative et le catégorie de demande en REPARATION",
+      "Rectifiez le type de document en Maintenance curative et le catégorie de demande en REPARATION"
     );
   }
 
@@ -289,7 +287,7 @@ async function validateDaSoumissionFacBlForm(form) {
     const numLiv = numLivField.value;
     try {
       const response = await fetch(
-        `/demande-appro/check-num-liv-exists/${numLiv}`,
+        `/demande-appro/check-num-liv-exists/${numLiv}`
       );
       const data = await response.json();
       if (data.exists) {
@@ -313,7 +311,7 @@ async function validateDaSoumissionFacBlForm(form) {
       if (error === "CANCELLED") throw error;
       console.error(
         "Erreur lors de la vérification du numéro de livraison:",
-        error,
+        error
       );
     }
   }
