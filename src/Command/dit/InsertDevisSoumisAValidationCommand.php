@@ -107,7 +107,7 @@ class InsertDevisSoumisAValidationCommand extends Command
                 $margeRevient   = null;
 
                 if ($montantRevient !== null && $montantItv !== null && (float)$montantRevient != 0.0) {
-                    $margeRevient = round(((float)$montantItv - (float)$montantRevient) / (float)$montantRevient * 100, 2);
+                    $margeRevient = (int) round(((float)$montantItv - (float)$montantRevient) / (float)$montantRevient * 100);
                 }
 
                 $conn->insert('devis_soumis_a_validation', [
