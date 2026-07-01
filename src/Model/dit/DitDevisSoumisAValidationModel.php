@@ -252,7 +252,7 @@ class DitDevisSoumisAValidationModel extends Model
                 AND slor_soc = seor_soc
                 AND sitv_soc = seor_soc
                 AND sitv_pos NOT IN ('FC', 'FE', 'CP', 'ST')
-                AND seor_numor = ({$numDevis})
+                AND seor_numor = '$numDevis'
             
                 GROUP BY 1, 2, 3, 4, 5, 6, 7, 8
                 ORDER BY slor_numor, sitv_interv

@@ -7,16 +7,16 @@ use App\Model\Model;
 use App\Model\Traits\ConversionModel;
 use App\Service\GlobalVariablesService;
 use App\Service\TableauEnStringService;
-use Symfony\Component\Validator\Constraints\IsNull;
 
 class DitOrSoumisAValidationModel extends Model
 {
     use ConversionModel;
-    public function recupOrSoumisValidation($numOr)
+    public function recupOrSoumisValidation(string $numOr, string $codeSociete)
     {
         $statement = "SELECT
         slor_numor,
         sitv_datdeb,
+        trim(ausr_nom) as CREATEUR_OR,
         trim(seor_refdem) as NUMERo_DIT,
         sitv_interv as NUMERO_ITV,
         trim(sitv_comment) as LIBELLE_ITV,
@@ -89,23 +89,24 @@ class DitOrSoumisAValidationModel extends Model
             END
         ) AS MONTANT_LUBRIFIANTS
 
-        from sav_eor, sav_lor, sav_itv
+        from sav_eor, sav_lor, sav_itv, agr_usr
         WHERE
             seor_numor = slor_numor
             AND seor_serv <> 'DEV'
             AND sitv_numor = slor_numor
             AND sitv_interv = slor_nogrp / 100
-
-        --AND sitv_pos NOT IN('FC', 'FE', 'CP', 'ST')
-        --AND sitv_servcrt IN ('ATE','FOR','GAR','MAN','CSP','MAS')
-        AND seor_numor = '" . $numOr . "'
-        --AND SEOR_SUCC = '01'
+            AND seor_soc = '$codeSociete'
+            AND slor_soc = seor_soc
+            AND sitv_soc = seor_soc
+            AND seor_usr = ausr_num
+            AND seor_numor = '$numOr'
         group by
             1,
             2,
             3,
             4,
-            5
+            5,  
+            6
         order by slor_numor, sitv_interv
     ";
 
