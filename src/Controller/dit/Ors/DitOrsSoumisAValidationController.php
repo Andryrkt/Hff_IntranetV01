@@ -219,6 +219,12 @@ class DitOrsSoumisAValidationController extends Controller
         return $infoPieceFaibleAchat;
     }
 
+    private function ctrlDesConsommationsDePieces(string $numOr, string $codeSociete): array
+    {
+        $consommationDesPieces = $this->ditOrsoumisAValidationModel->getConsommationsDesPieces($numOr, $codeSociete);
+        return $consommationDesPieces;
+    }
+
     private function traitementDeFichier(FormInterface $form, DitOrsSoumisAValidation $ditInsertionOrSoumis, $codeSociete, $orSoumisValidataion, string $numOr): void
     {
         $suffix = $this->ditOrsoumisAValidationModel->constructeurPieceMagasin($numOr)[0]['retour'];
@@ -487,8 +493,10 @@ class DitOrsSoumisAValidationController extends Controller
 
         // information sur les pièces à faible achat
         $pieceFaibleAchat = $this->preparationDesPiecesFaibleAchat($numOr, $codeSociete);
+        // information sur les consommations de pièces
+        $ctrlDesConsommationsDePieces = $this->ctrlDesConsommationsDePieces($numOr, $codeSociete);
 
-        $genererPdfOrSoumisAValidation->GenererPdf($ditInsertionOrSoumis, $montantPdf, $quelqueaffichage, $this->nomUtilisateur()['mailUtilisateur'], $suffix, $pieceFaibleAchat, $nomAvecCheminFichier);
+        $genererPdfOrSoumisAValidation->GenererPdf($ditInsertionOrSoumis, $montantPdf, $quelqueaffichage, $this->nomUtilisateur()['mailUtilisateur'], $suffix, $pieceFaibleAchat, $ctrlDesConsommationsDePieces, $nomAvecCheminFichier);
     }
 
     private function modificationStatutOr($numDit, $codeSociete)

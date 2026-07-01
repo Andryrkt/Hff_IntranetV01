@@ -592,4 +592,100 @@ class DitOrSoumisAValidationModel extends Model
 
         return $this->convertirEnUtf8($data);
     }
+
+    public function getConsommationsDesPieces(string $numOr, string $codeSociete): array
+    {
+
+        $statement = "SELECT
+                    slor_constp as constructeur,
+                    slor_refp as reference,
+                    slor_desi as designation,
+                     CAST(
+                        CASE
+                         WHEN slor_typlig = 'P'
+                             THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) 
+                         WHEN slor_typlig IN ('F','M','U','C') 
+                             THEN slor_qterea 
+                             ELSE 0 
+                        END 
+                        AS INTEGER) as  QTE_OR,
+
+                       CAST(
+                          COALESCE((  
+                            SELECT  Sum(slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)
+                            FROM sav_eor Tet_B, sav_lor Lign_B
+                                WHERE
+                                Tet_B.seor_pos = 'EC'
+                                AND Tet_B.seor_numor = Lign_B.slor_numor
+                                AND   Tet_B.seor_numor <>Tet_A.seor_numor
+                                AND Lign_A.slor_constp =Lign_B.slor_constp
+                                AND Lign_A.slor_refp = Lign_B.slor_refp
+                                AND Tet_B.seor_nummat = Tet_A.seor_nummat),0) as INTEGER
+                        ) as  QTE_SUR_OR_ENCOURS,
+
+                       CAST (
+                       COALESCE((SELECT  Sum(slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)
+                            FROM sav_eor Tet_B, sav_lor Lign_B, dpc_fcc
+                            WHERE
+                            Tet_B.seor_pos IN('FC','CP', 'AP')
+                            AND Tet_B.seor_numor = Lign_B.slor_numor
+                            AND Tet_B.seor_numor <>Tet_A.seor_numor
+                            AND Lign_A.slor_constp =Lign_B.slor_constp
+                            AND Lign_A.slor_refp = Lign_B.slor_refp
+                            AND Tet_B.seor_nummat = Tet_A.seor_nummat
+                            AND dfcc_soc = Lign_B.slor_soc
+                            AND dfcc_succ = Lign_B.slor_succ
+                            AND dfcc_numfcc = Lign_B.slor_numfac
+                            AND (TODAY - Tet_B.seor_dateor) <= 180),0) as INTEGER)  as QTE_SUR_OR_LIVRE_FACTURE,
+
+                        COALESCE((
+                         SELECT Count(distinct seor_numor)
+                        FROM sav_eor Tet_B, sav_lor Lign_B
+                        WHERE
+                        Tet_B.seor_pos = 'EC'
+                            AND Tet_B.seor_numor = Lign_B.slor_numor
+                            AND   Tet_B.seor_numor <>Tet_A.seor_numor
+                            AND Lign_A.slor_constp =Lign_B.slor_constp
+                            AND Lign_A.slor_refp = Lign_B.slor_refp
+                            AND Tet_B.seor_nummat = Tet_A.seor_nummat),0 ) as NBR_OR,
+
+                        (SELECT Max(seor_dateor) From  sav_eor Tet_B, sav_lor Lign_B
+                        WHERE
+                        Tet_B.seor_pos IN('EC')
+                        AND Tet_B.seor_numor = Lign_B.slor_numor
+                        AND   Tet_B.seor_numor <>Tet_A.seor_numor
+                        AND Lign_A.slor_constp =Lign_B.slor_constp
+                        AND Lign_A.slor_refp = Lign_B.slor_refp
+                        AND Tet_B.seor_nummat = Tet_A.seor_nummat
+                        ) as date_derniere_conso,
+                        (
+                        SELECT Min(seor_dateor) From  sav_eor Tet_B, sav_lor Lign_B
+                        WHERE
+                        Tet_B.seor_pos IN('EC')
+                        AND Tet_B.seor_numor = Lign_B.slor_numor
+                        AND Tet_B.seor_numor <>Tet_A.seor_numor
+                        AND Lign_A.slor_constp =Lign_B.slor_constp
+                        AND Lign_A.slor_refp = Lign_B.slor_refp
+                        AND Tet_B.seor_nummat = Tet_A.seor_nummat
+                        ) as date_premiere_conso
+                    FROM
+                    mat_mat,
+                    sav_itv,
+                    sav_lor as  Lign_A,
+                    sav_eor as Tet_A
+                WHERE sitv_numor = slor_numor
+                AND Tet_A.seor_serv = 'SAV'
+                AND Tet_A.seor_numor = slor_numor
+                AND Tet_A.seor_nummat = mmat_nummat
+                AND sitv_interv = Lign_A.slor_nogrp/100
+                AND Lign_A.slor_typlig = 'P'
+                AND Lign_A.slor_numor = '$numOr'
+                AND Tet_A.seor_soc = '$codeSociete'
+                        ";
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
 }
