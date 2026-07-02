@@ -32,21 +32,21 @@ class GenererPdfBonAPayer extends GeneratePdf
         ?string $mail
     ): string {
         $infoBC = $dto->infoBc;
+        $daViaOr = $demandeAppro->getDaTypeId() === DemandeAppro::TYPE_DA_AVEC_DIT;
         $pdf = $this->initPDF();
 
         $this->renderHeader($pdf, $mail, $dto);
         $w100 = $this->getUsableWidth($pdf);
 
-        $this->renderInfoBcAndMateriel($pdf, $w100, $infoBC, $infoValidationBC, $infoMateriel, $demandeAppro->getDaTypeId() === DemandeAppro::TYPE_DA_AVEC_DIT);
-        $this->renderRecapOR($pdf, $dataRecapOR, $dto);
-        $this->renderRecapDA($pdf, $w100, $demandeAppro);
-        $this->renderInfoFACBL($pdf, $w100, $infoFacBl);
+        $this->renderInfoBcAndMateriel($pdf, $w100, $infoBC, $infoValidationBC, $infoMateriel, $daViaOr);
+        $this->renderRecapOR($pdf, $dataRecapOR, $dto, $daViaOr);
+        $this->renderRecapDaAndInfoFacBl($pdf, $w100, $demandeAppro, $infoFacBl);
         $this->renderHistoriqueLivraison($pdf, $historiqueLivraison, $dto->devise);
         $this->renderHistoriqueDdp($pdf, $dto->demandePaiementDto->ddpRecap, $dto->devise);
         $this->renderMontantBap($pdf, $dto);
 
         // Sauvegarder le PDF
-        return $this->savePDF($pdf, $demandeAppro->getNumeroDemandeAppro(), $infoBC["num_cde"], "I");
+        return $this->savePDF($pdf, $demandeAppro->getNumeroDemandeAppro(), $infoBC["num_cde"]);
     }
 
     private function initPDF(): TCPDF
@@ -130,10 +130,10 @@ class GenererPdfBonAPayer extends GeneratePdf
         }
     }
 
-    private function renderRecapOR(TCPDF $pdf, array $dataRecapOR, DaSoumissionFacBlDto $dto)
+    private function renderRecapOR(TCPDF $pdf, array $dataRecapOR, DaSoumissionFacBlDto $dto, bool $daViaOr)
     {
+        if (empty($dataRecapOR) || !$daViaOr) return;
         $pdf->ln(2);
-        if (empty($dataRecapOR)) return;
 
         $numOR = $dto->numeroOR;
         $numDIT = $dto->numeroDemandeDit;
@@ -158,26 +158,29 @@ class GenererPdfBonAPayer extends GeneratePdf
         );
     }
 
-    private function renderRecapDA(TCPDF $pdf, int $w100, DemandeAppro $demandeAppro)
+    private function renderRecapDaAndInfoFacBl(TCPDF $pdf, int $w100, DemandeAppro $demandeAppro, array $infoFacBl)
     {
         $pdf->ln(2);
-        $this->renderSectionTitle($pdf, "RECAPITULATIF DE LA DA", $w100);
-        $this->addInfoLine($pdf, 'N° DA', $demandeAppro->getNumeroDemandeAppro(), $w100, 25);
-        $this->addInfoLine($pdf, 'Date de création', $demandeAppro->getDateCreation()->format('d/m/Y'), $w100, 25);
-        $this->addInfoLine($pdf, 'Objet', $demandeAppro->getObjetDal(), $w100, 25);
-        $this->addInfoLine($pdf, "Utilisateur demandeur", $demandeAppro->getDemandeur(), $w100, 39);
-        $this->addInfoLine($pdf, 'Agence – service émetteur', $demandeAppro->getAgenceServiceEmetteur(), $w100, 39);
-        $this->addInfoLine($pdf, 'Agence – service débiteur', $demandeAppro->getAgenceServiceDebiteur(), $w100, 39);
-    }
+        $this->renderSectionTitle($pdf, "RECAPITULATIF DE LA DA", $w100 * self::LARGEUR_GAUCHE - 3, 0);
+        $this->renderSectionTitle($pdf, "INFO BL / FAC FOURNISSEUR", $w100 * self::LARGEUR_DROITE);
 
-    private function renderInfoFacBl(TCPDF $pdf, int $w100, array $infoFacBl)
-    {
+        $this->addInfoLine($pdf, 'N° DA', $demandeAppro->getNumeroDemandeAppro(), $w100 * self::LARGEUR_GAUCHE - 6, 25, 0);
+        $this->addInfoLine($pdf, 'Réf', $infoFacBl["refBlFac"] ?? "-", $w100 * self::LARGEUR_DROITE, 15);
+
+        $this->addInfoLine($pdf, 'Date de création', $demandeAppro->getDateCreation()->format('d/m/Y'), $w100 * self::LARGEUR_GAUCHE - 6, 25, 0);
+        $this->addInfoLine($pdf, 'Date', $infoFacBl["dateBlFac"] ? $infoFacBl["dateBlFac"]->format('d/m/Y') : "-", $w100 * self::LARGEUR_DROITE, 15);
+
+        $this->addInfoLine($pdf, 'Objet', $demandeAppro->getObjetDal(), $w100 * self::LARGEUR_GAUCHE - 6, 25, 0);
+        $this->addInfoLine($pdf, 'N° livraison IPS', $infoFacBl["numLivIPS"] ?? "-", $w100 * self::LARGEUR_DROITE, 27);
+
+        $this->addInfoLine($pdf, "Utilisateur demandeur", $demandeAppro->getDemandeur(), $w100 * self::LARGEUR_GAUCHE - 6, 39, 0);
+        $this->addInfoLine($pdf, 'Date livraison IPS', $infoFacBl["dateLivIPS"] ? date("d/m/Y", strtotime($infoFacBl["dateLivIPS"])) : "-", $w100 * self::LARGEUR_DROITE, 27);
+
+        $this->addInfoLine($pdf, 'Agence – service émetteur', $demandeAppro->getAgenceServiceEmetteur(), $w100 * self::LARGEUR_GAUCHE - 6, 39);
+
+        $this->addInfoLine($pdf, 'Agence – service débiteur', $demandeAppro->getAgenceServiceDebiteur(), $w100 * self::LARGEUR_GAUCHE - 6, 39);
+
         $pdf->ln(2);
-        $this->renderSectionTitle($pdf, "INFO BL / FAC FOURNISSEUR", $w100);
-        $this->addInfoLine($pdf, 'Réf', $infoFacBl["refBlFac"] ?? "-", $w100 / 2, 15, 0);
-        $this->addInfoLine($pdf, 'N° livraison IPS', $infoFacBl["numLivIPS"] ?? "-", $w100 / 2, 27, 1);
-        $this->addInfoLine($pdf, 'Date', $infoFacBl["dateBlFac"] ? $infoFacBl["dateBlFac"]->format('d/m/Y') : "-", $w100 / 2, 15, 0);
-        $this->addInfoLine($pdf, 'Date livraison IPS', $infoFacBl["dateLivIPS"] ? date("d/m/Y", strtotime($infoFacBl["dateLivIPS"])) : "-", $w100 / 2, 27, 1);
     }
 
     private function renderHistoriqueLivraison(TCPDF $pdf, array $historiqueLivraison, string $devise)
