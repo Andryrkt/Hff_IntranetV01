@@ -13,6 +13,9 @@ use TCPDF;
 
 class GenererPdfBonAPayer extends GeneratePdf
 {
+    private const LARGEUR_GAUCHE = 0.6;
+    private const LARGEUR_DROITE = 0.4;
+
     use FormatageTrait;
 
     /**
@@ -29,17 +32,15 @@ class GenererPdfBonAPayer extends GeneratePdf
         ?string $mail
     ): string {
         $infoBC = $dto->infoBc;
+        $daViaOr = $demandeAppro->getDaTypeId() === DemandeAppro::TYPE_DA_AVEC_DIT;
         $pdf = $this->initPDF();
+
         $this->renderHeader($pdf, $mail, $dto);
         $w100 = $this->getUsableWidth($pdf);
 
-        $this->renderInfoBCAndValidation($pdf, $w100, $infoBC, $infoValidationBC);
-        if ($demandeAppro->getDaTypeId() === DemandeAppro::TYPE_DA_AVEC_DIT) {
-            $this->renderInfoMateriel($pdf, $w100, $infoMateriel);
-            $this->renderRecapOR($pdf, $dataRecapOR, $dto);
-        }
-        $this->renderRecapDA($pdf, $w100, $demandeAppro);
-        $this->renderInfoFACBL($pdf, $w100, $infoFacBl);
+        $this->renderInfoBcAndMateriel($pdf, $w100, $infoBC, $infoValidationBC, $infoMateriel, $daViaOr);
+        $this->renderRecapOR($pdf, $dataRecapOR, $dto, $daViaOr);
+        $this->renderRecapDaAndInfoFacBl($pdf, $w100, $demandeAppro, $infoFacBl);
         $this->renderHistoriqueLivraison($pdf, $historiqueLivraison, $dto->devise);
         $this->renderHistoriqueDdp($pdf, $dto->demandePaiementDto->ddpRecap, $dto->devise);
         $this->renderMontantBap($pdf, $dto);
@@ -51,7 +52,7 @@ class GenererPdfBonAPayer extends GeneratePdf
     private function initPDF(): TCPDF
     {
         $pdf = new TCPDF();
-        $pdf->setMargins(20, 10, 15);
+        $pdf->setMargins(10, 10, 10);
         $pdf->setPrintFooter(false);
         $pdf->AddPage();
         return $pdf;
@@ -68,7 +69,7 @@ class GenererPdfBonAPayer extends GeneratePdf
 
         // entête email
         $pdf->SetTextColor(0, 0, 0);
-        $pdf->SetFont('helvetica', 'BI', 10);
+        $pdf->SetFont('helvetica', 'BI', 9);
         $pdf->SetY(4);
         $pdf->Cell(0, 6, "email : $userMail", 0, 0, 'R');
 
@@ -85,141 +86,133 @@ class GenererPdfBonAPayer extends GeneratePdf
         $pdf->Ln(7);
     }
 
-    private function renderInfoSection(TCPDF $pdf, string $title1, string $title2, callable $callback)
+    private function renderInfoBcAndMateriel(TCPDF $pdf, int $w100, array $infoBC, array $infoValidationBC, array $infoMateriel, bool $daViaOr)
     {
-        $pdf->Ln(2);
-        $pdf->setFont('helvetica', 'B', 9);
+        $pdf->ln(2);
+        $this->renderSectionTitle($pdf, 'RESUME DU BC', $w100 * self::LARGEUR_GAUCHE - 3, 0);
+        $this->renderSectionTitle($pdf, 'INFORMATION VALIDATION BC', $w100 * self::LARGEUR_DROITE);
 
-        if ($title2) {
-            $w100 = $this->getUsableWidth($pdf);
-            $pdf->Cell($w100 * 0.65, 5, $title1);
-            $pdf->Cell($w100 * 0.35, 5, $title2, 0, 1);
-        } else {
-            $pdf->Cell(0, 5, $title1, 0, 1);
+        $this->addInfoLine($pdf, 'Nom fournisseur', substr($infoBC["nom_fournisseur"] ?? "-", 0, 33), $w100 * self::LARGEUR_GAUCHE - 6, 35, 0);
+        $this->addInfoLine($pdf, 'Nom Validateur', $infoValidationBC["validateur"] ?? "-", $w100 * self::LARGEUR_DROITE, 25, 1);
+
+        $this->addInfoLine($pdf, 'N° fournisseur', $infoBC["num_fournisseur"] ?? "-", $w100 * self::LARGEUR_GAUCHE - 6, 35, 0);
+        $dateValidation = isset($infoValidationBC["dateValidation"]) ? $infoValidationBC["dateValidation"]->format("d/m/Y") : "-";
+        $this->addInfoLine($pdf, 'Date Validation', $dateValidation, $w100 * self::LARGEUR_DROITE, 25, 1);
+
+        $pdf->ln(2);
+        $this->addInfoLine($pdf, 'N° commande', $infoBC["num_cde"] ?? "-", $w100 * self::LARGEUR_GAUCHE - 6, 35, 0);
+        $this->renderSectionTitle($pdf, 'LA COMMANDE CONCERNE LE MATÉRIEL SUIVANT :', $w100 * self::LARGEUR_DROITE, 0, $daViaOr);
+        $pdf->Ln();
+
+        $this->addInfoLine($pdf, 'N° demande appro', $infoBC["num_cde_ext"] ?? "-", $w100 * self::LARGEUR_GAUCHE - 6, 35, 0);
+        $this->addInfoLine($pdf, '', $infoMateriel["designation"] ?? "-", $w100 * self::LARGEUR_DROITE, 25, 0, $daViaOr);
+        $pdf->Ln();
+
+        $this->addInfoLine($pdf, 'Référence commande', $infoBC["libelle_cde"] ?? "-", $w100 * self::LARGEUR_GAUCHE - 6, 35, 0);
+        $this->addInfoLine($pdf, 'N° série', $infoMateriel["numserie"] ?? "-", $w100 * self::LARGEUR_DROITE, 25, 0, $daViaOr);
+        $pdf->Ln();
+
+        $this->addInfoLine($pdf, 'Date commande', $infoBC["date_cde"] ? date("d/m/Y", strtotime($infoBC["date_cde"])) : "-", $w100 * self::LARGEUR_GAUCHE - 6, 35, 0);
+        $this->addInfoLine($pdf, 'Identité', $infoMateriel["identite"] ?? "-", $w100 * self::LARGEUR_DROITE, 25, 0, $daViaOr);
+        $pdf->Ln();
+
+        $fields = [
+            'Succursale'         => $infoBC["succ_cde"] ?? "-",
+            'Service'            => $infoBC["serv_cde"] ?? "-",
+            'Opérateur'          => $infoBC["nom_ope"] ?? "-",
+            'Montant HT'         => $this->formaterPrix($infoBC["mtn_cde"] ?? 0) . " " . ($infoBC["devise"] ?? ""),
+            'Montant TTC'        => $this->formaterPrix($infoBC["ttc_cde"] ?? 0) . " " . ($infoBC["devise"] ?? ""),
+            'Nature de l’achat'  => $infoBC["type_cde"] ?? "-"
+        ];
+
+        foreach ($fields as $label => $value) {
+            $this->addInfoLine($pdf, $label, $value, $w100, 35, 1);
         }
-
-        $pdf->Ln(2);
-
-        $pdf->setFont('helvetica', '', 9);
-        $callback();
     }
 
-    private function renderInfoBCAndValidation(TCPDF $pdf, int $w100, array $infoBC, array $infoValidationBC)
+    private function renderRecapOR(TCPDF $pdf, array $dataRecapOR, DaSoumissionFacBlDto $dto, bool $daViaOr)
     {
-        $this->renderInfoSection($pdf, 'RESUME DU BC', 'INFORMATION VALIDATION BC', function () use ($pdf, $w100, $infoBC, $infoValidationBC) {
-            $this->addInfoLine($pdf, 'Nom fournisseur', substr($infoBC["nom_fournisseur"] ?? "-", 0, 33), $w100 * 0.65 - 6, 35, 0, 0);
-            $this->addInfoLine($pdf, 'Nom Validateur', $infoValidationBC["validateur"] ?? "-", $w100 * 0.35, 25, 0);
+        if (empty($dataRecapOR) || !$daViaOr) return;
+        $pdf->ln(2);
 
-            $this->addInfoLine($pdf, 'N° fournisseur', $infoBC["num_fournisseur"] ?? "-", $w100 * 0.65 - 6, 35, 0, 0);
-            $dateValidation = $infoValidationBC["dateValidation"] ?? "-";
-            $this->addInfoLine($pdf, 'Date Validation', $dateValidation === "-" ? $dateValidation : $dateValidation->format("d/m/Y"), $w100 * 0.35, 25, 0);
-
-            $fields = [
-                'N° commande'        => $infoBC["num_cde"] ?? "-",
-                'N° demande appro'   => $infoBC["num_cde_ext"] ?? "-",
-                'Référence commande' => $infoBC["libelle_cde"] ?? "-",
-                'Date commande'      => $infoBC["date_cde"] ? date("d/m/Y", strtotime($infoBC["date_cde"])) : "-",
-                'Succursale'         => $infoBC["succ_cde"] ?? "-",
-                'Service'            => $infoBC["serv_cde"] ?? "-",
-                'Opérateur'          => $infoBC["nom_ope"] ?? "-",
-                'Montant HT'         => $this->formaterPrix($infoBC["mtn_cde"] ?? 0) . " " . ($infoBC["devise"] ?? ""),
-                'Montant TTC'        => $this->formaterPrix($infoBC["ttc_cde"] ?? 0) . " " . ($infoBC["devise"] ?? ""),
-                'Nature de l’achat'  => $infoBC["type_cde"] ?? "-"
-            ];
-
-            $pdf->Ln(2);
-
-            foreach ($fields as $label => $value) {
-                $this->addInfoLine($pdf, $label, $value, $w100, 35, 0);
-                if ($label === 'Date commande') $pdf->Ln(2);
-            }
-        });
-    }
-
-    private function renderInfoMateriel(TCPDF $pdf, $w100, array $infoMateriel)
-    {
-        $this->renderInfoSection($pdf, 'LA COMMANDE CONCERNE LE MATÉRIEL SUIVANT :', '', function () use ($pdf, $w100, $infoMateriel) {
-            $this->addInfoLine($pdf, '', $infoMateriel["designation"] ?? "-", $w100, '');
-            $this->addInfoLine($pdf, 'N° série', $infoMateriel["numserie"] ?? "-", $w100, 28);
-            $this->addInfoLine($pdf, 'Identité', $infoMateriel["identite"] ?? "-", $w100, 28);
-        });
-    }
-
-    private function renderRecapOR(TCPDF $pdf, array $dataRecapOR, DaSoumissionFacBlDto $dto)
-    {
         $numOR = $dto->numeroOR;
         $numDIT = $dto->numeroDemandeDit;
         $numDIT = $numDIT ? "- $numDIT" : "";
-        $this->renderInfoSection($pdf, "RECAPITULATIF DE L’OR $numOR $numDIT", '', function () use ($pdf, $dataRecapOR) {
-            $this->addInfoLine($pdf, 'Utilisateur Créateur', $dataRecapOR["createur_or"] ?? "-", 120, 30);
-            $pdf->Ln(2);
-            $tableGenerator = new PdfTableGeneratorFlexible();
-            $tableGenerator->setOptions([
-                'table_attributes' => 'border="0" cellpadding="0" cellspacing="0" align="center" style="font-size: 8px;"',
-                'header_row_style' => 'background-color: #D3D3D3;',
-                'footer_row_style' => 'background-color: #D3D3D3;'
-            ]);
 
-            $pdf->writeHTML(
-                $tableGenerator->generateTable(
-                    $dataRecapOR["header"],
-                    $dataRecapOR["body"],
-                    $dataRecapOR["footer"]
-                )
-            );
-        });
+        $this->renderSectionTitle($pdf, "RECAPITULATIF DE L’OR $numOR $numDIT", 0);
+        $this->addInfoLine($pdf, 'Utilisateur Créateur', $dataRecapOR["createur_or"] ?? "-", 120, 30);
+        $pdf->Ln(2);
+        $tableGenerator = new PdfTableGeneratorFlexible();
+        $tableGenerator->setOptions([
+            'table_attributes' => 'border="0" cellpadding="0" cellspacing="0" align="center" style="font-size: 8px;"',
+            'header_row_style' => 'background-color: #D3D3D3;',
+            'footer_row_style' => 'background-color: #D3D3D3;'
+        ]);
+
+        $pdf->writeHTML(
+            $tableGenerator->generateTable(
+                $dataRecapOR["header"],
+                $dataRecapOR["body"],
+                $dataRecapOR["footer"]
+            )
+        );
     }
 
-    private function renderRecapDA(TCPDF $pdf, $w100, DemandeAppro $demandeAppro)
+    private function renderRecapDaAndInfoFacBl(TCPDF $pdf, int $w100, DemandeAppro $demandeAppro, array $infoFacBl)
     {
-        $this->renderInfoSection($pdf, 'RECAPITULATIF DE LA DA', '', function () use ($pdf, $w100, $demandeAppro) {
-            $this->addInfoLine($pdf, 'N° DA', $demandeAppro->getNumeroDemandeAppro(), $w100, 25);
-            $this->addInfoLine($pdf, 'Date de création', $demandeAppro->getDateCreation()->format('d/m/Y'), $w100, 25);
-            $this->addInfoLine($pdf, 'Objet', $demandeAppro->getObjetDal(), $w100, 25);
-            $this->addInfoLine($pdf, "Utilisateur demandeur", $demandeAppro->getDemandeur(), $w100, 39);
-            $this->addInfoLine($pdf, 'Agence – service émetteur', $demandeAppro->getAgenceServiceEmetteur(), $w100, 39);
-            $this->addInfoLine($pdf, 'Agence – service débiteur', $demandeAppro->getAgenceServiceDebiteur(), $w100, 39);
-        });
-    }
+        $pdf->ln(2);
+        $this->renderSectionTitle($pdf, "RECAPITULATIF DE LA DA", $w100 * self::LARGEUR_GAUCHE - 3, 0);
+        $this->renderSectionTitle($pdf, "INFO BL / FAC FOURNISSEUR", $w100 * self::LARGEUR_DROITE);
 
-    private function renderInfoFacBl(TCPDF $pdf, $w100, array $infoFacBl)
-    {
-        $this->renderInfoSection($pdf, 'INFO BL / FAC FOURNISSEUR', '', function () use ($pdf, $w100, $infoFacBl) {
-            $this->addInfoLine($pdf, 'Réf', $infoFacBl["refBlFac"] ?? "-", $w100 / 2, 15, 6, 0);
-            $this->addInfoLine($pdf, 'N° livraison IPS', $infoFacBl["numLivIPS"] ?? "-", $w100 / 2, 27);
-            $this->addInfoLine($pdf, 'Date', $infoFacBl["dateBlFac"] ? $infoFacBl["dateBlFac"]->format('d/m/Y') : "-", $w100 / 2, 15, 6, 0);
-            $this->addInfoLine($pdf, 'Date livraison IPS', $infoFacBl["dateLivIPS"] ? date("d/m/Y", strtotime($infoFacBl["dateLivIPS"])) : "-", $w100 / 2, 27);
-        });
+        $this->addInfoLine($pdf, 'N° DA', $demandeAppro->getNumeroDemandeAppro(), $w100 * self::LARGEUR_GAUCHE - 6, 25, 0);
+        $this->addInfoLine($pdf, 'Réf', $infoFacBl["refBlFac"] ?? "-", $w100 * self::LARGEUR_DROITE, 15);
+
+        $this->addInfoLine($pdf, 'Date de création', $demandeAppro->getDateCreation()->format('d/m/Y'), $w100 * self::LARGEUR_GAUCHE - 6, 25, 0);
+        $this->addInfoLine($pdf, 'Date', $infoFacBl["dateBlFac"] ? $infoFacBl["dateBlFac"]->format('d/m/Y') : "-", $w100 * self::LARGEUR_DROITE, 15);
+
+        $this->addInfoLine($pdf, 'Objet', $demandeAppro->getObjetDal(), $w100 * self::LARGEUR_GAUCHE - 6, 25, 0);
+        $this->addInfoLine($pdf, 'N° livraison IPS', $infoFacBl["numLivIPS"] ?? "-", $w100 * self::LARGEUR_DROITE, 27);
+
+        $this->addInfoLine($pdf, "Utilisateur demandeur", $demandeAppro->getDemandeur(), $w100 * self::LARGEUR_GAUCHE - 6, 39, 0);
+        $this->addInfoLine($pdf, 'Date livraison IPS', $infoFacBl["dateLivIPS"] ? date("d/m/Y", strtotime($infoFacBl["dateLivIPS"])) : "-", $w100 * self::LARGEUR_DROITE, 27);
+
+        $this->addInfoLine($pdf, 'Agence – service émetteur', $demandeAppro->getAgenceServiceEmetteur(), $w100 * self::LARGEUR_GAUCHE - 6, 39);
+
+        $this->addInfoLine($pdf, 'Agence – service débiteur', $demandeAppro->getAgenceServiceDebiteur(), $w100 * self::LARGEUR_GAUCHE - 6, 39);
+
+        $pdf->ln(2);
     }
 
     private function renderHistoriqueLivraison(TCPDF $pdf, array $historiqueLivraison, string $devise)
     {
-        $this->renderInfoSection($pdf, 'RECAPITULATIF DES LIVRAISONS', '', function () use ($pdf, $historiqueLivraison, $devise) {
-            if (empty($historiqueLivraison)) {
-                $pdf->Cell(0, 5, "Aucune livraison", 0, 1);
-            } else {
-                $tableGenerator = new PdfTableHistoriqueLivraisonBAP();
-                $pdf->writeHTML($tableGenerator->generateTable($historiqueLivraison, $devise));
-            }
-        });
+        $pdf->ln(2);
+        $this->renderSectionTitle($pdf, "RECAPITULATIF DES LIVRAISONS", 0);
+        if (empty($historiqueLivraison)) {
+            $pdf->Cell(0, 6, "Aucune livraison", 0, 1);
+            $pdf->Ln(2);
+        } else {
+            $tableGenerator = new PdfTableHistoriqueLivraisonBAP();
+            $pdf->writeHTML($tableGenerator->generateTable($historiqueLivraison, $devise));
+        }
     }
 
     private function renderHistoriqueDdp(TCPDF $pdf, array $historiqueDdp, string $devise)
     {
-        $this->renderInfoSection($pdf, 'RECAPITULATIF DES DEMANDES DE PAIEMENT', '', function () use ($pdf, $historiqueDdp, $devise) {
-            if (empty($historiqueDdp)) {
-                $pdf->Cell(0, 5, "Aucune demande de paiement", 0, 1);
-            } else {
-                $tableGenerator = new PdfTableHistoriqueDdpBAP();
-                $pdf->writeHTML($tableGenerator->generateTable($historiqueDdp, $devise));
-            }
-        });
+        $pdf->ln(2);
+        $this->renderSectionTitle($pdf, "RECAPITULATIF DES DEMANDES DE PAIEMENT", 0);
+        if (empty($historiqueDdp)) {
+            $pdf->Cell(0, 6, "Aucune demande de paiement", 0, 1);
+            $pdf->Ln(2);
+        } else {
+            $tableGenerator = new PdfTableHistoriqueDdpBAP();
+            $pdf->writeHTML($tableGenerator->generateTable($historiqueDdp, $devise));
+        }
     }
 
     private function renderMontantBap(TCPDF $pdf, DaSoumissionFacBlDto $dto): void
     {
+        $pdf->ln(2);
         // Afficher le montant de la BAP avec le pourcentage à payer en rouge
-        $pdf->Ln(2);
         $pdf->SetTextColor(0, 0, 0);
         $pdf->setFont('helvetica', 'B', 10);
         $pdf->Cell(30, 6, 'MONTANT BAP : ', 0, 0, 'L', false, '', 0, false, 'T', 'M');
@@ -267,16 +260,26 @@ class GenererPdfBonAPayer extends GeneratePdf
         return $w_total - $margins['left'] - $margins['right'];
     }
 
-    private function addInfoLine(TCPDF $pdf, string $label, string $value, $wTotal, $labelWidth = 35, $indent = 6, $endLine = 1)
+    private function addInfoLine(TCPDF $pdf, string $label, string $value, int $wTotal, int $labelWidth = 35, int $endLine = 1, bool $display = true)
     {
-        if ($indent > 0) $pdf->Cell($indent, 5, '', 0, 0);
-        $pdf->Cell(6, 5, '-', 0, 0);
+        if (!$display) return;
+
+        $pdf->Cell(3, 6, '-', 0, 0);
 
         if ($label !== '') {
-            $pdf->Cell($labelWidth, 5, $label, 0, 0);
-            $pdf->Cell($wTotal - $labelWidth - $indent, 5, ": $value", 0, $endLine);
+            $pdf->Cell($labelWidth, 6, $label, 0, 0);
+            $pdf->Cell($wTotal - $labelWidth, 6, ": $value", 0, $endLine);
         } else {
-            $pdf->Cell($wTotal - $indent, 5, $value, 0, $endLine);
+            $pdf->Cell($wTotal, 6, $value, 0, $endLine);
         }
+    }
+
+    private function renderSectionTitle(TCPDF $pdf, string $title, int $width, int $endline = 1, bool $display = true): void
+    {
+        if (!$display) return;
+
+        $pdf->setFont('helvetica', 'B', 9);
+        $pdf->Cell($width, 6, $title, 0, $endline);
+        $pdf->setFont('helvetica', '', 9);
     }
 }
