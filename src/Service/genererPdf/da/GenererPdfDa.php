@@ -74,7 +74,7 @@ abstract class GenererPdfDa extends GeneratePdf
         $pdf->cell(25, 6, 'Détails :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->setFont('helvetica', '', 9);
 
-        $maxHeight = 100;
+        $maxHeight = 103;
         $cellWidth = 165;
         $neededHeight = $pdf->getStringHeight($cellWidth, $detailDal, false, true, '', 1);
 
