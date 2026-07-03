@@ -73,7 +73,22 @@ abstract class GenererPdfDa extends GeneratePdf
         $pdf->setFont('helvetica', 'B', 10);
         $pdf->cell(25, 6, 'Détails :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->setFont('helvetica', '', 9);
-        $pdf->MultiCell(165, 100, $detailDal, 1, '', 0, 0, '', '', true);
+
+        $maxHeight = 100;
+        $cellWidth = 165;
+        $neededHeight = $pdf->getStringHeight($cellWidth, $detailDal, false, true, '', 1);
+
+        if ($neededHeight > $maxHeight) {
+            // Le texte dépasse : on tronque progressivement jusqu'à ce que ça rentre
+            $truncated = $detailDal;
+            while ($pdf->getStringHeight($cellWidth, $truncated . ' ...', false, true, '', 1) > $maxHeight && mb_strlen($truncated) > 0) {
+                $truncated = mb_substr($truncated, 0, -10);
+            }
+            $detailDal = $truncated . ' ...';
+        }
+
+        $pdf->MultiCell($cellWidth, $maxHeight, $detailDal, 1, '', 0, 0, '', '', true);
+
         $pdf->Ln(3);
         $pdf->setAbsY(135);
     }
