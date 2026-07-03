@@ -2,6 +2,8 @@
 
 namespace App\Entity\atelierRealise;
 
+use App\Entity\admin\Agence;
+use App\Entity\admin\Service;
 use App\Repository\atelierRealise\AtelierRealiseRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -14,19 +16,31 @@ class AtelierRealise
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
-     * @ORM\Column(type="integer", name="ID_Demande_Mouvement_Materiel")
+     * @ORM\Column(type="integer")
      */
-    private $id;
+    private int $id;
 
     /**
      * @ORM\Column(type="string", length=100, name="code_agence")
      */
-    private $codeAgence;
+    private string $codeAgence;
 
     /**
      * @ORM\Column(type="string", length=100, name="code_atelier")
      */
-    private $codeAtelier;
+    private string $codeAtelier;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Agence::class)
+     * @ORM\JoinColumn(name="agence_id", referencedColumnName="id")
+     */
+    private Agence $agence;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Service::class)
+     * @ORM\JoinColumn(name="service_id", referencedColumnName="id")
+     */
+    private Service $service;
 
     public function getId(): ?int
     {
@@ -70,6 +84,42 @@ class AtelierRealise
     public function setCodeAtelier($codeAtelier)
     {
         $this->codeAtelier = $codeAtelier;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of agence
+     */
+    public function getAgence(): Agence
+    {
+        return $this->agence;
+    }
+
+    /**
+     * Set the value of agence
+     */
+    public function setAgence(Agence $agence): self
+    {
+        $this->agence = $agence;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of service
+     */
+    public function getService(): Service
+    {
+        return $this->service;
+    }
+
+    /**
+     * Set the value of service
+     */
+    public function setService(Service $service): self
+    {
+        $this->service = $service;
 
         return $this;
     }

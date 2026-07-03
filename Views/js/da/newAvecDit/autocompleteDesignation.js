@@ -43,7 +43,7 @@ async function fetchDesignations(famille, sousFamille) {
   let codeSousFamille = sousFamille.value !== "" ? sousFamille.value : "-";
 
   return await fetchManager.get(
-    `api/demande-appro/autocomplete/all-designation-zst/${codeFamille}/${codeSousFamille}`
+    `api/demande-appro/autocomplete/all-designation-da-via-or/${codeFamille}/${codeSousFamille}`
   );
 }
 

@@ -37,15 +37,15 @@ export function autocompleteTheField(field, fieldName) {
         return cache.fournisseurs;
       }
 
-      if (!cache.designationsZDI) {
+      if (!cache.designationsDaDirect) {
         const data = await getAllDesignations(true); // fetch si cache vide
-        cache.designationsZDI = data;
+        cache.designationsDaDirect = data;
         console.log("préchargement designationsZDI OK");
         localStorage.setItem("autocompleteCache", JSON.stringify(cache));
         return data;
       }
 
-      return cache.designationsZDI;
+      return cache.designationsDaDirect;
     },
     displayItemCallback: (item) => displayValues(item, fieldName),
     itemToStringCallback: (item) => stringsToSearch(item, fieldName),

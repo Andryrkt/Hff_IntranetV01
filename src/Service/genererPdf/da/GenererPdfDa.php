@@ -13,7 +13,7 @@ abstract class GenererPdfDa extends GeneratePdf
     /** 
      * Fonction pour générer l'entête du PDF de la DA
      */
-    protected function renderHeaderPdfDA(TCPDF $pdf, string $userMail, DemandeAppro $demandeAppro, ?DemandeIntervention $dit = null): void
+    protected function renderHeaderPdfDA(TCPDF $pdf, DemandeAppro $demandeAppro, ?DemandeIntervention $dit = null): void
     {
         $titre = [
             DemandeAppro::TYPE_DA_AVEC_DIT          => "DEMANDE D’APPROVISIONNEMENT",
@@ -33,7 +33,7 @@ abstract class GenererPdfDa extends GeneratePdf
         $pdf->SetTextColor(0, 0, 0);
         $pdf->SetFont('helvetica', 'BI', 10);
         $pdf->SetY(2);
-        $pdf->Cell(0, 6, "email : $userMail", 0, 0, 'R');
+        $pdf->Cell(0, 6, "email : {$demandeAppro->getUser()->getMail()}", 0, 0, 'R');
 
         $pdf->setAbsXY(170, 11);
         $pdf->setFont('helvetica', 'B', 10);
@@ -81,7 +81,7 @@ abstract class GenererPdfDa extends GeneratePdf
     /** 
      * Fonction pour générer l'agence et service du PDF de la DA
      */
-    protected function renderAgenceServicePdfDA(TCPDF $pdf, string $emetteur, string $debiteur): void
+    protected function renderAgenceServicePdfDA(TCPDF $pdf, DemandeAppro $demandeAppro): void
     {
         $this->renderTextWithLine($pdf, 'Agence - Service');
 
@@ -89,10 +89,10 @@ abstract class GenererPdfDa extends GeneratePdf
         $pdf->setFont('helvetica', 'B', 10);
 
         $pdf->cell(25, 6, 'Emetteur :', 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->cell(50, 6, $emetteur, 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(50, 6, $demandeAppro->getAgenceServiceEmetteur(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->setAbsX(130);
         $pdf->cell(20, 6, 'Débiteur :', 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->cell(0, 6, $debiteur, 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(0, 6, $demandeAppro->getAgenceServiceDebiteur(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(8);
     }
 

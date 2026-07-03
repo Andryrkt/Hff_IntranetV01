@@ -39,15 +39,15 @@ export function autocompleteTheField(field, fieldName, iscatalogue = null) {
         return cache.fournisseurs;
       }
 
-      if (!cache.designationsZST) {
+      if (!cache.designationsViaOR) {
         const data = await getAllDesignations(false); // fetch si cache vide
-        cache.designationsZST = data;
+        cache.designationsViaOR = data;
         console.log("préchargement designationsZST OK");
         localStorage.setItem("autocompleteCache", JSON.stringify(cache));
         return data;
       }
 
-      return cache.designationsZST;
+      return cache.designationsViaOR;
     },
     displayItemCallback: (item) => displayValues(item, fieldName),
     onSelectCallback: (item) =>

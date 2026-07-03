@@ -99,7 +99,8 @@ class DaSoumissionCalculService
         $dto->ratioMontantARegul = round($ratio, 2); // ratio du montant à régulariser par rapport au montant total de la commande
         $dto->ratioMontantDejaPaye = $ratioDejaPayer; // ratio du montant déjà payé par rapport au montant total de la commande
         $dto->totalMontantPayer = $TotalMontantFactureSoumise; // montant total à payer (somme du montant de la facture en cours et des montants des factures déjà soumises)
-        $dto->montantAregulariser = $totalMontantPayer; // montant à régulariser (différence entre le montant total à payer et le montant déjà payé)
+        $dto->montantAregulariser = $totalCommande < $totalCommandeTTC ? round($totalMontantPayer / 1.2, 2) : round($totalMontantPayer, 2); // montant à régulariser (différence entre le montant total à payer et le montant déjà payé)
+
 
 
         // Utilisation du mapper pour les données de sortie spécifiques au DTO

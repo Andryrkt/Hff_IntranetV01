@@ -25,11 +25,11 @@ class GenererPdfDaReappro extends GenererPdfDa
 
         $pdf->AddPage();
 
-        $this->renderHeaderPdfDA($pdf, $da->getUser()->getMail(), $da);
+        $this->renderHeaderPdfDA($pdf, $da);
 
         $this->renderObjetDetailPdfDA($pdf, $da->getObjetDal(), $da->getDetailDal());
 
-        $this->renderAgenceServicePdfDA($pdf, $da->getAgenceServiceEmetteur(), $da->getAgenceServiceDebiteur());
+        $this->renderAgenceServicePdfDA($pdf, $da);
 
         $this->renderTableArticleDemandeReappro($pdf, $da->getDAL(), $da->getDaTypeId() === DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL);
 

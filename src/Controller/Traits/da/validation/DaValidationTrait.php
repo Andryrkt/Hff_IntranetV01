@@ -144,8 +144,8 @@ trait DaValidationTrait
                 $entity->getArtRefp(),
                 $entity->getQteDem(),
                 '',
-                $entity->getArtConstp() === 'ZDI' || $entity->getArtRefp() === 'ST' ? $entity->getArtDesi() : '',
-                $entity->getArtConstp() === 'ZDI' || $entity->getArtRefp() === 'ST' ? $entity->getPrixUnitaire() : '',
+                in_array($entity->getArtConstp(), ['ZDI', 'CAR']) || $entity->getArtRefp() === 'ST' ? $entity->getArtDesi() : '',
+                in_array($entity->getArtConstp(), ['ZDI', 'CAR']) || $entity->getArtRefp() === 'ST' ? $entity->getPrixUnitaire() : '',
             ];
         }
 

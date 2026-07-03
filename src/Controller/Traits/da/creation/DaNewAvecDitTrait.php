@@ -4,12 +4,16 @@ namespace App\Controller\Traits\da\creation;
 
 use DateTime;
 use App\Model\da\DaModel;
+use App\Entity\admin\Agence;
+use App\Entity\admin\Service;
+use App\Entity\atelierRealise\AtelierRealise;
 use App\Entity\da\DemandeAppro;
 use App\Repository\dit\DitRepository;
 use App\Entity\dit\DemandeIntervention;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use Symfony\Component\HttpFoundation\Request;
 use App\Model\magasin\MagasinListeOrLivrerModel;
+use App\Repository\atelierRealise\AtelierRealiseRepository;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
 use App\Traits\JoursOuvrablesTrait;
 
@@ -42,15 +46,20 @@ trait DaNewAvecDitTrait
      * 
      * @param DemandeIntervention $dit DIT associé à la demande d'achat
      * 
-     * @return DemandeAppro Retourne une instance de DemandeAppro initialisée
+     * @return DemandeAppro Retourne une instance de DemandeAppro insitialisée
      */
     private function initialisationDemandeApproAvecDit(DemandeIntervention $dit): DemandeAppro
     {
         $demandeAppro = new DemandeAppro;
 
-        $agenceService = $this->agenceServiceIpsObjet();
-        $agenceEmetteur = $agenceService['agenceIps'];
-        $serviceEmetteur = $agenceService['serviceIps'];
+        /** @var array{agenceIps:Agence,serviceIps:Service} */
+        $agenceServiceEmetteur = $this->agenceServiceIpsObjet();
+        $agenceEmetteur = $agenceServiceEmetteur['agenceIps'];
+        $serviceEmetteur = $agenceServiceEmetteur['serviceIps'];
+
+        $agenceServiceDebiteur = $this->handleAgenceEtServiceDebiteur($dit);
+        $agenceDebiteur = $agenceServiceDebiteur['agence'];
+        $serviceDebiteur = $agenceServiceDebiteur['service'];
 
         $demandeAppro
             ->setDaTypeId(DemandeAppro::TYPE_DA_AVEC_DIT)
@@ -60,15 +69,50 @@ trait DaNewAvecDitTrait
             ->setNumeroDemandeDit($dit->getNumeroDemandeIntervention())
             ->setAgenceEmetteur($agenceEmetteur)
             ->setServiceEmetteur($serviceEmetteur)
-            ->setAgenceDebiteur($dit->getAgenceDebiteurId())
-            ->setServiceDebiteur($dit->getServiceDebiteurId())
-            ->setAgenceServiceEmetteur($agenceEmetteur->getCodeAgence() . '-' . $serviceEmetteur->getCodeService())
-            ->setAgenceServiceDebiteur($dit->getAgenceDebiteurId()->getCodeAgence() . '-' . $dit->getServiceDebiteurId()->getCodeService())
+            ->setAgenceServiceEmetteur("{$agenceEmetteur->getCodeAgence()}-{$serviceEmetteur->getCodeService()}")
+            ->setAgenceDebiteur($agenceDebiteur)
+            ->setServiceDebiteur($serviceDebiteur)
+            ->setAgenceServiceDebiteur("{$agenceDebiteur->getCodeAgence()}-{$serviceDebiteur->getCodeService()}")
             ->setUser($this->getUser())
             ->setDemandeur($this->getUser()->getNomUtilisateur())
         ;
 
         return $demandeAppro;
+    }
+
+    /** 
+     * Gère l'agence et le service débiteur de la demande d'achat
+     * 
+     * @param DemandeIntervention $dit DIT associé à la demande d'achat
+     * 
+     * @return array{agence:Agence,service:Service}
+     * @throws \Exception
+     */
+    private function handleAgenceEtServiceDebiteur(DemandeIntervention $dit): array
+    {
+        $agence = $service = null;
+        if ($dit->getInternetExterne() === "INTERNE") {
+            $agence  = $dit->getAgenceDebiteurId();
+            $service = $dit->getServiceDebiteurId();
+        } elseif ($dit->getInternetExterne() === "EXTERNE") {
+            /** @var AtelierRealiseRepository $repository */
+            $repository = $this->getEntityManager()->getRepository(AtelierRealise::class);
+            $atelierRealise = $repository->findWithAgenceAndServiceByCode($dit->getReparationRealise());
+
+            if ($atelierRealise) {
+                $agence  = $atelierRealise->getAgence();
+                $service = $atelierRealise->getService();
+            } else {
+                throw new \Exception("Atelier non trouvé pour le code: {$dit->getReparationRealise()}");
+            }
+        } else {
+            throw new \Exception("Type de DIT non reconnu: elle n'est ni 'INTERNE' ni 'EXTERNE'");
+        }
+
+        return [
+            'agence'  => $agence,
+            'service' => $service,
+        ];
     }
 
     /** 

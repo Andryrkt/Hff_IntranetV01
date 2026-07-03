@@ -56,7 +56,7 @@ async function showReferenceNotFoundError() {
   await Swal.fire({
     icon: "error",
     title: "Référence inexistante",
-    html: "La référence saisie n'existe pas pour la liste de constructeurs </br> (<b>'ALI', 'BOI', 'CEN', 'FBU', 'HAB', 'OUT', 'ZDI', 'INF', 'MIN'</b>)</br> Veuillez en saisir une dans la liste s'il vous plaît.",
+    html: "La référence saisie n'existe pas pour la liste de constructeurs </br> (<b>'ALI', 'BOI', 'CEN', 'FBU', 'HAB', 'OUT', 'ZDI', 'CAR', 'INF', 'MIN'</b>)</br> Veuillez en saisir une dans la liste s'il vous plaît.",
   });
 }
 
@@ -154,7 +154,7 @@ function setupAutocompleteField(articleStockeList) {
         }
       },
       onSelectCallback: (item) => {
-        let articleStocke = item.constp !== "ZDI";
+        let articleStocke = item.constp !== "ZDI" && item.constp !== "CAR";
         refp.value = item.reference;
         fields.articleStocke.checked = articleStocke;
         fields.constp.value = item.constp;

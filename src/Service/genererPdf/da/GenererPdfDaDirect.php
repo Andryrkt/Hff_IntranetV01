@@ -24,7 +24,7 @@ class GenererPdfDaDirect extends GenererPdfDa
 
         $pdf->AddPage();
 
-        $this->renderHeaderPdfDA($pdf, $da->getUser()->getMail(), $da);
+        $this->renderHeaderPdfDA($pdf, $da);
 
         $this->renderObjetDetailPdfDA($pdf, $da->getObjetDal(), $da->getDetailDal());
 
@@ -38,7 +38,7 @@ class GenererPdfDaDirect extends GenererPdfDa
         $pdf->cell(25, 6, $da->getNiveauUrgence(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(8);
 
-        $this->renderAgenceServicePdfDA($pdf, $da->getAgenceServiceEmetteur(), $da->getAgenceServiceDebiteur());
+        $this->renderAgenceServicePdfDA($pdf, $da);
 
         $this->renderTableArticlesValidesPdfDA($pdf, $dals);
 
