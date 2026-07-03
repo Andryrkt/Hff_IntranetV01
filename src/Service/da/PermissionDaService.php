@@ -66,6 +66,8 @@ class PermissionDaService
         'createur_da_directe' => [
             'daType' => [
                 DemandeAppro::TYPE_DA_DIRECT,
+                DemandeAppro::TYPE_DA_PARENT,
+                DemandeAppro::TYPE_DA_REAPPRO_MENSUEL,
                 DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL,
             ],
             'statuts' => [
